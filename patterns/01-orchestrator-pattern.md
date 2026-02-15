@@ -38,7 +38,7 @@ Any multi-step process that needs coordination between different phases of work.
 ## Key Conventions
 
 1. Steps are numbered sequentially (Step 1, Step 2, ...)
-2. Each step references its agent prompt file (if applicable): `Read: Prompts/N. Agent Name.md`
+2. Each step references its agent prompt file (if applicable): `Read: agent/Prompts/NN_Agent_Name.md`
 3. Steps end with a **Save** action describing what gets persisted
 4. Approval gates are marked with ⏸
 5. The file includes an output structure diagram showing the final folder tree

@@ -28,7 +28,7 @@ argument-hint: {Expected arguments, e.g., [task-id]}
 ---
 
 Read `agent/agentic.md` to understand the full workflow context and rules.
-Read `agent/Prompts/{N}. {Agent Name}.md` for guidance. <!-- if applicable -->
+Read `agent/Prompts/{NN}_{Agent_Name}.md` for guidance. <!-- if applicable -->
 
 Execute **Step {N}: {Step Name}**{for task "$ARGUMENTS"}.
 

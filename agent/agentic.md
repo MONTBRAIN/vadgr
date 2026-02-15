@@ -157,7 +157,7 @@ For each agent identified in Step 2:
    - Expected Workflow section
 2. Number the prompt files sequentially: `01_{Agent_Name}.md`, `02_{Agent_Name}.md`, etc.
 
-**Save:** `output/{workflow-name}/Prompts/{NN}_{Agent_Name}.md` for each agent
+**Save:** `output/{workflow-name}/agent/Prompts/{NN}_{Agent_Name}.md` for each agent
 
 ---
 
@@ -185,12 +185,16 @@ For each step in the designed workflow:
 **Read:** `agent/utils/scaffold/README.md.template`
 **Read:** `agent/utils/scaffold/CLAUDE.md.template`
 
-Generate the remaining project files:
+Generate the remaining project files. Every generated workflow MUST include the standard project structure:
 
 1. **README.md.** Entry point with "Read `agentic.md` and start" pattern, workflow description, command listing.
 2. **CLAUDE.md.** Project rules, structure listing, how-to-use, key rules, naming conventions.
-3. **Output directories.** Create any directories referenced in the output structure with `.gitkeep` files.
-4. **Templates** (if the workflow uses the template-scaffold pattern). Create the template directory with starter files.
+3. **agent/.** Directory containing all agent-related files:
+   - **agent/Prompts/.** Already created in Step 4.
+   - **agent/scripts/.** Directory with `src/`, `tests/`, `requirements.txt` (Python dependencies, empty if none), and `README.md` with venv setup instructions.
+   - **agent/utils/.** Directory with `code/` (reference code from user) and `docs/` (reference documentation from user). Add `.gitkeep` files in empty directories.
+4. **Output directories.** Create any directories referenced in the output structure with `.gitkeep` files.
+5. **Templates** (if the workflow uses the template-scaffold pattern). Create the template directory with starter files.
 
 **Present the complete file listing to the user.**
 **Wait for approval.**
@@ -210,13 +214,17 @@ Run the quality reviewer's checklist against the generated workflow:
 - [ ] README.md exists and points to agentic.md
 - [ ] agentic.md has all steps with clear instructions
 - [ ] Every step in agentic.md has a corresponding slash command in `.claude/commands/`
-- [ ] Every agent referenced in agentic.md has a prompt file in `Prompts/`
+- [ ] Every agent referenced in agentic.md has a prompt file in `agent/Prompts/`
 - [ ] Approval gates are marked at appropriate decision points
 - [ ] Output structure is documented in agentic.md
 - [ ] CLAUDE.md lists all commands and describes the project structure
 - [ ] Agent prompts have all required sections (Context, I/O, Quality, Rules, Actual Input, Expected Workflow)
 - [ ] No circular dependencies between steps
 - [ ] The workflow is self-contained (no references to files outside its own directory)
+- [ ] agent/ directory exists with Prompts/, scripts/, utils/
+- [ ] agent/scripts/ contains src/, tests/, requirements.txt, README.md
+- [ ] agent/utils/ contains code/ and docs/
+- [ ] agent/scripts/README.md includes venv setup instructions
 
 **Fix any issues found before delivering.**
 
@@ -234,9 +242,18 @@ Files created:
 ├── .claude/commands/ ({M} commands)
 │   ├── {command-1}.md
 │   └── ...
-├── Prompts/ ({K} agents)
-│   ├── 01_{Agent_Name}.md
-│   └── ...
+├── agent/
+│   ├── Prompts/ ({K} agents)
+│   │   ├── 01_{Agent_Name}.md
+│   │   └── ...
+│   ├── scripts/
+│   │   ├── src/
+│   │   ├── tests/
+│   │   ├── requirements.txt
+│   │   └── README.md
+│   └── utils/
+│       ├── code/
+│       └── docs/
 └── {output-dirs}/
 
 To use this workflow:
@@ -326,5 +343,5 @@ The `agentic.md` file is the **single source of truth** for any workflow. Slash 
 | 03 | Orchestrator follows template? All steps present? Gates correct? |
 | 04 | All agents generated? Each has all required sections? |
 | 05 | One command per step? Master command exists? Frontmatter complete? |
-| 06 | README, CLAUDE.md, output dirs created? Templates if needed? |
+| 06 | README, CLAUDE.md, agent/ (Prompts/, scripts/, utils/) created? Templates if needed? |
 | 07 | Self-review passes all checks? Workflow is self-contained? |

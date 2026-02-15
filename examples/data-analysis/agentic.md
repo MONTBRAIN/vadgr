@@ -59,20 +59,20 @@ Who is the target audience for the report?
 
 **Purpose:** Run automated profiling and interpret the results.
 
-**Read:** `Prompts/01_Data_Profiler.md`
+**Read:** `agent/Prompts/01_Data_Profiler.md`
 
 **Workflow:**
 
 1. Ensure the Python environment is set up:
    ```
-   python3 -m venv scripts/.venv && source scripts/.venv/bin/activate && pip install -r scripts/requirements.txt
+   python3 -m venv agent/scripts/.venv && source agent/scripts/.venv/bin/activate && pip install -r agent/scripts/requirements.txt
    ```
-   (Skip if `.venv` already exists.)
+   (Skip if `agent/scripts/.venv` already exists.)
 
 2. Run the profiling script against the dataset:
    ```
-   source scripts/.venv/bin/activate
-   python scripts/profile_data.py <path_to_dataset>
+   source agent/scripts/.venv/bin/activate
+   python agent/scripts/profile_data.py <path_to_dataset>
    ```
 
 3. Capture the profiling output
@@ -93,7 +93,7 @@ Who is the target audience for the report?
 
 **Purpose:** Design the analysis plan based on profiling results and user questions.
 
-**Read:** `Prompts/02_Analysis_Architect.md`
+**Read:** `agent/Prompts/02_Analysis_Architect.md`
 
 **Workflow:**
 
@@ -135,8 +135,8 @@ Who is the target audience for the report?
 
 2. Copy the analysis template to the task folder:
    ```
-   cp utils/analysis-template/analysis.py tasks/{date}/{id}/analysis.py
-   cp utils/analysis-template/requirements.txt tasks/{date}/{id}/requirements.txt
+   cp agent/utils/analysis-template/analysis.py tasks/{date}/{id}/analysis.py
+   cp agent/utils/analysis-template/requirements.txt tasks/{date}/{id}/requirements.txt
    ```
 
 3. Customize `tasks/{date}/{id}/analysis.py` based on the approved analysis plan:
@@ -147,7 +147,7 @@ Who is the target audience for the report?
 
 4. Run the analysis:
    ```
-   source scripts/.venv/bin/activate
+   source agent/scripts/.venv/bin/activate
    cd tasks/{date}/{id}
    python analysis.py
    ```
@@ -166,14 +166,14 @@ Who is the target audience for the report?
 
 **Purpose:** Compile analysis outputs into a structured markdown report.
 
-**Read:** `Prompts/03_Report_Writer.md`
+**Read:** `agent/Prompts/03_Report_Writer.md`
 
 **Workflow:**
 
 1. Run the report generation script:
    ```
-   source scripts/.venv/bin/activate
-   python scripts/generate_report.py tasks/{date}/{id}
+   source agent/scripts/.venv/bin/activate
+   python agent/scripts/generate_report.py tasks/{date}/{id}
    ```
 
 2. Review the generated report skeleton

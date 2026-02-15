@@ -8,5 +8,14 @@ Read `agent/utils/scaffold/README.md.template` and `agent/utils/scaffold/CLAUDE.
 
 Execute **Step 6: Generate Project Scaffold** for workflow "$ARGUMENTS".
 
-Generate README.md, CLAUDE.md, output directories, and any templates needed.
+Generate the complete project skeleton. Every workflow MUST include:
+- README.md (entry point)
+- CLAUDE.md (project rules, structure, naming conventions)
+- agent/ directory containing:
+  - agent/Prompts/ (already created in Step 4)
+  - agent/scripts/ with src/, tests/, requirements.txt (Python deps, empty if none), and README.md (with venv setup instructions)
+  - agent/utils/ with code/ and docs/ (with .gitkeep files)
+- Output directories referenced in the architecture (with .gitkeep files)
+- Templates (if the workflow uses the template-scaffold pattern)
+
 Present complete file listing and wait for approval.

@@ -4,7 +4,7 @@ argument-hint: [task-folder-path]
 ---
 
 Read `agentic.md` for context.
-Read `Prompts/02_Analysis_Architect.md` for analysis design guidance.
+Read `agent/Prompts/02_Analysis_Architect.md` for analysis design guidance.
 
 Execute **Step 3: Design Analysis** for task "$ARGUMENTS".
 Review profiling results and user questions, design the analysis plan

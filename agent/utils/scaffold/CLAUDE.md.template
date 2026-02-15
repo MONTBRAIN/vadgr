@@ -8,9 +8,10 @@
 <!-- Complete directory tree showing every file in the project.
      Use standard tree notation (├──, └──, │).
      Include brief comments after filenames for clarity.
-     Standard directories include: Prompts/ (with NN_Agent_Name.md files),
-     scripts/ (with src/, tests/, README.md), utils/ (with code/, docs/),
-     and requirements.txt at the project root. -->
+     Standard directories live inside agent/:
+     agent/Prompts/ (with NN_Agent_Name.md files),
+     agent/scripts/ (with src/, tests/, requirements.txt, README.md),
+     agent/utils/ (with code/, docs/). -->
 
 ## How to Use
 
@@ -35,7 +36,7 @@ Or run individual steps:
      - Where outputs go
      - What every output must include
      - Any constraints (no external deps, no code execution, etc.)
-     - If scripts/ exist: "Scripts require a Python venv: `python3 -m venv scripts/.venv && source scripts/.venv/bin/activate && pip install -r requirements.txt`" -->
+     - If scripts/ exist: "Scripts require a Python venv: `python3 -m venv agent/scripts/.venv && source agent/scripts/.venv/bin/activate && pip install -r agent/scripts/requirements.txt`" -->
 
 ## Naming Conventions
 

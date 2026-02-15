@@ -158,10 +158,19 @@ research-paper/
 │   ├── outline.md
 │   ├── write-sections.md
 │   └── review-paper.md
-├── Prompts/
-│   ├── 1. Research Analyst.md
-│   ├── 2. Outline Architect.md
-│   └── 3. Academic Writer.md
+├── agent/
+│   ├── Prompts/
+│   │   ├── 01_Research_Analyst.md
+│   │   ├── 02_Outline_Architect.md
+│   │   └── 03_Academic_Writer.md
+│   ├── scripts/
+│   │   ├── src/
+│   │   ├── tests/
+│   │   ├── requirements.txt
+│   │   └── README.md
+│   └── utils/
+│       ├── code/
+│       └── docs/
 └── output/
     └── {paper-name}/
         ├── 01_topic.md

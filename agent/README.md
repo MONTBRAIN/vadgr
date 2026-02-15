@@ -1,4 +1,4 @@
-# Forge, Agent Forge Core Engine
+# Agent, Agent Forge Core Engine
 
 This directory contains the core engine that powers Agent Forge.
 
@@ -9,11 +9,10 @@ This directory contains the core engine that powers Agent Forge.
   - `01_Workflow_Architect.md`, designs workflow structures from requirements
   - `02_Prompt_Writer.md`, creates agent prompts following the canonical template
   - `03_Quality_Reviewer.md`, reviews generated workflows for completeness
-- `scripts/`, automation scripts with `src/`, `tests/`, and `README.md`
+- `scripts/`, automation scripts with `src/`, `tests/`, `README.md`, and `requirements.txt`
 - `utils/scaffold/`, templates used when generating new workflow projects
 - `utils/code/`, code utilities
 - `utils/docs/`, documentation utilities
-- `requirements.txt`, Python dependencies
 
 ## How It Works
 

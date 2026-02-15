@@ -16,24 +16,24 @@ data-analysis/
 │       ├── run-analysis.md
 │       ├── generate-report.md
 │       └── review-delivery.md
-├── Prompts/                           # 3 specialized agent prompts
-│   ├── 01_Data_Profiler.md
-│   ├── 02_Analysis_Architect.md
-│   └── 03_Report_Writer.md
-├── scripts/                           # Python tooling
-│   ├── src/
-│   ├── tests/
-│   ├── README.md
-│   ├── requirements.txt
-│   ├── profile_data.py
-│   └── generate_report.py
-├── utils/
-│   ├── analysis-template/             # Copied per task, never modified
-│   │   ├── analysis.py
-│   │   └── requirements.txt
-│   ├── code/
-│   └── docs/
-├── requirements.txt
+├── agent/                             # Core engine
+│   ├── Prompts/                       # 3 specialized agent prompts
+│   │   ├── 01_Data_Profiler.md
+│   │   ├── 02_Analysis_Architect.md
+│   │   └── 03_Report_Writer.md
+│   ├── scripts/                       # Python tooling
+│   │   ├── src/
+│   │   ├── tests/
+│   │   ├── README.md
+│   │   ├── requirements.txt
+│   │   ├── profile_data.py
+│   │   └── generate_report.py
+│   └── utils/
+│       ├── analysis-template/         # Copied per task, never modified
+│       │   ├── analysis.py
+│       │   └── requirements.txt
+│       ├── code/
+│       └── docs/
 └── tasks/                             # Output organized by date
 ```
 
@@ -58,8 +58,8 @@ Or run individual steps:
 
 - Always read `agentic.md` fully before starting any step
 - Never skip approval gates (marked with pause)
-- Scripts require a Python venv: `python3 -m venv scripts/.venv && source scripts/.venv/bin/activate && pip install -r scripts/requirements.txt`
-- All analysis code uses `utils/analysis-template/` as base. Copy per task, never modify the original
+- Scripts require a Python venv: `python3 -m venv agent/scripts/.venv && source agent/scripts/.venv/bin/activate && pip install -r agent/scripts/requirements.txt`
+- All analysis code uses `agent/utils/analysis-template/` as base. Copy per task, never modify the original
 - Tasks organized by date: `tasks/YYYY-MM-DD/TASK_ID/`
 - Always wait for user approval before saving
 - No emojis in generated content
@@ -68,6 +68,6 @@ Or run individual steps:
 ## Naming Conventions
 
 - Slash commands: `kebab-case` (e.g., `start-analysis.md`)
-- Agent prompts in `Prompts/`: zero-padded with underscores (e.g., `01_Data_Profiler.md`)
+- Agent prompts in `agent/Prompts/`: zero-padded with underscores (e.g., `01_Data_Profiler.md`)
 - Task folders: `tasks/YYYY-MM-DD/{descriptive-id}/`
 - Output files within tasks follow the numbered naming pattern (e.g., `01_dataset_info.md`)

@@ -37,7 +37,7 @@ output/
 | Convention | Example | When to Use |
 |------------|---------|-------------|
 | Numbered prefix | `01_prompt.md` | Sequential step outputs |
-| Numbered + Name | `1. Research Analyst.md` | Agent prompts, lessons, topics |
+| Numbered + Name | `01_Research_Analyst.md` | Agent prompts, lessons, topics |
 | Date + ID | `2026-02-14/001/` | Task-level organization |
 | TASK_INFO.md | `TASK_INFO.md` | Progress tracking per task |
 

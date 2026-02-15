@@ -58,7 +58,7 @@ What is the desired length? (e.g., "short, 5 pages", "medium, 10-15 pages",
 
 **Purpose:** Find and evaluate authoritative sources for the paper.
 
-**Read:** `Prompts/01_Research_Analyst.md`
+**Read:** `agent/Prompts/01_Research_Analyst.md`
 
 **Workflow:**
 
@@ -79,7 +79,7 @@ What is the desired length? (e.g., "short, 5 pages", "medium, 10-15 pages",
 
 **Purpose:** Create a structured outline with a clear thesis and section plan.
 
-**Read:** `Prompts/02_Outline_Architect.md`
+**Read:** `agent/Prompts/02_Outline_Architect.md`
 
 **Workflow:**
 
@@ -101,7 +101,7 @@ What is the desired length? (e.g., "short, 5 pages", "medium, 10-15 pages",
 
 **Purpose:** Write each section of the paper with proper citations and academic rigor.
 
-**Read:** `Prompts/03_Academic_Writer.md`
+**Read:** `agent/Prompts/03_Academic_Writer.md`
 
 **Workflow:**
 
@@ -169,6 +169,33 @@ Approximate length: {word count estimate}
 ---
 
 ## Output Structure
+
+### Project Layout
+
+```
+research-paper/
+├── README.md
+├── CLAUDE.md
+├── agentic.md
+├── .claude/
+│   └── commands/
+├── agent/
+│   ├── Prompts/
+│   │   ├── 01_Research_Analyst.md
+│   │   ├── 02_Outline_Architect.md
+│   │   └── 03_Academic_Writer.md
+│   ├── scripts/
+│   │   ├── src/
+│   │   ├── tests/
+│   │   ├── requirements.txt
+│   │   └── README.md
+│   └── utils/
+│       ├── code/
+│       └── docs/
+└── output/
+```
+
+### Paper Output
 
 ```
 output/{paper-name}/

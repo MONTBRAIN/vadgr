@@ -1,6 +1,6 @@
 # Scripts
 
-Scripts that support the Agent Forge workflow.
+Scripts that support the project scaffolding workflow.
 
 ## Structure
 
@@ -17,7 +17,7 @@ source agent/scripts/.venv/bin/activate
 pip install -r agent/scripts/requirements.txt
 ```
 
-Run this from the project root (`Agent-Forge/`). The venv lives inside `agent/scripts/.venv` to keep it co-located.
+Run this from the project root (`project-scaffold/`). The venv lives inside `agent/scripts/.venv` to keep it co-located.
 
 ## Usage
 

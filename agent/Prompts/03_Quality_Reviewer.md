@@ -55,7 +55,7 @@ A **Review Report** containing:
 | # | Check | How to Verify |
 |---|-------|---------------|
 | 8 | Every step in agentic.md has a matching .claude/commands/ file | Cross-reference step names to command filenames |
-| 9 | Every agent referenced in agentic.md has a matching Prompts/ file | Cross-reference agent names to prompt filenames |
+| 9 | Every agent referenced in agentic.md has a matching agent/Prompts/ file | Cross-reference agent names to prompt filenames |
 | 10 | All command files reference the correct step number | Read each command and verify step reference |
 | 11 | No circular dependencies between steps | Trace step dependencies |
 
@@ -67,14 +67,18 @@ A **Review Report** containing:
 | 13 | Output structure directories would be created | Verify mkdir or save instructions exist |
 | 14 | Agent prompts have all required sections | Check: Context, I/O, Quality, Rules, Actual Input, Workflow |
 | 15 | CLAUDE.md lists all commands (if CLAUDE.md exists) | Cross-reference |
+| 16 | agent/ directory exists with Prompts/, scripts/, utils/ | Verify directory structure |
+| 17 | agent/scripts/ contains src/, tests/, requirements.txt, README.md | Verify directory structure |
+| 18 | agent/utils/ contains code/ and docs/ | Verify directory structure |
+| 19 | agent/scripts/README.md includes venv setup instructions | Content search for "venv" |
 
 ### Self-Containment Checks
 
 | # | Check | How to Verify |
 |---|-------|---------------|
-| 16 | No references to files outside the project directory | Content search for absolute paths or parent traversals |
-| 17 | No references to Agent Forge framework files | Content search for "agent/", "patterns/", "examples/" |
-| 18 | The workflow is runnable from its own directory | Verify all references are relative |
+| 20 | No references to files outside the project directory | Content search for absolute paths or parent traversals |
+| 21 | No references to Agent Forge framework files | Content search for "patterns/", "examples/", parent traversals ("../") |
+| 22 | The workflow is runnable from its own directory | Verify all references are relative |
 
 ## Clarifications
 
@@ -83,20 +87,21 @@ A **Review Report** containing:
 A workflow is self-contained when someone can copy its folder anywhere and it works. Watch for these common violations:
 
 **Violations (fail the check):**
-- `Read agent/Prompts/...` references Agent Forge's own files, not the workflow's
-- `../../shared/utils.py` uses parent directory traversal
+- `../../patterns/03-approval-gates.md` uses parent traversal to reach Agent Forge files
 - `/home/user/templates/...` uses absolute paths
 - "See the patterns/ directory for details" references Agent Forge documentation
+- `../../agent/Prompts/...` references Agent Forge's own agents, not the workflow's
 
 **Not violations (pass the check):**
-- `Read Prompts/01_Analyst.md` is a relative path within the workflow project
+- `Read agent/Prompts/01_Analyst.md` is a relative path within the workflow's own agent/ directory
 - `Read agentic.md` references the workflow's own orchestrator
 - `.claude/commands/start.md` is a relative path within the project
+- `agent/scripts/requirements.txt` is the workflow's own file
 
 ### Bidirectional Cross-Reference Verification
 
-When agentic.md says "Read Prompts/01_Research_Analyst.md", verify BOTH:
-1. The file `Prompts/01_Research_Analyst.md` actually exists
+When agentic.md says "Read agent/Prompts/01_Research_Analyst.md", verify BOTH:
+1. The file `agent/Prompts/01_Research_Analyst.md` actually exists
 2. The prompt content is consistent with how agentic.md describes the step (if agentic.md says the agent "designs architectures" but the prompt says it "writes code", that is a mismatch)
 
 Same for commands: if `design-architecture.md` says "Execute Step 2: Design Architecture", verify that Step 2 in agentic.md is actually called "Design Architecture" and not something else.
@@ -151,11 +156,15 @@ Review Report: content-pipeline
 | 13 | Output dirs would be created | PASS | |
 | 14 | Agent prompts have all sections | PASS | |
 | 15 | CLAUDE.md lists all commands | PASS | |
-| 16 | No external file references | PASS | |
-| 17 | No Agent Forge references | PASS | |
-| 18 | Runnable from own directory | PASS | |
+| 16 | agent/ directory exists | PASS | |
+| 17 | agent/scripts/ complete | PASS | |
+| 18 | agent/utils/ complete | PASS | |
+| 19 | agent/scripts/README.md has venv instructions | PASS | |
+| 20 | No external file references | PASS | |
+| 21 | No Agent Forge references | PASS | |
+| 22 | Runnable from own directory | PASS | |
 
-Verdict: Ready (18/18 passed)
+Verdict: Ready (22/22 passed)
 ```
 
 **Sample: Failing Review with Remediation**
@@ -178,13 +187,17 @@ Review Report: data-analysis
 | 11 | No circular dependencies | PASS | |
 | 12 | At least one approval gate | PASS | |
 | 13 | Output dirs would be created | PASS | |
-| 14 | Agent prompts have all sections | FAIL | Prompts/02_Analysis_Architect.md is missing the "Actual Input" section. Add it with placeholders for the data profile and analysis goals. |
+| 14 | Agent prompts have all sections | FAIL | agent/Prompts/02_Analysis_Architect.md is missing the "Actual Input" section. Add it with placeholders for the data profile and analysis goals. |
 | 15 | CLAUDE.md lists all commands | FAIL | CLAUDE.md lists 5 commands but 7 exist. Add /run-analysis and /generate-report to the command list. |
-| 16 | No external file references | PASS | |
-| 17 | No Agent Forge references | FAIL | agentic.md Step 3 says "Read agent/Prompts/02_Analysis_Architect.md". Change to "Read Prompts/02_Analysis_Architect.md" (remove "agent/" prefix). |
-| 18 | Runnable from own directory | PASS | |
+| 16 | agent/ directory exists | PASS | |
+| 17 | agent/scripts/ complete | FAIL | Missing requirements.txt in agent/scripts/. Create an empty agent/scripts/requirements.txt file. |
+| 18 | agent/utils/ complete | PASS | |
+| 19 | agent/scripts/README.md has venv instructions | FAIL | agent/scripts/README.md does not exist. Create it with venv setup instructions. |
+| 20 | No external file references | PASS | |
+| 21 | No Agent Forge references | FAIL | agentic.md Step 3 says "Read ../../patterns/03-approval-gates.md". Change to reference only files within the project. |
+| 22 | Runnable from own directory | PASS | |
 
-Verdict: Needs Fixes (13/18 passed)
+Verdict: Needs Fixes (15/22 passed)
 ```
 
 **Sample: Poorly Written Review (Do NOT Produce This)**
@@ -209,7 +222,7 @@ Verdict: Needs Fixes
 ```
 
 **Why this is bad:**
-- **Skipped 8 of 18 checks.** Items 6, 7, 11, 12, 13, 15, 16, and 18 are missing entirely. Every checklist item must appear in the report, even if it passes.
+- **Skipped 12 of 22 checks.** Items 6, 7, 11, 12, 13, 15, 16, 18, 19, 20, 21, and 22 are missing entirely. Every checklist item must appear in the report, even if it passes.
 - **Uses "PARTIAL PASS" status.** Status must be binary: PASS or FAIL. There is no middle ground. If a diagram is incomplete, that is a FAIL with a remediation that says exactly what is missing.
 - **Vague remediation.** "Fix the reference" (check 8) does not tell the user which step, which file, or what to change. Compare to the good sample: "Missing command for Step 4: 'Run Analysis'. Create .claude/commands/run-analysis.md referencing Step 4." Similarly, "Some sections are missing" (check 14) does not name the file or the missing sections.
 - **Missing summary count.** The verdict says "Needs Fixes" but omits the pass/fail count. It should read something like "Needs Fixes (5/18 passed)" so the scope of the problem is immediately clear.
@@ -235,7 +248,7 @@ Verdict: Needs Fixes
 
 - Skip checklist items
 - Mark items as "partial pass", it is pass or fail
-- Give vague remediation ("fix the reference", instead say: "add `Read Prompts/01_Research_Analyst.md` to Step 2 in agentic.md")
+- Give vague remediation ("fix the reference", instead say: "add `Read agent/Prompts/01_Research_Analyst.md` to Step 2 in agentic.md")
 - Modify the project yourself, only report findings
 
 ---
@@ -257,12 +270,12 @@ Example: output/content-pipeline/]
 3. Read README.md and verify checks 1-2.
 4. Read agentic.md and verify checks 3-7.
 5. List .claude/commands/ files and cross-reference with steps (checks 8, 10).
-6. List Prompts/ files and cross-reference with agent references (check 9).
+6. List agent/Prompts/ files and cross-reference with agent references (check 9).
 7. Trace step dependencies for circularity (check 11).
 8. Verify approval gates exist (check 12).
 9. Verify output structure instructions (check 13).
 10. Read each agent prompt and verify required sections (check 14).
 11. If CLAUDE.md exists, cross-reference commands (check 15).
-12. Search for external references (checks 16-18).
+12. Verify agent/ directory structure (checks 16-19).
 13. Compile results table and overall verdict.
 14. Present the review report.

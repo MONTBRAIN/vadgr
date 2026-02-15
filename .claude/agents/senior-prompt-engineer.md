@@ -407,7 +407,7 @@ Save: Hold requirements summary in context for subsequent steps.
 
 ## Step 2: Research [gate]
 
-Read: Prompts/01_Content_Researcher.md
+Read: agent/Prompts/01_Content_Researcher.md
 
 Using the gathered requirements, find and organize source material:
 
@@ -422,7 +422,7 @@ Save: output/{content-name}/02_research.md
 
 ## Step 3: Draft Content
 
-Read: Prompts/02_Content_Writer.md
+Read: agent/Prompts/02_Content_Writer.md
 
 Using the approved research brief, write the content:
 
@@ -437,7 +437,7 @@ Save: output/{content-name}/03_draft.md
 
 ## Step 4: Review [gate]
 
-Read: Prompts/03_Content_Editor.md
+Read: agent/Prompts/03_Content_Editor.md
 
 Review the draft against quality criteria:
 
@@ -474,7 +474,7 @@ Save: output/{content-name}/05_final.md
 
 Purpose: Find and organize authoritative sources that support the content topic.
 
-Read: Prompts/01_Content_Researcher.md
+Read: agent/Prompts/01_Content_Researcher.md
 
 Using the gathered requirements, find and organize source material:
 

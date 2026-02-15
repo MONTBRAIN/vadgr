@@ -9,7 +9,7 @@ argument-hint: {{ARGUMENT_HINT}}
 Read `agentic.md` to understand the full workflow context and rules.
 {{READ_PROMPT_IF_APPLICABLE}}
 <!-- If this step uses a specialized agent, add:
-     Read `Prompts/NN_Agent_Name.md` for {domain} guidance (e.g., 01_Research_Analyst.md).
+     Read `agent/Prompts/NN_Agent_Name.md` for {domain} guidance (e.g., 01_Research_Analyst.md).
      If not, remove this line. -->
 
 Execute **Step {{STEP_NUMBER}}: {{STEP_NAME}}**{{FOR_TASK_CLAUSE}}.

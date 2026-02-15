@@ -2,7 +2,7 @@
 
 ## What
 
-Decompose expertise into separate prompt files in a `Prompts/` directory. Each agent is a constrained expert that handles one area of knowledge.
+Decompose expertise into separate prompt files in an `agent/Prompts/` directory. Each agent is a constrained expert that handles one area of knowledge.
 
 ## When to Use
 
@@ -11,10 +11,11 @@ When different steps in the workflow require fundamentally different expertise o
 ## Structure
 
 ```
-Prompts/
-├── 01_Agent_Name.md
-├── 02_Agent_Name.md
-└── 03_Agent_Name.md
+agent/
+└── Prompts/
+    ├── 01_Agent_Name.md
+    ├── 02_Agent_Name.md
+    └── 03_Agent_Name.md
 ```
 
 Each prompt follows a canonical template:

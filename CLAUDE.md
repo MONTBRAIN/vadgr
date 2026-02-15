@@ -15,7 +15,6 @@ Agent-Forge/
 ├── agent/                             # Core engine
 │   ├── agentic.md                     # 7-step meta-orchestrator
 │   ├── README.md                      # Usage instructions
-│   ├── requirements.txt               # Python dependencies
 │   ├── Prompts/                       # 3 specialized agent prompts
 │   │   ├── 01_Workflow_Architect.md
 │   │   ├── 02_Prompt_Writer.md
@@ -23,6 +22,7 @@ Agent-Forge/
 │   ├── scripts/                       # Automation scripts
 │   │   ├── src/
 │   │   ├── tests/
+│   │   ├── requirements.txt           # Python dependencies
 │   │   └── README.md
 │   └── utils/
 │       ├── scaffold/                  # Templates for generated projects

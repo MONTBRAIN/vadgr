@@ -4,8 +4,8 @@ argument-hint: [dataset-path]
 ---
 
 Read `agentic.md` for context.
-Read `Prompts/01_Data_Profiler.md` for profiling interpretation guidance.
+Read `agent/Prompts/01_Data_Profiler.md` for profiling interpretation guidance.
 
 Execute **Step 2: Profile Data** for dataset "$ARGUMENTS".
-Run `scripts/profile_data.py` against the dataset, interpret the results,
+Run `agent/scripts/profile_data.py` against the dataset, interpret the results,
 and present the profiling summary for approval before saving.
