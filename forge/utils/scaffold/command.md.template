@@ -16,6 +16,6 @@ Execute **Step {{STEP_NUMBER}}: {{STEP_NAME}}**{{FOR_TASK_CLAUSE}}.
 
 Follow the step instructions exactly:
 {{STEP_SUMMARY}}
-<!-- 3-5 lines summarizing what the step does. This is a quick reference —
-     the full instructions live in agentic.md.
+<!-- 3-5 lines summarizing what the step does. This is a quick reference.
+     The full instructions live in agentic.md.
      Include key actions, what output to produce, and whether to wait for approval. -->

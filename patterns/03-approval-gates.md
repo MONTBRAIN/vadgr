@@ -42,7 +42,7 @@ The approval protocol (defined once in the "After Each Step" section):
 
 1. Gates are marked with ⏸ in the step header
 2. The workflow diagram shows which steps have gates
-3. Gates are **iterative** — the user can request changes multiple times
+3. Gates are **iterative**, the user can request changes multiple times
 4. Only proceed after explicit approval
 5. Every workflow should have at least one gate
 

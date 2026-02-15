@@ -1,4 +1,4 @@
-# Research Paper — Workflow Orchestrator
+# Research Paper, Workflow Orchestrator
 
 ## Trigger Commands
 
@@ -44,8 +44,8 @@ or a comparative analysis?
 
 Question 4:
 ```
-What is the desired length? (e.g., "short — 5 pages", "medium — 10-15 pages",
-"long — 20+ pages")
+What is the desired length? (e.g., "short, 5 pages", "medium, 10-15 pages",
+"long, 20+ pages")
 ```
 
 **After all questions answered:** Compile a topic brief summarizing the topic, audience, scope, and length. Present it to the user for confirmation.

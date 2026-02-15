@@ -1,4 +1,4 @@
-# Data Analysis Pipeline — Workflow Orchestrator
+# Data Analysis Pipeline, Workflow Orchestrator
 
 ## Trigger Commands
 
@@ -100,13 +100,13 @@ Who is the target audience for the report?
 1. Review the dataset info from Step 1 and profiling results from Step 2
 2. Review the user's original questions
 3. For each question, design:
-   - **Metrics to compute** — name, formula or method, rationale for why this metric answers the question
-   - **Charts to generate** — chart type, x-axis, y-axis, purpose. Match chart type to data type:
+   - **Metrics to compute** - name, formula or method, rationale for why this metric answers the question
+   - **Charts to generate** - chart type, x-axis, y-axis, purpose. Match chart type to data type:
      - Categorical data: bar chart, pie chart
      - Continuous data: histogram, scatter plot, box plot
      - Time series: line chart
      - Relationships: scatter plot, heatmap
-   - **Statistical tests** — if applicable (correlation, t-test, chi-square, etc.)
+   - **Statistical tests** - if applicable (correlation, t-test, chi-square, etc.)
 4. Compile the analysis plan with expected insights
 5. Present the plan for approval
 

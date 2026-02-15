@@ -5,7 +5,7 @@
 ```
 data-analysis/
 ├── README.md                          # Entry point
-├── CLAUDE.md                          # This file — project rules
+├── CLAUDE.md                          # This file, project rules
 ├── agentic.md                         # 6-step orchestrator
 ├── .claude/
 │   └── commands/                      # 7 slash commands (one per step + master)
@@ -53,7 +53,7 @@ Or run individual steps:
 - Always read `agentic.md` fully before starting any step
 - Never skip approval gates (marked with pause)
 - Scripts require a Python venv: `python3 -m venv scripts/.venv && source scripts/.venv/bin/activate && pip install -r scripts/requirements.txt`
-- All analysis code uses `utils/analysis-template/` as base — copy per task, never modify the original
+- All analysis code uses `utils/analysis-template/` as base. Copy per task, never modify the original
 - Tasks organized by date: `tasks/YYYY-MM-DD/TASK_ID/`
 - Always wait for user approval before saving
 - No emojis in generated content

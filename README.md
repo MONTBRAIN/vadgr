@@ -44,7 +44,7 @@ cd forge
 
 ## Structure
 
-- `forge/` — Core engine (orchestrator, agents, utils)
-- `patterns/` — Documentation of reusable workflow patterns
-- `examples/` — Example workflows showing the architecture in action
-- `output/` — Where generated workflow projects land
+- `forge/`, core engine (orchestrator, agents, utils)
+- `patterns/`, documentation of reusable workflow patterns
+- `examples/`, example workflows showing the architecture in action
+- `output/`, where generated workflow projects land

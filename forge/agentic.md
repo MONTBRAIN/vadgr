@@ -1,4 +1,4 @@
-# Agent Forge — Meta-Workflow Orchestrator
+# Agent Forge, Meta-Workflow Orchestrator
 
 ## Trigger Commands
 
@@ -94,8 +94,8 @@ Proposed Workflow Architecture:
 Name: {workflow-name}
 Steps: {N}
 
-1. {Step Name} — {description}
-2. {Step Name} — {description} ⏸
+1. {Step Name}, {description}
+2. {Step Name}, {description} ⏸
 ...
 
 Agents Needed:
@@ -144,6 +144,8 @@ Generate the workflow's `agentic.md` using the template as structural guide:
 **Read:** `forge/Prompts/2. Prompt Writer.md`
 **Read:** `forge/utils/scaffold/agent-prompt.md.template`
 
+Optionally, invoke the **Senior Prompt Engineer** agent (available at `.claude/agents/senior-prompt-engineer.md`) for complex or domain-specific prompts that require deeper expertise. The Prompt Writer prompt covers the structural template; the Senior Prompt Engineer covers the craft of writing high-quality, production-grade prompts.
+
 For each agent identified in Step 2:
 
 1. Generate a comprehensive prompt following the canonical template:
@@ -185,10 +187,10 @@ For each step in the designed workflow:
 
 Generate the remaining project files:
 
-1. **README.md** — Entry point with "Read `agentic.md` and start" pattern, workflow description, command listing
-2. **CLAUDE.md** — Project rules, structure listing, how-to-use, key rules, naming conventions
-3. **Output directories** — Create any directories referenced in the output structure with `.gitkeep` files
-4. **Templates** (if the workflow uses the template-scaffold pattern) — Create the template directory with starter files
+1. **README.md.** Entry point with "Read `agentic.md` and start" pattern, workflow description, command listing.
+2. **CLAUDE.md.** Project rules, structure listing, how-to-use, key rules, naming conventions.
+3. **Output directories.** Create any directories referenced in the output structure with `.gitkeep` files.
+4. **Templates** (if the workflow uses the template-scaffold pattern). Create the template directory with starter files.
 
 **Present the complete file listing to the user.**
 **Wait for approval.**
@@ -269,7 +271,7 @@ Patterns applied: {list}
 Agent Forge generates workflows that follow the **same architecture** as Agent Forge itself. If you're unsure how to structure something in the generated workflow, look at how Agent Forge does it. The `forge/` directory IS the reference implementation.
 
 ### Templates vs From Scratch
-**ALWAYS** start from the scaffold templates in `forge/utils/scaffold/`. Never write an `agentic.md`, `README.md`, `CLAUDE.md`, agent prompt, or command file from scratch. The templates exist to enforce consistency — fill in the placeholders, adapt the structure, but keep the skeleton.
+**ALWAYS** start from the scaffold templates in `forge/utils/scaffold/`. Never write an `agentic.md`, `README.md`, `CLAUDE.md`, agent prompt, or command file from scratch. The templates exist to enforce consistency. Fill in the placeholders, adapt the structure, but keep the skeleton.
 
 ### When to Add Approval Gates
 Not every step needs a gate. Add `⏸` only at **decision points** where:
@@ -291,7 +293,7 @@ Do NOT add quality loops to steps where the output is either correct or not (bin
 5-9 steps is the sweet spot. Fewer than 5 usually means steps are too broad and the agent won't know what to focus on. More than 9 usually means steps are too granular and the workflow becomes tedious. If you find yourself designing more than 9, combine related steps.
 
 ### Agent Count
-Not every step needs a dedicated agent. Agents are for steps that require **specialized expertise** (e.g., "Software Architect" for design, "Code Generator" for implementation). Mechanical steps like "copy a template" or "create folders" don't need agents — the orchestrator handles them directly.
+Not every step needs a dedicated agent. Agents are for steps that require **specialized expertise** (e.g., "Software Architect" for design, "Code Generator" for implementation). Mechanical steps like "copy a template" or "create folders" don't need agents. The orchestrator handles them directly.
 
 ### Generated Workflows Must Be Self-Contained
 Every workflow in `output/` must work **without Agent Forge installed**. This means:

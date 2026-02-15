@@ -46,14 +46,14 @@ In `agentic.md`, the template copy step:
 
 ## Key Conventions
 
-1. Templates are **immutable** — never modify the template directory during execution
+1. Templates are **immutable**, never modify the template directory during execution
 2. Copy the entire template, then customize the copy
 3. Initialize fresh git history in the copy (not inherited from template)
-4. No new dependencies — everything needed is pre-installed in the template
+4. No new dependencies, everything needed is pre-installed in the template
 5. Templates live in `utils/` within the workflow's core directory
 
 ## When NOT to Use
 
-- If the workflow only produces markdown files (no template needed — just create them)
+- If the workflow only produces markdown files (no template needed, just create them)
 - If every execution has a completely different structure
 - If the "template" would be just one or two files (overkill)

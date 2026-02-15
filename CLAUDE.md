@@ -7,9 +7,11 @@ Agent Forge is a meta-framework for creating agentic workflows. It IS itself an 
 ```
 Agent-Forge/
 ├── README.md                          # Entry point
-├── CLAUDE.md                          # This file — project rules
+├── CLAUDE.md                          # This file, project rules
 ├── .claude/
-│   └── commands/                      # 8 slash commands (one per step + master)
+│   ├── commands/                      # 8 slash commands (one per step + master)
+│   └── agents/
+│       └── senior-prompt-engineer.md  # Reusable prompt engineering agent
 ├── forge/                             # Core engine
 │   ├── agentic.md                     # 7-step meta-orchestrator
 │   ├── README.md                      # Usage instructions
@@ -49,7 +51,7 @@ Or run individual steps:
 
 - Always read `forge/agentic.md` fully before starting any step
 - Never skip approval gates (marked with ⏸)
-- Always use `forge/utils/scaffold/` templates as the base for generated files — do not create from scratch
+- Always use `forge/utils/scaffold/` templates as the base for generated files. Do not create from scratch.
 - Generated workflows go into `output/{workflow-name}/`
 - Every generated workflow must include: README.md, agentic.md, at least one agent prompt, at least one slash command
 - Follow the patterns documented in `patterns/` for consistency

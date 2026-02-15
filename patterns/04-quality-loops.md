@@ -50,8 +50,8 @@ In `agentic.md`:
 
 ## Key Conventions
 
-1. Criteria must be **binary** (pass/fail) — no partial credit
-2. Criteria must be **atomic** — one testable thing per criterion
-3. Criteria must be **observable** — test behavior, not implementation
+1. Criteria must be **binary** (pass/fail), no partial credit
+2. Criteria must be **atomic**, one testable thing per criterion
+3. Criteria must be **observable**, test behavior, not implementation
 4. Always set a maximum iteration count as a safety net
 5. Log each iteration's score to show improvement trajectory

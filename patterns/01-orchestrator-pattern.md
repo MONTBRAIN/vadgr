@@ -2,7 +2,7 @@
 
 ## What
 
-A single `agentic.md` file that defines a complete step-by-step workflow. It is the central coordination point — every step, gate, and output is described in one document.
+A single `agentic.md` file that defines a complete step-by-step workflow. It is the central coordination point, where every step, gate, and output is described in one document.
 
 ## When to Use
 
@@ -11,7 +11,7 @@ Any multi-step process that needs coordination between different phases of work.
 ## Structure
 
 ```markdown
-# {Workflow Name} — Workflow Orchestrator
+# {Workflow Name}, Workflow Orchestrator
 
 ## Trigger Commands
 - commands that start the workflow

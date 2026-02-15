@@ -32,7 +32,7 @@ Read `forge/Prompts/{N}. {Agent Name}.md` for guidance. <!-- if applicable -->
 
 Execute **Step {N}: {Step Name}**{for task "$ARGUMENTS"}.
 
-{Brief summary of what the step does — 3-5 lines}
+{Brief summary of what the step does, 3-5 lines}
 ```
 
 ## Key Conventions

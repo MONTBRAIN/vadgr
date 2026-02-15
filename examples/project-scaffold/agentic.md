@@ -1,4 +1,4 @@
-# Project Scaffolding — Workflow Orchestrator
+# Project Scaffolding, Workflow Orchestrator
 
 ## Trigger Commands
 

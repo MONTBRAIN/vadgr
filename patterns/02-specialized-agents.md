@@ -20,18 +20,18 @@ Prompts/
 Each prompt follows a canonical template:
 ```markdown
 # {Agent Name}
-## Context          — Role and expertise
-## Input and Outputs — What it receives and produces
-## Quality Requirements — Standards to meet
-## Rules            — Always/Never lists
-## Actual Input     — Placeholders for runtime data
-## Expected Workflow — Step-by-step process
+## Context          , Role and expertise
+## Input and Outputs , What it receives and produces
+## Quality Requirements , Standards to meet
+## Rules            , Always/Never lists
+## Actual Input     , Placeholders for runtime data
+## Expected Workflow , Step-by-step process
 ```
 
 ## Key Conventions
 
 1. Files are numbered to indicate the order they are first used: `1. Agent Name.md`
-2. Each agent is **self-contained** — it should work without knowledge of other agents
+2. Each agent is **self-contained**, it should work without knowledge of other agents
 3. Agents are organized by **expertise area**, not by step (one agent can serve multiple steps)
 4. The canonical template has 7 sections that must all be present
 
@@ -45,6 +45,6 @@ Each prompt follows a canonical template:
 
 ## Anti-Patterns
 
-- **One agent per step** — Too granular. Agents should map to expertise, not steps.
-- **One mega-agent** — Too broad. If an agent needs to be expert in unrelated domains, split it.
-- **Overlapping responsibilities** — Two agents that can both do the same thing creates confusion.
+- **One agent per step**, too granular. Agents should map to expertise, not steps.
+- **One mega-agent**, too broad. If an agent needs to be expert in unrelated domains, split it.
+- **Overlapping responsibilities**, two agents that can both do the same thing creates confusion.

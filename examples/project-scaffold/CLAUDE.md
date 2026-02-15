@@ -5,7 +5,7 @@
 ```
 project-scaffold/
 ├── README.md                          # Entry point
-├── CLAUDE.md                          # This file — project rules
+├── CLAUDE.md                          # This file, project rules
 ├── agentic.md                         # 4-step orchestrator
 ├── .claude/
 │   └── commands/                      # 5 slash commands (one per step + master)
@@ -42,7 +42,7 @@ Or run individual steps:
 
 - Always read `agentic.md` fully before starting any step
 - Never skip approval gates (marked with pause)
-- No actual code execution during generation — only file creation
+- No actual code execution during generation. Only file creation
 - All generated code uses the template in `templates/project-template/` as base
 - Follow established conventions for the chosen language/framework
 - No external dependencies beyond what the template provides

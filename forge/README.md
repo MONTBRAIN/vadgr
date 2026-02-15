@@ -1,15 +1,15 @@
-# Forge — Agent Forge Core Engine
+# Forge, Agent Forge Core Engine
 
 This directory contains the core engine that powers Agent Forge.
 
 ## Contents
 
-- `agentic.md` — The 7-step meta-workflow orchestrator. Read this to start.
-- `Prompts/` — Specialized agent prompts used by the orchestrator:
-  - `1. Workflow Architect.md` — Designs workflow structures from requirements
-  - `2. Prompt Writer.md` — Creates agent prompts following the canonical template
-  - `3. Quality Reviewer.md` — Reviews generated workflows for completeness
-- `utils/scaffold/` — Templates used when generating new workflow projects
+- `agentic.md`, the 7-step meta-workflow orchestrator. Read this to start.
+- `Prompts/`, specialized agent prompts used by the orchestrator:
+  - `1. Workflow Architect.md`, designs workflow structures from requirements
+  - `2. Prompt Writer.md`, creates agent prompts following the canonical template
+  - `3. Quality Reviewer.md`, reviews generated workflows for completeness
+- `utils/scaffold/`, templates used when generating new workflow projects
 
 ## How It Works
 

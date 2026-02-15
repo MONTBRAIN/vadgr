@@ -2,7 +2,7 @@
 
 ## What
 
-The framework uses the same architectural patterns it teaches and generates. Its own structure IS the documentation — users learn the patterns by using the framework.
+The framework uses the same architectural patterns it teaches and generates. Its own structure IS the documentation. Users learn the patterns by using the framework.
 
 ## When to Use
 
@@ -20,16 +20,16 @@ The framework uses the same architectural patterns it teaches and generates. Its
 | `README.md` + `CLAUDE.md` | `output/{name}/README.md` + `CLAUDE.md` |
 | Approval gates ⏸ in its workflow | Approval gates ⏸ in generated workflows |
 
-The framework doesn't just document the patterns — it demonstrates them. Every file in Agent Forge is a living example of the pattern it represents.
+The framework doesn't just document the patterns. It demonstrates them. Every file in Agent Forge is a living example of the pattern it represents.
 
 ## The Meta-Principle
 
 Any good framework should "eat its own dog food." If the architecture is worth generating for others, it's worth using yourself. This creates:
 
-1. **Built-in documentation** — The framework IS the example
-2. **Pattern validation** — If a pattern doesn't work for the framework, it won't work for users
-3. **Consistency** — Generated projects feel familiar because they match the framework's own structure
-4. **Credibility** — Users can inspect the framework to understand exactly what they'll get
+1. **Built-in documentation**, the framework IS the example
+2. **Pattern validation**, if a pattern doesn't work for the framework, it won't work for users
+3. **Consistency**, generated projects feel familiar because they match the framework's own structure
+4. **Credibility**, users can inspect the framework to understand exactly what they'll get
 
 ## Key Convention
 

@@ -1,6 +1,6 @@
 # Data Analysis Pipeline
 
-Workflow for automated data analysis — from dataset discovery to final report generation.
+Workflow for automated data analysis, from dataset discovery to final report generation.
 
 ### Claude Code (recommended)
 
