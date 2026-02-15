@@ -20,9 +20,10 @@ Agent-Forge/
 │   └── utils/
 │       └── scaffold/                  # Templates for generated projects
 ├── patterns/                          # 8 documented workflow patterns
-├── examples/                          # 2 example workflows
+├── examples/                          # 3 example workflows
 │   ├── research-paper/
-│   └── project-scaffold/
+│   ├── project-scaffold/
+│   └── data-analysis/
 └── output/                            # Generated workflows land here
 ```
 

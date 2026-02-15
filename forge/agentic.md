@@ -263,6 +263,58 @@ Patterns applied: {list}
 
 ---
 
+## Clarifications
+
+### Self-Similar Architecture
+Agent Forge generates workflows that follow the **same architecture** as Agent Forge itself. If you're unsure how to structure something in the generated workflow, look at how Agent Forge does it. The `forge/` directory IS the reference implementation.
+
+### Templates vs From Scratch
+**ALWAYS** start from the scaffold templates in `forge/utils/scaffold/`. Never write an `agentic.md`, `README.md`, `CLAUDE.md`, agent prompt, or command file from scratch. The templates exist to enforce consistency — fill in the placeholders, adapt the structure, but keep the skeleton.
+
+### When to Add Approval Gates
+Not every step needs a gate. Add `⏸` only at **decision points** where:
+- The user needs to review a design before generation starts (e.g., architecture review)
+- Generated content must be approved before building on top of it (e.g., orchestrator review)
+- The final deliverable is ready for sign-off
+
+Steps that are purely mechanical (e.g., "generate commands from an already-approved architecture") do NOT need gates.
+
+### When to Add Quality Loops
+Only add evaluate-iterate loops when:
+- There is a **measurable quality bar** (e.g., "90% of rubric criteria met")
+- The output can be objectively improved through iteration
+- The user expects iterative refinement as part of the workflow
+
+Do NOT add quality loops to steps where the output is either correct or not (binary).
+
+### Step Count
+5-9 steps is the sweet spot. Fewer than 5 usually means steps are too broad and the agent won't know what to focus on. More than 9 usually means steps are too granular and the workflow becomes tedious. If you find yourself designing more than 9, combine related steps.
+
+### Agent Count
+Not every step needs a dedicated agent. Agents are for steps that require **specialized expertise** (e.g., "Software Architect" for design, "Code Generator" for implementation). Mechanical steps like "copy a template" or "create folders" don't need agents — the orchestrator handles them directly.
+
+### Generated Workflows Must Be Self-Contained
+Every workflow in `output/` must work **without Agent Forge installed**. This means:
+- No references to `forge/`, `patterns/`, or `examples/`
+- All prompts, commands, and templates are included in the generated project
+- A user can copy the output folder anywhere and it works
+
+### The Orchestrator is the Source of Truth
+The `agentic.md` file is the **single source of truth** for any workflow. Slash commands are shortcuts that point INTO it, not replacements for it. Agent prompts are read BY it, not independently. Everything flows through the orchestrator.
+
+### Naming Generated Workflows
+- Workflow folder: `kebab-case` (e.g., `content-pipeline`)
+- Slash commands: `kebab-case` matching step names (e.g., `generate-content.md`)
+- Agent prompts: numbered with title case (e.g., `1. Content Strategist.md`)
+- Master command: always named `start-{workflow-name}.md` or `create-{workflow-name}.md`
+
+### What Agent Forge Does NOT Do
+- It does **not** generate application code (apps, APIs, scripts). It generates **workflow definitions** (orchestrators, prompts, commands).
+- It does **not** execute the workflows it generates. It only creates the files.
+- It does **not** install dependencies or set up environments. Generated workflows handle that themselves.
+
+---
+
 ## Quality Checks
 
 | Step | Check |

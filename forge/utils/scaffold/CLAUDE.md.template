@@ -5,6 +5,9 @@
 ```
 {{STRUCTURE_TREE}}
 ```
+<!-- Complete directory tree showing every file in the project.
+     Use standard tree notation (├──, └──, │).
+     Include brief comments after filenames for clarity. -->
 
 ## How to Use
 
@@ -17,11 +20,24 @@ Or run individual steps:
 ```
 {{COMMAND_LIST_WITH_DESCRIPTIONS}}
 ```
+<!-- List each slash command with a comment describing what it does.
+     Example: /gather-requirements    # Step 1: Interview the user -->
 
 ## Key Rules
 
 {{RULES_LIST}}
+<!-- Project-specific rules. Include:
+     - What to read before starting (always agentic.md)
+     - What NOT to skip (approval gates)
+     - Where outputs go
+     - What every output must include
+     - Any constraints (no external deps, no code execution, etc.) -->
 
 ## Naming Conventions
 
 {{NAMING_CONVENTIONS}}
+<!-- Document the naming patterns used in this project:
+     - Slash commands: kebab-case
+     - Agent prompts: numbered with title case
+     - Output folders: kebab-case or date-based
+     - Placeholders: {{UPPER_SNAKE_CASE}} -->

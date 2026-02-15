@@ -1,17 +1,22 @@
 # {{WORKFLOW_NAME}}
 
-## Quick Start
-
-```
-Read `agentic.md` and start
-```
-
-That's it. Claude handles the rest.
-
-## What This Does
-
 {{WORKFLOW_DESCRIPTION}}
 
-## Commands
+### Claude Code (recommended)
 
-{{COMMAND_LIST}}
+```
+/{{START_COMMAND}}             # Full workflow from scratch
+```
+
+Individual steps:
+
+| Command | Step | Description |
+|---------|------|-------------|
+{{COMMAND_TABLE}}
+
+### Other AI tools (Cursor, Windsurf, etc.)
+
+```bash
+# Point the tool at agentic.md:
+# "Read agentic.md and start"
+```

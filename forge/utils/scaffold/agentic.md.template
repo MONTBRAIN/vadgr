@@ -4,6 +4,7 @@
 
 - `{{TRIGGER_1}}`
 - `{{TRIGGER_2}}`
+<!-- Add natural-language triggers users might say, plus the slash command -->
 
 ---
 
@@ -12,24 +13,37 @@
 ```
 {{WORKFLOW_DIAGRAM}}
 ```
+<!-- ASCII diagram showing step sequence. Mark approval gates with ⏸ below the step name.
+     Keep it to 1-2 lines. Example:
+
+     Step 1         Step 2         Step 3         Step 4
+     Gather    -->  Design    -->  Generate  -->  Deliver
+                    ⏸                             ⏸
+-->
 
 ---
 
 {{FOR_EACH_STEP}}
 
 ## Step {{STEP_NUMBER}}: {{STEP_NAME}}
+<!-- One step per phase of work. Each step should produce a clear output.
+     If a step uses an agent, add a "Read:" directive pointing to its prompt file.
+     If the step has an approval gate, add ⏸ to the heading. -->
 
 {{STEP_DESCRIPTION}}
 
-**Read:** `Prompts/{{AGENT_FILE}}` <!-- if applicable -->
+**Read:** `Prompts/{{AGENT_FILE}}` <!-- Only if this step uses a specialized agent. Remove this line for direct/mechanical steps. -->
 
 **Workflow:**
 
 1. {{ACTION_1}}
 2. {{ACTION_2}}
 3. {{ACTION_N}}
+<!-- Numbered list of concrete actions. Each action should be a single, clear instruction.
+     Include "Wait for user approval" where gates apply. -->
 
 **Save:** {{OUTPUT_FILES}}
+<!-- What files/artifacts this step produces. Be specific: "output/{name}/architecture.md" -->
 
 ---
 
@@ -56,6 +70,9 @@
 ```
 {{OUTPUT_TREE}}
 ```
+<!-- Show the complete folder/file tree that the workflow produces.
+     Use standard tree notation (├──, └──, │).
+     Include every file and directory the user should expect. -->
 
 ---
 
@@ -64,3 +81,5 @@
 | Step | Check |
 |------|-------|
 {{QUALITY_CHECKS}}
+<!-- One row per step. Each check is a quick verification question.
+     Example: "01 | All requirements gathered? Summary approved?" -->

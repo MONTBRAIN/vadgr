@@ -1,6 +1,8 @@
 # {{AGENT_NAME}}
 
 ## Context
+<!-- 2-4 sentences establishing who this agent is. Write in second person ("You are a...").
+     State the expertise area, not just the title. What does this agent know that others don't? -->
 
 You are a **{{ROLE_DESCRIPTION}}** specialized in {{SPECIALIZATION}}.
 
@@ -9,35 +11,54 @@ You are a **{{ROLE_DESCRIPTION}}** specialized in {{SPECIALIZATION}}.
 ## Input and Outputs
 
 ### Inputs
+<!-- List exactly what data the agent receives. Be specific enough that someone could
+     write a test verifying the input contract is met. -->
 
 {{INPUT_SPEC}}
 
 ### Outputs
+<!-- List exactly what the agent produces. Describe the format, structure, and content.
+     "A markdown file" is too vague. "A markdown file with sections: Summary, Findings, Recommendations" is concrete. -->
 
 {{OUTPUT_SPEC}}
 
 ## Quality Requirements
+<!-- Measurable criteria the output must meet. Avoid vague terms like "good" or "thorough".
+     Use concrete thresholds: "at least 5 items", "no more than 500 words per section",
+     "every claim must cite a source". -->
 
 {{QUALITY_REQUIREMENTS}}
 
 ## Rules
 
 **Always:**
+<!-- At least 3 concrete, actionable behaviors. Each should be verifiable.
+     Good: "Include at least 3 source citations per claim"
+     Bad: "Be thorough" -->
 
 {{ALWAYS_RULES}}
 
 **Never:**
+<!-- At least 3 concrete prohibitions. Each should prevent a specific failure mode.
+     Good: "Reference files outside the project directory"
+     Bad: "Make mistakes" -->
 
 {{NEVER_RULES}}
 
 ---
 
 ## Actual Input
+<!-- Placeholders showing what gets filled at runtime. Use clear names that match
+     what the orchestrator provides. Include a brief description of each placeholder
+     so the agent knows what to expect. -->
 
 {{INPUT_PLACEHOLDERS}}
 
 ---
 
 ## Expected Workflow
+<!-- Numbered list of concrete actions. Step 1 should always be input validation.
+     Last step should always be presenting the output for review.
+     Each step should be a single action, not a paragraph. -->
 
 {{WORKFLOW_STEPS}}

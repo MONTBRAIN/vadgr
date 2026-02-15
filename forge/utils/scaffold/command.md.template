@@ -2,11 +2,20 @@
 description: {{COMMAND_DESCRIPTION}}
 argument-hint: {{ARGUMENT_HINT}}
 ---
+<!-- description: 1-sentence summary shown in /help listing.
+     argument-hint: placeholder shown after the command name (e.g., [task-id], [workflow-name]).
+     Remove argument-hint if the command takes no arguments. -->
 
 Read `agentic.md` to understand the full workflow context and rules.
 {{READ_PROMPT_IF_APPLICABLE}}
+<!-- If this step uses a specialized agent, add:
+     Read `Prompts/{N}. {Agent Name}.md` for {domain} guidance.
+     If not, remove this line. -->
 
 Execute **Step {{STEP_NUMBER}}: {{STEP_NAME}}**{{FOR_TASK_CLAUSE}}.
 
 Follow the step instructions exactly:
 {{STEP_SUMMARY}}
+<!-- 3-5 lines summarizing what the step does. This is a quick reference —
+     the full instructions live in agentic.md.
+     Include key actions, what output to produce, and whether to wait for approval. -->
