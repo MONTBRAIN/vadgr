@@ -12,6 +12,7 @@ Reusable architectural patterns for agentic workflows. Each pattern is documente
 | 06 | [CLI Commands](06-cli-commands.md) | Every workflow (enables both sequential and targeted execution) |
 | 07 | [Template Scaffold](07-template-scaffold.md) | When each execution needs an identical starting structure |
 | 08 | [Self-Similar Architecture](08-self-similar-architecture.md) | Frameworks that generate structures like their own |
+| 09 | [Fix Command](09-fix-command.md) | Every workflow (built-in diagnostic and repair) |
 
 ## How to Apply
 

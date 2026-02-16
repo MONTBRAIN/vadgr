@@ -13,6 +13,8 @@ Individual steps:
 | Command | Step | Description |
 |---------|------|-------------|
 {{COMMAND_TABLE}}
+<!-- Always include /fix as the last row:
+     | /fix [problem] | -- | Diagnose and fix issues in this workflow | -->
 
 ### Other AI tools (Cursor, Windsurf, etc.)
 

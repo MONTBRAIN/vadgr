@@ -8,14 +8,16 @@ research-paper/
 ├── CLAUDE.md                          # This file, project rules
 ├── agentic.md                         # 5-step orchestrator
 ├── .claude/
-│   └── commands/                      # 5 slash commands (one per step + master)
+│   └── commands/                      # 6 slash commands (one per step + master + fix)
 │       ├── start-paper.md
 │       ├── research-topic.md
 │       ├── create-outline.md
 │       ├── write-sections.md
-│       └── review-paper.md
+│       ├── review-paper.md
+│       └── fix.md
 ├── agent/
-│   ├── Prompts/                       # 3 specialized agent prompts
+│   ├── Prompts/                       # 3 specialized agents + fixer
+│   │   ├── 00_Workflow_Fixer.md
 │   │   ├── 01_Research_Analyst.md
 │   │   ├── 02_Outline_Architect.md
 │   │   └── 03_Academic_Writer.md
@@ -43,6 +45,7 @@ Or run individual steps:
 /create-outline          # Step 3: Generate structured outline with thesis
 /write-sections          # Step 4: Write each section sequentially
 /review-paper            # Step 5: Final review and assembly
+/fix [problem]           # Diagnose and fix workflow issues
 ```
 
 ## Key Rules

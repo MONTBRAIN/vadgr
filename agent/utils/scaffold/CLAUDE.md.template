@@ -25,7 +25,8 @@ Or run individual steps:
 {{COMMAND_LIST_WITH_DESCRIPTIONS}}
 ```
 <!-- List each slash command with a comment describing what it does.
-     Example: /gather-requirements    # Step 1: Interview the user -->
+     Example: /gather-requirements    # Step 1: Interview the user
+     Always include: /fix [problem]   # Diagnose and fix issues in this workflow -->
 
 ## Key Rules
 

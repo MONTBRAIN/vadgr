@@ -9,13 +9,14 @@ Agent-Forge/
 ├── README.md                          # Entry point
 ├── CLAUDE.md                          # This file, project rules
 ├── .claude/
-│   ├── commands/                      # 8 slash commands (one per step + master)
+│   ├── commands/                      # 9 slash commands (one per step + master + fix)
 │   └── agents/
 │       └── senior-prompt-engineer.md  # Reusable prompt engineering agent
 ├── agent/                             # Core engine
 │   ├── agentic.md                     # 7-step meta-orchestrator
 │   ├── README.md                      # Usage instructions
-│   ├── Prompts/                       # 3 specialized agent prompts
+│   ├── Prompts/                       # 3 specialized agents + fixer
+│   │   ├── 00_Workflow_Fixer.md
 │   │   ├── 01_Workflow_Architect.md
 │   │   ├── 02_Prompt_Writer.md
 │   │   └── 03_Quality_Reviewer.md
@@ -52,6 +53,7 @@ Or run individual steps:
 /generate-commands            # Step 5: Generate slash commands
 /generate-scaffold            # Step 6: Generate project skeleton
 /review-workflow              # Step 7: Self-review and deliver
+/fix [problem-or-path]        # Diagnose and fix issues in any workflow
 ```
 
 ## Key Rules

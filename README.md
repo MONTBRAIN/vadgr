@@ -32,6 +32,7 @@ Individual steps:
 | `/generate-commands` | 05 | Generate .claude/commands/ for each step |
 | `/generate-scaffold` | 06 | Generate README, CLAUDE.md, and project skeleton |
 | `/review-workflow` | 07 | Self-review for completeness and quality |
+| `/fix [problem]` | -- | Diagnose and fix workflow issues |
 
 ### Other AI tools (Cursor, Windsurf, etc.)
 

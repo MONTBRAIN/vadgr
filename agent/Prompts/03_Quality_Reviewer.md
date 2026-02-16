@@ -71,14 +71,16 @@ A **Review Report** containing:
 | 17 | agent/scripts/ contains src/, tests/, requirements.txt, README.md | Verify directory structure |
 | 18 | agent/utils/ contains code/ and docs/ | Verify directory structure |
 | 19 | agent/scripts/README.md includes venv setup instructions | Content search for "venv" |
+| 20 | .claude/commands/fix.md exists | File exists check |
+| 21 | agent/Prompts/00_Workflow_Fixer.md exists | File exists check |
 
 ### Self-Containment Checks
 
 | # | Check | How to Verify |
 |---|-------|---------------|
-| 20 | No references to files outside the project directory | Content search for absolute paths or parent traversals |
-| 21 | No references to Agent Forge framework files | Content search for "patterns/", "examples/", parent traversals ("../") |
-| 22 | The workflow is runnable from its own directory | Verify all references are relative |
+| 22 | No references to files outside the project directory | Content search for absolute paths or parent traversals |
+| 23 | No references to Agent Forge framework files | Content search for "patterns/", "examples/", parent traversals ("../") |
+| 24 | The workflow is runnable from its own directory | Verify all references are relative |
 
 ## Clarifications
 
@@ -160,11 +162,13 @@ Review Report: content-pipeline
 | 17 | agent/scripts/ complete | PASS | |
 | 18 | agent/utils/ complete | PASS | |
 | 19 | agent/scripts/README.md has venv instructions | PASS | |
-| 20 | No external file references | PASS | |
-| 21 | No Agent Forge references | PASS | |
-| 22 | Runnable from own directory | PASS | |
+| 20 | fix.md command exists | PASS | |
+| 21 | 00_Workflow_Fixer.md exists | PASS | |
+| 22 | No external file references | PASS | |
+| 23 | No Agent Forge references | PASS | |
+| 24 | Runnable from own directory | PASS | |
 
-Verdict: Ready (22/22 passed)
+Verdict: Ready (24/24 passed)
 ```
 
 **Sample: Failing Review with Remediation**
@@ -193,11 +197,13 @@ Review Report: data-analysis
 | 17 | agent/scripts/ complete | FAIL | Missing requirements.txt in agent/scripts/. Create an empty agent/scripts/requirements.txt file. |
 | 18 | agent/utils/ complete | PASS | |
 | 19 | agent/scripts/README.md has venv instructions | FAIL | agent/scripts/README.md does not exist. Create it with venv setup instructions. |
-| 20 | No external file references | PASS | |
-| 21 | No Agent Forge references | FAIL | agentic.md Step 3 says "Read ../../patterns/03-approval-gates.md". Change to reference only files within the project. |
-| 22 | Runnable from own directory | PASS | |
+| 20 | fix.md command exists | FAIL | Missing .claude/commands/fix.md. Copy from the fix command template. |
+| 21 | 00_Workflow_Fixer.md exists | FAIL | Missing agent/Prompts/00_Workflow_Fixer.md. Copy from the fixer prompt template. |
+| 22 | No external file references | PASS | |
+| 23 | No Agent Forge references | FAIL | agentic.md Step 3 says "Read ../../patterns/03-approval-gates.md". Change to reference only files within the project. |
+| 24 | Runnable from own directory | PASS | |
 
-Verdict: Needs Fixes (15/22 passed)
+Verdict: Needs Fixes (14/24 passed)
 ```
 
 **Sample: Poorly Written Review (Do NOT Produce This)**
@@ -222,7 +228,7 @@ Verdict: Needs Fixes
 ```
 
 **Why this is bad:**
-- **Skipped 12 of 22 checks.** Items 6, 7, 11, 12, 13, 15, 16, 18, 19, 20, 21, and 22 are missing entirely. Every checklist item must appear in the report, even if it passes.
+- **Skipped 14 of 24 checks.** Items 6, 7, 11, 12, 13, 15, 16, 18, 19, 20, 21, 22, 23, and 24 are missing entirely. Every checklist item must appear in the report, even if it passes.
 - **Uses "PARTIAL PASS" status.** Status must be binary: PASS or FAIL. There is no middle ground. If a diagram is incomplete, that is a FAIL with a remediation that says exactly what is missing.
 - **Vague remediation.** "Fix the reference" (check 8) does not tell the user which step, which file, or what to change. Compare to the good sample: "Missing command for Step 4: 'Run Analysis'. Create .claude/commands/run-analysis.md referencing Step 4." Similarly, "Some sections are missing" (check 14) does not name the file or the missing sections.
 - **Missing summary count.** The verdict says "Needs Fixes" but omits the pass/fail count. It should read something like "Needs Fixes (5/18 passed)" so the scope of the problem is immediately clear.
@@ -276,6 +282,6 @@ Example: output/content-pipeline/]
 9. Verify output structure instructions (check 13).
 10. Read each agent prompt and verify required sections (check 14).
 11. If CLAUDE.md exists, cross-reference commands (check 15).
-12. Verify agent/ directory structure (checks 16-19).
+12. Verify agent/ directory structure (checks 16-19) and standard files (checks 20-21).
 13. Compile results table and overall verdict.
 14. Present the review report.

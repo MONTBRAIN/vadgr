@@ -17,6 +17,7 @@ Individual steps:
 | `/create-outline` | 03 | Generate structured outline |
 | `/write-sections` | 04 | Write each section sequentially |
 | `/review-paper` | 05 | Final review and assembly |
+| `/fix [problem]` | -- | Diagnose and fix workflow issues |
 
 ### Other AI tools (Cursor, Windsurf, etc.)
 

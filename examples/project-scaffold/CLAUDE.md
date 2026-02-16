@@ -8,14 +8,16 @@ project-scaffold/
 ├── CLAUDE.md                          # This file, project rules
 ├── agentic.md                         # 4-step orchestrator
 ├── .claude/
-│   └── commands/                      # 5 slash commands (one per step + master)
+│   └── commands/                      # 6 slash commands (one per step + master + fix)
 │       ├── start-project.md
 │       ├── define-requirements.md
 │       ├── design-architecture.md
 │       ├── generate-code.md
-│       └── validate-project.md
+│       ├── validate-project.md
+│       └── fix.md
 ├── agent/                             # Core engine
-│   ├── Prompts/                       # 2 specialized agent prompts
+│   ├── Prompts/                       # 3 specialized agent prompts
+│   │   ├── 00_Workflow_Fixer.md
 │   │   ├── 01_Software_Architect.md
 │   │   └── 02_Code_Generator.md
 │   ├── scripts/                       # Utility scripts
@@ -45,6 +47,7 @@ Or run individual steps:
 /design-architecture          # Step 2: Design project structure
 /generate-code                # Step 3: Generate starter code files
 /validate-project             # Step 4: Validate and deliver
+/fix [problem]                # Diagnose and fix workflow issues
 ```
 
 ## Key Rules

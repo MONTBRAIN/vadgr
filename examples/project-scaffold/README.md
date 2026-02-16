@@ -17,6 +17,7 @@ Individual steps:
 | `/design-architecture` | 02 | Design project structure |
 | `/generate-code` | 03 | Generate starter code |
 | `/validate-project` | 04 | Validate and deliver |
+| `/fix [problem]` | -- | Diagnose and fix workflow issues |
 
 ### Other AI tools (Cursor, Windsurf, etc.)
 

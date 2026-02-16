@@ -19,6 +19,7 @@ Individual steps:
 | `/run-analysis` | 04 | Generate and execute analysis scripts |
 | `/generate-report` | 05 | Compile results into a markdown report |
 | `/review-delivery` | 06 | Final review and delivery |
+| `/fix [problem]` | -- | Diagnose and fix workflow issues |
 
 ### Other AI tools (Cursor, Windsurf, etc.)
 

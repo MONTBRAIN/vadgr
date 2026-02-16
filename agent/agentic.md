@@ -176,6 +176,10 @@ For each step in the designed workflow:
 
 2. Additionally create a **master start command** that runs the full workflow from Step 1 through the last step.
 
+3. Copy the fix command from `agent/utils/scaffold/fix.md.template` into the generated workflow's `.claude/commands/fix.md`. This command is standard for all workflows and does not need customization.
+
+4. Copy the fixer agent prompt from `agent/utils/scaffold/00_Workflow_Fixer.md.template` into the generated workflow's `agent/Prompts/00_Workflow_Fixer.md`. This prompt is standard for all workflows and does not need customization.
+
 **Save:** `output/{workflow-name}/.claude/commands/{command-name}.md` for each command
 
 ---
@@ -225,6 +229,8 @@ Run the quality reviewer's checklist against the generated workflow:
 - [ ] agent/scripts/ contains src/, tests/, requirements.txt, README.md
 - [ ] agent/utils/ contains code/ and docs/
 - [ ] agent/scripts/README.md includes venv setup instructions
+- [ ] .claude/commands/fix.md exists (standard in all workflows)
+- [ ] agent/Prompts/00_Workflow_Fixer.md exists (standard in all workflows)
 
 **Fix any issues found before delivering.**
 
@@ -243,7 +249,8 @@ Files created:
 │   ├── {command-1}.md
 │   └── ...
 ├── agent/
-│   ├── Prompts/ ({K} agents)
+│   ├── Prompts/ ({K} agents + fixer)
+│   │   ├── 00_Workflow_Fixer.md
 │   │   ├── 01_{Agent_Name}.md
 │   │   └── ...
 │   ├── scripts/
@@ -342,6 +349,6 @@ The `agentic.md` file is the **single source of truth** for any workflow. Slash 
 | 02 | Architecture reviewed? Patterns identified? Agents listed? |
 | 03 | Orchestrator follows template? All steps present? Gates correct? |
 | 04 | All agents generated? Each has all required sections? |
-| 05 | One command per step? Master command exists? Frontmatter complete? |
+| 05 | One command per step? Master command exists? Fix command exists? Frontmatter complete? |
 | 06 | README, CLAUDE.md, agent/ (Prompts/, scripts/, utils/) created? Templates if needed? |
 | 07 | Self-review passes all checks? Workflow is self-contained? |

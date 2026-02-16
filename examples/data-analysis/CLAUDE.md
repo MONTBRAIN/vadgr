@@ -8,16 +8,18 @@ data-analysis/
 ├── CLAUDE.md                          # This file, project rules
 ├── agentic.md                         # 6-step orchestrator
 ├── .claude/
-│   └── commands/                      # 7 slash commands (one per step + master)
+│   └── commands/                      # 8 slash commands (one per step + master + fix)
 │       ├── start-analysis.md
 │       ├── discover-data.md
 │       ├── profile-data.md
 │       ├── design-analysis.md
 │       ├── run-analysis.md
 │       ├── generate-report.md
-│       └── review-delivery.md
+│       ├── review-delivery.md
+│       └── fix.md
 ├── agent/                             # Core engine
-│   ├── Prompts/                       # 3 specialized agent prompts
+│   ├── Prompts/                       # 4 specialized agent prompts
+│   │   ├── 00_Workflow_Fixer.md
 │   │   ├── 01_Data_Profiler.md
 │   │   ├── 02_Analysis_Architect.md
 │   │   └── 03_Report_Writer.md
@@ -52,6 +54,7 @@ Or run individual steps:
 /run-analysis            # Step 4: Generate and execute analysis scripts
 /generate-report         # Step 5: Compile results into a markdown report
 /review-delivery         # Step 6: Final review and delivery
+/fix [problem]           # Diagnose and fix workflow issues
 ```
 
 ## Key Rules
