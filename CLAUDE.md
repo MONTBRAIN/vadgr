@@ -9,18 +9,19 @@ Agent-Forge/
 ├── README.md                          # Entry point
 ├── CLAUDE.md                          # This file, project rules
 ├── .claude/
-│   ├── commands/                      # 9 slash commands (one per step + master + fix)
+│   ├── commands/                      # 13 slash commands (steps + master + fix + execution)
 │   └── agents/
 │       └── senior-prompt-engineer.md  # Reusable prompt engineering agent
-├── agent/                             # Core engine
+├── agent/                             # The BRAIN (orchestrator, prompts, patterns)
 │   ├── agentic.md                     # 7-step meta-orchestrator
 │   ├── README.md                      # Usage instructions
-│   ├── Prompts/                       # 4 specialized agents + fixer
+│   ├── Prompts/                       # 5 specialized agents + fixer
 │   │   ├── 00_Workflow_Fixer.md
 │   │   ├── 01_Senior_Prompt_Engineer.md
 │   │   ├── 02_Workflow_Architect.md
 │   │   ├── 03_Prompt_Writer.md
-│   │   └── 04_Quality_Reviewer.md
+│   │   ├── 04_Quality_Reviewer.md
+│   │   └── 05_Computer_Use_Agent.md
 │   ├── scripts/                       # Automation scripts
 │   │   ├── src/
 │   │   ├── tests/
@@ -30,7 +31,13 @@ Agent-Forge/
 │       ├── scaffold/                  # Templates for generated projects
 │       ├── code/                      # Code utilities
 │       └── docs/                      # Documentation utilities
-├── patterns/                          # 8 documented workflow patterns
+├── computer_use/                      # The EYES and HANDS (desktop automation engine)
+│   ├── core/                          # Engine facade, types, ABCs, autonomous loop
+│   ├── platform/                      # OS backends (WSL2, Linux, Windows, macOS)
+│   ├── grounding/                     # UI element location (accessibility + vision)
+│   ├── providers/                     # LLM adapters (Anthropic, OpenAI)
+│   └── tests/                         # Unit tests
+├── patterns/                          # 10 documented workflow patterns
 ├── examples/                          # 3 example workflows
 │   ├── research-paper/
 │   ├── project-scaffold/
@@ -55,6 +62,10 @@ Or run individual steps:
 /generate-scaffold            # Step 6: Generate project skeleton
 /review-workflow              # Step 7: Self-review and deliver
 /fix [problem-or-path]        # Diagnose and fix issues in any workflow
+/execute-workflow [path]      # Execute a workflow via computer use
+/create-and-run [task]        # Generate workflow + execute immediately
+/pause-execution              # Pause computer use mid-execution
+/resume-execution             # Resume paused execution
 ```
 
 ## Key Rules
@@ -68,6 +79,7 @@ Or run individual steps:
 - Reference examples in `examples/` when the user needs inspiration
 - No emojis in generated content
 - No "Co-Authored-By" or AI attribution in generated content
+- Generate mode must NEVER depend on `computer_use/`. Delete that directory and generate-only workflows keep working.
 
 ## Naming Conventions
 

@@ -13,6 +13,7 @@ Reusable architectural patterns for agentic workflows. Each pattern is documente
 | 07 | [Template Scaffold](07-template-scaffold.md) | When each execution needs an identical starting structure |
 | 08 | [Self-Similar Architecture](08-self-similar-architecture.md) | Frameworks that generate structures like their own |
 | 09 | [Fix Command](09-fix-command.md) | Every workflow (built-in diagnostic and repair) |
+| 10 | [Computer Use](10-computer-use.md) | When workflow steps need to interact with the desktop (click, type, screenshot) |
 
 ## How to Apply
 

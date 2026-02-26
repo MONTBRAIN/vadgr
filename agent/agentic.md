@@ -62,6 +62,14 @@ Where should the generated workflow project be created?
 Default: output/{workflow-name}/
 ```
 
+Question 7:
+```
+Does this workflow need to interact with the desktop? For example: open
+applications, click buttons, fill forms, navigate GUIs, or automate
+tasks that require seeing the screen. If yes, describe what it needs to do.
+Default: No (generate-only workflow)
+```
+
 **After all questions answered:** Compile a requirements summary. Present it to the user for confirmation.
 
 **Save:** Hold requirements summary in context for subsequent steps.
@@ -85,6 +93,7 @@ Using the gathered requirements, design the workflow architecture:
 - If the workflow needs human review: read `patterns/03-approval-gates.md`
 - If the workflow needs iterative quality: read `patterns/04-quality-loops.md`
 - If each execution needs a fresh copy: read `patterns/07-template-scaffold.md`
+- If the workflow needs desktop interaction: read `patterns/10-computer-use.md`
 
 **Present the architecture to the user:**
 
@@ -156,6 +165,7 @@ For each agent identified in Step 2:
    - Actual Input section with placeholders
    - Expected Workflow section
 2. Number the prompt files sequentially: `01_{Agent_Name}.md`, `02_{Agent_Name}.md`, etc.
+3. If the workflow needs desktop interaction (identified in Step 1, Question 7), generate a `05_Computer_Use_Agent.md` prompt based on `agent/Prompts/05_Computer_Use_Agent.md`. Adapt it to the specific workflow's desktop tasks.
 
 **Save:** `output/{workflow-name}/agent/Prompts/{NN}_{Agent_Name}.md` for each agent
 
@@ -182,6 +192,8 @@ For each step in the designed workflow:
 
 5. Copy the Senior Prompt Engineer prompt from `agent/utils/scaffold/01_Senior_Prompt_Engineer.md.template` into the generated workflow's `agent/Prompts/01_Senior_Prompt_Engineer.md`. This prompt is used by the fixer when prompt writing or rewriting is needed. It is standard for all workflows and does not need customization.
 
+6. If the workflow uses computer use, also generate execution commands: `execute-workflow.md`, `pause-execution.md`, and `resume-execution.md`. These follow the same command template format but reference the Computer Use Agent instead of a generation step.
+
 **Save:** `output/{workflow-name}/.claude/commands/{command-name}.md` for each command
 
 ---
@@ -201,6 +213,7 @@ Generate the remaining project files. Every generated workflow MUST include the 
    - **agent/utils/.** Directory with `code/` (reference code from user) and `docs/` (reference documentation from user). Add `.gitkeep` files in empty directories.
 4. **Output directories.** Create any directories referenced in the output structure with `.gitkeep` files.
 5. **Templates** (if the workflow uses the template-scaffold pattern). Create the template directory with starter files.
+6. **Computer use config** (if the workflow uses computer use). Include a `computer_use/config.yaml` with platform and provider settings for the generated workflow.
 
 **Present the complete file listing to the user.**
 **Wait for approval.**
@@ -234,6 +247,9 @@ Run the quality reviewer's checklist against the generated workflow:
 - [ ] .claude/commands/fix.md exists (standard in all workflows)
 - [ ] agent/Prompts/00_Workflow_Fixer.md exists (standard in all workflows)
 - [ ] agent/Prompts/01_Senior_Prompt_Engineer.md exists (standard in all workflows)
+- [ ] If computer use: Computer Use Agent prompt exists?
+- [ ] If computer use: Execution commands (execute-workflow, pause, resume) generated?
+- [ ] If computer use: computer_use/config.yaml present in generated project?
 
 **Fix any issues found before delivering.**
 
@@ -355,3 +371,4 @@ The `agentic.md` file is the **single source of truth** for any workflow. Slash 
 | 05 | One command per step? Master command exists? Fix command exists? Senior prompt engineer copied? Frontmatter complete? |
 | 06 | README, CLAUDE.md, agent/ (Prompts/, scripts/, utils/) created? Templates if needed? |
 | 07 | Self-review passes all checks? Workflow is self-contained? |
+| 08 | If computer use: agent prompt, execution commands, and config present? |
