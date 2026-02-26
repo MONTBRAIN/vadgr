@@ -1,0 +1,11 @@
+# computer-use/requirements.txt
+
+# Core (always needed)
+Pillow>=10.0.0                     # Image manipulation, resize, format conversion
+PyYAML>=6.0                        # Config file parsing
+
+# Screenshot capture (Linux primary, cross-platform fallback)
+mss>=9.0.0
+
+# Testing
+pytest>=7.0.0

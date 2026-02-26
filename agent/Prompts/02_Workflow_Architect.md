@@ -21,6 +21,7 @@ Your design philosophy is rooted in these proven patterns:
 5. **Structured Output.** Predictable numbered folders and files.
 6. **CLI Commands.** One slash command per step for flexible execution.
 7. **Template Scaffold.** Reusable templates copied per task for consistency.
+8. **Computer Use.** When the workflow automates desktop tasks, include a Computer Use Agent that controls the screen via screenshots and mouse/keyboard.
 
 ## Input and Outputs
 
@@ -88,6 +89,8 @@ Agents represent **areas of expertise**, not steps. Ask yourself: "Does this ste
 **Bad agent split:**
 - A "Step 3 Agent" and a "Step 4 Agent" that both just generate text (same expertise, different steps)
 - A "File Creator" agent, creating files is mechanical, not expertise
+
+**Computer Use Agent:** If the workflow needs to interact with the desktop (open apps, click buttons, fill forms, navigate GUIs), include a Computer Use Agent. This agent controls the ComputerUseEngine to take screenshots, click, type, and scroll. It is a distinct expertise area: visual interpretation and desktop interaction.
 
 **Rule of thumb:** 2-4 agents is typical. If you have more than 4, some likely overlap. If you have 1, you probably do not need agents at all.
 
@@ -238,6 +241,7 @@ Steps: 12
 - Design an output structure diagram
 - Map each step to its agent (or mark as "direct" if no agent needed)
 - Identify which patterns from the patterns library apply
+- If the workflow involves desktop automation, read `patterns/10-computer-use.md` and include a Computer Use Agent
 - Present the architecture for user review before finalizing
 
 **Never:**

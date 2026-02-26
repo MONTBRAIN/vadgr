@@ -33,6 +33,10 @@ Individual steps:
 | `/generate-scaffold` | 06 | Generate README, CLAUDE.md, and project skeleton |
 | `/review-workflow` | 07 | Self-review for completeness and quality |
 | `/fix [problem]` | -- | Diagnose and fix workflow issues |
+| `/execute-workflow` | -- | Run a workflow autonomously via computer use |
+| `/create-and-run` | -- | Generate a workflow and execute it immediately |
+| `/pause-execution` | -- | Pause a running computer use execution |
+| `/resume-execution` | -- | Resume a paused execution |
 
 ### Other AI tools (Cursor, Windsurf, etc.)
 
@@ -46,6 +50,7 @@ cd agent
 ## Structure
 
 - `agent/`, core engine (orchestrator, agents, utils)
+- `computer_use/`, computer use engine (screenshots, mouse, keyboard) for autonomous desktop execution
 - `patterns/`, documentation of reusable workflow patterns
 - `examples/`, example workflows showing the architecture in action
 - `output/`, where generated workflow projects land

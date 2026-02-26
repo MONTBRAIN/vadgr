@@ -1,0 +1,48 @@
+# computer-use/config.yaml -- Default configuration
+
+# Platform override. Auto-detected if not set.
+# Values: windows, macos, linux, wsl2
+# platform: auto
+
+# LLM provider for autonomous mode and vision fallback grounding.
+# Not needed for library mode (the calling agent provides its own decisions).
+# provider: anthropic
+
+providers:
+  anthropic:
+    # api_key: "sk-..."           # Or set ANTHROPIC_API_KEY env var
+    model: "claude-sonnet-4-20250514"
+  openai:
+    # api_key: "sk-..."           # Or set OPENAI_API_KEY env var
+    model: "gpt-4o"
+
+# Screenshot settings
+screenshot:
+  format: png
+  quality: 85                      # jpg quality (ignored for png)
+  max_width: 1920                  # resize if larger (saves tokens)
+  max_height: 1080
+
+# Action settings
+actions:
+  click_delay: 0.1                 # seconds between mouse down and up
+  type_delay: 0.05                 # seconds between keystrokes
+  action_settle_delay: 0.5         # seconds to wait after action before next screenshot
+
+# Grounding settings
+grounding:
+  strategy: hybrid                 # hybrid, accessibility_only, vision_only
+  accessibility_confidence_threshold: 0.7
+  vision_cache_ttl: 5.0
+
+# Core loop settings (autonomous mode)
+loop:
+  max_steps: 50
+  verify_actions: true
+  max_consecutive_failures: 3
+  retry_delay: 1.0
+
+# Logging
+logging:
+  level: INFO                      # DEBUG, INFO, WARNING, ERROR
+  file: null                       # log to file (null = stderr only)

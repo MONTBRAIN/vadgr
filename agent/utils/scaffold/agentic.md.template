@@ -82,6 +82,36 @@
 
 ---
 
+{{IF_COMPUTER_USE}}
+
+## Computer Use Configuration
+
+This workflow includes steps that execute autonomously via the Computer Use Engine.
+
+**Engine Initialization:** The engine detects the platform at runtime (WSL2, Linux, Windows, macOS) and loads the correct backend automatically.
+
+**Available Methods:**
+- `engine.screenshot()` -- capture full screen
+- `engine.click(x, y)` / `engine.double_click(x, y)` / `engine.right_click(x, y)`
+- `engine.type_text(text)` -- type a string
+- `engine.key_press(*keys)` -- press key combination (e.g., "ctrl", "s")
+- `engine.scroll(x, y, amount)` -- scroll at position
+- `engine.drag(start_x, start_y, end_x, end_y)` -- drag
+- `engine.find_element(description)` -- locate UI element by name
+- `engine.get_screen_size()` -- get display dimensions
+
+**Execution Commands:**
+- `/execute-workflow` -- run this workflow via computer use
+- `/pause-execution` -- pause mid-execution
+- `/resume-execution` -- resume paused execution
+
+**Config:** `computer_use/config.yaml` -- platform, provider, and action settings.
+
+{{END_IF_COMPUTER_USE}}
+<!-- Remove this section if the workflow does not use computer use. -->
+
+---
+
 ## Quality Checks
 
 | Step | Check |
