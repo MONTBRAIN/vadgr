@@ -23,7 +23,18 @@ mcp = FastMCP(
     name="computer-use",
     instructions=(
         "Desktop automation engine. Use screenshot() to see the screen, "
-        "then click/type/scroll to interact with UI elements."
+        "then click/type/scroll to interact with UI elements.\n\n"
+        "CRITICAL RULES:\n"
+        "1. ALWAYS take a screenshot BEFORE clicking or typing to verify "
+        "the target is where you expect it to be.\n"
+        "2. ALWAYS take a screenshot AFTER clicking to confirm the action "
+        "had the intended effect (correct window opened, right element selected, etc.).\n"
+        "3. NEVER click based on assumed coordinates from memory -- always "
+        "use the latest screenshot to identify precise coordinates.\n"
+        "4. When clicking on a list item, aim for the CENTER of the item's text, "
+        "not near its edge, to avoid hitting adjacent items.\n"
+        "5. If a click lands on the wrong target, take a screenshot, reassess "
+        "coordinates, and retry."
     ),
 )
 
@@ -135,7 +146,12 @@ def screenshot_region(x: int, y: int, width: int, height: int) -> Image:
 
 @mcp.tool()
 def click(x: int, y: int) -> str:
-    """Left-click at screen coordinates (pixels)."""
+    """Left-click at screen coordinates (pixels).
+
+    IMPORTANT: Always take a screenshot() first to confirm the target element's
+    position. After clicking, take another screenshot() to verify the click
+    landed correctly. Aim for the center of the target element.
+    """
     engine = _get_engine()
     engine.click(*_to_real(x, y))
     return f"Clicked at ({x}, {y})"

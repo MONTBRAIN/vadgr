@@ -47,6 +47,8 @@ import base64
 import io
 import json
 import logging
+import math
+import random
 import socket
 import struct
 import time
@@ -253,12 +255,150 @@ class ScreenCapturer:
         return buf.getvalue()
 
 
+# ── Natural mouse movement (WindMouse + Fitts's Law) ──
+# Pure math, zero dependencies beyond stdlib math/random.
+# Tune these constants to adjust movement feel:
+
+_SQRT3 = math.sqrt(3)
+_SQRT5 = math.sqrt(5)
+
+# WindMouse path shape
+WIND_GRAVITY = 9.0       # pull toward target (higher = straighter path)
+WIND_STRENGTH = 3.0      # random curvature (higher = more wobbly)
+WIND_MAX_VEL = 20.0      # max step size in pixels per tick
+WIND_HOMING_DIST = 12.0  # distance (px) where homing phase kicks in
+WIND_VEL_SCALE = 6.0     # velocity scales as dist / this (lower = faster)
+
+# Fitts's Law timing (seconds)
+FITTS_A = 0.05           # base reaction time
+FITTS_A_JITTER = 0.01    # gaussian noise on a
+FITTS_B = 0.11           # log-distance coefficient
+FITTS_B_JITTER = 0.015   # gaussian noise on b
+FITTS_MIN_DURATION = 0.07  # floor duration
+
+# Click pauses (seconds)
+PRE_CLICK_BASE = 0.03    # min pause before clicking
+PRE_CLICK_RAND = 0.05    # random extra pause (uniform)
+PRE_DRAG_BASE = 0.03     # min pause before drag press
+PRE_DRAG_RAND = 0.04     # random extra drag pause
+
+# Drag trajectory (gentler than free movement)
+DRAG_GRAVITY = 7.0
+DRAG_WIND = 2.0
+DRAG_MAX_VEL = 12.0
+
+
+def _windmouse_path(start_x, start_y, end_x, end_y, gravity=WIND_GRAVITY,
+                    wind=WIND_STRENGTH, max_vel=WIND_MAX_VEL,
+                    homing_dist=WIND_HOMING_DIST):
+    """Generate a human-like mouse path using the WindMouse algorithm.
+
+    Models the cursor as a particle with two forces:
+    - Gravity: constant pull toward target (ballistic aim)
+    - Wind: random perturbation that evolves smoothly (natural curvature)
+
+    Returns list of (x, y) integer pixel coordinates.
+    """
+    dist = math.hypot(end_x - start_x, end_y - start_y)
+    if dist < 2:
+        return [(end_x, end_y)]
+
+    # Scale parameters to distance so short moves aren't over-animated
+    w = min(wind, dist / 50.0)
+    m = min(max_vel, dist / WIND_VEL_SCALE)
+    m = max(m, 3.0)
+
+    points = []
+    sx, sy = float(start_x), float(start_y)
+    cx, cy = start_x, start_y
+    vx = vy = wx = wy = 0.0
+    cur_max = m
+
+    while True:
+        d = math.hypot(end_x - sx, end_y - sy)
+        if d < 1:
+            break
+
+        w_mag = min(w, d)
+
+        if d >= homing_dist:
+            # Ballistic phase: active wind perturbation
+            wx = wx / _SQRT3 + (random.random() * 2 - 1) * w_mag / _SQRT5
+            wy = wy / _SQRT3 + (random.random() * 2 - 1) * w_mag / _SQRT5
+        else:
+            # Homing phase: wind decays, speed drops
+            wx /= _SQRT3
+            wy /= _SQRT3
+            if cur_max < 3:
+                cur_max = random.random() * 3 + 3
+            else:
+                cur_max /= _SQRT5
+
+        vx += wx + gravity * (end_x - sx) / d
+        vy += wy + gravity * (end_y - sy) / d
+
+        v_mag = math.hypot(vx, vy)
+        if v_mag > cur_max:
+            v_clip = cur_max / 2 + random.random() * cur_max / 2
+            vx = (vx / v_mag) * v_clip
+            vy = (vy / v_mag) * v_clip
+
+        sx += vx
+        sy += vy
+        mx, my = int(round(sx)), int(round(sy))
+
+        if mx != cx or my != cy:
+            points.append((mx, my))
+            cx, cy = mx, my
+
+    # Ensure we land exactly on target
+    if not points or points[-1] != (end_x, end_y):
+        points.append((end_x, end_y))
+
+    return points
+
+
+def _fitts_duration(distance, target_width=40):
+    """Movement duration in seconds based on Fitts's Law with human jitter."""
+    if distance < 1:
+        return 0.0
+    a = FITTS_A + random.gauss(0, FITTS_A_JITTER)
+    b = FITTS_B + random.gauss(0, FITTS_B_JITTER)
+    return max(FITTS_MIN_DURATION, a + b * math.log2(distance / target_width + 1))
+
+
+def _ease_out_quad(t):
+    """Easing function: fast start, decelerating to stop. t in [0, 1]."""
+    return t * (2 - t)
+
+
+def _generate_delays(num_points, total_duration):
+    """Generate per-step sleep durations using easeOutQuad timing.
+
+    Early steps are short (fast movement), later steps are longer (deceleration).
+    """
+    if num_points <= 1:
+        return [total_duration]
+
+    timestamps = []
+    for i in range(num_points):
+        t = i / (num_points - 1)
+        timestamps.append(_ease_out_quad(t) * total_duration)
+
+    delays = []
+    for i in range(1, len(timestamps)):
+        delays.append(max(0.001, timestamps[i] - timestamps[i - 1]))
+    return delays
+
+
 class InputSender:
     """Mouse and keyboard input via Win32 SendInput with proper DPI handling.
 
     Uses MOUSEEVENTF_ABSOLUTE for all mouse positioning -- atomic move+click,
     no race conditions, correct coordinate generation for all apps.
     Queries virtual screen metrics fresh each call to adapt to RDP changes.
+
+    Natural movement uses WindMouse path generation + Fitts's Law timing.
     """
 
     def _get_virtual_screen(self):
@@ -306,18 +446,59 @@ class InputSender:
             return MOUSEEVENTF_MIDDLEDOWN, MOUSEEVENTF_MIDDLEUP
         return MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP
 
-    def move_mouse(self, x, y):
+    @staticmethod
+    def _get_cursor_pos():
+        """Get current cursor position in physical pixels."""
+        point = ctypes.wintypes.POINT()
+        user32.GetCursorPos(ctypes.byref(point))
+        return point.x, point.y
+
+    def smooth_move(self, end_x, end_y, target_width=40):
+        """Move mouse to (end_x, end_y) with human-like WindMouse motion."""
+        start_x, start_y = self._get_cursor_pos()
+        distance = math.hypot(end_x - start_x, end_y - start_y)
+
+        if distance < 2:
+            return
+
+        path = _windmouse_path(start_x, start_y, end_x, end_y)
+        duration = _fitts_duration(distance, target_width)
+        delays = _generate_delays(len(path), duration)
+
+        for i, (px, py) in enumerate(path):
+            abs_x, abs_y = self._normalize(px, py)
+            inp = self._make_move_input(abs_x, abs_y)
+            user32.SendInput(1, ctypes.byref(inp), ctypes.sizeof(INPUT))
+            if i < len(delays):
+                time.sleep(delays[i])
+
+    def _instant_move(self, x, y):
+        """Teleport cursor to (x, y) instantly (old behavior)."""
         abs_x, abs_y = self._normalize(x, y)
         inp = self._make_move_input(abs_x, abs_y)
-        sent = user32.SendInput(1, ctypes.byref(inp), ctypes.sizeof(INPUT))
-        if sent != 1:
-            logger.warning("SendInput move returned %d (expected 1)", sent)
+        user32.SendInput(1, ctypes.byref(inp), ctypes.sizeof(INPUT))
 
-    def click(self, x, y, button="left"):
-        abs_x, abs_y = self._normalize(x, y)
+    def move_mouse(self, x, y, natural=True):
+        if natural:
+            self.smooth_move(x, y)
+        else:
+            self._instant_move(x, y)
+
+    def click(self, x, y, button="left", natural=True):
         down_flag, up_flag = self._button_flags(button)
 
-        # Atomic: move + down + up in a single SendInput call
+        if natural:
+            # Approach target with smooth movement
+            self.smooth_move(x, y)
+            time.sleep(PRE_CLICK_BASE + random.random() * PRE_CLICK_RAND)
+            # Slight click offset (humans don't hit pixel-perfect center)
+            offset_x = x + int(random.gauss(0, 2))
+            offset_y = y + int(random.gauss(0, 2))
+            abs_x, abs_y = self._normalize(offset_x, offset_y)
+        else:
+            abs_x, abs_y = self._normalize(x, y)
+
+        # Atomic click: move + down + up
         inputs = (INPUT * 3)()
         inputs[0] = self._make_move_input(abs_x, abs_y)
         inputs[1] = self._make_button_input(down_flag)
@@ -326,14 +507,23 @@ class InputSender:
         if sent != 3:
             logger.warning("SendInput click returned %d (expected 3)", sent)
 
-    def double_click(self, x, y):
-        abs_x, abs_y = self._normalize(x, y)
+    def double_click(self, x, y, natural=True):
+        if natural:
+            self.smooth_move(x, y)
+            time.sleep(PRE_CLICK_BASE + random.random() * PRE_CLICK_RAND)
+            offset_x = x + int(random.gauss(0, 2))
+            offset_y = y + int(random.gauss(0, 2))
+            abs_x, abs_y = self._normalize(offset_x, offset_y)
+        else:
+            abs_x, abs_y = self._normalize(x, y)
 
         # Atomic: move + down + up + down + up
         inputs = (INPUT * 5)()
         inputs[0] = self._make_move_input(abs_x, abs_y)
         inputs[1] = self._make_button_input(MOUSEEVENTF_LEFTDOWN)
         inputs[2] = self._make_button_input(MOUSEEVENTF_LEFTUP)
+        # Inter-click delay for double-click (80-150ms like a human)
+        time.sleep(0.08 + random.random() * 0.07)
         inputs[3] = self._make_button_input(MOUSEEVENTF_LEFTDOWN)
         inputs[4] = self._make_button_input(MOUSEEVENTF_LEFTUP)
         sent = user32.SendInput(5, ctypes.byref(inputs), ctypes.sizeof(INPUT))
@@ -450,24 +640,41 @@ class InputSender:
         if sent != 2:
             logger.warning("SendInput scroll returned %d (expected 2)", sent)
 
-    def drag(self, start_x, start_y, end_x, end_y, duration=0.5):
+    def drag(self, start_x, start_y, end_x, end_y, duration=0.5,
+             natural=True):
+        if natural:
+            # Move to start position naturally
+            self.smooth_move(start_x, start_y)
+            time.sleep(PRE_DRAG_BASE + random.random() * PRE_DRAG_RAND)
+
         abs_sx, abs_sy = self._normalize(start_x, start_y)
 
-        # Atomic: move to start + press down
+        # Press down at start
         inputs = (INPUT * 2)()
         inputs[0] = self._make_move_input(abs_sx, abs_sy)
         inputs[1] = self._make_button_input(MOUSEEVENTF_LEFTDOWN)
         user32.SendInput(2, ctypes.byref(inputs), ctypes.sizeof(INPUT))
 
-        # Smooth interpolation
-        steps = max(int(duration * 60), 10)
-        sleep_time = duration / steps
-        for i in range(1, steps + 1):
-            t = i / steps
-            cx = int(start_x + (end_x - start_x) * t)
-            cy = int(start_y + (end_y - start_y) * t)
-            self.move_mouse(cx, cy)
-            time.sleep(sleep_time)
+        if natural:
+            # Use WindMouse path for the drag trajectory
+            path = _windmouse_path(start_x, start_y, end_x, end_y,
+                                   gravity=DRAG_GRAVITY, wind=DRAG_WIND,
+                                   max_vel=DRAG_MAX_VEL)
+            delays = _generate_delays(len(path), duration)
+            for i, (px, py) in enumerate(path):
+                self._instant_move(px, py)
+                if i < len(delays):
+                    time.sleep(delays[i])
+        else:
+            # Linear interpolation fallback
+            steps = max(int(duration * 60), 10)
+            sleep_time = duration / steps
+            for i in range(1, steps + 1):
+                t = i / steps
+                cx = int(start_x + (end_x - start_x) * t)
+                cy = int(start_y + (end_y - start_y) * t)
+                self._instant_move(cx, cy)
+                time.sleep(sleep_time)
 
         # Release
         inp = self._make_button_input(MOUSEEVENTF_LEFTUP)
@@ -578,15 +785,19 @@ class BridgeDaemon:
         return self._capturer.scale_factor()
 
     def _handle_move_mouse(self, params):
-        self._input.move_mouse(params["x"], params["y"])
+        self._input.move_mouse(params["x"], params["y"],
+                               natural=params.get("natural", True))
         return {}
 
     def _handle_click(self, params):
-        self._input.click(params["x"], params["y"], params.get("button", "left"))
+        self._input.click(params["x"], params["y"],
+                          button=params.get("button", "left"),
+                          natural=params.get("natural", True))
         return {}
 
     def _handle_double_click(self, params):
-        self._input.double_click(params["x"], params["y"])
+        self._input.double_click(params["x"], params["y"],
+                                 natural=params.get("natural", True))
         return {}
 
     def _handle_type_text(self, params):
@@ -606,6 +817,7 @@ class BridgeDaemon:
             params["start_x"], params["start_y"],
             params["end_x"], params["end_y"],
             params.get("duration", 0.5),
+            natural=params.get("natural", True),
         )
         return {}
 
@@ -621,11 +833,23 @@ def main():
 
     _log_dpi_diagnostics()
 
+    # Set 1ms timer resolution for smooth mouse movement
+    try:
+        ctypes.windll.winmm.timeBeginPeriod(1)
+        logger.info("Timer resolution set to 1ms")
+    except Exception:
+        logger.warning("Could not set 1ms timer resolution")
+
     daemon = BridgeDaemon(args.port)
     try:
         daemon.run()
     except KeyboardInterrupt:
         logger.info("Shutting down")
+    finally:
+        try:
+            ctypes.windll.winmm.timeEndPeriod(1)
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":
