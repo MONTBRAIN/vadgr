@@ -70,7 +70,7 @@ class Action:
 class ScreenState:
     """A captured screenshot with metadata."""
 
-    image_bytes: bytes  # PNG bytes
+    image_bytes: bytes  # image bytes (PNG or JPEG)
     width: int
     height: int
     timestamp: float = field(default_factory=time.time)

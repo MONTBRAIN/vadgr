@@ -27,7 +27,7 @@ mcp = FastMCP(
     ),
 )
 
-_MAX_WIDTH = int(os.environ.get("CU_MAX_WIDTH", "1366"))
+_MAX_WIDTH = int(os.environ.get("CU_MAX_WIDTH", "0"))  # 0 = auto-detect
 
 # Coordinate mapping state. Updated after each screenshot.
 # Display coords (what the agent sees) get mapped to real screen coords via _to_real().
@@ -41,12 +41,29 @@ _offset_y = 0  # primary monitor Y origin in virtual screen space
 _engine = None
 
 
+def _compute_max_width(real_width: int) -> int:
+    """Pick the largest target width that keeps coordinates accurate for vision models.
+
+    Returns the highest standard resolution that is <= the real screen width.
+    Standard targets (most universal across vision models): 1024, 1280, 1366.
+    """
+    targets = [1024, 1280, 1366]
+    for t in reversed(targets):
+        if real_width >= t:
+            return t
+    return real_width  # screen is smaller than 1024, no downscale
+
+
 def _get_engine():
-    global _engine
+    global _engine, _MAX_WIDTH
     if _engine is None:
         from computer_use.core.engine import ComputerUseEngine
         _engine = ComputerUseEngine()
         logger.info("Engine initialized (platform=%s)", _engine.get_platform().value)
+        if _MAX_WIDTH == 0:
+            w, _ = _engine.get_screen_size()
+            _MAX_WIDTH = _compute_max_width(w)
+            logger.info("Auto-detected max width: %d (screen=%d)", _MAX_WIDTH, w)
     return _engine
 
 
@@ -240,15 +257,15 @@ def main():
         "--max-width",
         type=int,
         default=_MAX_WIDTH,
-        help="Max screenshot width in pixels (default: 1366, env: CU_MAX_WIDTH)",
+        help="Max screenshot width in pixels (0=auto, env: CU_MAX_WIDTH)",
     )
     args = parser.parse_args()
     _MAX_WIDTH = args.max_width
 
     logger.info(
-        "Starting Computer Use MCP server (transport=%s, max_width=%d)",
+        "Starting Computer Use MCP server (transport=%s, max_width=%s)",
         args.transport,
-        _MAX_WIDTH,
+        _MAX_WIDTH or "auto",
     )
 
     if args.transport == "sse":

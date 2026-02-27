@@ -687,15 +687,39 @@ class WSL2Backend(PlatformBackend):
     def __init__(self):
         self._capture = None
         self._executor = None
+        self._bridge = None
+        self._use_bridge = None  # None=unchecked, True/False after probe
+
+    def _probe_bridge(self) -> bool:
+        if self._use_bridge is None:
+            try:
+                from computer_use.bridge.client import BridgeClient
+                self._bridge = BridgeClient()
+                self._use_bridge = self._bridge.is_available()
+            except Exception:
+                self._use_bridge = False
+            if self._use_bridge:
+                logger.info("Bridge daemon detected, using fast path")
+            else:
+                logger.info("Bridge daemon not available, using PowerShell fallback")
+        return self._use_bridge
 
     def get_screen_capture(self) -> ScreenCapture:
         if self._capture is None:
-            self._capture = WSL2ScreenCapture()
+            if self._probe_bridge():
+                from computer_use.bridge.capture import BridgeScreenCapture
+                self._capture = BridgeScreenCapture(self._bridge)
+            else:
+                self._capture = WSL2ScreenCapture()
         return self._capture
 
     def get_action_executor(self) -> ActionExecutor:
         if self._executor is None:
-            self._executor = WSL2ActionExecutor()
+            if self._probe_bridge():
+                from computer_use.bridge.actions import BridgeActionExecutor
+                self._executor = BridgeActionExecutor(self._bridge)
+            else:
+                self._executor = WSL2ActionExecutor()
         return self._executor
 
     def is_available(self) -> bool:

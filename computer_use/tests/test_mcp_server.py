@@ -51,7 +51,9 @@ def mock_engine():
 def _patch_engine(mock_engine):
     import computer_use.mcp_server as mod
 
+    old_max_width = mod._MAX_WIDTH
     mod._engine = mock_engine
+    mod._MAX_WIDTH = 1024
     mod._scale_x = 1.0
     mod._scale_y = 1.0
     mod._display_w = 0
@@ -60,6 +62,7 @@ def _patch_engine(mock_engine):
     mod._offset_y = 0
     yield
     mod._engine = None
+    mod._MAX_WIDTH = old_max_width
     mod._scale_x = 1.0
     mod._scale_y = 1.0
     mod._offset_x = 0
