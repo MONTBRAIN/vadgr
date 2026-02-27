@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "computer_use": {
+      "type": "stdio",
+      "command": "/home/santiago/Santiago/Common/Agent-Forge/computer_use/.venv/bin/python",
+      "args": ["-m", "computer_use.mcp_server"],
+      "cwd": "/home/santiago/Santiago/Common/Agent-Forge",
+      "env": {
+        "PYTHONPATH": "/home/santiago/Santiago/Common/Agent-Forge"
+      }
+    }
+  }
+}

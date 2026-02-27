@@ -1,10 +1,13 @@
 """WSL2 platform backend using PowerShell bridge to control Windows desktop."""
 
+import atexit
 import logging
 import os
 import shutil
 import subprocess
 import tempfile
+import threading
+import uuid
 
 from computer_use.core.actions import ActionExecutor
 from computer_use.core.errors import ActionError, ScreenCaptureError
@@ -17,7 +20,102 @@ logger = logging.getLogger("computer_use.platform.wsl2")
 POWERSHELL = "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
 
 
-# --- Path conversion utilities ---
+class PersistentPowerShell:
+    """One long-lived powershell.exe that we pipe scripts into.
+
+    Scripts go in via stdin, output is read until a unique sentinel line.
+    Thread-safe, auto-restarts on crash, cleaned up at exit.
+    """
+
+    def __init__(self):
+        self._proc: subprocess.Popen | None = None
+        self._lock = threading.Lock()
+        self._started = False
+        atexit.register(self.shutdown)
+
+    def _start(self) -> None:
+        if self._proc is not None:
+            try:
+                self._proc.kill()
+                self._proc.wait(timeout=2)
+            except Exception:
+                pass
+        self._proc = subprocess.Popen(
+            [POWERSHELL, "-NoProfile", "-NoLogo", "-NonInteractive", "-Command", "-"],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            bufsize=1,
+        )
+        self._started = True
+        logger.debug("Persistent PowerShell started (pid=%d)", self._proc.pid)
+
+    def run(self, script: str, timeout: float = 15.0) -> str:
+        with self._lock:
+            if not self._started or self._proc is None or self._proc.poll() is not None:
+                self._start()
+
+            sentinel = f"__SENTINEL_{uuid.uuid4().hex}__"
+            wrapped = f"{script}\nWrite-Output '{sentinel}'\n"
+
+            try:
+                self._proc.stdin.write(wrapped)
+                self._proc.stdin.flush()
+            except (OSError, BrokenPipeError) as e:
+                logger.warning("Persistent PS stdin write failed: %s. Restarting.", e)
+                self._start()
+                self._proc.stdin.write(wrapped)
+                self._proc.stdin.flush()
+
+            lines: list[str] = []
+            import time
+
+            deadline = time.monotonic() + timeout
+            while True:
+                if time.monotonic() > deadline:
+                    raise RuntimeError(
+                        f"Persistent PowerShell timed out after {timeout}s"
+                    )
+                if self._proc.poll() is not None:
+                    raise RuntimeError("Persistent PowerShell process died unexpectedly")
+                line = self._proc.stdout.readline()
+                if not line:
+                    raise RuntimeError("Persistent PowerShell stdout closed")
+                stripped = line.rstrip("\r\n")
+                if stripped == sentinel:
+                    break
+                lines.append(stripped)
+
+            return "\n".join(lines).strip()
+
+    @property
+    def is_alive(self) -> bool:
+        return self._proc is not None and self._proc.poll() is None
+
+    def shutdown(self) -> None:
+        if self._proc is not None:
+            try:
+                self._proc.stdin.close()
+            except Exception:
+                pass
+            try:
+                self._proc.terminate()
+                self._proc.wait(timeout=3)
+            except Exception:
+                try:
+                    self._proc.kill()
+                except Exception:
+                    pass
+            self._proc = None
+            self._started = False
+            logger.debug("Persistent PowerShell shut down")
+
+
+# Module-level singleton (lazy)
+_persistent_ps: PersistentPowerShell | None = None
+_persistent_ps_lock = threading.Lock()
+
 
 
 def wsl_to_win_path(wsl_path: str) -> str:
@@ -61,8 +159,8 @@ def _get_windows_temp_dir() -> str:
     raise ScreenCaptureError("Cannot determine Windows temp directory from WSL2")
 
 
-def _run_ps(script: str, timeout: float = 15.0) -> str:
-    """Run a PowerShell script from WSL2 and return stdout."""
+def _run_ps_subprocess(script: str, timeout: float = 15.0) -> str:
+    """One-shot subprocess fallback for _run_ps."""
     win_temp = _get_windows_temp_dir()
     script_path = os.path.join(win_temp, "cue_temp.ps1")
 
@@ -96,19 +194,32 @@ def _run_ps(script: str, timeout: float = 15.0) -> str:
             pass
 
 
-# --- Screenshot capture ---
+def _run_ps(script: str, timeout: float = 15.0) -> str:
+    """Run a PowerShell script, using persistent process with subprocess fallback."""
+    global _persistent_ps
+    with _persistent_ps_lock:
+        if _persistent_ps is None:
+            _persistent_ps = PersistentPowerShell()
+
+    try:
+        return _persistent_ps.run(script, timeout=timeout)
+    except Exception as e:
+        logger.debug("Persistent PS failed (%s), falling back to subprocess", e)
+        return _run_ps_subprocess(script, timeout=timeout)
+
+
 
 CAPTURE_FULL_SCRIPT = """
 Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName System.Windows.Forms
-$vs = [System.Windows.Forms.SystemInformation]::VirtualScreen
-$bitmap = New-Object System.Drawing.Bitmap($vs.Width, $vs.Height)
+$scr = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+$bitmap = New-Object System.Drawing.Bitmap($scr.Width, $scr.Height)
 $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
-$graphics.CopyFromScreen($vs.Location, [System.Drawing.Point]::Empty, $vs.Size)
+$graphics.CopyFromScreen($scr.Location, [System.Drawing.Point]::Empty, $scr.Size)
 $bitmap.Save("{output_path}", [System.Drawing.Imaging.ImageFormat]::Png)
 $graphics.Dispose()
 $bitmap.Dispose()
-Write-Output "$($vs.Width),$($vs.Height),$($vs.X),$($vs.Y)"
+Write-Output "$($scr.Width),$($scr.Height),$($scr.X),$($scr.Y)"
 """
 
 CAPTURE_REGION_SCRIPT = """
@@ -128,8 +239,8 @@ Write-Output "{width},{height}"
 
 SCREEN_SIZE_SCRIPT = """
 Add-Type -AssemblyName System.Windows.Forms
-$vs = [System.Windows.Forms.SystemInformation]::VirtualScreen
-Write-Output "$($vs.Width),$($vs.Height)"
+$scr = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+Write-Output "$($scr.Width),$($scr.Height)"
 """
 
 SCALE_FACTOR_SCRIPT = """
@@ -153,7 +264,6 @@ Write-Output ([DpiHelper]::GetScale())
 
 
 class WSL2ScreenCapture(ScreenCapture):
-    """Screenshot capture via PowerShell on WSL2."""
 
     def __init__(self):
         self._win_temp = _get_windows_temp_dir()
@@ -244,11 +354,20 @@ class WSL2ScreenCapture(ScreenCapture):
             return 1.0
 
 
-# --- Action execution ---
 
-MOUSE_MOVE_SCRIPT = """
+SMOOTH_MOVE_SCRIPT = """
 Add-Type -AssemblyName System.Windows.Forms
-[System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point({x}, {y})
+$start = [System.Windows.Forms.Cursor]::Position
+$endX = {x}
+$endY = {y}
+$steps = {steps}
+for ($i = 1; $i -le $steps; $i++) {{
+    $t = $i / $steps
+    $cx = [int]($start.X + ($endX - $start.X) * $t)
+    $cy = [int]($start.Y + ($endY - $start.Y) * $t)
+    [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point($cx, $cy)
+    Start-Sleep -Milliseconds {delay}
+}}
 """
 
 MOUSE_EVENT_SCRIPT = """
@@ -269,7 +388,17 @@ public class MouseInput {{
 }}
 '@
 Add-Type -AssemblyName System.Windows.Forms
-[System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point({x}, {y})
+$start = [System.Windows.Forms.Cursor]::Position
+$endX = {x}
+$endY = {y}
+$steps = {steps}
+for ($i = 1; $i -le $steps; $i++) {{
+    $t = $i / $steps
+    $cx = [int]($start.X + ($endX - $start.X) * $t)
+    $cy = [int]($start.Y + ($endY - $start.Y) * $t)
+    [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point($cx, $cy)
+    Start-Sleep -Milliseconds {delay}
+}}
 Start-Sleep -Milliseconds 50
 {mouse_actions}
 """
@@ -281,7 +410,7 @@ Add-Type -AssemblyName System.Windows.Forms
 
 # Virtual key codes for keybd_event (used for keys SendKeys can't handle, like Win)
 VK_CODES = {
-    "win": 0x5B, "lwin": 0x5B, "rwin": 0x5C,
+    "win": 0x5B, "super": 0x5B, "lwin": 0x5B, "rwin": 0x5C,
     "a": 0x41, "b": 0x42, "c": 0x43, "d": 0x44, "e": 0x45, "f": 0x46,
     "g": 0x47, "h": 0x48, "i": 0x49, "j": 0x4A, "k": 0x4B, "l": 0x4C,
     "m": 0x4D, "n": 0x4E, "o": 0x4F, "p": 0x50, "q": 0x51, "r": 0x52,
@@ -353,11 +482,16 @@ MODIFIER_MAP = {
 }
 
 
+SMOOTH_MOVE_STEPS = 20
+SMOOTH_MOVE_DELAY_MS = 10
+
+
 class WSL2ActionExecutor(ActionExecutor):
-    """Action execution via PowerShell on WSL2."""
 
     def move_mouse(self, x: int, y: int) -> None:
-        script = MOUSE_MOVE_SCRIPT.format(x=x, y=y)
+        script = SMOOTH_MOVE_SCRIPT.format(
+            x=x, y=y, steps=SMOOTH_MOVE_STEPS, delay=SMOOTH_MOVE_DELAY_MS
+        )
         try:
             _run_ps(script)
         except Exception as e:
@@ -382,7 +516,10 @@ class WSL2ActionExecutor(ActionExecutor):
         else:
             raise ActionError(f"Unknown mouse button: {button}")
 
-        script = MOUSE_EVENT_SCRIPT.format(x=x, y=y, mouse_actions=actions)
+        script = MOUSE_EVENT_SCRIPT.format(
+            x=x, y=y, steps=SMOOTH_MOVE_STEPS, delay=SMOOTH_MOVE_DELAY_MS,
+            mouse_actions=actions,
+        )
         try:
             _run_ps(script)
         except Exception as e:
@@ -396,7 +533,10 @@ class WSL2ActionExecutor(ActionExecutor):
             "[MouseInput]::mouse_event([MouseInput]::MOUSEEVENTF_LEFTDOWN, 0, 0, 0, [IntPtr]::Zero)\n"
             "[MouseInput]::mouse_event([MouseInput]::MOUSEEVENTF_LEFTUP, 0, 0, 0, [IntPtr]::Zero)"
         )
-        script = MOUSE_EVENT_SCRIPT.format(x=x, y=y, mouse_actions=actions)
+        script = MOUSE_EVENT_SCRIPT.format(
+            x=x, y=y, steps=SMOOTH_MOVE_STEPS, delay=SMOOTH_MOVE_DELAY_MS,
+            mouse_actions=actions,
+        )
         try:
             _run_ps(script)
         except Exception as e:
@@ -421,7 +561,7 @@ class WSL2ActionExecutor(ActionExecutor):
             return
 
         # Check if any key requires keybd_event (e.g., Win key)
-        needs_keybd = any(k.lower() in ("win", "lwin", "rwin") for k in keys)
+        needs_keybd = any(k.lower() in ("win", "super", "lwin", "rwin") for k in keys)
 
         if needs_keybd:
             self._key_press_via_keybd(keys)
@@ -481,7 +621,10 @@ class WSL2ActionExecutor(ActionExecutor):
         # WHEEL_DELTA is 120 per notch
         wheel_amount = amount * 120
         actions = f"[MouseInput]::mouse_event([MouseInput]::MOUSEEVENTF_WHEEL, 0, 0, {wheel_amount}, [IntPtr]::Zero)"
-        script = MOUSE_EVENT_SCRIPT.format(x=x, y=y, mouse_actions=actions)
+        script = MOUSE_EVENT_SCRIPT.format(
+            x=x, y=y, steps=SMOOTH_MOVE_STEPS, delay=SMOOTH_MOVE_DELAY_MS,
+            mouse_actions=actions,
+        )
         try:
             _run_ps(script)
         except Exception as e:
@@ -537,11 +680,9 @@ Start-Sleep -Milliseconds 50
             ) from e
 
 
-# --- Backend ---
 
 
 class WSL2Backend(PlatformBackend):
-    """WSL2 platform backend. Routes all operations through PowerShell."""
 
     def __init__(self):
         self._capture = None

@@ -66,6 +66,78 @@ Configure in `config.yaml` or via environment variables:
 | Anthropic | `ANTHROPIC_API_KEY` | `providers.anthropic.api_key` |
 | OpenAI | `OPENAI_API_KEY` | `providers.openai.api_key` |
 
+## MCP Server
+
+The engine can run as an MCP server, exposing all 14 tools (screenshot, click, type, etc.) to any MCP-compatible client. The engine stays running persistently, so each action takes ~100ms instead of ~1.4s.
+
+### Start the server
+
+```bash
+# stdio transport (default, used by Claude Code / Cursor)
+PYTHONPATH=. python -m computer_use.mcp_server
+
+# SSE transport (for web clients or remote connections)
+PYTHONPATH=. python -m computer_use.mcp_server --transport sse --port 8000
+```
+
+### Connect from Claude Code
+
+Add to `.mcp.json` in the project root:
+
+```json
+{
+    "mcpServers": {
+        "computer_use": {
+            "type": "stdio",
+            "command": "python",
+            "args": ["-m", "computer_use.mcp_server"],
+            "cwd": "/path/to/Agent-Forge",
+            "env": { "PYTHONPATH": "." }
+        }
+    }
+}
+```
+
+Or use the CLI: `claude mcp add --transport stdio --scope project computer_use -- python -m computer_use.mcp_server`
+
+Tools become available as `mcp__computer_use__screenshot()`, `mcp__computer_use__click()`, etc.
+
+### Connect from Cursor
+
+Add to `.cursor/mcp.json`:
+
+```json
+{
+    "mcpServers": {
+        "computer_use": {
+            "command": "python",
+            "args": ["-m", "computer_use.mcp_server"],
+            "cwd": "/path/to/Agent-Forge",
+            "env": { "PYTHONPATH": "." }
+        }
+    }
+}
+```
+
+### Available tools
+
+| Tool | Description |
+|------|-------------|
+| `screenshot()` | Full screen capture (base64 PNG) |
+| `screenshot_region(x, y, w, h)` | Region capture |
+| `click(x, y)` | Left click |
+| `double_click(x, y)` | Double click |
+| `right_click(x, y)` | Right click |
+| `move_mouse(x, y)` | Move cursor |
+| `scroll(x, y, amount)` | Scroll (positive=up) |
+| `drag(sx, sy, ex, ey, duration)` | Click-drag |
+| `type_text(text)` | Type a string |
+| `key_press(keys)` | Key combo ("ctrl+c") |
+| `get_screen_size()` | Screen resolution |
+| `get_platform()` | Detected OS |
+| `get_platform_info()` | Full platform details |
+| `find_element(description)` | Find UI element by name |
+
 ## Architecture
 
 ```
