@@ -34,7 +34,12 @@ mcp = FastMCP(
         "4. When clicking on a list item, aim for the CENTER of the item's text, "
         "not near its edge, to avoid hitting adjacent items.\n"
         "5. If a click lands on the wrong target, take a screenshot, reassess "
-        "coordinates, and retry."
+        "coordinates, and retry.\n"
+        "6. For REPEATED navigation (opening apps, clicking known menus you've "
+        "used 3+ times), use navigate_to or navigate_chain instead of "
+        "screenshot+click cycles. These skip LLM roundtrips for cached targets.\n"
+        "7. Navigation tools only work for well-cached targets (3+ hits). "
+        "For new/unfamiliar targets, use screenshot+click as usual."
     ),
 )
 
@@ -274,6 +279,75 @@ def find_element(description: str) -> str:
     return (
         f"Found '{element.name}' (role={element.role}) at ({dx}, {dy}), "
         f"confidence={element.confidence:.2f}"
+    )
+
+
+@mcp.tool()
+def navigate_to(target_hint: str, target_app: str = "", current_hint: str = "") -> str:
+    """Navigate to a cached UI target without screenshots.
+
+    Uses muscle memory cache to click through known navigation paths.
+    Only works for targets seen 3+ times. Falls back gracefully --
+    if any step fails, returns a message for LLM re-evaluation.
+
+    target_hint: where you want to go (e.g. "message input")
+    target_app: app name (e.g. "whatsapp.exe"). Auto-detected if empty.
+    current_hint: where you are now. Enables multi-step path finding.
+    """
+    engine = _get_engine()
+    result = engine.navigate_to(
+        target_hint=target_hint,
+        target_app=target_app,
+        current_hint=current_hint,
+    )
+    if result["stopped"]:
+        return (
+            f"Navigation stopped: {result['reason']}. "
+            f"Completed {result['completed']}/{result['total']} steps. "
+            f"Take a screenshot to re-evaluate."
+        )
+    if result["completed"] == 0:
+        return "No navigation steps executed. Take a screenshot and use click instead."
+    return (
+        f"Navigated {result['completed']}/{result['total']} steps. "
+        f"Now at: {result['last_hint']}"
+    )
+
+
+@mcp.tool()
+def navigate_chain(hints: list, app_name: str = "") -> str:
+    """Execute a sequence of cached clicks without screenshots.
+
+    Each hint in the list is clicked in order using cached positions.
+    Stops immediately if any hint is not in cache or if the foreground
+    window changes unexpectedly.
+
+    hints: ordered list of element hint strings to click through
+    app_name: app name. Auto-detected from foreground window if empty.
+    """
+    engine = _get_engine()
+    # Auto-detect app if not provided -- navigate_chain will also
+    # re-detect per step for cross-app flows, but we need an initial value.
+    if not app_name:
+        fg = engine._get_fg_window()
+        if fg and fg.app_name:
+            app_name = fg.app_name.lower()
+        else:
+            app_name = engine.get_platform().value
+
+    hint_strs = [str(h) for h in hints]
+    result = engine.navigate_chain(app_name, hint_strs)
+    if result["stopped"]:
+        return (
+            f"Chain stopped: {result['reason']}. "
+            f"Completed {result['completed']}/{result['total']} steps. "
+            f"Take a screenshot to re-evaluate."
+        )
+    if result["completed"] == 0:
+        return "No steps executed. Take a screenshot and use click instead."
+    return (
+        f"Chain complete: {result['completed']}/{result['total']} steps. "
+        f"Now at: {result['last_hint']}"
     )
 
 

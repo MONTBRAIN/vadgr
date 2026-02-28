@@ -42,6 +42,12 @@ EMA_ALPHA = 0.3
 # Cache limits.
 MAX_ENTRIES = 10_000
 
+# Navigation batch: stricter thresholds for autonomous (LLM-free) navigation.
+MIN_NAV_HIT_COUNT = 3       # need 3+ hits before trusting for autonomous nav
+MIN_NAV_CONFIDENCE = 0.5    # minimum decayed confidence for nav
+MIN_NAV_SEQ_COUNT = 2        # sequence edge must be seen 2+ times
+MAX_NAV_CHAIN_DEPTH = 5      # max BFS depth for path finding
+
 
 @dataclass
 class CacheEntry:
@@ -123,6 +129,24 @@ class MuscleMemoryCache:
         c.execute("""
             CREATE UNIQUE INDEX IF NOT EXISTS idx_seq_app_from_to
             ON sequences (app_name, from_hint, to_hint)
+        """)
+        # Cross-app sequences: tracks transitions that cross application
+        # boundaries (e.g. clicking "Windows Search" in code.exe leads to
+        # "Notepad app" in searchhost.exe). Used by cross-app BFS.
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS cross_sequences (
+                id        INTEGER PRIMARY KEY AUTOINCREMENT,
+                from_app  TEXT NOT NULL,
+                from_hint TEXT NOT NULL,
+                to_app    TEXT NOT NULL,
+                to_hint   TEXT NOT NULL,
+                count     INTEGER NOT NULL DEFAULT 1,
+                last_ts   REAL NOT NULL
+            )
+        """)
+        c.execute("""
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_cross_seq
+            ON cross_sequences (from_app, from_hint, to_app, to_hint)
         """)
         c.commit()
 
@@ -223,15 +247,26 @@ class MuscleMemoryCache:
         width: int = 40,
         height: int = 24,
         prev_hint: str = "",
+        prev_app: str = "",
     ) -> CacheEntry:
         """Record a successful interaction at (x, y).
 
         If an entry exists, applies EMA position smoothing and increments hit_count.
         Otherwise creates a new entry. Updates the R-Tree and hot cache.
+
+        When prev_app differs from app_name, records a cross-app sequence
+        so BFS path finding can traverse application boundaries.
         """
         now = time.time()
         key = self._key(app_name, element_hint)
         existing = self._hot.get(key)
+
+        # Determine if this is a cross-app transition
+        is_cross_app = (
+            prev_hint
+            and prev_app
+            and prev_app.lower() != app_name.lower()
+        )
 
         if existing is not None:
             # EMA position smoothing
@@ -259,7 +294,12 @@ class MuscleMemoryCache:
             )
             # Record sequence on every hit, not just the first
             if prev_hint:
-                self._record_sequence(app_name, prev_hint, element_hint, now)
+                if is_cross_app:
+                    self._record_cross_sequence(
+                        prev_app, prev_hint, app_name, element_hint, now,
+                    )
+                else:
+                    self._record_sequence(app_name, prev_hint, element_hint, now)
             self._conn.commit()
 
             existing.x = new_x
@@ -307,7 +347,12 @@ class MuscleMemoryCache:
 
             # Record sequence
             if prev_hint:
-                self._record_sequence(app_name, prev_hint, element_hint, now)
+                if is_cross_app:
+                    self._record_cross_sequence(
+                        prev_app, prev_hint, app_name, element_hint, now,
+                    )
+                else:
+                    self._record_sequence(app_name, prev_hint, element_hint, now)
 
             return entry
 
@@ -331,13 +376,118 @@ class MuscleMemoryCache:
         entry.confidence = new_conf
         entry.miss_count = new_miss
 
+    def lookup_for_nav(
+        self, app_name: str, element_hint: str
+    ) -> Optional[CacheEntry]:
+        """Strict lookup for autonomous navigation (no LLM verification).
+
+        Only returns entries that are well-established:
+        - Hot cache only (exact app+hint match, no spatial guessing)
+        - hit_count >= MIN_NAV_HIT_COUNT
+        - Decayed confidence >= MIN_NAV_CONFIDENCE
+        """
+        if not element_hint:
+            return None
+        key = self._key(app_name, element_hint)
+        entry = self._hot.get(key)
+        if entry is None:
+            return None
+        if entry.hit_count < MIN_NAV_HIT_COUNT:
+            return None
+        conf = self._apply_decay(entry)
+        if conf < MIN_NAV_CONFIDENCE:
+            return None
+        return entry
+
+    def find_path(
+        self,
+        app_name: str,
+        from_hint: str,
+        to_hint: str,
+        max_depth: int = MAX_NAV_CHAIN_DEPTH,
+    ) -> Optional[list[tuple[str, str]]]:
+        """BFS on sequences + cross_sequences to find a navigation path.
+
+        Returns ordered list of (app_name, hint) tuples from source to target
+        (inclusive), or None if no path exists within max_depth. Only traverses
+        edges with count >= MIN_NAV_SEQ_COUNT.
+
+        For backward compatibility with single-app callers: when the entire
+        path stays within one app, the returned tuples all share that app.
+
+        Cross-app example (VS Code -> Search -> Notepad):
+            [("code.exe", "windows search"),
+             ("searchhost.exe", "notepad app"),
+             ("notepad.exe", "text area")]
+        """
+        app = app_name.lower()
+        from_h = from_hint.lower()
+        to_h = to_hint.lower()
+
+        if from_h == to_h:
+            return [(app, from_hint)]
+
+        # BFS node = (app, hint). Build adjacency from both tables.
+        # Type alias: Node = tuple[str, str]
+        from collections import deque
+
+        adj: dict[tuple[str, str], list[tuple[str, str]]] = {}
+
+        # Same-app edges from sequences table
+        rows = self._conn.execute(
+            "SELECT app_name, from_hint, to_hint FROM sequences "
+            "WHERE count >= ?",
+            (MIN_NAV_SEQ_COUNT,),
+        ).fetchall()
+        for r in rows:
+            src = (r["app_name"], r["from_hint"])
+            dst = (r["app_name"], r["to_hint"])
+            adj.setdefault(src, []).append(dst)
+
+        # Cross-app edges from cross_sequences table
+        try:
+            xrows = self._conn.execute(
+                "SELECT from_app, from_hint, to_app, to_hint "
+                "FROM cross_sequences WHERE count >= ?",
+                (MIN_NAV_SEQ_COUNT,),
+            ).fetchall()
+            for r in xrows:
+                src = (r["from_app"], r["from_hint"])
+                dst = (r["to_app"], r["to_hint"])
+                adj.setdefault(src, []).append(dst)
+        except Exception:
+            # cross_sequences table may not exist in old DBs
+            pass
+
+        start: tuple[str, str] = (app, from_h)
+
+        # BFS -- target matches on hint alone (app may differ)
+        queue: deque[list[tuple[str, str]]] = deque([[start]])
+        visited: set[tuple[str, str]] = {start}
+
+        while queue:
+            path = queue.popleft()
+            if len(path) > max_depth + 1:
+                return None
+            current = path[-1]
+            for neighbor in adj.get(current, []):
+                if neighbor[1] == to_h:
+                    return path + [neighbor]
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    queue.append(path + [neighbor])
+
+        return None
+
     def predict_next(
         self, app_name: str, current_hint: str
     ) -> Optional[CacheEntry]:
         """Predict the most likely next target after current_hint.
 
+        Checks same-app sequences first, then cross-app sequences.
         Based on recorded action sequences (e.g., File menu -> Save).
         """
+        # Same-app prediction
         row = self._conn.execute(
             """
             SELECT to_hint FROM sequences
@@ -346,14 +496,30 @@ class MuscleMemoryCache:
             """,
             (app_name.lower(), current_hint.lower()),
         ).fetchone()
-        if row is None:
-            return None
-        return self.lookup(app_name, row["to_hint"])
+        if row is not None:
+            return self.lookup(app_name, row["to_hint"])
+
+        # Cross-app prediction
+        try:
+            xrow = self._conn.execute(
+                """
+                SELECT to_app, to_hint FROM cross_sequences
+                WHERE from_app = ? AND from_hint = ?
+                ORDER BY count DESC LIMIT 1
+                """,
+                (app_name.lower(), current_hint.lower()),
+            ).fetchone()
+            if xrow is not None:
+                return self.lookup(xrow["to_app"], xrow["to_hint"])
+        except Exception:
+            pass
+
+        return None
 
     def _record_sequence(
         self, app_name: str, from_hint: str, to_hint: str, ts: float
     ) -> None:
-        """Upsert a from->to action sequence."""
+        """Upsert a from->to action sequence (same app)."""
         self._conn.execute(
             """
             INSERT INTO sequences (app_name, from_hint, to_hint, count, last_ts)
@@ -362,6 +528,28 @@ class MuscleMemoryCache:
             DO UPDATE SET count = count + 1, last_ts = ?
             """,
             (app_name.lower(), from_hint.lower(), to_hint.lower(), ts, ts),
+        )
+        self._conn.commit()
+
+    def _record_cross_sequence(
+        self,
+        from_app: str,
+        from_hint: str,
+        to_app: str,
+        to_hint: str,
+        ts: float,
+    ) -> None:
+        """Upsert a cross-app action sequence (different apps)."""
+        self._conn.execute(
+            """
+            INSERT INTO cross_sequences
+                (from_app, from_hint, to_app, to_hint, count, last_ts)
+            VALUES (?, ?, ?, ?, 1, ?)
+            ON CONFLICT(from_app, from_hint, to_app, to_hint)
+            DO UPDATE SET count = count + 1, last_ts = ?
+            """,
+            (from_app.lower(), from_hint.lower(),
+             to_app.lower(), to_hint.lower(), ts, ts),
         )
         self._conn.commit()
 
@@ -393,6 +581,12 @@ class MuscleMemoryCache:
         """Return diagnostic info about the cache."""
         count = self._conn.execute("SELECT COUNT(*) FROM memories").fetchone()[0]
         seq_count = self._conn.execute("SELECT COUNT(*) FROM sequences").fetchone()[0]
+        try:
+            cross_count = self._conn.execute(
+                "SELECT COUNT(*) FROM cross_sequences"
+            ).fetchone()[0]
+        except Exception:
+            cross_count = 0
         top = self._conn.execute(
             "SELECT app_name, element_hint, hit_count FROM memories ORDER BY hit_count DESC LIMIT 5"
         ).fetchall()
@@ -400,6 +594,7 @@ class MuscleMemoryCache:
             "total_entries": count,
             "hot_entries": len(self._hot),
             "sequences": seq_count,
+            "cross_sequences": cross_count,
             "top_targets": [
                 {"app": r["app_name"], "hint": r["element_hint"], "hits": r["hit_count"]}
                 for r in top

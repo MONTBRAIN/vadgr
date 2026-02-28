@@ -17,6 +17,10 @@ from computer_use.core.spatial_cache import (
     SPATIAL_RADIUS,
     EMA_ALPHA,
     MAX_ENTRIES,
+    MIN_NAV_HIT_COUNT,
+    MIN_NAV_CONFIDENCE,
+    MIN_NAV_SEQ_COUNT,
+    MAX_NAV_CHAIN_DEPTH,
 )
 
 
@@ -236,3 +240,166 @@ class TestPersistenceAndEviction:
             cache.record_hit("app.exe", f"btn_{i}", i, i)
         count = cache._conn.execute("SELECT COUNT(*) FROM memories").fetchone()[0]
         assert count <= MAX_ENTRIES
+
+
+class TestNavLookup:
+    """Tests for the strict navigation lookup."""
+
+    def test_rejects_low_hits(self, cache):
+        """Entries with hit_count < MIN_NAV_HIT_COUNT are rejected."""
+        cache.record_hit("app.exe", "btn", 100, 200)
+        cache.record_hit("app.exe", "btn", 100, 200)  # hit_count=2
+        result = cache.lookup_for_nav("app.exe", "btn")
+        assert result is None
+
+    def test_accepts_high_hits(self, cache):
+        """Entries with hit_count >= MIN_NAV_HIT_COUNT are accepted."""
+        for _ in range(MIN_NAV_HIT_COUNT + 2):
+            cache.record_hit("app.exe", "btn", 100, 200)
+        result = cache.lookup_for_nav("app.exe", "btn")
+        assert result is not None
+        assert result.hit_count >= MIN_NAV_HIT_COUNT
+
+    def test_rejects_stale(self, cache):
+        """Entries with decayed confidence below threshold are rejected."""
+        for _ in range(5):
+            cache.record_hit("app.exe", "btn", 100, 200)
+        # Simulate old timestamp
+        entry = cache._hot[cache._key("app.exe", "btn")]
+        entry.last_hit_ts = time.time() - DECAY_HALF_LIFE * 5  # ~3% confidence
+        result = cache.lookup_for_nav("app.exe", "btn")
+        assert result is None
+
+    def test_rejects_empty_hint(self, cache):
+        """Empty hint always returns None."""
+        for _ in range(5):
+            cache.record_hit("app.exe", "btn", 100, 200)
+        assert cache.lookup_for_nav("app.exe", "") is None
+
+
+class TestPathFinding:
+    """Tests for BFS path finding on sequences."""
+
+    def test_direct_path(self, cache):
+        """A->B with direct sequence returns [(app, A), (app, B)]."""
+        for _ in range(MIN_NAV_SEQ_COUNT):
+            cache.record_hit("app.exe", "B", 200, 100, prev_hint="A")
+        path = cache.find_path("app.exe", "A", "B")
+        assert path is not None
+        assert path == [("app.exe", "a"), ("app.exe", "b")]
+
+    def test_multi_hop(self, cache):
+        """A->B->C returns [(app, A), (app, B), (app, C)]."""
+        for _ in range(MIN_NAV_SEQ_COUNT):
+            cache.record_hit("app.exe", "B", 200, 100, prev_hint="A")
+            cache.record_hit("app.exe", "C", 300, 100, prev_hint="B")
+        path = cache.find_path("app.exe", "A", "C")
+        assert path is not None
+        assert path == [("app.exe", "a"), ("app.exe", "b"), ("app.exe", "c")]
+
+    def test_no_route(self, cache):
+        """No connection returns None."""
+        for _ in range(MIN_NAV_SEQ_COUNT):
+            cache.record_hit("app.exe", "B", 200, 100, prev_hint="A")
+        path = cache.find_path("app.exe", "A", "D")
+        assert path is None
+
+    def test_max_depth(self, cache):
+        """Path longer than max_depth returns None."""
+        # Create chain: step0 -> step1 -> step2 -> ... -> stepN
+        chain_len = MAX_NAV_CHAIN_DEPTH + 3
+        for i in range(chain_len):
+            for _ in range(MIN_NAV_SEQ_COUNT):
+                cache.record_hit(
+                    "app.exe", f"step{i+1}", (i+1)*100, 100,
+                    prev_hint=f"step{i}",
+                )
+        # Path from step0 to step(MAX+3) exceeds max depth
+        path = cache.find_path("app.exe", "step0", f"step{chain_len}")
+        assert path is None
+
+    def test_same_source_and_target(self, cache):
+        """from == to returns single-element path."""
+        path = cache.find_path("app.exe", "A", "A")
+        assert path == [("app.exe", "A")]
+
+    def test_low_count_edges_ignored(self, cache):
+        """Edges with count < MIN_NAV_SEQ_COUNT are not traversed."""
+        # Only 1 occurrence (below threshold)
+        cache.record_hit("app.exe", "B", 200, 100, prev_hint="A")
+        path = cache.find_path("app.exe", "A", "B")
+        assert path is None
+
+
+class TestCrossAppSequences:
+    """Tests for cross-app sequence recording and path finding."""
+
+    def test_cross_app_sequence_recorded(self, cache):
+        """Cross-app transitions are stored in cross_sequences table."""
+        for _ in range(MIN_NAV_SEQ_COUNT):
+            cache.record_hit(
+                "search.exe", "notepad app", 200, 100,
+                prev_hint="windows search", prev_app="code.exe",
+            )
+        count = cache._conn.execute(
+            "SELECT count FROM cross_sequences "
+            "WHERE from_app='code.exe' AND to_app='search.exe'"
+        ).fetchone()
+        assert count is not None
+        assert count[0] >= MIN_NAV_SEQ_COUNT
+
+    def test_same_app_not_in_cross_table(self, cache):
+        """Same-app transitions go to sequences, not cross_sequences."""
+        for _ in range(MIN_NAV_SEQ_COUNT):
+            cache.record_hit(
+                "app.exe", "B", 200, 100,
+                prev_hint="A", prev_app="app.exe",
+            )
+        cross = cache._conn.execute(
+            "SELECT COUNT(*) FROM cross_sequences"
+        ).fetchone()[0]
+        assert cross == 0
+
+    def test_cross_app_path_finding(self, cache):
+        """BFS finds paths across app boundaries."""
+        # code.exe:search_btn -> search.exe:notepad_app -> notepad.exe:text_area
+        for _ in range(MIN_NAV_SEQ_COUNT):
+            cache.record_hit(
+                "search.exe", "notepad app", 200, 100,
+                prev_hint="search btn", prev_app="code.exe",
+            )
+            cache.record_hit(
+                "notepad.exe", "text area", 300, 200,
+                prev_hint="notepad app", prev_app="search.exe",
+            )
+        # Also need the source entry to exist
+        cache.record_hit("code.exe", "search btn", 50, 12)
+
+        path = cache.find_path("code.exe", "search btn", "text area")
+        assert path is not None
+        assert len(path) == 3
+        assert path[0] == ("code.exe", "search btn")
+        assert path[1] == ("search.exe", "notepad app")
+        assert path[2] == ("notepad.exe", "text area")
+
+    def test_cross_app_predict_next(self, cache):
+        """predict_next returns cross-app targets when no same-app match."""
+        cache.record_hit("search.exe", "notepad app", 200, 100)
+        for _ in range(3):
+            cache.record_hit(
+                "search.exe", "notepad app", 200, 100,
+                prev_hint="search btn", prev_app="code.exe",
+            )
+        predicted = cache.predict_next("code.exe", "search btn")
+        assert predicted is not None
+        assert predicted.element_hint == "notepad app"
+
+    def test_stats_includes_cross_sequences(self, cache):
+        """Stats report cross_sequences count."""
+        cache.record_hit(
+            "app2.exe", "B", 200, 100,
+            prev_hint="A", prev_app="app1.exe",
+        )
+        s = cache.stats()
+        assert "cross_sequences" in s
+        assert s["cross_sequences"] >= 1

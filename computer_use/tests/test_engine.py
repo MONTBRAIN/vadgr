@@ -4,7 +4,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from computer_use.core.engine import ComputerUseEngine, _PCT_BUCKET, _PASSTHROUGH_APPS
+from computer_use.core.engine import (
+    ComputerUseEngine,
+    _PCT_BUCKET,
+    _PASSTHROUGH_APPS,
+)
+from computer_use.core.spatial_cache import MIN_NAV_HIT_COUNT
 from computer_use.core.types import ForegroundWindow, Platform, Region, ScreenState
 
 
@@ -369,3 +374,215 @@ class TestThreeLayerResolution:
         # Should be stored under platform name
         entry = engine._cache.lookup("wsl2", "test button")
         assert entry is not None
+
+
+class TestNavigationBatch:
+    """Tests for the navigate_chain and navigate_to methods."""
+
+    def _make_engine(self, mock_backend, fg_window=None):
+        backend, capture, executor = mock_backend
+        backend.get_foreground_window.return_value = fg_window
+        with (
+            patch("computer_use.core.engine.detect_platform", return_value=Platform.WSL2),
+            patch("computer_use.core.engine.get_backend", return_value=backend),
+            patch("computer_use.core.engine.yaml"),
+            patch("computer_use.core.engine._default_cache_path", return_value=":memory:"),
+        ):
+            engine = ComputerUseEngine()
+        return engine, capture, executor
+
+    def _warm_cache(self, engine, app, hint, x, y, count=None):
+        """Record enough hits to make an entry nav-eligible."""
+        n = count if count is not None else MIN_NAV_HIT_COUNT + 1
+        for _ in range(n):
+            engine._cache.record_hit(app, hint, x, y)
+
+    @patch("computer_use.core.engine.time")
+    def test_navigate_chain_all_cached(self, mock_time, mock_backend):
+        """All hints cached -> all steps complete."""
+        _t = [0.0]
+        def _tick():
+            _t[0] += 2.0  # Jump 2s per call so poll loops exit immediately
+            return _t[0]
+        mock_time.monotonic.side_effect = _tick
+        mock_time.sleep = MagicMock()
+        fg = ForegroundWindow(
+            app_name="app.exe", title="test", x=0, y=0,
+            width=800, height=600,
+        )
+        engine, _, executor = self._make_engine(mock_backend, fg_window=fg)
+        self._warm_cache(engine, "app.exe", "btn_a", 100, 200)
+        self._warm_cache(engine, "app.exe", "btn_b", 300, 400)
+
+        result = engine.navigate_chain("app.exe", ["btn_a", "btn_b"], verify_fg=False)
+        assert result["completed"] == 2
+        assert result["total"] == 2
+        assert result["stopped"] is False
+        assert result["last_hint"] == "btn_b"
+        assert executor.click.call_count == 2
+
+    @patch("computer_use.core.engine.time")
+    def test_navigate_chain_partial_miss(self, mock_time, mock_backend):
+        """Second hint misses -> stops after 1 step."""
+        _t = [0.0]
+        def _tick():
+            _t[0] += 2.0
+            return _t[0]
+        mock_time.monotonic.side_effect = _tick
+        mock_time.sleep = MagicMock()
+        fg = ForegroundWindow(
+            app_name="app.exe", title="test", x=0, y=0,
+            width=800, height=600,
+        )
+        engine, _, executor = self._make_engine(mock_backend, fg_window=fg)
+        self._warm_cache(engine, "app.exe", "btn_a", 100, 200)
+        # btn_b NOT warmed -> cache miss
+
+        result = engine.navigate_chain("app.exe", ["btn_a", "btn_b"], verify_fg=False)
+        assert result["completed"] == 1
+        assert result["stopped"] is True
+        assert "cache miss" in result["reason"]
+        assert executor.click.call_count == 1
+
+    @patch("computer_use.core.engine.time")
+    def test_navigate_chain_empty(self, mock_time, mock_backend):
+        """Empty hints list -> no-op."""
+        _t = [0.0]
+        mock_time.monotonic.side_effect = lambda: (_t.__setitem__(0, _t[0] + 2.0) or _t[0])
+        engine, _, executor = self._make_engine(mock_backend)
+        result = engine.navigate_chain("app.exe", [])
+        assert result["completed"] == 0
+        assert result["stopped"] is False
+        assert executor.click.call_count == 0
+
+    @patch("computer_use.core.engine.time")
+    def test_navigate_to_direct(self, mock_time, mock_backend):
+        """Direct lookup works for single target."""
+        _t = [0.0]
+        def _tick():
+            _t[0] += 2.0
+            return _t[0]
+        mock_time.monotonic.side_effect = _tick
+        mock_time.sleep = MagicMock()
+        fg = ForegroundWindow(
+            app_name="app.exe", title="test", x=0, y=0,
+            width=800, height=600,
+        )
+        engine, _, executor = self._make_engine(mock_backend, fg_window=fg)
+        self._warm_cache(engine, "app.exe", "target", 500, 300)
+
+        result = engine.navigate_to("target", target_app="app.exe")
+        assert result["completed"] == 1
+        assert result["stopped"] is False
+
+    def test_cache_to_screen_roundtrip(self, mock_backend):
+        """Window-relative cache coords convert correctly back to screen."""
+        fg = ForegroundWindow(
+            app_name="app.exe", title="test", x=200, y=100,
+            width=800, height=600,
+        )
+        engine, _, _ = self._make_engine(mock_backend, fg_window=fg)
+        # Cache coords are window-relative: e.g. (150, 250)
+        # Screen coords should be: fg.x + cache_x = 200 + 150 = 350
+        result = engine._cache_to_screen(150, 250)
+        assert result is not None
+        sx, sy = result
+        assert sx == 350  # 200 + 150
+        assert sy == 350  # 100 + 250
+
+    @patch("computer_use.core.engine.time")
+    def test_navigate_chain_cross_app(self, mock_time, mock_backend):
+        """Chain works across app boundaries by re-detecting fg per step."""
+        # Use incrementing time so fg cache TTL expires between steps.
+        call_count = [0]
+        def monotonic_side_effect():
+            call_count[0] += 1
+            return call_count[0] * 1.0  # 1s, 2s, 3s, ...
+        mock_time.monotonic.side_effect = monotonic_side_effect
+        mock_time.sleep = MagicMock()
+
+        backend, capture, executor = mock_backend
+        fg_code = ForegroundWindow(
+            app_name="code.exe", title="VS Code", x=0, y=0,
+            width=800, height=600,
+        )
+        fg_search = ForegroundWindow(
+            app_name="search.exe", title="Search", x=0, y=0,
+            width=400, height=300,
+        )
+        # get_foreground_window returns code.exe initially, then search.exe.
+        # navigate_chain calls _get_fg_window in:
+        #   1. _cache_to_screen (step 0)
+        #   2. _wait_for_nav_transition poll (between steps 0→1)
+        #   3. fg detection (step 1, i > 0)
+        #   4. _cache_to_screen (step 1)
+        backend.get_foreground_window.side_effect = [
+            fg_code,     # _cache_to_screen for step 0
+            fg_search,   # _wait_for_nav_transition poll (step 0→1)
+            fg_search,   # step 1: fg detection (i > 0)
+            fg_search,   # _cache_to_screen for step 1
+        ]
+
+        with (
+            patch("computer_use.core.engine.detect_platform", return_value=Platform.WSL2),
+            patch("computer_use.core.engine.get_backend", return_value=backend),
+            patch("computer_use.core.engine.yaml"),
+            patch("computer_use.core.engine._default_cache_path", return_value=":memory:"),
+        ):
+            engine = ComputerUseEngine()
+
+        # Warm cache: "search btn" under code.exe, "notepad app" under search.exe
+        self._warm_cache(engine, "code.exe", "search btn", 50, 12)
+        self._warm_cache(engine, "search.exe", "notepad app", 200, 100)
+
+        result = engine.navigate_chain("code.exe", ["search btn", "notepad app"])
+        assert result["completed"] == 2
+        assert result["total"] == 2
+        assert result["stopped"] is False
+        assert result["last_hint"] == "notepad app"
+
+    @patch("computer_use.core.engine.time")
+    def test_cross_app_sequence_recorded_via_engine(self, mock_time, mock_backend):
+        """Engine records cross-app sequences when app changes between clicks."""
+        call_count = [0]
+        def monotonic_side_effect():
+            call_count[0] += 1
+            return call_count[0] * 1.0
+        mock_time.monotonic.side_effect = monotonic_side_effect
+        mock_time.sleep = MagicMock()
+
+        backend, capture, executor = mock_backend
+        fg_code = ForegroundWindow(
+            app_name="code.exe", title="VS Code", x=0, y=0,
+            width=800, height=600,
+        )
+        fg_search = ForegroundWindow(
+            app_name="search.exe", title="Search", x=0, y=0,
+            width=400, height=300,
+        )
+        backend.get_foreground_window.side_effect = [
+            fg_code,     # _cache_to_screen for step 0
+            fg_search,   # _wait_for_nav_transition poll (step 0→1)
+            fg_search,   # step 1: fg detection (i > 0)
+            fg_search,   # _cache_to_screen for step 1
+        ]
+
+        with (
+            patch("computer_use.core.engine.detect_platform", return_value=Platform.WSL2),
+            patch("computer_use.core.engine.get_backend", return_value=backend),
+            patch("computer_use.core.engine.yaml"),
+            patch("computer_use.core.engine._default_cache_path", return_value=":memory:"),
+        ):
+            engine = ComputerUseEngine()
+
+        self._warm_cache(engine, "code.exe", "search btn", 50, 12)
+        self._warm_cache(engine, "search.exe", "notepad app", 200, 100)
+
+        engine.navigate_chain("code.exe", ["search btn", "notepad app"])
+
+        # Verify cross-app sequence was recorded
+        cross = engine._cache._conn.execute(
+            "SELECT * FROM cross_sequences "
+            "WHERE from_app='code.exe' AND to_app='search.exe'"
+        ).fetchone()
+        assert cross is not None

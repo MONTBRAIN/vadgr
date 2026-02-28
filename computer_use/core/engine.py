@@ -11,7 +11,7 @@ import yaml
 from computer_use.core.actions import ActionExecutor
 from computer_use.core.errors import ConfigError, PlatformNotSupportedError
 from computer_use.core.screenshot import ScreenCapture
-from computer_use.core.spatial_cache import MuscleMemoryCache
+from computer_use.core.spatial_cache import MuscleMemoryCache, CacheEntry
 from computer_use.core.types import (
     Action,
     Element,
@@ -36,6 +36,14 @@ _FG_WINDOW_TTL = 0.05  # 50ms
 # Apps that are remote desktop shells -- the foreground window is a container
 # for a remote session, NOT the actual app the user is interacting with.
 # When detected, we fall back to platform-level caching (no window context).
+# Navigation batch timing (seconds).
+# Uses poll-until-change pattern (like AutoHotkey WinWaitActive / pywinauto wait).
+_NAV_POLL_INTERVAL = 0.05      # 50ms: fg window poll frequency
+_NAV_SAME_APP_MIN = 0.05       # 50ms: minimum dwell (covers same-app transitions fully)
+_NAV_CROSS_APP_MAX = 1.0       # 1s: ceiling for fresh app launches (Notepad warm ~400-700ms)
+_NAV_CROSS_APP_SETTLE = 0.08   # 80ms: settle after fg changes (window finishes painting)
+_NAV_POST_CLICK_DELAY = 0.05   # 50ms: final step dwell (already at destination)
+
 _PASSTHROUGH_APPS = frozenset({
     "mstsc.exe",        # Windows Remote Desktop
     "msrdc.exe",        # Modern Remote Desktop client
@@ -124,6 +132,7 @@ class ComputerUseEngine:
         db_path = _default_cache_path()
         self._cache = MuscleMemoryCache(db_path)
         self._last_hint: str = ""
+        self._last_app: str = ""
         logger.info("Muscle memory cache: %s", db_path)
 
         # Foreground window cache (TTL-based).
@@ -247,8 +256,10 @@ class ComputerUseEngine:
         self._cache.record_hit(
             ctx.app_name, ctx.hint, ctx.cache_x, ctx.cache_y,
             prev_hint=self._last_hint,
+            prev_app=self._last_app,
         )
         self._last_hint = ctx.hint
+        self._last_app = ctx.app_name
 
     def click(self, x: int, y: int, element_hint: str = None) -> None:
         """Left-click at screenshot coordinates (auto-translated for multi-monitor)."""
@@ -331,6 +342,197 @@ class ComputerUseEngine:
         else:
             self._executor.move_mouse(ax, ay)
         self._cache_record(ctx)
+
+    # --- Navigation Batch API ---
+
+    def _cache_to_screen(
+        self, cache_x: float, cache_y: float
+    ) -> Optional[tuple[int, int]]:
+        """Convert window-relative cache coords to absolute screen coords.
+
+        Uses the current foreground window position. Returns None if
+        no foreground window is available.
+        """
+        fg = self._get_fg_window()
+        if fg is None or fg.width <= 0:
+            return None
+        screen_x = int(fg.x + cache_x) - self._vs_offset_x
+        screen_y = int(fg.y + cache_y) - self._vs_offset_y
+        return screen_x, screen_y
+
+    def _wait_for_nav_transition(self, prev_app: str) -> None:
+        """Wait for the UI to settle between navigation steps.
+
+        Uses a poll-until-change pattern (like AutoHotkey WinWaitActive):
+        - Same-app: waits _NAV_SAME_APP_MIN then returns (~55ms total).
+        - Cross-app: polls fg window every _NAV_POLL_INTERVAL until it
+          changes, then adds _NAV_CROSS_APP_SETTLE settle time.
+        - Timeout: gives up after _NAV_CROSS_APP_MAX (~1s). The next
+          step's cache lookup will fail naturally on app mismatch.
+        """
+        start = time.monotonic()
+
+        # Mandatory minimum dwell -- covers same-app transitions fully
+        time.sleep(_NAV_SAME_APP_MIN)
+
+        # Check if fg window already changed (fast cross-app transition)
+        self._fg_window_ts = 0.0
+        fg = self._get_fg_window()
+        new_app = (fg.app_name.lower() if (fg and fg.app_name) else "")
+
+        if new_app and new_app != prev_app:
+            # Cross-app transition already complete, brief settle and return
+            time.sleep(_NAV_CROSS_APP_SETTLE)
+            return
+
+        if new_app == prev_app:
+            # Same app still in foreground -- either same-app step (done)
+            # or cross-app launch still in progress. Poll until change or timeout.
+            max_end = start + _NAV_CROSS_APP_MAX
+            while time.monotonic() < max_end:
+                time.sleep(_NAV_POLL_INTERVAL)
+                self._fg_window_ts = 0.0
+                fg = self._get_fg_window()
+                new_app = (fg.app_name.lower() if (fg and fg.app_name) else "")
+                if new_app and new_app != prev_app:
+                    time.sleep(_NAV_CROSS_APP_SETTLE)
+                    return
+
+        # Timeout or no fg info -- proceed anyway; next step handles failure
+
+    def navigate_chain(
+        self,
+        app_name: str,
+        hints: list[str],
+        verify_fg: bool = True,
+    ) -> dict:
+        """Execute a sequence of cached clicks without LLM verification.
+
+        Supports cross-app flows: if a single app_name is given, it is used
+        for the first step only. After each click, the foreground window is
+        polled via _wait_for_nav_transition() and subsequent lookups use the
+        current foreground app. This allows chains like
+        ["Windows Search", "Notepad app", "text area"] to work even though
+        each hint lives under a different app.
+
+        For each hint:
+        1. Determine current app (from fg window or parameter)
+        2. Look up in cache (strict nav thresholds)
+        3. Convert to screen coords
+        4. Click with muscle memory adaptation
+        5. Smart wait for UI transition (adaptive polling)
+
+        Returns dict with:
+        - completed: number of steps executed
+        - total: total steps requested
+        - last_hint: last successfully clicked hint
+        - stopped: whether it stopped early
+        - reason: why it stopped (if stopped)
+        """
+        if not hints:
+            return {
+                "completed": 0, "total": 0, "last_hint": "",
+                "stopped": False, "reason": "",
+            }
+
+        completed = 0
+        last_hint = ""
+        current_app = app_name.lower() if app_name else ""
+
+        for i, hint in enumerate(hints):
+            # Step 1: determine current app from foreground window
+            if i > 0 or not current_app:
+                self._fg_window_ts = 0.0
+                fg = self._get_fg_window()
+                if fg and fg.app_name:
+                    current_app = fg.app_name.lower()
+
+            if not current_app:
+                current_app = self._platform.value
+
+            # Step 2: strict cache lookup under current app
+            entry = self._cache.lookup_for_nav(current_app, hint)
+            if entry is None:
+                return {
+                    "completed": completed, "total": len(hints),
+                    "last_hint": last_hint, "stopped": True,
+                    "reason": f"cache miss on step {i}: '{hint}' "
+                              f"(app='{current_app}')",
+                }
+
+            # Step 3: convert cache coords to screen coords
+            coords = self._cache_to_screen(entry.x, entry.y)
+            if coords is None:
+                coords = (int(entry.x), int(entry.y))
+
+            sx, sy = coords
+
+            # Step 4: click with muscle memory adaptation
+            ax, ay = self._to_abs(sx, sy)
+            try:
+                self._executor.click(ax, ay, hit_count=entry.hit_count)
+            except TypeError:
+                self._executor.click(ax, ay)
+
+            # Record the hit and update sequence tracking
+            ctx = _CacheContext(
+                app_name=current_app, hint=hint,
+                cache_x=int(entry.x), cache_y=int(entry.y), layer=3,
+            )
+            self._cache_record(ctx)
+
+            completed += 1
+            last_hint = hint
+
+            # Step 5: smart wait for UI transition
+            if i < len(hints) - 1:
+                self._wait_for_nav_transition(current_app)
+            else:
+                time.sleep(_NAV_POST_CLICK_DELAY)
+
+        return {
+            "completed": completed, "total": len(hints),
+            "last_hint": last_hint, "stopped": False, "reason": "",
+        }
+
+    def navigate_to(
+        self,
+        target_hint: str,
+        target_app: str = "",
+        current_hint: str = "",
+    ) -> dict:
+        """Navigate to a cached UI target, finding the path automatically.
+
+        If current_hint is provided, uses BFS path finding through the
+        sequences and cross_sequences tables. Path finding works across
+        app boundaries automatically.
+
+        Otherwise, attempts a direct cached click.
+
+        Returns same dict as navigate_chain().
+        """
+        # Auto-detect app from foreground window
+        if not target_app:
+            fg = self._get_fg_window()
+            if fg and fg.app_name:
+                target_app = fg.app_name.lower()
+            else:
+                target_app = self._platform.value
+
+        # Try path finding if we know where we are
+        if current_hint:
+            path = self._cache.find_path(target_app, current_hint, target_hint)
+            if path and len(path) > 1:
+                # path is list of (app, hint) tuples; skip first (current pos).
+                # Extract just the hints -- navigate_chain auto-detects app
+                # per step via fg window polling.
+                step_hints = [hint for _app, hint in path[1:]]
+                # Use the app from the first step as initial app_name
+                first_app = path[1][0]
+                return self.navigate_chain(first_app, step_hints)
+
+        # Direct: just try clicking the target
+        return self.navigate_chain(target_app, [target_hint])
 
     def execute_action(self, action: Action) -> None:
         """Execute an Action dataclass directly."""
