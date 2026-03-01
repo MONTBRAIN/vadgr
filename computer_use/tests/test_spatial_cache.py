@@ -403,3 +403,124 @@ class TestCrossAppSequences:
         s = cache.stats()
         assert "cross_sequences" in s
         assert s["cross_sequences"] >= 1
+
+
+class TestNavFallback:
+    """Tests for hint-only fallback in lookup_for_nav."""
+
+    @pytest.fixture
+    def cache(self):
+        c = MuscleMemoryCache(":memory:")
+        yield c
+        c.close()
+
+    def test_fallback_finds_entry_under_different_app(self, cache):
+        """lookup_for_nav finds entry stored under wsl2 when queried as notepad.exe."""
+        # Simulate the bug: entry stored under 'wsl2' due to fg detection failure
+        for _ in range(MIN_NAV_HIT_COUNT):
+            cache.record_hit("wsl2", "text area", 300, 200)
+        # Query with the "real" app name -- should find via fallback
+        entry = cache.lookup_for_nav("notepad.exe", "text area")
+        assert entry is not None
+        assert entry.app_name == "wsl2"
+        assert entry.hit_count >= MIN_NAV_HIT_COUNT
+
+    def test_fallback_prefers_exact_app_match(self, cache):
+        """Exact app+hint match is preferred over fallback."""
+        # Entry under real app with high hits
+        for _ in range(MIN_NAV_HIT_COUNT + 2):
+            cache.record_hit("notepad.exe", "text area", 300, 200)
+        # Entry under wsl2 with lower hits
+        for _ in range(MIN_NAV_HIT_COUNT):
+            cache.record_hit("wsl2", "text area", 310, 210)
+        entry = cache.lookup_for_nav("notepad.exe", "text area")
+        assert entry is not None
+        assert entry.app_name == "notepad.exe"
+
+    def test_fallback_returns_highest_hit_count(self, cache):
+        """Fallback returns the entry with the most hits across apps."""
+        for _ in range(MIN_NAV_HIT_COUNT):
+            cache.record_hit("wsl2", "close btn", 700, 10)
+        for _ in range(MIN_NAV_HIT_COUNT + 5):
+            cache.record_hit("calc.exe", "close btn", 710, 15)
+        # Query as unknown app -- exact miss, fallback finds calc.exe
+        entry = cache.lookup_for_nav("unknown.exe", "close btn")
+        assert entry is not None
+        assert entry.app_name == "calc.exe"
+
+    def test_fallback_respects_hit_threshold(self, cache):
+        """Fallback still requires MIN_NAV_HIT_COUNT."""
+        cache.record_hit("wsl2", "rare btn", 100, 100)
+        entry = cache.lookup_for_nav("app.exe", "rare btn")
+        assert entry is None  # only 1 hit < MIN_NAV_HIT_COUNT
+
+    def test_fallback_not_triggered_on_exact_match(self, cache):
+        """When exact app+hint matches, fallback is not used."""
+        for _ in range(MIN_NAV_HIT_COUNT):
+            cache.record_hit("app.exe", "save btn", 400, 300)
+        # Also warm a wsl2 version with MORE hits
+        for _ in range(MIN_NAV_HIT_COUNT + 10):
+            cache.record_hit("wsl2", "save btn", 410, 310)
+        # Exact match should return app.exe, not wsl2
+        entry = cache.lookup_for_nav("app.exe", "save btn")
+        assert entry is not None
+        assert entry.app_name == "app.exe"
+
+
+class TestMergePlatformEntries:
+    """Tests for merging wsl2 entries into real-app entries."""
+
+    @pytest.fixture
+    def cache(self):
+        c = MuscleMemoryCache(":memory:")
+        yield c
+        c.close()
+
+    def test_merge_combines_hit_counts(self, cache):
+        """Merged entry has combined hit_count from both entries."""
+        for _ in range(5):
+            cache.record_hit("notepad.exe", "text area", 300, 200)
+        for _ in range(10):
+            cache.record_hit("wsl2", "text area", 310, 210)
+
+        merged = cache.merge_platform_entries("wsl2")
+        assert merged == 1
+
+        entry = cache.lookup("notepad.exe", "text area")
+        assert entry is not None
+        assert entry.hit_count == 15  # 5 + 10
+
+    def test_merge_deletes_platform_entry(self, cache):
+        """Platform entry is removed after merge."""
+        for _ in range(3):
+            cache.record_hit("notepad.exe", "text area", 300, 200)
+        for _ in range(4):
+            cache.record_hit("wsl2", "text area", 310, 210)
+
+        cache.merge_platform_entries("wsl2")
+
+        # wsl2 entry should be gone
+        wsl_entry = cache.lookup("wsl2", "text area")
+        assert wsl_entry is None
+
+    def test_merge_keeps_orphan_entries(self, cache):
+        """Platform entries with no real-app counterpart are kept."""
+        for _ in range(5):
+            cache.record_hit("wsl2", "only wsl2 btn", 100, 100)
+
+        merged = cache.merge_platform_entries("wsl2")
+        assert merged == 0  # nothing to merge into
+
+        entry = cache.lookup("wsl2", "only wsl2 btn")
+        assert entry is not None
+
+    def test_merge_returns_count(self, cache):
+        """Returns the number of entries merged."""
+        for _ in range(3):
+            cache.record_hit("app1.exe", "btn_a", 100, 100)
+            cache.record_hit("wsl2", "btn_a", 110, 110)
+            cache.record_hit("app2.exe", "btn_b", 200, 200)
+            cache.record_hit("wsl2", "btn_b", 210, 210)
+        # Two wsl2 entries each have a real-app counterpart
+        merged = cache.merge_platform_entries("wsl2")
+        assert merged == 2

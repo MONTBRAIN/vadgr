@@ -51,6 +51,7 @@ import math
 import random
 import socket
 import struct
+import threading
 import time
 
 logging.basicConfig(
@@ -83,6 +84,7 @@ SM_CYVIRTUALSCREEN = 79
 
 HEADER_SIZE = 4
 DEFAULT_PORT = 19542
+CLIENT_TIMEOUT = 30  # seconds; stale connections are closed after this idle time
 
 VK_MAP = {
     "enter": 0x0D, "return": 0x0D, "tab": 0x09,
@@ -195,15 +197,24 @@ except ImportError:
 
 
 class ScreenCapturer:
-    """Fast screenshot capture using mss. Re-queries monitor info each call for RDP."""
+    """Fast screenshot capture using mss. Thread-safe via per-thread instances."""
 
     def __init__(self):
-        import mss
-        self._sct = mss.mss()
+        self._local = threading.local()
+
+    def _get_sct(self):
+        """Return a per-thread mss instance (GDI contexts are thread-affine)."""
+        sct = getattr(self._local, "sct", None)
+        if sct is None:
+            import mss
+            sct = mss.mss()
+            self._local.sct = sct
+        return sct
 
     def capture_full(self, quality=85):
-        monitor = self._sct.monitors[1]  # primary monitor
-        img = self._sct.grab(monitor)
+        sct = self._get_sct()
+        monitor = sct.monitors[1]  # primary monitor
+        img = sct.grab(monitor)
         jpeg_bytes = self._to_jpeg(img, quality)
         return {
             "width": img.width,
@@ -215,8 +226,9 @@ class ScreenCapturer:
         }
 
     def capture_region(self, x, y, width, height, quality=85):
+        sct = self._get_sct()
         region = {"left": x, "top": y, "width": width, "height": height}
-        img = self._sct.grab(region)
+        img = sct.grab(region)
         jpeg_bytes = self._to_jpeg(img, quality)
         return {
             "width": img.width,
@@ -226,7 +238,8 @@ class ScreenCapturer:
 
     def screen_size(self):
         # Query fresh each time -- RDP can change resolution mid-session
-        m = self._sct.monitors[1]
+        sct = self._get_sct()
+        m = sct.monitors[1]
         return {"width": m["width"], "height": m["height"]}
 
     def scale_factor(self):
@@ -708,6 +721,7 @@ class BridgeDaemon:
         self._port = port
         self._capturer = ScreenCapturer()
         self._input = InputSender()
+        self._dispatch_lock = threading.Lock()
         self._handlers = {
             "ping": self._handle_ping,
             "screenshot_full": self._handle_screenshot_full,
@@ -728,19 +742,28 @@ class BridgeDaemon:
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server.bind(("0.0.0.0", self._port))
-        server.listen(1)
+        server.listen(4)
         logger.info("Bridge daemon listening on 0.0.0.0:%d", self._port)
 
         while True:
             client, addr = server.accept()
             client.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+            client.settimeout(CLIENT_TIMEOUT)
             logger.info("Client connected from %s", addr)
-            try:
-                self._handle_client(client)
-            except Exception as e:
-                logger.warning("Client disconnected: %s", e)
-            finally:
-                client.close()
+            t = threading.Thread(
+                target=self._serve_client, args=(client, addr), daemon=True
+            )
+            t.start()
+
+    def _serve_client(self, client, addr):
+        try:
+            self._handle_client(client)
+        except socket.timeout:
+            logger.info("Client %s timed out after %ds idle", addr, CLIENT_TIMEOUT)
+        except Exception as e:
+            logger.warning("Client %s disconnected: %s", addr, e)
+        finally:
+            client.close()
 
     def _handle_client(self, sock):
         while True:
@@ -765,12 +788,13 @@ class BridgeDaemon:
         if handler is None:
             return {"id": req_id, "ok": False, "error": f"Unknown method: {method}"}
 
-        try:
-            result = handler(params)
-            return {"id": req_id, "ok": True, "result": result}
-        except Exception as e:
-            logger.error("Error in %s: %s", method, e)
-            return {"id": req_id, "ok": False, "error": str(e)}
+        with self._dispatch_lock:
+            try:
+                result = handler(params)
+                return {"id": req_id, "ok": True, "result": result}
+            except Exception as e:
+                logger.error("Error in %s: %s", method, e)
+                return {"id": req_id, "ok": False, "error": str(e)}
 
     def _send_response(self, sock, response):
         payload = json.dumps(response, separators=(",", ":")).encode("utf-8")

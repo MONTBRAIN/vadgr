@@ -1,12 +1,14 @@
 """WSL2 platform backend using PowerShell bridge to control Windows desktop."""
 
 import atexit
+import filecmp
 import logging
 import os
 import shutil
 import subprocess
 import tempfile
 import threading
+import time
 import uuid
 from typing import Optional
 
@@ -683,6 +685,13 @@ Start-Sleep -Milliseconds 50
 
 
 
+# Daemon auto-launch settings.
+_DAEMON_DEPLOY_DIR_NAME = "AgentForge"  # under Windows user profile
+_DAEMON_FILES = ("daemon.py", "spatial_cache.py")
+_DAEMON_LAUNCH_WAIT = 3.0  # seconds to wait after launching before re-probe
+_DAEMON_LAUNCH_RETRIES = 2  # probe attempts after launch
+
+
 class WSL2Backend(PlatformBackend):
 
     def __init__(self):
@@ -691,7 +700,198 @@ class WSL2Backend(PlatformBackend):
         self._bridge = None
         self._use_bridge = None  # None=unchecked, True/False after probe
 
+    # --- Bridge Daemon Auto-Launch ---
+
+    @staticmethod
+    def _find_windows_python() -> Optional[str]:
+        """Find a Python 3 interpreter on the Windows side.
+
+        Checks common locations and falls back to 'where python' via cmd.exe.
+        Returns the Windows path (e.g. C:\\Users\\...\\python.exe) or None.
+        """
+        # Try 'where python' first (works if Python is on PATH)
+        try:
+            result = subprocess.run(
+                ["cmd.exe", "/c", "where python"],
+                capture_output=True, text=True, timeout=5,
+            )
+            if result.returncode == 0:
+                for line in result.stdout.strip().splitlines():
+                    path = line.strip()
+                    if path and "WindowsApps" not in path:
+                        # Exclude the Microsoft Store stub
+                        return path
+        except Exception:
+            pass
+
+        # Check common install locations via the mounted filesystem
+        common_paths = [
+            "/mnt/c/Python312/python.exe",
+            "/mnt/c/Python311/python.exe",
+            "/mnt/c/Python310/python.exe",
+        ]
+        # Also check per-user installs
+        try:
+            win_user = subprocess.run(
+                ["cmd.exe", "/c", "echo %USERPROFILE%"],
+                capture_output=True, text=True, timeout=5,
+            )
+            if win_user.returncode == 0:
+                profile = win_user.stdout.strip()
+                # Convert Windows path to WSL mount
+                if profile and ":" in profile:
+                    drive = profile[0].lower()
+                    rest = profile[2:].replace("\\", "/")
+                    wsl_profile = f"/mnt/{drive}{rest}"
+                    for ver in ("312", "311", "310"):
+                        common_paths.append(
+                            f"{wsl_profile}/AppData/Local/Programs/Python/Python{ver}/python.exe"
+                        )
+        except Exception:
+            pass
+
+        for wsl_path in common_paths:
+            if os.path.isfile(wsl_path):
+                # Convert WSL path back to Windows path
+                return subprocess.run(
+                    ["wslpath", "-w", wsl_path],
+                    capture_output=True, text=True,
+                ).stdout.strip()
+
+        return None
+
+    @staticmethod
+    def _get_deploy_dir() -> Optional[str]:
+        """Get the Windows directory to deploy daemon files to.
+
+        Returns the WSL-mounted path (e.g. /mnt/c/Users/Name/AgentForge).
+        Creates the directory if it doesn't exist.
+        """
+        try:
+            result = subprocess.run(
+                ["cmd.exe", "/c", "echo %USERPROFILE%"],
+                capture_output=True, text=True, timeout=5,
+            )
+            if result.returncode != 0:
+                return None
+            profile = result.stdout.strip()
+            if not profile or ":" not in profile:
+                return None
+            drive = profile[0].lower()
+            rest = profile[2:].replace("\\", "/")
+            wsl_dir = f"/mnt/{drive}{rest}/{_DAEMON_DEPLOY_DIR_NAME}"
+            os.makedirs(wsl_dir, exist_ok=True)
+            return wsl_dir
+        except Exception:
+            return None
+
+    @staticmethod
+    def _deploy_daemon_files(deploy_dir: str) -> bool:
+        """Copy daemon.py and spatial_cache.py to the Windows deploy dir.
+
+        Only copies if the source is newer or different. Returns True if
+        all files are in place.
+        """
+        bridge_dir = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "bridge",
+        )
+        core_dir = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "core",
+        )
+        sources = {
+            "daemon.py": os.path.join(bridge_dir, "daemon.py"),
+            "spatial_cache.py": os.path.join(core_dir, "spatial_cache.py"),
+        }
+        all_ok = True
+        for filename, src in sources.items():
+            dst = os.path.join(deploy_dir, filename)
+            if not os.path.isfile(src):
+                logger.warning("Source file not found: %s", src)
+                all_ok = False
+                continue
+            # Copy if destination missing or different
+            if not os.path.isfile(dst) or not filecmp.cmp(src, dst, shallow=False):
+                shutil.copy2(src, dst)
+                logger.info("Deployed %s -> %s", filename, dst)
+        return all_ok
+
+    def _auto_launch_daemon(self) -> bool:
+        """Attempt to auto-launch the bridge daemon on Windows.
+
+        1. Find Windows Python
+        2. Deploy daemon files
+        3. Launch as background process
+        4. Wait and re-probe
+
+        Returns True if daemon is now available.
+        """
+        win_python = self._find_windows_python()
+        if not win_python:
+            logger.warning(
+                "Windows Python not found. Install it with: "
+                "winget install Python.Python.3.12"
+            )
+            return False
+
+        deploy_dir = self._get_deploy_dir()
+        if not deploy_dir:
+            logger.warning("Could not determine Windows user profile for daemon deploy")
+            return False
+
+        if not self._deploy_daemon_files(deploy_dir):
+            logger.warning("Failed to deploy daemon files")
+            return False
+
+        # Convert deploy_dir to Windows path for cmd.exe
+        try:
+            win_dir = subprocess.run(
+                ["wslpath", "-w", deploy_dir],
+                capture_output=True, text=True,
+            ).stdout.strip()
+        except Exception:
+            return False
+
+        # Launch daemon as a detached Windows process.
+        # Use powershell.exe Start-Process to avoid cmd.exe UNC path issues
+        # (cmd.exe inherits the WSL UNC cwd and fails).
+        # Note: -WindowStyle Hidden breaks WSL2 TCP connectivity; use
+        # Minimized instead (window stays in taskbar, out of the way).
+        logger.info("Auto-launching bridge daemon: %s daemon.py", win_python)
+        try:
+            subprocess.Popen(
+                [
+                    "powershell.exe", "-NoProfile", "-Command",
+                    f'Start-Process -FilePath "{win_python}" '
+                    f'-ArgumentList "daemon.py" '
+                    f'-WorkingDirectory "{win_dir}" '
+                    f'-WindowStyle Minimized',
+                ],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        except Exception as e:
+            logger.warning("Failed to launch daemon: %s", e)
+            return False
+
+        # Wait for daemon to start and re-probe
+        from computer_use.bridge.client import BridgeClient
+        time.sleep(_DAEMON_LAUNCH_WAIT)
+        for attempt in range(_DAEMON_LAUNCH_RETRIES):
+            client = BridgeClient()
+            if client.is_available():
+                self._bridge = client
+                logger.info("Bridge daemon auto-launched successfully")
+                return True
+            if attempt < _DAEMON_LAUNCH_RETRIES - 1:
+                time.sleep(1.0)
+
+        logger.warning("Daemon launched but not responding on port 19542")
+        return False
+
     def _probe_bridge(self) -> bool:
+        """Check if the bridge daemon is available, auto-launching if needed."""
         if self._use_bridge is None:
             try:
                 from computer_use.bridge.client import BridgeClient
@@ -699,6 +899,12 @@ class WSL2Backend(PlatformBackend):
                 self._use_bridge = self._bridge.is_available()
             except Exception:
                 self._use_bridge = False
+
+            # Auto-launch if daemon isn't running
+            if not self._use_bridge:
+                logger.info("Bridge daemon not found, attempting auto-launch...")
+                self._use_bridge = self._auto_launch_daemon()
+
             if self._use_bridge:
                 logger.info("Bridge daemon detected, using fast path")
             else:

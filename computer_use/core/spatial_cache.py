@@ -385,9 +385,27 @@ class MuscleMemoryCache:
         - Hot cache only (exact app+hint match, no spatial guessing)
         - hit_count >= MIN_NAV_HIT_COUNT
         - Decayed confidence >= MIN_NAV_CONFIDENCE
+
+        If exact app+hint misses, falls back to hint-only search across
+        all apps. This handles the common WSL2 case where entries get
+        stored under 'wsl2' instead of the real app name (or vice versa)
+        due to foreground window detection timing.
         """
         if not element_hint:
             return None
+
+        # Try exact app+hint match first
+        entry = self._nav_check(app_name, element_hint)
+        if entry is not None:
+            return entry
+
+        # Fallback: search by hint across all apps (handles wsl2 mismatch)
+        return self._lookup_for_nav_any_app(element_hint)
+
+    def _nav_check(
+        self, app_name: str, element_hint: str
+    ) -> Optional[CacheEntry]:
+        """Check a single app+hint pair against nav thresholds."""
         key = self._key(app_name, element_hint)
         entry = self._hot.get(key)
         if entry is None:
@@ -398,6 +416,29 @@ class MuscleMemoryCache:
         if conf < MIN_NAV_CONFIDENCE:
             return None
         return entry
+
+    def _lookup_for_nav_any_app(
+        self, element_hint: str
+    ) -> Optional[CacheEntry]:
+        """Search for a nav-eligible entry by hint alone, across all apps.
+
+        Returns the entry with the highest hit_count that meets nav
+        thresholds. Used as fallback when the detected app name doesn't
+        match the stored app name (e.g. 'wsl2' vs 'notepad.exe').
+        """
+        hint_lower = element_hint.lower()
+        best: Optional[CacheEntry] = None
+        for key, entry in self._hot.items():
+            if entry.element_hint.lower() != hint_lower:
+                continue
+            if entry.hit_count < MIN_NAV_HIT_COUNT:
+                continue
+            conf = self._apply_decay(entry)
+            if conf < MIN_NAV_CONFIDENCE:
+                continue
+            if best is None or entry.hit_count > best.hit_count:
+                best = entry
+        return best
 
     def find_path(
         self,
@@ -600,6 +641,86 @@ class MuscleMemoryCache:
                 for r in top
             ],
         }
+
+    def merge_platform_entries(self, platform_name: str) -> int:
+        """Merge stray platform-fallback entries into their real app entries.
+
+        When foreground window detection fails, entries get stored under
+        the platform name (e.g. 'wsl2') instead of the real app. This
+        method finds such duplicates and merges them:
+
+        - If a real-app entry exists for the same hint, merge the hit
+          counts and EMA-smooth the positions, then delete the platform entry.
+        - If no real-app entry exists, leave the platform entry alone
+          (it's the only record we have).
+
+        Returns the number of entries merged (and deleted).
+        """
+        platform_lower = platform_name.lower()
+        merged = 0
+
+        # Find all platform-fallback entries
+        platform_entries = [
+            e for e in self._hot.values()
+            if e.app_name.lower() == platform_lower
+        ]
+
+        for pentry in platform_entries:
+            # Search for a real-app entry with the same hint
+            hint_lower = pentry.element_hint.lower()
+            real_entry: Optional[CacheEntry] = None
+            for key, entry in self._hot.items():
+                if (entry.element_hint.lower() == hint_lower
+                        and entry.app_name.lower() != platform_lower):
+                    # Prefer the entry with higher hit_count
+                    if real_entry is None or entry.hit_count > real_entry.hit_count:
+                        real_entry = entry
+
+            if real_entry is None:
+                continue  # no real-app counterpart, keep the platform entry
+
+            # Merge into the real-app entry
+            combined_hits = real_entry.hit_count + pentry.hit_count
+            # Weight-averaged position (by hit_count)
+            total = real_entry.hit_count + pentry.hit_count
+            new_x = (real_entry.x * real_entry.hit_count + pentry.x * pentry.hit_count) / total
+            new_y = (real_entry.y * real_entry.hit_count + pentry.y * pentry.hit_count) / total
+            new_ts = max(real_entry.last_hit_ts, pentry.last_hit_ts)
+
+            self._conn.execute(
+                """UPDATE memories SET
+                    x = ?, y = ?, hit_count = ?, last_hit_ts = ?, confidence = 1.0
+                WHERE id = ?""",
+                (new_x, new_y, combined_hits, new_ts, real_entry.id),
+            )
+            self._conn.execute(
+                "UPDATE memories_rtree SET min_x=?, max_x=?, min_y=?, max_y=? WHERE id=?",
+                (new_x, new_x + real_entry.width, new_y, new_y + real_entry.height,
+                 real_entry.id),
+            )
+
+            # Delete the platform entry
+            self._conn.execute("DELETE FROM memories WHERE id = ?", (pentry.id,))
+            self._conn.execute("DELETE FROM memories_rtree WHERE id = ?", (pentry.id,))
+
+            # Update hot cache
+            real_entry.x = new_x
+            real_entry.y = new_y
+            real_entry.hit_count = combined_hits
+            real_entry.last_hit_ts = new_ts
+            real_entry.confidence = 1.0
+
+            pkey = self._key(pentry.app_name, pentry.element_hint)
+            self._hot.pop(pkey, None)
+
+            merged += 1
+
+        if merged > 0:
+            self._conn.commit()
+            logger.info(
+                "Merged %d '%s' entries into real-app entries", merged, platform_name,
+            )
+        return merged
 
     def flush(self) -> None:
         """Force WAL checkpoint."""

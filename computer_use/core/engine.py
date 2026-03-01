@@ -451,6 +451,8 @@ class ComputerUseEngine:
                 current_app = self._platform.value
 
             # Step 2: strict cache lookup under current app
+            # lookup_for_nav falls back to hint-only search across all apps
+            # when exact app+hint misses (handles wsl2 app name mismatch).
             entry = self._cache.lookup_for_nav(current_app, hint)
             if entry is None:
                 return {
@@ -459,6 +461,13 @@ class ComputerUseEngine:
                     "reason": f"cache miss on step {i}: '{hint}' "
                               f"(app='{current_app}')",
                 }
+
+            # Adopt the entry's real app_name for coord conversion and
+            # subsequent steps. This is critical when the fallback found
+            # the entry under a different app (e.g. 'notepad.exe' instead
+            # of the auto-detected 'wsl2').
+            if entry.app_name and entry.app_name.lower() != current_app:
+                current_app = entry.app_name.lower()
 
             # Step 3: convert cache coords to screen coords
             coords = self._cache_to_screen(entry.x, entry.y)

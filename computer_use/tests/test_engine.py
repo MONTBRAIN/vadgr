@@ -586,3 +586,51 @@ class TestNavigationBatch:
             "WHERE from_app='code.exe' AND to_app='search.exe'"
         ).fetchone()
         assert cross is not None
+
+    @patch("computer_use.core.engine.time")
+    def test_navigate_chain_fallback_finds_wsl2_entry(self, mock_time, mock_backend):
+        """Chain finds entries stored under 'wsl2' when fg detects a different app."""
+        _t = [0.0]
+        def _tick():
+            _t[0] += 2.0
+            return _t[0]
+        mock_time.monotonic.side_effect = _tick
+        mock_time.sleep = MagicMock()
+        # fg window says calc.exe, but entry is stored under wsl2
+        fg = ForegroundWindow(
+            app_name="calculatorapp.exe", title="Calculator", x=0, y=0,
+            width=400, height=600,
+        )
+        engine, _, executor = self._make_engine(mock_backend, fg_window=fg)
+        # Warm under wsl2 (simulates the bug)
+        self._warm_cache(engine, "wsl2", "calc close btn", 380, 10)
+
+        result = engine.navigate_chain("calculatorapp.exe", ["calc close btn"])
+        assert result["completed"] == 1
+        assert result["stopped"] is False
+
+    @patch("computer_use.core.engine.time")
+    def test_navigate_chain_prefers_exact_over_fallback(self, mock_time, mock_backend):
+        """When exact app match exists, fallback is not used."""
+        _t = [0.0]
+        def _tick():
+            _t[0] += 2.0
+            return _t[0]
+        mock_time.monotonic.side_effect = _tick
+        mock_time.sleep = MagicMock()
+        fg = ForegroundWindow(
+            app_name="app.exe", title="test", x=0, y=0,
+            width=800, height=600,
+        )
+        engine, _, executor = self._make_engine(mock_backend, fg_window=fg)
+        # Warm both app.exe and wsl2 versions
+        self._warm_cache(engine, "app.exe", "my button", 100, 200)
+        self._warm_cache(engine, "wsl2", "my button", 110, 210)
+
+        result = engine.navigate_chain("app.exe", ["my button"])
+        assert result["completed"] == 1
+        assert result["stopped"] is False
+        # Should have clicked at app.exe coords, not wsl2 coords
+        click_args = executor.click.call_args
+        assert click_args[0][0] == 100  # x from app.exe entry
+        assert click_args[0][1] == 200  # y from app.exe entry

@@ -294,7 +294,10 @@ class TestWSL2BackendFallback:
         from computer_use.platform.wsl2 import WSL2Backend
 
         backend = WSL2Backend()
-        with patch("computer_use.bridge.client.BridgeClient") as MockClient:
+        with (
+            patch("computer_use.bridge.client.BridgeClient") as MockClient,
+            patch.object(WSL2Backend, "_auto_launch_daemon", return_value=False),
+        ):
             MockClient.return_value.is_available.return_value = False
             backend._probe_bridge()
             assert backend._use_bridge is False
@@ -303,7 +306,10 @@ class TestWSL2BackendFallback:
         from computer_use.platform.wsl2 import WSL2Backend
 
         backend = WSL2Backend()
-        with patch("computer_use.bridge.client.BridgeClient") as MockClient:
+        with (
+            patch("computer_use.bridge.client.BridgeClient") as MockClient,
+            patch.object(WSL2Backend, "_auto_launch_daemon", return_value=False),
+        ):
             MockClient.return_value.is_available.return_value = False
             backend._probe_bridge()
             backend._probe_bridge()
