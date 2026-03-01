@@ -44,6 +44,10 @@ _NAV_CROSS_APP_MAX = 1.0       # 1s: ceiling for fresh app launches (Notepad war
 _NAV_CROSS_APP_SETTLE = 0.08   # 80ms: settle after fg changes (window finishes painting)
 _NAV_POST_CLICK_DELAY = 0.05   # 50ms: final step dwell (already at destination)
 
+# Minimum confidence from the accessibility API to trust a Layer 2 result.
+# Below this threshold we fall through to Layer 1 (pct-bucketed coords).
+_LAYER2_MIN_CONFIDENCE = 0.5
+
 _PASSTHROUGH_APPS = frozenset({
     "mstsc.exe",        # Windows Remote Desktop
     "msrdc.exe",        # Modern Remote Desktop client
@@ -235,16 +239,22 @@ class ComputerUseEngine:
             try:
                 ax, ay = self._to_abs(x, y)
                 el = locator.find_element_at(ax, ay)
-                if el and el.name:
+                if el and el.name and el.confidence >= _LAYER2_MIN_CONFIDENCE:
                     hint = f"{el.role}:{el.name}"
+                    logger.debug("Layer 2 hit: %s at (%d, %d)", hint, x, y)
                     return _CacheContext(
                         app_name=app_name, hint=hint,
                         cache_x=cache_x, cache_y=cache_y, layer=2,
                         win_w=fg_w, win_h=fg_h,
                         screen_w=scr_w, screen_h=scr_h,
                     )
-            except Exception:
-                pass
+                else:
+                    logger.debug(
+                        "Layer 2 miss at (%d, %d): el=%s",
+                        x, y, el,
+                    )
+            except Exception as exc:
+                logger.debug("Layer 2 error at (%d, %d): %s", x, y, exc)
 
         # Layer 1: percentage-bucketed coords (survives resize)
         if fg_w > 0 and fg_h > 0:

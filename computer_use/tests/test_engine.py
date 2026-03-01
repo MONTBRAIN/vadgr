@@ -6,11 +6,12 @@ import pytest
 
 from computer_use.core.engine import (
     ComputerUseEngine,
+    _LAYER2_MIN_CONFIDENCE,
     _PCT_BUCKET,
     _PASSTHROUGH_APPS,
 )
 from computer_use.core.spatial_cache import MIN_NAV_HIT_COUNT
-from computer_use.core.types import ForegroundWindow, Platform, Region, ScreenState
+from computer_use.core.types import Element, ForegroundWindow, Platform, Region, ScreenState
 
 
 @pytest.fixture
@@ -808,3 +809,151 @@ class TestNavigationBatch:
         assert result["stopped"] is True
         assert "out of bounds" in result["reason"]
         assert executor.click.call_count == 0
+
+
+class TestLayer2Integration:
+    """Tests that Layer 2 (accessibility API) integrates correctly with the engine."""
+
+    def _make_engine(self, mock_backend, fg_window=None, locator=None):
+        backend, capture, executor = mock_backend
+        backend.get_foreground_window.return_value = fg_window
+        with (
+            patch("computer_use.core.engine.detect_platform", return_value=Platform.WSL2),
+            patch("computer_use.core.engine.get_backend", return_value=backend),
+            patch("computer_use.core.engine.yaml"),
+            patch("computer_use.core.engine._default_cache_path", return_value=":memory:"),
+        ):
+            engine = ComputerUseEngine()
+        if locator is not None:
+            engine._locator = locator
+            engine._get_locator = lambda: locator
+        return engine, capture, executor
+
+    def _mock_locator(self, element_at_result=None):
+        """Create a mock locator that returns the given element from find_element_at."""
+        locator = MagicMock()
+        locator.find_element_at.return_value = element_at_result
+        locator.is_available.return_value = True
+        return locator
+
+    def test_layer2_produces_semantic_hint(self, mock_backend):
+        """When a11y returns an element, cache stores 'role:name' hint."""
+        fg = ForegroundWindow(
+            app_name="notepad.exe", title="Untitled", x=0, y=0,
+            width=800, height=600,
+        )
+        el = Element(
+            name="Save", role="Button",
+            region=Region(100, 200, 80, 30),
+            confidence=0.95, source="accessibility",
+        )
+        locator = self._mock_locator(element_at_result=el)
+        engine, _, executor = self._make_engine(mock_backend, fg_window=fg, locator=locator)
+
+        engine.click(100, 200)
+        # Should have stored under "Button:Save", not a pct-bucket
+        entry = engine._cache.lookup("notepad.exe", "Button:Save", 100, 200)
+        assert entry is not None
+        assert entry.hit_count == 1
+
+    def test_layer2_falls_to_layer1_on_none(self, mock_backend):
+        """When a11y returns None, Layer 1 pct-bucket is used."""
+        fg = ForegroundWindow(
+            app_name="notepad.exe", title="Untitled", x=0, y=0,
+            width=800, height=600,
+        )
+        locator = self._mock_locator(element_at_result=None)
+        engine, _, executor = self._make_engine(mock_backend, fg_window=fg, locator=locator)
+
+        engine.click(100, 200)
+        # Layer 1: pct_x = 100*100/800 = 12 -> bucket 12
+        # pct_y = 200*100/600 = 33 -> bucket 33
+        bx = (12 // _PCT_BUCKET) * _PCT_BUCKET
+        by = (33 // _PCT_BUCKET) * _PCT_BUCKET
+        layer1_hint = f"@{bx}%,{by}%"
+        entry = engine._cache.lookup("notepad.exe", layer1_hint, 100, 200)
+        assert entry is not None
+
+    def test_layer2_falls_to_layer1_on_exception(self, mock_backend):
+        """When a11y raises, click still happens and Layer 1 is used."""
+        fg = ForegroundWindow(
+            app_name="notepad.exe", title="Untitled", x=0, y=0,
+            width=800, height=600,
+        )
+        locator = self._mock_locator()
+        locator.find_element_at.side_effect = RuntimeError("PowerShell crashed")
+        engine, _, executor = self._make_engine(mock_backend, fg_window=fg, locator=locator)
+
+        engine.click(100, 200)
+        # Click should still execute
+        executor.click.assert_called_once_with(100, 200)
+        # Layer 1 should be used as fallback
+        bx = (12 // _PCT_BUCKET) * _PCT_BUCKET
+        by = (33 // _PCT_BUCKET) * _PCT_BUCKET
+        layer1_hint = f"@{bx}%,{by}%"
+        entry = engine._cache.lookup("notepad.exe", layer1_hint, 100, 200)
+        assert entry is not None
+
+    def test_layer2_ignores_empty_name(self, mock_backend):
+        """Element with empty name should fall through to Layer 1."""
+        fg = ForegroundWindow(
+            app_name="notepad.exe", title="Untitled", x=0, y=0,
+            width=800, height=600,
+        )
+        el = Element(
+            name="", role="Pane",
+            region=Region(0, 0, 800, 600),
+            confidence=1.0, source="accessibility",
+        )
+        locator = self._mock_locator(element_at_result=el)
+        engine, _, executor = self._make_engine(mock_backend, fg_window=fg, locator=locator)
+
+        engine.click(400, 300)
+        # Empty name -> Layer 2 miss -> Layer 1 pct-bucket stored
+        entry = engine._cache.lookup("notepad.exe", "Pane:", 400, 300)
+        # Spatial lookup finds the entry, but it should have a Layer 1 hint, not "Pane:"
+        assert entry is not None
+        assert entry.element_hint.startswith("@")  # Layer 1 pct-bucket, not a11y
+
+    def test_layer2_ignores_low_confidence(self, mock_backend):
+        """Element with confidence below threshold falls to Layer 1."""
+        fg = ForegroundWindow(
+            app_name="notepad.exe", title="Untitled", x=0, y=0,
+            width=800, height=600,
+        )
+        el = Element(
+            name="Maybe", role="Button",
+            region=Region(100, 200, 80, 30),
+            confidence=_LAYER2_MIN_CONFIDENCE - 0.1,
+            source="accessibility",
+        )
+        locator = self._mock_locator(element_at_result=el)
+        engine, _, executor = self._make_engine(mock_backend, fg_window=fg, locator=locator)
+
+        engine.click(100, 200)
+        # Low confidence -> Layer 2 miss -> Layer 1 pct-bucket stored
+        entry = engine._cache.lookup("notepad.exe", "Button:Maybe", 100, 200)
+        # Spatial lookup finds the entry, but it should have a Layer 1 hint
+        assert entry is not None
+        assert entry.element_hint.startswith("@")  # Layer 1, not "Button:Maybe"
+
+    def test_layer3_overrides_layer2(self, mock_backend):
+        """Explicit element_hint (Layer 3) means a11y is never called."""
+        fg = ForegroundWindow(
+            app_name="notepad.exe", title="Untitled", x=0, y=0,
+            width=800, height=600,
+        )
+        el = Element(
+            name="Save", role="Button",
+            region=Region(100, 200, 80, 30),
+            confidence=1.0, source="accessibility",
+        )
+        locator = self._mock_locator(element_at_result=el)
+        engine, _, executor = self._make_engine(mock_backend, fg_window=fg, locator=locator)
+
+        engine.click(100, 200, element_hint="My Custom Hint")
+        # Layer 3 takes priority -> a11y never called
+        locator.find_element_at.assert_not_called()
+        # Stored under custom hint, not a11y hint
+        entry = engine._cache.lookup("notepad.exe", "My Custom Hint", 100, 200)
+        assert entry is not None

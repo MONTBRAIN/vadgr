@@ -10,6 +10,32 @@ from computer_use.grounding.base import ElementLocator
 
 logger = logging.getLogger("computer_use.grounding.accessibility")
 
+# Timeout for individual PowerShell UI Automation calls (seconds).
+# 2s is generous enough for normal use but prevents runaway processes
+# from blocking the click path (default _run_ps timeout is 15s).
+_A11Y_PS_TIMEOUT = 2.0
+
+# Maximum depth for SmallestElementFromPoint child-walking.
+# FromPoint() returns the shallowest match; we walk up to this many levels
+# of children to find the deepest (smallest) element containing the point.
+_A11Y_MAX_CHILD_DEPTH = 5
+
+# DPI awareness setup for PowerShell accessibility scripts (idempotent).
+# Without this, FromPoint() receives DWM-virtualized coordinates on HiDPI
+# screens, causing it to resolve the wrong element.  Uses a dedicated class
+# name (A11yDpi) to avoid collisions with DpiHelper in wsl2.py.
+_A11Y_DPI_SETUP = """\
+Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+public class A11yDpi {
+    [DllImport("user32.dll")]
+    public static extern bool SetProcessDPIAware();
+}
+'@ -ErrorAction SilentlyContinue
+[void][A11yDpi]::SetProcessDPIAware()
+"""
+
 
 class AccessibilityLocator(ElementLocator):
     """Locate elements using OS accessibility APIs.
@@ -70,16 +96,51 @@ if ($element) {{
 }}
 """
 
-    _FIND_AT_SCRIPT = """
+    _FIND_AT_SCRIPT = """\
 Add-Type -AssemblyName UIAutomationClient
 Add-Type -AssemblyName UIAutomationTypes
-$point = New-Object System.Windows.Point({x}, {y})
-$element = [System.Windows.Automation.AutomationElement]::FromPoint($point)
-if ($element) {{
-    $rect = $element.Current.BoundingRectangle
-    Write-Output "$($element.Current.Name)|$($element.Current.ControlType.ProgrammaticName)|$($rect.X)|$($rect.Y)|$($rect.Width)|$($rect.Height)"
-}} else {{
+$px = {x}
+$py = {y}
+$point = New-Object System.Windows.Point($px, $py)
+$el = [System.Windows.Automation.AutomationElement]::FromPoint($point)
+if (-not $el) {{
     Write-Output "NOT_FOUND"
+}} else {{
+    $cond = [System.Windows.Automation.Condition]::TrueCondition
+    $best = $el
+    $bestArea = $best.Current.BoundingRectangle.Width * $best.Current.BoundingRectangle.Height
+    $depth = 0
+    $maxDepth = {max_depth}
+    $changed = $true
+    while ($changed -and $depth -lt $maxDepth) {{
+        $changed = $false
+        $depth++
+        try {{
+            $children = $best.FindAll(
+                [System.Windows.Automation.TreeScope]::Children, $cond)
+        }} catch {{
+            break
+        }}
+        foreach ($child in $children) {{
+            try {{
+                $r = $child.Current.BoundingRectangle
+                if ($r.Width -le 0 -or $r.Height -le 0) {{ continue }}
+                if ($px -ge $r.X -and $px -le ($r.X + $r.Width) -and
+                    $py -ge $r.Y -and $py -le ($r.Y + $r.Height)) {{
+                    $area = $r.Width * $r.Height
+                    if ($area -lt $bestArea) {{
+                        $best = $child
+                        $bestArea = $area
+                        $changed = $true
+                    }}
+                }}
+            }} catch {{
+                continue
+            }}
+        }}
+    }}
+    $rect = $best.Current.BoundingRectangle
+    Write-Output "$($best.Current.Name)|$($best.Current.ControlType.ProgrammaticName)|$($rect.X)|$($rect.Y)|$($rect.Width)|$($rect.Height)"
 }}
 """
 
@@ -102,8 +163,10 @@ foreach ($el in $elements) {
         try:
             from computer_use.platform.wsl2 import _run_ps
 
-            result = _run_ps(self._FIND_SCRIPT.format(name=description))
+            script = _A11Y_DPI_SETUP + self._FIND_SCRIPT.format(name=description)
+            result = _run_ps(script, timeout=_A11Y_PS_TIMEOUT)
             if result == "NOT_FOUND" or not result:
+                logger.debug("Windows a11y find_element: not found for '%s'", description)
                 return None
             return self._parse_element(result)
         except Exception as e:
@@ -114,7 +177,7 @@ foreach ($el in $elements) {
         try:
             from computer_use.platform.wsl2 import _run_ps
 
-            result = _run_ps(self._FIND_ALL_SCRIPT, timeout=10.0)
+            result = _run_ps(_A11Y_DPI_SETUP + self._FIND_ALL_SCRIPT, timeout=10.0)
             if not result:
                 return []
             elements = []
@@ -131,12 +194,16 @@ foreach ($el in $elements) {
         try:
             from computer_use.platform.wsl2 import _run_ps
 
-            result = _run_ps(self._FIND_AT_SCRIPT.format(x=x, y=y))
+            script = _A11Y_DPI_SETUP + self._FIND_AT_SCRIPT.format(
+                x=x, y=y, max_depth=_A11Y_MAX_CHILD_DEPTH,
+            )
+            result = _run_ps(script, timeout=_A11Y_PS_TIMEOUT)
             if result == "NOT_FOUND" or not result:
+                logger.debug("Windows a11y find_element_at: nothing at (%d, %d)", x, y)
                 return None
             return self._parse_element(result)
         except Exception as e:
-            logger.debug("Windows a11y find_element_at failed: %s", e)
+            logger.debug("Windows a11y find_element_at failed at (%d, %d): %s", x, y, e)
             return None
 
     def _parse_element(self, line: str) -> Optional[Element]:
