@@ -20,7 +20,7 @@
 \title{Muscle Memory for Machines: A Spatiotemporal\\Motor Cache for Autonomous GUI Agents}
 
 \author{
-\IEEEauthorblockN{Santiago}
+\IEEEauthorblockN{Victor Santiago Monta\~{n}o Diaz}
 \IEEEauthorblockA{Independent Researcher}
 }
 
@@ -30,7 +30,7 @@
 % ABSTRACT
 % ============================================================
 \begin{abstract}
-Current AI computer use agents interact with graphical user interfaces statelessly---every click is treated as a first-time click, with no benefit from prior interactions. This contrasts sharply with human motor behavior, where repeated actions become faster and more automatic through practice. We present a spatiotemporal motor memory cache that enables autonomous GUI agents to develop ``muscle memory.'' The system integrates eight complementary mechanisms: R-Tree spatial indexing, Power Law of Practice speed-up, Fitts's Law movement timing, WindMouse trajectory adaptation, temporal decay, EMA position smoothing, action sequence prediction, and cross-session persistence. A three-layer resolution hierarchy---model-provided hints, accessibility API detection, and percentage-bucketed window-relative coordinates---ensures that \emph{every} mouse interaction builds cache entries, regardless of application or platform. Testing on real desktop applications across four operating systems demonstrates monotonically growing cache hit counts across sessions and across independent agent instances, with movement durations converging to 30\% of initial values for frequently-used targets. To our knowledge, this is the first system to integrate cognitive science motor learning models into the action-execution layer of AI GUI agents.
+Current AI computer use agents treat every click as a first-time click. No matter how many times an agent clicks the same button, the movement takes the same amount of time. Humans, by contrast, get faster with practice. We present a spatiotemporal motor memory cache that gives autonomous GUI agents the ability to develop ``muscle memory.'' The system combines eight mechanisms: R-Tree spatial indexing, Power Law of Practice speed-up, Fitts's Law movement timing, WindMouse trajectory adaptation, temporal decay, EMA position smoothing, action sequence prediction, and cross-session persistence. A three-layer resolution hierarchy (model-provided hints, accessibility API detection, and percentage-bucketed coordinates) ensures that \emph{every} mouse interaction builds cache entries, regardless of application or platform. Testing on real desktop applications across four operating systems shows cache hits growing across sessions and across independent agent instances, with movement durations dropping to 30\% of initial values for frequently-used targets. To our knowledge, this is the first system to apply cognitive science motor learning models to the execution layer of AI GUI agents.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -42,13 +42,13 @@ computer use agents, muscle memory, motor learning, Fitts's Law, Power Law of Pr
 % ============================================================
 \section{Introduction}
 
-A human expert's 100th click on ``Save'' is fast and automatic---a ballistic movement requiring no conscious attention. An AI computer use agent's 100th click on the same button takes exactly as long as its first. This asymmetry reveals a fundamental gap in current autonomous GUI systems: they have no concept of motor learning.
+A human expert's 100th click on ``Save'' is fast and automatic. An AI computer use agent's 100th click on the same button takes exactly as long as its first. Current GUI agents have no concept of motor learning.
 
-Recent advances in large language models (LLMs) have enabled a new class of \emph{computer use agents} (CUAs) that interact with desktop applications through screenshots and mouse/keyboard input~\cite{anthropic2024computer,openai2025operator,zhang2024ufo}. These systems have demonstrated impressive reasoning capabilities---deciding \emph{what} to click based on visual understanding. However, the execution layer---\emph{how} to reach the target---remains entirely stateless. Every mouse movement is computed from scratch, with no benefit from prior interactions with the same UI elements.
+Recent large language models (LLMs) have enabled a new class of \emph{computer use agents} (CUAs) that interact with desktop applications through screenshots and mouse/keyboard input~\cite{anthropic2024computer,openai2025operator,zhang2024ufo}. These systems are good at deciding \emph{what} to click based on visual understanding. But the execution layer, \emph{how} the cursor reaches the target, is stateless. Every mouse movement is computed from scratch, even for buttons the agent has clicked hundreds of times before.
 
-This stands in stark contrast to human motor behavior. Decades of cognitive science research have established that repeated aimed movements follow the \emph{Power Law of Practice}~\cite{newell1981}: movement time decreases as a power function of repetition count. Additionally, the base timing of aimed movements obeys \emph{Fitts's Law}~\cite{fitts1954}, and unused motor memories decay following patterns consistent with the \emph{Ebbinghaus forgetting curve}~\cite{ebbinghaus1885}.
+Humans work differently. Decades of cognitive science research show that repeated aimed movements follow the \emph{Power Law of Practice}~\cite{newell1981}: movement time decreases as a power function of repetition count. The base timing of aimed movements follows \emph{Fitts's Law}~\cite{fitts1954}, and unused motor memories fade over time following the \emph{Ebbinghaus forgetting curve}~\cite{ebbinghaus1885}.
 
-We present a \emph{spatiotemporal motor memory cache} that bridges this gap. Our system sits entirely in the execution layer, orthogonal to and composable with any LLM backbone. It integrates eight complementary mechanisms:
+We present a \emph{spatiotemporal motor memory cache} that brings this behavior to GUI agents. The system sits in the execution layer and works with any LLM backbone. It combines eight mechanisms:
 
 \begin{enumerate}[noitemsep,topsep=0pt]
     \item \textbf{R-Tree spatial indexing} for proximity-based element lookup
@@ -61,7 +61,7 @@ We present a \emph{spatiotemporal motor memory cache} that bridges this gap. Our
     \item \textbf{Cross-session SQLite persistence}
 \end{enumerate}
 
-A three-layer resolution hierarchy ensures universal coverage: model-provided semantic hints (Layer~3), accessibility API auto-detection (Layer~2), and percentage-bucketed window-relative coordinates (Layer~1). Layer~1 requires only the foreground window's bounding rectangle---available on every major OS---ensuring that \emph{every} click builds muscle memory, even in applications with no accessibility support.
+A three-layer resolution hierarchy ensures every click is captured: model-provided semantic hints (Layer~3), accessibility API auto-detection (Layer~2), and percentage-bucketed window-relative coordinates (Layer~1). Layer~1 only needs the foreground window's bounding rectangle, which is available on every major OS. This means \emph{every} click builds muscle memory, even in applications with no accessibility support.
 
 % ============================================================
 % II. BACKGROUND AND RELATED WORK
@@ -76,17 +76,17 @@ A three-layer resolution hierarchy ensures universal coverage: model-provided se
 
 \textbf{Ebbinghaus Forgetting Curve.} Ebbinghaus~\cite{ebbinghaus1885} demonstrated that memory strength decays exponentially with time. We implement this as a half-life model where cache entry confidence halves every 7~days.
 
-\textbf{Motor Memory Consolidation.} Willingham~\cite{willingham1998} described how procedural motor memories become automatic with repetition, transitioning from explicit to implicit processing. Our system models this transition through the WindMouse parameter adaptation: as hit count grows, cursor trajectories become straighter and faster---mimicking the shift from conscious to automatic motor control.
+\textbf{Motor Memory Consolidation.} Willingham~\cite{willingham1998} described how procedural motor memories become automatic with repetition, moving from explicit to implicit processing. Our system models this through the WindMouse parameter adaptation: as hit count grows, cursor trajectories become straighter and faster, matching the shift from deliberate to automatic motor control.
 
 \subsection{AI GUI Agent Systems}
 
-Current computer use agents operate statelessly at the execution layer. Anthropic's Claude Computer Use~\cite{anthropic2024computer} processes screenshots and outputs coordinate-based click commands, computing each target position from scratch via LLM inference. OpenAI's Operator~\cite{openai2025operator} follows a similar architecture. Microsoft's UFO~\cite{zhang2024ufo} adds multi-agent coordination but maintains stateless execution. WebVoyager~\cite{he2024webvoyager} and SeeAct~\cite{zheng2024seeact} focus on web navigation with no motor adaptation. None of these systems maintain any memory of prior interactions at the motor level.
+Current computer use agents do not remember prior interactions at the motor level. Anthropic's Claude Computer Use~\cite{anthropic2024computer} processes screenshots and outputs click coordinates, computing each position from scratch via LLM inference. OpenAI's Operator~\cite{openai2025operator} uses a similar approach. Microsoft's UFO~\cite{zhang2024ufo} adds multi-agent coordination but keeps stateless execution. WebVoyager~\cite{he2024webvoyager} and SeeAct~\cite{zheng2024seeact} focus on web navigation with no motor adaptation. None of these systems learn from repeated interactions with the same target.
 
 \subsection{Motor Simulation and Caching Approaches}
 
 \textbf{Muscle-Mem}~\cite{musclemem2024} caches entire tool-calling sequences for deterministic replay, operating at the task abstraction layer (``what actions to take'') rather than the motor execution layer (``how to reach the target''). It contains no spatial indexing, no gradual speed-up, and no movement adaptation.
 
-\textbf{Ghost-Cursor}~\cite{ghostcursor} implements static Fitts's Law simulation for browser testing with B\'{e}zier curves. Every movement to the same target takes identical time---there is no learning or cross-session persistence.
+\textbf{Ghost-Cursor}~\cite{ghostcursor} implements static Fitts's Law simulation for browser testing with B\'{e}zier curves. Every movement to the same target takes the same amount of time. There is no learning and no cross-session persistence.
 
 Table~\ref{tab:comparison} summarizes the feature comparison. No existing system combines even three of our eight mechanisms.
 
@@ -119,7 +119,7 @@ Cross-session persistence  & \checkmark &   &   &   &   & $\sim$ \\
 
 \subsection{Overview}
 
-Fig.~\ref{fig:architecture} illustrates the system's data flow. The motor memory cache sits between the decision layer (LLM determining \emph{what} to click) and the execution layer (platform-specific cursor control). This placement makes the system transparent to the LLM---it does not change what gets clicked, only how the cursor reaches the target.
+Fig.~\ref{fig:architecture} illustrates the system's data flow. The motor memory cache sits between the decision layer (LLM determining \emph{what} to click) and the execution layer (platform-specific cursor control). The LLM does not need to know the cache exists. It does not change what gets clicked, only how fast and how directly the cursor reaches the target.
 
 \begin{figure}[t]
 \centering
@@ -163,7 +163,7 @@ Fig.~\ref{fig:architecture} illustrates the system's data flow. The motor memory
 
 \subsection{Three-Layer Cache Resolution}
 
-Every mouse action must resolve to a cache key---a combination of \emph{application name} and \emph{element hint}. We employ a three-layer hierarchy to ensure universal coverage:
+Every mouse action must resolve to a cache key: a combination of \emph{application name} and \emph{element hint}. We use a three-layer hierarchy so that every click is captured:
 
 \textbf{Layer~3 (Model-provided hint).} When the LLM provides a semantic label such as \texttt{element\_hint="Save button"}, this becomes the cache key directly. This is the highest-precision layer but depends on LLM cooperation.
 
@@ -177,7 +177,7 @@ Every mouse action must resolve to a cache key---a combination of \emph{applicat
     \item Works on \textbf{any application}, including games, Electron apps, and custom UIs with no accessibility support
 \end{itemize}
 
-The application name is obtained from the foreground window's process (e.g., \texttt{"notepad.exe"}, \texttt{"firefox"}). Remote desktop shells (RDP, VNC, terminal emulators) are detected and excluded via a passthrough list---their foreground window is a container, not the actual application being controlled.
+The application name comes from the foreground window's process (e.g., \texttt{"notepad.exe"}, \texttt{"firefox"}). Remote desktop shells (RDP, VNC, terminal emulators) are excluded via a passthrough list because their foreground window is a container, not the actual application being controlled.
 
 \subsection{Three-Tier Cache Lookup}
 
@@ -203,7 +203,7 @@ An LRU eviction policy caps the cache at 10{,}000 entries, deleting the oldest 1
 
 \subsection{Cross-Platform Support}
 
-The cache algorithm is platform-agnostic (pure Python, stdlib \texttt{sqlite3}). Platform-specific operations---foreground window queries, cursor control, accessibility API access---are delegated to backend modules:
+The cache algorithm is platform-agnostic (pure Python, stdlib \texttt{sqlite3}). Platform-specific operations (foreground window queries, cursor control, accessibility API access) are handled by backend modules:
 
 \begin{itemize}[noitemsep,topsep=0pt]
     \item \textbf{Windows:} Win32 \texttt{SendInput} via ctypes; \texttt{GetForegroundWindow} for window info
@@ -267,7 +267,7 @@ As practice count increases, WindMouse parameters adapt via logarithmic scaling 
     V(n) &= 20.0 + 15.0 \cdot f &&\text{(max vel: 20 $\to$ 35)} \label{eq:maxvel}
 \end{align}
 
-The net effect is that practiced trajectories become straighter (higher gravity), less wobbly (lower wind), and faster (higher maximum velocity)---closely paralleling the transition from conscious to automatic motor control observed in humans~\cite{willingham1998}. Fig.~\ref{fig:trajectory} illustrates this adaptation.
+In practice, this means that repeated trajectories become straighter (higher gravity), less wobbly (lower wind), and faster (higher maximum velocity). This matches the transition from deliberate to automatic motor control observed in humans~\cite{willingham1998}. Fig.~\ref{fig:trajectory} illustrates the difference.
 
 \begin{figure}[t]
     \centering
@@ -311,7 +311,7 @@ The system is implemented in Python with zero external dependencies for the core
 
 \textbf{Navigation acceleration.} Beyond individual click speed-up, the system provides two higher-level navigation mechanisms. \emph{Navigate-to} performs BFS path-finding through the sequence graph and executes the discovered path via cached positions, skipping the LLM entirely (${\sim}55$\,ms same-app, poll-until-change for cross-app transitions). \emph{Action templates} are named multi-step workflows (click, type, key-press, wait) stored in the database and replayed without any LLM roundtrips. A 5-step template that would require ${\sim}10{-}20$\,s of LLM processing completes in under 1\,s.
 
-\textbf{Resolution resilience.} Cache entries track both window dimensions and screen resolution at recording time. When the screen resolution changes (e.g., switching monitors or DPI settings), cached coordinates are proportionally rescaled. When only the window is resized, entries are used as-is if coordinates remain in bounds, or treated as misses otherwise---avoiding the distortion that proportional rescaling causes on fixed-grid UIs.
+\textbf{Resolution resilience.} Cache entries track both window dimensions and screen resolution at recording time. When the screen resolution changes (e.g., switching monitors or DPI settings), cached coordinates are proportionally rescaled. When only the window is resized, entries are used as-is if coordinates remain in bounds, or treated as misses otherwise. This avoids the distortion that proportional rescaling causes on fixed-grid UIs like spreadsheets.
 
 \textbf{Scale.} The implementation comprises approximately 1{,}100 lines for the cache module (including navigation, resolution resilience, and action templates), 820 lines for the engine facade, and 500 lines for MCP server integration. A test suite of 294 unit tests covers cache CRUD, spatial proximity, temporal decay, power law adaptation, sequence tracking, persistence, eviction, three-layer resolution, passthrough exclusion, percentage-bucket alignment, navigation path-finding, resolution rescaling, DPI-aware accessibility, and action template workflows.
 
@@ -360,11 +360,11 @@ Fig.~\ref{fig:duration} shows the theoretical movement duration for a representa
 
 \subsection{Qualitative Observations}
 
-\textbf{Cross-agent persistence.} The most notable result is that Agent~B benefits from Agent~A's prior interactions without any explicit knowledge transfer. The shared SQLite database acts as organizational memory---analogous to how experienced team members benefit from a shared workspace layout.
+\textbf{Cross-agent persistence.} Agent~B benefits from Agent~A's prior interactions without any explicit knowledge transfer. The shared SQLite database carries the learned positions forward automatically.
 
 \textbf{Resize resilience.} Percentage-based coordinate bucketing (Layer~1) correctly resolves cache hits after window resizing. A target at 25\% of an 800\,px window (200\,px) maps to the same bucket as 25\% of a 1200\,px window (300\,px).
 
-\textbf{Passthrough exclusion.} Remote desktop shells (RDP, VNC) are correctly excluded from window-based caching, preventing cache entries from being associated with a container application rather than the actual UI being controlled.
+\textbf{Passthrough exclusion.} Remote desktop shells (RDP, VNC) are correctly excluded from caching, so cache entries are not associated with a container application instead of the actual UI being controlled.
 
 \subsection{Limitations}
 
@@ -375,20 +375,20 @@ The current evaluation has several limitations. First, we have not conducted a f
 % ============================================================
 \section{Discussion}
 
-\textbf{Orthogonality.} The motor memory cache operates entirely in the execution layer. It is compatible with any LLM backbone (Claude, GPT-4, open-source models) and any decision framework. Importantly, it does not change \emph{what} the agent clicks---only \emph{how fast and how directly} the cursor reaches the target. This makes it a universal enhancement rather than a competing approach.
+\textbf{Works with any LLM.} The motor memory cache operates in the execution layer. It works with Claude, GPT-4, open-source models, or any other decision framework. It does not change \emph{what} the agent clicks, only how fast the cursor gets there.
 
-\textbf{Emergent trajectory convergence.} As hit count grows, the WindMouse parameter adaptation produces trajectories that converge on near-straight-line paths with smooth velocity profiles. This resembles the minimum-jerk trajectory~\cite{soukoreff2004} characteristic of expert human pointing---an emergent property of the parameter adaptation, not explicitly programmed.
+\textbf{Trajectories converge naturally.} As hit count grows, the WindMouse parameter adaptation produces trajectories that approach straight lines with smooth velocity profiles. This resembles the minimum-jerk trajectory~\cite{soukoreff2004} seen in expert human pointing. We did not program this directly; it emerges from the parameter adaptation.
 
-\textbf{Shared memory across agents.} Because the cache is stored in SQLite on disk, multiple independent agent instances share the same motor memory. Agent~B's cursor movements are more efficient for targets that Agent~A has previously interacted with. This models organizational knowledge transfer: a new team member benefits from the team's collective familiarity with a codebase.
+\textbf{Shared memory across agents.} Because the cache is stored in SQLite on disk, multiple independent agent instances share the same motor memory. Agent~B moves faster to targets that Agent~A has already used. No explicit knowledge transfer is needed.
 
-\textbf{Living system.} The parameters reported in this paper ($\alpha = 0.4$, $\beta = 0.3$, $\tau = 7$~days, EMA $\alpha = 0.3$, spatial radius = 50~px) are all configurable. As more empirical data is collected, these values may be tuned or made adaptive.
+\textbf{Living system.} The parameters reported here ($\alpha = 0.4$, $\beta = 0.3$, $\tau = 7$~days, EMA $\alpha = 0.3$, spatial radius = 50~px) are all configurable. As more data is collected from real usage, these values can be tuned or made adaptive.
 
 % ============================================================
 % VIII. CONCLUSION
 % ============================================================
 \section{Conclusion and Future Work}
 
-We have presented the first system to integrate cognitive science motor learning models---Power Law of Practice, Fitts's Law, Ebbinghaus temporal decay---into the action-execution layer of autonomous GUI agents. The spatiotemporal motor memory cache, with its three-layer resolution hierarchy and eight complementary mechanisms, enables any computer use agent to develop muscle memory that persists across sessions and transfers across agent instances.
+We have presented the first system to apply cognitive science motor learning models (Power Law of Practice, Fitts's Law, Ebbinghaus temporal decay) to the execution layer of autonomous GUI agents. The spatiotemporal motor memory cache, with its three-layer resolution hierarchy and eight mechanisms, lets any computer use agent develop muscle memory that persists across sessions and transfers between agent instances.
 
 Future work includes: (1)~formal A/B studies comparing movement time and trajectory quality with and without the cache; (2)~adaptive $\alpha$ fitting that learns the power law exponent from observed data for each element type; (3)~anticipatory cursor movement that begins moving toward the predicted next target before the LLM completes its decision; (4)~a shared cloud cache for fleet-wide motor memory across users and machines; and (5)~integration with richer accessibility tree information for improved Layer~2 resolution.
 
