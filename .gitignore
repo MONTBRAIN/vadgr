@@ -3,3 +3,11 @@ __pycache__/
 ./venv
 .mcp.json
 .debug/
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+texput.log
