@@ -1,8 +1,15 @@
 /output
+.env
 __pycache__/
-./venv
+*.pyc
+.venv/
 .mcp.json
 .debug/
+
+# Binaries and shared objects
+*.so
+*.dylib
+*.dll
 
 # LaTeX build artifacts
 *.aux
