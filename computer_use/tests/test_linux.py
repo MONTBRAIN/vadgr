@@ -326,15 +326,46 @@ class TestMutterRemoteDesktopExecutor:
         assert len(keycode_calls) >= 4  # a down/up, b down/up
 
     @patch("subprocess.run")
-    def test_type_text_long_uses_clipboard(self, mock_run):
-        mock_run.return_value = MagicMock(returncode=0)
+    def test_type_text_long_types_each_char(self, mock_run):
         ex = self._make_executor()
-        ex.type_text("hello from mutter")
+        ex.type_text("hello")
 
-        mock_run.assert_called()
-        # Should press Ctrl+V via keycode events
+        # Should NOT use clipboard (no subprocess calls)
+        mock_run.assert_not_called()
+        # Each char gets a key down + key up event
         keycode_calls = ex._session.NotifyKeyboardKeycode.call_args_list
-        assert len(keycode_calls) >= 4  # ctrl down, v down, v up, ctrl up
+        assert len(keycode_calls) >= 10  # 5 chars * 2 events each
+
+    def test_type_text_newline_sends_enter(self):
+        ex = self._make_executor()
+        ex.type_text("a\nb")
+
+        calls = ex._session.NotifyKeyboardKeycode.call_args_list
+        # a(down,up) + enter(down,up) + b(down,up) = 6 events
+        assert len(calls) >= 6
+        # NotifyKeyboardKeycode(keycode, down) -- positional args
+        pressed_keys = [c[0][0] for c in calls if c[0][1]]
+        assert 28 in pressed_keys  # 28 = enter
+
+    def test_type_text_uppercase_uses_shift(self):
+        ex = self._make_executor()
+        ex.type_text("Hi")
+
+        calls = ex._session.NotifyKeyboardKeycode.call_args_list
+        # H needs shift: shift(down) + h(down) + h(up) + shift(up) + i(down) + i(up) = 6
+        assert len(calls) >= 6
+        pressed_keys = [c[0][0] for c in calls if c[0][1]]
+        assert 42 in pressed_keys  # 42 = shift
+
+    def test_type_text_space_works(self):
+        ex = self._make_executor()
+        ex.type_text("a b")
+
+        calls = ex._session.NotifyKeyboardKeycode.call_args_list
+        # a(down,up) + space(down,up) + b(down,up) = 6 events
+        assert len(calls) >= 6
+        pressed_keys = [c[0][0] for c in calls if c[0][1]]
+        assert 57 in pressed_keys  # 57 = space
 
     def test_scroll(self):
         ex = self._make_executor()
@@ -489,22 +520,56 @@ class TestEvdevActionExecutor:
         assert len(key_calls) >= 4  # h down/up, i down/up
 
     @patch("subprocess.run")
-    def test_type_text_long_uses_clipboard(self, mock_run):
-        """Long text (>3 chars) should use clipboard paste."""
+    def test_type_text_long_types_each_char(self, mock_run):
+        """Long text should type each character individually, not clipboard paste."""
         from computer_use.platform.linux import ecodes
         mock_run.return_value = MagicMock(returncode=0)
 
         ex = self._make_executor()
-        ex.type_text("hello world from evdev")
+        ex.type_text("hello")
 
-        # Should have called wl-copy or xclip
-        assert mock_run.called
-        # Should have pressed Ctrl+V on the keyboard
+        # Should NOT use clipboard
+        mock_run.assert_not_called()
+        # Each char gets key down + key up + syn events
         calls = ex._kbd.write.call_args_list
-        ctrl_calls = [c for c in calls if c[0][0] == ecodes.EV_KEY and c[0][1] == ecodes.KEY_LEFTCTRL]
-        v_calls = [c for c in calls if c[0][0] == ecodes.EV_KEY and c[0][1] == ecodes.KEY_V]
-        assert len(ctrl_calls) >= 2  # press + release
-        assert len(v_calls) >= 2
+        key_calls = [c for c in calls if c[0][0] == ecodes.EV_KEY]
+        assert len(key_calls) >= 10  # 5 chars * 2 (press + release)
+
+    def test_type_text_newline_sends_enter(self):
+        from computer_use.platform.linux import ecodes
+        ex = self._make_executor()
+        ex.type_text("a\nb")
+
+        calls = ex._kbd.write.call_args_list
+        key_calls = [c for c in calls if c[0][0] == ecodes.EV_KEY]
+        # a(down,up) + enter(down,up) + b(down,up) = 6 key events
+        assert len(key_calls) >= 6
+        pressed_keycodes = [c[0][1] for c in key_calls if c[0][2] == 1]
+        assert ecodes.KEY_ENTER in pressed_keycodes
+
+    def test_type_text_uppercase_uses_shift(self):
+        from computer_use.platform.linux import ecodes
+        ex = self._make_executor()
+        ex.type_text("Hi")
+
+        calls = ex._kbd.write.call_args_list
+        key_calls = [c for c in calls if c[0][0] == ecodes.EV_KEY]
+        # H needs shift: shift(down) + h(down) + h(up) + shift(up) + i(down) + i(up) = 6
+        assert len(key_calls) >= 6
+        pressed_keycodes = [c[0][1] for c in key_calls if c[0][2] == 1]
+        assert ecodes.KEY_LEFTSHIFT in pressed_keycodes
+
+    def test_type_text_space_works(self):
+        from computer_use.platform.linux import ecodes
+        ex = self._make_executor()
+        ex.type_text("a b")
+
+        calls = ex._kbd.write.call_args_list
+        key_calls = [c for c in calls if c[0][0] == ecodes.EV_KEY]
+        # a(down,up) + space(down,up) + b(down,up) = 6 key events
+        assert len(key_calls) >= 6
+        pressed_keycodes = [c[0][1] for c in key_calls if c[0][2] == 1]
+        assert ecodes.KEY_SPACE in pressed_keycodes
 
 
 # -- Action executor factory --

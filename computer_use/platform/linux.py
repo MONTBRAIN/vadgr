@@ -362,7 +362,7 @@ _FALLBACK_EVDEV_KEYCODES: dict[str, int] = {
     "backspace": 14, "delete": 111, "del": 111,
     "up": 103, "down": 108, "left": 105, "right": 106,
     "home": 102, "end": 107, "pageup": 104, "pagedown": 109,
-    "space": 57, "ctrl": 29, "control": 29, "alt": 56,
+    "space": 57, " ": 57, "ctrl": 29, "control": 29, "alt": 56,
     "shift": 42, "super": 125,
     "f1": 59, "f2": 60, "f3": 61, "f4": 62, "f5": 63, "f6": 64,
     "f7": 65, "f8": 66, "f9": 67, "f10": 68, "f11": 87, "f12": 88,
@@ -389,7 +389,8 @@ def _build_evdev_key_map() -> dict[str, int]:
         "left": ecodes.KEY_LEFT, "right": ecodes.KEY_RIGHT,
         "home": ecodes.KEY_HOME, "end": ecodes.KEY_END,
         "pageup": ecodes.KEY_PAGEUP, "pagedown": ecodes.KEY_PAGEDOWN,
-        "space": ecodes.KEY_SPACE, "ctrl": ecodes.KEY_LEFTCTRL, "control": ecodes.KEY_LEFTCTRL,
+        "space": ecodes.KEY_SPACE, " ": ecodes.KEY_SPACE,
+        "ctrl": ecodes.KEY_LEFTCTRL, "control": ecodes.KEY_LEFTCTRL,
         "alt": ecodes.KEY_LEFTALT, "shift": ecodes.KEY_LEFTSHIFT, "super": ecodes.KEY_LEFTMETA,
         "f1": ecodes.KEY_F1, "f2": ecodes.KEY_F2, "f3": ecodes.KEY_F3,
         "f4": ecodes.KEY_F4, "f5": ecodes.KEY_F5, "f6": ecodes.KEY_F6,
@@ -429,37 +430,35 @@ class _WaylandActionExecutor(ActionExecutor):
         return self._btn_map.get(button, self._btn_map["left"])
 
     def type_text(self, text: str) -> None:
-        if len(text) > 3:
-            try:
-                subprocess.run(
-                    ["wl-copy"], input=text.encode(), timeout=3.0, check=True)
-                time.sleep(0.05)
-                ctrl = self._key_map.get("ctrl", 29)
-                v = self._key_map.get("v", 47)
-                self._key_event(ctrl, True)
-                self._key_event(v, True)
-                time.sleep(0.03)
-                self._key_event(v, False)
-                self._key_event(ctrl, False)
-                time.sleep(0.05)
-                return
-            except (subprocess.SubprocessError, FileNotFoundError):
-                pass
-
+        # Type each character as individual key events, like a real human.
+        # Clipboard paste (wl-copy + Ctrl+V) breaks in terminals and other apps
+        # that expect Ctrl+Shift+V or handle paste differently.
+        # 50ms between events avoids key repeat from Mutter's DBus processing.
+        delay = 0.05
         shift_code = self._key_map.get("shift", 42)
+        special = {"\n": "enter", "\t": "tab"}
         for ch in text:
+            if ch in special:
+                code = self._key_map.get(special[ch], 28)
+                self._key_event(code, True)
+                time.sleep(delay)
+                self._key_event(code, False)
+                time.sleep(delay)
+                continue
             keycode = self._key_map.get(ch.lower())
             if keycode is None:
                 continue
             needs_shift = ch.isupper() or ch in '~!@#$%^&*()_+{}|:"<>?'
             if needs_shift:
                 self._key_event(shift_code, True)
+                time.sleep(delay)
             self._key_event(keycode, True)
-            time.sleep(0.02)
+            time.sleep(delay)
             self._key_event(keycode, False)
             if needs_shift:
+                time.sleep(delay)
                 self._key_event(shift_code, False)
-            time.sleep(0.02)
+            time.sleep(delay)
 
     def key_press(self, keys: list[str]) -> None:
         if not keys:
