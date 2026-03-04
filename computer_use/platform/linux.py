@@ -799,11 +799,23 @@ class MutterRemoteDesktopExecutor(_WaylandActionExecutor):
     def scroll(self, x: int, y: int, amount: int) -> None:
         self._raw_move(x, y)
         time.sleep(0.05)
+        # Mutter RemoteDesktop axis convention (empirically verified):
+        #   positive dy = scroll down, negative dy = scroll up.
+        # Our API: positive amount = up, negative = down.
+        # Discrete follows the same convention as continuous.
+        step_discrete = -1 if amount > 0 else 1
+        step_pixels = -15.0 if amount > 0 else 15.0
         for _ in range(abs(amount)):
-            # axis 0 = vertical, positive = scroll up
             self._session.NotifyPointerAxisDiscrete(
-                dbus_import.UInt32(0), dbus_import.Int32(1 if amount > 0 else -1))
+                dbus_import.UInt32(0), dbus_import.Int32(step_discrete))
+            self._session.NotifyPointerAxis(
+                dbus_import.Double(0.0), dbus_import.Double(step_pixels),
+                dbus_import.UInt32(0))
             time.sleep(0.03)
+        # Send finish flag (1) to flush the scroll sequence
+        self._session.NotifyPointerAxis(
+            dbus_import.Double(0.0), dbus_import.Double(0.0),
+            dbus_import.UInt32(1))
 
     def drag(
         self,

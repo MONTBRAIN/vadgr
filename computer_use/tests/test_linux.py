@@ -376,8 +376,25 @@ class TestMutterRemoteDesktopExecutor:
     def test_scroll(self):
         ex = self._make_executor()
         ex.scroll(400, 300, -3)
-        axis_calls = ex._session.NotifyPointerAxisDiscrete.call_args_list
-        assert len(axis_calls) == 3
+        # Must send both discrete (wheel clicks) and continuous (pixel delta)
+        discrete_calls = ex._session.NotifyPointerAxisDiscrete.call_args_list
+        assert len(discrete_calls) == 3
+        axis_calls = ex._session.NotifyPointerAxis.call_args_list
+        # 3 scroll steps + 1 finish event
+        assert len(axis_calls) == 4
+
+    def test_scroll_up(self):
+        ex = self._make_executor()
+        ex.scroll(400, 300, 2)
+        discrete_calls = ex._session.NotifyPointerAxisDiscrete.call_args_list
+        assert len(discrete_calls) == 2
+        # Discrete steps: negative = scroll up (same convention as continuous)
+        for call in discrete_calls:
+            assert int(call[0][1]) == -1
+        # Mutter: negative dy = scroll up, positive dy = scroll down
+        axis_calls = ex._session.NotifyPointerAxis.call_args_list
+        for call in axis_calls[:-1]:  # skip finish
+            assert float(call[0][1]) < 0  # negative dy = scroll up
 
     def test_drag(self):
         ex = self._make_executor()
