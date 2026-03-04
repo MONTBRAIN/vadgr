@@ -1,6 +1,5 @@
 """Tests for action execution routing."""
 
-import time
 from unittest.mock import MagicMock, patch
 
 from computer_use.core.actions import ActionExecutor
@@ -87,11 +86,10 @@ class TestActionRouter:
         ex.execute_action(action)
         assert ex.calls == [("drag", 10, 20, 300, 400, 1.0)]
 
-    def test_wait(self):
+    @patch("time.sleep")
+    def test_wait(self, mock_sleep):
         ex = MockExecutor()
-        action = Action(action_type=ActionType.WAIT, duration=0.01)
-        start = time.time()
+        action = Action(action_type=ActionType.WAIT, duration=0.5)
         ex.execute_action(action)
-        elapsed = time.time() - start
-        assert elapsed >= 0.01
+        mock_sleep.assert_called_once_with(0.5)
         assert ex.calls == []  # wait doesn't call any executor method
