@@ -89,9 +89,9 @@ class TestActionRouter:
 
     def test_wait(self):
         ex = MockExecutor()
-        action = Action(action_type=ActionType.WAIT, duration=0.01)
-        start = time.time()
+        action = Action(action_type=ActionType.WAIT, duration=0.05)
+        start = time.monotonic()
         ex.execute_action(action)
-        elapsed = time.time() - start
-        assert elapsed >= 0.01
+        elapsed = time.monotonic() - start
+        assert elapsed >= 0.04  # small margin for timer resolution
         assert ex.calls == []  # wait doesn't call any executor method
