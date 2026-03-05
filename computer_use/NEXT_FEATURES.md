@@ -36,6 +36,25 @@
 
 ---
 
+## Dead Key Sequence Typing
+
+**Goal**: Replace clipboard paste fallback with proper dead key simulation for composed characters (e.g. accent + letter).
+
+**Why**: Currently, characters that require dead key combos (like `^` then `e` to produce `e with circumflex` on French AZERTY) are pasted via `wl-copy -o` + Ctrl+V. This works but overwrites the user's clipboard and fails in apps that block paste.
+
+**How it works**:
+- Build a dead key composition table per layout from xkb compose rules
+- For composed characters, send the dead key press followed by the base key press
+- Fall back to clipboard paste only for characters that have no dead key sequence
+
+**When it matters**:
+- Apps that intercept or block Ctrl+V (terminals, some editors)
+- Workflows where preserving clipboard contents matters
+
+**Impact**: Reliability. Current clipboard approach works for most cases but is not universal.
+
+---
+
 ## Other Ideas
 
 - **App-name normalization**: Fix wsl2/UWP app-name splitting (known bug #6). Merge cache entries across app-name variants so hits aren't split between `applicationframehost.exe` and `wsl2`.
