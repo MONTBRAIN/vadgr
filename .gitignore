@@ -5,6 +5,7 @@ __pycache__/
 .venv/
 .mcp.json
 .debug/
+.coverage
 
 # Binaries and shared objects
 *.so

@@ -1,0 +1,10 @@
+[run]
+source = computer_use
+omit =
+    computer_use/bridge/daemon.py
+    computer_use/platform/macos.py
+    computer_use/platform/windows.py
+    computer_use/tests/*
+
+[report]
+show_missing = true
