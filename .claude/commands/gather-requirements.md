@@ -3,7 +3,7 @@ description: Interview the user to gather workflow requirements (Step 1).
 argument-hint: [optional-workflow-name]
 ---
 
-Read `agent/agentic.md` to understand the full workflow context and rules.
+Read `forge/agentic.md` to understand the full workflow context and rules.
 
 Execute **Step 1: Gather Requirements**.
 

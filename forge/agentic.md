@@ -78,7 +78,7 @@ Default: No (generate-only workflow)
 
 ## Step 2: Design Architecture ⏸
 
-**Read:** `agent/Prompts/02_Workflow_Architect.md`
+**Read:** `forge/Prompts/02_Workflow_Architect.md`
 
 Using the gathered requirements, design the workflow architecture:
 
@@ -87,13 +87,13 @@ Using the gathered requirements, design the workflow architecture:
 3. Identify which steps need quality loops (evaluate-iterate pattern)
 4. Determine how many specialized agents are needed and their roles
 5. Design the output folder structure
-6. Decide which patterns from `patterns/` apply
+6. Decide which patterns from `forge/patterns/` apply
 
-**Read relevant patterns from `patterns/` based on the requirements.** For example:
-- If the workflow needs human review: read `patterns/03-approval-gates.md`
-- If the workflow needs iterative quality: read `patterns/04-quality-loops.md`
-- If each execution needs a fresh copy: read `patterns/07-template-scaffold.md`
-- If the workflow needs desktop interaction: read `patterns/10-computer-use.md`
+**Read relevant patterns from `forge/patterns/` based on the requirements.** For example:
+- If the workflow needs human review: read `forge/patterns/03-approval-gates.md`
+- If the workflow needs iterative quality: read `forge/patterns/04-quality-loops.md`
+- If each execution needs a fresh copy: read `forge/patterns/07-template-scaffold.md`
+- If the workflow needs desktop interaction: read `forge/patterns/10-computer-use.md`
 
 **Present the architecture to the user:**
 
@@ -124,8 +124,8 @@ Patterns Applied:
 
 ## Step 3: Generate Orchestrator ⏸
 
-**Read:** `agent/utils/scaffold/agentic.md.template`
-**Read:** `agent/Prompts/03_Prompt_Writer.md`
+**Read:** `forge/utils/scaffold/agentic.md.template`
+**Read:** `forge/Prompts/03_Prompt_Writer.md`
 
 Generate the workflow's `agentic.md` using the template as structural guide:
 
@@ -150,10 +150,10 @@ Generate the workflow's `agentic.md` using the template as structural guide:
 
 ## Step 4: Generate Specialized Agents
 
-**Read:** `agent/Prompts/03_Prompt_Writer.md`
-**Read:** `agent/utils/scaffold/agent-prompt.md.template`
+**Read:** `forge/Prompts/03_Prompt_Writer.md`
+**Read:** `forge/utils/scaffold/agent-prompt.md.template`
 
-Optionally, read the **Senior Prompt Engineer** prompt at `agent/Prompts/01_Senior_Prompt_Engineer.md` for complex or domain-specific prompts that require deeper expertise. The Prompt Writer prompt covers the structural template; the Senior Prompt Engineer covers the craft of writing high-quality, production-grade prompts.
+Optionally, read the **Senior Prompt Engineer** prompt at `forge/Prompts/01_Senior_Prompt_Engineer.md` for complex or domain-specific prompts that require deeper expertise. The Prompt Writer prompt covers the structural template; the Senior Prompt Engineer covers the craft of writing high-quality, production-grade prompts.
 
 For each agent identified in Step 2:
 
@@ -165,7 +165,7 @@ For each agent identified in Step 2:
    - Actual Input section with placeholders
    - Expected Workflow section
 2. Number the prompt files sequentially: `01_{Agent_Name}.md`, `02_{Agent_Name}.md`, etc.
-3. If the workflow needs desktop interaction (identified in Step 1, Question 7), generate a `05_Computer_Use_Agent.md` prompt based on `agent/Prompts/05_Computer_Use_Agent.md`. Adapt it to the specific workflow's desktop tasks.
+3. If the workflow needs desktop interaction (identified in Step 1, Question 7), generate a `05_Computer_Use_Agent.md` prompt based on `forge/Prompts/05_Computer_Use_Agent.md`. Adapt it to the specific workflow's desktop tasks.
 
 **Save:** `output/{workflow-name}/agent/Prompts/{NN}_{Agent_Name}.md` for each agent
 
@@ -173,7 +173,7 @@ For each agent identified in Step 2:
 
 ## Step 5: Generate CLI Commands
 
-**Read:** `agent/utils/scaffold/command.md.template`
+**Read:** `forge/utils/scaffold/command.md.template`
 
 For each step in the designed workflow:
 
@@ -186,11 +186,11 @@ For each step in the designed workflow:
 
 2. Additionally create a **master start command** that runs the full workflow from Step 1 through the last step.
 
-3. Copy the fix command from `agent/utils/scaffold/fix.md.template` into the generated workflow's `.claude/commands/fix.md`. This command is standard for all workflows and does not need customization.
+3. Copy the fix command from `forge/utils/scaffold/fix.md.template` into the generated workflow's `.claude/commands/fix.md`. This command is standard for all workflows and does not need customization.
 
-4. Copy the fixer agent prompt from `agent/utils/scaffold/00_Workflow_Fixer.md.template` into the generated workflow's `agent/Prompts/00_Workflow_Fixer.md`. This prompt is standard for all workflows and does not need customization.
+4. Copy the fixer agent prompt from `forge/utils/scaffold/00_Workflow_Fixer.md.template` into the generated workflow's `agent/Prompts/00_Workflow_Fixer.md`. This prompt is standard for all workflows and does not need customization.
 
-5. Copy the Senior Prompt Engineer prompt from `agent/utils/scaffold/01_Senior_Prompt_Engineer.md.template` into the generated workflow's `agent/Prompts/01_Senior_Prompt_Engineer.md`. This prompt is used by the fixer when prompt writing or rewriting is needed. It is standard for all workflows and does not need customization.
+5. Copy the Senior Prompt Engineer prompt from `forge/utils/scaffold/01_Senior_Prompt_Engineer.md.template` into the generated workflow's `agent/Prompts/01_Senior_Prompt_Engineer.md`. This prompt is used by the fixer when prompt writing or rewriting is needed. It is standard for all workflows and does not need customization.
 
 6. If the workflow uses computer use, also generate execution commands: `execute-workflow.md`, `pause-execution.md`, and `resume-execution.md`. These follow the same command template format but reference the Computer Use Agent instead of a generation step.
 
@@ -200,8 +200,8 @@ For each step in the designed workflow:
 
 ## Step 6: Generate Project Scaffold ⏸
 
-**Read:** `agent/utils/scaffold/README.md.template`
-**Read:** `agent/utils/scaffold/CLAUDE.md.template`
+**Read:** `forge/utils/scaffold/README.md.template`
+**Read:** `forge/utils/scaffold/CLAUDE.md.template`
 
 Generate the remaining project files. Every generated workflow MUST include the standard project structure:
 
@@ -224,7 +224,7 @@ Generate the remaining project files. Every generated workflow MUST include the 
 
 ## Step 7: Review and Deliver ⏸
 
-**Read:** `agent/Prompts/04_Quality_Reviewer.md`
+**Read:** `forge/Prompts/04_Quality_Reviewer.md`
 
 Run the quality reviewer's checklist against the generated workflow:
 
@@ -283,8 +283,8 @@ Files created:
 └── {output-dirs}/
 
 To use this workflow:
-1. Open the project folder in Claude Code
-2. Type: /{start-command}
+1. Open the project folder in your AI coding agent (e.g., Claude Code, OpenCode)
+2. Point it at agentic.md: "Read agentic.md and start"
 3. Follow the step-by-step instructions
 
 Patterns applied: {list}
@@ -311,10 +311,10 @@ Patterns applied: {list}
 ## Clarifications
 
 ### Self-Similar Architecture
-Agent Forge generates workflows that follow the **same architecture** as Agent Forge itself. If you're unsure how to structure something in the generated workflow, look at how Agent Forge does it. The `agent/` directory IS the reference implementation.
+Agent Forge generates workflows that follow the **same architecture** as Agent Forge itself. If you're unsure how to structure something in the generated workflow, look at how Agent Forge does it. The `forge/` directory IS the reference implementation.
 
 ### Templates vs From Scratch
-**ALWAYS** start from the scaffold templates in `agent/utils/scaffold/`. Never write an `agentic.md`, `README.md`, `CLAUDE.md`, agent prompt, or command file from scratch. The templates exist to enforce consistency. Fill in the placeholders, adapt the structure, but keep the skeleton.
+**ALWAYS** start from the scaffold templates in `forge/utils/scaffold/`. Never write an `agentic.md`, `README.md`, `CLAUDE.md`, agent prompt, or command file from scratch. The templates exist to enforce consistency. Fill in the placeholders, adapt the structure, but keep the skeleton.
 
 ### When to Add Approval Gates
 Not every step needs a gate. Add `⏸` only at **decision points** where:
@@ -340,7 +340,7 @@ Not every step needs a dedicated agent. Agents are for steps that require **spec
 
 ### Generated Workflows Must Be Self-Contained
 Every workflow in `output/` must work **without Agent Forge installed**. This means:
-- No references to `agent/`, `patterns/`, or `examples/`
+- No references to `forge/`, `forge/patterns/`, or `forge/examples/`
 - All prompts, commands, and templates are included in the generated project
 - A user can copy the output folder anywhere and it works
 

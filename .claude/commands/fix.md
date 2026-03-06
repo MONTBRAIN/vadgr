@@ -3,9 +3,9 @@ description: Diagnose and fix issues in Agent Forge or any generated workflow.
 argument-hint: [project-path-or-problem-description]
 ---
 
-Read `agent/agentic.md` to understand Agent Forge's structure.
+Read `forge/agentic.md` to understand Agent Forge's structure.
 
-Read `agent/Prompts/00_Workflow_Fixer.md` for diagnostic and repair methodology.
+Read `forge/Prompts/00_Workflow_Fixer.md` for diagnostic and repair methodology.
 
 Execute the Workflow Fixer's Expected Workflow for the following fix request:
 

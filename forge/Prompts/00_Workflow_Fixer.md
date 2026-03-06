@@ -90,9 +90,9 @@ These are the most frequent issues in agentic workflows, ordered by likelihood:
 
 The Fixer can leverage other agents in the workflow for domain-specific repairs:
 
-- **Prompt quality issues.** If an agent prompt needs significant rewriting (not just patching a missing section), read the **Senior Prompt Engineer** prompt at `agent/Prompts/01_Senior_Prompt_Engineer.md` and follow its methodology. The Senior Prompt Engineer covers the craft of writing high-quality, production-grade prompts. For structural reference, also read `agent/Prompts/03_Prompt_Writer.md`.
-- **Architecture issues.** If the step structure is fundamentally broken (wrong number of steps, wrong decomposition), read `agent/Prompts/02_Workflow_Architect.md` and use its guidelines to redesign.
-- **Structural issues.** If the project structure is incomplete or inconsistent, read `agent/Prompts/04_Quality_Reviewer.md` to get the full structural checklist.
+- **Prompt quality issues.** If an agent prompt needs significant rewriting (not just patching a missing section), read the **Senior Prompt Engineer** prompt at `forge/Prompts/01_Senior_Prompt_Engineer.md` and follow its methodology. The Senior Prompt Engineer covers the craft of writing high-quality, production-grade prompts. For structural reference, also read `forge/Prompts/03_Prompt_Writer.md`.
+- **Architecture issues.** If the step structure is fundamentally broken (wrong number of steps, wrong decomposition), read `forge/Prompts/02_Workflow_Architect.md` and use its guidelines to redesign.
+- **Structural issues.** If the project structure is incomplete or inconsistent, read `forge/Prompts/04_Quality_Reviewer.md` to get the full structural checklist.
 - **For generated workflows.** Read whatever agent prompts exist in that workflow's own agent/Prompts/ to understand the domain before making content-level fixes.
 
 ### Mandatory Writing Style for Text-Producing Prompts

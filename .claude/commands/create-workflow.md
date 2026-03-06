@@ -3,7 +3,7 @@ description: Create a complete agentic workflow from scratch. Interviews you, de
 argument-hint: [optional-workflow-name]
 ---
 
-Read `agent/agentic.md` fully. This is your workflow guide for the entire lifecycle.
+Read `forge/agentic.md` fully. This is your workflow guide for the entire lifecycle.
 
 Start creating a new workflow. If provided, use "$ARGUMENTS" as the workflow name.
 

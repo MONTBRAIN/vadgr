@@ -3,8 +3,8 @@ description: Execute a generated workflow autonomously via computer use. Opens a
 argument-hint: [workflow-path-or-task-description]
 ---
 
-Read `agent/agentic.md` to understand the full workflow context and rules.
-Read `agent/Prompts/05_Computer_Use_Agent.md` for desktop execution guidance.
+Read `forge/agentic.md` to understand the full workflow context and rules.
+Read `forge/Prompts/05_Computer_Use_Agent.md` for desktop execution guidance.
 
 Execute a workflow autonomously using the Computer Use Engine.
 

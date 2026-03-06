@@ -2,7 +2,15 @@
 
 A workflow for writing research papers with rigorous source verification.
 
-### Claude Code (recommended)
+## Usage
+
+Point your AI coding agent at the orchestrator:
+
+```
+Read agentic.md and start
+```
+
+For agents with slash commands:
 
 ```
 /start-paper               # Full workflow from scratch
@@ -18,10 +26,3 @@ Individual steps:
 | `/write-sections` | 04 | Write each section sequentially |
 | `/review-paper` | 05 | Final review and assembly |
 | `/fix [problem]` | -- | Diagnose and fix workflow issues |
-
-### Other AI tools (Cursor, Windsurf, etc.)
-
-```bash
-# Point the tool at agentic.md:
-# "Read agentic.md and start"
-```

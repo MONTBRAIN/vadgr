@@ -29,14 +29,14 @@ In all tiers, the fix command reads the entire workflow before acting. It unders
 
 The fix command is a `.claude/commands/fix.md` file. It is NOT a step in the workflow's main sequence. It is a utility command, always available, invoked on demand.
 
-Both Agent Forge and generated workflows use a dedicated agent prompt (`agent/Prompts/00_Workflow_Fixer.md`) with diagnostic methodology. The command file is thin: it reads `agentic.md` for context and the fixer prompt for methodology.
+Both Agent Forge and generated workflows use a dedicated fixer agent prompt with diagnostic methodology. Agent Forge's lives at `forge/Prompts/00_Workflow_Fixer.md`; generated workflows use `agent/Prompts/00_Workflow_Fixer.md`. The command file is thin: it reads `agentic.md` for context and the fixer prompt for methodology.
 
 ## Self-Similar Application
 
 | Agent Forge | Generated Workflows |
 |---|---|
 | `.claude/commands/fix.md` (thin, reads agent prompt) | `.claude/commands/fix.md` (thin, reads agent prompt) |
-| `agent/Prompts/00_Workflow_Fixer.md` (dedicated agent) | `agent/Prompts/00_Workflow_Fixer.md` (copied from template) |
+| `forge/Prompts/00_Workflow_Fixer.md` (dedicated agent) | `agent/Prompts/00_Workflow_Fixer.md` (copied from template) |
 | Can invoke Prompt Writer, Architect, Quality Reviewer | Reads own agents for domain context |
 
 ## Anti-Patterns

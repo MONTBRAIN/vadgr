@@ -2,7 +2,17 @@
 
 {{WORKFLOW_DESCRIPTION}}
 
-### Claude Code (recommended)
+## Usage
+
+Point your AI coding agent at the orchestrator:
+
+```
+Read agentic.md and start
+```
+
+This works with any AI coding agent (Claude Code, OpenCode, Cursor, Windsurf, etc.).
+
+For agents with slash commands:
 
 ```
 /{{START_COMMAND}}             # Full workflow from scratch
@@ -15,13 +25,6 @@ Individual steps:
 {{COMMAND_TABLE}}
 <!-- Always include /fix as the last row:
      | /fix [problem] | -- | Diagnose and fix issues in this workflow | -->
-
-### Other AI tools (Cursor, Windsurf, etc.)
-
-```bash
-# Point the tool at agentic.md:
-# "Read agentic.md and start"
-```
 
 ## Disclaimer
 

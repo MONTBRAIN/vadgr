@@ -3,7 +3,7 @@ description: Generate a workflow AND immediately execute it via computer use. Fu
 argument-hint: [task-description]
 ---
 
-Read `agent/agentic.md` fully. This is your workflow guide for the entire lifecycle.
+Read `forge/agentic.md` fully. This is your workflow guide for the entire lifecycle.
 
 This is "full mode": generate a workflow and then execute it.
 
@@ -12,7 +12,7 @@ Run the standard workflow creation pipeline (Steps 1-7 from agentic.md) using "$
 
 **Phase 2: Execute**
 Once the workflow is generated and approved:
-1. Read `agent/Prompts/05_Computer_Use_Agent.md`
+1. Read `forge/Prompts/05_Computer_Use_Agent.md`
 2. Initialize the ComputerUseEngine
 3. Execute each computer-use step in the generated workflow
 4. Present results

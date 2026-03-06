@@ -3,8 +3,8 @@ description: Generate README.md, CLAUDE.md, and project skeleton for the new wor
 argument-hint: [workflow-name]
 ---
 
-Read `agent/agentic.md` for context.
-Read `agent/utils/scaffold/README.md.template` and `agent/utils/scaffold/CLAUDE.md.template`.
+Read `forge/agentic.md` for context.
+Read `forge/utils/scaffold/README.md.template` and `forge/utils/scaffold/CLAUDE.md.template`.
 
 Execute **Step 6: Generate Project Scaffold** for workflow "$ARGUMENTS".
 

@@ -1,59 +1,65 @@
 # Agent Forge
 
-A meta-framework that uses agentic workflows to create agentic workflows.
+Independent agents that can operate on any task, no matter how complex.
 
-## agent/ - Workflow Engine
+Agent Forge gives AI agents the ability to think through problems (forge) and interact with the real world (computer use). Each module works on its own or together with the others.
 
-Orchestrator for designing and generating complete agentic workflow projects.
+## Modules
 
-### Claude Code (recommended)
+### [forge/](forge/) - Workflow Generation Engine
 
-Run from the project root:
+Designs and generates complete agentic workflow projects through a 7-step conversational process. Agent-agnostic: works with any AI coding agent that can read files and follow instructions.
 
-```bash
-claude --dangerously-skip-permissions
+```
+Read forge/agentic.md and start
 ```
 
-Then use slash commands:
+### [computer_use/](computer_use/) - Desktop Automation Engine
+
+Captures screenshots, locates UI elements, and executes mouse/keyboard actions. Works as a Python library, MCP server, or CLI tool.
+
+```python
+from computer_use import ComputerUseEngine
+engine = ComputerUseEngine()
+engine.click(500, 300)
+```
+
+### paper/ - Research Paper
+
+Academic paper documenting the framework.
+
+## Quick Start
+
+Point your AI coding agent at the orchestrator:
+
+```
+Read forge/agentic.md and start
+```
+
+For agents with slash commands (e.g., Claude Code), wrappers are available in `.claude/commands/`:
 
 ```
 /create-workflow           # Full workflow from scratch
 ```
 
-Individual steps:
-
-| Command | Step | Description |
-|---------|------|-------------|
-| `/create-workflow` | All | Full workflow: runs Steps 1-7 sequentially |
-| `/gather-requirements` | 01 | Interview the user about their workflow needs |
-| `/design-architecture` | 02 | Design the workflow structure and agents |
-| `/generate-orchestrator` | 03 | Generate the agentic.md for the new workflow |
-| `/generate-agents` | 04 | Generate specialized agent prompts |
-| `/generate-commands` | 05 | Generate .claude/commands/ for each step |
-| `/generate-scaffold` | 06 | Generate README, CLAUDE.md, and project skeleton |
-| `/review-workflow` | 07 | Self-review for completeness and quality |
-| `/fix [problem]` | -- | Diagnose and fix workflow issues |
-| `/execute-workflow` | -- | Run a workflow autonomously via computer use |
-| `/create-and-run` | -- | Generate a workflow and execute it immediately |
-| `/pause-execution` | -- | Pause a running computer use execution |
-| `/resume-execution` | -- | Resume a paused execution |
-
-### Other AI tools (Cursor, Windsurf, etc.)
-
-```bash
-cd agent
-
-# Point the tool at agentic.md:
-# "Read agentic.md and start"
-```
-
 ## Structure
 
-- `agent/`, core engine (orchestrator, agents, utils)
-- `computer_use/`, computer use engine (screenshots, mouse, keyboard) for autonomous desktop execution
-- `patterns/`, documentation of reusable workflow patterns
-- `examples/`, example workflows showing the architecture in action
-- `output/`, where generated workflow projects land
+```
+Agent-Forge/
+├── forge/                 # Workflow generation engine (standalone)
+│   ├── agentic.md         # 7-step orchestrator
+│   ├── Prompts/           # Specialized agent prompts
+│   ├── patterns/          # 10 reusable workflow patterns
+│   ├── examples/          # 3 example workflows
+│   └── utils/scaffold/    # Templates for generated projects
+├── computer_use/          # Desktop automation engine (standalone)
+│   ├── core/              # Engine facade, types, actions
+│   ├── platform/          # OS backends (Linux, Windows, macOS, WSL2)
+│   └── mcp_server.py      # MCP server
+├── paper/                 # Research paper
+├── .claude/commands/      # Claude Code wrappers (thin, no logic)
+└── output/                # Generated workflow projects
+```
 
 ## Contributing
 

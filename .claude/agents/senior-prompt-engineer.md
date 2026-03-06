@@ -5,4 +5,4 @@ model: sonnet
 color: blue
 ---
 
-Read `agent/Prompts/01_Senior_Prompt_Engineer.md` and follow its methodology to generate the requested prompt.
+Read `forge/Prompts/01_Senior_Prompt_Engineer.md` and follow its methodology to generate the requested prompt.

@@ -2,7 +2,15 @@
 
 A workflow for scaffolding new code projects with architecture-first design.
 
-### Claude Code (recommended)
+## Usage
+
+Point your AI coding agent at the orchestrator:
+
+```
+Read agentic.md and start
+```
+
+For agents with slash commands:
 
 ```
 /start-project             # Full workflow from scratch
@@ -18,10 +26,3 @@ Individual steps:
 | `/generate-code` | 03 | Generate starter code |
 | `/validate-project` | 04 | Validate and deliver |
 | `/fix [problem]` | -- | Diagnose and fix workflow issues |
-
-### Other AI tools (Cursor, Windsurf, etc.)
-
-```bash
-# Point the tool at agentic.md:
-# "Read agentic.md and start"
-```

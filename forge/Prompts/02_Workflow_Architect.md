@@ -241,7 +241,7 @@ Steps: 12
 - Design an output structure diagram
 - Map each step to its agent (or mark as "direct" if no agent needed)
 - Identify which patterns from the patterns library apply
-- If the workflow involves desktop automation, read `patterns/10-computer-use.md` and include a Computer Use Agent
+- If the workflow involves desktop automation, read `forge/patterns/10-computer-use.md` and include a Computer Use Agent
 - Present the architecture for user review before finalizing
 
 **Never:**

@@ -1,6 +1,6 @@
 # Agent Forge
 
-Agent Forge is a meta-framework for creating agentic workflows. It IS itself an agentic workflow.
+Agent Forge is an agent-agnostic meta-framework for creating agentic workflows. It IS itself an agentic workflow.
 
 ## Project Structure
 
@@ -9,12 +9,12 @@ Agent-Forge/
 ├── README.md                          # Entry point
 ├── CLAUDE.md                          # This file, project rules
 ├── .claude/
-│   ├── commands/                      # 13 slash commands (steps + master + fix + execution)
+│   ├── commands/                      # Claude Code wrappers (thin, no logic)
 │   └── agents/
 │       └── senior-prompt-engineer.md  # Reusable prompt engineering agent
-├── agent/                             # The BRAIN (orchestrator, prompts, patterns)
+├── forge/                             # Workflow generation engine (standalone)
 │   ├── agentic.md                     # 7-step meta-orchestrator
-│   ├── README.md                      # Usage instructions
+│   ├── README.md                      # Module docs
 │   ├── Prompts/                       # 5 specialized agents + fixer
 │   │   ├── 00_Workflow_Fixer.md
 │   │   ├── 01_Senior_Prompt_Engineer.md
@@ -22,38 +22,41 @@ Agent-Forge/
 │   │   ├── 03_Prompt_Writer.md
 │   │   ├── 04_Quality_Reviewer.md
 │   │   └── 05_Computer_Use_Agent.md
+│   ├── patterns/                      # 10 documented workflow patterns
+│   ├── examples/                      # 3 example workflows
+│   │   ├── research-paper/
+│   │   ├── project-scaffold/
+│   │   └── data-analysis/
 │   ├── scripts/                       # Automation scripts
 │   │   ├── src/
 │   │   ├── tests/
-│   │   ├── requirements.txt           # Python dependencies
+│   │   ├── requirements.txt
 │   │   └── README.md
 │   └── utils/
 │       ├── scaffold/                  # Templates for generated projects
 │       ├── code/                      # Code utilities
 │       └── docs/                      # Documentation utilities
-├── computer_use/                      # The EYES and HANDS (desktop automation engine)
+├── computer_use/                      # Desktop automation engine (standalone)
+│   ├── README.md                      # Module docs
 │   ├── core/                          # Engine facade, types, ABCs, autonomous loop
 │   ├── platform/                      # OS backends (WSL2, Linux, Windows, macOS)
 │   ├── grounding/                     # UI element location (accessibility + vision)
 │   ├── providers/                     # LLM adapters (Anthropic, OpenAI)
 │   └── tests/                         # Unit tests
-├── patterns/                          # 10 documented workflow patterns
-├── examples/                          # 3 example workflows
-│   ├── research-paper/
-│   ├── project-scaffold/
-│   └── data-analysis/
+├── paper/                             # Research paper
 └── output/                            # Generated workflows land here
 ```
 
 ## How to Use
 
-Start the full workflow:
+Point your AI coding agent at the orchestrator:
 ```
-/create-workflow
+Read forge/agentic.md and start
 ```
 
-Or run individual steps:
+For Claude Code, slash commands are available:
 ```
+/create-workflow              # Full workflow: runs Steps 1-7
 /gather-requirements          # Step 1: Interview the user
 /design-architecture          # Step 2: Design workflow structure
 /generate-orchestrator        # Step 3: Generate agentic.md
@@ -70,13 +73,13 @@ Or run individual steps:
 
 ## Key Rules
 
-- Always read `agent/agentic.md` fully before starting any step
+- Always read `forge/agentic.md` fully before starting any step
 - Never skip approval gates (marked with ⏸)
-- Always use `agent/utils/scaffold/` templates as the base for generated files. Do not create from scratch.
+- Always use `forge/utils/scaffold/` templates as the base for generated files. Do not create from scratch.
 - Generated workflows go into `output/{workflow-name}/`
 - Every generated workflow must include: README.md, agentic.md, at least one agent prompt, at least one slash command
-- Follow the patterns documented in `patterns/` for consistency
-- Reference examples in `examples/` when the user needs inspiration
+- Follow the patterns documented in `forge/patterns/` for consistency
+- Reference examples in `forge/examples/` when the user needs inspiration
 - No emojis in generated content
 - No "Co-Authored-By" or AI attribution in generated content
 - Generate mode must NEVER depend on `computer_use/`. Delete that directory and generate-only workflows keep working.
