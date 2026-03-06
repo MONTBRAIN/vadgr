@@ -1,15 +1,25 @@
 """Action execution via the bridge daemon."""
 
+import logging
+
 from computer_use.bridge.client import BridgeClient, BridgeError
 from computer_use.core.actions import ActionExecutor
 from computer_use.core.errors import ActionError
 
+logger = logging.getLogger("computer_use.bridge.actions")
+
 
 class BridgeActionExecutor(ActionExecutor):
-    """Implements ActionExecutor by delegating to the bridge daemon over TCP."""
+    """Implements ActionExecutor by delegating to the bridge daemon over TCP.
 
-    def __init__(self, client: BridgeClient):
+    Accepts an optional *fallback* ActionExecutor (typically WSL2ActionExecutor).
+    When the bridge raises an error for text-input methods (type_text, key_press),
+    the fallback executor is tried before propagating the failure.
+    """
+
+    def __init__(self, client: BridgeClient, fallback: ActionExecutor | None = None):
         self._client = client
+        self._fallback = fallback
 
     def _act(self, method: str, params: dict) -> None:
         try:
@@ -36,10 +46,24 @@ class BridgeActionExecutor(ActionExecutor):
         self._act("double_click", params)
 
     def type_text(self, text: str) -> None:
-        self._act("type_text", {"text": text})
+        try:
+            self._act("type_text", {"text": text})
+        except ActionError:
+            if self._fallback is not None:
+                logger.warning("Bridge type_text failed, using PowerShell fallback")
+                self._fallback.type_text(text)
+            else:
+                raise
 
     def key_press(self, keys: list[str]) -> None:
-        self._act("key_press", {"keys": keys})
+        try:
+            self._act("key_press", {"keys": keys})
+        except ActionError:
+            if self._fallback is not None:
+                logger.warning("Bridge key_press failed, using PowerShell fallback")
+                self._fallback.key_press(keys)
+            else:
+                raise
 
     def scroll(self, x: int, y: int, amount: int) -> None:
         self._act("scroll", {"x": x, "y": y, "amount": amount})

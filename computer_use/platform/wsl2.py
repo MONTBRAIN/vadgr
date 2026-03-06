@@ -924,7 +924,8 @@ class WSL2Backend(PlatformBackend):
         if self._executor is None:
             if self._probe_bridge():
                 from computer_use.bridge.actions import BridgeActionExecutor
-                self._executor = BridgeActionExecutor(self._bridge)
+                ps_fallback = WSL2ActionExecutor()
+                self._executor = BridgeActionExecutor(self._bridge, fallback=ps_fallback)
             else:
                 self._executor = WSL2ActionExecutor()
         return self._executor

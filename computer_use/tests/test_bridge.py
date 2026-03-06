@@ -22,6 +22,7 @@ from computer_use.bridge.protocol import (
 from computer_use.bridge.client import BridgeClient, BridgeError
 from computer_use.bridge.capture import BridgeScreenCapture
 from computer_use.bridge.actions import BridgeActionExecutor
+from computer_use.core.actions import ActionExecutor
 from computer_use.core.errors import ActionError, ScreenCaptureError
 from computer_use.core.types import ScreenState
 
@@ -278,6 +279,106 @@ class TestBridgeActionExecutor:
         exe = BridgeActionExecutor(client)
         with pytest.raises(ActionError, match="Bridge click failed"):
             exe.click(0, 0)
+
+
+class TestBridgeActionExecutorFallback:
+    """Tests for the fallback mechanism: when bridge type_text/key_press fails,
+    the executor should fall back to a secondary ActionExecutor (PowerShell)."""
+
+    def _make_failing_client(self):
+        """Create a mock client that raises BridgeError on call."""
+        client = MagicMock(spec=BridgeClient)
+        client.call.side_effect = BridgeError("access violation writing 0x0000000000000000")
+        return client
+
+    def _make_ok_client(self):
+        client = MagicMock(spec=BridgeClient)
+        client.call.return_value = {}
+        return client
+
+    def test_type_text_falls_back_on_bridge_error(self):
+        client = self._make_failing_client()
+        fallback = MagicMock(spec=ActionExecutor)
+        exe = BridgeActionExecutor(client, fallback=fallback)
+        exe.type_text("hello world")
+        fallback.type_text.assert_called_once_with("hello world")
+
+    def test_key_press_falls_back_on_bridge_error(self):
+        client = self._make_failing_client()
+        fallback = MagicMock(spec=ActionExecutor)
+        exe = BridgeActionExecutor(client, fallback=fallback)
+        exe.key_press(["ctrl", "c"])
+        fallback.key_press.assert_called_once_with(["ctrl", "c"])
+
+    def test_type_text_no_fallback_raises(self):
+        client = self._make_failing_client()
+        exe = BridgeActionExecutor(client)
+        with pytest.raises(ActionError, match="Bridge type_text failed"):
+            exe.type_text("hello")
+
+    def test_key_press_no_fallback_raises(self):
+        client = self._make_failing_client()
+        exe = BridgeActionExecutor(client)
+        with pytest.raises(ActionError, match="Bridge key_press failed"):
+            exe.key_press(["enter"])
+
+    def test_type_text_uses_bridge_when_it_works(self):
+        client = self._make_ok_client()
+        fallback = MagicMock(spec=ActionExecutor)
+        exe = BridgeActionExecutor(client, fallback=fallback)
+        exe.type_text("works fine")
+        client.call.assert_called_once_with("type_text", {"text": "works fine"}, timeout=10.0)
+        fallback.type_text.assert_not_called()
+
+    def test_key_press_uses_bridge_when_it_works(self):
+        client = self._make_ok_client()
+        fallback = MagicMock(spec=ActionExecutor)
+        exe = BridgeActionExecutor(client, fallback=fallback)
+        exe.key_press(["alt", "tab"])
+        client.call.assert_called_once_with("key_press", {"keys": ["alt", "tab"]}, timeout=10.0)
+        fallback.key_press.assert_not_called()
+
+    def test_click_does_not_fallback(self):
+        """Non-text methods should NOT fall back -- they should raise directly."""
+        client = self._make_failing_client()
+        fallback = MagicMock(spec=ActionExecutor)
+        exe = BridgeActionExecutor(client, fallback=fallback)
+        with pytest.raises(ActionError):
+            exe.click(100, 200)
+        fallback.click.assert_not_called()
+
+    def test_scroll_does_not_fallback(self):
+        client = self._make_failing_client()
+        fallback = MagicMock(spec=ActionExecutor)
+        exe = BridgeActionExecutor(client, fallback=fallback)
+        with pytest.raises(ActionError):
+            exe.scroll(100, 200, -3)
+        fallback.scroll.assert_not_called()
+
+
+class TestWSL2BackendBridgeFallbackWiring:
+    """Tests that WSL2Backend wires the PowerShell fallback into BridgeActionExecutor."""
+
+    def test_bridge_executor_gets_ps_fallback(self):
+        from computer_use.platform.wsl2 import WSL2Backend, WSL2ActionExecutor
+
+        backend = WSL2Backend()
+        # Simulate bridge available
+        backend._use_bridge = True
+        backend._bridge = MagicMock()
+
+        executor = backend.get_action_executor()
+        assert hasattr(executor, '_fallback')
+        assert isinstance(executor._fallback, WSL2ActionExecutor)
+
+    def test_no_bridge_returns_ps_executor(self):
+        from computer_use.platform.wsl2 import WSL2Backend, WSL2ActionExecutor
+
+        backend = WSL2Backend()
+        backend._use_bridge = False
+
+        executor = backend.get_action_executor()
+        assert isinstance(executor, WSL2ActionExecutor)
 
 
 class TestWSL2BackendFallback:
