@@ -4,6 +4,7 @@ import ctypes
 import ctypes.wintypes
 import io
 import logging
+import random
 import struct
 import sys
 import time
@@ -12,13 +13,34 @@ from typing import Optional
 from computer_use.core.actions import ActionExecutor
 from computer_use.core.errors import ActionError, ScreenCaptureError
 from computer_use.core.screenshot import ScreenCapture
+from computer_use.core.smooth_move import (
+    CursorTracker,
+    DRAG_GRAVITY,
+    DRAG_MAX_VEL,
+    DRAG_WIND,
+    PRE_CLICK_BASE,
+    PRE_CLICK_RAND,
+    PRE_DRAG_BASE,
+    PRE_DRAG_RAND,
+    generate_delays,
+    smooth_move,
+    windmouse_path,
+)
 from computer_use.core.types import ForegroundWindow, Region, ScreenState
 from computer_use.platform.base import PlatformBackend
 
 logger = logging.getLogger("computer_use.platform.windows")
 
 # Only load win32 types on Windows
+_dpi_awareness_set = False
 if sys.platform == "win32":
+    # Enable per-monitor DPI awareness so coordinates match physical pixels
+    try:
+        ctypes.windll.shcore.SetProcessDpiAwareness(2)  # PROCESS_PER_MONITOR_DPI_AWARE
+        _dpi_awareness_set = True
+    except Exception:
+        pass  # Already set or shcore unavailable
+
     user32 = ctypes.windll.user32
     gdi32 = ctypes.windll.gdi32
     kernel32 = ctypes.windll.kernel32
@@ -172,7 +194,10 @@ class WindowsScreenCapture(ScreenCapture):
 
 
 class WindowsActionExecutor(ActionExecutor):
-    """Action execution using Win32 SendInput API."""
+    """Action execution using Win32 SendInput API with smooth mouse movement."""
+
+    def __init__(self):
+        self._tracker = CursorTracker()
 
     def _send_mouse_input(self, flags: int, dx: int = 0, dy: int = 0, data: int = 0):
         if sys.platform != "win32":
@@ -187,14 +212,19 @@ class WindowsActionExecutor(ActionExecutor):
         inp.union.mi.dwExtraInfo = None
         user32.SendInput(1, ctypes.byref(inp), ctypes.sizeof(INPUT))
 
-    def move_mouse(self, x: int, y: int) -> None:
+    def _raw_move(self, x: int, y: int) -> None:
+        """Low-level SetCursorPos. Used as the primitive for smooth_move."""
+        user32.SetCursorPos(x, y)
+        self._tracker.update(x, y)
+
+    def move_mouse(self, x: int, y: int, hit_count: int = 0) -> None:
         if sys.platform != "win32":
             raise ActionError("WindowsActionExecutor requires Windows")
-        user32.SetCursorPos(x, y)
+        smooth_move(x, y, self._tracker.get_pos, self._raw_move, hit_count=hit_count)
 
-    def click(self, x: int, y: int, button: str = "left") -> None:
-        self.move_mouse(x, y)
-        time.sleep(0.05)
+    def click(self, x: int, y: int, button: str = "left", hit_count: int = 0) -> None:
+        self.move_mouse(x, y, hit_count=hit_count)
+        time.sleep(PRE_CLICK_BASE + random.random() * PRE_CLICK_RAND)
         if button == "left":
             self._send_mouse_input(MOUSEEVENTF_LEFTDOWN)
             self._send_mouse_input(MOUSEEVENTF_LEFTUP)
@@ -205,9 +235,9 @@ class WindowsActionExecutor(ActionExecutor):
             self._send_mouse_input(MOUSEEVENTF_MIDDLEDOWN)
             self._send_mouse_input(MOUSEEVENTF_MIDDLEUP)
 
-    def double_click(self, x: int, y: int) -> None:
-        self.move_mouse(x, y)
-        time.sleep(0.05)
+    def double_click(self, x: int, y: int, hit_count: int = 0) -> None:
+        self.move_mouse(x, y, hit_count=hit_count)
+        time.sleep(PRE_CLICK_BASE + random.random() * PRE_CLICK_RAND)
         self._send_mouse_input(MOUSEEVENTF_LEFTDOWN)
         self._send_mouse_input(MOUSEEVENTF_LEFTUP)
         time.sleep(0.05)
@@ -220,7 +250,6 @@ class WindowsActionExecutor(ActionExecutor):
         for char in text:
             vk = ctypes.windll.user32.VkKeyScanW(ord(char))
             if vk == -1:
-                # Use unicode input for characters without VK mapping
                 self._send_unicode_char(char)
             else:
                 key_code = vk & 0xFF
@@ -236,7 +265,6 @@ class WindowsActionExecutor(ActionExecutor):
     def key_press(self, keys: list[str]) -> None:
         if not keys:
             return
-        # Press all keys down, then release in reverse
         vk_codes = []
         for key in keys:
             lower = key.lower()
@@ -255,7 +283,7 @@ class WindowsActionExecutor(ActionExecutor):
             self._send_key_event(vk, down=False)
 
     def scroll(self, x: int, y: int, amount: int) -> None:
-        self.move_mouse(x, y)
+        self._raw_move(x, y)
         time.sleep(0.05)
         self._send_mouse_input(MOUSEEVENTF_WHEEL, data=amount * 120)
 
@@ -266,22 +294,20 @@ class WindowsActionExecutor(ActionExecutor):
         end_x: int,
         end_y: int,
         duration: float = 0.5,
+        hit_count: int = 0,
     ) -> None:
-        self.move_mouse(start_x, start_y)
-        time.sleep(0.05)
+        self.move_mouse(start_x, start_y, hit_count=hit_count)
+        time.sleep(PRE_DRAG_BASE + random.random() * PRE_DRAG_RAND)
         self._send_mouse_input(MOUSEEVENTF_LEFTDOWN)
-
-        steps = max(int(duration * 60), 10)
-        sleep_time = duration / steps
-        dx = (end_x - start_x) / steps
-        dy = (end_y - start_y) / steps
-
-        for i in range(1, steps + 1):
-            cx = int(start_x + dx * i)
-            cy = int(start_y + dy * i)
-            self.move_mouse(cx, cy)
-            time.sleep(sleep_time)
-
+        path = windmouse_path(
+            start_x, start_y, end_x, end_y,
+            gravity=DRAG_GRAVITY, wind=DRAG_WIND, max_vel=DRAG_MAX_VEL,
+        )
+        delays = generate_delays(len(path), duration)
+        for i, (px, py) in enumerate(path):
+            self._raw_move(px, py)
+            if i < len(delays):
+                time.sleep(delays[i])
         self._send_mouse_input(MOUSEEVENTF_LEFTUP)
 
     def _send_key_event(self, vk: int, down: bool = True):
@@ -295,7 +321,6 @@ class WindowsActionExecutor(ActionExecutor):
         user32.SendInput(1, ctypes.byref(inp), ctypes.sizeof(INPUT))
 
     def _send_unicode_char(self, char: str):
-        # Use WM_CHAR approach for unicode
         hwnd = user32.GetForegroundWindow()
         user32.SendMessageW(hwnd, 0x0102, ord(char), 0)  # WM_CHAR
 
