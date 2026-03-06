@@ -1,17 +1,28 @@
 """Tests for the ComputerUseEngine with mocked backends."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 
 from computer_use.core.engine import (
     ComputerUseEngine,
+    _CacheContext,
     _LAYER2_MIN_CONFIDENCE,
     _PCT_BUCKET,
     _PASSTHROUGH_APPS,
+    _default_cache_path,
 )
-from computer_use.core.spatial_cache import MIN_NAV_HIT_COUNT
-from computer_use.core.types import Element, ForegroundWindow, Platform, Region, ScreenState
+from computer_use.core.errors import ConfigError, PlatformNotSupportedError
+from computer_use.core.spatial_cache import CacheEntry, MIN_NAV_HIT_COUNT
+from computer_use.core.types import (
+    Action,
+    ActionType,
+    Element,
+    ForegroundWindow,
+    Platform,
+    Region,
+    ScreenState,
+)
 
 
 @pytest.fixture
@@ -47,6 +58,133 @@ def mock_backend():
     return backend, capture, executor
 
 
+# ---------------------------------------------------------------------------
+# TestDefaultCachePath -- _default_cache_path() coverage
+# ---------------------------------------------------------------------------
+
+class TestDefaultCachePath:
+    """Covers lines 84-94: env var, Windows, XDG_DATA_HOME, default."""
+
+    @patch("computer_use.core.engine.os.makedirs")
+    @patch.dict("os.environ", {"AGENT_FORGE_DATA": "/custom/data"}, clear=False)
+    def test_agent_forge_data_env(self, mock_makedirs):
+        result = _default_cache_path()
+        assert result.startswith("/custom/data")
+        assert result.endswith("muscle_memory.db")
+        mock_makedirs.assert_called_once_with("/custom/data", exist_ok=True)
+
+    @patch("computer_use.core.engine.os.makedirs")
+    @patch("computer_use.core.engine.os.name", "nt")
+    @patch.dict("os.environ", {"APPDATA": "C:\\Users\\test\\AppData\\Roaming"}, clear=False)
+    def test_windows_uses_appdata(self, mock_makedirs):
+        # Remove AGENT_FORGE_DATA so it does not short-circuit
+        with patch.dict("os.environ", {}, clear=False):
+            if "AGENT_FORGE_DATA" in __import__("os").environ:
+                del __import__("os").environ["AGENT_FORGE_DATA"]
+            result = _default_cache_path()
+        assert "AgentForge" in result
+        assert result.endswith("muscle_memory.db")
+
+    @patch("computer_use.core.engine.os.makedirs")
+    @patch("computer_use.core.engine.os.name", "posix")
+    @patch.dict(
+        "os.environ",
+        {"XDG_DATA_HOME": "/home/user/.data"},
+        clear=False,
+    )
+    def test_xdg_data_home(self, mock_makedirs):
+        with patch.dict("os.environ", {}, clear=False):
+            if "AGENT_FORGE_DATA" in __import__("os").environ:
+                del __import__("os").environ["AGENT_FORGE_DATA"]
+            result = _default_cache_path()
+        assert "agent-forge" in result
+        assert result.endswith("muscle_memory.db")
+
+    @patch("computer_use.core.engine.os.makedirs")
+    @patch("computer_use.core.engine.os.name", "posix")
+    @patch("computer_use.core.engine.os.path.expanduser", return_value="/home/testuser")
+    def test_default_local_share(self, mock_expand, mock_makedirs):
+        with patch.dict("os.environ", {}, clear=False):
+            for key in ("AGENT_FORGE_DATA", "XDG_DATA_HOME"):
+                __import__("os").environ.pop(key, None)
+            result = _default_cache_path()
+        assert ".local" in result
+        assert "share" in result
+        assert "agent-forge" in result
+        assert result.endswith("muscle_memory.db")
+
+
+# ---------------------------------------------------------------------------
+# TestEngineInit -- __init__ and config loading coverage
+# ---------------------------------------------------------------------------
+
+class TestEngineInit:
+    """Covers line 122, config loading paths, PlatformNotSupportedError."""
+
+    def test_backend_not_available_raises(self, mock_backend):
+        backend, _, _ = mock_backend
+        backend.is_available.return_value = False
+        with (
+            patch("computer_use.core.engine.detect_platform", return_value=Platform.LINUX),
+            patch("computer_use.core.engine.get_backend", return_value=backend),
+            patch("computer_use.core.engine._default_cache_path", return_value=":memory:"),
+        ):
+            with pytest.raises(PlatformNotSupportedError, match="not available"):
+                ComputerUseEngine()
+
+    def test_config_from_yaml_file(self, mock_backend):
+        backend, _, _ = mock_backend
+        yaml_content = "provider: anthropic\nfoo: bar\n"
+        with (
+            patch("computer_use.core.engine.detect_platform", return_value=Platform.WSL2),
+            patch("computer_use.core.engine.get_backend", return_value=backend),
+            patch("computer_use.core.engine._default_cache_path", return_value=":memory:"),
+            patch("builtins.open", mock_open(read_data=yaml_content)),
+            patch("computer_use.core.engine.yaml.safe_load", return_value={"provider": "anthropic", "foo": "bar"}),
+        ):
+            engine = ComputerUseEngine(config_path="/fake/config.yaml")
+        assert engine._config == {"provider": "anthropic", "foo": "bar"}
+        assert engine._provider_name == "anthropic"
+
+    def test_config_yaml_load_error_raises(self, mock_backend):
+        backend, _, _ = mock_backend
+        with (
+            patch("computer_use.core.engine.detect_platform", return_value=Platform.WSL2),
+            patch("computer_use.core.engine.get_backend", return_value=backend),
+            patch("computer_use.core.engine._default_cache_path", return_value=":memory:"),
+            patch("builtins.open", side_effect=IOError("no such file")),
+        ):
+            with pytest.raises(ConfigError, match="Cannot load config"):
+                ComputerUseEngine(config_path="/bad/path.yaml")
+
+    def test_config_default_missing_returns_empty(self, mock_backend):
+        backend, _, _ = mock_backend
+        with (
+            patch("computer_use.core.engine.detect_platform", return_value=Platform.WSL2),
+            patch("computer_use.core.engine.get_backend", return_value=backend),
+            patch("computer_use.core.engine._default_cache_path", return_value=":memory:"),
+            patch("computer_use.core.engine.os.path.exists", return_value=False),
+            patch("computer_use.core.engine.yaml"),
+        ):
+            engine = ComputerUseEngine()
+        assert engine._config == {}
+
+    def test_provider_passed_in_constructor(self, mock_backend):
+        backend, _, _ = mock_backend
+        with (
+            patch("computer_use.core.engine.detect_platform", return_value=Platform.WSL2),
+            patch("computer_use.core.engine.get_backend", return_value=backend),
+            patch("computer_use.core.engine._default_cache_path", return_value=":memory:"),
+            patch("computer_use.core.engine.yaml"),
+        ):
+            engine = ComputerUseEngine(provider="openai")
+        assert engine._provider_name == "openai"
+
+
+# ---------------------------------------------------------------------------
+# TestEngine -- basic engine API
+# ---------------------------------------------------------------------------
+
 class TestEngine:
     def _make_engine(self, mock_backend):
         backend, capture, executor = mock_backend
@@ -66,6 +204,25 @@ class TestEngine:
         assert screen.width == 1920
         assert screen.height == 1080
         capture.capture_full.assert_called_once()
+
+    def test_screenshot_stores_offset(self, mock_backend):
+        """screenshot() records virtual screen offset for coordinate translation."""
+        backend, capture, executor = mock_backend
+        capture.capture_full.return_value = ScreenState(
+            image_bytes=b"\x89PNG", width=1920, height=1080,
+            offset_x=100, offset_y=50,
+        )
+        backend.get_foreground_window.return_value = None
+        with (
+            patch("computer_use.core.engine.detect_platform", return_value=Platform.WSL2),
+            patch("computer_use.core.engine.get_backend", return_value=backend),
+            patch("computer_use.core.engine.yaml"),
+            patch("computer_use.core.engine._default_cache_path", return_value=":memory:"),
+        ):
+            engine = ComputerUseEngine()
+        engine.screenshot()
+        assert engine._vs_offset_x == 100
+        assert engine._vs_offset_y == 50
 
     def test_screenshot_region(self, mock_backend):
         engine, capture, _ = self._make_engine(mock_backend)
@@ -103,6 +260,37 @@ class TestEngine:
         engine.scroll(100, 200, -3)
         executor.scroll.assert_called_once_with(100, 200, -3)
 
+    def test_drag(self, mock_backend):
+        """Covers lines 345-347: drag translates coords and delegates."""
+        engine, _, executor = self._make_engine(mock_backend)
+        engine.drag(10, 20, 300, 400, duration=0.3)
+        executor.drag.assert_called_once_with(10, 20, 300, 400, 0.3)
+
+    def test_drag_with_offset(self, mock_backend):
+        """drag() applies virtual screen offset to both start and end."""
+        backend, capture, executor = mock_backend
+        capture.capture_full.return_value = ScreenState(
+            image_bytes=b"\x89PNG", width=1920, height=1080,
+            offset_x=100, offset_y=50,
+        )
+        backend.get_foreground_window.return_value = None
+        with (
+            patch("computer_use.core.engine.detect_platform", return_value=Platform.WSL2),
+            patch("computer_use.core.engine.get_backend", return_value=backend),
+            patch("computer_use.core.engine.yaml"),
+            patch("computer_use.core.engine._default_cache_path", return_value=":memory:"),
+        ):
+            engine = ComputerUseEngine()
+        engine.screenshot()
+        engine.drag(10, 20, 300, 400)
+        executor.drag.assert_called_once_with(110, 70, 400, 450, 0.5)
+
+    def test_move_mouse(self, mock_backend):
+        """move_mouse delegates to executor with hit_count from cache."""
+        engine, _, executor = self._make_engine(mock_backend)
+        engine.move_mouse(200, 300)
+        executor.move_mouse.assert_called_once_with(200, 300, hit_count=0)
+
     def test_get_platform(self, mock_backend):
         engine, _, _ = self._make_engine(mock_backend)
         assert engine.get_platform() == Platform.WSL2
@@ -117,11 +305,201 @@ class TestEngine:
         assert info["platform"] == "wsl2"
         assert info["backend_available"] is True
 
+    def test_execute_action(self, mock_backend):
+        """Covers line 679: execute_action delegates to executor."""
+        engine, _, executor = self._make_engine(mock_backend)
+        action = Action(action_type=ActionType.CLICK, x=100, y=200)
+        engine.execute_action(action)
+        executor.execute_action.assert_called_once_with(action)
+
     def test_run_task_without_provider_raises(self, mock_backend):
         engine, _, _ = self._make_engine(mock_backend)
         with pytest.raises(Exception):
             engine.run_task("Open Notepad")
 
+
+# ---------------------------------------------------------------------------
+# TestGetProvider -- _get_provider / _get_locator coverage
+# ---------------------------------------------------------------------------
+
+class TestProviderAndLocator:
+    """Covers lines 757, 764, 777-779, 687-699."""
+
+    def _make_engine(self, mock_backend, provider=None):
+        backend, capture, executor = mock_backend
+        backend.get_foreground_window.return_value = None
+        with (
+            patch("computer_use.core.engine.detect_platform", return_value=Platform.WSL2),
+            patch("computer_use.core.engine.get_backend", return_value=backend),
+            patch("computer_use.core.engine.yaml"),
+            patch("computer_use.core.engine._default_cache_path", return_value=":memory:"),
+        ):
+            engine = ComputerUseEngine(provider=provider)
+        return engine, capture, executor
+
+    def test_get_provider_no_name_raises(self, mock_backend):
+        """No provider configured raises ConfigError (line 757)."""
+        engine, _, _ = self._make_engine(mock_backend)
+        # Force provider_name to None (yaml mock may set it to a MagicMock)
+        engine._provider_name = None
+        with pytest.raises(ConfigError, match="No LLM provider"):
+            engine._get_provider()
+
+    def test_get_provider_loads_from_registry(self, mock_backend):
+        """Provider is lazy-loaded via get_provider registry (line 764)."""
+        engine, _, _ = self._make_engine(mock_backend, provider="anthropic")
+        mock_prov = MagicMock()
+        with patch(
+            "computer_use.providers.registry.get_provider",
+            return_value=mock_prov,
+        ):
+            result = engine._get_provider()
+        assert result is mock_prov
+        # Second call returns cached instance
+        assert engine._get_provider() is mock_prov
+
+    def test_get_locator_import_error_returns_none(self, mock_backend):
+        """Grounding import failure returns None (lines 777-779)."""
+        engine, _, _ = self._make_engine(mock_backend)
+        engine._locator = None
+        original_import = __builtins__.__import__ if hasattr(__builtins__, '__import__') else __import__
+
+        def fake_import(name, *args, **kwargs):
+            if "hybrid" in name:
+                raise ImportError("no grounding")
+            return original_import(name, *args, **kwargs)
+
+        with patch("builtins.__import__", side_effect=fake_import):
+            result = engine._get_locator()
+        assert result is None
+
+    def test_find_element_no_locator_returns_none(self, mock_backend):
+        """find_element returns None when no locator available (lines 687-689)."""
+        engine, _, _ = self._make_engine(mock_backend)
+        engine._get_locator = lambda: None
+        result = engine.find_element("Save button")
+        assert result is None
+
+    def test_find_element_delegates_to_locator(self, mock_backend):
+        """find_element uses locator.find_element with screenshot (lines 690-691)."""
+        engine, capture, _ = self._make_engine(mock_backend)
+        locator = MagicMock()
+        expected = Element(
+            name="Save", role="Button",
+            region=Region(10, 20, 80, 30),
+            confidence=0.9, source="accessibility",
+        )
+        locator.find_element.return_value = expected
+        engine._get_locator = lambda: locator
+        result = engine.find_element("Save button")
+        assert result is expected
+        locator.find_element.assert_called_once()
+
+    def test_find_all_elements_no_locator_returns_empty(self, mock_backend):
+        """find_all_elements returns [] when no locator (lines 695-697)."""
+        engine, _, _ = self._make_engine(mock_backend)
+        engine._get_locator = lambda: None
+        result = engine.find_all_elements()
+        assert result == []
+
+    def test_find_all_elements_delegates_to_locator(self, mock_backend):
+        """find_all_elements uses locator (lines 698-699)."""
+        engine, capture, _ = self._make_engine(mock_backend)
+        locator = MagicMock()
+        locator.find_all_elements.return_value = [
+            Element(name="OK", role="Button", region=Region(0, 0, 50, 20),
+                    confidence=1.0, source="accessibility"),
+        ]
+        engine._get_locator = lambda: locator
+        result = engine.find_all_elements()
+        assert len(result) == 1
+        locator.find_all_elements.assert_called_once()
+
+    def test_click_element(self, mock_backend):
+        """click_element clicks center of element region (lines 703-704)."""
+        engine, _, executor = self._make_engine(mock_backend)
+        el = Element(
+            name="OK", role="Button",
+            region=Region(100, 200, 80, 40),
+            confidence=1.0, source="accessibility",
+        )
+        engine.click_element(el)
+        # center = (100 + 40, 200 + 20) = (140, 220)
+        executor.click.assert_called_once_with(140, 220, hit_count=0)
+
+
+# ---------------------------------------------------------------------------
+# TestRunTask -- run_task coverage
+# ---------------------------------------------------------------------------
+
+class TestRunTask:
+    """Covers lines 737-740: run_task imports and calls run_core_loop."""
+
+    def _make_engine(self, mock_backend):
+        backend, capture, executor = mock_backend
+        backend.get_foreground_window.return_value = None
+        with (
+            patch("computer_use.core.engine.detect_platform", return_value=Platform.WSL2),
+            patch("computer_use.core.engine.get_backend", return_value=backend),
+            patch("computer_use.core.engine.yaml"),
+            patch("computer_use.core.engine._default_cache_path", return_value=":memory:"),
+        ):
+            engine = ComputerUseEngine(provider="anthropic")
+        return engine, capture, executor
+
+    def test_run_task_calls_core_loop(self, mock_backend):
+        engine, _, _ = self._make_engine(mock_backend)
+        mock_provider = MagicMock()
+        engine._provider = mock_provider
+        engine._locator = MagicMock()
+
+        with patch("computer_use.core.loop.run_core_loop", return_value=[]) as mock_loop:
+            results = engine.run_task("Open Notepad", max_steps=10, verify=False)
+        assert results == []
+        mock_loop.assert_called_once()
+        call_kwargs = mock_loop.call_args[1]
+        assert call_kwargs["task"] == "Open Notepad"
+        assert call_kwargs["max_steps"] == 10
+        assert call_kwargs["verify"] is False
+
+
+# ---------------------------------------------------------------------------
+# TestConfigLoading -- _load_config coverage
+# ---------------------------------------------------------------------------
+
+class TestConfigLoading:
+    """Covers lines 791, 795-796: default path missing, YAML load error."""
+
+    def test_load_config_default_exists(self, mock_backend):
+        backend, _, _ = mock_backend
+        with (
+            patch("computer_use.core.engine.detect_platform", return_value=Platform.WSL2),
+            patch("computer_use.core.engine.get_backend", return_value=backend),
+            patch("computer_use.core.engine._default_cache_path", return_value=":memory:"),
+            patch("computer_use.core.engine.os.path.exists", return_value=True),
+            patch("builtins.open", mock_open(read_data="key: val\n")),
+            patch("computer_use.core.engine.yaml.safe_load", return_value={"key": "val"}),
+        ):
+            engine = ComputerUseEngine()
+        assert engine._config == {"key": "val"}
+
+    def test_load_config_yaml_returns_none(self, mock_backend):
+        """yaml.safe_load returning None should give empty dict (line 794)."""
+        backend, _, _ = mock_backend
+        with (
+            patch("computer_use.core.engine.detect_platform", return_value=Platform.WSL2),
+            patch("computer_use.core.engine.get_backend", return_value=backend),
+            patch("computer_use.core.engine._default_cache_path", return_value=":memory:"),
+            patch("builtins.open", mock_open(read_data="")),
+            patch("computer_use.core.engine.yaml.safe_load", return_value=None),
+        ):
+            engine = ComputerUseEngine(config_path="/some/config.yaml")
+        assert engine._config == {}
+
+
+# ---------------------------------------------------------------------------
+# TestMuscleMemoryIntegration
+# ---------------------------------------------------------------------------
 
 class TestMuscleMemoryIntegration:
     """Tests that the engine's muscle memory cache integrates correctly."""
@@ -212,6 +590,10 @@ class TestMuscleMemoryIntegration:
         assert last_call == ((300, 400,), {"hit_count": 0})
 
 
+# ---------------------------------------------------------------------------
+# TestThreeLayerResolution
+# ---------------------------------------------------------------------------
+
 class TestThreeLayerResolution:
     """Tests for the 3-layer cache resolution."""
 
@@ -272,6 +654,22 @@ class TestThreeLayerResolution:
         engine.click(100, 200)
         executor.click.assert_called_once_with(100, 200, hit_count=1)
 
+    def test_foreground_exception_falls_back(self, mock_backend):
+        """get_foreground_window raising an exception uses platform fallback (lines 182-183)."""
+        backend, capture, executor = mock_backend
+        backend.get_foreground_window.side_effect = RuntimeError("dbus failure")
+        with (
+            patch("computer_use.core.engine.detect_platform", return_value=Platform.WSL2),
+            patch("computer_use.core.engine.get_backend", return_value=backend),
+            patch("computer_use.core.engine.yaml"),
+            patch("computer_use.core.engine._default_cache_path", return_value=":memory:"),
+        ):
+            engine = ComputerUseEngine()
+        engine.click(100, 200, element_hint="test")
+        executor.click.assert_called_once_with(100, 200, hit_count=0)
+        entry = engine._cache.lookup("wsl2", "test")
+        assert entry is not None
+
     def test_window_relative_coords_stored(self, mock_backend):
         """Cache uses window-relative coords so entries survive window moves."""
         fg = ForegroundWindow(
@@ -315,9 +713,6 @@ class TestThreeLayerResolution:
         engine, _, executor = self._make_engine(mock_backend, fg_window=fg)
 
         # 1000px wide, 3% bucket => 30px per bucket
-        # (100, 200) => pct (10%, 20%) => bucket @9%,18%
-        # (110, 210) => pct (11%, 21%) => bucket @9%,21% -- different Y bucket!
-        # Use coords that are in the same bucket:
         # (100, 200) => 10%, 20% => bucket @9%, 18%
         # (105, 205) => 10.5%, 20.5% => bucket @9%, 18%  (same)
         engine.click(100, 200)
@@ -379,6 +774,10 @@ class TestThreeLayerResolution:
         entry = engine._cache.lookup("wsl2", "test button")
         assert entry is not None
 
+
+# ---------------------------------------------------------------------------
+# TestNavigationBatch
+# ---------------------------------------------------------------------------
 
 class TestNavigationBatch:
     """Tests for the navigate_chain and navigate_to methods."""
@@ -465,6 +864,57 @@ class TestNavigationBatch:
         assert executor.click.call_count == 0
 
     @patch("computer_use.core.engine.time")
+    def test_navigate_chain_no_app_name_uses_platform(self, mock_time, mock_backend):
+        """Empty app_name and fg with no app_name falls to platform value (line 496)."""
+        _t = [0.0]
+        def _tick():
+            _t[0] += 2.0
+            return _t[0]
+        mock_time.monotonic.side_effect = _tick
+        mock_time.sleep = MagicMock()
+        # fg window exists (needed for _cache_to_screen) but has empty app_name
+        fg = ForegroundWindow(
+            app_name="", title="", x=0, y=0,
+            width=800, height=600,
+        )
+        engine, _, executor = self._make_engine(mock_backend, fg_window=fg)
+        self._warm_cache(engine, "wsl2", "btn", 100, 200)
+
+        result = engine.navigate_chain("", ["btn"])
+        assert result["completed"] == 1
+        assert result["stopped"] is False
+
+    @patch("computer_use.core.engine.time")
+    def test_navigate_chain_click_typeerror_fallback(self, mock_time, mock_backend):
+        """executor.click raises TypeError -> falls back without hit_count (lines 548-549)."""
+        _t = [0.0]
+        def _tick():
+            _t[0] += 2.0
+            return _t[0]
+        mock_time.monotonic.side_effect = _tick
+        mock_time.sleep = MagicMock()
+        fg = ForegroundWindow(
+            app_name="app.exe", title="test", x=0, y=0,
+            width=800, height=600,
+        )
+        engine, _, executor = self._make_engine(mock_backend, fg_window=fg)
+        self._warm_cache(engine, "app.exe", "btn_a", 100, 200)
+
+        # First call with hit_count raises TypeError, second call without it succeeds
+        call_count = [0]
+        def click_side_effect(*args, **kwargs):
+            call_count[0] += 1
+            if "hit_count" in kwargs:
+                raise TypeError("unexpected keyword argument 'hit_count'")
+        executor.click.side_effect = click_side_effect
+
+        result = engine.navigate_chain("app.exe", ["btn_a"])
+        assert result["completed"] == 1
+        assert result["stopped"] is False
+        # Should have been called twice: once with hit_count (TypeError), once without
+        assert executor.click.call_count == 2
+
+    @patch("computer_use.core.engine.time")
     def test_navigate_to_direct(self, mock_time, mock_backend):
         """Direct lookup works for single target."""
         _t = [0.0]
@@ -484,6 +934,74 @@ class TestNavigationBatch:
         assert result["completed"] == 1
         assert result["stopped"] is False
 
+    @patch("computer_use.core.engine.time")
+    def test_navigate_to_auto_detects_app(self, mock_time, mock_backend):
+        """navigate_to with no target_app uses fg window (lines 592-596)."""
+        _t = [0.0]
+        def _tick():
+            _t[0] += 2.0
+            return _t[0]
+        mock_time.monotonic.side_effect = _tick
+        mock_time.sleep = MagicMock()
+        fg = ForegroundWindow(
+            app_name="app.exe", title="test", x=0, y=0,
+            width=800, height=600,
+        )
+        engine, _, executor = self._make_engine(mock_backend, fg_window=fg)
+        self._warm_cache(engine, "app.exe", "ok btn", 100, 50)
+
+        result = engine.navigate_to("ok btn")
+        assert result["completed"] == 1
+
+    @patch("computer_use.core.engine.time")
+    def test_navigate_to_no_fg_uses_platform(self, mock_time, mock_backend):
+        """navigate_to with no fg app_name falls to platform name (line 596)."""
+        _t = [0.0]
+        def _tick():
+            _t[0] += 2.0
+            return _t[0]
+        mock_time.monotonic.side_effect = _tick
+        mock_time.sleep = MagicMock()
+        # fg window with empty app_name so navigate_to falls to platform value,
+        # but still has dimensions so _cache_to_screen can convert coords.
+        fg = ForegroundWindow(
+            app_name="", title="", x=0, y=0,
+            width=800, height=600,
+        )
+        engine, _, executor = self._make_engine(mock_backend, fg_window=fg)
+        self._warm_cache(engine, "wsl2", "btn", 50, 50)
+
+        result = engine.navigate_to("btn")
+        assert result["completed"] == 1
+
+    @patch("computer_use.core.engine.time")
+    def test_navigate_to_with_path_finding(self, mock_time, mock_backend):
+        """navigate_to uses BFS path finding when current_hint given (lines 600-608)."""
+        _t = [0.0]
+        def _tick():
+            _t[0] += 2.0
+            return _t[0]
+        mock_time.monotonic.side_effect = _tick
+        mock_time.sleep = MagicMock()
+        fg = ForegroundWindow(
+            app_name="app.exe", title="test", x=0, y=0,
+            width=800, height=600,
+        )
+        engine, _, executor = self._make_engine(mock_backend, fg_window=fg)
+        # Warm up entries
+        self._warm_cache(engine, "app.exe", "step_a", 100, 100)
+        self._warm_cache(engine, "app.exe", "step_b", 200, 200)
+
+        # Mock find_path to return a path: current -> step_a -> step_b
+        engine._cache.find_path = MagicMock(
+            return_value=[("app.exe", "start"), ("app.exe", "step_a"), ("app.exe", "step_b")]
+        )
+
+        result = engine.navigate_to("step_b", target_app="app.exe", current_hint="start")
+        assert result["completed"] == 2
+        assert result["stopped"] is False
+        engine._cache.find_path.assert_called_once()
+
     def test_cache_to_screen_roundtrip(self, mock_backend):
         """Window-relative cache coords convert correctly back to screen."""
         fg = ForegroundWindow(
@@ -498,6 +1016,22 @@ class TestNavigationBatch:
         sx, sy = result
         assert sx == 350  # 200 + 150
         assert sy == 350  # 100 + 250
+
+    def test_cache_to_screen_no_fg_returns_none(self, mock_backend):
+        """No foreground window -> returns None (line 381)."""
+        engine, _, _ = self._make_engine(mock_backend, fg_window=None)
+        result = engine._cache_to_screen(100, 200)
+        assert result is None
+
+    def test_cache_to_screen_zero_width_returns_none(self, mock_backend):
+        """fg window with width=0 -> returns None (line 380)."""
+        fg = ForegroundWindow(
+            app_name="app.exe", title="test", x=0, y=0,
+            width=0, height=600,
+        )
+        engine, _, _ = self._make_engine(mock_backend, fg_window=fg)
+        result = engine._cache_to_screen(100, 200)
+        assert result is None
 
     @patch("computer_use.core.engine.time")
     def test_navigate_chain_cross_app(self, mock_time, mock_backend):
@@ -520,17 +1054,10 @@ class TestNavigationBatch:
             width=400, height=300,
         )
         # get_foreground_window returns code.exe initially, then search.exe.
-        # navigate_chain calls _get_fg_window in:
-        #   1. _cache_to_screen (step 0)
-        #   2. rescale_coords fg (step 0)
-        #   3. _wait_for_nav_transition poll (between steps 0→1)
-        #   4. fg detection (step 1, i > 0)
-        #   5. _cache_to_screen (step 1)
-        #   6. rescale_coords fg (step 1)
         backend.get_foreground_window.side_effect = [
             fg_code,     # _cache_to_screen for step 0
             fg_code,     # rescale_coords fg for step 0
-            fg_search,   # _wait_for_nav_transition poll (step 0→1)
+            fg_search,   # _wait_for_nav_transition poll (step 0->1)
             fg_search,   # step 1: fg detection (i > 0)
             fg_search,   # _cache_to_screen for step 1
             fg_search,   # rescale_coords fg for step 1
@@ -576,7 +1103,7 @@ class TestNavigationBatch:
         backend.get_foreground_window.side_effect = [
             fg_code,     # _cache_to_screen for step 0
             fg_code,     # rescale_coords fg for step 0
-            fg_search,   # _wait_for_nav_transition poll (step 0→1)
+            fg_search,   # _wait_for_nav_transition poll (step 0->1)
             fg_search,   # step 1: fg detection (i > 0)
             fg_search,   # _cache_to_screen for step 1
             fg_search,   # rescale_coords fg for step 1
@@ -810,6 +1337,10 @@ class TestNavigationBatch:
         assert "out of bounds" in result["reason"]
         assert executor.click.call_count == 0
 
+
+# ---------------------------------------------------------------------------
+# TestLayer2Integration
+# ---------------------------------------------------------------------------
 
 class TestLayer2Integration:
     """Tests that Layer 2 (accessibility API) integrates correctly with the engine."""
@@ -1133,3 +1664,20 @@ class TestTemplateExecution:
 
         info, _ = engine._cache.get_template("counter")
         assert info["use_count"] == 2
+
+    @patch("computer_use.core.engine.time")
+    def test_template_step_exception_stops(self, mock_time, mock_backend):
+        """Exception during template step stops and reports reason (lines 654-659)."""
+        mock_time.time.return_value = 1000.0
+        mock_time.monotonic.return_value = 1000.0
+        mock_time.sleep = MagicMock()
+        engine, _, executor = self._make_engine(mock_backend)
+        executor.type_text.side_effect = RuntimeError("keyboard locked")
+
+        engine._cache.create_template("err-test", "app.exe", [
+            {"action": "type_text", "text": "oops", "wait_ms": 0},
+        ])
+        result = engine.execute_template("err-test")
+        assert result["stopped"] is True
+        assert result["completed"] == 0
+        assert "error" in result["reason"]
