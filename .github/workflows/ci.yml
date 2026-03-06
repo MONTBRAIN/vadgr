@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  computer-use:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xdotool gnome-screenshot wl-clipboard
+
+      - name: Install Python dependencies
+        run: pip install -r computer_use/requirements.txt pytest-cov evdev
+
+      - name: Run tests with coverage
+        run: python -m pytest computer_use/tests/ -v --cov --cov-config=computer_use/.coveragerc --cov-report=term-missing

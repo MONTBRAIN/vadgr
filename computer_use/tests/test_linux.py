@@ -9,6 +9,11 @@ import pytest
 from computer_use.core.errors import ActionError, ScreenCaptureError
 from computer_use.core.types import Region, ScreenState
 
+from computer_use.platform.linux import dbus_import, evdev_import, ecodes
+
+_has_dbus = dbus_import is not None
+_has_evdev = evdev_import is not None
+
 
 # -- Display session detection --
 
@@ -49,8 +54,10 @@ class TestCreateScreenCapture:
     def test_x11_returns_mss_capture(self, _mock):
         from computer_use.platform.linux import _create_screen_capture, MssScreenCapture
 
-        capture = _create_screen_capture()
-        assert isinstance(capture, MssScreenCapture)
+        mock_mss = MagicMock(spec=MssScreenCapture)
+        with patch("computer_use.platform.linux.MssScreenCapture", return_value=mock_mss):
+            capture = _create_screen_capture()
+        assert capture is mock_mss
 
     @patch("computer_use.platform.linux._is_wayland", return_value=True)
     @patch("shutil.which", side_effect=lambda cmd: "/usr/bin/grim" if cmd == "grim" else None)
@@ -191,8 +198,15 @@ class TestMssScreenCapture:
 
 
 class TestLinuxBackend:
+    @patch("computer_use.platform.linux._is_wayland", return_value=False)
     @patch("shutil.which", return_value="/usr/bin/xdotool")
-    def test_is_available_with_xdotool(self, _mock):
+    def test_is_available_with_xdotool_on_x11(self, _which, _wayland):
+        from computer_use.platform.linux import LinuxBackend
+        assert LinuxBackend().is_available() is True
+
+    @patch("computer_use.platform.linux._is_wayland", return_value=True)
+    @patch("computer_use.platform.linux._is_mutter_available", return_value=True)
+    def test_is_available_with_mutter_on_wayland(self, _mutter, _wayland):
         from computer_use.platform.linux import LinuxBackend
         assert LinuxBackend().is_available() is True
 
@@ -349,11 +363,13 @@ class TestBuildXkbCharMap:
             linux._xkb = original
 
 
+@pytest.mark.skipif(not _has_dbus, reason="dbus-python not installed")
 class TestMutterRemoteDesktopExecutor:
     def _make_executor(self):
         from computer_use.platform.linux import MutterRemoteDesktopExecutor
 
         with patch("computer_use.platform.linux._build_xkb_char_map", return_value=None), \
+             patch("computer_use.platform.linux.dbus_import") as mock_dbus, \
              patch("computer_use.platform.linux.MutterRemoteDesktopExecutor._setup_session"):
             ex = MutterRemoteDesktopExecutor()
             # Wire up a mock session manually
@@ -524,6 +540,7 @@ def _mock_evdev():
     return mouse, kbd
 
 
+@pytest.mark.skipif(not _has_evdev, reason="evdev not installed")
 class TestEvdevActionExecutor:
     def _make_executor(self):
         from computer_use.platform.linux import EvdevActionExecutor
@@ -672,14 +689,17 @@ class TestCreateActionExecutor:
         ex = _create_action_executor()
         assert isinstance(ex, LinuxActionExecutor)
 
+    @pytest.mark.skipif(not _has_dbus, reason="dbus-python not installed")
     @patch("computer_use.platform.linux._is_wayland", return_value=True)
     @patch("computer_use.platform.linux._is_mutter_available", return_value=True)
-    def test_wayland_gnome_returns_mutter(self, _mutter, _wayland):
+    @patch("computer_use.platform.linux.dbus_import")
+    def test_wayland_gnome_returns_mutter(self, _dbus, _mutter, _wayland):
         from computer_use.platform.linux import _create_action_executor, MutterRemoteDesktopExecutor
         with patch("computer_use.platform.linux.MutterRemoteDesktopExecutor._setup_session"):
             ex = _create_action_executor()
             assert isinstance(ex, MutterRemoteDesktopExecutor)
 
+    @pytest.mark.skipif(not _has_evdev, reason="evdev not installed")
     @patch("computer_use.platform.linux._is_wayland", return_value=True)
     @patch("computer_use.platform.linux._is_mutter_available", return_value=False)
     @patch("computer_use.platform.linux._find_evdev_mouse")
