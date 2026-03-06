@@ -16,6 +16,7 @@ import pytest
 # but the module itself only defines ctypes structs on win32.  We need to
 # patch sys.platform during import if we're not on Windows.
 _REAL_WIN32 = sys.platform == "win32"
+_skip_not_win32 = pytest.mark.skipif(not _REAL_WIN32, reason="Windows-only tests")
 
 
 def _import_windows_module():
@@ -38,6 +39,7 @@ def _import_windows_module():
 # ---------------------------------------------------------------------------
 
 
+@_skip_not_win32
 class TestWindowsActionExecutorSmoothMove:
     """Verify smooth_move is wired into move_mouse, click, double_click, drag."""
 
@@ -114,6 +116,7 @@ class TestWindowsActionExecutorSmoothMove:
 # ---------------------------------------------------------------------------
 
 
+@_skip_not_win32
 class TestWindowsActionExecutorABCSignature:
     """Verify method signatures match the ActionExecutor ABC (hit_count params)."""
 
@@ -147,6 +150,7 @@ class TestWindowsActionExecutorABCSignature:
 # ---------------------------------------------------------------------------
 
 
+@_skip_not_win32
 class TestWindowsActionExecutorInternals:
     """Verify the executor has CursorTracker and _raw_move like other platforms."""
 
@@ -175,6 +179,7 @@ class TestWindowsActionExecutorInternals:
 # ---------------------------------------------------------------------------
 
 
+@_skip_not_win32
 class TestWindowsDpiAwareness:
     """Verify the module sets DPI awareness on import so coordinates match."""
 
@@ -204,6 +209,7 @@ class TestWindowsDpiAwareness:
 # ---------------------------------------------------------------------------
 
 
+@_skip_not_win32
 class TestWindowsBackend:
     def test_get_action_executor_cached(self):
         _, _, Backend = _import_windows_module()
