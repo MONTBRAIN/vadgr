@@ -491,7 +491,7 @@ SMOOTH_MOVE_DELAY_MS = 10
 
 class WSL2ActionExecutor(ActionExecutor):
 
-    def move_mouse(self, x: int, y: int) -> None:
+    def move_mouse(self, x: int, y: int, hit_count: int = 0) -> None:
         script = SMOOTH_MOVE_SCRIPT.format(
             x=x, y=y, steps=SMOOTH_MOVE_STEPS, delay=SMOOTH_MOVE_DELAY_MS
         )
@@ -500,7 +500,7 @@ class WSL2ActionExecutor(ActionExecutor):
         except Exception as e:
             raise ActionError(f"Mouse move failed: {e}") from e
 
-    def click(self, x: int, y: int, button: str = "left") -> None:
+    def click(self, x: int, y: int, button: str = "left", hit_count: int = 0) -> None:
         if button == "left":
             actions = (
                 "[MouseInput]::mouse_event([MouseInput]::MOUSEEVENTF_LEFTDOWN, 0, 0, 0, [IntPtr]::Zero)\n"
@@ -528,7 +528,7 @@ class WSL2ActionExecutor(ActionExecutor):
         except Exception as e:
             raise ActionError(f"Click failed at ({x}, {y}): {e}") from e
 
-    def double_click(self, x: int, y: int) -> None:
+    def double_click(self, x: int, y: int, hit_count: int = 0) -> None:
         actions = (
             "[MouseInput]::mouse_event([MouseInput]::MOUSEEVENTF_LEFTDOWN, 0, 0, 0, [IntPtr]::Zero)\n"
             "[MouseInput]::mouse_event([MouseInput]::MOUSEEVENTF_LEFTUP, 0, 0, 0, [IntPtr]::Zero)\n"
@@ -817,23 +817,106 @@ class WSL2Backend(PlatformBackend):
                 logger.info("Deployed %s -> %s", filename, dst)
         return all_ok
 
+    @staticmethod
+    def _install_windows_python() -> Optional[str]:
+        """Install Python on Windows via winget and return the path if successful."""
+        logger.info("Installing Python 3.12 on Windows via winget...")
+        try:
+            result = subprocess.run(
+                [
+                    "powershell.exe", "-NoProfile", "-Command",
+                    "winget install Python.Python.3.12 "
+                    "--accept-package-agreements --accept-source-agreements "
+                    "--disable-interactivity",
+                ],
+                capture_output=True, text=True, timeout=300,
+            )
+            if result.returncode != 0:
+                logger.warning("winget install failed (exit %d): %s",
+                               result.returncode, result.stderr.strip())
+                return None
+            logger.info("Python 3.12 installed successfully")
+        except subprocess.TimeoutExpired:
+            logger.warning("winget install timed out after 5 minutes")
+            return None
+        except Exception as e:
+            logger.warning("winget install error: %s", e)
+            return None
+
+        # winget install updates PATH but our shell doesn't see it yet.
+        # Check common install locations directly.
+        try:
+            win_user = subprocess.run(
+                ["cmd.exe", "/c", "echo %USERPROFILE%"],
+                capture_output=True, text=True, timeout=5,
+            )
+            if win_user.returncode == 0:
+                profile = win_user.stdout.strip()
+                if profile and ":" in profile:
+                    drive = profile[0].lower()
+                    rest = profile[2:].replace("\\", "/")
+                    wsl_profile = f"/mnt/{drive}{rest}"
+                    candidate = f"{wsl_profile}/AppData/Local/Programs/Python/Python312/python.exe"
+                    if os.path.isfile(candidate):
+                        return subprocess.run(
+                            ["wslpath", "-w", candidate],
+                            capture_output=True, text=True,
+                        ).stdout.strip()
+        except Exception:
+            pass
+
+        # Also check system-wide install
+        system_path = "/mnt/c/Python312/python.exe"
+        if os.path.isfile(system_path):
+            return subprocess.run(
+                ["wslpath", "-w", system_path],
+                capture_output=True, text=True,
+            ).stdout.strip()
+
+        logger.warning("Python installed but could not locate the executable")
+        return None
+
+    @staticmethod
+    def _install_daemon_deps(win_python: str) -> bool:
+        """Install mss and Pillow for the daemon on Windows Python."""
+        logger.info("Installing daemon dependencies (mss, Pillow)...")
+        try:
+            result = subprocess.run(
+                [
+                    "powershell.exe", "-NoProfile", "-Command",
+                    f"& '{win_python}' -m pip install mss Pillow --quiet",
+                ],
+                capture_output=True, text=True, timeout=120,
+            )
+            if result.returncode != 0:
+                logger.warning("pip install failed (exit %d): %s",
+                               result.returncode, result.stderr.strip())
+                return False
+            logger.info("Daemon dependencies installed")
+            return True
+        except Exception as e:
+            logger.warning("pip install error: %s", e)
+            return False
+
     def _auto_launch_daemon(self) -> bool:
         """Attempt to auto-launch the bridge daemon on Windows.
 
-        1. Find Windows Python
-        2. Deploy daemon files
-        3. Launch as background process
-        4. Wait and re-probe
+        1. Find Windows Python (install via winget if missing)
+        2. Install daemon dependencies (mss, Pillow)
+        3. Deploy daemon files
+        4. Launch as background process
+        5. Wait and re-probe
 
         Returns True if daemon is now available.
         """
         win_python = self._find_windows_python()
         if not win_python:
-            logger.warning(
-                "Windows Python not found. Install it with: "
-                "winget install Python.Python.3.12"
-            )
-            return False
+            win_python = self._install_windows_python()
+            if not win_python:
+                logger.warning("Could not install or find Windows Python")
+                return False
+
+        self._install_daemon_deps(win_python)
 
         deploy_dir = self._get_deploy_dir()
         if not deploy_dir:
