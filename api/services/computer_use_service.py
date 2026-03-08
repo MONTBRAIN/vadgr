@@ -14,7 +14,7 @@ class ComputerUseService:
         try:
             from computer_use.core.engine import ComputerUseEngine
             self._engine = ComputerUseEngine()
-        except ImportError:
+        except (ImportError, Exception):
             pass
 
     async def run_agent(
