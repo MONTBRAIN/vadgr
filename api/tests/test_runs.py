@@ -7,11 +7,11 @@ class TestProjectRuns:
 
     @pytest.mark.asyncio
     async def test_start_project_run(self, client):
-        task = await client.post("/api/tasks", json={"name": "T", "description": ""})
+        agent = await client.post("/api/agents", json={"name": "T", "description": ""})
         project = await client.post("/api/projects", json={"name": "P", "description": ""})
         pid = project.json()["id"]
         await client.post(f"/api/projects/{pid}/nodes", json={
-            "task_id": task.json()["id"],
+            "agent_id": agent.json()["id"],
         })
         resp = await client.post(f"/api/projects/{pid}/runs", json={
             "inputs": {"topic": "AI"},
@@ -31,8 +31,8 @@ class TestRunGet:
 
     @pytest.mark.asyncio
     async def test_get_run(self, client):
-        task = await client.post("/api/tasks", json={"name": "T", "description": ""})
-        run = await client.post(f"/api/tasks/{task.json()['id']}/run", json={"inputs": {}})
+        agent = await client.post("/api/agents", json={"name": "T", "description": ""})
+        run = await client.post(f"/api/agents/{agent.json()['id']}/run", json={"inputs": {}})
         run_id = run.json()["run_id"]
         resp = await client.get(f"/api/runs/{run_id}")
         assert resp.status_code == 200
@@ -48,18 +48,18 @@ class TestRunList:
 
     @pytest.mark.asyncio
     async def test_list_runs(self, client):
-        task = await client.post("/api/tasks", json={"name": "T", "description": ""})
-        tid = task.json()["id"]
-        await client.post(f"/api/tasks/{tid}/run", json={"inputs": {}})
+        agent = await client.post("/api/agents", json={"name": "T", "description": ""})
+        tid = agent.json()["id"]
+        await client.post(f"/api/agents/{tid}/run", json={"inputs": {}})
         resp = await client.get("/api/runs")
         assert resp.status_code == 200
         assert len(resp.json()) >= 1
 
     @pytest.mark.asyncio
     async def test_list_runs_filter_by_status(self, client):
-        task = await client.post("/api/tasks", json={"name": "T", "description": ""})
-        tid = task.json()["id"]
-        await client.post(f"/api/tasks/{tid}/run", json={"inputs": {}})
+        agent = await client.post("/api/agents", json={"name": "T", "description": ""})
+        tid = agent.json()["id"]
+        await client.post(f"/api/agents/{tid}/run", json={"inputs": {}})
         resp = await client.get("/api/runs", params={"status": "queued"})
         assert resp.status_code == 200
         assert all(r["status"] == "queued" for r in resp.json())

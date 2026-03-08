@@ -1,0 +1,42 @@
+# CLI agent provider configurations.
+# Adding a new provider = adding a new entry here. Zero code changes.
+#
+# Placeholders:
+#   {{prompt}}    -- replaced with the agent prompt at runtime
+#   {{workspace}} -- replaced with the agent's working directory (if set)
+
+providers:
+  claude_code:
+    name: "Claude Code"
+    command: claude
+    args: ["-p", "{{prompt}}", "--dangerously-skip-permissions", "--output-format", "json"]
+    available_check: ["claude", "--version"]
+    timeout: 300
+
+  codex:
+    name: "OpenAI Codex CLI"
+    command: codex
+    args: ["exec", "{{prompt}}", "--full-auto", "--json"]
+    available_check: ["codex", "--version"]
+    timeout: 300
+
+  aider:
+    name: "Aider"
+    command: aider
+    args: ["--message", "{{prompt}}", "--yes-always"]
+    available_check: ["aider", "--version"]
+    timeout: 300
+
+  cline:
+    name: "Cline CLI"
+    command: cline
+    args: ["{{prompt}}", "-y", "--json"]
+    available_check: ["cline", "--version"]
+    timeout: 300
+
+  gemini:
+    name: "Gemini CLI"
+    command: gemini
+    args: ["{{prompt}}", "--output-format", "json"]
+    available_check: ["gemini", "--version"]
+    timeout: 300

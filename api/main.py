@@ -8,13 +8,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.config import settings
 from api.persistence.database import Database
-from api.persistence.repositories import TaskRepository, ProjectRepository, RunRepository
+from api.persistence.repositories import AgentRepository, ProjectRepository, RunRepository
 from api.websocket.manager import ConnectionManager
-from api.engine.executor import TaskExecutor
-from api.services.llm_service import LLMService
+from api.engine.executor import AgentExecutor
+from api.engine.providers import CLIAgentProvider, load_provider_config
 from api.services.computer_use_service import ComputerUseService
 from api.services.execution_service import ExecutionService
-from api.routes import health, tasks, projects, runs, computer_use, ws
+from api.routes import health, agents, projects, runs, computer_use, ws
 
 
 def create_app(db: Optional[Database] = None) -> FastAPI:
@@ -29,20 +29,24 @@ def create_app(db: Optional[Database] = None) -> FastAPI:
             await app.state.db.connect()
             await app.state.db.create_tables()
 
-        app.state.task_repo = TaskRepository(app.state.db)
+        app.state.agent_repo = AgentRepository(app.state.db)
         app.state.project_repo = ProjectRepository(app.state.db)
         app.state.run_repo = RunRepository(app.state.db)
         app.state.ws_manager = ConnectionManager()
 
-        llm_service = LLMService()
+        provider_config = load_provider_config(
+            settings.default_provider,
+            {"timeout": settings.provider_timeout},
+        )
+        provider = CLIAgentProvider(provider_config)
         cu_service = ComputerUseService()
-        executor = TaskExecutor(llm_service=llm_service, computer_use_service=cu_service)
+        executor = AgentExecutor(provider=provider, computer_use_service=cu_service)
 
         async def emit(run_id, event_type, data):
             await app.state.ws_manager.emit(run_id, event_type, data)
 
         app.state.execution_service = ExecutionService(
-            task_repo=app.state.task_repo,
+            agent_repo=app.state.agent_repo,
             run_repo=app.state.run_repo,
             project_repo=app.state.project_repo,
             executor=executor,
@@ -63,7 +67,7 @@ def create_app(db: Optional[Database] = None) -> FastAPI:
     )
 
     app.include_router(health.router)
-    app.include_router(tasks.router)
+    app.include_router(agents.router)
     app.include_router(projects.router)
     app.include_router(runs.router)
     app.include_router(computer_use.router)

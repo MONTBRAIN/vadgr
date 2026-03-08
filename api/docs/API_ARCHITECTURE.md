@@ -2,46 +2,85 @@
 
 ## Vision
 
-Agent Forge becomes a **visual orchestration platform** for AI agents. Users build automation by composing tasks on a canvas, connecting outputs to inputs, and hitting run. No code required.
+Agent Forge becomes a **visual orchestration platform** for AI agents. Users build automation by composing agents on a canvas, connecting outputs to inputs, and hitting run. No code required.
 
 The platform has two layers:
 
-- **Task** -- the atomic unit. "What I want done." A task can be simple (one LLM call) or complex (a multi-agent workflow with approval gates). The user doesn't care -- they describe the goal, and **forge decides the internal complexity**.
-- **Project** -- a DAG (directed acyclic graph) of connected tasks. The output of one task flows as input to the next. Tasks can branch, merge, and run in parallel.
+- **Agent** -- the atomic unit. An agent is a **complete forge-generated workflow**: an orchestrator (`agentic.md`), prompts, quality checks, and config -- all in one folder. The user describes the goal, forge builds the entire agent. On the canvas, it's one box. Internally, it can be as complex as forge decides.
+- **Project** -- a DAG (directed acyclic graph) of connected agents. The output of one agent flows as input to the next. Agents can branch, merge, and run in parallel. The user decides the project-level orchestration.
+
+Two levels of orchestration:
+
+1. **Agent level** (internal) -- Forge decides. Each agent has its own `agentic.md` that defines how it works internally: which prompts to run, in what order, with what quality checks. The user never sees this.
+2. **Project level** (canvas) -- User decides. The user drags agents onto the canvas, connects them, and defines the data flow. The DAG engine handles this.
+
+How agents get used is up to the user:
+
+- **Standalone** -- User reads the agent's `agentic.md` and follows the steps manually or with Claude Code.
+- **API platform** -- User drags agents onto a canvas, connects them, and hits run. The execution service reads each agent's `agentic.md` and follows it programmatically.
 
 The `api/` module joins `forge/` (the brain) and `computer_use/` (the hands) into a service that a visual frontend can consume.
 
 ### Design Principles
 
-1. **The user never thinks about prompts, agents, or LLMs** -- They describe what they want in plain language. Forge analyzes the description and builds whatever is needed internally: a single prompt, multiple agents, approval gates, quality loops. The user sees one box on the canvas.
-2. **Module independence preserved** -- `forge/` and `computer_use/` remain standalone. The API imports them; they never import the API.
-3. **Definition vs execution** -- A task/project is a reusable template (like a Docker image). A run is one execution of it (like a container). You can run the same project many times with different inputs.
-4. **Visual-first** -- Every concept maps to something you can see and drag on a canvas.
+1. **Forge creates, users orchestrate** -- Forge's job is to build agents from descriptions (full workflow folders with `agentic.md` + prompts). The user decides how to connect and run them -- either visually on the canvas or manually.
+2. **An agent is a workflow, not a prompt** -- A prompt is just a file. An agent is the whole thing: orchestrator, prompts, quality loops, config. Forge generates the complete agent.
+3. **The user never thinks about prompts, models, or LLM internals** -- They describe what they want in plain language. Forge builds the agent. The user sees one box on the canvas.
+4. **Module independence preserved** -- `forge/` and `computer_use/` remain standalone. The API imports them; they never import the API.
+5. **Definition vs execution** -- An agent/project is a reusable template (like a Docker image). A run is one execution of it (like a container). You can run the same project many times with different inputs.
+6. **Visual-first** -- Every concept maps to something you can see and drag on a canvas.
 
 ---
 
-## MVP Scope
+## Implementation Phases
 
-What the MVP delivers:
+The MVP is split into two phases. Phase A ships first and delivers immediate value. Phase B adds the canvas and project orchestration on top.
 
-- Task CRUD (create, configure, delete)
-- Project CRUD (canvas with nodes and edges)
-- DAG validation (cycle detection, missing inputs)
-- Sequential execution of a project (run tasks in topological order)
-- Approval gate nodes (pause execution, wait for user)
-- Computer use tasks (desktop automation via `computer_use/` engine)
-- WebSocket streaming (live progress + screenshot stream during runs)
+### Phase A: Agents (MVP-A)
+
+The core loop: user describes a goal, forge builds an agent, user runs it.
+
+- Agent creation via forge (user describes goal, forge generates the agent)
+- Agent management (list, view, delete)
+- Run an agent directly (`POST /api/agents/{id}/run`)
+- WebSocket streaming (creation progress + execution progress)
+- Computer use agents (desktop automation via `computer_use/` engine)
 - SQLite persistence
 - Health endpoint
 
-What the MVP does NOT include (future phases):
+**What Phase A does NOT include:**
 
-- Authentication (local use only, `localhost`)
-- Parallel task execution
-- Loop and conditional nodes
-- Task library (pre-built templates)
-- Project templates
-- Export/import
+- Projects, canvas, DAG
+- Connecting agents together
+- Approval gate nodes (added in Phase B with projects)
+- Visual frontend (React + React Flow)
+
+### Phase B: Projects + Canvas (MVP-B)
+
+Once agents work end-to-end, add project-level orchestration:
+
+- Project CRUD (canvas with nodes and edges)
+- DAG validation (cycle detection, missing inputs)
+- Sequential execution of a project (run agents in topological order)
+- Approval gate nodes (pause execution, wait for user)
+- Agent input/output wiring on canvas
+- React + React Flow frontend
+
+### Future Phases
+
+Once both MVP phases are solid, these are added incrementally:
+
+| Phase | Feature | Description |
+|---|---|---|
+| 3 | **Parallel execution** | Agents without dependencies run concurrently via `asyncio.gather` |
+| 3 | **Loop nodes** | Repeat an agent until a condition is met |
+| 3 | **Conditional nodes** | Route data based on conditions |
+| 4 | **Agent library** | Pre-built reusable agent templates |
+| 4 | **Project templates** | Starter projects (research pipeline, content pipeline) |
+| 4 | **Binary artifacts** | Support for large file outputs (PDFs, images) with `data/artifacts/` |
+| 4 | **Agent editing** | Re-trigger forge to regenerate prompts when description changes |
+| 5 | **Authentication** | API key auth for remote access |
+| 5 | **Export/import** | Share agents and projects |
 
 ---
 
@@ -49,8 +88,8 @@ What the MVP does NOT include (future phases):
 
 ```mermaid
 graph TB
-    subgraph Frontend["Frontend (Future)"]
-        CANVAS[Task Canvas<br/>Drag, Connect, Configure]
+    subgraph Frontend["Frontend (Phase B)"]
+        CANVAS[Agent Canvas<br/>Drag, Connect, Configure]
         RUNNER[Execution View<br/>Live Progress]
     end
 
@@ -59,31 +98,32 @@ graph TB
         WS[WebSocket Gateway<br/>Streaming]
 
         subgraph Services["Service Layer"]
-            TS[TaskService]
-            PS[ProjectService]
-            ES[ExecutionService]
+            AS[AgentService<br/>Triggers forge to create agents]
+            PS[ProjectService<br/>Phase B]
+            ES[ExecutionService<br/>Reads agentic.md to run agents]
             CUS[ComputerUseService]
-            LLM[LLMService]
+        end
+
+        subgraph Engine["Engine Layer"]
+            LLM[CLIAgentProvider<br/>Config: providers.yaml]
         end
 
         subgraph Persistence["Persistence Layer"]
-            DB[(SQLite)]
-            FS[File System<br/>Task Outputs]
+            DB[(SQLite<br/>Metadata + Runtime Outputs)]
         end
 
-        REST --> TS
+        REST --> AS
         REST --> PS
         REST --> ES
         WS --> ES
-        TS --> DB
+        AS --> DB
         PS --> DB
         PS --> ES
         ES --> DB
-        ES --> FS
     end
 
     subgraph Forge["forge/ (Brain)"]
-        PROMPTS[Agent Prompts]
+        PROMPTS[Generates agent folders<br/>agentic.md + Prompts/]
         SCAFFOLD[Templates]
     end
 
@@ -94,9 +134,11 @@ graph TB
 
     CANVAS -->|HTTP/WS| REST
     RUNNER -->|WS| WS
-    TS -->|analyzes + generates| Forge
-    ES -->|executes tasks| LLM
-    ES -->|desktop tasks| CUS
+    AS -->|"create agent (description)"| Forge
+    Forge -->|"agent folder (agentic.md + prompts)"| AS
+    ES -->|reads agentic.md + prompts| Forge
+    ES -->|executes agents| LLM
+    ES -->|desktop agents| CUS
     CUS -->|library + autonomous| ComputerUse
 ```
 
@@ -104,20 +146,97 @@ graph TB
 
 ## Core Concepts
 
-### Task (Definition)
+### Agent (Definition)
 
-A task is a **reusable unit of work**. The user describes what the task should accomplish in plain language -- no technical knowledge required. Forge analyzes the description and decides the internal structure:
+An agent is a **complete forge-generated workflow**. Not a prompt -- a prompt is just a file. An agent is the whole thing:
 
-- **Simple task** -- single LLM call (e.g., "Summarize this text in 3 bullet points")
-- **Complex task** -- multi-step workflow with specialized agents, approval gates, quality loops (e.g., "Research a topic thoroughly and write a paper with citations")
+```
+output/{agent-name}/
+├── agentic.md              # How the agent works (orchestrator)
+├── agent/Prompts/          # The prompts it uses internally
+│   ├── 01_Research_Analyst.md
+│   ├── 02_Outline_Architect.md
+│   └── 03_Academic_Writer.md
+└── ...
+```
 
-The user never configures prompts, agents, or models. They describe the goal, and forge builds whatever is needed under the hood. Optionally, the user can provide **quality samples** -- examples of what the final output should look like. Forge uses these to understand the expected quality, style, tone, and structure, and bakes that into the generated prompts and quality checks.
+The user describes what the agent should accomplish in plain language. Forge runs its generation process and creates the full agent folder -- orchestrator, prompts, quality checks, everything.
 
-Tasks can optionally enable computer use -- when enabled, the task interacts with the desktop (screenshots, clicks, typing) via `computer_use/`.
+- **Simple agent** -- Forge generates a lightweight `agentic.md` with one step and one prompt (e.g., "Summarize this text in 3 bullet points")
+- **Complex agent** -- Forge generates a full `agentic.md` with multiple steps, multiple prompts, quality loops, approval gates (e.g., "Research a topic thoroughly and write a paper with citations")
 
-### Task Input/Output Contract
+Either way, on the canvas it's **one node**. The internal complexity is hidden. When the execution service runs the agent, it reads the agent's `agentic.md` and follows it.
 
-Every task declares what data it accepts and what it produces. This is how tasks connect on the canvas.
+Optionally, the user can provide **quality samples** -- examples of what the final output should look like. Forge uses these to calibrate the generated prompts.
+
+Agents can optionally enable computer use -- when enabled, the agent interacts with the desktop (screenshots, clicks, typing) via `computer_use/`.
+
+### Agent Creation Flow
+
+Creating an agent is not a simple CRUD operation. It's a **forge invocation** that generates files:
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant FE as Frontend
+    participant API as api/
+    participant Forge as forge/
+
+    User->>FE: "Research a topic and write a paper with citations"
+    FE->>API: POST /api/agents {name, description, samples?}
+    API-->>FE: {id, status: "creating"} (immediate response)
+    FE->>API: WS connect /api/ws/agents/{id}
+
+    API->>Forge: Analyze description
+    Forge-->>FE: WS agent_progress {step: "analyzing complexity..."}
+    Forge->>Forge: Determine steps, prompts, quality checks
+    Forge->>Forge: Generate agentic.md
+    Forge->>Forge: Generate prompt files
+    Forge-->>FE: WS agent_progress {step: "generating prompts..."}
+    Forge->>Forge: Write files to output/{agent-name}/
+
+    Forge-->>API: Agent folder ready at output/{agent-name}/
+    API->>API: Save metadata + forge_path to DB
+    API-->>FE: WS agent_ready {id, input_schema, output_schema}
+    FE-->>User: Agent ready -- add to canvas or run directly
+```
+
+For simple descriptions, this takes seconds. For complex ones, it may take longer as forge generates multiple prompts with quality checks.
+
+### Storage Model
+
+Two types of data, two storage strategies:
+
+| What | Where | Why |
+|---|---|---|
+| **Agent definition** (agentic.md + prompts) | Filesystem: `output/{agent-name}/` | Can be large, git-trackable, human-readable, editable, works standalone |
+| **Agent metadata** (name, type, model, path) | DB: `agents` table | Queryable, drives the UI and canvas |
+| **Runtime outputs** (what agents produce when run) | DB: `agent_runs.outputs` as JSON | Structured, flows through the DAG, displayed in UI |
+| **Binary artifacts** (PDFs, images -- future) | Filesystem: `data/artifacts/{run_id}/` | Too large for DB, referenced via JSON in outputs |
+
+The `agents` table stores a `forge_path` that points to the agent's folder on disk. At runtime, the execution service reads `agentic.md` from that folder and follows it to run the agent.
+
+```
+output/
+  research-topic/                     # Agent: "Research Topic"
+    agentic.md                        # Internal orchestrator
+    agent/Prompts/
+      01_Research_Analyst.md
+      02_Outline_Architect.md
+      03_Academic_Writer.md
+
+  summarize-text/                     # Agent: "Summarize Text" (simple)
+    agentic.md                        # One-step orchestrator
+    agent/Prompts/
+      01_Summarizer.md
+
+data/
+  agent_forge.db                      # Metadata, runs, runtime outputs
+```
+
+### Agent Input/Output Contract
+
+Every agent declares what data it accepts and what it produces. Forge infers the input/output schema from the description and generates it. In Phase A, this is used for standalone runs. In Phase B, this is how agents connect on the canvas.
 
 ```mermaid
 graph LR
@@ -129,9 +248,11 @@ graph LR
     B -->|article| C
 ```
 
-### Project (Definition)
+### Project (Definition) -- Phase B
 
-A project is a **DAG of tasks** with edges that define data flow. It's the canvas -- what the user builds visually.
+A project is a **DAG of agents** with edges that define data flow. It's the canvas -- what the user builds visually. The user decides the project-level orchestration: which agents connect to which, what runs in parallel, where approval gates go.
+
+Each node on the canvas is one agent. Each agent runs according to its own internal `agentic.md`. The project DAG just defines the order and data flow between agents.
 
 ```mermaid
 graph LR
@@ -145,30 +266,30 @@ graph LR
 
 ### Run (Execution)
 
-A run is **one execution of a task or project** with specific input values. A standalone task run executes that single task. A project run executes the full DAG. Both use the same run model.
+A run is **one execution of an agent or project** with specific input values. In Phase A, runs are standalone agent executions. In Phase B, a project run executes the full DAG (each node runs its agent's `agentic.md` in topological order).
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Queued: Task or project triggered
+    [*] --> Queued: Agent or project triggered
     Queued --> Running: Executor picks up
-    Running --> Running: Next task executes
-    Running --> AwaitingApproval: Approval gate reached
+    Running --> Running: Next step executes
+    Running --> AwaitingApproval: Approval gate reached (Phase B)
     AwaitingApproval --> Running: User approves
-    Running --> Completed: All tasks done
+    Running --> Completed: All steps done
     Running --> Failed: Unrecoverable error
     Completed --> [*]
     Failed --> [*]
 ```
 
-### Node Types (MVP)
+### Node Types
 
-| Node Type | Behavior |
-|---|---|
-| **Task** | User-described unit of work. Can be simple or complex internally -- forge decides. Accepts inputs, produces outputs. |
-| **Computer Use Task** | Same as Task, but interacts with the desktop (screenshots, clicks, typing) via `ComputerUseEngine` |
-| **Approval Gate** | Pauses execution, shows output, waits for user approve/revise |
-| **Input** | Project-level input parameter (starting data) |
-| **Output** | Project-level output (final deliverable) |
+| Node Type | Phase | Behavior |
+|---|---|---|
+| **Agent** | A | Forge-generated workflow. Runs its internal `agentic.md`. Accepts inputs, produces outputs. |
+| **Computer Use Agent** | A | Same as Agent, but includes desktop automation steps via `ComputerUseEngine` |
+| **Approval Gate** | B | Pauses execution, shows output, waits for user approve/revise |
+| **Input** | B | Project-level input parameter (starting data) |
+| **Output** | B | Project-level output (final deliverable) |
 
 ---
 
@@ -176,16 +297,18 @@ stateDiagram-v2
 
 ```mermaid
 erDiagram
-    Task {
+    Agent {
         string id PK "UUID"
         string name "Display name"
         string description "Plain-language goal"
-        string type "task | approval | input | output"
+        string type "agent | approval | input | output"
+        string status "creating | ready | error"
+        string forge_path "Path to agent folder on disk"
+        json forge_config "Complexity info (steps, prompts, etc.)"
         json samples "Optional quality examples"
-        json input_schema "Expected inputs"
-        json output_schema "Produced outputs"
+        json input_schema "Expected inputs (forge-inferred)"
+        json output_schema "Produced outputs (forge-inferred)"
         boolean computer_use "Can use desktop"
-        json forge_config "Internal structure (forge-generated)"
         string provider "anthropic | openai"
         string model "claude-sonnet-4-6"
         datetime created_at
@@ -203,7 +326,7 @@ erDiagram
     ProjectNode {
         string id PK "UUID"
         string project_id FK
-        string task_id FK
+        string agent_id FK
         json config "Node-specific overrides"
         float position_x "Canvas X"
         float position_y "Canvas Y"
@@ -220,36 +343,38 @@ erDiagram
 
     Run {
         string id PK "UUID"
-        string project_id FK "nullable - null for standalone task runs"
-        string task_id FK "nullable - null for project runs"
+        string project_id FK "nullable - null for standalone agent runs"
+        string agent_id FK "nullable - null for project runs"
         string status "queued | running | awaiting_approval | completed | failed"
         json inputs "Input values"
-        json outputs "Output values"
+        json outputs "Output values (JSON)"
         datetime started_at
         datetime completed_at
     }
 
-    TaskRun {
+    AgentRun {
         string id PK "UUID"
         string run_id FK
-        string node_id FK
+        string node_id FK "nullable - null for standalone runs"
         string status "pending | running | completed | failed | skipped"
         json inputs "Resolved input values"
-        json outputs "Produced output values"
+        json outputs "Produced output values (JSON)"
         text logs "Execution logs"
         integer duration_ms
         datetime started_at
         datetime completed_at
     }
 
-    Task ||--o{ ProjectNode : "used by"
-    Project ||--o{ ProjectNode : "contains"
-    Project ||--o{ ProjectEdge : "connects"
-    Task ||--o{ Run : "standalone runs"
-    Project ||--o{ Run : "project runs"
-    Run ||--o{ TaskRun : "contains"
-    ProjectNode ||--o{ TaskRun : "instance of"
+    Agent ||--o{ ProjectNode : "used by (Phase B)"
+    Project ||--o{ ProjectNode : "contains (Phase B)"
+    Project ||--o{ ProjectEdge : "connects (Phase B)"
+    Agent ||--o{ Run : "standalone runs"
+    Project ||--o{ Run : "project runs (Phase B)"
+    Run ||--o{ AgentRun : "contains"
+    ProjectNode ||--o{ AgentRun : "instance of (Phase B)"
 ```
+
+Note: In Phase A, only Agent, Run, and AgentRun tables are needed. Project, ProjectNode, and ProjectEdge are added in Phase B.
 
 ---
 
@@ -263,15 +388,15 @@ api/
 
     models/
         __init__.py
-        task.py                     # Task Pydantic models
-        project.py                  # Project + nodes + edges models
-        run.py                      # Run + task run models
+        agent.py                    # Agent Pydantic models
+        project.py                  # Project + nodes + edges models (Phase B)
+        run.py                      # Run + agent run models
         common.py                   # Pagination, errors, enums
 
     routes/
         __init__.py
-        tasks.py                    # Task CRUD
-        projects.py                 # Project CRUD + canvas
+        agents.py                   # Agent creation (forge) + management
+        projects.py                 # Project CRUD + canvas (Phase B)
         runs.py                     # Run lifecycle + control
         computer_use.py             # Computer use status + direct control
         health.py                   # Health check
@@ -279,16 +404,16 @@ api/
 
     services/
         __init__.py
-        task_service.py             # Task CRUD logic
-        project_service.py          # Project/DAG validation
-        execution_service.py        # Sequential DAG runner
+        agent_service.py            # Triggers forge, manages agent lifecycle
+        project_service.py          # Project/DAG validation (Phase B)
+        execution_service.py        # Reads agentic.md, runs agents sequentially
         computer_use_service.py     # ComputerUseEngine wrapper
-        llm_service.py              # LLM provider abstraction
 
     engine/
         __init__.py
-        dag.py                      # DAG validation, topological sort
-        executor.py                 # Task executor (LLM call or computer use)
+        dag.py                      # DAG validation, topological sort (Phase B)
+        executor.py                 # Reads agent's agentic.md, executes it
+        providers.py                # Config-driven CLI provider (loads providers.yaml from project root)
 
     persistence/
         __init__.py
@@ -306,10 +431,10 @@ api/
     tests/
         __init__.py
         conftest.py
-        test_tasks.py
-        test_projects.py
+        test_agents.py
+        test_projects.py            # Phase B
         test_runs.py
-        test_dag.py
+        test_dag.py                 # Phase B
         test_executor.py
         test_database.py
         test_services.py
@@ -324,42 +449,57 @@ api/
 
 ## API Endpoints
 
-### Tasks (`/api/tasks`)
+### Phase A Endpoints
+
+#### Agents (`/api/agents`)
 
 | Method | Path | Description |
 |---|---|---|
-| `POST` | `/api/tasks` | Create a new task |
-| `GET` | `/api/tasks` | List all tasks |
-| `GET` | `/api/tasks/{id}` | Get task by ID |
-| `PUT` | `/api/tasks/{id}` | Update task |
-| `DELETE` | `/api/tasks/{id}` | Delete task |
-| `POST` | `/api/tasks/{id}/run` | Run a task directly (no project needed) |
-| `GET` | `/api/tasks/{id}/runs` | List runs of this task |
+| `POST` | `/api/agents` | Create a new agent (triggers forge) |
+| `GET` | `/api/agents` | List all agents |
+| `GET` | `/api/agents/{id}` | Get agent by ID |
+| `DELETE` | `/api/agents/{id}` | Delete agent (removes files + DB record) |
+| `POST` | `/api/agents/{id}/run` | Run an agent directly |
+| `GET` | `/api/agents/{id}/runs` | List runs of this agent |
 
-#### Create Task
+#### Create Agent
 
-The user describes what the task should do. Forge handles the rest.
+The user describes what the agent should do. The API triggers forge to create the full agent.
 
 ```json
+POST /api/agents
+
 {
   "name": "Research Topic",
   "description": "Research a given topic using multiple sources. Produce a structured summary with key findings, supporting evidence, and a list of sources.",
   "samples": [
-    "## Quantum Computing in Healthcare\n\n### Key Findings\n1. Drug discovery acceleration: 40% reduction in molecular simulation time...\n\n### Sources\n- Nature, 2025: \"Quantum advantage in protein folding\"..."
+    "## Quantum Computing in Healthcare\n\n### Key Findings\n1. Drug discovery acceleration..."
   ]
 }
 ```
 
-`samples` is optional. When provided, forge uses them to calibrate the internal prompts -- matching the tone, structure, depth, and quality bar the user expects.
+`samples` is optional. When provided, forge uses them to calibrate the generated prompts.
 
-The API sends the description to forge. Forge analyzes complexity, generates the internal structure (prompts, agents, steps), and infers input/output schemas. The response includes everything:
+The API returns immediately with the agent ID and status "creating":
 
 ```json
 {
   "id": "uuid",
   "name": "Research Topic",
+  "status": "creating"
+}
+```
+
+Connect via WebSocket at `/api/ws/agents/{id}` for creation progress. When forge finishes, the agent transitions to "ready":
+
+```json
+{
+  "id": "uuid",
+  "name": "Research Topic",
+  "status": "ready",
   "description": "Research a given topic using multiple sources...",
-  "type": "task",
+  "type": "agent",
+  "forge_path": "output/research-topic/",
   "input_schema": [
     { "name": "topic", "type": "text", "required": true }
   ],
@@ -369,36 +509,33 @@ The API sends the description to forge. Forge analyzes complexity, generates the
   ],
   "computer_use": false,
   "forge_config": {
-    "complexity": "simple",
-    "agents": 1,
-    "steps": 1
+    "complexity": "multi_step",
+    "steps": 3,
+    "prompts": ["01_Research_Analyst.md", "02_Outline_Architect.md", "03_Academic_Writer.md"]
   },
   "provider": "anthropic",
   "model": "claude-sonnet-4-6"
 }
 ```
 
-The user can tweak the inferred schemas if needed, but never touches prompts or agent configs. For a complex description, forge might return:
+For a simple description, forge generates a one-step agent:
 
 ```json
 {
   "forge_config": {
-    "complexity": "multi_step",
-    "agents": 3,
-    "steps": 5,
-    "has_quality_loop": true
+    "complexity": "simple",
+    "steps": 1,
+    "prompts": ["01_Summarizer.md"]
   }
 }
 ```
 
-Same single node on the canvas either way.
+#### Run Agent Directly
 
-#### Run Task Directly
-
-No project needed. Just provide inputs and run.
+No project needed. Just provide inputs and run. The execution service reads the agent's `agentic.md` and follows it.
 
 ```json
-POST /api/tasks/{id}/run
+POST /api/agents/{id}/run
 
 {
   "inputs": {
@@ -418,7 +555,49 @@ Response:
 
 Connect via WebSocket at `/api/ws/runs/{run_id}` for live progress.
 
-### Projects (`/api/projects`)
+#### Runs (`/api/runs`) -- Phase A
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/runs` | List runs (filterable by agent, status) |
+| `GET` | `/api/runs/{id}` | Get run with step statuses |
+| `POST` | `/api/runs/{id}/cancel` | Cancel a run |
+
+#### Computer Use (`/api/computer-use`)
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/computer-use/status` | Platform info, availability |
+| `POST` | `/api/computer-use/screenshot` | Capture current screen (planned) |
+
+#### Health (`/api/health`)
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/health` | Server health + module availability |
+
+```json
+{
+  "status": "healthy",
+  "modules": {
+    "forge": true,
+    "computer_use": true
+  },
+  "platform": "wsl2",
+  "version": "0.1.0"
+}
+```
+
+#### WebSocket -- Phase A
+
+| Path | Description |
+|---|---|
+| `/api/ws/agents/{id}` | Agent creation progress (forge generating) |
+| `/api/ws/runs/{id}` | Live execution progress for a run |
+
+### Phase B Endpoints
+
+#### Projects (`/api/projects`)
 
 | Method | Path | Description |
 |---|---|---|
@@ -433,7 +612,6 @@ Connect via WebSocket at `/api/ws/runs/{run_id}` for live progress.
 | `POST` | `/api/projects/{id}/edges` | Connect two nodes |
 | `DELETE` | `/api/projects/{id}/edges/{edge_id}` | Disconnect two nodes |
 | `POST` | `/api/projects/{id}/validate` | Validate DAG |
-| `PUT` | `/api/projects/{id}/canvas` | Bulk save canvas state (planned) |
 
 #### Connect Nodes
 
@@ -465,60 +643,15 @@ Connect via WebSocket at `/api/ws/runs/{run_id}` for live progress.
 }
 ```
 
-### Runs (`/api/runs`)
+#### Runs -- Phase B additions
 
 | Method | Path | Description |
 |---|---|---|
-| `POST` | `/api/projects/{id}/runs` | Start a new run |
-| `GET` | `/api/runs` | List runs (filterable by project, status) |
-| `GET` | `/api/runs/{id}` | Get run with all task statuses |
-| `POST` | `/api/runs/{id}/cancel` | Cancel a run |
+| `POST` | `/api/projects/{id}/runs` | Start a project run |
 | `POST` | `/api/runs/{id}/approve` | Approve at an approval gate |
-| `POST` | `/api/runs/{id}/revise` | Request revision at a gate (planned) |
-| `GET` | `/api/runs/{id}/tasks/{task_run_id}` | Get task run details + logs (planned) |
+| `POST` | `/api/runs/{id}/revise` | Request revision at a gate |
 
-Runs can originate from either `POST /api/tasks/{id}/run` (standalone) or `POST /api/projects/{id}/runs` (project DAG). The run model is the same -- standalone runs just have `task_id` set instead of `project_id`.
-
-#### Start Run
-
-```json
-{
-  "inputs": {
-    "topic": "Quantum computing applications in drug discovery"
-  }
-}
-```
-
-### Computer Use (`/api/computer-use`)
-
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/api/computer-use/status` | Platform info, availability |
-| `POST` | `/api/computer-use/screenshot` | Capture current screen (planned) |
-
-### Health (`/api/health`)
-
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/api/health` | Server health + module availability |
-
-```json
-{
-  "status": "healthy",
-  "modules": {
-    "forge": true,
-    "computer_use": true
-  },
-  "platform": "wsl2",
-  "version": "0.1.0"
-}
-```
-
-### WebSocket
-
-| Path | Description |
-|---|---|
-| `/api/ws/runs/{id}` | Live execution progress for a run |
+Runs can originate from either `POST /api/agents/{id}/run` (standalone, Phase A) or `POST /api/projects/{id}/runs` (project DAG, Phase B). The run model is the same -- standalone runs just have `agent_id` set instead of `project_id`.
 
 ---
 
@@ -534,29 +667,33 @@ All messages use a consistent envelope:
 }
 ```
 
-### Event Types (MVP)
+### Event Types
 
-| Type | Direction | Description |
-|---|---|---|
-| `run_started` | Server -> Client | Run began |
-| `task_started` | Server -> Client | A task began executing |
-| `task_progress` | Server -> Client | Streaming tokens from LLM |
-| `task_completed` | Server -> Client | A task finished (includes outputs) |
-| `task_failed` | Server -> Client | A task failed |
-| `approval_required` | Server -> Client | Approval gate reached |
-| `approval_response` | Client -> Server | User approves or revises |
-| `screenshot` | Server -> Client | Screenshot from computer use task (base64) |
-| `action_executed` | Server -> Client | Computer use action performed (click, type, etc.) |
-| `run_completed` | Server -> Client | All tasks done |
-| `run_failed` | Server -> Client | Run failed |
+| Type | Phase | Direction | Description |
+|---|---|---|---|
+| `agent_creating` | A | Server -> Client | Forge is generating the agent |
+| `agent_progress` | A | Server -> Client | Progress update during agent creation |
+| `agent_ready` | A | Server -> Client | Agent creation complete |
+| `agent_error` | A | Server -> Client | Agent creation failed |
+| `run_started` | A | Server -> Client | Run began |
+| `agent_started` | A | Server -> Client | An agent began executing |
+| `agent_step` | A | Server -> Client | Internal step within an agent executing |
+| `agent_completed` | A | Server -> Client | An agent finished (includes outputs) |
+| `agent_failed` | A | Server -> Client | An agent failed |
+| `screenshot` | A | Server -> Client | Screenshot from computer use agent (base64) |
+| `action_executed` | A | Server -> Client | Computer use action performed (click, type, etc.) |
+| `run_completed` | A | Server -> Client | All steps done |
+| `run_failed` | A | Server -> Client | Run failed |
+| `approval_required` | B | Server -> Client | Approval gate reached |
+| `approval_response` | B | Client -> Server | User approves or revises |
 
 ---
 
 ## Key Flows
 
-### Flow 1: Create and Run a Task (Standalone)
+### Flow 1: Create an Agent from the UI (Phase A)
 
-User creates a task by describing the goal, then runs it directly -- no project needed.
+User describes what they want. Forge creates the full agent (orchestrator + prompts + config).
 
 ```mermaid
 sequenceDiagram
@@ -564,29 +701,35 @@ sequenceDiagram
     participant FE as Frontend
     participant API as api/
     participant Forge as forge/
-    participant LLM as LLM Provider
+    participant FS as Filesystem
 
-    User->>FE: "Research a topic and produce a summary with sources"
-    FE->>API: POST /api/tasks {name, description}
+    User->>FE: Name: "Research Topic"<br/>Description: "Research a topic thoroughly..."
+    FE->>API: POST /api/agents {name, description}
+    API->>API: Create agent record (status: creating)
+    API-->>FE: {id, status: "creating"}
+    FE->>API: WS connect /api/ws/agents/{id}
 
-    API->>Forge: Analyze description
-    Forge-->>API: forge_config + inferred input/output schemas
+    API->>Forge: Generate agent from description
+    Note over Forge: Forge runs its generation process:
+    Forge->>Forge: 1. Analyze complexity
+    Forge-->>FE: WS agent_progress "Analyzing description..."
+    Forge->>Forge: 2. Design internal architecture
+    Forge->>Forge: 3. Generate agentic.md (internal orchestrator)
+    Forge-->>FE: WS agent_progress "Generating orchestrator..."
+    Forge->>Forge: 4. Generate prompt files
+    Forge-->>FE: WS agent_progress "Generating prompts..."
+    Forge->>FS: Write output/research-topic/agentic.md
+    Forge->>FS: Write output/research-topic/agent/Prompts/*.md
+    Forge-->>API: Done. Path: output/research-topic/
 
-    API-->>FE: task created {id, input_schema, output_schema}
-    FE-->>User: Task ready, shows input fields
-
-    User->>FE: Fills in: topic = "AI Safety"
-    FE->>API: POST /api/tasks/{id}/run {inputs: {topic: "AI Safety"}}
-    API-->>FE: run_id
-    FE->>API: WS connect /api/ws/runs/{run_id}
-
-    API->>LLM: Execute (forge handles internally)
-    API-->>FE: WS task_progress {streaming...}
-    API-->>FE: WS run_completed {outputs: {findings: "...", sources: "..."}}
-    FE-->>User: Shows results
+    API->>API: Update agent (status: ready, forge_path, schemas)
+    API-->>FE: WS agent_ready {id, input_schema, output_schema}
+    FE-->>User: Agent ready! Run it directly.
 ```
 
-### Flow 2: Build and Run a Project
+### Flow 2: Run an Agent Directly (Phase A)
+
+The execution service reads the agent's `agentic.md` and follows it.
 
 ```mermaid
 sequenceDiagram
@@ -594,47 +737,38 @@ sequenceDiagram
     participant FE as Frontend
     participant API as api/
     participant ES as ExecutionService
-    participant LLM as LLM Provider
+    participant FS as Filesystem
+    participant LLM as CLI Provider
 
-    User->>FE: Drag tasks onto canvas, draw edges
-    FE->>API: POST /api/projects/{id}/nodes (x3)
-    FE->>API: POST /api/projects/{id}/edges (x2)
-    FE->>API: POST /api/projects/{id}/validate
-    API-->>FE: {valid: true}
-
-    User->>FE: Click "Run"
-    FE->>API: POST /api/projects/{id}/runs {inputs: {topic: "AI Safety"}}
+    User->>FE: Fills in: topic = "AI Safety"
+    FE->>API: POST /api/agents/{id}/run {inputs: {topic: "AI Safety"}}
     API-->>FE: run_id
     FE->>API: WS connect /api/ws/runs/{run_id}
 
-    Note over ES: Topological sort: Research -> Write -> Review -> Gate
+    ES->>FS: Read output/research-topic/agentic.md
+    Note over ES: agentic.md says: Step 1 -> Step 2 -> Step 3
 
-    ES->>LLM: Execute "Research" (forge handles internally)
-    ES-->>FE: WS task_started {node: "Research"}
-    ES-->>FE: WS task_progress {streaming...}
-    ES-->>FE: WS task_completed {outputs: {findings: "..."}}
+    ES->>FS: Read agent/Prompts/01_Research_Analyst.md
+    ES->>LLM: Execute with prompt + inputs
+    ES-->>FE: WS agent_step {step: 1, name: "Research"}
+    ES-->>FE: WS agent_completed {step: 1, outputs: {findings: "..."}}
 
-    Note over ES: Pass Research.findings -> Write.content
+    ES->>FS: Read agent/Prompts/02_Outline_Architect.md
+    ES->>LLM: Execute with prompt + step 1 outputs
+    ES-->>FE: WS agent_step {step: 2, name: "Outline"}
 
-    ES->>LLM: Execute "Write Article" (findings as input)
-    ES-->>FE: WS task_started {node: "Write"}
-    ES-->>FE: WS task_completed {outputs: {article: "..."}}
+    ES->>FS: Read agent/Prompts/03_Academic_Writer.md
+    ES->>LLM: Execute with prompt + previous outputs
+    ES-->>FE: WS agent_step {step: 3, name: "Write"}
 
-    ES->>LLM: Execute "Review" (article as input)
-    ES-->>FE: WS task_completed {outputs: {score: 8.5}}
-
-    Note over ES: Approval gate reached
-    ES-->>FE: WS approval_required {outputs_so_far: {...}}
-
-    User->>FE: Reviews output, clicks "Approve"
-    FE->>API: POST /api/runs/{id}/approve
-
-    ES-->>FE: WS run_completed {outputs: {article: "..."}}
+    ES-->>FE: WS run_completed {outputs: {paper: "...", sources: "..."}}
+    Note over ES: Outputs stored as JSON in agent_runs.outputs
+    FE-->>User: Shows results
 ```
 
-### Flow 3: Computer Use Task in a Project
+### Flow 3: Computer Use Agent (Phase A)
 
-A project where one task automates the desktop with live screenshot streaming.
+An agent that automates the desktop with live screenshot streaming.
 
 ```mermaid
 sequenceDiagram
@@ -644,10 +778,10 @@ sequenceDiagram
     participant CUS as ComputerUseService
     participant Engine as ComputerUseEngine
 
-    Note over ES: DAG reaches a computer_use task
-
-    ES->>CUS: execute("Fill form at example.com", inputs)
-    CUS->>Engine: run_task(task_description)
+    User->>FE: Run computer use agent
+    FE->>ES: POST /api/agents/{id}/run {inputs}
+    ES->>CUS: execute(agent_description, inputs)
+    CUS->>Engine: run_agent(agent_description)
 
     loop Core Loop
         Engine->>Engine: screenshot()
@@ -659,14 +793,102 @@ sequenceDiagram
         CUS-->>FE: WS action_executed {type, coords}
     end
 
-    Engine-->>CUS: Task complete
+    Engine-->>CUS: Agent complete
     CUS-->>ES: outputs {screenshot: final, success: true}
-    ES-->>FE: WS task_completed
+    ES-->>FE: WS agent_completed
+```
+
+### Flow 4: Build and Run a Project (Phase B)
+
+User connects agents on the canvas. Each agent runs its own internal `agentic.md`.
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant FE as Frontend
+    participant API as api/
+    participant ES as ExecutionService
+    participant FS as Filesystem
+    participant LLM as CLI Provider
+
+    User->>FE: Drag agents onto canvas, draw edges
+    FE->>API: POST /api/projects/{id}/nodes (x3)
+    FE->>API: POST /api/projects/{id}/edges (x2)
+    FE->>API: POST /api/projects/{id}/validate
+    API-->>FE: {valid: true}
+
+    User->>FE: Click "Run"
+    FE->>API: POST /api/projects/{id}/runs {inputs: {topic: "AI Safety"}}
+    API-->>FE: run_id
+    FE->>API: WS connect /api/ws/runs/{run_id}
+
+    Note over ES: Project DAG topological sort: Research -> Write -> Gate
+
+    ES->>FS: Read Research agent's agentic.md
+    Note over ES: Runs Research agent's internal steps (may be multi-step)
+    ES->>LLM: Execute Research agent
+    ES-->>FE: WS agent_started {node: "Research"}
+    ES-->>FE: WS agent_completed {outputs: {findings: "..."}}
+
+    Note over ES: Pass Research.findings -> Write.content (JSON to JSON)
+
+    ES->>FS: Read Write agent's agentic.md
+    ES->>LLM: Execute Write agent
+    ES-->>FE: WS agent_started {node: "Write"}
+    ES-->>FE: WS agent_completed {outputs: {article: "..."}}
+
+    Note over ES: Approval gate reached
+    ES-->>FE: WS approval_required {outputs_so_far: {...}}
+
+    User->>FE: Reviews output, clicks "Approve"
+    FE->>API: POST /api/runs/{id}/approve
+
+    ES-->>FE: WS run_completed {outputs: {article: "..."}}
 ```
 
 ---
 
-## DAG Engine
+## Engine
+
+### `engine/executor.py`
+
+```python
+class AgentExecutor:
+    """Executes a single agent by following its internal agentic.md."""
+
+    async def execute(
+        self,
+        agent: Agent,
+        inputs: dict,
+        callback: EventCallback,
+    ) -> dict:
+        """Run an agent and return its outputs as JSON.
+
+        1. Read agentic.md from agent.forge_path
+        2. Parse the steps and prompt references
+        3. For each internal step:
+           a. Read the prompt file
+           b. Call the LLM with prompt + inputs
+           c. Pass outputs to the next internal step
+        4. For computer use steps: delegate to ComputerUseService
+        5. Return the final structured JSON outputs
+        """
+```
+
+### Agent-Level Execution
+
+```python
+# Agent-level execution (via CLIAgentProvider)
+async def execute(agent, inputs, callback):
+    prompt = build_agent_prompt(agent, inputs)
+    raw_output = await provider.execute(prompt=prompt, workspace=agent.forge_path)
+    result = parse_output(raw_output, agent.output_schema)
+    return result  # final outputs as JSON
+```
+
+The `CLIAgentProvider` spawns the configured CLI tool (Claude Code, Codex, Aider, etc.) as a subprocess, sends the prompt, and captures the output. Provider selection is config-driven via `providers.yaml`.
+
+### DAG Engine -- Phase B
 
 ### `engine/dag.py`
 
@@ -686,76 +908,87 @@ class DAG:
         """Follow edges backward to collect input values from upstream outputs."""
 ```
 
-### `engine/executor.py`
+### Project-Level Execution -- Phase B
 
 ```python
-class TaskExecutor:
-    """Executes a single task node."""
-
-    async def execute(
-        self,
-        task: Task,
-        inputs: dict,
-        callback: EventCallback,
-    ) -> dict:
-        """Run a task and return its outputs.
-
-        Uses forge_config to determine execution strategy:
-        - Simple: single LLM call with forge-generated prompt.
-        - Multi-step: runs the forge-generated internal workflow
-          (multiple agents, quality loops, etc.).
-        - Computer use: delegates to ComputerUseService.run_task().
-        """
-```
-
-### Execution Flow (Sequential MVP)
-
-```python
-# Simplified execution loop
+# Project-level execution (canvas DAG)
 sorted_nodes = dag.topological_sort()
-outputs = {}  # node_id -> {field: value}
+outputs = {}  # node_id -> {field: value} (all JSON)
 
 for node in sorted_nodes:
-    if node.task.type == "approval":
+    if node.agent.type == "approval":
         emit("approval_required", outputs_so_far=outputs)
         await wait_for_approval()
         continue
 
-    if node.task.type == "input":
+    if node.agent.type == "input":
         outputs[node.id] = run.inputs
         continue
 
     resolved = dag.resolve_inputs(node, outputs)
-    if node.task.computer_use:
-        result = await computer_use_service.run_task(node.task, resolved, callback)
-    else:
-        result = await executor.execute(node.task, resolved, callback)
-    outputs[node.id] = result
+
+    # Each agent runs its own internal agentic.md
+    result = await executor.execute(node.agent, resolved, callback)
+    outputs[node.id] = result  # JSON stored in agent_runs.outputs
 ```
 
 ---
 
 ## Persistence
 
-### SQLite Schema
+### SQLite Schema -- Phase A
 
 ```sql
-CREATE TABLE tasks (
+CREATE TABLE agents (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT NOT NULL DEFAULT '',
-    type TEXT NOT NULL DEFAULT 'task',
+    type TEXT NOT NULL DEFAULT 'agent',
+    status TEXT NOT NULL DEFAULT 'creating',
+    forge_path TEXT DEFAULT '',
+    forge_config TEXT DEFAULT '{}',
     samples TEXT DEFAULT '[]',
     input_schema TEXT DEFAULT '[]',
     output_schema TEXT DEFAULT '[]',
     computer_use INTEGER DEFAULT 0,
-    forge_config TEXT DEFAULT '{}',
     provider TEXT NOT NULL DEFAULT 'anthropic',
     model TEXT NOT NULL DEFAULT 'claude-sonnet-4-6',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
 );
 
+CREATE TABLE runs (
+    id TEXT PRIMARY KEY,
+    project_id TEXT,
+    agent_id TEXT REFERENCES agents(id) ON DELETE SET NULL,
+    status TEXT NOT NULL DEFAULT 'queued',
+    inputs TEXT DEFAULT '{}',
+    outputs TEXT DEFAULT '{}',
+    started_at TEXT,
+    completed_at TEXT
+);
+
+CREATE INDEX idx_runs_agent ON runs(agent_id);
+
+CREATE TABLE agent_runs (
+    id TEXT PRIMARY KEY,
+    run_id TEXT NOT NULL REFERENCES runs(id) ON DELETE CASCADE,
+    node_id TEXT,
+    status TEXT NOT NULL DEFAULT 'pending',
+    inputs TEXT DEFAULT '{}',
+    outputs TEXT DEFAULT '{}',
+    logs TEXT DEFAULT '',
+    duration_ms INTEGER DEFAULT 0,
+    started_at TEXT,
+    completed_at TEXT
+);
+
+CREATE INDEX idx_agent_runs_run ON agent_runs(run_id);
+```
+
+### SQLite Schema -- Phase B additions
+
+```sql
 CREATE TABLE projects (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -767,7 +1000,7 @@ CREATE TABLE projects (
 CREATE TABLE project_nodes (
     id TEXT PRIMARY KEY,
     project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-    task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    agent_id TEXT NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
     config TEXT DEFAULT '{}',
     position_x REAL DEFAULT 0,
     position_y REAL DEFAULT 0
@@ -786,61 +1019,48 @@ CREATE TABLE project_edges (
 
 CREATE INDEX idx_edges_project ON project_edges(project_id);
 
-CREATE TABLE runs (
-    id TEXT PRIMARY KEY,
-    project_id TEXT REFERENCES projects(id),
-    task_id TEXT REFERENCES tasks(id) ON DELETE SET NULL,
-    status TEXT NOT NULL DEFAULT 'queued',
-    inputs TEXT DEFAULT '{}',
-    outputs TEXT DEFAULT '{}',
-    started_at TEXT,
-    completed_at TEXT
-);
-
+-- Add project reference to runs
+-- runs.project_id TEXT REFERENCES projects(id)
 CREATE INDEX idx_runs_project ON runs(project_id);
 
-CREATE TABLE task_runs (
-    id TEXT PRIMARY KEY,
-    run_id TEXT NOT NULL REFERENCES runs(id) ON DELETE CASCADE,
-    node_id TEXT NOT NULL REFERENCES project_nodes(id),
-    status TEXT NOT NULL DEFAULT 'pending',
-    inputs TEXT DEFAULT '{}',
-    outputs TEXT DEFAULT '{}',
-    logs TEXT DEFAULT '',
-    duration_ms INTEGER DEFAULT 0,
-    started_at TEXT,
-    completed_at TEXT
-);
-
-CREATE INDEX idx_task_runs_run ON task_runs(run_id);
+-- Add node reference to agent_runs
+-- agent_runs.node_id TEXT REFERENCES project_nodes(id)
 ```
 
 ---
 
 ## Configuration
 
+Environment variables (prefix `AGENT_FORGE_`):
+
+| Variable | Default | Description |
+|---|---|---|
+| `AGENT_FORGE_HOST` | `127.0.0.1` | Server host |
+| `AGENT_FORGE_PORT` | `8000` | Server port |
+| `AGENT_FORGE_DATABASE_PATH` | `data/agent_forge.db` | SQLite database path |
+| `AGENT_FORGE_DEFAULT_PROVIDER` | `claude_code` | Provider key from `providers.yaml` |
+| `AGENT_FORGE_PROVIDER_TIMEOUT` | `300` | Default timeout for provider execution |
+
+Provider definitions live in `providers.yaml`. Adding a new CLI-based agentic tool means adding an entry to this file -- zero code changes:
+
 ```yaml
-# api/config.yaml
-server:
-  host: "127.0.0.1"
-  port: 8000
-  cors_origins: ["http://localhost:3000"]
-
-database:
-  path: "data/agent_forge.db"
-
-computer_use:
-  enabled: true
-  config_path: "computer_use/config.yaml"
-
+# providers.yaml
 providers:
-  anthropic:
-    api_key: "${ANTHROPIC_API_KEY}"
-    default_model: "claude-sonnet-4-6"
-  openai:
-    api_key: "${OPENAI_API_KEY}"
-    default_model: "gpt-4o"
+  claude_code:
+    name: "Claude Code"
+    command: claude
+    args: ["-p", "{{prompt}}", "--dangerously-skip-permissions", "--output-format", "json"]
+    available_check: ["claude", "--version"]
+    timeout: 300
+
+  codex:
+    name: "OpenAI Codex CLI"
+    command: codex
+    args: ["exec", "{{prompt}}", "--full-auto", "--json"]
+    # ... more providers
 ```
+
+Placeholders: `{{prompt}}` is replaced with the agent prompt, `{{workspace}}` with the working directory.
 
 ---
 
@@ -849,8 +1069,8 @@ providers:
 ```json
 {
   "error": {
-    "code": "TASK_NOT_FOUND",
-    "message": "Task with id 'abc-123' not found",
+    "code": "AGENT_NOT_FOUND",
+    "message": "Agent with id 'abc-123' not found",
     "details": {}
   }
 }
@@ -859,53 +1079,49 @@ providers:
 | HTTP Status | Error Code | When |
 |---|---|---|
 | 400 | `INVALID_REQUEST` | Malformed request body |
-| 400 | `INVALID_DAG` | Project has cycles or type mismatches |
-| 404 | `TASK_NOT_FOUND` | Task ID does not exist |
-| 404 | `PROJECT_NOT_FOUND` | Project ID does not exist |
+| 400 | `INVALID_DAG` | Project has cycles or type mismatches (Phase B) |
+| 404 | `AGENT_NOT_FOUND` | Agent ID does not exist |
+| 404 | `PROJECT_NOT_FOUND` | Project ID does not exist (Phase B) |
 | 404 | `RUN_NOT_FOUND` | Run ID does not exist |
+| 409 | `AGENT_NOT_READY` | Trying to run an agent still being created |
 | 409 | `RUN_NOT_ACTIVE` | Action on completed/cancelled run |
-| 409 | `NO_GATE_PENDING` | Approving when no gate is waiting |
+| 409 | `NO_GATE_PENDING` | Approving when no gate is waiting (Phase B) |
 | 422 | `COMPUTER_USE_UNAVAILABLE` | Computer use requested but not available |
 | 422 | `PROVIDER_NOT_CONFIGURED` | LLM provider not set up |
 | 422 | `MISSING_INPUTS` | Run started without required inputs |
 | 500 | `INTERNAL_ERROR` | Unexpected server error |
+| 500 | `FORGE_ERROR` | Forge failed to generate the agent |
 
 ---
 
 ## Testing Strategy
 
+### Phase A Tests
+
 ```
 api/tests/
-    conftest.py              # TestClient, in-memory SQLite, mocked LLM
-    test_tasks.py            # Task CRUD
-    test_projects.py         # Project CRUD, node/edge management
-    test_dag.py              # Cycle detection, topological sort, input resolution
-    test_executor.py         # Task execution with mocked LLM
-    test_runs.py             # Run lifecycle, approval gates
+    conftest.py              # TestClient, in-memory SQLite, mocked CLIAgentProvider, mocked forge
+    test_agents.py           # Agent creation (mocked forge), management
+    test_runs.py             # Run lifecycle (standalone agent runs)
+    test_executor.py         # Agent execution (reads agentic.md, mocked CLIAgentProvider)
     test_database.py         # Database connection and schema
     test_services.py         # Service layer unit tests
-    test_websocket.py        # WS events
+    test_websocket.py        # WS events (creation progress + run progress)
     test_health.py           # Health endpoint
 ```
 
-- All LLM calls mocked
+### Phase B Tests (added later)
+
+```
+    test_projects.py         # Project CRUD, node/edge management
+    test_dag.py              # Cycle detection, topological sort, input resolution
+```
+
+### Testing principles
+
+- All CLIAgentProvider calls mocked
+- Forge invocations mocked (return pre-built agent folders)
 - `ComputerUseEngine` mocked (no real desktop access)
 - In-memory SQLite for integration tests
 - DAG tests are pure logic
 - Target: 80%+ coverage
-
----
-
-## Future Phases
-
-Once the MVP is solid, these are added incrementally:
-
-| Phase | Feature | Description |
-|---|---|---|
-| 2 | **Parallel execution** | Tasks without dependencies run concurrently via `asyncio.gather` |
-| 2 | **Loop nodes** | Repeat a task until a condition is met |
-| 2 | **Conditional nodes** | Route data based on conditions |
-| 3 | **Task library** | Pre-built reusable task templates |
-| 3 | **Project templates** | Starter projects (research pipeline, content pipeline) |
-| 4 | **Authentication** | API key auth for remote access |
-| 4 | **Visual frontend** | React + React Flow canvas, live execution view |

@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "Agent Forge API",
-    "description": "Full API collection for the Agent Forge orchestration platform.",
+    "name": "Agent Forge API - Phase A",
+    "description": "Phase A (Agents) API collection for the Agent Forge orchestration platform.\n\nCovers: Health, Agents (CRUD + run), Runs (lifecycle + control), Computer Use (status).\n\nRun order matters -- requests use collection variables set by earlier requests.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -10,23 +10,7 @@
       "value": "http://127.0.0.1:8000"
     },
     {
-      "key": "task_id",
-      "value": ""
-    },
-    {
-      "key": "project_id",
-      "value": ""
-    },
-    {
-      "key": "node_1_id",
-      "value": ""
-    },
-    {
-      "key": "node_2_id",
-      "value": ""
-    },
-    {
-      "key": "edge_id",
+      "key": "agent_id",
       "value": ""
     },
     {
@@ -34,7 +18,7 @@
       "value": ""
     },
     {
-      "key": "delete_task_id",
+      "key": "delete_agent_id",
       "value": ""
     }
   ],
@@ -56,9 +40,22 @@
                   "pm.test('Status is 200', function() {",
                   "    pm.response.to.have.status(200);",
                   "});",
+                  "",
                   "pm.test('Status is healthy', function() {",
                   "    var json = pm.response.json();",
                   "    pm.expect(json.status).to.eql('healthy');",
+                  "});",
+                  "",
+                  "pm.test('Has module availability', function() {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.modules).to.have.property('forge');",
+                  "    pm.expect(json.modules).to.have.property('computer_use');",
+                  "});",
+                  "",
+                  "pm.test('Has platform info', function() {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.platform).to.be.a('string');",
+                  "    pm.expect(json.version).to.be.a('string');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -69,13 +66,13 @@
       ]
     },
     {
-      "name": "Tasks",
+      "name": "Agents",
       "item": [
         {
-          "name": "Create Task",
+          "name": "Create Agent",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/tasks",
+            "url": "{{base_url}}/api/agents",
             "header": [
               {
                 "key": "Content-Type",
@@ -95,13 +92,44 @@
                   "pm.test('Status is 201', function() {",
                   "    pm.response.to.have.status(201);",
                   "});",
+                  "",
                   "var json = pm.response.json();",
-                  "pm.collectionVariables.set('task_id', json.id);",
-                  "pm.test('Task has id', function() {",
+                  "pm.collectionVariables.set('agent_id', json.id);",
+                  "",
+                  "pm.test('Agent has id', function() {",
                   "    pm.expect(json.id).to.be.a('string');",
+                  "    pm.expect(json.id).to.have.lengthOf.above(0);",
                   "});",
-                  "pm.test('Task type is task', function() {",
-                  "    pm.expect(json.type).to.eql('task');",
+                  "",
+                  "pm.test('Agent name matches', function() {",
+                  "    pm.expect(json.name).to.eql('Research Topic');",
+                  "});",
+                  "",
+                  "pm.test('Agent type is agent', function() {",
+                  "    pm.expect(json.type).to.eql('agent');",
+                  "});",
+                  "",
+                  "pm.test('Agent status is creating', function() {",
+                  "    pm.expect(json.status).to.eql('creating');",
+                  "});",
+                  "",
+                  "pm.test('Agent has forge_path field', function() {",
+                  "    pm.expect(json).to.have.property('forge_path');",
+                  "});",
+                  "",
+                  "pm.test('Agent has timestamps', function() {",
+                  "    pm.expect(json.created_at).to.be.a('string');",
+                  "    pm.expect(json.updated_at).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test('Agent has schema arrays', function() {",
+                  "    pm.expect(json.input_schema).to.be.an('array');",
+                  "    pm.expect(json.output_schema).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Agent has samples', function() {",
+                  "    pm.expect(json.samples).to.be.an('array');",
+                  "    pm.expect(json.samples.length).to.eql(1);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -110,10 +138,10 @@
           ]
         },
         {
-          "name": "Create Task 2 (for project)",
+          "name": "Create Agent - Minimal",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/tasks",
+            "url": "{{base_url}}/api/agents",
             "header": [
               {
                 "key": "Content-Type",
@@ -122,7 +150,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Write Article\",\n  \"description\": \"Write an article based on research findings.\"\n}"
+              "raw": "{\n  \"name\": \"Summarize Text\",\n  \"description\": \"Summarize any given text into bullet points.\"\n}"
             }
           },
           "event": [
@@ -133,8 +161,16 @@
                   "pm.test('Status is 201', function() {",
                   "    pm.response.to.have.status(201);",
                   "});",
+                  "",
                   "var json = pm.response.json();",
-                  "pm.collectionVariables.set('task_2_id', json.id);"
+                  "",
+                  "pm.test('Agent created with defaults', function() {",
+                  "    pm.expect(json.type).to.eql('agent');",
+                  "    pm.expect(json.status).to.eql('creating');",
+                  "    pm.expect(json.provider).to.eql('anthropic');",
+                  "    pm.expect(json.computer_use).to.eql(false);",
+                  "    pm.expect(json.samples).to.be.an('array').that.is.empty;",
+                  "});"
                 ],
                 "type": "text/javascript"
               }
@@ -142,10 +178,40 @@
           ]
         },
         {
-          "name": "List Tasks",
+          "name": "Create Agent - Empty Name Fails",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/agents",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\",\n  \"description\": \"\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 422 (validation error)', function() {",
+                  "    pm.response.to.have.status(422);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Agents",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/api/tasks"
+            "url": "{{base_url}}/api/agents"
           },
           "event": [
             {
@@ -155,10 +221,21 @@
                   "pm.test('Status is 200', function() {",
                   "    pm.response.to.have.status(200);",
                   "});",
-                  "pm.test('Returns array', function() {",
+                  "",
+                  "pm.test('Returns non-empty array', function() {",
                   "    var json = pm.response.json();",
                   "    pm.expect(json).to.be.an('array');",
-                  "    pm.expect(json.length).to.be.above(0);",
+                  "    pm.expect(json.length).to.be.at.least(2);",
+                  "});",
+                  "",
+                  "pm.test('Each agent has required fields', function() {",
+                  "    var json = pm.response.json();",
+                  "    json.forEach(function(agent) {",
+                  "        pm.expect(agent).to.have.property('id');",
+                  "        pm.expect(agent).to.have.property('name');",
+                  "        pm.expect(agent).to.have.property('type');",
+                  "        pm.expect(agent).to.have.property('status');",
+                  "    });",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -167,10 +244,10 @@
           ]
         },
         {
-          "name": "Get Task by ID",
+          "name": "Get Agent by ID",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/api/tasks/{{task_id}}"
+            "url": "{{base_url}}/api/agents/{{agent_id}}"
           },
           "event": [
             {
@@ -180,10 +257,30 @@
                   "pm.test('Status is 200', function() {",
                   "    pm.response.to.have.status(200);",
                   "});",
-                  "pm.test('Correct task returned', function() {",
+                  "",
+                  "pm.test('Returns correct agent', function() {",
                   "    var json = pm.response.json();",
-                  "    pm.expect(json.id).to.eql(pm.collectionVariables.get('task_id'));",
+                  "    pm.expect(json.id).to.eql(pm.collectionVariables.get('agent_id'));",
                   "    pm.expect(json.name).to.eql('Research Topic');",
+                  "});",
+                  "",
+                  "pm.test('Agent has all fields', function() {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('id');",
+                  "    pm.expect(json).to.have.property('name');",
+                  "    pm.expect(json).to.have.property('description');",
+                  "    pm.expect(json).to.have.property('type');",
+                  "    pm.expect(json).to.have.property('status');",
+                  "    pm.expect(json).to.have.property('forge_path');",
+                  "    pm.expect(json).to.have.property('forge_config');",
+                  "    pm.expect(json).to.have.property('samples');",
+                  "    pm.expect(json).to.have.property('input_schema');",
+                  "    pm.expect(json).to.have.property('output_schema');",
+                  "    pm.expect(json).to.have.property('computer_use');",
+                  "    pm.expect(json).to.have.property('provider');",
+                  "    pm.expect(json).to.have.property('model');",
+                  "    pm.expect(json).to.have.property('created_at');",
+                  "    pm.expect(json).to.have.property('updated_at');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -192,10 +289,10 @@
           ]
         },
         {
-          "name": "Get Task - 404",
+          "name": "Get Agent - 404",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/api/tasks/nonexistent-id"
+            "url": "{{base_url}}/api/agents/nonexistent-id"
           },
           "event": [
             {
@@ -205,9 +302,16 @@
                   "pm.test('Status is 404', function() {",
                   "    pm.response.to.have.status(404);",
                   "});",
-                  "pm.test('Error code is TASK_NOT_FOUND', function() {",
+                  "",
+                  "pm.test('Error code is AGENT_NOT_FOUND', function() {",
                   "    var json = pm.response.json();",
-                  "    pm.expect(json.error.code).to.eql('TASK_NOT_FOUND');",
+                  "    pm.expect(json.error.code).to.eql('AGENT_NOT_FOUND');",
+                  "});",
+                  "",
+                  "pm.test('Error has message', function() {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.error.message).to.be.a('string');",
+                  "    pm.expect(json.error.message).to.include('nonexistent-id');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -216,10 +320,10 @@
           ]
         },
         {
-          "name": "Update Task",
+          "name": "Update Agent",
           "request": {
             "method": "PUT",
-            "url": "{{base_url}}/api/tasks/{{task_id}}",
+            "url": "{{base_url}}/api/agents/{{agent_id}}",
             "header": [
               {
                 "key": "Content-Type",
@@ -228,7 +332,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Research Topic (Updated)\",\n  \"description\": \"Updated description with more detail.\"\n}"
+              "raw": "{\n  \"name\": \"Research Topic (Updated)\",\n  \"description\": \"Updated description with more detail about the research process.\"\n}"
             }
           },
           "event": [
@@ -239,9 +343,20 @@
                   "pm.test('Status is 200', function() {",
                   "    pm.response.to.have.status(200);",
                   "});",
+                  "",
                   "pm.test('Name updated', function() {",
                   "    var json = pm.response.json();",
                   "    pm.expect(json.name).to.eql('Research Topic (Updated)');",
+                  "});",
+                  "",
+                  "pm.test('Description updated', function() {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.description).to.include('Updated description');",
+                  "});",
+                  "",
+                  "pm.test('ID unchanged', function() {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.id).to.eql(pm.collectionVariables.get('agent_id'));",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -250,10 +365,45 @@
           ]
         },
         {
-          "name": "Run Task (Standalone)",
+          "name": "Update Agent - 404",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/api/agents/nonexistent-id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ghost\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 404', function() {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Error code is AGENT_NOT_FOUND', function() {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.error.code).to.eql('AGENT_NOT_FOUND');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Run Agent (Standalone)",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/tasks/{{task_id}}/run",
+            "url": "{{base_url}}/api/agents/{{agent_id}}/run",
             "header": [
               {
                 "key": "Content-Type",
@@ -273,10 +423,13 @@
                   "pm.test('Status is 202', function() {",
                   "    pm.response.to.have.status(202);",
                   "});",
+                  "",
                   "var json = pm.response.json();",
                   "pm.collectionVariables.set('run_id', json.run_id);",
+                  "",
                   "pm.test('Run created with queued status', function() {",
                   "    pm.expect(json.run_id).to.be.a('string');",
+                  "    pm.expect(json.run_id).to.have.lengthOf.above(0);",
                   "    pm.expect(json.status).to.eql('queued');",
                   "});"
                 ],
@@ -286,10 +439,45 @@
           ]
         },
         {
-          "name": "List Task Runs",
+          "name": "Run Agent - 404",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/agents/nonexistent-id/run",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"inputs\": {}\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 404', function() {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Error code is AGENT_NOT_FOUND', function() {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.error.code).to.eql('AGENT_NOT_FOUND');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Agent Runs",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/api/tasks/{{task_id}}/runs"
+            "url": "{{base_url}}/api/agents/{{agent_id}}/runs"
           },
           "event": [
             {
@@ -299,10 +487,20 @@
                   "pm.test('Status is 200', function() {",
                   "    pm.response.to.have.status(200);",
                   "});",
-                  "pm.test('Returns runs array', function() {",
+                  "",
+                  "pm.test('Returns runs array with at least one run', function() {",
                   "    var json = pm.response.json();",
                   "    pm.expect(json).to.be.an('array');",
-                  "    pm.expect(json.length).to.be.above(0);",
+                  "    pm.expect(json.length).to.be.at.least(1);",
+                  "});",
+                  "",
+                  "pm.test('Each run has required fields', function() {",
+                  "    var json = pm.response.json();",
+                  "    json.forEach(function(run) {",
+                  "        pm.expect(run).to.have.property('id');",
+                  "        pm.expect(run).to.have.property('status');",
+                  "        pm.expect(run).to.have.property('agent_id');",
+                  "    });",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -311,10 +509,10 @@
           ]
         },
         {
-          "name": "Delete Task",
+          "name": "Delete Agent",
           "request": {
             "method": "DELETE",
-            "url": "{{base_url}}/api/tasks/{{delete_task_id}}"
+            "url": "{{base_url}}/api/agents/{{delete_agent_id}}"
           },
           "event": [
             {
@@ -322,12 +520,12 @@
               "script": {
                 "exec": [
                   "pm.sendRequest({",
-                  "    url: pm.collectionVariables.get('base_url') + '/api/tasks',",
+                  "    url: pm.collectionVariables.get('base_url') + '/api/agents',",
                   "    method: 'POST',",
                   "    header: { 'Content-Type': 'application/json' },",
-                  "    body: { mode: 'raw', raw: JSON.stringify({ name: 'Temp task for deletion' }) }",
+                  "    body: { mode: 'raw', raw: JSON.stringify({ name: 'Temp Agent for Deletion', description: 'Will be deleted immediately' }) }",
                   "}, function(err, res) {",
-                  "    pm.collectionVariables.set('delete_task_id', res.json().id);",
+                  "    pm.collectionVariables.set('delete_agent_id', res.json().id);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -345,40 +543,25 @@
               }
             }
           ]
-        }
-      ]
-    },
-    {
-      "name": "Projects",
-      "item": [
+        },
         {
-          "name": "Create Project",
+          "name": "Delete Agent - 404",
           "request": {
-            "method": "POST",
-            "url": "{{base_url}}/api/projects",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Content Pipeline\",\n  \"description\": \"Research, write, and review content\"\n}"
-            }
+            "method": "DELETE",
+            "url": "{{base_url}}/api/agents/nonexistent-id"
           },
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 201', function() {",
-                  "    pm.response.to.have.status(201);",
+                  "pm.test('Status is 404', function() {",
+                  "    pm.response.to.have.status(404);",
                   "});",
-                  "var json = pm.response.json();",
-                  "pm.collectionVariables.set('project_id', json.id);",
-                  "pm.test('Project created', function() {",
-                  "    pm.expect(json.name).to.eql('Content Pipeline');",
+                  "",
+                  "pm.test('Error code is AGENT_NOT_FOUND', function() {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.error.code).to.eql('AGENT_NOT_FOUND');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -387,300 +570,18 @@
           ]
         },
         {
-          "name": "List Projects",
+          "name": "Delete Agent - Verify Gone",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/api/projects"
+            "url": "{{base_url}}/api/agents/{{delete_agent_id}}"
           },
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', function() {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "pm.test('Returns array', function() {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "Get Project",
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/api/projects/{{project_id}}"
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', function() {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "pm.test('Has nodes and edges arrays', function() {",
-                  "    var json = pm.response.json();",
-                  "    pm.expect(json.nodes).to.be.an('array');",
-                  "    pm.expect(json.edges).to.be.an('array');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "Update Project",
-          "request": {
-            "method": "PUT",
-            "url": "{{base_url}}/api/projects/{{project_id}}",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Content Pipeline (Updated)\"\n}"
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', function() {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "pm.test('Name updated', function() {",
-                  "    pm.expect(pm.response.json().name).to.eql('Content Pipeline (Updated)');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "Add Node 1 (Research)",
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/api/projects/{{project_id}}/nodes",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"task_id\": \"{{task_id}}\",\n  \"position_x\": 100,\n  \"position_y\": 200\n}"
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 201', function() {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "var json = pm.response.json();",
-                  "pm.collectionVariables.set('node_1_id', json.id);",
-                  "pm.test('Node has position', function() {",
-                  "    pm.expect(json.position_x).to.eql(100);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "Add Node 2 (Write)",
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/api/projects/{{project_id}}/nodes",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"task_id\": \"{{task_2_id}}\",\n  \"position_x\": 400,\n  \"position_y\": 200\n}"
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 201', function() {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "var json = pm.response.json();",
-                  "pm.collectionVariables.set('node_2_id', json.id);"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "Update Node Position",
-          "request": {
-            "method": "PUT",
-            "url": "{{base_url}}/api/projects/{{project_id}}/nodes/{{node_1_id}}",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"position_x\": 150,\n  \"position_y\": 250\n}"
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', function() {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "pm.test('Position updated', function() {",
-                  "    pm.expect(pm.response.json().position_x).to.eql(150);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "Add Edge (Research -> Write)",
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/api/projects/{{project_id}}/edges",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"source_node_id\": \"{{node_1_id}}\",\n  \"target_node_id\": \"{{node_2_id}}\",\n  \"source_output\": \"findings\",\n  \"target_input\": \"content\"\n}"
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 201', function() {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "var json = pm.response.json();",
-                  "pm.collectionVariables.set('edge_id', json.id);",
-                  "pm.test('Edge connects correct nodes', function() {",
-                  "    pm.expect(json.source_output).to.eql('findings');",
-                  "    pm.expect(json.target_input).to.eql('content');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "Validate DAG",
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/api/projects/{{project_id}}/validate"
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', function() {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "pm.test('DAG is valid', function() {",
-                  "    var json = pm.response.json();",
-                  "    pm.expect(json.valid).to.eql(true);",
-                  "    pm.expect(json.errors).to.be.an('array').that.is.empty;",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "Delete Edge",
-          "request": {
-            "method": "DELETE",
-            "url": "{{base_url}}/api/projects/{{project_id}}/edges/{{edge_id}}"
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 204', function() {",
-                  "    pm.response.to.have.status(204);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "Delete Node",
-          "request": {
-            "method": "DELETE",
-            "url": "{{base_url}}/api/projects/{{project_id}}/nodes/{{node_2_id}}"
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 204', function() {",
-                  "    pm.response.to.have.status(204);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "Delete Project",
-          "request": {
-            "method": "DELETE",
-            "url": "{{base_url}}/api/projects/{{project_id}}"
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 204', function() {",
-                  "    pm.response.to.have.status(204);",
+                  "pm.test('Deleted agent returns 404', function() {",
+                  "    pm.response.to.have.status(404);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -693,129 +594,6 @@
     {
       "name": "Runs",
       "item": [
-        {
-          "name": "Setup - Create Task for Run",
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/api/tasks",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Quick Task\",\n  \"description\": \"A simple task for testing runs\"\n}"
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "var json = pm.response.json();",
-                  "pm.collectionVariables.set('task_id', json.id);"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "Setup - Create Project + Nodes for Run",
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/api/projects",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Run Test Project\",\n  \"description\": \"Project for testing runs\"\n}"
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "var json = pm.response.json();",
-                  "pm.collectionVariables.set('project_id', json.id);"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "Setup - Add Node to Project",
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/api/projects/{{project_id}}/nodes",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"task_id\": \"{{task_id}}\"\n}"
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 201', function() {",
-                  "    pm.response.to.have.status(201);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "Start Project Run",
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/api/projects/{{project_id}}/runs",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"inputs\": {\n    \"topic\": \"AI Safety\"\n  }\n}"
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 202', function() {",
-                  "    pm.response.to.have.status(202);",
-                  "});",
-                  "var json = pm.response.json();",
-                  "pm.collectionVariables.set('run_id', json.run_id);",
-                  "pm.test('Run is queued', function() {",
-                  "    pm.expect(json.status).to.eql('queued');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
         {
           "name": "Get Run",
           "request": {
@@ -830,8 +608,24 @@
                   "pm.test('Status is 200', function() {",
                   "    pm.response.to.have.status(200);",
                   "});",
+                  "",
                   "pm.test('Run has correct id', function() {",
-                  "    pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('run_id'));",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.id).to.eql(pm.collectionVariables.get('run_id'));",
+                  "});",
+                  "",
+                  "pm.test('Run has required fields', function() {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('id');",
+                  "    pm.expect(json).to.have.property('agent_id');",
+                  "    pm.expect(json).to.have.property('status');",
+                  "    pm.expect(json).to.have.property('inputs');",
+                  "    pm.expect(json).to.have.property('outputs');",
+                  "});",
+                  "",
+                  "pm.test('Run is linked to correct agent', function() {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.agent_id).to.eql(pm.collectionVariables.get('agent_id'));",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -853,8 +647,10 @@
                   "pm.test('Status is 404', function() {",
                   "    pm.response.to.have.status(404);",
                   "});",
-                  "pm.test('Error code', function() {",
-                  "    pm.expect(pm.response.json().error.code).to.eql('RUN_NOT_FOUND');",
+                  "",
+                  "pm.test('Error code is RUN_NOT_FOUND', function() {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.error.code).to.eql('RUN_NOT_FOUND');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -876,8 +672,19 @@
                   "pm.test('Status is 200', function() {",
                   "    pm.response.to.have.status(200);",
                   "});",
+                  "",
                   "pm.test('Returns array', function() {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array');",
+                  "    pm.expect(json.length).to.be.at.least(1);",
+                  "});",
+                  "",
+                  "pm.test('Each run has required fields', function() {",
+                  "    var json = pm.response.json();",
+                  "    json.forEach(function(run) {",
+                  "        pm.expect(run).to.have.property('id');",
+                  "        pm.expect(run).to.have.property('status');",
+                  "    });",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -909,8 +716,10 @@
                   "pm.test('Status is 200', function() {",
                   "    pm.response.to.have.status(200);",
                   "});",
-                  "pm.test('All runs are queued', function() {",
+                  "",
+                  "pm.test('All returned runs match filter', function() {",
                   "    var json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array');",
                   "    json.forEach(function(run) {",
                   "        pm.expect(run.status).to.eql('queued');",
                   "    });",
@@ -935,8 +744,40 @@
                   "pm.test('Status is 200', function() {",
                   "    pm.response.to.have.status(200);",
                   "});",
-                  "pm.test('Run is failed/cancelled', function() {",
-                  "    pm.expect(pm.response.json().status).to.eql('failed');",
+                  "",
+                  "pm.test('Run is cancelled (failed status)', function() {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.status).to.eql('failed');",
+                  "});",
+                  "",
+                  "pm.test('Run id matches', function() {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.id).to.eql(pm.collectionVariables.get('run_id'));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancel Run - Verify Status",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/runs/{{run_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Run status persisted as failed', function() {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.status).to.eql('failed');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -963,10 +804,16 @@
                   "pm.test('Status is 200', function() {",
                   "    pm.response.to.have.status(200);",
                   "});",
+                  "",
                   "pm.test('Has availability info', function() {",
                   "    var json = pm.response.json();",
                   "    pm.expect(json).to.have.property('available');",
                   "    pm.expect(json).to.have.property('platform');",
+                  "});",
+                  "",
+                  "pm.test('Platform is a string', function() {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.platform).to.be.a('string');",
                   "});"
                 ],
                 "type": "text/javascript"

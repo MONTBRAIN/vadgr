@@ -1,11 +1,11 @@
-"""Task Pydantic models."""
+"""Agent Pydantic models."""
 
 from datetime import datetime
 from typing import Any, Optional
 
 from pydantic import BaseModel, Field
 
-from .common import TaskType
+from .common import AgentType
 
 
 class SchemaField(BaseModel):
@@ -14,17 +14,16 @@ class SchemaField(BaseModel):
     required: bool = True
 
 
-class TaskCreate(BaseModel):
+class AgentCreate(BaseModel):
     name: str = Field(min_length=1, max_length=200)
     description: str = Field(default="", max_length=10000)
-    type: TaskType = TaskType.TASK
     samples: list[str] = []
     computer_use: bool = False
     provider: str = "anthropic"
     model: str = "claude-sonnet-4-6"
 
 
-class TaskUpdate(BaseModel):
+class AgentUpdate(BaseModel):
     name: Optional[str] = Field(default=None, min_length=1, max_length=200)
     description: Optional[str] = Field(default=None, max_length=10000)
     samples: Optional[list[str]] = None
@@ -35,11 +34,13 @@ class TaskUpdate(BaseModel):
     model: Optional[str] = None
 
 
-class Task(BaseModel):
+class Agent(BaseModel):
     id: str
     name: str
     description: str
-    type: TaskType
+    type: AgentType
+    status: str = "creating"
+    forge_path: str = ""
     samples: list[str] = []
     input_schema: list[SchemaField] = []
     output_schema: list[SchemaField] = []
@@ -51,5 +52,5 @@ class Task(BaseModel):
     updated_at: datetime
 
 
-class TaskRunRequest(BaseModel):
+class AgentRunRequest(BaseModel):
     inputs: dict[str, Any] = {}

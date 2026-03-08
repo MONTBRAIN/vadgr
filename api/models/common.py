@@ -5,8 +5,8 @@ from enum import Enum
 from pydantic import BaseModel
 
 
-class TaskType(str, Enum):
-    TASK = "task"
+class AgentType(str, Enum):
+    AGENT = "agent"
     APPROVAL = "approval"
     INPUT = "input"
     OUTPUT = "output"
@@ -20,7 +20,7 @@ class RunStatus(str, Enum):
     FAILED = "failed"
 
 
-class TaskRunStatus(str, Enum):
+class AgentRunStatus(str, Enum):
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"

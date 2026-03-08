@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:3000"]
     database_path: str = "data/agent_forge.db"
     computer_use_enabled: bool = True
+    default_provider: str = "claude_code"
+    provider_timeout: int = 300
     anthropic_api_key: str = ""
     anthropic_default_model: str = "claude-sonnet-4-6"
     openai_api_key: str = ""

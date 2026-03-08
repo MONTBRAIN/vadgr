@@ -5,19 +5,19 @@ import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 from api.persistence.database import Database
-from api.persistence.repositories import TaskRepository, ProjectRepository, RunRepository
+from api.persistence.repositories import AgentRepository, ProjectRepository, RunRepository
 from api.main import create_app
 
 
 @pytest.fixture
 def make_node():
     """Factory for creating ProjectNode dicts for DAG tests."""
-    def _make(node_id, task_id=None, task_type="task"):
+    def _make(node_id, agent_id=None, agent_type="agent"):
         return {
             "id": node_id,
             "project_id": "proj-1",
-            "task_id": task_id or f"task-{node_id}",
-            "task_type": task_type,
+            "agent_id": agent_id or f"agent-{node_id}",
+            "agent_type": agent_type,
             "config": {},
             "position_x": 0.0,
             "position_y": 0.0,
@@ -54,27 +54,27 @@ async def app(db):
     application = create_app(db)
     # Manually set state since httpx ASGITransport doesn't run lifespan
     application.state.db = db
-    application.state.task_repo = TaskRepository(db)
+    application.state.agent_repo = AgentRepository(db)
     application.state.project_repo = ProjectRepository(db)
     application.state.run_repo = RunRepository(db)
     from api.websocket.manager import ConnectionManager
-    from api.engine.executor import TaskExecutor
-    from api.services.llm_service import LLMService
+    from api.engine.executor import AgentExecutor
+    from api.engine.providers import CLIAgentProvider, ProviderConfig
     from api.services.computer_use_service import ComputerUseService
     from api.services.execution_service import ExecutionService
     from unittest.mock import AsyncMock
 
     application.state.ws_manager = ConnectionManager()
 
-    llm_service = LLMService()
+    provider = AsyncMock(spec=CLIAgentProvider)
     cu_service = ComputerUseService()
-    executor = TaskExecutor(llm_service=llm_service, computer_use_service=cu_service)
+    executor = AgentExecutor(provider=provider, computer_use_service=cu_service)
 
     async def emit(run_id, event_type, data):
         await application.state.ws_manager.emit(run_id, event_type, data)
 
     application.state.execution_service = ExecutionService(
-        task_repo=application.state.task_repo,
+        agent_repo=application.state.agent_repo,
         run_repo=application.state.run_repo,
         project_repo=application.state.project_repo,
         executor=executor,

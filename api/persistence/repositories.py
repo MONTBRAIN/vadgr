@@ -1,4 +1,4 @@
-"""Data access layer for tasks, projects, and runs."""
+"""Data access layer for agents, projects, and runs."""
 
 import json
 import uuid
@@ -22,12 +22,14 @@ def _parse_json(value: str) -> Any:
     return json.loads(value)
 
 
-def _row_to_task(row) -> dict:
+def _row_to_agent(row) -> dict:
     return {
         "id": row["id"],
         "name": row["name"],
         "description": row["description"],
         "type": row["type"],
+        "status": row["status"],
+        "forge_path": row["forge_path"],
         "samples": _parse_json(row["samples"]),
         "input_schema": _parse_json(row["input_schema"]),
         "output_schema": _parse_json(row["output_schema"]),
@@ -54,7 +56,7 @@ def _row_to_node(row) -> dict:
     return {
         "id": row["id"],
         "project_id": row["project_id"],
-        "task_id": row["task_id"],
+        "agent_id": row["agent_id"],
         "config": _parse_json(row["config"]),
         "position_x": row["position_x"],
         "position_y": row["position_y"],
@@ -76,7 +78,7 @@ def _row_to_run(row) -> dict:
     return {
         "id": row["id"],
         "project_id": row["project_id"],
-        "task_id": row["task_id"],
+        "agent_id": row["agent_id"],
         "status": row["status"],
         "inputs": _parse_json(row["inputs"]),
         "outputs": _parse_json(row["outputs"]),
@@ -85,7 +87,7 @@ def _row_to_run(row) -> dict:
     }
 
 
-class TaskRepository:
+class AgentRepository:
     def __init__(self, db: Database):
         self.db = db
 
@@ -93,7 +95,9 @@ class TaskRepository:
         self,
         name: str,
         description: str = "",
-        type: str = "task",
+        type: str = "agent",
+        status: str = "creating",
+        forge_path: str = "",
         samples: list[str] | None = None,
         input_schema: list[dict] | None = None,
         output_schema: list[dict] | None = None,
@@ -102,14 +106,14 @@ class TaskRepository:
         provider: str = "anthropic",
         model: str = "claude-sonnet-4-6",
     ) -> dict:
-        task_id = _uuid()
+        agent_id = _uuid()
         now = _now()
         await self.db.conn.execute(
-            """INSERT INTO tasks (id, name, description, type, samples, input_schema,
+            """INSERT INTO agents (id, name, description, type, status, forge_path, samples, input_schema,
                output_schema, computer_use, forge_config, provider, model, created_at, updated_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
-                task_id, name, description, type,
+                agent_id, name, description, type, status, forge_path,
                 json.dumps(samples or []),
                 json.dumps(input_schema or []),
                 json.dumps(output_schema or []),
@@ -119,23 +123,23 @@ class TaskRepository:
             ),
         )
         await self.db.conn.commit()
-        return await self.get(task_id)
+        return await self.get(agent_id)
 
-    async def get(self, task_id: str) -> Optional[dict]:
+    async def get(self, agent_id: str) -> Optional[dict]:
         cursor = await self.db.conn.execute(
-            "SELECT * FROM tasks WHERE id = ?", (task_id,)
+            "SELECT * FROM agents WHERE id = ?", (agent_id,)
         )
         row = await cursor.fetchone()
-        return _row_to_task(row) if row else None
+        return _row_to_agent(row) if row else None
 
     async def list_all(self) -> list[dict]:
         cursor = await self.db.conn.execute(
-            "SELECT * FROM tasks ORDER BY created_at DESC"
+            "SELECT * FROM agents ORDER BY created_at DESC"
         )
-        return [_row_to_task(row) for row in await cursor.fetchall()]
+        return [_row_to_agent(row) for row in await cursor.fetchall()]
 
-    async def update(self, task_id: str, **fields) -> Optional[dict]:
-        existing = await self.get(task_id)
+    async def update(self, agent_id: str, **fields) -> Optional[dict]:
+        existing = await self.get(agent_id)
         if not existing:
             return None
 
@@ -157,17 +161,17 @@ class TaskRepository:
 
         sets.append("updated_at = ?")
         values.append(_now())
-        values.append(task_id)
+        values.append(agent_id)
 
         await self.db.conn.execute(
-            f"UPDATE tasks SET {', '.join(sets)} WHERE id = ?", values
+            f"UPDATE agents SET {', '.join(sets)} WHERE id = ?", values
         )
         await self.db.conn.commit()
-        return await self.get(task_id)
+        return await self.get(agent_id)
 
-    async def delete(self, task_id: str) -> bool:
+    async def delete(self, agent_id: str) -> bool:
         cursor = await self.db.conn.execute(
-            "DELETE FROM tasks WHERE id = ?", (task_id,)
+            "DELETE FROM agents WHERE id = ?", (agent_id,)
         )
         await self.db.conn.commit()
         return cursor.rowcount > 0
@@ -229,14 +233,14 @@ class ProjectRepository:
         return cursor.rowcount > 0
 
     async def add_node(
-        self, project_id: str, task_id: str,
+        self, project_id: str, agent_id: str,
         config: dict | None = None, position_x: float = 0.0, position_y: float = 0.0,
     ) -> dict:
         node_id = _uuid()
         await self.db.conn.execute(
-            """INSERT INTO project_nodes (id, project_id, task_id, config, position_x, position_y)
+            """INSERT INTO project_nodes (id, project_id, agent_id, config, position_x, position_y)
                VALUES (?, ?, ?, ?, ?, ?)""",
-            (node_id, project_id, task_id, json.dumps(config or {}), position_x, position_y),
+            (node_id, project_id, agent_id, json.dumps(config or {}), position_x, position_y),
         )
         await self.db.conn.commit()
         return await self._get_node(node_id)
@@ -321,14 +325,14 @@ class RunRepository:
     async def create(
         self,
         project_id: str | None = None,
-        task_id: str | None = None,
+        agent_id: str | None = None,
         inputs: dict | None = None,
     ) -> dict:
         run_id = _uuid()
         await self.db.conn.execute(
-            """INSERT INTO runs (id, project_id, task_id, status, inputs)
+            """INSERT INTO runs (id, project_id, agent_id, status, inputs)
                VALUES (?, ?, ?, 'queued', ?)""",
-            (run_id, project_id, task_id, json.dumps(inputs or {})),
+            (run_id, project_id, agent_id, json.dumps(inputs or {})),
         )
         await self.db.conn.commit()
         return await self.get(run_id)
@@ -366,9 +370,9 @@ class RunRepository:
         await self.db.conn.commit()
         return await self.get(run_id)
 
-    async def list_by_task(self, task_id: str) -> list[dict]:
+    async def list_by_agent(self, agent_id: str) -> list[dict]:
         cursor = await self.db.conn.execute(
-            "SELECT * FROM runs WHERE task_id = ? ORDER BY started_at DESC", (task_id,)
+            "SELECT * FROM runs WHERE agent_id = ? ORDER BY started_at DESC", (agent_id,)
         )
         return [_row_to_run(row) for row in await cursor.fetchall()]
 

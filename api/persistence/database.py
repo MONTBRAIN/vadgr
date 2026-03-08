@@ -4,11 +4,13 @@ import aiosqlite
 
 
 SCHEMA = """
-CREATE TABLE IF NOT EXISTS tasks (
+CREATE TABLE IF NOT EXISTS agents (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT NOT NULL DEFAULT '',
-    type TEXT NOT NULL DEFAULT 'task',
+    type TEXT NOT NULL DEFAULT 'agent',
+    status TEXT NOT NULL DEFAULT 'creating',
+    forge_path TEXT DEFAULT '',
     samples TEXT DEFAULT '[]',
     input_schema TEXT DEFAULT '[]',
     output_schema TEXT DEFAULT '[]',
@@ -31,7 +33,7 @@ CREATE TABLE IF NOT EXISTS projects (
 CREATE TABLE IF NOT EXISTS project_nodes (
     id TEXT PRIMARY KEY,
     project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-    task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    agent_id TEXT NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
     config TEXT DEFAULT '{}',
     position_x REAL DEFAULT 0,
     position_y REAL DEFAULT 0
@@ -53,7 +55,7 @@ CREATE INDEX IF NOT EXISTS idx_edges_project ON project_edges(project_id);
 CREATE TABLE IF NOT EXISTS runs (
     id TEXT PRIMARY KEY,
     project_id TEXT REFERENCES projects(id),
-    task_id TEXT REFERENCES tasks(id) ON DELETE SET NULL,
+    agent_id TEXT REFERENCES agents(id) ON DELETE SET NULL,
     status TEXT NOT NULL DEFAULT 'queued',
     inputs TEXT DEFAULT '{}',
     outputs TEXT DEFAULT '{}',
@@ -62,9 +64,9 @@ CREATE TABLE IF NOT EXISTS runs (
 );
 
 CREATE INDEX IF NOT EXISTS idx_runs_project ON runs(project_id);
-CREATE INDEX IF NOT EXISTS idx_runs_task ON runs(task_id);
+CREATE INDEX IF NOT EXISTS idx_runs_agent ON runs(agent_id);
 
-CREATE TABLE IF NOT EXISTS task_runs (
+CREATE TABLE IF NOT EXISTS agent_runs (
     id TEXT PRIMARY KEY,
     run_id TEXT NOT NULL REFERENCES runs(id) ON DELETE CASCADE,
     node_id TEXT NOT NULL REFERENCES project_nodes(id),
@@ -77,7 +79,7 @@ CREATE TABLE IF NOT EXISTS task_runs (
     completed_at TEXT
 );
 
-CREATE INDEX IF NOT EXISTS idx_task_runs_run ON task_runs(run_id);
+CREATE INDEX IF NOT EXISTS idx_agent_runs_run ON agent_runs(run_id);
 """
 
 

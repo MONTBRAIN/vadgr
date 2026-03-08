@@ -1,36 +1,36 @@
-"""Sequential DAG runner. Orchestrates task execution for runs."""
+"""Sequential DAG runner. Orchestrates agent execution for runs."""
 
 from typing import Any, Callable, Coroutine, Optional
 
 from api.engine.dag import DAG
-from api.engine.executor import TaskExecutor
-from api.persistence.repositories import TaskRepository, ProjectRepository, RunRepository
+from api.engine.executor import AgentExecutor
+from api.persistence.repositories import AgentRepository, ProjectRepository, RunRepository
 
 
 EmitFn = Callable[[str, str, dict], Coroutine[Any, Any, None]]
 
 
 class ExecutionService:
-    """Runs tasks sequentially following the DAG topology."""
+    """Runs agents sequentially following the DAG topology."""
 
     def __init__(
         self,
-        task_repo: TaskRepository,
+        agent_repo: AgentRepository,
         run_repo: RunRepository,
         project_repo: Optional[ProjectRepository],
-        executor: TaskExecutor,
+        executor: AgentExecutor,
         emit: EmitFn,
     ):
-        self.task_repo = task_repo
+        self.agent_repo = agent_repo
         self.run_repo = run_repo
         self.project_repo = project_repo
         self.executor = executor
         self.emit = emit
 
-    async def run_standalone_task(self, run_id: str):
-        """Execute a standalone task run (no project/DAG)."""
+    async def run_standalone_agent(self, run_id: str):
+        """Execute a standalone agent run (no project/DAG)."""
         run = await self.run_repo.get(run_id)
-        task = await self.task_repo.get(run["task_id"])
+        agent = await self.agent_repo.get(run["agent_id"])
 
         await self.run_repo.update_status(run_id, "running")
         await self.emit(run_id, "run_started", {})
@@ -39,7 +39,7 @@ class ExecutionService:
             async def callback(event_type, data):
                 await self.emit(run_id, event_type, data)
 
-            result = await self.executor.execute(task, run["inputs"], callback)
+            result = await self.executor.execute(agent, run["inputs"], callback)
             await self.run_repo.update_status(run_id, "completed", outputs=result)
             await self.emit(run_id, "run_completed", {"outputs": result})
         except Exception as e:
@@ -69,13 +69,13 @@ class ExecutionService:
 
         try:
             for node in sorted_nodes:
-                task = await self.task_repo.get(node["task_id"])
+                agent = await self.agent_repo.get(node["agent_id"])
 
-                if task["type"] == "input":
+                if agent["type"] == "input":
                     outputs[node["id"]] = run["inputs"]
                     continue
 
-                if task["type"] == "approval":
+                if agent["type"] == "approval":
                     await self.run_repo.update_status(run_id, "awaiting_approval")
                     await self.emit(run_id, "approval_required", {
                         "node_id": node["id"],
@@ -83,7 +83,7 @@ class ExecutionService:
                     })
                     return  # Execution pauses here; resumed via approve endpoint
 
-                if task["type"] == "output":
+                if agent["type"] == "output":
                     resolved = dag.resolve_inputs(node, outputs)
                     outputs[node["id"]] = resolved
                     continue
@@ -94,7 +94,7 @@ class ExecutionService:
                 async def callback(event_type, data):
                     await self.emit(run_id, event_type, data)
 
-                result = await self.executor.execute(task, merged_inputs, callback)
+                result = await self.executor.execute(agent, merged_inputs, callback)
                 outputs[node["id"]] = result
 
             final_outputs = {}

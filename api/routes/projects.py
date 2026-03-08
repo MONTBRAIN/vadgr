@@ -67,7 +67,7 @@ async def add_node(project_id: str, body: NodeCreate, request: Request):
         return _not_found(project_id)
     return await repo.add_node(
         project_id=project_id,
-        task_id=body.task_id,
+        agent_id=body.agent_id,
         config=body.config,
         position_x=body.position_x,
         position_y=body.position_y,

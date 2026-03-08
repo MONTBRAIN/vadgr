@@ -44,12 +44,12 @@ class TestProjectNodes:
 
     @pytest.mark.asyncio
     async def test_add_node_to_project(self, client):
-        task = await client.post("/api/tasks", json={"name": "T", "description": ""})
+        agent = await client.post("/api/agents", json={"name": "T", "description": ""})
         project = await client.post("/api/projects", json={"name": "P", "description": ""})
         resp = await client.post(
             f"/api/projects/{project.json()['id']}/nodes",
             json={
-                "task_id": task.json()["id"],
+                "agent_id": agent.json()["id"],
                 "position_x": 100.0,
                 "position_y": 200.0,
             },
@@ -59,11 +59,11 @@ class TestProjectNodes:
 
     @pytest.mark.asyncio
     async def test_delete_node(self, client):
-        task = await client.post("/api/tasks", json={"name": "T", "description": ""})
+        agent = await client.post("/api/agents", json={"name": "T", "description": ""})
         project = await client.post("/api/projects", json={"name": "P", "description": ""})
         pid = project.json()["id"]
         node = await client.post(f"/api/projects/{pid}/nodes", json={
-            "task_id": task.json()["id"],
+            "agent_id": agent.json()["id"],
         })
         resp = await client.delete(f"/api/projects/{pid}/nodes/{node.json()['id']}")
         assert resp.status_code == 204
@@ -73,12 +73,12 @@ class TestProjectEdges:
 
     @pytest.mark.asyncio
     async def test_add_edge(self, client):
-        t1 = await client.post("/api/tasks", json={"name": "T1", "description": ""})
-        t2 = await client.post("/api/tasks", json={"name": "T2", "description": ""})
+        t1 = await client.post("/api/agents", json={"name": "T1", "description": ""})
+        t2 = await client.post("/api/agents", json={"name": "T2", "description": ""})
         project = await client.post("/api/projects", json={"name": "P", "description": ""})
         pid = project.json()["id"]
-        n1 = await client.post(f"/api/projects/{pid}/nodes", json={"task_id": t1.json()["id"]})
-        n2 = await client.post(f"/api/projects/{pid}/nodes", json={"task_id": t2.json()["id"]})
+        n1 = await client.post(f"/api/projects/{pid}/nodes", json={"agent_id": t1.json()["id"]})
+        n2 = await client.post(f"/api/projects/{pid}/nodes", json={"agent_id": t2.json()["id"]})
         resp = await client.post(f"/api/projects/{pid}/edges", json={
             "source_node_id": n1.json()["id"],
             "target_node_id": n2.json()["id"],
@@ -92,12 +92,12 @@ class TestProjectValidation:
 
     @pytest.mark.asyncio
     async def test_validate_valid_dag(self, client):
-        t1 = await client.post("/api/tasks", json={"name": "T1", "description": ""})
-        t2 = await client.post("/api/tasks", json={"name": "T2", "description": ""})
+        t1 = await client.post("/api/agents", json={"name": "T1", "description": ""})
+        t2 = await client.post("/api/agents", json={"name": "T2", "description": ""})
         project = await client.post("/api/projects", json={"name": "P", "description": ""})
         pid = project.json()["id"]
-        n1 = await client.post(f"/api/projects/{pid}/nodes", json={"task_id": t1.json()["id"]})
-        n2 = await client.post(f"/api/projects/{pid}/nodes", json={"task_id": t2.json()["id"]})
+        n1 = await client.post(f"/api/projects/{pid}/nodes", json={"agent_id": t1.json()["id"]})
+        n2 = await client.post(f"/api/projects/{pid}/nodes", json={"agent_id": t2.json()["id"]})
         await client.post(f"/api/projects/{pid}/edges", json={
             "source_node_id": n1.json()["id"],
             "target_node_id": n2.json()["id"],
@@ -110,12 +110,12 @@ class TestProjectValidation:
 
     @pytest.mark.asyncio
     async def test_validate_detects_cycle(self, client):
-        t1 = await client.post("/api/tasks", json={"name": "T1", "description": ""})
-        t2 = await client.post("/api/tasks", json={"name": "T2", "description": ""})
+        t1 = await client.post("/api/agents", json={"name": "T1", "description": ""})
+        t2 = await client.post("/api/agents", json={"name": "T2", "description": ""})
         project = await client.post("/api/projects", json={"name": "P", "description": ""})
         pid = project.json()["id"]
-        n1 = await client.post(f"/api/projects/{pid}/nodes", json={"task_id": t1.json()["id"]})
-        n2 = await client.post(f"/api/projects/{pid}/nodes", json={"task_id": t2.json()["id"]})
+        n1 = await client.post(f"/api/projects/{pid}/nodes", json={"agent_id": t1.json()["id"]})
+        n2 = await client.post(f"/api/projects/{pid}/nodes", json={"agent_id": t2.json()["id"]})
         await client.post(f"/api/projects/{pid}/edges", json={
             "source_node_id": n1.json()["id"],
             "target_node_id": n2.json()["id"],

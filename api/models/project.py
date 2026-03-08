@@ -17,7 +17,7 @@ class ProjectUpdate(BaseModel):
 
 
 class NodeCreate(BaseModel):
-    task_id: str
+    agent_id: str
     config: dict[str, Any] = {}
     position_x: float = 0.0
     position_y: float = 0.0
@@ -39,7 +39,7 @@ class EdgeCreate(BaseModel):
 class ProjectNode(BaseModel):
     id: str
     project_id: str
-    task_id: str
+    agent_id: str
     config: dict[str, Any] = {}
     position_x: float = 0.0
     position_y: float = 0.0

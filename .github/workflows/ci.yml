@@ -7,6 +7,7 @@ on:
     branches: [master]
 
 jobs:
+  # ----- computer_use module -----
   computer-use:
     runs-on: ubuntu-latest
     strategy:
@@ -15,19 +16,89 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check for computer_use changes
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE=${{ github.event.pull_request.base.sha }}
+          else
+            BASE=${{ github.event.before }}
+          fi
+          if git diff --name-only "$BASE" HEAD | grep -qE '^computer_use/'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Set up Python ${{ matrix.python-version }}
+        if: steps.changes.outputs.changed == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Install system dependencies
+        if: steps.changes.outputs.changed == 'true'
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq xdotool gnome-screenshot wl-clipboard
 
       - name: Install Python dependencies
+        if: steps.changes.outputs.changed == 'true'
         run: pip install -r computer_use/requirements.txt pytest-cov evdev
 
       - name: Run tests with coverage
+        if: steps.changes.outputs.changed == 'true'
         run: python -m pytest computer_use/tests/ -v --cov --cov-config=computer_use/.coveragerc --cov-report=term-missing
+
+      - name: Skip (no changes)
+        if: steps.changes.outputs.changed == 'false'
+        run: echo "No computer_use/ changes -- skipping tests."
+
+  # ----- api module -----
+  api:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check for api changes
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE=${{ github.event.pull_request.base.sha }}
+          else
+            BASE=${{ github.event.before }}
+          fi
+          if git diff --name-only "$BASE" HEAD | grep -qE '^api/'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Python ${{ matrix.python-version }}
+        if: steps.changes.outputs.changed == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Python dependencies
+        if: steps.changes.outputs.changed == 'true'
+        run: pip install -r api/requirements.txt
+
+      - name: Run tests with coverage
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          PYTHONPATH: .
+        run: python -m pytest api/tests/ -v --cov=api --cov-report=term-missing
+
+      - name: Skip (no changes)
+        if: steps.changes.outputs.changed == 'false'
+        run: echo "No api/ changes -- skipping tests."

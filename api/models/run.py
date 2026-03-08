@@ -1,11 +1,11 @@
-"""Run and task run Pydantic models."""
+"""Run and agent run Pydantic models."""
 
 from datetime import datetime
 from typing import Any, Optional
 
 from pydantic import BaseModel
 
-from .common import RunStatus, TaskRunStatus
+from .common import RunStatus, AgentRunStatus
 
 
 class RunCreate(BaseModel):
@@ -15,7 +15,7 @@ class RunCreate(BaseModel):
 class Run(BaseModel):
     id: str
     project_id: Optional[str] = None
-    task_id: Optional[str] = None
+    agent_id: Optional[str] = None
     status: RunStatus = RunStatus.QUEUED
     inputs: dict[str, Any] = {}
     outputs: dict[str, Any] = {}
@@ -23,11 +23,11 @@ class Run(BaseModel):
     completed_at: Optional[datetime] = None
 
 
-class TaskRun(BaseModel):
+class AgentRun(BaseModel):
     id: str
     run_id: str
     node_id: str
-    status: TaskRunStatus = TaskRunStatus.PENDING
+    status: AgentRunStatus = AgentRunStatus.PENDING
     inputs: dict[str, Any] = {}
     outputs: dict[str, Any] = {}
     logs: str = ""
