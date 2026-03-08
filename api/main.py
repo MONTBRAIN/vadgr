@@ -13,6 +13,7 @@ from api.websocket.manager import ConnectionManager
 from api.engine.executor import AgentExecutor
 from api.engine.providers import CLIAgentProvider, load_provider_config
 from api.services.computer_use_service import ComputerUseService
+from api.services.agent_service import AgentService
 from api.services.execution_service import ExecutionService
 from api.routes import health, agents, projects, runs, computer_use, ws
 
@@ -44,6 +45,11 @@ def create_app(db: Optional[Database] = None) -> FastAPI:
 
         async def emit(run_id, event_type, data):
             await app.state.ws_manager.emit(run_id, event_type, data)
+
+        app.state.agent_service = AgentService(
+            agent_repo=app.state.agent_repo,
+            provider=provider,
+        )
 
         app.state.execution_service = ExecutionService(
             agent_repo=app.state.agent_repo,

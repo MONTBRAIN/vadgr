@@ -22,55 +22,50 @@ Requirements   Architecture    Orchestrator    Agents       Commands     Scaffol
 
 ## Step 1: Gather Requirements
 
-**Purpose:** Understand what the user wants to automate and how.
+**Purpose:** Understand what the user wants to automate and what good output looks like.
 
-**On trigger, ask ONE question at a time. Wait for each response.**
+**Ask for the description first. Wait for the response before continuing.**
 
 Question 1:
 ```
-What is the purpose of this workflow? Describe what it should accomplish
-in 2-3 sentences.
+Describe the workflow you want to build. What should it accomplish?
 ```
 
-Question 2:
+**After receiving the description:**
+
+Analyze the description. Try to infer: the major phases of work, what inputs the workflow takes, what outputs it produces, whether desktop interaction is needed, and who will use it. If the description gives you enough to infer all of this, proceed directly to compiling the requirements summary without asking further questions.
+
+If the description is ambiguous about the process (you cannot tell what the major steps are or how the work flows), ask one follow-up:
+
 ```
-Who is the user of this workflow? (e.g., "me for personal use",
-"a team of developers", "students learning a topic")
+Can you describe the main steps or phases of the work? What does someone
+currently do manually that this workflow should handle?
 ```
 
-Question 3:
-```
-Describe the main steps or phases of the work. What does someone
-currently do manually that this workflow should automate or orchestrate?
-```
+Only ask this if you genuinely cannot infer the process from the description. Do not ask it as a formality.
 
-Question 4:
-```
-Are there any points where a human MUST review/approve before continuing?
-If yes, describe them.
-```
+**Optionally accept quality samples:**
 
-Question 5:
-```
-What are the expected outputs? Describe the files, folders, or artifacts
-this workflow should produce.
-```
+If the user wants to provide examples of what good output looks like, accept them. Each sample may include an optional short label describing what it shows. Quality samples are not required. If the user does not offer them, do not ask.
 
-Question 6:
-```
-Where should the generated workflow project be created?
-Default: output/{workflow-name}/
-```
+**Conventions (not questions):**
 
-Question 7:
-```
-Does this workflow need to interact with the desktop? For example: open
-applications, click buttons, fill forms, navigate GUIs, or automate
-tasks that require seeing the screen. If yes, describe what it needs to do.
-Default: No (generate-only workflow)
-```
+- Output location is always `output/{kebab-case-name}/`. Do not ask.
+- Computer use is a flag. If the description mentions desktop interaction (opening apps, clicking buttons, filling forms, navigating GUIs, automating tasks that require seeing the screen), set computer_use to true. Otherwise default to false. Do not ask.
+- Approval gates, user type, and output structure are determined in Step 2. Do not ask.
 
-**After all questions answered:** Compile a requirements summary. Present it to the user for confirmation.
+**Compile a requirements summary containing:**
+
+1. **Name.** A kebab-case name inferred from the description.
+2. **Purpose.** 2-3 sentences describing what the workflow accomplishes.
+3. **Steps (inferred).** The major phases of work as you understand them. Mark as "inferred" if not stated explicitly.
+4. **Inputs.** What the user provides to start the workflow.
+5. **Outputs.** Files, folders, or artifacts the workflow produces.
+6. **Computer use.** true or false, with the reason.
+7. **Quality samples.** Any provided examples (or "none").
+8. **Output location.** `output/{name}/`
+
+Present the summary to the user for confirmation.
 
 **Save:** Hold requirements summary in context for subsequent steps.
 
@@ -165,7 +160,7 @@ For each agent identified in Step 2:
    - Actual Input section with placeholders
    - Expected Workflow section
 2. Number the prompt files sequentially: `01_{Agent_Name}.md`, `02_{Agent_Name}.md`, etc.
-3. If the workflow needs desktop interaction (identified in Step 1, Question 7), generate a `05_Computer_Use_Agent.md` prompt based on `forge/Prompts/05_Computer_Use_Agent.md`. Adapt it to the specific workflow's desktop tasks.
+3. If the workflow needs desktop interaction (computer_use flag set in Step 1), generate a `05_Computer_Use_Agent.md` prompt based on `forge/Prompts/05_Computer_Use_Agent.md`. Adapt it to the specific workflow's desktop tasks.
 
 **Save:** `output/{workflow-name}/agent/Prompts/{NN}_{Agent_Name}.md` for each agent
 
@@ -364,7 +359,7 @@ The `agentic.md` file is the **single source of truth** for any workflow. Slash 
 
 | Step | Check |
 |------|-------|
-| 01 | All 6 questions answered? Requirements clear? |
+| 01 | Description provided? Steps inferred or clarified? Requirements summary confirmed? |
 | 02 | Architecture reviewed? Patterns identified? Agents listed? |
 | 03 | Orchestrator follows template? All steps present? Gates correct? |
 | 04 | All agents generated? Each has all required sections? |

@@ -7,7 +7,7 @@ from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
 from api.engine.providers import (
-    CLIAgentProvider, ProviderConfig, build_agent_prompt,
+    CLIAgentProvider, ProviderConfig, ProviderError, build_agent_prompt,
     load_provider_config, _load_providers_yaml,
 )
 from api.services.computer_use_service import ComputerUseService
@@ -185,6 +185,24 @@ class TestBuildAgentPrompt:
 
 class TestCLIAgentProvider:
 
+    def test_clean_env_strips_claudecode(self):
+        config = ProviderConfig(name="Test", command="echo", args=[])
+        provider = CLIAgentProvider(config)
+        os.environ["CLAUDECODE"] = "1"
+        try:
+            env = provider._clean_env()
+            assert "CLAUDECODE" not in env
+            assert "PATH" in env
+        finally:
+            del os.environ["CLAUDECODE"]
+
+    def test_clean_env_passes_through_normal_vars(self):
+        config = ProviderConfig(name="Test", command="echo", args=[])
+        provider = CLIAgentProvider(config)
+        env = provider._clean_env()
+        assert "HOME" in env
+        assert "PATH" in env
+
     def test_build_args_replaces_prompt(self):
         config = ProviderConfig(
             name="Test",
@@ -270,16 +288,21 @@ class TestCLIAgentProvider:
         assert result == '{"result": "done"}'
 
     @pytest.mark.asyncio
-    async def test_execute_raises_on_nonzero_exit(self):
-        """Non-zero exit code raises RuntimeError with stderr."""
+    async def test_execute_raises_provider_error_on_nonzero_exit(self):
+        """Non-zero exit code raises ProviderError with stdout, stderr, exit_code."""
         config = ProviderConfig(
-            name="False",
+            name="Fail",
             command="bash",
-            args=["-c", "echo {{prompt}} >&2; exit 1"],
+            args=["-c", "echo partial-output; echo {{prompt}} >&2; exit 1"],
         )
         provider = CLIAgentProvider(config)
-        with pytest.raises(RuntimeError, match="failed.*exit 1"):
+        with pytest.raises(ProviderError) as exc_info:
             await provider.execute("error msg")
+        err = exc_info.value
+        assert err.exit_code == 1
+        assert "partial-output" in err.stdout
+        assert "error msg" in err.stderr
+        assert "Fail" in str(err)
 
     @pytest.mark.asyncio
     async def test_execute_raises_on_timeout(self):
@@ -370,6 +393,214 @@ class TestComputerUseService:
         agent = {"id": "a1", "name": "T", "description": ""}
         result = await service.run_agent(agent, {}, callback)
         assert result["success"] is False
+
+
+class TestAgentService:
+
+    @pytest.mark.asyncio
+    async def test_create_agent_sets_creating_status(self, db):
+        from api.persistence.repositories import AgentRepository
+        from api.services.agent_service import AgentService
+        agent_repo = AgentRepository(db)
+        provider = AsyncMock(spec=CLIAgentProvider)
+        service = AgentService(agent_repo=agent_repo, provider=provider)
+
+        agent = await service.create_agent(name="Test", description="A test agent")
+        assert agent["status"] == "creating"
+        assert agent["name"] == "Test"
+
+    @pytest.mark.asyncio
+    async def test_run_forge_updates_agent_to_ready(self, db):
+        from api.persistence.repositories import AgentRepository
+        from api.services.agent_service import AgentService
+        agent_repo = AgentRepository(db)
+        provider = AsyncMock(spec=CLIAgentProvider)
+
+        forge_output = '{"result": "{\\"forge_path\\": \\"output/test/\\", \\"forge_config\\": {\\"complexity\\": \\"simple\\", \\"steps\\": 1, \\"prompts\\": [\\"01_Test.md\\"]}, \\"input_schema\\": [{\\"name\\": \\"topic\\", \\"type\\": \\"text\\", \\"required\\": true}], \\"output_schema\\": [{\\"name\\": \\"result\\", \\"type\\": \\"text\\"}]}"}'
+        provider.execute = AsyncMock(return_value=forge_output)
+
+        service = AgentService(agent_repo=agent_repo, provider=provider)
+        agent = await service.create_agent(name="Test", description="A test agent")
+        assert agent["status"] == "creating"
+
+        await service.run_forge(agent["id"])
+
+        updated = await agent_repo.get(agent["id"])
+        assert updated["status"] == "ready"
+        assert updated["forge_path"] == "output/test/"
+        assert updated["forge_config"]["complexity"] == "simple"
+        assert len(updated["input_schema"]) == 1
+        assert len(updated["output_schema"]) == 1
+
+    @pytest.mark.asyncio
+    async def test_run_forge_passes_agent_id_to_provider(self, db):
+        """Forge prompt must include the agent ID so output goes to output/{id}/."""
+        from api.persistence.repositories import AgentRepository
+        from api.services.agent_service import AgentService
+        agent_repo = AgentRepository(db)
+        provider = AsyncMock(spec=CLIAgentProvider)
+
+        forge_output = '{"forge_path": "output/test/", "forge_config": {}, "input_schema": [], "output_schema": []}'
+        provider.execute = AsyncMock(return_value=forge_output)
+
+        service = AgentService(agent_repo=agent_repo, provider=provider)
+        agent = await service.create_agent(name="Test", description="A test agent")
+
+        await service.run_forge(agent["id"])
+
+        # Verify the prompt sent to forge includes the agent ID
+        call_args = provider.execute.call_args
+        prompt = call_args.kwargs.get("prompt") or call_args[1].get("prompt") or call_args[0][0]
+        assert agent["id"] in prompt
+
+    @pytest.mark.asyncio
+    async def test_run_forge_sets_error_on_failure(self, db):
+        from api.persistence.repositories import AgentRepository
+        from api.services.agent_service import AgentService
+        agent_repo = AgentRepository(db)
+        provider = AsyncMock(spec=CLIAgentProvider)
+        provider.execute = AsyncMock(side_effect=RuntimeError("forge crashed"))
+
+        service = AgentService(agent_repo=agent_repo, provider=provider)
+        agent = await service.create_agent(name="Test", description="A test agent")
+
+        await service.run_forge(agent["id"])
+
+        updated = await agent_repo.get(agent["id"])
+        assert updated["status"] == "error"
+        assert "forge crashed" in updated["forge_config"]["error"]
+
+    @pytest.mark.asyncio
+    async def test_run_forge_stores_provider_error_details(self, db):
+        """When forge fails with ProviderError, store stdout, stderr, exit_code."""
+        from api.persistence.repositories import AgentRepository
+        from api.services.agent_service import AgentService
+        agent_repo = AgentRepository(db)
+        provider = AsyncMock(spec=CLIAgentProvider)
+        provider.execute = AsyncMock(
+            side_effect=ProviderError(
+                provider_name="Claude Code",
+                exit_code=1,
+                stdout="partial forge output here",
+                stderr="Error: something went wrong in forge",
+            )
+        )
+
+        service = AgentService(agent_repo=agent_repo, provider=provider)
+        agent = await service.create_agent(name="Test", description="A test agent")
+
+        await service.run_forge(agent["id"])
+
+        updated = await agent_repo.get(agent["id"])
+        assert updated["status"] == "error"
+        assert updated["forge_config"]["exit_code"] == 1
+        assert "partial forge output" in updated["forge_config"]["stdout"]
+        assert "something went wrong" in updated["forge_config"]["stderr"]
+        assert "Claude Code" in updated["forge_config"]["error"]
+
+    @pytest.mark.asyncio
+    async def test_run_forge_parses_raw_json(self, db):
+        from api.persistence.repositories import AgentRepository
+        from api.services.agent_service import AgentService
+        agent_repo = AgentRepository(db)
+        provider = AsyncMock(spec=CLIAgentProvider)
+
+        # Raw JSON (not wrapped in Claude output format)
+        raw_json = '{"forge_path": "output/raw/", "forge_config": {"complexity": "simple", "steps": 1, "prompts": ["01_Agent.md"]}, "input_schema": [], "output_schema": []}'
+        provider.execute = AsyncMock(return_value=raw_json)
+
+        service = AgentService(agent_repo=agent_repo, provider=provider)
+        agent = await service.create_agent(name="Raw", description="test")
+
+        await service.run_forge(agent["id"])
+
+        updated = await agent_repo.get(agent["id"])
+        assert updated["status"] == "ready"
+        assert updated["forge_path"] == "output/raw/"
+
+    @pytest.mark.asyncio
+    async def test_run_update_sets_updating_then_ready(self, db):
+        """Substantive update triggers forge update and transitions updating → ready."""
+        from api.persistence.repositories import AgentRepository
+        from api.services.agent_service import AgentService
+        agent_repo = AgentRepository(db)
+        provider = AsyncMock(spec=CLIAgentProvider)
+
+        forge_output = '{"forge_path": "output/test/", "forge_config": {"complexity": "simple", "steps": 1, "prompts": ["01_Test.md"]}, "input_schema": [{"name": "topic", "type": "text", "required": true}], "output_schema": [{"name": "result", "type": "text"}]}'
+        provider.execute = AsyncMock(return_value=forge_output)
+
+        service = AgentService(agent_repo=agent_repo, provider=provider)
+        agent = await service.create_agent(name="Test", description="Original desc")
+        # Simulate agent already ready
+        await agent_repo.update(agent["id"], status="ready", forge_path="output/test/")
+
+        old_agent = await agent_repo.get(agent["id"])
+        # Route applies new fields + sets status=updating before calling run_update
+        await agent_repo.update(agent["id"], description="Updated desc", status="updating")
+
+        await service.run_update(
+            agent["id"],
+            old_agent=old_agent,
+            new_fields={"description": "Updated desc"},
+        )
+
+        updated = await agent_repo.get(agent["id"])
+        assert updated["status"] == "ready"
+        assert updated["description"] == "Updated desc"
+        provider.execute.assert_called_once()
+        # Verify the prompt references api-update.md
+        call_args = provider.execute.call_args
+        assert "api-update.md" in call_args.kwargs.get("prompt", call_args.args[0] if call_args.args else "")
+
+    @pytest.mark.asyncio
+    async def test_run_update_sets_error_on_failure(self, db):
+        """When forge update fails, status goes to error."""
+        from api.persistence.repositories import AgentRepository
+        from api.services.agent_service import AgentService
+        agent_repo = AgentRepository(db)
+        provider = AsyncMock(spec=CLIAgentProvider)
+        provider.execute = AsyncMock(side_effect=ProviderError(
+            provider_name="Claude Code", exit_code=1,
+            stdout="partial", stderr="update failed",
+        ))
+
+        service = AgentService(agent_repo=agent_repo, provider=provider)
+        agent = await service.create_agent(name="Test", description="Original")
+        await agent_repo.update(agent["id"], status="ready", forge_path="output/test/")
+
+        await service.run_update(
+            agent["id"],
+            old_agent=await agent_repo.get(agent["id"]),
+            new_fields={"description": "New desc"},
+        )
+
+        updated = await agent_repo.get(agent["id"])
+        assert updated["status"] == "error"
+        assert updated["forge_config"]["exit_code"] == 1
+
+    @pytest.mark.asyncio
+    async def test_run_update_nonexistent_agent(self, db):
+        """run_update on nonexistent agent logs error, doesn't crash."""
+        from api.persistence.repositories import AgentRepository
+        from api.services.agent_service import AgentService
+        agent_repo = AgentRepository(db)
+        provider = AsyncMock(spec=CLIAgentProvider)
+        service = AgentService(agent_repo=agent_repo, provider=provider)
+
+        await service.run_update("nonexistent-id", old_agent={}, new_fields={})
+        provider.execute.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_run_forge_nonexistent_agent(self, db):
+        from api.persistence.repositories import AgentRepository
+        from api.services.agent_service import AgentService
+        agent_repo = AgentRepository(db)
+        provider = AsyncMock(spec=CLIAgentProvider)
+        service = AgentService(agent_repo=agent_repo, provider=provider)
+
+        # Should not raise, just log error
+        await service.run_forge("nonexistent-id")
+        provider.execute.assert_not_called()
 
 
 class TestExecutionService:

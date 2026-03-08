@@ -6,12 +6,29 @@ means editing that YAML file, zero code changes.
 
 import asyncio
 import json
+import os
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import AsyncIterator
 
 import yaml
+
+
+class ProviderError(RuntimeError):
+    """Raised when a CLI provider exits with non-zero status.
+
+    Carries stdout, stderr, and exit_code for debugging.
+    """
+
+    def __init__(self, provider_name: str, exit_code: int, stdout: str, stderr: str):
+        self.provider_name = provider_name
+        self.exit_code = exit_code
+        self.stdout = stdout
+        self.stderr = stderr
+        super().__init__(
+            f"Provider '{provider_name}' failed (exit {exit_code}): {stderr}"
+        )
 
 
 @dataclass
@@ -83,6 +100,11 @@ class CLIAgentProvider:
         except FileNotFoundError:
             return False
 
+    @staticmethod
+    def _clean_env() -> dict[str, str]:
+        """Build a subprocess environment without session-nesting env vars."""
+        return {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
+
     def _build_args(self, prompt: str, workspace: str | None = None) -> list[str]:
         """Replace placeholders in the config args."""
         result = []
@@ -107,6 +129,7 @@ class CLIAgentProvider:
             self.config.command,
             *args,
             cwd=workspace,
+            env=self._clean_env(),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
@@ -124,9 +147,11 @@ class CLIAgentProvider:
             )
 
         if proc.returncode != 0:
-            error_msg = stderr.decode().strip() if stderr else "Unknown error"
-            raise RuntimeError(
-                f"Provider '{self.config.name}' failed (exit {proc.returncode}): {error_msg}"
+            raise ProviderError(
+                provider_name=self.config.name,
+                exit_code=proc.returncode,
+                stdout=stdout.decode().strip() if stdout else "",
+                stderr=stderr.decode().strip() if stderr else "Unknown error",
             )
 
         return stdout.decode().strip()
@@ -145,6 +170,7 @@ class CLIAgentProvider:
             self.config.command,
             *args,
             cwd=workspace,
+            env=self._clean_env(),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )

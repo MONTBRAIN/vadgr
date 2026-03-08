@@ -17,6 +17,7 @@ class SchemaField(BaseModel):
 class AgentCreate(BaseModel):
     name: str = Field(min_length=1, max_length=200)
     description: str = Field(default="", max_length=10000)
+    steps: list[str] = []
     samples: list[str] = []
     computer_use: bool = False
     provider: str = "anthropic"
@@ -26,6 +27,8 @@ class AgentCreate(BaseModel):
 class AgentUpdate(BaseModel):
     name: Optional[str] = Field(default=None, min_length=1, max_length=200)
     description: Optional[str] = Field(default=None, max_length=10000)
+    status: Optional[str] = None
+    steps: Optional[list[str]] = None
     samples: Optional[list[str]] = None
     input_schema: Optional[list[SchemaField]] = None
     output_schema: Optional[list[SchemaField]] = None
@@ -41,6 +44,7 @@ class Agent(BaseModel):
     type: AgentType
     status: str = "creating"
     forge_path: str = ""
+    steps: list[str] = []
     samples: list[str] = []
     input_schema: list[SchemaField] = []
     output_schema: list[SchemaField] = []

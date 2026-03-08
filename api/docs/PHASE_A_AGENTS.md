@@ -81,7 +81,7 @@ graph TB
 An agent is a **complete forge-generated workflow**. Not a prompt -- a prompt is just a file. An agent is the whole thing:
 
 ```
-output/{agent-name}/
+output/{agent-id}/
 ├── agentic.md              # How the agent works (orchestrator)
 ├── agent/Prompts/          # The prompts it uses internally
 │   ├── 01_Research_Analyst.md
@@ -89,6 +89,8 @@ output/{agent-name}/
 │   └── 03_Academic_Writer.md
 └── ...
 ```
+
+API-created agents use the agent's UUID as the folder name (`output/{agent-id}/`) to enable reliable cleanup on deletion. Standalone forge workflows (created via `forge/agentic.md`) continue to use kebab-case names (`output/{workflow-name}/`).
 
 The user describes what the agent should accomplish in plain language. Forge runs its generation process and creates the full agent folder -- orchestrator, prompts, quality checks, everything.
 
@@ -121,9 +123,9 @@ sequenceDiagram
     Forge->>Forge: Generate agentic.md
     Forge->>Forge: Generate prompt files
     Forge-->>User: WS agent_progress {step: "generating prompts..."}
-    Forge->>Forge: Write files to output/{agent-name}/
+    Forge->>Forge: Write files to output/{agent-id}/
 
-    Forge-->>API: Agent folder ready at output/{agent-name}/
+    Forge-->>API: Agent folder ready at output/{agent-id}/
     API->>API: Save metadata + forge_path to DB
     API-->>User: WS agent_ready {id, input_schema, output_schema}
     User->>User: Agent ready -- run directly
@@ -137,7 +139,7 @@ Two types of data, two storage strategies:
 
 | What | Where | Why |
 |---|---|---|
-| **Agent definition** (agentic.md + prompts) | Filesystem: `output/{agent-name}/` | Can be large, git-trackable, human-readable, editable, works standalone |
+| **Agent definition** (agentic.md + prompts) | Filesystem: `output/{agent-id}/` | Can be large, git-trackable, human-readable, editable, works standalone |
 | **Agent metadata** (name, type, model, path) | DB: `agents` table | Queryable, drives the UI |
 | **Runtime outputs** (what agents produce when run) | DB: `agent_runs.outputs` as JSON | Structured, displayed in UI |
 | **Binary artifacts** (PDFs, images -- future) | Filesystem: `data/artifacts/{run_id}/` | Too large for DB, referenced via JSON in outputs |
@@ -146,14 +148,14 @@ The `agents` table stores a `forge_path` that points to the agent's folder on di
 
 ```
 output/
-  research-topic/                     # Agent: "Research Topic"
+  a1b2c3d4-e5f6.../                   # API agent (UUID as folder name)
     agentic.md                        # Internal orchestrator
     agent/Prompts/
       01_Research_Analyst.md
       02_Outline_Architect.md
       03_Academic_Writer.md
 
-  summarize-text/                     # Agent: "Summarize Text" (simple)
+  my-workflow/                        # Standalone forge workflow (kebab-case name)
     agentic.md                        # One-step orchestrator
     agent/Prompts/
       01_Summarizer.md
@@ -319,11 +321,12 @@ api/
 
 | Method | Path | Description |
 |---|---|---|
-| `POST` | `/api/agents` | Create a new agent (triggers forge) |
+| `POST` | `/api/agents` | Create a new agent (triggers forge in background) |
 | `GET` | `/api/agents` | List all agents |
 | `GET` | `/api/agents/{id}` | Get agent by ID |
-| `DELETE` | `/api/agents/{id}` | Delete agent (removes files + DB record) |
-| `POST` | `/api/agents/{id}/run` | Run an agent directly |
+| `PUT` | `/api/agents/{id}` | Update agent metadata |
+| `DELETE` | `/api/agents/{id}` | Delete agent (removes output folder via `forge_path` + DB record) |
+| `POST` | `/api/agents/{id}/run` | Run an agent (must be status "ready") |
 | `GET` | `/api/agents/{id}/runs` | List runs of this agent |
 
 ### Create Agent
@@ -336,15 +339,24 @@ POST /api/agents
 {
   "name": "Research Topic",
   "description": "Research a given topic using multiple sources. Produce a structured summary with key findings, supporting evidence, and a list of sources.",
+  "steps": ["Research sources", "Synthesize findings", "Format report"],
   "samples": [
     "## Quantum Computing in Healthcare\n\n### Key Findings\n1. Drug discovery acceleration..."
-  ]
+  ],
+  "computer_use": false,
+  "provider": "anthropic",
+  "model": "claude-sonnet-4-6"
 }
 ```
 
-`samples` is optional. When provided, forge uses them to calibrate the generated prompts.
+Only `name` is required. All other fields are optional:
+- `steps` -- explicit workflow steps; if omitted, forge infers them from the description (default: [])
+- `samples` -- quality examples for forge to calibrate prompts
+- `computer_use` -- whether the agent uses desktop automation (default: false)
+- `provider` -- LLM provider key (default: "anthropic")
+- `model` -- model identifier (default: "claude-sonnet-4-6")
 
-The API returns immediately with the agent ID and status "creating":
+The API returns immediately with the agent ID and status "creating". Forge generation runs as a background task:
 
 ```json
 {
@@ -363,7 +375,7 @@ Connect via WebSocket at `/api/ws/agents/{id}` for creation progress. When forge
   "status": "ready",
   "description": "Research a given topic using multiple sources...",
   "type": "agent",
-  "forge_path": "output/research-topic/",
+  "forge_path": "output/{agent-id}/",
   "input_schema": [
     { "name": "topic", "type": "text", "required": true }
   ],
@@ -511,18 +523,14 @@ sequenceDiagram
     API-->>User: {id, status: "creating"}
     User->>API: WS connect /api/ws/agents/{id}
 
-    API->>Forge: Generate agent from description
-    Note over Forge: Forge runs its generation process:
-    Forge->>Forge: 1. Analyze complexity
-    Forge-->>User: WS agent_progress "Analyzing description..."
-    Forge->>Forge: 2. Design internal architecture
-    Forge->>Forge: 3. Generate agentic.md (internal orchestrator)
-    Forge-->>User: WS agent_progress "Generating orchestrator..."
-    Forge->>Forge: 4. Generate prompt files
-    Forge-->>User: WS agent_progress "Generating prompts..."
-    Forge->>FS: Write output/research-topic/agentic.md
-    Forge->>FS: Write output/research-topic/agent/Prompts/*.md
-    Forge-->>API: Done. Path: output/research-topic/
+    API->>Forge: BackgroundTask: CLIAgentProvider spawns claude -p<br/>"Read forge/api-generate.md and generate agent from: {JSON}"
+    Note over Forge: forge/api-generate.md (non-interactive, 5 steps):
+    Forge->>Forge: 1. Parse JSON input (id, name, description, samples, computer_use)
+    Forge->>Forge: 2. Analyze complexity, infer schemas, determine agent roster
+    Forge->>Forge: 3. Generate agentic.md from scaffold template
+    Forge->>Forge: 4. Generate prompt files via 03_Prompt_Writer.md
+    Forge->>FS: 5. Write output/{agent-id}/ folder
+    Forge-->>API: JSON: {forge_path, forge_config, input_schema, output_schema}
 
     API->>API: Update agent (status: ready, forge_path, schemas)
     API-->>User: WS agent_ready {id, input_schema, output_schema}
@@ -639,6 +647,18 @@ async def execute(agent, inputs, callback):
 ```
 
 The `CLIAgentProvider` spawns the configured CLI tool (Claude Code, Codex, Aider, etc.) as a subprocess, sends the prompt, and captures the output. Provider selection is config-driven via `providers.yaml`.
+
+The provider strips the `CLAUDECODE` environment variable from subprocess calls to prevent nested-session detection errors when the API server is launched from within a Claude Code session.
+
+### Forge Entry Point
+
+Agent creation uses `forge/api-generate.md` -- a non-interactive 5-step orchestrator designed for programmatic invocation. Unlike the interactive `forge/agentic.md` (which asks the user questions), `api-generate.md` accepts a JSON payload and produces a complete agent folder without any user interaction. The `AgentService` invokes it via:
+
+```
+claude -p "Read forge/api-generate.md and generate an agent from: {JSON}" --dangerously-skip-permissions --output-format json
+```
+
+The JSON payload contains `id`, `name`, `description`, `samples`, and `computer_use`. When `id` is provided, forge uses `output/{id}/` as the output folder (enabling reliable cleanup on agent deletion). The output is a JSON object with `forge_path`, `forge_config`, `input_schema`, and `output_schema`.
 
 ---
 

@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS agents (
     type TEXT NOT NULL DEFAULT 'agent',
     status TEXT NOT NULL DEFAULT 'creating',
     forge_path TEXT DEFAULT '',
+    steps TEXT DEFAULT '[]',
     samples TEXT DEFAULT '[]',
     input_schema TEXT DEFAULT '[]',
     output_schema TEXT DEFAULT '[]',

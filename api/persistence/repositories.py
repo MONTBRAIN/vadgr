@@ -30,6 +30,7 @@ def _row_to_agent(row) -> dict:
         "type": row["type"],
         "status": row["status"],
         "forge_path": row["forge_path"],
+        "steps": _parse_json(row["steps"]),
         "samples": _parse_json(row["samples"]),
         "input_schema": _parse_json(row["input_schema"]),
         "output_schema": _parse_json(row["output_schema"]),
@@ -98,6 +99,7 @@ class AgentRepository:
         type: str = "agent",
         status: str = "creating",
         forge_path: str = "",
+        steps: list[str] | None = None,
         samples: list[str] | None = None,
         input_schema: list[dict] | None = None,
         output_schema: list[dict] | None = None,
@@ -109,11 +111,12 @@ class AgentRepository:
         agent_id = _uuid()
         now = _now()
         await self.db.conn.execute(
-            """INSERT INTO agents (id, name, description, type, status, forge_path, samples, input_schema,
+            """INSERT INTO agents (id, name, description, type, status, forge_path, steps, samples, input_schema,
                output_schema, computer_use, forge_config, provider, model, created_at, updated_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 agent_id, name, description, type, status, forge_path,
+                json.dumps(steps or []),
                 json.dumps(samples or []),
                 json.dumps(input_schema or []),
                 json.dumps(output_schema or []),
@@ -143,7 +146,7 @@ class AgentRepository:
         if not existing:
             return None
 
-        json_fields = {"samples", "input_schema", "output_schema", "forge_config"}
+        json_fields = {"steps", "samples", "input_schema", "output_schema", "forge_config"}
         sets = []
         values = []
         for key, value in fields.items():

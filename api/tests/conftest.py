@@ -61,12 +61,17 @@ async def app(db):
     from api.engine.executor import AgentExecutor
     from api.engine.providers import CLIAgentProvider, ProviderConfig
     from api.services.computer_use_service import ComputerUseService
+    from api.services.agent_service import AgentService
     from api.services.execution_service import ExecutionService
     from unittest.mock import AsyncMock
 
     application.state.ws_manager = ConnectionManager()
 
     provider = AsyncMock(spec=CLIAgentProvider)
+    application.state.agent_service = AgentService(
+        agent_repo=application.state.agent_repo,
+        provider=provider,
+    )
     cu_service = ComputerUseService()
     executor = AgentExecutor(provider=provider, computer_use_service=cu_service)
 
