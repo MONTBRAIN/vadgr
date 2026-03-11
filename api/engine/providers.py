@@ -217,14 +217,22 @@ class CLIAgentProvider:
         prompt: str,
         workspace: str | None = None,
         timeout: int | None = None,
+        use_stream_json: bool = True,
     ) -> AsyncIterator[ExecutionEvent]:
         """Execute a prompt and stream output events line by line.
 
         For providers with --output-format json (e.g. Claude Code), swaps to
         stream-json so output arrives as NDJSON events during execution.
         Parses stream-json events into human-readable messages.
+
+        Set use_stream_json=False for agents that produce very large tool
+        results (e.g. computer use screenshots) which exceed the CLI's
+        internal stream-json chunk buffer.
         """
-        args = self._build_streaming_args(prompt, workspace)
+        if use_stream_json:
+            args = self._build_streaming_args(prompt, workspace)
+        else:
+            args = self._build_args(prompt, workspace)
         is_stream_json = any(
             args[i] == "stream-json" and i > 0 and args[i - 1] == "--output-format"
             for i in range(len(args))

@@ -53,11 +53,16 @@ class AgentExecutor:
                 # forge-generated prompts, and computer use all add up.
                 # Computer use agents need even longer (MCP tool round-trips).
                 timeout = 1800 if agent.get("computer_use") else 900
+                # Computer use agents produce massive base64 screenshot data
+                # that exceeds the CLI's internal stream-json chunk buffer,
+                # crashing the process. Disable stream-json for those agents.
+                can_stream = not agent.get("computer_use")
                 collected_output = ""
                 async for event in self.provider.execute_streaming(
                     prompt=prompt,
                     workspace=workspace,
                     timeout=timeout,
+                    use_stream_json=can_stream,
                 ):
                     if event.type == "output":
                         await callback("agent_log", {
