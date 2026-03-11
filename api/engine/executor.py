@@ -53,12 +53,22 @@ class AgentExecutor:
                 # forge-generated prompts, and computer use all add up.
                 # Computer use agents need even longer (MCP tool round-trips).
                 timeout = 1800 if agent.get("computer_use") else 900
-                raw_output = await self.provider.execute(
+                collected_output = ""
+                async for event in self.provider.execute_streaming(
                     prompt=prompt,
                     workspace=workspace,
                     timeout=timeout,
-                )
-                result = self._parse_output(raw_output, agent.get("output_schema", []))
+                ):
+                    if event.type == "output":
+                        await callback("agent_log", {
+                            "agent_id": agent["id"],
+                            "message": event.data,
+                        })
+                    elif event.type == "done":
+                        collected_output = event.data
+                    elif event.type == "error":
+                        raise RuntimeError(event.data)
+                result = self._parse_output(collected_output, agent.get("output_schema", []))
 
             await callback("agent_completed", {"agent_id": agent["id"], "outputs": result})
             return result

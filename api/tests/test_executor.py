@@ -4,14 +4,38 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock
 
 from api.engine.executor import AgentExecutor
+from api.engine.providers import ExecutionEvent
+
+
+def _make_streaming_provider(output='{"result": "done"}'):
+    """Create a mock provider whose execute_streaming yields a done event."""
+    provider = AsyncMock()
+    provider._streaming_calls = []
+
+    async def fake_streaming(**kwargs):
+        provider._streaming_calls.append(kwargs)
+        yield ExecutionEvent(type="done", data=output)
+
+    provider.execute_streaming = fake_streaming
+    return provider
+
+
+def _make_error_streaming_provider(error_msg="Provider down"):
+    """Create a mock provider whose execute_streaming yields an error event."""
+    provider = AsyncMock()
+
+    async def fake_streaming(**kwargs):
+        yield ExecutionEvent(type="error", data=error_msg)
+
+    provider.execute_streaming = fake_streaming
+    return provider
 
 
 class TestAgentExecutor:
 
     @pytest.mark.asyncio
     async def test_execute_simple_agent(self):
-        provider = AsyncMock()
-        provider.execute.return_value = '{"findings": "AI safety research data"}'
+        provider = _make_streaming_provider('{"findings": "AI safety research data"}')
         cu_service = AsyncMock()
         callback = AsyncMock()
 
@@ -31,7 +55,7 @@ class TestAgentExecutor:
         inputs = {"topic": "AI Safety"}
         result = await executor.execute(agent, inputs, callback)
         assert result == {"findings": "AI safety research data"}
-        provider.execute.assert_called_once()
+        assert len(provider._streaming_calls) == 1
 
     @pytest.mark.asyncio
     async def test_execute_computer_use_agent(self):
@@ -56,12 +80,10 @@ class TestAgentExecutor:
         result = await executor.execute(agent, {}, callback)
         assert result["success"] is True
         cu_service.run_agent.assert_called_once()
-        provider.execute.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_execute_emits_agent_started_and_completed(self):
-        provider = AsyncMock()
-        provider.execute.return_value = '{"out": "val"}'
+        provider = _make_streaming_provider('{"out": "val"}')
         cu_service = AsyncMock()
         callback = AsyncMock()
 
@@ -86,8 +108,7 @@ class TestAgentExecutor:
 
     @pytest.mark.asyncio
     async def test_execute_emits_agent_failed_on_error(self):
-        provider = AsyncMock()
-        provider.execute.side_effect = RuntimeError("Provider down")
+        provider = _make_error_streaming_provider("Provider down")
         cu_service = AsyncMock()
         callback = AsyncMock()
 
@@ -113,8 +134,7 @@ class TestAgentExecutor:
     @pytest.mark.asyncio
     async def test_execute_multi_step_agent(self):
         """Multi-step agents go through the CLI provider."""
-        provider = AsyncMock()
-        provider.execute.return_value = '{"article": "Full article..."}'
+        provider = _make_streaming_provider('{"article": "Full article..."}')
         cu_service = AsyncMock()
         callback = AsyncMock()
 
@@ -133,13 +153,12 @@ class TestAgentExecutor:
         }
         result = await executor.execute(agent, {"topic": "AI"}, callback)
         assert result == {"article": "Full article..."}
-        provider.execute.assert_called_once()
+        assert len(provider._streaming_calls) == 1
 
     @pytest.mark.asyncio
     async def test_execute_parses_non_json_output(self):
         """When provider returns plain text, maps to first output field."""
-        provider = AsyncMock()
-        provider.execute.return_value = "Just some plain text output"
+        provider = _make_streaming_provider("Just some plain text output")
         cu_service = AsyncMock()
         callback = AsyncMock()
 
@@ -158,8 +177,7 @@ class TestAgentExecutor:
     @pytest.mark.asyncio
     async def test_execute_with_forge_path(self):
         """When agent has forge_path, prompt references agentic.md."""
-        provider = AsyncMock()
-        provider.execute.return_value = '{"result": "done"}'
+        provider = _make_streaming_provider('{"result": "done"}')
         cu_service = AsyncMock()
         callback = AsyncMock()
 
@@ -175,6 +193,6 @@ class TestAgentExecutor:
         }
         await executor.execute(agent, {"topic": "AI"}, callback)
 
-        call_args = provider.execute.call_args
-        prompt = call_args.kwargs.get("prompt") or call_args.args[0]
+        call_kwargs = provider._streaming_calls[0]
+        prompt = call_kwargs["prompt"]
         assert "agentic.md" in prompt

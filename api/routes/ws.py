@@ -1,21 +1,27 @@
 """WebSocket route for live run streaming."""
 
 import json
+import logging
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
 @router.websocket("/api/ws/runs/{run_id}")
 async def run_websocket(websocket: WebSocket, run_id: str):
+    logger.info(f"WebSocket connection attempt for run {run_id}")
     manager = websocket.app.state.ws_manager
     run_repo = websocket.app.state.run_repo
 
     run = await run_repo.get(run_id)
     if not run:
+        logger.warning(f"WebSocket: run {run_id} not found, closing")
         await websocket.close(code=4004, reason="Run not found")
         return
+
+    logger.info(f"WebSocket: run {run_id} found, accepting connection")
 
     await manager.connect(run_id, websocket)
     try:

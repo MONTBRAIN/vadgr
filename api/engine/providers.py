@@ -78,6 +78,44 @@ def load_provider_config(provider_key: str, overrides: dict | None = None) -> Pr
     return ProviderConfig(**config)
 
 
+def parse_stream_json_line(line: str) -> tuple[str | None, str | None]:
+    """Parse a stream-json line into (human_readable_message, final_result).
+
+    Returns:
+        - (message, None) for intermediate events worth showing
+        - (None, result_str) for the final result event
+        - (None, None) for events to skip
+    """
+    try:
+        data = json.loads(line)
+    except (json.JSONDecodeError, TypeError):
+        # Non-JSON line: return as-is
+        return (line if line.strip() else None, None)
+
+    event_type = data.get("type", "")
+
+    if event_type == "result":
+        result = data.get("result", "")
+        if isinstance(result, dict):
+            return (None, json.dumps(result))
+        return (None, str(result))
+
+    if event_type == "assistant":
+        message = data.get("message", {})
+        content_blocks = message.get("content", [])
+        for block in content_blocks:
+            block_type = block.get("type", "")
+            if block_type == "text":
+                text = block.get("text", "").strip()
+                if text:
+                    return (text[:500], None)
+            elif block_type == "tool_use":
+                tool_name = block.get("name", "unknown")
+                return (f"Using tool: {tool_name}", None)
+
+    return (None, None)
+
+
 class CLIAgentProvider:
     """Executes agents by spawning a CLI agentic tool as a subprocess.
 
@@ -117,6 +155,21 @@ class CLIAgentProvider:
                 arg = arg.replace("{{workspace}}", workspace)
             result.append(arg)
         return result
+
+    def _build_streaming_args(self, prompt: str, workspace: str | None = None) -> list[str]:
+        """Build args for streaming: swap --output-format json to stream-json."""
+        args = self._build_args(prompt, workspace)
+        # Swap json -> stream-json for Claude Code style providers
+        swapped = False
+        for i, arg in enumerate(args):
+            if arg == "json" and i > 0 and args[i - 1] == "--output-format":
+                args[i] = "stream-json"
+                swapped = True
+                break
+        # stream-json with --print (-p) requires --verbose
+        if swapped:
+            args.append("--verbose")
+        return args
 
     async def execute(
         self,
@@ -165,8 +218,17 @@ class CLIAgentProvider:
         workspace: str | None = None,
         timeout: int | None = None,
     ) -> AsyncIterator[ExecutionEvent]:
-        """Execute a prompt and stream output events line by line."""
-        args = self._build_args(prompt, workspace)
+        """Execute a prompt and stream output events line by line.
+
+        For providers with --output-format json (e.g. Claude Code), swaps to
+        stream-json so output arrives as NDJSON events during execution.
+        Parses stream-json events into human-readable messages.
+        """
+        args = self._build_streaming_args(prompt, workspace)
+        is_stream_json = any(
+            args[i] == "stream-json" and i > 0 and args[i - 1] == "--output-format"
+            for i in range(len(args))
+        )
         effective_timeout = timeout or self.config.timeout
 
         proc = await asyncio.create_subprocess_exec(
@@ -181,6 +243,7 @@ class CLIAgentProvider:
         try:
             async def read_stream():
                 collected = []
+                final_result = None
                 while True:
                     line = await asyncio.wait_for(
                         proc.stdout.readline(),
@@ -189,7 +252,17 @@ class CLIAgentProvider:
                     if not line:
                         break
                     text = line.decode().strip()
-                    if text:
+                    if not text:
+                        continue
+
+                    if is_stream_json:
+                        msg, result = parse_stream_json_line(text)
+                        if result is not None:
+                            final_result = result
+                        elif msg is not None:
+                            collected.append(msg)
+                            yield ExecutionEvent(type="output", data=msg)
+                    else:
                         collected.append(text)
                         yield ExecutionEvent(type="output", data=text)
 
@@ -199,7 +272,8 @@ class CLIAgentProvider:
                     error_msg = stderr_data.decode().strip() if stderr_data else "Unknown error"
                     yield ExecutionEvent(type="error", data=error_msg)
                 else:
-                    yield ExecutionEvent(type="done", data="\n".join(collected))
+                    done_data = final_result if final_result is not None else "\n".join(collected)
+                    yield ExecutionEvent(type="done", data=done_data)
 
             async for event in read_stream():
                 yield event
