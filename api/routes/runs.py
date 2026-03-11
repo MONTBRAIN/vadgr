@@ -29,6 +29,13 @@ async def start_project_run(project_id: str, body: RunCreate, request: Request):
     return {"run_id": run["id"], "status": run["status"]}
 
 
+@router.delete("/api/runs", status_code=200)
+async def delete_all_runs(request: Request):
+    run_repo = request.app.state.run_repo
+    count = await run_repo.delete_all()
+    return {"deleted": count}
+
+
 @router.get("/api/runs")
 async def list_runs(request: Request, status: str | None = None):
     run_repo = request.app.state.run_repo

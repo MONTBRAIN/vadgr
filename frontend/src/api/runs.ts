@@ -7,4 +7,5 @@ export const runsApi = {
   get: (id: string) => api.get<Run>(`/runs/${id}`),
   cancel: (id: string) => api.post<Run>(`/runs/${id}/cancel`),
   approve: (id: string) => api.post<Run>(`/runs/${id}/approve`),
+  deleteAll: () => api.delete<{ deleted: number }>('/runs'),
 };

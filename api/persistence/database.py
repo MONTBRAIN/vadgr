@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS agents (
     output_schema TEXT DEFAULT '[]',
     computer_use INTEGER DEFAULT 0,
     forge_config TEXT DEFAULT '{}',
-    provider TEXT NOT NULL DEFAULT 'anthropic',
+    provider TEXT NOT NULL DEFAULT 'claude_code',
     model TEXT NOT NULL DEFAULT 'claude-sonnet-4-6',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL

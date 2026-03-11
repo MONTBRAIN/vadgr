@@ -75,8 +75,10 @@ class TestProvidersYamlLoading:
     def test_yaml_providers_all_instantiate_as_provider_config(self):
         """Every provider in YAML can be deserialized into a ProviderConfig."""
         providers = _load_providers_yaml()
+        valid_fields = {f.name for f in ProviderConfig.__dataclass_fields__.values()}
         for key, prov in providers.items():
-            config = ProviderConfig(**prov)
+            filtered = {k: v for k, v in prov.items() if k in valid_fields}
+            config = ProviderConfig(**filtered)
             assert config.name, f"{key} has empty name"
             assert config.command, f"{key} has empty command"
             assert len(config.args) > 0, f"{key} has no args"
@@ -768,3 +770,203 @@ class TestExecutionService:
         assert data["node_id"] == n_gate["id"]
         assert n1["id"] in data["outputs_so_far"]
         assert data["outputs_so_far"][n1["id"]] == {"result": "done"}
+
+
+class TestAgentExecutor:
+    """Tests for AgentExecutor routing logic."""
+
+    @pytest.mark.asyncio
+    async def test_claude_code_agent_with_computer_use_routes_to_cli(self):
+        """claude_code agents should use CLI provider even when computer_use=True.
+
+        Claude Code handles computer use via MCP, so it does NOT need routing
+        to the computer_use_service.
+        """
+        from api.engine.executor import AgentExecutor
+
+        cli_provider = AsyncMock()
+        cli_provider.execute.return_value = '{"result": "pricing report"}'
+        cu_service = AsyncMock()
+        callback = AsyncMock()
+
+        executor = AgentExecutor(cli_provider, cu_service)
+        agent = {
+            "id": "test-1",
+            "name": "competitor-spy",
+            "computer_use": True,
+            "provider": "claude_code",
+            "forge_path": "",
+            "description": "Spy on competitors",
+            "output_schema": [],
+            "steps": [
+                {"name": "Open website", "computer_use": True},
+                {"name": "Write report", "computer_use": False},
+            ],
+        }
+        result = await executor.execute(agent, {"task": "analyze pricing"}, callback)
+
+        # Should have called CLI provider, NOT computer_use_service
+        cli_provider.execute.assert_called_once()
+        cu_service.run_agent.assert_not_called()
+        assert result == {"result": "pricing report"}
+
+    @pytest.mark.asyncio
+    async def test_workspace_always_project_root_even_with_forge_path(self):
+        """Workspace must always be PROJECT_ROOT, never forge_path.
+
+        The prompt references forge_path as a relative path from project root
+        (e.g., 'Read output/abc/agentic.md'). If cwd were set to forge_path,
+        the agent would look for output/abc/output/abc/agentic.md (doubled path).
+        """
+        from api.engine.executor import AgentExecutor, _PROJECT_ROOT
+
+        cli_provider = AsyncMock()
+        cli_provider.execute.return_value = '{"result": "done"}'
+        cu_service = AsyncMock()
+        callback = AsyncMock()
+
+        executor = AgentExecutor(cli_provider, cu_service)
+        agent = {
+            "id": "test-ws",
+            "name": "test-agent",
+            "computer_use": False,
+            "provider": "claude_code",
+            "forge_path": "output/some-agent-id",
+            "description": "Test agent",
+            "output_schema": [],
+        }
+        await executor.execute(agent, {"task": "test"}, callback)
+
+        call_kwargs = cli_provider.execute.call_args.kwargs
+        assert call_kwargs["workspace"] == _PROJECT_ROOT
+        # Must NOT be the forge_path
+        assert call_kwargs["workspace"] != "output/some-agent-id"
+
+    @pytest.mark.asyncio
+    async def test_workspace_is_project_root_when_no_forge_path(self):
+        """Agents without forge_path should also get PROJECT_ROOT as workspace."""
+        from api.engine.executor import AgentExecutor, _PROJECT_ROOT
+
+        cli_provider = AsyncMock()
+        cli_provider.execute.return_value = '{"result": "done"}'
+        cu_service = AsyncMock()
+        callback = AsyncMock()
+
+        executor = AgentExecutor(cli_provider, cu_service)
+        agent = {
+            "id": "test-no-fp",
+            "name": "test-agent",
+            "computer_use": False,
+            "provider": "claude_code",
+            "forge_path": "",
+            "description": "Agent without forge path",
+            "output_schema": [],
+        }
+        await executor.execute(agent, {}, callback)
+
+        call_kwargs = cli_provider.execute.call_args.kwargs
+        assert call_kwargs["workspace"] == _PROJECT_ROOT
+
+    @pytest.mark.asyncio
+    async def test_prompt_contains_forge_path_for_file_resolution(self):
+        """The prompt must include forge_path so Claude can find agentic.md from PROJECT_ROOT."""
+        from api.engine.executor import AgentExecutor
+
+        cli_provider = AsyncMock()
+        cli_provider.execute.return_value = '{"result": "done"}'
+        cu_service = AsyncMock()
+        callback = AsyncMock()
+
+        executor = AgentExecutor(cli_provider, cu_service)
+        agent = {
+            "id": "test-fp",
+            "name": "test-agent",
+            "computer_use": False,
+            "provider": "claude_code",
+            "forge_path": "output/my-agent-uuid",
+            "description": "Test",
+            "output_schema": [],
+        }
+        await executor.execute(agent, {}, callback)
+
+        call_kwargs = cli_provider.execute.call_args.kwargs
+        prompt = call_kwargs["prompt"]
+        # Prompt should reference the forge_path so the file resolves from PROJECT_ROOT
+        assert "output/my-agent-uuid/agentic.md" in prompt
+
+    @pytest.mark.asyncio
+    async def test_timeout_900_for_cli_agents(self):
+        """CLI agents (no computer_use) should get 900s timeout."""
+        from api.engine.executor import AgentExecutor
+
+        cli_provider = AsyncMock()
+        cli_provider.execute.return_value = '{"result": "done"}'
+        cu_service = AsyncMock()
+        callback = AsyncMock()
+
+        executor = AgentExecutor(cli_provider, cu_service)
+        agent = {
+            "id": "test-to",
+            "name": "cli-agent",
+            "computer_use": False,
+            "provider": "claude_code",
+            "forge_path": "output/test",
+            "description": "CLI only",
+            "output_schema": [],
+        }
+        await executor.execute(agent, {}, callback)
+
+        call_kwargs = cli_provider.execute.call_args.kwargs
+        assert call_kwargs["timeout"] == 900
+
+    @pytest.mark.asyncio
+    async def test_timeout_1800_for_computer_use_agents(self):
+        """Computer use agents routed via CLI should get 1800s timeout."""
+        from api.engine.executor import AgentExecutor
+
+        cli_provider = AsyncMock()
+        cli_provider.execute.return_value = '{"result": "done"}'
+        cu_service = AsyncMock()
+        callback = AsyncMock()
+
+        executor = AgentExecutor(cli_provider, cu_service)
+        agent = {
+            "id": "test-cu-to",
+            "name": "cu-agent",
+            "computer_use": True,
+            "provider": "claude_code",  # CLI provider handles CU via MCP
+            "forge_path": "output/test",
+            "description": "Desktop agent",
+            "output_schema": [],
+        }
+        await executor.execute(agent, {}, callback)
+
+        call_kwargs = cli_provider.execute.call_args.kwargs
+        assert call_kwargs["timeout"] == 1800
+
+    @pytest.mark.asyncio
+    async def test_anthropic_agent_with_computer_use_routes_to_cu_service(self):
+        """anthropic provider agents with computer_use=True should use computer_use_service."""
+        from api.engine.executor import AgentExecutor
+
+        cli_provider = AsyncMock()
+        cu_service = AsyncMock()
+        cu_service.run_agent.return_value = {"success": True}
+        callback = AsyncMock()
+
+        executor = AgentExecutor(cli_provider, cu_service)
+        agent = {
+            "id": "test-2",
+            "name": "browser-agent",
+            "computer_use": True,
+            "provider": "anthropic",
+            "forge_path": "",
+            "description": "Browse the web",
+            "output_schema": [],
+        }
+        result = await executor.execute(agent, {}, callback)
+
+        # Should have called computer_use_service, NOT CLI provider
+        cu_service.run_agent.assert_called_once()
+        cli_provider.execute.assert_not_called()
+        assert result == {"success": True}

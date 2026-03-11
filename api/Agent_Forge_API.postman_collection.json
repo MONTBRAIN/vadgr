@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Agent Forge API",
-    "description": "E2E test suite for the Agent Forge API.\n\nRun order matters -- requests use collection variables set by earlier requests.\n\nFlow: Health -> Create Agent -> Poll Ready -> Get -> Cosmetic Update -> Substantive Update -> Poll Updated -> Busy Update (409) -> Run Agent -> List Runs -> List Agents -> Minimal Create -> Validation Tests -> Delete Tests -> Runs -> Computer Use.",
+    "description": "E2E test suite for the Agent Forge API.\n\nRun order matters -- requests use collection variables set by earlier requests.\n\nFlow: Providers -> Health -> Create Agent -> Poll Ready -> Get -> Cosmetic Update -> Substantive Update -> Poll Updated -> Busy Update (409) -> Run Agent -> List Runs -> List Agents -> Minimal Create -> Validation Tests -> Delete Tests -> Runs -> Computer Use.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -39,6 +39,67 @@
     }
   ],
   "item": [
+    {
+      "name": "Providers",
+      "item": [
+        {
+          "name": "List Providers",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/providers"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "",
+                  "pm.test('Returns non-empty array', function() {",
+                  "    pm.expect(json).to.be.an('array');",
+                  "    pm.expect(json.length).to.be.at.least(1);",
+                  "});",
+                  "",
+                  "pm.test('Each provider has id, name, and models', function() {",
+                  "    json.forEach(function(p) {",
+                  "        pm.expect(p).to.have.property('id');",
+                  "        pm.expect(p).to.have.property('name');",
+                  "        pm.expect(p).to.have.property('models');",
+                  "        pm.expect(p.models).to.be.an('array');",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test('Claude Code provider exists with models', function() {",
+                  "    var cc = json.find(function(p) { return p.id === 'claude_code'; });",
+                  "    pm.expect(cc).to.not.be.undefined;",
+                  "    pm.expect(cc.name).to.eql('Claude Code');",
+                  "    pm.expect(cc.models.length).to.be.at.least(1);",
+                  "    var modelIds = cc.models.map(function(m) { return m.id; });",
+                  "    pm.expect(modelIds).to.include('claude-sonnet-4-6');",
+                  "});",
+                  "",
+                  "pm.test('Each model has id and name', function() {",
+                  "    json.forEach(function(p) {",
+                  "        p.models.forEach(function(m) {",
+                  "            pm.expect(m).to.have.property('id');",
+                  "            pm.expect(m).to.have.property('name');",
+                  "            pm.expect(m.id.length).to.be.above(0);",
+                  "            pm.expect(m.name.length).to.be.above(0);",
+                  "        });",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
     {
       "name": "Health",
       "item": [
@@ -126,8 +187,8 @@
                   "    pm.expect(json.type).to.eql('agent');",
                   "});",
                   "",
-                  "pm.test('Agent status is creating', function() {",
-                  "    pm.expect(json.status).to.eql('creating');",
+                  "pm.test('Agent status is ready', function() {",
+                  "    pm.expect(json.status).to.eql('ready');",
                   "});",
                   "",
                   "pm.test('Agent has timestamps', function() {",
@@ -395,13 +456,22 @@
               "listen": "prerequest",
               "script": {
                 "exec": [
+                  "// Create agent then immediately send a substantive update to put it in 'updating' state",
                   "pm.sendRequest({",
                   "    url: pm.collectionVariables.get('base_url') + '/api/agents',",
                   "    method: 'POST',",
                   "    header: { 'Content-Type': 'application/json' },",
-                  "    body: { mode: 'raw', raw: JSON.stringify({ name: 'Busy Agent', description: 'Still creating' }) }",
+                  "    body: { mode: 'raw', raw: JSON.stringify({ name: 'Busy Agent', description: 'Will be busy' }) }",
                   "}, function(err, res) {",
-                  "    pm.collectionVariables.set('busy_agent_id', res.json().id);",
+                  "    var agentId = res.json().id;",
+                  "    pm.collectionVariables.set('busy_agent_id', agentId);",
+                  "    // Trigger a substantive update to put the agent into 'updating' status",
+                  "    pm.sendRequest({",
+                  "        url: pm.collectionVariables.get('base_url') + '/api/agents/' + agentId,",
+                  "        method: 'PUT',",
+                  "        header: { 'Content-Type': 'application/json' },",
+                  "        body: { mode: 'raw', raw: JSON.stringify({ description: 'First update to trigger updating status' }) }",
+                  "    }, function() {});",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -422,7 +492,7 @@
                   "",
                   "pm.test('Error mentions status', function() {",
                   "    var json = pm.response.json();",
-                  "    pm.expect(json.error.message).to.include('creating');",
+                  "    pm.expect(json.error.message).to.include('updating');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -572,8 +642,8 @@
                   "",
                   "pm.test('Agent created with defaults', function() {",
                   "    pm.expect(json.type).to.eql('agent');",
-                  "    pm.expect(json.status).to.eql('creating');",
-                  "    pm.expect(json.provider).to.eql('anthropic');",
+                  "    pm.expect(json.status).to.eql('ready');",
+                  "    pm.expect(json.provider).to.eql('claude_code');",
                   "    pm.expect(json.computer_use).to.eql(false);",
                   "    pm.expect(json.samples).to.be.an('array').that.is.empty;",
                   "    pm.expect(json.steps).to.be.an('array').that.is.empty;",
@@ -643,15 +713,65 @@
                   "pm.collectionVariables.set('steps_agent_id', json.id);",
                   "pm.collectionVariables.set('steps_poll_count', '0');",
                   "",
-                  "pm.test('Agent has steps', function() {",
+                  "pm.test('Agent has steps as objects', function() {",
                   "    pm.expect(json.steps).to.be.an('array').with.lengthOf(3);",
-                  "    pm.expect(json.steps[0]).to.eql('Extract data from CSV');",
-                  "    pm.expect(json.steps[1]).to.eql('Clean and normalize data');",
-                  "    pm.expect(json.steps[2]).to.eql('Generate summary report');",
+                  "    pm.expect(json.steps[0].name).to.eql('Extract data from CSV');",
+                  "    pm.expect(json.steps[0].computer_use).to.eql(false);",
+                  "    pm.expect(json.steps[1].name).to.eql('Clean and normalize data');",
+                  "    pm.expect(json.steps[2].name).to.eql('Generate summary report');",
                   "});",
                   "",
-                  "pm.test('Status is creating', function() {",
-                  "    pm.expect(json.status).to.eql('creating');",
+                  "pm.test('Status is ready', function() {",
+                  "    pm.expect(json.status).to.eql('ready');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Agent - Per-Step Computer Use",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/agents",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Competitor Spy\",\n  \"description\": \"Visit a competitor website, capture pricing, and produce a comparison report.\",\n  \"steps\": [\n    {\"name\": \"Open competitor website\", \"computer_use\": true},\n    {\"name\": \"Capture pricing details\", \"computer_use\": true},\n    {\"name\": \"Write comparison report\", \"computer_use\": false}\n  ]\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "",
+                  "pm.test('Steps are objects with computer_use flags', function() {",
+                  "    pm.expect(json.steps).to.be.an('array').with.lengthOf(3);",
+                  "    pm.expect(json.steps[0].name).to.eql('Open competitor website');",
+                  "    pm.expect(json.steps[0].computer_use).to.eql(true);",
+                  "    pm.expect(json.steps[1].computer_use).to.eql(true);",
+                  "    pm.expect(json.steps[2].name).to.eql('Write comparison report');",
+                  "    pm.expect(json.steps[2].computer_use).to.eql(false);",
+                  "});",
+                  "",
+                  "pm.test('Agent-level computer_use derived from steps', function() {",
+                  "    pm.expect(json.computer_use).to.eql(true);",
+                  "});",
+                  "",
+                  "pm.test('Provider defaults to claude_code', function() {",
+                  "    pm.expect(json.provider).to.eql('claude_code');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -906,6 +1026,107 @@
                 "exec": [
                   "pm.test('Deleted agent returns 404', function() {",
                   "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bulk Delete",
+      "item": [
+        {
+          "name": "Delete All Runs",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/api/runs"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has deleted count', function() {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('deleted');",
+                  "    pm.expect(json.deleted).to.be.a('number');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete All Agents",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/api/agents"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has deleted count', function() {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('deleted');",
+                  "    pm.expect(json.deleted).to.be.a('number');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify Agents Empty",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/agents"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('No agents remain', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array').that.is.empty;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify Runs Empty",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/runs"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('No runs remain', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array').that.is.empty;",
                   "});"
                 ],
                 "type": "text/javascript"

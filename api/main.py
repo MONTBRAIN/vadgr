@@ -15,7 +15,7 @@ from api.engine.providers import CLIAgentProvider, load_provider_config
 from api.services.computer_use_service import ComputerUseService
 from api.services.agent_service import AgentService
 from api.services.execution_service import ExecutionService
-from api.routes import health, agents, projects, runs, computer_use, ws
+from api.routes import health, agents, projects, runs, computer_use, providers, ws
 
 
 def create_app(db: Optional[Database] = None) -> FastAPI:
@@ -77,6 +77,7 @@ def create_app(db: Optional[Database] = None) -> FastAPI:
     app.include_router(projects.router)
     app.include_router(runs.router)
     app.include_router(computer_use.router)
+    app.include_router(providers.router)
     app.include_router(ws.router)
 
     return app

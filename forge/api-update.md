@@ -25,11 +25,20 @@ Accept a JSON object with the following fields:
   "original": {
     "name": "agent-name",
     "description": "Original description used when the agent was created.",
+    "steps": [
+      {"name": "Research sources", "computer_use": false},
+      {"name": "Create PR", "computer_use": true}
+    ],
     "samples": [],
-    "computer_use": false
+    "computer_use": true
   },
   "updated": {
     "description": "New description reflecting changed requirements.",
+    "steps": [
+      {"name": "Research sources", "computer_use": false},
+      {"name": "Write code", "computer_use": false},
+      {"name": "Create PR", "computer_use": true}
+    ],
     "samples": ["new sample"],
     "computer_use": true
   }
@@ -38,8 +47,10 @@ Accept a JSON object with the following fields:
 
 **Required:** `forge_path`, `original.name`, `updated` (at least one field inside it)
 
-**Optional fields inside `updated`:** Any subset of `description`, `samples`, `computer_use`.
+**Optional fields inside `updated`:** Any subset of `description`, `steps`, `samples`, `computer_use`.
 Only include the fields that changed. Fields absent from `updated` are treated as unchanged.
+
+**Steps format:** Steps are arrays of objects with `name` (string) and `computer_use` (boolean). Steps with `computer_use: true` need desktop automation. The agent-level `computer_use` is true if any step has `computer_use: true`.
 
 **Validation:**
 - If `forge_path` is missing or empty, write an error JSON to stdout and stop:
@@ -86,8 +97,8 @@ Read the JSON input provided after "update an existing agent from:".
 
 Extract:
 - `forge_path` (string, path to the existing agent folder)
-- `original` (object with `name`, `description`, `samples`, `computer_use`)
-- `updated` (object with any subset of `description`, `samples`, `computer_use`)
+- `original` (object with `name`, `description`, `steps`, `samples`, `computer_use`)
+- `updated` (object with any subset of `description`, `steps`, `samples`, `computer_use`)
 
 Run validation in this order:
 
@@ -120,6 +131,7 @@ For each field in `updated`, compare its value to the same field in `original`.
 
 **Comparison rules:**
 - `description`: strings differ if they are not identical.
+- `steps`: arrays differ if their length, any step name, or any step's `computer_use` flag differs.
 - `samples`: arrays differ if their length or any item content differs.
 - `computer_use`: booleans differ if one is true and the other is false.
 

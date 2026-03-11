@@ -99,7 +99,7 @@ class AgentRepository:
         type: str = "agent",
         status: str = "creating",
         forge_path: str = "",
-        steps: list[str] | None = None,
+        steps: list | None = None,
         samples: list[str] | None = None,
         input_schema: list[dict] | None = None,
         output_schema: list[dict] | None = None,
@@ -178,6 +178,11 @@ class AgentRepository:
         )
         await self.db.conn.commit()
         return cursor.rowcount > 0
+
+    async def delete_all(self) -> int:
+        cursor = await self.db.conn.execute("DELETE FROM agents")
+        await self.db.conn.commit()
+        return cursor.rowcount
 
 
 class ProjectRepository:
@@ -397,3 +402,8 @@ class RunRepository:
                 "SELECT * FROM runs ORDER BY started_at DESC"
             )
         return [_row_to_run(row) for row in await cursor.fetchall()]
+
+    async def delete_all(self) -> int:
+        cursor = await self.db.conn.execute("DELETE FROM runs")
+        await self.db.conn.commit()
+        return cursor.rowcount

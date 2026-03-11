@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { useTheme } from '../hooks/useTheme';
+import { useProviders } from '../hooks/useProviders';
+import { agentsApi } from '../api/agents';
+import { runsApi } from '../api/runs';
 import { PixelMoon, PixelSun, PixelGear, PixelClock } from '../components/ui/PixelIcon';
 
 const STORAGE_KEY = 'agent-forge-settings';
@@ -30,10 +34,10 @@ function loadSettings(): AppSettings {
   return defaults;
 }
 
-const providerOptions = ['claude_code', 'codex', 'aider'];
-
 export function Settings() {
   const { theme, toggle } = useTheme();
+  const { data: providers } = useProviders();
+  const providerOptions = (providers ?? []).map((p) => p.id);
   const [settings, setSettings] = useState<AppSettings>(loadSettings);
   const [saved, setSaved] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(true);
@@ -55,16 +59,27 @@ export function Settings() {
     setSaved(true);
   };
 
-  const handleResetAgents = () => {
-    if (confirm('This will delete ALL agents. Are you sure?')) {
-      alert('Not implemented yet -- delete agents individually from the Agents page.');
+  const queryClient = useQueryClient();
+
+  const handleResetAgents = async () => {
+    if (!confirm('This will delete ALL agents and their generated files. Are you sure?')) return;
+    try {
+      const result = await agentsApi.deleteAll();
+      queryClient.invalidateQueries({ queryKey: ['agents'] });
+      alert(`Deleted ${result.deleted} agent(s).`);
+    } catch (e) {
+      alert(`Failed to delete agents: ${e instanceof Error ? e.message : e}`);
     }
   };
 
-  const handleClearHistory = () => {
-    if (confirm('Clear local run history cache?')) {
-      localStorage.removeItem('agent-forge-run-cache');
-      alert('Local run cache cleared.');
+  const handleClearHistory = async () => {
+    if (!confirm('This will delete ALL run history from the database. Are you sure?')) return;
+    try {
+      const result = await runsApi.deleteAll();
+      queryClient.invalidateQueries({ queryKey: ['runs'] });
+      alert(`Deleted ${result.deleted} run(s).`);
+    } catch (e) {
+      alert(`Failed to clear runs: ${e instanceof Error ? e.message : e}`);
     }
   };
 

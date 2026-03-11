@@ -4,6 +4,11 @@ export interface SchemaField {
   required: boolean;
 }
 
+export interface StepDefinition {
+  name: string;
+  computer_use: boolean;
+}
+
 export type AgentStatus = 'creating' | 'updating' | 'ready' | 'error';
 
 export interface Agent {
@@ -13,7 +18,7 @@ export interface Agent {
   type: 'agent' | 'approval' | 'input' | 'output';
   status: AgentStatus;
   forge_path: string;
-  steps: string[];
+  steps: StepDefinition[];
   samples: string[];
   input_schema: SchemaField[];
   output_schema: SchemaField[];
@@ -28,7 +33,7 @@ export interface Agent {
 export interface AgentCreate {
   name: string;
   description?: string;
-  steps?: string[];
+  steps?: StepDefinition[];
   samples?: string[];
   computer_use?: boolean;
   provider?: string;
@@ -39,7 +44,7 @@ export interface AgentUpdate {
   name?: string;
   description?: string;
   status?: string;
-  steps?: string[];
+  steps?: StepDefinition[];
   samples?: string[];
   input_schema?: SchemaField[];
   output_schema?: SchemaField[];

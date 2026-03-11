@@ -44,15 +44,66 @@ class TestAgentCreate:
         assert resp.status_code == 422
 
     @pytest.mark.asyncio
-    async def test_create_agent_with_steps(self, client):
+    async def test_create_agent_with_step_objects(self, client):
+        """Steps sent as objects with per-step computer_use."""
         resp = await client.post("/api/agents", json={
             "name": "Multi Step",
             "description": "Do a multi-step task",
-            "steps": ["Research sources", "Synthesize findings", "Format report"],
+            "steps": [
+                {"name": "Research sources", "computer_use": False},
+                {"name": "Create PR in browser", "computer_use": True},
+            ],
         })
         assert resp.status_code == 201
         data = resp.json()
-        assert data["steps"] == ["Research sources", "Synthesize findings", "Format report"]
+        assert len(data["steps"]) == 2
+        assert data["steps"][0] == {"name": "Research sources", "computer_use": False}
+        assert data["steps"][1] == {"name": "Create PR in browser", "computer_use": True}
+
+    @pytest.mark.asyncio
+    async def test_create_agent_with_string_steps_normalized(self, client):
+        """Plain string steps are normalized to objects with computer_use=False."""
+        resp = await client.post("/api/agents", json={
+            "name": "String Steps",
+            "description": "Uses old format",
+            "steps": ["Research sources", "Format report"],
+        })
+        assert resp.status_code == 201
+        data = resp.json()
+        assert data["steps"] == [
+            {"name": "Research sources", "computer_use": False},
+            {"name": "Format report", "computer_use": False},
+        ]
+
+    @pytest.mark.asyncio
+    async def test_create_agent_with_mixed_steps(self, client):
+        """Mix of string and object steps are all normalized."""
+        resp = await client.post("/api/agents", json={
+            "name": "Mixed Steps",
+            "description": "Mixed format",
+            "steps": [
+                "CLI step",
+                {"name": "Desktop step", "computer_use": True},
+            ],
+        })
+        assert resp.status_code == 201
+        data = resp.json()
+        assert data["steps"][0] == {"name": "CLI step", "computer_use": False}
+        assert data["steps"][1] == {"name": "Desktop step", "computer_use": True}
+
+    @pytest.mark.asyncio
+    async def test_create_agent_computer_use_derived_from_steps(self, client):
+        """Agent-level computer_use is True when any step has computer_use=True."""
+        resp = await client.post("/api/agents", json={
+            "name": "Derived CU",
+            "description": "Has desktop step",
+            "steps": [
+                {"name": "CLI step", "computer_use": False},
+                {"name": "Desktop step", "computer_use": True},
+            ],
+        })
+        assert resp.status_code == 201
+        assert resp.json()["computer_use"] is True
 
     @pytest.mark.asyncio
     async def test_create_agent_without_steps_defaults_empty(self, client):
@@ -107,9 +158,9 @@ class TestAgentUpdate:
         create = await client.post("/api/agents", json={"name": "S", "description": ""})
         agent_id = create.json()["id"]
         assert create.json()["status"] == "creating"
-        resp = await client.put(f"/api/agents/{agent_id}", json={"status": "ready"})
+        resp = await client.put(f"/api/agents/{agent_id}", json={"status": "error"})
         assert resp.status_code == 200
-        assert resp.json()["status"] == "ready"
+        assert resp.json()["status"] == "error"
 
     @pytest.mark.asyncio
     async def test_update_nonexistent_returns_404(self, client):
@@ -159,10 +210,12 @@ class TestAgentUpdateTriggersForge:
         assert resp.json()["error"]["code"] == "AGENT_BUSY"
 
     @pytest.mark.asyncio
-    async def test_cosmetic_update_allowed_during_creating(self, client):
+    async def test_cosmetic_update_allowed_during_creating(self, client, app):
         """Name-only update is allowed even when agent is creating."""
         create = await client.post("/api/agents", json={"name": "T", "description": "d"})
         agent_id = create.json()["id"]
+        # Simulate a creating state (e.g., during forge regeneration)
+        await app.state.agent_repo.update(agent_id, status="creating")
         resp = await client.put(f"/api/agents/{agent_id}", json={"name": "NewName"})
         assert resp.status_code == 200
         assert resp.json()["name"] == "NewName"
@@ -183,9 +236,15 @@ class TestAgentUpdateTriggersForge:
         create = await client.post("/api/agents", json={"name": "T", "description": "d"})
         agent_id = create.json()["id"]
         await app.state.agent_repo.update(agent_id, status="ready")
-        resp = await client.put(f"/api/agents/{agent_id}", json={"steps": ["Step 1", "Step 2"]})
+        resp = await client.put(f"/api/agents/{agent_id}", json={
+            "steps": [
+                {"name": "Step 1", "computer_use": False},
+                {"name": "Step 2", "computer_use": True},
+            ],
+        })
         assert resp.status_code == 200
         assert resp.json()["status"] == "updating"
+        assert resp.json()["steps"][1]["computer_use"] is True
 
 
 class TestAgentDelete:
@@ -227,6 +286,24 @@ class TestAgentDelete:
         resp = await client.delete(f"/api/agents/{agent_id}")
         assert resp.status_code == 204
 
+    @pytest.mark.asyncio
+    async def test_delete_all_agents(self, client):
+        """Bulk delete removes all agents."""
+        await client.post("/api/agents", json={"name": "A", "description": ""})
+        await client.post("/api/agents", json={"name": "B", "description": ""})
+        resp = await client.delete("/api/agents")
+        assert resp.status_code == 200
+        assert resp.json()["deleted"] == 2
+        list_resp = await client.get("/api/agents")
+        assert len(list_resp.json()) == 0
+
+    @pytest.mark.asyncio
+    async def test_delete_all_agents_empty(self, client):
+        """Bulk delete on empty table returns zero."""
+        resp = await client.delete("/api/agents")
+        assert resp.status_code == 200
+        assert resp.json()["deleted"] == 0
+
 
 class TestAgentRun:
 
@@ -236,7 +313,7 @@ class TestAgentRun:
             "name": "T", "description": "do something",
         })
         agent_id = create.json()["id"]
-        # Agent starts as "creating"; set to "ready" via repo before running
+        # Background forge sets status to ready, but ensure it explicitly
         await app.state.agent_repo.update(agent_id, status="ready")
         resp = await client.post(f"/api/agents/{agent_id}/run", json={
             "inputs": {"topic": "AI Safety"},
@@ -247,12 +324,13 @@ class TestAgentRun:
         assert data["status"] == "queued"
 
     @pytest.mark.asyncio
-    async def test_run_agent_not_ready_returns_409(self, client):
+    async def test_run_agent_not_ready_returns_409(self, client, app):
         create = await client.post("/api/agents", json={
             "name": "T", "description": "do something",
         })
         agent_id = create.json()["id"]
-        # Agent is still "creating", should return 409
+        # Set agent to "error" status so it's not ready
+        await app.state.agent_repo.update(agent_id, status="error")
         resp = await client.post(f"/api/agents/{agent_id}/run", json={"inputs": {}})
         assert resp.status_code == 409
         assert resp.json()["error"]["code"] == "AGENT_NOT_READY"
@@ -266,10 +344,73 @@ class TestAgentRun:
     async def test_list_agent_runs(self, client, app):
         create = await client.post("/api/agents", json={"name": "T", "description": ""})
         agent_id = create.json()["id"]
-        # Set to ready so runs can be created
         await app.state.agent_repo.update(agent_id, status="ready")
         await client.post(f"/api/agents/{agent_id}/run", json={"inputs": {}})
         await client.post(f"/api/agents/{agent_id}/run", json={"inputs": {}})
         resp = await client.get(f"/api/agents/{agent_id}/runs")
         assert resp.status_code == 200
         assert len(resp.json()) == 2
+
+    @pytest.mark.asyncio
+    async def test_delete_all_runs(self, client, app):
+        """Bulk delete removes all runs."""
+        create = await client.post("/api/agents", json={"name": "T", "description": ""})
+        agent_id = create.json()["id"]
+        await app.state.agent_repo.update(agent_id, status="ready")
+        await client.post(f"/api/agents/{agent_id}/run", json={"inputs": {}})
+        await client.post(f"/api/agents/{agent_id}/run", json={"inputs": {}})
+        resp = await client.delete("/api/runs")
+        assert resp.status_code == 200
+        assert resp.json()["deleted"] == 2
+        list_resp = await client.get("/api/runs")
+        assert len(list_resp.json()) == 0
+
+    @pytest.mark.asyncio
+    async def test_delete_all_runs_empty(self, client):
+        """Bulk delete on empty runs table returns zero."""
+        resp = await client.delete("/api/runs")
+        assert resp.status_code == 200
+        assert resp.json()["deleted"] == 0
+
+
+class TestProviders:
+
+    @pytest.mark.asyncio
+    async def test_list_providers(self, client):
+        resp = await client.get("/api/providers")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert isinstance(data, list)
+        assert len(data) >= 1
+
+    @pytest.mark.asyncio
+    async def test_providers_have_required_fields(self, client):
+        resp = await client.get("/api/providers")
+        data = resp.json()
+        for provider in data:
+            assert "id" in provider
+            assert "name" in provider
+            assert "models" in provider
+            assert isinstance(provider["models"], list)
+
+    @pytest.mark.asyncio
+    async def test_claude_code_provider_has_models(self, client):
+        resp = await client.get("/api/providers")
+        data = resp.json()
+        claude = next((p for p in data if p["id"] == "claude_code"), None)
+        assert claude is not None
+        assert claude["name"] == "Claude Code"
+        model_ids = [m["id"] for m in claude["models"]]
+        assert "claude-sonnet-4-6" in model_ids
+        assert "claude-opus-4-6" in model_ids
+
+    @pytest.mark.asyncio
+    async def test_each_model_has_id_and_name(self, client):
+        resp = await client.get("/api/providers")
+        data = resp.json()
+        for provider in data:
+            for model in provider["models"]:
+                assert "id" in model
+                assert "name" in model
+                assert len(model["id"]) > 0
+                assert len(model["name"]) > 0
