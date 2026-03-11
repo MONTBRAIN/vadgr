@@ -30,19 +30,25 @@ Accept a JSON object with the following fields:
       "label": "Optional short label describing what this sample shows."
     }
   ],
-  "computer_use": false
+  "steps": [
+    {"name": "Research sources", "computer_use": false},
+    {"name": "Create pull request", "computer_use": true}
+  ],
+  "computer_use": true
 }
 ```
 
 **Required:** `name`, `description`
 
-**Optional:** `id` (string, when provided use `output/{id}/` as the output folder instead of `output/{name}/`), `samples` (array, may be empty or omitted), `computer_use` (boolean, defaults to false)
+**Optional:** `id` (string, when provided use `output/{id}/` as the output folder instead of `output/{name}/`), `samples` (array, may be empty or omitted), `computer_use` (boolean, defaults to false), `steps` (array of step objects or strings)
+
+**Steps format:** Steps can be plain strings (e.g. `"Research sources"`) or objects with per-step computer use (e.g. `{"name": "Create PR", "computer_use": true}`). When steps are objects, each step's `computer_use` flag indicates whether that specific step needs desktop automation (open apps, click, browse). Steps without `computer_use` or plain strings default to CLI-only.
 
 **Validation:**
 - If `name` is missing or empty, derive it from the description: take the first 4-5 significant words, lowercase, hyphens between words.
 - If `description` is missing or empty, write an error JSON to stdout and stop: `{"error": "description is required"}`.
 - `samples` items may be strings (treated as content with no label) or objects with `content` and optional `label` fields.
-- `computer_use` defaults to false if not provided.
+- `computer_use` at the agent level is true if any step has `computer_use: true`. Do not infer -- trust the caller's flags.
 
 ---
 
@@ -116,16 +122,16 @@ Analyze the description to determine:
 
 5. **Output schema.** What the agent produces. Infer from the description. Each output has a name and type.
 
-6. **Computer use.** Use the `computer_use` flag from the input. Do not infer from the description in API mode (the caller sets this explicitly).
+6. **Computer use.** Check each step's `computer_use` flag. Steps marked `computer_use: true` need desktop automation (browsers, GUI apps, clicking, typing on screen). Steps marked `computer_use: false` or plain string steps are CLI-only. Do not infer -- trust the caller's per-step flags.
 
 **Save in context:**
 ```
 complexity: simple | multi_step
-steps: [{number, name, description, agent_name or null}]
+steps: [{number, name, description, agent_name or null, computer_use: true|false}]
 agents: [{name, role, expertise}]
 input_schema: [{name, type, required}]
 output_schema: [{name, type}]
-computer_use: true | false
+computer_use: true | false (agent-level, true if any step has computer_use)
 ```
 
 ---
@@ -173,7 +179,7 @@ For each agent in the roster from Step 2:
    - Actual Input (placeholders matching what the orchestrator passes)
    - Expected Workflow (numbered list, starts with input validation)
 
-2. If `computer_use` is true, also generate a Computer Use Agent prompt based on `forge/Prompts/05_Computer_Use_Agent.md`. Adapt it to the specific desktop tasks described.
+2. For steps with `computer_use: true`, generate a Computer Use Agent prompt based on `forge/Prompts/05_Computer_Use_Agent.md`. Adapt it to the specific desktop tasks that step needs to perform. Only steps explicitly marked with `computer_use: true` get a Computer Use Agent prompt -- CLI steps do not.
 
 3. Calibrate prompts against quality samples if provided. For each sample:
    - Read the content and label.

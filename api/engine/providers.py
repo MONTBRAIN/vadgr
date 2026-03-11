@@ -72,6 +72,9 @@ def load_provider_config(provider_key: str, overrides: dict | None = None) -> Pr
     config = {**providers[provider_key]}
     if overrides:
         config.update(overrides)
+    # Filter to only fields ProviderConfig accepts (ignore metadata like models)
+    valid_fields = {f.name for f in ProviderConfig.__dataclass_fields__.values()}
+    config = {k: v for k, v in config.items() if k in valid_fields}
     return ProviderConfig(**config)
 
 
@@ -224,6 +227,27 @@ def build_agent_prompt(agent: dict, inputs: dict) -> str:
         parts.append(f"You are an agent named '{agent['name']}'.")
         if agent.get("description"):
             parts.append(f"Your goal: {agent['description']}")
+
+    # Add per-step workflow instructions
+    steps = agent.get("steps", [])
+    if steps:
+        parts.append("\nWorkflow steps (execute in order):")
+        for i, step in enumerate(steps, 1):
+            step_name = step["name"] if isinstance(step, dict) else step
+            uses_cu = step.get("computer_use", False) if isinstance(step, dict) else False
+            mode = "DESKTOP" if uses_cu else "CLI"
+            parts.append(f"  {i}. [{mode}] {step_name}")
+        if any(
+            (s.get("computer_use", False) if isinstance(s, dict) else False)
+            for s in steps
+        ):
+            parts.append(
+                "\nSteps marked [DESKTOP] require desktop automation: use the "
+                "computer_use MCP tools (screenshot, click, type_text, key_press) "
+                "to interact with the screen. Open applications, navigate visually, "
+                "and capture information by reading screenshots. Do NOT use "
+                "web_fetch or curl for [DESKTOP] steps."
+            )
 
     if inputs:
         parts.append("\nInputs:")

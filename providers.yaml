@@ -11,7 +11,11 @@ providers:
     command: claude
     args: ["-p", "{{prompt}}", "--dangerously-skip-permissions", "--output-format", "json"]
     available_check: ["claude", "--version"]
-    timeout: 300
+    timeout: 900
+    models:
+      - { id: "claude-sonnet-4-6", name: "Claude Sonnet 4.6" }
+      - { id: "claude-opus-4-6", name: "Claude Opus 4.6" }
+      - { id: "claude-haiku-4-5", name: "Claude Haiku 4.5" }
 
   codex:
     name: "OpenAI Codex CLI"
@@ -19,6 +23,10 @@ providers:
     args: ["exec", "{{prompt}}", "--full-auto", "--json"]
     available_check: ["codex", "--version"]
     timeout: 300
+    models:
+      - { id: "o4-mini", name: "o4-mini" }
+      - { id: "o3", name: "o3" }
+      - { id: "gpt-4.1", name: "GPT-4.1" }
 
   aider:
     name: "Aider"
@@ -26,6 +34,12 @@ providers:
     args: ["--message", "{{prompt}}", "--yes-always"]
     available_check: ["aider", "--version"]
     timeout: 300
+    models:
+      - { id: "claude-sonnet-4-6", name: "Claude Sonnet 4.6" }
+      - { id: "claude-opus-4-6", name: "Claude Opus 4.6" }
+      - { id: "gpt-4.1", name: "GPT-4.1" }
+      - { id: "o4-mini", name: "o4-mini" }
+      - { id: "deepseek/deepseek-chat", name: "DeepSeek V3" }
 
   cline:
     name: "Cline CLI"
@@ -33,6 +47,10 @@ providers:
     args: ["{{prompt}}", "-y", "--json"]
     available_check: ["cline", "--version"]
     timeout: 300
+    models:
+      - { id: "claude-sonnet-4-6", name: "Claude Sonnet 4.6" }
+      - { id: "claude-opus-4-6", name: "Claude Opus 4.6" }
+      - { id: "gpt-4.1", name: "GPT-4.1" }
 
   gemini:
     name: "Gemini CLI"
@@ -40,3 +58,6 @@ providers:
     args: ["{{prompt}}", "--output-format", "json"]
     available_check: ["gemini", "--version"]
     timeout: 300
+    models:
+      - { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro" }
+      - { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" }

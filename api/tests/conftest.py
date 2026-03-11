@@ -68,6 +68,14 @@ async def app(db):
     application.state.ws_manager = ConnectionManager()
 
     provider = AsyncMock(spec=CLIAgentProvider)
+    # Return valid forge JSON so background run_forge succeeds in tests
+    import json
+    provider.execute.return_value = json.dumps({
+        "forge_path": "output/test-agent/",
+        "forge_config": {"complexity": "simple", "steps": 1, "prompts": ["01_Agent.md"]},
+        "input_schema": [],
+        "output_schema": [],
+    })
     application.state.agent_service = AgentService(
         agent_repo=application.state.agent_repo,
         provider=provider,

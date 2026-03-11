@@ -89,12 +89,30 @@ export function AgentDetail() {
             <h2 className="font-heading text-lg font-semibold text-text-primary">Workflow Steps</h2>
           </div>
           <div className="flex flex-col gap-2">
-            {agent.steps.length > 0 ? agent.steps.map((step, i) => (
-              <div key={i} className="flex items-center gap-3 px-3.5 py-2.5 bg-hover-bg rounded-[10px] border border-border">
-                <span className="font-heading text-[13px] font-bold text-accent w-5 shrink-0">{i + 1}</span>
-                <span className="font-mono text-xs text-text-primary">{step}</span>
-              </div>
-            )) : (
+            {agent.steps.length > 0 ? agent.steps.map((step, i) => {
+              const stepObj = typeof step === 'string' ? { name: step, computer_use: false } : step;
+              return (
+                <div key={i} className="flex items-center justify-between gap-3 px-3.5 py-2.5 bg-hover-bg rounded-[10px] border border-border">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="font-heading text-[13px] font-bold text-accent w-5 shrink-0">{i + 1}</span>
+                    <span className="font-mono text-xs text-text-primary truncate">{stepObj.name}</span>
+                  </div>
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium shrink-0 ${
+                    stepObj.computer_use
+                      ? 'bg-accent/15 text-accent border border-accent/40'
+                      : 'bg-bg-tertiary text-text-muted border border-border/50'
+                  }`}>
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
+                      <rect x="1" y="2" width="14" height="9" rx="1.5"/>
+                      <line x1="5" y1="13.5" x2="11" y2="13.5"/>
+                      <line x1="8" y1="11" x2="8" y2="13.5"/>
+                      {stepObj.computer_use && <circle cx="8" cy="6.5" r="1.5" fill="currentColor" stroke="none"/>}
+                    </svg>
+                    {stepObj.computer_use ? 'Desktop' : 'CLI'}
+                  </span>
+                </div>
+              );
+            }) : (
               <p className="text-xs text-text-muted font-body">No steps defined.</p>
             )}
           </div>
@@ -139,7 +157,16 @@ export function AgentDetail() {
               </div>
             ))
           ) : (
-            <p className="text-xs text-text-muted mb-3 font-body">No inputs required. Click run to start.</p>
+            <div className="mb-3">
+              <label className="block font-body text-sm text-text-secondary mb-1.5">Task</label>
+              <textarea
+                value={inputs['task'] ?? ''}
+                onChange={(e) => setInputs({ ...inputs, task: e.target.value })}
+                className="w-full px-3.5 py-2.5 bg-bg-input border border-border rounded-[10px] text-sm text-text-primary placeholder:text-text-muted focus:border-accent transition-colors resize-y min-h-[80px]"
+                placeholder="Describe what the agent should do"
+                rows={3}
+              />
+            </div>
           )}
           <Button onClick={handleRun} disabled={runAgent.isPending}>
             {runAgent.isPending ? 'Starting...' : 'Start Run'}

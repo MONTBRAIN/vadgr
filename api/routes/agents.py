@@ -10,6 +10,9 @@ from api.models.agent import AgentCreate, AgentUpdate, AgentRunRequest
 
 router = APIRouter(prefix="/api/agents", tags=["agents"])
 
+# Resolve project root so forge_path cleanup works regardless of cwd
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+
 
 def _not_found(agent_id: str):
     return JSONResponse(
@@ -21,10 +24,11 @@ def _not_found(agent_id: str):
 @router.post("", status_code=201)
 async def create_agent(body: AgentCreate, request: Request, background_tasks: BackgroundTasks):
     agent_service = request.app.state.agent_service
+    steps_dicts = [s.model_dump() if hasattr(s, "model_dump") else s for s in body.steps]
     agent = await agent_service.create_agent(
         name=body.name,
         description=body.description,
-        steps=body.steps,
+        steps=steps_dicts,
         samples=body.samples,
         computer_use=body.computer_use,
         provider=body.provider,
@@ -62,6 +66,8 @@ async def update_agent(
     agent_service = request.app.state.agent_service
 
     fields = body.model_dump(exclude_none=True)
+    if "steps" in fields:
+        fields["steps"] = [s.model_dump() if hasattr(s, "model_dump") else s for s in body.steps]
     if "input_schema" in fields:
         fields["input_schema"] = [s.model_dump() if hasattr(s, "model_dump") else s for s in fields["input_schema"]]
     if "output_schema" in fields:
@@ -96,6 +102,21 @@ async def update_agent(
     return agent
 
 
+@router.delete("", status_code=200)
+async def delete_all_agents(request: Request):
+    repo = request.app.state.agent_repo
+    # Clean up all forge output folders before deleting
+    agents = await repo.list_all()
+    for agent in agents:
+        forge_path = agent.get("forge_path", "")
+        if forge_path:
+            path = PROJECT_ROOT / forge_path
+            if path.exists() and path.is_dir():
+                shutil.rmtree(path)
+    count = await repo.delete_all()
+    return {"deleted": count}
+
+
 @router.delete("/{agent_id}", status_code=204)
 async def delete_agent(agent_id: str, request: Request):
     repo = request.app.state.agent_repo
@@ -105,7 +126,7 @@ async def delete_agent(agent_id: str, request: Request):
     # Clean up the output folder if it exists
     forge_path = agent.get("forge_path", "")
     if forge_path:
-        path = Path(forge_path)
+        path = PROJECT_ROOT / forge_path
         if path.exists() and path.is_dir():
             shutil.rmtree(path)
     await repo.delete(agent_id)

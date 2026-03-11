@@ -28,10 +28,10 @@ class AgentService:
         steps: list | None = None,
         samples: list | None = None,
         computer_use: bool = False,
-        provider: str = "anthropic",
+        provider: str = "claude_code",
         model: str = "claude-sonnet-4-6",
     ) -> dict:
-        """Create an agent record with status 'creating'."""
+        """Create an agent record with status 'creating' and trigger forge generation."""
         return await self.agent_repo.create(
             name=name,
             description=description,
