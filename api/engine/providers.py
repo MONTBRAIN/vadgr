@@ -352,3 +352,59 @@ def build_agent_prompt(agent: dict, inputs: dict) -> str:
         parts.append("No explanation, no markdown -- just the JSON.")
 
     return "\n".join(parts)
+
+
+def build_step_prompt(agent: dict, inputs: dict, step_number: int, step: dict) -> str:
+    """Build a prompt for a single workflow step.
+
+    Instructs the CLI to read agentic.md and execute ONLY the given step.
+    Previous steps' output files are already on disk so the agent can read them.
+    """
+    forge_path = agent.get("forge_path", "")
+    step_name = step["name"] if isinstance(step, dict) else step
+    uses_cu = step.get("computer_use", False) if isinstance(step, dict) else False
+
+    parts = []
+
+    if forge_path:
+        parts.append(
+            f"Read {forge_path}/agentic.md for the full workflow context."
+        )
+        parts.append(
+            f"\nExecute ONLY Step {step_number}: {step_name}."
+        )
+        parts.append(
+            "Do NOT execute any other steps. Previous steps have already run "
+            "and their output files are on disk -- read them as needed."
+        )
+    else:
+        parts.append(f"You are an agent named '{agent['name']}'.")
+        if agent.get("description"):
+            parts.append(f"Your goal: {agent['description']}")
+        parts.append(f"\nExecute this task: {step_name}")
+
+    if uses_cu:
+        parts.append(
+            "\nThis step requires desktop automation: use the computer_use MCP "
+            "tools (screenshot, click, type_text, key_press) to interact with "
+            "the screen. Open applications, navigate visually, and capture "
+            "information by reading screenshots. Do NOT use web_fetch or curl."
+        )
+
+    if inputs:
+        parts.append("\nInputs:")
+        for key, value in inputs.items():
+            parts.append(f"  {key}: {value}")
+
+    # Only request JSON output on the last step
+    steps = agent.get("steps", [])
+    is_last = step_number == len(steps)
+    output_schema = agent.get("output_schema", [])
+    if is_last and output_schema:
+        field_names = [f["name"] for f in output_schema]
+        parts.append(
+            f"\nReturn ONLY a JSON object with these fields: {', '.join(field_names)}"
+        )
+        parts.append("No explanation, no markdown -- just the JSON.")
+
+    return "\n".join(parts)
