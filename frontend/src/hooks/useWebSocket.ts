@@ -10,7 +10,13 @@ export function useRunWebSocket(runId: string | undefined) {
     if (!runId) return;
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${protocol}//${window.location.host}/api/ws/runs/${runId}`);
+    // In development, connect directly to the backend (Vite proxy doesn't
+    // reliably upgrade WebSocket connections). In production the paths are
+    // served by the same origin so the proxy isn't needed.
+    const host = window.location.port === '3000'
+      ? `${window.location.hostname}:8000`
+      : window.location.host;
+    const ws = new WebSocket(`${protocol}//${host}/api/ws/runs/${runId}`);
     wsRef.current = ws;
 
     ws.onopen = () => setConnected(true);

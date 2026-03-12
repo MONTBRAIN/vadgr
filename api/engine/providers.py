@@ -78,6 +78,44 @@ def load_provider_config(provider_key: str, overrides: dict | None = None) -> Pr
     return ProviderConfig(**config)
 
 
+def parse_stream_json_line(line: str) -> tuple[str | None, str | None]:
+    """Parse a stream-json line into (human_readable_message, final_result).
+
+    Returns:
+        - (message, None) for intermediate events worth showing
+        - (None, result_str) for the final result event
+        - (None, None) for events to skip
+    """
+    try:
+        data = json.loads(line)
+    except (json.JSONDecodeError, TypeError):
+        # Non-JSON line: return as-is
+        return (line if line.strip() else None, None)
+
+    event_type = data.get("type", "")
+
+    if event_type == "result":
+        result = data.get("result", "")
+        if isinstance(result, dict):
+            return (None, json.dumps(result))
+        return (None, str(result))
+
+    if event_type == "assistant":
+        message = data.get("message", {})
+        content_blocks = message.get("content", [])
+        for block in content_blocks:
+            block_type = block.get("type", "")
+            if block_type == "text":
+                text = block.get("text", "").strip()
+                if text:
+                    return (text[:500], None)
+            elif block_type == "tool_use":
+                tool_name = block.get("name", "unknown")
+                return (f"Using tool: {tool_name}", None)
+
+    return (None, None)
+
+
 class CLIAgentProvider:
     """Executes agents by spawning a CLI agentic tool as a subprocess.
 
@@ -117,6 +155,21 @@ class CLIAgentProvider:
                 arg = arg.replace("{{workspace}}", workspace)
             result.append(arg)
         return result
+
+    def _build_streaming_args(self, prompt: str, workspace: str | None = None) -> list[str]:
+        """Build args for streaming: swap --output-format json to stream-json."""
+        args = self._build_args(prompt, workspace)
+        # Swap json -> stream-json for Claude Code style providers
+        swapped = False
+        for i, arg in enumerate(args):
+            if arg == "json" and i > 0 and args[i - 1] == "--output-format":
+                args[i] = "stream-json"
+                swapped = True
+                break
+        # stream-json with --print (-p) requires --verbose
+        if swapped:
+            args.append("--verbose")
+        return args
 
     async def execute(
         self,
@@ -164,9 +217,26 @@ class CLIAgentProvider:
         prompt: str,
         workspace: str | None = None,
         timeout: int | None = None,
+        use_stream_json: bool = True,
     ) -> AsyncIterator[ExecutionEvent]:
-        """Execute a prompt and stream output events line by line."""
-        args = self._build_args(prompt, workspace)
+        """Execute a prompt and stream output events line by line.
+
+        For providers with --output-format json (e.g. Claude Code), swaps to
+        stream-json so output arrives as NDJSON events during execution.
+        Parses stream-json events into human-readable messages.
+
+        Set use_stream_json=False for agents that produce very large tool
+        results (e.g. computer use screenshots) which exceed the CLI's
+        internal stream-json chunk buffer.
+        """
+        if use_stream_json:
+            args = self._build_streaming_args(prompt, workspace)
+        else:
+            args = self._build_args(prompt, workspace)
+        is_stream_json = any(
+            args[i] == "stream-json" and i > 0 and args[i - 1] == "--output-format"
+            for i in range(len(args))
+        )
         effective_timeout = timeout or self.config.timeout
 
         proc = await asyncio.create_subprocess_exec(
@@ -181,6 +251,7 @@ class CLIAgentProvider:
         try:
             async def read_stream():
                 collected = []
+                final_result = None
                 while True:
                     line = await asyncio.wait_for(
                         proc.stdout.readline(),
@@ -189,7 +260,17 @@ class CLIAgentProvider:
                     if not line:
                         break
                     text = line.decode().strip()
-                    if text:
+                    if not text:
+                        continue
+
+                    if is_stream_json:
+                        msg, result = parse_stream_json_line(text)
+                        if result is not None:
+                            final_result = result
+                        elif msg is not None:
+                            collected.append(msg)
+                            yield ExecutionEvent(type="output", data=msg)
+                    else:
                         collected.append(text)
                         yield ExecutionEvent(type="output", data=text)
 
@@ -199,15 +280,23 @@ class CLIAgentProvider:
                     error_msg = stderr_data.decode().strip() if stderr_data else "Unknown error"
                     yield ExecutionEvent(type="error", data=error_msg)
                 else:
-                    yield ExecutionEvent(type="done", data="\n".join(collected))
+                    done_data = final_result if final_result is not None else "\n".join(collected)
+                    yield ExecutionEvent(type="done", data=done_data)
 
             async for event in read_stream():
                 yield event
 
         except asyncio.TimeoutError:
-            proc.kill()
-            await proc.wait()
             yield ExecutionEvent(type="error", data=f"Timed out after {effective_timeout}s")
+        finally:
+            # Always ensure the subprocess is killed and reaped, even if the
+            # caller stops iterating, an exception is raised, or the run fails.
+            if proc.returncode is None:
+                try:
+                    proc.kill()
+                except ProcessLookupError:
+                    pass
+                await proc.wait()
 
 
 def build_agent_prompt(agent: dict, inputs: dict) -> str:
@@ -256,6 +345,62 @@ def build_agent_prompt(agent: dict, inputs: dict) -> str:
 
     output_schema = agent.get("output_schema", [])
     if output_schema:
+        field_names = [f["name"] for f in output_schema]
+        parts.append(
+            f"\nReturn ONLY a JSON object with these fields: {', '.join(field_names)}"
+        )
+        parts.append("No explanation, no markdown -- just the JSON.")
+
+    return "\n".join(parts)
+
+
+def build_step_prompt(agent: dict, inputs: dict, step_number: int, step: dict) -> str:
+    """Build a prompt for a single workflow step.
+
+    Instructs the CLI to read agentic.md and execute ONLY the given step.
+    Previous steps' output files are already on disk so the agent can read them.
+    """
+    forge_path = agent.get("forge_path", "")
+    step_name = step["name"] if isinstance(step, dict) else step
+    uses_cu = step.get("computer_use", False) if isinstance(step, dict) else False
+
+    parts = []
+
+    if forge_path:
+        parts.append(
+            f"Read {forge_path}/agentic.md for the full workflow context."
+        )
+        parts.append(
+            f"\nExecute ONLY Step {step_number}: {step_name}."
+        )
+        parts.append(
+            "Do NOT execute any other steps. Previous steps have already run "
+            "and their output files are on disk -- read them as needed."
+        )
+    else:
+        parts.append(f"You are an agent named '{agent['name']}'.")
+        if agent.get("description"):
+            parts.append(f"Your goal: {agent['description']}")
+        parts.append(f"\nExecute this task: {step_name}")
+
+    if uses_cu:
+        parts.append(
+            "\nThis step requires desktop automation: use the computer_use MCP "
+            "tools (screenshot, click, type_text, key_press) to interact with "
+            "the screen. Open applications, navigate visually, and capture "
+            "information by reading screenshots. Do NOT use web_fetch or curl."
+        )
+
+    if inputs:
+        parts.append("\nInputs:")
+        for key, value in inputs.items():
+            parts.append(f"  {key}: {value}")
+
+    # Only request JSON output on the last step
+    steps = agent.get("steps", [])
+    is_last = step_number == len(steps)
+    output_schema = agent.get("output_schema", [])
+    if is_last and output_schema:
         field_names = [f["name"] for f in output_schema]
         parts.append(
             f"\nReturn ONLY a JSON object with these fields: {', '.join(field_names)}"

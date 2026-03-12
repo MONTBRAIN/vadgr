@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Any, Callable, Coroutine
 
-from api.engine.providers import CLIAgentProvider, build_agent_prompt
+from api.engine.providers import CLIAgentProvider, build_agent_prompt, build_step_prompt
 
 # Project root -- used as fallback workspace so CLI picks up .mcp.json
 _PROJECT_ROOT = str(Path(__file__).resolve().parent.parent.parent)
@@ -30,6 +30,11 @@ class AgentExecutor:
 
         - Computer use agents: delegates to ComputerUseService.
         - All others: builds a prompt and sends to the configured CLI provider.
+
+        When the agent has multiple steps, each step runs as a separate
+        subprocess. CLI steps use stream-json (live logs), Desktop steps
+        use regular json (avoids base64 screenshot crash). Context flows
+        between steps through output files.
         """
         await callback("agent_started", {"agent_id": agent["id"], "name": agent["name"]})
 
@@ -44,27 +49,115 @@ class AgentExecutor:
             if use_cu_service:
                 result = await self.computer_use_service.run_agent(agent, inputs, callback)
             else:
-                prompt = build_agent_prompt(agent, inputs)
-                # Always use project root as workspace: the prompt already
-                # references forge_path as a relative path from the root,
-                # and the root has .mcp.json (needed for computer_use tools).
-                workspace = _PROJECT_ROOT
-                # Agent runs can take a long time: multi-step workflows,
-                # forge-generated prompts, and computer use all add up.
-                # Computer use agents need even longer (MCP tool round-trips).
-                timeout = 1800 if agent.get("computer_use") else 900
-                raw_output = await self.provider.execute(
-                    prompt=prompt,
-                    workspace=workspace,
-                    timeout=timeout,
+                steps = agent.get("steps") or []
+                has_mixed_steps = (
+                    len(steps) > 1
+                    and agent.get("forge_path")
+                    and any(
+                        (s.get("computer_use", False) if isinstance(s, dict) else False)
+                        for s in steps
+                    )
                 )
-                result = self._parse_output(raw_output, agent.get("output_schema", []))
+
+                if has_mixed_steps:
+                    result = await self._execute_per_step(agent, inputs, callback)
+                else:
+                    result = await self._execute_single(agent, inputs, callback)
 
             await callback("agent_completed", {"agent_id": agent["id"], "outputs": result})
             return result
         except Exception as e:
             await callback("agent_failed", {"agent_id": agent["id"], "error": str(e)})
             raise
+
+    async def _execute_single(
+        self,
+        agent: dict,
+        inputs: dict,
+        callback: EventCallback,
+    ) -> dict:
+        """Run the entire agent as a single subprocess."""
+        prompt = build_agent_prompt(agent, inputs)
+        workspace = _PROJECT_ROOT
+        timeout = 1800 if agent.get("computer_use") else 900
+        can_stream = not agent.get("computer_use")
+
+        collected_output = ""
+        async for event in self.provider.execute_streaming(
+            prompt=prompt,
+            workspace=workspace,
+            timeout=timeout,
+            use_stream_json=can_stream,
+        ):
+            if event.type == "output":
+                if can_stream:
+                    await callback("agent_log", {
+                        "agent_id": agent["id"],
+                        "message": event.data,
+                    })
+            elif event.type == "done":
+                collected_output = event.data
+            elif event.type == "error":
+                raise RuntimeError(event.data)
+
+        return self._parse_output(collected_output, agent.get("output_schema", []))
+
+    async def _execute_per_step(
+        self,
+        agent: dict,
+        inputs: dict,
+        callback: EventCallback,
+    ) -> dict:
+        """Run each step as a separate subprocess.
+
+        CLI steps use stream-json for live logs. Desktop steps use regular
+        json to avoid the base64 screenshot chunk buffer crash. Context
+        flows between steps through output files on disk.
+        """
+        steps = agent.get("steps", [])
+        workspace = _PROJECT_ROOT
+        last_output = ""
+
+        for i, step in enumerate(steps, 1):
+            step_name = step["name"] if isinstance(step, dict) else step
+            uses_cu = step.get("computer_use", False) if isinstance(step, dict) else False
+            can_stream = not uses_cu
+            timeout = 1800 if uses_cu else 900
+
+            await callback("agent_log", {
+                "agent_id": agent["id"],
+                "message": f"--- Step {i}: {step_name} {'[Desktop]' if uses_cu else '[CLI]'} ---",
+            })
+
+            prompt = build_step_prompt(agent, inputs, step_number=i, step=step)
+
+            collected_output = ""
+            async for event in self.provider.execute_streaming(
+                prompt=prompt,
+                workspace=workspace,
+                timeout=timeout,
+                use_stream_json=can_stream,
+            ):
+                if event.type == "output":
+                    if can_stream:
+                        await callback("agent_log", {
+                            "agent_id": agent["id"],
+                            "message": event.data,
+                        })
+                elif event.type == "done":
+                    collected_output = event.data
+                elif event.type == "error":
+                    raise RuntimeError(
+                        f"Step {i} ({step_name}) failed: {event.data}"
+                    )
+
+            last_output = collected_output
+            await callback("agent_log", {
+                "agent_id": agent["id"],
+                "message": f"--- Step {i} complete ---",
+            })
+
+        return self._parse_output(last_output, agent.get("output_schema", []))
 
     def _parse_output(self, raw_response: str, output_schema: list[dict]) -> dict:
         """Parse provider response into output dict."""

@@ -370,6 +370,102 @@ class TestCLIAgentProvider:
         assert len(error_events) == 1
         assert "oops" in error_events[0].data
 
+    def test_build_streaming_args_swaps_output_format_to_stream_json(self):
+        """For providers with --output-format json, streaming should swap to stream-json."""
+        config = ProviderConfig(
+            name="Claude Code",
+            command="claude",
+            args=["-p", "{{prompt}}", "--output-format", "json"],
+        )
+        provider = CLIAgentProvider(config)
+        args = provider._build_streaming_args("hello world")
+        assert "--output-format" in args
+        idx = args.index("--output-format")
+        assert args[idx + 1] == "stream-json"
+        # --verbose is required for stream-json with --print
+        assert "--verbose" in args
+        # Original config unchanged
+        assert config.args[3] == "json"
+
+    def test_build_streaming_args_no_swap_for_other_providers(self):
+        """Providers without --output-format json should keep their args unchanged."""
+        config = ProviderConfig(
+            name="Aider",
+            command="aider",
+            args=["--message", "{{prompt}}", "--yes-always"],
+        )
+        provider = CLIAgentProvider(config)
+        args = provider._build_streaming_args("hello")
+        assert args == ["--message", "hello", "--yes-always"]
+
+    def test_parse_stream_json_extracts_text_content(self):
+        """stream-json assistant text messages should yield readable text."""
+        from api.engine.providers import parse_stream_json_line
+        line = '{"type":"assistant","message":{"content":[{"type":"text","text":"Analyzing the codebase..."}]}}'
+        msg, result = parse_stream_json_line(line)
+        assert msg == "Analyzing the codebase..."
+        assert result is None
+
+    def test_parse_stream_json_extracts_tool_use(self):
+        """stream-json tool_use events should yield 'Using tool: X'."""
+        from api.engine.providers import parse_stream_json_line
+        line = '{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Read","input":{"file_path":"/tmp/test"}}]}}'
+        msg, result = parse_stream_json_line(line)
+        assert msg == "Using tool: Read"
+        assert result is None
+
+    def test_parse_stream_json_extracts_result(self):
+        """stream-json result events should return the final output."""
+        from api.engine.providers import parse_stream_json_line
+        line = '{"type":"result","result":"{\\"report\\": \\"done\\"}"}'
+        msg, result = parse_stream_json_line(line)
+        assert msg is None
+        assert result == '{"report": "done"}'
+
+    def test_parse_stream_json_non_json_line_returns_raw(self):
+        """Non-JSON lines should be returned as-is."""
+        from api.engine.providers import parse_stream_json_line
+        line = "some plain text output"
+        msg, result = parse_stream_json_line(line)
+        assert msg == "some plain text output"
+        assert result is None
+
+    def test_parse_stream_json_skips_uninteresting_events(self):
+        """Events without useful content should return None."""
+        from api.engine.providers import parse_stream_json_line
+        line = '{"type":"system","subtype":"init","data":{}}'
+        msg, result = parse_stream_json_line(line)
+        assert msg is None
+        assert result is None
+
+    @pytest.mark.asyncio
+    async def test_execute_streaming_with_stream_json_parses_events(self):
+        """Streaming with stream-json formatted output extracts readable messages."""
+        # Simulate a process that outputs stream-json lines
+        script = (
+            'echo \'{"type":"assistant","message":{"content":[{"type":"text","text":"Reading files..."}]}}\'; '
+            'echo \'{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Grep","input":{}}]}}\'; '
+            'echo \'{"type":"result","result":"final output"}\''
+        )
+        config = ProviderConfig(
+            name="Claude Code",
+            command="bash",
+            args=["-c", script, "--output-format", "json"],  # has the flag to trigger swap
+        )
+        provider = CLIAgentProvider(config)
+        events = []
+        async for event in provider.execute_streaming("ignored"):
+            events.append(event)
+
+        output_events = [e for e in events if e.type == "output"]
+        done_events = [e for e in events if e.type == "done"]
+        # Should have parsed the stream-json into readable messages
+        messages = [e.data for e in output_events]
+        assert "Reading files..." in messages
+        assert "Using tool: Grep" in messages
+        assert len(done_events) == 1
+        assert done_events[0].data == "final output"
+
 
 class TestComputerUseService:
 
@@ -772,6 +868,24 @@ class TestExecutionService:
         assert data["outputs_so_far"][n1["id"]] == {"result": "done"}
 
 
+def _make_streaming_provider(output='{"result": "done"}'):
+    """Create a mock CLI provider whose execute_streaming yields a done event.
+
+    Also records call kwargs on mock.execute_streaming_call_kwargs for assertions.
+    """
+    from api.engine.providers import ExecutionEvent
+
+    provider = AsyncMock()
+    provider._streaming_calls = []
+
+    async def fake_streaming(**kwargs):
+        provider._streaming_calls.append(kwargs)
+        yield ExecutionEvent(type="done", data=output)
+
+    provider.execute_streaming = fake_streaming
+    return provider
+
+
 class TestAgentExecutor:
     """Tests for AgentExecutor routing logic."""
 
@@ -784,8 +898,7 @@ class TestAgentExecutor:
         """
         from api.engine.executor import AgentExecutor
 
-        cli_provider = AsyncMock()
-        cli_provider.execute.return_value = '{"result": "pricing report"}'
+        cli_provider = _make_streaming_provider('{"result": "pricing report"}')
         cu_service = AsyncMock()
         callback = AsyncMock()
 
@@ -805,8 +918,8 @@ class TestAgentExecutor:
         }
         result = await executor.execute(agent, {"task": "analyze pricing"}, callback)
 
-        # Should have called CLI provider, NOT computer_use_service
-        cli_provider.execute.assert_called_once()
+        # Should have called CLI provider streaming, NOT computer_use_service
+        assert len(cli_provider._streaming_calls) == 1
         cu_service.run_agent.assert_not_called()
         assert result == {"result": "pricing report"}
 
@@ -820,8 +933,7 @@ class TestAgentExecutor:
         """
         from api.engine.executor import AgentExecutor, _PROJECT_ROOT
 
-        cli_provider = AsyncMock()
-        cli_provider.execute.return_value = '{"result": "done"}'
+        cli_provider = _make_streaming_provider()
         cu_service = AsyncMock()
         callback = AsyncMock()
 
@@ -837,9 +949,8 @@ class TestAgentExecutor:
         }
         await executor.execute(agent, {"task": "test"}, callback)
 
-        call_kwargs = cli_provider.execute.call_args.kwargs
+        call_kwargs = cli_provider._streaming_calls[0]
         assert call_kwargs["workspace"] == _PROJECT_ROOT
-        # Must NOT be the forge_path
         assert call_kwargs["workspace"] != "output/some-agent-id"
 
     @pytest.mark.asyncio
@@ -847,8 +958,7 @@ class TestAgentExecutor:
         """Agents without forge_path should also get PROJECT_ROOT as workspace."""
         from api.engine.executor import AgentExecutor, _PROJECT_ROOT
 
-        cli_provider = AsyncMock()
-        cli_provider.execute.return_value = '{"result": "done"}'
+        cli_provider = _make_streaming_provider()
         cu_service = AsyncMock()
         callback = AsyncMock()
 
@@ -864,7 +974,7 @@ class TestAgentExecutor:
         }
         await executor.execute(agent, {}, callback)
 
-        call_kwargs = cli_provider.execute.call_args.kwargs
+        call_kwargs = cli_provider._streaming_calls[0]
         assert call_kwargs["workspace"] == _PROJECT_ROOT
 
     @pytest.mark.asyncio
@@ -872,8 +982,7 @@ class TestAgentExecutor:
         """The prompt must include forge_path so Claude can find agentic.md from PROJECT_ROOT."""
         from api.engine.executor import AgentExecutor
 
-        cli_provider = AsyncMock()
-        cli_provider.execute.return_value = '{"result": "done"}'
+        cli_provider = _make_streaming_provider()
         cu_service = AsyncMock()
         callback = AsyncMock()
 
@@ -889,9 +998,8 @@ class TestAgentExecutor:
         }
         await executor.execute(agent, {}, callback)
 
-        call_kwargs = cli_provider.execute.call_args.kwargs
+        call_kwargs = cli_provider._streaming_calls[0]
         prompt = call_kwargs["prompt"]
-        # Prompt should reference the forge_path so the file resolves from PROJECT_ROOT
         assert "output/my-agent-uuid/agentic.md" in prompt
 
     @pytest.mark.asyncio
@@ -899,8 +1007,7 @@ class TestAgentExecutor:
         """CLI agents (no computer_use) should get 900s timeout."""
         from api.engine.executor import AgentExecutor
 
-        cli_provider = AsyncMock()
-        cli_provider.execute.return_value = '{"result": "done"}'
+        cli_provider = _make_streaming_provider()
         cu_service = AsyncMock()
         callback = AsyncMock()
 
@@ -916,7 +1023,7 @@ class TestAgentExecutor:
         }
         await executor.execute(agent, {}, callback)
 
-        call_kwargs = cli_provider.execute.call_args.kwargs
+        call_kwargs = cli_provider._streaming_calls[0]
         assert call_kwargs["timeout"] == 900
 
     @pytest.mark.asyncio
@@ -924,8 +1031,7 @@ class TestAgentExecutor:
         """Computer use agents routed via CLI should get 1800s timeout."""
         from api.engine.executor import AgentExecutor
 
-        cli_provider = AsyncMock()
-        cli_provider.execute.return_value = '{"result": "done"}'
+        cli_provider = _make_streaming_provider()
         cu_service = AsyncMock()
         callback = AsyncMock()
 
@@ -934,14 +1040,14 @@ class TestAgentExecutor:
             "id": "test-cu-to",
             "name": "cu-agent",
             "computer_use": True,
-            "provider": "claude_code",  # CLI provider handles CU via MCP
+            "provider": "claude_code",
             "forge_path": "output/test",
             "description": "Desktop agent",
             "output_schema": [],
         }
         await executor.execute(agent, {}, callback)
 
-        call_kwargs = cli_provider.execute.call_args.kwargs
+        call_kwargs = cli_provider._streaming_calls[0]
         assert call_kwargs["timeout"] == 1800
 
     @pytest.mark.asyncio
@@ -970,3 +1076,214 @@ class TestAgentExecutor:
         cu_service.run_agent.assert_called_once()
         cli_provider.execute.assert_not_called()
         assert result == {"success": True}
+
+    @pytest.mark.asyncio
+    async def test_execute_emits_agent_log_events_during_streaming(self):
+        """Executor should emit agent_log events for each streaming output line."""
+        from api.engine.executor import AgentExecutor
+        from api.engine.providers import ExecutionEvent
+
+        async def fake_streaming(**kwargs):
+            yield ExecutionEvent(type="output", data="Reading files...")
+            yield ExecutionEvent(type="output", data="Using tool: Grep")
+            yield ExecutionEvent(type="done", data='{"report": "done"}')
+
+        cli_provider = AsyncMock()
+        cli_provider.execute_streaming = fake_streaming
+        cu_service = AsyncMock()
+        callback = AsyncMock()
+
+        executor = AgentExecutor(cli_provider, cu_service)
+        agent = {
+            "id": "test-stream",
+            "name": "stream-agent",
+            "computer_use": False,
+            "provider": "claude_code",
+            "forge_path": "",
+            "description": "Test streaming",
+            "output_schema": [],
+        }
+        result = await executor.execute(agent, {}, callback)
+
+        # Should have emitted agent_log for each output event
+        log_calls = [
+            c for c in callback.call_args_list
+            if c.args[0] == "agent_log"
+        ]
+        assert len(log_calls) == 2
+        assert log_calls[0].args[1]["message"] == "Reading files..."
+        assert log_calls[1].args[1]["message"] == "Using tool: Grep"
+
+        # Should still emit agent_started and agent_completed
+        event_types = [c.args[0] for c in callback.call_args_list]
+        assert "agent_started" in event_types
+        assert "agent_completed" in event_types
+
+        # Should parse the done event's data as the result
+        assert result == {"report": "done"}
+
+    @pytest.mark.asyncio
+    async def test_execute_streaming_error_event_raises(self):
+        """Executor should raise when streaming yields an error event."""
+        from api.engine.executor import AgentExecutor
+        from api.engine.providers import ExecutionEvent
+
+        async def fake_streaming(**kwargs):
+            yield ExecutionEvent(type="output", data="Starting...")
+            yield ExecutionEvent(type="error", data="Provider crashed")
+
+        cli_provider = AsyncMock()
+        cli_provider.execute_streaming = fake_streaming
+        cu_service = AsyncMock()
+        callback = AsyncMock()
+
+        executor = AgentExecutor(cli_provider, cu_service)
+        agent = {
+            "id": "test-err",
+            "name": "error-agent",
+            "computer_use": False,
+            "provider": "claude_code",
+            "forge_path": "",
+            "description": "Will fail",
+            "output_schema": [],
+        }
+        with pytest.raises(RuntimeError, match="Provider crashed"):
+            await executor.execute(agent, {}, callback)
+
+        # agent_failed should have been emitted
+        event_types = [c.args[0] for c in callback.call_args_list]
+        assert "agent_failed" in event_types
+
+    @pytest.mark.asyncio
+    async def test_execute_streaming_done_with_plain_text_uses_parse_output(self):
+        """When done event data is not JSON, _parse_output wraps it."""
+        from api.engine.executor import AgentExecutor
+        from api.engine.providers import ExecutionEvent
+
+        async def fake_streaming(**kwargs):
+            yield ExecutionEvent(type="done", data="plain text result")
+
+        cli_provider = AsyncMock()
+        cli_provider.execute_streaming = fake_streaming
+        cu_service = AsyncMock()
+        callback = AsyncMock()
+
+        executor = AgentExecutor(cli_provider, cu_service)
+        agent = {
+            "id": "test-plain",
+            "name": "plain-agent",
+            "computer_use": False,
+            "provider": "claude_code",
+            "forge_path": "",
+            "description": "Returns plain text",
+            "output_schema": [{"name": "report"}],
+        }
+        result = await executor.execute(agent, {}, callback)
+
+        # _parse_output should wrap in the first output_schema field
+        assert result == {"report": "plain text result"}
+
+    @pytest.mark.asyncio
+    async def test_execute_per_step_routes_mixed_steps(self):
+        """Agents with forge_path + mixed CLI/Desktop steps run per-step."""
+        from api.engine.executor import AgentExecutor
+        from api.engine.providers import ExecutionEvent
+
+        call_count = 0
+
+        async def fake_streaming(**kwargs):
+            nonlocal call_count
+            call_count += 1
+            use_stream = kwargs.get("use_stream_json", True)
+            if call_count == 1:
+                # Step 1: CLI — should use stream-json
+                assert use_stream is True
+                yield ExecutionEvent(type="output", data="Researching...")
+                yield ExecutionEvent(type="done", data="research done")
+            elif call_count == 2:
+                # Step 2: Desktop — should NOT use stream-json
+                assert use_stream is False
+                yield ExecutionEvent(type="done", data="screenshot captured")
+            elif call_count == 3:
+                # Step 3: CLI — should use stream-json
+                assert use_stream is True
+                yield ExecutionEvent(type="output", data="Writing report...")
+                yield ExecutionEvent(type="done", data='{"report": "final"}')
+
+        cli_provider = AsyncMock()
+        cli_provider.execute_streaming = fake_streaming
+        cu_service = AsyncMock()
+        callback = AsyncMock()
+
+        executor = AgentExecutor(cli_provider, cu_service)
+        agent = {
+            "id": "test-mixed",
+            "name": "mixed-agent",
+            "computer_use": True,
+            "provider": "claude_code",
+            "forge_path": "output/test-mixed",
+            "description": "Mixed CLI and Desktop",
+            "output_schema": [{"name": "report"}],
+            "steps": [
+                {"name": "Research", "computer_use": False},
+                {"name": "Screenshot", "computer_use": True},
+                {"name": "Write Report", "computer_use": False},
+            ],
+        }
+        result = await executor.execute(agent, {"topic": "test"}, callback)
+
+        # Should have called streaming 3 times (one per step)
+        assert call_count == 3
+
+        # Last step's done data should be the result
+        assert result == {"report": "final"}
+
+        # Check agent_log events include step markers and CLI streaming output
+        log_calls = [
+            c for c in callback.call_args_list
+            if c.args[0] == "agent_log"
+        ]
+        log_messages = [c.args[1]["message"] for c in log_calls]
+        # Step markers
+        assert any("Step 1" in m and "[CLI]" in m for m in log_messages)
+        assert any("Step 2" in m and "[Desktop]" in m for m in log_messages)
+        assert any("Step 3" in m and "[CLI]" in m for m in log_messages)
+        # CLI steps should have streamed their output lines
+        assert "Researching..." in log_messages
+        assert "Writing report..." in log_messages
+        # Desktop step should NOT have streamed raw output
+        assert "screenshot captured" not in log_messages
+
+    @pytest.mark.asyncio
+    async def test_execute_per_step_error_in_step_raises_with_step_info(self):
+        """Error in a per-step execution includes step number and name."""
+        from api.engine.executor import AgentExecutor
+        from api.engine.providers import ExecutionEvent
+
+        async def fake_streaming(**kwargs):
+            yield ExecutionEvent(type="error", data="tool crashed")
+
+        cli_provider = AsyncMock()
+        cli_provider.execute_streaming = fake_streaming
+        cu_service = AsyncMock()
+        callback = AsyncMock()
+
+        executor = AgentExecutor(cli_provider, cu_service)
+        agent = {
+            "id": "test-step-err",
+            "name": "step-error-agent",
+            "computer_use": True,
+            "provider": "claude_code",
+            "forge_path": "output/test-step-err",
+            "description": "Will fail at step 1",
+            "output_schema": [],
+            "steps": [
+                {"name": "Research", "computer_use": False},
+                {"name": "Screenshot", "computer_use": True},
+            ],
+        }
+        with pytest.raises(RuntimeError, match="Step 1.*Research.*tool crashed"):
+            await executor.execute(agent, {}, callback)
+
+        event_types = [c.args[0] for c in callback.call_args_list]
+        assert "agent_failed" in event_types
