@@ -1182,3 +1182,108 @@ class TestAgentExecutor:
 
         # _parse_output should wrap in the first output_schema field
         assert result == {"report": "plain text result"}
+
+    @pytest.mark.asyncio
+    async def test_execute_per_step_routes_mixed_steps(self):
+        """Agents with forge_path + mixed CLI/Desktop steps run per-step."""
+        from api.engine.executor import AgentExecutor
+        from api.engine.providers import ExecutionEvent
+
+        call_count = 0
+
+        async def fake_streaming(**kwargs):
+            nonlocal call_count
+            call_count += 1
+            use_stream = kwargs.get("use_stream_json", True)
+            if call_count == 1:
+                # Step 1: CLI — should use stream-json
+                assert use_stream is True
+                yield ExecutionEvent(type="output", data="Researching...")
+                yield ExecutionEvent(type="done", data="research done")
+            elif call_count == 2:
+                # Step 2: Desktop — should NOT use stream-json
+                assert use_stream is False
+                yield ExecutionEvent(type="done", data="screenshot captured")
+            elif call_count == 3:
+                # Step 3: CLI — should use stream-json
+                assert use_stream is True
+                yield ExecutionEvent(type="output", data="Writing report...")
+                yield ExecutionEvent(type="done", data='{"report": "final"}')
+
+        cli_provider = AsyncMock()
+        cli_provider.execute_streaming = fake_streaming
+        cu_service = AsyncMock()
+        callback = AsyncMock()
+
+        executor = AgentExecutor(cli_provider, cu_service)
+        agent = {
+            "id": "test-mixed",
+            "name": "mixed-agent",
+            "computer_use": True,
+            "provider": "claude_code",
+            "forge_path": "output/test-mixed",
+            "description": "Mixed CLI and Desktop",
+            "output_schema": [{"name": "report"}],
+            "steps": [
+                {"name": "Research", "computer_use": False},
+                {"name": "Screenshot", "computer_use": True},
+                {"name": "Write Report", "computer_use": False},
+            ],
+        }
+        result = await executor.execute(agent, {"topic": "test"}, callback)
+
+        # Should have called streaming 3 times (one per step)
+        assert call_count == 3
+
+        # Last step's done data should be the result
+        assert result == {"report": "final"}
+
+        # Check agent_log events include step markers and CLI streaming output
+        log_calls = [
+            c for c in callback.call_args_list
+            if c.args[0] == "agent_log"
+        ]
+        log_messages = [c.args[1]["message"] for c in log_calls]
+        # Step markers
+        assert any("Step 1" in m and "[CLI]" in m for m in log_messages)
+        assert any("Step 2" in m and "[Desktop]" in m for m in log_messages)
+        assert any("Step 3" in m and "[CLI]" in m for m in log_messages)
+        # CLI steps should have streamed their output lines
+        assert "Researching..." in log_messages
+        assert "Writing report..." in log_messages
+        # Desktop step should NOT have streamed raw output
+        assert "screenshot captured" not in log_messages
+
+    @pytest.mark.asyncio
+    async def test_execute_per_step_error_in_step_raises_with_step_info(self):
+        """Error in a per-step execution includes step number and name."""
+        from api.engine.executor import AgentExecutor
+        from api.engine.providers import ExecutionEvent
+
+        async def fake_streaming(**kwargs):
+            yield ExecutionEvent(type="error", data="tool crashed")
+
+        cli_provider = AsyncMock()
+        cli_provider.execute_streaming = fake_streaming
+        cu_service = AsyncMock()
+        callback = AsyncMock()
+
+        executor = AgentExecutor(cli_provider, cu_service)
+        agent = {
+            "id": "test-step-err",
+            "name": "step-error-agent",
+            "computer_use": True,
+            "provider": "claude_code",
+            "forge_path": "output/test-step-err",
+            "description": "Will fail at step 1",
+            "output_schema": [],
+            "steps": [
+                {"name": "Research", "computer_use": False},
+                {"name": "Screenshot", "computer_use": True},
+            ],
+        }
+        with pytest.raises(RuntimeError, match="Step 1.*Research.*tool crashed"):
+            await executor.execute(agent, {}, callback)
+
+        event_types = [c.args[0] for c in callback.call_args_list]
+        assert "agent_failed" in event_types
