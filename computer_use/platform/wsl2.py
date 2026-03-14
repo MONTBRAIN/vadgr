@@ -36,6 +36,34 @@ logger = logging.getLogger("computer_use.platform.wsl2")
 
 POWERSHELL = "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
 
+# One-time DPI awareness init for the persistent PowerShell process.
+# Makes all WinForms calls (Screen.Bounds, CopyFromScreen, Cursor.Position)
+# return physical pixels instead of DPI-virtualized logical pixels.
+# Fallback chain: PerMonitorV2 (-4) -> PerMonitor (2) -> SystemAware (legacy).
+_DPI_INIT_SCRIPT = """
+Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+public class DpiInit {
+    [DllImport("user32.dll", SetLastError=true)]
+    public static extern bool SetProcessDpiAwarenessContext(IntPtr value);
+
+    [DllImport("shcore.dll", SetLastError=true)]
+    public static extern int SetProcessDpiAwareness(int awareness);
+
+    [DllImport("user32.dll")]
+    public static extern bool SetProcessDPIAware();
+
+    public static void Enable() {
+        try { if (SetProcessDpiAwarenessContext(new IntPtr(-4))) return; } catch {}
+        try { if (SetProcessDpiAwareness(2) == 0) return; } catch {}
+        try { SetProcessDPIAware(); } catch {}
+    }
+}
+'@
+[DpiInit]::Enable()
+"""
+
 
 class PersistentPowerShell:
     """One long-lived powershell.exe that we pipe scripts into.
@@ -67,6 +95,18 @@ class PersistentPowerShell:
         )
         self._started = True
         logger.debug("Persistent PowerShell started (pid=%d)", self._proc.pid)
+
+        # Set per-process DPI awareness so all subsequent WinForms calls
+        # (screenshot, mouse, screen bounds) use physical pixels.
+        # Write directly to stdin (not via self.run) to avoid deadlock
+        # since _start() is called from within run() which holds the lock.
+        sentinel = f"__SENTINEL_{uuid.uuid4().hex}__"
+        self._proc.stdin.write(f"{_DPI_INIT_SCRIPT}\nWrite-Output '{sentinel}'\n")
+        self._proc.stdin.flush()
+        while True:
+            line = self._proc.stdout.readline()
+            if not line or line.rstrip("\r\n") == sentinel:
+                break
 
     def run(self, script: str, timeout: float = 15.0) -> str:
         with self._lock:
@@ -226,7 +266,19 @@ def _run_ps(script: str, timeout: float = 15.0) -> str:
 
 
 
-CAPTURE_FULL_SCRIPT = """
+# Inline DPI preamble for one-shot subprocess scripts (where the persistent
+# PS init hasn't run). Uses the legacy SetProcessDPIAware() for brevity;
+# the persistent path uses the full fallback chain above.
+_DPI_PREAMBLE = """
+Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+public class Dpi {{ [DllImport("user32.dll")] public static extern bool SetProcessDPIAware(); }}
+'@ -ErrorAction SilentlyContinue
+[Dpi]::SetProcessDPIAware() | Out-Null
+"""
+
+CAPTURE_FULL_SCRIPT = _DPI_PREAMBLE + """
 Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName System.Windows.Forms
 $scr = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
@@ -239,7 +291,7 @@ $bitmap.Dispose()
 Write-Output "$($scr.Width),$($scr.Height),$($scr.X),$($scr.Y)"
 """
 
-CAPTURE_REGION_SCRIPT = """
+CAPTURE_REGION_SCRIPT = _DPI_PREAMBLE + """
 Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName System.Windows.Forms
 $bitmap = New-Object System.Drawing.Bitmap({width}, {height})
@@ -254,7 +306,7 @@ $bitmap.Dispose()
 Write-Output "{width},{height}"
 """
 
-SCREEN_SIZE_SCRIPT = """
+SCREEN_SIZE_SCRIPT = _DPI_PREAMBLE + """
 Add-Type -AssemblyName System.Windows.Forms
 $scr = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
 Write-Output "$($scr.Width),$($scr.Height)"
