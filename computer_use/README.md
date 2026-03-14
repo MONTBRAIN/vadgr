@@ -117,6 +117,5 @@ Edit `config.yaml` or use environment variables:
 ## Tests
 
 ```bash
-source .venv/bin/activate
-pytest tests/
+PYTHONPATH=. .venv/bin/python -m pytest computer_use/tests/ -v
 ```

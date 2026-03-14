@@ -81,21 +81,29 @@ class TestPersistentPowerShell:
 
         ps = PersistentPowerShell()
 
-        # Simulate stdout lines: output then sentinel
-        sentinel_holder = {}
+        # Capture every sentinel written to stdin (DPI init + run call)
+        sentinels = []
 
         def fake_write(text):
-            # Capture the sentinel from the written script
             for line in text.strip().split("\n"):
                 if line.startswith("Write-Output '"):
-                    sentinel_holder["val"] = line.split("'")[1]
+                    sentinels.append(line.split("'")[1])
 
         proc.stdin.write.side_effect = fake_write
 
+        # readline must serve the DPI init sentinel first (from _start),
+        # then the actual output lines + sentinel for the run() call.
         def readline_gen():
+            # Wait for DPI init sentinel to be captured, then yield it
+            while not sentinels:
+                pass
+            yield sentinels[0] + "\n"
+            # Now the run() call lines
             yield "output line 1\n"
             yield "output line 2\n"
-            yield sentinel_holder["val"] + "\n"
+            while len(sentinels) < 2:
+                pass
+            yield sentinels[1] + "\n"
 
         gen = readline_gen()
         proc.stdout.readline.side_effect = lambda: next(gen)
@@ -107,6 +115,24 @@ class TestPersistentPowerShell:
     def test_shutdown_terminates_process(self, mock_popen):
         proc = self._make_mock_proc()
         mock_popen.return_value = proc
+
+        # DPI init sentinel: capture and immediately return it
+        sentinels = []
+
+        def capture_write(text):
+            for line in text.strip().split("\n"):
+                if line.startswith("Write-Output '"):
+                    sentinels.append(line.split("'")[1])
+
+        proc.stdin.write.side_effect = capture_write
+
+        def readline_gen():
+            while not sentinels:
+                pass
+            yield sentinels[0] + "\n"
+
+        gen = readline_gen()
+        proc.stdout.readline.side_effect = lambda: next(gen)
 
         ps = PersistentPowerShell()
         # Force start
@@ -125,26 +151,54 @@ class TestPersistentPowerShell:
         second_proc = self._make_mock_proc()
         mock_popen.side_effect = [first_proc, second_proc]
 
-        ps = PersistentPowerShell()
+        # first_proc: DPI init write succeeds, DPI init readline returns sentinel,
+        # then run() write raises BrokenPipeError
+        first_sentinels = []
+        first_write_count = [0]
 
-        # First write raises BrokenPipeError, second (after restart) succeeds
-        first_proc.stdin.write.side_effect = BrokenPipeError("pipe broken")
-
-        sentinel_holder = {}
-
-        def capture_write(text):
+        def first_write(text):
+            first_write_count[0] += 1
             for line in text.strip().split("\n"):
                 if line.startswith("Write-Output '"):
-                    sentinel_holder["val"] = line.split("'")[1]
+                    first_sentinels.append(line.split("'")[1])
+            # DPI init write (call 1) succeeds; run() write (call 2) fails
+            if first_write_count[0] >= 2:
+                raise BrokenPipeError("pipe broken")
 
-        second_proc.stdin.write.side_effect = capture_write
+        first_proc.stdin.write.side_effect = first_write
 
-        def readline_gen():
-            yield sentinel_holder["val"] + "\n"
+        def first_readline_gen():
+            while not first_sentinels:
+                pass
+            yield first_sentinels[0] + "\n"
 
-        gen = readline_gen()
-        second_proc.stdout.readline.side_effect = lambda: next(gen)
+        first_gen = first_readline_gen()
+        first_proc.stdout.readline.side_effect = lambda: next(first_gen)
 
+        # second_proc: DPI init + run() both succeed
+        second_sentinels = []
+
+        def second_write(text):
+            for line in text.strip().split("\n"):
+                if line.startswith("Write-Output '"):
+                    second_sentinels.append(line.split("'")[1])
+
+        second_proc.stdin.write.side_effect = second_write
+
+        def second_readline_gen():
+            # DPI init sentinel
+            while not second_sentinels:
+                pass
+            yield second_sentinels[0] + "\n"
+            # run() sentinel
+            while len(second_sentinels) < 2:
+                pass
+            yield second_sentinels[1] + "\n"
+
+        second_gen = second_readline_gen()
+        second_proc.stdout.readline.side_effect = lambda: next(second_gen)
+
+        ps = PersistentPowerShell()
         result = ps.run("test")
         assert result == ""
         # First proc should have been killed during restart
@@ -156,9 +210,29 @@ class TestPersistentPowerShell:
         proc = self._make_mock_proc()
         mock_popen.return_value = proc
 
-        ps = PersistentPowerShell()
+        # DPI init: capture sentinel and return it via readline
+        sentinels = []
 
-        proc.stdin.write.side_effect = lambda text: None
+        def capture_write(text):
+            for line in text.strip().split("\n"):
+                if line.startswith("Write-Output '"):
+                    sentinels.append(line.split("'")[1])
+
+        proc.stdin.write.side_effect = capture_write
+
+        readline_calls = [0]
+
+        def fake_readline():
+            readline_calls[0] += 1
+            # First readline: return DPI init sentinel
+            if readline_calls[0] == 1:
+                return sentinels[0] + "\n" if sentinels else "\n"
+            # Subsequent readlines: never return (simulates slow script)
+            return "waiting...\n"
+
+        proc.stdout.readline.side_effect = fake_readline
+
+        ps = PersistentPowerShell()
 
         # monotonic: first call for deadline, then past deadline on loop check
         mock_monotonic.side_effect = [0.0, 100.0]
@@ -171,9 +245,27 @@ class TestPersistentPowerShell:
         proc = self._make_mock_proc(poll_return=None)
         mock_popen.return_value = proc
 
-        ps = PersistentPowerShell()
+        # DPI init: capture sentinel and return it
+        sentinels = []
 
-        proc.stdin.write.side_effect = lambda text: None
+        def capture_write(text):
+            for line in text.strip().split("\n"):
+                if line.startswith("Write-Output '"):
+                    sentinels.append(line.split("'")[1])
+
+        proc.stdin.write.side_effect = capture_write
+
+        readline_calls = [0]
+
+        def fake_readline():
+            readline_calls[0] += 1
+            if readline_calls[0] == 1 and sentinels:
+                return sentinels[0] + "\n"
+            return "waiting...\n"
+
+        proc.stdout.readline.side_effect = fake_readline
+
+        ps = PersistentPowerShell()
 
         # Process dies mid-read
         call_count = [0]
@@ -194,6 +286,16 @@ class TestPersistentPowerShell:
         proc = self._make_mock_proc(poll_return=None)
         mock_popen.return_value = proc
 
+        sentinels = []
+        proc.stdin.write.side_effect = lambda text: [
+            sentinels.append(line.split("'")[1])
+            for line in text.strip().split("\n")
+            if line.startswith("Write-Output '")
+        ]
+        proc.stdout.readline.side_effect = lambda: (
+            sentinels[-1] + "\n" if sentinels else "\n"
+        )
+
         ps = PersistentPowerShell()
         ps._start()
         assert ps.is_alive is True
@@ -202,6 +304,16 @@ class TestPersistentPowerShell:
     def test_is_alive_false_when_dead(self, mock_popen):
         proc = self._make_mock_proc(poll_return=1)
         mock_popen.return_value = proc
+
+        sentinels = []
+        proc.stdin.write.side_effect = lambda text: [
+            sentinels.append(line.split("'")[1])
+            for line in text.strip().split("\n")
+            if line.startswith("Write-Output '")
+        ]
+        proc.stdout.readline.side_effect = lambda: (
+            sentinels[-1] + "\n" if sentinels else "\n"
+        )
 
         ps = PersistentPowerShell()
         ps._start()
