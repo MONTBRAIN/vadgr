@@ -102,3 +102,49 @@ jobs:
       - name: Skip (no changes)
         if: steps.changes.outputs.changed == 'false'
         run: echo "No api/ changes -- skipping tests."
+
+  # ----- forge module -----
+  forge:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check for forge changes
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE=${{ github.event.pull_request.base.sha }}
+          else
+            BASE=${{ github.event.before }}
+          fi
+          if git diff --name-only "$BASE" HEAD | grep -qE '^forge/'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Python ${{ matrix.python-version }}
+        if: steps.changes.outputs.changed == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Python dependencies
+        if: steps.changes.outputs.changed == 'true'
+        run: pip install -r forge/scripts/requirements.txt
+
+      - name: Run tests with coverage
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          PYTHONPATH: .
+        run: python -m pytest forge/scripts/tests/ -v --cov=forge/scripts/src --cov-report=term-missing
+
+      - name: Skip (no changes)
+        if: steps.changes.outputs.changed == 'false'
+        run: echo "No forge/ changes -- skipping tests."
