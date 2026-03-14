@@ -32,13 +32,31 @@ class TestDetectPlatform:
         ):
             assert detect_platform() == Platform.WSL2
 
-    def test_native_linux(self):
-        """Native Linux: no WSL_DISTRO_NAME env."""
+    def test_wsl2_proc_version_only(self):
+        """WSL2 detection: no WSL_DISTRO_NAME but /proc/version has microsoft."""
         env = os.environ.copy()
         env.pop("WSL_DISTRO_NAME", None)
         with (
             patch.dict(os.environ, env, clear=True),
             patch("sys.platform", "linux"),
+            patch(
+                "builtins.open",
+                mock_open(read_data="Linux version 5.15 microsoft-standard-WSL2"),
+            ),
+        ):
+            assert detect_platform() == Platform.WSL2
+
+    def test_native_linux(self):
+        """Native Linux: no WSL_DISTRO_NAME, /proc/version without microsoft."""
+        env = os.environ.copy()
+        env.pop("WSL_DISTRO_NAME", None)
+        with (
+            patch.dict(os.environ, env, clear=True),
+            patch("sys.platform", "linux"),
+            patch(
+                "builtins.open",
+                mock_open(read_data="Linux version 6.1.0-generic"),
+            ),
         ):
             assert detect_platform() == Platform.LINUX
 

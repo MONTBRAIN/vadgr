@@ -29,12 +29,30 @@ class TestDetectPlatform:
         ):
             assert detect_platform() == Platform.WSL2
 
+    def test_wsl2_detected_via_proc_version_without_env(self):
+        """WSL2 detected via /proc/version even without WSL_DISTRO_NAME."""
+        env = os.environ.copy()
+        env.pop("WSL_DISTRO_NAME", None)
+        with (
+            patch.dict(os.environ, env, clear=True),
+            patch("sys.platform", "linux"),
+            patch(
+                "builtins.open",
+                mock_open(read_data="Linux 5.15.90.1-microsoft-standard-WSL2"),
+            ),
+        ):
+            assert detect_platform() == Platform.WSL2
+
     def test_plain_linux_without_wsl_env(self):
         env = os.environ.copy()
         env.pop("WSL_DISTRO_NAME", None)
         with (
             patch.dict(os.environ, env, clear=True),
             patch("sys.platform", "linux"),
+            patch(
+                "builtins.open",
+                mock_open(read_data="Linux version 6.1.0-generic"),
+            ),
         ):
             assert detect_platform() == Platform.LINUX
 

@@ -28,16 +28,16 @@ def detect_platform() -> Platform:
     2. Check sys.platform for native OS
     """
     if sys.platform == "linux":
-        # WSL2 detection: WSL2 IS Linux, but needs Windows-routed backends
-        wsl_distro = os.environ.get("WSL_DISTRO_NAME")
-        if wsl_distro:
-            try:
-                with open("/proc/version", "r") as f:
-                    if "microsoft" in f.read().lower():
-                        return Platform.WSL2
-            except OSError:
-                pass
-            # Trust WSL_DISTRO_NAME even without /proc/version
+        # WSL2 detection: WSL2 IS Linux, but needs Windows-routed backends.
+        # Check /proc/version first (works even if env vars are stripped),
+        # then fall back to WSL_DISTRO_NAME env var.
+        try:
+            with open("/proc/version", "r") as f:
+                if "microsoft" in f.read().lower():
+                    return Platform.WSL2
+        except OSError:
+            pass
+        if os.environ.get("WSL_DISTRO_NAME"):
             return Platform.WSL2
         return Platform.LINUX
 
