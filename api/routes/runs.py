@@ -1,9 +1,15 @@
 """Run lifecycle routes."""
 
+import json
+from pathlib import Path
+
 from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 
 from api.models.run import RunCreate
+
+# Project root for resolving output file paths
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 router = APIRouter(tags=["runs"])
 
@@ -79,3 +85,110 @@ async def approve_run(run_id: str, request: Request):
         )
     updated = await run_repo.update_status(run_id, "running")
     return updated
+
+
+@router.get("/api/runs/{run_id}/outputs/{field_name}")
+async def get_run_output(run_id: str, field_name: str, request: Request):
+    """Return the content of a run output field.
+
+    If the output value is a file path on disk, reads and returns the file content.
+    Otherwise returns the raw value as text.
+    """
+    run_repo = request.app.state.run_repo
+    agent_repo = request.app.state.agent_repo
+    run = await run_repo.get(run_id)
+    if not run:
+        return _not_found(run_id)
+
+    outputs = run.get("outputs") or {}
+    if field_name not in outputs:
+        return JSONResponse(
+            status_code=404,
+            content={"error": {"code": "OUTPUT_NOT_FOUND", "message": f"Output '{field_name}' not found in run", "details": {}}},
+        )
+
+    value = outputs[field_name]
+    if not isinstance(value, str):
+        return PlainTextResponse(str(value))
+
+    # Try to resolve as a file path (relative to agent's forge_path)
+    agent = await agent_repo.get(run.get("agent_id", "")) if run.get("agent_id") else None
+    forge_path = agent.get("forge_path", "") if agent else ""
+
+    # Try forge_path/value first, then project_root/value
+    candidates = []
+    if forge_path:
+        candidates.append(_PROJECT_ROOT / forge_path / value)
+    candidates.append(_PROJECT_ROOT / value)
+
+    for path in candidates:
+        resolved = path.resolve()
+        # Security: ensure path is under project root
+        if _PROJECT_ROOT.resolve() in resolved.parents and resolved.is_file():
+            content = resolved.read_text(encoding="utf-8", errors="replace")
+            return PlainTextResponse(content)
+
+    # Not a file path — return raw value
+    return PlainTextResponse(value)
+
+
+def _read_jsonl(path: Path) -> list[dict]:
+    """Read a JSONL file and return list of parsed events."""
+    if not path.exists():
+        return []
+    events = []
+    for line in path.read_text().splitlines():
+        if line.strip():
+            events.append(json.loads(line))
+    return events
+
+
+@router.get("/api/runs/{run_id}/logs")
+async def get_run_logs(run_id: str, request: Request):
+    """Return all log events for a run (execution + all steps, sorted by timestamp)."""
+    run_repo = request.app.state.run_repo
+    run = await run_repo.get(run_id)
+    if not run:
+        return _not_found(run_id)
+
+    log_path = run.get("log_path")
+    if not log_path:
+        return JSONResponse(content=[])
+
+    log_dir = _PROJECT_ROOT / log_path
+    if not log_dir.exists():
+        return JSONResponse(content=[])
+
+    # Read execution.jsonl + all step files, merge and sort by timestamp
+    all_events = _read_jsonl(log_dir / "execution.jsonl")
+    for step_file in sorted(log_dir.iterdir()):
+        if step_file.name.startswith("step_") and step_file.name.endswith(".jsonl"):
+            all_events.extend(_read_jsonl(step_file))
+
+    all_events.sort(key=lambda e: e.get("timestamp", ""))
+    return JSONResponse(content=all_events)
+
+
+@router.get("/api/runs/{run_id}/logs/{step_file}")
+async def get_step_log(run_id: str, step_file: str, request: Request):
+    """Return per-step log events for a run."""
+    run_repo = request.app.state.run_repo
+    run = await run_repo.get(run_id)
+    if not run:
+        return _not_found(run_id)
+
+    log_path = run.get("log_path")
+    if not log_path:
+        return JSONResponse(content=[])
+
+    # Security: only allow step_*.jsonl filenames
+    if not step_file.startswith("step_") or not step_file.endswith(".jsonl"):
+        return JSONResponse(content=[])
+
+    log_dir = _PROJECT_ROOT / log_path
+    step_path = log_dir / step_file
+    resolved = step_path.resolve()
+    if _PROJECT_ROOT.resolve() not in resolved.parents:
+        return JSONResponse(content=[])
+
+    return JSONResponse(content=_read_jsonl(step_path))

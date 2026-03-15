@@ -49,4 +49,35 @@ describe('Type definitions', () => {
     expect(field.name).toBe('topic');
     expect(field.required).toBe(true);
   });
+
+  it('SchemaField accepts all optional rich fields', () => {
+    const field: SchemaField = {
+      name: 'depth',
+      type: 'select',
+      required: false,
+      label: 'Analysis Depth',
+      description: 'How thorough the research should be',
+      placeholder: 'e.g. standard',
+      options: ['quick', 'standard', 'deep'],
+    };
+    expect(field.label).toBe('Analysis Depth');
+    expect(field.description).toBe('How thorough the research should be');
+    expect(field.options).toEqual(['quick', 'standard', 'deep']);
+  });
+
+  it('SchemaField supports all valid input types', () => {
+    const types: SchemaField['type'][] = ['text', 'url', 'textarea', 'select', 'number', 'boolean', 'file', 'markdown'];
+    for (const type of types) {
+      const field: SchemaField = { name: 'f', type, required: false };
+      expect(field.type).toBe(type);
+    }
+  });
+
+  it('SchemaField optional fields default to undefined', () => {
+    const field: SchemaField = { name: 'topic', type: 'text', required: true };
+    expect(field.label).toBeUndefined();
+    expect(field.description).toBeUndefined();
+    expect(field.placeholder).toBeUndefined();
+    expect(field.options).toBeUndefined();
+  });
 });

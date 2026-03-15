@@ -60,6 +60,7 @@ CREATE TABLE IF NOT EXISTS runs (
     status TEXT NOT NULL DEFAULT 'queued',
     inputs TEXT DEFAULT '{}',
     outputs TEXT DEFAULT '{}',
+    log_path TEXT DEFAULT NULL,
     started_at TEXT,
     completed_at TEXT
 );
@@ -97,6 +98,12 @@ class Database:
 
     async def create_tables(self):
         await self._conn.executescript(SCHEMA)
+        # Migrations for existing databases
+        try:
+            await self._conn.execute("ALTER TABLE runs ADD COLUMN log_path TEXT DEFAULT NULL")
+            await self._conn.commit()
+        except Exception:
+            pass  # Column already exists
 
     async def disconnect(self):
         if self._conn:

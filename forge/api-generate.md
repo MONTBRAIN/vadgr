@@ -129,6 +129,69 @@ Read the step file and execute it. Skip if no scripts are needed.
 
 Read the step file and execute it.
 
+After all checks pass, print a single JSON object to stdout. This is the only output the API reads.
+
+```json
+{
+  "forge_path": "output/{folder_name}/",
+  "forge_config": {
+    "complexity": "simple | multi_step",
+    "steps": 3,
+    "prompts": ["02_Agent_Name.md", "03_Agent_Name.md"]
+  },
+  "input_schema": [
+    {
+      "name": "topic",
+      "type": "text",
+      "required": true,
+      "label": "Research Topic",
+      "description": "The main subject to research and analyze",
+      "placeholder": "e.g. AI market trends 2026"
+    }
+  ],
+  "output_schema": [
+    {
+      "name": "report",
+      "type": "markdown",
+      "required": false,
+      "label": "Research Report",
+      "description": "Full analysis with findings and recommendations"
+    }
+  ]
+}
+```
+
+**Field definitions:**
+
+- `forge_path`: Relative path to the generated agent folder from the repo root.
+- `forge_config.complexity`: `"simple"` or `"multi_step"`.
+- `forge_config.steps`: Number of steps in the generated `agentic.md`.
+- `forge_config.prompts`: List of generated prompt filenames in `agent/Prompts/` (excluding standard 00/01 prompts).
+- `input_schema`: Inferred inputs the agent needs at runtime. Each item has:
+  - `name`: snake_case key used in the inputs dict at runtime
+  - `type`: one of `text`, `url`, `textarea`, `select`, `number`, `boolean`, `file`
+  - `required`: boolean
+  - `label`: Human-readable display name (e.g. "Research Topic" not "topic")
+  - `description`: One-sentence helper text shown below the input field
+  - `placeholder`: Example value shown inside the input (optional)
+  - `options`: Array of strings for `select` type only (e.g. `["quick", "standard", "deep"]`)
+- `output_schema`: Inferred outputs the agent produces. Each item has:
+  - `name`: snake_case key that will appear in the run outputs dict
+  - `type`: one of `text`, `markdown`, `json`, `url`, `number`, `boolean`
+  - `label`: Human-readable display name for the output file/artifact
+  - `description`: What this output contains
+
+**Schema generation rules:**
+- Infer inputs from the agent description -- if the agent researches a topic, it needs a `topic` input
+- Every input that varies per run must appear in `input_schema`; hardcoded config does not
+- Label must be title-cased and human-friendly (never snake_case)
+- Description must be one concise sentence explaining the field
+- Placeholder must be a realistic example value, not a generic hint like "Enter value here"
+- For `select` inputs, always include the `options` array
+- Output names must match the JSON keys the agent will actually return at runtime
+
+Print only this JSON object. No preamble, no summary, no explanation. The API parses this directly.
+
 ---
 
 ## Quality Standards

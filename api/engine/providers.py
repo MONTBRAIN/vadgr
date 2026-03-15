@@ -204,6 +204,7 @@ class CLIAgentProvider:
             env=self._clean_env(),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
+            limit=10 * 1024 * 1024,
         )
 
         try:
@@ -255,6 +256,9 @@ class CLIAgentProvider:
         )
         effective_timeout = timeout or self.config.timeout
 
+        # Use a 10 MB read buffer — the default 64 KB is too small for agents
+        # that produce large outputs (e.g. multi-document analysis reports).
+        _STREAM_LIMIT = 10 * 1024 * 1024
         proc = await asyncio.create_subprocess_exec(
             self.config.command,
             *args,
@@ -262,7 +266,7 @@ class CLIAgentProvider:
             env=self._clean_env(),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
-            limit=10 * 1024 * 1024,  # 10MB line buffer for large stream-json events
+            limit=_STREAM_LIMIT,
         )
 
         try:

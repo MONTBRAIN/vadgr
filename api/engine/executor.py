@@ -120,9 +120,13 @@ class AgentExecutor:
             can_stream = not uses_cu
             timeout = 1800 if uses_cu else 900
 
+            # Step context is included in event data for log routing
+            step_ctx = {"step_num": i, "step_name": step_name}
+
             await callback("agent_log", {
                 "agent_id": agent["id"],
                 "message": f"--- Step {i}: {step_name} {'[Desktop]' if uses_cu else '[CLI]'} ---",
+                **step_ctx,
             })
 
             prompt = build_step_prompt(agent, inputs, step_number=i, step=step, run_id=run_id)
@@ -139,6 +143,7 @@ class AgentExecutor:
                         await callback("agent_log", {
                             "agent_id": agent["id"],
                             "message": event.data,
+                            **step_ctx,
                         })
                 elif event.type == "done":
                     collected_output = event.data
@@ -151,12 +156,20 @@ class AgentExecutor:
             await callback("agent_log", {
                 "agent_id": agent["id"],
                 "message": f"--- Step {i} complete ---",
+                **step_ctx,
             })
 
         return self._parse_output(last_output, agent.get("output_schema", []))
 
     def _parse_output(self, raw_response: str, output_schema: list[dict]) -> dict:
-        """Parse provider response into output dict."""
+        """Parse provider response into output dict.
+
+        Handles three cases:
+        1. Clean JSON object → parse directly
+        2. JSON embedded in text (leading/trailing prose) → scan and extract
+        3. Plain text → map to schema fields
+        """
+        # Try direct parse first
         try:
             parsed = json.loads(raw_response)
             if isinstance(parsed, dict):
@@ -164,6 +177,30 @@ class AgentExecutor:
         except (json.JSONDecodeError, TypeError):
             pass
 
+        # Scan for an embedded JSON object (handles leading/trailing text)
+        text = raw_response.strip()
+        start = text.find("{")
+        if start != -1:
+            # Try progressively shorter substrings from the last `}` backwards.
+            # Use `end = pos` (not `pos - 1`) so the next rfind searches [start, pos)
+            # and naturally finds the next `}` to the left without skipping any.
+            end = len(text)
+            while end > start:
+                pos = text.rfind("}", start, end)
+                if pos == -1:
+                    break
+                try:
+                    parsed = json.loads(text[start:pos + 1])
+                    if isinstance(parsed, dict):
+                        return parsed
+                except json.JSONDecodeError:
+                    pass
+                end = pos
+
+        # Map raw text to schema fields
         if output_schema:
-            return {output_schema[0]["name"]: raw_response}
+            result = {output_schema[0]["name"]: raw_response}
+            for field in output_schema[1:]:
+                result.setdefault(field["name"], "")
+            return result
         return {"result": raw_response}

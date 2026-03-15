@@ -1,11 +1,56 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAgent, useDeleteAgent, useRunAgent } from '../hooks/useAgents';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { StatusBadge } from '../components/ui/Badge';
-import { PixelBack, PixelPlay, PixelGear, PixelStep, PixelTerminal } from '../components/ui/PixelIcon';
+import { PixelBack, PixelPlay, PixelGear, PixelStep } from '../components/ui/PixelIcon';
 import type { SchemaField } from '../types';
+
+function renderInputField(
+  field: SchemaField,
+  value: string,
+  onChange: (v: string) => void,
+  error?: string,
+) {
+  const hasError = !!error;
+  const base = `w-full px-3.5 py-2.5 bg-bg-input border rounded-[10px] text-sm text-text-primary placeholder:text-text-muted focus:border-accent transition-colors ${hasError ? 'border-danger' : 'border-border'}`;
+  const label = field.label || field.name;
+
+  return (
+    <div key={field.name}>
+      <label className="block font-body text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-1.5">
+        {label} {field.required && <span className="text-danger">*</span>}
+      </label>
+      {field.type === 'textarea' ? (
+        <textarea
+          rows={3}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={field.placeholder}
+          className={`${base} resize-none`}
+        />
+      ) : field.type === 'select' && field.options?.length ? (
+        <select value={value || field.options[0]} onChange={(e) => onChange(e.target.value)} className={base}>
+          {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+        </select>
+      ) : (
+        <input
+          type={field.type === 'url' ? 'url' : field.type === 'number' ? 'number' : 'text'}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={field.placeholder}
+          className={`${base} ${field.type === 'url' ? 'font-mono text-xs' : ''}`}
+        />
+      )}
+      {hasError ? (
+        <p className="font-body text-[10px] text-danger mt-1">{error}</p>
+      ) : field.description ? (
+        <p className="font-body text-[10px] text-text-muted mt-1">{field.description}</p>
+      ) : null}
+    </div>
+  );
+}
 
 export function AgentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -14,7 +59,21 @@ export function AgentDetail() {
   const deleteAgent = useDeleteAgent();
   const runAgent = useRunAgent();
   const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [showRunForm, setShowRunForm] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+  // Initialize select fields with their first option so validation passes without manual interaction
+  useEffect(() => {
+    if (!agent) return;
+    const defaults: Record<string, string> = {};
+    for (const field of agent.input_schema) {
+      if (field.type === 'select' && field.options?.length && !inputs[field.name]) {
+        defaults[field.name] = field.options[0];
+      }
+    }
+    if (Object.keys(defaults).length > 0) {
+      setInputs((prev) => ({ ...defaults, ...prev }));
+    }
+  }, [agent?.id]);
 
   if (isLoading) return <div className="text-sm text-text-muted p-10">Loading...</div>;
   if (!agent) return <div className="text-sm text-text-muted p-10">Agent not found.</div>;
@@ -23,6 +82,18 @@ export function AgentDetail() {
   const isBusy = agent.status === 'creating' || agent.status === 'updating';
 
   const handleRun = async () => {
+    // Validate required fields
+    const errors: Record<string, string> = {};
+    for (const field of agent.input_schema) {
+      if (field.required && !inputs[field.name]?.trim()) {
+        errors[field.name] = `${field.label || field.name} is required`;
+      }
+    }
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+    setValidationErrors({});
     const result = await runAgent.mutateAsync({ id: agent.id, inputs });
     navigate(`/runs/${result.run_id}`);
   };
@@ -51,7 +122,7 @@ export function AgentDetail() {
         <div className="flex items-center gap-2">
           <Button variant="secondary" size="sm" onClick={() => navigate(`/agents/${agent.id}/edit`)}>Edit</Button>
           <Button variant="danger" size="sm" onClick={handleDelete}>Delete</Button>
-          <Button size="sm" onClick={() => setShowRunForm(!showRunForm)} disabled={!isReady}>
+          <Button size="sm" onClick={handleRun} disabled={runAgent.isPending || !isReady}>
             <PixelPlay size={12} color="var(--color-bg-primary)" /> {isBusy ? 'Generating...' : 'Start Run'}
           </Button>
         </div>
@@ -119,59 +190,78 @@ export function AgentDetail() {
         </Card>
       </div>
 
-      {/* Input/Output Schema */}
+      {/* Inputs & Outputs -- only show cards that have schema defined */}
       {(agent.input_schema.length > 0 || agent.output_schema.length > 0) && (
-        <Card className="px-7 py-6 mb-6">
-          <div className="flex items-center gap-2.5 mb-4">
-            <PixelTerminal size={16} color="var(--color-text-muted)" />
-            <h2 className="font-heading text-lg font-semibold text-text-primary">Input / Output Schema</h2>
-          </div>
-          <div className="grid grid-cols-2 gap-5">
-            {agent.input_schema.length > 0 && (
-              <SchemaDisplay label="Input Schema" fields={agent.input_schema} />
-            )}
-            {agent.output_schema.length > 0 && (
-              <SchemaDisplay label="Output Schema" fields={agent.output_schema} />
-            )}
-          </div>
-        </Card>
-      )}
-
-      {/* Run Form */}
-      {showRunForm && isReady && (
-        <Card className="px-7 py-6 mb-6">
-          <h2 className="font-heading text-lg font-semibold text-text-primary mb-4">Run Agent</h2>
-          {agent.input_schema.length > 0 ? (
-            agent.input_schema.map((field) => (
-              <div key={field.name} className="mb-3">
-                <label className="block font-body text-sm text-text-secondary mb-1.5">
-                  {field.name} {field.required && <span className="text-danger">*</span>}
-                </label>
-                <input
-                  type={field.type === 'number' ? 'number' : 'text'}
-                  value={inputs[field.name] ?? ''}
-                  onChange={(e) => setInputs({ ...inputs, [field.name]: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-bg-input border border-border rounded-[10px] text-sm text-text-primary placeholder:text-text-muted focus:border-accent transition-colors"
-                  placeholder={`Enter ${field.name}`}
-                />
+        <div className={`grid gap-5 mb-6 items-stretch ${agent.input_schema.length > 0 && agent.output_schema.length > 0 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+          {agent.input_schema.length > 0 && (
+            <Card className="px-7 py-6 flex flex-col">
+              <div className="flex items-center gap-2.5 mb-4">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <rect x="1" y="3" width="14" height="10" rx="1.5" stroke="var(--color-success)" strokeWidth="1.3"/>
+                  <path d="M4 7.5h5M4 9.5h3" stroke="var(--color-success)" strokeWidth="1" strokeLinecap="round"/>
+                  <path d="M11 6l2 2.5-2 2.5" stroke="var(--color-success)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <h2 className="font-heading text-lg font-semibold text-text-primary">Inputs</h2>
               </div>
-            ))
-          ) : (
-            <div className="mb-3">
-              <label className="block font-body text-sm text-text-secondary mb-1.5">Task</label>
-              <textarea
-                value={inputs['task'] ?? ''}
-                onChange={(e) => setInputs({ ...inputs, task: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-bg-input border border-border rounded-[10px] text-sm text-text-primary placeholder:text-text-muted focus:border-accent transition-colors resize-y min-h-[80px]"
-                placeholder="Describe what the agent should do"
-                rows={3}
-              />
-            </div>
+              <div className="flex flex-col gap-3 flex-1">
+                {agent.input_schema.map(field =>
+                  renderInputField(
+                    field,
+                    String(inputs[field.name] ?? ''),
+                    (v) => {
+                      setInputs({ ...inputs, [field.name]: v });
+                      if (validationErrors[field.name]) {
+                        setValidationErrors((prev) => { const next = { ...prev }; delete next[field.name]; return next; });
+                      }
+                    },
+                    validationErrors[field.name],
+                  )
+                )}
+                <div className="mt-auto pt-5 border-t border-border">
+                  <Button onClick={handleRun} disabled={runAgent.isPending || !isReady}>
+                    <PixelPlay size={12} color="var(--color-bg-primary)" />
+                    {runAgent.isPending ? 'Starting...' : 'Start Run'}
+                  </Button>
+                </div>
+              </div>
+            </Card>
           )}
-          <Button onClick={handleRun} disabled={runAgent.isPending}>
-            {runAgent.isPending ? 'Starting...' : 'Start Run'}
-          </Button>
-        </Card>
+
+          {agent.output_schema.length > 0 && (
+            <Card className="px-7 py-6 flex flex-col">
+              <div className="flex items-center gap-2.5 mb-4">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <rect x="1" y="3" width="14" height="10" rx="1.5" stroke="var(--color-accent)" strokeWidth="1.3"/>
+                  <path d="M5 6l-2 2.5L5 11" stroke="var(--color-accent)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M8 7.5h5M10 9.5h3" stroke="var(--color-accent)" strokeWidth="1" strokeLinecap="round"/>
+                </svg>
+                <h2 className="font-heading text-lg font-semibold text-text-primary">Outputs</h2>
+              </div>
+              <div className="flex flex-col gap-2.5 flex-1">
+                {agent.output_schema.map((field, i) => (
+                  <div key={field.name} className="flex items-start gap-3 px-3.5 py-3 bg-hover-bg rounded-[10px] border border-border">
+                    <span className={`mt-0.5 shrink-0 ${i % 3 === 0 ? 'text-accent' : i % 3 === 1 ? 'text-success' : 'text-info'}`}>
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2">
+                        <path d="M4 1.5h5.5L13 5v9.5a1 1 0 01-1 1H4a1 1 0 01-1-1v-13a1 1 0 011-1z"/>
+                        <path d="M9 1.5V5.5h4"/>
+                        <path d="M5.5 8h5M5.5 10h5M5.5 12h3" strokeLinecap="round"/>
+                      </svg>
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="font-body text-sm text-text-primary font-medium">{field.label || field.name}</span>
+                        <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-accent/10 text-accent border border-accent/20">{field.type}</span>
+                      </div>
+                      {field.description && (
+                        <p className="font-body text-[11px] text-text-muted leading-relaxed">{field.description}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+        </div>
       )}
     </div>
   );
@@ -186,19 +276,3 @@ function ConfigItem({ label, children }: { label: string; children: React.ReactN
   );
 }
 
-function SchemaDisplay({ label, fields }: { label: string; fields: SchemaField[] }) {
-  return (
-    <div>
-      <p className="font-body text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-2.5">{label}</p>
-      <div className="space-y-1.5">
-        {fields.map((f) => (
-          <div key={f.name} className="flex items-center gap-3 text-sm">
-            <span className="text-text-primary font-mono text-xs">{f.name}</span>
-            <span className="text-text-muted text-[10px] font-body">({f.type})</span>
-            {f.required && <span className="text-[10px] text-danger font-body">required</span>}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}

@@ -12,6 +12,10 @@ class SchemaField(BaseModel):
     name: str
     type: str = "text"
     required: bool = True
+    label: Optional[str] = None
+    description: Optional[str] = None
+    placeholder: Optional[str] = None
+    options: Optional[list[str]] = None
 
 
 class StepDefinition(BaseModel):
@@ -39,6 +43,8 @@ class AgentCreate(BaseModel):
     description: str = Field(default="", max_length=10000)
     steps: list[Union[str, StepDefinition]] = []
     samples: list[str] = []
+    input_schema: list[SchemaField] = []
+    output_schema: list[SchemaField] = []
     computer_use: bool = False
     provider: str = "claude_code"
     model: str = "claude-sonnet-4-6"

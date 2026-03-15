@@ -78,25 +78,20 @@ export function RunViewer() {
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-5 mb-7">
-        {/* Execution Steps */}
-        <Card className="px-7 py-6">
-          <div className="flex items-center gap-2.5 mb-4">
-            <PixelStep size={16} color="var(--color-info)" />
-            <h2 className="font-heading text-lg font-semibold text-text-primary">Execution Steps</h2>
-          </div>
-          <RunTimeline events={events} />
-        </Card>
+      {/* Execution Log */}
+      <Card className="px-7 py-6 mb-7">
+        <div className="flex items-center gap-2.5 mb-4">
+          <PixelStep size={16} color="var(--color-info)" />
+          <h2 className="font-heading text-lg font-semibold text-text-primary">Execution Log</h2>
+        </div>
+        <RunTimeline events={events} />
+        <RunLog events={events} outputs={run.outputs} />
+      </Card>
 
-        {/* Inputs & Outputs */}
-        <Card className="px-7 py-6">
-          <div className="flex items-center gap-2.5 mb-4">
-            <PixelTerminal size={16} color="var(--color-text-muted)" />
-            <h2 className="font-heading text-lg font-semibold text-text-primary">Inputs & Outputs</h2>
-          </div>
-          <RunLog events={events} outputs={run.outputs} />
-        </Card>
-      </div>
+      {/* Outputs — only shown when run has actual output data */}
+      {run.outputs && Object.keys(run.outputs).length > 0 && (
+        <OutputsCard outputs={run.outputs} runId={run.id} />
+      )}
 
       {/* Actions */}
       <div className="flex items-center gap-3">
@@ -106,23 +101,96 @@ export function RunViewer() {
           </Button>
         )}
         <Button variant="secondary" onClick={() => run.agent_id && navigate(`/agents/${run.agent_id}`)}>Re-run</Button>
-        {run.status === 'completed' && Object.keys(run.outputs).length > 0 && (
-          <Button
-            variant="secondary"
-            onClick={() => {
-              const blob = new Blob([JSON.stringify(run.outputs, null, 2)], { type: 'application/json' });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `run-${run.id.slice(0, 8)}-outputs.json`;
-              a.click();
-              URL.revokeObjectURL(url);
-            }}
-          >
-            Download Outputs
-          </Button>
-        )}
       </div>
     </div>
+  );
+}
+
+function downloadBlob(filename: string, content: string) {
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function downloadOutput(runId: string, fieldName: string) {
+  try {
+    const { runsApi } = await import('../api/runs');
+    const content = await runsApi.getOutput(runId, fieldName);
+    downloadBlob(`${runId.slice(0, 8)}_${fieldName}.md`, content);
+  } catch {
+    // Fallback: download raw value if API fails
+    downloadBlob(`${runId.slice(0, 8)}_${fieldName}.txt`, fieldName);
+  }
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function OutputsCard({ outputs, runId }: { outputs: Record<string, unknown>; runId: string }) {
+  const entries = Object.entries(outputs).map(([key, value]) => {
+    const text = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
+    return { key, text, size: new Blob([text]).size };
+  });
+
+  return (
+    <Card className="px-7 py-6 mb-7">
+      <div className="flex items-center gap-2.5 mb-5">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="1" y="3" width="14" height="10" rx="1.5" stroke="var(--color-accent)" strokeWidth="1.3"/>
+          <path d="M5 6l-2 2.5L5 11" stroke="var(--color-accent)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M8 7.5h5M10 9.5h3" stroke="var(--color-accent)" strokeWidth="1" strokeLinecap="round"/>
+        </svg>
+        <h2 className="font-heading text-lg font-semibold text-text-primary">Output Files</h2>
+        <span className="font-mono text-[10px] text-text-muted">{entries.length} {entries.length === 1 ? 'file' : 'files'}</span>
+      </div>
+
+      <div className={`grid gap-4 ${entries.length === 1 ? 'grid-cols-1' : entries.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+        {entries.map(({ key, text, size }, i) => (
+          <div
+            key={key}
+            className="group flex items-center gap-4 px-5 py-4 bg-hover-bg rounded-[12px] border border-border hover:border-accent/30 transition-colors"
+          >
+            <div className={`w-10 h-10 rounded-[8px] flex items-center justify-center shrink-0 ${
+              i % 3 === 0 ? 'bg-accent/10 border border-accent/20' :
+              i % 3 === 1 ? 'bg-success/10 border border-success/20' :
+              'bg-info/10 border border-info/20'
+            }`}>
+              <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke={
+                i % 3 === 0 ? 'var(--color-accent)' :
+                i % 3 === 1 ? 'var(--color-success)' :
+                'var(--color-info)'
+              } strokeWidth="1.2">
+                <path d="M4 1.5h5.5L13 5v9.5a1 1 0 01-1 1H4a1 1 0 01-1-1v-13a1 1 0 011-1z"/>
+                <path d="M9 1.5V5.5h4"/>
+                <path d="M5.5 8h5M5.5 10h5M5.5 12h3" strokeLinecap="round"/>
+              </svg>
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <p className="font-body text-sm font-medium text-text-primary truncate">{key}</p>
+              <p className="font-mono text-[10px] text-text-muted">{formatBytes(size)}</p>
+            </div>
+
+            <button
+              onClick={() => downloadOutput(runId, key)}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-accent/10 text-accent border border-accent/20 font-body text-[11px] font-medium hover:bg-accent/20 transition-colors cursor-pointer shrink-0"
+            >
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M8 2v9M4.5 7.5L8 11l3.5-3.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M2.5 13h11" strokeLinecap="round"/>
+              </svg>
+              Download
+            </button>
+          </div>
+        ))}
+      </div>
+    </Card>
   );
 }

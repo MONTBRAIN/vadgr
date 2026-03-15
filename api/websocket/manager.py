@@ -40,7 +40,10 @@ class ConnectionManager:
 
     async def emit(self, run_id: str, event_type: str, data: dict[str, Any] | None = None):
         event = make_event(event_type, data)
+        await self.broadcast_event(run_id, event)
 
+    async def broadcast_event(self, run_id: str, event: dict):
+        """Broadcast a pre-built event dict to all connected clients and buffer it."""
         # Always buffer events so late-connecting clients get the full history.
         if run_id not in self._buffers:
             self._buffers[run_id] = []
@@ -48,7 +51,7 @@ class ConnectionManager:
             self._buffers[run_id].append(event)
 
         # Clean up buffer when the run finishes.
-        if event_type in ("run_completed", "run_failed"):
+        if event.get("type") in ("run_completed", "run_failed"):
             # Keep the buffer around briefly for late connectors;
             # it will be cleaned up when the last client disconnects.
             pass

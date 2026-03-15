@@ -1,6 +1,7 @@
 """FastAPI application factory."""
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Optional
 
 from fastapi import FastAPI
@@ -10,11 +11,13 @@ from api.config import settings
 from api.persistence.database import Database
 from api.persistence.repositories import AgentRepository, ProjectRepository, RunRepository
 from api.websocket.manager import ConnectionManager
+from api.websocket.events import make_event
 from api.engine.executor import AgentExecutor
 from api.engine.providers import CLIAgentProvider, load_provider_config
 from api.services.computer_use_service import ComputerUseService
 from api.services.agent_service import AgentService
 from api.services.execution_service import ExecutionService
+from api.services.log_writer import LogWriter
 from api.routes import health, agents, projects, runs, computer_use, providers, ws
 
 
@@ -43,8 +46,34 @@ def create_app(db: Optional[Database] = None) -> FastAPI:
         cu_service = ComputerUseService()
         executor = AgentExecutor(provider=provider, computer_use_service=cu_service)
 
+        log_writer = LogWriter(Path(__file__).resolve().parent.parent)
+        _log_path_set: set[str] = set()
+
+        # Run-level event types go to execution.jsonl; step-level go to step files
+        _run_level_events = {"run_started", "run_completed", "run_failed", "approval_required"}
+
         async def emit(run_id, event_type, data):
-            await app.state.ws_manager.emit(run_id, event_type, data)
+            event = make_event(event_type, data)
+
+            # Persist to JSONL
+            if event_type in _run_level_events:
+                rel_path = log_writer.append_run_event(run_id, event)
+            elif data and data.get("step_num"):
+                log_writer.append_step_event(
+                    run_id, data["step_num"], data["step_name"], event
+                )
+                rel_path = f"output/{run_id}/agent_logs"
+            else:
+                # Single-step agent events go to execution.jsonl as well
+                rel_path = log_writer.append_run_event(run_id, event)
+
+            # Set log_path on first event per run
+            if run_id not in _log_path_set:
+                await app.state.run_repo.set_log_path(run_id, f"output/{run_id}/agent_logs")
+                _log_path_set.add(run_id)
+
+            # Broadcast via WebSocket
+            await app.state.ws_manager.broadcast_event(run_id, event)
 
         app.state.agent_service = AgentService(
             agent_repo=app.state.agent_repo,

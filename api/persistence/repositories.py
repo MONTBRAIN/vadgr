@@ -83,6 +83,7 @@ def _row_to_run(row) -> dict:
         "status": row["status"],
         "inputs": _parse_json(row["inputs"]),
         "outputs": _parse_json(row["outputs"]),
+        "log_path": row["log_path"],
         "started_at": row["started_at"],
         "completed_at": row["completed_at"],
     }
@@ -402,6 +403,13 @@ class RunRepository:
                 "SELECT * FROM runs ORDER BY started_at DESC"
             )
         return [_row_to_run(row) for row in await cursor.fetchall()]
+
+    async def set_log_path(self, run_id: str, log_path: str) -> Optional[dict]:
+        await self.db.conn.execute(
+            "UPDATE runs SET log_path = ? WHERE id = ?", (log_path, run_id)
+        )
+        await self.db.conn.commit()
+        return await self.get(run_id)
 
     async def delete_all(self) -> int:
         cursor = await self.db.conn.execute("DELETE FROM runs")

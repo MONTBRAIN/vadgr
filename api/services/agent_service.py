@@ -27,6 +27,8 @@ class AgentService:
         description: str,
         steps: list | None = None,
         samples: list | None = None,
+        input_schema: list | None = None,
+        output_schema: list | None = None,
         computer_use: bool = False,
         provider: str = "claude_code",
         model: str = "claude-sonnet-4-6",
@@ -38,6 +40,8 @@ class AgentService:
             status="creating",
             steps=steps,
             samples=samples,
+            input_schema=input_schema,
+            output_schema=output_schema,
             computer_use=computer_use,
             provider=provider,
             model=model,
@@ -78,7 +82,11 @@ class AgentService:
             )
 
             # Parse the JSON output from forge
+            logger.info("Forge raw output (last 2000 chars): %s", raw_output[-2000:])
             forge_result = self._parse_forge_output(raw_output)
+            logger.info("Forge parsed result keys: %s", list(forge_result.keys()))
+            logger.info("Forge input_schema: %s", forge_result.get("input_schema", []))
+            logger.info("Forge output_schema: %s", forge_result.get("output_schema", []))
 
             # Ensure forge_path is set -- fall back to known output pattern
             forge_path = forge_result.get("forge_path", "")
@@ -87,14 +95,18 @@ class AgentService:
                 if (PROJECT_ROOT / expected).exists():
                     forge_path = str(expected)
 
-            # Update the agent with forge results
-            update_fields = dict(
-                status="ready",
-                forge_path=forge_path,
-                forge_config=forge_result.get("forge_config", {}),
-                input_schema=forge_result.get("input_schema", []),
-                output_schema=forge_result.get("output_schema", []),
-            )
+            # Update the agent with forge results.
+            # Only overwrite schemas if forge actually returned them --
+            # preserve user-provided schemas from the create call.
+            update_fields = {
+                "status": "ready",
+                "forge_path": forge_path,
+                "forge_config": forge_result.get("forge_config", {}),
+            }
+            if forge_result.get("input_schema"):
+                update_fields["input_schema"] = forge_result["input_schema"]
+            if forge_result.get("output_schema"):
+                update_fields["output_schema"] = forge_result["output_schema"]
             # Forge returns the steps array extracted from the generated agentic.md
             if forge_result.get("steps"):
                 update_fields["steps"] = forge_result["steps"]
@@ -203,6 +215,51 @@ class AgentService:
                 forge_config={"error": str(e)},
             )
 
+    @staticmethod
+    def _strip_code_fences(text: str) -> str:
+        """Strip markdown code fences (```json ... ```) from text."""
+        import re
+        match = re.search(r"```(?:json)?\s*\n(.*?)\n\s*```", text, re.DOTALL)
+        if match:
+            return match.group(1).strip()
+        return text
+
+    def _extract_json_object(self, text: str) -> dict:
+        """Find and parse the first valid JSON object in text."""
+        # Try direct parse
+        try:
+            parsed = json.loads(text)
+            if isinstance(parsed, dict):
+                return parsed
+        except (json.JSONDecodeError, TypeError):
+            pass
+
+        # Strip code fences and retry
+        stripped = self._strip_code_fences(text)
+        if stripped != text:
+            try:
+                parsed = json.loads(stripped)
+                if isinstance(parsed, dict):
+                    return parsed
+            except (json.JSONDecodeError, TypeError):
+                pass
+
+        # Scan for JSON object in text
+        lines = text.strip().split("\n")
+        for i in range(len(lines) - 1, -1, -1):
+            line = lines[i].strip()
+            if line.startswith("{"):
+                try:
+                    candidate = "\n".join(lines[i:]).rstrip("`").strip()
+                    return json.loads(candidate)
+                except json.JSONDecodeError:
+                    try:
+                        return json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+
+        raise ValueError(f"Could not parse JSON from text: {text[:500]}")
+
     def _parse_forge_output(self, raw_output: str) -> dict:
         """Extract the JSON result from forge output.
 
@@ -216,25 +273,12 @@ class AgentService:
             if isinstance(parsed, dict) and "result" in parsed:
                 inner = parsed["result"]
                 if isinstance(inner, str):
-                    return json.loads(inner)
-                return inner
-            return parsed
+                    return self._extract_json_object(inner)
+                if isinstance(inner, dict):
+                    return inner
+            if isinstance(parsed, dict):
+                return parsed
         except (json.JSONDecodeError, TypeError):
             pass
 
-        # Try to find JSON object in the output (forge prints it last)
-        lines = raw_output.strip().split("\n")
-        for i in range(len(lines) - 1, -1, -1):
-            line = lines[i].strip()
-            if line.startswith("{"):
-                try:
-                    # Try joining from this line to the end
-                    candidate = "\n".join(lines[i:])
-                    return json.loads(candidate)
-                except json.JSONDecodeError:
-                    try:
-                        return json.loads(line)
-                    except json.JSONDecodeError:
-                        continue
-
-        raise ValueError(f"Could not parse forge output as JSON: {raw_output[:500]}")
+        return self._extract_json_object(raw_output)

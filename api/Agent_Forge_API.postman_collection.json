@@ -918,6 +918,34 @@
           ]
         },
         {
+          "name": "Update Agent - Rich Schema (Input + Output)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"input_schema\": [\n    {\n      \"name\": \"topic\",\n      \"type\": \"text\",\n      \"required\": true,\n      \"label\": \"Research Topic\",\n      \"description\": \"The subject you want the agent to research\",\n      \"placeholder\": \"e.g. AI safety in autonomous vehicles\"\n    },\n    {\n      \"name\": \"depth\",\n      \"type\": \"select\",\n      \"required\": false,\n      \"label\": \"Analysis Depth\",\n      \"description\": \"How thorough the research should be\",\n      \"options\": [\n        \"quick\",\n        \"standard\",\n        \"deep\"\n      ]\n    },\n    {\n      \"name\": \"source_url\",\n      \"type\": \"url\",\n      \"required\": false,\n      \"label\": \"Source URL\",\n      \"placeholder\": \"https://example.com/article\"\n    }\n  ],\n  \"output_schema\": [\n    {\n      \"name\": \"report\",\n      \"type\": \"markdown\",\n      \"required\": false,\n      \"label\": \"Research Report\",\n      \"description\": \"Full analysis with findings and recommendations\"\n    },\n    {\n      \"name\": \"summary\",\n      \"type\": \"text\",\n      \"required\": false,\n      \"label\": \"Executive Summary\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/agents/{{agent_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "agents",
+                "{{agent_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Run Agent - 404",
           "request": {
             "method": "POST",

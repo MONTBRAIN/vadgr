@@ -143,6 +143,112 @@ class TestAgentList:
         assert len(resp.json()) == 2
 
 
+class TestSchemaField:
+    """Tests for rich SchemaField with optional label/description/placeholder/options."""
+
+    @pytest.mark.asyncio
+    async def test_update_agent_with_rich_input_schema(self, client, app):
+        """input_schema with label, description, placeholder, options is stored and returned."""
+        create = await client.post("/api/agents", json={"name": "Schema Test", "description": ""})
+        agent_id = create.json()["id"]
+        await app.state.agent_repo.update(agent_id, status="ready")
+
+        schema = [
+            {
+                "name": "topic",
+                "type": "text",
+                "required": True,
+                "label": "Research Topic",
+                "description": "The subject to research",
+                "placeholder": "e.g. AI market trends",
+            },
+            {
+                "name": "depth",
+                "type": "select",
+                "required": False,
+                "label": "Depth",
+                "options": ["quick", "standard", "deep"],
+            },
+        ]
+        resp = await client.put(f"/api/agents/{agent_id}", json={"input_schema": schema})
+        assert resp.status_code == 200
+        result = resp.json()
+        assert len(result["input_schema"]) == 2
+
+        topic_field = result["input_schema"][0]
+        assert topic_field["name"] == "topic"
+        assert topic_field["label"] == "Research Topic"
+        assert topic_field["description"] == "The subject to research"
+        assert topic_field["placeholder"] == "e.g. AI market trends"
+
+        depth_field = result["input_schema"][1]
+        assert depth_field["name"] == "depth"
+        assert depth_field["type"] == "select"
+        assert depth_field["options"] == ["quick", "standard", "deep"]
+
+    @pytest.mark.asyncio
+    async def test_update_agent_with_rich_output_schema(self, client, app):
+        """output_schema with label and description is stored and returned."""
+        create = await client.post("/api/agents", json={"name": "Output Schema Test", "description": ""})
+        agent_id = create.json()["id"]
+        await app.state.agent_repo.update(agent_id, status="ready")
+
+        schema = [
+            {
+                "name": "report",
+                "type": "markdown",
+                "required": False,
+                "label": "Research Report",
+                "description": "Full analysis with findings and recommendations",
+            },
+        ]
+        resp = await client.put(f"/api/agents/{agent_id}", json={"output_schema": schema})
+        assert resp.status_code == 200
+        result = resp.json()
+        assert result["output_schema"][0]["label"] == "Research Report"
+        assert result["output_schema"][0]["description"] == "Full analysis with findings and recommendations"
+
+    @pytest.mark.asyncio
+    async def test_schema_field_optional_fields_default_none(self, client, app):
+        """SchemaField without optional fields stores null and returns null."""
+        create = await client.post("/api/agents", json={"name": "Minimal Schema", "description": ""})
+        agent_id = create.json()["id"]
+        await app.state.agent_repo.update(agent_id, status="ready")
+
+        schema = [{"name": "task", "type": "text", "required": True}]
+        resp = await client.put(f"/api/agents/{agent_id}", json={"input_schema": schema})
+        assert resp.status_code == 200
+        field = resp.json()["input_schema"][0]
+        assert field["label"] is None
+        assert field["description"] is None
+        assert field["placeholder"] is None
+        assert field["options"] is None
+
+    @pytest.mark.asyncio
+    async def test_schema_field_with_url_type(self, client, app):
+        """URL type is accepted and stored."""
+        create = await client.post("/api/agents", json={"name": "URL Schema", "description": ""})
+        agent_id = create.json()["id"]
+        await app.state.agent_repo.update(agent_id, status="ready")
+
+        schema = [{"name": "source_url", "type": "url", "required": False, "label": "Source URL"}]
+        resp = await client.put(f"/api/agents/{agent_id}", json={"input_schema": schema})
+        assert resp.status_code == 200
+        assert resp.json()["input_schema"][0]["type"] == "url"
+
+    @pytest.mark.asyncio
+    async def test_schema_update_does_not_trigger_forge(self, client, app):
+        """Updating only input_schema/output_schema keeps agent status (not substantive)."""
+        create = await client.post("/api/agents", json={"name": "T", "description": "d"})
+        agent_id = create.json()["id"]
+        await app.state.agent_repo.update(agent_id, status="ready")
+
+        schema = [{"name": "topic", "type": "text", "required": True}]
+        resp = await client.put(f"/api/agents/{agent_id}", json={"input_schema": schema})
+        assert resp.status_code == 200
+        assert resp.json()["status"] == "ready"  # Not 'updating'
+
+
 class TestAgentUpdate:
 
     @pytest.mark.asyncio

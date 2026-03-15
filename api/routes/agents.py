@@ -25,11 +25,15 @@ def _not_found(agent_id: str):
 async def create_agent(body: AgentCreate, request: Request, background_tasks: BackgroundTasks):
     agent_service = request.app.state.agent_service
     steps_dicts = [s.model_dump() if hasattr(s, "model_dump") else s for s in body.steps]
+    input_schema_dicts = [s.model_dump(exclude_none=False) for s in body.input_schema]
+    output_schema_dicts = [s.model_dump(exclude_none=False) for s in body.output_schema]
     agent = await agent_service.create_agent(
         name=body.name,
         description=body.description,
         steps=steps_dicts,
         samples=body.samples,
+        input_schema=input_schema_dicts,
+        output_schema=output_schema_dicts,
         computer_use=body.computer_use,
         provider=body.provider,
         model=body.model,
@@ -69,9 +73,9 @@ async def update_agent(
     if "steps" in fields:
         fields["steps"] = [s.model_dump() if hasattr(s, "model_dump") else s for s in body.steps]
     if "input_schema" in fields:
-        fields["input_schema"] = [s.model_dump() if hasattr(s, "model_dump") else s for s in fields["input_schema"]]
+        fields["input_schema"] = [s.model_dump(exclude_none=False) for s in body.input_schema]
     if "output_schema" in fields:
-        fields["output_schema"] = [s.model_dump() if hasattr(s, "model_dump") else s for s in fields["output_schema"]]
+        fields["output_schema"] = [s.model_dump(exclude_none=False) for s in body.output_schema]
 
     substantive_changes = _SUBSTANTIVE_FIELDS & fields.keys()
 

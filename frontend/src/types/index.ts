@@ -1,7 +1,11 @@
 export interface SchemaField {
   name: string;
-  type: string;
+  type: 'text' | 'url' | 'textarea' | 'select' | 'number' | 'boolean' | 'file' | 'markdown';
   required: boolean;
+  label?: string;
+  description?: string;
+  placeholder?: string;
+  options?: string[];
 }
 
 export interface StepDefinition {
@@ -60,6 +64,7 @@ export interface Run {
   status: 'queued' | 'running' | 'awaiting_approval' | 'completed' | 'failed';
   inputs: Record<string, unknown>;
   outputs: Record<string, unknown>;
+  log_path: string | null;
   started_at: string | null;
   completed_at: string | null;
 }
