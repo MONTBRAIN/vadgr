@@ -14,6 +14,9 @@ from typing import AsyncIterator
 
 import yaml
 
+# Project root -- used by build_step_prompt to detect step file architecture
+_PROJECT_ROOT = str(Path(__file__).resolve().parent.parent.parent)
+
 
 class ProviderError(RuntimeError):
     """Raised when a CLI provider exits with non-zero status.
@@ -176,9 +179,22 @@ class CLIAgentProvider:
         prompt: str,
         workspace: str | None = None,
         timeout: int | None = None,
+        raw_output: bool = False,
     ) -> str:
         """Execute a prompt and return the full output."""
         args = self._build_args(prompt, workspace)
+        if raw_output:
+            filtered = []
+            skip_next = False
+            for arg in args:
+                if skip_next:
+                    skip_next = False
+                    continue
+                if arg == "--output-format":
+                    skip_next = True
+                    continue
+                filtered.append(arg)
+            args = filtered
         effective_timeout = timeout or self.config.timeout
 
         proc = await asyncio.create_subprocess_exec(
@@ -246,6 +262,7 @@ class CLIAgentProvider:
             env=self._clean_env(),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
+            limit=10 * 1024 * 1024,  # 10MB line buffer for large stream-json events
         )
 
         try:
@@ -299,19 +316,29 @@ class CLIAgentProvider:
                 await proc.wait()
 
 
-def build_agent_prompt(agent: dict, inputs: dict) -> str:
+def build_agent_prompt(agent: dict, inputs: dict, run_id: str = "") -> str:
     """Build the prompt to send to the CLI provider.
 
     If the agent has a forge_path, instructs the tool to read and follow
     the agentic.md. Otherwise falls back to description-based prompting.
+    When run_id is provided, outputs are isolated to output/{run_id}/.
     """
     parts = []
 
     forge_path = agent.get("forge_path", "")
+    output_dir = f"output/{run_id}" if run_id else "output"
+
     if forge_path:
         parts.append(
             f"Read {forge_path}/agentic.md and execute the workflow defined there."
         )
+        if run_id:
+            parts.append(
+                f"\nIMPORTANT: Save all outputs to {forge_path}/{output_dir}/ "
+                f"instead of {forge_path}/output/. This isolates this run's outputs. "
+                f"Agent outputs go to {forge_path}/{output_dir}/agent_outputs/. "
+                f"User outputs go to {forge_path}/{output_dir}/user_outputs/."
+            )
     else:
         parts.append(f"You are an agent named '{agent['name']}'.")
         if agent.get("description"):
@@ -354,29 +381,70 @@ def build_agent_prompt(agent: dict, inputs: dict) -> str:
     return "\n".join(parts)
 
 
-def build_step_prompt(agent: dict, inputs: dict, step_number: int, step: dict) -> str:
+def _kebab_case(name: str) -> str:
+    """Convert a step name to kebab-case for step file lookup."""
+    return name.lower().replace(" ", "-").replace("_", "-")
+
+
+def build_step_prompt(
+    agent: dict, inputs: dict, step_number: int, step: dict, run_id: str = "",
+) -> str:
     """Build a prompt for a single workflow step.
 
     Instructs the CLI to read agentic.md and execute ONLY the given step.
+    Detects step file architecture (agent/steps/) and references step files
+    when available. Falls back to old monolithic format for backward compat.
     Previous steps' output files are already on disk so the agent can read them.
+    When run_id is provided, outputs are isolated to output/{run_id}/.
     """
     forge_path = agent.get("forge_path", "")
     step_name = step["name"] if isinstance(step, dict) else step
     uses_cu = step.get("computer_use", False) if isinstance(step, dict) else False
+    output_dir = f"output/{run_id}" if run_id else "output"
 
     parts = []
 
     if forge_path:
+        # Detect new step file architecture
+        step_kebab = _kebab_case(step_name)
+        step_file = f"{forge_path}/agent/steps/step_{step_number:02d}_{step_kebab}.md"
+        has_step_files = os.path.isdir(
+            os.path.join(_PROJECT_ROOT, forge_path, "agent", "steps")
+        )
+
         parts.append(
             f"Read {forge_path}/agentic.md for the full workflow context."
         )
-        parts.append(
-            f"\nExecute ONLY Step {step_number}: {step_name}."
-        )
-        parts.append(
-            "Do NOT execute any other steps. Previous steps have already run "
-            "and their output files are on disk -- read them as needed."
-        )
+
+        if has_step_files:
+            parts.append(
+                f"\nRead {step_file} for the detailed step instructions."
+            )
+            parts.append(
+                f"\nExecute ONLY Step {step_number}: {step_name}."
+            )
+            parts.append(
+                "Follow the step file instructions exactly. "
+                "Previous steps have already run and their output files "
+                f"(in {output_dir}/agent_outputs/) are on disk -- read them as needed."
+            )
+            parts.append(
+                f"Save your agent output to {forge_path}/{output_dir}/agent_outputs/"
+                f"step_{step_number:02d}_agent_output.md"
+            )
+            parts.append(
+                f"Save any user-facing deliverables to {forge_path}/{output_dir}/user_outputs/"
+                f"step_{step_number:02d}/"
+            )
+        else:
+            # Old monolithic format -- no step files
+            parts.append(
+                f"\nExecute ONLY Step {step_number}: {step_name}."
+            )
+            parts.append(
+                "Do NOT execute any other steps. Previous steps have already run "
+                "and their output files are on disk -- read them as needed."
+            )
     else:
         parts.append(f"You are an agent named '{agent['name']}'.")
         if agent.get("description"):

@@ -74,6 +74,7 @@ class AgentService:
                 prompt=prompt,
                 workspace=str(PROJECT_ROOT),
                 timeout=600,  # forge generation can take a while
+                raw_output=True,
             )
 
             # Parse the JSON output from forge
@@ -87,14 +88,18 @@ class AgentService:
                     forge_path = str(expected)
 
             # Update the agent with forge results
-            await self.agent_repo.update(
-                agent_id,
+            update_fields = dict(
                 status="ready",
                 forge_path=forge_path,
                 forge_config=forge_result.get("forge_config", {}),
                 input_schema=forge_result.get("input_schema", []),
                 output_schema=forge_result.get("output_schema", []),
             )
+            # Forge returns the steps array extracted from the generated agentic.md
+            if forge_result.get("steps"):
+                update_fields["steps"] = forge_result["steps"]
+
+            await self.agent_repo.update(agent_id, **update_fields)
             logger.info("Forge completed for agent %s -- status: ready", agent_id)
 
         except ProviderError as e:
@@ -160,18 +165,22 @@ class AgentService:
                 prompt=prompt,
                 workspace=str(PROJECT_ROOT),
                 timeout=600,
+                raw_output=True,
             )
 
             forge_result = self._parse_forge_output(raw_output)
 
-            await self.agent_repo.update(
-                agent_id,
+            update_fields = dict(
                 status="ready",
                 forge_path=forge_result.get("forge_path", ""),
                 forge_config=forge_result.get("forge_config", {}),
                 input_schema=forge_result.get("input_schema", []),
                 output_schema=forge_result.get("output_schema", []),
             )
+            if forge_result.get("steps"):
+                update_fields["steps"] = forge_result["steps"]
+
+            await self.agent_repo.update(agent_id, **update_fields)
             logger.info("Forge update completed for agent %s -- status: ready", agent_id)
 
         except ProviderError as e:

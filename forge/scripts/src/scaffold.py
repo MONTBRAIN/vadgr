@@ -66,6 +66,7 @@ def _create_directories(root: str, config: ScaffoldConfig) -> None:
     dirs = [
         ".claude/commands",
         "agent/Prompts",
+        "agent/steps",
         "agent/scripts/src",
         "agent/scripts/tests",
         "agent/utils/code",
@@ -82,6 +83,7 @@ def _create_directories(root: str, config: ScaffoldConfig) -> None:
 def _create_gitkeep_files(root: str, config: ScaffoldConfig) -> None:
     """Place .gitkeep in directories that start empty."""
     gitkeep_dirs = [
+        "agent/steps",
         "agent/scripts/src",
         "agent/scripts/tests",
         "agent/utils/code",
@@ -194,6 +196,9 @@ def _build_structure_tree(config: ScaffoldConfig) -> str:
     lines.append("|   |   |-- 01_Senior_Prompt_Engineer.md")
     for agent in config.agents:
         lines.append(f"|   |   |-- {agent['number']:02d}_{agent['name']}.md")
+    lines.append("|   |-- steps/")
+    for step in config.steps:
+        lines.append(f"|   |   |-- step_{step['number']:02d}_{step['command']}.md")
     lines.append("|   |-- scripts/")
     lines.append("|   |   |-- src/")
     lines.append("|   |   |-- tests/")
@@ -202,7 +207,7 @@ def _build_structure_tree(config: ScaffoldConfig) -> str:
     lines.append("|   |-- utils/")
     lines.append("|       |-- code/")
     lines.append("|       |-- docs/")
-    lines.append("|-- output/")
+    lines.append("|-- output/  (run outputs created at runtime: output/{run_id}/agent_outputs/, output/{run_id}/user_outputs/)")
     if config.computer_use:
         lines.append("|-- computer_use/")
         lines.append("    |-- config.yaml")
@@ -257,23 +262,18 @@ def _create_start_command(root: str, config: ScaffoldConfig) -> None:
 def _create_step_commands(root: str, config: ScaffoldConfig) -> None:
     """Generate one command file per workflow step."""
     for step in config.steps:
-        # Find agent for this step (if any)
-        agent_ref = ""
-        for agent in config.agents:
-            # Simple heuristic: agent numbers start at 2, map to steps
-            # In practice the config should specify which agent goes with which step
-            pass
-
+        step_file = f"agent/steps/step_{step['number']:02d}_{step['command']}.md"
         content = (
             f"---\n"
             f"description: {step['name']} (Step {step['number']} of {config.workflow_name})\n"
             f"---\n"
             f"\n"
             f"Read `agentic.md` to understand the full workflow structure and rules.\n"
+            f"Read `{step_file}` for the detailed step instructions.\n"
             f"\n"
             f"Execute Step {step['number']}: {step['name']}.\n"
             f"\n"
-            f"Follow the orchestrator instructions for this step exactly.\n"
+            f"Follow the step file instructions exactly.\n"
         )
         _write(
             os.path.join(root, ".claude", "commands", f"{step['command']}.md"),
@@ -505,3 +505,134 @@ def _strip_html_comments(text: str) -> str:
     """Remove <!-- ... --> comments from generated files."""
     import re
     return re.sub(r"<!--.*?-->", "", text, flags=re.DOTALL).strip() + "\n"
+
+
+# --- CLI ---
+
+
+def _cli() -> None:
+    """Command-line interface for scaffold operations."""
+    import argparse
+    import json
+    import sys
+
+    parser = argparse.ArgumentParser(
+        prog="scaffold",
+        description="Deterministic scaffold generator for agentic workflows.",
+    )
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    # --- generate ---
+    gen = sub.add_parser(
+        "generate",
+        help="Generate a full project scaffold from a JSON config.",
+    )
+    gen.add_argument(
+        "--config",
+        required=True,
+        help=(
+            "JSON string or path to a JSON file with scaffold config. "
+            "Keys: workflow_name, workflow_description, folder_name, "
+            "steps (list of {number, name, command}), "
+            "agents (list of {number, name}), computer_use (bool)."
+        ),
+    )
+    gen.add_argument(
+        "--base-dir",
+        default="output",
+        help="Base directory for the generated project (default: output).",
+    )
+
+    # --- add-script ---
+    add = sub.add_parser(
+        "add-script",
+        help="Add a script to an existing agent scaffold.",
+    )
+    add.add_argument("--root", required=True, help="Agent root directory.")
+    add.add_argument("--name", required=True, help="Script filename (e.g. gen_html.py).")
+    add.add_argument(
+        "--script",
+        required=True,
+        help="Path to the script source file.",
+    )
+    add.add_argument(
+        "--test",
+        default=None,
+        help="Path to the test source file (optional).",
+    )
+    add.add_argument(
+        "--deps",
+        default=None,
+        help="Comma-separated pip dependencies (e.g. jinja2,requests).",
+    )
+    add.add_argument(
+        "--install",
+        action="store_true",
+        help="Install dependencies into the agent venv after adding.",
+    )
+
+    # --- create-venv ---
+    sub.add_parser(
+        "create-venv",
+        help="Create a Python venv and install requirements for an agent.",
+    ).add_argument("--root", required=True, help="Agent root directory.")
+
+    # --- install-deps ---
+    sub.add_parser(
+        "install-deps",
+        help="Install dependencies from requirements.txt into the agent venv.",
+    ).add_argument("--root", required=True, help="Agent root directory.")
+
+    args = parser.parse_args()
+
+    if args.command == "generate":
+        # Parse config from JSON string or file path
+        config_input = args.config
+        if os.path.isfile(config_input):
+            with open(config_input) as f:
+                raw = json.load(f)
+        else:
+            raw = json.loads(config_input)
+
+        config = ScaffoldConfig(
+            workflow_name=raw["workflow_name"],
+            workflow_description=raw.get("workflow_description", ""),
+            folder_name=raw.get("folder_name", raw["workflow_name"]),
+            steps=raw.get("steps", []),
+            agents=raw.get("agents", []),
+            computer_use=raw.get("computer_use", False),
+        )
+        root = generate_scaffold(config, base_dir=args.base_dir)
+        print(json.dumps({"root": root}))
+
+    elif args.command == "add-script":
+        script_content = Path(args.script).read_text()
+        test_content = Path(args.test).read_text() if args.test else None
+        deps = [d.strip() for d in args.deps.split(",")] if args.deps else None
+
+        add_script(
+            agent_root=args.root,
+            script_name=args.name,
+            script_content=script_content,
+            test_content=test_content,
+            dependencies=deps,
+        )
+        if args.install:
+            install_dependencies(args.root)
+        print(json.dumps({"status": "ok", "script": args.name}))
+
+    elif args.command == "create-venv":
+        create_venv(args.root)
+        print(json.dumps({"status": "ok", "venv": os.path.join(args.root, "agent", "scripts", ".venv")}))
+
+    elif args.command == "install-deps":
+        install_dependencies(args.root)
+        print(json.dumps({"status": "ok"}))
+
+    else:
+        parser.print_help()
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    _cli()
