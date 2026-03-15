@@ -21,35 +21,9 @@ Data           Data             Analysis        Analysis        Report          
 
 ## Step 1: Discover Data
 
-**Purpose:** Establish what dataset to analyze, what questions to answer, and who the report is for.
+**Step file:** `agent/steps/step_01_discover-data.md`
 
-**On trigger, ask ONE question at a time. Wait for each response.**
-
-Question 1:
-```
-What dataset should I analyze? Provide a file path or URL to a CSV file.
-```
-
-Question 2:
-```
-What questions do you want answered from this data? List 2-5 specific questions.
-(e.g., "What are the top-selling products?", "Is there a seasonal trend in revenue?")
-```
-
-Question 3:
-```
-Who is the target audience for the report?
-(e.g., "executive team", "engineering managers", "marketing analysts")
-```
-
-**After all questions answered:**
-
-1. Validate the dataset exists and is readable:
-   - If file path: check the file exists and can be opened
-   - If URL: attempt to download and verify it is a valid CSV
-2. Report: file name, file size, first 5 rows preview
-3. Compile a dataset brief summarizing the file, questions, and audience
-4. Present the brief for confirmation
+Read the step file and execute it. Interview the user to establish the dataset, analysis questions, and target audience. Validate the dataset is accessible and compile a dataset brief for confirmation.
 
 **Save:** `tasks/{date}/{id}/01_dataset_info.md`
 
@@ -57,33 +31,9 @@ Who is the target audience for the report?
 
 ## Step 2: Profile Data ⏸
 
-**Purpose:** Run automated profiling and interpret the results.
+**Step file:** `agent/steps/step_02_profile-data.md`
 
-**Read:** `agent/Prompts/01_Data_Profiler.md`
-
-**Workflow:**
-
-1. Ensure the Python environment is set up:
-   ```
-   python3 -m venv agent/scripts/.venv && source agent/scripts/.venv/bin/activate && pip install -r agent/scripts/requirements.txt
-   ```
-   (Skip if `agent/scripts/.venv` already exists.)
-
-2. Run the profiling script against the dataset:
-   ```
-   source agent/scripts/.venv/bin/activate
-   python agent/scripts/profile_data.py <path_to_dataset>
-   ```
-
-3. Capture the profiling output
-4. Interpret the results using the Data Profiler prompt:
-   - Identify data quality issues (missing values, type mismatches)
-   - Highlight interesting distributions and patterns
-   - Recommend cleaning steps if needed
-   - Flag if the dataset is too small for statistical significance
-5. Present the interpreted profile summary to the user
-
-**Wait for user approval. If changes requested, re-run profiling with adjustments or address concerns.**
+Read the step file and execute it. Set up the Python environment, run the profiling script, and interpret the results using the Data Profiler prompt. Present the profile summary for approval.
 
 **Save:** `tasks/{date}/{id}/02_profile.md`
 
@@ -91,32 +41,9 @@ Who is the target audience for the report?
 
 ## Step 3: Design Analysis ⏸
 
-**Purpose:** Design the analysis plan based on profiling results and user questions.
+**Step file:** `agent/steps/step_03_design-analysis.md`
 
-**Read:** `agent/Prompts/02_Analysis_Architect.md`
-
-**Workflow:**
-
-1. Review the dataset info from Step 1 and profiling results from Step 2
-2. Review the user's original questions
-3. For each question, design:
-   - **Metrics to compute** - name, formula or method, rationale for why this metric answers the question
-   - **Charts to generate** - chart type, x-axis, y-axis, purpose. Match chart type to data type:
-     - Categorical data: bar chart, pie chart
-     - Continuous data: histogram, scatter plot, box plot
-     - Time series: line chart
-     - Relationships: scatter plot, heatmap
-   - **Statistical tests** - if applicable (correlation, t-test, chi-square, etc.)
-4. Compile the analysis plan with expected insights
-5. Present the plan for approval
-
-**Constraints:**
-- Every user question must map to at least one metric or chart
-- No more than 8 charts total
-- At least one summary statistics table
-- Prioritize answering user's questions over exploratory analysis
-
-**Wait for user approval. If changes requested, revise the plan.**
+Read the step file and execute it. Design metrics, charts, and statistical tests for each user question using the Analysis Architect prompt. Present the analysis plan for approval.
 
 **Save:** `tasks/{date}/{id}/03_analysis_plan.md`
 
@@ -124,39 +51,9 @@ Who is the target audience for the report?
 
 ## Step 4: Run Analysis
 
-**Purpose:** Generate and execute the analysis scripts.
+**Step file:** `agent/steps/step_04_run-analysis.md`
 
-**Workflow:**
-
-1. Create the task output directory:
-   ```
-   mkdir -p tasks/{date}/{id}/output
-   ```
-
-2. Copy the analysis template to the task folder:
-   ```
-   cp agent/utils/analysis-template/analysis.py tasks/{date}/{id}/analysis.py
-   cp agent/utils/analysis-template/requirements.txt tasks/{date}/{id}/requirements.txt
-   ```
-
-3. Customize `tasks/{date}/{id}/analysis.py` based on the approved analysis plan:
-   - Update `load_data()` with the actual dataset path
-   - Implement `compute_metrics()` with the specific metrics from the plan
-   - Implement `generate_charts()` with the specific charts from the plan
-   - Add any additional functions needed for statistical tests
-
-4. Run the analysis:
-   ```
-   source agent/scripts/.venv/bin/activate
-   cd tasks/{date}/{id}
-   python analysis.py
-   ```
-
-5. Verify outputs were generated:
-   - Check `output/` directory for expected CSV and PNG files
-   - Verify `summary_stats.csv` exists
-   - Verify all planned charts were generated
-   - Report any errors or missing outputs
+Read the step file and execute it. Copy the analysis template, customize it per the approved plan, execute it, and verify all expected outputs were generated.
 
 **Save:** Analysis outputs in `tasks/{date}/{id}/output/`
 
@@ -164,29 +61,9 @@ Who is the target audience for the report?
 
 ## Step 5: Generate Report
 
-**Purpose:** Compile analysis outputs into a structured markdown report.
+**Step file:** `agent/steps/step_05_generate-report.md`
 
-**Read:** `agent/Prompts/03_Report_Writer.md`
-
-**Workflow:**
-
-1. Run the report generation script:
-   ```
-   source agent/scripts/.venv/bin/activate
-   python agent/scripts/generate_report.py tasks/{date}/{id}
-   ```
-
-2. Review the generated report skeleton
-3. Enhance the report following the Report Writer prompt:
-   - Write an executive summary readable by non-technical audiences
-   - Write a methodology section explaining the approach
-   - For each user question, write a findings section with:
-     - Specific numbers and context (not just raw values)
-     - Embedded charts with descriptive captions
-     - Clear interpretation of what the data shows
-   - Write conclusions tying findings back to the original questions
-   - Write a limitations section noting caveats and data quality issues
-4. Finalize `tasks/{date}/{id}/report.md`
+Read the step file and execute it. Run the report generation script, then enhance the report with executive summary, methodology, findings, conclusions, and limitations using the Report Writer prompt.
 
 **Save:** `tasks/{date}/{id}/report.md`
 
@@ -194,46 +71,11 @@ Who is the target audience for the report?
 
 ## Step 6: Review & Deliver ⏸
 
-**Purpose:** Final quality review and delivery of all outputs.
+**Step file:** `agent/steps/step_06_review-deliver.md`
 
-**Workflow:**
+Read the step file and execute it. Run the self-review checklist, present the final report and delivery summary, and wait for user approval.
 
-1. Run the self-review checklist:
-   - [ ] Every user question has a corresponding finding in the report
-   - [ ] Every chart has a caption explaining what it shows
-   - [ ] Every finding references specific numbers with context
-   - [ ] Executive summary is readable by a non-technical audience
-   - [ ] Limitations section is present and honest
-   - [ ] All file paths in the report are correct
-   - [ ] No broken image references
-   - [ ] No placeholder text remaining
-
-2. Present the report to the user
-
-3. Present the final delivery summary:
-   ```
-   Analysis: {task_id}
-   Dataset: {dataset_name}
-   Questions answered: {count}
-   Charts generated: {count}
-   Report: tasks/{date}/{id}/report.md
-
-   Files:
-   tasks/{date}/{id}/
-   ├── TASK_INFO.md
-   ├── 01_dataset_info.md
-   ├── 02_profile.md
-   ├── 03_analysis_plan.md
-   ├── analysis.py
-   ├── requirements.txt
-   ├── output/
-   │   ├── summary_stats.csv
-   │   ├── chart_1.png
-   │   └── ...
-   └── report.md
-   ```
-
-**Wait for user approval. If changes requested, revise and re-deliver.**
+**Save:** Final delivery in `tasks/{date}/{id}/`
 
 ---
 

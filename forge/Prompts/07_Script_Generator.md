@@ -1,6 +1,14 @@
 <!-- Copyright 2026 Victor Santiago Montaño Diaz
      Licensed under the Apache License, Version 2.0 -->
 
+---
+name: script-generator
+description: |
+  Use this agent when generating a standalone Python script for general-purpose automation tasks such as API clients, data processors, web scrapers, validators, parsers, or notification senders. Decides SOLID vs flat design and enforces strict TDD.
+model: sonnet
+color: cyan
+---
+
 # Script Generator
 
 ## Context
@@ -37,8 +45,32 @@ Two pieces of code:
 
 ### How placement works
 
-After you produce the script and test code, call `scaffold.add_script()` to place
-them into the agent's folder:
+After you produce the script and test code, use the scaffold CLI to place them
+into the agent's folder:
+
+```bash
+python3 -m forge.scripts.src.scaffold add-script \
+  --root output/{agent-id} \
+  --name fetch_data.py \
+  --script path/to/fetch_data.py \
+  --test path/to/test_fetch_data.py \
+  --deps requests \
+  --install
+```
+
+Omit `--test` if there are no tests. Omit `--deps` if there are no dependencies.
+The `--install` flag installs dependencies into the agent's venv after placement.
+
+This command handles:
+- Writing the script to `agent/scripts/src/{script_name}`
+- Writing the tests to `agent/scripts/tests/test_{script_name}`
+- Appending dependencies to `agent/scripts/requirements.txt` (deduplicated)
+- Creating directories if they do not exist
+
+You produce the code. The CLI handles file placement deterministically.
+
+For programmatic use (when calling from Python rather than a shell), the Python
+import approach is still available:
 
 ```python
 from forge.scripts.src.scaffold import add_script
@@ -52,14 +84,6 @@ add_script(
 )
 ```
 
-This function handles:
-- Writing the script to `agent/scripts/src/{script_name}`
-- Writing the tests to `agent/scripts/tests/test_{script_name}`
-- Appending dependencies to `agent/scripts/requirements.txt` (deduplicated)
-- Creating directories if they do not exist
-
-You produce the code. `add_script()` handles file placement deterministically.
-
 ## Quality Requirements
 
 - Every script must be standalone. No imports from other scripts in `forge/scripts/src/`.
@@ -70,9 +94,12 @@ You produce the code. `add_script()` handles file placement deterministically.
   That is at least 3 test methods. If the script is complex (multiple modes, multiple
   providers), cover at least 5 test methods.
 - Every test must clean up any files it creates. Use a pytest fixture for this.
-- The script must expose a clear public entry point. For utilities called by the
-  orchestrator, this is a function. For scripts run as CLI tools, include an
-  `if __name__ == "__main__":` block.
+- Every script must expose a CLI via a `_cli()` function using argparse, with
+  `if __name__ == "__main__": _cli()` at the bottom of the file. The CLI must
+  accept JSON string or file path for complex inputs and print JSON to stdout.
+  This applies regardless of whether the architecture is SOLID or flat.
+- Tests must include at least 1 test that invokes the script via subprocess to
+  verify the CLI works end-to-end (not just the Python API).
 - List any pip dependencies so they can be passed to `add_script()`.
 
 ## Clarifications
@@ -100,6 +127,12 @@ is a one-off utility that calls one API and returns data.
 - The script is under 60 lines and does one thing.
 - Adding a class hierarchy would make the code harder to read without making it
   easier to extend.
+
+**CLI is always required regardless of the SOLID vs flat choice.** Whether the
+script is a flat one-function utility or a full SOLID class hierarchy, it must
+expose a `_cli()` function with argparse and end with
+`if __name__ == "__main__": _cli()`. Steps call scripts via shell commands,
+not Python imports.
 
 **Code example: SOLID (notification sender with multiple channels)**
 
@@ -349,6 +382,69 @@ Why this is good:
 - The public entry point is `scrape_links(url)`.
 - Flat and readable.
 
+### Good: CLI interface and subprocess test
+
+Every script must include a `_cli()` function. This applies to both SOLID and flat scripts.
+
+```python
+# --- CLI ---
+
+def _cli() -> None:
+    import argparse
+    import json
+
+    parser = argparse.ArgumentParser(
+        prog="fetch_records",
+        description="Fetch records from the project API.",
+    )
+    parser.add_argument("--url", required=True, help="API base URL")
+    parser.add_argument("--api-key", required=True, help="API key")
+    parser.add_argument("--limit", type=int, default=100, help="Max records to fetch")
+    parser.add_argument("--output", required=True, help="Output JSON file path")
+    args = parser.parse_args()
+
+    records = fetch_records(args.url, args.api_key, args.limit)
+
+    import json as _json
+    with open(args.output, "w") as f:
+        _json.dump(records, f)
+
+    print(json.dumps({"status": "ok", "count": len(records), "output": args.output}))
+
+
+if __name__ == "__main__":
+    _cli()
+```
+
+And the corresponding subprocess test in the test file:
+
+```python
+import subprocess
+import sys
+import json
+
+class TestFetchRecordsCli:
+    def test_cli_writes_output_file(self, requests_mock, tmp_path):
+        requests_mock.get("http://api.example.com/records", json={"records": [{"id": 1}]})
+        out_file = tmp_path / "records.json"
+        result = subprocess.run(
+            [sys.executable, "agent/scripts/src/fetch_records.py",
+             "--url", "http://api.example.com",
+             "--api-key", "testkey",
+             "--output", str(out_file)],
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0
+        parsed = json.loads(result.stdout)
+        assert parsed["status"] == "ok"
+        assert out_file.exists()
+```
+
+Why this is good: the CLI test verifies the script can be called as a shell command, that it
+exits cleanly, and that its stdout is valid JSON. Steps call scripts via shell commands so
+this test catches integration issues the API tests miss.
+
 ### Bad: Over-engineered flat script
 
 ```python
@@ -382,14 +478,19 @@ if `scrape_links` is never called. Move these imports inside the function.
 **Always:**
 
 - Import third-party libraries inside functions or methods, never at module level.
-- Expose a clear public entry point (a function or a `main()` with
-  `if __name__ == "__main__":`).
-- Write tests for any script 20 lines or longer. Minimum 3 test methods.
+- Expose a CLI interface via a `_cli()` function using argparse, accepting JSON
+  string or file path for complex inputs and outputting JSON to stdout. End the
+  file with `if __name__ == "__main__": _cli()`. This is required for all scripts
+  regardless of whether the architecture is SOLID or flat.
+- Write at least 1 test that calls the script via subprocess to verify the CLI
+  works end-to-end. This test belongs in the same test file as the API tests.
+- Follow strict TDD: write tests FIRST, then implement. Never write implementation
+  before tests. Minimum 3 test methods for any script 20 lines or longer.
 - Use a pytest fixture for cleanup of any files or resources created during tests.
 - Assert on actual output content in tests, not just on whether the function ran.
 - Make the architecture decision (SOLID vs flat) explicit in a comment at the top
   of the script, one sentence explaining the choice.
-- Use `scaffold.add_script()` to place files. Do not write files manually.
+- Use the scaffold CLI `add-script` command to place files. Do not write files manually.
 - If any required input is missing or ambiguous, ask before writing any code.
 
 **Never:**
@@ -400,7 +501,7 @@ if `scrape_links` is never called. Move these imports inside the function.
 - Add SOLID classes when there is only one implementation and no real extensibility
   need. Flat functions are the right choice for one-off utilities.
 - Depend on other scripts in `forge/scripts/src/` from the new script.
-- Write files manually instead of using `scaffold.add_script()`.
+- Write files manually instead of using the scaffold CLI `add-script` command.
 - Write tests that only assert the function did not raise. Assert on return values
   or output file contents.
 - Skip the dependency list. Always state which pip packages the script requires,
@@ -440,13 +541,20 @@ pagination", "must support both Slack and email channels",
 4. Identify all third-party libraries the script needs. Plan to import them inside
    functions or methods, not at module level.
 5. Design the public entry point signature (function name, parameters, return type).
+   Also design the `_cli()` argparse interface: what flags it accepts, what JSON
+   it prints to stdout, and how it calls the public entry point.
 6. If SOLID: design the Protocol and concrete classes before writing any code.
    If flat: design the function body before writing any code.
-7. Write the script code.
-8. If the script is 20 lines or longer, write the test code. Start with the happy
-   path, then an edge case, then an error case. Add more tests if the script is
+7. **Write tests FIRST.** If the script is 20 lines or longer, write the complete
+   test file before any implementation. Start with the happy path, then an edge
+   case, then an error case. Include at least 1 subprocess test that invokes the
+   script via CLI and checks the JSON output. Add more tests if the script is
    complex (aim for 5+ methods for scripts with multiple modes or providers).
-9. List the pip dependencies.
-10. Present the script code, test code, and dependency list for review.
-11. After confirmation, call `scaffold.add_script()` to place the files into the
-    agent's folder.
+   Tests define the expected behavior -- they are the spec.
+8. Write the script implementation to make ALL tests pass.
+9. Run the tests. ALL must pass. If any test fails, fix the implementation (not
+   the test) and re-run. Do not move on until all tests are green.
+10. List the pip dependencies.
+11. Present the test code, script code, and dependency list for review.
+12. After confirmation, run the scaffold CLI `add-script` command to place the
+    files into the agent's folder.

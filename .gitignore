@@ -27,3 +27,4 @@ texput.log
 # Session artifacts
 .specstory/
 .claude-handoff.md
+.gemini

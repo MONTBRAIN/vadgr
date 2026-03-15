@@ -21,6 +21,12 @@ research-paper/
 │   │   ├── 01_Research_Analyst.md
 │   │   ├── 02_Outline_Architect.md
 │   │   └── 03_Academic_Writer.md
+│   ├── steps/                         # Step definitions (referenced by agentic.md)
+│   │   ├── step_01_topic-selection.md
+│   │   ├── step_02_research-phase.md
+│   │   ├── step_03_outline-generation.md
+│   │   ├── step_04_section-writing.md
+│   │   └── step_05_review-and-assembly.md
 │   ├── scripts/                       # Python tooling
 │   │   ├── src/
 │   │   ├── tests/

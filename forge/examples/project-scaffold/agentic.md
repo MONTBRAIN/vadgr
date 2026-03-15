@@ -22,154 +22,33 @@ Definition          Design              Generation          Delivery
 
 ## Step 1: Project Definition
 
-**Purpose:** Gather all requirements needed to scaffold a new code project.
+**Step file:** `agent/steps/step_01_project-definition.md`
 
-**On trigger, ask ONE question at a time. Wait for each response.**
-
-Question 1:
-```
-What is the project name? (Use kebab-case, e.g., "my-web-app")
-```
-
-Question 2:
-```
-What language and/or framework should this project use?
-(e.g., "Python with FastAPI", "Go", "TypeScript with React", "Ruby on Rails")
-```
-
-Question 3:
-```
-Describe the project in 2-3 sentences. What does it do?
-```
-
-Question 4:
-```
-What are the key features or components? List 3-5 main features this project needs.
-```
-
-Question 5:
-```
-Who is the target audience or user of this project?
-(e.g., "developers consuming an API", "end users of a web app", "CLI tool users")
-```
-
-**After all questions answered:** Compile a project brief summarizing the name, language/framework, description, features, and target audience. Present it to the user for confirmation.
-
-**Save:** Hold project brief in context for subsequent steps.
+Read the step file and execute it. Gather all project requirements from the user by asking one question at a time: project name, language/framework, description, features, and target audience.
 
 ---
 
 ## Step 2: Architecture Design ⏸
 
-**Purpose:** Design the project folder structure, component breakdown, and dependency map.
+**Step file:** `agent/steps/step_02_architecture-design.md`
 
-**Read:** `agent/Prompts/01_Software_Architect.md`
-
-**Workflow:**
-
-1. Review the project brief from Step 1
-2. Identify the idiomatic project structure for the chosen language/framework
-3. Design the folder tree following language conventions (e.g., `src/` for Go, `lib/` for Ruby, `src/` for TypeScript)
-4. Break the project into components based on the listed features
-5. For each component, define: name, responsibility, file path
-6. Map dependencies between components
-7. Identify the main entry point for the project
-8. Present the complete architecture document to the user:
-
-```
-Project Architecture: {project-name}
-
-Language/Framework: {language}
-
-Folder Structure:
-{folder tree}
-
-Components:
-| # | Name | Responsibility | File Path |
-|---|------|---------------|-----------|
-| 1 | {name} | {responsibility} | {path} |
-| ... | ... | ... | ... |
-
-Dependencies:
-{component} --> {component}
-...
-
-Entry Point: {file path}
-```
-
-**Wait for user approval. If changes requested, revise and present again.**
+Read the step file and execute it. Design the project folder structure, component breakdown, and dependency map based on the project brief from Step 1. Present to user for approval.
 
 ---
 
 ## Step 3: Code Generation
 
-**Purpose:** Generate all starter code files based on the approved architecture.
+**Step file:** `agent/steps/step_03_code-generation.md`
 
-**Read:** `agent/Prompts/02_Code_Generator.md`
-
-**Workflow:**
-
-1. Review the approved architecture document from Step 2
-2. Copy the template from `templates/project-template/` into `output/{project-name}/`
-3. Fill in the template README.md with the project name and description
-4. Generate the main entry point file with proper imports and a minimal working structure
-5. For each component in the architecture:
-   a. Create the file at the specified path
-   b. Add proper imports/includes
-   c. Define types, interfaces, or structs as appropriate
-   d. Add function stubs with documentation comments
-   e. Include minimal inline documentation
-6. For each component, generate a corresponding test file in `tests/`:
-   a. Import the component
-   b. Write at least one test stub per public function
-7. Generate language-appropriate config files (e.g., `go.mod`, `package.json`, `Gemfile`)
-8. Generate a `.gitignore` appropriate for the language/framework
-
-**Save:** All generated files into `output/{project-name}/`
+Read the step file and execute it. Generate all starter code files, tests, and config files based on the approved architecture from Step 2.
 
 ---
 
 ## Step 4: Validation and Delivery ⏸
 
-**Purpose:** Verify completeness and deliver the finished project scaffold.
+**Step file:** `agent/steps/step_04_validation-and-delivery.md`
 
-**Workflow:**
-
-1. Read the architecture document from Step 2
-2. List all files generated in `output/{project-name}/`
-3. Verify completeness:
-   - Every component in the architecture has a corresponding source file
-   - Every component has at least one test file
-   - The entry point file exists
-   - README.md is filled in (no unfilled placeholders)
-   - Config files are present
-   - .gitignore is present
-4. Verify code quality:
-   - All files have proper imports
-   - No empty files (every file has at least a stub)
-   - Naming follows language conventions
-5. If any issues found, fix them before presenting
-6. Present the final summary to the user:
-
-```
-Project "{project-name}" is ready!
-
-Location: output/{project-name}/
-
-Files created:
-{complete file tree}
-
-Components: {count}
-Test files: {count}
-Entry point: {entry point path}
-
-To get started:
-1. cd output/{project-name}/
-2. {language-specific setup command}
-3. {language-specific run command}
-```
-
-**Wait for user approval.**
+Read the step file and execute it. Verify all generated files match the architecture, fix any issues, and present the final project summary to the user.
 
 ---
 

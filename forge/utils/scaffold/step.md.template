@@ -1,0 +1,117 @@
+# Step {{STEP_NUMBER}}: {{STEP_NAME}}
+<!-- STEP_NUMBER: Integer, e.g. 1, 2, 3.
+     STEP_NAME: Title Case noun phrase describing what this step produces, e.g.
+     "Gather Requirements", "Research Phase", "Generate Orchestrator". -->
+
+**Purpose:** {{STEP_PURPOSE}}
+<!-- STEP_PURPOSE: One sentence. Start with a verb. Describe what this step produces
+     or decides, not how it does it. Example: "Design the workflow structure and
+     identify the agents needed." -->
+
+**Prompt:** {{STEP_PROMPT}}
+<!-- STEP_PROMPT: Path to the agent prompt file this step reads before acting.
+     Use the path relative to the project root, e.g.:
+       `agent/Prompts/02_Research_Analyst.md`
+     If this step is mechanical (file generation, format conversion, validation)
+     and does not need an agent persona, write:
+       None (orchestrator handles this directly)
+     Prompt 01 (Senior Prompt Engineer) is a meta-prompt used for craft guidance,
+     not as the primary agent persona for a step. -->
+
+---
+
+## Inputs
+<!-- List every piece of data or context this step receives.
+     Be specific: name the source, not just the type.
+     If a previous step saved an agent output file, reference it by path. -->
+
+{{STEP_INPUTS}}
+<!-- Examples of well-written inputs:
+     - User's description of the workflow they want to build
+     - Architecture design from Step 2 (held in context)
+     - Profiling results from Step 2: `output/agent_outputs/step_02_agent_output.md`
+     For the first step that has no prior outputs, list only the runtime inputs
+     the user or caller provides. -->
+
+---
+
+## Workflow
+<!-- Numbered list of concrete actions the agent performs.
+     Each item is one action. Do not bundle multiple distinct actions into one item.
+     The first item should orient the agent (read a prompt, read an input file, etc.).
+     The last item before saving should be a presentation or approval step if gates apply. -->
+
+{{STEP_WORKFLOW}}
+<!-- Example structure:
+     1. **Read:** `agent/Prompts/02_Research_Analyst.md`
+     2. Review the inputs from Step N.
+     3. [Specific action unique to this step]
+     4. [Next action]
+     5. Present results to the user for approval.
+
+     For steps with approval gates, add this line after the final action:
+     **Wait for user approval. If changes requested, [describe how to iterate].**
+
+     For steps that run scripts, show the exact invocation:
+     ```bash
+     source agent/scripts/.venv/bin/activate
+     python agent/scripts/src/{script_name}.py
+     ``` -->
+
+---
+
+## Required Outputs
+
+### Agent Output (inter-step context)
+<!-- What gets saved so that subsequent steps can read it.
+     Use the standard path: output/{run_id}/agent_outputs/step_NN_agent_output.md
+     where NN is the zero-padded step number (01, 02, 03...).
+     {run_id} is provided by the API executor at runtime to isolate concurrent runs.
+     For standalone/interactive use, omit {run_id}: output/agent_outputs/step_NN_agent_output.md.
+     List the specific fields or sections that must appear in this file.
+
+     If this step does not write a file (outputs are held only in context, or the
+     step produces nothing that a later step needs), write:
+       Held in context for subsequent steps. No file saved. -->
+
+Save to: `output/{run_id}/agent_outputs/step_{{STEP_NUMBER_PADDED}}_agent_output.md`
+- {{AGENT_OUTPUT_CONTENTS}}
+<!-- AGENT_OUTPUT_CONTENTS: Bullet list of what the file contains.
+     Example:
+     - Annotated bibliography with 8-15 sources
+     - Source summary (3-4 sentences on major themes)
+     - Per-source: title, author, year, URL, annotation, relevance score -->
+
+### User Output (deliverables)
+<!-- What the user receives as a tangible artifact from this step.
+     Use the standard path: output/{run_id}/user_outputs/step_NN/
+     {run_id} is provided by the API executor at runtime to isolate concurrent runs.
+     For standalone/interactive use, omit {run_id}: output/user_outputs/step_NN/.
+     List each file or artifact the user gets.
+
+     If this step produces no user-facing deliverables (it only builds context for
+     the next step), write:
+       None. This step produces inter-step context only. -->
+
+Save to: `output/{run_id}/user_outputs/step_{{STEP_NUMBER_PADDED}}/`
+- {{USER_OUTPUT_CONTENTS}}
+<!-- USER_OUTPUT_CONTENTS: Bullet list of user-facing files or artifacts.
+     Example:
+     - `bibliography.md` -- the complete annotated bibliography document
+     - `analysis_plan.md` -- the approved analysis plan -->
+
+---
+
+## Quality Check
+<!-- A short bulleted list of pass/fail questions.
+     Each question tests whether this step is actually complete.
+     Avoid vague questions like "Is the output good?" Prefer measurable ones:
+       - At least 8 sources in the bibliography?
+       - Every user question mapped to at least one metric or chart?
+       - Agent output file saved to the correct path? -->
+
+{{QUALITY_CHECK_ITEMS}}
+<!-- Example:
+     - Description provided and understood?
+     - Requirements summary confirmed by user?
+     - Agent output saved to output/{run_id}/agent_outputs/step_01_agent_output.md? -->
