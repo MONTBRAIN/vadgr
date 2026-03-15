@@ -92,7 +92,7 @@ All prefixed with `AGENT_FORGE_`:
 PYTHONPATH=. python -m pytest api/tests/ -v
 ```
 
-145 tests covering routes, services, repositories, and WebSocket events.
+180+ tests covering routes, services, repositories, executor, and WebSocket events.
 
 ## Project structure
 

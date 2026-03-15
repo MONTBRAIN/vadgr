@@ -21,11 +21,17 @@ A 7-step generation process defined in `agentic.md`:
 |------|------|-------------|
 | 01 | Gather Requirements | Interview the user about their workflow needs |
 | 02 | Design Architecture | Design steps, agents, and approval gates |
-| 03 | Generate Orchestrator | Create the workflow's `agentic.md` |
-| 04 | Generate Agents | Create specialized agent prompts |
-| 05 | Generate Commands | Create CLI commands for each step |
-| 06 | Generate Scaffold | Create README, project rules, directory structure |
+| 03 | Generate Scaffold | Create project skeleton, README, CLAUDE.md, commands, venv |
+| 04 | Generate Orchestrator | Create the workflow's `agentic.md` with step file references |
+| 05 | Generate Agents | Create specialized agent prompts and step definition files |
+| 06 | Generate Scripts | Create workflow-specific scripts (if needed) |
 | 07 | Review & Deliver | Self-review for completeness and quality |
+
+### Three Modes
+
+- **Interactive** (`agentic.md`): Full 7-step flow with user interview and approval gates. Step files in `steps/interactive/`.
+- **API Generate** (`api-generate.md`): Non-interactive generation from structured JSON input. Step files in `steps/api-generate/`.
+- **API Update** (`api-update.md`): Non-interactive update of existing agents. Step files in `steps/api-update/`.
 
 ## Usage
 
@@ -47,7 +53,10 @@ For agents that support slash commands (e.g., Claude Code), thin wrappers live i
 
 | File | Purpose |
 |------|---------|
-| `agentic.md` | 7-step orchestrator (source of truth) |
+| `agentic.md` | Interactive 7-step orchestrator (source of truth) |
+| `api-generate.md` | Non-interactive generation orchestrator |
+| `api-update.md` | Non-interactive update orchestrator |
+| `steps/` | Step files organized by mode (`interactive/`, `api-generate/`, `api-update/`) |
 | `Prompts/` | 6 specialized agent prompts |
 | `utils/scaffold/` | Templates for generated projects |
 | `patterns/` | 10 documented workflow patterns |
