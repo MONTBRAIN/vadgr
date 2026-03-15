@@ -367,3 +367,64 @@ def generate(path: str, doc: dict, style: StyleConfig | None = None) -> None:
     if not cls:
         raise ValueError(f"Unsupported format: {ext}")
     _render_doc(cls(style), doc, path)
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+
+def _cli() -> None:
+    """Command-line interface for document generation."""
+    import argparse
+    import json
+    import sys
+
+    parser = argparse.ArgumentParser(
+        prog="gen_document",
+        description="Generate PDF or DOCX documents from structured JSON content.",
+    )
+    parser.add_argument(
+        "output",
+        help="Output file path (extension determines format: .pdf or .docx).",
+    )
+    parser.add_argument(
+        "--input",
+        required=True,
+        help=(
+            "JSON string or path to a JSON file with document content. "
+            "Keys: title, subtitle, author, content (list of block dicts)."
+        ),
+    )
+    parser.add_argument(
+        "--style",
+        default=None,
+        help=(
+            "JSON string or path to a JSON file with style overrides. "
+            "Keys match StyleConfig fields: font_body, font_heading, "
+            "font_size_body, color_subtitle, etc."
+        ),
+    )
+    args = parser.parse_args()
+
+    # Parse doc input
+    if args.input and Path(args.input).is_file():
+        doc = json.loads(Path(args.input).read_text())
+    else:
+        doc = json.loads(args.input)
+
+    # Parse style
+    style = None
+    if args.style:
+        if Path(args.style).is_file():
+            raw = json.loads(Path(args.style).read_text())
+        else:
+            raw = json.loads(args.style)
+        style = StyleConfig(**raw)
+
+    generate(args.output, doc, style)
+    print(json.dumps({"status": "ok", "output": args.output}))
+
+
+if __name__ == "__main__":
+    _cli()

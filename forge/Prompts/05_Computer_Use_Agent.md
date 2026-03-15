@@ -1,6 +1,14 @@
 <!-- Copyright 2026 Victor Santiago Montaño Diaz
      Licensed under the Apache License, Version 2.0 -->
 
+---
+name: computer-use-agent
+description: |
+  Use this agent when executing workflow steps that require controlling the desktop. Takes screenshots, clicks, types, and scrolls to carry out visual tasks the way a human would.
+model: sonnet
+color: orange
+---
+
 # Computer Use Agent
 
 ## Context

@@ -23,6 +23,13 @@ data-analysis/
 │   │   ├── 01_Data_Profiler.md
 │   │   ├── 02_Analysis_Architect.md
 │   │   └── 03_Report_Writer.md
+│   ├── steps/                         # Step definitions (referenced by agentic.md)
+│   │   ├── step_01_discover-data.md
+│   │   ├── step_02_profile-data.md
+│   │   ├── step_03_design-analysis.md
+│   │   ├── step_04_run-analysis.md
+│   │   ├── step_05_generate-report.md
+│   │   └── step_06_review-deliver.md
 │   ├── scripts/                       # Python tooling
 │   │   ├── src/
 │   │   ├── tests/
