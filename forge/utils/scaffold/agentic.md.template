@@ -26,29 +26,17 @@
 {{FOR_EACH_STEP}}
 
 ## Step {{STEP_NUMBER}}: {{STEP_NAME}}
-<!-- One step per phase of work. Each step should produce a clear output.
-     Step names must be human-readable and describe WHAT the step does, not HOW.
-     Good: "Generate PDF Report", "Research Topic", "Build Dashboard"
-     Bad: "Generate PDF report using gen_document.py", "Run fetch_data.py"
-     Script names belong in the workflow details below, not in the step title.
-     If a step uses an agent, add a "Read:" directive pointing to its prompt file.
+<!-- One step per phase of work. Step names: Title Case, describe WHAT not HOW.
      If the step has an approval gate, add ⏸ to the heading. -->
 
-{{STEP_DESCRIPTION}}
+**Step file:** `agent/steps/step_{{STEP_NUMBER_PADDED}}_{{STEP_COMMAND}}.md`
 
-**Read:** `agent/Prompts/{{AGENT_FILE}}` <!-- Only if this step uses a specialized agent. Remove this line for direct/mechanical steps.
-     Agent file uses NN_Agent_Name.md format (e.g., 01_Research_Analyst.md). -->
+Read the step file and execute it. {{STEP_BRIEF_DESCRIPTION}}
 
-**Workflow:**
-
-1. {{ACTION_1}}
-2. {{ACTION_2}}
-3. {{ACTION_N}}
-<!-- Numbered list of concrete actions. Each action should be a single, clear instruction.
-     Include "Wait for user approval" where gates apply. -->
-
-**Save:** {{OUTPUT_FILES}}
-<!-- What files/artifacts this step produces. Be specific: "output/{name}/architecture.md" -->
+<!-- The step file contains: prompt reference, inputs, workflow actions, and required outputs.
+     At runtime, outputs go to output/{run_id}/agent_outputs/step_NN_agent_output.md (inter-step context)
+     and output/{run_id}/user_outputs/step_NN/ (deliverables). The API creates these directories
+     automatically before execution starts. -->
 
 ---
 
@@ -93,10 +81,6 @@ source agent/scripts/.venv/bin/activate
 python -m pytest agent/scripts/tests/
 ```
 
-To add a new script after initial generation, use `add_script()` from
-`forge/scripts/src/scaffold.py`, then call `install_dependencies()` to
-install any new pip packages into the venv.
-
 ---
 
 ## Output Structure
@@ -104,12 +88,12 @@ install any new pip packages into the venv.
 ```
 {{OUTPUT_TREE}}
 ```
-<!-- Show the complete folder/file tree that the workflow produces.
-     Use standard tree notation (├──, └──, │).
-     Include every file and directory the user should expect.
-     Standard project directories live inside agent/:
-     agent/Prompts/ (NN_Agent_Name.md), agent/scripts/ (src/, tests/, requirements.txt, README.md),
-     agent/utils/ (code/, docs/). -->
+<!-- Show the complete folder/file tree. Standard layout:
+     agent/Prompts/ (NN_Agent_Name.md)
+     agent/steps/ (step_NN_step-name.md)
+     agent/scripts/ (src/, tests/, requirements.txt, README.md)
+     agent/utils/ (code/, docs/)
+     output/ (at runtime: output/{run_id}/agent_outputs/ and output/{run_id}/user_outputs/ created per run) -->
 
 ---
 

@@ -121,6 +121,11 @@ class TestDirectoryStructure:
         path = os.path.join(output_dir, simple_config.folder_name, "agent", "utils", "docs")
         assert os.path.isdir(path)
 
+    def test_creates_agent_steps_dir(self, output_dir, simple_config):
+        generate_scaffold(simple_config, output_dir)
+        path = os.path.join(output_dir, simple_config.folder_name, "agent", "steps")
+        assert os.path.isdir(path)
+
     def test_creates_output_dir(self, output_dir, simple_config):
         generate_scaffold(simple_config, output_dir)
         path = os.path.join(output_dir, simple_config.folder_name, "output")
@@ -190,6 +195,7 @@ class TestRequiredFiles:
         generate_scaffold(simple_config, output_dir)
         root = os.path.join(output_dir, simple_config.folder_name)
         for subdir in [
+            "agent/steps",
             "agent/utils/code",
             "agent/utils/docs",
             "agent/scripts/tests",
@@ -311,8 +317,10 @@ class TestFileContents:
         path = os.path.join(output_dir, simple_config.folder_name, "CLAUDE.md")
         content = open(path).read()
         assert "Prompts/" in content
+        assert "steps/" in content
         assert "scripts/" in content
         assert "commands/" in content
+        assert "output/" in content
 
     def test_start_command_references_agentic_md(self, output_dir, simple_config):
         generate_scaffold(simple_config, output_dir)
@@ -322,6 +330,15 @@ class TestFileContents:
         )
         content = open(path).read()
         assert "agentic.md" in content
+
+    def test_step_command_references_step_file(self, output_dir, multi_step_config):
+        generate_scaffold(multi_step_config, output_dir)
+        path = os.path.join(
+            output_dir, multi_step_config.folder_name, ".claude", "commands",
+            "crawl-site.md",
+        )
+        content = open(path).read()
+        assert "agent/steps/step_01_crawl-site.md" in content
 
     def test_step_command_references_step(self, output_dir, multi_step_config):
         generate_scaffold(multi_step_config, output_dir)
@@ -639,3 +656,101 @@ class TestInstallDependencies:
             f.write("")
         create_venv(root)
         install_dependencies(root)  # should not raise
+
+
+class TestCLI:
+    """CLI interface for scaffold operations."""
+
+    def test_generate_from_json_string(self, output_dir):
+        import json
+        import subprocess
+        config = json.dumps({
+            "workflow_name": "cli-test",
+            "workflow_description": "Test CLI scaffold.",
+            "folder_name": "cli-test",
+            "steps": [{"number": 1, "name": "Analyze", "command": "analyze"}],
+            "agents": [{"number": 2, "name": "Analyzer"}],
+            "computer_use": False,
+        })
+        result = subprocess.run(
+            ["python3", "-m", "forge.scripts.src.scaffold", "generate",
+             "--config", config, "--base-dir", output_dir],
+            capture_output=True, text=True,
+        )
+        assert result.returncode == 0
+        out = json.loads(result.stdout)
+        assert "root" in out
+        root = out["root"]
+        assert os.path.isdir(root)
+        assert os.path.isfile(os.path.join(root, "README.md"))
+        assert os.path.isfile(os.path.join(root, "CLAUDE.md"))
+        assert os.path.isdir(os.path.join(root, "agent", "Prompts"))
+        assert os.path.isdir(os.path.join(root, "agent", "steps"))
+        assert os.path.isdir(os.path.join(root, "output"))
+
+    def test_generate_from_json_file(self, output_dir):
+        import json
+        import subprocess
+        config = {
+            "workflow_name": "cli-file-test",
+            "workflow_description": "Test CLI from file.",
+            "folder_name": "cli-file-test",
+            "steps": [{"number": 1, "name": "Run", "command": "run"}],
+            "agents": [{"number": 2, "name": "Runner"}],
+            "computer_use": False,
+        }
+        config_path = os.path.join(output_dir, "config.json")
+        with open(config_path, "w") as f:
+            json.dump(config, f)
+        result = subprocess.run(
+            ["python3", "-m", "forge.scripts.src.scaffold", "generate",
+             "--config", config_path, "--base-dir", output_dir],
+            capture_output=True, text=True,
+        )
+        assert result.returncode == 0
+        out = json.loads(result.stdout)
+        assert os.path.isdir(out["root"])
+        assert os.path.isfile(os.path.join(out["root"], "README.md"))
+
+    def test_add_script_via_cli(self, output_dir, simple_config):
+        import json
+        import subprocess
+        root = generate_scaffold(simple_config, output_dir)
+        # Write a temp script file
+        script_path = os.path.join(output_dir, "my_script.py")
+        with open(script_path, "w") as f:
+            f.write("def hello(): return 'hi'\n")
+        test_path = os.path.join(output_dir, "test_my_script.py")
+        with open(test_path, "w") as f:
+            f.write("def test_hello(): assert hello() == 'hi'\n")
+        result = subprocess.run(
+            ["python3", "-m", "forge.scripts.src.scaffold", "add-script",
+             "--root", root, "--name", "my_script.py",
+             "--script", script_path, "--test", test_path,
+             "--deps", "requests,aiohttp"],
+            capture_output=True, text=True,
+        )
+        assert result.returncode == 0
+        out = json.loads(result.stdout)
+        assert out["status"] == "ok"
+        assert os.path.isfile(os.path.join(root, "agent", "scripts", "src", "my_script.py"))
+        assert os.path.isfile(os.path.join(root, "agent", "scripts", "tests", "test_my_script.py"))
+        req = open(os.path.join(root, "agent", "scripts", "requirements.txt")).read()
+        assert "requests" in req
+        assert "aiohttp" in req
+
+    def test_generate_missing_config_fails(self):
+        import subprocess
+        result = subprocess.run(
+            ["python3", "-m", "forge.scripts.src.scaffold", "generate"],
+            capture_output=True, text=True,
+        )
+        assert result.returncode != 0
+
+    def test_no_command_fails(self):
+        import subprocess
+        result = subprocess.run(
+            ["python3", "-m", "forge.scripts.src.scaffold"],
+            capture_output=True, text=True,
+        )
+        assert result.returncode != 0

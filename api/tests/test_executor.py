@@ -1,10 +1,13 @@
 """Tests for agent executor with mocked provider."""
 
+import os
+import tempfile
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from api.engine.executor import AgentExecutor
-from api.engine.providers import ExecutionEvent
+from api.engine.providers import ExecutionEvent, build_step_prompt, _PROJECT_ROOT
 
 
 def _make_streaming_provider(output='{"result": "done"}'):
@@ -196,3 +199,65 @@ class TestAgentExecutor:
         call_kwargs = provider._streaming_calls[0]
         prompt = call_kwargs["prompt"]
         assert "agentic.md" in prompt
+
+
+class TestBuildStepPrompt:
+    """Tests for build_step_prompt with old and new step file formats."""
+
+    def test_old_format_no_step_files(self):
+        """Without agent/steps/ dir, uses old monolithic format."""
+        agent = {
+            "forge_path": "output/nonexistent-agent/",
+            "name": "test",
+            "steps": [{"name": "Research", "computer_use": False}],
+            "output_schema": [],
+        }
+        prompt = build_step_prompt(agent, {"topic": "AI"}, step_number=1, step=agent["steps"][0])
+        assert "agentic.md" in prompt
+        assert "Do NOT execute any other steps" in prompt
+        assert "agent/steps/" not in prompt
+
+    def test_new_format_with_step_files(self, tmp_path):
+        """With agent/steps/ dir, references step file."""
+        # Create a fake agent folder with step files
+        forge_path = "output/test-agent"
+        full_path = tmp_path / forge_path / "agent" / "steps"
+        full_path.mkdir(parents=True)
+
+        agent = {
+            "forge_path": forge_path,
+            "name": "test",
+            "steps": [
+                {"name": "Research Topic", "computer_use": False},
+                {"name": "Write Report", "computer_use": False},
+            ],
+            "output_schema": [],
+        }
+
+        with patch("api.engine.providers._PROJECT_ROOT", str(tmp_path)):
+            prompt = build_step_prompt(agent, {"topic": "AI"}, step_number=1, step=agent["steps"][0])
+
+        assert "agent/steps/step_01_research-topic.md" in prompt
+        assert "output/agent_outputs/" in prompt
+        assert "step_01_agent_output.md" in prompt
+
+    def test_new_format_references_correct_step(self, tmp_path):
+        """Step file reference matches step number and kebab name."""
+        forge_path = "output/test-agent"
+        full_path = tmp_path / forge_path / "agent" / "steps"
+        full_path.mkdir(parents=True)
+
+        agent = {
+            "forge_path": forge_path,
+            "name": "test",
+            "steps": [
+                {"name": "Gather Data", "computer_use": False},
+                {"name": "Analyze Results", "computer_use": False},
+            ],
+            "output_schema": [{"name": "analysis", "type": "text"}],
+        }
+
+        with patch("api.engine.providers._PROJECT_ROOT", str(tmp_path)):
+            prompt = build_step_prompt(agent, {}, step_number=2, step=agent["steps"][1])
+
+        assert "step_02_analyze-results.md" in prompt

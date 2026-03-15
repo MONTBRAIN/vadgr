@@ -1,10 +1,28 @@
 """Sequential DAG runner. Orchestrates agent execution for runs."""
 
+import os
+from pathlib import Path
 from typing import Any, Callable, Coroutine, Optional
 
 from api.engine.dag import DAG
 from api.engine.executor import AgentExecutor
 from api.persistence.repositories import AgentRepository, ProjectRepository, RunRepository
+
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+
+
+def _ensure_run_output_dirs(forge_path: str, run_id: str) -> None:
+    """Create output directories for a run before execution starts.
+
+    Creates {forge_path}/output/{run_id}/agent_outputs/ and
+    {forge_path}/output/{run_id}/user_outputs/ so agents don't need
+    to mkdir themselves.
+    """
+    if not forge_path or not run_id:
+        return
+    base = _PROJECT_ROOT / forge_path / "output" / run_id
+    (base / "agent_outputs").mkdir(parents=True, exist_ok=True)
+    (base / "user_outputs").mkdir(parents=True, exist_ok=True)
 
 
 EmitFn = Callable[[str, str, dict], Coroutine[Any, Any, None]]
@@ -32,6 +50,7 @@ class ExecutionService:
         run = await self.run_repo.get(run_id)
         agent = await self.agent_repo.get(run["agent_id"])
 
+        _ensure_run_output_dirs(agent.get("forge_path", ""), run_id)
         await self.run_repo.update_status(run_id, "running")
         await self.emit(run_id, "run_started", {})
 
@@ -39,7 +58,7 @@ class ExecutionService:
             async def callback(event_type, data):
                 await self.emit(run_id, event_type, data)
 
-            result = await self.executor.execute(agent, run["inputs"], callback)
+            result = await self.executor.execute(agent, run["inputs"], callback, run_id=run_id)
             await self.run_repo.update_status(run_id, "completed", outputs=result)
             await self.emit(run_id, "run_completed", {"outputs": result})
         except Exception as e:
@@ -91,10 +110,12 @@ class ExecutionService:
                 resolved = dag.resolve_inputs(node, outputs)
                 merged_inputs = {**run["inputs"], **resolved}
 
+                _ensure_run_output_dirs(agent.get("forge_path", ""), run_id)
+
                 async def callback(event_type, data):
                     await self.emit(run_id, event_type, data)
 
-                result = await self.executor.execute(agent, merged_inputs, callback)
+                result = await self.executor.execute(agent, merged_inputs, callback, run_id=run_id)
                 outputs[node["id"]] = result
 
             final_outputs = {}

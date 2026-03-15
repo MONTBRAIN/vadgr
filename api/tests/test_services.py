@@ -794,7 +794,7 @@ class TestExecutionService:
         )
 
         call_count = 0
-        async def mock_execute(agent, inputs, callback):
+        async def mock_execute(agent, inputs, callback, run_id=""):
             nonlocal call_count
             call_count += 1
             if agent["name"] == "Research":
@@ -839,7 +839,7 @@ class TestExecutionService:
         )
         run = await run_repo.create(project_id=project["id"])
 
-        async def mock_execute(agent, inputs, callback):
+        async def mock_execute(agent, inputs, callback, run_id=""):
             return {"result": "done"}
 
         executor_mock = AsyncMock()
@@ -1182,6 +1182,54 @@ class TestAgentExecutor:
 
         # _parse_output should wrap in the first output_schema field
         assert result == {"report": "plain text result"}
+
+    @pytest.mark.asyncio
+    async def test_execute_per_step_routes_cli_only_multi_step(self):
+        """Pure-CLI agents with forge_path + multiple steps run per-step."""
+        from api.engine.executor import AgentExecutor
+        from api.engine.providers import ExecutionEvent
+
+        call_count = 0
+
+        async def fake_streaming(**kwargs):
+            nonlocal call_count
+            call_count += 1
+            assert kwargs.get("use_stream_json") is True  # CLI always streams
+            yield ExecutionEvent(type="output", data=f"Step {call_count} output")
+            yield ExecutionEvent(type="done", data=f'{{"step": {call_count}}}')
+
+        cli_provider = AsyncMock()
+        cli_provider.execute_streaming = fake_streaming
+        cu_service = AsyncMock()
+        callback = AsyncMock()
+
+        executor = AgentExecutor(cli_provider, cu_service)
+        agent = {
+            "id": "test-cli-multi",
+            "name": "cli-multi-agent",
+            "computer_use": False,
+            "provider": "claude_code",
+            "forge_path": "output/test-cli-multi",
+            "description": "Pure CLI multi-step",
+            "output_schema": [{"name": "step"}],
+            "steps": [
+                {"name": "Research", "computer_use": False},
+                {"name": "Analyze", "computer_use": False},
+                {"name": "Report", "computer_use": False},
+            ],
+        }
+        result = await executor.execute(agent, {"topic": "test"}, callback)
+
+        assert call_count == 3
+        assert result == {"step": 3}
+
+        log_calls = [
+            c for c in callback.call_args_list if c.args[0] == "agent_log"
+        ]
+        log_messages = [c.args[1]["message"] for c in log_calls]
+        assert any("Step 1" in m and "[CLI]" in m for m in log_messages)
+        assert any("Step 2" in m and "[CLI]" in m for m in log_messages)
+        assert any("Step 3" in m and "[CLI]" in m for m in log_messages)
 
     @pytest.mark.asyncio
     async def test_execute_per_step_routes_mixed_steps(self):

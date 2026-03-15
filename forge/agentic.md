@@ -1,4 +1,4 @@
-<!-- Copyright 2026 Victor Santiago Montaño Diaz
+<!-- Copyright 2026 Victor Santiago Montano Diaz
      Licensed under the Apache License, Version 2.0 -->
 
 # Agent Forge, Meta-Workflow Orchestrator
@@ -15,60 +15,19 @@
 ## Workflow Overview
 
 ```
-Step 1         Step 2          Step 3          Step 4       Step 5       Step 6          Step 7
-Gather    -->  Design     -->  Generate   -->  Generate --> Generate --> Generate   -->  Review
-Requirements   Architecture    Orchestrator    Agents       Commands     Scaffold        & Deliver
-               ⏸               ⏸                                        ⏸               ⏸
+Step 1         Step 2          Step 3          Step 4          Step 5       Step 6       Step 7
+Gather    -->  Design     -->  Generate   -->  Generate   -->  Generate --> Generate --> Review
+Requirements   Architecture    Scaffold        Orchestrator    Agents       Scripts      & Deliver
+               ⏸               ⏸               ⏸                                        ⏸
 ```
 
 ---
 
 ## Step 1: Gather Requirements
 
-**Purpose:** Understand what the user wants to automate and what good output looks like.
+**Step file:** `forge/steps/interactive/step_01_gather-requirements.md`
 
-**Ask for the description first. Wait for the response before continuing.**
-
-Question 1:
-```
-Describe the workflow you want to build. What should it accomplish?
-```
-
-**After receiving the description:**
-
-Analyze the description. Try to infer: the major phases of work, what inputs the workflow takes, what outputs it produces, whether desktop interaction is needed, and who will use it. If the description gives you enough to infer all of this, proceed directly to compiling the requirements summary without asking further questions.
-
-If the description is ambiguous about the process (you cannot tell what the major steps are or how the work flows), ask one follow-up:
-
-```
-Can you describe the main steps or phases of the work? What does someone
-currently do manually that this workflow should handle?
-```
-
-Only ask this if you genuinely cannot infer the process from the description. Do not ask it as a formality.
-
-**Optionally accept quality samples:**
-
-If the user wants to provide examples of what good output looks like, accept them. Each sample may include an optional short label describing what it shows. Quality samples are not required. If the user does not offer them, do not ask.
-
-**Conventions (not questions):**
-
-- Output location is always `output/{kebab-case-name}/`. Do not ask.
-- Computer use is a flag. If the description mentions desktop interaction (opening apps, clicking buttons, filling forms, navigating GUIs, automating tasks that require seeing the screen), set computer_use to true. Otherwise default to false. Do not ask.
-- Approval gates, user type, and output structure are determined in Step 2. Do not ask.
-
-**Compile a requirements summary containing:**
-
-1. **Name.** A kebab-case name inferred from the description.
-2. **Purpose.** 2-3 sentences describing what the workflow accomplishes.
-3. **Steps (inferred).** The major phases of work as you understand them. Mark as "inferred" if not stated explicitly.
-4. **Inputs.** What the user provides to start the workflow.
-5. **Outputs.** Files, folders, or artifacts the workflow produces.
-6. **Computer use.** true or false, with the reason.
-7. **Quality samples.** Any provided examples (or "none").
-8. **Output location.** `output/{name}/`
-
-Present the summary to the user for confirmation.
+Read the step file and execute it. This step interviews the user to understand what they want to automate.
 
 **Save:** Hold requirements summary in context for subsequent steps.
 
@@ -76,78 +35,30 @@ Present the summary to the user for confirmation.
 
 ## Step 2: Design Architecture ⏸
 
-**Read:** `forge/Prompts/02_Workflow_Architect.md`
+**Step file:** `forge/steps/interactive/step_02_design-architecture.md`
 
-Using the gathered requirements, design the workflow architecture:
-
-1. Determine the number of steps (5-9)
-2. Identify which steps need approval gates ⏸
-3. Identify which steps need quality loops (evaluate-iterate pattern)
-4. Determine how many specialized agents are needed and their roles
-5. Design the output folder structure
-6. Decide which patterns from `forge/patterns/` apply
-7. Identify scripts the workflow needs. For each script, specify:
-   - Name (e.g., `fetch_data.py`, `gen_html.py`)
-   - Type: **format** (document/file generation) or **general** (API client, validator, scraper, etc.)
-   - Purpose (1-2 sentences)
-   - Dependencies (pip packages)
-   If the workflow does not need scripts, state "Scripts: none".
-
-**Read relevant patterns from `forge/patterns/` based on the requirements.** For example:
-- If the workflow needs human review: read `forge/patterns/03-approval-gates.md`
-- If the workflow needs iterative quality: read `forge/patterns/04-quality-loops.md`
-- If each execution needs a fresh copy: read `forge/patterns/07-template-scaffold.md`
-- If the workflow needs desktop interaction: read `forge/patterns/10-computer-use.md`
-
-**Present the architecture to the user:**
-
-```
-Proposed Workflow Architecture:
-
-Name: {workflow-name}
-Steps: {N}
-
-1. {Step Name}, {description}
-2. {Step Name}, {description} ⏸
-...
-
-Agents Needed:
-- {Agent 1 Name}: {role description}
-- {Agent 2 Name}: {role description}
-
-Scripts Needed:
-- {script_name.py} (format|general): {purpose} [deps: {packages}]
-- (or "none")
-
-Output Structure:
-{folder tree}
-
-Patterns Applied:
-- {Pattern name}: {why}
-```
+Read the step file and execute it. This step designs the workflow structure, identifies agents, patterns, and scripts.
 
 **Wait for user approval. If changes requested, iterate.**
 
 ---
 
-## Step 3: Generate Orchestrator ⏸
+## Step 3: Generate Project Scaffold ⏸
 
-**Read:** `forge/utils/scaffold/agentic.md.template`
-**Read:** `forge/Prompts/03_Prompt_Writer.md`
+**Step file:** `forge/steps/interactive/step_03_generate-scaffold.md`
 
-Generate the workflow's `agentic.md` using the template as structural guide:
+Read the step file and execute it. This step creates the full project skeleton deterministically: directories, README, CLAUDE.md, commands, standard prompts, and venv.
 
-1. Fill in the workflow name and trigger commands
-2. Create the workflow overview diagram
-3. Write each step with:
-   - Purpose description
-   - Which agent prompt to read (if applicable)
-   - Numbered workflow actions
-   - What to save
-   - Approval gate marker ⏸ (if applicable)
-4. Add the "After Each Step" approval protocol
-5. Add the output structure diagram
-6. Add the quality checks table
+**Present the complete file listing to the user.**
+**Wait for approval.**
+
+---
+
+## Step 4: Generate Orchestrator ⏸
+
+**Step file:** `forge/steps/interactive/step_04_generate-orchestrator.md`
+
+Read the step file and execute it. This step generates the workflow's `agentic.md` using the template and approved architecture. Saves into the scaffold from Step 3.
 
 **Present the complete agentic.md to the user for review.**
 **Wait for approval. If changes requested, iterate.**
@@ -156,186 +67,33 @@ Generate the workflow's `agentic.md` using the template as structural guide:
 
 ---
 
-## Step 4: Generate Specialized Agents
+## Step 5: Generate Specialized Agents
 
-**Read:** `forge/Prompts/03_Prompt_Writer.md`
-**Read:** `forge/utils/scaffold/agent-prompt.md.template`
+**Step file:** `forge/steps/interactive/step_05_generate-agents.md`
 
-Optionally, read the **Senior Prompt Engineer** prompt at `forge/Prompts/01_Senior_Prompt_Engineer.md` for complex or domain-specific prompts that require deeper expertise. The Prompt Writer prompt covers the structural template; the Senior Prompt Engineer covers the craft of writing high-quality, production-grade prompts.
+Read the step file and execute it. This step generates agent prompt files and step definition files. Agents emit `## Script Requirements` sections in step files for scripts needed at runtime.
 
-For each agent identified in Step 2:
-
-1. Generate a comprehensive prompt following the canonical template:
-   - Context (role and expertise)
-   - Input/Output specifications
-   - Quality requirements
-   - Rules (Always/Never lists)
-   - Actual Input section with placeholders
-   - Expected Workflow section
-2. Number the prompt files sequentially: `01_{Agent_Name}.md`, `02_{Agent_Name}.md`, etc.
-3. If the workflow needs desktop interaction (computer_use flag set in Step 1), generate a `05_Computer_Use_Agent.md` prompt based on `forge/Prompts/05_Computer_Use_Agent.md`. Adapt it to the specific workflow's desktop tasks.
-
-**Save:** `output/{workflow-name}/agent/Prompts/{NN}_{Agent_Name}.md` for each agent
+**Save:** `output/{workflow-name}/agent/Prompts/` and `output/{workflow-name}/agent/steps/`
 
 ---
 
-## Step 5: Generate CLI Commands
+## Step 6: Generate Scripts
 
-**Read:** `forge/utils/scaffold/command.md.template`
+**Step file:** `forge/steps/interactive/step_06_generate-scripts.md`
 
-For each step in the designed workflow:
+Read the step file and execute it. This step generates workflow-specific scripts identified in architecture (Step 2) and emitted from step files (Step 5). Skip if no scripts are needed.
 
-1. Create a `.claude/commands/` file with:
-   - YAML frontmatter (description, argument-hint)
-   - Instruction to read `agentic.md`
-   - Instruction to read the relevant prompt file (if the step uses an agent)
-   - Reference to the specific step number and name
-   - Brief summary of what the step does (3-5 lines)
-
-2. Additionally create a **master start command** that runs the full workflow from Step 1 through the last step.
-
-3. Copy the fix command from `forge/utils/scaffold/fix.md.template` into the generated workflow's `.claude/commands/fix.md`. This command is standard for all workflows and does not need customization.
-
-4. Copy the fixer agent prompt from `forge/utils/scaffold/00_Workflow_Fixer.md.template` into the generated workflow's `agent/Prompts/00_Workflow_Fixer.md`. This prompt is standard for all workflows and does not need customization.
-
-5. Copy the Senior Prompt Engineer prompt from `forge/utils/scaffold/01_Senior_Prompt_Engineer.md.template` into the generated workflow's `agent/Prompts/01_Senior_Prompt_Engineer.md`. This prompt is used by the fixer when prompt writing or rewriting is needed. It is standard for all workflows and does not need customization.
-
-6. If the workflow uses computer use, also generate execution commands: `execute-workflow.md`, `pause-execution.md`, and `resume-execution.md`. These follow the same command template format but reference the Computer Use Agent instead of a generation step.
-
-**Save:** `output/{workflow-name}/.claude/commands/{command-name}.md` for each command
-
----
-
-## Step 6: Generate Project Scaffold ⏸
-
-### 6a. Generate project skeleton
-
-Call `generate_scaffold()` from `forge/scripts/src/scaffold.py` to create the project deterministically:
-
-```python
-from forge.scripts.src.scaffold import generate_scaffold, ScaffoldConfig
-
-config = ScaffoldConfig(
-    workflow_name="{workflow-name}",
-    workflow_description="{description from Step 1}",
-    folder_name="{workflow-name}",
-    steps=[{"number": N, "name": "Step Name", "command": "step-name"}, ...],
-    agents=[{"number": N, "name": "Agent_Name"}, ...],
-    computer_use=True|False,
-)
-root = generate_scaffold(config, base_dir="output")
-```
-
-This creates the full project structure: README.md, CLAUDE.md, agent/Prompts/, agent/scripts/, agent/utils/, .claude/commands/, output/, and a Python venv at `agent/scripts/.venv/` with export scripts (gen_document.py, gen_xlsx.py) pre-installed.
-
-### 6b. Generate workflow-specific scripts
-
-If scripts were identified in Step 2, generate each one now.
-
-For each **format script** (document/file generation):
-1. **Read:** `forge/Prompts/06_Format_Script_Generator.md`
-2. Follow the prompt to generate the script code and test code.
-3. Place via `add_script()`:
-
-```python
-from forge.scripts.src.scaffold import add_script, install_dependencies
-
-add_script(
-    agent_root=root,
-    script_name="gen_html.py",
-    script_content=script_code,
-    test_content=test_code,
-    dependencies=["jinja2"],
-)
-install_dependencies(root)
-```
-
-For each **general script** (API client, validator, scraper, etc.):
-1. **Read:** `forge/Prompts/07_Script_Generator.md`
-2. Follow the prompt to generate the script code and test code.
-3. Place via `add_script()` and `install_dependencies()` as above.
-
-### 6c. Present and approve
-
-**Present the complete file listing to the user.**
-**Wait for approval.**
-
-**Save:** All files are already written by `generate_scaffold()` and `add_script()`.
-Confirm the output location: `output/{workflow-name}/`
+**Save:** `output/{workflow-name}/agent/scripts/`
 
 ---
 
 ## Step 7: Review and Deliver ⏸
 
-**Read:** `forge/Prompts/04_Quality_Reviewer.md`
+**Step file:** `forge/steps/interactive/step_07_review-deliver.md`
 
-Run the quality reviewer's checklist against the generated workflow:
-
-**Self-review checklist:**
-
-- [ ] README.md exists and points to agentic.md
-- [ ] agentic.md has all steps with clear instructions
-- [ ] Every step in agentic.md has a corresponding slash command in `.claude/commands/`
-- [ ] Every agent referenced in agentic.md has a prompt file in `agent/Prompts/`
-- [ ] Approval gates are marked at appropriate decision points
-- [ ] Output structure is documented in agentic.md
-- [ ] CLAUDE.md lists all commands and describes the project structure
-- [ ] Agent prompts have all required sections (Context, I/O, Quality, Rules, Actual Input, Expected Workflow)
-- [ ] No circular dependencies between steps
-- [ ] The workflow is self-contained (no references to files outside its own directory)
-- [ ] agent/ directory exists with Prompts/, scripts/, utils/
-- [ ] agent/scripts/ contains src/, tests/, requirements.txt, README.md
-- [ ] agent/scripts/.venv/ exists and has working pip
-- [ ] agent/utils/ contains code/ and docs/
-- [ ] agent/scripts/README.md includes venv setup instructions
-- [ ] If scripts identified in Step 2: each script exists in agent/scripts/src/
-- [ ] If scripts identified in Step 2: each script has tests in agent/scripts/tests/
-- [ ] If scripts identified in Step 2: dependencies are in agent/scripts/requirements.txt and installed in .venv
-- [ ] .claude/commands/fix.md exists (standard in all workflows)
-- [ ] agent/Prompts/00_Workflow_Fixer.md exists (standard in all workflows)
-- [ ] agent/Prompts/01_Senior_Prompt_Engineer.md exists (standard in all workflows)
-- [ ] If computer use: Computer Use Agent prompt exists?
-- [ ] If computer use: Execution commands (execute-workflow, pause, resume) generated?
-- [ ] If computer use: computer_use/config.yaml present in generated project?
+Read the step file and execute it. This step runs the quality reviewer's checklist and delivers the final summary.
 
 **Fix any issues found before delivering.**
-
-**Present the final summary:**
-
-```
-Workflow "{workflow-name}" is ready!
-
-Location: output/{workflow-name}/
-
-Files created:
-├── README.md
-├── CLAUDE.md
-├── agentic.md ({N} steps)
-├── .claude/commands/ ({M} commands)
-│   ├── {command-1}.md
-│   └── ...
-├── agent/
-│   ├── Prompts/ ({K} agents + fixer)
-│   │   ├── 00_Workflow_Fixer.md
-│   │   ├── 01_{Agent_Name}.md
-│   │   └── ...
-│   ├── scripts/
-│   │   ├── src/
-│   │   ├── tests/
-│   │   ├── requirements.txt
-│   │   └── README.md
-│   └── utils/
-│       ├── code/
-│       └── docs/
-└── {output-dirs}/
-
-To use this workflow:
-1. Open the project folder in your AI coding agent (e.g., Claude Code, OpenCode)
-2. Point it at agentic.md: "Read agentic.md and start"
-3. Follow the step-by-step instructions
-
-Patterns applied: {list}
-```
 
 ---
 
@@ -359,6 +117,13 @@ Patterns applied: {list}
 
 ### Self-Similar Architecture
 Agent Forge generates workflows that follow the **same architecture** as Agent Forge itself. If you're unsure how to structure something in the generated workflow, look at how Agent Forge does it. The `forge/` directory IS the reference implementation.
+
+### Step File Architecture
+Generated workflows use a thin orchestrator + step files pattern:
+- `agentic.md` contains step order, pause/approval gates, and references to step files
+- `agent/steps/step_{NN}_{step-name}.md` contains the full execution spec for each step
+- Each step file defines: prompt reference, inputs, workflow actions, and required outputs
+- Step outputs go to `output/{run_id}/agent_outputs/` (inter-step context) and `output/{run_id}/user_outputs/` (user deliverables); the `{run_id}` is provided by the API executor at runtime to isolate concurrent runs, and output directories are created automatically before execution starts
 
 ### Templates vs From Scratch
 **ALWAYS** start from the scaffold templates in `forge/utils/scaffold/`. Never write an `agentic.md`, `README.md`, `CLAUDE.md`, agent prompt, or command file from scratch. The templates exist to enforce consistency. Fill in the placeholders, adapt the structure, but keep the skeleton.
@@ -392,13 +157,14 @@ Every workflow in `output/` must work **without Agent Forge installed**. This me
 - A user can copy the output folder anywhere and it works
 
 ### The Orchestrator is the Source of Truth
-The `agentic.md` file is the **single source of truth** for any workflow. Slash commands are shortcuts that point INTO it, not replacements for it. Agent prompts are read BY it, not independently. Everything flows through the orchestrator.
+The `agentic.md` file is the **single source of truth** for any workflow. Slash commands are shortcuts that point INTO it, not replacements for it. Step files are read BY it, not independently. Agent prompts are read by step files. Everything flows through the orchestrator.
 
 ### Naming Generated Workflows
 - Workflow folder: `kebab-case` (e.g., `content-pipeline`)
 - Slash commands: `kebab-case` matching step names (e.g., `generate-content.md`)
 - Step names: Title Case, human-readable. Describe WHAT the step does ("Generate PDF Report"), never HOW ("Generate PDF report using gen_document.py"). Script filenames belong in the step's workflow details, not in the step title or description.
 - Agent prompts: zero-padded with underscores (e.g., `01_Content_Strategist.md`)
+- Step files: `step_{NN}_{step-name}.md` (e.g., `step_01_gather-requirements.md`)
 - Master command: always named `start-{workflow-name}.md` or `create-{workflow-name}.md`
 
 ### What Agent Forge Does NOT Do
@@ -414,9 +180,9 @@ The `agentic.md` file is the **single source of truth** for any workflow. Slash 
 |------|-------|
 | 01 | Description provided? Steps inferred or clarified? Requirements summary confirmed? |
 | 02 | Architecture reviewed? Patterns identified? Agents listed? Scripts identified (or "none")? |
-| 03 | Orchestrator follows template? All steps present? Gates correct? |
-| 04 | All agents generated? Each has all required sections? |
-| 05 | One command per step? Master command exists? Fix command exists? Senior prompt engineer copied? Frontmatter complete? |
-| 06 | generate_scaffold() called? Scripts from Step 2 placed via add_script()? Venv created? README, CLAUDE.md, agent/ complete? |
-| 07 | Self-review passes all checks? Workflow is self-contained? |
+| 03 | generate_scaffold() called? Directories, commands, standard prompts, venv created? README, CLAUDE.md present? |
+| 04 | Orchestrator follows template? All steps present with step file references? Gates correct? |
+| 05 | All agents generated? Each has all required sections? Step files have inputs/outputs? Script Requirements emitted where needed? |
+| 06 | All scripts generated via add_script()? Tests pass? Dependencies installed? Skip if none needed. |
+| 07 | Self-review passes all checks? Workflow is self-contained? Step files properly structured? |
 | 08 | If computer use: agent prompt, execution commands, and config present? |

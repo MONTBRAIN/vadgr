@@ -25,6 +25,7 @@ class AgentExecutor:
         agent: dict,
         inputs: dict,
         callback: EventCallback,
+        run_id: str = "",
     ) -> dict:
         """Run an agent and return its outputs.
 
@@ -50,19 +51,12 @@ class AgentExecutor:
                 result = await self.computer_use_service.run_agent(agent, inputs, callback)
             else:
                 steps = agent.get("steps") or []
-                has_mixed_steps = (
-                    len(steps) > 1
-                    and agent.get("forge_path")
-                    and any(
-                        (s.get("computer_use", False) if isinstance(s, dict) else False)
-                        for s in steps
-                    )
-                )
+                has_steps = len(steps) > 1 and agent.get("forge_path")
 
-                if has_mixed_steps:
-                    result = await self._execute_per_step(agent, inputs, callback)
+                if has_steps:
+                    result = await self._execute_per_step(agent, inputs, callback, run_id)
                 else:
-                    result = await self._execute_single(agent, inputs, callback)
+                    result = await self._execute_single(agent, inputs, callback, run_id)
 
             await callback("agent_completed", {"agent_id": agent["id"], "outputs": result})
             return result
@@ -75,9 +69,10 @@ class AgentExecutor:
         agent: dict,
         inputs: dict,
         callback: EventCallback,
+        run_id: str = "",
     ) -> dict:
         """Run the entire agent as a single subprocess."""
-        prompt = build_agent_prompt(agent, inputs)
+        prompt = build_agent_prompt(agent, inputs, run_id=run_id)
         workspace = _PROJECT_ROOT
         timeout = 1800 if agent.get("computer_use") else 900
         can_stream = not agent.get("computer_use")
@@ -107,6 +102,7 @@ class AgentExecutor:
         agent: dict,
         inputs: dict,
         callback: EventCallback,
+        run_id: str = "",
     ) -> dict:
         """Run each step as a separate subprocess.
 
@@ -129,7 +125,7 @@ class AgentExecutor:
                 "message": f"--- Step {i}: {step_name} {'[Desktop]' if uses_cu else '[CLI]'} ---",
             })
 
-            prompt = build_step_prompt(agent, inputs, step_number=i, step=step)
+            prompt = build_step_prompt(agent, inputs, step_number=i, step=step, run_id=run_id)
 
             collected_output = ""
             async for event in self.provider.execute_streaming(
