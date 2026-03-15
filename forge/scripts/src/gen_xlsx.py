@@ -118,3 +118,78 @@ def _write_sheet(ws, sheet: Sheet, cfg: XlsxStyleConfig) -> None:
         ws.column_dimensions[col_letter].width = min(
             max_len + cfg.column_padding, cfg.max_column_width
         )
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+
+def _cli() -> None:
+    """Command-line interface for XLSX generation."""
+    import argparse
+    import json
+    import sys
+
+    parser = argparse.ArgumentParser(
+        prog="gen_xlsx",
+        description="Generate XLSX workbooks from structured JSON data.",
+    )
+    parser.add_argument(
+        "output",
+        help="Output file path (.xlsx).",
+    )
+    parser.add_argument(
+        "--input",
+        required=True,
+        help=(
+            "JSON string or path to a JSON file with sheet data. "
+            "Format: list of objects with keys: name, headers (list), rows (list of lists). "
+            "Or list of objects with keys: name, data (list of dicts -- headers derived from keys)."
+        ),
+    )
+    parser.add_argument(
+        "--style",
+        default=None,
+        help=(
+            "JSON string or path to a JSON file with style overrides. "
+            "Keys match XlsxStyleConfig fields: header_bold, header_fill_color, etc."
+        ),
+    )
+    args = parser.parse_args()
+
+    from pathlib import Path as P
+
+    # Parse input
+    if args.input and P(args.input).is_file():
+        raw_sheets = json.loads(P(args.input).read_text())
+    else:
+        raw_sheets = json.loads(args.input)
+
+    # Parse style
+    style = None
+    if args.style:
+        if P(args.style).is_file():
+            raw = json.loads(P(args.style).read_text())
+        else:
+            raw = json.loads(args.style)
+        style = XlsxStyleConfig(**raw)
+
+    # Build Sheet objects
+    sheets = []
+    for s in raw_sheets:
+        if "data" in s:
+            sheets.append(parse_sheet(s["name"], s["data"]))
+        else:
+            sheets.append(Sheet(
+                name=s["name"],
+                headers=s.get("headers", []),
+                rows=s.get("rows", []),
+            ))
+
+    generate_xlsx(args.output, sheets, style)
+    print(json.dumps({"status": "ok", "output": args.output}))
+
+
+if __name__ == "__main__":
+    _cli()
