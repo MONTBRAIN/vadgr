@@ -1,6 +1,7 @@
 """Agent executor -- routes execution to CLI providers or computer use."""
 
 import json
+import mimetypes
 from pathlib import Path
 from typing import Any, Callable, Coroutine
 
@@ -194,7 +195,7 @@ class AgentExecutor:
     ) -> dict:
         """Scan user_outputs/ for files and map to output schema fields.
 
-        Returns a dict of {field_name: relative_path} for files that match
+        Returns a dict of {field_name: artifact_descriptor_or_relative_path} for files that match
         schema field names (kebab-case filenames → snake_case field names).
         Returns empty dict if no forge_path, no schema, or no files found.
         """
@@ -223,8 +224,10 @@ class AgentExecutor:
                 if not file.is_file():
                     continue
                 if file.stem in schema_lookup:
-                    rel_path = str(file.relative_to(root))
-                    outputs[schema_lookup[file.stem]] = rel_path
+                    field_name = schema_lookup[file.stem]
+                    outputs[field_name] = self._build_output_value(
+                        file, root, self._schema_field_type(output_schema, field_name)
+                    )
 
         unresolved_fields = [
             field["name"] for field in output_schema if field["name"] not in outputs
@@ -244,9 +247,32 @@ class AgentExecutor:
             return outputs
 
         only_file = latest_step_files[0]
-        outputs[unresolved_fields[0]] = str(only_file.relative_to(root))
+        outputs[unresolved_fields[0]] = self._build_output_value(
+            only_file, root, self._schema_field_type(output_schema, unresolved_fields[0])
+        )
 
         return outputs
+
+    @staticmethod
+    def _schema_field_type(output_schema: list[dict], field_name: str) -> str:
+        for field in output_schema:
+            if field.get("name") == field_name:
+                return field.get("type", "text")
+        return "text"
+
+    @staticmethod
+    def _build_output_value(file: Path, root: Path, field_type: str) -> str | dict:
+        rel_path = str(file.relative_to(root))
+        if field_type not in {"file", "archive", "directory"}:
+            return rel_path
+        mime_type, _ = mimetypes.guess_type(file.name)
+        kind = "archive" if field_type == "archive" else field_type
+        return {
+            "kind": kind,
+            "path": rel_path,
+            "filename": file.name,
+            "mime_type": mime_type or "application/octet-stream",
+        }
 
     def _parse_output(self, raw_response: str, output_schema: list[dict]) -> dict:
         """Parse provider response into output dict.

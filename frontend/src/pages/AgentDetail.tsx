@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAgent, useDeleteAgent, useRunAgent } from '../hooks/useAgents';
+import { useAgent, useDeleteAgent, useRunAgent, useUploadAgentArtifact } from '../hooks/useAgents';
 import { useProviders } from '../hooks/useProviders';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { StatusBadge } from '../components/ui/Badge';
 import { PixelBack, PixelGear, PixelPlay, PixelStep } from '../components/ui/PixelIcon';
-import type { SchemaField } from '../types';
+import type { ArtifactDescriptor, SchemaField } from '../types';
 
 function renderInputField(
   field: SchemaField,
@@ -57,6 +57,10 @@ function renderInputField(
   );
 }
 
+function isArtifactField(field: SchemaField) {
+  return field.type === 'file' || field.type === 'archive' || field.type === 'directory';
+}
+
 function renderStep(step: string | { name: string; computer_use: boolean }, index: number) {
   const stepObj = typeof step === 'string' ? { name: step, computer_use: false } : step;
 
@@ -93,7 +97,8 @@ export function AgentDetail() {
   const { data: providers } = useProviders();
   const deleteAgent = useDeleteAgent();
   const runAgent = useRunAgent();
-  const [inputs, setInputs] = useState<Record<string, string>>({});
+  const uploadArtifact = useUploadAgentArtifact();
+  const [inputs, setInputs] = useState<Record<string, string | ArtifactDescriptor>>({});
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [runProvider, setRunProvider] = useState('');
   const [runModel, setRunModel] = useState('');
@@ -148,7 +153,9 @@ export function AgentDetail() {
   const handleRun = async () => {
     const errors: Record<string, string> = {};
     for (const field of displayInputs) {
-      if (field.required && !inputs[field.name]?.trim()) {
+      const value = inputs[field.name];
+      const isMissing = typeof value === 'string' ? !value.trim() : !value;
+      if (field.required && isMissing) {
         errors[field.name] = `${field.label || field.name} is required`;
       }
     }
@@ -302,10 +309,55 @@ export function AgentDetail() {
             <h2 className="font-heading text-lg font-semibold text-text-primary">Inputs</h2>
           </div>
           <div className="flex flex-col gap-3 flex-1">
-            {displayInputs.map((field) =>
-              renderInputField(
+            {displayInputs.map((field) => {
+              const fieldValue = inputs[field.name];
+
+              if (isArtifactField(field)) {
+                const artifact = fieldValue;
+                const hasError = !!validationErrors[field.name];
+                return (
+                  <div key={field.name}>
+                    <label className="block font-body text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-1.5">
+                      {field.label || field.name} {field.required && <span className="text-danger">*</span>}
+                    </label>
+                    <input
+                      type="file"
+                      aria-label={field.label || field.name}
+                      accept={field.accept?.join(',')}
+                      onChange={async (e) => {
+                        const selected = e.target.files?.[0];
+                        if (!selected || !id) return;
+                        const descriptor = await uploadArtifact.mutateAsync({
+                          id,
+                          fieldName: field.name,
+                          file: selected,
+                        });
+                        setInputs((prev) => ({ ...prev, [field.name]: descriptor }));
+                        if (validationErrors[field.name]) {
+                          setValidationErrors((prev) => {
+                            const next = { ...prev };
+                            delete next[field.name];
+                            return next;
+                          });
+                        }
+                      }}
+                      className={`w-full px-3.5 py-2.5 bg-bg-input border rounded-[10px] text-sm text-text-primary ${hasError ? 'border-danger' : 'border-border'}`}
+                    />
+                    {artifact && typeof artifact !== 'string' ? (
+                      <p className="font-mono text-[10px] text-text-muted mt-1">{artifact.filename}</p>
+                    ) : null}
+                    {hasError ? (
+                      <p className="font-body text-[10px] text-danger mt-1">{validationErrors[field.name]}</p>
+                    ) : field.description ? (
+                      <p className="font-body text-[10px] text-text-muted mt-1">{field.description}</p>
+                    ) : null}
+                  </div>
+                );
+              }
+
+              return renderInputField(
                 field,
-                String(inputs[field.name] ?? ''),
+                typeof fieldValue === 'string' ? fieldValue : '',
                 (value) => {
                   setInputs((prev) => ({ ...prev, [field.name]: value }));
                   if (validationErrors[field.name]) {
@@ -317,8 +369,8 @@ export function AgentDetail() {
                   }
                 },
                 validationErrors[field.name],
-              )
-            )}
+              );
+            })}
             <div className="mt-auto pt-5 border-t border-border">
               <Button onClick={handleRun} disabled={runAgent.isPending || !isReady}>
                 <PixelPlay size={12} color="var(--color-bg-primary)" />

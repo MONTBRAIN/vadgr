@@ -515,6 +515,7 @@ def build_agent_prompt(agent: dict, inputs: dict, run_id: str = "") -> str:
             parts.append(
                 f"\nIMPORTANT: Save all outputs to {forge_path}/{output_dir}/ "
                 f"instead of {forge_path}/output/. This isolates this run's outputs. "
+                f"Runtime input artifacts are available under {forge_path}/{output_dir}/inputs/. "
                 f"Agent outputs go to {forge_path}/{output_dir}/agent_outputs/. "
                 f"User outputs go to {forge_path}/{output_dir}/user_outputs/."
             )
@@ -547,7 +548,7 @@ def build_agent_prompt(agent: dict, inputs: dict, run_id: str = "") -> str:
     if inputs:
         parts.append("\nInputs:")
         for key, value in inputs.items():
-            parts.append(f"  {key}: {value}")
+            parts.append(f"  {key}: {_format_input_value(value)}")
 
     output_schema = agent.get("output_schema", [])
     if output_schema:
@@ -608,6 +609,9 @@ def build_step_prompt(
                 f"(in {output_dir}/agent_outputs/) are on disk -- read them as needed."
             )
             parts.append(
+                f"Runtime input artifacts are available under {forge_path}/{output_dir}/inputs/."
+            )
+            parts.append(
                 f"Save your agent output to {forge_path}/{output_dir}/agent_outputs/"
                 f"step_{step_number:02d}_agent_output.md"
             )
@@ -641,7 +645,7 @@ def build_step_prompt(
     if inputs:
         parts.append("\nInputs:")
         for key, value in inputs.items():
-            parts.append(f"  {key}: {value}")
+            parts.append(f"  {key}: {_format_input_value(value)}")
 
     # Only request JSON output on the last step
     steps = agent.get("steps", [])
@@ -655,3 +659,12 @@ def build_step_prompt(
         parts.append("No explanation, no markdown -- just the JSON.")
 
     return "\n".join(parts)
+
+
+def _format_input_value(value: object) -> str:
+    if isinstance(value, dict) and value.get("kind") in {"file", "archive", "directory"}:
+        filename = value.get("filename", "")
+        path = value.get("path", "")
+        kind = value.get("kind", "file")
+        return f"{kind}('{filename}' at '{path}')"
+    return str(value)

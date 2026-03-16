@@ -64,6 +64,7 @@
 
 ### Agent Output (inter-step context)
 <!-- What gets saved so that subsequent steps can read it.
+     Runtime input artifacts live under output/{run_id}/inputs/.
      Use the standard path: output/{run_id}/agent_outputs/step_NN_agent_output.md
      where NN is the zero-padded step number (01, 02, 03...).
      {run_id} is provided by the API executor at runtime to isolate concurrent runs.

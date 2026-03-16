@@ -76,7 +76,7 @@
    - `forge_config.steps`: Number of steps in the generated `agentic.md`.
    - `forge_config.prompts`: List of generated prompt filenames in `agent/Prompts/` (excluding standard 00/01 prompts).
    - `steps`: Array of step objects from the generated `agentic.md`. Each has `name` (Title Case, matching step headings) and `computer_use` (boolean). Order must match the step numbering in `agentic.md`.
-   - `input_schema`: Inferred inputs the agent needs at runtime. Each item has `name`, `type` (one of: `text`, `file`, `number`, `boolean`), and `required` (boolean).
+   - `input_schema`: Inferred inputs the agent needs at runtime. Each item has `name`, `type` (one of: `text`, `file`, `number`, `boolean`), and `required` (boolean). Artifact inputs should also include `accept`, `mime_types`, and `max_size_mb` when the expected format is clear.
    - `output_schema`: Inferred outputs the agent produces. Each item has `name` and `type`.
 
    Print only this JSON object. No preamble, no summary, no explanation. The API parses this directly.

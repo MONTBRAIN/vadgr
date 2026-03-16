@@ -62,3 +62,17 @@ export function useRunAgent() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['runs'] }),
   });
 }
+
+export function useUploadAgentArtifact() {
+  return useMutation({
+    mutationFn: ({
+      id,
+      fieldName,
+      file,
+    }: {
+      id: string;
+      fieldName: string;
+      file: File;
+    }) => agentsApi.uploadArtifact(id, fieldName, file),
+  });
+}

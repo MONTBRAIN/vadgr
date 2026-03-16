@@ -16,6 +16,10 @@ class SchemaField(BaseModel):
     description: Optional[str] = None
     placeholder: Optional[str] = None
     options: Optional[list[str]] = None
+    accept: Optional[list[str]] = None
+    mime_types: Optional[list[str]] = None
+    max_size_mb: Optional[int] = None
+    multiple: Optional[bool] = None
 
 
 class StepDefinition(BaseModel):

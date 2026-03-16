@@ -1,6 +1,7 @@
 """Tests for run lifecycle routes."""
 
 import pytest
+from pathlib import Path
 
 
 class TestProjectRuns:
@@ -249,6 +250,70 @@ class TestRunOutputEndpoint:
             resp = await client.get(f"/api/runs/{run_id}/outputs/evil")
             # Should return the raw path string, NOT the file content
             assert "SECRET DATA" not in resp.text
+        finally:
+            runs_mod._PROJECT_ROOT = original_root
+
+    @pytest.mark.asyncio
+    async def test_returns_artifact_descriptor_file_content(self, client, app, tmp_path):
+        content = "# Memo\n\nArtifact-backed output"
+        forge_dir = tmp_path / "output" / "agent-123"
+        file_path = forge_dir / "output" / "run-456" / "user_outputs" / "step_02" / "memo.md"
+        file_path.parent.mkdir(parents=True)
+        file_path.write_text(content)
+
+        agent = await client.post("/api/agents", json={"name": "T", "description": ""})
+        agent_id = agent.json()["id"]
+        await app.state.agent_repo.update(agent_id, status="ready", forge_path="output/agent-123/")
+        run_resp = await client.post(f"/api/agents/{agent_id}/run", json={"inputs": {}})
+        run_id = run_resp.json()["run_id"]
+        await app.state.run_repo.update_status(
+            run_id,
+            "completed",
+            outputs={
+                "memo_file": {
+                    "kind": "file",
+                    "path": "output/run-456/user_outputs/step_02/memo.md",
+                    "filename": "memo.md",
+                    "mime_type": "text/markdown",
+                }
+            },
+        )
+
+        import api.routes.runs as runs_mod
+        original_root = runs_mod._PROJECT_ROOT
+        runs_mod._PROJECT_ROOT = tmp_path
+        try:
+            resp = await client.get(f"/api/runs/{run_id}/outputs/memo_file")
+            assert resp.status_code == 200
+            assert resp.text == content
+        finally:
+            runs_mod._PROJECT_ROOT = original_root
+
+    @pytest.mark.asyncio
+    async def test_download_response_sets_filename_for_artifact_descriptor(self, client, app, tmp_path):
+        forge_dir = tmp_path / "output" / "agent-123"
+        file_path = forge_dir / "output" / "run-456" / "user_outputs" / "step_02" / "memo.md"
+        file_path.parent.mkdir(parents=True)
+        file_path.write_text("memo")
+
+        agent = await client.post("/api/agents", json={"name": "T", "description": ""})
+        agent_id = agent.json()["id"]
+        await app.state.agent_repo.update(agent_id, status="ready", forge_path="output/agent-123/")
+        run_resp = await client.post(f"/api/agents/{agent_id}/run", json={"inputs": {}})
+        run_id = run_resp.json()["run_id"]
+        await app.state.run_repo.update_status(
+            run_id,
+            "completed",
+            outputs={"memo_file": {"kind": "file", "path": "output/run-456/user_outputs/step_02/memo.md", "filename": "memo.md"}},
+        )
+
+        import api.routes.runs as runs_mod
+        original_root = runs_mod._PROJECT_ROOT
+        runs_mod._PROJECT_ROOT = tmp_path
+        try:
+            resp = await client.get(f"/api/runs/{run_id}/outputs/memo_file")
+            assert resp.status_code == 200
+            assert 'filename="memo.md"' in resp.headers.get("content-disposition", "")
         finally:
             runs_mod._PROJECT_ROOT = original_root
 

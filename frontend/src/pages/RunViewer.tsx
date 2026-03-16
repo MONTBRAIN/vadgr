@@ -106,8 +106,7 @@ export function RunViewer() {
   );
 }
 
-function downloadBlob(filename: string, content: string) {
-  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+function downloadBlob(filename: string, blob: Blob) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -119,11 +118,14 @@ function downloadBlob(filename: string, content: string) {
 async function downloadOutput(runId: string, fieldName: string) {
   try {
     const { runsApi } = await import('../api/runs');
-    const content = await runsApi.getOutput(runId, fieldName);
-    downloadBlob(`${runId.slice(0, 8)}_${fieldName}.md`, content);
+    const response = await runsApi.getOutput(runId, fieldName);
+    const blob = await response.blob();
+    const disposition = response.headers.get('content-disposition') ?? '';
+    const filenameMatch = disposition.match(/filename="([^"]+)"/);
+    const filename = filenameMatch?.[1] ?? `${runId.slice(0, 8)}_${fieldName}`;
+    downloadBlob(filename, blob);
   } catch {
-    // Fallback: download raw value if API fails
-    downloadBlob(`${runId.slice(0, 8)}_${fieldName}.txt`, fieldName);
+    downloadBlob(`${runId.slice(0, 8)}_${fieldName}.txt`, new Blob([fieldName], { type: 'text/plain;charset=utf-8' }));
   }
 }
 
@@ -135,7 +137,11 @@ function formatBytes(bytes: number): string {
 
 function OutputsCard({ outputs, runId }: { outputs: Record<string, unknown>; runId: string }) {
   const entries = Object.entries(outputs).map(([key, value]) => {
-    const text = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
+    const text = typeof value === 'string'
+      ? value
+      : value && typeof value === 'object' && 'filename' in value
+        ? String((value as { filename?: string }).filename ?? key)
+        : JSON.stringify(value, null, 2);
     return { key, text, size: new Blob([text]).size };
   });
 

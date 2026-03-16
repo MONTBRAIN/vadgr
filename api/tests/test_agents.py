@@ -1,6 +1,7 @@
 """Tests for agent CRUD routes."""
 
 import pytest
+import zipfile
 
 
 class TestAgentCreate:
@@ -130,6 +131,280 @@ class TestAgentGet:
         resp = await client.get("/api/agents/nonexistent")
         assert resp.status_code == 404
         assert resp.json()["error"]["code"] == "AGENT_NOT_FOUND"
+
+
+class TestAgentArtifactsAndExport:
+
+    @pytest.mark.asyncio
+    async def test_upload_artifact_returns_descriptor(self, client, app, tmp_path):
+        import api.routes.agents as agents_mod
+
+        create = await client.post("/api/agents", json={"name": "T", "description": ""})
+        agent_id = create.json()["id"]
+        await app.state.agent_repo.update(
+            agent_id,
+            status="ready",
+            forge_path="output/agent-123/",
+            input_schema=[
+                {
+                    "name": "project_brief",
+                    "type": "file",
+                    "required": True,
+                    "accept": [".txt"],
+                    "mime_types": ["text/plain"],
+                    "max_size_mb": 1,
+                }
+            ],
+        )
+
+        original_root = agents_mod.PROJECT_ROOT
+        original_artifact_root = app.state.artifact_service.project_root
+        agents_mod.PROJECT_ROOT = tmp_path
+        app.state.artifact_service.project_root = tmp_path
+        try:
+            resp = await client.post(
+                f"/api/agents/{agent_id}/uploads",
+                data={"field_name": "project_brief"},
+                files={"file": ("notes.txt", b"hello world", "text/plain")},
+            )
+            assert resp.status_code == 201
+            data = resp.json()
+            assert data["kind"] == "file"
+            assert data["filename"] == "notes.txt"
+            assert data["mime_type"] == "text/plain"
+            assert data["path"].startswith("uploads/")
+            assert data["path"].endswith("/notes.txt")
+        finally:
+            agents_mod.PROJECT_ROOT = original_root
+            app.state.artifact_service.project_root = original_artifact_root
+
+    @pytest.mark.asyncio
+    async def test_run_materializes_uploaded_artifacts_into_inputs_dir(self, client, app, tmp_path):
+        import api.routes.agents as agents_mod
+
+        create = await client.post("/api/agents", json={"name": "T", "description": ""})
+        agent_id = create.json()["id"]
+        await app.state.agent_repo.update(
+            agent_id,
+            status="ready",
+            forge_path="output/agent-123/",
+            input_schema=[
+                {
+                    "name": "project_brief",
+                    "type": "file",
+                    "required": True,
+                    "accept": [".txt"],
+                    "mime_types": ["text/plain"],
+                    "max_size_mb": 1,
+                }
+            ],
+        )
+
+        original_root = agents_mod.PROJECT_ROOT
+        original_artifact_root = app.state.artifact_service.project_root
+        agents_mod.PROJECT_ROOT = tmp_path
+        app.state.artifact_service.project_root = tmp_path
+        try:
+            upload = await client.post(
+                f"/api/agents/{agent_id}/uploads",
+                data={"field_name": "project_brief"},
+                files={"file": ("notes.txt", b"hello world", "text/plain")},
+            )
+            assert upload.status_code == 201
+            descriptor = upload.json()
+
+            run = await client.post(
+                f"/api/agents/{agent_id}/run",
+                json={"inputs": {"project_brief": descriptor}},
+            )
+            assert run.status_code == 202
+            run_id = run.json()["run_id"]
+
+            materialized = (
+                tmp_path
+                / "output"
+                / "agent-123"
+                / "output"
+                / run_id
+                / "inputs"
+                / "project_brief"
+                / "notes.txt"
+            )
+            assert materialized.exists()
+            assert materialized.read_text() == "hello world"
+        finally:
+            agents_mod.PROJECT_ROOT = original_root
+            app.state.artifact_service.project_root = original_artifact_root
+
+    @pytest.mark.asyncio
+    async def test_upload_artifact_rejects_wrong_extension(self, client, app, tmp_path):
+        import api.routes.agents as agents_mod
+
+        create = await client.post("/api/agents", json={"name": "T", "description": ""})
+        agent_id = create.json()["id"]
+        await app.state.agent_repo.update(
+            agent_id,
+            status="ready",
+            forge_path="output/agent-123/",
+            input_schema=[
+                {
+                    "name": "project_brief",
+                    "type": "file",
+                    "required": True,
+                    "accept": [".docx"],
+                    "mime_types": ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+                }
+            ],
+        )
+
+        original_root = agents_mod.PROJECT_ROOT
+        original_artifact_root = app.state.artifact_service.project_root
+        agents_mod.PROJECT_ROOT = tmp_path
+        app.state.artifact_service.project_root = tmp_path
+        try:
+            resp = await client.post(
+                f"/api/agents/{agent_id}/uploads",
+                data={"field_name": "project_brief"},
+                files={"file": ("notes.txt", b"hello world", "text/plain")},
+            )
+            assert resp.status_code == 400
+            assert resp.json()["error"]["code"] == "INVALID_ARTIFACT_UPLOAD"
+        finally:
+            agents_mod.PROJECT_ROOT = original_root
+            app.state.artifact_service.project_root = original_artifact_root
+
+    @pytest.mark.asyncio
+    async def test_upload_artifact_rejects_unknown_field(self, client, app, tmp_path):
+        import api.routes.agents as agents_mod
+
+        create = await client.post("/api/agents", json={"name": "T", "description": ""})
+        agent_id = create.json()["id"]
+        await app.state.agent_repo.update(
+            agent_id,
+            status="ready",
+            forge_path="output/agent-123/",
+            input_schema=[{"name": "project_brief", "type": "file", "required": True}],
+        )
+
+        original_root = agents_mod.PROJECT_ROOT
+        original_artifact_root = app.state.artifact_service.project_root
+        agents_mod.PROJECT_ROOT = tmp_path
+        app.state.artifact_service.project_root = tmp_path
+        try:
+            resp = await client.post(
+                f"/api/agents/{agent_id}/uploads",
+                data={"field_name": "dataset_csv"},
+                files={"file": ("notes.txt", b"hello world", "text/plain")},
+            )
+            assert resp.status_code == 400
+            assert resp.json()["error"]["code"] == "INVALID_INPUT_FIELD"
+        finally:
+            agents_mod.PROJECT_ROOT = original_root
+            app.state.artifact_service.project_root = original_artifact_root
+
+    @pytest.mark.asyncio
+    async def test_export_agent_returns_zip_without_runtime_output(self, client, app, tmp_path):
+        import api.routes.agents as agents_mod
+
+        forge_root = tmp_path / "output" / "agent-123"
+        (forge_root / "agent" / "Prompts").mkdir(parents=True)
+        (forge_root / "output" / "run-1" / "user_outputs" / "step_01").mkdir(parents=True)
+        (forge_root / "agentic.md").write_text("# Agent")
+        (forge_root / "README.md").write_text("# Readme")
+        (forge_root / ".gitignore").write_text("output/\n")
+        (forge_root / "output" / "run-1" / "user_outputs" / "step_01" / "memo.md").write_text("runtime")
+
+        import subprocess
+        subprocess.run(["git", "-C", str(forge_root), "init"], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(forge_root), "config", "user.name", "Agent Forge"], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(forge_root), "config", "user.email", "agent-forge@local"], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(forge_root), "add", "."], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(forge_root), "commit", "-m", "Initial agent scaffold"], check=True, capture_output=True)
+
+        create = await client.post("/api/agents", json={"name": "T", "description": ""})
+        agent_id = create.json()["id"]
+        await app.state.agent_repo.update(agent_id, status="ready", forge_path="output/agent-123/")
+
+        original_root = agents_mod.PROJECT_ROOT
+        agents_mod.PROJECT_ROOT = tmp_path
+        try:
+            resp = await client.get(f"/api/agents/{agent_id}/export")
+            assert resp.status_code == 200
+            assert resp.headers["content-type"] in {"application/zip", "application/octet-stream"}
+
+            archive_path = tmp_path / "export.zip"
+            archive_path.write_bytes(resp.content)
+            with zipfile.ZipFile(archive_path) as zf:
+                names = set(zf.namelist())
+                manifest = zf.read("agent-forge.json")
+            assert "agentic.md" in names
+            assert "README.md" in names
+            assert "agent-forge.json" in names
+            assert b'"export_version": 1' in manifest
+            assert all(not name.startswith("output/") for name in names)
+        finally:
+            agents_mod.PROJECT_ROOT = original_root
+
+    @pytest.mark.asyncio
+    async def test_import_agent_from_export_zip(self, client, app, tmp_path):
+        import api.routes.agents as agents_mod
+        import api.services.agent_service as agent_service_mod
+
+        forge_root = tmp_path / "output" / "agent-123"
+        (forge_root / "agent" / "steps").mkdir(parents=True)
+        (forge_root / "agent" / "steps" / "step_01.md").write_text("# Step 1")
+        (forge_root / "agentic.md").write_text("# Agent")
+        (forge_root / "README.md").write_text("# Readme")
+        (forge_root / ".gitignore").write_text("output/\n")
+
+        import subprocess
+        subprocess.run(["git", "-C", str(forge_root), "init"], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(forge_root), "config", "user.name", "Agent Forge"], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(forge_root), "config", "user.email", "agent-forge@local"], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(forge_root), "add", "."], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(forge_root), "commit", "-m", "Initial agent scaffold"], check=True, capture_output=True)
+
+        create = await client.post("/api/agents", json={"name": "Source Agent", "description": "desc"})
+        agent_id = create.json()["id"]
+        await app.state.agent_repo.update(
+            agent_id,
+            status="ready",
+            forge_path="output/agent-123/",
+            steps=[{"name": "Step 1", "computer_use": False}],
+            input_schema=[{"name": "project_brief", "type": "file", "required": True}],
+            output_schema=[{"name": "summary_pdf", "type": "file", "required": True}],
+            provider="codex",
+            model="gpt-5-codex",
+        )
+
+        original_root = agents_mod.PROJECT_ROOT
+        original_service_root = agent_service_mod.PROJECT_ROOT
+        agents_mod.PROJECT_ROOT = tmp_path
+        agent_service_mod.PROJECT_ROOT = tmp_path
+        try:
+            export_resp = await client.get(f"/api/agents/{agent_id}/export")
+            assert export_resp.status_code == 200
+
+            import_resp = await client.post(
+                "/api/agents/import",
+                files={"file": ("agent.zip", export_resp.content, "application/zip")},
+            )
+            assert import_resp.status_code == 201
+            imported = import_resp.json()
+            assert imported["status"] == "ready"
+            assert imported["name"] == "Source Agent"
+            assert imported["provider"] == "codex"
+            assert imported["model"] == "gpt-5-codex"
+            assert imported["input_schema"][0]["name"] == "project_brief"
+            assert imported["output_schema"][0]["name"] == "summary_pdf"
+
+            imported_root = tmp_path / imported["forge_path"]
+            assert (imported_root / "agentic.md").exists()
+            assert (imported_root / "agent" / "steps" / "step_01.md").exists()
+            assert (imported_root / ".git").exists()
+        finally:
+            agents_mod.PROJECT_ROOT = original_root
+            agent_service_mod.PROJECT_ROOT = original_service_root
 
 
 class TestAgentList:

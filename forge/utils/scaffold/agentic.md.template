@@ -34,9 +34,10 @@
 Read the step file and execute it. {{STEP_BRIEF_DESCRIPTION}}
 
 <!-- The step file contains: prompt reference, inputs, workflow actions, and required outputs.
-     At runtime, outputs go to output/{run_id}/agent_outputs/step_NN_agent_output.md (inter-step context)
+     At runtime, inputs are staged under output/{run_id}/inputs/.
+     Outputs go to output/{run_id}/agent_outputs/step_NN_agent_output.md (inter-step context)
      and output/{run_id}/user_outputs/step_NN/ (deliverables). The API creates these directories
-     automatically before execution starts. -->
+     automatically before execution starts, alongside output/{run_id}/agent_logs/. -->
 
 ---
 
@@ -93,7 +94,7 @@ python -m pytest agent/scripts/tests/
      agent/steps/ (step_NN_step-name.md)
      agent/scripts/ (src/, tests/, requirements.txt, README.md)
      agent/utils/ (code/, docs/)
-     output/ (at runtime: output/{run_id}/agent_outputs/ and output/{run_id}/user_outputs/ created per run) -->
+     output/ (at runtime: output/{run_id}/inputs/, output/{run_id}/agent_outputs/, output/{run_id}/user_outputs/, and output/{run_id}/agent_logs/ created per run) -->
 
 ---
 

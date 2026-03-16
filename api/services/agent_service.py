@@ -2,6 +2,7 @@
 
 import json
 import logging
+import subprocess
 from collections.abc import Awaitable, Callable
 from pathlib import Path
 
@@ -27,6 +28,51 @@ class AgentService:
         self.agent_repo = agent_repo
         self.provider = provider
         self.provider_factory = provider_factory
+
+    def ensure_agent_repo_tracking(self, forge_path: str, message: str = "Initial agent scaffold") -> None:
+        agent_root = PROJECT_ROOT / forge_path
+        if not agent_root.exists():
+            return
+        gitignore = agent_root / ".gitignore"
+        gitignore.write_text(
+            "output/\n"
+            "agent/scripts/.venv/\n"
+            "__pycache__/\n"
+            ".pytest_cache/\n"
+            "*.pyc\n"
+        )
+        if not (agent_root / ".git").exists():
+            subprocess.run(["git", "-C", str(agent_root), "init"], check=True, capture_output=True)
+            subprocess.run(
+                ["git", "-C", str(agent_root), "config", "user.name", "Agent Forge"],
+                check=True,
+                capture_output=True,
+            )
+            subprocess.run(
+                ["git", "-C", str(agent_root), "config", "user.email", "agent-forge@local"],
+                check=True,
+                capture_output=True,
+            )
+        self._commit_agent_repo(forge_path, message)
+
+    def _commit_agent_repo(self, forge_path: str, message: str) -> None:
+        agent_root = PROJECT_ROOT / forge_path
+        if not agent_root.exists() or not (agent_root / ".git").exists():
+            return
+        subprocess.run(["git", "-C", str(agent_root), "add", "."], check=True, capture_output=True)
+        status = subprocess.run(
+            ["git", "-C", str(agent_root), "status", "--porcelain"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        if not status.stdout.strip():
+            return
+        subprocess.run(
+            ["git", "-C", str(agent_root), "commit", "-m", message],
+            check=True,
+            capture_output=True,
+        )
 
     async def _get_forge_provider(self, agent: dict, timeout: int) -> CLIAgentProvider:
         provider_key = agent.get("provider")
@@ -131,6 +177,8 @@ class AgentService:
                 update_fields["steps"] = forge_result["steps"]
 
             await self.agent_repo.update(agent_id, **update_fields)
+            if forge_path:
+                self.ensure_agent_repo_tracking(forge_path, "Initial agent scaffold")
             logger.info("Forge completed for agent %s -- status: ready", agent_id)
 
         except ProviderError as e:
@@ -213,6 +261,9 @@ class AgentService:
                 update_fields["steps"] = forge_result["steps"]
 
             await self.agent_repo.update(agent_id, **update_fields)
+            forge_path = update_fields.get("forge_path", "") or old_agent.get("forge_path", "")
+            if forge_path:
+                self.ensure_agent_repo_tracking(forge_path, "Update agent workflow")
             logger.info("Forge update completed for agent %s -- status: ready", agent_id)
 
         except ProviderError as e:

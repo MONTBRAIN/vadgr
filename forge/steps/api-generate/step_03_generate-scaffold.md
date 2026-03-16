@@ -55,7 +55,7 @@ This creates the full project structure:
 - `agent/steps/` directory (empty, populated in Step 5)
 - `agent/scripts/` with src/, tests/, requirements.txt, README.md, .venv/
 - `agent/utils/` with code/ and docs/
-- `output/` directory (at runtime the API creates `output/{run_id}/agent_outputs/` and `output/{run_id}/user_outputs/` per run)
+- `output/` directory (at runtime the API creates `output/{run_id}/inputs/`, `output/{run_id}/agent_outputs/`, `output/{run_id}/user_outputs/`, and `output/{run_id}/agent_logs/` per run)
 
 ---
 

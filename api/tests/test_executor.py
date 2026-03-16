@@ -525,3 +525,28 @@ class TestCollectOutputPaths:
         )
 
         assert result == {}
+
+    def test_returns_artifact_descriptor_for_file_like_outputs(self, tmp_path):
+        """File-like outputs should return artifact descriptors, not bare paths."""
+        executor = self._make_executor()
+
+        step_dir = tmp_path / "agent" / "output" / "run-1" / "user_outputs" / "step_01"
+        step_dir.mkdir(parents=True)
+        file_path = step_dir / "report.pdf"
+        file_path.write_text("pdf bytes placeholder")
+
+        result = executor._collect_output_paths(
+            forge_path="agent",
+            run_id="run-1",
+            output_schema=[{"name": "report_file", "type": "file"}],
+            project_root=tmp_path,
+        )
+
+        assert result == {
+            "report_file": {
+                "kind": "file",
+                "path": "agent/output/run-1/user_outputs/step_01/report.pdf",
+                "filename": "report.pdf",
+                "mime_type": "application/pdf",
+            }
+        }

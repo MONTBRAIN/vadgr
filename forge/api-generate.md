@@ -175,7 +175,10 @@ After all checks pass, print a single JSON object to stdout. This is the only ou
   - `description`: One-sentence helper text shown below the input field
   - `placeholder`: Example value shown inside the input (optional)
   - `options`: Array of strings for `select` type only (e.g. `["quick", "standard", "deep"]`)
-- `output_schema`: Inferred outputs the agent produces. Each item has:
+  - `accept`: Array of accepted file extensions for `file`, `archive`, or `directory` inputs when obvious (e.g. `[".docx"]`, `[".csv"]`, `[".zip"]`)
+  - `mime_types`: Array of accepted MIME types for artifact inputs when obvious
+  - `max_size_mb`: Integer size limit for artifact inputs when obvious from the task
+  - `output_schema`: Inferred outputs the agent produces. Each item has:
   - `name`: snake_case key that will appear in the run outputs dict
   - `type`: one of `text`, `markdown`, `json`, `url`, `number`, `boolean`
   - `label`: Human-readable display name for the output file/artifact
@@ -188,6 +191,8 @@ After all checks pass, print a single JSON object to stdout. This is the only ou
 - Description must be one concise sentence explaining the field
 - Placeholder must be a realistic example value, not a generic hint like "Enter value here"
 - For `select` inputs, always include the `options` array
+- For artifact inputs (`file`, `archive`, `directory`), include `accept` and `mime_types` whenever the expected format is clear from the description. Examples: DOCX brief -> `[".docx"]`, CSV dataset -> `[".csv"]`, ZIP source bundle -> `[".zip"]`.
+- For artifact inputs, include `max_size_mb` when the task implies large uploads should be bounded. Prefer a reasonable default like `10` if the input is a single document or dataset.
 - Output names must match the JSON keys the agent will actually return at runtime
 
 Print only this JSON object. No preamble, no summary, no explanation. The API parses this directly.

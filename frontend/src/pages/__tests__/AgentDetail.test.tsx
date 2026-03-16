@@ -12,6 +12,7 @@ vi.mock('react-router-dom', () => ({
 
 // Mock hooks — agent with empty schemas by default
 const mockRunAgent = { mutateAsync: vi.fn(), isPending: false };
+const mockUploadArtifact = { mutateAsync: vi.fn(), isPending: false };
 
 const baseAgent = {
   id: 'agent-1',
@@ -42,6 +43,7 @@ vi.mock('../../hooks/useAgents', () => ({
   useAgent: () => ({ data: mockAgent, isLoading: false }),
   useDeleteAgent: () => ({ mutateAsync: vi.fn() }),
   useRunAgent: () => mockRunAgent,
+  useUploadAgentArtifact: () => mockUploadArtifact,
 }));
 
 vi.mock('../../hooks/useProviders', () => ({
@@ -138,6 +140,18 @@ describe('AgentDetail - Inputs: schema-driven fields', () => {
     render(<AgentDetail />);
     expect(screen.queryByText('INSTRUCTIONS')).not.toBeInTheDocument();
     expect(screen.queryByPlaceholderText(/describe what you want the agent to do/i)).not.toBeInTheDocument();
+  });
+
+  it('renders file upload input for artifact fields', () => {
+    mockAgent = {
+      ...baseAgent,
+      input_schema: [
+        { name: 'source_file', type: 'file', required: true, label: 'Source File' },
+      ],
+      output_schema: [],
+    };
+    render(<AgentDetail />);
+    expect(screen.getByLabelText('Source File')).toHaveAttribute('type', 'file');
   });
 });
 

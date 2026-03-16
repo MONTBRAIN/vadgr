@@ -1,6 +1,7 @@
 """Tests for service layer."""
 
 import os
+import subprocess
 import pytest
 import yaml
 from pathlib import Path
@@ -716,6 +717,48 @@ class TestAgentService:
         assert len(updated["output_schema"]) == 1
 
     @pytest.mark.asyncio
+    async def test_run_forge_initializes_agent_git_repo(self, db, tmp_path):
+        from api.persistence.repositories import AgentRepository
+        from api.services.agent_service import AgentService
+        import api.services.agent_service as agent_service_mod
+
+        agent_repo = AgentRepository(db)
+        provider = AsyncMock(spec=CLIAgentProvider)
+        provider.execute = AsyncMock(
+            return_value='{"forge_path": "output/test-agent/", "forge_config": {}, "input_schema": [], "output_schema": []}'
+        )
+
+        forge_root = tmp_path / "output" / "test-agent"
+        forge_root.mkdir(parents=True)
+        (forge_root / "agentic.md").write_text("# Agent")
+        original_root = agent_service_mod.PROJECT_ROOT
+        agent_service_mod.PROJECT_ROOT = tmp_path
+        try:
+            service = AgentService(agent_repo=agent_repo, provider=provider)
+            agent = await service.create_agent(name="Test", description="A test agent")
+
+            await service.run_forge(agent["id"])
+
+            assert (forge_root / ".git").is_dir()
+            assert (forge_root / ".gitignore").read_text().splitlines()[0] == "output/"
+            head = subprocess.run(
+                ["git", "-C", str(forge_root), "rev-parse", "HEAD"],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            assert head.stdout.strip()
+            message = subprocess.run(
+                ["git", "-C", str(forge_root), "log", "-1", "--pretty=%s"],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            assert message.stdout.strip() == "Initial agent scaffold"
+        finally:
+            agent_service_mod.PROJECT_ROOT = original_root
+
+    @pytest.mark.asyncio
     async def test_run_forge_passes_agent_id_to_provider(self, db):
         """Forge prompt must include the agent ID so output goes to output/{id}/."""
         from api.persistence.repositories import AgentRepository
@@ -865,6 +908,65 @@ class TestAgentService:
         assert "api-update.md" in call_args.kwargs.get("prompt", call_args.args[0] if call_args.args else "")
 
     @pytest.mark.asyncio
+    async def test_run_update_commits_agent_changes_to_git(self, db, tmp_path):
+        from api.persistence.repositories import AgentRepository
+        from api.services.agent_service import AgentService
+        import api.services.agent_service as agent_service_mod
+
+        agent_repo = AgentRepository(db)
+        provider = AsyncMock(spec=CLIAgentProvider)
+        provider.execute = AsyncMock(
+            return_value='{"forge_path": "output/test-agent/", "forge_config": {}, "input_schema": [], "output_schema": []}'
+        )
+
+        forge_root = tmp_path / "output" / "test-agent"
+        forge_root.mkdir(parents=True)
+        (forge_root / "agentic.md").write_text("# v1")
+        subprocess.run(["git", "-C", str(forge_root), "init"], check=True, capture_output=True)
+        subprocess.run(
+            ["git", "-C", str(forge_root), "config", "user.name", "Agent Forge"],
+            check=True,
+            capture_output=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(forge_root), "config", "user.email", "agent-forge@local"],
+            check=True,
+            capture_output=True,
+        )
+        (forge_root / ".gitignore").write_text("output/\n")
+        subprocess.run(["git", "-C", str(forge_root), "add", "."], check=True, capture_output=True)
+        subprocess.run(
+            ["git", "-C", str(forge_root), "commit", "-m", "Initial agent scaffold"],
+            check=True,
+            capture_output=True,
+        )
+
+        original_root = agent_service_mod.PROJECT_ROOT
+        agent_service_mod.PROJECT_ROOT = tmp_path
+        try:
+            service = AgentService(agent_repo=agent_repo, provider=provider)
+            agent = await service.create_agent(name="Test", description="Original desc")
+            await agent_repo.update(agent["id"], status="ready", forge_path="output/test-agent/")
+
+            old_agent = await agent_repo.get(agent["id"])
+            (forge_root / "agentic.md").write_text("# v2")
+            await service.run_update(
+                agent["id"],
+                old_agent=old_agent,
+                new_fields={"description": "Updated desc"},
+            )
+
+            message = subprocess.run(
+                ["git", "-C", str(forge_root), "log", "-1", "--pretty=%s"],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            assert message.stdout.strip() == "Update agent workflow"
+        finally:
+            agent_service_mod.PROJECT_ROOT = original_root
+
+    @pytest.mark.asyncio
     async def test_run_update_sets_error_on_failure(self, db):
         """When forge update fails, status goes to error."""
         from api.persistence.repositories import AgentRepository
@@ -916,6 +1018,21 @@ class TestAgentService:
 
 
 class TestExecutionService:
+
+    def test_ensure_run_output_dirs_creates_inputs_agent_outputs_and_user_outputs(self, tmp_path):
+        from api.services.execution_service import _ensure_run_output_dirs
+        import api.services.execution_service as execution_service_mod
+
+        original_root = execution_service_mod._PROJECT_ROOT
+        execution_service_mod._PROJECT_ROOT = tmp_path
+        try:
+            _ensure_run_output_dirs("output/test-agent", "run-1")
+            base = tmp_path / "output" / "test-agent" / "output" / "run-1"
+            assert (base / "inputs").is_dir()
+            assert (base / "agent_outputs").is_dir()
+            assert (base / "user_outputs").is_dir()
+        finally:
+            execution_service_mod._PROJECT_ROOT = original_root
 
     @pytest.mark.asyncio
     async def test_run_standalone_agent(self, db):

@@ -150,6 +150,7 @@ def _create_claude_md(root: str, config: ScaffoldConfig) -> None:
         "- Never skip approval gates (marked with pause symbol)",
         f"- Outputs go in `output/`",
         "- Every output must include all required sections",
+        "- Runtime input artifacts are staged under `output/{run_id}/inputs/`",
         "- Scripts require a Python venv: "
         "`python3 -m venv agent/scripts/.venv && source agent/scripts/.venv/bin/activate "
         "&& pip install -r agent/scripts/requirements.txt`",
@@ -207,7 +208,7 @@ def _build_structure_tree(config: ScaffoldConfig) -> str:
     lines.append("|   |-- utils/")
     lines.append("|       |-- code/")
     lines.append("|       |-- docs/")
-    lines.append("|-- output/  (run outputs created at runtime: output/{run_id}/agent_outputs/, output/{run_id}/user_outputs/)")
+    lines.append("|-- output/  (runtime dirs: output/{run_id}/inputs/, output/{run_id}/agent_outputs/, output/{run_id}/user_outputs/, output/{run_id}/agent_logs/)")
     if config.computer_use:
         lines.append("|-- computer_use/")
         lines.append("    |-- config.yaml")

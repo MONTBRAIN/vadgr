@@ -9,8 +9,8 @@ interface SchemaEditorProps {
   isInput?: boolean;
 }
 
-const INPUT_TYPES = ['text', 'url', 'textarea', 'select', 'number', 'boolean', 'file'];
-const OUTPUT_TYPES = ['text', 'markdown', 'json', 'url', 'number', 'boolean'];
+const INPUT_TYPES = ['text', 'url', 'textarea', 'select', 'number', 'boolean', 'file', 'archive', 'directory', 'json'];
+const OUTPUT_TYPES = ['text', 'markdown', 'json', 'url', 'number', 'boolean', 'file', 'archive', 'directory'];
 
 export function SchemaEditor({ label, fields, onChange, isInput = true }: SchemaEditorProps) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
@@ -133,6 +133,45 @@ export function SchemaEditor({ label, fields, onChange, isInput = true }: Schema
                         className="w-full px-3 py-1.5 bg-bg-input border border-border rounded-[8px] font-mono text-xs text-text-primary placeholder:text-text-muted focus:border-accent transition-colors"
                       />
                     </div>
+                  )}
+                  {isInput && (field.type === 'file' || field.type === 'archive' || field.type === 'directory') && (
+                    <>
+                      <div className="col-span-2">
+                        <label className="block font-body text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-1">Accepted Extensions</label>
+                        <input
+                          value={(field.accept ?? []).join(', ')}
+                          onChange={(e) => updateField(i, {
+                            accept: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) || undefined,
+                          })}
+                          placeholder=".docx, .csv, .zip"
+                          className="w-full px-3 py-1.5 bg-bg-input border border-border rounded-[8px] font-mono text-xs text-text-primary placeholder:text-text-muted focus:border-accent transition-colors"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="block font-body text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-1">Accepted MIME Types</label>
+                        <input
+                          value={(field.mime_types ?? []).join(', ')}
+                          onChange={(e) => updateField(i, {
+                            mime_types: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) || undefined,
+                          })}
+                          placeholder="text/csv, application/pdf"
+                          className="w-full px-3 py-1.5 bg-bg-input border border-border rounded-[8px] font-mono text-xs text-text-primary placeholder:text-text-muted focus:border-accent transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-body text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-1">Max Size MB</label>
+                        <input
+                          type="number"
+                          min={1}
+                          value={field.max_size_mb ?? ''}
+                          onChange={(e) => updateField(i, {
+                            max_size_mb: e.target.value ? Number(e.target.value) : undefined,
+                          })}
+                          placeholder="10"
+                          className="w-full px-3 py-1.5 bg-bg-input border border-border rounded-[8px] text-xs text-text-primary placeholder:text-text-muted focus:border-accent transition-colors"
+                        />
+                      </div>
+                    </>
                   )}
                   {isInput && (
                     <div className="flex items-center gap-2">

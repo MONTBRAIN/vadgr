@@ -16,6 +16,7 @@ from api.engine.executor import AgentExecutor
 from api.engine.providers import CLIAgentProvider, create_provider, load_provider_config
 from api.services.computer_use_service import ComputerUseService
 from api.services.agent_service import AgentService
+from api.services.artifact_service import ArtifactService
 from api.services.execution_service import ExecutionService
 from api.services.log_writer import LogWriter
 from api.routes import health, agents, projects, runs, computer_use, providers, ws
@@ -37,6 +38,7 @@ def create_app(db: Optional[Database] = None) -> FastAPI:
         app.state.project_repo = ProjectRepository(app.state.db)
         app.state.run_repo = RunRepository(app.state.db)
         app.state.ws_manager = ConnectionManager()
+        app.state.artifact_service = ArtifactService(Path(__file__).resolve().parent.parent)
 
         provider_config = load_provider_config(
             settings.default_provider,

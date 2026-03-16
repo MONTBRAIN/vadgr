@@ -1,5 +1,7 @@
 """Shared test fixtures."""
 
+from pathlib import Path
+
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
@@ -62,10 +64,12 @@ async def app(db):
     from api.engine.providers import CLIAgentProvider, ProviderConfig
     from api.services.computer_use_service import ComputerUseService
     from api.services.agent_service import AgentService
+    from api.services.artifact_service import ArtifactService
     from api.services.execution_service import ExecutionService
     from unittest.mock import AsyncMock
 
     application.state.ws_manager = ConnectionManager()
+    application.state.artifact_service = ArtifactService(Path(__file__).resolve().parent.parent)
 
     provider = AsyncMock(spec=CLIAgentProvider)
     # Return valid forge JSON so background run_forge succeeds in tests
