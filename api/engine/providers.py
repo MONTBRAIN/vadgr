@@ -7,6 +7,7 @@ means editing that YAML file, zero code changes.
 import asyncio
 import json
 import os
+import re
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -185,6 +186,33 @@ def _parse_codex_jsonl_line(data: dict) -> tuple[str | None, str | None]:
                 return (text[:500], None)
         return (None, None)
 
+    item = data.get("item", {})
+    item_type = item.get("type", "")
+
+    if event_type == "item.started" and item_type == "command_execution":
+        command = item.get("command", "")
+        summary = _summarize_command(command)
+        if summary:
+            return (f"Running command: {summary}", None)
+        return ("Running command", None)
+
+    if event_type == "item.completed" and item_type == "reasoning":
+        text = _strip_markdown_emphasis(item.get("text", ""))
+        if text:
+            return (text[:500], None)
+        return (None, None)
+
+    if event_type == "item.completed" and item_type == "agent_message":
+        text = item.get("text", "")
+        if isinstance(text, str):
+            cleaned = text.strip()
+            if cleaned:
+                return (cleaned[:500], None)
+        return (None, None)
+
+    if event_type == "item.completed" and item_type == "command_execution":
+        return (None, None)
+
     if event_type in {"response.completed", "result"}:
         result = data.get("result") or data.get("output_text")
         if result is None:
@@ -194,6 +222,30 @@ def _parse_codex_jsonl_line(data: dict) -> tuple[str | None, str | None]:
         return (None, str(result))
 
     return (None, None)
+
+
+def _strip_markdown_emphasis(text: str) -> str:
+    """Remove simple markdown emphasis markers from short status text."""
+    if not isinstance(text, str):
+        return ""
+    return re.sub(r"[*_`]+", "", text).strip()
+
+
+def _summarize_command(command: str) -> str:
+    """Extract a short human-readable command summary."""
+    if not isinstance(command, str) or not command.strip():
+        return ""
+
+    normalized = command.strip()
+    for separator in (" && ", "; "):
+        if separator in normalized:
+            normalized = normalized.split(separator)[-1].strip()
+    normalized = normalized.strip("'\"")
+
+    if normalized.startswith("cat <<"):
+        return "write file"
+
+    return normalized[:120]
 
 
 def parse_stream_json_line(
@@ -289,6 +341,14 @@ class CLIAgentProvider:
                 return True
         return False
 
+    def _should_parse_stream_output(self, args: list[str]) -> bool:
+        """Check whether stdout should be interpreted by a structured parser."""
+        if self.config.stream_parser == "plain_text":
+            return False
+        if self.config.stream_parser == "codex_jsonl":
+            return "--json" in args
+        return self._is_stream_json_args(args)
+
     async def execute(
         self,
         prompt: str,
@@ -365,7 +425,7 @@ class CLIAgentProvider:
             args = self._build_streaming_args(prompt, workspace)
         else:
             args = self._build_args(prompt, workspace)
-        is_stream_json = self._is_stream_json_args(args)
+        should_parse_stream = self._should_parse_stream_output(args)
         effective_timeout = timeout or self.config.timeout
 
         # Use a 10 MB read buffer — the default 64 KB is too small for agents
@@ -396,7 +456,7 @@ class CLIAgentProvider:
                     if not text:
                         continue
 
-                    if is_stream_json:
+                    if should_parse_stream:
                         msg, result = parse_stream_json_line(
                             text,
                             parser_name=self.config.stream_parser,

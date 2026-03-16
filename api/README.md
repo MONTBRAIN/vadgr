@@ -139,7 +139,7 @@ providers:
     timeout: 300
 ```
 
-See [PROVIDER_CONFIG.md](docs/PROVIDER_CONFIG.md) for:
+See [PROVIDER_PARSER_GUIDE.md](../PROVIDER_PARSER_GUIDE.md) for:
 - available `stream_parser` families
 - `streaming` command rewrite rules
 - when a new provider needs code vs YAML only

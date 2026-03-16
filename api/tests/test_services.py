@@ -538,6 +538,55 @@ class TestCLIAgentProvider:
         assert msg == "Searching repository"
         assert result is None
 
+    def test_parse_codex_jsonl_summarizes_command_start(self):
+        from api.engine.providers import parse_stream_json_line
+        line = (
+            '{"type":"item.started","item":{"id":"item_1","type":"command_execution",'
+            '"command":"/bin/bash -lc \'cd /repo && cat agentic.md\'",'
+            '"aggregated_output":"","exit_code":null,"status":"in_progress"}}'
+        )
+        msg, result = parse_stream_json_line(line, parser_name="codex_jsonl")
+        assert msg == "Running command: cat agentic.md"
+        assert result is None
+
+    def test_parse_codex_jsonl_extracts_reasoning_text(self):
+        from api.engine.providers import parse_stream_json_line
+        line = (
+            '{"type":"item.completed","item":{"id":"item_0","type":"reasoning",'
+            '"text":"**Reviewing agentic context and skills**"}}'
+        )
+        msg, result = parse_stream_json_line(line, parser_name="codex_jsonl")
+        assert msg == "Reviewing agentic context and skills"
+        assert result is None
+
+    def test_parse_codex_jsonl_extracts_agent_message_text(self):
+        from api.engine.providers import parse_stream_json_line
+        line = (
+            '{"type":"item.completed","item":{"id":"item_14","type":"agent_message",'
+            '"text":"Captured categorized notes and highlights."}}'
+        )
+        msg, result = parse_stream_json_line(line, parser_name="codex_jsonl")
+        assert msg == "Captured categorized notes and highlights."
+        assert result is None
+
+    def test_parse_codex_jsonl_ignores_command_completion_payload(self):
+        from api.engine.providers import parse_stream_json_line
+        line = (
+            '{"type":"item.completed","item":{"id":"item_1","type":"command_execution",'
+            '"command":"/bin/bash -lc \'cd /repo && cat agentic.md\'",'
+            '"aggregated_output":"very long file contents","exit_code":0,"status":"completed"}}'
+        )
+        msg, result = parse_stream_json_line(line, parser_name="codex_jsonl")
+        assert msg is None
+        assert result is None
+
+    def test_parse_codex_jsonl_ignores_turn_completed_usage(self):
+        from api.engine.providers import parse_stream_json_line
+        line = '{"type":"turn.completed","usage":{"input_tokens":10,"output_tokens":5}}'
+        msg, result = parse_stream_json_line(line, parser_name="codex_jsonl")
+        assert msg is None
+        assert result is None
+
     @pytest.mark.asyncio
     async def test_execute_streaming_with_stream_json_parses_events(self):
         """Streaming with stream-json formatted output extracts readable messages."""
@@ -571,6 +620,34 @@ class TestCLIAgentProvider:
         messages = [e.data for e in output_events]
         assert "Reading files..." in messages
         assert "Using tool: Grep" in messages
+        assert len(done_events) == 1
+        assert done_events[0].data == "final output"
+
+    @pytest.mark.asyncio
+    async def test_execute_streaming_with_codex_jsonl_parses_events(self):
+        script = (
+            'echo \'{"type":"item.completed","item":{"id":"item_0","type":"reasoning","text":"**Reviewing context**"}}\'; '
+            'echo \'{"type":"item.started","item":{"id":"item_1","type":"command_execution","command":"cat agentic.md","aggregated_output":"","exit_code":null,"status":"in_progress"}}\'; '
+            'echo \'{"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"Captured summary."}}\'; '
+            'echo \'{"type":"result","output_text":"final output"}\''
+        )
+        config = ProviderConfig(
+            name="Codex",
+            command="bash",
+            args=["-c", script, "--json"],
+            stream_parser="codex_jsonl",
+        )
+        provider = CLIAgentProvider(config)
+        events = []
+        async for event in provider.execute_streaming("ignored"):
+            events.append(event)
+
+        output_events = [e for e in events if e.type == "output"]
+        done_events = [e for e in events if e.type == "done"]
+        messages = [e.data for e in output_events]
+        assert "Reviewing context" in messages
+        assert "Running command: cat agentic.md" in messages
+        assert "Captured summary." in messages
         assert len(done_events) == 1
         assert done_events[0].data == "final output"
 

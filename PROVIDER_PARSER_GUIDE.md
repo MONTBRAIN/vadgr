@@ -1,6 +1,11 @@
-# Provider Config
+# Provider Parser Guide
 
-`providers.yaml` defines how Agent Forge invokes each CLI provider.
+`providers.yaml` defines how Agent Forge invokes each CLI provider and how live logs are interpreted.
+
+This guide explains:
+- what `stream_parser` means
+- what the `streaming` block does
+- how to choose the right parser family by comparing real CLI output
 
 ## Minimal shape
 
@@ -35,7 +40,7 @@ providers:
 | `{{prompt}}` | Replaced with the generated agent prompt |
 | `{{workspace}}` | Replaced with the working directory when available |
 
-## Stream parser families
+## Parser families
 
 `stream_parser` is a small enum, not a path to a JSON file.
 
@@ -53,6 +58,52 @@ Rule of thumb:
 
 If a new provider matches an existing family, you only need YAML changes.
 If a new provider introduces a genuinely new event format, a new parser family must be added in code.
+
+## Real sample lines
+
+These are short representative examples from real provider output.
+
+### `claude_stream_json`
+
+Use this when the CLI emits assistant events with nested `message.content` blocks.
+
+```json
+{"type":"assistant","message":{"content":[{"type":"text","text":"Reading files..."}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Grep","input":{}}]}}
+{"type":"result","result":"final output"}
+```
+
+### `gemini_stream_json`
+
+Use this when the CLI emits `message` events with `role` and plain string `content`.
+
+```json
+{"type":"init","timestamp":"2026-03-16T04:14:15.995Z","session_id":"7c08c992-51c1-4ca3-a85d-edc9d888ea26","model":"gemini-2.5-flash"}
+{"type":"message","timestamp":"2026-03-16T04:14:15.996Z","role":"user","content":"Say hello in one short sentence."}
+{"type":"message","timestamp":"2026-03-16T04:14:24.873Z","role":"assistant","content":"Hello! How can I help you today?","delta":true}
+{"type":"result","timestamp":"2026-03-16T04:14:24.895Z","status":"success","stats":{"total_tokens":10292}}
+```
+
+### `codex_jsonl`
+
+Use this when the CLI emits item-based JSONL events for reasoning, command execution, and agent messages.
+
+```json
+{"type":"item.completed","item":{"id":"item_0","type":"reasoning","text":"**Reviewing context**"}}
+{"type":"item.started","item":{"id":"item_1","type":"command_execution","command":"cat agentic.md","aggregated_output":"","exit_code":null,"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_14","type":"agent_message","text":"Captured categorized notes and highlights."}}
+{"type":"turn.completed","usage":{"input_tokens":178570,"output_tokens":4222}}
+```
+
+### `plain_text`
+
+Use this when the CLI just prints human-readable lines and there is no structured event format.
+
+```text
+Reading repository...
+Analyzing source files...
+Done
+```
 
 ## Streaming rewrite
 
