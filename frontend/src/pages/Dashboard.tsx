@@ -78,7 +78,7 @@ export function Dashboard() {
           ) : recentAgents.length > 0 ? (
             <>
               <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1.2fr] px-7 py-3 border-b border-border">
-                {['Name', 'Status', 'Provider', 'Type', 'Last Updated'].map((h) => (
+                {['Name', 'Status', 'Created with', 'Type', 'Last Updated'].map((h) => (
                   <span key={h} className="font-body text-[10px] font-semibold text-text-muted uppercase tracking-wider">{h}</span>
                 ))}
               </div>
@@ -91,7 +91,7 @@ export function Dashboard() {
                 >
                   <span className="font-body text-[13px] text-text-primary">{agent.name}</span>
                   <StatusBadge status={agent.status} />
-                  <span className="font-mono text-[11px] bg-badge-bg px-2 py-0.5 rounded-md text-text-muted tracking-tight">{agent.provider}</span>
+                  <span className="inline-flex w-fit justify-self-start font-mono text-[11px] bg-badge-bg px-1.5 py-0.5 rounded-md text-text-muted tracking-tight">{agent.provider}</span>
                   <span className="font-body text-[10px] font-semibold uppercase tracking-wider text-accent">{agent.type}</span>
                   <span className="font-body text-xs text-text-muted font-light">{timeAgo(agent.updated_at)}</span>
                 </div>

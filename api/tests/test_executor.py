@@ -245,6 +245,59 @@ class TestAgentExecutor:
         result = await executor.execute(agent, {}, callback)
         assert result == {"report": "findings", "summary": "brief"}
 
+    def test_normalize_outputs_upgrades_file_path_string_to_descriptor(self, tmp_path):
+        provider = AsyncMock()
+        cu_service = AsyncMock()
+        executor = AgentExecutor(provider=provider, computer_use_service=cu_service)
+
+        forge_path = "output/agent-123"
+        run_id = "run-456"
+        pdf_dir = tmp_path / forge_path / "output" / run_id / "user_outputs" / "step_02"
+        pdf_dir.mkdir(parents=True)
+        pdf_file = pdf_dir / "summary.pdf"
+        pdf_file.write_bytes(b"%PDF-1.4\n")
+
+        outputs = {
+            "summary_pdf": f"{forge_path}/output/{run_id}/user_outputs/step_02/summary.pdf"
+        }
+        output_schema = [{"name": "summary_pdf", "type": "file"}]
+
+        result = executor._normalize_outputs(
+            outputs,
+            forge_path=forge_path,
+            run_id=run_id,
+            output_schema=output_schema,
+            project_root=tmp_path,
+        )
+
+        assert result["summary_pdf"]["kind"] == "file"
+        assert result["summary_pdf"]["filename"] == "summary.pdf"
+        assert result["summary_pdf"]["mime_type"] == "application/pdf"
+        assert result["summary_pdf"]["path"].endswith("/summary.pdf")
+
+    def test_normalize_outputs_rejects_file_outside_user_outputs(self, tmp_path):
+        provider = AsyncMock()
+        cu_service = AsyncMock()
+        executor = AgentExecutor(provider=provider, computer_use_service=cu_service)
+
+        forge_path = "output/agent-123"
+        run_id = "run-456"
+        other_dir = tmp_path / forge_path / "output" / run_id / "agent_outputs"
+        other_dir.mkdir(parents=True)
+        other_file = other_dir / "summary.pdf"
+        other_file.write_bytes(b"%PDF-1.4\n")
+
+        raw_path = f"{forge_path}/output/{run_id}/agent_outputs/summary.pdf"
+        result = executor._normalize_outputs(
+            {"summary_pdf": raw_path},
+            forge_path=forge_path,
+            run_id=run_id,
+            output_schema=[{"name": "summary_pdf", "type": "file"}],
+            project_root=tmp_path,
+        )
+
+        assert result["summary_pdf"] == raw_path
+
     @pytest.mark.asyncio
     async def test_parse_output_json_with_trailing_text(self):
         """When JSON is followed by extra text, the JSON object is still extracted."""

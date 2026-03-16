@@ -556,6 +556,16 @@ def build_agent_prompt(agent: dict, inputs: dict, run_id: str = "") -> str:
         parts.append(
             f"\nReturn ONLY a JSON object with these fields: {', '.join(field_names)}"
         )
+        file_like_fields = [
+            field["name"] for field in output_schema
+            if field.get("type") in {"file", "archive", "directory"}
+        ]
+        if file_like_fields:
+            parts.append(
+                "For file, archive, or directory outputs, return an object with "
+                "`kind`, `path`, `filename`, and `mime_type` instead of a plain string path. "
+                "The `path` must point to a file or directory inside the run's user_outputs folder."
+            )
         parts.append("No explanation, no markdown -- just the JSON.")
 
     return "\n".join(parts)
@@ -656,6 +666,16 @@ def build_step_prompt(
         parts.append(
             f"\nReturn ONLY a JSON object with these fields: {', '.join(field_names)}"
         )
+        file_like_fields = [
+            field["name"] for field in output_schema
+            if field.get("type") in {"file", "archive", "directory"}
+        ]
+        if file_like_fields:
+            parts.append(
+                "For file, archive, or directory outputs, return an object with "
+                "`kind`, `path`, `filename`, and `mime_type` instead of a plain string path. "
+                "The `path` must point to a file or directory inside the run's user_outputs folder."
+            )
         parts.append("No explanation, no markdown -- just the JSON.")
 
     return "\n".join(parts)

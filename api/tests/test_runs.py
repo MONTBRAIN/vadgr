@@ -206,6 +206,50 @@ class TestRunOutputEndpoint:
             runs_mod._PROJECT_ROOT = original_root
 
     @pytest.mark.asyncio
+    async def test_returns_file_download_for_artifact_descriptor(self, client, app, tmp_path):
+        pdf_bytes = b"%PDF-1.4\n1 0 obj\n<<>>\nendobj\n"
+        forge_dir = tmp_path / "output" / "agent-123"
+        output_dir = forge_dir / "output" / "run-456" / "user_outputs" / "step_02"
+        output_dir.mkdir(parents=True)
+        output_file = output_dir / "summary.pdf"
+        output_file.write_bytes(pdf_bytes)
+
+        agent = await client.post("/api/agents", json={"name": "T", "description": ""})
+        agent_id = agent.json()["id"]
+        await app.state.agent_repo.update(
+            agent_id,
+            status="ready",
+            forge_path="output/agent-123/",
+            output_schema=[{"name": "summary_pdf", "type": "file", "required": True}],
+        )
+        run_resp = await client.post(f"/api/agents/{agent_id}/run", json={"inputs": {}})
+        run_id = run_resp.json()["run_id"]
+        await app.state.run_repo.update_status(
+            run_id,
+            "completed",
+            outputs={
+                "summary_pdf": {
+                    "kind": "file",
+                    "path": "output/agent-123/output/run-456/user_outputs/step_02/summary.pdf",
+                    "filename": "summary.pdf",
+                    "mime_type": "application/pdf",
+                }
+            },
+        )
+
+        import api.routes.runs as runs_mod
+        original_root = runs_mod._PROJECT_ROOT
+        runs_mod._PROJECT_ROOT = tmp_path
+        try:
+            resp = await client.get(f"/api/runs/{run_id}/outputs/summary_pdf")
+            assert resp.status_code == 200
+            assert resp.headers["content-type"] == "application/pdf"
+            assert "filename=\"summary.pdf\"" in resp.headers["content-disposition"]
+            assert resp.content == pdf_bytes
+        finally:
+            runs_mod._PROJECT_ROOT = original_root
+
+    @pytest.mark.asyncio
     async def test_returns_404_for_missing_field(self, client, app):
         """Requesting a nonexistent output field returns 404."""
         agent = await client.post("/api/agents", json={"name": "T", "description": ""})

@@ -112,7 +112,13 @@ class AgentExecutor:
             elif event.type == "error":
                 raise RuntimeError(event.data)
 
-        return self._parse_output(collected_output, agent.get("output_schema", []))
+        parsed = self._parse_output(collected_output, agent.get("output_schema", []))
+        return self._normalize_outputs(
+            parsed,
+            forge_path=agent.get("forge_path", ""),
+            run_id=run_id,
+            output_schema=agent.get("output_schema", []),
+        )
 
     async def _execute_per_step(
         self,
@@ -184,7 +190,13 @@ class AgentExecutor:
         )
         if file_outputs:
             return file_outputs
-        return self._parse_output(last_output, agent.get("output_schema", []))
+        parsed = self._parse_output(last_output, agent.get("output_schema", []))
+        return self._normalize_outputs(
+            parsed,
+            forge_path=agent.get("forge_path", ""),
+            run_id=run_id,
+            output_schema=agent.get("output_schema", []),
+        )
 
     def _collect_output_paths(
         self,
@@ -317,3 +329,100 @@ class AgentExecutor:
                 result.setdefault(field["name"], "")
             return result
         return {"result": raw_response}
+
+    def _normalize_outputs(
+        self,
+        outputs: dict,
+        forge_path: str,
+        run_id: str,
+        output_schema: list[dict],
+        project_root: Path | None = None,
+    ) -> dict:
+        """Normalize parsed outputs so file-like fields become artifact descriptors."""
+        if not isinstance(outputs, dict) or not output_schema or not forge_path or not run_id:
+            return outputs
+
+        root = project_root or Path(_PROJECT_ROOT)
+        normalized = dict(outputs)
+        for field in output_schema:
+            field_name = field.get("name")
+            field_type = field.get("type", "text")
+            if field_name not in normalized or field_type not in {"file", "archive", "directory"}:
+                continue
+            normalized[field_name] = self._normalize_output_value(
+                normalized[field_name],
+                forge_path=forge_path,
+                run_id=run_id,
+                field_type=field_type,
+                root=root,
+            )
+        return normalized
+
+    def _normalize_output_value(
+        self,
+        value: object,
+        forge_path: str,
+        run_id: str,
+        field_type: str,
+        root: Path,
+    ) -> object:
+        if isinstance(value, dict) and value.get("kind") in {"file", "archive", "directory"}:
+            resolved = self._resolve_user_output_path(
+                forge_path=forge_path,
+                run_id=run_id,
+                path=value.get("path", ""),
+                root=root,
+            )
+            if resolved:
+                mime_type, _ = mimetypes.guess_type(resolved.name)
+                kind = "archive" if field_type == "archive" else field_type
+                return {
+                    "kind": kind,
+                    "path": str(resolved.relative_to(root)),
+                    "filename": value.get("filename") or resolved.name,
+                    "mime_type": value.get("mime_type") or mime_type or "application/octet-stream",
+                }
+            return value
+
+        if not isinstance(value, str):
+            return value
+
+        resolved = self._resolve_user_output_path(
+            forge_path=forge_path,
+            run_id=run_id,
+            path=value,
+            root=root,
+        )
+        if not resolved:
+            return value
+
+        return self._build_output_value(resolved, root, field_type)
+
+    @staticmethod
+    def _resolve_user_output_path(
+        forge_path: str,
+        run_id: str,
+        path: str,
+        root: Path,
+    ) -> Path | None:
+        if not path:
+            return None
+
+        candidates = []
+        candidate_path = Path(path)
+        if candidate_path.is_absolute():
+            candidates.append(candidate_path)
+        else:
+            candidates.append(root / path)
+            if forge_path:
+                candidates.append(root / forge_path / path)
+
+        user_outputs_root = (root / forge_path / "output" / run_id / "user_outputs").resolve()
+        if not user_outputs_root.exists():
+            return None
+
+        for candidate in candidates:
+            resolved = candidate.resolve()
+            if resolved.is_file() and (resolved == user_outputs_root or user_outputs_root in resolved.parents):
+                return resolved
+        return None

@@ -222,7 +222,7 @@ export function AgentDetail() {
           <div className="grid grid-cols-2 gap-5">
             <ConfigItem label="Status"><StatusBadge status={agent.status} /></ConfigItem>
             <ConfigItem label="Type"><span className="font-body text-[10px] font-semibold uppercase tracking-wider text-accent">{agent.type}</span></ConfigItem>
-            <ConfigItem label="Created With"><span className="font-mono text-[11px] bg-badge-bg px-2 py-0.5 rounded-md text-text-muted">{agent.provider}</span></ConfigItem>
+            <ConfigItem label="Created With"><span className="font-mono text-[11px] bg-badge-bg px-2 py-0.5 rounded-md text-text-muted tracking-tight">{agent.provider}</span></ConfigItem>
             <ConfigItem label="Creation Model"><span className="font-mono text-[11px] text-text-muted">{agent.model}</span></ConfigItem>
             <ConfigItem label="Computer Use"><span className={`font-body text-xs ${agent.computer_use ? 'text-success' : 'text-text-muted'}`}>{agent.computer_use ? 'Enabled' : 'Disabled'}</span></ConfigItem>
             <ConfigItem label="Created"><span className="font-body text-xs text-text-muted">{new Date(agent.created_at).toLocaleDateString()}</span></ConfigItem>
