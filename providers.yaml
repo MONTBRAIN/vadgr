@@ -12,6 +12,13 @@ providers:
     args: ["-p", "{{prompt}}", "--dangerously-skip-permissions", "--output-format", "json"]
     available_check: ["claude", "--version"]
     timeout: 900
+    stream_parser: "claude_stream_json"
+    streaming:
+      mode: output_format_swap
+      flag: "--output-format"
+      from: "json"
+      to: "stream-json"
+      extra_args: ["--verbose"]
     models:
       - { id: "claude-sonnet-4-6", name: "Claude Sonnet 4.6" }
       - { id: "claude-opus-4-6", name: "Claude Opus 4.6" }
@@ -23,6 +30,7 @@ providers:
     args: ["exec", "{{prompt}}", "--dangerously-bypass-approvals-and-sandbox", "--json"]
     available_check: ["codex", "--version"]
     timeout: 900
+    stream_parser: "codex_jsonl"
     models:
       - { id: "gpt-5-codex", name: "GPT-5-Codex" }
       - { id: "gpt-5.4", name: "GPT-5.4" }
@@ -34,10 +42,16 @@ providers:
     args: ["--prompt", "{{prompt}}", "--approval-mode", "yolo", "--output-format", "json"]
     available_check: ["gemini", "--version"]
     timeout: 900
+    stream_parser: "gemini_stream_json"
+    streaming:
+      mode: output_format_swap
+      flag: "--output-format"
+      from: "json"
+      to: "stream-json"
+      extra_args: []
     models:
-      - { id: "gemini-3.1-pro", name: "Gemini 3.1 Pro" }
-      - { id: "gemini-3.1-flash-lite", name: "Gemini 3.1 Flash-Lite" }
-      - { id: "gemini-3-flash", name: "Gemini 3 Flash" }
-      - { id: "gemini-3-deep-think", name: "Gemini 3 Deep Think" }
+      - { id: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro Preview" }
+      - { id: "gemini-3-flash-preview", name: "Gemini 3 Flash Preview" }
       - { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro" }
       - { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" }
+      - { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash-Lite" }

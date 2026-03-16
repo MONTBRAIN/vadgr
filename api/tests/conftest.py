@@ -92,6 +92,7 @@ async def app(db):
         project_repo=application.state.project_repo,
         executor=executor,
         emit=emit,
+        provider_factory=AsyncMock(return_value=provider),
     )
     yield application
 

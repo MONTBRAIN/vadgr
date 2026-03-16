@@ -64,6 +64,8 @@ export interface Run {
   status: 'queued' | 'running' | 'awaiting_approval' | 'completed' | 'failed';
   inputs: Record<string, unknown>;
   outputs: Record<string, unknown>;
+  provider: string | null;
+  model: string | null;
   log_path: string | null;
   started_at: string | null;
   completed_at: string | null;

@@ -2,6 +2,7 @@
 
 import json
 import logging
+from collections.abc import Awaitable, Callable
 from pathlib import Path
 
 from api.engine.providers import CLIAgentProvider, ProviderError
@@ -17,9 +18,26 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 class AgentService:
     """Business logic for agent creation. Calls forge to generate agent folders."""
 
-    def __init__(self, agent_repo: AgentRepository, provider: CLIAgentProvider):
+    def __init__(
+        self,
+        agent_repo: AgentRepository,
+        provider: CLIAgentProvider,
+        provider_factory: Callable[..., Awaitable[CLIAgentProvider]] | None = None,
+    ):
         self.agent_repo = agent_repo
         self.provider = provider
+        self.provider_factory = provider_factory
+
+    async def _get_forge_provider(self, agent: dict, timeout: int) -> CLIAgentProvider:
+        provider_key = agent.get("provider")
+        model = agent.get("model")
+        if not provider_key or self.provider_factory is None:
+            return self.provider
+        return await self.provider_factory(
+            provider_key=provider_key,
+            model=model,
+            timeout=timeout,
+        )
 
     async def create_agent(
         self,
@@ -74,7 +92,8 @@ class AgentService:
             )
 
             logger.info("Running forge for agent %s (%s)", agent_id, agent["name"])
-            raw_output = await self.provider.execute(
+            provider = await self._get_forge_provider(agent, timeout=600)
+            raw_output = await provider.execute(
                 prompt=prompt,
                 workspace=str(PROJECT_ROOT),
                 timeout=600,  # forge generation can take a while
@@ -173,7 +192,8 @@ class AgentService:
             )
 
             logger.info("Running forge update for agent %s (%s)", agent_id, agent["name"])
-            raw_output = await self.provider.execute(
+            provider = await self._get_forge_provider(agent, timeout=600)
+            raw_output = await provider.execute(
                 prompt=prompt,
                 workspace=str(PROJECT_ROOT),
                 timeout=600,

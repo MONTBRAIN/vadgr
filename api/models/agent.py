@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any, Optional, Union
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from .common import AgentType
 
@@ -106,3 +106,11 @@ class Agent(BaseModel):
 
 class AgentRunRequest(BaseModel):
     inputs: dict[str, Any] = {}
+    provider: Optional[str] = None
+    model: Optional[str] = None
+
+    @model_validator(mode="after")
+    def validate_provider_model_pair(self):
+        if (self.provider is None) != (self.model is None):
+            raise ValueError("provider and model must be provided together")
+        return self

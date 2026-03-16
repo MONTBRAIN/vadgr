@@ -26,6 +26,7 @@ class AgentExecutor:
         inputs: dict,
         callback: EventCallback,
         run_id: str = "",
+        provider: CLIAgentProvider | None = None,
     ) -> dict:
         """Run an agent and return its outputs.
 
@@ -40,6 +41,7 @@ class AgentExecutor:
         await callback("agent_started", {"agent_id": agent["id"], "name": agent["name"]})
 
         try:
+            selected_provider = provider or self.provider
             # CLI providers (claude_code, codex, etc.) handle computer use via
             # MCP/plugins natively. Only route to computer_use_service for the
             # direct anthropic provider, which needs the separate desktop engine.
@@ -54,9 +56,21 @@ class AgentExecutor:
                 has_steps = len(steps) > 1 and agent.get("forge_path")
 
                 if has_steps:
-                    result = await self._execute_per_step(agent, inputs, callback, run_id)
+                    result = await self._execute_per_step(
+                        agent,
+                        inputs,
+                        callback,
+                        run_id,
+                        provider=selected_provider,
+                    )
                 else:
-                    result = await self._execute_single(agent, inputs, callback, run_id)
+                    result = await self._execute_single(
+                        agent,
+                        inputs,
+                        callback,
+                        run_id,
+                        provider=selected_provider,
+                    )
 
             await callback("agent_completed", {"agent_id": agent["id"], "outputs": result})
             return result
@@ -70,6 +84,7 @@ class AgentExecutor:
         inputs: dict,
         callback: EventCallback,
         run_id: str = "",
+        provider: CLIAgentProvider | None = None,
     ) -> dict:
         """Run the entire agent as a single subprocess."""
         prompt = build_agent_prompt(agent, inputs, run_id=run_id)
@@ -78,7 +93,8 @@ class AgentExecutor:
         can_stream = not agent.get("computer_use")
 
         collected_output = ""
-        async for event in self.provider.execute_streaming(
+        selected_provider = provider or self.provider
+        async for event in selected_provider.execute_streaming(
             prompt=prompt,
             workspace=workspace,
             timeout=timeout,
@@ -103,6 +119,7 @@ class AgentExecutor:
         inputs: dict,
         callback: EventCallback,
         run_id: str = "",
+        provider: CLIAgentProvider | None = None,
     ) -> dict:
         """Run each step as a separate subprocess.
 
@@ -132,7 +149,8 @@ class AgentExecutor:
             prompt = build_step_prompt(agent, inputs, step_number=i, step=step, run_id=run_id)
 
             collected_output = ""
-            async for event in self.provider.execute_streaming(
+            selected_provider = provider or self.provider
+            async for event in selected_provider.execute_streaming(
                 prompt=prompt,
                 workspace=workspace,
                 timeout=timeout,
@@ -195,7 +213,10 @@ class AgentExecutor:
             schema_lookup[kebab] = field["name"]
 
         outputs = {}
-        for step_dir in sorted(user_outputs.iterdir()):
+        step_dirs = sorted(
+            [step_dir for step_dir in user_outputs.iterdir() if step_dir.is_dir()]
+        )
+        for step_dir in step_dirs:
             if not step_dir.is_dir():
                 continue
             for file in step_dir.iterdir():
@@ -204,6 +225,26 @@ class AgentExecutor:
                 if file.stem in schema_lookup:
                     rel_path = str(file.relative_to(root))
                     outputs[schema_lookup[file.stem]] = rel_path
+
+        unresolved_fields = [
+            field["name"] for field in output_schema if field["name"] not in outputs
+        ]
+        if (
+            len(output_schema) != 1
+            or outputs
+            or len(unresolved_fields) != 1
+            or not step_dirs
+        ):
+            return outputs
+
+        latest_step_files = [
+            file for file in sorted(step_dirs[-1].iterdir()) if file.is_file()
+        ]
+        if len(latest_step_files) != 1:
+            return outputs
+
+        only_file = latest_step_files[0]
+        outputs[unresolved_fields[0]] = str(only_file.relative_to(root))
 
         return outputs
 

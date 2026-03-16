@@ -39,6 +39,8 @@ class TestRunGet:
         resp = await client.get(f"/api/runs/{run_id}")
         assert resp.status_code == 200
         assert resp.json()["id"] == run_id
+        assert resp.json()["provider"] == "claude_code"
+        assert resp.json()["model"] == "claude-sonnet-4-6"
 
     @pytest.mark.asyncio
     async def test_get_nonexistent_run_returns_404(self, client):
@@ -67,6 +69,61 @@ class TestRunList:
         resp = await client.get("/api/runs", params={"status": "queued"})
         assert resp.status_code == 200
         assert all(r["status"] == "queued" for r in resp.json())
+
+
+class TestStandaloneRunProviderSelection:
+
+    @pytest.mark.asyncio
+    async def test_run_agent_persists_runtime_provider_and_model_override(self, client, app):
+        create = await client.post("/api/agents", json={
+            "name": "T",
+            "description": "do something",
+            "provider": "claude_code",
+            "model": "claude-sonnet-4-6",
+        })
+        agent_id = create.json()["id"]
+        await app.state.agent_repo.update(agent_id, status="ready")
+
+        resp = await client.post(f"/api/agents/{agent_id}/run", json={
+            "inputs": {"topic": "AI"},
+            "provider": "codex",
+            "model": "gpt-5-codex",
+        })
+        assert resp.status_code == 202
+
+        run = await app.state.run_repo.get(resp.json()["run_id"])
+        assert run["provider"] == "codex"
+        assert run["model"] == "gpt-5-codex"
+
+    @pytest.mark.asyncio
+    async def test_run_agent_falls_back_to_agent_provider_and_model(self, client, app):
+        create = await client.post("/api/agents", json={
+            "name": "T",
+            "description": "do something",
+            "provider": "gemini",
+            "model": "gemini-2.5-pro",
+        })
+        agent_id = create.json()["id"]
+        await app.state.agent_repo.update(agent_id, status="ready")
+
+        resp = await client.post(f"/api/agents/{agent_id}/run", json={"inputs": {"topic": "AI"}})
+        assert resp.status_code == 202
+
+        run = await app.state.run_repo.get(resp.json()["run_id"])
+        assert run["provider"] == "gemini"
+        assert run["model"] == "gemini-2.5-pro"
+
+    @pytest.mark.asyncio
+    async def test_run_agent_rejects_partial_runtime_override(self, client, app):
+        create = await client.post("/api/agents", json={"name": "T", "description": "do something"})
+        agent_id = create.json()["id"]
+        await app.state.agent_repo.update(agent_id, status="ready")
+
+        resp = await client.post(f"/api/agents/{agent_id}/run", json={
+            "inputs": {},
+            "provider": "codex",
+        })
+        assert resp.status_code == 422
 
 
 class TestRunOutputEndpoint:

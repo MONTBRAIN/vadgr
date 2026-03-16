@@ -44,6 +44,29 @@ vi.mock('../../hooks/useAgents', () => ({
   useRunAgent: () => mockRunAgent,
 }));
 
+vi.mock('../../hooks/useProviders', () => ({
+  useProviders: () => ({
+    data: [
+      {
+        id: 'claude_code',
+        name: 'Claude Code',
+        models: [
+          { id: 'claude-sonnet-4-6', name: 'Claude Sonnet 4.6' },
+          { id: 'claude-opus-4-6', name: 'Claude Opus 4.6' },
+        ],
+      },
+      {
+        id: 'codex',
+        name: 'OpenAI Codex CLI',
+        models: [
+          { id: 'gpt-5-codex', name: 'GPT-5 Codex' },
+          { id: 'gpt-5-mini', name: 'GPT-5 Mini' },
+        ],
+      },
+    ],
+  }),
+}));
+
 import { AgentDetail } from '../AgentDetail';
 
 describe('AgentDetail - Inputs: empty schema fallback', () => {
@@ -200,6 +223,25 @@ describe('AgentDetail - Select default initialization', () => {
     const select = screen.getByDisplayValue('Python');
     await userEvent.selectOptions(select, 'Rust');
     expect(select).toHaveValue('Rust');
+  });
+
+  it('submits selected run provider and model with the run request', async () => {
+    mockRunAgent.mutateAsync.mockResolvedValue({ run_id: 'run-2' });
+    render(<AgentDetail />);
+
+    await userEvent.selectOptions(screen.getByLabelText('Run Provider'), 'codex');
+    expect(screen.getByLabelText('Run Model')).toHaveValue('gpt-5-codex');
+
+    await userEvent.selectOptions(screen.getByLabelText('Run Model'), 'gpt-5-mini');
+    await userEvent.type(screen.getByPlaceholderText('/some/path'), '/tmp/project');
+    await userEvent.click(screen.getAllByText('Start Run')[0]);
+
+    expect(mockRunAgent.mutateAsync).toHaveBeenCalledWith({
+      id: 'agent-1',
+      inputs: { language: 'Python', path: '/tmp/project' },
+      provider: 'codex',
+      model: 'gpt-5-mini',
+    });
   });
 });
 

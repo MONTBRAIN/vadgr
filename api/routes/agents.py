@@ -152,7 +152,15 @@ async def run_agent(agent_id: str, body: AgentRunRequest, request: Request, back
             content={"error": {"code": "AGENT_NOT_READY", "message": f"Agent is '{agent['status']}', must be 'ready' to run", "details": {}}},
         )
 
-    run = await run_repo.create(agent_id=agent_id, inputs=body.inputs)
+    run_provider = body.provider or agent["provider"]
+    run_model = body.model or agent["model"]
+
+    run = await run_repo.create(
+        agent_id=agent_id,
+        inputs=body.inputs,
+        provider=run_provider,
+        model=run_model,
+    )
     # Trigger execution in the background
     background_tasks.add_task(execution_service.run_standalone_agent, run["id"])
     return {"run_id": run["id"], "status": run["status"]}

@@ -13,7 +13,7 @@ from api.persistence.repositories import AgentRepository, ProjectRepository, Run
 from api.websocket.manager import ConnectionManager
 from api.websocket.events import make_event
 from api.engine.executor import AgentExecutor
-from api.engine.providers import CLIAgentProvider, load_provider_config
+from api.engine.providers import CLIAgentProvider, create_provider, load_provider_config
 from api.services.computer_use_service import ComputerUseService
 from api.services.agent_service import AgentService
 from api.services.execution_service import ExecutionService
@@ -89,6 +89,7 @@ def create_app(db: Optional[Database] = None) -> FastAPI:
         app.state.agent_service = AgentService(
             agent_repo=app.state.agent_repo,
             provider=provider,
+            provider_factory=create_provider,
         )
 
         app.state.execution_service = ExecutionService(
@@ -97,6 +98,7 @@ def create_app(db: Optional[Database] = None) -> FastAPI:
             project_repo=app.state.project_repo,
             executor=executor,
             emit=emit,
+            provider_factory=create_provider,
         )
         yield
         if not db:

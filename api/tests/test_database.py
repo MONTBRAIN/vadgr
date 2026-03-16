@@ -202,6 +202,8 @@ class TestRunRepository:
         assert run["agent_id"] == agent["id"]
         assert run["project_id"] is None
         assert run["status"] == "queued"
+        assert run["provider"] is None
+        assert run["model"] is None
 
     @pytest.mark.asyncio
     async def test_create_project_run(self, run_repo, project_repo):
@@ -216,6 +218,18 @@ class TestRunRepository:
         run = await run_repo.create(agent_id=agent["id"])
         fetched = await run_repo.get(run["id"])
         assert fetched["id"] == run["id"]
+
+    @pytest.mark.asyncio
+    async def test_create_run_with_provider_and_model(self, run_repo, agent_repo):
+        agent = await agent_repo.create(name="T", description="")
+        run = await run_repo.create(
+            agent_id=agent["id"],
+            inputs={"topic": "AI"},
+            provider="codex",
+            model="gpt-5-codex",
+        )
+        assert run["provider"] == "codex"
+        assert run["model"] == "gpt-5-codex"
 
     @pytest.mark.asyncio
     async def test_update_status(self, run_repo, agent_repo):

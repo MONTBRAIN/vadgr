@@ -1,11 +1,13 @@
 """Sequential DAG runner. Orchestrates agent execution for runs."""
 
 import os
+from collections.abc import Awaitable, Callable
 from pathlib import Path
-from typing import Any, Callable, Coroutine, Optional
+from typing import Any, Coroutine, Optional
 
 from api.engine.dag import DAG
 from api.engine.executor import AgentExecutor
+from api.engine.providers import CLIAgentProvider
 from api.persistence.repositories import AgentRepository, ProjectRepository, RunRepository
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -26,6 +28,7 @@ def _ensure_run_output_dirs(forge_path: str, run_id: str) -> None:
 
 
 EmitFn = Callable[[str, str, dict], Coroutine[Any, Any, None]]
+ProviderFactory = Callable[..., Awaitable[CLIAgentProvider]]
 
 
 class ExecutionService:
@@ -38,17 +41,42 @@ class ExecutionService:
         project_repo: Optional[ProjectRepository],
         executor: AgentExecutor,
         emit: EmitFn,
+        provider_factory: ProviderFactory | None = None,
     ):
         self.agent_repo = agent_repo
         self.run_repo = run_repo
         self.project_repo = project_repo
         self.executor = executor
         self.emit = emit
+        self.provider_factory = provider_factory
+
+    async def _get_run_provider(
+        self,
+        provider_key: str,
+        model: str | None,
+        timeout: int,
+    ) -> CLIAgentProvider:
+        if self.provider_factory is None:
+            return self.executor.provider
+        return await self.provider_factory(
+            provider_key=provider_key,
+            model=model,
+            timeout=timeout,
+        )
 
     async def run_standalone_agent(self, run_id: str):
         """Execute a standalone agent run (no project/DAG)."""
         run = await self.run_repo.get(run_id)
         agent = await self.agent_repo.get(run["agent_id"])
+        provider_key = run.get("provider") or agent.get("provider")
+        model = run.get("model") or agent.get("model")
+        timeout = 1800 if agent.get("computer_use") else 900
+        provider = await self._get_run_provider(provider_key, model, timeout)
+        execution_agent = {
+            **agent,
+            "provider": provider_key,
+            "model": model,
+        }
 
         _ensure_run_output_dirs(agent.get("forge_path", ""), run_id)
         await self.run_repo.update_status(run_id, "running")
@@ -58,7 +86,13 @@ class ExecutionService:
             async def callback(event_type, data):
                 await self.emit(run_id, event_type, data)
 
-            result = await self.executor.execute(agent, run["inputs"], callback, run_id=run_id)
+            result = await self.executor.execute(
+                execution_agent,
+                run["inputs"],
+                callback,
+                run_id=run_id,
+                provider=provider,
+            )
             await self.run_repo.update_status(run_id, "completed", outputs=result)
             await self.emit(run_id, "run_completed", {"outputs": result})
         except Exception as e:

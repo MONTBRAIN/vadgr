@@ -33,6 +33,9 @@ describe('Type definitions', () => {
       status: 'queued',
       inputs: { topic: 'test' },
       outputs: {},
+      provider: 'codex',
+      model: 'gpt-5-codex',
+      log_path: null,
       started_at: null,
       completed_at: null,
     };

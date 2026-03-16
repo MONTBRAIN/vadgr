@@ -485,3 +485,43 @@ class TestCollectOutputPaths:
             project_root=tmp_path,
         )
         assert result == {}
+
+    def test_maps_single_latest_step_file_to_single_remaining_field(self, tmp_path):
+        """When filename drifts from schema, map the only latest-step file to the only field."""
+        executor = self._make_executor()
+
+        step1 = tmp_path / "agent" / "output" / "run-1" / "user_outputs" / "step_01"
+        step2 = tmp_path / "agent" / "output" / "run-1" / "user_outputs" / "step_02"
+        step1.mkdir(parents=True)
+        step2.mkdir(parents=True)
+        (step1 / "notes.md").write_text("ignored")
+        (step2 / "memo.md").write_text("# Memo")
+
+        result = executor._collect_output_paths(
+            forge_path="agent",
+            run_id="run-1",
+            output_schema=[{"name": "memo_file"}],
+            project_root=tmp_path,
+        )
+
+        assert result == {
+            "memo_file": "agent/output/run-1/user_outputs/step_02/memo.md"
+        }
+
+    def test_does_not_guess_when_latest_step_has_multiple_files(self, tmp_path):
+        """Ambiguous latest-step outputs should not be guessed."""
+        executor = self._make_executor()
+
+        step2 = tmp_path / "agent" / "output" / "run-1" / "user_outputs" / "step_02"
+        step2.mkdir(parents=True)
+        (step2 / "memo.md").write_text("# Memo")
+        (step2 / "summary.md").write_text("# Summary")
+
+        result = executor._collect_output_paths(
+            forge_path="agent",
+            run_id="run-1",
+            output_schema=[{"name": "memo_file"}],
+            project_root=tmp_path,
+        )
+
+        assert result == {}

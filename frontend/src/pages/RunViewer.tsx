@@ -66,8 +66,8 @@ export function RunViewer() {
       {/* Metadata cards */}
       <div className="grid grid-cols-4 gap-4 mb-7">
         {[
-          ['Provider', agent?.provider ?? '-', true],
-          ['Model', agent?.model ?? '-', true],
+          ['Provider', run.provider ?? '-', true],
+          ['Model', run.model ?? '-', true],
           ['Started', run.started_at ? new Date(run.started_at).toLocaleString() : '-', false],
           ['Duration', duration(run.started_at, run.completed_at), false],
         ].map(([label, val, mono]) => (

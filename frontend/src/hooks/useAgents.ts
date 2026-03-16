@@ -48,8 +48,17 @@ export function useDeleteAgent() {
 export function useRunAgent() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, inputs }: { id: string; inputs: Record<string, unknown> }) =>
-      agentsApi.run(id, inputs),
+    mutationFn: ({
+      id,
+      inputs,
+      provider,
+      model,
+    }: {
+      id: string;
+      inputs: Record<string, unknown>;
+      provider?: string;
+      model?: string;
+    }) => agentsApi.run(id, inputs, provider, model),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['runs'] }),
   });
 }

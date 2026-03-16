@@ -19,6 +19,8 @@ class Run(BaseModel):
     status: RunStatus = RunStatus.QUEUED
     inputs: dict[str, Any] = {}
     outputs: dict[str, Any] = {}
+    provider: Optional[str] = None
+    model: Optional[str] = None
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
 

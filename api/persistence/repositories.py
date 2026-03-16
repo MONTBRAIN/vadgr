@@ -83,6 +83,8 @@ def _row_to_run(row) -> dict:
         "status": row["status"],
         "inputs": _parse_json(row["inputs"]),
         "outputs": _parse_json(row["outputs"]),
+        "provider": row["provider"],
+        "model": row["model"],
         "log_path": row["log_path"],
         "started_at": row["started_at"],
         "completed_at": row["completed_at"],
@@ -336,12 +338,14 @@ class RunRepository:
         project_id: str | None = None,
         agent_id: str | None = None,
         inputs: dict | None = None,
+        provider: str | None = None,
+        model: str | None = None,
     ) -> dict:
         run_id = _uuid()
         await self.db.conn.execute(
-            """INSERT INTO runs (id, project_id, agent_id, status, inputs)
-               VALUES (?, ?, ?, 'queued', ?)""",
-            (run_id, project_id, agent_id, json.dumps(inputs or {})),
+            """INSERT INTO runs (id, project_id, agent_id, status, inputs, provider, model)
+               VALUES (?, ?, ?, 'queued', ?, ?, ?)""",
+            (run_id, project_id, agent_id, json.dumps(inputs or {}), provider, model),
         )
         await self.db.conn.commit()
         return await self.get(run_id)

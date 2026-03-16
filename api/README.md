@@ -129,7 +129,7 @@ api/
 
 ## Provider configuration
 
-CLI providers are defined in `providers.yaml` at the project root. Adding a new provider (codex, aider, gemini, etc.) requires zero code changes -- just a YAML entry:
+CLI providers are defined in `providers.yaml` at the project root. Adding a new provider (codex, aider, gemini, etc.) usually requires only a YAML entry if the CLI output matches an existing parser family:
 
 ```yaml
 providers:
@@ -138,5 +138,10 @@ providers:
     args: ["-p", "{{prompt}}", "--dangerously-skip-permissions", "--output-format", "json"]
     timeout: 300
 ```
+
+See [PROVIDER_CONFIG.md](docs/PROVIDER_CONFIG.md) for:
+- available `stream_parser` families
+- `streaming` command rewrite rules
+- when a new provider needs code vs YAML only
 
 See [CONTAINERIZATION.md](docs/CONTAINERIZATION.md) for future Docker deployment plans.

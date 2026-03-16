@@ -7,8 +7,8 @@ from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
 from api.engine.providers import (
-    CLIAgentProvider, ProviderConfig, ProviderError, build_agent_prompt,
-    load_provider_config, _load_providers_yaml,
+    CLIAgentProvider, ProviderConfig, ProviderError, StreamingConfig,
+    build_agent_prompt, load_provider_config, _load_providers_yaml,
 )
 from api.services.computer_use_service import ComputerUseService
 from api.services.execution_service import ExecutionService
@@ -116,6 +116,44 @@ class TestProviderConfig:
     def test_load_returns_provider_config_instance(self):
         config = load_provider_config("claude_code")
         assert isinstance(config, ProviderConfig)
+
+    def test_load_claude_with_model_appends_model_flag(self):
+        config = load_provider_config("claude_code", {"model": "claude-opus-4-6"})
+        assert "--model" in config.args
+        assert "claude-opus-4-6" in config.args
+
+    def test_load_codex_with_model_appends_model_flag(self):
+        config = load_provider_config("codex", {"model": "gpt-5-codex"})
+        assert "--model" in config.args
+        assert "gpt-5-codex" in config.args
+
+    def test_load_claude_streaming_config(self):
+        config = load_provider_config("claude_code")
+        assert config.streaming is not None
+        assert config.streaming.flag == "--output-format"
+        assert config.streaming.from_value == "json"
+        assert config.streaming.to_value == "stream-json"
+        assert config.streaming.extra_args == ["--verbose"]
+
+    def test_load_gemini_streaming_config(self):
+        config = load_provider_config("gemini")
+        assert config.streaming is not None
+        assert config.streaming.flag == "--output-format"
+        assert config.streaming.from_value == "json"
+        assert config.streaming.to_value == "stream-json"
+        assert config.streaming.extra_args == []
+
+    def test_load_claude_stream_parser(self):
+        config = load_provider_config("claude_code")
+        assert config.stream_parser == "claude_stream_json"
+
+    def test_load_gemini_stream_parser(self):
+        config = load_provider_config("gemini")
+        assert config.stream_parser == "gemini_stream_json"
+
+    def test_load_codex_stream_parser(self):
+        config = load_provider_config("codex")
+        assert config.stream_parser == "codex_jsonl"
 
 
 class TestBuildAgentPrompt:
@@ -234,6 +272,40 @@ class TestCLIAgentProvider:
         provider = CLIAgentProvider(config)
         args = provider._build_args("hello")
         assert args == ["--dir", "{{workspace}}", "-p", "hello"]
+
+    def test_build_streaming_args_swaps_output_format_for_claude(self):
+        config = load_provider_config("claude_code")
+        provider = CLIAgentProvider(config)
+
+        args = provider._build_streaming_args("hello")
+
+        assert "--output-format" in args
+        assert "stream-json" in args
+        assert "--verbose" in args
+        assert "json" not in args
+
+    def test_build_streaming_args_swaps_output_format_for_gemini_without_verbose(self):
+        config = load_provider_config("gemini")
+        provider = CLIAgentProvider(config)
+
+        args = provider._build_streaming_args("hello")
+
+        assert "--output-format" in args
+        assert "stream-json" in args
+        assert "--verbose" not in args
+        assert "json" not in args
+
+    def test_build_streaming_args_keeps_args_when_provider_has_no_streaming_config(self):
+        config = ProviderConfig(
+            name="Test",
+            command="test-cli",
+            args=["--prompt", "{{prompt}}"],
+        )
+        provider = CLIAgentProvider(config)
+
+        args = provider._build_streaming_args("hello")
+
+        assert args == ["--prompt", "hello"]
 
     @pytest.mark.asyncio
     async def test_is_available_returns_false_for_missing_tool(self):
@@ -376,6 +448,13 @@ class TestCLIAgentProvider:
             name="Claude Code",
             command="claude",
             args=["-p", "{{prompt}}", "--output-format", "json"],
+            streaming=StreamingConfig(
+                mode="output_format_swap",
+                flag="--output-format",
+                from_value="json",
+                to_value="stream-json",
+                extra_args=["--verbose"],
+            ),
         )
         provider = CLIAgentProvider(config)
         args = provider._build_streaming_args("hello world")
@@ -438,6 +517,27 @@ class TestCLIAgentProvider:
         assert msg is None
         assert result is None
 
+    def test_parse_gemini_stream_json_extracts_assistant_message(self):
+        from api.engine.providers import parse_stream_json_line
+        line = '{"type":"message","role":"assistant","content":"Hello from Gemini","delta":true}'
+        msg, result = parse_stream_json_line(line, parser_name="gemini_stream_json")
+        assert msg == "Hello from Gemini"
+        assert result is None
+
+    def test_parse_gemini_stream_json_ignores_stats_only_result(self):
+        from api.engine.providers import parse_stream_json_line
+        line = '{"type":"result","status":"success","stats":{"total_tokens":123}}'
+        msg, result = parse_stream_json_line(line, parser_name="gemini_stream_json")
+        assert msg is None
+        assert result is None
+
+    def test_parse_codex_jsonl_extracts_assistant_message(self):
+        from api.engine.providers import parse_stream_json_line
+        line = '{"type":"agent_message_delta","delta":"Searching repository"}'
+        msg, result = parse_stream_json_line(line, parser_name="codex_jsonl")
+        assert msg == "Searching repository"
+        assert result is None
+
     @pytest.mark.asyncio
     async def test_execute_streaming_with_stream_json_parses_events(self):
         """Streaming with stream-json formatted output extracts readable messages."""
@@ -451,6 +551,14 @@ class TestCLIAgentProvider:
             name="Claude Code",
             command="bash",
             args=["-c", script, "--output-format", "json"],  # has the flag to trigger swap
+            stream_parser="claude_stream_json",
+            streaming=StreamingConfig(
+                mode="output_format_swap",
+                flag="--output-format",
+                from_value="json",
+                to_value="stream-json",
+                extra_args=[],
+            ),
         )
         provider = CLIAgentProvider(config)
         events = []
@@ -550,6 +658,35 @@ class TestAgentService:
         call_args = provider.execute.call_args
         prompt = call_args.kwargs.get("prompt") or call_args[1].get("prompt") or call_args[0][0]
         assert agent["id"] in prompt
+
+    @pytest.mark.asyncio
+    async def test_run_forge_uses_agent_provider_and_model(self, db):
+        from api.persistence.repositories import AgentRepository
+        from api.services.agent_service import AgentService
+        agent_repo = AgentRepository(db)
+        provider = AsyncMock(spec=CLIAgentProvider)
+        provider.execute = AsyncMock(return_value='{"forge_path": "output/test/", "forge_config": {}, "input_schema": [], "output_schema": []}')
+        provider_factory = AsyncMock(return_value=provider)
+
+        service = AgentService(
+            agent_repo=agent_repo,
+            provider=provider,
+            provider_factory=provider_factory,
+        )
+        agent = await service.create_agent(
+            name="Test",
+            description="A test agent",
+            provider="codex",
+            model="gpt-5-codex",
+        )
+
+        await service.run_forge(agent["id"])
+
+        provider_factory.assert_awaited_once_with(
+            provider_key="codex",
+            model="gpt-5-codex",
+            timeout=600,
+        )
 
     @pytest.mark.asyncio
     async def test_run_forge_sets_error_on_failure(self, db):
@@ -737,6 +874,49 @@ class TestExecutionService:
             run["id"], "run_completed",
             {"outputs": {"findings": "AI research data"}},
         )
+
+    @pytest.mark.asyncio
+    async def test_run_standalone_agent_uses_run_provider_and_model(self, db):
+        from api.persistence.repositories import AgentRepository, RunRepository
+        agent_repo = AgentRepository(db)
+        run_repo = RunRepository(db)
+
+        agent = await agent_repo.create(
+            name="Research",
+            description="Research a topic",
+            provider="claude_code",
+            model="claude-sonnet-4-6",
+        )
+        run = await run_repo.create(
+            agent_id=agent["id"],
+            inputs={"topic": "AI"},
+            provider="codex",
+            model="gpt-5-codex",
+        )
+
+        executor_mock = AsyncMock()
+        executor_mock.execute.return_value = {"findings": "AI research data"}
+        emit_mock = AsyncMock()
+        provider_instance = object()
+        provider_factory = AsyncMock(return_value=provider_instance)
+
+        service = ExecutionService(
+            agent_repo=agent_repo,
+            run_repo=run_repo,
+            project_repo=None,
+            executor=executor_mock,
+            emit=emit_mock,
+            provider_factory=provider_factory,
+        )
+        await service.run_standalone_agent(run["id"])
+
+        provider_factory.assert_awaited_once_with(
+            provider_key="codex",
+            model="gpt-5-codex",
+            timeout=900,
+        )
+        executor_mock.execute.assert_awaited_once()
+        assert executor_mock.execute.await_args.kwargs["provider"] is provider_instance
 
     @pytest.mark.asyncio
     async def test_run_standalone_agent_failure(self, db):

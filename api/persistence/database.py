@@ -60,6 +60,8 @@ CREATE TABLE IF NOT EXISTS runs (
     status TEXT NOT NULL DEFAULT 'queued',
     inputs TEXT DEFAULT '{}',
     outputs TEXT DEFAULT '{}',
+    provider TEXT DEFAULT NULL,
+    model TEXT DEFAULT NULL,
     log_path TEXT DEFAULT NULL,
     started_at TEXT,
     completed_at TEXT
@@ -101,6 +103,16 @@ class Database:
         # Migrations for existing databases
         try:
             await self._conn.execute("ALTER TABLE runs ADD COLUMN log_path TEXT DEFAULT NULL")
+            await self._conn.commit()
+        except Exception:
+            pass  # Column already exists
+        try:
+            await self._conn.execute("ALTER TABLE runs ADD COLUMN provider TEXT DEFAULT NULL")
+            await self._conn.commit()
+        except Exception:
+            pass  # Column already exists
+        try:
+            await self._conn.execute("ALTER TABLE runs ADD COLUMN model TEXT DEFAULT NULL")
             await self._conn.commit()
         except Exception:
             pass  # Column already exists
