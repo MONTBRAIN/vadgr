@@ -24,6 +24,7 @@ function formatTime(ts: string): string {
 const eventIcons: Record<string, string> = {
   run_started: 'bg-info',
   agent_started: 'bg-info',
+  step: 'bg-info',
   agent_completed: 'bg-accent',
   agent_log: 'bg-text-muted/50',
   run_completed: 'bg-accent',
@@ -31,17 +32,66 @@ const eventIcons: Record<string, string> = {
   approval_required: 'bg-warning',
 };
 
-// Group consecutive agent_log events under their parent agent_started
-function groupEvents(events: WSEvent[]) {
-  const groups: { event: WSEvent; logs: WSEvent[] }[] = [];
+interface EventGroup {
+  event: WSEvent;
+  label: string;
+  sublabel?: string;
+  logs: WSEvent[];
+}
+
+/**
+ * Group events into timeline nodes. Step-level agent_log events
+ * (those with step_num/step_name in data) get their own node per step.
+ * Non-step agent_log events attach to the last node.
+ */
+function groupEvents(events: WSEvent[]): EventGroup[] {
+  const groups: EventGroup[] = [];
+  let currentStepKey = '';
+
   for (const event of events) {
+    const stepNum = event.data?.step_num as number | undefined;
+    const stepName = event.data?.step_name as string | undefined;
+
     if (event.type === 'agent_log') {
-      // Attach to the last group
+      const msg = String(event.data?.message ?? '');
+
+      // Step start marker — create a new step node
+      if (msg.startsWith('--- Step ') && (msg.includes('[CLI]') || msg.includes('[Desktop]'))) {
+        // Parse step info from data fields or fall back to marker text
+        const match = msg.match(/^--- Step (\d+): (.+?) \[(CLI|Desktop)\] ---$/);
+        const num = stepNum ?? (match ? Number(match[1]) : undefined);
+        const name = stepName ?? (match ? match[2] : undefined);
+        const stepKey = `step-${num}`;
+        if (stepKey !== currentStepKey) {
+          currentStepKey = stepKey;
+          groups.push({
+            event: { ...event, type: 'step' },
+            label: `Step ${num}`,
+            sublabel: name,
+            logs: [],
+          });
+        }
+        continue;
+      }
+
+      // Step complete marker — skip it
+      if (msg.match(/^--- Step \d+ complete ---$/)) {
+        continue;
+      }
+
+      // Regular log — attach to current step node or last group
       if (groups.length > 0) {
         groups[groups.length - 1].logs.push(event);
       }
     } else {
-      groups.push({ event, logs: [] });
+      // Non-log event — gets its own node
+      currentStepKey = '';
+      groups.push({
+        event,
+        label: event.type.replace(/_/g, ' '),
+        sublabel: event.data?.name != null ? String(event.data.name) : undefined,
+        logs: [],
+      });
     }
   }
   return groups;
@@ -79,7 +129,7 @@ export function RunTimeline({ events }: RunTimelineProps) {
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm text-text-primary capitalize">
-                  {group.event.type.replace(/_/g, ' ')}
+                  {group.label}
                 </span>
                 <div className="flex items-center gap-2">
                   {group.event.data?.duration_ms != null && (
@@ -92,8 +142,8 @@ export function RunTimeline({ events }: RunTimelineProps) {
                   </span>
                 </div>
               </div>
-              {group.event.data?.name != null && (
-                <span className="text-xs text-text-secondary">{String(group.event.data.name)}</span>
+              {group.sublabel && (
+                <span className="text-xs text-text-secondary">{group.sublabel}</span>
               )}
             </div>
           </div>
