@@ -18,6 +18,8 @@ Works on **Windows**, **macOS**, and **Linux**.
   - [Gemini CLI](https://github.com/google-gemini/gemini-cli) -- `npm install -g @google/gemini-cli`
   - Or any other CLI tool -- just add an entry to `providers.yaml`
 
+Provider parser families and real sample log lines are documented in [PROVIDER_PARSER_GUIDE.md](PROVIDER_PARSER_GUIDE.md).
+
 ### Run everything
 
 **1. Backend**
