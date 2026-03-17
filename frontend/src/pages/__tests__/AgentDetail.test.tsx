@@ -12,6 +12,8 @@ vi.mock('react-router-dom', () => ({
 
 // Mock hooks — agent with empty schemas by default
 const mockRunAgent = { mutateAsync: vi.fn(), isPending: false };
+const mockUploadArtifact = { mutateAsync: vi.fn(), isPending: false };
+const mockExportAgentPackage = { mutateAsync: vi.fn(), isPending: false };
 
 const baseAgent = {
   id: 'agent-1',
@@ -41,7 +43,9 @@ let mockAgent = { ...baseAgent };
 vi.mock('../../hooks/useAgents', () => ({
   useAgent: () => ({ data: mockAgent, isLoading: false }),
   useDeleteAgent: () => ({ mutateAsync: vi.fn() }),
+  useExportAgentPackage: () => mockExportAgentPackage,
   useRunAgent: () => mockRunAgent,
+  useUploadAgentArtifact: () => mockUploadArtifact,
 }));
 
 vi.mock('../../hooks/useProviders', () => ({
@@ -139,6 +143,18 @@ describe('AgentDetail - Inputs: schema-driven fields', () => {
     expect(screen.queryByText('INSTRUCTIONS')).not.toBeInTheDocument();
     expect(screen.queryByPlaceholderText(/describe what you want the agent to do/i)).not.toBeInTheDocument();
   });
+
+  it('renders file upload input for artifact fields', () => {
+    mockAgent = {
+      ...baseAgent,
+      input_schema: [
+        { name: 'source_file', type: 'file', required: true, label: 'Source File' },
+      ],
+      output_schema: [],
+    };
+    render(<AgentDetail />);
+    expect(screen.getByLabelText('Source File')).toHaveAttribute('type', 'file');
+  });
 });
 
 describe('AgentDetail - Outputs: schema-driven', () => {
@@ -179,6 +195,27 @@ describe('AgentDetail - Outputs: empty schema fallback', () => {
   it('shows forge inference message when output_schema is empty', () => {
     render(<AgentDetail />);
     expect(screen.getByText(/outputs will be inferred by forge/i)).toBeInTheDocument();
+  });
+});
+
+describe('AgentDetail - Busy states', () => {
+  it('disables edit while agent is creating', () => {
+    mockAgent = { ...baseAgent, status: 'creating' as const };
+    render(<AgentDetail />);
+    expect(screen.getByRole('button', { name: 'Edit' })).toBeDisabled();
+  });
+
+  it('disables start run while artifact upload is in progress', () => {
+    mockAgent = {
+      ...baseAgent,
+      input_schema: [
+        { name: 'meeting_notes', type: 'file', required: true, label: 'Meeting Notes' },
+      ],
+    };
+    mockUploadArtifact.isPending = true;
+    render(<AgentDetail />);
+    expect(screen.getByRole('button', { name: /uploading/i })).toBeDisabled();
+    mockUploadArtifact.isPending = false;
   });
 });
 

@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 
 from api.models.run import RunCreate
 
@@ -19,6 +19,19 @@ def _not_found(run_id: str):
         status_code=404,
         content={"error": {"code": "RUN_NOT_FOUND", "message": f"Run with id '{run_id}' not found", "details": {}}},
     )
+
+
+def _resolve_output_path(forge_path: str, value: str) -> Path | None:
+    candidates = []
+    if forge_path:
+        candidates.append(_PROJECT_ROOT / forge_path / value)
+    candidates.append(_PROJECT_ROOT / value)
+
+    for path in candidates:
+        resolved = path.resolve()
+        if _PROJECT_ROOT.resolve() in resolved.parents and resolved.is_file():
+            return resolved
+    return None
 
 
 @router.post("/api/projects/{project_id}/runs", status_code=202)
@@ -108,27 +121,27 @@ async def get_run_output(run_id: str, field_name: str, request: Request):
         )
 
     value = outputs[field_name]
-    if not isinstance(value, str):
-        return PlainTextResponse(str(value))
-
-    # Try to resolve as a file path (relative to agent's forge_path)
     agent = await agent_repo.get(run.get("agent_id", "")) if run.get("agent_id") else None
     forge_path = agent.get("forge_path", "") if agent else ""
 
-    # Try forge_path/value first, then project_root/value
-    candidates = []
-    if forge_path:
-        candidates.append(_PROJECT_ROOT / forge_path / value)
-    candidates.append(_PROJECT_ROOT / value)
+    if isinstance(value, dict) and value.get("kind") in {"file", "archive", "directory"}:
+        resolved = _resolve_output_path(forge_path, value.get("path", ""))
+        if resolved:
+            return FileResponse(
+                path=resolved,
+                media_type=value.get("mime_type") or "application/octet-stream",
+                filename=value.get("filename") or resolved.name,
+            )
+        return PlainTextResponse(str(value))
 
-    for path in candidates:
-        resolved = path.resolve()
-        # Security: ensure path is under project root
-        if _PROJECT_ROOT.resolve() in resolved.parents and resolved.is_file():
-            content = resolved.read_text(encoding="utf-8", errors="replace")
-            return PlainTextResponse(content)
+    if not isinstance(value, str):
+        return PlainTextResponse(str(value))
 
-    # Not a file path — return raw value
+    resolved = _resolve_output_path(forge_path, value)
+    if resolved:
+        content = resolved.read_text(encoding="utf-8", errors="replace")
+        return PlainTextResponse(content)
+
     return PlainTextResponse(value)
 
 

@@ -25,6 +25,12 @@ describe('StatusBadge', () => {
     expect(container.firstChild).toHaveClass('text-warning');
   });
 
+  it('maps importing to warning variant', () => {
+    const { container } = render(<StatusBadge status="importing" />);
+    expect(container.firstChild).toHaveClass('text-warning');
+    expect(screen.getByText('Importing')).toBeInTheDocument();
+  });
+
   it('maps failed to danger variant', () => {
     const { container } = render(<StatusBadge status="failed" />);
     expect(container.firstChild).toHaveClass('text-danger');

@@ -27,6 +27,7 @@ export function Badge({ variant = 'default', children, className = '' }: BadgePr
 const statusVariant: Record<string, BadgeVariant> = {
   creating: 'warning',
   updating: 'warning',
+  importing: 'warning',
   ready: 'success',
   error: 'danger',
   queued: 'default',
@@ -39,6 +40,7 @@ const statusVariant: Record<string, BadgeVariant> = {
 const statusColors: Record<string, string> = {
   creating: 'bg-warning',
   updating: 'bg-warning',
+  importing: 'bg-warning',
   ready: 'bg-success',
   error: 'bg-danger',
   queued: 'bg-text-muted',

@@ -321,6 +321,7 @@ class TestFileContents:
         assert "scripts/" in content
         assert "commands/" in content
         assert "output/" in content
+        assert "inputs/" in content
 
     def test_start_command_references_agentic_md(self, output_dir, simple_config):
         generate_scaffold(simple_config, output_dir)

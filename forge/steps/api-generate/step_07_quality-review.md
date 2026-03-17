@@ -43,7 +43,7 @@
    - [ ] .claude/commands/fix.md exists
    - [ ] agent/Prompts/00_Workflow_Fixer.md exists
    - [ ] agent/Prompts/01_Senior_Prompt_Engineer.md exists
-   - [ ] output/ directory exists (scaffold creates base; at runtime the API creates output/{run_id}/agent_outputs/ and output/{run_id}/user_outputs/ per run)
+   - [ ] output/ directory exists (scaffold creates base; at runtime the API creates output/{run_id}/inputs/, output/{run_id}/agent_outputs/, output/{run_id}/user_outputs/, and output/{run_id}/agent_logs/ per run)
    - [ ] If computer use: Computer Use Agent prompt exists?
    - [ ] If computer use: Execution commands generated?
 
@@ -76,7 +76,7 @@
    - `forge_config.steps`: Number of steps in the generated `agentic.md`.
    - `forge_config.prompts`: List of generated prompt filenames in `agent/Prompts/` (excluding standard 00/01 prompts).
    - `steps`: Array of step objects from the generated `agentic.md`. Each has `name` (Title Case, matching step headings) and `computer_use` (boolean). Order must match the step numbering in `agentic.md`.
-   - `input_schema`: Inferred inputs the agent needs at runtime. Each item has `name`, `type` (one of: `text`, `file`, `number`, `boolean`), and `required` (boolean).
+   - `input_schema`: Inferred inputs the agent needs at runtime. Each item has `name`, `type` (one of: `text`, `file`, `number`, `boolean`), and `required` (boolean). Artifact inputs should also include `accept`, `mime_types`, and `max_size_mb` when the expected format is clear.
    - `output_schema`: Inferred outputs the agent produces. Each item has `name` and `type`.
 
    Print only this JSON object. No preamble, no summary, no explanation. The API parses this directly.
@@ -112,7 +112,7 @@
    │   └── utils/
    │       ├── code/
    │       └── docs/
-   ├── output/  (at runtime: output/{run_id}/agent_outputs/ and output/{run_id}/user_outputs/)
+   ├── output/  (at runtime: output/{run_id}/inputs/, output/{run_id}/agent_outputs/, output/{run_id}/user_outputs/, and output/{run_id}/agent_logs/)
    └── {output-dirs}/
 
    To use this workflow:

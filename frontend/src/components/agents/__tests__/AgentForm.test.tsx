@@ -172,3 +172,32 @@ describe('AgentForm - Per-step computer use', () => {
     expect(desktopButtons).toHaveLength(1);
   });
 });
+
+describe('AgentForm - Busy agents', () => {
+  it('disables editing controls when the agent is busy', () => {
+    const agent = {
+      id: 'busy-1',
+      name: 'Busy Agent',
+      description: 'desc',
+      type: 'agent' as const,
+      status: 'importing' as const,
+      forge_path: '',
+      steps: [{ name: 'CLI step', computer_use: false }],
+      samples: [],
+      input_schema: [],
+      output_schema: [],
+      computer_use: false,
+      forge_config: {},
+      provider: 'claude_code',
+      model: 'claude-sonnet-4-6',
+      created_at: '2025-01-01T00:00:00Z',
+      updated_at: '2025-01-01T00:00:00Z',
+    };
+
+    render(<AgentForm agent={agent} />);
+
+    expect(screen.getByLabelText('Agent Name')).toBeDisabled();
+    expect(screen.getByLabelText('Description')).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save Changes' })).toBeDisabled();
+  });
+});

@@ -415,6 +415,13 @@ class RunRepository:
         await self.db.conn.commit()
         return await self.get(run_id)
 
+    async def set_inputs(self, run_id: str, inputs: dict) -> Optional[dict]:
+        await self.db.conn.execute(
+            "UPDATE runs SET inputs = ? WHERE id = ?", (json.dumps(inputs), run_id)
+        )
+        await self.db.conn.commit()
+        return await self.get(run_id)
+
     async def delete_all(self) -> int:
         cursor = await self.db.conn.execute("DELETE FROM runs")
         await self.db.conn.commit()

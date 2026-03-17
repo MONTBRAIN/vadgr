@@ -10,9 +10,9 @@ export const runsApi = {
   deleteAll: () => api.delete<{ deleted: number }>('/runs'),
   getLogs: (id: string) => api.get<WSEvent[]>(`/runs/${id}/logs`),
   getStepLog: (id: string, file: string) => api.get<WSEvent[]>(`/runs/${id}/logs/${file}`),
-  getOutput: async (runId: string, fieldName: string): Promise<string> => {
+  getOutput: async (runId: string, fieldName: string): Promise<Response> => {
     const res = await fetch(`/api/runs/${runId}/outputs/${fieldName}`);
     if (!res.ok) throw new Error(`Failed to fetch output: ${res.statusText}`);
-    return res.text();
+    return res;
   },
 };

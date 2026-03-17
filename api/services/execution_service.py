@@ -16,15 +16,19 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 def _ensure_run_output_dirs(forge_path: str, run_id: str) -> None:
     """Create output directories for a run before execution starts.
 
-    Creates {forge_path}/output/{run_id}/agent_outputs/ and
-    {forge_path}/output/{run_id}/user_outputs/ so agents don't need
-    to mkdir themselves.
+    Creates {forge_path}/output/{run_id}/inputs/,
+    {forge_path}/output/{run_id}/agent_outputs/,
+    {forge_path}/output/{run_id}/user_outputs/, and
+    {forge_path}/output/{run_id}/agent_logs/ so agents and the
+    log writer don't need to mkdir them themselves.
     """
     if not forge_path or not run_id:
         return
     base = _PROJECT_ROOT / forge_path / "output" / run_id
+    (base / "inputs").mkdir(parents=True, exist_ok=True)
     (base / "agent_outputs").mkdir(parents=True, exist_ok=True)
     (base / "user_outputs").mkdir(parents=True, exist_ok=True)
+    (base / "agent_logs").mkdir(parents=True, exist_ok=True)
 
 
 EmitFn = Callable[[str, str, dict], Coroutine[Any, Any, None]]

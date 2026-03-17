@@ -1,11 +1,22 @@
 export interface SchemaField {
   name: string;
-  type: 'text' | 'url' | 'textarea' | 'select' | 'number' | 'boolean' | 'file' | 'markdown';
+  type: 'text' | 'url' | 'textarea' | 'select' | 'number' | 'boolean' | 'file' | 'archive' | 'directory' | 'markdown' | 'json';
   required: boolean;
   label?: string;
   description?: string;
   placeholder?: string;
   options?: string[];
+  accept?: string[];
+  mime_types?: string[];
+  max_size_mb?: number;
+  multiple?: boolean;
+}
+
+export interface ArtifactDescriptor {
+  kind: 'file' | 'archive' | 'directory';
+  path: string;
+  filename: string;
+  mime_type?: string;
 }
 
 export interface StepDefinition {
@@ -13,7 +24,7 @@ export interface StepDefinition {
   computer_use: boolean;
 }
 
-export type AgentStatus = 'creating' | 'updating' | 'ready' | 'error';
+export type AgentStatus = 'creating' | 'updating' | 'importing' | 'ready' | 'error';
 
 export interface Agent {
   id: string;

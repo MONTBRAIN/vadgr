@@ -29,7 +29,7 @@
       - Multi-step: 2-4 agents, each covering a distinct expertise area.
       - Not every step needs an agent. Mechanical steps (file writing, format conversion) need none.
 
-   4. **Input schema.** What inputs the agent needs when it runs. Infer from the description. Each input has a name and type (text, file, number, boolean).
+   4. **Input schema.** What inputs the agent needs when it runs. Infer from the description. Each input has a name and type (text, file, number, boolean). For artifact inputs, also infer validation metadata when obvious: accepted extensions, MIME types, and a reasonable max size.
 
    5. **Output schema.** What the agent produces. Infer from the description. Each output has a name and type.
 
@@ -54,7 +54,7 @@
    steps: [{number, name, description, agent_name or null, computer_use: true|false}]
    agents: [{name, role, expertise}]
    scripts: [{name, type (format|general), purpose, dependencies}] or "none"
-   input_schema: [{name, type, required}]
+   input_schema: [{name, type, required, accept?, mime_types?, max_size_mb?}]
    output_schema: [{name, type}]
    output_structure: {folder tree}
    computer_use: true | false (agent-level, true if any step has computer_use)

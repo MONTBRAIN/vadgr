@@ -195,6 +195,12 @@ not driven by a changed field must not be modified. The minimal fix principle ap
 After a patch, re-derive the `input_schema` and `output_schema` from the updated
 description. Do not copy the original schema forward if the description changed.
 
+For artifact inputs (`file`, `archive`, `directory`), also re-derive validation metadata
+when the expected format is clear:
+- `accept`: file extensions like `[".docx"]`, `[".csv"]`, `[".zip"]`
+- `mime_types`: matching MIME types
+- `max_size_mb`: reasonable size limit when the task implies one
+
 ### Naming Conventions
 
 Follow the same conventions as `api-generate.md`:

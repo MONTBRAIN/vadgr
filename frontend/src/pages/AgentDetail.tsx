@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAgent, useDeleteAgent, useRunAgent } from '../hooks/useAgents';
+import { useAgent, useDeleteAgent, useExportAgentPackage, useRunAgent, useUploadAgentArtifact } from '../hooks/useAgents';
 import { useProviders } from '../hooks/useProviders';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { StatusBadge } from '../components/ui/Badge';
 import { PixelBack, PixelGear, PixelPlay, PixelStep } from '../components/ui/PixelIcon';
-import type { SchemaField } from '../types';
+import type { ArtifactDescriptor, SchemaField } from '../types';
 
 function renderInputField(
   field: SchemaField,
@@ -57,6 +57,10 @@ function renderInputField(
   );
 }
 
+function isArtifactField(field: SchemaField) {
+  return field.type === 'file' || field.type === 'archive' || field.type === 'directory';
+}
+
 function renderStep(step: string | { name: string; computer_use: boolean }, index: number) {
   const stepObj = typeof step === 'string' ? { name: step, computer_use: false } : step;
 
@@ -92,8 +96,10 @@ export function AgentDetail() {
   const { data: agent, isLoading } = useAgent(id ?? '');
   const { data: providers } = useProviders();
   const deleteAgent = useDeleteAgent();
+  const exportAgentPackage = useExportAgentPackage();
   const runAgent = useRunAgent();
-  const [inputs, setInputs] = useState<Record<string, string>>({});
+  const uploadArtifact = useUploadAgentArtifact();
+  const [inputs, setInputs] = useState<Record<string, string | ArtifactDescriptor>>({});
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [runProvider, setRunProvider] = useState('');
   const [runModel, setRunModel] = useState('');
@@ -141,14 +147,16 @@ export function AgentDetail() {
   if (!agent) return <div className="text-sm text-text-muted p-10">Agent not found.</div>;
 
   const isReady = agent.status === 'ready';
-  const isBusy = agent.status === 'creating' || agent.status === 'updating';
+  const isBusy = agent.status === 'creating' || agent.status === 'updating' || agent.status === 'importing';
   const providerOptions = providers ?? [];
   const modelOptions = providerOptions.find((provider) => provider.id === runProvider)?.models ?? [];
 
   const handleRun = async () => {
     const errors: Record<string, string> = {};
     for (const field of displayInputs) {
-      if (field.required && !inputs[field.name]?.trim()) {
+      const value = inputs[field.name];
+      const isMissing = typeof value === 'string' ? !value.trim() : !value;
+      if (field.required && isMissing) {
         errors[field.name] = `${field.label || field.name} is required`;
       }
     }
@@ -175,6 +183,19 @@ export function AgentDetail() {
     }
   };
 
+  const handleExport = async () => {
+    const blob = await exportAgentPackage.mutateAsync(agent.id);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const safeName = (agent.name || agent.id).trim().replace(/\s+/g, '-').toLowerCase();
+    link.href = url;
+    link.download = `${safeName || agent.id}.zip`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div>
       <div
@@ -190,10 +211,13 @@ export function AgentDetail() {
           <p className="font-body text-[13px] text-text-muted font-light max-w-[600px] leading-relaxed">{agent.description || 'No description'}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="secondary" size="sm" onClick={() => navigate(`/agents/${agent.id}/edit`)}>Edit</Button>
+          <Button variant="secondary" size="sm" onClick={handleExport} disabled={exportAgentPackage.isPending}>
+            Export
+          </Button>
+          <Button variant="secondary" size="sm" onClick={() => navigate(`/agents/${agent.id}/edit`)} disabled={isBusy}>Edit</Button>
           <Button variant="danger" size="sm" onClick={handleDelete}>Delete</Button>
-          <Button size="sm" onClick={handleRun} disabled={runAgent.isPending || !isReady}>
-            <PixelPlay size={12} color="var(--color-bg-primary)" /> {isBusy ? 'Generating...' : 'Start Run'}
+          <Button size="sm" onClick={handleRun} disabled={runAgent.isPending || uploadArtifact.isPending || !isReady}>
+            <PixelPlay size={12} color="var(--color-bg-primary)" /> {isBusy ? 'Generating...' : uploadArtifact.isPending ? 'Uploading...' : 'Start Run'}
           </Button>
         </div>
       </div>
@@ -201,7 +225,7 @@ export function AgentDetail() {
       {isBusy && (
         <Card className="p-4 border-info/30 bg-info/5 mb-6">
           <p className="text-sm text-info font-body">
-            Agent is {agent.status}. Forge is generating the agent files. This may take a few minutes.
+            Agent is {agent.status}. The agent files are being prepared. This may take a few minutes.
           </p>
         </Card>
       )}
@@ -215,7 +239,7 @@ export function AgentDetail() {
           <div className="grid grid-cols-2 gap-5">
             <ConfigItem label="Status"><StatusBadge status={agent.status} /></ConfigItem>
             <ConfigItem label="Type"><span className="font-body text-[10px] font-semibold uppercase tracking-wider text-accent">{agent.type}</span></ConfigItem>
-            <ConfigItem label="Created With"><span className="font-mono text-[11px] bg-badge-bg px-2 py-0.5 rounded-md text-text-muted">{agent.provider}</span></ConfigItem>
+            <ConfigItem label="Created With"><span className="font-mono text-[11px] bg-badge-bg px-2 py-0.5 rounded-md text-text-muted tracking-tight">{agent.provider}</span></ConfigItem>
             <ConfigItem label="Creation Model"><span className="font-mono text-[11px] text-text-muted">{agent.model}</span></ConfigItem>
             <ConfigItem label="Computer Use"><span className={`font-body text-xs ${agent.computer_use ? 'text-success' : 'text-text-muted'}`}>{agent.computer_use ? 'Enabled' : 'Disabled'}</span></ConfigItem>
             <ConfigItem label="Created"><span className="font-body text-xs text-text-muted">{new Date(agent.created_at).toLocaleDateString()}</span></ConfigItem>
@@ -302,10 +326,63 @@ export function AgentDetail() {
             <h2 className="font-heading text-lg font-semibold text-text-primary">Inputs</h2>
           </div>
           <div className="flex flex-col gap-3 flex-1">
-            {displayInputs.map((field) =>
-              renderInputField(
+            {displayInputs.map((field) => {
+              const fieldValue = inputs[field.name];
+
+              if (isArtifactField(field)) {
+                const artifact = fieldValue;
+                const hasError = !!validationErrors[field.name];
+                return (
+                  <div key={field.name}>
+                    <label className="block font-body text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-1.5">
+                      {field.label || field.name} {field.required && <span className="text-danger">*</span>}
+                    </label>
+                    <input
+                      type="file"
+                      aria-label={field.label || field.name}
+                      accept={field.accept?.join(',')}
+                      disabled={uploadArtifact.isPending}
+                      onChange={async (e) => {
+                        const selected = e.target.files?.[0];
+                        if (!selected || !id) return;
+                        try {
+                          const descriptor = await uploadArtifact.mutateAsync({
+                            id,
+                            fieldName: field.name,
+                            file: selected,
+                          });
+                          setInputs((prev) => ({ ...prev, [field.name]: descriptor }));
+                          if (validationErrors[field.name]) {
+                            setValidationErrors((prev) => {
+                              const next = { ...prev };
+                              delete next[field.name];
+                              return next;
+                            });
+                          }
+                        } catch (error) {
+                          setValidationErrors((prev) => ({
+                            ...prev,
+                            [field.name]: error instanceof Error ? error.message : 'Upload failed',
+                          }));
+                        }
+                      }}
+                      className={`w-full px-3.5 py-2.5 bg-bg-input border rounded-[10px] text-sm text-text-primary ${hasError ? 'border-danger' : 'border-border'}`}
+                    />
+                    {artifact && typeof artifact !== 'string' ? (
+                      <p className="font-mono text-[10px] text-text-muted mt-1">{artifact.filename}</p>
+                    ) : null}
+                    {hasError ? (
+                      <p className="font-body text-[10px] text-danger mt-1">{validationErrors[field.name]}</p>
+                    ) : field.description ? (
+                      <p className="font-body text-[10px] text-text-muted mt-1">{field.description}</p>
+                    ) : null}
+                  </div>
+                );
+              }
+
+              return renderInputField(
                 field,
-                String(inputs[field.name] ?? ''),
+                typeof fieldValue === 'string' ? fieldValue : '',
                 (value) => {
                   setInputs((prev) => ({ ...prev, [field.name]: value }));
                   if (validationErrors[field.name]) {
@@ -317,8 +394,8 @@ export function AgentDetail() {
                   }
                 },
                 validationErrors[field.name],
-              )
-            )}
+              );
+            })}
             <div className="mt-auto pt-5 border-t border-border">
               <Button onClick={handleRun} disabled={runAgent.isPending || !isReady}>
                 <PixelPlay size={12} color="var(--color-bg-primary)" />

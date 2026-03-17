@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import type { ChangeEvent } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAgents } from '../hooks/useAgents';
+import { useAgents, useImportAgentPackage } from '../hooks/useAgents';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { StatusBadge } from '../components/ui/Badge';
@@ -9,6 +10,8 @@ import { PixelRobot, PixelPlay, PixelList } from '../components/ui/PixelIcon';
 export function AgentList() {
   const navigate = useNavigate();
   const { data: agents = [], isLoading } = useAgents();
+  const importAgentPackage = useImportAgentPackage();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState('');
   const [view, setView] = useState<'grid' | 'list'>('grid');
 
@@ -18,15 +21,39 @@ export function AgentList() {
       a.description.toLowerCase().includes(search.toLowerCase()),
   );
 
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImportChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      const agent = await importAgentPackage.mutateAsync(file);
+      navigate(`/agents/${agent.id}`);
+    } finally {
+      event.target.value = '';
+    }
+  };
 
   return (
     <div>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".zip"
+        className="hidden"
+        onChange={handleImportChange}
+      />
       <div className="flex items-center justify-between mb-7">
         <div>
           <h1 className="font-heading text-[28px] font-semibold text-text-primary tracking-tight mb-1">Agents</h1>
           <p className="font-body text-[13px] text-text-muted font-light">{agents.length} agents configured</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="secondary" size="sm" onClick={handleImportClick} disabled={importAgentPackage.isPending}>
+            Import Agent
+          </Button>
           <Button variant="secondary" size="sm" onClick={() => setView((v) => (v === 'grid' ? 'list' : 'grid'))}>
             <PixelList size={12} color="var(--color-text-muted)" /> {view === 'grid' ? 'List' : 'Grid'}
           </Button>
