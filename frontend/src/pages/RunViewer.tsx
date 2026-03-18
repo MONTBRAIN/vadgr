@@ -84,7 +84,7 @@ export function RunViewer() {
           <PixelStep size={16} color="var(--color-info)" />
           <h2 className="font-heading text-lg font-semibold text-text-primary">Execution Log</h2>
         </div>
-        <RunTimeline events={events} />
+        <RunTimeline events={events} isRunning={isActive} />
         <RunLog events={events} outputs={run.outputs} />
       </Card>
 

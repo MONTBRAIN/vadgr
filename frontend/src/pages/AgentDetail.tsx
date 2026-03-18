@@ -4,7 +4,7 @@ import { useAgent, useDeleteAgent, useExportAgentPackage, useRunAgent, useUpload
 import { useProviders } from '../hooks/useProviders';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { StatusBadge } from '../components/ui/Badge';
+import { StatusBadge, ProviderBadge } from '../components/ui/Badge';
 import { PixelBack, PixelGear, PixelPlay, PixelStep } from '../components/ui/PixelIcon';
 import { BUSY_STATUSES } from '../types';
 import type { ArtifactDescriptor, SchemaField } from '../types';
@@ -240,7 +240,7 @@ export function AgentDetail() {
           <div className="grid grid-cols-2 gap-5">
             <ConfigItem label="Status"><StatusBadge status={agent.status} /></ConfigItem>
             <ConfigItem label="Type"><span className="font-body text-[10px] font-semibold uppercase tracking-wider text-accent">{agent.type}</span></ConfigItem>
-            <ConfigItem label="Created With"><span className="font-mono text-[11px] bg-badge-bg px-2 py-0.5 rounded-md text-text-muted tracking-tight">{agent.provider}</span></ConfigItem>
+            <ConfigItem label="Created With"><ProviderBadge provider={agent.provider} label="" /></ConfigItem>
             <ConfigItem label="Creation Model"><span className="font-mono text-[11px] text-text-muted">{agent.model}</span></ConfigItem>
             <ConfigItem label="Computer Use"><span className={`font-body text-xs ${agent.computer_use ? 'text-success' : 'text-text-muted'}`}>{agent.computer_use ? 'Enabled' : 'Disabled'}</span></ConfigItem>
             <ConfigItem label="Created"><span className="font-body text-xs text-text-muted">{new Date(agent.created_at).toLocaleDateString()}</span></ConfigItem>
@@ -338,40 +338,68 @@ export function AgentDetail() {
                     <label className="block font-body text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-1.5">
                       {field.label || field.name} {field.required && <span className="text-danger">*</span>}
                     </label>
-                    <input
-                      type="file"
-                      aria-label={field.label || field.name}
-                      accept={field.accept?.join(',')}
-                      disabled={uploadArtifact.isPending}
-                      onChange={async (e) => {
-                        const selected = e.target.files?.[0];
-                        if (!selected || !id) return;
-                        try {
-                          const descriptor = await uploadArtifact.mutateAsync({
-                            id,
-                            fieldName: field.name,
-                            file: selected,
-                          });
-                          setInputs((prev) => ({ ...prev, [field.name]: descriptor }));
-                          if (validationErrors[field.name]) {
-                            setValidationErrors((prev) => {
-                              const next = { ...prev };
-                              delete next[field.name];
-                              return next;
-                            });
-                          }
-                        } catch (error) {
-                          setValidationErrors((prev) => ({
-                            ...prev,
-                            [field.name]: error instanceof Error ? error.message : 'Upload failed',
-                          }));
-                        }
-                      }}
-                      className={`w-full px-3.5 py-2.5 bg-bg-input border rounded-[10px] text-sm text-text-primary ${hasError ? 'border-danger' : 'border-border'}`}
-                    />
-                    {artifact && typeof artifact !== 'string' ? (
-                      <p className="font-mono text-[10px] text-text-muted mt-1">{artifact.filename}</p>
-                    ) : null}
+                    <div className={`w-full px-3.5 py-2.5 bg-bg-input border rounded-[10px] ${hasError ? 'border-danger' : 'border-border'}`}>
+                      {artifact && typeof artifact !== 'string' ? (
+                        <div className="inline-flex items-center gap-2 px-2.5 py-1.5 bg-info/20 border border-info/40 rounded-lg">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-info shrink-0">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                          </svg>
+                          <span className="font-mono text-xs text-info truncate">
+                            {artifact.filename}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setInputs((prev) => ({ ...prev, [field.name]: undefined }))}
+                            className="text-info/70 hover:text-info transition-colors text-sm font-bold"
+                            aria-label={`Remove ${field.label || field.name}`}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-info shrink-0">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
+                          </svg>
+                          <span className="text-sm text-text-primary">Choose file</span>
+                          <span className="text-sm text-text-muted">No file chosen</span>
+                          <input
+                            type="file"
+                            aria-label={field.label || field.name}
+                            accept={field.accept?.join(',')}
+                            disabled={uploadArtifact.isPending}
+                            onChange={async (e) => {
+                              const selected = e.target.files?.[0];
+                              if (!selected || !id) return;
+                              try {
+                                const descriptor = await uploadArtifact.mutateAsync({
+                                  id,
+                                  fieldName: field.name,
+                                  file: selected,
+                                });
+                                setInputs((prev) => ({ ...prev, [field.name]: descriptor }));
+                                if (validationErrors[field.name]) {
+                                  setValidationErrors((prev) => {
+                                    const next = { ...prev };
+                                    delete next[field.name];
+                                    return next;
+                                  });
+                                }
+                              } catch (error) {
+                                setValidationErrors((prev) => ({
+                                  ...prev,
+                                  [field.name]: error instanceof Error ? error.message : 'Upload failed',
+                                }));
+                              }
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                      )}
+                    </div>
                     {hasError ? (
                       <p className="font-body text-[10px] text-danger mt-1">{validationErrors[field.name]}</p>
                     ) : field.description ? (

@@ -50,6 +50,21 @@ const statusColors: Record<string, string> = {
   failed: 'bg-danger',
 };
 
+interface ProviderBadgeProps {
+  provider: string;
+  label?: string;
+  className?: string;
+}
+
+export function ProviderBadge({ provider, label = 'Created With:', className = '' }: ProviderBadgeProps) {
+  return (
+    <div className={`flex flex-col ${label ? 'gap-1' : ''} ${className}`}>
+      {label && <span className="font-body text-[8px] text-text-muted uppercase tracking-wider pl-1">{label}</span>}
+      <span className="font-mono text-[11px] bg-badge-bg px-2 py-0.5 rounded-md text-text-muted w-fit">{provider}</span>
+    </div>
+  );
+}
+
 export function StatusBadge({ status }: { status: string }) {
   const variant = statusVariant[status] ?? 'default';
   const dotColor = statusColors[status] ?? 'bg-text-muted';

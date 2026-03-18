@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAgents, useImportAgentPackage } from '../hooks/useAgents';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { StatusBadge } from '../components/ui/Badge';
+import { StatusBadge, ProviderBadge } from '../components/ui/Badge';
 import { PixelRobot, PixelPlay, PixelList } from '../components/ui/PixelIcon';
 
 export function AgentList() {
@@ -96,7 +96,7 @@ export function AgentList() {
                   {agent.description || 'No description'}
                 </p>
                 <div className="flex items-center justify-between pt-3 border-t border-border">
-                  <span className="font-mono text-[11px] bg-badge-bg px-2 py-0.5 rounded-md text-text-muted">{agent.provider}</span>
+                  <ProviderBadge provider={agent.provider} />
                   <Button
                     size="sm"
                     disabled={agent.status !== 'ready'}
@@ -124,7 +124,7 @@ export function AgentList() {
               >
                 <span className="font-body text-[13px] text-text-primary">{agent.name}</span>
                 <StatusBadge status={agent.status} />
-                <span className="font-mono text-[11px] bg-badge-bg px-2 py-0.5 rounded-md text-text-muted">{agent.provider}</span>
+                <ProviderBadge provider={agent.provider} />
                 <span className="font-body text-[10px] font-semibold uppercase tracking-wider text-accent">{agent.type}</span>
                 <span className="font-mono text-[10px] text-text-muted">{agent.model}</span>
                 <span className="font-body text-xs text-text-muted font-light">{timeAgo(agent.updated_at)}</span>

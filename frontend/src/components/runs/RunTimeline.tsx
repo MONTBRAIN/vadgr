@@ -3,6 +3,7 @@ import type { WSEvent } from '../../types';
 
 interface RunTimelineProps {
   events: WSEvent[];
+  isRunning?: boolean;
 }
 
 function formatDuration(ms: number): string {
@@ -25,9 +26,9 @@ const eventIcons: Record<string, string> = {
   run_started: 'bg-info',
   agent_started: 'bg-info',
   step: 'bg-info',
-  agent_completed: 'bg-accent',
+  agent_completed: 'bg-success',
   agent_log: 'bg-text-muted/50',
-  run_completed: 'bg-accent',
+  run_completed: 'bg-success',
   run_failed: 'bg-danger',
   approval_required: 'bg-warning',
 };
@@ -97,7 +98,7 @@ function groupEvents(events: WSEvent[]): EventGroup[] {
   return groups;
 }
 
-export function RunTimeline({ events }: RunTimelineProps) {
+export function RunTimeline({ events, isRunning = false }: RunTimelineProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -115,58 +116,77 @@ export function RunTimeline({ events }: RunTimelineProps) {
   const groups = groupEvents(events);
 
   return (
-    <div ref={scrollRef} className="space-y-0 max-h-[500px] overflow-y-auto pr-1">
-      {groups.map((group, gi) => (
-        <div key={gi}>
-          {/* Main event node */}
-          <div className="flex items-start gap-3 py-2">
-            <div className="flex flex-col items-center mt-1">
-              <div className={`w-2.5 h-2.5 rounded-full ${eventIcons[group.event.type] ?? 'bg-text-muted'}`} />
-              {(gi < groups.length - 1 || group.logs.length > 0) && (
-                <div className="w-px h-6 bg-border mt-1" />
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm text-text-primary capitalize">
-                  {group.label}
-                </span>
-                <div className="flex items-center gap-2">
-                  {group.event.data?.duration_ms != null && (
-                    <span className="text-xs text-text-muted">
-                      {formatDuration(group.event.data.duration_ms as number)}
-                    </span>
-                  )}
-                  <span className="text-[10px] text-text-muted/60 font-mono">
-                    {formatTime(group.event.timestamp)}
-                  </span>
-                </div>
-              </div>
-              {group.sublabel && (
-                <span className="text-xs text-text-secondary">{group.sublabel}</span>
-              )}
-            </div>
-          </div>
+    <div ref={scrollRef} className="space-y-0 max-h-[500px] overflow-y-auto pl-1 pr-1">
+      {groups.map((group, gi) => {
+        const isLast = gi === groups.length - 1;
+        const showLine = !isLast || group.logs.length > 0;
+        const isActiveEvent = isRunning && isLast;
+        const isCompletedStep = !isLast || !isRunning;
+        const dotColor = isCompletedStep
+          ? (eventIcons[group.event.type] === 'bg-info' ? 'bg-success' : eventIcons[group.event.type] ?? 'bg-text-muted')
+          : (eventIcons[group.event.type] ?? 'bg-text-muted');
 
-          {/* Grouped log lines under this event */}
-          {group.logs.length > 0 && (
-            <div className="ml-[11px] border-l border-border pl-5 pb-1">
-              <div className="bg-bg-primary border border-border/60 rounded-md p-2.5 max-h-[180px] overflow-y-auto">
-                {group.logs.map((log, li) => (
-                  <div key={li} className="flex items-start gap-2 py-0.5">
-                    <span className="text-[10px] text-text-muted/50 font-mono shrink-0 mt-px">
-                      {formatTime(log.timestamp)}
-                    </span>
-                    <span className="text-xs text-text-secondary font-mono leading-relaxed">
-                      {String(log.data?.message ?? '')}
+        return (
+          <div key={gi} className="relative">
+            {/* Continuous vertical line */}
+            {showLine && (
+              <div className="absolute left-[4px] top-[18px] bottom-0 w-px bg-border" />
+            )}
+
+            {/* Main event node */}
+            <div className="relative flex items-start gap-3 py-2">
+              <div className="flex items-center justify-center w-2.5 shrink-0 mt-1 overflow-visible">
+                {isActiveEvent ? (
+                  <span className="relative flex w-2.5 h-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-info opacity-75" />
+                    <span className="relative inline-flex rounded-full w-2.5 h-2.5 bg-info" />
+                  </span>
+                ) : (
+                  <div className={`w-2.5 h-2.5 rounded-full ${dotColor}`} />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm text-text-primary capitalize">
+                    {group.label}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    {group.event.data?.duration_ms != null && (
+                      <span className="text-xs text-text-muted">
+                        {formatDuration(group.event.data.duration_ms as number)}
+                      </span>
+                    )}
+                    <span className="text-[10px] text-text-muted/60 font-mono">
+                      {formatTime(group.event.timestamp)}
                     </span>
                   </div>
-                ))}
+                </div>
+                {group.sublabel && (
+                  <span className="text-xs text-text-secondary">{group.sublabel}</span>
+                )}
               </div>
             </div>
-          )}
-        </div>
-      ))}
+
+            {/* Grouped log lines under this event */}
+            {group.logs.length > 0 && (
+              <div className="ml-[4px] border-l border-transparent pl-5 pb-1">
+                <div className="bg-bg-primary border border-border/60 rounded-md p-2.5 max-h-[180px] overflow-y-auto">
+                  {group.logs.map((log, li) => (
+                    <div key={li} className="flex items-start gap-2 py-0.5">
+                      <span className="text-[10px] text-text-muted/50 font-mono shrink-0 mt-px">
+                        {formatTime(log.timestamp)}
+                      </span>
+                      <span className="text-xs text-text-secondary font-mono leading-relaxed">
+                        {String(log.data?.message ?? '')}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

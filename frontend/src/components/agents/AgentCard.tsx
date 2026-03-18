@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Card } from '../ui/Card';
-import { StatusBadge } from '../ui/Badge';
+import { StatusBadge, ProviderBadge } from '../ui/Badge';
 import { PixelRobot, PixelPlay } from '../ui/PixelIcon';
 import { Button } from '../ui/Button';
 import type { Agent } from '../../types';
@@ -28,7 +28,7 @@ export function AgentCard({ agent }: { agent: Agent }) {
         {agent.description || 'No description'}
       </p>
       <div className="flex items-center justify-between pt-3 border-t border-border">
-        <span className="font-mono text-[11px] bg-badge-bg px-2 py-0.5 rounded-md text-text-muted">{agent.provider}</span>
+        <ProviderBadge provider={agent.provider} />
         <Button
           size="sm"
           disabled={agent.status !== 'ready'}

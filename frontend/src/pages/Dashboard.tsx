@@ -3,7 +3,7 @@ import { useAgents } from '../hooks/useAgents';
 import { useRuns } from '../hooks/useRuns';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { StatusBadge } from '../components/ui/Badge';
+import { StatusBadge, ProviderBadge } from '../components/ui/Badge';
 import { PixelRobot, PixelPlay, PixelCheck, PixelX } from '../components/ui/PixelIcon';
 
 function timeAgo(dateStr: string | null): string {
@@ -91,7 +91,7 @@ export function Dashboard() {
                 >
                   <span className="font-body text-[13px] text-text-primary">{agent.name}</span>
                   <StatusBadge status={agent.status} />
-                  <span className="inline-flex w-fit justify-self-start font-mono text-[11px] bg-badge-bg px-1.5 py-0.5 rounded-md text-text-muted tracking-tight">{agent.provider}</span>
+                  <ProviderBadge provider={agent.provider} label="" />
                   <span className="font-body text-[10px] font-semibold uppercase tracking-wider text-accent">{agent.type}</span>
                   <span className="font-body text-xs text-text-muted font-light">{timeAgo(agent.updated_at)}</span>
                 </div>
