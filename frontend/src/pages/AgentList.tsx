@@ -96,7 +96,7 @@ export function AgentList() {
                   {agent.description || 'No description'}
                 </p>
                 <div className="flex items-center justify-between pt-3 border-t border-border">
-                  <span className="font-mono text-[11px] bg-badge-bg px-2 py-0.5 rounded-md text-text-muted">{agent.provider}</span>
+                  <span className="font-mono text-[11px] bg-badge-bg px-2 py-0.5 rounded-md text-text-muted">Created with {agent.provider}</span>
                   <Button
                     size="sm"
                     disabled={agent.status !== 'ready'}
@@ -124,7 +124,7 @@ export function AgentList() {
               >
                 <span className="font-body text-[13px] text-text-primary">{agent.name}</span>
                 <StatusBadge status={agent.status} />
-                <span className="font-mono text-[11px] bg-badge-bg px-2 py-0.5 rounded-md text-text-muted">{agent.provider}</span>
+                <span className="font-mono text-[11px] bg-badge-bg px-2 py-0.5 rounded-md text-text-muted">Created with {agent.provider}</span>
                 <span className="font-body text-[10px] font-semibold uppercase tracking-wider text-accent">{agent.type}</span>
                 <span className="font-mono text-[10px] text-text-muted">{agent.model}</span>
                 <span className="font-body text-xs text-text-muted font-light">{timeAgo(agent.updated_at)}</span>

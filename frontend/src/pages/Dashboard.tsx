@@ -91,7 +91,7 @@ export function Dashboard() {
                 >
                   <span className="font-body text-[13px] text-text-primary">{agent.name}</span>
                   <StatusBadge status={agent.status} />
-                  <span className="inline-flex w-fit justify-self-start font-mono text-[11px] bg-badge-bg px-1.5 py-0.5 rounded-md text-text-muted tracking-tight">{agent.provider}</span>
+                  <span className="inline-flex w-fit justify-self-start font-mono text-[11px] bg-badge-bg px-1.5 py-0.5 rounded-md text-text-muted tracking-tight">Created with {agent.provider}</span>
                   <span className="font-body text-[10px] font-semibold uppercase tracking-wider text-accent">{agent.type}</span>
                   <span className="font-body text-xs text-text-muted font-light">{timeAgo(agent.updated_at)}</span>
                 </div>
