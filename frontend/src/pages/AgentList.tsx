@@ -29,8 +29,7 @@ export function AgentList() {
     const file = event.target.files?.[0];
     if (!file) return;
     try {
-      const agent = await importAgentPackage.mutateAsync(file);
-      navigate(`/agents/${agent.id}`);
+      await importAgentPackage.mutateAsync(file);
     } finally {
       event.target.value = '';
     }
@@ -52,7 +51,7 @@ export function AgentList() {
         </div>
         <div className="flex gap-2">
           <Button variant="secondary" size="sm" onClick={handleImportClick} disabled={importAgentPackage.isPending}>
-            Import Agent
+            {importAgentPackage.isPending ? 'Importing...' : 'Import Agent'}
           </Button>
           <Button variant="secondary" size="sm" onClick={() => setView((v) => (v === 'grid' ? 'list' : 'grid'))}>
             <PixelList size={12} color="var(--color-text-muted)" /> {view === 'grid' ? 'List' : 'Grid'}

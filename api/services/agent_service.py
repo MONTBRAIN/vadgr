@@ -2,7 +2,9 @@
 
 import json
 import logging
+import shutil
 import subprocess
+import tempfile
 from collections.abc import Awaitable, Callable
 from pathlib import Path
 
@@ -15,6 +17,31 @@ logger = logging.getLogger(__name__)
 
 # Resolve project root (Agent-Forge/) relative to this file
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+
+
+def _steps_from_disk(forge_path: str, project_root: Path) -> list[dict]:
+    """Scan agent/steps/ and reconstruct steps array from filenames.
+
+    Parses step_NN_step-name.md → {name: "Step Name", computer_use: False}.
+    Returns empty list when the directory doesn't exist or forge_path is empty.
+    """
+    if not forge_path:
+        return []
+    steps_dir = project_root / forge_path / "agent" / "steps"
+    if not steps_dir.is_dir():
+        return []
+    step_files = sorted(
+        f for f in steps_dir.iterdir()
+        if f.is_file() and f.name.startswith("step_") and f.suffix == ".md"
+    )
+    steps = []
+    for f in step_files:
+        parts = f.stem.split("_", 2)  # ["step", "NN", "step-name"]
+        if len(parts) < 3:
+            continue
+        name = parts[2].replace("-", " ").title()
+        steps.append({"name": name, "computer_use": False})
+    return steps
 
 
 class AgentService:
@@ -196,9 +223,14 @@ class AgentService:
                 update_fields["input_schema"] = forge_result["input_schema"]
             if forge_result.get("output_schema"):
                 update_fields["output_schema"] = forge_result["output_schema"]
-            # Forge returns the steps array extracted from the generated agentic.md
+            # Populate steps from disk when forge didn't return them and user
+            # declared none — avoids overwriting user steps that have computer_use: True.
             if forge_result.get("steps"):
                 update_fields["steps"] = forge_result["steps"]
+            elif not agent.get("steps") and forge_path:
+                disk_steps = _steps_from_disk(forge_path, PROJECT_ROOT)
+                if disk_steps:
+                    update_fields["steps"] = disk_steps
 
             await self.agent_repo.update(agent_id, **update_fields)
             if forge_path:
@@ -275,15 +307,20 @@ class AgentService:
 
             forge_result = self._parse_forge_output(raw_output)
 
+            updated_forge_path = forge_result.get("forge_path", "") or old_agent.get("forge_path", "")
             update_fields = dict(
                 status="ready",
-                forge_path=forge_result.get("forge_path", ""),
+                forge_path=updated_forge_path,
                 forge_config=forge_result.get("forge_config", {}),
                 input_schema=forge_result.get("input_schema", []),
                 output_schema=forge_result.get("output_schema", []),
             )
             if forge_result.get("steps"):
                 update_fields["steps"] = forge_result["steps"]
+            elif not agent.get("steps") and updated_forge_path:
+                disk_steps = _steps_from_disk(updated_forge_path, PROJECT_ROOT)
+                if disk_steps:
+                    update_fields["steps"] = disk_steps
 
             await self.agent_repo.update(agent_id, **update_fields)
             forge_path = update_fields.get("forge_path", "") or old_agent.get("forge_path", "")
@@ -311,6 +348,41 @@ class AgentService:
                 status="error",
                 forge_config={"error": str(e)},
             )
+
+    async def run_import(self, agent_id: str, bundle_bytes: bytes, forge_path: str) -> None:
+        """Restore a git bundle into the output folder and mark the agent ready.
+
+        Called as a background task after the HTTP response is sent.
+        """
+        target_dir = PROJECT_ROOT / forge_path
+        try:
+            target_dir.parent.mkdir(parents=True, exist_ok=True)
+            with tempfile.TemporaryDirectory() as temp_dir:
+                bundle_path = Path(temp_dir) / "agent.bundle"
+                bundle_path.write_bytes(bundle_bytes)
+                subprocess.run(
+                    ["git", "clone", str(bundle_path), str(target_dir)],
+                    check=True,
+                    capture_output=True,
+                )
+            subprocess.run(
+                ["git", "-C", str(target_dir), "config", "user.name", "Agent Forge"],
+                check=True,
+                capture_output=True,
+            )
+            subprocess.run(
+                ["git", "-C", str(target_dir), "config", "user.email", "agent-forge@local"],
+                check=True,
+                capture_output=True,
+            )
+            self.ensure_agent_runtime_scaffold(forge_path)
+            self.ensure_agent_script_environment(forge_path)
+            await self.agent_repo.update(agent_id, status="ready")
+        except Exception as e:
+            logger.exception("Import failed for agent %s", agent_id)
+            if target_dir.exists():
+                shutil.rmtree(target_dir)
+            await self.agent_repo.update(agent_id, status="error", forge_config={"error": str(e)})
 
     @staticmethod
     def _strip_code_fences(text: str) -> str:

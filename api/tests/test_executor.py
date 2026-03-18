@@ -603,3 +603,58 @@ class TestCollectOutputPaths:
                 "mime_type": "application/pdf",
             }
         }
+
+
+class TestExecuteSingleDiskOutputs:
+    """_execute_single should pick up files from user_outputs/ when present."""
+
+    @pytest.mark.asyncio
+    async def test_execute_single_prefers_disk_outputs_over_parsed_stdout(self, tmp_path):
+        """When files exist in user_outputs/, _execute_single returns them (not stdout text)."""
+        # Create the output file on disk
+        step_dir = tmp_path / "my-agent" / "output" / "run-99" / "user_outputs" / "step_01"
+        step_dir.mkdir(parents=True)
+        (step_dir / "decision-brief.md").write_text("# Decision Brief\n\nReal content.")
+
+        provider = _make_streaming_provider("decision_brief")  # raw stdout — just the field name
+        cu_service = AsyncMock()
+        callback = AsyncMock()
+        executor = AgentExecutor(provider=provider, computer_use_service=cu_service)
+
+        agent = {
+            "id": "a1",
+            "name": "Brief",
+            "description": "",
+            "type": "agent",
+            "computer_use": False,
+            "forge_path": "my-agent",
+            "output_schema": [{"name": "decision_brief", "type": "text"}],
+        }
+
+        with patch("api.engine.executor._PROJECT_ROOT", str(tmp_path)):
+            result = await executor.execute(agent, {}, callback, run_id="run-99")
+
+        # Should use the disk file, not the raw stdout string
+        assert "decision_brief" in result
+        assert "decision-brief.md" in result["decision_brief"]
+
+    @pytest.mark.asyncio
+    async def test_execute_single_falls_back_to_stdout_when_no_disk_files(self):
+        """When no user_outputs/ files, _execute_single uses parsed stdout."""
+        provider = _make_streaming_provider('{"summary": "parsed output"}')
+        cu_service = AsyncMock()
+        callback = AsyncMock()
+        executor = AgentExecutor(provider=provider, computer_use_service=cu_service)
+
+        agent = {
+            "id": "a2",
+            "name": "T",
+            "description": "",
+            "type": "agent",
+            "computer_use": False,
+            "forge_path": "nonexistent-agent",
+            "output_schema": [{"name": "summary", "type": "text"}],
+        }
+
+        result = await executor.execute(agent, {}, callback, run_id="run-00")
+        assert result == {"summary": "parsed output"}

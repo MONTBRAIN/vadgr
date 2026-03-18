@@ -334,6 +334,39 @@ class TestRunOutputEndpoint:
             runs_mod._PROJECT_ROOT = original_root
 
     @pytest.mark.asyncio
+    async def test_returns_file_download_with_original_filename_for_string_path(self, client, app, tmp_path):
+        """When output is a string path to an existing file, FileResponse uses the original filename."""
+        content = "# Decision Brief\n\nReal markdown content."
+        forge_dir = tmp_path / "output" / "agent-abc"
+        output_dir = forge_dir / "output" / "run-xyz" / "user_outputs" / "step_01"
+        output_dir.mkdir(parents=True)
+        output_file = output_dir / "decision-brief.md"
+        output_file.write_text(content)
+
+        agent = await client.post("/api/agents", json={"name": "T", "description": ""})
+        agent_id = agent.json()["id"]
+        await app.state.agent_repo.update(
+            agent_id, status="ready", forge_path="output/agent-abc/"
+        )
+        run_resp = await client.post(f"/api/agents/{agent_id}/run", json={"inputs": {}})
+        run_id = run_resp.json()["run_id"]
+        await app.state.run_repo.update_status(
+            run_id, "completed",
+            outputs={"decision_brief": "output/run-xyz/user_outputs/step_01/decision-brief.md"},
+        )
+
+        import api.routes.runs as runs_mod
+        original_root = runs_mod._PROJECT_ROOT
+        runs_mod._PROJECT_ROOT = tmp_path
+        try:
+            resp = await client.get(f"/api/runs/{run_id}/outputs/decision_brief")
+            assert resp.status_code == 200
+            assert resp.text == content
+            assert 'filename="decision-brief.md"' in resp.headers.get("content-disposition", "")
+        finally:
+            runs_mod._PROJECT_ROOT = original_root
+
+    @pytest.mark.asyncio
     async def test_download_response_sets_filename_for_artifact_descriptor(self, client, app, tmp_path):
         forge_dir = tmp_path / "output" / "agent-123"
         file_path = forge_dir / "output" / "run-456" / "user_outputs" / "step_02" / "memo.md"

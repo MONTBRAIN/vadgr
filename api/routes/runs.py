@@ -1,6 +1,7 @@
 """Run lifecycle routes."""
 
 import json
+import mimetypes
 from pathlib import Path
 
 from fastapi import APIRouter, Request
@@ -81,6 +82,11 @@ async def cancel_run(run_id: str, request: Request):
             status_code=409,
             content={"error": {"code": "RUN_NOT_ACTIVE", "message": "Run is already finished", "details": {}}},
         )
+    # Signal the asyncio task - CancelledError propagates into execute_streaming
+    # which kills the subprocess (and its full process group) in the finally block
+    task = request.app.state.active_run_tasks.get(run_id)
+    if task and not task.done():
+        task.cancel()
     updated = await run_repo.update_status(run_id, "failed")
     return updated
 
@@ -139,8 +145,12 @@ async def get_run_output(run_id: str, field_name: str, request: Request):
 
     resolved = _resolve_output_path(forge_path, value)
     if resolved:
-        content = resolved.read_text(encoding="utf-8", errors="replace")
-        return PlainTextResponse(content)
+        mime_type, _ = mimetypes.guess_type(resolved.name)
+        return FileResponse(
+            path=resolved,
+            media_type=mime_type or "text/plain",
+            filename=resolved.name,
+        )
 
     return PlainTextResponse(value)
 

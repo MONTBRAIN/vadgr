@@ -6,6 +6,7 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { StatusBadge } from '../components/ui/Badge';
 import { PixelBack, PixelGear, PixelPlay, PixelStep } from '../components/ui/PixelIcon';
+import { BUSY_STATUSES } from '../types';
 import type { ArtifactDescriptor, SchemaField } from '../types';
 
 function renderInputField(
@@ -147,7 +148,7 @@ export function AgentDetail() {
   if (!agent) return <div className="text-sm text-text-muted p-10">Agent not found.</div>;
 
   const isReady = agent.status === 'ready';
-  const isBusy = agent.status === 'creating' || agent.status === 'updating' || agent.status === 'importing';
+  const isBusy = BUSY_STATUSES.has(agent.status);
   const providerOptions = providers ?? [];
   const modelOptions = providerOptions.find((provider) => provider.id === runProvider)?.models ?? [];
 

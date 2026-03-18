@@ -1,5 +1,6 @@
 """Shared test fixtures."""
 
+import asyncio
 from pathlib import Path
 
 import pytest
@@ -98,7 +99,15 @@ async def app(db):
         emit=emit,
         provider_factory=AsyncMock(return_value=provider),
     )
+    application.state.active_run_tasks: dict[str, asyncio.Task] = {}
     yield application
+    # Cancel any run tasks that outlived the test so they don't hit the closed DB
+    tasks = list(application.state.active_run_tasks.values())
+    for task in tasks:
+        if not task.done():
+            task.cancel()
+    if tasks:
+        await asyncio.gather(*tasks, return_exceptions=True)
 
 
 @pytest_asyncio.fixture

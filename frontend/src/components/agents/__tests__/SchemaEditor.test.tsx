@@ -159,7 +159,7 @@ describe('SchemaEditor - output mode type options', () => {
     await userEvent.click(screen.getByText('out'));
     const typeSelect = screen.getByDisplayValue('text');
     const options = Array.from(typeSelect.querySelectorAll('option')).map(o => o.value);
-    expect(options).not.toContain('file');
+    expect(options).toContain('file');
     expect(options).toContain('markdown');
     expect(options).toContain('json');
   });

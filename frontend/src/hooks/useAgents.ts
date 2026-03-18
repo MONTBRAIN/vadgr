@@ -1,9 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { agentsApi } from '../api/agents';
+import { BUSY_STATUSES } from '../types';
 import type { AgentCreate, AgentUpdate } from '../types';
 
 export function useAgents() {
-  return useQuery({ queryKey: ['agents'], queryFn: agentsApi.list });
+  return useQuery({
+    queryKey: ['agents'],
+    queryFn: agentsApi.list,
+    refetchInterval: (query) => {
+      const agents = query.state.data;
+      if (!Array.isArray(agents)) return false;
+      const busy = agents.some((a) => BUSY_STATUSES.has(a.status));
+      return busy ? 3000 : false;
+    },
+  });
 }
 
 export function useAgent(id: string) {
@@ -13,7 +23,7 @@ export function useAgent(id: string) {
     enabled: !!id,
     refetchInterval: (query) => {
       const status = query.state.data?.status;
-      return status === 'creating' || status === 'updating' || status === 'importing' ? 3000 : false;
+      return BUSY_STATUSES.has(status) ? 3000 : false;
     },
   });
 }

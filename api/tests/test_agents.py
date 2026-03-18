@@ -1,5 +1,6 @@
 """Tests for agent CRUD routes."""
 
+import json
 import pytest
 import zipfile
 
@@ -131,6 +132,143 @@ class TestAgentGet:
         resp = await client.get("/api/agents/nonexistent")
         assert resp.status_code == 404
         assert resp.json()["error"]["code"] == "AGENT_NOT_FOUND"
+
+
+class TestStepsFromDisk:
+    """Unit tests for _steps_from_disk helper."""
+
+    def test_parses_step_filenames_to_steps_array(self, tmp_path):
+        import io
+        from api.routes.agents import _steps_from_disk
+        steps_dir = tmp_path / "output" / "my-agent" / "agent" / "steps"
+        steps_dir.mkdir(parents=True)
+        (steps_dir / "step_01_extract-meeting-insights.md").write_text("# Step 1")
+        (steps_dir / "step_02_draft-decision-brief.md").write_text("# Step 2")
+
+        result = _steps_from_disk("output/my-agent", tmp_path)
+        assert result == [
+            {"name": "Extract Meeting Insights", "computer_use": False},
+            {"name": "Draft Decision Brief", "computer_use": False},
+        ]
+
+    def test_returns_empty_when_no_steps_dir(self, tmp_path):
+        from api.routes.agents import _steps_from_disk
+        result = _steps_from_disk("output/my-agent", tmp_path)
+        assert result == []
+
+    def test_returns_empty_when_forge_path_empty(self, tmp_path):
+        from api.routes.agents import _steps_from_disk
+        result = _steps_from_disk("", tmp_path)
+        assert result == []
+
+    def test_ignores_non_step_files(self, tmp_path):
+        from api.routes.agents import _steps_from_disk
+        steps_dir = tmp_path / "output" / "agent" / "agent" / "steps"
+        steps_dir.mkdir(parents=True)
+        (steps_dir / "step_01_research.md").write_text("# Step 1")
+        (steps_dir / "README.md").write_text("# Readme")
+        (steps_dir / "step_02_write.md").write_text("# Step 2")
+
+        result = _steps_from_disk("output/agent", tmp_path)
+        assert len(result) == 2
+        assert result[0]["name"] == "Research"
+        assert result[1]["name"] == "Write"
+
+    def test_returns_sorted_by_step_number(self, tmp_path):
+        from api.routes.agents import _steps_from_disk
+        steps_dir = tmp_path / "output" / "agent" / "agent" / "steps"
+        steps_dir.mkdir(parents=True)
+        (steps_dir / "step_03_review.md").write_text("")
+        (steps_dir / "step_01_research.md").write_text("")
+        (steps_dir / "step_02_write.md").write_text("")
+
+        result = _steps_from_disk("output/agent", tmp_path)
+        assert [s["name"] for s in result] == ["Research", "Write", "Review"]
+
+
+class TestExportManifestStepsFallback:
+    """Export manifest reads steps from disk when DB steps is empty."""
+
+    @pytest.mark.asyncio
+    async def test_export_manifest_reads_steps_from_disk_when_db_empty(self, client, app, tmp_path):
+        import io
+        import subprocess
+        import api.routes.agents as agents_mod
+
+        forge_root = tmp_path / "output" / "agent-123"
+        steps_dir = forge_root / "agent" / "steps"
+        steps_dir.mkdir(parents=True)
+        (steps_dir / "step_01_extract-insights.md").write_text("# Step 1")
+        (steps_dir / "step_02_write-brief.md").write_text("# Step 2")
+        (forge_root / "agentic.md").write_text("# Agent")
+        (forge_root / ".gitignore").write_text("output/\n")
+
+        subprocess.run(["git", "-C", str(forge_root), "init"], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(forge_root), "config", "user.name", "Agent Forge"], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(forge_root), "config", "user.email", "agent-forge@local"], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(forge_root), "add", "."], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(forge_root), "commit", "-m", "init"], check=True, capture_output=True)
+
+        create = await client.post("/api/agents", json={"name": "T", "description": ""})
+        agent_id = create.json()["id"]
+        # DB steps intentionally empty — simulates agent created without declaring steps
+        await app.state.agent_repo.update(agent_id, status="ready", forge_path="output/agent-123/")
+
+        original_root = agents_mod.PROJECT_ROOT
+        agents_mod.PROJECT_ROOT = tmp_path
+        try:
+            resp = await client.get(f"/api/agents/{agent_id}/export")
+            assert resp.status_code == 200
+            with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
+                manifest = json.loads(zf.read("agent-forge.json"))
+            assert manifest["steps"] == [
+                {"name": "Extract Insights", "computer_use": False},
+                {"name": "Write Brief", "computer_use": False},
+            ]
+        finally:
+            agents_mod.PROJECT_ROOT = original_root
+
+    @pytest.mark.asyncio
+    async def test_export_manifest_uses_db_steps_when_present(self, client, app, tmp_path):
+        """When DB has steps (including computer_use: True), export uses DB, not disk."""
+        import io
+        import subprocess
+        import api.routes.agents as agents_mod
+
+        forge_root = tmp_path / "output" / "agent-123"
+        steps_dir = forge_root / "agent" / "steps"
+        steps_dir.mkdir(parents=True)
+        # Disk has different name than DB — DB should win
+        (steps_dir / "step_01_disk-name.md").write_text("# Step 1")
+        (forge_root / "agentic.md").write_text("# Agent")
+        (forge_root / ".gitignore").write_text("output/\n")
+
+        subprocess.run(["git", "-C", str(forge_root), "init"], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(forge_root), "config", "user.name", "Agent Forge"], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(forge_root), "config", "user.email", "agent-forge@local"], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(forge_root), "add", "."], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(forge_root), "commit", "-m", "init"], check=True, capture_output=True)
+
+        create = await client.post("/api/agents", json={"name": "T", "description": ""})
+        agent_id = create.json()["id"]
+        db_steps = [
+            {"name": "DB Step One", "computer_use": False},
+            {"name": "DB Step Two", "computer_use": True},
+        ]
+        await app.state.agent_repo.update(
+            agent_id, status="ready", forge_path="output/agent-123/", steps=db_steps
+        )
+
+        original_root = agents_mod.PROJECT_ROOT
+        agents_mod.PROJECT_ROOT = tmp_path
+        try:
+            resp = await client.get(f"/api/agents/{agent_id}/export")
+            assert resp.status_code == 200
+            with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
+                manifest = json.loads(zf.read("agent-forge.json"))
+            assert manifest["steps"] == db_steps
+        finally:
+            agents_mod.PROJECT_ROOT = original_root
 
 
 class TestAgentArtifactsAndExport:
@@ -478,9 +616,17 @@ class TestAgentArtifactsAndExport:
                 files={"file": ("agent.zip", export_resp.content, "application/zip")},
             )
             assert import_resp.status_code == 201
-            imported = import_resp.json()
+            importing = import_resp.json()
+            # Route returns immediately with "importing" status
+            assert importing["status"] == "importing"
+            assert importing["name"] == "Source Agent"
+            assert importing["forge_path"]  # pre-set before background task runs
+
+            # Background task has completed by now (ASGI test transport); verify final state
+            final_resp = await client.get(f"/api/agents/{importing['id']}")
+            assert final_resp.status_code == 200
+            imported = final_resp.json()
             assert imported["status"] == "ready"
-            assert imported["name"] == "Source Agent"
             assert imported["provider"] == "codex"
             assert imported["model"] == "gpt-5-codex"
             assert imported["input_schema"][0]["name"] == "project_brief"

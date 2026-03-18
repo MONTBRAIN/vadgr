@@ -9,6 +9,7 @@ import json
 import os
 import re
 import shutil
+import signal
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import AsyncIterator
@@ -439,6 +440,7 @@ class CLIAgentProvider:
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             limit=_STREAM_LIMIT,
+            start_new_session=True,
         )
 
         try:
@@ -487,11 +489,16 @@ class CLIAgentProvider:
         finally:
             # Always ensure the subprocess is killed and reaped, even if the
             # caller stops iterating, an exception is raised, or the run fails.
+            # Kill the entire process group so computer use children (MCP desktop
+            # automation processes) are also terminated — not just the direct child.
             if proc.returncode is None:
                 try:
-                    proc.kill()
-                except ProcessLookupError:
-                    pass
+                    os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+                except (ProcessLookupError, PermissionError, OSError):
+                    try:
+                        proc.kill()
+                    except ProcessLookupError:
+                        pass
                 await proc.wait()
 
 

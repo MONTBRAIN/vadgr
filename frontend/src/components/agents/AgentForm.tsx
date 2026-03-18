@@ -7,6 +7,7 @@ import { Select } from '../ui/Select';
 import { SchemaEditor } from './SchemaEditor';
 import { useCreateAgent, useUpdateAgent } from '../../hooks/useAgents';
 import { useProviders } from '../../hooks/useProviders';
+import { BUSY_STATUSES } from '../../types';
 import type { Agent, SchemaField } from '../../types';
 
 interface AgentFormProps {
@@ -39,7 +40,7 @@ export function AgentForm({ agent }: AgentFormProps) {
   const [outputSchema, setOutputSchema] = useState<SchemaField[]>(agent?.output_schema ?? []);
 
   const isEditing = !!agent;
-  const isBusy = agent?.status === 'creating' || agent?.status === 'updating' || agent?.status === 'importing';
+  const isBusy = agent?.status !== undefined && BUSY_STATUSES.has(agent.status);
   const isPending = createAgent.isPending || updateAgent.isPending;
 
   const addStep = () => {

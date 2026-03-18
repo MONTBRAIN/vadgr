@@ -1,5 +1,6 @@
 """FastAPI application factory."""
 
+import asyncio
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Optional
@@ -39,6 +40,7 @@ def create_app(db: Optional[Database] = None) -> FastAPI:
         app.state.run_repo = RunRepository(app.state.db)
         app.state.ws_manager = ConnectionManager()
         app.state.artifact_service = ArtifactService(Path(__file__).resolve().parent.parent)
+        app.state.active_run_tasks: dict[str, asyncio.Task] = {}
 
         provider_config = load_provider_config(
             settings.default_provider,

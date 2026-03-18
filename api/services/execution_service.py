@@ -1,5 +1,6 @@
 """Sequential DAG runner. Orchestrates agent execution for runs."""
 
+import asyncio
 import os
 from collections.abc import Awaitable, Callable
 from pathlib import Path
@@ -99,6 +100,10 @@ class ExecutionService:
             )
             await self.run_repo.update_status(run_id, "completed", outputs=result)
             await self.emit(run_id, "run_completed", {"outputs": result})
+        except asyncio.CancelledError:
+            await self.run_repo.update_status(run_id, "failed")
+            await self.emit(run_id, "run_failed", {"error": "Run was cancelled"})
+            raise
         except Exception as e:
             await self.run_repo.update_status(run_id, "failed", outputs={"error": str(e)})
             await self.emit(run_id, "run_failed", {"error": str(e)})

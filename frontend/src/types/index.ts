@@ -25,6 +25,7 @@ export interface StepDefinition {
 }
 
 export type AgentStatus = 'creating' | 'updating' | 'importing' | 'ready' | 'error';
+export const BUSY_STATUSES = new Set<AgentStatus>(['creating', 'updating', 'importing']);
 
 export interface Agent {
   id: string;

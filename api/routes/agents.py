@@ -1,5 +1,6 @@
 """Agent CRUD routes."""
 
+import asyncio
 import io
 import json
 import subprocess
@@ -26,12 +27,40 @@ def _not_found(agent_id: str):
     )
 
 
+def _steps_from_disk(forge_path: str, project_root: Path) -> list[dict]:
+    """Scan agent/steps/ and reconstruct steps array from filenames.
+
+    Parses step_NN_step-name.md → {name: "Step Name", computer_use: False}.
+    Returns empty list when the directory doesn't exist or forge_path is empty.
+    """
+    if not forge_path:
+        return []
+    steps_dir = project_root / forge_path / "agent" / "steps"
+    if not steps_dir.is_dir():
+        return []
+    step_files = sorted(
+        f for f in steps_dir.iterdir()
+        if f.is_file() and f.name.startswith("step_") and f.suffix == ".md"
+    )
+    steps = []
+    for f in step_files:
+        parts = f.stem.split("_", 2)  # ["step", "NN", "step-name"]
+        if len(parts) < 3:
+            continue
+        name = parts[2].replace("-", " ").title()
+        steps.append({"name": name, "computer_use": False})
+    return steps
+
+
 def _build_export_manifest(agent: dict) -> dict:
+    steps = agent.get("steps") or []
+    if not steps and agent.get("forge_path"):
+        steps = _steps_from_disk(agent["forge_path"], PROJECT_ROOT)
     return {
         "export_version": 2,
         "name": agent["name"],
         "description": agent.get("description", ""),
-        "steps": agent.get("steps", []),
+        "steps": steps,
         "samples": agent.get("samples", []),
         "input_schema": agent.get("input_schema", []),
         "output_schema": agent.get("output_schema", []),
@@ -40,28 +69,6 @@ def _build_export_manifest(agent: dict) -> dict:
         "model": agent.get("model"),
     }
 
-
-def _safe_extract_zip(archive: zipfile.ZipFile, target_dir: Path) -> None:
-    target_root = target_dir.resolve()
-    for member in archive.infolist():
-        member_path = target_dir / member.filename
-        resolved = member_path.resolve()
-        if target_root not in resolved.parents and resolved != target_root:
-            raise ValueError(f"Unsafe archive entry: {member.filename}")
-        archive.extract(member, target_dir)
-
-
-def _set_repo_identity(agent_root: Path) -> None:
-    subprocess.run(
-        ["git", "-C", str(agent_root), "config", "user.name", "Agent Forge"],
-        check=True,
-        capture_output=True,
-    )
-    subprocess.run(
-        ["git", "-C", str(agent_root), "config", "user.email", "agent-forge@local"],
-        check=True,
-        capture_output=True,
-    )
 
 
 @router.post("", status_code=201)
@@ -212,8 +219,12 @@ async def run_agent(agent_id: str, body: AgentRunRequest, request: Request, back
     )
     if materialized_inputs != body.inputs:
         await run_repo.set_inputs(run["id"], materialized_inputs)
-    # Trigger execution in the background
-    background_tasks.add_task(execution_service.run_standalone_agent, run["id"])
+    # Trigger execution - tracked so cancel can kill the subprocess
+    task = asyncio.create_task(execution_service.run_standalone_agent(run["id"]))
+    request.app.state.active_run_tasks[run["id"]] = task
+    task.add_done_callback(
+        lambda _: request.app.state.active_run_tasks.pop(run["id"], None)
+    )
     return {"run_id": run["id"], "status": run["status"]}
 
 
@@ -314,8 +325,9 @@ async def export_agent(agent_id: str, request: Request):
 
 
 @router.post("/import", status_code=201)
-async def import_agent(request: Request, file: UploadFile = File(...)):
+async def import_agent(request: Request, background_tasks: BackgroundTasks, file: UploadFile = File(...)):
     repo = request.app.state.agent_repo
+    agent_service = request.app.state.agent_service
 
     archive_bytes = await file.read()
     try:
@@ -335,7 +347,7 @@ async def import_agent(request: Request, file: UploadFile = File(...)):
                 content={"error": {"code": "INVALID_AGENT_ARCHIVE", "message": "Archive is missing agent-forge.json", "details": {}}},
             )
         try:
-            archive.getinfo("agent.bundle")
+            bundle_bytes = archive.read("agent.bundle")
         except KeyError:
             return JSONResponse(
                 status_code=400,
@@ -355,26 +367,6 @@ async def import_agent(request: Request, file: UploadFile = File(...)):
             model=manifest.get("model", "claude-sonnet-4-6"),
         )
         forge_path = f"output/{agent['id']}"
-        target_dir = PROJECT_ROOT / forge_path
-        try:
-            target_dir.parent.mkdir(parents=True, exist_ok=True)
-            with tempfile.TemporaryDirectory() as temp_dir:
-                temp_path = Path(temp_dir)
-                _safe_extract_zip(archive, temp_path)
-                bundle_path = temp_path / "agent.bundle"
-                subprocess.run(
-                    ["git", "clone", str(bundle_path), str(target_dir)],
-                    check=True,
-                    capture_output=True,
-                )
-            _set_repo_identity(target_dir)
-            agent_service = request.app.state.agent_service
-            agent_service.ensure_agent_runtime_scaffold(forge_path)
-            agent_service.ensure_agent_script_environment(forge_path)
-            await repo.update(agent["id"], forge_path=forge_path, status="ready")
-            return await repo.get(agent["id"])
-        except Exception:
-            if target_dir.exists():
-                shutil.rmtree(target_dir)
-            await repo.delete(agent["id"])
-            raise
+        agent = await repo.update(agent["id"], forge_path=forge_path)
+        background_tasks.add_task(agent_service.run_import, agent["id"], bundle_bytes, forge_path)
+        return agent

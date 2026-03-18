@@ -112,6 +112,12 @@ class AgentExecutor:
             elif event.type == "error":
                 raise RuntimeError(event.data)
 
+        # Prefer file paths from disk over parsed stdout JSON
+        file_outputs = self._collect_output_paths(
+            agent.get("forge_path", ""), run_id, agent.get("output_schema", [])
+        )
+        if file_outputs:
+            return file_outputs
         parsed = self._parse_output(collected_output, agent.get("output_schema", []))
         return self._normalize_outputs(
             parsed,
