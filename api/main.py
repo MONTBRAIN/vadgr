@@ -31,6 +31,7 @@ def create_app(db: Optional[Database] = None) -> FastAPI:
         if db:
             app.state.db = db
         else:
+            Path(settings.database_path).parent.mkdir(parents=True, exist_ok=True)
             app.state.db = Database(settings.database_path)
             await app.state.db.connect()
             await app.state.db.create_tables()
