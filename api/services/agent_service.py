@@ -329,9 +329,11 @@ class AgentService:
                 "steps": old_agent.get("steps") or [],
                 "samples": old_agent.get("samples") or [],
                 "computer_use": old_agent.get("computer_use", False),
+                "input_schema": old_agent.get("input_schema") or [],
+                "output_schema": old_agent.get("output_schema") or [],
             }
             updated = {}
-            for key in ("description", "steps", "samples", "computer_use"):
+            for key in ("description", "steps", "samples", "computer_use", "input_schema", "output_schema"):
                 if key in new_fields:
                     updated[key] = new_fields[key]
 
@@ -363,11 +365,15 @@ class AgentService:
                 forge_path=updated_forge_path,
                 forge_config=forge_result.get("forge_config", {}),
             )
-            # Only overwrite schemas if forge returned non-empty ones --
-            # preserve user-edited schemas otherwise.
-            if forge_result.get("input_schema"):
+            # If user explicitly sent schemas, preserve them over forge's.
+            # Otherwise use forge's inferred schemas if non-empty.
+            if "input_schema" in new_fields:
+                update_fields["input_schema"] = new_fields["input_schema"]
+            elif forge_result.get("input_schema"):
                 update_fields["input_schema"] = forge_result["input_schema"]
-            if forge_result.get("output_schema"):
+            if "output_schema" in new_fields:
+                update_fields["output_schema"] = new_fields["output_schema"]
+            elif forge_result.get("output_schema"):
                 update_fields["output_schema"] = forge_result["output_schema"]
             if forge_result.get("steps"):
                 update_fields["steps"] = forge_result["steps"]
@@ -388,7 +394,7 @@ class AgentService:
                 )
                 self.ensure_agent_script_environment(forge_path)
                 # Build descriptive commit message with provider metadata
-                changed_parts = [k for k in ("description", "steps", "samples", "computer_use") if k in new_fields]
+                changed_parts = [k for k in ("description", "steps", "samples", "computer_use", "input_schema", "output_schema") if k in new_fields]
                 summary = f"Update {', '.join(changed_parts)}" if changed_parts else "Update agent workflow"
                 commit_msg = self._format_commit_message(
                     summary,

@@ -30,7 +30,9 @@ Accept a JSON object with the following fields:
       {"name": "Create PR", "computer_use": true}
     ],
     "samples": [],
-    "computer_use": true
+    "computer_use": true,
+    "input_schema": [{"name": "topic", "type": "text", "required": true}],
+    "output_schema": [{"name": "report", "type": "markdown"}]
   },
   "updated": {
     "description": "New description reflecting changed requirements.",
@@ -40,15 +42,21 @@ Accept a JSON object with the following fields:
       {"name": "Create PR", "computer_use": true}
     ],
     "samples": ["new sample"],
-    "computer_use": true
+    "computer_use": true,
+    "input_schema": [
+      {"name": "topic", "type": "text", "required": true},
+      {"name": "data_file", "type": ".csv", "required": true}
+    ]
   }
 }
 ```
 
 **Required:** `forge_path`, `original.name`, `updated` (at least one field inside it)
 
-**Optional fields inside `updated`:** Any subset of `description`, `steps`, `samples`, `computer_use`.
+**Optional fields inside `updated`:** Any subset of `description`, `steps`, `samples`, `computer_use`, `input_schema`, `output_schema`.
 Only include the fields that changed. Fields absent from `updated` are treated as unchanged.
+
+**Schema format:** `input_schema` and `output_schema` are arrays of field objects with `name` (string), `type` (string, e.g. "text", ".csv", "url"), and optionally `required` (boolean), `description` (string). When schemas change, update agent prompts and step files to reference the new field names and types.
 
 **Steps format:** Steps are arrays of objects with `name` (string) and `computer_use` (boolean). Steps with `computer_use: true` need desktop automation. The agent-level `computer_use` is true if any step has `computer_use: true`.
 

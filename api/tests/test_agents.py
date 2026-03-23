@@ -705,6 +705,7 @@ class TestSchemaField:
         resp = await client.put(f"/api/agents/{agent_id}", json={"input_schema": schema})
         assert resp.status_code == 200
         result = resp.json()
+        assert result["status"] == "updating"
         assert len(result["input_schema"]) == 2
 
         topic_field = result["input_schema"][0]
@@ -737,6 +738,7 @@ class TestSchemaField:
         resp = await client.put(f"/api/agents/{agent_id}", json={"output_schema": schema})
         assert resp.status_code == 200
         result = resp.json()
+        assert result["status"] == "updating"
         assert result["output_schema"][0]["label"] == "Research Report"
         assert result["output_schema"][0]["description"] == "Full analysis with findings and recommendations"
 
@@ -750,6 +752,7 @@ class TestSchemaField:
         schema = [{"name": "task", "type": "text", "required": True}]
         resp = await client.put(f"/api/agents/{agent_id}", json={"input_schema": schema})
         assert resp.status_code == 200
+        assert resp.json()["status"] == "updating"
         field = resp.json()["input_schema"][0]
         assert field["label"] is None
         assert field["description"] is None
@@ -766,11 +769,12 @@ class TestSchemaField:
         schema = [{"name": "source_url", "type": "url", "required": False, "label": "Source URL"}]
         resp = await client.put(f"/api/agents/{agent_id}", json={"input_schema": schema})
         assert resp.status_code == 200
+        assert resp.json()["status"] == "updating"
         assert resp.json()["input_schema"][0]["type"] == "url"
 
     @pytest.mark.asyncio
-    async def test_schema_update_does_not_trigger_forge(self, client, app):
-        """Updating only input_schema/output_schema keeps agent status (not substantive)."""
+    async def test_schema_update_triggers_forge(self, client, app):
+        """Updating input_schema/output_schema is substantive and triggers forge."""
         create = await client.post("/api/agents", json={"name": "T", "description": "d"})
         agent_id = create.json()["id"]
         await app.state.agent_repo.update(agent_id, status="ready")
@@ -778,7 +782,7 @@ class TestSchemaField:
         schema = [{"name": "topic", "type": "text", "required": True}]
         resp = await client.put(f"/api/agents/{agent_id}", json={"input_schema": schema})
         assert resp.status_code == 200
-        assert resp.json()["status"] == "ready"  # Not 'updating'
+        assert resp.json()["status"] == "updating"
 
 
 class TestAgentUpdate:

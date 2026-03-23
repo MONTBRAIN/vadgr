@@ -108,7 +108,7 @@ async def get_agent(agent_id: str, request: Request):
     return agent
 
 
-_SUBSTANTIVE_FIELDS = {"description", "steps", "samples", "computer_use"}
+_SUBSTANTIVE_FIELDS = {"description", "steps", "samples", "computer_use", "input_schema", "output_schema"}
 
 
 @router.put("/{agent_id}")
@@ -154,21 +154,10 @@ async def update_agent(
         )
         return agent
 
-    # Cosmetic update only
+    # Cosmetic update only (name only at this point)
     agent = await repo.update(agent_id, **fields)
     if not agent:
         return _not_found(agent_id)
-
-    # If schemas changed and agent has a forge_path, write and commit
-    schema_changed = "input_schema" in fields or "output_schema" in fields
-    if schema_changed and agent.get("forge_path"):
-        agent_service.commit_schema_change(
-            agent["forge_path"],
-            agent.get("input_schema", []),
-            agent.get("output_schema", []),
-            provider=edit_provider, model=edit_model,
-        )
-
     return agent
 
 
