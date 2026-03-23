@@ -1019,7 +1019,9 @@ class TestAgentService:
                 capture_output=True,
                 text=True,
             )
-            assert message.stdout.strip() == "Update agent workflow"
+            assert message.stdout.strip() == "Update description"
+            # schema.json should exist after update
+            assert (forge_root / "schema.json").exists()
         finally:
             agent_service_mod.PROJECT_ROOT = original_root
 

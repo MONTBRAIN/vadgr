@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -39,6 +39,16 @@ export function AgentForm({ agent }: AgentFormProps) {
   const [inputSchema, setInputSchema] = useState<SchemaField[]>(agent?.input_schema ?? []);
   const [outputSchema, setOutputSchema] = useState<SchemaField[]>(agent?.output_schema ?? []);
 
+  // Step editing
+  const [editingStep, setEditingStep] = useState<number | null>(null);
+  const [editingStepValue, setEditingStepValue] = useState('');
+  const editInputRef = useRef<HTMLInputElement>(null);
+
+  // Step drag-and-drop
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dropTarget, setDropTarget] = useState<number | null>(null);
+  const dragNode = useRef<HTMLDivElement | null>(null);
+
   const isEditing = !!agent;
   const isBusy = agent?.status !== undefined && BUSY_STATUSES.has(agent.status);
   const isPending = createAgent.isPending || updateAgent.isPending;
@@ -53,10 +63,31 @@ export function AgentForm({ agent }: AgentFormProps) {
 
   const removeStep = (index: number) => {
     setSteps(steps.filter((_, i) => i !== index));
+    if (editingStep === index) setEditingStep(null);
   };
 
   const toggleStepComputerUse = (index: number) => {
     setSteps(steps.map((s, i) => i === index ? { ...s, computer_use: !s.computer_use } : s));
+  };
+
+  const startEditingStep = (index: number) => {
+    setEditingStep(index);
+    setEditingStepValue(steps[index].name);
+    requestAnimationFrame(() => editInputRef.current?.focus());
+  };
+
+  const commitStepEdit = () => {
+    if (editingStep === null) return;
+    const trimmed = editingStepValue.trim();
+    if (trimmed && trimmed !== steps[editingStep].name) {
+      setSteps(steps.map((s, i) => i === editingStep ? { ...s, name: trimmed } : s));
+    }
+    setEditingStep(null);
+  };
+
+  const handleStepEditKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') { e.preventDefault(); commitStepEdit(); }
+    if (e.key === 'Escape') setEditingStep(null);
   };
 
   const handleStepKeyDown = (e: React.KeyboardEvent) => {
@@ -64,6 +95,35 @@ export function AgentForm({ agent }: AgentFormProps) {
       e.preventDefault();
       addStep();
     }
+  };
+
+  // Step drag handlers
+  const handleStepDragStart = (e: React.DragEvent, index: number) => {
+    setDragIndex(index);
+    dragNode.current = e.currentTarget as HTMLDivElement;
+    e.dataTransfer.effectAllowed = 'move';
+    requestAnimationFrame(() => {
+      if (dragNode.current) dragNode.current.style.opacity = '0.4';
+    });
+  };
+
+  const handleStepDragEnd = () => {
+    if (dragNode.current) dragNode.current.style.opacity = '1';
+    if (dragIndex !== null && dropTarget !== null && dragIndex !== dropTarget) {
+      const reordered = [...steps];
+      const [moved] = reordered.splice(dragIndex, 1);
+      reordered.splice(dropTarget, 0, moved);
+      setSteps(reordered);
+    }
+    setDragIndex(null);
+    setDropTarget(null);
+    dragNode.current = null;
+  };
+
+  const handleStepDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDropTarget(index);
   };
 
   const hasComputerUse = steps.some(s => s.computer_use);
@@ -110,6 +170,7 @@ export function AgentForm({ agent }: AgentFormProps) {
         placeholder="Describe what this agent should do in plain language."
         rows={4}
         maxLength={10000}
+        required
         disabled={isBusy}
       />
 
@@ -118,7 +179,7 @@ export function AgentForm({ agent }: AgentFormProps) {
         <div>
           <label className="block text-sm font-medium text-text-secondary">Steps</label>
           <p className="text-xs text-text-muted mt-1">
-            Break your agent's work into ordered steps. Each step runs one after another.
+            Optional but recommended. Breaking work into steps helps the agent produce better results. Drag to reorder, click to edit.
           </p>
         </div>
         {steps.length > 0 && (
@@ -126,11 +187,46 @@ export function AgentForm({ agent }: AgentFormProps) {
             {steps.map((step, i) => (
               <div
                 key={i}
-                className="group flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg bg-bg-secondary border border-border"
+                draggable={!isBusy}
+                onDragStart={(e) => handleStepDragStart(e, i)}
+                onDragEnd={handleStepDragEnd}
+                onDragOver={(e) => handleStepDragOver(e, i)}
+                className={`group flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg bg-bg-secondary border transition-colors ${
+                  dropTarget === i && dragIndex !== i
+                    ? 'border-accent/60'
+                    : 'border-border'
+                }`}
               >
-                <div className="flex items-center gap-2.5 min-w-0">
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  {/* Drag handle */}
+                  {!isBusy && (
+                    <div className="cursor-grab active:cursor-grabbing text-text-muted hover:text-text-secondary shrink-0" title="Drag to reorder">
+                      <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+                        <circle cx="5.5" cy="3.5" r="1.2"/><circle cx="10.5" cy="3.5" r="1.2"/>
+                        <circle cx="5.5" cy="8" r="1.2"/><circle cx="10.5" cy="8" r="1.2"/>
+                        <circle cx="5.5" cy="12.5" r="1.2"/><circle cx="10.5" cy="12.5" r="1.2"/>
+                      </svg>
+                    </div>
+                  )}
                   <span className="text-xs font-mono text-text-muted w-5 shrink-0">{i + 1}.</span>
-                  <span className="text-sm text-text-primary truncate">{step.name}</span>
+                  {editingStep === i ? (
+                    <input
+                      ref={editInputRef}
+                      value={editingStepValue}
+                      onChange={(e) => setEditingStepValue(e.target.value)}
+                      onBlur={commitStepEdit}
+                      onKeyDown={handleStepEditKeyDown}
+                      className="flex-1 min-w-0 px-2 py-0.5 bg-bg-input border border-accent rounded-md text-sm text-text-primary focus:outline-none"
+                    />
+                  ) : (
+                    <span
+                      className="text-sm text-text-primary truncate cursor-pointer hover:text-accent transition-colors"
+                      onClick={() => !isBusy && startEditingStep(i)}
+                      title="Click to edit"
+                    >
+                      {step.name}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <button
@@ -187,9 +283,10 @@ export function AgentForm({ agent }: AgentFormProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="space-y-3">
+        <label className="block text-sm font-medium text-text-secondary">{isEditing ? 'Edit with' : 'Create with'}</label>
+        <div className="grid grid-cols-2 gap-6">
         <Select
-          label="Provider"
           value={provider}
           onChange={(e) => {
             setProvider(e.target.value);
@@ -200,12 +297,12 @@ export function AgentForm({ agent }: AgentFormProps) {
           disabled={isBusy}
         />
         <Select
-          label="Model"
           value={model}
           onChange={(e) => setModel(e.target.value)}
           options={modelOptions[provider] ?? []}
           disabled={isBusy}
         />
+        </div>
       </div>
 
       {hasComputerUse && (
@@ -214,16 +311,15 @@ export function AgentForm({ agent }: AgentFormProps) {
         </div>
       )}
 
-      {/* Schema editors only shown when editing an existing agent (schemas are auto-generated by forge) */}
       {isEditing && (
         <>
-          <SchemaEditor label="Input Schema" fields={inputSchema} onChange={setInputSchema} isInput={true} readOnly={isBusy} />
-          <SchemaEditor label="Output Schema" fields={outputSchema} onChange={setOutputSchema} isInput={false} readOnly={isBusy} />
+          <SchemaEditor label="Inputs" fields={inputSchema} onChange={setInputSchema} isInput={true} readOnly={isBusy} />
+          <SchemaEditor label="Outputs" fields={outputSchema} onChange={setOutputSchema} isInput={false} readOnly={isBusy} />
         </>
       )}
 
       <div className="flex items-center gap-3 pt-4">
-        <Button type="submit" disabled={!name.trim() || isPending || isBusy}>
+        <Button type="submit" disabled={!name.trim() || !description.trim() || isPending || isBusy}>
           {isPending ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Agent'}
         </Button>
         <Button type="button" variant="secondary" onClick={() => navigate(-1)}>

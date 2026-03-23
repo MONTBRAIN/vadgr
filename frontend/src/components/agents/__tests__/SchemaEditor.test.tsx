@@ -65,42 +65,21 @@ describe('SchemaEditor - existing fields', () => {
     { name: 'depth', type: 'select', required: false, options: ['quick', 'deep'] },
   ];
 
-  it('renders each field row with name', () => {
+  it('renders each field row with name input', () => {
     render(<SchemaEditor label="Input Schema" fields={fields} onChange={vi.fn()} isInput={true} />);
-    expect(screen.getByText('topic')).toBeInTheDocument();
-    expect(screen.getByText('depth')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('topic')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('depth')).toBeInTheDocument();
   });
 
-  it('shows type badge for each field', () => {
+  it('renders type values inline', () => {
     render(<SchemaEditor label="Input Schema" fields={fields} onChange={vi.fn()} isInput={true} />);
-    expect(screen.getByText('text')).toBeInTheDocument();
-    expect(screen.getByText('select')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('text')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('select')).toBeInTheDocument();
   });
 
-  it('shows required label on required fields', () => {
+  it('renders description inline', () => {
     render(<SchemaEditor label="Input Schema" fields={fields} onChange={vi.fn()} isInput={true} />);
-    expect(screen.getByText('required')).toBeInTheDocument();
-  });
-
-  it('expands field detail on row click', async () => {
-    render(<SchemaEditor label="Input Schema" fields={fields} onChange={vi.fn()} isInput={true} />);
-    await userEvent.click(screen.getByText('topic'));
-    // Expanded detail shows label
-    expect(screen.getByDisplayValue('Research Topic')).toBeInTheDocument();
     expect(screen.getByDisplayValue('The subject')).toBeInTheDocument();
-  });
-
-  it('shows options input for select type when expanded', async () => {
-    render(<SchemaEditor label="Input Schema" fields={fields} onChange={vi.fn()} isInput={true} />);
-    await userEvent.click(screen.getByText('depth'));
-    // Options field should be visible
-    expect(screen.getByDisplayValue('quick, deep')).toBeInTheDocument();
-  });
-
-  it('does NOT show options input for non-select types', async () => {
-    render(<SchemaEditor label="Input Schema" fields={fields} onChange={vi.fn()} isInput={true} />);
-    await userEvent.click(screen.getByText('topic'));
-    expect(screen.queryByDisplayValue('quick, deep')).not.toBeInTheDocument();
   });
 });
 
@@ -110,7 +89,6 @@ describe('SchemaEditor - editing fields', () => {
     const onChange = vi.fn();
     render(<StatefulSchemaEditor initialFields={initialFields} onChange={onChange} />);
 
-    await userEvent.click(screen.getByText('old'));
     const nameInput = screen.getByDisplayValue('old');
     await userEvent.clear(nameInput);
     await userEvent.type(nameInput, 'new');
@@ -119,18 +97,33 @@ describe('SchemaEditor - editing fields', () => {
     expect(lastCall[0].name).toBe('new');
   });
 
-  it('calls onChange when options are edited for select', async () => {
-    const initialFields: SchemaField[] = [{ name: 'depth', type: 'select', required: false, options: ['a', 'b'] }];
+  it('calls onChange when type is changed via dropdown', async () => {
+    const initialFields: SchemaField[] = [{ name: 'topic', type: '.txt', required: true }];
     const onChange = vi.fn();
     render(<StatefulSchemaEditor initialFields={initialFields} onChange={onChange} />);
 
-    await userEvent.click(screen.getByText('depth'));
-    const optionsInput = screen.getByDisplayValue('a, b');
-    // Use fireEvent.change to set the full value atomically (avoids controlled-input reset mid-type)
-    fireEvent.change(optionsInput, { target: { value: 'quick, standard, deep' } });
+    // Focus the type input to open the dropdown
+    const typeInput = screen.getByDisplayValue('.txt');
+    await userEvent.click(typeInput);
+
+    // Click the ".csv" option in the dropdown
+    const csvOption = screen.getByText('.csv');
+    fireEvent.mouseDown(csvOption);
 
     const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1][0];
-    expect(lastCall[0].options).toEqual(['quick', 'standard', 'deep']);
+    expect(lastCall[0].type).toBe('.csv');
+  });
+
+  it('calls onChange when description is edited', () => {
+    const initialFields: SchemaField[] = [{ name: 'topic', type: 'text', required: true, description: 'old desc' }];
+    const onChange = vi.fn();
+    render(<StatefulSchemaEditor initialFields={initialFields} onChange={onChange} />);
+
+    const descInput = screen.getByDisplayValue('old desc');
+    fireEvent.change(descInput, { target: { value: 'new desc' } });
+
+    const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1][0];
+    expect(lastCall[0].description).toBe('new desc');
   });
 
   it('removes a field when X is clicked', async () => {
@@ -141,34 +134,25 @@ describe('SchemaEditor - editing fields', () => {
     const onChange = vi.fn();
     render(<SchemaEditor label="Input Schema" fields={fields} onChange={onChange} isInput={true} />);
 
-    // Click the X on the first row (not expanded, just the remove button)
     const removeButtons = screen.getAllByRole('button').filter(
-      b => b.querySelector('svg path[d*="M4 4l8 8"]')
+      b => b.querySelector('svg line')
     );
     await userEvent.click(removeButtons[0]);
     expect(onChange).toHaveBeenCalledWith([{ name: 'b', type: 'text', required: false }]);
   });
 });
 
-describe('SchemaEditor - output mode type options', () => {
-  it('does not show file type for output schema', async () => {
+describe('SchemaEditor - type combobox allows custom values', () => {
+  it('accepts a custom type value', async () => {
+    const initialFields: SchemaField[] = [{ name: 'report', type: 'text', required: false }];
     const onChange = vi.fn();
-    const fields: SchemaField[] = [{ name: 'out', type: 'text', required: false }];
-    render(<SchemaEditor label="Output Schema" fields={fields} onChange={onChange} isInput={false} />);
+    render(<StatefulSchemaEditor initialFields={initialFields} onChange={onChange} isInput={false} />);
 
-    await userEvent.click(screen.getByText('out'));
-    const typeSelect = screen.getByDisplayValue('text');
-    const options = Array.from(typeSelect.querySelectorAll('option')).map(o => o.value);
-    expect(options).toContain('file');
-    expect(options).toContain('markdown');
-    expect(options).toContain('json');
-  });
+    const typeInput = screen.getByDisplayValue('text');
+    await userEvent.clear(typeInput);
+    await userEvent.type(typeInput, 'html{enter}');
 
-  it('does not show placeholder field for output schema', async () => {
-    const fields: SchemaField[] = [{ name: 'out', type: 'text', required: false }];
-    render(<SchemaEditor label="Output Schema" fields={fields} onChange={vi.fn()} isInput={false} />);
-
-    await userEvent.click(screen.getByText('out'));
-    expect(screen.queryByPlaceholderText(/e\.g\./i)).not.toBeInTheDocument();
+    const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1][0];
+    expect(lastCall[0].type).toBe('html');
   });
 });

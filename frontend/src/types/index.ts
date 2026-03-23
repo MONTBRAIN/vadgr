@@ -1,6 +1,6 @@
 export interface SchemaField {
   name: string;
-  type: 'text' | 'url' | 'textarea' | 'select' | 'number' | 'boolean' | 'file' | 'archive' | 'directory' | 'markdown' | 'json';
+  type: string;
   required: boolean;
   label?: string;
   description?: string;
@@ -51,6 +51,8 @@ export interface AgentCreate {
   description?: string;
   steps?: StepDefinition[];
   samples?: string[];
+  input_schema?: SchemaField[];
+  output_schema?: SchemaField[];
   computer_use?: boolean;
   provider?: string;
   model?: string;

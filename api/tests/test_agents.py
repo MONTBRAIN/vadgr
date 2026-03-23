@@ -651,7 +651,13 @@ class TestAgentArtifactsAndExport:
                 capture_output=True,
                 text=True,
             ).stdout.strip()
-            assert imported_log == original_log
+            # Imported repo has original commits plus a schema sync commit
+            original_messages = [line.split(" ", 1)[1] for line in original_log.splitlines()]
+            imported_messages = [line.split(" ", 1)[1] for line in imported_log.splitlines()]
+            assert imported_messages[0] == "Sync schemas after import"
+            assert imported_messages[1:] == original_messages
+            # schema.json should exist in imported repo
+            assert (imported_root / "schema.json").exists()
         finally:
             agents_mod.PROJECT_ROOT = original_root
             agent_service_mod.PROJECT_ROOT = original_service_root

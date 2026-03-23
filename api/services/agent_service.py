@@ -106,6 +106,35 @@ class AgentService:
             )
         self._commit_agent_repo(forge_path, message)
 
+    def _write_schema_file(self, forge_path: str, input_schema: list, output_schema: list) -> None:
+        """Write schema.json to the agent's forge_path for git tracking."""
+        agent_root = PROJECT_ROOT / forge_path
+        if not agent_root.exists():
+            return
+        schema_path = agent_root / "schema.json"
+        schema_path.write_text(json.dumps({
+            "input_schema": input_schema or [],
+            "output_schema": output_schema or [],
+        }, indent=2) + "\n")
+
+    @staticmethod
+    def _format_commit_message(summary: str, provider: str | None = None, model: str | None = None) -> str:
+        """Build a standardized commit message with optional provider metadata."""
+        if provider and model:
+            return f"{summary}\n\nProvider: {provider} ({model})"
+        if provider:
+            return f"{summary}\n\nProvider: {provider}"
+        return f"{summary}\n\nManual edit"
+
+    def commit_schema_change(
+        self, forge_path: str, input_schema: list, output_schema: list,
+        provider: str | None = None, model: str | None = None,
+    ) -> None:
+        """Write schema.json and commit it to the agent's git repo."""
+        self._write_schema_file(forge_path, input_schema, output_schema)
+        msg = self._format_commit_message("Update input/output schemas", provider, model)
+        self._commit_agent_repo(forge_path, msg)
+
     def _commit_agent_repo(self, forge_path: str, message: str) -> None:
         agent_root = PROJECT_ROOT / forge_path
         if not agent_root.exists() or not (agent_root / ".git").exists():
@@ -234,8 +263,19 @@ class AgentService:
 
             await self.agent_repo.update(agent_id, **update_fields)
             if forge_path:
+                # Write schema.json from the latest DB state before committing
+                final_agent = await self.agent_repo.get(agent_id)
+                self._write_schema_file(
+                    forge_path,
+                    final_agent.get("input_schema", []),
+                    final_agent.get("output_schema", []),
+                )
                 self.ensure_agent_script_environment(forge_path)
-                self.ensure_agent_repo_tracking(forge_path, "Initial agent scaffold")
+                commit_msg = self._format_commit_message(
+                    "Initial agent scaffold",
+                    agent.get("provider"), agent.get("model"),
+                )
+                self.ensure_agent_repo_tracking(forge_path, commit_msg)
             logger.info("Forge completed for agent %s -- status: ready", agent_id)
 
         except ProviderError as e:
@@ -259,17 +299,27 @@ class AgentService:
             )
 
     async def run_update(
-        self, agent_id: str, old_agent: dict, new_fields: dict
+        self, agent_id: str, old_agent: dict, new_fields: dict,
+        provider_override: str | None = None, model_override: str | None = None,
     ) -> None:
         """Re-run forge to update an existing agent's workflow.
 
         Called as a background task when substantive fields change.
+        provider_override/model_override control which provider runs the update
+        without changing the agent's stored provider.
         Status flow: ready → updating → ready/error.
         """
         agent = await self.agent_repo.get(agent_id)
         if not agent:
             logger.error("Agent %s not found for forge update", agent_id)
             return
+
+        # Use override provider/model for this forge call, fall back to agent's stored values
+        forge_agent = dict(agent)
+        if provider_override:
+            forge_agent["provider"] = provider_override
+        if model_override:
+            forge_agent["model"] = model_override
 
         try:
             # Build the update input for forge/api-update.md
@@ -297,7 +347,7 @@ class AgentService:
             )
 
             logger.info("Running forge update for agent %s (%s)", agent_id, agent["name"])
-            provider = await self._get_forge_provider(agent, timeout=600)
+            provider = await self._get_forge_provider(forge_agent, timeout=600)
             raw_output = await provider.execute(
                 prompt=prompt,
                 workspace=str(PROJECT_ROOT),
@@ -312,9 +362,13 @@ class AgentService:
                 status="ready",
                 forge_path=updated_forge_path,
                 forge_config=forge_result.get("forge_config", {}),
-                input_schema=forge_result.get("input_schema", []),
-                output_schema=forge_result.get("output_schema", []),
             )
+            # Only overwrite schemas if forge returned non-empty ones --
+            # preserve user-edited schemas otherwise.
+            if forge_result.get("input_schema"):
+                update_fields["input_schema"] = forge_result["input_schema"]
+            if forge_result.get("output_schema"):
+                update_fields["output_schema"] = forge_result["output_schema"]
             if forge_result.get("steps"):
                 update_fields["steps"] = forge_result["steps"]
             elif not agent.get("steps") and updated_forge_path:
@@ -325,8 +379,22 @@ class AgentService:
             await self.agent_repo.update(agent_id, **update_fields)
             forge_path = update_fields.get("forge_path", "") or old_agent.get("forge_path", "")
             if forge_path:
+                # Write schema.json from the latest DB state before committing
+                final_agent = await self.agent_repo.get(agent_id)
+                self._write_schema_file(
+                    forge_path,
+                    final_agent.get("input_schema", []),
+                    final_agent.get("output_schema", []),
+                )
                 self.ensure_agent_script_environment(forge_path)
-                self.ensure_agent_repo_tracking(forge_path, "Update agent workflow")
+                # Build descriptive commit message with provider metadata
+                changed_parts = [k for k in ("description", "steps", "samples", "computer_use") if k in new_fields]
+                summary = f"Update {', '.join(changed_parts)}" if changed_parts else "Update agent workflow"
+                commit_msg = self._format_commit_message(
+                    summary,
+                    forge_agent.get("provider"), forge_agent.get("model"),
+                )
+                self.ensure_agent_repo_tracking(forge_path, commit_msg)
             logger.info("Forge update completed for agent %s -- status: ready", agent_id)
 
         except ProviderError as e:
@@ -378,6 +446,18 @@ class AgentService:
             self.ensure_agent_runtime_scaffold(forge_path)
             self.ensure_agent_script_environment(forge_path)
             await self.agent_repo.update(agent_id, status="ready")
+            # Write schema.json from DB data so imported agents have it on disk
+            agent_data = await self.agent_repo.get(agent_id)
+            self._write_schema_file(
+                forge_path,
+                agent_data.get("input_schema", []),
+                agent_data.get("output_schema", []),
+            )
+            msg = self._format_commit_message(
+                "Sync schemas after import",
+                agent_data.get("provider"), agent_data.get("model"),
+            )
+            self._commit_agent_repo(forge_path, msg)
         except Exception as e:
             logger.exception("Import failed for agent %s", agent_id)
             if target_dir.exists():

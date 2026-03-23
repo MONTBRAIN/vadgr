@@ -10,7 +10,7 @@ export function Input({ label, className = '', id, ...props }: InputProps) {
     <div className="space-y-1.5">
       {label && (
         <label htmlFor={inputId} className="block text-sm text-text-secondary">
-          {label}
+          {label}{props.required && <span className="text-red-400 ml-0.5">*</span>}
         </label>
       )}
       <input

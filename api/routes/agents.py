@@ -127,6 +127,10 @@ async def update_agent(
     if "output_schema" in fields:
         fields["output_schema"] = [s.model_dump(exclude_none=False) for s in body.output_schema]
 
+    # Extract provider/model -- used for forge calls but never saved to DB on update
+    edit_provider = fields.pop("provider", None)
+    edit_model = fields.pop("model", None)
+
     substantive_changes = _SUBSTANTIVE_FIELDS & fields.keys()
 
     # If substantive change, check agent isn't busy
@@ -146,6 +150,7 @@ async def update_agent(
             return _not_found(agent_id)
         background_tasks.add_task(
             agent_service.run_update, agent_id, current, fields,
+            provider_override=edit_provider, model_override=edit_model,
         )
         return agent
 
@@ -153,6 +158,17 @@ async def update_agent(
     agent = await repo.update(agent_id, **fields)
     if not agent:
         return _not_found(agent_id)
+
+    # If schemas changed and agent has a forge_path, write and commit
+    schema_changed = "input_schema" in fields or "output_schema" in fields
+    if schema_changed and agent.get("forge_path"):
+        agent_service.commit_schema_change(
+            agent["forge_path"],
+            agent.get("input_schema", []),
+            agent.get("output_schema", []),
+            provider=edit_provider, model=edit_model,
+        )
+
     return agent
 
 
@@ -262,7 +278,9 @@ async def upload_agent_artifact(
             status_code=400,
             content={"error": {"code": "INVALID_INPUT_FIELD", "message": f"Unknown input field '{field_name}'", "details": {}}},
         )
-    if schema_field.get("type") not in {"file", "archive", "directory"}:
+    field_type = schema_field.get("type", "")
+    is_file_type = field_type in {"file", "archive", "directory"} or field_type.startswith(".")
+    if not is_file_type:
         return JSONResponse(
             status_code=400,
             content={"error": {"code": "INVALID_INPUT_FIELD", "message": f"Input field '{field_name}' does not accept uploaded artifacts", "details": {}}},

@@ -51,8 +51,9 @@ describe('AgentForm - Model options', () => {
   it('includes Claude models in claude_code model options', () => {
     render(<AgentForm />);
 
-    // Default provider is claude_code
-    const modelSelect = screen.getByLabelText('Model');
+    // Default provider is claude_code — model is the second select in the form
+    const selects = screen.getAllByRole('combobox');
+    const modelSelect = selects[1];
     const options = Array.from(modelSelect.querySelectorAll('option'));
     const labels = options.map((o) => o.textContent);
 
@@ -64,12 +65,12 @@ describe('AgentForm - Model options', () => {
   it('switches models when provider changes', async () => {
     render(<AgentForm />);
 
-    // Switch to Codex provider
-    const providerSelect = screen.getByLabelText('Provider');
-    await userEvent.selectOptions(providerSelect, 'codex');
+    // Switch to Codex provider — provider is the first select
+    const selects = screen.getAllByRole('combobox');
+    await userEvent.selectOptions(selects[0], 'codex');
 
     // Check model dropdown has Codex models
-    const modelSelect = screen.getByLabelText('Model');
+    const modelSelect = selects[1];
     const options = Array.from(modelSelect.querySelectorAll('option'));
     const labels = options.map((o) => o.textContent);
 
@@ -196,8 +197,8 @@ describe('AgentForm - Busy agents', () => {
 
     render(<AgentForm agent={agent} />);
 
-    expect(screen.getByLabelText('Agent Name')).toBeDisabled();
-    expect(screen.getByLabelText('Description')).toBeDisabled();
+    expect(screen.getByLabelText(/Agent Name/)).toBeDisabled();
+    expect(screen.getByLabelText(/Description/)).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Save Changes' })).toBeDisabled();
   });
 });

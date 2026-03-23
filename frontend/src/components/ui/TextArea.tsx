@@ -10,7 +10,7 @@ export function TextArea({ label, className = '', id, ...props }: TextAreaProps)
     <div className="space-y-1.5">
       {label && (
         <label htmlFor={inputId} className="block text-sm text-text-secondary">
-          {label}
+          {label}{props.required && <span className="text-red-400 ml-0.5">*</span>}
         </label>
       )}
       <textarea
