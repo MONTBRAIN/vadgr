@@ -7,7 +7,10 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from api.engine.executor import AgentExecutor
-from api.engine.providers import ExecutionEvent, build_step_prompt, _PROJECT_ROOT
+from api.engine.providers import (
+    ExecutionEvent, build_step_prompt, _PROJECT_ROOT,
+    CLIAgentProvider,
+)
 
 
 def _make_streaming_provider(output='{"result": "done"}'):
@@ -575,6 +578,64 @@ class TestBuildStepPrompt:
         assert "MANDATORY" not in prompt
         assert "take a screenshot" not in prompt
         assert "DO NOT produce text-only output" not in prompt
+
+
+class TestEnvBuilders:
+    """Tests for _clean_env and _computer_use_env."""
+
+    def test_clean_env_strips_claudecode(self):
+        with patch.dict(os.environ, {"CLAUDECODE": "1"}, clear=False):
+            env = CLIAgentProvider._clean_env()
+            assert "CLAUDECODE" not in env
+
+    def test_clean_env_strips_claude_vars(self):
+        with patch.dict(os.environ, {
+            "CLAUDE_CODE_ENTRYPOINT": "cli",
+            "CLAUDE_CODE_SSE_PORT": "11378",
+        }, clear=False):
+            env = CLIAgentProvider._clean_env()
+            assert "CLAUDE_CODE_ENTRYPOINT" not in env
+            assert "CLAUDE_CODE_SSE_PORT" not in env
+
+    def test_clean_env_strips_api_venv_from_path(self):
+        fake_venv = "/fake/api/.venv"
+        fake_path = f"{fake_venv}/bin:/usr/bin:/usr/local/bin"
+        with patch.dict(os.environ, {
+            "VIRTUAL_ENV": fake_venv,
+            "PATH": fake_path,
+        }, clear=False):
+            env = CLIAgentProvider._clean_env()
+            assert f"{fake_venv}/bin" not in env["PATH"]
+            assert "/usr/bin" in env["PATH"]
+            assert "VIRTUAL_ENV" not in env
+
+    def test_clean_env_no_computer_use_venv(self):
+        """CLI env should NOT have computer_use venv on PATH."""
+        env = CLIAgentProvider._clean_env()
+        assert "computer_use/.venv/bin" not in env.get("PATH", "")
+
+    def test_computer_use_env_has_cu_venv(self):
+        """Desktop env should have computer_use/.venv/bin on PATH."""
+        env = CLIAgentProvider._computer_use_env()
+        assert "computer_use/.venv/bin" in env.get("PATH", "")
+
+    def test_computer_use_env_strips_api_venv(self):
+        """Desktop env should still strip the API venv."""
+        fake_venv = "/fake/api/.venv"
+        fake_path = f"{fake_venv}/bin:/usr/bin"
+        with patch.dict(os.environ, {
+            "VIRTUAL_ENV": fake_venv,
+            "PATH": fake_path,
+        }, clear=False):
+            env = CLIAgentProvider._computer_use_env()
+            assert f"{fake_venv}/bin" not in env["PATH"]
+            assert "computer_use/.venv/bin" in env["PATH"]
+
+    def test_computer_use_env_cu_venv_first_in_path(self):
+        """computer_use venv should be at the start of PATH."""
+        env = CLIAgentProvider._computer_use_env()
+        first_path = env["PATH"].split(os.pathsep)[0]
+        assert "computer_use/.venv/bin" in first_path
 
 
 class TestCollectOutputPaths:

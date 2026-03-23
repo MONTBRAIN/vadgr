@@ -170,6 +170,7 @@ class AgentExecutor:
                 workspace=workspace,
                 timeout=timeout,
                 use_stream_json=can_stream,
+                computer_use=uses_cu,
             ):
                 if event.type == "output":
                     if can_stream:

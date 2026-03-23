@@ -304,8 +304,35 @@ class CLIAgentProvider:
 
     @staticmethod
     def _clean_env() -> dict[str, str]:
-        """Build a subprocess environment without session-nesting env vars."""
-        return {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
+        """Build a subprocess environment without session-nesting or venv vars.
+
+        Strips CLAUDE* env vars (prevent nesting detection) and removes the
+        active virtualenv from PATH so bare 'python3' resolves to the system
+        Python, not the API's venv.
+        """
+        env = {k: v for k, v in os.environ.items()
+               if not k.startswith("CLAUDE")}
+        # Strip active venv from PATH
+        venv = env.pop("VIRTUAL_ENV", None)
+        if venv:
+            venv_bin = os.path.join(venv, "bin")
+            env["PATH"] = os.pathsep.join(
+                p for p in env.get("PATH", "").split(os.pathsep)
+                if p != venv_bin
+            )
+        return env
+
+    @classmethod
+    def _computer_use_env(cls) -> dict[str, str]:
+        """Build env for desktop steps with computer_use venv on PATH.
+
+        Prepends computer_use/.venv/bin so that 'python3' resolves to the
+        venv that has mcp/fastmcp installed, ensuring the MCP server starts.
+        """
+        env = cls._clean_env()
+        cu_venv_bin = os.path.join(_PROJECT_ROOT, "computer_use", ".venv", "bin")
+        env["PATH"] = os.pathsep.join([cu_venv_bin, env.get("PATH", "")])
+        return env
 
     def _build_args(self, prompt: str, workspace: str | None = None) -> list[str]:
         """Replace placeholders in the config args."""
@@ -356,6 +383,7 @@ class CLIAgentProvider:
         workspace: str | None = None,
         timeout: int | None = None,
         raw_output: bool = False,
+        computer_use: bool = False,
     ) -> str:
         """Execute a prompt and return the full output."""
         args = self._build_args(prompt, workspace)
@@ -373,11 +401,12 @@ class CLIAgentProvider:
             args = filtered
         effective_timeout = timeout or self.config.timeout
 
+        env = self._computer_use_env() if computer_use else self._clean_env()
         proc = await asyncio.create_subprocess_exec(
             self.config.command,
             *args,
             cwd=workspace,
-            env=self._clean_env(),
+            env=env,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             limit=10 * 1024 * 1024,
@@ -411,6 +440,7 @@ class CLIAgentProvider:
         workspace: str | None = None,
         timeout: int | None = None,
         use_stream_json: bool = True,
+        computer_use: bool = False,
     ) -> AsyncIterator[ExecutionEvent]:
         """Execute a prompt and stream output events line by line.
 
@@ -432,11 +462,12 @@ class CLIAgentProvider:
         # Use a 10 MB read buffer — the default 64 KB is too small for agents
         # that produce large outputs (e.g. multi-document analysis reports).
         _STREAM_LIMIT = 10 * 1024 * 1024
+        env = self._computer_use_env() if computer_use else self._clean_env()
         proc = await asyncio.create_subprocess_exec(
             self.config.command,
             *args,
             cwd=workspace,
-            env=self._clean_env(),
+            env=env,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             limit=_STREAM_LIMIT,
