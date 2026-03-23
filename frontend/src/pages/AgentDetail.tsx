@@ -105,7 +105,8 @@ export function AgentDetail() {
   const [runProvider, setRunProvider] = useState('');
   const [runModel, setRunModel] = useState('');
 
-  const displayInputs: SchemaField[] = agent?.input_schema.length
+  const hasInputSchema = agent?.input_schema.length > 0;
+  const displayInputs: SchemaField[] = hasInputSchema
     ? agent.input_schema
     : [{
         name: 'instructions',
@@ -327,7 +328,11 @@ export function AgentDetail() {
             <h2 className="font-heading text-lg font-semibold text-text-primary">Inputs</h2>
           </div>
           <div className="flex flex-col gap-3 flex-1">
-            {displayInputs.map((field) => {
+            {isBusy && !hasInputSchema ? (
+              <p className="font-body text-xs text-text-muted italic">
+                Inputs will be available once the agent is ready.
+              </p>
+            ) : displayInputs.map((field) => {
               const fieldValue = inputs[field.name];
 
               if (isArtifactField(field)) {
@@ -424,7 +429,8 @@ export function AgentDetail() {
                 },
                 validationErrors[field.name],
               );
-            })}
+            })
+            }
             <div className="mt-auto pt-5 border-t border-border">
               <Button onClick={handleRun} disabled={runAgent.isPending || !isReady}>
                 <PixelPlay size={12} color="var(--color-bg-primary)" />

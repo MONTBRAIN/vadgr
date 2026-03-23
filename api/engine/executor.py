@@ -2,6 +2,7 @@
 
 import json
 import mimetypes
+import time
 from pathlib import Path
 from typing import Any, Callable, Coroutine
 
@@ -163,6 +164,7 @@ class AgentExecutor:
 
             collected_output = ""
             selected_provider = provider or self.provider
+            step_start = time.monotonic()
             async for event in selected_provider.execute_streaming(
                 prompt=prompt,
                 workspace=workspace,
@@ -182,6 +184,24 @@ class AgentExecutor:
                     raise RuntimeError(
                         f"Step {i} ({step_name}) failed: {event.data}"
                     )
+            step_duration = time.monotonic() - step_start
+
+            # Validate desktop steps actually used computer use
+            if uses_cu:
+                if step_duration < 30:
+                    await callback("agent_log", {
+                        "agent_id": agent["id"],
+                        "message": f"WARNING: Desktop step '{step_name}' completed in {step_duration:.0f}s -- suspiciously fast for a step requiring screen interaction.",
+                        **step_ctx,
+                    })
+                _skip_phrases = ("manually", "could not access", "unable to", "apply changes manually", "not updated")
+                output_lower = collected_output.lower()
+                if any(phrase in output_lower for phrase in _skip_phrases):
+                    await callback("agent_log", {
+                        "agent_id": agent["id"],
+                        "message": f"WARNING: Desktop step '{step_name}' may not have used desktop automation -- output suggests manual fallback.",
+                        **step_ctx,
+                    })
 
             last_output = collected_output
             await callback("agent_log", {

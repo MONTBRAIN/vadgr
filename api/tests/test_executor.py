@@ -385,6 +385,89 @@ class TestAgentExecutor:
         prompt = call_kwargs["prompt"]
         assert "agentic.md" in prompt
 
+    @pytest.mark.asyncio
+    async def test_desktop_step_warns_on_short_duration(self):
+        """A desktop step completing in < 30s should emit a warning."""
+        provider = _make_streaming_provider('{"result": "done"}')
+        cu_service = AsyncMock()
+        callback = AsyncMock()
+
+        executor = AgentExecutor(provider=provider, computer_use_service=cu_service)
+        agent = {
+            "id": "agent-cu-fast",
+            "name": "Quick Desktop",
+            "description": "",
+            "type": "agent",
+            "computer_use": True,
+            "forge_path": "",
+            "steps": [{"name": "Click Button", "computer_use": True}],
+            "output_schema": [],
+        }
+        await executor._execute_per_step(agent, {}, callback)
+
+        # Check that a warning was emitted about suspiciously fast completion
+        log_messages = [
+            call.args[1]["message"]
+            for call in callback.call_args_list
+            if call.args[0] == "agent_log" and "message" in call.args[1]
+        ]
+        assert any("completed in" in msg and "suspiciously fast" in msg for msg in log_messages)
+
+    @pytest.mark.asyncio
+    async def test_desktop_step_warns_on_manual_suggestion(self):
+        """A desktop step suggesting manual actions should emit a warning."""
+        provider = _make_streaming_provider('{"result": "Could not access LinkedIn. Apply changes manually."}')
+        cu_service = AsyncMock()
+        callback = AsyncMock()
+
+        executor = AgentExecutor(provider=provider, computer_use_service=cu_service)
+        agent = {
+            "id": "agent-cu-skip",
+            "name": "Skipped Desktop",
+            "description": "",
+            "type": "agent",
+            "computer_use": True,
+            "forge_path": "",
+            "steps": [{"name": "Update Profile", "computer_use": True}],
+            "output_schema": [],
+        }
+        await executor._execute_per_step(agent, {}, callback)
+
+        log_messages = [
+            call.args[1]["message"]
+            for call in callback.call_args_list
+            if call.args[0] == "agent_log" and "message" in call.args[1]
+        ]
+        assert any("may not have used desktop automation" in msg for msg in log_messages)
+
+    @pytest.mark.asyncio
+    async def test_cli_step_no_desktop_warnings(self):
+        """CLI steps should never emit desktop-related warnings."""
+        provider = _make_streaming_provider('{"result": "Apply changes manually."}')
+        cu_service = AsyncMock()
+        callback = AsyncMock()
+
+        executor = AgentExecutor(provider=provider, computer_use_service=cu_service)
+        agent = {
+            "id": "agent-cli",
+            "name": "CLI Agent",
+            "description": "",
+            "type": "agent",
+            "computer_use": False,
+            "forge_path": "",
+            "steps": [{"name": "Generate Report", "computer_use": False}],
+            "output_schema": [],
+        }
+        await executor._execute_per_step(agent, {}, callback)
+
+        log_messages = [
+            call.args[1]["message"]
+            for call in callback.call_args_list
+            if call.args[0] == "agent_log" and "message" in call.args[1]
+        ]
+        assert not any("suspiciously fast" in msg for msg in log_messages)
+        assert not any("may not have used desktop automation" in msg for msg in log_messages)
+
 
 class TestBuildStepPrompt:
     """Tests for build_step_prompt with old and new step file formats."""
@@ -446,6 +529,52 @@ class TestBuildStepPrompt:
             prompt = build_step_prompt(agent, {}, step_number=2, step=agent["steps"][1])
 
         assert "step_02_analyze-results.md" in prompt
+
+    def test_computer_use_step_has_mandatory_enforcement(self, tmp_path):
+        """Desktop steps must include mandatory computer_use enforcement language."""
+        forge_path = "output/test-agent"
+        full_path = tmp_path / forge_path / "agent" / "steps"
+        full_path.mkdir(parents=True)
+
+        agent = {
+            "forge_path": forge_path,
+            "name": "test",
+            "steps": [
+                {"name": "Browse Web", "computer_use": True},
+            ],
+            "output_schema": [],
+        }
+
+        with patch("api.engine.providers._PROJECT_ROOT", str(tmp_path)):
+            prompt = build_step_prompt(agent, {}, step_number=1, step=agent["steps"][0])
+
+        assert "MANDATORY" in prompt
+        assert "computer use" in prompt
+        assert "take a screenshot" in prompt
+        assert "DO NOT produce text-only output" in prompt
+        assert "DO NOT suggest manual actions" in prompt
+
+    def test_cli_step_has_no_computer_use_enforcement(self, tmp_path):
+        """CLI steps must NOT include computer_use enforcement language."""
+        forge_path = "output/test-agent"
+        full_path = tmp_path / forge_path / "agent" / "steps"
+        full_path.mkdir(parents=True)
+
+        agent = {
+            "forge_path": forge_path,
+            "name": "test",
+            "steps": [
+                {"name": "Analyze Data", "computer_use": False},
+            ],
+            "output_schema": [],
+        }
+
+        with patch("api.engine.providers._PROJECT_ROOT", str(tmp_path)):
+            prompt = build_step_prompt(agent, {}, step_number=1, step=agent["steps"][0])
+
+        assert "MANDATORY" not in prompt
+        assert "take a screenshot" not in prompt
+        assert "DO NOT produce text-only output" not in prompt
 
 
 class TestCollectOutputPaths:

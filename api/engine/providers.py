@@ -545,11 +545,12 @@ def build_agent_prompt(agent: dict, inputs: dict, run_id: str = "") -> str:
             for s in steps
         ):
             parts.append(
-                "\nSteps marked [DESKTOP] require desktop automation: use the "
-                "computer_use MCP tools (screenshot, click, type_text, key_press) "
-                "to interact with the screen. Open applications, navigate visually, "
-                "and capture information by reading screenshots. Do NOT use "
-                "web_fetch or curl for [DESKTOP] steps."
+                "\nSteps marked [DESKTOP] require computer use. "
+                "For each [DESKTOP] step, first take a screenshot to confirm screen access, "
+                "then use your computer use tools (screenshot, click, type_text, key_press) "
+                "to complete the step visually. "
+                "DO NOT produce text-only output or suggest manual actions for "
+                "[DESKTOP] steps. Do NOT use web_fetch or curl for [DESKTOP] steps."
             )
 
     if inputs:
@@ -653,10 +654,15 @@ def build_step_prompt(
 
     if uses_cu:
         parts.append(
-            "\nThis step requires desktop automation: use the computer_use MCP "
-            "tools (screenshot, click, type_text, key_press) to interact with "
-            "the screen. Open applications, navigate visually, and capture "
-            "information by reading screenshots. Do NOT use web_fetch or curl."
+            "\nMANDATORY: This step requires computer use. "
+            "First, take a screenshot to confirm you have access to the screen. "
+            "Then use your computer use tools (screenshot, click, type_text, "
+            "key_press) to complete the step visually."
+            "\n\nDO NOT produce text-only output. DO NOT suggest manual actions. "
+            "DO NOT skip this step. If you encounter an error, retry up to 3 "
+            "times before reporting failure. If you cannot take a screenshot, "
+            "report the step as FAILED."
+            "\n\nDo NOT use web_fetch or curl for this step."
         )
 
     if inputs:
