@@ -4,61 +4,59 @@ Independent agents that can operate on any task, no matter how complex.
 
 Agent Forge gives AI agents the ability to think through problems (forge) and interact with the real world (computer use). Each module works on its own or together with the others. Cross-platform: runs on Windows, macOS, and Linux.
 
-## Quick Start
+## Install
 
-### Prerequisites
+Works on **Linux**, **macOS**, **WSL**, and **Windows**. The installer sets up everything: git, Python, Node.js, dependencies, and the `forge` CLI.
 
-Works on **Windows**, **macOS**, and **Linux**.
+```bash
+# Linux / macOS / WSL
+curl -fsSL https://raw.githubusercontent.com/MONTBRAIN/Agent-Forge/master/setup.sh | bash
+```
 
-- Python >= 3.12
-- Node.js >= 22
-- At least one CLI agent tool installed and authenticated (see [providers.yaml](providers.yaml)):
-  - [Claude Code](https://docs.anthropic-ai.com/en/docs/claude-code) -- `npm install -g @anthropic-ai/claude-code && claude auth`
-  - [Codex](https://github.com/openai/codex) -- `npm install -g @openai/codex`
-  - [Gemini CLI](https://github.com/google-gemini/gemini-cli) -- `npm install -g @google/gemini-cli`
-  - Or any other CLI tool -- just add an entry to `providers.yaml`
+```powershell
+# Windows (PowerShell)
+irm https://raw.githubusercontent.com/MONTBRAIN/Agent-Forge/master/setup.ps1 | iex
+```
+
+Then install at least one CLI agent tool:
+
+```bash
+# Pick one (or add your own to providers.yaml)
+npm install -g @anthropic-ai/claude-code && claude auth    # Claude Code
+npm install -g @openai/codex                               # Codex
+npm install -g @google/gemini-cli                           # Gemini CLI
+```
+
+Restart your terminal, then:
+
+```bash
+forge start
+```
+
+Open **http://localhost:5173**.
+
+### Forge CLI
+
+| Command | Description |
+|---------|-------------|
+| `forge start` | Start API and frontend servers |
+| `forge stop` | Stop all services |
+| `forge restart` | Restart all services |
+| `forge api` | Start only the API server |
+| `forge status` | Show if services are running |
+| `forge health` | Check API health |
+| `forge agents` | List all agents |
+| `forge providers` | List available providers and models |
+| `forge info` | Show system information |
+| `forge update` | Pull latest code and reinstall deps if changed |
+| `forge logs` | Tail API server logs |
+| `forge help` | Show this help message |
+
+### Manual setup
+
+If you prefer to set things up manually, see [api/README.md](api/README.md) and [frontend/README.md](frontend/README.md).
 
 Provider parser families and real sample log lines are documented in [PROVIDER_PARSER_GUIDE.md](PROVIDER_PARSER_GUIDE.md).
-
-### Run everything
-
-**1. Backend**
-
-```bash
-cd api
-python3 -m venv .venv
-```
-
-```bash
-# Linux/macOS
-source .venv/bin/activate
-
-# Windows (PowerShell)
-.venv\Scripts\Activate.ps1
-```
-
-```bash
-pip install -r requirements.txt
-cd ..
-```
-
-```bash
-# Linux/macOS
-PYTHONPATH=. python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
-
-# Windows (PowerShell)
-$env:PYTHONPATH="."; python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
-```
-
-**2. Frontend** (new terminal)
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-**3. Open http://localhost:3000**
 
 ## Architecture
 
