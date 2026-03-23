@@ -2,11 +2,11 @@
 
 Independent agents that can operate on any task, no matter how complex.
 
-Agent Forge gives AI agents the ability to think through problems (forge) and interact with the real world (computer use). Each module works on its own or together with the others. Cross-platform: runs on Windows, macOS, and Linux.
+Agent Forge gives AI agents the ability to think through problems (forge) and interact with the real world (computer use). Each module works on its own or together with the others. Cross-platform: runs on Windows, Linux, and macOS (Work progres).
 
 ## Install
 
-Works on **Linux**, **macOS**, **WSL**, and **Windows**. The installer sets up everything: git, Python, Node.js, dependencies, and the `forge` CLI.
+Works on **Linux**, **WSL**, and **Windows**. macOS support is in progress (agent creation and CLI steps work, computer use does not). The installer sets up everything: git, Python, Node.js, dependencies, and the `forge` CLI.
 
 ```bash
 # Linux / macOS / WSL
