@@ -117,9 +117,28 @@ $FORGE_HOME = "$env:USERPROFILE\.forge"
 $FORGE_REPO = "$FORGE_HOME\Agent-Forge"
 $PID_DIR = "$FORGE_HOME\pids"
 
+# Ports -- configurable via env vars (same as API config)
+$API_PORT = if ($env:AGENT_FORGE_PORT) { $env:AGENT_FORGE_PORT } else { "8000" }
+$FRONTEND_PORT = if ($env:AGENT_FORGE_FRONTEND_PORT) { $env:AGENT_FORGE_FRONTEND_PORT } else { "3000" }
+
 function Info($msg)  { Write-Host "[forge] $msg" -ForegroundColor Cyan }
 function Ok($msg)    { Write-Host "[forge] $msg" -ForegroundColor Green }
 function Warn($msg)  { Write-Host "[forge] $msg" -ForegroundColor Yellow }
+
+# Parse actual frontend port from Vite log output
+function DetectFrontendPort {
+    $log = "$FORGE_HOME\frontend.log"
+    for ($i = 0; $i -lt 20; $i++) {
+        if (Test-Path $log) {
+            $match = Select-String -Path $log -Pattern 'localhost:(\d+)' -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($match) {
+                return $match.Matches[0].Groups[1].Value
+            }
+        }
+        Start-Sleep -Milliseconds 250
+    }
+    return $FRONTEND_PORT
+}
 
 function Start-Forge {
     New-Item -ItemType Directory -Force -Path $PID_DIR | Out-Null
@@ -137,27 +156,31 @@ function Start-Forge {
     Set-Location $FORGE_REPO
 
     # Start API
-    Info "Starting API server (port 8000)..."
+    Info "Starting API server (port $API_PORT)..."
+    $env:PYTHONPATH = $FORGE_REPO
+    $env:AGENT_FORGE_PORT = $API_PORT
+    $env:AGENT_FORGE_FRONTEND_PORT = $FRONTEND_PORT
     $apiProc = Start-Process -FilePath "api\.venv\Scripts\python.exe" `
-        -ArgumentList "-m", "uvicorn", "api.main:app", "--host", "127.0.0.1", "--port", "8000" `
+        -ArgumentList "-m", "uvicorn", "api.main:app", "--host", "127.0.0.1", "--port", $API_PORT `
         -WorkingDirectory $FORGE_REPO `
         -WindowStyle Hidden `
         -PassThru `
         -RedirectStandardOutput "$FORGE_HOME\api.log" `
         -RedirectStandardError "$FORGE_HOME\api.err"
-    $env:PYTHONPATH = $FORGE_REPO
     $apiProc.Id | Out-File $apiPidFile
 
     # Wait for API
     for ($i = 0; $i -lt 15; $i++) {
         try {
-            $null = Invoke-RestMethod http://127.0.0.1:8000/api/health -TimeoutSec 2
+            $null = Invoke-RestMethod "http://127.0.0.1:${API_PORT}/api/health" -TimeoutSec 2
             break
         } catch { Start-Sleep 1 }
     }
 
-    # Start frontend
-    Info "Starting frontend (port 5173)..."
+    # Start frontend (pass ports so Vite reads them)
+    Info "Starting frontend..."
+    $env:AGENT_FORGE_PORT = $API_PORT
+    $env:AGENT_FORGE_FRONTEND_PORT = $FRONTEND_PORT
     $frontProc = Start-Process -FilePath "npm" `
         -ArgumentList "run", "dev" `
         -WorkingDirectory "$FORGE_REPO\frontend" `
@@ -165,10 +188,12 @@ function Start-Forge {
         -PassThru
     $frontProc.Id | Out-File "$PID_DIR\frontend.pid"
 
-    Start-Sleep 2
+    # Detect actual port from Vite output (handles auto-increment)
+    $actualFePort = DetectFrontendPort
+
     Ok "Agent Forge is running!"
-    Ok "  Frontend: http://localhost:5173"
-    Ok "  API:      http://localhost:8000"
+    Ok "  Frontend: http://localhost:$actualFePort"
+    Ok "  API:      http://localhost:$API_PORT"
     Ok ""
     Ok "Run 'forge stop' to stop, 'forge logs' to see API logs."
 }
@@ -245,28 +270,30 @@ function Start-ForgeApi {
         }
     }
     Set-Location $FORGE_REPO
-    Info "Starting API server (port 8000)..."
+    Info "Starting API server (port $API_PORT)..."
+    $env:PYTHONPATH = $FORGE_REPO
+    $env:AGENT_FORGE_PORT = $API_PORT
+    $env:AGENT_FORGE_FRONTEND_PORT = $FRONTEND_PORT
     $apiProc = Start-Process -FilePath "api\.venv\Scripts\python.exe" `
-        -ArgumentList "-m", "uvicorn", "api.main:app", "--host", "127.0.0.1", "--port", "8000" `
+        -ArgumentList "-m", "uvicorn", "api.main:app", "--host", "127.0.0.1", "--port", $API_PORT `
         -WorkingDirectory $FORGE_REPO `
         -WindowStyle Hidden `
         -PassThru `
         -RedirectStandardOutput "$FORGE_HOME\api.log" `
         -RedirectStandardError "$FORGE_HOME\api.err"
-    $env:PYTHONPATH = $FORGE_REPO
     $apiProc.Id | Out-File $apiPidFile
     for ($i = 0; $i -lt 15; $i++) {
         try {
-            $null = Invoke-RestMethod http://127.0.0.1:8000/api/health -TimeoutSec 2
+            $null = Invoke-RestMethod "http://127.0.0.1:${API_PORT}/api/health" -TimeoutSec 2
             break
         } catch { Start-Sleep 1 }
     }
-    Ok "API is running at http://localhost:8000"
+    Ok "API is running at http://localhost:$API_PORT"
 }
 
 function Get-ForgeHealth {
     try {
-        $response = Invoke-RestMethod http://127.0.0.1:8000/api/health -TimeoutSec 5
+        $response = Invoke-RestMethod "http://127.0.0.1:${API_PORT}/api/health" -TimeoutSec 5
         $response | ConvertTo-Json -Depth 5
     } catch {
         Warn "API is not responding. Run 'forge start' first."
@@ -275,7 +302,7 @@ function Get-ForgeHealth {
 
 function Get-ForgeAgents {
     try {
-        $agents = Invoke-RestMethod http://127.0.0.1:8000/api/agents -TimeoutSec 5
+        $agents = Invoke-RestMethod "http://127.0.0.1:${API_PORT}/api/agents" -TimeoutSec 5
         if ($agents.Count -eq 0) {
             Write-Host "No agents found."
         } else {
@@ -296,7 +323,7 @@ function Get-ForgeAgents {
 
 function Get-ForgeProviders {
     try {
-        $providers = Invoke-RestMethod http://127.0.0.1:8000/api/providers -TimeoutSec 5
+        $providers = Invoke-RestMethod "http://127.0.0.1:${API_PORT}/api/providers" -TimeoutSec 5
         foreach ($p in $providers) {
             $avail = if ($p.available) { "available" } else { "not found" }
             Write-Host "  $($p.name) ($($p.id)) -- $avail"
@@ -314,7 +341,7 @@ function Get-ForgeInfo {
     Write-Host "Agent Forge"
     Write-Host ""
     try {
-        $health = Invoke-RestMethod http://127.0.0.1:8000/api/health -TimeoutSec 5
+        $health = Invoke-RestMethod "http://127.0.0.1:${API_PORT}/api/health" -TimeoutSec 5
         Write-Host "  Version:       $($health.version)"
         Write-Host "  Platform:      $($health.platform)"
         $forgeAvail = if ($health.modules.forge) { "available" } else { "not found" }
