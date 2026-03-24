@@ -3,10 +3,6 @@
 
 $ErrorActionPreference = "Stop"
 
-# Allow child .ps1 shims (npm.ps1, npx.ps1, etc.) to run inside this process.
-# Without this, `irm ... | iex` works but spawning npm fails under Restricted policy.
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
-
 $FORGE_HOME = "$env:USERPROFILE\.forge"
 $FORGE_BIN = "$FORGE_HOME\bin"
 $FORGE_REPO = "$FORGE_HOME\Agent-Forge"
@@ -111,7 +107,7 @@ function SetupForgeScripts {
 function SetupFrontend {
     Info "Setting up frontend..."
     Set-Location "$FORGE_REPO\frontend"
-    npm install --silent
+    npm.cmd install --silent
 }
 
 # ---------------------------------------------------------------------------
@@ -187,23 +183,35 @@ function Start-Forge {
     $apiProc.Id | Out-File $apiPidFile
 
     # Wait for API
+    $apiReady = $false
     for ($i = 0; $i -lt 15; $i++) {
         try {
             $null = Invoke-RestMethod "http://127.0.0.1:${API_PORT}/api/health" -TimeoutSec 2
+            $apiReady = $true
             break
         } catch { Start-Sleep 1 }
+    }
+    if (-not $apiReady) {
+        Warn "API failed to start. Check $FORGE_HOME\api.err for details."
+        return
     }
 
     # Start frontend (pass ports so Vite reads them)
     Info "Starting frontend..."
     $env:AGENT_FORGE_PORT = $API_PORT
     $env:AGENT_FORGE_FRONTEND_PORT = $FRONTEND_PORT
-    $frontProc = Start-Process -FilePath "npm" `
-        -ArgumentList "run", "dev" `
-        -WorkingDirectory "$FORGE_REPO\frontend" `
-        -WindowStyle Hidden `
-        -PassThru
-    $frontProc.Id | Out-File "$PID_DIR\frontend.pid"
+    try {
+        $frontProc = Start-Process -FilePath "npm.cmd" `
+            -ArgumentList "run", "dev" `
+            -WorkingDirectory "$FORGE_REPO\frontend" `
+            -WindowStyle Hidden `
+            -PassThru
+        $frontProc.Id | Out-File "$PID_DIR\frontend.pid"
+    } catch {
+        Warn "Failed to start frontend: $_"
+        Ok "API is running at http://localhost:$API_PORT (frontend failed)"
+        return
+    }
 
     # Detect actual port from Vite output (handles auto-increment)
     $actualFePort = DetectFrontendPort
@@ -264,7 +272,7 @@ function Update-Forge {
     }
     if ($frontHash -ne $newFrontHash) {
         Info "Frontend dependencies changed, reinstalling..."
-        Set-Location frontend; npm install --silent; Set-Location ..
+        Set-Location frontend; npm.cmd install --silent; Set-Location ..
     }
 
     Ok "Update complete. Run 'forge start' to start."
@@ -299,13 +307,19 @@ function Start-ForgeApi {
         -RedirectStandardOutput "$FORGE_HOME\api.log" `
         -RedirectStandardError "$FORGE_HOME\api.err"
     $apiProc.Id | Out-File $apiPidFile
+    $apiReady = $false
     for ($i = 0; $i -lt 15; $i++) {
         try {
             $null = Invoke-RestMethod "http://127.0.0.1:${API_PORT}/api/health" -TimeoutSec 2
+            $apiReady = $true
             break
         } catch { Start-Sleep 1 }
     }
-    Ok "API is running at http://localhost:$API_PORT"
+    if ($apiReady) {
+        Ok "API is running at http://localhost:$API_PORT"
+    } else {
+        Warn "API failed to start. Check $FORGE_HOME\api.err for details."
+    }
 }
 
 function Get-ForgeHealth {
