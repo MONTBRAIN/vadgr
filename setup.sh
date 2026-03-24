@@ -286,8 +286,11 @@ cmd_stop() {
         if [ -f "$pidfile" ]; then
             local pid
             pid=$(cat "$pidfile")
-            if kill -0 "$pid" 2>/dev/null; then
-                kill "$pid" 2>/dev/null
+            if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+                # Kill the entire process tree: children first, then parent.
+                # Plain kill only signals the parent; child processes (e.g.
+                # vite, esbuild spawned by npm) would survive and hold locks.
+                _kill_tree "$pid"
                 info "Stopped $service (PID $pid)"
                 stopped=1
             fi
@@ -299,6 +302,18 @@ cmd_stop() {
     else
         ok "Agent Forge stopped."
     fi
+}
+
+_kill_tree() {
+    # Recursively kill all descendants of a process, then the process itself.
+    local parent=$1
+    # Find immediate children and kill their trees first
+    local children
+    children=$(pgrep -P "$parent" 2>/dev/null)
+    for child in $children; do
+        _kill_tree "$child"
+    done
+    kill "$parent" 2>/dev/null
 }
 
 cmd_status() {
