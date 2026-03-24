@@ -1,5 +1,6 @@
 """Service for managing computer use setup: venv, .mcp.json, cache toggle."""
 
+import hashlib
 import json
 import logging
 import os
@@ -13,6 +14,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 MCP_JSON_PATH = PROJECT_ROOT / ".mcp.json"
 CU_VENV_DIR = PROJECT_ROOT / "computer_use" / ".venv"
 CU_REQUIREMENTS = PROJECT_ROOT / "computer_use" / "requirements.txt"
+DEPS_MARKER = ".deps_installed"
 
 
 def _python_command() -> str:
@@ -65,28 +67,56 @@ def get_status() -> dict:
     }
 
 
+def _deps_need_install() -> bool:
+    """Check if pip install is needed by comparing requirements hash to marker."""
+    if not CU_REQUIREMENTS.exists():
+        return False
+    marker = CU_VENV_DIR / DEPS_MARKER
+    if not marker.exists():
+        return True
+    current_hash = hashlib.md5(CU_REQUIREMENTS.read_bytes()).hexdigest()
+    return marker.read_text().strip() != current_hash
+
+
+def _write_deps_marker() -> None:
+    """Write marker file with current requirements hash after successful install."""
+    if CU_REQUIREMENTS.exists():
+        reqs_hash = hashlib.md5(CU_REQUIREMENTS.read_bytes()).hexdigest()
+        (CU_VENV_DIR / DEPS_MARKER).write_text(reqs_hash)
+
+
+def _pip_path() -> Path:
+    """Return expected pip binary path inside the venv."""
+    if sys.platform == "win32":
+        return CU_VENV_DIR / "Scripts" / "pip"
+    return CU_VENV_DIR / "bin" / "pip"
+
+
+def _venv_healthy() -> bool:
+    """Check if the venv exists and has a working pip binary."""
+    return CU_VENV_DIR.exists() and _pip_path().exists()
+
+
 def enable_computer_use(cache_enabled: bool = True) -> dict:
     """Set up computer use: create venv if needed, write .mcp.json."""
-    # Create venv and install deps if needed
-    if not CU_VENV_DIR.exists():
+    # Create venv if missing or broken (no pip)
+    if not _venv_healthy():
         logger.info("Creating computer_use venv...")
         python = _python_command()
         subprocess.run(
-            [python, "-m", "venv", str(CU_VENV_DIR)],
+            [python, "-m", "venv", "--clear", str(CU_VENV_DIR)],
             check=True, capture_output=True,
         )
 
-    # Install/update deps
-    if CU_REQUIREMENTS.exists():
-        if sys.platform == "win32":
-            pip = str(CU_VENV_DIR / "Scripts" / "pip")
-        else:
-            pip = str(CU_VENV_DIR / "bin" / "pip")
+    # Install/update deps only when requirements changed
+    if _deps_need_install():
+        pip = str(_pip_path())
         logger.info("Installing computer_use dependencies...")
         subprocess.run(
             [pip, "install", "-q", "-r", str(CU_REQUIREMENTS)],
             check=True, capture_output=True,
         )
+        _write_deps_marker()
 
     # Write .mcp.json
     content = _mcp_json_content(cache_enabled=cache_enabled)
