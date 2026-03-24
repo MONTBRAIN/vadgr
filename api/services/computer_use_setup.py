@@ -54,14 +54,18 @@ def _gemini_settings_content(cache_enabled: bool = True) -> dict:
 
 
 def _codex_config_content(cache_enabled: bool = True) -> str:
-    """Build .codex/config.toml content with MCP server configuration."""
+    """Build .codex/config.toml content with MCP server configuration.
+
+    Uses TOML literal strings (single quotes) for ``cwd`` so that Windows
+    backslashes are treated as literal characters, not escape sequences.
+    """
     python = _python_command()
     cwd = str(PROJECT_ROOT)
     lines = [
         '[mcp_servers.computer-use]',
         f'command = "{python}"',
         'args = ["-m", "computer_use.mcp_server", "--transport", "stdio"]',
-        f'cwd = "{cwd}"',
+        f"cwd = '{cwd}'",
         '',
         '[mcp_servers.computer-use.env]',
         'AGENT_FORGE_DEBUG = "1"',
