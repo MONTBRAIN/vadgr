@@ -144,6 +144,15 @@ setup_api() {
     mkdir -p data
 }
 
+setup_forge_scripts() {
+    info "Setting up forge scripts..."
+    cd "$FORGE_REPO"
+    if [ ! -d "forge/scripts/.venv" ]; then
+        python3 -m venv forge/scripts/.venv
+    fi
+    forge/scripts/.venv/bin/pip install -q -r forge/scripts/requirements.txt
+}
+
 setup_frontend() {
     info "Setting up frontend..."
     cd "$FORGE_REPO/frontend"
@@ -543,6 +552,7 @@ main() {
     install_nvm_and_node
     setup_repo
     setup_api
+    setup_forge_scripts
     setup_frontend
     generate_forge_cli
     add_to_path
