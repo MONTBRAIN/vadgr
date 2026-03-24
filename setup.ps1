@@ -183,11 +183,17 @@ function Start-Forge {
     $apiProc.Id | Out-File $apiPidFile
 
     # Wait for API
+    $apiReady = $false
     for ($i = 0; $i -lt 15; $i++) {
         try {
             $null = Invoke-RestMethod "http://127.0.0.1:${API_PORT}/api/health" -TimeoutSec 2
+            $apiReady = $true
             break
         } catch { Start-Sleep 1 }
+    }
+    if (-not $apiReady) {
+        Warn "API failed to start. Check $FORGE_HOME\api.err for details."
+        return
     }
 
     # Start frontend (pass ports so Vite reads them)
@@ -301,13 +307,19 @@ function Start-ForgeApi {
         -RedirectStandardOutput "$FORGE_HOME\api.log" `
         -RedirectStandardError "$FORGE_HOME\api.err"
     $apiProc.Id | Out-File $apiPidFile
+    $apiReady = $false
     for ($i = 0; $i -lt 15; $i++) {
         try {
             $null = Invoke-RestMethod "http://127.0.0.1:${API_PORT}/api/health" -TimeoutSec 2
+            $apiReady = $true
             break
         } catch { Start-Sleep 1 }
     }
-    Ok "API is running at http://localhost:$API_PORT"
+    if ($apiReady) {
+        Ok "API is running at http://localhost:$API_PORT"
+    } else {
+        Warn "API failed to start. Check $FORGE_HOME\api.err for details."
+    }
 }
 
 function Get-ForgeHealth {
