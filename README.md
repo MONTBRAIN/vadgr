@@ -33,8 +33,6 @@ Restart your terminal, then:
 forge start
 ```
 
-Open **http://localhost:5173**.
-
 ### Forge CLI
 
 | Command | Description |
