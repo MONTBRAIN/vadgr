@@ -17,6 +17,7 @@ from api.utils.platform import (
     kill_process_tree,
     new_session_kwargs,
     remove_path_entry,
+    resolve_command,
     venv_bin_dir,
 )
 
@@ -298,8 +299,9 @@ class CLIAgentProvider:
         if not self.config.available_check:
             return shutil.which(self.config.command) is not None
         try:
+            resolved_check = [resolve_command(self.config.available_check[0])] + self.config.available_check[1:]
             proc = await asyncio.create_subprocess_exec(
-                *self.config.available_check,
+                *resolved_check,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -409,7 +411,7 @@ class CLIAgentProvider:
 
         env = self._computer_use_env() if computer_use else self._clean_env()
         proc = await asyncio.create_subprocess_exec(
-            self.config.command,
+            resolve_command(self.config.command),
             *args,
             cwd=workspace,
             env=env,
@@ -471,7 +473,7 @@ class CLIAgentProvider:
         _STREAM_LIMIT = 10 * 1024 * 1024
         env = self._computer_use_env() if computer_use else self._clean_env()
         proc = await asyncio.create_subprocess_exec(
-            self.config.command,
+            resolve_command(self.config.command),
             *args,
             cwd=workspace,
             env=env,

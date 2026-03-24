@@ -339,6 +339,45 @@ class TestCLIAgentProvider:
         assert await provider.is_available() is True
 
     @pytest.mark.asyncio
+    async def test_execute_resolves_command_before_spawn(self):
+        """Commands are resolved via shutil.which so npm .cmd shims work on Windows."""
+        config = ProviderConfig(
+            name="Test",
+            command="mycommand",
+            args=["{{prompt}}"],
+        )
+        provider = CLIAgentProvider(config)
+        with patch("api.engine.providers.resolve_command", return_value="/resolved/mycommand") as mock_resolve, \
+             patch("asyncio.create_subprocess_exec") as mock_exec:
+            mock_proc = AsyncMock()
+            mock_proc.communicate = AsyncMock(return_value=(b"ok", b""))
+            mock_proc.returncode = 0
+            mock_exec.return_value = mock_proc
+            await provider.execute("test")
+            mock_resolve.assert_called_with("mycommand")
+            # The resolved path should be the first arg to create_subprocess_exec
+            assert mock_exec.call_args[0][0] == "/resolved/mycommand"
+
+    @pytest.mark.asyncio
+    async def test_is_available_resolves_command_in_check(self):
+        """available_check commands are also resolved for Windows compatibility."""
+        config = ProviderConfig(
+            name="Test",
+            command="mycommand",
+            available_check=["mycommand", "--version"],
+        )
+        provider = CLIAgentProvider(config)
+        with patch("api.engine.providers.resolve_command", return_value="/resolved/mycommand") as mock_resolve, \
+             patch("asyncio.create_subprocess_exec") as mock_exec:
+            mock_proc = AsyncMock()
+            mock_proc.wait = AsyncMock()
+            mock_proc.returncode = 0
+            mock_exec.return_value = mock_proc
+            await provider.is_available()
+            mock_resolve.assert_called_with("mycommand")
+            assert mock_exec.call_args[0][0] == "/resolved/mycommand"
+
+    @pytest.mark.asyncio
     async def test_execute_runs_subprocess_and_returns_stdout(self):
         """Execute a real subprocess (echo) and capture output."""
         config = ProviderConfig(

@@ -17,6 +17,7 @@ from api.utils.platform import (
     new_session_kwargs,
     python_command,
     remove_path_entry,
+    resolve_command,
     venv_bin_dir,
     venv_pip,
     venv_python,
@@ -305,3 +306,53 @@ class TestKillProcessTree:
             mock_os.getpgid.return_value = 1
             await kill_process_tree(proc)
             proc.wait.assert_awaited_once()
+
+
+# ---------------------------------------------------------------------------
+# resolve_command
+# ---------------------------------------------------------------------------
+
+class TestResolveCommand:
+    @patch("api.utils.platform.shutil")
+    def test_returns_resolved_path_when_found(self, mock_shutil):
+        mock_shutil.which.return_value = "/usr/bin/codex"
+        result = resolve_command("codex")
+        assert result == "/usr/bin/codex"
+        mock_shutil.which.assert_called_once_with("codex")
+
+    @patch("api.utils.platform.shutil")
+    def test_returns_original_when_not_found(self, mock_shutil):
+        mock_shutil.which.return_value = None
+        result = resolve_command("nonexistent")
+        assert result == "nonexistent"
+
+    @patch("api.utils.platform.shutil")
+    def test_resolves_cmd_extension_on_windows(self, mock_shutil):
+        mock_shutil.which.return_value = "C:\\Users\\user\\AppData\\Roaming\\npm\\codex.CMD"
+        result = resolve_command("codex")
+        assert result == "C:\\Users\\user\\AppData\\Roaming\\npm\\codex.CMD"
+
+    @patch("api.utils.platform.shutil")
+    def test_resolves_exe_on_windows(self, mock_shutil):
+        mock_shutil.which.return_value = "C:\\Users\\user\\.local\\bin\\claude.EXE"
+        result = resolve_command("claude")
+        assert result == "C:\\Users\\user\\.local\\bin\\claude.EXE"
+
+    @patch("api.utils.platform.shutil")
+    def test_works_on_linux(self, mock_shutil):
+        mock_shutil.which.return_value = "/usr/local/bin/claude"
+        result = resolve_command("claude")
+        assert result == "/usr/local/bin/claude"
+
+    @patch("api.utils.platform.shutil")
+    def test_does_not_resolve_absolute_paths(self, mock_shutil):
+        """Absolute paths should be returned as-is without calling which."""
+        result = resolve_command("/usr/bin/python3")
+        mock_shutil.which.assert_not_called()
+        assert result == "/usr/bin/python3"
+
+    @patch("api.utils.platform.shutil")
+    def test_does_not_resolve_windows_absolute_paths(self, mock_shutil):
+        result = resolve_command("C:\\Python312\\python.exe")
+        mock_shutil.which.assert_not_called()
+        assert result == "C:\\Python312\\python.exe"

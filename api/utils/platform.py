@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import shutil
 import signal
 import subprocess
 import sys
@@ -85,6 +86,26 @@ def remove_path_entry(path_string: str, entry: Union[str, Path]) -> str:
         ]
 
     return os.pathsep.join(parts)
+
+
+# ---------------------------------------------------------------------------
+# Command resolution
+# ---------------------------------------------------------------------------
+
+def resolve_command(cmd: str) -> str:
+    """Resolve a command name to its full executable path.
+
+    On Windows, ``asyncio.create_subprocess_exec`` does not consult
+    ``PATHEXT`` so bare names like ``codex`` fail when the real binary
+    is ``codex.CMD`` (npm shim).  ``shutil.which`` handles this correctly
+    on every platform — native ``.exe``, npm ``.cmd``, and Unix binaries.
+
+    Absolute paths are returned unchanged.
+    """
+    if os.path.isabs(cmd):
+        return cmd
+    resolved = shutil.which(cmd)
+    return resolved if resolved else cmd
 
 
 # ---------------------------------------------------------------------------
