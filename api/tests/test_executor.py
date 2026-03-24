@@ -598,44 +598,54 @@ class TestEnvBuilders:
             assert "CLAUDE_CODE_SSE_PORT" not in env
 
     def test_clean_env_strips_api_venv_from_path(self):
-        fake_venv = "/fake/api/.venv"
-        fake_path = f"{fake_venv}/bin:/usr/bin:/usr/local/bin"
+        """Strips both bin/ and Scripts/ variants so it works on all platforms."""
+        from api.utils.platform import venv_bin_dir
+        fake_venv = os.path.join(os.sep, "fake", "api", ".venv")
+        bin_dir = str(venv_bin_dir(fake_venv))
+        fake_path = os.pathsep.join([bin_dir, os.path.join(os.sep, "usr", "bin"), os.path.join(os.sep, "usr", "local", "bin")])
         with patch.dict(os.environ, {
             "VIRTUAL_ENV": fake_venv,
             "PATH": fake_path,
         }, clear=False):
             env = CLIAgentProvider._clean_env()
-            assert f"{fake_venv}/bin" not in env["PATH"]
-            assert "/usr/bin" in env["PATH"]
+            assert bin_dir not in env["PATH"].split(os.pathsep)
             assert "VIRTUAL_ENV" not in env
 
     def test_clean_env_no_computer_use_venv(self):
         """CLI env should NOT have computer_use venv on PATH."""
+        from api.utils.platform import venv_bin_dir
         env = CLIAgentProvider._clean_env()
-        assert "computer_use/.venv/bin" not in env.get("PATH", "")
+        cu_bin = str(venv_bin_dir(os.path.join(_PROJECT_ROOT, "computer_use", ".venv")))
+        path_entries = env.get("PATH", "").split(os.pathsep)
+        assert cu_bin not in path_entries
 
     def test_computer_use_env_has_cu_venv(self):
-        """Desktop env should have computer_use/.venv/bin on PATH."""
+        """Desktop env should have computer_use venv bin dir on PATH."""
+        from api.utils.platform import venv_bin_dir
         env = CLIAgentProvider._computer_use_env()
-        assert "computer_use/.venv/bin" in env.get("PATH", "")
+        cu_bin = str(venv_bin_dir(os.path.join(_PROJECT_ROOT, "computer_use", ".venv")))
+        assert cu_bin in env.get("PATH", "")
 
     def test_computer_use_env_strips_api_venv(self):
         """Desktop env should still strip the API venv."""
-        fake_venv = "/fake/api/.venv"
-        fake_path = f"{fake_venv}/bin:/usr/bin"
+        from api.utils.platform import venv_bin_dir
+        fake_venv = os.path.join(os.sep, "fake", "api", ".venv")
+        bin_dir = str(venv_bin_dir(fake_venv))
+        fake_path = os.pathsep.join([bin_dir, os.path.join(os.sep, "usr", "bin")])
         with patch.dict(os.environ, {
             "VIRTUAL_ENV": fake_venv,
             "PATH": fake_path,
         }, clear=False):
             env = CLIAgentProvider._computer_use_env()
-            assert f"{fake_venv}/bin" not in env["PATH"]
-            assert "computer_use/.venv/bin" in env["PATH"]
+            assert bin_dir not in env["PATH"].split(os.pathsep)
 
     def test_computer_use_env_cu_venv_first_in_path(self):
         """computer_use venv should be at the start of PATH."""
+        from api.utils.platform import venv_bin_dir
         env = CLIAgentProvider._computer_use_env()
         first_path = env["PATH"].split(os.pathsep)[0]
-        assert "computer_use/.venv/bin" in first_path
+        cu_bin = str(venv_bin_dir(os.path.join(_PROJECT_ROOT, "computer_use", ".venv")))
+        assert first_path == cu_bin
 
 
 class TestCollectOutputPaths:

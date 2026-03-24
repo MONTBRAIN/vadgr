@@ -93,16 +93,18 @@ class AgentService:
             "*.pyc\n"
         )
         if not (agent_root / ".git").exists():
-            subprocess.run(["git", "-C", str(agent_root), "init"], check=True, capture_output=True)
+            subprocess.run(["git", "-C", str(agent_root), "init"], check=True, capture_output=True, stdin=subprocess.DEVNULL)
             subprocess.run(
                 ["git", "-C", str(agent_root), "config", "user.name", "Agent Forge"],
                 check=True,
                 capture_output=True,
+                stdin=subprocess.DEVNULL,
             )
             subprocess.run(
                 ["git", "-C", str(agent_root), "config", "user.email", "agent-forge@local"],
                 check=True,
                 capture_output=True,
+                stdin=subprocess.DEVNULL,
             )
         self._commit_agent_repo(forge_path, message)
 
@@ -139,12 +141,13 @@ class AgentService:
         agent_root = PROJECT_ROOT / forge_path
         if not agent_root.exists() or not (agent_root / ".git").exists():
             return
-        subprocess.run(["git", "-C", str(agent_root), "add", "."], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(agent_root), "add", "."], check=True, capture_output=True, stdin=subprocess.DEVNULL)
         status = subprocess.run(
             ["git", "-C", str(agent_root), "status", "--porcelain"],
             check=True,
             capture_output=True,
             text=True,
+            stdin=subprocess.DEVNULL,
         )
         if not status.stdout.strip():
             return
@@ -152,6 +155,7 @@ class AgentService:
             ["git", "-C", str(agent_root), "commit", "-m", message],
             check=True,
             capture_output=True,
+            stdin=subprocess.DEVNULL,
         )
 
     async def _get_forge_provider(self, agent: dict, timeout: int) -> CLIAgentProvider:
@@ -438,16 +442,19 @@ class AgentService:
                     ["git", "clone", str(bundle_path), str(target_dir)],
                     check=True,
                     capture_output=True,
+                    stdin=subprocess.DEVNULL,
                 )
             subprocess.run(
                 ["git", "-C", str(target_dir), "config", "user.name", "Agent Forge"],
                 check=True,
                 capture_output=True,
+                stdin=subprocess.DEVNULL,
             )
             subprocess.run(
                 ["git", "-C", str(target_dir), "config", "user.email", "agent-forge@local"],
                 check=True,
                 capture_output=True,
+                stdin=subprocess.DEVNULL,
             )
             self.ensure_agent_runtime_scaffold(forge_path)
             self.ensure_agent_script_environment(forge_path)

@@ -452,7 +452,7 @@ export function AgentDetail() {
             })
             }
             <div className="mt-auto pt-5 border-t border-border">
-              <Button onClick={handleRun} disabled={runAgent.isPending || !isReady}>
+              <Button onClick={handleRun} disabled={runAgent.isPending || uploadArtifact.isPending || !isReady || cuBlocked}>
                 <PixelPlay size={12} color="var(--color-bg-primary)" />
                 {runAgent.isPending ? 'Starting...' : 'Start Run'}
               </Button>

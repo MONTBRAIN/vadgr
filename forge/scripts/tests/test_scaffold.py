@@ -7,6 +7,7 @@ always produces the same output for the same input.
 
 import os
 import shutil
+import sys
 import tempfile
 
 import pytest
@@ -231,13 +232,16 @@ class TestRequiredFiles:
         assert os.path.isfile(path)
 
     def test_venv_created_automatically(self, output_dir, simple_config):
+        from api.utils.platform import venv_python, venv_pip
         generate_scaffold(simple_config, output_dir)
         venv_dir = os.path.join(
             output_dir, simple_config.folder_name, "agent", "scripts", ".venv"
         )
         assert os.path.isdir(venv_dir)
-        assert os.path.isfile(os.path.join(venv_dir, "bin", "python"))
-        assert os.path.isfile(os.path.join(venv_dir, "bin", "pip"))
+        python_path = str(venv_python(venv_dir))
+        pip_path = str(venv_pip(venv_dir))
+        assert os.path.isfile(python_path) or os.path.isfile(python_path + ".exe")
+        assert os.path.isfile(pip_path) or os.path.isfile(pip_path + ".exe")
 
 
 # --- Command files tests ---
@@ -599,20 +603,23 @@ class TestCreateVenv:
     def test_venv_has_python(self, output_dir, simple_config):
         root = generate_scaffold(simple_config, output_dir)
         create_venv(root)
-        python = os.path.join(root, "agent", "scripts", ".venv", "bin", "python")
-        assert os.path.isfile(python)
+        from api.utils.platform import venv_python
+        python = str(venv_python(os.path.join(root, "agent", "scripts", ".venv")))
+        assert os.path.isfile(python) or os.path.isfile(python + ".exe")
 
     def test_venv_has_pip(self, output_dir, simple_config):
         root = generate_scaffold(simple_config, output_dir)
         create_venv(root)
-        pip = os.path.join(root, "agent", "scripts", ".venv", "bin", "pip")
-        assert os.path.isfile(pip)
+        from api.utils.platform import venv_pip
+        pip = str(venv_pip(os.path.join(root, "agent", "scripts", ".venv")))
+        assert os.path.isfile(pip) or os.path.isfile(pip + ".exe")
 
     def test_installs_requirements(self, output_dir, simple_config):
         root = generate_scaffold(simple_config, output_dir)
         create_venv(root)
         # reportlab is in the default requirements.txt
-        pip = os.path.join(root, "agent", "scripts", ".venv", "bin", "pip")
+        from api.utils.platform import venv_pip
+        pip = str(venv_pip(os.path.join(root, "agent", "scripts", ".venv")))
         import subprocess
         result = subprocess.run(
             [pip, "show", "reportlab"], capture_output=True, text=True
@@ -642,7 +649,8 @@ class TestInstallDependencies:
         with open(req_path, "a") as f:
             f.write("pyyaml\n")
         install_dependencies(root)
-        pip = os.path.join(root, "agent", "scripts", ".venv", "bin", "pip")
+        from api.utils.platform import venv_pip
+        pip = str(venv_pip(os.path.join(root, "agent", "scripts", ".venv")))
         import subprocess
         result = subprocess.run(
             [pip, "show", "pyyaml"], capture_output=True, text=True
@@ -674,7 +682,7 @@ class TestCLI:
             "computer_use": False,
         })
         result = subprocess.run(
-            ["python3", "-m", "forge.scripts.src.scaffold", "generate",
+            [sys.executable, "-m", "forge.scripts.src.scaffold", "generate",
              "--config", config, "--base-dir", output_dir],
             capture_output=True, text=True,
         )
@@ -704,7 +712,7 @@ class TestCLI:
         with open(config_path, "w") as f:
             json.dump(config, f)
         result = subprocess.run(
-            ["python3", "-m", "forge.scripts.src.scaffold", "generate",
+            [sys.executable, "-m", "forge.scripts.src.scaffold", "generate",
              "--config", config_path, "--base-dir", output_dir],
             capture_output=True, text=True,
         )
@@ -725,7 +733,7 @@ class TestCLI:
         with open(test_path, "w") as f:
             f.write("def test_hello(): assert hello() == 'hi'\n")
         result = subprocess.run(
-            ["python3", "-m", "forge.scripts.src.scaffold", "add-script",
+            [sys.executable, "-m", "forge.scripts.src.scaffold", "add-script",
              "--root", root, "--name", "my_script.py",
              "--script", script_path, "--test", test_path,
              "--deps", "requests,aiohttp"],
@@ -743,7 +751,7 @@ class TestCLI:
     def test_generate_missing_config_fails(self):
         import subprocess
         result = subprocess.run(
-            ["python3", "-m", "forge.scripts.src.scaffold", "generate"],
+            [sys.executable, "-m", "forge.scripts.src.scaffold", "generate"],
             capture_output=True, text=True,
         )
         assert result.returncode != 0

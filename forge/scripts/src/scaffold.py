@@ -4,6 +4,8 @@ import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from api.utils.platform import python_command, venv_bin_dir, venv_pip, venv_python
+
 # Templates directory -- source of truth for all standard files
 _TEMPLATES_DIR = Path(__file__).resolve().parent.parent.parent / "utils" / "scaffold"
 # Export scripts that get copied into every generated agent's scripts/src/
@@ -151,9 +153,9 @@ def _create_claude_md(root: str, config: ScaffoldConfig) -> None:
         f"- Outputs go in `output/`",
         "- Every output must include all required sections",
         "- Runtime input artifacts are staged under `output/{run_id}/inputs/`",
-        "- Scripts require a Python venv: "
-        "`python3 -m venv agent/scripts/.venv && source agent/scripts/.venv/bin/activate "
-        "&& pip install -r agent/scripts/requirements.txt`",
+        "- Scripts require a Python venv:\n"
+        "  - Linux/macOS: `python3 -m venv agent/scripts/.venv && source agent/scripts/.venv/bin/activate && pip install -r agent/scripts/requirements.txt`\n"
+        "  - Windows: `python -m venv agent/scripts/.venv && agent\\scripts\\.venv\\Scripts\\activate && pip install -r agent/scripts/requirements.txt`",
     ]
     rules_list = "\n".join(rules)
 
@@ -301,16 +303,23 @@ def _create_scripts_readme(root: str, config: ScaffoldConfig) -> None:
         f"\n"
         f"Create and activate a Python virtual environment before running any scripts:\n"
         f"\n"
+        f"Linux/macOS:\n"
         f"```bash\n"
         f"python3 -m venv agent/scripts/.venv\n"
         f"source agent/scripts/.venv/bin/activate\n"
         f"pip install -r agent/scripts/requirements.txt\n"
         f"```\n"
         f"\n"
+        f"Windows:\n"
+        f"```cmd\n"
+        f"python -m venv agent/scripts/.venv\n"
+        f"agent\\scripts\\.venv\\Scripts\\activate\n"
+        f"pip install -r agent/scripts/requirements.txt\n"
+        f"```\n"
+        f"\n"
         f"## Tests\n"
         f"\n"
         f"```bash\n"
-        f"source agent/scripts/.venv/bin/activate\n"
         f"python -m pytest agent/scripts/tests/\n"
         f"```\n"
     )
@@ -394,7 +403,7 @@ def create_venv(agent_root: str) -> None:
     scripts_dir = os.path.join(agent_root, "agent", "scripts")
     venv_dir = os.path.join(scripts_dir, ".venv")
     subprocess.run(
-        ["python3", "-m", "venv", venv_dir],
+        [python_command(), "-m", "venv", venv_dir],
         check=True,
         capture_output=True,
     )
@@ -412,7 +421,7 @@ def install_dependencies(agent_root: str) -> None:
     """
     scripts_dir = os.path.join(agent_root, "agent", "scripts")
     req_path = os.path.join(scripts_dir, "requirements.txt")
-    pip_path = os.path.join(scripts_dir, ".venv", "bin", "pip")
+    pip_path = str(venv_pip(os.path.join(scripts_dir, ".venv")))
 
     if not os.path.isfile(req_path):
         return

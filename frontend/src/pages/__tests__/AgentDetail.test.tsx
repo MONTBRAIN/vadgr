@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import type { SchemaField } from '../../types';
@@ -8,6 +8,18 @@ const mockNavigate = vi.fn();
 vi.mock('react-router-dom', () => ({
   useParams: () => ({ id: 'agent-1' }),
   useNavigate: () => mockNavigate,
+  Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a>,
+}));
+
+// Mock api client -- controls computer use status
+const mockApiGet = vi.fn().mockImplementation((url: string) => {
+  if (url === '/settings/computer-use') {
+    return Promise.resolve({ enabled: true });
+  }
+  return Promise.reject(new Error('not mocked'));
+});
+vi.mock('../../api/client', () => ({
+  api: { get: (...args: unknown[]) => mockApiGet(...args) },
 }));
 
 // Mock hooks — agent with empty schemas by default
@@ -300,5 +312,41 @@ describe('AgentDetail - Per-step computer use display', () => {
     const desktopBadges = screen.getAllByText('Desktop');
     expect(cliBadges).toHaveLength(2);
     expect(desktopBadges).toHaveLength(1);
+  });
+});
+
+describe('AgentDetail - Computer use blocked', () => {
+  beforeEach(() => {
+    mockAgent = { ...baseAgent, computer_use: true, input_schema: [], output_schema: [] };
+    // Simulate computer use being disabled in settings
+    mockApiGet.mockImplementation((url: string) => {
+      if (url === '/settings/computer-use') {
+        return Promise.resolve({ enabled: false });
+      }
+      return Promise.reject(new Error('not found'));
+    });
+  });
+
+  afterEach(() => {
+    mockApiGet.mockReset();
+  });
+
+  it('disables ALL Start Run buttons when computer use is needed but disabled', async () => {
+    render(<AgentDetail />);
+
+    await waitFor(() => {
+      const buttons = screen.getAllByRole('button', { name: /start run/i });
+      for (const button of buttons) {
+        expect(button).toBeDisabled();
+      }
+    });
+  });
+
+  it('shows the computer use warning banner', async () => {
+    render(<AgentDetail />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/computer use is disabled/i)).toBeInTheDocument();
+    });
   });
 });

@@ -1145,6 +1145,50 @@ class TestAgentService:
         await service.run_forge("nonexistent-id")
         provider.execute.assert_not_called()
 
+    @pytest.mark.asyncio
+    async def test_git_subprocess_calls_close_stdin(self, db, tmp_path):
+        """All git subprocess.run calls must use stdin=DEVNULL to prevent hangs on Windows."""
+        from api.persistence.repositories import AgentRepository
+        from api.services.agent_service import AgentService
+        import api.services.agent_service as agent_service_mod
+
+        agent_repo = AgentRepository(db)
+        provider = AsyncMock(spec=CLIAgentProvider)
+        provider.execute = AsyncMock(
+            return_value='{"forge_path": "output/test-agent/", "forge_config": {}, "input_schema": [], "output_schema": []}'
+        )
+
+        forge_root = tmp_path / "output" / "test-agent"
+        forge_root.mkdir(parents=True)
+        (forge_root / "agentic.md").write_text("# Agent")
+        original_root = agent_service_mod.PROJECT_ROOT
+        agent_service_mod.PROJECT_ROOT = tmp_path
+        try:
+            service = AgentService(agent_repo=agent_repo, provider=provider)
+            agent = await service.create_agent(name="Test", description="A test agent")
+
+            with patch("api.services.agent_service.subprocess") as mock_sub:
+                mock_sub.DEVNULL = subprocess.DEVNULL
+                mock_sub.run = subprocess.run
+                # Actually run, but spy on calls
+                calls_without_devnull = []
+                real_run = subprocess.run
+
+                def spy_run(*args, **kwargs):
+                    if kwargs.get("stdin") is not subprocess.DEVNULL:
+                        calls_without_devnull.append(args)
+                    return real_run(*args, **kwargs)
+
+                mock_sub.run = spy_run
+                service.ensure_agent_repo_tracking("output/test-agent/")
+
+            assert len(calls_without_devnull) == 0, (
+                f"Found {len(calls_without_devnull)} subprocess.run calls without stdin=DEVNULL: "
+                f"{calls_without_devnull}"
+            )
+        finally:
+            agent_service_mod.PROJECT_ROOT = original_root
+
 
 class TestExecutionService:
 

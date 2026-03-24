@@ -301,7 +301,7 @@ class AgentExecutor:
 
     @staticmethod
     def _build_output_value(file: Path, root: Path, field_type: str) -> str | dict:
-        rel_path = str(file.relative_to(root))
+        rel_path = file.relative_to(root).as_posix()
         if field_type not in {"file", "archive", "directory"}:
             return rel_path
         mime_type, _ = mimetypes.guess_type(file.name)
@@ -405,7 +405,7 @@ class AgentExecutor:
                 kind = "archive" if field_type == "archive" else field_type
                 return {
                     "kind": kind,
-                    "path": str(resolved.relative_to(root)),
+                    "path": resolved.relative_to(root).as_posix(),
                     "filename": value.get("filename") or resolved.name,
                     "mime_type": value.get("mime_type") or mime_type or "application/octet-stream",
                 }

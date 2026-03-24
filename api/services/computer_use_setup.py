@@ -5,8 +5,9 @@ import json
 import logging
 import os
 import subprocess
-import sys
 from pathlib import Path
+
+from api.utils.platform import python_command, venv_pip
 
 logger = logging.getLogger(__name__)
 
@@ -19,9 +20,7 @@ DEPS_MARKER = ".deps_installed"
 
 def _python_command() -> str:
     """Return the correct python command for the current platform."""
-    if sys.platform == "win32":
-        return "python"
-    return "python3"
+    return python_command()
 
 
 def _mcp_json_content(cache_enabled: bool = True) -> dict:
@@ -87,9 +86,7 @@ def _write_deps_marker() -> None:
 
 def _pip_path() -> Path:
     """Return expected pip binary path inside the venv."""
-    if sys.platform == "win32":
-        return CU_VENV_DIR / "Scripts" / "pip"
-    return CU_VENV_DIR / "bin" / "pip"
+    return venv_pip(CU_VENV_DIR)
 
 
 def _venv_healthy() -> bool:

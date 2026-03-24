@@ -97,7 +97,7 @@ class ArtifactService:
             relative_path = path.relative_to(self.project_root)
         return {
             "kind": "file",
-            "path": str(relative_path),
+            "path": relative_path.as_posix(),
             "filename": filename,
             "mime_type": mime_type or "application/octet-stream",
         }

@@ -9,10 +9,16 @@ import json
 import os
 import re
 import shutil
-import signal
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import AsyncIterator
+
+from api.utils.platform import (
+    kill_process_tree,
+    new_session_kwargs,
+    remove_path_entry,
+    venv_bin_dir,
+)
 
 import yaml
 
@@ -312,13 +318,11 @@ class CLIAgentProvider:
         """
         env = {k: v for k, v in os.environ.items()
                if not k.startswith("CLAUDE")}
-        # Strip active venv from PATH
+        # Strip active venv from PATH (handles both bin/ and Scripts/)
         venv = env.pop("VIRTUAL_ENV", None)
         if venv:
-            venv_bin = os.path.join(venv, "bin")
-            env["PATH"] = os.pathsep.join(
-                p for p in env.get("PATH", "").split(os.pathsep)
-                if p != venv_bin
+            env["PATH"] = remove_path_entry(
+                env.get("PATH", ""), str(venv_bin_dir(venv))
             )
         return env
 
@@ -330,7 +334,9 @@ class CLIAgentProvider:
         venv that has mcp/fastmcp installed, ensuring the MCP server starts.
         """
         env = cls._clean_env()
-        cu_venv_bin = os.path.join(_PROJECT_ROOT, "computer_use", ".venv", "bin")
+        cu_venv_bin = str(venv_bin_dir(
+            os.path.join(_PROJECT_ROOT, "computer_use", ".venv")
+        ))
         env["PATH"] = os.pathsep.join([cu_venv_bin, env.get("PATH", "")])
         return env
 
@@ -407,6 +413,7 @@ class CLIAgentProvider:
             *args,
             cwd=workspace,
             env=env,
+            stdin=asyncio.subprocess.DEVNULL,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             limit=10 * 1024 * 1024,
@@ -468,10 +475,11 @@ class CLIAgentProvider:
             *args,
             cwd=workspace,
             env=env,
+            stdin=asyncio.subprocess.DEVNULL,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             limit=_STREAM_LIMIT,
-            start_new_session=True,
+            **new_session_kwargs(),
         )
 
         try:
@@ -520,17 +528,10 @@ class CLIAgentProvider:
         finally:
             # Always ensure the subprocess is killed and reaped, even if the
             # caller stops iterating, an exception is raised, or the run fails.
-            # Kill the entire process group so computer use children (MCP desktop
+            # Kill the entire process tree so computer use children (MCP desktop
             # automation processes) are also terminated — not just the direct child.
             if proc.returncode is None:
-                try:
-                    os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
-                except (ProcessLookupError, PermissionError, OSError):
-                    try:
-                        proc.kill()
-                    except ProcessLookupError:
-                        pass
-                await proc.wait()
+                await kill_process_tree(proc)
 
 
 def build_agent_prompt(agent: dict, inputs: dict, run_id: str = "") -> str:

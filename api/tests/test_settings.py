@@ -6,6 +6,14 @@ from pathlib import Path
 from unittest.mock import patch
 
 import api.services.computer_use_setup as cu_setup
+from api.utils.platform import venv_bin_dir
+
+
+def _create_fake_pip(venv_path: Path) -> None:
+    """Create a fake pip binary in the correct platform-specific location."""
+    bin_dir = venv_bin_dir(venv_path)
+    bin_dir.mkdir(parents=True, exist_ok=True)
+    (bin_dir / "pip").touch()
 
 
 class TestComputerUseSetupService:
@@ -54,8 +62,7 @@ class TestComputerUseSetupService:
         mcp_path = tmp_path / ".mcp.json"
         venv_path = tmp_path / "cu_venv"
         venv_path.mkdir()
-        (venv_path / "bin").mkdir()
-        (venv_path / "bin" / "pip").touch()
+        _create_fake_pip(venv_path)
         reqs_path = tmp_path / "requirements.txt"
         reqs_path.write_text("some-package==1.0\n")
         # Create marker with matching hash
@@ -78,8 +85,7 @@ class TestComputerUseSetupService:
         mcp_path = tmp_path / ".mcp.json"
         venv_path = tmp_path / "cu_venv"
         venv_path.mkdir()
-        (venv_path / "bin").mkdir()
-        (venv_path / "bin" / "pip").touch()
+        _create_fake_pip(venv_path)
         reqs_path = tmp_path / "requirements.txt"
         reqs_path.write_text("some-package==1.0\n")
         # Create marker with old/stale hash
@@ -101,8 +107,7 @@ class TestComputerUseSetupService:
         mcp_path = tmp_path / ".mcp.json"
         venv_path = tmp_path / "cu_venv"
         venv_path.mkdir()
-        (venv_path / "bin").mkdir()
-        (venv_path / "bin" / "pip").touch()
+        _create_fake_pip(venv_path)
         reqs_path = tmp_path / "requirements.txt"
         reqs_path.write_text("some-package==1.0\n")
         expected_hash = hashlib.md5(reqs_path.read_bytes()).hexdigest()
@@ -122,8 +127,7 @@ class TestComputerUseSetupService:
         mcp_path = tmp_path / ".mcp.json"
         venv_path = tmp_path / "cu_venv"
         venv_path.mkdir()
-        (venv_path / "bin").mkdir()
-        (venv_path / "bin" / "pip").touch()
+        _create_fake_pip(venv_path)
         reqs_path = tmp_path / "requirements.txt"
         reqs_path.write_text("some-package==1.0\n")
         with (
@@ -197,8 +201,7 @@ class TestComputerUseSetupService:
         venv_path = tmp_path / "cu_venv"
         venv_path.mkdir()
         # Create fake pip binary so venv looks healthy
-        (venv_path / "bin").mkdir()
-        (venv_path / "bin" / "pip").touch()
+        _create_fake_pip(venv_path)
         with (
             patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
             patch.object(cu_setup, "CU_VENV_DIR", venv_path),
@@ -233,8 +236,7 @@ class TestComputerUseSetupService:
         mcp_path = tmp_path / ".mcp.json"
         venv_path = tmp_path / "cu_venv"
         venv_path.mkdir()
-        (venv_path / "bin").mkdir()
-        (venv_path / "bin" / "pip").touch()
+        _create_fake_pip(venv_path)
         reqs_path = tmp_path / "requirements.txt"
         reqs_path.write_text("some-package==1.0\n")
         with (
@@ -266,13 +268,13 @@ class TestComputerUseSetupService:
 
     def test_mcp_json_uses_python_on_windows(self, tmp_path):
         """On Windows, .mcp.json uses 'python' not 'python3'."""
-        with patch.object(cu_setup, "sys") as mock_sys:
+        with patch("api.utils.platform.sys") as mock_sys:
             mock_sys.platform = "win32"
             assert cu_setup._python_command() == "python"
 
     def test_mcp_json_uses_python3_on_unix(self, tmp_path):
         """On non-Windows, .mcp.json uses 'python3'."""
-        with patch.object(cu_setup, "sys") as mock_sys:
+        with patch("api.utils.platform.sys") as mock_sys:
             mock_sys.platform = "linux"
             assert cu_setup._python_command() == "python3"
 
