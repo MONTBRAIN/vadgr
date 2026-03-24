@@ -159,8 +159,8 @@ function Start-Forge {
     # Check if already running
     $apiPidFile = "$PID_DIR\api.pid"
     if (Test-Path $apiPidFile) {
-        $procId = Get-Content $apiPidFile
-        if (Get-Process -Id $procId -ErrorAction SilentlyContinue) {
+        $procId = (Get-Content $apiPidFile).Trim()
+        if ($procId -and (Get-Process -Id $procId -ErrorAction SilentlyContinue)) {
             Warn "Agent Forge is already running. Use 'forge stop' first."
             return
         }
@@ -228,12 +228,14 @@ function Stop-Forge {
     foreach ($service in @("api", "frontend")) {
         $pidFile = "$PID_DIR\$service.pid"
         if (Test-Path $pidFile) {
-            $procId = Get-Content $pidFile
-            $proc = Get-Process -Id $procId -ErrorAction SilentlyContinue
-            if ($proc) {
-                Stop-Process -Id $procId -Force
-                Info "Stopped $service (PID $procId)"
-                $stopped = $true
+            $procId = (Get-Content $pidFile).Trim()
+            if ($procId) {
+                $proc = Get-Process -Id $procId -ErrorAction SilentlyContinue
+                if ($proc) {
+                    Stop-Process -Id $procId -Force
+                    Info "Stopped $service (PID $procId)"
+                    $stopped = $true
+                }
             }
             Remove-Item $pidFile
         }
@@ -245,8 +247,9 @@ function Stop-Forge {
 function Get-ForgeStatus {
     foreach ($service in @("api", "frontend")) {
         $pidFile = "$PID_DIR\$service.pid"
-        if ((Test-Path $pidFile) -and (Get-Process -Id (Get-Content $pidFile) -ErrorAction SilentlyContinue)) {
-            Ok "$service is running (PID $(Get-Content $pidFile))"
+        $procId = if (Test-Path $pidFile) { (Get-Content $pidFile).Trim() } else { "" }
+        if ($procId -and (Get-Process -Id $procId -ErrorAction SilentlyContinue)) {
+            Ok "$service is running (PID $procId)"
         } else {
             Warn "$service is not running"
         }
@@ -288,8 +291,8 @@ function Start-ForgeApi {
     New-Item -ItemType Directory -Force -Path $PID_DIR | Out-Null
     $apiPidFile = "$PID_DIR\api.pid"
     if (Test-Path $apiPidFile) {
-        $procId = Get-Content $apiPidFile
-        if (Get-Process -Id $procId -ErrorAction SilentlyContinue) {
+        $procId = (Get-Content $apiPidFile).Trim()
+        if ($procId -and (Get-Process -Id $procId -ErrorAction SilentlyContinue)) {
             Warn "API is already running. Use 'forge stop' first."
             return
         }
@@ -383,8 +386,9 @@ function Get-ForgeInfo {
     } catch {
         Warn "  API:           not running"
     }
-    $apiPidFile = "$PID_DIR\frontend.pid"
-    if ((Test-Path $apiPidFile) -and (Get-Process -Id (Get-Content $apiPidFile) -ErrorAction SilentlyContinue)) {
+    $fePidFile = "$PID_DIR\frontend.pid"
+    $fePid = if (Test-Path $fePidFile) { (Get-Content $fePidFile).Trim() } else { "" }
+    if ($fePid -and (Get-Process -Id $fePid -ErrorAction SilentlyContinue)) {
         Ok "  Frontend:      running"
     } else {
         Warn "  Frontend:      not running"
