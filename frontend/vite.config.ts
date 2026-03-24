@@ -3,17 +3,21 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
+const FRONTEND_PORT = Number(process.env.AGENT_FORGE_FRONTEND_PORT) || 3000
+const API_PORT = Number(process.env.AGENT_FORGE_PORT) || 8000
+const API_TARGET = `http://127.0.0.1:${API_PORT}`
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    port: 3000,
+    port: FRONTEND_PORT,
     proxy: {
       '/api/ws': {
-        target: 'http://127.0.0.1:8000',
+        target: API_TARGET,
         ws: true,
       },
       '/api': {
-        target: 'http://127.0.0.1:8000',
+        target: API_TARGET,
         changeOrigin: true,
       },
     },

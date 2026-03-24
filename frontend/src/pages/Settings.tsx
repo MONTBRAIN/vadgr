@@ -47,6 +47,8 @@ export function Settings() {
   const [cuEnabled, setCuEnabled] = useState(false);
   const [cuCacheEnabled, setCuCacheEnabled] = useState(true);
   const [cuLoading, setCuLoading] = useState(false);
+  const [cuActivating, setCuActivating] = useState(false); // true = enabling, false = disabling
+  const [cuError, setCuError] = useState<string | null>(null);
 
   // Load computer use status from API on mount
   useEffect(() => {
@@ -60,6 +62,8 @@ export function Settings() {
 
   const toggleComputerUse = async (enabled: boolean) => {
     setCuLoading(true);
+    setCuActivating(enabled);
+    setCuError(null);
     try {
       const result = await api.put<{ enabled: boolean; cache_enabled: boolean }>(
         '/settings/computer-use',
@@ -67,19 +71,24 @@ export function Settings() {
       );
       setCuEnabled(result.enabled);
       setCuCacheEnabled(result.cache_enabled);
-    } catch { /* ignore */ }
+    } catch (e) {
+      setCuError(e instanceof Error ? e.message : 'Failed to update computer use');
+    }
     setCuLoading(false);
   };
 
   const toggleCuCache = async (cacheEnabled: boolean) => {
     setCuLoading(true);
+    setCuError(null);
     try {
       const result = await api.put<{ enabled: boolean; cache_enabled: boolean }>(
         '/settings/computer-use',
         { enabled: cuEnabled, cache_enabled: cacheEnabled },
       );
       setCuCacheEnabled(result.cache_enabled);
-    } catch { /* ignore */ }
+    } catch (e) {
+      setCuError(e instanceof Error ? e.message : 'Failed to update cache setting');
+    }
     setCuLoading(false);
   };
 
@@ -218,15 +227,41 @@ export function Settings() {
           {/* Computer Use Toggle */}
           <div className="flex items-center justify-between py-3 border-b border-border/50">
             <div className="flex-1">
-              <span className="text-sm text-text-secondary font-body">Computer use</span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-text-secondary font-body">Computer use</span>
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium">
+                  {cuLoading ? (
+                    <>
+                      <span className="relative flex w-[7px] h-[7px]">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-info opacity-75" />
+                        <span className="relative inline-flex rounded-full w-[7px] h-[7px] bg-info" />
+                      </span>
+                      <span className="text-info">
+                        {cuActivating ? 'Activating...' : 'Deactivating...'}
+                      </span>
+                    </>
+                  ) : cuEnabled ? (
+                    <>
+                      <span className="w-[7px] h-[7px] rounded-full bg-success inline-block shrink-0" />
+                      <span className="text-success">Active</span>
+                    </>
+                  ) : (
+                    <span className="text-text-muted">Disabled</span>
+                  )}
+                </span>
+              </div>
               <p className="text-xs text-text-muted font-light mt-0.5">
                 Allows agents to control your desktop: open apps, click, type, and navigate.
               </p>
+              {cuError && (
+                <p className="text-xs text-danger font-light mt-1">{cuError}</p>
+              )}
             </div>
             <button
+              aria-label="Computer use toggle"
               onClick={() => toggleComputerUse(!cuEnabled)}
               disabled={cuLoading}
-              className="w-12 h-[26px] rounded-full border-none cursor-pointer relative transition-colors shrink-0 ml-4 disabled:opacity-50"
+              className="w-12 h-[26px] rounded-full border-none cursor-pointer relative transition-colors shrink-0 ml-4 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ background: cuEnabled ? 'var(--color-success)' : 'var(--color-border)' }}
             >
               <span

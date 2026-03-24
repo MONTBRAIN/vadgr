@@ -171,10 +171,40 @@ FORGE_HOME="$HOME/.forge"
 FORGE_REPO="$FORGE_HOME/Agent-Forge"
 PID_DIR="$FORGE_HOME/pids"
 
+# Ports -- flags > env vars > defaults
+API_PORT="${AGENT_FORGE_PORT:-8000}"
+FRONTEND_PORT="${AGENT_FORGE_FRONTEND_PORT:-3000}"
+
 info()  { printf "\033[1;34m[forge]\033[0m %s\n" "$*"; }
 ok()    { printf "\033[1;32m[forge]\033[0m %s\n" "$*"; }
 warn()  { printf "\033[1;33m[forge]\033[0m %s\n" "$*"; }
 fail()  { printf "\033[1;31m[forge]\033[0m %s\n" "$*" >&2; exit 1; }
+
+# Parse flags from arguments (mutates API_PORT / FRONTEND_PORT)
+parse_flags() {
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --api-port)      API_PORT="$2"; shift 2 ;;
+            --frontend-port) FRONTEND_PORT="$2"; shift 2 ;;
+            *)               shift ;;
+        esac
+    done
+}
+
+# Parse actual frontend port from Vite log output
+detect_frontend_port() {
+    local log="$FORGE_HOME/frontend.log"
+    local actual_port=""
+    for i in $(seq 1 20); do
+        actual_port=$(grep -oP 'localhost:\K[0-9]+' "$log" 2>/dev/null | head -1)
+        if [ -n "$actual_port" ]; then
+            echo "$actual_port"
+            return
+        fi
+        sleep 0.25
+    done
+    echo "$FRONTEND_PORT"
+}
 
 cmd_start() {
     mkdir -p "$PID_DIR"
@@ -193,27 +223,32 @@ cmd_start() {
     fi
 
     # Start API
-    info "Starting API server (port 8000)..."
-    PYTHONPATH=. "$FORGE_REPO/api/.venv/bin/python" -m uvicorn api.main:app \
-        --host 127.0.0.1 --port 8000 > "$FORGE_HOME/api.log" 2>&1 &
+    info "Starting API server (port $API_PORT)..."
+    PYTHONPATH=. AGENT_FORGE_PORT="$API_PORT" AGENT_FORGE_FRONTEND_PORT="$FRONTEND_PORT" \
+        "$FORGE_REPO/api/.venv/bin/python" -m uvicorn api.main:app \
+        --host 127.0.0.1 --port "$API_PORT" > "$FORGE_HOME/api.log" 2>&1 &
     echo $! > "$PID_DIR/api.pid"
 
     # Wait for API to be ready
     for i in $(seq 1 15); do
-        if curl -s http://127.0.0.1:8000/api/health >/dev/null 2>&1; then break; fi
+        if curl -s "http://127.0.0.1:$API_PORT/api/health" >/dev/null 2>&1; then break; fi
         sleep 1
     done
 
-    # Start frontend
-    info "Starting frontend (port 5173)..."
+    # Start frontend (pass ports so Vite reads them)
+    info "Starting frontend..."
     cd "$FORGE_REPO/frontend"
-    npm run dev > "$FORGE_HOME/frontend.log" 2>&1 &
+    AGENT_FORGE_PORT="$API_PORT" AGENT_FORGE_FRONTEND_PORT="$FRONTEND_PORT" \
+        npm run dev > "$FORGE_HOME/frontend.log" 2>&1 &
     echo $! > "$PID_DIR/frontend.pid"
 
-    sleep 2
+    # Detect actual port from Vite output (handles auto-increment)
+    local actual_fe_port
+    actual_fe_port=$(detect_frontend_port)
+
     ok "Agent Forge is running!"
-    ok "  Frontend: http://localhost:5173"
-    ok "  API:      http://localhost:8000"
+    ok "  Frontend: http://localhost:$actual_fe_port"
+    ok "  API:      http://localhost:$API_PORT"
     ok ""
     ok "Run 'forge stop' to stop, 'forge logs' to see API logs."
 }
@@ -309,22 +344,23 @@ cmd_api() {
 
     cd "$FORGE_REPO"
 
-    info "Starting API server (port 8000)..."
-    PYTHONPATH=. "$FORGE_REPO/api/.venv/bin/python" -m uvicorn api.main:app \
-        --host 127.0.0.1 --port 8000 > "$FORGE_HOME/api.log" 2>&1 &
+    info "Starting API server (port $API_PORT)..."
+    PYTHONPATH=. AGENT_FORGE_PORT="$API_PORT" AGENT_FORGE_FRONTEND_PORT="$FRONTEND_PORT" \
+        "$FORGE_REPO/api/.venv/bin/python" -m uvicorn api.main:app \
+        --host 127.0.0.1 --port "$API_PORT" > "$FORGE_HOME/api.log" 2>&1 &
     echo $! > "$PID_DIR/api.pid"
 
     for i in $(seq 1 15); do
-        if curl -s http://127.0.0.1:8000/api/health >/dev/null 2>&1; then break; fi
+        if curl -s "http://127.0.0.1:$API_PORT/api/health" >/dev/null 2>&1; then break; fi
         sleep 1
     done
 
-    ok "API is running at http://localhost:8000"
+    ok "API is running at http://localhost:$API_PORT"
 }
 
 cmd_health() {
     local response
-    response=$(curl -s http://127.0.0.1:8000/api/health 2>/dev/null) || {
+    response=$(curl -s "http://127.0.0.1:$API_PORT/api/health" 2>/dev/null) || {
         fail "API is not responding. Run 'forge start' first."
     }
     echo "$response" | python3 -m json.tool 2>/dev/null || echo "$response"
@@ -332,7 +368,7 @@ cmd_health() {
 
 cmd_agents() {
     local response
-    response=$(curl -s http://127.0.0.1:8000/api/agents 2>/dev/null) || {
+    response=$(curl -s "http://127.0.0.1:$API_PORT/api/agents" 2>/dev/null) || {
         fail "API is not responding. Run 'forge start' first."
     }
     echo "$response" | python3 -c "
@@ -355,7 +391,7 @@ else:
 
 cmd_providers() {
     local response
-    response=$(curl -s http://127.0.0.1:8000/api/providers 2>/dev/null) || {
+    response=$(curl -s "http://127.0.0.1:$API_PORT/api/providers" 2>/dev/null) || {
         fail "API is not responding. Run 'forge start' first."
     }
     echo "$response" | python3 -c "
@@ -379,7 +415,7 @@ cmd_info() {
 
     # Version
     local health
-    health=$(curl -s http://127.0.0.1:8000/api/health 2>/dev/null)
+    health=$(curl -s "http://127.0.0.1:$API_PORT/api/health" 2>/dev/null)
     if [ -n "$health" ]; then
         echo "$health" | python3 -c "
 import sys, json
@@ -416,7 +452,7 @@ cmd_logs() {
 cmd_help() {
     echo "Agent Forge CLI"
     echo ""
-    echo "Usage: forge <command>"
+    echo "Usage: forge <command> [flags]"
     echo ""
     echo "Commands:"
     echo "  start      Start API and frontend servers"
@@ -431,9 +467,21 @@ cmd_help() {
     echo "  update     Pull latest code and reinstall deps if changed"
     echo "  logs       Tail API server logs"
     echo "  help       Show this help message"
+    echo ""
+    echo "Flags:"
+    echo "  --api-port <port>       API server port (default: 8000)"
+    echo "  --frontend-port <port>  Frontend server port (default: 3000)"
+    echo ""
+    echo "Environment variables:"
+    echo "  AGENT_FORGE_PORT            Same as --api-port"
+    echo "  AGENT_FORGE_FRONTEND_PORT   Same as --frontend-port"
 }
 
-case "${1:-help}" in
+CMD="${1:-help}"
+shift 2>/dev/null || true
+parse_flags "$@"
+
+case "$CMD" in
     start)     cmd_start ;;
     stop)      cmd_stop ;;
     restart)   cmd_restart ;;
@@ -446,7 +494,7 @@ case "${1:-help}" in
     update)    cmd_update ;;
     logs)      cmd_logs ;;
     help)      cmd_help ;;
-    *)         warn "Unknown command: $1"; cmd_help; exit 1 ;;
+    *)         warn "Unknown command: $CMD"; cmd_help; exit 1 ;;
 esac
 FORGE_SCRIPT
     chmod +x "$FORGE_BIN/forge"
