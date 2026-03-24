@@ -80,7 +80,7 @@ function InstallNode {
 function SetupRepo {
     if (Test-Path "$FORGE_REPO\.git") {
         Info "Agent Forge repo already exists, pulling latest..."
-        git -C $FORGE_REPO pull --ff-only origin master 2>$null
+        $pullOut = & git -C $FORGE_REPO pull --ff-only origin master 2>&1
         if ($LASTEXITCODE -ne 0) { Warn "Could not pull latest (offline?)" }
     } else {
         Info "Cloning Agent Forge..."
