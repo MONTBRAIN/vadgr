@@ -249,7 +249,16 @@ cmd_start() {
     cd "$FORGE_REPO/frontend"
     AGENT_FORGE_PORT="$API_PORT" AGENT_FORGE_FRONTEND_PORT="$FRONTEND_PORT" \
         npm run dev > "$FORGE_HOME/frontend.log" 2>&1 &
-    echo $! > "$PID_DIR/frontend.pid"
+    local front_pid=$!
+    echo $front_pid > "$PID_DIR/frontend.pid"
+
+    # Give it a moment to fail fast (e.g. missing node_modules)
+    sleep 1
+    if ! kill -0 "$front_pid" 2>/dev/null; then
+        warn "Failed to start frontend. Check $FORGE_HOME/frontend.log"
+        ok "API is running at http://localhost:$API_PORT (frontend failed)"
+        return
+    fi
 
     # Detect actual port from Vite output (handles auto-increment)
     local actual_fe_port

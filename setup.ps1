@@ -194,12 +194,18 @@ function Start-Forge {
     Info "Starting frontend..."
     $env:AGENT_FORGE_PORT = $API_PORT
     $env:AGENT_FORGE_FRONTEND_PORT = $FRONTEND_PORT
-    $frontProc = Start-Process -FilePath "npm.cmd" `
-        -ArgumentList "run", "dev" `
-        -WorkingDirectory "$FORGE_REPO\frontend" `
-        -WindowStyle Hidden `
-        -PassThru
-    $frontProc.Id | Out-File "$PID_DIR\frontend.pid"
+    try {
+        $frontProc = Start-Process -FilePath "npm.cmd" `
+            -ArgumentList "run", "dev" `
+            -WorkingDirectory "$FORGE_REPO\frontend" `
+            -WindowStyle Hidden `
+            -PassThru
+        $frontProc.Id | Out-File "$PID_DIR\frontend.pid"
+    } catch {
+        Warn "Failed to start frontend: $_"
+        Ok "API is running at http://localhost:$API_PORT (frontend failed)"
+        return
+    }
 
     # Detect actual port from Vite output (handles auto-increment)
     $actualFePort = DetectFrontendPort
