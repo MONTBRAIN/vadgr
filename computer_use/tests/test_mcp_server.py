@@ -523,6 +523,95 @@ class TestTemplateTools:
         assert "3/3" in result
 
 
+class TestCacheDisabledGuards:
+    """Tests for MCP tool behavior when engine cache is disabled."""
+
+    @pytest.fixture(autouse=True)
+    def _disable_cache(self, mock_engine):
+        """Set engine._cache to None to simulate cache_enabled=False."""
+        mock_engine._cache = None
+        yield
+
+    def test_create_template_returns_error(self):
+        import computer_use.mcp_server as mod
+        result = mod.create_template("test", "app.exe", [{"action": "wait"}])
+        assert "cache is disabled" in result
+
+    def test_list_templates_returns_empty(self):
+        import computer_use.mcp_server as mod
+        result = mod.list_templates()
+        assert "cache is disabled" in result
+
+    def test_delete_template_returns_error(self):
+        import computer_use.mcp_server as mod
+        result = mod.delete_template("test")
+        assert "cache is disabled" in result
+
+
+class TestGetEngineEnvVar:
+    """Tests that _get_engine reads AGENT_FORGE_CACHE_ENABLED env var."""
+
+    def test_cache_disabled_via_env(self):
+        import computer_use.mcp_server as mod
+        mod._engine = None  # force re-init
+
+        with (
+            patch.dict("os.environ", {"AGENT_FORGE_CACHE_ENABLED": "0"}),
+            patch("computer_use.core.engine.detect_platform") as mock_detect,
+            patch("computer_use.core.engine.get_backend") as mock_get_backend,
+            patch("computer_use.core.engine.yaml"),
+            patch("computer_use.core.engine._default_cache_path", return_value=":memory:"),
+        ):
+            mock_detect.return_value = Platform.WSL2
+            backend = MagicMock()
+            backend.is_available.return_value = True
+            backend.get_accessibility_info.return_value = {"available": True, "api_name": "Mock", "notes": ""}
+            capture = MagicMock()
+            capture.get_screen_size.return_value = (1920, 1080)
+            capture.get_scale_factor.return_value = 1.0
+            backend.get_screen_capture.return_value = capture
+            backend.get_action_executor.return_value = MagicMock()
+            backend.get_foreground_window.return_value = None
+            mock_get_backend.return_value = backend
+
+            engine = mod._get_engine()
+            assert engine._cache is None
+
+        mod._engine = None  # clean up
+
+    def test_cache_enabled_by_default(self):
+        import computer_use.mcp_server as mod
+        mod._engine = None
+
+        with (
+            patch.dict("os.environ", {}, clear=False),
+            patch("computer_use.core.engine.detect_platform") as mock_detect,
+            patch("computer_use.core.engine.get_backend") as mock_get_backend,
+            patch("computer_use.core.engine.yaml"),
+            patch("computer_use.core.engine._default_cache_path", return_value=":memory:"),
+        ):
+            # Remove the env var if it exists
+            import os
+            os.environ.pop("AGENT_FORGE_CACHE_ENABLED", None)
+
+            mock_detect.return_value = Platform.WSL2
+            backend = MagicMock()
+            backend.is_available.return_value = True
+            backend.get_accessibility_info.return_value = {"available": True, "api_name": "Mock", "notes": ""}
+            capture = MagicMock()
+            capture.get_screen_size.return_value = (1920, 1080)
+            capture.get_scale_factor.return_value = 1.0
+            backend.get_screen_capture.return_value = capture
+            backend.get_action_executor.return_value = MagicMock()
+            backend.get_foreground_window.return_value = None
+            mock_get_backend.return_value = backend
+
+            engine = mod._get_engine()
+            assert engine._cache is not None
+
+        mod._engine = None
+
+
 class TestEngineSingleton:
     def test_lazy_init(self):
         import computer_use.mcp_server as mod

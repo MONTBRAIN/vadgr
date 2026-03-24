@@ -208,6 +208,19 @@ async def run_agent(agent_id: str, body: AgentRunRequest, request: Request, back
             content={"error": {"code": "AGENT_NOT_READY", "message": f"Agent is '{agent['status']}', must be 'ready' to run", "details": {}}},
         )
 
+    # Block run if agent needs computer use but it's disabled
+    if agent.get("computer_use"):
+        from api.services.computer_use_setup import get_status as cu_status
+        if not cu_status()["enabled"]:
+            return JSONResponse(
+                status_code=409,
+                content={"error": {
+                    "code": "COMPUTER_USE_DISABLED",
+                    "message": "This agent has desktop steps but computer use is disabled. Enable it in Settings to run this agent.",
+                    "details": {},
+                }},
+            )
+
     run_provider = body.provider or agent["provider"]
     run_model = body.model or agent["model"]
 

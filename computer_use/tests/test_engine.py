@@ -1681,3 +1681,91 @@ class TestTemplateExecution:
         assert result["stopped"] is True
         assert result["completed"] == 0
         assert "error" in result["reason"]
+
+
+# ---------------------------------------------------------------------------
+# TestCacheDisabled -- engine with cache_enabled=False
+# ---------------------------------------------------------------------------
+
+class TestCacheDisabled:
+    """Tests that engine works correctly when cache_enabled=False."""
+
+    def _make_engine_no_cache(self, mock_backend):
+        backend, capture, executor = mock_backend
+        backend.get_foreground_window.return_value = None
+        with (
+            patch("computer_use.core.engine.detect_platform", return_value=Platform.WSL2),
+            patch("computer_use.core.engine.get_backend", return_value=backend),
+            patch("computer_use.core.engine.yaml"),
+        ):
+            engine = ComputerUseEngine(cache_enabled=False)
+        return engine, capture, executor
+
+    def test_cache_is_none(self, mock_backend):
+        """cache_enabled=False sets _cache to None."""
+        engine, _, _ = self._make_engine_no_cache(mock_backend)
+        assert engine._cache is None
+
+    def test_cache_lookup_returns_zero(self, mock_backend):
+        """_cache_lookup returns 0 (miss) when cache is disabled."""
+        engine, _, _ = self._make_engine_no_cache(mock_backend)
+        ctx = _CacheContext(app_name="test", hint="btn", cache_x=50, cache_y=50, layer=1)
+        assert engine._cache_lookup(ctx) == 0
+
+    def test_cache_record_is_noop(self, mock_backend):
+        """_cache_record does not raise when cache is disabled."""
+        engine, _, _ = self._make_engine_no_cache(mock_backend)
+        ctx = _CacheContext(app_name="test", hint="btn", cache_x=50, cache_y=50, layer=1)
+        engine._cache_record(ctx)  # should not raise
+
+    def test_navigate_chain_stops_immediately(self, mock_backend):
+        """navigate_chain returns stopped=True when cache is disabled."""
+        engine, _, _ = self._make_engine_no_cache(mock_backend)
+        result = engine.navigate_chain("app.exe", ["menu", "file", "save"])
+        assert result["stopped"] is True
+        assert result["completed"] == 0
+        assert "cache disabled" in result["reason"]
+
+    def test_execute_template_stops_immediately(self, mock_backend):
+        """execute_template returns stopped=True when cache is disabled."""
+        engine, _, _ = self._make_engine_no_cache(mock_backend)
+        result = engine.execute_template("some-template")
+        assert result["stopped"] is True
+        assert result["completed"] == 0
+        assert "cache disabled" in result["reason"]
+
+    def test_navigate_to_skips_path_finding(self, mock_backend):
+        """navigate_to falls back to direct click when cache is None."""
+        engine, _, _ = self._make_engine_no_cache(mock_backend)
+        # With cache disabled, navigate_to should still work but skip
+        # BFS path finding and go straight to navigate_chain (which will
+        # also stop due to cache being disabled)
+        result = engine.navigate_to("target_btn", current_hint="current_btn")
+        assert result["stopped"] is True
+        assert "cache disabled" in result["reason"]
+
+    def test_screenshot_still_works(self, mock_backend):
+        """Core operations like screenshot still work without cache."""
+        engine, capture, _ = self._make_engine_no_cache(mock_backend)
+        screen = engine.screenshot()
+        assert screen.width == 1920
+        capture.capture_full.assert_called_once()
+
+    def test_click_still_works(self, mock_backend):
+        """Click still works without cache (hit_count=0 since no cache)."""
+        engine, _, executor = self._make_engine_no_cache(mock_backend)
+        engine.click(100, 200)
+        executor.click.assert_called_once_with(100, 200, hit_count=0)
+
+    def test_cache_enabled_true_creates_cache(self, mock_backend):
+        """Default (cache_enabled=True) creates a real cache object."""
+        backend, _, _ = mock_backend
+        backend.get_foreground_window.return_value = None
+        with (
+            patch("computer_use.core.engine.detect_platform", return_value=Platform.WSL2),
+            patch("computer_use.core.engine.get_backend", return_value=backend),
+            patch("computer_use.core.engine.yaml"),
+            patch("computer_use.core.engine._default_cache_path", return_value=":memory:"),
+        ):
+            engine = ComputerUseEngine(cache_enabled=True)
+        assert engine._cache is not None

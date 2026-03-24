@@ -21,6 +21,7 @@ from api.services.artifact_service import ArtifactService
 from api.services.execution_service import ExecutionService
 from api.services.log_writer import LogWriter
 from api.routes import health, agents, projects, runs, computer_use, providers, ws
+from api.routes import settings as settings_routes
 
 
 def create_app(db: Optional[Database] = None) -> FastAPI:
@@ -125,6 +126,7 @@ def create_app(db: Optional[Database] = None) -> FastAPI:
     app.include_router(runs.router)
     app.include_router(computer_use.router)
     app.include_router(providers.router)
+    app.include_router(settings_routes.router)
     app.include_router(ws.router)
 
     return app
