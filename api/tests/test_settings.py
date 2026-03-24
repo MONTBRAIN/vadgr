@@ -279,6 +279,133 @@ class TestComputerUseSetupService:
             assert cu_setup._python_command() == "python3"
 
 
+class TestMultiProviderMcpConfig:
+    """Tests for Gemini and Codex MCP config file generation."""
+
+    def _patch_all(self, tmp_path):
+        """Return a context manager that patches all config paths to tmp_path."""
+        from contextlib import ExitStack
+        stack = ExitStack()
+        stack.enter_context(patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"))
+        stack.enter_context(patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"))
+        stack.enter_context(patch.object(cu_setup, "CODEX_CONFIG_PATH", tmp_path / ".codex" / "config.toml"))
+        stack.enter_context(patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "cu_venv"))
+        stack.enter_context(patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "nonexistent.txt"))
+        stack.enter_context(patch.object(cu_setup, "PROJECT_ROOT", tmp_path))
+        stack.enter_context(patch("subprocess.run"))
+        return stack
+
+    def test_enable_creates_gemini_settings(self, tmp_path):
+        """Enabling computer use creates .gemini/settings.json with mcpServers."""
+        with self._patch_all(tmp_path):
+            cu_setup.enable_computer_use()
+            gemini_path = tmp_path / ".gemini" / "settings.json"
+            assert gemini_path.exists()
+            data = json.loads(gemini_path.read_text())
+            assert "computer-use" in data["mcpServers"]
+            server = data["mcpServers"]["computer-use"]
+            assert server["command"] == cu_setup._python_command()
+            assert "-m" in server["args"]
+            assert "computer_use.mcp_server" in server["args"]
+
+    def test_enable_creates_codex_config(self, tmp_path):
+        """Enabling computer use creates .codex/config.toml with mcp_servers."""
+        with self._patch_all(tmp_path):
+            cu_setup.enable_computer_use()
+            codex_path = tmp_path / ".codex" / "config.toml"
+            assert codex_path.exists()
+            content = codex_path.read_text()
+            assert "[mcp_servers.computer-use]" in content
+            assert "computer_use.mcp_server" in content
+
+    def test_gemini_settings_has_correct_structure(self, tmp_path):
+        """Gemini settings.json uses same mcpServers format as .mcp.json."""
+        with self._patch_all(tmp_path):
+            cu_setup.enable_computer_use()
+            gemini_data = json.loads((tmp_path / ".gemini" / "settings.json").read_text())
+            mcp_data = json.loads((tmp_path / ".mcp.json").read_text())
+            # Both should have the same server definition under mcpServers
+            assert "computer-use" in gemini_data["mcpServers"]
+            assert "computer-use" in mcp_data["mcpServers"]
+            # Same command and args
+            assert gemini_data["mcpServers"]["computer-use"]["command"] == mcp_data["mcpServers"]["computer-use"]["command"]
+            assert gemini_data["mcpServers"]["computer-use"]["args"] == mcp_data["mcpServers"]["computer-use"]["args"]
+
+    def test_codex_config_has_correct_toml_structure(self, tmp_path):
+        """Codex config.toml has proper TOML format with command and args."""
+        with self._patch_all(tmp_path):
+            cu_setup.enable_computer_use()
+            content = (tmp_path / ".codex" / "config.toml").read_text()
+            # Should have the server table
+            assert "[mcp_servers.computer-use]" in content
+            # Should have command
+            assert f'command = "{cu_setup._python_command()}"' in content
+            # Should have args as array
+            assert 'args = [' in content
+
+    def test_disable_removes_all_config_files(self, tmp_path):
+        """Disabling computer use removes .mcp.json, .gemini/settings.json, and .codex/config.toml."""
+        mcp_path = tmp_path / ".mcp.json"
+        gemini_path = tmp_path / ".gemini" / "settings.json"
+        codex_path = tmp_path / ".codex" / "config.toml"
+        # Create all three
+        mcp_path.write_text('{"mcpServers": {"computer-use": {}}}')
+        gemini_path.parent.mkdir(parents=True)
+        gemini_path.write_text('{"mcpServers": {"computer-use": {}}}')
+        codex_path.parent.mkdir(parents=True)
+        codex_path.write_text('[mcp_servers.computer-use]\ncommand = "python"')
+        with (
+            patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
+            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", gemini_path),
+            patch.object(cu_setup, "CODEX_CONFIG_PATH", codex_path),
+        ):
+            cu_setup.disable_computer_use()
+            assert not mcp_path.exists()
+            assert not gemini_path.exists()
+            assert not codex_path.exists()
+
+    def test_update_cache_updates_all_config_files(self, tmp_path):
+        """update_cache_setting updates all three config files."""
+        mcp_path = tmp_path / ".mcp.json"
+        gemini_path = tmp_path / ".gemini" / "settings.json"
+        codex_path = tmp_path / ".codex" / "config.toml"
+        # Create .mcp.json so update_cache_setting proceeds
+        mcp_path.write_text('{"mcpServers": {"computer-use": {"env": {}}}}')
+        with (
+            patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
+            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", gemini_path),
+            patch.object(cu_setup, "CODEX_CONFIG_PATH", codex_path),
+            patch.object(cu_setup, "PROJECT_ROOT", tmp_path),
+        ):
+            cu_setup.update_cache_setting(cache_enabled=False)
+            # All three should exist
+            assert mcp_path.exists()
+            assert gemini_path.exists()
+            assert codex_path.exists()
+            # .mcp.json should have cache disabled
+            mcp_data = json.loads(mcp_path.read_text())
+            assert mcp_data["mcpServers"]["computer-use"]["env"]["AGENT_FORGE_CACHE_ENABLED"] == "0"
+
+    def test_codex_cache_disabled_in_env(self, tmp_path):
+        """When cache is disabled, Codex config includes the env var."""
+        with self._patch_all(tmp_path):
+            cu_setup.enable_computer_use(cache_enabled=False)
+            content = (tmp_path / ".codex" / "config.toml").read_text()
+            assert 'AGENT_FORGE_CACHE_ENABLED = "0"' in content
+
+    def test_disable_tolerates_missing_gemini_and_codex(self, tmp_path):
+        """Disable works even if only .mcp.json exists (Gemini/Codex never written)."""
+        mcp_path = tmp_path / ".mcp.json"
+        mcp_path.write_text('{"mcpServers": {"computer-use": {}}}')
+        with (
+            patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
+            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
+            patch.object(cu_setup, "CODEX_CONFIG_PATH", tmp_path / ".codex" / "config.toml"),
+        ):
+            cu_setup.disable_computer_use()  # Should not raise
+            assert not mcp_path.exists()
+
+
 class TestComputerUseSettingsEndpoints:
     """Tests for GET/PUT /api/settings/computer-use."""
 

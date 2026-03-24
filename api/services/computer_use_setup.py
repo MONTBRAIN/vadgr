@@ -1,4 +1,10 @@
-"""Service for managing computer use setup: venv, .mcp.json, cache toggle."""
+"""Service for managing computer use setup: venv, provider MCP configs, cache toggle.
+
+Writes MCP server configuration for each supported CLI provider:
+- Claude Code: .mcp.json (JSON, mcpServers key)
+- Gemini CLI: .gemini/settings.json (JSON, mcpServers key)
+- Codex CLI: .codex/config.toml (TOML, mcp_servers table)
+"""
 
 import hashlib
 import json
@@ -13,6 +19,8 @@ logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 MCP_JSON_PATH = PROJECT_ROOT / ".mcp.json"
+GEMINI_SETTINGS_PATH = PROJECT_ROOT / ".gemini" / "settings.json"
+CODEX_CONFIG_PATH = PROJECT_ROOT / ".codex" / "config.toml"
 CU_VENV_DIR = PROJECT_ROOT / "computer_use" / ".venv"
 CU_REQUIREMENTS = PROJECT_ROOT / "computer_use" / "requirements.txt"
 DEPS_MARKER = ".deps_installed"
@@ -38,6 +46,54 @@ def _mcp_json_content(cache_enabled: bool = True) -> dict:
             }
         }
     }
+
+
+def _gemini_settings_content(cache_enabled: bool = True) -> dict:
+    """Build .gemini/settings.json content. Same mcpServers format as .mcp.json."""
+    return _mcp_json_content(cache_enabled=cache_enabled)
+
+
+def _codex_config_content(cache_enabled: bool = True) -> str:
+    """Build .codex/config.toml content with MCP server configuration."""
+    python = _python_command()
+    cwd = str(PROJECT_ROOT)
+    lines = [
+        '[mcp_servers.computer-use]',
+        f'command = "{python}"',
+        'args = ["-m", "computer_use.mcp_server", "--transport", "stdio"]',
+        f'cwd = "{cwd}"',
+        '',
+        '[mcp_servers.computer-use.env]',
+        'AGENT_FORGE_DEBUG = "1"',
+    ]
+    if not cache_enabled:
+        lines.append('AGENT_FORGE_CACHE_ENABLED = "0"')
+    lines.append('')  # trailing newline
+    return '\n'.join(lines)
+
+
+def _write_all_provider_configs(cache_enabled: bool = True) -> None:
+    """Write MCP config files for all supported providers."""
+    # Claude Code: .mcp.json
+    content = _mcp_json_content(cache_enabled=cache_enabled)
+    MCP_JSON_PATH.write_text(json.dumps(content, indent=2) + "\n")
+
+    # Gemini CLI: .gemini/settings.json
+    GEMINI_SETTINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    gemini_content = _gemini_settings_content(cache_enabled=cache_enabled)
+    GEMINI_SETTINGS_PATH.write_text(json.dumps(gemini_content, indent=2) + "\n")
+
+    # Codex CLI: .codex/config.toml
+    CODEX_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    CODEX_CONFIG_PATH.write_text(_codex_config_content(cache_enabled=cache_enabled))
+
+
+def _remove_all_provider_configs() -> None:
+    """Remove MCP config files for all supported providers."""
+    for path in (MCP_JSON_PATH, GEMINI_SETTINGS_PATH, CODEX_CONFIG_PATH):
+        if path.exists():
+            path.unlink()
+            logger.info("Removed %s", path.name)
 
 
 def get_status() -> dict:
@@ -115,28 +171,24 @@ def enable_computer_use(cache_enabled: bool = True) -> dict:
         )
         _write_deps_marker()
 
-    # Write .mcp.json
-    content = _mcp_json_content(cache_enabled=cache_enabled)
-    MCP_JSON_PATH.write_text(json.dumps(content, indent=2) + "\n")
-    logger.info("Wrote .mcp.json (cache_enabled=%s)", cache_enabled)
+    # Write MCP configs for all providers
+    _write_all_provider_configs(cache_enabled=cache_enabled)
+    logger.info("Wrote MCP configs for all providers (cache_enabled=%s)", cache_enabled)
 
     return get_status()
 
 
 def disable_computer_use() -> dict:
-    """Remove .mcp.json to disable computer use. Keeps venv for re-enable."""
-    if MCP_JSON_PATH.exists():
-        MCP_JSON_PATH.unlink()
-        logger.info("Removed .mcp.json")
+    """Remove all provider MCP configs to disable computer use. Keeps venv for re-enable."""
+    _remove_all_provider_configs()
     return get_status()
 
 
 def update_cache_setting(cache_enabled: bool) -> dict:
-    """Update cache setting in .mcp.json without touching venv."""
+    """Update cache setting in all provider MCP configs without touching venv."""
     if not MCP_JSON_PATH.exists():
         return get_status()
 
-    content = _mcp_json_content(cache_enabled=cache_enabled)
-    MCP_JSON_PATH.write_text(json.dumps(content, indent=2) + "\n")
-    logger.info("Updated cache_enabled=%s in .mcp.json", cache_enabled)
+    _write_all_provider_configs(cache_enabled=cache_enabled)
+    logger.info("Updated cache_enabled=%s in all provider MCP configs", cache_enabled)
     return get_status()
