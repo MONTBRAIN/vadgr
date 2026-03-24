@@ -432,10 +432,15 @@ switch ($Command) {
 }
 '@
 
-    $forgeScript | Out-File -FilePath "$FORGE_BIN\forge.ps1" -Encoding UTF8
+    # Save as _forge.ps1 (underscore prefix) so PowerShell doesn't resolve it
+    # directly when user types "forge". The .bat wrapper calls it with -ExecutionPolicy Bypass.
+    $forgeScript | Out-File -FilePath "$FORGE_BIN\_forge.ps1" -Encoding UTF8
 
-    # Create a batch wrapper so 'forge' works from cmd.exe too
-    $batchWrapper = "@echo off`r`npowershell -ExecutionPolicy Bypass -File `"%USERPROFILE%\.forge\bin\forge.ps1`" %*"
+    # Remove old forge.ps1 if present (from previous installs)
+    if (Test-Path "$FORGE_BIN\forge.ps1") { Remove-Item "$FORGE_BIN\forge.ps1" }
+
+    # Batch wrapper — entry point for both cmd.exe and PowerShell
+    $batchWrapper = "@echo off`r`npowershell -ExecutionPolicy Bypass -File `"%USERPROFILE%\.forge\bin\_forge.ps1`" %*"
     $batchWrapper | Out-File -FilePath "$FORGE_BIN\forge.bat" -Encoding ASCII
 }
 
