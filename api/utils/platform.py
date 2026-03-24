@@ -13,7 +13,7 @@ import shutil
 import signal
 import subprocess
 import sys
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Union
 
 
@@ -102,7 +102,7 @@ def resolve_command(cmd: str) -> str:
 
     Absolute paths are returned unchanged.
     """
-    if os.path.isabs(cmd):
+    if os.path.isabs(cmd) or PureWindowsPath(cmd).is_absolute():
         return cmd
     resolved = shutil.which(cmd)
     return resolved if resolved else cmd
