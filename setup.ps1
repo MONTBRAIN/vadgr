@@ -3,10 +3,6 @@
 
 $ErrorActionPreference = "Stop"
 
-# Allow child .ps1 shims (npm.ps1, npx.ps1, etc.) to run inside this process.
-# Without this, `irm ... | iex` works but spawning npm fails under Restricted policy.
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
-
 $FORGE_HOME = "$env:USERPROFILE\.forge"
 $FORGE_BIN = "$FORGE_HOME\bin"
 $FORGE_REPO = "$FORGE_HOME\Agent-Forge"
@@ -111,7 +107,7 @@ function SetupForgeScripts {
 function SetupFrontend {
     Info "Setting up frontend..."
     Set-Location "$FORGE_REPO\frontend"
-    npm install --silent
+    npm.cmd install --silent
 }
 
 # ---------------------------------------------------------------------------
@@ -198,7 +194,7 @@ function Start-Forge {
     Info "Starting frontend..."
     $env:AGENT_FORGE_PORT = $API_PORT
     $env:AGENT_FORGE_FRONTEND_PORT = $FRONTEND_PORT
-    $frontProc = Start-Process -FilePath "npm" `
+    $frontProc = Start-Process -FilePath "npm.cmd" `
         -ArgumentList "run", "dev" `
         -WorkingDirectory "$FORGE_REPO\frontend" `
         -WindowStyle Hidden `
@@ -264,7 +260,7 @@ function Update-Forge {
     }
     if ($frontHash -ne $newFrontHash) {
         Info "Frontend dependencies changed, reinstalling..."
-        Set-Location frontend; npm install --silent; Set-Location ..
+        Set-Location frontend; npm.cmd install --silent; Set-Location ..
     }
 
     Ok "Update complete. Run 'forge start' to start."
