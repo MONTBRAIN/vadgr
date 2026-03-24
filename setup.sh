@@ -171,7 +171,7 @@ FORGE_HOME="$HOME/.forge"
 FORGE_REPO="$FORGE_HOME/Agent-Forge"
 PID_DIR="$FORGE_HOME/pids"
 
-# Ports -- configurable via env vars (same as API config)
+# Ports -- flags > env vars > defaults
 API_PORT="${AGENT_FORGE_PORT:-8000}"
 FRONTEND_PORT="${AGENT_FORGE_FRONTEND_PORT:-3000}"
 
@@ -179,6 +179,17 @@ info()  { printf "\033[1;34m[forge]\033[0m %s\n" "$*"; }
 ok()    { printf "\033[1;32m[forge]\033[0m %s\n" "$*"; }
 warn()  { printf "\033[1;33m[forge]\033[0m %s\n" "$*"; }
 fail()  { printf "\033[1;31m[forge]\033[0m %s\n" "$*" >&2; exit 1; }
+
+# Parse flags from arguments (mutates API_PORT / FRONTEND_PORT)
+parse_flags() {
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --api-port)      API_PORT="$2"; shift 2 ;;
+            --frontend-port) FRONTEND_PORT="$2"; shift 2 ;;
+            *)               shift ;;
+        esac
+    done
+}
 
 # Parse actual frontend port from Vite log output
 detect_frontend_port() {
@@ -441,7 +452,7 @@ cmd_logs() {
 cmd_help() {
     echo "Agent Forge CLI"
     echo ""
-    echo "Usage: forge <command>"
+    echo "Usage: forge <command> [flags]"
     echo ""
     echo "Commands:"
     echo "  start      Start API and frontend servers"
@@ -456,9 +467,21 @@ cmd_help() {
     echo "  update     Pull latest code and reinstall deps if changed"
     echo "  logs       Tail API server logs"
     echo "  help       Show this help message"
+    echo ""
+    echo "Flags:"
+    echo "  --api-port <port>       API server port (default: 8000)"
+    echo "  --frontend-port <port>  Frontend server port (default: 3000)"
+    echo ""
+    echo "Environment variables:"
+    echo "  AGENT_FORGE_PORT            Same as --api-port"
+    echo "  AGENT_FORGE_FRONTEND_PORT   Same as --frontend-port"
 }
 
-case "${1:-help}" in
+CMD="${1:-help}"
+shift 2>/dev/null || true
+parse_flags "$@"
+
+case "$CMD" in
     start)     cmd_start ;;
     stop)      cmd_stop ;;
     restart)   cmd_restart ;;
@@ -471,7 +494,7 @@ case "${1:-help}" in
     update)    cmd_update ;;
     logs)      cmd_logs ;;
     help)      cmd_help ;;
-    *)         warn "Unknown command: $1"; cmd_help; exit 1 ;;
+    *)         warn "Unknown command: $CMD"; cmd_help; exit 1 ;;
 esac
 FORGE_SCRIPT
     chmod +x "$FORGE_BIN/forge"

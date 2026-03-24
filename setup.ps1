@@ -111,15 +111,19 @@ function GenerateForgeCli {
 
     $forgeScript = @'
 # Agent Forge CLI for Windows
-param([string]$Command = "help")
+param(
+    [string]$Command = "help",
+    [string]$ApiPort = "",
+    [string]$FrontendPort = ""
+)
 
 $FORGE_HOME = "$env:USERPROFILE\.forge"
 $FORGE_REPO = "$FORGE_HOME\Agent-Forge"
 $PID_DIR = "$FORGE_HOME\pids"
 
-# Ports -- configurable via env vars (same as API config)
-$API_PORT = if ($env:AGENT_FORGE_PORT) { $env:AGENT_FORGE_PORT } else { "8000" }
-$FRONTEND_PORT = if ($env:AGENT_FORGE_FRONTEND_PORT) { $env:AGENT_FORGE_FRONTEND_PORT } else { "3000" }
+# Ports -- flags > env vars > defaults
+$API_PORT = if ($ApiPort) { $ApiPort } elseif ($env:AGENT_FORGE_PORT) { $env:AGENT_FORGE_PORT } else { "8000" }
+$FRONTEND_PORT = if ($FrontendPort) { $FrontendPort } elseif ($env:AGENT_FORGE_FRONTEND_PORT) { $env:AGENT_FORGE_FRONTEND_PORT } else { "3000" }
 
 function Info($msg)  { Write-Host "[forge] $msg" -ForegroundColor Cyan }
 function Ok($msg)    { Write-Host "[forge] $msg" -ForegroundColor Green }
@@ -373,7 +377,7 @@ function Get-ForgeLogs {
 function Show-Help {
     Write-Host "Agent Forge CLI"
     Write-Host ""
-    Write-Host "Usage: forge <command>"
+    Write-Host "Usage: forge <command> [-ApiPort <port>] [-FrontendPort <port>]"
     Write-Host ""
     Write-Host "Commands:"
     Write-Host "  start      Start API and frontend servers"
@@ -388,6 +392,14 @@ function Show-Help {
     Write-Host "  update     Pull latest code and reinstall deps if changed"
     Write-Host "  logs       Tail API server logs"
     Write-Host "  help       Show this help message"
+    Write-Host ""
+    Write-Host "Flags:"
+    Write-Host "  -ApiPort <port>       API server port (default: 8000)"
+    Write-Host "  -FrontendPort <port>  Frontend server port (default: 3000)"
+    Write-Host ""
+    Write-Host "Environment variables:"
+    Write-Host "  AGENT_FORGE_PORT            Same as -ApiPort"
+    Write-Host "  AGENT_FORGE_FRONTEND_PORT   Same as -FrontendPort"
 }
 
 switch ($Command) {
