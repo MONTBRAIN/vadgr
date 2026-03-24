@@ -3,6 +3,10 @@
 
 $ErrorActionPreference = "Stop"
 
+# Allow child .ps1 shims (npm.ps1, npx.ps1, etc.) to run inside this process.
+# Without this, `irm ... | iex` works but spawning npm fails under Restricted policy.
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+
 $FORGE_HOME = "$env:USERPROFILE\.forge"
 $FORGE_BIN = "$FORGE_HOME\bin"
 $FORGE_REPO = "$FORGE_HOME\Agent-Forge"
