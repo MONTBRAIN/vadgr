@@ -126,6 +126,7 @@ class ComputerUseEngine:
         self,
         config_path: Optional[str] = None,
         provider: Optional[str] = None,
+        cache_enabled: bool = True,
     ):
         self._config = self._load_config(config_path)
         self._platform = detect_platform()
@@ -152,12 +153,16 @@ class ComputerUseEngine:
         self._screen_w: int = 0
         self._screen_h: int = 0
 
-        # Muscle memory cache (cross-platform).
-        db_path = _default_cache_path()
-        self._cache = MuscleMemoryCache(db_path)
+        # Muscle memory cache (cross-platform, can be disabled).
+        if cache_enabled:
+            db_path = _default_cache_path()
+            self._cache: Optional[MuscleMemoryCache] = MuscleMemoryCache(db_path)
+            logger.info("Muscle memory cache: %s", db_path)
+        else:
+            self._cache = None
+            logger.info("Muscle memory cache: disabled")
         self._last_hint: str = ""
         self._last_app: str = ""
-        logger.info("Muscle memory cache: %s", db_path)
 
         # Foreground window cache (TTL-based).
         self._fg_window: Optional[ForegroundWindow] = None
@@ -291,6 +296,8 @@ class ComputerUseEngine:
 
     def _cache_lookup(self, ctx: _CacheContext) -> int:
         """Look up in muscle memory. Returns hit_count (0 on miss)."""
+        if self._cache is None:
+            return 0
         entry = self._cache.lookup(
             ctx.app_name, ctx.hint, ctx.cache_x, ctx.cache_y
         )
@@ -298,6 +305,8 @@ class ComputerUseEngine:
 
     def _cache_record(self, ctx: _CacheContext) -> None:
         """Record a successful interaction in muscle memory."""
+        if self._cache is None:
+            return
         self._cache.record_hit(
             ctx.app_name, ctx.hint, ctx.cache_x, ctx.cache_y,
             prev_hint=self._last_hint,
@@ -512,6 +521,12 @@ class ComputerUseEngine:
             # Step 2: strict cache lookup under current app
             # lookup_for_nav falls back to hint-only search across all apps
             # when exact app+hint misses (handles wsl2 app name mismatch).
+            if self._cache is None:
+                return {
+                    "completed": completed, "total": len(hints),
+                    "last_hint": last_hint, "stopped": True,
+                    "reason": "cache disabled, navigation unavailable",
+                }
             entry = self._cache.lookup_for_nav(current_app, hint)
             if entry is None:
                 return {
@@ -610,7 +625,7 @@ class ComputerUseEngine:
                 target_app = self._platform.value
 
         # Try path finding if we know where we are
-        if current_hint:
+        if current_hint and self._cache is not None:
             path = self._cache.find_path(target_app, current_hint, target_hint)
             if path and len(path) > 1:
                 # path is list of (app, hint) tuples; skip first (current pos).
@@ -636,6 +651,11 @@ class ComputerUseEngine:
         Returns dict with completed/total/stopped/reason (same format as
         navigate_chain). Increments use_count on successful completion.
         """
+        if self._cache is None:
+            return {
+                "completed": 0, "total": 0, "last_hint": "",
+                "stopped": True, "reason": "cache disabled, templates unavailable",
+            }
         result_tpl = self._cache.get_template(name)
         if result_tpl is None:
             return {
@@ -682,7 +702,8 @@ class ComputerUseEngine:
                 time.sleep(step.wait_ms / 1000.0)
             completed += 1
 
-        self._cache.increment_template_use(name)
+        if self._cache is not None:
+            self._cache.increment_template_use(name)
         return {
             "completed": completed, "total": len(steps),
             "last_hint": "", "stopped": False, "reason": "",

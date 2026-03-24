@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../ui/Button';
@@ -8,6 +8,7 @@ import { Select } from '../ui/Select';
 import { SchemaEditor } from './SchemaEditor';
 import { useCreateAgent, useUpdateAgent, useImportAgentPackage } from '../../hooks/useAgents';
 import { useProviders } from '../../hooks/useProviders';
+import { api } from '../../api/client';
 import { BUSY_STATUSES } from '../../types';
 import type { Agent, SchemaField } from '../../types';
 
@@ -63,6 +64,14 @@ export function AgentForm({ agent }: AgentFormProps) {
       event.target.value = '';
     }
   };
+
+  // Check if computer use is enabled globally
+  const [cuEnabled, setCuEnabled] = useState(true);
+  useEffect(() => {
+    api.get<{ enabled: boolean }>('/settings/computer-use')
+      .then((data) => setCuEnabled(data.enabled))
+      .catch(() => {});
+  }, []);
 
   const isEditing = !!agent;
   const isBusy = agent?.status !== undefined && BUSY_STATUSES.has(agent.status);
@@ -246,14 +255,14 @@ export function AgentForm({ agent }: AgentFormProps) {
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     type="button"
-                    onClick={() => toggleStepComputerUse(i)}
+                    onClick={() => cuEnabled && toggleStepComputerUse(i)}
                     className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                       step.computer_use
                         ? 'bg-accent/15 text-accent border border-accent/40 shadow-sm shadow-accent/10'
                         : 'bg-bg-tertiary text-text-muted border border-border/50 hover:border-border hover:text-text-secondary cursor-pointer'
-                    }`}
-                    disabled={isBusy}
-                    title={step.computer_use ? 'This step can take control of your computer: open apps, click, type, and navigate' : 'Click to let this step take control of your computer'}
+                    } ${!cuEnabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={isBusy || !cuEnabled}
+                    title={!cuEnabled ? 'Enable computer use in Settings to use desktop steps' : step.computer_use ? 'This step can take control of your computer: open apps, click, type, and navigate' : 'Click to let this step take control of your computer'}
                   >
                     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
                       <rect x="1" y="2" width="14" height="9" rx="1.5"/>

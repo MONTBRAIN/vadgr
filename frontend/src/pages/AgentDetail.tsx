@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useAgent, useDeleteAgent, useExportAgentPackage, useRunAgent, useUploadAgentArtifact } from '../hooks/useAgents';
 import { useProviders } from '../hooks/useProviders';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { StatusBadge, ProviderBadge } from '../components/ui/Badge';
 import { PixelBack, PixelGear, PixelPlay, PixelStep } from '../components/ui/PixelIcon';
+import { api } from '../api/client';
 import { BUSY_STATUSES } from '../types';
 import type { ArtifactDescriptor, SchemaField } from '../types';
 
@@ -150,6 +151,16 @@ export function AgentDetail() {
 
   const isReady = agent.status === 'ready';
   const isBusy = BUSY_STATUSES.has(agent.status);
+  const [cuEnabled, setCuEnabled] = useState(true);
+  const needsCu = agent.computer_use;
+  const cuBlocked = needsCu && !cuEnabled;
+
+  useEffect(() => {
+    api.get<{ enabled: boolean }>('/settings/computer-use')
+      .then((data) => setCuEnabled(data.enabled))
+      .catch(() => {});
+  }, []);
+
   const providerOptions = providers ?? [];
   const modelOptions = providerOptions.find((provider) => provider.id === runProvider)?.models ?? [];
 
@@ -218,11 +229,20 @@ export function AgentDetail() {
           </Button>
           <Button variant="secondary" size="sm" onClick={() => navigate(`/agents/${agent.id}/edit`)} disabled={isBusy}>Edit</Button>
           <Button variant="danger" size="sm" onClick={handleDelete}>Delete</Button>
-          <Button size="sm" onClick={handleRun} disabled={runAgent.isPending || uploadArtifact.isPending || !isReady}>
+          <Button size="sm" onClick={handleRun} disabled={runAgent.isPending || uploadArtifact.isPending || !isReady || cuBlocked}>
             <PixelPlay size={12} color="var(--color-bg-primary)" /> {isBusy ? 'Generating...' : uploadArtifact.isPending ? 'Uploading...' : 'Start Run'}
           </Button>
         </div>
       </div>
+
+      {cuBlocked && (
+        <Card className="p-4 border-warning/30 bg-warning/5 mb-6">
+          <p className="text-sm text-warning font-body">
+            This agent has desktop steps but computer use is disabled.{' '}
+            <Link to="/settings" className="underline font-medium">Enable it in Settings</Link> to run this agent.
+          </p>
+        </Card>
+      )}
 
       {isBusy && (
         <Card className="p-4 border-info/30 bg-info/5 mb-6">

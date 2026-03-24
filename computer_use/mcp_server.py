@@ -94,7 +94,8 @@ def _get_engine():
     global _engine, _MAX_WIDTH
     if _engine is None:
         from computer_use.core.engine import ComputerUseEngine
-        _engine = ComputerUseEngine()
+        cache_enabled = os.environ.get("AGENT_FORGE_CACHE_ENABLED", "1") != "0"
+        _engine = ComputerUseEngine(cache_enabled=cache_enabled)
         logger.info("Engine initialized (platform=%s)", _engine.get_platform().value)
         if _MAX_WIDTH == 0:
             w, _ = _engine.get_screen_size()
@@ -395,6 +396,8 @@ def create_template(name: str, app_name: str, steps: list) -> str:
     Example step: {"action": "key_press", "text": "ctrl+s", "wait_ms": 200}
     """
     engine = _get_engine()
+    if engine._cache is None:
+        return "Error: cache is disabled, templates unavailable"
     step_dicts = [dict(s) if not isinstance(s, dict) else s for s in steps]
     try:
         tid = engine._cache.create_template(name, app_name, step_dicts)
@@ -433,6 +436,8 @@ def list_templates(app_name: str = "") -> str:
     Returns a summary of each template with name, app, use count, and step count.
     """
     engine = _get_engine()
+    if engine._cache is None:
+        return "No templates (cache is disabled)."
     templates = engine._cache.list_templates(app_name=app_name or None)
     if not templates:
         return "No templates found."
@@ -449,6 +454,8 @@ def list_templates(app_name: str = "") -> str:
 def delete_template(name: str) -> str:
     """Delete an action template by name."""
     engine = _get_engine()
+    if engine._cache is None:
+        return "Error: cache is disabled, templates unavailable"
     if engine._cache.delete_template(name):
         return f"Template '{name}' deleted."
     return f"Template '{name}' not found."

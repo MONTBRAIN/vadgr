@@ -6,6 +6,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useProviders } from '../hooks/useProviders';
 import { agentsApi } from '../api/agents';
 import { runsApi } from '../api/runs';
+import { api } from '../api/client';
 import { PixelMoon, PixelSun, PixelGear, PixelClock } from '../components/ui/PixelIcon';
 
 const STORAGE_KEY = 'agent-forge-settings';
@@ -14,6 +15,7 @@ interface AppSettings {
   defaultProvider: string;
   defaultModel: string;
   computerUse: boolean;
+  cacheEnabled: boolean;
   autoRefreshInterval: string;
   maxConcurrentRuns: number;
 }
@@ -22,6 +24,7 @@ const defaults: AppSettings = {
   defaultProvider: 'claude_code',
   defaultModel: 'claude-sonnet-4-6',
   computerUse: false,
+  cacheEnabled: true,
   autoRefreshInterval: '5',
   maxConcurrentRuns: 3,
 };
@@ -41,6 +44,44 @@ export function Settings() {
   const [settings, setSettings] = useState<AppSettings>(loadSettings);
   const [saved, setSaved] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [cuEnabled, setCuEnabled] = useState(false);
+  const [cuCacheEnabled, setCuCacheEnabled] = useState(true);
+  const [cuLoading, setCuLoading] = useState(false);
+
+  // Load computer use status from API on mount
+  useEffect(() => {
+    api.get<{ enabled: boolean; cache_enabled: boolean }>('/settings/computer-use')
+      .then((data) => {
+        setCuEnabled(data.enabled);
+        setCuCacheEnabled(data.cache_enabled);
+      })
+      .catch(() => {});
+  }, []);
+
+  const toggleComputerUse = async (enabled: boolean) => {
+    setCuLoading(true);
+    try {
+      const result = await api.put<{ enabled: boolean; cache_enabled: boolean }>(
+        '/settings/computer-use',
+        { enabled, cache_enabled: cuCacheEnabled },
+      );
+      setCuEnabled(result.enabled);
+      setCuCacheEnabled(result.cache_enabled);
+    } catch { /* ignore */ }
+    setCuLoading(false);
+  };
+
+  const toggleCuCache = async (cacheEnabled: boolean) => {
+    setCuLoading(true);
+    try {
+      const result = await api.put<{ enabled: boolean; cache_enabled: boolean }>(
+        '/settings/computer-use',
+        { enabled: cuEnabled, cache_enabled: cacheEnabled },
+      );
+      setCuCacheEnabled(result.cache_enabled);
+    } catch { /* ignore */ }
+    setCuLoading(false);
+  };
 
   useEffect(() => {
     if (saved) {
@@ -156,6 +197,62 @@ export function Settings() {
               <span
                 className="absolute top-[3px] w-5 h-5 rounded-full bg-white shadow-[0_1px_4px_rgba(0,0,0,0.2)] transition-all"
                 style={{ left: autoRefresh ? 25 : 3 }}
+              />
+            </button>
+          </div>
+        </Card>
+
+        {/* Experimental */}
+        <Card className="px-7 py-6 border-accent/20">
+          <div className="flex items-center gap-2.5 mb-1">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--color-accent)" strokeWidth="1.3">
+              <path d="M6 2v4.5L3 12.5a1 1 0 001 1.5h8a1 1 0 001-1.5L10 6.5V2" strokeLinecap="round" strokeLinejoin="round"/>
+              <line x1="4.5" y1="2" x2="11.5" y2="2" strokeLinecap="round"/>
+              <circle cx="7.5" cy="10" r="0.8" fill="var(--color-accent)" stroke="none"/>
+              <circle cx="10" cy="11.5" r="0.6" fill="var(--color-accent)" stroke="none"/>
+            </svg>
+            <h2 className="font-heading text-lg font-semibold text-text-primary">Experimental</h2>
+          </div>
+          <p className="font-body text-xs text-text-muted font-light ml-[26px] mb-5">Features in development. May not work on all platforms.</p>
+
+          {/* Computer Use Toggle */}
+          <div className="flex items-center justify-between py-3 border-b border-border/50">
+            <div className="flex-1">
+              <span className="text-sm text-text-secondary font-body">Computer use</span>
+              <p className="text-xs text-text-muted font-light mt-0.5">
+                Allows agents to control your desktop: open apps, click, type, and navigate.
+              </p>
+            </div>
+            <button
+              onClick={() => toggleComputerUse(!cuEnabled)}
+              disabled={cuLoading}
+              className="w-12 h-[26px] rounded-full border-none cursor-pointer relative transition-colors shrink-0 ml-4 disabled:opacity-50"
+              style={{ background: cuEnabled ? 'var(--color-success)' : 'var(--color-border)' }}
+            >
+              <span
+                className="absolute top-[3px] w-5 h-5 rounded-full bg-white shadow-[0_1px_4px_rgba(0,0,0,0.2)] transition-all"
+                style={{ left: cuEnabled ? 25 : 3 }}
+              />
+            </button>
+          </div>
+
+          {/* Computer Use Cache Toggle */}
+          <div className={`flex items-center justify-between py-3 mt-1 ${!cuEnabled ? 'opacity-40' : ''}`}>
+            <div className="flex-1">
+              <span className="text-sm text-text-secondary font-body">Computer use cache</span>
+              <p className="text-xs text-text-muted font-light mt-0.5">
+                Remembers where UI elements are for faster, more precise interactions.
+              </p>
+            </div>
+            <button
+              onClick={() => cuEnabled && toggleCuCache(!cuCacheEnabled)}
+              disabled={!cuEnabled || cuLoading}
+              className="w-12 h-[26px] rounded-full border-none cursor-pointer relative transition-colors shrink-0 ml-4 disabled:cursor-not-allowed"
+              style={{ background: cuEnabled && cuCacheEnabled ? 'var(--color-success)' : 'var(--color-border)' }}
+            >
+              <span
+                className="absolute top-[3px] w-5 h-5 rounded-full bg-white shadow-[0_1px_4px_rgba(0,0,0,0.2)] transition-all"
+                style={{ left: cuEnabled && cuCacheEnabled ? 25 : 3 }}
               />
             </button>
           </div>
