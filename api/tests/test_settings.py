@@ -343,6 +343,19 @@ class TestMultiProviderMcpConfig:
             # Should have args as array
             assert 'args = [' in content
 
+    def test_codex_config_backslashes_safe_on_windows(self, tmp_path):
+        """cwd with Windows backslashes must use TOML literal strings (single quotes)."""
+        # Simulate a Windows-style path with backslashes
+        fake_root = Path("C:\\Users\\TestUser\\.forge\\Agent-Forge")
+        with self._patch_all(tmp_path):
+            with patch.object(cu_setup, "PROJECT_ROOT", fake_root):
+                cu_setup.enable_computer_use()
+                content = (tmp_path / ".codex" / "config.toml").read_text()
+                # cwd must use single quotes so backslashes are literal, not TOML escapes
+                assert "cwd = 'C:\\Users\\TestUser\\.forge\\Agent-Forge'" in content
+                # Must NOT use double quotes with unescaped backslashes
+                assert 'cwd = "C:\\' not in content
+
     def test_disable_removes_all_config_files(self, tmp_path):
         """Disabling computer use removes .mcp.json, .gemini/settings.json, and .codex/config.toml."""
         mcp_path = tmp_path / ".mcp.json"
