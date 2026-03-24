@@ -239,10 +239,18 @@ cmd_start() {
     echo $! > "$PID_DIR/api.pid"
 
     # Wait for API to be ready
+    local api_ready=0
     for i in $(seq 1 15); do
-        if curl -s "http://127.0.0.1:$API_PORT/api/health" >/dev/null 2>&1; then break; fi
+        if curl -s "http://127.0.0.1:$API_PORT/api/health" >/dev/null 2>&1; then
+            api_ready=1
+            break
+        fi
         sleep 1
     done
+    if [ "$api_ready" -eq 0 ]; then
+        warn "API failed to start. Check $FORGE_HOME/api.log for details."
+        return 1
+    fi
 
     # Start frontend (pass ports so Vite reads them)
     info "Starting frontend..."
@@ -368,12 +376,20 @@ cmd_api() {
         --host 127.0.0.1 --port "$API_PORT" > "$FORGE_HOME/api.log" 2>&1 &
     echo $! > "$PID_DIR/api.pid"
 
+    local api_ready=0
     for i in $(seq 1 15); do
-        if curl -s "http://127.0.0.1:$API_PORT/api/health" >/dev/null 2>&1; then break; fi
+        if curl -s "http://127.0.0.1:$API_PORT/api/health" >/dev/null 2>&1; then
+            api_ready=1
+            break
+        fi
         sleep 1
     done
 
-    ok "API is running at http://localhost:$API_PORT"
+    if [ "$api_ready" -eq 1 ]; then
+        ok "API is running at http://localhost:$API_PORT"
+    else
+        warn "API failed to start. Check $FORGE_HOME/api.log for details."
+    fi
 }
 
 cmd_health() {
