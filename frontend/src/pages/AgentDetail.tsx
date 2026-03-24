@@ -105,6 +105,7 @@ export function AgentDetail() {
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [runProvider, setRunProvider] = useState('');
   const [runModel, setRunModel] = useState('');
+  const [cuEnabled, setCuEnabled] = useState(true);
 
   const hasInputSchema = agent?.input_schema.length > 0;
   const displayInputs: SchemaField[] = hasInputSchema
@@ -146,20 +147,19 @@ export function AgentDetail() {
     }
   }, [providers, runProvider, runModel]);
 
-  if (isLoading) return <div className="text-sm text-text-muted p-10">Loading...</div>;
-  if (!agent) return <div className="text-sm text-text-muted p-10">Agent not found.</div>;
-
-  const isReady = agent.status === 'ready';
-  const isBusy = BUSY_STATUSES.has(agent.status);
-  const [cuEnabled, setCuEnabled] = useState(true);
-  const needsCu = agent.computer_use;
-  const cuBlocked = needsCu && !cuEnabled;
-
   useEffect(() => {
     api.get<{ enabled: boolean }>('/settings/computer-use')
       .then((data) => setCuEnabled(data.enabled))
       .catch(() => {});
   }, []);
+
+  if (isLoading) return <div className="text-sm text-text-muted p-10">Loading...</div>;
+  if (!agent) return <div className="text-sm text-text-muted p-10">Agent not found.</div>;
+
+  const isReady = agent.status === 'ready';
+  const isBusy = BUSY_STATUSES.has(agent.status);
+  const needsCu = agent.computer_use;
+  const cuBlocked = needsCu && !cuEnabled;
 
   const providerOptions = providers ?? [];
   const modelOptions = providerOptions.find((provider) => provider.id === runProvider)?.models ?? [];

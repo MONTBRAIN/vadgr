@@ -95,6 +95,15 @@ function SetupApi {
     New-Item -ItemType Directory -Force -Path data | Out-Null
 }
 
+function SetupForgeScripts {
+    Info "Setting up forge scripts..."
+    Set-Location $FORGE_REPO
+    if (-not (Test-Path "forge\scripts\.venv")) {
+        python -m venv forge\scripts\.venv
+    }
+    & forge\scripts\.venv\Scripts\pip.exe install -q -r forge\scripts\requirements.txt
+}
+
 function SetupFrontend {
     Info "Setting up frontend..."
     Set-Location "$FORGE_REPO\frontend"
@@ -457,6 +466,7 @@ function Main {
     InstallNode
     SetupRepo
     SetupApi
+    SetupForgeScripts
     SetupFrontend
     GenerateForgeCli
     AddToPath
