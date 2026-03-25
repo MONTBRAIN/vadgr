@@ -512,6 +512,31 @@ class TestBuildStepPrompt:
         assert "output/agent_outputs/" in prompt
         assert "step_01_agent_output.md" in prompt
 
+    def test_step_prompt_has_execution_directive(self):
+        """Every step prompt ends with the universal execution directive."""
+        agent = {
+            "forge_path": "output/test/",
+            "name": "test",
+            "steps": [{"name": "Analyze", "computer_use": False}],
+            "output_schema": [],
+        }
+        prompt = build_step_prompt(agent, {}, step_number=1, step=agent["steps"][0])
+        assert "DO NOT summarize" in prompt
+        assert "DO NOT ask for confirmation" in prompt
+        assert "Execute this step immediately" in prompt
+
+    def test_execution_directive_is_last_section(self):
+        """The execution directive should be at the end of the prompt."""
+        agent = {
+            "forge_path": "output/test/",
+            "name": "test",
+            "steps": [{"name": "Analyze", "computer_use": False}],
+            "output_schema": [],
+        }
+        prompt = build_step_prompt(agent, {"topic": "AI"}, step_number=1, step=agent["steps"][0])
+        # The directive should be in the last lines
+        assert prompt.strip().endswith("actually do it.")
+
     def test_new_format_references_correct_step(self, tmp_path):
         """Step file reference matches step number and kebab name."""
         forge_path = "output/test-agent"

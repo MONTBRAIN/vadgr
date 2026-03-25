@@ -223,6 +223,20 @@ class TestBuildAgentPrompt:
         prompt = build_agent_prompt(agent, {})
         assert "Your goal:" not in prompt
 
+    def test_prompt_has_execution_directive(self):
+        """Every agent prompt ends with the universal execution directive."""
+        agent = {"name": "T", "description": "test", "forge_path": "output/t/"}
+        prompt = build_agent_prompt(agent, {})
+        assert "DO NOT summarize" in prompt
+        assert "DO NOT ask for confirmation" in prompt
+        assert "Execute this step immediately" in prompt
+
+    def test_execution_directive_present_without_forge_path(self):
+        """Execution directive is appended even for agents without forge_path."""
+        agent = {"name": "T", "description": "test", "forge_path": ""}
+        prompt = build_agent_prompt(agent, {})
+        assert "Execute this step immediately" in prompt
+
 
 class TestCLIAgentProvider:
 

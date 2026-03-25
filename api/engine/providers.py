@@ -536,6 +536,15 @@ class CLIAgentProvider:
                 await kill_process_tree(proc)
 
 
+_EXECUTION_DIRECTIVE = (
+    "Execute this step immediately. DO NOT summarize what you read. DO NOT ask "
+    "for confirmation. DO NOT say \"I can do this if you want\". Read the step "
+    "file, perform every action it describes, and write all required output "
+    "files before finishing. If a step requires computer use tools, use them "
+    "-- do not describe what you would do, actually do it."
+)
+
+
 def build_agent_prompt(agent: dict, inputs: dict, run_id: str = "") -> str:
     """Build the prompt to send to the CLI provider.
 
@@ -610,6 +619,7 @@ def build_agent_prompt(agent: dict, inputs: dict, run_id: str = "") -> str:
             )
         parts.append("No explanation, no markdown -- just the JSON.")
 
+    parts.append(f"\n{_EXECUTION_DIRECTIVE}")
     return "\n".join(parts)
 
 
@@ -725,6 +735,7 @@ def build_step_prompt(
             )
         parts.append("No explanation, no markdown -- just the JSON.")
 
+    parts.append(f"\n{_EXECUTION_DIRECTIVE}")
     return "\n".join(parts)
 
 
