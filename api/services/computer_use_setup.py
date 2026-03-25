@@ -13,7 +13,7 @@ import os
 import subprocess
 from pathlib import Path
 
-from api.utils.platform import python_command, venv_pip
+from api.utils.platform import python_command, venv_pip, venv_python
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +31,17 @@ def _python_command() -> str:
     return python_command()
 
 
+def _cu_venv_python() -> str:
+    """Return the full path to the Python inside the computer_use venv.
+
+    CLI tools (Codex, Gemini) start MCP servers independently -- they
+    don't inherit our PATH, so bare ``python`` resolves to the system
+    Python which lacks the MCP dependencies.  Using the full venv path
+    works on both Windows (Scripts/python) and Linux (bin/python).
+    """
+    return str(venv_python(CU_VENV_DIR))
+
+
 def _mcp_json_content(cache_enabled: bool = True) -> dict:
     """Build .mcp.json content with platform-correct values."""
     env = {"AGENT_FORGE_DEBUG": "1"}
@@ -39,7 +50,7 @@ def _mcp_json_content(cache_enabled: bool = True) -> dict:
     return {
         "mcpServers": {
             "computer-use": {
-                "command": _python_command(),
+                "command": _cu_venv_python(),
                 "args": ["-m", "computer_use.mcp_server", "--transport", "stdio"],
                 "cwd": str(PROJECT_ROOT),
                 "env": env,
@@ -59,11 +70,11 @@ def _codex_config_content(cache_enabled: bool = True) -> str:
     Uses TOML literal strings (single quotes) for ``cwd`` so that Windows
     backslashes are treated as literal characters, not escape sequences.
     """
-    python = _python_command()
+    python = _cu_venv_python()
     cwd = str(PROJECT_ROOT)
     lines = [
         '[mcp_servers.computer-use]',
-        f'command = "{python}"',
+        f"command = '{python}'",
         'args = ["-m", "computer_use.mcp_server", "--transport", "stdio"]',
         f"cwd = '{cwd}'",
         '',
