@@ -304,7 +304,7 @@ class TestMultiProviderMcpConfig:
             data = json.loads(gemini_path.read_text())
             assert "computer-use" in data["mcpServers"]
             server = data["mcpServers"]["computer-use"]
-            assert server["command"] == cu_setup._python_command()
+            assert "python" in server["command"]  # full venv path contains 'python'
             assert "-m" in server["args"]
             assert "computer_use.mcp_server" in server["args"]
 
@@ -338,8 +338,9 @@ class TestMultiProviderMcpConfig:
             content = (tmp_path / ".codex" / "config.toml").read_text()
             # Should have the server table
             assert "[mcp_servers.computer-use]" in content
-            # Should have command
-            assert f'command = "{cu_setup._python_command()}"' in content
+            # Should have command with venv python path
+            assert "command = '" in content
+            assert "python" in content
             # Should have args as array
             assert 'args = [' in content
 
@@ -405,6 +406,47 @@ class TestMultiProviderMcpConfig:
             cu_setup.enable_computer_use(cache_enabled=False)
             content = (tmp_path / ".codex" / "config.toml").read_text()
             assert 'AGENT_FORGE_CACHE_ENABLED = "0"' in content
+
+    def test_all_configs_use_venv_python_not_bare_command(self, tmp_path):
+        """All MCP configs must use the full venv Python path, not bare python/python3."""
+        from api.utils.platform import venv_python
+        with self._patch_all(tmp_path):
+            cu_setup.enable_computer_use()
+            expected_python = str(venv_python(tmp_path / "cu_venv"))
+
+            # .mcp.json
+            mcp_data = json.loads((tmp_path / ".mcp.json").read_text())
+            assert mcp_data["mcpServers"]["computer-use"]["command"] == expected_python
+
+            # .gemini/settings.json
+            gemini_data = json.loads((tmp_path / ".gemini" / "settings.json").read_text())
+            assert gemini_data["mcpServers"]["computer-use"]["command"] == expected_python
+
+            # .codex/config.toml
+            codex_content = (tmp_path / ".codex" / "config.toml").read_text()
+            assert expected_python in codex_content
+
+    @patch("api.utils.platform.sys")
+    def test_venv_python_path_correct_on_linux(self, mock_sys, tmp_path):
+        """On Linux, configs use the venv bin/python path."""
+        mock_sys.platform = "linux"
+        with self._patch_all(tmp_path):
+            cu_setup.enable_computer_use()
+            mcp_data = json.loads((tmp_path / ".mcp.json").read_text())
+            command = mcp_data["mcpServers"]["computer-use"]["command"]
+            # Should contain bin/python, not Scripts/python
+            assert "bin" in command.replace("\\", "/")
+            assert "Scripts" not in command
+
+    @patch("api.utils.platform.sys")
+    def test_venv_python_path_correct_on_windows(self, mock_sys, tmp_path):
+        """On Windows, configs use the venv Scripts/python path."""
+        mock_sys.platform = "win32"
+        with self._patch_all(tmp_path):
+            cu_setup.enable_computer_use()
+            mcp_data = json.loads((tmp_path / ".mcp.json").read_text())
+            command = mcp_data["mcpServers"]["computer-use"]["command"]
+            assert "Scripts" in command
 
     def test_disable_tolerates_missing_gemini_and_codex(self, tmp_path):
         """Disable works even if only .mcp.json exists (Gemini/Codex never written)."""
