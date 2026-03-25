@@ -33,6 +33,19 @@ vi.mock('../../api/client', () => ({
   },
 }));
 
+// Mock useComputerUse — delegate toggleComputerUse to mockPut so existing tests work,
+// but track inflight state for navigation tests.
+let mockInflight: { promise: Promise<unknown>; activating: boolean } | null = null;
+vi.mock('../../hooks/useComputerUse', () => ({
+  getInflight: () => mockInflight,
+  resetInflight: () => { mockInflight = null; },
+  toggleComputerUse: (enabled: boolean, cacheEnabled: boolean) => {
+    const promise = mockPut('/settings/computer-use', { enabled, cache_enabled: cacheEnabled });
+    mockInflight = { promise, activating: enabled };
+    return promise.finally(() => { mockInflight = null; });
+  },
+}));
+
 import { Settings } from '../Settings';
 
 describe('Settings - Computer Use Toggle', () => {
@@ -132,5 +145,59 @@ describe('Settings - Computer Use Toggle', () => {
     });
     const pingEl = document.querySelector('.animate-ping');
     expect(pingEl).toBeNull();
+  });
+});
+
+describe('Settings - Computer Use Toggle survives navigation', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGet.mockResolvedValue({ enabled: false, cache_enabled: true });
+    mockInflight = null;
+  });
+
+  it('remount shows Activating while PUT is still in flight', async () => {
+    let resolvePut: (v: unknown) => void;
+    mockPut.mockReturnValue(new Promise((r) => { resolvePut = r; }));
+
+    // Mount, toggle ON
+    const { unmount } = render(<Settings />);
+    await waitFor(() => expect(screen.getByText('Disabled')).toBeTruthy());
+    await userEvent.click(screen.getByRole('button', { name: /computer use toggle/i }));
+    await waitFor(() => expect(screen.getByText('Activating...')).toBeTruthy());
+
+    // Simulate navigation: unmount and remount
+    unmount();
+    render(<Settings />);
+
+    // Should still show Activating, NOT Disabled
+    await waitFor(() => {
+      expect(screen.getByText('Activating...')).toBeTruthy();
+    });
+
+    // Resolve the PUT
+    resolvePut!({ enabled: true, cache_enabled: true });
+    await waitFor(() => {
+      expect(screen.getByText('Active')).toBeTruthy();
+    });
+  });
+
+  it('remount shows Active after in-flight PUT resolves', async () => {
+    // PUT resolves immediately
+    mockPut.mockResolvedValue({ enabled: true, cache_enabled: true });
+
+    const { unmount } = render(<Settings />);
+    await waitFor(() => expect(screen.getByText('Disabled')).toBeTruthy());
+    await userEvent.click(screen.getByRole('button', { name: /computer use toggle/i }));
+    await waitFor(() => expect(screen.getByText('Active')).toBeTruthy());
+
+    // Navigate away and back
+    unmount();
+    // Now GET returns the updated state
+    mockGet.mockResolvedValue({ enabled: true, cache_enabled: true });
+    render(<Settings />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Active')).toBeTruthy();
+    });
   });
 });

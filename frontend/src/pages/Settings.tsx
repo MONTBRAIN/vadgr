@@ -8,6 +8,7 @@ import { agentsApi } from '../api/agents';
 import { runsApi } from '../api/runs';
 import { api } from '../api/client';
 import { PixelMoon, PixelSun, PixelGear, PixelClock } from '../components/ui/PixelIcon';
+import { getInflight, toggleComputerUse as toggleCu } from '../hooks/useComputerUse';
 
 const STORAGE_KEY = 'agent-forge-settings';
 
@@ -50,14 +51,30 @@ export function Settings() {
   const [cuActivating, setCuActivating] = useState(false); // true = enabling, false = disabling
   const [cuError, setCuError] = useState<string | null>(null);
 
-  // Load computer use status from API on mount
+  // Load computer use status from API on mount, or pick up in-flight operation
   useEffect(() => {
-    api.get<{ enabled: boolean; cache_enabled: boolean }>('/settings/computer-use')
-      .then((data) => {
-        setCuEnabled(data.enabled);
-        setCuCacheEnabled(data.cache_enabled);
-      })
-      .catch(() => {});
+    const pending = getInflight();
+    if (pending) {
+      // An enable/disable is still running from before navigation — await it
+      setCuLoading(true);
+      setCuActivating(pending.activating);
+      pending.promise
+        .then((result) => {
+          setCuEnabled(result.enabled);
+          setCuCacheEnabled(result.cache_enabled);
+        })
+        .catch((e) => {
+          setCuError(e instanceof Error ? e.message : 'Failed to update computer use');
+        })
+        .finally(() => setCuLoading(false));
+    } else {
+      api.get<{ enabled: boolean; cache_enabled: boolean }>('/settings/computer-use')
+        .then((data) => {
+          setCuEnabled(data.enabled);
+          setCuCacheEnabled(data.cache_enabled);
+        })
+        .catch(() => {});
+    }
   }, []);
 
   const toggleComputerUse = async (enabled: boolean) => {
@@ -65,10 +82,7 @@ export function Settings() {
     setCuActivating(enabled);
     setCuError(null);
     try {
-      const result = await api.put<{ enabled: boolean; cache_enabled: boolean }>(
-        '/settings/computer-use',
-        { enabled, cache_enabled: cuCacheEnabled },
-      );
+      const result = await toggleCu(enabled, cuCacheEnabled);
       setCuEnabled(result.enabled);
       setCuCacheEnabled(result.cache_enabled);
     } catch (e) {
