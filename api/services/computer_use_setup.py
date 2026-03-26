@@ -70,8 +70,19 @@ def _mcp_json_content(cache_enabled: bool = True) -> dict:
 
 
 def _gemini_settings_content(cache_enabled: bool = True) -> dict:
-    """Build .gemini/settings.json content. Same mcpServers format as .mcp.json."""
-    return _mcp_json_content(cache_enabled=cache_enabled)
+    """Build .gemini/settings.json content.
+
+    Includes mcpServers (same as .mcp.json) plus context.fileFiltering
+    to disable respectGitIgnore -- Gemini CLI refuses to read files in
+    gitignored directories (like output/), which breaks workflow execution.
+    """
+    content = _mcp_json_content(cache_enabled=cache_enabled)
+    content["context"] = {
+        "fileFiltering": {
+            "respectGitIgnore": False,
+        },
+    }
+    return content
 
 
 def _codex_mcp_section(cache_enabled: bool = True) -> str:

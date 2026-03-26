@@ -308,6 +308,13 @@ class TestMultiProviderMcpConfig:
             assert "-m" in server["args"]
             assert "computer_use.mcp_server" in server["args"]
 
+    def test_gemini_settings_disables_gitignore(self, tmp_path):
+        """Gemini settings must disable respectGitIgnore so it can read output/ files."""
+        with self._patch_all(tmp_path):
+            cu_setup.enable_computer_use()
+            data = json.loads((tmp_path / ".gemini" / "settings.json").read_text())
+            assert data["context"]["fileFiltering"]["respectGitIgnore"] is False
+
     def test_enable_creates_codex_config(self, tmp_path):
         """Enabling computer use creates .codex/config.toml with mcp_servers."""
         with self._patch_all(tmp_path):
