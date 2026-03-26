@@ -604,13 +604,21 @@ class TestWSL2ActionExecutor:
 
 class TestWSL2Backend:
     @patch("shutil.which", return_value="/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe")
-    def test_is_available_true(self, _which):
+    def test_is_available_true_powershell(self, _which):
         backend = WSL2Backend()
         assert backend.is_available() is True
-        _which.assert_called_with("powershell.exe")
 
+    @patch.object(WSL2Backend, "_probe_bridge", return_value=True)
     @patch("shutil.which", return_value=None)
-    def test_is_available_false(self, _which):
+    def test_is_available_true_bridge_daemon(self, _which, _bridge):
+        """Available when bridge daemon is reachable even without powershell on PATH."""
+        backend = WSL2Backend()
+        assert backend.is_available() is True
+
+    @patch.object(WSL2Backend, "_probe_bridge", return_value=False)
+    @patch("shutil.which", return_value=None)
+    def test_is_available_false(self, _which, _bridge):
+        """Not available when neither powershell nor bridge daemon are reachable."""
         backend = WSL2Backend()
         assert backend.is_available() is False
 

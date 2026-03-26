@@ -1080,6 +1080,12 @@ class WSL2Backend(PlatformBackend):
         return self._executor
 
     def is_available(self) -> bool:
+        # Bridge daemon (native Windows TCP server) is the primary path --
+        # it doesn't need powershell.exe on PATH at all.
+        if self._probe_bridge():
+            return True
+        # Fallback: PowerShell subprocess (needs powershell.exe on PATH).
+        # On WSL2 with appendWindowsPath=false, shutil.which won't find it.
         return shutil.which("powershell.exe") is not None
 
     def get_foreground_window(self):
