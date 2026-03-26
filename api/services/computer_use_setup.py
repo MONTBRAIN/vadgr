@@ -20,10 +20,20 @@ logger = logging.getLogger(__name__)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 MCP_JSON_PATH = PROJECT_ROOT / ".mcp.json"
 GEMINI_SETTINGS_PATH = PROJECT_ROOT / ".gemini" / "settings.json"
-CODEX_CONFIG_PATH = PROJECT_ROOT / ".codex" / "config.toml"
+# Codex CLI ignores project-level .codex/config.toml for MCP servers.
+# It only reads the user-level global config.
+CODEX_GLOBAL_CONFIG_PATH = Path.home() / ".codex" / "config.toml"
 CU_VENV_DIR = PROJECT_ROOT / "computer_use" / ".venv"
 CU_REQUIREMENTS = PROJECT_ROOT / "computer_use" / "requirements.txt"
 DEPS_MARKER = ".deps_installed"
+
+# Regex to strip [mcp_servers.computer-use] and [mcp_servers.computer-use.env]
+# blocks from a TOML file.  A TOML section header is a '[' at the start of a
+# line, so we match everything until the next section header or EOF.
+import re
+_CODEX_MCP_SECTION_RE = re.compile(
+    r'\n?\[mcp_servers\.computer-use(?:\.env)?\]\n(?:(?!\n\[)[^\n]*\n?)*',
+)
 
 
 def _python_command() -> str:
@@ -64,10 +74,10 @@ def _gemini_settings_content(cache_enabled: bool = True) -> dict:
     return _mcp_json_content(cache_enabled=cache_enabled)
 
 
-def _codex_config_content(cache_enabled: bool = True) -> str:
-    """Build .codex/config.toml content with MCP server configuration.
+def _codex_mcp_section(cache_enabled: bool = True) -> str:
+    """Build the [mcp_servers.computer-use] TOML section for Codex.
 
-    Uses TOML literal strings (single quotes) for ``cwd`` so that Windows
+    Uses TOML literal strings (single quotes) for paths so that Windows
     backslashes are treated as literal characters, not escape sequences.
     """
     python = _cu_venv_python()
@@ -87,28 +97,63 @@ def _codex_config_content(cache_enabled: bool = True) -> str:
     return '\n'.join(lines)
 
 
+def _write_codex_global_config(cache_enabled: bool = True) -> None:
+    """Merge computer-use MCP section into ~/.codex/config.toml.
+
+    Reads existing content, strips any previous computer-use section,
+    then appends the new one. Preserves all other Codex settings.
+    """
+    CODEX_GLOBAL_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    existing = ""
+    if CODEX_GLOBAL_CONFIG_PATH.exists():
+        existing = CODEX_GLOBAL_CONFIG_PATH.read_text()
+
+    # Remove old computer-use sections (both main and .env sub-table)
+    cleaned = _CODEX_MCP_SECTION_RE.sub('', existing).rstrip('\n')
+
+    section = _codex_mcp_section(cache_enabled=cache_enabled)
+    if cleaned:
+        result = cleaned + '\n\n' + section
+    else:
+        result = section
+    CODEX_GLOBAL_CONFIG_PATH.write_text(result)
+
+
+def _remove_codex_mcp_section() -> None:
+    """Remove only the computer-use MCP section from ~/.codex/config.toml."""
+    if not CODEX_GLOBAL_CONFIG_PATH.exists():
+        return
+    existing = CODEX_GLOBAL_CONFIG_PATH.read_text()
+    cleaned = _CODEX_MCP_SECTION_RE.sub('', existing).strip('\n')
+    if cleaned:
+        CODEX_GLOBAL_CONFIG_PATH.write_text(cleaned + '\n')
+    else:
+        CODEX_GLOBAL_CONFIG_PATH.write_text('')
+
+
 def _write_all_provider_configs(cache_enabled: bool = True) -> None:
     """Write MCP config files for all supported providers."""
-    # Claude Code: .mcp.json
+    # Claude Code: .mcp.json (project-level)
     content = _mcp_json_content(cache_enabled=cache_enabled)
     MCP_JSON_PATH.write_text(json.dumps(content, indent=2) + "\n")
 
-    # Gemini CLI: .gemini/settings.json
+    # Gemini CLI: .gemini/settings.json (project-level)
     GEMINI_SETTINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
     gemini_content = _gemini_settings_content(cache_enabled=cache_enabled)
     GEMINI_SETTINGS_PATH.write_text(json.dumps(gemini_content, indent=2) + "\n")
 
-    # Codex CLI: .codex/config.toml
-    CODEX_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    CODEX_CONFIG_PATH.write_text(_codex_config_content(cache_enabled=cache_enabled))
+    # Codex CLI: ~/.codex/config.toml (global -- Codex ignores project-level MCP)
+    _write_codex_global_config(cache_enabled=cache_enabled)
 
 
 def _remove_all_provider_configs() -> None:
     """Remove MCP config files for all supported providers."""
-    for path in (MCP_JSON_PATH, GEMINI_SETTINGS_PATH, CODEX_CONFIG_PATH):
+    for path in (MCP_JSON_PATH, GEMINI_SETTINGS_PATH):
         if path.exists():
             path.unlink()
             logger.info("Removed %s", path.name)
+    # Codex: only remove our section, don't delete the global config
+    _remove_codex_mcp_section()
 
 
 def get_status() -> dict:

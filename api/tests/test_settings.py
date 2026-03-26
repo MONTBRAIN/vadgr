@@ -288,7 +288,7 @@ class TestMultiProviderMcpConfig:
         stack = ExitStack()
         stack.enter_context(patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"))
         stack.enter_context(patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"))
-        stack.enter_context(patch.object(cu_setup, "CODEX_CONFIG_PATH", tmp_path / ".codex" / "config.toml"))
+        stack.enter_context(patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", tmp_path / ".codex" / "config.toml"))
         stack.enter_context(patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "cu_venv"))
         stack.enter_context(patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "nonexistent.txt"))
         stack.enter_context(patch.object(cu_setup, "PROJECT_ROOT", tmp_path))
@@ -358,7 +358,7 @@ class TestMultiProviderMcpConfig:
                 assert 'cwd = "C:\\' not in content
 
     def test_disable_removes_all_config_files(self, tmp_path):
-        """Disabling computer use removes .mcp.json, .gemini/settings.json, and .codex/config.toml."""
+        """Disabling removes .mcp.json, .gemini/settings.json, and strips Codex MCP section."""
         mcp_path = tmp_path / ".mcp.json"
         gemini_path = tmp_path / ".gemini" / "settings.json"
         codex_path = tmp_path / ".codex" / "config.toml"
@@ -367,16 +367,18 @@ class TestMultiProviderMcpConfig:
         gemini_path.parent.mkdir(parents=True)
         gemini_path.write_text('{"mcpServers": {"computer-use": {}}}')
         codex_path.parent.mkdir(parents=True)
-        codex_path.write_text('[mcp_servers.computer-use]\ncommand = "python"')
+        codex_path.write_text('[mcp_servers.computer-use]\ncommand = "python"\n')
         with (
             patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
             patch.object(cu_setup, "GEMINI_SETTINGS_PATH", gemini_path),
-            patch.object(cu_setup, "CODEX_CONFIG_PATH", codex_path),
+            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", codex_path),
         ):
             cu_setup.disable_computer_use()
             assert not mcp_path.exists()
             assert not gemini_path.exists()
-            assert not codex_path.exists()
+            # Codex global config still exists but MCP section is gone
+            assert codex_path.exists()
+            assert "[mcp_servers.computer-use]" not in codex_path.read_text()
 
     def test_update_cache_updates_all_config_files(self, tmp_path):
         """update_cache_setting updates all three config files."""
@@ -388,7 +390,7 @@ class TestMultiProviderMcpConfig:
         with (
             patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
             patch.object(cu_setup, "GEMINI_SETTINGS_PATH", gemini_path),
-            patch.object(cu_setup, "CODEX_CONFIG_PATH", codex_path),
+            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", codex_path),
             patch.object(cu_setup, "PROJECT_ROOT", tmp_path),
         ):
             cu_setup.update_cache_setting(cache_enabled=False)
@@ -455,10 +457,205 @@ class TestMultiProviderMcpConfig:
         with (
             patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
             patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
-            patch.object(cu_setup, "CODEX_CONFIG_PATH", tmp_path / ".codex" / "config.toml"),
+            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", tmp_path / ".codex" / "config.toml"),
         ):
             cu_setup.disable_computer_use()  # Should not raise
             assert not mcp_path.exists()
+
+
+class TestCodexGlobalConfig:
+    """Tests that Codex MCP config is written to ~/.codex/config.toml (global).
+
+    Codex CLI ignores project-level .codex/config.toml for MCP server
+    discovery. It only reads from the user-level ~/.codex/config.toml.
+    """
+
+    def test_enable_writes_to_global_codex_config(self, tmp_path):
+        """enable_computer_use writes MCP section to ~/.codex/config.toml, not project."""
+        global_codex = tmp_path / "global_codex" / "config.toml"
+        project_codex = tmp_path / "project" / ".codex" / "config.toml"
+        with (
+            patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"),
+            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
+            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", global_codex),
+            patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "cu_venv"),
+            patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "nonexistent.txt"),
+            patch.object(cu_setup, "PROJECT_ROOT", tmp_path),
+            patch("subprocess.run"),
+        ):
+            cu_setup.enable_computer_use()
+            assert global_codex.exists()
+            assert not project_codex.exists()
+            content = global_codex.read_text()
+            assert "[mcp_servers.computer-use]" in content
+
+    def test_enable_preserves_existing_global_codex_settings(self, tmp_path):
+        """Writing MCP config must not clobber existing Codex settings (model, trust)."""
+        global_codex = tmp_path / "global_codex" / "config.toml"
+        global_codex.parent.mkdir(parents=True)
+        global_codex.write_text(
+            'model = "o3"\n'
+            'approval_mode = "suggest"\n'
+            '\n'
+            '[projects."/home/user/my-project"]\n'
+            'trust_level = "trusted"\n'
+        )
+        with (
+            patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"),
+            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
+            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", global_codex),
+            patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "cu_venv"),
+            patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "nonexistent.txt"),
+            patch.object(cu_setup, "PROJECT_ROOT", tmp_path),
+            patch("subprocess.run"),
+        ):
+            cu_setup.enable_computer_use()
+            content = global_codex.read_text()
+            # MCP section added
+            assert "[mcp_servers.computer-use]" in content
+            # Existing settings preserved
+            assert 'model = "o3"' in content
+            assert 'trust_level = "trusted"' in content
+
+    def test_enable_replaces_stale_mcp_section(self, tmp_path):
+        """Re-enabling updates the MCP section without duplicating it."""
+        global_codex = tmp_path / "global_codex" / "config.toml"
+        global_codex.parent.mkdir(parents=True)
+        global_codex.write_text(
+            'model = "o3"\n'
+            '\n'
+            '[mcp_servers.computer-use]\n'
+            'command = "/old/python"\n'
+            'args = ["-m", "old_module"]\n'
+            '\n'
+            '[mcp_servers.computer-use.env]\n'
+            'AGENT_FORGE_DEBUG = "1"\n'
+        )
+        with (
+            patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"),
+            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
+            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", global_codex),
+            patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "cu_venv"),
+            patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "nonexistent.txt"),
+            patch.object(cu_setup, "PROJECT_ROOT", tmp_path),
+            patch("subprocess.run"),
+        ):
+            cu_setup.enable_computer_use()
+            content = global_codex.read_text()
+            assert content.count("[mcp_servers.computer-use]") == 1
+            assert "/old/python" not in content
+            assert "old_module" not in content
+            assert "computer_use.mcp_server" in content
+
+    def test_disable_removes_mcp_section_preserves_rest(self, tmp_path):
+        """disable_computer_use removes only the MCP section from global config."""
+        global_codex = tmp_path / "global_codex" / "config.toml"
+        global_codex.parent.mkdir(parents=True)
+        global_codex.write_text(
+            'model = "o3"\n'
+            '\n'
+            '[mcp_servers.computer-use]\n'
+            'command = "/some/python"\n'
+            'args = ["-m", "computer_use.mcp_server"]\n'
+            '\n'
+            '[mcp_servers.computer-use.env]\n'
+            'AGENT_FORGE_DEBUG = "1"\n'
+            '\n'
+            '[projects."/home/user/proj"]\n'
+            'trust_level = "trusted"\n'
+        )
+        with (
+            patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"),
+            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
+            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", global_codex),
+        ):
+            cu_setup.disable_computer_use()
+            content = global_codex.read_text()
+            assert "[mcp_servers.computer-use]" not in content
+            assert "computer_use.mcp_server" not in content
+            # Other settings intact
+            assert 'model = "o3"' in content
+            assert 'trust_level = "trusted"' in content
+
+    def test_disable_does_not_delete_global_config(self, tmp_path):
+        """Disable must never delete ~/.codex/config.toml -- only remove our section."""
+        global_codex = tmp_path / "global_codex" / "config.toml"
+        global_codex.parent.mkdir(parents=True)
+        global_codex.write_text(
+            'model = "o3"\n'
+            '\n'
+            '[mcp_servers.computer-use]\n'
+            'command = "/some/python"\n'
+        )
+        with (
+            patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"),
+            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
+            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", global_codex),
+        ):
+            cu_setup.disable_computer_use()
+            assert global_codex.exists()  # file must still exist
+
+    def test_disable_tolerates_no_mcp_section(self, tmp_path):
+        """Disable works when global config exists but has no MCP section."""
+        global_codex = tmp_path / "global_codex" / "config.toml"
+        global_codex.parent.mkdir(parents=True)
+        global_codex.write_text('model = "o3"\n')
+        with (
+            patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"),
+            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
+            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", global_codex),
+        ):
+            cu_setup.disable_computer_use()  # no-op, should not raise
+            assert 'model = "o3"' in global_codex.read_text()
+
+    def test_disable_tolerates_no_global_config(self, tmp_path):
+        """Disable works when ~/.codex/config.toml doesn't exist at all."""
+        global_codex = tmp_path / "global_codex" / "config.toml"
+        with (
+            patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"),
+            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
+            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", global_codex),
+        ):
+            cu_setup.disable_computer_use()  # should not raise
+
+    def test_cache_disabled_in_global_codex(self, tmp_path):
+        """Cache disabled flag appears in the global Codex config."""
+        global_codex = tmp_path / "global_codex" / "config.toml"
+        with (
+            patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"),
+            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
+            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", global_codex),
+            patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "cu_venv"),
+            patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "nonexistent.txt"),
+            patch.object(cu_setup, "PROJECT_ROOT", tmp_path),
+            patch("subprocess.run"),
+        ):
+            cu_setup.enable_computer_use(cache_enabled=False)
+            content = global_codex.read_text()
+            assert 'AGENT_FORGE_CACHE_ENABLED = "0"' in content
+
+    def test_preserves_other_mcp_servers(self, tmp_path):
+        """Other MCP servers in the global config are not affected."""
+        global_codex = tmp_path / "global_codex" / "config.toml"
+        global_codex.parent.mkdir(parents=True)
+        global_codex.write_text(
+            '[mcp_servers.my-other-tool]\n'
+            'command = "npx"\n'
+            'args = ["my-tool"]\n'
+        )
+        with (
+            patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"),
+            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
+            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", global_codex),
+            patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "cu_venv"),
+            patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "nonexistent.txt"),
+            patch.object(cu_setup, "PROJECT_ROOT", tmp_path),
+            patch("subprocess.run"),
+        ):
+            cu_setup.enable_computer_use()
+            content = global_codex.read_text()
+            assert "[mcp_servers.my-other-tool]" in content
+            assert "[mcp_servers.computer-use]" in content
 
 
 class TestComputerUseSettingsEndpoints:
