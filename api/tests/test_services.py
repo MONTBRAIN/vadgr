@@ -1879,7 +1879,12 @@ class TestAgentExecutor:
                 {"name": "Write Report", "computer_use": False},
             ],
         }
-        result = await executor.execute(agent, {"topic": "test"}, callback)
+        # Simulate realistic step durations so desktop validation passes.
+        # monotonic() is called twice per step (start + end): 6 calls for 3 steps.
+        fake_times = iter([0.0, 5.0, 10.0, 55.0, 60.0, 65.0])
+        with patch("api.engine.executor.time") as mock_time:
+            mock_time.monotonic.side_effect = lambda: next(fake_times)
+            result = await executor.execute(agent, {"topic": "test"}, callback)
 
         # Should have called streaming 3 times (one per step)
         assert call_count == 3
