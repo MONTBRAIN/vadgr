@@ -12,9 +12,18 @@
 - Bug fix: provider is_available() catches PermissionError/OSError
 - Total tests: 1,173 (394 API + 96 registry + 683 computer_use)
 
-### In Progress
-- Bug hunting and E2E testing via frontend/API
-- Looking for edge cases in execution engine
+### Also Fixed
+- forge stop not killing frontend (PID mismatch from npm fork -- switched to npx vite)
+- Registry commands added to forge help text
+
+### Remaining Bugs Found (not fixed yet -- lower priority)
+- Desktop step 30s threshold is hardcoded, could fail on fast/slow systems
+- Skip-phrase detection in executor is easily bypassed by different wording
+- JSON parsing fallback in executor doesn't log when it falls back to text
+- Subprocess timeout in providers.py doesn't always clean up zombie processes
+- DAG runner doesn't validate agent_id references exist before execution
+- Database migration errors silently ignored in database.py
+- Path traversal possible via symlinks in output resolution (theoretical)
 
 ## Branch: feat/registry-cli
 
