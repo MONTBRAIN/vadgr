@@ -1,6 +1,20 @@
 # Registry Module Handoff
 
-## Status: CORE COMPLETE -- moving to bug hunting and E2E testing
+## Status: REGISTRY DONE + BUG FIXES IN PROGRESS
+
+### Completed
+- registry/ module: 13 source files, 96 tests, all passing
+- CLI wired into forge bash script (pack/pull/push/search delegate to python -m registry)
+- E2E verified: pack -> push -> search -> pull -> agents cycle works with local registry
+- CLAUDE.md + setup.sh updated
+- Bug fix: approval gate now actually resumes execution (was a no-op)
+- Bug fix: AgentRepository.update() whitelists field names
+- Bug fix: provider is_available() catches PermissionError/OSError
+- Total tests: 1,173 (394 API + 96 registry + 683 computer_use)
+
+### In Progress
+- Bug hunting and E2E testing via frontend/API
+- Looking for edge cases in execution engine
 
 ## Branch: feat/registry-cli
 
