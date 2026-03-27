@@ -35,8 +35,11 @@ async def run_websocket(websocket: WebSocket, run_id: str):
             if msg.get("type") == "approval_response":
                 action = msg.get("data", {}).get("action", "approve")
                 if action == "approve":
+                    execution_service = websocket.app.state.execution_service
                     await run_repo.update_status(run_id, "running")
-                    # In a full implementation, this would trigger
-                    # execution_service.resume_after_approval(run_id)
+                    import asyncio
+                    asyncio.create_task(
+                        execution_service.resume_after_approval(run_id)
+                    )
     except WebSocketDisconnect:
         manager.disconnect(run_id, websocket)

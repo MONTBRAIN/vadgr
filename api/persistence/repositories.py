@@ -144,6 +144,12 @@ class AgentRepository:
         )
         return [_row_to_agent(row) for row in await cursor.fetchall()]
 
+    _ALLOWED_UPDATE_FIELDS = frozenset({
+        "name", "description", "type", "status", "forge_path",
+        "steps", "samples", "input_schema", "output_schema",
+        "computer_use", "forge_config", "provider", "model",
+    })
+
     async def update(self, agent_id: str, **fields) -> Optional[dict]:
         existing = await self.get(agent_id)
         if not existing:
@@ -153,6 +159,8 @@ class AgentRepository:
         sets = []
         values = []
         for key, value in fields.items():
+            if key not in self._ALLOWED_UPDATE_FIELDS:
+                continue
             if value is not None:
                 sets.append(f"{key} = ?")
                 if key in json_fields:
