@@ -543,6 +543,10 @@ case "$CMD" in
     update)    cmd_update ;;
     logs)      cmd_logs ;;
     help)      cmd_help ;;
+    pack|pull|push|search)
+        # Delegate registry commands to the Python CLI
+        PYTHONPATH="$FORGE_REPO" "$FORGE_REPO/api/.venv/bin/python" -m registry "$CMD" "${@:2}"
+        ;;
     *)         warn "Unknown command: $CMD"; cmd_help; exit 1 ;;
 esac
 FORGE_SCRIPT

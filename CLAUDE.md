@@ -49,6 +49,18 @@ Agent-Forge/
 │   ├── grounding/                     # UI element location (accessibility + vision)
 │   ├── providers/                     # LLM adapters (Anthropic, OpenAI)
 │   └── tests/                         # Unit tests
+├── registry/                          # Agent package manager (standalone)
+│   ├── cli.py                         # Click CLI (pack, pull, push, search, agents)
+│   ├── manifest.py                    # .agnt manifest schema + validation
+│   ├── packer.py                      # Pack/unpack agent folders to .agnt archives
+│   ├── installer.py                   # Install/uninstall agents locally
+│   ├── registry_client.py             # High-level registry operations
+│   ├── config.py                      # Registry config (~/.forge/registry.yaml)
+│   ├── adapters/                      # Registry backend adapters
+│   │   ├── github.py                  # GitHub Releases adapter
+│   │   ├── http.py                    # Generic HTTP server adapter
+│   │   └── local.py                   # Local folder adapter
+│   └── tests/                         # Unit tests (96 tests)
 ├── paper/                             # Research paper
 └── output/                            # Generated workflows land here
 ```
@@ -75,6 +87,15 @@ For Claude Code, slash commands are available:
 /create-and-run [task]        # Generate workflow + execute immediately
 /pause-execution              # Pause computer use mid-execution
 /resume-execution             # Resume paused execution
+```
+
+Registry CLI commands (via `forge` or `python -m registry`):
+```
+forge pack ./my-agent/        # Package agent folder into .agnt archive
+forge pull agent-name         # Download + install agent from registry
+forge push my-agent.agnt      # Publish .agnt to a registry
+forge search "data analysis"  # Search registries for agents
+forge agents                  # List locally installed agents
 ```
 
 ## Key Rules
