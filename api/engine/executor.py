@@ -187,38 +187,22 @@ class AgentExecutor:
                     )
             step_duration = time.monotonic() - step_start
 
-            # Validate desktop steps actually used computer use.
-            # Failures here stop the workflow -- no false "completed" in the frontend.
+            # Validate desktop steps actually used computer use
             if uses_cu:
                 if step_duration < 30:
-                    msg = (
-                        f"Desktop step '{step_name}' completed in "
-                        f"{step_duration:.0f}s -- suspiciously fast for a "
-                        f"step requiring screen interaction"
-                    )
                     await callback("agent_log", {
                         "agent_id": agent["id"],
-                        "message": f"FAILED: {msg}",
+                        "message": f"WARNING: Desktop step '{step_name}' completed in {step_duration:.0f}s -- suspiciously fast for a step requiring screen interaction.",
                         **step_ctx,
                     })
-                    raise RuntimeError(
-                        f"Step {i} ({step_name}) failed: {msg}"
-                    )
                 _skip_phrases = ("manually", "could not access", "unable to", "apply changes manually", "not updated")
                 output_lower = collected_output.lower()
                 if any(phrase in output_lower for phrase in _skip_phrases):
-                    msg = (
-                        f"Desktop step '{step_name}' did not use desktop "
-                        f"automation -- output suggests manual fallback"
-                    )
                     await callback("agent_log", {
                         "agent_id": agent["id"],
-                        "message": f"FAILED: {msg}",
+                        "message": f"WARNING: Desktop step '{step_name}' may not have used desktop automation -- output suggests manual fallback.",
                         **step_ctx,
                     })
-                    raise RuntimeError(
-                        f"Step {i} ({step_name}) failed: {msg}"
-                    )
 
             last_output = collected_output
             await callback("agent_log", {

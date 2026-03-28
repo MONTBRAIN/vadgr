@@ -39,13 +39,21 @@ function InstallGit {
     if (-not (CommandExists "git")) { Fail "Git installation failed." }
 }
 
+function PythonOk {
+    $pyCmd = Get-Command python -ErrorAction SilentlyContinue
+    if (-not $pyCmd) { return $false }
+    if ($pyCmd.Source -like "*WindowsApps*") { return $false }
+    try {
+        $ver = & python -c "import sys; print(sys.version_info.minor)" 2>$null
+        return ($null -ne $ver -and [int]$ver -ge 12)
+    } catch { return $false }
+}
+
 function InstallPython {
-    if (CommandExists "python") {
+    if (PythonOk) {
         $ver = python -c "import sys; print(sys.version_info.minor)" 2>$null
-        if ($ver -ge 12) {
-            Info "Python 3.$ver already installed."
-            return
-        }
+        Info "Python 3.$ver already installed."
+        return
     }
     Info "Installing Python 3.12..."
     EnsureWinget
@@ -78,6 +86,12 @@ function SetupRepo {
         Info "Agent Forge repo already exists, pulling latest..."
         & { $ErrorActionPreference = 'SilentlyContinue'; git -C $FORGE_REPO pull --ff-only origin master 2>$null }
         if ($LASTEXITCODE -ne 0) { Warn "Could not pull latest (offline?)" }
+        $deleted = git -C $FORGE_REPO diff --name-only --diff-filter=D 2>$null
+        if ($deleted) {
+            Push-Location $FORGE_REPO
+            $deleted | ForEach-Object { git checkout -- $_ 2>$null }
+            Pop-Location
+        }
     } else {
         Info "Cloning Agent Forge..."
         New-Item -ItemType Directory -Force -Path $FORGE_HOME | Out-Null
@@ -85,32 +99,35 @@ function SetupRepo {
     }
 }
 
+function EnsureVenv($dir, $req) {
+    Push-Location $FORGE_REPO
+    try {
+        $venvPip = "$dir\Scripts\pip.exe"
+        if (-not (Test-Path $dir) -or -not (Test-Path $venvPip)) {
+            if (Test-Path $dir) { Remove-Item $dir -Recurse -Force }
+            python -m venv $dir
+            if (-not (Test-Path $venvPip)) { Fail "Failed to create venv at $dir" }
+        }
+        & $venvPip install -q -r $req
+    } finally { Pop-Location }
+}
+
 function SetupApi {
     Info "Setting up API..."
-    Set-Location $FORGE_REPO
-    if (-not (Test-Path "api\.venv")) {
-        python -m venv api\.venv
-    }
-    & api\.venv\Scripts\pip.exe install -q -r api\requirements.txt
+    EnsureVenv "api\.venv" "api\requirements.txt"
+    Push-Location $FORGE_REPO
     New-Item -ItemType Directory -Force -Path data | Out-Null
+    Pop-Location
 }
 
 function SetupForgeScripts {
     Info "Setting up forge scripts..."
-    Set-Location $FORGE_REPO
-    if (-not (Test-Path "forge\scripts\.venv")) {
-        python -m venv forge\scripts\.venv
-    }
-    & forge\scripts\.venv\Scripts\pip.exe install -q -r forge\scripts\requirements.txt
+    EnsureVenv "forge\scripts\.venv" "forge\scripts\requirements.txt"
 }
 
 function SetupCli {
     Info "Setting up CLI..."
-    Set-Location $FORGE_REPO
-    if (-not (Test-Path "cli\.venv")) {
-        python -m venv cli\.venv
-    }
-    & cli\.venv\Scripts\pip.exe install -q -r cli\requirements.txt
+    EnsureVenv "cli\.venv" "cli\requirements.txt"
 }
 
 function SetupFrontend {

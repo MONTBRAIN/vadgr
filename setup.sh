@@ -65,7 +65,15 @@ install_git() {
     info "Installing git..."
     case "$OS" in
         linux|wsl)
-            sudo apt-get update -qq && sudo apt-get install -y -qq git
+            if command_exists apt-get; then
+                sudo apt-get update -qq && sudo apt-get install -y -qq git
+            elif command_exists dnf; then
+                sudo dnf install -y -q git
+            elif command_exists pacman; then
+                sudo pacman -S --noconfirm git
+            else
+                fail "No supported package manager found. Install git manually."
+            fi
             ;;
         macos)
             install_homebrew
@@ -79,19 +87,29 @@ install_python() {
     info "Installing Python 3.12+..."
     case "$OS" in
         linux|wsl)
-            sudo apt-get update -qq
-            sudo apt-get install -y -qq software-properties-common
-            sudo add-apt-repository -y ppa:deadsnakes/ppa
-            sudo apt-get update -qq
-            sudo apt-get install -y -qq python3.12 python3.12-venv python3.12-dev
-            # Make python3.12 the default python3 if current one is too old
-            if ! python_ok; then
-                sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
+            if command_exists apt-get; then
+                sudo apt-get update -qq
+                sudo apt-get install -y -qq software-properties-common
+                sudo add-apt-repository -y ppa:deadsnakes/ppa
+                sudo apt-get update -qq
+                sudo apt-get install -y -qq python3.12 python3.12-venv python3.12-dev
+                if ! python_ok; then
+                    sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
+                fi
+            elif command_exists dnf; then
+                sudo dnf install -y -q python3.12 python3.12-devel
+            elif command_exists pacman; then
+                sudo pacman -S --noconfirm python
+            else
+                fail "No supported package manager found. Install Python 3.12+ manually."
             fi
             ;;
         macos)
             install_homebrew
             brew install python@3.12
+            if ! python_ok; then
+                export PATH="$(brew --prefix python@3.12)/bin:$PATH"
+            fi
             ;;
     esac
     python_ok || fail "Python 3.12+ installation failed."
@@ -107,7 +125,11 @@ install_nvm_and_node() {
     if [ -z "${NVM_DIR:-}" ] || [ ! -d "${NVM_DIR:-}" ]; then
         info "Installing NVM..."
         export NVM_DIR="$HOME/.nvm"
-        curl -fsSL "https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh" | bash
+        local nvm_tmp
+        nvm_tmp=$(mktemp)
+        curl -fsSL "https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh" -o "$nvm_tmp"
+        bash "$nvm_tmp"
+        rm -f "$nvm_tmp"
         # Load NVM into current session
         [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
     else
@@ -127,6 +149,12 @@ setup_repo() {
     if [ -d "$FORGE_REPO/.git" ]; then
         info "Agent Forge repo already exists, pulling latest..."
         git -C "$FORGE_REPO" pull --ff-only origin master || warn "Could not pull latest (offline?)"
+        # Restore tracked files that were deleted locally
+        local deleted
+        deleted=$(git -C "$FORGE_REPO" diff --name-only --diff-filter=D 2>/dev/null)
+        if [ -n "$deleted" ]; then
+            (cd "$FORGE_REPO" && echo "$deleted" | while IFS= read -r f; do git checkout -- "$f" 2>/dev/null; done)
+        fi
     else
         info "Cloning Agent Forge..."
         mkdir -p "$FORGE_HOME"
@@ -134,32 +162,48 @@ setup_repo() {
     fi
 }
 
+ensure_venv_module() {
+    if python3 -m venv --help >/dev/null 2>&1; then return; fi
+    info "Installing python3-venv package..."
+    local py_minor
+    py_minor=$(python3 -c "import sys; print(sys.version_info.minor)" 2>/dev/null)
+    if command_exists apt-get; then
+        sudo apt-get install -y -qq "python3.${py_minor}-venv" || sudo apt-get install -y -qq python3-venv
+    elif command_exists dnf; then
+        sudo dnf install -y -q python3-libs
+    elif command_exists pacman; then
+        sudo pacman -S --noconfirm python
+    fi
+    python3 -m venv --help >/dev/null 2>&1 || fail "python3 venv module not available. Install it manually."
+}
+
+setup_venv() {
+    local dir="$1" req="$2"
+    if [ ! -d "$dir" ] || ! "$dir/bin/python3" -m pip --version >/dev/null 2>&1; then
+        rm -rf "$dir"
+        ensure_venv_module
+        python3 -m venv "$dir" || fail "Failed to create venv at $dir"
+    fi
+    "$dir/bin/pip" install -q -r "$req"
+}
+
 setup_api() {
     info "Setting up API..."
     cd "$FORGE_REPO"
-    if [ ! -d "api/.venv" ]; then
-        python3 -m venv api/.venv
-    fi
-    api/.venv/bin/pip install -q -r api/requirements.txt
+    setup_venv "api/.venv" "api/requirements.txt"
     mkdir -p data
 }
 
 setup_forge_scripts() {
     info "Setting up forge scripts..."
     cd "$FORGE_REPO"
-    if [ ! -d "forge/scripts/.venv" ]; then
-        python3 -m venv forge/scripts/.venv
-    fi
-    forge/scripts/.venv/bin/pip install -q -r forge/scripts/requirements.txt
+    setup_venv "forge/scripts/.venv" "forge/scripts/requirements.txt"
 }
 
 setup_cli() {
     info "Setting up CLI..."
     cd "$FORGE_REPO"
-    if [ ! -d "cli/.venv" ]; then
-        python3 -m venv cli/.venv
-    fi
-    cli/.venv/bin/pip install -q -r cli/requirements.txt
+    setup_venv "cli/.venv" "cli/requirements.txt"
 }
 
 setup_frontend() {
@@ -197,19 +241,27 @@ FORGE_SCRIPT
 
 add_to_path() {
     local line="export PATH=\"$FORGE_BIN:\$PATH\""
+    local found=0
 
     for rcfile in "$HOME/.bashrc" "$HOME/.zshrc"; do
-        if [ -f "$rcfile" ] || [ "$(basename "$rcfile")" = ".bashrc" ]; then
-            if ! grep -qF "$FORGE_BIN" "$rcfile" 2>/dev/null; then
-                echo "" >> "$rcfile"
-                echo "# Agent Forge" >> "$rcfile"
-                echo "$line" >> "$rcfile"
-                info "Added forge to PATH in $(basename "$rcfile")"
-            fi
+        if [ ! -f "$rcfile" ]; then continue; fi
+        if ! grep -qF "$FORGE_BIN" "$rcfile" 2>/dev/null; then
+            echo "" >> "$rcfile"
+            echo "# Agent Forge" >> "$rcfile"
+            echo "$line" >> "$rcfile"
+            info "Added forge to PATH in $(basename "$rcfile")"
         fi
+        found=1
     done
 
-    # Add to current session
+    if [ "$found" -eq 0 ]; then
+        local default_rc="$HOME/.bashrc"
+        if [ "$OS" = "macos" ]; then default_rc="$HOME/.zshrc"; fi
+        echo "# Agent Forge" >> "$default_rc"
+        echo "$line" >> "$default_rc"
+        info "Created $(basename "$default_rc") with forge PATH"
+    fi
+
     export PATH="$FORGE_BIN:$PATH"
 }
 
