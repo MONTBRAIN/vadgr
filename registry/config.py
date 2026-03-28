@@ -11,9 +11,9 @@ AGENTS_DIR = FORGE_HOME / "agents"
 CONFIG_PATH = FORGE_HOME / "registry.yaml"
 
 DEFAULT_REGISTRY_URL = (
-    "https://raw.githubusercontent.com/MONTBRAIN/forge-registry/main"
+    "https://raw.githubusercontent.com/MONTBRAIN/sample-registry/master"
 )
-DEFAULT_REGISTRY_REPO = "MONTBRAIN/forge-registry"
+DEFAULT_REGISTRY_REPO = "MONTBRAIN/sample-registry"
 
 # Directories excluded when packing an agent folder into .agnt
 PACK_EXCLUDE_DIRS = frozenset({

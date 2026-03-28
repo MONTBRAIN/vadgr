@@ -7,6 +7,7 @@ import shutil
 from pathlib import Path
 
 from registry.adapters.base import RegistryAdapter
+from registry.security import compute_sha256, validate_local_path
 
 
 class LocalAdapter(RegistryAdapter):
@@ -38,8 +39,8 @@ class LocalAdapter(RegistryAdapter):
 
     def download_agent(self, download_url: str, dest: Path) -> Path:
         """Copy .agnt file from local registry to dest."""
-        # download_url is relative to the registry root
-        source = self._root / download_url
+        # Validate download_url cannot escape the registry root
+        source = validate_local_path(Path(download_url), self._root)
         if not source.is_file():
             raise FileNotFoundError(f"Agent file not found: {source}")
         dest = Path(dest)
@@ -55,9 +56,13 @@ class LocalAdapter(RegistryAdapter):
         name = manifest["name"]
         version = manifest.get("version", "0.1.0")
         filename = f"{name}-{version}.agnt"
-        dest = agents_dir / filename
 
+        # Validate destination stays within registry
+        dest = validate_local_path(Path("agents") / filename, self._root)
         shutil.copy2(agnt_path, dest)
+
+        # Compute SHA256 for integrity verification
+        sha256 = compute_sha256(dest)
 
         # Update index.json
         index = self.fetch_index()
@@ -68,6 +73,7 @@ class LocalAdapter(RegistryAdapter):
             "description": manifest.get("description", ""),
             "author": manifest.get("author", ""),
             "download_url": f"agents/{filename}",
+            "sha256": sha256,
         }
 
         index_path = self._root / "index.json"

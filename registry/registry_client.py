@@ -12,6 +12,7 @@ from registry.config import load_config, get_agents_dir, get_default_registry
 from registry.installer import install as install_agent, list_installed
 from registry.manifest import validate_manifest
 from registry.packer import pack as pack_agent
+from registry.security import verify_sha256
 
 
 def _get_adapter(registry_name: Optional[str] = None) -> RegistryAdapter:
@@ -64,6 +65,12 @@ def pull(
     with tempfile.TemporaryDirectory() as tmpdir:
         agnt_path = Path(tmpdir) / f"{name}.agnt"
         adapter.download_agent(download_url, agnt_path)
+
+        # Verify integrity if SHA256 is available in the index
+        expected_hash = agent_info.get("sha256")
+        if expected_hash:
+            verify_sha256(agnt_path, expected_hash)
+
         install_dir = install_agent(agnt_path, agents_dir=agents_dir, force=force)
 
     return str(install_dir)

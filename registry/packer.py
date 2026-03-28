@@ -10,6 +10,7 @@ from typing import Optional
 
 from registry.config import PACK_EXCLUDE_DIRS
 from registry.manifest import Manifest, StepEntry, validate_manifest
+from registry.security import safe_extract
 
 
 def _should_exclude(rel_path: Path) -> bool:
@@ -175,7 +176,6 @@ def unpack(agnt_path: Path, dest: Path) -> Manifest:
         manifest = validate_manifest(manifest_data)
 
         dest = Path(dest)
-        dest.mkdir(parents=True, exist_ok=True)
-        zf.extractall(dest)
+        safe_extract(zf, dest)
 
     return manifest

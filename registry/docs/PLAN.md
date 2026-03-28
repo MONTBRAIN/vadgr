@@ -99,9 +99,9 @@ Three backend adapters, same interface:
 ```yaml
 registries:
   - name: official
-    url: https://raw.githubusercontent.com/MONTBRAIN/forge-registry/main
+    url: https://raw.githubusercontent.com/MONTBRAIN/sample-registry/main
     type: github
-    github_repo: MONTBRAIN/forge-registry
+    github_repo: MONTBRAIN/sample-registry
     default: true
   - name: local
     path: ~/my-agents

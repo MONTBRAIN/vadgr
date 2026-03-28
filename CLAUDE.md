@@ -49,18 +49,29 @@ Agent-Forge/
 │   ├── grounding/                     # UI element location (accessibility + vision)
 │   ├── providers/                     # LLM adapters (Anthropic, OpenAI)
 │   └── tests/                         # Unit tests
-├── registry/                          # Agent package manager (standalone)
-│   ├── cli.py                         # Click CLI (pack, pull, push, search, agents)
+├── cli/                               # Unified command-line interface
+│   ├── main.py                        # Root Click group
+│   ├── http.py                        # HTTP client for API calls
+│   ├── output.py                      # Table formatting, status colors
+│   ├── commands/                      # Command groups
+│   │   ├── agents.py                  # list, get, create, delete, run
+│   │   ├── runs.py                    # list, get, cancel, approve, logs
+│   │   ├── registry.py                # pack, pull, push, search, serve
+│   │   └── info.py                    # health, providers
+│   └── tests/                         # Unit + integration tests (69 tests)
+├── registry/                          # Agent package manager (library)
 │   ├── manifest.py                    # .agnt manifest schema + validation
 │   ├── packer.py                      # Pack/unpack agent folders to .agnt archives
 │   ├── installer.py                   # Install/uninstall agents locally
 │   ├── registry_client.py             # High-level registry operations
+│   ├── security.py                    # Zip safety, SSRF, SHA256, TLS
+│   ├── server.py                      # Self-hosted HTTP registry server
 │   ├── config.py                      # Registry config (~/.forge/registry.yaml)
 │   ├── adapters/                      # Registry backend adapters
 │   │   ├── github.py                  # GitHub Releases adapter
 │   │   ├── http.py                    # Generic HTTP server adapter
 │   │   └── local.py                   # Local folder adapter
-│   └── tests/                         # Unit tests (96 tests)
+│   └── tests/                         # Unit + security tests (150 tests)
 ├── paper/                             # Research paper
 └── output/                            # Generated workflows land here
 ```
@@ -89,13 +100,18 @@ For Claude Code, slash commands are available:
 /resume-execution             # Resume paused execution
 ```
 
-Registry CLI commands (via `forge` or `python -m registry`):
+CLI commands (via `forge` or `python -m cli`):
 ```
-forge pack ./my-agent/        # Package agent folder into .agnt archive
-forge pull agent-name         # Download + install agent from registry
-forge push my-agent.agnt      # Publish .agnt to a registry
-forge search "data analysis"  # Search registries for agents
-forge agents                  # List locally installed agents
+forge ps                              # List agents
+forge agents list / get / create / delete
+forge run <name> [--input key=val]    # Run an agent
+forge runs list / get / cancel / logs # Manage runs
+forge health / providers              # System info
+forge registry pack ./my-agent/       # Package agent into .agnt
+forge registry pull agent-name        # Install from registry
+forge registry push my-agent.agnt     # Publish to registry
+forge registry search "data analysis" # Search registries
+forge registry serve                  # Self-hosted registry server
 ```
 
 ## Key Rules

@@ -13,6 +13,7 @@ import urllib.error
 from pathlib import Path
 
 from registry.adapters.base import RegistryAdapter
+from registry.security import compute_sha256, create_ssl_context, resolve_token, validate_download_url
 
 _TIMEOUT = 30
 _GITHUB_API = "https://api.github.com"
@@ -31,12 +32,13 @@ class GitHubAdapter(RegistryAdapter):
         self._url = config.get("url", "").rstrip("/")
         self._repo = config.get("github_repo", "")
         self._token = self._resolve_token(config)
+        self._ssl_ctx = create_ssl_context()
 
     @staticmethod
     def _resolve_token(config: dict) -> str:
         """Resolve GitHub token from config, env var, or gh CLI."""
-        # Explicit token in config
-        token = config.get("token") or ""
+        # Explicit token in config (supports $ENV_VAR syntax)
+        token = resolve_token(config.get("token"))
         if token:
             return token
 
@@ -75,7 +77,7 @@ class GitHubAdapter(RegistryAdapter):
         url = f"{self._url}/index.json"
         req = urllib.request.Request(url, headers={"User-Agent": "forge-registry/0.1"})
         try:
-            with urllib.request.urlopen(req, timeout=_TIMEOUT) as resp:
+            with urllib.request.urlopen(req, timeout=_TIMEOUT, context=self._ssl_ctx) as resp:
                 return json.loads(resp.read())
         except urllib.error.HTTPError as e:
             if e.code == 404:
@@ -84,6 +86,8 @@ class GitHubAdapter(RegistryAdapter):
 
     def download_agent(self, download_url: str, dest: Path) -> Path:
         """Download .agnt from GitHub Release asset or raw URL."""
+        validate_download_url(download_url)
+
         headers = {"User-Agent": "forge-registry/0.1"}
         # GitHub Release assets need Accept header for binary download
         if "github.com" in download_url and "/releases/" in download_url:
@@ -91,7 +95,7 @@ class GitHubAdapter(RegistryAdapter):
 
         req = urllib.request.Request(download_url, headers=headers)
         try:
-            with urllib.request.urlopen(req, timeout=60) as resp:
+            with urllib.request.urlopen(req, timeout=60, context=self._ssl_ctx) as resp:
                 data = resp.read()
         except urllib.error.HTTPError as e:
             raise RuntimeError(
@@ -126,6 +130,9 @@ class GitHubAdapter(RegistryAdapter):
         filename = f"{name}-{version}.agnt"
         tag = "agents"
 
+        # Compute SHA256 before upload for integrity verification
+        sha256 = compute_sha256(agnt_path)
+
         # Step 1: Get or create release
         release = self._get_or_create_release(tag)
         release_id = release["id"]
@@ -134,8 +141,8 @@ class GitHubAdapter(RegistryAdapter):
         # Step 2: Upload asset
         asset_url = self._upload_asset(upload_url, release_id, filename, agnt_path)
 
-        # Step 3: Update index.json
-        self._update_index(name, version, manifest, asset_url)
+        # Step 3: Update index.json with SHA256 hash
+        self._update_index(name, version, manifest, asset_url, sha256)
 
         return f"Published {name}@{version} to {self._repo} ({asset_url})"
 
@@ -144,7 +151,7 @@ class GitHubAdapter(RegistryAdapter):
         url = f"{_GITHUB_API}/repos/{self._repo}/releases/tags/{tag}"
         req = urllib.request.Request(url, headers=self._headers())
         try:
-            with urllib.request.urlopen(req, timeout=_TIMEOUT) as resp:
+            with urllib.request.urlopen(req, timeout=_TIMEOUT, context=self._ssl_ctx) as resp:
                 return json.loads(resp.read())
         except urllib.error.HTTPError as e:
             if e.code != 404:
@@ -153,7 +160,7 @@ class GitHubAdapter(RegistryAdapter):
         url = f"{_GITHUB_API}/repos/{self._repo}/releases"
         body = json.dumps({"tag_name": tag, "name": "Agent Registry", "body": "Agent .agnt packages"}).encode()
         req = urllib.request.Request(url, data=body, headers=self._headers(), method="POST")
-        with urllib.request.urlopen(req, timeout=_TIMEOUT) as resp:
+        with urllib.request.urlopen(req, timeout=_TIMEOUT, context=self._ssl_ctx) as resp:
             return json.loads(resp.read())
 
     def _upload_asset(self, upload_url: str, release_id: int, filename: str, agnt_path: Path) -> str:
@@ -161,13 +168,13 @@ class GitHubAdapter(RegistryAdapter):
         # Check for existing asset with same name and delete it
         assets_url = f"{_GITHUB_API}/repos/{self._repo}/releases/{release_id}/assets"
         req = urllib.request.Request(assets_url, headers=self._headers())
-        with urllib.request.urlopen(req, timeout=_TIMEOUT) as resp:
+        with urllib.request.urlopen(req, timeout=_TIMEOUT, context=self._ssl_ctx) as resp:
             assets = json.loads(resp.read())
         for asset in assets:
             if asset["name"] == filename:
                 del_url = f"{_GITHUB_API}/repos/{self._repo}/releases/assets/{asset['id']}"
                 del_req = urllib.request.Request(del_url, headers=self._headers(), method="DELETE")
-                urllib.request.urlopen(del_req, timeout=_TIMEOUT)
+                urllib.request.urlopen(del_req, timeout=_TIMEOUT, context=self._ssl_ctx)
                 break
 
         # Upload new asset
@@ -175,12 +182,16 @@ class GitHubAdapter(RegistryAdapter):
         file_data = agnt_path.read_bytes()
         headers = self._headers(content_type="application/zip")
         req = urllib.request.Request(url, data=file_data, headers=headers, method="POST")
-        with urllib.request.urlopen(req, timeout=120) as resp:
+        with urllib.request.urlopen(req, timeout=120, context=self._ssl_ctx) as resp:
             result = json.loads(resp.read())
         return result["browser_download_url"]
 
-    def _update_index(self, name: str, version: str, manifest: dict, asset_url: str) -> None:
+    def _update_index(
+        self, name: str, version: str, manifest: dict, asset_url: str, sha256: str
+    ) -> None:
         """Update index.json in the repo via GitHub Contents API."""
+        import base64
+
         path = "index.json"
         url = f"{_GITHUB_API}/repos/{self._repo}/contents/{path}"
 
@@ -189,26 +200,25 @@ class GitHubAdapter(RegistryAdapter):
         current_sha = None
         current_index = {"registry": {"name": self.name}, "agents": {}}
         try:
-            with urllib.request.urlopen(req, timeout=_TIMEOUT) as resp:
+            with urllib.request.urlopen(req, timeout=_TIMEOUT, context=self._ssl_ctx) as resp:
                 data = json.loads(resp.read())
                 current_sha = data["sha"]
-                import base64
                 content = base64.b64decode(data["content"]).decode()
                 current_index = json.loads(content)
         except urllib.error.HTTPError as e:
             if e.code != 404:
                 raise
 
-        # Update index
+        # Update index with SHA256 for integrity verification on pull
         current_index.setdefault("agents", {})
         current_index["agents"][name] = {
             "version": version,
             "description": manifest.get("description", ""),
             "author": manifest.get("author", ""),
             "download_url": asset_url,
+            "sha256": sha256,
         }
 
-        import base64
         new_content = base64.b64encode(
             (json.dumps(current_index, indent=2) + "\n").encode()
         ).decode()
@@ -226,4 +236,4 @@ class GitHubAdapter(RegistryAdapter):
             headers=self._headers(),
             method="PUT",
         )
-        urllib.request.urlopen(req, timeout=_TIMEOUT)
+        urllib.request.urlopen(req, timeout=_TIMEOUT, context=self._ssl_ctx)

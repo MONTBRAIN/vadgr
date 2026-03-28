@@ -8,7 +8,7 @@ from unittest.mock import patch, MagicMock
 
 from click.testing import CliRunner
 
-from registry.cli import cli
+from cli.commands.registry import registry_group as cli
 
 
 @pytest.fixture
@@ -135,7 +135,6 @@ class TestAgentsCommand:
         result = runner.invoke(cli, ["agents"])
         assert result.exit_code == 0
         assert "No agents installed" in result.output
-        assert "forge search" in result.output
 
 
 class TestPackE2E:

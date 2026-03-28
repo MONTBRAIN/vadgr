@@ -9,6 +9,12 @@ from pathlib import Path
 from typing import Optional
 
 from registry.adapters.base import RegistryAdapter
+from registry.security import (
+    compute_sha256,
+    create_ssl_context,
+    resolve_token,
+    validate_download_url,
+)
 
 _TIMEOUT = 30  # seconds
 
@@ -25,7 +31,9 @@ class HTTPAdapter(RegistryAdapter):
     def __init__(self, config: dict):
         super().__init__(config)
         self._url = config.get("url", "").rstrip("/")
-        self._token = config.get("token") or None
+        self._token = resolve_token(config.get("token"))
+        self._ssl_verify = config.get("ssl_verify", True)
+        self._ssl_ctx = create_ssl_context(verify=self._ssl_verify)
 
     def _headers(self) -> dict:
         headers = {"User-Agent": "forge-registry/0.1"}
@@ -34,10 +42,10 @@ class HTTPAdapter(RegistryAdapter):
         return headers
 
     def _get(self, url: str) -> bytes:
-        """HTTP GET with optional auth."""
+        """HTTP GET with optional auth and TLS verification."""
         req = urllib.request.Request(url, headers=self._headers())
         try:
-            with urllib.request.urlopen(req, timeout=_TIMEOUT) as resp:
+            with urllib.request.urlopen(req, timeout=_TIMEOUT, context=self._ssl_ctx) as resp:
                 return resp.read()
         except urllib.error.HTTPError as e:
             raise RuntimeError(f"HTTP {e.code} fetching {url}: {e.reason}") from e
@@ -56,6 +64,8 @@ class HTTPAdapter(RegistryAdapter):
         else:
             url = f"{self._url}/{download_url}"
 
+        validate_download_url(url)
+
         data = self._get(url)
         dest = Path(dest)
         dest.parent.mkdir(parents=True, exist_ok=True)
@@ -68,13 +78,16 @@ class HTTPAdapter(RegistryAdapter):
         version = manifest.get("version", "0.1.0")
         url = f"{self._url}/agents/{name}-{version}.agnt"
 
+        sha256 = compute_sha256(agnt_path)
+
         file_data = agnt_path.read_bytes()
         headers = self._headers()
         headers["Content-Type"] = "application/octet-stream"
+        headers["X-Content-SHA256"] = sha256
 
         req = urllib.request.Request(url, data=file_data, headers=headers, method="POST")
         try:
-            with urllib.request.urlopen(req, timeout=60) as resp:
+            with urllib.request.urlopen(req, timeout=60, context=self._ssl_ctx) as resp:
                 return f"Published {name}@{version} to {self._url}"
         except urllib.error.HTTPError as e:
             raise RuntimeError(
