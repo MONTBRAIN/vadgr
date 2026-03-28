@@ -15,20 +15,24 @@ def runner():
 class TestShowInputs:
     def test_agents_get_shows_inputs(self, runner):
         from cli.commands.agents import agents_group
-        with mock.patch("cli.commands.agents.api_get") as m:
-            m.return_value = {
-                "id": "abc", "name": "Test", "status": "ready",
-                "provider": "claude_code", "description": "Does stuff",
-                "steps": [{"name": "Step 1", "computer_use": False}],
-                "input_schema": [
-                    {"name": "data_file", "type": "file", "required": True, "description": "CSV data"},
-                    {"name": "query", "type": "text", "required": True, "description": "What to analyze"},
-                    {"name": "format", "type": "text", "required": False, "description": "Output format"},
-                ],
-                "output_schema": [
-                    {"name": "report", "type": ".pdf", "required": True, "description": "Analysis report"},
-                ],
-            }
+        agent_data = {
+            "id": "abc", "name": "Test", "status": "ready",
+            "provider": "claude_code", "description": "Does stuff",
+            "steps": [{"name": "Step 1", "computer_use": False}],
+            "input_schema": [
+                {"name": "data_file", "type": "file", "required": True, "description": "CSV data"},
+                {"name": "query", "type": "text", "required": True, "description": "What to analyze"},
+                {"name": "format", "type": "text", "required": False, "description": "Output format"},
+            ],
+            "output_schema": [
+                {"name": "report", "type": ".pdf", "required": True, "description": "Analysis report"},
+            ],
+        }
+        def mock_get(ctx, path):
+            if path == "/api/agents":
+                return [agent_data]
+            return agent_data
+        with mock.patch("cli.commands.agents.api_get", side_effect=mock_get):
             result = runner.invoke(agents_group, ["get", "abc"], obj={"api_url": "http://x"})
             assert result.exit_code == 0
             assert "data_file" in result.output

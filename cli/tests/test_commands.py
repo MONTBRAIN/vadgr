@@ -73,15 +73,24 @@ class TestAgentsList:
             assert "No agents" in result.output
 
 
+_AGENT_DETAIL = {
+    "id": "abc-123", "name": "My Agent", "status": "ready",
+    "description": "Does stuff", "provider": "claude_code",
+    "steps": [{"name": "Step 1", "computer_use": False}],
+}
+_AGENT_LIST = [_AGENT_DETAIL]
+
+
+def _mock_get_side_effect(ctx, path):
+    if path == "/api/agents":
+        return _AGENT_LIST
+    return _AGENT_DETAIL
+
+
 class TestAgentsGet:
     def test_shows_detail(self, runner):
         from cli.commands.agents import agents_group
-        with mock.patch("cli.commands.agents.api_get") as m:
-            m.return_value = {
-                "id": "abc-123", "name": "My Agent", "status": "ready",
-                "description": "Does stuff", "provider": "claude_code",
-                "steps": [{"name": "Step 1", "computer_use": False}],
-            }
+        with mock.patch("cli.commands.agents.api_get", side_effect=_mock_get_side_effect):
             result = runner.invoke(agents_group, ["get", "abc-123"], obj={"api_url": "http://x"})
             assert result.exit_code == 0
             assert "My Agent" in result.output
@@ -91,7 +100,8 @@ class TestAgentsGet:
 class TestAgentsDelete:
     def test_deletes(self, runner):
         from cli.commands.agents import agents_group
-        with mock.patch("cli.commands.agents.api_delete") as m:
+        with mock.patch("cli.commands.agents.api_get", side_effect=_mock_get_side_effect), \
+             mock.patch("cli.commands.agents.api_delete") as m:
             m.return_value = {"deleted": True}
             result = runner.invoke(agents_group, ["delete", "abc-123"], obj={"api_url": "http://x"})
             assert result.exit_code == 0

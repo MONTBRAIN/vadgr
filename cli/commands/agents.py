@@ -48,6 +48,7 @@ def list_agents(ctx):
 @click.pass_context
 def get_agent(ctx, agent_id: str):
     """Show agent details."""
+    agent_id = _resolve_id(ctx, agent_id)
     data = api_get(ctx, f"/api/agents/{agent_id}")
     print_kv([
         ("ID", data["id"]),
@@ -113,6 +114,7 @@ def create_agent(ctx, name: str, description: str, provider: str, model: str | N
 @click.pass_context
 def update_agent(ctx, agent_id: str, name: str | None, description: str | None):
     """Update an agent."""
+    agent_id = _resolve_id(ctx, agent_id)
     body = {}
     if name:
         body["name"] = name
@@ -143,6 +145,7 @@ def update_agent(ctx, agent_id: str, name: str | None, description: str | None):
 @click.pass_context
 def delete_agent(ctx, agent_id: str):
     """Delete an agent."""
+    agent_id = _resolve_id(ctx, agent_id)
     api_delete(ctx, f"/api/agents/{agent_id}")
     print_success(f"Deleted agent {agent_id}")
 
@@ -209,6 +212,7 @@ def import_agent(ctx, agnt_file: str):
 @click.pass_context
 def export_agent(ctx, agent_id: str, output_path: str | None):
     """Export an agent as a .agnt archive."""
+    agent_id = _resolve_id(ctx, agent_id)
     data = _download_binary(ctx, f"/api/agents/{agent_id}/export")
     if not output_path:
         output_path = f"{agent_id[:8]}.agnt"
@@ -218,6 +222,15 @@ def export_agent(ctx, agent_id: str, output_path: str | None):
 
 
 # -- Helpers --
+
+def _resolve_id(ctx, name_or_id: str) -> str:
+    """Resolve a short ID or name to a full agent UUID."""
+    agents = api_get(ctx, "/api/agents")
+    agent = _resolve_agent(agents, name_or_id)
+    if not agent:
+        raise click.ClickException(f"No agent matching '{name_or_id}' found.")
+    return agent["id"]
+
 
 def _resolve_agent(agents: list[dict], name_or_id: str) -> dict | None:
     name_lower = name_or_id.lower()

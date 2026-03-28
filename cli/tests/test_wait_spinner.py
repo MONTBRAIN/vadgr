@@ -69,9 +69,15 @@ class TestCreateWithSpinner:
 
 
 class TestUpdateCommand:
+    def _mock_get(self, ctx, path):
+        if path == "/api/agents":
+            return [{"id": "abc", "name": "test", "status": "ready"}]
+        return {"id": "abc", "name": "test", "status": "ready"}
+
     def test_update_name(self, runner):
         from cli.commands.agents import agents_group
-        with mock.patch("cli.commands.agents.api_put") as mp:
+        with mock.patch("cli.commands.agents.api_get", side_effect=self._mock_get), \
+             mock.patch("cli.commands.agents.api_put") as mp:
             mp.return_value = {"id": "abc", "name": "new-name", "status": "ready"}
             result = runner.invoke(agents_group, ["update", "abc", "--name", "new-name"],
                                    obj={"api_url": "http://x"})
@@ -80,7 +86,8 @@ class TestUpdateCommand:
 
     def test_update_description_triggers_spinner(self, runner):
         from cli.commands.agents import agents_group
-        with mock.patch("cli.commands.agents.api_put") as mp, \
+        with mock.patch("cli.commands.agents.api_get", side_effect=self._mock_get), \
+             mock.patch("cli.commands.agents.api_put") as mp, \
              mock.patch("cli.commands.agents.wait_with_spinner") as mw:
             mp.return_value = {"id": "abc", "name": "test", "status": "updating"}
             mw.return_value = {"id": "abc", "name": "test", "status": "ready"}
@@ -113,8 +120,14 @@ class TestExportCommand:
     def test_export_writes_file(self, runner, tmp_path):
         from cli.commands.agents import agents_group
 
+        def mock_get(ctx, path):
+            if path == "/api/agents":
+                return [{"id": "abc-123", "name": "test", "status": "ready"}]
+            return {"id": "abc-123", "name": "test", "status": "ready"}
+
         output = tmp_path / "exported.agnt"
-        with mock.patch("cli.commands.agents._download_binary") as md:
+        with mock.patch("cli.commands.agents.api_get", side_effect=mock_get), \
+             mock.patch("cli.commands.agents._download_binary") as md:
             md.return_value = b"fake zip content"
             result = runner.invoke(agents_group, ["export", "abc-123", "-o", str(output)],
                                    obj={"api_url": "http://x"})
