@@ -13,26 +13,49 @@ def runner():
     return CliRunner()
 
 
-class TestStepParsing:
-    def test_detects_step_start(self):
-        from cli.stream import _STEP_PATTERN
-        msg = "--- Step 1: Review CV ---"
-        match = _STEP_PATTERN.search(msg)
-        assert match
-        assert match.group(1) == "1"
-        assert "Review CV" in match.group(2)
+class TestStepDetection:
+    def test_detects_step_from_data_fields(self):
+        from cli.stream import _extract_step
+        data = {"step_num": 1, "step_name": "Review CV", "message": "--- Step 1: Review CV [CLI] ---"}
+        num, name = _extract_step(data, current_num=None)
+        assert num == 1
+        assert name == "Review CV"
 
-    def test_detects_step_with_slash(self):
-        from cli.stream import _STEP_PATTERN
-        msg = "--- Step 2/3: Generate Report ---"
-        match = _STEP_PATTERN.search(msg)
-        assert match
-        assert match.group(1) == "2"
+    def test_detects_new_step(self):
+        from cli.stream import _extract_step
+        data = {"step_num": 2, "step_name": "Generate Report", "message": "something"}
+        num, name = _extract_step(data, current_num=1)
+        assert num == 2
+        assert name == "Generate Report"
 
-    def test_ignores_regular_log(self):
-        from cli.stream import _STEP_PATTERN
-        msg = "Reading file contents..."
-        assert _STEP_PATTERN.search(msg) is None
+    def test_returns_none_for_same_step(self):
+        from cli.stream import _extract_step
+        data = {"step_num": 1, "step_name": "Review CV", "message": "Reading file..."}
+        num, name = _extract_step(data, current_num=1)
+        assert num is None
+        assert name is None
+
+    def test_returns_none_without_step_fields(self):
+        from cli.stream import _extract_step
+        data = {"message": "Just a regular log line"}
+        num, name = _extract_step(data, current_num=1)
+        assert num is None
+        assert name is None
+
+    def test_handles_missing_step_name(self):
+        from cli.stream import _extract_step
+        data = {"step_num": 3, "message": "--- Step 3 ---"}
+        num, name = _extract_step(data, current_num=2)
+        assert num == 3
+        assert name == "Step 3"
+
+    def test_long_step_name_truncated(self):
+        from cli.stream import _extract_step
+        long_name = "Check LinkedIn Jobs. Exclude for updates the ones that does not appeared in extracted info from CV."
+        data = {"step_num": 2, "step_name": long_name}
+        num, name = _extract_step(data, current_num=1)
+        assert num == 2
+        assert len(name) <= 50
 
 
 class TestRunWithBackground:
