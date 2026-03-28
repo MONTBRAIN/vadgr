@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+
 import click
 
 from cli.http import api_get, api_post, api_delete
@@ -54,6 +56,21 @@ def get_agent(ctx, agent_id: str):
             cu = " [desktop]" if s.get("computer_use") else ""
             click.echo(f"  {i}. {s['name']}{cu}")
 
+    inputs = data.get("input_schema", [])
+    if inputs:
+        click.echo(f"\nInputs:")
+        for field in inputs:
+            req = "required" if field.get("required") else "optional"
+            desc = field.get("description", "")
+            click.echo(f"  {field['name']} ({field.get('type', 'text')}, {req}) -- {desc}")
+
+    outputs = data.get("output_schema", [])
+    if outputs:
+        click.echo(f"\nOutputs:")
+        for field in outputs:
+            desc = field.get("description", "")
+            click.echo(f"  {field['name']} ({field.get('type', 'text')}) -- {desc}")
+
 
 @agents_group.command("create")
 @click.option("--name", "-n", required=True)
@@ -92,9 +109,16 @@ def run_agent(ctx, name_or_id: str, inputs: tuple, provider: str | None, model: 
     if not agent:
         raise click.ClickException(f"No agent matching '{name_or_id}' found.")
 
-    body = {}
-    if inputs:
-        body["inputs"] = dict(kv.split("=", 1) for kv in inputs)
+    input_dict = dict(kv.split("=", 1) for kv in inputs) if inputs else {}
+    schema = agent.get("input_schema", [])
+
+    # Interactive prompting when no flags provided and schema exists
+    if not input_dict and schema:
+        input_dict = _prompt_inputs(ctx, agent, schema)
+    elif input_dict and schema:
+        input_dict = _resolve_file_inputs(ctx, agent, schema, input_dict)
+
+    body = {"inputs": input_dict}
     if provider:
         body["provider"] = provider
     if model:
@@ -104,6 +128,94 @@ def run_agent(ctx, name_or_id: str, inputs: tuple, provider: str | None, model: 
     run_id = result.get("run_id", result.get("id", "?"))
     print_success(f"Run started: {run_id}")
     click.echo(f"  View logs: forge runs logs {run_id}")
+
+
+def _prompt_inputs(ctx, agent: dict, schema: list[dict]) -> dict:
+    inputs = {}
+    click.echo()
+    for field in schema:
+        name = field["name"]
+        ftype = field.get("type", "text")
+        required = field.get("required", False)
+        desc = field.get("description", "")
+        label = field.get("label", name)
+
+        prompt_text = f"  {label}"
+        if desc:
+            prompt_text += f" ({desc})"
+
+        if ftype in ("file", "archive", "directory") or ftype.startswith("."):
+            # File input -- prompt for path, upload to API
+            suffix = " [required]" if required else " [optional, press Enter to skip]"
+            path = click.prompt(f"{prompt_text}{suffix}", default="", show_default=False)
+            if not path:
+                if required:
+                    raise click.ClickException(f"Input '{name}' is required.")
+                continue
+            path = os.path.expanduser(path)
+            if not os.path.isfile(path):
+                raise click.ClickException(f"File not found: {path}")
+            descriptor = _upload_file(ctx, agent["id"], name, path)
+            inputs[name] = descriptor
+        else:
+            # Text input
+            suffix = " [required]" if required else " [optional, press Enter to skip]"
+            value = click.prompt(f"{prompt_text}{suffix}", default="", show_default=False)
+            if not value:
+                if required:
+                    raise click.ClickException(f"Input '{name}' is required.")
+                continue
+            inputs[name] = value
+
+    click.echo()
+    return inputs
+
+
+def _resolve_file_inputs(ctx, agent: dict, schema: list[dict], inputs: dict) -> dict:
+    file_fields = {
+        f["name"] for f in schema
+        if f.get("type") in ("file", "archive", "directory") or (f.get("type", "").startswith("."))
+    }
+    resolved = {}
+    for key, value in inputs.items():
+        if key in file_fields and os.path.isfile(os.path.expanduser(value)):
+            path = os.path.expanduser(value)
+            resolved[key] = _upload_file(ctx, agent["id"], key, path)
+        else:
+            resolved[key] = value
+    return resolved
+
+
+def _upload_file(ctx, agent_id: str, field_name: str, file_path: str) -> dict:
+    import urllib.request
+    import mimetypes
+
+    url = f"{ctx.obj['api_url']}/api/agents/{agent_id}/uploads"
+    filename = os.path.basename(file_path)
+    content_type = mimetypes.guess_type(file_path)[0] or "application/octet-stream"
+
+    boundary = "----ForgeUploadBoundary"
+    body = bytearray()
+    body.extend(f"--{boundary}\r\n".encode())
+    body.extend(f'Content-Disposition: form-data; name="field_name"\r\n\r\n{field_name}\r\n'.encode())
+    body.extend(f"--{boundary}\r\n".encode())
+    body.extend(f'Content-Disposition: form-data; name="file"; filename="{filename}"\r\n'.encode())
+    body.extend(f"Content-Type: {content_type}\r\n\r\n".encode())
+    with open(file_path, "rb") as f:
+        body.extend(f.read())
+    body.extend(f"\r\n--{boundary}--\r\n".encode())
+
+    req = urllib.request.Request(
+        url, data=bytes(body), method="POST",
+        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            import json
+            return json.loads(resp.read())
+    except urllib.error.HTTPError as e:
+        detail = e.read().decode()
+        raise click.ClickException(f"Upload failed: {detail}")
 
 
 def _resolve_agent(agents: list[dict], name_or_id: str) -> dict | None:
