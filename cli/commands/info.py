@@ -1,11 +1,11 @@
-"""Info commands -- health, providers."""
+"""Info commands -- health, providers, computer-use."""
 
 from __future__ import annotations
 
 import click
 
-from cli.client import api_get
-from cli.output import print_kv, format_status
+from cli.client import api_get, api_put
+from cli.output import print_kv, print_success, format_status
 
 
 @click.command()
@@ -41,3 +41,35 @@ def providers(ctx):
         for m in p.get("models", []):
             click.echo(f"    - {m['name']} ({m['id']})")
         click.echo()
+
+
+@click.group("computer-use")
+def computer_use():
+    """Manage computer use (desktop automation)."""
+    pass
+
+
+@computer_use.command("enable")
+@click.pass_context
+def cu_enable(ctx):
+    """Enable computer use."""
+    api_put(ctx, "/api/settings/computer-use", {"enabled": True})
+    print_success("Computer use enabled")
+
+
+@computer_use.command("disable")
+@click.pass_context
+def cu_disable(ctx):
+    """Disable computer use."""
+    api_put(ctx, "/api/settings/computer-use", {"enabled": False})
+    print_success("Computer use disabled")
+
+
+@computer_use.command("status")
+@click.pass_context
+def cu_status(ctx):
+    """Check computer use status."""
+    data = api_get(ctx, "/api/settings/computer-use")
+    enabled = data.get("enabled", False)
+    status = "enabled" if enabled else "disabled"
+    click.echo(f"  Computer use: {format_status(status)}")

@@ -29,10 +29,15 @@ def _request(ctx: click.Context, method: str, path: str, body: dict | None = Non
             return json.loads(body)
     except urllib.error.HTTPError as e:
         try:
-            detail = json.loads(e.read()).get("detail", e.reason)
+            body = json.loads(e.read())
+            # API returns {"error": {"message": "..."}} or {"detail": "..."}
+            if "error" in body and isinstance(body["error"], dict):
+                detail = body["error"].get("message", e.reason)
+            else:
+                detail = body.get("detail", e.reason)
         except Exception:
             detail = e.reason
-        raise click.ClickException(f"{detail} (HTTP {e.code})") from None
+        raise click.ClickException(f"{detail}") from None
     except (urllib.error.URLError, ConnectionRefusedError, OSError):
         raise click.ClickException(
             f"API is not running at {_base_url(ctx)}. Start it with: forge start"

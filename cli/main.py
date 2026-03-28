@@ -7,7 +7,7 @@ import os
 import click
 
 from cli.commands.agents import agents_group
-from cli.commands.info import health, providers
+from cli.commands.info import health, providers, computer_use
 from cli.commands.registry import registry_group
 from cli.commands.runs import runs_group
 from cli.commands.service import start, stop, restart, status, logs, update, api_only
@@ -32,6 +32,7 @@ cli.add_command(registry_group)
 # Info commands
 cli.add_command(health)
 cli.add_command(providers)
+cli.add_command(computer_use)
 
 # Service commands
 cli.add_command(start)

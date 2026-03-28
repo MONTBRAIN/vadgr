@@ -166,6 +166,17 @@ def run_agent(ctx, name_or_id: str, inputs: tuple, provider: str | None, model: 
     if not agent:
         raise click.ClickException(f"No agent matching '{name_or_id}' found.")
 
+    if agent.get("computer_use"):
+        try:
+            cu_status = api_get(ctx, "/api/settings/computer-use")
+            if not cu_status.get("enabled"):
+                raise click.ClickException(
+                    f"'{agent['name']}' requires computer use but it is disabled.\n"
+                    f"  Enable it with: forge computer-use enable"
+                )
+        except click.ClickException:
+            raise
+
     input_dict = dict(kv.split("=", 1) for kv in inputs) if inputs else {}
     schema = agent.get("input_schema", [])
 
