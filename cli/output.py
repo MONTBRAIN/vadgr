@@ -99,6 +99,16 @@ def print_error(msg: str):
     click.echo(_styled(f"[indian_red1]\\[forge][/] {msg}"), nl=False)
 
 
+def format_duration(seconds: float) -> str:
+    import math
+    s = max(0, math.ceil(seconds)) if seconds > 0 else 0
+    if s < 60:
+        return f"{s}s"
+    m = s // 60
+    s = s % 60
+    return f"{m}m {s}s"
+
+
 _SPINNER_STYLE = "dots"
 _DEFAULT_POLL_INTERVAL = 3.0
 _DEFAULT_TIMEOUT = 600.0

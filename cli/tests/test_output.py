@@ -2,7 +2,7 @@
 
 import pytest
 
-from cli.output import format_table, format_status, render_table, print_kv
+from cli.output import format_table, format_status, render_table, print_kv, format_duration
 
 
 class TestFormatTable:
@@ -37,6 +37,29 @@ class TestFormatStatus:
     def test_unknown_passes_through(self):
         text = format_status("whatever")
         assert "whatever" in text
+
+
+class TestFormatDuration:
+    def test_zero(self):
+        assert format_duration(0) == "0s"
+
+    def test_under_one_second(self):
+        assert format_duration(0.5) == "1s"
+
+    def test_seconds_only(self):
+        assert format_duration(45) == "45s"
+
+    def test_exactly_one_minute(self):
+        assert format_duration(60) == "1m 0s"
+
+    def test_minutes_and_seconds(self):
+        assert format_duration(103) == "1m 43s"
+
+    def test_five_minutes(self):
+        assert format_duration(312) == "5m 12s"
+
+    def test_large_value(self):
+        assert format_duration(3661) == "61m 1s"
 
 
 class TestPrintKV:
