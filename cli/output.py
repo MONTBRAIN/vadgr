@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import time
 from io import StringIO
 
 import click
 from rich.console import Console
 from rich.table import Table
 from rich.text import Text
+
+from cli.http import api_get
 
 _STATUS_STYLES = {
     "ready": "pale_green3",
@@ -94,3 +97,29 @@ def print_warning(msg: str):
 
 def print_error(msg: str):
     click.echo(_styled(f"[indian_red1]\\[forge][/] {msg}"), nl=False)
+
+
+_SPINNER_STYLE = "dots"
+_DEFAULT_POLL_INTERVAL = 2.0
+_DEFAULT_TIMEOUT = 300.0
+
+
+def wait_with_spinner(ctx, path: str, done_fn, message: str,
+                      interval: float = _DEFAULT_POLL_INTERVAL,
+                      timeout: float = _DEFAULT_TIMEOUT):
+    """Poll an API endpoint with a spinner until done_fn(response) is True."""
+    console = Console()
+    elapsed = 0.0
+
+    with console.status(message, spinner=_SPINNER_STYLE):
+        while elapsed < timeout:
+            try:
+                result = api_get(ctx, path)
+                if done_fn(result):
+                    return result
+            except click.ClickException:
+                pass  # API temporarily unreachable, retry
+            time.sleep(interval)
+            elapsed += interval
+
+    raise click.ClickException(f"Operation timed out after {timeout:.0f}s")
