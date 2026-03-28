@@ -57,8 +57,9 @@ def ps(ctx):
 @click.option("--input", "-i", "inputs", multiple=True)
 @click.option("--provider", "-p", default=None)
 @click.option("--model", "-m", default=None)
+@click.option("--background", "-b", is_flag=True)
 @click.pass_context
-def run_alias(ctx, name_or_id, inputs, provider, model):
+def run_alias(ctx, name_or_id, inputs, provider, model, background):
     """Run an agent (alias for 'agents run')."""
     from cli.commands.agents import run_agent
-    ctx.invoke(run_agent, name_or_id=name_or_id, inputs=inputs, provider=provider, model=model)
+    ctx.invoke(run_agent, name_or_id=name_or_id, inputs=inputs, provider=provider, model=model, background=background)

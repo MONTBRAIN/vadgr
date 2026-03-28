@@ -14,6 +14,7 @@ from cli.output import (
     print_table, print_kv, print_success, print_warning, print_info,
     format_status, status_text, wait_with_spinner,
 )
+from cli.stream import follow_run
 
 _AGENT_DONE = lambda r: r.get("status") not in ("creating", "updating", "importing")
 
@@ -155,8 +156,10 @@ def delete_agent(ctx, agent_id: str):
 @click.option("--input", "-i", "inputs", multiple=True, help="key=value input pairs")
 @click.option("--provider", "-p", default=None)
 @click.option("--model", "-m", default=None)
+@click.option("--background", "-b", is_flag=True, help="Return immediately without following progress")
 @click.pass_context
-def run_agent(ctx, name_or_id: str, inputs: tuple, provider: str | None, model: str | None):
+def run_agent(ctx, name_or_id: str, inputs: tuple, provider: str | None, model: str | None,
+              background: bool):
     """Run an agent by name or ID."""
     agents = api_get(ctx, "/api/agents")
     agent = _resolve_agent(agents, name_or_id)
@@ -180,7 +183,12 @@ def run_agent(ctx, name_or_id: str, inputs: tuple, provider: str | None, model: 
     result = api_post(ctx, f"/api/agents/{agent['id']}/run", body)
     run_id = result.get("run_id", result.get("id", "?"))
     print_success(f"Run started: {run_id}")
-    click.echo(f"  View logs: forge runs logs {run_id}")
+
+    if background:
+        click.echo(f"  View logs: forge runs logs {run_id}")
+        return
+
+    follow_run(ctx.obj["api_url"], run_id)
 
 
 @agents_group.command("import")
@@ -263,6 +271,7 @@ def _prompt_inputs(ctx, agent: dict, schema: list[dict]) -> dict:
         if ftype in ("file", "archive", "directory") or ftype.startswith("."):
             suffix = " [required]" if required else " [optional, press Enter to skip]"
             path = click.prompt(f"{prompt_text}{suffix}", default="", show_default=False)
+            path = path.strip().strip("'\"")
             if not path:
                 if required:
                     raise click.ClickException(f"Input '{name}' is required.")

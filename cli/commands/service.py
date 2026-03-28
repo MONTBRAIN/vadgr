@@ -192,19 +192,18 @@ def start(api_port, frontend_port):
         print_warning(f"API failed to start. Check {FORGE_HOME / 'api.log'}")
         raise SystemExit(1)
 
-    # Start frontend directly via node_modules/.bin/vite
-    # npx forks a child so the wrapper PID exits, making PID tracking unreliable
+    # Start frontend via npx vite
     frontend_dir = FORGE_REPO / "frontend"
-    vite_path = shutil.which("vite", path=str(frontend_dir / "node_modules" / ".bin"))
-    if not vite_path:
-        print_warning("Frontend not found. Run setup first.")
+    npx = _find_npx()
+    if not npx:
+        print_warning("npx not found. Frontend will not start.")
         print_success(f"API is running at http://localhost:{api_port}")
         return
 
     print_info("Starting frontend...")
     fe_log = open(FORGE_HOME / "frontend.log", "w")
     fe_proc = subprocess.Popen(
-        [vite_path], cwd=str(frontend_dir),
+        [npx, "vite"], cwd=str(frontend_dir),
         env=env, stdout=fe_log, stderr=subprocess.STDOUT,
         **_session_kwargs(),
     )

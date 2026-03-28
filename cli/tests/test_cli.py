@@ -311,12 +311,12 @@ class TestAgentsDelete:
 
 class TestAgentsRun:
     def test_run_with_input_flags(self):
-        r = _run("run", "Test-Agent", "-i", "query=hello")
+        r = _run("run", "Test-Agent", "-i", "query=hello", "--background")
         assert r.returncode == 0
         assert "run-new-123" in r.stdout
 
     def test_run_by_partial_name(self):
-        r = _run("run", "test", "-i", "query=hello")
+        r = _run("run", "test", "-i", "query=hello", "--background")
         assert r.returncode == 0
 
 
