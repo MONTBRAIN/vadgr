@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import click
 
+from rich.console import Console
+
 from cli.client import api_get, api_put
 from cli.output import print_kv, print_success, format_status
 
@@ -53,7 +55,9 @@ def computer_use():
 @click.pass_context
 def cu_enable(ctx):
     """Enable computer use."""
-    api_put(ctx, "/api/settings/computer-use", {"enabled": True})
+    console = Console()
+    with console.status("Setting up computer use...", spinner="dots"):
+        api_put(ctx, "/api/settings/computer-use", {"enabled": True})
     print_success("Computer use enabled")
 
 
