@@ -40,55 +40,63 @@ async def _stream(ws_url: str, run_id: str, api_url: str, timeout: float):
 
     try:
         async with websockets.connect(ws_url) as ws:
-            with console.status("Starting...", spinner=_SPINNER_STYLE) as status:
+            status = console.status("Starting...", spinner=_SPINNER_STYLE)
+            status.start()
 
-                while True:
-                    elapsed = time.monotonic() - run_start
-                    if elapsed > timeout:
-                        click.echo(f"  Timed out after {format_duration(timeout)}. Run continues in background.")
-                        break
+            while True:
+                elapsed = time.monotonic() - run_start
+                if elapsed > timeout:
+                    status.stop()
+                    click.echo(f"  Timed out after {format_duration(timeout)}. Run continues in background.")
+                    break
 
-                    try:
-                        raw = await asyncio.wait_for(ws.recv(), timeout=3.0)
-                    except asyncio.TimeoutError:
-                        continue
+                try:
+                    raw = await asyncio.wait_for(ws.recv(), timeout=3.0)
+                except asyncio.TimeoutError:
+                    continue
 
-                    event = json.loads(raw)
-                    etype = event.get("type", "")
-                    data = event.get("data", {})
+                event = json.loads(raw)
+                etype = event.get("type", "")
+                data = event.get("data", {})
 
-                    if etype == "agent_started":
-                        name = data.get("name", "")
-                        status.update(f"Running {name}...")
+                if etype == "agent_started":
+                    name = data.get("name", "")
+                    status.update(f"Running {name}...")
 
-                    elif etype == "agent_log":
-                        msg = data.get("message", "")
-                        step_match = _STEP_PATTERN.search(msg)
-                        if step_match:
+                elif etype == "agent_log":
+                    msg = data.get("message", "")
+                    step_match = _STEP_PATTERN.search(msg)
+                    if step_match:
+                        if current_step:
+                            status.stop()
                             _print_step_done(current_step, step_start)
-                            step_num = step_match.group(1)
-                            step_name = step_match.group(2).strip()
-                            # Strip [CLI] / [Desktop] suffix
-                            step_name = re.sub(r"\s*\[(CLI|Desktop)\]\s*$", "", step_name)
-                            current_step = f"Step {step_num}: {step_name}"
-                            step_start = time.monotonic()
-                            status.update(f"{current_step}...")
+                        step_num = step_match.group(1)
+                        step_name = step_match.group(2).strip()
+                        step_name = re.sub(r"\s*\[(CLI|Desktop)\]\s*$", "", step_name)
+                        current_step = f"Step {step_num}: {step_name}"
+                        step_start = time.monotonic()
+                        status.update(f"{current_step}...")
+                        status.start()
 
-                    elif etype == "run_completed":
+                elif etype == "run_completed":
+                    status.stop()
+                    if current_step:
                         _print_step_done(current_step, step_start)
-                        total = format_duration(time.monotonic() - run_start)
-                        print_success(f"Run completed ({total})")
-                        click.echo()
-                        _print_results_link(api_url, run_id)
-                        return
+                    total = format_duration(time.monotonic() - run_start)
+                    print_success(f"Run completed ({total})")
+                    click.echo()
+                    _print_results_link(api_url, run_id)
+                    return
 
-                    elif etype == "run_failed":
+                elif etype == "run_failed":
+                    status.stop()
+                    if current_step:
                         _print_step_done(current_step, step_start)
-                        error = data.get("error", "Unknown error")
-                        total = format_duration(time.monotonic() - run_start)
-                        print_error(f"Run failed ({total}): {error}")
-                        click.echo(f"  View logs: forge runs logs {run_id}")
-                        return
+                    error = data.get("error", "Unknown error")
+                    total = format_duration(time.monotonic() - run_start)
+                    print_error(f"Run failed ({total}): {error}")
+                    click.echo(f"  View logs: forge runs logs {run_id}")
+                    return
 
     except (websockets.exceptions.ConnectionClosed, ConnectionRefusedError, OSError):
         click.echo(f"  Could not connect to run stream. Run continues in background.")
@@ -112,13 +120,20 @@ def _print_results_link(api_url: str, run_id: str):
 
 
 def _get_frontend_port() -> int | None:
-    pid_file = _FORGE_PID_DIR / "frontend.pid"
-    if not pid_file.exists():
-        return None
+    import os
+    import urllib.request
+
+    port = int(os.environ.get("AGENT_FORGE_FRONTEND_PORT", "3000"))
     try:
-        import os
-        pid = int(pid_file.read_text().strip())
-        os.kill(pid, 0)
-        return 3000  # Default frontend port
-    except (ValueError, ProcessLookupError, PermissionError):
-        return None
+        urllib.request.urlopen(f"http://localhost:{port}", timeout=1)
+        return port
+    except Exception:
+        pass
+    # Try common ports
+    for p in (3000, 3001, 3002, 3003):
+        try:
+            urllib.request.urlopen(f"http://localhost:{p}", timeout=1)
+            return p
+        except Exception:
+            continue
+    return None
