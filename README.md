@@ -55,8 +55,12 @@ forge start
 | `forge agents list` | List all agents |
 | `forge agents get <id>` | Show agent details |
 | `forge agents create --name "..." --description "..."` | Create a new agent |
+| `forge agents update <id> [--name] [--description]` | Update an agent |
 | `forge agents delete <id>` | Delete an agent |
-| `forge run <name>` | Run an agent |
+| `forge agents export <id> [-o file.agnt]` | Export agent as .agnt archive |
+| `forge agents import <file.agnt>` | Import agent from .agnt archive |
+| `forge run <name> [--input key=value]` | Run an agent (interactive inputs) |
+| `forge run <name> --background` | Run without streaming progress |
 | `forge runs list [--status failed]` | List runs |
 | `forge runs get <id>` | Show run details |
 | `forge runs cancel <id>` | Cancel a running run |
@@ -68,6 +72,9 @@ forge start
 |---------|-------------|
 | `forge health` | Check API health |
 | `forge providers` | List available providers and models |
+| `forge computer-use enable` | Enable desktop automation |
+| `forge computer-use disable` | Disable desktop automation |
+| `forge computer-use status` | Show computer use and daemon status |
 
 **Registry** -- package manager for agent workflows:
 
@@ -78,6 +85,10 @@ forge start
 | `forge registry push <file.agnt>` | Publish `.agnt` to a registry |
 | `forge registry search <query>` | Search registries for agents |
 | `forge registry serve` | Start a self-hosted registry server |
+| `forge registry add <name> --type ...` | Add a registry to config |
+| `forge registry use <name>` | Set active registry |
+| `forge registry list` | List configured registries |
+| `forge registry remove <name>` | Remove a registry |
 
 ### Manual setup
 

@@ -102,16 +102,18 @@ For Claude Code, slash commands are available:
 
 CLI commands (via `forge` or `python -m cli`):
 ```
-forge ps                              # List agents
-forge agents list / get / create / delete
-forge run <name> [--input key=val]    # Run an agent
-forge runs list / get / cancel / logs # Manage runs
-forge health / providers              # System info
-forge registry pack ./my-agent/       # Package agent into .agnt
-forge registry pull agent-name        # Install from registry
-forge registry push my-agent.agnt     # Publish to registry
-forge registry search "data analysis" # Search registries
-forge registry serve                  # Self-hosted registry server
+forge start / stop / restart / status / logs  # Service management
+forge ps                                      # List agents
+forge agents list / get / create / update / delete
+forge agents export <id> / import <file.agnt> # Export/import agents
+forge run <name> [--input key=val]            # Run an agent
+forge run <name> --background                 # Run without streaming
+forge runs list / get / cancel / approve / logs
+forge health / providers                      # System info
+forge computer-use enable / disable / status  # Desktop automation
+forge registry pack / pull / push / search    # Package management
+forge registry add / use / list / remove      # Registry config
+forge registry serve                          # Self-hosted server
 ```
 
 ## Key Rules
