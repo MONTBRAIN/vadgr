@@ -60,9 +60,9 @@ def cu_enable(ctx):
         result = api_put(ctx, "/api/settings/computer-use", {"enabled": True})
     daemon = result.get("daemon", "")
     if daemon == "running":
-        print_success("Computer use enabled (daemon running)")
+        print_success(f"Computer use enabled (Windows daemon running on port 19542)")
     elif daemon == "degraded":
-        print_warning("Computer use enabled but daemon is degraded. Try disabling and re-enabling.")
+        print_warning("Computer use enabled but daemon is not responding. Try: forge computer-use disable && forge computer-use enable")
     elif daemon == "stopped":
         print_warning("Computer use enabled but daemon failed to start.")
     else:
