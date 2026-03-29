@@ -57,8 +57,17 @@ def cu_enable(ctx):
     """Enable computer use."""
     console = Console()
     with console.status("Setting up computer use...", spinner="dots"):
-        api_put(ctx, "/api/settings/computer-use", {"enabled": True})
-    print_success("Computer use enabled")
+        result = api_put(ctx, "/api/settings/computer-use", {"enabled": True})
+    daemon = result.get("daemon", "")
+    if daemon == "running":
+        print_success("Computer use enabled (daemon running)")
+    elif daemon == "degraded":
+        print_warning("Computer use enabled but daemon is degraded. Try disabling and re-enabling.")
+    elif daemon == "stopped":
+        print_warning("Computer use enabled but daemon failed to start.")
+    else:
+        print_success("Computer use enabled")
+    click.echo("  Restart Claude Code for MCP changes to take effect.")
 
 
 @computer_use.command("disable")
@@ -79,3 +88,6 @@ def cu_status(ctx):
     enabled = data.get("enabled", False)
     status = "enabled" if enabled else "disabled"
     click.echo(f"  Computer use: {format_status(status)}")
+    daemon = data.get("daemon")
+    if daemon:
+        click.echo(f"  Daemon: {format_status(daemon)}")

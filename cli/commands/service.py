@@ -309,6 +309,19 @@ def status():
             rows.append([service, str(pid), status_text("running")])
         else:
             rows.append([service, "-", status_text("stopped")])
+
+    # Check daemon status via API if available
+    try:
+        from cli.client import api_get, is_api_running
+        ctx = click.get_current_context()
+        if is_api_running(ctx):
+            cu = api_get(ctx, "/api/settings/computer-use")
+            daemon = cu.get("daemon")
+            if daemon:
+                rows.append(["daemon", "-", status_text(daemon)])
+    except Exception:
+        pass
+
     print_table(["Service", "PID", "Status"], rows)
 
 

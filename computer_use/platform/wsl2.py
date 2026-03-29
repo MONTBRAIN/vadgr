@@ -1040,7 +1040,7 @@ class WSL2Backend(PlatformBackend):
         return False
 
     def _probe_bridge(self) -> bool:
-        """Check if the bridge daemon is available, auto-launching if needed."""
+        """Check if the bridge daemon is available."""
         if self._use_bridge is None:
             try:
                 from computer_use.bridge.client import BridgeClient
@@ -1049,15 +1049,10 @@ class WSL2Backend(PlatformBackend):
             except Exception:
                 self._use_bridge = False
 
-            # Auto-launch if daemon isn't running
-            if not self._use_bridge:
-                logger.info("Bridge daemon not found, attempting auto-launch...")
-                self._use_bridge = self._auto_launch_daemon()
-
             if self._use_bridge:
                 logger.info("Bridge daemon detected, using fast path")
             else:
-                logger.info("Bridge daemon not available, using PowerShell fallback")
+                logger.info("Bridge daemon not available. Enable with: forge computer-use enable")
         return self._use_bridge
 
     def get_screen_capture(self) -> ScreenCapture:
