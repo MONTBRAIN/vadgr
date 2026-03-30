@@ -103,6 +103,26 @@ Save to: `output/{run_id}/user_outputs/step_{{STEP_NUMBER_PADDED}}/`
 
 ---
 
+## Step Result
+
+After completing this step (whether successful or not), write a result file:
+
+Save to: `output/{run_id}/agent_outputs/step_{{STEP_NUMBER_PADDED}}_result.json`
+
+If the step completed successfully:
+```json
+{"status": "completed", "summary": "Brief description of what was accomplished"}
+```
+
+If the step failed:
+```json
+{"status": "failed", "error": "Clear description of what went wrong"}
+```
+
+This file is read by the execution engine to track step status. Always write it, even on failure.
+
+---
+
 ## Quality Check
 <!-- A short bulleted list of pass/fail questions.
      Each question tests whether this step is actually complete.

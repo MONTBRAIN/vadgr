@@ -54,7 +54,7 @@ def _cu_venv_python() -> str:
 
 def _mcp_json_content(cache_enabled: bool = True) -> dict:
     """Build .mcp.json content with platform-correct values."""
-    env = {"AGENT_FORGE_DEBUG": "1"}
+    env = {"AGENT_FORGE_DEBUG": "1", "PYTHONPATH": str(PROJECT_ROOT)}
     if not cache_enabled:
         env["AGENT_FORGE_CACHE_ENABLED"] = "0"
     return {
@@ -101,6 +101,7 @@ def _codex_mcp_section(cache_enabled: bool = True) -> str:
         '',
         '[mcp_servers.computer-use.env]',
         'AGENT_FORGE_DEBUG = "1"',
+        f'PYTHONPATH = "{cwd}"',
     ]
     if not cache_enabled:
         lines.append('AGENT_FORGE_CACHE_ENABLED = "0"')
@@ -167,6 +168,155 @@ def _remove_all_provider_configs() -> None:
     _remove_codex_mcp_section()
 
 
+_DAEMON_PORT = 19542
+_DAEMON_LAUNCH_WAIT = 3
+_DAEMON_LAUNCH_RETRIES = 5
+
+
+def _is_wsl2() -> bool:
+    try:
+        return "microsoft" in open("/proc/version").read().lower()
+    except Exception:
+        return False
+
+
+def _get_bridge_client():
+    from computer_use.bridge.client import BridgeClient
+    return BridgeClient()
+
+
+def _probe_daemon() -> str:
+    try:
+        client = _get_bridge_client()
+        if client.is_available():
+            return "running"
+        return "degraded"
+    except Exception:
+        return "stopped"
+
+
+def _find_windows_python() -> str | None:
+    common_paths = [
+        "/mnt/c/Users/*/AppData/Local/Programs/Python/Python3*/python.exe",
+    ]
+    import glob
+    for pattern in common_paths:
+        matches = sorted(glob.glob(pattern), reverse=True)
+        if matches:
+            return matches[0].replace("/mnt/c/", "C:\\").replace("/", "\\")
+    try:
+        result = subprocess.run(
+            ["powershell.exe", "-NoProfile", "-Command", "(Get-Command python).Source"],
+            capture_output=True, text=True, timeout=5,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return result.stdout.strip()
+    except Exception:
+        pass
+    return None
+
+
+def _deploy_and_launch_daemon(win_python: str) -> None:
+    bridge_dir = str(PROJECT_ROOT / "computer_use" / "bridge")
+    deploy_dir = None
+    try:
+        result = subprocess.run(
+            ["wslpath", "-u", os.path.expanduser("~").replace("/home/", "/mnt/c/Users/")],
+            capture_output=True, text=True,
+        )
+        # Try getting Windows USERPROFILE
+        result = subprocess.run(
+            ["powershell.exe", "-NoProfile", "-Command", "$env:USERPROFILE"],
+            capture_output=True, text=True, timeout=5,
+        )
+        if result.returncode == 0:
+            win_profile = result.stdout.strip()
+            deploy_dir = subprocess.run(
+                ["wslpath", "-u", win_profile],
+                capture_output=True, text=True,
+            ).stdout.strip()
+    except Exception:
+        pass
+
+    if not deploy_dir:
+        return
+
+    import shutil
+    for fname in ("daemon.py", "spatial_cache.py"):
+        src = os.path.join(bridge_dir, fname)
+        if os.path.exists(src):
+            shutil.copy2(src, os.path.join(deploy_dir, fname))
+
+    # Convert to Windows path
+    try:
+        win_dir = subprocess.run(
+            ["wslpath", "-w", deploy_dir],
+            capture_output=True, text=True,
+        ).stdout.strip()
+    except Exception:
+        return
+
+    # Use pythonw.exe for hidden window
+    pythonw = win_python.replace("python.exe", "pythonw.exe")
+
+    logger.info("Launching daemon: %s daemon.py", pythonw)
+    try:
+        subprocess.Popen(
+            [
+                "powershell.exe", "-NoProfile", "-Command",
+                f'Start-Process -FilePath "{pythonw}" '
+                f'-ArgumentList "daemon.py" '
+                f'-WorkingDirectory "{win_dir}" '
+                f'-WindowStyle Hidden',
+            ],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except Exception as e:
+        logger.warning("Failed to launch daemon: %s", e)
+
+
+def _start_daemon() -> bool:
+    if not _is_wsl2():
+        return False
+
+    win_python = _find_windows_python()
+    if not win_python:
+        logger.warning("Windows Python not found, cannot start daemon")
+        return False
+
+    _deploy_and_launch_daemon(win_python)
+
+    import time
+    time.sleep(_DAEMON_LAUNCH_WAIT)
+    for _ in range(_DAEMON_LAUNCH_RETRIES):
+        if _probe_daemon() == "running":
+            logger.info("Daemon started successfully")
+            return True
+        time.sleep(1)
+
+    logger.warning("Daemon launched but not responding")
+    return False
+
+
+def _stop_daemon():
+    if not _is_wsl2():
+        return
+    try:
+        subprocess.run(
+            [
+                "powershell.exe", "-NoProfile", "-Command",
+                f"Get-NetTCPConnection -LocalPort {_DAEMON_PORT} -State Listen "
+                f"-ErrorAction SilentlyContinue | "
+                f"ForEach-Object {{ Stop-Process -Id $_.OwningProcess -Force }}",
+            ],
+            capture_output=True, timeout=10,
+        )
+        logger.info("Daemon stopped")
+    except Exception as e:
+        logger.warning("Failed to stop daemon: %s", e)
+
+
 def get_status() -> dict:
     """Check current computer use status."""
     mcp_exists = MCP_JSON_PATH.exists()
@@ -186,10 +336,14 @@ def get_status() -> dict:
         except (json.JSONDecodeError, OSError):
             pass
 
+    daemon = _probe_daemon() if _is_wsl2() else None
+
     return {
         "enabled": enabled,
         "cache_enabled": cache_enabled,
         "venv_ready": venv_exists,
+        "daemon": daemon,
+        "platform": "wsl2" if _is_wsl2() else "native",
     }
 
 
@@ -242,6 +396,15 @@ def enable_computer_use(cache_enabled: bool = True) -> dict:
         )
         _write_deps_marker()
 
+    # Manage daemon on WSL2
+    if _is_wsl2():
+        state = _probe_daemon()
+        if state == "degraded":
+            _stop_daemon()
+            _start_daemon()
+        elif state == "stopped":
+            _start_daemon()
+
     # Write MCP configs for all providers
     _write_all_provider_configs(cache_enabled=cache_enabled)
     logger.info("Wrote MCP configs for all providers (cache_enabled=%s)", cache_enabled)
@@ -250,7 +413,9 @@ def enable_computer_use(cache_enabled: bool = True) -> dict:
 
 
 def disable_computer_use() -> dict:
-    """Remove all provider MCP configs to disable computer use. Keeps venv for re-enable."""
+    """Remove all provider MCP configs and stop daemon. Keeps venv for re-enable."""
+    if _is_wsl2():
+        _stop_daemon()
     _remove_all_provider_configs()
     return get_status()
 

@@ -36,20 +36,59 @@ forge start
 
 ### Forge CLI
 
+**Services:**
+
 | Command | Description |
 |---------|-------------|
 | `forge start` | Start API and frontend servers |
 | `forge stop` | Stop all services |
 | `forge restart` | Restart all services |
-| `forge api` | Start only the API server |
 | `forge status` | Show if services are running |
-| `forge health` | Check API health |
-| `forge agents` | List all agents |
-| `forge providers` | List available providers and models |
-| `forge info` | Show system information |
-| `forge update` | Pull latest code and reinstall deps if changed |
 | `forge logs` | Tail API server logs |
-| `forge help` | Show this help message |
+| `forge update` | Pull latest code and reinstall deps |
+
+**Agents and runs:**
+
+| Command | Description |
+|---------|-------------|
+| `forge ps` | List all agents |
+| `forge agents list` | List all agents |
+| `forge agents get <id>` | Show agent details |
+| `forge agents create --name "..." --description "..."` | Create a new agent |
+| `forge agents update <id> [--name] [--description]` | Update an agent |
+| `forge agents delete <id>` | Delete an agent |
+| `forge agents export <id> [-o file.agnt]` | Export agent as .agnt archive |
+| `forge agents import <file.agnt>` | Import agent from .agnt archive |
+| `forge run <name> [--input key=value]` | Run an agent (interactive inputs) |
+| `forge run <name> --background` | Run without streaming progress |
+| `forge runs list [--status failed]` | List runs |
+| `forge runs get <id>` | Show run details |
+| `forge runs cancel <id>` | Cancel a running run |
+| `forge runs logs <id>` | Show run logs |
+
+**Info:**
+
+| Command | Description |
+|---------|-------------|
+| `forge health` | Check API health |
+| `forge providers` | List available providers and models |
+| `forge computer-use enable` | Enable desktop automation |
+| `forge computer-use disable` | Disable desktop automation |
+| `forge computer-use status` | Show computer use and daemon status |
+
+**Registry** -- package manager for agent workflows:
+
+| Command | Description |
+|---------|-------------|
+| `forge registry pack <folder>` | Package agent folder into `.agnt` archive |
+| `forge registry pull <name>` | Download and install agent from registry |
+| `forge registry push <file.agnt>` | Publish `.agnt` to a registry |
+| `forge registry search <query>` | Search registries for agents |
+| `forge registry serve` | Start a self-hosted registry server |
+| `forge registry add <name> --type ...` | Add a registry to config |
+| `forge registry use <name>` | Set active registry |
+| `forge registry list` | List configured registries |
+| `forge registry remove <name>` | Remove a registry |
 
 ### Manual setup
 
@@ -74,6 +113,10 @@ graph LR
 
 ## Modules
 
+### [cli/](cli/) - Command-Line Interface
+
+Unified CLI built with Click. Manages agents, runs, registry, and system info. Talks to the API over HTTP for agent/run operations; calls the registry module directly for package management. Each module has its own venv.
+
 ### [api/](api/) - REST API + Execution Engine
 
 FastAPI backend for agent CRUD, forge generation, and execution. Calls any CLI agent tool as a subprocess via config-driven providers. See [api/README.md](api/README.md) for setup details.
@@ -90,6 +133,10 @@ Designs and generates complete agentic workflow projects through a 7-step conver
 
 Captures screenshots, locates UI elements, and executes mouse/keyboard actions across **Windows, macOS, and Linux** (including WSL2). Works as a Python library, MCP server, or CLI tool. Runs natively on the host.
 
+### [registry/](registry/) - Agent Package Manager
+
+Package, publish, and install agent workflows. Supports three backends: GitHub (releases + raw content), any HTTP server, or a local folder. Agents are distributed as `.agnt` archives (zip with manifest). Includes SHA256 integrity verification, SSRF protection, and zip slip prevention.
+
 ### paper/ - Research Paper
 
 Academic paper documenting the framework.
@@ -98,6 +145,11 @@ Academic paper documenting the framework.
 
 ```
 Agent-Forge/
+├── cli/                   # Unified command-line interface
+│   ├── main.py            # Root Click group
+│   ├── http.py            # HTTP client for API
+│   ├── commands/          # agents, runs, registry, info
+│   └── tests/             # Unit + integration tests
 ├── api/                   # REST API + execution engine
 │   ├── main.py            # FastAPI app
 │   ├── routes/            # HTTP endpoints
@@ -117,6 +169,11 @@ Agent-Forge/
 │   ├── core/              # Engine facade, types, actions
 │   ├── platform/          # OS backends (Linux, Windows, macOS, WSL2)
 │   └── mcp_server.py      # MCP server
+├── registry/              # Agent package manager
+│   ├── cli.py             # Click CLI (pack, pull, push, search)
+│   ├── security.py        # Zip safety, SSRF, SHA256, TLS
+│   ├── server.py          # Self-hosted HTTP registry server
+│   └── adapters/          # GitHub, HTTP, local backends
 ├── providers.yaml         # CLI provider configs (claude, codex, aider, etc.)
 ├── data/                  # SQLite database (created at runtime)
 ├── output/                # Generated agent workflows

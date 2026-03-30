@@ -307,7 +307,7 @@ class CLIAgentProvider:
             )
             await proc.wait()
             return proc.returncode == 0
-        except FileNotFoundError:
+        except (FileNotFoundError, PermissionError, OSError):
             return False
 
     @staticmethod

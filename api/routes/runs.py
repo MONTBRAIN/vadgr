@@ -103,6 +103,10 @@ async def approve_run(run_id: str, request: Request):
             content={"error": {"code": "NO_GATE_PENDING", "message": "No approval gate is pending", "details": {}}},
         )
     updated = await run_repo.update_status(run_id, "running")
+    # Resume execution from where the approval gate paused
+    import asyncio
+    execution_service = request.app.state.execution_service
+    asyncio.create_task(execution_service.resume_after_approval(run_id))
     return updated
 
 

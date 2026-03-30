@@ -49,6 +49,29 @@ Agent-Forge/
 │   ├── grounding/                     # UI element location (accessibility + vision)
 │   ├── providers/                     # LLM adapters (Anthropic, OpenAI)
 │   └── tests/                         # Unit tests
+├── cli/                               # Unified command-line interface
+│   ├── main.py                        # Root Click group
+│   ├── http.py                        # HTTP client for API calls
+│   ├── output.py                      # Table formatting, status colors
+│   ├── commands/                      # Command groups
+│   │   ├── agents.py                  # list, get, create, delete, run
+│   │   ├── runs.py                    # list, get, cancel, approve, logs
+│   │   ├── registry.py                # pack, pull, push, search, serve
+│   │   └── info.py                    # health, providers
+│   └── tests/                         # Unit + integration tests (69 tests)
+├── registry/                          # Agent package manager (library)
+│   ├── manifest.py                    # .agnt manifest schema + validation
+│   ├── packer.py                      # Pack/unpack agent folders to .agnt archives
+│   ├── installer.py                   # Install/uninstall agents locally
+│   ├── registry_client.py             # High-level registry operations
+│   ├── security.py                    # Zip safety, SSRF, SHA256, TLS
+│   ├── server.py                      # Self-hosted HTTP registry server
+│   ├── config.py                      # Registry config (~/.forge/registry.yaml)
+│   ├── adapters/                      # Registry backend adapters
+│   │   ├── github.py                  # GitHub Releases adapter
+│   │   ├── http.py                    # Generic HTTP server adapter
+│   │   └── local.py                   # Local folder adapter
+│   └── tests/                         # Unit + security tests (150 tests)
 ├── paper/                             # Research paper
 └── output/                            # Generated workflows land here
 ```
@@ -75,6 +98,22 @@ For Claude Code, slash commands are available:
 /create-and-run [task]        # Generate workflow + execute immediately
 /pause-execution              # Pause computer use mid-execution
 /resume-execution             # Resume paused execution
+```
+
+CLI commands (via `forge` or `python -m cli`):
+```
+forge start / stop / restart / status / logs  # Service management
+forge ps                                      # List agents
+forge agents list / get / create / update / delete
+forge agents export <id> / import <file.agnt> # Export/import agents
+forge run <name> [--input key=val]            # Run an agent
+forge run <name> --background                 # Run without streaming
+forge runs list / get / cancel / approve / logs
+forge health / providers                      # System info
+forge computer-use enable / disable / status  # Desktop automation
+forge registry pack / pull / push / search    # Package management
+forge registry add / use / list / remove      # Registry config
+forge registry serve                          # Self-hosted server
 ```
 
 ## Key Rules

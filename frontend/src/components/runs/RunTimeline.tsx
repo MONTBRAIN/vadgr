@@ -26,9 +26,8 @@ const eventIcons: Record<string, string> = {
   run_started: 'bg-info',
   agent_started: 'bg-info',
   step: 'bg-info',
-  step_failed: 'bg-danger',
+  step_completed: 'bg-success',
   agent_completed: 'bg-success',
-  agent_failed: 'bg-danger',
   agent_log: 'bg-text-muted/50',
   run_completed: 'bg-success',
   run_failed: 'bg-danger',
@@ -77,18 +76,21 @@ function groupEvents(events: WSEvent[]): EventGroup[] {
         continue;
       }
 
-      // Step complete marker — skip it
-      if (msg.match(/^--- Step \d+ complete ---$/)) {
+      // Step complete marker (legacy format) — skip it
+      if (msg.match(/^--- Step \d+ (complete|completed|failed) ---$/)) {
         continue;
       }
 
       // Regular log — attach to current step node or last group
       if (groups.length > 0) {
         groups[groups.length - 1].logs.push(event);
-        // Mark step as failed when a FAILED: message appears
-        if (msg.startsWith('FAILED:') && groups[groups.length - 1].event.type === 'step') {
-          groups[groups.length - 1].event = { ...groups[groups.length - 1].event, type: 'step_failed' };
-        }
+      }
+    } else if (event.type === 'step_completed') {
+      // Step completion — update the last step group's status
+      const status = event.data?.status as string ?? 'completed';
+      const stepName = event.data?.step_name as string ?? '';
+      if (groups.length > 0 && groups[groups.length - 1].event.type === 'step') {
+        groups[groups.length - 1].sublabel = `${stepName} — ${status}`;
       }
     } else {
       // Non-log event — gets its own node

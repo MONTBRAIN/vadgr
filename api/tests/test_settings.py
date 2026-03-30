@@ -74,6 +74,7 @@ class TestComputerUseSetupService:
             patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
             patch.object(cu_setup, "CU_VENV_DIR", venv_path),
             patch.object(cu_setup, "CU_REQUIREMENTS", reqs_path),
+            patch.object(cu_setup, "_is_wsl2", return_value=False),
             patch("subprocess.run") as mock_run,
         ):
             cu_setup.enable_computer_use()

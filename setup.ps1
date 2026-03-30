@@ -39,13 +39,21 @@ function InstallGit {
     if (-not (CommandExists "git")) { Fail "Git installation failed." }
 }
 
+function PythonOk {
+    $pyCmd = Get-Command python -ErrorAction SilentlyContinue
+    if (-not $pyCmd) { return $false }
+    if ($pyCmd.Source -like "*WindowsApps*") { return $false }
+    try {
+        $ver = & python -c "import sys; print(sys.version_info.minor)" 2>$null
+        return ($null -ne $ver -and [int]$ver -ge 12)
+    } catch { return $false }
+}
+
 function InstallPython {
-    if (CommandExists "python") {
+    if (PythonOk) {
         $ver = python -c "import sys; print(sys.version_info.minor)" 2>$null
-        if ($ver -ge 12) {
-            Info "Python 3.$ver already installed."
-            return
-        }
+        Info "Python 3.$ver already installed."
+        return
     }
     Info "Installing Python 3.12..."
     EnsureWinget
@@ -78,6 +86,12 @@ function SetupRepo {
         Info "Agent Forge repo already exists, pulling latest..."
         & { $ErrorActionPreference = 'SilentlyContinue'; git -C $FORGE_REPO pull --ff-only origin master 2>$null }
         if ($LASTEXITCODE -ne 0) { Warn "Could not pull latest (offline?)" }
+        $deleted = git -C $FORGE_REPO diff --name-only --diff-filter=D 2>$null
+        if ($deleted) {
+            Push-Location $FORGE_REPO
+            $deleted | ForEach-Object { git checkout -- $_ 2>$null }
+            Pop-Location
+        }
     } else {
         Info "Cloning Agent Forge..."
         New-Item -ItemType Directory -Force -Path $FORGE_HOME | Out-Null
@@ -85,23 +99,35 @@ function SetupRepo {
     }
 }
 
+function EnsureVenv($dir, $req) {
+    Push-Location $FORGE_REPO
+    try {
+        $venvPip = "$dir\Scripts\pip.exe"
+        if (-not (Test-Path $dir) -or -not (Test-Path $venvPip)) {
+            if (Test-Path $dir) { Remove-Item $dir -Recurse -Force }
+            python -m venv $dir
+            if (-not (Test-Path $venvPip)) { Fail "Failed to create venv at $dir" }
+        }
+        & $venvPip install -q -r $req
+    } finally { Pop-Location }
+}
+
 function SetupApi {
     Info "Setting up API..."
-    Set-Location $FORGE_REPO
-    if (-not (Test-Path "api\.venv")) {
-        python -m venv api\.venv
-    }
-    & api\.venv\Scripts\pip.exe install -q -r api\requirements.txt
+    EnsureVenv "api\.venv" "api\requirements.txt"
+    Push-Location $FORGE_REPO
     New-Item -ItemType Directory -Force -Path data | Out-Null
+    Pop-Location
 }
 
 function SetupForgeScripts {
     Info "Setting up forge scripts..."
-    Set-Location $FORGE_REPO
-    if (-not (Test-Path "forge\scripts\.venv")) {
-        python -m venv forge\scripts\.venv
-    }
-    & forge\scripts\.venv\Scripts\pip.exe install -q -r forge\scripts\requirements.txt
+    EnsureVenv "forge\scripts\.venv" "forge\scripts\requirements.txt"
+}
+
+function SetupCli {
+    Info "Setting up CLI..."
+    EnsureVenv "cli\.venv" "cli\requirements.txt"
 }
 
 function SetupFrontend {
@@ -118,337 +144,14 @@ function GenerateForgeCli {
     Info "Creating forge CLI..."
     New-Item -ItemType Directory -Force -Path $FORGE_BIN | Out-Null
 
+
     $forgeScript = @'
-# Agent Forge CLI for Windows
-param(
-    [string]$Command = "help",
-    [string]$ApiPort = "",
-    [string]$FrontendPort = ""
-)
-
-$FORGE_HOME = "$env:USERPROFILE\.forge"
-$FORGE_REPO = "$FORGE_HOME\Agent-Forge"
-$PID_DIR = "$FORGE_HOME\pids"
-
-# Ports -- flags > env vars > defaults
-$API_PORT = if ($ApiPort) { $ApiPort } elseif ($env:AGENT_FORGE_PORT) { $env:AGENT_FORGE_PORT } else { "8000" }
-$FRONTEND_PORT = if ($FrontendPort) { $FrontendPort } elseif ($env:AGENT_FORGE_FRONTEND_PORT) { $env:AGENT_FORGE_FRONTEND_PORT } else { "3000" }
-
-function Info($msg)  { Write-Host "[forge] $msg" -ForegroundColor Cyan }
-function Ok($msg)    { Write-Host "[forge] $msg" -ForegroundColor Green }
-function Warn($msg)  { Write-Host "[forge] $msg" -ForegroundColor Yellow }
-
-# Parse actual frontend port from Vite log output
-function DetectFrontendPort {
-    $log = "$FORGE_HOME\frontend.log"
-    for ($i = 0; $i -lt 20; $i++) {
-        if (Test-Path $log) {
-            $match = Select-String -Path $log -Pattern 'localhost:(\d+)' -ErrorAction SilentlyContinue | Select-Object -First 1
-            if ($match) {
-                return $match.Matches[0].Groups[1].Value
-            }
-        }
-        Start-Sleep -Milliseconds 250
-    }
-    return $FRONTEND_PORT
-}
-
-function Start-Forge {
-    New-Item -ItemType Directory -Force -Path $PID_DIR | Out-Null
-
-    # Check if already running
-    $apiPidFile = "$PID_DIR\api.pid"
-    if (Test-Path $apiPidFile) {
-        $procId = (Get-Content $apiPidFile).Trim()
-        if ($procId -and (Get-Process -Id $procId -ErrorAction SilentlyContinue)) {
-            Warn "Agent Forge is already running. Use 'forge stop' first."
-            return
-        }
-    }
-
-    Set-Location $FORGE_REPO
-
-    # Start API
-    Info "Starting API server (port $API_PORT)..."
-    $env:PYTHONPATH = $FORGE_REPO
-    $env:AGENT_FORGE_PORT = $API_PORT
-    $env:AGENT_FORGE_FRONTEND_PORT = $FRONTEND_PORT
-    $apiProc = Start-Process -FilePath "api\.venv\Scripts\python.exe" `
-        -ArgumentList "-m", "uvicorn", "api.main:app", "--host", "127.0.0.1", "--port", $API_PORT `
-        -WorkingDirectory $FORGE_REPO `
-        -WindowStyle Hidden `
-        -PassThru `
-        -RedirectStandardOutput "$FORGE_HOME\api.log" `
-        -RedirectStandardError "$FORGE_HOME\api.err"
-    $apiProc.Id | Out-File $apiPidFile
-
-    # Wait for API
-    $apiReady = $false
-    for ($i = 0; $i -lt 15; $i++) {
-        try {
-            $null = Invoke-RestMethod "http://127.0.0.1:${API_PORT}/api/health" -TimeoutSec 2
-            $apiReady = $true
-            break
-        } catch { Start-Sleep 1 }
-    }
-    if (-not $apiReady) {
-        Warn "API failed to start. Check $FORGE_HOME\api.err for details."
-        return
-    }
-
-    # Start frontend (pass ports so Vite reads them)
-    Info "Starting frontend..."
-    $env:AGENT_FORGE_PORT = $API_PORT
-    $env:AGENT_FORGE_FRONTEND_PORT = $FRONTEND_PORT
-    try {
-        $frontProc = Start-Process -FilePath "npm.cmd" `
-            -ArgumentList "run", "dev" `
-            -WorkingDirectory "$FORGE_REPO\frontend" `
-            -WindowStyle Hidden `
-            -PassThru
-        $frontProc.Id | Out-File "$PID_DIR\frontend.pid"
-    } catch {
-        Warn "Failed to start frontend: $_"
-        Ok "API is running at http://localhost:$API_PORT (frontend failed)"
-        return
-    }
-
-    # Detect actual port from Vite output (handles auto-increment)
-    $actualFePort = DetectFrontendPort
-
-    Ok "Agent Forge is running!"
-    Ok "  Frontend: http://localhost:$actualFePort"
-    Ok "  API:      http://localhost:$API_PORT"
-    Ok ""
-    Ok "Run 'forge stop' to stop, 'forge logs' to see API logs."
-}
-
-function Stop-Forge {
-    $stopped = $false
-    foreach ($service in @("api", "frontend")) {
-        $pidFile = "$PID_DIR\$service.pid"
-        if (Test-Path $pidFile) {
-            $procId = (Get-Content $pidFile).Trim()
-            if ($procId) {
-                $proc = Get-Process -Id $procId -ErrorAction SilentlyContinue
-                if ($proc) {
-                    # taskkill /T kills the entire process tree (e.g. npm.cmd -> node.exe)
-                    & taskkill /PID $procId /T /F 2>$null | Out-Null
-                    Info "Stopped $service (PID $procId)"
-                    $stopped = $true
-                }
-            }
-            Remove-Item $pidFile
-        }
-    }
-    if (-not $stopped) { Warn "Agent Forge is not running." }
-    else { Ok "Agent Forge stopped." }
-}
-
-function Get-ForgeStatus {
-    foreach ($service in @("api", "frontend")) {
-        $pidFile = "$PID_DIR\$service.pid"
-        $procId = if (Test-Path $pidFile) { (Get-Content $pidFile).Trim() } else { "" }
-        if ($procId -and (Get-Process -Id $procId -ErrorAction SilentlyContinue)) {
-            Ok "$service is running (PID $procId)"
-        } else {
-            Warn "$service is not running"
-        }
-    }
-}
-
-function Update-Forge {
-    Info "Updating Agent Forge..."
-    Set-Location $FORGE_REPO
-
-    $apiHash = (Get-FileHash api\requirements.txt -ErrorAction SilentlyContinue).Hash
-    $frontHash = (Get-FileHash frontend\package.json -ErrorAction SilentlyContinue).Hash
-
-    git pull --ff-only origin master
-    if ($LASTEXITCODE -ne 0) { Warn "Could not pull (check your network)"; return }
-
-    $newApiHash = (Get-FileHash api\requirements.txt -ErrorAction SilentlyContinue).Hash
-    $newFrontHash = (Get-FileHash frontend\package.json -ErrorAction SilentlyContinue).Hash
-
-    if ($apiHash -ne $newApiHash) {
-        Info "API dependencies changed, reinstalling..."
-        & api\.venv\Scripts\pip.exe install -q -r api\requirements.txt
-    }
-    if ($frontHash -ne $newFrontHash) {
-        Info "Frontend dependencies changed, reinstalling..."
-        Set-Location frontend; npm.cmd install --silent; Set-Location ..
-    }
-
-    Ok "Update complete. Run 'forge start' to start."
-}
-
-function Restart-Forge {
-    Stop-Forge
-    Start-Sleep 1
-    Start-Forge
-}
-
-function Start-ForgeApi {
-    New-Item -ItemType Directory -Force -Path $PID_DIR | Out-Null
-    $apiPidFile = "$PID_DIR\api.pid"
-    if (Test-Path $apiPidFile) {
-        $procId = (Get-Content $apiPidFile).Trim()
-        if ($procId -and (Get-Process -Id $procId -ErrorAction SilentlyContinue)) {
-            Warn "API is already running. Use 'forge stop' first."
-            return
-        }
-    }
-    Set-Location $FORGE_REPO
-    Info "Starting API server (port $API_PORT)..."
-    $env:PYTHONPATH = $FORGE_REPO
-    $env:AGENT_FORGE_PORT = $API_PORT
-    $env:AGENT_FORGE_FRONTEND_PORT = $FRONTEND_PORT
-    $apiProc = Start-Process -FilePath "api\.venv\Scripts\python.exe" `
-        -ArgumentList "-m", "uvicorn", "api.main:app", "--host", "127.0.0.1", "--port", $API_PORT `
-        -WorkingDirectory $FORGE_REPO `
-        -WindowStyle Hidden `
-        -PassThru `
-        -RedirectStandardOutput "$FORGE_HOME\api.log" `
-        -RedirectStandardError "$FORGE_HOME\api.err"
-    $apiProc.Id | Out-File $apiPidFile
-    $apiReady = $false
-    for ($i = 0; $i -lt 15; $i++) {
-        try {
-            $null = Invoke-RestMethod "http://127.0.0.1:${API_PORT}/api/health" -TimeoutSec 2
-            $apiReady = $true
-            break
-        } catch { Start-Sleep 1 }
-    }
-    if ($apiReady) {
-        Ok "API is running at http://localhost:$API_PORT"
-    } else {
-        Warn "API failed to start. Check $FORGE_HOME\api.err for details."
-    }
-}
-
-function Get-ForgeHealth {
-    try {
-        $response = Invoke-RestMethod "http://127.0.0.1:${API_PORT}/api/health" -TimeoutSec 5
-        $response | ConvertTo-Json -Depth 5
-    } catch {
-        Warn "API is not responding. Run 'forge start' first."
-    }
-}
-
-function Get-ForgeAgents {
-    try {
-        $agents = Invoke-RestMethod "http://127.0.0.1:${API_PORT}/api/agents" -TimeoutSec 5
-        if ($agents.Count -eq 0) {
-            Write-Host "No agents found."
-        } else {
-            Write-Host "$($agents.Count) agent(s):"
-            Write-Host ""
-            foreach ($a in $agents) {
-                $steps = if ($a.steps) { $a.steps.Count } else { 0 }
-                $cu = if ($a.computer_use) { " [desktop]" } else { "" }
-                Write-Host "  $($a.name)"
-                Write-Host "    ID: $($a.id)  Status: $($a.status)  Steps: $steps$cu"
-                Write-Host ""
-            }
-        }
-    } catch {
-        Warn "API is not responding. Run 'forge start' first."
-    }
-}
-
-function Get-ForgeProviders {
-    try {
-        $providers = Invoke-RestMethod "http://127.0.0.1:${API_PORT}/api/providers" -TimeoutSec 5
-        foreach ($p in $providers) {
-            $avail = if ($p.available) { "available" } else { "not found" }
-            Write-Host "  $($p.name) ($($p.id)) -- $avail"
-            foreach ($m in $p.models) {
-                Write-Host "    - $($m.name) ($($m.id))"
-            }
-            Write-Host ""
-        }
-    } catch {
-        Warn "API is not responding. Run 'forge start' first."
-    }
-}
-
-function Get-ForgeInfo {
-    Write-Host "Agent Forge"
-    Write-Host ""
-    try {
-        $health = Invoke-RestMethod "http://127.0.0.1:${API_PORT}/api/health" -TimeoutSec 5
-        Write-Host "  Version:       $($health.version)"
-        Write-Host "  Platform:      $($health.platform)"
-        $forgeAvail = if ($health.modules.forge) { "available" } else { "not found" }
-        $cuAvail = if ($health.modules.computer_use) { "available" } else { "not found" }
-        Write-Host "  Forge:         $forgeAvail"
-        Write-Host "  Computer Use:  $cuAvail"
-        Ok "  API:           running"
-    } catch {
-        Warn "  API:           not running"
-    }
-    $fePidFile = "$PID_DIR\frontend.pid"
-    $fePid = if (Test-Path $fePidFile) { (Get-Content $fePidFile).Trim() } else { "" }
-    if ($fePid -and (Get-Process -Id $fePid -ErrorAction SilentlyContinue)) {
-        Ok "  Frontend:      running"
-    } else {
-        Warn "  Frontend:      not running"
-    }
-    Write-Host "  Install:       $FORGE_REPO"
-    Write-Host ""
-}
-
-function Get-ForgeLogs {
-    if (Test-Path "$FORGE_HOME\api.log") {
-        Get-Content "$FORGE_HOME\api.log" -Wait -Tail 50
-    } else {
-        Warn "No logs found. Is Agent Forge running?"
-    }
-}
-
-function Show-Help {
-    Write-Host "Agent Forge CLI"
-    Write-Host ""
-    Write-Host "Usage: forge <command> [-ApiPort <port>] [-FrontendPort <port>]"
-    Write-Host ""
-    Write-Host "Commands:"
-    Write-Host "  start      Start API and frontend servers"
-    Write-Host "  stop       Stop all services"
-    Write-Host "  restart    Restart all services"
-    Write-Host "  api        Start only the API server"
-    Write-Host "  status     Show if services are running"
-    Write-Host "  health     Check API health"
-    Write-Host "  agents     List all agents"
-    Write-Host "  providers  List available providers and models"
-    Write-Host "  info       Show system information"
-    Write-Host "  update     Pull latest code and reinstall deps if changed"
-    Write-Host "  logs       Tail API server logs"
-    Write-Host "  help       Show this help message"
-    Write-Host ""
-    Write-Host "Flags:"
-    Write-Host "  -ApiPort <port>       API server port (default: 8000)"
-    Write-Host "  -FrontendPort <port>  Frontend server port (default: 3000)"
-    Write-Host ""
-    Write-Host "Environment variables:"
-    Write-Host "  AGENT_FORGE_PORT            Same as -ApiPort"
-    Write-Host "  AGENT_FORGE_FRONTEND_PORT   Same as -FrontendPort"
-}
-
-switch ($Command) {
-    "start"     { Start-Forge }
-    "stop"      { Stop-Forge }
-    "restart"   { Restart-Forge }
-    "api"       { Start-ForgeApi }
-    "status"    { Get-ForgeStatus }
-    "health"    { Get-ForgeHealth }
-    "agents"    { Get-ForgeAgents }
-    "providers" { Get-ForgeProviders }
-    "info"      { Get-ForgeInfo }
-    "update"    { Update-Forge }
-    "logs"      { Get-ForgeLogs }
-    "help"      { Show-Help }
-    default     { Warn "Unknown command: $Command"; Show-Help }
-}
+param([Parameter(ValueFromRemainingArguments)]$Rest)
+$FORGE_REPO = "$env:USERPROFILE\.forge\Agent-Forge"
+$cliPython = "$FORGE_REPO\cli\.venv\Scripts\python.exe"
+if (-not (Test-Path $cliPython)) { Write-Host "[forge] CLI not found. Run setup first." -ForegroundColor Red; exit 1 }
+$env:PYTHONPATH = $FORGE_REPO
+& $cliPython -m cli @Rest
 '@
 
     # Save as _forge.ps1 (underscore prefix) so PowerShell doesn't resolve it
@@ -495,6 +198,7 @@ function Main {
     SetupRepo
     SetupApi
     SetupForgeScripts
+    SetupCli
     SetupFrontend
     GenerateForgeCli
     AddToPath

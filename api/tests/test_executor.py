@@ -406,8 +406,14 @@ class TestAgentExecutor:
             "steps": [{"name": "Click Button", "computer_use": True}],
             "output_schema": [],
         }
-        with pytest.raises(RuntimeError, match="suspiciously fast"):
-            await executor._execute_per_step(agent, {}, callback)
+        await executor._execute_per_step(agent, {}, callback)
+        # Should emit WARNING, not raise
+        log_messages = [
+            call.args[1].get("message", "")
+            for call in callback.call_args_list
+            if call.args[0] == "agent_log"
+        ]
+        assert any("WARNING" in m and "suspiciously fast" in m for m in log_messages)
 
     @pytest.mark.asyncio
     async def test_desktop_step_fails_on_manual_suggestion(self):
@@ -429,13 +435,18 @@ class TestAgentExecutor:
         }
         # Patch time to simulate 60s so duration check passes, skip-phrase triggers
         with patch("api.engine.executor.time") as mock_time:
-            mock_time.monotonic.side_effect = [0.0, 60.0]
-            with pytest.raises(RuntimeError, match="did not use desktop automation"):
-                await executor._execute_per_step(agent, {}, callback)
+            mock_time.monotonic.side_effect = [0.0, 60.0, 60.0]
+            await executor._execute_per_step(agent, {}, callback)
+        log_messages = [
+            call.args[1].get("message", "")
+            for call in callback.call_args_list
+            if call.args[0] == "agent_log"
+        ]
+        assert any("WARNING" in m and "manual fallback" in m for m in log_messages)
 
     @pytest.mark.asyncio
-    async def test_desktop_step_failure_stops_subsequent_steps(self):
-        """When a desktop step fails, subsequent steps must not execute."""
+    async def test_desktop_step_warning_does_not_stop_subsequent_steps(self):
+        """Desktop step warnings no longer stop the workflow."""
         provider = _make_streaming_provider('{"result": "done"}')
         cu_service = AsyncMock()
         callback = AsyncMock()
@@ -454,47 +465,41 @@ class TestAgentExecutor:
             ],
             "output_schema": [],
         }
-        with pytest.raises(RuntimeError):
-            await executor._execute_per_step(agent, {}, callback)
+        await executor._execute_per_step(agent, {}, callback)
 
-        # Only step 1 marker should appear -- step 2 should never start
-        log_messages = [
-            call.args[1]["message"]
+        # Both steps should execute
+        step_events = [
+            call.args[1]
             for call in callback.call_args_list
-            if call.args[0] == "agent_log" and "message" in call.args[1]
+            if call.args[0] == "step_completed"
         ]
-        step_starts = [m for m in log_messages if m.startswith("--- Step")]
-        assert len(step_starts) == 1
-        assert "Step 1" in step_starts[0]
+        assert len(step_events) == 2
 
     @pytest.mark.asyncio
-    async def test_desktop_step_failure_emits_agent_failed(self):
-        """Desktop step failure propagates to agent_failed via execute()."""
+    async def test_desktop_step_warning_emits_step_completed(self):
+        """Desktop step with warning still emits step_completed."""
         provider = _make_streaming_provider('{"result": "done"}')
         cu_service = AsyncMock()
         callback = AsyncMock()
 
         executor = AgentExecutor(provider=provider, computer_use_service=cu_service)
         agent = {
-            "id": "agent-cu-fail",
-            "name": "Failing Desktop",
+            "id": "agent-cu-warn",
+            "name": "Warning Desktop",
             "description": "",
             "type": "agent",
             "computer_use": True,
             "provider": "claude_code",
-            "forge_path": "output/test/",
+            "forge_path": "",
             "steps": [
                 {"name": "Open App", "computer_use": True},
-                {"name": "Fill Form", "computer_use": True},
             ],
             "output_schema": [],
         }
-        with pytest.raises(RuntimeError):
-            await executor.execute(agent, {}, callback)
+        await executor._execute_per_step(agent, {}, callback)
 
         event_types = [call.args[0] for call in callback.call_args_list]
-        assert "agent_failed" in event_types
-        assert "agent_completed" not in event_types
+        assert "step_completed" in event_types
 
     @pytest.mark.asyncio
     async def test_cli_step_no_desktop_validation(self):

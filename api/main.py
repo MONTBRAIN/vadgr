@@ -57,7 +57,7 @@ def create_app(db: Optional[Database] = None) -> FastAPI:
         _run_forge_paths: dict[str, str] = {}
 
         # Run-level event types go to execution.jsonl; step-level go to step files
-        _run_level_events = {"run_started", "run_completed", "run_failed", "approval_required"}
+        _run_level_events = {"run_started", "run_completed", "run_failed", "approval_required", "step_completed"}
 
         async def emit(run_id, event_type, data):
             event = make_event(event_type, data)
