@@ -108,6 +108,17 @@ class TestApiPut:
         assert result["updated"]["enabled"] is True
 
 
+class TestTimeout:
+    def test_timeout_shows_timeout_not_api_down(self, ctx, test_server):
+        """socket.timeout should say 'timed out', not 'API is not running'."""
+        import socket
+        with mock.patch("cli.client.urllib.request.urlopen") as m:
+            m.side_effect = socket.timeout("timed out")
+            with pytest.raises(click.ClickException, match="timed out") as exc_info:
+                api_get(ctx, "/api/health")
+            assert "API is not running" not in str(exc_info.value)
+
+
 class TestIsApiRunning:
     def test_returns_true_when_running(self, ctx, test_server):
         assert is_api_running(ctx) is True
