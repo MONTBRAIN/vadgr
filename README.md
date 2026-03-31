@@ -2,9 +2,9 @@
   <img src="docs/banner.png" width="600" style="image-rendering: pixelated; image-rendering: crisp-edges;" />
 </p>
 
-<div align="center">
-  <div style="height: 3px; width: 100%; background: linear-gradient(90deg, #FF8C00 , #800080 , #FFFF00 , #0000FF , #FF0000 , #800080 , #0000FF); border-radius: 6px; margin: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.3);"></div>
-</div>
+<p align="center">
+  <img src="docs/line.png" alt="Separator" width="100%" height="10">
+</p>
 
 
 <p align="center">
