@@ -53,9 +53,11 @@ class TestStopDaemon:
         with patch("api.services.computer_use_setup._is_wsl2", return_value=True), \
              patch("subprocess.run") as m:
             _stop_daemon()
-            assert m.called
-            cmd = str(m.call_args)
-            assert "19542" in cmd
+            assert m.call_count == 2
+            # First call kills by port
+            assert "19542" in str(m.call_args_list[0])
+            # Second call kills zombie pythonw.exe daemon.py processes
+            assert "daemon.py" in str(m.call_args_list[1])
 
     def test_noop_on_non_wsl2(self):
         from api.services.computer_use_setup import _stop_daemon
