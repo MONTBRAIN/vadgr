@@ -1,15 +1,17 @@
 <div align="center">
-  <table border="0" style="border-collapse: collapse; border: none;">
-    <tr style="border: none;">
-      <td style="border: none; padding-right: 20px; vertical-align: middle;">
-        <img src="docs/pet.svg" alt="Pet" width="160" style="image-rendering: pixelated;" />
+  <table border="0" style="border: none; border-collapse: collapse; background: transparent;">
+    <tr style="border: none; background: transparent;">
+      <td align="center" valign="middle" style="border: none; padding-right: 25px;">
+        <img src="docs/pet.svg" alt="Pet" width="160" style="image-rendering: pixelated; display: block;">
       </td>
-      <td style="border: none; vertical-align: middle; text-align: left;">
-        <div style="line-height: 1;">
-          <h1 style="margin: 0; border: none;"><b>AGENT FORGE</b></h1>
-          <a href="https://opensource.org/licenses/Apache-2.0">
-            <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License" height="20">
-          </a>
+      <td align="center" valign="middle" style="border: none;">
+        <div style="line-height: 1.1;">
+          <h1 style="margin: 0; padding: 0; border: none; font-weight: 900;"> <b>AGENT FORGE</b></h1>
+          <p align="center" style="margin: 10px 0 0 0;">
+            <a href="https://opensource.org/licenses/Apache-2.0">
+              <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License" height="18">
+            </a>
+          </p>
         </div>
       </td>
     </tr>
