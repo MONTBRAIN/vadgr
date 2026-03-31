@@ -12,6 +12,7 @@ from registry.installer import (
     get_installed,
     _peek_manifest,
 )
+from registry.manifest import MANIFEST_FILENAME
 
 
 class TestPeekManifest:
@@ -25,7 +26,7 @@ class TestPeekManifest:
         bad = tmp_path / "bad.agnt"
         with zipfile.ZipFile(bad, "w") as zf:
             zf.writestr("agentic.md", "# No manifest\n")
-        with pytest.raises(ValueError, match="missing manifest"):
+        with pytest.raises(ValueError, match="missing agent-forge.json"):
             _peek_manifest(bad)
 
 
@@ -36,7 +37,7 @@ class TestInstall:
         result = install(sample_agnt_file, agents_dir=agents_dir)
         assert result == agents_dir / "test-agent"
         assert result.is_dir()
-        assert (result / "manifest.json").exists()
+        assert (result / MANIFEST_FILENAME).exists()
         assert (result / "agentic.md").exists()
 
     def test_install_refuses_overwrite_without_force(self, sample_agnt_file, tmp_path):
@@ -103,7 +104,7 @@ class TestListInstalled:
         agents_dir = tmp_path / "agents"
         agent_dir = agents_dir / "corrupt"
         agent_dir.mkdir(parents=True)
-        (agent_dir / "manifest.json").write_text("{bad json!!!")
+        (agent_dir / MANIFEST_FILENAME).write_text("{bad json!!!")
         assert list_installed(agents_dir) == []
 
     def test_list_multiple_agents(self, tmp_path):
@@ -111,8 +112,8 @@ class TestListInstalled:
         for name in ["alpha", "beta", "gamma"]:
             agent_dir = agents_dir / name
             agent_dir.mkdir(parents=True)
-            manifest = {"manifest_version": 1, "name": name, "version": "1.0.0"}
-            (agent_dir / "manifest.json").write_text(json.dumps(manifest))
+            manifest = {"manifest_version": 2, "name": name, "version": "1.0.0"}
+            (agent_dir / MANIFEST_FILENAME).write_text(json.dumps(manifest))
         agents = list_installed(agents_dir)
         assert len(agents) == 3
         names = [a["name"] for a in agents]

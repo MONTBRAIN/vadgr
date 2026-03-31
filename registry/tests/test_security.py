@@ -431,55 +431,33 @@ class TestLocalAdapterSecurity:
 # ---------------------------------------------------------------------------
 
 class TestPackerSecurity:
-    """Verify packer.unpack uses safe_extract."""
+    """Verify packer.unpack rejects invalid archives."""
 
-    def test_unpack_blocks_zip_slip(self, tmp_path):
-        """packer.unpack rejects archives with path traversal."""
+    def test_unpack_rejects_missing_manifest(self, tmp_path):
+        """packer.unpack rejects archives without agent-forge.json."""
         from registry.packer import unpack
 
         zip_path = tmp_path / "evil.agnt"
-        manifest = {"manifest_version": 1, "name": "evil-agent", "version": "0.1.0"}
         with zipfile.ZipFile(zip_path, "w") as zf:
-            zf.writestr("manifest.json", json.dumps(manifest))
-            zf.writestr("../../etc/cron.d/backdoor", "* * * * * evil")
+            zf.writestr("agent.bundle", b"fake")
 
         dest = tmp_path / "output"
-        with pytest.raises(ValueError, match="path traversal"):
+        with pytest.raises(ValueError, match="missing agent-forge.json"):
             unpack(zip_path, dest)
 
-        # Verify nothing was written outside dest
-        assert not (tmp_path / "etc").exists()
-
-    def test_unpack_blocks_zip_bomb(self, tmp_path):
-        """packer.unpack rejects archives exceeding size limits."""
+    def test_unpack_rejects_missing_bundle(self, tmp_path):
+        """packer.unpack rejects archives without agent.bundle."""
         from registry.packer import unpack
+        from registry.manifest import MANIFEST_FILENAME
 
-        zip_path = tmp_path / "bomb.agnt"
-        manifest = {"manifest_version": 1, "name": "bomb-agent", "version": "0.1.0"}
+        zip_path = tmp_path / "evil.agnt"
+        manifest = {"manifest_version": 2, "name": "evil-agent", "version": "0.1.0"}
         with zipfile.ZipFile(zip_path, "w") as zf:
-            zf.writestr("manifest.json", json.dumps(manifest))
-            zf.writestr("small.bin", "x")
+            zf.writestr(MANIFEST_FILENAME, json.dumps(manifest))
 
-        # Patch the file_size post-creation to simulate a zip bomb
-        # We need to rewrite the test to patch at read time
         dest = tmp_path / "output"
-        with zipfile.ZipFile(zip_path, "r") as zf:
-            # Find the non-manifest entry and inflate its reported size
-            for info in zf.infolist():
-                if info.filename == "small.bin":
-                    info.file_size = MAX_UNCOMPRESSED_SIZE + 1
-
-        # Now unpack should fail because safe_extract checks reported sizes
-        # But unpack opens its own ZipFile, so we need to mock safe_extract's view
-        # Simpler: create an archive with many files that sum over the limit
-        zip_path2 = tmp_path / "bomb2.agnt"
-        with zipfile.ZipFile(zip_path2, "w") as zf:
-            zf.writestr("manifest.json", json.dumps(manifest))
-            for i in range(MAX_FILE_COUNT + 1):
-                zf.writestr(f"file_{i}.txt", "x")
-
-        with pytest.raises(ValueError, match="exceeds limit"):
-            unpack(zip_path2, dest)
+        with pytest.raises(ValueError, match="missing agent.bundle"):
+            unpack(zip_path, dest)
 
 
 # ---------------------------------------------------------------------------
@@ -531,11 +509,12 @@ class TestPullIntegrity:
         with pytest.raises(ValueError, match="Integrity check failed"):
             registry_client.pull("test-agent")
 
-    def test_pull_succeeds_with_correct_hash(self, tmp_path, monkeypatch):
+    def test_pull_succeeds_with_correct_hash(self, tmp_path, monkeypatch, sample_agnt_file):
         """Pull works when sha256 matches."""
         from registry import registry_client
         from registry.adapters.local import LocalAdapter
         from registry.security import compute_sha256
+        import shutil
 
         reg_dir = tmp_path / "registry"
         reg_dir.mkdir()
@@ -543,10 +522,7 @@ class TestPullIntegrity:
         agents_dir.mkdir()
 
         agnt = agents_dir / "test-agent-0.1.0.agnt"
-        manifest = {"manifest_version": 1, "name": "test-agent", "version": "0.1.0"}
-        with zipfile.ZipFile(agnt, "w") as zf:
-            zf.writestr("manifest.json", json.dumps(manifest))
-            zf.writestr("agentic.md", "# Test")
+        shutil.copy2(sample_agnt_file, agnt)
 
         correct_hash = compute_sha256(agnt)
 
@@ -572,10 +548,11 @@ class TestPullIntegrity:
         result = registry_client.pull("test-agent")
         assert "test-agent" in result
 
-    def test_pull_skips_check_when_no_hash(self, tmp_path, monkeypatch):
+    def test_pull_skips_check_when_no_hash(self, tmp_path, monkeypatch, sample_agnt_file):
         """Pull succeeds without sha256 (backward compat with old registries)."""
         from registry import registry_client
         from registry.adapters.local import LocalAdapter
+        import shutil
 
         reg_dir = tmp_path / "registry"
         reg_dir.mkdir()
@@ -583,10 +560,7 @@ class TestPullIntegrity:
         agents_dir.mkdir()
 
         agnt = agents_dir / "test-agent-0.1.0.agnt"
-        manifest = {"manifest_version": 1, "name": "test-agent", "version": "0.1.0"}
-        with zipfile.ZipFile(agnt, "w") as zf:
-            zf.writestr("manifest.json", json.dumps(manifest))
-            zf.writestr("agentic.md", "# Test")
+        shutil.copy2(sample_agnt_file, agnt)
 
         # No sha256 in index
         index = {

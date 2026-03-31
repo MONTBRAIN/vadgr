@@ -158,7 +158,7 @@ class TestPackE2E:
         assert output.exists()
         # Verify contents
         with zipfile.ZipFile(output) as zf:
-            assert "manifest.json" in zf.namelist()
-            assert "agentic.md" in zf.namelist()
-            manifest = json.loads(zf.read("manifest.json"))
+            assert "agent-forge.json" in zf.namelist()
+            assert "agent.bundle" in zf.namelist()
+            manifest = json.loads(zf.read("agent-forge.json"))
             assert "research-paper" in manifest["name"]

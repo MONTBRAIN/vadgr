@@ -234,12 +234,13 @@ def _import_to_api(ctx, name: str, archive_path):
             print_success(f"{agent_name} is ready (ID: {agent_id[:8]})")
         else:
             print_warning(f"{agent_name} finished with status: {result.get('status')}")
-    except Exception:
+    except Exception as exc:
         print_warning(
-            f"Agent files installed but API registration failed.\n"
+            f"Agent files installed but API registration failed: {exc}\n"
             f"  Is the API running? Start it with: forge start\n"
             f"  Then import manually with: forge agents import {archive_path}"
         )
         return
-    finally:
-        Path(archive_path).unlink(missing_ok=True)
+
+    # Only clean up the archive on success; on failure it stays for manual import
+    Path(archive_path).unlink(missing_ok=True)

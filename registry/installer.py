@@ -66,8 +66,10 @@ def uninstall(name: str, agents_dir: Optional[Path] = None) -> bool:
 def list_installed(agents_dir: Optional[Path] = None) -> list[dict]:
     """List all locally installed agents.
 
-    Returns a list of dicts with agent metadata from each manifest.json.
+    Returns a list of dicts with agent metadata from each agent-forge.json.
     """
+    from registry.manifest import MANIFEST_FILENAME
+
     dest_root = agents_dir or get_agents_dir()
     if not dest_root.exists():
         return []
@@ -76,7 +78,7 @@ def list_installed(agents_dir: Optional[Path] = None) -> list[dict]:
     for entry in sorted(dest_root.iterdir()):
         if not entry.is_dir():
             continue
-        manifest_path = entry / "manifest.json"
+        manifest_path = entry / MANIFEST_FILENAME
         if not manifest_path.exists():
             continue
         try:
@@ -111,9 +113,10 @@ def get_installed(name: str, agents_dir: Optional[Path] = None) -> Optional[dict
 def _peek_manifest(agnt_path: Path) -> Manifest:
     """Read manifest from a .agnt archive without extracting everything."""
     import zipfile
+    from registry.manifest import MANIFEST_FILENAME
 
     with zipfile.ZipFile(agnt_path, "r") as zf:
-        if "manifest.json" not in zf.namelist():
-            raise ValueError(f"Invalid .agnt: missing manifest.json in {agnt_path}")
-        data = json.loads(zf.read("manifest.json"))
+        if MANIFEST_FILENAME not in zf.namelist():
+            raise ValueError(f"Invalid .agnt: missing {MANIFEST_FILENAME} in {agnt_path}")
+        data = json.loads(zf.read(MANIFEST_FILENAME))
         return validate_manifest(data)
