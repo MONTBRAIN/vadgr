@@ -1,18 +1,15 @@
 <p align="center">
   <img src="docs/pet.svg" alt="Pet" height="160" style="image-rendering: pixelated;">
+  &nbsp;&nbsp;&nbsp;
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/NameLigth.svg">
     <source media="(prefers-color-scheme: light)" srcset="docs/NameDark.svg">
-    <img src="docs/NameDark.svg" alt="Agent Forge" height="130">
+    <img src="docs/NameDark.svg" alt="Agent Forge" height="160">
   </picture>
-  <br>
-  <a href="https://opensource.org/licenses/Apache-2.0">
-    <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License" height="18">
-  </a>
 </p>
 
 <p align="center">
-  <img src="docs/line.svg" alt="Separator" width="100%", heigth = 22px>
+  <img src="docs/line.svg" alt="Separator" width="100%", heigth = 20px>
 </p>
 
 

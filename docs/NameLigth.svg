@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 400 280" fill="none">
   <text x="200" y="80" text-anchor="middle" font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif" font-size="72" font-weight="900" fill="#FFFFFF" letter-spacing="2">AGENT</text>
   <text x="200" y="160" text-anchor="middle" font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif" font-size="72" font-weight="900" fill="#FFFFFF" letter-spacing="2">FORGE</text>
+  <rect x="110" y="195" width="180" height="36" rx="5" fill="#007ec6"/>
+  <rect x="110" y="195" width="72" height="36" rx="5" fill="#555555"/>
+  <text x="146" y="218" text-anchor="middle" font-family="'Verdana', 'DejaVu Sans', sans-serif" font-size="15" font-weight="700" fill="#FFFFFF">License</text>
+  <text x="237" y="218" text-anchor="middle" font-family="'Verdana', 'DejaVu Sans', sans-serif" font-size="15" font-weight="700" fill="#FFFFFF">Apache 2.0</text>
 </svg>
