@@ -1,25 +1,18 @@
-<div align="center">
-  <table border="0" style="border: none; border-collapse: collapse; background: transparent;">
-    <tr style="border: none; background: transparent;">
-      <td align="center" valign="middle" style="border: none; padding-right: 25px;">
-        <img src="docs/pet.svg" alt="Pet" width="160" style="image-rendering: pixelated; display: block;">
-      </td>
-      <td align="center" valign="middle" style="border: none;">
-        <div style="line-height: 1.1;">
-          <h1 style="margin: 0; padding: 0; border: none; font-weight: 900;"> <b>AGENT FORGE</b></h1>
-          <p align="center" style="margin: 10px 0 0 0;">
-            <a href="https://opensource.org/licenses/Apache-2.0">
-              <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License" height="18">
-            </a>
-          </p>
-        </div>
-      </td>
-    </tr>
-  </table>
-</div>
+<p align="center">
+  <img src="docs/pet.svg" alt="Pet" height="160" style="image-rendering: pixelated;">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/NameLigth.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/NameDark.svg">
+    <img src="docs/NameDark.svg" alt="Agent Forge" height="130">
+  </picture>
+  <br>
+  <a href="https://opensource.org/licenses/Apache-2.0">
+    <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License" height="18">
+  </a>
+</p>
 
 <p align="center">
-  <img src="docs/line.svg" alt="Separator" width="100%">
+  <img src="docs/line.svg" alt="Separator" width="100%", heigth = 22px>
 </p>
 
 
