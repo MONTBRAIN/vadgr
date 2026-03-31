@@ -82,6 +82,45 @@ class TestRegistrySearch:
             assert "No agents found" in result.output
 
 
+class TestRegistryPullApiSync:
+    """Regression test for issue #61: pulled agents must appear in `forge agents list`.
+
+    `forge registry pull` installs files to ~/.forge/agents/ but must also
+    register the agent with the API so `forge agents list` returns it.
+    """
+
+    def test_pull_registers_agent_with_api(self, runner):
+        """After a successful pull, the agent should be imported into the API."""
+        from cli.commands.registry import registry_group
+
+        with mock.patch("cli.commands.registry.registry_client") as m_reg, \
+             mock.patch("cli.commands.registry._import_to_api") as m_import:
+            m_reg.pull.return_value = "/home/user/.forge/agents/test-agent"
+            m_import.return_value = None
+
+            result = runner.invoke(registry_group, ["pull", "test-agent"])
+
+            assert result.exit_code == 0
+            assert "Installed" in result.output
+            m_import.assert_called_once()
+
+    def test_pull_api_unavailable_still_succeeds(self, runner):
+        """If the API is down, pull should still succeed (files installed) with a warning."""
+        from cli.commands.registry import registry_group
+
+        with mock.patch("cli.commands.registry.registry_client") as m_reg, \
+             mock.patch("cli.commands.agents._upload_agnt") as m_upload:
+            m_reg.pull.return_value = "/home/user/.forge/agents/test-agent"
+            m_upload.side_effect = Exception("Connection refused")
+
+            result = runner.invoke(registry_group, ["pull", "test-agent"])
+
+            assert result.exit_code == 0
+            assert "Installed" in result.output
+            # Should warn that API registration failed
+            assert "API registration failed" in result.output
+
+
 class TestRegistryAgents:
     def test_list_installed(self, runner):
         from cli.commands.registry import registry_group

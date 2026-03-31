@@ -65,14 +65,22 @@ class TestPullCommand:
         mock_pull.return_value = "/home/user/.forge/agents/test-agent"
         result = runner.invoke(cli, ["pull", "test-agent", "--force"])
         assert result.exit_code == 0
-        mock_pull.assert_called_once_with("test-agent", registry_name=None, force=True)
+        mock_pull.assert_called_once()
+        args, kwargs = mock_pull.call_args
+        assert args == ("test-agent",)
+        assert kwargs["registry_name"] is None
+        assert kwargs["force"] is True
 
     @patch("registry.registry_client.pull")
     def test_pull_specific_registry(self, mock_pull, runner):
         mock_pull.return_value = "/path/to/agent"
         result = runner.invoke(cli, ["pull", "test-agent", "-r", "my-registry"])
         assert result.exit_code == 0
-        mock_pull.assert_called_once_with("test-agent", registry_name="my-registry", force=False)
+        mock_pull.assert_called_once()
+        args, kwargs = mock_pull.call_args
+        assert args == ("test-agent",)
+        assert kwargs["registry_name"] == "my-registry"
+        assert kwargs["force"] is False
 
 
 class TestPushCommand:
