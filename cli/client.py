@@ -3,26 +3,29 @@
 from __future__ import annotations
 
 import json
+import socket
 import urllib.error
 import urllib.request
 
 import click
 
 _TIMEOUT = 15
+_LONG_TIMEOUT = 120
 
 
 def _base_url(ctx: click.Context) -> str:
     return ctx.obj["api_url"]
 
 
-def _request(ctx: click.Context, method: str, path: str, body: dict | None = None) -> dict | list:
+def _request(ctx: click.Context, method: str, path: str, body: dict | None = None,
+             timeout: int | None = None) -> dict | list:
     url = f"{_base_url(ctx)}{path}"
     data = json.dumps(body).encode() if body is not None else b"{}"
     headers = {"Content-Type": "application/json", "Accept": "application/json"}
 
     req = urllib.request.Request(url, data=data if method != "GET" else None, headers=headers, method=method)
     try:
-        with urllib.request.urlopen(req, timeout=_TIMEOUT) as resp:
+        with urllib.request.urlopen(req, timeout=timeout or _TIMEOUT) as resp:
             body = resp.read()
             if not body:
                 return {}
@@ -38,6 +41,10 @@ def _request(ctx: click.Context, method: str, path: str, body: dict | None = Non
         except Exception:
             detail = e.reason
         raise click.ClickException(f"{detail}") from None
+    except socket.timeout:
+        raise click.ClickException(
+            f"Request timed out ({url}). The operation may still be running."
+        ) from None
     except (urllib.error.URLError, ConnectionRefusedError, OSError):
         raise click.ClickException(
             f"API is not running at {_base_url(ctx)}. Start it with: forge start"
@@ -52,8 +59,9 @@ def api_post(ctx: click.Context, path: str, body: dict | None = None) -> dict | 
     return _request(ctx, "POST", path, body or {})
 
 
-def api_put(ctx: click.Context, path: str, body: dict | None = None) -> dict | list:
-    return _request(ctx, "PUT", path, body or {})
+def api_put(ctx: click.Context, path: str, body: dict | None = None,
+            timeout: int | None = None) -> dict | list:
+    return _request(ctx, "PUT", path, body or {}, timeout=timeout)
 
 
 def api_delete(ctx: click.Context, path: str) -> dict | list:
