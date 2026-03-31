@@ -83,10 +83,22 @@ def build_manifest(folder: Path, overrides: Optional[dict] = None) -> Manifest:
         with open(manifest_path) as f:
             existing = json.load(f)
 
+    # Pick up input/output schemas from schema.json (written by the API)
+    schema_path = folder / "schema.json"
+    if schema_path.exists():
+        try:
+            with open(schema_path) as f:
+                schema_data = json.load(f)
+            for key in ("input_schema", "output_schema", "samples"):
+                if schema_data.get(key) and not existing.get(key):
+                    existing[key] = schema_data[key]
+        except (json.JSONDecodeError, OSError):
+            pass
+
     steps = _detect_steps(folder)
 
     auto = {
-        "manifest_version": 1,
+        "manifest_version": 2,
         "name": _detect_name(folder),
         "computer_use": _detect_computer_use(steps),
         "steps": [s.model_dump() for s in steps],

@@ -112,6 +112,24 @@ class TestBuildManifest:
         m = build_manifest(sample_agent_folder, overrides={"name": "override-name"})
         assert m.name == "override-name"
 
+    def test_reads_schema_json(self, sample_agent_folder):
+        """build_manifest should include input/output schemas from schema.json."""
+        schema = {
+            "input_schema": [
+                {"name": "cv_file", "type": "file", "required": True}
+            ],
+            "output_schema": [
+                {"name": "report", "type": "file"}
+            ],
+            "samples": ["example input"],
+        }
+        (sample_agent_folder / "schema.json").write_text(json.dumps(schema))
+        m = build_manifest(sample_agent_folder)
+        assert len(m.input_schema) == 1
+        assert m.input_schema[0]["name"] == "cv_file"
+        assert len(m.output_schema) == 1
+        assert m.samples == ["example input"]
+
 
 class TestCollectFiles:
 
