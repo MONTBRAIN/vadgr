@@ -336,7 +336,7 @@ def get_status() -> dict:
         except (json.JSONDecodeError, OSError):
             pass
 
-    daemon = _probe_daemon() if _is_wsl2() else None
+    daemon = _probe_daemon() if (_is_wsl2() and enabled) else None
 
     return {
         "enabled": enabled,

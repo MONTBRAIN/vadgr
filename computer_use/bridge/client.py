@@ -2,9 +2,12 @@
 
 import json
 import logging
+import os
 import platform
 import socket
+import subprocess
 import threading
+from pathlib import Path
 from typing import Any
 
 from computer_use.bridge.protocol import (
@@ -18,15 +21,53 @@ from computer_use.bridge.protocol import (
 logger = logging.getLogger("computer_use.bridge.client")
 
 
+def _is_wsl2_mirrored() -> bool:
+    """Check if WSL2 is using mirrored networking mode.
+
+    With mirrored networking, WSL2 shares the host's network stack so
+    localhost reaches Windows directly -- no need for the gateway IP.
+    """
+    try:
+        wslconfig = Path("/mnt/c/Users") / os.environ.get("USER", "") / ".wslconfig"
+        if not wslconfig.exists():
+            # Try via powershell
+            result = subprocess.run(
+                ["powershell.exe", "-NoProfile", "-Command", "$env:USERPROFILE"],
+                capture_output=True, text=True, timeout=3,
+            )
+            if result.returncode == 0:
+                win_profile = result.stdout.strip()
+                wsl_path = subprocess.run(
+                    ["wslpath", "-u", win_profile],
+                    capture_output=True, text=True,
+                ).stdout.strip()
+                wslconfig = Path(wsl_path) / ".wslconfig"
+
+        if wslconfig.exists():
+            content = wslconfig.read_text().lower()
+            return "networkingmode=mirrored" in content.replace(" ", "")
+    except Exception:
+        pass
+    return False
+
+
 def _detect_windows_host() -> str:
     """Auto-detect the Windows host IP when running inside WSL2.
 
-    On WSL2, 127.0.0.1 points to the Linux VM, not Windows.
+    On standard WSL2, 127.0.0.1 points to the Linux VM, not Windows.
     The Windows host IP is the default gateway (WSL2 vEthernet adapter).
-    Returns '127.0.0.1' on non-WSL2 platforms (works normally).
+
+    On mirrored networking (networkingMode=mirrored in .wslconfig),
+    localhost reaches Windows directly, so 127.0.0.1 works.
+
+    Returns '127.0.0.1' on non-WSL2 platforms.
     """
     try:
         if "microsoft" in platform.release().lower():
+            if _is_wsl2_mirrored():
+                logger.debug("WSL2 mirrored networking, using 127.0.0.1")
+                return "127.0.0.1"
+
             # Default gateway is the Windows host on the WSL2 virtual network
             with open("/proc/net/route") as f:
                 for line in f:

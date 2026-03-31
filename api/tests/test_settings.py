@@ -26,6 +26,18 @@ class TestComputerUseSetupService:
             assert status["enabled"] is False
             assert status["cache_enabled"] is True
 
+    def test_daemon_not_probed_when_disabled(self, tmp_path):
+        """Issue #66: daemon should not show as degraded when computer use is disabled."""
+        with patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"), \
+             patch.object(cu_setup, "_is_wsl2", return_value=True), \
+             patch.object(cu_setup, "_probe_daemon") as mock_probe:
+            mock_probe.return_value = "degraded"
+            status = cu_setup.get_status()
+            assert status["enabled"] is False
+            # Daemon should not be probed when disabled
+            mock_probe.assert_not_called()
+            assert status["daemon"] is None
+
     def test_enable_creates_mcp_json(self, tmp_path):
         """Enabling computer use creates .mcp.json."""
         mcp_path = tmp_path / ".mcp.json"
