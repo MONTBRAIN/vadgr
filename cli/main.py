@@ -3,8 +3,17 @@
 from __future__ import annotations
 
 import os
+import sys
 
 import click
+
+# Enable ANSI colors on Windows (PowerShell/cmd.exe)
+if sys.platform == "win32":
+    try:
+        import colorama
+        colorama.just_fix_windows_console()
+    except ImportError:
+        pass
 
 from cli.commands.agents import agents_group
 from cli.commands.info import health, providers, computer_use

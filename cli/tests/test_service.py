@@ -90,6 +90,25 @@ class TestFindNode:
         assert _find_node() is None
 
 
+class TestFindNpx:
+    """Issue #74: npx on Windows is npx.cmd, not a bare script."""
+
+    def test_finds_npx_cmd_on_windows(self, monkeypatch, tmp_path):
+        """On Windows, _find_npx should return npx.cmd if it exists."""
+        from cli.commands.service import _find_npx
+
+        # Simulate Windows: node.exe exists, npx does not, but npx.cmd does
+        node_dir = tmp_path / "nodejs"
+        node_dir.mkdir()
+        (node_dir / "node.exe").write_text("")
+        (node_dir / "npx.cmd").write_text("")
+
+        monkeypatch.setattr("shutil.which", lambda cmd: str(node_dir / "node.exe") if cmd == "node" else None)
+        result = _find_npx()
+        assert result is not None
+        assert result.endswith("npx.cmd")
+
+
 class TestDetectFrontendPort:
     def test_parses_vite_log(self, tmp_path):
         from cli.commands.service import _detect_frontend_port

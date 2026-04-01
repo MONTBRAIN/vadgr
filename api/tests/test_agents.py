@@ -921,6 +921,26 @@ class TestAgentDelete:
         assert not output_dir.exists()
 
     @pytest.mark.asyncio
+    async def test_delete_agent_with_readonly_git_objects(self, client, app, tmp_path):
+        """Issue #74: delete fails on Windows when .git has read-only files."""
+        import stat
+
+        create = await client.post("/api/agents", json={"name": "T", "description": "d"})
+        agent_id = create.json()["id"]
+        output_dir = tmp_path / agent_id
+        git_obj = output_dir / ".git" / "objects" / "ab"
+        git_obj.mkdir(parents=True)
+        obj_file = git_obj / "1234567890abcdef"
+        obj_file.write_bytes(b"blob")
+        # Make read-only (simulates git pack objects on Windows)
+        obj_file.chmod(stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
+        await app.state.agent_repo.update(agent_id, forge_path=str(output_dir))
+
+        resp = await client.delete(f"/api/agents/{agent_id}")
+        assert resp.status_code == 204
+        assert not output_dir.exists()
+
+    @pytest.mark.asyncio
     async def test_delete_agent_no_forge_path_still_works(self, client):
         """Deleting an agent with empty forge_path still succeeds."""
         create = await client.post("/api/agents", json={"name": "T", "description": "d"})

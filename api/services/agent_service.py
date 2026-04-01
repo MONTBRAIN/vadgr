@@ -474,7 +474,8 @@ class AgentService:
         except Exception as e:
             logger.exception("Import failed for agent %s", agent_id)
             if target_dir.exists():
-                shutil.rmtree(target_dir)
+                from api.utils.platform import force_rmtree
+                force_rmtree(target_dir)
             await self.agent_repo.update(agent_id, status="error", forge_config={"error": str(e)})
 
     @staticmethod
