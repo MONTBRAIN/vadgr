@@ -151,9 +151,12 @@ def _find_npx() -> str | None:
     node = _find_node()
     if not node:
         return None
-    npx = Path(node).parent / "npx"
-    if npx.exists():
-        return str(npx)
+    node_dir = Path(node).parent
+    # On Windows, npx is a .cmd batch file, not a bare script
+    for name in ("npx.cmd", "npx.exe", "npx"):
+        candidate = node_dir / name
+        if candidate.exists():
+            return str(candidate)
     return shutil.which("npx")
 
 
