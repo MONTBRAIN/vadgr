@@ -94,9 +94,15 @@ def _kill_tree(pid: int):
 
 def _port_in_use(port: int) -> bool:
     import socket
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.settimeout(1)
-        return s.connect_ex(("127.0.0.1", port)) == 0
+    # Check both IPv4 and IPv6 loopback -- Vite on Windows 11 often binds
+    # to ::1 only, so checking just 127.0.0.1 would miss it.
+    for addr in ("127.0.0.1", "::1"):
+        family = socket.AF_INET6 if ":" in addr else socket.AF_INET
+        with socket.socket(family, socket.SOCK_STREAM) as s:
+            s.settimeout(1)
+            if s.connect_ex((addr, port)) == 0:
+                return True
+    return False
 
 
 def _kill_port(port: int):
@@ -123,7 +129,9 @@ def _wait_for_api(port: int, timeout: int = _API_STARTUP_TIMEOUT) -> bool:
 def _wait_for_frontend(port: int, timeout: int = 10) -> bool:
     for _ in range(timeout):
         try:
-            req = urllib.request.Request(f"http://127.0.0.1:{port}")
+            # Use "localhost" instead of "127.0.0.1" so the OS resolves to
+            # whichever loopback address Vite actually bound (IPv4 or IPv6).
+            req = urllib.request.Request(f"http://localhost:{port}")
             urllib.request.urlopen(req, timeout=2)
             return True
         except Exception:
