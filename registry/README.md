@@ -1,6 +1,6 @@
 # Registry - Agent Package Manager
 
-Package, publish, and install Agent Forge workflows as `.agnt` archives. Supports GitHub, HTTP, and local filesystem backends.
+Package, publish, and install Vadgr workflows as `.agnt` archives. Supports GitHub, HTTP, and local filesystem backends.
 
 ## Setup
 

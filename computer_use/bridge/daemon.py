@@ -923,7 +923,7 @@ class BridgeDaemon:
             return {"error": str(e)}
 
 def main():
-    parser = argparse.ArgumentParser(description="Agent Forge Bridge Daemon")
+    parser = argparse.ArgumentParser(description="Vadgr Bridge Daemon")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT)
     args = parser.parse_args()
 

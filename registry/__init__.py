@@ -1,1 +1,1 @@
-"""Agent Forge registry -- package manager for .agnt agent bundles."""
+"""Vadgr registry -- package manager for .agnt agent bundles."""

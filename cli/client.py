@@ -1,4 +1,4 @@
-"""HTTP client for the Agent Forge API."""
+"""HTTP client for the Vadgr API."""
 
 from __future__ import annotations
 
@@ -47,7 +47,7 @@ def _request(ctx: click.Context, method: str, path: str, body: dict | None = Non
         ) from None
     except (urllib.error.URLError, ConnectionRefusedError, OSError):
         raise click.ClickException(
-            f"API is not running at {_base_url(ctx)}. Start it with: forge start"
+            f"API is not running at {_base_url(ctx)}. Start it with: vadgr start"
         ) from None
 
 

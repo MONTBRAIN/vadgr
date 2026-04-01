@@ -1,9 +1,9 @@
 ---
-description: Diagnose and fix issues in Agent Forge or any generated workflow.
+description: Diagnose and fix issues in Vadgr or any generated workflow.
 argument-hint: [project-path-or-problem-description]
 ---
 
-Read `forge/agentic.md` to understand Agent Forge's structure.
+Read `forge/agentic.md` to understand Vadgr's structure.
 
 Read `forge/Prompts/00_Workflow_Fixer.md` for diagnostic and repair methodology.
 

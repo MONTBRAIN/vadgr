@@ -1,7 +1,7 @@
 """CLI entry point for autonomous mode.
 
 Usage:
-    python -m computer_use "Open Chrome and search for Agent Forge"
+    python -m computer_use "Open Chrome and search for Vadgr"
     python -m computer_use --provider anthropic "Open Notepad"
     python -m computer_use --config custom.yaml "Click the Start menu"
     python -m computer_use --info  # Show platform info

@@ -1,4 +1,4 @@
-"""Root CLI group for Agent Forge."""
+"""Root CLI group for Vadgr."""
 
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ _DEFAULT_API_URL = f"http://127.0.0.1:{os.environ.get('AGENT_FORGE_PORT', '8000'
 @click.option("--api-url", default=_DEFAULT_API_URL, envvar="FORGE_API_URL", hidden=True)
 @click.pass_context
 def cli(ctx, api_url: str):
-    """Agent Forge CLI."""
+    """vadgr CLI."""
     ctx.ensure_object(dict)
     ctx.obj["api_url"] = api_url
 

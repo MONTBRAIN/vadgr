@@ -1,8 +1,8 @@
-# Agent Forge Registry -- Design Document
+# Vadgr Registry -- Design Document
 
 ## Overview
 
-A platform-agnostic agent registry for Agent Forge. Authors package agents as
+A platform-agnostic agent registry for Vadgr. Authors package agents as
 `.agnt` files, publish them to registries, and users pull them with a single
 command. Anyone can host their own registry.
 

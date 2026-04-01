@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Setup computer_use engine on Linux (Ubuntu/Debian, GNOME Wayland).
-# Run from Agent-Forge root: bash computer_use/setup-linux.sh
+# Run from Vadgr root: bash computer_use/setup-linux.sh
 #
 # Use --no-apt to skip system packages if already installed.
 

@@ -1,6 +1,6 @@
 # Provider Parser Guide
 
-`providers.yaml` defines how Agent Forge invokes each CLI provider and how live logs are interpreted.
+`providers.yaml` defines how Vadgr invokes each CLI provider and how live logs are interpreted.
 
 This guide explains:
 - what `stream_parser` means
@@ -122,7 +122,7 @@ streaming:
 
 This means:
 - base command uses `--output-format json`
-- when live logs are needed, Agent Forge rewrites that part of the command to `--output-format stream-json`
+- when live logs are needed, Vadgr rewrites that part of the command to `--output-format stream-json`
 
 `streaming` controls how the command is changed.
 `stream_parser` controls how the emitted lines are parsed.
