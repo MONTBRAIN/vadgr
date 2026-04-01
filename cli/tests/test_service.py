@@ -90,23 +90,24 @@ class TestFindNode:
         assert _find_node() is None
 
 
-class TestFindNpx:
-    """Issue #74: npx on Windows is npx.cmd, not a bare script."""
+class TestFindNpm:
+    """Frontend must launch via npm (not npx) for consistent behavior across Node versions."""
 
-    def test_finds_npx_cmd_on_windows(self, monkeypatch, tmp_path):
-        """On Windows, _find_npx should return npx.cmd if it exists."""
-        from cli.commands.service import _find_npx
+    def test_finds_npm_on_path(self, monkeypatch):
+        from cli.commands.service import _find_npm
+        monkeypatch.setattr("shutil.which", lambda cmd: "/usr/bin/npm" if cmd == "npm" else None)
+        assert _find_npm() == "/usr/bin/npm"
 
-        # Simulate Windows: node.exe exists, npx does not, but npx.cmd does
+    def test_finds_npm_cmd_on_windows(self, monkeypatch, tmp_path):
+        from cli.commands.service import _find_npm
         node_dir = tmp_path / "nodejs"
         node_dir.mkdir()
         (node_dir / "node.exe").write_text("")
-        (node_dir / "npx.cmd").write_text("")
-
+        (node_dir / "npm.cmd").write_text("")
         monkeypatch.setattr("shutil.which", lambda cmd: str(node_dir / "node.exe") if cmd == "node" else None)
-        result = _find_npx()
+        result = _find_npm()
         assert result is not None
-        assert result.endswith("npx.cmd")
+        assert "npm" in result
 
 
 class TestSessionKwargs:
