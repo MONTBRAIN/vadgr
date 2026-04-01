@@ -35,6 +35,24 @@ def _default_port(env_key: str, default: int) -> int:
 
 # -- Helpers --
 
+def _pid_alive(pid: int) -> bool:
+    """Check if a process is alive. Works on both Unix and Windows."""
+    if sys.platform == "win32":
+        try:
+            result = subprocess.run(
+                ["tasklist", "/FI", f"PID eq {pid}", "/NH"],
+                capture_output=True, text=True, timeout=5,
+            )
+            return str(pid) in result.stdout
+        except Exception:
+            return False
+    try:
+        os.kill(pid, 0)
+        return True
+    except (ProcessLookupError, PermissionError):
+        return False
+
+
 def _read_pid(service: str) -> int | None:
     pidfile = PID_DIR / f"{service}.pid"
     if not pidfile.exists():
@@ -44,12 +62,10 @@ def _read_pid(service: str) -> int | None:
         pidfile.unlink(missing_ok=True)
         return None
     pid = int(text)
-    try:
-        os.kill(pid, 0)
+    if _pid_alive(pid):
         return pid
-    except (ProcessLookupError, PermissionError):
-        pidfile.unlink(missing_ok=True)
-        return None
+    pidfile.unlink(missing_ok=True)
+    return None
 
 
 def _write_pid(service: str, pid: int):
