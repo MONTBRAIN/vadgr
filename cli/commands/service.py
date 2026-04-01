@@ -163,17 +163,20 @@ def _find_node() -> str | None:
     return None
 
 
-def _find_npx() -> str | None:
+def _find_npm() -> str | None:
+    """Find npm executable. Used to launch frontend via 'npm run dev'."""
+    found = shutil.which("npm")
+    if found:
+        return found
     node = _find_node()
     if not node:
         return None
     node_dir = Path(node).parent
-    # On Windows, npx is a .cmd batch file, not a bare script
-    for name in ("npx.cmd", "npx.exe", "npx"):
+    for name in ("npm.cmd", "npm.exe", "npm"):
         candidate = node_dir / name
         if candidate.exists():
             return str(candidate)
-    return shutil.which("npx")
+    return None
 
 
 def _get_api_python() -> str:
@@ -254,18 +257,18 @@ def start(api_port, frontend_port):
         print_warning(f"API failed to start. Check {FORGE_HOME / 'api.log'}")
         raise SystemExit(1)
 
-    # Start frontend via npx vite
+    # Start frontend via npm run dev (not npx -- npx resolution varies across Node versions)
     frontend_dir = FORGE_REPO / "frontend"
-    npx = _find_npx()
-    if not npx:
-        print_warning("npx not found. Frontend will not start.")
+    npm = _find_npm()
+    if not npm:
+        print_warning("npm not found. Frontend will not start.")
         print_success(f"API is running at http://localhost:{api_port}")
         return
 
     print_info("Starting frontend...")
     fe_log = open(FORGE_HOME / "frontend.log", "w")
     fe_proc = subprocess.Popen(
-        [npx, "vite"], cwd=str(frontend_dir),
+        [npm, "run", "dev"], cwd=str(frontend_dir),
         env=env, stdout=fe_log, stderr=subprocess.STDOUT,
         **_session_kwargs(),
     )
