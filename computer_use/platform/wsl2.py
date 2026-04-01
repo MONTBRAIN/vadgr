@@ -1017,6 +1017,7 @@ class WSL2Backend(PlatformBackend):
                     f'-WorkingDirectory "{win_dir}" '
                     f'-WindowStyle Minimized',
                 ],
+                stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )

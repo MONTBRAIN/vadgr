@@ -279,6 +279,7 @@ def _deploy_and_launch_daemon(win_python: str) -> None:
                 f'-WorkingDirectory "{win_dir}" '
                 f'-WindowStyle Hidden',
             ],
+            stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )

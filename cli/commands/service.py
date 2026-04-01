@@ -195,9 +195,14 @@ def _build_env(api_port: int, frontend_port: int) -> dict:
 
 
 def _session_kwargs() -> dict:
+    """Kwargs for Popen to fully detach background processes from the terminal.
+
+    Without stdin=DEVNULL, child processes inherit the terminal stdin and
+    compete with the shell for input, corrupting typing and copy/paste.
+    """
     if sys.platform == "win32":
-        return {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}
-    return {"start_new_session": True}
+        return {"stdin": subprocess.DEVNULL, "creationflags": 0x08000000}  # CREATE_NO_WINDOW
+    return {"stdin": subprocess.DEVNULL, "start_new_session": True}
 
 
 def _file_hash(path: Path) -> str | None:

@@ -109,6 +109,17 @@ class TestFindNpx:
         assert result.endswith("npx.cmd")
 
 
+class TestSessionKwargs:
+    """Issue #74: background processes must not inherit terminal stdin."""
+
+    def test_includes_devnull_stdin(self):
+        """_session_kwargs must include stdin=DEVNULL to prevent terminal corruption."""
+        import subprocess
+        from cli.commands.service import _session_kwargs
+        kwargs = _session_kwargs()
+        assert kwargs.get("stdin") == subprocess.DEVNULL
+
+
 class TestDetectFrontendPort:
     def test_parses_vite_log(self, tmp_path):
         from cli.commands.service import _detect_frontend_port
