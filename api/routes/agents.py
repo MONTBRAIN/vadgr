@@ -4,7 +4,6 @@ import asyncio
 import io
 import json
 import subprocess
-import shutil
 import tempfile
 import zipfile
 from pathlib import Path
@@ -13,6 +12,7 @@ from fastapi import APIRouter, BackgroundTasks, File, Form, Request, UploadFile
 from fastapi.responses import JSONResponse, StreamingResponse
 
 from api.models.agent import AgentCreate, AgentUpdate, AgentRunRequest
+from api.utils.platform import force_rmtree
 
 router = APIRouter(prefix="/api/agents", tags=["agents"])
 
@@ -171,7 +171,7 @@ async def delete_all_agents(request: Request):
         if forge_path:
             path = PROJECT_ROOT / forge_path
             if path.exists() and path.is_dir():
-                shutil.rmtree(path)
+                force_rmtree(path)
     count = await repo.delete_all()
     return {"deleted": count}
 
@@ -187,7 +187,7 @@ async def delete_agent(agent_id: str, request: Request):
     if forge_path:
         path = PROJECT_ROOT / forge_path
         if path.exists() and path.is_dir():
-            shutil.rmtree(path)
+            force_rmtree(path)
     await repo.delete(agent_id)
 
 

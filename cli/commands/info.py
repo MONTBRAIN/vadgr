@@ -7,7 +7,7 @@ import click
 from rich.console import Console
 
 from cli.client import api_get, api_put
-from cli.output import print_kv, print_success, format_status
+from cli.output import print_kv, print_success, print_warning, format_status
 
 
 @click.command()
@@ -56,8 +56,8 @@ def computer_use():
 def cu_enable(ctx):
     """Enable computer use."""
     console = Console()
-    with console.status("Setting up computer use...", spinner="dots"):
-        result = api_put(ctx, "/api/settings/computer-use", {"enabled": True})
+    with console.status("Setting up computer use (this may take a minute)...", spinner="dots"):
+        result = api_put(ctx, "/api/settings/computer-use", {"enabled": True}, timeout=120)
     daemon = result.get("daemon", "")
     if daemon == "running":
         print_success(f"Computer use enabled (Windows daemon running on port 19542)")

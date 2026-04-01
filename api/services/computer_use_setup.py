@@ -195,15 +195,43 @@ def _probe_daemon() -> str:
         return "stopped"
 
 
+def _get_windows_userprofile() -> str | None:
+    """Get the active Windows user's profile directory as a WSL path."""
+    try:
+        result = subprocess.run(
+            ["powershell.exe", "-NoProfile", "-Command", "$env:USERPROFILE"],
+            capture_output=True, text=True, timeout=5,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            wsl_path = subprocess.run(
+                ["wslpath", "-u", result.stdout.strip()],
+                capture_output=True, text=True,
+            ).stdout.strip()
+            return wsl_path
+    except Exception:
+        pass
+    return None
+
+
 def _find_windows_python() -> str | None:
-    common_paths = [
-        "/mnt/c/Users/*/AppData/Local/Programs/Python/Python3*/python.exe",
-    ]
+    """Find a Python install on the active Windows user's account."""
     import glob
-    for pattern in common_paths:
-        matches = sorted(glob.glob(pattern), reverse=True)
+
+    # First try the active Windows user's Python install
+    profile = _get_windows_userprofile()
+    if profile:
+        user_pattern = f"{profile}/AppData/Local/Programs/Python/Python3*/python.exe"
+        matches = sorted(glob.glob(user_pattern), reverse=True)
         if matches:
             return matches[0].replace("/mnt/c/", "C:\\").replace("/", "\\")
+
+    # Fallback: any user's Python (multi-user machines)
+    all_users_pattern = "/mnt/c/Users/*/AppData/Local/Programs/Python/Python3*/python.exe"
+    matches = sorted(glob.glob(all_users_pattern), reverse=True)
+    if matches:
+        return matches[0].replace("/mnt/c/", "C:\\").replace("/", "\\")
+
+    # Last resort: ask PowerShell
     try:
         result = subprocess.run(
             ["powershell.exe", "-NoProfile", "-Command", "(Get-Command python).Source"],
@@ -218,25 +246,7 @@ def _find_windows_python() -> str | None:
 
 def _deploy_and_launch_daemon(win_python: str) -> None:
     bridge_dir = str(PROJECT_ROOT / "computer_use" / "bridge")
-    deploy_dir = None
-    try:
-        result = subprocess.run(
-            ["wslpath", "-u", os.path.expanduser("~").replace("/home/", "/mnt/c/Users/")],
-            capture_output=True, text=True,
-        )
-        # Try getting Windows USERPROFILE
-        result = subprocess.run(
-            ["powershell.exe", "-NoProfile", "-Command", "$env:USERPROFILE"],
-            capture_output=True, text=True, timeout=5,
-        )
-        if result.returncode == 0:
-            win_profile = result.stdout.strip()
-            deploy_dir = subprocess.run(
-                ["wslpath", "-u", win_profile],
-                capture_output=True, text=True,
-            ).stdout.strip()
-    except Exception:
-        pass
+    deploy_dir = _get_windows_userprofile()
 
     if not deploy_dir:
         return
@@ -269,6 +279,7 @@ def _deploy_and_launch_daemon(win_python: str) -> None:
                 f'-WorkingDirectory "{win_dir}" '
                 f'-WindowStyle Hidden',
             ],
+            stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
@@ -303,12 +314,24 @@ def _stop_daemon():
     if not _is_wsl2():
         return
     try:
+        # Kill by port (catches healthy daemons)
         subprocess.run(
             [
                 "powershell.exe", "-NoProfile", "-Command",
                 f"Get-NetTCPConnection -LocalPort {_DAEMON_PORT} -State Listen "
                 f"-ErrorAction SilentlyContinue | "
                 f"ForEach-Object {{ Stop-Process -Id $_.OwningProcess -Force }}",
+            ],
+            capture_output=True, timeout=10,
+        )
+        # Also kill any pythonw.exe running daemon.py (catches zombies that
+        # crashed before binding to the port)
+        subprocess.run(
+            [
+                "powershell.exe", "-NoProfile", "-Command",
+                'Get-CimInstance Win32_Process -Filter "Name=\'pythonw.exe\'" '
+                "| Where-Object { $_.CommandLine -like '*daemon.py*' } "
+                "| ForEach-Object { Stop-Process -Id $_.ProcessId -Force }",
             ],
             capture_output=True, timeout=10,
         )
@@ -336,7 +359,7 @@ def get_status() -> dict:
         except (json.JSONDecodeError, OSError):
             pass
 
-    daemon = _probe_daemon() if _is_wsl2() else None
+    daemon = _probe_daemon() if (_is_wsl2() and enabled) else None
 
     return {
         "enabled": enabled,

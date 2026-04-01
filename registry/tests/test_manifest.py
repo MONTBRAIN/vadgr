@@ -21,6 +21,7 @@ class TestManifestValidation:
         assert m.name == "test-agent"
         assert m.version == "0.1.0"
         assert m.manifest_version == MANIFEST_VERSION
+        assert m.export_version == 2
         assert len(m.steps) == 2
 
     def test_minimal_manifest(self):
@@ -29,6 +30,15 @@ class TestManifestValidation:
         assert m.version == "0.1.0"  # default
         assert m.description == ""
         assert m.steps == []
+
+    def test_v2_manifest_has_api_fields(self):
+        m = validate_manifest({
+            "manifest_version": 2, "name": "new-agent",
+            "samples": ["example"], "input_schema": [{"name": "x"}],
+        })
+        assert m.samples == ["example"]
+        assert m.input_schema == [{"name": "x"}]
+        assert m.model == "claude-sonnet-4-6"
 
     def test_missing_name_raises(self):
         with pytest.raises(ValueError, match="Invalid manifest"):

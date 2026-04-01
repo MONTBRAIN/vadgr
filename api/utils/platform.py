@@ -146,3 +146,14 @@ async def kill_process_tree(proc: asyncio.subprocess.Process) -> None:
             pass
 
     await proc.wait()
+
+
+def force_rmtree(path: str | os.PathLike) -> None:
+    """Remove a directory tree, handling read-only files (e.g. .git objects on Windows)."""
+    import stat
+
+    def _on_error(func, fpath, _exc_info):
+        os.chmod(fpath, stat.S_IWUSR | stat.S_IRUSR)
+        func(fpath)
+
+    shutil.rmtree(path, onerror=_on_error)

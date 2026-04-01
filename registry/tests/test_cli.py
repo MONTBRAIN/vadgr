@@ -65,14 +65,22 @@ class TestPullCommand:
         mock_pull.return_value = "/home/user/.forge/agents/test-agent"
         result = runner.invoke(cli, ["pull", "test-agent", "--force"])
         assert result.exit_code == 0
-        mock_pull.assert_called_once_with("test-agent", registry_name=None, force=True)
+        mock_pull.assert_called_once()
+        args, kwargs = mock_pull.call_args
+        assert args == ("test-agent",)
+        assert kwargs["registry_name"] is None
+        assert kwargs["force"] is True
 
     @patch("registry.registry_client.pull")
     def test_pull_specific_registry(self, mock_pull, runner):
         mock_pull.return_value = "/path/to/agent"
         result = runner.invoke(cli, ["pull", "test-agent", "-r", "my-registry"])
         assert result.exit_code == 0
-        mock_pull.assert_called_once_with("test-agent", registry_name="my-registry", force=False)
+        mock_pull.assert_called_once()
+        args, kwargs = mock_pull.call_args
+        assert args == ("test-agent",)
+        assert kwargs["registry_name"] == "my-registry"
+        assert kwargs["force"] is False
 
 
 class TestPushCommand:
@@ -150,7 +158,7 @@ class TestPackE2E:
         assert output.exists()
         # Verify contents
         with zipfile.ZipFile(output) as zf:
-            assert "manifest.json" in zf.namelist()
-            assert "agentic.md" in zf.namelist()
-            manifest = json.loads(zf.read("manifest.json"))
+            assert "agent-forge.json" in zf.namelist()
+            assert "agent.bundle" in zf.namelist()
+            manifest = json.loads(zf.read("agent-forge.json"))
             assert "research-paper" in manifest["name"]

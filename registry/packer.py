@@ -4,13 +4,20 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
+import subprocess
+import tempfile
 import zipfile
 from pathlib import Path
 from typing import Optional
 
 from registry.config import PACK_EXCLUDE_DIRS
-from registry.manifest import Manifest, StepEntry, validate_manifest
-from registry.security import safe_extract
+from registry.manifest import (
+    MANIFEST_FILENAME,
+    Manifest,
+    StepEntry,
+    validate_manifest,
+)
 
 
 def _should_exclude(rel_path: Path) -> bool:
@@ -69,17 +76,29 @@ def _detect_name(folder: Path) -> str:
 
 
 def build_manifest(folder: Path, overrides: Optional[dict] = None) -> Manifest:
-    """Build a manifest from an agent folder, merging with any existing manifest.json."""
+    """Build a manifest from an agent folder, merging with any existing agent-forge.json."""
     existing = {}
-    manifest_path = folder / "manifest.json"
+    manifest_path = folder / MANIFEST_FILENAME
     if manifest_path.exists():
         with open(manifest_path) as f:
             existing = json.load(f)
 
+    # Pick up input/output schemas from schema.json (written by the API)
+    schema_path = folder / "schema.json"
+    if schema_path.exists():
+        try:
+            with open(schema_path) as f:
+                schema_data = json.load(f)
+            for key in ("input_schema", "output_schema", "samples"):
+                if schema_data.get(key) and not existing.get(key):
+                    existing[key] = schema_data[key]
+        except (json.JSONDecodeError, OSError):
+            pass
+
     steps = _detect_steps(folder)
 
     auto = {
-        "manifest_version": 1,
+        "manifest_version": 2,
         "name": _detect_name(folder),
         "computer_use": _detect_computer_use(steps),
         "steps": [s.model_dump() for s in steps],
@@ -106,8 +125,45 @@ def collect_files(folder: Path) -> list[Path]:
     return files
 
 
+def _create_git_bundle(folder: Path, files: list[Path], name: str) -> bytes:
+    """Create a git bundle from agent files.
+
+    Initialises a temporary git repo, copies the agent files in, commits,
+    and returns the raw bytes of a ``git bundle create --all``.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        repo = Path(tmpdir)
+
+        # Copy agent files into the temp repo
+        for rel in files:
+            src = folder / rel
+            dst = repo / rel
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, dst)
+
+        git = ["git", "-C", str(repo)]
+        subprocess.run([*git, "init"], check=True, capture_output=True)
+        subprocess.run([*git, "add", "-A"], check=True, capture_output=True)
+        subprocess.run(
+            [*git, "-c", "user.name=Agent Forge", "-c", "user.email=agent-forge@local",
+             "commit", "-m", f"Registry pack of {name}"],
+            check=True, capture_output=True,
+        )
+
+        bundle_path = repo / "agent.bundle"
+        subprocess.run(
+            [*git, "bundle", "create", str(bundle_path), "--all"],
+            check=True, capture_output=True,
+        )
+        return bundle_path.read_bytes()
+
+
 def pack(folder: Path, output: Optional[Path] = None) -> Path:
     """Package an agent folder into a .agnt archive.
+
+    The archive uses the API-compatible format: ``agent-forge.json`` manifest
+    plus an ``agent.bundle`` git bundle so that the resulting ``.agnt`` file
+    can be imported directly via ``forge agents import``.
 
     Args:
         folder: Path to the agent folder (must contain agentic.md).
@@ -135,16 +191,11 @@ def pack(folder: Path, output: Optional[Path] = None) -> Path:
         output = Path.cwd() / f"{manifest.name}-{manifest.version}.agnt"
     output = Path(output).resolve()
 
+    bundle_bytes = _create_git_bundle(folder, files, manifest.name)
+
     with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as zf:
-        # Write manifest first
-        zf.writestr("manifest.json", json.dumps(manifest.model_dump(), indent=2) + "\n")
-        # Write all agent files
-        for rel_path in files:
-            full_path = folder / rel_path
-            # Skip the original manifest.json since we write our generated one
-            if rel_path == Path("manifest.json"):
-                continue
-            zf.write(full_path, str(rel_path))
+        zf.writestr(MANIFEST_FILENAME, json.dumps(manifest.model_dump(), indent=2) + "\n")
+        zf.writestr("agent.bundle", bundle_bytes)
 
     return output
 
@@ -169,13 +220,26 @@ def unpack(agnt_path: Path, dest: Path) -> Manifest:
 
     with zipfile.ZipFile(agnt_path, "r") as zf:
         names = zf.namelist()
-        if "manifest.json" not in names:
-            raise ValueError(f"Invalid .agnt archive: missing manifest.json")
 
-        manifest_data = json.loads(zf.read("manifest.json"))
+        if MANIFEST_FILENAME not in names:
+            raise ValueError(f"Invalid .agnt archive: missing {MANIFEST_FILENAME}")
+        if "agent.bundle" not in names:
+            raise ValueError(f"Invalid .agnt archive: missing agent.bundle")
+
+        manifest_data = json.loads(zf.read(MANIFEST_FILENAME))
         manifest = validate_manifest(manifest_data)
 
         dest = Path(dest)
-        safe_extract(zf, dest)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            bundle_path = Path(tmpdir) / "agent.bundle"
+            bundle_path.write_bytes(zf.read("agent.bundle"))
+            subprocess.run(
+                ["git", "clone", str(bundle_path), str(dest)],
+                check=True, capture_output=True,
+            )
 
-    return manifest
+        # Write manifest into dest so list_installed can find it
+        (dest / MANIFEST_FILENAME).write_text(
+            json.dumps(manifest_data, indent=2) + "\n"
+        )
+        return manifest

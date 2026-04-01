@@ -53,9 +53,11 @@ class TestStopDaemon:
         with patch("api.services.computer_use_setup._is_wsl2", return_value=True), \
              patch("subprocess.run") as m:
             _stop_daemon()
-            assert m.called
-            cmd = str(m.call_args)
-            assert "19542" in cmd
+            assert m.call_count == 2
+            # First call kills by port
+            assert "19542" in str(m.call_args_list[0])
+            # Second call kills zombie pythonw.exe daemon.py processes
+            assert "daemon.py" in str(m.call_args_list[1])
 
     def test_noop_on_non_wsl2(self):
         from api.services.computer_use_setup import _stop_daemon
@@ -66,9 +68,16 @@ class TestStopDaemon:
 
 
 class TestGetStatusIncludesDaemon:
-    def test_includes_daemon_field(self):
-        from api.services.computer_use_setup import get_status
-        with patch("api.services.computer_use_setup._probe_daemon", return_value="running"), \
+    def test_includes_daemon_field(self, tmp_path):
+        from api.services.computer_use_setup import get_status, MCP_JSON_PATH
+        import json
+        # Write a valid .mcp.json so computer use is enabled
+        mcp_path = tmp_path / ".mcp.json"
+        mcp_path.write_text(json.dumps({
+            "mcpServers": {"computer-use": {"command": "python", "env": {}}}
+        }))
+        with patch("api.services.computer_use_setup.MCP_JSON_PATH", mcp_path), \
+             patch("api.services.computer_use_setup._probe_daemon", return_value="running"), \
              patch("api.services.computer_use_setup._is_wsl2", return_value=True):
             status = get_status()
             assert "daemon" in status
@@ -79,6 +88,16 @@ class TestGetStatusIncludesDaemon:
         with patch("api.services.computer_use_setup._is_wsl2", return_value=False):
             status = get_status()
             assert status.get("daemon") is None
+
+    def test_daemon_null_when_disabled(self, tmp_path):
+        """Issue #66: daemon should not be probed when computer use is disabled."""
+        from api.services.computer_use_setup import get_status
+        with patch("api.services.computer_use_setup.MCP_JSON_PATH", tmp_path / "nope.json"), \
+             patch("api.services.computer_use_setup._is_wsl2", return_value=True), \
+             patch("api.services.computer_use_setup._probe_daemon") as mock_probe:
+            status = get_status()
+            assert status.get("daemon") is None
+            mock_probe.assert_not_called()
 
 
 class TestEnableManagesDaemon:

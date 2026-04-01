@@ -90,6 +90,37 @@ class TestFindNode:
         assert _find_node() is None
 
 
+class TestFindNpm:
+    """Frontend must launch via npm (not npx) for consistent behavior across Node versions."""
+
+    def test_finds_npm_on_path(self, monkeypatch):
+        from cli.commands.service import _find_npm
+        monkeypatch.setattr("shutil.which", lambda cmd: "/usr/bin/npm" if cmd == "npm" else None)
+        assert _find_npm() == "/usr/bin/npm"
+
+    def test_finds_npm_cmd_on_windows(self, monkeypatch, tmp_path):
+        from cli.commands.service import _find_npm
+        node_dir = tmp_path / "nodejs"
+        node_dir.mkdir()
+        (node_dir / "node.exe").write_text("")
+        (node_dir / "npm.cmd").write_text("")
+        monkeypatch.setattr("shutil.which", lambda cmd: str(node_dir / "node.exe") if cmd == "node" else None)
+        result = _find_npm()
+        assert result is not None
+        assert "npm" in result
+
+
+class TestSessionKwargs:
+    """Issue #74: background processes must not inherit terminal stdin."""
+
+    def test_includes_devnull_stdin(self):
+        """_session_kwargs must include stdin=DEVNULL to prevent terminal corruption."""
+        import subprocess
+        from cli.commands.service import _session_kwargs
+        kwargs = _session_kwargs()
+        assert kwargs.get("stdin") == subprocess.DEVNULL
+
+
 class TestDetectFrontendPort:
     def test_parses_vite_log(self, tmp_path):
         from cli.commands.service import _detect_frontend_port

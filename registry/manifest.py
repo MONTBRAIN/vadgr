@@ -8,7 +8,10 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
 
-MANIFEST_VERSION = 1
+MANIFEST_VERSION = 2
+
+# Manifest filename inside .agnt archives (matches API export format).
+MANIFEST_FILENAME = "agent-forge.json"
 
 
 class StepEntry(BaseModel):
@@ -19,17 +22,26 @@ class StepEntry(BaseModel):
 
 
 class Manifest(BaseModel):
-    """Schema for manifest.json inside a .agnt package."""
+    """Schema for agent-forge.json inside a .agnt package.
+
+    Fields are a superset of the API export manifest and the original
+    registry manifest so a single model covers both use-cases.
+    """
 
     manifest_version: int = MANIFEST_VERSION
+    export_version: int = 2
     name: str = Field(..., min_length=1, max_length=64)
     version: str = "0.1.0"
     description: str = ""
     author: str = ""
     license: str = ""
     provider: str = "claude_code"
+    model: str = "claude-sonnet-4-6"
     computer_use: bool = False
     steps: list[StepEntry] = Field(default_factory=list)
+    samples: list[str] = Field(default_factory=list)
+    input_schema: list[dict] = Field(default_factory=list)
+    output_schema: list[dict] = Field(default_factory=list)
 
     @field_validator("name")
     @classmethod
@@ -45,9 +57,9 @@ class Manifest(BaseModel):
     @field_validator("manifest_version")
     @classmethod
     def version_supported(cls, v: int) -> int:
-        if v != MANIFEST_VERSION:
+        if v not in (1, 2):
             raise ValueError(
-                f"Unsupported manifest version {v}, expected {MANIFEST_VERSION}"
+                f"Unsupported manifest version {v}, expected 1 or 2"
             )
         return v
 

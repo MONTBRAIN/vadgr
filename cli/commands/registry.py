@@ -6,7 +6,7 @@ import click
 
 from registry import registry_client
 from registry.config import load_config, save_config, CONFIG_PATH
-from cli.output import print_table, print_success, print_warning, status_text
+from cli.output import print_table, print_success, print_warning, print_info, status_text
 
 
 @click.group("registry")
@@ -31,13 +31,23 @@ def pack(folder: str, output: str | None):
 @click.argument("name")
 @click.option("--registry", "-r", default=None)
 @click.option("--force", "-f", is_flag=True)
-def pull(name: str, registry: str | None, force: bool):
+@click.pass_context
+def pull(ctx, name: str, registry: str | None, force: bool):
     """Download and install an agent from a registry."""
+    import tempfile
+    from pathlib import Path
+
+    archive_path = Path(tempfile.mktemp(suffix=".agnt"))
     try:
-        result = registry_client.pull(name, registry_name=registry, force=force)
+        result = registry_client.pull(
+            name, registry_name=registry, force=force, keep_archive=archive_path,
+        )
         print_success(f"Installed: {name} -> {result}")
     except (ValueError, FileExistsError, FileNotFoundError, RuntimeError) as e:
+        archive_path.unlink(missing_ok=True)
         raise click.ClickException(str(e))
+
+    _import_to_api(ctx, name, archive_path)
 
 
 @registry_group.command()
@@ -195,3 +205,42 @@ def remove_registry(name: str):
     config["registries"] = registries
     save_config(config)
     print_success(f"Removed registry '{name}'")
+
+
+# -- Helpers --
+
+def _import_to_api(ctx, name: str, archive_path):
+    """Register a pulled agent with the API so it appears in `forge agents list`."""
+    from pathlib import Path
+
+    try:
+        from cli.commands.agents import _upload_agnt
+        from cli.output import wait_with_spinner
+        import time
+
+        data = _upload_agnt(ctx, str(archive_path))
+        agent_id = data.get("id", "?")
+        agent_name = data.get("name", name)
+        print_info(f"Registering {agent_name} with API...")
+        time.sleep(1)
+
+        _agent_done = lambda r: r.get("status") not in ("creating", "updating", "importing")
+        result = wait_with_spinner(
+            ctx, f"/api/agents/{agent_id}", _agent_done,
+            f"Setting up {agent_name}...",
+        )
+
+        if result.get("status") == "ready":
+            print_success(f"{agent_name} is ready (ID: {agent_id[:8]})")
+        else:
+            print_warning(f"{agent_name} finished with status: {result.get('status')}")
+    except Exception as exc:
+        print_warning(
+            f"Agent files installed but API registration failed: {exc}\n"
+            f"  Is the API running? Start it with: forge start\n"
+            f"  Then import manually with: forge agents import {archive_path}"
+        )
+        return
+
+    # Only clean up the archive on success; on failure it stays for manual import
+    Path(archive_path).unlink(missing_ok=True)

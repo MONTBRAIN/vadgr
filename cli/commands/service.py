@@ -35,6 +35,24 @@ def _default_port(env_key: str, default: int) -> int:
 
 # -- Helpers --
 
+def _pid_alive(pid: int) -> bool:
+    """Check if a process is alive. Works on both Unix and Windows."""
+    if sys.platform == "win32":
+        try:
+            result = subprocess.run(
+                ["tasklist", "/FI", f"PID eq {pid}", "/NH"],
+                capture_output=True, text=True, timeout=5,
+            )
+            return str(pid) in result.stdout
+        except Exception:
+            return False
+    try:
+        os.kill(pid, 0)
+        return True
+    except (ProcessLookupError, PermissionError):
+        return False
+
+
 def _read_pid(service: str) -> int | None:
     pidfile = PID_DIR / f"{service}.pid"
     if not pidfile.exists():
@@ -44,12 +62,10 @@ def _read_pid(service: str) -> int | None:
         pidfile.unlink(missing_ok=True)
         return None
     pid = int(text)
-    try:
-        os.kill(pid, 0)
+    if _pid_alive(pid):
         return pid
-    except (ProcessLookupError, PermissionError):
-        pidfile.unlink(missing_ok=True)
-        return None
+    pidfile.unlink(missing_ok=True)
+    return None
 
 
 def _write_pid(service: str, pid: int):
@@ -78,9 +94,15 @@ def _kill_tree(pid: int):
 
 def _port_in_use(port: int) -> bool:
     import socket
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.settimeout(1)
-        return s.connect_ex(("127.0.0.1", port)) == 0
+    # Check both IPv4 and IPv6 loopback -- Vite on Windows 11 often binds
+    # to ::1 only, so checking just 127.0.0.1 would miss it.
+    for addr in ("127.0.0.1", "::1"):
+        family = socket.AF_INET6 if ":" in addr else socket.AF_INET
+        with socket.socket(family, socket.SOCK_STREAM) as s:
+            s.settimeout(1)
+            if s.connect_ex((addr, port)) == 0:
+                return True
+    return False
 
 
 def _kill_port(port: int):
@@ -107,7 +129,9 @@ def _wait_for_api(port: int, timeout: int = _API_STARTUP_TIMEOUT) -> bool:
 def _wait_for_frontend(port: int, timeout: int = 10) -> bool:
     for _ in range(timeout):
         try:
-            req = urllib.request.Request(f"http://127.0.0.1:{port}")
+            # Use "localhost" instead of "127.0.0.1" so the OS resolves to
+            # whichever loopback address Vite actually bound (IPv4 or IPv6).
+            req = urllib.request.Request(f"http://localhost:{port}")
             urllib.request.urlopen(req, timeout=2)
             return True
         except Exception:
@@ -147,14 +171,20 @@ def _find_node() -> str | None:
     return None
 
 
-def _find_npx() -> str | None:
+def _find_npm() -> str | None:
+    """Find npm executable. Used to launch frontend via 'npm run dev'."""
+    found = shutil.which("npm")
+    if found:
+        return found
     node = _find_node()
     if not node:
         return None
-    npx = Path(node).parent / "npx"
-    if npx.exists():
-        return str(npx)
-    return shutil.which("npx")
+    node_dir = Path(node).parent
+    for name in ("npm.cmd", "npm.exe", "npm"):
+        candidate = node_dir / name
+        if candidate.exists():
+            return str(candidate)
+    return None
 
 
 def _get_api_python() -> str:
@@ -176,9 +206,14 @@ def _build_env(api_port: int, frontend_port: int) -> dict:
 
 
 def _session_kwargs() -> dict:
+    """Kwargs for Popen to fully detach background processes from the terminal.
+
+    Without stdin=DEVNULL, child processes inherit the terminal stdin and
+    compete with the shell for input, corrupting typing and copy/paste.
+    """
     if sys.platform == "win32":
-        return {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}
-    return {"start_new_session": True}
+        return {"stdin": subprocess.DEVNULL, "creationflags": 0x08000000}  # CREATE_NO_WINDOW
+    return {"stdin": subprocess.DEVNULL, "start_new_session": True}
 
 
 def _file_hash(path: Path) -> str | None:
@@ -230,18 +265,18 @@ def start(api_port, frontend_port):
         print_warning(f"API failed to start. Check {FORGE_HOME / 'api.log'}")
         raise SystemExit(1)
 
-    # Start frontend via npx vite
+    # Start frontend via npm run dev (not npx -- npx resolution varies across Node versions)
     frontend_dir = FORGE_REPO / "frontend"
-    npx = _find_npx()
-    if not npx:
-        print_warning("npx not found. Frontend will not start.")
+    npm = _find_npm()
+    if not npm:
+        print_warning("npm not found. Frontend will not start.")
         print_success(f"API is running at http://localhost:{api_port}")
         return
 
     print_info("Starting frontend...")
     fe_log = open(FORGE_HOME / "frontend.log", "w")
     fe_proc = subprocess.Popen(
-        [npx, "vite"], cwd=str(frontend_dir),
+        [npm, "run", "dev"], cwd=str(frontend_dir),
         env=env, stdout=fe_log, stderr=subprocess.STDOUT,
         **_session_kwargs(),
     )
