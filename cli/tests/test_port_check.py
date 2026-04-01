@@ -17,6 +17,27 @@ class TestPortInUse:
         from cli.commands.service import _port_in_use
         assert _port_in_use(59998) is False
 
+    def test_detects_ipv4_listener(self):
+        """Port bound on 127.0.0.1 should be detected."""
+        import socket
+        from cli.commands.service import _port_in_use
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(("127.0.0.1", 59997))
+            s.listen(1)
+            assert _port_in_use(59997) is True
+
+    def test_detects_ipv6_listener(self):
+        """Port bound on ::1 (IPv6) should be detected -- Vite on Windows 11."""
+        import socket
+        from cli.commands.service import _port_in_use
+        try:
+            with socket.socket(socket.AF_INET6, socket.SOCK_STREAM) as s:
+                s.bind(("::1", 59996))
+                s.listen(1)
+                assert _port_in_use(59996) is True
+        except OSError:
+            pytest.skip("IPv6 not available")
+
 
 class TestKillPort:
     def test_kill_port_calls_fuser(self, monkeypatch):
