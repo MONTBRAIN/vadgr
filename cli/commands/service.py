@@ -496,7 +496,7 @@ def api_only(port):
             raise SystemExit(1)
         print_info(f"Port {original} busy, using {port}")
 
-    env = _build_env(port, 3000)
+    env = _build_env(port, _default_port("AGENT_FORGE_FRONTEND_PORT", 3000))
     print_info(f"Starting API server (port {port})...")
 
     api_log = open(FORGE_HOME / "api.log", "w")
