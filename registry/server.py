@@ -180,7 +180,7 @@ def run_server(port: int = DEFAULT_PORT, directory: Path = DEFAULT_DIR, token: s
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Agent Forge registry server")
+    parser = argparse.ArgumentParser(description="Vadgr registry server")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT, help="Port to listen on")
     parser.add_argument("--dir", type=str, default=str(DEFAULT_DIR), help="Data directory")
     parser.add_argument("--token", type=str, default="", help="Bearer token for upload auth")

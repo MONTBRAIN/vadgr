@@ -1,4 +1,4 @@
-# Agent Forge Frontend
+# Vadgr Frontend
 
 React dashboard for managing agents, running workflows, and viewing results. Cross-platform: works on Windows, macOS, and Linux.
 

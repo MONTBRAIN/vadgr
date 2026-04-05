@@ -151,7 +151,7 @@ export function Settings() {
     <div>
       <div className="mb-7">
         <h1 className="font-heading text-[28px] font-semibold text-text-primary tracking-tight mb-1">Settings</h1>
-        <p className="font-body text-[13px] text-text-muted font-light">Configure your Agent Forge workspace</p>
+        <p className="font-body text-[13px] text-text-muted font-light">Configure your Vadgr workspace</p>
       </div>
 
       <div className="flex flex-col gap-5 max-w-[600px]">

@@ -234,7 +234,7 @@ def start(api_port, frontend_port):
     PID_DIR.mkdir(parents=True, exist_ok=True)
 
     if _read_pid("api"):
-        print_warning("Agent Forge is already running. Use 'forge stop' first.")
+        print_warning("vadgr is already running. Use 'vadgr stop' first.")
         raise SystemExit(1)
 
     if _port_in_use(api_port):
@@ -290,11 +290,11 @@ def start(api_port, frontend_port):
         print_success(f"API is running at http://localhost:{api_port}")
         return
 
-    print_success("Agent Forge is running!")
+    print_success("vadgr is running!")
     print_success(f"  Frontend: http://localhost:{actual_fe}")
     print_success(f"  API:      http://localhost:{api_port}")
     click.echo()
-    print_info("Run 'forge stop' to stop, 'forge logs' to see API logs.")
+    print_info("Run 'vadgr stop' to stop, 'vadgr logs' to see API logs.")
 
 
 @click.command()
@@ -318,9 +318,9 @@ def stop():
             (PID_DIR / f"{service}.pid").unlink(missing_ok=True)
             stopped = True
     if not stopped:
-        print_warning("Agent Forge is not running.")
+        print_warning("vadgr is not running.")
     else:
-        print_success("Agent Forge stopped.")
+        print_success("vadgr stopped.")
 
 
 @click.command()
@@ -368,7 +368,7 @@ def logs(service, follow, lines):
     """Tail service logs."""
     log_path = FORGE_HOME / f"{service}.log"
     if not log_path.exists():
-        print_warning(f"No logs found for {service}. Is Agent Forge running?")
+        print_warning(f"No logs found for {service}. Is vadgr running?")
         raise SystemExit(1)
 
     if not follow:
@@ -385,7 +385,7 @@ def logs(service, follow, lines):
 @click.command()
 def update():
     """Pull latest code and reinstall deps if changed."""
-    print_info("Updating Agent Forge...")
+    print_info("Updating vadgr...")
 
     api_req = FORGE_REPO / "api" / "requirements.txt"
     fe_pkg = FORGE_REPO / "frontend" / "package.json"
@@ -424,9 +424,9 @@ def update():
     if _read_pid("api"):
         print_info("Restarting services...")
         # Can't invoke stop/start here cleanly, tell user
-        click.echo("Run 'forge restart' to apply changes.")
+        click.echo("Run 'vadgr restart' to apply changes.")
     else:
-        print_success("Update complete. Run 'forge start' to start.")
+        print_success("Update complete. Run 'vadgr start' to start.")
 
 
 @click.command("api")
@@ -437,7 +437,7 @@ def api_only(port):
     PID_DIR.mkdir(parents=True, exist_ok=True)
 
     if _read_pid("api"):
-        print_warning("API is already running. Use 'forge stop' first.")
+        print_warning("API is already running. Use 'vadgr stop' first.")
         raise SystemExit(1)
 
     env = _build_env(port, 3000)

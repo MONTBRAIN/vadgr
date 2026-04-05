@@ -62,7 +62,7 @@ def cu_enable(ctx):
     if daemon == "running":
         print_success(f"Computer use enabled (Windows daemon running on port 19542)")
     elif daemon == "degraded":
-        print_warning("Computer use enabled but daemon is not responding. Try: forge computer-use disable && forge computer-use enable")
+        print_warning("Computer use enabled but daemon is not responding. Try: vadgr computer-use disable && vadgr computer-use enable")
     elif daemon == "stopped":
         print_warning("Computer use enabled but daemon failed to start.")
     else:

@@ -33,7 +33,7 @@ def list_agents(ctx):
     """List all agents."""
     data = api_get(ctx, "/api/agents")
     if not data:
-        print_warning("No agents found. Create one with: forge agents create")
+        print_warning("No agents found. Create one with: vadgr agents create")
         return
 
     rows = []
@@ -172,7 +172,7 @@ def run_agent(ctx, name_or_id: str, inputs: tuple, provider: str | None, model: 
             if not cu_status.get("enabled"):
                 raise click.ClickException(
                     f"'{agent['name']}' requires computer use but it is disabled.\n"
-                    f"  Enable it with: forge computer-use enable"
+                    f"  Enable it with: vadgr computer-use enable"
                 )
         except click.ClickException:
             raise
@@ -196,7 +196,7 @@ def run_agent(ctx, name_or_id: str, inputs: tuple, provider: str | None, model: 
     print_success(f"Run started: {run_id}")
 
     if background:
-        click.echo(f"  View logs: forge runs logs {run_id}")
+        click.echo(f"  View logs: vadgr runs logs {run_id}")
         return
 
     follow_run(ctx.obj["api_url"], run_id)

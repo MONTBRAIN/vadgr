@@ -1,6 +1,6 @@
 # CLI - Command-Line Interface
 
-Unified CLI for Agent Forge. Manages agents, runs, registry, computer use, and services from the terminal.
+Unified CLI for Vadgr. Manages agents, runs, registry, computer use, and services from the terminal.
 
 ## Setup
 
@@ -15,10 +15,10 @@ cli/.venv/bin/pip install -r cli/requirements.txt
 PYTHONPATH=. cli/.venv/bin/python -m cli <command>
 ```
 
-Or via the `forge` wrapper (installed by setup.sh):
+Or via the `vadgr` wrapper (installed by setup.sh):
 
 ```bash
-forge <command>
+vadgr <command>
 ```
 
 ## Commands
@@ -26,46 +26,46 @@ forge <command>
 ### Services
 
 ```
-forge start [--api-port N] [--frontend-port N]
-forge stop
-forge restart
-forge status
-forge logs [--service api|frontend] [--no-follow]
-forge update
-forge api [--port N]
+vadgr start [--api-port N] [--frontend-port N]
+vadgr stop
+vadgr restart
+vadgr status
+vadgr logs [--service api|frontend] [--no-follow]
+vadgr update
+vadgr api [--port N]
 ```
 
 ### Agents
 
 ```
-forge ps
-forge agents list
-forge agents get <id-or-name>
-forge agents create --name "..." --description "..."
-forge agents update <id-or-name> [--name "..."] [--description "..."]
-forge agents delete <id-or-name>
-forge agents export <id-or-name> [-o output.agnt]
-forge agents import <file.agnt>
+vadgr ps
+vadgr agents list
+vadgr agents get <id-or-name>
+vadgr agents create --name "..." --description "..."
+vadgr agents update <id-or-name> [--name "..."] [--description "..."]
+vadgr agents delete <id-or-name>
+vadgr agents export <id-or-name> [-o output.agnt]
+vadgr agents import <file.agnt>
 ```
 
-Short IDs from `forge ps` and partial names both work. For example `forge agents get 654e` or `forge agents get linkedin`.
+Short IDs from `vadgr ps` and partial names both work. For example `vadgr agents get 654e` or `vadgr agents get linkedin`.
 
 ### Running agents
 
 ```
-forge run <name-or-id>                          # interactive, prompts for inputs
-forge run <name-or-id> --input key=value        # non-interactive
-forge run <name-or-id> --background             # skip progress streaming
-forge run <name-or-id> --provider codex --model gpt-5.4
+vadgr run <name-or-id>                          # interactive, prompts for inputs
+vadgr run <name-or-id> --input key=value        # non-interactive
+vadgr run <name-or-id> --background             # skip progress streaming
+vadgr run <name-or-id> --provider codex --model gpt-5.4
 ```
 
 When run interactively, the CLI prompts for each input field. File inputs are uploaded to the API automatically. The CLI streams step progress via WebSocket and shows results when done:
 
 ```
-[forge] Run started: abc123
+[vadgr] Run started: abc123
   Step 1: Analyze Data              done (1m 23s)
   Step 2: Generate Report           done (45s)
-[forge] Run completed (2m 8s)
+[vadgr] Run completed (2m 8s)
 
   See results: http://localhost:3000/runs/abc123
 ```
@@ -75,43 +75,43 @@ Ctrl+C cancels the run.
 ### Runs
 
 ```
-forge runs list [--status running|completed|failed]
-forge runs get <run-id>
-forge runs cancel <run-id>
-forge runs approve <run-id>
-forge runs logs <run-id>
+vadgr runs list [--status running|completed|failed]
+vadgr runs get <run-id>
+vadgr runs cancel <run-id>
+vadgr runs approve <run-id>
+vadgr runs logs <run-id>
 ```
 
 ### Computer use
 
 ```
-forge computer-use enable     # starts daemon, writes MCP configs
-forge computer-use disable    # stops daemon, removes MCP configs
-forge computer-use status     # shows enabled state and daemon health
+vadgr computer-use enable     # starts daemon, writes MCP configs
+vadgr computer-use disable    # stops daemon, removes MCP configs
+vadgr computer-use status     # shows enabled state and daemon health
 ```
 
-The daemon runs natively on Windows (WSL2 only) and persists across `forge start/stop`. It starts when you enable computer use and stops when you disable it.
+The daemon runs natively on Windows (WSL2 only) and persists across `vadgr start/stop`. It starts when you enable computer use and stops when you disable it.
 
 ### Registry
 
 ```
-forge registry pack <folder> [-o output.agnt]
-forge registry pull <name> [--force]
-forge registry push <file.agnt>
-forge registry search <query>
-forge registry agents
-forge registry serve [--port 9876] [--dir ./data] [--token secret]
-forge registry add <name> --type github|http|local [--url ...] [--path ...]
-forge registry use <name>
-forge registry list
-forge registry remove <name>
+vadgr registry pack <folder> [-o output.agnt]
+vadgr registry pull <name> [--force]
+vadgr registry push <file.agnt>
+vadgr registry search <query>
+vadgr registry agents
+vadgr registry serve [--port 9876] [--dir ./data] [--token secret]
+vadgr registry add <name> --type github|http|local [--url ...] [--path ...]
+vadgr registry use <name>
+vadgr registry list
+vadgr registry remove <name>
 ```
 
 ### Info
 
 ```
-forge health
-forge providers
+vadgr health
+vadgr providers
 ```
 
 ## Architecture

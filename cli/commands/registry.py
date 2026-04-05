@@ -11,7 +11,7 @@ from cli.output import print_table, print_success, print_warning, print_info, st
 
 @click.group("registry")
 def registry_group():
-    """Package manager for Agent Forge agents."""
+    """Package manager for vadgr agents."""
     pass
 
 
@@ -157,7 +157,7 @@ def use_registry(name: str):
             reg.pop("default", None)
 
     if not found:
-        raise click.ClickException(f"Registry '{name}' not found. Add it first with: forge registry add")
+        raise click.ClickException(f"Registry '{name}' not found. Add it first with: vadgr registry add")
 
     config["registries"] = registries
     save_config(config)
@@ -199,7 +199,7 @@ def remove_registry(name: str):
         raise click.ClickException(f"Registry '{name}' not found.")
 
     if target.get("default"):
-        raise click.ClickException(f"Cannot remove '{name}' because it is the active default. Switch first with: forge registry use <other>")
+        raise click.ClickException(f"Cannot remove '{name}' because it is the active default. Switch first with: vadgr registry use <other>")
 
     registries.remove(target)
     config["registries"] = registries
@@ -237,8 +237,8 @@ def _import_to_api(ctx, name: str, archive_path):
     except Exception as exc:
         print_warning(
             f"Agent files installed but API registration failed: {exc}\n"
-            f"  Is the API running? Start it with: forge start\n"
-            f"  Then import manually with: forge agents import {archive_path}"
+            f"  Is the API running? Start it with: vadgr start\n"
+            f"  Then import manually with: vadgr agents import {archive_path}"
         )
         return
 

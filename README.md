@@ -1,12 +1,39 @@
-# Agent Forge
+<p align="center">
+  <img src="docs/pet.svg" alt="Pet" height="160" style="image-rendering: pixelated;">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/NameLigth.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/NameDark.svg">
+    <img src="docs/NameDark.svg" alt="VADGR" height="160">
+  </picture>
+</p>
 
-Independent agents that can operate on any task, no matter how complex.
+<p align="center">
+  <img src="docs/line.svg" alt="Separator" width="100%", heigth = 20px>
+</p>
 
-Agent Forge gives AI agents the ability to think through problems (forge) and interact with the real world (computer use). Each module works on its own or together with the others. Cross-platform: runs on Windows, Linux, and macOS (Work progres).
+
+<p align="center">
+  <i><b>Independent agents that can operate on any task, no matter how complex.</b></i>
+</p>
+
+Vadgr gives AI agents the ability to think through problems (forge) and interact with the real world (computer use). Each module works on its own or together with the others. Cross-platform: runs on Windows, Linux, and macOS (Work progres).
+
+
+##  Paltform
+
+<div align="left">
+
+|  | Technology | Status | Role |
+|:---:|:---:|:---:|:---|
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" width="25" /> | Linux | Stable | Primary platform |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" width="25" /> | Windows / WSL2 | Stable | Supported platform |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" width="25" /> | macOS | WIP | Work in progress |
+
+</div>
 
 ## Install
 
-Works on **Linux**, **WSL**, and **Windows**. macOS support is in progress (agent creation and CLI steps work, computer use does not). The installer sets up everything: git, Python, Node.js, dependencies, and the `forge` CLI.
+Works on **Linux**, **WSL**, and **Windows**. macOS support is in progress (agent creation and CLI steps work, computer use does not). The installer sets up everything: git, Python, Node.js, dependencies, and the `vadgr` CLI.
 
 ```bash
 # Linux / macOS / WSL
@@ -31,64 +58,64 @@ npm install -g @google/gemini-cli                           # Gemini CLI
 Restart your terminal, then:
 
 ```bash
-forge start
+vadgr start
 ```
 
-### Forge CLI
+### Vadgr CLI
 
 **Services:**
 
 | Command | Description |
 |---------|-------------|
-| `forge start` | Start API and frontend servers |
-| `forge stop` | Stop all services |
-| `forge restart` | Restart all services |
-| `forge status` | Show if services are running |
-| `forge logs` | Tail API server logs |
-| `forge update` | Pull latest code and reinstall deps |
+| `vadgr start` | Start API and frontend servers |
+| `vadgr stop` | Stop all services |
+| `vadgr restart` | Restart all services |
+| `vadgr status` | Show if services are running |
+| `vadgr logs` | Tail API server logs |
+| `vadgr update` | Pull latest code and reinstall deps |
 
 **Agents and runs:**
 
 | Command | Description |
 |---------|-------------|
-| `forge ps` | List all agents |
-| `forge agents list` | List all agents |
-| `forge agents get <id>` | Show agent details |
-| `forge agents create --name "..." --description "..."` | Create a new agent |
-| `forge agents update <id> [--name] [--description]` | Update an agent |
-| `forge agents delete <id>` | Delete an agent |
-| `forge agents export <id> [-o file.agnt]` | Export agent as .agnt archive |
-| `forge agents import <file.agnt>` | Import agent from .agnt archive |
-| `forge run <name> [--input key=value]` | Run an agent (interactive inputs) |
-| `forge run <name> --background` | Run without streaming progress |
-| `forge runs list [--status failed]` | List runs |
-| `forge runs get <id>` | Show run details |
-| `forge runs cancel <id>` | Cancel a running run |
-| `forge runs logs <id>` | Show run logs |
+| `vadgr ps` | List all agents |
+| `vadgr agents list` | List all agents |
+| `vadgr agents get <id>` | Show agent details |
+| `vadgr agents create --name "..." --description "..."` | Create a new agent |
+| `vadgr agents update <id> [--name] [--description]` | Update an agent |
+| `vadgr agents delete <id>` | Delete an agent |
+| `vadgr agents export <id> [-o file.agnt]` | Export agent as .agnt archive |
+| `vadgr agents import <file.agnt>` | Import agent from .agnt archive |
+| `vadgr run <name> [--input key=value]` | Run an agent (interactive inputs) |
+| `vadgr run <name> --background` | Run without streaming progress |
+| `vadgr runs list [--status failed]` | List runs |
+| `vadgr runs get <id>` | Show run details |
+| `vadgr runs cancel <id>` | Cancel a running run |
+| `vadgr runs logs <id>` | Show run logs |
 
 **Info:**
 
 | Command | Description |
 |---------|-------------|
-| `forge health` | Check API health |
-| `forge providers` | List available providers and models |
-| `forge computer-use enable` | Enable desktop automation |
-| `forge computer-use disable` | Disable desktop automation |
-| `forge computer-use status` | Show computer use and daemon status |
+| `vadgr health` | Check API health |
+| `vadgr providers` | List available providers and models |
+| `vadgr computer-use enable` | Enable desktop automation |
+| `vadgr computer-use disable` | Disable desktop automation |
+| `vadgr computer-use status` | Show computer use and daemon status |
 
 **Registry** -- package manager for agent workflows:
 
 | Command | Description |
 |---------|-------------|
-| `forge registry pack <folder>` | Package agent folder into `.agnt` archive |
-| `forge registry pull <name>` | Download and install agent from registry |
-| `forge registry push <file.agnt>` | Publish `.agnt` to a registry |
-| `forge registry search <query>` | Search registries for agents |
-| `forge registry serve` | Start a self-hosted registry server |
-| `forge registry add <name> --type ...` | Add a registry to config |
-| `forge registry use <name>` | Set active registry |
-| `forge registry list` | List configured registries |
-| `forge registry remove <name>` | Remove a registry |
+| `vadgr registry pack <folder>` | Package agent folder into `.agnt` archive |
+| `vadgr registry pull <name>` | Download and install agent from registry |
+| `vadgr registry push <file.agnt>` | Publish `.agnt` to a registry |
+| `vadgr registry search <query>` | Search registries for agents |
+| `vadgr registry serve` | Start a self-hosted registry server |
+| `vadgr registry add <name> --type ...` | Add a registry to config |
+| `vadgr registry use <name>` | Set active registry |
+| `vadgr registry list` | List configured registries |
+| `vadgr registry remove <name>` | Remove a registry |
 
 ### Manual setup
 
@@ -144,7 +171,7 @@ Academic paper documenting the framework.
 ## Structure
 
 ```
-Agent-Forge/
+Vadgr/
 ├── cli/                   # Unified command-line interface
 │   ├── main.py            # Root Click group
 │   ├── http.py            # HTTP client for API
@@ -180,6 +207,52 @@ Agent-Forge/
 └── paper/                 # Research paper
 ```
 
+## Technologies
+
+**Frontend**
+
+<div align="left">
+
+|  | Technology | Version | Role |
+|:---:|:---:|:---:|:---|
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="25" /> | React | 19.2 | UI framework |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="25" /> | TypeScript | 5.9 | Type-safe JavaScript |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg" width="25" /> | Vite | 7.3 | Build tool and dev server |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" width="25" /> | Tailwind CSS | 4.2 | Utility-first CSS framework |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="25" style="filter: hue-rotate(140deg);" /> | TanStack Query | 5.90 | Data fetching and state management |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/reactrouter/reactrouter-original.svg" width="25" /> | React Router | 7.13 | Client-side routing |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitest/vitest-original.svg" width="25" /> | Vitest | 4.0 | Unit testing framework |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/eslint/eslint-original.svg" width="25" /> | ESLint | 9.39 | Code linting |
+
+</div>
+
+**Backend**
+
+<div align="left">
+
+|  | Technology | Version | Role |
+|:---:|:---:|:---:|:---|
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg" width="25" /> | FastAPI | 0.115 | Web framework |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" width="25" /> | Python | 3.12 | Runtime language |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sqlite/sqlite-original.svg" width="25" /> | SQLite | 3 | Relational database |
+| <img src="https://cdn.simpleicons.org/pydantic/E92063" width="28" /> | Pydantic | 2.10 | Data validation |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/socketio/socketio-original.svg" width="25" /> | WebSockets | 14.0 | Real-time communication |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pytest/pytest-original.svg" width="25" /> | pytest | 8.0 | Testing framework |
+
+</div>
+
+**Desktop Automation**
+
+<div align="left">
+
+|  | Technology | Version | Role |
+|:---:|:---:|:---:|:---|
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" width="25" /> | Pillow | 10.0 | Image processing |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-plain.svg" width="25" /> | mss | 9.0 | Screenshot capture |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/anthropic/white"><img src="https://cdn.simpleicons.org/anthropic/black" width="25" alt="Anthropic Logo"></picture> | MCP | 1.0 | Standardized tool interface |
+
+</div>
+
 ## Contributing
 
 1. Create a branch from `master`:
@@ -194,3 +267,4 @@ Agent-Forge/
    ```bash
    git push -u origin feature/your-change
    ```
+

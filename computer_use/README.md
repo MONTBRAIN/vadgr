@@ -47,7 +47,7 @@ See `.mcp.json.example` in the repo root for configuration.
 ### CLI
 
 ```bash
-python -m computer_use "Open the browser and search for Agent Forge"
+python -m computer_use "Open the browser and search for Vadgr"
 python -m computer_use --screenshot    # Save a screenshot
 python -m computer_use --info          # Show platform info
 ```

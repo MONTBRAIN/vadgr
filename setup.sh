@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-# Agent Forge Installer
+# Vadgr Installer
 # Usage: curl -fsSL https://raw.githubusercontent.com/MONTBRAIN/Agent-Forge/master/setup.sh | bash
 
 FORGE_HOME="$HOME/.forge"
@@ -15,10 +15,10 @@ REQUIRED_PYTHON_MINOR=12
 # Helpers
 # ---------------------------------------------------------------------------
 
-info()  { printf "\033[1;34m[forge]\033[0m %s\n" "$*"; }
-ok()    { printf "\033[1;32m[forge]\033[0m %s\n" "$*"; }
-warn()  { printf "\033[1;33m[forge]\033[0m %s\n" "$*"; }
-fail()  { printf "\033[1;31m[forge]\033[0m %s\n" "$*" >&2; exit 1; }
+info()  { printf "\033[1;34m[vadgr]\033[0m %s\n" "$*"; }
+ok()    { printf "\033[1;32m[vadgr]\033[0m %s\n" "$*"; }
+warn()  { printf "\033[1;33m[vadgr]\033[0m %s\n" "$*"; }
+fail()  { printf "\033[1;31m[vadgr]\033[0m %s\n" "$*" >&2; exit 1; }
 
 detect_os() {
     case "$(uname -s)" in
@@ -142,12 +142,12 @@ install_nvm_and_node() {
 }
 
 # ---------------------------------------------------------------------------
-# Setup Agent Forge
+# Setup Vadgr
 # ---------------------------------------------------------------------------
 
 setup_repo() {
     if [ -d "$FORGE_REPO/.git" ]; then
-        info "Agent Forge repo already exists, pulling latest..."
+        info "Vadgr repo already exists, pulling latest..."
         git -C "$FORGE_REPO" pull --ff-only origin master || warn "Could not pull latest (offline?)"
         # Restore tracked files that were deleted locally
         local deleted
@@ -156,7 +156,7 @@ setup_repo() {
             (cd "$FORGE_REPO" && echo "$deleted" | while IFS= read -r f; do git checkout -- "$f" 2>/dev/null; done)
         fi
     else
-        info "Cloning Agent Forge..."
+        info "Cloning Vadgr..."
         mkdir -p "$FORGE_HOME"
         git clone "$REPO_URL" "$FORGE_REPO"
     fi
@@ -195,7 +195,7 @@ setup_api() {
 }
 
 setup_forge_scripts() {
-    info "Setting up forge scripts..."
+    info "Setting up vadgr scripts..."
     cd "$FORGE_REPO"
     setup_venv "forge/scripts/.venv" "forge/scripts/requirements.txt"
 }
@@ -223,16 +223,16 @@ setup_frontend() {
 # ---------------------------------------------------------------------------
 
 generate_forge_cli() {
-    info "Creating forge CLI..."
+    info "Creating vadgr CLI..."
     mkdir -p "$FORGE_BIN"
-    cat > "$FORGE_BIN/forge" << 'FORGE_SCRIPT'
+    cat > "$FORGE_BIN/vadgr" << 'FORGE_SCRIPT'
 #!/usr/bin/env bash
 FORGE_REPO="$HOME/.forge/Agent-Forge"
 cli_python="$FORGE_REPO/cli/.venv/bin/python"
-[ -f "$cli_python" ] || { echo "[forge] CLI not found. Run setup.sh first." >&2; exit 1; }
+[ -f "$cli_python" ] || { echo "[vadgr] CLI not found. Run setup.sh first." >&2; exit 1; }
 PYTHONPATH="$FORGE_REPO" exec "$cli_python" -m cli "$@"
 FORGE_SCRIPT
-    chmod +x "$FORGE_BIN/forge"
+    chmod +x "$FORGE_BIN/vadgr"
 }
 
 # ---------------------------------------------------------------------------
@@ -247,9 +247,9 @@ add_to_path() {
         if [ ! -f "$rcfile" ]; then continue; fi
         if ! grep -qF "$FORGE_BIN" "$rcfile" 2>/dev/null; then
             echo "" >> "$rcfile"
-            echo "# Agent Forge" >> "$rcfile"
+            echo "# VADGR" >> "$rcfile"
             echo "$line" >> "$rcfile"
-            info "Added forge to PATH in $(basename "$rcfile")"
+            info "Added vadgr to PATH in $(basename "$rcfile")"
         fi
         found=1
     done
@@ -257,7 +257,7 @@ add_to_path() {
     if [ "$found" -eq 0 ]; then
         local default_rc="$HOME/.bashrc"
         if [ "$OS" = "macos" ]; then default_rc="$HOME/.zshrc"; fi
-        echo "# Agent Forge" >> "$default_rc"
+        echo "# VADGR" >> "$default_rc"
         echo "$line" >> "$default_rc"
         info "Created $(basename "$default_rc") with forge PATH"
     fi
@@ -270,15 +270,25 @@ add_to_path() {
 # ---------------------------------------------------------------------------
 
 main() {
+    OS=$(detect_os)
     echo ""
-    echo "  ___                _     ___"
-    echo " / _ | ___ ____ ___ | |_  / __/__  _______ ____"
-    echo "/ __ |/ _ \`/ -_) _ \| __// _// _ \/ __/ _ \`/ -_)"
-    echo "\/_/ |\_,_/\__, /\___|_\__\/ /_//_/\_ /\_, /\__/"
-    echo "         /___/                       /___/"
+    # Detect dark/light terminal background
+    LIGHT_MODE=0
+    if [ -n "${COLORFGBG:-}" ]; then
+        BG_VAL="${COLORFGBG##*;}"
+        [ "$BG_VAL" -gt 6 ] 2>/dev/null && LIGHT_MODE=1
+    fi
+    if [ "$LIGHT_MODE" -eq 0 ]; then
+        TC="\033[1;38;2;200;200;200m"
+    else
+        TC="\033[1;38;2;60;60;60m"
+    fi
+    R="\033[0m"
+    printf "${TC}█  █ █▀▀█ █▀▀▄ █▀▀▀ █▀▀█${R}\n"
+    printf "${TC}█  █ █▀▀█ █  █ █ ▀█ █▀▀▄${R}\n"
+    printf "${TC}▀▀▀▀ ▀  ▀ ▀▀▀  ▀▀▀▀ ▀  ▀${R}\n"
     echo ""
 
-    OS=$(detect_os)
     info "Detected OS: $OS"
 
     install_git
@@ -293,12 +303,12 @@ main() {
     add_to_path
 
     echo ""
-    ok "Agent Forge installed successfully!"
+    ok "VADGR installed successfully!"
     echo ""
     ok "To get started:"
     ok "  1. Restart your terminal (or run: source ~/.bashrc)"
     ok "  2. Install a CLI provider (e.g. curl -fsSL https://claude.ai/install.sh | bash)"
-    ok "  3. Run: forge start"
+    ok "  3. Run: vadgr start"
     echo ""
 }
 

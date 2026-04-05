@@ -48,7 +48,7 @@ def follow_run(api_url: str, run_id: str, timeout: float = 600.0):
             api_post(ctx, f"/api/runs/{run_id}/cancel")
             click.echo(f"  Run cancelled.")
         except Exception:
-            click.echo(f"  Could not cancel. Check: forge runs get {run_id}")
+            click.echo(f"  Could not cancel. Check: vadgr runs get {run_id}")
 
 
 async def _stream(ws_url: str, run_id: str, api_url: str, timeout: float):
@@ -120,12 +120,12 @@ async def _stream(ws_url: str, run_id: str, api_url: str, timeout: float):
                     error = data.get("error", "Unknown error")
                     total = format_duration(time.monotonic() - run_start)
                     print_error(f"Run failed ({total}): {error}")
-                    click.echo(f"  View logs: forge runs logs {run_id}")
+                    click.echo(f"  View logs: vadgr runs logs {run_id}")
                     return
 
     except (websockets.exceptions.ConnectionClosed, ConnectionRefusedError, OSError):
         click.echo(f"  Could not connect to run stream. Run continues in background.")
-        click.echo(f"  View logs: forge runs logs {run_id}")
+        click.echo(f"  View logs: vadgr runs logs {run_id}")
 
 
 def _print_step_done(step_label: str, step_start: float | None):

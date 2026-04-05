@@ -1,4 +1,4 @@
-# Agent Forge API
+# Vadgr API
 
 REST + WebSocket backend for agent management, forge generation, and execution. Agent-agnostic and cross-platform: works on Windows, macOS, and Linux with any CLI agent tool.
 

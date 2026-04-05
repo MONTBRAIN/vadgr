@@ -1,4 +1,4 @@
-# Agent Forge Installer for Windows
+# Vadgr Installer for Windows
 # Usage: irm https://raw.githubusercontent.com/MONTBRAIN/Agent-Forge/master/setup.ps1 | iex
 
 $ErrorActionPreference = "Stop"
@@ -12,10 +12,10 @@ $REPO_URL = "https://github.com/MONTBRAIN/Agent-Forge.git"
 # Helpers
 # ---------------------------------------------------------------------------
 
-function Info($msg)  { Write-Host "[forge] $msg" -ForegroundColor Cyan }
-function Ok($msg)    { Write-Host "[forge] $msg" -ForegroundColor Green }
-function Warn($msg)  { Write-Host "[forge] $msg" -ForegroundColor Yellow }
-function Fail($msg)  { Write-Host "[forge] $msg" -ForegroundColor Red; exit 1 }
+function Info($msg)  { Write-Host "[vadgr] $msg" -ForegroundColor Cyan }
+function Ok($msg)    { Write-Host "[vadgr] $msg" -ForegroundColor Green }
+function Warn($msg)  { Write-Host "[vadgr] $msg" -ForegroundColor Yellow }
+function Fail($msg)  { Write-Host "[vadgr] $msg" -ForegroundColor Red; exit 1 }
 
 function CommandExists($cmd) {
     $null -ne (Get-Command $cmd -ErrorAction SilentlyContinue)
@@ -38,6 +38,7 @@ function InstallGit {
     $env:PATH = "$env:ProgramFiles\Git\cmd;$env:PATH"
     if (-not (CommandExists "git")) { Fail "Git installation failed." }
 }
+
 
 function PythonOk {
     $pyCmd = Get-Command python -ErrorAction SilentlyContinue
@@ -78,12 +79,12 @@ function InstallNode {
 }
 
 # ---------------------------------------------------------------------------
-# Setup Agent Forge
+# Setup Vadgr
 # ---------------------------------------------------------------------------
 
 function SetupRepo {
     if (Test-Path "$FORGE_REPO\.git") {
-        Info "Agent Forge repo already exists, pulling latest..."
+        Info "Vadgr repo already exists, pulling latest..."
         & { $ErrorActionPreference = 'SilentlyContinue'; git -C $FORGE_REPO pull --ff-only origin master 2>$null }
         if ($LASTEXITCODE -ne 0) { Warn "Could not pull latest (offline?)" }
         $deleted = git -C $FORGE_REPO diff --name-only --diff-filter=D 2>$null
@@ -93,7 +94,7 @@ function SetupRepo {
             Pop-Location
         }
     } else {
-        Info "Cloning Agent Forge..."
+        Info "Cloning Vadgr..."
         New-Item -ItemType Directory -Force -Path $FORGE_HOME | Out-Null
         git clone $REPO_URL $FORGE_REPO
     }
@@ -121,7 +122,7 @@ function SetupApi {
 }
 
 function SetupForgeScripts {
-    Info "Setting up forge scripts..."
+    Info "Setting up vadgr scripts..."
     EnsureVenv "forge\scripts\.venv" "forge\scripts\requirements.txt"
 }
 
@@ -141,7 +142,7 @@ function SetupFrontend {
 # ---------------------------------------------------------------------------
 
 function GenerateForgeCli {
-    Info "Creating forge CLI..."
+    Info "Creating vadgr CLI..."
     New-Item -ItemType Directory -Force -Path $FORGE_BIN | Out-Null
 
 
@@ -149,21 +150,21 @@ function GenerateForgeCli {
 param([Parameter(ValueFromRemainingArguments)]$Rest)
 $FORGE_REPO = "$env:USERPROFILE\.forge\Agent-Forge"
 $cliPython = "$FORGE_REPO\cli\.venv\Scripts\python.exe"
-if (-not (Test-Path $cliPython)) { Write-Host "[forge] CLI not found. Run setup first." -ForegroundColor Red; exit 1 }
+if (-not (Test-Path $cliPython)) { Write-Host "[vadgr] CLI not found. Run setup first." -ForegroundColor Red; exit 1 }
 $env:PYTHONPATH = $FORGE_REPO
 & $cliPython -m cli @Rest
 '@
 
     # Save as _forge.ps1 (underscore prefix) so PowerShell doesn't resolve it
     # directly when user types "forge". The .bat wrapper calls it with -ExecutionPolicy Bypass.
-    $forgeScript | Out-File -FilePath "$FORGE_BIN\_forge.ps1" -Encoding UTF8
+    $forgeScript | Out-File -FilePath "$FORGE_BIN\_vadgr.ps1" -Encoding UTF8
 
     # Remove old forge.ps1 if present (from previous installs)
-    if (Test-Path "$FORGE_BIN\forge.ps1") { Remove-Item "$FORGE_BIN\forge.ps1" }
+    if (Test-Path "$FORGE_BIN\vadgr.ps1") { Remove-Item "$FORGE_BIN\vadgr.ps1" }
 
     # Batch wrapper — entry point for both cmd.exe and PowerShell
-    $batchWrapper = "@echo off`r`npowershell -ExecutionPolicy Bypass -File `"%USERPROFILE%\.forge\bin\_forge.ps1`" %*"
-    $batchWrapper | Out-File -FilePath "$FORGE_BIN\forge.bat" -Encoding ASCII
+    $batchWrapper = "@echo off`r`npowershell -ExecutionPolicy Bypass -File `"%USERPROFILE%\.forge\bin\_vadgr.ps1`" %*"
+    $batchWrapper | Out-File -FilePath "$FORGE_BIN\vadgr.bat" -Encoding ASCII
 }
 
 # ---------------------------------------------------------------------------
@@ -175,7 +176,7 @@ function AddToPath {
     if ($currentPath -notlike "*$FORGE_BIN*") {
         [Environment]::SetEnvironmentVariable("PATH", "$FORGE_BIN;$currentPath", "User")
         $env:PATH = "$FORGE_BIN;$env:PATH"
-        Info "Added forge to user PATH"
+        Info "Added vadgr to user PATH"
     }
 }
 
@@ -185,11 +186,21 @@ function AddToPath {
 
 function Main {
     Write-Host ""
-    Write-Host "  ___                _     ___"
-    Write-Host " / _ | ___ ____ ___ | |_  / __/__  _______ ____"
-    Write-Host "/ __ |/ _ ``/ -_) _ \| __// _// _ \/ __/ _ ``/ -_)"
-    Write-Host "\/_/ |\_,_/\__, /\___|_\__\/ /_//_/\_ /\_, /\__/"
-    Write-Host "         /___/                       /___/"
+    # Detect dark/light terminal background
+    $LightMode = $false
+    $bgColor = [Console]::BackgroundColor
+    if ($bgColor -eq "White" -or $bgColor -eq "Gray" -or $bgColor -eq "Yellow") {
+        $LightMode = $true
+    }
+    $R = "`e[0m"
+    if (-not $LightMode) {
+        $TC = "`e[1;38;2;200;200;200m"
+    } else {
+        $TC = "`e[1;38;2;60;60;60m"
+    }
+    Write-Host "${TC}█  █ █▀▀█ █▀▀▄ █▀▀▀ █▀▀█${R}"
+    Write-Host "${TC}█  █ █▀▀█ █  █ █ ▀█ █▀▀▄${R}"
+    Write-Host "${TC}▀▀▀▀ ▀  ▀ ▀▀▀  ▀▀▀▀ ▀  ▀${R}"
     Write-Host ""
 
     InstallGit
@@ -204,12 +215,12 @@ function Main {
     AddToPath
 
     Write-Host ""
-    Ok "Agent Forge installed successfully!"
+    Ok "VADGR installed successfully!"
     Write-Host ""
     Ok "To get started:"
     Ok "  1. Restart your terminal"
     Ok "  2. Install a CLI provider (e.g. irm https://claude.ai/install.ps1 | iex)"
-    Ok "  3. Run: forge start"
+    Ok "  3. Run: vadgr start"
     Write-Host ""
 }
 

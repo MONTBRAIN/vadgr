@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-60 -60 460 340" fill="none">
+  <text x="200" y="120" text-anchor="middle" font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif" font-size="72" font-weight="900" fill="#FFFFFF" letter-spacing="2">VADGR</text>
+  <rect x="100" y="195" width="205" height="44" rx="6" fill="#007ec6"/>
+  <rect x="100" y="195" width="82" height="44" rx="6" fill="#555555"/>
+  <text x="141" y="223" text-anchor="middle" font-family="'Verdana', 'DejaVu Sans', sans-serif" font-size="16" font-weight="700" fill="#FFFFFF">License</text>
+  <text x="243" y="223" text-anchor="middle" font-family="'Verdana', 'DejaVu Sans', sans-serif" font-size="16" font-weight="700" fill="#FFFFFF">Apache 2.0</text>
+</svg>

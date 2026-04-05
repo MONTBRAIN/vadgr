@@ -110,7 +110,7 @@ def create_app(db: Optional[Database] = None) -> FastAPI:
         if not db:
             await app.state.db.disconnect()
 
-    app = FastAPI(title="Agent Forge API", version=settings.version, lifespan=lifespan)
+    app = FastAPI(title="Vadgr API", version=settings.version, lifespan=lifespan)
 
     app.add_middleware(
         CORSMiddleware,

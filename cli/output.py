@@ -84,19 +84,19 @@ def _styled(markup: str) -> str:
 
 
 def print_success(msg: str):
-    click.echo(_styled(f"[pale_green3]\\[forge][/] {msg}"), nl=False)
+    click.echo(_styled(f"[pale_green3]\\[vadgr][/] {msg}"), nl=False)
 
 
 def print_info(msg: str):
-    click.echo(_styled(f"[light_sky_blue1]\\[forge][/] {msg}"), nl=False)
+    click.echo(_styled(f"[light_sky_blue1]\\[vadgr][/] {msg}"), nl=False)
 
 
 def print_warning(msg: str):
-    click.echo(_styled(f"[khaki1]\\[forge][/] {msg}"), nl=False)
+    click.echo(_styled(f"[khaki1]\\[vadgr][/] {msg}"), nl=False)
 
 
 def print_error(msg: str):
-    click.echo(_styled(f"[indian_red1]\\[forge][/] {msg}"), nl=False)
+    click.echo(_styled(f"[indian_red1]\\[vadgr][/] {msg}"), nl=False)
 
 
 def format_duration(seconds: float) -> str:
