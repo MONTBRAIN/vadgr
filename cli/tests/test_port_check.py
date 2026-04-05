@@ -82,6 +82,35 @@ class TestStartPortCheck:
         assert "8001" in result.output
 
 
+class TestPortFileIO:
+    """Port files persist the actual port so other commands can discover it."""
+
+    def test_write_and_read_port(self, tmp_forge):
+        from cli.commands.service import _write_port, _read_active_port, _write_pid, PID_DIR
+        import os
+
+        # Write a PID and port
+        _write_pid("api", os.getpid())  # current process is alive
+        _write_port("api", 8001)
+
+        assert _read_active_port("api", 8000) == 8001
+
+    def test_returns_default_when_no_port_file(self, tmp_forge):
+        from cli.commands.service import _read_active_port
+        assert _read_active_port("api", 8000) == 8000
+
+    def test_returns_default_when_pid_is_stale(self, tmp_forge):
+        from cli.commands.service import _write_port, _write_pid, _read_active_port, PID_DIR
+
+        # Write a dead PID and port
+        _write_pid("api", 99999999)  # unlikely to be alive
+        _write_port("api", 8001)
+
+        # Should detect stale PID, clean up, return default
+        assert _read_active_port("api", 8000) == 8000
+        assert not (PID_DIR / "api.port").exists()
+
+
 class TestStopWithStalePort:
     def test_stop_kills_by_port_when_pid_stale(self, tmp_forge, monkeypatch):
         from cli.commands.service import stop, PID_DIR

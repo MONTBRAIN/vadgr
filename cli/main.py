@@ -21,16 +21,26 @@ from cli.commands.registry import registry_group
 from cli.commands.runs import runs_group
 from cli.commands.service import start, stop, restart, status, logs, update, api_only
 
-_DEFAULT_API_URL = f"http://127.0.0.1:{os.environ.get('AGENT_FORGE_PORT', '8000')}"
+_DEFAULT_API_PORT = os.environ.get("AGENT_FORGE_PORT", "8000")
+
+
+def _resolve_api_url() -> str:
+    """Determine the API URL by checking port files first, then env/defaults."""
+    try:
+        from cli.commands.service import _read_active_port
+        port = _read_active_port("api", int(_DEFAULT_API_PORT))
+    except Exception:
+        port = int(_DEFAULT_API_PORT)
+    return f"http://127.0.0.1:{port}"
 
 
 @click.group()
-@click.option("--api-url", default=_DEFAULT_API_URL, envvar="FORGE_API_URL", hidden=True)
+@click.option("--api-url", default=None, envvar="FORGE_API_URL", hidden=True)
 @click.pass_context
-def cli(ctx, api_url: str):
+def cli(ctx, api_url: str | None):
     """vadgr CLI."""
     ctx.ensure_object(dict)
-    ctx.obj["api_url"] = api_url
+    ctx.obj["api_url"] = api_url or _resolve_api_url()
 
 
 # Command groups
