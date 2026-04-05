@@ -27,12 +27,14 @@ CU_VENV_DIR = PROJECT_ROOT / "computer_use" / ".venv"
 CU_REQUIREMENTS = PROJECT_ROOT / "computer_use" / "requirements.txt"
 DEPS_MARKER = ".deps_installed"
 
-# Regex to strip [mcp_servers.computer-use] and [mcp_servers.computer-use.env]
-# blocks from a TOML file.  A TOML section header is a '[' at the start of a
-# line, so we match everything until the next section header or EOF.
+# MCP server name -- prefixed with "vadgr-" to avoid conflicts with CLI
+# built-in names (e.g. Claude Code blocks the bare name "computer-use").
+MCP_SERVER_NAME = "vadgr-computer-use"
+
+# Regex to strip the MCP section from TOML (Codex config).
 import re
 _CODEX_MCP_SECTION_RE = re.compile(
-    r'\n?\[mcp_servers\.computer-use(?:\.env)?\]\n(?:(?!\n\[)[^\n]*\n?)*',
+    r'\n?\[mcp_servers\.vadgr-computer-use(?:\.env)?\]\n(?:(?!\n\[)[^\n]*\n?)*',
 )
 
 
@@ -59,7 +61,8 @@ def _mcp_json_content(cache_enabled: bool = True) -> dict:
         env["AGENT_FORGE_CACHE_ENABLED"] = "0"
     return {
         "mcpServers": {
-            "computer-use": {
+            MCP_SERVER_NAME: {
+                "type": "stdio",
                 "command": _cu_venv_python(),
                 "args": ["-m", "computer_use.mcp_server", "--transport", "stdio"],
                 "cwd": str(PROJECT_ROOT),
@@ -86,7 +89,7 @@ def _gemini_settings_content(cache_enabled: bool = True) -> dict:
 
 
 def _codex_mcp_section(cache_enabled: bool = True) -> str:
-    """Build the [mcp_servers.computer-use] TOML section for Codex.
+    """Build the [mcp_servers.vadgr-computer-use] TOML section for Codex.
 
     Uses TOML literal strings (single quotes) for paths so that Windows
     backslashes are treated as literal characters, not escape sequences.
@@ -94,12 +97,12 @@ def _codex_mcp_section(cache_enabled: bool = True) -> str:
     python = _cu_venv_python()
     cwd = str(PROJECT_ROOT)
     lines = [
-        '[mcp_servers.computer-use]',
+        f'[mcp_servers.{MCP_SERVER_NAME}]',
         f"command = '{python}'",
         'args = ["-m", "computer_use.mcp_server", "--transport", "stdio"]',
         f"cwd = '{cwd}'",
         '',
-        '[mcp_servers.computer-use.env]',
+        f'[mcp_servers.{MCP_SERVER_NAME}.env]',
         'AGENT_FORGE_DEBUG = "1"',
         f'PYTHONPATH = "{cwd}"',
     ]
@@ -110,9 +113,9 @@ def _codex_mcp_section(cache_enabled: bool = True) -> str:
 
 
 def _write_codex_global_config(cache_enabled: bool = True) -> None:
-    """Merge computer-use MCP section into ~/.codex/config.toml.
+    """Merge vadgr-computer-use MCP section into ~/.codex/config.toml.
 
-    Reads existing content, strips any previous computer-use section,
+    Reads existing content, strips any previous section,
     then appends the new one. Preserves all other Codex settings.
     """
     CODEX_GLOBAL_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -132,7 +135,7 @@ def _write_codex_global_config(cache_enabled: bool = True) -> None:
 
 
 def _remove_codex_mcp_section() -> None:
-    """Remove only the computer-use MCP section from ~/.codex/config.toml."""
+    """Remove the vadgr-computer-use MCP section from ~/.codex/config.toml."""
     if not CODEX_GLOBAL_CONFIG_PATH.exists():
         return
     existing = CODEX_GLOBAL_CONFIG_PATH.read_text()
@@ -351,7 +354,7 @@ def get_status() -> dict:
     if mcp_exists:
         try:
             data = json.loads(MCP_JSON_PATH.read_text())
-            cu_server = data.get("mcpServers", {}).get("computer-use")
+            cu_server = data.get("mcpServers", {}).get(MCP_SERVER_NAME)
             enabled = cu_server is not None
             if cu_server:
                 env = cu_server.get("env", {})
