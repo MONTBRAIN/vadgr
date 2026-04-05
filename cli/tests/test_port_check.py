@@ -48,15 +48,38 @@ class TestKillPort:
         assert len(calls) > 0
 
 
+class TestFindFreePort:
+    def test_returns_default_when_free(self):
+        from cli.commands.service import _find_free_port
+        # Port 59990 should be free
+        assert _find_free_port(59990) == 59990
+
+    def test_increments_when_busy(self, monkeypatch):
+        from cli.commands.service import _find_free_port
+        busy = {8000, 8001, 8002}
+        monkeypatch.setattr("cli.commands.service._port_in_use", lambda p: p in busy)
+        assert _find_free_port(8000) == 8003
+
+    def test_returns_none_after_max_attempts(self, monkeypatch):
+        from cli.commands.service import _find_free_port
+        monkeypatch.setattr("cli.commands.service._port_in_use", lambda p: True)
+        assert _find_free_port(8000, max_attempts=5) is None
+
+
 class TestStartPortCheck:
-    def test_start_fails_if_api_port_busy(self, runner, tmp_forge, monkeypatch):
+    def test_start_uses_next_free_port_when_busy(self, runner, tmp_forge, monkeypatch):
+        """Issue #84: start should find a free port instead of blocking."""
         from cli.commands.service import start
         from click.testing import CliRunner
-        monkeypatch.setattr("cli.commands.service._port_in_use", lambda p: p == 8000)
+        busy = {8000}
+        monkeypatch.setattr("cli.commands.service._port_in_use", lambda p: p in busy)
+        monkeypatch.setattr("cli.commands.service._wait_for_api", lambda p, **kw: True)
+        monkeypatch.setattr("cli.commands.service._find_npm", lambda: None)
+        monkeypatch.setattr("subprocess.Popen", mock.MagicMock(return_value=mock.MagicMock(poll=lambda: None, pid=123)))
         runner = CliRunner()
         result = runner.invoke(start)
-        assert result.exit_code != 0
-        assert "already in use" in result.output.lower() or result.exit_code != 0
+        assert result.exit_code == 0
+        assert "8001" in result.output
 
 
 class TestStopWithStalePort:
