@@ -292,6 +292,36 @@ class TestComputerUseSetupService:
             assert cu_setup._python_command() == "python3"
 
 
+class TestMcpServerName:
+    """MCP server names must be prefixed with 'vadgr-' to avoid conflicts with CLI built-in names."""
+
+    def test_mcp_json_uses_prefixed_name(self):
+        content = cu_setup._mcp_json_content()
+        servers = content["mcpServers"]
+        assert "vadgr-computer-use" in servers
+        assert "computer-use" not in servers
+
+    def test_mcp_json_has_type_stdio(self):
+        content = cu_setup._mcp_json_content()
+        server = content["mcpServers"]["vadgr-computer-use"]
+        assert server["type"] == "stdio"
+
+    def test_get_status_reads_prefixed_name(self, tmp_path):
+        import json
+        mcp_path = tmp_path / ".mcp.json"
+        mcp_path.write_text(json.dumps({
+            "mcpServers": {"vadgr-computer-use": {"type": "stdio", "command": "python", "env": {}}}
+        }))
+        with patch.object(cu_setup, "MCP_JSON_PATH", mcp_path):
+            status = cu_setup.get_status()
+            assert status["enabled"] is True
+
+    def test_codex_section_uses_prefixed_name(self):
+        section = cu_setup._codex_mcp_section()
+        assert "[mcp_servers.vadgr-computer-use]" in section
+        assert "[mcp_servers.computer-use]" not in section
+
+
 class TestMultiProviderMcpConfig:
     """Tests for Gemini and Codex MCP config file generation."""
 
