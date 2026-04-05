@@ -73,6 +73,27 @@ def _write_pid(service: str, pid: int):
     (PID_DIR / f"{service}.pid").write_text(str(pid))
 
 
+def _write_port(service: str, port: int):
+    PID_DIR.mkdir(parents=True, exist_ok=True)
+    (PID_DIR / f"{service}.port").write_text(str(port))
+
+
+def _read_active_port(service: str, default: int) -> int:
+    """Read the port for a running service, falling back to default if stale or missing."""
+    portfile = PID_DIR / f"{service}.port"
+    if not portfile.exists():
+        return default
+    text = portfile.read_text().strip()
+    if not text.isdigit():
+        portfile.unlink(missing_ok=True)
+        return default
+    # Only trust the port if the service PID is still alive
+    if _read_pid(service) is None:
+        portfile.unlink(missing_ok=True)
+        return default
+    return int(text)
+
+
 def _kill_tree(pid: int):
     if sys.platform == "win32":
         subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"],
@@ -276,11 +297,13 @@ def start(api_port, frontend_port):
         **_session_kwargs(),
     )
     _write_pid("api", api_proc.pid)
+    _write_port("api", api_port)
 
     time.sleep(1)
     if api_proc.poll() is not None:
         print_warning(f"API process died. Port {api_port} may be in use. Check {FORGE_HOME / 'api.log'}")
         (PID_DIR / "api.pid").unlink(missing_ok=True)
+        (PID_DIR / "api.port").unlink(missing_ok=True)
         raise SystemExit(1)
 
     if not _wait_for_api(api_port):
@@ -303,6 +326,7 @@ def start(api_port, frontend_port):
         **_session_kwargs(),
     )
     _write_pid("frontend", fe_proc.pid)
+    _write_port("frontend", frontend_port)
 
     actual_fe = _detect_frontend_port(FORGE_HOME / "frontend.log", frontend_port)
 
@@ -322,8 +346,8 @@ def start(api_port, frontend_port):
 @click.command()
 def stop():
     """Stop all services."""
-    api_port = _default_port("AGENT_FORGE_PORT", 8000)
-    frontend_port = _default_port("AGENT_FORGE_FRONTEND_PORT", 3000)
+    api_port = _read_active_port("api", _default_port("AGENT_FORGE_PORT", 8000))
+    frontend_port = _read_active_port("frontend", _default_port("AGENT_FORGE_FRONTEND_PORT", 3000))
     service_ports = {"api": api_port, "frontend": frontend_port}
 
     stopped = False
@@ -333,11 +357,13 @@ def stop():
             _kill_tree(pid)
             print_info(f"Stopped {service} (PID {pid})")
             (PID_DIR / f"{service}.pid").unlink(missing_ok=True)
+            (PID_DIR / f"{service}.port").unlink(missing_ok=True)
             stopped = True
         elif _port_in_use(service_ports[service]):
             _kill_port(service_ports[service])
             print_info(f"Stopped {service} on port {service_ports[service]}")
             (PID_DIR / f"{service}.pid").unlink(missing_ok=True)
+            (PID_DIR / f"{service}.port").unlink(missing_ok=True)
             stopped = True
     if not stopped:
         print_warning("vadgr is not running.")
@@ -470,7 +496,7 @@ def api_only(port):
             raise SystemExit(1)
         print_info(f"Port {original} busy, using {port}")
 
-    env = _build_env(port, 3000)
+    env = _build_env(port, _default_port("AGENT_FORGE_FRONTEND_PORT", 3000))
     print_info(f"Starting API server (port {port})...")
 
     api_log = open(FORGE_HOME / "api.log", "w")
@@ -482,6 +508,7 @@ def api_only(port):
         **_session_kwargs(),
     )
     _write_pid("api", api_proc.pid)
+    _write_port("api", port)
 
     if _wait_for_api(port):
         print_success(f"API is running at http://localhost:{port}")

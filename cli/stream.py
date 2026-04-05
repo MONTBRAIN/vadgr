@@ -148,16 +148,16 @@ def _get_frontend_port() -> int | None:
     import os
     import urllib.request
 
-    port = int(os.environ.get("AGENT_FORGE_FRONTEND_PORT", "3000"))
+    # Read from port file first (set by vadgr start)
+    try:
+        from cli.commands.service import _read_active_port
+        port = _read_active_port("frontend", int(os.environ.get("AGENT_FORGE_FRONTEND_PORT", "3000")))
+    except Exception:
+        port = int(os.environ.get("AGENT_FORGE_FRONTEND_PORT", "3000"))
+
     try:
         urllib.request.urlopen(f"http://localhost:{port}", timeout=1)
         return port
     except Exception:
         pass
-    for p in (3000, 3001, 3002, 3003):
-        try:
-            urllib.request.urlopen(f"http://localhost:{p}", timeout=1)
-            return p
-        except Exception:
-            continue
     return None
