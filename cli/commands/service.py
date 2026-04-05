@@ -105,6 +105,15 @@ def _port_in_use(port: int) -> bool:
     return False
 
 
+def _find_free_port(default: int, max_attempts: int = 20) -> int | None:
+    """Find a free port starting from *default*, incrementing on conflict."""
+    for offset in range(max_attempts):
+        candidate = default + offset
+        if not _port_in_use(candidate):
+            return candidate
+    return None
+
+
 def _kill_port(port: int):
     if sys.platform == "win32":
         subprocess.run(["powershell", "-Command",
@@ -237,9 +246,22 @@ def start(api_port, frontend_port):
         print_warning("vadgr is already running. Use 'vadgr stop' first.")
         raise SystemExit(1)
 
+    # Find free ports, auto-incrementing if default is busy
     if _port_in_use(api_port):
-        print_warning(f"Port {api_port} is already in use. Stop the existing process first.")
-        raise SystemExit(1)
+        original = api_port
+        api_port = _find_free_port(api_port)
+        if api_port is None:
+            print_warning(f"No free port found starting from {original}.")
+            raise SystemExit(1)
+        print_info(f"Port {original} busy, using {api_port}")
+
+    if _port_in_use(frontend_port):
+        original = frontend_port
+        frontend_port = _find_free_port(frontend_port)
+        if frontend_port is None:
+            print_warning(f"No free port found starting from {original}.")
+            raise SystemExit(1)
+        print_info(f"Port {original} busy, using {frontend_port}")
 
     env = _build_env(api_port, frontend_port)
 
@@ -439,6 +461,14 @@ def api_only(port):
     if _read_pid("api"):
         print_warning("API is already running. Use 'vadgr stop' first.")
         raise SystemExit(1)
+
+    if _port_in_use(port):
+        original = port
+        port = _find_free_port(port)
+        if port is None:
+            print_warning(f"No free port found starting from {original}.")
+            raise SystemExit(1)
+        print_info(f"Port {original} busy, using {port}")
 
     env = _build_env(port, 3000)
     print_info(f"Starting API server (port {port})...")
