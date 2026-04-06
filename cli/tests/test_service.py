@@ -163,8 +163,10 @@ class TestStop:
         assert result.exit_code == 0
         assert "Stopped" in result.output
 
-    def test_not_running(self, runner, tmp_forge):
+    def test_not_running(self, runner, tmp_forge, monkeypatch):
         from cli.commands.service import stop
+        # Prevent the stop command from detecting (and killing) real services
+        monkeypatch.setattr("cli.commands.service._port_in_use", lambda port: False)
         result = runner.invoke(stop)
         assert "not running" in result.output
 
