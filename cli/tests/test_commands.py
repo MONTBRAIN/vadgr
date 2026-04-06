@@ -153,39 +153,103 @@ class TestRunsList:
             m.assert_called_once_with(mock.ANY, "/api/runs?status=failed")
 
 
+_RUN_FULL_ID = "abcd1234-5678-9012-3456-789012345678"
+_RUN_PARTIAL_ID = "abcd1234"
+_RUN_DETAIL = {
+    "id": _RUN_FULL_ID, "agent_name": "my-agent", "status": "completed",
+    "provider": "claude_code", "model": "opus", "duration": 30.5,
+    "created_at": "2026-03-27T10:00:00", "steps": [],
+}
+_RUN_LIST = [{"id": _RUN_FULL_ID, "agent_name": "my-agent", "status": "completed", "duration": 30.5}]
+
+
+def _mock_runs_get(ctx, path):
+    if path == "/api/runs":
+        return _RUN_LIST
+    if path == f"/api/runs/{_RUN_FULL_ID}":
+        return _RUN_DETAIL
+    if path == f"/api/runs/{_RUN_FULL_ID}/logs":
+        return [{"timestamp": "10:00:01", "type": "agent_log", "message": "Starting step 1"}]
+    return None
+
+
 class TestRunsGet:
     def test_shows_detail(self, runner):
         from cli.commands.runs import runs_group
-        with mock.patch("cli.commands.runs.api_get") as m:
-            m.return_value = {
-                "id": "run-1", "agent_name": "my-agent", "status": "completed",
-                "provider": "claude_code", "model": "opus", "duration": 30.5,
-                "created_at": "2026-03-27T10:00:00",
-                "steps": [{"name": "Step 1", "status": "completed"}],
-            }
+        _detail = {
+            "id": "run-1", "agent_name": "my-agent", "status": "completed",
+            "provider": "claude_code", "model": "opus", "duration": 30.5,
+            "created_at": "2026-03-27T10:00:00",
+            "steps": [{"name": "Step 1", "status": "completed"}],
+        }
+        def _side(ctx, path):
+            if path == "/api/runs":
+                return [{"id": "run-1", "agent_name": "my-agent", "status": "completed", "duration": 30.5}]
+            return _detail
+        with mock.patch("cli.commands.runs.api_get", side_effect=_side):
             result = runner.invoke(runs_group, ["get", "run-1"], obj={"api_url": "http://x"})
             assert result.exit_code == 0
             assert "run-1" in result.output
+
+    def test_resolves_partial_id(self, runner):
+        from cli.commands.runs import runs_group
+        with mock.patch("cli.commands.runs.api_get", side_effect=_mock_runs_get):
+            result = runner.invoke(runs_group, ["get", _RUN_PARTIAL_ID], obj={"api_url": "http://x"})
+            assert result.exit_code == 0
+            assert _RUN_FULL_ID in result.output
 
 
 class TestRunsCancel:
     def test_cancels(self, runner):
         from cli.commands.runs import runs_group
-        with mock.patch("cli.commands.runs.api_post") as m:
+        with mock.patch("cli.commands.runs.api_get") as mg, \
+             mock.patch("cli.commands.runs.api_post") as m:
+            mg.return_value = [{"id": "run-1", "agent_name": "my-agent", "status": "running", "duration": 0}]
             m.return_value = {"status": "cancelled"}
             result = runner.invoke(runs_group, ["cancel", "run-1"], obj={"api_url": "http://x"})
             assert result.exit_code == 0
             assert "Cancelled" in result.output or "cancelled" in result.output
 
+    def test_cancel_resolves_partial_id(self, runner):
+        from cli.commands.runs import runs_group
+        with mock.patch("cli.commands.runs.api_get", side_effect=_mock_runs_get), \
+             mock.patch("cli.commands.runs.api_post") as mp:
+            mp.return_value = {"status": "cancelled"}
+            result = runner.invoke(runs_group, ["cancel", _RUN_PARTIAL_ID], obj={"api_url": "http://x"})
+            assert result.exit_code == 0
+            mp.assert_called_once_with(mock.ANY, f"/api/runs/{_RUN_FULL_ID}/cancel")
+
+
+class TestRunsApprove:
+    def test_approve_resolves_partial_id(self, runner):
+        from cli.commands.runs import runs_group
+        with mock.patch("cli.commands.runs.api_get", side_effect=_mock_runs_get), \
+             mock.patch("cli.commands.runs.api_post") as mp:
+            mp.return_value = {"status": "approved"}
+            result = runner.invoke(runs_group, ["approve", _RUN_PARTIAL_ID], obj={"api_url": "http://x"})
+            assert result.exit_code == 0
+            mp.assert_called_once_with(mock.ANY, f"/api/runs/{_RUN_FULL_ID}/approve")
+
 
 class TestRunsLogs:
     def test_shows_logs(self, runner):
         from cli.commands.runs import runs_group
-        with mock.patch("cli.commands.runs.api_get") as m:
-            m.return_value = [
-                {"timestamp": "10:00:01", "type": "agent_log", "message": "Starting step 1"},
-                {"timestamp": "10:00:05", "type": "agent_log", "message": "Done"},
-            ]
+        _logs = [
+            {"timestamp": "10:00:01", "type": "agent_log", "message": "Starting step 1"},
+            {"timestamp": "10:00:05", "type": "agent_log", "message": "Done"},
+        ]
+        def _side(ctx, path):
+            if path == "/api/runs":
+                return [{"id": "run-1", "agent_name": "my-agent", "status": "completed", "duration": 10.0}]
+            return _logs
+        with mock.patch("cli.commands.runs.api_get", side_effect=_side):
             result = runner.invoke(runs_group, ["logs", "run-1"], obj={"api_url": "http://x"})
+            assert result.exit_code == 0
+            assert "Starting step 1" in result.output
+
+    def test_logs_resolves_partial_id(self, runner):
+        from cli.commands.runs import runs_group
+        with mock.patch("cli.commands.runs.api_get", side_effect=_mock_runs_get):
+            result = runner.invoke(runs_group, ["logs", _RUN_PARTIAL_ID], obj={"api_url": "http://x"})
             assert result.exit_code == 0
             assert "Starting step 1" in result.output
