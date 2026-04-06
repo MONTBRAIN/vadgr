@@ -44,8 +44,7 @@ def list_runs(ctx, status: str | None):
 @click.pass_context
 def get_run(ctx, run_id: str):
     """Show run details."""
-    if not run_id:
-        raise click.ClickException("Run ID is required.")
+    run_id = _resolve_run_id(ctx, run_id)
     data = api_get(ctx, f"/api/runs/{run_id}")
     if not isinstance(data, dict):
         raise click.ClickException(f"Run '{run_id}' not found.")
@@ -73,6 +72,7 @@ def get_run(ctx, run_id: str):
 @click.pass_context
 def cancel_run(ctx, run_id: str):
     """Cancel a running run."""
+    run_id = _resolve_run_id(ctx, run_id)
     api_post(ctx, f"/api/runs/{run_id}/cancel")
     print_success(f"Cancelled run {run_id}")
 
@@ -82,6 +82,7 @@ def cancel_run(ctx, run_id: str):
 @click.pass_context
 def approve_run(ctx, run_id: str):
     """Approve a run waiting at an approval gate."""
+    run_id = _resolve_run_id(ctx, run_id)
     api_post(ctx, f"/api/runs/{run_id}/approve")
     print_success(f"Approved run {run_id}")
 
@@ -91,6 +92,7 @@ def approve_run(ctx, run_id: str):
 @click.pass_context
 def run_logs(ctx, run_id: str):
     """Show run logs."""
+    run_id = _resolve_run_id(ctx, run_id)
     data = api_get(ctx, f"/api/runs/{run_id}/logs")
     if not data:
         print_warning("No logs yet.")
@@ -100,3 +102,16 @@ def run_logs(ctx, run_id: str):
         ts = entry.get("timestamp", "")
         msg = entry.get("message", entry.get("data", ""))
         click.echo(f"[{ts}] {msg}")
+
+
+def _resolve_run_id(ctx, run_id: str) -> str:
+    """Resolve a partial run ID to a full UUID."""
+    if not run_id:
+        raise click.ClickException("Run ID is required.")
+    runs = api_get(ctx, "/api/runs")
+    if not runs:
+        raise click.ClickException("No runs found.")
+    for r in runs:
+        if r["id"] == run_id or r["id"].startswith(run_id):
+            return r["id"]
+    raise click.ClickException(f"No run matching '{run_id}' found.")
