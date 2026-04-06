@@ -3,10 +3,13 @@
 from pathlib import Path
 from unittest import mock
 import os
+import sys
 
 import click
 from click.testing import CliRunner
 import pytest
+
+_IS_WINDOWS = sys.platform == "win32"
 
 
 @pytest.fixture
@@ -16,15 +19,19 @@ def runner():
 
 @pytest.fixture
 def tmp_forge(tmp_path, monkeypatch):
-    """Set up fake FORGE_HOME structure."""
+    """Set up fake FORGE_HOME structure with platform-appropriate venv layout."""
     import cli.commands.service as svc
     forge_home = tmp_path / ".forge"
     forge_repo = forge_home / "Agent-Forge"
     pid_dir = forge_home / "pids"
     forge_repo.mkdir(parents=True)
     pid_dir.mkdir(parents=True)
-    (forge_repo / "api" / ".venv" / "bin").mkdir(parents=True)
-    (forge_repo / "api" / ".venv" / "bin" / "python").write_text("#!/bin/sh")
+    if _IS_WINDOWS:
+        (forge_repo / "api" / ".venv" / "Scripts").mkdir(parents=True)
+        (forge_repo / "api" / ".venv" / "Scripts" / "python.exe").write_text("")
+    else:
+        (forge_repo / "api" / ".venv" / "bin").mkdir(parents=True)
+        (forge_repo / "api" / ".venv" / "bin" / "python").write_text("#!/bin/sh")
     (forge_repo / "frontend").mkdir(parents=True)
 
     monkeypatch.setattr(svc, "FORGE_HOME", forge_home)
@@ -40,14 +47,16 @@ class TestReadPid:
 
     def test_returns_pid_when_alive(self, tmp_forge, monkeypatch):
         from cli.commands.service import _read_pid, PID_DIR
+        import cli.commands.service as svc
         (PID_DIR / "api.pid").write_text("12345")
-        monkeypatch.setattr(os, "kill", lambda pid, sig: None)
+        monkeypatch.setattr(svc, "_pid_alive", lambda pid: True)
         assert _read_pid("api") == 12345
 
     def test_returns_none_for_stale_pid(self, tmp_forge, monkeypatch):
         from cli.commands.service import _read_pid, PID_DIR
+        import cli.commands.service as svc
         (PID_DIR / "api.pid").write_text("99999")
-        monkeypatch.setattr(os, "kill", mock.Mock(side_effect=ProcessLookupError))
+        monkeypatch.setattr(svc, "_pid_alive", lambda pid: False)
         assert _read_pid("api") is None
         assert not (PID_DIR / "api.pid").exists()
 
@@ -55,12 +64,20 @@ class TestReadPid:
 class TestKillTree:
     def test_kills_parent(self, monkeypatch):
         from cli.commands.service import _kill_tree
-        killed = []
-        monkeypatch.setattr("subprocess.run", lambda *a, **kw: mock.Mock(stdout="", returncode=1))
-        monkeypatch.setattr(os, "kill", lambda pid, sig: killed.append(pid))
-        _kill_tree(1234)
-        assert 1234 in killed
+        if _IS_WINDOWS:
+            # On Windows, _kill_tree calls taskkill /PID <pid> /T /F
+            calls = []
+            monkeypatch.setattr("subprocess.run", lambda *a, **kw: calls.append(a[0]) or mock.Mock(stdout="", returncode=0))
+            _kill_tree(1234)
+            assert any("1234" in str(c) for c in calls)
+        else:
+            killed = []
+            monkeypatch.setattr("subprocess.run", lambda *a, **kw: mock.Mock(stdout="", returncode=1))
+            monkeypatch.setattr(os, "kill", lambda pid, sig: killed.append(pid))
+            _kill_tree(1234)
+            assert 1234 in killed
 
+    @pytest.mark.skipif(_IS_WINDOWS, reason="Windows _kill_tree uses taskkill /T which kills the whole tree in one call")
     def test_kills_children_first(self, monkeypatch):
         from cli.commands.service import _kill_tree
         killed = []
@@ -153,11 +170,12 @@ class TestWaitForApi:
 
 class TestStop:
     def test_stops_running_services(self, runner, tmp_forge, monkeypatch):
+        import cli.commands.service as svc
         from cli.commands.service import stop, PID_DIR
         (PID_DIR / "api.pid").write_text("111")
         (PID_DIR / "frontend.pid").write_text("222")
-        monkeypatch.setattr(os, "kill", lambda pid, sig: None)
-        monkeypatch.setattr("cli.commands.service._kill_tree", lambda pid: None)
+        monkeypatch.setattr(svc, "_pid_alive", lambda pid: True)
+        monkeypatch.setattr(svc, "_kill_tree", lambda pid: None)
 
         result = runner.invoke(stop)
         assert result.exit_code == 0
@@ -173,10 +191,11 @@ class TestStop:
 
 class TestStatus:
     def test_shows_running(self, runner, tmp_forge, monkeypatch):
+        import cli.commands.service as svc
         from cli.commands.service import status, PID_DIR
         (PID_DIR / "api.pid").write_text("111")
         (PID_DIR / "frontend.pid").write_text("222")
-        monkeypatch.setattr(os, "kill", lambda pid, sig: None)
+        monkeypatch.setattr(svc, "_pid_alive", lambda pid: True)
 
         result = runner.invoke(status)
         assert result.exit_code == 0
