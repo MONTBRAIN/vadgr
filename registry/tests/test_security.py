@@ -55,7 +55,10 @@ class TestZipSlip:
 
         dest = tmp_path / "output"
         with zipfile.ZipFile(zip_path, "r") as zf:
-            with pytest.raises(ValueError, match="absolute path"):
+            # On Unix, caught as "absolute path". On Windows, /etc is not
+            # absolute (no drive letter) so it falls through to the escape
+            # check: "escapes target directory".
+            with pytest.raises(ValueError, match="absolute path|escapes target directory"):
                 safe_extract(zf, dest)
 
     def test_blocks_dotdot_in_middle(self, tmp_path):
@@ -315,7 +318,10 @@ class TestLocalPathValidation:
     def test_blocks_symlink_escape(self, tmp_path):
         """Symlink that resolves outside root must be rejected."""
         link = tmp_path / "evil_link"
-        link.symlink_to("/etc")
+        try:
+            link.symlink_to("/etc")
+        except OSError:
+            pytest.skip("Symlink creation requires elevated privileges on Windows")
         with pytest.raises(ValueError, match="Path traversal"):
             validate_local_path(Path("evil_link/passwd"), tmp_path)
 

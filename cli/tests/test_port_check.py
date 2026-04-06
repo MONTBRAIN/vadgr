@@ -134,14 +134,19 @@ def runner():
 
 @pytest.fixture
 def tmp_forge(tmp_path, monkeypatch):
+    import sys
     import cli.commands.service as svc
     forge_home = tmp_path / ".forge"
     pid_dir = forge_home / "pids"
     forge_repo = tmp_path / "Agent-Forge"
     pid_dir.mkdir(parents=True)
     forge_repo.mkdir(parents=True)
-    (forge_repo / "api" / ".venv" / "bin").mkdir(parents=True)
-    (forge_repo / "api" / ".venv" / "bin" / "python").write_text("#!/bin/sh")
+    if sys.platform == "win32":
+        (forge_repo / "api" / ".venv" / "Scripts").mkdir(parents=True)
+        (forge_repo / "api" / ".venv" / "Scripts" / "python.exe").write_text("")
+    else:
+        (forge_repo / "api" / ".venv" / "bin").mkdir(parents=True)
+        (forge_repo / "api" / ".venv" / "bin" / "python").write_text("#!/bin/sh")
     monkeypatch.setattr(svc, "FORGE_HOME", forge_home)
     monkeypatch.setattr(svc, "FORGE_REPO", forge_repo)
     monkeypatch.setattr(svc, "PID_DIR", pid_dir)
