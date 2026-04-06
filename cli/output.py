@@ -79,7 +79,7 @@ def print_kv(pairs: list[tuple[str, str]]):
 
 def _styled(markup: str) -> str:
     buf = StringIO()
-    Console(file=buf, highlight=False, force_terminal=True).print(markup)
+    Console(file=buf, highlight=False, force_terminal=True, width=200).print(markup)
     return buf.getvalue()
 
 
