@@ -2,7 +2,7 @@
 
 import pytest
 
-from cli.output import format_table, format_status, render_table, print_kv, format_duration
+from cli.output import format_table, format_status, render_table, print_kv, format_duration, _styled
 
 
 class TestFormatTable:
@@ -74,3 +74,19 @@ class TestPrintKV:
         print_kv([])
         out = capsys.readouterr().out
         assert out == "" or out.strip() == ""
+
+
+class TestStyled:
+    def test_no_wrap_under_200_chars(self):
+        # Reproduce the bug: a message ~81 characters long must not be split across lines.
+        # e.g. "[vadgr] qa-engineer imported and ready (ID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)"
+        msg = "qa-engineer imported and ready (ID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)"
+        markup = f"[pale_green3]\\[vadgr][/] {msg}"
+        result = _styled(markup)
+        # Strip ANSI/Rich escape sequences: count non-empty lines in the output.
+        # With the bug, Rich wraps after column 80 producing 2+ lines.
+        # After the fix, the full message must appear on a single line.
+        lines = [l for l in result.splitlines() if l.strip()]
+        assert len(lines) == 1, (
+            f"Expected 1 line, got {len(lines)}. Output:\n{result!r}"
+        )
