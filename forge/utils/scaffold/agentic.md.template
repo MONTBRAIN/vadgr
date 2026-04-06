@@ -128,6 +128,18 @@ This workflow includes steps that execute autonomously via the Computer Use Engi
 
 ---
 
+## Memory
+
+This workflow uses persistent memory stored at `FORGE_HOME/memory/{{WORKFLOW_NAME_KEBAB}}/`.
+Memory persists across runs and is shared across all CLI providers.
+
+- **Read** at the start of relevant steps to recall prior context
+- **Write** at the end of relevant steps to save what was learned
+- Max 30 lines per memory file to keep token cost low
+- See `forge/patterns/11-persistent-memory.md` for conventions
+
+---
+
 ## Quality Checks
 
 | Step | Check |

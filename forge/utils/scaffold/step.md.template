@@ -123,6 +123,24 @@ This file is read by the execution engine to track step status. Always write it,
 
 ---
 
+## Memory Operations
+<!-- Optional: persistent memory across runs. Remove this section if not needed.
+     See forge/patterns/11-persistent-memory.md for details.
+
+     Read memory at step start:
+       from forge.scripts.src.memory import read_memory
+       context = read_memory("{{WORKFLOW_NAME}}")
+
+     Write memory at step end:
+       from forge.scripts.src.memory import write_memory
+       write_memory("{{WORKFLOW_NAME}}", content="- key insight from this step")
+
+     For computer use steps, read CUA hints for consistent element_hint strings:
+       hints = read_memory("{{WORKFLOW_NAME}}", key="cua-hints")
+-->
+
+---
+
 ## Quality Check
 <!-- A short bulleted list of pass/fail questions.
      Each question tests whether this step is actually complete.
