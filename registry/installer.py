@@ -3,13 +3,34 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
+import stat
+import sys
 from pathlib import Path
 from typing import Optional
 
 from registry.config import get_agents_dir, load_config
 from registry.manifest import Manifest, load_manifest, validate_manifest
 from registry.packer import unpack
+
+
+def _rmtree(path: Path) -> None:
+    """Remove a directory tree, handling read-only files on Windows.
+
+    On Windows, git pack files and index files are created as read-only,
+    which causes shutil.rmtree to fail with PermissionError.  This handler
+    clears the read-only flag and retries the deletion.
+    """
+    def _on_error(func, fpath, exc_info):
+        # If the error is a PermissionError on Windows, clear read-only and retry
+        if sys.platform == "win32" and isinstance(exc_info[1], PermissionError):
+            os.chmod(fpath, stat.S_IWRITE)
+            func(fpath)
+        else:
+            raise exc_info[1]
+
+    shutil.rmtree(path, onerror=_on_error)
 
 
 def install(
@@ -44,7 +65,7 @@ def install(
                 f"Agent '{manifest.name}' already installed at {install_dir}. "
                 f"Use --force to overwrite."
             )
-        shutil.rmtree(install_dir)
+        _rmtree(install_dir)
 
     unpack(agnt_path, install_dir)
     return install_dir
@@ -58,7 +79,7 @@ def uninstall(name: str, agents_dir: Optional[Path] = None) -> bool:
     dest_root = agents_dir or get_agents_dir()
     install_dir = dest_root / name
     if install_dir.exists():
-        shutil.rmtree(install_dir)
+        _rmtree(install_dir)
         return True
     return False
 

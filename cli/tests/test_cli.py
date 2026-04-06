@@ -17,7 +17,14 @@ from pathlib import Path
 
 import pytest
 
-PYTHON = str(Path(__file__).resolve().parent.parent / ".venv" / "bin" / "python")
+import sys as _sys
+if _sys.platform == "win32":
+    _venv_python = Path(__file__).resolve().parent.parent / ".venv" / "Scripts" / "python.exe"
+else:
+    _venv_python = Path(__file__).resolve().parent.parent / ".venv" / "bin" / "python"
+# Fall back to the current interpreter when the CLI venv doesn't exist
+# (e.g., running tests on Windows with system Python).
+PYTHON = str(_venv_python) if _venv_python.exists() else _sys.executable
 PROJECT_ROOT = str(Path(__file__).resolve().parent.parent.parent)
 FAKE_PORT = 18321
 
