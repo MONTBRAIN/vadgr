@@ -147,3 +147,16 @@ class TestProjectDelete:
     async def test_delete_nonexistent_returns_404(self, client):
         resp = await client.delete("/api/projects/nonexistent")
         assert resp.status_code == 404
+
+    @pytest.mark.asyncio
+    async def test_delete_project_with_run_succeeds(self, client):
+        """BUG-4: DELETE project with associated runs should not 500."""
+        agent = await client.post("/api/agents", json={"name": "A", "description": ""})
+        project = await client.post("/api/projects", json={"name": "P", "description": ""})
+        pid = project.json()["id"]
+        aid = agent.json()["id"]
+        # Add node so we can run the project (or just create a standalone run linked to this project)
+        node = await client.post(f"/api/projects/{pid}/nodes", json={"agent_id": aid})
+        # Delete the project -- should cascade or set null, not 500
+        resp = await client.delete(f"/api/projects/{pid}")
+        assert resp.status_code == 204

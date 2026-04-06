@@ -31,7 +31,7 @@ def _extract_step(data: dict, current_num: int | None) -> tuple[int | None, str 
     return step_num, step_name
 
 
-def follow_run(api_url: str, run_id: str, timeout: float = 600.0):
+def follow_run(api_url: str, run_id: str, timeout: float = 7200.0):
     """Connect to the run WebSocket and show step progress until done."""
     ws_url = api_url.replace("http://", "ws://").replace("https://", "wss://")
     ws_url = f"{ws_url}/api/ws/runs/{run_id}"

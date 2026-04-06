@@ -55,7 +55,7 @@ CREATE INDEX IF NOT EXISTS idx_edges_project ON project_edges(project_id);
 
 CREATE TABLE IF NOT EXISTS runs (
     id TEXT PRIMARY KEY,
-    project_id TEXT REFERENCES projects(id),
+    project_id TEXT REFERENCES projects(id) ON DELETE SET NULL,
     agent_id TEXT REFERENCES agents(id) ON DELETE SET NULL,
     status TEXT NOT NULL DEFAULT 'queued',
     inputs TEXT DEFAULT '{}',

@@ -44,7 +44,11 @@ def list_runs(ctx, status: str | None):
 @click.pass_context
 def get_run(ctx, run_id: str):
     """Show run details."""
+    if not run_id:
+        raise click.ClickException("Run ID is required.")
     data = api_get(ctx, f"/api/runs/{run_id}")
+    if not isinstance(data, dict):
+        raise click.ClickException(f"Run '{run_id}' not found.")
     duration = data.get("duration", "-")
     if isinstance(duration, (int, float)):
         duration = f"{duration:.1f}s"

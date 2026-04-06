@@ -124,6 +124,13 @@ class _FakeAPIHandler(BaseHTTPRequestHandler):
         body = self.rfile.read(length) if length else b""
 
         if self.path == "/api/agents":
+            # Check for empty name to simulate Pydantic 422
+            parsed = json.loads(body) if body else {}
+            if parsed.get("name") == "":
+                self._json(422, {"detail": [
+                    {"loc": ["body", "name"], "msg": "String should have at least 1 character", "type": "string_too_short"}
+                ]})
+                return
             _poll_count = 0  # Reset for spinner test
             self._json(201, {**_AGENT, "id": "new-agent-id", "status": "creating"})
         elif "/run" in self.path:
@@ -477,3 +484,24 @@ class TestErrors:
     def test_missing_required_arg(self):
         r = _run("agents", "get")
         assert r.returncode != 0
+
+    def test_runs_get_empty_id(self):
+        """BUG-1: 'runs get ""' should fail gracefully, not crash with AttributeError."""
+        r = _run("runs", "get", "")
+        assert r.returncode != 0
+        assert "required" in r.stderr.lower() or "required" in r.stdout.lower() or "not found" in r.stderr.lower() or "not found" in r.stdout.lower()
+
+    def test_agents_get_empty_id(self):
+        """BUG-2: 'agents get ""' should not silently return first agent."""
+        r = _run("agents", "get", "")
+        assert r.returncode != 0
+        assert "No agent" in r.stderr or "No agent" in r.stdout
+
+    def test_validation_error_readable(self):
+        """BUG-3: Pydantic 422 errors should show human-readable messages, not raw JSON."""
+        r = _run("agents", "create", "--name", "", "--description", "test")
+        assert r.returncode != 0
+        output = r.stdout + r.stderr
+        # Should show readable message, not raw JSON list
+        assert "[{" not in output
+        assert "at least 1 character" in output or "string_too_short" in output

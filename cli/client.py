@@ -37,7 +37,17 @@ def _request(ctx: click.Context, method: str, path: str, body: dict | None = Non
             if "error" in body and isinstance(body["error"], dict):
                 detail = body["error"].get("message", e.reason)
             else:
-                detail = body.get("detail", e.reason)
+                raw_detail = body.get("detail", e.reason)
+                if isinstance(raw_detail, list):
+                    # Pydantic 422 validation errors -- extract human-readable messages
+                    msgs = []
+                    for err in raw_detail:
+                        loc = " -> ".join(str(p) for p in err.get("loc", []) if p != "body")
+                        msg = err.get("msg", "")
+                        msgs.append(f"{loc}: {msg}" if loc else msg)
+                    detail = "; ".join(msgs)
+                else:
+                    detail = raw_detail
         except Exception:
             detail = e.reason
         raise click.ClickException(f"{detail}") from None

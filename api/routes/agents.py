@@ -248,6 +248,10 @@ async def run_agent(agent_id: str, body: AgentRunRequest, request: Request, back
 
 @router.get("/{agent_id}/runs")
 async def list_agent_runs(agent_id: str, request: Request):
+    agent_repo = request.app.state.agent_repo
+    agent = await agent_repo.get(agent_id)
+    if agent is None:
+        return _not_found(agent_id)
     run_repo = request.app.state.run_repo
     return await run_repo.list_by_agent(agent_id)
 

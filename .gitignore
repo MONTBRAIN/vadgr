@@ -27,5 +27,6 @@ texput.log
 # Session artifacts
 .specstory/
 .*-handoff.md
+.handoff
 .gemini
 .codex

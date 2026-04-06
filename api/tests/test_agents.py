@@ -1034,6 +1034,12 @@ class TestAgentRun:
         assert resp.status_code == 200
         assert resp.json()["deleted"] == 0
 
+    @pytest.mark.asyncio
+    async def test_list_runs_nonexistent_agent_returns_404(self, client):
+        """BUG-5: GET /api/agents/{id}/runs should 404 for nonexistent agent."""
+        resp = await client.get("/api/agents/nonexistent-id/runs")
+        assert resp.status_code == 404
+
 
 class TestProviders:
 

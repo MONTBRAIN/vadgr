@@ -252,6 +252,8 @@ def _resolve_id(ctx, name_or_id: str) -> str:
 
 
 def _resolve_agent(agents: list[dict], name_or_id: str) -> dict | None:
+    if not name_or_id:
+        return None
     name_lower = name_or_id.lower()
     for a in agents:
         if a["id"] == name_or_id or a["id"].startswith(name_or_id):
