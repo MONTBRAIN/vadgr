@@ -219,6 +219,12 @@ class TestRunsCancel:
             assert result.exit_code == 0
             mp.assert_called_once_with(mock.ANY, f"/api/runs/{_RUN_FULL_ID}/cancel")
 
+    def test_cancel_empty_id(self, runner):
+        from cli.commands.runs import runs_group
+        result = runner.invoke(runs_group, ["cancel", ""], obj={"api_url": "http://x"})
+        assert result.exit_code != 0
+        assert "Run ID is required." in result.output
+
 
 class TestRunsApprove:
     def test_approve_resolves_partial_id(self, runner):
@@ -229,6 +235,12 @@ class TestRunsApprove:
             result = runner.invoke(runs_group, ["approve", _RUN_PARTIAL_ID], obj={"api_url": "http://x"})
             assert result.exit_code == 0
             mp.assert_called_once_with(mock.ANY, f"/api/runs/{_RUN_FULL_ID}/approve")
+
+    def test_approve_empty_id(self, runner):
+        from cli.commands.runs import runs_group
+        result = runner.invoke(runs_group, ["approve", ""], obj={"api_url": "http://x"})
+        assert result.exit_code != 0
+        assert "Run ID is required." in result.output
 
 
 class TestRunsLogs:
@@ -253,3 +265,9 @@ class TestRunsLogs:
             result = runner.invoke(runs_group, ["logs", _RUN_PARTIAL_ID], obj={"api_url": "http://x"})
             assert result.exit_code == 0
             assert "Starting step 1" in result.output
+
+    def test_logs_empty_id(self, runner):
+        from cli.commands.runs import runs_group
+        result = runner.invoke(runs_group, ["logs", ""], obj={"api_url": "http://x"})
+        assert result.exit_code != 0
+        assert "Run ID is required." in result.output
