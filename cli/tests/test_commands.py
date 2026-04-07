@@ -271,3 +271,94 @@ class TestRunsLogs:
         result = runner.invoke(runs_group, ["logs", ""], obj={"api_url": "http://x"})
         assert result.exit_code != 0
         assert "Run ID is required." in result.output
+
+
+class TestRunsResume:
+    """Tests for `vadgr runs resume`."""
+
+    def test_help_exits_zero(self, runner):
+        from cli.commands.runs import runs_group
+        result = runner.invoke(runs_group, ["resume", "--help"], obj={"api_url": "http://x"})
+        assert result.exit_code == 0
+        assert "RUN_ID" in result.output
+        assert "Resume" in result.output
+
+    def test_resume_failed_run_prints_success(self, runner):
+        """Valid input: full ID, API returns success payload."""
+        from cli.commands.runs import runs_group
+        with mock.patch("cli.commands.runs.api_get", side_effect=_mock_runs_get), \
+             mock.patch("cli.commands.runs.api_post") as mp:
+            mp.return_value = {"run_id": _RUN_FULL_ID, "status": "running", "message": "Resuming from last completed step"}
+            result = runner.invoke(runs_group, ["resume", _RUN_FULL_ID], obj={"api_url": "http://x"})
+            assert result.exit_code == 0
+            assert "Resuming" in result.output
+            mp.assert_called_once_with(mock.ANY, f"/api/runs/{_RUN_FULL_ID}/resume")
+
+    def test_resume_resolves_partial_id(self, runner):
+        """Valid input: partial ID resolves to full UUID before calling the endpoint."""
+        from cli.commands.runs import runs_group
+        with mock.patch("cli.commands.runs.api_get", side_effect=_mock_runs_get), \
+             mock.patch("cli.commands.runs.api_post") as mp:
+            mp.return_value = {"run_id": _RUN_FULL_ID, "status": "running", "message": "Resuming from last completed step"}
+            result = runner.invoke(runs_group, ["resume", _RUN_PARTIAL_ID], obj={"api_url": "http://x"})
+            assert result.exit_code == 0
+            # Must call the full UUID endpoint, not the partial
+            mp.assert_called_once_with(mock.ANY, f"/api/runs/{_RUN_FULL_ID}/resume")
+
+    def test_resume_already_running_prints_warning(self, runner):
+        """Invalid state: API returns 'Already running' -- should print warning, not success."""
+        from cli.commands.runs import runs_group
+        with mock.patch("cli.commands.runs.api_get", side_effect=_mock_runs_get), \
+             mock.patch("cli.commands.runs.api_post") as mp:
+            mp.return_value = {"message": "Already running"}
+            result = runner.invoke(runs_group, ["resume", _RUN_FULL_ID], obj={"api_url": "http://x"})
+            assert result.exit_code == 0
+            assert "Already running" in result.output
+            # Warning path must NOT print the generic success message
+            assert "Resuming run" not in result.output
+
+    def test_resume_already_resuming_prints_warning(self, runner):
+        """Invalid state: API returns 'Already resuming' -- should print warning."""
+        from cli.commands.runs import runs_group
+        with mock.patch("cli.commands.runs.api_get", side_effect=_mock_runs_get), \
+             mock.patch("cli.commands.runs.api_post") as mp:
+            mp.return_value = {"message": "Already resuming"}
+            result = runner.invoke(runs_group, ["resume", _RUN_FULL_ID], obj={"api_url": "http://x"})
+            assert result.exit_code == 0
+            assert "Already resuming" in result.output
+            assert "Resuming run" not in result.output
+
+    def test_resume_empty_id_exits_nonzero(self, runner):
+        """Edge case: empty string ID -- must reject with non-zero exit and clear error."""
+        from cli.commands.runs import runs_group
+        result = runner.invoke(runs_group, ["resume", ""], obj={"api_url": "http://x"})
+        assert result.exit_code != 0
+        assert "Run ID is required." in result.output
+
+    def test_resume_nonexistent_id_exits_nonzero(self, runner):
+        """Edge case: ID not found in any run -- non-zero exit with clear error."""
+        from cli.commands.runs import runs_group
+        with mock.patch("cli.commands.runs.api_get") as mg:
+            mg.return_value = [{"id": _RUN_FULL_ID, "agent_name": "my-agent", "status": "failed", "duration": 0}]
+            result = runner.invoke(runs_group, ["resume", "deadbeef"], obj={"api_url": "http://x"})
+            assert result.exit_code != 0
+            assert "deadbeef" in result.output
+
+    def test_resume_no_runs_at_all_exits_nonzero(self, runner):
+        """Edge case: API returns empty run list -- _resolve_run_id raises ClickException."""
+        from cli.commands.runs import runs_group
+        with mock.patch("cli.commands.runs.api_get") as mg:
+            mg.return_value = []
+            result = runner.invoke(runs_group, ["resume", "any-id"], obj={"api_url": "http://x"})
+            assert result.exit_code != 0
+            assert "No runs found." in result.output
+
+    def test_resume_non_dict_response_still_succeeds(self, runner):
+        """Edge case: API returns a non-dict (e.g. None) -- falls back to generic success."""
+        from cli.commands.runs import runs_group
+        with mock.patch("cli.commands.runs.api_get", side_effect=_mock_runs_get), \
+             mock.patch("cli.commands.runs.api_post") as mp:
+            mp.return_value = None
+            result = runner.invoke(runs_group, ["resume", _RUN_FULL_ID], obj={"api_url": "http://x"})
+            assert result.exit_code == 0
+            assert "Resume requested" in result.output

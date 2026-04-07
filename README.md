@@ -91,6 +91,7 @@ vadgr start
 | `vadgr runs list [--status failed]` | List runs |
 | `vadgr runs get <id>` | Show run details |
 | `vadgr runs cancel <id>` | Cancel a running run |
+| `vadgr runs resume <id>` | Resume a failed run from last completed step |
 | `vadgr runs logs <id>` | Show run logs |
 
 **Info:**

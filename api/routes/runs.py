@@ -91,6 +91,39 @@ async def cancel_run(run_id: str, request: Request):
     return updated
 
 
+@router.post("/api/runs/{run_id}/resume")
+async def resume_run(run_id: str, request: Request):
+    run_repo = request.app.state.run_repo
+    run = await run_repo.get(run_id)
+    if not run:
+        return _not_found(run_id)
+    # Idempotent: if already running (e.g. button spammed), return current state
+    if run["status"] == "running":
+        return {"run_id": run_id, "status": "running", "message": "Already running"}
+    if run["status"] not in ("failed",):
+        return JSONResponse(
+            status_code=409,
+            content={"error": {
+                "code": "RUN_NOT_RESUMABLE",
+                "message": f"Only failed runs can be resumed (current status: {run['status']})",
+                "details": {},
+            }},
+        )
+    # Prevent duplicate tasks if there's already an active one for this run
+    existing_task = request.app.state.active_run_tasks.get(run_id)
+    if existing_task and not existing_task.done():
+        return {"run_id": run_id, "status": "running", "message": "Already resuming"}
+
+    import asyncio
+    execution_service = request.app.state.execution_service
+    task = asyncio.create_task(execution_service.resume_standalone_agent(run_id))
+    request.app.state.active_run_tasks[run_id] = task
+    task.add_done_callback(
+        lambda _: request.app.state.active_run_tasks.pop(run_id, None)
+    )
+    return {"run_id": run_id, "status": "running", "message": "Resuming from last completed step"}
+
+
 @router.post("/api/runs/{run_id}/approve")
 async def approve_run(run_id: str, request: Request):
     run_repo = request.app.state.run_repo

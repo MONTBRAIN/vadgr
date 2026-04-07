@@ -530,3 +530,113 @@ class TestRunLogsEndpoint:
             assert resp.json() == []
         finally:
             runs_mod._PROJECT_ROOT = original_root
+
+
+class TestRunResume:
+
+    @pytest.mark.asyncio
+    async def test_resume_failed_run_returns_200(self, client, app):
+        agent = await client.post("/api/agents", json={"name": "T", "description": ""})
+        agent_id = agent.json()["id"]
+        await app.state.agent_repo.update(agent_id, status="ready")
+        run = await client.post(f"/api/agents/{agent_id}/run", json={"inputs": {}})
+        run_id = run.json()["run_id"]
+        await app.state.run_repo.update_status(run_id, "failed")
+        resp = await client.post(f"/api/runs/{run_id}/resume")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["run_id"] == run_id
+        assert data["status"] == "running"
+
+    @pytest.mark.asyncio
+    async def test_resume_running_run_is_idempotent(self, client, app):
+        agent = await client.post("/api/agents", json={"name": "T", "description": ""})
+        agent_id = agent.json()["id"]
+        await app.state.agent_repo.update(agent_id, status="ready")
+        run = await client.post(f"/api/agents/{agent_id}/run", json={"inputs": {}})
+        run_id = run.json()["run_id"]
+        await app.state.run_repo.update_status(run_id, "running")
+        resp = await client.post(f"/api/runs/{run_id}/resume")
+        assert resp.status_code == 200
+        assert resp.json()["message"] == "Already running"
+
+    @pytest.mark.asyncio
+    async def test_resume_completed_run_returns_409(self, client, app):
+        agent = await client.post("/api/agents", json={"name": "T", "description": ""})
+        agent_id = agent.json()["id"]
+        await app.state.agent_repo.update(agent_id, status="ready")
+        run = await client.post(f"/api/agents/{agent_id}/run", json={"inputs": {}})
+        run_id = run.json()["run_id"]
+        await app.state.run_repo.update_status(run_id, "completed")
+        resp = await client.post(f"/api/runs/{run_id}/resume")
+        assert resp.status_code == 409
+
+    @pytest.mark.asyncio
+    async def test_resume_nonexistent_run_returns_404(self, client):
+        resp = await client.post("/api/runs/nonexistent-id/resume")
+        assert resp.status_code == 404
+
+    @pytest.mark.asyncio
+    async def test_resume_queued_run_returns_409(self, client, app):
+        agent = await client.post("/api/agents", json={"name": "T", "description": ""})
+        agent_id = agent.json()["id"]
+        await app.state.agent_repo.update(agent_id, status="ready")
+        run = await client.post(f"/api/agents/{agent_id}/run", json={"inputs": {}})
+        run_id = run.json()["run_id"]
+        # Run starts as queued -- do not change status
+        resp = await client.post(f"/api/runs/{run_id}/resume")
+        assert resp.status_code == 409
+        data = resp.json()
+        assert data["error"]["code"] == "RUN_NOT_RESUMABLE"
+        assert "queued" in data["error"]["message"]
+
+    @pytest.mark.asyncio
+    async def test_resume_awaiting_approval_run_returns_409(self, client, app):
+        agent = await client.post("/api/agents", json={"name": "T", "description": ""})
+        agent_id = agent.json()["id"]
+        await app.state.agent_repo.update(agent_id, status="ready")
+        run = await client.post(f"/api/agents/{agent_id}/run", json={"inputs": {}})
+        run_id = run.json()["run_id"]
+        await app.state.run_repo.update_status(run_id, "awaiting_approval")
+        resp = await client.post(f"/api/runs/{run_id}/resume")
+        assert resp.status_code == 409
+        data = resp.json()
+        assert data["error"]["code"] == "RUN_NOT_RESUMABLE"
+        assert "awaiting_approval" in data["error"]["message"]
+
+    @pytest.mark.asyncio
+    async def test_resume_cancelled_run_returns_409(self, client, app):
+        agent = await client.post("/api/agents", json={"name": "T", "description": ""})
+        agent_id = agent.json()["id"]
+        await app.state.agent_repo.update(agent_id, status="ready")
+        run = await client.post(f"/api/agents/{agent_id}/run", json={"inputs": {}})
+        run_id = run.json()["run_id"]
+        await app.state.run_repo.update_status(run_id, "cancelled")
+        resp = await client.post(f"/api/runs/{run_id}/resume")
+        assert resp.status_code == 409
+        data = resp.json()
+        assert data["error"]["code"] == "RUN_NOT_RESUMABLE"
+        assert "cancelled" in data["error"]["message"]
+
+    @pytest.mark.asyncio
+    async def test_resume_duplicate_active_task_returns_already_resuming(self, client, app):
+        """If an active asyncio task is already resuming the run, return 200 with 'Already resuming'."""
+        import asyncio
+        agent = await client.post("/api/agents", json={"name": "T", "description": ""})
+        agent_id = agent.json()["id"]
+        await app.state.agent_repo.update(agent_id, status="ready")
+        run = await client.post(f"/api/agents/{agent_id}/run", json={"inputs": {}})
+        run_id = run.json()["run_id"]
+        await app.state.run_repo.update_status(run_id, "failed")
+
+        # Plant a fake active task that is not done
+        never_done = asyncio.get_event_loop().create_future()
+        app.state.active_run_tasks[run_id] = never_done
+
+        try:
+            resp = await client.post(f"/api/runs/{run_id}/resume")
+            assert resp.status_code == 200
+            assert resp.json()["message"] == "Already resuming"
+        finally:
+            never_done.cancel()
+            app.state.active_run_tasks.pop(run_id, None)

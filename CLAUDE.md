@@ -55,7 +55,7 @@ Agent-Forge/
 │   ├── output.py                      # Table formatting, status colors
 │   ├── commands/                      # Command groups
 │   │   ├── agents.py                  # list, get, create, delete, run
-│   │   ├── runs.py                    # list, get, cancel, approve, logs
+│   │   ├── runs.py                    # list, get, cancel, approve, resume, logs
 │   │   ├── registry.py                # pack, pull, push, search, serve
 │   │   └── info.py                    # health, providers
 │   └── tests/                         # Unit + integration tests (69 tests)
@@ -108,7 +108,7 @@ forge agents list / get / create / update / delete
 forge agents export <id> / import <file.agnt> # Export/import agents
 forge run <name> [--input key=val]            # Run an agent
 forge run <name> --background                 # Run without streaming
-forge runs list / get / cancel / approve / logs
+forge runs list / get / cancel / approve / resume / logs
 forge health / providers                      # System info
 forge computer-use enable / disable / status  # Desktop automation
 forge registry pack / pull / push / search    # Package management

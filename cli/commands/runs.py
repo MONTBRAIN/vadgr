@@ -35,7 +35,17 @@ def list_runs(ctx, status: str | None):
         duration = r.get("duration", "-")
         if isinstance(duration, (int, float)):
             duration = f"{duration:.0f}s"
-        rows.append([r["id"][:8], agent, status_text(r.get("status", "?")), str(duration)])
+        run_status = status_text(r.get("status", "?"))
+        # Show which step failed for failed runs
+        outputs = r.get("outputs") or {}
+        if r.get("status") == "failed" and isinstance(outputs, dict):
+            error = outputs.get("error", "")
+            # Extract step number from error like "Step 3 (Test CLI) failed: ..."
+            if error.startswith("Step "):
+                parts = error.split(")", 1)
+                if parts:
+                    run_status = f"failed ({parts[0]})"
+        rows.append([r["id"][:8], agent, run_status, str(duration)])
     print_table(["Run ID", "Agent", "Status", "Duration"], rows)
 
 
@@ -66,6 +76,13 @@ def get_run(ctx, run_id: str):
         for i, s in enumerate(steps, 1):
             click.echo(f"  {i}. {s.get('name', '?')} -- {format_status(s.get('status', '?'))}")
 
+    # Show error detail and resume hint for failed runs
+    if data.get("status") == "failed":
+        outputs = data.get("outputs") or {}
+        if isinstance(outputs, dict) and outputs.get("error"):
+            click.echo(f"\nError: {outputs['error']}")
+        click.echo(f"\nResume with: vadgr runs resume {data['id'][:8]}")
+
 
 @runs_group.command("cancel")
 @click.argument("run_id")
@@ -85,6 +102,23 @@ def approve_run(ctx, run_id: str):
     run_id = _resolve_run_id(ctx, run_id)
     api_post(ctx, f"/api/runs/{run_id}/approve")
     print_success(f"Approved run {run_id}")
+
+
+@runs_group.command("resume")
+@click.argument("run_id")
+@click.pass_context
+def resume_run(ctx, run_id: str):
+    """Resume a failed run from its last completed step."""
+    run_id = _resolve_run_id(ctx, run_id)
+    data = api_post(ctx, f"/api/runs/{run_id}/resume")
+    if isinstance(data, dict):
+        msg = data.get("message", "")
+        if "Already" in msg:
+            print_warning(msg)
+        else:
+            print_success(f"Resuming run {run_id}")
+    else:
+        print_success(f"Resume requested for {run_id}")
 
 
 @runs_group.command("logs")

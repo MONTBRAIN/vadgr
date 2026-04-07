@@ -934,3 +934,426 @@ class TestExecuteSingleDiskOutputs:
 
         result = await executor.execute(agent, {}, callback, run_id="run-00")
         assert result == {"summary": "parsed output"}
+
+
+class TestResumeAndRetry:
+    """Tests for step resume (skip completed) and retry (crash recovery)."""
+
+    def _make_step_agent(self, forge_path="output/test-resume"):
+        return {
+            "id": "resume-agent",
+            "name": "Resume Test",
+            "computer_use": False,
+            "provider": "claude_code",
+            "forge_path": forge_path,
+            "description": "Test resume",
+            "output_schema": [],
+            "steps": [
+                {"name": "Step A", "computer_use": False},
+                {"name": "Step B", "computer_use": False},
+                {"name": "Step C", "computer_use": False},
+            ],
+        }
+
+    @pytest.mark.asyncio
+    async def test_resume_skips_completed_steps(self, tmp_path):
+        """Steps with completed result.json on disk should be skipped."""
+        from api.engine.executor import AgentExecutor
+        from api.engine.providers import ExecutionEvent
+
+        forge_path = str(tmp_path / "agent")
+        agent = self._make_step_agent(forge_path)
+        run_id = "test-run-resume"
+
+        # Create output dir and write step 1 as completed
+        outputs_dir = tmp_path / "agent" / f"output/{run_id}/agent_outputs"
+        outputs_dir.mkdir(parents=True)
+        (outputs_dir / "step_01_result.json").write_text(
+            '{"status": "completed", "summary": "Already done"}'
+        )
+
+        call_count = 0
+
+        async def fake_streaming(**kwargs):
+            nonlocal call_count
+            call_count += 1
+            yield ExecutionEvent(type="done", data="step done")
+
+        provider = AsyncMock()
+        provider.execute_streaming = fake_streaming
+        callback = AsyncMock()
+        executor = AgentExecutor(provider, AsyncMock())
+
+        with patch("api.engine.executor._PROJECT_ROOT", str(tmp_path)):
+            await executor.execute(agent, {}, callback, run_id=run_id)
+
+        # Should have executed only 2 steps (B and C), not 3
+        assert call_count == 2
+
+        # Check that step 1 was logged as skipped
+        log_messages = [
+            c.args[1]["message"] for c in callback.call_args_list
+            if c.args[0] == "agent_log"
+        ]
+        assert any("skipped, already completed" in m for m in log_messages)
+        assert any("Step B" in m and "[CLI]" in m for m in log_messages)
+
+    @pytest.mark.asyncio
+    async def test_resume_reruns_failed_step(self, tmp_path):
+        """Steps with failed result.json should be re-executed, not skipped."""
+        from api.engine.executor import AgentExecutor
+        from api.engine.providers import ExecutionEvent
+
+        forge_path = str(tmp_path / "agent")
+        agent = self._make_step_agent(forge_path)
+        run_id = "test-run-retry-failed"
+
+        outputs_dir = tmp_path / "agent" / f"output/{run_id}/agent_outputs"
+        outputs_dir.mkdir(parents=True)
+        # Step 1 completed, step 2 failed
+        (outputs_dir / "step_01_result.json").write_text(
+            '{"status": "completed", "summary": "Done"}'
+        )
+        (outputs_dir / "step_02_result.json").write_text(
+            '{"status": "failed", "error": "something broke"}'
+        )
+
+        async def fake_streaming(**kwargs):
+            # On re-run, step 2 succeeds -- overwrite the result file
+            (outputs_dir / "step_02_result.json").write_text(
+                '{"status": "completed", "summary": "Fixed"}'
+            )
+            yield ExecutionEvent(type="done", data="ok")
+
+        provider = AsyncMock()
+        provider.execute_streaming = fake_streaming
+        callback = AsyncMock()
+        executor = AgentExecutor(provider, AsyncMock())
+
+        with patch("api.engine.executor._PROJECT_ROOT", str(tmp_path)):
+            await executor.execute(agent, {}, callback, run_id=run_id)
+
+        # Step 1 skipped, steps 2 and 3 executed
+        log_messages = [
+            c.args[1]["message"] for c in callback.call_args_list
+            if c.args[0] == "agent_log"
+        ]
+        assert any("Step A" in m and "skipped" in m for m in log_messages)
+        assert any("Step B" in m and "[CLI]" in m for m in log_messages)
+
+    @pytest.mark.asyncio
+    async def test_retry_on_crash_then_succeed(self, tmp_path):
+        """A step that crashes (error event, no result.json) should retry once."""
+        from api.engine.executor import AgentExecutor
+        from api.engine.providers import ExecutionEvent
+
+        forge_path = str(tmp_path / "agent")
+        agent = {
+            **self._make_step_agent(forge_path),
+            "steps": [{"name": "Flaky Step", "computer_use": False}],
+        }
+        run_id = "test-run-crash-retry"
+        outputs_dir = tmp_path / "agent" / f"output/{run_id}/agent_outputs"
+        outputs_dir.mkdir(parents=True)
+
+        attempt = 0
+
+        async def fake_streaming(**kwargs):
+            nonlocal attempt
+            attempt += 1
+            if attempt == 1:
+                # First attempt crashes
+                yield ExecutionEvent(type="error", data="connection reset")
+            else:
+                # Second attempt succeeds
+                yield ExecutionEvent(type="done", data="ok")
+
+        provider = AsyncMock()
+        provider.execute_streaming = fake_streaming
+        callback = AsyncMock()
+        executor = AgentExecutor(provider, AsyncMock())
+
+        with patch("api.engine.executor._PROJECT_ROOT", str(tmp_path)):
+            await executor.execute(agent, {}, callback, run_id=run_id)
+
+        # Should have been called twice (crash + retry)
+        assert attempt == 2
+
+        # Check retry was logged
+        log_messages = [
+            c.args[1]["message"] for c in callback.call_args_list
+            if c.args[0] == "agent_log"
+        ]
+        assert any("Retrying" in m for m in log_messages)
+
+    @pytest.mark.asyncio
+    async def test_crash_twice_raises_with_context(self, tmp_path):
+        """A step that crashes on both attempts raises with last actions in the error."""
+        from api.engine.executor import AgentExecutor
+        from api.engine.providers import ExecutionEvent
+
+        forge_path = str(tmp_path / "agent")
+        agent = {
+            **self._make_step_agent(forge_path),
+            "steps": [{"name": "Always Crashes", "computer_use": False}],
+        }
+        run_id = "test-run-double-crash"
+        outputs_dir = tmp_path / "agent" / f"output/{run_id}/agent_outputs"
+        outputs_dir.mkdir(parents=True)
+
+        async def fake_streaming(**kwargs):
+            yield ExecutionEvent(type="output", data="Using tool: Bash")
+            yield ExecutionEvent(type="output", data="Running pytest...")
+            yield ExecutionEvent(type="error", data="process killed")
+
+        provider = AsyncMock()
+        provider.execute_streaming = fake_streaming
+        callback = AsyncMock()
+        executor = AgentExecutor(provider, AsyncMock())
+
+        with pytest.raises(RuntimeError, match="Always Crashes.*crashed.*process killed"):
+            with patch("api.engine.executor._PROJECT_ROOT", str(tmp_path)):
+                await executor.execute(agent, {}, callback, run_id=run_id)
+
+    @pytest.mark.asyncio
+    async def test_failed_result_raises_with_error_detail(self, tmp_path):
+        """A step that writes failed result.json raises with the error from the file."""
+        from api.engine.executor import AgentExecutor
+        from api.engine.providers import ExecutionEvent
+
+        forge_path = str(tmp_path / "agent")
+        agent = {
+            **self._make_step_agent(forge_path),
+            "steps": [{"name": "Fails Gracefully", "computer_use": False}],
+        }
+        run_id = "test-run-graceful-fail"
+        outputs_dir = tmp_path / "agent" / f"output/{run_id}/agent_outputs"
+        outputs_dir.mkdir(parents=True)
+
+        async def fake_streaming(**kwargs):
+            # Agent writes its own failure result
+            (outputs_dir / "step_01_result.json").write_text(
+                '{"status": "failed", "error": "API returned 500 on /health"}'
+            )
+            yield ExecutionEvent(type="done", data="")
+
+        provider = AsyncMock()
+        provider.execute_streaming = fake_streaming
+        callback = AsyncMock()
+        executor = AgentExecutor(provider, AsyncMock())
+
+        with pytest.raises(RuntimeError, match="Fails Gracefully.*failed.*API returned 500"):
+            with patch("api.engine.executor._PROJECT_ROOT", str(tmp_path)):
+                await executor.execute(agent, {}, callback, run_id=run_id)
+
+    @pytest.mark.asyncio
+    async def test_all_steps_completed_skips_entire_run(self, tmp_path):
+        """If all steps have completed result.json, no provider calls are made."""
+        from api.engine.executor import AgentExecutor
+
+        forge_path = str(tmp_path / "agent")
+        agent = self._make_step_agent(forge_path)
+        run_id = "test-run-all-done"
+        outputs_dir = tmp_path / "agent" / f"output/{run_id}/agent_outputs"
+        outputs_dir.mkdir(parents=True)
+
+        for i in range(1, 4):
+            (outputs_dir / f"step_{i:02d}_result.json").write_text(
+                f'{{"status": "completed", "summary": "Step {i} done"}}'
+            )
+
+        call_count = 0
+
+        async def fake_streaming(**kwargs):
+            nonlocal call_count
+            call_count += 1
+            yield ExecutionEvent(type="done", data="should not happen")
+
+        provider = AsyncMock()
+        provider.execute_streaming = fake_streaming
+        callback = AsyncMock()
+        executor = AgentExecutor(provider, AsyncMock())
+
+        with patch("api.engine.executor._PROJECT_ROOT", str(tmp_path)):
+            await executor.execute(agent, {}, callback, run_id=run_id)
+
+        # No provider calls -- everything was already done
+        assert call_count == 0
+
+    @pytest.mark.asyncio
+    async def test_resume_reruns_step_with_invalid_json(self, tmp_path):
+        """A result.json with invalid JSON is treated as missing -- step re-executes."""
+        from api.engine.executor import AgentExecutor
+        from api.engine.providers import ExecutionEvent
+
+        forge_path = str(tmp_path / "agent")
+        agent = {
+            **self._make_step_agent(forge_path),
+            "steps": [{"name": "Corrupt Step", "computer_use": False}],
+        }
+        run_id = "test-run-corrupt-json"
+        outputs_dir = tmp_path / "agent" / f"output/{run_id}/agent_outputs"
+        outputs_dir.mkdir(parents=True)
+        # Write invalid JSON
+        (outputs_dir / "step_01_result.json").write_text("{not valid json")
+
+        call_count = 0
+
+        async def fake_streaming(**kwargs):
+            nonlocal call_count
+            call_count += 1
+            yield ExecutionEvent(type="done", data="ok")
+
+        provider = AsyncMock()
+        provider.execute_streaming = fake_streaming
+        callback = AsyncMock()
+        executor = AgentExecutor(provider, AsyncMock())
+
+        with patch("api.engine.executor._PROJECT_ROOT", str(tmp_path)):
+            await executor.execute(agent, {}, callback, run_id=run_id)
+
+        # Invalid JSON means file is treated as missing -- step must re-execute
+        assert call_count == 1
+
+    @pytest.mark.asyncio
+    async def test_resume_reruns_step_with_no_status_field(self, tmp_path):
+        """A result.json without a 'status' field is treated as missing -- step re-executes."""
+        from api.engine.executor import AgentExecutor
+        from api.engine.providers import ExecutionEvent
+
+        forge_path = str(tmp_path / "agent")
+        agent = {
+            **self._make_step_agent(forge_path),
+            "steps": [{"name": "No Status Step", "computer_use": False}],
+        }
+        run_id = "test-run-no-status"
+        outputs_dir = tmp_path / "agent" / f"output/{run_id}/agent_outputs"
+        outputs_dir.mkdir(parents=True)
+        # Write JSON with no status field
+        (outputs_dir / "step_01_result.json").write_text('{"summary": "done but no status"}')
+
+        call_count = 0
+
+        async def fake_streaming(**kwargs):
+            nonlocal call_count
+            call_count += 1
+            yield ExecutionEvent(type="done", data="ok")
+
+        provider = AsyncMock()
+        provider.execute_streaming = fake_streaming
+        callback = AsyncMock()
+        executor = AgentExecutor(provider, AsyncMock())
+
+        with patch("api.engine.executor._PROJECT_ROOT", str(tmp_path)):
+            await executor.execute(agent, {}, callback, run_id=run_id)
+
+        # No status field means _step_result_exists returns None -- step must re-execute
+        assert call_count == 1
+
+    @pytest.mark.asyncio
+    async def test_resume_skipped_step_uses_default_summary(self, tmp_path):
+        """A completed step with no 'summary' field emits step_completed with summary='(resumed)'."""
+        from api.engine.executor import AgentExecutor
+        from api.engine.providers import ExecutionEvent
+
+        forge_path = str(tmp_path / "agent")
+        agent = {
+            **self._make_step_agent(forge_path),
+            "steps": [{"name": "Silent Step", "computer_use": False}],
+        }
+        run_id = "test-run-no-summary"
+        outputs_dir = tmp_path / "agent" / f"output/{run_id}/agent_outputs"
+        outputs_dir.mkdir(parents=True)
+        # Completed but no summary field
+        (outputs_dir / "step_01_result.json").write_text('{"status": "completed"}')
+
+        provider = AsyncMock()
+        callback = AsyncMock()
+        executor = AgentExecutor(provider, AsyncMock())
+
+        with patch("api.engine.executor._PROJECT_ROOT", str(tmp_path)):
+            await executor.execute(agent, {}, callback, run_id=run_id)
+
+        # Find the step_completed event for the skipped step
+        step_completed_calls = [
+            c for c in callback.call_args_list
+            if c.args[0] == "step_completed"
+        ]
+        assert len(step_completed_calls) == 1
+        data = step_completed_calls[0].args[1]
+        assert data["summary"] == "(resumed)"
+        assert data["duration"] == 0
+
+    @pytest.mark.asyncio
+    async def test_resume_reruns_step_with_unknown_status(self, tmp_path):
+        """A result.json with status='running' (not 'completed') causes the step to re-execute."""
+        from api.engine.executor import AgentExecutor
+        from api.engine.providers import ExecutionEvent
+
+        forge_path = str(tmp_path / "agent")
+        agent = {
+            **self._make_step_agent(forge_path),
+            "steps": [{"name": "Running Step", "computer_use": False}],
+        }
+        run_id = "test-run-unknown-status"
+        outputs_dir = tmp_path / "agent" / f"output/{run_id}/agent_outputs"
+        outputs_dir.mkdir(parents=True)
+        # Status is 'running' -- not 'completed', should not be skipped
+        (outputs_dir / "step_01_result.json").write_text('{"status": "running"}')
+
+        call_count = 0
+
+        async def fake_streaming(**kwargs):
+            nonlocal call_count
+            call_count += 1
+            (outputs_dir / "step_01_result.json").write_text('{"status": "completed", "summary": "fixed"}')
+            yield ExecutionEvent(type="done", data="ok")
+
+        provider = AsyncMock()
+        provider.execute_streaming = fake_streaming
+        callback = AsyncMock()
+        executor = AgentExecutor(provider, AsyncMock())
+
+        with patch("api.engine.executor._PROJECT_ROOT", str(tmp_path)):
+            await executor.execute(agent, {}, callback, run_id=run_id)
+
+        # 'running' status is not 'completed' -- step must be re-executed
+        assert call_count == 1
+
+    @pytest.mark.asyncio
+    async def test_resume_skipped_step_emits_duration_zero(self, tmp_path):
+        """Skipped (already completed) steps emit step_completed with duration=0."""
+        from api.engine.executor import AgentExecutor
+        from api.engine.providers import ExecutionEvent
+
+        forge_path = str(tmp_path / "agent")
+        agent = {
+            **self._make_step_agent(forge_path),
+            "steps": [
+                {"name": "Already Done", "computer_use": False},
+                {"name": "New Step", "computer_use": False},
+            ],
+        }
+        run_id = "test-run-duration-zero"
+        outputs_dir = tmp_path / "agent" / f"output/{run_id}/agent_outputs"
+        outputs_dir.mkdir(parents=True)
+        (outputs_dir / "step_01_result.json").write_text('{"status": "completed", "summary": "done"}')
+
+        async def fake_streaming(**kwargs):
+            yield ExecutionEvent(type="done", data="ok")
+
+        provider = AsyncMock()
+        provider.execute_streaming = fake_streaming
+        callback = AsyncMock()
+        executor = AgentExecutor(provider, AsyncMock())
+
+        with patch("api.engine.executor._PROJECT_ROOT", str(tmp_path)):
+            await executor.execute(agent, {}, callback, run_id=run_id)
+
+        step_completed_calls = [
+            c for c in callback.call_args_list
+            if c.args[0] == "step_completed"
+        ]
+        # First step_completed is for the skipped step
+        assert step_completed_calls[0].args[1]["duration"] == 0
+        assert step_completed_calls[0].args[1]["step_name"] == "Already Done"
