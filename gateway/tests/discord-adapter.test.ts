@@ -37,8 +37,8 @@ function parseMessage(
   if (!isDM && !isMentioned && !isLiteralMention && !hasSession) return null;
 
   let text = msg.content;
-  if (isMentioned && resolvedBotId) {
-    text = text.replace(new RegExp(`<@!?${resolvedBotId}>`, "g"), "").trim();
+  if (isMentioned) {
+    text = text.replace(/<@[!&]?[\w-]+>/g, "").trim();
   }
 
   // Strip literal @BotName prefix
@@ -162,6 +162,16 @@ describe("Discord parseMessage logic", () => {
     });
     const result = parseMessage(msg, botId, noSession)!;
     expect(result.text).toBe("hello");
+  });
+
+  it("strips role mention format <@&roleId>", () => {
+    // Discord converts @BotName to a role mention <@&roleId> when a role exists
+    const msg = mockMsg({
+      content: `<@&999999999999> help`,
+      mentions: { has: () => true },
+    });
+    const result = parseMessage(msg, botId, noSession)!;
+    expect(result.text).toBe("help");
   });
 
   it("accepts literal @BotName as mention in guild channels", () => {

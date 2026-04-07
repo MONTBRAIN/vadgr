@@ -160,6 +160,7 @@ export class DiscordAdapter implements ChannelAdapter {
     const isMentioned = msg.mentions.has(this.resolvedBotId);
     const hasSession = this.hasActiveSession(msg.author.id);
 
+
     // Also treat literal @BotName as a mention (typed manually, not via picker)
     const botName = this.client.user?.displayName || this.client.user?.username || "";
     const isLiteralMention = botName
@@ -169,9 +170,9 @@ export class DiscordAdapter implements ChannelAdapter {
     if (!isDM && !isMentioned && !isLiteralMention && !hasSession) return null;
 
     let text = msg.content;
-    // Strip Discord mention format <@botId>
-    if (isMentioned && this.resolvedBotId) {
-      text = text.replace(new RegExp(`<@!?${this.resolvedBotId}>`, "g"), "").trim();
+    // Strip Discord mention format: <@botId>, <@!botId>, and <@&roleId>
+    if (isMentioned) {
+      text = text.replace(/<@[!&]?[\w-]+>/g, "").trim();
     }
     // Strip literal @BotName prefix (typed manually, not via mention picker)
     if (botName) {
