@@ -163,8 +163,14 @@ export class DiscordAdapter implements ChannelAdapter {
     if (!isDM && !isMentioned && !hasSession) return null;
 
     let text = msg.content;
+    // Strip Discord mention format <@botId>
     if (isMentioned && this.resolvedBotId) {
       text = text.replace(new RegExp(`<@!?${this.resolvedBotId}>`, "g"), "").trim();
+    }
+    // Strip literal @BotName prefix (typed manually, not via mention picker)
+    const botName = this.client.user?.displayName || this.client.user?.username || "";
+    if (botName) {
+      text = text.replace(new RegExp(`^@${botName}\\b`, "i"), "").trim();
     }
 
     if (!text) return null;

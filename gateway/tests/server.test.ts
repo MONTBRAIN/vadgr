@@ -206,20 +206,30 @@ describe("error message safety", () => {
 });
 
 describe("log entry formatting safety", () => {
-  /** Safely extract a display string from a log entry. */
+  /** Safely extract a display string from a log entry (matches server.ts). */
   function formatLogEntry(entry: any): string {
-    const raw = entry?.message ?? entry?.data ?? entry?.summary ?? "";
-    return typeof raw === "string" ? raw.slice(0, 100) : JSON.stringify(raw).slice(0, 100);
+    const data = entry?.data;
+    const message = data?.message ?? data?.summary ?? entry?.message ?? entry?.summary;
+    if (typeof message === "string" && message) return message.slice(0, 120);
+    const type = entry?.type;
+    if (typeof type === "string") return type;
+    return "";
   }
 
-  it("handles string message field", () => {
-    expect(formatLogEntry({ message: "Step 1 done" })).toBe("Step 1 done");
+  it("handles API log format { type, data: { message } }", () => {
+    expect(formatLogEntry({ type: "agent_log", data: { message: "Using tool: Write" } })).toBe("Using tool: Write");
   });
 
-  it("handles object message field", () => {
-    const result = formatLogEntry({ message: { step: 1, status: "done" } });
-    expect(typeof result).toBe("string");
-    expect(result).toContain("step");
+  it("handles API log format { type, data: { summary } }", () => {
+    expect(formatLogEntry({ type: "step_completed", data: { summary: "Step 3 done" } })).toBe("Step 3 done");
+  });
+
+  it("falls back to event type when no message", () => {
+    expect(formatLogEntry({ type: "run_started", data: { forge_path: "output/abc" } })).toBe("run_started");
+  });
+
+  it("handles direct message field", () => {
+    expect(formatLogEntry({ message: "Step 1 done" })).toBe("Step 1 done");
   });
 
   it("handles missing fields", () => {
@@ -231,6 +241,6 @@ describe("log entry formatting safety", () => {
   });
 
   it("truncates long messages", () => {
-    expect(formatLogEntry({ message: "x".repeat(200) })).toHaveLength(100);
+    expect(formatLogEntry({ data: { message: "x".repeat(200) } })).toHaveLength(120);
   });
 });

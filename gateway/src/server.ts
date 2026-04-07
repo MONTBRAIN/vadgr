@@ -30,8 +30,14 @@ function safeErrorMessage(err: unknown): string {
 
 /** Safely extract displayable text from a log entry. */
 function formatLogEntry(entry: any): string {
-  const raw = entry?.message ?? entry?.data ?? entry?.summary ?? "";
-  return typeof raw === "string" ? raw.slice(0, 100) : JSON.stringify(raw).slice(0, 100);
+  // Log entries from the API have { type, data: { message?, ... }, timestamp }
+  const data = entry?.data;
+  const message = data?.message ?? data?.summary ?? entry?.message ?? entry?.summary;
+  if (typeof message === "string" && message) return message.slice(0, 120);
+  // For events without a message, show the event type
+  const type = entry?.type;
+  if (typeof type === "string") return type;
+  return "";
 }
 
 export interface GatewayConfig {

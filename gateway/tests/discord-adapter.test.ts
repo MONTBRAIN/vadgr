@@ -21,6 +21,7 @@ function parseMessage(
   msg: MockMessage,
   resolvedBotId: string,
   hasActiveSession: (senderId: string) => boolean,
+  botDisplayName: string = "",
 ): InboundMessage | null {
   if (msg.author.bot) return null;
 
@@ -33,6 +34,11 @@ function parseMessage(
   let text = msg.content;
   if (isMentioned && resolvedBotId) {
     text = text.replace(new RegExp(`<@!?${resolvedBotId}>`, "g"), "").trim();
+  }
+
+  // Strip literal @BotName prefix (when user types it manually instead of using mention picker)
+  if (botDisplayName) {
+    text = text.replace(new RegExp(`^@${botDisplayName}\\b`, "i"), "").trim();
   }
 
   if (!text) return null;
@@ -151,5 +157,26 @@ describe("Discord parseMessage logic", () => {
     });
     const result = parseMessage(msg, botId, noSession)!;
     expect(result.text).toBe("hello");
+  });
+
+  it("strips literal @BotName from session messages", () => {
+    // When user types @Vadgr manually (not via mention picker), the message
+    // arrives as literal text. Should still strip the bot name prefix.
+    const msg = mockMsg({ content: "@Vadgr help" });
+    const result = parseMessage(msg, botId, withSession, "Vadgr");
+    expect(result).not.toBeNull();
+    expect(result!.text).toBe("help");
+  });
+
+  it("strips literal @BotName case-insensitively", () => {
+    const msg = mockMsg({ content: "@vadgr status" });
+    const result = parseMessage(msg, botId, withSession, "Vadgr");
+    expect(result!.text).toBe("status");
+  });
+
+  it("handles message with only @BotName (no command)", () => {
+    const msg = mockMsg({ content: "@Vadgr" });
+    const result = parseMessage(msg, botId, withSession, "Vadgr");
+    expect(result).toBeNull();
   });
 });
