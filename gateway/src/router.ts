@@ -76,43 +76,45 @@ export class MessageRouter {
       .join("\n");
     return {
       response: `Hey ${name}! You have ${agents.length} agents ready:\n${list}\n\nWhat do you want to do?`,
+      responseType: "greeting",
+      responseData: { userName: name, agents },
       isAsync: false,
     };
   }
 
   private help(): CommandResult {
     return {
-      response: [
-        "Available commands:",
-        "  hey/hi -- see your agents",
-        "  run <agent> -- start an agent run",
-        "  status -- show active runs",
-        "  resume <id> -- resume a failed run",
-        "  cancel <id> -- cancel a running run",
-        "  logs <id> -- show recent logs",
-        "  help -- this message",
-        "",
-        "Or just describe what you want and I'll figure it out.",
-      ].join("\n"),
+      response: "Available commands: hey, run, status, resume, cancel, logs, help",
+      responseType: "help",
       isAsync: false,
     };
   }
 
   private async listAgents(): Promise<CommandResult> {
     const agents = await this.api.listAgents();
-    if (!agents.length) return { response: "No agents registered.", isAsync: false };
+    if (!agents.length) return { response: "No agents registered.", responseType: "agent_list", responseData: { agents: [] }, isAsync: false };
     const lines = agents.map((a: any) => `  ${a.name} -- ${(a.description || "").slice(0, 60)}`);
-    return { response: "Your agents:\n" + lines.join("\n"), isAsync: false };
+    return {
+      response: "Your agents:\n" + lines.join("\n"),
+      responseType: "agent_list",
+      responseData: { agents },
+      isAsync: false,
+    };
   }
 
   private async status(): Promise<CommandResult> {
     const runs = await this.api.listRuns();
-    if (!runs.length) return { response: "No runs. Everything is idle.", isAsync: false };
+    if (!runs.length) return { response: "No runs. Everything is idle.", responseType: "status", responseData: { runs: [] }, isAsync: false };
     const lines = runs.slice(0, 10).map((r: any) => {
       const id = (r.id || "").slice(0, 8);
       return `  ${id} | ${r.agent_name || "-"} | ${r.status || "?"}`;
     });
-    return { response: "Recent runs:\n" + lines.join("\n"), isAsync: false };
+    return {
+      response: "Recent runs:\n" + lines.join("\n"),
+      responseType: "status",
+      responseData: { runs },
+      isAsync: false,
+    };
   }
 
   private async cancel(runId: string): Promise<CommandResult> {
@@ -274,12 +276,13 @@ export class MessageRouter {
       const runId = result.run_id || "?";
       return {
         response: `Starting ${agent.name}...\nRun ID: ${runId.slice(0, 8)}\nI'll message you when it's done.`,
+        responseType: "run_started",
         runId,
         agentName: agent.name,
         isAsync: true,
       };
     } catch (e: any) {
-      return { response: `Failed to start: ${e.message}`, isAsync: false };
+      return { response: `Failed to start: ${e.message}`, responseType: "error", isAsync: false };
     }
   }
 }

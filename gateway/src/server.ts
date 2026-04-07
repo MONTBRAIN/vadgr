@@ -122,6 +122,43 @@ export class Gateway {
     console.log("[Gateway] Stopped");
   }
 
+  /** Build an embed for a text command response based on responseType. */
+  private buildResponseEmbed(result: any, senderName: string): any | undefined {
+    const data = result.responseData || {};
+    switch (result.responseType) {
+      case "greeting":
+        return greetingEmbed(
+          data.userName || senderName,
+          (data.agents || []).map((a: any) => ({
+            name: a.name,
+            description: a.description,
+            steps: a.steps,
+            machineName: a.machineName,
+          })),
+          [],  // no machines in single-machine mode
+        );
+      case "help":
+        return helpEmbed();
+      case "agent_list":
+        return agentListEmbed(
+          (data.agents || []).map((a: any) => ({
+            name: a.name,
+            description: a.description,
+            steps: a.steps,
+            machineName: a.machineName,
+          })),
+        );
+      case "status":
+        return statusEmbed(data.runs || []);
+      case "run_started":
+        return runStartedEmbed(result.agentName || "Agent", result.runId || "?", result.machineName);
+      case "error":
+        return errorEmbed("Error", result.response);
+      default:
+        return undefined;  // no embed, send plain text
+    }
+  }
+
   /** Handle slash commands from Discord with embed responses. */
   private async handleSlashCommand(
     command: string,
@@ -275,8 +312,13 @@ export class Gateway {
       return;
     }
 
-    // Respond
-    await adapter.sendMessage({ chatId: message.chatId, text: result.response });
+    // Respond with embed when possible, plain text as fallback
+    const embed = this.buildResponseEmbed(result, message.senderName);
+    if (embed) {
+      await adapter.sendMessage({ chatId: message.chatId, text: result.response, embed });
+    } else {
+      await adapter.sendMessage({ chatId: message.chatId, text: result.response });
+    }
 
     // Watch async runs
     if (result.isAsync && result.runId) {
@@ -305,18 +347,19 @@ export class Gateway {
         const run: any = await this.api.getRun(runId);
         if (run.status === "completed") {
           const outputs = run.outputs || {};
-          const parts = [`${agentName} finished!`];
-          for (const [key, val] of Object.entries(outputs)) {
-            if (typeof val === "string" && val.length < 500) parts.push(`\n${key}: ${val}`);
-          }
-          await adapter.sendMessage({ chatId, text: parts.join("\n") });
+          await adapter.sendMessage({
+            chatId,
+            text: `${agentName} finished!`,
+            embed: runCompletedEmbed(agentName, runId, outputs),
+          });
           return;
         }
         if (run.status === "failed") {
           const error = typeof run.outputs === "object" ? run.outputs?.error || "Unknown error" : String(run.outputs);
           await adapter.sendMessage({
             chatId,
-            text: `${agentName} failed.\nError: ${error}\n\nResume with: resume ${runId.slice(0, 8)}`,
+            text: `${agentName} failed.`,
+            embed: runFailedEmbed(agentName, runId, String(error)),
           });
           return;
         }

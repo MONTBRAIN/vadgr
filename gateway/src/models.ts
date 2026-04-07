@@ -25,8 +25,12 @@ export interface OutboundMessage {
   embed?: any;  // discord.js EmbedBuilder -- typed as any to stay adapter-agnostic
 }
 
+export type ResponseType = "greeting" | "help" | "agent_list" | "status" | "run_started" | "input_prompt" | "error" | "plain";
+
 export interface CommandResult {
   response: string;
+  responseType?: ResponseType;
+  responseData?: Record<string, unknown>;  // structured data for embed rendering
   runId?: string;
   agentName?: string;
   machineName?: string;
