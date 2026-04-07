@@ -506,6 +506,7 @@ class CLIAgentProvider:
                         )
                         if result is not None:
                             final_result = result
+                            break  # Claude is done; stop reading -- child processes may hold pipe open
                         elif msg is not None:
                             collected.append(msg)
                             yield ExecutionEvent(type="output", data=msg)
@@ -513,14 +514,20 @@ class CLIAgentProvider:
                         collected.append(text)
                         yield ExecutionEvent(type="output", data=text)
 
-                await proc.wait()
-                if proc.returncode != 0:
+                try:
+                    await asyncio.wait_for(proc.wait(), timeout=5)
+                except asyncio.TimeoutError:
+                    await kill_process_tree(proc)
+                # If we got a result event, the step succeeded -- ignore exit code
+                # (process may have been killed to clean up orphan children)
+                if final_result is not None:
+                    yield ExecutionEvent(type="done", data=final_result)
+                elif proc.returncode not in (None, 0):
                     stderr_data = await proc.stderr.read()
                     error_msg = stderr_data.decode().strip() if stderr_data else "Unknown error"
                     yield ExecutionEvent(type="error", data=error_msg)
                 else:
-                    done_data = final_result if final_result is not None else "\n".join(collected)
-                    yield ExecutionEvent(type="done", data=done_data)
+                    yield ExecutionEvent(type="done", data="\n".join(collected))
 
             async for event in read_stream():
                 yield event
