@@ -108,6 +108,45 @@ class ExecutionService:
             await self.run_repo.update_status(run_id, "failed", outputs={"error": str(e)})
             await self.emit(run_id, "run_failed", {"error": str(e)})
 
+    async def resume_standalone_agent(self, run_id: str):
+        """Resume a failed standalone agent run from the last completed step."""
+        run = await self.run_repo.get(run_id)
+        agent = await self.agent_repo.get(run["agent_id"])
+        provider_key = run.get("provider") or agent.get("provider")
+        model = run.get("model") or agent.get("model")
+        timeout = 1800 if agent.get("computer_use") else 900
+        provider = await self._get_run_provider(provider_key, model, timeout)
+        execution_agent = {
+            **agent,
+            "provider": provider_key,
+            "model": model,
+        }
+
+        # Don't recreate output dirs -- they exist from the original run
+        await self.run_repo.update_status(run_id, "running")
+        await self.emit(run_id, "run_resumed", {"forge_path": agent.get("forge_path", "")})
+
+        try:
+            async def callback(event_type, data):
+                await self.emit(run_id, event_type, data)
+
+            result = await self.executor.execute(
+                execution_agent,
+                run["inputs"],
+                callback,
+                run_id=run_id,
+                provider=provider,
+            )
+            await self.run_repo.update_status(run_id, "completed", outputs=result)
+            await self.emit(run_id, "run_completed", {"outputs": result})
+        except asyncio.CancelledError:
+            await self.run_repo.update_status(run_id, "failed")
+            await self.emit(run_id, "run_failed", {"error": "Run was cancelled"})
+            raise
+        except Exception as e:
+            await self.run_repo.update_status(run_id, "failed", outputs={"error": str(e)})
+            await self.emit(run_id, "run_failed", {"error": str(e)})
+
     async def run_project(self, run_id: str):
         """Execute a project run following DAG topology."""
         run = await self.run_repo.get(run_id)

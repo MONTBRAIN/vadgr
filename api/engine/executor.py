@@ -28,6 +28,26 @@ def _read_step_result(agent_outputs_dir: str, step_num: int) -> dict:
     return {"status": "completed"}
 
 
+def _step_result_exists(agent_outputs_dir: str, step_num: int) -> dict | None:
+    """Read step_NN_result.json only if the file exists on disk.
+
+    Returns the parsed dict if found, None if missing.
+    Unlike _read_step_result, does NOT default to completed.
+    """
+    path = Path(agent_outputs_dir) / f"step_{step_num:02d}_result.json"
+    try:
+        if path.exists():
+            data = json.loads(path.read_text())
+            if "status" in data:
+                return data
+    except (json.JSONDecodeError, OSError):
+        pass
+    return None
+
+
+_MAX_STEP_RETRIES = 1  # Retry once on crash (no result.json written)
+
+
 class AgentExecutor:
     """Executes a single agent node."""
 
@@ -153,10 +173,15 @@ class AgentExecutor:
         CLI steps use stream-json for live logs. Desktop steps use regular
         json to avoid the base64 screenshot chunk buffer crash. Context
         flows between steps through output files on disk.
+
+        Resume: steps with a completed result.json on disk are skipped.
+        Retry: if a step crashes (no result.json), it retries once.
         """
         steps = agent.get("steps", [])
         workspace = _PROJECT_ROOT
         last_output = ""
+        agent_outputs_dir = Path(workspace) / agent.get("forge_path", "") / f"output/{run_id}/agent_outputs"
+        recent_logs: list[str] = []  # Ring buffer for error context
 
         for i, step in enumerate(steps, 1):
             step_name = step["name"] if isinstance(step, dict) else step
@@ -167,38 +192,103 @@ class AgentExecutor:
             # Step context is included in event data for log routing
             step_ctx = {"step_num": i, "step_name": step_name}
 
-            await callback("agent_log", {
-                "agent_id": agent["id"],
-                "message": f"--- Step {i}: {step_name} {'[Desktop]' if uses_cu else '[CLI]'} ---",
-                **step_ctx,
-            })
+            # --- Resume: skip steps that already completed ---
+            existing = _step_result_exists(str(agent_outputs_dir), i)
+            if existing and existing.get("status") == "completed":
+                await callback("agent_log", {
+                    "agent_id": agent["id"],
+                    "message": f"--- Step {i}: {step_name} [skipped, already completed] ---",
+                    **step_ctx,
+                })
+                await callback("step_completed", {
+                    "agent_id": agent["id"],
+                    "status": "completed",
+                    "duration": 0,
+                    "summary": existing.get("summary", "(resumed)"),
+                    "error": "",
+                    **step_ctx,
+                })
+                continue
 
-            prompt = build_step_prompt(agent, inputs, step_number=i, step=step, run_id=run_id)
+            # --- Execute step (with retry on crash) ---
+            for attempt in range(_MAX_STEP_RETRIES + 1):
+                if attempt > 0:
+                    await callback("agent_log", {
+                        "agent_id": agent["id"],
+                        "message": f"Retrying step {i} ({step_name}) -- attempt {attempt + 1}",
+                        **step_ctx,
+                    })
 
-            collected_output = ""
-            selected_provider = provider or self.provider
-            step_start = time.monotonic()
-            async for event in selected_provider.execute_streaming(
-                prompt=prompt,
-                workspace=workspace,
-                timeout=timeout,
-                use_stream_json=can_stream,
-                computer_use=uses_cu,
-            ):
-                if event.type == "output":
-                    if can_stream:
-                        await callback("agent_log", {
-                            "agent_id": agent["id"],
-                            "message": event.data,
-                            **step_ctx,
-                        })
-                elif event.type == "done":
-                    collected_output = event.data
-                elif event.type == "error":
+                await callback("agent_log", {
+                    "agent_id": agent["id"],
+                    "message": f"--- Step {i}: {step_name} {'[Desktop]' if uses_cu else '[CLI]'} ---",
+                    **step_ctx,
+                })
+
+                prompt = build_step_prompt(agent, inputs, step_number=i, step=step, run_id=run_id)
+                collected_output = ""
+                selected_provider = provider or self.provider
+                recent_logs.clear()
+                step_start = time.monotonic()
+                step_error = None
+
+                try:
+                    async for event in selected_provider.execute_streaming(
+                        prompt=prompt,
+                        workspace=workspace,
+                        timeout=timeout,
+                        use_stream_json=can_stream,
+                        computer_use=uses_cu,
+                    ):
+                        if event.type == "output":
+                            # Keep last 5 log messages for error context
+                            recent_logs.append(event.data)
+                            if len(recent_logs) > 5:
+                                recent_logs.pop(0)
+                            if can_stream:
+                                await callback("agent_log", {
+                                    "agent_id": agent["id"],
+                                    "message": event.data,
+                                    **step_ctx,
+                                })
+                        elif event.type == "done":
+                            collected_output = event.data
+                        elif event.type == "error":
+                            step_error = event.data
+                except Exception as exc:
+                    step_error = str(exc)
+
+                step_duration = time.monotonic() - step_start
+
+                # Check if the agent wrote a result file (ground truth)
+                step_result = _step_result_exists(str(agent_outputs_dir), i)
+
+                if step_result and step_result.get("status") == "completed":
+                    # Agent finished its work successfully
+                    break
+                elif step_result and step_result.get("status") == "failed":
+                    # Agent ran but reported failure -- don't retry
+                    error_detail = step_result.get("error", step_error or "Unknown error")
+                    last_actions = "; ".join(recent_logs[-3:]) if recent_logs else ""
                     raise RuntimeError(
-                        f"Step {i} ({step_name}) failed: {event.data}"
+                        f"Step {i} ({step_name}) failed: {error_detail}"
+                        + (f" | Last actions: {last_actions}" if last_actions else "")
                     )
-            step_duration = time.monotonic() - step_start
+                elif step_error:
+                    # Process crashed or timed out -- retry if we have attempts left
+                    if attempt < _MAX_STEP_RETRIES:
+                        continue
+                    last_actions = "; ".join(recent_logs[-3:]) if recent_logs else ""
+                    raise RuntimeError(
+                        f"Step {i} ({step_name}) crashed: {step_error}"
+                        + (f" | Last actions: {last_actions}" if last_actions else "")
+                    )
+                else:
+                    # No result file but no error either -- treat as success
+                    step_result = {"status": "completed", "summary": ""}
+                    break
+
+            # step_duration was set inside the retry loop at line 261
 
             # Validate desktop steps actually used computer use
             if uses_cu:
@@ -219,9 +309,9 @@ class AgentExecutor:
 
             last_output = collected_output
 
-            # Read structured step result if the agent wrote one
-            agent_outputs_dir = Path(workspace) / agent.get("forge_path", "") / f"output/{run_id}/agent_outputs"
-            step_result = _read_step_result(str(agent_outputs_dir), i)
+            # Use the on-disk result (may have been set during retry loop)
+            if step_result is None:
+                step_result = _read_step_result(str(agent_outputs_dir), i)
 
             await callback("step_completed", {
                 "agent_id": agent["id"],
