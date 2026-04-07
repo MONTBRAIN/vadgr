@@ -27,6 +27,12 @@ export class MessageRouter {
     this.sanitize = sanitize;
   }
 
+  /** Returns true if the sender has an active conversational session (not idle). */
+  hasActiveSession(senderId: string): boolean {
+    const session = this.sessions.get(senderId);
+    return session !== undefined && session.state !== State.IDLE;
+  }
+
   private getSession(senderId: string): Session {
     if (!this.sessions.has(senderId)) {
       this.sessions.set(senderId, {
@@ -47,7 +53,7 @@ export class MessageRouter {
     // Global commands
     if (["help", "?", "commands"].includes(lower)) return this.help();
     if (["hi", "hey", "hello", "hola", "que hay", "buenas"].includes(lower)) {
-      session.state = State.IDLE;
+      session.state = State.AWAITING_AGENT;
       return this.greet(message.senderName);
     }
     if (["agents", "list agents", "what agents"].includes(lower)) return this.listAgents();
@@ -187,7 +193,10 @@ export class MessageRouter {
   }
 
   private async selectAgent(session: Session, text: string): Promise<CommandResult> {
-    return this.findAndStartAgent(session, text.trim());
+    const cleaned = text.trim().toLowerCase().startsWith("run ")
+      ? text.trim().slice(4).trim()
+      : text.trim();
+    return this.findAndStartAgent(session, cleaned);
   }
 
   private async askForInputs(session: Session): Promise<CommandResult> {

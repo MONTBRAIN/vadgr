@@ -32,6 +32,7 @@ export class Gateway {
     if (this.config.discord?.botToken) {
       const discord = new DiscordAdapter(this.config.discord);
       discord.registerHandler((msg) => this.processMessage(msg, discord));
+      discord.setSessionChecker((senderId) => this.router.hasActiveSession(senderId));
       await discord.connect();
       this.adapters.push(discord);
     }

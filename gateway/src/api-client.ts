@@ -3,6 +3,7 @@
 const DEFAULT_TIMEOUT = 30_000;
 const MAX_RETRIES = 3;
 const RETRY_BACKOFF_BASE = 1000;
+const ID_PATTERN = /^[a-zA-Z0-9-]+$/;
 
 export class VadgrAPIClient {
   private baseUrl: string;
@@ -11,11 +12,16 @@ export class VadgrAPIClient {
     this.baseUrl = baseUrl.replace(/\/$/, "");
   }
 
+  private validateId(id: string): void {
+    if (!ID_PATTERN.test(id)) throw new Error(`Invalid ID: ${id.slice(0, 20)}`);
+  }
+
   async listAgents(): Promise<Record<string, unknown>[]> {
     return this.requestWithRetry(`${this.baseUrl}/api/agents`);
   }
 
   async runAgent(agentId: string, inputs: Record<string, string>): Promise<Record<string, unknown>> {
+    this.validateId(agentId);
     return this.requestWithRetry(`${this.baseUrl}/api/agents/${agentId}/run`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -28,18 +34,22 @@ export class VadgrAPIClient {
   }
 
   async getRun(runId: string): Promise<Record<string, unknown>> {
+    this.validateId(runId);
     return this.requestWithRetry(`${this.baseUrl}/api/runs/${runId}`);
   }
 
   async cancelRun(runId: string): Promise<Record<string, unknown>> {
+    this.validateId(runId);
     return this.requestWithRetry(`${this.baseUrl}/api/runs/${runId}/cancel`, { method: "POST" });
   }
 
   async resumeRun(runId: string): Promise<Record<string, unknown>> {
+    this.validateId(runId);
     return this.requestWithRetry(`${this.baseUrl}/api/runs/${runId}/resume`, { method: "POST" });
   }
 
   async getRunLogs(runId: string): Promise<Record<string, unknown>[]> {
+    this.validateId(runId);
     return this.requestWithRetry(`${this.baseUrl}/api/runs/${runId}/logs`);
   }
 

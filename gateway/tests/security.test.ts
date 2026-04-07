@@ -94,4 +94,37 @@ describe("SecurityGuard", () => {
       fs.unlinkSync(path);
     });
   });
+
+  describe("sanitizeInput hardening", () => {
+    it("strips shell metacharacters", () => {
+      const guard = new SecurityGuard(defaultSecurityConfig());
+      expect(guard.sanitizeInput("hello;world")).toBe("helloworld");
+      expect(guard.sanitizeInput("$(whoami)")).toBe("whoami");
+      expect(guard.sanitizeInput("a|b&c")).toBe("abc");
+      expect(guard.sanitizeInput("test`cmd`")).toBe("testcmd");
+    });
+
+    it("strips angle brackets (XSS prevention)", () => {
+      const guard = new SecurityGuard(defaultSecurityConfig());
+      expect(guard.sanitizeInput("<script>alert(1)</script>")).toBe("scriptalert1/script");
+    });
+
+    it("strips backslashes (escape sequences)", () => {
+      const guard = new SecurityGuard(defaultSecurityConfig());
+      expect(guard.sanitizeInput("path\\to\\file")).toBe("pathtofile");
+    });
+
+    it("preserves safe characters", () => {
+      const guard = new SecurityGuard(defaultSecurityConfig());
+      expect(guard.sanitizeInput("hello world 123")).toBe("hello world 123");
+      expect(guard.sanitizeInput("/home/user/repo")).toBe("/home/user/repo");
+      expect(guard.sanitizeInput("key=value")).toBe("key=value");
+      expect(guard.sanitizeInput("https://github.com/org/repo")).toBe("https://github.com/org/repo");
+    });
+
+    it("trims whitespace", () => {
+      const guard = new SecurityGuard(defaultSecurityConfig());
+      expect(guard.sanitizeInput("  hello  ")).toBe("hello");
+    });
+  });
 });

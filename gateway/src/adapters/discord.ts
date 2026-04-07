@@ -1,7 +1,7 @@
 /** Discord adapter using discord.js. Handles DMs and bot mentions. */
 
 import { Client, GatewayIntentBits, Message, Partials } from "discord.js";
-import type { ChannelAdapter, MessageHandler } from "./base.js";
+import type { ChannelAdapter, MessageHandler, SessionChecker } from "./base.js";
 import type { OutboundMessage } from "../models.js";
 import { MessageType, type InboundMessage } from "../models.js";
 
@@ -16,6 +16,7 @@ export class DiscordAdapter implements ChannelAdapter {
   private config: DiscordConfig;
   private handler: MessageHandler | null = null;
   private resolvedBotId: string = "";
+  private hasActiveSession: SessionChecker = () => false;
 
   constructor(config: DiscordConfig) {
     this.config = config;
@@ -72,15 +73,20 @@ export class DiscordAdapter implements ChannelAdapter {
     this.handler = handler;
   }
 
+  setSessionChecker(checker: SessionChecker): void {
+    this.hasActiveSession = checker;
+  }
+
   private parseMessage(msg: Message): InboundMessage | null {
     // Skip bot messages (including our own)
     if (msg.author.bot) return null;
 
     const isDM = !msg.guild;
     const isMentioned = msg.mentions.has(this.resolvedBotId);
+    const hasSession = this.hasActiveSession(msg.author.id);
 
-    // Only respond to DMs or messages that mention the bot
-    if (!isDM && !isMentioned) return null;
+    // Respond to DMs, mentions, or follow-ups from users in active sessions
+    if (!isDM && !isMentioned && !hasSession) return null;
 
     // Strip bot mention from text
     let text = msg.content;

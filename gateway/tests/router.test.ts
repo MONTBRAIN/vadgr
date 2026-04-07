@@ -171,4 +171,80 @@ describe("MessageRouter", () => {
       expect(result.response.toLowerCase()).toMatch(/idle|no runs/);
     });
   });
+
+  describe("hasActiveSession", () => {
+    it("returns false for unknown sender", () => {
+      const router = new MessageRouter(mockApi() as any);
+      expect(router.hasActiveSession("never-seen")).toBe(false);
+    });
+
+    it("returns true after greeting (AWAITING_AGENT)", async () => {
+      const router = new MessageRouter(mockApi() as any);
+      await router.handle(msg("hey"));
+      expect(router.hasActiveSession("user-1")).toBe(true);
+    });
+
+    it("returns true while collecting inputs (AWAITING_INPUTS)", async () => {
+      const router = new MessageRouter(mockApi() as any);
+      await router.handle(msg("hey"));
+      await router.handle(msg("1")); // select QA Engineer -> asks for repo_path
+      expect(router.hasActiveSession("user-1")).toBe(true);
+    });
+
+    it("returns false after run starts (back to IDLE)", async () => {
+      const router = new MessageRouter(mockApi() as any);
+      await router.handle(msg("hey"));
+      await router.handle(msg("1"));          // select agent
+      await router.handle(msg("/home/repo")); // provide repo_path -> starts run
+      expect(router.hasActiveSession("user-1")).toBe(false);
+    });
+
+    it("isolates session state between users", async () => {
+      const router = new MessageRouter(mockApi() as any);
+      await router.handle(msg("hey", "user-a"));
+      expect(router.hasActiveSession("user-a")).toBe(true);
+      expect(router.hasActiveSession("user-b")).toBe(false);
+    });
+  });
+
+  describe("selectAgent with run prefix", () => {
+    it("strips 'run ' prefix in AWAITING_AGENT state", async () => {
+      const router = new MessageRouter(mockApi() as any);
+      await router.handle(msg("hey"));
+      const result = await router.handle(msg("run 1"));
+      expect(result.response).toContain("Repository Path");
+    });
+
+    it("handles 'RUN' case-insensitive", async () => {
+      const router = new MessageRouter(mockApi() as any);
+      await router.handle(msg("hey"));
+      const result = await router.handle(msg("RUN QA Engineer"));
+      expect(result.response).toContain("Repository Path");
+    });
+
+    it("works without run prefix", async () => {
+      const router = new MessageRouter(mockApi() as any);
+      await router.handle(msg("hey"));
+      const result = await router.handle(msg("1"));
+      expect(result.response).toContain("Repository Path");
+    });
+
+    it("handles agent name without number", async () => {
+      const router = new MessageRouter(mockApi() as any);
+      await router.handle(msg("hey"));
+      const result = await router.handle(msg("QA Engineer"));
+      expect(result.response).toContain("Repository Path");
+    });
+  });
+
+  describe("sanitization", () => {
+    it("applies sanitize function to collected inputs", async () => {
+      const sanitize = vi.fn((v: string) => v.replace(/[;&]/g, ""));
+      const router = new MessageRouter(mockApi() as any, sanitize);
+      await router.handle(msg("hey"));
+      await router.handle(msg("1"));
+      await router.handle(msg("/home/repo;rm -rf /"));
+      expect(sanitize).toHaveBeenCalledWith("/home/repo;rm -rf /");
+    });
+  });
 });

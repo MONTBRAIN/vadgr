@@ -4,7 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 import type { InboundMessage } from "./models.js";
 
-const DANGEROUS_CHARS = /[;&|`$(){}]/g;
+const DANGEROUS_CHARS = /[;&|`$(){}<>\\]/g;
 const MAX_MESSAGE_LENGTH = 2000;
 const DEFAULT_RATE_LIMIT = 10;
 const DEFAULT_RATE_WINDOW = 3600;
@@ -27,6 +27,8 @@ export function defaultSecurityConfig(): SecurityConfig {
 }
 
 type CheckResult = null | typeof SILENT_REJECT | string;
+
+const MAX_RATE_BUCKETS = 10_000;
 
 export class SecurityGuard {
   private config: SecurityConfig;
@@ -84,6 +86,14 @@ export class SecurityGuard {
 
     if (bucket.length >= limit) return true;
     bucket.push(now);
+
+    // Evict stale senders to prevent memory leak
+    if (this.rateBuckets.size > MAX_RATE_BUCKETS) {
+      for (const [key, b] of this.rateBuckets) {
+        if (b.length === 0) this.rateBuckets.delete(key);
+      }
+    }
+
     return false;
   }
 
