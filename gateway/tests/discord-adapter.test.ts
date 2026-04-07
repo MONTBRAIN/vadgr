@@ -29,14 +29,19 @@ function parseMessage(
   const isMentioned = msg.mentions.has(resolvedBotId);
   const hasSession = hasActiveSession(msg.author.id);
 
-  if (!isDM && !isMentioned && !hasSession) return null;
+  // Also treat literal @BotName as a mention
+  const isLiteralMention = botDisplayName
+    ? new RegExp(`^@${botDisplayName}\\b`, "i").test(msg.content)
+    : false;
+
+  if (!isDM && !isMentioned && !isLiteralMention && !hasSession) return null;
 
   let text = msg.content;
   if (isMentioned && resolvedBotId) {
     text = text.replace(new RegExp(`<@!?${resolvedBotId}>`, "g"), "").trim();
   }
 
-  // Strip literal @BotName prefix (when user types it manually instead of using mention picker)
+  // Strip literal @BotName prefix
   if (botDisplayName) {
     text = text.replace(new RegExp(`^@${botDisplayName}\\b`, "i"), "").trim();
   }
@@ -159,24 +164,25 @@ describe("Discord parseMessage logic", () => {
     expect(result.text).toBe("hello");
   });
 
-  it("strips literal @BotName from session messages", () => {
+  it("accepts literal @BotName as mention in guild channels", () => {
     // When user types @Vadgr manually (not via mention picker), the message
-    // arrives as literal text. Should still strip the bot name prefix.
+    // should still be accepted and the bot name stripped.
     const msg = mockMsg({ content: "@Vadgr help" });
-    const result = parseMessage(msg, botId, withSession, "Vadgr");
+    const result = parseMessage(msg, botId, noSession, "Vadgr");
     expect(result).not.toBeNull();
     expect(result!.text).toBe("help");
   });
 
   it("strips literal @BotName case-insensitively", () => {
     const msg = mockMsg({ content: "@vadgr status" });
-    const result = parseMessage(msg, botId, withSession, "Vadgr");
+    const result = parseMessage(msg, botId, noSession, "Vadgr");
+    expect(result).not.toBeNull();
     expect(result!.text).toBe("status");
   });
 
   it("handles message with only @BotName (no command)", () => {
     const msg = mockMsg({ content: "@Vadgr" });
-    const result = parseMessage(msg, botId, withSession, "Vadgr");
+    const result = parseMessage(msg, botId, noSession, "Vadgr");
     expect(result).toBeNull();
   });
 });
