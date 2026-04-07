@@ -1,9 +1,10 @@
-"""Tests for WhatsApp adapter webhook parsing."""
+"""Tests for WhatsApp adapter webhook parsing and message sending."""
 
 import pytest
+from unittest.mock import AsyncMock, patch
 
 from gateway.adapters.whatsapp import WhatsAppAdapter
-from gateway.models import MessageType
+from gateway.models import MessageType, OutboundMessage
 
 
 def _adapter():
@@ -112,3 +113,60 @@ class TestParseWebhook:
         assert msg is not None
         assert msg.text == ""
         assert msg.message_type == MessageType.UNKNOWN
+
+
+class TestSendMessage:
+    @pytest.mark.asyncio
+    async def test_send_message_uses_textMessage_wrapper(self):
+        """send_message must wrap text in textMessage object (Evolution API v1.7.1)."""
+        adapter = _adapter()
+        outbound = OutboundMessage(chat_id="5731200000@s.whatsapp.net", text="hello")
+
+        captured = {}
+
+        async def fake_post(url, *, json=None, headers=None):
+            captured["json"] = json
+            mock_resp = AsyncMock()
+            mock_resp.status_code = 200
+            mock_resp.raise_for_status = lambda: None
+            return mock_resp
+
+        with patch("httpx.AsyncClient") as mock_client_cls:
+            mock_client = AsyncMock()
+            mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+            mock_client.__aexit__ = AsyncMock(return_value=None)
+            mock_client.post = AsyncMock(side_effect=fake_post)
+            mock_client_cls.return_value = mock_client
+
+            await adapter.send_message(outbound)
+
+        payload = captured["json"]
+        assert "textMessage" in payload, "payload must have 'textMessage' key"
+        assert payload["textMessage"] == {"text": "hello"}
+        assert "text" not in payload, "top-level 'text' key must not be present"
+
+    @pytest.mark.asyncio
+    async def test_send_message_number_normalisation(self):
+        """Numbers without the WA suffix are normalised before sending."""
+        adapter = _adapter()
+        outbound = OutboundMessage(chat_id="5731200000", text="hi")
+
+        captured = {}
+
+        async def fake_post(url, *, json=None, headers=None):
+            captured["json"] = json
+            mock_resp = AsyncMock()
+            mock_resp.status_code = 200
+            mock_resp.raise_for_status = lambda: None
+            return mock_resp
+
+        with patch("httpx.AsyncClient") as mock_client_cls:
+            mock_client = AsyncMock()
+            mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+            mock_client.__aexit__ = AsyncMock(return_value=None)
+            mock_client.post = AsyncMock(side_effect=fake_post)
+            mock_client_cls.return_value = mock_client
+
+            await adapter.send_message(outbound)
+
+        assert captured["json"]["number"] == "5731200000@s.whatsapp.net"

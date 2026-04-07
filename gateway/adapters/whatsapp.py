@@ -77,7 +77,7 @@ class WhatsAppAdapter(ChannelAdapter):
 
         payload = {
             "number": number,
-            "text": message.text,
+            "textMessage": {"text": message.text},
         }
 
         async with httpx.AsyncClient(timeout=_TIMEOUT) as client:
