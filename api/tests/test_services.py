@@ -1468,6 +1468,160 @@ class TestExecutionService:
         assert n1["id"] in data["outputs_so_far"]
         assert data["outputs_so_far"][n1["id"]] == {"result": "done"}
 
+    @pytest.mark.asyncio
+    async def test_resume_standalone_agent_emits_run_resumed_not_run_started(self, db):
+        from api.persistence.repositories import AgentRepository, RunRepository
+
+        agent_repo = AgentRepository(db)
+        run_repo = RunRepository(db)
+
+        agent = await agent_repo.create(name="Resumable", description="")
+        run = await run_repo.create(agent_id=agent["id"], inputs={"k": "v"})
+        await run_repo.update_status(run["id"], "failed")
+
+        executor_mock = AsyncMock()
+        executor_mock.execute.return_value = {"result": "ok"}
+        emit_mock = AsyncMock()
+
+        service = ExecutionService(
+            agent_repo=agent_repo,
+            run_repo=run_repo,
+            project_repo=None,
+            executor=executor_mock,
+            emit=emit_mock,
+        )
+        await service.resume_standalone_agent(run["id"])
+
+        emitted_event_types = [c.args[1] for c in emit_mock.call_args_list]
+        assert "run_resumed" in emitted_event_types
+        assert "run_started" not in emitted_event_types
+
+    @pytest.mark.asyncio
+    async def test_resume_standalone_agent_success_sets_status_completed(self, db):
+        from api.persistence.repositories import AgentRepository, RunRepository
+
+        agent_repo = AgentRepository(db)
+        run_repo = RunRepository(db)
+
+        agent = await agent_repo.create(name="Resumable", description="")
+        run = await run_repo.create(agent_id=agent["id"], inputs={})
+        await run_repo.update_status(run["id"], "failed")
+
+        executor_mock = AsyncMock()
+        executor_mock.execute.return_value = {"output": "done"}
+        emit_mock = AsyncMock()
+
+        service = ExecutionService(
+            agent_repo=agent_repo,
+            run_repo=run_repo,
+            project_repo=None,
+            executor=executor_mock,
+            emit=emit_mock,
+        )
+        await service.resume_standalone_agent(run["id"])
+
+        updated = await run_repo.get(run["id"])
+        assert updated["status"] == "completed"
+        assert updated["outputs"] == {"output": "done"}
+
+    @pytest.mark.asyncio
+    async def test_resume_standalone_agent_failure_sets_status_failed(self, db):
+        from api.persistence.repositories import AgentRepository, RunRepository
+
+        agent_repo = AgentRepository(db)
+        run_repo = RunRepository(db)
+
+        agent = await agent_repo.create(name="Resumable", description="")
+        run = await run_repo.create(agent_id=agent["id"], inputs={})
+        await run_repo.update_status(run["id"], "failed")
+
+        executor_mock = AsyncMock()
+        executor_mock.execute.side_effect = RuntimeError("step 2 failed")
+        emit_mock = AsyncMock()
+
+        service = ExecutionService(
+            agent_repo=agent_repo,
+            run_repo=run_repo,
+            project_repo=None,
+            executor=executor_mock,
+            emit=emit_mock,
+        )
+        await service.resume_standalone_agent(run["id"])
+
+        updated = await run_repo.get(run["id"])
+        assert updated["status"] == "failed"
+        emitted_types = [c.args[1] for c in emit_mock.call_args_list]
+        assert "run_failed" in emitted_types
+
+    @pytest.mark.asyncio
+    async def test_resume_standalone_agent_does_not_recreate_output_dirs(self, db):
+        from api.persistence.repositories import AgentRepository, RunRepository
+        import api.services.execution_service as execution_service_mod
+
+        agent_repo = AgentRepository(db)
+        run_repo = RunRepository(db)
+
+        agent = await agent_repo.create(name="Resumable", description="")
+        run = await run_repo.create(agent_id=agent["id"], inputs={})
+        await run_repo.update_status(run["id"], "failed")
+
+        executor_mock = AsyncMock()
+        executor_mock.execute.return_value = {}
+        emit_mock = AsyncMock()
+
+        service = ExecutionService(
+            agent_repo=agent_repo,
+            run_repo=run_repo,
+            project_repo=None,
+            executor=executor_mock,
+            emit=emit_mock,
+        )
+
+        with patch.object(execution_service_mod, "_ensure_run_output_dirs") as mock_ensure:
+            await service.resume_standalone_agent(run["id"])
+            mock_ensure.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_resume_standalone_agent_uses_run_provider_and_model(self, db):
+        from api.persistence.repositories import AgentRepository, RunRepository
+
+        agent_repo = AgentRepository(db)
+        run_repo = RunRepository(db)
+
+        agent = await agent_repo.create(
+            name="Resumable", description="",
+            provider="claude_code", model="claude-sonnet-4-6",
+        )
+        run = await run_repo.create(
+            agent_id=agent["id"], inputs={},
+            provider="codex", model="gpt-5-codex",
+        )
+        await run_repo.update_status(run["id"], "failed")
+
+        executor_mock = AsyncMock()
+        executor_mock.execute.return_value = {}
+        emit_mock = AsyncMock()
+        provider_instance = object()
+        provider_factory = AsyncMock(return_value=provider_instance)
+
+        service = ExecutionService(
+            agent_repo=agent_repo,
+            run_repo=run_repo,
+            project_repo=None,
+            executor=executor_mock,
+            emit=emit_mock,
+            provider_factory=provider_factory,
+        )
+        await service.resume_standalone_agent(run["id"])
+
+        # Must use run's provider/model override, not agent's
+        provider_factory.assert_awaited_once_with(
+            provider_key="codex",
+            model="gpt-5-codex",
+            timeout=900,
+        )
+        assert executor_mock.execute.await_args.kwargs["provider"] is provider_instance
+
 
 def _make_streaming_provider(output='{"result": "done"}'):
     """Create a mock CLI provider whose execute_streaming yields a done event.
