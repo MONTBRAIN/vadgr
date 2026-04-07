@@ -30,3 +30,5 @@ texput.log
 .handoff
 .gemini
 .codex
+gateway/dist/
+gateway/node_modules/
