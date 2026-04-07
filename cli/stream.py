@@ -14,7 +14,6 @@ from rich.console import Console
 from cli.output import format_duration, print_success, print_error
 
 _SPINNER_STYLE = "dots"
-_FORGE_PID_DIR = Path.home() / ".forge" / "pids"
 _STEP_COMPLETE_PAD = 40
 _MAX_STEP_NAME_LEN = 45
 

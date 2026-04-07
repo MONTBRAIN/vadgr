@@ -1,18 +1,21 @@
 """Persistent memory for forge agents.
 
-Stores markdown files with YAML frontmatter at ~/.forge/memory/{agent}/{key}.md.
+Stores markdown files with YAML frontmatter at FORGE_HOME/memory/{agent}/{key}.md.
 CLI-agnostic: works with Claude Code, Codex, Gemini, or any provider.
+Respects the FORGE_HOME environment variable (defaults to ~/.forge).
 """
 
 from __future__ import annotations
 
+import os
 import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
 
-MEMORY_DIR = Path.home() / ".forge" / "memory"
+_FORGE_HOME = Path(os.environ.get("FORGE_HOME", Path.home() / ".forge"))
+MEMORY_DIR = _FORGE_HOME / "memory"
 
 
 def _frontmatter(agent: str, key: str) -> str:

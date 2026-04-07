@@ -150,3 +150,27 @@ class TestRepoKey:
         assert "/" not in result
         assert "\\" not in result
         assert "repo-" in result
+
+
+class TestForgeHomeEnvVar:
+
+    def test_memory_dir_respects_forge_home_env(self, tmp_path, monkeypatch):
+        """MEMORY_DIR should derive from FORGE_HOME env var when set."""
+        custom_home = tmp_path / "custom-forge"
+        monkeypatch.setenv("FORGE_HOME", str(custom_home))
+        import importlib
+        import forge.scripts.src.memory as mem_mod
+        importlib.reload(mem_mod)
+        try:
+            assert mem_mod.MEMORY_DIR == custom_home / "memory"
+        finally:
+            monkeypatch.delenv("FORGE_HOME", raising=False)
+            importlib.reload(mem_mod)
+
+    def test_memory_dir_defaults_to_dot_forge(self, monkeypatch):
+        """Without FORGE_HOME, MEMORY_DIR should default to ~/.forge/memory."""
+        monkeypatch.delenv("FORGE_HOME", raising=False)
+        import importlib
+        import forge.scripts.src.memory as mem_mod
+        importlib.reload(mem_mod)
+        assert mem_mod.MEMORY_DIR == Path.home() / ".forge" / "memory"
