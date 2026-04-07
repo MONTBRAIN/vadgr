@@ -56,11 +56,17 @@ def create_app(config: GatewayConfig | None = None) -> FastAPI:
         except Exception as e:
             logger.warning("WhatsApp adapter failed to connect: %s", e)
 
+        await api_client.connect()
+
         # Register the message handler
         async def handle_message(message: InboundMessage):
             await _process_message(app, message, wa_adapter)
 
         await wa_adapter.register_handler(handle_message)
+
+    @app.on_event("shutdown")
+    async def shutdown():
+        await api_client.aclose()
 
     @app.post("/webhook/whatsapp")
     async def whatsapp_webhook(request: Request):
