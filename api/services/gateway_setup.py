@@ -1,4 +1,4 @@
-"""Gateway setup service -- manages Discord (and future) gateway configuration.
+"""Gateway setup service -- manages Discord and multi-machine gateway configuration.
 
 Secrets are stored in ~/.forge/gateway.json with mode 0600.
 Tokens are NEVER returned to the client -- only a masked version.
@@ -8,8 +8,10 @@ from __future__ import annotations
 
 import json
 import os
+import secrets
 import signal
 import subprocess
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -167,3 +169,81 @@ def _stop_gateway(pid: int) -> None:
         pass
     pid_file = PID_DIR / "gateway.pid"
     pid_file.unlink(missing_ok=True)
+
+
+# -- Multi-machine token management --
+
+MACHINE_TOKEN_PREFIX = "vdgr_"
+MACHINE_TOKEN_BYTES = 48
+DEFAULT_WS_PORT = 9443
+
+
+def generate_machine_token(machine_name: str) -> dict[str, Any]:
+    """Generate a new machine token and add to gateway.json.
+
+    Returns the token entry (with the full token visible -- this is the
+    only time the user sees the raw token).
+    """
+    token = MACHINE_TOKEN_PREFIX + secrets.token_urlsafe(MACHINE_TOKEN_BYTES)
+    config = _read_config()
+    machines = config.setdefault("machines", {})
+    machines.setdefault("ws_port", DEFAULT_WS_PORT)
+    tokens: list[dict[str, Any]] = machines.setdefault("tokens", [])
+
+    # Prevent duplicate names
+    for entry in tokens:
+        if entry.get("name") == machine_name:
+            raise ValueError(f"Machine '{machine_name}' already exists. Remove it first.")
+
+    entry = {
+        "token": token,
+        "name": machine_name,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    tokens.append(entry)
+    _write_config(config)
+    return entry
+
+
+def revoke_machine_token(machine_name: str) -> bool:
+    """Remove a machine token by name. Returns True if found and removed."""
+    config = _read_config()
+    machines = config.get("machines", {})
+    tokens: list[dict[str, Any]] = machines.get("tokens", [])
+
+    original_len = len(tokens)
+    tokens = [t for t in tokens if t.get("name") != machine_name]
+
+    if len(tokens) == original_len:
+        return False
+
+    machines["tokens"] = tokens
+    config["machines"] = machines
+    _write_config(config)
+    return True
+
+
+def list_machine_tokens() -> list[dict[str, Any]]:
+    """List machine tokens (masked). Never returns raw tokens."""
+    config = _read_config()
+    machines = config.get("machines", {})
+    tokens: list[dict[str, Any]] = machines.get("tokens", [])
+
+    result = []
+    for entry in tokens:
+        result.append({
+            "name": entry.get("name", "unknown"),
+            "token_masked": _mask_token(entry.get("token", "")),
+            "created_at": entry.get("created_at"),
+        })
+    return result
+
+
+def get_machines_config() -> dict[str, Any]:
+    """Get the machines section of gateway.json (tokens masked)."""
+    config = _read_config()
+    machines = config.get("machines", {})
+    return {
+        "ws_port": machines.get("ws_port", DEFAULT_WS_PORT),
+        "machines": list_machine_tokens(),
+    }
