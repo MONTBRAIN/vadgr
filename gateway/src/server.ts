@@ -8,6 +8,17 @@ import type { InboundMessage, OutboundMessage, AgentAPI } from "./models.js";
 import { DiscordAdapter, type DiscordConfig } from "./adapters/discord.js";
 import { GatewayWsServer, type WsServerConfig } from "./ws-server.js";
 import { MultiMachineAPI } from "./multi-machine-api.js";
+import {
+  greetingEmbed,
+  agentListEmbed,
+  runStartedEmbed,
+  statusEmbed,
+  machinesEmbed,
+  helpEmbed,
+  runCompletedEmbed,
+  runFailedEmbed,
+  errorEmbed,
+} from "./embeds.js";
 
 export interface GatewayConfig {
   apiUrl: string;
@@ -67,6 +78,8 @@ export class Gateway {
       const discord = new DiscordAdapter(this.config.discord);
       discord.registerHandler((msg) => this.processMessage(msg, discord));
       discord.setSessionChecker((senderId) => this.router.hasActiveSession(senderId));
+      discord.onSlashCommand = (cmd, opts, senderId, senderName, chatId) =>
+        this.handleSlashCommand(cmd, opts, senderId, senderName, chatId, discord);
       await discord.connect();
       this.adapters.push(discord);
     }
@@ -87,6 +100,93 @@ export class Gateway {
       await adapter.disconnect();
     }
     console.log("[Gateway] Stopped");
+  }
+
+  /** Handle slash commands from Discord with embed responses. */
+  private async handleSlashCommand(
+    command: string,
+    options: Record<string, string>,
+    senderId: string,
+    senderName: string,
+    chatId: string,
+    adapter: ChannelAdapter,
+  ): Promise<{ text?: string; embed?: any }> {
+    try {
+      switch (command) {
+        case "agents": {
+          const agents = await this.api.listAgents();
+          return { embed: agentListEmbed(agents as any[]) };
+        }
+        case "status": {
+          const runs = await this.api.listRuns();
+          return { embed: statusEmbed(runs as any[]) };
+        }
+        case "machines": {
+          if (this.wsServer) {
+            const machines = this.wsServer.getRegistry().getAllMachines().map((m) => ({
+              name: m.name,
+              agentCount: m.agents.length,
+              connectedAt: m.connectedAt,
+              activeRuns: m.activeRuns,
+            }));
+            return { embed: machinesEmbed(machines) };
+          }
+          return { text: "Multi-machine mode not enabled. Run on a single machine." };
+        }
+        case "run": {
+          const agentQuery = options["agent"] || "";
+          // Use the router's existing agent matching logic via a synthetic message
+          const fakeMessage = {
+            channel: "discord",
+            chatId,
+            senderId,
+            senderName,
+            text: `run ${agentQuery}`,
+            messageType: "text" as any,
+            timestamp: new Date(),
+            raw: {},
+          };
+          const result = await this.router.handle(fakeMessage);
+
+          if (result.isAsync && result.runId) {
+            if (this.wsServer) {
+              this.runTracking.set(result.runId, {
+                chatId, adapter, agentName: result.agentName || "Agent", machineName: result.machineName,
+              });
+            } else {
+              this.watchRun(result.runId, result.agentName || "Agent", chatId, adapter);
+            }
+            return { embed: runStartedEmbed(result.agentName || "Agent", result.runId, result.machineName) };
+          }
+
+          return { text: result.response };
+        }
+        case "cancel": {
+          const runId = options["run_id"] || "";
+          try {
+            await this.api.cancelRun(runId.trim());
+            return { text: `Cancelled run ${runId}.` };
+          } catch (e: any) {
+            return { embed: errorEmbed("Cancel failed", e.message) };
+          }
+        }
+        case "logs": {
+          const runId = options["run_id"] || "";
+          try {
+            const logs = await this.api.getRunLogs(runId.trim());
+            if (!logs.length) return { text: "No logs yet." };
+            const lines = logs.slice(-5).map((e: any) => `${(e.message || e.data || "").slice(0, 100)}`);
+            return { text: "```\n" + lines.join("\n") + "\n```" };
+          } catch (e: any) {
+            return { embed: errorEmbed("Logs failed", e.message) };
+          }
+        }
+        default:
+          return { embed: helpEmbed() };
+      }
+    } catch (err: any) {
+      return { embed: errorEmbed("Error", err.message) };
+    }
   }
 
   /** Wire WebSocket progress/completion events to Discord run tracking. */

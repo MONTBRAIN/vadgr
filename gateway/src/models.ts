@@ -22,6 +22,7 @@ export interface InboundMessage {
 export interface OutboundMessage {
   chatId: string;
   text: string;
+  embed?: any;  // discord.js EmbedBuilder -- typed as any to stay adapter-agnostic
 }
 
 export interface CommandResult {
