@@ -18,7 +18,7 @@ from gateway.api_client import VadgrAPIClient
 from gateway.config import GatewayConfig, load_config
 from gateway.models import InboundMessage, OutboundMessage
 from gateway.router import MessageRouter
-from gateway.security import SecurityGuard
+from gateway.security import SILENT_REJECT, SecurityGuard
 
 logger = logging.getLogger(__name__)
 
@@ -93,10 +93,7 @@ async def _process_message(
 
     # Security check
     rejection = security.check(message)
-    if rejection is None and message.sender_id not in (
-        app.state.config.security.allowed_senders or [message.sender_id]
-    ):
-        # Silent reject for unknown senders (don't reveal bot exists)
+    if rejection is SILENT_REJECT:
         return
     if rejection:
         await adapter.send_message(OutboundMessage(

@@ -27,6 +27,16 @@ _DEFAULT_RATE_LIMIT = 10
 _DEFAULT_RATE_WINDOW = 3600  # seconds
 
 
+class _SilentReject:
+    """Sentinel returned by SecurityGuard.check() when a sender is not in the allowlist."""
+
+    def __repr__(self) -> str:
+        return "SILENT_REJECT"
+
+
+SILENT_REJECT = _SilentReject()
+
+
 @dataclass
 class SecurityConfig:
     """Security configuration for the gateway."""
@@ -49,8 +59,8 @@ class SecurityGuard:
             path.parent.mkdir(parents=True, exist_ok=True)
             self._audit_log = path
 
-    def check(self, message: InboundMessage) -> str | None:
-        """Validate a message. Returns an error string if rejected, None if OK."""
+    def check(self, message: InboundMessage) -> str | _SilentReject | None:
+        """Validate a message. Returns an error string if rejected, SILENT_REJECT if silently rejected, None if OK."""
         self._audit(message)
 
         # 1. Sender allowlist
@@ -61,7 +71,7 @@ class SecurityGuard:
                     message.sender_id,
                     message.sender_name,
                 )
-                return None  # Silent reject -- don't reveal bot exists to strangers
+                return SILENT_REJECT  # Silent reject -- don't reveal bot exists to strangers
 
         # 2. Rate limiting
         if self._is_rate_limited(message.sender_id):
