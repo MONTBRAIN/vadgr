@@ -13,6 +13,12 @@ whatsapp:
   instance_name: vadgr
   api_key: ""  # Set your Evolution API key
 
+# Discord (optional)
+# discord:
+#   bot_token: ""       # Discord bot token from developer portal
+#   bot_id: ""          # Bot user ID (optional, used to strip mention prefix)
+#   guild_id: ""        # Restrict to a specific guild (optional)
+
 # Security
 security:
   # Phone numbers allowed to interact (empty = allow all)

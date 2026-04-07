@@ -22,12 +22,20 @@ class WhatsAppConfig:
 
 
 @dataclass
+class DiscordConfig:
+    bot_token: str = ""
+    bot_id: str = ""
+    guild_id: str = ""
+
+
+@dataclass
 class GatewayConfig:
     """Top-level gateway configuration."""
 
     api_url: str = "http://localhost:8000"
     webhook_port: int = 8585
     whatsapp: WhatsAppConfig = field(default_factory=WhatsAppConfig)
+    discord: DiscordConfig = field(default_factory=DiscordConfig)
     security: SecurityConfig = field(default_factory=SecurityConfig)
 
 
@@ -57,6 +65,14 @@ def load_config(config_path: str | None = None) -> GatewayConfig:
                 api_key=wa.get("api_key", config.whatsapp.api_key),
             )
 
+        disc = data.get("discord", {})
+        if disc:
+            config.discord = DiscordConfig(
+                bot_token=disc.get("bot_token", config.discord.bot_token),
+                bot_id=disc.get("bot_id", config.discord.bot_id),
+                guild_id=disc.get("guild_id", config.discord.guild_id),
+            )
+
         sec = data.get("security", {})
         if sec:
             config.security = SecurityConfig(
@@ -77,5 +93,9 @@ def load_config(config_path: str | None = None) -> GatewayConfig:
         config.whatsapp.instance_name = os.environ["EVOLUTION_INSTANCE"]
     if os.environ.get("EVOLUTION_API_KEY"):
         config.whatsapp.api_key = os.environ["EVOLUTION_API_KEY"]
+    if os.environ.get("DISCORD_BOT_TOKEN"):
+        config.discord.bot_token = os.environ["DISCORD_BOT_TOKEN"]
+    if os.environ.get("DISCORD_BOT_ID"):
+        config.discord.bot_id = os.environ["DISCORD_BOT_ID"]
 
     return config

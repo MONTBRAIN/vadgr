@@ -13,6 +13,7 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from gateway.adapters.discord import DiscordAdapter
 from gateway.adapters.whatsapp import WhatsAppAdapter
 from gateway.api_client import VadgrAPIClient
 from gateway.config import GatewayConfig, load_config
@@ -41,11 +42,22 @@ def create_app(config: GatewayConfig | None = None) -> FastAPI:
         api_key=config.whatsapp.api_key,
     )
 
+    # Discord adapter (optional -- only wired when bot_token is configured)
+    discord_adapter: DiscordAdapter | None = None
+    if config.discord.bot_token:
+        discord_adapter = DiscordAdapter(
+            bot_token=config.discord.bot_token,
+            bot_id=config.discord.bot_id or None,
+            guild_id=config.discord.guild_id or None,
+        )
+
     # Store on app state for access in routes
     app.state.config = config
     app.state.router = router
     app.state.security = security
     app.state.adapters = {"whatsapp": wa_adapter}
+    if discord_adapter is not None:
+        app.state.adapters["discord"] = discord_adapter
     app.state.api_client = api_client
     app.state.run_watchers = {}  # run_id -> (chat_id, adapter) for async notifications
 
@@ -62,6 +74,12 @@ def create_app(config: GatewayConfig | None = None) -> FastAPI:
 
         await wa_adapter.register_handler(handle_message)
 
+        if discord_adapter is not None:
+            async def handle_discord_message(message: InboundMessage):
+                await _process_message(app, message, discord_adapter)
+
+            await discord_adapter.register_handler(handle_discord_message)
+
     @app.post("/webhook/whatsapp")
     async def whatsapp_webhook(request: Request):
         """Receive webhooks from Evolution API."""
@@ -70,6 +88,15 @@ def create_app(config: GatewayConfig | None = None) -> FastAPI:
         # Process async -- return 200 immediately (best practice for webhooks)
         asyncio.create_task(wa.handle_webhook(payload))
         return JSONResponse(content={"status": "ok"})
+
+    if discord_adapter is not None:
+        @app.post("/webhook/discord")
+        async def discord_webhook(request: Request):
+            """Receive webhooks from Discord."""
+            payload = await request.json()
+            disc = app.state.adapters["discord"]
+            asyncio.create_task(disc.handle_webhook(payload))
+            return JSONResponse(content={"status": "ok"})
 
     @app.get("/health")
     async def health():
