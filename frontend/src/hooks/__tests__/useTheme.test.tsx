@@ -41,11 +41,11 @@ describe('ThemeProvider', () => {
   it('persists theme to localStorage', () => {
     render(<ThemeProvider><TestConsumer /></ThemeProvider>);
     fireEvent.click(screen.getByText('toggle'));
-    expect(localStorage.getItem('agent-forge-theme')).toBe('light');
+    expect(localStorage.getItem('vadgr-theme')).toBe('light');
   });
 
   it('reads stored theme from localStorage', () => {
-    localStorage.setItem('agent-forge-theme', 'light');
+    localStorage.setItem('vadgr-theme', 'light');
     render(<ThemeProvider><TestConsumer /></ThemeProvider>);
     expect(screen.getByTestId('theme').textContent).toBe('light');
   });

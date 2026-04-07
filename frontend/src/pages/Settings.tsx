@@ -11,7 +11,7 @@ import { PixelMoon, PixelSun, PixelGear, PixelClock } from '../components/ui/Pix
 import { getInflight, toggleComputerUse as toggleCu } from '../hooks/useComputerUse';
 import { getGatewayInflight, updateDiscordGateway, type GatewayStatus } from '../hooks/useMessagingGateway';
 
-const STORAGE_KEY = 'agent-forge-settings';
+const STORAGE_KEY = 'vadgr-settings';
 
 interface AppSettings {
   defaultProvider: string;

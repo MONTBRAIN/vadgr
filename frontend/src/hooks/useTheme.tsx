@@ -9,7 +9,7 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue>({ theme: 'dark', toggle: () => {} });
 
-const STORAGE_KEY = 'agent-forge-theme';
+const STORAGE_KEY = 'vadgr-theme';
 
 function getInitialTheme(): Theme {
   try {

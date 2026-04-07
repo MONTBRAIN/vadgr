@@ -13,13 +13,12 @@
 
 
 <p align="center">
-  <i><b>Independent agents that can operate on any task, no matter how complex.</b></i>
+  <i><b>Open-source AI agents that work on your computer.</b></i>
 </p>
 
-Vadgr gives AI agents the ability to think through problems (forge) and interact with the real world (computer use). Each module works on its own or together with the others. Cross-platform: runs on Windows, Linux, and macOS (Work progres).
+Describe your work. Vadgr builds an agent for it. The agent runs on your machine -- writing code, controlling apps, clicking buttons, and delivering results -- while you do something else. Works with Claude Code, Codex, Gemini, or any CLI agent tool. Cross-platform: Linux, Windows (WSL2), and macOS (in progress).
 
-
-##  Paltform
+## Platform
 
 <div align="left">
 
@@ -143,31 +142,31 @@ graph LR
 
 ### [cli/](cli/) - Command-Line Interface
 
-Unified CLI built with Click. Manages agents, runs, registry, and system info. Talks to the API over HTTP for agent/run operations; calls the registry module directly for package management. Each module has its own venv.
+Unified CLI built with Click. Manages agents, runs, registry, and services. Talks to the API over HTTP for agent/run operations; calls the registry module directly for package management.
 
 ### [api/](api/) - REST API + Execution Engine
 
-FastAPI backend for agent CRUD, forge generation, and execution. Calls any CLI agent tool as a subprocess via config-driven providers. See [api/README.md](api/README.md) for setup details.
+FastAPI backend for agent CRUD, generation, and execution. Spawns any CLI agent tool (Claude Code, Codex, Gemini) as a subprocess via config-driven providers. Supports multi-step orchestration with approval gates, resume, and retry. See [api/README.md](api/README.md).
 
 ### [frontend/](frontend/) - Web Dashboard
 
-React 19 + TypeScript + Vite dashboard for managing agents and viewing runs. See [frontend/README.md](frontend/README.md) for setup details.
+React 19 + TypeScript + Vite dashboard for creating agents, monitoring runs in real-time, and configuring integrations (Discord gateway, computer use). See [frontend/README.md](frontend/README.md).
 
-### [forge/](forge/) - Workflow Generation Engine
+### [forge/](forge/) - Agent Generation Engine
 
-Designs and generates complete agentic workflow projects through a 7-step conversational process. Agent-agnostic: works with any AI coding agent that can read files and follow instructions.
+Describe what you want automated. Forge generates a complete agent project through a 7-step process: requirements, architecture, scaffold, orchestrator, prompts, scripts, and review. Agent-agnostic: works with any AI coding tool.
 
-### [computer_use/](computer_use/) - Desktop Automation Engine
+### [computer_use/](computer_use/) - Desktop Automation
 
-Captures screenshots, locates UI elements, and executes mouse/keyboard actions across **Windows, macOS, and Linux** (including WSL2). Works as a Python library, MCP server, or CLI tool. Runs natively on the host.
+Gives agents eyes and hands. Captures screenshots, locates UI elements via accessibility APIs, and executes mouse/keyboard actions. Includes a spatial cache (muscle memory) that makes repeated interactions faster over time. Works as an MCP server across Windows, Linux, WSL2, and macOS.
+
+### [gateway/](gateway/) - Messaging Integration
+
+Chat with agents from Discord. List agents, run them, monitor progress, and receive results -- all from Discord DMs or @mentions. Session-aware conversations with security (input sanitization, sender allowlist, audit logging).
 
 ### [registry/](registry/) - Agent Package Manager
 
-Package, publish, and install agent workflows. Supports three backends: GitHub (releases + raw content), any HTTP server, or a local folder. Agents are distributed as `.agnt` archives (zip with manifest). Includes SHA256 integrity verification, SSRF protection, and zip slip prevention.
-
-### paper/ - Research Paper
-
-Academic paper documenting the framework.
+Package, publish, and install agents as `.agnt` archives. Supports GitHub, HTTP, and local registries. Includes SHA256 integrity verification, SSRF protection, and zip slip prevention.
 
 ## Structure
 
@@ -176,36 +175,38 @@ Vadgr/
 ├── cli/                   # Unified command-line interface
 │   ├── main.py            # Root Click group
 │   ├── http.py            # HTTP client for API
-│   ├── commands/          # agents, runs, registry, info
+│   ├── commands/          # agents, runs, registry, gateway, info
 │   └── tests/             # Unit + integration tests
 ├── api/                   # REST API + execution engine
 │   ├── main.py            # FastAPI app
 │   ├── routes/            # HTTP endpoints
-│   ├── services/          # Business logic
-│   ├── engine/            # CLI provider executor
+│   ├── services/          # Business logic + gateway setup
+│   ├── engine/            # CLI provider executor + DAG orchestration
 │   └── persistence/       # SQLite database
 ├── frontend/              # React web dashboard
 │   ├── src/pages/         # Dashboard, Agents, Runs, Settings
 │   ├── src/components/    # UI components
-│   └── src/hooks/         # TanStack Query hooks
-├── forge/                 # Workflow generation engine (standalone)
+│   └── src/hooks/         # TanStack Query + messaging gateway hooks
+├── forge/                 # Agent generation engine (standalone)
 │   ├── agentic.md         # 7-step orchestrator
 │   ├── Prompts/           # Specialized agent prompts
-│   ├── patterns/          # 10 reusable workflow patterns
-│   └── examples/          # 3 example workflows
-├── computer_use/          # Desktop automation engine (standalone)
-│   ├── core/              # Engine facade, types, actions
+│   ├── patterns/          # Reusable workflow patterns
+│   └── examples/          # Example agents
+├── computer_use/          # Desktop automation (standalone)
+│   ├── core/              # Engine, spatial cache, actions
 │   ├── platform/          # OS backends (Linux, Windows, macOS, WSL2)
+│   ├── grounding/         # UI element location (accessibility + vision)
 │   └── mcp_server.py      # MCP server
+├── gateway/               # Messaging integration
+│   ├── src/               # Discord adapter, router, security, API client
+│   └── tests/             # 70 tests
 ├── registry/              # Agent package manager
-│   ├── cli.py             # Click CLI (pack, pull, push, search)
 │   ├── security.py        # Zip safety, SSRF, SHA256, TLS
 │   ├── server.py          # Self-hosted HTTP registry server
 │   └── adapters/          # GitHub, HTTP, local backends
-├── providers.yaml         # CLI provider configs (claude, codex, aider, etc.)
+├── providers.yaml         # CLI provider configs (Claude, Codex, Gemini)
 ├── data/                  # SQLite database (created at runtime)
-├── output/                # Generated agent workflows
-└── paper/                 # Research paper
+└── output/                # Generated agents land here
 ```
 
 ## Technologies

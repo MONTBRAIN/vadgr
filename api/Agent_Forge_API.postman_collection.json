@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "Agent Forge API",
-    "description": "E2E test suite for the Agent Forge API.\n\nRun order matters -- requests use collection variables set by earlier requests.\n\nFlow: Providers -> Health -> Create Agent -> Poll Ready -> Get -> Cosmetic Update -> Substantive Update -> Poll Updated -> Busy Update (409) -> Run Agent -> List Runs -> List Agents -> Minimal Create -> Validation Tests -> Delete Tests -> Runs -> Computer Use.",
+    "name": "Vadgr API",
+    "description": "E2E test suite for the Vadgr API.\n\nRun order matters -- requests use collection variables set by earlier requests.\n\nFlow: Providers -> Health -> Create Agent -> Poll Ready -> Get -> Cosmetic Update -> Substantive Update -> Poll Updated -> Busy Update (409) -> Run Agent -> List Runs -> List Agents -> Minimal Create -> Validation Tests -> Delete Tests -> Runs -> Computer Use.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
