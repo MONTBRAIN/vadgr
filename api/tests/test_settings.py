@@ -303,26 +303,41 @@ class TestComputerUseSetupService:
 
 
 class TestEnsureDaemonDeps:
-    """Tests for _ensure_daemon_deps: install mss on Windows Python before daemon launch."""
+    """Tests for _ensure_daemon_deps: install daemon deps on Windows Python."""
 
-    def test_returns_true_when_mss_already_present(self):
-        """If mss is already importable, return True without pip install."""
+    def test_returns_true_when_all_deps_present(self):
+        """If all deps are importable, return True without pip install."""
         with patch.object(cu_setup, "_check_win_python_module", return_value=True):
             assert cu_setup._ensure_daemon_deps("C:\\Python312\\python.exe") is True
 
-    def test_installs_and_verifies_mss(self):
-        """If mss missing, pip install then verify. Returns True on success."""
-        with patch.object(cu_setup, "_check_win_python_module", side_effect=[False, True]), \
+    def test_installs_missing_deps_and_verifies(self):
+        """If some deps missing, pip install then verify. Returns True on success."""
+        # First round: mss ok, PIL missing. After install: both ok.
+        checks = iter([True, False, True, True])
+        with patch.object(cu_setup, "_check_win_python_module", side_effect=checks), \
              patch("subprocess.run") as mock_run:
             ok_result = type("R", (), {"returncode": 0, "stderr": ""})()
             mock_run.return_value = ok_result
             assert cu_setup._ensure_daemon_deps("C:\\Python312\\python.exe") is True
-            # pip install was called
             pip_cmd = mock_run.call_args_list[0][0][0][-1]
-            assert "pip install mss" in pip_cmd
+            assert "Pillow" in pip_cmd
+            assert "mss" not in pip_cmd  # mss was already present
+
+    def test_installs_all_when_none_present(self):
+        """If no deps present, install all in one pip call."""
+        # First round: all missing. After install: all ok.
+        checks = iter([False, False, True, True])
+        with patch.object(cu_setup, "_check_win_python_module", side_effect=checks), \
+             patch("subprocess.run") as mock_run:
+            ok_result = type("R", (), {"returncode": 0, "stderr": ""})()
+            mock_run.return_value = ok_result
+            assert cu_setup._ensure_daemon_deps("C:\\Python312\\python.exe") is True
+            pip_cmd = mock_run.call_args_list[0][0][0][-1]
+            assert "mss" in pip_cmd
+            assert "Pillow" in pip_cmd
 
     def test_returns_false_when_install_fails(self):
-        """If pip install fails and mss still not importable, return False."""
+        """If pip fails and deps still missing, return False."""
         with patch.object(cu_setup, "_check_win_python_module", return_value=False), \
              patch("subprocess.run") as mock_run:
             fail_result = type("R", (), {"returncode": 1, "stderr": "no pip"})()
