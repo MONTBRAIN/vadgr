@@ -163,18 +163,32 @@ setup_repo() {
 }
 
 ensure_venv_module() {
-    if python3 -m venv --help >/dev/null 2>&1; then return; fi
+    # Check both venv and ensurepip. venv --help can succeed even when
+    # ensurepip is missing, which causes venv creation to fail later.
+    if python3 -c "import venv, ensurepip" 2>/dev/null; then return; fi
     info "Installing python3-venv package..."
     local py_minor
     py_minor=$(python3 -c "import sys; print(sys.version_info.minor)" 2>/dev/null)
     if command_exists apt-get; then
-        sudo apt-get install -y -qq "python3.${py_minor}-venv" || sudo apt-get install -y -qq python3-venv
+        sudo apt-get update -qq >/dev/null 2>&1 || true
+        sudo apt-get install -y -qq "python3.${py_minor}-venv" 2>/dev/null \
+            || sudo apt-get install -y -qq python3-venv 2>/dev/null \
+            || true
+        # If default repos didn't have it, try deadsnakes PPA
+        if ! python3 -c "import venv, ensurepip" 2>/dev/null; then
+            if command_exists add-apt-repository; then
+                info "Trying deadsnakes PPA..."
+                sudo add-apt-repository -y ppa:deadsnakes/ppa >/dev/null 2>&1
+                sudo apt-get update -qq >/dev/null 2>&1
+                sudo apt-get install -y -qq "python3.${py_minor}-venv" 2>/dev/null || true
+            fi
+        fi
     elif command_exists dnf; then
         sudo dnf install -y -q python3-libs
     elif command_exists pacman; then
         sudo pacman -S --noconfirm python
     fi
-    python3 -m venv --help >/dev/null 2>&1 || fail "python3 venv module not available. Install it manually."
+    python3 -c "import venv, ensurepip" 2>/dev/null || fail "Could not install python3-venv. Install it manually: sudo apt install python3.${py_minor}-venv"
 }
 
 setup_venv() {
