@@ -264,41 +264,63 @@ def _check_win_python_module(win_python: str, module: str) -> bool:
         return False
 
 
-def _ensure_daemon_deps(win_python: str) -> bool:
-    """Install daemon dependencies (mss) on the Windows-side Python.
+# Packages the Windows daemon needs beyond stdlib.
+# daemon.py imports mss (screenshots) and PIL (JPEG conversion).
+_DAEMON_DEPS = ["mss", "Pillow"]
+_DAEMON_IMPORT_NAMES = {"Pillow": "PIL"}  # pip name -> import name
 
-    Returns True if mss is available after this call, False otherwise.
+
+def _ensure_daemon_deps(win_python: str) -> bool:
+    """Install daemon dependencies on the Windows-side Python.
+
+    Returns True if all deps are importable after this call.
     """
-    if _check_win_python_module(win_python, "mss"):
+    missing = []
+    for pkg in _DAEMON_DEPS:
+        mod = _DAEMON_IMPORT_NAMES.get(pkg, pkg)
+        if not _check_win_python_module(win_python, mod):
+            missing.append(pkg)
+
+    if not missing:
         return True
 
-    logger.info("Installing mss on Windows Python (%s)...", win_python)
+    logger.info(
+        "Installing daemon deps on Windows Python (%s): %s",
+        win_python, ", ".join(missing),
+    )
     try:
         result = subprocess.run(
             [
                 "powershell.exe", "-NoProfile", "-Command",
-                f'& "{win_python}" -m pip install mss',
+                f'& "{win_python}" -m pip install {" ".join(missing)}',
             ],
-            capture_output=True, text=True, timeout=60,
+            capture_output=True, text=True, timeout=120,
         )
         if result.returncode != 0:
             logger.warning(
-                "pip install mss failed (exit %d): %s",
+                "pip install failed (exit %d): %s",
                 result.returncode, result.stderr.strip(),
             )
     except Exception as e:
-        logger.warning("Failed to install mss on Windows Python: %s", e)
+        logger.warning("Failed to install daemon deps: %s", e)
 
-    # Verify it actually worked
-    installed = _check_win_python_module(win_python, "mss")
-    if not installed:
+    # Verify everything is importable
+    still_missing = []
+    for pkg in _DAEMON_DEPS:
+        mod = _DAEMON_IMPORT_NAMES.get(pkg, pkg)
+        if not _check_win_python_module(win_python, mod):
+            still_missing.append(pkg)
+
+    if still_missing:
         logger.error(
-            "mss is not available on Windows Python (%s). "
-            "Screenshots will fail. Install manually: "
-            "open PowerShell and run: %s -m pip install mss",
-            win_python, win_python,
+            "Daemon deps not available on Windows Python (%s): %s. "
+            "Screenshots will fail. Install manually in PowerShell: "
+            "%s -m pip install %s",
+            win_python, ", ".join(still_missing),
+            win_python, " ".join(still_missing),
         )
-    return installed
+        return False
+    return True
 
 
 def _deploy_and_launch_daemon(win_python: str) -> None:
