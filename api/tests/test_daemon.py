@@ -101,21 +101,10 @@ class TestGetStatusIncludesDaemon:
 
 
 class TestEnableManagesDaemon:
-    def test_enable_starts_daemon_when_stopped(self):
+    def test_enable_always_redeploys_daemon(self):
+        """Enable must always stop+start to replace stale daemons that lack deps."""
         from api.services.computer_use_setup import enable_computer_use
-        with patch("api.services.computer_use_setup._probe_daemon", return_value="stopped"), \
-             patch("api.services.computer_use_setup._start_daemon", return_value=True) as m_start, \
-             patch("api.services.computer_use_setup._venv_healthy", return_value=True), \
-             patch("api.services.computer_use_setup._deps_need_install", return_value=False), \
-             patch("api.services.computer_use_setup._write_all_provider_configs"), \
-             patch("api.services.computer_use_setup._is_wsl2", return_value=True):
-            enable_computer_use()
-            m_start.assert_called_once()
-
-    def test_enable_restarts_degraded_daemon(self):
-        from api.services.computer_use_setup import enable_computer_use
-        with patch("api.services.computer_use_setup._probe_daemon", return_value="degraded"), \
-             patch("api.services.computer_use_setup._stop_daemon") as m_stop, \
+        with patch("api.services.computer_use_setup._stop_daemon") as m_stop, \
              patch("api.services.computer_use_setup._start_daemon", return_value=True) as m_start, \
              patch("api.services.computer_use_setup._venv_healthy", return_value=True), \
              patch("api.services.computer_use_setup._deps_need_install", return_value=False), \
@@ -124,17 +113,6 @@ class TestEnableManagesDaemon:
             enable_computer_use()
             m_stop.assert_called_once()
             m_start.assert_called_once()
-
-    def test_enable_skips_launch_when_running(self):
-        from api.services.computer_use_setup import enable_computer_use
-        with patch("api.services.computer_use_setup._probe_daemon", return_value="running"), \
-             patch("api.services.computer_use_setup._start_daemon") as m_start, \
-             patch("api.services.computer_use_setup._venv_healthy", return_value=True), \
-             patch("api.services.computer_use_setup._deps_need_install", return_value=False), \
-             patch("api.services.computer_use_setup._write_all_provider_configs"), \
-             patch("api.services.computer_use_setup._is_wsl2", return_value=True):
-            enable_computer_use()
-            m_start.assert_not_called()
 
 
 class TestDisableKillsDaemon:

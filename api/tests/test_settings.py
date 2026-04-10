@@ -305,43 +305,56 @@ class TestComputerUseSetupService:
 class TestEnsureDaemonDeps:
     """Tests for _ensure_daemon_deps: install mss on Windows Python before daemon launch."""
 
-    def test_skips_install_when_mss_already_present(self):
-        """If mss is already importable on Windows Python, skip pip install."""
-        with patch("subprocess.run") as mock_run:
-            mock_run.return_value.returncode = 0
-            cu_setup._ensure_daemon_deps("C:\\Python312\\python.exe")
-            # Only one call: the import check. No pip install.
-            assert mock_run.call_count == 1
-            assert "import mss" in mock_run.call_args_list[0][0][0][-1]
+    def test_returns_true_when_mss_already_present(self):
+        """If mss is already importable, return True without pip install."""
+        with patch.object(cu_setup, "_check_win_python_module", return_value=True):
+            assert cu_setup._ensure_daemon_deps("C:\\Python312\\python.exe") is True
 
-    def test_installs_mss_when_missing(self):
-        """If mss import fails, pip install mss on Windows Python."""
-        with patch("subprocess.run") as mock_run:
-            # First call (import check) fails, second call (pip install) succeeds
-            fail_result = type("R", (), {"returncode": 1})()
-            ok_result = type("R", (), {"returncode": 0})()
-            mock_run.side_effect = [fail_result, ok_result]
-            cu_setup._ensure_daemon_deps("C:\\Python312\\python.exe")
-            assert mock_run.call_count == 2
-            pip_cmd = mock_run.call_args_list[1][0][0][-1]
-            assert "pip install" in pip_cmd
-            assert "mss" in pip_cmd
+    def test_installs_and_verifies_mss(self):
+        """If mss missing, pip install then verify. Returns True on success."""
+        with patch.object(cu_setup, "_check_win_python_module", side_effect=[False, True]), \
+             patch("subprocess.run") as mock_run:
+            ok_result = type("R", (), {"returncode": 0, "stderr": ""})()
+            mock_run.return_value = ok_result
+            assert cu_setup._ensure_daemon_deps("C:\\Python312\\python.exe") is True
+            # pip install was called
+            pip_cmd = mock_run.call_args_list[0][0][0][-1]
+            assert "pip install mss" in pip_cmd
 
-    def test_handles_import_check_exception(self):
-        """If the import check subprocess itself throws, still try pip install."""
-        with patch("subprocess.run") as mock_run:
-            ok_result = type("R", (), {"returncode": 0})()
-            mock_run.side_effect = [OSError("no powershell"), ok_result]
-            cu_setup._ensure_daemon_deps("C:\\Python312\\python.exe")
-            assert mock_run.call_count == 2
+    def test_returns_false_when_install_fails(self):
+        """If pip install fails and mss still not importable, return False."""
+        with patch.object(cu_setup, "_check_win_python_module", return_value=False), \
+             patch("subprocess.run") as mock_run:
+            fail_result = type("R", (), {"returncode": 1, "stderr": "no pip"})()
+            mock_run.return_value = fail_result
+            assert cu_setup._ensure_daemon_deps("C:\\Python312\\python.exe") is False
 
-    def test_handles_pip_install_exception(self):
-        """If pip install throws, log warning but don't crash."""
-        with patch("subprocess.run") as mock_run:
-            fail_result = type("R", (), {"returncode": 1})()
-            mock_run.side_effect = [fail_result, OSError("pip failed")]
-            # Should not raise
-            cu_setup._ensure_daemon_deps("C:\\Python312\\python.exe")
+    def test_returns_false_on_pip_exception(self):
+        """If pip subprocess throws, return False."""
+        with patch.object(cu_setup, "_check_win_python_module", return_value=False), \
+             patch("subprocess.run", side_effect=OSError("no powershell")):
+            assert cu_setup._ensure_daemon_deps("C:\\Python312\\python.exe") is False
+
+
+class TestEnableAlwaysRedeploysDaemon:
+    """Enable must always stop+start the daemon so stale processes get replaced."""
+
+    def test_enable_stops_running_daemon_before_restart(self, tmp_path):
+        """Even if daemon is 'running', enable should stop and redeploy it."""
+        _create_fake_pip(tmp_path / "cu_venv")
+        with patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "cu_venv"), \
+             patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "req.txt"), \
+             patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"), \
+             patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"), \
+             patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", tmp_path / ".codex" / "config.toml"), \
+             patch.object(cu_setup, "_is_wsl2", return_value=True), \
+             patch.object(cu_setup, "_stop_daemon") as mock_stop, \
+             patch.object(cu_setup, "_start_daemon") as mock_start, \
+             patch.object(cu_setup, "_deps_need_install", return_value=False):
+            (tmp_path / "req.txt").touch()
+            cu_setup.enable_computer_use()
+            mock_stop.assert_called_once()
+            mock_start.assert_called_once()
 
 
 class TestMcpServerName:

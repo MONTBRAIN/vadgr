@@ -249,32 +249,56 @@ def _find_windows_python() -> str | None:
     return None
 
 
-def _ensure_daemon_deps(win_python: str) -> None:
-    """Install daemon dependencies (mss) on the Windows-side Python if missing."""
+def _check_win_python_module(win_python: str, module: str) -> bool:
+    """Check if a module is importable on the Windows-side Python."""
     try:
         result = subprocess.run(
             [
                 "powershell.exe", "-NoProfile", "-Command",
-                f'& "{win_python}" -c "import mss"',
+                f'& "{win_python}" -c "import {module}"',
             ],
-            capture_output=True, timeout=15,
+            capture_output=True, text=True, timeout=15,
         )
-        if result.returncode == 0:
-            return
+        return result.returncode == 0
     except Exception:
-        pass
+        return False
 
-    logger.info("Installing mss on Windows Python...")
+
+def _ensure_daemon_deps(win_python: str) -> bool:
+    """Install daemon dependencies (mss) on the Windows-side Python.
+
+    Returns True if mss is available after this call, False otherwise.
+    """
+    if _check_win_python_module(win_python, "mss"):
+        return True
+
+    logger.info("Installing mss on Windows Python (%s)...", win_python)
     try:
-        subprocess.run(
+        result = subprocess.run(
             [
                 "powershell.exe", "-NoProfile", "-Command",
-                f'& "{win_python}" -m pip install --quiet mss',
+                f'& "{win_python}" -m pip install mss',
             ],
-            capture_output=True, timeout=60,
+            capture_output=True, text=True, timeout=60,
         )
+        if result.returncode != 0:
+            logger.warning(
+                "pip install mss failed (exit %d): %s",
+                result.returncode, result.stderr.strip(),
+            )
     except Exception as e:
         logger.warning("Failed to install mss on Windows Python: %s", e)
+
+    # Verify it actually worked
+    installed = _check_win_python_module(win_python, "mss")
+    if not installed:
+        logger.error(
+            "mss is not available on Windows Python (%s). "
+            "Screenshots will fail. Install manually: "
+            "open PowerShell and run: %s -m pip install mss",
+            win_python, win_python,
+        )
+    return installed
 
 
 def _deploy_and_launch_daemon(win_python: str) -> None:
@@ -290,8 +314,9 @@ def _deploy_and_launch_daemon(win_python: str) -> None:
         if os.path.exists(src):
             shutil.copy2(src, os.path.join(deploy_dir, fname))
 
-    # Install mss on Windows Python before launching
-    _ensure_daemon_deps(win_python)
+    if not _ensure_daemon_deps(win_python):
+        logger.warning("Skipping daemon launch -- mss not available")
+        return
 
     # Convert to Windows path
     try:
@@ -455,14 +480,12 @@ def enable_computer_use(cache_enabled: bool = True) -> dict:
         )
         _write_deps_marker()
 
-    # Manage daemon on WSL2
+    # Manage daemon on WSL2: always redeploy to ensure latest code + deps.
+    # A stale daemon (e.g. from before a reinstall) would still respond to
+    # ping but fail on screenshot because it lacks mss.
     if _is_wsl2():
-        state = _probe_daemon()
-        if state == "degraded":
-            _stop_daemon()
-            _start_daemon()
-        elif state == "stopped":
-            _start_daemon()
+        _stop_daemon()
+        _start_daemon()
 
     # Write MCP configs for all providers
     _write_all_provider_configs(cache_enabled=cache_enabled)
