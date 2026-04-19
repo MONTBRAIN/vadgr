@@ -32,3 +32,6 @@ texput.log
 .codex
 gateway/dist/
 gateway/node_modules/
+
+# vadgr-computer-use runtime venv (installed by api/services/computer_use_setup)
+.cu_venv/

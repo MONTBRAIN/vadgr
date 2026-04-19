@@ -2,7 +2,7 @@
 
 Designs and generates complete agentic workflow projects from a conversational interview.
 
-This module is **standalone** and works independently without `computer_use/`. It is **agent-agnostic**: works with any AI coding agent that can read files and follow instructions. Current supported agents: **Claude Code**, **OpenCode**.
+This module is **standalone** and works independently without `vadgr-computer-use`. It is **agent-agnostic**: works with any AI coding agent that can read files and follow instructions. Current supported agents: **Claude Code**, **OpenCode**.
 
 ## What It Does
 

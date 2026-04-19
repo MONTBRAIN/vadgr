@@ -2,7 +2,7 @@
 
 ## What
 
-A workflow pattern that gives agents eyes (screenshots) and hands (mouse, keyboard) to execute tasks autonomously on the desktop. The Computer Use Engine (`computer_use/`) provides the capabilities. A specialized Computer Use Agent decides what to see and do.
+A workflow pattern that gives agents eyes (screenshots) and hands (mouse, keyboard) to execute tasks autonomously on the desktop. The Computer Use Engine is provided by the [`vadgr-computer-use`](https://github.com/MONTBRAIN/vadgr-computer-use) package (`pip install vadgr-computer-use`). A specialized Computer Use Agent decides what to see and do.
 
 This pattern transforms workflows from "instructions a human follows" into "instructions the computer follows on its own."
 
@@ -32,7 +32,7 @@ engine.click(500, 300)              # agent tells engine to click
 engine.type_text("hello")           # agent tells engine to type
 ```
 
-**Autonomous mode (engine-driven).** The engine runs its own loop, calling an LLM API directly. Useful when no external agent is hosting the workflow. The provider is configured in `computer_use/config.yaml` and is not tied to any specific LLM.
+**Autonomous mode (engine-driven).** The engine runs its own loop, calling an LLM API directly. Useful when no external agent is hosting the workflow. The provider is configured in the generated project's `computer_use/config.yaml` (scaffolded by forge) and is not tied to any specific LLM.
 
 ```python
 engine = ComputerUseEngine()  # provider loaded from config.yaml

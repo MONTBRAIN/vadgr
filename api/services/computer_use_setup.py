@@ -23,8 +23,10 @@ GEMINI_SETTINGS_PATH = PROJECT_ROOT / ".gemini" / "settings.json"
 # Codex CLI ignores project-level .codex/config.toml for MCP servers.
 # It only reads the user-level global config.
 CODEX_GLOBAL_CONFIG_PATH = Path.home() / ".codex" / "config.toml"
-CU_VENV_DIR = PROJECT_ROOT / "computer_use" / ".venv"
-CU_REQUIREMENTS = PROJECT_ROOT / "computer_use" / "requirements.txt"
+CU_VENV_DIR = PROJECT_ROOT / ".cu_venv"
+# vadgr-computer-use is installed from PyPI. Pin the version expected for this
+# release of vadgr-forge. Bump alongside vadgr-forge releases.
+CU_PACKAGE_SPEC = "vadgr-computer-use[vision]>=0.1.0,<0.2.0"
 DEPS_MARKER = ".deps_installed"
 
 # MCP server name -- prefixed with "vadgr-" to avoid conflicts with CLI
@@ -324,7 +326,14 @@ def _ensure_daemon_deps(win_python: str) -> bool:
 
 
 def _deploy_and_launch_daemon(win_python: str) -> None:
-    bridge_dir = str(PROJECT_ROOT / "computer_use" / "bridge")
+    # Locate the bridge module inside the installed vadgr-computer-use package.
+    try:
+        import computer_use.bridge as _cu_bridge
+        bridge_dir = str(Path(_cu_bridge.__file__).parent)
+    except ImportError:
+        logger.warning("vadgr-computer-use not installed; daemon deploy skipped")
+        return
+
     deploy_dir = _get_windows_userprofile()
 
     if not deploy_dir:
@@ -454,21 +463,18 @@ def get_status() -> dict:
 
 
 def _deps_need_install() -> bool:
-    """Check if pip install is needed by comparing requirements hash to marker."""
-    if not CU_REQUIREMENTS.exists():
-        return False
+    """Reinstall when the pinned vadgr-computer-use spec changes."""
     marker = CU_VENV_DIR / DEPS_MARKER
     if not marker.exists():
         return True
-    current_hash = hashlib.md5(CU_REQUIREMENTS.read_bytes()).hexdigest()
+    current_hash = hashlib.md5(CU_PACKAGE_SPEC.encode()).hexdigest()
     return marker.read_text().strip() != current_hash
 
 
 def _write_deps_marker() -> None:
-    """Write marker file with current requirements hash after successful install."""
-    if CU_REQUIREMENTS.exists():
-        reqs_hash = hashlib.md5(CU_REQUIREMENTS.read_bytes()).hexdigest()
-        (CU_VENV_DIR / DEPS_MARKER).write_text(reqs_hash)
+    """Record the spec hash after a successful install."""
+    marker_hash = hashlib.md5(CU_PACKAGE_SPEC.encode()).hexdigest()
+    (CU_VENV_DIR / DEPS_MARKER).write_text(marker_hash)
 
 
 def _pip_path() -> Path:
@@ -492,12 +498,12 @@ def enable_computer_use(cache_enabled: bool = True) -> dict:
             check=True, capture_output=True,
         )
 
-    # Install/update deps only when requirements changed
+    # Install/update vadgr-computer-use when the pinned spec changes.
     if _deps_need_install():
         pip = str(_pip_path())
-        logger.info("Installing computer_use dependencies...")
+        logger.info("Installing %s...", CU_PACKAGE_SPEC)
         subprocess.run(
-            [pip, "install", "-q", "-r", str(CU_REQUIREMENTS)],
+            [pip, "install", "-q", "--upgrade", CU_PACKAGE_SPEC],
             check=True, capture_output=True,
         )
         _write_deps_marker()

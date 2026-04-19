@@ -42,13 +42,9 @@ Agent-Forge/
 │       ├── scaffold/                  # Templates for generated projects
 │       ├── code/                      # Code utilities
 │       └── docs/                      # Documentation utilities
-├── computer_use/                      # Desktop automation engine (standalone)
-│   ├── README.md                      # Module docs
-│   ├── core/                          # Engine facade, types, ABCs, autonomous loop
-│   ├── platform/                      # OS backends (WSL2, Linux, Windows, macOS)
-│   ├── grounding/                     # UI element location (accessibility + vision)
-│   ├── providers/                     # LLM adapters (Anthropic, OpenAI)
-│   └── tests/                         # Unit tests
+# Desktop automation moved to its own repository:
+# https://github.com/MONTBRAIN/vadgr-computer-use
+# Installed via `pip install vadgr-computer-use` when computer use is enabled.
 ├── cli/                               # Unified command-line interface
 │   ├── main.py                        # Root Click group
 │   ├── http.py                        # HTTP client for API calls
@@ -129,7 +125,7 @@ forge registry serve                          # Self-hosted server
 - Reference examples in `forge/examples/` when the user needs inspiration
 - No emojis in generated content
 - No "Co-Authored-By" or AI attribution in generated content
-- Generate mode must NEVER depend on `computer_use/`. Delete that directory and generate-only workflows keep working.
+- Generate mode must NEVER depend on `vadgr-computer-use`. If that optional package is not installed, generate-only workflows keep working.
 
 ## Step File Architecture
 

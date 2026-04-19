@@ -156,9 +156,9 @@ React 19 + TypeScript + Vite dashboard for creating agents, monitoring runs in r
 
 Describe what you want automated. Forge generates a complete agent project through a 7-step process: requirements, architecture, scaffold, orchestrator, prompts, scripts, and review. Agent-agnostic: works with any AI coding tool.
 
-### [computer_use/](computer_use/) - Desktop Automation
+### Desktop Automation
 
-Gives agents eyes and hands. Captures screenshots, locates UI elements via accessibility APIs, and executes mouse/keyboard actions. Includes a spatial cache (muscle memory) that makes repeated interactions faster over time. Works as an MCP server across Windows, Linux, WSL2, and macOS.
+The desktop-automation MCP server lives in its own repository: **[vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use)**. Install with `pip install vadgr-computer-use`. It gives agents eyes and hands via OS accessibility APIs with a vision fallback.
 
 ### [gateway/](gateway/) - Messaging Integration
 
@@ -192,11 +192,9 @@ Vadgr/
 │   ├── Prompts/           # Specialized agent prompts
 │   ├── patterns/          # Reusable workflow patterns
 │   └── examples/          # Example agents
-├── computer_use/          # Desktop automation (standalone)
-│   ├── core/              # Engine, spatial cache, actions
-│   ├── platform/          # OS backends (Linux, Windows, macOS, WSL2)
-│   ├── grounding/         # UI element location (accessibility + vision)
-│   └── mcp_server.py      # MCP server
+# Desktop automation lives in:
+# https://github.com/MONTBRAIN/vadgr-computer-use
+# (installed via `pip install vadgr-computer-use` when enabled)
 ├── gateway/               # Messaging integration
 │   ├── src/               # Discord adapter, router, security, API client
 │   └── tests/             # 70 tests
