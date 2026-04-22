@@ -58,13 +58,11 @@ def cu_enable(ctx):
     console = Console()
     with console.status("Setting up computer use (this may take a minute)...", spinner="dots"):
         result = api_put(ctx, "/api/settings/computer-use", {"enabled": True}, timeout=120)
-    daemon = result.get("daemon", "")
+    daemon = result.get("daemon")
     if daemon == "running":
-        print_success(f"Computer use enabled (Windows daemon running on port 19542)")
-    elif daemon == "degraded":
-        print_warning("Computer use enabled but daemon is not responding. Try: vadgr computer-use disable && vadgr computer-use enable")
+        print_success("Computer use enabled (Windows daemon running)")
     elif daemon == "stopped":
-        print_warning("Computer use enabled but daemon failed to start.")
+        print_warning("Computer use enabled but daemon did not start. Run: vadgr-cua doctor")
     else:
         print_success("Computer use enabled")
 

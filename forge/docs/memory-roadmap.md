@@ -9,7 +9,7 @@ File-based persistent memory at `FORGE_HOME/memory/{agent}/{key}.md`.
 - Human readable and editable
 - Max 30 lines per file (token cost control)
 - Overwrite strategy (no unbounded growth)
-- Includes CUA element hints for spatial cache consistency
+- Computer use agents can store CUA hints (natural-language UI cheat sheets) under the `cua-hints` key
 
 ### Interface
 
@@ -19,7 +19,7 @@ from forge.scripts.src.memory import read_memory, write_memory, list_memories, c
 content = read_memory("agent-name")
 write_memory("agent-name", content="- learned fact")
 write_memory("agent-name", key=repo_key("/path/to/repo"), content="- stack: FastAPI")
-write_memory("agent-name", key="cua-hints", content="# App\n- button: \"save button\"")
+write_memory("agent-name", key="cua-hints", content="# App\n- run button: top right, play icon")
 memories = list_memories("agent-name")
 clear_memory("agent-name")
 ```

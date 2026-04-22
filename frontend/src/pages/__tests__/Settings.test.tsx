@@ -39,8 +39,8 @@ let mockInflight: { promise: Promise<unknown>; activating: boolean } | null = nu
 vi.mock('../../hooks/useComputerUse', () => ({
   getInflight: () => mockInflight,
   resetInflight: () => { mockInflight = null; },
-  toggleComputerUse: (enabled: boolean, cacheEnabled: boolean) => {
-    const promise = mockPut('/settings/computer-use', { enabled, cache_enabled: cacheEnabled });
+  toggleComputerUse: (enabled: boolean) => {
+    const promise = mockPut('/settings/computer-use', { enabled });
     mockInflight = { promise, activating: enabled };
     return promise.finally(() => { mockInflight = null; });
   },
@@ -51,8 +51,8 @@ import { Settings } from '../Settings';
 describe('Settings - Computer Use Toggle', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockGet.mockResolvedValue({ enabled: false, cache_enabled: true });
-    mockPut.mockResolvedValue({ enabled: true, cache_enabled: true });
+    mockGet.mockResolvedValue({ enabled: false });
+    mockPut.mockResolvedValue({ enabled: true });
   });
 
   it('shows "Disabled" status when computer use is off', async () => {
@@ -63,7 +63,7 @@ describe('Settings - Computer Use Toggle', () => {
   });
 
   it('shows "Active" status with solid green dot when computer use is on', async () => {
-    mockGet.mockResolvedValue({ enabled: true, cache_enabled: true });
+    mockGet.mockResolvedValue({ enabled: true });
     render(<Settings />);
     await waitFor(() => {
       expect(screen.getByText('Active')).toBeTruthy();
@@ -92,14 +92,14 @@ describe('Settings - Computer Use Toggle', () => {
     expect(pingEl).toBeTruthy();
 
     // Resolve and verify it switches to Active
-    resolvePut!({ enabled: true, cache_enabled: true });
+    resolvePut!({ enabled: true });
     await waitFor(() => {
       expect(screen.getByText('Active')).toBeTruthy();
     });
   });
 
   it('shows "Deactivating..." with pulsing indicator while disabling', async () => {
-    mockGet.mockResolvedValue({ enabled: true, cache_enabled: true });
+    mockGet.mockResolvedValue({ enabled: true });
     let resolvePut: (v: unknown) => void;
     mockPut.mockReturnValue(new Promise((r) => { resolvePut = r; }));
 
@@ -115,7 +115,7 @@ describe('Settings - Computer Use Toggle', () => {
       expect(screen.getByText('Deactivating...')).toBeTruthy();
     });
 
-    resolvePut!({ enabled: false, cache_enabled: true });
+    resolvePut!({ enabled: false });
     await waitFor(() => {
       expect(screen.getByText('Disabled')).toBeTruthy();
     });
@@ -138,7 +138,7 @@ describe('Settings - Computer Use Toggle', () => {
   });
 
   it('has no ping animation when status is Active (solid dot only)', async () => {
-    mockGet.mockResolvedValue({ enabled: true, cache_enabled: true });
+    mockGet.mockResolvedValue({ enabled: true });
     render(<Settings />);
     await waitFor(() => {
       expect(screen.getByText('Active')).toBeTruthy();
@@ -151,7 +151,7 @@ describe('Settings - Computer Use Toggle', () => {
 describe('Settings - Computer Use Toggle survives navigation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockGet.mockResolvedValue({ enabled: false, cache_enabled: true });
+    mockGet.mockResolvedValue({ enabled: false });
     mockInflight = null;
   });
 
@@ -175,7 +175,7 @@ describe('Settings - Computer Use Toggle survives navigation', () => {
     });
 
     // Resolve the PUT
-    resolvePut!({ enabled: true, cache_enabled: true });
+    resolvePut!({ enabled: true });
     await waitFor(() => {
       expect(screen.getByText('Active')).toBeTruthy();
     });
@@ -183,7 +183,7 @@ describe('Settings - Computer Use Toggle survives navigation', () => {
 
   it('remount shows Active after in-flight PUT resolves', async () => {
     // PUT resolves immediately
-    mockPut.mockResolvedValue({ enabled: true, cache_enabled: true });
+    mockPut.mockResolvedValue({ enabled: true });
 
     const { unmount } = render(<Settings />);
     await waitFor(() => expect(screen.getByText('Disabled')).toBeTruthy());
@@ -193,7 +193,7 @@ describe('Settings - Computer Use Toggle survives navigation', () => {
     // Navigate away and back
     unmount();
     // Now GET returns the updated state
-    mockGet.mockResolvedValue({ enabled: true, cache_enabled: true });
+    mockGet.mockResolvedValue({ enabled: true });
     render(<Settings />);
 
     await waitFor(() => {

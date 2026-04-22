@@ -1,125 +1,135 @@
-"""Tests for daemon lifecycle management in computer_use_setup."""
+"""Tests for daemon management delegation to ``vadgr-cua`` CLI.
 
-from unittest import mock
-from unittest.mock import MagicMock, patch
+The Windows-side bridge daemon is owned by the published vadgr-computer-use
+package. The setup service only wraps ``vadgr-cua doctor / install-daemon /
+stop-daemon`` so the API can surface status and front-load first-launch
+latency without duplicating the lifecycle logic.
+"""
+
+from __future__ import annotations
+
+import json
+import subprocess
+from unittest.mock import patch
 
 import pytest
 
-
-class TestProbeDaemon:
-    def test_running_when_ping_succeeds(self):
-        from api.services.computer_use_setup import _probe_daemon
-        with patch("api.services.computer_use_setup._get_bridge_client") as m:
-            client = MagicMock()
-            client.is_available.return_value = True
-            m.return_value = client
-            assert _probe_daemon() == "running"
-
-    def test_stopped_when_connection_fails(self):
-        from api.services.computer_use_setup import _probe_daemon
-        with patch("api.services.computer_use_setup._get_bridge_client") as m:
-            m.side_effect = Exception("connection refused")
-            assert _probe_daemon() == "stopped"
-
-    def test_degraded_when_port_open_but_ping_fails(self):
-        from api.services.computer_use_setup import _probe_daemon
-        with patch("api.services.computer_use_setup._get_bridge_client") as m:
-            client = MagicMock()
-            client.is_available.return_value = False
-            m.return_value = client
-            assert _probe_daemon() == "degraded"
+import api.services.computer_use_setup as cu_setup
+from api.utils.platform import venv_bin_dir
 
 
-class TestStartDaemon:
-    def test_starts_successfully(self):
-        from api.services.computer_use_setup import _start_daemon
-        with patch("api.services.computer_use_setup._is_wsl2", return_value=True), \
-             patch("api.services.computer_use_setup._find_windows_python", return_value="C:\\Python312\\python.exe"), \
-             patch("api.services.computer_use_setup._deploy_and_launch_daemon") as m, \
-             patch("api.services.computer_use_setup._probe_daemon", return_value="running"):
-            result = _start_daemon()
-            assert result is True
-            m.assert_called_once()
+def _create_fake_venv_with_cua(venv_path):
+    bin_dir = venv_bin_dir(venv_path)
+    bin_dir.mkdir(parents=True, exist_ok=True)
+    (bin_dir / "pip").touch()
+    (bin_dir / "vadgr-cua").touch()
 
-    def test_returns_false_on_non_wsl2(self):
-        from api.services.computer_use_setup import _start_daemon
-        with patch("api.services.computer_use_setup._is_wsl2", return_value=False):
-            assert _start_daemon() is False
+
+@pytest.fixture
+def venv(tmp_path):
+    v = tmp_path / ".cu_venv"
+    _create_fake_venv_with_cua(v)
+    with patch.object(cu_setup, "CU_VENV_DIR", v):
+        yield v
+
+
+class TestRunCua:
+    def test_returns_none_when_binary_missing(self, tmp_path):
+        with patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "no_venv"):
+            assert cu_setup._run_cua("doctor", timeout=5) is None
+
+    def test_invokes_binary_with_args(self, venv):
+        with patch("subprocess.run") as run:
+            run.return_value = type("R", (), {
+                "returncode": 0, "stdout": "{}", "stderr": "",
+            })()
+            cu_setup._run_cua("doctor", timeout=5)
+            cmd = run.call_args[0][0]
+            assert cmd[0].endswith("vadgr-cua")
+            assert cmd[1:] == ["doctor"]
+
+    def test_returns_none_on_timeout(self, venv):
+        with patch(
+            "subprocess.run",
+            side_effect=subprocess.TimeoutExpired(cmd="vadgr-cua", timeout=5),
+        ):
+            assert cu_setup._run_cua("doctor", timeout=5) is None
+
+    def test_returns_none_on_os_error(self, venv):
+        with patch("subprocess.run", side_effect=OSError("nope")):
+            assert cu_setup._run_cua("doctor", timeout=5) is None
+
+
+class TestDoctorStatus:
+    def test_running(self, venv):
+        with patch("subprocess.run") as run:
+            run.return_value = type("R", (), {
+                "returncode": 0,
+                "stdout": json.dumps({"daemon_running": True, "port": 19542}),
+                "stderr": "",
+            })()
+            assert cu_setup._doctor_status() == "running"
+
+    def test_stopped(self, venv):
+        with patch("subprocess.run") as run:
+            run.return_value = type("R", (), {
+                "returncode": 0,
+                "stdout": json.dumps({"daemon_running": False}),
+                "stderr": "",
+            })()
+            assert cu_setup._doctor_status() == "stopped"
+
+    def test_none_when_cli_not_installed(self, tmp_path):
+        with patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "none"):
+            assert cu_setup._doctor_status() is None
+
+    def test_none_when_doctor_exits_nonzero(self, venv):
+        with patch("subprocess.run") as run:
+            run.return_value = type("R", (), {
+                "returncode": 1, "stdout": "", "stderr": "no python",
+            })()
+            assert cu_setup._doctor_status() is None
+
+    def test_none_when_doctor_returns_junk(self, venv):
+        with patch("subprocess.run") as run:
+            run.return_value = type("R", (), {
+                "returncode": 0, "stdout": "not json", "stderr": "",
+            })()
+            assert cu_setup._doctor_status() is None
+
+
+class TestInstallDaemon:
+    def test_invokes_install_daemon_subcommand(self, venv):
+        with patch("subprocess.run") as run:
+            run.return_value = type("R", (), {
+                "returncode": 0, "stdout": "ok", "stderr": "",
+            })()
+            cu_setup._install_daemon()
+            cmd = run.call_args[0][0]
+            assert cmd[1] == "install-daemon"
+
+    def test_tolerates_failure(self, venv):
+        with patch("subprocess.run") as run:
+            run.return_value = type("R", (), {
+                "returncode": 1, "stdout": "", "stderr": "no python on host",
+            })()
+            cu_setup._install_daemon()
+
+    def test_tolerates_missing_cli(self, tmp_path):
+        with patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "none"):
+            cu_setup._install_daemon()
 
 
 class TestStopDaemon:
-    def test_kills_by_port(self):
-        from api.services.computer_use_setup import _stop_daemon
-        with patch("api.services.computer_use_setup._is_wsl2", return_value=True), \
-             patch("subprocess.run") as m:
-            _stop_daemon()
-            assert m.call_count == 2
-            # First call kills by port
-            assert "19542" in str(m.call_args_list[0])
-            # Second call kills zombie pythonw.exe daemon.py processes
-            assert "daemon.py" in str(m.call_args_list[1])
+    def test_invokes_stop_daemon_subcommand(self, venv):
+        with patch("subprocess.run") as run:
+            run.return_value = type("R", (), {
+                "returncode": 0, "stdout": "", "stderr": "",
+            })()
+            cu_setup._stop_daemon()
+            cmd = run.call_args[0][0]
+            assert cmd[1] == "stop-daemon"
 
-    def test_noop_on_non_wsl2(self):
-        from api.services.computer_use_setup import _stop_daemon
-        with patch("api.services.computer_use_setup._is_wsl2", return_value=False), \
-             patch("subprocess.run") as m:
-            _stop_daemon()
-            assert not m.called
-
-
-class TestGetStatusIncludesDaemon:
-    def test_includes_daemon_field(self, tmp_path):
-        from api.services.computer_use_setup import get_status, MCP_JSON_PATH
-        import json
-        # Write a valid .mcp.json so computer use is enabled
-        mcp_path = tmp_path / ".mcp.json"
-        mcp_path.write_text(json.dumps({
-            "mcpServers": {"vadgr-computer-use": {"command": "python", "env": {}}}
-        }))
-        with patch("api.services.computer_use_setup.MCP_JSON_PATH", mcp_path), \
-             patch("api.services.computer_use_setup._probe_daemon", return_value="running"), \
-             patch("api.services.computer_use_setup._is_wsl2", return_value=True):
-            status = get_status()
-            assert "daemon" in status
-            assert status["daemon"] == "running"
-
-    def test_daemon_null_on_non_wsl2(self):
-        from api.services.computer_use_setup import get_status
-        with patch("api.services.computer_use_setup._is_wsl2", return_value=False):
-            status = get_status()
-            assert status.get("daemon") is None
-
-    def test_daemon_null_when_disabled(self, tmp_path):
-        """Issue #66: daemon should not be probed when computer use is disabled."""
-        from api.services.computer_use_setup import get_status
-        with patch("api.services.computer_use_setup.MCP_JSON_PATH", tmp_path / "nope.json"), \
-             patch("api.services.computer_use_setup._is_wsl2", return_value=True), \
-             patch("api.services.computer_use_setup._probe_daemon") as mock_probe:
-            status = get_status()
-            assert status.get("daemon") is None
-            mock_probe.assert_not_called()
-
-
-class TestEnableManagesDaemon:
-    def test_enable_always_redeploys_daemon(self):
-        """Enable must always stop+start to replace stale daemons that lack deps."""
-        from api.services.computer_use_setup import enable_computer_use
-        with patch("api.services.computer_use_setup._stop_daemon") as m_stop, \
-             patch("api.services.computer_use_setup._start_daemon", return_value=True) as m_start, \
-             patch("api.services.computer_use_setup._venv_healthy", return_value=True), \
-             patch("api.services.computer_use_setup._deps_need_install", return_value=False), \
-             patch("api.services.computer_use_setup._write_all_provider_configs"), \
-             patch("api.services.computer_use_setup._is_wsl2", return_value=True):
-            enable_computer_use()
-            m_stop.assert_called_once()
-            m_start.assert_called_once()
-
-
-class TestDisableKillsDaemon:
-    def test_disable_kills_daemon(self):
-        from api.services.computer_use_setup import disable_computer_use
-        with patch("api.services.computer_use_setup._stop_daemon") as m_stop, \
-             patch("api.services.computer_use_setup._remove_all_provider_configs"), \
-             patch("api.services.computer_use_setup._is_wsl2", return_value=True):
-            disable_computer_use()
-            m_stop.assert_called_once()
+    def test_tolerates_missing_cli(self, tmp_path):
+        with patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "none"):
+            cu_setup._stop_daemon()

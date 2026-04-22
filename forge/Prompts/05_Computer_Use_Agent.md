@@ -24,7 +24,7 @@ Your job is to take a workflow step written for computer execution and carry it 
 ### Inputs
 
 1. **Step Instructions.** A workflow step with visual execution instructions describing what to do on the desktop. Each instruction describes what to see and what action to take.
-2. **ComputerUseEngine Instance.** An initialized engine providing screenshot, click, type, scroll, find_element, and other methods.
+2. **ComputerUseEngine Instance.** An initialized engine providing screenshot, click, type, scroll, and other mouse and keyboard methods.
 3. **Context.** Any data gathered from previous steps (names, URLs, file paths, text to enter).
 
 ### Outputs

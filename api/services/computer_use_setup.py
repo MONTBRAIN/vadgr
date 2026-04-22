@@ -1,469 +1,74 @@
-"""Service for managing computer use setup: venv, provider MCP configs, cache toggle.
+"""Service for managing computer use setup: venv, pip install, provider MCP configs.
+
+The daemon lifecycle (Windows-side bridge on WSL2) is owned by the published
+``vadgr-computer-use`` package. This module only installs the package, writes
+MCP server configs for each supported CLI provider, and delegates daemon
+management to the ``vadgr-cua`` console script.
 
 Writes MCP server configuration for each supported CLI provider:
 - Claude Code: .mcp.json (JSON, mcpServers key)
 - Gemini CLI: .gemini/settings.json (JSON, mcpServers key)
-- Codex CLI: .codex/config.toml (TOML, mcp_servers table)
+- Codex CLI:  ~/.codex/config.toml (TOML, mcp_servers table, user-level only)
 """
+
+from __future__ import annotations
 
 import hashlib
 import json
 import logging
-import os
+import re
 import subprocess
 from pathlib import Path
+from typing import Optional
 
-from api.utils.platform import python_command, venv_pip, venv_python
+from api.utils.platform import python_command, venv_bin_dir, venv_pip
 
 logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 MCP_JSON_PATH = PROJECT_ROOT / ".mcp.json"
 GEMINI_SETTINGS_PATH = PROJECT_ROOT / ".gemini" / "settings.json"
-# Codex CLI ignores project-level .codex/config.toml for MCP servers.
-# It only reads the user-level global config.
 CODEX_GLOBAL_CONFIG_PATH = Path.home() / ".codex" / "config.toml"
 CU_VENV_DIR = PROJECT_ROOT / ".cu_venv"
-# vadgr-computer-use is installed from PyPI. Pin the version expected for this
-# release of vadgr-forge. Bump alongside vadgr-forge releases.
+
 CU_PACKAGE_SPEC = "vadgr-computer-use>=0.1.0,<0.2.0"
 DEPS_MARKER = ".deps_installed"
 
-# MCP server name -- prefixed with "vadgr-" to avoid conflicts with CLI
-# built-in names (e.g. Claude Code blocks the bare name "computer-use").
 MCP_SERVER_NAME = "vadgr-computer-use"
 
-# Regex to strip the MCP section from TOML (Codex config).
-# Matches both the old name (computer-use) and new name (vadgr-computer-use)
-# so that upgrading users get old entries cleaned up.
-import re
+_DOCTOR_TIMEOUT = 10
+_INSTALL_DAEMON_TIMEOUT = 60
+_STOP_DAEMON_TIMEOUT = 15
+
 _CODEX_MCP_SECTION_RE = re.compile(
     r'\n?\[mcp_servers\.(?:vadgr-)?computer-use(?:\.env)?\]\n(?:(?!\n\[)[^\n]*\n?)*',
 )
 
 
-def _python_command() -> str:
-    """Return the correct python command for the current platform."""
-    return python_command()
-
-
-def _cu_venv_python() -> str:
-    """Return the full path to the Python inside the computer_use venv.
-
-    CLI tools (Codex, Gemini) start MCP servers independently -- they
-    don't inherit our PATH, so bare ``python`` resolves to the system
-    Python which lacks the MCP dependencies.  Using the full venv path
-    works on both Windows (Scripts/python) and Linux (bin/python).
-    """
-    return str(venv_python(CU_VENV_DIR))
-
-
-def _mcp_json_content(cache_enabled: bool = True) -> dict:
-    """Build .mcp.json content with platform-correct values."""
-    env = {"AGENT_FORGE_DEBUG": "1", "PYTHONPATH": str(PROJECT_ROOT)}
-    if not cache_enabled:
-        env["AGENT_FORGE_CACHE_ENABLED"] = "0"
-    return {
-        "mcpServers": {
-            MCP_SERVER_NAME: {
-                "type": "stdio",
-                "command": _cu_venv_python(),
-                "args": ["-m", "computer_use.mcp_server", "--transport", "stdio"],
-                "cwd": str(PROJECT_ROOT),
-                "env": env,
-            }
-        }
-    }
-
-
-def _gemini_settings_content(cache_enabled: bool = True) -> dict:
-    """Build .gemini/settings.json content.
-
-    Includes mcpServers (same as .mcp.json) plus context.fileFiltering
-    to disable respectGitIgnore -- Gemini CLI refuses to read files in
-    gitignored directories (like output/), which breaks workflow execution.
-    """
-    content = _mcp_json_content(cache_enabled=cache_enabled)
-    content["context"] = {
-        "fileFiltering": {
-            "respectGitIgnore": False,
-        },
-    }
-    return content
-
-
-def _codex_mcp_section(cache_enabled: bool = True) -> str:
-    """Build the [mcp_servers.vadgr-computer-use] TOML section for Codex.
-
-    Uses TOML literal strings (single quotes) for paths so that Windows
-    backslashes are treated as literal characters, not escape sequences.
-    """
-    python = _cu_venv_python()
-    cwd = str(PROJECT_ROOT)
-    lines = [
-        f'[mcp_servers.{MCP_SERVER_NAME}]',
-        f"command = '{python}'",
-        'args = ["-m", "computer_use.mcp_server", "--transport", "stdio"]',
-        f"cwd = '{cwd}'",
-        '',
-        f'[mcp_servers.{MCP_SERVER_NAME}.env]',
-        'AGENT_FORGE_DEBUG = "1"',
-        f'PYTHONPATH = "{cwd}"',
-    ]
-    if not cache_enabled:
-        lines.append('AGENT_FORGE_CACHE_ENABLED = "0"')
-    lines.append('')  # trailing newline
-    return '\n'.join(lines)
-
-
-def _write_codex_global_config(cache_enabled: bool = True) -> None:
-    """Merge vadgr-computer-use MCP section into ~/.codex/config.toml.
-
-    Reads existing content, strips any previous section,
-    then appends the new one. Preserves all other Codex settings.
-    """
-    CODEX_GLOBAL_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    existing = ""
-    if CODEX_GLOBAL_CONFIG_PATH.exists():
-        existing = CODEX_GLOBAL_CONFIG_PATH.read_text()
-
-    # Remove old computer-use sections (both main and .env sub-table)
-    cleaned = _CODEX_MCP_SECTION_RE.sub('', existing).rstrip('\n')
-
-    section = _codex_mcp_section(cache_enabled=cache_enabled)
-    if cleaned:
-        result = cleaned + '\n\n' + section
-    else:
-        result = section
-    CODEX_GLOBAL_CONFIG_PATH.write_text(result)
-
-
-def _remove_codex_mcp_section() -> None:
-    """Remove the vadgr-computer-use MCP section from ~/.codex/config.toml."""
-    if not CODEX_GLOBAL_CONFIG_PATH.exists():
-        return
-    existing = CODEX_GLOBAL_CONFIG_PATH.read_text()
-    cleaned = _CODEX_MCP_SECTION_RE.sub('', existing).strip('\n')
-    if cleaned:
-        CODEX_GLOBAL_CONFIG_PATH.write_text(cleaned + '\n')
-    else:
-        CODEX_GLOBAL_CONFIG_PATH.write_text('')
-
-
-def _write_all_provider_configs(cache_enabled: bool = True) -> None:
-    """Write MCP config files for all supported providers."""
-    # Claude Code: .mcp.json (project-level)
-    content = _mcp_json_content(cache_enabled=cache_enabled)
-    MCP_JSON_PATH.write_text(json.dumps(content, indent=2) + "\n")
-
-    # Gemini CLI: .gemini/settings.json (project-level)
-    GEMINI_SETTINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    gemini_content = _gemini_settings_content(cache_enabled=cache_enabled)
-    GEMINI_SETTINGS_PATH.write_text(json.dumps(gemini_content, indent=2) + "\n")
-
-    # Codex CLI: ~/.codex/config.toml (global -- Codex ignores project-level MCP)
-    _write_codex_global_config(cache_enabled=cache_enabled)
-
-
-def _remove_all_provider_configs() -> None:
-    """Remove MCP config files for all supported providers."""
-    for path in (MCP_JSON_PATH, GEMINI_SETTINGS_PATH):
-        if path.exists():
-            path.unlink()
-            logger.info("Removed %s", path.name)
-    # Codex: only remove our section, don't delete the global config
-    _remove_codex_mcp_section()
-
-
-_DAEMON_PORT = 19542
-_DAEMON_LAUNCH_WAIT = 3
-_DAEMON_LAUNCH_RETRIES = 5
-
+# ---------------------------------------------------------------------------
+# Platform detection
+# ---------------------------------------------------------------------------
 
 def _is_wsl2() -> bool:
     try:
         return "microsoft" in open("/proc/version").read().lower()
-    except Exception:
+    except OSError:
         return False
 
 
-def _get_bridge_client():
-    from computer_use.bridge.client import BridgeClient
-    return BridgeClient()
+# ---------------------------------------------------------------------------
+# Venv + package install
+# ---------------------------------------------------------------------------
+
+def _pip_path() -> Path:
+    return venv_pip(CU_VENV_DIR)
 
 
-def _probe_daemon() -> str:
-    try:
-        client = _get_bridge_client()
-        if client.is_available():
-            return "running"
-        return "degraded"
-    except Exception:
-        return "stopped"
-
-
-def _get_windows_userprofile() -> str | None:
-    """Get the active Windows user's profile directory as a WSL path."""
-    try:
-        result = subprocess.run(
-            ["powershell.exe", "-NoProfile", "-Command", "$env:USERPROFILE"],
-            capture_output=True, text=True, timeout=5,
-        )
-        if result.returncode == 0 and result.stdout.strip():
-            wsl_path = subprocess.run(
-                ["wslpath", "-u", result.stdout.strip()],
-                capture_output=True, text=True,
-            ).stdout.strip()
-            return wsl_path
-    except Exception:
-        pass
-    return None
-
-
-def _find_windows_python() -> str | None:
-    """Find a Python install on the active Windows user's account."""
-    import glob
-
-    # First try the active Windows user's Python install
-    profile = _get_windows_userprofile()
-    if profile:
-        user_pattern = f"{profile}/AppData/Local/Programs/Python/Python3*/python.exe"
-        matches = sorted(glob.glob(user_pattern), reverse=True)
-        if matches:
-            return matches[0].replace("/mnt/c/", "C:\\").replace("/", "\\")
-
-    # Fallback: any user's Python (multi-user machines)
-    all_users_pattern = "/mnt/c/Users/*/AppData/Local/Programs/Python/Python3*/python.exe"
-    matches = sorted(glob.glob(all_users_pattern), reverse=True)
-    if matches:
-        return matches[0].replace("/mnt/c/", "C:\\").replace("/", "\\")
-
-    # Last resort: ask PowerShell
-    try:
-        result = subprocess.run(
-            ["powershell.exe", "-NoProfile", "-Command", "(Get-Command python).Source"],
-            capture_output=True, text=True, timeout=5,
-        )
-        if result.returncode == 0 and result.stdout.strip():
-            return result.stdout.strip()
-    except Exception:
-        pass
-    return None
-
-
-def _check_win_python_module(win_python: str, module: str) -> bool:
-    """Check if a module is importable on the Windows-side Python."""
-    try:
-        result = subprocess.run(
-            [
-                "powershell.exe", "-NoProfile", "-Command",
-                f'& "{win_python}" -c "import {module}"',
-            ],
-            capture_output=True, text=True, timeout=15,
-        )
-        return result.returncode == 0
-    except Exception:
-        return False
-
-
-# Packages the Windows daemon needs beyond stdlib.
-# daemon.py imports mss (screenshots) and PIL (JPEG conversion).
-_DAEMON_DEPS = ["mss", "Pillow"]
-_DAEMON_IMPORT_NAMES = {"Pillow": "PIL"}  # pip name -> import name
-
-
-def _ensure_daemon_deps(win_python: str) -> bool:
-    """Install daemon dependencies on the Windows-side Python.
-
-    Returns True if all deps are importable after this call.
-    """
-    missing = []
-    for pkg in _DAEMON_DEPS:
-        mod = _DAEMON_IMPORT_NAMES.get(pkg, pkg)
-        if not _check_win_python_module(win_python, mod):
-            missing.append(pkg)
-
-    if not missing:
-        return True
-
-    logger.info(
-        "Installing daemon deps on Windows Python (%s): %s",
-        win_python, ", ".join(missing),
-    )
-    try:
-        result = subprocess.run(
-            [
-                "powershell.exe", "-NoProfile", "-Command",
-                f'& "{win_python}" -m pip install {" ".join(missing)}',
-            ],
-            capture_output=True, text=True, timeout=120,
-        )
-        if result.returncode != 0:
-            logger.warning(
-                "pip install failed (exit %d): %s",
-                result.returncode, result.stderr.strip(),
-            )
-    except Exception as e:
-        logger.warning("Failed to install daemon deps: %s", e)
-
-    # Verify everything is importable
-    still_missing = []
-    for pkg in _DAEMON_DEPS:
-        mod = _DAEMON_IMPORT_NAMES.get(pkg, pkg)
-        if not _check_win_python_module(win_python, mod):
-            still_missing.append(pkg)
-
-    if still_missing:
-        logger.error(
-            "Daemon deps not available on Windows Python (%s): %s. "
-            "Screenshots will fail. Install manually in PowerShell: "
-            "%s -m pip install %s",
-            win_python, ", ".join(still_missing),
-            win_python, " ".join(still_missing),
-        )
-        return False
-    return True
-
-
-def _deploy_and_launch_daemon(win_python: str) -> None:
-    # Locate the bridge module inside the installed vadgr-computer-use package.
-    try:
-        import computer_use.bridge as _cu_bridge
-        bridge_dir = str(Path(_cu_bridge.__file__).parent)
-    except ImportError:
-        logger.warning("vadgr-computer-use not installed; daemon deploy skipped")
-        return
-
-    deploy_dir = _get_windows_userprofile()
-
-    if not deploy_dir:
-        return
-
-    import shutil
-    for fname in ("daemon.py", "spatial_cache.py"):
-        src = os.path.join(bridge_dir, fname)
-        if os.path.exists(src):
-            shutil.copy2(src, os.path.join(deploy_dir, fname))
-
-    if not _ensure_daemon_deps(win_python):
-        logger.warning("Skipping daemon launch -- mss not available")
-        return
-
-    # Convert to Windows path
-    try:
-        win_dir = subprocess.run(
-            ["wslpath", "-w", deploy_dir],
-            capture_output=True, text=True,
-        ).stdout.strip()
-    except Exception:
-        return
-
-    # Use pythonw.exe for hidden window
-    pythonw = win_python.replace("python.exe", "pythonw.exe")
-
-    logger.info("Launching daemon: %s daemon.py", pythonw)
-    try:
-        subprocess.Popen(
-            [
-                "powershell.exe", "-NoProfile", "-Command",
-                f'Start-Process -FilePath "{pythonw}" '
-                f'-ArgumentList "daemon.py" '
-                f'-WorkingDirectory "{win_dir}" '
-                f'-WindowStyle Hidden',
-            ],
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-    except Exception as e:
-        logger.warning("Failed to launch daemon: %s", e)
-
-
-def _start_daemon() -> bool:
-    if not _is_wsl2():
-        return False
-
-    win_python = _find_windows_python()
-    if not win_python:
-        logger.warning("Windows Python not found, cannot start daemon")
-        return False
-
-    _deploy_and_launch_daemon(win_python)
-
-    import time
-    time.sleep(_DAEMON_LAUNCH_WAIT)
-    for _ in range(_DAEMON_LAUNCH_RETRIES):
-        if _probe_daemon() == "running":
-            logger.info("Daemon started successfully")
-            return True
-        time.sleep(1)
-
-    logger.warning("Daemon launched but not responding")
-    return False
-
-
-def _stop_daemon():
-    if not _is_wsl2():
-        return
-    try:
-        # Kill by port (catches healthy daemons)
-        subprocess.run(
-            [
-                "powershell.exe", "-NoProfile", "-Command",
-                f"Get-NetTCPConnection -LocalPort {_DAEMON_PORT} -State Listen "
-                f"-ErrorAction SilentlyContinue | "
-                f"ForEach-Object {{ Stop-Process -Id $_.OwningProcess -Force }}",
-            ],
-            capture_output=True, timeout=10,
-        )
-        # Also kill any pythonw.exe running daemon.py (catches zombies that
-        # crashed before binding to the port)
-        subprocess.run(
-            [
-                "powershell.exe", "-NoProfile", "-Command",
-                'Get-CimInstance Win32_Process -Filter "Name=\'pythonw.exe\'" '
-                "| Where-Object { $_.CommandLine -like '*daemon.py*' } "
-                "| ForEach-Object { Stop-Process -Id $_.ProcessId -Force }",
-            ],
-            capture_output=True, timeout=10,
-        )
-        logger.info("Daemon stopped")
-    except Exception as e:
-        logger.warning("Failed to stop daemon: %s", e)
-
-
-def get_status() -> dict:
-    """Check current computer use status."""
-    mcp_exists = MCP_JSON_PATH.exists()
-    venv_exists = CU_VENV_DIR.exists()
-
-    enabled = False
-    cache_enabled = True
-
-    if mcp_exists:
-        try:
-            data = json.loads(MCP_JSON_PATH.read_text())
-            cu_server = data.get("mcpServers", {}).get(MCP_SERVER_NAME)
-            enabled = cu_server is not None
-            if cu_server:
-                env = cu_server.get("env", {})
-                cache_enabled = env.get("AGENT_FORGE_CACHE_ENABLED", "1") != "0"
-        except (json.JSONDecodeError, OSError):
-            pass
-
-    daemon = _probe_daemon() if (_is_wsl2() and enabled) else None
-
-    return {
-        "enabled": enabled,
-        "cache_enabled": cache_enabled,
-        "venv_ready": venv_exists,
-        "daemon": daemon,
-        "platform": "wsl2" if _is_wsl2() else "native",
-    }
+def _venv_healthy() -> bool:
+    return CU_VENV_DIR.exists() and _pip_path().exists()
 
 
 def _deps_need_install() -> bool:
-    """Reinstall when the pinned vadgr-computer-use spec changes."""
     marker = CU_VENV_DIR / DEPS_MARKER
     if not marker.exists():
         return True
@@ -472,69 +77,217 @@ def _deps_need_install() -> bool:
 
 
 def _write_deps_marker() -> None:
-    """Record the spec hash after a successful install."""
     marker_hash = hashlib.md5(CU_PACKAGE_SPEC.encode()).hexdigest()
     (CU_VENV_DIR / DEPS_MARKER).write_text(marker_hash)
 
 
-def _pip_path() -> Path:
-    """Return expected pip binary path inside the venv."""
-    return venv_pip(CU_VENV_DIR)
+def _create_venv() -> None:
+    logger.info("Creating computer_use venv at %s", CU_VENV_DIR)
+    subprocess.run(
+        [python_command(), "-m", "venv", "--clear", str(CU_VENV_DIR)],
+        check=True, capture_output=True,
+    )
 
 
-def _venv_healthy() -> bool:
-    """Check if the venv exists and has a working pip binary."""
-    return CU_VENV_DIR.exists() and _pip_path().exists()
+def _pip_install_package() -> None:
+    logger.info("Installing %s", CU_PACKAGE_SPEC)
+    subprocess.run(
+        [str(_pip_path()), "install", "-q", "--upgrade", CU_PACKAGE_SPEC],
+        check=True, capture_output=True,
+    )
+    _write_deps_marker()
 
 
-def enable_computer_use(cache_enabled: bool = True) -> dict:
-    """Set up computer use: create venv if needed, write .mcp.json."""
-    # Create venv if missing or broken (no pip)
+# ---------------------------------------------------------------------------
+# Delegation to the vadgr-cua console script
+# ---------------------------------------------------------------------------
+
+def _vadgr_cua_bin() -> Path:
+    """Full path to the ``vadgr-cua`` console script inside the venv."""
+    return venv_bin_dir(CU_VENV_DIR) / "vadgr-cua"
+
+
+def _run_cua(*args: str, timeout: int) -> Optional[subprocess.CompletedProcess]:
+    """Run a vadgr-cua subcommand. Returns None if the CLI isn't available."""
+    binary = _vadgr_cua_bin()
+    if not binary.exists():
+        return None
+    try:
+        return subprocess.run(
+            [str(binary), *args],
+            capture_output=True, text=True, timeout=timeout,
+        )
+    except (subprocess.TimeoutExpired, OSError) as e:
+        logger.warning("vadgr-cua %s failed: %s", args[0] if args else "", e)
+        return None
+
+
+def _doctor_status() -> Optional[str]:
+    """Query ``vadgr-cua doctor`` and return 'running', 'stopped', or None."""
+    result = _run_cua("doctor", timeout=_DOCTOR_TIMEOUT)
+    if result is None or result.returncode != 0:
+        return None
+    try:
+        data = json.loads(result.stdout)
+    except json.JSONDecodeError:
+        return None
+    return "running" if data.get("daemon_running") else "stopped"
+
+
+def _install_daemon() -> None:
+    """Front-load daemon deploy + launch so first MCP call doesn't pay the cost."""
+    result = _run_cua("install-daemon", timeout=_INSTALL_DAEMON_TIMEOUT)
+    if result is None or result.returncode != 0:
+        logger.warning("vadgr-cua install-daemon did not complete cleanly")
+
+
+def _stop_daemon() -> None:
+    _run_cua("stop-daemon", timeout=_STOP_DAEMON_TIMEOUT)
+
+
+# ---------------------------------------------------------------------------
+# MCP config content builders
+# ---------------------------------------------------------------------------
+
+def _mcp_command_and_args() -> tuple[str, list[str]]:
+    """Return (command, args) to launch the MCP server via the venv console script."""
+    return str(_vadgr_cua_bin()), ["--transport", "stdio"]
+
+
+def _mcp_json_content() -> dict:
+    command, args = _mcp_command_and_args()
+    return {
+        "mcpServers": {
+            MCP_SERVER_NAME: {
+                "type": "stdio",
+                "command": command,
+                "args": args,
+            }
+        }
+    }
+
+
+def _gemini_settings_content() -> dict:
+    """Gemini CLI settings: MCP servers plus fileFiltering override.
+
+    Gemini CLI refuses to read files inside gitignored directories (like
+    ``output/``), which breaks workflow execution. Disable that default.
+    """
+    content = _mcp_json_content()
+    content["context"] = {
+        "fileFiltering": {"respectGitIgnore": False},
+    }
+    return content
+
+
+def _codex_mcp_section() -> str:
+    """TOML section for the Codex user config.
+
+    Codex CLI ignores project-level ``.codex/config.toml`` for MCP server
+    discovery, so this is always written to ``~/.codex/config.toml``.
+    Uses TOML literal strings (single quotes) for paths so that Windows
+    backslashes are literal characters rather than escape sequences.
+    """
+    command, args = _mcp_command_and_args()
+    args_json = json.dumps(args)
+    return (
+        f"[mcp_servers.{MCP_SERVER_NAME}]\n"
+        f"command = '{command}'\n"
+        f"args = {args_json}\n"
+    )
+
+
+# ---------------------------------------------------------------------------
+# MCP config file writers
+# ---------------------------------------------------------------------------
+
+def _write_codex_global_config() -> None:
+    CODEX_GLOBAL_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    existing = ""
+    if CODEX_GLOBAL_CONFIG_PATH.exists():
+        existing = CODEX_GLOBAL_CONFIG_PATH.read_text()
+
+    cleaned = _CODEX_MCP_SECTION_RE.sub("", existing).rstrip("\n")
+    section = _codex_mcp_section()
+    if cleaned:
+        result = cleaned + "\n\n" + section
+    else:
+        result = section
+    CODEX_GLOBAL_CONFIG_PATH.write_text(result)
+
+
+def _remove_codex_mcp_section() -> None:
+    if not CODEX_GLOBAL_CONFIG_PATH.exists():
+        return
+    existing = CODEX_GLOBAL_CONFIG_PATH.read_text()
+    cleaned = _CODEX_MCP_SECTION_RE.sub("", existing).strip("\n")
+    if cleaned:
+        CODEX_GLOBAL_CONFIG_PATH.write_text(cleaned + "\n")
+    else:
+        CODEX_GLOBAL_CONFIG_PATH.write_text("")
+
+
+def _write_all_provider_configs() -> None:
+    MCP_JSON_PATH.write_text(json.dumps(_mcp_json_content(), indent=2) + "\n")
+
+    GEMINI_SETTINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    GEMINI_SETTINGS_PATH.write_text(
+        json.dumps(_gemini_settings_content(), indent=2) + "\n"
+    )
+
+    _write_codex_global_config()
+
+
+def _remove_all_provider_configs() -> None:
+    for path in (MCP_JSON_PATH, GEMINI_SETTINGS_PATH):
+        if path.exists():
+            path.unlink()
+            logger.info("Removed %s", path.name)
+    _remove_codex_mcp_section()
+
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
+
+def get_status() -> dict:
+    enabled = False
+    if MCP_JSON_PATH.exists():
+        try:
+            data = json.loads(MCP_JSON_PATH.read_text())
+            enabled = MCP_SERVER_NAME in data.get("mcpServers", {})
+        except (json.JSONDecodeError, OSError):
+            pass
+
+    daemon = _doctor_status() if (_is_wsl2() and enabled) else None
+
+    return {
+        "enabled": enabled,
+        "venv_ready": CU_VENV_DIR.exists(),
+        "daemon": daemon,
+        "platform": "wsl2" if _is_wsl2() else "native",
+    }
+
+
+def enable_computer_use() -> dict:
+    """Create venv, install vadgr-computer-use, write MCP configs, warm the daemon."""
     if not _venv_healthy():
-        logger.info("Creating computer_use venv...")
-        python = _python_command()
-        subprocess.run(
-            [python, "-m", "venv", "--clear", str(CU_VENV_DIR)],
-            check=True, capture_output=True,
-        )
+        _create_venv()
 
-    # Install/update vadgr-computer-use when the pinned spec changes.
     if _deps_need_install():
-        pip = str(_pip_path())
-        logger.info("Installing %s...", CU_PACKAGE_SPEC)
-        subprocess.run(
-            [pip, "install", "-q", "--upgrade", CU_PACKAGE_SPEC],
-            check=True, capture_output=True,
-        )
-        _write_deps_marker()
+        _pip_install_package()
 
-    # Manage daemon on WSL2: always redeploy to ensure latest code + deps.
-    # A stale daemon (e.g. from before a reinstall) would still respond to
-    # ping but fail on screenshot because it lacks mss.
+    _write_all_provider_configs()
+    logger.info("Wrote MCP configs for all providers")
+
     if _is_wsl2():
-        _stop_daemon()
-        _start_daemon()
-
-    # Write MCP configs for all providers
-    _write_all_provider_configs(cache_enabled=cache_enabled)
-    logger.info("Wrote MCP configs for all providers (cache_enabled=%s)", cache_enabled)
+        _install_daemon()
 
     return get_status()
 
 
 def disable_computer_use() -> dict:
-    """Remove all provider MCP configs and stop daemon. Keeps venv for re-enable."""
     if _is_wsl2():
         _stop_daemon()
     _remove_all_provider_configs()
-    return get_status()
-
-
-def update_cache_setting(cache_enabled: bool) -> dict:
-    """Update cache setting in all provider MCP configs without touching venv."""
-    if not MCP_JSON_PATH.exists():
-        return get_status()
-
-    _write_all_provider_configs(cache_enabled=cache_enabled)
-    logger.info("Updated cache_enabled=%s in all provider MCP configs", cache_enabled)
     return get_status()

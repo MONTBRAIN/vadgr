@@ -158,7 +158,7 @@ Describe what you want automated. Forge generates a complete agent project throu
 
 ### Desktop Automation
 
-The desktop-automation MCP server lives in its own repository: **[vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use)**. Install with `pip install vadgr-computer-use`. It gives agents eyes and hands via OS accessibility APIs with a vision fallback.
+The desktop-automation MCP server lives in its own repository: **[vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use)**. Install with `pip install vadgr-computer-use`. It gives agents eyes and hands: take a screenshot, reason, click or type, repeat. On WSL2 the package manages its own Windows-side bridge daemon automatically.
 
 ### [gateway/](gateway/) - Messaging Integration
 

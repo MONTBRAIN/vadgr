@@ -1,874 +1,521 @@
-"""Tests for settings endpoints (computer use toggle)."""
+"""Tests for computer use setup service and settings endpoints.
+
+The Windows daemon lifecycle is owned by the published ``vadgr-computer-use``
+package. The setup service only installs the package, writes MCP configs, and
+delegates daemon management to ``vadgr-cua`` CLI subcommands.
+"""
+
+from __future__ import annotations
 
 import json
-import pytest
 from pathlib import Path
 from unittest.mock import patch
+
+import pytest
 
 import api.services.computer_use_setup as cu_setup
 from api.utils.platform import venv_bin_dir
 
 
-@pytest.fixture(autouse=True)
-def _no_wsl2_daemon(monkeypatch):
-    """Prevent enable_computer_use() from probing the real Windows daemon on WSL2.
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 
-    Without this, any test that calls enable_computer_use() will hang on
-    WSL2 because _probe_daemon() opens a TCP connection to port 19542.
+def _create_fake_venv(venv_path: Path) -> None:
+    """Create a fake venv with pip and vadgr-cua binaries so checks succeed."""
+    bin_dir = venv_bin_dir(venv_path)
+    bin_dir.mkdir(parents=True, exist_ok=True)
+    (bin_dir / "pip").touch()
+    (bin_dir / "vadgr-cua").touch()
+
+
+@pytest.fixture(autouse=True)
+def _no_wsl2_by_default(monkeypatch):
+    """Default every test to non-WSL2 so daemon calls are skipped.
+
+    Tests that exercise WSL2-specific behavior opt in by re-patching.
     """
     monkeypatch.setattr(cu_setup, "_is_wsl2", lambda: False)
 
 
-def _create_fake_pip(venv_path: Path) -> None:
-    """Create a fake pip binary in the correct platform-specific location."""
-    bin_dir = venv_bin_dir(venv_path)
-    bin_dir.mkdir(parents=True, exist_ok=True)
-    (bin_dir / "pip").touch()
+@pytest.fixture
+def paths(tmp_path):
+    """Return a paths bundle with all setup module locations patched to tmp_path."""
+    venv = tmp_path / ".cu_venv"
+    mcp = tmp_path / ".mcp.json"
+    gemini = tmp_path / ".gemini" / "settings.json"
+    codex = tmp_path / ".codex" / "config.toml"
+    with (
+        patch.object(cu_setup, "CU_VENV_DIR", venv),
+        patch.object(cu_setup, "MCP_JSON_PATH", mcp),
+        patch.object(cu_setup, "GEMINI_SETTINGS_PATH", gemini),
+        patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", codex),
+    ):
+        yield {
+            "venv": venv,
+            "mcp": mcp,
+            "gemini": gemini,
+            "codex": codex,
+            "tmp": tmp_path,
+        }
 
 
-class TestComputerUseSetupService:
-    """Tests for the computer_use_setup service functions."""
+# ---------------------------------------------------------------------------
+# get_status
+# ---------------------------------------------------------------------------
 
-    def test_get_status_no_mcp_json(self, tmp_path):
-        """When .mcp.json doesn't exist, computer use is disabled."""
-        with patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"):
+class TestGetStatus:
+    def test_disabled_when_no_mcp_json(self, paths):
+        status = cu_setup.get_status()
+        assert status["enabled"] is False
+
+    def test_enabled_when_mcp_json_has_vadgr_server(self, paths):
+        paths["mcp"].write_text(json.dumps({
+            "mcpServers": {"vadgr-computer-use": {"command": "x"}}
+        }))
+        assert cu_setup.get_status()["enabled"] is True
+
+    def test_not_enabled_when_mcp_json_has_other_server_only(self, paths):
+        paths["mcp"].write_text(json.dumps({
+            "mcpServers": {"something-else": {"command": "x"}}
+        }))
+        assert cu_setup.get_status()["enabled"] is False
+
+    def test_not_enabled_when_mcp_json_malformed(self, paths):
+        paths["mcp"].write_text("{ not valid json")
+        assert cu_setup.get_status()["enabled"] is False
+
+    def test_venv_ready_reflects_directory_presence(self, paths):
+        assert cu_setup.get_status()["venv_ready"] is False
+        paths["venv"].mkdir()
+        assert cu_setup.get_status()["venv_ready"] is True
+
+    def test_daemon_none_on_non_wsl2(self, paths):
+        paths["mcp"].write_text(json.dumps({
+            "mcpServers": {"vadgr-computer-use": {}}
+        }))
+        assert cu_setup.get_status()["daemon"] is None
+
+    def test_daemon_none_when_disabled_on_wsl2(self, paths, monkeypatch):
+        monkeypatch.setattr(cu_setup, "_is_wsl2", lambda: True)
+        with patch.object(cu_setup, "_doctor_status") as probe:
             status = cu_setup.get_status()
-            assert status["enabled"] is False
-            assert status["cache_enabled"] is True
-
-    def test_daemon_not_probed_when_disabled(self, tmp_path):
-        """Issue #66: daemon should not show as degraded when computer use is disabled."""
-        with patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"), \
-             patch.object(cu_setup, "_is_wsl2", return_value=True), \
-             patch.object(cu_setup, "_probe_daemon") as mock_probe:
-            mock_probe.return_value = "degraded"
-            status = cu_setup.get_status()
-            assert status["enabled"] is False
-            # Daemon should not be probed when disabled
-            mock_probe.assert_not_called()
             assert status["daemon"] is None
+            probe.assert_not_called()
 
-    def test_enable_creates_mcp_json(self, tmp_path):
-        """Enabling computer use creates .mcp.json."""
-        mcp_path = tmp_path / ".mcp.json"
-        venv_path = tmp_path / "computer_use" / ".venv"
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
-            patch.object(cu_setup, "CU_VENV_DIR", venv_path),
-            patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "nonexistent.txt"),
-            patch("subprocess.run"),
-        ):
-            result = cu_setup.enable_computer_use(cache_enabled=True)
-            assert mcp_path.exists()
-            data = json.loads(mcp_path.read_text())
-            assert "vadgr-computer-use" in data["mcpServers"]
-            assert result["enabled"] is True
-
-    def test_enable_with_cache_disabled(self, tmp_path):
-        """Enabling with cache_enabled=False sets env var in .mcp.json."""
-        mcp_path = tmp_path / ".mcp.json"
-        venv_path = tmp_path / "computer_use" / ".venv"
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
-            patch.object(cu_setup, "CU_VENV_DIR", venv_path),
-            patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "nonexistent.txt"),
-            patch("subprocess.run"),
-        ):
-            cu_setup.enable_computer_use(cache_enabled=False)
-            data = json.loads(mcp_path.read_text())
-            env = data["mcpServers"]["vadgr-computer-use"]["env"]
-            assert env["AGENT_FORGE_CACHE_ENABLED"] == "0"
-
-    def test_enable_skips_pip_when_deps_marker_fresh(self, tmp_path):
-        """When deps marker exists and requirements unchanged, pip is skipped."""
-        mcp_path = tmp_path / ".mcp.json"
-        venv_path = tmp_path / "cu_venv"
-        venv_path.mkdir()
-        _create_fake_pip(venv_path)
-        reqs_path = tmp_path / "requirements.txt"
-        reqs_path.write_text("some-package==1.0\n")
-        # Create marker with matching hash
-        import hashlib
-        reqs_hash = hashlib.md5(reqs_path.read_bytes()).hexdigest()
-        marker = venv_path / ".deps_installed"
-        marker.write_text(reqs_hash)
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
-            patch.object(cu_setup, "CU_VENV_DIR", venv_path),
-            patch.object(cu_setup, "CU_REQUIREMENTS", reqs_path),
-            patch.object(cu_setup, "_is_wsl2", return_value=False),
-            patch("subprocess.run") as mock_run,
-        ):
-            cu_setup.enable_computer_use()
-            # pip should NOT be called since deps are already installed
-            mock_run.assert_not_called()
-
-    def test_enable_runs_pip_when_deps_marker_stale(self, tmp_path):
-        """When requirements changed since marker was written, pip runs."""
-        mcp_path = tmp_path / ".mcp.json"
-        venv_path = tmp_path / "cu_venv"
-        venv_path.mkdir()
-        _create_fake_pip(venv_path)
-        reqs_path = tmp_path / "requirements.txt"
-        reqs_path.write_text("some-package==1.0\n")
-        # Create marker with old/stale hash
-        marker = venv_path / ".deps_installed"
-        marker.write_text("stale_hash")
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
-            patch.object(cu_setup, "CU_VENV_DIR", venv_path),
-            patch.object(cu_setup, "CU_REQUIREMENTS", reqs_path),
-            patch("subprocess.run") as mock_run,
-        ):
-            cu_setup.enable_computer_use()
-            assert mock_run.called
-            assert "pip" in str(mock_run.call_args_list[0])
-
-    def test_enable_writes_deps_marker_after_pip(self, tmp_path):
-        """After pip install, a marker file with requirements hash is written."""
-        import hashlib
-        mcp_path = tmp_path / ".mcp.json"
-        venv_path = tmp_path / "cu_venv"
-        venv_path.mkdir()
-        _create_fake_pip(venv_path)
-        reqs_path = tmp_path / "requirements.txt"
-        reqs_path.write_text("some-package==1.0\n")
-        expected_hash = hashlib.md5(reqs_path.read_bytes()).hexdigest()
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
-            patch.object(cu_setup, "CU_VENV_DIR", venv_path),
-            patch.object(cu_setup, "CU_REQUIREMENTS", reqs_path),
-            patch("subprocess.run"),
-        ):
-            cu_setup.enable_computer_use()
-            marker = venv_path / ".deps_installed"
-            assert marker.exists()
-            assert marker.read_text() == expected_hash
-
-    def test_enable_runs_pip_when_no_marker(self, tmp_path):
-        """When venv exists but no marker, pip runs (first enable after upgrade)."""
-        mcp_path = tmp_path / ".mcp.json"
-        venv_path = tmp_path / "cu_venv"
-        venv_path.mkdir()
-        _create_fake_pip(venv_path)
-        reqs_path = tmp_path / "requirements.txt"
-        reqs_path.write_text("some-package==1.0\n")
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
-            patch.object(cu_setup, "CU_VENV_DIR", venv_path),
-            patch.object(cu_setup, "CU_REQUIREMENTS", reqs_path),
-            patch("subprocess.run") as mock_run,
-        ):
-            cu_setup.enable_computer_use()
-            assert mock_run.called
-
-    def test_disable_removes_mcp_json(self, tmp_path):
-        """Disabling computer use removes .mcp.json."""
-        mcp_path = tmp_path / ".mcp.json"
-        mcp_path.write_text('{"mcpServers": {"vadgr-computer-use": {}}}')
-        with patch.object(cu_setup, "MCP_JSON_PATH", mcp_path):
-            result = cu_setup.disable_computer_use()
-            assert not mcp_path.exists()
-            assert result["enabled"] is False
-
-    def test_update_cache_setting(self, tmp_path):
-        """Toggling cache updates env var in .mcp.json."""
-        mcp_path = tmp_path / ".mcp.json"
-        mcp_path.write_text('{"mcpServers": {"vadgr-computer-use": {"env": {}}}}')
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
-            patch.object(cu_setup, "PROJECT_ROOT", tmp_path),
-        ):
-            cu_setup.update_cache_setting(cache_enabled=False)
-            data = json.loads(mcp_path.read_text())
-            assert data["mcpServers"]["vadgr-computer-use"]["env"]["AGENT_FORGE_CACHE_ENABLED"] == "0"
-
-    def test_get_status_reads_cache_disabled(self, tmp_path):
-        """get_status reads cache_enabled=False from .mcp.json env."""
-        mcp_path = tmp_path / ".mcp.json"
-        mcp_path.write_text(json.dumps({
-            "mcpServers": {
-                "vadgr-computer-use": {
-                    "env": {"AGENT_FORGE_CACHE_ENABLED": "0"}
-                }
-            }
+    def test_daemon_probed_when_enabled_on_wsl2(self, paths, monkeypatch):
+        monkeypatch.setattr(cu_setup, "_is_wsl2", lambda: True)
+        paths["mcp"].write_text(json.dumps({
+            "mcpServers": {"vadgr-computer-use": {}}
         }))
-        with patch.object(cu_setup, "MCP_JSON_PATH", mcp_path):
-            status = cu_setup.get_status()
-            assert status["enabled"] is True
-            assert status["cache_enabled"] is False
+        with patch.object(cu_setup, "_doctor_status", return_value="running"):
+            assert cu_setup.get_status()["daemon"] == "running"
 
-    def test_get_status_malformed_json(self, tmp_path):
-        """Malformed .mcp.json is treated as disabled."""
-        mcp_path = tmp_path / ".mcp.json"
-        mcp_path.write_text("{invalid json!!!")
-        with patch.object(cu_setup, "MCP_JSON_PATH", mcp_path):
-            status = cu_setup.get_status()
-            assert status["enabled"] is False
+    def test_platform_reports_wsl2_or_native(self, paths, monkeypatch):
+        assert cu_setup.get_status()["platform"] == "native"
+        monkeypatch.setattr(cu_setup, "_is_wsl2", lambda: True)
+        assert cu_setup.get_status()["platform"] == "wsl2"
 
-    def test_get_status_venv_ready(self, tmp_path):
-        """venv_ready reflects whether venv directory exists."""
-        mcp_path = tmp_path / ".mcp.json"
-        venv_path = tmp_path / "cu_venv"
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
-            patch.object(cu_setup, "CU_VENV_DIR", venv_path),
+
+# ---------------------------------------------------------------------------
+# _doctor_status
+# ---------------------------------------------------------------------------
+
+class TestDoctorStatus:
+    def test_running_when_doctor_reports_daemon_running(self, paths):
+        _create_fake_venv(paths["venv"])
+        with patch("subprocess.run") as run:
+            run.return_value = type("R", (), {
+                "returncode": 0,
+                "stdout": json.dumps({"daemon_running": True, "port": 19542}),
+                "stderr": "",
+            })()
+            assert cu_setup._doctor_status() == "running"
+
+    def test_stopped_when_doctor_reports_daemon_not_running(self, paths):
+        _create_fake_venv(paths["venv"])
+        with patch("subprocess.run") as run:
+            run.return_value = type("R", (), {
+                "returncode": 0,
+                "stdout": json.dumps({"daemon_running": False}),
+                "stderr": "",
+            })()
+            assert cu_setup._doctor_status() == "stopped"
+
+    def test_none_when_binary_missing(self, paths):
+        assert cu_setup._doctor_status() is None
+
+    def test_none_when_doctor_exits_nonzero(self, paths):
+        _create_fake_venv(paths["venv"])
+        with patch("subprocess.run") as run:
+            run.return_value = type("R", (), {
+                "returncode": 1, "stdout": "", "stderr": "boom",
+            })()
+            assert cu_setup._doctor_status() is None
+
+    def test_none_when_doctor_returns_invalid_json(self, paths):
+        _create_fake_venv(paths["venv"])
+        with patch("subprocess.run") as run:
+            run.return_value = type("R", (), {
+                "returncode": 0, "stdout": "not json", "stderr": "",
+            })()
+            assert cu_setup._doctor_status() is None
+
+    def test_none_when_subprocess_times_out(self, paths):
+        _create_fake_venv(paths["venv"])
+        import subprocess
+        with patch(
+            "subprocess.run",
+            side_effect=subprocess.TimeoutExpired(cmd="vadgr-cua", timeout=10),
         ):
-            assert cu_setup.get_status()["venv_ready"] is False
-            venv_path.mkdir()
-            assert cu_setup.get_status()["venv_ready"] is True
+            assert cu_setup._doctor_status() is None
 
-    def test_enable_skips_venv_creation_when_healthy(self, tmp_path):
-        """Re-enabling reuses existing venv with pip, does not recreate it."""
-        mcp_path = tmp_path / ".mcp.json"
-        venv_path = tmp_path / "cu_venv"
-        venv_path.mkdir()
-        # Create fake pip binary so venv looks healthy
-        _create_fake_pip(venv_path)
+
+# ---------------------------------------------------------------------------
+# enable_computer_use
+# ---------------------------------------------------------------------------
+
+class TestEnable:
+    def test_creates_venv_when_missing(self, paths):
+        captured = []
+
+        def fake_run(cmd, **kwargs):
+            captured.append(cmd)
+            if "-m" in cmd and "venv" in cmd:
+                _create_fake_venv(paths["venv"])
+            return type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
+
+        with patch("subprocess.run", side_effect=fake_run):
+            cu_setup.enable_computer_use()
+
+        venv_cmd = next(c for c in captured if "venv" in c)
+        assert "--clear" in venv_cmd
+
+    def test_skips_venv_creation_when_healthy(self, paths):
+        _create_fake_venv(paths["venv"])
+        (paths["venv"] / cu_setup.DEPS_MARKER).write_text(
+            __import__("hashlib").md5(cu_setup.CU_PACKAGE_SPEC.encode()).hexdigest()
+        )
+        with patch("subprocess.run") as run:
+            cu_setup.enable_computer_use()
+        for call in run.call_args_list:
+            assert "venv" not in str(call) or "-m" not in str(call)
+
+    def test_recreates_venv_when_pip_missing(self, paths):
+        paths["venv"].mkdir()
+
+        def fake_run(cmd, **kwargs):
+            if "-m" in cmd and "venv" in cmd:
+                _create_fake_venv(paths["venv"])
+            return type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
+
+        with patch("subprocess.run", side_effect=fake_run) as run:
+            cu_setup.enable_computer_use()
+        assert any("venv" in str(c) for c in run.call_args_list)
+
+    def test_pip_install_runs_when_marker_absent(self, paths):
+        def fake_run(cmd, **kwargs):
+            if "-m" in cmd and "venv" in cmd:
+                _create_fake_venv(paths["venv"])
+            return type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
+
+        with patch("subprocess.run", side_effect=fake_run) as run:
+            cu_setup.enable_computer_use()
+        pip_calls = [
+            c for c in run.call_args_list
+            if isinstance(c.args[0], list) and c.args[0][-1] == cu_setup.CU_PACKAGE_SPEC
+        ]
+        assert pip_calls
+        assert "install" in pip_calls[0].args[0]
+
+    def test_pip_install_skipped_when_marker_matches_pin(self, paths):
+        _create_fake_venv(paths["venv"])
+        (paths["venv"] / cu_setup.DEPS_MARKER).write_text(
+            __import__("hashlib").md5(cu_setup.CU_PACKAGE_SPEC.encode()).hexdigest()
+        )
+        with patch("subprocess.run") as run:
+            cu_setup.enable_computer_use()
+        assert not any("install" in str(c) for c in run.call_args_list)
+
+    def test_pip_install_reruns_when_pin_changes(self, paths):
+        _create_fake_venv(paths["venv"])
+        (paths["venv"] / cu_setup.DEPS_MARKER).write_text("stale_hash")
+        with patch("subprocess.run") as run:
+            cu_setup.enable_computer_use()
+        assert any("install" in str(c) for c in run.call_args_list)
+
+    def test_marker_written_after_successful_install(self, paths):
+        import hashlib
+
+        def fake_run(cmd, **kwargs):
+            if "-m" in cmd and "venv" in cmd:
+                _create_fake_venv(paths["venv"])
+            return type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
+
+        with patch("subprocess.run", side_effect=fake_run):
+            cu_setup.enable_computer_use()
+
+        marker = paths["venv"] / cu_setup.DEPS_MARKER
+        assert marker.exists()
+        expected = hashlib.md5(cu_setup.CU_PACKAGE_SPEC.encode()).hexdigest()
+        assert marker.read_text() == expected
+
+    def test_install_daemon_called_on_wsl2(self, paths, monkeypatch):
+        monkeypatch.setattr(cu_setup, "_is_wsl2", lambda: True)
+        _create_fake_venv(paths["venv"])
+        (paths["venv"] / cu_setup.DEPS_MARKER).write_text(
+            __import__("hashlib").md5(cu_setup.CU_PACKAGE_SPEC.encode()).hexdigest()
+        )
         with (
-            patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
-            patch.object(cu_setup, "CU_VENV_DIR", venv_path),
-            patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "nonexistent.txt"),
-            patch("subprocess.run") as mock_run,
+            patch.object(cu_setup, "_install_daemon") as install,
+            patch.object(cu_setup, "_doctor_status", return_value="running"),
         ):
             cu_setup.enable_computer_use()
-            # subprocess.run should NOT be called for venv creation
-            for call_args in mock_run.call_args_list:
-                assert "venv" not in str(call_args)
+            install.assert_called_once()
 
-    def test_enable_recreates_broken_venv(self, tmp_path):
-        """When venv exists but pip is missing, venv is recreated with --clear."""
-        mcp_path = tmp_path / ".mcp.json"
-        venv_path = tmp_path / "cu_venv"
-        venv_path.mkdir()  # venv dir exists but no bin/pip
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
-            patch.object(cu_setup, "CU_VENV_DIR", venv_path),
-            patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "nonexistent.txt"),
-            patch("subprocess.run") as mock_run,
-        ):
+    def test_install_daemon_skipped_off_wsl2(self, paths):
+        _create_fake_venv(paths["venv"])
+        (paths["venv"] / cu_setup.DEPS_MARKER).write_text(
+            __import__("hashlib").md5(cu_setup.CU_PACKAGE_SPEC.encode()).hexdigest()
+        )
+        with patch.object(cu_setup, "_install_daemon") as install:
             cu_setup.enable_computer_use()
-            # venv creation should be called with --clear
-            assert mock_run.called
-            venv_call = str(mock_run.call_args_list[0])
-            assert "venv" in venv_call
-            assert "--clear" in venv_call
-
-    def test_enable_installs_deps_when_requirements_exist(self, tmp_path):
-        """When requirements.txt exists, pip install is called."""
-        mcp_path = tmp_path / ".mcp.json"
-        venv_path = tmp_path / "cu_venv"
-        venv_path.mkdir()
-        _create_fake_pip(venv_path)
-        reqs_path = tmp_path / "requirements.txt"
-        reqs_path.write_text("some-package==1.0\n")
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
-            patch.object(cu_setup, "CU_VENV_DIR", venv_path),
-            patch.object(cu_setup, "CU_REQUIREMENTS", reqs_path),
-            patch("subprocess.run") as mock_run,
-        ):
-            cu_setup.enable_computer_use()
-            # pip install should have been called
-            assert mock_run.called
-            pip_call = mock_run.call_args_list[0]
-            assert "pip" in str(pip_call)
-
-    def test_update_cache_noop_when_no_mcp_json(self, tmp_path):
-        """update_cache_setting is a no-op when .mcp.json doesn't exist."""
-        mcp_path = tmp_path / ".mcp.json"
-        with patch.object(cu_setup, "MCP_JSON_PATH", mcp_path):
-            result = cu_setup.update_cache_setting(cache_enabled=False)
-            assert result["enabled"] is False
-            assert not mcp_path.exists()
-
-    def test_disable_noop_when_already_disabled(self, tmp_path):
-        """Disabling when already disabled is a no-op."""
-        mcp_path = tmp_path / ".mcp.json"  # doesn't exist
-        with patch.object(cu_setup, "MCP_JSON_PATH", mcp_path):
-            result = cu_setup.disable_computer_use()
-            assert result["enabled"] is False
-
-    def test_mcp_json_uses_python_on_windows(self, tmp_path):
-        """On Windows, .mcp.json uses 'python' not 'python3'."""
-        with patch("api.utils.platform.sys") as mock_sys:
-            mock_sys.platform = "win32"
-            assert cu_setup._python_command() == "python"
-
-    def test_mcp_json_uses_python3_on_unix(self, tmp_path):
-        """On non-Windows, .mcp.json uses 'python3'."""
-        with patch("api.utils.platform.sys") as mock_sys:
-            mock_sys.platform = "linux"
-            assert cu_setup._python_command() == "python3"
+            install.assert_not_called()
 
 
-class TestEnsureDaemonDeps:
-    """Tests for _ensure_daemon_deps: install daemon deps on Windows Python."""
+# ---------------------------------------------------------------------------
+# MCP configs
+# ---------------------------------------------------------------------------
 
-    def test_returns_true_when_all_deps_present(self):
-        """If all deps are importable, return True without pip install."""
-        with patch.object(cu_setup, "_check_win_python_module", return_value=True):
-            assert cu_setup._ensure_daemon_deps("C:\\Python312\\python.exe") is True
+class TestMcpConfigs:
+    def _enable_with_fake_venv(self, paths, monkeypatch=None):
+        _create_fake_venv(paths["venv"])
+        (paths["venv"] / cu_setup.DEPS_MARKER).write_text(
+            __import__("hashlib").md5(cu_setup.CU_PACKAGE_SPEC.encode()).hexdigest()
+        )
+        cu_setup.enable_computer_use()
 
-    def test_installs_missing_deps_and_verifies(self):
-        """If some deps missing, pip install then verify. Returns True on success."""
-        # First round: mss ok, PIL missing. After install: both ok.
-        checks = iter([True, False, True, True])
-        with patch.object(cu_setup, "_check_win_python_module", side_effect=checks), \
-             patch("subprocess.run") as mock_run:
-            ok_result = type("R", (), {"returncode": 0, "stderr": ""})()
-            mock_run.return_value = ok_result
-            assert cu_setup._ensure_daemon_deps("C:\\Python312\\python.exe") is True
-            pip_cmd = mock_run.call_args_list[0][0][0][-1]
-            assert "Pillow" in pip_cmd
-            assert "mss" not in pip_cmd  # mss was already present
+    def test_mcp_json_written_with_vadgr_server_name(self, paths):
+        self._enable_with_fake_venv(paths)
+        data = json.loads(paths["mcp"].read_text())
+        assert "vadgr-computer-use" in data["mcpServers"]
 
-    def test_installs_all_when_none_present(self):
-        """If no deps present, install all in one pip call."""
-        # First round: all missing. After install: all ok.
-        checks = iter([False, False, True, True])
-        with patch.object(cu_setup, "_check_win_python_module", side_effect=checks), \
-             patch("subprocess.run") as mock_run:
-            ok_result = type("R", (), {"returncode": 0, "stderr": ""})()
-            mock_run.return_value = ok_result
-            assert cu_setup._ensure_daemon_deps("C:\\Python312\\python.exe") is True
-            pip_cmd = mock_run.call_args_list[0][0][0][-1]
-            assert "mss" in pip_cmd
-            assert "Pillow" in pip_cmd
+    def test_mcp_json_command_points_to_venv_console_script(self, paths):
+        self._enable_with_fake_venv(paths)
+        data = json.loads(paths["mcp"].read_text())
+        command = data["mcpServers"]["vadgr-computer-use"]["command"]
+        assert command.endswith("vadgr-cua") or command.endswith("vadgr-cua.exe")
+        assert str(paths["venv"]) in command
 
-    def test_returns_false_when_install_fails(self):
-        """If pip fails and deps still missing, return False."""
-        with patch.object(cu_setup, "_check_win_python_module", return_value=False), \
-             patch("subprocess.run") as mock_run:
-            fail_result = type("R", (), {"returncode": 1, "stderr": "no pip"})()
-            mock_run.return_value = fail_result
-            assert cu_setup._ensure_daemon_deps("C:\\Python312\\python.exe") is False
+    def test_mcp_json_args_use_stdio_transport(self, paths):
+        self._enable_with_fake_venv(paths)
+        data = json.loads(paths["mcp"].read_text())
+        args = data["mcpServers"]["vadgr-computer-use"]["args"]
+        assert args == ["--transport", "stdio"]
 
-    def test_returns_false_on_pip_exception(self):
-        """If pip subprocess throws, return False."""
-        with patch.object(cu_setup, "_check_win_python_module", return_value=False), \
-             patch("subprocess.run", side_effect=OSError("no powershell")):
-            assert cu_setup._ensure_daemon_deps("C:\\Python312\\python.exe") is False
+    def test_mcp_json_does_not_set_removed_env_vars(self, paths):
+        """AGENT_FORGE_CACHE_ENABLED / AGENT_FORGE_DEBUG / PYTHONPATH are gone."""
+        self._enable_with_fake_venv(paths)
+        data = json.loads(paths["mcp"].read_text())
+        server = data["mcpServers"]["vadgr-computer-use"]
+        env = server.get("env", {})
+        assert "AGENT_FORGE_CACHE_ENABLED" not in env
+        assert "AGENT_FORGE_DEBUG" not in env
+        assert "PYTHONPATH" not in env
 
+    def test_mcp_json_type_is_stdio(self, paths):
+        self._enable_with_fake_venv(paths)
+        data = json.loads(paths["mcp"].read_text())
+        assert data["mcpServers"]["vadgr-computer-use"]["type"] == "stdio"
 
-class TestEnableAlwaysRedeploysDaemon:
-    """Enable must always stop+start the daemon so stale processes get replaced."""
+    def test_gemini_settings_written(self, paths):
+        self._enable_with_fake_venv(paths)
+        data = json.loads(paths["gemini"].read_text())
+        assert "vadgr-computer-use" in data["mcpServers"]
 
-    def test_enable_stops_running_daemon_before_restart(self, tmp_path):
-        """Even if daemon is 'running', enable should stop and redeploy it."""
-        _create_fake_pip(tmp_path / "cu_venv")
-        with patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "cu_venv"), \
-             patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "req.txt"), \
-             patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"), \
-             patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"), \
-             patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", tmp_path / ".codex" / "config.toml"), \
-             patch.object(cu_setup, "_is_wsl2", return_value=True), \
-             patch.object(cu_setup, "_stop_daemon") as mock_stop, \
-             patch.object(cu_setup, "_start_daemon") as mock_start, \
-             patch.object(cu_setup, "_deps_need_install", return_value=False):
-            (tmp_path / "req.txt").touch()
-            cu_setup.enable_computer_use()
-            mock_stop.assert_called_once()
-            mock_start.assert_called_once()
+    def test_gemini_disables_respect_git_ignore(self, paths):
+        self._enable_with_fake_venv(paths)
+        data = json.loads(paths["gemini"].read_text())
+        assert data["context"]["fileFiltering"]["respectGitIgnore"] is False
 
+    def test_codex_section_written_to_global_config(self, paths):
+        self._enable_with_fake_venv(paths)
+        assert paths["codex"].exists()
+        assert "[mcp_servers.vadgr-computer-use]" in paths["codex"].read_text()
 
-class TestMcpServerName:
-    """MCP server names must be prefixed with 'vadgr-' to avoid conflicts with CLI built-in names."""
+    def test_codex_preserves_existing_settings(self, paths):
+        paths["codex"].parent.mkdir(parents=True, exist_ok=True)
+        paths["codex"].write_text(
+            'model = "o3"\napproval_mode = "suggest"\n'
+        )
+        self._enable_with_fake_venv(paths)
+        content = paths["codex"].read_text()
+        assert 'model = "o3"' in content
+        assert "[mcp_servers.vadgr-computer-use]" in content
 
-    def test_mcp_json_uses_prefixed_name(self):
-        content = cu_setup._mcp_json_content()
-        servers = content["mcpServers"]
-        assert "vadgr-computer-use" in servers
-        assert "computer-use" not in servers
+    def test_codex_replaces_stale_mcp_section(self, paths):
+        paths["codex"].parent.mkdir(parents=True, exist_ok=True)
+        paths["codex"].write_text(
+            'model = "o3"\n\n'
+            '[mcp_servers.computer-use]\ncommand = "/old/python"\n\n'
+            '[mcp_servers.computer-use.env]\nAGENT_FORGE_DEBUG = "1"\n'
+        )
+        self._enable_with_fake_venv(paths)
+        content = paths["codex"].read_text()
+        assert content.count("[mcp_servers.vadgr-computer-use]") == 1
+        assert "/old/python" not in content
+        assert "AGENT_FORGE_DEBUG" not in content
 
-    def test_mcp_json_has_type_stdio(self):
-        content = cu_setup._mcp_json_content()
-        server = content["mcpServers"]["vadgr-computer-use"]
-        assert server["type"] == "stdio"
+    def test_codex_uses_toml_literal_strings_for_paths(self, paths):
+        """Windows-style backslash paths must be wrapped in single quotes."""
+        self._enable_with_fake_venv(paths)
+        content = paths["codex"].read_text()
+        # command = 'PATH' uses single quotes (TOML literal)
+        assert "command = '" in content
 
-    def test_get_status_reads_prefixed_name(self, tmp_path):
-        import json
-        mcp_path = tmp_path / ".mcp.json"
-        mcp_path.write_text(json.dumps({
-            "mcpServers": {"vadgr-computer-use": {"type": "stdio", "command": "python", "env": {}}}
-        }))
-        with patch.object(cu_setup, "MCP_JSON_PATH", mcp_path):
-            status = cu_setup.get_status()
-            assert status["enabled"] is True
-
-    def test_codex_section_uses_prefixed_name(self):
-        section = cu_setup._codex_mcp_section()
-        assert "[mcp_servers.vadgr-computer-use]" in section
-        assert "[mcp_servers.computer-use]" not in section
+    def test_codex_preserves_unrelated_mcp_servers(self, paths):
+        paths["codex"].parent.mkdir(parents=True, exist_ok=True)
+        paths["codex"].write_text(
+            '[mcp_servers.my-other-tool]\ncommand = "npx"\nargs = ["my-tool"]\n'
+        )
+        self._enable_with_fake_venv(paths)
+        content = paths["codex"].read_text()
+        assert "[mcp_servers.my-other-tool]" in content
+        assert "[mcp_servers.vadgr-computer-use]" in content
 
 
-class TestMultiProviderMcpConfig:
-    """Tests for Gemini and Codex MCP config file generation."""
+# ---------------------------------------------------------------------------
+# disable_computer_use
+# ---------------------------------------------------------------------------
 
-    def _patch_all(self, tmp_path):
-        """Return a context manager that patches all config paths to tmp_path."""
-        from contextlib import ExitStack
-        stack = ExitStack()
-        stack.enter_context(patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"))
-        stack.enter_context(patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"))
-        stack.enter_context(patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", tmp_path / ".codex" / "config.toml"))
-        stack.enter_context(patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "cu_venv"))
-        stack.enter_context(patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "nonexistent.txt"))
-        stack.enter_context(patch.object(cu_setup, "PROJECT_ROOT", tmp_path))
-        stack.enter_context(patch("subprocess.run"))
-        return stack
+class TestDisable:
+    def test_removes_mcp_json(self, paths):
+        paths["mcp"].write_text('{"mcpServers": {"vadgr-computer-use": {}}}')
+        result = cu_setup.disable_computer_use()
+        assert not paths["mcp"].exists()
+        assert result["enabled"] is False
 
-    def test_enable_creates_gemini_settings(self, tmp_path):
-        """Enabling computer use creates .gemini/settings.json with mcpServers."""
-        with self._patch_all(tmp_path):
-            cu_setup.enable_computer_use()
-            gemini_path = tmp_path / ".gemini" / "settings.json"
-            assert gemini_path.exists()
-            data = json.loads(gemini_path.read_text())
-            assert "vadgr-computer-use" in data["mcpServers"]
-            server = data["mcpServers"]["vadgr-computer-use"]
-            assert "python" in server["command"]  # full venv path contains 'python'
-            assert "-m" in server["args"]
-            assert "computer_use.mcp_server" in server["args"]
+    def test_removes_gemini_settings(self, paths):
+        paths["gemini"].parent.mkdir(parents=True, exist_ok=True)
+        paths["gemini"].write_text('{"mcpServers": {"vadgr-computer-use": {}}}')
+        cu_setup.disable_computer_use()
+        assert not paths["gemini"].exists()
 
-    def test_gemini_settings_disables_gitignore(self, tmp_path):
-        """Gemini settings must disable respectGitIgnore so it can read output/ files."""
-        with self._patch_all(tmp_path):
-            cu_setup.enable_computer_use()
-            data = json.loads((tmp_path / ".gemini" / "settings.json").read_text())
-            assert data["context"]["fileFiltering"]["respectGitIgnore"] is False
+    def test_removes_codex_section_preserves_rest(self, paths):
+        paths["codex"].parent.mkdir(parents=True, exist_ok=True)
+        paths["codex"].write_text(
+            'model = "o3"\n\n'
+            '[mcp_servers.vadgr-computer-use]\ncommand = "x"\n'
+        )
+        cu_setup.disable_computer_use()
+        content = paths["codex"].read_text()
+        assert "[mcp_servers.vadgr-computer-use]" not in content
+        assert 'model = "o3"' in content
+        assert paths["codex"].exists()
 
-    def test_enable_creates_codex_config(self, tmp_path):
-        """Enabling computer use creates .codex/config.toml with mcp_servers."""
-        with self._patch_all(tmp_path):
-            cu_setup.enable_computer_use()
-            codex_path = tmp_path / ".codex" / "config.toml"
-            assert codex_path.exists()
-            content = codex_path.read_text()
-            assert "[mcp_servers.vadgr-computer-use]" in content
-            assert "computer_use.mcp_server" in content
+    def test_tolerates_no_configs(self, paths):
+        result = cu_setup.disable_computer_use()
+        assert result["enabled"] is False
 
-    def test_gemini_settings_has_correct_structure(self, tmp_path):
-        """Gemini settings.json uses same mcpServers format as .mcp.json."""
-        with self._patch_all(tmp_path):
-            cu_setup.enable_computer_use()
-            gemini_data = json.loads((tmp_path / ".gemini" / "settings.json").read_text())
-            mcp_data = json.loads((tmp_path / ".mcp.json").read_text())
-            # Both should have the same server definition under mcpServers
-            assert "vadgr-computer-use" in gemini_data["mcpServers"]
-            assert "vadgr-computer-use" in mcp_data["mcpServers"]
-            # Same command and args
-            assert gemini_data["mcpServers"]["vadgr-computer-use"]["command"] == mcp_data["mcpServers"]["vadgr-computer-use"]["command"]
-            assert gemini_data["mcpServers"]["vadgr-computer-use"]["args"] == mcp_data["mcpServers"]["vadgr-computer-use"]["args"]
-
-    def test_codex_config_has_correct_toml_structure(self, tmp_path):
-        """Codex config.toml has proper TOML format with command and args."""
-        with self._patch_all(tmp_path):
-            cu_setup.enable_computer_use()
-            content = (tmp_path / ".codex" / "config.toml").read_text()
-            # Should have the server table
-            assert "[mcp_servers.vadgr-computer-use]" in content
-            # Should have command with venv python path
-            assert "command = '" in content
-            assert "python" in content
-            # Should have args as array
-            assert 'args = [' in content
-
-    def test_codex_config_backslashes_safe_on_windows(self, tmp_path):
-        """cwd with Windows backslashes must use TOML literal strings (single quotes)."""
-        # Simulate a Windows-style path with backslashes
-        fake_root = Path("C:\\Users\\TestUser\\.forge\\Agent-Forge")
-        with self._patch_all(tmp_path):
-            with patch.object(cu_setup, "PROJECT_ROOT", fake_root):
-                cu_setup.enable_computer_use()
-                content = (tmp_path / ".codex" / "config.toml").read_text()
-                # cwd must use single quotes so backslashes are literal, not TOML escapes
-                assert "cwd = 'C:\\Users\\TestUser\\.forge\\Agent-Forge'" in content
-                # Must NOT use double quotes with unescaped backslashes
-                assert 'cwd = "C:\\' not in content
-
-    def test_disable_removes_all_config_files(self, tmp_path):
-        """Disabling removes .mcp.json, .gemini/settings.json, and strips Codex MCP section."""
-        mcp_path = tmp_path / ".mcp.json"
-        gemini_path = tmp_path / ".gemini" / "settings.json"
-        codex_path = tmp_path / ".codex" / "config.toml"
-        # Create all three
-        mcp_path.write_text('{"mcpServers": {"vadgr-computer-use": {}}}')
-        gemini_path.parent.mkdir(parents=True)
-        gemini_path.write_text('{"mcpServers": {"vadgr-computer-use": {}}}')
-        codex_path.parent.mkdir(parents=True)
-        codex_path.write_text('[mcp_servers.computer-use]\ncommand = "python"\n')
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
-            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", gemini_path),
-            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", codex_path),
-        ):
+    def test_stop_daemon_called_on_wsl2(self, paths, monkeypatch):
+        monkeypatch.setattr(cu_setup, "_is_wsl2", lambda: True)
+        with patch.object(cu_setup, "_stop_daemon") as stop:
             cu_setup.disable_computer_use()
-            assert not mcp_path.exists()
-            assert not gemini_path.exists()
-            # Codex global config still exists but MCP section is gone
-            assert codex_path.exists()
-            assert "[mcp_servers.computer-use]" not in codex_path.read_text()
+            stop.assert_called_once()
 
-    def test_update_cache_updates_all_config_files(self, tmp_path):
-        """update_cache_setting updates all three config files."""
-        mcp_path = tmp_path / ".mcp.json"
-        gemini_path = tmp_path / ".gemini" / "settings.json"
-        codex_path = tmp_path / ".codex" / "config.toml"
-        # Create .mcp.json so update_cache_setting proceeds
-        mcp_path.write_text('{"mcpServers": {"vadgr-computer-use": {"env": {}}}}')
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
-            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", gemini_path),
-            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", codex_path),
-            patch.object(cu_setup, "PROJECT_ROOT", tmp_path),
-        ):
-            cu_setup.update_cache_setting(cache_enabled=False)
-            # All three should exist
-            assert mcp_path.exists()
-            assert gemini_path.exists()
-            assert codex_path.exists()
-            # .mcp.json should have cache disabled
-            mcp_data = json.loads(mcp_path.read_text())
-            assert mcp_data["mcpServers"]["vadgr-computer-use"]["env"]["AGENT_FORGE_CACHE_ENABLED"] == "0"
-
-    def test_codex_cache_disabled_in_env(self, tmp_path):
-        """When cache is disabled, Codex config includes the env var."""
-        with self._patch_all(tmp_path):
-            cu_setup.enable_computer_use(cache_enabled=False)
-            content = (tmp_path / ".codex" / "config.toml").read_text()
-            assert 'AGENT_FORGE_CACHE_ENABLED = "0"' in content
-
-    def test_all_configs_use_venv_python_not_bare_command(self, tmp_path):
-        """All MCP configs must use the full venv Python path, not bare python/python3."""
-        from api.utils.platform import venv_python
-        with self._patch_all(tmp_path):
-            cu_setup.enable_computer_use()
-            expected_python = str(venv_python(tmp_path / "cu_venv"))
-
-            # .mcp.json
-            mcp_data = json.loads((tmp_path / ".mcp.json").read_text())
-            assert mcp_data["mcpServers"]["vadgr-computer-use"]["command"] == expected_python
-
-            # .gemini/settings.json
-            gemini_data = json.loads((tmp_path / ".gemini" / "settings.json").read_text())
-            assert gemini_data["mcpServers"]["vadgr-computer-use"]["command"] == expected_python
-
-            # .codex/config.toml
-            codex_content = (tmp_path / ".codex" / "config.toml").read_text()
-            assert expected_python in codex_content
-
-    @patch("api.utils.platform.sys")
-    def test_venv_python_path_correct_on_linux(self, mock_sys, tmp_path):
-        """On Linux, configs use the venv bin/python path."""
-        mock_sys.platform = "linux"
-        with self._patch_all(tmp_path):
-            cu_setup.enable_computer_use()
-            mcp_data = json.loads((tmp_path / ".mcp.json").read_text())
-            command = mcp_data["mcpServers"]["vadgr-computer-use"]["command"]
-            # Should contain bin/python, not Scripts/python
-            assert "bin" in command.replace("\\", "/")
-            assert "Scripts" not in command
-
-    @patch("api.utils.platform.sys")
-    def test_venv_python_path_correct_on_windows(self, mock_sys, tmp_path):
-        """On Windows, configs use the venv Scripts/python path."""
-        mock_sys.platform = "win32"
-        with self._patch_all(tmp_path):
-            cu_setup.enable_computer_use()
-            mcp_data = json.loads((tmp_path / ".mcp.json").read_text())
-            command = mcp_data["mcpServers"]["vadgr-computer-use"]["command"]
-            assert "Scripts" in command
-
-    def test_disable_tolerates_missing_gemini_and_codex(self, tmp_path):
-        """Disable works even if only .mcp.json exists (Gemini/Codex never written)."""
-        mcp_path = tmp_path / ".mcp.json"
-        mcp_path.write_text('{"mcpServers": {"vadgr-computer-use": {}}}')
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
-            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
-            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", tmp_path / ".codex" / "config.toml"),
-        ):
-            cu_setup.disable_computer_use()  # Should not raise
-            assert not mcp_path.exists()
-
-
-class TestCodexGlobalConfig:
-    """Tests that Codex MCP config is written to ~/.codex/config.toml (global).
-
-    Codex CLI ignores project-level .codex/config.toml for MCP server
-    discovery. It only reads from the user-level ~/.codex/config.toml.
-    """
-
-    def test_enable_writes_to_global_codex_config(self, tmp_path):
-        """enable_computer_use writes MCP section to ~/.codex/config.toml, not project."""
-        global_codex = tmp_path / "global_codex" / "config.toml"
-        project_codex = tmp_path / "project" / ".codex" / "config.toml"
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"),
-            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
-            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", global_codex),
-            patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "cu_venv"),
-            patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "nonexistent.txt"),
-            patch.object(cu_setup, "PROJECT_ROOT", tmp_path),
-            patch("subprocess.run"),
-        ):
-            cu_setup.enable_computer_use()
-            assert global_codex.exists()
-            assert not project_codex.exists()
-            content = global_codex.read_text()
-            assert "[mcp_servers.vadgr-computer-use]" in content
-
-    def test_enable_preserves_existing_global_codex_settings(self, tmp_path):
-        """Writing MCP config must not clobber existing Codex settings (model, trust)."""
-        global_codex = tmp_path / "global_codex" / "config.toml"
-        global_codex.parent.mkdir(parents=True)
-        global_codex.write_text(
-            'model = "o3"\n'
-            'approval_mode = "suggest"\n'
-            '\n'
-            '[projects."/home/user/my-project"]\n'
-            'trust_level = "trusted"\n'
-        )
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"),
-            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
-            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", global_codex),
-            patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "cu_venv"),
-            patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "nonexistent.txt"),
-            patch.object(cu_setup, "PROJECT_ROOT", tmp_path),
-            patch("subprocess.run"),
-        ):
-            cu_setup.enable_computer_use()
-            content = global_codex.read_text()
-            # MCP section added
-            assert "[mcp_servers.vadgr-computer-use]" in content
-            # Existing settings preserved
-            assert 'model = "o3"' in content
-            assert 'trust_level = "trusted"' in content
-
-    def test_enable_replaces_stale_mcp_section(self, tmp_path):
-        """Re-enabling updates the MCP section without duplicating it."""
-        global_codex = tmp_path / "global_codex" / "config.toml"
-        global_codex.parent.mkdir(parents=True)
-        global_codex.write_text(
-            'model = "o3"\n'
-            '\n'
-            '[mcp_servers.computer-use]\n'
-            'command = "/old/python"\n'
-            'args = ["-m", "old_module"]\n'
-            '\n'
-            '[mcp_servers.computer-use.env]\n'
-            'AGENT_FORGE_DEBUG = "1"\n'
-        )
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"),
-            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
-            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", global_codex),
-            patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "cu_venv"),
-            patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "nonexistent.txt"),
-            patch.object(cu_setup, "PROJECT_ROOT", tmp_path),
-            patch("subprocess.run"),
-        ):
-            cu_setup.enable_computer_use()
-            content = global_codex.read_text()
-            assert content.count("[mcp_servers.vadgr-computer-use]") == 1
-            assert "/old/python" not in content
-            assert "old_module" not in content
-            assert "computer_use.mcp_server" in content
-
-    def test_disable_removes_mcp_section_preserves_rest(self, tmp_path):
-        """disable_computer_use removes only the MCP section from global config."""
-        global_codex = tmp_path / "global_codex" / "config.toml"
-        global_codex.parent.mkdir(parents=True)
-        global_codex.write_text(
-            'model = "o3"\n'
-            '\n'
-            '[mcp_servers.computer-use]\n'
-            'command = "/some/python"\n'
-            'args = ["-m", "computer_use.mcp_server"]\n'
-            '\n'
-            '[mcp_servers.computer-use.env]\n'
-            'AGENT_FORGE_DEBUG = "1"\n'
-            '\n'
-            '[projects."/home/user/proj"]\n'
-            'trust_level = "trusted"\n'
-        )
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"),
-            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
-            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", global_codex),
-        ):
+    def test_stop_daemon_skipped_off_wsl2(self, paths):
+        with patch.object(cu_setup, "_stop_daemon") as stop:
             cu_setup.disable_computer_use()
-            content = global_codex.read_text()
-            assert "[mcp_servers.computer-use]" not in content
-            assert "computer_use.mcp_server" not in content
-            # Other settings intact
-            assert 'model = "o3"' in content
-            assert 'trust_level = "trusted"' in content
+            stop.assert_not_called()
 
-    def test_disable_does_not_delete_global_config(self, tmp_path):
-        """Disable must never delete ~/.codex/config.toml -- only remove our section."""
-        global_codex = tmp_path / "global_codex" / "config.toml"
-        global_codex.parent.mkdir(parents=True)
-        global_codex.write_text(
-            'model = "o3"\n'
-            '\n'
-            '[mcp_servers.computer-use]\n'
-            'command = "/some/python"\n'
-        )
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"),
-            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
-            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", global_codex),
-        ):
-            cu_setup.disable_computer_use()
-            assert global_codex.exists()  # file must still exist
 
-    def test_disable_tolerates_no_mcp_section(self, tmp_path):
-        """Disable works when global config exists but has no MCP section."""
-        global_codex = tmp_path / "global_codex" / "config.toml"
-        global_codex.parent.mkdir(parents=True)
-        global_codex.write_text('model = "o3"\n')
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"),
-            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
-            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", global_codex),
-        ):
-            cu_setup.disable_computer_use()  # no-op, should not raise
-            assert 'model = "o3"' in global_codex.read_text()
-
-    def test_disable_tolerates_no_global_config(self, tmp_path):
-        """Disable works when ~/.codex/config.toml doesn't exist at all."""
-        global_codex = tmp_path / "global_codex" / "config.toml"
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"),
-            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
-            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", global_codex),
-        ):
-            cu_setup.disable_computer_use()  # should not raise
-
-    def test_cache_disabled_in_global_codex(self, tmp_path):
-        """Cache disabled flag appears in the global Codex config."""
-        global_codex = tmp_path / "global_codex" / "config.toml"
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"),
-            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
-            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", global_codex),
-            patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "cu_venv"),
-            patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "nonexistent.txt"),
-            patch.object(cu_setup, "PROJECT_ROOT", tmp_path),
-            patch("subprocess.run"),
-        ):
-            cu_setup.enable_computer_use(cache_enabled=False)
-            content = global_codex.read_text()
-            assert 'AGENT_FORGE_CACHE_ENABLED = "0"' in content
-
-    def test_preserves_other_mcp_servers(self, tmp_path):
-        """Other MCP servers in the global config are not affected."""
-        global_codex = tmp_path / "global_codex" / "config.toml"
-        global_codex.parent.mkdir(parents=True)
-        global_codex.write_text(
-            '[mcp_servers.my-other-tool]\n'
-            'command = "npx"\n'
-            'args = ["my-tool"]\n'
-        )
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", tmp_path / ".mcp.json"),
-            patch.object(cu_setup, "GEMINI_SETTINGS_PATH", tmp_path / ".gemini" / "settings.json"),
-            patch.object(cu_setup, "CODEX_GLOBAL_CONFIG_PATH", global_codex),
-            patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "cu_venv"),
-            patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "nonexistent.txt"),
-            patch.object(cu_setup, "PROJECT_ROOT", tmp_path),
-            patch("subprocess.run"),
-        ):
-            cu_setup.enable_computer_use()
-            content = global_codex.read_text()
-            assert "[mcp_servers.my-other-tool]" in content
-            assert "[mcp_servers.vadgr-computer-use]" in content
-
+# ---------------------------------------------------------------------------
+# Settings HTTP endpoints
+# ---------------------------------------------------------------------------
 
 class TestComputerUseSettingsEndpoints:
-    """Tests for GET/PUT /api/settings/computer-use."""
-
     @pytest.mark.asyncio
-    async def test_get_computer_use_status(self, client):
-        """GET returns current computer use status."""
+    async def test_get_returns_status_shape(self, client):
         resp = await client.get("/api/settings/computer-use")
         assert resp.status_code == 200
         data = resp.json()
         assert "enabled" in data
-        assert "cache_enabled" in data
+        assert "venv_ready" in data
+        assert "daemon" in data
 
     @pytest.mark.asyncio
-    async def test_put_enable_computer_use(self, client, tmp_path):
-        """PUT with enabled=true creates .mcp.json."""
-        mcp_path = tmp_path / ".mcp.json"
-        with (
-            patch.object(cu_setup, "MCP_JSON_PATH", mcp_path),
-            patch.object(cu_setup, "CU_VENV_DIR", tmp_path / "cu_venv"),
-            patch.object(cu_setup, "CU_REQUIREMENTS", tmp_path / "nonexistent.txt"),
-            patch("subprocess.run"),
-        ):
-            resp = await client.put("/api/settings/computer-use", json={
-                "enabled": True, "cache_enabled": True,
-            })
-            assert resp.status_code == 200
-            assert resp.json()["enabled"] is True
-            assert mcp_path.exists()
+    async def test_put_enable_creates_mcp_json(self, client, paths):
+        _create_fake_venv(paths["venv"])
+        (paths["venv"] / cu_setup.DEPS_MARKER).write_text(
+            __import__("hashlib").md5(cu_setup.CU_PACKAGE_SPEC.encode()).hexdigest()
+        )
+        resp = await client.put(
+            "/api/settings/computer-use", json={"enabled": True},
+        )
+        assert resp.status_code == 200
+        assert resp.json()["enabled"] is True
+        assert paths["mcp"].exists()
 
     @pytest.mark.asyncio
-    async def test_put_disable_computer_use(self, client, tmp_path):
-        """PUT with enabled=false removes .mcp.json."""
-        mcp_path = tmp_path / ".mcp.json"
-        mcp_path.write_text('{"mcpServers": {"vadgr-computer-use": {}}}')
-        with patch.object(cu_setup, "MCP_JSON_PATH", mcp_path):
-            resp = await client.put("/api/settings/computer-use", json={
-                "enabled": False,
-            })
-            assert resp.status_code == 200
-            assert resp.json()["enabled"] is False
-            assert not mcp_path.exists()
+    async def test_put_disable_removes_mcp_json(self, client, paths):
+        paths["mcp"].write_text('{"mcpServers": {"vadgr-computer-use": {}}}')
+        resp = await client.put(
+            "/api/settings/computer-use", json={"enabled": False},
+        )
+        assert resp.status_code == 200
+        assert resp.json()["enabled"] is False
+        assert not paths["mcp"].exists()
 
+    @pytest.mark.asyncio
+    async def test_put_body_does_not_accept_cache_enabled(self, client, paths):
+        """The cache toggle is gone; ignore unknown fields via pydantic default."""
+        _create_fake_venv(paths["venv"])
+        (paths["venv"] / cu_setup.DEPS_MARKER).write_text(
+            __import__("hashlib").md5(cu_setup.CU_PACKAGE_SPEC.encode()).hexdigest()
+        )
+        resp = await client.put(
+            "/api/settings/computer-use",
+            json={"enabled": True, "cache_enabled": False},
+        )
+        assert resp.status_code == 200
+        data = json.loads(paths["mcp"].read_text())
+        env = data["mcpServers"]["vadgr-computer-use"].get("env", {})
+        assert "AGENT_FORGE_CACHE_ENABLED" not in env
+
+
+# ---------------------------------------------------------------------------
+# Agent run gate (unchanged behavior, just verifies integration)
+# ---------------------------------------------------------------------------
 
 class TestRunBlockedWhenComputerUseDisabled:
-    """Tests that agents with computer_use=true can't run when disabled."""
-
     @pytest.mark.asyncio
-    async def test_run_blocked_when_cu_disabled(self, client, app, tmp_path):
-        """Running an agent with computer_use=true returns 409 when disabled."""
+    async def test_run_blocked_when_cu_disabled(self, client, app, paths):
         agent = await app.state.agent_repo.create(
             name="CU Agent", description="needs desktop",
             computer_use=True, status="ready",
         )
-        mcp_path = tmp_path / ".mcp.json"  # doesn't exist = disabled
-        with patch.object(cu_setup, "MCP_JSON_PATH", mcp_path):
-            resp = await client.post(f"/api/agents/{agent['id']}/run", json={})
-            assert resp.status_code == 409
-            assert resp.json()["error"]["code"] == "COMPUTER_USE_DISABLED"
+        resp = await client.post(f"/api/agents/{agent['id']}/run", json={})
+        assert resp.status_code == 409
+        assert resp.json()["error"]["code"] == "COMPUTER_USE_DISABLED"
 
     @pytest.mark.asyncio
-    async def test_run_allowed_when_cu_enabled(self, client, app, tmp_path):
-        """Running an agent with computer_use=true succeeds when enabled."""
+    async def test_run_allowed_when_cu_enabled(self, client, app, paths):
         agent = await app.state.agent_repo.create(
             name="CU Agent", description="needs desktop",
             computer_use=True, status="ready",
             forge_path="output/test/",
         )
-        mcp_path = tmp_path / ".mcp.json"
-        mcp_path.write_text('{"mcpServers": {"vadgr-computer-use": {}}}')
-        with patch.object(cu_setup, "MCP_JSON_PATH", mcp_path):
-            resp = await client.post(f"/api/agents/{agent['id']}/run", json={})
-            assert resp.status_code == 202
+        paths["mcp"].write_text('{"mcpServers": {"vadgr-computer-use": {}}}')
+        resp = await client.post(f"/api/agents/{agent['id']}/run", json={})
+        assert resp.status_code == 202
 
     @pytest.mark.asyncio
-    async def test_run_allowed_for_cli_agent_when_cu_disabled(self, client, app, tmp_path):
-        """Running a CLI-only agent works even when computer use is disabled."""
+    async def test_run_allowed_for_cli_agent_when_cu_disabled(
+        self, client, app, paths,
+    ):
         agent = await app.state.agent_repo.create(
             name="CLI Agent", description="no desktop",
             computer_use=False, status="ready",
         )
-        mcp_path = tmp_path / ".mcp.json"  # doesn't exist = disabled
-        with patch.object(cu_setup, "MCP_JSON_PATH", mcp_path):
-            resp = await client.post(f"/api/agents/{agent['id']}/run", json={})
-            assert resp.status_code == 202
+        resp = await client.post(f"/api/agents/{agent['id']}/run", json={})
+        assert resp.status_code == 202

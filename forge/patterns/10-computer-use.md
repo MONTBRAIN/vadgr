@@ -23,20 +23,17 @@ This pattern transforms workflows from "instructions a human follows" into "inst
 
 ### Two Modes
 
-**Library mode (agent-driven).** An LLM agent calls the engine as a tool. The agent sees the screenshot, decides what to do, and tells the engine to act. The agent is the brain; the engine is just eyes and hands.
+**MCP mode (default).** The LLM agent talks to the engine through an MCP server. Forge wires this up when computer use is enabled: `vadgr-cua --transport stdio` is started under the agent's MCP configuration and exposes screenshot, click, type, scroll, drag, and key_press as tools. Every action loops through screenshot, reason, act.
+
+**Library mode.** The engine can also be imported directly:
 
 ```python
+from computer_use import ComputerUseEngine
+
 engine = ComputerUseEngine()
-screen = engine.screenshot()        # agent sees the screen
-engine.click(500, 300)              # agent tells engine to click
-engine.type_text("hello")           # agent tells engine to type
-```
-
-**Autonomous mode (engine-driven).** The engine runs its own loop, calling an LLM API directly. Useful when no external agent is hosting the workflow. The provider is configured in the generated project's `computer_use/config.yaml` (scaffolded by forge) and is not tied to any specific LLM.
-
-```python
-engine = ComputerUseEngine()  # provider loaded from config.yaml
-results = engine.run_task("Open Notepad and type hello")
+screen = engine.screenshot()
+engine.click(500, 300)
+engine.type_text("hello")
 ```
 
 ### Workflow Step Format
@@ -81,7 +78,7 @@ agentic.md step:
 
 1. **Computer use is optional.** Only include it when the workflow genuinely needs desktop interaction. Generate mode must work without it.
 2. **Platform detection is automatic.** The engine detects WSL2, Linux, Windows, or macOS at startup and loads the correct backend.
-3. **Vision-only by default.** No browser automation libraries, no DOM inspection. Only screenshots and OS accessibility APIs.
+3. **Vision-only.** No browser automation libraries, no DOM inspection, no accessibility shortcuts. Every decision comes from reading a screenshot.
 4. **Verify every action.** After each action, take a new screenshot and confirm the expected change happened.
 5. **Fail gracefully.** If an element is not found or an action fails, retry or escalate, never crash silently.
 
@@ -97,7 +94,6 @@ agentic.md step:
 | Key press | `engine.key_press("ctrl", "s")` | Press key combination |
 | Scroll | `engine.scroll(x, y, amount)` | Scroll at position |
 | Drag | `engine.drag(x1, y1, x2, y2)` | Drag from A to B |
-| Find element | `engine.find_element("Save")` | Locate UI element by description |
 | Screen size | `engine.get_screen_size()` | Get display dimensions |
 
 ## Example

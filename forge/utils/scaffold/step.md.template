@@ -135,7 +135,7 @@ This file is read by the execution engine to track step status. Always write it,
        from forge.scripts.src.memory import write_memory
        write_memory("{{WORKFLOW_NAME}}", content="- key insight from this step")
 
-     For computer use steps, read CUA hints for consistent element_hint strings:
+     For computer use steps, read CUA hints to prime the agent on familiar UIs:
        hints = read_memory("{{WORKFLOW_NAME}}", key="cua-hints")
 -->
 

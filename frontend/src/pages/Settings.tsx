@@ -17,7 +17,6 @@ interface AppSettings {
   defaultProvider: string;
   defaultModel: string;
   computerUse: boolean;
-  cacheEnabled: boolean;
   autoRefreshInterval: string;
   maxConcurrentRuns: number;
 }
@@ -26,7 +25,6 @@ const defaults: AppSettings = {
   defaultProvider: 'claude_code',
   defaultModel: 'claude-sonnet-4-6',
   computerUse: false,
-  cacheEnabled: true,
   autoRefreshInterval: '5',
   maxConcurrentRuns: 3,
 };
@@ -47,7 +45,6 @@ export function Settings() {
   const [saved, setSaved] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [cuEnabled, setCuEnabled] = useState(false);
-  const [cuCacheEnabled, setCuCacheEnabled] = useState(true);
   const [cuLoading, setCuLoading] = useState(false);
   const [cuActivating, setCuActivating] = useState(false); // true = enabling, false = disabling
   const [cuError, setCuError] = useState<string | null>(null);
@@ -73,17 +70,15 @@ export function Settings() {
       pending.promise
         .then((result) => {
           setCuEnabled(result.enabled);
-          setCuCacheEnabled(result.cache_enabled);
         })
         .catch((e) => {
           setCuError(e instanceof Error ? e.message : 'Failed to update computer use');
         })
         .finally(() => setCuLoading(false));
     } else {
-      api.get<{ enabled: boolean; cache_enabled: boolean }>('/settings/computer-use')
+      api.get<{ enabled: boolean }>('/settings/computer-use')
         .then((data) => {
           setCuEnabled(data.enabled);
-          setCuCacheEnabled(data.cache_enabled);
         })
         .catch(() => {});
     }
@@ -139,26 +134,10 @@ export function Settings() {
     setCuActivating(enabled);
     setCuError(null);
     try {
-      const result = await toggleCu(enabled, cuCacheEnabled);
+      const result = await toggleCu(enabled);
       setCuEnabled(result.enabled);
-      setCuCacheEnabled(result.cache_enabled);
     } catch (e) {
       setCuError(e instanceof Error ? e.message : 'Failed to update computer use');
-    }
-    setCuLoading(false);
-  };
-
-  const toggleCuCache = async (cacheEnabled: boolean) => {
-    setCuLoading(true);
-    setCuError(null);
-    try {
-      const result = await api.put<{ enabled: boolean; cache_enabled: boolean }>(
-        '/settings/computer-use',
-        { enabled: cuEnabled, cache_enabled: cacheEnabled },
-      );
-      setCuCacheEnabled(result.cache_enabled);
-    } catch (e) {
-      setCuError(e instanceof Error ? e.message : 'Failed to update cache setting');
     }
     setCuLoading(false);
   };
@@ -342,26 +321,6 @@ export function Settings() {
             </button>
           </div>
 
-          {/* Computer Use Cache Toggle */}
-          <div className={`flex items-center justify-between py-3 mt-1 ${!cuEnabled ? 'opacity-40' : ''}`}>
-            <div className="flex-1">
-              <span className="text-sm text-text-secondary font-body">Computer use cache</span>
-              <p className="text-xs text-text-muted font-light mt-0.5">
-                Remembers where UI elements are for faster, more precise interactions.
-              </p>
-            </div>
-            <button
-              onClick={() => cuEnabled && toggleCuCache(!cuCacheEnabled)}
-              disabled={!cuEnabled || cuLoading}
-              className="w-12 h-[26px] rounded-full border-none cursor-pointer relative transition-colors shrink-0 ml-4 disabled:cursor-not-allowed"
-              style={{ background: cuEnabled && cuCacheEnabled ? 'var(--color-success)' : 'var(--color-border)' }}
-            >
-              <span
-                className="absolute top-[3px] w-5 h-5 rounded-full bg-white shadow-[0_1px_4px_rgba(0,0,0,0.2)] transition-all"
-                style={{ left: cuEnabled && cuCacheEnabled ? 25 : 3 }}
-              />
-            </button>
-          </div>
         </Card>
 
         {/* Messaging Gateway */}

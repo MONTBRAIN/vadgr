@@ -3,7 +3,7 @@
  *
  * The enable/disable PUT can take 30-60s (venv creation + pip install).
  * If the user navigates away and back, the Settings component remounts
- * and re-fetches status from the backend — which still returns the old
+ * and re-fetches status from the backend, which still returns the old
  * state because the PUT hasn't completed. This makes the toggle "reset".
  *
  * This module keeps the in-flight promise outside React component
@@ -14,7 +14,6 @@ import { api } from '../api/client';
 
 interface CuStatus {
   enabled: boolean;
-  cache_enabled: boolean;
 }
 
 let inflight: {
@@ -30,14 +29,8 @@ export function resetInflight() {
   inflight = null;
 }
 
-export async function toggleComputerUse(
-  enabled: boolean,
-  cacheEnabled: boolean,
-): Promise<CuStatus> {
-  const promise = api.put<CuStatus>('/settings/computer-use', {
-    enabled,
-    cache_enabled: cacheEnabled,
-  });
+export async function toggleComputerUse(enabled: boolean): Promise<CuStatus> {
+  const promise = api.put<CuStatus>('/settings/computer-use', { enabled });
 
   inflight = { promise, activating: enabled };
 

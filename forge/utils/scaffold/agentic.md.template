@@ -113,7 +113,6 @@ This workflow includes steps that execute autonomously via the Computer Use Engi
 - `engine.key_press(*keys)` -- press key combination (e.g., "ctrl", "s")
 - `engine.scroll(x, y, amount)` -- scroll at position
 - `engine.drag(start_x, start_y, end_x, end_y)` -- drag
-- `engine.find_element(description)` -- locate UI element by name
 - `engine.get_screen_size()` -- get display dimensions
 
 **Execution Commands:**
