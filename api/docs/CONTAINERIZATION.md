@@ -96,8 +96,11 @@ volumes:
 
 ### Credentials
 
-- **With API key**: Set `ANTHROPIC_API_KEY` in `.env`. Worker passes it to `claude` via environment. Works in Docker too if the API ever needs to call Claude directly.
-- **With subscription**: User runs `claude auth` on host. Worker inherits the host's `~/.claude/` auth. No Docker credential issues.
+Vadgr invokes providers through their CLI binaries (`claude`, `codex`, `gemini`), which handle their own authentication. The current path is:
+
+- The user runs `claude login` / `codex login` / `gemini auth` on the host. The host worker inherits that session from `~/.claude/` / `~/.codex/` / `~/.gemini/`. Nothing in vadgr reads or injects a provider API key.
+
+If a future Docker deployment ever needs non-interactive auth, the CLIs do each support their vendor's API-key env var as a fallback, but that is not the primary path and is not required for normal use.
 
 ### User experience
 
@@ -134,6 +137,5 @@ Agent Forge's computer_use engine controls the actual host -- real mouse, real k
 - [ ] `frontend/nginx.conf` -- Reverse proxy /api and /ws to api container
 - [ ] `docker-compose.yml` -- Two services, bind mounts, env vars
 - [ ] `worker.py` -- Host-side execution worker (~60 lines)
-- [ ] `.env.example` -- ANTHROPIC_API_KEY template
 - [ ] `.dockerignore` -- Exclude node_modules, .venv, data/, .git
 - [ ] Update README with `docker compose up` instructions
