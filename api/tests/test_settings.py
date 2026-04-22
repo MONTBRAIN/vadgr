@@ -467,20 +467,34 @@ class TestComputerUseSettingsEndpoints:
         assert not paths["mcp"].exists()
 
     @pytest.mark.asyncio
-    async def test_put_body_does_not_accept_cache_enabled(self, client, paths):
-        """The cache toggle is gone; ignore unknown fields via pydantic default."""
-        _create_fake_venv(paths["venv"])
-        (paths["venv"] / cu_setup.DEPS_MARKER).write_text(
-            __import__("hashlib").md5(cu_setup.CU_PACKAGE_SPEC.encode()).hexdigest()
-        )
+    async def test_put_body_rejects_cache_enabled(self, client, paths):
+        """The cache toggle is gone; clients passing cache_enabled get 422.
+
+        Silent acceptance would let callers think their request worked when
+        the field is actually discarded. Reject the field so the contract
+        is explicit.
+        """
         resp = await client.put(
             "/api/settings/computer-use",
             json={"enabled": True, "cache_enabled": False},
         )
-        assert resp.status_code == 200
-        data = json.loads(paths["mcp"].read_text())
-        env = data["mcpServers"]["vadgr-computer-use"].get("env", {})
-        assert "AGENT_FORGE_CACHE_ENABLED" not in env
+        assert resp.status_code == 422
+        detail = resp.json()["detail"]
+        assert any(
+            err.get("loc", [])[-1] == "cache_enabled"
+            and err.get("type") == "extra_forbidden"
+            for err in detail
+        ), detail
+        assert not paths["mcp"].exists()
+
+    @pytest.mark.asyncio
+    async def test_put_body_rejects_any_unknown_field(self, client, paths):
+        """Belt and suspenders: any unknown field triggers 422."""
+        resp = await client.put(
+            "/api/settings/computer-use",
+            json={"enabled": True, "foo": "bar"},
+        )
+        assert resp.status_code == 422
 
 
 # ---------------------------------------------------------------------------

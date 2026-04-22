@@ -17,6 +17,8 @@ router = APIRouter(prefix="/api/settings", tags=["settings"])
 
 
 class ComputerUseUpdate(BaseModel):
+    model_config = {"extra": "forbid"}
+
     enabled: bool
 
 
