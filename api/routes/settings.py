@@ -8,10 +8,6 @@ from api.services.computer_use_setup import (
     enable_computer_use,
     disable_computer_use,
 )
-from api.services.gateway_setup import (
-    get_status as get_gateway_status,
-    update_discord,
-)
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
 
@@ -32,18 +28,3 @@ async def update_computer_use(body: ComputerUseUpdate):
     else:
         result = disable_computer_use()
     return result
-
-
-class DiscordUpdate(StrictBody):
-    enabled: bool
-    token: str | None = None
-
-
-@router.get("/messaging-gateway")
-async def messaging_gateway_status():
-    return get_gateway_status()
-
-
-@router.put("/messaging-gateway/discord")
-async def update_discord_gateway(body: DiscordUpdate):
-    return update_discord(enabled=body.enabled, token=body.token)
