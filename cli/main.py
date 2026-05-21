@@ -16,7 +16,6 @@ if sys.platform == "win32":
         pass
 
 from cli.commands.agents import agents_group
-from cli.commands.gateway_cmd import gateway_group
 from cli.commands.info import health, providers, computer_use
 from cli.commands.registry import registry_group
 from cli.commands.runs import runs_group
@@ -48,7 +47,6 @@ def cli(ctx, api_url: str | None):
 cli.add_command(agents_group)
 cli.add_command(runs_group)
 cli.add_command(registry_group)
-cli.add_command(gateway_group)
 
 # Info commands
 cli.add_command(health)
