@@ -84,6 +84,16 @@ CREATE TABLE IF NOT EXISTS agent_runs (
 );
 
 CREATE INDEX IF NOT EXISTS idx_agent_runs_run ON agent_runs(run_id);
+
+CREATE TABLE IF NOT EXISTS devices (
+    id TEXT PRIMARY KEY,
+    machine_name TEXT NOT NULL,
+    token_hash TEXT NOT NULL UNIQUE,
+    paired_at TEXT NOT NULL,
+    last_seen TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_devices_token_hash ON devices(token_hash);
 """
 
 
