@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { QRCodeSVG } from 'qrcode.react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { useTheme } from '../hooks/useTheme';
@@ -7,6 +8,7 @@ import { useProviders } from '../hooks/useProviders';
 import { agentsApi } from '../api/agents';
 import { runsApi } from '../api/runs';
 import { api } from '../api/client';
+import { authApi, type PairResponse } from '../api/auth';
 import { PixelMoon, PixelSun, PixelGear, PixelClock } from '../components/ui/PixelIcon';
 import { getInflight, toggleComputerUse as toggleCu } from '../hooks/useComputerUse';
 
@@ -47,6 +49,9 @@ export function Settings() {
   const [cuLoading, setCuLoading] = useState(false);
   const [cuActivating, setCuActivating] = useState(false); // true = enabling, false = disabling
   const [cuError, setCuError] = useState<string | null>(null);
+  const [pairInfo, setPairInfo] = useState<PairResponse | null>(null);
+  const [pairLoading, setPairLoading] = useState(false);
+  const [pairError, setPairError] = useState<string | null>(null);
 
   // Load computer use status from API on mount, or pick up in-flight operation
   useEffect(() => {
@@ -125,6 +130,23 @@ export function Settings() {
       alert(`Failed to clear runs: ${e instanceof Error ? e.message : e}`);
     }
   };
+
+  const handleGeneratePairQr = async () => {
+    setPairLoading(true);
+    setPairError(null);
+    try {
+      const info = await authApi.pair();
+      setPairInfo(info);
+    } catch (e) {
+      setPairError(e instanceof Error ? e.message : 'Failed to generate pairing token');
+    } finally {
+      setPairLoading(false);
+    }
+  };
+
+  const pairUri = pairInfo
+    ? `vadgr://pair?host=${encodeURIComponent(pairInfo.host)}&port=${pairInfo.port}&token=${encodeURIComponent(pairInfo.token)}&name=${encodeURIComponent(pairInfo.machine_name)}`
+    : '';
 
   return (
     <div>
@@ -264,6 +286,51 @@ export function Settings() {
             </button>
           </div>
 
+        </Card>
+
+        {/* Mobile Pairing */}
+        <Card className="px-7 py-6">
+          <div className="flex items-center gap-2.5 mb-1">
+            <PixelGear size={16} color="var(--color-accent)" hole="var(--color-bg-secondary)" />
+            <h2 className="font-heading text-lg font-semibold text-text-primary">Mobile Pairing</h2>
+          </div>
+          <p className="font-body text-xs text-text-muted font-light ml-[26px] mb-5">
+            Pair a vadgr mobile client. The token below is one-time use and expires after 5 minutes.
+          </p>
+
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-sm text-text-secondary font-body">Generate pairing token</span>
+            <Button
+              size="sm"
+              onClick={handleGeneratePairQr}
+              disabled={pairLoading}
+              aria-label="Generate pairing QR"
+            >
+              {pairLoading ? 'Generating...' : pairInfo ? 'Regenerate' : 'Generate QR'}
+            </Button>
+          </div>
+
+          {pairError && (
+            <p className="text-xs text-danger font-light mb-3">{pairError}</p>
+          )}
+
+          {pairInfo && (
+            <div className="flex flex-col items-center gap-3 p-4 border border-border rounded-xl">
+              <div className="bg-white p-3 rounded-lg">
+                <QRCodeSVG value={pairUri} size={192} includeMargin={false} />
+              </div>
+              <div className="w-full">
+                <p className="text-xs text-text-muted font-light mb-1">Pairing token (manual entry):</p>
+                <code className="block w-full break-all bg-bg-secondary px-3 py-2 rounded text-xs font-mono select-all">
+                  {pairInfo.token}
+                </code>
+                <p className="text-[11px] text-text-muted font-light mt-2">
+                  Host: <span className="font-mono">{pairInfo.host}:{pairInfo.port}</span>
+                  {' '}- Device name: <span className="font-mono">{pairInfo.machine_name}</span>
+                </p>
+              </div>
+            </div>
+          )}
         </Card>
 
         {/* Danger Zone */}
