@@ -150,7 +150,7 @@ FastAPI backend for agent CRUD, generation, and execution. Spawns any CLI agent 
 
 ### [frontend/](frontend/) - Web Dashboard
 
-React 19 + TypeScript + Vite dashboard for creating agents, monitoring runs in real-time, and configuring integrations (Discord gateway, computer use). See [frontend/README.md](frontend/README.md).
+React 19 + TypeScript + Vite dashboard for creating agents, monitoring runs in real-time, and configuring integrations (computer use). See [frontend/README.md](frontend/README.md).
 
 ### [forge/](forge/) - Agent Generation Engine
 
@@ -159,10 +159,6 @@ Describe what you want automated. Forge generates a complete agent project throu
 ### Desktop Automation
 
 The desktop-automation MCP server lives in its own repository: **[vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use)**. Install with `pip install vadgr-computer-use`. It gives agents eyes and hands: take a screenshot, reason, click or type, repeat. On WSL2 the package manages its own Windows-side bridge daemon automatically.
-
-### [gateway/](gateway/) - Messaging Integration
-
-Chat with agents from Discord. List agents, run them, monitor progress, and receive results -- all from Discord DMs or @mentions. Session-aware conversations with security (input sanitization, sender allowlist, audit logging).
 
 ### [registry/](registry/) - Agent Package Manager
 
@@ -175,18 +171,18 @@ Vadgr/
 ├── cli/                   # Unified command-line interface
 │   ├── main.py            # Root Click group
 │   ├── http.py            # HTTP client for API
-│   ├── commands/          # agents, runs, registry, gateway, info
+│   ├── commands/          # agents, runs, registry, info
 │   └── tests/             # Unit + integration tests
 ├── api/                   # REST API + execution engine
 │   ├── main.py            # FastAPI app
 │   ├── routes/            # HTTP endpoints
-│   ├── services/          # Business logic + gateway setup
+│   ├── services/          # Business logic
 │   ├── engine/            # CLI provider executor + DAG orchestration
 │   └── persistence/       # SQLite database
 ├── frontend/              # React web dashboard
 │   ├── src/pages/         # Dashboard, Agents, Runs, Settings
 │   ├── src/components/    # UI components
-│   └── src/hooks/         # TanStack Query + messaging gateway hooks
+│   └── src/hooks/         # TanStack Query hooks
 ├── forge/                 # Agent generation engine (standalone)
 │   ├── agentic.md         # 7-step orchestrator
 │   ├── Prompts/           # Specialized agent prompts
@@ -195,9 +191,6 @@ Vadgr/
 # Desktop automation lives in:
 # https://github.com/MONTBRAIN/vadgr-computer-use
 # (installed via `pip install vadgr-computer-use` when enabled)
-├── gateway/               # Messaging integration
-│   ├── src/               # Discord adapter, router, security, API client
-│   └── tests/             # 70 tests
 ├── registry/              # Agent package manager
 │   ├── security.py        # Zip safety, SSRF, SHA256, TLS
 │   ├── server.py          # Self-hosted HTTP registry server

@@ -9,7 +9,6 @@ import { runsApi } from '../api/runs';
 import { api } from '../api/client';
 import { PixelMoon, PixelSun, PixelGear, PixelClock } from '../components/ui/PixelIcon';
 import { getInflight, toggleComputerUse as toggleCu } from '../hooks/useComputerUse';
-import { getGatewayInflight, updateDiscordGateway, type GatewayStatus } from '../hooks/useMessagingGateway';
 
 const STORAGE_KEY = 'vadgr-settings';
 
@@ -49,17 +48,6 @@ export function Settings() {
   const [cuActivating, setCuActivating] = useState(false); // true = enabling, false = disabling
   const [cuError, setCuError] = useState<string | null>(null);
 
-  // Messaging gateway state
-  const [gwDiscordEnabled, setGwDiscordEnabled] = useState(false);
-  const [gwHasToken, setGwHasToken] = useState(false);
-  const [gwTokenMasked, setGwTokenMasked] = useState<string | null>(null);
-  const [gwRunning, setGwRunning] = useState(false);
-  const [gwLoading, setGwLoading] = useState(false);
-  const [gwActivating, setGwActivating] = useState(false);
-  const [gwError, setGwError] = useState<string | null>(null);
-  const [gwTokenInput, setGwTokenInput] = useState('');
-  const [gwShowTokenInput, setGwShowTokenInput] = useState(false);
-
   // Load computer use status from API on mount, or pick up in-flight operation
   useEffect(() => {
     const pending = getInflight();
@@ -83,51 +71,6 @@ export function Settings() {
         .catch(() => {});
     }
   }, []);
-
-  // Load messaging gateway status
-  useEffect(() => {
-    const pending = getGatewayInflight();
-    if (pending) {
-      setGwLoading(true);
-      setGwActivating(pending.activating);
-      pending.promise
-        .then((result) => {
-          setGwDiscordEnabled(result.discord.enabled);
-          setGwHasToken(result.discord.has_token);
-          setGwTokenMasked(result.discord.token_masked);
-          setGwRunning(result.gateway_running);
-        })
-        .catch((e) => setGwError(e instanceof Error ? e.message : 'Failed'))
-        .finally(() => setGwLoading(false));
-    } else {
-      api.get<GatewayStatus>('/settings/messaging-gateway')
-        .then((data) => {
-          setGwDiscordEnabled(data.discord.enabled);
-          setGwHasToken(data.discord.has_token);
-          setGwTokenMasked(data.discord.token_masked);
-          setGwRunning(data.gateway_running);
-        })
-        .catch(() => {});
-    }
-  }, []);
-
-  const toggleDiscordGateway = async (enabled: boolean, token?: string) => {
-    setGwLoading(true);
-    setGwActivating(enabled);
-    setGwError(null);
-    try {
-      const result = await updateDiscordGateway(enabled, token || undefined);
-      setGwDiscordEnabled(result.discord.enabled);
-      setGwHasToken(result.discord.has_token);
-      setGwTokenMasked(result.discord.token_masked);
-      setGwRunning(result.gateway_running);
-      setGwTokenInput('');
-      setGwShowTokenInput(false);
-    } catch (e) {
-      setGwError(e instanceof Error ? e.message : 'Failed to update gateway');
-    }
-    setGwLoading(false);
-  };
 
   const toggleComputerUse = async (enabled: boolean) => {
     setCuLoading(true);
@@ -321,125 +264,6 @@ export function Settings() {
             </button>
           </div>
 
-        </Card>
-
-        {/* Messaging Gateway */}
-        <Card className="px-7 py-6">
-          <div className="flex items-center gap-2.5 mb-1">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--color-info)" strokeWidth="1.3">
-              <path d="M2 4l6 4 6-4" strokeLinecap="round" strokeLinejoin="round"/>
-              <rect x="1" y="3" width="14" height="10" rx="1.5" strokeLinecap="round"/>
-            </svg>
-            <h2 className="font-heading text-lg font-semibold text-text-primary">Messaging Gateway</h2>
-          </div>
-          <p className="font-body text-xs text-text-muted font-light ml-[26px] mb-5">Connect agents to messaging platforms.</p>
-
-          {/* Discord Toggle */}
-          <div className="flex items-center justify-between py-3 border-b border-border/50">
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-text-secondary font-body">Discord</span>
-                <span className="inline-flex items-center gap-1.5 text-xs font-medium">
-                  {gwLoading ? (
-                    <>
-                      <span className="relative flex w-[7px] h-[7px]">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-info opacity-75" />
-                        <span className="relative inline-flex rounded-full w-[7px] h-[7px] bg-info" />
-                      </span>
-                      <span className="text-info">
-                        {gwActivating ? 'Connecting...' : 'Disconnecting...'}
-                      </span>
-                    </>
-                  ) : gwDiscordEnabled && gwRunning ? (
-                    <>
-                      <span className="w-[7px] h-[7px] rounded-full bg-success inline-block shrink-0" />
-                      <span className="text-success">Connected</span>
-                    </>
-                  ) : gwDiscordEnabled ? (
-                    <>
-                      <span className="w-[7px] h-[7px] rounded-full bg-warning inline-block shrink-0" />
-                      <span className="text-warning">Enabled (not running)</span>
-                    </>
-                  ) : gwShowTokenInput ? (
-                    <>
-                      <span className="w-[7px] h-[7px] rounded-full bg-info inline-block shrink-0" />
-                      <span className="text-info">Enter bot token to connect</span>
-                    </>
-                  ) : (
-                    <span className="text-text-muted">Disabled</span>
-                  )}
-                </span>
-              </div>
-              <p className="text-xs text-text-muted font-light mt-0.5">
-                Chat with your agents via Discord DMs or @mentions.
-              </p>
-              {gwError && (
-                <p className="text-xs text-danger font-light mt-1">{gwError}</p>
-              )}
-            </div>
-            <button
-              aria-label="Discord gateway toggle"
-              onClick={() => {
-                if (!gwDiscordEnabled && !gwHasToken && !gwTokenMasked) {
-                  setGwShowTokenInput(true);
-                } else {
-                  toggleDiscordGateway(!gwDiscordEnabled);
-                }
-              }}
-              disabled={gwLoading}
-              className="w-12 h-[26px] rounded-full border-none cursor-pointer relative transition-colors shrink-0 ml-4 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ background: gwDiscordEnabled ? 'var(--color-success)' : gwShowTokenInput ? 'var(--color-info)' : 'var(--color-border)' }}
-            >
-              <span
-                className="absolute top-[3px] w-5 h-5 rounded-full bg-white shadow-[0_1px_4px_rgba(0,0,0,0.2)] transition-all"
-                style={{ left: (gwDiscordEnabled || gwShowTokenInput) ? 25 : 3 }}
-              />
-            </button>
-          </div>
-
-          {/* Token Input */}
-          {(gwShowTokenInput || (gwDiscordEnabled && gwHasToken)) && (
-            <div className="py-3">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs text-text-muted font-body">Bot Token</span>
-                {gwTokenMasked && !gwShowTokenInput && (
-                  <span className="text-xs text-text-muted font-mono">{gwTokenMasked}</span>
-                )}
-              </div>
-              {(gwShowTokenInput || !gwHasToken) ? (
-                <div className="flex gap-2">
-                  <input
-                    type="password"
-                    value={gwTokenInput}
-                    onChange={(e) => setGwTokenInput(e.target.value)}
-                    placeholder="Paste your Discord bot token"
-                    className="flex-1 px-3 py-2 rounded-lg border border-border bg-bg-primary text-text-primary text-xs font-mono placeholder:text-text-muted/50 focus:outline-none focus:border-accent"
-                  />
-                  <Button
-                    size="sm"
-                    disabled={gwLoading || gwTokenInput.length < 20}
-                    onClick={() => toggleDiscordGateway(true, gwTokenInput)}
-                  >
-                    {gwHasToken ? 'Update' : 'Connect'}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => { setGwShowTokenInput(false); setGwTokenInput(''); }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setGwShowTokenInput(true)}
-                  className="text-xs text-accent hover:underline cursor-pointer bg-transparent border-none p-0"
-                >
-                  Change token
-                </button>
-              )}
-            </div>
-          )}
         </Card>
 
         {/* Danger Zone */}
