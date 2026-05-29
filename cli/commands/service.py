@@ -33,6 +33,9 @@ def _default_port(env_key: str, default: int) -> int:
     return int(os.environ.get(env_key, str(default)))
 
 
+from cli.bind import resolve_bind_host as _resolve_bind_host  # re-export
+
+
 # -- Helpers --
 
 def _pid_alive(pid: int) -> bool:
@@ -289,9 +292,10 @@ def start(api_port, frontend_port):
     # Start API
     print_info(f"Starting API server (port {api_port})...")
     api_log = open(FORGE_HOME / "api.log", "w")
+    bind_host = _resolve_bind_host()
     api_proc = subprocess.Popen(
         [_get_api_python(), "-m", "uvicorn", "api.main:app",
-         "--host", "127.0.0.1", "--port", str(api_port)],
+         "--host", bind_host, "--port", str(api_port)],
         cwd=str(FORGE_REPO), env=env,
         stdout=api_log, stderr=subprocess.STDOUT,
         **_session_kwargs(),
@@ -500,9 +504,10 @@ def api_only(port):
     print_info(f"Starting API server (port {port})...")
 
     api_log = open(FORGE_HOME / "api.log", "w")
+    bind_host = _resolve_bind_host()
     api_proc = subprocess.Popen(
         [_get_api_python(), "-m", "uvicorn", "api.main:app",
-         "--host", "127.0.0.1", "--port", str(port)],
+         "--host", bind_host, "--port", str(port)],
         cwd=str(FORGE_REPO), env=env,
         stdout=api_log, stderr=subprocess.STDOUT,
         **_session_kwargs(),
