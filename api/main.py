@@ -8,9 +8,12 @@ from typing import Optional
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from api.auth.middleware import BearerTokenMiddleware
+from api.auth.pairing import PairingStore
+from api.auth.tokens import load_or_create_default_token
 from api.config import settings
 from api.persistence.database import Database
-from api.persistence.repositories import AgentRepository, ProjectRepository, RunRepository
+from api.persistence.repositories import AgentRepository, DeviceRepository, ProjectRepository, RunRepository
 from api.websocket.manager import ConnectionManager
 from api.websocket.events import make_event
 from api.engine.executor import AgentExecutor
@@ -21,6 +24,8 @@ from api.services.artifact_service import ArtifactService
 from api.services.execution_service import ExecutionService
 from api.services.log_writer import LogWriter
 from api.routes import health, agents, projects, runs, computer_use, providers, ws
+from api.routes import auth as auth_routes
+from api.routes import devices as devices_routes
 from api.routes import settings as settings_routes
 
 
@@ -40,6 +45,10 @@ def create_app(db: Optional[Database] = None) -> FastAPI:
         app.state.agent_repo = AgentRepository(app.state.db)
         app.state.project_repo = ProjectRepository(app.state.db)
         app.state.run_repo = RunRepository(app.state.db)
+        app.state.device_repo = DeviceRepository(app.state.db)
+        app.state.pairing_store = PairingStore()
+        # Bootstrap default bearer token at ~/.config/vadgr/token.
+        load_or_create_default_token()
         app.state.ws_manager = ConnectionManager()
         app.state.artifact_service = ArtifactService(Path(__file__).resolve().parent.parent)
         app.state.active_run_tasks: dict[str, asyncio.Task] = {}
@@ -112,6 +121,11 @@ def create_app(db: Optional[Database] = None) -> FastAPI:
 
     app = FastAPI(title="Vadgr API", version=settings.version, lifespan=lifespan)
 
+    # Order matters: Starlette wraps middlewares in reverse order, so the
+    # FIRST `add_middleware` call runs LAST on the request path. We want
+    # CORS to run first (handling OPTIONS preflights before any auth check),
+    # which means it must be added LAST.
+    app.add_middleware(BearerTokenMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
@@ -127,6 +141,8 @@ def create_app(db: Optional[Database] = None) -> FastAPI:
     app.include_router(computer_use.router)
     app.include_router(providers.router)
     app.include_router(settings_routes.router)
+    app.include_router(auth_routes.router)
+    app.include_router(devices_routes.router)
     app.include_router(ws.router)
 
     return app

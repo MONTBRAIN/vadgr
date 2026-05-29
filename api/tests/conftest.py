@@ -8,8 +8,15 @@ import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 from api.persistence.database import Database
-from api.persistence.repositories import AgentRepository, ProjectRepository, RunRepository
+from api.persistence.repositories import (
+    AgentRepository,
+    DeviceRepository,
+    ProjectRepository,
+    RunRepository,
+)
 from api.main import create_app
+from api.auth.pairing import PairingStore
+from api.auth import tokens as auth_tokens
 
 
 @pytest.fixture
@@ -60,6 +67,9 @@ async def app(db):
     application.state.agent_repo = AgentRepository(db)
     application.state.project_repo = ProjectRepository(db)
     application.state.run_repo = RunRepository(db)
+    application.state.device_repo = DeviceRepository(db)
+    application.state.pairing_store = PairingStore()
+    auth_tokens.reset_for_tests()
     from api.websocket.manager import ConnectionManager
     from api.engine.executor import AgentExecutor
     from api.engine.providers import CLIAgentProvider, ProviderConfig
