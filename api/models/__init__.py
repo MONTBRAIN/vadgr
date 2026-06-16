@@ -2,4 +2,6 @@
 
 from .common import AgentType, RunStatus, AgentRunStatus, ErrorResponse, ErrorEnvelope
 from .agent import SchemaField, AgentCreate, AgentUpdate, Agent, AgentRunRequest
-from .run import RunCreate, Run, AgentRun, RunStartResponse
+from .run import RunCreate, Run, AgentRun, RunStartResponse, RunEvent, RunEventType
+from .device import Device
+from .auth import PairResponse, ClaimRequest, ClaimResponse
