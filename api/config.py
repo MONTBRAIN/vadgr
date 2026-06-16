@@ -8,6 +8,8 @@ DEFAULT_FRONTEND_PORT = 3000
 
 
 class Settings(BaseSettings):
+    # Host is no longer hard-coded -- it comes from transport.bind_host() at
+    # startup (main.py). This default is only a fallback for legacy callers.
     host: str = "127.0.0.1"
     port: int = DEFAULT_API_PORT
     frontend_port: int = DEFAULT_FRONTEND_PORT

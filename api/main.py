@@ -11,6 +11,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.config import settings
 from api.persistence.database import Database
 from api.persistence.repositories import AgentRepository, ProjectRepository, RunRepository
+from api.auth.devices import DeviceRepository
+from api.auth.pairing_store import PairingStore
+from api.auth.middleware import TwoGateMiddleware
+from api.transport import create_transport
 from api.websocket.manager import ConnectionManager
 from api.websocket.events import make_event
 from api.engine.executor import AgentExecutor
@@ -21,11 +25,16 @@ from api.services.artifact_service import ArtifactService
 from api.services.execution_service import ExecutionService
 from api.services.log_writer import LogWriter
 from api.routes import health, agents, projects, runs, computer_use, providers, ws
+from api.routes import auth as auth_routes
+from api.routes import devices as devices_routes
 from api.routes import settings as settings_routes
 
 
-def create_app(db: Optional[Database] = None) -> FastAPI:
-    """Create the FastAPI app. Pass a Database for testing (in-memory)."""
+def create_app(db: Optional[Database] = None, transport=None) -> FastAPI:
+    """Create the FastAPI app. Pass a Database for testing (in-memory) and an
+    optional ``transport`` (a ``TransportProvider``); defaults to the configured
+    transport via ``VADGR_TRANSPORT``."""
+    transport = transport or create_transport()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -40,6 +49,9 @@ def create_app(db: Optional[Database] = None) -> FastAPI:
         app.state.agent_repo = AgentRepository(app.state.db)
         app.state.project_repo = ProjectRepository(app.state.db)
         app.state.run_repo = RunRepository(app.state.db)
+        app.state.device_repo = DeviceRepository(app.state.db)
+        app.state.pairing_store = PairingStore()
+        app.state.transport = transport
         app.state.ws_manager = ConnectionManager()
         app.state.artifact_service = ArtifactService(Path(__file__).resolve().parent.parent)
         app.state.active_run_tasks: dict[str, asyncio.Task] = {}
@@ -111,6 +123,11 @@ def create_app(db: Optional[Database] = None) -> FastAPI:
             await app.state.db.disconnect()
 
     app = FastAPI(title="Vadgr API", version=settings.version, lifespan=lifespan)
+    app.state.transport = transport
+
+    # The two-gate auth middleware. Added before CORS so CORS wraps it and
+    # responses (incl. 401/403) still carry CORS headers.
+    app.add_middleware(TwoGateMiddleware, transport=transport)
 
     app.add_middleware(
         CORSMiddleware,
@@ -126,6 +143,8 @@ def create_app(db: Optional[Database] = None) -> FastAPI:
     app.include_router(runs.router)
     app.include_router(computer_use.router)
     app.include_router(providers.router)
+    app.include_router(auth_routes.router)
+    app.include_router(devices_routes.router)
     app.include_router(settings_routes.router)
     app.include_router(ws.router)
 
