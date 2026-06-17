@@ -33,8 +33,11 @@ class TailscaledLocalAPI:
             with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
                 sock.settimeout(2.0)
                 sock.connect(self._socket_path)
+                # HTTP/1.0: tailscaled's Go server uses Transfer-Encoding: chunked
+                # on HTTP/1.1, which this minimal client does not decode. HTTP/1.0
+                # delimits the body by connection close, so the JSON arrives raw.
                 req = (
-                    f"GET {path} HTTP/1.1\r\n"
+                    f"GET {path} HTTP/1.0\r\n"
                     "Host: local-tailscaled.sock\r\n"
                     "Connection: close\r\n\r\n"
                 )

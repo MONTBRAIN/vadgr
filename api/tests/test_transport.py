@@ -167,3 +167,67 @@ def test_factory_reads_env(monkeypatch):
 def test_factory_rejects_unknown():
     with pytest.raises(ValueError):
         create_transport("headscale")
+
+
+# --- TailscaledLocalAPI wire behaviour --------------------------------------
+# The adapter contract tests above use a faked LocalAPI; these exercise the real
+# socket client against a stand-in tailscaled. The Go server emits a
+# Transfer-Encoding: chunked body on HTTP/1.1, which the minimal client does not
+# decode -- so the request must be HTTP/1.0 (close-delimited body).
+
+import json
+import socket
+import threading
+
+from api.transport.factory import TailscaledLocalAPI
+
+_FAKE_STATUS = {"BackendState": "Running", "Self": {"TailscaleIPs": ["100.0.0.1"]}}
+
+
+def _respond_like_tailscaled(srv):
+    """Serve one request: chunked on HTTP/1.1 (as Go does), raw body on HTTP/1.0."""
+    try:
+        conn, _ = srv.accept()
+    except OSError:
+        return
+    with conn:
+        req = b""
+        while b"\r\n\r\n" not in req:
+            chunk = conn.recv(4096)
+            if not chunk:
+                break
+            req += chunk
+        body = json.dumps(_FAKE_STATUS).encode()
+        request_line = req.split(b"\r\n", 1)[0]
+        if b"HTTP/1.1" in request_line:
+            payload = (
+                b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n"
+                b"Transfer-Encoding: chunked\r\n\r\n"
+                + f"{len(body):x}".encode()
+                + b"\r\n"
+                + body
+                + b"\r\n0\r\n\r\n"
+            )
+        else:
+            payload = (
+                b"HTTP/1.0 200 OK\r\nContent-Type: application/json\r\n\r\n" + body
+            )
+        conn.sendall(payload)
+    srv.close()
+
+
+def test_localapi_parses_real_tailscaled_response(tmp_path):
+    """Regression: a healthy tailscaled must yield a parsed dict. Fails if the
+    client requests HTTP/1.1 (the stand-in then chunks and the body won't parse)."""
+    sock_path = str(tmp_path / "tailscaled.sock")
+    srv = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    srv.bind(sock_path)
+    srv.listen(1)
+    srv.settimeout(5.0)
+    thread = threading.Thread(target=_respond_like_tailscaled, args=(srv,), daemon=True)
+    thread.start()
+
+    result = TailscaledLocalAPI(socket_path=sock_path).status()
+
+    thread.join(timeout=5.0)
+    assert result == _FAKE_STATUS
