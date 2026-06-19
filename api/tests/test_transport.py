@@ -231,3 +231,52 @@ def test_localapi_parses_real_tailscaled_response(tmp_path):
 
     thread.join(timeout=5.0)
     assert result == _FAKE_STATUS
+
+
+def test_localapi_selects_transport_by_platform():
+    """Default transport follows the OS: named pipe on Windows, unix socket else."""
+    from api.transport import factory as F
+
+    assert TailscaledLocalAPI()._use_pipe == F._IS_WINDOWS
+
+
+def test_localapi_windows_uses_the_named_pipe(monkeypatch):
+    """On native Windows the request goes over the named pipe (not the unix socket),
+    and a real `200` response parses."""
+    from api.transport import factory as F
+
+    canned = (
+        b"HTTP/1.0 200 OK\r\nContent-Type: application/json\r\n\r\n"
+        + json.dumps(_FAKE_STATUS).encode()
+    )
+    seen = {}
+
+    def fake_pipe(pipe_path, request):
+        seen["pipe_path"], seen["request"] = pipe_path, request
+        return canned
+
+    monkeypatch.setattr(F, "_windows_pipe_roundtrip", fake_pipe)
+    monkeypatch.setattr(
+        F, "_unix_socket_roundtrip",
+        lambda *a, **k: (_ for _ in ()).throw(AssertionError("unix socket on Windows")),
+    )
+
+    assert TailscaledLocalAPI(use_pipe=True).status() == _FAKE_STATUS
+    assert "ProtectedPrefix" in seen["pipe_path"]  # the Windows Tailscale pipe
+    assert seen["request"].startswith(b"GET /localapi/v0/status HTTP/1.0")
+
+
+def test_localapi_posix_uses_the_unix_socket(monkeypatch):
+    """On POSIX the request goes over the unix socket, never the named pipe."""
+    from api.transport import factory as F
+
+    monkeypatch.setattr(
+        F, "_windows_pipe_roundtrip",
+        lambda *a, **k: (_ for _ in ()).throw(AssertionError("named pipe on POSIX")),
+    )
+    monkeypatch.setattr(
+        F, "_unix_socket_roundtrip",
+        lambda path, req: b"HTTP/1.0 200 OK\r\n\r\n" + json.dumps(_FAKE_STATUS).encode(),
+    )
+
+    assert TailscaledLocalAPI(use_pipe=False).status() == _FAKE_STATUS
