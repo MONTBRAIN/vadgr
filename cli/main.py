@@ -17,6 +17,7 @@ if sys.platform == "win32":
 
 from cli.commands.agents import agents_group
 from cli.commands.info import health, providers, computer_use
+from cli.commands.pair_cmd import pair
 from cli.commands.registry import registry_group
 from cli.commands.runs import runs_group
 from cli.commands.service import start, stop, restart, status, logs, update, api_only
@@ -52,6 +53,7 @@ cli.add_command(registry_group)
 cli.add_command(health)
 cli.add_command(providers)
 cli.add_command(computer_use)
+cli.add_command(pair)
 
 # Service commands
 cli.add_command(start)

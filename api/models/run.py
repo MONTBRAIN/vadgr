@@ -1,11 +1,30 @@
 """Run and agent run Pydantic models."""
 
 from datetime import datetime
+from enum import Enum
 from typing import Any, Optional
 
 from pydantic import BaseModel
 
 from .common import RunStatus, AgentRunStatus, StrictBody
+
+
+class RunEventType(str, Enum):
+    STARTED = "started"
+    TOOL_CALL = "tool_call"
+    OUTPUT = "output"
+    PAUSED = "paused"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
+class RunEvent(BaseModel):
+    """The WS stream payload. Transient -- derived from run/agent-run state,
+    never persisted as a table."""
+
+    type: RunEventType
+    timestamp: datetime
+    payload: dict = {}
 
 
 class RunCreate(StrictBody):

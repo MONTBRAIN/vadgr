@@ -9,6 +9,7 @@ import { runsApi } from '../api/runs';
 import { api } from '../api/client';
 import { PixelMoon, PixelSun, PixelGear, PixelClock } from '../components/ui/PixelIcon';
 import { getInflight, toggleComputerUse as toggleCu } from '../hooks/useComputerUse';
+import { PairDeviceCard } from '../components/settings/PairDeviceCard';
 
 const STORAGE_KEY = 'vadgr-settings';
 
@@ -265,6 +266,9 @@ export function Settings() {
           </div>
 
         </Card>
+
+        {/* Mobile Pairing */}
+        <PairDeviceCard />
 
         {/* Danger Zone */}
         <Card className="px-7 py-6 border-danger/30">

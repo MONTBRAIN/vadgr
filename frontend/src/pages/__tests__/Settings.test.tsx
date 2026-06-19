@@ -33,6 +33,12 @@ vi.mock('../../api/client', () => ({
   },
 }));
 
+// Mock the pairing card -- its own behaviour is covered by PairDeviceCard.test.tsx;
+// here we only assert it mounts in the page.
+vi.mock('../../components/settings/PairDeviceCard', () => ({
+  PairDeviceCard: () => <div data-testid="pair-device-card" />,
+}));
+
 // Mock useComputerUse — delegate toggleComputerUse to mockPut so existing tests work,
 // but track inflight state for navigation tests.
 let mockInflight: { promise: Promise<unknown>; activating: boolean } | null = null;
@@ -60,6 +66,11 @@ describe('Settings - Computer Use Toggle', () => {
     await waitFor(() => {
       expect(screen.getByText('Disabled')).toBeTruthy();
     });
+  });
+
+  it('mounts the Mobile Pairing card', () => {
+    render(<Settings />);
+    expect(screen.getByTestId('pair-device-card')).toBeTruthy();
   });
 
   it('shows "Active" status with solid green dot when computer use is on', async () => {

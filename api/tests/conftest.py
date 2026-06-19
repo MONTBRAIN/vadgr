@@ -60,6 +60,12 @@ async def app(db):
     application.state.agent_repo = AgentRepository(db)
     application.state.project_repo = ProjectRepository(db)
     application.state.run_repo = RunRepository(db)
+    from api.auth.devices import DeviceRepository
+    from api.auth.pairing_store import PairingStore
+    from api.transport import LoopbackTransport
+    application.state.device_repo = DeviceRepository(db)
+    application.state.pairing_store = PairingStore()
+    application.state.transport = LoopbackTransport()
     from api.websocket.manager import ConnectionManager
     from api.engine.executor import AgentExecutor
     from api.engine.providers import CLIAgentProvider, ProviderConfig
