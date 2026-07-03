@@ -1,0 +1,4 @@
+# The engine package is pure standard library at this slice; only test deps.
+pytest>=8.0.0
+pytest-asyncio>=0.25.0
+pytest-cov>=6.0.0
