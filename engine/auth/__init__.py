@@ -1,5 +1,7 @@
 """Auth strategies: how a provider proves who it is on the wire.
 
-0.4.0 ships the ``AuthStrategy`` port only; the concrete OAuth/API-key/no-auth
-strategies land in a subsequent slice.
+The ``AuthStrategy`` port (``base.py``) plus the three shipped strategies a
+provider composes by reference: ``OAuthStrategy`` (``oauth.py`` -- token cache,
+refresh, per-OS store), ``APIKeyStrategy`` (``api_key.py``), and
+``NoAuthStrategy`` (``none.py``).
 """

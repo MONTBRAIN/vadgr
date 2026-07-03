@@ -1,4 +1,5 @@
 """Approval / denylist / redaction policy hooks (host-owned).
 
-Home for a subsequent slice; empty in this one.
+The ``PolicyHook`` port + ``Decision`` / ``ApprovalRequest`` (``base.py``) and
+the default denylist + auth-mode hook (``default.py``).
 """

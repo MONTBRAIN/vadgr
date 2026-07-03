@@ -123,6 +123,20 @@ class Trajectory:
         """Write the ``error`` close, flush. Called AFTER dispatch."""
         self._write({"seq": seq, "phase": "error", "status": "error", "error": str(err)})
 
+    def append_await_user(self, request: dict) -> None:
+        """Write an ``await_user`` line on the *current* (still-open) ``seq``,
+        flush. A HITL tool pauses inside its dispatch -- the loop wrote the
+        ``in_flight`` line just before -- so this line shares that action's
+        ``seq``, and a crash while waiting resumes into the same pending
+        request. Redacted on write like every other line."""
+        self._write(
+            {
+                "seq": self._seq,
+                "phase": "await_user",
+                "request": redact_secrets(request),
+            }
+        )
+
 
 @dataclass
 class ResumeState:
