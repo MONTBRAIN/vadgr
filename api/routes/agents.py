@@ -388,7 +388,7 @@ async def import_agent(request: Request, background_tasks: BackgroundTasks, file
             output_schema=manifest.get("output_schema", []),
             computer_use=manifest.get("computer_use", False),
             provider=manifest.get("provider", "claude_code"),
-            model=manifest.get("model", "claude-sonnet-4-6"),
+            model=manifest.get("model", "claude-opus-5"),
         )
         forge_path = f"output/{agent['id']}"
         agent = await repo.update(agent["id"], forge_path=forge_path)

@@ -38,7 +38,7 @@ class TestManifestValidation:
         })
         assert m.samples == ["example"]
         assert m.input_schema == [{"name": "x"}]
-        assert m.model == "claude-sonnet-4-6"
+        assert m.model == "claude-opus-5"
 
     def test_missing_name_raises(self):
         with pytest.raises(ValueError, match="Invalid manifest"):

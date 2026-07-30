@@ -65,19 +65,26 @@ class TestProvidersYamlLoading:
         assert "{{prompt}}" in config.args
 
     def test_yaml_providers_all_have_placeholder(self):
-        """Every provider in YAML must have {{prompt}} placeholder in args."""
+        """Every CLI provider in YAML must have {{prompt}} placeholder in args.
+        Native providers (the engine loop) drive the model directly and carry no
+        command/args, so they are exempt."""
         providers = _load_providers_yaml()
         for key, prov in providers.items():
+            if prov.get("kind") == "native":
+                continue
             args_str = " ".join(prov["args"])
             assert "{{prompt}}" in args_str, (
                 f"Provider '{key}' missing {{{{prompt}}}} placeholder in args"
             )
 
     def test_yaml_providers_all_instantiate_as_provider_config(self):
-        """Every provider in YAML can be deserialized into a ProviderConfig."""
+        """Every CLI provider in YAML can be deserialized into a ProviderConfig.
+        Native providers are exempt -- they are not CLI subprocess providers."""
         providers = _load_providers_yaml()
         valid_fields = {f.name for f in ProviderConfig.__dataclass_fields__.values()}
         for key, prov in providers.items():
+            if prov.get("kind") == "native":
+                continue
             filtered = {k: v for k, v in prov.items() if k in valid_fields}
             config = ProviderConfig(**filtered)
             assert config.name, f"{key} has empty name"

@@ -1069,8 +1069,8 @@ class TestProviders:
         assert claude is not None
         assert claude["name"] == "Claude Code"
         model_ids = [m["id"] for m in claude["models"]]
-        assert "claude-sonnet-4-6" in model_ids
-        assert "claude-opus-4-6" in model_ids
+        assert "claude-opus-5" in model_ids
+        assert "claude-sonnet-5" in model_ids
 
     @pytest.mark.asyncio
     async def test_each_model_has_id_and_name(self, client):
