@@ -10,6 +10,41 @@ from engine.tools import control_tool, emit_event
 
 VALID_STATUSES = ("pending", "in_progress", "done", "cancelled")
 
+# The vocabulary a model actually reaches for. The schema declares an ``enum``,
+# but a JSON-Schema enum is advisory -- an off-vocabulary value reaches the tool
+# anyway -- and a model given a plain goal writes "completed", not "done". These
+# map to the canonical status instead of costing an iteration on an error.
+_STATUS_ALIASES = {
+    "complete": "done",
+    "completed": "done",
+    "finished": "done",
+    "success": "done",
+    "todo": "pending",
+    "not_started": "pending",
+    "in-progress": "in_progress",
+    "inprogress": "in_progress",
+    "active": "in_progress",
+    "running": "in_progress",
+    "canceled": "cancelled",
+    "cancel": "cancelled",
+    "skipped": "cancelled",
+}
+
+
+def _canonical_status(status: str) -> str:
+    """The canonical status, accepting the common synonyms. Raises naming every
+    legal value -- an error a model can act on without guessing again."""
+    if not isinstance(status, str):
+        raise ValueError(f"invalid todo status: {status!r}")
+    key = status.strip().lower().replace(" ", "_")
+    resolved = _STATUS_ALIASES.get(key, key)
+    if resolved not in VALID_STATUSES:
+        raise ValueError(
+            f"invalid todo status: {status!r} -- expected one of "
+            + ", ".join(VALID_STATUSES)
+        )
+    return resolved
+
 _ITEMS_SCHEMA = {
     "type": "object",
     "properties": {
@@ -41,9 +76,7 @@ _UPDATE_SCHEMA = {
 
 def _normalize(item: dict, index: int) -> dict:
     content = item.get("content") or item.get("title") or item.get("text") or ""
-    status = item.get("status", "pending")
-    if status not in VALID_STATUSES:
-        raise ValueError(f"invalid todo status: {status}")
+    status = _canonical_status(item.get("status", "pending"))
     return {
         "id": str(item.get("id") or index + 1),
         "content": content,
@@ -68,12 +101,11 @@ async def todo_write(args: dict, server) -> dict:
 )
 async def todo_update(args: dict, server) -> dict:
     todo_id = str(args["id"])
-    status = args["status"]
-    if status not in VALID_STATUSES:
-        raise ValueError(f"invalid todo status: {status}")
+    status = _canonical_status(args["status"])
     for todo in server.ctx.todos:
         if str(todo.get("id")) == todo_id:
             todo["status"] = status
             await emit_event(server, {"type": "todos", "todos": server.ctx.todos})
             return {"ok": True, "todo": todo}
-    raise ValueError(f"unknown todo id: {todo_id}")
+    known = ", ".join(str(t.get("id")) for t in server.ctx.todos) or "none"
+    raise ValueError(f"unknown todo id: {todo_id} -- known ids: {known}")

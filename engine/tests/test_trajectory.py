@@ -10,7 +10,13 @@ import json
 
 import pytest
 
-from engine.trajectory import Trajectory, find_latest, resume
+from engine.loop import Usage
+from engine.trajectory import (
+    Trajectory,
+    find_latest,
+    is_secret_key,
+    resume,
+)
 
 
 def _read_lines(path) -> list[dict]:
@@ -156,3 +162,60 @@ def test_find_latest_returns_none_when_all_finished(tmp_path):
     s = t.append_in_flight(0, _tool_use())
     t.append_done(s, {"ok": True})
     assert find_latest(runs_dir=str(runs)) is None
+
+
+def test_usage_counts_survive_redaction(tmp_path):
+    """Regression (E2E/0.4.0 F6): the key pattern matched the substring
+    ``token``, so ``input_tokens`` / ``output_tokens`` were redacted and usage
+    could not be reconstructed from the journal -- the durable record."""
+    journal = tmp_path / "t.jsonl"
+    traj = Trajectory("run-1", path=str(journal))
+
+    traj.append_response(
+        0,
+        {
+            "content": [{"type": "text", "text": "hi"}],
+            "usage": {"input_tokens": 2759, "output_tokens": 128},
+        },
+        Usage(input_tokens=2759, output_tokens=128),
+    )
+
+    record = json.loads(journal.read_text().strip())
+    # The loop's own accounting line was never routed through redaction...
+    assert record["usage"] == {"input_tokens": 2759, "output_tokens": 128}
+    # ...but the provider's response, which IS redacted, carries the same counts
+    # and used to arrive as "[REDACTED]".
+    assert record["response"]["usage"] == {
+        "input_tokens": 2759,
+        "output_tokens": 128,
+    }
+
+
+def test_secret_keys_are_matched_as_whole_words():
+    """Credentials are redacted whichever way the key is spelled; counts and
+    limits that merely contain the word are not."""
+    for key in (
+        "token",
+        "access_token",
+        "accessToken",
+        "refresh-token",
+        "api_key",
+        "apiKey",
+        "client_secret",
+        "Authorization",
+        "password",
+        "session_key",
+    ):
+        assert is_secret_key(key), key
+
+    for key in (
+        "input_tokens",
+        "output_tokens",
+        "total_input_tokens",
+        "max_tokens",
+        "tokens_used",
+        "stop_reason",
+        "message",
+        "auth_mode",
+    ):
+        assert not is_secret_key(key), key

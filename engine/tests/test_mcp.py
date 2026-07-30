@@ -70,3 +70,49 @@ async def test_server_name_collision_is_a_startup_error():
     host = MCPHost([FakeServer("cua", ["click"]), FakeServer("cua", ["type"])])
     with pytest.raises(ValueError):
         await host.connect()
+
+
+class BrokenServer:
+    """A server that will not start -- a misconfigured or unreachable one."""
+
+    def __init__(self, name):
+        self.name = name
+
+    async def list_tools(self):
+        raise RuntimeError(f"{self.name}: cannot start")
+
+    async def call_tool(self, name, args):  # pragma: no cover - never reached
+        raise AssertionError("a dropped server must never be dispatched to")
+
+
+@pytest.mark.asyncio
+async def test_a_broken_server_is_dropped_not_fatal():
+    """Regression (E2E/0.4.0 F5): one unreachable server raised straight out of
+    connect(), so the run never started and every healthy server's tools were
+    lost with it."""
+    host = MCPHost([FakeServer("control", ["ask_user"]), BrokenServer("broken")])
+
+    await host.connect()
+
+    assert [t["name"] for t in host.tools()] == ["control__ask_user"]
+    assert "broken" in host.failed()
+    assert "cannot start" in host.failed()["broken"]
+    # The healthy server still routes.
+    assert await host.dispatch({"name": "control__ask_user", "input": {}})
+
+
+@pytest.mark.asyncio
+async def test_a_dropped_server_is_unroutable():
+    host = MCPHost([FakeServer("control", ["ask_user"]), BrokenServer("broken")])
+    await host.connect()
+
+    with pytest.raises(UnknownToolError):
+        await host.dispatch({"name": "broken__anything", "input": {}})
+
+
+@pytest.mark.asyncio
+async def test_failed_is_empty_when_every_server_starts():
+    host = MCPHost([FakeServer("control", ["ask_user"]), FakeServer("cua", ["click"])])
+    await host.connect()
+
+    assert host.failed() == {}

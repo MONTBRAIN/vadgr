@@ -290,3 +290,59 @@ async def test_notify_user_routes_to_channel_and_maps_importance():
     assert res["ok"] is True
     assert res["delivered"] == ["cli"]
     assert channel.notes == [("done", "high")]
+
+
+@pytest.mark.asyncio
+async def test_todo_status_accepts_the_synonyms_a_model_reaches_for():
+    """Regression (E2E/0.4.0 F3): given a plain goal the model wrote
+    ``completed``; the vocabulary is ``done``, the schema enum is advisory, and
+    the mismatch cost an iteration on an error."""
+    server, _, _ = _server()
+    await server.call_tool("todo_write", {"items": [{"id": "1", "content": "step one"}]})
+
+    result = await server.call_tool("todo_update", {"id": "1", "status": "completed"})
+
+    assert result["todo"]["status"] == "done"
+
+
+@pytest.mark.asyncio
+async def test_todo_status_synonyms_across_the_vocabulary():
+    server, _, _ = _server()
+    for given, expected in (
+        ("complete", "done"),
+        ("Finished", "done"),
+        ("in-progress", "in_progress"),
+        ("in progress", "in_progress"),
+        ("canceled", "cancelled"),
+        ("todo", "pending"),
+    ):
+        result = await server.call_tool(
+            "todo_write", {"items": [{"content": "x", "status": given}]}
+        )
+        assert result["todos"][0]["status"] == expected, given
+
+
+@pytest.mark.asyncio
+async def test_an_unknown_todo_status_names_every_legal_value():
+    server, _, _ = _server()
+    with pytest.raises(ValueError) as excinfo:
+        await server.call_tool(
+            "todo_write", {"items": [{"content": "x", "status": "nope"}]}
+        )
+
+    message = str(excinfo.value)
+    for status in ("pending", "in_progress", "done", "cancelled"):
+        assert status in message
+
+
+@pytest.mark.asyncio
+async def test_an_unknown_todo_id_names_the_known_ids():
+    server, _, _ = _server()
+    await server.call_tool(
+        "todo_write", {"items": [{"content": "a"}, {"content": "b"}]}
+    )
+
+    with pytest.raises(ValueError) as excinfo:
+        await server.call_tool("todo_update", {"id": "99", "status": "done"})
+
+    assert "known ids: 1, 2" in str(excinfo.value)

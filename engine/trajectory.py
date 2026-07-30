@@ -20,16 +20,38 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-# Keys whose values are secrets regardless of content.
+# Keys whose values are secrets regardless of content. Matched on WHOLE words of
+# the normalized key, never as a bare substring: an unanchored ``token`` also
+# matches ``input_tokens`` / ``max_tokens``, which would redact the usage counts
+# and make cost unauditable from the journal.
 _SECRET_KEY = re.compile(
-    r"(token|secret|password|passwd|api[_-]?key|authorization|bearer|"
-    r"credential|client[_-]?secret|access[_-]?token|refresh[_-]?token)",
-    re.IGNORECASE,
+    r"(?:^|_)(?:"
+    r"token|secret|password|passwd|passphrase|authorization|bearer|cookie|"
+    r"credential|credentials|signature|"
+    r"api_key|apikey|access_key|secret_key|private_key|session_key"
+    r")(?:$|_)"
 )
 # Values that look like credentials regardless of their key.
 _SECRET_VALUE = re.compile(r"(sk-[A-Za-z0-9-]{8,}|Bearer\s+[A-Za-z0-9._-]{8,})")
 
+# camelCase / kebab-case / PascalCase -> snake_case, so ``accessToken``,
+# ``access-token`` and ``AccessToken`` all normalize to ``access_token``.
+_CAMEL_BOUNDARY = re.compile(r"(?<=[a-z0-9])(?=[A-Z])")
+
 _REDACTED = "[REDACTED]"
+
+
+def _normalize_key(key: str) -> str:
+    """The key as underscore-separated lowercase words."""
+    return _CAMEL_BOUNDARY.sub("_", key).replace("-", "_").lower()
+
+
+def is_secret_key(key: str) -> bool:
+    """True when ``key`` names a credential and its value must never reach disk.
+
+    Whole-word: ``access_token`` and ``apiKey`` are secrets; ``input_tokens``
+    and ``max_tokens`` are counts and survive."""
+    return bool(_SECRET_KEY.search(_normalize_key(key)))
 
 
 def redact_secrets(payload: Any) -> Any:
@@ -38,7 +60,7 @@ def redact_secrets(payload: Any) -> Any:
     if isinstance(payload, dict):
         out: dict = {}
         for key, value in payload.items():
-            if isinstance(key, str) and _SECRET_KEY.search(key):
+            if isinstance(key, str) and is_secret_key(key):
                 out[key] = _REDACTED
             else:
                 out[key] = redact_secrets(value)
