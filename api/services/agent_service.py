@@ -179,7 +179,7 @@ class AgentService:
         output_schema: list | None = None,
         computer_use: bool = False,
         provider: str = "claude_code",
-        model: str = "claude-sonnet-4-6",
+        model: str = "claude-opus-5",
     ) -> dict:
         """Create an agent record with status 'creating' and trigger forge generation."""
         return await self.agent_repo.create(

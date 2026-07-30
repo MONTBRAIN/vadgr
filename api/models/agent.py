@@ -51,7 +51,7 @@ class AgentCreate(StrictBody):
     output_schema: list[SchemaField] = []
     computer_use: bool = False
     provider: str = "claude_code"
-    model: str = "claude-sonnet-4-6"
+    model: str = "claude-opus-5"
 
     @field_validator("steps", mode="before")
     @classmethod
@@ -98,7 +98,7 @@ class Agent(BaseModel):
     computer_use: bool = False
     forge_config: dict[str, Any] = {}
     provider: str = "claude_code"
-    model: str = "claude-sonnet-4-6"
+    model: str = "claude-opus-5"
     created_at: datetime
     updated_at: datetime
 

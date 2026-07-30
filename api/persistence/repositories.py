@@ -115,7 +115,7 @@ class AgentRepository:
         computer_use: bool = False,
         forge_config: dict | None = None,
         provider: str = "anthropic",
-        model: str = "claude-sonnet-4-6",
+        model: str = "claude-opus-5",
     ) -> dict:
         agent_id = _uuid()
         now = _now()

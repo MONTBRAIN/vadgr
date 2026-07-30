@@ -41,7 +41,7 @@ class TestRunGet:
         assert resp.status_code == 200
         assert resp.json()["id"] == run_id
         assert resp.json()["provider"] == "claude_code"
-        assert resp.json()["model"] == "claude-sonnet-4-6"
+        assert resp.json()["model"] == "claude-opus-5"
 
     @pytest.mark.asyncio
     async def test_get_nonexistent_run_returns_404(self, client):

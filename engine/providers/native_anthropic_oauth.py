@@ -23,7 +23,7 @@ CLAUDE_CREDENTIALS_PATH = "~/.claude/.credentials.json"
 class AnthropicOAuthProvider(AnthropicBase):
     name = "anthropic_oauth"
     auth_mode = "oauth"
-    default_model = "claude-sonnet-4-6"
+    default_model = "claude-opus-5"
     user_agent = "claude-cli/2.1.2 (external, cli)"
     extra_headers = {
         "anthropic-beta": "oauth-2025-04-20,interleaved-thinking-2025-05-14"

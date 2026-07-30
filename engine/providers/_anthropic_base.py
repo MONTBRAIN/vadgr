@@ -59,7 +59,7 @@ class AnthropicBase:
 
     name: str = "anthropic_base"
     auth_mode: str = "oauth"
-    default_model: str = "claude-sonnet-4-6"
+    default_model: str = "claude-opus-5"
 
     auth_strategy: Any = None
     user_agent: str = "claude-cli/2.1.2 (external, cli)"

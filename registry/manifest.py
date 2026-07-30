@@ -36,7 +36,7 @@ class Manifest(BaseModel):
     author: str = ""
     license: str = ""
     provider: str = "claude_code"
-    model: str = "claude-sonnet-4-6"
+    model: str = "claude-opus-5"
     computer_use: bool = False
     steps: list[StepEntry] = Field(default_factory=list)
     samples: list[str] = Field(default_factory=list)

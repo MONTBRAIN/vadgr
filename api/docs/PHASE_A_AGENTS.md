@@ -219,7 +219,7 @@ erDiagram
         json output_schema "Produced outputs (forge-inferred)"
         boolean computer_use "Can use desktop"
         string provider "anthropic | openai"
-        string model "claude-sonnet-4-6"
+        string model "claude-opus-5"
         datetime created_at
         datetime updated_at
     }
@@ -345,7 +345,7 @@ POST /api/agents
   ],
   "computer_use": false,
   "provider": "anthropic",
-  "model": "claude-sonnet-4-6"
+  "model": "claude-opus-5"
 }
 ```
 
@@ -354,7 +354,7 @@ Only `name` is required. All other fields are optional:
 - `samples` -- quality examples for forge to calibrate prompts
 - `computer_use` -- whether the agent uses desktop automation (default: false)
 - `provider` -- LLM provider key (default: "anthropic")
-- `model` -- model identifier (default: "claude-sonnet-4-6")
+- `model` -- model identifier (default: "claude-opus-5")
 
 The API returns immediately with the agent ID and status "creating". Forge generation runs as a background task:
 
@@ -390,7 +390,7 @@ Connect via WebSocket at `/api/ws/agents/{id}` for creation progress. When forge
     "prompts": ["01_Research_Analyst.md", "02_Outline_Architect.md", "03_Academic_Writer.md"]
   },
   "provider": "anthropic",
-  "model": "claude-sonnet-4-6"
+  "model": "claude-opus-5"
 }
 ```
 
@@ -680,7 +680,7 @@ CREATE TABLE agents (
     output_schema TEXT DEFAULT '[]',
     computer_use INTEGER DEFAULT 0,
     provider TEXT NOT NULL DEFAULT 'anthropic',
-    model TEXT NOT NULL DEFAULT 'claude-sonnet-4-6',
+    model TEXT NOT NULL DEFAULT 'claude-opus-5',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
 );
