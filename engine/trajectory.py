@@ -86,13 +86,21 @@ class Trajectory:
     call writes ``in_flight`` before dispatch and ``done``/``error`` after.
     Secrets redacted on write. Path: ``~/.vadgr/runs/<run_id>/trajectory.jsonl``."""
 
-    def __init__(self, run_id: str, path: str | None = None):
+    def __init__(self, run_id: str, path: str | None = None, start_seq: int = -1):
+        """``start_seq`` continues an existing journal's numbering.
+
+        A resumed run appends to the journal it crashed inside, so it must not
+        restart at 0: the seq is what pairs an ``in_flight`` with its
+        ``done``, and a second record numbered 0 would make the first
+        unmatched forever. Pass ``ResumeState.last_seq``; the default of -1 is a
+        fresh journal, where the first record is 0 as before.
+        """
         self.run_id = run_id
         if path is None:
             path = str(_default_runs_dir() / run_id / "trajectory.jsonl")
         self.path = path
         Path(path).parent.mkdir(parents=True, exist_ok=True)
-        self._seq = -1
+        self._seq = start_seq
 
     def _write(self, record: dict) -> None:
         record = {"ts": datetime.now(timezone.utc).isoformat(), "run_id": self.run_id, **record}
