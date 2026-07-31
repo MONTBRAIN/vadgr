@@ -55,7 +55,7 @@ path, and from that minor on the runbook drives **both real surfaces**:
 - **the API + the run WebSocket**, the way the phone does - the only way to know a
   mobile call behaves, since the request/response shapes and the WS event stream
   are what the mobile client codegens against;
-- **the CLI** (`vadgr run`, `vadgr stream`) - the on-box operator path, with its
+- **the CLI** (`vadgr run`, `vadgr stream`) - the on-box owner path, with its
   own users and its own failure modes.
 
 **Neither substitutes for the other.** A green CLI run says the loop works and
