@@ -134,6 +134,11 @@ class AgentExecutor:
             workspace=workspace,
             timeout=timeout,
             use_stream_json=can_stream,
+            # The native loop names its journal after this. Without it the loop
+            # mints its own id and the journal cannot be tied back to the run -
+            # which also breaks resume, since resume-on-boot finds a journal by
+            # id and then has to look that run up.
+            run_id=run_id,
         ):
             if event.type == "output":
                 if can_stream:

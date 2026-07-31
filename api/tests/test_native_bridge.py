@@ -163,3 +163,19 @@ async def test_the_timeout_is_accepted_and_ignored():
     out = await _drain(NativeLoopProvider(FakeProvider([{"type": "text", "text": "x"}])),
                        timeout=1)
     assert out[-1].type == "done"
+
+
+# -- the create path, which unit-testing the bridge never touched -------------
+
+def test_a_native_provider_config_loads_with_a_model_override():
+    """Regression, found by E2E/0.4.1 and by nothing else.
+
+    `load_provider_config` appended `--model` to `config["args"]`, and a native
+    provider has no argv - it has a module. The KeyError put every agent created
+    on the native provider into status `error`, so the wiring shipped in this
+    patch was unreachable through the API while every unit test passed.
+    """
+    from api.engine.providers import load_provider_config
+
+    config = load_provider_config("anthropic_oauth", {"model": "claude-opus-5"})
+    assert config is not None
