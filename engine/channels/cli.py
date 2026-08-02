@@ -52,6 +52,20 @@ class CLIChannel:
             raw = await self._read(rendered, prompt.timeout)
         except (asyncio.TimeoutError, TimeoutError):
             return {"choice": None, "text": None, "timed_out": True}
+        except EOFError:
+            # This channel is stdin, and on the daemon there is no stdin: the
+            # gate parks and fails ~3ms later with "EOF when reading a line",
+            # which says nothing about the actual problem. It is not that the
+            # human declined - it is that nothing on this path can reach one.
+            # The answer is an API channel resolved by `POST /api/runs/{id}/
+            # respond`, which ships at `0.5.0` (CONTRACT.md 2.4). Until then,
+            # say so, because the model reads this string and a truthful one
+            # lets it carry on rather than retry a gate that cannot succeed.
+            raise RuntimeError(
+                "no interactive channel: this run has no attached terminal, so "
+                "a human cannot be asked. Proceed without the answer or stop and "
+                "explain what you needed - do not retry the gate."
+            ) from None
         return self._interpret(prompt, raw)
 
     async def notify(self, message: str, *, importance: str = "normal") -> Delivery:

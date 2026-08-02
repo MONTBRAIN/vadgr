@@ -96,6 +96,32 @@ curl.
 - If neither a journal nor a transcript is available, the test is **not
   verified** — say so. Do not infer a pass.
 
+## Test what this minor can test, and nothing more
+
+A runbook covers **what is testable now**. A check that cannot be run because
+the thing it needs does not exist yet **does not belong in this minor's
+runbook** - it belongs in the runbook of the minor that makes it testable, and
+it is written there when that minor is built.
+
+This is not permission to skip hard checks. It is the opposite. An open cell
+should mean *"we could have run this and have not yet"*, and it loses that
+meaning the moment runbooks carry cells that were never runnable. Readers learn
+that open cells are normal, start skimming them, and skim past the one that
+actually mattered.
+
+So before writing a cell, ask which it is:
+
+- **Runnable now** - it goes in this runbook and it gets run. "The harness was
+  awkward" is not a reason to leave it open; it is a reason to fix the harness.
+- **Not runnable until minor N** - it goes in **N's** runbook, with one line here
+  naming where it went, so the coverage is traceable rather than silently
+  missing.
+
+The tell that this rule is being broken: a cell whose "expected" column
+describes a capability the code does not have. If a check needs a tool the loop
+is not wired to, or a surface that ships two minors from now, it is not an open
+cell - it is somebody else's cell.
+
 ## Enumerate the surface, never sample it
 
 Name the axes, multiply them, write the cell count, and fill every cell or state

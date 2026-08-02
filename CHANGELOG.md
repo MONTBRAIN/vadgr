@@ -2,6 +2,32 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.4.1] - 2026-08-02
+
+Puts the native loop on the product's own run path. Before this, `POST /api/agents/{id}/run` executed through the CLI executor and the engine shipped as a library nothing called.
+
+### Added
+- **Native loop on the API run path** (`api/engine/native_bridge.py`). A bridge between an executor that pulls (`AsyncIterator[ExecutionEvent]`) and a loop that pushes (`on_event` callback), joined by an `asyncio.Queue`. Events are mapped to the frames `CONTRACT.md` §2.5 names; anything the bridge has not been taught is dropped rather than forwarded, because an unrecognized payload is exactly the unbounded one.
+- **Resume on boot** (`api/main.py`, `api/services/execution_service.py`). On start the daemon finds journals with a dangling record and continues those runs from the first uncompleted step.
+- **Resume entry point** (`engine/loop.py`, `engine/trajectory.py`). `run_loop(..., resume_state=...)` reconstructs the conversation from the journal, and a resumed journal continues its sequence instead of restarting it. Prior results are truncated on the way in, so a resume does not replay screenshots.
+- **E2E doctrine and template** (`E2E/README.md`, `E2E/TEMPLATE.md`). Where the ground truth is, the verdict rules, the honest use of `Not-Needed`, and the shape every runbook follows.
+- **Runbook** at `E2E/0.4.1/e2e.md`, run live. Eleven defects, none of which the unit suite saw.
+
+### Fixed
+- **Agent creation on a native provider raised three different ways.** `load_provider_config` did `config["args"] + [...]` on a provider that has a module and no argv; `ProviderConfig` made `command` mandatory; and `is_available()` fell through to spawning an empty argv. One defect wearing three hats: nothing on the creation path knew a provider might not be a subprocess.
+- **The journal could not be tied to its run.** The executor never passed `run_id`, so the loop minted its own and wrote a directory nothing could correlate - which also broke resume on boot, since it finds a journal by id and then has to look that run up.
+- **A gate crashed on a timeout the model typed.** `ask_user` declares `timeout` a `number` and the model sent `"300"`; `asyncio.wait_for` compared a `str` to an `int` and raised. The run failed at the exact moment it was trying to consult a human. Timeouts are coerced, and an unparseable one means no timeout rather than an exception.
+- **The on-box WebSocket authenticated nothing.** `/api/ws/runs/{run_id}` never called the authorizer - the auth middleware is HTTP-only - so any peer gate 1 admits could open it. It also honoured an inbound `approval_response` that resumed a parked run, making it an unauthenticated way to answer a human-approval gate. It now authenticates as `/stream` does and is send-only.
+- **A checklist sent as a JSON string crashed `todo_write`.** The model sent `items` already serialised; iterating a `str` yields characters, so every entry raised `'str' object has no attribute 'get'`. A JSON-Schema type is advisory for containers exactly as it is for enum values.
+- **The phone's run stream carried a start and an end and nothing between.** Five of the eight keys in the mobile translator's map were event types nothing emits, and the executor's real vocabulary was absent - measured at 2 frames for a six-tool-call run, 11 after. The severe half is `awaiting`: an approval request could not reach the device that has to answer it. A test now checks every key in the map against what `executor.py` actually broadcasts.
+- **The checklist reached the wire as a Python repr.** `ExecutionEvent.data` was annotated `str`, so the bridge coerced the list with `str()` and clients received single-quoted text that is not JSON.
+- **A gate with no terminal now says so.** The daemon has no stdin, so gates died on `EOF when reading a line` - a message about a file descriptor, not about the problem. It now says there is no interactive channel and to proceed or stop rather than retry.
+
+### Notes
+- **No gate on the daemon can reach a human yet.** The default channel router is the CLI channel, which reads stdin the daemon does not have. Gates park correctly and reach nobody. The fix is a channel resolved by `POST /api/runs/{id}/respond`, which lands at `0.5.0`.
+- Agent creation is still CLI-bound: it runs forge generation, which spawns the configured provider as a subprocess, and a native provider cannot. A run may override the provider per trigger, which is the path the runbook exercises.
+- `/api/ws/runs/{run_id}` is deleted at `0.5.0`, when one socket survives. It has a live consumer today (`cli/stream.py`), so it was fixed rather than removed.
+
 ## [0.4.0] - 2026-07-30
 
 ### Added

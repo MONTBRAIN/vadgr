@@ -7,6 +7,7 @@ phone's socket.
 """
 
 import asyncio
+import json
 
 import pytest
 
@@ -207,3 +208,19 @@ def test_a_native_provider_config_loads_with_a_model_override():
 
     config = load_provider_config("anthropic_oauth", {"model": "claude-opus-5"})
     assert config is not None
+
+
+def test_the_checklist_reaches_the_wire_as_structure_not_a_repr():
+    """A9 asserted the frame's *type*, which let the *shape* through broken.
+
+    `ExecutionEvent.data` was annotated `str`, so the bridge coerced the
+    checklist with `str()` and a phone received `"[{'id': '1', ...}]"` - a
+    Python repr, single-quoted, not JSON and not the `{items:[{id,content,
+    status}]}` CONTRACT.md 2.5 promises. It was observed on the socket, because
+    a type assertion cannot see it.
+    """
+    items = [{"id": "1", "content": "step one", "status": "done"}]
+    ev = map_event({"type": "todos", "todos": items})
+    assert ev.data == items, "the checklist must arrive as a list of dicts"
+    assert not isinstance(ev.data, str)
+    json.dumps({"items": ev.data})  # must survive the broadcast serialiser

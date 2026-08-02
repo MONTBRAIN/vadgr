@@ -68,6 +68,18 @@ stop at.>
 
 ## Coverage
 
+<Only cells this minor can actually run. A check that needs something that does
+not exist yet belongs in the runbook of the minor that builds it, not here as a
+permanent `not run` - see [`../README.md`](../README.md). If you move one, say
+so in a line here so the coverage stays traceable.>
+
+<Deferred to a later minor, with where it went:>
+
+| check | why it cannot run here | moved to |
+|---|---|---|
+| <...> | <the thing it needs that does not exist> | `<minor>` |
+
+
 <Name the axes, multiply, write the number. If the product is large enough that
 a full enumeration would not fit, say what you reduced and why - a silent
 reduction reads as full coverage.>

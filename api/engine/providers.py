@@ -45,9 +45,16 @@ class ProviderError(RuntimeError):
 
 @dataclass
 class ExecutionEvent:
-    """Event emitted during agent execution."""
-    type: str  # "output", "error", "done"
-    data: str = ""
+    """Event emitted during agent execution.
+
+    ``data`` is a string for the text-shaped types (``output``, ``error``,
+    ``done``, ``awaiting``) and structured for the ones that carry a payload
+    (``todos``). It was annotated ``str``, so the bridge coerced the checklist
+    with ``str()`` and the phone received a Python repr - single-quoted, and not
+    parseable as JSON by anything on the other end.
+    """
+    type: str  # "output", "error", "done", "todos", "awaiting"
+    data: str | list | dict = ""
 
 
 @dataclass

@@ -6,6 +6,8 @@ write/update via a ``todos`` RunEvent.
 
 from __future__ import annotations
 
+import json
+
 from engine.tools import control_tool, emit_event
 
 VALID_STATUSES = ("pending", "in_progress", "done", "cancelled")
@@ -74,7 +76,46 @@ _UPDATE_SCHEMA = {
 }
 
 
-def _normalize(item: dict, index: int) -> dict:
+def _items(raw) -> list:
+    """The checklist the model sent, as a list of dicts.
+
+    The schema declares ``items`` an ``array``, and the same reasoning that
+    applies to the ``status`` enum above applies to the container: a JSON-Schema
+    type is advisory. A model that has just written the list out often sends it
+    already serialised -- ``"[{\\"id\\": \\"1\\", ...}]"`` -- and iterating a
+    ``str`` yields characters, so every entry reaches ``_normalize`` as a
+    one-character string and it raises on ``.get``.
+
+    Parsed rather than rejected, because the model's intent is unambiguous and
+    an error here costs an iteration to say what the payload already said.
+    """
+    if isinstance(raw, str):
+        try:
+            raw = json.loads(raw)
+        except (TypeError, ValueError):
+            raise ValueError(
+                "items must be a list of {id, content, status} objects; "
+                f"got a string that is not JSON: {raw[:60]!r}"
+            )
+    if isinstance(raw, dict):
+        # A single item sent unwrapped, or {"items": [...]} sent one level deep.
+        raw = raw.get("items", [raw]) if "items" in raw else [raw]
+    if not isinstance(raw, list):
+        raise ValueError(
+            f"items must be a list of {{id, content, status}} objects; got {type(raw).__name__}"
+        )
+    return raw
+
+
+def _normalize(item, index: int) -> dict:
+    if isinstance(item, str):
+        # A bare string is a legible intent: the content, with defaults around it.
+        item = {"content": item}
+    if not isinstance(item, dict):
+        raise ValueError(
+            f"todo item {index + 1} must be an object with a content field, "
+            f"got {type(item).__name__}"
+        )
     content = item.get("content") or item.get("title") or item.get("text") or ""
     status = _canonical_status(item.get("status", "pending"))
     return {
@@ -89,7 +130,7 @@ def _normalize(item: dict, index: int) -> dict:
     input_schema=_ITEMS_SCHEMA,
 )
 async def todo_write(args: dict, server) -> dict:
-    items = [_normalize(it, i) for i, it in enumerate(args.get("items", []))]
+    items = [_normalize(it, i) for i, it in enumerate(_items(args.get("items", [])))]
     server.ctx.todos = items
     await emit_event(server, {"type": "todos", "todos": items})
     return {"ok": True, "todos": items}

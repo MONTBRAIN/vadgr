@@ -5,11 +5,11 @@ Validation that a run **triggered through the product** reaches the native loop.
 Format and verification rules: [`../README.md`](../README.md) and
 [`../TEMPLATE.md`](../TEMPLATE.md).
 
-> **Status: run on WSL, 2026-08-02. Parts A and B pass end to end.**
-> Automated gate green (engine 118, api 539). Part C is blocked on the harness
-> and says how; D is deferred to the spike. **Seven defects found, all by this
-> runbook and none by the unit tests**, which is the entire argument for running
-> it before review.
+> **Status: run on WSL, 2026-08-02. Parts A and B pass end to end, and C clause 1 with them.**
+> Automated gate green (engine 122, api 542). Part C's gate-park path and Part D
+> are **not testable at this minor** and have moved to the runbooks that can run
+> them. **Eleven defects found, all by this runbook and none by the unit tests**,
+> which is the entire argument for running it before review.
 
 ## This is where `E2E/0.4.0`'s scope exception expires
 
@@ -34,6 +34,24 @@ on the path between the API and it, which no unit test crossed.
 
 That is the finding worth carrying: a seam is exactly where unit tests stop.
 
+## What this minor cannot test, and where it went
+
+Per [`../README.md`](../README.md), a check that cannot run because the thing it
+needs does not exist yet belongs to the minor that builds it. Two moved out, and
+both moved because of a missing surface rather than a missing afternoon:
+
+| check | why it cannot run here | moved to |
+|---|---|---|
+| A gate parks, the daemon is killed, resume continues it | The daemon wires `CLIChannel`, which reads a stdin it does not have, so **no gate can park on the API path at all** (F11). The channel that fixes it resolves on `POST /api/runs/{id}/respond`, which does not exist yet | `0.5.0` |
+| A native run outlives 900s | A real multi-hour run is not a runbook check. It is the dogfood spike's whole job | the dogfood spike |
+
+Both were previously carried here as open cells, which is the habit the rule
+exists to break: an open cell has to keep meaning "runnable, not yet run".
+
+Resume itself is **not** deferred - clause 1 (a clean journal is correctly
+unresumable) is proven below. It is clause 2, the dangling record, that needs a
+gate that can park.
+
 ## Part A: the API path
 
 | # | What | Expected | Status |
@@ -44,9 +62,11 @@ That is the finding worth carrying: a seam is exactly where unit tests stop.
 | A4 | The loop actually ran | journal exists with real usage | **pass** |
 | A5 | The journal is correlatable | journal dir == the API run id | **pass, after F4** |
 | A6 | Terminal state | run ends `completed` | **pass** |
-| A7 | The WS carries the loop's events | frames on `/api/ws/runs/{id}` | not run |
-| A8 | The two dropped events never reach the socket | no `llm_response`/`tool_result` | not run |
-| A9 | Every frame emitted is one `CONTRACT.md` §2.5 names | no invented frame reaches the phone | **pass** (unit) |
+| A7 | The WS carries the loop's events | frames on `/api/ws/runs/{id}` | **pass** |
+| A8 | The two dropped events never reach the socket | no `llm_response`/`tool_result` | **pass** |
+| A9 | Every frame emitted is one `CONTRACT.md` §2.5 names | no invented frame reaches the phone | **pass, after F10** |
+| A10 | The phone's stream carries the run, not just its ends | frames between `started` and `completed` | **fail -> F9, fixed** |
+| A11 | A declared checklist reaches the wire | a `todos` frame with parseable items | **fail -> F8, F10, fixed** |
 
 **A9 was a real gap, found by checking the code against the contract rather than
 against itself.** The bridge mapped the loop's checklist to a `todos` event and
@@ -74,6 +94,40 @@ The **journal is the proof**, not the status. A run can end `completed` on the
 old CLI path too; only the native loop writes `trajectory.jsonl`, and the token
 usage in it is a real model call rather than a subprocess's stdout.
 
+**Measured (A7-A11).** One run, both sockets recorded verbatim, checked against
+the journal for the same run. Run `4abb32cf`:
+
+```
+raw    /api/ws/runs/{id}       run_started 1  agent_started 1  agent_log 7  todos 1  agent_completed 1  run_completed 1   = 12
+mobile /api/runs/{id}/stream   started 1  tool_call 1  output 8  completed 1                                              = 11
+journal                        response 4   in_flight 4   done 4
+
+A8  "llm_response" as a frame type on either socket   0     (as a substring anywhere in the capture: 0)
+    "tool_result"  as a frame type on either socket   0     (as a substring anywhere in the capture: 0)
+    model turns the journal records                   4     -> 4 llm_response events occurred, 0 reached the wire
+    tool results the journal records                  4     -> 4 tool_result  events occurred, 0 reached the wire
+A9  raw frames not named by CONTRACT.md 2.5           none
+    mobile frames outside RunEventType                none
+A11 todos payload is a list of dicts                  True
+```
+
+**This is why A8 had to run rather than be argued.** The claim is not "`map_event`
+returns `None` for two types" - that is a fact about a function and a unit test
+already had it. The claim is that those events **never reach a client**, and the
+journal is what makes the run admissible evidence: it records 4 model turns and 4
+tool results, so both event types demonstrably occurred, and the capture shows
+neither on either socket. A run where they had not happened would have proven
+nothing.
+
+Loopback still connects with no token, so F7's auth fix did not close the socket
+to the on-box path - the same property B3 proves for the CLI.
+
+**A10 and A11 are what running it bought.** Before the fixes the mobile stream
+carried **2 frames for a 6-tool-call run**: `started`, then silence, then
+`completed`. After, 11. That gap is invisible to every test that asks "does the
+translator translate", because the translator was translating correctly - it was
+translating names nothing sends.
+
 ## Part B: the CLI path - **passes**
 
 | # | What | Expected | Status |
@@ -97,36 +151,42 @@ The CLI watches over `/api/ws/runs/{id}`, which this patch **authenticated** -
 so B3 also proves the auth fix did not break the on-box path, which was the
 risk in touching it.
 
-## Part C: resume - **attempted, not proven, and it found F6 and F7**
+## Part C: resume - **clause 1 proven, clause 2 moved to `0.5.0`**
 
-Unit-covered (5 tests) and **still not proven on the product**. Two attempts,
-and what stopped each is worth recording because both are findings rather than
-noise.
+Unit-covered (5 tests). On the product, the two clauses split:
 
-**Attempt 1 - the journal was clean, so there was correctly nothing to resume.**
-A five-tool-call run finished its calls faster than the kill landed, closing
-every `seq`. `find_latest` returned nothing, which is right: a clean journal is
-a finished run. To get a dangling record on purpose the run has to be killed
-*inside* a call that waits, which is what attempt 2 tried.
+**Clause 1 - a clean journal is correctly unresumable. Proven.** A run whose
+tool calls all closed leaves no dangling `seq`, `find_latest` returns nothing,
+and nothing is resumed. That is the right behaviour and not a null result: a
+resume that replayed a finished run is the failure this clause exists to
+exclude.
 
-**Attempt 2 - the gate could not park at all, which is F6.** The task asked the
-model to call `ask_user` with a 300 second timeout. The model sent the timeout
-as the **string** `"300"`, `asyncio.wait_for` compared a `str` to an `int`, and
-the gate raised. The journal shows it three times over:
-`in_flight -> await_user -> error`, three times, never parking.
+**Clause 2 - a dangling record is continued, not replayed. Moved to `0.5.0`.**
+It needs a run killed *inside* a call that is waiting, and the only tool that
+waits is a gate. Three attempts, and the third finally said why:
 
-So the run never reached a state that could be interrupted, and the honest
-verdict is that **gate clause 2 remains unproven on the product**. It needs a
-harness that can hold a daemon open and kill it at a chosen moment, which this
-environment's process handling did not give me. Recorded rather than dressed up:
-the runbook's own rule is that a self-reported success with no confirming
-read-back is a FAIL, and an unrun cell is not a pass.
+1. The run finished its calls faster than the kill landed - clean journal, see
+   clause 1.
+2. The gate could not park at all: `TypeError` on a timeout the model typed as
+   `"300"`. That is **F6**, fixed here.
+3. With F6 fixed the gate **did** park - and died 3ms later on
+   `EOF when reading a line`. That is **F11**, and it is not a harness problem.
 
-## Part D: the timeout - **not run**
+F11 means no gate can park on the API path at all, so there is no state on this
+minor that a kill could interrupt. Under the runbook rule this stops being an
+open cell and becomes `0.5.0`'s, because the fix is an API channel resolved by
+`POST /api/runs/{id}/respond` - an endpoint that does not exist yet.
 
-That a native run outlives 900 seconds is asserted by construction (`timeout` is
-`None` on the native path and the bridge ignores the parameter) and by a unit
-test. A real multi-hour run is the dogfood spike's job, not this runbook's.
+```
+seq 0  in_flight  control__report_progress  {"message": "MARKER-ONE"}
+seq 0  done       {"ok": true}
+seq 1  in_flight  control__ask_user         {"question": "Which folder should I use?", "timeout": 600}
+seq 1  await_user {"kind": "question", ...}          <- parked, so F6 is genuinely fixed
+seq 1  error      "EOF when reading a line"          <- 3ms later. F11
+```
+
+Note the timeout: `600`, sent as a number. F6's fix is why this run got as far
+as parking at all.
 
 ## Findings
 
@@ -209,6 +269,98 @@ authenticates exactly as `/stream` does and is **send-only**; answering is
 The route is still deleted at `0.5.0` - it has a live consumer today (the CLI,
 `cli/stream.py`), and B3 proves the fix did not break it.
 
+### F8 (fixed): a checklist sent as a JSON string crashed the tool
+
+`todo_write` did `args.get("items", [])` and iterated it. The model sent `items`
+as a **string containing JSON** - three times in one run, in three different
+formattings - and iterating a `str` yields characters, so every entry reached
+`_normalize` as a one-character string: `'str' object has no attribute 'get'`.
+
+The file already knew better one line down. `engine/tools/todo.py:15` says a
+JSON-Schema enum is advisory and maps the synonyms a model reaches for. The same
+reasoning was simply never applied to the **container**: the schema declares
+`items` an `array`, and that declaration is exactly as advisory as the enum.
+
+This is the third instance of one lesson - `0.4.0`'s F3 (`completed` for a status
+whose enum said `done`), F6 (`"300"` for a `number`), and now the array itself.
+**A schema is a hint to the model, never a guarantee to the runtime**, and it
+holds for types and containers, not only for enum values.
+
+The consequence is what makes it worth the fix rather than a note: A9 had just
+taught the bridge to carry a `todos` frame, and **the tool that produces it
+raised on the shape the model actually sends**. The plumbing was fixed and the
+tap above it was broken, so the checklist could never have arrived.
+
+### F9 (fixed): the phone's stream carried a run's start and end and nothing between
+
+`_EVENT_TYPE_MAP` in `api/routes/ws.py` named eight internal event types. **Five
+of them are emitted by nothing** - `step_started`, `tool_call`, `step_output`,
+`output`, `approval_required` - while the executor's real vocabulary
+(`agent_log`, `agent_started`, `agent_completed`, `awaiting`, `agent_failed`)
+was absent. Only the three run-level frames mapped.
+
+So a phone watching a run received `started`, silence, `completed`, however long
+the run and however much it reported. Measured before the fix: **2 frames for a
+six-tool-call run.** After: 11.
+
+The severe half is `awaiting`. That is how a gate says it is waiting for a human,
+and with no mapping **an approval request could never reach the device that has
+to answer it** - the gate layer's entire purpose, unreachable through a mapping
+table.
+
+`vadgr-mobile` has a `RunEventKind.toolCall` case for a frame the server never
+sends, which is `PLANS.md` D-58's dead control one layer down in the data.
+
+Pre-existing rather than introduced here (`9b0883f`), and `CONTRACT.md` §2.5 had
+already flagged the `todos` corner of it - "the phone cannot receive this today".
+It is fixed here because this runbook is what turned a footnote about one frame
+into a measurement showing it was all of them. The fix is the mapping only; new
+frame types are `0.5.0`'s enrichment, and inventing them here would be a rename
+paid for twice.
+
+A test now asserts every key in the map against the strings `executor.py` really
+broadcasts, because nothing raises when a map names an event nobody sends.
+
+### F10 (fixed): the checklist reached the wire as a Python repr
+
+With F8 and F9 fixed the `todos` frame finally arrived - carrying
+`"[{'id': '1', 'content': ...}]"`. Single quotes. A `str()` of a list, which is
+not JSON and not the `{items:[{id,content,status}]}` `CONTRACT.md` §2.5 promises.
+
+`ExecutionEvent.data` was annotated `str`, so `native_bridge.py` coerced the
+checklist to fit the field with the first coercion to hand.
+
+**This is the one that indicts A9's test rather than the code.** A9 asserts the
+bridge emits no frame *type* the contract does not name, and it passed
+throughout - a type assertion cannot see a payload shape. The frame was correctly
+named and unparseable by anything receiving it. Found only because the wire was
+read, which is the whole argument for A7 being a cell rather than a unit test.
+
+### F11 (open, closes at `0.5.0`): no gate on the daemon can reach a human
+
+`_anthropic_base.py:90` builds the default router as `{"cli": CLIChannel(),
+"desktop": DesktopChannel()}`, active `cli`. `CLIChannel` reads **stdin**, and
+the daemon is a background service with none. Every gate on the API path parks
+and dies ~3ms later on `EOF when reading a line`.
+
+Same shape as F6 and worse: F6 was a crash on a typed value and this is
+structural. `ask_user`, `request_approval` and the plan gate are all reachable,
+all park correctly, and **none of them can ask anyone.**
+
+Not fixed here, and this is the rule working rather than an excuse: the fix is a
+channel that parks the run and resolves on `POST /api/runs/{id}/respond`, and
+that endpoint does not exist until `0.5.0` (`CONTRACT.md` §2.4). Building it now
+would be building `0.5.0` inside a patch.
+
+What did change is the error. `EOF when reading a line` describes a file
+descriptor; the model reads that string and retries a gate that cannot succeed.
+It now says there is no interactive channel and to proceed or stop rather than
+retry - true, actionable, and no new surface.
+
+It does not block `0.4.1`, whose claim is that a run reaches the native loop.
+It does block calling the gate layer usable from the product, and Part C clause 2
+with it.
+
 ## Per-OS results
 
 Legend: pass / fail / blocked / not run / **Not-Needed** (no OS-specific
@@ -218,17 +370,17 @@ surface, so a run there adds no signal - always with its reason).
 |---|---|---|---|---|
 | Part A (the API path) | Not-Needed | Not-Needed | Not-Needed | **pass** |
 | Part B (the CLI path) | Not-Needed | Not-Needed | Not-Needed | **pass** |
-| Part C (resume) | **owed** | **owed** | **owed** | **attempted, unproven** |
-| Part D (the timeout) | Not-Needed | Not-Needed | Not-Needed | not run |
-| Overall | Not-Needed except C | Not-Needed except C | Not-Needed except C | **A, B pass; C open** |
+| Part C clause 1 (a clean journal) | **owed** | **owed** | **owed** | **pass** |
+| Part C clause 2 (a dangling record) | moved to `0.5.0` | moved to `0.5.0` | moved to `0.5.0` | moved to `0.5.0` |
+| Overall | Not-Needed except C1 | Not-Needed except C1 | Not-Needed except C1 | **A, B, C1 pass** |
 
-**A, B and D are `Not-Needed` elsewhere**: the bridge is a queue and a mapping
+**A and B are `Not-Needed` elsewhere**: the bridge is a queue and a mapping
 table, provider selection reads a YAML key, and the timeout is a parameter that
 is not passed. Pure Python, no socket, pipe, path, registry or process
 branching, and no per-OS dependency - the other three OSes **cannot** behave
 differently.
 
-**Part C is owed on every OS**, and that is the one row that is not an
+**Part C clause 1 is owed on every OS**, and that is the one row that is not an
 excuse. Resume reads `~/.vadgr/runs/` and turns on the daemon dying and being
 restarted, which is filesystem behaviour plus process lifecycle - the two things
 that genuinely differ across platforms. A journal path resolves differently on
@@ -238,10 +390,16 @@ than `Not-Needed`.
 
 ## What this runbook cannot prove yet
 
-- **Nothing about the CLI path** (Part B).
-- **Nothing about resume on the product** (Part C), and two attempts say why
-  rather than one sentence. Gate clause 2 remains proven at the unit level only,
-  and the phase cannot close until it is not.
-- **Nothing about the WebSocket** (A7, A8), so the claim that the two unbounded
-  events never reach a phone is currently a unit-test claim about `map_event`,
-  not an observation of the socket.
+- **That a dangling journal record is continued rather than replayed.** Proven at
+  the unit level (5 tests) and not on the product, because F11 means nothing can
+  park long enough to be interrupted. It is `0.5.0`'s cell now, and the phase
+  cannot close until it is run there.
+- **That the gate layer works end to end.** Gates park correctly and reach nobody
+  (F11). Everything this runbook says about gates is about the parking half.
+- **That a run survives a long horizon.** The 900s timeout is absent by
+  construction and unit-tested; a real multi-hour run is the dogfood spike's.
+- **That the frames are the right frames for a phone.** A7-A11 prove the ones
+  emitted are named by the contract, arrive, and parse. Whether the phone renders
+  a run well from them is mobile's runbook, not this one.
+- **Anything about resume across filesystems.** Clause 1 ran on WSL only; a
+  killed process leaves different debris on NTFS than on ext4.

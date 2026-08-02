@@ -21,13 +21,27 @@ router = APIRouter()
 
 
 # Map internal broadcast event types -> the mobile RunEvent contract.
+#
+# Every key here must be a name the executor actually broadcasts. Five of the
+# original eight were not: `step_started`, `tool_call`, `step_output`, `output`
+# and `approval_required` are emitted by nothing, while the executor's real
+# vocabulary - `agent_log`, `awaiting`, `agent_failed`, `todos` - was absent. A
+# phone therefore received `started`, then silence, then `completed`, however
+# long the run and however much it reported: the only frames that mapped were
+# the three run-level ones. Worse, `awaiting` is how a gate says it is waiting
+# for a human, so an approval could never reach the device that has to answer it.
+#
+# The fix is the mapping, not new frame types. `todos` has no member in
+# `RunEventType` and gets one at `0.5.0` when the contract enriches this stream
+# (`CONTRACT.md` §2.5); inventing it here would be a rename paid for twice.
 _EVENT_TYPE_MAP = {
     "run_started": RunEventType.STARTED,
-    "step_started": RunEventType.TOOL_CALL,
-    "tool_call": RunEventType.TOOL_CALL,
-    "step_output": RunEventType.OUTPUT,
-    "output": RunEventType.OUTPUT,
-    "approval_required": RunEventType.PAUSED,
+    "agent_started": RunEventType.TOOL_CALL,
+    "agent_log": RunEventType.OUTPUT,
+    "step_completed": RunEventType.OUTPUT,
+    "agent_completed": RunEventType.OUTPUT,
+    "awaiting": RunEventType.PAUSED,
+    "agent_failed": RunEventType.FAILED,
     "run_completed": RunEventType.COMPLETED,
     "run_failed": RunEventType.FAILED,
 }

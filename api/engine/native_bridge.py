@@ -57,7 +57,9 @@ def map_event(event: dict) -> ExecutionEvent | None:
         return ExecutionEvent(type="output", data=str(event.get("message", "")))
 
     if kind == "todos":
-        return ExecutionEvent(type="todos", data=str(event.get("todos", [])))
+        # Not str()-ed. The contract says `{items: [{id, content, status}]}`
+        # (CONTRACT.md 2.5) and a repr of a list is not that, nor is it JSON.
+        return ExecutionEvent(type="todos", data=event.get("todos", []) or [])
 
     if kind == "await_user":
         # Named for the contract's frame, not for one kind of gate: the loop
