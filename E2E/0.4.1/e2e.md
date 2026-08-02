@@ -188,6 +188,14 @@ seq 1  error      "EOF when reading a line"          <- 3ms later. F11
 Note the timeout: `600`, sent as a number. F6's fix is why this run got as far
 as parking at all.
 
+## Evidence
+
+`vadgr-docs/e2e_evidence/0.4.1/` - eleven run journals keyed by the run ids this
+file cites, both socket captures either side of the F9 and F10 fixes, daemon
+logs, the two harnesses, and a `MANIFEST` of checksums. The failed runs are kept
+alongside the passing ones: `f9a7b824` is F8 in the product's own handwriting,
+and `f67cb5fe` is F11's park-then-EOF three milliseconds apart.
+
 ## Findings
 
 ### F1 (fixed): a native provider had no `args`, so agent creation raised

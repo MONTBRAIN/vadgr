@@ -145,6 +145,25 @@ store, binds a port or draws native UI is **owed** on each OS, not excused. The
 Python and were `Not-Needed`, while OAuth token resolution and the desktop
 channel branch per OS and were recorded as owed.
 
+## The artifacts live in the private repo
+
+This runbook carries the plan and the results. The machine-written artifacts
+behind them - run journals, recorded frames, daemon logs, the harnesses - go in
+`vadgr-docs/e2e_evidence/<version>/`, because they carry home paths, hostnames,
+ports and task prompts. The split is by content: a plan and a result are safe to
+publish, a machine's fingerprints are not.
+
+**Cite run ids here.** That is what ties the two together - a claim in this file
+names a run, and the private bundle has that run's journal under the same id, so
+any statement can be walked back to the file behind it. A runbook that says
+"pass" without an id cannot be checked by anyone, including its author later.
+
+Capture when the run ends, not when the PR is written: journals persist in
+`~/.vadgr/runs/`, but frame captures and daemon logs usually sit in a scratch
+directory that does not survive. Keep the runs that failed, keep both sides of
+any fix that moved something observable, and if a run was never captured, say so
+rather than reconstructing it.
+
 ## When a runbook finds a bug
 
 Finding one is the point. Root-cause it in the source citing `file:line` — a

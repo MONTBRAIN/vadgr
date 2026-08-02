@@ -107,6 +107,15 @@ evidence is a claim.>
 usually: the journal is the proof and the status is not, because a run ends
 `completed` on the legacy path too.>
 
+## Evidence
+
+<Where the artifacts for this runbook live, and the run ids that tie the two
+together. Journals, frame captures and daemon logs go in the private repo - see
+[`../README.md`](../README.md).>
+
+`vadgr-docs/e2e_evidence/<version>/` - journals per run id, recorded frames,
+daemon logs, harnesses, and a `MANIFEST` of checksums.
+
 ## Findings
 
 ### F1 (<fixed | open>): <the defect in one line>
