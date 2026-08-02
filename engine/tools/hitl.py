@@ -49,6 +49,24 @@ def _journal_await(server, request: dict) -> None:
         traj.append_await_user(request)
 
 
+def _seconds(value) -> float | None:
+    """A timeout the model supplied, as a number the runtime can wait on.
+
+    The schema says `number`, and a JSON Schema type is advisory - the value
+    arrives as whatever the model emitted, which in practice is often the string
+    "300". `asyncio.wait_for` then compares a str to an int and the gate raises
+    instead of parking, which turns "ask the human" into "fail the run": the one
+    outcome a human-in-the-loop tool must never have. Found by E2E/0.4.1.
+    """
+    if value is None:
+        return None
+    try:
+        seconds = float(value)
+    except (TypeError, ValueError):
+        return None          # unparseable means no timeout, never a crash
+    return seconds if seconds > 0 else None
+
+
 @control_tool(
     description="Ask a human to approve a gated action. Blocks the loop until "
     "answered; a reject/timeout is a normal result, not a crash.",
@@ -58,7 +76,7 @@ async def request_approval(args: dict, server) -> dict:
     action = args["action"]
     risk = args.get("risk", "medium")
     preview = args.get("preview", "")
-    timeout = args.get("timeout")
+    timeout = _seconds(args.get("timeout"))
 
     req = ApprovalRequest(action=action, risk=risk, preview=preview)
     decision = await server.policy.check(req)
@@ -86,7 +104,7 @@ async def request_approval(args: dict, server) -> dict:
 async def ask_user(args: dict, server) -> dict:
     question = args["question"]
     options = args.get("options")
-    timeout = args.get("timeout")
+    timeout = _seconds(args.get("timeout"))
 
     _journal_await(server, {"kind": "question", "question": question})
     prompt = HumanPrompt(

@@ -70,9 +70,39 @@ class _RunEventTranslator:
 
 @router.websocket("/api/ws/runs/{run_id}")
 async def run_websocket(websocket: WebSocket, run_id: str):
+    """The on-box stream the CLI watches (`cli/stream.py`).
+
+    **Authenticated.** It was not: the auth middleware is HTTP-only and this
+    route checked nothing, so any peer that gate 1 admits - every member of the
+    tailnet - could open it. It also accepted an inbound `approval_response`
+    that resumed a parked run, which made it an **unauthenticated way to answer
+    a human-approval gate**, the one decision the gate layer exists to protect.
+
+    Both are fixed here. Auth matches `/stream`, and the socket is now
+    send-only: answering a gate is `POST /api/runs/{id}/respond`, which is
+    authenticated, idempotent and auditable (`CONTRACT.md` §2.5). Loopback is
+    trusted by gate 1, so the CLI still connects with no token.
+
+    It is deleted outright at `0.5.0`, when one socket survives. Until then it
+    has a live consumer and a hole, and the hole is the part that could not wait.
+    """
     logger.info(f"WebSocket connection attempt for run {run_id}")
-    manager = websocket.app.state.ws_manager
-    run_repo = websocket.app.state.run_repo
+    app = websocket.app
+    manager = app.state.ws_manager
+    run_repo = app.state.run_repo
+
+    token = websocket.query_params.get("token")
+    if not token:
+        auth_header = websocket.headers.get("authorization")
+        if auth_header:
+            parts = auth_header.split(None, 1)
+            if len(parts) == 2 and parts[0].lower() == "bearer":
+                token = parts[1].strip()
+    if not await authorize_ws(app, app.state.transport, 
+                              websocket.client.host if websocket.client else None,
+                              token):
+        await websocket.close(code=4401, reason="Unauthorized")
+        return
 
     run = await run_repo.get(run_id)
     if not run:
@@ -91,15 +121,18 @@ async def run_websocket(websocket: WebSocket, run_id: str):
             except json.JSONDecodeError:
                 continue
 
+            # Send-only. An `approval_response` used to be honoured here, which
+            # made the socket a second way to answer a gate - with different
+            # auth, no idempotency key, and no audit trail. Answering is
+            # `POST /api/runs/{id}/respond` and only that (`CONTRACT.md` §2.5).
+            # Inbound frames are ignored rather than rejected, so an older
+            # client that still sends one is not disconnected mid-run.
             if msg.get("type") == "approval_response":
-                action = msg.get("data", {}).get("action", "approve")
-                if action == "approve":
-                    execution_service = websocket.app.state.execution_service
-                    await run_repo.update_status(run_id, "running")
-                    import asyncio
-                    asyncio.create_task(
-                        execution_service.resume_after_approval(run_id)
-                    )
+                logger.warning(
+                    "run %s: ignoring an inbound approval on the socket; "
+                    "answer a gate with POST /api/runs/{id}/respond",
+                    run_id,
+                )
     except WebSocketDisconnect:
         manager.disconnect(run_id, websocket)
 

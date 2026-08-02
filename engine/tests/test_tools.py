@@ -15,6 +15,7 @@ from engine.channels.base import Delivery, HumanPrompt
 from engine.mcp import MCPHost, MCPServer
 from engine.policy.default import DefaultPolicy
 from engine.tools import ControlPlaneServer, RunContext
+from engine.tools.hitl import _seconds
 
 
 class FakeChannel:
@@ -346,3 +347,40 @@ async def test_an_unknown_todo_id_names_the_known_ids():
         await server.call_tool("todo_update", {"id": "99", "status": "done"})
 
     assert "known ids: 1, 2" in str(excinfo.value)
+
+
+@pytest.mark.asyncio
+async def test_a_string_timeout_reaches_the_real_channel_without_raising():
+    """Regression (E2E/0.4.1 F6), against the REAL channel.
+
+    A fake channel never reaches `asyncio.wait_for`, so a fake proves nothing
+    here: the crash was the comparison inside it. The schema says `number` and a
+    JSON Schema type is advisory, so a model that sends "300" used to raise at
+    the exact moment the run was trying to consult a human - the one outcome a
+    HITL tool must never have.
+    """
+    from engine.channels.base import ChannelRouter, HumanPrompt
+    from engine.channels.cli import CLIChannel
+
+    seen = {}
+
+    async def reader(text, timeout):
+        seen["timeout"] = timeout
+        return "the answer"
+
+    channel = CLIChannel(reader=reader, writer=lambda line: None)
+    # The path that used to blow up: a str timeout into wait_for.
+    answer = await channel.request(
+        HumanPrompt(kind="question", text="which folder?", timeout=_seconds("300"))
+    )
+    assert answer is not None
+    assert seen["timeout"] == 300.0, "the string was not coerced to a number"
+
+
+@pytest.mark.asyncio
+async def test_an_unparseable_timeout_becomes_no_timeout_not_a_crash():
+    assert _seconds("soon") is None
+    assert _seconds(None) is None
+    assert _seconds(0) is None
+    assert _seconds("300") == 300.0
+    assert _seconds(12.5) == 12.5

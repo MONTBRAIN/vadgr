@@ -2,10 +2,11 @@
 
 Validation that a run **triggered through the product** reaches the native loop.
 
-> **Status: partially run on WSL, 2026-07-31. Part A passes end to end.**
-> Automated gate green (engine 116, api 536). Parts B, C and D are open and each
-> says why. **Five defects found, all by this runbook and none by the unit
-> tests**, which is the entire argument for running it before review.
+> **Status: run on WSL, 2026-08-02. Parts A and B pass end to end.**
+> Automated gate green (engine 118, api 539). Part C is blocked on the harness
+> and says how; D is deferred to the spike. **Seven defects found, all by this
+> runbook and none by the unit tests**, which is the entire argument for running
+> it before review.
 
 ## This is where `E2E/0.4.0`'s scope exception expires
 
@@ -70,20 +71,53 @@ The **journal is the proof**, not the status. A run can end `completed` on the
 old CLI path too; only the native loop writes `trajectory.jsonl`, and the token
 usage in it is a real model call rather than a subprocess's stdout.
 
-## Part B: the CLI path - **not run**
+## Part B: the CLI path - **passes**
 
-`vadgr run` / `vadgr stream` against the same daemon. Owed, and it is not
-optional: a green API run says the wire is right and nothing about the on-box
-path.
+| # | What | Expected | Status |
+|---|---|---|---|
+| B1 | `vadgr health` reaches the daemon | status, version, modules | **pass** |
+| B2 | `vadgr runs list` | the runs Part A created | **pass** |
+| B3 | `vadgr run <agent>` triggers **and watches** | run completes, exit `0` | **pass** |
+| B4 | The CLI-triggered run reached the native loop | journal at the API run id | **pass** |
 
-## Part C: resume - **not run end to end**
+**Measured (B3-B4):**
 
-Unit-covered (5 tests: clean journal skipped, dangling resumed, continues at the
-uncompleted step, the service is told to continue, no journals is a no-op), and
-**not proven on the product**. The honest version needs a real run with a
-countable side effect, killed mid-flight, the daemon restarted, and the count
-checked for a double. Until that runs, gate clause 2 stays unproven - which is
-the same thing `E2E/0.4.0` said about the library, one layer up.
+```
+[vadgr] Run started: e5e0dbb3-3274-48bf-a378-94b8fd9c82ac
+[vadgr] Run completed (2s)
+exit 0
+
+journal at that id   YES        usage   input 1452, output 4
+```
+
+The CLI watches over `/api/ws/runs/{id}`, which this patch **authenticated** -
+so B3 also proves the auth fix did not break the on-box path, which was the
+risk in touching it.
+
+## Part C: resume - **attempted, not proven, and it found F6 and F7**
+
+Unit-covered (5 tests) and **still not proven on the product**. Two attempts,
+and what stopped each is worth recording because both are findings rather than
+noise.
+
+**Attempt 1 - the journal was clean, so there was correctly nothing to resume.**
+A five-tool-call run finished its calls faster than the kill landed, closing
+every `seq`. `find_latest` returned nothing, which is right: a clean journal is
+a finished run. To get a dangling record on purpose the run has to be killed
+*inside* a call that waits, which is what attempt 2 tried.
+
+**Attempt 2 - the gate could not park at all, which is F6.** The task asked the
+model to call `ask_user` with a 300 second timeout. The model sent the timeout
+as the **string** `"300"`, `asyncio.wait_for` compared a `str` to an `int`, and
+the gate raised. The journal shows it three times over:
+`in_flight -> await_user -> error`, three times, never parking.
+
+So the run never reached a state that could be interrupted, and the honest
+verdict is that **gate clause 2 remains unproven on the product**. It needs a
+harness that can hold a daemon open and kill it at a chosen moment, which this
+environment's process handling did not give me. Recorded rather than dressed up:
+the runbook's own rule is that a self-reported success with no confirming
+read-back is a FAIL, and an unrun cell is not a pass.
 
 ## Part D: the timeout - **not run**
 
@@ -139,11 +173,45 @@ saying out loud rather than discovering at `0.5.0`. The reshape replaces this
 path with `POST /api/runs {task}`, where the question disappears - a free-form
 run has no forge generation.
 
+### F6 (fixed): a gate raised instead of asking, on a timeout the model typed
+
+`ask_user` and `request_approval` declare `timeout` as a JSON Schema `number`,
+and a JSON Schema type is **advisory** - the value arrives as whatever the model
+emitted. It emitted `"300"`. `asyncio.wait_for` then compared a `str` to an
+`int` and raised `TypeError: '<=' not supported between instances of 'str' and
+'int'`.
+
+The failure mode is the worst available to a human-in-the-loop tool: **the run
+failed at the exact moment it was trying to consult a human.** Not a park, not a
+refusal - a crash, where the whole point of the tool is that a human gets asked.
+
+Timeouts are now coerced, and an unparseable one means no timeout rather than an
+exception. This is the same class as `0.4.0`'s F3, where the model wrote
+`completed` for a status whose enum said `done`: **a schema enum or type is a
+hint to the model, never a guarantee to the runtime**, and every value crossing
+that boundary has to be treated as untrusted input.
+
+### F7 (fixed): the on-box WebSocket authenticated nothing
+
+`/api/ws/runs/{run_id}` never called the authorizer - the auth middleware is
+HTTP-only - so any peer gate 1 admits could open it, which over a tailnet is
+every member of it. It also honoured an inbound `approval_response` that resumed
+a parked run, making it an **unauthenticated way to answer a human-approval
+gate**: the one decision the entire gate layer exists to protect.
+
+Both fixed here rather than at `0.5.0`, because the hole goes live the moment a
+phone reaches a machine over a tailnet, which is mobile `0.4.0`. The socket now
+authenticates exactly as `/stream` does and is **send-only**; answering is
+`POST /api/runs/{id}/respond`, which is authenticated, idempotent and auditable.
+The route is still deleted at `0.5.0` - it has a live consumer today (the CLI,
+`cli/stream.py`), and B3 proves the fix did not break it.
+
 ## What this runbook cannot prove yet
 
 - **Nothing about the CLI path** (Part B).
-- **Nothing about resume on the product** (Part C). Gate clause 2 remains proven
-  at the unit level only.
+- **Nothing about resume on the product** (Part C), and two attempts say why
+  rather than one sentence. Gate clause 2 remains proven at the unit level only,
+  and the phase cannot close until it is not.
 - **Nothing about the WebSocket** (A7, A8), so the claim that the two unbounded
   events never reach a phone is currently a unit-test claim about `map_event`,
   not an observation of the socket.

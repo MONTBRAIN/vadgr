@@ -152,3 +152,42 @@ async def test_authorize_ws_tailnet_requires_valid_token(db):
     app = _App(repo)
     assert await authorize_ws(app, _FakeTransport(), "100.64.1.2", token) is True
     assert await authorize_ws(app, _FakeTransport(), "100.64.1.2", "bad") is False
+
+
+# -- the socket that had no auth at all --------------------------------------
+
+@pytest.mark.asyncio
+async def test_both_run_sockets_authorize():
+    """Regression: `/api/ws/runs/{id}` checked nothing.
+
+    The auth middleware is HTTP-only, so a WebSocket route that does not call
+    the authorizer itself is open to every peer gate 1 admits - which over a
+    tailnet is every member of it. That socket also honoured an inbound
+    `approval_response`, making it an unauthenticated way to answer a
+    human-approval gate.
+    """
+    import inspect
+
+    from api.routes import ws as ws_routes
+
+    for fn in (ws_routes.run_websocket, ws_routes.run_stream):
+        src = inspect.getsource(fn)
+        assert "authorize_ws" in src, f"{fn.__name__} does not authorize"
+        assert "4401" in src, f"{fn.__name__} does not close unauthorized"
+
+
+@pytest.mark.asyncio
+async def test_neither_socket_acts_on_an_inbound_frame():
+    """Answering a gate is an authenticated, idempotent, audited HTTP call.
+
+    A socket that accepts decisions is a second authorization surface to get
+    right, and it was the one that was wrong.
+    """
+    import inspect
+
+    from api.routes import ws as ws_routes
+
+    src = inspect.getsource(ws_routes.run_websocket)
+    assert "resume_after_approval" not in src, (
+        "the socket resumes a run from an inbound frame again"
+    )
