@@ -42,7 +42,7 @@ both moved because of a missing surface rather than a missing afternoon:
 
 | check | why it cannot run here | moved to |
 |---|---|---|
-| A gate parks, the daemon is killed, resume continues it | The daemon wires `CLIChannel`, which reads a stdin it does not have, so **no gate can park on the API path at all** (F11). The channel that fixes it resolves on `POST /api/runs/{id}/respond`, which does not exist yet | `0.5.0` |
+| A gate parks, the daemon is killed, resume continues it | The daemon wires `CLIChannel`, which reads a stdin it does not have, so **no gate can hold open on the API path at all** (F11). The shipped `/approve` cannot close the gap: it carries no answer text, and its resume replays | `0.5.0`, with `POST /api/runs/{id}/respond` |
 | A native run outlives 900s | A real multi-hour run is not a runbook check. It is the dogfood spike's whole job | the dogfood spike |
 
 Both were previously carried here as open cells, which is the habit the rule
@@ -347,10 +347,23 @@ Same shape as F6 and worse: F6 was a crash on a typed value and this is
 structural. `ask_user`, `request_approval` and the plan gate are all reachable,
 all park correctly, and **none of them can ask anyone.**
 
-Not fixed here, and this is the rule working rather than an excuse: the fix is a
-channel that parks the run and resolves on `POST /api/runs/{id}/respond`, and
-that endpoint does not exist until `0.5.0` (`CONTRACT.md` §2.4). Building it now
-would be building `0.5.0` inside a patch.
+**Deferred to `0.5.0`, and the shipped endpoint is why rather than a missing
+one.** `POST /api/runs/{id}/approve` exists today, so "there is nowhere to
+answer" would be false. It fails on two specifics instead:
+
+- **It carries a verdict and no text.** The route takes no body. `request_approval`
+  is binary and would fit; `ask_user` and `propose_plan` need an answer, and two
+  of the three gates cannot be served by a yes.
+- **Its resume replays.** `resume_after_approval` calls `run_project` - the DAG
+  path, not the native loop - whose own comment says re-running the full project
+  is acceptable for MVP. Continuing the loop through it would mean building on a
+  mechanism that does the one thing the journal exists to prevent.
+
+`0.5.0`'s `POST /api/runs/{id}/respond` is shaped for this: a verdict, a reason
+and an answer, resolving against the loop's own resume. `CONTRACT.md` §3.1
+already has `respond` replacing `approve`, so this is the minor doing its job
+rather than a gap. Wiring the native loop into the deprecated route would be
+work deleted one minor later, and it would carry the replay in with it.
 
 What did change is the error. `EOF when reading a line` describes a file
 descriptor; the model reads that string and retries a gate that cannot succeed.

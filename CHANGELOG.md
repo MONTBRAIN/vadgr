@@ -24,7 +24,7 @@ Puts the native loop on the product's own run path. Before this, `POST /api/agen
 - **A gate with no terminal now says so.** The daemon has no stdin, so gates died on `EOF when reading a line` - a message about a file descriptor, not about the problem. It now says there is no interactive channel and to proceed or stop rather than retry.
 
 ### Notes
-- **No gate on the daemon can reach a human yet.** The default channel router is the CLI channel, which reads stdin the daemon does not have. Gates park correctly and reach nobody. The fix is a channel resolved by `POST /api/runs/{id}/respond`, which lands at `0.5.0`.
+- **No gate on the daemon can reach a human yet.** The default channel router is the CLI channel, which reads stdin the daemon does not have, so gates park correctly and reach nobody. The shipped `POST /api/runs/{id}/approve` does not close this: it takes no body, so it carries a verdict and never the answer `ask_user` and `propose_plan` need, and its resume path re-runs the whole project rather than continuing it. The channel lands at `0.5.0` against `POST /api/runs/{id}/respond`, which carries a verdict, a reason and an answer and resolves against the loop's own resume.
 - Agent creation is still CLI-bound: it runs forge generation, which spawns the configured provider as a subprocess, and a native provider cannot. A run may override the provider per trigger, which is the path the runbook exercises.
 - `/api/ws/runs/{run_id}` is deleted at `0.5.0`, when one socket survives. It has a live consumer today (`cli/stream.py`), so it was fixed rather than removed.
 
