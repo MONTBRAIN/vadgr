@@ -113,8 +113,8 @@ usually: the journal is the proof and the status is not, because a run ends
 together. Journals, frame captures and daemon logs go in the private repo - see
 [`../README.md`](../README.md).>
 
-`vadgr-docs/e2e_evidence/<version>/` - journals per run id, recorded frames,
-daemon logs, harnesses, and a `MANIFEST` of checksums.
+The private evidence repo, under `e2e_evidence/<version>/`: journals per run
+id, recorded frames, daemon logs, harnesses, and a `MANIFEST` of checksums.
 
 ## Findings
 

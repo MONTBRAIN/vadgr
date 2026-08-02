@@ -150,8 +150,8 @@ class AgentExecutor:
                 # Forwarded, not swallowed. The bridge maps the loop's checklist
                 # to this type and the phone renders a checklist from it, so an
                 # elif that does not exist here is a frame the phone can never
-                # receive - which is exactly what CONTRACT.md flagged as the
-                # reason the mockups draw a checklist the API cannot deliver.
+                # receive - which is the reason the mockups draw a checklist
+                # the API cannot deliver.
                 await callback("todos", {"items": event.data})
             elif event.type == "awaiting":
                 await callback("awaiting", {"prompt": event.data})

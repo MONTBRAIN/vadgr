@@ -90,9 +90,9 @@ curl.
 - **Resume counts only against a countable side effect that did not double.** A
   replayed run also ends `completed`, so "it finished after a restart" is not
   evidence of anything.
-- Every frame a client receives must be one `vadgr-docs/general/CONTRACT.md`
-  §2.5 names. A frame the phone has no case for is ignored silently, and the
-  feature looks broken with nothing failing.
+- Every frame a client receives must be one the published frame vocabulary
+  names. A frame the phone has no case for is ignored silently, and the feature
+  looks broken with nothing failing.
 - If neither a journal nor a transcript is available, the test is **not
   verified** — say so. Do not infer a pass.
 
@@ -125,8 +125,8 @@ cell - it is somebody else's cell.
 ## Enumerate the surface, never sample it
 
 Name the axes, multiply them, write the cell count, and fill every cell or state
-why it is open. `vadgr-docs/general/ENGINEERING.md` §1a is the rule; `E2E/0.4.0`
-is the worked example (110 cells).
+why it is open. That is the engineering standard; `E2E/0.4.0` is the worked
+example (110 cells).
 
 ## Per-OS, and the honest use of `Not-Needed`
 
@@ -149,8 +149,8 @@ channel branch per OS and were recorded as owed.
 
 This runbook carries the plan and the results. The machine-written artifacts
 behind them - run journals, recorded frames, daemon logs, the harnesses - go in
-`vadgr-docs/e2e_evidence/<version>/`, because they carry home paths, hostnames,
-ports and task prompts. The split is by content: a plan and a result are safe to
+the private evidence repo under `e2e_evidence/<version>/`, because they carry
+home paths, hostnames, ports and task prompts. The split is by content: a plan and a result are safe to
 publish, a machine's fingerprints are not.
 
 **Cite run ids here.** That is what ties the two together - a claim in this file
@@ -170,8 +170,7 @@ Finding one is the point. Root-cause it in the source citing `file:line` — a
 flaky environment is not a root cause until the code says so — fix it **on the
 same PR branch** with a test that fails without the fix, re-run that part, and
 record it as a numbered finding in the runbook. If the patch is released, add a
-row to `vadgr-docs/general/PATCHES.md` naming this runbook in the *found by*
-column.
+row to the patch log naming this runbook in the *found by* column.
 
 **Start from [`TEMPLATE.md`](TEMPLATE.md).** Every runbook has the same shape so
 a reader can find the verdict without learning a new document.

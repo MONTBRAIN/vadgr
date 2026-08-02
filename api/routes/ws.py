@@ -32,8 +32,8 @@ router = APIRouter()
 # for a human, so an approval could never reach the device that has to answer it.
 #
 # The fix is the mapping, not new frame types. `todos` has no member in
-# `RunEventType` and gets one at `0.5.0` when the contract enriches this stream
-# (`CONTRACT.md` §2.5); inventing it here would be a rename paid for twice.
+# `RunEventType` and gets one at `0.5.0`, when this stream's frames are
+# enriched; inventing it here would be a rename paid for twice.
 _EVENT_TYPE_MAP = {
     "run_started": RunEventType.STARTED,
     "agent_started": RunEventType.TOOL_CALL,
@@ -94,7 +94,7 @@ async def run_websocket(websocket: WebSocket, run_id: str):
 
     Both are fixed here. Auth matches `/stream`, and the socket is now
     send-only: answering a gate is `POST /api/runs/{id}/respond`, which is
-    authenticated, idempotent and auditable (`CONTRACT.md` §2.5). Loopback is
+    authenticated, idempotent and auditable. Loopback is
     trusted by gate 1, so the CLI still connects with no token.
 
     It is deleted outright at `0.5.0`, when one socket survives. Until then it
@@ -138,7 +138,7 @@ async def run_websocket(websocket: WebSocket, run_id: str):
             # Send-only. An `approval_response` used to be honoured here, which
             # made the socket a second way to answer a gate - with different
             # auth, no idempotency key, and no audit trail. Answering is
-            # `POST /api/runs/{id}/respond` and only that (`CONTRACT.md` §2.5).
+            # `POST /api/runs/{id}/respond` and only that.
             # Inbound frames are ignored rather than rejected, so an older
             # client that still sends one is not disconnected mid-run.
             if msg.get("type") == "approval_response":

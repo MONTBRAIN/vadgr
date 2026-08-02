@@ -58,7 +58,7 @@ class CLIChannel:
             # which says nothing about the actual problem. It is not that the
             # human declined - it is that nothing on this path can reach one.
             # The answer is an API channel resolved by `POST /api/runs/{id}/
-            # respond`, which ships at `0.5.0` (CONTRACT.md 2.4). Until then,
+            # respond`, which ships at `0.5.0`. Until then,
             # say so, because the model reads this string and a truthful one
             # lets it carry on rather than retry a gate that cannot succeed.
             raise RuntimeError(

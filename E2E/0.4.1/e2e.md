@@ -16,7 +16,7 @@ Format and verification rules: [`../README.md`](../README.md) and
 `E2E/0.4.0/e2e.md` drove the loop by importing it, and said plainly that this
 made it an acceptance test rather than an e2e, because the engine shipped as a
 library nothing called. From this patch there is a product path, so the bar is
-the one `ENGINEERING.md` §1a sets: drive the **real surfaces**.
+the one the engineering standard sets: drive the **real surfaces**.
 
 There are two and **neither substitutes for the other**:
 
@@ -64,7 +64,7 @@ gate that can park.
 | A6 | Terminal state | run ends `completed` | **pass** |
 | A7 | The WS carries the loop's events | frames on `/api/ws/runs/{id}` | **pass** |
 | A8 | The two dropped events never reach the socket | no `llm_response`/`tool_result` | **pass** |
-| A9 | Every frame emitted is one `CONTRACT.md` §2.5 names | no invented frame reaches the phone | **pass, after F10** |
+| A9 | Every frame emitted is one the published vocabulary names | no invented frame reaches the phone | **pass, after F10** |
 | A10 | The phone's stream carries the run, not just its ends | frames between `started` and `completed` | **fail -> F9, fixed** |
 | A11 | A declared checklist reaches the wire | a `todos` frame with parseable items | **fail -> F8, F10, fixed** |
 
@@ -72,7 +72,7 @@ gate that can park.
 against itself.** The bridge mapped the loop's checklist to a `todos` event and
 the executor's `if/elif` had no branch for it, so the frame died one layer below
 the bridge and the phone could never receive a checklist - exactly what
-`CONTRACT.md` predicted when it said the mockups draw one the API cannot
+the API reference predicted when it said the mockups draw one the API cannot
 deliver. The gate frame was also named `awaiting_approval` where the contract
 says `awaiting`, which would have been a rename paid for twice, once here and
 once in the client. Both fixed, and a test now asserts the bridge emits nothing
@@ -106,7 +106,7 @@ A8  "llm_response" as a frame type on either socket   0     (as a substring anyw
     "tool_result"  as a frame type on either socket   0     (as a substring anywhere in the capture: 0)
     model turns the journal records                   4     -> 4 llm_response events occurred, 0 reached the wire
     tool results the journal records                  4     -> 4 tool_result  events occurred, 0 reached the wire
-A9  raw frames not named by CONTRACT.md 2.5           none
+A9  raw frames outside the published vocabulary       none
     mobile frames outside RunEventType                none
 A11 todos payload is a list of dicts                  True
 ```
@@ -190,8 +190,8 @@ as parking at all.
 
 ## Evidence
 
-`vadgr-docs/e2e_evidence/0.4.1/` - eleven run journals keyed by the run ids this
-file cites, both socket captures either side of the F9 and F10 fixes, daemon
+The private evidence repo, under `e2e_evidence/0.4.1/`: eleven run journals
+keyed by the run ids this file cites, both socket captures either side of the F9 and F10 fixes, daemon
 logs, the two harnesses, and a `MANIFEST` of checksums. The failed runs are kept
 alongside the passing ones: `f9a7b824` is F8 in the product's own handwriting,
 and `f67cb5fe` is F11's park-then-EOF three milliseconds apart.
@@ -317,9 +317,9 @@ to answer it** - the gate layer's entire purpose, unreachable through a mapping
 table.
 
 `vadgr-mobile` has a `RunEventKind.toolCall` case for a frame the server never
-sends, which is `PLANS.md` D-58's dead control one layer down in the data.
+sends, which is the no-dead-controls rule's dead control one layer down in the data.
 
-Pre-existing rather than introduced here (`9b0883f`), and `CONTRACT.md` §2.5 had
+Pre-existing rather than introduced here (`9b0883f`), and the API reference had
 already flagged the `todos` corner of it - "the phone cannot receive this today".
 It is fixed here because this runbook is what turned a footnote about one frame
 into a measurement showing it was all of them. The fix is the mapping only; new
@@ -333,7 +333,7 @@ broadcasts, because nothing raises when a map names an event nobody sends.
 
 With F8 and F9 fixed the `todos` frame finally arrived - carrying
 `"[{'id': '1', 'content': ...}]"`. Single quotes. A `str()` of a list, which is
-not JSON and not the `{items:[{id,content,status}]}` `CONTRACT.md` §2.5 promises.
+not JSON and not the `{items:[{id,content,status}]}` the published payload shape promises.
 
 `ExecutionEvent.data` was annotated `str`, so `native_bridge.py` coerced the
 checklist to fit the field with the first coercion to hand.
@@ -368,8 +368,8 @@ answer" would be false. It fails on two specifics instead:
   mechanism that does the one thing the journal exists to prevent.
 
 `0.5.0`'s `POST /api/runs/{id}/respond` is shaped for this: a verdict, a reason
-and an answer, resolving against the loop's own resume. `CONTRACT.md` §3.1
-already has `respond` replacing `approve`, so this is the minor doing its job
+and an answer, resolving against the loop's own resume. `respond` already
+replaces `approve`, so this is the minor doing its job
 rather than a gap. Wiring the native loop into the deprecated route would be
 work deleted one minor later, and it would carry the replay in with it.
 

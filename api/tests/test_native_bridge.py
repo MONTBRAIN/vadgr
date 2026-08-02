@@ -74,11 +74,11 @@ def test_a_failed_tool_says_so():
     assert "error" in e.data
 
 
-def test_progress_and_todos_and_gates_use_the_contract_frame_names():
-    """The names are CONTRACT.md's, not ones invented here.
+def test_progress_and_todos_and_gates_use_the_published_frame_names():
+    """The names are the published ones, not ones invented here.
 
-    The phone codegens against the contract, so a frame named `awaiting_approval`
-    when the contract says `awaiting` is a rename someone pays for twice - once
+    The phone codegens against these names, so a frame named `awaiting_approval`
+    where the wire says `awaiting` is a rename someone pays for twice - once
     here and once in the client.
     """
     assert map_event({"type": "progress", "message": "reading"}).type == "output"
@@ -86,14 +86,14 @@ def test_progress_and_todos_and_gates_use_the_contract_frame_names():
     assert map_event({"type": "await_user", "prompt": "ok?"}).type == "awaiting"
 
 
-def test_the_frames_the_bridge_emits_are_all_in_the_contract():
+def test_the_bridge_emits_no_frame_outside_the_published_set():
     """Guards the seam in the direction that actually drifts.
 
     A frame this bridge invents reaches the socket and the phone has no case for
     it; the phone silently ignores it and the feature looks broken with nothing
-    failing. CONTRACT.md section 2.5 is the list.
+    failing. The published frame vocabulary is the list.
     """
-    contract_frames = {"output", "todos", "awaiting", "done", "error"}
+    published_frames = {"output", "todos", "awaiting", "done", "error"}
     emitted = set()
     for e in [
         {"type": "text", "text": "x"},
@@ -105,7 +105,7 @@ def test_the_frames_the_bridge_emits_are_all_in_the_contract():
         mapped = map_event(e)
         if mapped is not None:
             emitted.add(mapped.type)
-    assert emitted <= contract_frames, f"not in the contract: {emitted - contract_frames}"
+    assert emitted <= published_frames, f"not published: {emitted - published_frames}"
 
 
 @pytest.mark.parametrize("kind", ["llm_response", "tool_result"])
@@ -216,7 +216,7 @@ def test_the_checklist_reaches_the_wire_as_structure_not_a_repr():
     `ExecutionEvent.data` was annotated `str`, so the bridge coerced the
     checklist with `str()` and a phone received `"[{'id': '1', ...}]"` - a
     Python repr, single-quoted, not JSON and not the `{items:[{id,content,
-    status}]}` CONTRACT.md 2.5 promises. It was observed on the socket, because
+    status}]}` the frame vocabulary promises. It was seen on the socket, because
     a type assertion cannot see it.
     """
     items = [{"id": "1", "content": "step one", "status": "done"}]

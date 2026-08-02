@@ -11,7 +11,6 @@ because the two sides are opposite shapes:
 A queue is the join. Nothing downstream of the executor cares which shape
 produced an event, so everything below this file is untouched.
 
-Design: `vadgr-docs/design/phase-0-pre-alpha/vadgr/0.4.1/`.
 """
 
 from __future__ import annotations
@@ -57,14 +56,14 @@ def map_event(event: dict) -> ExecutionEvent | None:
         return ExecutionEvent(type="output", data=str(event.get("message", "")))
 
     if kind == "todos":
-        # Not str()-ed. The contract says `{items: [{id, content, status}]}`
-        # (CONTRACT.md 2.5) and a repr of a list is not that, nor is it JSON.
+        # Not str()-ed. A client is promised `{items: [{id, content, status}]}`
+        # and a repr of a list is neither that nor JSON.
         return ExecutionEvent(type="todos", data=event.get("todos", []) or [])
 
     if kind == "await_user":
         # Named for the contract's frame, not for one kind of gate: the loop
-        # parks for approvals, questions and plans, and CONTRACT.md calls all
-        # three `awaiting`.
+        # parks for approvals, questions and plans, and all three are
+        # `awaiting` on the wire.
         return ExecutionEvent(type="awaiting", data=str(event.get("prompt", "")))
 
     # llm_response, tool_result, and anything the loop grows later that this
@@ -101,7 +100,7 @@ class NativeLoopProvider:
         ``timeout`` is accepted and **ignored**: a native run has no wall-clock
         deadline. What bounds an unattended run is the gate layer and
         `max_iterations`, not a stopwatch, and the phase-0 gate is one real batch
-        completing over hours (`PLANS.md` D-55). The parameter stays in the
+        completing over hours. The parameter stays in the
         signature only because the executor passes it positionally to every
         provider.
         """

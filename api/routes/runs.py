@@ -22,16 +22,39 @@ def _not_found(run_id: str):
     )
 
 
+def _could_be_a_path(value: str) -> bool:
+    """Whether a value is worth testing against the filesystem at all.
+
+    An output field holds whatever the run produced, and since the native loop
+    that is usually the model's prose. Handing that to `Path.resolve()` raises
+    `OSError: [Errno 36] File name too long` the moment it passes NAME_MAX (255
+    bytes) - which a sentence of prose does - and the endpoint answered `500`
+    with FastAPI's bare body. This route has exactly two outcomes, the bytes
+    or `404 NOT_FOUND`, and `500` is not one of them.
+    """
+    return bool(value) and len(value.encode()) < 255 and "\n" not in value
+
+
 def _resolve_output_path(forge_path: str, value: str) -> Path | None:
+    if not _could_be_a_path(value):
+        return None
+
     candidates = []
     if forge_path:
         candidates.append(_PROJECT_ROOT / forge_path / value)
     candidates.append(_PROJECT_ROOT / value)
 
     for path in candidates:
-        resolved = path.resolve()
-        if _PROJECT_ROOT.resolve() in resolved.parents and resolved.is_file():
-            return resolved
+        try:
+            resolved = path.resolve()
+            if _PROJECT_ROOT.resolve() in resolved.parents and resolved.is_file():
+                return resolved
+        except (OSError, ValueError):
+            # A value that cannot be a path is not an error, it is text. The
+            # length check above catches the common case; this catches the rest
+            # (NUL bytes, a component over NAME_MAX) without a second guess at
+            # which errno each platform raises.
+            continue
     return None
 
 
