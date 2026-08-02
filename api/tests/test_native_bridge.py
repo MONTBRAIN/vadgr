@@ -73,10 +73,38 @@ def test_a_failed_tool_says_so():
     assert "error" in e.data
 
 
-def test_progress_and_todos_and_gates_are_forwarded():
+def test_progress_and_todos_and_gates_use_the_contract_frame_names():
+    """The names are CONTRACT.md's, not ones invented here.
+
+    The phone codegens against the contract, so a frame named `awaiting_approval`
+    when the contract says `awaiting` is a rename someone pays for twice - once
+    here and once in the client.
+    """
     assert map_event({"type": "progress", "message": "reading"}).type == "output"
     assert map_event({"type": "todos", "todos": [{"id": "1"}]}).type == "todos"
-    assert map_event({"type": "await_user", "prompt": "ok?"}).type == "awaiting_approval"
+    assert map_event({"type": "await_user", "prompt": "ok?"}).type == "awaiting"
+
+
+def test_the_frames_the_bridge_emits_are_all_in_the_contract():
+    """Guards the seam in the direction that actually drifts.
+
+    A frame this bridge invents reaches the socket and the phone has no case for
+    it; the phone silently ignores it and the feature looks broken with nothing
+    failing. CONTRACT.md section 2.5 is the list.
+    """
+    contract_frames = {"output", "todos", "awaiting", "done", "error"}
+    emitted = set()
+    for e in [
+        {"type": "text", "text": "x"},
+        {"type": "tool_call_complete", "tool_use": {"name": "t"}, "result": {}},
+        {"type": "progress", "message": "m"},
+        {"type": "todos", "todos": []},
+        {"type": "await_user", "prompt": "p"},
+    ]:
+        mapped = map_event(e)
+        if mapped is not None:
+            emitted.add(mapped.type)
+    assert emitted <= contract_frames, f"not in the contract: {emitted - contract_frames}"
 
 
 @pytest.mark.parametrize("kind", ["llm_response", "tool_result"])

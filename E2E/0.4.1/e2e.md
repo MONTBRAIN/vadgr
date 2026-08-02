@@ -42,6 +42,17 @@ That is the finding worth carrying: a seam is exactly where unit tests stop.
 | A6 | Terminal state | run ends `completed` | **pass** |
 | A7 | The WS carries the loop's events | frames on `/api/ws/runs/{id}` | not run |
 | A8 | The two dropped events never reach the socket | no `llm_response`/`tool_result` | not run |
+| A9 | Every frame emitted is one `CONTRACT.md` §2.5 names | no invented frame reaches the phone | **pass** (unit) |
+
+**A9 was a real gap, found by checking the code against the contract rather than
+against itself.** The bridge mapped the loop's checklist to a `todos` event and
+the executor's `if/elif` had no branch for it, so the frame died one layer below
+the bridge and the phone could never receive a checklist - exactly what
+`CONTRACT.md` predicted when it said the mockups draw one the API cannot
+deliver. The gate frame was also named `awaiting_approval` where the contract
+says `awaiting`, which would have been a rename paid for twice, once here and
+once in the client. Both fixed, and a test now asserts the bridge emits nothing
+the contract does not name.
 
 **Measured (A3-A6).** `POST /api/agents/{id}/run` with
 `{"provider":"anthropic_oauth","model":"claude-opus-5"}`:

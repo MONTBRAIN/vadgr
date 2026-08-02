@@ -60,9 +60,10 @@ def map_event(event: dict) -> ExecutionEvent | None:
         return ExecutionEvent(type="todos", data=str(event.get("todos", [])))
 
     if kind == "await_user":
-        return ExecutionEvent(
-            type="awaiting_approval", data=str(event.get("prompt", ""))
-        )
+        # Named for the contract's frame, not for one kind of gate: the loop
+        # parks for approvals, questions and plans, and CONTRACT.md calls all
+        # three `awaiting`.
+        return ExecutionEvent(type="awaiting", data=str(event.get("prompt", "")))
 
     # llm_response, tool_result, and anything the loop grows later that this
     # bridge has not been taught: dropped rather than forwarded blind, because
