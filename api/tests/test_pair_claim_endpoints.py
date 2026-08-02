@@ -36,7 +36,7 @@ async def test_pair_refuses_when_transport_cannot_advertise(client):
     # Default test transport is loopback -> advertise_host() is None.
     resp = await client.post("/api/auth/pair")
     assert resp.status_code == 503
-    assert resp.json()["error"]["code"] == "TRANSPORT_UNAVAILABLE"
+    assert resp.json()["error"]["code"] == "TRANSPORT_UNREACHABLE"
 
 
 @pytest.mark.asyncio
@@ -95,7 +95,7 @@ async def test_pairing_token_is_one_time(app, client):
         json={"pairing_token": pairing_token, "device_name": "B"},
     )
     assert second.status_code == 401
-    assert second.json()["error"]["code"] == "INVALID_PAIRING_TOKEN"
+    assert second.json()["error"]["code"] == "PAIRING_CODE_INVALID"
 
 
 @pytest.mark.asyncio
@@ -126,3 +126,59 @@ async def test_revoke_device(app, client):
 
     missing = await client.delete("/api/devices/does-not-exist")
     assert missing.status_code == 404
+
+
+# --- the codes a client switches on (E2E 0.4.1 F13) -------------------------
+
+
+def test_an_expired_code_is_410_and_says_so_not_401():
+    """Expired and invalid are different recoveries for the owner.
+
+    One means "ask the machine for a new code", the other means "you typed it
+    wrong". They were both `401 INVALID_PAIRING_TOKEN`, so the phone could only
+    offer one of the two.
+    """
+    from api.auth.pairing_store import PairingStore, ClaimResult
+
+    store = PairingStore(ttl_seconds=0)          # mints already-expired codes
+    token, _ = store.mint()
+    assert store.redeem(token) is ClaimResult.EXPIRED
+
+
+def test_an_unknown_or_reused_code_is_invalid_not_expired():
+    from api.auth.pairing_store import PairingStore, ClaimResult
+
+    store = PairingStore()
+    token, _ = store.mint()
+    assert store.redeem(token) is ClaimResult.OK
+    assert store.redeem(token) is ClaimResult.INVALID     # one-time
+    assert store.redeem("never-minted") is ClaimResult.INVALID
+
+
+def test_redeeming_one_code_does_not_change_another_code_s_verdict():
+    """The sweep used to run on redeem, so looking up one token purged every
+    other expired one and turned their verdict from EXPIRED into INVALID - the
+    distinction existed and did not survive being asked for. Sweeping happens on
+    mint instead, which is the only moment the store grows."""
+    from api.auth.pairing_store import PairingStore, ClaimResult
+
+    store = PairingStore(ttl_seconds=0)
+    a, _ = store.mint()
+    b, _ = store.mint()          # mint may sweep a; that is deliberate
+    live, _ = PairingStore().mint()
+
+    assert store.redeem(b) is ClaimResult.EXPIRED
+    # b's lookup must not have disturbed anything else still held
+    assert store.size() == 0 or store.redeem(a) is ClaimResult.EXPIRED
+    assert live is not None
+
+
+def test_a_code_left_to_expire_reports_expired_not_unknown():
+    """The real case: a code is minted, nobody mints another, the owner claims
+    it late. It is still held, so the answer is EXPIRED and the phone can say
+    "ask for a new one"."""
+    from api.auth.pairing_store import PairingStore, ClaimResult
+
+    store = PairingStore(ttl_seconds=0)
+    token, _ = store.mint()
+    assert store.redeem(token) is ClaimResult.EXPIRED

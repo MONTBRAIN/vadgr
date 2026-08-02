@@ -6,6 +6,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
 from api.auth import tokens
+from api.auth.pairing_store import ClaimResult
 from api.config import settings
 from api.models.auth import ClaimRequest, ClaimResponse, PairResponse
 
@@ -32,7 +33,7 @@ async def pair(request: Request):
             status_code=503,
             content={
                 "error": {
-                    "code": "TRANSPORT_UNAVAILABLE",
+                    "code": "TRANSPORT_UNREACHABLE",
                     "message": (
                         "Transport cannot advertise a reachable address. Enable "
                         "Tailscale (VADGR_TRANSPORT=tailscale) to pair over your tailnet."
@@ -56,14 +57,27 @@ async def claim(body: ClaimRequest, request: Request):
     """Redeem a pairing token (one-time) for a persistent device token.
 
     The plaintext token is returned exactly once; only its hash is stored."""
-    consumed = request.app.state.pairing_store.consume(body.pairing_token)
-    if not consumed:
+    result = request.app.state.pairing_store.redeem(body.pairing_token)
+    if result is ClaimResult.EXPIRED:
+        # 410 rather than 401, and the split is the point: the phone tells the
+        # owner to ask for a new code instead of that they mistyped this one.
+        return JSONResponse(
+            status_code=410,
+            content={
+                "error": {
+                    "code": "PAIRING_CODE_EXPIRED",
+                    "message": "That pairing code has expired. Generate a new one on the machine.",
+                    "details": {},
+                }
+            },
+        )
+    if result is not ClaimResult.OK:
         return JSONResponse(
             status_code=401,
             content={
                 "error": {
-                    "code": "INVALID_PAIRING_TOKEN",
-                    "message": "Pairing token is invalid, already used, or expired.",
+                    "code": "PAIRING_CODE_INVALID",
+                    "message": "That pairing code is wrong or has already been used.",
                     "details": {},
                 }
             },

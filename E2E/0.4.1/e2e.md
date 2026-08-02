@@ -6,10 +6,13 @@ Format and verification rules: [`../README.md`](../README.md) and
 [`../TEMPLATE.md`](../TEMPLATE.md).
 
 > **Status: run on WSL, 2026-08-02. Parts A and B pass end to end, and C clause 1 with them.**
-> Automated gate green (engine 122, api 542). Part C's gate-park path and Part D
-> are **not testable at this minor** and have moved to the runbooks that can run
-> them. **Eleven defects found, all by this runbook and none by the unit tests**,
-> which is the entire argument for running it before review.
+> Automated gate green (engine 122, api 548). **Every published endpoint that is
+> shipped was driven and is in the coverage table below**, along with the ten
+> that are not yet built and answered `404`/`405` as they should. Part C's
+> gate-park path and Part D are **not testable at this minor** and have moved to
+> the runbooks that can run them. **Thirteen defects found, all by this runbook
+> and none by the unit tests**, which is the entire argument for running it
+> before review.
 
 ## This is where `E2E/0.4.0`'s scope exception expires
 
@@ -51,6 +54,59 @@ exists to break: an open cell has to keep meaning "runnable, not yet run".
 Resume itself is **not** deferred - clause 1 (a clean journal is correctly
 unresumable) is proven below. It is clause 2, the dangling record, that needs a
 gate that can park.
+
+## Surface coverage - every published endpoint, and its verdict
+
+The findings below say what broke. This says what was **checked**, which is the
+question a table of findings cannot answer. Every endpoint the published
+reference lists as shipped, driven live on WSL against the daemon on `8791`:
+
+| endpoint | exercised | status | error code | verdict |
+|---|---|---|---|---|
+| `GET /api/health` | CLI and curl | `200` | - | **pass** - status, version, modules |
+| `GET /api/providers` | curl | `200` | - | **pass** - `anthropic_oauth` available, catalogue current |
+| `GET /api/devices` | curl | `200` | - | **pass** - `[]`, no device paired |
+| `DELETE /api/devices/{id}` | unknown id | `404` | `DEVICE_NOT_FOUND` | **pass** |
+| `POST /api/auth/pair` | loopback transport | `503` | `TRANSPORT_UNREACHABLE` | **pass, after F13** - correct refusal: a `127.0.0.1` QR is useless to a phone |
+| `POST /api/auth/claim` | wrong code | `401` | `PAIRING_CODE_INVALID` | **pass, after F13** |
+| `POST /api/agents/{id}/run` | 6 runs, native provider | `202` | - | **pass** - reaches the loop, journal at the API's own run id |
+| `GET /api/runs` | CLI `runs list` and curl | `200` | - | **pass** |
+| `GET /api/runs/{id}` | curl | `200` | - | **pass** - terminal status |
+| `GET /api/runs/{id}` | unknown id | `404` | `RUN_NOT_FOUND` | **pass** |
+| `GET /api/runs/{id}/outputs/{f}` | prose output | `200` | - | **fail -> F12, fixed.** Was `500` |
+| `GET /api/runs/{id}/outputs/{f}` | unknown field | `404` | `OUTPUT_NOT_FOUND` | **pass** |
+| `POST /api/runs/{id}/cancel` | finished run | `409` | `RUN_NOT_ACTIVE` | **pass** - refuses, with the envelope |
+| `POST /api/runs/{id}/resume` | completed run | `409` | `RUN_NOT_RESUMABLE` | **pass** |
+| `WS /api/runs/{id}/stream` | recorded, whole run | - | - | **fail -> F9, fixed.** 2 frames, then 11 |
+| `WS /api/ws/runs/{id}` | recorded, whole run | - | - | **pass, after F7** - authed, send-only, loopback tokenless |
+
+**Codes are the contract; messages are prose.** Every negative case above was
+checked on its `code`, not its sentence: a client switches on one and shows the
+other, so a wrong code is a divergence even when the status is right. F13 is
+exactly that failure - two right statuses carrying two wrong codes.
+
+**Not yet built, and correctly absent.** Probed anyway, because a future
+endpoint answering something other than `404`/`405` means it was half-wired,
+which is the state nobody notices until a client calls it:
+
+| endpoint | minor | observed |
+|---|---|---|
+| `GET /api/machine` | `0.5.0` | `404` |
+| `PATCH /api/machine` | `0.6.0` | `404` |
+| `POST /api/runs` | `0.5.0` | `405` |
+| `POST /api/runs/{id}/pause` | `0.5.0` | `404` |
+| `POST /api/runs/{id}/respond` | `0.5.0` | `404` |
+| `GET /api/runs/{id}/journal` | `0.5.0` | `404` |
+| `POST /api/runs/{id}/messages` | `0.6.0` | `404` |
+| `GET /api/threads` | `0.6.0` | `404` |
+| `GET /api/approvals` | `0.7.0` | `404` |
+| `PUT /api/devices/{id}/push_token` | `0.7.0` | `404` |
+
+All ten absent, none half-wired.
+
+**One endpoint is deliberately still here**: `POST /api/agents/{id}/run` is
+replaced by `POST /api/runs {task}` at `0.5.0`. It is the path this minor wires
+the loop onto, so it is tested as shipped rather than as deprecated.
 
 ## Part A: the API path
 
@@ -382,6 +438,59 @@ It does not block `0.4.1`, whose claim is that a run reaches the native loop.
 It does block calling the gate layer usable from the product, and Part C clause 2
 with it.
 
+### F12 (fixed): an output field of prose answered `500`
+
+`GET /api/runs/{id}/outputs/{field}` hands the output value to `Path.resolve()`
+to see whether it names a file on disk. An output field holds whatever the run
+produced, and since the native loop that is usually the model's prose - so past
+`NAME_MAX` (255 bytes) `resolve()` raised `OSError: File name too long` and the
+route answered `500` with FastAPI's bare body.
+
+This route has exactly two outcomes, the artifact bytes or `404`, so `500` is
+not one of them. It was broken for **essentially every free-text output**, which
+is the common case on this path and became the common case *because* of this
+minor: before the native loop, outputs were file paths from forge generation.
+
+Values that cannot be a path are treated as text, and `resolve()` is guarded for
+what the length check does not cover. The test uses the actual 438-byte output
+that caused it, taken from run `4abb32cf`'s journal.
+
+Found by probing the published surface rather than by a run, which is the
+argument for the coverage table above existing at all: no runbook cell pointed
+at this endpoint, and no unit test called it with a realistic value.
+
+### F13 (fixed): two right statuses carrying two wrong codes
+
+Pairing refused correctly and named itself wrongly:
+
+| | returned | published |
+|---|---|---|
+| loopback transport | `503 TRANSPORT_UNAVAILABLE` | `503 TRANSPORT_UNREACHABLE` |
+| bad pairing code | `401 INVALID_PAIRING_TOKEN` | `401 PAIRING_CODE_INVALID` |
+
+**Codes are the contract; messages are prose.** A client switches on the code
+and shows the message, so a wrong code is a live divergence even though both
+statuses were right and both messages were sensible. The phone codegens that
+switch, and this is the **first-run flow** - the one screen every owner sees.
+
+A third gap came with it. The published errors distinguish `410
+PAIRING_CODE_EXPIRED` from `401 PAIRING_CODE_INVALID`, and the reason is
+written down: the phone tells the owner to ask for a new code rather than that
+they mistyped this one. `PairingStore.consume()` returned a bare `bool`, so the
+two collapsed. It now returns a reason, and the route answers `410`.
+
+Fixing that surfaced a second-order bug **in the fix**, caught by its own test:
+the store swept expired tokens *before* the lookup, so redeeming any token
+purged every other expired one and turned their verdict from expired into
+unknown. The distinction existed and did not survive being asked for. Sweeping
+moved to `mint()`, the only moment the store grows.
+
+Still absent: `429 RATE_LIMITED` on both pairing routes. The store has no
+attempt counter, so the published five-attempt burn is unimplemented. Low risk -
+an 8-character Crockford base32 code inside a five-minute window is not
+practically guessable over HTTP - but it is specified behaviour that does not
+exist, so it is named here rather than discovered later.
+
 ## Per-OS results
 
 Legend: pass / fail / blocked / not run / **Not-Needed** (no OS-specific
@@ -391,6 +500,7 @@ surface, so a run there adds no signal - always with its reason).
 |---|---|---|---|---|
 | Part A (the API path) | Not-Needed | Not-Needed | Not-Needed | **pass** |
 | Part B (the CLI path) | Not-Needed | Not-Needed | Not-Needed | **pass** |
+| Surface coverage (every shipped endpoint) | Not-Needed | Not-Needed | Not-Needed | **pass** |
 | Part C clause 1 (a clean journal) | **owed** | **owed** | **owed** | **pass** |
 | Part C clause 2 (a dangling record) | moved to `0.5.0` | moved to `0.5.0` | moved to `0.5.0` | moved to `0.5.0` |
 | Overall | Not-Needed except C1 | Not-Needed except C1 | Not-Needed except C1 | **A, B, C1 pass** |

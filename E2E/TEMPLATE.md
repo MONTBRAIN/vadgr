@@ -89,6 +89,36 @@ reduction reads as full coverage.>
 | <A> | <axis x axis> | N | N | N |
 | | | **N** | **N** | **N** |
 
+## Surface coverage - **every published endpoint, and its verdict**
+
+<This section is not optional and it is not a summary. The published API
+reference is the list of what the product promises; this table is the answer to
+"was it tested". A runbook that shows findings but not coverage cannot be read
+as "we checked", only as "we found things".>
+
+<One row per endpoint the reference says is **shipped**. Future-minor endpoints
+go in the second table so a reader can see they were considered and why they are
+absent - silence reads as an oversight.>
+
+| endpoint | exercised | status | error code | verdict |
+|---|---|---|---|---|
+| `GET /api/...` | how it was driven | `200` | - | **pass** |
+| `POST /api/...` | negative case | `409` | `CODE_HERE` | **pass** |
+
+**Codes are the contract; messages are prose.** Assert the `code`, never the
+sentence - a client switches on one and shows the other. A wrong code is a
+divergence even when the status is right, because the phone codegens the switch.
+
+**Not yet built, and correctly absent:**
+
+| endpoint | minor | observed |
+|---|---|---|
+| `POST /api/...` | `0.x.0` | `404` |
+
+<Probing these is worth the thirty seconds: a future endpoint answering anything
+other than 404/405 means something was half-wired, and that is exactly the state
+nobody notices until a client calls it.>
+
 ## Part <X>: <what it proves>
 
 | # | What | Expected | Status |
