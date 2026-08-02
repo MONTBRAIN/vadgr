@@ -2,6 +2,9 @@
 
 Validation that a run **triggered through the product** reaches the native loop.
 
+Format and verification rules: [`../README.md`](../README.md) and
+[`../TEMPLATE.md`](../TEMPLATE.md).
+
 > **Status: run on WSL, 2026-08-02. Parts A and B pass end to end.**
 > Automated gate green (engine 118, api 539). Part C is blocked on the harness
 > and says how; D is deferred to the spike. **Seven defects found, all by this
@@ -205,6 +208,33 @@ authenticates exactly as `/stream` does and is **send-only**; answering is
 `POST /api/runs/{id}/respond`, which is authenticated, idempotent and auditable.
 The route is still deleted at `0.5.0` - it has a live consumer today (the CLI,
 `cli/stream.py`), and B3 proves the fix did not break it.
+
+## Per-OS results
+
+Legend: pass / fail / blocked / not run / **Not-Needed** (no OS-specific
+surface, so a run there adds no signal - always with its reason).
+
+| | Linux | macOS | Windows native | WSL |
+|---|---|---|---|---|
+| Part A (the API path) | Not-Needed | Not-Needed | Not-Needed | **pass** |
+| Part B (the CLI path) | Not-Needed | Not-Needed | Not-Needed | **pass** |
+| Part C (resume) | **owed** | **owed** | **owed** | **attempted, unproven** |
+| Part D (the timeout) | Not-Needed | Not-Needed | Not-Needed | not run |
+| Overall | Not-Needed except C | Not-Needed except C | Not-Needed except C | **A, B pass; C open** |
+
+**A, B and D are `Not-Needed` elsewhere**: the bridge is a queue and a mapping
+table, provider selection reads a YAML key, and the timeout is a parameter that
+is not passed. Pure Python, no socket, pipe, path, registry or process
+branching, and no per-OS dependency - the other three OSes **cannot** behave
+differently.
+
+**Part C is owed on every OS**, and that is the one row that is not an
+excuse. Resume reads `~/.vadgr/runs/` and turns on the daemon dying and being
+restarted, which is filesystem behaviour plus process lifecycle - the two things
+that genuinely differ across platforms. A journal path resolves differently on
+Windows, and what a killed process leaves half-written is not the same on NTFS
+as on ext4. It cannot be reasoned about from a WSL run, so it is owed rather
+than `Not-Needed`.
 
 ## What this runbook cannot prove yet
 
