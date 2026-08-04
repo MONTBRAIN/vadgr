@@ -696,6 +696,14 @@ gets its own 1.5s budget rather than sharing the request's 15s.
 
 **15.2s -> 1.64s**, same message, same exit `3`. The live path is unchanged.
 
+**The probe is loopback-with-an-explicit-port only, and that restriction is the
+important half.** It runs before every request, so a probe that can fail where
+the request would have succeeded is worse than the delay it removes. Two ways a
+broader one does exactly that: `FORGE_API_URL` can name an `https://` host with
+no port, where `port or 80` tests 80 while the request goes to 443 and reports a
+live machine as down; and a tailnet host being slow is normal for it rather than
+a reason to fail early. It may only make the answer faster, never change it.
+
 Found by a subagent running the sweep, which noticed the negative CLI case
 dominating wall time - a detail no assertion was looking at, because every
 status and exit code was already correct.
@@ -712,6 +720,7 @@ surface, so a run there adds no signal - always with its reason).
 | Surface coverage (every shipped endpoint) | Not-Needed | Not-Needed | Not-Needed | **pass** |
 | The CLI's exit codes | **owed** | **owed** | **owed** | **pass** |
 | The unreachable-daemon probe (F17) | **owed** | **owed** | **owed** | **pass** |
+| The CLI still reaching a live daemon at all | **owed** | **owed** | **owed** | **pass** |
 | Part C clause 1 (a clean journal) | **owed** | **owed** | **owed** | **pass** |
 | Part C clause 2 (a dangling record) | moved to `0.5.0` | moved to `0.5.0` | moved to `0.5.0` | moved to `0.5.0` |
 | Overall | Not-Needed except C1 | Not-Needed except C1 | Not-Needed except C1 | **A, B, C1 pass** |
@@ -721,6 +730,17 @@ table, provider selection reads a YAML key, and the timeout is a parameter that
 is not passed. Pure Python, no socket, pipe, path, registry or process
 branching, and no per-OS dependency - the other three OSes **cannot** behave
 differently.
+
+**The two CLI rows are owed because `0.4.1` put a socket call in front of every
+request.** F17's probe is cheap and it is new, and its whole job is to answer
+before the OS would. That makes it the one change here whose failure mode is
+platform-shaped: if `socket.create_connection` to loopback behaves differently
+on Windows native than it does here, **every** CLI command reports a daemon that
+is running as down. It is guarded - loopback with an explicit port only - and
+the guard is unit-tested, but the guard is reasoning and a run is evidence.
+
+`vadgr health` and `vadgr runs list` against a live daemon on each OS is the
+whole check, and it takes a minute.
 
 **Part C clause 1 is owed on every OS**, and that is the one row that is not an
 excuse. Resume reads `~/.vadgr/runs/` and turns on the daemon dying and being

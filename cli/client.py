@@ -30,13 +30,14 @@ def _request(ctx: click.Context, method: str, path: str, body: dict | None = Non
     headers = {"Content-Type": "application/json", "Accept": "application/json"}
 
     # Cheap reachability probe before the request, so a down daemon is answered
-    # in milliseconds rather than after the request timeout. See `_port_is_open`
-    # for why the OS does not always do this for us.
-    parsed = urllib.parse.urlparse(_base_url(ctx))
-    if parsed.hostname and not _port_is_open(parsed.hostname, parsed.port or 80):
-        raise DaemonUnreachable(
-            f"API is not running at {_base_url(ctx)}. Start it with: vadgr start"
-        )
+    # in milliseconds rather than after the request timeout. Loopback only, on
+    # purpose - see `_should_probe`.
+    if _should_probe(_base_url(ctx)):
+        parsed = urllib.parse.urlparse(_base_url(ctx))
+        if not _port_is_open(parsed.hostname, parsed.port):
+            raise DaemonUnreachable(
+                f"API is not running at {_base_url(ctx)}. Start it with: vadgr start"
+            )
 
     req = urllib.request.Request(url, data=data if method != "GET" else None, headers=headers, method=method)
     try:
@@ -103,6 +104,26 @@ def api_put(ctx: click.Context, path: str, body: dict | None = None,
 
 def api_delete(ctx: click.Context, path: str) -> dict | list:
     return _request(ctx, "DELETE", path)
+
+
+_LOOPBACK_HOSTS = frozenset({"127.0.0.1", "localhost", "::1"})
+
+
+def _should_probe(base_url: str) -> bool:
+    """Whether the pre-request reachability probe applies to this URL.
+
+    **Loopback with an explicit port, and nothing else.** The probe exists for
+    the local daemon, and it is only ever allowed to make the answer *faster* -
+    never to invent a failure the request itself would not have hit.
+
+    Two ways a broader probe would do exactly that. `--api-url`/`FORGE_API_URL`
+    can point at an `https://` host with no port, where `port or 80` would test
+    80 while the request goes to 443 and report a live machine as down. And a
+    remote host over a tailnet can be reachable-but-slow, which is a normal
+    state for it and not one to fail early on.
+    """
+    parsed = urllib.parse.urlparse(base_url)
+    return bool(parsed.port) and parsed.hostname in _LOOPBACK_HOSTS
 
 
 def _port_is_open(host: str, port: int) -> bool:

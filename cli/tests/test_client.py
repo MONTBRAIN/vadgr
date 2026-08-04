@@ -60,3 +60,22 @@ def test_a_closed_port_is_detected_without_waiting_for_the_request_timeout():
     assert _port_is_open("127.0.0.1", 9) is False
     elapsed = time.time() - start
     assert elapsed < _TIMEOUT / 2, f"took {elapsed:.1f}s; the point is not to wait"
+
+
+def test_the_probe_never_invents_a_failure_the_request_would_not_have_hit():
+    """It may only make the answer faster, never change it.
+
+    `FORGE_API_URL` can name an `https://` host with no port, where a naive
+    `port or 80` would test 80 while the request goes to 443 - reporting a live
+    machine as down. And a tailnet host being slow is normal for it, not a
+    reason to fail before trying.
+    """
+    from cli.client import _should_probe
+
+    assert _should_probe("http://127.0.0.1:8791") is True
+    assert _should_probe("http://localhost:8791") is True
+
+    assert _should_probe("https://machine.tail1234.ts.net") is False   # no port; 443, not 80
+    assert _should_probe("https://machine.tail1234.ts.net:8347") is False  # remote
+    assert _should_probe("http://100.64.0.7:8347") is False               # remote
+    assert _should_probe("http://127.0.0.1") is False                     # no explicit port
