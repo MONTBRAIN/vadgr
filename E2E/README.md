@@ -58,8 +58,11 @@ by the agent's summary.
 
 ## Driving a runbook with a subagent
 
-One at a time, never in parallel. Goal-level task; the agent chooses its own
-calls. Tee the stream so the verdict is reconstructable:
+One at a time **while they share a daemon** - two agents on one daemon read each
+other's runs, and neither verdict means anything. Give each its own port,
+database and daemon and they can run together; that is exactly what the
+three-pass close below does. Goal-level task; the agent chooses its own calls.
+Tee the stream so the verdict is reconstructable:
 
 ```bash
 claude --dangerously-skip-permissions \
@@ -144,6 +147,42 @@ store, binds a port or draws native UI is **owed** on each OS, not excused. The
 `0.4.0` runbook is the worked example of both: the loop and its tools are pure
 Python and were `Not-Needed`, while OAuth token resolution and the desktop
 channel branch per OS and were recorded as owed.
+
+## Closing a runbook: three independent passes, three agents
+
+A runbook is not finished on one green pass. Close it with **three separate
+agents running the sweep concurrently**, each with **its own port, its own
+database and its own daemon process**.
+
+That is not a contradiction of "one at a time, never in parallel" above. That
+rule exists to stop two agents sharing a daemon and reading each other's runs;
+give each its own and the reason for it is gone. What concurrency then buys is
+real: it rules out ordering effects and cross-run interference, which serial
+repeats cannot.
+
+**Compare them structurally**, normalising only the run id and the agent id:
+
+- every HTTP entry on method, path, status and **error code**
+- every CLI entry on argv, exit code and whether output was produced
+- the frame type counts on each socket
+
+**Then read the token counts, and expect them to disagree in one direction.**
+Input should be identical across all three - the prompt and tool schemas are
+fixed, so the input size cannot move. Output should differ, because a model's
+prose is not deterministic. **Three identical output counts are a warning**:
+they suggest a cached or shared result rather than three real calls. `0.4.1`
+came back 2981 in on every run, and 81 / 83 / 85 out.
+
+**Ask each agent what looked odd, not only whether its steps passed.** Every
+status and exit code in `0.4.1`'s sweep was already correct when an agent
+noticed the single unreachable-daemon case taking 15.2s against 0.1-0.8s for
+every live call. No assertion could have caught it; nothing was asserting on
+duration.
+
+Practical: make the harness take the port as an argument rather than hard-coding
+it, give each agent a work dir and the exact commands, and tell each to kill
+**only its own** daemon by pid. A blanket `pkill uvicorn` takes the other two
+runs down mid-flight.
 
 ## Coverage is a table, and it is generated
 

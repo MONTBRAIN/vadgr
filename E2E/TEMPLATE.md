@@ -160,6 +160,30 @@ evidence is a claim.>
 usually: the journal is the proof and the status is not, because a run ends
 `completed` on the legacy path too.>
 
+## Repeatability - **three independent passes**
+
+<Three agents, concurrently, each with its own port, database and daemon. See
+[`../README.md`](../README.md) for why isolation is what makes that safe, and
+for what to compare.>
+
+| | <port> | <port> | <port> |
+|---|---|---|---|
+| run | | | |
+| HTTP entries | | | |
+| CLI entries | | | |
+| raw / mobile frames | | | |
+| journal phases | | | |
+| tokens in / out | | | |
+
+<State explicitly what was diffed and that it matched: method/path/status/code,
+argv/exit/output, frame counts - normalising only the run and agent ids.>
+
+<**Input tokens should match; output tokens should differ.** Say so either way.
+Three identical output counts are a warning that one result was reused, not
+evidence of stability.>
+
+<Anything an agent found odd that no assertion covered goes here or in Findings.>
+
 ## Evidence
 
 <Where the artifacts for this runbook live, and the run ids that tie the two
