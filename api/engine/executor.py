@@ -134,6 +134,11 @@ class AgentExecutor:
             workspace=workspace,
             timeout=timeout,
             use_stream_json=can_stream,
+            # The native loop names its journal after this. Without it the loop
+            # mints its own id and the journal cannot be tied back to the run -
+            # which also breaks resume, since resume-on-boot finds a journal by
+            # id and then has to look that run up.
+            run_id=run_id,
         ):
             if event.type == "output":
                 if can_stream:
@@ -141,6 +146,15 @@ class AgentExecutor:
                         "agent_id": agent["id"],
                         "message": event.data,
                     })
+            elif event.type == "todos":
+                # Forwarded, not swallowed. The bridge maps the loop's checklist
+                # to this type and the phone renders a checklist from it, so an
+                # elif that does not exist here is a frame the phone can never
+                # receive - which is the reason the mockups draw a checklist
+                # the API cannot deliver.
+                await callback("todos", {"items": event.data})
+            elif event.type == "awaiting":
+                await callback("awaiting", {"prompt": event.data})
             elif event.type == "done":
                 collected_output = event.data
             elif event.type == "error":

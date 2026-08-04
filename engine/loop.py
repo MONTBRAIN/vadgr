@@ -34,6 +34,52 @@ class Usage:
     output_tokens: int = 0
 
 
+def _short(value: Any, limit: int = 200) -> str:
+    """A tool result as one readable line. A screenshot becomes its own length,
+    not its base64."""
+    text = str(value)
+    return text if len(text) <= limit else text[:limit] + f"... ({len(text)} chars)"
+
+
+def _opening_messages(initial_task: Any, resume_state: Any) -> list:
+    """The history a run starts from: the goal, plus what a previous process
+    already finished if this is a resume.
+
+    A resumed run is **continued, not replayed**. The journal holds the whole
+    transcript, and feeding it back would re-send every screenshot and every
+    tool result the crashed process paid for. What the model needs instead is
+    the goal it was given and a short note of what is already done, which is
+    exactly what ``ResumeState`` carries (its own docstring calls it "the
+    purified view a resume continues from -- goal-relevant records, not the
+    whole transcript").
+
+    The note is a user turn rather than an assistant one on purpose: claiming
+    the model said something it did not say would put words in its mouth and
+    invite it to elaborate on work it has no memory of doing.
+    """
+    messages: list = [{"role": "user", "content": initial_task}]
+    if resume_state is None:
+        return messages
+
+    done = len(getattr(resume_state, "completed_seqs", []) or [])
+    recent = getattr(resume_state, "recent_results", []) or []
+    lines = [
+        "This run was interrupted and has been resumed.",
+        f"{done} step{'' if done == 1 else 's'} already completed before the "
+        "interruption; do not repeat them.",
+    ]
+    if recent:
+        lines.append("The most recent results were:")
+        # Truncated, because `recent_results` are whole tool results and a tool
+        # result can be a screenshot. Resuming exists so the crashed process's
+        # tokens are not paid for twice; pasting its payloads back in would pay
+        # for them twice and blow the context doing it.
+        lines += [f"- {_short(r)}" for r in recent]
+    lines.append("Continue from where that left off.")
+    messages.append({"role": "user", "content": "\n".join(lines)})
+    return messages
+
+
 def _image_slots(messages: list):
     """Yield ``(container_list, index)`` for every image block in the history,
     in document order -- including images nested inside ``tool_result`` blocks
@@ -106,6 +152,7 @@ async def run_loop(
     max_iterations: int = 100,
     max_tokens: int = 8192,
     keep_last_images: int = 3,
+    resume_state: Any = None,
 ) -> RunResult:
     """Standard tool-use loop, shared across all native providers. Owns the
     conversation history -- including screenshot pruning (issue #10) -- and
@@ -113,7 +160,7 @@ async def run_loop(
     BEFORE dispatch and ``done``/``error`` AFTER, so a mid-action crash always
     leaves a dangling record. ``mcp`` is the MCP host; ``trajectory`` is the
     journal."""
-    messages: list = [{"role": "user", "content": initial_task}]
+    messages: list = _opening_messages(initial_task, resume_state)
     mcp_tools = mcp.tools()
     total_input_tokens = total_output_tokens = 0
 

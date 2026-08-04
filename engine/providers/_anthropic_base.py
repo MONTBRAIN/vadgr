@@ -194,13 +194,21 @@ class AnthropicBase:
         max_iterations: int = 100,
         max_tokens: int = 8192,
         keep_last_images: int = 3,
+        resume_state: Any = None,
         **kwargs: Any,
     ) -> RunResult:
         """Build the MCP host over the cua servers PLUS the in-process
         control-plane server, open a fresh journal, and delegate the cycle to
         the shared ``run_loop``."""
         run_id = run_id or _new_run_id()
-        trajectory = Trajectory(run_id, path=_journal_path(self._runs_dir, run_id))
+        # A resumed run appends to the journal it crashed inside, so the seq
+        # continues rather than restarting at 0 and orphaning the dangling
+        # record it is resuming from.
+        trajectory = Trajectory(
+            run_id,
+            path=_journal_path(self._runs_dir, run_id),
+            start_seq=getattr(resume_state, "last_seq", -1),
+        )
 
         ctx = RunContext(run_id=run_id, trajectory=trajectory)
         control = ControlPlaneServer(ctx, self._channels, self._policy)
@@ -227,6 +235,7 @@ class AnthropicBase:
                 host,
                 trajectory,
                 _tracking_on_event,
+                resume_state=resume_state,
                 max_iterations=max_iterations,
                 max_tokens=max_tokens,
                 keep_last_images=keep_last_images,

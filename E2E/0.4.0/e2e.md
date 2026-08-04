@@ -32,12 +32,12 @@ resume a crashed run.
 
 Collapsed deliberately, with the reason: `notify_user` x *message content* is not
 an axis (the string is opaque to the router); tool x *argument values* is not an
-axis for model-driven items - the rule from `ENGINEERING.md` §1a is to enumerate
+axis for model-driven items - the rule from the engineering standard is to enumerate
 **outcomes**, not inputs, because the model chooses the inputs.
 
 ## SCOPE EXCEPTION FOR THIS MINOR - read this first
 
-`ENGINEERING.md` §1a says a real e2e drives the product's own surface, and that a
+the engineering standard says a real e2e drives the product's own surface, and that a
 harness which imports the module under test is an **acceptance test**, not an
 e2e. **`0.4.0` cannot meet that bar**, and the exception is deliberate and
 bounded:
@@ -85,7 +85,7 @@ results mean anything:
 Finding one is the point. Root-cause it in the source citing `file:line` - a flaky
 environment is not a root cause until the code says so - fix it on the PR branch
 with a test that fails without the fix, re-run the part live, and record the patch
-in `vadgr-docs/general/PATCHES.md` with this runbook in the *found by* column.
+in the patch log with this runbook in the *found by* column.
 
 ## Prerequisites
 

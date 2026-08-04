@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from engine.channels.base import HumanPrompt
 from engine.policy.base import AUTO_ALLOW, AUTO_DENY, ApprovalRequest
-from engine.tools import control_tool
+from engine.tools import control_tool, emit_event
 
 _APPROVAL_SCHEMA = {
     "type": "object",
@@ -43,10 +43,40 @@ _PLAN_SCHEMA = {
 }
 
 
-def _journal_await(server, request: dict) -> None:
+async def _park(server, request: dict) -> None:
+    """Record the pause and announce it, in that order.
+
+    Both, from one place, because they are the same fact for two audiences: the
+    journal is what a resume reads after a crash, and the event is how a watcher
+    learns the run is waiting on a person. They were split - only the journal
+    was written - so every layer above had an `awaiting` branch that nothing
+    fed, and a run could park with no one able to see it. Found by E2E/0.4.1.
+
+    The journal is written first: it survives the process, and the emit does
+    not. If only one of the two happens, it should be the durable one.
+    """
     traj = server.ctx.trajectory
     if traj is not None and hasattr(traj, "append_await_user"):
         traj.append_await_user(request)
+    await emit_event(server, {"type": "await_user", **request})
+
+
+def _seconds(value) -> float | None:
+    """A timeout the model supplied, as a number the runtime can wait on.
+
+    The schema says `number`, and a JSON Schema type is advisory - the value
+    arrives as whatever the model emitted, which in practice is often the string
+    "300". `asyncio.wait_for` then compares a str to an int and the gate raises
+    instead of parking, which turns "ask the human" into "fail the run": the one
+    outcome a human-in-the-loop tool must never have. Found by E2E/0.4.1.
+    """
+    if value is None:
+        return None
+    try:
+        seconds = float(value)
+    except (TypeError, ValueError):
+        return None          # unparseable means no timeout, never a crash
+    return seconds if seconds > 0 else None
 
 
 @control_tool(
@@ -58,7 +88,7 @@ async def request_approval(args: dict, server) -> dict:
     action = args["action"]
     risk = args.get("risk", "medium")
     preview = args.get("preview", "")
-    timeout = args.get("timeout")
+    timeout = _seconds(args.get("timeout"))
 
     req = ApprovalRequest(action=action, risk=risk, preview=preview)
     decision = await server.policy.check(req)
@@ -68,7 +98,8 @@ async def request_approval(args: dict, server) -> dict:
         return {"decision": "approve", "note": None}
 
     # needs_human -> journal the pause, then block on the channel.
-    _journal_await(server, {"kind": "approval", "action": action, "risk": risk})
+    await _park(server, {"kind": "approval", "action": action, "risk": risk,
+                         "prompt": action})
     prompt = HumanPrompt(
         kind="approval", text=action, risk=risk, preview=preview, timeout=timeout
     )
@@ -86,9 +117,10 @@ async def request_approval(args: dict, server) -> dict:
 async def ask_user(args: dict, server) -> dict:
     question = args["question"]
     options = args.get("options")
-    timeout = args.get("timeout")
+    timeout = _seconds(args.get("timeout"))
 
-    _journal_await(server, {"kind": "question", "question": question})
+    await _park(server, {"kind": "question", "question": question,
+                         "prompt": question})
     prompt = HumanPrompt(
         kind="question", text=question, options=options, timeout=timeout
     )
@@ -104,7 +136,7 @@ async def ask_user(args: dict, server) -> dict:
 )
 async def propose_plan(args: dict, server) -> dict:
     plan = args["plan"]
-    _journal_await(server, {"kind": "plan"})
+    await _park(server, {"kind": "plan", "prompt": plan})
     resp = await server.channels.request(HumanPrompt(kind="plan", text=plan))
     if resp.get("timed_out"):
         return {"decision": "reject", "feedback": "timed out"}

@@ -1,7 +1,7 @@
 """Decommission tests for the 0.2.0 gateway removal milestone.
 
 These tests verify that the Discord gateway has been fully removed from the
-codebase per ARCHITECTURE.md sections 4.4 and 10.2.  They are intentionally
+codebase.  They are intentionally
 narrow: each one pins one piece of the removal so the deletion can't silently
 regress.
 """

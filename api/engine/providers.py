@@ -45,9 +45,16 @@ class ProviderError(RuntimeError):
 
 @dataclass
 class ExecutionEvent:
-    """Event emitted during agent execution."""
-    type: str  # "output", "error", "done"
-    data: str = ""
+    """Event emitted during agent execution.
+
+    ``data`` is a string for the text-shaped types (``output``, ``error``,
+    ``done``, ``awaiting``) and structured for the ones that carry a payload
+    (``todos``). It was annotated ``str``, so the bridge coerced the checklist
+    with ``str()`` and the phone received a Python repr - single-quoted, and not
+    parseable as JSON by anything on the other end.
+    """
+    type: str  # "output", "error", "done", "todos", "awaiting"
+    data: str | list | dict = ""
 
 
 @dataclass
@@ -62,9 +69,16 @@ class StreamingConfig:
 
 @dataclass
 class ProviderConfig:
-    """Configuration for a CLI-based agent provider."""
+    """Configuration for an agent provider.
+
+    ``command`` defaults to empty because a **native** provider has none: it is
+    the in-process engine, named by a `module` in `providers.yaml` rather than
+    an argv. Before 0.4.1 this field was required, so loading a native entry
+    raised and every agent created on one went to status `error` - the native
+    path was unreachable through the API while every unit test passed.
+    """
     name: str
-    command: str
+    command: str = ""
     args: list[str] = field(default_factory=list)
     available_check: list[str] = field(default_factory=list)
     timeout: int = 300
@@ -99,7 +113,13 @@ def load_provider_config(provider_key: str, overrides: dict | None = None) -> Pr
         model = overrides.get("model")
         config.update(overrides)
     if model:
-        config["args"] = [*config["args"], "--model", model]
+        # A native provider is the in-process engine: it has a `module`, not a
+        # `command` and `args`, so there is no argv to append a --model flag to.
+        # The model reaches it as a field instead (see `build_native_provider`).
+        # Before 0.4.1 this raised KeyError and every agent on a native provider
+        # went to status `error` at creation, which made the whole native path
+        # unreachable through the API.
+        config["args"] = [*config.get("args", []), "--model", model]
     if "streaming" in config and isinstance(config["streaming"], dict):
         config["streaming"] = StreamingConfig(
             mode=config["streaming"].get("mode", "none"),
@@ -295,7 +315,16 @@ class CLIAgentProvider:
         self.config = config
 
     async def is_available(self) -> bool:
-        """Check if the CLI tool is installed."""
+        """Check if the CLI tool is installed.
+
+        A provider with no `command` is the in-process engine, which is always
+        available: there is nothing to find on PATH and nothing to spawn.
+        Without this the empty argv reached `create_subprocess_exec` and raised
+        PermissionError on an empty string, which is what put every agent on a
+        native provider into status `error` at creation.
+        """
+        if not self.config.command and not self.config.available_check:
+            return True
         if not self.config.available_check:
             return shutil.which(self.config.command) is not None
         try:
@@ -450,6 +479,7 @@ class CLIAgentProvider:
         timeout: int | None = None,
         use_stream_json: bool = True,
         computer_use: bool = False,
+        **_: object,   # run_id: the native path needs it, a subprocess does not
     ) -> AsyncIterator[ExecutionEvent]:
         """Execute a prompt and stream output events line by line.
 

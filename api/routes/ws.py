@@ -21,21 +21,48 @@ router = APIRouter()
 
 
 # Map internal broadcast event types -> the mobile RunEvent contract.
+#
+# Every key here must be a name the executor actually broadcasts. Five of the
+# original eight were not: `step_started`, `tool_call`, `step_output`, `output`
+# and `approval_required` are emitted by nothing, while the executor's real
+# vocabulary - `agent_log`, `awaiting`, `agent_failed`, `todos` - was absent. A
+# phone therefore received `started`, then silence, then `completed`, however
+# long the run and however much it reported: the only frames that mapped were
+# the three run-level ones. Worse, `awaiting` is how a gate says it is waiting
+# for a human, so an approval could never reach the device that has to answer it.
+#
+# The fix is the mapping, not new frame types. `todos` has no member in
+# `RunEventType` and gets one at `0.5.0`, when this stream's frames are
+# enriched; inventing it here would be a rename paid for twice.
 _EVENT_TYPE_MAP = {
     "run_started": RunEventType.STARTED,
-    "step_started": RunEventType.TOOL_CALL,
-    "tool_call": RunEventType.TOOL_CALL,
-    "step_output": RunEventType.OUTPUT,
-    "output": RunEventType.OUTPUT,
-    "approval_required": RunEventType.PAUSED,
+    "agent_started": RunEventType.TOOL_CALL,
+    "agent_log": RunEventType.OUTPUT,
+    "step_completed": RunEventType.OUTPUT,
+    "agent_completed": RunEventType.OUTPUT,
+    "awaiting": RunEventType.PAUSED,
+    "agent_failed": RunEventType.FAILED,
     "run_completed": RunEventType.COMPLETED,
     "run_failed": RunEventType.FAILED,
 }
 
 
+# Broadcast, understood, and deliberately not translatable yet. `todos` has no
+# member in `RunEventType`; it gets one at `0.5.0` when this stream's frames are
+# enriched. Listed rather than left to the fallthrough so a type nobody has
+# considered can be told apart from one that is waiting on a decision.
+_NOT_YET_ON_THIS_STREAM = frozenset({"todos"})
+
+
 def _to_run_event(internal: dict) -> RunEvent | None:
-    mapped = _EVENT_TYPE_MAP.get(internal.get("type"))
+    kind = internal.get("type")
+    mapped = _EVENT_TYPE_MAP.get(kind)
     if mapped is None:
+        if kind not in _NOT_YET_ON_THIS_STREAM:
+            logger.warning(
+                "run stream: no RunEvent for broadcast type %r; dropped. Add it "
+                "to _EVENT_TYPE_MAP or to _NOT_YET_ON_THIS_STREAM.", kind,
+            )
         return None
     ts = internal.get("timestamp")
     try:
@@ -70,9 +97,39 @@ class _RunEventTranslator:
 
 @router.websocket("/api/ws/runs/{run_id}")
 async def run_websocket(websocket: WebSocket, run_id: str):
+    """The on-box stream the CLI watches (`cli/stream.py`).
+
+    **Authenticated.** It was not: the auth middleware is HTTP-only and this
+    route checked nothing, so any peer that gate 1 admits - every member of the
+    tailnet - could open it. It also accepted an inbound `approval_response`
+    that resumed a parked run, which made it an **unauthenticated way to answer
+    a human-approval gate**, the one decision the gate layer exists to protect.
+
+    Both are fixed here. Auth matches `/stream`, and the socket is now
+    send-only: answering a gate is `POST /api/runs/{id}/respond`, which is
+    authenticated, idempotent and auditable. Loopback is
+    trusted by gate 1, so the CLI still connects with no token.
+
+    It is deleted outright at `0.5.0`, when one socket survives. Until then it
+    has a live consumer and a hole, and the hole is the part that could not wait.
+    """
     logger.info(f"WebSocket connection attempt for run {run_id}")
-    manager = websocket.app.state.ws_manager
-    run_repo = websocket.app.state.run_repo
+    app = websocket.app
+    manager = app.state.ws_manager
+    run_repo = app.state.run_repo
+
+    token = websocket.query_params.get("token")
+    if not token:
+        auth_header = websocket.headers.get("authorization")
+        if auth_header:
+            parts = auth_header.split(None, 1)
+            if len(parts) == 2 and parts[0].lower() == "bearer":
+                token = parts[1].strip()
+    if not await authorize_ws(app, app.state.transport, 
+                              websocket.client.host if websocket.client else None,
+                              token):
+        await websocket.close(code=4401, reason="Unauthorized")
+        return
 
     run = await run_repo.get(run_id)
     if not run:
@@ -91,15 +148,18 @@ async def run_websocket(websocket: WebSocket, run_id: str):
             except json.JSONDecodeError:
                 continue
 
+            # Send-only. An `approval_response` used to be honoured here, which
+            # made the socket a second way to answer a gate - with different
+            # auth, no idempotency key, and no audit trail. Answering is
+            # `POST /api/runs/{id}/respond` and only that.
+            # Inbound frames are ignored rather than rejected, so an older
+            # client that still sends one is not disconnected mid-run.
             if msg.get("type") == "approval_response":
-                action = msg.get("data", {}).get("action", "approve")
-                if action == "approve":
-                    execution_service = websocket.app.state.execution_service
-                    await run_repo.update_status(run_id, "running")
-                    import asyncio
-                    asyncio.create_task(
-                        execution_service.resume_after_approval(run_id)
-                    )
+                logger.warning(
+                    "run %s: ignoring an inbound approval on the socket; "
+                    "answer a gate with POST /api/runs/{id}/respond",
+                    run_id,
+                )
     except WebSocketDisconnect:
         manager.disconnect(run_id, websocket)
 

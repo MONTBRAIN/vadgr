@@ -2,6 +2,7 @@
 
 import asyncio
 from contextlib import asynccontextmanager
+import logging
 from pathlib import Path
 from typing import Optional
 
@@ -29,6 +30,8 @@ from api.routes import auth as auth_routes
 from api.routes import devices as devices_routes
 from api.routes import settings as settings_routes
 
+logger = logging.getLogger(__name__)
+
 
 def create_app(db: Optional[Database] = None, transport=None) -> FastAPI:
     """Create the FastAPI app. Pass a Database for testing (in-memory) and an
@@ -45,6 +48,20 @@ def create_app(db: Optional[Database] = None, transport=None) -> FastAPI:
             app.state.db = Database(settings.database_path)
             await app.state.db.connect()
             await app.state.db.create_tables()
+
+        # Continue anything the last process died inside, before serving. A
+        # journal ending in a dangling in_flight is the only durable evidence a
+        # run was interrupted, and nothing else in the system looks for one.
+        try:
+            from api.services.execution_service import resume_interrupted_runs
+
+            resumed = await resume_interrupted_runs()
+            if resumed:
+                logger.info("resumed %d interrupted run(s): %s", len(resumed), resumed)
+        except Exception:
+            # A daemon that cannot resume must still boot: an unreadable journal
+            # is a reason to serve without it, not a reason to be down.
+            logger.exception("resume on boot failed; continuing without it")
 
         app.state.agent_repo = AgentRepository(app.state.db)
         app.state.project_repo = ProjectRepository(app.state.db)

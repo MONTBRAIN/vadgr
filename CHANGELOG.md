@@ -2,6 +2,39 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.4.1] - 2026-08-02
+
+Puts the native loop on the product's own run path. Before this, `POST /api/agents/{id}/run` executed through the CLI executor and the engine shipped as a library nothing called.
+
+### Added
+- **Native loop on the API run path** (`api/engine/native_bridge.py`). A bridge between an executor that pulls (`AsyncIterator[ExecutionEvent]`) and a loop that pushes (`on_event` callback), joined by an `asyncio.Queue`. Events are mapped to the frames the published frame vocabulary names; anything the bridge has not been taught is dropped rather than forwarded, because an unrecognized payload is exactly the unbounded one.
+- **Resume on boot** (`api/main.py`, `api/services/execution_service.py`). On start the daemon finds journals with a dangling record and continues those runs from the first uncompleted step.
+- **Resume entry point** (`engine/loop.py`, `engine/trajectory.py`). `run_loop(..., resume_state=...)` reconstructs the conversation from the journal, and a resumed journal continues its sequence instead of restarting it. Prior results are truncated on the way in, so a resume does not replay screenshots.
+- **E2E doctrine and template** (`E2E/README.md`, `E2E/TEMPLATE.md`). Where the ground truth is, the verdict rules, the honest use of `Not-Needed`, and the shape every runbook follows.
+- **Runbook** at `E2E/0.4.1/e2e.md`, run live. Eleven defects, none of which the unit suite saw.
+
+### Fixed
+- **Agent creation on a native provider raised three different ways.** `load_provider_config` did `config["args"] + [...]` on a provider that has a module and no argv; `ProviderConfig` made `command` mandatory; and `is_available()` fell through to spawning an empty argv. One defect wearing three hats: nothing on the creation path knew a provider might not be a subprocess.
+- **The journal could not be tied to its run.** The executor never passed `run_id`, so the loop minted its own and wrote a directory nothing could correlate - which also broke resume on boot, since it finds a journal by id and then has to look that run up.
+- **A gate crashed on a timeout the model typed.** `ask_user` declares `timeout` a `number` and the model sent `"300"`; `asyncio.wait_for` compared a `str` to an `int` and raised. The run failed at the exact moment it was trying to consult a human. Timeouts are coerced, and an unparseable one means no timeout rather than an exception.
+- **The on-box WebSocket authenticated nothing.** `/api/ws/runs/{run_id}` never called the authorizer - the auth middleware is HTTP-only - so any peer gate 1 admits could open it. It also honoured an inbound `approval_response` that resumed a parked run, making it an unauthenticated way to answer a human-approval gate. It now authenticates as `/stream` does and is send-only.
+- **A checklist sent as a JSON string crashed `todo_write`.** The model sent `items` already serialised; iterating a `str` yields characters, so every entry raised `'str' object has no attribute 'get'`. A JSON-Schema type is advisory for containers exactly as it is for enum values.
+- **The phone's run stream carried a start and an end and nothing between.** Five of the eight keys in the mobile translator's map were event types nothing emits, and the executor's real vocabulary was absent - measured at 2 frames for a six-tool-call run, 11 after. The severe half is `awaiting`: an approval request could not reach the device that has to answer it. A test now checks every key in the map against what `executor.py` actually broadcasts.
+- **The checklist reached the wire as a Python repr.** `ExecutionEvent.data` was annotated `str`, so the bridge coerced the list with `str()` and clients received single-quoted text that is not JSON.
+- **An output field of prose no longer answers `500`.** `GET /api/runs/{id}/outputs/{field}` handed the output value to `Path.resolve()` to test whether it named a file; on the native loop that value is usually the model's prose, and past `NAME_MAX` it raised `OSError: File name too long`. The route has two outcomes, the bytes or `404`, so it was broken for essentially every free-text output.
+- **Pairing returns the documented error codes.** `TRANSPORT_UNAVAILABLE` is now `TRANSPORT_UNREACHABLE` and `INVALID_PAIRING_TOKEN` is now `PAIRING_CODE_INVALID`; an expired code answers `410 PAIRING_CODE_EXPIRED` instead of collapsing into `401`, so a client can tell the owner to ask for a new code rather than that they mistyped this one. Codes are what a client switches on, and this is the first-run flow.
+- **A parking gate now announces itself.** `ask_user`, `request_approval` and `propose_plan` wrote a journal line and emitted nothing, so a run could park on a human with no watcher able to learn it had - while three layers carried an `awaiting` branch that nothing could reach and every test passed. Journalling and announcing are now one call, since they are the same fact for two audiences.
+- **An unrecognized loop event is dropped loudly.** The bridge returned the same silent `None` for the two events it drops on purpose and for any type the engine grows later, so the second was invisible until a feature turned out to be missing. The deliberate pair is named as data; anything else warns.
+- **An unreachable daemon is reported in ~1.6s instead of ~15s on WSL.** A short connect probe runs before the request. On Linux and macOS a closed local port is refused instantly; on WSL2 IPv4 loopback swallows it, so the connect ran to the full request timeout - which has to stay generous because a request can be doing real work.
+- **The CLI can say "the daemon is down".** Exit `3` is reserved for an unreachable daemon and `1` for a request that ran and was refused; both came back as `1`, so a script could not branch on them - and the first is worth retrying after `vadgr start` while the second never is.
+- **A gate with no terminal now says so.** The daemon has no stdin, so gates died on `EOF when reading a line` - a message about a file descriptor, not about the problem. It now says there is no interactive channel and to proceed or stop rather than retry.
+
+### Notes
+- **No gate on the daemon can reach a human yet.** The default channel router is the CLI channel, which reads stdin the daemon does not have, so gates park correctly and reach nobody. The shipped `POST /api/runs/{id}/approve` does not close this: it takes no body, so it carries a verdict and never the answer `ask_user` and `propose_plan` need, and its resume path re-runs the whole project rather than continuing it. The channel lands at `0.5.0` against `POST /api/runs/{id}/respond`, which carries a verdict, a reason and an answer and resolves against the loop's own resume.
+- Agent creation is still CLI-bound: it runs forge generation, which spawns the configured provider as a subprocess, and a native provider cannot. A run may override the provider per trigger, which is the path the runbook exercises.
+- **Pairing has no attempt limit.** The published `429 RATE_LIMITED` on `/api/auth/pair` and `/api/auth/claim` is unimplemented - the store has no attempt counter. An 8-character code inside a five-minute window is not practically guessable over HTTP, but the behaviour is specified and absent.
+- `/api/ws/runs/{run_id}` is deleted at `0.5.0`, when one socket survives. It has a live consumer today (`cli/stream.py`), so it was fixed rather than removed.
+
 ## [0.4.0] - 2026-07-30
 
 ### Added

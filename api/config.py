@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     computer_use_enabled: bool = True
     default_provider: str = "claude_code"
     provider_timeout: int = 300
-    version: str = "0.4.0"
+    version: str = "0.4.1"
 
     model_config = {"env_prefix": "AGENT_FORGE_"}
 

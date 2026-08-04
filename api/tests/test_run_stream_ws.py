@@ -125,3 +125,50 @@ def test_stream_rejects_unauthorized_non_loopback(live_db, monkeypatch):
         with pytest.raises(Exception):
             with tc.websocket_connect("/api/runs/run-1/stream"):
                 pass
+
+
+# --- the map must name what the executor actually emits (E2E 0.4.1 F9) -------
+
+
+def test_every_mapped_key_is_a_name_the_executor_broadcasts():
+    """The map is a contract with the executor, and it was one-sided.
+
+    Five of its eight keys - `step_started`, `tool_call`, `step_output`,
+    `output`, `approval_required` - were emitted by nothing, so the phone got
+    `started`, silence, `completed`. Asserting against the source keeps the two
+    sides from drifting again, which is the whole failure mode: nothing raises
+    when a map names a string nobody sends.
+    """
+    import re
+    from pathlib import Path
+    from api.routes.ws import _EVENT_TYPE_MAP
+
+    src = Path(__file__).resolve().parents[2] / "api" / "engine" / "executor.py"
+    emitted = set(re.findall(r'callback\("([a-z_]+)"', src.read_text()))
+    # The run-level frames are broadcast by the run service, not the executor.
+    run_level = {"run_started", "run_completed", "run_failed"}
+
+    unsent = set(_EVENT_TYPE_MAP) - emitted - run_level
+    assert not unsent, f"mapped but never broadcast: {sorted(unsent)}"
+
+
+def test_progress_and_gate_events_reach_the_phone():
+    """The two that matter: a run's progress, and a gate asking for a human."""
+    assert _to_run_event({"type": "agent_log", "data": {"message": "step one"}}).type is RunEventType.OUTPUT
+    assert _to_run_event({"type": "awaiting", "data": {"prompt": "which folder?"}}).type is RunEventType.PAUSED
+    assert _to_run_event({"type": "agent_failed", "data": {}}).type is RunEventType.FAILED
+
+
+def test_a_deferred_type_is_quiet_and_an_unknown_one_is_not(caplog):
+    """`todos` is understood and waiting on `0.5.0`; an unrecognized type is a
+    gap nobody has looked at. Both drop, so the log is the only thing that
+    tells them apart afterwards."""
+    import logging
+
+    with caplog.at_level(logging.WARNING):
+        assert _to_run_event({"type": "todos", "data": {"items": []}}) is None
+    assert not caplog.records, "a deliberate deferral must not warn"
+
+    with caplog.at_level(logging.WARNING):
+        assert _to_run_event({"type": "a_type_added_later", "data": {}}) is None
+    assert any("no RunEvent" in r.message for r in caplog.records)

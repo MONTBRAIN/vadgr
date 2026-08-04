@@ -12,9 +12,11 @@ import asyncio
 import pytest
 
 from engine.channels.base import Delivery, HumanPrompt
+from engine.channels.cli import CLIChannel
 from engine.mcp import MCPHost, MCPServer
 from engine.policy.default import DefaultPolicy
 from engine.tools import ControlPlaneServer, RunContext
+from engine.tools.hitl import _seconds
 
 
 class FakeChannel:
@@ -346,3 +348,95 @@ async def test_an_unknown_todo_id_names_the_known_ids():
         await server.call_tool("todo_update", {"id": "99", "status": "done"})
 
     assert "known ids: 1, 2" in str(excinfo.value)
+
+
+@pytest.mark.asyncio
+async def test_a_string_timeout_reaches_the_real_channel_without_raising():
+    """Regression (E2E/0.4.1 F6), against the REAL channel.
+
+    A fake channel never reaches `asyncio.wait_for`, so a fake proves nothing
+    here: the crash was the comparison inside it. The schema says `number` and a
+    JSON Schema type is advisory, so a model that sends "300" used to raise at
+    the exact moment the run was trying to consult a human - the one outcome a
+    HITL tool must never have.
+    """
+    from engine.channels.base import ChannelRouter, HumanPrompt
+    from engine.channels.cli import CLIChannel
+
+    seen = {}
+
+    async def reader(text, timeout):
+        seen["timeout"] = timeout
+        return "the answer"
+
+    channel = CLIChannel(reader=reader, writer=lambda line: None)
+    # The path that used to blow up: a str timeout into wait_for.
+    answer = await channel.request(
+        HumanPrompt(kind="question", text="which folder?", timeout=_seconds("300"))
+    )
+    assert answer is not None
+    assert seen["timeout"] == 300.0, "the string was not coerced to a number"
+
+
+@pytest.mark.asyncio
+async def test_an_unparseable_timeout_becomes_no_timeout_not_a_crash():
+    assert _seconds("soon") is None
+    assert _seconds(None) is None
+    assert _seconds(0) is None
+    assert _seconds("300") == 300.0
+    assert _seconds(12.5) == 12.5
+
+
+# --- todo_write: the container type is advisory too (E2E 0.4.1 F8) ----------
+
+
+@pytest.mark.asyncio
+async def test_todo_write_accepts_items_sent_as_a_json_string():
+    """A model that just wrote the list out often sends it already serialised.
+
+    Observed three times in one run, in three different formattings, each
+    raising `'str' object has no attribute 'get'`: iterating a `str` yields
+    characters. The file already knew a schema enum is advisory; the same is
+    true of the declared `array`.
+    """
+    server, ctx, _ = _server()
+    res = await server.call_tool(
+        "todo_write",
+        {"items": '[{"id": "1", "content": "step one", "status": "done"}, '
+                  '{"id": "2", "content": "step two", "status": "pending"}]'},
+    )
+    assert res["ok"] is True
+    assert [t["content"] for t in res["todos"]] == ["step one", "step two"]
+    assert [t["status"] for t in res["todos"]] == ["done", "pending"]
+    assert any(e["type"] == "todos" for e in ctx._events)
+
+
+@pytest.mark.asyncio
+async def test_todo_write_accepts_a_bare_string_item():
+    server, _, _ = _server()
+    res = await server.call_tool("todo_write", {"items": ["just the content"]})
+    assert res["todos"] == [{"id": "1", "content": "just the content", "status": "pending"}]
+
+
+@pytest.mark.asyncio
+async def test_todo_write_rejects_a_non_json_string_by_saying_what_it_wants():
+    server, _, _ = _server()
+    with pytest.raises(Exception, match="list of"):
+        await server.call_tool("todo_write", {"items": "step one, step two"})
+
+
+@pytest.mark.asyncio
+async def test_a_gate_with_no_terminal_says_so_rather_than_eof():
+    """On the daemon there is no stdin, so every gate died on `EOFError`.
+
+    The run surfaced "EOF when reading a line", which describes a file
+    descriptor and not the problem: nothing on this path can reach a human.
+    Observed on the API path in E2E 0.4.1 (F11); the API channel that fixes it
+    needs `POST /api/runs/{id}/respond` and lands at `0.5.0`.
+    """
+    def _eof(_prompt):
+        raise EOFError("EOF when reading a line")
+
+    channel = CLIChannel(input_fn=_eof, writer=lambda _l: None)
+    with pytest.raises(RuntimeError, match="no interactive channel"):
+        await channel.request(HumanPrompt(kind="question", text="which folder?"))
