@@ -2,7 +2,8 @@
 
 A daemon per machine: the native agent loop, the MCP host, gates and policy,
 the API the phone talks to, persistence, plus `cli/` - the on-box owner surface.
-There is no frontend; `0.3.9` removes the last of it.
+v2 has no desktop frontend: `frontend/` sits in the tree only until `0.3.9`
+deletes it. Build nothing against it.
 
 **This file is loaded automatically. The rules live in the docs repo and are not
 copied here** - a second copy drifts, and a drifted rule is worse than none.
@@ -40,7 +41,7 @@ published API reference", "the published frame vocabulary", "the engineering
 standard". Sweep before every push:
 
 ```bash
-grep -rn "CONTRACT\.md\|PLANS\.md\|ARCHITECTURE\.md\|ENGINEERING\.md\|MOBILE_DESIGN\.md\|vadgr-docs\|D-[0-9]" \
+grep -rn "\bCONTRACT\.md\|\bPLANS\.md\|\bARCHITECTURE\.md\|\bENGINEERING\.md\|\bMOBILE_DESIGN\.md\|vadgr-docs\|\bD-[0-9]" \
   --include=*.py --include=*.md . | grep -v "\.venv\|AGENTS.md\|CLAUDE.md"
 ```
 
@@ -57,11 +58,13 @@ model names - in commits, PR bodies, or generated files.
 exists and every minor in its iteration has one:
 
 ```bash
-python3 ../vadgr-docs/scripts/check_iteration.py <phase> <iteration>
+python3 ../docs/scripts/check_iteration.py <phase> <iteration>
 ```
 
-Exit `0` or do not start. This exists because the rule was written down and
-broken twice in an hour.
+(The script resolves its own paths, so only the path to the docs checkout
+matters: `../docs/` on the working machine, `../vadgr-docs/` where it was cloned
+under its own name.) Exit `0` or do not start. This exists because the rule was
+written down and broken twice in an hour.
 
 **4. PR bodies carry code, tests, user-visible changes and caveats.** No
 methodology narration, no SOLID tables, no design-doc citations.
@@ -91,7 +94,9 @@ python3 -m pytest api/tests/ -q                     # 551
 python3 -m pytest cli/tests/ -q                     # 189
 ```
 
-One test process at a time - two overlapping runs look exactly like a hung suite.
+One test process at a time wherever anything is shared - two overlapping runs
+look exactly like a hung suite. Runs with their own port, database and daemon
+may overlap; that is what makes the three-agent e2e close safe.
 
 ## Conventions
 
