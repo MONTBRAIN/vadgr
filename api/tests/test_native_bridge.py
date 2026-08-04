@@ -184,7 +184,7 @@ async def test_resume_state_reaches_the_loop():
 
 @pytest.mark.asyncio
 async def test_the_timeout_is_accepted_and_ignored():
-    """A native run has no wall-clock deadline (PLANS D-55).
+    """A native run has no wall-clock deadline.
 
     The executor passes a timeout to every provider, so the parameter has to
     exist; honouring it would cap the multi-hour batch the phase gate names.

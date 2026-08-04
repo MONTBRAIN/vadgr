@@ -1,157 +1,103 @@
-# Agent Forge
+# vadgr - the machine daemon
 
-Agent Forge is an agent-agnostic meta-framework for creating agentic workflows. It IS itself an agentic workflow.
+A daemon per machine: the native agent loop, the MCP host, gates and policy,
+the API the phone talks to, persistence, plus `cli/` - the on-box owner surface.
+There is no frontend; `0.3.9` removes the last of it.
 
-## Project Structure
+**This file is loaded automatically. The rules live in the docs repo and are not
+copied here** - a second copy drifts, and a drifted rule is worse than none.
+What follows is the handful of things that must not be looked up, plus where to
+look for everything else.
 
-```
-Agent-Forge/
-├── README.md                          # Entry point
-├── CLAUDE.md                          # This file, project rules
-├── .claude/
-│   ├── commands/                      # Claude Code wrappers (thin, no logic)
-│   └── agents/
-│       └── senior-prompt-engineer.md  # Reusable prompt engineering agent
-├── forge/                             # Workflow generation engine (standalone)
-│   ├── agentic.md                     # Thin orchestrator (step order + gates)
-│   ├── api-generate.md                # API non-interactive generation entry point
-│   ├── api-update.md                  # API non-interactive update entry point
-│   ├── README.md                      # Module docs
-│   ├── steps/                         # All step files, organized by mode
-│   │   ├── interactive/               # Standalone interactive workflow (7 steps)
-│   │   ├── api-generate/              # API-driven generation (7 steps)
-│   │   └── api-update/                # API-driven updates (5 steps)
-│   ├── Prompts/                       # 5 specialized agents + fixer
-│   │   ├── 00_Workflow_Fixer.md
-│   │   ├── 01_Senior_Prompt_Engineer.md
-│   │   ├── 02_Workflow_Architect.md
-│   │   ├── 03_Prompt_Writer.md
-│   │   ├── 04_Quality_Reviewer.md
-│   │   └── 05_Computer_Use_Agent.md
-│   ├── patterns/                      # 10 documented workflow patterns
-│   ├── examples/                      # 3 example workflows
-│   │   ├── research-paper/
-│   │   ├── project-scaffold/
-│   │   └── data-analysis/
-│   ├── scripts/                       # Automation scripts
-│   │   ├── src/
-│   │   ├── tests/
-│   │   ├── requirements.txt
-│   │   └── README.md
-│   └── utils/
-│       ├── scaffold/                  # Templates for generated projects
-│       ├── code/                      # Code utilities
-│       └── docs/                      # Documentation utilities
-# Desktop automation moved to its own repository:
-# https://github.com/MONTBRAIN/vadgr-computer-use
-# Installed via `pip install vadgr-computer-use` when computer use is enabled.
-├── cli/                               # Unified command-line interface
-│   ├── main.py                        # Root Click group
-│   ├── http.py                        # HTTP client for API calls
-│   ├── output.py                      # Table formatting, status colors
-│   ├── commands/                      # Command groups
-│   │   ├── agents.py                  # list, get, create, delete, run
-│   │   ├── runs.py                    # list, get, cancel, approve, resume, logs
-│   │   ├── registry.py                # pack, pull, push, search, serve
-│   │   └── info.py                    # health, providers
-│   └── tests/                         # Unit + integration tests (69 tests)
-├── registry/                          # Agent package manager (library)
-│   ├── manifest.py                    # .agnt manifest schema + validation
-│   ├── packer.py                      # Pack/unpack agent folders to .agnt archives
-│   ├── installer.py                   # Install/uninstall agents locally
-│   ├── registry_client.py             # High-level registry operations
-│   ├── security.py                    # Zip safety, SSRF, SHA256, TLS
-│   ├── server.py                      # Self-hosted HTTP registry server
-│   ├── config.py                      # Registry config (~/.forge/registry.yaml)
-│   ├── adapters/                      # Registry backend adapters
-│   │   ├── github.py                  # GitHub Releases adapter
-│   │   ├── http.py                    # Generic HTTP server adapter
-│   │   └── local.py                   # Local folder adapter
-│   └── tests/                         # Unit + security tests (150 tests)
-├── paper/                             # Research paper
-└── output/                            # Generated workflows land here
+## Before you touch anything
+
+```bash
+gh repo clone MONTBRAIN/vadgr-docs        # if it is not already beside this repo
 ```
 
-## How to Use
+Read, in this order, and stop as soon as your question is answered:
 
-Point your AI coding agent at the orchestrator:
-```
-Read forge/agentic.md and start
-```
+1. **`vadgr-docs/PLANS.md`** - the phases, the iterations, the pairing table,
+   and the decision register. **Most "which way should this go" questions are
+   already ruled there. A decision marked `Ruled` is an answer, not an option.**
+2. **`vadgr-docs/general/CONTRACT.md`** - the API and CLI surface, endpoint by
+   endpoint, each tagged with the minor that delivers it.
+3. **`vadgr-docs/general/ARCHITECTURE.md`** and the minor's design doc under
+   `vadgr-docs/design/phase-<N>-<name>/vadgr/<version>/`.
+4. **Only then ask the owner** - and say which of the three you checked.
 
-For Claude Code, slash commands are available:
-```
-/create-workflow              # Full workflow: runs Steps 1-7
-/gather-requirements          # Step 1: Interview the user
-/design-architecture          # Step 2: Design workflow structure
-/generate-scaffold            # Step 3: Generate project skeleton
-/generate-orchestrator        # Step 4: Generate agentic.md
-/generate-agents              # Step 5: Generate agent prompts + step files
-/generate-scripts             # Step 6: Generate workflow scripts
-/review-workflow              # Step 7: Self-review and deliver
-/fix [problem-or-path]        # Diagnose and fix issues in any workflow
-/execute-workflow [path]      # Execute a workflow via computer use
-/create-and-run [task]        # Generate workflow + execute immediately
-/pause-execution              # Pause computer use mid-execution
-/resume-execution             # Resume paused execution
-```
+`vadgr-docs/AGENTS.md` and `vadgr-docs/general/ENGINEERING.md` are the full
+conventions. **Read them before your first change in a session.** They are not
+auto-loaded, which is exactly why this file names them.
 
-CLI commands (via `forge` or `python -m cli`):
-```
-forge start / stop / restart / status / logs  # Service management
-forge ps                                      # List agents
-forge agents list / get / create / update / delete
-forge agents export <id> / import <file.agnt> # Export/import agents
-forge run <name> [--input key=val]            # Run an agent
-forge run <name> --background                 # Run without streaming
-forge runs list / get / cancel / approve / resume / logs
-forge health / providers                      # System info
-forge computer-use enable / disable / status  # Desktop automation
-forge registry pack / pull / push / search    # Package management
-forge registry add / use / list / remove      # Registry config
-forge registry serve                          # Self-hosted server
+## Four things that must never be looked up
+
+**1. This repo is public. The private docs are never named in it.** Not
+`CONTRACT.md`, `PLANS.md`, `ARCHITECTURE.md`, `ENGINEERING.md`, `MOBILE_DESIGN.md`,
+no `D-xx` decision id, no `vadgr-docs/` path - in code, comments, docstrings,
+test names, the CHANGELOG, or a PR body. **State the substance instead**: "the
+published API reference", "the published frame vocabulary", "the engineering
+standard". Sweep before every push:
+
+```bash
+grep -rn "CONTRACT\.md\|PLANS\.md\|ARCHITECTURE\.md\|ENGINEERING\.md\|MOBILE_DESIGN\.md\|vadgr-docs\|D-[0-9]" \
+  --include=*.py --include=*.md . | grep -v "\.venv\|AGENTS.md\|CLAUDE.md"
 ```
 
-## Key Rules
+**The exception, stated so it is not guessed at: this file and `AGENTS.md` name
+the private docs on purpose** - they are the entry point, and a pointer that
+cannot name what it points at is useless. The ban is on everything a stranger
+reads as the product: code, comments, docstrings, test names, the CHANGELOG and
+PR bodies. Those cite the substance, never the document.
 
-- Always read `forge/agentic.md` fully before starting any step
-- Read the step file referenced by each step before executing it
-- Never skip approval gates (marked with ⏸)
-- Always use `forge/utils/scaffold/` templates as the base for generated files. Do not create from scratch.
-- Generated workflows go into `output/{workflow-name}/`
-- Every generated workflow must include: README.md, agentic.md, step files in `agent/steps/`, at least one agent prompt, at least one slash command
-- Generated agents use thin orchestrator + step files pattern (see Step File Architecture below)
-- Follow the patterns documented in `forge/patterns/` for consistency
-- Reference examples in `forge/examples/` when the user needs inspiration
-- No emojis in generated content
-- No "Co-Authored-By" or AI attribution in generated content
-- Generate mode must NEVER depend on `vadgr-computer-use`. If that optional package is not installed, generate-only workflows keep working.
+**2. No AI attribution, anywhere.** No `Co-Authored-By`, no "generated with", no
+model names - in commits, PR bodies, or generated files.
 
-## Step File Architecture
+**3. Design comes before code.** No minor is implemented until its build spec
+exists and every minor in its iteration has one:
 
-Generated workflows use a thin orchestrator + step files pattern:
-- `agentic.md` contains step order, pause/approval gates, and references to step files
-- `agent/steps/step_{NN}_{step-name}.md` contains the full execution spec for each step
-- Each step file defines: prompt reference, inputs, workflow actions, and required outputs
-- Agent outputs (inter-step context): `output/agent_outputs/step_{NN}_agent_output.md`
-- User outputs (deliverables): `output/user_outputs/step_{NN}/`
+```bash
+python3 ../vadgr-docs/scripts/check_iteration.py <phase> <iteration>
+```
 
-This same pattern applies to forge itself:
-- `forge/steps/interactive/` -- step files for the standalone interactive workflow
-- `forge/steps/api-generate/` -- step files for API-driven generation
-- `forge/steps/api-update/` -- step files for API-driven updates
+Exit `0` or do not start. This exists because the rule was written down and
+broken twice in an hour.
 
-## Naming Conventions
+**4. PR bodies carry code, tests, user-visible changes and caveats.** No
+methodology narration, no SOLID tables, no design-doc citations.
 
-- Slash commands: `kebab-case` (e.g., `create-workflow.md`)
-- Agent prompts in `Prompts/`: zero-padded with underscores (e.g., `01_Agent_Name.md`)
-- Step files: `step_{NN}_{step-name}.md` (e.g., `step_01_gather-requirements.md`)
-- Template placeholders: `{{PLACEHOLDER_NAME}}` (double curly braces, UPPER_SNAKE_CASE)
-- Output folders: `kebab-case` for workflow names
+## How a change is proven here
 
-## Quality Bar
+- **Every fix gets a test that fails without it.** Stash the fix, watch it go
+  red, restore. A test that passes either way tests nothing - one written for a
+  gate crash here passed against the unfixed code because the fake never reached
+  the failing line.
+- **The e2e runbook is run before the PR is offered**, not after. It lives at
+  `E2E/<version>/e2e.md`, starts from `E2E/TEMPLATE.md`, and its doctrine is
+  `E2E/README.md` - both in this repo. Its coverage tables are **generated from
+  a recorded sweep**, never typed.
+- **Never report a result from a command whose exit code you did not read.**
+  `cmd | head` reports `head`'s status. That produced a confident, wrong claim
+  about a CLI exit code in `0.4.1`.
+- **A pass with no output is not a pass.** A sweep that invoked the CLI as a
+  module exited `0` five times having printed nothing, against a daemon it never
+  reached.
 
-Every generated workflow must be:
-- Self-contained (runnable without Agent Forge)
-- Complete (orchestrator + agents + commands + README)
-- Consistent (follows the same patterns Agent Forge uses)
+The gate, all three suites, before offering anything:
+
+```bash
+PYTHONPATH=. python3 -m pytest engine/tests/ -q     # 122
+python3 -m pytest api/tests/ -q                     # 551
+python3 -m pytest cli/tests/ -q                     # 189
+```
+
+One test process at a time - two overlapping runs look exactly like a hung suite.
+
+## Conventions
+
+- Comments explain **why**, not what. Match the surrounding density and voice.
+- Branch per minor, PR per minor. Never commit to `master`.
+- `CHANGELOG.md` is updated **in the PR**, and the version in `api/config.py`
+  moves with it.
+- A minor ends by updating `vadgr-docs/PROGRESS.md` and naming what is next -
+  read from `PLANS.md`'s iteration table, not decided.

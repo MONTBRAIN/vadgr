@@ -137,7 +137,7 @@ class ExecutionService:
         model = run.get("model") or agent.get("model")
         # No wall-clock deadline on the native path: what bounds an unattended
         # run is the gate layer and max_iterations, not a stopwatch, and the
-        # phase-0 gate is one real batch completing over HOURS (PLANS D-55).
+        # target is one real batch completing over HOURS.
         # The legacy CLI path keeps its ceiling until it is deleted in Beta.
         native = is_native_provider(provider_key)
         timeout = None if native else (1800 if agent.get("computer_use") else 900)
