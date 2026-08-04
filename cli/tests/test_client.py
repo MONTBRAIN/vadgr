@@ -37,3 +37,26 @@ def test_the_unreachable_message_names_the_url_and_the_remedy():
     )
     assert "127.0.0.1:9999" in exc.format_message()
     assert "vadgr start" in exc.format_message()
+
+
+# --- a down daemon is answered fast, not after the request timeout ----------
+
+
+def test_a_closed_port_is_detected_without_waiting_for_the_request_timeout():
+    """`_TIMEOUT` is 15s because a request can be doing real work. Deciding
+    nothing is listening must not cost that.
+
+    On Linux and macOS the OS refuses a closed local port instantly and this is
+    belt-and-braces. On WSL2 it does not - IPv4 loopback to an unbound port is
+    swallowed rather than refused, so `vadgr health` against a dead daemon took
+    15.2s to say so. Measured at 1.6s after.
+    """
+    import time
+    from cli.client import _port_is_open, _CONNECT_TIMEOUT, _TIMEOUT
+
+    assert _CONNECT_TIMEOUT < _TIMEOUT
+
+    start = time.time()
+    assert _port_is_open("127.0.0.1", 9) is False
+    elapsed = time.time() - start
+    assert elapsed < _TIMEOUT / 2, f"took {elapsed:.1f}s; the point is not to wait"

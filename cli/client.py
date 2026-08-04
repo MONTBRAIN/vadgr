@@ -5,12 +5,18 @@ from __future__ import annotations
 import json
 import socket
 import urllib.error
+import urllib.parse
 import urllib.request
 
 import click
 
 _TIMEOUT = 15
 _LONG_TIMEOUT = 120
+
+# A local daemon is either listening or it is not; there is no slow-but-fine
+# case for the connect itself. Kept short and separate from `_TIMEOUT`, which
+# has to stay generous because a request can be doing real work.
+_CONNECT_TIMEOUT = 1.5
 
 
 def _base_url(ctx: click.Context) -> str:
@@ -22,6 +28,15 @@ def _request(ctx: click.Context, method: str, path: str, body: dict | None = Non
     url = f"{_base_url(ctx)}{path}"
     data = json.dumps(body).encode() if body is not None else b"{}"
     headers = {"Content-Type": "application/json", "Accept": "application/json"}
+
+    # Cheap reachability probe before the request, so a down daemon is answered
+    # in milliseconds rather than after the request timeout. See `_port_is_open`
+    # for why the OS does not always do this for us.
+    parsed = urllib.parse.urlparse(_base_url(ctx))
+    if parsed.hostname and not _port_is_open(parsed.hostname, parsed.port or 80):
+        raise DaemonUnreachable(
+            f"API is not running at {_base_url(ctx)}. Start it with: vadgr start"
+        )
 
     req = urllib.request.Request(url, data=data if method != "GET" else None, headers=headers, method=method)
     try:
@@ -88,6 +103,26 @@ def api_put(ctx: click.Context, path: str, body: dict | None = None,
 
 def api_delete(ctx: click.Context, path: str) -> dict | list:
     return _request(ctx, "DELETE", path)
+
+
+def _port_is_open(host: str, port: int) -> bool:
+    """Whether anything is listening, answered in milliseconds.
+
+    On Linux and macOS a closed local port is refused instantly and this is
+    redundant. **On WSL2 it is not**: IPv4 loopback to a port nothing listens on
+    is swallowed rather than refused, so the connect runs to the full timeout -
+    measured at 15s for `vadgr health` against a dead daemon, where `::1`
+    refuses the same port in under a millisecond. WSL2 is a platform this
+    daemon claims, and "your daemon is down" should not take fifteen seconds to
+    say on it.
+    """
+    import socket
+
+    try:
+        with socket.create_connection((host, port), timeout=_CONNECT_TIMEOUT):
+            return True
+    except OSError:
+        return False
 
 
 def is_api_running(ctx: click.Context) -> bool:

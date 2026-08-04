@@ -6,11 +6,11 @@ Format and verification rules: [`../README.md`](../README.md) and
 [`../TEMPLATE.md`](../TEMPLATE.md).
 
 > **Status: run on WSL, 2026-08-02. Parts A and B pass end to end, and C clause 1 with them.**
-> Automated gate green (engine 122, api 551, cli 187). **Every published endpoint that is
+> Automated gate green (engine 122, api 551, cli 188). **Every published endpoint that is
 > shipped was driven and is in the coverage table below**, along with the ten
 > that are not yet built and answered `404`/`405` as they should. Part C's
 > gate-park path and Part D are **not testable at this minor** and have moved to
-> the runbooks that can run them. **Sixteen defects found, all by this runbook
+> the runbooks that can run them. **Seventeen defects found, all by this runbook
 > and none by the unit tests**, which is the entire argument for running it
 > before review.
 
@@ -144,6 +144,35 @@ fixed - before it, a phone got `started`, silence, `completed`.
 exercises the endpoint but not the regression. That case is held by the unit
 test, which uses the actual 438-byte output that caused the `500`, and by the
 original traceback in `daemon/serverH.log`.
+
+### Run three times, by three independent agents
+
+Three agents ran the sweep **concurrently**, each with its own port, database
+and daemon process - 8791, 8792, 8793 - so these are three observations rather
+than one run watched three times. Isolation is what makes that safe: the
+one-at-a-time rule for runbook agents is about two agents sharing a daemon.
+
+| | 8791 | 8792 | 8793 |
+|---|---|---|---|
+| run | `1ea97f78` | `86cb370b` | `8323ce83` |
+| HTTP entries | 27 | 27 | 27 |
+| CLI entries | 6 | 6 | 6 |
+| raw / mobile frames | 6 / 6 | 6 / 6 | 6 / 6 |
+| journal phases | `response 2, in_flight 1, done 1` | same | same |
+| tokens in / out | 2981 / 81 | 2981 / 83 | 2981 / 85 |
+
+Normalising only the run and agent ids, **all three agree exactly** on method,
+path, status and error code across 27 HTTP entries; on argv, exit code and
+whether output was produced across 6 CLI entries; and on the frame type counts
+of both sockets.
+
+**The token column is the interesting one.** Input is identical at 2,981 and
+output differs - 81, 83, 85 - which is the right shape: a fixed prompt and tool
+set must not move, and a model's prose is not deterministic. Three identical
+output counts would have suggested a cached or shared result rather than three
+real calls.
+
+Concurrency rules out ordering and cross-run interference as well as timing.
 
 ### Run twice, and diffed
 
@@ -642,6 +671,35 @@ was. Each branch extracts different fields, so a dispatch table would keep all
 the logic and add a lookup. What changed is only the part that was hiding
 information.
 
+### F17 (fixed): fifteen seconds to say the daemon is down, on WSL
+
+`vadgr health` against an unreachable daemon took **15.2s** to answer. The
+request timeout is 15s, which is right for a request that may be doing real
+work, and it was being spent deciding that nothing was listening.
+
+The cause is the platform, not the CLI, and the measurement says so:
+
+```
+127.0.0.1:9999   TimeoutError   3.008s     (and 1, 12345, 65000 - all the same)
+::1:9999         refused        0.000s
+```
+
+**On WSL2, IPv4 loopback to a port nothing listens on is swallowed rather than
+refused**, so the connect runs to the full timeout; IPv6 loopback refuses the
+same port instantly, and so would Linux or macOS. This is not a vadgr bug.
+
+It is still a vadgr problem: WSL is one of the four platforms the daemon claims,
+and "your daemon is down" should not take fifteen seconds to say on it. A short
+connect probe now runs before the request - a local daemon is either listening
+or it is not, so there is no slow-but-fine case for the connect itself, and it
+gets its own 1.5s budget rather than sharing the request's 15s.
+
+**15.2s -> 1.64s**, same message, same exit `3`. The live path is unchanged.
+
+Found by a subagent running the sweep, which noticed the negative CLI case
+dominating wall time - a detail no assertion was looking at, because every
+status and exit code was already correct.
+
 ## Per-OS results
 
 Legend: pass / fail / blocked / not run / **Not-Needed** (no OS-specific
@@ -653,6 +711,7 @@ surface, so a run there adds no signal - always with its reason).
 | Part B (the CLI path) | Not-Needed | Not-Needed | Not-Needed | **pass** |
 | Surface coverage (every shipped endpoint) | Not-Needed | Not-Needed | Not-Needed | **pass** |
 | The CLI's exit codes | **owed** | **owed** | **owed** | **pass** |
+| The unreachable-daemon probe (F17) | **owed** | **owed** | **owed** | **pass** |
 | Part C clause 1 (a clean journal) | **owed** | **owed** | **owed** | **pass** |
 | Part C clause 2 (a dangling record) | moved to `0.5.0` | moved to `0.5.0` | moved to `0.5.0` | moved to `0.5.0` |
 | Overall | Not-Needed except C1 | Not-Needed except C1 | Not-Needed except C1 | **A, B, C1 pass** |
