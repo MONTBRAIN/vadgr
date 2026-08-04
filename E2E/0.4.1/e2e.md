@@ -6,11 +6,11 @@ Format and verification rules: [`../README.md`](../README.md) and
 [`../TEMPLATE.md`](../TEMPLATE.md).
 
 > **Status: run on WSL, 2026-08-02. Parts A and B pass end to end, and C clause 1 with them.**
-> Automated gate green (engine 122, api 548). **Every published endpoint that is
+> Automated gate green (engine 122, api 548, cli 187). **Every published endpoint that is
 > shipped was driven and is in the coverage table below**, along with the ten
 > that are not yet built and answered `404`/`405` as they should. Part C's
 > gate-park path and Part D are **not testable at this minor** and have moved to
-> the runbooks that can run them. **Thirteen defects found, all by this runbook
+> the runbooks that can run them. **Fourteen defects found, all by this runbook
 > and none by the unit tests**, which is the entire argument for running it
 > before review.
 
@@ -55,58 +55,95 @@ Resume itself is **not** deferred - clause 1 (a clean journal is correctly
 unresumable) is proven below. It is clause 2, the dangling record, that needs a
 gate that can park.
 
-## Surface coverage - every published endpoint, and its verdict
+## Surface coverage - every published endpoint, with what it returned
 
-The findings below say what broke. This says what was **checked**, which is the
-question a table of findings cannot answer. Every endpoint the published
-reference lists as shipped, driven live on WSL against the daemon on `8791`:
+The findings below say what broke. This says what was **checked**, and it carries
+the response rather than pointing at a file: a reader should not have to open an
+artifact to learn what came back.
 
-| endpoint | exercised | status | error code | verdict |
+**Generated, not written.** One sweep drives every surface and records the
+request, the status, the error code and the body; the tables are emitted from
+that record, so no row here was typed by hand and none can drift from what
+happened. The record and the harness are both in the evidence bundle
+(`sweep.json`, `sweep.py`). Run `da3438d5` on WSL, `127.0.0.1:8791`, native loop
+confirmed by its journal - 2 model turns, 3,059 in / 68 out.
+
+`{run}` and `{agent}` stand in for that run's and agent's ids.
+
+### Shipped
+
+| endpoint | what was asked | status | code | response, as returned |
 |---|---|---|---|---|
-| `GET /api/health` | CLI and curl | `200` | - | **pass** - status, version, modules |
-| `GET /api/providers` | curl | `200` | - | **pass** - `anthropic_oauth` available, catalogue current |
-| `GET /api/devices` | curl | `200` | - | **pass** - `[]`, no device paired |
-| `DELETE /api/devices/{id}` | unknown id | `404` | `DEVICE_NOT_FOUND` | **pass** |
-| `POST /api/auth/pair` | loopback transport | `503` | `TRANSPORT_UNREACHABLE` | **pass, after F13** - correct refusal: a `127.0.0.1` QR is useless to a phone |
-| `POST /api/auth/claim` | wrong code | `401` | `PAIRING_CODE_INVALID` | **pass, after F13** |
-| `POST /api/agents/{id}/run` | 6 runs, native provider | `202` | - | **pass** - reaches the loop, journal at the API's own run id |
-| `GET /api/runs` | CLI `runs list` and curl | `200` | - | **pass** |
-| `GET /api/runs/{id}` | curl | `200` | - | **pass** - terminal status |
-| `GET /api/runs/{id}` | unknown id | `404` | `RUN_NOT_FOUND` | **pass** |
-| `GET /api/runs/{id}/outputs/{f}` | prose output | `200` | - | **fail -> F12, fixed.** Was `500` |
-| `GET /api/runs/{id}/outputs/{f}` | unknown field | `404` | `OUTPUT_NOT_FOUND` | **pass** |
-| `POST /api/runs/{id}/cancel` | finished run | `409` | `RUN_NOT_ACTIVE` | **pass** - refuses, with the envelope |
-| `POST /api/runs/{id}/resume` | completed run | `409` | `RUN_NOT_RESUMABLE` | **pass** |
-| `WS /api/runs/{id}/stream` | recorded, whole run | - | - | **fail -> F9, fixed.** 2 frames, then 11 |
-| `WS /api/ws/runs/{id}` | recorded, whole run | - | - | **pass, after F7** - authed, send-only, loopback tokenless |
+| `POST /api/agents/{agent}/run` | trigger a run on the native provider | `202` | - | `{"run_id":"{run}","status":"queued"}` |
+| `GET /api/health` | daemon liveness | `200` | - | `{"status":"healthy","modules":{"forge":true,"computer_use":true},"platform":"wsl2","version":"0.4.0","transpor ...` |
+| `GET /api/providers` | the provider catalogue | `200` | - | `[{"id":"anthropic_oauth","name":"Anthropic (OAuth, subscription)","available":true,"models":[{"id":"claude-opu ...` |
+| `GET /api/devices` | paired phones | `200` | - | `[]` |
+| `DELETE /api/devices/no-such-device` | negative: unknown device | `404` | `DEVICE_NOT_FOUND` | `{"error":{"code":"DEVICE_NOT_FOUND","message":"Device 'no-such-device' not found.","details":{}}}` |
+| `POST /api/auth/pair` | negative: loopback cannot advertise | `503` | `TRANSPORT_UNREACHABLE` | `{"error":{"code":"TRANSPORT_UNREACHABLE","message":"Transport cannot advertise a reachable address. Enable Tai ...` |
+| `POST /api/auth/claim` | negative: bad pairing code | `401` | `PAIRING_CODE_INVALID` | `{"error":{"code":"PAIRING_CODE_INVALID","message":"That pairing code is wrong or has already been used.","deta ...` |
+| `GET /api/runs` | run list | `200` | - | `[{"id":"{run}","project_id":null,"agent_id":"{agent}","status":"completed","inputs":{},"outputs":{"status":"ok ...` |
+| `GET /api/runs/{run}` | the run this sweep created | `200` | - | `{"id":"{run}","project_id":null,"agent_id":"{agent}","status":"completed","inputs":{},"outputs":{"status":"ok" ...` |
+| `GET /api/runs/no-such-run` | negative: unknown run | `404` | `RUN_NOT_FOUND` | `{"error":{"code":"RUN_NOT_FOUND","message":"Run with id 'no-such-run' not found","details":{}}}` |
+| `GET /api/runs/{run}` | the run this sweep created (again, for its output fields) | `200` | - | `{"id":"{run}","project_id":null,"agent_id":"{agent}","status":"completed","inputs":{},"outputs":{"status":"ok" ...` |
+| `GET /api/runs/{run}/outputs/status` | a field the run actually produced (status) | `200` | - | `ok` |
+| `GET /api/runs/{run}/outputs/no-such-field` | negative: unknown field | `404` | `OUTPUT_NOT_FOUND` | `{"error":{"code":"OUTPUT_NOT_FOUND","message":"Output 'no-such-field' not found in run","details":{}}}` |
+| `POST /api/runs/{run}/cancel` | negative: run already finished | `409` | `RUN_NOT_ACTIVE` | `{"error":{"code":"RUN_NOT_ACTIVE","message":"Run is already finished","details":{}}}` |
+| `POST /api/runs/{run}/resume` | negative: run not failed | `409` | `RUN_NOT_RESUMABLE` | `{"error":{"code":"RUN_NOT_RESUMABLE","message":"Only failed runs can be resumed (current status: completed)"," ...` |
+| `GET /api/agents` | agent list | `200` | - | `[{"id":"{agent}","name":"e2e-conformance","description":"Call report_progress with the message conformance che ...` |
+| `GET /api/agents/{agent}` | the agent this sweep used | `200` | - | `{"id":"{agent}","name":"e2e-conformance","description":"Call report_progress with the message conformance chec ...` |
 
-**Codes are the contract; messages are prose.** Every negative case above was
-checked on its `code`, not its sentence: a client switches on one and shows the
-other, so a wrong code is a divergence even when the status is right. F13 is
-exactly that failure - two right statuses carrying two wrong codes.
+Every negative case is asserted on its `code`, not its sentence: a client
+switches on one and shows the other, so a wrong code is a divergence even when
+the status is right. F13 was exactly that - two right statuses, two wrong codes.
 
-**Not yet built, and correctly absent.** Probed anyway, because a future
-endpoint answering something other than `404`/`405` means it was half-wired,
-which is the state nobody notices until a client calls it:
+### Not yet built - probed to confirm absent, not half-wired
 
-| endpoint | minor | observed |
+| endpoint | minor | status | response |
+|---|---|---|---|
+| `GET /api/machine` | `0.5.0` | `404` | `{"detail":"Not Found"}` |
+| `PATCH /api/machine` | `0.6.0` | `404` | `{"detail":"Not Found"}` |
+| `POST /api/runs` | `0.5.0` | `405` | `{"detail":"Method Not Allowed"}` |
+| `POST /api/runs/{run}/pause` | `0.5.0` | `404` | `{"detail":"Not Found"}` |
+| `POST /api/runs/{run}/respond` | `0.5.0` | `404` | `{"detail":"Not Found"}` |
+| `GET /api/runs/{run}/journal` | `0.5.0` | `404` | `{"detail":"Not Found"}` |
+| `POST /api/runs/{run}/messages` | `0.6.0` | `404` | `{"detail":"Not Found"}` |
+| `GET /api/threads` | `0.6.0` | `404` | `{"detail":"Not Found"}` |
+| `GET /api/approvals` | `0.7.0` | `404` | `{"detail":"Not Found"}` |
+| `PUT /api/devices/probe/push_token` | `0.7.0` | `404` | `{"detail":"Not Found"}` |
+
+Ten endpoints, ten refusals. A future endpoint answering anything else means it
+was partly wired, which is the state nobody notices until a client calls it.
+
+### The CLI
+
+| command | exit | output, as printed |
 |---|---|---|
-| `GET /api/machine` | `0.5.0` | `404` |
-| `PATCH /api/machine` | `0.6.0` | `404` |
-| `POST /api/runs` | `0.5.0` | `405` |
-| `POST /api/runs/{id}/pause` | `0.5.0` | `404` |
-| `POST /api/runs/{id}/respond` | `0.5.0` | `404` |
-| `GET /api/runs/{id}/journal` | `0.5.0` | `404` |
-| `POST /api/runs/{id}/messages` | `0.6.0` | `404` |
-| `GET /api/threads` | `0.6.0` | `404` |
-| `GET /api/approvals` | `0.7.0` | `404` |
-| `PUT /api/devices/{id}/push_token` | `0.7.0` | `404` |
+| `vadgr health` | `0` | `Status: healthy / Version: 0.4.0 / Platform: wsl2` |
+| `vadgr runs list` | `0` | `Run ID Agent Status Duration / da3438d5 e2e-conformance completed - / 99c0d7e9 e2e-conformance completed -` |
+| `vadgr providers` | `0` | `Anthropic (OAuth, subscription) (anthropic_oauth) -- available / - Claude Opus 5 (claude-opus-5) / - Claude Sonnet 5 (cl ...` |
+| `vadgr runs get {run}` | `0` | `Run ID: {run} / Agent: e2e-conformance / Status: completed` |
+| `vadgr runs logs {run}` | `0` | `[2026-08-04T13:46:15.241761+00:00] {'forge_path': ''} / [2026-08-04T13:46:15.248658+00:00] {'agent_id': '{agent}', 'name ...` |
+| `vadgr health` | `3` | `Error: API is not running at http://127.0.0.1:9999. Start it with: vadgr start` |
 
-All ten absent, none half-wired.
+The last row is F14: an unreachable daemon exits `3`, distinct from the `1` a
+refusal gets. It exited `1` for both, so a script could not tell a machine that
+is off from a request that was denied.
 
-**One endpoint is deliberately still here**: `POST /api/agents/{id}/run` is
-replaced by `POST /api/runs {task}` at `0.5.0`. It is the path this minor wires
-the loop onto, so it is tested as shipped rather than as deprecated.
+### The sockets
+
+| socket | frames | types, as received |
+|---|---|---|
+| `WS /api/ws/runs/{run}` | 6 | `{'run_started': 1, 'agent_started': 1, 'agent_log': 2, 'agent_completed': 1, 'run_completed': 1}` |
+| `WS /api/runs/{run}/stream` | 6 | `{'started': 1, 'tool_call': 1, 'output': 3, 'completed': 1}` |
+
+Both carry the run. The mobile stream carrying six frames rather than two is F9
+fixed - before it, a phone got `started`, silence, `completed`.
+
+**One case this sweep does not cover.** F12 needed an output field longer than
+`NAME_MAX`; this run's outputs are short, so `outputs/status` returns `200` and
+exercises the endpoint but not the regression. That case is held by the unit
+test, which uses the actual 438-byte output that caused the `500`, and by the
+original traceback in `daemon/serverH.log`.
 
 ## Part A: the API path
 
@@ -491,6 +528,25 @@ an 8-character Crockford base32 code inside a five-minute window is not
 practically guessable over HTTP - but it is specified behaviour that does not
 exist, so it is named here rather than discovered later.
 
+### F14 (fixed): the CLI could not say "the daemon is down"
+
+Published exit codes reserve `3` for *the daemon is not reachable* and `1` for
+*it ran and the answer is no*. `cli/client.py` raised a plain `ClickException`
+for a refused connection, and that exits `1`, so both came back the same.
+
+A script cannot branch on that, and the two want opposite handling: an
+unreachable daemon is worth retrying after `vadgr start`, a refusal never is.
+
+`DaemonUnreachable` now carries `exit_code = 3`, and a test pins both halves -
+that unreachable is `3`, and that an ordinary refusal is still `1`, since the
+easy over-fix is to promote everything.
+
+Found by running the CLI in the coverage sweep with a port nothing is listening
+on. It is worth saying how close this came to being missed: the first sweep
+invoked the CLI as `python3 -m cli.main`, which **exits `0` having printed
+nothing**, so five commands recorded a silent pass. Checking the output rather
+than the exit code is what caught it, and it is now a rule in the template.
+
 ## Per-OS results
 
 Legend: pass / fail / blocked / not run / **Not-Needed** (no OS-specific
@@ -501,6 +557,7 @@ surface, so a run there adds no signal - always with its reason).
 | Part A (the API path) | Not-Needed | Not-Needed | Not-Needed | **pass** |
 | Part B (the CLI path) | Not-Needed | Not-Needed | Not-Needed | **pass** |
 | Surface coverage (every shipped endpoint) | Not-Needed | Not-Needed | Not-Needed | **pass** |
+| The CLI's exit codes | **owed** | **owed** | **owed** | **pass** |
 | Part C clause 1 (a clean journal) | **owed** | **owed** | **owed** | **pass** |
 | Part C clause 2 (a dangling record) | moved to `0.5.0` | moved to `0.5.0` | moved to `0.5.0` | moved to `0.5.0` |
 | Overall | Not-Needed except C1 | Not-Needed except C1 | Not-Needed except C1 | **A, B, C1 pass** |

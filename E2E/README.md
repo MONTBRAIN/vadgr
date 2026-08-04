@@ -145,6 +145,28 @@ store, binds a port or draws native UI is **owed** on each OS, not excused. The
 Python and were `Not-Needed`, while OAuth token resolution and the desktop
 channel branch per OS and were recorded as owed.
 
+## Coverage is a table, and it is generated
+
+A runbook that lists findings has answered "what broke" and not "what was
+checked". Both are needed, and the second is the one a reviewer is asking for.
+Every runbook carries a table of **every published endpoint and every CLI
+command**, and each row carries **the response that came back** - a reader
+should not have to open an artifact to learn what an endpoint returned.
+
+**Generate it from a recorded sweep; never type it.** One harness drives every
+surface and records request, status, error code and body; the table is emitted
+from that record. A hand-written table drifts from the run it describes and
+nothing about reading it reveals that. `E2E/0.4.1` is the worked example.
+
+**Check the harness is real before trusting it.** A sweep that records nothing
+looks exactly like a sweep that passed. Two ways it happened here: invoking the
+CLI as a module when the entry point is the installed binary, which exits `0`
+having printed nothing, and letting the CLI talk to its default port while the
+daemon under test is on another. Assert on output, not only on exit codes.
+
+**Assert the error `code`, never the message.** A client switches on the code and
+shows the message; a wrong code breaks the client even when the status is right.
+
 ## The artifacts live in the private repo
 
 This runbook carries the plan and the results. The machine-written artifacts

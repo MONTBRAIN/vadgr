@@ -89,35 +89,58 @@ reduction reads as full coverage.>
 | <A> | <axis x axis> | N | N | N |
 | | | **N** | **N** | **N** |
 
-## Surface coverage - **every published endpoint, and its verdict**
+## Surface coverage - **every published endpoint, with what it returned**
 
-<This section is not optional and it is not a summary. The published API
-reference is the list of what the product promises; this table is the answer to
-"was it tested". A runbook that shows findings but not coverage cannot be read
-as "we checked", only as "we found things".>
+<Not optional, and not a summary. A list of findings answers "what broke" and
+never "what was checked" - and the second is what a reviewer is asking. Each row
+carries **the response**, not a pointer to a file: nobody should open an artifact
+to learn what an endpoint returned.>
 
-<One row per endpoint the reference says is **shipped**. Future-minor endpoints
-go in the second table so a reader can see they were considered and why they are
-absent - silence reads as an oversight.>
+<**Generate these from a recorded sweep. Never type them.** One harness drives
+every surface and writes request, status, error code and body to a JSON record;
+the tables are emitted from that record and both go in the evidence bundle. A
+hand-written table drifts from the run it describes and nothing in it shows that.
+`E2E/0.4.1` is the worked example - `sweep.py` and `gen_tables.py`.>
 
-| endpoint | exercised | status | error code | verdict |
+<Before trusting the harness, check it is real. Both of these silently recorded
+nothing on the way to `0.4.1`: invoking the CLI as a module when the entry point
+is the installed binary - it exits `0` printing nothing, so every command
+"passes" - and letting the CLI use its default port while the daemon under test
+is on another. **Assert on output, not only exit codes.**>
+
+### Shipped
+
+| endpoint | what was asked | status | code | response, as returned |
 |---|---|---|---|---|
-| `GET /api/...` | how it was driven | `200` | - | **pass** |
-| `POST /api/...` | negative case | `409` | `CODE_HERE` | **pass** |
+| `GET /api/...` | <the case> | `200` | - | `<the body>` |
+| `POST /api/...` | negative: <the case> | `409` | `SOME_CODE` | `<the envelope>` |
 
-**Codes are the contract; messages are prose.** Assert the `code`, never the
-sentence - a client switches on one and shows the other. A wrong code is a
-divergence even when the status is right, because the phone codegens the switch.
+<Assert the `code`, never the message: a client switches on one and shows the
+other, so a wrong code is a divergence even when the status is right.>
 
-**Not yet built, and correctly absent:**
+### Not yet built - probed to confirm absent, not half-wired
 
-| endpoint | minor | observed |
+| endpoint | minor | status | response |
+|---|---|---|---|
+| `POST /api/...` | `0.x.0` | `404` | `{"detail":"Not Found"}` |
+
+<Worth the thirty seconds: one answering anything other than 404/405 was partly
+wired, and that is a state nobody notices until a client calls it.>
+
+### The CLI
+
+| command | exit | output, as printed |
 |---|---|---|
-| `POST /api/...` | `0.x.0` | `404` |
+| `vadgr <cmd>` | `0` | `<the first lines, verbatim>` |
+| `vadgr <cmd>` | `3` | `<the daemon-is-down case>` |
 
-<Probing these is worth the thirty seconds: a future endpoint answering anything
-other than 404/405 means something was half-wired, and that is exactly the state
-nobody notices until a client calls it.>
+<Include at least one negative. Exit codes are what scripts branch on.>
+
+### The sockets
+
+| socket | frames | types, as received |
+|---|---|---|
+| `WS /api/...` | N | `{...}` |
 
 ## Part <X>: <what it proves>
 

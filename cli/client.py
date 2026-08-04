@@ -56,9 +56,21 @@ def _request(ctx: click.Context, method: str, path: str, body: dict | None = Non
             f"Request timed out ({url}). The operation may still be running."
         ) from None
     except (urllib.error.URLError, ConnectionRefusedError, OSError):
-        raise click.ClickException(
+        raise DaemonUnreachable(
             f"API is not running at {_base_url(ctx)}. Start it with: vadgr start"
         ) from None
+
+
+class DaemonUnreachable(click.ClickException):
+    """The daemon could not be reached.
+
+    Its own exit code, because "it is down" and "it ran and said no" are
+    different problems and a script has to branch on them: the first is retried
+    after a start, the second never is. `ClickException` exits `1`, which
+    collapses them.
+    """
+
+    exit_code = 3
 
 
 def api_get(ctx: click.Context, path: str) -> dict | list:
