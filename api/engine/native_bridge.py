@@ -29,17 +29,26 @@ logger = logging.getLogger(__name__)
 _DONE = object()
 
 
+# Known, and deliberately not forwarded. `llm_response` carries the whole model
+# response and `tool_result` can carry a base64 screenshot; the socket is a live
+# view, not the record. `trajectory.jsonl` keeps both and the raw log reads from
+# there, so forwarding them would push megabytes at a phone to render one line.
+#
+# Named as data rather than left to the fallthrough, because "dropped on
+# purpose" and "never heard of it" are different facts and only one of them is
+# fine to be silent about.
+_DROPPED_ON_PURPOSE = frozenset({"llm_response", "tool_result"})
+
+
 def map_event(event: dict) -> ExecutionEvent | None:
     """One loop event to one `ExecutionEvent`, or ``None`` to drop it.
 
     The mapping is here rather than inline in the iterator so it is a thing that
     can be tested directly and read in one place.
 
-    **Two events are dropped on purpose.** `llm_response` carries the whole
-    model response and `tool_result` can carry a base64 screenshot; the
-    WebSocket is a live view, not the record. The record is `trajectory.jsonl`,
-    which keeps both, and the raw log reads from there. Forwarding them would
-    push megabytes through a phone's socket to render one line of text.
+    Two events are dropped on purpose - see `_DROPPED_ON_PURPOSE`. Anything
+    else unrecognized is also dropped, but logged, because those two cases are
+    different facts and the second one is a bug waiting to be found.
     """
     kind = event.get("type")
 
@@ -66,9 +75,18 @@ def map_event(event: dict) -> ExecutionEvent | None:
         # `awaiting` on the wire.
         return ExecutionEvent(type="awaiting", data=str(event.get("prompt", "")))
 
-    # llm_response, tool_result, and anything the loop grows later that this
-    # bridge has not been taught: dropped rather than forwarded blind, because
-    # an unrecognized payload is exactly the unbounded one.
+    if kind in _DROPPED_ON_PURPOSE:
+        return None
+
+    # Anything else is an event the loop grows and this bridge was never taught.
+    # Still dropped - an unrecognized payload is exactly the unbounded one - but
+    # never silently: a silent drop here is invisible until someone notices a
+    # feature that never arrives, which is how the `awaiting` frame stayed dead
+    # through three layers.
+    logger.warning(
+        "native bridge: no mapping for loop event %r; dropped. Add it to "
+        "map_event or to _DROPPED_ON_PURPOSE.", kind,
+    )
     return None
 
 

@@ -47,9 +47,22 @@ _EVENT_TYPE_MAP = {
 }
 
 
+# Broadcast, understood, and deliberately not translatable yet. `todos` has no
+# member in `RunEventType`; it gets one at `0.5.0` when this stream's frames are
+# enriched. Listed rather than left to the fallthrough so a type nobody has
+# considered can be told apart from one that is waiting on a decision.
+_NOT_YET_ON_THIS_STREAM = frozenset({"todos"})
+
+
 def _to_run_event(internal: dict) -> RunEvent | None:
-    mapped = _EVENT_TYPE_MAP.get(internal.get("type"))
+    kind = internal.get("type")
+    mapped = _EVENT_TYPE_MAP.get(kind)
     if mapped is None:
+        if kind not in _NOT_YET_ON_THIS_STREAM:
+            logger.warning(
+                "run stream: no RunEvent for broadcast type %r; dropped. Add it "
+                "to _EVENT_TYPE_MAP or to _NOT_YET_ON_THIS_STREAM.", kind,
+            )
         return None
     ts = internal.get("timestamp")
     try:

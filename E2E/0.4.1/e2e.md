@@ -6,11 +6,11 @@ Format and verification rules: [`../README.md`](../README.md) and
 [`../TEMPLATE.md`](../TEMPLATE.md).
 
 > **Status: run on WSL, 2026-08-02. Parts A and B pass end to end, and C clause 1 with them.**
-> Automated gate green (engine 122, api 548, cli 187). **Every published endpoint that is
+> Automated gate green (engine 122, api 551, cli 187). **Every published endpoint that is
 > shipped was driven and is in the coverage table below**, along with the ten
 > that are not yet built and answered `404`/`405` as they should. Part C's
 > gate-park path and Part D are **not testable at this minor** and have moved to
-> the runbooks that can run them. **Fourteen defects found, all by this runbook
+> the runbooks that can run them. **Sixteen defects found, all by this runbook
 > and none by the unit tests**, which is the entire argument for running it
 > before review.
 
@@ -441,6 +441,10 @@ and with no mapping **an approval request could never reach the device that has
 to answer it** - the gate layer's entire purpose, unreachable through a mapping
 table.
 
+**See F15: this mapping was necessary and was not sufficient.** The gates emitted
+no event at all, so fixing the translator alone would have left the frame dead
+with this runbook claiming it worked.
+
 `vadgr-mobile` has a `RunEventKind.toolCall` case for a frame the server never
 sends, which is the no-dead-controls rule's dead control one layer down in the data.
 
@@ -578,6 +582,65 @@ on. It is worth saying how close this came to being missed: the first sweep
 invoked the CLI as `python3 -m cli.main`, which **exits `0` having printed
 nothing**, so five commands recorded a silent pass. Checking the output rather
 than the exit code is what caught it, and it is now a rule in the template.
+
+### F15 (fixed): a parking gate told nobody, and three layers had a branch for it
+
+`ask_user`, `request_approval` and `propose_plan` each called `_journal_await`,
+which wrote the journal line and **emitted no event**. So a run could park on a
+human and no watcher could learn it had.
+
+The part worth keeping is what it looked like from inside. Three layers carried
+an `awaiting` branch:
+
+- `map_event` had `if kind == "await_user"`
+- the executor had `elif event.type == "awaiting"`
+- the mobile translator had `"awaiting": RunEventType.PAUSED`
+
+All three were unreachable, and **every test passed**, because a dead branch and
+a rare branch are indistinguishable from inside the module. `await_user` is a
+journal *phase*, never an event *type*; the branch was written against the wrong
+vocabulary and nothing said so.
+
+**This corrects F9 above.** F9 says the missing `awaiting` mapping meant an
+approval could not reach the device. That was true and it was not the whole
+truth: adding the mapping fixed the translator while the event was never emitted
+at all. The chain was broken at the source, and F9's fix alone would have left it
+broken with the runbook claiming otherwise.
+
+Journalling and announcing are now one function, `_park()`, because they are the
+same fact for two audiences and splitting them is how one got forgotten. The
+journal is written first: it survives the process and the emit does not, so if
+only one happens it should be the durable one.
+
+**Measured.** A run whose task is a single `ask_user`, both sockets recorded:
+
+```
+[raw] awaiting   {"prompt": "Which folder should I use?"}
+[mob] paused     {"prompt": "Which folder should I use?"}
+```
+
+Before the fix, neither frame existed on either socket.
+
+A test now asserts every `map_event` branch is fed by something the engine
+actually emits - the mirror of the test asserting the bridge invents no frames.
+Both directions, because this codebase has now been bitten by each.
+
+### F16 (fixed): a deliberate drop and an unconsidered one were the same silence
+
+`map_event` returned `None` for `llm_response` and `tool_result` - dropped for a
+good documented reason - and also for any event type the loop grows later. One
+value, two entirely different facts, and no way to tell them apart afterwards.
+
+That is the mechanism behind F15: the drop is invisible until somebody notices a
+feature that never arrives. The deliberate pair is now `_DROPPED_ON_PURPOSE`,
+named as data, and anything else is dropped **with a warning naming the type**.
+The same split now applies to the mobile translator, where `todos` is understood
+and waiting on `0.5.0` rather than unconsidered.
+
+Not a refactor for its own sake: the five-branch `if` chain stays exactly as it
+was. Each branch extracts different fields, so a dispatch table would keep all
+the logic and add a lookup. What changed is only the part that was hiding
+information.
 
 ## Per-OS results
 

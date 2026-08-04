@@ -157,3 +157,18 @@ def test_progress_and_gate_events_reach_the_phone():
     assert _to_run_event({"type": "agent_log", "data": {"message": "step one"}}).type is RunEventType.OUTPUT
     assert _to_run_event({"type": "awaiting", "data": {"prompt": "which folder?"}}).type is RunEventType.PAUSED
     assert _to_run_event({"type": "agent_failed", "data": {}}).type is RunEventType.FAILED
+
+
+def test_a_deferred_type_is_quiet_and_an_unknown_one_is_not(caplog):
+    """`todos` is understood and waiting on `0.5.0`; an unrecognized type is a
+    gap nobody has looked at. Both drop, so the log is the only thing that
+    tells them apart afterwards."""
+    import logging
+
+    with caplog.at_level(logging.WARNING):
+        assert _to_run_event({"type": "todos", "data": {"items": []}}) is None
+    assert not caplog.records, "a deliberate deferral must not warn"
+
+    with caplog.at_level(logging.WARNING):
+        assert _to_run_event({"type": "a_type_added_later", "data": {}}) is None
+    assert any("no RunEvent" in r.message for r in caplog.records)

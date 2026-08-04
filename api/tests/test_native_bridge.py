@@ -224,3 +224,50 @@ def test_the_checklist_reaches_the_wire_as_structure_not_a_repr():
     assert ev.data == items, "the checklist must arrive as a list of dicts"
     assert not isinstance(ev.data, str)
     json.dumps({"items": ev.data})  # must survive the broadcast serialiser
+
+
+def test_every_branch_in_the_map_is_fed_by_something_the_loop_emits():
+    """The mirror of asserting the map has no invented frames.
+
+    `map_event` had an `await_user` branch and nothing emitted that type - the
+    gates only journalled the pause. So three layers carried an `awaiting`
+    branch that could never fire, and a parked run was invisible to every
+    watcher. Nothing raised, because a dead branch and a rare branch look
+    identical from inside.
+    """
+    import re
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[2]
+    handled = set(re.findall(r'kind == "([a-z_]+)"',
+                             (root / "api" / "engine" / "native_bridge.py").read_text()))
+
+    emitted = set()
+    for src in [(root / "engine" / "loop.py"), *(root / "engine" / "tools").glob("*.py")]:
+        text = src.read_text()
+        emitted |= set(re.findall(r'"type":\s*"([a-z_]+)"', text))
+        emitted |= set(re.findall(r'emit_event\(\s*server,\s*\{"type":\s*"([a-z_]+)"', text))
+
+    dead = handled - emitted
+    assert not dead, (
+        f"map_event branches nothing emits: {sorted(dead)}. Either the loop "
+        f"stopped sending them or the branch was never reachable."
+    )
+
+
+def test_an_untaught_event_is_dropped_loudly_and_a_known_one_quietly(caplog):
+    """A deliberate drop and an unrecognized one are different facts.
+
+    Both return None, so the only way to tell them apart later is that one of
+    them said something at the time.
+    """
+    import logging
+
+    with caplog.at_level(logging.WARNING):
+        assert map_event({"type": "llm_response", "content": "..."}) is None
+    assert not caplog.records, "a deliberate drop must not warn"
+
+    with caplog.at_level(logging.WARNING):
+        assert map_event({"type": "something_the_loop_grew_later"}) is None
+    assert any("no mapping" in r.message for r in caplog.records), \
+        "an untaught event must warn, or it is invisible until a feature is missing"
