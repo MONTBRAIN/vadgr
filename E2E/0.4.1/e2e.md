@@ -145,6 +145,38 @@ exercises the endpoint but not the regression. That case is held by the unit
 test, which uses the actual 438-byte output that caused the `500`, and by the
 original traceback in `daemon/serverH.log`.
 
+### Run twice, and diffed
+
+The sweep was run twice back to back and the two records compared, so "not
+flaky" is a check rather than a claim. Normalising only the run and agent ids,
+which must differ:
+
+| compared | entries | result |
+|---|---|---|
+| HTTP: method, path, status, error code | 27 | **identical** |
+| CLI: argv, exit code, produced output | 6 | **identical** |
+| WS: frame type counts, both sockets | 2 | **identical** |
+
+Both passes reached the native loop and did the same work - `response 2,
+in_flight 1, done 1`, two turns, 3,059 in / 68 out, one `control__report_progress`
+call. Matching token counts are themselves the signal: same prompt, same tools,
+same model. A difference there would have meant the fixture drifted between
+passes rather than the product behaving differently.
+
+Unit suites were run twice each and matched exactly: **engine 122, api 548, cli
+187**, with the CLI suite taking 96.57s and 96.55s.
+
+One false alarm, recorded because it cost time: the CLI suite looked like it
+hung for nine minutes across two attempts. It was overlapping test processes
+from a previous background invocation, not the suite - which runs in 96s
+cleanly. Its three slowest cases are connection-refused timeouts at 15s each, by
+design. The lesson is the harness again: one test process at a time, or a slow
+suite reads as a broken one.
+
+**What this rules out is ordering and timing flakiness inside a sweep, on one
+machine, minutes apart.** It does not speak to environment drift or to other
+operating systems, which the per-OS table below still records as owed.
+
 ## Part A: the API path
 
 | # | What | Expected | Status |
