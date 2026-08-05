@@ -10,12 +10,15 @@ class PairResponse(BaseModel):
 
     host: str
     port: int
-    pairing_token: str  # one-time, short-lived
+    # since 0.4.3: an 8-char Crockford base32 code, shown XXXX-XXXX; one-time,
+    # 5-min TTL. The field name is the invariant -- only the value changed.
+    pairing_token: str
     machine_name: str
 
 
 class ClaimRequest(StrictBody):
-    """Phone -> server. Carries the one-time pairing token."""
+    """Phone -> server. Carries the one-time pairing code, however it was typed
+    -- case, hyphens and spaces are normalised server-side."""
 
     pairing_token: str
     device_name: str

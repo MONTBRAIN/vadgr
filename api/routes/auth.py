@@ -1,4 +1,4 @@
-"""Pairing endpoints: mint a one-time token (pair) and redeem it (claim)."""
+"""Pairing endpoints: mint a one-time code (pair) and redeem it (claim)."""
 
 import socket
 
@@ -22,7 +22,7 @@ def _machine_name() -> str:
 
 @router.post("/pair", response_model=PairResponse)
 async def pair(request: Request):
-    """Mint a one-time, short-lived pairing token and return the QR payload.
+    """Mint a one-time, short-lived pairing code and return the QR payload.
 
     Refuses (503) when the transport can't advertise a reachable host -- we
     never hand out a localhost QR a phone could not use."""
@@ -43,21 +43,41 @@ async def pair(request: Request):
             },
         )
 
-    pairing_token, _ = request.app.state.pairing_store.mint()
+    # The field on the wire stays `pairing_token`; only the value it carries
+    # changed shape. Renaming it would break the shipped CLI and the phone.
+    pairing_code, _ = request.app.state.pairing_store.mint()
     return PairResponse(
         host=host,
         port=settings.port,
-        pairing_token=pairing_token,
+        pairing_token=pairing_code,
         machine_name=_machine_name(),
     )
 
 
 @router.post("/claim", response_model=ClaimResponse)
 async def claim(body: ClaimRequest, request: Request):
-    """Redeem a pairing token (one-time) for a persistent device token.
+    """Redeem a pairing code (one-time) for a persistent device token.
 
     The plaintext token is returned exactly once; only its hash is stored."""
     result = request.app.state.pairing_store.redeem(body.pairing_token)
+    if result is ClaimResult.RATE_LIMITED:
+        # Fired exactly once, at the moment the cap acts -- the one moment "too
+        # many attempts" is a fact distinct from "not claimable", and what lets
+        # the phone say the code is dead instead of inviting another retype.
+        # No `retry_after`: the recovery is a new code, not waiting.
+        return JSONResponse(
+            status_code=429,
+            content={
+                "error": {
+                    "code": "RATE_LIMITED",
+                    "message": (
+                        "Too many failed attempts. That pairing code is no longer "
+                        "valid; generate a new one on the machine."
+                    ),
+                    "details": {},
+                }
+            },
+        )
     if result is ClaimResult.EXPIRED:
         # 410 rather than 401, and the split is the point: the phone tells the
         # owner to ask for a new code instead of that they mistyped this one.
