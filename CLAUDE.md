@@ -2,8 +2,8 @@
 
 A daemon per machine: the native agent loop, the MCP host, gates and policy,
 the API the phone talks to, persistence, plus `cli/` - the on-box owner surface.
-v2 has no desktop frontend: `frontend/` sits in the tree only until `0.4.2`
-deletes it. Build nothing against it.
+v2 has no desktop frontend - `0.4.2` deleted it, and a guardrail test fails the
+suite if it comes back. The clients are this CLI and the phone.
 
 **This file is loaded automatically. The rules live in the docs repo and are not
 copied here** - a second copy drifts, and a drifted rule is worse than none.
@@ -90,8 +90,8 @@ The gate, all three suites, before offering anything:
 
 ```bash
 PYTHONPATH=. python3 -m pytest engine/tests/ -q     # 122
-python3 -m pytest api/tests/ -q                     # 551
-python3 -m pytest cli/tests/ -q                     # 189
+python3 -m pytest api/tests/ -q                     # 554
+python3 -m pytest cli/tests/ -q                     # 192
 ```
 
 One test process at a time wherever anything is shared - two overlapping runs
