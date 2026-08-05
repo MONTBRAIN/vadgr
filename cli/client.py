@@ -26,8 +26,16 @@ def _base_url(ctx: click.Context) -> str:
 def _request(ctx: click.Context, method: str, path: str, body: dict | None = None,
              timeout: int | None = None) -> dict | list:
     url = f"{_base_url(ctx)}{path}"
-    data = json.dumps(body).encode() if body is not None else b"{}"
-    headers = {"Content-Type": "application/json", "Accept": "application/json"}
+    # No body means no body. Sending `{}` to a route that declares no body
+    # parameter leaves it unread on the wire, and the server must then close the
+    # connection abruptly rather than reuse it -- which on WSL2 loopback races
+    # the client's read and arrives as ECONNRESET *after* the request was
+    # served. `vadgr pair` lost roughly one code in twenty that way, reporting
+    # "API is not running" about a daemon that had already answered 200.
+    data = json.dumps(body).encode() if body is not None else None
+    headers = {"Accept": "application/json"}
+    if data is not None:
+        headers["Content-Type"] = "application/json"
 
     # Cheap reachability probe before the request, so a down daemon is answered
     # in milliseconds rather than after the request timeout. Loopback only, on
@@ -39,7 +47,7 @@ def _request(ctx: click.Context, method: str, path: str, body: dict | None = Non
                 f"API is not running at {_base_url(ctx)}. Start it with: vadgr start"
             )
 
-    req = urllib.request.Request(url, data=data if method != "GET" else None, headers=headers, method=method)
+    req = urllib.request.Request(url, data=data, headers=headers, method=method)
     try:
         with urllib.request.urlopen(req, timeout=timeout or _TIMEOUT) as resp:
             body = resp.read()
@@ -94,12 +102,12 @@ def api_get(ctx: click.Context, path: str) -> dict | list:
 
 
 def api_post(ctx: click.Context, path: str, body: dict | None = None) -> dict | list:
-    return _request(ctx, "POST", path, body or {})
+    return _request(ctx, "POST", path, body)
 
 
 def api_put(ctx: click.Context, path: str, body: dict | None = None,
             timeout: int | None = None) -> dict | list:
-    return _request(ctx, "PUT", path, body or {}, timeout=timeout)
+    return _request(ctx, "PUT", path, body, timeout=timeout)
 
 
 def api_delete(ctx: click.Context, path: str) -> dict | list:
