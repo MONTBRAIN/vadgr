@@ -65,19 +65,6 @@ function InstallPython {
     if (-not (CommandExists "python")) { Fail "Python installation failed." }
 }
 
-function InstallNode {
-    if (CommandExists "node") {
-        Info "Node.js already installed: $(node --version)"
-        return
-    }
-    Info "Installing Node.js LTS..."
-    EnsureWinget
-    winget install --id OpenJS.NodeJS.LTS --accept-source-agreements --accept-package-agreements --silent
-    # Refresh PATH
-    $env:PATH = "$env:ProgramFiles\nodejs;$env:PATH"
-    if (-not (CommandExists "node")) { Fail "Node.js installation failed." }
-}
-
 # ---------------------------------------------------------------------------
 # Setup Vadgr
 # ---------------------------------------------------------------------------
@@ -129,12 +116,6 @@ function SetupForgeScripts {
 function SetupCli {
     Info "Setting up CLI..."
     EnsureVenv "cli\.venv" "cli\requirements.txt"
-}
-
-function SetupFrontend {
-    Info "Setting up frontend..."
-    Set-Location "$FORGE_REPO\frontend"
-    npm.cmd install --silent
 }
 
 # ---------------------------------------------------------------------------
@@ -205,12 +186,10 @@ function Main {
 
     InstallGit
     InstallPython
-    InstallNode
     SetupRepo
     SetupApi
     SetupForgeScripts
     SetupCli
-    SetupFrontend
     GenerateForgeCli
     AddToPath
 

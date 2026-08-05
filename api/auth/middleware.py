@@ -2,8 +2,8 @@
 
 Every request passes through, in order:
 
-  Gate 0  loopback bypass: a 127.0.0.0/8 source is allowed outright (the CLI
-          and the frontend served on localhost are unchanged).
+  Gate 0  loopback bypass: a 127.0.0.0/8 source is allowed outright, which is
+          what keeps the on-box CLI working without a token.
   Gate 1  network: ``transport.is_authorized_source(peer_ip)`` -- a non-tailnet
           source is rejected *before* the token is even looked at.
   Gate 2  token: a valid ``Authorization: Bearer <token>`` (or ``?token=`` for

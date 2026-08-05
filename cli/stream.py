@@ -136,27 +136,4 @@ def _print_step_done(step_label: str, step_start: float | None):
 
 
 def _print_results_link(api_url: str, run_id: str):
-    port = _get_frontend_port()
-    if port:
-        click.echo(f"  See results: http://localhost:{port}/runs/{run_id}")
-    else:
-        click.echo(f"  See results: {api_url}/api/runs/{run_id}")
-
-
-def _get_frontend_port() -> int | None:
-    import os
-    import urllib.request
-
-    # Read from port file first (set by vadgr start)
-    try:
-        from cli.commands.service import _read_active_port
-        port = _read_active_port("frontend", int(os.environ.get("AGENT_FORGE_FRONTEND_PORT", "3000")))
-    except Exception:
-        port = int(os.environ.get("AGENT_FORGE_FRONTEND_PORT", "3000"))
-
-    try:
-        urllib.request.urlopen(f"http://localhost:{port}", timeout=1)
-        return port
-    except Exception:
-        pass
-    return None
+    click.echo(f"  See results: {api_url}/api/runs/{run_id}")

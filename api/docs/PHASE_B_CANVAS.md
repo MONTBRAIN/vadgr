@@ -1,5 +1,11 @@
 # Projects, Canvas, and DAG Orchestration
 
+> **Historical.** This describes the v1 product: a visual orchestration
+> platform driven from a web dashboard. That dashboard was removed in
+> `0.4.2` and the machine's clients are now the `vadgr` CLI on the box and
+> the phone app over the tailnet. Kept as the record of what was designed
+> then; read the current architecture for what is built.
+
 Architecture document for project-level orchestration -- the layer that connects agents into executable pipelines on a visual canvas.
 
 ---

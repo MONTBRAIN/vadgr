@@ -32,7 +32,7 @@ Describe your work. Vadgr builds an agent for it. The agent runs on your machine
 
 ## Install
 
-Works on **Linux**, **WSL**, and **Windows**. macOS support is in progress (agent creation and CLI steps work, computer use does not). The installer sets up everything: git, Python, Node.js, dependencies, and the `vadgr` CLI.
+Works on **Linux**, **WSL**, and **Windows**. macOS support is in progress (agent creation and CLI steps work, computer use does not). The installer sets up everything: git, Python, dependencies, and the `vadgr` CLI. No Node.js and no browser: the machine's clients are this CLI and the phone app.
 
 ```bash
 # Linux / macOS / WSL
@@ -66,10 +66,10 @@ vadgr start
 
 | Command | Description |
 |---------|-------------|
-| `vadgr start` | Start API and frontend servers |
-| `vadgr stop` | Stop all services |
-| `vadgr restart` | Restart all services |
-| `vadgr status` | Show if services are running |
+| `vadgr start` | Start the vadgr daemon (`vadgr api` is the same command) |
+| `vadgr stop` | Stop the daemon |
+| `vadgr restart` | Restart the daemon |
+| `vadgr status` | Show whether the daemon is running |
 | `vadgr logs` | Tail API server logs |
 | `vadgr update` | Pull latest code and reinstall deps |
 
@@ -119,7 +119,7 @@ vadgr start
 
 ### Manual setup
 
-If you prefer to set things up manually, see [api/README.md](api/README.md) and [frontend/README.md](frontend/README.md).
+If you prefer to set things up manually, see [api/README.md](api/README.md) and [cli/README.md](cli/README.md).
 
 Provider parser families and real sample log lines are documented in [PROVIDER_PARSER_GUIDE.md](PROVIDER_PARSER_GUIDE.md).
 
@@ -127,9 +127,10 @@ Provider parser families and real sample log lines are documented in [PROVIDER_P
 
 ```mermaid
 graph LR
-    User((User)) -->|Port 3000| FE[Frontend<br/>React + Vite]
-    FE -->|REST /api| API[API Server<br/>FastAPI]
-    FE <-->|WebSocket /ws| API
+    Owner((Owner)) -->|on the box| VCLI[vadgr CLI]
+    Phone((Phone)) -->|over the tailnet| API
+    VCLI -->|REST /api| API[API Server<br/>FastAPI]
+    VCLI <-->|WebSocket /ws| API
     API -->|subprocess| CLI[CLI Agent Tool<br/>Claude / Codex / Aider]
     API -->|read/write| DB[(SQLite)]
     CLI -->|reads| Vadgr[vadgr/<br/>Prompt Templates]
@@ -147,10 +148,6 @@ Unified CLI built with Click. Manages agents, runs, registry, and services. Talk
 ### [api/](api/) - REST API + Execution Engine
 
 FastAPI backend for agent CRUD, generation, and execution. Spawns any CLI agent tool (Claude Code, Codex, Gemini) as a subprocess via config-driven providers. Supports multi-step orchestration with approval gates, resume, and retry. See [api/README.md](api/README.md).
-
-### [frontend/](frontend/) - Web Dashboard
-
-React 19 + TypeScript + Vite dashboard for creating agents, monitoring runs in real-time, and configuring integrations (computer use). See [frontend/README.md](frontend/README.md).
 
 ### [forge/](forge/) - Agent Generation Engine
 
@@ -179,10 +176,6 @@ Vadgr/
 │   ├── services/          # Business logic
 │   ├── engine/            # CLI provider executor + DAG orchestration
 │   └── persistence/       # SQLite database
-├── frontend/              # React web dashboard
-│   ├── src/pages/         # Dashboard, Agents, Runs, Settings
-│   ├── src/components/    # UI components
-│   └── src/hooks/         # TanStack Query hooks
 ├── forge/                 # Agent generation engine (standalone)
 │   ├── agentic.md         # 7-step orchestrator
 │   ├── Prompts/           # Specialized agent prompts
@@ -201,23 +194,6 @@ Vadgr/
 ```
 
 ## Technologies
-
-**Frontend**
-
-<div align="left">
-
-|  | Technology | Version | Role |
-|:---:|:---:|:---:|:---|
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="25" /> | React | 19.2 | UI framework |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="25" /> | TypeScript | 5.9 | Type-safe JavaScript |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg" width="25" /> | Vite | 7.3 | Build tool and dev server |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" width="25" /> | Tailwind CSS | 4.2 | Utility-first CSS framework |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="25" style="filter: hue-rotate(140deg);" /> | TanStack Query | 5.90 | Data fetching and state management |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/reactrouter/reactrouter-original.svg" width="25" /> | React Router | 7.13 | Client-side routing |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitest/vitest-original.svg" width="25" /> | Vitest | 4.0 | Unit testing framework |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/eslint/eslint-original.svg" width="25" /> | ESLint | 9.39 | Code linting |
-
-</div>
 
 **Backend**
 

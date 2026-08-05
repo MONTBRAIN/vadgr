@@ -1,9 +1,9 @@
 """``vadgr pair`` -- mint a pairing token and render a terminal QR.
 
-Hits the same ``POST /api/auth/pair`` endpoint the frontend card uses, builds
+The only pairing surface on the machine. Hits ``POST /api/auth/pair``, builds
 the shared ``vadgr://pair`` deep link, and renders it as a Unicode QR in the
-terminal (for headless boxes with no GUI). The phone scans it; the raw token is
-also printed for manual entry.
+terminal (headless boxes have no GUI, and there is no web dashboard). The phone
+scans it; the raw token is also printed for manual entry.
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ from cli.output import print_error, print_kv, print_success
 
 def build_pair_uri(pair: dict) -> str:
     """The cross-repo deep link. Param names MUST match vadgr-mobile's scanner
-    and the frontend's ``buildPairUri`` (host/port/token/name)."""
+    (host/port/token/name)."""
     query = urlencode(
         {
             "host": pair["host"],

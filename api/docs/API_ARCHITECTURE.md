@@ -1,5 +1,11 @@
 # API Module Architecture
 
+> **Historical.** This describes the v1 product: a visual orchestration
+> platform driven from a web dashboard. That dashboard was removed in
+> `0.4.2` and the machine's clients are now the `vadgr` CLI on the box and
+> the phone app over the tailnet. Kept as the record of what was designed
+> then; read the current architecture for what is built.
+
 ## Vision
 
 Agent Forge becomes a **visual orchestration platform** for AI agents. Users build automation by composing agents on a canvas, connecting outputs to inputs, and hitting run. No code required.

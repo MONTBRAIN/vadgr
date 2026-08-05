@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Optional
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 
 from api.config import settings
 from api.persistence.database import Database
@@ -142,17 +141,9 @@ def create_app(db: Optional[Database] = None, transport=None) -> FastAPI:
     app = FastAPI(title="Vadgr API", version=settings.version, lifespan=lifespan)
     app.state.transport = transport
 
-    # The two-gate auth middleware. Added before CORS so CORS wraps it and
-    # responses (incl. 401/403) still carry CORS headers.
+    # No CORS layer: the only clients are the CLI on the box and the phone
+    # over the tailnet, neither of which is a browser sending an Origin.
     app.add_middleware(TwoGateMiddleware, transport=transport)
-
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.cors_origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
 
     app.include_router(health.router)
     app.include_router(agents.router)

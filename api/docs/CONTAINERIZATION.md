@@ -11,9 +11,7 @@ CLI agent tools (Claude Code, Codex, Aider, etc.) authenticate on the host machi
 ```mermaid
 graph TB
     subgraph Docker["Docker (stateless)"]
-        FE["frontend<br/>nginx + React"]
         API["api<br/>FastAPI + uvicorn<br/>Routes, DB, WebSocket"]
-        FE -->|"/api, /ws"| API
     end
 
     subgraph Host["Host (native)"]
@@ -31,12 +29,12 @@ graph TB
     Worker -->|"reads"| Forge
     Worker -->|"writes"| Output
 
-    User((User)) -->|"http://localhost:3000"| FE
+    Owner((Owner)) -->|"vadgr CLI"| API
+    Phone((Phone)) -->|"over the tailnet"| API
 ```
 
-### Docker services (frontend + API server)
+### Docker services (API server)
 
-- **frontend**: Multi-stage build (Node build -> nginx). Serves the React app and reverse-proxies `/api` and `/ws` to the API container.
 - **api**: Python 3.12 slim. Runs FastAPI with uvicorn. Handles HTTP routes, WebSocket, and DB operations. Does NOT run Claude Code -- just writes run records with status `queued`.
 
 ### Host processes
@@ -51,16 +49,16 @@ The SQLite database (bind-mounted from host into the API container) is the only 
 ```mermaid
 sequenceDiagram
     participant User
-    participant Frontend
+    participant CLI
     participant API as API (Docker)
     participant DB as SQLite (host)
     participant Worker as Worker (host)
     participant CLI as CLI Agent Tool
 
-    User->>Frontend: Click "Start Run"
-    Frontend->>API: POST /api/agents/{id}/run
+    User->>CLI: vadgr run <agent>
+    CLI->>API: POST /api/agents/{id}/run
     API->>DB: INSERT run (status: queued)
-    API-->>Frontend: 202 {run_id, status: queued}
+    API-->>CLI: 202 {run_id, status: queued}
 
     loop Every 2s
         Worker->>DB: SELECT ... WHERE status = 'queued'
@@ -73,13 +71,13 @@ sequenceDiagram
     Worker->>DB: UPDATE status = 'completed', outputs = result
 
     loop Auto-refresh
-        Frontend->>API: GET /api/runs/{id}
+        CLI->>API: GET /api/runs/{id}
         API->>DB: SELECT run
         DB-->>API: run record
-        API-->>Frontend: {status: completed, outputs: ...}
+        API-->>CLI: {status: completed, outputs: ...}
     end
 
-    Frontend-->>User: Display results
+    CLI-->>User: Print results
 ```
 
 SQLite WAL mode (already enabled) handles concurrent reads/writes from container + host.
@@ -107,9 +105,9 @@ If a future Docker deployment ever needs non-interactive auth, the CLIs do each 
 ```bash
 git clone https://github.com/santiagomd11/Agent-Forge.git
 cd Agent-Forge
-docker compose up -d          # frontend + API
+docker compose up -d          # API
 python worker.py              # uses local claude auth
-# Open http://localhost:3000
+# Then drive it with the vadgr CLI, or pair a phone
 ```
 
 ## Why not CLI agent tools in Docker?
@@ -133,9 +131,7 @@ Agent Forge's computer_use engine controls the actual host -- real mouse, real k
 ## Implementation checklist
 
 - [ ] `api/Dockerfile` -- Python 3.12 slim, pip install requirements, copy api/ code
-- [ ] `frontend/Dockerfile` -- Multi-stage: node build, nginx serve
-- [ ] `frontend/nginx.conf` -- Reverse proxy /api and /ws to api container
 - [ ] `docker-compose.yml` -- Two services, bind mounts, env vars
 - [ ] `worker.py` -- Host-side execution worker (~60 lines)
-- [ ] `.dockerignore` -- Exclude node_modules, .venv, data/, .git
+- [ ] `.dockerignore` -- Exclude .venv, data/, .git
 - [ ] Update README with `docker compose up` instructions

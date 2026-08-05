@@ -68,21 +68,14 @@ def test_no_gateway_cli_command():
 
 
 def test_frontend_messaging_gateway_hook_removed():
-    """frontend/src/hooks/useMessagingGateway.ts must not exist."""
+    """The dashboard's gateway hook must not exist.
+
+    The whole dashboard went at 0.4.2, so this now holds by construction; it
+    stays because a revived frontend must not bring the gateway back with it.
+    """
     assert not (
         REPO_ROOT / "frontend" / "src" / "hooks" / "useMessagingGateway.ts"
     ).exists()
-
-
-def test_frontend_settings_has_no_gateway_references():
-    """frontend/src/pages/Settings.tsx must contain no gateway references."""
-    settings_path = REPO_ROOT / "frontend" / "src" / "pages" / "Settings.tsx"
-    assert settings_path.exists(), "Settings.tsx missing"
-    text = settings_path.read_text()
-    lowered = text.lower()
-    assert "gateway" not in lowered, "Settings.tsx still references gateway"
-    assert "discord" not in lowered, "Settings.tsx still references discord"
-    assert "messaging-gateway" not in lowered
 
 
 def test_readme_has_no_gateway_section():
