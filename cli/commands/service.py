@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import os
-import re
-import shutil
 import signal
 import subprocess
 import sys
@@ -25,8 +23,6 @@ FORGE_REPO = Path(os.environ.get("FORGE_REPO", _PROJECT_ROOT))
 PID_DIR = FORGE_HOME / "pids"
 
 _API_STARTUP_TIMEOUT = 30
-_FRONTEND_PORT_TIMEOUT = 5.0
-_FRONTEND_PORT_POLL = 0.25
 
 
 def _default_port(env_key: str, default: int) -> int:
@@ -115,8 +111,8 @@ def _kill_tree(pid: int):
 
 def _port_in_use(port: int) -> bool:
     import socket
-    # Check both IPv4 and IPv6 loopback -- Vite on Windows 11 often binds
-    # to ::1 only, so checking just 127.0.0.1 would miss it.
+    # Check both IPv4 and IPv6 loopback -- a listener may bind to ::1 only,
+    # so checking just 127.0.0.1 would miss it.
     for addr in ("127.0.0.1", "::1"):
         family = socket.AF_INET6 if ":" in addr else socket.AF_INET
         with socket.socket(family, socket.SOCK_STREAM) as s:
@@ -156,67 +152,6 @@ def _wait_for_api(port: int, timeout: int = _API_STARTUP_TIMEOUT) -> bool:
     return False
 
 
-def _wait_for_frontend(port: int, timeout: int = 10) -> bool:
-    for _ in range(timeout):
-        try:
-            # Use "localhost" instead of "127.0.0.1" so the OS resolves to
-            # whichever loopback address Vite actually bound (IPv4 or IPv6).
-            req = urllib.request.Request(f"http://localhost:{port}")
-            urllib.request.urlopen(req, timeout=2)
-            return True
-        except Exception:
-            time.sleep(1)
-    return False
-
-
-def _detect_frontend_port(log_path: Path, default: int,
-                          timeout: float = _FRONTEND_PORT_TIMEOUT) -> int:
-    elapsed = 0.0
-    while elapsed < timeout:
-        if log_path.exists():
-            match = re.search(r"localhost:(\d+)", log_path.read_text())
-            if match:
-                return int(match.group(1))
-        time.sleep(_FRONTEND_PORT_POLL)
-        elapsed += _FRONTEND_PORT_POLL
-    return default
-
-
-def _find_node() -> str | None:
-    found = shutil.which("node")
-    if found:
-        return found
-    nvm_dir = os.environ.get("NVM_DIR", str(Path.home() / ".nvm"))
-    nvm_sh = Path(nvm_dir) / "nvm.sh"
-    if nvm_sh.exists():
-        try:
-            result = subprocess.run(
-                ["bash", "-c", f'source "{nvm_sh}" && which node'],
-                capture_output=True, text=True, timeout=5,
-            )
-            if result.returncode == 0 and result.stdout.strip():
-                return result.stdout.strip()
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            pass
-    return None
-
-
-def _find_npm() -> str | None:
-    """Find npm executable. Used to launch frontend via 'npm run dev'."""
-    found = shutil.which("npm")
-    if found:
-        return found
-    node = _find_node()
-    if not node:
-        return None
-    node_dir = Path(node).parent
-    for name in ("npm.cmd", "npm.exe", "npm"):
-        candidate = node_dir / name
-        if candidate.exists():
-            return str(candidate)
-    return None
-
-
 def _get_api_python() -> str:
     if sys.platform == "win32":
         p = FORGE_REPO / "api" / ".venv" / "Scripts" / "python.exe"
@@ -227,11 +162,10 @@ def _get_api_python() -> str:
     return str(p)
 
 
-def _build_env(api_port: int, frontend_port: int) -> dict:
+def _build_env(api_port: int) -> dict:
     env = os.environ.copy()
     env["PYTHONPATH"] = str(FORGE_REPO)
     env["AGENT_FORGE_PORT"] = str(api_port)
-    env["AGENT_FORGE_FRONTEND_PORT"] = str(frontend_port)
     return env
 
 
@@ -255,19 +189,20 @@ def _file_hash(path: Path) -> str | None:
 # -- Commands --
 
 @click.command()
-@click.option("--api-port", default=None, type=int, help="API server port")
-@click.option("--frontend-port", default=None, type=int, help="Frontend server port")
-def start(api_port, frontend_port):
-    """Start API and frontend servers."""
+# --port is the spelling the old `vadgr api` used; both spellings reach the
+# same option now that the two commands are one.
+@click.option("--api-port", "--port", "api_port", default=None, type=int,
+              help="API server port")
+def start(api_port):
+    """Start the vadgr daemon (the API)."""
     api_port = api_port or _default_port("AGENT_FORGE_PORT", 8000)
-    frontend_port = frontend_port or _default_port("AGENT_FORGE_FRONTEND_PORT", 3000)
     PID_DIR.mkdir(parents=True, exist_ok=True)
 
     if _read_pid("api"):
         print_warning("vadgr is already running. Use 'vadgr stop' first.")
         raise SystemExit(1)
 
-    # Find free ports, auto-incrementing if default is busy
+    # Find a free port, auto-incrementing if the default is busy
     if _port_in_use(api_port):
         original = api_port
         api_port = _find_free_port(api_port)
@@ -276,17 +211,8 @@ def start(api_port, frontend_port):
             raise SystemExit(1)
         print_info(f"Port {original} busy, using {api_port}")
 
-    if _port_in_use(frontend_port):
-        original = frontend_port
-        frontend_port = _find_free_port(frontend_port)
-        if frontend_port is None:
-            print_warning(f"No free port found starting from {original}.")
-            raise SystemExit(1)
-        print_info(f"Port {original} busy, using {frontend_port}")
+    env = _build_env(api_port)
 
-    env = _build_env(api_port, frontend_port)
-
-    # Start API
     print_info(f"Starting API server (port {api_port})...")
     api_log = open(FORGE_HOME / "api.log", "w")
     api_proc = subprocess.Popen(
@@ -310,88 +236,55 @@ def start(api_port, frontend_port):
         print_warning(f"API failed to start. Check {FORGE_HOME / 'api.log'}")
         raise SystemExit(1)
 
-    # Start frontend via npm run dev (not npx -- npx resolution varies across Node versions)
-    frontend_dir = FORGE_REPO / "frontend"
-    npm = _find_npm()
-    if not npm:
-        print_warning("npm not found. Frontend will not start.")
-        print_success(f"API is running at http://localhost:{api_port}")
-        return
-
-    print_info("Starting frontend...")
-    fe_log = open(FORGE_HOME / "frontend.log", "w")
-    fe_proc = subprocess.Popen(
-        [npm, "run", "dev"], cwd=str(frontend_dir),
-        env=env, stdout=fe_log, stderr=subprocess.STDOUT,
-        **_session_kwargs(),
-    )
-    _write_pid("frontend", fe_proc.pid)
-    _write_port("frontend", frontend_port)
-
-    actual_fe = _detect_frontend_port(FORGE_HOME / "frontend.log", frontend_port)
-
-    # Verify frontend is actually responding, not just alive
-    if not _wait_for_frontend(actual_fe):
-        print_warning(f"Frontend failed to start. Check {FORGE_HOME / 'frontend.log'}")
-        print_success(f"API is running at http://localhost:{api_port}")
-        return
-
     print_success("vadgr is running!")
-    print_success(f"  Frontend: http://localhost:{actual_fe}")
-    print_success(f"  API:      http://localhost:{api_port}")
+    print_success(f"  API: http://localhost:{api_port}")
     click.echo()
-    print_info("Run 'vadgr stop' to stop, 'vadgr logs' to see API logs.")
+    print_info("Run 'vadgr pair' to pair your phone, 'vadgr stop' to stop, 'vadgr logs' for the log.")
 
 
 @click.command()
 def stop():
-    """Stop all services."""
+    """Stop the vadgr daemon."""
     api_port = _read_active_port("api", _default_port("AGENT_FORGE_PORT", 8000))
-    frontend_port = _read_active_port("frontend", _default_port("AGENT_FORGE_FRONTEND_PORT", 3000))
-    service_ports = {"api": api_port, "frontend": frontend_port}
 
     stopped = False
-    for service in ("api", "frontend"):
-        pid = _read_pid(service)
-        if pid:
-            _kill_tree(pid)
-            print_info(f"Stopped {service} (PID {pid})")
-            (PID_DIR / f"{service}.pid").unlink(missing_ok=True)
-            (PID_DIR / f"{service}.port").unlink(missing_ok=True)
-            stopped = True
-        elif _port_in_use(service_ports[service]):
-            _kill_port(service_ports[service])
-            print_info(f"Stopped {service} on port {service_ports[service]}")
-            (PID_DIR / f"{service}.pid").unlink(missing_ok=True)
-            (PID_DIR / f"{service}.port").unlink(missing_ok=True)
-            stopped = True
-    if not stopped:
-        print_warning("vadgr is not running.")
-    else:
+    pid = _read_pid("api")
+    if pid:
+        _kill_tree(pid)
+        print_info(f"Stopped api (PID {pid})")
+        stopped = True
+    elif _port_in_use(api_port):
+        _kill_port(api_port)
+        print_info(f"Stopped api on port {api_port}")
+        stopped = True
+
+    if stopped:
+        (PID_DIR / "api.pid").unlink(missing_ok=True)
+        (PID_DIR / "api.port").unlink(missing_ok=True)
         print_success("vadgr stopped.")
+    else:
+        print_warning("vadgr is not running.")
 
 
 @click.command()
-@click.option("--api-port", default=None, type=int)
-@click.option("--frontend-port", default=None, type=int)
+@click.option("--api-port", "--port", "api_port", default=None, type=int)
 @click.pass_context
-def restart(ctx, api_port, frontend_port):
-    """Restart all services."""
+def restart(ctx, api_port):
+    """Restart the vadgr daemon."""
     ctx.invoke(stop)
     time.sleep(1)
-    ctx.invoke(start, api_port=api_port, frontend_port=frontend_port)
+    ctx.invoke(start, api_port=api_port)
 
 
 @click.command()
 def status():
     """Show service status."""
     rows = []
-    for service in ("api", "frontend"):
-        pid = _read_pid(service)
-        if pid:
-            rows.append([service, str(pid), status_text("running")])
-        else:
-            rows.append([service, "-", status_text("stopped")])
+    pid = _read_pid("api")
+    if pid:
+        rows.append(["api", str(pid), status_text("running")])
+    else:
+        rows.append(["api", "-", status_text("stopped")])
 
     # Check daemon status via API if available
     try:
@@ -409,7 +302,7 @@ def status():
 
 
 @click.command()
-@click.option("--service", "-s", type=click.Choice(["api", "frontend"]), default="api")
+@click.option("--service", "-s", type=click.Choice(["api"]), default="api")
 @click.option("--follow/--no-follow", "-f", default=True)
 @click.option("--lines", "-n", default=50, type=int)
 def logs(service, follow, lines):
@@ -436,10 +329,8 @@ def update():
     print_info("Updating vadgr...")
 
     api_req = FORGE_REPO / "api" / "requirements.txt"
-    fe_pkg = FORGE_REPO / "frontend" / "package.json"
     cli_req = FORGE_REPO / "cli" / "requirements.txt"
     old_api = _file_hash(api_req)
-    old_fe = _file_hash(fe_pkg)
     old_cli = _file_hash(cli_req)
 
     result = subprocess.run(
@@ -461,56 +352,9 @@ def update():
         cli_pip = str(FORGE_REPO / "cli" / ".venv" / "bin" / "pip")
         subprocess.run([cli_pip, "install", "-q", "-r", str(cli_req)], check=True)
 
-    if _file_hash(fe_pkg) != old_fe:
-        print_info("Frontend deps changed, reinstalling...")
-        npx_parent = _find_node()
-        if npx_parent:
-            npm = str(Path(npx_parent).parent / "npm")
-            subprocess.run([npm, "install", "--silent"],
-                           cwd=str(FORGE_REPO / "frontend"), check=True)
-
     if _read_pid("api"):
         print_info("Restarting services...")
         # Can't invoke stop/start here cleanly, tell user
         click.echo("Run 'vadgr restart' to apply changes.")
     else:
         print_success("Update complete. Run 'vadgr start' to start.")
-
-
-@click.command("api")
-@click.option("--port", default=None, type=int, help="API server port")
-def api_only(port):
-    """Start API server only (no frontend)."""
-    port = port or _default_port("AGENT_FORGE_PORT", 8000)
-    PID_DIR.mkdir(parents=True, exist_ok=True)
-
-    if _read_pid("api"):
-        print_warning("API is already running. Use 'vadgr stop' first.")
-        raise SystemExit(1)
-
-    if _port_in_use(port):
-        original = port
-        port = _find_free_port(port)
-        if port is None:
-            print_warning(f"No free port found starting from {original}.")
-            raise SystemExit(1)
-        print_info(f"Port {original} busy, using {port}")
-
-    env = _build_env(port, _default_port("AGENT_FORGE_FRONTEND_PORT", 3000))
-    print_info(f"Starting API server (port {port})...")
-
-    api_log = open(FORGE_HOME / "api.log", "w")
-    api_proc = subprocess.Popen(
-        [_get_api_python(), "-m", "uvicorn", "api.main:app",
-         "--host", "127.0.0.1", "--port", str(port)],
-        cwd=str(FORGE_REPO), env=env,
-        stdout=api_log, stderr=subprocess.STDOUT,
-        **_session_kwargs(),
-    )
-    _write_pid("api", api_proc.pid)
-    _write_port("api", port)
-
-    if _wait_for_api(port):
-        print_success(f"API is running at http://localhost:{port}")
-    else:
-        print_warning(f"API failed to start. Check {FORGE_HOME / 'api.log'}")

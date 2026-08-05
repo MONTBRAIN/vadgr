@@ -82,7 +82,6 @@ All prefixed with `AGENT_FORGE_`:
 | `AGENT_FORGE_HOST` | `127.0.0.1` | Bind address |
 | `AGENT_FORGE_PORT` | `8000` | Bind port |
 | `AGENT_FORGE_DATABASE_PATH` | `data/agent_forge.db` | SQLite database path |
-| `AGENT_FORGE_CORS_ORIGINS` | `["http://localhost:3000"]` | Allowed CORS origins |
 | `AGENT_FORGE_DEFAULT_PROVIDER` | `claude_code` | Default CLI provider |
 | `AGENT_FORGE_PROVIDER_TIMEOUT` | `300` | Provider execution timeout (seconds) |
 
@@ -143,5 +142,3 @@ See [PROVIDER_PARSER_GUIDE.md](../PROVIDER_PARSER_GUIDE.md) for:
 - available `stream_parser` families
 - `streaming` command rewrite rules
 - when a new provider needs code vs YAML only
-
-See [CONTAINERIZATION.md](docs/CONTAINERIZATION.md) for future Docker deployment plans.

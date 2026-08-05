@@ -8,7 +8,6 @@ FORGE_HOME="$HOME/.forge"
 FORGE_BIN="$FORGE_HOME/bin"
 FORGE_REPO="$FORGE_HOME/Agent-Forge"
 REPO_URL="https://github.com/MONTBRAIN/Agent-Forge.git"
-NVM_VERSION="v0.40.3"
 REQUIRED_PYTHON_MINOR=12
 
 # ---------------------------------------------------------------------------
@@ -115,32 +114,6 @@ install_python() {
     python_ok || fail "Python 3.12+ installation failed."
 }
 
-install_nvm_and_node() {
-    if command_exists node; then
-        info "Node.js already installed: $(node --version)"
-        return
-    fi
-
-    # Install NVM if not present
-    if [ -z "${NVM_DIR:-}" ] || [ ! -d "${NVM_DIR:-}" ]; then
-        info "Installing NVM..."
-        export NVM_DIR="$HOME/.nvm"
-        local nvm_tmp
-        nvm_tmp=$(mktemp)
-        curl -fsSL "https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh" -o "$nvm_tmp"
-        bash "$nvm_tmp"
-        rm -f "$nvm_tmp"
-        # Load NVM into current session
-        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-    else
-        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-    fi
-
-    info "Installing Node.js LTS via NVM..."
-    nvm install --lts
-    nvm use --lts
-}
-
 # ---------------------------------------------------------------------------
 # Setup Vadgr
 # ---------------------------------------------------------------------------
@@ -220,18 +193,6 @@ setup_cli() {
     setup_venv "cli/.venv" "cli/requirements.txt"
 }
 
-setup_frontend() {
-    info "Setting up frontend..."
-    cd "$FORGE_REPO/frontend"
-
-    # Load NVM if available (needed for npm)
-    if [ -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh" ]; then
-        . "${NVM_DIR:-$HOME/.nvm}/nvm.sh"
-    fi
-
-    npm install --silent
-}
-
 # ---------------------------------------------------------------------------
 # Generate forge CLI
 # ---------------------------------------------------------------------------
@@ -307,12 +268,10 @@ main() {
 
     install_git
     install_python
-    install_nvm_and_node
     setup_repo
     setup_api
     setup_forge_scripts
     setup_cli
-    setup_frontend
     generate_forge_cli
     add_to_path
 

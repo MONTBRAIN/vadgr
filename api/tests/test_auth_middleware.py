@@ -191,3 +191,16 @@ async def test_neither_socket_acts_on_an_inbound_frame():
     assert "resume_after_approval" not in src, (
         "the socket resumes a run from an inbound frame again"
     )
+
+
+def test_options_no_longer_skips_the_gates():
+    """`OPTIONS` was waved through so a browser's preflight could reach
+    `CORSMiddleware`. That middleware went with the dashboard, and no client
+    here speaks preflight - so the exemption skipped all three gates for anyone
+    who asked with the right verb and protected nothing in return."""
+    import inspect
+    from api.auth import middleware
+
+    src = inspect.getsource(middleware.TwoGateMiddleware.__call__)
+    assert '"OPTIONS"' not in src, "OPTIONS is exempt from the gates again"
+    assert "_PUBLIC_PATHS" in src, "the pairing paths must still be public"

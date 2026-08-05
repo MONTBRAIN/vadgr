@@ -27,7 +27,7 @@ class TestPortInUse:
             assert _port_in_use(59997) is True
 
     def test_detects_ipv6_listener(self):
-        """Port bound on ::1 (IPv6) should be detected -- Vite on Windows 11."""
+        """Port bound on ::1 (IPv6) should be detected."""
         import socket
         from cli.commands.service import _port_in_use
         try:
@@ -74,8 +74,8 @@ class TestStartPortCheck:
         busy = {8000}
         monkeypatch.setattr("cli.commands.service._port_in_use", lambda p: p in busy)
         monkeypatch.setattr("cli.commands.service._wait_for_api", lambda p, **kw: True)
-        monkeypatch.setattr("cli.commands.service._find_npm", lambda: None)
         monkeypatch.setattr("subprocess.Popen", mock.MagicMock(return_value=mock.MagicMock(poll=lambda: None, pid=123)))
+        monkeypatch.setattr("time.sleep", lambda s: None)
         runner = CliRunner()
         result = runner.invoke(start)
         assert result.exit_code == 0

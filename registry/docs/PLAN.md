@@ -146,7 +146,7 @@ registry/
 - Registry server (FastAPI) for self-hosted registries
 - Version resolution (@latest, @^1.0.0)
 - forge update command for installed agents
-- Frontend marketplace page
+- Marketplace browsing from the phone app
 - Download counters
 - Agent signing (GPG/SSH keys)
 - Community ratings

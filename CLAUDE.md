@@ -2,8 +2,8 @@
 
 A daemon per machine: the native agent loop, the MCP host, gates and policy,
 the API the phone talks to, persistence, plus `cli/` - the on-box owner surface.
-v2 has no desktop frontend: `frontend/` sits in the tree only until `0.4.2`
-deletes it. Build nothing against it.
+v2 has no desktop frontend - `0.4.2` deleted it, and a guardrail test fails the
+suite if it comes back. The clients are this CLI and the phone.
 
 **This file is loaded automatically. The rules live in the docs repo and are not
 copied here** - a second copy drifts, and a drifted rule is worse than none.
@@ -86,12 +86,20 @@ methodology narration, no SOLID tables, no design-doc citations.
   module exited `0` five times having printed nothing, against a daemon it never
   reached.
 
+**Close the runbook with three independent passes** - three agents running the
+sweep concurrently, each with its own port, database and daemon, compared
+structurally on status, error code, exit code and socket frame counts. Input
+tokens should match across all three and output tokens should differ; three
+identical output counts mean one result was reused, not that the run is stable.
+Ask each what looked odd, not only whether it passed
+(`../docs/general/ENGINEERING.md` §6).
+
 The gate, all three suites, before offering anything:
 
 ```bash
 PYTHONPATH=. python3 -m pytest engine/tests/ -q     # 122
-python3 -m pytest api/tests/ -q                     # 551
-python3 -m pytest cli/tests/ -q                     # 189
+python3 -m pytest api/tests/ -q                     # 554
+python3 -m pytest cli/tests/ -q                     # 192
 ```
 
 One test process at a time wherever anything is shared - two overlapping runs

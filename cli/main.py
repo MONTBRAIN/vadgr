@@ -20,7 +20,7 @@ from cli.commands.info import health, providers, computer_use
 from cli.commands.pair_cmd import pair
 from cli.commands.registry import registry_group
 from cli.commands.runs import runs_group
-from cli.commands.service import start, stop, restart, status, logs, update, api_only
+from cli.commands.service import start, stop, restart, status, logs, update
 
 _DEFAULT_API_PORT = os.environ.get("AGENT_FORGE_PORT", "8000")
 
@@ -62,7 +62,9 @@ cli.add_command(restart)
 cli.add_command(status)
 cli.add_command(logs)
 cli.add_command(update)
-cli.add_command(api_only, "api")
+# `vadgr api` used to be the "API without the dashboard" variant. Nothing else
+# starts any more, so it is the same command under its old name.
+cli.add_command(start, "api")
 
 
 # Top-level aliases

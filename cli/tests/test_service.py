@@ -32,7 +32,6 @@ def tmp_forge(tmp_path, monkeypatch):
     else:
         (forge_repo / "api" / ".venv" / "bin").mkdir(parents=True)
         (forge_repo / "api" / ".venv" / "bin" / "python").write_text("#!/bin/sh")
-    (forge_repo / "frontend").mkdir(parents=True)
 
     monkeypatch.setattr(svc, "FORGE_HOME", forge_home)
     monkeypatch.setattr(svc, "FORGE_REPO", forge_repo)
@@ -94,39 +93,6 @@ class TestKillTree:
         assert killed.index(5678) < killed.index(1234)
 
 
-class TestFindNode:
-    def test_finds_node_on_path(self, monkeypatch):
-        from cli.commands.service import _find_node
-        monkeypatch.setattr("shutil.which", lambda cmd: "/usr/bin/node" if cmd == "node" else None)
-        assert _find_node() == "/usr/bin/node"
-
-    def test_returns_none_when_not_found(self, monkeypatch):
-        from cli.commands.service import _find_node
-        monkeypatch.setattr("shutil.which", lambda cmd: None)
-        monkeypatch.setattr(os.environ, "get", lambda k, d="": d)
-        assert _find_node() is None
-
-
-class TestFindNpm:
-    """Frontend must launch via npm (not npx) for consistent behavior across Node versions."""
-
-    def test_finds_npm_on_path(self, monkeypatch):
-        from cli.commands.service import _find_npm
-        monkeypatch.setattr("shutil.which", lambda cmd: "/usr/bin/npm" if cmd == "npm" else None)
-        assert _find_npm() == "/usr/bin/npm"
-
-    def test_finds_npm_cmd_on_windows(self, monkeypatch, tmp_path):
-        from cli.commands.service import _find_npm
-        node_dir = tmp_path / "nodejs"
-        node_dir.mkdir()
-        (node_dir / "node.exe").write_text("")
-        (node_dir / "npm.cmd").write_text("")
-        monkeypatch.setattr("shutil.which", lambda cmd: str(node_dir / "node.exe") if cmd == "node" else None)
-        result = _find_npm()
-        assert result is not None
-        assert "npm" in result
-
-
 class TestSessionKwargs:
     """Issue #74: background processes must not inherit terminal stdin."""
 
@@ -136,24 +102,6 @@ class TestSessionKwargs:
         from cli.commands.service import _session_kwargs
         kwargs = _session_kwargs()
         assert kwargs.get("stdin") == subprocess.DEVNULL
-
-
-class TestDetectFrontendPort:
-    def test_parses_vite_log(self, tmp_path):
-        from cli.commands.service import _detect_frontend_port
-        log = tmp_path / "frontend.log"
-        log.write_text("  VITE v5.0.0  ready in 300ms\n  > Local: http://localhost:3001/\n")
-        assert _detect_frontend_port(log, 3000, timeout=1.0) == 3001
-
-    def test_returns_default_on_timeout(self, tmp_path):
-        from cli.commands.service import _detect_frontend_port
-        log = tmp_path / "frontend.log"
-        log.write_text("no port here")
-        assert _detect_frontend_port(log, 3000, timeout=0.5) == 3000
-
-    def test_returns_default_when_no_file(self, tmp_path):
-        from cli.commands.service import _detect_frontend_port
-        assert _detect_frontend_port(tmp_path / "nope.log", 3000, timeout=0.5) == 3000
 
 
 class TestWaitForApi:
@@ -173,7 +121,6 @@ class TestStop:
         import cli.commands.service as svc
         from cli.commands.service import stop, PID_DIR
         (PID_DIR / "api.pid").write_text("111")
-        (PID_DIR / "frontend.pid").write_text("222")
         monkeypatch.setattr(svc, "_pid_alive", lambda pid: True)
         monkeypatch.setattr(svc, "_kill_tree", lambda pid: None)
 
@@ -194,7 +141,6 @@ class TestStatus:
         import cli.commands.service as svc
         from cli.commands.service import status, PID_DIR
         (PID_DIR / "api.pid").write_text("111")
-        (PID_DIR / "frontend.pid").write_text("222")
         monkeypatch.setattr(svc, "_pid_alive", lambda pid: True)
 
         result = runner.invoke(status)
@@ -206,3 +152,88 @@ class TestStatus:
         from cli.commands.service import status
         result = runner.invoke(status)
         assert "stopped" in result.output
+
+
+class TestStartIsApiOnly:
+    """`vadgr start` boots the daemon and nothing else -- no second process."""
+
+    @pytest.fixture
+    def fake_popen(self, monkeypatch):
+        spawned = []
+
+        def record(cmd, *args, **kwargs):
+            spawned.append(cmd)
+            return mock.MagicMock(poll=lambda: None, pid=4242)
+
+        monkeypatch.setattr("subprocess.Popen", record)
+        monkeypatch.setattr("cli.commands.service._port_in_use", lambda p: False)
+        monkeypatch.setattr("cli.commands.service._wait_for_api", lambda p, **kw: True)
+        monkeypatch.setattr("time.sleep", lambda s: None)
+        return spawned
+
+    def test_spawns_only_uvicorn(self, runner, tmp_forge, fake_popen):
+        from cli.commands.service import start
+        result = runner.invoke(start)
+        assert result.exit_code == 0, result.output
+        assert len(fake_popen) == 1
+        assert "uvicorn" in fake_popen[0]
+
+    def test_reports_the_api_and_nothing_else(self, runner, tmp_forge, fake_popen):
+        from cli.commands.service import start
+        result = runner.invoke(start)
+        assert "API: http://localhost:8000" in result.output
+        assert "3000" not in result.output
+
+    def test_writes_no_frontend_pid_or_port_file(self, runner, tmp_forge, fake_popen):
+        from cli.commands.service import start, PID_DIR
+        runner.invoke(start)
+        assert not (PID_DIR / "frontend.pid").exists()
+        assert not (PID_DIR / "frontend.port").exists()
+
+    def test_writes_no_frontend_log(self, runner, tmp_forge, fake_popen):
+        from cli.commands.service import start
+        runner.invoke(start)
+        assert not (tmp_forge / "frontend.log").exists()
+
+    def test_child_env_carries_no_frontend_port(self, tmp_forge):
+        from cli.commands.service import _build_env
+        assert "AGENT_FORGE_FRONTEND_PORT" not in _build_env(8000)
+
+    def test_rejects_the_frontend_port_flag(self, runner, tmp_forge, fake_popen):
+        from cli.commands.service import start
+        result = runner.invoke(start, ["--frontend-port", "3000"])
+        assert result.exit_code != 0
+        assert "no such option" in result.output.lower()
+
+    def test_port_is_the_old_api_alias_spelling(self, runner, tmp_forge, fake_popen):
+        """`vadgr api --port` kept working when the two commands collapsed."""
+        from cli.commands.service import start
+        result = runner.invoke(start, ["--port", "8123"])
+        assert result.exit_code == 0, result.output
+        assert "8123" in result.output
+
+
+class TestApiAliasIsStart:
+    def test_api_resolves_to_the_same_command(self):
+        from cli.main import cli
+        from cli.commands.service import start
+        ctx = click.Context(cli)
+        assert cli.get_command(ctx, "api") is start
+        assert cli.get_command(ctx, "start") is start
+
+
+class TestServiceInventory:
+    """The daemon is the only service, so nothing else may be named."""
+
+    def test_status_lists_only_the_api(self, runner, tmp_forge):
+        from cli.commands.service import status
+        result = runner.invoke(status)
+        assert "api" in result.output
+        assert "frontend" not in result.output
+
+    def test_logs_rejects_an_unknown_service(self, runner, tmp_forge):
+        """A usage error, not "no logs found" -- the value must not be accepted."""
+        from cli.commands.service import logs
+        result = runner.invoke(logs, ["-s", "frontend"])
+        assert result.exit_code == 2
+        assert "invalid value for '--service'" in result.output.lower()

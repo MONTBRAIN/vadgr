@@ -26,13 +26,13 @@ vadgr <command>
 ### Services
 
 ```
-vadgr start [--api-port N] [--frontend-port N]
+vadgr start [--api-port N]
 vadgr stop
 vadgr restart
 vadgr status
-vadgr logs [--service api|frontend] [--no-follow]
+vadgr logs [--no-follow]
 vadgr update
-vadgr api [--port N]
+vadgr api [--port N]     # the same command as `vadgr start`
 ```
 
 ### Agents
@@ -67,7 +67,7 @@ When run interactively, the CLI prompts for each input field. File inputs are up
   Step 2: Generate Report           done (45s)
 [vadgr] Run completed (2m 8s)
 
-  See results: http://localhost:3000/runs/abc123
+  See results: http://127.0.0.1:8000/api/runs/abc123
 ```
 
 Ctrl+C cancels the run.

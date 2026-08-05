@@ -16,7 +16,15 @@ class TestHealth:
         data = resp.json()
         assert data["status"] == "healthy"
         assert "modules" in data
-        assert "version" in data
+        assert data["version"] == Settings().version
+
+    @pytest.mark.asyncio
+    async def test_health_sends_no_cors_headers(self, client):
+        """The daemon answers a browser preflight-style request with no
+        access-control headers, because it serves no browser."""
+        resp = await client.get("/api/health", headers={"Origin": "http://localhost:3000"})
+        assert resp.status_code == 200
+        assert "access-control-allow-origin" not in {k.lower() for k in resp.headers}
 
 
 class TestStartup:
@@ -34,32 +42,11 @@ class TestStartup:
 
 class TestConfig:
 
-    def test_default_cors_includes_default_frontend_port(self):
-        """Default CORS origins should include the default frontend port."""
+    def test_settings_carry_no_browser_surface(self):
+        """No frontend port and no CORS allowlist: no browser client remains."""
         s = Settings()
-        assert "http://localhost:3000" in s.cors_origins
-
-    def test_cors_auto_adds_frontend_port(self):
-        """When frontend_port is set, its origin is auto-added to cors_origins."""
-        s = Settings(frontend_port=4000)
-        assert "http://localhost:4000" in s.cors_origins
-
-    def test_cors_no_duplicate_when_frontend_port_matches_default(self):
-        """When frontend_port matches default, no duplicate origin is added."""
-        s = Settings(frontend_port=3000)
-        origins = [o for o in s.cors_origins if o == "http://localhost:3000"]
-        assert len(origins) == 1
-
-    def test_custom_cors_plus_frontend_port(self):
-        """Custom cors_origins still get the frontend port origin appended."""
-        s = Settings(cors_origins=["http://example.com"], frontend_port=5000)
-        assert "http://example.com" in s.cors_origins
-        assert "http://localhost:5000" in s.cors_origins
-
-    def test_default_frontend_port(self):
-        """Default frontend_port is 3000."""
-        s = Settings()
-        assert s.frontend_port == 3000
+        assert not hasattr(s, "frontend_port")
+        assert not hasattr(s, "cors_origins")
 
     def test_env_prefix(self):
         """Settings use AGENT_FORGE_ env prefix."""

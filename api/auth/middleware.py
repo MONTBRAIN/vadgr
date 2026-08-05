@@ -2,8 +2,8 @@
 
 Every request passes through, in order:
 
-  Gate 0  loopback bypass: a 127.0.0.0/8 source is allowed outright (the CLI
-          and the frontend served on localhost are unchanged).
+  Gate 0  loopback bypass: a 127.0.0.0/8 source is allowed outright, which is
+          what keeps the on-box CLI working without a token.
   Gate 1  network: ``transport.is_authorized_source(peer_ip)`` -- a non-tailnet
           source is rejected *before* the token is even looked at.
   Gate 2  token: a valid ``Authorization: Bearer <token>`` (or ``?token=`` for
@@ -119,11 +119,14 @@ class TwoGateMiddleware:
             await self.app(scope, receive, send)
             return
 
-        method = scope.get("method", "GET")
         path = scope.get("path", "")
 
-        # CORS preflight -> defer to CORSMiddleware.
-        if method == "OPTIONS" or path in _PUBLIC_PATHS:
+        # `OPTIONS` used to be waved through so `CORSMiddleware` could answer a
+        # browser's preflight. That middleware is gone with the dashboard, and
+        # no client here speaks preflight - the CLI and the phone are not
+        # browsers - so the exemption protected nothing and skipped all three
+        # gates for any caller who asked with the right verb.
+        if path in _PUBLIC_PATHS:
             await self.app(scope, receive, send)
             return
 

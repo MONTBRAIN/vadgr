@@ -2,6 +2,44 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.4.2] - 2026-08-05
+
+**The web dashboard is gone.** The machine's clients are now the `vadgr` CLI on the box and the phone app over the tailnet, and installing vadgr no longer installs Node.js. The API contract is unchanged: every operation the dashboard rendered is still served by the same endpoints.
+
+### Removed
+- **The `api/docs/` folder.** Four v1-era design documents - the API module architecture, the Agent surface before what v1 called an agent became a Workflow, the Projects/Canvas/DAG layer, and an unbuilt Docker plan - totalling 3,298 lines. Their premise is the web dashboard this release removes, so scrubbing them would have left them reading as current instead of true. This repo's docs describe what it is; the record of what it used to be is kept in the planning repo.
+- **The React web frontend** (`frontend/`, 71 files, 12,171 lines). It was one of three interchangeable clients of the same API and nothing depended on it. Extracted with its full history into a private attic repository first, so it can be revived by a subtree pull rather than rewritten.
+- **Node.js, NVM and npm from the installer.** `setup.sh` loses `install_nvm_and_node` and `setup_frontend`; `setup.ps1` loses `InstallNode` and `SetupFrontend`. A fresh install is now git, Python, the virtualenvs and the CLI, and nothing else.
+- **The frontend half of `vadgr start`.** The `--frontend-port` flag, the node/npm lookup, the `npm run dev` spawn, the Vite log-port parser, the `frontend.log`, and the `frontend` pid and port files. `start` boots the API alone and reports one address.
+- **CORS.** `CORSMiddleware`, the `cors_origins` setting and the `AGENT_FORGE_CORS_ORIGINS` environment variable. No browser client remains, so the daemon no longer answers with access-control headers.
+- **`frontend_port` / `AGENT_FORGE_FRONTEND_PORT`** from the API settings.
+
+### Changed
+- **Pairing is CLI-only.** `vadgr pair` mints the token and prints the Unicode QR in the terminal; it is now the only pairing surface the machine has. The endpoints behind it are unchanged, so a phone that could pair before still pairs.
+- **`vadgr api` and `vadgr start` are one command.** `api` stays as a name for it, and its `--port` spelling still parses alongside `--api-port`.
+- **`vadgr status` no longer lists a `frontend` row**, which was permanently `stopped` on any machine without Node. What it lists now is the API and, when computer use is enabled, its daemon.
+- **`vadgr stop`, `vadgr restart` and `vadgr logs`** act on the daemon alone; `logs --service` accepts only `api`.
+- **A finished run links to the API.** `vadgr run` used to probe for a dev server and print `http://localhost:3000/runs/<id>` when it found one; it now prints `<api>/api/runs/<id>` unconditionally, which also removes a probe that cost about a second on every completed run.
+- **`vadgr update`** no longer reinstalls frontend dependencies.
+- README, `cli/README.md`, `api/README.md` and `AGENTS.md` updated to describe two clients instead of three. The two API design documents that describe the v1 visual-canvas product are marked historical rather than rewritten, since the dashboard is their premise.
+
+### Added
+- **A guardrail test** (`api/tests/test_frontend_decommissioned.py`) that fails the suite if the frontend directory, an npm manifest, the npm-start path, a `--frontend-port` flag, the CORS origin or a Node step in either setup script ever returns.
+- **Runbook** at `E2E/0.4.2/e2e.md`, run live before this was offered for review.
+
+### Fixed
+
+- **`OPTIONS` requests no longer skip authentication.** The two-gate middleware waved every `OPTIONS` through so a browser's CORS preflight could reach `CORSMiddleware`. That middleware is removed in this release and no client here speaks preflight - the CLI and the phone are not browsers - so the exemption guarded nothing while letting any caller past all three gates by choosing the verb. Unauthenticated it answered `405` with an `Allow` header naming a path's methods.
+
+### Notes
+
+- **Known, pre-existing, and it blocks pairing from a phone:** `vadgr start` binds `127.0.0.1` regardless of the configured transport, while `vadgr pair` advertises the tailnet address - so the QR carries an address the daemon does not answer on, and `GET /api/health` reports a `bind_host` that was never bound. Not introduced here (`master` carries the same hard-coding) and not fixed here; it lands in `0.4.3`. Every pairing check in this release's runbook is real, but all of them originated from loopback.
+- Agent creation on a native provider fails with `[Errno 13] Permission denied: ''` and reaches status `error`. This is not new here - it reproduces identically on `v0.4.1` - but it is recorded because the runbook hit it. Runs on an existing agent are unaffected.
+
+### Tests
+- engine 122, api 554, cli 192, all green. The api count moves by seven new guardrail tests and two new API-only tests against five deleted CORS and frontend-port tests and one deleted gateway-guard test; the cli count by ten new API-only tests against seven deleted Node-discovery and Vite-log tests.
+- Verified live on WSL against a real tailnet: `vadgr start` spawns no child process at all on a host that has Node on its PATH, nothing answers on port 3000, `vadgr pair` mints a token that a claim turns into a persisted device, and a native-loop run still completes from both the API and the CLI. The CLI surface and both installer changes were also verified on native Windows.
+
 ## [0.4.1] - 2026-08-02
 
 Puts the native loop on the product's own run path. Before this, `POST /api/agents/{id}/run` executed through the CLI executor and the engine shipped as a library nothing called.
