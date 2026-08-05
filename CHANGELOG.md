@@ -27,7 +27,13 @@ All notable changes to this project are documented here. Format follows [Keep a 
 - **A guardrail test** (`api/tests/test_frontend_decommissioned.py`) that fails the suite if the frontend directory, an npm manifest, the npm-start path, a `--frontend-port` flag, the CORS origin or a Node step in either setup script ever returns.
 - **Runbook** at `E2E/0.4.2/e2e.md`, run live before this was offered for review.
 
+### Fixed
+
+- **`OPTIONS` requests no longer skip authentication.** The two-gate middleware waved every `OPTIONS` through so a browser's CORS preflight could reach `CORSMiddleware`. That middleware is removed in this release and no client here speaks preflight - the CLI and the phone are not browsers - so the exemption guarded nothing while letting any caller past all three gates by choosing the verb. Unauthenticated it answered `405` with an `Allow` header naming a path's methods.
+
 ### Notes
+
+- **Known, pre-existing, and it blocks pairing from a phone:** `vadgr start` binds `127.0.0.1` regardless of the configured transport, while `vadgr pair` advertises the tailnet address - so the QR carries an address the daemon does not answer on, and `GET /api/health` reports a `bind_host` that was never bound. Not introduced here (`master` carries the same hard-coding) and not fixed here; it lands in `0.4.3`. Every pairing check in this release's runbook is real, but all of them originated from loopback.
 - Agent creation on a native provider fails with `[Errno 13] Permission denied: ''` and reaches status `error`. This is not new here - it reproduces identically on `v0.4.1` - but it is recorded because the runbook hit it. Runs on an existing agent are unaffected.
 
 ### Tests
