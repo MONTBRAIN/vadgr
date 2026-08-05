@@ -437,6 +437,47 @@ Run ids: `da05d07a-e6a1-4ed9-86e6-b9751123a825` (API-triggered),
 
 ## Findings
 
+### F2 (open, pre-existing, blocks the next minor): the QR advertises an address nothing listens on
+
+**`vadgr start` binds `127.0.0.1` only. `vadgr pair` advertises the tailnet.**
+The two disagree, so the address a phone scans is one the daemon never answers
+on.
+
+Measured through the product path, `VADGR_TRANSPORT=tailscale`:
+
+```
+vadgr start --api-port 8807
+  127.0.0.1:8807/api/health      -> 200
+  100.67.110.10:8807/api/health  -> 000        (nothing listening)
+  ss -ltn                        -> LISTEN 127.0.0.1:8807
+```
+
+`cli/commands/service.py:220` passes `"--host", "127.0.0.1"` to uvicorn at both
+spawn sites, whatever the transport says. `transport.bind_host()` is read by
+nothing but the health payload - so `GET /api/health` cheerfully reports
+`bind_host: 100.67.110.10` about a socket that does not exist. `api/config.py`'s
+own comment claims the opposite: *"Host is no longer hard-coded - it comes from
+`transport.bind_host()` at startup (main.py)."* It does not; `main.py` does no
+binding at all.
+
+**Pre-existing, not a `0.4.2` regression** - `git show master:cli/commands/
+service.py` carries the identical hard-coding, twice.
+
+**It is recorded here because of what it blocks.** Phase 0's gate clause 3 is *a
+real handset on the tailnet pairs with that machine and watches a run*, and
+`vadgr-mobile 0.4.0`'s first commit is a reachability proof against exactly that
+address. Both fail against a daemon that only listens on loopback. Every pairing
+cell in this runbook still passes honestly - the mint, the claim, the refused
+replay and the device table are all real - but **every request in them
+originated from loopback, so no packet crossed the tailnet.**
+
+It also means this branch's `OPTIONS` fix could not be exercised from a genuine
+non-loopback peer: recorded as **not run**, not as a pass.
+
+Assigned to `0.4.3`, which is the pairing minor - see `PROGRESS.md`.
+
+
+
 ### F1 (open, pre-existing, not introduced here): agent creation on a native provider fails
 
 `POST /api/agents` with `provider: anthropic_oauth` reaches status `error` with
