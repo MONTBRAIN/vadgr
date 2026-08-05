@@ -86,6 +86,14 @@ methodology narration, no SOLID tables, no design-doc citations.
   module exited `0` five times having printed nothing, against a daemon it never
   reached.
 
+**Close the runbook with three independent passes** - three agents running the
+sweep concurrently, each with its own port, database and daemon, compared
+structurally on status, error code, exit code and socket frame counts. Input
+tokens should match across all three and output tokens should differ; three
+identical output counts mean one result was reused, not that the run is stable.
+Ask each what looked odd, not only whether it passed
+(`../docs/general/ENGINEERING.md` §6).
+
 The gate, all three suites, before offering anything:
 
 ```bash

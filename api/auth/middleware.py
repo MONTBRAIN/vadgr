@@ -119,11 +119,14 @@ class TwoGateMiddleware:
             await self.app(scope, receive, send)
             return
 
-        method = scope.get("method", "GET")
         path = scope.get("path", "")
 
-        # CORS preflight -> defer to CORSMiddleware.
-        if method == "OPTIONS" or path in _PUBLIC_PATHS:
+        # `OPTIONS` used to be waved through so `CORSMiddleware` could answer a
+        # browser's preflight. That middleware is gone with the dashboard, and
+        # no client here speaks preflight - the CLI and the phone are not
+        # browsers - so the exemption protected nothing and skipped all three
+        # gates for any caller who asked with the right verb.
+        if path in _PUBLIC_PATHS:
             await self.app(scope, receive, send)
             return
 
