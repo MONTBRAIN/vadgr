@@ -2,6 +2,37 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.4.3] - 2026-08-05
+
+**A pairing code a person can type, at an address the daemon actually answers on.** The value in `pairing_token` shortens from ~32 random characters to eight, and `vadgr start` now binds what the transport says instead of a hard-coded `127.0.0.1`, so the address in the QR is one something is listening on. **The wire shape does not move**: same endpoints, same field names, same claim exchange.
+
+### Changed
+- **The pairing code is 8 characters of Crockford base32**, shown grouped as `7QK4-M2XD` (`api/auth/tokens.py`). 40 bits, chosen symbol by symbol from a 32-symbol alphabet with no `I`, `L`, `O` or `U` - the exclusions are the point, because a person reads this off a terminal and types it on a phone. The long random secret is unchanged: it is still what `claim` returns.
+- **Claims are forgiving about how the code was typed, once, on the server.** Case, hyphens and spaces are ignored and Crockford's documented confusions are mapped (`O`->`0`, `I`/`L`->`1`), so `7qk4m2xd`, `7QK4 M2XD` and `7QK4-M2XD` all redeem the same code. `U` is not forgiven - it is not in the alphabet, so a typed `U` is a malformed code. Normalising in one place is what stops a `curl`, the CLI and a phone drifting into three different answers.
+- **Minting replaces the outstanding code.** At most one code exists at a time, so a second `vadgr pair` invalidates the first (`401 PAIRING_CODE_INVALID`). This is also what makes "five attempts against the code" countable: a wrong guess matches no key, so with several codes live there is nothing to charge the failure to.
+- **`vadgr pair` prints `Pairing code`** rather than `Pairing token`, and says the code is valid for 5 minutes. `build_pair_uri` is untouched - the deep link keeps `host`, `port`, `token`, `name`, and only the value in `token` shortens.
+
+### Added
+- **`429 RATE_LIMITED` on claim, and it burns the code.** The fifth failed attempt against the outstanding code answers `429` with empty `details` - there is no `retry_after`, because the recovery is a new code, not waiting - and the code is destroyed at that moment. Everything after answers `401`, including the code that was correct all along. Four wrong tries still leave the owner able to pair on the fifth: the counter counts failures, not attempts. Specified in the published API reference since `0.4.1` and implemented nowhere until now.
+- **`api/serve.py`**, the daemon's launcher. `uvicorn --host` takes one address and the daemon needs two: the transport's own, which the QR advertises and a phone dials, and loopback, which the loopback gate recognises and which is what keeps the on-box CLI working without a device token. It refuses `0.0.0.0` outright rather than clamping it.
+- **Runbook** at `E2E/0.4.3/e2e.md`, run live before this was offered for review, with the bind proven by a request arriving over the advertised address and by the same check failing against `0.4.2`.
+
+### Fixed
+- **The daemon bound loopback while pairing advertised the tailnet.** `vadgr start` passed a literal `--host 127.0.0.1` to uvicorn at its one spawn site, so a phone scanning the QR dialled an address with nothing behind it, and `GET /api/health` reported a `bind_host` that had never been bound - measured at `v0.4.2` as `100.67.110.10:8807 -> 000` against `127.0.0.1:8807 -> 200` with health claiming `100.67.110.10`. The address now comes from the same transport factory the app uses, resolved in the parent so `vadgr start` knows whether it will work before it writes a pid file. Pre-existing; not introduced by `0.4.2`.
+- **A tailscale transport that cannot resolve no longer kills the daemon.** `bind_host()` raises when tailscaled is down or logged out. `vadgr start` catches it, binds loopback alone and **says so** - the CLI, runs and the journal are all loopback clients, and a tailnet hiccup should not stop someone using their own machine. Pairing then refuses with `503 TRANSPORT_UNREACHABLE` rather than minting a code for an address nobody can reach.
+- **`vadgr pair` lost roughly one code in twenty and blamed the daemon.** The CLI sent `{}` as the body of every non-`GET` request, including to routes that declare no body. Those bytes are never read, so the server cannot reuse the connection and closes it abruptly; on WSL2 loopback that close races the client's read and arrives as a connection reset, which the client reported as `Error: API is not running` and exited `3` - about a daemon that had already answered `200` and minted the code. Measured at 5-9 failures per 120 `vadgr pair` invocations before, 0 per 120 after. Pre-existing.
+- **A comment in `api/config.py` claiming the host already came from `transport.bind_host()` at startup** is deleted. It described a mechanism that never existed, and a comment asserting a fix is already in place is a large part of why the bind defect survived to `0.4.2`.
+
+### Notes
+- **Nothing on the wire was renamed.** The response field is still `pairing_token`, the claim request is still `{pairing_token, device_name}`, the claim response is still `{token, device_id}`, and the deep link still uses `token=`. The renames the published API reference names as targets - `pairing_code`, `expires_at`, `pair_uri`, `code=` - travel with the `0.5.0` reshape and its schema regeneration, because the phone app is being built against these names right now.
+- **`POST /api/auth/pair` still has no rate limit**; its `429` remains a target. The single-slot store changes its threat model - minting can no longer grow anything, so a mint flood is denial of pairing by an already-authorized peer rather than resource exhaustion.
+- The TTL (300s) and the attempt cap (5) are module constants, not configuration. An environment variable for either would be a knob for silently weakening a recorded security decision. Tests that need a fast expiry use the existing `PairingStore(ttl_seconds=)` constructor seam.
+- Agent creation on a native provider still reaches status `error`, unchanged from `0.4.1` and `0.4.2`. Runs on an existing agent are unaffected.
+
+### Tests
+- engine 122, api 596, cli 201, all green. `api` moves by 555 -> 596 (the code's format and normalisation, the cap, the burn, supersede, the claim mapping asserted in both directions, and the launcher's address arithmetic, against two removed pairing-token tests); `cli` by 192 -> 201 (the bind argv, the loopback fallback, the request-body tests).
+- Verified live on WSL2 against a real tailnet: a request over the advertised tailnet address and over the MagicDNS name in the QR both answer `200`, `ss` shows both sockets and never `0.0.0.0`, and the same check run against `0.4.2` fails - which is what makes the passing run mean anything. The seven-attempt trace was reproduced over HTTP, the five-minute expiry was waited out rather than faked, and a code printed by `vadgr pair` was typed back to claim a device that the device rows then confirm.
+
 ## [0.4.2] - 2026-08-05
 
 **The web dashboard is gone.** The machine's clients are now the `vadgr` CLI on the box and the phone app over the tailnet, and installing vadgr no longer installs Node.js. The API contract is unchanged: every operation the dashboard rendered is still served by the same endpoints.
