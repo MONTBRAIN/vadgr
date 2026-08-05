@@ -2,7 +2,7 @@
 
 A daemon per machine: the native agent loop, the MCP host, gates and policy,
 the API the phone talks to, persistence, plus `cli/` - the on-box owner surface.
-v2 has no desktop frontend: `frontend/` sits in the tree only until `0.3.9`
+v2 has no desktop frontend: `frontend/` sits in the tree only until `0.4.2`
 deletes it. Build nothing against it.
 
 **This file is loaded automatically. The rules live in the docs repo and are not
