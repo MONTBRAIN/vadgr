@@ -232,6 +232,8 @@ class TestServiceInventory:
         assert "frontend" not in result.output
 
     def test_logs_rejects_an_unknown_service(self, runner, tmp_forge):
+        """A usage error, not "no logs found" -- the value must not be accepted."""
         from cli.commands.service import logs
         result = runner.invoke(logs, ["-s", "frontend"])
-        assert result.exit_code != 0
+        assert result.exit_code == 2
+        assert "invalid value for '--service'" in result.output.lower()
