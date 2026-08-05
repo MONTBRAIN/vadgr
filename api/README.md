@@ -142,5 +142,3 @@ See [PROVIDER_PARSER_GUIDE.md](../PROVIDER_PARSER_GUIDE.md) for:
 - available `stream_parser` families
 - `streaming` command rewrite rules
 - when a new provider needs code vs YAML only
-
-See [CONTAINERIZATION.md](docs/CONTAINERIZATION.md) for future Docker deployment plans.
