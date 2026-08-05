@@ -17,7 +17,7 @@ All notable changes to this project are documented here. Format follows [Keep a 
 ### Changed
 - **Pairing is CLI-only.** `vadgr pair` mints the token and prints the Unicode QR in the terminal; it is now the only pairing surface the machine has. The endpoints behind it are unchanged, so a phone that could pair before still pairs.
 - **`vadgr api` and `vadgr start` are one command.** `api` stays as a name for it, and its `--port` spelling still parses alongside `--api-port`.
-- **`vadgr status` lists one service**, not two. The second row was permanently `stopped` on any machine without Node.
+- **`vadgr status` no longer lists a `frontend` row**, which was permanently `stopped` on any machine without Node. What it lists now is the API and, when computer use is enabled, its daemon.
 - **`vadgr stop`, `vadgr restart` and `vadgr logs`** act on the daemon alone; `logs --service` accepts only `api`.
 - **A finished run links to the API.** `vadgr run` used to probe for a dev server and print `http://localhost:3000/runs/<id>` when it found one; it now prints `<api>/api/runs/<id>` unconditionally, which also removes a probe that cost about a second on every completed run.
 - **`vadgr update`** no longer reinstalls frontend dependencies.

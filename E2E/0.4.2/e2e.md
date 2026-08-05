@@ -382,7 +382,7 @@ against the same working tree over `\\wsl.localhost`.
 |---|---|---|---|---|
 | W1 | `python -m cli start --frontend-port 3000` | usage error | `Error: No such option '--frontend-port'.` exit `2` | **pass** |
 | W2 | `python -m cli logs -s frontend` | usage error | exit `2` | **pass** |
-| W3 | `python -m cli status` | one service | `api - stopped` | **pass** |
+| W3 | `python -m cli status` | no `frontend` row | `api - stopped` (one row with the daemon down; `api` + `daemon` with it up, the second being computer-use) | **pass** |
 | W4 | `python -m cli api --help` | the same command as `start`, both flag spellings | `Start the vadgr daemon (the API).` / `--api-port, --port INTEGER` | **pass** |
 | W5 | `setup.ps1` parses | no parse errors | parsed clean | **pass** |
 | W6 | `InstallNode` is not defined | absent from the AST | `False` | **pass** |
@@ -499,9 +499,15 @@ read; that is analysis, not evidence.
   a host that **does** have Node, without touching it. A full install on a bare
   machine is owed.
 - **That nothing on some other machine still points at port 3000.** D7 proves
-  nothing on *this* host answers there after `vadgr start`. A user with a browser
-  tab open and a stale bookmark gets a connection refused, which is the right
-  answer and was not separately tested.
+  nothing on *this* host answers there after `vadgr start`. What a user with a
+  stale bookmark sees was **not** tested and is not the obvious answer: on this
+  host - WSL2 with mirrored networking - a connect to an unbound low `127.0.0.1`
+  port **hangs to timeout rather than refusing**, measured on `:3000`, `:3001`,
+  `:4567` and `:9999`, while `::1:3000` refuses instantly. Two independent
+  closing passes found this separately. It means D7's evidence is "no listener
+  and no HTTP answer", established by contrast with a live port - not "the
+  connection was refused", and a check written as "connect fails" would pass
+  here even if aimed at the wrong port.
 - **That the phone still pairs.** B1-B5 drive the machine's half of pairing end
   to end and ground-truth it in the device table. The scan itself is
   `vadgr-mobile`'s runbook, with a person holding a handset.
