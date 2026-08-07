@@ -1,4 +1,4 @@
-"""Tests for LogWriter — per-step JSONL log persistence."""
+"""Tests for LogWriter - per-step JSONL log persistence."""
 
 import json
 import pytest
@@ -115,7 +115,7 @@ class TestListStepLogs:
 
 
 class TestForgePathSupport:
-    """Tests for forge_path parameter — logs go to {forge_path}/output/{run_id}/agent_logs/."""
+    """Tests for forge_path parameter - logs go to {forge_path}/output/{run_id}/agent_logs/."""
 
     def test_append_run_event_with_forge_path(self, log_writer, tmp_path):
         event = {"type": "run_started", "data": {}, "timestamp": "2026-03-15T18:00:00Z"}

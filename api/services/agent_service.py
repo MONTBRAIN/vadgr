@@ -257,7 +257,7 @@ class AgentService:
             if forge_result.get("output_schema"):
                 update_fields["output_schema"] = forge_result["output_schema"]
             # Populate steps from disk when forge didn't return them and user
-            # declared none — avoids overwriting user steps that have computer_use: True.
+            # declared none - avoids overwriting user steps that have computer_use: True.
             if forge_result.get("steps"):
                 update_fields["steps"] = forge_result["steps"]
             elif not agent.get("steps") and forge_path:

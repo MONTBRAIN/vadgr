@@ -498,7 +498,7 @@ class CLIAgentProvider:
         should_parse_stream = self._should_parse_stream_output(args)
         effective_timeout = timeout or self.config.timeout
 
-        # Use a 10 MB read buffer — the default 64 KB is too small for agents
+        # Use a 10 MB read buffer - the default 64 KB is too small for agents
         # that produce large outputs (e.g. multi-document analysis reports).
         _STREAM_LIMIT = 10 * 1024 * 1024
         env = self._computer_use_env() if computer_use else self._clean_env()
@@ -568,7 +568,7 @@ class CLIAgentProvider:
             # Always ensure the subprocess is killed and reaped, even if the
             # caller stops iterating, an exception is raised, or the run fails.
             # Kill the entire process tree so computer use children (MCP desktop
-            # automation processes) are also terminated — not just the direct child.
+            # automation processes) are also terminated - not just the direct child.
             if proc.returncode is None:
                 await kill_process_tree(proc)
 

@@ -1,10 +1,10 @@
-# E2E verification — read the journal, not the agent's words
+# E2E verification - read the journal, not the agent's words
 
 Applies to **every** runbook in this directory (`E2E/<version>/e2e.md`).
 
 An e2e is driven by a **real agent given a goal-level task**, never by a script.
 A `.py` that imports `run_loop` and calls it directly is an **acceptance test**,
-not an e2e — it proves the function works, not that the product does. The agent's
+not an e2e - it proves the function works, not that the product does. The agent's
 prose ("I started the run and it completed") is **self-report and is not
 evidence**.
 
@@ -15,7 +15,7 @@ with no confirming journal line is a FAIL.**
 
 ## Where the ground truth is, in order of preference
 
-**1. The run journal — the record.** One JSONL file per run:
+**1. The run journal - the record.** One JSONL file per run:
 
 ```
 ~/.vadgr/runs/<run_id>/trajectory.jsonl
@@ -41,16 +41,16 @@ for r in recs:
 PY
 ```
 
-**2. The API and the database — what the product says happened.**
+**2. The API and the database - what the product says happened.**
 `GET /api/runs/{id}` for the terminal status, and the run row for what was
 persisted. A status alone is weak evidence: a run ends `completed` on the legacy
 CLI path too. **Pair it with the journal**, which only the native loop writes.
 
-**3. The WebSocket stream — what a watcher actually saw.** `websocat` or
+**3. The WebSocket stream - what a watcher actually saw.** `websocat` or
 `vadgr stream`. Needed for any claim about frames reaching a client; a claim
 about `map_event` is a unit-test claim, not an observation of the wire.
 
-**4. The Claude session transcript — the fallback.** When a subagent drove the
+**4. The Claude session transcript - the fallback.** When a subagent drove the
 run and its stream is not in your context, the tool calls are in
 `~/.claude/projects/<sanitized-cwd>/<session-id>.jsonl`, one JSON object per
 line, subagent turns marked `isSidechain: true`. The transcript cannot be edited
@@ -85,7 +85,7 @@ curl.
 - A run counts as having reached the **native loop** only if
   `~/.vadgr/runs/<run_id>/trajectory.jsonl` exists **at the API's own run id**
   and carries real `usage`. Status `completed` alone proves nothing.
-- A **mutating action** counts only if an independent read-back confirms it — the
+- A **mutating action** counts only if an independent read-back confirms it - the
   journal, the filesystem, the database. Not the agent saying so.
 - A **negative test** must show the failure arriving as data: an `error` line on
   that `seq`, a non-2xx with the contract's error envelope, a non-zero exit code.
@@ -97,7 +97,7 @@ curl.
   names. A frame the phone has no case for is ignored silently, and the feature
   looks broken with nothing failing.
 - If neither a journal nor a transcript is available, the test is **not
-  verified** — say so. Do not infer a pass.
+  verified** - say so. Do not infer a pass.
 
 ## Test what this minor can test, and nothing more
 
@@ -137,8 +137,8 @@ Every runbook ends with a per-OS table over **Linux / macOS / Windows native /
 WSL**, because the daemon claims all four.
 
 `Not-Needed` is a real verdict and it is **not** a synonym for "did not run". It
-means the change has **no OS-specific surface** — no socket, pipe, path,
-registry or process branching, and no per-OS dependency — so another OS
+means the change has **no OS-specific surface** - no socket, pipe, path,
+registry or process branching, and no per-OS dependency - so another OS
 *cannot* behave differently and a run there adds no signal. Every `Not-Needed`
 carries its reason.
 
@@ -227,8 +227,8 @@ rather than reconstructing it.
 
 ## When a runbook finds a bug
 
-Finding one is the point. Root-cause it in the source citing `file:line` — a
-flaky environment is not a root cause until the code says so — fix it **on the
+Finding one is the point. Root-cause it in the source citing `file:line` - a
+flaky environment is not a root cause until the code says so - fix it **on the
 same PR branch** with a test that fails without the fix, re-run that part, and
 record it as a numbered finding in the runbook. If the patch is released, add a
 row to the patch log naming this runbook in the *found by* column.

@@ -50,7 +50,7 @@ def _windows_pipe_roundtrip(pipe_path: str, request: bytes) -> Optional[bytes]:
 
     tailscaled's Windows LocalAPI impersonates the named-pipe client to authorize
     it, so the pipe must be opened with ``SECURITY_SQOS_PRESENT |
-    SECURITY_IMPERSONATION`` — Python's ``open()`` does not, so we ``CreateFileW``
+    SECURITY_IMPERSONATION`` - Python's ``open()`` does not, so we ``CreateFileW``
     via ``ctypes`` (no third-party dep). Verified non-elevated against a live
     Windows ``tailscaled``.
     """
@@ -111,8 +111,8 @@ def _windows_pipe_roundtrip(pipe_path: str, request: bytes) -> Optional[bytes]:
 class TailscaledLocalAPI:
     """Talks to the ``tailscaled`` LocalAPI.
 
-    Transport is per-OS — a **unix socket** on Linux/macOS/WSL, a **named pipe**
-    on native Windows — but the request is identical: HTTP/1.0 with the fixed Host
+    Transport is per-OS - a **unix socket** on Linux/macOS/WSL, a **named pipe**
+    on native Windows - but the request is identical: HTTP/1.0 with the fixed Host
     sentinel ``local-tailscaled.sock`` (HTTP/1.0 because the Go server chunks
     HTTP/1.1 bodies, which this minimal client does not decode).
     """

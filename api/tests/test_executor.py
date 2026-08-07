@@ -725,7 +725,7 @@ class TestEnvBuilders:
 
 
 class TestCollectOutputPaths:
-    """Tests for _collect_output_paths — scan user_outputs/ and map to schema fields."""
+    """Tests for _collect_output_paths - scan user_outputs/ and map to schema fields."""
 
     def _make_executor(self):
         return AgentExecutor(provider=None, computer_use_service=None)
@@ -892,7 +892,7 @@ class TestExecuteSingleDiskOutputs:
         step_dir.mkdir(parents=True)
         (step_dir / "decision-brief.md").write_text("# Decision Brief\n\nReal content.")
 
-        provider = _make_streaming_provider("decision_brief")  # raw stdout — just the field name
+        provider = _make_streaming_provider("decision_brief")  # raw stdout - just the field name
         cu_service = AsyncMock()
         callback = AsyncMock()
         executor = AgentExecutor(provider=provider, computer_use_service=cu_service)

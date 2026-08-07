@@ -211,7 +211,7 @@ class TestExportManifestStepsFallback:
 
         create = await client.post("/api/agents", json={"name": "T", "description": ""})
         agent_id = create.json()["id"]
-        # DB steps intentionally empty — simulates agent created without declaring steps
+        # DB steps intentionally empty - simulates agent created without declaring steps
         await app.state.agent_repo.update(agent_id, status="ready", forge_path="output/agent-123/")
 
         original_root = agents_mod.PROJECT_ROOT
@@ -238,7 +238,7 @@ class TestExportManifestStepsFallback:
         forge_root = tmp_path / "output" / "agent-123"
         steps_dir = forge_root / "agent" / "steps"
         steps_dir.mkdir(parents=True)
-        # Disk has different name than DB — DB should win
+        # Disk has different name than DB - DB should win
         (steps_dir / "step_01_disk-name.md").write_text("# Step 1")
         (forge_root / "agentic.md").write_text("# Agent")
         (forge_root / ".gitignore").write_text("output/\n")
