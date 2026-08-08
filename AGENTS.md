@@ -15,7 +15,7 @@ gh repo clone MONTBRAIN/vadgr-docs      # the map: ARCHITECTURE.md, design/, MOB
 | Repo | Role | Default branch |
 |---|---|---|
 | `vadgr-docs` (private) | architecture, design docs, mockups, conventions | master |
-| `vadgr` | orchestrator brain (API + CLI + engine + forge + registry) | master |
+| `vadgr` | the machine daemon (API + CLI + engine + forge + registry) | master |
 | `vadgr-computer-use` | MCP runtime that drives the local machine | master |
 | `vadgr-mobile` (private) | Flutter phone app | main |
 

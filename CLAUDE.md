@@ -100,8 +100,8 @@ The gate, all three suites, before offering anything:
 
 ```bash
 PYTHONPATH=. python3 -m pytest engine/tests/ -q     # 122
-python3 -m pytest api/tests/ -q                     # 554
-python3 -m pytest cli/tests/ -q                     # 192
+python3 -m pytest api/tests/ -q                     # 596
+python3 -m pytest cli/tests/ -q                     # 201
 ```
 
 One test process at a time wherever anything is shared - two overlapping runs
