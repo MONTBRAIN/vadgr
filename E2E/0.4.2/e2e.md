@@ -474,7 +474,7 @@ originated from loopback, so no packet crossed the tailnet.**
 It also means this branch's `OPTIONS` fix could not be exercised from a genuine
 non-loopback peer: recorded as **not run**, not as a pass.
 
-Assigned to `0.4.3`, which is the pairing minor - see `PROGRESS.md`.
+Assigned to `0.4.3`, the pairing minor.
 
 
 
