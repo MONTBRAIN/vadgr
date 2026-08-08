@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
-## [0.4.3] - 2026-08-05
+## [0.4.3] - 2026-08-08
 
 **A pairing code a person can type, at an address the daemon actually answers on.** The value in `pairing_token` shortens from ~32 random characters to eight, and `vadgr start` now binds what the transport says instead of a hard-coded `127.0.0.1`, so the address in the QR is one something is listening on. **The wire shape does not move**: same endpoints, same field names, same claim exchange.
 
