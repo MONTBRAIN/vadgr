@@ -11,7 +11,7 @@ from cli.commands.pair_cmd import build_pair_uri, pair
 _PAIR_RESPONSE = {
     "host": "my-box.tailnet-1234.ts.net",
     "port": 8000,
-    "pairing_token": "abc123",
+    "pairing_token": "7QK4-M2XD",
     "machine_name": "Work Box",
 }
 
@@ -21,7 +21,9 @@ def test_build_pair_uri_encodes_all_params():
     assert uri.startswith("vadgr://pair?")
     assert "host=my-box.tailnet-1234.ts.net" in uri
     assert "port=8000" in uri
-    assert "token=abc123" in uri
+    # The hyphen survives urlencode unescaped, so the phone's scanner reads the
+    # same grouped form a person would type.
+    assert "token=7QK4-M2XD" in uri
     # machine_name is URL-encoded (space -> +).
     assert "name=Work+Box" in uri
 
@@ -35,12 +37,14 @@ def runner():
     return CliRunner()
 
 
-def test_pair_command_prints_token_and_address(runner):
+def test_pair_command_prints_the_code_and_address(runner):
     with mock.patch("cli.commands.pair_cmd.api_post") as m:
         m.return_value = _PAIR_RESPONSE
         result = runner.invoke(pair, [], obj={"api_url": "http://x"})
     assert result.exit_code == 0
-    assert "abc123" in result.output
+    # Grouped, verbatim: what is printed is what someone types on the phone.
+    assert "7QK4-M2XD" in result.output
+    assert "Pairing code" in result.output
     assert "my-box.tailnet-1234.ts.net:8000" in result.output
 
 

@@ -98,7 +98,7 @@ def resolve_command(cmd: str) -> str:
     On Windows, ``asyncio.create_subprocess_exec`` does not consult
     ``PATHEXT`` so bare names like ``codex`` fail when the real binary
     is ``codex.CMD`` (npm shim).  ``shutil.which`` handles this correctly
-    on every platform — native ``.exe``, npm ``.cmd``, and Unix binaries.
+    on every platform - native ``.exe``, npm ``.cmd``, and Unix binaries.
 
     Absolute paths are returned unchanged.
     """

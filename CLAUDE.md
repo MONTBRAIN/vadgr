@@ -71,6 +71,8 @@ methodology narration, no SOLID tables, no design-doc citations.
 
 ## How a change is proven here
 
+- **No em dashes** in comments, docstrings, the CHANGELOG, CLI output or a PR
+  body. A colon or a spaced hyphen does the job.
 - **Every fix gets a test that fails without it.** Stash the fix, watch it go
   red, restore. A test that passes either way tests nothing - one written for a
   gate crash here passed against the unfixed code because the fake never reached

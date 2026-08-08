@@ -171,12 +171,12 @@ class TestStartIsApiOnly:
         monkeypatch.setattr("time.sleep", lambda s: None)
         return spawned
 
-    def test_spawns_only_uvicorn(self, runner, tmp_forge, fake_popen):
+    def test_spawns_only_the_daemon(self, runner, tmp_forge, fake_popen):
         from cli.commands.service import start
         result = runner.invoke(start)
         assert result.exit_code == 0, result.output
         assert len(fake_popen) == 1
-        assert "uvicorn" in fake_popen[0]
+        assert "api.serve" in fake_popen[0]
 
     def test_reports_the_api_and_nothing_else(self, runner, tmp_forge, fake_popen):
         from cli.commands.service import start
@@ -211,6 +211,96 @@ class TestStartIsApiOnly:
         result = runner.invoke(start, ["--port", "8123"])
         assert result.exit_code == 0, result.output
         assert "8123" in result.output
+
+
+class TestStartBindsWhereTheTransportSays:
+    """The daemon must listen where `vadgr pair` advertises.
+
+    It bound a literal 127.0.0.1 while the QR carried the tailnet address, so a
+    phone dialled a socket that did not exist and `GET /api/health` reported a
+    `bind_host` nothing was ever bound to. These assert the argv; the proof that
+    something answers on that address is the runbook's, because an argv check
+    shares the blind spot that let this survive three closing passes.
+    """
+
+    @pytest.fixture
+    def fake_popen(self, monkeypatch):
+        spawned = []
+        monkeypatch.setattr("subprocess.Popen",
+                            lambda cmd, *a, **kw: (spawned.append(cmd),
+                                                   mock.MagicMock(poll=lambda: None, pid=4242))[1])
+        monkeypatch.setattr("cli.commands.service._port_in_use", lambda p: False)
+        monkeypatch.setattr("cli.commands.service._wait_for_api", lambda p, **kw: True)
+        monkeypatch.setattr("time.sleep", lambda s: None)
+        return spawned
+
+    @staticmethod
+    def _hosts(argv):
+        return [argv[i + 1] for i, a in enumerate(argv) if a == "--host"]
+
+    def _fake_transport(self, monkeypatch, bind_host=None, raises=None):
+        class _T:
+            name = "tailscale"
+
+            def bind_host(self):
+                if raises:
+                    raise RuntimeError(raises)
+                return bind_host
+
+        monkeypatch.setattr("cli.commands.service.create_transport", lambda: _T())
+
+    def test_the_tailnet_address_is_bound_not_a_literal_loopback(
+        self, runner, tmp_forge, fake_popen, monkeypatch
+    ):
+        from cli.commands.service import start
+        self._fake_transport(monkeypatch, bind_host="100.67.110.10")
+        assert runner.invoke(start).exit_code == 0
+        assert "100.67.110.10" in self._hosts(fake_popen[0])
+
+    def test_loopback_is_bound_too_so_the_on_box_cli_keeps_gate_0(
+        self, runner, tmp_forge, fake_popen, monkeypatch
+    ):
+        """Gate 0 is a loopback bypass, so dropping the loopback socket makes
+        every on-box `vadgr` command answer 401 MISSING_TOKEN."""
+        from cli.commands.service import start
+        self._fake_transport(monkeypatch, bind_host="100.67.110.10")
+        runner.invoke(start)
+        assert self._hosts(fake_popen[0]) == ["100.67.110.10", "127.0.0.1"]
+
+    def test_loopback_transport_binds_one_socket_not_two_of_the_same(
+        self, runner, tmp_forge, fake_popen, monkeypatch
+    ):
+        from cli.commands.service import start
+        self._fake_transport(monkeypatch, bind_host="127.0.0.1")
+        runner.invoke(start)
+        assert self._hosts(fake_popen[0]) == ["127.0.0.1"]
+
+    def test_never_binds_every_interface(self, runner, tmp_forge, fake_popen, monkeypatch):
+        from cli.commands.service import start
+        self._fake_transport(monkeypatch, bind_host="100.67.110.10")
+        runner.invoke(start)
+        assert "0.0.0.0" not in fake_popen[0]
+
+    def test_tailscale_down_falls_back_to_loopback_and_says_so(
+        self, runner, tmp_forge, fake_popen, monkeypatch
+    ):
+        """`bind_host()` raises when tailscaled is down. The daemon still starts
+        -- the CLI and the journal are loopback clients -- but the owner is told,
+        because pairing will refuse until it is back."""
+        from cli.commands.service import start
+        self._fake_transport(monkeypatch, raises="Tailscale transport unavailable.")
+        result = runner.invoke(start)
+        assert result.exit_code == 0, result.output
+        assert self._hosts(fake_popen[0]) == ["127.0.0.1"]
+        assert "pairing will refuse" in result.output
+
+    def test_start_reports_the_address_it_bound(
+        self, runner, tmp_forge, fake_popen, monkeypatch
+    ):
+        from cli.commands.service import start
+        self._fake_transport(monkeypatch, bind_host="100.67.110.10")
+        result = runner.invoke(start)
+        assert "100.67.110.10" in result.output
 
 
 class TestApiAliasIsStart:

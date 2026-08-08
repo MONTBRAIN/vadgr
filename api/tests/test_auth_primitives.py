@@ -1,5 +1,6 @@
 """Unit tests for the auth SRP split: tokens, pairing_store, devices."""
 
+import re
 import time
 
 import pytest
@@ -32,8 +33,54 @@ def test_verify_token_constant_time_roundtrip():
     assert tokens.verify_token("wrong", tokens.hash_token(tok)) is False
 
 
-def test_pairing_token_distinct_from_persistent_token():
-    assert tokens.generate_pairing_token() != tokens.generate_token()
+# --- the pairing code (Crockford base32, typed by a person) -----------------
+
+_GROUPED = re.compile(r"^[0-9ABCDEFGHJKMNPQRSTVWXYZ]{4}-[0-9ABCDEFGHJKMNPQRSTVWXYZ]{4}$")
+
+
+def test_pairing_code_is_eight_crockford_symbols_grouped_in_fours():
+    """Replaces the old "a pairing token is not a device token" test: a code can
+    never be mistaken for a device token by shape, which is the stronger claim."""
+    assert _GROUPED.match(tokens.generate_pairing_code())
+
+
+def test_two_pairing_codes_differ():
+    assert tokens.generate_pairing_code() != tokens.generate_pairing_code()
+
+
+def test_the_alphabet_excludes_every_letter_that_reads_as_a_digit():
+    for excluded in "ILOU":
+        assert excluded not in tokens.CROCKFORD_ALPHABET
+    assert len(tokens.CROCKFORD_ALPHABET) == 32  # 8 symbols is exactly 40 bits
+
+
+def test_normalize_is_identity_on_a_canonical_code_minus_the_grouping():
+    assert tokens.normalize_pairing_code("7QK4-M2XD") == "7QK4M2XD"
+
+
+@pytest.mark.parametrize(
+    "typed",
+    ["7QK4-M2XD", "7qk4m2xd", "7QK4 M2XD", "7qk4-M2xd", " 7QK4-M2XD "],
+)
+def test_case_grouping_and_spacing_all_normalise_to_one_code(typed):
+    """Forgiveness lives server-side, in one place, so a curl, the CLI and a
+    phone keyboard cannot drift into three different answers."""
+    assert tokens.normalize_pairing_code(typed) == "7QK4M2XD"
+
+
+def test_the_documented_confusions_are_mapped():
+    assert tokens.normalize_pairing_code("O1IL-0000") == "01110000"
+
+
+def test_a_typed_u_is_not_a_code():
+    """Crockford excludes U from the alphabet without giving it a mapping, so it
+    is malformed rather than forgiven."""
+    assert tokens.normalize_pairing_code("UUUU-UUUU") is None
+
+
+@pytest.mark.parametrize("bad", ["7QK4-M2X", "7QK4-M2XDE", "", "!!!!-!!!!", "7QK4M2X"])
+def test_wrong_length_or_off_alphabet_is_not_a_code(bad):
+    assert tokens.normalize_pairing_code(bad) is None
 
 
 # --- pairing_store.py (ephemeral, one-time) ---------------------------------
@@ -41,29 +88,31 @@ def test_pairing_token_distinct_from_persistent_token():
 
 def test_mint_then_consume_once():
     store = PairingStore()
-    token, _ = store.mint()
-    assert store.consume(token) is True
+    code, _ = store.mint()
+    assert store.consume(code) is True
     # One-time: a replay fails.
-    assert store.consume(token) is False
+    assert store.consume(code) is False
 
 
-def test_consume_unknown_token_fails():
-    assert PairingStore().consume("nope") is False
+def test_consume_unknown_code_fails():
+    assert PairingStore().consume("AAAA-AAAA") is False
 
 
-def test_expired_pairing_token_is_rejected():
+def test_expired_pairing_code_is_rejected():
     store = PairingStore(ttl_seconds=0)
-    token, _ = store.mint()
+    code, _ = store.mint()
     time.sleep(0.01)
-    assert store.consume(token) is False
+    assert store.consume(code) is False
 
 
-def test_size_tracks_pending():
+def test_size_is_never_more_than_one():
+    """Minting replaces rather than accumulates -- which is what makes "five
+    attempts against the code" a countable thing."""
     store = PairingStore()
     assert store.size() == 0
     store.mint()
     store.mint()
-    assert store.size() == 2
+    assert store.size() == 1
 
 
 # --- devices.py (persistent repo) -------------------------------------------

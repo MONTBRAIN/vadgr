@@ -14,6 +14,11 @@ from pathlib import Path
 
 import click
 
+# The same factory the app itself uses, so the address `vadgr start` binds and
+# the address `vadgr pair` advertises can never be two different answers. The
+# transport package is pure stdlib, so importing it here costs the CLI venv
+# nothing.
+from api.transport import create_transport
 from cli.output import print_info, print_success, print_warning, print_error, print_table, status_text
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -162,6 +167,34 @@ def _get_api_python() -> str:
     return str(p)
 
 
+def _resolve_bind_hosts() -> list[str]:
+    """The addresses the daemon binds: the transport's own, plus loopback.
+
+    The transport's address is what the pairing QR advertises, so it is the one
+    a phone dials; loopback is what gate 0 recognises, so it is what keeps the
+    on-box CLI working without a device token. Both, always -- never 0.0.0.0,
+    which would also hand the machine to whatever else is on the network.
+
+    Computed in the parent rather than left to the child: `vadgr start` reports
+    success and writes a pid file, and it must know whether the address resolves
+    *before* it does either. A subprocess that dies after the parent has printed
+    "Starting API server" leaves the owner reading a lie.
+
+    A tailscale transport with tailscaled down or logged out **raises** here.
+    That falls back to loopback alone rather than refusing to start: the CLI,
+    runs and the journal are all loopback clients, and a tailnet hiccup should
+    not stop someone using their own machine. It is loud, because pairing will
+    refuse for as long as it lasts.
+    """
+    transport = create_transport()
+    try:
+        primary = transport.bind_host()
+    except RuntimeError as exc:
+        print_warning(f"{exc} Binding 127.0.0.1 only; pairing will refuse.")
+        primary = "127.0.0.1"
+    return [primary] if primary == "127.0.0.1" else [primary, "127.0.0.1"]
+
+
 def _build_env(api_port: int) -> dict:
     env = os.environ.copy()
     env["PYTHONPATH"] = str(FORGE_REPO)
@@ -212,12 +245,13 @@ def start(api_port):
         print_info(f"Port {original} busy, using {api_port}")
 
     env = _build_env(api_port)
+    bind_hosts = _resolve_bind_hosts()
 
-    print_info(f"Starting API server (port {api_port})...")
+    print_info(f"Starting API server ({', '.join(bind_hosts)} on port {api_port})...")
     api_log = open(FORGE_HOME / "api.log", "w")
+    host_args = [arg for host in bind_hosts for arg in ("--host", host)]
     api_proc = subprocess.Popen(
-        [_get_api_python(), "-m", "uvicorn", "api.main:app",
-         "--host", "127.0.0.1", "--port", str(api_port)],
+        [_get_api_python(), "-m", "api.serve", *host_args, "--port", str(api_port)],
         cwd=str(FORGE_REPO), env=env,
         stdout=api_log, stderr=subprocess.STDOUT,
         **_session_kwargs(),

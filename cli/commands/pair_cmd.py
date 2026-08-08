@@ -1,9 +1,9 @@
-"""``vadgr pair`` -- mint a pairing token and render a terminal QR.
+"""``vadgr pair`` -- mint a pairing code and render a terminal QR.
 
 The only pairing surface on the machine. Hits ``POST /api/auth/pair``, builds
 the shared ``vadgr://pair`` deep link, and renders it as a Unicode QR in the
 terminal (headless boxes have no GUI, and there is no web dashboard). The phone
-scans it; the raw token is also printed for manual entry.
+scans it; the code is also printed, grouped, for someone to type instead.
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ from cli.output import print_error, print_kv, print_success
 
 def build_pair_uri(pair: dict) -> str:
     """The cross-repo deep link. Param names MUST match vadgr-mobile's scanner
-    (host/port/token/name)."""
+    (host/port/token/name) -- the value in ``token`` is the pairing code."""
     query = urlencode(
         {
             "host": pair["host"],
@@ -46,8 +46,10 @@ def _render_qr(data: str) -> bool:
 @click.command()
 @click.pass_context
 def pair(ctx):
-    """Pair a mobile device: mint a one-time token and show a QR to scan."""
+    """Pair a mobile device: mint a one-time code and show a QR to scan."""
     data = api_post(ctx, "/api/auth/pair")
+    # `pairing_token` is the field name on the wire, and it is the invariant --
+    # only the value it carries is now a short code.
     if not isinstance(data, dict) or "pairing_token" not in data:
         print_error("Pairing failed: unexpected response from the API.")
         raise SystemExit(1)
@@ -65,8 +67,11 @@ def pair(ctx):
         [
             ("Machine", data["machine_name"]),
             ("Address", f"{data['host']}:{data['port']}"),
-            ("Pairing token", data["pairing_token"]),
+            ("Pairing code", data["pairing_token"]),
         ]
     )
     click.echo()
-    print_success("Scan with the Vadgr mobile app. This token is one-time and short-lived.")
+    print_success(
+        "Scan with the Vadgr mobile app, or type the code. "
+        "One-time, valid for 5 minutes."
+    )

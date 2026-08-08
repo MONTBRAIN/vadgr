@@ -2006,16 +2006,16 @@ class TestAgentExecutor:
             call_count += 1
             use_stream = kwargs.get("use_stream_json", True)
             if call_count == 1:
-                # Step 1: CLI — should use stream-json
+                # Step 1: CLI - should use stream-json
                 assert use_stream is True
                 yield ExecutionEvent(type="output", data="Researching...")
                 yield ExecutionEvent(type="done", data="research done")
             elif call_count == 2:
-                # Step 2: Desktop — should NOT use stream-json
+                # Step 2: Desktop - should NOT use stream-json
                 assert use_stream is False
                 yield ExecutionEvent(type="done", data="screenshot captured")
             elif call_count == 3:
-                # Step 3: CLI — should use stream-json
+                # Step 3: CLI - should use stream-json
                 assert use_stream is True
                 yield ExecutionEvent(type="output", data="Writing report...")
                 yield ExecutionEvent(type="done", data='{"report": "final"}')

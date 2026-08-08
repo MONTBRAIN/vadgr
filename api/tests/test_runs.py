@@ -454,7 +454,7 @@ class TestRunLogsEndpoint:
         ]
         log_file.write_text("\n".join(json_mod.dumps(e) for e in events) + "\n")
 
-        # Set log_path — use relative path that resolves under _PROJECT_ROOT
+        # Set log_path - use relative path that resolves under _PROJECT_ROOT
         rel_path = str(log_dir.relative_to(tmp_path))
         await app.state.run_repo.set_log_path(run_id, rel_path)
 

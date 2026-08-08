@@ -79,3 +79,69 @@ def test_the_probe_never_invents_a_failure_the_request_would_not_have_hit():
     assert _should_probe("https://machine.tail1234.ts.net:8347") is False  # remote
     assert _should_probe("http://100.64.0.7:8347") is False               # remote
     assert _should_probe("http://127.0.0.1") is False                     # no explicit port
+
+
+# --- a request with no body sends no body -----------------------------------
+
+
+def _capture_request(monkeypatch):
+    """Capture the urllib Request the client builds, without a daemon."""
+    seen = {}
+
+    class _Resp:
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+        def read(self): return b"{}"
+
+    def fake_urlopen(req, timeout=None):
+        seen["req"] = req
+        return _Resp()
+
+    monkeypatch.setattr("urllib.request.urlopen", fake_urlopen)
+    monkeypatch.setattr("cli.client._should_probe", lambda url: False)
+    return seen
+
+
+def test_a_bodyless_post_sends_no_body_at_all(monkeypatch):
+    """`vadgr pair` posts to a route that declares no body parameter. Sending
+    `{}` anyway leaves bytes unread on the wire, so the server cannot reuse the
+    connection and closes it abruptly - which on WSL2 loopback arrives at the
+    client as ECONNRESET *after* the response was already produced. The command
+    then reports "API is not running" about a daemon that answered 200, and the
+    code it minted is lost. Measured at 5-9 failures per 120 `vadgr pair`
+    invocations before, 0 per 120 after.
+    """
+    from cli.client import api_post
+
+    seen = _capture_request(monkeypatch)
+    ctx = click.Context(click.Command("x"))
+    ctx.obj = {"api_url": "http://127.0.0.1:8000"}
+    api_post(ctx, "/api/auth/pair")
+
+    assert seen["req"].data is None
+    assert seen["req"].get_header("Content-type") is None
+    assert seen["req"].get_method() == "POST"
+
+
+def test_a_post_with_a_body_still_sends_it(monkeypatch):
+    from cli.client import api_post
+
+    seen = _capture_request(monkeypatch)
+    ctx = click.Context(click.Command("x"))
+    ctx.obj = {"api_url": "http://127.0.0.1:8000"}
+    api_post(ctx, "/api/agents", {"name": "a"})
+
+    assert seen["req"].data == b'{"name": "a"}'
+    assert seen["req"].get_header("Content-type") == "application/json"
+
+
+def test_a_delete_sends_no_body(monkeypatch):
+    from cli.client import api_delete
+
+    seen = _capture_request(monkeypatch)
+    ctx = click.Context(click.Command("x"))
+    ctx.obj = {"api_url": "http://127.0.0.1:8000"}
+    api_delete(ctx, "/api/devices/abc")
+
+    assert seen["req"].data is None
+    assert seen["req"].get_method() == "DELETE"
