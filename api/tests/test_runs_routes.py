@@ -13,7 +13,9 @@ def test_a_prose_output_is_returned_as_text_not_crashed_on():
     """
     from api.routes.runs import _resolve_output_path, _could_be_a_path
 
-    prose = "Executed the sequence: reported progress \"step one\" and \"step two\", wrote a two-item checklist (first done, second pending), and reported progress \"step three\" \u2014 the run is complete.\n\nNote: there is no `update_checklist` or `complete_task` tool available in this environment; I mapped the checklist step to `todo_write` (the only checklist-writing tool) and delivered the completion summary here rather than invoking a nonexistent tool."
+    # A verbatim capture of the model output that caused the defect. Its
+    # punctuation is the data under test, not this repo's prose.
+    prose = "Executed the sequence: reported progress \"step one\" and \"step two\", wrote a two-item checklist (first done, second pending), and reported progress \"step three\" \u2014 the run is complete.\n\nNote: there is no `update_checklist` or `complete_task` tool available in this environment; I mapped the checklist step to `todo_write` (the only checklist-writing tool) and delivered the completion summary here rather than invoking a nonexistent tool."  # style-check: allow
     assert len(prose.encode()) > 255
     assert _could_be_a_path(prose) is False
     assert _resolve_output_path("", prose) is None      # must not raise
