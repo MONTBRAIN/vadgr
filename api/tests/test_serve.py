@@ -93,3 +93,46 @@ def test_windows_does_not_get_so_reuseaddr():
     finally:
         socket.socket = socket_cls
         serve._IS_WINDOWS = original
+
+
+class TestTheDaemonsOwnLogsAreReachable:
+    """uvicorn configures its own loggers and nothing else, so an app logger
+    propagates to a root logger with no handler and is dropped at WARNING.
+
+    Asserted by actually applying the config and emitting, not by reading the
+    dict: a config that names a logger but wires it to no handler would satisfy
+    a structural check and still swallow the record.
+    """
+
+    def test_an_app_log_record_reaches_a_handler(self, capsys):
+        import logging
+        import logging.config
+
+        from api.serve import log_config
+
+        saved = {
+            name: (logging.getLogger(name).handlers[:], logging.getLogger(name).level,
+                   logging.getLogger(name).propagate)
+            for name in ("api", "engine", "cli", "uvicorn", "uvicorn.error", "uvicorn.access")
+        }
+        try:
+            logging.config.dictConfig(log_config())
+            logging.getLogger("api.persistence.database").info("migrating the database")
+            captured = capsys.readouterr()
+        finally:
+            for name, (handlers, level, propagate) in saved.items():
+                logger = logging.getLogger(name)
+                logger.handlers[:] = handlers
+                logger.setLevel(level)
+                logger.propagate = propagate
+
+        assert "migrating the database" in captured.err + captured.out
+
+    def test_every_app_package_is_named(self):
+        from api.serve import _APP_LOGGERS, log_config
+
+        loggers = log_config()["loggers"]
+        for name in _APP_LOGGERS:
+            assert loggers[name]["handlers"], f"{name} is named but wired to no handler"
+        # uvicorn's own configuration must survive the extension.
+        assert "uvicorn" in loggers
