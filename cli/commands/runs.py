@@ -1,4 +1,4 @@
-"""Run commands -- list, get, cancel, approve, logs."""
+"""Run commands -- list, get, cancel, resume."""
 
 from __future__ import annotations
 
@@ -31,22 +31,14 @@ def list_runs(ctx, status: str | None):
 
     rows = []
     for r in data:
-        agent = r.get("agent_name", r.get("agent_id", "-"))
+        # The row's `agent_name` is the run's title, which since 0.4.4 is the
+        # task sentence it was started with.
+        task = r.get("agent_name") or "-"
         duration = r.get("duration", "-")
         if isinstance(duration, (int, float)):
             duration = f"{duration:.0f}s"
-        run_status = status_text(r.get("status", "?"))
-        # Show which step failed for failed runs
-        outputs = r.get("outputs") or {}
-        if r.get("status") == "failed" and isinstance(outputs, dict):
-            error = outputs.get("error", "")
-            # Extract step number from error like "Step 3 (Test CLI) failed: ..."
-            if error.startswith("Step "):
-                parts = error.split(")", 1)
-                if parts:
-                    run_status = f"failed ({parts[0]})"
-        rows.append([r["id"][:8], agent, run_status, str(duration)])
-    print_table(["Run ID", "Agent", "Status", "Duration"], rows)
+        rows.append([r["id"][:8], task, status_text(r.get("status", "?")), str(duration)])
+    print_table(["Run ID", "Task", "Status", "Duration"], rows)
 
 
 @runs_group.command("get")
@@ -63,18 +55,12 @@ def get_run(ctx, run_id: str):
         duration = f"{duration:.1f}s"
     print_kv([
         ("Run ID", data["id"]),
-        ("Agent", data.get("agent_name", "-")),
+        ("Task", data.get("agent_name") or "-"),
         ("Status", format_status(data.get("status", "unknown"))),
         ("Provider", data.get("provider", "-")),
         ("Model", data.get("model", "-")),
         ("Duration", str(duration)),
     ])
-
-    steps = data.get("steps", [])
-    if steps:
-        click.echo(f"\nSteps:")
-        for i, s in enumerate(steps, 1):
-            click.echo(f"  {i}. {s.get('name', '?')} -- {format_status(s.get('status', '?'))}")
 
     # Show error detail and resume hint for failed runs
     if data.get("status") == "failed":
@@ -94,21 +80,11 @@ def cancel_run(ctx, run_id: str):
     print_success(f"Cancelled run {run_id}")
 
 
-@runs_group.command("approve")
-@click.argument("run_id")
-@click.pass_context
-def approve_run(ctx, run_id: str):
-    """Approve a run waiting at an approval gate."""
-    run_id = _resolve_run_id(ctx, run_id)
-    api_post(ctx, f"/api/runs/{run_id}/approve")
-    print_success(f"Approved run {run_id}")
-
-
 @runs_group.command("resume")
 @click.argument("run_id")
 @click.pass_context
 def resume_run(ctx, run_id: str):
-    """Resume a failed run from its last completed step."""
+    """Resume a failed run."""
     run_id = _resolve_run_id(ctx, run_id)
     data = api_post(ctx, f"/api/runs/{run_id}/resume")
     if isinstance(data, dict):
@@ -119,23 +95,6 @@ def resume_run(ctx, run_id: str):
             print_success(f"Resuming run {run_id}")
     else:
         print_success(f"Resume requested for {run_id}")
-
-
-@runs_group.command("logs")
-@click.argument("run_id")
-@click.pass_context
-def run_logs(ctx, run_id: str):
-    """Show run logs."""
-    run_id = _resolve_run_id(ctx, run_id)
-    data = api_get(ctx, f"/api/runs/{run_id}/logs")
-    if not data:
-        print_warning("No logs yet.")
-        return
-
-    for entry in data:
-        ts = entry.get("timestamp", "")
-        msg = entry.get("message", entry.get("data", ""))
-        click.echo(f"[{ts}] {msg}")
 
 
 def _resolve_run_id(ctx, run_id: str) -> str:

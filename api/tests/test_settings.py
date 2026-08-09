@@ -500,36 +500,3 @@ class TestComputerUseSettingsEndpoints:
 # ---------------------------------------------------------------------------
 # Agent run gate (unchanged behavior, just verifies integration)
 # ---------------------------------------------------------------------------
-
-class TestRunBlockedWhenComputerUseDisabled:
-    @pytest.mark.asyncio
-    async def test_run_blocked_when_cu_disabled(self, client, app, paths):
-        agent = await app.state.agent_repo.create(
-            name="CU Agent", description="needs desktop",
-            computer_use=True, status="ready",
-        )
-        resp = await client.post(f"/api/agents/{agent['id']}/run", json={})
-        assert resp.status_code == 409
-        assert resp.json()["error"]["code"] == "COMPUTER_USE_DISABLED"
-
-    @pytest.mark.asyncio
-    async def test_run_allowed_when_cu_enabled(self, client, app, paths):
-        agent = await app.state.agent_repo.create(
-            name="CU Agent", description="needs desktop",
-            computer_use=True, status="ready",
-            forge_path="output/test/",
-        )
-        paths["mcp"].write_text('{"mcpServers": {"vadgr-computer-use": {}}}')
-        resp = await client.post(f"/api/agents/{agent['id']}/run", json={})
-        assert resp.status_code == 202
-
-    @pytest.mark.asyncio
-    async def test_run_allowed_for_cli_agent_when_cu_disabled(
-        self, client, app, paths,
-    ):
-        agent = await app.state.agent_repo.create(
-            name="CLI Agent", description="no desktop",
-            computer_use=False, status="ready",
-        )
-        resp = await client.post(f"/api/agents/{agent['id']}/run", json={})
-        assert resp.status_code == 202

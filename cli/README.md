@@ -1,6 +1,6 @@
 # CLI - Command-Line Interface
 
-Unified CLI for Vadgr. Manages agents, runs, registry, computer use, and services from the terminal.
+Unified CLI for Vadgr. Starts runs, watches them, and manages computer use and the daemon from the terminal.
 
 ## Setup
 
@@ -35,42 +35,32 @@ vadgr update
 vadgr api [--port N]     # the same command as `vadgr start`
 ```
 
-### Agents
+### Running work
 
 ```
-vadgr ps
-vadgr agents list
-vadgr agents get <id-or-name>
-vadgr agents create --name "..." --description "..."
-vadgr agents update <id-or-name> [--name "..."] [--description "..."]
-vadgr agents delete <id-or-name>
-vadgr agents export <id-or-name> [-o output.agnt]
-vadgr agents import <file.agnt>
+vadgr run "<task>"                              # start it and watch it
+vadgr run "<task>" --background                 # start it and return
+vadgr run "<task>" --json                       # print the run row as JSON
+vadgr run "<task>" --provider codex --model gpt-5.4
 ```
 
-Short IDs from `vadgr ps` and partial names both work. For example `vadgr agents get 654e` or `vadgr agents get linkedin`.
+`--provider` and `--model` go together: one without the other is a usage error
+rather than a half-resolved run. With neither, the run takes the machine's
+default from `providers.yaml`.
 
-### Running agents
-
-```
-vadgr run <name-or-id>                          # interactive, prompts for inputs
-vadgr run <name-or-id> --input key=value        # non-interactive
-vadgr run <name-or-id> --background             # skip progress streaming
-vadgr run <name-or-id> --provider codex --model gpt-5.4
-```
-
-When run interactively, the CLI prompts for each input field. File inputs are uploaded to the API automatically. The CLI streams step progress via WebSocket and shows results when done:
+The CLI follows the run over a WebSocket and reports the outcome:
 
 ```
 [vadgr] Run started: abc123
-  Step 1: Analyze Data              done (1m 23s)
-  Step 2: Generate Report           done (45s)
 [vadgr] Run completed (2m 8s)
 
   See results: http://127.0.0.1:8000/api/runs/abc123
 ```
 
-Ctrl+C cancels the run.
+Exit codes: `0` completed, `1` failed, `2` usage, `3` daemon unreachable, and
+`130` on Ctrl-C. **Ctrl-C stops watching and leaves the run going**: an
+unattended batch is the point, so stopping one is `vadgr runs cancel`, which
+says so.
 
 ### Runs
 
@@ -78,9 +68,10 @@ Ctrl+C cancels the run.
 vadgr runs list [--status running|completed|failed]
 vadgr runs get <run-id>
 vadgr runs cancel <run-id>
-vadgr runs approve <run-id>
-vadgr runs logs <run-id>
+vadgr runs resume <run-id>
 ```
+
+Partial run ids work: `vadgr runs get 654e`.
 
 ### Computer use
 
@@ -92,21 +83,6 @@ vadgr computer-use status     # shows enabled state and daemon health
 
 The daemon runs natively on Windows (WSL2 only) and persists across `vadgr start/stop`. It starts when you enable computer use and stops when you disable it.
 
-### Registry
-
-```
-vadgr registry pack <folder> [-o output.agnt]
-vadgr registry pull <name> [--force]
-vadgr registry push <file.agnt>
-vadgr registry search <query>
-vadgr registry agents
-vadgr registry serve [--port 9876] [--dir ./data] [--token secret]
-vadgr registry add <name> --type github|http|local [--url ...] [--path ...]
-vadgr registry use <name>
-vadgr registry list
-vadgr registry remove <name>
-```
-
 ### Info
 
 ```
@@ -116,14 +92,14 @@ vadgr providers
 
 ## Architecture
 
-Service commands (start, stop, status, logs) manage OS processes directly. Everything else talks to the API over HTTP. Registry commands call the registry module directly (no API needed).
+Service commands (start, stop, status, logs) manage OS processes directly. Everything else talks to the API over HTTP.
 
 | Command group | Backend |
 |---|---|
 | start/stop/status/logs | Direct process management |
-| agents, runs, health, providers | HTTP to API at localhost:8000 |
+| run, runs, health, providers, pair | HTTP to API at localhost:8000 |
+| run (watching) | WebSocket to API |
 | computer-use | HTTP to API (API manages daemon) |
-| registry (pack/pull/push/search) | Direct filesystem / registry module |
 
 ## Tests
 

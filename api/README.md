@@ -1,11 +1,10 @@
 # Vadgr API
 
-REST + WebSocket backend for agent management, forge generation, and execution. Agent-agnostic and cross-platform: works on Windows, macOS, and Linux with any CLI agent tool.
+REST + WebSocket backend for the run lifecycle: take a task, start a run, drive the loop, record the outcome. Cross-platform: Windows, macOS and Linux.
 
 ## Requirements
 
 - **Python >= 3.12**
-- **At least one CLI agent tool** installed and on your PATH
 
 ### Install Python
 
@@ -20,24 +19,11 @@ brew install python@3.12
 # Download from https://www.python.org/downloads/
 ```
 
-### Install a CLI agent provider
+### Providers
 
-The API is agent-agnostic. It calls whichever CLI tool is configured in `providers.yaml` as a subprocess. Install at least one:
-
-```bash
-# Claude Code
-npm install -g @anthropic-ai/claude-code && claude auth
-
-# Codex
-npm install -g @openai/codex
-
-# Aider
-pip install aider-chat
-
-# Or add your own to providers.yaml -- zero code changes needed
-```
-
-The chosen tool must be on your PATH and authenticated.
+A run executes on the provider named in `providers.yaml`. The default is the
+in-process native loop; the legacy subprocess providers shell out to an
+external CLI, which must then be on your PATH and authenticated.
 
 ## Setup
 
@@ -82,7 +68,8 @@ All prefixed with `AGENT_FORGE_`:
 | `AGENT_FORGE_HOST` | `127.0.0.1` | Bind address |
 | `AGENT_FORGE_PORT` | `8000` | Bind port |
 | `AGENT_FORGE_DATABASE_PATH` | `data/agent_forge.db` | SQLite database path |
-| `AGENT_FORGE_DEFAULT_PROVIDER` | `claude_code` | Default CLI provider |
+
+The machine's default provider and model are `providers.yaml`'s, not environment variables.
 | `AGENT_FORGE_PROVIDER_TIMEOUT` | `300` | Provider execution timeout (seconds) |
 
 ## Tests
@@ -91,26 +78,27 @@ All prefixed with `AGENT_FORGE_`:
 PYTHONPATH=. python -m pytest api/tests/ -v
 ```
 
-180+ tests covering routes, services, repositories, executor, and WebSocket events.
+Covers routes, the run lifecycle, the repository, the schema migration and the WebSocket frames.
 
 ## Project structure
 
 ```
 api/
-├── main.py              # FastAPI app, lifespan, CORS
+├── main.py              # FastAPI app and lifespan
 ├── config.py            # Settings via pydantic-settings
 ├── models/              # Pydantic request/response models
-├── routes/              # HTTP endpoints (agents, runs, projects, health)
-├── services/            # Business logic (agent_service, execution_service)
+├── routes/              # HTTP endpoints, health, and the two sockets
+├── services/            # Run lifecycle, computer-use setup
+├── auth/                # Pairing, devices, the two gates
+├── transport/           # Loopback and Tailscale adapters
 ├── engine/
-│   ├── providers.py     # CLI subprocess executor (config-driven)
-│   └── executor.py      # Agent execution orchestrator
+│   ├── providers.py     # Provider config and the subprocess bridge
+│   └── native_bridge.py # The native loop behind that interface
 ├── persistence/
-│   ├── database.py      # SQLite + WAL setup
-│   └── repositories.py  # CRUD operations
+│   ├── database.py      # SQLite, WAL setup and the schema migration
+│   └── repositories.py  # Run storage
 ├── websocket/           # Real-time event broadcasting
 ├── tests/               # pytest suite
-├── docs/                # API docs, wireframes, containerization plan
 └── requirements.txt     # Python dependencies
 ```
 
@@ -128,7 +116,7 @@ api/
 
 ## Provider configuration
 
-CLI providers are defined in `providers.yaml` at the project root. Adding a new provider (codex, aider, gemini, etc.) usually requires only a YAML entry if the CLI output matches an existing parser family:
+Providers are defined in `providers.yaml` at the project root, along with the machine's `default_provider`. Adding a legacy CLI provider usually requires only a YAML entry if its output matches an existing parser family:
 
 ```yaml
 providers:

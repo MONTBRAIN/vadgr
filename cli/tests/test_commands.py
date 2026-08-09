@@ -1,4 +1,4 @@
-"""Tests for cli/commands -- info, agents, runs.
+"""Tests for cli/commands -- info and runs.
 
 All API commands use a mocked HTTP layer via patching cli.client functions.
 """
@@ -51,86 +51,6 @@ class TestProviders:
 
 
 # -- Agent commands --
-
-class TestAgentsList:
-    def test_lists_agents(self, runner):
-        from cli.commands.agents import agents_group
-        with mock.patch("cli.commands.agents.api_get") as m:
-            m.return_value = [
-                {"id": "abc", "name": "My Agent", "status": "ready", "steps": [{"name": "s1"}], "computer_use": False}
-            ]
-            result = runner.invoke(agents_group, ["list"], obj={"api_url": "http://x"})
-            assert result.exit_code == 0
-            assert "My Agent" in result.output
-            assert "ready" in result.output
-
-    def test_no_agents(self, runner):
-        from cli.commands.agents import agents_group
-        with mock.patch("cli.commands.agents.api_get") as m:
-            m.return_value = []
-            result = runner.invoke(agents_group, ["list"], obj={"api_url": "http://x"})
-            assert result.exit_code == 0
-            assert "No agents" in result.output
-
-
-_AGENT_DETAIL = {
-    "id": "abc-123", "name": "My Agent", "status": "ready",
-    "description": "Does stuff", "provider": "claude_code",
-    "steps": [{"name": "Step 1", "computer_use": False}],
-}
-_AGENT_LIST = [_AGENT_DETAIL]
-
-
-def _mock_get_side_effect(ctx, path):
-    if path == "/api/agents":
-        return _AGENT_LIST
-    return _AGENT_DETAIL
-
-
-class TestAgentsGet:
-    def test_shows_detail(self, runner):
-        from cli.commands.agents import agents_group
-        with mock.patch("cli.commands.agents.api_get", side_effect=_mock_get_side_effect):
-            result = runner.invoke(agents_group, ["get", "abc-123"], obj={"api_url": "http://x"})
-            assert result.exit_code == 0
-            assert "My Agent" in result.output
-            assert "abc-123" in result.output
-
-
-class TestAgentsDelete:
-    def test_deletes(self, runner):
-        from cli.commands.agents import agents_group
-        with mock.patch("cli.commands.agents.api_get", side_effect=_mock_get_side_effect), \
-             mock.patch("cli.commands.agents.api_delete") as m:
-            m.return_value = {"deleted": True}
-            result = runner.invoke(agents_group, ["delete", "abc-123"], obj={"api_url": "http://x"})
-            assert result.exit_code == 0
-            assert "Deleted" in result.output
-
-
-class TestAgentsRun:
-    def test_triggers_run(self, runner):
-        from cli.commands.agents import agents_group
-        with mock.patch("cli.commands.agents.api_get") as mg, \
-             mock.patch("cli.commands.agents.api_post") as mp:
-            mg.return_value = [
-                {"id": "abc-123", "name": "my-agent", "status": "ready"}
-            ]
-            mp.return_value = {"run_id": "run-456", "status": "queued"}
-            result = runner.invoke(agents_group, ["run", "my-agent"], obj={"api_url": "http://x"})
-            assert result.exit_code == 0
-            assert "run-456" in result.output
-
-    def test_agent_not_found(self, runner):
-        from cli.commands.agents import agents_group
-        with mock.patch("cli.commands.agents.api_get") as m:
-            m.return_value = []
-            result = runner.invoke(agents_group, ["run", "nonexistent"], obj={"api_url": "http://x"})
-            assert result.exit_code != 0
-            assert "not found" in result.output.lower() or "No agent" in result.output
-
-
-# -- Run commands --
 
 class TestRunsList:
     def test_lists_runs(self, runner):
@@ -222,53 +142,6 @@ class TestRunsCancel:
     def test_cancel_empty_id(self, runner):
         from cli.commands.runs import runs_group
         result = runner.invoke(runs_group, ["cancel", ""], obj={"api_url": "http://x"})
-        assert result.exit_code != 0
-        assert "Run ID is required." in result.output
-
-
-class TestRunsApprove:
-    def test_approve_resolves_partial_id(self, runner):
-        from cli.commands.runs import runs_group
-        with mock.patch("cli.commands.runs.api_get", side_effect=_mock_runs_get), \
-             mock.patch("cli.commands.runs.api_post") as mp:
-            mp.return_value = {"status": "approved"}
-            result = runner.invoke(runs_group, ["approve", _RUN_PARTIAL_ID], obj={"api_url": "http://x"})
-            assert result.exit_code == 0
-            mp.assert_called_once_with(mock.ANY, f"/api/runs/{_RUN_FULL_ID}/approve")
-
-    def test_approve_empty_id(self, runner):
-        from cli.commands.runs import runs_group
-        result = runner.invoke(runs_group, ["approve", ""], obj={"api_url": "http://x"})
-        assert result.exit_code != 0
-        assert "Run ID is required." in result.output
-
-
-class TestRunsLogs:
-    def test_shows_logs(self, runner):
-        from cli.commands.runs import runs_group
-        _logs = [
-            {"timestamp": "10:00:01", "type": "agent_log", "message": "Starting step 1"},
-            {"timestamp": "10:00:05", "type": "agent_log", "message": "Done"},
-        ]
-        def _side(ctx, path):
-            if path == "/api/runs":
-                return [{"id": "run-1", "agent_name": "my-agent", "status": "completed", "duration": 10.0}]
-            return _logs
-        with mock.patch("cli.commands.runs.api_get", side_effect=_side):
-            result = runner.invoke(runs_group, ["logs", "run-1"], obj={"api_url": "http://x"})
-            assert result.exit_code == 0
-            assert "Starting step 1" in result.output
-
-    def test_logs_resolves_partial_id(self, runner):
-        from cli.commands.runs import runs_group
-        with mock.patch("cli.commands.runs.api_get", side_effect=_mock_runs_get):
-            result = runner.invoke(runs_group, ["logs", _RUN_PARTIAL_ID], obj={"api_url": "http://x"})
-            assert result.exit_code == 0
-            assert "Starting step 1" in result.output
-
-    def test_logs_empty_id(self, runner):
-        from cli.commands.runs import runs_group
-        result = runner.invoke(runs_group, ["logs", ""], obj={"api_url": "http://x"})
         assert result.exit_code != 0
         assert "Run ID is required." in result.output
 

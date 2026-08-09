@@ -1,16 +1,11 @@
 """Run lifecycle routes."""
 
-import json
-import mimetypes
-from pathlib import Path
+import asyncio
 
 from fastapi import APIRouter, Request
-from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
+from fastapi.responses import JSONResponse
 
 from api.models.run import RunCreate
-
-# Project root for resolving output file paths
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 router = APIRouter(tags=["runs"])
 
@@ -22,61 +17,32 @@ def _not_found(run_id: str):
     )
 
 
-def _could_be_a_path(value: str) -> bool:
-    """Whether a value is worth testing against the filesystem at all.
+@router.post("/api/runs", status_code=202)
+async def start_run(body: RunCreate, request: Request):
+    """Start a run from a task sentence.
 
-    An output field holds whatever the run produced, and since the native loop
-    that is usually the model's prose. Handing that to `Path.resolve()` raises
-    `OSError: [Errno 36] File name too long` the moment it passes NAME_MAX (255
-    bytes) - which a sentence of prose does - and the endpoint answered `500`
-    with FastAPI's bare body. This route has exactly two outcomes, the bytes
-    or `404 NOT_FOUND`, and `500` is not one of them.
+    `202` and not `201`: the row exists but nothing has run yet. The sentence
+    rides twice on purpose, as the run's title and as its work, because the
+    display fact and the thing handed to the loop are different jobs that happen
+    to share a string today.
     """
-    return bool(value) and len(value.encode()) < 255 and "\n" not in value
-
-
-def _resolve_output_path(forge_path: str, value: str) -> Path | None:
-    if not _could_be_a_path(value):
-        return None
-
-    candidates = []
-    if forge_path:
-        candidates.append(_PROJECT_ROOT / forge_path / value)
-    candidates.append(_PROJECT_ROOT / value)
-
-    for path in candidates:
-        try:
-            resolved = path.resolve()
-            if _PROJECT_ROOT.resolve() in resolved.parents and resolved.is_file():
-                return resolved
-        except (OSError, ValueError):
-            # A value that cannot be a path is not an error, it is text. The
-            # length check above catches the common case; this catches the rest
-            # (NUL bytes, a component over NAME_MAX) without a second guess at
-            # which errno each platform raises.
-            continue
-    return None
-
-
-@router.post("/api/projects/{project_id}/runs", status_code=202)
-async def start_project_run(project_id: str, body: RunCreate, request: Request):
-    project_repo = request.app.state.project_repo
     run_repo = request.app.state.run_repo
-    project = await project_repo.get(project_id)
-    if not project:
-        return JSONResponse(
-            status_code=404,
-            content={"error": {"code": "PROJECT_NOT_FOUND", "message": f"Project with id '{project_id}' not found", "details": {}}},
-        )
-    run = await run_repo.create(project_id=project_id, inputs=body.inputs)
-    return {"run_id": run["id"], "status": run["status"]}
-
-
-@router.delete("/api/runs", status_code=200)
-async def delete_all_runs(request: Request):
-    run_repo = request.app.state.run_repo
-    count = await run_repo.delete_all()
-    return {"deleted": count}
+    execution_service = request.app.state.execution_service
+    run = await run_repo.create(
+        title=body.task,
+        inputs={"task": body.task},
+        provider=body.provider,
+        model=body.model,
+    )
+    task = asyncio.create_task(execution_service.start_run(run["id"]))
+    # Registered before the response returns, because this dict is what
+    # POST /api/runs/{id}/cancel reaches for. A trigger that skipped it would
+    # ship a cancel that answers 200 and cancels nothing.
+    request.app.state.active_run_tasks[run["id"]] = task
+    task.add_done_callback(
+        lambda _: request.app.state.active_run_tasks.pop(run["id"], None)
+    )
+    return run
 
 
 @router.get("/api/runs")
@@ -137,141 +103,10 @@ async def resume_run(run_id: str, request: Request):
     if existing_task and not existing_task.done():
         return {"run_id": run_id, "status": "running", "message": "Already resuming"}
 
-    import asyncio
     execution_service = request.app.state.execution_service
-    task = asyncio.create_task(execution_service.resume_standalone_agent(run_id))
+    task = asyncio.create_task(execution_service.resume_run(run_id))
     request.app.state.active_run_tasks[run_id] = task
     task.add_done_callback(
         lambda _: request.app.state.active_run_tasks.pop(run_id, None)
     )
-    return {"run_id": run_id, "status": "running", "message": "Resuming from last completed step"}
-
-
-@router.post("/api/runs/{run_id}/approve")
-async def approve_run(run_id: str, request: Request):
-    run_repo = request.app.state.run_repo
-    run = await run_repo.get(run_id)
-    if not run:
-        return _not_found(run_id)
-    if run["status"] != "awaiting_approval":
-        return JSONResponse(
-            status_code=409,
-            content={"error": {"code": "NO_GATE_PENDING", "message": "No approval gate is pending", "details": {}}},
-        )
-    updated = await run_repo.update_status(run_id, "running")
-    # Resume execution from where the approval gate paused
-    import asyncio
-    execution_service = request.app.state.execution_service
-    asyncio.create_task(execution_service.resume_after_approval(run_id))
-    return updated
-
-
-@router.get("/api/runs/{run_id}/outputs/{field_name}")
-async def get_run_output(run_id: str, field_name: str, request: Request):
-    """Return the content of a run output field.
-
-    If the output value is a file path on disk, reads and returns the file content.
-    Otherwise returns the raw value as text.
-    """
-    run_repo = request.app.state.run_repo
-    agent_repo = request.app.state.agent_repo
-    run = await run_repo.get(run_id)
-    if not run:
-        return _not_found(run_id)
-
-    outputs = run.get("outputs") or {}
-    if field_name not in outputs:
-        return JSONResponse(
-            status_code=404,
-            content={"error": {"code": "OUTPUT_NOT_FOUND", "message": f"Output '{field_name}' not found in run", "details": {}}},
-        )
-
-    value = outputs[field_name]
-    agent = await agent_repo.get(run.get("agent_id", "")) if run.get("agent_id") else None
-    forge_path = agent.get("forge_path", "") if agent else ""
-
-    if isinstance(value, dict) and value.get("kind") in {"file", "archive", "directory"}:
-        resolved = _resolve_output_path(forge_path, value.get("path", ""))
-        if resolved:
-            return FileResponse(
-                path=resolved,
-                media_type=value.get("mime_type") or "application/octet-stream",
-                filename=value.get("filename") or resolved.name,
-            )
-        return PlainTextResponse(str(value))
-
-    if not isinstance(value, str):
-        return PlainTextResponse(str(value))
-
-    resolved = _resolve_output_path(forge_path, value)
-    if resolved:
-        mime_type, _ = mimetypes.guess_type(resolved.name)
-        return FileResponse(
-            path=resolved,
-            media_type=mime_type or "text/plain",
-            filename=resolved.name,
-        )
-
-    return PlainTextResponse(value)
-
-
-def _read_jsonl(path: Path) -> list[dict]:
-    """Read a JSONL file and return list of parsed events."""
-    if not path.exists():
-        return []
-    events = []
-    for line in path.read_text().splitlines():
-        if line.strip():
-            events.append(json.loads(line))
-    return events
-
-
-@router.get("/api/runs/{run_id}/logs")
-async def get_run_logs(run_id: str, request: Request):
-    """Return all log events for a run (execution + all steps, sorted by timestamp)."""
-    run_repo = request.app.state.run_repo
-    run = await run_repo.get(run_id)
-    if not run:
-        return _not_found(run_id)
-
-    log_path = run.get("log_path")
-    if not log_path:
-        return JSONResponse(content=[])
-
-    log_dir = _PROJECT_ROOT / log_path
-    if not log_dir.exists():
-        return JSONResponse(content=[])
-
-    # Read execution.jsonl + all step files, merge and sort by timestamp
-    all_events = _read_jsonl(log_dir / "execution.jsonl")
-    for step_file in sorted(log_dir.iterdir()):
-        if step_file.name.startswith("step_") and step_file.name.endswith(".jsonl"):
-            all_events.extend(_read_jsonl(step_file))
-
-    all_events.sort(key=lambda e: e.get("timestamp", ""))
-    return JSONResponse(content=all_events)
-
-
-@router.get("/api/runs/{run_id}/logs/{step_file}")
-async def get_step_log(run_id: str, step_file: str, request: Request):
-    """Return per-step log events for a run."""
-    run_repo = request.app.state.run_repo
-    run = await run_repo.get(run_id)
-    if not run:
-        return _not_found(run_id)
-
-    log_path = run.get("log_path")
-    if not log_path:
-        return JSONResponse(content=[])
-
-    # Security: only allow step_*.jsonl filenames
-    if not step_file.startswith("step_") or not step_file.endswith(".jsonl"):
-        return JSONResponse(content=[])
-
-    log_dir = _PROJECT_ROOT / log_path
-    step_path = log_dir / step_file
-    resolved = step_path.resolve()
-    if _PROJECT_ROOT.resolve() not in resolved.parents:
-        return JSONResponse(content=[])
-
-    return JSONResponse(content=_read_jsonl(step_path))
+    return {"run_id": run_id, "status": "running", "message": "Resuming"}

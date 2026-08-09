@@ -17,27 +17,12 @@ class StrictBody(BaseModel):
     model_config = {"extra": "forbid"}
 
 
-class AgentType(str, Enum):
-    AGENT = "agent"
-    APPROVAL = "approval"
-    INPUT = "input"
-    OUTPUT = "output"
-
-
 class RunStatus(str, Enum):
     QUEUED = "queued"
     RUNNING = "running"
     AWAITING_APPROVAL = "awaiting_approval"
     COMPLETED = "completed"
     FAILED = "failed"
-
-
-class AgentRunStatus(str, Enum):
-    PENDING = "pending"
-    RUNNING = "running"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    SKIPPED = "skipped"
 
 
 class ErrorResponse(BaseModel):

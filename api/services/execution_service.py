@@ -1,67 +1,62 @@
-"""Sequential DAG runner. Orchestrates agent execution for runs."""
+"""The run's lifecycle: resolve its configuration, drive the provider, record
+its outcome."""
 
 import asyncio
 import logging
-import os
 from collections.abc import Awaitable, Callable
-from pathlib import Path
-from typing import Any, Coroutine, Optional
+from typing import Any, Coroutine
 
-from api.engine.dag import DAG
-from api.engine.executor import AgentExecutor
 from api.engine.native_bridge import (
     NativeLoopProvider,
     build_native_provider,
     is_native_provider,
 )
-from api.engine.providers import CLIAgentProvider
-from api.persistence.repositories import AgentRepository, ProjectRepository, RunRepository
+from api.engine.providers import (
+    CLIAgentProvider,
+    create_provider,
+    machine_default_model,
+    machine_default_provider,
+)
+from api.persistence.repositories import RunRepository
 
 logger = logging.getLogger(__name__)
-
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-
-
-def _ensure_run_output_dirs(forge_path: str, run_id: str) -> None:
-    """Create output directories for a run before execution starts.
-
-    Creates {forge_path}/output/{run_id}/inputs/,
-    {forge_path}/output/{run_id}/agent_outputs/,
-    {forge_path}/output/{run_id}/user_outputs/, and
-    {forge_path}/output/{run_id}/agent_logs/ so agents and the
-    log writer don't need to mkdir them themselves.
-    """
-    if not forge_path or not run_id:
-        return
-    base = _PROJECT_ROOT / forge_path / "output" / run_id
-    (base / "inputs").mkdir(parents=True, exist_ok=True)
-    (base / "agent_outputs").mkdir(parents=True, exist_ok=True)
-    (base / "user_outputs").mkdir(parents=True, exist_ok=True)
-    (base / "agent_logs").mkdir(parents=True, exist_ok=True)
 
 
 EmitFn = Callable[[str, str, dict], Coroutine[Any, Any, None]]
 ProviderFactory = Callable[..., Awaitable[CLIAgentProvider]]
 
+# What a legacy CLI subprocess is given before it is killed. The native path
+# gets no deadline at all: what bounds an unattended run there is the gate layer
+# and max_iterations, not a stopwatch, and the target is one real batch
+# completing over hours.
+_CLI_TIMEOUT_SECONDS = 900
+_CLI_COMPUTER_USE_TIMEOUT_SECONDS = 1800
+
 
 class ExecutionService:
-    """Runs agents sequentially following the DAG topology."""
+    """Owns a run's lifecycle: resolve its configuration, drive the provider,
+    record its outcome. It knows nothing about what asked for the run."""
 
     def __init__(
         self,
-        agent_repo: AgentRepository,
         run_repo: RunRepository,
-        project_repo: Optional[ProjectRepository],
-        executor: AgentExecutor,
         emit: EmitFn,
         provider_factory: ProviderFactory | None = None,
     ):
-        self.agent_repo = agent_repo
         self.run_repo = run_repo
-        self.project_repo = project_repo
-        self.executor = executor
         self.emit = emit
-        self.provider_factory = provider_factory
+        self.provider_factory = provider_factory or create_provider
+
+    async def _resolve_config(self, run: dict) -> tuple[str, str | None]:
+        """The provider and model this run executes on.
+
+        Order: what the caller asked for, then the machine's default, then the
+        first provider on the machine that answers as available. A run that
+        named neither is not a misconfiguration, it is the ordinary case.
+        """
+        provider_key = run.get("provider") or await machine_default_provider()
+        model = run.get("model") or machine_default_model(provider_key)
+        return provider_key, model
 
     async def _get_run_provider(
         self,
@@ -73,23 +68,135 @@ class ExecutionService:
     ):
         """The provider a run executes on.
 
-        This is the whole of `0.4.1`'s wiring: a provider marked ``kind: native``
-        in `providers.yaml` is the engine, and it arrives wrapped in
-        `NativeLoopProvider` so the executor keeps iterating the interface it
-        already iterates. Anything else is a legacy CLI provider and behaves
-        exactly as it did, until those are deleted in Beta.
+        A provider marked ``kind: native`` in `providers.yaml` is the engine, and
+        it arrives wrapped in `NativeLoopProvider` so the caller keeps iterating
+        the interface it already iterates. Anything else is a legacy CLI provider
+        and behaves exactly as it did, until those are deleted in Beta.
         """
         if is_native_provider(provider_key):
             return NativeLoopProvider(
                 build_native_provider(provider_key, model),
                 mcp_servers=[],
             )
-        if self.provider_factory is None:
-            return self.executor.provider
         return await self.provider_factory(
             provider_key=provider_key,
             model=model,
             timeout=timeout,
+        )
+
+    def _timeout_for(self, provider_key: str) -> int | None:
+        if is_native_provider(provider_key):
+            return None
+        from api.services.computer_use_setup import get_status
+
+        try:
+            computer_use = bool(get_status().get("enabled"))
+        except Exception:
+            computer_use = False
+        return (
+            _CLI_COMPUTER_USE_TIMEOUT_SECONDS
+            if computer_use
+            else _CLI_TIMEOUT_SECONDS
+        )
+
+    async def _drive(self, run_id: str, provider, prompt: str, title: str = "") -> dict:
+        """Stream one provider run and turn its events into frames.
+
+        The frame names are wire vocabulary on a surface the shipped phone
+        reads, so they are frozen: `agent_started` still opens the timeline and
+        still carries `name`, which now holds the run's own title.
+        """
+        await self.emit(run_id, "agent_started", {"run_id": run_id, "name": title})
+        collected_output = ""
+        try:
+            async for event in provider.execute_streaming(
+                prompt=prompt,
+                workspace=None,
+                timeout=None,
+                # The native loop names its journal after this. Without it the
+                # loop mints its own id and the journal cannot be tied back to
+                # the run - which also breaks resume, since resume-on-boot finds
+                # a journal by id and then has to look that run up.
+                run_id=run_id,
+            ):
+                if event.type == "output":
+                    await self.emit(run_id, "agent_log", {
+                        "run_id": run_id,
+                        "message": event.data,
+                    })
+                elif event.type == "todos":
+                    await self.emit(run_id, "todos", {"items": event.data})
+                elif event.type == "awaiting":
+                    await self.emit(run_id, "awaiting", {"prompt": event.data})
+                elif event.type == "done":
+                    collected_output = event.data
+                elif event.type == "error":
+                    raise RuntimeError(event.data)
+        except Exception as e:
+            await self.emit(run_id, "agent_failed", {"run_id": run_id, "error": str(e)})
+            raise
+
+        result = {"result": collected_output}
+        await self.emit(run_id, "agent_completed", {"run_id": run_id, "outputs": result})
+        return result
+
+    async def _execute(self, run_id: str, provider, prompt: str, title: str) -> None:
+        """The outcome half, shared by a fresh run and a resumed one."""
+        try:
+            result = await self._drive(run_id, provider, prompt, title=title)
+            await self.run_repo.update_status(run_id, "completed", outputs=result)
+            await self.emit(run_id, "run_completed", {"outputs": result})
+        except asyncio.CancelledError:
+            await self.run_repo.update_status(run_id, "failed")
+            await self.emit(run_id, "run_failed", {"error": "Run was cancelled"})
+            raise
+        except Exception as e:
+            await self.run_repo.update_status(run_id, "failed", outputs={"error": str(e)})
+            await self.emit(run_id, "run_failed", {"error": str(e)})
+
+    @staticmethod
+    def _title_of(run: dict) -> str:
+        """The run's title, as the published row carries it.
+
+        Storage calls this `title`; the published row keeps the older key
+        because the shipped phone reads it literally. This service reads rows
+        rather than tables, so it reads the published key. The translation
+        itself lives in exactly one place, and this is not it.
+        """
+        return run.get("agent_name") or ""
+
+    @staticmethod
+    def _prompt_of(run: dict) -> str:
+        """The task sentence, verbatim. There is no agent to assemble a prompt
+        from and nothing to point the model at, so the sentence is the prompt."""
+        return (run.get("inputs") or {}).get("task", "")
+
+    async def start_run(self, run_id: str) -> None:
+        run = await self.run_repo.get(run_id)
+        provider_key, model = await self._resolve_config(run)
+        provider = await self._get_run_provider(
+            provider_key, model, self._timeout_for(provider_key), run_id=run_id
+        )
+
+        await self.run_repo.update_status(run_id, "running")
+        await self.emit(run_id, "run_started", {})
+        await self._execute(
+            run_id, provider, self._prompt_of(run), self._title_of(run)
+        )
+
+    async def resume_run(self, run_id: str) -> None:
+        """Re-run a failed run from the top. Without a journal to open at there
+        is nothing finer to resume from; `continue_run` is the one that does."""
+        run = await self.run_repo.get(run_id)
+        provider_key, model = await self._resolve_config(run)
+        provider = await self._get_run_provider(
+            provider_key, model, self._timeout_for(provider_key), run_id=run_id
+        )
+
+        await self.run_repo.update_status(run_id, "running")
+        await self.emit(run_id, "run_resumed", {})
+        await self._execute(
+            run_id, provider, self._prompt_of(run), self._title_of(run)
         )
 
     async def continue_run(self, run_id: str, resume_state) -> None:
@@ -101,8 +208,7 @@ class ExecutionService:
         rather than starting a second one.
         """
         run = await self.run_repo.get(run_id)
-        agent = await self.agent_repo.get(run["agent_id"])
-        provider_key = run.get("provider") or agent.get("provider")
+        provider_key, model = await self._resolve_config(run)
         if not is_native_provider(provider_key):
             # Only the native path has a journal to resume from. A legacy CLI
             # run that died is dead: the subprocess took its state with it.
@@ -110,183 +216,16 @@ class ExecutionService:
             return
         provider = await self._get_run_provider(
             provider_key,
-            run.get("model") or agent.get("model"),
+            model,
             None,
             run_id=run_id,
             resume_state=resume_state,
         )
         await self.run_repo.update_status(run_id, "running")
         await self.emit(run_id, "run_resumed", {"from_seq": resume_state.next_seq})
-
-        async def callback(event_type, data):
-            await self.emit(run_id, event_type, data)
-
-        await self.executor.execute(
-            {**agent, "provider": provider_key},
-            run["inputs"],
-            callback,
-            run_id=run_id,
-            provider=provider,
+        await self._execute(
+            run_id, provider, self._prompt_of(run), self._title_of(run)
         )
-
-    async def run_standalone_agent(self, run_id: str):
-        """Execute a standalone agent run (no project/DAG)."""
-        run = await self.run_repo.get(run_id)
-        agent = await self.agent_repo.get(run["agent_id"])
-        provider_key = run.get("provider") or agent.get("provider")
-        model = run.get("model") or agent.get("model")
-        # No wall-clock deadline on the native path: what bounds an unattended
-        # run is the gate layer and max_iterations, not a stopwatch, and the
-        # target is one real batch completing over HOURS.
-        # The legacy CLI path keeps its ceiling until it is deleted in Beta.
-        native = is_native_provider(provider_key)
-        timeout = None if native else (1800 if agent.get("computer_use") else 900)
-        provider = await self._get_run_provider(
-            provider_key, model, timeout, run_id=run_id
-        )
-        execution_agent = {
-            **agent,
-            "provider": provider_key,
-            "model": model,
-        }
-
-        _ensure_run_output_dirs(agent.get("forge_path", ""), run_id)
-        await self.run_repo.update_status(run_id, "running")
-        await self.emit(run_id, "run_started", {"forge_path": agent.get("forge_path", "")})
-
-        try:
-            async def callback(event_type, data):
-                await self.emit(run_id, event_type, data)
-
-            result = await self.executor.execute(
-                execution_agent,
-                run["inputs"],
-                callback,
-                run_id=run_id,
-                provider=provider,
-            )
-            await self.run_repo.update_status(run_id, "completed", outputs=result)
-            await self.emit(run_id, "run_completed", {"outputs": result})
-        except asyncio.CancelledError:
-            await self.run_repo.update_status(run_id, "failed")
-            await self.emit(run_id, "run_failed", {"error": "Run was cancelled"})
-            raise
-        except Exception as e:
-            await self.run_repo.update_status(run_id, "failed", outputs={"error": str(e)})
-            await self.emit(run_id, "run_failed", {"error": str(e)})
-
-    async def resume_standalone_agent(self, run_id: str):
-        """Resume a failed standalone agent run from the last completed step."""
-        run = await self.run_repo.get(run_id)
-        agent = await self.agent_repo.get(run["agent_id"])
-        provider_key = run.get("provider") or agent.get("provider")
-        model = run.get("model") or agent.get("model")
-        timeout = 1800 if agent.get("computer_use") else 900
-        provider = await self._get_run_provider(provider_key, model, timeout)
-        execution_agent = {
-            **agent,
-            "provider": provider_key,
-            "model": model,
-        }
-
-        # Don't recreate output dirs -- they exist from the original run
-        await self.run_repo.update_status(run_id, "running")
-        await self.emit(run_id, "run_resumed", {"forge_path": agent.get("forge_path", "")})
-
-        try:
-            async def callback(event_type, data):
-                await self.emit(run_id, event_type, data)
-
-            result = await self.executor.execute(
-                execution_agent,
-                run["inputs"],
-                callback,
-                run_id=run_id,
-                provider=provider,
-            )
-            await self.run_repo.update_status(run_id, "completed", outputs=result)
-            await self.emit(run_id, "run_completed", {"outputs": result})
-        except asyncio.CancelledError:
-            await self.run_repo.update_status(run_id, "failed")
-            await self.emit(run_id, "run_failed", {"error": "Run was cancelled"})
-            raise
-        except Exception as e:
-            await self.run_repo.update_status(run_id, "failed", outputs={"error": str(e)})
-            await self.emit(run_id, "run_failed", {"error": str(e)})
-
-    async def run_project(self, run_id: str):
-        """Execute a project run following DAG topology."""
-        run = await self.run_repo.get(run_id)
-        nodes = await self.project_repo.get_nodes(run["project_id"])
-        edges = await self.project_repo.get_edges(run["project_id"])
-
-        dag = DAG(nodes=nodes, edges=edges)
-        errors = dag.validate()
-        if errors:
-            await self.run_repo.update_status(
-                run_id, "failed", outputs={"error": "Invalid DAG", "details": errors}
-            )
-            await self.emit(run_id, "run_failed", {"error": "Invalid DAG"})
-            return
-
-        await self.run_repo.update_status(run_id, "running")
-        await self.emit(run_id, "run_started", {})
-
-        sorted_nodes = dag.topological_sort()
-        outputs: dict[str, dict] = {}
-
-        try:
-            for node in sorted_nodes:
-                agent = await self.agent_repo.get(node["agent_id"])
-
-                if agent["type"] == "input":
-                    outputs[node["id"]] = run["inputs"]
-                    continue
-
-                if agent["type"] == "approval":
-                    await self.run_repo.update_status(run_id, "awaiting_approval")
-                    await self.emit(run_id, "approval_required", {
-                        "node_id": node["id"],
-                        "outputs_so_far": outputs,
-                    })
-                    return  # Execution pauses here; resumed via approve endpoint
-
-                if agent["type"] == "output":
-                    resolved = dag.resolve_inputs(node, outputs)
-                    outputs[node["id"]] = resolved
-                    continue
-
-                resolved = dag.resolve_inputs(node, outputs)
-                merged_inputs = {**run["inputs"], **resolved}
-
-                _ensure_run_output_dirs(agent.get("forge_path", ""), run_id)
-
-                async def callback(event_type, data):
-                    await self.emit(run_id, event_type, data)
-
-                result = await self.executor.execute(agent, merged_inputs, callback, run_id=run_id)
-                outputs[node["id"]] = result
-
-            final_outputs = {}
-            for node_outputs in outputs.values():
-                if isinstance(node_outputs, dict):
-                    final_outputs.update(node_outputs)
-
-            await self.run_repo.update_status(run_id, "completed", outputs=final_outputs)
-            await self.emit(run_id, "run_completed", {"outputs": final_outputs})
-
-        except Exception as e:
-            await self.run_repo.update_status(run_id, "failed", outputs={"error": str(e)})
-            await self.emit(run_id, "run_failed", {"error": str(e)})
-
-    async def resume_after_approval(self, run_id: str):
-        """Resume a project run after approval gate. Re-runs from where it stopped."""
-        run = await self.run_repo.get(run_id)
-        if run["status"] != "running":
-            return
-        # For MVP, re-running the full project is acceptable.
-        # Future: track which node was paused and resume from there.
-        await self.run_project(run_id)
 
 
 async def find_resumable_runs(runs_dir: str | None = None) -> list[str]:

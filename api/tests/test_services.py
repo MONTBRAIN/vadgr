@@ -8,10 +8,10 @@ from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
 from api.engine.providers import (
-    CLIAgentProvider, ProviderConfig, ProviderError, StreamingConfig,
-    build_agent_prompt, load_provider_config, _load_providers_yaml,
+    CLIAgentProvider, ExecutionEvent, ProviderConfig, ProviderError,
+    StreamingConfig, load_provider_config, _load_providers_yaml,
 )
-from api.services.computer_use_service import ComputerUseService
+from api.persistence.repositories import RunRepository
 from api.services.execution_service import ExecutionService
 
 
@@ -162,87 +162,6 @@ class TestProviderConfig:
     def test_load_codex_stream_parser(self):
         config = load_provider_config("codex")
         assert config.stream_parser == "codex_jsonl"
-
-
-class TestBuildAgentPrompt:
-
-    def test_prompt_with_forge_path(self):
-        agent = {
-            "name": "Research",
-            "description": "Research a topic",
-            "forge_path": "output/research/",
-            "output_schema": [{"name": "findings", "type": "text"}],
-        }
-        prompt = build_agent_prompt(agent, {"topic": "AI"})
-        assert "agentic.md" in prompt
-        assert "topic: AI" in prompt
-        assert "findings" in prompt
-
-    def test_prompt_without_forge_path(self):
-        agent = {
-            "name": "Research",
-            "description": "Research a topic",
-            "forge_path": "",
-            "output_schema": [],
-        }
-        prompt = build_agent_prompt(agent, {"topic": "AI"})
-        assert "Research" in prompt
-        assert "Research a topic" in prompt
-        assert "agentic.md" not in prompt
-
-    def test_prompt_with_empty_inputs(self):
-        agent = {"name": "T", "description": "desc", "forge_path": ""}
-        prompt = build_agent_prompt(agent, {})
-        assert "Inputs:" not in prompt
-
-    def test_prompt_requests_json_output(self):
-        agent = {
-            "name": "T",
-            "description": "",
-            "forge_path": "",
-            "output_schema": [{"name": "result", "type": "text"}],
-        }
-        prompt = build_agent_prompt(agent, {})
-        assert "JSON" in prompt
-
-    def test_prompt_multiple_inputs(self):
-        agent = {"name": "T", "description": "", "forge_path": ""}
-        prompt = build_agent_prompt(agent, {"a": "1", "b": "2"})
-        assert "a: 1" in prompt
-        assert "b: 2" in prompt
-
-    def test_prompt_multiple_output_fields(self):
-        agent = {
-            "name": "T",
-            "description": "",
-            "forge_path": "",
-            "output_schema": [
-                {"name": "summary", "type": "text"},
-                {"name": "score", "type": "number"},
-            ],
-        }
-        prompt = build_agent_prompt(agent, {})
-        assert "summary" in prompt
-        assert "score" in prompt
-
-    def test_prompt_no_description(self):
-        agent = {"name": "T", "description": "", "forge_path": ""}
-        prompt = build_agent_prompt(agent, {})
-        assert "Your goal:" not in prompt
-
-    def test_prompt_has_execution_directive(self):
-        """Every agent prompt ends with the universal execution directive."""
-        agent = {"name": "T", "description": "test", "forge_path": "output/t/"}
-        prompt = build_agent_prompt(agent, {})
-        assert "DO NOT summarize" in prompt
-        assert "DO NOT ask for confirmation" in prompt
-        assert "Execute this step immediately" in prompt
-
-    def test_execution_directive_present_without_forge_path(self):
-        """Execution directive is appended even for agents without forge_path."""
-        agent = {"name": "T", "description": "test", "forge_path": ""}
-        prompt = build_agent_prompt(agent, {})
-        assert "Execute this step immediately" in prompt
 
 
 class TestCLIAgentProvider:
@@ -713,1392 +632,162 @@ class TestCLIAgentProvider:
         assert done_events[0].data == "final output"
 
 
-class TestComputerUseService:
 
-    @pytest.mark.asyncio
-    async def test_run_agent_delegates_to_engine(self):
-        service = ComputerUseService()
-        service._engine = AsyncMock()
-        service._engine.run_task = AsyncMock(return_value={
-            "success": True, "screenshot": "base64..."
-        })
-        callback = AsyncMock()
 
-        agent = {"id": "a1", "name": "Fill Form", "description": "Fill web form"}
-        result = await service.run_agent(agent, {"url": "http://example.com"}, callback)
-        assert result["success"] is True
-
-    @pytest.mark.asyncio
-    async def test_run_agent_returns_failure_when_engine_unavailable(self):
-        service = ComputerUseService()
-        service._engine = None
-        callback = AsyncMock()
-
-        agent = {"id": "a1", "name": "T", "description": ""}
-        result = await service.run_agent(agent, {}, callback)
-        assert result["success"] is False
-
-
-class TestAgentService:
-
-    @pytest.mark.asyncio
-    async def test_create_agent_sets_creating_status(self, db):
-        from api.persistence.repositories import AgentRepository
-        from api.services.agent_service import AgentService
-        agent_repo = AgentRepository(db)
-        provider = AsyncMock(spec=CLIAgentProvider)
-        service = AgentService(agent_repo=agent_repo, provider=provider)
-
-        agent = await service.create_agent(name="Test", description="A test agent")
-        assert agent["status"] == "creating"
-        assert agent["name"] == "Test"
-
-    @pytest.mark.asyncio
-    async def test_run_forge_updates_agent_to_ready(self, db):
-        from api.persistence.repositories import AgentRepository
-        from api.services.agent_service import AgentService
-        agent_repo = AgentRepository(db)
-        provider = AsyncMock(spec=CLIAgentProvider)
-
-        forge_output = '{"result": "{\\"forge_path\\": \\"output/test/\\", \\"forge_config\\": {\\"complexity\\": \\"simple\\", \\"steps\\": 1, \\"prompts\\": [\\"01_Test.md\\"]}, \\"input_schema\\": [{\\"name\\": \\"topic\\", \\"type\\": \\"text\\", \\"required\\": true}], \\"output_schema\\": [{\\"name\\": \\"result\\", \\"type\\": \\"text\\"}]}"}'
-        provider.execute = AsyncMock(return_value=forge_output)
-
-        service = AgentService(agent_repo=agent_repo, provider=provider)
-        agent = await service.create_agent(name="Test", description="A test agent")
-        assert agent["status"] == "creating"
-
-        await service.run_forge(agent["id"])
-
-        updated = await agent_repo.get(agent["id"])
-        assert updated["status"] == "ready"
-        assert updated["forge_path"] == "output/test/"
-        assert updated["forge_config"]["complexity"] == "simple"
-        assert len(updated["input_schema"]) == 1
-        assert len(updated["output_schema"]) == 1
-
-    @pytest.mark.asyncio
-    async def test_run_forge_initializes_agent_git_repo(self, db, tmp_path):
-        from api.persistence.repositories import AgentRepository
-        from api.services.agent_service import AgentService
-        import api.services.agent_service as agent_service_mod
-
-        agent_repo = AgentRepository(db)
-        provider = AsyncMock(spec=CLIAgentProvider)
-        provider.execute = AsyncMock(
-            return_value='{"forge_path": "output/test-agent/", "forge_config": {}, "input_schema": [], "output_schema": []}'
-        )
-
-        forge_root = tmp_path / "output" / "test-agent"
-        forge_root.mkdir(parents=True)
-        (forge_root / "agentic.md").write_text("# Agent")
-        original_root = agent_service_mod.PROJECT_ROOT
-        agent_service_mod.PROJECT_ROOT = tmp_path
-        try:
-            service = AgentService(agent_repo=agent_repo, provider=provider)
-            agent = await service.create_agent(name="Test", description="A test agent")
-
-            await service.run_forge(agent["id"])
-
-            assert (forge_root / ".git").is_dir()
-            gitignore_lines = (forge_root / ".gitignore").read_text().splitlines()
-            assert gitignore_lines[0] == "output/*"
-            assert "!output/.gitkeep" in gitignore_lines
-            assert (forge_root / "output" / ".gitkeep").exists()
-            tracked_files = subprocess.run(
-                ["git", "-C", str(forge_root), "ls-files"],
-                check=True,
-                capture_output=True,
-                text=True,
-            ).stdout.splitlines()
-            assert "output/.gitkeep" in tracked_files
-            head = subprocess.run(
-                ["git", "-C", str(forge_root), "rev-parse", "HEAD"],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-            assert head.stdout.strip()
-            message = subprocess.run(
-                ["git", "-C", str(forge_root), "log", "-1", "--pretty=%s"],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-            assert message.stdout.strip() == "Initial agent scaffold"
-        finally:
-            agent_service_mod.PROJECT_ROOT = original_root
-
-    @pytest.mark.asyncio
-    async def test_run_forge_ensures_script_environment(self, db, tmp_path):
-        from api.persistence.repositories import AgentRepository
-        from api.services.agent_service import AgentService
-        import api.services.agent_service as agent_service_mod
-
-        agent_repo = AgentRepository(db)
-        provider = AsyncMock(spec=CLIAgentProvider)
-        provider.execute = AsyncMock(
-            return_value='{"forge_path": "output/test-agent/", "forge_config": {}, "input_schema": [], "output_schema": []}'
-        )
-
-        forge_root = tmp_path / "output" / "test-agent" / "agent" / "scripts"
-        forge_root.mkdir(parents=True)
-        (forge_root.parent.parent / "agentic.md").write_text("# Agent")
-        (forge_root / "requirements.txt").write_text("reportlab\n")
-
-        original_root = agent_service_mod.PROJECT_ROOT
-        original_create_venv = agent_service_mod.create_venv
-        original_install_dependencies = agent_service_mod.install_dependencies
-        create_calls: list[str] = []
-        install_calls: list[str] = []
-
-        def fake_create_venv(agent_root: str) -> None:
-            create_calls.append(agent_root)
-            (Path(agent_root) / "agent" / "scripts" / ".venv").mkdir(parents=True, exist_ok=True)
-
-        def fake_install_dependencies(agent_root: str) -> None:
-            install_calls.append(agent_root)
-
-        agent_service_mod.PROJECT_ROOT = tmp_path
-        agent_service_mod.create_venv = fake_create_venv
-        agent_service_mod.install_dependencies = fake_install_dependencies
-        try:
-            service = AgentService(agent_repo=agent_repo, provider=provider)
-            agent = await service.create_agent(name="Test", description="A test agent")
-
-            await service.run_forge(agent["id"])
-
-            assert create_calls == [str(tmp_path / "output" / "test-agent")]
-            assert install_calls == []
-            assert (tmp_path / "output" / "test-agent" / "agent" / "scripts" / ".venv").is_dir()
-        finally:
-            agent_service_mod.PROJECT_ROOT = original_root
-            agent_service_mod.create_venv = original_create_venv
-            agent_service_mod.install_dependencies = original_install_dependencies
-
-    @pytest.mark.asyncio
-    async def test_run_forge_passes_agent_id_to_provider(self, db):
-        """Forge prompt must include the agent ID so output goes to output/{id}/."""
-        from api.persistence.repositories import AgentRepository
-        from api.services.agent_service import AgentService
-        agent_repo = AgentRepository(db)
-        provider = AsyncMock(spec=CLIAgentProvider)
-
-        forge_output = '{"forge_path": "output/test/", "forge_config": {}, "input_schema": [], "output_schema": []}'
-        provider.execute = AsyncMock(return_value=forge_output)
-
-        service = AgentService(agent_repo=agent_repo, provider=provider)
-        agent = await service.create_agent(name="Test", description="A test agent")
-
-        await service.run_forge(agent["id"])
-
-        # Verify the prompt sent to forge includes the agent ID
-        call_args = provider.execute.call_args
-        prompt = call_args.kwargs.get("prompt") or call_args[1].get("prompt") or call_args[0][0]
-        assert agent["id"] in prompt
-
-    @pytest.mark.asyncio
-    async def test_run_forge_uses_agent_provider_and_model(self, db):
-        from api.persistence.repositories import AgentRepository
-        from api.services.agent_service import AgentService
-        agent_repo = AgentRepository(db)
-        provider = AsyncMock(spec=CLIAgentProvider)
-        provider.execute = AsyncMock(return_value='{"forge_path": "output/test/", "forge_config": {}, "input_schema": [], "output_schema": []}')
-        provider_factory = AsyncMock(return_value=provider)
-
-        service = AgentService(
-            agent_repo=agent_repo,
-            provider=provider,
-            provider_factory=provider_factory,
-        )
-        agent = await service.create_agent(
-            name="Test",
-            description="A test agent",
-            provider="codex",
-            model="gpt-5-codex",
-        )
-
-        await service.run_forge(agent["id"])
-
-        provider_factory.assert_awaited_once_with(
-            provider_key="codex",
-            model="gpt-5-codex",
-            timeout=600,
-        )
-
-    @pytest.mark.asyncio
-    async def test_run_forge_sets_error_on_failure(self, db):
-        from api.persistence.repositories import AgentRepository
-        from api.services.agent_service import AgentService
-        agent_repo = AgentRepository(db)
-        provider = AsyncMock(spec=CLIAgentProvider)
-        provider.execute = AsyncMock(side_effect=RuntimeError("forge crashed"))
-
-        service = AgentService(agent_repo=agent_repo, provider=provider)
-        agent = await service.create_agent(name="Test", description="A test agent")
-
-        await service.run_forge(agent["id"])
-
-        updated = await agent_repo.get(agent["id"])
-        assert updated["status"] == "error"
-        assert "forge crashed" in updated["forge_config"]["error"]
-
-    @pytest.mark.asyncio
-    async def test_run_forge_stores_provider_error_details(self, db):
-        """When forge fails with ProviderError, store stdout, stderr, exit_code."""
-        from api.persistence.repositories import AgentRepository
-        from api.services.agent_service import AgentService
-        agent_repo = AgentRepository(db)
-        provider = AsyncMock(spec=CLIAgentProvider)
-        provider.execute = AsyncMock(
-            side_effect=ProviderError(
-                provider_name="Claude Code",
-                exit_code=1,
-                stdout="partial forge output here",
-                stderr="Error: something went wrong in forge",
-            )
-        )
-
-        service = AgentService(agent_repo=agent_repo, provider=provider)
-        agent = await service.create_agent(name="Test", description="A test agent")
-
-        await service.run_forge(agent["id"])
-
-        updated = await agent_repo.get(agent["id"])
-        assert updated["status"] == "error"
-        assert updated["forge_config"]["exit_code"] == 1
-        assert "partial forge output" in updated["forge_config"]["stdout"]
-        assert "something went wrong" in updated["forge_config"]["stderr"]
-        assert "Claude Code" in updated["forge_config"]["error"]
-
-    @pytest.mark.asyncio
-    async def test_run_forge_parses_raw_json(self, db):
-        from api.persistence.repositories import AgentRepository
-        from api.services.agent_service import AgentService
-        agent_repo = AgentRepository(db)
-        provider = AsyncMock(spec=CLIAgentProvider)
-
-        # Raw JSON (not wrapped in Claude output format)
-        raw_json = '{"forge_path": "output/raw/", "forge_config": {"complexity": "simple", "steps": 1, "prompts": ["01_Agent.md"]}, "input_schema": [], "output_schema": []}'
-        provider.execute = AsyncMock(return_value=raw_json)
-
-        service = AgentService(agent_repo=agent_repo, provider=provider)
-        agent = await service.create_agent(name="Raw", description="test")
-
-        await service.run_forge(agent["id"])
-
-        updated = await agent_repo.get(agent["id"])
-        assert updated["status"] == "ready"
-        assert updated["forge_path"] == "output/raw/"
-
-    @pytest.mark.asyncio
-    async def test_run_update_sets_updating_then_ready(self, db):
-        """Substantive update triggers forge update and transitions updating → ready."""
-        from api.persistence.repositories import AgentRepository
-        from api.services.agent_service import AgentService
-        agent_repo = AgentRepository(db)
-        provider = AsyncMock(spec=CLIAgentProvider)
-
-        forge_output = '{"forge_path": "output/test/", "forge_config": {"complexity": "simple", "steps": 1, "prompts": ["01_Test.md"]}, "input_schema": [{"name": "topic", "type": "text", "required": true}], "output_schema": [{"name": "result", "type": "text"}]}'
-        provider.execute = AsyncMock(return_value=forge_output)
-
-        service = AgentService(agent_repo=agent_repo, provider=provider)
-        agent = await service.create_agent(name="Test", description="Original desc")
-        # Simulate agent already ready
-        await agent_repo.update(agent["id"], status="ready", forge_path="output/test/")
-
-        old_agent = await agent_repo.get(agent["id"])
-        # Route applies new fields + sets status=updating before calling run_update
-        await agent_repo.update(agent["id"], description="Updated desc", status="updating")
-
-        await service.run_update(
-            agent["id"],
-            old_agent=old_agent,
-            new_fields={"description": "Updated desc"},
-        )
-
-        updated = await agent_repo.get(agent["id"])
-        assert updated["status"] == "ready"
-        assert updated["description"] == "Updated desc"
-        provider.execute.assert_called_once()
-        # Verify the prompt references api-update.md
-        call_args = provider.execute.call_args
-        assert "api-update.md" in call_args.kwargs.get("prompt", call_args.args[0] if call_args.args else "")
-
-    @pytest.mark.asyncio
-    async def test_run_update_commits_agent_changes_to_git(self, db, tmp_path):
-        from api.persistence.repositories import AgentRepository
-        from api.services.agent_service import AgentService
-        import api.services.agent_service as agent_service_mod
-
-        agent_repo = AgentRepository(db)
-        provider = AsyncMock(spec=CLIAgentProvider)
-        provider.execute = AsyncMock(
-            return_value='{"forge_path": "output/test-agent/", "forge_config": {}, "input_schema": [], "output_schema": []}'
-        )
-
-        forge_root = tmp_path / "output" / "test-agent"
-        forge_root.mkdir(parents=True)
-        (forge_root / "agentic.md").write_text("# v1")
-        subprocess.run(["git", "-C", str(forge_root), "init"], check=True, capture_output=True)
-        subprocess.run(
-            ["git", "-C", str(forge_root), "config", "user.name", "Agent Forge"],
-            check=True,
-            capture_output=True,
-        )
-        subprocess.run(
-            ["git", "-C", str(forge_root), "config", "user.email", "agent-forge@local"],
-            check=True,
-            capture_output=True,
-        )
-        (forge_root / ".gitignore").write_text("output/\n")
-        subprocess.run(["git", "-C", str(forge_root), "add", "."], check=True, capture_output=True)
-        subprocess.run(
-            ["git", "-C", str(forge_root), "commit", "-m", "Initial agent scaffold"],
-            check=True,
-            capture_output=True,
-        )
-
-        original_root = agent_service_mod.PROJECT_ROOT
-        agent_service_mod.PROJECT_ROOT = tmp_path
-        try:
-            service = AgentService(agent_repo=agent_repo, provider=provider)
-            agent = await service.create_agent(name="Test", description="Original desc")
-            await agent_repo.update(agent["id"], status="ready", forge_path="output/test-agent/")
-
-            old_agent = await agent_repo.get(agent["id"])
-            (forge_root / "agentic.md").write_text("# v2")
-            await service.run_update(
-                agent["id"],
-                old_agent=old_agent,
-                new_fields={"description": "Updated desc"},
-            )
-
-            message = subprocess.run(
-                ["git", "-C", str(forge_root), "log", "-1", "--pretty=%s"],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-            assert message.stdout.strip() == "Update description"
-            # schema.json should exist after update
-            assert (forge_root / "schema.json").exists()
-        finally:
-            agent_service_mod.PROJECT_ROOT = original_root
-
-    @pytest.mark.asyncio
-    async def test_run_update_refreshes_existing_script_environment(self, db, tmp_path):
-        from api.persistence.repositories import AgentRepository
-        from api.services.agent_service import AgentService
-        import api.services.agent_service as agent_service_mod
-
-        agent_repo = AgentRepository(db)
-        provider = AsyncMock(spec=CLIAgentProvider)
-        provider.execute = AsyncMock(
-            return_value='{"forge_path": "output/test-agent/", "forge_config": {}, "input_schema": [], "output_schema": []}'
-        )
-
-        forge_root = tmp_path / "output" / "test-agent" / "agent" / "scripts"
-        forge_root.mkdir(parents=True)
-        (forge_root.parent.parent / "agentic.md").write_text("# v1")
-        (forge_root / "requirements.txt").write_text("reportlab\n")
-        (forge_root / ".venv").mkdir(parents=True)
-        subprocess.run(["git", "-C", str(forge_root.parent.parent.parent), "init"], check=True, capture_output=True)
-        subprocess.run(
-            ["git", "-C", str(forge_root.parent.parent.parent), "config", "user.name", "Agent Forge"],
-            check=True,
-            capture_output=True,
-        )
-        subprocess.run(
-            ["git", "-C", str(forge_root.parent.parent.parent), "config", "user.email", "agent-forge@local"],
-            check=True,
-            capture_output=True,
-        )
-        (forge_root.parent.parent.parent / ".gitignore").write_text("output/*\n!output/.gitkeep\n")
-        subprocess.run(["git", "-C", str(forge_root.parent.parent.parent), "add", "."], check=True, capture_output=True)
-        subprocess.run(
-            ["git", "-C", str(forge_root.parent.parent.parent), "commit", "-m", "Initial agent scaffold"],
-            check=True,
-            capture_output=True,
-        )
-
-        original_root = agent_service_mod.PROJECT_ROOT
-        original_create_venv = agent_service_mod.create_venv
-        original_install_dependencies = agent_service_mod.install_dependencies
-        create_calls: list[str] = []
-        install_calls: list[str] = []
-
-        def fake_create_venv(agent_root: str) -> None:
-            create_calls.append(agent_root)
-
-        def fake_install_dependencies(agent_root: str) -> None:
-            install_calls.append(agent_root)
-
-        agent_service_mod.PROJECT_ROOT = tmp_path
-        agent_service_mod.create_venv = fake_create_venv
-        agent_service_mod.install_dependencies = fake_install_dependencies
-        try:
-            service = AgentService(agent_repo=agent_repo, provider=provider)
-            agent = await service.create_agent(name="Test", description="Original desc")
-            await agent_repo.update(agent["id"], status="ready", forge_path="output/test-agent/")
-
-            old_agent = await agent_repo.get(agent["id"])
-            await service.run_update(
-                agent["id"],
-                old_agent=old_agent,
-                new_fields={"description": "Updated desc"},
-            )
-
-            assert create_calls == []
-            assert install_calls == [str(tmp_path / "output" / "test-agent")]
-        finally:
-            agent_service_mod.PROJECT_ROOT = original_root
-            agent_service_mod.create_venv = original_create_venv
-            agent_service_mod.install_dependencies = original_install_dependencies
-
-    @pytest.mark.asyncio
-    async def test_run_update_sets_error_on_failure(self, db):
-        """When forge update fails, status goes to error."""
-        from api.persistence.repositories import AgentRepository
-        from api.services.agent_service import AgentService
-        agent_repo = AgentRepository(db)
-        provider = AsyncMock(spec=CLIAgentProvider)
-        provider.execute = AsyncMock(side_effect=ProviderError(
-            provider_name="Claude Code", exit_code=1,
-            stdout="partial", stderr="update failed",
-        ))
-
-        service = AgentService(agent_repo=agent_repo, provider=provider)
-        agent = await service.create_agent(name="Test", description="Original")
-        await agent_repo.update(agent["id"], status="ready", forge_path="output/test/")
-
-        await service.run_update(
-            agent["id"],
-            old_agent=await agent_repo.get(agent["id"]),
-            new_fields={"description": "New desc"},
-        )
-
-        updated = await agent_repo.get(agent["id"])
-        assert updated["status"] == "error"
-        assert updated["forge_config"]["exit_code"] == 1
-
-    @pytest.mark.asyncio
-    async def test_run_update_nonexistent_agent(self, db):
-        """run_update on nonexistent agent logs error, doesn't crash."""
-        from api.persistence.repositories import AgentRepository
-        from api.services.agent_service import AgentService
-        agent_repo = AgentRepository(db)
-        provider = AsyncMock(spec=CLIAgentProvider)
-        service = AgentService(agent_repo=agent_repo, provider=provider)
-
-        await service.run_update("nonexistent-id", old_agent={}, new_fields={})
-        provider.execute.assert_not_called()
-
-    @pytest.mark.asyncio
-    async def test_run_forge_nonexistent_agent(self, db):
-        from api.persistence.repositories import AgentRepository
-        from api.services.agent_service import AgentService
-        agent_repo = AgentRepository(db)
-        provider = AsyncMock(spec=CLIAgentProvider)
-        service = AgentService(agent_repo=agent_repo, provider=provider)
-
-        # Should not raise, just log error
-        await service.run_forge("nonexistent-id")
-        provider.execute.assert_not_called()
-
-    @pytest.mark.asyncio
-    async def test_git_subprocess_calls_close_stdin(self, db, tmp_path):
-        """All git subprocess.run calls must use stdin=DEVNULL to prevent hangs on Windows."""
-        from api.persistence.repositories import AgentRepository
-        from api.services.agent_service import AgentService
-        import api.services.agent_service as agent_service_mod
-
-        agent_repo = AgentRepository(db)
-        provider = AsyncMock(spec=CLIAgentProvider)
-        provider.execute = AsyncMock(
-            return_value='{"forge_path": "output/test-agent/", "forge_config": {}, "input_schema": [], "output_schema": []}'
-        )
-
-        forge_root = tmp_path / "output" / "test-agent"
-        forge_root.mkdir(parents=True)
-        (forge_root / "agentic.md").write_text("# Agent")
-        original_root = agent_service_mod.PROJECT_ROOT
-        agent_service_mod.PROJECT_ROOT = tmp_path
-        try:
-            service = AgentService(agent_repo=agent_repo, provider=provider)
-            agent = await service.create_agent(name="Test", description="A test agent")
-
-            with patch("api.services.agent_service.subprocess") as mock_sub:
-                mock_sub.DEVNULL = subprocess.DEVNULL
-                mock_sub.run = subprocess.run
-                # Actually run, but spy on calls
-                calls_without_devnull = []
-                real_run = subprocess.run
-
-                def spy_run(*args, **kwargs):
-                    if kwargs.get("stdin") is not subprocess.DEVNULL:
-                        calls_without_devnull.append(args)
-                    return real_run(*args, **kwargs)
-
-                mock_sub.run = spy_run
-                service.ensure_agent_repo_tracking("output/test-agent/")
-
-            assert len(calls_without_devnull) == 0, (
-                f"Found {len(calls_without_devnull)} subprocess.run calls without stdin=DEVNULL: "
-                f"{calls_without_devnull}"
-            )
-        finally:
-            agent_service_mod.PROJECT_ROOT = original_root
-
-
-class TestExecutionService:
-
-    def test_ensure_run_output_dirs_creates_all_runtime_run_directories(self, tmp_path):
-        from api.services.execution_service import _ensure_run_output_dirs
-        import api.services.execution_service as execution_service_mod
-
-        original_root = execution_service_mod._PROJECT_ROOT
-        execution_service_mod._PROJECT_ROOT = tmp_path
-        try:
-            _ensure_run_output_dirs("output/test-agent", "run-1")
-            base = tmp_path / "output" / "test-agent" / "output" / "run-1"
-            assert (base / "inputs").is_dir()
-            assert (base / "agent_outputs").is_dir()
-            assert (base / "user_outputs").is_dir()
-            assert (base / "agent_logs").is_dir()
-        finally:
-            execution_service_mod._PROJECT_ROOT = original_root
-
-    @pytest.mark.asyncio
-    async def test_run_standalone_agent(self, db):
-        from api.persistence.repositories import AgentRepository, RunRepository
-        agent_repo = AgentRepository(db)
-        run_repo = RunRepository(db)
-
-        agent = await agent_repo.create(
-            name="Research", description="Research a topic",
-            input_schema=[{"name": "topic", "type": "text", "required": True}],
-            output_schema=[{"name": "findings", "type": "text"}],
-        )
-        run = await run_repo.create(agent_id=agent["id"], inputs={"topic": "AI"})
-
-        executor_mock = AsyncMock()
-        executor_mock.execute.return_value = {"findings": "AI research data"}
-        emit_mock = AsyncMock()
-
-        service = ExecutionService(
-            agent_repo=agent_repo,
-            run_repo=run_repo,
-            project_repo=None,
-            executor=executor_mock,
-            emit=emit_mock,
-        )
-        await service.run_standalone_agent(run["id"])
-
-        updated_run = await run_repo.get(run["id"])
-        assert updated_run["status"] == "completed"
-        assert updated_run["outputs"] == {"findings": "AI research data"}
-        emit_mock.assert_any_call(run["id"], "run_started", {"forge_path": ""})
-        emit_mock.assert_any_call(
-            run["id"], "run_completed",
-            {"outputs": {"findings": "AI research data"}},
-        )
-
-    @pytest.mark.asyncio
-    async def test_run_standalone_agent_uses_run_provider_and_model(self, db):
-        from api.persistence.repositories import AgentRepository, RunRepository
-        agent_repo = AgentRepository(db)
-        run_repo = RunRepository(db)
-
-        agent = await agent_repo.create(
-            name="Research",
-            description="Research a topic",
-            provider="claude_code",
-            model="claude-sonnet-4-6",
-        )
-        run = await run_repo.create(
-            agent_id=agent["id"],
-            inputs={"topic": "AI"},
-            provider="codex",
-            model="gpt-5-codex",
-        )
-
-        executor_mock = AsyncMock()
-        executor_mock.execute.return_value = {"findings": "AI research data"}
-        emit_mock = AsyncMock()
-        provider_instance = object()
-        provider_factory = AsyncMock(return_value=provider_instance)
-
-        service = ExecutionService(
-            agent_repo=agent_repo,
-            run_repo=run_repo,
-            project_repo=None,
-            executor=executor_mock,
-            emit=emit_mock,
-            provider_factory=provider_factory,
-        )
-        await service.run_standalone_agent(run["id"])
-
-        provider_factory.assert_awaited_once_with(
-            provider_key="codex",
-            model="gpt-5-codex",
-            timeout=900,
-        )
-        executor_mock.execute.assert_awaited_once()
-        assert executor_mock.execute.await_args.kwargs["provider"] is provider_instance
-
-    @pytest.mark.asyncio
-    async def test_run_standalone_agent_failure(self, db):
-        from api.persistence.repositories import AgentRepository, RunRepository
-        agent_repo = AgentRepository(db)
-        run_repo = RunRepository(db)
-
-        agent = await agent_repo.create(name="T", description="")
-        run = await run_repo.create(agent_id=agent["id"])
-
-        executor_mock = AsyncMock()
-        executor_mock.execute.side_effect = RuntimeError("boom")
-        emit_mock = AsyncMock()
-
-        service = ExecutionService(
-            agent_repo=agent_repo,
-            run_repo=run_repo,
-            project_repo=None,
-            executor=executor_mock,
-            emit=emit_mock,
-        )
-        await service.run_standalone_agent(run["id"])
-
-        updated_run = await run_repo.get(run["id"])
-        assert updated_run["status"] == "failed"
-
-    @pytest.mark.asyncio
-    async def test_run_project_dag(self, db):
-        from api.persistence.repositories import (
-            AgentRepository, ProjectRepository, RunRepository,
-        )
-        agent_repo = AgentRepository(db)
-        project_repo = ProjectRepository(db)
-        run_repo = RunRepository(db)
-
-        t1 = await agent_repo.create(
-            name="Research", description="Research",
-            input_schema=[{"name": "topic", "type": "text", "required": True}],
-            output_schema=[{"name": "findings", "type": "text"}],
-        )
-        t2 = await agent_repo.create(
-            name="Write", description="Write",
-            input_schema=[{"name": "content", "type": "text", "required": True}],
-            output_schema=[{"name": "article", "type": "text"}],
-        )
-        project = await project_repo.create(name="Pipeline", description="")
-        n1 = await project_repo.add_node(project["id"], t1["id"])
-        n2 = await project_repo.add_node(project["id"], t2["id"])
-        await project_repo.add_edge(
-            project["id"], n1["id"], n2["id"],
-            source_output="findings", target_input="content",
-        )
-        run = await run_repo.create(
-            project_id=project["id"], inputs={"topic": "AI"},
-        )
-
-        call_count = 0
-        async def mock_execute(agent, inputs, callback, run_id=""):
-            nonlocal call_count
-            call_count += 1
-            if agent["name"] == "Research":
-                return {"findings": "AI data"}
-            return {"article": "Full article about AI"}
-
-        executor_mock = AsyncMock()
-        executor_mock.execute = mock_execute
-        emit_mock = AsyncMock()
-
-        service = ExecutionService(
-            agent_repo=agent_repo,
-            run_repo=run_repo,
-            project_repo=project_repo,
-            executor=executor_mock,
-            emit=emit_mock,
-        )
-        await service.run_project(run["id"])
-
-        updated_run = await run_repo.get(run["id"])
-        assert updated_run["status"] == "completed"
-        assert call_count == 2
-
-    @pytest.mark.asyncio
-    async def test_run_project_with_approval_gate(self, db):
-        from api.persistence.repositories import (
-            AgentRepository, ProjectRepository, RunRepository,
-        )
-        agent_repo = AgentRepository(db)
-        project_repo = ProjectRepository(db)
-        run_repo = RunRepository(db)
-
-        t1 = await agent_repo.create(name="Work", description="Do work",
-            output_schema=[{"name": "result", "type": "text"}])
-        t_gate = await agent_repo.create(name="Gate", description="", type="approval")
-        project = await project_repo.create(name="P", description="")
-        n1 = await project_repo.add_node(project["id"], t1["id"])
-        n_gate = await project_repo.add_node(project["id"], t_gate["id"])
-        await project_repo.add_edge(
-            project["id"], n1["id"], n_gate["id"],
-            source_output="result", target_input="in",
-        )
-        run = await run_repo.create(project_id=project["id"])
-
-        async def mock_execute(agent, inputs, callback, run_id=""):
-            return {"result": "done"}
-
-        executor_mock = AsyncMock()
-        executor_mock.execute = mock_execute
-        emit_mock = AsyncMock()
-
-        service = ExecutionService(
-            agent_repo=agent_repo,
-            run_repo=run_repo,
-            project_repo=project_repo,
-            executor=executor_mock,
-            emit=emit_mock,
-        )
-        await service.run_project(run["id"])
-
-        updated_run = await run_repo.get(run["id"])
-        assert updated_run["status"] == "awaiting_approval"
-        approval_calls = [
-            c for c in emit_mock.call_args_list
-            if c.args[1] == "approval_required"
-        ]
-        assert len(approval_calls) == 1
-        data = approval_calls[0].args[2]
-        assert data["node_id"] == n_gate["id"]
-        assert n1["id"] in data["outputs_so_far"]
-        assert data["outputs_so_far"][n1["id"]] == {"result": "done"}
-
-    @pytest.mark.asyncio
-    async def test_resume_standalone_agent_emits_run_resumed_not_run_started(self, db):
-        from api.persistence.repositories import AgentRepository, RunRepository
-
-        agent_repo = AgentRepository(db)
-        run_repo = RunRepository(db)
-
-        agent = await agent_repo.create(name="Resumable", description="")
-        run = await run_repo.create(agent_id=agent["id"], inputs={"k": "v"})
-        await run_repo.update_status(run["id"], "failed")
-
-        executor_mock = AsyncMock()
-        executor_mock.execute.return_value = {"result": "ok"}
-        emit_mock = AsyncMock()
-
-        service = ExecutionService(
-            agent_repo=agent_repo,
-            run_repo=run_repo,
-            project_repo=None,
-            executor=executor_mock,
-            emit=emit_mock,
-        )
-        await service.resume_standalone_agent(run["id"])
-
-        emitted_event_types = [c.args[1] for c in emit_mock.call_args_list]
-        assert "run_resumed" in emitted_event_types
-        assert "run_started" not in emitted_event_types
-
-    @pytest.mark.asyncio
-    async def test_resume_standalone_agent_success_sets_status_completed(self, db):
-        from api.persistence.repositories import AgentRepository, RunRepository
-
-        agent_repo = AgentRepository(db)
-        run_repo = RunRepository(db)
-
-        agent = await agent_repo.create(name="Resumable", description="")
-        run = await run_repo.create(agent_id=agent["id"], inputs={})
-        await run_repo.update_status(run["id"], "failed")
-
-        executor_mock = AsyncMock()
-        executor_mock.execute.return_value = {"output": "done"}
-        emit_mock = AsyncMock()
-
-        service = ExecutionService(
-            agent_repo=agent_repo,
-            run_repo=run_repo,
-            project_repo=None,
-            executor=executor_mock,
-            emit=emit_mock,
-        )
-        await service.resume_standalone_agent(run["id"])
-
-        updated = await run_repo.get(run["id"])
-        assert updated["status"] == "completed"
-        assert updated["outputs"] == {"output": "done"}
-
-    @pytest.mark.asyncio
-    async def test_resume_standalone_agent_failure_sets_status_failed(self, db):
-        from api.persistence.repositories import AgentRepository, RunRepository
-
-        agent_repo = AgentRepository(db)
-        run_repo = RunRepository(db)
-
-        agent = await agent_repo.create(name="Resumable", description="")
-        run = await run_repo.create(agent_id=agent["id"], inputs={})
-        await run_repo.update_status(run["id"], "failed")
-
-        executor_mock = AsyncMock()
-        executor_mock.execute.side_effect = RuntimeError("step 2 failed")
-        emit_mock = AsyncMock()
-
-        service = ExecutionService(
-            agent_repo=agent_repo,
-            run_repo=run_repo,
-            project_repo=None,
-            executor=executor_mock,
-            emit=emit_mock,
-        )
-        await service.resume_standalone_agent(run["id"])
-
-        updated = await run_repo.get(run["id"])
-        assert updated["status"] == "failed"
-        emitted_types = [c.args[1] for c in emit_mock.call_args_list]
-        assert "run_failed" in emitted_types
-
-    @pytest.mark.asyncio
-    async def test_resume_standalone_agent_does_not_recreate_output_dirs(self, db):
-        from api.persistence.repositories import AgentRepository, RunRepository
-        import api.services.execution_service as execution_service_mod
-
-        agent_repo = AgentRepository(db)
-        run_repo = RunRepository(db)
-
-        agent = await agent_repo.create(name="Resumable", description="")
-        run = await run_repo.create(agent_id=agent["id"], inputs={})
-        await run_repo.update_status(run["id"], "failed")
-
-        executor_mock = AsyncMock()
-        executor_mock.execute.return_value = {}
-        emit_mock = AsyncMock()
-
-        service = ExecutionService(
-            agent_repo=agent_repo,
-            run_repo=run_repo,
-            project_repo=None,
-            executor=executor_mock,
-            emit=emit_mock,
-        )
-
-        with patch.object(execution_service_mod, "_ensure_run_output_dirs") as mock_ensure:
-            await service.resume_standalone_agent(run["id"])
-            mock_ensure.assert_not_called()
-
-    @pytest.mark.asyncio
-    async def test_resume_standalone_agent_uses_run_provider_and_model(self, db):
-        from api.persistence.repositories import AgentRepository, RunRepository
-
-        agent_repo = AgentRepository(db)
-        run_repo = RunRepository(db)
-
-        agent = await agent_repo.create(
-            name="Resumable", description="",
-            provider="claude_code", model="claude-sonnet-4-6",
-        )
-        run = await run_repo.create(
-            agent_id=agent["id"], inputs={},
-            provider="codex", model="gpt-5-codex",
-        )
-        await run_repo.update_status(run["id"], "failed")
-
-        executor_mock = AsyncMock()
-        executor_mock.execute.return_value = {}
-        emit_mock = AsyncMock()
-        provider_instance = object()
-        provider_factory = AsyncMock(return_value=provider_instance)
-
-        service = ExecutionService(
-            agent_repo=agent_repo,
-            run_repo=run_repo,
-            project_repo=None,
-            executor=executor_mock,
-            emit=emit_mock,
-            provider_factory=provider_factory,
-        )
-        await service.resume_standalone_agent(run["id"])
-
-        # Must use run's provider/model override, not agent's
-        provider_factory.assert_awaited_once_with(
-            provider_key="codex",
-            model="gpt-5-codex",
-            timeout=900,
-        )
-        assert executor_mock.execute.await_args.kwargs["provider"] is provider_instance
-
-
-def _make_streaming_provider(output='{"result": "done"}'):
-    """Create a mock CLI provider whose execute_streaming yields a done event.
-
-    Also records call kwargs on mock.execute_streaming_call_kwargs for assertions.
-    """
-    from api.engine.providers import ExecutionEvent
-
+def _provider_yielding(*events):
+    """A provider whose stream yields the given events, then ends."""
     provider = AsyncMock()
-    provider._streaming_calls = []
+    provider.calls = []
 
     async def fake_streaming(**kwargs):
-        provider._streaming_calls.append(kwargs)
-        yield ExecutionEvent(type="done", data=output)
+        provider.calls.append(kwargs)
+        for event in events:
+            yield event
 
     provider.execute_streaming = fake_streaming
     return provider
 
 
-class TestAgentExecutor:
-    """Tests for AgentExecutor routing logic."""
+class TestExecutionService:
+    """The run's lifecycle after the workflow layer left."""
 
     @pytest.mark.asyncio
-    async def test_claude_code_agent_with_computer_use_routes_to_cli(self):
-        """claude_code agents should use CLI provider even when computer_use=True.
+    async def test_start_run_drives_the_task_sentence_verbatim(self, db):
+        run_repo = RunRepository(db)
+        run = await run_repo.create(title="Tidy the inbox", inputs={"task": "Tidy the inbox"})
+        provider = _provider_yielding(ExecutionEvent(type="done", data="all tidy"))
 
-        Claude Code handles computer use via MCP, so it does NOT need routing
-        to the computer_use_service.
-        """
-        from api.engine.executor import AgentExecutor
+        service = ExecutionService(run_repo=run_repo, emit=AsyncMock())
+        service._get_run_provider = AsyncMock(return_value=provider)
+        await service.start_run(run["id"])
 
-        cli_provider = _make_streaming_provider('{"result": "pricing report"}')
-        cu_service = AsyncMock()
-        callback = AsyncMock()
-
-        executor = AgentExecutor(cli_provider, cu_service)
-        agent = {
-            "id": "test-1",
-            "name": "competitor-spy",
-            "computer_use": True,
-            "provider": "claude_code",
-            "forge_path": "",
-            "description": "Spy on competitors",
-            "output_schema": [],
-            "steps": [
-                {"name": "Open website", "computer_use": True},
-                {"name": "Write report", "computer_use": False},
-            ],
-        }
-        result = await executor.execute(agent, {"task": "analyze pricing"}, callback)
-
-        # Should have called CLI provider streaming, NOT computer_use_service
-        assert len(cli_provider._streaming_calls) == 1
-        cu_service.run_agent.assert_not_called()
-        assert result == {"result": "pricing report"}
+        assert provider.calls[0]["prompt"] == "Tidy the inbox"
+        updated = await run_repo.get(run["id"])
+        assert updated["status"] == "completed"
+        assert updated["outputs"] == {"result": "all tidy"}
 
     @pytest.mark.asyncio
-    async def test_workspace_always_project_root_even_with_forge_path(self):
-        """Workspace must always be PROJECT_ROOT, never forge_path.
+    async def test_run_started_carries_no_forge_path(self, db):
+        run_repo = RunRepository(db)
+        run = await run_repo.create(title="T", inputs={"task": "T"})
+        emit = AsyncMock()
 
-        The prompt references forge_path as a relative path from project root
-        (e.g., 'Read output/abc/agentic.md'). If cwd were set to forge_path,
-        the agent would look for output/abc/output/abc/agentic.md (doubled path).
-        """
-        from api.engine.executor import AgentExecutor, _PROJECT_ROOT
+        service = ExecutionService(run_repo=run_repo, emit=emit)
+        service._get_run_provider = AsyncMock(
+            return_value=_provider_yielding(ExecutionEvent(type="done", data=""))
+        )
+        await service.start_run(run["id"])
 
-        cli_provider = _make_streaming_provider()
-        cu_service = AsyncMock()
-        callback = AsyncMock()
-
-        executor = AgentExecutor(cli_provider, cu_service)
-        agent = {
-            "id": "test-ws",
-            "name": "test-agent",
-            "computer_use": False,
-            "provider": "claude_code",
-            "forge_path": "output/some-agent-id",
-            "description": "Test agent",
-            "output_schema": [],
-        }
-        await executor.execute(agent, {"task": "test"}, callback)
-
-        call_kwargs = cli_provider._streaming_calls[0]
-        assert call_kwargs["workspace"] == _PROJECT_ROOT
-        assert call_kwargs["workspace"] != "output/some-agent-id"
+        emit.assert_any_call(run["id"], "run_started", {})
 
     @pytest.mark.asyncio
-    async def test_workspace_is_project_root_when_no_forge_path(self):
-        """Agents without forge_path should also get PROJECT_ROOT as workspace."""
-        from api.engine.executor import AgentExecutor, _PROJECT_ROOT
+    async def test_agent_frames_carry_run_id_and_the_title(self, db):
+        """The frame names are frozen; what they carry is a run, not an agent."""
+        run_repo = RunRepository(db)
+        run = await run_repo.create(title="Summarise the week", inputs={"task": "Summarise the week"})
+        emit = AsyncMock()
 
-        cli_provider = _make_streaming_provider()
-        cu_service = AsyncMock()
-        callback = AsyncMock()
+        service = ExecutionService(run_repo=run_repo, emit=emit)
+        service._get_run_provider = AsyncMock(return_value=_provider_yielding(
+            ExecutionEvent(type="output", data="thinking"),
+            ExecutionEvent(type="done", data="done"),
+        ))
+        await service.start_run(run["id"])
 
-        executor = AgentExecutor(cli_provider, cu_service)
-        agent = {
-            "id": "test-no-fp",
-            "name": "test-agent",
-            "computer_use": False,
-            "provider": "claude_code",
-            "forge_path": "",
-            "description": "Agent without forge path",
-            "output_schema": [],
-        }
-        await executor.execute(agent, {}, callback)
-
-        call_kwargs = cli_provider._streaming_calls[0]
-        assert call_kwargs["workspace"] == _PROJECT_ROOT
-
-    @pytest.mark.asyncio
-    async def test_prompt_contains_forge_path_for_file_resolution(self):
-        """The prompt must include forge_path so Claude can find agentic.md from PROJECT_ROOT."""
-        from api.engine.executor import AgentExecutor
-
-        cli_provider = _make_streaming_provider()
-        cu_service = AsyncMock()
-        callback = AsyncMock()
-
-        executor = AgentExecutor(cli_provider, cu_service)
-        agent = {
-            "id": "test-fp",
-            "name": "test-agent",
-            "computer_use": False,
-            "provider": "claude_code",
-            "forge_path": "output/my-agent-uuid",
-            "description": "Test",
-            "output_schema": [],
-        }
-        await executor.execute(agent, {}, callback)
-
-        call_kwargs = cli_provider._streaming_calls[0]
-        prompt = call_kwargs["prompt"]
-        assert "output/my-agent-uuid/agentic.md" in prompt
+        emit.assert_any_call(
+            run["id"], "agent_started",
+            {"run_id": run["id"], "name": "Summarise the week"},
+        )
+        emit.assert_any_call(
+            run["id"], "agent_log", {"run_id": run["id"], "message": "thinking"},
+        )
+        emit.assert_any_call(
+            run["id"], "agent_completed",
+            {"run_id": run["id"], "outputs": {"result": "done"}},
+        )
+        emitted = {call.args[1] for call in emit.await_args_list}
+        assert "step_completed" not in emitted
 
     @pytest.mark.asyncio
-    async def test_timeout_900_for_cli_agents(self):
-        """CLI agents (no computer_use) should get 900s timeout."""
-        from api.engine.executor import AgentExecutor
+    async def test_an_error_event_fails_the_run(self, db):
+        run_repo = RunRepository(db)
+        run = await run_repo.create(title="T", inputs={"task": "T"})
+        emit = AsyncMock()
 
-        cli_provider = _make_streaming_provider()
-        cu_service = AsyncMock()
-        callback = AsyncMock()
+        service = ExecutionService(run_repo=run_repo, emit=emit)
+        service._get_run_provider = AsyncMock(return_value=_provider_yielding(
+            ExecutionEvent(type="error", data="the loop gave up"),
+        ))
+        await service.start_run(run["id"])
 
-        executor = AgentExecutor(cli_provider, cu_service)
-        agent = {
-            "id": "test-to",
-            "name": "cli-agent",
-            "computer_use": False,
-            "provider": "claude_code",
-            "forge_path": "output/test",
-            "description": "CLI only",
-            "output_schema": [],
-        }
-        await executor.execute(agent, {}, callback)
-
-        call_kwargs = cli_provider._streaming_calls[0]
-        assert call_kwargs["timeout"] == 900
+        updated = await run_repo.get(run["id"])
+        assert updated["status"] == "failed"
+        assert updated["outputs"] == {"error": "the loop gave up"}
+        emit.assert_any_call(
+            run["id"], "agent_failed",
+            {"run_id": run["id"], "error": "the loop gave up"},
+        )
 
     @pytest.mark.asyncio
-    async def test_timeout_1800_for_computer_use_agents(self):
-        """Computer use agents routed via CLI should get 1800s timeout."""
-        from api.engine.executor import AgentExecutor
+    async def test_awaiting_and_todos_pass_through_unchanged(self, db):
+        run_repo = RunRepository(db)
+        run = await run_repo.create(title="T", inputs={"task": "T"})
+        emit = AsyncMock()
 
-        cli_provider = _make_streaming_provider()
-        cu_service = AsyncMock()
-        callback = AsyncMock()
+        service = ExecutionService(run_repo=run_repo, emit=emit)
+        service._get_run_provider = AsyncMock(return_value=_provider_yielding(
+            ExecutionEvent(type="todos", data=[{"id": "1", "content": "c", "status": "pending"}]),
+            ExecutionEvent(type="awaiting", data="may I?"),
+            ExecutionEvent(type="done", data=""),
+        ))
+        await service.start_run(run["id"])
 
-        executor = AgentExecutor(cli_provider, cu_service)
-        agent = {
-            "id": "test-cu-to",
-            "name": "cu-agent",
-            "computer_use": True,
-            "provider": "claude_code",
-            "forge_path": "output/test",
-            "description": "Desktop agent",
-            "output_schema": [],
-        }
-        await executor.execute(agent, {}, callback)
-
-        call_kwargs = cli_provider._streaming_calls[0]
-        assert call_kwargs["timeout"] == 1800
+        emit.assert_any_call(
+            run["id"], "todos",
+            {"items": [{"id": "1", "content": "c", "status": "pending"}]},
+        )
+        emit.assert_any_call(run["id"], "awaiting", {"prompt": "may I?"})
 
     @pytest.mark.asyncio
-    async def test_anthropic_agent_with_computer_use_routes_to_cu_service(self):
-        """anthropic provider agents with computer_use=True should use computer_use_service."""
-        from api.engine.executor import AgentExecutor
-
-        cli_provider = AsyncMock()
-        cu_service = AsyncMock()
-        cu_service.run_agent.return_value = {"success": True}
-        callback = AsyncMock()
-
-        executor = AgentExecutor(cli_provider, cu_service)
-        agent = {
-            "id": "test-2",
-            "name": "browser-agent",
-            "computer_use": True,
-            "provider": "anthropic",
-            "forge_path": "",
-            "description": "Browse the web",
-            "output_schema": [],
-        }
-        result = await executor.execute(agent, {}, callback)
-
-        # Should have called computer_use_service, NOT CLI provider
-        cu_service.run_agent.assert_called_once()
-        cli_provider.execute.assert_not_called()
-        assert result == {"success": True}
+    async def test_a_run_that_named_a_provider_keeps_it(self, db):
+        run_repo = RunRepository(db)
+        run = await run_repo.create(
+            title="T", inputs={"task": "T"}, provider="codex", model="gpt-5.4",
+        )
+        service = ExecutionService(run_repo=run_repo, emit=AsyncMock())
+        assert await service._resolve_config(await run_repo.get(run["id"])) == ("codex", "gpt-5.4")
 
     @pytest.mark.asyncio
-    async def test_execute_emits_agent_log_events_during_streaming(self):
-        """Executor should emit agent_log events for each streaming output line."""
-        from api.engine.executor import AgentExecutor
-        from api.engine.providers import ExecutionEvent
+    async def test_a_run_that_named_none_takes_the_machine_default(self, db):
+        """The machine's default is providers.yaml's, not a constant in code."""
+        run_repo = RunRepository(db)
+        run = await run_repo.create(title="T", inputs={"task": "T"})
+        service = ExecutionService(run_repo=run_repo, emit=AsyncMock())
 
-        async def fake_streaming(**kwargs):
-            yield ExecutionEvent(type="output", data="Reading files...")
-            yield ExecutionEvent(type="output", data="Using tool: Grep")
-            yield ExecutionEvent(type="done", data='{"report": "done"}')
-
-        cli_provider = AsyncMock()
-        cli_provider.execute_streaming = fake_streaming
-        cu_service = AsyncMock()
-        callback = AsyncMock()
-
-        executor = AgentExecutor(cli_provider, cu_service)
-        agent = {
-            "id": "test-stream",
-            "name": "stream-agent",
-            "computer_use": False,
-            "provider": "claude_code",
-            "forge_path": "",
-            "description": "Test streaming",
-            "output_schema": [],
-        }
-        result = await executor.execute(agent, {}, callback)
-
-        # Should have emitted agent_log for each output event
-        log_calls = [
-            c for c in callback.call_args_list
-            if c.args[0] == "agent_log"
-        ]
-        assert len(log_calls) == 2
-        assert log_calls[0].args[1]["message"] == "Reading files..."
-        assert log_calls[1].args[1]["message"] == "Using tool: Grep"
-
-        # Should still emit agent_started and agent_completed
-        event_types = [c.args[0] for c in callback.call_args_list]
-        assert "agent_started" in event_types
-        assert "agent_completed" in event_types
-
-        # Should parse the done event's data as the result
-        assert result == {"report": "done"}
+        with patch("api.services.execution_service.machine_default_provider",
+                   AsyncMock(return_value="anthropic_oauth")), \
+             patch("api.services.execution_service.machine_default_model",
+                   return_value="claude-opus-5"):
+            resolved = await service._resolve_config(await run_repo.get(run["id"]))
+        assert resolved == ("anthropic_oauth", "claude-opus-5")
 
     @pytest.mark.asyncio
-    async def test_execute_streaming_error_event_raises(self):
-        """Executor should raise when streaming yields an error event."""
-        from api.engine.executor import AgentExecutor
-        from api.engine.providers import ExecutionEvent
+    async def test_the_native_path_has_no_wall_clock_deadline(self, db):
+        service = ExecutionService(run_repo=RunRepository(db), emit=AsyncMock())
+        with patch("api.services.execution_service.is_native_provider", return_value=True):
+            assert service._timeout_for("anthropic_oauth") is None
 
-        async def fake_streaming(**kwargs):
-            yield ExecutionEvent(type="output", data="Starting...")
-            yield ExecutionEvent(type="error", data="Provider crashed")
 
-        cli_provider = AsyncMock()
-        cli_provider.execute_streaming = fake_streaming
-        cu_service = AsyncMock()
-        callback = AsyncMock()
-
-        executor = AgentExecutor(cli_provider, cu_service)
-        agent = {
-            "id": "test-err",
-            "name": "error-agent",
-            "computer_use": False,
-            "provider": "claude_code",
-            "forge_path": "",
-            "description": "Will fail",
-            "output_schema": [],
-        }
-        with pytest.raises(RuntimeError, match="Provider crashed"):
-            await executor.execute(agent, {}, callback)
-
-        # agent_failed should have been emitted
-        event_types = [c.args[0] for c in callback.call_args_list]
-        assert "agent_failed" in event_types
+class TestMachineDefaults:
 
     @pytest.mark.asyncio
-    async def test_execute_streaming_done_with_plain_text_uses_parse_output(self):
-        """When done event data is not JSON, _parse_output wraps it."""
-        from api.engine.executor import AgentExecutor
-        from api.engine.providers import ExecutionEvent
+    async def test_default_provider_comes_from_the_yaml(self):
+        from api.engine.providers import machine_default_provider
 
-        async def fake_streaming(**kwargs):
-            yield ExecutionEvent(type="done", data="plain text result")
+        assert await machine_default_provider() == "anthropic_oauth"
 
-        cli_provider = AsyncMock()
-        cli_provider.execute_streaming = fake_streaming
-        cu_service = AsyncMock()
-        callback = AsyncMock()
+    def test_default_model_comes_from_the_provider_entry(self):
+        from api.engine.providers import machine_default_model
 
-        executor = AgentExecutor(cli_provider, cu_service)
-        agent = {
-            "id": "test-plain",
-            "name": "plain-agent",
-            "computer_use": False,
-            "provider": "claude_code",
-            "forge_path": "",
-            "description": "Returns plain text",
-            "output_schema": [{"name": "report"}],
-        }
-        result = await executor.execute(agent, {}, callback)
-
-        # _parse_output should wrap in the first output_schema field
-        assert result == {"report": "plain text result"}
-
-    @pytest.mark.asyncio
-    async def test_execute_per_step_routes_cli_only_multi_step(self):
-        """Pure-CLI agents with forge_path + multiple steps run per-step."""
-        from api.engine.executor import AgentExecutor
-        from api.engine.providers import ExecutionEvent
-
-        call_count = 0
-
-        async def fake_streaming(**kwargs):
-            nonlocal call_count
-            call_count += 1
-            assert kwargs.get("use_stream_json") is True  # CLI always streams
-            yield ExecutionEvent(type="output", data=f"Step {call_count} output")
-            yield ExecutionEvent(type="done", data=f'{{"step": {call_count}}}')
-
-        cli_provider = AsyncMock()
-        cli_provider.execute_streaming = fake_streaming
-        cu_service = AsyncMock()
-        callback = AsyncMock()
-
-        executor = AgentExecutor(cli_provider, cu_service)
-        agent = {
-            "id": "test-cli-multi",
-            "name": "cli-multi-agent",
-            "computer_use": False,
-            "provider": "claude_code",
-            "forge_path": "output/test-cli-multi",
-            "description": "Pure CLI multi-step",
-            "output_schema": [{"name": "step"}],
-            "steps": [
-                {"name": "Research", "computer_use": False},
-                {"name": "Analyze", "computer_use": False},
-                {"name": "Report", "computer_use": False},
-            ],
-        }
-        result = await executor.execute(agent, {"topic": "test"}, callback)
-
-        assert call_count == 3
-        assert result == {"step": 3}
-
-        log_calls = [
-            c for c in callback.call_args_list if c.args[0] == "agent_log"
-        ]
-        log_messages = [c.args[1]["message"] for c in log_calls]
-        assert any("Step 1" in m and "[CLI]" in m for m in log_messages)
-        assert any("Step 2" in m and "[CLI]" in m for m in log_messages)
-        assert any("Step 3" in m and "[CLI]" in m for m in log_messages)
-
-    @pytest.mark.asyncio
-    async def test_execute_per_step_routes_mixed_steps(self):
-        """Agents with forge_path + mixed CLI/Desktop steps run per-step."""
-        from api.engine.executor import AgentExecutor
-        from api.engine.providers import ExecutionEvent
-
-        call_count = 0
-
-        async def fake_streaming(**kwargs):
-            nonlocal call_count
-            call_count += 1
-            use_stream = kwargs.get("use_stream_json", True)
-            if call_count == 1:
-                # Step 1: CLI - should use stream-json
-                assert use_stream is True
-                yield ExecutionEvent(type="output", data="Researching...")
-                yield ExecutionEvent(type="done", data="research done")
-            elif call_count == 2:
-                # Step 2: Desktop - should NOT use stream-json
-                assert use_stream is False
-                yield ExecutionEvent(type="done", data="screenshot captured")
-            elif call_count == 3:
-                # Step 3: CLI - should use stream-json
-                assert use_stream is True
-                yield ExecutionEvent(type="output", data="Writing report...")
-                yield ExecutionEvent(type="done", data='{"report": "final"}')
-
-        cli_provider = AsyncMock()
-        cli_provider.execute_streaming = fake_streaming
-        cu_service = AsyncMock()
-        callback = AsyncMock()
-
-        executor = AgentExecutor(cli_provider, cu_service)
-        agent = {
-            "id": "test-mixed",
-            "name": "mixed-agent",
-            "computer_use": True,
-            "provider": "claude_code",
-            "forge_path": "output/test-mixed",
-            "description": "Mixed CLI and Desktop",
-            "output_schema": [{"name": "report"}],
-            "steps": [
-                {"name": "Research", "computer_use": False},
-                {"name": "Screenshot", "computer_use": True},
-                {"name": "Write Report", "computer_use": False},
-            ],
-        }
-        # Simulate realistic step durations so desktop validation passes.
-        # monotonic() is called twice per step (start + end): 6 calls for 3 steps.
-        fake_times = iter([0.0, 5.0, 10.0, 55.0, 60.0, 65.0])
-        with patch("api.engine.executor.time") as mock_time:
-            mock_time.monotonic.side_effect = lambda: next(fake_times)
-            result = await executor.execute(agent, {"topic": "test"}, callback)
-
-        # Should have called streaming 3 times (one per step)
-        assert call_count == 3
-
-        # Last step's done data should be the result
-        assert result == {"report": "final"}
-
-        # Check agent_log events include step markers and CLI streaming output
-        log_calls = [
-            c for c in callback.call_args_list
-            if c.args[0] == "agent_log"
-        ]
-        log_messages = [c.args[1]["message"] for c in log_calls]
-        # Step markers
-        assert any("Step 1" in m and "[CLI]" in m for m in log_messages)
-        assert any("Step 2" in m and "[Desktop]" in m for m in log_messages)
-        assert any("Step 3" in m and "[CLI]" in m for m in log_messages)
-        # CLI steps should have streamed their output lines
-        assert "Researching..." in log_messages
-        assert "Writing report..." in log_messages
-        # Desktop step should NOT have streamed raw output
-        assert "screenshot captured" not in log_messages
-
-    @pytest.mark.asyncio
-    async def test_execute_per_step_error_in_step_raises_with_step_info(self):
-        """Error in a per-step execution includes step number and name."""
-        from api.engine.executor import AgentExecutor
-        from api.engine.providers import ExecutionEvent
-
-        async def fake_streaming(**kwargs):
-            yield ExecutionEvent(type="error", data="tool crashed")
-
-        cli_provider = AsyncMock()
-        cli_provider.execute_streaming = fake_streaming
-        cu_service = AsyncMock()
-        callback = AsyncMock()
-
-        executor = AgentExecutor(cli_provider, cu_service)
-        agent = {
-            "id": "test-step-err",
-            "name": "step-error-agent",
-            "computer_use": True,
-            "provider": "claude_code",
-            "forge_path": "output/test-step-err",
-            "description": "Will fail at step 1",
-            "output_schema": [],
-            "steps": [
-                {"name": "Research", "computer_use": False},
-                {"name": "Screenshot", "computer_use": True},
-            ],
-        }
-        with pytest.raises(RuntimeError, match="Step 1.*Research.*tool crashed"):
-            await executor.execute(agent, {}, callback)
-
-        event_types = [c.args[0] for c in callback.call_args_list]
-        assert "agent_failed" in event_types
+        assert machine_default_model("anthropic_oauth") == "claude-opus-5"
+        assert machine_default_model("codex") is None
