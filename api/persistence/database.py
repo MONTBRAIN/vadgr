@@ -1,8 +1,11 @@
 """SQLite connection and schema management."""
 
+import logging
 import os
 
 import aiosqlite
+
+logger = logging.getLogger(__name__)
 
 
 SCHEMA = """
@@ -133,6 +136,15 @@ class Database:
         if "agent_id" not in cols and "project_id" not in cols:
             return
 
+        # Said out loud, because it drops five tables and rewrites a column.
+        # A migration that runs in silence leaves nothing in the log to read
+        # afterwards, and the only sign it happened at all is a file appearing
+        # on disk beside the database.
+        logger.info(
+            "migrating %s: dropping the workflow tables and rebuilding runs",
+            self.path,
+        )
+
         backup = None
         if self.path != ":memory:":
             backup = self.path + BACKUP_SUFFIX
@@ -160,6 +172,14 @@ class Database:
                 f"migration is at {backup or '(in-memory, not backed up)'}; "
                 "restore it over the live file and report this."
             )
+
+        # After the check, never before it: a success line printed ahead of the
+        # thing that decides whether it succeeded is the log lying.
+        logger.info(
+            "migration complete: %s now holds runs and devices%s",
+            self.path,
+            f"; the database before it is at {backup}" if backup else "",
+        )
 
     async def disconnect(self):
         if self._conn:

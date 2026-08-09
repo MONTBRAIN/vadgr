@@ -98,6 +98,23 @@ class RunRepository:
         await self.db.conn.commit()
         return await self.get(run_id)
 
+    async def set_config(
+        self, run_id: str, provider: str, model: str | None,
+    ) -> Optional[dict]:
+        """Record what the run actually resolved to.
+
+        A run that named neither stores neither at creation, so without this the
+        row reports `null` for both while the work goes to whatever the machine
+        defaults to. The published row is what a client has to answer "what ran
+        this?" from, and a null there is the row lying by omission.
+        """
+        await self.db.conn.execute(
+            "UPDATE runs SET provider = ?, model = ? WHERE id = ?",
+            (provider, model, run_id),
+        )
+        await self.db.conn.commit()
+        return await self.get(run_id)
+
     async def list_all(self, status: str | None = None) -> list[dict]:
         if status:
             cursor = await self.db.conn.execute(

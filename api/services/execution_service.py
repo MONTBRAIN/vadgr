@@ -56,6 +56,9 @@ class ExecutionService:
         """
         provider_key = run.get("provider") or await machine_default_provider()
         model = run.get("model") or machine_default_model(provider_key)
+        # Written back, so the published row answers "what ran this?" rather
+        # than "what did the caller happen to type".
+        await self.run_repo.set_config(run["id"], provider_key, model)
         return provider_key, model
 
     async def _get_run_provider(

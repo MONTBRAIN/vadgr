@@ -791,3 +791,37 @@ class TestMachineDefaults:
 
         assert machine_default_model("anthropic_oauth") == "claude-opus-5"
         assert machine_default_model("codex") is None
+
+
+class TestTheRowRecordsWhatRanIt:
+    """A run that named no provider still ran on one, and the published row is
+    where a client has to read that from."""
+
+    @pytest.mark.asyncio
+    async def test_resolution_is_written_back_to_the_row(self, db):
+        run_repo = RunRepository(db)
+        run = await run_repo.create(title="T", inputs={"task": "T"})
+        assert run["provider"] is None and run["model"] is None
+
+        service = ExecutionService(run_repo=run_repo, emit=AsyncMock())
+        with patch("api.services.execution_service.machine_default_provider",
+                   AsyncMock(return_value="anthropic_oauth")), \
+             patch("api.services.execution_service.machine_default_model",
+                   return_value="claude-opus-5"):
+            await service._resolve_config(await run_repo.get(run["id"]))
+
+        stored = await run_repo.get(run["id"])
+        assert stored["provider"] == "anthropic_oauth"
+        assert stored["model"] == "claude-opus-5"
+
+    @pytest.mark.asyncio
+    async def test_a_named_pair_is_left_exactly_as_it_was_asked_for(self, db):
+        run_repo = RunRepository(db)
+        run = await run_repo.create(
+            title="T", inputs={"task": "T"}, provider="codex", model="gpt-5.4",
+        )
+        service = ExecutionService(run_repo=run_repo, emit=AsyncMock())
+        await service._resolve_config(await run_repo.get(run["id"]))
+
+        stored = await run_repo.get(run["id"])
+        assert (stored["provider"], stored["model"]) == ("codex", "gpt-5.4")

@@ -452,3 +452,51 @@ class TestAFailedMigrationStopsTheDaemon:
             assert BACKUP_SUFFIX in str(excinfo.value)
         finally:
             await db.disconnect()
+
+
+class TestItSaysWhatItDid:
+
+    @pytest.mark.asyncio
+    async def test_the_migration_announces_itself_and_names_the_backup(self, seeded, caplog):
+        """A five-table drop that logs nothing leaves the operator with a file
+        appearing on disk as its only evidence."""
+        import logging
+
+        with caplog.at_level(logging.INFO, logger="api.persistence.database"):
+            db = await _migrate(seeded)
+            await db.disconnect()
+
+        messages = [r.getMessage() for r in caplog.records]
+        assert any("dropping the workflow tables" in m for m in messages), messages
+        assert any("migration complete" in m and BACKUP_SUFFIX in m for m in messages), messages
+
+    @pytest.mark.asyncio
+    async def test_a_fresh_database_says_nothing(self, tmp_path, caplog):
+        import logging
+
+        with caplog.at_level(logging.INFO, logger="api.persistence.database"):
+            db = await _migrate(tmp_path / "fresh.db")
+            await db.disconnect()
+
+        assert [r.getMessage() for r in caplog.records] == []
+
+    @pytest.mark.asyncio
+    async def test_a_failed_migration_never_logs_success(self, seeded, caplog, monkeypatch):
+        import logging
+
+        import api.persistence.database as database_mod
+
+        monkeypatch.setattr(
+            database_mod, "_REBUILD",
+            database_mod._REBUILD.replace("DROP TABLE IF EXISTS agent_runs;", ""),
+        )
+        db = Database(str(seeded))
+        await db.connect()
+        try:
+            with caplog.at_level(logging.INFO, logger="api.persistence.database"):
+                with pytest.raises(RuntimeError):
+                    await db.create_tables()
+        finally:
+            await db.disconnect()
+
+        assert not any("migration complete" in r.getMessage() for r in caplog.records)

@@ -75,15 +75,48 @@ def test_deleted_module_cannot_be_imported(module):
 # --- 3. the routes that are gone --------------------------------------------
 
 
-def _routes(app):
-    return [r for r in app.routes if hasattr(r, "path")]
-
-
 @pytest.fixture(scope="module")
 def app():
     from api.main import create_app
 
     return create_app()
+
+
+def _routes(app):
+    """Every route the app serves, however deeply the framework nests them.
+
+    Not `[r for r in app.routes ...]`. From FastAPI 0.141 an included router is
+    one opaque entry in `app.routes` holding its real routes behind
+    `original_router`, so the flat read found four routes and none of them ours.
+    The presence guards then failed and, far worse, the absence guards passed
+    for the wrong reason. `requirements.txt` says `fastapi>=0.115`, so which
+    shape a machine gets depends on when it last installed. Found by running
+    this suite on a second platform, which is the argument for running it there.
+    """
+    found, pending = [], [app]
+    while pending:
+        node = pending.pop()
+        for attr in ("router", "original_router"):
+            nested = getattr(node, attr, None)
+            if nested is not None and nested is not node:
+                pending.append(nested)
+        for route in getattr(node, "routes", []) or []:
+            if hasattr(route, "path"):
+                found.append(route)
+            else:
+                pending.append(route)
+    return found
+
+
+def test_the_route_walk_sees_the_apps_own_routes(app):
+    """The guard for the guards.
+
+    Every route assertion below is a search through one list, and a search
+    through the wrong list answers "absent" for everything. This fails first if
+    the walk stops finding routes, so the group cannot pass vacuously.
+    """
+    paths = {r.path for r in _routes(app)}
+    assert "/api/health" in paths, f"the route walk found no application routes: {sorted(paths)}"
 
 
 def test_no_agent_or_project_route_survives(app):
