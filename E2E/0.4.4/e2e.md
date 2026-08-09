@@ -8,11 +8,14 @@ because it is gone rather than because it is half-wired.
 
 > **Status: run on WSL2 and native Windows, 2026-08-09.** Automated gate green
 > (engine 122, api 427, cli 141). The recorded sweep closed with **three
-> independent concurrent passes**, structurally identical. **Two cells are
-> blocked**, both on one environmental fact: this machine's model subscription
-> is out of usage, so no run can complete and no journal is written. **5
-> findings**, listed below, three fixed on this branch. Nothing is marked pass
-> that was not executed and read back.
+> independent concurrent passes**, structurally identical. **The pass is
+> complete.** Two cells were blocked during the first round, on one
+> environmental fact: the machine's model subscription was out of usage, so no
+> run could complete. They were **re-run on 2026-08-09 once it was restored**,
+> both pass, and the failed round is kept in Part G because it is what proves a
+> run started through the new door reaches the native loop. **5 findings**,
+> listed below, three fixed on this branch. Nothing is marked pass that was not
+> executed and read back.
 
 ## The approach
 
@@ -270,10 +273,54 @@ again here through the new door.
 |---|---|---|---|
 | G1 | `POST /api/runs {task}` reaches the native loop | the loop's own stack frames appear on the run's path | pass |
 | G2 | both sockets carry the release's frame vocabulary and `step_completed` never appears | raw: run/agent frames; mobile: the translated ones | pass |
-| G3 | the run completes and its journal records the turns | `trajectory.jsonl` with real `usage` | **blocked** -> F3 |
-| G4 | `vadgr run "<task>"` exits `0` on a completed run | exit `0` | **blocked** -> F3 |
+| G3 | the run completes and its journal records the turns | `trajectory.jsonl` with real `usage` | pass (re-run 2026-08-09, see below) |
+| G4 | `vadgr run "<task>"` exits `0` on a completed run | exit `0` | pass (re-run 2026-08-09, see below) |
 
 **Measured.**
+
+**The first round could not complete a run**, because the machine's provider
+subscription was out of usage. That round is kept below rather than replaced:
+it is what proved G1, that a run started through the new door reaches the
+native loop, and the loop's own stack frames are the proof.
+
+**G3 and G4 were re-run on 2026-08-09 once usage was restored**, on an
+isolated daemon (port 8931, its own database and `FORGE_HOME`, port confirmed
+free with `ss -ltn` before the start).
+
+`vadgr run "Reply with exactly the word ACORN and nothing else."` exited `0`,
+reporting `Run completed (3s)`. The run's terminal state, read back from
+`GET /api/runs/{run_id}` by exact id:
+
+```
+status      completed
+agent_name  Reply with exactly the word ACORN and nothing else.
+provider    anthropic_oauth      model  claude-opus-5
+started_at  2026-08-09T23:19:07.248830+00:00
+completed_at 2026-08-09T23:19:09.729138+00:00
+```
+
+The row carries **no `title` key**: the published keys are `id`, `agent_name`,
+`status`, `inputs`, `outputs`, `provider`, `model`, `log_path`, `started_at`,
+`completed_at`, which is the shipped shape unchanged. The title rides
+`agent_name`, as this release specifies, and storage calls it `title`.
+
+The journal at `~/.vadgr/runs/<run_id>/trajectory.jsonl`, looked up by exact
+id and never globbed, holds one turn:
+
+```json
+{"phase": "response", "iteration": 0,
+ "response": {"content": [{"type": "text", "text": "ACORN"}],
+              "usage": {"input_tokens": 1334, "output_tokens": 6},
+              "stop_reason": "end_turn"}}
+```
+
+Real usage, and the model answered exactly what it was asked. Worth noting
+against the loop's known termination defect: this response carries **no tool
+call**, and completing here is correct, because the task was to say a word
+rather than to do something. That the loop cannot tell those two apart is the
+defect; this run is the benign side of it.
+
+The failed round follows, kept as the record for G1.
 
 The daemon's log, on the path of a run started by `POST /api/runs`:
 
@@ -475,7 +522,7 @@ surface, so a run there adds no signal - always with its reason).
 | Automated gate | not run | not run | 8 pre-existing failures, otherwise pass | pass |
 | F. the migration | not run | not run | pass | pass |
 | A-E. the sweep | not run | not run | not run | pass |
-| G. the run | not run | not run | not run | blocked |
+| G. the run | not run | not run | not run | **pass** |
 | Overall | **not run** | **not run** | **partial** | **partial** |
 
 **WSL2** is the development host and carries the full pass: Linux 6.6.87.2,
