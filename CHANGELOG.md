@@ -2,6 +2,56 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.4.4] - 2026-08-09
+
+**Most of this repository is gone.** The agent entity, projects and the DAG, the scaffolder, the bundle installer and the per-run `output/` tree are deleted, along with every run endpoint that had no live consumer. **This removes shipped endpoints and shipped CLI commands, and it rewrites the database schema in place.** What replaces all of it is one sentence: `POST /api/runs {"task": "..."}` starts a run, and `vadgr run "<task>"` does the same from the box. What the phone reads is untouched.
+
+### Removed
+- **The agent surface, whole.** `GET/POST /api/agents`, `GET/PUT/DELETE /api/agents/{id}`, `DELETE /api/agents`, `POST /api/agents/{id}/uploads`, `GET /api/agents/{id}/export`, `POST /api/agents/import`, `GET /api/agents/{id}/runs`, and `POST /api/agents/{id}/run`, which is re-homed rather than dropped (see Added). All answer `404`.
+- **The project and DAG layer**: the `/api/projects` CRUD, its nodes, edges and `/validate`, and `POST /api/projects/{id}/runs`. Eleven routes.
+- **`DELETE /api/runs`.** An unscoped destructive verb with no confirmation. `DELETE` on `/api/runs` now answers `405`.
+- **`POST /api/runs/{id}/approve`.** Its only consumer was a CLI gate channel that dies on EOF under a background daemon.
+- **`GET /api/runs/{id}/outputs/{field}`, `GET /api/runs/{id}/logs` and `GET /api/runs/{id}/logs/{step_file}`**, which read back from the `output/` tree this release stops writing.
+- **`vadgr agents ...` and `vadgr registry ...`**, both groups, and **`vadgr ps`**, which despite its name listed agents. **`vadgr runs approve`** and **`vadgr runs logs`** go with their endpoints.
+- **`forge/` and `registry/`**, 174 files carrying 6,640 lines of Python and 309 tests, and the `forge` job from CI.
+- **`output/` leaves the repository.** Only its `.gitkeep` was tracked, and the `/output` line leaves `.gitignore`. **Nothing on your disk is deleted.** If you have an `output/` directory it stays exactly where it is, and from this release nothing will ever read it again, so it is yours to remove. Run journals under `~/.vadgr/runs/` are untouched and remain the machine's record.
+- **`python-multipart`**, needed only by the agent upload and import routes.
+- **`"forge": true` from `GET /api/health`.** The `modules` object now carries `computer_use` alone. A payload reporting a module the machine does not have is a lie the health endpoint exists not to tell.
+- **`AGENT_FORGE_DEFAULT_PROVIDER` and `Settings.default_provider`.** The machine's default provider is `providers.yaml`'s top-level `default_provider`, which is the file an owner edits. Two defaults disagreed, and the one in code answered `claude_code`, so a run naming no provider would have gone to a deprecated subprocess CLI instead of the native loop.
+
+### Added
+- **`POST /api/runs {"task": "...", "provider": ..., "model": ...}`.** Answers `202` with the run row. `task` is required and non-empty; `provider` and `model` must be given together or not at all; an undeclared field is a `422` rather than a silent drop, so the old `inputs` body fails loudly. The sentence is stored twice on purpose: as the run's title, which is what a client displays, and as its work, which is what the loop receives.
+- **`vadgr run "<task>"`**, a real command rather than an alias. Flags: `--provider` / `--model` (a pair), `--background`, `--json`. **Exit codes are the contract's**: `0` completed, `1` failed, `2` usage, `3` daemon unreachable, `130` on Ctrl-C.
+- **Ctrl-C detaches the watcher and leaves the run going.** It used to cancel the run. An unattended batch running for hours is the point of the product, and losing one because a terminal closed is the opposite of it. Cancelling is `vadgr runs cancel`, which says so.
+- **A schema migration that runs at boot, backs the database up first, and refuses to start the daemon if it went wrong.** It is guarded on the columns it removes, so it is idempotent and a fresh database skips it; it writes `data/agent_forge.db.pre-0.4.4` with `VACUUM INTO` (not a file copy, which in WAL mode would miss the `-wal` and `-shm` sidecars); and it names that file in the log and in the error. If `PRAGMA foreign_key_check` is not empty afterwards it raises rather than serving a half-migrated database.
+- **A guard suite** (`api/tests/test_deletion_decommissioned.py`) that fails the suite if any of this comes back, and equally if the surface the phone reads is removed by accident.
+
+### Changed
+- **The schema is two tables and one index**: `runs` and `devices`, and `idx_devices_token_hash`. `agents`, `projects`, `project_nodes`, `project_edges` and `agent_runs` are dropped; `runs` loses `project_id` and `agent_id` and gains `title`, backfilled from the run's agent name where there was one and the empty string where there was not.
+- **The run row keeps every key it had, minus the two owner ids.** `agent_name` stays, now carrying the run's title, because that is what the shipped phone reads and renaming it would turn every run card into a raw id. `log_path` stays too, and nothing writes it any more.
+- **A run records what it actually ran on.** The resolved provider and model are written back to the row, so a run that named neither still reports both instead of `null`.
+- **`step_completed` leaves the frame vocabulary.** It was emitted only by the per-step path, which required an agent's steps. Every other frame name is unchanged and frozen. The `agent_*` frames now carry `run_id` where they carried `agent_id`, and `agent_started`'s `name` carries the run's title.
+- **The database file, the `AGENT_FORGE_` environment prefix, `FORGE_API_URL` and `FORGE_HOME` keep their names.** Renaming any of them would strand every existing database and every operator's shell in the release whose whole risk budget is a schema rebuild.
+- **`vadgr runs list` and `vadgr runs get` show the task**, not an agent name, and lost the per-run steps block.
+- **The installers no longer create a `forge/scripts` virtualenv**; README, `api/README.md`, `cli/README.md` and the Postman collection describe the surface that exists.
+
+### Fixed
+- **`run_resumed` reached the mobile stream's fallthrough and logged a warning on every resume.** It has no member in the frame vocabulary yet, so it is now listed as a deliberate deferral, which is what the fallthrough is for.
+- **The mobile stream's map is now asserted in both directions** against the names the daemon can actually emit. A dead branch and a rare branch look identical from inside.
+
+### Notes
+- **Nothing the shipped phone reads has moved.** `GET /api/runs`, `GET /api/runs/{run_id}` and `WS /api/runs/{run_id}/stream` survive with their method, path, status, error codes, row keys and frame names frozen. `WS /api/ws/runs/{run_id}` survives on the same terms for the CLI. They are transitional and are removed when their replacement ships.
+- **A run needing desktop automation is no longer refused when computer use is disabled.** That gate read a per-agent flag, and there is no agent; nothing a task submits declares that it needs the desktop. The machine-level computer-use setting and its three endpoints are untouched.
+- **A cancelled run is still recorded as `failed`.** Unchanged, and owned by the minor that owns run statuses.
+- **Resume on boot is still detection-only.** It finds an interrupted run and continues nothing, exactly as before.
+- **A response with no tool call still ends a run as a success.** Unchanged; it is a known defect with an owner.
+- **`GET /api/providers` and `GET /api/settings/computer-use` answer in roughly half a second** where every other endpoint answers in under 60ms. Pre-existing and carried forward.
+
+### Tests
+- engine 122, api 427, cli 141, all green. The whole tree collects 690 where it collected 1,228: 497 tests left with their subject (`forge/scripts/tests` 158, `registry/tests` 151, and the agent, DAG, executor, log-writer, project and step-result suites), and the rest were rewritten against the surface that survives.
+- The migration is tested against a database seeded in the previous schema with rows in all five dropped tables, against a database predating `provider`, `model` and `log_path`, against a fresh one, and re-run to prove it is a no-op the second time. A deliberately broken rebuild is asserted to raise out of `create_tables`, which is what stops the daemon.
+- **Runbook** at `E2E/0.4.4/e2e.md`, run before this was offered for review, on Linux/WSL and on native Windows. Its recorded sweep is the baseline every later release is compared against.
+
 ## [0.4.3] - 2026-08-08
 
 **A pairing code a person can type, at an address the daemon actually answers on.** The value in `pairing_token` shortens from ~32 random characters to eight, and `vadgr start` now binds what the transport says instead of a hard-coded `127.0.0.1`, so the address in the QR is one something is listening on. **The wire shape does not move**: same endpoints, same field names, same claim exchange.
