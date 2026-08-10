@@ -181,12 +181,6 @@ setup_api() {
     mkdir -p data
 }
 
-setup_forge_scripts() {
-    info "Setting up vadgr scripts..."
-    cd "$FORGE_REPO"
-    setup_venv "forge/scripts/.venv" "forge/scripts/requirements.txt"
-}
-
 setup_cli() {
     info "Setting up CLI..."
     cd "$FORGE_REPO"
@@ -270,7 +264,6 @@ main() {
     install_python
     setup_repo
     setup_api
-    setup_forge_scripts
     setup_cli
     generate_forge_cli
     add_to_path

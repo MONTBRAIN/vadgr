@@ -10,9 +10,12 @@ class Settings(BaseSettings):
     port: int = DEFAULT_API_PORT
     database_path: str = "data/agent_forge.db"
     computer_use_enabled: bool = True
-    default_provider: str = "claude_code"
+    # No default_provider here: the machine's default is providers.yaml's
+    # top-level `default_provider`, which is the file an owner edits. A second
+    # default in code answered `claude_code`, so a run that named no provider
+    # would have gone to a deprecated subprocess CLI instead of the native loop.
     provider_timeout: int = 300
-    version: str = "0.4.3"
+    version: str = "0.4.4"
 
     model_config = {"env_prefix": "AGENT_FORGE_"}
 

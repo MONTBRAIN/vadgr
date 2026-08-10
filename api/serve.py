@@ -24,12 +24,20 @@ Usage (what ``vadgr start`` spawns)::
 from __future__ import annotations
 
 import argparse
+import copy
 import socket
 import sys
 
 import uvicorn
 
 _BACKLOG = 2048
+
+# The packages whose logs an operator needs. uvicorn installs handlers for its
+# own loggers and nothing else, so without this every `logger.info` in the
+# daemon propagates to a root logger with no handler and is dropped at
+# WARNING - which is how a migration that drops five tables ran in silence
+# while its own log lines existed in the source.
+_APP_LOGGERS = ("api", "engine", "cli")
 _IS_WINDOWS = sys.platform.startswith("win")
 
 
@@ -66,6 +74,20 @@ def resolve_hosts(hosts: list[str]) -> list[str]:
     return ordered
 
 
+def log_config() -> dict:
+    """uvicorn's logging config, extended to carry the daemon's own loggers.
+
+    Same handler and format as uvicorn's, so one log file reads as one stream
+    rather than two.
+    """
+    config = copy.deepcopy(uvicorn.config.LOGGING_CONFIG)
+    for name in _APP_LOGGERS:
+        config["loggers"][name] = {
+            "handlers": ["default"], "level": "INFO", "propagate": False,
+        }
+    return config
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="api.serve")
     parser.add_argument("--host", action="append", default=[],
@@ -82,7 +104,8 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     sockets = [_listen_socket(host, args.port) for host in hosts]
-    config = uvicorn.Config("api.main:app", host=hosts[0], port=args.port)
+    config = uvicorn.Config("api.main:app", host=hosts[0], port=args.port,
+                            log_config=log_config())
     uvicorn.Server(config).run(sockets=sockets)
     return 0
 

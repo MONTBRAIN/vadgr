@@ -1,4 +1,4 @@
-"""Tests for settings commands and computer use gate on run."""
+"""Tests for the computer-use settings commands."""
 
 from unittest import mock
 
@@ -54,38 +54,3 @@ class TestComputerUseTimeout:
             assert result.exit_code != 0
             assert "timed out" in result.output.lower()
             assert "API is not running" not in result.output
-
-
-class TestRunBlocksWithoutComputerUse:
-    def test_blocks_desktop_agent_when_disabled(self, runner):
-        from cli.commands.agents import agents_group
-
-        def mock_get(ctx, path):
-            if path == "/api/agents":
-                return [{"id": "abc", "name": "desktop-agent", "status": "ready",
-                         "computer_use": True, "input_schema": []}]
-            if path == "/api/settings/computer-use":
-                return {"enabled": False}
-            return {}
-
-        with mock.patch("cli.commands.agents.api_get", side_effect=mock_get):
-            result = runner.invoke(agents_group, ["run", "desktop-agent", "--background"],
-                                   obj={"api_url": "http://x"})
-            assert result.exit_code != 0
-            assert "computer use" in result.output.lower() or "computer use" in (result.exception or "")
-
-    def test_allows_non_desktop_agent(self, runner):
-        from cli.commands.agents import agents_group
-
-        def mock_get(ctx, path):
-            if path == "/api/agents":
-                return [{"id": "abc", "name": "cli-agent", "status": "ready",
-                         "computer_use": False, "input_schema": []}]
-            return {}
-
-        with mock.patch("cli.commands.agents.api_get", side_effect=mock_get), \
-             mock.patch("cli.commands.agents.api_post") as mp:
-            mp.return_value = {"run_id": "run-123"}
-            result = runner.invoke(agents_group, ["run", "cli-agent", "--background"],
-                                   obj={"api_url": "http://x"})
-            assert result.exit_code == 0

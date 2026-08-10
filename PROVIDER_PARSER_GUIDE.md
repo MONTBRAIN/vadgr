@@ -37,7 +37,7 @@ providers:
 
 | Placeholder | Meaning |
 |---|---|
-| `{{prompt}}` | Replaced with the generated agent prompt |
+| `{{prompt}}` | Replaced with the run's prompt |
 | `{{workspace}}` | Replaced with the working directory when available |
 
 ## Parser families

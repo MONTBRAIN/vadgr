@@ -127,11 +127,11 @@ def test_stream_rejects_unauthorized_non_loopback(live_db, monkeypatch):
                 pass
 
 
-# --- the map must name what the executor actually emits (E2E 0.4.1 F9) -------
+# --- the map must name what the daemon actually emits (E2E 0.4.1 F9) --------
 
 
-def test_every_mapped_key_is_a_name_the_executor_broadcasts():
-    """The map is a contract with the executor, and it was one-sided.
+def test_every_mapped_key_is_a_name_the_daemon_broadcasts():
+    """The map is a contract with the emitter, and it was one-sided.
 
     Five of its eight keys - `step_started`, `tool_call`, `step_output`,
     `output`, `approval_required` - were emitted by nothing, so the phone got
@@ -139,16 +139,10 @@ def test_every_mapped_key_is_a_name_the_executor_broadcasts():
     sides from drifting again, which is the whole failure mode: nothing raises
     when a map names a string nobody sends.
     """
-    import re
-    from pathlib import Path
     from api.routes.ws import _EVENT_TYPE_MAP
+    from api.tests.frames import emitted_frame_names
 
-    src = Path(__file__).resolve().parents[2] / "api" / "engine" / "executor.py"
-    emitted = set(re.findall(r'callback\("([a-z_]+)"', src.read_text()))
-    # The run-level frames are broadcast by the run service, not the executor.
-    run_level = {"run_started", "run_completed", "run_failed"}
-
-    unsent = set(_EVENT_TYPE_MAP) - emitted - run_level
+    unsent = set(_EVENT_TYPE_MAP) - emitted_frame_names()
     assert not unsent, f"mapped but never broadcast: {sorted(unsent)}"
 
 

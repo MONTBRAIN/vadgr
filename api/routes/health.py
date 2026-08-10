@@ -13,7 +13,6 @@ async def health(request: Request):
     return {
         "status": "healthy",
         "modules": {
-            "forge": True,
             "computer_use": settings.computer_use_enabled,
         },
         "platform": "wsl2",

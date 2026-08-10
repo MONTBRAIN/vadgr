@@ -108,11 +108,6 @@ function SetupApi {
     Pop-Location
 }
 
-function SetupForgeScripts {
-    Info "Setting up vadgr scripts..."
-    EnsureVenv "forge\scripts\.venv" "forge\scripts\requirements.txt"
-}
-
 function SetupCli {
     Info "Setting up CLI..."
     EnsureVenv "cli\.venv" "cli\requirements.txt"
@@ -188,7 +183,6 @@ function Main {
     InstallPython
     SetupRepo
     SetupApi
-    SetupForgeScripts
     SetupCli
     GenerateForgeCli
     AddToPath

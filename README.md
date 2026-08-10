@@ -16,7 +16,7 @@
   <i><b>Open-source AI agents that work on your computer.</b></i>
 </p>
 
-Describe your work. Vadgr builds an agent for it. The agent runs on your machine -- writing code, controlling apps, clicking buttons, and delivering results -- while you do something else. Works with Claude Code, Codex, Gemini, or any CLI agent tool. Cross-platform: Linux, Windows (WSL2), and macOS (in progress).
+Describe your work in a sentence. Vadgr runs it on your machine -- writing code, controlling apps, clicking buttons, and delivering results -- while you do something else. You start it from this CLI or from the phone app, and watch it from either. Cross-platform: Linux, Windows (WSL2), and macOS (in progress).
 
 ## Platform
 
@@ -32,7 +32,7 @@ Describe your work. Vadgr builds an agent for it. The agent runs on your machine
 
 ## Install
 
-Works on **Linux**, **WSL**, and **Windows**. macOS support is in progress (agent creation and CLI steps work, computer use does not). The installer sets up everything: git, Python, dependencies, and the `vadgr` CLI. No Node.js and no browser: the machine's clients are this CLI and the phone app.
+Works on **Linux**, **WSL**, and **Windows**. macOS support is in progress (running work locally works, computer use does not). The installer sets up everything: git, Python, dependencies, and the `vadgr` CLI. No Node.js and no browser: the machine's clients are this CLI and the phone app.
 
 ```bash
 # Linux / macOS / WSL
@@ -44,15 +44,10 @@ curl -fsSL https://raw.githubusercontent.com/MONTBRAIN/Agent-Forge/master/setup.
 irm https://raw.githubusercontent.com/MONTBRAIN/Agent-Forge/master/setup.ps1 | iex
 ```
 
-Then install at least one CLI agent tool:
-
-```bash
-# Pick one (or add your own to providers.yaml)
-curl -fsSL https://claude.ai/install.sh | bash              # Claude Code (Linux/macOS)
-irm https://claude.ai/install.ps1 | iex                    # Claude Code (Windows)
-npm install -g @openai/codex                               # Codex
-npm install -g @google/gemini-cli                           # Gemini CLI
-```
+The machine runs work through the provider named in `providers.yaml`. The
+default is the built-in agent loop, which talks to the model directly. The
+legacy subprocess providers (Claude Code, Codex, Gemini CLI) are still
+configurable and are deprecated.
 
 Restart your terminal, then:
 
@@ -73,25 +68,21 @@ vadgr start
 | `vadgr logs` | Tail API server logs |
 | `vadgr update` | Pull latest code and reinstall deps |
 
-**Agents and runs:**
+**Runs:**
 
 | Command | Description |
 |---------|-------------|
-| `vadgr ps` | List all agents |
-| `vadgr agents list` | List all agents |
-| `vadgr agents get <id>` | Show agent details |
-| `vadgr agents create --name "..." --description "..."` | Create a new agent |
-| `vadgr agents update <id> [--name] [--description]` | Update an agent |
-| `vadgr agents delete <id>` | Delete an agent |
-| `vadgr agents export <id> [-o file.agnt]` | Export agent as .agnt archive |
-| `vadgr agents import <file.agnt>` | Import agent from .agnt archive |
-| `vadgr run <name> [--input key=value]` | Run an agent (interactive inputs) |
-| `vadgr run <name> --background` | Run without streaming progress |
+| `vadgr run "<task>"` | Start a run from a task sentence and watch it |
+| `vadgr run "<task>" --background` | Start it and return straight away |
+| `vadgr run "<task>" -p <provider> -m <model>` | Run it on a named provider and model |
 | `vadgr runs list [--status failed]` | List runs |
 | `vadgr runs get <id>` | Show run details |
 | `vadgr runs cancel <id>` | Cancel a running run |
-| `vadgr runs resume <id>` | Resume a failed run from last completed step |
-| `vadgr runs logs <id>` | Show run logs |
+| `vadgr runs resume <id>` | Resume a failed run |
+
+`vadgr run` exits `0` when the run completed, `1` when it failed, `2` on a
+usage error, `3` when the daemon is not reachable, and `130` on Ctrl-C, which
+stops watching and leaves the run going.
 
 **Info:**
 
@@ -102,20 +93,6 @@ vadgr start
 | `vadgr computer-use enable` | Enable desktop automation |
 | `vadgr computer-use disable` | Disable desktop automation |
 | `vadgr computer-use status` | Show computer use and daemon status |
-
-**Registry** -- package manager for agent workflows:
-
-| Command | Description |
-|---------|-------------|
-| `vadgr registry pack <folder>` | Package agent folder into `.agnt` archive |
-| `vadgr registry pull <name>` | Download and install agent from registry |
-| `vadgr registry push <file.agnt>` | Publish `.agnt` to a registry |
-| `vadgr registry search <query>` | Search registries for agents |
-| `vadgr registry serve` | Start a self-hosted registry server |
-| `vadgr registry add <name> --type ...` | Add a registry to config |
-| `vadgr registry use <name>` | Set active registry |
-| `vadgr registry list` | List configured registries |
-| `vadgr registry remove <name>` | Remove a registry |
 
 ### Manual setup
 
@@ -131,11 +108,10 @@ graph LR
     Phone((Phone)) -->|over the tailnet| API
     VCLI -->|REST /api| API[API Server<br/>FastAPI]
     VCLI <-->|WebSocket /ws| API
-    API -->|subprocess| CLI[CLI Agent Tool<br/>Claude / Codex / Aider]
+    API -->|drives| Loop[engine/<br/>Native agent loop]
     API -->|read/write| DB[(SQLite)]
-    CLI -->|reads| Vadgr[vadgr/<br/>Prompt Templates]
-    CLI -->|writes| Output[output/<br/>Generated Agents]
-    API -.->|if computer_use| CU[Computer Use<br/>Desktop Automation]
+    Loop -->|writes| Journal[~/.vadgr/runs/<br/>Run journals]
+    Loop -.->|if enabled| CU[Computer Use<br/>Desktop Automation]
     CU -->|controls| Desktop[Host OS<br/>Mouse, Keyboard, Screen]
 ```
 
@@ -143,54 +119,44 @@ graph LR
 
 ### [cli/](cli/) - Command-Line Interface
 
-Unified CLI built with Click. Manages agents, runs, registry, and services. Talks to the API over HTTP for agent/run operations; calls the registry module directly for package management.
+Unified CLI built with Click. Starts runs, watches them, and manages the daemon. Talks to the API over HTTP and to the run stream over a WebSocket.
 
-### [api/](api/) - REST API + Execution Engine
+### [api/](api/) - REST API + run lifecycle
 
-FastAPI backend for agent CRUD, generation, and execution. Spawns any CLI agent tool (Claude Code, Codex, Gemini) as a subprocess via config-driven providers. Supports multi-step orchestration with approval gates, resume, and retry. See [api/README.md](api/README.md).
+FastAPI backend: it takes a task, starts a run, drives the loop, and records the outcome. See [api/README.md](api/README.md).
 
-### [forge/](forge/) - Agent Generation Engine
+### [engine/](engine/) - The native agent loop
 
-Describe what you want automated. Forge generates a complete agent project through a 7-step process: requirements, architecture, scaffold, orchestrator, prompts, scripts, and review. Agent-agnostic: works with any AI coding tool.
+The provider-agnostic loop that owns the conversation history, calls the model, dispatches tools, and journals every step to `~/.vadgr/runs/`.
 
 ### Desktop Automation
 
 The desktop-automation MCP server lives in its own repository: **[vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use)**. Install with `pip install vadgr-computer-use`. It gives agents eyes and hands: take a screenshot, reason, click or type, repeat. On WSL2 the package manages its own Windows-side bridge daemon automatically.
-
-### [registry/](registry/) - Agent Package Manager
-
-Package, publish, and install agents as `.agnt` archives. Supports GitHub, HTTP, and local registries. Includes SHA256 integrity verification, SSRF protection, and zip slip prevention.
 
 ## Structure
 
 ```
 Vadgr/
 ├── cli/                   # Unified command-line interface
-│   ├── main.py            # Root Click group
-│   ├── http.py            # HTTP client for API
-│   ├── commands/          # agents, runs, registry, info
+│   ├── main.py            # Root Click group and `vadgr run`
+│   ├── client.py          # HTTP client for the API
+│   ├── stream.py          # The run watcher
+│   ├── commands/          # runs, info, pair, service
 │   └── tests/             # Unit + integration tests
-├── api/                   # REST API + execution engine
+├── api/                   # REST API + run lifecycle
 │   ├── main.py            # FastAPI app
-│   ├── routes/            # HTTP endpoints
-│   ├── services/          # Business logic
-│   ├── engine/            # CLI provider executor + DAG orchestration
+│   ├── routes/            # HTTP endpoints and the two sockets
+│   ├── services/          # Run lifecycle, computer-use setup
+│   ├── engine/            # Provider selection and the native bridge
+│   ├── auth/              # Pairing and the two gates
+│   ├── transport/         # Loopback and Tailscale adapters
 │   └── persistence/       # SQLite database
-├── forge/                 # Agent generation engine (standalone)
-│   ├── agentic.md         # 7-step orchestrator
-│   ├── Prompts/           # Specialized agent prompts
-│   ├── patterns/          # Reusable workflow patterns
-│   └── examples/          # Example agents
+├── engine/                # The native agent loop and its journal
 # Desktop automation lives in:
 # https://github.com/MONTBRAIN/vadgr-computer-use
 # (installed via `pip install vadgr-computer-use` when enabled)
-├── registry/              # Agent package manager
-│   ├── security.py        # Zip safety, SSRF, SHA256, TLS
-│   ├── server.py          # Self-hosted HTTP registry server
-│   └── adapters/          # GitHub, HTTP, local backends
-├── providers.yaml         # CLI provider configs (Claude, Codex, Gemini)
-├── data/                  # SQLite database (created at runtime)
-└── output/                # Generated agents land here
+├── providers.yaml         # Provider configs and the machine default
+└── data/                  # SQLite database (created at runtime)
 ```
 
 ## Technologies

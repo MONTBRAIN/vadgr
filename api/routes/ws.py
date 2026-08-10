@@ -22,10 +22,10 @@ router = APIRouter()
 
 # Map internal broadcast event types -> the mobile RunEvent contract.
 #
-# Every key here must be a name the executor actually broadcasts. Five of the
+# Every key here must be a name the daemon actually broadcasts. Five of the
 # original eight were not: `step_started`, `tool_call`, `step_output`, `output`
-# and `approval_required` are emitted by nothing, while the executor's real
-# vocabulary - `agent_log`, `awaiting`, `agent_failed`, `todos` - was absent. A
+# and `approval_required` are emitted by nothing, while the execution service's
+# real vocabulary - `agent_log`, `awaiting`, `agent_failed`, `todos` - was absent. A
 # phone therefore received `started`, then silence, then `completed`, however
 # long the run and however much it reported: the only frames that mapped were
 # the three run-level ones. Worse, `awaiting` is how a gate says it is waiting
@@ -38,7 +38,6 @@ _EVENT_TYPE_MAP = {
     "run_started": RunEventType.STARTED,
     "agent_started": RunEventType.TOOL_CALL,
     "agent_log": RunEventType.OUTPUT,
-    "step_completed": RunEventType.OUTPUT,
     "agent_completed": RunEventType.OUTPUT,
     "awaiting": RunEventType.PAUSED,
     "agent_failed": RunEventType.FAILED,
@@ -47,11 +46,13 @@ _EVENT_TYPE_MAP = {
 }
 
 
-# Broadcast, understood, and deliberately not translatable yet. `todos` has no
-# member in `RunEventType`; it gets one at `0.5.0` when this stream's frames are
-# enriched. Listed rather than left to the fallthrough so a type nobody has
-# considered can be told apart from one that is waiting on a decision.
-_NOT_YET_ON_THIS_STREAM = frozenset({"todos"})
+# Broadcast, understood, and deliberately not translatable yet. Neither `todos`
+# nor `run_resumed` has a member in `RunEventType`, and inventing one here would
+# be a published frame name chosen in the wrong place. Listed rather than left
+# to the fallthrough so a type nobody has considered can be told apart from one
+# that is waiting on a decision - `run_resumed` was reaching the fallthrough and
+# logging a warning on every resume.
+_NOT_YET_ON_THIS_STREAM = frozenset({"todos", "run_resumed"})
 
 
 def _to_run_event(internal: dict) -> RunEvent | None:
@@ -110,8 +111,8 @@ async def run_websocket(websocket: WebSocket, run_id: str):
     authenticated, idempotent and auditable. Loopback is
     trusted by gate 1, so the CLI still connects with no token.
 
-    It is deleted outright at `0.5.0`, when one socket survives. Until then it
-    has a live consumer and a hole, and the hole is the part that could not wait.
+    It is deleted outright at `0.6.0`, when the conversation replaces this
+    surface and one socket survives. Until then it has a live consumer.
     """
     logger.info(f"WebSocket connection attempt for run {run_id}")
     app = websocket.app

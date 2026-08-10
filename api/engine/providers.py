@@ -86,8 +86,8 @@ class ProviderConfig:
     stream_parser: str = "plain_text"
 
 
-def _load_providers_yaml() -> dict[str, dict]:
-    """Load provider configs from providers.yaml at the project root."""
+def _load_providers_doc() -> dict:
+    """The whole of providers.yaml, including its top-level keys."""
     yaml_path = Path(__file__).resolve().parent.parent.parent / "providers.yaml"
     if not yaml_path.exists():
         raise FileNotFoundError(
@@ -95,8 +95,12 @@ def _load_providers_yaml() -> dict[str, dict]:
             "Create api/providers.yaml with provider definitions."
         )
     with open(yaml_path) as f:
-        data = yaml.safe_load(f)
-    return data.get("providers", {})
+        return yaml.safe_load(f) or {}
+
+
+def _load_providers_yaml() -> dict[str, dict]:
+    """Load provider configs from providers.yaml at the project root."""
+    return _load_providers_doc().get("providers", {})
 
 
 def load_provider_config(provider_key: str, overrides: dict | None = None) -> ProviderConfig:
@@ -147,6 +151,39 @@ async def create_provider(
         overrides["timeout"] = timeout
     config = load_provider_config(provider_key, overrides or None)
     return CLIAgentProvider(config)
+
+
+async def machine_default_provider() -> str:
+    """The provider a run that named none executes on.
+
+    `providers.yaml` is the machine's configuration, and its top-level
+    `default_provider` is the machine's answer. When it names nothing, or names
+    something no longer in the file, the fallback is the first provider on the
+    machine that answers as available, so a run still starts rather than failing
+    on a stale config line.
+    """
+    doc = _load_providers_doc()
+    providers = doc.get("providers") or {}
+    configured = doc.get("default_provider")
+    if configured and configured in providers:
+        return configured
+
+    for key in providers:
+        provider = CLIAgentProvider(load_provider_config(key))
+        if await provider.is_available():
+            return key
+
+    raise RuntimeError(
+        "No provider is available. Configure one in providers.yaml and set "
+        "default_provider."
+    )
+
+
+def machine_default_model(provider_key: str) -> str | None:
+    """The model that provider runs by default, or ``None`` to let the provider
+    choose its own."""
+    entry = (_load_providers_doc().get("providers") or {}).get(provider_key) or {}
+    return entry.get("default_model")
 
 
 def _parse_claude_stream_json_line(data: dict) -> tuple[str | None, str | None]:
@@ -572,214 +609,3 @@ class CLIAgentProvider:
             if proc.returncode is None:
                 await kill_process_tree(proc)
 
-
-_EXECUTION_DIRECTIVE = (
-    "Execute this step immediately. DO NOT summarize what you read. DO NOT ask "
-    "for confirmation. DO NOT say \"I can do this if you want\". Read the step "
-    "file, perform every action it describes, and write all required output "
-    "files before finishing. If a step requires computer use tools, use them "
-    "-- do not describe what you would do, actually do it."
-)
-
-
-def build_agent_prompt(agent: dict, inputs: dict, run_id: str = "") -> str:
-    """Build the prompt to send to the CLI provider.
-
-    If the agent has a forge_path, instructs the tool to read and follow
-    the agentic.md. Otherwise falls back to description-based prompting.
-    When run_id is provided, outputs are isolated to output/{run_id}/.
-    """
-    parts = []
-
-    forge_path = agent.get("forge_path", "")
-    output_dir = f"output/{run_id}" if run_id else "output"
-
-    if forge_path:
-        parts.append(
-            f"Read {forge_path}/agentic.md and execute the workflow defined there."
-        )
-        if run_id:
-            parts.append(
-                f"\nIMPORTANT: Save all outputs to {forge_path}/{output_dir}/ "
-                f"instead of {forge_path}/output/. This isolates this run's outputs. "
-                f"Runtime input artifacts are available under {forge_path}/{output_dir}/inputs/. "
-                f"Agent outputs go to {forge_path}/{output_dir}/agent_outputs/. "
-                f"User outputs go to {forge_path}/{output_dir}/user_outputs/."
-            )
-    else:
-        parts.append(f"You are an agent named '{agent['name']}'.")
-        if agent.get("description"):
-            parts.append(f"Your goal: {agent['description']}")
-
-    # Add per-step workflow instructions
-    steps = agent.get("steps", [])
-    if steps:
-        parts.append("\nWorkflow steps (execute in order):")
-        for i, step in enumerate(steps, 1):
-            step_name = step["name"] if isinstance(step, dict) else step
-            uses_cu = step.get("computer_use", False) if isinstance(step, dict) else False
-            mode = "DESKTOP" if uses_cu else "CLI"
-            parts.append(f"  {i}. [{mode}] {step_name}")
-        if any(
-            (s.get("computer_use", False) if isinstance(s, dict) else False)
-            for s in steps
-        ):
-            parts.append(
-                "\nSteps marked [DESKTOP] require computer use. "
-                "For each [DESKTOP] step, first take a screenshot to confirm screen access, "
-                "then use your computer use tools (screenshot, click, type_text, key_press) "
-                "to complete the step visually. "
-                "DO NOT produce text-only output or suggest manual actions for "
-                "[DESKTOP] steps. Do NOT use web_fetch or curl for [DESKTOP] steps."
-            )
-
-    if inputs:
-        parts.append("\nInputs:")
-        for key, value in inputs.items():
-            parts.append(f"  {key}: {_format_input_value(value)}")
-
-    output_schema = agent.get("output_schema", [])
-    if output_schema:
-        field_names = [f["name"] for f in output_schema]
-        parts.append(
-            f"\nReturn ONLY a JSON object with these fields: {', '.join(field_names)}"
-        )
-        file_like_fields = [
-            field["name"] for field in output_schema
-            if field.get("type") in {"file", "archive", "directory"}
-        ]
-        if file_like_fields:
-            parts.append(
-                "For file, archive, or directory outputs, return an object with "
-                "`kind`, `path`, `filename`, and `mime_type` instead of a plain string path. "
-                "The `path` must point to a file or directory inside the run's user_outputs folder."
-            )
-        parts.append("No explanation, no markdown -- just the JSON.")
-
-    parts.append(f"\n{_EXECUTION_DIRECTIVE}")
-    return "\n".join(parts)
-
-
-def _kebab_case(name: str) -> str:
-    """Convert a step name to kebab-case for step file lookup."""
-    return name.lower().replace(" ", "-").replace("_", "-")
-
-
-def build_step_prompt(
-    agent: dict, inputs: dict, step_number: int, step: dict, run_id: str = "",
-) -> str:
-    """Build a prompt for a single workflow step.
-
-    Instructs the CLI to read agentic.md and execute ONLY the given step.
-    Detects step file architecture (agent/steps/) and references step files
-    when available. Falls back to old monolithic format for backward compat.
-    Previous steps' output files are already on disk so the agent can read them.
-    When run_id is provided, outputs are isolated to output/{run_id}/.
-    """
-    forge_path = agent.get("forge_path", "")
-    step_name = step["name"] if isinstance(step, dict) else step
-    uses_cu = step.get("computer_use", False) if isinstance(step, dict) else False
-    output_dir = f"output/{run_id}" if run_id else "output"
-
-    parts = []
-
-    if forge_path:
-        # Detect new step file architecture
-        step_kebab = _kebab_case(step_name)
-        step_file = f"{forge_path}/agent/steps/step_{step_number:02d}_{step_kebab}.md"
-        has_step_files = os.path.isdir(
-            os.path.join(_PROJECT_ROOT, forge_path, "agent", "steps")
-        )
-
-        parts.append(
-            f"Read {forge_path}/agentic.md for the full workflow context."
-        )
-
-        if has_step_files:
-            parts.append(
-                f"\nRead {step_file} for the detailed step instructions."
-            )
-            parts.append(
-                f"\nExecute ONLY Step {step_number}: {step_name}."
-            )
-            parts.append(
-                "Follow the step file instructions exactly. "
-                "Previous steps have already run and their output files "
-                f"(in {output_dir}/agent_outputs/) are on disk -- read them as needed."
-            )
-            parts.append(
-                f"Runtime input artifacts are available under {forge_path}/{output_dir}/inputs/."
-            )
-            parts.append(
-                f"Save your agent output to {forge_path}/{output_dir}/agent_outputs/"
-                f"step_{step_number:02d}_agent_output.md"
-            )
-            parts.append(
-                f"Save any user-facing deliverables to {forge_path}/{output_dir}/user_outputs/"
-                f"step_{step_number:02d}/"
-            )
-        else:
-            # Old monolithic format -- no step files
-            parts.append(
-                f"\nExecute ONLY Step {step_number}: {step_name}."
-            )
-            parts.append(
-                "Do NOT execute any other steps. Previous steps have already run "
-                "and their output files are on disk -- read them as needed."
-            )
-    else:
-        parts.append(f"You are an agent named '{agent['name']}'.")
-        if agent.get("description"):
-            parts.append(f"Your goal: {agent['description']}")
-        parts.append(f"\nExecute this task: {step_name}")
-
-    if uses_cu:
-        parts.append(
-            "\nMANDATORY: This step requires computer use. "
-            "First, take a screenshot to confirm you have access to the screen. "
-            "Then use your computer use tools (screenshot, click, type_text, "
-            "key_press) to complete the step visually."
-            "\n\nDO NOT produce text-only output. DO NOT suggest manual actions. "
-            "DO NOT skip this step. If you encounter an error, retry up to 3 "
-            "times before reporting failure. If you cannot take a screenshot, "
-            "report the step as FAILED."
-            "\n\nDo NOT use web_fetch or curl for this step."
-        )
-
-    if inputs:
-        parts.append("\nInputs:")
-        for key, value in inputs.items():
-            parts.append(f"  {key}: {_format_input_value(value)}")
-
-    # Only request JSON output on the last step
-    steps = agent.get("steps", [])
-    is_last = step_number == len(steps)
-    output_schema = agent.get("output_schema", [])
-    if is_last and output_schema:
-        field_names = [f["name"] for f in output_schema]
-        parts.append(
-            f"\nReturn ONLY a JSON object with these fields: {', '.join(field_names)}"
-        )
-        file_like_fields = [
-            field["name"] for field in output_schema
-            if field.get("type") in {"file", "archive", "directory"}
-        ]
-        if file_like_fields:
-            parts.append(
-                "For file, archive, or directory outputs, return an object with "
-                "`kind`, `path`, `filename`, and `mime_type` instead of a plain string path. "
-                "The `path` must point to a file or directory inside the run's user_outputs folder."
-            )
-        parts.append("No explanation, no markdown -- just the JSON.")
-
-    parts.append(f"\n{_EXECUTION_DIRECTIVE}")
-    return "\n".join(parts)
-
-
-def _format_input_value(value: object) -> str:
-    if isinstance(value, dict) and value.get("kind") in {"file", "archive", "directory"}:
-        filename = value.get("filename", "")
-        path = value.get("path", "")
-        kind = value.get("kind", "file")
-        return f"{kind}('{filename}' at '{path}')"
-    return str(value)

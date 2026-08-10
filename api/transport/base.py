@@ -7,9 +7,9 @@ from typing import Optional, Protocol, runtime_checkable
 
 @runtime_checkable
 class TransportProvider(Protocol):
-    """Pluggable network transport. Adapters honour the contract table in
-    ``design/vadgr/0.3.0/transport.md`` so callers never branch on the concrete
-    type -- they depend only on this protocol (DIP)."""
+    """Pluggable network transport. Every adapter answers the same questions
+    the same way, so callers never branch on the concrete type: they depend
+    only on this protocol."""
 
     name: str
 
