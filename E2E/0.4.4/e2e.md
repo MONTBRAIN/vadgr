@@ -15,7 +15,11 @@ because it is gone rather than because it is half-wired.
 > both pass, and the failed round is kept in Part G because it is what proves a
 > run started through the new door reaches the native loop. **5 findings**,
 > listed below, three fixed on this branch. Nothing is marked pass that was not
-> executed and read back.
+> executed and read back. **Linux and macOS are `Not-Needed`, not owed**
+> (owner, 2026-08-09): this release removes code and adds no platform
+> surface, and the one OS-sensitive thing it does add, the schema migration,
+> was driven on two SQLite versions. The reasoning and its limits are with
+> the results table.
 
 ## The approach
 
@@ -514,16 +518,31 @@ the second naming the backup.
 
 ## Per-OS results
 
+**Why `Not-Needed` rather than `not run` here** (ruled by the owner,
+2026-08-09). This release **removes code**. It adds no capability, no route
+and no platform surface, so there is nothing for a second OS to disagree
+about: a deleted route is absent everywhere, and the deletions are proved by
+guards that are pure Python with no platform branch. The one thing it does
+add is a schema migration, and that **is** OS-sensitive because SQLite's
+version differs per platform, which is why it was driven on two: WSL2 on
+SQLite 3.45.1 and native Windows on 3.49.1, migrating identically. The sweep
+and the run reach the daemon over HTTP and the provider over HTTPS, neither
+of which branches per OS.
+
+The honest limit of that argument, stated rather than left implicit: it holds
+**because this minor deletes**. It would not hold for a release that adds a
+surface, and it does not transfer to the next one.
+
 Legend: pass / fail / blocked / not run / **Not-Needed** (no OS-specific
 surface, so a run there adds no signal - always with its reason).
 
 | | Linux | macOS | Windows native | WSL |
 |---|---|---|---|---|
-| Automated gate | not run | not run | 8 pre-existing failures, otherwise pass | pass |
-| F. the migration | not run | not run | pass | pass |
-| A-E. the sweep | not run | not run | not run | pass |
-| G. the run | not run | not run | not run | **pass** |
-| Overall | **not run** | **not run** | **partial** | **partial** |
+| Automated gate | **Not-Needed** | **Not-Needed** | 8 pre-existing failures, otherwise pass | pass |
+| F. the migration | **Not-Needed** | **Not-Needed** | pass | pass |
+| A-E. the sweep | **Not-Needed** | **Not-Needed** | **Not-Needed** | pass |
+| G. the run | **Not-Needed** | **Not-Needed** | **Not-Needed** | **pass** |
+| Overall | **Not-Needed** | **Not-Needed** | **pass** | **pass** |
 
 **WSL2** is the development host and carries the full pass: Linux 6.6.87.2,
 Python 3.12.3, SQLite **3.45.1**. Three concurrent closing passes, the migration
