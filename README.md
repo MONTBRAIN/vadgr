@@ -13,10 +13,10 @@
 
 
 <p align="center">
-  <i><b>Open-source AI agents that work on your computer.</b></i>
+  <i><b>An open-source loop that controls your computer, reachable from your phone.</b></i>
 </p>
 
-Describe your work in a sentence. Vadgr runs it on your machine -- writing code, controlling apps, clicking buttons, and delivering results -- while you do something else. You start it from this CLI or from the phone app, and watch it from either. Cross-platform: Linux, Windows (WSL2), and macOS (in progress).
+Describe your work in a sentence. Vadgr runs it on your machine - writing code, controlling apps, clicking buttons, and delivering results - while you do something else. You start it from this CLI or from the phone app, and watch it from either. It is not tied to one model vendor: the machine talks to whichever provider you point it at. Cross-platform: Linux, Windows (WSL2), and macOS (in progress).
 
 ## Platform
 
@@ -36,12 +36,12 @@ Works on **Linux**, **WSL**, and **Windows**. macOS support is in progress (runn
 
 ```bash
 # Linux / macOS / WSL
-curl -fsSL https://raw.githubusercontent.com/MONTBRAIN/Agent-Forge/master/setup.sh | bash
+curl -fsSL https://raw.githubusercontent.com/MONTBRAIN/vadgr/master/setup.sh | bash
 ```
 
 ```powershell
 # Windows (PowerShell)
-irm https://raw.githubusercontent.com/MONTBRAIN/Agent-Forge/master/setup.ps1 | iex
+irm https://raw.githubusercontent.com/MONTBRAIN/vadgr/master/setup.ps1 | iex
 ```
 
 The machine runs work through the provider named in `providers.yaml`. The
@@ -152,6 +152,7 @@ Vadgr/
 │   ├── transport/         # Loopback and Tailscale adapters
 │   └── persistence/       # SQLite database
 ├── engine/                # The native agent loop and its journal
+├── E2E/                   # One runbook per release, and its evidence
 # Desktop automation lives in:
 # https://github.com/MONTBRAIN/vadgr-computer-use
 # (installed via `pip install vadgr-computer-use` when enabled)
@@ -184,7 +185,7 @@ Vadgr/
 |:---:|:---:|:---:|:---|
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" width="25" /> | Pillow | 10.0 | Image processing |
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-plain.svg" width="25" /> | mss | 9.0 | Screenshot capture |
-| <picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/anthropic/white"><img src="https://cdn.simpleicons.org/anthropic/black" width="25" alt="Anthropic Logo"></picture> | MCP | 1.0 | Standardized tool interface |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/anthropic/white"><img src="https://cdn.simpleicons.org/anthropic/black" width="25" alt="Anthropic Logo"></picture> | MCP | 2.x | Standardized tool interface |
 
 </div>
 
