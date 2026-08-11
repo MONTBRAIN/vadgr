@@ -58,16 +58,114 @@ model names - in commits, PR bodies, or generated files.
 exists and every minor in its iteration has one:
 
 ```bash
-python3 ../docs/scripts/check_iteration.py <phase> <iteration>
+python3 ../vadgr-docs/scripts/check_iteration.py <phase> <iteration>
 ```
 
 (The script resolves its own paths, so only the path to the docs checkout
-matters: `../docs/` on the working machine, `../vadgr-docs/` where it was cloned
-under its own name.) Exit `0` or do not start. This exists because the rule was
-written down and broken twice in an hour.
+matters. Use whatever name it was cloned under beside this repo.) Exit `0` or do
+not start. This exists because the rule was written down and broken twice in an
+hour.
 
 **4. PR bodies carry code, tests, user-visible changes and caveats.** No
 methodology narration, no SOLID tables, no design-doc citations.
+
+## The practices every repo in this family follows
+
+**This section is identical in all four repos, and identical in this repo's
+`CLAUDE.md` and `AGENTS.md`.** An agent loads one or the other depending on the
+tool it runs under, and it must not get a different standard depending on which.
+The long form of every rule here is `vadgr-docs/general/ENGINEERING.md`; these
+are the ones that cost the most when missed.
+
+**Ask in this order, and asking is the last resort**: `PLANS.md` including the
+decision register, then `CONTRACT.md`, then `ARCHITECTURE.md` and the minor's
+design doc - **then** the owner, saying which you checked and what each did not
+answer. **A decision marked `Ruled` is an answer, not an option.**
+
+**Do not bring a problem without a decision.** Anything found is either fixed,
+or written into `PLANS.md` under the minor that owns it, with the reason. A
+defect reported with no disposition moves the work rather than doing it.
+
+**Design comes before code.** No minor is implemented until its build spec
+exists and every minor in its iteration has one. Exit `0` or do not start:
+
+```bash
+python3 ../vadgr-docs/scripts/check_iteration.py <phase> <iteration>
+```
+
+Exit `0` is necessary and never sufficient: it checks that specs exist and are
+structurally complete, and it cannot review one.
+
+**CI is not an e2e pass.** The automated gate builds an environment and runs the
+unit suites. It drives no session, calls nothing over the wire and reaches no
+glass, so a green CI row on an OS says the suites pass there and **nothing at
+all** about whether the product works there. An OS whose only evidence is CI is
+marked `not run`, never `pass`, and a runbook's `overall` row never inherits a
+gate result: it is the weakest of the parts actually driven on that OS. This
+shipped once and was caught in review, with two platforms marked `pass (CI)`
+while their own live rows read `not run`. **A suite is not a session.**
+
+**Close an e2e with three independent passes**, run concurrently, each with its
+**own port, database and daemon** - three observations rather than one run
+watched three times. Compare them structurally: every HTTP entry on method,
+path, status and **error code**, every CLI entry on argv and exit code, and the
+frame type counts per socket. Then read the token counts with the fixture
+pinned first, because three identical output counts suggest one result reused
+rather than three real calls. **Ask each pass what looked odd, not only whether
+its steps passed**: one sweep was entirely green when an agent noticed a single
+case taking 15.2s against 0.1-0.8s for every other, which no assertion could
+have caught because nothing asserted on duration.
+
+**Evidence is filed while the pass runs, never assembled after it.** The
+evidence directory exists before the first cell, each group files what it
+produced at its own boundary, and a group that captured nothing gets a note
+rather than a reconstruction.
+
+**Every test suite states what it starts from.** The precondition is the
+guarantee, not the reset: every suite declares the state it needs, nothing
+inherits silently, and setup happens at the **start** of a group rather than as
+the previous group's teardown - a teardown that did not run leaves the next
+group dirty, and its failure looks like a product defect. Resetting between
+every case is ritual, not rigour.
+
+**Every fix gets a test that fails without it.** Stash the fix, watch it go red,
+restore. A test that passes either way tests nothing.
+
+**Never report a result from a command whose exit code you did not read**
+(`cmd | head` reports `head`'s), and **a pass with no output is not a pass** - a
+sweep once exited `0` five times printing nothing, against a daemon it never
+reached.
+
+**Audit once, exhaustively.** Run everything, fix everything, report once.
+Fixing, re-checking, finding one more and repeating reads as an endless stream
+of problems and is really one incomplete sweep.
+
+**No em dashes and no en dashes**, anywhere this project ships: markdown, code
+comments, commit messages, PR bodies, and the words on the screen. A colon, a
+full stop, brackets or a spaced hyphen does every job. It is checked rather than
+remembered:
+
+```bash
+python3 ../vadgr-docs/scripts/check_style.py [path ...]
+```
+
+**No AI attribution, anywhere.** No `Co-Authored-By`, no "generated with", no
+model names - in commits, PR bodies, or generated files.
+
+**PR bodies carry code, tests, user-visible changes and caveats, and nothing
+else.** No methodology narration, no design-doc citations. A reviewer must
+understand the PR from the PR alone.
+
+**How a minor ends**: `CHANGELOG.md` written in the PR and re-read against the
+final diff, the version bumped with it, **`README.md` updated if the minor
+changed what it says**, the tag `vX.Y.Z` with notes matching the changelog,
+branches deleted local and remote, every repo back on its default branch, then
+`PROGRESS.md` updated and the next item named - read from `PLANS.md`'s
+iteration table, not decided.
+
+**Paths in this document are relative to this repo's parent directory**, with
+the docs repo cloned beside it. If you cloned it under a different name, use
+that name. Nothing here assumes a particular machine, user or absolute path.
 
 ## How a change is proven here
 
@@ -94,7 +192,7 @@ structurally on status, error code, exit code and socket frame counts. Input
 tokens should match across all three and output tokens should differ; three
 identical output counts mean one result was reused, not that the run is stable.
 Ask each what looked odd, not only whether it passed
-(`../docs/general/ENGINEERING.md` §6).
+(`../vadgr-docs/general/ENGINEERING.md` §6).
 
 The gate, all three suites, before offering anything:
 
