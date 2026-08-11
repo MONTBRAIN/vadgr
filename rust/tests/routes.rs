@@ -1,0 +1,259 @@
+//! The router, driven end to end in-process: the gate's outcomes, the routes
+//! that ship, and the routes deliberately held for the engine's release.
+
+use axum::body::Body;
+use axum::http::{Request, StatusCode};
+use http_body_util::BodyExt;
+use serde_json::Value;
+use std::net::SocketAddr;
+use std::sync::Arc;
+use tower::ServiceExt;
+use vadgr_daemon::auth::pairing::PairingStore;
+use vadgr_daemon::config::Config;
+use vadgr_daemon::db::Db;
+use vadgr_daemon::state::AppState;
+use vadgr_daemon::transport::{tailscale::LoopbackTransport, Transport};
+use vadgr_daemon::ws::manager::ConnectionManager;
+
+/// A transport that calls every non-loopback source a peer, so gate 1 passes
+/// and gate 2 is what the test is actually exercising.
+struct EveryoneIsAPeer;
+impl Transport for EveryoneIsAPeer {
+    fn name(&self) -> &'static str { "test" }
+    fn advertise_host(&self) -> Option<String> { Some("machine.tail.ts.net".into()) }
+    fn bind_host(&self) -> String { "100.64.0.1".into() }
+    fn is_authorized_source(&self, _h: &str) -> bool { true }
+    fn status(&self) -> Value { serde_json::json!({"name": "test", "available": true}) }
+}
+
+fn state_with(transport: Box<dyn Transport>) -> AppState {
+    let db = Db::open(":memory:").unwrap();
+    db.with(|c| {
+        c.execute_batch(
+            "INSERT INTO runs (id, title, status) VALUES ('r1','a task','running');",
+        )
+    })
+    .unwrap();
+    AppState {
+        db,
+        config: Arc::new(Config::from_env()),
+        transport: Arc::from(transport),
+        pairing: Arc::new(PairingStore::new(300)),
+        ws: Arc::new(ConnectionManager::new()),
+    }
+}
+
+fn app(state: AppState) -> axum::Router {
+    vadgr_daemon::routes::router(state.clone())
+        .layer(axum::middleware::from_fn_with_state(state, vadgr_daemon::auth::gate::gate))
+}
+
+/// Requests arrive from a tailnet address unless a test says otherwise, so the
+/// gate is exercised rather than skipped. A test that always came from loopback
+/// would pass through gate 0 and prove nothing about the other two.
+async fn send(state: AppState, req: Request<Body>, from: &str) -> (StatusCode, Value) {
+    let peer: SocketAddr = format!("{from}:5555").parse().unwrap();
+    let res = app(state)
+        .layer(axum::Extension(peer))
+        .into_service::<Body>()
+        .oneshot({
+            let mut r = req;
+            r.extensions_mut().insert(axum::extract::ConnectInfo(peer));
+            r
+        })
+        .await
+        .unwrap();
+    let status = res.status();
+    let bytes = res.into_body().collect().await.unwrap().to_bytes();
+    let body = serde_json::from_slice(&bytes).unwrap_or(Value::Null);
+    (status, body)
+}
+
+fn get(path: &str) -> Request<Body> {
+    Request::builder().uri(path).body(Body::empty()).unwrap()
+}
+
+fn get_with_token(path: &str, token: &str) -> Request<Body> {
+    Request::builder()
+        .uri(path)
+        .header("authorization", format!("Bearer {token}"))
+        .body(Body::empty())
+        .unwrap()
+}
+
+// ---------------------------------------------------------------- the gates
+
+#[tokio::test]
+async fn health_answers_without_a_token_because_it_is_the_probe() {
+    let (status, body) = send(state_with(Box::new(EveryoneIsAPeer)), get("/api/health"), "100.64.0.9").await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(body["status"], "healthy");
+    assert_eq!(body["version"], "0.4.5");
+}
+
+#[tokio::test]
+async fn a_peer_with_no_token_gets_missing_token() {
+    let (status, body) = send(state_with(Box::new(EveryoneIsAPeer)), get("/api/runs"), "100.64.0.9").await;
+    assert_eq!(status, StatusCode::UNAUTHORIZED);
+    assert_eq!(body["error"]["code"], "MISSING_TOKEN");
+}
+
+#[tokio::test]
+async fn a_peer_with_a_token_nobody_knows_gets_invalid_token() {
+    let (status, body) = send(
+        state_with(Box::new(EveryoneIsAPeer)),
+        get_with_token("/api/runs", "not-a-real-token"),
+        "100.64.0.9",
+    )
+    .await;
+    assert_eq!(status, StatusCode::UNAUTHORIZED);
+    assert_eq!(body["error"]["code"], "INVALID_TOKEN");
+}
+
+#[tokio::test]
+async fn a_source_that_is_not_a_peer_never_reaches_the_token_check() {
+    // Gate 1 refuses before any token work, which is the ordering that makes
+    // the token comparison unreachable from off the tailnet.
+    let (status, body) = send(
+        state_with(Box::new(LoopbackTransport)),
+        get_with_token("/api/runs", "anything"),
+        "203.0.113.7",
+    )
+    .await;
+    assert_eq!(status, StatusCode::FORBIDDEN);
+    assert_eq!(body["error"]["code"], "SOURCE_NOT_AUTHORIZED");
+}
+
+#[tokio::test]
+async fn loopback_passes_without_a_token() {
+    let (status, _) = send(state_with(Box::new(LoopbackTransport)), get("/api/runs"), "127.0.0.1").await;
+    assert_eq!(status, StatusCode::OK);
+}
+
+#[tokio::test]
+async fn a_paired_device_reaches_the_route() {
+    let state = state_with(Box::new(EveryoneIsAPeer));
+    let token = "a-known-token";
+    vadgr_daemon::db::devices::create(
+        &state.db,
+        "my-phone",
+        &vadgr_daemon::auth::tokens::hash_token(token),
+    )
+    .unwrap();
+    let (status, body) = send(state, get_with_token("/api/runs", token), "100.64.0.9").await;
+    assert_eq!(status, StatusCode::OK);
+    assert!(body.is_array());
+}
+
+// ---------------------------------------------------------------- the routes
+
+#[tokio::test]
+async fn a_run_that_is_not_there_is_run_not_found() {
+    let (status, body) = send(state_with(Box::new(LoopbackTransport)), get("/api/runs/nope"), "127.0.0.1").await;
+    assert_eq!(status, StatusCode::NOT_FOUND);
+    assert_eq!(body["error"]["code"], "RUN_NOT_FOUND");
+}
+
+#[tokio::test]
+async fn cancel_records_failed_and_a_second_cancel_is_run_not_active() {
+    let state = state_with(Box::new(LoopbackTransport));
+    let post = |p: &str| Request::builder().method("POST").uri(p).body(Body::empty()).unwrap();
+
+    let (status, body) = send(state.clone(), post("/api/runs/r1/cancel"), "127.0.0.1").await;
+    assert_eq!(status, StatusCode::OK);
+    // Still `failed` rather than a `cancelled` state, which is wrong and is
+    // deliberately left wrong: nothing writes `cancelled` today, and the split
+    // arrives with the conversation.
+    assert_eq!(body["status"], "failed");
+
+    let (status, body) = send(state, post("/api/runs/r1/cancel"), "127.0.0.1").await;
+    assert_eq!(status, StatusCode::CONFLICT);
+    assert_eq!(body["error"]["code"], "RUN_NOT_ACTIVE");
+}
+
+#[tokio::test]
+async fn revoking_a_device_that_is_not_there_is_device_not_found() {
+    let req = Request::builder()
+        .method("DELETE")
+        .uri("/api/devices/nope")
+        .body(Body::empty())
+        .unwrap();
+    let (status, body) = send(state_with(Box::new(LoopbackTransport)), req, "127.0.0.1").await;
+    assert_eq!(status, StatusCode::NOT_FOUND);
+    assert_eq!(body["error"]["code"], "DEVICE_NOT_FOUND");
+}
+
+#[tokio::test]
+async fn pairing_refuses_when_the_transport_cannot_advertise() {
+    // We never hand out a localhost QR a phone could not use.
+    let req = Request::builder().method("POST").uri("/api/auth/pair").body(Body::empty()).unwrap();
+    let (status, body) = send(state_with(Box::new(LoopbackTransport)), req, "127.0.0.1").await;
+    assert_eq!(status, StatusCode::SERVICE_UNAVAILABLE);
+    assert_eq!(body["error"]["code"], "TRANSPORT_UNREACHABLE");
+    // The one error that carries a non-empty `details`, and the phone prints it.
+    assert_eq!(body["error"]["details"]["transport"], "loopback");
+}
+
+#[tokio::test]
+async fn pair_then_claim_mints_a_token_and_the_wire_field_keeps_its_name() {
+    let state = state_with(Box::new(EveryoneIsAPeer));
+    let req = Request::builder().method("POST").uri("/api/auth/pair").body(Body::empty()).unwrap();
+    let (status, body) = send(state.clone(), req, "100.64.0.9").await;
+    assert_eq!(status, StatusCode::OK);
+    // The field on the wire stays `pairing_token`; only the value's shape
+    // changed. Renaming it would break the shipped CLI and the shipped phone.
+    let code = body["pairing_token"].as_str().unwrap().to_string();
+
+    let claim = Request::builder()
+        .method("POST")
+        .uri("/api/auth/claim")
+        .header("content-type", "application/json")
+        .body(Body::from(
+            serde_json::json!({ "pairing_token": code, "device_name": "my-phone" }).to_string(),
+        ))
+        .unwrap();
+    let (status, body) = send(state, claim, "100.64.0.9").await;
+    assert_eq!(status, StatusCode::OK);
+    assert!(body["token"].as_str().unwrap().len() > 20);
+    assert!(body["device_id"].as_str().is_some());
+}
+
+// ------------------------------------------------- what this release holds
+
+#[tokio::test]
+async fn starting_a_run_is_absent_rather_than_stubbed() {
+    // A 501, a plausible 202 with no run behind it, or a row nothing will pick
+    // up are three ways of lying to the sweep. Absent is honest.
+    //
+    // **405 and not 404, and the difference is the honest one.** `/api/runs`
+    // exists here, for `GET`; what does not exist is `POST` on it. A 404 would
+    // claim the path is unknown, which is false and would make the held row
+    // indistinguishable from a genuinely deleted surface in the sweep's probe
+    // set. The spec said 404 before this test was run against the code.
+    let req = Request::builder()
+        .method("POST")
+        .uri("/api/runs")
+        .header("content-type", "application/json")
+        .body(Body::from(r#"{"task":"do a thing"}"#))
+        .unwrap();
+    let (status, _) = send(state_with(Box::new(LoopbackTransport)), req, "127.0.0.1").await;
+    assert_eq!(
+        status,
+        StatusCode::METHOD_NOT_ALLOWED,
+        "the trigger arrives with the engine; the path exists for GET"
+    );
+}
+
+#[tokio::test]
+async fn resume_is_held_too_because_its_success_path_needs_a_loop() {
+    // Its validation paths port cleanly and its success path cannot: without an
+    // engine the only faithful answer is one this daemon has no way to make
+    // true. Half a route would give the sweep matching error rows and a lying
+    // success row.
+    //
+    // 404 here rather than 405, and for the same reason the trigger is 405:
+    // this path is registered for no method at all.
+    let req = Request::builder().method("POST").uri("/api/runs/r1/resume").body(Body::empty()).unwrap();
+    let (status, _) = send(state_with(Box::new(LoopbackTransport)), req, "127.0.0.1").await;
+    assert_eq!(status, StatusCode::NOT_FOUND);
+}

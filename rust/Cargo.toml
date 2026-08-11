@@ -1,0 +1,38 @@
+[package]
+name = "vadgr-daemon"
+version = "0.4.5"
+edition = "2021"
+description = "The vadgr daemon, minus the engine"
+
+[lib]
+name = "vadgr_daemon"
+path = "src/lib.rs"
+
+[[bin]]
+name = "vadgr-daemon"
+path = "src/main.rs"
+
+[dependencies]
+axum = { version = "0.8", features = ["ws", "macros"] }
+tokio = { version = "1", features = ["full"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["trace"] }
+# Bundled so the four platforms stop each bringing their own SQLite. This
+# removes a platform variable from the migration; it does not touch a column,
+# which is what the schema freeze actually forbids.
+rusqlite = { version = "0.32", features = ["bundled"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+uuid = { version = "1", features = ["v4"] }
+time = { version = "0.3", features = ["formatting", "parsing", "macros"] }
+sha2 = "0.10"
+rand = "0.8"
+futures-util = "0.3"
+anyhow = "1"
+
+[dev-dependencies]
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"

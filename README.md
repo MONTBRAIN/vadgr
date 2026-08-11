@@ -129,6 +129,10 @@ FastAPI backend: it takes a task, starts a run, drives the loop, and records the
 
 The provider-agnostic loop that owns the conversation history, calls the model, dispatches tools, and journals every step to `~/.vadgr/runs/`.
 
+### [rust/](rust/) - The daemon, being rewritten
+
+The daemon is moving to Rust, and this crate runs **beside** the Python one on its own port and its own database until the cutover. `0.4.5` is the daemon minus the engine: it serves everything that does not need the loop, and cannot start or resume a run. Until the cutover, the Python daemon is still the product. See [rust/README.md](rust/README.md).
+
 ### Desktop Automation
 
 The desktop-automation MCP server lives in its own repository: **[vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use)**. Install with `pip install vadgr-computer-use`. It gives agents eyes and hands: take a screenshot, reason, click or type, repeat. On WSL2 the package manages its own Windows-side bridge daemon automatically.
@@ -152,6 +156,7 @@ Vadgr/
 │   ├── transport/         # Loopback and Tailscale adapters
 │   └── persistence/       # SQLite database
 ├── engine/                # The native agent loop and its journal
+├── rust/                  # The daemon being rewritten in Rust (see rust/README.md)
 ├── E2E/                   # One runbook per release, and its evidence
 # Desktop automation lives in:
 # https://github.com/MONTBRAIN/vadgr-computer-use
