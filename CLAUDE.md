@@ -114,5 +114,14 @@ may overlap; that is what makes the three-agent e2e close safe.
 - Branch per minor, PR per minor. Never commit to `master`.
 - `CHANGELOG.md` is updated **in the PR**, and the version in `api/config.py`
   moves with it.
+- **`README.md` is updated in the same PR when the minor changed what it says**,
+  and it is the file most people read. A deleted surface, a renamed command, a
+  moved directory, a changed install path, a changed dependency floor, or a
+  change in what the product **is** all change it. Read the release's own diff
+  against it and either edit it or **say nothing in it changed** - the silence is
+  the defect. A claim can also rot with no diff touching it, and the one-line
+  description is the usual casualty. This repo's went three minors selling
+  "AI agents" after the re-scope replaced them, with an install command
+  pointing at the repository's former name.
 - A minor ends by updating `vadgr-docs/PROGRESS.md` and naming what is next -
   read from `PLANS.md`'s iteration table, not decided.
