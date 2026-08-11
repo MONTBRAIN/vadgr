@@ -22,7 +22,7 @@ fn a_minted_code_is_grouped_and_normalises_to_eight_symbols() {
 fn the_alphabet_excludes_the_confusable_letters() {
     // The exclusions are the whole point: a person reads this off a terminal
     // and types it on a phone, and 0/O and 1/I/L are where that goes wrong.
-    for ch in [b'I', b'L', b'O', b'U'] {
+    for ch in *b"ILOU" {
         assert!(!CROCKFORD_ALPHABET.contains(&ch), "{} must not be in the alphabet", ch as char);
     }
 }

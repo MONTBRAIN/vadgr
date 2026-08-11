@@ -60,7 +60,7 @@ pub fn list_all(db: &Db, status: Option<&str>) -> rusqlite::Result<Vec<Value>> {
 pub fn get(db: &Db, run_id: &str) -> rusqlite::Result<Option<Value>> {
     db.with(|c| {
         let mut stmt = c.prepare(&format!("SELECT {COLS} FROM runs WHERE id = ?1"))?;
-        let mut rows = stmt.query_map([run_id], |r| row_to_json(r))?;
+        let mut rows = stmt.query_map([run_id], row_to_json)?;
         match rows.next() {
             Some(v) => Ok(Some(v?)),
             None => Ok(None),

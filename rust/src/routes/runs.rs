@@ -17,7 +17,7 @@ pub async fn list_runs(
     Query(q): Query<ListQuery>,
 ) -> ApiResult<Json<Vec<Value>>> {
     let rows = crate::db::runs::list_all(&state.db, q.status.as_deref())
-        .map_err(|e| internal(e))?;
+        .map_err(internal)?;
     Ok(Json(rows))
 }
 
@@ -25,7 +25,7 @@ pub async fn get_run(
     State(state): State<AppState>,
     Path(run_id): Path<String>,
 ) -> ApiResult<Json<Value>> {
-    match crate::db::runs::get(&state.db, &run_id).map_err(|e| internal(e))? {
+    match crate::db::runs::get(&state.db, &run_id).map_err(internal)? {
         Some(run) => Ok(Json(run)),
         None => Err(ApiError::run_not_found(&run_id)),
     }
@@ -46,7 +46,7 @@ pub async fn cancel_run(
     Path(run_id): Path<String>,
 ) -> ApiResult<Json<Value>> {
     let run = crate::db::runs::get(&state.db, &run_id)
-        .map_err(|e| internal(e))?
+        .map_err(internal)?
         .ok_or_else(|| ApiError::run_not_found(&run_id))?;
 
     let status = run.get("status").and_then(|v| v.as_str()).unwrap_or("");
@@ -55,7 +55,7 @@ pub async fn cancel_run(
     }
 
     let updated = crate::db::runs::update_status(&state.db, &run_id, "failed")
-        .map_err(|e| internal(e))?
+        .map_err(internal)?
         .ok_or_else(|| ApiError::run_not_found(&run_id))?;
     Ok(Json(updated))
 }
