@@ -50,11 +50,12 @@ CLI path too. **Pair it with the journal**, which only the native loop writes.
 `vadgr stream`. Needed for any claim about frames reaching a client; a claim
 about `map_event` is a unit-test claim, not an observation of the wire.
 
-**4. The Claude session transcript - the fallback.** When a subagent drove the
-run and its stream is not in your context, the tool calls are in
+**4. The driving CLI's session transcript - the fallback.** When Claude Code
+drove the run and its stream is not in your context, the tool calls are in
 `~/.claude/projects/<sanitized-cwd>/<session-id>.jsonl`, one JSON object per
-line, subagent turns marked `isSidechain: true`. The transcript cannot be edited
-by the agent's summary.
+line, subagent turns marked `isSidechain: true`. When another CLI drove it, its
+own session record serves the same way. The transcript cannot be edited by the
+agent's summary.
 
 ## Driving a runbook with a subagent
 
@@ -62,7 +63,11 @@ One at a time **while they share a daemon** - two agents on one daemon read each
 other's runs, and neither verdict means anything. Give each its own port,
 database and daemon and they can run together; that is exactly what the
 three-pass close below does. Goal-level task; the agent chooses its own calls.
-Tee the stream so the verdict is reconstructable:
+
+Drive it with the agent CLI the machine has, Codex or Claude Code: detect it,
+never assume it, and record the CLI and its version beside the result. The
+example below is the `claude -p` form; translate the flags for the CLI you
+have. Tee the stream so the verdict is reconstructable:
 
 ```bash
 claude --dangerously-skip-permissions \
