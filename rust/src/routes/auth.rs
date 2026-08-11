@@ -46,7 +46,10 @@ pub async fn pair(State(state): State<AppState>) -> ApiResult<Json<Value>> {
     })))
 }
 
+/// Strict, like every Python request body: an undeclared field is a 422, not
+/// silently dropped, so a typo or a stale field announces itself.
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ClaimBody {
     pub pairing_token: String,
     pub device_name: String,
@@ -88,9 +91,7 @@ pub async fn claim(
                 &body.device_name,
                 &tokens::hash_token(&token),
             )
-            .map_err(|e| {
-                ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, "INTERNAL", e.to_string())
-            })?;
+            .map_err(ApiError::internal)?;
             Ok(Json(json!({
                 "token": token,
                 "device_id": device.get("id").and_then(|v| v.as_str()).unwrap_or_default(),

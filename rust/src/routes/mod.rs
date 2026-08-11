@@ -42,6 +42,6 @@ pub fn router(state: AppState) -> Router {
         .route("/api/runs/{run_id}", get(runs::get_run))
         .route("/api/runs/{run_id}/cancel", post(runs::cancel_run))
         .route("/api/runs/{run_id}/stream", get(crate::ws::run_ws::run_stream))
-        .route("/api/ws/runs/{run_id}", get(crate::ws::run_ws::run_stream))
+        .route("/api/ws/runs/{run_id}", get(crate::ws::run_ws::run_websocket))
         .with_state(state)
 }

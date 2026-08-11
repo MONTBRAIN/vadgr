@@ -56,13 +56,18 @@ async fn a_subscriber_receives_what_is_broadcast_after_it_connects() {
 }
 
 #[test]
-fn revoking_a_device_drops_the_sockets_it_holds() {
+fn revoking_a_device_signals_every_socket_watching_it() {
     // Revocation that only applied to the next request would leave a socket
-    // streaming to a phone the owner just unpaired.
+    // streaming to a phone the owner just unpaired. The watch channel is how
+    // the signal actually reaches a live socket's select loop.
     let m = ConnectionManager::new();
-    let (tx, _rx) = tokio::sync::broadcast::channel(1);
-    m.register_device_socket("d1", tx);
+    let mut first = m.watch_device("d1");
+    let mut second = m.watch_device("d1");
+    let mut other = m.watch_device("d2");
     m.disconnect_device("d1");
+    assert!(first.try_recv().is_ok(), "the first socket hears the revocation");
+    assert!(second.try_recv().is_ok(), "so does the second");
+    assert!(other.try_recv().is_err(), "another device's socket does not");
     // Idempotent: revoking twice is not an error, because the phone may retry.
     m.disconnect_device("d1");
 }

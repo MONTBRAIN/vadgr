@@ -59,45 +59,40 @@ impl PairingStore {
     }
 
     pub fn redeem(&self, presented: &str) -> ClaimResult {
+        let now = Instant::now();
+        let candidate = normalize_pairing_code(presented);
         let mut guard = self.slot.lock().expect("pairing mutex poisoned");
-        let slot = match guard.as_mut() {
-            Some(s) => s,
-            None => return ClaimResult::Invalid,
+        let Some(slot) = guard.as_mut() else {
+            return ClaimResult::Invalid;
         };
-
-        if Instant::now() >= slot.expires_at {
-            *guard = None;
-            return ClaimResult::Expired;
-        }
-
-        let candidate = match normalize_pairing_code(presented) {
-            Some(c) => c,
-            None => {
-                // A malformed code is still an attempt on the outstanding one.
-                // Not charging it would make the cap trivially bypassable by
-                // sending nine characters.
-                return Self::charge(guard);
+        let Some(candidate) = candidate else {
+            // Malformed input never reaches the counter, so garbage cannot
+            // burn a code: only eight well-formed wrong characters can. The
+            // cap defends the code against guessing, and a guess that could
+            // never match any code is not a guess at this one.
+            return ClaimResult::Invalid;
+        };
+        let matches = super::tokens::constant_time_eq(&candidate, &slot.code);
+        if now >= slot.expires_at {
+            // The slot is held until it is minted over, so the RIGHT code
+            // typed late still answers Expired - "ask for a new one" -
+            // instead of decaying into unknown.
+            if matches {
+                *guard = None;
+                return ClaimResult::Expired;
             }
-        };
-
-        if super::tokens::constant_time_eq(&candidate, &slot.code) {
-            *guard = None;
+            // A wrong guess at a dead code counts for nothing.
+            return ClaimResult::Invalid;
+        }
+        if matches {
+            *guard = None; // single-use, even on the fifth try
             return ClaimResult::Ok;
         }
-        Self::charge(guard)
-    }
-
-    fn charge(mut guard: std::sync::MutexGuard<'_, Option<Slot>>) -> ClaimResult {
-        let burned = {
-            let slot = guard.as_mut().expect("charged against a live slot");
-            slot.failures += 1;
-            slot.failures >= PAIRING_MAX_FAILURES
-        };
-        if burned {
-            *guard = None;
-            ClaimResult::RateLimited
-        } else {
-            ClaimResult::Invalid
+        slot.failures += 1;
+        if slot.failures >= PAIRING_MAX_FAILURES {
+            *guard = None; // burned; the true code is now dead too
+            return ClaimResult::RateLimited;
         }
+        ClaimResult::Invalid
     }
 }

@@ -31,11 +31,14 @@ async fn main() -> Result<()> {
 
     let config = config::Config::from_env();
     let db = db::Db::open(&config.db_path)?;
-    let transport = transport::tailscale::create(&config.transport_name)?;
+    let transport = transport::create(&config.transport_name)?;
 
     // **The F2 fix, reproduced.** The daemon binds what the transport
     // advertises, so the address a QR carries is one the daemon answers on.
-    let bind_host = transport.bind_host();
+    // A transport that cannot name one stops the boot here, out loud: a
+    // daemon that silently bound loopback instead would advertise nothing
+    // and answer nowhere the QR points.
+    let bind_host = transport.bind_host()?;
     let port = config.port;
 
     let state = AppState {

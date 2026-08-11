@@ -1,26 +1,98 @@
-//! Tailscale, and the loopback transport that stands in when it is off.
+//! Tailscale transport: exposes the API over the tailnet only.
 //!
-//! The LocalAPI client is the whole trick and it is small: HTTP/1.0 over an
-//! `AF_UNIX` socket with the fixed `Host: local-tailscaled.sock` sentinel.
-//! HTTP/1.0 because the Go server chunks otherwise, and this parser does not
-//! want to speak chunked. On Windows the same request goes over a named pipe;
-//! that path is a `0.5.0` concern, when a Windows artifact first exists to run
-//! it, and until then it reports unavailable rather than pretending.
+//! Reachability and peer identity come from the tailscaled **LocalAPI**: an
+//! HTTP/1.0 request over an `AF_UNIX` socket with the fixed
+//! `Host: local-tailscaled.sock` sentinel. HTTP/1.0 because the Go server
+//! chunks otherwise, and this parser does not want to speak chunked. On
+//! Windows the same request goes over a named pipe; that path is held for the
+//! release where a Windows artifact first exists to run it, and until then
+//! the client reports unavailable rather than pretending.
+//!
+//! The LocalAPI client is injected so the adapter is unit-testable with a
+//! fake WhoIs / status: no live tailnet needed.
+//!
+//! Authorization is structural-and-checked: bind only to the node's 100.x
+//! interface (so non-tailnet peers cannot even connect at the socket level),
+//! and additionally verify each peer is a tailnet member via WhoIs, falling
+//! back to the 100.64.0.0/10 CGNAT range when WhoIs is unavailable.
 
 use super::Transport;
 use serde_json::{json, Value};
-use std::io::{Read, Write};
-use std::time::Duration;
 
 const SOCKET_PATH: &str = "/var/run/tailscale/tailscaled.sock";
 
+/// The slice of the tailscaled LocalAPI this adapter needs.
+pub trait LocalApi: Send + Sync {
+    /// Parsed tailscaled status, or `None` when unavailable / logged out.
+    fn status(&self) -> Option<Value>;
+    /// Identity of a peer by IP, or `None` if not a tailnet member.
+    fn whois(&self, peer_ip: &str) -> Option<Value>;
+}
+
+/// Talks to the real tailscaled LocalAPI over its unix socket.
+pub struct TailscaledLocalApi {
+    socket_path: String,
+}
+
+impl TailscaledLocalApi {
+    pub fn new(socket_path: impl Into<String>) -> Self {
+        Self { socket_path: socket_path.into() }
+    }
+
+    /// The default socket path, overridable the same way the Python daemon
+    /// allows: `VADGR_TAILSCALED_SOCKET`.
+    pub fn from_env() -> Self {
+        Self::new(
+            std::env::var("VADGR_TAILSCALED_SOCKET")
+                .unwrap_or_else(|_| SOCKET_PATH.to_string()),
+        )
+    }
+
+    fn get(&self, path: &str) -> Option<Value> {
+        #[cfg(unix)]
+        {
+            use std::io::{Read, Write};
+            use std::os::unix::net::UnixStream;
+            use std::time::Duration;
+
+            let mut sock = UnixStream::connect(&self.socket_path).ok()?;
+            sock.set_read_timeout(Some(Duration::from_secs(2))).ok()?;
+            sock.set_write_timeout(Some(Duration::from_secs(2))).ok()?;
+            let req = format!(
+                "GET {path} HTTP/1.0\r\nHost: local-tailscaled.sock\r\nConnection: close\r\n\r\n"
+            );
+            sock.write_all(req.as_bytes()).ok()?;
+            let mut raw = Vec::new();
+            sock.read_to_end(&mut raw).ok()?;
+            let sep = raw.windows(4).position(|w| w == b"\r\n\r\n")?;
+            let (head, body) = raw.split_at(sep);
+            let status_line = head.split(|b| *b == b'\r').next()?;
+            if !status_line.windows(5).any(|w| w == b" 200 ") {
+                return None;
+            }
+            serde_json::from_slice(&body[4..]).ok()
+        }
+        #[cfg(not(unix))]
+        {
+            let _ = path;
+            None
+        }
+    }
+}
+
+impl LocalApi for TailscaledLocalApi {
+    fn status(&self) -> Option<Value> {
+        self.get("/localapi/v0/status")
+    }
+
+    fn whois(&self, peer_ip: &str) -> Option<Value> {
+        self.get(&format!("/localapi/v0/whois?addr={peer_ip}"))
+    }
+}
+
 /// The tailnet's CGNAT range, `100.64.0.0/10`. The fallback when WhoIs cannot
 /// answer, and the reason a source outside it is refused before any token work.
-fn in_tailnet_cgnat(host: &str) -> bool {
-    let ip: std::net::IpAddr = match host.parse() {
-        Ok(v) => v,
-        Err(_) => return false,
-    };
+fn in_tailnet_cgnat(ip: std::net::IpAddr) -> bool {
     match ip {
         std::net::IpAddr::V4(v4) => {
             let o = v4.octets();
@@ -30,74 +102,55 @@ fn in_tailnet_cgnat(host: &str) -> bool {
     }
 }
 
-fn local_api_get(path: &str) -> Option<Value> {
-    #[cfg(unix)]
-    {
-        use std::os::unix::net::UnixStream;
-        let mut sock = UnixStream::connect(SOCKET_PATH).ok()?;
-        sock.set_read_timeout(Some(Duration::from_secs(2))).ok()?;
-        sock.set_write_timeout(Some(Duration::from_secs(2))).ok()?;
-        let req = format!(
-            "GET {path} HTTP/1.0\r\nHost: local-tailscaled.sock\r\nConnection: close\r\n\r\n"
-        );
-        sock.write_all(req.as_bytes()).ok()?;
-        let mut raw = Vec::new();
-        sock.read_to_end(&mut raw).ok()?;
-        let sep = raw.windows(4).position(|w| w == b"\r\n\r\n")?;
-        let (head, body) = raw.split_at(sep);
-        let status_line = head.split(|b| *b == b'\r').next()?;
-        if !status_line.windows(5).any(|w| w == b" 200 ") {
-            return None;
-        }
-        serde_json::from_slice(&body[4..]).ok()
-    }
-    #[cfg(not(unix))]
-    {
-        let _ = path;
-        None
-    }
+pub struct TailscaleTransport<A: LocalApi> {
+    api: A,
 }
 
-pub struct TailscaleTransport;
-
-impl TailscaleTransport {
-    fn status_json(&self) -> Option<Value> {
-        local_api_get("/localapi/v0/status")
-    }
-
-    fn is_available(&self) -> bool {
-        match self.status_json() {
-            // `BackendState == "Running"` means up and logged in. A missing
-            // field is treated as running, which is what the Python does.
-            Some(s) => match s.get("BackendState").and_then(|v| v.as_str()) {
-                None | Some("Running") => true,
-                Some(_) => false,
-            },
-            None => false,
-        }
+impl<A: LocalApi> TailscaleTransport<A> {
+    pub fn new(api: A) -> Self {
+        Self { api }
     }
 
     fn self_ip(&self) -> Option<String> {
-        let s = self.status_json()?;
-        s.get("Self")?
+        let s = self.api.status()?;
+        let ips: Vec<&str> = s
+            .get("Self")?
             .get("TailscaleIPs")?
             .as_array()?
             .iter()
             .filter_map(|v| v.as_str())
+            .collect();
+        ips.iter()
             .find(|ip| ip.parse::<std::net::Ipv4Addr>().is_ok())
+            .or_else(|| ips.first())
             .map(|s| s.to_string())
     }
 
     fn magic_dns(&self) -> Option<String> {
-        let s = self.status_json()?;
+        let s = self.api.status()?;
         let name = s.get("Self")?.get("DNSName")?.as_str()?;
         let trimmed = name.trim_end_matches('.');
         if trimmed.is_empty() { None } else { Some(trimmed.to_string()) }
     }
 }
 
-impl Transport for TailscaleTransport {
-    fn name(&self) -> &'static str { "tailscale" }
+impl<A: LocalApi> Transport for TailscaleTransport<A> {
+    fn name(&self) -> &'static str {
+        "tailscale"
+    }
+
+    /// **The F2 fix, reproduced rather than the bug it replaced.** The daemon
+    /// binds what the transport advertises, so the address the QR carries is
+    /// one the daemon answers on. Unavailable is an error, not a silent fall
+    /// back to loopback: binding an interface the transport did not name is
+    /// the exact bug the fix removed.
+    fn bind_host(&self) -> anyhow::Result<String> {
+        self.self_ip().ok_or_else(|| {
+            anyhow::anyhow!(
+                "Tailscale transport unavailable: tailscaled not running or logged out."
+            )
+        })
+    }
 
     fn advertise_host(&self) -> Option<String> {
         if !self.is_available() {
@@ -106,18 +159,32 @@ impl Transport for TailscaleTransport {
         self.magic_dns().or_else(|| self.self_ip())
     }
 
-    /// **The F2 fix, reproduced rather than the bug it replaced.** The daemon
-    /// binds what the transport advertises, so the address the QR carries is
-    /// one the daemon answers on.
-    fn bind_host(&self) -> String {
-        self.self_ip().unwrap_or_else(|| "127.0.0.1".to_string())
+    fn is_available(&self) -> bool {
+        let Some(s) = self.api.status() else {
+            return false;
+        };
+        // `BackendState == "Running"` means up and logged in. A missing field
+        // is treated as running, which is what the Python does.
+        match s.get("BackendState") {
+            None | Some(Value::Null) => {}
+            Some(state) if state.as_str() == Some("Running") => {}
+            Some(_) => return false,
+        }
+        self.self_ip().is_some()
     }
 
     fn is_authorized_source(&self, host: &str) -> bool {
-        if local_api_get(&format!("/localapi/v0/whois?addr={host}")).is_some() {
+        // A string that is not an address is refused before anything is asked
+        // about it: garbage never earns a WhoIs roundtrip.
+        let Ok(ip) = host.parse::<std::net::IpAddr>() else {
+            return false;
+        };
+        // Prefer an authoritative WhoIs identity check.
+        if self.api.whois(host).is_some() {
             return true;
         }
-        in_tailnet_cgnat(host)
+        // Fall back to the CGNAT range when WhoIs is unavailable.
+        in_tailnet_cgnat(ip)
     }
 
     fn status(&self) -> Value {
@@ -128,34 +195,5 @@ impl Transport for TailscaleTransport {
             "advertise_host": if available { self.advertise_host() } else { None },
             "bind_host": self.self_ip(),
         })
-    }
-}
-
-pub struct LoopbackTransport;
-
-impl Transport for LoopbackTransport {
-    fn name(&self) -> &'static str { "loopback" }
-    fn advertise_host(&self) -> Option<String> { None }
-    fn bind_host(&self) -> String { "127.0.0.1".to_string() }
-    /// Nothing off the machine is a peer here, so gate 1 refuses everything
-    /// that is not loopback - which gate 0 has already passed.
-    fn is_authorized_source(&self, _host: &str) -> bool { false }
-    fn status(&self) -> Value {
-        json!({
-            "name": self.name(),
-            "available": true,
-            "advertise_host": Value::Null,
-            "bind_host": "127.0.0.1",
-        })
-    }
-}
-
-pub fn create(name: &str) -> anyhow::Result<Box<dyn Transport>> {
-    match name.trim().to_lowercase().as_str() {
-        "tailscale" => Ok(Box::new(TailscaleTransport)),
-        "loopback" => Ok(Box::new(LoopbackTransport)),
-        other => anyhow::bail!(
-            "Unknown VADGR_TRANSPORT={other:?}. Expected 'loopback' or 'tailscale'."
-        ),
     }
 }

@@ -1,76 +1,230 @@
-//! Both sockets. The CLI's `/api/ws/runs/{run_id}` and the phone's
-//! quarantined `/api/runs/{run_id}/stream`.
+//! Both sockets: the CLI's `/api/ws/runs/{run_id}` raw stream and the phone's
+//! quarantined `/api/runs/{run_id}/stream`, which speaks the published frame
+//! vocabulary. Same machinery, different framing - collapsing them into one
+//! handler would put internal event names on the phone's wire.
 //!
 //! **The refusal happens before accept.** A socket cannot answer `401` once the
-//! handshake has completed, so a caller that fails the gate is refused at the
-//! HTTP layer and never upgraded. `E2E/0.4.1` recorded a close-before-accept
-//! defect here; this release reproduces today's behaviour, including the parts
-//! a later minor fixes.
+//! handshake has completed, so a caller that fails the gate - or names a run
+//! that does not exist - is refused at the HTTP layer and never upgraded.
+//! `E2E/0.4.1` recorded a close-before-accept defect here; this release
+//! reproduces today's behaviour, including the parts a later minor fixes.
 
+use crate::auth::gate;
 use crate::state::AppState;
-use axum::extract::ws::{Message, WebSocket, WebSocketUpgrade};
+use axum::extract::ws::{CloseFrame, Message, WebSocket, WebSocketUpgrade};
 use axum::extract::{ConnectInfo, Path, Query, State};
-use axum::http::StatusCode;
-use axum::response::Response;
+use axum::http::{HeaderMap, StatusCode};
+use axum::response::{IntoResponse, Response};
 use serde::Deserialize;
+use serde_json::{json, Value};
 use std::net::SocketAddr;
+use tokio::sync::broadcast;
 
 #[derive(Deserialize)]
 pub struct WsAuth {
     /// A browser cannot set a header on a websocket, and neither can every
-    /// client library, so the token rides as a query parameter here. The phone
-    /// and the CLI both use it, and the gate is the same comparison either way.
+    /// client library, so the token may ride as a query parameter. A client
+    /// that can set headers sends `Authorization: Bearer` instead; both
+    /// daemons accept either, and the gate is the same comparison either way.
     token: Option<String>,
 }
 
-fn is_loopback(addr: &SocketAddr) -> bool {
-    addr.ip().is_loopback()
-}
-
 /// The pre-accept gate, returning `Err(status)` rather than closing a socket
-/// that was never opened.
-fn authorize(state: &AppState, peer: &SocketAddr, token: Option<&str>) -> Result<Option<String>, StatusCode> {
-    if is_loopback(peer) {
+/// that was never opened. On success: the owning device id, or `None` for a
+/// loopback caller, which has no device.
+fn authorize(
+    state: &AppState,
+    peer: &SocketAddr,
+    token: Option<&str>,
+) -> Result<Option<String>, StatusCode> {
+    let host = peer.ip().to_string();
+    // Gate 0: loopback bypass - the CLI connects with no token.
+    if gate::is_loopback(&host) {
         return Ok(None);
     }
-    if !state.transport.is_authorized_source(&peer.ip().to_string()) {
+    // Gate 1: network authorization, before any token work.
+    if !state.transport.is_authorized_source(&host) {
         return Err(StatusCode::FORBIDDEN);
     }
+    // Gate 2: token.
     let token = token.ok_or(StatusCode::UNAUTHORIZED)?;
-    let hash = crate::auth::tokens::hash_token(token);
-    match crate::db::devices::find_by_token_hash(&state.db, &hash) {
+    match gate::authenticate_device(state, token) {
         Ok(Some(device_id)) => Ok(Some(device_id)),
-        _ => Err(StatusCode::UNAUTHORIZED),
+        Ok(None) => Err(StatusCode::UNAUTHORIZED),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
     }
 }
 
+/// Query token first, `Authorization: Bearer` as the fallback - the same two
+/// places the Python routes look, in the same order.
+fn token_from(auth: &WsAuth, headers: &HeaderMap) -> Option<String> {
+    auth.token.clone().or_else(|| gate::extract_bearer(headers))
+}
+
+/// The shared pre-accept path: both gates, then the run lookup. A socket to a
+/// run that does not exist is refused at the handshake, not accepted into
+/// silence.
+fn admit(
+    state: &AppState,
+    peer: &SocketAddr,
+    run_id: &str,
+    token: Option<&str>,
+) -> Result<Option<String>, StatusCode> {
+    let device_id = authorize(state, peer, token)?;
+    match crate::db::runs::get(&state.db, run_id) {
+        Ok(Some(_)) => Ok(device_id),
+        Ok(None) => Err(StatusCode::NOT_FOUND),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
+}
+
+/// The on-box stream the CLI watches: internal events, verbatim. Send-only,
+/// like the Python route: answering a gate is `POST`, never a socket frame.
+pub async fn run_websocket(
+    ws: WebSocketUpgrade,
+    State(state): State<AppState>,
+    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    Path(run_id): Path<String>,
+    Query(auth): Query<WsAuth>,
+    headers: HeaderMap,
+) -> Response {
+    let token = token_from(&auth, &headers);
+    match admit(&state, &peer, &run_id, token.as_deref()) {
+        // The CLI socket is not device-tracked, so revoking a phone never
+        // touches it: loopback callers have no device to revoke.
+        Ok(_) => ws.on_upgrade(move |socket| pump(socket, state, run_id, None, Framing::Raw)),
+        Err(status) => status.into_response(),
+    }
+}
+
+/// The phone's stream: every frame is a published `RunEvent`, and the socket
+/// is dropped the moment its device is revoked.
 pub async fn run_stream(
     ws: WebSocketUpgrade,
     State(state): State<AppState>,
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
     Path(run_id): Path<String>,
     Query(auth): Query<WsAuth>,
+    headers: HeaderMap,
 ) -> Response {
-    match authorize(&state, &peer, auth.token.as_deref()) {
-        Ok(device_id) => ws.on_upgrade(move |socket| pump(socket, state, run_id, device_id)),
+    let token = token_from(&auth, &headers);
+    match admit(&state, &peer, &run_id, token.as_deref()) {
+        Ok(device_id) => {
+            ws.on_upgrade(move |socket| pump(socket, state, run_id, device_id, Framing::RunEvents))
+        }
         Err(status) => status.into_response(),
     }
 }
 
-use axum::response::IntoResponse;
+/// What a socket puts on the wire for one internal event.
+enum Framing {
+    /// The internal event, verbatim: the CLI reads the daemon's own names.
+    Raw,
+    /// The published `RunEvent` vocabulary; an event with no member there is
+    /// dropped, not leaked.
+    RunEvents,
+}
 
-async fn pump(mut socket: WebSocket, state: AppState, run_id: String, device_id: Option<String>) {
-    let (mut rx, replay) = state.ws.connect(&run_id);
-    if let Some(id) = device_id {
-        // The sender is what revocation drops; holding it here is what makes
-        // `DELETE /api/devices/{id}` reach a live socket.
-        let (tx, _) = tokio::sync::broadcast::channel(1);
-        state.ws.register_device_socket(&id, tx);
+impl Framing {
+    fn frame(&self, event: &Value) -> Option<String> {
+        match self {
+            Framing::Raw => Some(event.to_string()),
+            Framing::RunEvents => to_run_event(event).map(|v| v.to_string()),
+        }
     }
+}
+
+/// Map internal broadcast event types to the published `RunEvent` vocabulary.
+///
+/// Every key here is a name the daemon actually broadcasts - the map was
+/// rebuilt from the emitting code once already, after a version of it carried
+/// five names nothing emitted and a phone heard silence between `started` and
+/// `completed`.
+const EVENT_TYPE_MAP: [(&str, &str); 8] = [
+    ("run_started", "started"),
+    ("agent_started", "tool_call"),
+    ("agent_log", "output"),
+    ("agent_completed", "output"),
+    ("awaiting", "paused"),
+    ("agent_failed", "failed"),
+    ("run_completed", "completed"),
+    ("run_failed", "failed"),
+];
+
+/// Broadcast, understood, and deliberately not translatable yet: neither has
+/// a member in the published vocabulary, and inventing one here would be a
+/// published frame name chosen in the wrong place. Listed rather than left to
+/// the fallthrough so a type nobody has considered can be told apart from one
+/// that is waiting on a decision.
+const NOT_YET_ON_THIS_STREAM: [&str; 2] = ["todos", "run_resumed"];
+
+/// One internal event as a `RunEvent`, or `None` when it has no member in the
+/// published vocabulary.
+pub fn to_run_event(internal: &Value) -> Option<Value> {
+    let kind = internal.get("type").and_then(|v| v.as_str());
+    let mapped = kind.and_then(|k| {
+        EVENT_TYPE_MAP
+            .iter()
+            .find(|(from, _)| *from == k)
+            .map(|(_, to)| *to)
+    });
+    let Some(mapped) = mapped else {
+        if !kind.is_some_and(|k| NOT_YET_ON_THIS_STREAM.contains(&k)) {
+            tracing::warn!(
+                ?kind,
+                "run stream: no RunEvent for broadcast type; dropped. Add it to \
+                 EVENT_TYPE_MAP or to NOT_YET_ON_THIS_STREAM."
+            );
+        }
+        return None;
+    };
+    // The broadcast's own timestamp when it carries a well-formed one, the
+    // clock otherwise - the Python translator's exact fallback.
+    let timestamp = internal
+        .get("timestamp")
+        .and_then(|v| v.as_str())
+        .filter(|s| {
+            time::OffsetDateTime::parse(s, &time::format_description::well_known::Rfc3339)
+                .is_ok()
+        })
+        .map(str::to_string)
+        .unwrap_or_else(crate::db::now_iso);
+    Some(json!({
+        "type": mapped,
+        "timestamp": timestamp,
+        "payload": internal.get("data").cloned().unwrap_or_else(|| json!({})),
+    }))
+}
+
+async fn pump(
+    mut socket: WebSocket,
+    state: AppState,
+    run_id: String,
+    device_id: Option<String>,
+    framing: Framing,
+) {
+    let (mut rx, replay) = state.ws.connect(&run_id);
+
+    // The revocation watch. A socket with no device gets a channel that never
+    // fires; the sender lives here so it cannot close underneath the select.
+    let _keep_alive: Option<broadcast::Sender<()>>;
+    let mut revoked = match &device_id {
+        Some(id) => {
+            _keep_alive = None;
+            state.ws.watch_device(id)
+        }
+        None => {
+            let (tx, rx) = broadcast::channel(1);
+            _keep_alive = Some(tx);
+            rx
+        }
+    };
 
     // Replay first, in order, before any live frame.
     for event in replay {
-        if socket.send(Message::Text(event.to_string().into())).await.is_err() {
+        if let Some(text) = framing.frame(&event)
+            && socket.send(Message::Text(text.into())).await.is_err()
+        {
             return;
         }
     }
@@ -85,7 +239,9 @@ async fn pump(mut socket: WebSocket, state: AppState, run_id: String, device_id:
             event = rx.recv() => {
                 match event {
                     Ok(e) => {
-                        if socket.send(Message::Text(e.to_string().into())).await.is_err() {
+                        if let Some(text) = framing.frame(&e)
+                            && socket.send(Message::Text(text.into())).await.is_err()
+                        {
                             return;
                         }
                     }
@@ -93,9 +249,21 @@ async fn pump(mut socket: WebSocket, state: AppState, run_id: String, device_id:
                     // channel dropped frames for it. Python's sequential send
                     // delays every other subscriber instead; both are the
                     // buffer's consequence and 0.6.0 reshapes it.
-                    Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => continue,
+                    Err(broadcast::error::RecvError::Lagged(_)) => continue,
                     Err(_) => return,
                 }
+            }
+            _ = revoked.recv() => {
+                // The device was just unpaired. Close now, with the same close
+                // the Python manager sends, rather than streaming on until the
+                // next reconnect fails the gate.
+                let _ = socket
+                    .send(Message::Close(Some(CloseFrame {
+                        code: 4003,
+                        reason: "Device revoked".into(),
+                    })))
+                    .await;
+                return;
             }
         }
     }

@@ -80,6 +80,18 @@ fn a_terminal_transition_stamps_completed_at_and_a_live_one_does_not() {
 }
 
 #[test]
+fn running_stamps_started_at_exactly_once() {
+    // COALESCE, like the Python repository: a run that goes to `running`
+    // again keeps when it first started rather than rewriting history.
+    let db = seeded();
+    let first = runs::update_status(&db, "r2", "running").unwrap().unwrap();
+    let started = first["started_at"].as_str().unwrap().to_string();
+    assert!(started.ends_with("+00:00"), "the Python timestamp shape: {started}");
+    let again = runs::update_status(&db, "r2", "running").unwrap().unwrap();
+    assert_eq!(again["started_at"], started.as_str());
+}
+
+#[test]
 fn getting_a_run_that_is_not_there_is_none_not_an_error() {
     let db = seeded();
     assert!(runs::get(&db, "nope").unwrap().is_none());

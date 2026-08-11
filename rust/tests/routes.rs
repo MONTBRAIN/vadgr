@@ -12,7 +12,7 @@ use vadgr_daemon::auth::pairing::PairingStore;
 use vadgr_daemon::config::Config;
 use vadgr_daemon::db::Db;
 use vadgr_daemon::state::AppState;
-use vadgr_daemon::transport::{tailscale::LoopbackTransport, Transport};
+use vadgr_daemon::transport::{LoopbackTransport, Transport};
 use vadgr_daemon::ws::manager::ConnectionManager;
 
 /// A transport that calls every non-loopback source a peer, so gate 1 passes
@@ -21,7 +21,8 @@ struct EveryoneIsAPeer;
 impl Transport for EveryoneIsAPeer {
     fn name(&self) -> &'static str { "test" }
     fn advertise_host(&self) -> Option<String> { Some("machine.tail.ts.net".into()) }
-    fn bind_host(&self) -> String { "100.64.0.1".into() }
+    fn bind_host(&self) -> anyhow::Result<String> { Ok("100.64.0.1".into()) }
+    fn is_available(&self) -> bool { true }
     fn is_authorized_source(&self, _h: &str) -> bool { true }
     fn status(&self) -> Value { serde_json::json!({"name": "test", "available": true}) }
 }
@@ -143,6 +144,68 @@ async fn a_paired_device_reaches_the_route() {
     let (status, body) = send(state, get_with_token("/api/runs", token), "100.64.0.9").await;
     assert_eq!(status, StatusCode::OK);
     assert!(body.is_array());
+}
+
+#[tokio::test]
+async fn the_bearer_scheme_is_case_insensitive_like_the_python_extractor() {
+    // `bearer x` is a presented token, not an absent one. A port that only
+    // took `Bearer<space>` would answer MISSING_TOKEN where the other daemon
+    // answers INVALID_TOKEN, and the phone reads those as different failures.
+    let state = state_with(Box::new(EveryoneIsAPeer));
+    let token = "a-known-token";
+    vadgr_daemon::db::devices::create(
+        &state.db,
+        "my-phone",
+        &vadgr_daemon::auth::tokens::hash_token(token),
+    )
+    .unwrap();
+
+    let (status, _) = send(
+        state.clone(),
+        get_with_scheme("/api/runs", "bearer", token),
+        "100.64.0.9",
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+
+    let (status, body) = send(
+        state,
+        get_with_scheme("/api/runs", "BEARER", "wrong-token"),
+        "100.64.0.9",
+    )
+    .await;
+    assert_eq!(status, StatusCode::UNAUTHORIZED);
+    assert_eq!(body["error"]["code"], "INVALID_TOKEN");
+}
+
+fn get_with_scheme(path: &str, scheme: &str, token: &str) -> Request<Body> {
+    Request::builder()
+        .uri(path)
+        .header("authorization", format!("{scheme} {token}"))
+        .body(Body::empty())
+        .unwrap()
+}
+
+#[tokio::test]
+async fn a_claim_body_with_an_undeclared_field_is_a_422() {
+    // Python bodies are strict: a typo or a stale field announces itself
+    // instead of being silently dropped.
+    let state = state_with(Box::new(EveryoneIsAPeer));
+    let claim = Request::builder()
+        .method("POST")
+        .uri("/api/auth/claim")
+        .header("content-type", "application/json")
+        .body(Body::from(
+            serde_json::json!({
+                "pairing_token": "AAAA-AAAA",
+                "device_name": "my-phone",
+                "cache_enabled": true,
+            })
+            .to_string(),
+        ))
+        .unwrap();
+    let (status, _) = send(state, claim, "100.64.0.9").await;
+    assert_eq!(status, StatusCode::UNPROCESSABLE_ENTITY);
 }
 
 // ---------------------------------------------------------------- the routes

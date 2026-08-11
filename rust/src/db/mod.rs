@@ -54,6 +54,12 @@ impl Db {
         } else {
             Connection::open(path)?
         };
+        // The same two pragmas the Python daemon sets on connect. WAL is the
+        // journal mode the migration's database copies assume (`VACUUM INTO`,
+        // never `cp`), so the Rust daemon must not quietly write a different
+        // one into a shared file.
+        conn.execute_batch("PRAGMA foreign_keys = ON")?;
+        let _mode: String = conn.query_row("PRAGMA journal_mode = WAL", [], |r| r.get(0))?;
         conn.execute_batch(SCHEMA)?;
         Ok(Self(Arc::new(Mutex::new(conn))))
     }
@@ -62,4 +68,17 @@ impl Db {
         let guard = self.0.lock().expect("db mutex poisoned");
         f(&guard)
     }
+}
+
+/// The one clock the repositories write with, shaped like the Python
+/// daemon's: UTC, microseconds, `+00:00`. Both daemons read one set of rows
+/// during the migration, and a column holding two timestamp shapes is a
+/// parser bug waiting in whichever client reads it next.
+pub fn now_iso() -> String {
+    let format = time::macros::format_description!(
+        "[year]-[month]-[day]T[hour]:[minute]:[second].[subsecond digits:6]+00:00"
+    );
+    time::OffsetDateTime::now_utc()
+        .format(&format)
+        .expect("a fixed format cannot fail on a real instant")
 }

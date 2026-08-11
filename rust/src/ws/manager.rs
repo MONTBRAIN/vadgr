@@ -23,10 +23,11 @@ struct RunChannel {
 #[derive(Default)]
 pub struct ConnectionManager {
     channels: Mutex<HashMap<String, RunChannel>>,
-    /// Sockets a device holds, so revoking that device can drop them now.
-    /// Revocation that only applies to the next request leaves a live socket
+    /// One revocation channel per device with live sockets. Every socket the
+    /// device owns watches it, so revoking the device can drop them **now**:
+    /// revocation that only applies to the next request leaves a live socket
     /// streaming to a phone the owner just unpaired.
-    device_sockets: Mutex<HashMap<String, Vec<broadcast::Sender<Value>>>>,
+    device_revocations: Mutex<HashMap<String, broadcast::Sender<()>>>,
 }
 
 impl ConnectionManager {
@@ -72,20 +73,27 @@ impl ConnectionManager {
             .unwrap_or(0)
     }
 
-    pub fn register_device_socket(&self, device_id: &str, tx: broadcast::Sender<Value>) {
-        self.device_sockets
+    /// The signal a socket owned by this device selects on. Fires when the
+    /// device is revoked; the socket answers by closing itself.
+    pub fn watch_device(&self, device_id: &str) -> broadcast::Receiver<()> {
+        self.device_revocations
             .lock()
             .expect("ws mutex poisoned")
             .entry(device_id.to_string())
-            .or_default()
-            .push(tx);
+            .or_insert_with(|| broadcast::channel(1).0)
+            .subscribe()
     }
 
     /// Drop every socket this device holds. Called by `DELETE /api/devices/{id}`.
+    /// Idempotent: revoking a device with no sockets, or twice, is not an error.
     pub fn disconnect_device(&self, device_id: &str) {
-        self.device_sockets
+        if let Some(tx) = self
+            .device_revocations
             .lock()
             .expect("ws mutex poisoned")
-            .remove(device_id);
+            .remove(device_id)
+        {
+            let _ = tx.send(());
+        }
     }
 }

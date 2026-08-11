@@ -73,14 +73,16 @@ fn the_fifth_failure_burns_the_code_and_says_so_once() {
 }
 
 #[test]
-fn a_malformed_code_still_counts_as_an_attempt() {
-    // Not charging it would make the cap bypassable by sending nine characters.
+fn malformed_input_never_reaches_the_counter() {
+    // Garbage cannot burn a code: only eight well-formed wrong characters
+    // can. The cap defends the code against guessing, and anyone able to
+    // reach the endpoint could otherwise kill a live pairing with noise.
     let store = PairingStore::new(300);
-    let _code = store.mint();
-    for _ in 1..PAIRING_MAX_FAILURES {
+    let code = store.mint();
+    for _ in 0..(PAIRING_MAX_FAILURES * 2) {
         assert_eq!(store.redeem("nope"), ClaimResult::Invalid);
     }
-    assert_eq!(store.redeem("nope"), ClaimResult::RateLimited);
+    assert_eq!(store.redeem(&code), ClaimResult::Ok, "the code survived the noise");
 }
 
 #[test]
@@ -94,9 +96,37 @@ fn an_expired_code_is_expired_and_not_merely_invalid() {
 }
 
 #[test]
+fn only_the_right_code_typed_late_answers_expired() {
+    // A wrong guess at a dead code counts for nothing and learns nothing:
+    // answering Expired to any guess would tell a guesser a code existed. The
+    // slot is held until it is minted over, so the RIGHT code typed late
+    // still answers Expired afterwards.
+    let store = PairingStore::new(0);
+    let code = store.mint();
+    std::thread::sleep(std::time::Duration::from_millis(5));
+    assert_eq!(store.redeem("00000000"), ClaimResult::Invalid);
+    assert_eq!(store.redeem("junk"), ClaimResult::Invalid);
+    assert_eq!(store.redeem(&code), ClaimResult::Expired);
+    // and consuming the expiry verdict clears the slot
+    assert_eq!(store.redeem(&code), ClaimResult::Invalid);
+}
+
+#[test]
 fn redeeming_with_nothing_outstanding_is_invalid() {
     let store = PairingStore::new(300);
     assert_eq!(store.redeem("ABCD1234"), ClaimResult::Invalid);
+}
+
+#[test]
+fn a_device_token_has_the_shape_token_urlsafe_produces() {
+    // 32 bytes of entropy, url-safe base64, no padding: 43 characters. The
+    // phone stores whatever it is handed, so the shape only has to stay
+    // consistent between the two daemons - and it does, by construction.
+    let token = vadgr_daemon::auth::tokens::generate_token();
+    assert_eq!(token.len(), 43);
+    assert!(token
+        .bytes()
+        .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_'));
 }
 
 #[test]

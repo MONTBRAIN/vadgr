@@ -7,11 +7,13 @@
 //! because a rename is not what this release is for.
 //!
 //! Order is the security property, and the three public paths bypass all of it.
+//! The helpers here are shared with the websocket handshake, which runs the
+//! same gates through its own pre-accept path.
 
 use crate::error::ApiError;
 use crate::state::AppState;
 use axum::extract::{ConnectInfo, State};
-use axum::http::Request;
+use axum::http::{HeaderMap, Request};
 use axum::middleware::Next;
 use axum::response::{IntoResponse, Response};
 use std::net::SocketAddr;
@@ -21,9 +23,52 @@ use std::net::SocketAddr;
 /// gate, which is why the set is short and stated in one place.
 const PUBLIC_PATHS: [&str; 3] = ["/api/health", "/api/auth/pair", "/api/auth/claim"];
 
-fn is_loopback(host: &str) -> bool {
+pub fn is_loopback(host: &str) -> bool {
     let h = host.to_lowercase();
     matches!(h.as_str(), "127.0.0.1" | "::1" | "localhost" | "testclient") || h.starts_with("127.")
+}
+
+/// The bearer token, however the client spelt the scheme. The scheme is
+/// case-insensitive and the split is on whitespace, both of which the Python
+/// extractor forgives; a port that only took `Bearer<space>` would turn a
+/// lowercase `bearer` into `MISSING_TOKEN` where the other daemon answers
+/// `INVALID_TOKEN`. A non-bearer authorization header is skipped, not a stop:
+/// a later header may still carry the token.
+pub fn extract_bearer(headers: &HeaderMap) -> Option<String> {
+    for value in headers.get_all(axum::http::header::AUTHORIZATION) {
+        let Ok(raw) = value.to_str() else { continue };
+        let raw = raw.trim();
+        let Some(split) = raw.find(char::is_whitespace) else { continue };
+        let (scheme, rest) = raw.split_at(split);
+        if !scheme.eq_ignore_ascii_case("bearer") {
+            continue;
+        }
+        let token = rest.trim();
+        if !token.is_empty() {
+            return Some(token.to_string());
+        }
+    }
+    None
+}
+
+/// Gate 2, shared by HTTP and the websocket handshake: the device row the
+/// token hashes to, or `None`. A hit touches `last_seen`; the touch is
+/// best-effort bookkeeping and a failure is logged, never fatal.
+pub fn authenticate_device(
+    state: &AppState,
+    token: &str,
+) -> Result<Option<String>, rusqlite::Error> {
+    if token.is_empty() {
+        return Ok(None);
+    }
+    let hash = super::tokens::hash_token(token);
+    let Some(device_id) = crate::db::devices::find_by_token_hash(&state.db, &hash)? else {
+        return Ok(None);
+    };
+    if let Err(err) = crate::db::devices::touch_last_seen(&state.db, &device_id) {
+        tracing::warn!(%device_id, %err, "touching last_seen failed");
+    }
+    Ok(Some(device_id))
 }
 
 pub async fn gate<B>(
@@ -57,27 +102,20 @@ where
     }
 
     // Gate 2: token.
-    let presented = req
-        .headers()
-        .get(axum::http::header::AUTHORIZATION)
-        .and_then(|v| v.to_str().ok())
-        .and_then(|v| v.strip_prefix("Bearer "))
-        .map(|s| s.trim().to_string())
-        .filter(|s| !s.is_empty());
-
+    let presented = extract_bearer(req.headers());
     let device = match &presented {
-        Some(token) => {
-            let hash = super::tokens::hash_token(token);
-            crate::db::devices::find_by_token_hash(&state.db, &hash).ok().flatten()
-        }
+        Some(token) => match authenticate_device(&state, token) {
+            Ok(device) => device,
+            // A storage failure is not "you authenticated as nobody": telling
+            // a paired phone INVALID_TOKEN over a database hiccup would send
+            // its owner back through pairing for nothing.
+            Err(err) => return ApiError::internal(err).into_response(),
+        },
         None => None,
     };
 
     match device {
-        Some(device_id) => {
-            let _ = crate::db::devices::touch_last_seen(&state.db, &device_id);
-            next.run(req).await
-        }
+        Some(_) => next.run(req).await,
         // **The two 401 codes stay two codes.** They say "you did not
         // authenticate" and "you authenticated as nobody", and the phone acts
         // differently on each: one is a client bug, the other is a pairing the

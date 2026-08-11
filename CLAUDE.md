@@ -304,7 +304,7 @@ The gate, all three suites, before offering anything:
 PYTHONPATH=. python3 -m pytest engine/tests/ -q     # 122
 python3 -m pytest api/tests/ -q                     # 429
 python3 -m pytest cli/tests/ -q                     # 141
-(cd rust && cargo test)                             # 40
+(cd rust && cargo test)                             # 78
 ```
 
 The api and cli counts read `596` and `201` until `0.4.5`, which were their

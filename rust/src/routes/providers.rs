@@ -18,6 +18,8 @@ pub async fn list_providers(State(state): State<AppState>) -> Json<Vec<Value>> {
                 "id": key,
                 "name": cfg.name.clone().unwrap_or_else(|| key.clone()),
                 "available": available,
+                // Published verbatim: the file's `{id, name}` maps, in the
+                // file's order.
                 "models": cfg.models,
             })
         })

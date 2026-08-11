@@ -255,3 +255,65 @@ iteration table, not decided.
 the docs repo cloned beside it. If you cloned it under a different name, use
 that name. Nothing here assumes a particular machine, user or absolute path.
 
+## How a change is proven here
+
+- **No em dashes** in comments, docstrings, the CHANGELOG, CLI output or a PR
+  body. A colon or a spaced hyphen does the job.
+- **Every fix gets a test that fails without it.** Stash the fix, watch it go
+  red, restore. A test that passes either way tests nothing - one written for a
+  gate crash here passed against the unfixed code because the fake never reached
+  the failing line.
+- **The e2e runbook is run before the PR is offered**, not after. It lives at
+  `E2E/<version>/e2e.md`, starts from `E2E/TEMPLATE.md`, and its doctrine is
+  `E2E/README.md` - both in this repo. Its coverage tables are **generated from
+  a recorded sweep**, never typed.
+- **Never report a result from a command whose exit code you did not read.**
+  `cmd | head` reports `head`'s status. That produced a confident, wrong claim
+  about a CLI exit code in `0.4.1`.
+- **A pass with no output is not a pass.** A sweep that invoked the CLI as a
+  module exited `0` five times having printed nothing, against a daemon it never
+  reached.
+
+**Close the runbook with three independent passes** - three agents running the
+sweep concurrently, each with its own port, database and daemon, compared
+structurally on status, error code, exit code and socket frame counts. Input
+tokens should match across all three and output tokens should differ; three
+identical output counts mean one result was reused, not that the run is stable.
+Ask each what looked odd, not only whether it passed
+(`../vadgr-docs/general/ENGINEERING.md` §6).
+
+The gate, all three suites, before offering anything:
+
+```bash
+PYTHONPATH=. python3 -m pytest engine/tests/ -q     # 122
+python3 -m pytest api/tests/ -q                     # 429
+python3 -m pytest cli/tests/ -q                     # 141
+(cd rust && cargo test)                             # 78
+```
+
+The api and cli counts read `596` and `201` until `0.4.5`, which were their
+pre-deletion sizes: `0.4.4` removed the surfaces those tests covered and nobody
+moved the numbers. A count that is too high reads as a regression to whoever
+runs the suite next, which is the opposite of what it is for.
+
+One test process at a time wherever anything is shared - two overlapping runs
+look exactly like a hung suite. Runs with their own port, database and daemon
+may overlap; that is what makes the three-agent e2e close safe.
+
+## Conventions
+
+- Comments explain **why**, not what. Match the surrounding density and voice.
+- Branch per minor, PR per minor. Never commit to `master`.
+- `CHANGELOG.md` is updated **in the PR**, and the version in `api/config.py`
+  moves with it.
+- **`README.md` is updated in the same PR when the minor changed what it says**,
+  and it is the file most people read. A deleted surface, a renamed command, a
+  moved directory, a changed install path, a changed dependency floor, or a
+  change in what the product **is** all change it. Read the release's own diff
+  against it and either edit it or **say nothing in it changed** - the silence is
+  the defect. A claim can also rot with no diff touching it, and the one-line
+  description is the usual casualty. This repo's went three minors selling
+  "AI agents" after the re-scope replaced them, with an install command
+  pointing at the repository's former name.
+- A minor ends by updating `vadgr-docs/PROGRESS.md` and naming what is next -
+  read from `PLANS.md`'s iteration table, not decided.

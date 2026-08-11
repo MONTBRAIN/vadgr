@@ -4,7 +4,7 @@
 //! map, because a code minted by one daemon must be typeable into the other
 //! during the migration.
 
-use rand::Rng;
+use rand::RngExt;
 use sha2::{Digest, Sha256};
 
 /// Crockford base32: digits plus the alphabet minus I, L, O and U. The
@@ -15,8 +15,8 @@ pub const CROCKFORD_ALPHABET: &[u8] = b"0123456789ABCDEFGHJKMNPQRSTVWXYZ";
 const TOKEN_ENTROPY_BYTES: usize = 32;
 
 pub fn generate_token() -> String {
-    let mut rng = rand::thread_rng();
-    let bytes: Vec<u8> = (0..TOKEN_ENTROPY_BYTES).map(|_| rng.gen()).collect();
+    let mut rng = rand::rng();
+    let bytes: Vec<u8> = (0..TOKEN_ENTROPY_BYTES).map(|_| rng.random()).collect();
     // URL-safe, unpadded: the same shape `secrets.token_urlsafe` produces.
     base64_url_nopad(&bytes)
 }
@@ -41,9 +41,9 @@ fn base64_url_nopad(bytes: &[u8]) -> String {
 /// construction, with no modulo bias to reason about. Returned in the grouped
 /// `XXXX-XXXX` form the route puts on the wire.
 pub fn generate_pairing_code() -> String {
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     let raw: String = (0..8)
-        .map(|_| CROCKFORD_ALPHABET[rng.gen_range(0..CROCKFORD_ALPHABET.len())] as char)
+        .map(|_| CROCKFORD_ALPHABET[rng.random_range(0..CROCKFORD_ALPHABET.len())] as char)
         .collect();
     format!("{}-{}", &raw[..4], &raw[4..])
 }
@@ -77,7 +77,11 @@ pub fn normalize_pairing_code(raw: &str) -> Option<String> {
 pub fn hash_token(token: &str) -> String {
     let mut h = Sha256::new();
     h.update(token.as_bytes());
-    format!("{:x}", h.finalize())
+    // sha2 0.11 returns an array that does not implement LowerHex, so the hex
+    // digest is written here. It must stay lowercase and unpadded: the Python
+    // daemon stores the same digest, and both daemons compare against one
+    // devices table during the migration.
+    h.finalize().iter().map(|b| format!("{b:02x}")).collect()
 }
 
 /// Constant-time comparison of two hex digests.

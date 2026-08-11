@@ -75,19 +75,24 @@ pub fn get(db: &Db, run_id: &str) -> rusqlite::Result<Option<Value>> {
 /// than fail. Validation belongs to the writer, and this release has no writer
 /// but cancel.
 pub fn update_status(db: &Db, run_id: &str, status: &str) -> rusqlite::Result<Option<Value>> {
+    let now = super::now_iso();
     db.with(|c| {
-        let completed = matches!(status, "completed" | "failed");
-        if completed {
-            c.execute(
-                "UPDATE runs SET status = ?1, completed_at = datetime('now') WHERE id = ?2",
-                rusqlite::params![status, run_id],
-            )?;
-        } else {
-            c.execute(
+        match status {
+            // COALESCE so a resume never rewrites when the run first started:
+            // the Python repository stamps `started_at` exactly once.
+            "running" => c.execute(
+                "UPDATE runs SET status = ?1, started_at = COALESCE(started_at, ?2) WHERE id = ?3",
+                rusqlite::params![status, now, run_id],
+            )?,
+            "completed" | "failed" => c.execute(
+                "UPDATE runs SET status = ?1, completed_at = ?2 WHERE id = ?3",
+                rusqlite::params![status, now, run_id],
+            )?,
+            _ => c.execute(
                 "UPDATE runs SET status = ?1 WHERE id = ?2",
                 rusqlite::params![status, run_id],
-            )?;
-        }
+            )?,
+        };
         Ok(())
     })?;
     get(db, run_id)

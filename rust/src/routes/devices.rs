@@ -7,7 +7,7 @@ use serde_json::{json, Value};
 pub async fn list_devices(State(state): State<AppState>) -> ApiResult<Json<Vec<Value>>> {
     crate::db::devices::list_all(&state.db)
         .map(Json)
-        .map_err(|e| ApiError::new(axum::http::StatusCode::INTERNAL_SERVER_ERROR, "INTERNAL", e.to_string()))
+        .map_err(ApiError::internal)
 }
 
 /// Revoke a device. Future requests with its token fail gate 2, and **any live
@@ -17,9 +17,7 @@ pub async fn revoke_device(
     State(state): State<AppState>,
     Path(device_id): Path<String>,
 ) -> ApiResult<Json<Value>> {
-    let deleted = crate::db::devices::delete(&state.db, &device_id).map_err(|e| {
-        ApiError::new(axum::http::StatusCode::INTERNAL_SERVER_ERROR, "INTERNAL", e.to_string())
-    })?;
+    let deleted = crate::db::devices::delete(&state.db, &device_id).map_err(ApiError::internal)?;
     if !deleted {
         return Err(ApiError::device_not_found(&device_id));
     }

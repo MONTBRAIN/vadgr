@@ -36,6 +36,17 @@ impl ApiError {
         self
     }
 
+    /// A storage failure surfacing as a response. One constructor, because the
+    /// same mapping written inline at each call site is how three of them
+    /// drift apart.
+    pub fn internal(err: impl std::fmt::Display) -> Self {
+        Self::new(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "INTERNAL",
+            err.to_string(),
+        )
+    }
+
     pub fn run_not_found(run_id: &str) -> Self {
         Self::new(
             StatusCode::NOT_FOUND,

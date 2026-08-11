@@ -19,7 +19,10 @@ pub async fn get_computer_use(State(state): State<AppState>) -> Json<Value> {
     }))
 }
 
+/// Strict, like the Python body it mirrors: an undeclared field is a 422, not
+/// silently dropped.
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Update {
     pub enabled: bool,
 }
