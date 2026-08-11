@@ -10,17 +10,13 @@
 //! `0.4.6`'s, so they are absent rather than stubbed and the runbook cells that
 //! trigger a run are held.
 
-mod auth;
-mod config;
-mod db;
-mod error;
-mod routes;
-mod state;
-mod transport;
-mod ws;
+// The modules live in the library (`lib.rs`) and the binary uses them from
+// there rather than declaring them a second time. Declaring both compiles every
+// module twice and makes anything the binary happens not to call look dead.
+use vadgr_daemon::{auth, config, db, routes, transport, ws};
 
 use anyhow::Result;
-use state::AppState;
+use vadgr_daemon::state::AppState;
 use std::net::SocketAddr;
 use std::sync::Arc;
 
