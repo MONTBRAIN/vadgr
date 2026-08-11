@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     # default in code answered `claude_code`, so a run that named no provider
     # would have gone to a deprecated subprocess CLI instead of the native loop.
     provider_timeout: int = 300
-    version: str = "0.4.4"
+    version: str = "0.4.5"
 
     model_config = {"env_prefix": "AGENT_FORGE_"}
 

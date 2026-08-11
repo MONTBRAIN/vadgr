@@ -2,6 +2,40 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.4.5] - 2026-08-11
+
+**The daemon is being rewritten in Rust, and this is the first release of it.**
+Nothing you use changes: the Rust daemon runs **beside** the Python one, on its
+own port and its own database, and the Python daemon is still the product until
+the cutover. This release exists to be compared against it.
+
+### Added
+- **A Rust daemon that answers everything except starting work.** Health,
+  pairing and claiming, devices, providers, the computer-use settings, the run
+  list and a run's detail, cancel, and both run sockets with their replay.
+- **`rust/`**, a new tree beside `api/`, `engine/` and `cli/`, with its own
+  README covering how to run it and what it deliberately does not do.
+- 40 tests over the error envelope, the pairing code's rules, the run
+  repository's wire mapping, the socket buffer, and the gates driven through
+  the real router.
+
+### Notes
+- **It cannot start or resume a run**, and both routes are **absent rather than
+  stubbed**. A `501`, a plausible `202` with no run behind it, or a queued row
+  nothing will pick up are three ways of reporting a success that did not
+  happen. Both arrive with the loop, in the next release.
+- **The database schema is copied, not improved**, and the error envelope is
+  reproduced exactly: status and code alike. Both are what make the release
+  checkable at all.
+- **The replay buffer is reproduced, not fixed.** The daemon buffers up to 500
+  frames per run and replays them to a late connector. That is what the shipped
+  daemon does, and changing it here would make the comparison meaningless.
+- **Copy a database with `VACUUM INTO`, never `cp`.** SQLite runs in WAL mode,
+  so a bare file copy is a different database: it carries what was last
+  checkpointed and silently drops the rest.
+- The Rust daemon takes port `8100` by default, not `8000`, because both run at
+  once.
+
 ## [0.4.4] - 2026-08-09
 
 **Most of this repository is gone.** The agent entity, projects and the DAG, the scaffolder, the bundle installer and the per-run `output/` tree are deleted, along with every run endpoint that had no live consumer. **This removes shipped endpoints and shipped CLI commands, and it rewrites the database schema in place.** What replaces all of it is one sentence: `POST /api/runs {"task": "..."}` starts a run, and `vadgr run "<task>"` does the same from the box. What the phone reads is untouched.

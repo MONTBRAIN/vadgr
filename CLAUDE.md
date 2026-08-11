@@ -302,9 +302,15 @@ The gate, all three suites, before offering anything:
 
 ```bash
 PYTHONPATH=. python3 -m pytest engine/tests/ -q     # 122
-python3 -m pytest api/tests/ -q                     # 596
-python3 -m pytest cli/tests/ -q                     # 201
+python3 -m pytest api/tests/ -q                     # 429
+python3 -m pytest cli/tests/ -q                     # 141
+(cd rust && cargo test)                             # 40
 ```
+
+The api and cli counts read `596` and `201` until `0.4.5`, which were their
+pre-deletion sizes: `0.4.4` removed the surfaces those tests covered and nobody
+moved the numbers. A count that is too high reads as a regression to whoever
+runs the suite next, which is the opposite of what it is for.
 
 One test process at a time wherever anything is shared - two overlapping runs
 look exactly like a hung suite. Runs with their own port, database and daemon
