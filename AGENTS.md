@@ -282,7 +282,7 @@ identical output counts mean one result was reused, not that the run is stable.
 Ask each what looked odd, not only whether it passed
 (`../vadgr-docs/general/ENGINEERING.md` §6).
 
-The gate, all three suites, before offering anything:
+The gate, all four suites, before offering anything:
 
 ```bash
 PYTHONPATH=. python3 -m pytest engine/tests/ -q     # 122

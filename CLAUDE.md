@@ -298,7 +298,7 @@ offered.
 - **The e2e runbook lives at `E2E/<version>/e2e.md`**, starts from
   `E2E/TEMPLATE.md`, and its doctrine is `E2E/README.md`, all in this repo.
 
-The gate, all three suites, before offering anything:
+The gate, all four suites, before offering anything:
 
 ```bash
 PYTHONPATH=. python3 -m pytest engine/tests/ -q     # 122

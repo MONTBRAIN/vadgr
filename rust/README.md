@@ -28,6 +28,8 @@ VADGR_PORT=8156 VADGR_DB=/tmp/copy.db VADGR_TRANSPORT=tailscale \
 | `VADGR_DB` | `data/vadgr-rust.db` | its own file, never the Python daemon's |
 | `VADGR_TRANSPORT` | `loopback` | or `tailscale` |
 | `VADGR_PROVIDERS` | `providers.yaml` | the provider catalogue |
+| `VADGR_COMPUTER_USE` | `false` | the flag health and the settings routes report |
+| `VADGR_TAILSCALED_SOCKET` | `/var/run/tailscale/tailscaled.sock` | the tailscaled LocalAPI socket |
 
 **Copy a database with `VACUUM INTO`, never `cp`.** The daemon runs SQLite in
 WAL mode, so a bare file copy is a different database: it carries what was last
@@ -36,7 +38,7 @@ way rolled a schema back past a whole release's migration, and the daemon then
 answered `500 no such column` against what looked like a current file.
 
 ```bash
-sqlite3 data/vadgr.db "VACUUM INTO '/tmp/copy.db';"
+sqlite3 data/agent_forge.db "VACUUM INTO '/tmp/copy.db';"
 ```
 
 ## Layout

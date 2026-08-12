@@ -15,9 +15,9 @@ the cutover. This release exists to be compared against it.
   list and a run's detail, cancel, and both run sockets with their replay.
 - **`rust/`**, a new tree beside `api/`, `engine/` and `cli/`, with its own
   README covering how to run it and what it deliberately does not do.
-- 40 tests over the error envelope, the pairing code's rules, the run
-  repository's wire mapping, the socket buffer, and the gates driven through
-  the real router.
+- 78 tests over the error envelope, the pairing code's rules, the two
+  repositories' wire mapping, the socket buffer, the stream's frame mapping,
+  the transport adapter, and the gates driven through the real router.
 
 ### Notes
 - **It cannot start or resume a run**, and both routes are **absent rather than
