@@ -64,7 +64,10 @@ impl Db {
         Ok(Self(Arc::new(Mutex::new(conn))))
     }
 
-    pub fn with<T>(&self, f: impl FnOnce(&Connection) -> rusqlite::Result<T>) -> rusqlite::Result<T> {
+    pub fn with<T>(
+        &self,
+        f: impl FnOnce(&Connection) -> rusqlite::Result<T>,
+    ) -> rusqlite::Result<T> {
         let guard = self.0.lock().expect("db mutex poisoned");
         f(&guard)
     }

@@ -38,6 +38,20 @@ pub trait Transport: Send + Sync {
     fn status(&self) -> Value;
 }
 
+/// The Python launcher always keeps the local CLI address open. A live
+/// transport adds its address; an unavailable one leaves loopback working and
+/// makes pairing report the transport failure through its normal route.
+pub fn bind_hosts(transport: &dyn Transport) -> Vec<String> {
+    match transport.bind_host() {
+        Ok(primary) if primary == "127.0.0.1" => vec![primary],
+        Ok(primary) => vec![primary, "127.0.0.1".to_string()],
+        Err(error) => {
+            tracing::warn!(%error, "transport unavailable; binding loopback only");
+            vec!["127.0.0.1".to_string()]
+        }
+    }
+}
+
 /// Build the configured transport. The tailscale adapter gets the real
 /// LocalAPI client here; tests construct it with a fake instead.
 pub fn create(name: &str) -> anyhow::Result<Box<dyn Transport>> {
@@ -46,8 +60,8 @@ pub fn create(name: &str) -> anyhow::Result<Box<dyn Transport>> {
             TailscaledLocalApi::from_env(),
         ))),
         "loopback" => Ok(Box::new(LoopbackTransport)),
-        other => anyhow::bail!(
-            "Unknown VADGR_TRANSPORT={other:?}. Expected 'loopback' or 'tailscale'."
-        ),
+        other => {
+            anyhow::bail!("Unknown VADGR_TRANSPORT={other:?}. Expected 'loopback' or 'tailscale'.")
+        }
     }
 }

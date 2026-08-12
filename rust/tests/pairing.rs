@@ -4,8 +4,8 @@
 //! implementation, not read back off it. A test written from the code it tests
 //! asserts that the code does what it does.
 
-use vadgr_daemon::auth::pairing::{ClaimResult, PairingStore, PAIRING_MAX_FAILURES};
-use vadgr_daemon::auth::tokens::{hash_token, normalize_pairing_code, CROCKFORD_ALPHABET};
+use vadgr_daemon::auth::pairing::{ClaimResult, PAIRING_MAX_FAILURES, PairingStore};
+use vadgr_daemon::auth::tokens::{CROCKFORD_ALPHABET, hash_token, normalize_pairing_code};
 
 #[test]
 fn a_minted_code_is_grouped_and_normalises_to_eight_symbols() {
@@ -23,7 +23,11 @@ fn the_alphabet_excludes_the_confusable_letters() {
     // The exclusions are the whole point: a person reads this off a terminal
     // and types it on a phone, and 0/O and 1/I/L are where that goes wrong.
     for ch in *b"ILOU" {
-        assert!(!CROCKFORD_ALPHABET.contains(&ch), "{} must not be in the alphabet", ch as char);
+        assert!(
+            !CROCKFORD_ALPHABET.contains(&ch),
+            "{} must not be in the alphabet",
+            ch as char
+        );
     }
 }
 
@@ -40,7 +44,11 @@ fn a_code_is_claimable_exactly_once() {
     let store = PairingStore::new(300);
     let code = store.mint();
     assert_eq!(store.redeem(&code), ClaimResult::Ok);
-    assert_eq!(store.redeem(&code), ClaimResult::Invalid, "a used code is not claimable");
+    assert_eq!(
+        store.redeem(&code),
+        ClaimResult::Invalid,
+        "a used code is not claimable"
+    );
 }
 
 #[test]
@@ -82,7 +90,11 @@ fn malformed_input_never_reaches_the_counter() {
     for _ in 0..(PAIRING_MAX_FAILURES * 2) {
         assert_eq!(store.redeem("nope"), ClaimResult::Invalid);
     }
-    assert_eq!(store.redeem(&code), ClaimResult::Ok, "the code survived the noise");
+    assert_eq!(
+        store.redeem(&code),
+        ClaimResult::Ok,
+        "the code survived the noise"
+    );
 }
 
 #[test]
@@ -124,9 +136,11 @@ fn a_device_token_has_the_shape_token_urlsafe_produces() {
     // consistent between the two daemons - and it does, by construction.
     let token = vadgr_daemon::auth::tokens::generate_token();
     assert_eq!(token.len(), 43);
-    assert!(token
-        .bytes()
-        .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_'));
+    assert!(
+        token
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_')
+    );
 }
 
 #[test]

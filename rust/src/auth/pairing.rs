@@ -42,7 +42,10 @@ pub struct PairingStore {
 
 impl PairingStore {
     pub fn new(ttl_seconds: u64) -> Self {
-        Self { ttl: Duration::from_secs(ttl_seconds), slot: Mutex::new(None) }
+        Self {
+            ttl: Duration::from_secs(ttl_seconds),
+            slot: Mutex::new(None),
+        }
     }
 
     /// Mint a code, replacing any outstanding one, live or expired.

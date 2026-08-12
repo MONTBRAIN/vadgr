@@ -7,6 +7,7 @@ use http_body_util::BodyExt;
 use serde_json::Value;
 use std::net::SocketAddr;
 use std::sync::Arc;
+use std::sync::RwLock;
 use tower::ServiceExt;
 use vadgr_daemon::auth::pairing::PairingStore;
 use vadgr_daemon::config::Config;
@@ -19,20 +20,30 @@ use vadgr_daemon::ws::manager::ConnectionManager;
 /// and gate 2 is what the test is actually exercising.
 struct EveryoneIsAPeer;
 impl Transport for EveryoneIsAPeer {
-    fn name(&self) -> &'static str { "test" }
-    fn advertise_host(&self) -> Option<String> { Some("machine.tail.ts.net".into()) }
-    fn bind_host(&self) -> anyhow::Result<String> { Ok("100.64.0.1".into()) }
-    fn is_available(&self) -> bool { true }
-    fn is_authorized_source(&self, _h: &str) -> bool { true }
-    fn status(&self) -> Value { serde_json::json!({"name": "test", "available": true}) }
+    fn name(&self) -> &'static str {
+        "test"
+    }
+    fn advertise_host(&self) -> Option<String> {
+        Some("machine.tail.ts.net".into())
+    }
+    fn bind_host(&self) -> anyhow::Result<String> {
+        Ok("100.64.0.1".into())
+    }
+    fn is_available(&self) -> bool {
+        true
+    }
+    fn is_authorized_source(&self, _h: &str) -> bool {
+        true
+    }
+    fn status(&self) -> Value {
+        serde_json::json!({"name": "test", "available": true})
+    }
 }
 
 fn state_with(transport: Box<dyn Transport>) -> AppState {
     let db = Db::open(":memory:").unwrap();
     db.with(|c| {
-        c.execute_batch(
-            "INSERT INTO runs (id, title, status) VALUES ('r1','a task','running');",
-        )
+        c.execute_batch("INSERT INTO runs (id, title, status) VALUES ('r1','a task','running');")
     })
     .unwrap();
     AppState {
@@ -41,12 +52,26 @@ fn state_with(transport: Box<dyn Transport>) -> AppState {
         transport: Arc::from(transport),
         pairing: Arc::new(PairingStore::new(300)),
         ws: Arc::new(ConnectionManager::new()),
+        providers: Arc::new(vec![serde_json::json!({
+            "id": "cached",
+            "name": "Cached provider",
+            "available": true,
+            "models": [],
+        })]),
+        computer_use_status: Arc::new(RwLock::new(serde_json::json!({
+            "enabled": true,
+            "venv_ready": true,
+            "daemon": "running",
+            "platform": "wsl2",
+        }))),
     }
 }
 
 fn app(state: AppState) -> axum::Router {
-    vadgr_daemon::routes::router(state.clone())
-        .layer(axum::middleware::from_fn_with_state(state, vadgr_daemon::auth::gate::gate))
+    vadgr_daemon::routes::router(state.clone()).layer(axum::middleware::from_fn_with_state(
+        state,
+        vadgr_daemon::auth::gate::gate,
+    ))
 }
 
 /// Requests arrive from a tailnet address unless a test says otherwise, so the
@@ -86,7 +111,12 @@ fn get_with_token(path: &str, token: &str) -> Request<Body> {
 
 #[tokio::test]
 async fn health_answers_without_a_token_because_it_is_the_probe() {
-    let (status, body) = send(state_with(Box::new(EveryoneIsAPeer)), get("/api/health"), "100.64.0.9").await;
+    let (status, body) = send(
+        state_with(Box::new(EveryoneIsAPeer)),
+        get("/api/health"),
+        "100.64.0.9",
+    )
+    .await;
     assert_eq!(status, StatusCode::OK);
     assert_eq!(body["status"], "healthy");
     assert_eq!(body["version"], "0.4.5");
@@ -94,7 +124,12 @@ async fn health_answers_without_a_token_because_it_is_the_probe() {
 
 #[tokio::test]
 async fn a_peer_with_no_token_gets_missing_token() {
-    let (status, body) = send(state_with(Box::new(EveryoneIsAPeer)), get("/api/runs"), "100.64.0.9").await;
+    let (status, body) = send(
+        state_with(Box::new(EveryoneIsAPeer)),
+        get("/api/runs"),
+        "100.64.0.9",
+    )
+    .await;
     assert_eq!(status, StatusCode::UNAUTHORIZED);
     assert_eq!(body["error"]["code"], "MISSING_TOKEN");
 }
@@ -127,7 +162,12 @@ async fn a_source_that_is_not_a_peer_never_reaches_the_token_check() {
 
 #[tokio::test]
 async fn loopback_passes_without_a_token() {
-    let (status, _) = send(state_with(Box::new(LoopbackTransport)), get("/api/runs"), "127.0.0.1").await;
+    let (status, _) = send(
+        state_with(Box::new(LoopbackTransport)),
+        get("/api/runs"),
+        "127.0.0.1",
+    )
+    .await;
     assert_eq!(status, StatusCode::OK);
 }
 
@@ -208,11 +248,68 @@ async fn a_claim_body_with_an_undeclared_field_is_a_422() {
     assert_eq!(status, StatusCode::UNPROCESSABLE_ENTITY);
 }
 
+#[tokio::test]
+async fn malformed_json_and_a_missing_content_type_are_422_like_python() {
+    for claim in [
+        Request::builder()
+            .method("POST")
+            .uri("/api/auth/claim")
+            .header("content-type", "application/json")
+            .body(Body::from("{"))
+            .unwrap(),
+        Request::builder()
+            .method("POST")
+            .uri("/api/auth/claim")
+            .body(Body::from(r#"{"pairing_token":"x","device_name":"x"}"#))
+            .unwrap(),
+    ] {
+        let (status, body) = send(state_with(Box::new(EveryoneIsAPeer)), claim, "100.64.0.9").await;
+        assert_eq!(status, StatusCode::UNPROCESSABLE_ENTITY);
+        assert!(body["detail"].is_array());
+    }
+}
+
+#[tokio::test]
+async fn the_settings_read_returns_the_python_status_shape() {
+    let (status, body) = send(
+        state_with(Box::new(LoopbackTransport)),
+        get("/api/settings/computer-use"),
+        "127.0.0.1",
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+    let keys: Vec<&str> = body
+        .as_object()
+        .unwrap()
+        .keys()
+        .map(String::as_str)
+        .collect();
+    assert_eq!(keys, vec!["daemon", "enabled", "platform", "venv_ready"]);
+}
+
+#[tokio::test]
+async fn provider_reads_use_the_catalog_cached_at_startup() {
+    let (status, body) = send(
+        state_with(Box::new(LoopbackTransport)),
+        get("/api/providers"),
+        "127.0.0.1",
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(body[0]["id"], "cached");
+    assert_eq!(body[0]["available"], true);
+}
+
 // ---------------------------------------------------------------- the routes
 
 #[tokio::test]
 async fn a_run_that_is_not_there_is_run_not_found() {
-    let (status, body) = send(state_with(Box::new(LoopbackTransport)), get("/api/runs/nope"), "127.0.0.1").await;
+    let (status, body) = send(
+        state_with(Box::new(LoopbackTransport)),
+        get("/api/runs/nope"),
+        "127.0.0.1",
+    )
+    .await;
     assert_eq!(status, StatusCode::NOT_FOUND);
     assert_eq!(body["error"]["code"], "RUN_NOT_FOUND");
 }
@@ -220,7 +317,13 @@ async fn a_run_that_is_not_there_is_run_not_found() {
 #[tokio::test]
 async fn cancel_records_failed_and_a_second_cancel_is_run_not_active() {
     let state = state_with(Box::new(LoopbackTransport));
-    let post = |p: &str| Request::builder().method("POST").uri(p).body(Body::empty()).unwrap();
+    let post = |p: &str| {
+        Request::builder()
+            .method("POST")
+            .uri(p)
+            .body(Body::empty())
+            .unwrap()
+    };
 
     let (status, body) = send(state.clone(), post("/api/runs/r1/cancel"), "127.0.0.1").await;
     assert_eq!(status, StatusCode::OK);
@@ -249,7 +352,11 @@ async fn revoking_a_device_that_is_not_there_is_device_not_found() {
 #[tokio::test]
 async fn pairing_refuses_when_the_transport_cannot_advertise() {
     // We never hand out a localhost QR a phone could not use.
-    let req = Request::builder().method("POST").uri("/api/auth/pair").body(Body::empty()).unwrap();
+    let req = Request::builder()
+        .method("POST")
+        .uri("/api/auth/pair")
+        .body(Body::empty())
+        .unwrap();
     let (status, body) = send(state_with(Box::new(LoopbackTransport)), req, "127.0.0.1").await;
     assert_eq!(status, StatusCode::SERVICE_UNAVAILABLE);
     assert_eq!(body["error"]["code"], "TRANSPORT_UNREACHABLE");
@@ -260,7 +367,11 @@ async fn pairing_refuses_when_the_transport_cannot_advertise() {
 #[tokio::test]
 async fn pair_then_claim_mints_a_token_and_the_wire_field_keeps_its_name() {
     let state = state_with(Box::new(EveryoneIsAPeer));
-    let req = Request::builder().method("POST").uri("/api/auth/pair").body(Body::empty()).unwrap();
+    let req = Request::builder()
+        .method("POST")
+        .uri("/api/auth/pair")
+        .body(Body::empty())
+        .unwrap();
     let (status, body) = send(state.clone(), req, "100.64.0.9").await;
     assert_eq!(status, StatusCode::OK);
     // The field on the wire stays `pairing_token`; only the value's shape
@@ -316,7 +427,11 @@ async fn resume_is_held_too_because_its_success_path_needs_a_loop() {
     //
     // 404 here rather than 405, and for the same reason the trigger is 405:
     // this path is registered for no method at all.
-    let req = Request::builder().method("POST").uri("/api/runs/r1/resume").body(Body::empty()).unwrap();
+    let req = Request::builder()
+        .method("POST")
+        .uri("/api/runs/r1/resume")
+        .body(Body::empty())
+        .unwrap();
     let (status, _) = send(state_with(Box::new(LoopbackTransport)), req, "127.0.0.1").await;
     assert_eq!(status, StatusCode::NOT_FOUND);
 }

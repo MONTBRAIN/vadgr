@@ -65,9 +65,15 @@ fn revoking_a_device_signals_every_socket_watching_it() {
     let mut second = m.watch_device("d1");
     let mut other = m.watch_device("d2");
     m.disconnect_device("d1");
-    assert!(first.try_recv().is_ok(), "the first socket hears the revocation");
+    assert!(
+        first.try_recv().is_ok(),
+        "the first socket hears the revocation"
+    );
     assert!(second.try_recv().is_ok(), "so does the second");
-    assert!(other.try_recv().is_err(), "another device's socket does not");
+    assert!(
+        other.try_recv().is_err(),
+        "another device's socket does not"
+    );
     // Idempotent: revoking twice is not an error, because the phone may retry.
     m.disconnect_device("d1");
 }

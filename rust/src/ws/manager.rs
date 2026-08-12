@@ -43,19 +43,23 @@ impl ConnectionManager {
     /// per-socket frame count a meaningful comparison at all.
     pub fn connect(&self, run_id: &str) -> (broadcast::Receiver<Value>, Vec<Value>) {
         let mut channels = self.channels.lock().expect("ws mutex poisoned");
-        let entry = channels.entry(run_id.to_string()).or_insert_with(|| RunChannel {
-            tx: broadcast::channel(1024).0,
-            buffer: Vec::new(),
-        });
+        let entry = channels
+            .entry(run_id.to_string())
+            .or_insert_with(|| RunChannel {
+                tx: broadcast::channel(1024).0,
+                buffer: Vec::new(),
+            });
         (entry.tx.subscribe(), entry.buffer.clone())
     }
 
     pub fn broadcast(&self, run_id: &str, event: Value) {
         let mut channels = self.channels.lock().expect("ws mutex poisoned");
-        let entry = channels.entry(run_id.to_string()).or_insert_with(|| RunChannel {
-            tx: broadcast::channel(1024).0,
-            buffer: Vec::new(),
-        });
+        let entry = channels
+            .entry(run_id.to_string())
+            .or_insert_with(|| RunChannel {
+                tx: broadcast::channel(1024).0,
+                buffer: Vec::new(),
+            });
         // Always buffer, so a late connector gets the history - capped, so a
         // long run cannot grow it without bound.
         if entry.buffer.len() < MAX_BUFFER {

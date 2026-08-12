@@ -9,16 +9,32 @@ pub mod runs;
 pub mod settings;
 
 use crate::state::AppState;
-use axum::routing::{delete, get, post, put};
+use axum::Json;
 use axum::Router;
+use axum::extract::rejection::JsonRejection;
+use axum::http::StatusCode;
+use axum::routing::{delete, get, post, put};
+use serde_json::{Value, json};
 
-/// **Thirteen HTTP routes and two sockets.**
+fn validation_error(rejection: JsonRejection) -> (StatusCode, Json<Value>) {
+    (
+        StatusCode::UNPROCESSABLE_ENTITY,
+        Json(json!({
+            "detail": [{
+                "type": "value_error",
+                "msg": rejection.body_text(),
+            }]
+        })),
+    )
+}
+
+/// **Twelve HTTP routes and two socket paths.**
 ///
-/// Three of the sixteen the Python daemon serves are held for `0.4.6`, and
-/// they are held rather than stubbed: a `501`, a plausible `202` with no run
-/// behind it, or a row nothing will ever pick up are three ways of lying to the
-/// sweep. Absent is honest, and the sweep records the `404` the same way it
-/// records every other probe.
+/// Two of the Python daemon's fourteen HTTP routes are held for `0.4.6`, and
+/// they are held rather than stubbed. Both socket paths exist, but their
+/// existing-run behavior is also held because this daemon cannot create the
+/// run that the comparison needs. A `501`, a plausible `202` with no run
+/// behind it, or a row nothing will ever pick up would lie to the sweep.
 ///
 /// - `POST /api/runs` starts a run and needs the loop.
 /// - `POST /api/runs/{id}/resume` hands the run to the execution service and
@@ -35,13 +51,25 @@ pub fn router(state: AppState) -> Router {
         .route("/api/devices", get(devices::list_devices))
         .route("/api/devices/{device_id}", delete(devices::revoke_device))
         .route("/api/providers", get(providers::list_providers))
-        .route("/api/settings/computer-use", get(settings::get_computer_use))
-        .route("/api/settings/computer-use", put(settings::put_computer_use))
+        .route(
+            "/api/settings/computer-use",
+            get(settings::get_computer_use),
+        )
+        .route(
+            "/api/settings/computer-use",
+            put(settings::put_computer_use),
+        )
         .route("/api/computer-use/status", get(computer_use::status))
         .route("/api/runs", get(runs::list_runs))
         .route("/api/runs/{run_id}", get(runs::get_run))
         .route("/api/runs/{run_id}/cancel", post(runs::cancel_run))
-        .route("/api/runs/{run_id}/stream", get(crate::ws::run_ws::run_stream))
-        .route("/api/ws/runs/{run_id}", get(crate::ws::run_ws::run_websocket))
+        .route(
+            "/api/runs/{run_id}/stream",
+            get(crate::ws::run_ws::run_stream),
+        )
+        .route(
+            "/api/ws/runs/{run_id}",
+            get(crate::ws::run_ws::run_websocket),
+        )
         .with_state(state)
 }

@@ -15,7 +15,12 @@ the cutover. This release exists to be compared against it.
   list and a run's detail, cancel, and both run sockets with their replay.
 - **`rust/`**, a new tree beside `api/`, `engine/` and `cli/`, with its own
   README covering how to run it and what it deliberately does not do.
-- 78 tests over the error envelope, the pairing code's rules, the two
+- **Startup-cached provider and computer-use probes.** Normal reads no longer
+  launch provider CLIs or `vadgr-cua doctor` on every request. A settings update
+  refreshes the cached computer-use state before it returns.
+- **HTTP request tracing** in the Rust daemon log, including the response status
+  and latency used to audit a live sweep.
+- 91 tests over the error envelope, the pairing code's rules, the two
   repositories' wire mapping, the socket buffer, the stream's frame mapping,
   the transport adapter, and the gates driven through the real router.
 

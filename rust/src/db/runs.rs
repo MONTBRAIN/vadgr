@@ -1,7 +1,7 @@
 //! The run repository, and the wire mapping the phone reads.
 
 use super::Db;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 /// One row, shaped for the wire.
 ///
@@ -15,7 +15,8 @@ fn row_to_json(row: &rusqlite::Row) -> rusqlite::Result<Value> {
     let inputs: Option<String> = row.get("inputs")?;
     let outputs: Option<String> = row.get("outputs")?;
     let parse = |s: Option<String>| -> Value {
-        s.and_then(|t| serde_json::from_str(&t).ok()).unwrap_or_else(|| json!({}))
+        s.and_then(|t| serde_json::from_str(&t).ok())
+            .unwrap_or_else(|| json!({}))
     };
     let title: String = row.get("title")?;
     Ok(json!({
@@ -32,7 +33,8 @@ fn row_to_json(row: &rusqlite::Row) -> rusqlite::Result<Value> {
     }))
 }
 
-const COLS: &str = "id, title, status, inputs, outputs, provider, model, log_path, started_at, completed_at";
+const COLS: &str =
+    "id, title, status, inputs, outputs, provider, model, log_path, started_at, completed_at";
 
 pub fn list_all(db: &Db, status: Option<&str>) -> rusqlite::Result<Vec<Value>> {
     db.with(|c| {

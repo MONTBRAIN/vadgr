@@ -1,8 +1,8 @@
 use crate::error::{ApiError, ApiResult};
 use crate::state::AppState;
-use axum::extract::{Path, State};
 use axum::Json;
-use serde_json::{json, Value};
+use axum::extract::{Path, State};
+use serde_json::{Value, json};
 
 pub async fn list_devices(State(state): State<AppState>) -> ApiResult<Json<Vec<Value>>> {
     crate::db::devices::list_all(&state.db)

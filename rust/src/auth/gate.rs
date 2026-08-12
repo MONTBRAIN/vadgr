@@ -38,7 +38,9 @@ pub fn extract_bearer(headers: &HeaderMap) -> Option<String> {
     for value in headers.get_all(axum::http::header::AUTHORIZATION) {
         let Ok(raw) = value.to_str() else { continue };
         let raw = raw.trim();
-        let Some(split) = raw.find(char::is_whitespace) else { continue };
+        let Some(split) = raw.find(char::is_whitespace) else {
+            continue;
+        };
         let (scheme, rest) = raw.split_at(split);
         if !scheme.eq_ignore_ascii_case("bearer") {
             continue;

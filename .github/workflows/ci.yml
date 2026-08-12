@@ -104,6 +104,52 @@ jobs:
         if: steps.changes.outputs.changed == 'false'
         run: echo "No engine/ changes -- skipping tests."
 
+  # ----- cli module -----
+  cli:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check for cli changes
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE=${{ github.event.pull_request.base.sha }}
+          else
+            BASE=${{ github.event.before }}
+          fi
+          if git diff --name-only "$BASE" HEAD | grep -qE '^cli/'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Python ${{ matrix.python-version }}
+        if: steps.changes.outputs.changed == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Python dependencies
+        if: steps.changes.outputs.changed == 'true'
+        run: pip install -r cli/requirements.txt
+
+      - name: Run tests with coverage
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          PYTHONPATH: .
+        run: python -m pytest cli/tests/ -v --cov=cli --cov-report=term-missing
+
+      - name: Skip (no changes)
+        if: steps.changes.outputs.changed == 'false'
+        run: echo "No cli/ changes -- skipping tests."
+
   # ----- the rust daemon -----
   # The crate is judged here rather than only on a developer's machine: from
   # 0.4.5 the daemon is being rewritten beside the Python one, and a suite that
@@ -127,3 +173,6 @@ jobs:
       - name: Lint
         working-directory: rust
         run: cargo clippy --locked -- -D warnings
+      - name: Format
+        working-directory: rust
+        run: cargo fmt --check

@@ -13,7 +13,7 @@
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use serde::Serialize;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 #[derive(Debug, Serialize)]
 pub struct ApiError {
@@ -26,7 +26,12 @@ pub struct ApiError {
 
 impl ApiError {
     pub fn new(status: StatusCode, code: &'static str, message: impl Into<String>) -> Self {
-        Self { status, code, message: message.into(), details: json!({}) }
+        Self {
+            status,
+            code,
+            message: message.into(),
+            details: json!({}),
+        }
     }
 
     /// The only error that carries a non-empty `details` today: pairing refuses
@@ -64,9 +69,12 @@ impl ApiError {
     }
 
     pub fn run_not_active() -> Self {
-        Self::new(StatusCode::CONFLICT, "RUN_NOT_ACTIVE", "Run is already finished")
+        Self::new(
+            StatusCode::CONFLICT,
+            "RUN_NOT_ACTIVE",
+            "Run is already finished",
+        )
     }
-
 
     // The two gate messages are Python's, verbatim, and they are deliberately
     // the SAME string for both codes. Splitting them would read better and is

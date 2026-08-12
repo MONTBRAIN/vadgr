@@ -1,7 +1,7 @@
 //! The device repository: row shape, ordering, and the timestamps both
 //! daemons must be able to read from one table.
 
-use vadgr_daemon::db::{devices, now_iso, Db};
+use vadgr_daemon::db::{Db, devices, now_iso};
 
 #[test]
 fn create_returns_the_row_the_table_now_holds() {
@@ -10,7 +10,10 @@ fn create_returns_the_row_the_table_now_holds() {
     assert_eq!(row["machine_name"], "my-phone");
     assert!(row["id"].as_str().is_some());
     assert!(row["paired_at"].as_str().is_some());
-    assert!(row.get("token_hash").is_none(), "the hash never reaches a published row");
+    assert!(
+        row.get("token_hash").is_none(),
+        "the hash never reaches a published row"
+    );
 }
 
 #[test]
@@ -38,7 +41,11 @@ fn timestamps_are_written_in_the_shape_the_python_daemon_writes() {
     // client reads it next. Python writes `datetime.now(timezone.utc)
     // .isoformat()`: a `T` separator, microseconds, `+00:00`.
     let stamp = now_iso();
-    assert_eq!(stamp.len(), "2026-08-11T00:00:00.000000+00:00".len(), "{stamp}");
+    assert_eq!(
+        stamp.len(),
+        "2026-08-11T00:00:00.000000+00:00".len(),
+        "{stamp}"
+    );
     assert_eq!(stamp.as_bytes()[10], b'T');
     assert!(stamp.ends_with("+00:00"));
     assert_eq!(stamp.as_bytes()[19], b'.');
@@ -46,8 +53,13 @@ fn timestamps_are_written_in_the_shape_the_python_daemon_writes() {
     let db = Db::open(":memory:").unwrap();
     let row = devices::create(&db, "my-phone", "hash-1").unwrap();
     let paired_at = row["paired_at"].as_str().unwrap();
-    assert!(paired_at.ends_with("+00:00"), "stored shape: {paired_at}");
+    assert!(paired_at.ends_with('Z'), "published shape: {paired_at}");
     assert!(paired_at.contains('T'));
+
+    let stored: String = db
+        .with(|c| c.query_row("SELECT paired_at FROM devices LIMIT 1", [], |r| r.get(0)))
+        .unwrap();
+    assert!(stored.ends_with("+00:00"), "stored shape: {stored}");
 }
 
 #[test]
@@ -68,5 +80,8 @@ fn deleting_says_whether_anything_was_there() {
     let row = devices::create(&db, "my-phone", "hash-1").unwrap();
     let id = row["id"].as_str().unwrap().to_string();
     assert!(devices::delete(&db, &id).unwrap());
-    assert!(!devices::delete(&db, &id).unwrap(), "the second delete found nothing");
+    assert!(
+        !devices::delete(&db, &id).unwrap(),
+        "the second delete found nothing"
+    );
 }

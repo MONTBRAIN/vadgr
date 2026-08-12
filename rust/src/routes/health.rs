@@ -1,8 +1,8 @@
 use crate::config::VERSION;
 use crate::state::AppState;
-use axum::extract::State;
 use axum::Json;
-use serde_json::{json, Value};
+use axum::extract::State;
+use serde_json::{Value, json};
 
 /// Unauthenticated: it is the phone's post-pair connectivity probe, so it has
 /// to answer before a token exists.

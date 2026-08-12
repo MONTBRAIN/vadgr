@@ -3,17 +3,24 @@
 //! The single owner of the `devices` table, and token hashes only: the
 //! plaintext token is never stored and never compared against anything stored.
 
-use super::{now_iso, Db};
-use serde_json::{json, Value};
+use super::{Db, now_iso};
+use serde_json::{Value, json};
 
 /// One row, in the shape `GET /api/devices` publishes. The `token_hash`
 /// column never enters it.
 fn row_to_json(r: &rusqlite::Row) -> rusqlite::Result<Value> {
+    let wire_timestamp = |value: Option<String>| {
+        value.map(|stamp| {
+            stamp
+                .strip_suffix("+00:00")
+                .map_or(stamp.clone(), |s| format!("{s}Z"))
+        })
+    };
     Ok(json!({
         "id": r.get::<_, String>("id")?,
         "machine_name": r.get::<_, String>("machine_name")?,
-        "paired_at": r.get::<_, String>("paired_at")?,
-        "last_seen": r.get::<_, Option<String>>("last_seen")?,
+        "paired_at": wire_timestamp(Some(r.get::<_, String>("paired_at")?)),
+        "last_seen": wire_timestamp(r.get::<_, Option<String>>("last_seen")?),
     }))
 }
 

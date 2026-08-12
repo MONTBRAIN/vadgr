@@ -44,12 +44,36 @@ async fn every_code_carries_the_status_python_gives_it() {
     // against the daemon, and a right status with a wrong code is a defect it
     // would otherwise wave through.
     let cases: Vec<(ApiError, StatusCode, &str)> = vec![
-        (ApiError::run_not_found("r"), StatusCode::NOT_FOUND, "RUN_NOT_FOUND"),
-        (ApiError::device_not_found("d"), StatusCode::NOT_FOUND, "DEVICE_NOT_FOUND"),
-        (ApiError::run_not_active(), StatusCode::CONFLICT, "RUN_NOT_ACTIVE"),
-        (ApiError::missing_token(), StatusCode::UNAUTHORIZED, "MISSING_TOKEN"),
-        (ApiError::invalid_token(), StatusCode::UNAUTHORIZED, "INVALID_TOKEN"),
-        (ApiError::source_not_authorized(), StatusCode::FORBIDDEN, "SOURCE_NOT_AUTHORIZED"),
+        (
+            ApiError::run_not_found("r"),
+            StatusCode::NOT_FOUND,
+            "RUN_NOT_FOUND",
+        ),
+        (
+            ApiError::device_not_found("d"),
+            StatusCode::NOT_FOUND,
+            "DEVICE_NOT_FOUND",
+        ),
+        (
+            ApiError::run_not_active(),
+            StatusCode::CONFLICT,
+            "RUN_NOT_ACTIVE",
+        ),
+        (
+            ApiError::missing_token(),
+            StatusCode::UNAUTHORIZED,
+            "MISSING_TOKEN",
+        ),
+        (
+            ApiError::invalid_token(),
+            StatusCode::UNAUTHORIZED,
+            "INVALID_TOKEN",
+        ),
+        (
+            ApiError::source_not_authorized(),
+            StatusCode::FORBIDDEN,
+            "SOURCE_NOT_AUTHORIZED",
+        ),
     ];
     for (err, status, code) in cases {
         let (got_status, v) = body_of(err).await;
@@ -80,5 +104,8 @@ async fn the_gate_messages_are_pythons_verbatim() {
         assert_eq!(v["error"]["message"], "A valid Bearer token is required.");
     }
     let (_, v) = body_of(ApiError::source_not_authorized()).await;
-    assert_eq!(v["error"]["message"], "Source is not an authorized peer on this transport.");
+    assert_eq!(
+        v["error"]["message"],
+        "Source is not an authorized peer on this transport."
+    );
 }

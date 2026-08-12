@@ -6,7 +6,7 @@
 //! each is pinned here against a file written in this test.
 
 use std::io::Write;
-use vadgr_daemon::config::{load_providers, provider_available, ProviderEntry};
+use vadgr_daemon::config::{ProviderEntry, load_providers, provider_available};
 
 fn write_yaml(content: &str) -> std::path::PathBuf {
     let path = std::env::temp_dir().join(format!("vadgr-providers-{}.yaml", uuid::Uuid::new_v4()));
@@ -67,8 +67,26 @@ fn models_pass_through_as_the_file_wrote_them() {
 }
 
 #[test]
+fn a_loaded_native_provider_keeps_its_valid_available_state() {
+    let path = write_yaml(REALISTIC);
+    let providers = load_providers(path.to_str().unwrap());
+    let _ = std::fs::remove_file(&path);
+    assert!(provider_available(&providers[0].1));
+}
+
+#[test]
 fn a_missing_file_is_an_empty_catalogue_not_a_crash() {
     assert!(load_providers("/nonexistent/providers.yaml").is_empty());
+}
+
+#[test]
+fn a_malformed_provider_entry_is_never_reported_as_available() {
+    let path =
+        write_yaml("providers:\n  broken:\n    name: Broken\n    available_check: not-an-argv\n");
+    let providers = load_providers(path.to_str().unwrap());
+    let _ = std::fs::remove_file(&path);
+    assert_eq!(providers.len(), 1);
+    assert!(!provider_available(&providers[0].1));
 }
 
 #[test]

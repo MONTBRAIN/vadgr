@@ -4,18 +4,24 @@ use crate::auth::pairing::ClaimResult;
 use crate::auth::tokens;
 use crate::error::{ApiError, ApiResult};
 use crate::state::AppState;
-use axum::extract::State;
-use axum::http::StatusCode;
 use axum::Json;
+use axum::extract::State;
+use axum::extract::rejection::JsonRejection;
+use axum::http::StatusCode;
+use axum::response::{IntoResponse, Response};
 use serde::Deserialize;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
-fn machine_name() -> String {
-    std::fs::read_to_string("/etc/hostname")
+fn machine_name_from(value: Result<std::ffi::OsString, std::io::Error>) -> String {
+    value
         .ok()
-        .map(|s| s.trim().to_string())
+        .map(|s| s.to_string_lossy().trim().to_string())
         .filter(|s| !s.is_empty())
         .unwrap_or_else(|| "vadgr".to_string())
+}
+
+fn machine_name() -> String {
+    machine_name_from(hostname::get())
 }
 
 /// Refuses `503` when the transport cannot advertise a reachable host: we never
@@ -30,7 +36,7 @@ pub async fn pair(State(state): State<AppState>) -> ApiResult<Json<Value>> {
                 "Transport cannot advertise a reachable address. Enable Tailscale \
                  (VADGR_TRANSPORT=tailscale) to pair over your tailnet.",
             )
-            .with_details(json!({ "transport": state.transport.name() })))
+            .with_details(json!({ "transport": state.transport.name() })));
         }
     };
 
@@ -58,8 +64,16 @@ pub struct ClaimBody {
 /// The plaintext token is returned exactly once; only its hash is stored.
 pub async fn claim(
     State(state): State<AppState>,
-    Json(body): Json<ClaimBody>,
-) -> ApiResult<Json<Value>> {
+    body: Result<Json<ClaimBody>, JsonRejection>,
+) -> Response {
+    let Json(body) = match body {
+        Ok(body) => body,
+        Err(rejection) => return super::validation_error(rejection).into_response(),
+    };
+    claim_valid(state, body).await.into_response()
+}
+
+async fn claim_valid(state: AppState, body: ClaimBody) -> ApiResult<Json<Value>> {
     match state.pairing.redeem(&body.pairing_token) {
         // 429, fired exactly once, at the moment the cap acts. That is the one
         // moment "too many attempts" is a fact distinct from "not claimable",
@@ -97,5 +111,25 @@ pub async fn claim(
                 "device_id": device.get("id").and_then(|v| v.as_str()).unwrap_or_default(),
             })))
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::machine_name_from;
+
+    #[test]
+    fn the_platform_hostname_is_used_without_reading_a_unix_file() {
+        let name = machine_name_from(Ok("review-host".into()));
+        assert_eq!(name, "review-host");
+    }
+
+    #[test]
+    fn an_unavailable_or_empty_hostname_has_the_existing_fallback() {
+        assert_eq!(machine_name_from(Ok("  ".into())), "vadgr");
+        assert_eq!(
+            machine_name_from(Err(std::io::Error::other("no hostname"))),
+            "vadgr"
+        );
     }
 }

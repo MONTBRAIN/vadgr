@@ -5,6 +5,7 @@
 //! what lets the gate's five outcomes be asserted rather than described.
 
 pub mod auth;
+pub mod computer_use_setup;
 pub mod config;
 pub mod db;
 pub mod error;

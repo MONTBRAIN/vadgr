@@ -16,7 +16,7 @@ use axum::extract::{ConnectInfo, Path, Query, State};
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::{IntoResponse, Response};
 use serde::Deserialize;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::net::SocketAddr;
 use tokio::sync::broadcast;
 
@@ -78,6 +78,10 @@ fn admit(
     }
 }
 
+fn refusal_response() -> Response {
+    StatusCode::FORBIDDEN.into_response()
+}
+
 /// The on-box stream the CLI watches: internal events, verbatim. Send-only,
 /// like the Python route: answering a gate is `POST`, never a socket frame.
 pub async fn run_websocket(
@@ -93,7 +97,7 @@ pub async fn run_websocket(
         // The CLI socket is not device-tracked, so revoking a phone never
         // touches it: loopback callers have no device to revoke.
         Ok(_) => ws.on_upgrade(move |socket| pump(socket, state, run_id, None, Framing::Raw)),
-        Err(status) => status.into_response(),
+        Err(_) => refusal_response(),
     }
 }
 
@@ -112,7 +116,7 @@ pub async fn run_stream(
         Ok(device_id) => {
             ws.on_upgrade(move |socket| pump(socket, state, run_id, device_id, Framing::RunEvents))
         }
-        Err(status) => status.into_response(),
+        Err(_) => refusal_response(),
     }
 }
 
@@ -184,8 +188,7 @@ pub fn to_run_event(internal: &Value) -> Option<Value> {
         .get("timestamp")
         .and_then(|v| v.as_str())
         .filter(|s| {
-            time::OffsetDateTime::parse(s, &time::format_description::well_known::Rfc3339)
-                .is_ok()
+            time::OffsetDateTime::parse(s, &time::format_description::well_known::Rfc3339).is_ok()
         })
         .map(str::to_string)
         .unwrap_or_else(crate::db::now_iso);
@@ -266,5 +269,18 @@ async fn pump(
                 return;
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::refusal_response;
+
+    #[test]
+    fn every_pre_accept_refusal_matches_the_python_handshake_status() {
+        assert_eq!(
+            refusal_response().status(),
+            axum::http::StatusCode::FORBIDDEN
+        );
     }
 }

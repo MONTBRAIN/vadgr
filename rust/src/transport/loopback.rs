@@ -6,7 +6,7 @@
 //! than handing out a useless localhost QR.
 
 use super::Transport;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 pub struct LoopbackTransport;
 

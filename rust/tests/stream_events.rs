@@ -60,16 +60,24 @@ fn the_broadcasts_timestamp_rides_along_and_a_bad_one_is_replaced() {
     .unwrap();
     assert_eq!(event["timestamp"], "2026-08-11T10:00:00.000000+00:00");
 
-    let event = to_run_event(&json!({ "type": "run_started", "timestamp": "yesterday-ish" }))
-        .unwrap();
+    let event =
+        to_run_event(&json!({ "type": "run_started", "timestamp": "yesterday-ish" })).unwrap();
     let stamped = event["timestamp"].as_str().unwrap();
-    assert!(stamped.contains('T'), "a real timestamp stands in: {stamped}");
+    assert!(
+        stamped.contains('T'),
+        "a real timestamp stands in: {stamped}"
+    );
 }
 
 #[test]
 fn a_missing_payload_is_an_empty_object_never_absent() {
     let event = to_run_event(&json!({ "type": "run_completed" })).unwrap();
     assert_eq!(event["payload"], json!({}));
-    let keys: Vec<&str> = event.as_object().unwrap().keys().map(|s| s.as_str()).collect();
+    let keys: Vec<&str> = event
+        .as_object()
+        .unwrap()
+        .keys()
+        .map(|s| s.as_str())
+        .collect();
     assert_eq!(keys.len(), 3, "type, timestamp, payload and nothing else");
 }

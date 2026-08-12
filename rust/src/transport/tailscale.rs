@@ -17,7 +17,7 @@
 //! back to the 100.64.0.0/10 CGNAT range when WhoIs is unavailable.
 
 use super::Transport;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 const SOCKET_PATH: &str = "/var/run/tailscale/tailscaled.sock";
 
@@ -31,20 +31,30 @@ pub trait LocalApi: Send + Sync {
 
 /// Talks to the real tailscaled LocalAPI over its unix socket.
 pub struct TailscaledLocalApi {
+    #[cfg(unix)]
     socket_path: String,
+    #[cfg(not(unix))]
+    pipe_path: String,
 }
 
 impl TailscaledLocalApi {
     pub fn new(socket_path: impl Into<String>) -> Self {
-        Self { socket_path: socket_path.into() }
+        let socket_path = socket_path.into();
+        Self {
+            #[cfg(unix)]
+            socket_path,
+            #[cfg(not(unix))]
+            pipe_path: std::env::var("VADGR_TAILSCALED_PIPE").unwrap_or_else(|_| {
+                r"\\.\pipe\ProtectedPrefix\Administrators\Tailscale\tailscaled".to_string()
+            }),
+        }
     }
 
     /// The default socket path, overridable the same way the Python daemon
     /// allows: `VADGR_TAILSCALED_SOCKET`.
     pub fn from_env() -> Self {
         Self::new(
-            std::env::var("VADGR_TAILSCALED_SOCKET")
-                .unwrap_or_else(|_| SOCKET_PATH.to_string()),
+            std::env::var("VADGR_TAILSCALED_SOCKET").unwrap_or_else(|_| SOCKET_PATH.to_string()),
         )
     }
 
@@ -74,8 +84,27 @@ impl TailscaledLocalApi {
         }
         #[cfg(not(unix))]
         {
-            let _ = path;
-            None
+            use std::io::{Read, Write};
+            use std::os::windows::fs::OpenOptionsExt;
+
+            const SECURITY_SQOS_PRESENT: u32 = 0x0010_0000;
+            const SECURITY_IMPERSONATION: u32 = 0x0002_0000;
+            let mut pipe = std::fs::OpenOptions::new()
+                .read(true)
+                .write(true)
+                .custom_flags(SECURITY_SQOS_PRESENT | SECURITY_IMPERSONATION)
+                .open(&self.pipe_path)
+                .ok()?;
+            pipe.write_all(req.as_bytes()).ok()?;
+            let mut raw = Vec::new();
+            pipe.read_to_end(&mut raw).ok()?;
+            let sep = raw.windows(4).position(|w| w == b"\r\n\r\n")?;
+            let (head, body) = raw.split_at(sep);
+            let status_line = head.split(|b| *b == b'\r').next()?;
+            if !status_line.windows(5).any(|w| w == b" 200 ") {
+                return None;
+            }
+            serde_json::from_slice(&body[4..]).ok()
         }
     }
 }
@@ -130,7 +159,11 @@ impl<A: LocalApi> TailscaleTransport<A> {
         let s = self.api.status()?;
         let name = s.get("Self")?.get("DNSName")?.as_str()?;
         let trimmed = name.trim_end_matches('.');
-        if trimmed.is_empty() { None } else { Some(trimmed.to_string()) }
+        if trimmed.is_empty() {
+            None
+        } else {
+            Some(trimmed.to_string())
+        }
     }
 }
 

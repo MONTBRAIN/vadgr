@@ -5,9 +5,9 @@
 //! Each case is carried from the Python adapter's behaviour, not read back
 //! off the Rust implementation.
 
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use vadgr_daemon::transport::tailscale::{LocalApi, TailscaleTransport};
-use vadgr_daemon::transport::{LoopbackTransport, Transport};
+use vadgr_daemon::transport::{LoopbackTransport, Transport, bind_hosts};
 
 /// A LocalAPI whose answers are the test's to script.
 #[derive(Default)]
@@ -95,6 +95,21 @@ fn bind_host_refuses_rather_than_falling_back_to_loopback() {
     // 127.0.0.1.
     let t = transport(FakeApi::default());
     assert!(t.bind_host().is_err());
+}
+
+#[test]
+fn the_launcher_adds_loopback_beside_the_transport_address() {
+    let t = transport(FakeApi {
+        status: running(&["100.64.0.7"], "machine.tail.ts.net."),
+        ..Default::default()
+    });
+    assert_eq!(bind_hosts(&t), vec!["100.64.0.7", "127.0.0.1"]);
+}
+
+#[test]
+fn an_unavailable_transport_keeps_the_local_cli_address_open() {
+    let t = transport(FakeApi::default());
+    assert_eq!(bind_hosts(&t), vec!["127.0.0.1"]);
 }
 
 #[test]

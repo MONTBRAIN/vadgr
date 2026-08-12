@@ -2,8 +2,8 @@
 
 use crate::error::{ApiError, ApiResult};
 use crate::state::AppState;
-use axum::extract::{Path, Query, State};
 use axum::Json;
+use axum::extract::{Path, Query, State};
 use serde::Deserialize;
 use serde_json::Value;
 
@@ -16,8 +16,8 @@ pub async fn list_runs(
     State(state): State<AppState>,
     Query(q): Query<ListQuery>,
 ) -> ApiResult<Json<Vec<Value>>> {
-    let rows = crate::db::runs::list_all(&state.db, q.status.as_deref())
-        .map_err(ApiError::internal)?;
+    let rows =
+        crate::db::runs::list_all(&state.db, q.status.as_deref()).map_err(ApiError::internal)?;
     Ok(Json(rows))
 }
 

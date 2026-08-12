@@ -1,22 +1,20 @@
 //! The computer-use setting.
 //!
-//! `PUT` records the owner's intent and reports it back. **It does not install
-//! anything**: the Python route calls a setup service that pip-installs cua,
-//! and that service is not this release's - `0.4.6` is where the loop gains
-//! hands, and wiring an installer into the release that cannot run a loop would
-//! be a capability with no consumer.
+//! `GET` serves the state probed at startup. `PUT` performs the Python setup
+//! operation and replaces that cached state with the result.
 
+use crate::computer_use_setup::SetupService;
+use crate::error::{ApiError, ApiResult};
 use crate::state::AppState;
-use axum::extract::State;
 use axum::Json;
+use axum::extract::State;
+use axum::extract::rejection::JsonRejection;
+use axum::response::{IntoResponse, Response};
 use serde::Deserialize;
-use serde_json::{json, Value};
+use serde_json::Value;
 
 pub async fn get_computer_use(State(state): State<AppState>) -> Json<Value> {
-    Json(json!({
-        "enabled": state.config.computer_use_enabled,
-        "available": state.config.computer_use_enabled,
-    }))
+    Json(state.computer_use_status.read().unwrap().clone())
 }
 
 /// Strict, like the Python body it mirrors: an undeclared field is a 422, not
@@ -29,10 +27,27 @@ pub struct Update {
 
 pub async fn put_computer_use(
     State(state): State<AppState>,
-    Json(body): Json<Update>,
-) -> Json<Value> {
-    Json(json!({
-        "enabled": body.enabled,
-        "available": state.config.computer_use_enabled,
-    }))
+    body: Result<Json<Update>, JsonRejection>,
+) -> Response {
+    let Json(body) = match body {
+        Ok(body) => body,
+        Err(rejection) => return super::validation_error(rejection).into_response(),
+    };
+    update(state, body.enabled).await.into_response()
+}
+
+async fn update(state: AppState, enabled: bool) -> ApiResult<Json<Value>> {
+    let result = tokio::task::spawn_blocking(move || {
+        let service = SetupService::from_env();
+        if enabled {
+            service.enable()
+        } else {
+            service.disable()
+        }
+    })
+    .await
+    .map_err(ApiError::internal)?
+    .map_err(ApiError::internal)?;
+    *state.computer_use_status.write().unwrap() = result.clone();
+    Ok(Json(result))
 }

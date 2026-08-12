@@ -1,7 +1,7 @@
 use crate::state::AppState;
-use axum::extract::State;
 use axum::Json;
-use serde_json::{json, Value};
+use axum::extract::State;
+use serde_json::{Value, json};
 
 pub async fn status(State(state): State<AppState>) -> Json<Value> {
     Json(json!({
