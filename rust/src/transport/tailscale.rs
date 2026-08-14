@@ -32,17 +32,20 @@ pub trait LocalApi: Send + Sync {
 pub struct TailscaledLocalApi {
     #[cfg(unix)]
     socket_path: String,
-    #[cfg(not(unix))]
+    #[cfg(windows)]
     pipe_path: String,
 }
 
 impl TailscaledLocalApi {
     pub fn new(socket_path: impl Into<String>) -> Self {
+        #[cfg(unix)]
         let socket_path = socket_path.into();
+        #[cfg(windows)]
+        drop(socket_path);
         Self {
             #[cfg(unix)]
             socket_path,
-            #[cfg(not(unix))]
+            #[cfg(windows)]
             pipe_path: std::env::var("VADGR_TAILSCALED_PIPE").unwrap_or_else(|_| {
                 r"\\.\pipe\ProtectedPrefix\Administrators\Tailscale\tailscaled".to_string()
             }),
@@ -81,7 +84,7 @@ impl TailscaledLocalApi {
             }
             serde_json::from_slice(&body[4..]).ok()
         }
-        #[cfg(not(unix))]
+        #[cfg(windows)]
         {
             use std::io::{Read, Write};
             use std::os::windows::fs::OpenOptionsExt;
