@@ -298,6 +298,7 @@ class TestKillProcessTree:
         proc = AsyncMock()
         proc.pid = 1
         proc.returncode = None
+        proc.kill = MagicMock()
         proc.wait = AsyncMock()
 
         with patch("api.utils.platform.os", create=True) as mock_os, \

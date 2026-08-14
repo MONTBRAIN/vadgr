@@ -1,18 +1,14 @@
 //! The fan-out, and the 500-frame replay buffer.
 //!
-//! **The published architecture describes this as a lossy live view, and the code
-//! is not that.** The divergence is dispositioned in the plan against this
-//! release: `0.4.5` **reproduces** the buffer and does not fix it, because the
-//! frame counts per socket are what judge this release and a replay buffer is
-//! directly observable in them. "Fixed" and "wrong" would be the same
-//! measurement. The fix belongs to `0.6.0`, which reshapes the stream.
+//! Released mobile `0.4.1` uses this replay to recover after a reconnect. The
+//! compatibility adapter stays until the watch route is replaced at `0.6.0`.
 
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Mutex;
 use tokio::sync::broadcast;
 
-/// `api/websocket/manager.py:11`, verbatim.
+/// The compatibility cap used by the released phone.
 pub const MAX_BUFFER: usize = 500;
 
 struct RunChannel {

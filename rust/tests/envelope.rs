@@ -1,8 +1,7 @@
-//! The error envelope, which is this release's stop condition.
+//! The stable error envelope used by released clients.
 //!
-//! The migration plan's own stop condition: if the envelope cannot be reproduced
-//! exactly - status **and** code - the migration is re-planned. So it is
-//! asserted here rather than trusted, and `details` is asserted **present**
+//! An unexplained status, code or field change stops the migration. The suite
+//! asserts `details` **present**
 //! rather than merely correct: Python declares `details: dict = {}` and always
 //! emits it, and a serialiser that drops empty maps is exactly the difference
 //! this release exists to rule out.

@@ -1,5 +1,4 @@
-//! Configuration: the port, the database, the computer-use flag, and
-//! `providers.yaml`.
+//! Process configuration and the native provider catalog.
 
 use serde::Deserialize;
 use serde_json::Value;
@@ -12,7 +11,6 @@ pub struct Config {
     pub db_path: String,
     pub transport_name: String,
     pub providers_path: String,
-    pub computer_use_enabled: bool,
 }
 
 impl Config {
@@ -30,17 +28,12 @@ impl Config {
                 .unwrap_or_else(|_| "loopback".to_string()),
             providers_path: std::env::var("VADGR_PROVIDERS")
                 .unwrap_or_else(|_| "providers.yaml".to_string()),
-            computer_use_enabled: std::env::var("AGENT_FORGE_COMPUTER_USE_ENABLED")
-                .or_else(|_| std::env::var("VADGR_COMPUTER_USE"))
-                .map(|v| v == "1" || v.eq_ignore_ascii_case("true"))
-                .unwrap_or(true),
         }
     }
 }
 
-/// One entry under the document's `providers:` key. The fields this daemon
-/// does not read (`kind`, `module`, `args`, `timeout`, ...) pass through
-/// deserialization untouched; `models` stays an untyped value because the
+/// One entry under the document's `providers:` key. `models` stays an untyped
+/// value because the
 /// route publishes it verbatim, and the real file carries `{id, name}` maps,
 /// not strings.
 #[derive(Debug, Deserialize)]
@@ -48,32 +41,11 @@ pub struct ProviderEntry {
     #[serde(default)]
     pub name: Option<String>,
     #[serde(default)]
-    pub command: Option<String>,
-    /// An argv, run directly: `["claude", "--version"]`. The Python daemon
-    /// execs it without a shell, and a port that handed it to `sh -c` would
-    /// change both its parsing and its failure modes.
+    pub kind: Option<String>,
     #[serde(default)]
-    pub available_check: Vec<String>,
+    pub deprecated: bool,
     #[serde(default = "empty_models")]
     pub models: Value,
-    #[serde(skip, default = "valid_provider")]
-    pub valid: bool,
-}
-
-fn valid_provider() -> bool {
-    true
-}
-
-impl Default for ProviderEntry {
-    fn default() -> Self {
-        Self {
-            name: None,
-            command: None,
-            available_check: Vec::new(),
-            models: empty_models(),
-            valid: true,
-        }
-    }
 }
 
 fn empty_models() -> Value {
@@ -107,106 +79,23 @@ pub fn load_providers(path: &str) -> Vec<(String, ProviderEntry)> {
             // A malformed entry keeps its slot rather than taking the list
             // down, which is the same posture the Python route takes per
             // provider: it just reports nothing useful about itself.
-            let entry = serde_norway::from_value(value.clone()).unwrap_or_else(|_| ProviderEntry {
-                valid: false,
-                ..ProviderEntry::default()
-            });
-            Some((key, entry))
+            let entry = serde_norway::from_value::<ProviderEntry>(value.clone()).ok()?;
+            (entry.kind.as_deref() == Some("native") && !entry.deprecated).then_some((key, entry))
         })
         .collect()
 }
 
-/// A provider with no command and no check is the in-process engine, which is
-/// always available: there is nothing to find on `PATH` and nothing to spawn.
-/// Without this the empty argv reached the spawn and raised, which is what put
-/// every native provider into `error` at creation.
-pub fn provider_available(entry: &ProviderEntry) -> bool {
-    if !entry.valid {
-        return false;
-    }
-    if entry.available_check.is_empty() {
-        return match &entry.command {
-            None => true,
-            Some(cmd) => which(cmd).is_some(),
-        };
-    }
-    run_check(&entry.available_check)
-}
-
-/// Resolve the provider catalogue once when the daemon starts. Availability
-/// checks may spawn provider CLIs, so request handlers must not repeat them.
+/// Resolve the native provider catalog once when the daemon starts.
 pub fn provider_catalog(path: &str) -> Vec<Value> {
     load_providers(path)
         .into_iter()
         .map(|(key, cfg)| {
-            let available = provider_available(&cfg);
             serde_json::json!({
                 "id": key,
                 "name": cfg.name.clone().unwrap_or_else(|| key.clone()),
-                "available": available,
+                "available": true,
                 "models": cfg.models,
             })
         })
         .collect()
-}
-
-fn which(cmd: &str) -> Option<String> {
-    let path = std::env::var_os("PATH")?;
-    for dir in std::env::split_paths(&path) {
-        for command in command_names(cmd) {
-            let candidate = dir.join(command);
-            if candidate.is_file() && is_executable(&candidate) {
-                return Some(candidate.to_string_lossy().into_owned());
-            }
-        }
-    }
-    None
-}
-
-#[cfg(not(windows))]
-fn command_names(cmd: &str) -> Vec<std::ffi::OsString> {
-    vec![cmd.into()]
-}
-
-#[cfg(windows)]
-fn command_names(cmd: &str) -> Vec<std::ffi::OsString> {
-    use std::ffi::OsString;
-    use std::path::Path;
-
-    if Path::new(cmd).extension().is_some() {
-        return vec![cmd.into()];
-    }
-    let extensions = std::env::var_os("PATHEXT").unwrap_or_else(|| ".COM;.EXE;.BAT;.CMD".into());
-    extensions
-        .to_string_lossy()
-        .split(';')
-        .filter(|extension| !extension.is_empty())
-        .map(|extension| OsString::from(format!("{cmd}{extension}")))
-        .collect()
-}
-
-#[cfg(unix)]
-fn is_executable(path: &std::path::Path) -> bool {
-    use std::os::unix::fs::PermissionsExt;
-    std::fs::metadata(path)
-        .map(|m| m.permissions().mode() & 0o111 != 0)
-        .unwrap_or(false)
-}
-
-#[cfg(not(unix))]
-fn is_executable(_path: &std::path::Path) -> bool {
-    true
-}
-
-fn run_check(argv: &[String]) -> bool {
-    let Some((cmd, args)) = argv.split_first() else {
-        return false;
-    };
-    std::process::Command::new(cmd)
-        .args(args)
-        .stdout(std::process::Stdio::null())
-        .stderr(std::process::Stdio::null())
-        .status()
-        .map(|s| s.success())
-        .unwrap_or(false)
 }

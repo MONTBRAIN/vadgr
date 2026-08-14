@@ -3,11 +3,9 @@
 //! vocabulary. Same machinery, different framing - collapsing them into one
 //! handler would put internal event names on the phone's wire.
 //!
-//! **The refusal happens before accept.** A socket cannot answer `401` once the
-//! handshake has completed, so a caller that fails the gate - or names a run
-//! that does not exist - is refused at the HTTP layer and never upgraded.
-//! `E2E/0.4.1` recorded a close-before-accept defect here; this release
-//! reproduces today's behaviour, including the parts a later minor fixes.
+//! Auth failures and missing runs accept the upgrade and then close with a
+//! stable code. A source outside the selected transport still fails at HTTP
+//! because it is not allowed to open a socket.
 
 use crate::auth::gate;
 use crate::state::AppState;
@@ -20,6 +18,24 @@ use serde_json::{Value, json};
 use std::net::SocketAddr;
 use tokio::sync::broadcast;
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum AdmissionError {
+    Source,
+    Auth,
+    MissingRun,
+    Internal,
+}
+
+impl AdmissionError {
+    fn close(self) -> Option<(u16, &'static str)> {
+        match self {
+            Self::Auth => Some((4401, "Unauthorized")),
+            Self::MissingRun => Some((4004, "Run not found")),
+            Self::Source | Self::Internal => None,
+        }
+    }
+}
+
 #[derive(Deserialize)]
 pub struct WsAuth {
     /// A browser cannot set a header on a websocket, and neither can every
@@ -29,14 +45,12 @@ pub struct WsAuth {
     token: Option<String>,
 }
 
-/// The pre-accept gate, returning `Err(status)` rather than closing a socket
-/// that was never opened. On success: the owning device id, or `None` for a
-/// loopback caller, which has no device.
+/// On success: the owning device id, or `None` for a loopback caller.
 fn authorize(
     state: &AppState,
     peer: &SocketAddr,
     token: Option<&str>,
-) -> Result<Option<String>, StatusCode> {
+) -> Result<Option<String>, AdmissionError> {
     let host = peer.ip().to_string();
     // Gate 0: loopback bypass - the CLI connects with no token.
     if gate::is_loopback(&host) {
@@ -44,14 +58,14 @@ fn authorize(
     }
     // Gate 1: network authorization, before any token work.
     if !state.transport.is_authorized_source(&host) {
-        return Err(StatusCode::FORBIDDEN);
+        return Err(AdmissionError::Source);
     }
     // Gate 2: token.
-    let token = token.ok_or(StatusCode::UNAUTHORIZED)?;
+    let token = token.ok_or(AdmissionError::Auth)?;
     match gate::authenticate_device(state, token) {
         Ok(Some(device_id)) => Ok(Some(device_id)),
-        Ok(None) => Err(StatusCode::UNAUTHORIZED),
-        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+        Ok(None) => Err(AdmissionError::Auth),
+        Err(_) => Err(AdmissionError::Internal),
     }
 }
 
@@ -61,25 +75,37 @@ fn token_from(auth: &WsAuth, headers: &HeaderMap) -> Option<String> {
     auth.token.clone().or_else(|| gate::extract_bearer(headers))
 }
 
-/// The shared pre-accept path: both gates, then the run lookup. A socket to a
-/// run that does not exist is refused at the handshake, not accepted into
-/// silence.
+/// The shared admission path: both gates, then the run lookup.
 fn admit(
     state: &AppState,
     peer: &SocketAddr,
     run_id: &str,
     token: Option<&str>,
-) -> Result<Option<String>, StatusCode> {
+) -> Result<Option<String>, AdmissionError> {
     let device_id = authorize(state, peer, token)?;
     match crate::db::runs::get(&state.db, run_id) {
         Ok(Some(_)) => Ok(device_id),
-        Ok(None) => Err(StatusCode::NOT_FOUND),
-        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+        Ok(None) => Err(AdmissionError::MissingRun),
+        Err(_) => Err(AdmissionError::Internal),
     }
 }
 
-fn refusal_response() -> Response {
-    StatusCode::FORBIDDEN.into_response()
+fn refusal_response(ws: WebSocketUpgrade, error: AdmissionError) -> Response {
+    match error {
+        AdmissionError::Source => StatusCode::FORBIDDEN.into_response(),
+        AdmissionError::Internal => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+        _ => {
+            let (code, reason) = error.close().expect("socket close error");
+            ws.on_upgrade(move |mut socket| async move {
+                let _ = socket
+                    .send(Message::Close(Some(CloseFrame {
+                        code,
+                        reason: reason.into(),
+                    })))
+                    .await;
+            })
+        }
+    }
 }
 
 /// The on-box stream the CLI watches: internal events, verbatim. Send-only,
@@ -97,7 +123,7 @@ pub async fn run_websocket(
         // The CLI socket is not device-tracked, so revoking a phone never
         // touches it: loopback callers have no device to revoke.
         Ok(_) => ws.on_upgrade(move |socket| pump(socket, state, run_id, None, Framing::Raw)),
-        Err(_) => refusal_response(),
+        Err(error) => refusal_response(ws, error),
     }
 }
 
@@ -116,7 +142,7 @@ pub async fn run_stream(
         Ok(device_id) => {
             ws.on_upgrade(move |socket| pump(socket, state, run_id, device_id, Framing::RunEvents))
         }
-        Err(_) => refusal_response(),
+        Err(error) => refusal_response(ws, error),
     }
 }
 
@@ -274,13 +300,15 @@ async fn pump(
 
 #[cfg(test)]
 mod tests {
-    use super::refusal_response;
+    use super::AdmissionError;
 
     #[test]
-    fn every_pre_accept_refusal_matches_the_python_handshake_status() {
+    fn rejected_upgrades_have_stable_close_codes() {
+        assert_eq!(AdmissionError::Auth.close(), Some((4401, "Unauthorized")));
         assert_eq!(
-            refusal_response().status(),
-            axum::http::StatusCode::FORBIDDEN
+            AdmissionError::MissingRun.close(),
+            Some((4004, "Run not found"))
         );
+        assert_eq!(AdmissionError::Source.close(), None);
     }
 }

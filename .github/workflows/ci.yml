@@ -155,7 +155,11 @@ jobs:
   # 0.4.5 the daemon is being rewritten beside the Python one, and a suite that
   # only ever runs locally is a suite that stops running.
   rust:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -172,7 +176,7 @@ jobs:
         run: cargo test --locked
       - name: Lint
         working-directory: rust
-        run: cargo clippy --locked -- -D warnings
+        run: cargo clippy --locked --all-targets --all-features -- -D warnings
       - name: Format
         working-directory: rust
-        run: cargo fmt --check
+        run: cargo fmt --all -- --check

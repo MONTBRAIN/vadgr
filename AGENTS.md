@@ -52,6 +52,16 @@ answer. **A decision marked `Ruled` is an answer, not an option.**
 or written into `PLANS.md` under the minor that owns it, with the reason. A
 defect reported with no disposition moves the work rather than doing it.
 
+**A migration is not a literal translation.** Read the old implementation for
+shipped behavior and live consumers. Read the plan, contract, architecture and
+release design for the target. The target documents win when they disagree.
+Port target behavior. Keep only the smallest adapter required by a named
+released consumer, with its removal release recorded. Do not port dead entities,
+retired integrations, deprecated subprocess paths, external client
+configuration, duplicate sources of truth, known defects or misleading status.
+Fix a defect when its code is rewritten and add a regression test. The
+comparison sweep detects differences; it does not define the target.
+
 **Design comes before code.** No minor is implemented until its build spec
 exists and every minor in its iteration has one. Exit `0` or do not start:
 
@@ -288,7 +298,7 @@ The gate, all four suites, before offering anything:
 PYTHONPATH=. python3 -m pytest engine/tests/ -q     # 122
 python3 -m pytest api/tests/ -q                     # 429
 python3 -m pytest cli/tests/ -q                     # 141
-(cd rust && cargo test)                             # 78
+(cd rust && cargo test)                             # 93
 ```
 
 The api and cli counts read `596` and `201` until `0.4.5`, which were their

@@ -7,8 +7,8 @@
 //! because a rename is not what this release is for.
 //!
 //! Order is the security property, and the three public paths bypass all of it.
-//! The helpers here are shared with the websocket handshake, which runs the
-//! same gates through its own pre-accept path.
+//! The helpers here are shared with the websocket handler. That handler owns
+//! admission because an accepted socket can return the published close code.
 
 use crate::error::ApiError;
 use crate::state::AppState;
@@ -22,6 +22,11 @@ use std::net::SocketAddr;
 /// pairing routes are what a phone has before it has a token. They bypass every
 /// gate, which is why the set is short and stated in one place.
 const PUBLIC_PATHS: [&str; 3] = ["/api/health", "/api/auth/pair", "/api/auth/claim"];
+
+fn is_websocket_path(path: &str) -> bool {
+    (path.starts_with("/api/runs/") && path.ends_with("/stream"))
+        || path.starts_with("/api/ws/runs/")
+}
 
 pub fn is_loopback(host: &str) -> bool {
     let h = host.to_lowercase();
@@ -86,7 +91,7 @@ where
     let (parts, body) = req.into_parts();
     let req = Request::from_parts(parts, body.into());
 
-    if PUBLIC_PATHS.contains(&path.as_str()) {
+    if PUBLIC_PATHS.contains(&path.as_str()) || is_websocket_path(&path) {
         return next.run(req).await;
     }
 
@@ -124,5 +129,18 @@ where
         // machine has forgotten.
         None if presented.is_some() => ApiError::invalid_token().into_response(),
         None => ApiError::missing_token().into_response(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_websocket_path;
+
+    #[test]
+    fn only_socket_routes_defer_admission_to_the_upgrade_handler() {
+        assert!(is_websocket_path("/api/runs/r1/stream"));
+        assert!(is_websocket_path("/api/ws/runs/r1"));
+        assert!(!is_websocket_path("/api/runs/r1"));
+        assert!(!is_websocket_path("/api/health"));
     }
 }

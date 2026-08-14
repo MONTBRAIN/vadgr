@@ -15,26 +15,38 @@ the cutover. This release exists to be compared against it.
   list and a run's detail, cancel, and both run sockets with their replay.
 - **`rust/`**, a new tree beside `api/`, `engine/` and `cli/`, with its own
   README covering how to run it and what it deliberately does not do.
-- **Startup-cached provider and computer-use probes.** Normal reads no longer
-  launch provider CLIs or `vadgr-cua doctor` on every request. A settings update
-  refreshes the cached computer-use state before it returns.
+- **A native-only provider catalog.** Rust ignores deprecated subprocess rows
+  and never starts an external agent CLI to test availability.
+- **Daemon-owned computer-use settings.** The toggle writes only vadgr's own
+  settings. It never edits project MCP files, Gemini settings or Codex global
+  settings, and it never installs a runtime.
 - **HTTP request tracing** in the Rust daemon log, including the response status
   and latency used to audit a live sweep.
-- 91 tests over the error envelope, the pairing code's rules, the two
+- **Rust CI on Linux, Windows and macOS.** Each host builds, tests and lints the
+  daemon. Live operating-system E2E results remain separate.
+- 93 tests over the error envelope, the pairing code's rules, the two
   repositories' wire mapping, the socket buffer, the stream's frame mapping,
   the transport adapter, and the gates driven through the real router.
+
+### Fixed
+- Health reports the detected `linux`, `macos`, `windows` or `wsl` platform.
+- Cancel records `cancelled` instead of reporting a deliberate stop as a
+  failure.
+- An auth or missing-run WebSocket refusal accepts the upgrade before closing
+  with `4401` or `4004`, so a client can read the reason.
+- Computer-use status reports unavailable until the Rust MCP engine exists.
 
 ### Notes
 - **It cannot start or resume a run**, and both routes are **absent rather than
   stubbed**. A `501`, a plausible `202` with no run behind it, or a queued row
   nothing will pick up are three ways of reporting a success that did not
   happen. Both arrive with the loop, in the next release.
-- **The database schema is copied, not improved**, and the error envelope is
-  reproduced exactly: status and code alike. Both are what make the release
-  checkable at all.
-- **The replay buffer is reproduced, not fixed.** The daemon buffers up to 500
-  frames per run and replays them to a late connector. That is what the shipped
-  daemon does, and changing it here would make the comparison meaningless.
+- **The database schema is copied, not improved**, and released error envelopes
+  keep their status and code. Intentional target corrections are recorded and
+  tested.
+- **The replay buffer stays for released mobile compatibility.** The daemon
+  buffers up to 500 frames per run because mobile `0.4.1` uses replay after a
+  reconnect. The adapter leaves with the watch route at `0.6.0`.
 - **Copy a database with `VACUUM INTO`, never `cp`.** SQLite runs in WAL mode,
   so a bare file copy is a different database: it carries what was last
   checkpointed and silently drops the rest.

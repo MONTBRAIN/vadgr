@@ -78,7 +78,7 @@ impl ApiError {
 
     // The two gate messages are Python's, verbatim, and they are deliberately
     // the SAME string for both codes. Splitting them would read better and is
-    // exactly the redesign a faithful port must not smuggle in: the codes carry
+    // a contract change this release does not own: the codes carry
     // the difference, the message is prose, and a reader comparing the two
     // daemons should find nothing here to explain.
     pub fn missing_token() -> Self {

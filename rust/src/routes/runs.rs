@@ -31,16 +31,7 @@ pub async fn get_run(
     }
 }
 
-/// Cancel, and it ports **completely** rather than partially.
-///
-/// The Python route signals the asyncio task if one exists and then writes
-/// `failed`. With no engine there is never a task, and the Python daemon takes
-/// exactly the same branch when the task is absent - so this is the same
-/// behaviour, not a reduced one.
-///
-/// It still records `failed` rather than a `cancelled` state, which is wrong
-/// and is deliberately left wrong: nothing writes `cancelled` today, the phone
-/// draws what the daemon sends, and the split arrives at `0.6.0`.
+/// Cancel an active run and record the published terminal state.
 pub async fn cancel_run(
     State(state): State<AppState>,
     Path(run_id): Path<String>,
@@ -50,11 +41,11 @@ pub async fn cancel_run(
         .ok_or_else(|| ApiError::run_not_found(&run_id))?;
 
     let status = run.get("status").and_then(|v| v.as_str()).unwrap_or("");
-    if matches!(status, "completed" | "failed") {
+    if matches!(status, "completed" | "failed" | "cancelled") {
         return Err(ApiError::run_not_active());
     }
 
-    let updated = crate::db::runs::update_status(&state.db, &run_id, "failed")
+    let updated = crate::db::runs::update_status(&state.db, &run_id, "cancelled")
         .map_err(ApiError::internal)?
         .ok_or_else(|| ApiError::run_not_found(&run_id))?;
     Ok(Json(updated))

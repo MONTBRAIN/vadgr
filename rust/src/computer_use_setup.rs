@@ -1,414 +1,273 @@
-//! The computer-use setup service, ported from the Python daemon.
+//! Daemon-owned computer-use state.
 //!
-//! This module owns the cua virtual environment and the three MCP client
-//! configurations. The HTTP route returns what these files say now; it does
-//! not echo the requested state.
+//! The Python service configured external agent CLIs. The native loop owns its
+//! MCP host, so this service writes only vadgr's settings and never edits a
+//! project file or another program's global configuration.
 
-use md5::{Digest, Md5};
-use serde_json::{Value, json};
+use crate::platform;
+use anyhow::{Context, Result};
+use serde_json::{Map, Value, json};
 use std::path::{Path, PathBuf};
-use std::process::{Command, Output, Stdio};
-use std::time::Duration;
-use toml_edit::{Array, DocumentMut, value};
-use wait_timeout::ChildExt;
 
-const PACKAGE_SPEC: &str = "vadgr-computer-use>=0.1.0,<0.2.0";
-const DEPS_MARKER: &str = ".deps_installed";
-const MCP_SERVER_NAME: &str = "vadgr-computer-use";
+const SETTINGS_FILE: &str = "settings.json";
 
-#[derive(Debug)]
-pub struct SetupError(String);
-
-impl std::fmt::Display for SetupError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.0)
-    }
-}
-
-impl std::error::Error for SetupError {}
-
-impl From<std::io::Error> for SetupError {
-    fn from(error: std::io::Error) -> Self {
-        Self(error.to_string())
-    }
-}
-
-impl From<toml_edit::TomlError> for SetupError {
-    fn from(error: toml_edit::TomlError) -> Self {
-        Self(error.to_string())
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct SetupPaths {
-    pub project_root: PathBuf,
-    pub config_home: PathBuf,
-}
-
-impl SetupPaths {
-    fn from_env() -> Self {
-        let project_root = std::env::var_os("VADGR_PROJECT_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(|| {
-                Path::new(env!("CARGO_MANIFEST_DIR"))
-                    .parent()
-                    .expect("the Rust crate has a repository parent")
-                    .to_path_buf()
-            });
-        let config_home = std::env::var_os("VADGR_CONFIG_HOME")
-            .or_else(|| std::env::var_os("HOME"))
-            .or_else(|| std::env::var_os("USERPROFILE"))
-            .map(PathBuf::from)
-            .unwrap_or_else(|| project_root.clone());
-        Self {
-            project_root,
-            config_home,
-        }
-    }
-
-    fn venv(&self) -> PathBuf {
-        self.project_root.join(".cu_venv")
-    }
-
-    fn mcp_json(&self) -> PathBuf {
-        self.project_root.join(".mcp.json")
-    }
-
-    fn gemini_json(&self) -> PathBuf {
-        self.project_root.join(".gemini/settings.json")
-    }
-
-    fn codex_toml(&self) -> PathBuf {
-        self.config_home.join(".codex/config.toml")
-    }
-}
-
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct SetupService {
-    paths: SetupPaths,
-    wsl2: bool,
+    settings_path: PathBuf,
+    runtime_path: Option<PathBuf>,
+    default_enabled: bool,
 }
 
 impl SetupService {
     pub fn from_env() -> Self {
         Self {
-            paths: SetupPaths::from_env(),
-            wsl2: is_wsl2(),
+            settings_path: config_home().join(SETTINGS_FILE),
+            runtime_path: find_runtime(),
+            default_enabled: std::env::var("VADGR_COMPUTER_USE")
+                .map(|value| value == "1" || value.eq_ignore_ascii_case("true"))
+                .unwrap_or(true),
         }
     }
 
     #[cfg(test)]
-    fn new(paths: SetupPaths, wsl2: bool) -> Self {
-        Self { paths, wsl2 }
+    fn new(settings_path: PathBuf, runtime_path: Option<PathBuf>) -> Self {
+        Self {
+            settings_path,
+            runtime_path,
+            default_enabled: true,
+        }
     }
 
     pub fn status(&self) -> Value {
-        let enabled = std::fs::read_to_string(self.paths.mcp_json())
-            .ok()
-            .and_then(|text| serde_json::from_str::<Value>(&text).ok())
-            .and_then(|doc| {
-                doc.get("mcpServers")?
-                    .as_object()?
-                    .get(MCP_SERVER_NAME)
-                    .map(|_| true)
-            })
-            .unwrap_or(false);
-        let daemon = if self.wsl2 && enabled {
-            self.doctor_status()
-        } else {
-            None
-        };
         json!({
-            "enabled": enabled,
-            "venv_ready": self.paths.venv().exists(),
-            "daemon": daemon,
-            "platform": if self.wsl2 { "wsl2" } else { "native" },
+            "enabled": self.read_enabled().unwrap_or(self.default_enabled),
+            // This wire key is kept for the released CLI. It means that a cua
+            // runtime can be mounted, not that vadgr owns a Python virtualenv.
+            "venv_ready": self.runtime_path.is_some(),
+            "daemon": Value::Null,
+            "platform": platform::computer_use_platform(),
         })
     }
 
-    pub fn enable(&self) -> Result<Value, SetupError> {
-        if !self.venv_healthy() {
-            self.create_venv()?;
-        }
-        if self.dependencies_need_install()? {
-            self.install_package()?;
-        }
-        self.write_provider_configs()?;
-        if self.wsl2 {
-            self.run_cua("install-daemon", Duration::from_secs(60));
-        }
+    pub fn enable(&self) -> Result<Value> {
+        self.set_enabled(true)
+    }
+
+    pub fn disable(&self) -> Result<Value> {
+        self.set_enabled(false)
+    }
+
+    fn read_enabled(&self) -> Option<bool> {
+        let document = read_document(&self.settings_path).ok()?;
+        document
+            .get("computer_use")
+            .and_then(Value::as_object)
+            .and_then(|section| section.get("enabled"))
+            .and_then(Value::as_bool)
+    }
+
+    fn set_enabled(&self, enabled: bool) -> Result<Value> {
+        let mut document = read_document(&self.settings_path)?;
+        let root = document
+            .as_object_mut()
+            .context("vadgr settings must be a JSON object")?;
+        let section = root
+            .entry("computer_use")
+            .or_insert_with(|| Value::Object(Map::new()))
+            .as_object_mut()
+            .context("computer_use settings must be a JSON object")?;
+        section.insert("enabled".into(), Value::Bool(enabled));
+        write_document(&self.settings_path, &document)?;
         Ok(self.status())
-    }
-
-    pub fn disable(&self) -> Result<Value, SetupError> {
-        if self.wsl2 {
-            self.run_cua("stop-daemon", Duration::from_secs(15));
-        }
-        for path in [self.paths.mcp_json(), self.paths.gemini_json()] {
-            match std::fs::remove_file(path) {
-                Ok(()) => {}
-                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
-                Err(error) => return Err(error.into()),
-            }
-        }
-        self.remove_codex_section()?;
-        Ok(self.status())
-    }
-
-    fn venv_bin(&self) -> PathBuf {
-        self.paths
-            .venv()
-            .join(if cfg!(windows) { "Scripts" } else { "bin" })
-    }
-
-    fn pip(&self) -> PathBuf {
-        self.venv_bin()
-            .join(if cfg!(windows) { "pip.exe" } else { "pip" })
-    }
-
-    fn cua(&self) -> PathBuf {
-        self.venv_bin().join(if cfg!(windows) {
-            "vadgr-cua.exe"
-        } else {
-            "vadgr-cua"
-        })
-    }
-
-    fn venv_healthy(&self) -> bool {
-        self.paths.venv().exists() && self.pip().exists()
-    }
-
-    fn dependencies_need_install(&self) -> Result<bool, SetupError> {
-        let marker = self.paths.venv().join(DEPS_MARKER);
-        match std::fs::read_to_string(marker) {
-            Ok(value) => Ok(value.trim() != package_hash()),
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(true),
-            Err(error) => Err(error.into()),
-        }
-    }
-
-    fn create_venv(&self) -> Result<(), SetupError> {
-        let python = if cfg!(windows) { "python" } else { "python3" };
-        checked_output(
-            Command::new(python)
-                .args(["-m", "venv", "--clear"])
-                .arg(self.paths.venv()),
-            "create the computer-use virtual environment",
-        )?;
-        Ok(())
-    }
-
-    fn install_package(&self) -> Result<(), SetupError> {
-        checked_output(
-            Command::new(self.pip()).args(["install", "-q", "--upgrade", PACKAGE_SPEC]),
-            "install vadgr-computer-use",
-        )?;
-        std::fs::write(self.paths.venv().join(DEPS_MARKER), package_hash())?;
-        Ok(())
-    }
-
-    fn doctor_status(&self) -> Option<&'static str> {
-        let output = self.run_cua("doctor", Duration::from_secs(10))?;
-        if !output.status.success() {
-            return None;
-        }
-        let body: Value = serde_json::from_slice(&output.stdout).ok()?;
-        Some(
-            if body.get("daemon_running").and_then(Value::as_bool) == Some(true) {
-                "running"
-            } else {
-                "stopped"
-            },
-        )
-    }
-
-    fn run_cua(&self, argument: &str, timeout: Duration) -> Option<Output> {
-        let binary = self.cua();
-        if !binary.exists() {
-            return None;
-        }
-        let mut child = Command::new(binary)
-            .arg(argument)
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .spawn()
-            .ok()?;
-        match child.wait_timeout(timeout).ok()? {
-            Some(_) => child.wait_with_output().ok(),
-            None => {
-                let _ = child.kill();
-                let _ = child.wait();
-                None
-            }
-        }
-    }
-
-    fn mcp_document(&self) -> Value {
-        json!({
-            "mcpServers": {
-                MCP_SERVER_NAME: {
-                    "type": "stdio",
-                    "command": self.cua().to_string_lossy(),
-                    "args": ["--transport", "stdio"],
-                }
-            }
-        })
-    }
-
-    fn write_provider_configs(&self) -> Result<(), SetupError> {
-        write_json(self.paths.mcp_json(), &self.mcp_document())?;
-
-        let mut gemini = self.mcp_document();
-        gemini["context"] = json!({"fileFiltering": {"respectGitIgnore": false}});
-        write_json(self.paths.gemini_json(), &gemini)?;
-
-        let path = self.paths.codex_toml();
-        if let Some(parent) = path.parent() {
-            std::fs::create_dir_all(parent)?;
-        }
-        let existing = std::fs::read_to_string(&path).unwrap_or_default();
-        let mut doc = if existing.trim().is_empty() {
-            DocumentMut::new()
-        } else {
-            existing.parse::<DocumentMut>()?
-        };
-        remove_server_tables(&mut doc);
-        doc["mcp_servers"][MCP_SERVER_NAME]["command"] =
-            value(self.cua().to_string_lossy().to_string());
-        let mut args = Array::new();
-        args.push("--transport");
-        args.push("stdio");
-        doc["mcp_servers"][MCP_SERVER_NAME]["args"] = value(args);
-        std::fs::write(path, doc.to_string())?;
-        Ok(())
-    }
-
-    fn remove_codex_section(&self) -> Result<(), SetupError> {
-        let path = self.paths.codex_toml();
-        let existing = match std::fs::read_to_string(&path) {
-            Ok(value) => value,
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(()),
-            Err(error) => return Err(error.into()),
-        };
-        let mut doc = existing.parse::<DocumentMut>()?;
-        remove_server_tables(&mut doc);
-        std::fs::write(path, doc.to_string())?;
-        Ok(())
     }
 }
 
-fn remove_server_tables(doc: &mut DocumentMut) {
-    if let Some(servers) = doc
-        .get_mut("mcp_servers")
-        .and_then(toml_edit::Item::as_table_like_mut)
-    {
-        servers.remove("computer-use");
-        servers.remove(MCP_SERVER_NAME);
+fn config_home() -> PathBuf {
+    config_home_from(
+        std::env::var_os("VADGR_CONFIG_HOME"),
+        std::env::var_os("XDG_CONFIG_HOME"),
+        std::env::var_os("HOME"),
+        std::env::var_os("USERPROFILE"),
+    )
+}
+
+fn config_home_from(
+    vadgr_home: Option<std::ffi::OsString>,
+    xdg_home: Option<std::ffi::OsString>,
+    home: Option<std::ffi::OsString>,
+    user_profile: Option<std::ffi::OsString>,
+) -> PathBuf {
+    if let Some(path) = vadgr_home {
+        return path.into();
+    }
+    if let Some(path) = xdg_home {
+        return PathBuf::from(path).join("vadgr");
+    }
+    if let Some(path) = home.or(user_profile) {
+        return PathBuf::from(path).join(".config/vadgr");
+    }
+    PathBuf::from(".vadgr")
+}
+
+fn read_document(path: &Path) -> Result<Value> {
+    match std::fs::read_to_string(path) {
+        Ok(text) => {
+            serde_json::from_str(&text).with_context(|| format!("parsing {}", path.display()))
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(Value::Object(Map::new())),
+        Err(error) => Err(error).with_context(|| format!("reading {}", path.display())),
     }
 }
 
-fn write_json(path: PathBuf, value: &Value) -> Result<(), SetupError> {
-    if let Some(parent) = path.parent() {
-        std::fs::create_dir_all(parent)?;
+fn write_document(path: &Path, document: &Value) -> Result<()> {
+    let parent = path
+        .parent()
+        .context("vadgr settings path has no parent directory")?;
+    std::fs::create_dir_all(parent).with_context(|| format!("creating {}", parent.display()))?;
+
+    let file_name = path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .context("vadgr settings path has no file name")?;
+    let temporary = parent.join(format!(".{file_name}.{}.tmp", uuid::Uuid::new_v4()));
+    let bytes = serde_json::to_vec_pretty(document)?;
+    std::fs::write(&temporary, bytes)
+        .with_context(|| format!("writing {}", temporary.display()))?;
+    if let Err(error) = replace_file(&temporary, path) {
+        let _ = std::fs::remove_file(&temporary);
+        return Err(error).with_context(|| format!("replacing {}", path.display()));
     }
-    let mut encoded = serde_json::to_string_pretty(value).map_err(|e| SetupError(e.to_string()))?;
-    encoded.push('\n');
-    std::fs::write(path, encoded)?;
     Ok(())
 }
 
-fn checked_output(command: &mut Command, operation: &str) -> Result<Output, SetupError> {
-    let output = command.output()?;
-    if output.status.success() {
-        Ok(output)
-    } else {
-        Err(SetupError(format!(
-            "failed to {operation}: {}",
-            String::from_utf8_lossy(&output.stderr).trim()
-        )))
-    }
+#[cfg(not(windows))]
+fn replace_file(source: &Path, destination: &Path) -> std::io::Result<()> {
+    std::fs::rename(source, destination)
 }
 
-fn package_hash() -> String {
-    Md5::digest(PACKAGE_SPEC.as_bytes())
-        .iter()
-        .map(|byte| format!("{byte:02x}"))
+#[cfg(windows)]
+fn replace_file(source: &Path, destination: &Path) -> std::io::Result<()> {
+    // Windows does not replace an existing destination with rename.
+    if destination.exists() {
+        std::fs::remove_file(destination)?;
+    }
+    std::fs::rename(source, destination)
+}
+
+fn find_runtime() -> Option<PathBuf> {
+    if let Some(path) = std::env::var_os("VADGR_CUA_BIN").map(PathBuf::from) {
+        return path.is_file().then_some(path);
+    }
+
+    let local = if cfg!(windows) {
+        PathBuf::from(".cu_venv/Scripts/vadgr-cua.exe")
+    } else {
+        PathBuf::from(".cu_venv/bin/vadgr-cua")
+    };
+    if local.is_file() {
+        return Some(local);
+    }
+    find_on_path("vadgr-cua")
+}
+
+fn find_on_path(command: &str) -> Option<PathBuf> {
+    let path = std::env::var_os("PATH")?;
+    for directory in std::env::split_paths(&path) {
+        for name in command_names(command) {
+            let candidate = directory.join(name);
+            if candidate.is_file() && is_executable(&candidate) {
+                return Some(candidate);
+            }
+        }
+    }
+    None
+}
+
+#[cfg(not(windows))]
+fn command_names(command: &str) -> Vec<std::ffi::OsString> {
+    vec![command.into()]
+}
+
+#[cfg(windows)]
+fn command_names(command: &str) -> Vec<std::ffi::OsString> {
+    use std::ffi::OsString;
+    use std::path::Path;
+
+    if Path::new(command).extension().is_some() {
+        return vec![command.into()];
+    }
+    std::env::var_os("PATHEXT")
+        .unwrap_or_else(|| ".COM;.EXE;.BAT;.CMD".into())
+        .to_string_lossy()
+        .split(';')
+        .filter(|extension| !extension.is_empty())
+        .map(|extension| OsString::from(format!("{command}{extension}")))
         .collect()
 }
 
-fn is_wsl2() -> bool {
-    std::fs::read_to_string("/proc/version")
-        .map(|value| value.to_lowercase().contains("microsoft"))
+#[cfg(unix)]
+fn is_executable(path: &Path) -> bool {
+    use std::os::unix::fs::PermissionsExt;
+    std::fs::metadata(path)
+        .map(|metadata| metadata.permissions().mode() & 0o111 != 0)
         .unwrap_or(false)
+}
+
+#[cfg(not(unix))]
+fn is_executable(_path: &Path) -> bool {
+    true
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{SetupService, config_home_from};
+    use serde_json::Value;
 
-    fn service() -> (tempfile::TempDir, SetupService) {
-        let root = tempfile::tempdir().unwrap();
-        let paths = SetupPaths {
-            project_root: root.path().join("project"),
-            config_home: root.path().join("home"),
-        };
-        std::fs::create_dir_all(&paths.project_root).unwrap();
-        (root, SetupService::new(paths, false))
-    }
+    #[test]
+    fn toggle_writes_only_daemon_settings_and_preserves_other_keys() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("settings.json");
+        std::fs::write(&path, r#"{"transport":"loopback"}"#).unwrap();
+        let service = SetupService::new(path.clone(), None);
 
-    fn healthy_venv(service: &SetupService) {
-        std::fs::create_dir_all(service.venv_bin()).unwrap();
-        std::fs::write(service.pip(), "").unwrap();
-        std::fs::write(service.cua(), "").unwrap();
-        std::fs::write(service.paths.venv().join(DEPS_MARKER), package_hash()).unwrap();
+        assert_eq!(service.disable().unwrap()["enabled"], false);
+        let document: Value = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
+        assert_eq!(document["transport"], "loopback");
+        assert_eq!(document["computer_use"]["enabled"], false);
+        assert_eq!(service.enable().unwrap()["enabled"], true);
     }
 
     #[test]
-    fn status_matches_the_python_four_field_shape() {
-        let (_root, service) = service();
-        assert_eq!(
-            service.status(),
-            json!({
-                "enabled": false,
-                "venv_ready": false,
-                "daemon": null,
-                "platform": "native",
-            })
-        );
-    }
+    fn status_reports_runtime_presence_without_starting_a_process() {
+        let directory = tempfile::tempdir().unwrap();
+        let runtime = directory.path().join("vadgr-cua");
+        std::fs::write(&runtime, "runtime").unwrap();
+        let service = SetupService::new(directory.path().join("settings.json"), Some(runtime));
 
-    #[test]
-    fn enable_writes_all_three_configs_and_returns_the_resulting_state() {
-        let (_root, service) = service();
-        healthy_venv(&service);
-        let status = service.enable().unwrap();
+        let status = service.status();
         assert_eq!(status["enabled"], true);
         assert_eq!(status["venv_ready"], true);
-        assert!(service.paths.mcp_json().exists());
-        assert!(service.paths.gemini_json().exists());
-        let codex = std::fs::read_to_string(service.paths.codex_toml()).unwrap();
-        assert!(codex.contains("vadgr-computer-use"), "{codex}");
+        assert!(status["daemon"].is_null());
     }
 
     #[test]
-    fn disable_removes_only_the_cua_codex_table_and_preserves_other_settings() {
-        let (_root, service) = service();
-        healthy_venv(&service);
-        std::fs::create_dir_all(service.paths.codex_toml().parent().unwrap()).unwrap();
-        std::fs::write(
-            service.paths.codex_toml(),
-            "model = \"gpt-5.5\"\n\n[mcp_servers.vadgr-computer-use]\ncommand = \"old\"\n",
-        )
-        .unwrap();
-        std::fs::write(
-            service.paths.mcp_json(),
-            serde_json::to_string(&service.mcp_document()).unwrap(),
-        )
-        .unwrap();
-        let status = service.disable().unwrap();
-        assert_eq!(status["enabled"], false);
-        let codex = std::fs::read_to_string(service.paths.codex_toml()).unwrap();
-        assert!(codex.contains("model = \"gpt-5.5\""));
-        assert!(!codex.contains(MCP_SERVER_NAME));
+    fn malformed_settings_are_not_overwritten() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("settings.json");
+        std::fs::write(&path, "not json").unwrap();
+        let service = SetupService::new(path.clone(), None);
+
+        assert!(service.disable().is_err());
+        assert_eq!(std::fs::read_to_string(path).unwrap(), "not json");
+    }
+
+    #[test]
+    fn the_windows_profile_has_the_same_daemon_owned_config_layout() {
+        let path = config_home_from(None, None, None, Some(r"C:\Users\owner".into()));
+
+        assert_eq!(
+            path,
+            std::path::Path::new(r"C:\Users\owner").join(".config/vadgr")
+        );
     }
 }

@@ -85,6 +85,12 @@ fn a_terminal_transition_stamps_completed_at_and_a_live_one_does_not() {
     assert!(updated["completed_at"].is_null());
     let updated = runs::update_status(&db, "r2", "failed").unwrap().unwrap();
     assert!(!updated["completed_at"].is_null());
+
+    let db = seeded();
+    let updated = runs::update_status(&db, "r2", "cancelled")
+        .unwrap()
+        .unwrap();
+    assert!(!updated["completed_at"].is_null());
 }
 
 #[test]

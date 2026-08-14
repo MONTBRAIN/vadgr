@@ -120,6 +120,8 @@ async fn health_answers_without_a_token_because_it_is_the_probe() {
     assert_eq!(status, StatusCode::OK);
     assert_eq!(body["status"], "healthy");
     assert_eq!(body["version"], "0.4.5");
+    assert_eq!(body["modules"]["computer_use"], true);
+    assert!(["linux", "macos", "windows", "wsl"].contains(&body["platform"].as_str().unwrap()));
 }
 
 #[tokio::test]
@@ -300,6 +302,69 @@ async fn provider_reads_use_the_catalog_cached_at_startup() {
     assert_eq!(body[0]["available"], true);
 }
 
+#[tokio::test]
+async fn computer_use_status_does_not_claim_an_engine_is_available() {
+    let (status, body) = send(
+        state_with(Box::new(LoopbackTransport)),
+        get("/api/computer-use/status"),
+        "127.0.0.1",
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(body["available"], false);
+    assert!(["native", "wsl2"].contains(&body["platform"].as_str().unwrap()));
+}
+
+async fn websocket_attempt(state: AppState, path: &str) -> Vec<u8> {
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    let server = tokio::spawn(async move {
+        axum::serve(
+            listener,
+            app(state).into_make_service_with_connect_info::<SocketAddr>(),
+        )
+        .await
+        .unwrap();
+    });
+    let mut stream = tokio::net::TcpStream::connect(address).await.unwrap();
+    stream
+        .write_all(
+            format!(
+                "GET {path} HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n\r\n"
+            )
+            .as_bytes(),
+        )
+        .await
+        .unwrap();
+    let mut response = Vec::new();
+    tokio::time::timeout(
+        std::time::Duration::from_secs(1),
+        stream.read_to_end(&mut response),
+    )
+    .await
+    .unwrap()
+    .unwrap();
+    server.abort();
+    response
+}
+
+#[tokio::test]
+async fn a_missing_run_accepts_the_socket_before_closing() {
+    let missing_response = websocket_attempt(
+        state_with(Box::new(LoopbackTransport)),
+        "/api/ws/runs/missing",
+    )
+    .await;
+    assert!(missing_response.starts_with(b"HTTP/1.1 101 Switching Protocols"));
+    assert!(
+        missing_response
+            .windows(2)
+            .any(|bytes| bytes == 4004_u16.to_be_bytes())
+    );
+}
+
 // ---------------------------------------------------------------- the routes
 
 #[tokio::test]
@@ -315,7 +380,7 @@ async fn a_run_that_is_not_there_is_run_not_found() {
 }
 
 #[tokio::test]
-async fn cancel_records_failed_and_a_second_cancel_is_run_not_active() {
+async fn cancel_records_cancelled_and_a_second_cancel_is_run_not_active() {
     let state = state_with(Box::new(LoopbackTransport));
     let post = |p: &str| {
         Request::builder()
@@ -327,10 +392,7 @@ async fn cancel_records_failed_and_a_second_cancel_is_run_not_active() {
 
     let (status, body) = send(state.clone(), post("/api/runs/r1/cancel"), "127.0.0.1").await;
     assert_eq!(status, StatusCode::OK);
-    // Still `failed` rather than a `cancelled` state, which is wrong and is
-    // deliberately left wrong: nothing writes `cancelled` today, and the split
-    // arrives with the conversation.
-    assert_eq!(body["status"], "failed");
+    assert_eq!(body["status"], "cancelled");
 
     let (status, body) = send(state, post("/api/runs/r1/cancel"), "127.0.0.1").await;
     assert_eq!(status, StatusCode::CONFLICT);
@@ -421,8 +483,8 @@ async fn starting_a_run_is_absent_rather_than_stubbed() {
 #[tokio::test]
 async fn resume_is_held_too_because_its_success_path_needs_a_loop() {
     // Its validation paths port cleanly and its success path cannot: without an
-    // engine the only faithful answer is one this daemon has no way to make
-    // true. Half a route would give the sweep matching error rows and a lying
+    // engine this daemon has no way to make the success response true. Half a
+    // route would give the sweep matching error rows and a lying
     // success row.
     //
     // 404 here rather than 405, and for the same reason the trigger is 405:

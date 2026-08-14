@@ -4,9 +4,8 @@
 //! HTTP/1.0 request over an `AF_UNIX` socket with the fixed
 //! `Host: local-tailscaled.sock` sentinel. HTTP/1.0 because the Go server
 //! chunks otherwise, and this parser does not want to speak chunked. On
-//! Windows the same request goes over a named pipe; that path is held for the
-//! release where a Windows artifact first exists to run it, and until then
-//! the client reports unavailable rather than pretending.
+//! Windows the same request goes over the tailscaled named pipe. The Rust CI
+//! builds and tests this module on Linux, Windows and macOS.
 //!
 //! The LocalAPI client is injected so the adapter is unit-testable with a
 //! fake WhoIs / status: no live tailnet needed.
@@ -59,6 +58,9 @@ impl TailscaledLocalApi {
     }
 
     fn get(&self, path: &str) -> Option<Value> {
+        let req = format!(
+            "GET {path} HTTP/1.0\r\nHost: local-tailscaled.sock\r\nConnection: close\r\n\r\n"
+        );
         #[cfg(unix)]
         {
             use std::io::{Read, Write};
@@ -68,9 +70,6 @@ impl TailscaledLocalApi {
             let mut sock = UnixStream::connect(&self.socket_path).ok()?;
             sock.set_read_timeout(Some(Duration::from_secs(2))).ok()?;
             sock.set_write_timeout(Some(Duration::from_secs(2))).ok()?;
-            let req = format!(
-                "GET {path} HTTP/1.0\r\nHost: local-tailscaled.sock\r\nConnection: close\r\n\r\n"
-            );
             sock.write_all(req.as_bytes()).ok()?;
             let mut raw = Vec::new();
             sock.read_to_end(&mut raw).ok()?;

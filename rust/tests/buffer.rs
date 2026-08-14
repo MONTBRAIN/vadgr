@@ -1,11 +1,7 @@
-//! The replay buffer, asserted **as it is** rather than as the architecture
-//! describes it.
+//! The replay buffer used by released mobile `0.4.1` after a reconnect.
 //!
-//! The daemon holds a 500-frame buffer and replays it on connect. The published
-//! architecture describes a lossy live view, and the two disagree. This release
-//! reproduces the code, because the frame counts per socket are what judge it
-//! and the buffer is directly observable in them: "fixed" and "wrong" would be
-//! the same measurement. The reshape is a later minor's.
+//! The compatibility adapter holds 500 frames and replays them on connect. It
+//! leaves with the quarantined watch route at `0.6.0`.
 
 use serde_json::json;
 use vadgr_daemon::ws::manager::{ConnectionManager, MAX_BUFFER};

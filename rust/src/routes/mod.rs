@@ -39,8 +39,8 @@ fn validation_error(rejection: JsonRejection) -> (StatusCode, Json<Value>) {
 /// - `POST /api/runs` starts a run and needs the loop.
 /// - `POST /api/runs/{id}/resume` hands the run to the execution service and
 ///   answers `{"status": "running"}`. Its **validation** paths port cleanly and
-///   its **success** path cannot: without an engine the only faithful answer is
-///   one this daemon has no way to make true. Porting half of it would give the
+///   its **success** path cannot: without an engine this daemon has no way to
+///   make the response true. Porting half of it would give the
 ///   sweep matching error rows and a lying success row, which is worse than an
 ///   absent route.
 pub fn router(state: AppState) -> Router {

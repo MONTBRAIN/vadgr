@@ -86,7 +86,7 @@ pub fn update_status(db: &Db, run_id: &str, status: &str) -> rusqlite::Result<Op
                 "UPDATE runs SET status = ?1, started_at = COALESCE(started_at, ?2) WHERE id = ?3",
                 rusqlite::params![status, now, run_id],
             )?,
-            "completed" | "failed" => c.execute(
+            "completed" | "failed" | "cancelled" => c.execute(
                 "UPDATE runs SET status = ?1, completed_at = ?2 WHERE id = ?3",
                 rusqlite::params![status, now, run_id],
             )?,

@@ -1,6 +1,6 @@
 //! `vadgr 0.4.5` - the daemon minus the engine.
 //!
-//! The first Rust release, and the one that carries no new behaviour. It runs
+//! The first Rust release. It adds no product capability. It runs
 //! **beside** the Python daemon on its own port and its own database for four
 //! releases; that is what "strangler" means, and it is what keeps every step
 //! reversible.

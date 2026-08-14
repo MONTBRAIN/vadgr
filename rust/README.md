@@ -27,15 +27,20 @@ VADGR_PORT=8156 VADGR_DB=/tmp/copy.db VADGR_TRANSPORT=tailscale \
 | `VADGR_PORT` | `8100` | not `8000`: both daemons run at once |
 | `VADGR_DB` | `data/vadgr-rust.db` | its own file, never the Python daemon's |
 | `VADGR_TRANSPORT` | `loopback` | or `tailscale` |
-| `VADGR_PROVIDERS` | `providers.yaml` | the provider catalogue |
-| `AGENT_FORGE_COMPUTER_USE_ENABLED` | `true` | whether computer-use integration is enabled |
-| `VADGR_COMPUTER_USE` | unset | compatibility alias for the computer-use flag |
+| `VADGR_PROVIDERS` | `providers.yaml` | native providers; deprecated CLI rows are ignored |
+| `VADGR_CONFIG_HOME` | platform config home | the directory containing daemon-owned `settings.json` |
+| `VADGR_COMPUTER_USE` | `true` | the default when daemon settings have no cua toggle |
+| `VADGR_CUA_BIN` | discovered | an explicit cua runtime path for transitional status |
 | `VADGR_TAILSCALED_SOCKET` | `/var/run/tailscale/tailscaled.sock` | the tailscaled LocalAPI socket |
+| `VADGR_TAILSCALED_PIPE` | the standard protected Tailscale pipe | the Windows tailscaled LocalAPI pipe |
 
-`PUT /api/settings/computer-use` performs the same setup or removal as the
-Python daemon. It updates the supported agent configuration files and reports
-the resulting state. The compatibility alias is only read when
-`AGENT_FORGE_COMPUTER_USE_ENABLED` is not set.
+`PUT /api/settings/computer-use` writes only vadgr's `settings.json`. It does
+not install a runtime and does not edit `.mcp.json`, Gemini settings or Codex
+global settings. The native MCP host will read this toggle. The transitional
+response keeps the fields the released CLI reads.
+
+The Rust provider catalog includes only `kind: native` entries. It never starts
+an external agent CLI to test availability.
 
 **Copy a database with `VACUUM INTO`, never `cp`.** The daemon runs SQLite in
 WAL mode, so a bare file copy is a different database: it carries what was last
@@ -52,7 +57,9 @@ sqlite3 data/agent_forge.db "VACUUM INTO '/tmp/copy.db';"
 ```
 src/
 ├── main.rs        the process
-├── config.rs      env, providers.yaml
+├── config.rs      process settings and native providers
+├── platform.rs    detected host and computer-use platform values
+├── computer_use_setup.rs daemon-owned cua state and runtime discovery
 ├── error.rs       the error envelope, constructed in exactly one place
 ├── auth/          the gates, tokens, the pairing code
 ├── db/            the schema (copied verbatim) and the two repositories

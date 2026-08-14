@@ -1,7 +1,7 @@
 //! The computer-use setting.
 //!
-//! `GET` serves the state probed at startup. `PUT` performs the Python setup
-//! operation and replaces that cached state with the result.
+//! `GET` serves the daemon-owned state read at startup. `PUT` writes that state
+//! and replaces the cached response with the result.
 
 use crate::computer_use_setup::SetupService;
 use crate::error::{ApiError, ApiResult};

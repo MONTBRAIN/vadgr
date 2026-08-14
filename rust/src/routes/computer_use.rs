@@ -3,9 +3,11 @@ use axum::Json;
 use axum::extract::State;
 use serde_json::{Value, json};
 
-pub async fn status(State(state): State<AppState>) -> Json<Value> {
+pub async fn status(State(_state): State<AppState>) -> Json<Value> {
     Json(json!({
-        "available": state.config.computer_use_enabled,
-        "platform": "wsl2",
+        // The engine does not arrive until 0.4.6. An enabled setting is not an
+        // available tool host, so this release must report false honestly.
+        "available": false,
+        "platform": crate::platform::computer_use_platform(),
     }))
 }
