@@ -262,8 +262,6 @@ fn replace_file(source: &Path, destination: &Path) -> std::io::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::{CredentialStore, FileCredentialStore, OAuthBlock, credentials_path_from};
-    use std::ffi::OsString;
-    use std::path::Path;
 
     #[tokio::test]
     async fn file_store_preserves_unrelated_keys() {
@@ -285,20 +283,32 @@ mod tests {
     }
 
     #[test]
-    fn native_home_does_not_cross_operating_systems() {
+    fn native_home_selects_only_the_current_operating_systems_variable() {
+        let root = std::env::temp_dir().join("vadgr-credential-path-test");
+        let home = root.join("unix-home");
+        let profile = root.join("windows-profile");
         assert_eq!(
-            credentials_path_from(Some("/home/a".into()), Some("C:\\Users\\a".into()), "linux")
-                .unwrap(),
-            Path::new("/home/a")
-                .join(".claude")
-                .join(".credentials.json")
+            credentials_path_from(
+                Some(home.clone().into_os_string()),
+                Some(profile.clone().into_os_string()),
+                "linux"
+            ),
+            Some(home.join(".claude").join(".credentials.json"))
         );
-        assert!(credentials_path_from(Some("/mnt/c/Users/a".into()), None, "windows").is_none());
+        assert_eq!(
+            credentials_path_from(
+                Some(root.join("ignored").into_os_string()),
+                Some(profile.clone().into_os_string()),
+                "windows"
+            ),
+            Some(profile.join(".claude").join(".credentials.json"))
+        );
     }
 
     #[cfg(unix)]
     #[test]
     fn unix_home_keeps_non_utf8_bytes() {
+        use std::ffi::OsString;
         use std::os::unix::ffi::OsStringExt;
         let home = OsString::from_vec(b"/tmp/user-\xff".to_vec());
         let path = credentials_path_from(Some(home.clone()), None, "linux").unwrap();
