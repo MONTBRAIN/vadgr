@@ -63,6 +63,13 @@ the same provider-capacity response and the same raw and mobile frame types.
 This confirms the current CLI failure path, but it cannot replace a successful
 model and cua round trip.
 
+A fresh retry on 2026-08-15 first passed the bounded live seam with
+`computer-use__get_platform` returning `wsl2` and nonzero provider usage. The
+three current-worktree CLI passes started immediately afterward, but all three
+model requests again received live HTTP 400 `out of extra usage`. This proves
+the seam can complete when capacity is available, while the capacity remaining
+after one full tool-schema request was insufficient for the required passes.
+
 Each failed run recorded the same socket structure:
 
 | stream | frame types |
