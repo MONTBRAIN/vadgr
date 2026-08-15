@@ -25,9 +25,14 @@
 | clippy with warnings denied | pass |
 | Linux musl release build | pass: x86-64 `static-pie linked` |
 | installed artifact with empty environment | pass: complete health body returned |
-| clean install in `scratch` | not run locally: Docker is not exposed to this WSL distribution; CI remains the gate |
-| Windows compile branch | not run: this WSL host has no MinGW C compiler for bundled native dependencies |
-| macOS compile branch | not run: this WSL host has no macOS C cross-compiler |
+| clean install in `scratch` | pass in CI: static release binary installed alone, started, and returned the required health body |
+| Windows native gate | pass in CI: build, test, clippy with warnings denied, and rustfmt |
+| macOS native gate | pass in CI: build, test, clippy with warnings denied, and rustfmt |
+
+The final CI run was
+[`31864726096`](https://github.com/MONTBRAIN/vadgr/actions/runs/31864726096).
+All ten jobs passed on implementation commit `f4b7496`, including the Ubuntu
+native gate and the unchanged Python workflow jobs.
 
 ## Live seam
 
