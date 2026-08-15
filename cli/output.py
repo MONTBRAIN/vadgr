@@ -79,7 +79,15 @@ def print_kv(pairs: list[tuple[str, str]]):
 
 def _styled(markup: str) -> str:
     buf = StringIO()
-    Console(file=buf, highlight=False, force_terminal=True, width=200).print(markup)
+    # Rich 14 ignores an explicit width under TERM=dumb unless height is also
+    # fixed. Tests and redirected CLI output use that terminal mode.
+    Console(
+        file=buf,
+        highlight=False,
+        force_terminal=True,
+        width=200,
+        height=25,
+    ).print(markup)
     return buf.getvalue()
 
 

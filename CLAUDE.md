@@ -86,6 +86,16 @@ answer. **A decision marked `Ruled` is an answer, not an option.**
 or written into `PLANS.md` under the minor that owns it, with the reason. A
 defect reported with no disposition moves the work rather than doing it.
 
+**A migration is not a literal translation.** Read the old implementation for
+shipped behavior and live consumers. Read the plan, contract, architecture and
+release design for the target. The target documents win when they disagree.
+Port target behavior. Keep only the smallest adapter required by a named
+released consumer, with its removal release recorded. Do not port dead entities,
+retired integrations, deprecated subprocess paths, external client
+configuration, duplicate sources of truth, known defects or misleading status.
+Fix a defect when its code is rewritten and add a regression test. The
+comparison sweep detects differences; it does not define the target.
+
 **Design comes before code.** No minor is implemented until its build spec
 exists and every minor in its iteration has one. Exit `0` or do not start:
 
@@ -160,6 +170,17 @@ and at least one group that spans two apps: make a thing in one, act on it in
 another, and confirm across the boundary. Depth is the bar the suite is judged
 on, not the count of apps it touches. A suite of open-and-click-once groups
 passes without proving the tier survives a real task.
+
+**Clean install is a mandatory gate, checked on every PR.** A green suite says
+the code works where it was built, not that a first-time user can install the
+product and start it. Every repo that ships an installable artifact builds that
+artifact, installs it alone in a from-nothing container (no build toolchain, no
+dev dependencies), starts the entry point, and confirms it serves a readiness
+signal, driving the installed product from outside rather than the source tree.
+It holds for a Python wheel and a Rust binary alike; only the install step and
+the readiness signal differ. cua `0.6.6` shipped because a fresh install of
+`0.6.5` could not start at all, and nothing checked a clean install before
+publish. A suite is not an install.
 
 **Evidence is filed while the pass runs, never assembled after it.** The
 evidence directory exists before the first cell, each group files what it
@@ -298,13 +319,19 @@ offered.
 - **The e2e runbook lives at `E2E/<version>/e2e.md`**, starts from
   `E2E/TEMPLATE.md`, and its doctrine is `E2E/README.md`, all in this repo.
 
-The gate, all three suites, before offering anything:
+The gate, all four suites, before offering anything:
 
 ```bash
 PYTHONPATH=. python3 -m pytest engine/tests/ -q     # 122
-python3 -m pytest api/tests/ -q                     # 596
-python3 -m pytest cli/tests/ -q                     # 201
+python3 -m pytest api/tests/ -q                     # 429
+python3 -m pytest cli/tests/ -q                     # 141
+(cd rust && cargo test)                             # 109
 ```
+
+The api and cli counts read `596` and `201` until `0.4.5`, which were their
+pre-deletion sizes: `0.4.4` removed the surfaces those tests covered and nobody
+moved the numbers. A count that is too high reads as a regression to whoever
+runs the suite next, which is the opposite of what it is for.
 
 One test process at a time wherever anything is shared - two overlapping runs
 look exactly like a hung suite. Runs with their own port, database and daemon

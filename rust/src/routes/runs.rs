@@ -1,0 +1,52 @@
+//! The surviving runs surface, minus everything that needs a loop.
+
+use crate::error::{ApiError, ApiResult};
+use crate::state::AppState;
+use axum::Json;
+use axum::extract::{Path, Query, State};
+use serde::Deserialize;
+use serde_json::Value;
+
+#[derive(Deserialize)]
+pub struct ListQuery {
+    pub status: Option<String>,
+}
+
+pub async fn list_runs(
+    State(state): State<AppState>,
+    Query(q): Query<ListQuery>,
+) -> ApiResult<Json<Vec<Value>>> {
+    let rows =
+        crate::db::runs::list_all(&state.db, q.status.as_deref()).map_err(ApiError::internal)?;
+    Ok(Json(rows))
+}
+
+pub async fn get_run(
+    State(state): State<AppState>,
+    Path(run_id): Path<String>,
+) -> ApiResult<Json<Value>> {
+    match crate::db::runs::get(&state.db, &run_id).map_err(ApiError::internal)? {
+        Some(run) => Ok(Json(run)),
+        None => Err(ApiError::run_not_found(&run_id)),
+    }
+}
+
+/// Cancel an active run and record the published terminal state.
+pub async fn cancel_run(
+    State(state): State<AppState>,
+    Path(run_id): Path<String>,
+) -> ApiResult<Json<Value>> {
+    let run = crate::db::runs::get(&state.db, &run_id)
+        .map_err(ApiError::internal)?
+        .ok_or_else(|| ApiError::run_not_found(&run_id))?;
+
+    let status = run.get("status").and_then(|v| v.as_str()).unwrap_or("");
+    if matches!(status, "completed" | "failed" | "cancelled") {
+        return Err(ApiError::run_not_active());
+    }
+
+    let updated = crate::db::runs::update_status(&state.db, &run_id, "cancelled")
+        .map_err(ApiError::internal)?
+        .ok_or_else(|| ApiError::run_not_found(&run_id))?;
+    Ok(Json(updated))
+}

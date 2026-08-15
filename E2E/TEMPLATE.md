@@ -37,7 +37,9 @@ Both surfaces are exercised and **neither substitutes for the other**:
 - **the CLI** (`vadgr run`, `vadgr stream`) - the on-box path, with its own users
   and its own failure modes.
 
-<The subagent invocation you actually used, so a reader can repeat it:>
+<The agent CLI invocation you actually used, so a reader can repeat it. Use
+the CLI the machine has, and name it and its version beside the results; the
+example is the `claude -p` form:>
 
 ```bash
 claude --dangerously-skip-permissions --output-format stream-json --verbose -p \

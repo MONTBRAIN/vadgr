@@ -89,7 +89,11 @@ class TestCtrlC:
         """Ctrl-C stops watching. It must not kill hours of unattended work."""
         from cli import stream
 
-        with mock.patch("cli.stream.asyncio.run", side_effect=KeyboardInterrupt), \
+        def interrupt(coroutine):
+            coroutine.close()
+            raise KeyboardInterrupt
+
+        with mock.patch("cli.stream.asyncio.run", side_effect=interrupt), \
              mock.patch("cli.client.api_post") as post:
             outcome = stream.follow_run("http://x", "run-999")
 

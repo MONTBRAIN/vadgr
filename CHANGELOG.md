@@ -2,6 +2,73 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.4.5] - 2026-08-11
+
+**The daemon is being rewritten in Rust, and this is the first release of it.**
+Nothing you use changes: the Rust daemon runs **beside** the Python one, on its
+own port and its own database, and the Python daemon is still the product until
+the cutover. This release exists to be compared against it.
+
+### Added
+- **A Rust daemon that answers everything except starting work.** Health,
+  pairing and claiming, devices, providers, the computer-use settings, the run
+  list and a run's detail, cancel, and both run sockets with their replay.
+- **`rust/`**, a new tree beside `api/`, `engine/` and `cli/`, with its own
+  README covering how to run it and what it deliberately does not do.
+- **A native-only provider catalog.** Rust ignores deprecated subprocess rows
+  and never starts an external agent CLI to test availability.
+- **Daemon-owned computer-use settings.** The toggle writes only vadgr's own
+  settings. It never edits project MCP files, Gemini settings or Codex global
+  settings, and it never installs a runtime.
+- **HTTP request tracing** in the Rust daemon log, including the response status
+  and latency used to audit a live sweep.
+- **Rust CI on Linux, Windows and macOS.** Each host builds, tests and lints the
+  daemon. Live operating-system E2E results remain separate.
+- **A clean-install gate for the Rust daemon.** CI builds a static musl release
+  binary, installs it alone in a `scratch` image, starts the installed entry
+  point, and checks its complete health response from outside the container.
+- 113 tests over the error envelope, the pairing code's rules, the two
+  repositories' wire mapping, the socket buffer, the stream's frame mapping,
+  the transport adapter, and the gates driven through the real router.
+
+### Fixed
+- Health reports the detected `linux`, `macos`, `windows` or `wsl` platform.
+- Cancel records `cancelled` instead of reporting a deliberate stop as a
+  failure.
+- An auth or missing-run WebSocket refusal accepts the upgrade before closing
+  with `4401` or `4004`, so a client can read the reason.
+- Computer-use status reports unavailable until the Rust MCP engine exists.
+- Filesystem paths remain native path values instead of being converted to
+  UTF-8 strings. Config roots follow XDG on Linux and WSL, Application Support
+  on macOS, and roaming AppData on Windows.
+- The macOS tailscaled LocalAPI uses `/var/run/tailscaled.socket`; Linux and WSL
+  keep `/var/run/tailscale/tailscaled.sock`, and Windows keeps its protected
+  named pipe.
+- Settings replace an existing file without deleting it first on Windows.
+  Runtime discovery follows `PATHEXT` on Windows and executable bits on Unix.
+- Malformed settings, wrongly typed values and invalid
+  `VADGR_COMPUTER_USE` values fail with a named error instead of being reported
+  as a plausible default.
+- IPv6 loopback and IPv6-only Tailscale listener addresses are accepted, and a
+  first-start database creates its missing parent directories.
+
+### Notes
+- **It cannot start or resume a run**, and both routes are **absent rather than
+  stubbed**. A `501`, a plausible `202` with no run behind it, or a queued row
+  nothing will pick up are three ways of reporting a success that did not
+  happen. Both arrive with the loop, in the next release.
+- **The database schema is copied, not improved**, and released error envelopes
+  keep their status and code. Intentional target corrections are recorded and
+  tested.
+- **The replay buffer stays for released mobile compatibility.** The daemon
+  buffers up to 500 frames per run because mobile `0.4.1` uses replay after a
+  reconnect. The adapter leaves with the watch route at `0.6.0`.
+- **Copy a database with `VACUUM INTO`, never `cp`.** SQLite runs in WAL mode,
+  so a bare file copy is a different database: it carries what was last
+  checkpointed and silently drops the rest.
+- The Rust daemon takes port `8100` by default, not `8000`, because both run at
+  once.
+
 ## [0.4.4] - 2026-08-09
 
 **Most of this repository is gone.** The agent entity, projects and the DAG, the scaffolder, the bundle installer and the per-run `output/` tree are deleted, along with every run endpoint that had no live consumer. **This removes shipped endpoints and shipped CLI commands, and it rewrites the database schema in place.** What replaces all of it is one sentence: `POST /api/runs {"task": "..."}` starts a run, and `vadgr run "<task>"` does the same from the box. What the phone reads is untouched.

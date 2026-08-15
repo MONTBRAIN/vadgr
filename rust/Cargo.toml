@@ -1,0 +1,45 @@
+[package]
+name = "vadgr-daemon"
+version = "0.4.5"
+edition = "2024"
+description = "The vadgr daemon, minus the engine"
+
+[lib]
+name = "vadgr_daemon"
+path = "src/lib.rs"
+
+[[bin]]
+name = "vadgr-daemon"
+path = "src/main.rs"
+
+[dependencies]
+axum = { version = "0.8", features = ["ws", "macros"] }
+tokio = { version = "1", features = ["full"] }
+tower = "0.5"
+tower-http = { version = "0.7", features = ["trace"] }
+# Bundled so the four platforms stop each bringing their own SQLite. This
+# removes a platform variable from the migration; it does not touch a column,
+# which is what the schema freeze actually forbids.
+rusqlite = { version = "0.40", features = ["bundled"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# serde_yaml is unmaintained and its own release is tagged "+deprecated".
+# serde_norway is an API-compatible fork, so this costs one line and no code.
+serde_norway = "0.9"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+uuid = { version = "1", features = ["v4"] }
+time = { version = "0.3", features = ["formatting", "parsing", "macros"] }
+sha2 = "0.11"
+rand = "0.10"
+futures-util = "0.3"
+anyhow = "1"
+hostname = "0.4"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Storage_FileSystem"] }
+
+[dev-dependencies]
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"
+tempfile = "3"
