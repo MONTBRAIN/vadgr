@@ -1,7 +1,7 @@
 //! `vadgr 0.4.6` - the Rust daemon with its native engine.
 //!
 //! The second Rust release. It adds no product capability. It runs
-//! **beside** the Python daemon on its own port and its own database for four
+//! **beside** the Python daemon on its own port and its own database for five
 //! releases; that is what "strangler" means, and it is what keeps every step
 //! reversible.
 //!

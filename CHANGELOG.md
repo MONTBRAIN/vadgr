@@ -40,7 +40,7 @@ All notable changes to this project are documented here. Format follows [Keep a 
   when the daemon stopped.
 
 ### Notes
-- Python remains the default daemon until the `0.4.8` cutover. The Rust crate
+- Python remains the default daemon until the `0.4.9` cutover. The Rust crate
   stays under `rust/` and runs beside it on a separate port and database.
 - This release starts an installed cua executable but does not package cua.
   Bundling the pinned runtime is later distribution work.

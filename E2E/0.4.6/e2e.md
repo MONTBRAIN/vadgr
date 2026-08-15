@@ -29,9 +29,9 @@
 | Windows native gate | pass in CI: build, test, clippy with warnings denied, and rustfmt |
 | macOS native gate | pass in CI: build, test, clippy with warnings denied, and rustfmt |
 
-The final CI run was
-[`31864726096`](https://github.com/MONTBRAIN/vadgr/actions/runs/31864726096).
-All ten jobs passed on implementation commit `f4b7496`, including the Ubuntu
+The current CI run is
+[`31889115490`](https://github.com/MONTBRAIN/vadgr/actions/runs/31889115490).
+All ten jobs passed on implementation commit `4b7f7ed`, including the Ubuntu
 native gate and the unchanged Python workflow jobs.
 
 ## Live seam
@@ -44,7 +44,7 @@ native gate and the unchanged Python workflow jobs.
 | requested tool | `computer-use__get_platform` |
 | tool result | `wsl2` |
 | input tokens | 11223 |
-| output tokens | 36 |
+| output tokens | 46 |
 | result | pass |
 
 ## Full surface
@@ -65,24 +65,41 @@ model and cua round trip.
 
 A fresh retry on 2026-08-15 first passed the bounded live seam with
 `computer-use__get_platform` returning `wsl2` and nonzero provider usage. The
-three current-worktree CLI passes started immediately afterward, but all three
-model requests again received live HTTP 400 `out of extra usage`. This proves
-the seam can complete when capacity is available, while the capacity remaining
-after one full tool-schema request was insufficient for the required passes.
+three current-worktree CLI passes started immediately afterward with
+`claude-opus-5`, but all three model requests received live HTTP 400 `out of
+extra usage` before a model response.
 
-Each failed run recorded the same socket structure:
+Claude Code `2.1.229` then refreshed the same account credential and completed
+a live Opus request. The three product passes still received the same HTTP 400.
+A minimal direct Haiku request returned HTTP 200, so all three agents repeated
+the required task with new databases and
+`claude-haiku-4-5-20251001`. All three full vadgr requests again received the
+same HTTP 400 before a model response.
+
+The full request has an 8,192-token output budget, three system blocks and the
+complete control and MCP tool catalog. The minimal request omits that body. The
+evidence isolates the response to the full provider request before tool
+execution, but it does not prove which body field controls the provider's
+billing decision.
+
+Each final Haiku run recorded the same raw socket structure:
 
 | stream | frame types |
 |---|---|
 | raw | `run_started`, `agent_started`, `agent_failed`, `run_failed` |
-| mobile | `started`, `tool_call`, `failed`, `failed` |
+| mobile, passes B and C | `started`, `tool_call`, `failed`, `failed` |
+| mobile, pass A capture | `started`, `tool_call`, `failed` |
 
 The daemon started cua through rmcp, completed initialize plus `tools/list`,
 then closed the child cleanly after the provider failure. The model returned no
 response and no cua tool was dispatched, so these runs are failure-path
 evidence, not E2E passes. Their journals correctly contain no model or tool
-record.
+record. The mobile stream maps `agent_started` to `tool_call` without an MCP
+call. Passes B and C also map `agent_failed` and `run_failed` to two
+indistinguishable `failed` frames.
 
 The three successful live passes, structural comparison, bounded restart
-proof, and owner dogfood batch remain blocked until provider usage is restored.
-The implementation PR must not be merged or tagged on this evidence alone.
+proof, and owner dogfood batch remain blocked while Anthropic rejects the full
+third-party request. The `0.4.7` provider correction does not retroactively
+close this runbook. The implementation PR must not be merged or tagged on this
+evidence alone.

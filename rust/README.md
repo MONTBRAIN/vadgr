@@ -1,6 +1,6 @@
 # `rust/` - the daemon, being rewritten
 
-The daemon is moving to Rust across `0.4.5` to `0.4.8`, by a strangler through
+The daemon is moving to Rust across `0.4.5` to `0.4.9`, by a strangler through
 the API: this crate runs **beside** the Python daemon, on its own port and its
 own database. The unchanged previous-release harness runs against Python. The
 complete run surface also runs against Rust in the split `0.4.6` runbook.
@@ -11,7 +11,7 @@ starts the installed `vadgr-cua` executable over MCP stdio, journals every
 model and tool boundary, and resumes interrupted work from the journal. It also
 owns cancellation and failed-only manual resume.
 
-Until the cutover at `0.4.8`, **the Python daemon is still the product.**
+Until the cutover at `0.4.9`, **the Python daemon is still the product.**
 
 ## Clean-install artifact
 
