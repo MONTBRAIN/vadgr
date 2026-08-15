@@ -10,6 +10,7 @@ use std::sync::Arc;
 use std::sync::RwLock;
 use tower::ServiceExt;
 use vadgr_daemon::auth::pairing::PairingStore;
+use vadgr_daemon::computer_use_setup::SetupService;
 use vadgr_daemon::config::Config;
 use vadgr_daemon::db::Db;
 use vadgr_daemon::state::AppState;
@@ -58,6 +59,13 @@ fn state_with(transport: Box<dyn Transport>) -> AppState {
             "available": true,
             "models": [],
         })]),
+        computer_use_setup: Arc::new(SetupService::new(
+            std::env::temp_dir()
+                .join(format!("vadgr-route-test-{}", uuid::Uuid::new_v4()))
+                .join("settings.json"),
+            None,
+            true,
+        )),
         computer_use_status: Arc::new(RwLock::new(serde_json::json!({
             "enabled": true,
             "venv_ready": true,
@@ -78,7 +86,7 @@ fn app(state: AppState) -> axum::Router {
 /// gate is exercised rather than skipped. A test that always came from loopback
 /// would pass through gate 0 and prove nothing about the other two.
 async fn send(state: AppState, req: Request<Body>, from: &str) -> (StatusCode, Value) {
-    let peer: SocketAddr = format!("{from}:5555").parse().unwrap();
+    let peer = SocketAddr::new(from.parse().unwrap(), 5555);
     let res = app(state)
         .layer(axum::Extension(peer))
         .into_service::<Body>()
@@ -168,6 +176,17 @@ async fn loopback_passes_without_a_token() {
         state_with(Box::new(LoopbackTransport)),
         get("/api/runs"),
         "127.0.0.1",
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+}
+
+#[tokio::test]
+async fn ipv6_loopback_passes_without_a_token() {
+    let (status, _) = send(
+        state_with(Box::new(LoopbackTransport)),
+        get("/api/runs"),
+        "::1",
     )
     .await;
     assert_eq!(status, StatusCode::OK);
@@ -287,6 +306,27 @@ async fn the_settings_read_returns_the_python_status_shape() {
         .map(String::as_str)
         .collect();
     assert_eq!(keys, vec!["daemon", "enabled", "platform", "venv_ready"]);
+}
+
+#[tokio::test]
+async fn the_settings_write_uses_the_service_injected_into_application_state() {
+    let directory = tempfile::tempdir().unwrap();
+    let settings_path = directory.path().join("settings.json");
+    let mut state = state_with(Box::new(LoopbackTransport));
+    state.computer_use_setup = Arc::new(SetupService::new(settings_path.clone(), None, true));
+    let request = Request::builder()
+        .method("PUT")
+        .uri("/api/settings/computer-use")
+        .header("content-type", "application/json")
+        .body(Body::from(r#"{"enabled":false}"#))
+        .unwrap();
+
+    let (status, body) = send(state, request, "127.0.0.1").await;
+
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(body["enabled"], false);
+    let written: Value = serde_json::from_slice(&std::fs::read(settings_path).unwrap()).unwrap();
+    assert_eq!(written["computer_use"]["enabled"], false);
 }
 
 #[tokio::test]

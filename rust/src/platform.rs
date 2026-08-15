@@ -11,17 +11,30 @@ pub fn computer_use_platform() -> &'static str {
 }
 
 fn is_wsl() -> bool {
+    if std::env::consts::OS != "linux" {
+        return false;
+    }
     if std::env::var_os("WSL_DISTRO_NAME").is_some() || std::env::var_os("WSL_INTEROP").is_some() {
         return true;
     }
+    linux_release_mentions_microsoft()
+}
+
+#[cfg(target_os = "linux")]
+fn linux_release_mentions_microsoft() -> bool {
     std::fs::read_to_string("/proc/sys/kernel/osrelease")
         .or_else(|_| std::fs::read_to_string("/proc/version"))
         .map(|value| value.to_ascii_lowercase().contains("microsoft"))
         .unwrap_or(false)
 }
 
+#[cfg(not(target_os = "linux"))]
+fn linux_release_mentions_microsoft() -> bool {
+    false
+}
+
 fn classify_platform(os: &str, wsl: bool) -> &'static str {
-    if wsl {
+    if os == "linux" && wsl {
         return "wsl";
     }
     match os {
@@ -41,5 +54,6 @@ mod tests {
         assert_eq!(classify_platform("macos", false), "macos");
         assert_eq!(classify_platform("windows", false), "windows");
         assert_eq!(classify_platform("linux", true), "wsl");
+        assert_eq!(classify_platform("windows", true), "windows");
     }
 }

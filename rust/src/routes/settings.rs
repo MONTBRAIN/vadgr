@@ -3,7 +3,6 @@
 //! `GET` serves the daemon-owned state read at startup. `PUT` writes that state
 //! and replaces the cached response with the result.
 
-use crate::computer_use_setup::SetupService;
 use crate::error::{ApiError, ApiResult};
 use crate::state::AppState;
 use axum::Json;
@@ -37,8 +36,8 @@ pub async fn put_computer_use(
 }
 
 async fn update(state: AppState, enabled: bool) -> ApiResult<Json<Value>> {
+    let service = state.computer_use_setup.clone();
     let result = tokio::task::spawn_blocking(move || {
-        let service = SetupService::from_env();
         if enabled {
             service.enable()
         } else {

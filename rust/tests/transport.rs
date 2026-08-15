@@ -7,7 +7,7 @@
 
 use serde_json::{Value, json};
 use vadgr_daemon::transport::tailscale::{LocalApi, TailscaleTransport};
-use vadgr_daemon::transport::{LoopbackTransport, Transport, bind_hosts};
+use vadgr_daemon::transport::{LoopbackTransport, Transport, bind_hosts, listener_address};
 
 /// A LocalAPI whose answers are the test's to script.
 #[derive(Default)]
@@ -130,6 +130,34 @@ fn the_v4_address_is_preferred_and_the_first_is_the_fallback() {
 }
 
 #[test]
+fn invalid_tailscale_addresses_are_ignored() {
+    let t = transport(FakeApi {
+        status: running(&["not-an-ip", "fd7a::1234"], ""),
+        ..Default::default()
+    });
+    assert_eq!(t.bind_host().unwrap(), "fd7a::1234");
+
+    let t = transport(FakeApi {
+        status: running(&["not-an-ip"], ""),
+        ..Default::default()
+    });
+    assert!(!t.is_available());
+}
+
+#[test]
+fn listener_addresses_support_both_ip_families() {
+    assert_eq!(
+        listener_address("127.0.0.1", 8100).unwrap().to_string(),
+        "127.0.0.1:8100"
+    );
+    assert_eq!(
+        listener_address("fd7a::1234", 8100).unwrap().to_string(),
+        "[fd7a::1234]:8100"
+    );
+    assert!(listener_address("not-an-ip", 8100).is_err());
+}
+
+#[test]
 fn advertising_prefers_magic_dns_and_drops_the_trailing_dot() {
     let t = transport(FakeApi {
         status: running(&["100.64.0.7"], "machine.tail.ts.net."),
@@ -211,6 +239,7 @@ fn loopback_authorizes_only_the_loopback_net() {
     let t = LoopbackTransport;
     assert!(t.is_authorized_source("127.0.0.1"));
     assert!(t.is_authorized_source("127.0.0.53"));
+    assert!(t.is_authorized_source("::1"));
     assert!(!t.is_authorized_source("100.64.0.9"));
     assert!(!t.is_authorized_source("not-an-ip"));
 }

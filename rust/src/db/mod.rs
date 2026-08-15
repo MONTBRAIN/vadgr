@@ -8,8 +8,9 @@
 pub mod devices;
 pub mod runs;
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use rusqlite::Connection;
+use std::path::Path;
 use std::sync::{Arc, Mutex};
 
 /// Verbatim from `api/persistence/database.py:12`. Do not tidy.
@@ -48,10 +49,18 @@ CREATE INDEX IF NOT EXISTS idx_devices_token_hash ON devices(token_hash);
 pub struct Db(Arc<Mutex<Connection>>);
 
 impl Db {
-    pub fn open(path: &str) -> Result<Self> {
-        let conn = if path == ":memory:" {
+    pub fn open(path: impl AsRef<Path>) -> Result<Self> {
+        let path = path.as_ref();
+        let conn = if path == Path::new(":memory:") {
             Connection::open_in_memory()?
         } else {
+            if let Some(parent) = path
+                .parent()
+                .filter(|parent| !parent.as_os_str().is_empty())
+            {
+                std::fs::create_dir_all(parent)
+                    .with_context(|| format!("creating database directory {}", parent.display()))?;
+            }
             Connection::open(path)?
         };
         // The same two pragmas the Python daemon sets on connect. WAL is the

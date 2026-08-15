@@ -17,8 +17,7 @@
 
 use super::Transport;
 use serde_json::{Value, json};
-
-const SOCKET_PATH: &str = "/var/run/tailscale/tailscaled.sock";
+use std::path::{Path, PathBuf};
 
 /// The slice of the tailscaled LocalAPI this adapter needs.
 pub trait LocalApi: Send + Sync {
@@ -31,33 +30,45 @@ pub trait LocalApi: Send + Sync {
 /// Talks to the real tailscaled LocalAPI over its unix socket.
 pub struct TailscaledLocalApi {
     #[cfg(unix)]
-    socket_path: String,
+    socket_path: PathBuf,
     #[cfg(windows)]
-    pipe_path: String,
+    pipe_path: PathBuf,
 }
 
 impl TailscaledLocalApi {
-    pub fn new(socket_path: impl Into<String>) -> Self {
-        #[cfg(unix)]
-        let socket_path = socket_path.into();
-        #[cfg(windows)]
-        drop(socket_path);
+    #[cfg(unix)]
+    pub fn new(socket_path: impl Into<PathBuf>) -> Self {
         Self {
-            #[cfg(unix)]
-            socket_path,
-            #[cfg(windows)]
-            pipe_path: std::env::var("VADGR_TAILSCALED_PIPE").unwrap_or_else(|_| {
-                r"\\.\pipe\ProtectedPrefix\Administrators\Tailscale\tailscaled".to_string()
-            }),
+            socket_path: socket_path.into(),
         }
     }
 
-    /// The default socket path, overridable the same way the Python daemon
-    /// allows: `VADGR_TAILSCALED_SOCKET`.
+    #[cfg(windows)]
+    pub fn new(pipe_path: impl Into<PathBuf>) -> Self {
+        Self {
+            pipe_path: pipe_path.into(),
+        }
+    }
+
+    /// The native LocalAPI endpoint, with a platform-specific environment
+    /// override. macOS and Linux use different standard socket paths.
     pub fn from_env() -> Self {
-        Self::new(
-            std::env::var("VADGR_TAILSCALED_SOCKET").unwrap_or_else(|_| SOCKET_PATH.to_string()),
-        )
+        #[cfg(unix)]
+        {
+            Self::new(
+                std::env::var_os("VADGR_TAILSCALED_SOCKET")
+                    .map(PathBuf::from)
+                    .unwrap_or_else(|| default_local_api_endpoint(std::env::consts::OS)),
+            )
+        }
+        #[cfg(windows)]
+        {
+            Self::new(
+                std::env::var_os("VADGR_TAILSCALED_PIPE")
+                    .map(PathBuf::from)
+                    .unwrap_or_else(|| default_local_api_endpoint(std::env::consts::OS)),
+            )
+        }
     }
 
     fn get(&self, path: &str) -> Option<Value> {
@@ -111,6 +122,21 @@ impl TailscaledLocalApi {
     }
 }
 
+fn default_local_api_endpoint(os: &str) -> PathBuf {
+    match os {
+        "windows" => Path::new(r"\\.\pipe")
+            .join("ProtectedPrefix")
+            .join("Administrators")
+            .join("Tailscale")
+            .join("tailscaled"),
+        "macos" => Path::new("/var").join("run").join("tailscaled.socket"),
+        _ => Path::new("/var")
+            .join("run")
+            .join("tailscale")
+            .join("tailscaled.sock"),
+    }
+}
+
 impl LocalApi for TailscaledLocalApi {
     fn status(&self) -> Option<Value> {
         self.get("/localapi/v0/status")
@@ -144,17 +170,17 @@ impl<A: LocalApi> TailscaleTransport<A> {
 
     fn self_ip(&self) -> Option<String> {
         let s = self.api.status()?;
-        let ips: Vec<&str> = s
+        let ips: Vec<std::net::IpAddr> = s
             .get("Self")?
             .get("TailscaleIPs")?
             .as_array()?
             .iter()
-            .filter_map(|v| v.as_str())
+            .filter_map(|value| value.as_str()?.parse().ok())
             .collect();
         ips.iter()
-            .find(|ip| ip.parse::<std::net::Ipv4Addr>().is_ok())
+            .find(|ip| ip.is_ipv4())
             .or_else(|| ips.first())
-            .map(|s| s.to_string())
+            .map(ToString::to_string)
     }
 
     fn magic_dns(&self) -> Option<String> {
@@ -230,5 +256,34 @@ impl<A: LocalApi> Transport for TailscaleTransport<A> {
             "advertise_host": if available { self.advertise_host() } else { None },
             "bind_host": self.self_ip(),
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::default_local_api_endpoint;
+    use std::path::Path;
+
+    #[test]
+    fn local_api_defaults_match_each_native_tailscale_endpoint() {
+        assert_eq!(
+            default_local_api_endpoint("linux"),
+            Path::new("/var")
+                .join("run")
+                .join("tailscale")
+                .join("tailscaled.sock")
+        );
+        assert_eq!(
+            default_local_api_endpoint("macos"),
+            Path::new("/var").join("run").join("tailscaled.socket")
+        );
+        assert_eq!(
+            default_local_api_endpoint("windows"),
+            Path::new(r"\\.\pipe")
+                .join("ProtectedPrefix")
+                .join("Administrators")
+                .join("Tailscale")
+                .join("tailscaled")
+        );
     }
 }

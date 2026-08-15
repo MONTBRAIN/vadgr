@@ -38,7 +38,7 @@ The automated gate is necessary and does not replace this runbook.
 - `PYTHONPATH=. python3 -m pytest engine/tests/ -q` -> **122 passed**
 - `PYTHONPATH=. python3 -m pytest api/tests/ -q` -> **429 passed**
 - `PYTHONPATH=. python3 -m pytest cli/tests/ -q` -> **141 passed**
-- `cargo test --locked` -> **93 passed**
+- `cargo test --locked` -> **109 passed**
 - `cargo clippy --all-targets -- -D warnings` -> **pass**
 - `cargo fmt --check` -> **pass**
 
@@ -51,9 +51,9 @@ Computer-use state uses an isolated daemon configuration home and a local fake
 
 | pass | Python port | Rust port | sweep run id | socket run id |
 |---|---:|---:|---|---|
-| A | 9381 | 9391 | `d6d9ab3f-ce1b-432a-ada1-ca09557449be` | `13bd093c-a500-407b-b663-fc8658070afa` |
-| B | 9382 | 9392 | `fa258dfe-c3e4-4fa9-9bd1-121236d5efec` | `d953d79c-5882-42fd-b7a6-47932fc75ed5` |
-| C | 9383 | 9393 | `aa63ce49-9128-42a2-b2ee-62576e396a33` | `679cd425-b308-40bb-a751-6a272eecf8f5` |
+| A | 9441 | 9451 | `62689880-9058-4efe-922b-8795924c88e7` | `63e0b093-88a9-40a4-8058-916b55604395` |
+| B | 9442 | 9452 | `d69287dc-c3fb-4307-bf88-d18a2c0539d6` | `7cb88362-2e94-4f14-aeb1-fb9a19498b6d` |
+| C | 9443 | 9453 | `9aa11ab6-941e-4e9a-8344-186615d94d75` | `68fa8563-12c0-4597-ad82-ee1154b30302` |
 
 The Python model runs reached the native loop and produced both socket streams.
 They ended as `failed` because the Anthropic subscription had no remaining
@@ -76,6 +76,11 @@ not run. This does not promote any held Rust cell to pass.
 
 All published Rust endpoints and all published CLI commands appear in the
 generated tables below. Removed and future surfaces are also probed.
+
+Pass B recorded one `-1.02` second HTTP duration in the released Python
+baseline. The other Python passes and every Rust record had no negative
+duration. This is a baseline measurement defect. The Rust migration does not
+port it.
 
 ## Repeatability
 
@@ -134,6 +139,17 @@ released application error envelope differs in the final comparison.
 CI does not count as a live per-OS pass. The first packaged four-platform sweep
 belongs to `0.5.0`. The held engine cells first run at `0.4.6`.
 
+### Cross-platform path audit and repeated WSL2 live pass
+
+The path audit does not promote any `not run` row above. The three final WSL2
+passes repeated every runnable cell after the audit. The audit added native unit
+coverage for XDG, macOS Application Support, Windows roaming AppData and
+`PATHEXT`, Unix executable bits, non-UTF-8 paths, macOS and Windows tailscaled
+endpoints, replacement of an existing settings file, IPv6 loopback and
+listener addresses, creation of missing database parents, malformed settings
+and invalid toggle values. The GitHub Rust matrix runs these tests and Clippy
+on Ubuntu, native Windows and macOS. CI is still not live E2E.
+
 ## Generated results
 
 The tables below were generated from pass A's final JSON records. The response
@@ -159,7 +175,7 @@ passes, and the baseline harness with its target-aware selector.
 | `GET /api/runs` | run list without a run | `200` | - | `[]` |
 | `GET /api/runs/no-such-run` | negative: unknown run | `404` | `RUN_NOT_FOUND` | `{"error":{"code":"RUN_NOT_FOUND","details":{},"message":"Run with id 'no-such-run' not found"}}` |
 | `POST /api/runs/no-such-run/cancel` | negative: unknown run | `404` | `RUN_NOT_FOUND` | `{"error":{"code":"RUN_NOT_FOUND","details":{},"message":"Run with id 'no-such-run' not found"}}` |
-| `POST /api/runs/cancel-target/cancel` | cancel an existing Rust run | `200` | - | `{"agent_name":"cancel target","completed_at":"2026-08-14T19:12:45.323264+00:00","id":"cancel-target","inputs":{},"log_pa ...` |
+| `POST /api/runs/cancel-target/cancel` | cancel an existing Rust run | `200` | - | `{"agent_name":"cancel target","completed_at":"2026-08-15T00:45:41.021667+00:00","id":"cancel-target","inputs":{},"log_pa ...` |
 | `GET /api/agents` | removed at 0.4.4: the agent list | `404` | - | `` |
 | `POST /api/agents` | removed at 0.4.4: agent creation | `404` | - | `` |
 | `GET /api/agents/no-such-agent` | removed at 0.4.4: one agent | `404` | - | `` |

@@ -29,8 +29,10 @@ fn is_websocket_path(path: &str) -> bool {
 }
 
 pub fn is_loopback(host: &str) -> bool {
-    let h = host.to_lowercase();
-    matches!(h.as_str(), "127.0.0.1" | "::1" | "localhost" | "testclient") || h.starts_with("127.")
+    host.parse::<std::net::IpAddr>()
+        .is_ok_and(|address| address.is_loopback())
+        || host.eq_ignore_ascii_case("localhost")
+        || host.eq_ignore_ascii_case("testclient")
 }
 
 /// The bearer token, however the client spelt the scheme. The scheme is

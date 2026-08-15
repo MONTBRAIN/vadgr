@@ -34,7 +34,8 @@ async fn main() -> Result<()> {
     let db = db::Db::open(&config.db_path)?;
     let transport = transport::create(&config.transport_name)?;
     let providers = config::provider_catalog(&config.providers_path);
-    let computer_use_status = computer_use_setup::SetupService::from_env().status();
+    let computer_use_setup = Arc::new(computer_use_setup::SetupService::from_env()?);
+    let computer_use_status = computer_use_setup.status()?;
 
     let bind_hosts = transport::bind_hosts(transport.as_ref());
     let port = config.port;
@@ -48,6 +49,7 @@ async fn main() -> Result<()> {
         )),
         ws: Arc::new(ws::manager::ConnectionManager::new()),
         providers: Arc::new(providers),
+        computer_use_setup,
         computer_use_status: Arc::new(RwLock::new(computer_use_status)),
     };
 
@@ -64,8 +66,8 @@ async fn main() -> Result<()> {
 
     let mut listeners = Vec::new();
     for host in bind_hosts {
-        let addr = format!("{host}:{port}");
-        listeners.push((addr.clone(), tokio::net::TcpListener::bind(&addr).await?));
+        let addr = transport::listener_address(&host, port)?;
+        listeners.push((addr, tokio::net::TcpListener::bind(addr).await?));
         tracing::info!(%addr, "vadgr daemon (rust) listening");
     }
     futures_util::future::try_join_all(listeners.into_iter().map(|(_, listener)| {

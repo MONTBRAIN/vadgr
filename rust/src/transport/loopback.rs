@@ -31,10 +31,8 @@ impl Transport for LoopbackTransport {
     /// admits loopback before this is ever asked, but the port answers the
     /// question the same way whoever asks it.
     fn is_authorized_source(&self, host: &str) -> bool {
-        match host.parse::<std::net::IpAddr>() {
-            Ok(std::net::IpAddr::V4(v4)) => v4.octets()[0] == 127,
-            _ => false,
-        }
+        host.parse::<std::net::IpAddr>()
+            .is_ok_and(|address| address.is_loopback())
     }
 
     fn status(&self) -> Value {

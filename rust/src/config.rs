@@ -2,32 +2,49 @@
 
 use serde::Deserialize;
 use serde_json::Value;
+use std::ffi::OsString;
+use std::path::{Path, PathBuf};
 
 /// The version this daemon reports at `GET /api/health`.
 pub const VERSION: &str = "0.4.5";
 
 pub struct Config {
     pub port: u16,
-    pub db_path: String,
+    pub db_path: PathBuf,
     pub transport_name: String,
-    pub providers_path: String,
+    pub providers_path: PathBuf,
 }
 
 impl Config {
     pub fn from_env() -> Self {
-        let port = std::env::var("VADGR_PORT")
-            .ok()
+        Self::from_values(
+            std::env::var("VADGR_PORT").ok(),
+            std::env::var_os("VADGR_DB"),
+            std::env::var("VADGR_TRANSPORT").ok(),
+            std::env::var_os("VADGR_PROVIDERS"),
+        )
+    }
+
+    fn from_values(
+        port: Option<String>,
+        db_path: Option<OsString>,
+        transport_name: Option<String>,
+        providers_path: Option<OsString>,
+    ) -> Self {
+        let port = port
             .and_then(|v| v.parse().ok())
             // Not 8000. The strangler runs both daemons at once, so the Rust
             // one takes its own port by default and only shares when told to.
             .unwrap_or(8100);
         Self {
             port,
-            db_path: std::env::var("VADGR_DB").unwrap_or_else(|_| "data/vadgr-rust.db".to_string()),
-            transport_name: std::env::var("VADGR_TRANSPORT")
-                .unwrap_or_else(|_| "loopback".to_string()),
-            providers_path: std::env::var("VADGR_PROVIDERS")
-                .unwrap_or_else(|_| "providers.yaml".to_string()),
+            db_path: db_path
+                .map(PathBuf::from)
+                .unwrap_or_else(|| PathBuf::from("data").join("vadgr-rust.db")),
+            transport_name: transport_name.unwrap_or_else(|| "loopback".to_string()),
+            providers_path: providers_path
+                .map(PathBuf::from)
+                .unwrap_or_else(|| PathBuf::from("providers.yaml")),
         }
     }
 }
@@ -62,7 +79,7 @@ fn empty_models() -> Value {
 /// A missing or unreadable file is an empty list, not a crash: a daemon that
 /// refuses to start because a config file moved is worse than one that
 /// reports nothing available.
-pub fn load_providers(path: &str) -> Vec<(String, ProviderEntry)> {
+pub fn load_providers(path: impl AsRef<Path>) -> Vec<(String, ProviderEntry)> {
     let Ok(text) = std::fs::read_to_string(path) else {
         return Vec::new();
     };
@@ -86,7 +103,7 @@ pub fn load_providers(path: &str) -> Vec<(String, ProviderEntry)> {
 }
 
 /// Resolve the native provider catalog once when the daemon starts.
-pub fn provider_catalog(path: &str) -> Vec<Value> {
+pub fn provider_catalog(path: impl AsRef<Path>) -> Vec<Value> {
     load_providers(path)
         .into_iter()
         .map(|(key, cfg)| {
@@ -98,4 +115,37 @@ pub fn provider_catalog(path: &str) -> Vec<Value> {
             })
         })
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Config;
+    use std::path::Path;
+
+    #[test]
+    fn default_paths_are_built_from_native_components() {
+        let config = Config::from_values(None, None, None, None);
+
+        assert_eq!(config.db_path, Path::new("data").join("vadgr-rust.db"));
+        assert_eq!(config.providers_path, Path::new("providers.yaml"));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn configured_paths_preserve_non_utf8_os_strings() {
+        use std::ffi::OsString;
+        use std::os::unix::ffi::OsStringExt;
+
+        let db_path = OsString::from_vec(b"/tmp/vadgr-\xff.db".to_vec());
+        let providers_path = OsString::from_vec(b"/tmp/providers-\xfe.yaml".to_vec());
+        let config = Config::from_values(
+            None,
+            Some(db_path.clone()),
+            None,
+            Some(providers_path.clone()),
+        );
+
+        assert_eq!(config.db_path.as_os_str(), db_path);
+        assert_eq!(config.providers_path.as_os_str(), providers_path);
+    }
 }

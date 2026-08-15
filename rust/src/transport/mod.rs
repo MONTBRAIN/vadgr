@@ -12,6 +12,7 @@ pub use loopback::LoopbackTransport;
 pub use tailscale::{TailscaleTransport, TailscaledLocalApi};
 
 use serde_json::Value;
+use std::net::{IpAddr, SocketAddr};
 
 pub trait Transport: Send + Sync {
     fn name(&self) -> &'static str;
@@ -50,6 +51,15 @@ pub fn bind_hosts(transport: &dyn Transport) -> Vec<String> {
             vec!["127.0.0.1".to_string()]
         }
     }
+}
+
+/// Turn a transport-owned IP and port into a listener address. Constructing a
+/// `SocketAddr` instead of concatenating strings keeps IPv6 valid on every OS.
+pub fn listener_address(host: &str, port: u16) -> anyhow::Result<SocketAddr> {
+    let ip: IpAddr = host
+        .parse()
+        .map_err(|_| anyhow::anyhow!("transport returned an invalid bind address: {host:?}"))?;
+    Ok(SocketAddr::new(ip, port))
 }
 
 /// Build the configured transport. The tailscale adapter gets the real

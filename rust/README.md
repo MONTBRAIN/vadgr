@@ -28,16 +28,36 @@ VADGR_PORT=8156 VADGR_DB=/tmp/copy.db VADGR_TRANSPORT=tailscale \
 | `VADGR_DB` | `data/vadgr-rust.db` | its own file, never the Python daemon's |
 | `VADGR_TRANSPORT` | `loopback` | or `tailscale` |
 | `VADGR_PROVIDERS` | `providers.yaml` | native providers; deprecated CLI rows are ignored |
-| `VADGR_CONFIG_HOME` | platform config home | the directory containing daemon-owned `settings.json` |
+| `VADGR_CONFIG_HOME` | platform config directory below | exact override for the directory containing daemon-owned `settings.json` |
 | `VADGR_COMPUTER_USE` | `true` | the default when daemon settings have no cua toggle |
 | `VADGR_CUA_BIN` | discovered | an explicit cua runtime path for transitional status |
-| `VADGR_TAILSCALED_SOCKET` | `/var/run/tailscale/tailscaled.sock` | the tailscaled LocalAPI socket |
+| `VADGR_TAILSCALED_SOCKET` | native Unix socket below | the Linux, WSL or macOS tailscaled LocalAPI socket |
 | `VADGR_TAILSCALED_PIPE` | the standard protected Tailscale pipe | the Windows tailscaled LocalAPI pipe |
+
+| host | default vadgr config directory | default tailscaled endpoint |
+|---|---|---|
+| Linux and WSL | `$XDG_CONFIG_HOME/vadgr`, or `$HOME/.config/vadgr` | `/var/run/tailscale/tailscaled.sock` |
+| macOS | `$HOME/Library/Application Support/vadgr` | `/var/run/tailscaled.socket` |
+| Windows | `%APPDATA%\vadgr`, or `%USERPROFILE%\AppData\Roaming\vadgr` | `\\.\pipe\ProtectedPrefix\Administrators\Tailscale\tailscaled` |
+
+Filesystem configuration stays in native `PathBuf` values, including values
+that are not UTF-8. The daemon joins path components with the platform API,
+creates missing database parents, and binds parsed IPv4 or IPv6 socket
+addresses. Settings replacement preserves the previous file if a Windows
+replacement fails.
+
+Malformed settings, wrongly typed `computer_use` values and invalid
+`VADGR_COMPUTER_USE` values are errors. The daemon does not replace or report
+them as plausible defaults.
 
 `PUT /api/settings/computer-use` writes only vadgr's `settings.json`. It does
 not install a runtime and does not edit `.mcp.json`, Gemini settings or Codex
 global settings. The native MCP host will read this toggle. The transitional
 response keeps the fields the released CLI reads.
+
+Runtime discovery checks `VADGR_CUA_BIN`, the platform-specific `.cu_venv`
+console entry, then `PATH`. Windows follows `PATHEXT`; Unix requires an
+executable file. Discovery does not start the runtime.
 
 The Rust provider catalog includes only `kind: native` entries. It never starts
 an external agent CLI to test availability.
