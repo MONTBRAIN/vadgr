@@ -13,6 +13,19 @@ than stubbed.
 
 Until the cutover at `0.4.8`, **the Python daemon is still the product.**
 
+## Clean-install artifact
+
+CI builds `vadgr-daemon` in release mode for `x86_64-unknown-linux-musl`. The
+result is a static Linux binary, so its clean-install image can be `scratch`:
+the image contains no shell, system libraries, build toolchain or development
+dependencies. The real entry point is the binary itself. A Rust integration
+test starts that installed binary and polls `GET /api/health` from outside the
+container until the complete `0.4.5` readiness response is present.
+
+The daemon has no system provisioning step. This static Linux artifact proves
+the install shape in CI; it is not the packaged four-platform product planned
+for `0.5.0`.
+
 ```bash
 cargo build
 cargo test

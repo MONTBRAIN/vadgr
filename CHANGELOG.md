@@ -24,7 +24,10 @@ the cutover. This release exists to be compared against it.
   and latency used to audit a live sweep.
 - **Rust CI on Linux, Windows and macOS.** Each host builds, tests and lints the
   daemon. Live operating-system E2E results remain separate.
-- 109 tests over the error envelope, the pairing code's rules, the two
+- **A clean-install gate for the Rust daemon.** CI builds a static musl release
+  binary, installs it alone in a `scratch` image, starts the installed entry
+  point, and checks its complete health response from outside the container.
+- 113 tests over the error envelope, the pairing code's rules, the two
   repositories' wire mapping, the socket buffer, the stream's frame mapping,
   the transport adapter, and the gates driven through the real router.
 

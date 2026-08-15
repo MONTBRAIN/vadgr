@@ -180,3 +180,39 @@ jobs:
       - name: Format
         working-directory: rust
         run: cargo fmt --all -- --check
+
+  clean-install:
+    # Build the delivered artifact, then prove it from outside a scratch image
+    # that contains the binary and nothing else.
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      RUSTC_WRAPPER: sccache
+      SCCACHE_GHA_ENABLED: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-musl
+      - name: Install the musl linker
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes musl-tools
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+          cache-targets: false
+          shared-key: clean-install-musl
+      - uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
+      - name: Build the static release binary
+        working-directory: rust
+        run: cargo build --locked --release --target x86_64-unknown-linux-musl --bin vadgr-daemon
+      - name: Verify the release binary is static
+        run: |
+          file rust/target/x86_64-unknown-linux-musl/release/vadgr-daemon
+          file rust/target/x86_64-unknown-linux-musl/release/vadgr-daemon | grep -Eq 'static(-pie)? linked'
+      - name: Install only the binary in scratch and prove readiness
+        working-directory: rust
+        env:
+          VADGR_RELEASE_BINARY: target/x86_64-unknown-linux-musl/release/vadgr-daemon
+        run: cargo test --locked --test clean_install installed_release_starts_and_serves -- --ignored --exact --nocapture

@@ -171,6 +171,17 @@ another, and confirm across the boundary. Depth is the bar the suite is judged
 on, not the count of apps it touches. A suite of open-and-click-once groups
 passes without proving the tier survives a real task.
 
+**Clean install is a mandatory gate, checked on every PR.** A green suite says
+the code works where it was built, not that a first-time user can install the
+product and start it. Every repo that ships an installable artifact builds that
+artifact, installs it alone in a from-nothing container (no build toolchain, no
+dev dependencies), starts the entry point, and confirms it serves a readiness
+signal, driving the installed product from outside rather than the source tree.
+It holds for a Python wheel and a Rust binary alike; only the install step and
+the readiness signal differ. cua `0.6.6` shipped because a fresh install of
+`0.6.5` could not start at all, and nothing checked a clean install before
+publish. A suite is not an install.
+
 **Evidence is filed while the pass runs, never assembled after it.** The
 evidence directory exists before the first cell, each group files what it
 produced at its own boundary, and a group that captured nothing gets a note
