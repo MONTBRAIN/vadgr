@@ -12,7 +12,7 @@ const STARTUP_TIMEOUT: Duration = Duration::from_secs(20);
 fn validate_health(payload: &Value) -> Result<(), String> {
     let expected = [
         ("status", json!("healthy")),
-        ("version", json!("0.4.5")),
+        ("version", json!("0.4.6")),
         ("platform", json!("linux")),
         ("modules", json!({"computer_use": false})),
         (
@@ -215,6 +215,8 @@ fn run_clean_install(binary: &Path, docker: &str) -> Result<Value, String> {
             "--env",
             "VADGR_PROVIDERS=/var/lib/vadgr/providers.yaml",
             "--env",
+            "VADGR_RUNS_DIR=/var/lib/vadgr/runs",
+            "--env",
             &port_environment,
             "--env",
             "VADGR_TRANSPORT=loopback",
@@ -255,7 +257,7 @@ fn run_clean_install(binary: &Path, docker: &str) -> Result<Value, String> {
 fn the_clean_install_health_shape_is_accepted() {
     let payload = json!({
         "status": "healthy",
-        "version": "0.4.5",
+        "version": "0.4.6",
         "platform": "linux",
         "modules": {"computer_use": false},
         "transport": {
@@ -273,7 +275,7 @@ fn the_clean_install_health_shape_is_accepted() {
 fn each_required_health_fact_is_checked() {
     let expected = json!({
         "status": "healthy",
-        "version": "0.4.5",
+        "version": "0.4.6",
         "platform": "linux",
         "modules": {"computer_use": false},
         "transport": {

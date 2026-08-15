@@ -6,13 +6,14 @@ use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
 /// The version this daemon reports at `GET /api/health`.
-pub const VERSION: &str = "0.4.5";
+pub const VERSION: &str = "0.4.6";
 
 pub struct Config {
     pub port: u16,
     pub db_path: PathBuf,
     pub transport_name: String,
     pub providers_path: PathBuf,
+    pub runs_dir: PathBuf,
 }
 
 impl Config {
@@ -22,6 +23,7 @@ impl Config {
             std::env::var_os("VADGR_DB"),
             std::env::var("VADGR_TRANSPORT").ok(),
             std::env::var_os("VADGR_PROVIDERS"),
+            std::env::var_os("VADGR_RUNS_DIR"),
         )
     }
 
@@ -30,6 +32,7 @@ impl Config {
         db_path: Option<OsString>,
         transport_name: Option<String>,
         providers_path: Option<OsString>,
+        runs_dir: Option<OsString>,
     ) -> Self {
         let port = port
             .and_then(|v| v.parse().ok())
@@ -45,8 +48,51 @@ impl Config {
             providers_path: providers_path
                 .map(PathBuf::from)
                 .unwrap_or_else(|| PathBuf::from("providers.yaml")),
+            runs_dir: runs_dir.map(PathBuf::from).unwrap_or_else(default_runs_dir),
         }
     }
+}
+
+fn default_runs_dir() -> PathBuf {
+    let home = if cfg!(windows) {
+        std::env::var_os("USERPROFILE")
+    } else {
+        std::env::var_os("HOME")
+    };
+    home.map(PathBuf::from)
+        .filter(|path| path.is_absolute())
+        .map(|path| path.join(".vadgr").join("runs"))
+        .unwrap_or_else(|| PathBuf::from("data").join("runs"))
+}
+
+pub fn resolve_provider_model(
+    path: impl AsRef<Path>,
+    provider: Option<&str>,
+    model: Option<&str>,
+) -> Result<(String, String), String> {
+    if let (Some(provider), Some(model)) = (provider, model) {
+        return Ok((provider.to_owned(), model.to_owned()));
+    }
+    let text = std::fs::read_to_string(path).map_err(|error| error.to_string())?;
+    let doc: serde_norway::Value =
+        serde_norway::from_str(&text).map_err(|error| error.to_string())?;
+    let provider = doc
+        .get("default_provider")
+        .and_then(|value| value.as_str())
+        .ok_or("providers.yaml has no default_provider")?;
+    let entry = doc
+        .get("providers")
+        .and_then(|value| value.as_mapping())
+        .and_then(|providers| providers.get(serde_norway::Value::String(provider.to_owned())))
+        .ok_or_else(|| format!("default provider `{provider}` is not configured"))?;
+    if entry.get("kind").and_then(|value| value.as_str()) != Some("native") {
+        return Err(format!("default provider `{provider}` is not native"));
+    }
+    let model = entry
+        .get("default_model")
+        .and_then(|value| value.as_str())
+        .ok_or_else(|| format!("provider `{provider}` has no default_model"))?;
+    Ok((provider.to_owned(), model.to_owned()))
 }
 
 /// One entry under the document's `providers:` key. `models` stays an untyped
@@ -124,10 +170,14 @@ mod tests {
 
     #[test]
     fn default_paths_are_built_from_native_components() {
-        let config = Config::from_values(None, None, None, None);
+        let config = Config::from_values(None, None, None, None, None);
 
         assert_eq!(config.db_path, Path::new("data").join("vadgr-rust.db"));
         assert_eq!(config.providers_path, Path::new("providers.yaml"));
+        assert!(
+            config.runs_dir.ends_with(Path::new(".vadgr").join("runs"))
+                || config.runs_dir == Path::new("data").join("runs")
+        );
     }
 
     #[cfg(unix)]
@@ -143,6 +193,7 @@ mod tests {
             Some(db_path.clone()),
             None,
             Some(providers_path.clone()),
+            None,
         );
 
         assert_eq!(config.db_path.as_os_str(), db_path);

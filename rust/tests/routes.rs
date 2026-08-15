@@ -1,6 +1,7 @@
-//! The router, driven end to end in-process: the gate's outcomes, the routes
-//! that ship, and the routes deliberately held for the engine's release.
+//! The router, driven end to end in-process: the gate's outcomes and the
+//! complete transitional route surface.
 
+use async_trait::async_trait;
 use axum::body::Body;
 use axum::http::{Request, StatusCode};
 use http_body_util::BodyExt;
@@ -13,6 +14,11 @@ use vadgr_daemon::auth::pairing::PairingStore;
 use vadgr_daemon::computer_use_setup::SetupService;
 use vadgr_daemon::config::Config;
 use vadgr_daemon::db::Db;
+use vadgr_daemon::engine::control::RunContext;
+use vadgr_daemon::engine::mcp::{HostFactory, McpHost};
+use vadgr_daemon::engine::provider::{ModelClient, ModelFactory};
+use vadgr_daemon::engine::supervisor::RunSupervisor;
+use vadgr_daemon::engine::{Engine, McpError, ProviderError};
 use vadgr_daemon::state::AppState;
 use vadgr_daemon::transport::{LoopbackTransport, Transport};
 use vadgr_daemon::ws::manager::ConnectionManager;
@@ -41,37 +47,77 @@ impl Transport for EveryoneIsAPeer {
     }
 }
 
+struct UnusedModelFactory;
+
+#[async_trait]
+impl ModelFactory for UnusedModelFactory {
+    async fn build(
+        &self,
+        _provider: &str,
+        _model: &str,
+    ) -> Result<Box<dyn ModelClient>, ProviderError> {
+        Err(ProviderError::Request(
+            "test model is not configured".to_owned(),
+        ))
+    }
+}
+
+struct EmptyHostFactory;
+
+#[async_trait]
+impl HostFactory for EmptyHostFactory {
+    async fn build(&self, _context: RunContext) -> Result<McpHost, McpError> {
+        Ok(McpHost::new(Vec::new()))
+    }
+}
+
 fn state_with(transport: Box<dyn Transport>) -> AppState {
     let db = Db::open(":memory:").unwrap();
     db.with(|c| {
         c.execute_batch("INSERT INTO runs (id, title, status) VALUES ('r1','a task','running');")
     })
     .unwrap();
+    let config = Arc::new(Config::from_env());
+    let ws = Arc::new(ConnectionManager::new());
+    let setup = Arc::new(SetupService::new(
+        std::env::temp_dir()
+            .join(format!("vadgr-route-test-{}", uuid::Uuid::new_v4()))
+            .join("settings.json"),
+        None,
+        true,
+    ));
+    let engine = Arc::new(Engine::new(
+        Arc::new(UnusedModelFactory),
+        Arc::new(EmptyHostFactory),
+        db.clone(),
+        config.runs_dir.clone(),
+    ));
+    let supervisor = RunSupervisor::new(
+        engine,
+        db.clone(),
+        ws.clone(),
+        config.providers_path.clone(),
+    );
     AppState {
         db,
-        config: Arc::new(Config::from_env()),
+        config,
         transport: Arc::from(transport),
         pairing: Arc::new(PairingStore::new(300)),
-        ws: Arc::new(ConnectionManager::new()),
+        ws,
         providers: Arc::new(vec![serde_json::json!({
             "id": "cached",
             "name": "Cached provider",
             "available": true,
             "models": [],
         })]),
-        computer_use_setup: Arc::new(SetupService::new(
-            std::env::temp_dir()
-                .join(format!("vadgr-route-test-{}", uuid::Uuid::new_v4()))
-                .join("settings.json"),
-            None,
-            true,
-        )),
+        computer_use_setup: setup,
         computer_use_status: Arc::new(RwLock::new(serde_json::json!({
             "enabled": true,
             "venv_ready": true,
             "daemon": "running",
             "platform": "wsl2",
         }))),
+        supervisor,
     }
 }
 
@@ -127,7 +173,7 @@ async fn health_answers_without_a_token_because_it_is_the_probe() {
     .await;
     assert_eq!(status, StatusCode::OK);
     assert_eq!(body["status"], "healthy");
-    assert_eq!(body["version"], "0.4.5");
+    assert_eq!(body["version"], "0.4.6");
     assert_eq!(body["modules"]["computer_use"], true);
     assert!(["linux", "macos", "windows", "wsl"].contains(&body["platform"].as_str().unwrap()));
 }
@@ -494,46 +540,52 @@ async fn pair_then_claim_mints_a_token_and_the_wire_field_keeps_its_name() {
     assert!(body["device_id"].as_str().is_some());
 }
 
-// ------------------------------------------------- what this release holds
+// ------------------------------------------------- engine-backed run routes
 
 #[tokio::test]
-async fn starting_a_run_is_absent_rather_than_stubbed() {
-    // A 501, a plausible 202 with no run behind it, or a row nothing will pick
-    // up are three ways of lying to the sweep. Absent is honest.
-    //
-    // **405 and not 404, and the difference is the honest one.** `/api/runs`
-    // exists here, for `GET`; what does not exist is `POST` on it. A 404 would
-    // claim the path is unknown, which is false and would make the held row
-    // indistinguishable from a genuinely deleted surface in the sweep's probe
-    // set. The spec said 404 before this test was run against the code.
+async fn starting_a_run_returns_the_complete_queued_row() {
     let req = Request::builder()
         .method("POST")
         .uri("/api/runs")
         .header("content-type", "application/json")
         .body(Body::from(r#"{"task":"do a thing"}"#))
         .unwrap();
-    let (status, _) = send(state_with(Box::new(LoopbackTransport)), req, "127.0.0.1").await;
-    assert_eq!(
-        status,
-        StatusCode::METHOD_NOT_ALLOWED,
-        "the trigger arrives with the engine; the path exists for GET"
-    );
+    let (status, body) = send(state_with(Box::new(LoopbackTransport)), req, "127.0.0.1").await;
+    assert_eq!(status, StatusCode::ACCEPTED);
+    assert_eq!(body["status"], "queued");
+    assert_eq!(body["agent_name"], "do a thing");
+    assert_eq!(body["inputs"]["task"], "do a thing");
+    assert!(body["id"].as_str().unwrap().starts_with("run-"));
 }
 
 #[tokio::test]
-async fn resume_is_held_too_because_its_success_path_needs_a_loop() {
-    // Its validation paths port cleanly and its success path cannot: without an
-    // engine this daemon has no way to make the success response true. Half a
-    // route would give the sweep matching error rows and a lying
-    // success row.
-    //
-    // 404 here rather than 405, and for the same reason the trigger is 405:
-    // this path is registered for no method at all.
+async fn resume_rejects_every_state_except_failed() {
     let req = Request::builder()
         .method("POST")
         .uri("/api/runs/r1/resume")
         .body(Body::empty())
         .unwrap();
-    let (status, _) = send(state_with(Box::new(LoopbackTransport)), req, "127.0.0.1").await;
-    assert_eq!(status, StatusCode::NOT_FOUND);
+    let (status, body) = send(state_with(Box::new(LoopbackTransport)), req, "127.0.0.1").await;
+    assert_eq!(status, StatusCode::CONFLICT);
+    assert_eq!(body["error"]["code"], "RUN_NOT_RESUMABLE");
+}
+
+#[tokio::test]
+async fn run_create_is_strict_and_requires_provider_model_as_a_pair() {
+    for body in [
+        r#"{"task":"work","provider":"anthropic_oauth"}"#,
+        r#"{"task":"   "}"#,
+        r#"{"task":"work","inputs":{}}"#,
+    ] {
+        let req = Request::builder()
+            .method("POST")
+            .uri("/api/runs")
+            .header("content-type", "application/json")
+            .body(Body::from(body))
+            .unwrap();
+        let (status, response) =
+            send(state_with(Box::new(LoopbackTransport)), req, "127.0.0.1").await;
+        assert_eq!(status, StatusCode::UNPROCESSABLE_ENTITY);
+        assert!(response["detail"].is_array());
+    }
 }

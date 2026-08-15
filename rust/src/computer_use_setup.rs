@@ -20,6 +20,12 @@ pub struct SetupService {
     default_enabled: bool,
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ComputerUseEntry {
+    pub enabled: bool,
+    pub command: Option<PathBuf>,
+}
+
 impl SetupService {
     pub fn from_env() -> Result<Self> {
         let default_enabled = match std::env::var("VADGR_COMPUTER_USE") {
@@ -60,6 +66,13 @@ impl SetupService {
             "daemon": Value::Null,
             "platform": platform::computer_use_platform(),
         }))
+    }
+
+    pub fn entry(&self) -> Result<ComputerUseEntry> {
+        Ok(ComputerUseEntry {
+            enabled: self.read_enabled()?.unwrap_or(self.default_enabled),
+            command: self.runtime_path.clone(),
+        })
     }
 
     pub fn enable(&self) -> Result<Value> {

@@ -2,12 +2,28 @@ use crate::state::AppState;
 use axum::Json;
 use axum::extract::State;
 use serde_json::{Value, json};
+use std::time::Duration;
 
-pub async fn status(State(_state): State<AppState>) -> Json<Value> {
+use crate::engine::mcp::ToolServer;
+
+pub async fn status(State(state): State<AppState>) -> Json<Value> {
+    let entry = state.computer_use_setup.entry();
+    let available = match entry {
+        Ok(entry) if entry.enabled => match entry.command {
+            Some(command) => {
+                let mut server = crate::engine::mcp::cua::CuaServer::new(command);
+                let result =
+                    tokio::time::timeout(Duration::from_secs(10), server.list_tools()).await;
+                let available = matches!(result, Ok(Ok(tools)) if !tools.is_empty());
+                server.close().await;
+                available
+            }
+            None => false,
+        },
+        _ => false,
+    };
     Json(json!({
-        // The engine does not arrive until 0.4.6. An enabled setting is not an
-        // available tool host, so this release must report false honestly.
-        "available": false,
+        "available": available,
         "platform": crate::platform::computer_use_platform(),
     }))
 }

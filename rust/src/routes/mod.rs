@@ -28,21 +28,8 @@ fn validation_error(rejection: JsonRejection) -> (StatusCode, Json<Value>) {
     )
 }
 
-/// **Twelve HTTP routes and two socket paths.**
-///
-/// Two of the Python daemon's fourteen HTTP routes are held for `0.4.6`, and
-/// they are held rather than stubbed. Both socket paths exist, but their
-/// existing-run behavior is also held because this daemon cannot create the
-/// run that the comparison needs. A `501`, a plausible `202` with no run
-/// behind it, or a row nothing will ever pick up would lie to the sweep.
-///
-/// - `POST /api/runs` starts a run and needs the loop.
-/// - `POST /api/runs/{id}/resume` hands the run to the execution service and
-///   answers `{"status": "running"}`. Its **validation** paths port cleanly and
-///   its **success** path cannot: without an engine this daemon has no way to
-///   make the response true. Porting half of it would give the
-///   sweep matching error rows and a lying success row, which is worse than an
-///   absent route.
+/// The complete transitional HTTP and socket surface, now with the Rust engine
+/// behind run creation and continuation.
 pub fn router(state: AppState) -> Router {
     Router::new()
         .route("/api/health", get(health::health))
@@ -60,9 +47,10 @@ pub fn router(state: AppState) -> Router {
             put(settings::put_computer_use),
         )
         .route("/api/computer-use/status", get(computer_use::status))
-        .route("/api/runs", get(runs::list_runs))
+        .route("/api/runs", get(runs::list_runs).post(runs::start_run))
         .route("/api/runs/{run_id}", get(runs::get_run))
         .route("/api/runs/{run_id}/cancel", post(runs::cancel_run))
+        .route("/api/runs/{run_id}/resume", post(runs::resume_run))
         .route(
             "/api/runs/{run_id}/stream",
             get(crate::ws::run_ws::run_stream),
