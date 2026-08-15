@@ -5,13 +5,23 @@ run routes. This is a split comparison. The unchanged `0.4.4` harness drives
 the Python daemon. A wrapper selects Rust cells and classifies each difference
 as compatibility, a target correction or a regression.
 
-> **Status: partial on WSL2, updated 2026-08-14.** Three independent Codex CLI 0.147.0
-> processes ran concurrently. Each pass owned two ports, two databases, and two
-> daemons. All three passes produced the same structural result. The Rust side
-> passed 44 HTTP cells, 14 CLI cells, 17 assertions, and two socket close cells.
-> The comparison matched 35 shared HTTP cells and all 14 CLI cells. The
-> Python daemon supplied the engine-backed cells. Those Rust cells are **held
-> for 0.4.6**. The overall result is therefore **partial**, not pass.
+> **Status: partial acceptance test on WSL2, updated 2026-08-14.** Three
+> independent Codex CLI 0.147.0 processes ran concurrently. Each pass owned two
+> ports, two databases, and two daemons. All three passes produced the same
+> structural result. The Rust side passed 44 HTTP cells, 14 CLI cells, 17
+> assertions, and two socket close cells. The comparison matched 35 shared HTTP
+> cells and all 14 CLI cells. The Python daemon supplied the engine-backed
+> cells. Those Rust cells are **held for 0.4.6**. The acceptance result is
+> therefore **partial**, not pass.
+
+## Scope exception
+
+Rust `0.4.5` has no native loop. No product surface can accept a goal-level task
+and drive the Rust daemon through the full run path. The recorded comparison is
+therefore an **acceptance test**, not an agent-driven e2e. It drives fresh
+daemons over real HTTP, CLI and WebSocket surfaces with fixed scripted cells.
+This exception expires at `0.4.6`, when the native loop supplies the missing
+product surface and must drive the held run and socket cells.
 
 ## Held before the run
 
@@ -109,8 +119,8 @@ left no listener on any pass port.
 | F9 | Provider and computer-use reads repeated slow subprocess probes. | Rust removes external agent CLI probes. Cua runtime discovery starts no process. |
 | F10 | The Rust evidence log contained no request or response records. | The HTTP trace layer now records each request and status; the harness checks the health request. |
 | F11 | Health hardcoded every host as `wsl2`. | Rust detects `linux`, `macos`, `windows` or `wsl`; platform classification has a regression test. |
-| F12 | Auth and missing-run sockets closed before the upgrade, so clients lost `4401` and `4004`. | Rust accepts first and closes with the stable code; a real TCP upgrade and the e2e socket client cover it. |
-| F13 | Cancel copied Python's `failed` status for a deliberate stop. | Rust records `cancelled` and stamps completion; route, repository and e2e checks cover it. |
+| F12 | Auth and missing-run sockets closed before the upgrade, so clients lost `4401` and `4004`. | Rust accepts first and closes with the stable code; a real TCP upgrade and the acceptance socket client cover it. |
+| F13 | Cancel copied Python's `failed` status for a deliberate stop. | Rust records `cancelled` and stamps completion; route, repository and acceptance checks cover it. |
 | F14 | The setup service edited `.mcp.json`, Gemini settings and Codex global settings. | Rust writes only daemon-owned `settings.json`, preserves unrelated keys and does not install a runtime. |
 | F15 | Rust deserialized and probed deprecated subprocess providers. | The catalog accepts native entries only and starts no external agent process. |
 
