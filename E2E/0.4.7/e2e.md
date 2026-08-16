@@ -4,18 +4,15 @@ A clean Vadgr installation can connect supported model credentials directly,
 keep multiple providers, select one machine default, and complete real work
 without an external model CLI in the request path.
 
-> **Status: partially run on WSL2, 2026-08-16.** The static Linux artifact and
-> its clean install in `scratch` pass. Direct ChatGPT OAuth, authenticated model
-> discovery, readiness, three independent live engine passes, the full surface
-> inventory, WSL credential controls, hard-kill continuation, and an owner work
-> path through Windows Notepad pass. Gemini API-key onboarding now also passes.
-> OpenAI Platform API-key onboarding is blocked by exhausted quota and Anthropic
-> API-key onboarding by insufficient credits. Native Linux, macOS and Windows
-> sessions, 21 expanded surface branch cells, the dogfood kill cell, and a
-> monetary cost value remain open. **14 findings: 12 repaired and rerun at
-> their affected boundaries; the corrected additive harness and new billed-model
-> ceiling await the next authorized live pass.** Nothing is marked pass that was
-> not executed and read back.
+> **Status: E2E not run under the corrected method, 2026-08-16.** The automated
+> gates and the static Linux clean-install gate pass. Earlier WSL sessions used
+> the release Rust daemon and public wires, but a Python driver invoked
+> `python -m cli` instead of the installed terminal `vadgr` command. They remain
+> useful acceptance diagnostics and finding reproductions. They do not close an
+> E2E cell. Every WSL live cell must run again through terminal `vadgr`, direct
+> public HTTP and WebSocket calls, and the real agent loop. Native Linux, macOS
+> and Windows remain `not run`. **15 findings: 12 product repairs have automated
+> or diagnostic reruns; F15 corrects the E2E boundary and awaits full rerun.**
 
 ## The approach
 
@@ -31,6 +28,24 @@ Both product surfaces are required:
 
 The agent driver, version, prompt, and complete output must be captured in the
 private evidence bundle. The prompt names an owner goal, not a tool call.
+
+For this transitional minor, the installed terminal entry point can dispatch
+to Python internally. The operator first puts the exact PR-head installation on
+`PATH`, records `command -v vadgr` and its install target, then invokes only
+`vadgr ...`. Direct `python -m cli`, product imports and Python drivers do not
+close CLI or owner-flow cells. Public API and WebSocket cells use their real
+wire and are required separately from the CLI cells. Scripts may prepare
+isolated state, capture output and parse evidence after the commands run. They
+cannot replace either product surface or choose the agent's actions.
+
+## Superseded acceptance diagnostics
+
+Evidence recorded before the F15 correction is retained because it found real
+product defects and exercised the release daemon. Its live `pass`, `partial` or
+`blocked` labels describe acceptance diagnostics only. They are not current E2E
+verdicts. The current result for every live WSL cell below is `not run` until a
+new row or replacement table names a terminal `vadgr` invocation and direct
+public-wire evidence. Automated gate rows keep their stated results.
 
 ## Owner and environment requirements
 
@@ -228,30 +243,30 @@ carried here in full and is part of acceptance.
 
 | Part | Axes | Cells | Run | Open |
 |---|---|---:|---:|---:|
-| Surface inventory | 114 executed HTTP/callback/CLI/socket/absence cases + 21 open branch cells | 133 | 114 | 21 |
-| A: onboarding | 4 credential paths x 6 assertions + 5 additive/default cells | 29 | 18 | 17 |
-| B: credential storage | 4 platforms x 8 assertions | 32 | 8 | 24 |
-| OS: installed product | 4 operating systems x 1 full live composition | 4 | 1 | 3 |
-| C: engine behavior | 25 carried native-loop cases | 25 | 15 | 10 |
-| Repeatability | 3 passes x 6 observables | 18 | 18 | 0 |
-| D: restart continuation | 1 sequence x 7 assertions | 7 | 7 | 0 |
-| E: owner dogfood | 1 batch x 5 outcomes | 5 | 4 | 2 |
-| | | **253** | **185** | **77** |
+| Surface inventory | published HTTP/callback/CLI/socket/absence cases plus branch cells | audit before rerun | 0 | all |
+| A: onboarding | 4 credential paths x 6 assertions + 5 additive/default cells | 29 | 0 | 29 |
+| B: credential storage | 4 platforms x 8 assertions | 32 | 0 | 32 |
+| OS: installed product | 4 operating systems x 1 full live composition | 4 | 0 | 4 |
+| C: engine behavior | 25 carried native-loop cases | 25 | 0 | 25 |
+| Repeatability | 3 passes x 6 observables | 18 | 0 | 18 |
+| D: restart continuation | 1 sequence x 7 assertions | 7 | 0 | 7 |
+| E: owner dogfood | 1 batch x 5 outcomes | 5 | 0 | 5 |
 
-`Run` means the cell was executed and recorded, not necessarily that every
-assertion passed. E4 was run but remains open because the transport did not
-provide a monetary price, so the Run and Open columns intentionally overlap by
-one. Surface counts are individual observed cases, not route-group summaries.
+`Run` now means executed under the corrected public-entry-point method. The old
+numbers are retained only in the private acceptance-diagnostic evidence. The
+surface cell count must be regenerated from the corrected recorded session
+before the first live surface command.
 
 ## Surface coverage - every published endpoint, with what it returned
 
-The closing sweep generated its tables from one recorded JSON source. The
-summary below reports what was observed; the private evidence retains all 47
-named HTTP cases and their response bodies.
+The earlier acceptance sweep generated its tables from one recorded JSON
+source. The summary below reports those diagnostic observations. It is not an
+E2E verdict. The corrected sweep must come from direct public-wire commands and
+terminal `vadgr` calls.
 
 ### Shipped
 
-Every row below was captured by the same isolated surface harness. The shared
+Every row below was captured by the same isolated acceptance driver. The shared
 precondition was a healthy installed daemon with the explicitly named state;
 each request and response was filed immediately, and the harness revoked its
 device, cancelled its owned runs and stopped only its own daemon at cleanup.
@@ -438,6 +453,9 @@ No group begins until its requirement above is available.
 
 ## Part A: provider onboarding and defaults
 
+All statuses in this section are superseded acceptance observations. The E2E
+status of every A cell is `not run` under the corrected method.
+
 Each credential path has six distinct cells. A readiness-only response does not
 close the full-request cell.
 
@@ -484,6 +502,9 @@ regular owner-owned `0600` record in a `0700` directory behind an opaque
 reference; its value was absent from SQLite, WAL, SHM and evidence.
 
 ## Part B: credential storage and migration
+
+The WSL statuses in this section are superseded acceptance observations. The
+E2E status of every B cell is `not run` under the corrected method.
 
 Each supported platform executes all eight cases. Platform ids are `BL` native
 Linux, `BM` macOS, `BW` Windows native and `BQ` WSL.
@@ -549,6 +570,9 @@ credential matrix cannot substitute for them.
 
 ## Part C: full product path and engine behavior
 
+All statuses in this section are superseded acceptance observations. The E2E
+status of every C cell is `not run` under the corrected method.
+
 The carried matrix is 25 explicit cells: two live boundaries, all eight control
 tools, both content shapes, one tool error, four terminal outcomes, three
 journal/recovery states, two cancellation timings and three cua states.
@@ -585,10 +609,11 @@ For every successful engine cell, raw and mobile streams are captured from
 before run acceptance through the terminal frame and reconciled with the same
 journal. The A/B/C formal passes each reached `run_completed` and `completed`.
 
-## Repeatability - three independent passes
+## Repeatability - three independent acceptance passes
 
-Three agents use separate ports, databases, state roots, run roots, daemons,
-and provider attempts. They perform the same goal-level task concurrently.
+Three agents used separate ports, databases, state roots, run roots, daemons,
+and provider attempts. Their CLI was source-driven, so this table does not close
+the E2E repeatability requirement. The corrected three-pass result is `not run`.
 
 | | pass A | pass B | pass C |
 |---|---|---|---|
@@ -604,6 +629,9 @@ counts and later trajectories differ, proving independent model calls. The
 comparison normalizes only run id, timestamp, port, and provider request id.
 
 ## Part D: hard-kill restart continuation
+
+The rows below are superseded acceptance observations. The corrected E2E result
+for D01-D07 is `not run`.
 
 The group starts from one connected provider, installed cua, a fresh DB/state/
 runs root, both sockets attached, a reversible marker absent, and the exact
@@ -625,6 +653,9 @@ The final rerun used source `5558cf6` and run
 todo list survived restart and accepted both subsequent updates.
 
 ## Part E: owner dogfood batch
+
+The rows below are superseded acceptance observations. The corrected E2E result
+for E01-E05 is `not run`.
 
 | id | precondition and setup | goal or trigger | expected observable and oracle | evidence boundary | cleanup | status |
 |---|---|---|---|---|---|---|
@@ -661,6 +692,7 @@ must not be present.
 | F12 | A fresh Gemini database produced `NO_ACTION_TAKEN` because installed CUA appeared disabled. | The harness isolated state, database and runs but inherited the owner's normal config directory, where computer use was disabled. | Every example and the executable harness now isolate `VADGR_CONFIG_HOME`, set the feature only in that isolated environment, and require the product status endpoint to report CUA available before submission. | pass: both later Gemini runs used installed CUA and completed with independent read-back |
 | F13 | The additive preflight tried OpenAI Platform API-key authentication although A25 specifies ChatGPT OAuth plus Gemini API key. | The executable harness encoded a provider combination that differed from the approved cell even though both used the OpenAI provider id. | The harness now invokes the ChatGPT OAuth method and pins the proven general Gemini model from the authenticated catalog. | not rerun: the corrected flow requires owner browser approval |
 | F14 | Provider-neutral E2E work used expensive product starters without a dated model comparison or hard spend ceiling. | The runbook declared that credentials were billed but did not require capability/price research, an explicit cost-effective engine model, or cancellation thresholds; the harness inherited the provider default. | Shared engineering, both machine-side entry points and both E2E templates now require current official research, authenticated-catalog validation, explicit cheapest-capable models, bounded iteration/token/money ceilings and evidence-based escalation. This runbook selects Luna, Flash-Lite and Haiku for future generic engine work. | not rerun: the next authorized billed group must prove its driver cancels at the written ceiling |
+| F15 | The WSL evidence called `python -m cli` from Python drivers while the runbook claimed the shipped terminal CLI. | The capture scripts replaced the public `vadgr` entry point. The review treated real daemon and wire activity as sufficient although the on-box user surface was bypassed. | Shared engineering, both machine-side entry points and both E2E templates now require the public command. This runbook reclassifies every affected live result as an acceptance diagnostic. | not rerun: every WSL live cell is open until terminal `vadgr` and direct API/WebSocket evidence replace it |
 
 The probe also moved from host networking to a separate BusyBox container that
 joins the product container's network namespace. Docker Desktop does not expose
@@ -674,12 +706,12 @@ Legend: pass / fail / blocked / not run / **Not-Needed**.
 | | Linux | macOS | Windows native | WSL |
 |---|---|---|---|---|
 | build, test, and lint | CI not run | CI not run | CI not run | pass locally |
-| credential matrix | not run | type check only | type check only | pass on WSL |
+| credential matrix | not run | type check only | type check only | not run for E2E; prior acceptance diagnostics retained |
 | clean install | pass in Linux `scratch` | not run | not run | driver host only |
-| live providers | not run | not run | not run | partial: direct ChatGPT OAuth and Gemini API key pass; OpenAI Platform and Anthropic API keys are billing-blocked |
-| full engine | not run | not run | not run | partial: three independent installed-cua runs pass; full 25-case matrix open |
-| restart and dogfood | not run | not run | not run | hard-kill pass; owner work path pass; dogfood kill and money cells open |
-| overall | not run | not run | not run | partially run |
+| live providers | not run | not run | not run | not run; prior acceptance diagnostics retained |
+| full engine | not run | not run | not run | not run; prior acceptance diagnostics retained |
+| restart and dogfood | not run | not run | not run | not run; prior acceptance diagnostics retained |
+| overall | not run | not run | not run | not run |
 
 Credential paths, access controls, binary startup, callback binding, and child
 process launch are platform-shaped. No supported operating system is

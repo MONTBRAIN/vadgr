@@ -218,6 +218,19 @@ server from the current code, so it never tests a stale connection. cua `0.7.0`'
 `app_open` passed its units and an import check while the wire e2e caught a
 two-minute hang and an `ok` returned before any window existed.
 
+**Invoke each public product surface exactly as its user does.** For vadgr, put
+the tested installation on `PATH`, run `vadgr ...` in a terminal, and test
+the public HTTP and WebSocket surfaces separately. Its installed entry point
+can dispatch to Python during migration, but the e2e cannot replace it with
+`python -m cli`, a product import, `cargo run` or a private function. For
+cua, build the exact PR-head wheel, install it without editable mode outside the
+checkout, and mount that environment's `vadgr-cua` entry point in the driving
+agent's MCP config. Mobile remains a human session on a physical handset.
+Record every resolved command path, artifact hash and tested PR head. Helpers
+can prepare state, capture output and generate evidence. They cannot drive the
+user flow, choose the agent's actions or replace a public product surface. Such
+automation is an acceptance or contract check and never closes an e2e cell.
+
 **Close an e2e with three independent passes**, run concurrently, each with its
 **own port, database and daemon** - three observations rather than one run
 watched three times. Compare them structurally: every HTTP entry on method,

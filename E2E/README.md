@@ -8,6 +8,15 @@ not an e2e - it proves the function works, not that the product does. The agent'
 prose ("I started the run and it completed") is **self-report and is not
 evidence**.
 
+The operator invokes the public product surfaces exactly as a user does. Put
+the tested installation on `PATH`, record `command -v vadgr`, prove that the
+entry point targets the exact PR head, and run `vadgr ...` in the terminal. The
+entry point can dispatch to Python during migration. The e2e cannot replace it
+with `python -m cli`, a product import, `cargo run` or a private function call.
+Exercise the public HTTP and WebSocket surfaces over their real wire as a
+separate required half. A helper can prepare state, capture output and parse
+evidence. It cannot drive the user flow or replace a product surface.
+
 The trustworthy verdict comes from what the daemon wrote down, and vadgr has an
 unusually good record for this: **`trajectory.jsonl`**, the run journal. The loop
 writes it, not the model, so it can contradict the agent. **A claimed success

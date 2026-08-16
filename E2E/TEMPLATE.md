@@ -37,6 +37,13 @@ Both surfaces are exercised and **neither substitutes for the other**:
 - **the CLI** (`vadgr run`, `vadgr stream`) - the on-box path, with its own users
   and its own failure modes.
 
+<Put the tested installation on `PATH`. Record `command -v vadgr` and prove its
+target is the exact PR head. Invoke `vadgr ...` in the terminal. The installed
+entry point may dispatch to Python during migration, but `python -m cli`, a
+product import, `cargo run` or a private function is not an e2e invocation. A
+helper may prepare state and capture or parse evidence. It must not replace the
+public CLI, drive the owner flow or choose the agent's actions.>
+
 <The agent CLI invocation you actually used, so a reader can repeat it. Use
 the CLI the machine has, and name it and its version beside the results; the
 example is the `claude -p` form:>
@@ -170,17 +177,17 @@ never "what was checked" - and the second is what a reviewer is asking. Each row
 carries **the response**, not a pointer to a file: nobody should open an artifact
 to learn what an endpoint returned.>
 
-<**Generate these from a recorded sweep. Never type them.** One harness drives
-every surface and writes request, status, error code and body to a JSON record;
-the tables are emitted from that record and both go in the evidence bundle. A
-hand-written table drifts from the run it describes and nothing in it shows that.
-`E2E/0.4.1` is the worked example - `sweep.py` and `gen_tables.py`.>
+<**Generate these from the recorded session. Never type them.** The operator
+invokes every public route and installed command. A recorder writes request,
+status, error code and body to a JSON record. A post-run tool emits the tables
+from that record. The recorder must not replace `vadgr`, drive the user flow or
+import product code. A hand-written table drifts from the run it describes.>
 
-<Before trusting the harness, check it is real. Both of these silently recorded
-nothing on the way to `0.4.1`: invoking the CLI as a module when the entry point
-is the installed binary - it exits `0` printing nothing, so every command
-"passes" - and letting the CLI use its default port while the daemon under test
-is on another. **Assert on output, not only exit codes.**>
+<Before trusting the capture, verify that the installed `vadgr` command produced
+the CLI result and that direct public calls produced the wire result. A Python
+driver that invokes `python -m cli` is acceptance evidence, not e2e evidence.
+Also reject an empty result or a CLI pointed at the wrong port. **Assert on
+output, not only exit codes.**>
 
 ### Shipped
 
