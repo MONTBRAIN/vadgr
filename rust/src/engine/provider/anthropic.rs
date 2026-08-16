@@ -85,7 +85,9 @@ impl AnthropicMessagesClient {
                 continue;
             }
             if !response.status().is_success() {
-                return Err(classify_status(response.status()));
+                let status = response.status();
+                let body = response.json::<Value>().await.ok();
+                return Err(classify_error(status, body.as_ref()));
             }
             return super::read_json(response).await;
         }
@@ -216,6 +218,25 @@ fn classify_status(status: StatusCode) -> ProviderError {
     }
 }
 
+fn classify_error(status: StatusCode, body: Option<&Value>) -> ProviderError {
+    let provider_type = body
+        .and_then(|value| value.pointer("/error/type"))
+        .and_then(Value::as_str);
+    let message = body
+        .and_then(|value| value.pointer("/error/message"))
+        .and_then(Value::as_str)
+        .unwrap_or_default()
+        .to_ascii_lowercase();
+    if status == StatusCode::BAD_REQUEST
+        && (provider_type == Some("billing_error")
+            || (message.contains("credit balance")
+                && (message.contains("too low") || message.contains("purchase credits"))))
+    {
+        return ProviderError::QuotaExhausted;
+    }
+    classify_status(status)
+}
+
 fn user_agent() -> String {
     format!("vadgr/{}", env!("CARGO_PKG_VERSION"))
 }
@@ -260,6 +281,21 @@ mod tests {
         assert_eq!(body["max_tokens"], 512);
         assert_eq!(body["system"], MACHINE_INSTRUCTIONS);
         assert!(!body.to_string().contains("Claude Code"));
+    }
+
+    #[test]
+    fn low_credit_response_is_quota_exhausted() {
+        let body = json!({
+            "type": "error",
+            "error": {
+                "type": "invalid_request_error",
+                "message": "Your credit balance is too low to access the Anthropic API."
+            }
+        });
+        assert!(matches!(
+            classify_error(StatusCode::BAD_REQUEST, Some(&body)),
+            ProviderError::QuotaExhausted
+        ));
     }
 
     #[test]

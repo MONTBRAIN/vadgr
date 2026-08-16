@@ -31,6 +31,10 @@ All notable changes to this project are documented here. Format follows [Keep a 
   container.
 
 ### Fixed
+- Gemini function declarations remove unsupported `additionalProperties`
+  fields before a request, so installed cua schemas pass live function calling.
+- Anthropic low-credit responses map to the existing quota category instead of
+  the generic provider-unavailable recovery path.
 - Static release builds use embedded Web PKI roots for provider TLS, so they do
   not require a host certificate store that is absent from `scratch`.
 - Linux containers on a WSL-backed Docker engine report `linux`, while a daemon

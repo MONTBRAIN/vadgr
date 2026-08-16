@@ -45,7 +45,7 @@ impl GeminiClient {
                 json!({
                     "name": tool.name,
                     "description": tool.description,
-                    "parameters": tool.input_schema,
+                    "parameters": gemini_schema(&Value::Object(tool.input_schema.clone())),
                 })
             })
             .collect::<Vec<_>>();
@@ -288,6 +288,20 @@ fn convert_messages(messages: &[Message]) -> Vec<Value> {
     converted
 }
 
+fn gemini_schema(value: &Value) -> Value {
+    match value {
+        Value::Object(fields) => Value::Object(
+            fields
+                .iter()
+                .filter(|(name, _)| name.as_str() != "additionalProperties")
+                .map(|(name, value)| (name.clone(), gemini_schema(value)))
+                .collect(),
+        ),
+        Value::Array(values) => Value::Array(values.iter().map(gemini_schema).collect()),
+        _ => value.clone(),
+    }
+}
+
 fn retryable(status: StatusCode) -> bool {
     status == StatusCode::TOO_MANY_REQUESTS || status.is_server_error()
 }
@@ -360,6 +374,36 @@ mod tests {
         assert_eq!(
             body["contents"][2]["parts"][0]["functionResponse"]["name"],
             "test__act"
+        );
+    }
+
+    #[test]
+    fn request_removes_json_schema_fields_gemini_does_not_accept() {
+        let body = client().body(
+            &[Message::text("user", "task")],
+            &[ToolSpec {
+                name: "test__act".to_owned(),
+                description: "act".to_owned(),
+                input_schema: serde_json::from_value(json!({
+                    "type": "object",
+                    "properties": {
+                        "headers": {
+                            "type": "object",
+                            "additionalProperties": {"type": "string"}
+                        }
+                    },
+                    "additionalProperties": false
+                }))
+                .unwrap(),
+            }],
+            512,
+        );
+        let parameters = &body["tools"][0]["functionDeclarations"][0]["parameters"];
+        assert!(parameters.get("additionalProperties").is_none());
+        assert!(
+            parameters["properties"]["headers"]
+                .get("additionalProperties")
+                .is_none()
         );
     }
 
