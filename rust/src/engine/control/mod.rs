@@ -11,7 +11,7 @@ use crate::engine::mcp::ToolServer;
 use crate::engine::policy::PolicyHook;
 use crate::engine::types::{McpError, ToolResult, ToolSpec, Usage};
 use async_trait::async_trait;
-use serde_json::{Map, Value};
+use serde_json::{Map, Value, json};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicI64, AtomicU64, Ordering};
 use tokio::sync::Mutex;
@@ -88,6 +88,13 @@ impl RunContext {
         Usage {
             input_tokens: self.input_tokens.load(Ordering::SeqCst),
             output_tokens: self.output_tokens.load(Ordering::SeqCst),
+        }
+    }
+
+    pub async fn restore_todos(&self, todos: &[Value]) {
+        *self.todos.lock().await = todos.to_vec();
+        if !todos.is_empty() {
+            self.events.emit("todos", json!({"items":todos}));
         }
     }
 
@@ -229,5 +236,30 @@ mod tests {
         let result = server.call_tool("todo_write", args).await.unwrap();
         let value = serde_json::to_value(result).unwrap();
         assert!(value.to_string().contains("done"));
+    }
+
+    #[tokio::test]
+    async fn restored_todos_can_be_updated_after_restart() {
+        let mut server = server().await;
+        server
+            .context
+            .restore_todos(&[json!({
+                "id":"inspect",
+                "content":"Inspect live state",
+                "status":"in_progress"
+            })])
+            .await;
+        let mut args = Map::new();
+        args.insert("id".to_owned(), json!("inspect"));
+        args.insert("status".to_owned(), json!("done"));
+
+        let result = server.call_tool("todo_update", args).await.unwrap();
+
+        assert!(
+            serde_json::to_value(result)
+                .unwrap()
+                .to_string()
+                .contains("done")
+        );
     }
 }

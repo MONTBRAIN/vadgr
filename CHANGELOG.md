@@ -55,6 +55,9 @@ All notable changes to this project are documented here. Format follows [Keep a 
 - OAuth callbacks redirect immediately to query-free completion or failure
   pages, so spent authorization parameters do not remain in the browser address
   bar. A denied flow now shows failure instead of the connected page.
+- Restart recovery reconstructs the last successful control-plane todo state
+  from the durable journal, so a resumed `todo_update` can continue instead of
+  failing against an empty in-memory list.
 
 ### Removed
 - The Rust daemon no longer reads `providers.yaml` or another agent client's

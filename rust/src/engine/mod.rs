@@ -73,6 +73,9 @@ impl Engine {
             self.db.clone(),
             cancelled.clone(),
         );
+        if let Some(recovery) = recovery.as_ref() {
+            context.restore_todos(&recovery.todos).await;
+        }
         let model = self.model_factory.build(&run.provider, &run.model).await?;
         let mut host = self.host_factory.build(context.clone()).await?;
         let result = async {
