@@ -73,7 +73,7 @@ def test_secrets_are_redacted_on_write(tmp_path):
     journal = tmp_path / "t.jsonl"
     traj = Trajectory("run-1", path=str(journal))
 
-    secret = "sk-ant-oat01-VERYSECRETTOKEN"
+    secret = "sk-ant-oat01-VERYSECRETTOKEN"  # secret-scan: allow-test-fixture
     seq = traj.append_in_flight(
         0, _tool_use(params={"api_key": secret, "note": "hello"})
     )

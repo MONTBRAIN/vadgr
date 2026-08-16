@@ -54,6 +54,12 @@ before the affected group starts. Never print or persist a secret while checking
 availability. A missing item blocks the already-written cells; it does not
 remove them or reduce the matrix.>
 
+<Read live credentials only from the workspace `../.env`. Never echo or copy a
+value into a command, log, screenshot, transcript, process listing, GitHub text,
+documentation or evidence. Run
+`python3 scripts/check_no_secrets.py --env-file ../.env` before every commit and
+before sealing evidence.>
+
 | requirement | cells | non-secret availability check | cost or destructive effect | cleanup |
 |---|---|---|---|---|
 | <credential, billed account, OS/host, device, app, permission or decision> | <ids> | <present/absent check> | <none or exact boundary> | <action> |
@@ -69,6 +75,37 @@ export AGENT_FORGE_DATABASE_PATH=$(mktemp -d)/vadgr.db
 export AGENT_FORGE_PORT=8791
 python3 -m uvicorn api.main:app --host 127.0.0.1 --port 8791 &
 ```
+
+## Remote-host handoff for Linux, macOS and Windows
+
+<Complete this section before any native-platform group runs. It must let a new
+Codex session execute the group without hidden context or access to the first
+test machine. Include all of these items:>
+
+1. <Files to read first: `AGENTS.md`, `E2E/README.md`, this runbook, and any
+   public install instructions.>
+2. <The exact PR head rule, release build command, delivered artifact path,
+   artifact hash command, and installation into an empty host-local test root.
+   The product under test is the installed release copy, never `cargo run`.>
+3. <The exact installed `vadgr-computer-use` version, fresh-environment install
+   command, `vadgr-cua doctor` check, and platform setup. Include Linux
+   `install-deps`, macOS Accessibility and Screen Recording, and native Windows
+   execution without WSL.>
+4. <The isolated state, database, runs, evidence, port, transport,
+   `VADGR_CUA_BIN` and API URL variables for Unix shells and native Windows
+   PowerShell. Use native platform directory and access-control APIs.>
+5. <The exact cell ids and order for each host, state carried between cells,
+   independent read-backs, evidence captured before cleanup, and result rows
+   that host updates.>
+6. <Cleanup boundaries. Remove only the isolated root and reversible effects.
+   Never stop unrelated processes or applications.>
+7. <Credential handling. Read only required values from the owner-only
+   workspace `../.env`; never print or persist them. Run the secret check before
+   the group and before evidence is sealed.>
+
+<Provide paste-ready Linux/macOS shell and Windows PowerShell blocks. Use a free
+loopback port per concurrent pass. A platform row with only "run the same test"
+is incomplete.>
 
 ## Automated gate (necessary, never sufficient)
 

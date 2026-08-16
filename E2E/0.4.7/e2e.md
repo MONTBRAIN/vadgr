@@ -36,9 +36,9 @@ checks record only present or absent; they never print or persist a secret.
 
 | requirement | cells | non-secret availability check | cost or destructive effect | cleanup |
 |---|---|---|---|---|
-| billed OpenAI Platform API key | A07-A12, S08c | `OPENAI_API_KEY` is nonempty in the driver environment | provider usage is billed | unset after the isolated group; delete the Vadgr connection |
-| billed Gemini API key | A13-A18, S05, S08d | `GEMINI_API_KEY` or `GOOGLE_API_KEY` is nonempty | provider usage is billed | unset after the isolated group; delete the Vadgr connection |
-| billed Anthropic API key | A19-A24, S08e | `ANTHROPIC_API_KEY` is nonempty | provider usage is billed | unset after the isolated group; delete the Vadgr connection |
+| billed OpenAI Platform API key | A07-A12, S08c | an OpenAI key is present in the owner-only workspace `.env`; map it in memory to `OPENAI_API_KEY` | provider usage is billed | unset after the isolated group; delete the Vadgr connection |
+| billed Gemini API key | A13-A18, S05, S08d | a Gemini key is present in the owner-only workspace `.env`; map it in memory to `GEMINI_API_KEY` | provider usage is billed | unset after the isolated group; delete the Vadgr connection |
+| billed Anthropic API key | A19-A24, S08e | an Anthropic key is present in the owner-only workspace `.env`; map it in memory to `ANTHROPIC_API_KEY` | provider usage is billed | unset after the isolated group; delete the Vadgr connection |
 | native Linux desktop host | BL01-BL08, OS-L | release artifact and installed cua are present on a non-WSL Linux desktop | creates isolated state and reversible test files | remove only the isolated state and test files |
 | macOS host | BM01-BM08, OS-M | release artifact and installed cua are present on macOS | creates local Application Support state and reversible test files | remove only the isolated state and test files |
 | Windows native host | BW01-BW08, OS-W | release artifact and installed cua are present in native Windows | creates local AppData state and reversible test files | remove only the isolated state and test files |
@@ -72,8 +72,89 @@ mkdir -p "$VADGR_STATE_HOME" "$VADGR_RUNS_DIR"
 ```
 
 Live secrets are entered through the CLI without echo or supplied through the
-documented provider environment variable. They are excluded from commands,
-logs, process listings, test records, and the evidence repository.
+documented provider environment variable read from the workspace `../.env`.
+They are excluded from command arguments, logs, screenshots, transcripts,
+process listings, GitHub text, documentation and evidence. Run
+`python3 scripts/check_no_secrets.py --env-file ../.env` before each commit and
+before every evidence bundle is sealed. The scan reports only paths and rule
+names.
+
+## Remote-host handoff for Linux, macOS and Windows
+
+Each native-host Codex session follows this handoff without needing context
+from another session:
+
+1. Read `AGENTS.md`, `E2E/README.md` and this runbook completely. Check out the
+   same PR head and record `git rev-parse HEAD`. Do not combine results from
+   different commits.
+2. Place the host's owner-only `.env` one directory above the repository. Use
+   `OPENAI_API_KEY`, `GEMINI_API_KEY` and `ANTHROPIC_API_KEY` as the portable
+   names. A machine-local alias is allowed, but the driver maps it to the
+   portable name only in memory. Check names and presence only. Never print values. Run
+   `python3 scripts/check_no_secrets.py --env-file ../.env` before testing.
+3. Build the release with `cargo build --locked --release --manifest-path
+   rust/Cargo.toml`. Copy the resulting `vadgr-daemon` or `vadgr-daemon.exe`
+   into an empty host-local test root and run that copy. Never use `cargo run`
+   as the product under test.
+4. Create a fresh Python virtual environment inside that test root. Install
+   `vadgr-computer-use==0.7.0`, record `vadgr-cua doctor`, and set
+   `VADGR_CUA_BIN` to that installed executable. On Linux, run
+   `vadgr-cua install-deps --yes`. On macOS, grant Accessibility and Screen
+   Recording to that environment's Python. On Windows, keep the test native;
+   do not route it through WSL.
+5. Create the evidence directory before the first cell. Record only the commit,
+   artifact hashes, tool versions, redacted commands, status codes, structured
+   responses, access-control metadata, journals, socket frames and independent
+   read-backs. Do not record environment values, authorization headers, callback
+   queries or unredacted screenshots that contain them.
+6. Run the platform's eight credential cells in order: `BL01`-`BL08`,
+   `BM01`-`BM08` or `BW01`-`BW08`. Then run `OS-L`, `OS-M` or `OS-W`. Preserve
+   state only where the next cell names it as a precondition. Use a new state
+   root for every unrelated group.
+7. Run the secret check again before the evidence boundary is sealed. Remove
+   only the isolated state, virtual environment and reversible test effects.
+   Do not stop unrelated applications or processes. Update only the rows that
+   this host executed, with `pass`, `fail` or `blocked` and the exact reason.
+
+Use these platform-specific isolation variables. Choose a free loopback port
+per concurrent pass.
+
+Linux and macOS:
+
+```bash
+export E2E_ROOT="$(mktemp -d)"
+mkdir -p "$E2E_ROOT/bin" "$E2E_ROOT/state" "$E2E_ROOT/runs" "$E2E_ROOT/evidence"
+install -m 755 rust/target/release/vadgr-daemon "$E2E_ROOT/bin/vadgr-daemon"
+python3 -m venv "$E2E_ROOT/cua"
+"$E2E_ROOT/cua/bin/python" -m pip install 'vadgr-computer-use==0.7.0'
+export VADGR_STATE_HOME="$E2E_ROOT/state"
+export VADGR_DB="$E2E_ROOT/vadgr.db"
+export VADGR_RUNS_DIR="$E2E_ROOT/runs"
+export VADGR_CUA_BIN="$E2E_ROOT/cua/bin/vadgr-cua"
+export VADGR_PORT=<free-port>
+export VADGR_TRANSPORT=loopback
+export FORGE_API_URL="http://127.0.0.1:$VADGR_PORT"
+"$E2E_ROOT/bin/vadgr-daemon"
+```
+
+Native Windows PowerShell:
+
+```powershell
+$E2ERoot = Join-Path $env:TEMP ("vadgr-e2e-" + [guid]::NewGuid())
+New-Item -ItemType Directory -Force "$E2ERoot\bin", "$E2ERoot\state", `
+  "$E2ERoot\runs", "$E2ERoot\evidence" | Out-Null
+Copy-Item rust\target\release\vadgr-daemon.exe "$E2ERoot\bin\vadgr-daemon.exe"
+py -m venv "$E2ERoot\cua"
+& "$E2ERoot\cua\Scripts\python.exe" -m pip install vadgr-computer-use==0.7.0
+$env:VADGR_STATE_HOME = "$E2ERoot\state"
+$env:VADGR_DB = "$E2ERoot\vadgr.db"
+$env:VADGR_RUNS_DIR = "$E2ERoot\runs"
+$env:VADGR_CUA_BIN = "$E2ERoot\cua\Scripts\vadgr-cua.exe"
+$env:VADGR_PORT = "<free-port>"
+$env:VADGR_TRANSPORT = "loopback"
+$env:FORGE_API_URL = "http://127.0.0.1:$env:VADGR_PORT"
+& "$E2ERoot\bin\vadgr-daemon.exe"
+```
 
 ## Automated gate (necessary, never sufficient)
 

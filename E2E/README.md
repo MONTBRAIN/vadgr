@@ -121,6 +121,12 @@ and cleanup. Inform the owner before the affected group starts. If an item is
 unavailable, the written cells become `blocked`; they are never deleted,
 collapsed or replaced with a smaller matrix after execution begins.
 
+Provider keys come from the workspace `../.env` only. Never echo them or copy
+them into commands, logs, screenshots, transcripts, process listings, GitHub
+text, documentation or evidence. Run
+`python3 scripts/check_no_secrets.py --env-file ../.env` before every commit and
+before sealing evidence.
+
 ## Test what this minor can test, and nothing more
 
 A runbook covers **what is testable now**. A check that cannot be run because

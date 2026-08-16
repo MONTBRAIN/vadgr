@@ -137,6 +137,16 @@ destructive action and owner decision up front, map each to its cells, and
 inform the owner before the affected group runs. Missing setup blocks written
 cells; it never deletes or collapses them.
 
+**Credentials never enter Git or evidence.** Local e2e reads only the required
+variables from the workspace `../.env`, without echoing values or placing them
+in command arguments, logs, screenshots, transcripts, process listings, PR
+titles, PR bodies, review comments, documentation or evidence. The file stays
+untracked and owner-only: mode `0600` on Unix and an owner-only DACL on
+Windows. Before every commit and before evidence
+is sealed, run `python3 scripts/check_no_secrets.py --env-file ../.env`. If any
+credential reaches Git or GitHub, stop, rotate it first, purge it from history,
+and rerun the scan. Redaction alone does not make an exposed credential valid.
+
 **The e2e is run before the PR is published, and the owner reviews the results,
 not a plan.** Whoever builds the change runs the e2e the feature needs - a browser
 change against real sites, a desktop or structured change against real
