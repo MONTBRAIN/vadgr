@@ -69,6 +69,22 @@ written down and broken twice in an hour.
 **4. PR bodies carry code, tests, user-visible changes and caveats.** No
 methodology narration, no SOLID tables, no design-doc citations.
 
++## Cross-platform PR handoff
+
+**One real operating-system pass opens the PR; every required operating system
+still gates merge.** This applies to machine-side changes in `vadgr` and
+`vadgr-computer-use`. Complete and pass the runbook on at least one real target
+OS, then open the PR as cross-platform incomplete. Record the passed OS and
+leave every untested OS as `not run` or `blocked` with its exact requirement.
+
+The PR branch is the handoff. Agents on the other operating systems fetch that
+branch, run their native cells, and push results and required fixes back to the
+same branch. If a later platform fix changes shared behavior, rerun affected
+cells on every earlier passing OS. The owner can review the evolving diff, but
+the PR is not merge-ready until every required OS is `pass` or has an approved
+`Not-Needed` reason, every finding is resolved, and the final branch checks pass.
+Opening the PR is a collaboration gate. It is never cross-platform acceptance.
+
 ## The practices every repo in this family follows
 
 **This section is identical in every code repo, and identical in this repo's
