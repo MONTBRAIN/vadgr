@@ -1,6 +1,6 @@
-//! `vadgr 0.4.6` - the Rust daemon with its native engine.
+//! `vadgr 0.4.7` - the Rust daemon with provider onboarding.
 //!
-//! The second Rust release. It adds no product capability. It runs
+//! The third Rust release. It runs
 //! **beside** the Python daemon on its own port and its own database for five
 //! releases; that is what "strangler" means, and it is what keeps every step
 //! reversible.
@@ -32,11 +32,14 @@ async fn main() -> Result<()> {
     let config = config::Config::from_env();
     let db = db::Db::open(&config.db_path)?;
     let transport = transport::create(&config.transport_name)?;
-    let providers = config::provider_catalog(&config.providers_path);
+    let providers = vadgr_daemon::engine::provider::ProviderService::native(
+        db.clone(),
+        config.state_home.clone(),
+    )?;
     let computer_use_setup = Arc::new(computer_use_setup::SetupService::from_env()?);
     let computer_use_status = computer_use_setup.status()?;
     let ws = Arc::new(ws::manager::ConnectionManager::new());
-    let model_factory = Arc::new(NativeModelFactory::native()?);
+    let model_factory = Arc::new(NativeModelFactory::new(providers.clone()));
     let host_factory = Arc::new(DefaultHostFactory::new(computer_use_setup.clone()));
     let engine = Arc::new(Engine::new(
         model_factory,
@@ -44,12 +47,7 @@ async fn main() -> Result<()> {
         db.clone(),
         config.runs_dir.clone(),
     ));
-    let supervisor = RunSupervisor::new(
-        engine,
-        db.clone(),
-        ws.clone(),
-        config.providers_path.clone(),
-    );
+    let supervisor = RunSupervisor::new(engine, db.clone(), ws.clone());
     let recovery = supervisor.recover_on_boot().await;
     tracing::info!(
         resumed = recovery.resumed.len(),
@@ -69,7 +67,7 @@ async fn main() -> Result<()> {
             auth::pairing::PAIRING_TTL_SECONDS,
         )),
         ws,
-        providers: Arc::new(providers),
+        providers,
         computer_use_setup,
         computer_use_status: Arc::new(RwLock::new(computer_use_status)),
         supervisor,
@@ -77,7 +75,7 @@ async fn main() -> Result<()> {
 
     let app = routes::router(state.clone())
         .layer(axum::middleware::from_fn_with_state(
-            state,
+            state.clone(),
             auth::gate::gate,
         ))
         .layer(
@@ -85,6 +83,31 @@ async fn main() -> Result<()> {
                 .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
                 .on_response(DefaultOnResponse::new().level(Level::INFO)),
         );
+
+    let callback_state = state.clone();
+    let callback = tokio::spawn(async move {
+        loop {
+            match tokio::net::TcpListener::bind(("127.0.0.1", 1455)).await {
+                Ok(listener) => {
+                    callback_state.providers.set_oauth_callback_available(true);
+                    tracing::info!(addr = "127.0.0.1:1455", "OpenAI callback listening");
+                    if let Err(error) = axum::serve(
+                        listener,
+                        routes::providers::callback_router(callback_state.clone()),
+                    )
+                    .await
+                    {
+                        tracing::warn!(%error, "OpenAI callback listener stopped");
+                    }
+                }
+                Err(error) => {
+                    tracing::debug!(%error, "OpenAI callback port is unavailable");
+                }
+            }
+            callback_state.providers.set_oauth_callback_available(false);
+            tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+        }
+    });
 
     let mut listeners = Vec::new();
     for host in bind_hosts {
@@ -103,5 +126,6 @@ async fn main() -> Result<()> {
         }
     }))
     .await?;
+    callback.abort();
     Ok(())
 }

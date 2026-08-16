@@ -44,10 +44,11 @@ curl -fsSL https://raw.githubusercontent.com/MONTBRAIN/vadgr/master/setup.sh | b
 irm https://raw.githubusercontent.com/MONTBRAIN/vadgr/master/setup.ps1 | iex
 ```
 
-The machine runs work through the provider named in `providers.yaml`. The
-default is the built-in agent loop, which talks to the model directly. The
-legacy subprocess providers (Claude Code, Codex, Gemini CLI) are still
-configurable and are deprecated.
+The still-default Python daemon runs work through `providers.yaml` until the
+`0.4.9` cutover. The side-by-side Rust daemon now owns additive OpenAI, Gemini
+and Anthropic connections, authenticated model catalogs and its machine
+default. It calls provider APIs directly and does not use an agent CLI as a
+model runtime.
 
 Restart your terminal, then:
 
@@ -94,6 +95,16 @@ stops watching and leaves the run going.
 | `vadgr computer-use disable` | Disable desktop automation |
 | `vadgr computer-use status` | Show computer use and daemon status |
 
+**Providers on the side-by-side Rust daemon:**
+
+| Command | Description |
+|---------|-------------|
+| `vadgr provider login [openai\|gemini\|anthropic]` | Connect or reauthenticate one provider |
+| `vadgr provider status [--refresh] [provider]` | Show connections and authenticated catalogs |
+| `vadgr provider logout <provider>` | Disconnect a provider that is not the default |
+| `vadgr model list` | List models from every connected provider |
+| `vadgr model default [provider/model]` | Live-test and set the machine default |
+
 ### Manual setup
 
 If you prefer to set things up manually, see [api/README.md](api/README.md) and [cli/README.md](cli/README.md).
@@ -131,7 +142,7 @@ The provider-agnostic loop that owns the conversation history, calls the model, 
 
 ### [rust/](rust/) - The daemon, being rewritten
 
-The daemon is moving to Rust, and this crate runs **beside** the Python one on its own port and its own database until the cutover. `0.4.6` includes the native model loop, the built-in control plane, cua over MCP, durable journals, cancellation, manual resume, and recovery on boot. Until the cutover, the Python daemon is still the default product entry point. See [rust/README.md](rust/README.md).
+The daemon is moving to Rust, and this crate runs **beside** the Python one on its own port and its own database until the cutover. `0.4.7` adds vadgr-owned provider onboarding, credentials, authenticated catalogs and direct OpenAI, Gemini and Anthropic adapters to the native loop, control plane, cua MCP host and durable recovery path. Until the cutover, the Python daemon is still the default product entry point. See [rust/README.md](rust/README.md).
 
 ### Desktop Automation
 

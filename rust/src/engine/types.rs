@@ -158,16 +158,22 @@ impl Default for LoopLimits {
 
 #[derive(Debug, thiserror::Error)]
 pub enum ProviderError {
-    #[error("credentials are missing; run `claude setup-token`")]
+    #[error("provider credentials are missing")]
     MissingCredentials,
     #[error("credentials are malformed: {0}")]
     InvalidCredentials(String),
     #[error("credential store failed: {0}")]
     CredentialStore(String),
-    #[error("Anthropic rejected the credentials (401); run `claude setup-token`")]
+    #[error("the provider rejected the credentials")]
     Unauthorized,
-    #[error("Anthropic validator rejected the request (403)")]
-    ValidatorRejected,
+    #[error("the provider rejected this request")]
+    Forbidden,
+    #[error("the provider quota is exhausted")]
+    QuotaExhausted,
+    #[error("the selected model is unavailable")]
+    ModelUnavailable,
+    #[error("the provider is unavailable")]
+    Unavailable,
     #[error("provider request failed: {0}")]
     Request(String),
     #[error("provider response is invalid: {0}")]

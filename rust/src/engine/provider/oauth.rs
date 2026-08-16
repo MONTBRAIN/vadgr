@@ -1,317 +1,235 @@
 use crate::engine::types::ProviderError;
-use async_trait::async_trait;
-use serde::{Deserialize, Serialize};
-use serde_json::{Map, Value};
-use std::ffi::OsString;
-use std::io::Write;
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use base64::Engine;
+use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+use rand::RngExt;
+use serde::Deserialize;
+use sha2::{Digest, Sha256};
+use time::{Duration, OffsetDateTime};
+use url::Url;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct OAuthBlock {
-    pub access_token: String,
-    pub refresh_token: String,
-    #[serde(default)]
-    pub expires_at: Option<u64>,
-    #[serde(flatten)]
-    pub extra: Map<String, Value>,
-}
-
-#[async_trait]
-pub trait CredentialStore: Send + Sync {
-    async fn load(&self) -> Result<Option<OAuthBlock>, ProviderError>;
-    async fn save(&self, value: &OAuthBlock) -> Result<(), ProviderError>;
-}
-
-#[cfg(not(target_os = "macos"))]
-pub fn native_store() -> Result<Arc<dyn CredentialStore>, ProviderError> {
-    Ok(Arc::new(FileCredentialStore::native()?))
-}
-
-#[cfg(target_os = "macos")]
-pub fn native_store() -> Result<Arc<dyn CredentialStore>, ProviderError> {
-    Ok(Arc::new(KeychainCredentialStore::native()?))
-}
+const TOKEN_BODY_LIMIT: usize = 64 * 1024;
 
 #[derive(Clone, Debug)]
-pub struct FileCredentialStore {
-    path: PathBuf,
+pub struct OAuthDescriptor {
+    pub authorize_url: &'static str,
+    pub token_url: &'static str,
+    pub client_id: &'static str,
+    pub redirect_uri: &'static str,
+    pub scopes: &'static [&'static str],
+    pub authorize_parameters: &'static [(&'static str, &'static str)],
 }
 
-impl FileCredentialStore {
-    pub fn native() -> Result<Self, ProviderError> {
-        Ok(Self {
-            path: claude_credentials_path()?,
-        })
-    }
-
-    pub fn new(path: PathBuf) -> Self {
-        Self { path }
-    }
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PendingOAuth {
+    pub authorization_url: String,
+    pub verifier: String,
+    pub state: String,
 }
 
-#[async_trait]
-impl CredentialStore for FileCredentialStore {
-    async fn load(&self) -> Result<Option<OAuthBlock>, ProviderError> {
-        let path = self.path.clone();
-        tokio::task::spawn_blocking(move || load_file(&path))
-            .await
-            .map_err(|error| ProviderError::CredentialStore(error.to_string()))?
-    }
-
-    async fn save(&self, value: &OAuthBlock) -> Result<(), ProviderError> {
-        let path = self.path.clone();
-        let value = value.clone();
-        tokio::task::spawn_blocking(move || save_file(&path, &value))
-            .await
-            .map_err(|error| ProviderError::CredentialStore(error.to_string()))?
-    }
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct OAuthTokens {
+    pub access_token: String,
+    pub refresh_token: Option<String>,
+    pub expires_at: Option<String>,
 }
 
-fn load_file(path: &Path) -> Result<Option<OAuthBlock>, ProviderError> {
-    let bytes = match std::fs::read(path) {
-        Ok(bytes) => bytes,
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
-        Err(error) => return Err(ProviderError::CredentialStore(error.to_string())),
-    };
-    parse_document(&bytes)
+#[derive(Deserialize)]
+struct TokenResponse {
+    access_token: String,
+    #[serde(default)]
+    refresh_token: Option<String>,
+    #[serde(default)]
+    expires_in: Option<i64>,
+    #[serde(default)]
+    expires_at: Option<String>,
+    #[serde(default)]
+    #[serde(rename = "token_type")]
+    _token_type: Option<String>,
+    #[serde(default)]
+    #[serde(rename = "scope")]
+    _scope: Option<String>,
+    #[serde(default)]
+    #[serde(rename = "id_token")]
+    _id_token: Option<String>,
 }
 
-fn parse_document(bytes: &[u8]) -> Result<Option<OAuthBlock>, ProviderError> {
-    let doc: Value = serde_json::from_slice(bytes)
-        .map_err(|error| ProviderError::InvalidCredentials(error.to_string()))?;
-    let Some(block) = doc.get("claudeAiOauth") else {
+pub fn begin(descriptor: &OAuthDescriptor) -> Result<PendingOAuth, ProviderError> {
+    let verifier = random_urlsafe(32);
+    let state = random_urlsafe(16);
+    let challenge = URL_SAFE_NO_PAD.encode(Sha256::digest(verifier.as_bytes()));
+    let mut url = Url::parse(descriptor.authorize_url)
+        .map_err(|error| ProviderError::InvalidResponse(error.to_string()))?;
+    {
+        let mut query = url.query_pairs_mut();
+        query
+            .append_pair("response_type", "code")
+            .append_pair("client_id", descriptor.client_id)
+            .append_pair("redirect_uri", descriptor.redirect_uri)
+            .append_pair("scope", &descriptor.scopes.join(" "))
+            .append_pair("code_challenge", &challenge)
+            .append_pair("code_challenge_method", "S256")
+            .append_pair("state", &state);
+        for (key, value) in descriptor.authorize_parameters {
+            query.append_pair(key, value);
+        }
+    }
+    Ok(PendingOAuth {
+        authorization_url: url.into(),
+        verifier,
+        state,
+    })
+}
+
+pub fn validate_callback(expected_state: &str, received_state: &str) -> Result<(), ProviderError> {
+    if expected_state.as_bytes() != received_state.as_bytes() {
         return Err(ProviderError::InvalidCredentials(
-            "missing claudeAiOauth object".to_owned(),
+            "OAuth callback state does not match".to_owned(),
         ));
-    };
-    serde_json::from_value(block.clone())
-        .map(Some)
-        .map_err(|error| ProviderError::InvalidCredentials(error.to_string()))
-}
-
-#[cfg(target_os = "macos")]
-struct KeychainCredentialStore {
-    account: String,
-}
-
-#[cfg(target_os = "macos")]
-impl KeychainCredentialStore {
-    const SERVICE: &'static str = "Claude Code-credentials";
-
-    fn native() -> Result<Self, ProviderError> {
-        let account = std::env::var("USER")
-            .or_else(|_| std::env::var("LOGNAME"))
-            .map_err(|_| ProviderError::CredentialStore("no native macOS account".to_owned()))?;
-        Ok(Self { account })
-    }
-}
-
-#[cfg(target_os = "macos")]
-#[async_trait]
-impl CredentialStore for KeychainCredentialStore {
-    async fn load(&self) -> Result<Option<OAuthBlock>, ProviderError> {
-        let account = self.account.clone();
-        tokio::task::spawn_blocking(move || {
-            match security_framework::passwords::get_generic_password(Self::SERVICE, &account) {
-                Ok(bytes) => parse_document(&bytes),
-                Err(error) if error.code() == security_framework_sys::base::errSecItemNotFound => {
-                    Ok(None)
-                }
-                Err(error) => Err(ProviderError::CredentialStore(error.to_string())),
-            }
-        })
-        .await
-        .map_err(|error| ProviderError::CredentialStore(error.to_string()))?
-    }
-
-    async fn save(&self, value: &OAuthBlock) -> Result<(), ProviderError> {
-        let account = self.account.clone();
-        let value = value.clone();
-        tokio::task::spawn_blocking(move || {
-            let mut document = match security_framework::passwords::get_generic_password(
-                Self::SERVICE,
-                &account,
-            ) {
-                Ok(bytes) => serde_json::from_slice::<Value>(&bytes)
-                    .map_err(|error| ProviderError::InvalidCredentials(error.to_string()))?,
-                Err(error) if error.code() == security_framework_sys::base::errSecItemNotFound => {
-                    Value::Object(Map::new())
-                }
-                Err(error) => return Err(ProviderError::CredentialStore(error.to_string())),
-            };
-            let root = document.as_object_mut().ok_or_else(|| {
-                ProviderError::InvalidCredentials(
-                    "credential document must be an object".to_owned(),
-                )
-            })?;
-            root.insert(
-                "claudeAiOauth".to_owned(),
-                serde_json::to_value(value)
-                    .map_err(|error| ProviderError::InvalidCredentials(error.to_string()))?,
-            );
-            let bytes = serde_json::to_vec(&document)
-                .map_err(|error| ProviderError::InvalidCredentials(error.to_string()))?;
-            security_framework::passwords::set_generic_password(Self::SERVICE, &account, &bytes)
-                .map_err(|error| ProviderError::CredentialStore(error.to_string()))
-        })
-        .await
-        .map_err(|error| ProviderError::CredentialStore(error.to_string()))?
-    }
-}
-
-fn save_file(path: &Path, block: &OAuthBlock) -> Result<(), ProviderError> {
-    let mut doc = match std::fs::read(path) {
-        Ok(bytes) => serde_json::from_slice::<Value>(&bytes)
-            .map_err(|error| ProviderError::InvalidCredentials(error.to_string()))?,
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Value::Object(Map::new()),
-        Err(error) => return Err(ProviderError::CredentialStore(error.to_string())),
-    };
-    let root = doc.as_object_mut().ok_or_else(|| {
-        ProviderError::InvalidCredentials("credential document must be an object".to_owned())
-    })?;
-    root.insert(
-        "claudeAiOauth".to_owned(),
-        serde_json::to_value(block)
-            .map_err(|error| ProviderError::InvalidCredentials(error.to_string()))?,
-    );
-    let parent = path.parent().ok_or_else(|| {
-        ProviderError::CredentialStore("credential path has no parent".to_owned())
-    })?;
-    std::fs::create_dir_all(parent)
-        .map_err(|error| ProviderError::CredentialStore(error.to_string()))?;
-    let file_name = path
-        .file_name()
-        .ok_or_else(|| ProviderError::CredentialStore("credential path has no name".to_owned()))?;
-    let mut temporary_name = OsString::from(".");
-    temporary_name.push(file_name);
-    temporary_name.push(format!(".{}.tmp", uuid::Uuid::new_v4()));
-    let temporary = parent.join(temporary_name);
-    let mut file = std::fs::OpenOptions::new()
-        .write(true)
-        .create_new(true)
-        .open(&temporary)
-        .map_err(|error| ProviderError::CredentialStore(error.to_string()))?;
-    file.write_all(
-        &serde_json::to_vec_pretty(&doc)
-            .map_err(|error| ProviderError::InvalidCredentials(error.to_string()))?,
-    )
-    .and_then(|_| file.sync_all())
-    .map_err(|error| ProviderError::CredentialStore(error.to_string()))?;
-    drop(file);
-    if let Err(error) = replace_file(&temporary, path) {
-        let _ = std::fs::remove_file(&temporary);
-        return Err(ProviderError::CredentialStore(error.to_string()));
     }
     Ok(())
 }
 
-fn claude_credentials_path() -> Result<PathBuf, ProviderError> {
-    credentials_path_from(
-        std::env::var_os("HOME"),
-        std::env::var_os("USERPROFILE"),
-        std::env::consts::OS,
+pub async fn exchange(
+    http: &reqwest::Client,
+    descriptor: &OAuthDescriptor,
+    code: &str,
+    verifier: &str,
+) -> Result<OAuthTokens, ProviderError> {
+    token_request(
+        http,
+        descriptor.token_url,
+        &[
+            ("grant_type", "authorization_code"),
+            ("client_id", descriptor.client_id),
+            ("code", code),
+            ("code_verifier", verifier),
+            ("redirect_uri", descriptor.redirect_uri),
+        ],
+        None,
     )
-    .ok_or_else(|| ProviderError::CredentialStore("no native user home".to_owned()))
+    .await
 }
 
-fn credentials_path_from(
-    home: Option<OsString>,
-    user_profile: Option<OsString>,
-    os: &str,
-) -> Option<PathBuf> {
-    let root = if os == "windows" { user_profile } else { home }?;
-    let root = PathBuf::from(root);
-    root.is_absolute()
-        .then(|| root.join(".claude").join(".credentials.json"))
+pub async fn refresh(
+    http: &reqwest::Client,
+    descriptor: &OAuthDescriptor,
+    refresh_token: &str,
+) -> Result<OAuthTokens, ProviderError> {
+    token_request(
+        http,
+        descriptor.token_url,
+        &[
+            ("grant_type", "refresh_token"),
+            ("client_id", descriptor.client_id),
+            ("refresh_token", refresh_token),
+        ],
+        Some(refresh_token),
+    )
+    .await
 }
 
-#[cfg(not(windows))]
-fn replace_file(source: &Path, destination: &Path) -> std::io::Result<()> {
-    std::fs::rename(source, destination)
-}
-
-#[cfg(windows)]
-fn replace_file(source: &Path, destination: &Path) -> std::io::Result<()> {
-    use std::iter::once;
-    use std::os::windows::ffi::OsStrExt;
-    use windows_sys::Win32::Storage::FileSystem::{
-        MOVEFILE_REPLACE_EXISTING, MOVEFILE_WRITE_THROUGH, MoveFileExW,
-    };
-    let source: Vec<u16> = source.as_os_str().encode_wide().chain(once(0)).collect();
-    let destination: Vec<u16> = destination
-        .as_os_str()
-        .encode_wide()
-        .chain(once(0))
-        .collect();
-    let result = unsafe {
-        MoveFileExW(
-            source.as_ptr(),
-            destination.as_ptr(),
-            MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH,
-        )
-    };
-    if result == 0 {
-        Err(std::io::Error::last_os_error())
-    } else {
-        Ok(())
+async fn token_request(
+    http: &reqwest::Client,
+    token_url: &str,
+    form: &[(&str, &str)],
+    previous_refresh_token: Option<&str>,
+) -> Result<OAuthTokens, ProviderError> {
+    let response = http
+        .post(token_url)
+        .form(form)
+        .send()
+        .await
+        .map_err(|error| ProviderError::Request(error.to_string()))?;
+    let status = response.status();
+    let bytes = super::read_bounded(response, TOKEN_BODY_LIMIT, "OAuth token response").await?;
+    if status == reqwest::StatusCode::UNAUTHORIZED {
+        return Err(ProviderError::Unauthorized);
     }
+    if !status.is_success() {
+        return Err(ProviderError::Request(format!(
+            "OAuth token request failed with HTTP {}",
+            status.as_u16()
+        )));
+    }
+    let body: TokenResponse = serde_json::from_slice(&bytes)
+        .map_err(|error| ProviderError::InvalidResponse(error.to_string()))?;
+    if body.access_token.trim().is_empty() {
+        return Err(ProviderError::InvalidResponse(
+            "OAuth token response has no access token".to_owned(),
+        ));
+    }
+    let expires_at = match (body.expires_at, body.expires_in) {
+        (Some(value), _) => Some(value),
+        (None, Some(seconds)) if seconds > 0 => Some(
+            (OffsetDateTime::now_utc() + Duration::seconds(seconds))
+                .format(&time::format_description::well_known::Rfc3339)
+                .expect("a timestamp always formats"),
+        ),
+        _ => None,
+    };
+    Ok(OAuthTokens {
+        access_token: body.access_token,
+        refresh_token: body
+            .refresh_token
+            .or_else(|| previous_refresh_token.map(str::to_owned)),
+        expires_at,
+    })
+}
+
+fn random_urlsafe(bytes: usize) -> String {
+    let mut rng = rand::rng();
+    let value = (0..bytes).map(|_| rng.random::<u8>()).collect::<Vec<_>>();
+    URL_SAFE_NO_PAD.encode(value)
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{CredentialStore, FileCredentialStore, OAuthBlock, credentials_path_from};
+    use super::*;
 
-    #[tokio::test]
-    async fn file_store_preserves_unrelated_keys() {
-        let directory = tempfile::tempdir().unwrap();
-        let path = directory.path().join("credentials.json");
-        std::fs::write(&path, r#"{"other":{"kept":true}}"#).unwrap();
-        let store = FileCredentialStore::new(path.clone());
-        let value = OAuthBlock {
-            access_token: "access".to_owned(),
-            refresh_token: "refresh".to_owned(),
-            expires_at: Some(10),
-            extra: serde_json::Map::from_iter([("scope".to_owned(), serde_json::json!("user"))]),
-        };
-        store.save(&value).await.unwrap();
-        let doc: serde_json::Value = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
-        assert_eq!(doc["other"]["kept"], true);
-        assert_eq!(doc["claudeAiOauth"]["scope"], "user");
-        assert_eq!(store.load().await.unwrap().unwrap().access_token, "access");
+    const DESCRIPTOR: OAuthDescriptor = OAuthDescriptor {
+        authorize_url: "https://auth.example/authorize",
+        token_url: "https://auth.example/token",
+        client_id: "public-client",
+        redirect_uri: "http://localhost:1455/auth/callback",
+        scopes: &["openid", "offline_access"],
+        authorize_parameters: &[("originator", "vadgr")],
+    };
+
+    #[test]
+    fn begin_creates_pkce_state_and_provider_parameters() {
+        let pending = begin(&DESCRIPTOR).unwrap();
+        let url = Url::parse(&pending.authorization_url).unwrap();
+        let query = url
+            .query_pairs()
+            .collect::<std::collections::HashMap<_, _>>();
+        assert_eq!(
+            query.get("client_id").map(|value| value.as_ref()),
+            Some("public-client")
+        );
+        assert_eq!(
+            query.get("redirect_uri").map(|value| value.as_ref()),
+            Some(DESCRIPTOR.redirect_uri)
+        );
+        assert_eq!(
+            query
+                .get("code_challenge_method")
+                .map(|value| value.as_ref()),
+            Some("S256")
+        );
+        assert_eq!(
+            query.get("originator").map(|value| value.as_ref()),
+            Some("vadgr")
+        );
+        assert_eq!(
+            query.get("state").map(|value| value.as_ref()),
+            Some(pending.state.as_str())
+        );
+        assert_ne!(pending.verifier, pending.state);
     }
 
     #[test]
-    fn native_home_selects_only_the_current_operating_systems_variable() {
-        let root = std::env::temp_dir().join("vadgr-credential-path-test");
-        let home = root.join("unix-home");
-        let profile = root.join("windows-profile");
-        assert_eq!(
-            credentials_path_from(
-                Some(home.clone().into_os_string()),
-                Some(profile.clone().into_os_string()),
-                "linux"
-            ),
-            Some(home.join(".claude").join(".credentials.json"))
-        );
-        assert_eq!(
-            credentials_path_from(
-                Some(root.join("ignored").into_os_string()),
-                Some(profile.clone().into_os_string()),
-                "windows"
-            ),
-            Some(profile.join(".claude").join(".credentials.json"))
-        );
-    }
-
-    #[cfg(unix)]
-    #[test]
-    fn unix_home_keeps_non_utf8_bytes() {
-        use std::ffi::OsString;
-        use std::os::unix::ffi::OsStringExt;
-        let home = OsString::from_vec(b"/tmp/user-\xff".to_vec());
-        let path = credentials_path_from(Some(home.clone()), None, "linux").unwrap();
-        assert_eq!(path.parent().unwrap().parent().unwrap().as_os_str(), home);
+    fn callback_state_must_match_exactly() {
+        assert!(validate_callback("expected", "expected").is_ok());
+        assert!(validate_callback("expected", "wrong").is_err());
     }
 }

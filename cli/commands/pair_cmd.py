@@ -12,7 +12,8 @@ from urllib.parse import urlencode
 
 import click
 
-from cli.client import api_post
+from cli.client import api_get, api_post
+from cli.commands.provider import connect_provider
 from cli.output import print_error, print_kv, print_success
 
 
@@ -47,6 +48,10 @@ def _render_qr(data: str) -> bool:
 @click.pass_context
 def pair(ctx):
     """Pair a mobile device: mint a one-time code and show a QR to scan."""
+    providers = api_get(ctx, "/api/providers")
+    if not any(provider.get("is_default") for provider in providers):
+        click.echo("Before this machine can pair, connect a model provider.\n")
+        connect_provider(ctx)
     data = api_post(ctx, "/api/auth/pair")
     # `pairing_token` is the field name on the wire, and it is the invariant --
     # only the value it carries is now a short code.

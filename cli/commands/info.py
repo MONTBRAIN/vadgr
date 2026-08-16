@@ -38,8 +38,9 @@ def providers(ctx):
         return
 
     for p in data:
-        available = "available" if p.get("available") else "not found"
-        click.echo(f"  {p['name']} ({p['id']}) -- {format_status(available)}")
+        available = "connected" if p.get("connected") else "not connected"
+        default = " (default)" if p.get("is_default") else ""
+        click.echo(f"  {p['name']} ({p['id']}) -- {format_status(available)}{default}")
         for m in p.get("models", []):
             click.echo(f"    - {m['name']} ({m['id']})")
         click.echo()

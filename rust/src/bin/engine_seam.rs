@@ -1,13 +1,23 @@
 use anyhow::{Context, Result, bail};
 use serde_json::{Map, Value, json};
 use vadgr_daemon::computer_use_setup::SetupService;
+use vadgr_daemon::config::Config;
+use vadgr_daemon::db::Db;
 use vadgr_daemon::engine::mcp::McpHost;
 use vadgr_daemon::engine::mcp::cua::CuaServer;
-use vadgr_daemon::engine::provider::{AnthropicOAuthClient, ModelClient};
+use vadgr_daemon::engine::provider::ProviderService;
 use vadgr_daemon::engine::{ContentBlock, Message, StopReason};
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    let config = Config::from_env();
+    let db = Db::open(&config.db_path)?;
+    let providers = ProviderService::native(db, config.state_home.clone())?;
+    let (provider, model_id) = providers
+        .default_model()?
+        .context("no default model is connected")?;
+    let model = providers.build_client(&provider, &model_id)?;
+
     let entry = SetupService::from_env()?.entry()?;
     if !entry.enabled {
         bail!("computer use is disabled")
@@ -22,7 +32,6 @@ async fn main() -> Result<()> {
         .context("cua did not publish get_platform")?
         .name
         .clone();
-    let model = AnthropicOAuthClient::native("claude-opus-5")?;
     let prompt = format!(
         "Call the `{platform_tool}` tool exactly once with an empty object. Do not call another tool."
     );
@@ -58,6 +67,8 @@ async fn main() -> Result<()> {
     println!(
         "{}",
         json!({
+            "provider": provider,
+            "model": model_id,
             "tool": call.0,
             "result": result,
             "usage": response.usage,

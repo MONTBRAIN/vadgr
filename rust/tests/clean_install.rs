@@ -1,18 +1,18 @@
 use serde_json::{Value, json};
 use std::fs;
-use std::io::{Read, Write};
-use std::net::{SocketAddr, TcpListener, TcpStream};
+use std::net::TcpListener;
 use std::path::Path;
 use std::process::{Command, Output, Stdio};
 use std::thread;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 const STARTUP_TIMEOUT: Duration = Duration::from_secs(20);
+const PROBE_IMAGE: &str = "busybox:1.37.0-musl";
 
 fn validate_health(payload: &Value) -> Result<(), String> {
     let expected = [
         ("status", json!("healthy")),
-        ("version", json!("0.4.6")),
+        ("version", json!("0.4.7")),
         ("platform", json!("linux")),
         ("modules", json!({"computer_use": false})),
         (
@@ -61,40 +61,32 @@ fn command_output(command: &mut Command, context: &str) -> Result<Output, String
     ))
 }
 
-fn raw_health(port: u16) -> Result<Value, String> {
-    let address = SocketAddr::from(([127, 0, 0, 1], port));
-    let mut stream = TcpStream::connect_timeout(&address, Duration::from_secs(1))
-        .map_err(|error| format!("connect to {address}: {error}"))?;
-    stream
-        .set_read_timeout(Some(Duration::from_secs(1)))
-        .map_err(|error| format!("set read timeout: {error}"))?;
-    stream
-        .set_write_timeout(Some(Duration::from_secs(1)))
-        .map_err(|error| format!("set write timeout: {error}"))?;
-    stream
-        .write_all(b"GET /api/health HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n")
-        .map_err(|error| format!("write health request: {error}"))?;
-
-    let mut response = Vec::new();
-    stream
-        .read_to_end(&mut response)
-        .map_err(|error| format!("read health response: {error}"))?;
-    let separator = response
-        .windows(4)
-        .position(|window| window == b"\r\n\r\n")
-        .ok_or_else(|| "health response had no header separator".to_string())?;
-    let (headers, body) = response.split_at(separator + 4);
-    let status = headers
-        .split(|byte| *byte == b'\n')
-        .next()
-        .ok_or_else(|| "health response had no status line".to_string())?;
-    if !status.windows(5).any(|window| window == b" 200 ") {
+fn probe_json(docker: &str, container: &str, port: u16, path: &str) -> Result<Value, String> {
+    let network = format!("container:{container}");
+    let url = format!("http://127.0.0.1:{port}{path}");
+    let output = Command::new(docker)
+        .args([
+            "run",
+            "--rm",
+            "--network",
+            &network,
+            PROBE_IMAGE,
+            "wget",
+            "-qO-",
+            "-T",
+            "1",
+            &url,
+        ])
+        .output()
+        .map_err(|error| format!("start clean-install probe: {error}"))?;
+    if !output.status.success() {
         return Err(format!(
-            "health returned a non-200 status: {}",
-            String::from_utf8_lossy(status).trim()
+            "probe {path} failed with {}: {}",
+            output.status,
+            String::from_utf8_lossy(&output.stderr).trim()
         ));
     }
-    serde_json::from_slice(body).map_err(|error| format!("decode health body: {error}"))
+    serde_json::from_slice(&output.stdout).map_err(|error| format!("decode {path}: {error}"))
 }
 
 fn container_state(docker: &str, container: &str) -> Result<String, String> {
@@ -198,7 +190,11 @@ fn run_clean_install(binary: &Path, docker: &str) -> Result<Value, String> {
         ]),
         "build scratch image",
     )?;
-    let port = unused_loopback_port()?;
+    command_output(
+        Command::new(docker).args(["pull", PROBE_IMAGE]),
+        "pull clean-install probe image",
+    )?;
+    let port = 8100;
     let port_environment = format!("VADGR_PORT={port}");
     command_output(
         Command::new(docker).args([
@@ -206,14 +202,12 @@ fn run_clean_install(binary: &Path, docker: &str) -> Result<Value, String> {
             "--detach",
             "--name",
             &container,
-            "--network",
-            "host",
             "--env",
             "VADGR_CONFIG_HOME=/var/lib/vadgr",
             "--env",
             "VADGR_DB=/var/lib/vadgr/vadgr.db",
             "--env",
-            "VADGR_PROVIDERS=/var/lib/vadgr/providers.yaml",
+            "VADGR_STATE_HOME=/var/lib/vadgr/state",
             "--env",
             "VADGR_RUNS_DIR=/var/lib/vadgr/runs",
             "--env",
@@ -235,8 +229,22 @@ fn run_clean_install(binary: &Path, docker: &str) -> Result<Value, String> {
                 container_logs(docker, &container)
             ));
         }
-        match raw_health(port).and_then(|payload| {
+        match probe_json(docker, &container, port, "/api/health").and_then(|payload| {
             validate_health(&payload)?;
+            let providers = probe_json(docker, &container, port, "/api/providers")?;
+            let rows = providers
+                .as_array()
+                .ok_or_else(|| "provider response is not an array".to_owned())?;
+            if rows.len() != 3
+                || rows.iter().any(|row| row["connected"] != false)
+                || rows
+                    .iter()
+                    .map(|row| row["id"].as_str())
+                    .collect::<Vec<_>>()
+                    != [Some("openai"), Some("gemini"), Some("anthropic")]
+            {
+                return Err(format!("unexpected clean provider rows: {providers}"));
+            }
             Ok(payload)
         }) {
             Ok(payload) => return Ok(payload),
@@ -257,7 +265,7 @@ fn run_clean_install(binary: &Path, docker: &str) -> Result<Value, String> {
 fn the_clean_install_health_shape_is_accepted() {
     let payload = json!({
         "status": "healthy",
-        "version": "0.4.6",
+        "version": "0.4.7",
         "platform": "linux",
         "modules": {"computer_use": false},
         "transport": {
@@ -275,7 +283,7 @@ fn the_clean_install_health_shape_is_accepted() {
 fn each_required_health_fact_is_checked() {
     let expected = json!({
         "status": "healthy",
-        "version": "0.4.6",
+        "version": "0.4.7",
         "platform": "linux",
         "modules": {"computer_use": false},
         "transport": {

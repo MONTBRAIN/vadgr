@@ -2,6 +2,66 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.4.7] - 2026-08-16
+
+### Added
+- Provider onboarding in the Rust daemon for OpenAI, Google Gemini and
+  Anthropic. OpenAI supports direct ChatGPT OAuth or an API key; Gemini and
+  Anthropic support API keys.
+- Native OpenAI Responses, Gemini `generateContent` and Anthropic Messages
+  adapters with authenticated catalog discovery and bounded readiness calls.
+- Additive provider connections, credential-scoped catalog snapshots and one
+  explicit machine default in normalized SQLite tables.
+- One cross-platform credential store using immutable, versioned JSON records
+  behind opaque database references. Linux, WSL and macOS enforce Unix owner,
+  mode and ACL checks. Windows enforces a protected current-user and SYSTEM
+  DACL and rejects reparse points.
+- `vadgr provider login|status|logout` and `vadgr model list|default` as thin
+  Python HTTP clients over the Rust provider routes.
+- A direct ChatGPT OAuth integration test, a three-provider coexistence test,
+  raw database secret inspection and loopback-only mutation coverage.
+
+### Changed
+- `vadgr pair` runs provider onboarding before it mints the first QR when the
+  Rust daemon has no connected machine default.
+- Omitted run provider and model values now resolve from the Rust database.
+  An explicit pair must exist in a connected authenticated catalog.
+- Clean install now proves the static binary starts with empty provider state
+  and serves all three disconnected built-in descriptors from a `scratch`
+  container.
+
+### Fixed
+- Static release builds use embedded Web PKI roots for provider TLS, so they do
+  not require a host certificate store that is absent from `scratch`.
+- Linux containers on a WSL-backed Docker engine report `linux`, while a daemon
+  running directly in WSL continues to report `wsl`.
+- A process already using the OAuth callback port no longer prevents API-key
+  providers or the daemon from starting. The callback listener retries, and an
+  OAuth start reports the unavailable port until it can bind.
+- Expired, cancelled and completed authentication attempts clear staged
+  credentials and OAuth verifier state. A late callback cannot revive an
+  expired attempt.
+- ChatGPT catalog requests use the backend protocol version instead of the
+  Vadgr product version, and native ChatGPT Responses requests omit the
+  unsupported output-token limit.
+- ChatGPT SSE decoding retains completed output items when the terminal frame
+  carries usage but no output array. Live text and tool calls are no longer
+  discarded as `NO_ACTION_TAKEN`.
+- Browser OAuth prints the authorization URL only when launching the browser
+  fails, using Click's documented zero-success return code correctly.
+
+### Removed
+- The Rust daemon no longer reads `providers.yaml` or another agent client's
+  credential store. Its Anthropic subscription OAuth and borrowed client
+  attribution are gone.
+
+### Notes
+- Python remains the default daemon until the `0.4.9` cutover. Its legacy
+  `providers.yaml` behavior is unchanged and is not imported into Rust state.
+- Provider credential files are plaintext at rest with owner-only operating
+  system access controls. This beta boundary does not protect against
+  malicious code already running as the same user.
+
 ## [0.4.6] - 2026-08-14
 
 ### Added

@@ -16,6 +16,8 @@ use vadgr_daemon::config::Config;
 use vadgr_daemon::db::Db;
 use vadgr_daemon::engine::control::RunContext;
 use vadgr_daemon::engine::mcp::{HostFactory, McpHost};
+use vadgr_daemon::engine::provider::credentials::CredentialStore;
+use vadgr_daemon::engine::provider::service::{ProviderEndpoints, ProviderService};
 use vadgr_daemon::engine::provider::{ModelClient, ModelFactory};
 use vadgr_daemon::engine::supervisor::RunSupervisor;
 use vadgr_daemon::engine::{Engine, McpError, ProviderError};
@@ -92,24 +94,23 @@ fn state_with(transport: Box<dyn Transport>) -> AppState {
         db.clone(),
         config.runs_dir.clone(),
     ));
-    let supervisor = RunSupervisor::new(
-        engine,
+    let supervisor = RunSupervisor::new(engine, db.clone(), ws.clone());
+    let credential_directory = std::env::temp_dir()
+        .join(format!("vadgr-provider-test-{}", uuid::Uuid::new_v4()))
+        .join("credentials");
+    let providers = ProviderService::new(
         db.clone(),
-        ws.clone(),
-        config.providers_path.clone(),
-    );
+        CredentialStore::new(credential_directory).unwrap(),
+        ProviderEndpoints::default(),
+    )
+    .unwrap();
     AppState {
         db,
         config,
         transport: Arc::from(transport),
         pairing: Arc::new(PairingStore::new(300)),
         ws,
-        providers: Arc::new(vec![serde_json::json!({
-            "id": "cached",
-            "name": "Cached provider",
-            "available": true,
-            "models": [],
-        })]),
+        providers,
         computer_use_setup: setup,
         computer_use_status: Arc::new(RwLock::new(serde_json::json!({
             "enabled": true,
@@ -173,7 +174,7 @@ async fn health_answers_without_a_token_because_it_is_the_probe() {
     .await;
     assert_eq!(status, StatusCode::OK);
     assert_eq!(body["status"], "healthy");
-    assert_eq!(body["version"], "0.4.6");
+    assert_eq!(body["version"], "0.4.7");
     assert_eq!(body["modules"]["computer_use"], true);
     assert!(["linux", "macos", "windows", "wsl"].contains(&body["platform"].as_str().unwrap()));
 }
@@ -376,7 +377,7 @@ async fn the_settings_write_uses_the_service_injected_into_application_state() {
 }
 
 #[tokio::test]
-async fn provider_reads_use_the_catalog_cached_at_startup() {
+async fn provider_reads_use_compiled_descriptors_and_local_state() {
     let (status, body) = send(
         state_with(Box::new(LoopbackTransport)),
         get("/api/providers"),
@@ -384,8 +385,39 @@ async fn provider_reads_use_the_catalog_cached_at_startup() {
     )
     .await;
     assert_eq!(status, StatusCode::OK);
-    assert_eq!(body[0]["id"], "cached");
-    assert_eq!(body[0]["available"], true);
+    assert_eq!(body[0]["id"], "openai");
+    assert_eq!(body[1]["id"], "gemini");
+    assert_eq!(body[2]["id"], "anthropic");
+    assert_eq!(body[0]["connected"], false);
+    assert_eq!(body[0]["available"], false);
+}
+
+#[tokio::test]
+async fn provider_mutations_reject_remote_sources_without_relying_on_the_global_gate() {
+    let peer = SocketAddr::new("100.64.0.9".parse().unwrap(), 5555);
+    let mut request = Request::builder()
+        .method("POST")
+        .uri("/api/providers/openai/auth-attempts")
+        .header("content-type", "application/json")
+        .body(Body::from(
+            r#"{"method":"api_key","api_key":"never-staged"}"#,
+        ))
+        .unwrap();
+    request
+        .extensions_mut()
+        .insert(axum::extract::ConnectInfo(peer));
+
+    let response = vadgr_daemon::routes::router(state_with(Box::new(EveryoneIsAPeer)))
+        .layer(axum::Extension(peer))
+        .oneshot(request)
+        .await
+        .unwrap();
+    let status = response.status();
+    let bytes = response.into_body().collect().await.unwrap().to_bytes();
+    let body: Value = serde_json::from_slice(&bytes).unwrap();
+
+    assert_eq!(status, StatusCode::FORBIDDEN);
+    assert_eq!(body["error"]["code"], "SOURCE_NOT_AUTHORIZED");
 }
 
 #[tokio::test]

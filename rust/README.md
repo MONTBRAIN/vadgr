@@ -3,13 +3,18 @@
 The daemon is moving to Rust across `0.4.5` to `0.4.9`, by a strangler through
 the API: this crate runs **beside** the Python daemon, on its own port and its
 own database. The unchanged previous-release harness runs against Python. The
-complete run surface also runs against Rust in the split `0.4.6` runbook.
+complete run surface also runs against Rust in the migration runbooks.
 
-**`0.4.6` includes the Rust engine.** The daemon starts runs through a direct
-Anthropic OAuth Messages client, exposes the eight in-process control tools,
-starts the installed `vadgr-cua` executable over MCP stdio, journals every
-model and tool boundary, and resumes interrupted work from the journal. It also
-owns cancellation and failed-only manual resume.
+**`0.4.7` adds provider onboarding to the Rust engine.** OpenAI connects through
+direct ChatGPT OAuth or an API key. Gemini and Anthropic connect through API
+keys. Connections coexist, authenticated model catalogs are stored in SQLite,
+and one explicit provider/model pair is the machine default. The daemon owns
+its credential records and calls each provider directly. It never reads or
+starts another agent client.
+
+The engine also exposes the eight in-process control tools, starts the installed
+`vadgr-cua` executable over MCP stdio, journals every model and tool boundary,
+and resumes interrupted work from the journal.
 
 Until the cutover at `0.4.9`, **the Python daemon is still the product.**
 
@@ -19,9 +24,10 @@ CI builds `vadgr-daemon` in release mode for `x86_64-unknown-linux-musl`. The
 result is a static Linux binary, so its clean-install image can be `scratch`:
 the image contains no shell, system libraries, build toolchain or development
 dependencies. The real entry point is the binary itself. A Rust integration
-test starts that installed binary and polls `GET /api/health` from outside the
-container until the complete `0.4.6` readiness response is present. Readiness
-does not start cua or read model credentials.
+test starts that installed binary. A separate BusyBox probe container joins the
+product container's network namespace and polls `GET /api/health` until the
+complete `0.4.7` readiness response is present. It also checks the three empty
+provider rows. Readiness does not start cua or contact a provider.
 
 The daemon has no system provisioning step. This static Linux artifact proves
 the install shape in CI; it is not the packaged four-platform product planned
@@ -41,8 +47,8 @@ VADGR_PORT=8156 VADGR_DB=/tmp/copy.db VADGR_TRANSPORT=tailscale \
 | `VADGR_PORT` | `8100` | not `8000`: both daemons run at once |
 | `VADGR_DB` | `data/vadgr-rust.db` | its own file, never the Python daemon's |
 | `VADGR_TRANSPORT` | `loopback` | or `tailscale` |
-| `VADGR_PROVIDERS` | `providers.yaml` | native providers; deprecated CLI rows are ignored |
 | `VADGR_RUNS_DIR` | native user home under `.vadgr/runs` | exact journal root override |
+| `VADGR_STATE_HOME` | platform local-state directory | exact override for provider credential records |
 | `VADGR_CONFIG_HOME` | platform config directory below | exact override for the directory containing daemon-owned `settings.json` |
 | `VADGR_COMPUTER_USE` | `true` | the default when daemon settings have no cua toggle |
 | `VADGR_CUA_BIN` | discovered | an explicit cua runtime path for transitional status |
@@ -76,8 +82,17 @@ executable file. Discovery does not start the runtime.
 `GET /api/computer-use/status` performs a bounded MCP initialize and tool-list
 probe only when cua is enabled and found.
 
-The Rust provider catalog includes only `kind: native` entries. It never starts
-an external agent CLI to test availability.
+The Rust provider catalog includes only compiled `kind: native` descriptors.
+`GET /api/providers` joins them with committed SQLite connection and catalog
+state. Rust never reads `providers.yaml` and never starts an external agent CLI
+to test availability.
+
+Provider secrets are separate immutable files below the platform local-state
+directory. SQLite stores only opaque references. Unix uses a `0700` directory,
+`0600` records, owner validation and extended-ACL rejection. Windows uses an
+explicit non-inheriting current-user and SYSTEM DACL. Every platform refuses
+links, publishes without replacing an existing record and caps each record at
+64 KiB.
 
 **Copy a database with `VACUUM INTO`, never `cp`.** The daemon runs SQLite in
 WAL mode, so a bare file copy is a different database: it carries what was last
