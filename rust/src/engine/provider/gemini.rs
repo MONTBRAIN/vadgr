@@ -290,13 +290,19 @@ fn convert_messages(messages: &[Message]) -> Vec<Value> {
 
 fn gemini_schema(value: &Value) -> Value {
     match value {
-        Value::Object(fields) => Value::Object(
-            fields
+        Value::Object(fields) => {
+            let mut normalized = fields
                 .iter()
                 .filter(|(name, _)| name.as_str() != "additionalProperties")
                 .map(|(name, value)| (name.clone(), gemini_schema(value)))
-                .collect(),
-        ),
+                .collect::<Map<String, Value>>();
+            if normalized.get("type").and_then(Value::as_str) == Some("array")
+                && !normalized.contains_key("items")
+            {
+                normalized.insert("items".to_owned(), Value::Object(Map::new()));
+            }
+            Value::Object(normalized)
+        }
         Value::Array(values) => Value::Array(values.iter().map(gemini_schema).collect()),
         _ => value.clone(),
     }
@@ -390,7 +396,8 @@ mod tests {
                         "headers": {
                             "type": "object",
                             "additionalProperties": {"type": "string"}
-                        }
+                        },
+                        "options": {"type": "array"}
                     },
                     "additionalProperties": false
                 }))
@@ -405,6 +412,7 @@ mod tests {
                 .get("additionalProperties")
                 .is_none()
         );
+        assert_eq!(parameters["properties"]["options"]["items"], json!({}));
     }
 
     #[test]

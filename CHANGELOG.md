@@ -32,7 +32,8 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Fixed
 - Gemini function declarations remove unsupported `additionalProperties`
-  fields before a request, so installed cua schemas pass live function calling.
+  fields and complete array item schemas before a request, so installed cua
+  and control schemas pass live function calling.
 - Anthropic low-credit responses map to the existing quota category instead of
   the generic provider-unavailable recovery path.
 - Static release builds use embedded Web PKI roots for provider TLS, so they do
