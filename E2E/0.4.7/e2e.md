@@ -243,19 +243,19 @@ carried here in full and is part of acceptance.
 
 | Part | Axes | Cells | Run | Open |
 |---|---|---:|---:|---:|
-| Surface inventory | published HTTP/callback/CLI/socket/absence cases plus branch cells | audit before rerun | 0 | all |
+| Surface inventory | 47 HTTP + 7 callback + 25 CLI + 22 branch cells | 101 | 0 | 101 |
 | A: onboarding | 4 credential paths x 6 assertions + 5 additive/default cells | 29 | 0 | 29 |
 | B: credential storage | 4 platforms x 8 assertions | 32 | 0 | 32 |
 | OS: installed product | 4 operating systems x 1 full live composition | 4 | 0 | 4 |
 | C: engine behavior | 25 carried native-loop cases | 25 | 0 | 25 |
-| Repeatability | 3 passes x 6 observables | 18 | 0 | 18 |
+| Repeatability | 3 independent passes, each reconciled across 6 observables | 3 | 0 | 3 |
 | D: restart continuation | 1 sequence x 7 assertions | 7 | 0 | 7 |
 | E: owner dogfood | 1 batch x 5 outcomes | 5 | 0 | 5 |
+| | | **206** | **0** | **206** |
 
 `Run` now means executed under the corrected public-entry-point method. The old
-numbers are retained only in the private acceptance-diagnostic evidence. The
-surface cell count must be regenerated from the corrected recorded session
-before the first live surface command.
+numbers are retained only in the private acceptance-diagnostic evidence. Every
+surface cell above has a stable id in the tables below.
 
 ## Surface coverage - every published endpoint, with what it returned
 
@@ -557,6 +557,9 @@ Linux, `BM` macOS, `BW` Windows native and `BQ` WSL.
 
 ## Installed product on every supported operating system
 
+The earlier OS-Q row is a superseded acceptance observation. The corrected E2E
+status of every OS cell is `not run`.
+
 These cells use a release artifact installed on that host, a real supported
 provider connection and the installed cua child. Compilation or a fake-provider
 credential matrix cannot substitute for them.
@@ -566,7 +569,7 @@ credential matrix cannot substitute for them.
 | OS-L | Native Linux desktop; installed release and cua; fresh state; one owner-supplied provider credential | Inspect the native OS/session, create a reversible file through cua, read it back, restart Vadgr and confirm provider persistence | Health says Linux; real model usage is nonzero; installed cua performs the effect; journal/API/CLI/both sockets agree; credential controls survive restart | Artifact hash, install command, provider rows, run id/journal/frames, read-back, restart rows | Delete file and isolated state | not run: native Linux host required |
 | OS-M | macOS desktop; installed release and cua; fresh state; one owner-supplied provider credential | Inspect macOS/session, create and read a reversible file through cua, restart and confirm persistence | Health says macOS; live provider and installed cua complete; journal/API/CLI/sockets and file read-back agree; local Application Support controls survive | Same artifacts as OS-L plus macOS ACL/owner metadata | Delete file and isolated state | not run: macOS host required |
 | OS-W | Native Windows desktop; installed release and cua; fresh state; one owner-supplied provider credential | Inspect Windows/session, create and read a reversible file through cua, restart and confirm persistence | Health says Windows; live provider and installed cua complete; journal/API/CLI/sockets and file read-back agree; AppData DACL survives | Same artifacts as OS-L plus Windows DACL/reparse metadata | Delete file and isolated state | not run: native Windows host required |
-| OS-Q | WSL2 release and installed cua with Windows UI reachability; fresh state; OpenAI OAuth | Inspect WSL and Windows desktop session, perform a reversible WSL/Windows UI task, read back from WSL and restart | Health says WSL; real usage and installed cua calls complete; Windows UI and WSL read-back agree; provider persists with `0700`/`0600` controls | Formal run ids, journals/frames, dogfood read-back, provider and credential matrix | Test file removed; isolated daemon stopped | pass |
+| OS-Q | WSL2 release and installed cua with Windows UI reachability; fresh state; OpenAI OAuth | Inspect WSL and Windows desktop session, perform a reversible WSL/Windows UI task, read back from WSL and restart | Health says WSL; real usage and installed cua calls complete; Windows UI and WSL read-back agree; provider persists with `0700`/`0600` controls | Formal run ids, journals/frames, dogfood read-back, provider and credential matrix | Test file removed; isolated daemon stopped | acceptance observation only; corrected E2E not run |
 
 ## Part C: full product path and engine behavior
 
@@ -614,6 +617,14 @@ journal. The A/B/C formal passes each reached `run_completed` and `completed`.
 Three agents used separate ports, databases, state roots, run roots, daemons,
 and provider attempts. Their CLI was source-driven, so this table does not close
 the E2E repeatability requirement. The corrected three-pass result is `not run`.
+
+| id | corrected pass requirement | result |
+|---|---|---|
+| R01 | Agent A uses its own port, database, state, runs, daemon and terminal `vadgr`; reconcile HTTP, CLI, raw socket, mobile socket, journal and usage | not run |
+| R02 | Agent B runs the identical fixture concurrently with R01 and R03 under its own isolated resources | not run |
+| R03 | Agent C runs the identical fixture concurrently with R01 and R02 under its own isolated resources | not run |
+
+The following table records the superseded acceptance observations only.
 
 | | pass A | pass B | pass C |
 |---|---|---|---|
