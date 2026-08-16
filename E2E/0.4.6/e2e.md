@@ -1,8 +1,11 @@
 # 0.4.6 - Rust engine: E2E runbook
 
-> Status: implementation verification passes; the full live run is blocked by
-> provider capacity. Results in this document come only from recorded commands.
-> An operating system with no live session is `not run`, never pass from CI.
+> Status: accepted by an explicit owner exception. Implementation verification
+> and the bounded live seam pass; the full live close remains blocked on the
+> Anthropic subscription OAuth path that `0.4.7` removes. The failed runs remain
+> `blocked`, never pass. Their unfinished acceptance coverage is a mandatory
+> carried gate for `0.4.7`. An operating system with no live session is `not
+> run`, never pass from CI.
 
 ## Preconditions
 
@@ -100,6 +103,15 @@ indistinguishable `failed` frames.
 
 The three successful live passes, structural comparison, bounded restart
 proof, and owner dogfood batch remain blocked while Anthropic rejects the full
-third-party request. The `0.4.7` provider correction does not retroactively
-close this runbook. The implementation PR must not be merged or tagged on this
-evidence alone.
+third-party request. The owner accepted `0.4.6` for merge and tagging under a
+one-release exception: the blocked results above are not relabeled, and a later
+binary does not retroactively make this binary pass.
+
+The exception moves the unfinished acceptance obligation, not its history.
+`0.4.7` cannot be accepted or tagged until its own provider-method checks are
+green and the supported replacement composition also completes the engine
+coverage held here: three independent successful full tool-using passes,
+structural comparison of both WebSocket streams and journals, bounded
+hard-kill/restart continuation, and the owner dogfood batch. OpenAI ChatGPT
+OAuth is the primary exhaustive path; OpenAI API key, Gemini API key and
+Anthropic API key must each complete their separately required live request.
