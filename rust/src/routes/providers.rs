@@ -5,7 +5,7 @@ use crate::state::AppState;
 use axum::extract::rejection::JsonRejection;
 use axum::extract::{ConnectInfo, Path, Query, State};
 use axum::http::StatusCode;
-use axum::response::{Html, IntoResponse, Response};
+use axum::response::{Html, IntoResponse, Redirect, Response};
 use axum::{Json, Router};
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -183,31 +183,39 @@ pub struct CallbackQuery {
 pub async fn oauth_callback(
     State(state): State<AppState>,
     Query(query): Query<CallbackQuery>,
-) -> Response {
-    match state
+) -> Redirect {
+    let accepted = query.error.is_none() && query.code.is_some();
+    let result = state
         .providers
-        .complete_oauth_callback(
-            &query.state,
-            query.code.as_deref(),
-            query.error.as_deref(),
-        )
-        .await
-    {
-        Ok(()) => Html(
-            "<!doctype html><title>Vadgr connected</title><p>Connection received. You can close this window.</p>",
-        )
-        .into_response(),
-        Err(_) => (
-            StatusCode::BAD_REQUEST,
-            Html("<!doctype html><title>Vadgr sign-in failed</title><p>The sign-in response was not accepted. Return to the terminal.</p>"),
-        )
-            .into_response(),
+        .complete_oauth_callback(&query.state, query.code.as_deref(), query.error.as_deref())
+        .await;
+    if result.is_ok() && accepted {
+        Redirect::to("/auth/complete")
+    } else {
+        Redirect::to("/auth/failed")
     }
+}
+
+pub async fn oauth_complete() -> Html<&'static str> {
+    Html(
+        "<!doctype html><title>Vadgr connected</title><p>Connection received. You can close this window.</p>",
+    )
+}
+
+pub async fn oauth_failed() -> (StatusCode, Html<&'static str>) {
+    (
+        StatusCode::BAD_REQUEST,
+        Html(
+            "<!doctype html><title>Vadgr sign-in failed</title><p>The sign-in response was not accepted. Return to the terminal.</p>",
+        ),
+    )
 }
 
 pub fn callback_router(state: AppState) -> Router {
     Router::new()
         .route("/auth/callback", axum::routing::get(oauth_callback))
+        .route("/auth/complete", axum::routing::get(oauth_complete))
+        .route("/auth/failed", axum::routing::get(oauth_failed))
         .with_state(state)
 }
 

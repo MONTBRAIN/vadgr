@@ -52,6 +52,9 @@ All notable changes to this project are documented here. Format follows [Keep a 
 - Browser OAuth launched from WSL now opens the Windows default browser through
   a fixed PowerShell command and sends the complete URL over stdin, preserving
   query parameters without exposing them in process arguments.
+- OAuth callbacks redirect immediately to query-free completion or failure
+  pages, so spent authorization parameters do not remain in the browser address
+  bar. A denied flow now shows failure instead of the connected page.
 
 ### Removed
 - The Rust daemon no longer reads `providers.yaml` or another agent client's

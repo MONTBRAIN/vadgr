@@ -180,6 +180,41 @@ async fn health_answers_without_a_token_because_it_is_the_probe() {
 }
 
 #[tokio::test]
+async fn oauth_cancellation_redirects_to_a_query_free_failure_page() {
+    let state = state_with(Box::new(LoopbackTransport));
+    let attempt = state.providers.start_oauth("openai").await.unwrap();
+    let authorization_url = url::Url::parse(attempt.authorization_url.as_deref().unwrap()).unwrap();
+    let oauth_state = authorization_url
+        .query_pairs()
+        .find(|(key, _)| key == "state")
+        .map(|(_, value)| value.into_owned())
+        .unwrap();
+    let callback = format!("/auth/callback?state={oauth_state}&error=access_denied");
+
+    let response = vadgr_daemon::routes::providers::callback_router(state.clone())
+        .oneshot(get(&callback))
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::SEE_OTHER);
+    assert_eq!(response.headers()["location"], "/auth/failed");
+    assert!(
+        !response.headers()["location"]
+            .to_str()
+            .unwrap()
+            .contains('?')
+    );
+
+    let page = vadgr_daemon::routes::providers::callback_router(state)
+        .oneshot(get("/auth/failed"))
+        .await
+        .unwrap();
+    assert_eq!(page.status(), StatusCode::BAD_REQUEST);
+    let body = page.into_body().collect().await.unwrap().to_bytes();
+    assert!(!String::from_utf8_lossy(&body).contains(&oauth_state));
+}
+
+#[tokio::test]
 async fn a_peer_with_no_token_gets_missing_token() {
     let (status, body) = send(
         state_with(Box::new(EveryoneIsAPeer)),

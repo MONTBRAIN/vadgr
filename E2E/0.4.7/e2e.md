@@ -8,7 +8,7 @@ without an external model CLI in the request path.
 > its clean install in `scratch` pass. Direct ChatGPT OAuth, authenticated model
 > discovery, readiness, credential persistence across restart, and one real
 > installed-cua run pass. Gemini, Anthropic, the full surface sweep,
-> repeatability, hard-kill continuation, and dogfood are open. **6 findings,
+> repeatability, hard-kill continuation, and dogfood are open. **7 findings,
 > all repaired and rerun.** Nothing is marked pass that was not executed and
 > read back.
 
@@ -54,13 +54,13 @@ logs, process listings, test records, and the evidence repository.
 | gate | result |
 |---|---|
 | complete Python suite | pass: 703 passed in 21.32s |
-| Rust all-target suite | pass: 168 passed, 1 Docker-only test ignored |
+| Rust all-target suite | pass: 169 passed, 1 Docker-only test ignored |
 | `cargo fmt --check` | pass |
 | `cargo check --all-targets` | pass |
 | `cargo clippy --all-targets -- -D warnings` | pass |
 | Windows credential module target check | pass |
 | macOS credential module target check | pass |
-| Linux musl release build | pass: static PIE, SHA-256 `9da75809acb625057a740fecfada4e2842143c29ae127916b45b04c14cd02fe9` |
+| Linux musl release build | pass: static PIE, SHA-256 `f0188e348863b08ef94b2c0919c1c1f5c39fa56391d71754a448bd0db0f973bb` |
 | clean install in `scratch` | pass: healthy `0.4.7`, Linux, loopback, cua disabled, three disconnected providers |
 | required GitHub Actions jobs | not run |
 
@@ -251,6 +251,7 @@ must not be present.
 | F4 | The first real OpenAI run consumed tokens but failed with `NO_ACTION_TAKEN`; its journal contained no tool call. | ChatGPT delivered the completed item in `response.output_item.done` while `response.completed` carried usage and an empty output array. The decoder read only the terminal frame and discarded the streamed item. | The SSE decoder accumulates completed output items and uses them when terminal output is empty. A regression test reproduces the live event sequence. | pass: the rerun completed in 12 iterations with installed cua calls, nonzero usage, matched journal phases, one handled tool error, and a final verified report |
 | F5 | The CLI printed the fallback authorization URL after a successful browser launch and hid it after a failed launch. | Click returns process-style status `0` for a successful launch, but the branch treated that value as false. | The branch now compares the launch status to zero explicitly. A regression test forces a nonzero result and requires the URL in output. | pass: focused provider CLI suite, 9 tests |
 | F6 | WSL did not open the Windows browser, and an E2E-only `cmd.exe start` workaround delivered a malformed OAuth request with missing parameters. | Click's Linux launcher could not cross the WSL desktop boundary. The command-shell workaround also gave `cmd.exe` an OAuth URL whose query delimiters are shell syntax. | WSL now invokes a fixed Windows PowerShell script without a shell-built URL and sends the complete authorization URL over stdin. Tests require that the URL is absent from argv and preserved exactly as input. Other platforms retain Click's native launcher. | pass: focused provider CLI suite, 10 tests; formal browser rerun pending |
+| F7 | The formal work-run screenshots captured the spent OAuth callback query from Chrome's address bar. A denied callback also rendered the connected page. | The callback returned its final HTML directly on the URL that carried `code` and `state`, and the route treated a cleanly recorded cancellation as a successful connection. | Every callback now redirects to a parameter-free completion or failure route. A route-level regression requires `303`, a query-free `Location`, a generic final page, and failure status for cancellation. Evidence copies replace affected screenshot payloads with explicit redaction records while preserving hashes and sizes. | focused route regression passes; browser address-bar rerun pending |
 
 The probe also moved from host networking to a separate BusyBox container that
 joins the product container's network namespace. Docker Desktop does not expose
