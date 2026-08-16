@@ -127,6 +127,16 @@ gate result: it is the weakest of the parts actually driven on that OS. This
 shipped once and was caught in review, with two platforms marked `pass (CI)`
 while their own live rows read `not run`. **A suite is not a session.**
 
+**The runbook is complete before the first live cell runs.** Every surface
+branch and enum-shaped edge case is an independently executable cell with a
+stable id, precondition, setup, action or goal, expected observable, machine
+oracle, evidence boundary, cleanup and result slot. A prose list, a count with
+no matching cells or a "remaining matrix" row is unfinished. List every
+required credential, paid account, OS, device, application, permission,
+destructive action and owner decision up front, map each to its cells, and
+inform the owner before the affected group runs. Missing setup blocks written
+cells; it never deletes or collapses them.
+
 **The e2e is run before the PR is published, and the owner reviews the results,
 not a plan.** Whoever builds the change runs the e2e the feature needs - a browser
 change against real sites, a desktop or structured change against real

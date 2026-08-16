@@ -104,6 +104,23 @@ curl.
 - If neither a journal nor a transcript is available, the test is **not
   verified** - say so. Do not infer a pass.
 
+## Complete the runbook before the first live cell
+
+Every surface branch and enum-shaped edge case is a separate executable cell
+before credentials are spent or a daemon is started for live evidence. Each
+cell has a stable id, precondition, setup, goal or action, expected observable,
+independent oracle, evidence captured at its boundary, cleanup and result slot.
+A prose list, an unmatched coverage count or a row called "remaining matrix"
+is an unfinished runbook.
+
+Put every owner-supplied prerequisite in one table before the cells: provider
+keys, paid or quota-bearing accounts, operating-system hosts, devices,
+applications, permissions, destructive actions and owner decisions. Map each
+item to its cells, verify availability without printing secrets, and state cost
+and cleanup. Inform the owner before the affected group starts. If an item is
+unavailable, the written cells become `blocked`; they are never deleted,
+collapsed or replaced with a smaller matrix after execution begins.
+
 ## Test what this minor can test, and nothing more
 
 A runbook covers **what is testable now**. A check that cannot be run because

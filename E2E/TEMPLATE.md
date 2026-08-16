@@ -47,6 +47,17 @@ claude --dangerously-skip-permissions --output-format stream-json --verbose -p \
   | tee /tmp/e2e-<version>.jsonl
 ```
 
+## Owner and environment requirements
+
+<Complete this table before the first live cell. Tell the owner what is needed
+before the affected group starts. Never print or persist a secret while checking
+availability. A missing item blocks the already-written cells; it does not
+remove them or reduce the matrix.>
+
+| requirement | cells | non-secret availability check | cost or destructive effect | cleanup |
+|---|---|---|---|---|
+| <credential, billed account, OS/host, device, app, permission or decision> | <ids> | <present/absent check> | <none or exact boundary> | <action> |
+
 ## Prerequisites
 
 <Everything a fresh machine needs, precisely enough to paste. Credentials,
@@ -146,9 +157,13 @@ wired, and that is a state nobody notices until a client calls it.>
 
 ## Part <X>: <what it proves>
 
-| # | What | Expected | Status |
-|---|---|---|---|
-| X1 | <the check> | <the observable outcome, not "works"> | <pass / fail -> Fn / not run> |
+<Every counted case is a row before execution. Its Status column is the result
+slot. Do not use aggregate placeholders such as "remaining matrix" or leave
+edge cases in prose.>
+
+| # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
+|---|---|---|---|---|---|---|
+| X1 | <state and setup> | <goal-level task or action> | <observable result and independent machine oracle> | <files/records captured now> | <restore/remove> | <pass / fail -> Fn / blocked: reason / not run> |
 
 **Measured.** <The actual output, pasted. Ids, counts, tokens, exit codes -
 whatever a reader would need to disbelieve you with. A table of passes and no
