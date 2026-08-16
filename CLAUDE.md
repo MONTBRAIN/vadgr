@@ -69,7 +69,7 @@ written down and broken twice in an hour.
 **4. PR bodies carry code, tests, user-visible changes and caveats.** No
 methodology narration, no SOLID tables, no design-doc citations.
 
-+## Cross-platform PR handoff
+## Cross-platform PR handoff
 
 **One real operating-system pass opens the PR; every required operating system
 still gates merge.** This applies to machine-side changes in `vadgr` and
