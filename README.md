@@ -131,7 +131,7 @@ The provider-agnostic loop that owns the conversation history, calls the model, 
 
 ### [rust/](rust/) - The daemon, being rewritten
 
-The daemon is moving to Rust, and this crate runs **beside** the Python one on its own port and its own database until the cutover. `0.4.5` is the daemon minus the engine: it serves everything that does not need the loop, and cannot start or resume a run. Until the cutover, the Python daemon is still the product. See [rust/README.md](rust/README.md).
+The daemon is moving to Rust, and this crate runs **beside** the Python one on its own port and its own database until the cutover. `0.4.6` includes the native model loop, the built-in control plane, cua over MCP, durable journals, cancellation, manual resume, and recovery on boot. Until the cutover, the Python daemon is still the default product entry point. See [rust/README.md](rust/README.md).
 
 ### Desktop Automation
 
@@ -208,4 +208,3 @@ Vadgr/
    ```bash
    git push -u origin feature/your-change
    ```
-

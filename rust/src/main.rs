@@ -1,18 +1,17 @@
-//! `vadgr 0.4.5` - the daemon minus the engine.
+//! `vadgr 0.4.6` - the Rust daemon with its native engine.
 //!
-//! The first Rust release. It adds no product capability. It runs
-//! **beside** the Python daemon on its own port and its own database for four
+//! The second Rust release. It adds no product capability. It runs
+//! **beside** the Python daemon on its own port and its own database for five
 //! releases; that is what "strangler" means, and it is what keeps every step
 //! reversible.
 //!
-//! **This daemon cannot start a run.** `POST /api/runs` and
-//! `POST /api/runs/{id}/resume` need a loop behind them and the loop is
-//! `0.4.6`'s, so they are absent rather than stubbed and the runbook cells that
-//! trigger a run are held.
-
 // The modules live in the library (`lib.rs`) and the binary uses them from
 // there rather than declaring them a second time. Declaring both compiles every
 // module twice and makes anything the binary happens not to call look dead.
+use vadgr_daemon::engine::Engine;
+use vadgr_daemon::engine::mcp::DefaultHostFactory;
+use vadgr_daemon::engine::provider::NativeModelFactory;
+use vadgr_daemon::engine::supervisor::RunSupervisor;
 use vadgr_daemon::{auth, computer_use_setup, config, db, routes, transport, ws};
 
 use anyhow::Result;
@@ -36,6 +35,28 @@ async fn main() -> Result<()> {
     let providers = config::provider_catalog(&config.providers_path);
     let computer_use_setup = Arc::new(computer_use_setup::SetupService::from_env()?);
     let computer_use_status = computer_use_setup.status()?;
+    let ws = Arc::new(ws::manager::ConnectionManager::new());
+    let model_factory = Arc::new(NativeModelFactory::native()?);
+    let host_factory = Arc::new(DefaultHostFactory::new(computer_use_setup.clone()));
+    let engine = Arc::new(Engine::new(
+        model_factory,
+        host_factory,
+        db.clone(),
+        config.runs_dir.clone(),
+    ));
+    let supervisor = RunSupervisor::new(
+        engine,
+        db.clone(),
+        ws.clone(),
+        config.providers_path.clone(),
+    );
+    let recovery = supervisor.recover_on_boot().await;
+    tracing::info!(
+        resumed = recovery.resumed.len(),
+        parked = recovery.parked.len(),
+        failed = recovery.failed.len(),
+        "run recovery scan complete"
+    );
 
     let bind_hosts = transport::bind_hosts(transport.as_ref());
     let port = config.port;
@@ -47,10 +68,11 @@ async fn main() -> Result<()> {
         pairing: Arc::new(auth::pairing::PairingStore::new(
             auth::pairing::PAIRING_TTL_SECONDS,
         )),
-        ws: Arc::new(ws::manager::ConnectionManager::new()),
+        ws,
         providers: Arc::new(providers),
         computer_use_setup,
         computer_use_status: Arc::new(RwLock::new(computer_use_status)),
+        supervisor,
     };
 
     let app = routes::router(state.clone())

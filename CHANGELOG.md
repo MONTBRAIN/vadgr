@@ -2,6 +2,49 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.4.6] - 2026-08-14
+
+### Added
+- A native Rust model loop with typed Anthropic Messages responses, stable tool
+  ordering, sequential dispatch, image pruning, token totals, and explicit
+  termination rules.
+- A direct Anthropic OAuth provider with the required validator headers,
+  bounded retries, one credential refresh after `401`, native credential paths
+  on Linux, WSL and Windows, and Security.framework on macOS.
+- A two-server MCP host with the eight in-process control tools first and the
+  installed `vadgr-cua` executable second. Cua is started by direct native argv,
+  never by a shell or external client configuration.
+- Append-only, secret-redacted run journals with synced writes before tool side
+  effects, bounded recovery context, dangling-call revalidation, and recovery
+  of every active database row at boot.
+- Engine-backed `POST /api/runs` and `POST /api/runs/{id}/resume`, plus one
+  supervisor that owns start, failed-only resume, cancellation, terminal-state
+  races, and task cleanup.
+
+### Changed
+- `GET /api/computer-use/status` now probes the configured cua server through
+  MCP and reports available only after initialization and tool listing succeed.
+- The Rust dependency lock now uses current release lines, including
+  `reqwest 0.13.4` and `rmcp 3.1.2`.
+- The static clean-install gate uses an isolated journal root and still starts
+  without cua, credentials, a home directory, runtime libraries, or build tools.
+
+### Fixed
+- A first-turn narrative can no longer complete a run without action.
+  `end_turn` succeeds only after at least one closed tool call; `max_tokens`,
+  malformed `tool_use`, and unknown terminal reasons fail by name.
+- Cancel and completion race through conditional database writes, so a late
+  task cannot replace `cancelled` and stale task cleanup cannot remove a newer
+  execution of the same run.
+- Recovery never blindly dispatches a tool call whose outcome became unknown
+  when the daemon stopped.
+
+### Notes
+- Python remains the default daemon until the `0.4.9` cutover. The Rust crate
+  stays under `rust/` and runs beside it on a separate port and database.
+- This release starts an installed cua executable but does not package cua.
+  Bundling the pinned runtime is later distribution work.
+
 ## [0.4.5] - 2026-08-11
 
 **The daemon is being rewritten in Rust, and this is the first release of it.**

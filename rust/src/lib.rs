@@ -8,6 +8,7 @@ pub mod auth;
 pub mod computer_use_setup;
 pub mod config;
 pub mod db;
+pub mod engine;
 pub mod error;
 pub mod platform;
 pub mod routes;

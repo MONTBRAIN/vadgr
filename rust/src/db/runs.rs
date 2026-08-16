@@ -70,6 +70,71 @@ pub fn get(db: &Db, run_id: &str) -> rusqlite::Result<Option<Value>> {
     })
 }
 
+pub fn create(
+    db: &Db,
+    task: &str,
+    provider: Option<&str>,
+    model: Option<&str>,
+) -> rusqlite::Result<Value> {
+    let id = format!("run-{}", uuid::Uuid::new_v4().simple());
+    let inputs = json!({"task": task}).to_string();
+    db.with(|connection| {
+        connection.execute(
+            "INSERT INTO runs (id, title, status, inputs, outputs, provider, model) VALUES (?1, ?2, 'queued', ?3, '{}', ?4, ?5)",
+            rusqlite::params![id, task, inputs, provider, model],
+        )?;
+        Ok(())
+    })?;
+    get(db, &id)?.ok_or(rusqlite::Error::QueryReturnedNoRows)
+}
+
+pub fn set_config(
+    db: &Db,
+    run_id: &str,
+    provider: &str,
+    model: &str,
+) -> rusqlite::Result<Option<Value>> {
+    db.with(|connection| {
+        connection.execute(
+            "UPDATE runs SET provider = ?1, model = ?2 WHERE id = ?3",
+            rusqlite::params![provider, model, run_id],
+        )?;
+        Ok(())
+    })?;
+    get(db, run_id)
+}
+
+pub fn active(db: &Db) -> rusqlite::Result<Vec<Value>> {
+    db.with(|connection| {
+        let mut statement = connection.prepare(&format!(
+            "SELECT {COLS} FROM runs WHERE status IN ('queued', 'running', 'awaiting_approval') ORDER BY started_at IS NULL, started_at"
+        ))?;
+        statement
+            .query_map([], row_to_json)?
+            .collect::<rusqlite::Result<Vec<_>>>()
+    })
+}
+
+pub fn finish_if_active(
+    db: &Db,
+    run_id: &str,
+    status: &str,
+    outputs: &Value,
+) -> rusqlite::Result<Option<Value>> {
+    let now = super::now_iso();
+    let changed = db.with(|connection| {
+        connection.execute(
+            "UPDATE runs SET status = ?1, outputs = ?2, completed_at = ?3 WHERE id = ?4 AND status IN ('queued', 'running', 'awaiting_approval')",
+            rusqlite::params![status, outputs.to_string(), now, run_id],
+        )
+    })?;
+    if changed == 0 {
+        Ok(None)
+    } else {
+        get(db, run_id)
+    }
+}
+
 /// The status column is free `TEXT`, and this does not promote it to an enum.
 ///
 /// Both daemons run against copies of the same database during the migration,

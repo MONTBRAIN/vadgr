@@ -152,7 +152,7 @@ jobs:
 
   # ----- the rust daemon -----
   # The crate is judged here rather than only on a developer's machine: from
-  # 0.4.5 the daemon is being rewritten beside the Python one, and a suite that
+  # 0.4.5 onward the daemon is being rewritten beside Python, and a suite that
   # only ever runs locally is a suite that stops running.
   rust:
     strategy:

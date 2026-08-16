@@ -76,6 +76,14 @@ impl ApiError {
         )
     }
 
+    pub fn run_not_resumable(status: &str) -> Self {
+        Self::new(
+            StatusCode::CONFLICT,
+            "RUN_NOT_RESUMABLE",
+            format!("Only failed runs can be resumed (current status: {status})"),
+        )
+    }
+
     // The two gate messages are Python's, verbatim, and they are deliberately
     // the SAME string for both codes. Splitting them would read better and is
     // a contract change this release does not own: the codes carry

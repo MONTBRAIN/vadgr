@@ -4,6 +4,7 @@ use crate::auth::pairing::PairingStore;
 use crate::computer_use_setup::SetupService;
 use crate::config::Config;
 use crate::db::Db;
+use crate::engine::supervisor::RunSupervisor;
 use crate::transport::Transport;
 use crate::ws::manager::ConnectionManager;
 use serde_json::Value;
@@ -20,4 +21,5 @@ pub struct AppState {
     pub providers: Arc<Vec<Value>>,
     pub computer_use_setup: Arc<SetupService>,
     pub computer_use_status: Arc<RwLock<Value>>,
+    pub supervisor: Arc<RunSupervisor>,
 }
