@@ -4,7 +4,13 @@ import click
 from click.testing import CliRunner
 
 from cli.client import ApiClientError
-from cli.commands.provider import _poll_oauth, model_default, model_list, provider_login
+from cli.commands.provider import (
+    _launch_authorization_url,
+    _poll_oauth,
+    model_default,
+    model_list,
+    provider_login,
+)
 
 
 def _row(provider="openai", name="OpenAI", *, default=True):
@@ -75,6 +81,21 @@ def test_openai_chatgpt_flow_has_one_method_question_and_no_internal_questions()
         assert internal not in result.output.lower()
 
 
+def test_wsl_browser_launch_passes_the_complete_url_over_stdin():
+    authorization_url = "https://auth.example/authorize?client_id=one&state=two"
+    completed = mock.Mock(returncode=0)
+
+    with mock.patch("cli.commands.provider._is_wsl", return_value=True), \
+         mock.patch("cli.commands.provider.shutil.which", return_value="powershell.exe"), \
+         mock.patch("cli.commands.provider.subprocess.run", return_value=completed) as run, \
+         mock.patch("cli.commands.provider.click.launch") as native_launch:
+        assert _launch_authorization_url(authorization_url)
+
+    assert authorization_url not in run.call_args.args[0]
+    assert run.call_args.kwargs["input"] == authorization_url
+    native_launch.assert_not_called()
+
+
 def test_oauth_prints_the_authorization_url_when_browser_launch_fails():
     runner = CliRunner()
     attempt = {
@@ -88,7 +109,7 @@ def test_oauth_prints_the_authorization_url_when_browser_launch_fails():
     def command(ctx):
         _poll_oauth(ctx, attempt)
 
-    with mock.patch("cli.commands.provider.click.launch", return_value=1), \
+    with mock.patch("cli.commands.provider._launch_authorization_url", return_value=False), \
          mock.patch("cli.commands.provider.api_get", return_value={
              "id": "pa_oauth", "status": "authenticated"
          }):

@@ -49,6 +49,9 @@ All notable changes to this project are documented here. Format follows [Keep a 
   discarded as `NO_ACTION_TAKEN`.
 - Browser OAuth prints the authorization URL only when launching the browser
   fails, using Click's documented zero-success return code correctly.
+- Browser OAuth launched from WSL now opens the Windows default browser through
+  a fixed PowerShell command and sends the complete URL over stdin, preserving
+  query parameters without exposing them in process arguments.
 
 ### Removed
 - The Rust daemon no longer reads `providers.yaml` or another agent client's

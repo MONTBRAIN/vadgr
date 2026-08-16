@@ -8,7 +8,7 @@ without an external model CLI in the request path.
 > its clean install in `scratch` pass. Direct ChatGPT OAuth, authenticated model
 > discovery, readiness, credential persistence across restart, and one real
 > installed-cua run pass. Gemini, Anthropic, the full surface sweep,
-> repeatability, hard-kill continuation, and dogfood are open. **5 findings,
+> repeatability, hard-kill continuation, and dogfood are open. **6 findings,
 > all repaired and rerun.** Nothing is marked pass that was not executed and
 > read back.
 
@@ -53,7 +53,7 @@ logs, process listings, test records, and the evidence repository.
 
 | gate | result |
 |---|---|
-| complete Python suite | pass: 702 passed in 22.90s |
+| complete Python suite | pass: 703 passed in 21.32s |
 | Rust all-target suite | pass: 168 passed, 1 Docker-only test ignored |
 | `cargo fmt --check` | pass |
 | `cargo check --all-targets` | pass |
@@ -250,6 +250,7 @@ must not be present.
 | F3 | The first direct ChatGPT connection returned no usable models, then readiness returned HTTP 400 after catalog discovery was repaired. | The catalog used Vadgr `0.4.7` as a ChatGPT protocol capability version, and the Responses body sent `max_output_tokens`, which the native ChatGPT route does not support. | The catalog has an explicit protocol version independent of the product version. The ChatGPT request omits the unsupported field while the API-key request retains it. Both boundaries have regression tests. | pass: browser OAuth, catalog discovery, bounded readiness, credential commit, and default selection completed |
 | F4 | The first real OpenAI run consumed tokens but failed with `NO_ACTION_TAKEN`; its journal contained no tool call. | ChatGPT delivered the completed item in `response.output_item.done` while `response.completed` carried usage and an empty output array. The decoder read only the terminal frame and discarded the streamed item. | The SSE decoder accumulates completed output items and uses them when terminal output is empty. A regression test reproduces the live event sequence. | pass: the rerun completed in 12 iterations with installed cua calls, nonzero usage, matched journal phases, one handled tool error, and a final verified report |
 | F5 | The CLI printed the fallback authorization URL after a successful browser launch and hid it after a failed launch. | Click returns process-style status `0` for a successful launch, but the branch treated that value as false. | The branch now compares the launch status to zero explicitly. A regression test forces a nonzero result and requires the URL in output. | pass: focused provider CLI suite, 9 tests |
+| F6 | WSL did not open the Windows browser, and an E2E-only `cmd.exe start` workaround delivered a malformed OAuth request with missing parameters. | Click's Linux launcher could not cross the WSL desktop boundary. The command-shell workaround also gave `cmd.exe` an OAuth URL whose query delimiters are shell syntax. | WSL now invokes a fixed Windows PowerShell script without a shell-built URL and sends the complete authorization URL over stdin. Tests require that the URL is absent from argv and preserved exactly as input. Other platforms retain Click's native launcher. | pass: focused provider CLI suite, 10 tests; formal browser rerun pending |
 
 The probe also moved from host networking to a separate BusyBox container that
 joins the product container's network namespace. Docker Desktop does not expose

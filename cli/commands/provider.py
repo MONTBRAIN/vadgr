@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import os
+import platform
+import shutil
+import subprocess
 import time
 from typing import Iterable
 
@@ -60,12 +63,50 @@ def _api_key(provider: str) -> str:
                         confirmation_prompt=False)
 
 
+def _is_wsl() -> bool:
+    return "microsoft" in platform.release().lower()
+
+
+def _launch_authorization_url(authorization_url: str) -> bool:
+    if _is_wsl():
+        powershell = shutil.which("powershell.exe")
+        if powershell:
+            command = (
+                "$url = [Console]::In.ReadToEnd(); "
+                "if ([string]::IsNullOrWhiteSpace($url)) { exit 2 }; "
+                "Start-Process -FilePath $url"
+            )
+            try:
+                launched = subprocess.run(
+                    [
+                        powershell,
+                        "-NoLogo",
+                        "-NoProfile",
+                        "-NonInteractive",
+                        "-Command",
+                        command,
+                    ],
+                    input=authorization_url,
+                    text=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    timeout=10,
+                    check=False,
+                )
+            except (OSError, subprocess.SubprocessError):
+                pass
+            else:
+                if launched.returncode == 0:
+                    return True
+    return click.launch(authorization_url) == 0
+
+
 def _poll_oauth(ctx: click.Context, attempt: dict) -> dict:
     authorization_url = attempt.get("authorization_url")
     if not authorization_url:
         raise click.ClickException("The daemon did not return an authorization URL.")
     click.echo("\nOpening your browser...")
-    if click.launch(authorization_url) != 0:
+    if not _launch_authorization_url(authorization_url):
         click.echo(f"Open this URL:\n  {authorization_url}")
     deadline = time.monotonic() + 600
     while time.monotonic() < deadline:
