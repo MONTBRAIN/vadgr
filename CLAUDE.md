@@ -85,6 +85,23 @@ the PR is not merge-ready until every required OS is `pass` or has an approved
 `Not-Needed` reason, every finding is resolved, and the final branch checks pass.
 Opening the PR is a collaboration gate. It is never cross-platform acceptance.
 
+## Current research before design
+
+**An iteration starts from dated evidence, not remembered facts.** Run `date`
+when the iteration starts and record that date in every design doc. Before a
+design decision, use web search and upstream source search for every fact that
+can change: providers, models, authentication, API endpoints, SDKs and
+libraries, platform behavior, lifecycle or deprecation status, limits and
+pricing. Prefer current primary official sources. When documentation does not
+settle open-source behavior, inspect the current upstream source and record its
+exact commit. For account-scoped provider facts, also inspect the authenticated
+catalog or run a bounded live probe.
+
+The design's `Research basis` records the URLs, dates, exact versions, model ids
+or commits, and the capability evidence that informed the design. Recheck
+changing facts on the implementation and e2e execution dates. If current
+evidence is unavailable, stop; memory and stale examples are not design input.
+
 ## Billed E2E model selection
 
 **No billed model call starts from a remembered or flagship default.** On the
@@ -94,6 +111,11 @@ supports the exact endpoint, function or tool calling, content types, context,
 and multi-turn behavior the cell exercises. Record the model id, capability
 evidence, input/output price, expected worst-case usage, hard iteration/token
 and cost ceilings, and the condition for any escalation before the call.
+
+Pixel or screenshot CUA requires image input and image-bearing tool-result
+continuation on the selected endpoint. Verify both against current official
+model documentation and the authenticated catalog. A text-only model cannot
+close a visual cell, regardless of its lower price.
 
 An automatic product-selected model is tested once because it is user-visible
 behavior. Repeated provider-neutral work uses an explicit cost-effective model.

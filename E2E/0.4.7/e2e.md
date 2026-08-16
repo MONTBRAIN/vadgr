@@ -68,11 +68,11 @@ cost estimate.
 
 | cells | provider/auth | required capability | explicit engine model | official price checked 2026-08-16 | hard group ceiling | escalation |
 |---|---|---|---|---|---|---|
-| A01-A06 | OpenAI ChatGPT OAuth | Responses, function calls, multi-turn tool results | `gpt-5.6-luna` when the OAuth catalog offers it | [OpenAI model page](https://developers.openai.com/api/docs/models/gpt-5.6-luna): $0.20 input / $1.20 output per MTok; subscription OAuth exposes no attributable API charge | one product-selected readiness plus one explicit run; 6 engine iterations; 100k input; 2k output; no monetary claim | none without a distinct protocol cell |
-| A07-A12, S08c | OpenAI Platform API key | Responses, function calls, multi-turn tool results | `gpt-5.6-luna` | [OpenAI model page](https://developers.openai.com/api/docs/models/gpt-5.6-luna): $0.20 input / $1.20 output per MTok | one readiness plus one run; 6 iterations; 100k input; 2k output; $0.05 | re-research only if Luna is absent or fails a recorded capability assertion |
-| A13-A18, S08d | Gemini API key | `generateContent`, function calls, thought-signature continuation | `gemini-3.5-flash-lite` | [Gemini model page](https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite): $0.30 input / $2.50 output per MTok | one readiness plus one run; 6 iterations; 100k input; 2k output; $0.05 | re-research only if Flash-Lite is absent or fails a recorded capability assertion |
-| A19-A24, S08e | Anthropic API key | Messages, client tools, multi-turn tool results | `claude-haiku-4-5-20251001` | [Claude model overview](https://platform.claude.com/docs/en/about-claude/models/overview): $1 input / $5 output per MTok | one readiness plus one run; 6 iterations; 100k input; 2k output; $0.15 | Sonnet only for a prewritten model-specific cell or recorded Haiku capability failure; never Fable or Opus for this generic task |
-| A25-A29, S05 | ChatGPT OAuth plus Gemini API key | coexistence, explicit Gemini run, default switch and delete | OAuth product choice once; `gemini-3.5-flash-lite` for the engine run | same OpenAI and Gemini sources above | one OAuth readiness, one Gemini readiness and one Gemini run; 6 engine iterations; 100k input; 2k output; $0.05 attributable API spend | none without a distinct protocol cell |
+| A01-A06 | OpenAI ChatGPT OAuth | Responses, function calls, multi-turn tool results; image input and image-bearing tool-result continuation for pixel/C12 cells | `gpt-5.6-luna` when the OAuth catalog offers it | [OpenAI model page](https://developers.openai.com/api/docs/models/gpt-5.6-luna): $0.20 input / $1.20 output per MTok; subscription OAuth exposes no attributable API charge | one product-selected readiness plus one explicit run; 6 engine iterations; 100k input; 2k output; no monetary claim | none without a distinct protocol cell |
+| A07-A12, S08c | OpenAI Platform API key | Responses, function calls, multi-turn tool results; image input and image-bearing tool-result continuation for pixel/C12 cells | `gpt-5.6-luna` | [OpenAI model page](https://developers.openai.com/api/docs/models/gpt-5.6-luna): $0.20 input / $1.20 output per MTok | one readiness plus one run; 6 iterations; 100k input; 2k output; $0.05 | re-research only if Luna is absent or fails a recorded capability assertion |
+| A13-A18, S08d | Gemini API key | `generateContent`, function calls, thought-signature continuation; image input and image-bearing tool-result continuation for pixel/C12 cells | `gemini-3.5-flash-lite` | [Gemini model page](https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite): $0.30 input / $2.50 output per MTok | one readiness plus one run; 6 iterations; 100k input; 2k output; $0.05 | re-research only if Flash-Lite is absent or fails a recorded capability assertion |
+| A19-A24, S08e | Anthropic API key | Messages, client tools, multi-turn tool results; image input and image-bearing tool-result continuation for pixel/C12 cells | `claude-haiku-4-5-20251001` | [Claude model overview](https://platform.claude.com/docs/en/about-claude/models/overview): $1 input / $5 output per MTok | one readiness plus one run; 6 iterations; 100k input; 2k output; $0.15 | Sonnet only for a prewritten model-specific cell or recorded Haiku capability failure; never Fable or Opus for this generic task |
+| A25-A29, S05 | ChatGPT OAuth plus Gemini API key | coexistence, explicit Gemini run, default switch and delete; image input and image-bearing tool-result continuation if the run enters pixel CUA | OAuth product choice once; `gemini-3.5-flash-lite` for the engine run | same OpenAI and Gemini sources above | one OAuth readiness, one Gemini readiness and one Gemini run; 6 engine iterations; 100k input; 2k output; $0.05 attributable API spend | none without a distinct protocol cell |
 
 The earlier accepted ChatGPT runs used `gpt-5.6-sol`, and the accepted Gemini
 run used `gemini-3.7-flash`, before this policy was added. Their evidence remains
@@ -81,6 +81,13 @@ Before another billed group runs, its driver must cancel at any ceiling and the
 result row must record actual tokens plus calculated cost. A model comparison
 adds coverage only when the adapter contract differs; sampling extra models for
 its own sake is prohibited.
+
+The cited model pages currently declare image input for Luna, Flash-Lite and
+Haiku 4.5. That documentation is not enough by itself: before C12 or any pixel
+CUA task, the authenticated catalog must expose the same capability and the
+driver must prove that an image tool result reaches the next provider turn. If
+either check fails, the visual cell is blocked; a text-only pass cannot replace
+it.
 
 ## Prerequisites
 

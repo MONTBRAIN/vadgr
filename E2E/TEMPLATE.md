@@ -78,7 +78,10 @@ billed call with a blank ceiling or an unrecorded escalation path.>
 
 <Test another model only for a distinct protocol/capability class or a
 prewritten model-specific cell. Record actual tokens and calculated cost after
-the group. Stop when any ceiling is reached.>
+the group. Stop when any ceiling is reached. Pixel or screenshot CUA requires
+image input for the selected endpoint and image-bearing tool-result
+continuation into the next model turn; record both in `required capabilities`.
+A text-only model cannot close that visual group.>
 
 ## Prerequisites
 
