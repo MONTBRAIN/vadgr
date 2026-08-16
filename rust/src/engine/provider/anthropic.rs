@@ -117,6 +117,7 @@ impl AnthropicMessagesClient {
                     input: block.get("input").cloned().ok_or_else(|| {
                         ProviderError::InvalidResponse("tool_use block has no input".to_owned())
                     })?,
+                    provider_signature: None,
                 },
                 other => {
                     return Err(ProviderError::InvalidResponse(format!(

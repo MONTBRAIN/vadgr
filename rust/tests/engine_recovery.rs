@@ -82,6 +82,7 @@ impl ModelFactory for RecoveryModelFactory {
                             id: "inspect-1".to_owned(),
                             name: "side-effect__inspect".to_owned(),
                             input: json!({}),
+                            provider_signature: None,
                         }],
                         stop_reason: Some(StopReason::ToolUse),
                         usage: Usage {

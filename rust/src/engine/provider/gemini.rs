@@ -120,6 +120,10 @@ impl GeminiClient {
                         .get("args")
                         .cloned()
                         .unwrap_or_else(|| Value::Object(Map::new())),
+                    provider_signature: part
+                        .get("thoughtSignature")
+                        .and_then(Value::as_str)
+                        .map(str::to_owned),
                 });
             }
         }
@@ -250,11 +254,17 @@ fn convert_messages(messages: &[Message]) -> Vec<Value> {
                             let name = block.get("name").and_then(Value::as_str).unwrap_or("");
                             if !id.is_empty() && !name.is_empty() {
                                 call_names.insert(id.to_owned(), name.to_owned());
-                                parts.push(json!({"functionCall":{
+                                let mut part = json!({"functionCall":{
                                     "id":id,
                                     "name":name,
                                     "args":block.get("input").cloned().unwrap_or_else(|| json!({}))
-                                }}));
+                                }});
+                                if let Some(signature) =
+                                    block.get("provider_signature").and_then(Value::as_str)
+                                {
+                                    part["thoughtSignature"] = Value::String(signature.to_owned());
+                                }
+                                parts.push(part);
                             }
                         }
                         Some("tool_result") => {
@@ -357,7 +367,7 @@ mod tests {
             Message::text("user", "task"),
             Message {
                 role: "assistant".to_owned(),
-                content: json!([{"type":"tool_use","id":"call-1","name":"test__act","input":{"n":1}}]),
+                content: json!([{"type":"tool_use","id":"call-1","name":"test__act","input":{"n":1},"provider_signature":"signed"}]),
             },
             Message {
                 role: "user".to_owned(),
@@ -380,6 +390,10 @@ mod tests {
         assert_eq!(
             body["contents"][2]["parts"][0]["functionResponse"]["name"],
             "test__act"
+        );
+        assert_eq!(
+            body["contents"][1]["parts"][0]["thoughtSignature"],
+            "signed"
         );
     }
 
@@ -418,10 +432,17 @@ mod tests {
     #[test]
     fn response_maps_function_calls_and_usage() {
         let response = GeminiClient::decode(json!({
-            "candidates":[{"content":{"parts":[{"functionCall":{"id":"c1","name":"test__act","args":{"n":1}}}]},"finishReason":"STOP"}],
+            "candidates":[{"content":{"parts":[{"functionCall":{"id":"c1","name":"test__act","args":{"n":1}},"thoughtSignature":"signed"}]},"finishReason":"STOP"}],
             "usageMetadata":{"promptTokenCount":2,"candidatesTokenCount":3}
         })).unwrap();
         assert_eq!(response.stop_reason, Some(StopReason::ToolUse));
         assert_eq!(response.usage.output_tokens, 3);
+        assert!(matches!(
+            &response.content[0],
+            ContentBlock::ToolUse {
+                provider_signature: Some(signature),
+                ..
+            } if signature == "signed"
+        ));
     }
 }

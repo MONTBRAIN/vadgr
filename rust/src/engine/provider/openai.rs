@@ -235,6 +235,7 @@ impl OpenAiResponsesClient {
                                 "function arguments are invalid JSON: {error}"
                             ))
                         })?,
+                        provider_signature: None,
                     });
                 }
                 Some("reasoning") => {

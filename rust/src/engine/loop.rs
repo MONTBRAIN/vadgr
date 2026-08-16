@@ -65,9 +65,9 @@ pub async fn run_loop(
             .content
             .iter()
             .filter_map(|block| match block {
-                ContentBlock::ToolUse { id, name, input } => {
-                    Some((id.clone(), name.clone(), input.clone()))
-                }
+                ContentBlock::ToolUse {
+                    id, name, input, ..
+                } => Some((id.clone(), name.clone(), input.clone())),
                 _ => None,
             })
             .collect::<Vec<_>>();
@@ -353,11 +353,13 @@ mod tests {
                         id: "1".to_owned(),
                         name: "test__act".to_owned(),
                         input: json!({"n":1}),
+                        provider_signature: None,
                     },
                     ContentBlock::ToolUse {
                         id: "2".to_owned(),
                         name: "test__act".to_owned(),
                         input: json!({"n":2}),
+                        provider_signature: None,
                     },
                 ],
                 StopReason::ToolUse,
