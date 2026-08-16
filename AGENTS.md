@@ -85,6 +85,23 @@ the PR is not merge-ready until every required OS is `pass` or has an approved
 `Not-Needed` reason, every finding is resolved, and the final branch checks pass.
 Opening the PR is a collaboration gate. It is never cross-platform acceptance.
 
+## Billed E2E model selection
+
+**No billed model call starts from a remembered or flagship default.** On the
+execution date, inspect the provider's official model and pricing pages plus the
+authenticated account catalog. Choose the least expensive available model that
+supports the exact endpoint, function or tool calling, content types, context,
+and multi-turn behavior the cell exercises. Record the model id, capability
+evidence, input/output price, expected worst-case usage, hard iteration/token
+and cost ceilings, and the condition for any escalation before the call.
+
+An automatic product-selected model is tested once because it is user-visible
+behavior. Repeated provider-neutral work uses an explicit cost-effective model.
+Test another model only when it represents a distinct protocol or capability
+class, a written cell requires it, or the cheaper model failed for a recorded
+capability reason. Stop at the ceiling; never upgrade silently or use a
+frontier model merely because it is available.
+
 ## The practices every repo in this family follows
 
 **This section is identical in every code repo, and identical in this repo's

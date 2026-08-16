@@ -64,11 +64,30 @@ before sealing evidence.>
 |---|---|---|---|---|
 | <credential, billed account, OS/host, device, app, permission or decision> | <ids> | <present/absent check> | <none or exact boundary> | <action> |
 
+## Billed model selection
+
+<Complete this table from current official provider pages and the authenticated
+catalog on the execution date. Pick the least expensive model that supports the
+exact cell. An automatic onboarding model is tested once as shipped; repeated
+provider-neutral tasks name an explicit cost-effective model. Do not start a
+billed call with a blank ceiling or an unrecorded escalation path.>
+
+| cells | provider/auth | required capabilities | selected model | official source and date | input/output price | hard iterations/tokens/cost | escalation condition |
+|---|---|---|---|---|---|---|---|
+| <ids> | <provider/method> | <endpoint, tools, content, continuation> | <authenticated id or snapshot> | <URL, YYYY-MM-DD> | <USD per MTok or subscription limitation> | <all three ceilings> | <recorded capability failure or none> |
+
+<Test another model only for a distinct protocol/capability class or a
+prewritten model-specific cell. Record actual tokens and calculated cost after
+the group. Stop when any ceiling is reached.>
+
 ## Prerequisites
 
 <Everything a fresh machine needs, precisely enough to paste. Credentials,
-env vars, a scratch runs dir so a test run never lands in `~/.vadgr/runs/`,
-which port, which database.>
+env vars, isolated state, config, database and runs roots so no test reads or
+writes the owner's normal installation, which port and which transport. Name
+every feature toggle the group relies on. Before the first live submission,
+read the effective settings through the product surface and assert them. A
+fresh database that inherits the owner's config is not isolated.>
 
 ```bash
 export AGENT_FORGE_DATABASE_PATH=$(mktemp -d)/vadgr.db
@@ -91,9 +110,11 @@ test machine. Include all of these items:>
    command, `vadgr-cua doctor` check, and platform setup. Include Linux
    `install-deps`, macOS Accessibility and Screen Recording, and native Windows
    execution without WSL.>
-4. <The isolated state, database, runs, evidence, port, transport,
-   `VADGR_CUA_BIN` and API URL variables for Unix shells and native Windows
-   PowerShell. Use native platform directory and access-control APIs.>
+4. <The isolated state, config, database, runs, evidence, port, transport,
+   feature toggles, `VADGR_CUA_BIN` and API URL variables for Unix shells and
+   native Windows PowerShell. Use native platform directory and access-control
+   APIs. Assert the effective settings through the installed product before a
+   live task.>
 5. <The exact cell ids and order for each host, state carried between cells,
    independent read-backs, evidence captured before cleanup, and result rows
    that host updates.>

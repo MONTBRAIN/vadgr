@@ -8,11 +8,14 @@ without an external model CLI in the request path.
 > its clean install in `scratch` pass. Direct ChatGPT OAuth, authenticated model
 > discovery, readiness, three independent live engine passes, the full surface
 > inventory, WSL credential controls, hard-kill continuation, and an owner work
-> path through Windows Notepad pass. Live API-key onboarding, native Linux,
-> macOS and Windows sessions, 22 expanded surface branch cells, the dogfood kill cell,
-> and a monetary cost value remain open. **8 findings, all repaired and rerun at
-> their affected boundaries.** Nothing is marked pass that was not executed and
-> read back.
+> path through Windows Notepad pass. Gemini API-key onboarding now also passes.
+> OpenAI Platform API-key onboarding is blocked by exhausted quota and Anthropic
+> API-key onboarding by insufficient credits. Native Linux, macOS and Windows
+> sessions, 21 expanded surface branch cells, the dogfood kill cell, and a
+> monetary cost value remain open. **14 findings: 12 repaired and rerun at
+> their affected boundaries; the corrected additive harness and new billed-model
+> ceiling await the next authorized live pass.** Nothing is marked pass that was
+> not executed and read back.
 
 ## The approach
 
@@ -53,6 +56,32 @@ Before A07, A13, A19, BL01, BM01, BW01, E03 or E04 starts, report the
 corresponding missing item to the owner and wait. No unavailable requirement
 may be discovered by silently shrinking the matrix.
 
+## Billed model selection
+
+Selection was rechecked against official provider documentation and the live
+catalog on 2026-08-16. The model named below is a candidate only until the
+authenticated catalog contains its exact id. An onboarding readiness call uses
+the product-selected model once because that choice is part of the shipped user
+path. Every repeated provider-neutral engine task then names the cheaper model
+explicitly. No fallback runs without a recorded capability failure and a new
+cost estimate.
+
+| cells | provider/auth | required capability | explicit engine model | official price checked 2026-08-16 | hard group ceiling | escalation |
+|---|---|---|---|---|---|---|
+| A01-A06 | OpenAI ChatGPT OAuth | Responses, function calls, multi-turn tool results | `gpt-5.6-luna` when the OAuth catalog offers it | [OpenAI model page](https://developers.openai.com/api/docs/models/gpt-5.6-luna): $0.20 input / $1.20 output per MTok; subscription OAuth exposes no attributable API charge | one product-selected readiness plus one explicit run; 6 engine iterations; 100k input; 2k output; no monetary claim | none without a distinct protocol cell |
+| A07-A12, S08c | OpenAI Platform API key | Responses, function calls, multi-turn tool results | `gpt-5.6-luna` | [OpenAI model page](https://developers.openai.com/api/docs/models/gpt-5.6-luna): $0.20 input / $1.20 output per MTok | one readiness plus one run; 6 iterations; 100k input; 2k output; $0.05 | re-research only if Luna is absent or fails a recorded capability assertion |
+| A13-A18, S08d | Gemini API key | `generateContent`, function calls, thought-signature continuation | `gemini-3.5-flash-lite` | [Gemini model page](https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite): $0.30 input / $2.50 output per MTok | one readiness plus one run; 6 iterations; 100k input; 2k output; $0.05 | re-research only if Flash-Lite is absent or fails a recorded capability assertion |
+| A19-A24, S08e | Anthropic API key | Messages, client tools, multi-turn tool results | `claude-haiku-4-5-20251001` | [Claude model overview](https://platform.claude.com/docs/en/about-claude/models/overview): $1 input / $5 output per MTok | one readiness plus one run; 6 iterations; 100k input; 2k output; $0.15 | Sonnet only for a prewritten model-specific cell or recorded Haiku capability failure; never Fable or Opus for this generic task |
+| A25-A29, S05 | ChatGPT OAuth plus Gemini API key | coexistence, explicit Gemini run, default switch and delete | OAuth product choice once; `gemini-3.5-flash-lite` for the engine run | same OpenAI and Gemini sources above | one OAuth readiness, one Gemini readiness and one Gemini run; 6 engine iterations; 100k input; 2k output; $0.05 attributable API spend | none without a distinct protocol cell |
+
+The earlier accepted ChatGPT runs used `gpt-5.6-sol`, and the accepted Gemini
+run used `gemini-3.7-flash`, before this policy was added. Their evidence remains
+valid, but neither expensive choice is repeated for provider-neutral coverage.
+Before another billed group runs, its driver must cancel at any ceiling and the
+result row must record actual tokens plus calculated cost. A model comparison
+adds coverage only when the adapter contract differs; sampling extra models for
+its own sake is prohibited.
+
 ## Prerequisites
 
 Use the release artifact and isolate every daemon. Port `1455` must also be
@@ -61,15 +90,21 @@ free for the fixed OpenAI browser callback.
 ```bash
 export E2E_ROOT="$(mktemp -d)"
 export VADGR_STATE_HOME="$E2E_ROOT/state"
+export VADGR_CONFIG_HOME="$E2E_ROOT/config"
 export VADGR_DB="$E2E_ROOT/vadgr.db"
 export VADGR_RUNS_DIR="$E2E_ROOT/runs"
 export VADGR_CUA_BIN=/home/santiago/Santiago/Common/vadgr-computer-use/.venv/bin/vadgr-cua
+export VADGR_COMPUTER_USE=true
 export VADGR_PORT=9471
 export VADGR_TRANSPORT=loopback
 export FORGE_API_URL=http://127.0.0.1:9471
-mkdir -p "$VADGR_STATE_HOME" "$VADGR_RUNS_DIR"
+mkdir -p "$VADGR_STATE_HOME" "$VADGR_CONFIG_HOME" "$VADGR_RUNS_DIR"
 ./rust/target/release/vadgr-daemon
 ```
+
+Before submitting a live run, require `GET /api/computer-use/status` to return
+`200` with `available: true`. A fresh database with an inherited user config is
+not an isolated test.
 
 Live secrets are entered through the CLI without echo or supplied through the
 documented provider environment variable read from the workspace `../.env`.
@@ -123,14 +158,16 @@ Linux and macOS:
 
 ```bash
 export E2E_ROOT="$(mktemp -d)"
-mkdir -p "$E2E_ROOT/bin" "$E2E_ROOT/state" "$E2E_ROOT/runs" "$E2E_ROOT/evidence"
+mkdir -p "$E2E_ROOT/bin" "$E2E_ROOT/state" "$E2E_ROOT/config" "$E2E_ROOT/runs" "$E2E_ROOT/evidence"
 install -m 755 rust/target/release/vadgr-daemon "$E2E_ROOT/bin/vadgr-daemon"
 python3 -m venv "$E2E_ROOT/cua"
 "$E2E_ROOT/cua/bin/python" -m pip install 'vadgr-computer-use==0.7.0'
 export VADGR_STATE_HOME="$E2E_ROOT/state"
+export VADGR_CONFIG_HOME="$E2E_ROOT/config"
 export VADGR_DB="$E2E_ROOT/vadgr.db"
 export VADGR_RUNS_DIR="$E2E_ROOT/runs"
 export VADGR_CUA_BIN="$E2E_ROOT/cua/bin/vadgr-cua"
+export VADGR_COMPUTER_USE=true
 export VADGR_PORT=<free-port>
 export VADGR_TRANSPORT=loopback
 export FORGE_API_URL="http://127.0.0.1:$VADGR_PORT"
@@ -142,14 +179,16 @@ Native Windows PowerShell:
 ```powershell
 $E2ERoot = Join-Path $env:TEMP ("vadgr-e2e-" + [guid]::NewGuid())
 New-Item -ItemType Directory -Force "$E2ERoot\bin", "$E2ERoot\state", `
-  "$E2ERoot\runs", "$E2ERoot\evidence" | Out-Null
+  "$E2ERoot\config", "$E2ERoot\runs", "$E2ERoot\evidence" | Out-Null
 Copy-Item rust\target\release\vadgr-daemon.exe "$E2ERoot\bin\vadgr-daemon.exe"
 py -m venv "$E2ERoot\cua"
 & "$E2ERoot\cua\Scripts\python.exe" -m pip install vadgr-computer-use==0.7.0
 $env:VADGR_STATE_HOME = "$E2ERoot\state"
+$env:VADGR_CONFIG_HOME = "$E2ERoot\config"
 $env:VADGR_DB = "$E2ERoot\vadgr.db"
 $env:VADGR_RUNS_DIR = "$E2ERoot\runs"
 $env:VADGR_CUA_BIN = "$E2ERoot\cua\Scripts\vadgr-cua.exe"
+$env:VADGR_COMPUTER_USE = "true"
 $env:VADGR_PORT = "<free-port>"
 $env:VADGR_TRANSPORT = "loopback"
 $env:FORGE_API_URL = "http://127.0.0.1:$env:VADGR_PORT"
@@ -161,13 +200,13 @@ $env:FORGE_API_URL = "http://127.0.0.1:$env:VADGR_PORT"
 | gate | result |
 |---|---|
 | complete Python suite | pass: 703 passed in 21.32s |
-| Rust all-target suite | pass: 171 passed, 1 Docker-only test ignored |
+| Rust all-target suite | pass: 178 passed, 1 Docker-only test ignored |
 | `cargo fmt --check` | pass |
 | `cargo check --all-targets` | pass |
 | `cargo clippy --all-targets -- -D warnings` | pass |
 | Windows credential module target check | pass |
 | macOS credential module target check | pass |
-| Linux musl release build | pass: static PIE, SHA-256 `36fc7da0a86c82a3991687cdec5177fd792f83e3b7a19b3ae48845839d63e6d7` |
+| Linux musl release build | pass: static PIE, SHA-256 `99e4835f3a4607aad9675267401e7030a9355bb44cb004ffc3aac7f31aa813f9` |
 | clean install in `scratch` | pass: healthy `0.4.7`, Linux, loopback, cua disabled, three disconnected providers |
 | required GitHub Actions jobs | not run |
 
@@ -182,15 +221,15 @@ carried here in full and is part of acceptance.
 
 | Part | Axes | Cells | Run | Open |
 |---|---|---:|---:|---:|
-| Surface inventory | 111 executed HTTP/callback/CLI/socket/absence cases + 22 open branch cells | 133 | 111 | 22 |
-| A: onboarding | 4 credential paths x 6 assertions + 5 additive/default cells | 29 | 6 | 23 |
+| Surface inventory | 114 executed HTTP/callback/CLI/socket/absence cases + 21 open branch cells | 133 | 114 | 21 |
+| A: onboarding | 4 credential paths x 6 assertions + 5 additive/default cells | 29 | 18 | 17 |
 | B: credential storage | 4 platforms x 8 assertions | 32 | 8 | 24 |
 | OS: installed product | 4 operating systems x 1 full live composition | 4 | 1 | 3 |
 | C: engine behavior | 25 carried native-loop cases | 25 | 15 | 10 |
 | Repeatability | 3 passes x 6 observables | 18 | 18 | 0 |
 | D: restart continuation | 1 sequence x 7 assertions | 7 | 7 | 0 |
 | E: owner dogfood | 1 batch x 5 outcomes | 5 | 4 | 2 |
-| | | **253** | **170** | **84** |
+| | | **253** | **185** | **77** |
 
 `Run` means the cell was executed and recorded, not necessarily that every
 assertion passed. E4 was run but remains open because the transport did not
@@ -364,14 +403,14 @@ No group begins until its requirement above is available.
 | S02 | Fresh state with no connection or default | Run `vadgr pair`, complete one passing provider login | Onboarding appears before any QR; readiness passes; exactly one QR is minted afterwards | Complete CLI transcript, auth attempt, provider/default rows, pair response, daemon log | Revoke pair; remove isolated state | not run |
 | S03 | Connected provider whose catalog row is expired through a documented fixture or elapsed TTL | Call `GET /api/providers` and `vadgr provider status` without refreshing | Provider remains connected, reports the catalog stale, and does not fabricate a fresh verification time | HTTP body, CLI output, catalog row before/after | Restore clock/fixture or refresh | not run |
 | S04 | Connected/default OpenAI in isolated state; second OAuth authorization available | Reauthenticate OpenAI and commit the replacement | New immutable reference commits atomically; compatible default/catalog survive; old file leaves only after commit | Before/after provider/default rows, opaque refs, credential filenames, readiness usage | Keep the new isolated connection or remove state | pass on `5034637`; live replacement preserved the default |
-| S05 | OpenAI and Gemini connected; OpenAI remains default | Delete Gemini through API and CLI read-back | Gemini credential/catalog leave; OpenAI credential/catalog/default remain byte-for-byte compatible | API response, provider/default rows, filenames, raw DB secret scan | Remove isolated state | not run: Gemini key required |
+| S05 | OpenAI and Gemini connected; OpenAI remains default | Delete Gemini through API and CLI read-back | Gemini credential/catalog leave; OpenAI credential/catalog/default remain byte-for-byte compatible | API response, provider/default rows, filenames, raw DB secret scan | Remove isolated state | not run: the required ChatGPT OAuth plus Gemini fixture still needs owner browser approval |
 | S06 | Passing connected provider and captured catalog; upstream then made unreachable without changing local state | Request catalog refresh through API and CLI | Refresh fails with the named error; previous credential, catalog and default remain unchanged | Status/code/body, CLI exit/output, before/after DB rows and filenames | Restore network; refresh once | not run |
 | S07 | Two connected providers; captured current default; candidate provider then made unreachable | Request the candidate as default | Readiness fails; old default remains; neither credential nor catalog changes | Status/code/body, before/after default and provider rows | Restore network | not run |
 | S08a | Fresh state; interactive terminal | Run `vadgr provider login` with no provider argument | Provider chooser shows OpenAI, Gemini, Anthropic once and accepts one selection | TTY transcript and zero provider mutation before selection | Cancel before credentials | not run |
 | S08b | OpenAI selected in an interactive terminal | Continue without preselecting a method | Exactly `Continue with ChatGPT` and `OpenAI API key` are offered; cancellation returns without mutation | TTY transcript, provider rows | Cancel and remove attempt | not run |
-| S08c | Fresh state and owner-supplied OpenAI API key | Complete `vadgr provider login openai --auth api-key` | Hidden entry, live catalog, readiness, immutable credential and successful return; no pairing | CLI transcript without secret, usage, rows, file metadata | Logout and unset key | not run: OpenAI key required |
-| S08d | Fresh state and owner-supplied Gemini API key | Complete `vadgr provider login gemini` | No redundant method screen; hidden entry, live catalog/readiness, immutable credential; no pairing | CLI transcript without secret, usage, rows, file metadata | Logout and unset key | not run: Gemini key required |
-| S08e | Fresh state and owner-supplied Anthropic API key | Complete `vadgr provider login anthropic` | No redundant method screen; hidden entry, live catalog/readiness, immutable credential; no pairing | CLI transcript without secret, usage, rows, file metadata | Logout and unset key | not run: Anthropic key required |
+| S08c | Fresh state and owner-supplied OpenAI API key | Complete `vadgr provider login openai --auth api-key` | Hidden entry, live catalog, readiness, immutable credential and successful return; no pairing | CLI transcript without secret, usage, rows, file metadata | Logout and unset key | blocked on `76325a9`: bounded readiness reported exhausted OpenAI Platform quota; nothing committed |
+| S08d | Fresh state and owner-supplied Gemini API key | Complete `vadgr provider login gemini` | No redundant method screen; hidden entry, live catalog/readiness, immutable credential; no pairing | CLI transcript without secret, usage, rows, file metadata | Logout and unset key | pass on `76325a9`: readiness, immutable commit and restart persistence passed |
+| S08e | Fresh state and owner-supplied Anthropic API key | Complete `vadgr provider login anthropic` | No redundant method screen; hidden entry, live catalog/readiness, immutable credential; no pairing | CLI transcript without secret, usage, rows, file metadata | Logout and unset key | blocked on `76325a9`: bounded readiness reported insufficient Anthropic API credits; nothing committed |
 | S08f | Interactive login with one deliberately rejected credential followed by a valid owner-supplied credential | Retry through the CLI recovery path | Error is named, input remains hidden, no failed candidate commits, and valid retry succeeds once | CLI exit/output, attempts, rows, filenames before/after | Logout and unset key | not run: API key required |
 | S09 | Fresh state, OpenAI OAuth account, callback port free | Run one uninterrupted `vadgr provider login openai --auth chatgpt` command through browser approval | The same command returns `0` only after readiness and commit; no manual API call completes it | Full CLI transcript, callback redirect, readiness usage, committed rows | Remove isolated state | pass on `5034637` |
 | S10 | At least two available models; interactive terminal; captured old default | Run `vadgr model default` with no model argument and select a different model | Chooser contains the authenticated union; readiness passes before exactly one default changes | TTY transcript, usage, before/after default | Restore original default | not run |
@@ -403,29 +442,39 @@ close the full-request cell.
 | A04 | Passing A03 candidate | Commit the connection | One strict immutable credential file exists; SQLite contains only its opaque reference | Provider/default rows, file metadata, DB/WAL/SHM secret scan | Retain state | pass |
 | A05 | Committed A04 state | Restart daemon and read through API and CLI | OpenAI, seven-model catalog and starter default persist unchanged | Health, API/CLI rows, SQLite rows before/after | Retain state | pass |
 | A06 | Persisted A05 state with installed cua | Run a goal-level tool-using task through CLI, API, both sockets and journal | Model chooses cua; usage is nonzero; effect is read back; all records reach completed | Run id, journal, raw/mobile frames, API/CLI final rows | Remove reversible effect and isolated state | pass in all three formal runs |
-| A07 | Fresh state; OpenAI Platform key present | Enter the key without echo through the CLI | Candidate is accepted without key in transcript, argv, logs or process list | Redacted CLI transcript, process snapshot, attempt row | Retain state for A08-A12 | not run: key required |
-| A08 | A07 candidate | Discover the Platform catalog | Catalog is authenticated and credential-scoped, with supported capability rows | Attempt/catalog response and rows | Retain state | not run: key required |
-| A09 | A08 candidate and starter model | Run bounded readiness | Direct OpenAI Platform Responses call returns nonzero usage | Readiness response and usage | Retain state | not run: key required |
-| A10 | Passing A09 candidate | Commit connection/catalog/default atomically | Strict file and opaque DB reference commit; raw DB files contain no key | Rows, file metadata, DB/WAL/SHM scan | Retain state | not run: key required |
-| A11 | Committed A10 state | Restart and read through API and CLI | Connection, catalog and default persist without exposing the key | API/CLI and SQLite before/after | Retain state | not run: key required |
-| A12 | Persisted A11 state with installed cua | Run one goal-level tool task with a reversible effect | Full native OpenAI API-key adapter, MCP, journal and both streams complete with read-back | Run id, usage, journal, sockets, API/CLI, effect read-back | Delete effect, logout, unset key | not run: key required |
-| A13 | Fresh state; Gemini key present | Enter the key without echo through the CLI | Candidate is accepted with no redundant auth-method question and no secret exposure | Redacted CLI transcript, process snapshot, attempt row | Retain state for A14-A18 | not run: key required |
-| A14 | A13 candidate | Discover Gemini catalog | Authenticated Gemini catalog and capabilities are normalized without static YAML | Attempt/catalog response and rows | Retain state | not run: key required |
-| A15 | A14 candidate and starter model | Run bounded readiness | Direct `generateContent` call returns nonzero usage | Readiness response and usage | Retain state | not run: key required |
-| A16 | Passing A15 candidate | Commit connection/catalog/default atomically | Strict file and opaque DB reference commit; raw DB files contain no key | Rows, file metadata, DB/WAL/SHM scan | Retain state | not run: key required |
-| A17 | Committed A16 state | Restart and read through API and CLI | Gemini connection, catalog and default persist without exposing the key | API/CLI and SQLite before/after | Retain state | not run: key required |
-| A18 | Persisted A17 state with installed cua | Run one goal-level tool task with a reversible effect | Full Gemini adapter, MCP, journal and both streams complete with read-back | Run id, usage, journal, sockets, API/CLI, effect read-back | Delete effect, logout, unset key | not run: key required |
-| A19 | Fresh state; Anthropic key present | Enter the key without echo through the CLI | Candidate is accepted with no redundant auth-method question and no secret exposure | Redacted CLI transcript, process snapshot, attempt row | Retain state for A20-A24 | not run: key required |
-| A20 | A19 candidate | Discover Anthropic catalog | Authenticated Anthropic catalog and capabilities are normalized without static YAML | Attempt/catalog response and rows | Retain state | not run: key required |
-| A21 | A20 candidate and starter model | Run bounded readiness | Direct Messages call returns nonzero usage | Readiness response and usage | Retain state | not run: key required |
-| A22 | Passing A21 candidate | Commit connection/catalog/default atomically | Strict file and opaque DB reference commit; raw DB files contain no key | Rows, file metadata, DB/WAL/SHM scan | Retain state | not run: key required |
-| A23 | Committed A22 state | Restart and read through API and CLI | Anthropic connection, catalog and default persist without exposing the key | API/CLI and SQLite before/after | Retain state | not run: key required |
-| A24 | Persisted A23 state with installed cua | Run one goal-level tool task with a reversible effect | Full Anthropic adapter, MCP, journal and both streams complete with read-back | Run id, usage, journal, sockets, API/CLI, effect read-back | Delete effect, logout, unset key | not run: key required |
-| A25 | Fresh state; OpenAI OAuth and Gemini key available | Connect OpenAI, then Gemini in one isolated state | Both credential files and complete catalogs coexist | Provider/default rows, filenames and DB secret scan after each commit | Retain state for A26-A29 | not run: Gemini key required |
-| A26 | A25 with OpenAI default | Read providers/default after Gemini commit | OpenAI default remains exactly unchanged | Before/after default and catalog rows | Retain state | not run: Gemini key required |
-| A27 | A26 with installed cua | Run explicitly through a Gemini model | Gemini run completes with read-back while OpenAI remains default | Run/journal/sockets and default before/after | Delete effect; retain state | not run: Gemini key required |
-| A28 | Passing A27 state | Set a Gemini model as default | Readiness passes, then one atomic default change commits; both catalogs remain | Usage and rows before/after | Retain state | not run: Gemini key required |
-| A29 | A28 with OpenAI now non-default | Delete OpenAI connection | Only OpenAI credential/catalog leave; Gemini connection/default survive | API/CLI response, rows, filenames, DB secret scan | Remove isolated state; unset key | not run: Gemini key required |
+| A07 | Fresh state; OpenAI Platform key present | Enter the key without echo through the CLI | Candidate is accepted without key in transcript, argv, logs or process list | Redacted CLI transcript, process snapshot, attempt row | Retain state for A08-A12 | blocked on `76325a9`: group reached readiness, which reported exhausted OpenAI Platform quota |
+| A08 | A07 candidate | Discover the Platform catalog | Catalog is authenticated and credential-scoped, with supported capability rows | Attempt/catalog response and rows | Retain state | blocked with A07-A12: no candidate was retained after readiness failed |
+| A09 | A08 candidate and starter model | Run bounded readiness | Direct OpenAI Platform Responses call returns nonzero usage | Readiness response and usage | Retain state | blocked on `76325a9`: provider returned quota exhausted twice, including after a propagation wait |
+| A10 | Passing A09 candidate | Commit connection/catalog/default atomically | Strict file and opaque DB reference commit; raw DB files contain no key | Rows, file metadata, DB/WAL/SHM scan | Retain state | blocked: A09 did not pass; no connection committed |
+| A11 | Committed A10 state | Restart and read through API and CLI | Connection, catalog and default persist without exposing the key | API/CLI and SQLite before/after | Retain state | blocked: A10 did not commit |
+| A12 | Persisted A11 state with installed cua | Run one goal-level tool task with a reversible effect | Full native OpenAI API-key adapter, MCP, journal and both streams complete with read-back | Run id, usage, journal, sockets, API/CLI, effect read-back | Delete effect, logout, unset key | blocked: A11 state does not exist |
+| A13 | Fresh state; Gemini key present | Enter the key without echo through the CLI | Candidate is accepted with no redundant auth-method question and no secret exposure | Redacted CLI transcript, process snapshot, attempt row | Retain state for A14-A18 | pass on `76325a9`: hidden environment input, no credential in evidence |
+| A14 | A13 candidate | Discover Gemini catalog | Authenticated Gemini catalog and capabilities are normalized without static YAML | Attempt/catalog response and rows | Retain state | pass on `76325a9`: authenticated live catalog returned |
+| A15 | A14 candidate and starter model | Run bounded readiness | Direct `generateContent` call returns nonzero usage | Readiness response and usage | Retain state | pass on `76325a9`: readiness returned nonzero usage |
+| A16 | Passing A15 candidate | Commit connection/catalog/default atomically | Strict file and opaque DB reference commit; raw DB files contain no key | Rows, file metadata, DB/WAL/SHM scan | Retain state | pass on `76325a9`: 0600 record, 0700 directory, opaque reference, raw DB scan clean |
+| A17 | Committed A16 state | Restart and read through API and CLI | Gemini connection, catalog and default persist without exposing the key | API/CLI and SQLite before/after | Retain state | pass on `76325a9`: provider, catalog and default persisted after restart |
+| A18 | Persisted A17 state with installed cua | Run one goal-level tool task with a reversible effect | Full Gemini adapter, MCP, journal and both streams complete with read-back | Run id, usage, journal, sockets, API/CLI, effect read-back | Delete effect, logout, unset key | pass on `76325a9`: `run-06d3f88bf81b4441acd0d6f34df02b89` completed with exact effect read-back |
+| A19 | Fresh state; Anthropic key present | Enter the key without echo through the CLI | Candidate is accepted with no redundant auth-method question and no secret exposure | Redacted CLI transcript, process snapshot, attempt row | Retain state for A20-A24 | blocked on `76325a9`: group reached readiness, which reported insufficient API credits |
+| A20 | A19 candidate | Discover Anthropic catalog | Authenticated Anthropic catalog and capabilities are normalized without static YAML | Attempt/catalog response and rows | Retain state | blocked with A19-A24: no candidate was retained after readiness failed |
+| A21 | A20 candidate and starter model | Run bounded readiness | Direct Messages call returns nonzero usage | Readiness response and usage | Retain state | blocked on `76325a9`: Anthropic reported quota exhausted from insufficient API credits |
+| A22 | Passing A21 candidate | Commit connection/catalog/default atomically | Strict file and opaque DB reference commit; raw DB files contain no key | Rows, file metadata, DB/WAL/SHM scan | Retain state | blocked: A21 did not pass; no connection committed |
+| A23 | Committed A22 state | Restart and read through API and CLI | Anthropic connection, catalog and default persist without exposing the key | API/CLI and SQLite before/after | Retain state | blocked: A22 did not commit |
+| A24 | Persisted A23 state with installed cua | Run one goal-level tool task with a reversible effect | Full Anthropic adapter, MCP, journal and both streams complete with read-back | Run id, usage, journal, sockets, API/CLI, effect read-back | Delete effect, logout, unset key | blocked: A23 state does not exist |
+| A25 | Fresh state; OpenAI OAuth and Gemini key available | Connect OpenAI, then Gemini in one isolated state | Both credential files and complete catalogs coexist | Provider/default rows, filenames and DB secret scan after each commit | Retain state for A26-A29 | not run: owner browser approval is required; an API-key preflight was rejected as the wrong fixture |
+| A26 | A25 with OpenAI default | Read providers/default after Gemini commit | OpenAI default remains exactly unchanged | Before/after default and catalog rows | Retain state | blocked: A25 fixture does not exist |
+| A27 | A26 with installed cua | Run explicitly through a Gemini model | Gemini run completes with read-back while OpenAI remains default | Run/journal/sockets and default before/after | Delete effect; retain state | blocked: A26 fixture does not exist |
+| A28 | Passing A27 state | Set a Gemini model as default | Readiness passes, then one atomic default change commits; both catalogs remain | Usage and rows before/after | Retain state | blocked: A27 fixture does not exist |
+| A29 | A28 with OpenAI now non-default | Delete OpenAI connection | Only OpenAI credential/catalog leave; Gemini connection/default survive | API/CLI response, rows, filenames, DB secret scan | Remove isolated state; unset key | blocked: A28 fixture does not exist |
+
+**Measured Gemini close.** Run
+`run-06d3f88bf81b4441acd0d6f34df02b89` used `gemini-3.7-flash`, completed in
+three iterations, and reported 23,978 input plus 166 output tokens. The journal
+contains three provider responses and two matched `in_flight`/`done` installed
+CUA calls with no error. Raw and mobile streams both reached their completed
+terminal frame, the exact file content matched independent read-back, and the
+provider/catalog/default survived a daemon restart. The credential was a
+regular owner-owned `0600` record in a `0700` directory behind an opaque
+reference; its value was absent from SQLite, WAL, SHM and evidence.
 
 ## Part B: credential storage and migration
 
@@ -599,6 +648,12 @@ must not be present.
 | F6 | WSL did not open the Windows browser, and an E2E-only `cmd.exe start` workaround delivered a malformed OAuth request with missing parameters. | Click's Linux launcher could not cross the WSL desktop boundary. The command-shell workaround also gave `cmd.exe` an OAuth URL whose query delimiters are shell syntax. | WSL now invokes a fixed Windows PowerShell script without a shell-built URL and sends the complete authorization URL over stdin. Tests require that the URL is absent from argv and preserved exactly as input. Other platforms retain Click's native launcher. | pass: focused provider CLI suite and three live browser launches from WSL |
 | F7 | The formal work-run screenshots captured the spent OAuth callback query from Chrome's address bar. A denied callback also rendered the connected page. | The callback returned its final HTML directly on the URL that carried `code` and `state`, and the route treated a cleanly recorded cancellation as a successful connection. | Every callback now redirects to a parameter-free completion or failure route. A route-level regression requires `303`, a query-free `Location`, a generic final page, and failure status for cancellation. Evidence copies replace affected screenshot payloads with explicit redaction records while preserving hashes and sizes. | pass at affected boundaries: focused route regression, live reauthentication, readiness and commit; visual address-bar read-back unavailable because the owner closed the completion tab |
 | F8 | The hard-kill run resumed safely but its next `control__todo_update` returned `unknown todo id`. | The journal recovered model usage, recent results and external-call state, while `RunContext` recreated its control todo list as empty. | Recovery now reconstructs the canonical list from successful journaled `todo_write` and `todo_update` results before the MCP host starts. Tests cover both reconstruction and a successful update through a restored control server. | pass: final hard-kill rerun restored all todos and completed both later updates |
+| F9 | Gemini rejected the first full tool-bearing request although catalog discovery and readiness passed. | Gemini's schema dialect rejects `additionalProperties` and requires `items` on every array, while the neutral CUA and control schemas included both unsupported and incomplete shapes. | The Gemini adapter recursively removes `additionalProperties` and supplies an empty schema for arrays without `items`. Regression tests cover nested objects and arrays. | pass: the live request reached installed CUA |
+| F10 | Gemini completed its first tool turn, then rejected the follow-up request with HTTP 400. | Gemini requires its `thoughtSignature` to be replayed with the matching model function call, but the neutral tool-use block discarded provider metadata. | Neutral tool-use content now carries an optional provider signature. Gemini records and replays it; OpenAI and Anthropic leave it absent. Round-trip and adapter tests cover the field. | pass: `run-06d3f88bf81b4441acd0d6f34df02b89` completed three model iterations and the exact effect read-back |
+| F11 | Anthropic's insufficient-credit response surfaced as a generic unavailable provider. | The adapter classified every non-success Messages response by status alone and did not inspect Anthropic's bounded error envelope. | The adapter parses the safe JSON error category and maps the low-credit 400 response to the existing quota-exhausted result without retaining provider prose or credentials. | pass at the affected boundary: the CLI now reports quota exhausted; live completion remains blocked until API credits are available |
+| F12 | A fresh Gemini database produced `NO_ACTION_TAKEN` because installed CUA appeared disabled. | The harness isolated state, database and runs but inherited the owner's normal config directory, where computer use was disabled. | Every example and the executable harness now isolate `VADGR_CONFIG_HOME`, set the feature only in that isolated environment, and require the product status endpoint to report CUA available before submission. | pass: both later Gemini runs used installed CUA and completed with independent read-back |
+| F13 | The additive preflight tried OpenAI Platform API-key authentication although A25 specifies ChatGPT OAuth plus Gemini API key. | The executable harness encoded a provider combination that differed from the approved cell even though both used the OpenAI provider id. | The harness now invokes the ChatGPT OAuth method and pins the proven general Gemini model from the authenticated catalog. | not rerun: the corrected flow requires owner browser approval |
+| F14 | Provider-neutral E2E work used expensive product starters without a dated model comparison or hard spend ceiling. | The runbook declared that credentials were billed but did not require capability/price research, an explicit cost-effective engine model, or cancellation thresholds; the harness inherited the provider default. | Shared engineering, both machine-side entry points and both E2E templates now require current official research, authenticated-catalog validation, explicit cheapest-capable models, bounded iteration/token/money ceilings and evidence-based escalation. This runbook selects Luna, Flash-Lite and Haiku for future generic engine work. | not rerun: the next authorized billed group must prove its driver cancels at the written ceiling |
 
 The probe also moved from host networking to a separate BusyBox container that
 joins the product container's network namespace. Docker Desktop does not expose
@@ -614,7 +669,7 @@ Legend: pass / fail / blocked / not run / **Not-Needed**.
 | build, test, and lint | CI not run | CI not run | CI not run | pass locally |
 | credential matrix | not run | type check only | type check only | pass on WSL |
 | clean install | pass in Linux `scratch` | not run | not run | driver host only |
-| live providers | not run | not run | not run | partial: direct ChatGPT OAuth passes; API-key paths not run |
+| live providers | not run | not run | not run | partial: direct ChatGPT OAuth and Gemini API key pass; OpenAI Platform and Anthropic API keys are billing-blocked |
 | full engine | not run | not run | not run | partial: three independent installed-cua runs pass; full 25-case matrix open |
 | restart and dogfood | not run | not run | not run | hard-kill pass; owner work path pass; dogfood kill and money cells open |
 | overall | not run | not run | not run | partially run |
@@ -625,9 +680,10 @@ process launch are platform-shaped. No supported operating system is
 
 ## What this runbook cannot prove
 
-The written open cells do not yet prove OpenAI API-key, Gemini API-key or
-Anthropic API-key onboarding; native Linux, macOS or Windows installed-product
-sessions; effective credential controls outside WSL; 10 engine cells; 22
-surface branch cells; a kill inside the owner dogfood batch; or a monetary cost
-for ChatGPT OAuth usage. Those cells remain open and prevent this runbook from
-declaring the minor fully accepted.
+The written open cells do not yet prove successful OpenAI Platform API-key or
+Anthropic API-key onboarding; ChatGPT OAuth and Gemini API-key coexistence,
+default switching and deletion; native Linux, macOS or Windows
+installed-product sessions; effective credential controls outside WSL; 10
+engine cells; 21 surface branch cells; a kill inside the owner dogfood batch;
+or a monetary cost for ChatGPT OAuth usage. Those cells remain open and prevent
+this runbook from declaring the minor fully accepted.
