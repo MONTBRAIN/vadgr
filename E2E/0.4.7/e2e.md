@@ -9,8 +9,9 @@ without an external model CLI in the request path.
 > terminal `vadgr` command, direct HTTP, both run WebSockets, the release Rust
 > daemon, installed cua and the real agent loop. OpenAI Platform API key, Gemini
 > API key and Anthropic API key onboarding and work pass. ChatGPT OAuth login,
-> catalog, readiness, restart and work pass. Its live query-free browser-page
-> observation remains open. Native Linux, macOS and Windows remain `not run`.
+> catalog, readiness, restart, work and query-free browser-page observation
+> pass. Its raw callback redirect-status capture remains open. Native Linux,
+> macOS and Windows remain `not run`.
 > **17 findings: F15 corrected the E2E boundary,
 > F16 passed its bounded rerun, and F17 prevents formatted journals from
 > bypassing a capture monitor. Untouched cells remain open below.**
@@ -62,7 +63,7 @@ run sockets separately from the terminal CLI.
 | provider path | terminal onboarding | explicit model run | exact usage and cost | public-wire and independent oracle | result |
 |---|---|---|---|---|---|
 | OpenAI Platform API key | `vadgr provider login openai --auth api-key`; 51 live catalog models; default committed | `run-113d330660434b1695a35cbb793272c0`, `gpt-5.6-luna`, 4 turns | 23,644 input, 547 output, USD 0.0053852 | HTTP, raw WS, mobile WS, CLI and journal completed; exact platform/session/cwd marker matched | pass |
-| ChatGPT OAuth | `vadgr provider login openai --auth chatgpt`; 7 live catalog models; default committed | `run-00b9eb0f4655445391f5212c74b2a16b`, `gpt-5.6-luna`, 3 turns | 16,855 input, 181 output; subscription OAuth has no attributable API charge | HTTP, raw WS, mobile WS, CLI, journal and exact marker agree; browser completion tab was unavailable for the query-free address oracle | partial |
+| ChatGPT OAuth | `vadgr provider login openai --auth chatgpt`; 7 live catalog models; default committed | `run-00b9eb0f4655445391f5212c74b2a16b`, `gpt-5.6-luna`, 3 turns | 16,855 input, 181 output; subscription OAuth has no attributable API charge | HTTP, raw WS, mobile WS, CLI, journal and exact marker agree; later browser observation found `/auth/complete` with an empty query | pass |
 | Gemini API key | `vadgr provider login gemini`; 28 live catalog models; OpenAI default unchanged | bounded rerun `run-19fa499edbf94542b5d7b4321447d597`, `gemini-3.5-flash-lite`, 2 turns | 15,499 input, 106 output, USD 0.0049147 | HTTP, raw WS, mobile WS, CLI and journal completed; one installed-cua call and exact marker matched | pass |
 | Anthropic API key | `vadgr provider login anthropic`; 10 live catalog models; OpenAI default unchanged | `run-fd1af6af9bc6441393b3c0ff6c969655`, `claude-haiku-4-5-20251001`, 2 turns | 18,573 input, 160 output, USD 0.019373 | HTTP, raw WS, mobile WS, CLI and journal completed; one installed-cua call and exact marker matched | pass |
 
@@ -270,14 +271,14 @@ carried here in full and is part of acceptance.
 | Part | Axes | Cells | Run | Open |
 |---|---|---:|---:|---:|
 | Surface inventory | 47 HTTP + 7 callback + 25 CLI + 22 branch cells | 101 | 85 | 16 |
-| A: onboarding | 4 credential paths x 6 assertions + 5 additive/default cells | 29 | 23 | 6 |
+| A: onboarding | 4 credential paths x 6 assertions + 5 additive/default cells | 29 | 24 | 5 |
 | B: credential storage | 4 platforms x 8 assertions | 32 | 0 | 32 |
 | OS: installed product | 4 operating systems x 1 full live composition | 4 | 0 | 4 |
 | C: engine behavior | 25 carried native-loop cases | 25 | 3 | 22 |
 | Repeatability | 3 independent passes, each reconciled across 6 observables | 3 | 2 | 1 |
 | D: restart continuation | 1 sequence x 7 assertions | 7 | 0 | 7 |
 | E: owner dogfood | 1 batch x 5 outcomes | 5 | 0 | 5 |
-| | | **206** | **113** | **93** |
+| | | **206** | **114** | **92** |
 
 `Run` now means executed under the corrected public-entry-point method. The old
 numbers are retained only in the private acceptance-diagnostic evidence. Every
@@ -356,7 +357,7 @@ boundary, then removed its pending state.
 | CB01 | `GET /auth/callback?<redacted>` | Owner cancels a pending attempt | `303` to `/auth/failed` | pass |
 | CB02 | `GET /auth/callback?<redacted>` | Reuse a callback after its attempt is consumed | `303` to `/auth/failed` | pass |
 | CB03 | `GET /auth/callback?<redacted>` | Submit a state that does not match the pending attempt | `303` to `/auth/failed` | pass |
-| CB04 | `GET /auth/callback?<redacted>` | Complete a valid live browser authorization | `303` to `/auth/complete` | acceptance observation only; corrected owner approval not run |
+| CB04 | `GET /auth/callback?<redacted>` | Complete a valid live browser authorization | `303` to `/auth/complete` | partial on `b753716`: live browser reached query-free `/auth/complete`; no raw callback response status was captured |
 | CB05 | `GET /auth/complete` | Follow CB04 without query parameters | `200`, generic success page | pass |
 | CB06 | `GET /auth/failed` | Follow a failed callback without query parameters | `400`, generic failure page | pass |
 | CB07 | `GET /auth/callback?<redacted>` | Cancel and clean a pending-attempt fixture | `303` to `/auth/failed`; pending state removed | pass |
@@ -487,7 +488,7 @@ close the full-request cell.
 
 | id | precondition and setup | action | expected observable and oracle | evidence boundary | cleanup | status |
 |---|---|---|---|---|---|---|
-| A01 | Fresh state; callback port free; ChatGPT account available | Start ChatGPT OAuth and approve in the browser | PKCE state matches, query-free completion returns, CLI remains in one flow | CLI transcript, callback status/location, attempt state | Close tab; retain isolated state for A02-A06 | partial on `9761f6a`: public CLI flow, readiness and commit passed; completion tab closed before query-free address observation |
+| A01 | Fresh state; callback port free; ChatGPT account available | Start ChatGPT OAuth and approve in the browser | PKCE state matches, query-free completion returns, CLI remains in one flow | CLI transcript, callback status/location, attempt state | Close tab; retain isolated state for A02-A06 | pass on `b753716`: the public CLI flow completed and Windows readback observed `/auth/complete` with an empty query and no `code` or `state` parameters |
 | A02 | Passing A01 attempt not yet committed | Let authenticated catalog discovery finish | Account-scoped OpenAI catalog contains seven supported models and no static YAML row | Attempt/catalog response and normalized candidate models | Retain state | pass on `9761f6a`: authenticated catalog returned seven OpenAI models |
 | A03 | A02 candidate and starter model | Let bounded readiness run | Direct ChatGPT Responses call returns nonzero usage before commit | Readiness response and usage | Retain state | pass on `9761f6a`: the public command returned success only after live readiness |
 | A04 | Passing A03 candidate | Commit the connection | One strict immutable credential file exists; SQLite contains only its opaque reference | Provider/default rows, file metadata, DB/WAL/SHM secret scan | Retain state | pass on `9761f6a`: immutable `0600` record and opaque SQLite reference committed; DB files were token-free |
@@ -749,7 +750,7 @@ Legend: pass / fail / blocked / not run / **Not-Needed**.
 | build, test, and lint | CI not run | CI not run | CI not run | pass locally |
 | credential matrix | not run | type check only | type check only | not run for E2E; prior acceptance diagnostics retained |
 | clean install | pass in Linux `scratch` | not run | not run | driver host only |
-| live providers | not run | not run | not run | partial: three API-key paths pass; ChatGPT OAuth login and work pass, browser-page oracle open |
+| live providers | not run | not run | not run | partial: three API-key paths and ChatGPT OAuth onboarding/work/browser page pass; raw callback status open |
 | full engine | not run | not run | not run | partial: OpenAI Platform, Gemini and Anthropic public-boundary runs pass |
 | restart and dogfood | not run | not run | not run | not run; prior acceptance diagnostics retained |
 | overall | not run | not run | not run | partial |
@@ -760,8 +761,8 @@ process launch are platform-shaped. No supported operating system is
 
 ## What this runbook cannot prove
 
-The written open cells do not yet prove the corrected ChatGPT query-free browser-page
-oracle, Gemini API-key coexistence, replacement and deletion; native Linux, macOS or Windows
+The written open cells do not yet prove the corrected ChatGPT raw callback redirect-status
+capture, Gemini API-key coexistence, replacement and deletion; native Linux, macOS or Windows
 installed-product sessions; the 32 credential-storage cells; 22 engine cells;
 16 surface branch cells; a kill inside the owner dogfood batch;
 or a monetary cost for ChatGPT OAuth usage. Those cells remain open and prevent
