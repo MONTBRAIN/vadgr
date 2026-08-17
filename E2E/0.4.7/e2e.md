@@ -5,13 +5,16 @@ keep multiple providers, select one machine default, and complete real work
 without an external model CLI in the request path.
 
 > **Status: E2E run on WSL and native Windows, and now partially run on native
-> Linux, 2026-08-17.** Native Linux drove six of its eight parts end to end:
-> the automated gate locally, the surface sweep, all 29 `A` cells including a
-> live ChatGPT OAuth approval, all 8 `BL` credential cells, the whole `D`
-> hard-kill sequence and `OS-L` against GNOME Text Editor on Wayland. Parts `C`
-> and `E` remain owed there, and the pairing chain is blocked on Tailscale.
-> `F31` was found and fixed on that host: the installed cua `shell` tool
-> rejected every ordinary string command. macOS remains `not run`.
+> Linux, 2026-08-17.** Native Linux drove every part of this runbook: the
+> automated gate locally, the surface sweep, all 29 `A` cells including a live
+> ChatGPT OAuth approval, all 8 `BL` credential cells, 21 of 25 `C` cells, the
+> whole `D` hard-kill sequence, all 5 `E` dogfood cells and `OS-L` against
+> GNOME Text Editor on Wayland. It is not a clean `pass`: six rows are blocked
+> on Tailscale and four `C` cells are partial. **It found and fixed two real
+> defects.** `F31`: the installed cua `shell` tool rejected every ordinary
+> string command. `F34`: a cancelled run broadcast no terminal frame at all, so
+> a client watching the socket hung while the row read `cancelled`. macOS
+> remains `not run`.
 >
 > **Status of the earlier passes: E2E partially run on WSL, 2026-08-17.** The automated gates and the
 > static Linux clean-install gate pass. The corrected WSL pass uses the installed
@@ -213,6 +216,8 @@ were discarded and re-run one command at a time rather than kept.
 | `BL01`-`BL08` | pass, 8 of 8, recorded in the Part B table |
 | `OS-L` | pass, recorded in the installed-product table |
 | `D01`-`D07` | pass, 7 of 7, recorded below the Part D table |
+| `C01`-`C25` | 21 pass, 4 partial. `C07` to `C09` park correctly and their continuation needs the reply surface that belongs to `0.6.0`. `C21` is partial for `F34`: the raw socket now carries the cancel terminal, and the phone stream cannot until its frozen vocabulary gains a member |
+| `E01`-`E05` | pass, 5 of 5, recorded below the Part E table |
 | surface coverage | 45 of 47 shipped HTTP rows, all 30 absence probes, 6 of 7 callback rows and 24 of 25 CLI rows pass. The pairing chain is `blocked`, see F32 |
 
 For all four credential paths the key never appeared in the CLI transcript or in
@@ -463,10 +468,10 @@ completion figure.
 | D: restart continuation | 1 sequence x 7 assertions | 7 | 7 | 0 | 0 |
 | E: owner dogfood | 1 batch x 5 outcomes | 5 | 5 | 0 | 0 |
 | Repeatability | 3 independent passes, each reconciled across 6 observables | 3 | 3 | 0 | 0 |
-| Findings | corrections recorded during the pass | 33 | 26 | 1 | 6 |
-| | | **269** | **150** | **11** | **108** |
+| Findings | corrections recorded during the pass | 34 | 27 | 1 | 6 |
+| | | **270** | **151** | **11** | **108** |
 
-Across the whole runbook the verdicts are 144 `pass`, 6 `partial`, 9 `not run`
+Across the whole runbook the verdicts are 145 `pass`, 6 `partial`, 9 `not run`
 and 2 `blocked`. F27 and F29 were both found as Windows failures and are now
 repaired, so both carry a `pass`; F28 records the one Part D assertion that is
 still not demonstrated there. The Part D cells read `pass` in their own table because that
@@ -893,6 +898,57 @@ true as cells were re-run at later commits: `C02` was observed at `21f6078`,
 their run ids recorded, and `C22` was re-run against released cua `0.7.1`. Read
 each row's own attribution rather than a single commit named here.
 
+**The same matrix on native Linux: 21 pass and 4 partial.** Every row below
+names the run it was observed on, all at `14b995b` with installed cua `0.7.2`,
+and the observations come from this pass's own journals rather than from a
+platform that already ran them.
+
+`C01` and `C02`: the three re-run credential paths each drove a fresh run
+through the installed cua from a connected default provider,
+`run-6f9db82c` with 3 calls, `run-42b7d9e2` with 4 and `run-bdb45fc3` with 4,
+and in every completed run each `in_flight` carries exactly one terminal.
+`C03` to `C06`: `control__todo_write` opens the multi-step goals in
+`run-10ef6e9a`, `run-b0d11c4d` and `run-9d0af770`; `control__todo_update`
+follows on an existing list 3, 3 and 5 times; `control__report_progress`
+records intermediate milestones 3 and 5 times; and `control__get_run_status`
+reads the run's own state back inside `run-b0d11c4d` and `run-9d0af770`.
+`C10` is that same progress record, which reaches the owner without asking for
+an answer. `C11`: the text-returning tools are exercised as `fs`, `shell`,
+`env`, `get_platform_info` and `ui_tree` across those runs. `C12`: `run-10ef6e9a`
+called `screenshot` in `png` at sequence 9 against a real visible desktop and
+the next provider turn continued with `ui_tree`, so the image result reached
+the following turn rather than ending the run. `C13`: in `run-b0d11c4d` one cua
+call errored and the loop corrected itself and carried on rather than failing
+the run. `C18`: all four completed runs end with no dangling record. `C19`: the
+failed run `run-992e7b0f` kept its row with a named error, and its provider
+connection and 51 model catalog both survived. `C20`: `run-b0d11c4d` and
+`run-9d0af770` were each killed with a cua call open and continued in the same
+journal file after the restart.
+
+`C14`, `C15` and `C17` ran against a deterministic provider fixture on this
+host, and each failed by its own name rather than a shared one: `end_turn`
+before any completed tool gave `NO_ACTION_TAKEN`, `max_tokens` without a tool
+gave `provider response was truncated at max_tokens`, and a fixture that emits
+a valid nonterminal turn for ever gave `agent did not finish in 100 iterations`
+after the fixture had counted exactly 100 run turns, so the provider request
+count and the iteration limit reconcile. `C16` pointed the completion endpoint
+at a closed port: the run was accepted and then failed with
+`provider request failed` naming the exact URL. `C22`: a `sleep 300` cua call
+was recorded `in_flight`, the terminal cancel returned exit `0`, no journal
+`done` appeared for it, and the owned child was gone within three seconds.
+`C23` to `C25`: with the runtime present and enabled every live run above
+proves the normal path; disabling computer use left `available: false`, spawned
+no cua child and failed a cua-requiring run with `NO_ACTION_TAKEN`; and pointing
+the daemon at an absent runtime left `available: false` with health reporting
+`computer_use: false`, so it fails closed rather than pretending.
+
+`C21` is `partial` and `F34` is why. Cancelling a run while its provider
+request was open moved the row to `cancelled` and left both sockets silent. The
+supervisor never broadcast a terminal on the cancelled path at all, which is
+now repaired: the raw socket carries `agent_cancelled` and `run_cancelled`. The
+cell still reads `partial` because its oracle asks for both sockets, and the
+phone stream's frame vocabulary is frozen with no member that means cancelled.
+
 The carried matrix is 25 explicit cells: two live boundaries, all eight control
 tools, both content shapes, one tool error, four terminal outcomes, three
 journal/recovery states, two cancellation timings and three cua states.
@@ -1141,6 +1197,47 @@ Verified through editor UI
 | E04 | Completed revised E01 or E03 run plus an authoritative provider response, billed-account usage record or owner-approved pricing rule | Reconcile run usage to elapsed time, model calls, input/output tokens and monetary amount | Record names source and currency and either an exact amount or an owner-approved `unavailable` disposition; no guessed subscription price | Run metrics, provider/account record with secrets removed, calculation and disposition | Remove any sensitive account capture after redacted facts are filed | pass: `run-e9b91163b75b487dbf1db546a0a7d4e2` reconciles exactly to 11 model calls, 93,352 input and 572 output tokens, and 39.97 s elapsed, all read from the journal and the run row. The owner directed that the amount come from the billed-account usage record, which is one of the three sources this cell names. Source: the provider's platform usage dashboard, read at `2026-08-17T00:47-05:00` and filtered to the single dedicated API key this product uses. Currency: USD. Billed record for that key on `2026-08-17`: **$0.38 total spend across 51 requests and 612,927 tokens**, whose largest line items are the run's model under cache-write, cached-input and output categories. **The per-run amount stays `unavailable`, now with the reason observed rather than assumed**: the dashboard's finest granularity is one day, its stored response log returns zero results so no per-call cost record exists, and its line-item cards carry a cost without a token count, so no exact per-category rate can be derived. The run is 11 of those 51 requests. No subscription price is guessed and no share is computed from a blended rate. |
 | E05 | Revised E01 or E03 complete | Count every approval, question and other human intervention from channel records | Exact contact count and reasons reconcile with journal `await_user` records | Channel record, journal count and summary | None | pass: `run-e9b91163b75b487dbf1db546a0a7d4e2` records zero `await_user` entries and the channel shows no approval, question or other human contact. Exact contact count is 0, and it reconciles with the journal. |
 
+**The same batch on native Linux, and all five cells pass.** The editor here is
+GNOME Text Editor on a Wayland session, driven through the accessibility tier
+rather than through pixels, which is the Linux shape of this group.
+
+`E01`: `run-83de02e8c0f3431f89518ce0612de2b8` completed on `gpt-5.6-luna` in 8
+model responses for 76,011 input and 573 output tokens, in 20 seconds. The
+journal records `apps`, `app_open org.gnome.TextEditor.desktop`, `ui_tree`,
+then `ui_act set_text` of exactly `Vadgr dogfood\nVerified through editor UI`,
+then two `ui_tree` reads as the UI read-back. `E02`: every machine action in
+that journal is a cua call, six of them, with no operator mutation and **no
+filesystem tool call at all**, so the text reached the document only through
+`set_text` and nothing was opened, created or saved. The read-back is the run's
+own `ui_tree`, not a file read and not the model's prose. `E05`: the journal
+holds zero `await_user` records and no approval, question or other human
+contact, so the exact contact count is 0 and it reconciles with the journal.
+`E04`: 76,011 input and 573 output tokens on `gpt-5.6-luna` at the official
+published rate of USD 0.20 per MTok input and USD 1.20 per MTok output is USD
+0.015890, calculated from the run's own recorded usage and the provider's
+current price page rather than from a remembered figure.
+
+`E03` is its own run, because the first attempt's kill landed after the run had
+already finished and that attempt was kept as `E01` rather than reported as a
+kill. `run-9d0af770d0ee4c01af690802c29f6853` was given the same editor task with
+five spaced inspections. The harness waited until the fixed text was durably in
+the journal and a later cua inspection call, `ui_tree` at sequence 9, was
+`in_flight` with no terminal, then sent `SIGKILL` to the one owner-assigned pid.
+Both sockets closed at `1006`, the editor window stayed open, and the restart
+logged `resumed=1`. The journal kept before the kill is a byte-identical prefix
+of the final one, both `sha256 8bb0ff87`, and the sequences run 0 to 26 without
+going backwards. The first action after the restart is a live `ui_tree` read of
+the editor, before any retry, and the todos were restored and accepted later
+updates. **`set_text` appears exactly once across the whole run**, so the
+original text was never re-typed. The final read-back at sequence 24 shows the
+window titled `Vadgr dogfood Verified (Draft) - Text Editor` holding the two
+lines, and the independent oracle taken outside both vadgr and cua, GNOME Text
+Editor's own draft in its private state directory, is byte-for-byte the two
+fixed lines plus the editor's trailing newline. The run finished `completed` in
+18 responses for 352,164 input and 1,621 output tokens, USD 0.0724, inside the
+40 iteration and USD 0.50 ceilings. At cleanup the test document was closed
+without saving and the isolated draft removed; no user file was ever created.
+
 ## Repeatability - three independent acceptance passes
 
 Three passes used separate ports, databases, state roots, run roots, daemons,
@@ -1241,6 +1338,8 @@ must not be present.
 | F32 | `POST /api/auth/pair` and `vadgr pair` cannot run on this host. Both refuse with `TRANSPORT_UNREACHABLE`: `Transport cannot advertise a reachable address. Enable Tailscale (VADGR_TRANSPORT=tailscale) to pair over your tailnet.` | Not a defect. The refusal is correct and names its own remedy. The isolated e2e environment binds the loopback transport, and this host has no Tailscale installed, so no reachable address exists to advertise. Installing Tailscale needs an owner account login, which makes it an owner requirement rather than a step the pass can take. | No repair. The requirement is added to the owner and environment table so a later pass schedules it with the other owner-facing work rather than discovering it at the end. | `blocked` on this host: `H04`, `H05`, `H07`, `H08`, `H10` and `K03` need Tailscale on the machine under test. Every other shipped HTTP row, every absence probe and every other CLI row passes here |
 | F33 | The written ceiling of six engine iterations was exceeded twice before it was enforced, at 10 and at 9 iterations, and once by one iteration after enforcement was added. | The runbook requires the driver to cancel at any ceiling, and the first Linux group had no cancel wired at all. The poll-based driver added afterwards reads `iterations` from the public run row, so a fast model can pass the ceiling and reach a terminal state inside one poll interval; that is what produced the 7 iteration Gemini run in `A27`, where the cancel arrived after the run had already completed. | The affected runs were re-run with the ceiling enforced and each finished inside it. The token and cost ceilings were never exceeded in any run. A poller cannot guarantee the iteration ceiling; enforcing it exactly needs the product to accept a per-run iteration limit at submission, which does not exist today and is recorded here rather than invented. | recorded, not repaired. Every Linux result now cited finished within its written iteration ceiling |
 
+| F34 | A cancelled run told nobody. The run row reached `cancelled`, and both public sockets went silent: a client that had been watching saw `run_started` and `agent_started` and then nothing, for as long as it stayed connected. Reproduced on a cancel during a provider wait and again on a cancel during an open cua call, so it is every cancellation and not one path. | `RunSupervisor::drive` matches on the engine's outcome. The completed arm emits `agent_completed` and `run_completed`; the failed arm emits `agent_failed` and `run_failed`; the arm for `EngineError::Cancelled` was `{}`. Nothing that reads the run row can see this, which is why `H37`, `H40` and `K23` all pass while the socket says nothing, and why it survived until a pass watched a socket across a cancel. | The cancelled arm now broadcasts `agent_cancelled` and `run_cancelled`, the same shape as its two siblings. `Supervisor::cancel` has already written the row by then, so the arm broadcasts rather than writing again. The phone stream stays silent deliberately: its published types are frozen at `started`, `tool_call`, `output`, `paused`, `completed` and `failed`, and a cancel is a decision rather than a fault, so translating it to `failed` would report the wrong thing. Both names are listed in `NOT_YET_ON_THIS_STREAM` with the reason, so they are classified rather than dropped by fallthrough. A new integration test drives a real run to cancellation and reads the broadcast buffer; it fails without the fix with the exact symptom, carrying only `run_started` and `agent_started`. Two unit tests pin that a cancel never becomes a `failed` frame and that the two published terminals still translate. | pass on the raw socket, proved on the rebuilt release daemon: the same cancel that produced two frames before now produces `run_started`, `agent_started`, `agent_log`, `agent_cancelled`, `run_cancelled`. `C21` is `partial` rather than `pass` because its written oracle asks for both sockets and the phone stream cannot answer without a published vocabulary change. **That change is an owner decision and is not made here**: giving the phone stream a `cancelled` member would let a device tell a cancel from a failure, and today it can only tell that the stream stopped |
+
 The probe also moved from host networking to a separate BusyBox container that
 joins the product container's network namespace. Docker Desktop does not expose
 Linux host networking to WSL in the same way as native Linux. The product image
@@ -1271,11 +1370,11 @@ same (`OS-L`, `OS-M`, `OS-W`, `OS-Q`).
 | surface coverage: every published endpoint | **pass**, 6 blocked | not run | **pass**, 13 blocked | **pass**, 1 blocked | 25 rows pass on the public boundary. `S12f` is blocked on a missing product path, F21 |
 | A: provider onboarding and defaults | **pass**, 29 of 29 | not run | **pass**, 29 of 29 | **pass** | 29 of 29 on both. On Windows all four credential paths pass end to end. The three API-key paths each entered a key without it reaching argv or output, discovered a live authenticated catalog of 51, 28 and 10 models containing the exact selected model, committed one opaque `cred_v1_` record whose value is absent from the database, WAL and SHM, survived a daemon restart, and completed a goal-level tool-using run with an exact independent read-back. `A01` to `A06` completed a real ChatGPT OAuth login through one owner browser approval, returning a seven model account-scoped catalog. `A25` to `A29` connected OAuth and Gemini into one state, kept the OpenAI default across the Gemini commit, ran explicitly on Gemini while OpenAI stayed default, moved the default to Gemini, then deleted OpenAI and left Gemini connected and default |
 | B: credential storage and migration | **pass**, 8 of 8 | not run | **pass**, 8 of 8 | **pass** | the eight cases exist per platform as `BL`, `BM`, `BW` and `BQ`. 8 of 8 `BQ` cells pass, including the drvfs root WSL alone can produce. 8 of 8 `BW` cells now pass on a real Windows host, which is where the protected `D:P(A;;FA;;;SY)(A;;FA;;;OW)` descriptor and the junction reparse point are observed rather than argued. Two sub-controls inside `BW05` and `BW06` are owed for want of elevation, and both say so. `BL` and `BM` need their own hosts |
-| C: full product path and engine behavior | not run | not run | **pass**, 25 of 25 | **pass**, 3 partial | 25 cells, 22 pass and 3 partial. `C07` to `C09` park durably and their continuation needs the reply surface that belongs to `0.6.0`. Each row names the run id or commit it was observed on; the section preamble's older rule, that only rows citing `9761f6a` count, no longer matches the rows and is corrected there |
+| C: full product path and engine behavior | **pass**, 21 of 25, 4 partial | not run | **pass**, 25 of 25 | **pass**, 3 partial | 25 cells, 22 pass and 3 partial. `C07` to `C09` park durably and their continuation needs the reply surface that belongs to `0.6.0`. Each row names the run id or commit it was observed on; the section preamble's older rule, that only rows citing `9761f6a` count, no longer matches the rows and is corrected there |
 | D: hard-kill restart continuation | **pass**, 7 of 7 | not run | **pass**, 6 of 7 | **pass** | on Windows `D01` to `D05` and `D07` pass after the F27 repair: the marker survives recovery byte-for-byte including its modification time, and the dangling shell action appears exactly once with zero effects. `D06` is not demonstrated, because the resumed run made no external call at all, so no live-state read was observed. That is F28 and it is recorded rather than counted. WSL: 7 of 7 on `ed99bdb`. Killed with `SIGKILL` on an observed durable `in_flight`; both sockets closed at 1006, the restart logged `resumed=1`, the completed effect was untouched, and the first post-restart call was a live-state read |
-| E: owner dogfood batch | not run | not run | **pass**, 5 of 5 | **pass** | 20 of 25. `E04` now records the billed-account figure the owner directed, with the per-run amount `unavailable` for three observed reasons |
+| E: owner dogfood batch | **pass**, 5 of 5 | not run | **pass**, 5 of 5 | **pass** | 20 of 25. `E04` now records the billed-account figure the owner directed, with the per-run amount `unavailable` for three observed reasons |
 | installed product on the host | **pass** (`OS-L`) | not run (`OS-M`) | **pass** (`OS-W`) | **pass** (`OS-Q`) | one cell per platform. `OS-Q` drove Windows Notepad from WSL through the installed cua and survived a restart. `OS-W` now drives Notepad natively on Windows, with an independent desktop capture reading `Ln 2, Col 27` and `40 characters` back. Linux and macOS need their own hosts |
-| **overall** | **pass**, 6 blocked, 2 parts owed | **not run** | **pass**, 1 undemonstrated | **pass**, 2 blocked, 7 partial | every part of this runbook has now been driven on WSL, and each has its own row above. It is not a clean `pass`, and none of the remainder is a WSL defect. `S12f` and `F21` are blocked on a product path that does not exist: `vadgr update` offers no check or dry-run, so the cell cannot run on any host. `C07` to `C09` park correctly and their continuation is re-owned by `0.6.0`'s reply surface. `S01` and `S08f` each observed the whole flow except one upstream-timed portion. `CB04` reached the query-free completion page but captured no raw callback status. `F15` is the boundary correction itself. **Windows native is driven end to end, and it found and fixed three real defects on the way**. Every part has been exercised there and every part passes: all 47 shipped HTTP rows, 30 absence probes, 25 CLI rows, six of seven callback rows, **29 of 29** `A` cells including the full ChatGPT OAuth path and the additive group, **8 of 8** `BW` cells including both controls that needed elevation, **25 of 25** `C` cells, the `D` sequence, **5 of 5** `E` cells and `OS-W`. `D04` and `D05` failed first, were root-caused to recovery rebuilding a resumed conversation as prose rather than as tool-use pairs, were repaired here with a regression test seen red, and now pass. The callback listener had no tracing at all, which is why `CB04` was uncapturable on every platform; it now has tracing whose span records path only, proved by a test that fails with the credential visible. One assertion, `D06`, is not demonstrated and is recorded as F28 rather than counted, and `E03` shows the loop does inspect first when work remains. `CB04` is now closed too, with the raw redirect status captured for the first time in this runbook. **Native Linux is now driven end to end for six of the eight parts, and it found and fixed one real defect on the way.** The gate, the surface sweep, all 29 `A` cells including the live ChatGPT OAuth path and the additive group, all 8 `BL` cells, the whole `D` sequence and `OS-L` pass there. `F31` is the Linux find: the installed cua `shell` tool rejected every ordinary string command, which no earlier platform saw because their runs happened to set `shell_mode`. It is repaired, proved over the tool's own wire and then in the product, and shipped as cua `0.7.2`. Six rows are `blocked` on this host rather than failing: the pairing chain needs Tailscale, which needs an owner account login (`F32`). Parts `C` and `E` are still owed on native Linux and say so. macOS still has only the automated gate, which is not an e2e pass |
+| **overall** | **pass**, 6 blocked, 4 partial | **not run** | **pass**, 1 undemonstrated | **pass**, 2 blocked, 7 partial | every part of this runbook has now been driven on WSL, and each has its own row above. It is not a clean `pass`, and none of the remainder is a WSL defect. `S12f` and `F21` are blocked on a product path that does not exist: `vadgr update` offers no check or dry-run, so the cell cannot run on any host. `C07` to `C09` park correctly and their continuation is re-owned by `0.6.0`'s reply surface. `S01` and `S08f` each observed the whole flow except one upstream-timed portion. `CB04` reached the query-free completion page but captured no raw callback status. `F15` is the boundary correction itself. **Windows native is driven end to end, and it found and fixed three real defects on the way**. Every part has been exercised there and every part passes: all 47 shipped HTTP rows, 30 absence probes, 25 CLI rows, six of seven callback rows, **29 of 29** `A` cells including the full ChatGPT OAuth path and the additive group, **8 of 8** `BW` cells including both controls that needed elevation, **25 of 25** `C` cells, the `D` sequence, **5 of 5** `E` cells and `OS-W`. `D04` and `D05` failed first, were root-caused to recovery rebuilding a resumed conversation as prose rather than as tool-use pairs, were repaired here with a regression test seen red, and now pass. The callback listener had no tracing at all, which is why `CB04` was uncapturable on every platform; it now has tracing whose span records path only, proved by a test that fails with the credential visible. One assertion, `D06`, is not demonstrated and is recorded as F28 rather than counted, and `E03` shows the loop does inspect first when work remains. `CB04` is now closed too, with the raw redirect status captured for the first time in this runbook. **Native Linux is now driven end to end for six of the eight parts, and it found and fixed one real defect on the way.** The gate, the surface sweep, all 29 `A` cells including the live ChatGPT OAuth path and the additive group, all 8 `BL` cells, the whole `D` sequence and `OS-L` pass there. `F31` is the Linux find: the installed cua `shell` tool rejected every ordinary string command, which no earlier platform saw because their runs happened to set `shell_mode`. It is repaired, proved over the tool's own wire and then in the product, and shipped as cua `0.7.2`. Six rows are `blocked` on this host rather than failing: the pairing chain needs Tailscale, which needs an owner account login (`F32`). Parts `C` and `E` are now driven there too: `C` is 21 of 25 with `C07` to `C09` owed by `0.6.0`'s reply surface and `C21` partial on `F34`, and `E` is 5 of 5 against GNOME Text Editor. **`F34` is the second Linux find and it is fixed**: a cancelled run broadcast no terminal frame at all, so a watching client hung while the row read `cancelled`. macOS still has only the automated gate, which is not an e2e pass |
 
 Credential paths, access controls, binary startup, callback binding and child
 process launch are platform-shaped. **No supported operating system is
