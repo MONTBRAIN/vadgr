@@ -309,10 +309,32 @@ If open: why it is acceptable to ship, and the minor that closes it.>
 Legend: pass / fail / blocked / not run / **Not-Needed** (no OS-specific
 surface, so a run there adds no signal - always with its reason).
 
-| | Linux | macOS | Windows native | WSL |
-|---|---|---|---|---|
-| Part <X> | | | | |
-| Overall | | | | |
+**The rows are this runbook's own parts, and nothing else.** A row named for a
+theme rather than a part cannot be read back to the cells that produced it, so a
+reader cannot check it and a reviewer cannot audit it. `vadgr 0.4.7` shipped a
+matrix whose rows were `credential matrix`, `live providers` and `full engine`,
+none of which named a part or a cell, and it was unreadable for exactly that
+reason. Add a row for the automated gate and one for the surface sweep if the
+runbook has them, then `Overall`, and nothing else.
+
+**Put the platform in the cell id wherever a case runs on several platforms**,
+so the matrix row and the cells agree by construction: `BL` native Linux, `BM`
+macOS, `BW` Windows native, `BQ` WSL, and `OS-L` / `OS-M` / `OS-W` / `OS-Q` for
+an installed-product cell. Name those ids in the row's notes.
+
+**`Overall` never inherits the automated gate.** CI builds an environment and
+runs the unit suites. It drives no session, calls nothing over the wire and
+reaches no glass, so a green CI row says the suites pass on that OS and nothing
+about whether the product works there. `Overall` is the weakest of the parts
+actually driven on that OS.
+
+| part | Linux | macOS | Windows native | WSL | notes |
+|---|---|---|---|---|---|
+| automated gate: build, test, lint | | | | | |
+| surface coverage | | | | | |
+| Part <X> | | | | | |
+| installed product on the host | | | | | name `OS-L`, `OS-M`, `OS-W`, `OS-Q` |
+| **Overall** | | | | | |
 
 <Justify every `Not-Needed` in prose. "Pure Python, no socket/pipe/path/registry
 /process branching and no per-OS deps, so the other OSes cannot behave

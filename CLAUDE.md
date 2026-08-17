@@ -271,6 +271,18 @@ the readiness signal differ. cua `0.6.6` shipped because a fresh install of
 `0.6.5` could not start at all, and nothing checked a clean install before
 publish. A suite is not an install.
 
+**Before calling a runbook finished, run the arithmetic:**
+
+```bash
+python3 ../vadgr-docs/scripts/check_e2e.py E2E/<version>/e2e.md
+```
+
+It fails on a per-OS matrix row that names no part, and on a `not run` or
+`blocked` cell that gives no reason. Both answers are always acceptable; a bare
+one is not, because nobody can tell an owed cell from a forgotten one. It also
+prints the cell counts every time, so a summary is compared against the cells
+rather than trusted. It cannot tell whether a `pass` is true.
+
 **Evidence is filed while the pass runs, never assembled after it.** The
 evidence directory exists before the first cell, each group files what it
 produced at its own boundary, and a group that captured nothing gets a note
