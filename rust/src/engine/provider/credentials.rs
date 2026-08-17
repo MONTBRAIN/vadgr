@@ -677,9 +677,12 @@ mod windows_security {
                 // Windows commonly makes the Administrators group the owner of
                 // a path a user created, which is a legitimate setup this
                 // message has to make visible rather than hide.
+                // The wide string is the path this validator was given. It is
+                // the only identity available here, and a refusal with no path
+                // cannot be diagnosed from a machine you do not have.
                 return Err(std::io::Error::other(format!(
                     "credential path {} is not owned by the current user",
-                    path.display()
+                    String::from_utf16_lossy(wide).trim_end_matches('\0')
                 )));
             }
             let mut control = 0;
