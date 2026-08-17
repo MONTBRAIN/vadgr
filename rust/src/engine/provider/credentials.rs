@@ -140,15 +140,26 @@ impl CredentialStore {
             let reference = format!("{REFERENCE_PREFIX}{suffix}.json");
             let final_path = self.directory.join(&reference);
             let staged_path = self.directory.join(format!("{STAGED_PREFIX}{suffix}.tmp"));
-            let mut file = match create_secret_file(&staged_path) {
+            let file = match create_secret_file(&staged_path) {
                 Ok(file) => file,
                 Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
                 Err(error) => return Err(store_error(error)),
             };
             let mut published = false;
+            let mut staged_handle = Some(file);
             if let Err(error) = (|| -> std::io::Result<()> {
-                file.write_all(&bytes)?;
-                file.sync_all()?;
+                // **Close the handle before publishing.** POSIX lets a file be
+                // renamed while it is open, so this read correctly on Unix.
+                // Windows refuses with a sharing violation, which made the
+                // store unable to write a single credential there. The handle
+                // is taken rather than borrowed so it is closed at a point the
+                // code states, not wherever the binding happens to end.
+                let mut handle = staged_handle
+                    .take()
+                    .expect("the staged handle is present exactly once");
+                handle.write_all(&bytes)?;
+                handle.sync_all()?;
+                drop(handle);
                 validate_secret_file(&staged_path)?;
                 publish_secret_file(&staged_path, &final_path)?;
                 published = true;
