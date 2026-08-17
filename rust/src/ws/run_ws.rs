@@ -181,12 +181,21 @@ const EVENT_TYPE_MAP: [(&str, &str); 8] = [
     ("run_failed", "failed"),
 ];
 
-/// Broadcast, understood, and deliberately not translatable yet: neither has
+/// Broadcast, understood, and deliberately not translatable yet: none has
 /// a member in the published vocabulary, and inventing one here would be a
 /// published frame name chosen in the wrong place. Listed rather than left to
 /// the fallthrough so a type nobody has considered can be told apart from one
 /// that is waiting on a decision.
-const NOT_YET_ON_THIS_STREAM: [&str; 2] = ["todos", "run_resumed"];
+///
+/// `run_cancelled` and `agent_cancelled` are here for a reason worth stating.
+/// The published frame types on this socket are frozen at `started`,
+/// `tool_call`, `output`, `paused`, `completed` and `failed`, and a cancel is
+/// deliberately not the same recorded fact as a failure, so translating it to
+/// `failed` would report a decision as a fault. Until the published vocabulary
+/// gains a member for it, this stream stays silent on a cancel and the raw
+/// socket carries the terminal.
+const NOT_YET_ON_THIS_STREAM: [&str; 4] =
+    ["todos", "run_resumed", "run_cancelled", "agent_cancelled"];
 
 /// One internal event as a `RunEvent`, or `None` when it has no member in the
 /// published vocabulary.
@@ -301,6 +310,36 @@ async fn pump(
 #[cfg(test)]
 mod tests {
     use super::AdmissionError;
+    use serde_json::json;
+
+    /// A cancel must not arrive on the phone as a failure. The published frame
+    /// types are frozen and none of them means cancelled, so the translator
+    /// drops it deliberately rather than reporting a decision as a fault.
+    #[test]
+    fn cancel_is_not_translated_into_a_failure_frame() {
+        for kind in ["run_cancelled", "agent_cancelled"] {
+            let internal = json!({"type": kind, "data": {"error": "Run was cancelled"}});
+            assert!(
+                super::to_run_event(&internal).is_none(),
+                "{kind} must not translate onto the published stream"
+            );
+            assert!(
+                super::NOT_YET_ON_THIS_STREAM.contains(&kind),
+                "{kind} must be classified deliberately, not dropped by fallthrough"
+            );
+        }
+    }
+
+    /// The two terminals that do have published members still translate, so the
+    /// change above cannot have silenced them too.
+    #[test]
+    fn the_published_terminals_still_translate() {
+        for (kind, expected) in [("run_completed", "completed"), ("run_failed", "failed")] {
+            let event = super::to_run_event(&json!({"type": kind, "data": {}}))
+                .expect("published terminal must translate");
+            assert_eq!(event["type"], expected);
+        }
+    }
 
     #[test]
     fn rejected_upgrades_have_stable_close_codes() {

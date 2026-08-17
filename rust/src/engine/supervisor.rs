@@ -276,7 +276,17 @@ impl RunSupervisor {
                     events.emit("run_completed", json!({"outputs":outputs}));
                 }
             }
-            Err(EngineError::Cancelled) => {}
+            // A cancel is a terminal state like the other two, so it says so on
+            // the socket like the other two. `Supervisor::cancel` has already
+            // written the row, which is why this arm broadcasts rather than
+            // calling `finish_if_active` again. Leaving this arm empty is what
+            // made a watching client hang on `agent_started` for ever while the
+            // run row read `cancelled`.
+            Err(EngineError::Cancelled) => {
+                let outputs = json!({"error": "Run was cancelled"});
+                events.emit("agent_cancelled", json!({"run_id":id,"outputs":outputs}));
+                events.emit("run_cancelled", json!({"outputs":outputs}));
+            }
             Err(error) => self.fail(&id, error.to_string(), &events),
         }
     }
