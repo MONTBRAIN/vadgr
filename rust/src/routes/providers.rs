@@ -1,4 +1,4 @@
-use crate::auth::gate::is_loopback;
+﻿use crate::auth::gate::is_loopback;
 use crate::engine::provider::service::ServiceError;
 use crate::error::{ApiError, ApiResult};
 use crate::state::AppState;
@@ -208,6 +208,19 @@ pub async fn oauth_failed() -> (StatusCode, Html<&'static str>) {
         Html(
             "<!doctype html><title>Vadgr sign-in failed</title><p>The sign-in response was not accepted. Return to the terminal.</p>",
         ),
+    )
+}
+
+/// The tracing span for a callback request: method and path, never the URI.
+///
+/// This route's query carries the OAuth authorization code and the state. The
+/// default span records the whole URI, which writes a live credential into the
+/// daemon log, so the span is built by hand here and tested below.
+pub fn callback_span<B>(request: &axum::http::Request<B>) -> tracing::Span {
+    tracing::info_span!(
+        "callback",
+        method = %request.method(),
+        path = %request.uri().path(),
     )
 }
 

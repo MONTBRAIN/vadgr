@@ -322,13 +322,13 @@ completion figure.
 | D: restart continuation | 1 sequence x 7 assertions | 7 | 7 | 0 | 0 |
 | E: owner dogfood | 1 batch x 5 outcomes | 5 | 5 | 0 | 0 |
 | Repeatability | 3 independent passes, each reconciled across 6 observables | 3 | 3 | 0 | 0 |
-| Findings | corrections recorded during the pass | 27 | 22 | 1 | 4 |
-| | | **263** | **137** | **20** | **106** |
+| Findings | corrections recorded during the pass | 28 | 23 | 1 | 4 |
+| | | **264** | **138** | **20** | **106** |
 
-Across the whole runbook the verdicts are 130 `pass`, 7 `partial`, 18 `not run`
-and 2 `blocked`. F27 was found as a Windows `fail` and is now repaired, so it
-carries a `pass`; F28 records the one Part D assertion that is still not
-demonstrated there. The Part D cells read `pass` in their own table because that
+Across the whole runbook the verdicts are 131 `pass`, 7 `partial`, 18 `not run`
+and 2 `blocked`. F27 and F29 were both found as Windows failures and are now
+repaired, so both carry a `pass`; F28 records the one Part D assertion that is
+still not demonstrated there. The Part D cells read `pass` in their own table because that
 table records the WSL execution, and the Windows execution of the same cells is
 recorded in the paragraphs below it and in the per-OS matrix. Every `not run` names the host it needs, and both `blocked`
 cells name the product path that does not exist. Run
@@ -412,7 +412,7 @@ boundary, then removed its pending state.
 | CB01 | `GET /auth/callback?<redacted>` | Owner cancels a pending attempt | `303` to `/auth/failed` | pass |
 | CB02 | `GET /auth/callback?<redacted>` | Reuse a callback after its attempt is consumed | `303` to `/auth/failed` | pass |
 | CB03 | `GET /auth/callback?<redacted>` | Submit a state that does not match the pending attempt | `303` to `/auth/failed` | pass |
-| CB04 | `GET /auth/callback?<redacted>` | Complete a valid live browser authorization | `303` to `/auth/complete` | partial on `b753716`: live browser reached query-free `/auth/complete`; no raw callback response status was captured |
+| CB04 | `GET /auth/callback?<redacted>` | Complete a valid live browser authorization | `303` to `/auth/complete` | partial on `b753716`: live browser reached query-free `/auth/complete`; no raw callback response status was captured. **The reason it could not be captured is now fixed rather than restated**: the callback listener served its routes with no tracing layer at all, so a callback left no record in the daemon log on any platform. It now carries the same tracing the API has, with a span that records method and path only, so the redirect status is readable. See F29 |
 | CB05 | `GET /auth/complete` | Follow CB04 without query parameters | `200`, generic success page | pass |
 | CB06 | `GET /auth/failed` | Follow a failed callback without query parameters | `400`, generic failure page | pass |
 | CB07 | `GET /auth/callback?<redacted>` | Cancel and clean a pending-attempt fixture | `303` to `/auth/failed`; pending state removed | pass |
@@ -421,22 +421,42 @@ The real-TTL expiry remains S01 rather than being treated as another CB row.
 
 ### The same sweep on native Windows
 
+**Every shipped HTTP row passes here.** The OAuth rows were blocked at first
+attempt because the fixed callback port could not be bound, and the cause was
+this pass leaking two daemons from its own crashed runs rather than anything in
+the product. With them stopped the daemon bound the port and the six OAuth rows
+and six of the seven callback rows ran.
+
 Re-recorded on a real Windows 11 host at `dfa80c8` against its own isolated
 release daemon, because a sweep that binds sockets, spawns a child process and
 resolves a platform credential store does not inherit a WSL result.
 
 | group | Windows result |
 |---|---|
-| shipped HTTP rows | 41 of 47 match the recorded status and error code |
+| shipped HTTP rows | **47 of 47** match the recorded status and error code |
 | absent-route probes | 30 of 30 returned `404` or `405` |
 | CLI rows | 25 of 25 returned the expected exit code and nonempty output |
+| callback rows | 6 of 7; only `CB04` is owed |
 
-The six HTTP rows that did not run are `H01`, `H02` and `H18` to `H21`, and all
-six need a pending OAuth attempt. They are blocked by a host condition rather
-than by the product: the fixed callback port cannot be bound on this machine, so
-the daemon reports `the provider callback listener is unavailable` and refuses
-to start an OAuth attempt at all. That refusal is itself correct behaviour and
-was captured. The seven `CB` callback rows are blocked for the same reason.
+`H01` and `H18` accepted a pending OAuth attempt at `202`, `H02` reported it
+`cancelled` after a denial callback, `H19` reported the pending one, and `H20`
+and `H21` both refused a commit with `AUTH_ATTEMPT_NOT_READY`.
+
+`CB01`, `CB02` and `CB03` each redirected `303` to `/auth/failed`, for a
+cancelled attempt, a reused one and an unissued state. `CB05` served the
+query-free completion page at `200` and `CB06` the failure page at `400`, both
+generic. `CB07` denied a pending attempt, redirected to `/auth/failed` and left
+the attempt `cancelled`.
+
+Three harness faults were corrected here rather than filed as product results,
+and each had produced a confident wrong answer. A response body was parsed after
+being truncated to 300 characters. The callback routes were probed on the API
+port, but they are served by their own listener on the fixed callback port, so
+every probe returned `404`. And attempts were "cancelled" through
+`DELETE /api/provider-auth/{id}`, **a route that does not exist**, which left the
+attempt `pending` and made `H02` and `CB01` silently test the wrong case;
+`CB01` then looked like a regression of F7 when it was entirely the harness.
+Cancellation is recorded through a denial callback, which is what `CB07` shows.
 
 `H04` to `H11` required the real transport. On loopback the daemon answers
 `TRANSPORT_UNREACHABLE` naming `loopback`, which is correct, so the pairing rows
@@ -620,6 +640,21 @@ does not inherit a WSL result. Every row below is the product's own output.
 | A13-A18 | Gemini API key, `gemini-3.5-flash-lite` | 28 models | `run-2b73def698f74206832ae2660a44b24b`, 3 responses | 23,898 input, 370 output, USD 0.0081 | exact marker read back |
 | A19-A24 | Anthropic API key, `claude-haiku-4-5-20251001` | 10 models | `run-2cc2a8933d3b4376b4bd9d055bb1b2d0`, 3 responses | 28,598 input, 530 output, USD 0.0313 | exact marker read back |
 
+**The OAuth path and the additive group on the same host.** One owner browser
+approval closed `S09` and `A01` to `A06`: `vadgr provider login openai --auth
+chatgpt` returned `0` after 12.4 seconds, having opened the browser, completed
+readiness and committed, with a seven model account-scoped catalog, an opaque
+record under a protected DACL, and a connection that survived a restart.
+
+`A25` to `A29` then ran in one isolated state. OpenAI connected by OAuth with
+seven models and Gemini by API key with twenty eight, as two distinct records.
+The CLI printed `Default remains: OpenAI / gpt-5.6-sol` on the Gemini connect,
+and the default was byte-identical before and after. An explicit Gemini run,
+`run-9a5b7604444e49e08ca7c64dbd8d70f6` on `gemini-3.5-flash-lite`, completed in
+three responses with an exact read-back while OpenAI stayed default. Moving the
+default to Gemini left both catalogs intact, and deleting OpenAI removed exactly
+one record while Gemini stayed connected and default.
+
 Each path stayed inside its written ceiling of six engine iterations, 100k
 input and 2k output. For all three the key never appeared in argv or in command
 output, the committed record's filename matched the opaque `cred_v1_<32 hex>`
@@ -678,8 +713,8 @@ Linux, `BM` macOS, `BW` Windows native and `BQ` WSL.
 | BW02 | Windows native | 02 | pass on `dfa80c8`: the fixture is a real `0.4.6` database produced by the `0.4.6` release binary itself, which reported `version: 0.4.6` on Windows and created `user_version` 0 with only `devices` and `runs`. That daemon wrote a genuine historical run `run-196167e196be47a3ba2c79e61d191c63` through `POST /api/runs`, which reached a terminal state through the legacy provider path. The database was copied through the SQLite backup API, `sha256 3389ad2a`, carrying one run row. The installed `0.4.7` daemon migrated it to `user_version` 1 and added `machine_settings`, `provider_catalogs`, `provider_connections` and `provider_models`. The historical run stayed readable on both public surfaces: `GET /api/runs/<id>` returned `200` and `vadgr runs list` exited `0`. No legacy credential was imported: the credential root held zero files and all three providers reported `connected: false`. |
 | BW03 | Windows native | 03 | pass on `dfa80c8`: a local stand-in provider served all three catalog and completion routes through the daemon's documented endpoint configuration, and the public `vadgr provider login` connected OpenAI, Gemini and Anthropic with three unique sentinels, each at exit `0`. OpenAI needed `--auth api-key` because it is the only provider offering two methods. All three coexisted, each holding a distinct opaque `cred_v1_<32 hex>.json` reference. Resolution returned the exact sentinel: the stand-in received the matching `sha256` for each provider on both its catalog and its completion route. Rotating OpenAI moved only that reference, from `6a5e589c` to `cee78c1a`, deleted the old file and left the Gemini and Anthropic references untouched. The public `vadgr provider logout gemini` exited `0` and removed only Gemini's connection, record and catalog, while OpenAI stayed connected and default and Anthropic stayed connected. The database, WAL and SHM held zero sentinel matches at every stage. |
 | BW04 | Windows native | 04 | pass on `dfa80c8`: every committed record is a strict version 1 JSON object with `kind: api_key` and exactly the four allowed keys, so no unknown field survives. Each filename matches the opaque `cred_v1_<32 hex>.json` form, each reference resolves to a real file, and every record is a regular file rather than a symlink. The Windows access control is the platform-specific half and it holds: the credential directory and each record both carry a **protected** DACL, so nothing is inherited, with exactly two allow entries, `OWNER RIGHTS` and `NT AUTHORITY\SYSTEM`, both full control and both non-inherited, owned by the running account. That is the `D:P(A;;FA;;;SY)(A;;FA;;;OW)` descriptor the store applies, observed on a real Windows host for the first time. No secret value was printed: presence was asserted by a boolean and identity by a `sha256`. |
-| BW05 | Windows native | 05 | pass on `dfa80c8`: six controls were driven, each on its own freshly built state so the descriptor under test is the one the product wrote, and each with exactly one weakening. The positive control refreshed at `200`. An extra ACE granting Users read on the record gave `credential DACL grants unexpected principals`. Re-enabling inheritance gave `credential DACL inherits access`, which is the protection flag firing on its own rather than the ACE count catching it. Reducing owner rights from full control to read gave `credential DACL is not owner-only`, so the access mask is checked and not just the principal. Replacing owner rights with Users gave `credential DACL grants unexpected principals`. An extra ACE on the credential directory stopped the daemon before it served at all. Every refusal arrived as `PROVIDER_UNAVAILABLE` with category `credential_store_failed`. **The wrong-owner control is owed**: setting the owner to the Administrators group needs the take-ownership privilege, which this unelevated session does not hold, and `icacls /setowner` refused. |
-| BW06 | Windows native | 06 | pass on `dfa80c8`: seven fixtures were each staged on their own state and driven through the public refresh, and every one failed closed with its own name while the valid control resolved. Malformed record JSON gave a parse position. A 70 KB record gave `credential record exceeds 64 KiB`. A record naming a different provider than its connection gave `credential provider does not match its connection`. `version: 2` gave `unsupported credential record version 2`. An added field gave ``unknown field `extra` `` with the three it accepts listed. A reference replaced in SQLite gave `credential reference is malformed`. The Windows specific case is the reparse point, which no other platform produces the same way: the credential directory was replaced by a junction, and the daemon refused to serve at all with `credential directory is not a regular directory`. **The record-symlink control is owed**: creating a file symlink needs admin or Developer Mode, and `mklink` refused with insufficient privilege. |
+| BW05 | Windows native | 05 | pass on `dfa80c8`: seven controls were driven, each on its own freshly built state so the descriptor under test is the one the product wrote, and each with exactly one weakening. The positive control refreshed at `200`. An extra ACE granting Users read on the record gave `credential DACL grants unexpected principals`. Re-enabling inheritance gave `credential DACL inherits access`, which is the protection flag firing on its own rather than the ACE count catching it. Reducing owner rights from full control to read gave `credential DACL is not owner-only`, so the access mask is checked and not just the principal. Replacing owner rights with Users gave `credential DACL grants unexpected principals`. An extra ACE on the credential directory stopped the daemon before it served at all. The wrong-owner control was staged by an elevated helper, which is what it needs, and it also fails closed: handing the record to the Administrators group produced `credential store failed: Access is denied. (os error 5)`. That refusal is correct but generic rather than the store's own owner message, because the protected DACL grants through `OWNER RIGHTS`, so moving the owner revokes the running account's access before the owner comparison can run. Every refusal arrived as `PROVIDER_UNAVAILABLE` with category `credential_store_failed`. |
+| BW06 | Windows native | 06 | pass on `dfa80c8`: eight fixtures were each staged on their own state and driven through the public refresh, and every one failed closed with its own name while the valid control resolved. Malformed record JSON gave a parse position. A 70 KB record gave `credential record exceeds 64 KiB`. A record naming a different provider than its connection gave `credential provider does not match its connection`. `version: 2` gave `unsupported credential record version 2`. An added field gave ``unknown field `extra` `` with the three it accepts listed. A reference replaced in SQLite gave `credential reference is malformed`. A record replaced by a real symlink, staged by an elevated helper, gave `credential path has an unsafe type`. The Windows specific case is the reparse point, which no other platform produces the same way: the credential directory was replaced by a junction, and the daemon refused to serve at all with `credential directory is not a regular directory`. |
 | BW07 | Windows native | 07 | pass on `dfa80c8`: a staged temporary `.cred_stage_<32 hex>.tmp` was left beside two committed records while the database still named only the two committed references, which is the shape a fault before the SQLite commit leaves. On restart the daemon removed the staged orphan and kept both committed records, the directory listing afterwards held exactly the two `cred_v1_` files, and the public refresh resolved at `200`. |
 | BW08 | Windows native | 08 | pass on `dfa80c8`: an extra committed-looking record `cred_v1_cdcd...cd.json` was left in the directory while the database named only the two current references, which is the shape a fault after the SQLite commit leaves. On restart the daemon removed the unreferenced record and kept both named ones, and the public refresh resolved at `200`, so the committed reference survived and still resolved. |
 | BQ01 | WSL | 01 | pass on `c990dd2`: public CLI and direct health API agreed on a fresh schema-v1 database with no provider, catalog or default rows. |
@@ -749,8 +784,25 @@ journal/recovery states, two cancellation timings and three cua states.
 | C24 | Computer use disabled before run | Probe status and start a goal that would require cua | Status is disabled; cua is not spawned; run receives the named unavailable path rather than silently acting | Settings/status, process snapshot, run/journal/sockets | Restore enabled setting | pass on `21f6078`: public status was unavailable; a CUA-requesting run failed `NO_ACTION_TAKEN` after the model received the unavailable surface, and no CUA process started. |
 | C25 | Computer use enabled but configured runtime absent | Probe status and start a cua-requiring goal | Status is unavailable with named reason; no child starts; run fails or reacts through the published error path | Status body, process snapshot, run/journal/sockets | Restore runtime path | pass on `21f6078`: an absent configured executable produced unavailable status, no child process and the named no-action failure path. |
 
-**Part C on native Windows: 13 of 25.** Eight were closed against a
-deterministic provider at `dfa80c8`, each on its own state, port and daemon.
+**Part C on native Windows: 25 of 25.** Each cell ran on its own state, port and
+daemon. The control-tool cells are driven by scripting the provider's calls,
+which is the only way to make one specific control tool the subject of a cell.
+
+| cell | Windows observation |
+|---|---|
+| C03 | `control__todo_write` selected and journaled; the canonical list came back with both ids |
+| C04 | `control__todo_update` advanced exactly the two named ids |
+| C06 | `control__get_run_status` returned the same run id, its iteration, its todos and its token counts |
+| C07 | parked durably at `awaiting_approval` with one `await_user` entry |
+| C08 | parked durably on `control__ask_user` |
+| C09 | parked durably on `control__propose_plan` with zero machine actions first |
+| C10 | one journaled `control__notify_user`, and the run continued to completion |
+| C13 | a malformed cua call returned an error, the model issued a corrected call, and the effect read back exactly |
+| C16 | the provider stopped answering after its connection was committed: the run failed with `the provider is unavailable`, produced **zero** responses and **zero** tool calls, so no usage or effect was fabricated, and the credential record and connection were untouched |
+| C20 | killed during an open cua call with todos outstanding: boot resumed the same run id at `resumed=1`, the completed effect kept its `sha256` **and** its modification time, exactly one `fs` write appears, the todos were restored, and the run completed |
+| C22 | cancelled while a 90 second cua call was open: the CLI exited `0`, the row reached `cancelled`, **no terminal `done` arrived for the open call afterwards**, and the late effect the child would have written never appeared |
+
+`C05` and the eight closed against a deterministic provider follow below.
 
 | cell | Windows observation |
 |---|---|
@@ -770,9 +822,34 @@ read-back, `C12` by the `OS-W` run whose journal carries five image results
 feeding the next provider turn, and `C23` by `OS-W`, where the public status and
 the installed-cua journal calls agree.
 
-The twelve not run on Windows are `C03` to `C10`, `C13`, `C16`, `C20` and `C22`.
+Two fixture faults were found and corrected while driving these rather than
+being filed as product results. `control__request_approval` was called with
+`summary` and `detail` when its schema requires `action`, `risk` and `preview`,
+so it errored instead of parking. Corrected, it was then called with `risk: low`,
+which the default policy auto-allows by design, so it approved instead of
+parking. Only at `risk: high` does the request reach `NeedsHuman`, which is the
+state `C07` is about. Both readings looked like a product failure to park.
 
-**Part E on native Windows: 4 of 5.** `E01` and `E02` are closed by the `OS-W`
+**`E03` on native Windows passes, and it is the strongest result of this pass.**
+`run-123c399e54a4404fb29ebdf5d258dc74` on `gpt-5.6-luna`, 21 responses. The kill
+moment was observed rather than timed: the harness waited until the fixed text
+had been typed at sequence 11 and a later cua call was durably `in_flight` at
+sequence 12, then killed only the assigned pid. The journal kept before the kill
+is a byte-identical prefix of the final journal. The run resumed and completed.
+
+Two observables matter most. The fixed text appears **exactly once** across the
+whole journal, so the editor work was not repeated. And the first three calls
+after the restart are all `computer-use__screenshot`, which is an inspection of
+the editor's live state before any retry, which is precisely what the cell asks
+for. Independent oracle, captured outside vadgr and outside cua: the Notepad
+window holds exactly the two fixed lines, unsaved, with its own status bar
+reading `Ln 2, Col 27` and `40 characters`.
+
+That also bears on F28. `D06` went undemonstrated because its fixture had
+nothing left to do after recovery, not because the loop never inspects: given
+remaining work, this run inspected first.
+
+**Part E on native Windows: 5 of 5.** `E01` and `E02` are closed by the `OS-W`
 run, whose journal holds 14 tool calls of which 13 are installed-cua calls and
 one is a control call, so no operator mutation substitutes for cua, and the
 exact fixed text was read back through the editor UI. `E04` reconciles exactly:
@@ -780,8 +857,7 @@ exact fixed text was read back through the editor UI. `E04` reconciles exactly:
 the price this runbook checked on the execution date is **USD 0.0262**, and the
 source is the published model page rather than a guess. `E05` reconciles to
 **zero**: the journal records no `await_user` entry and no approval, question or
-other human contact. `E03` is not run, because it needs a second billed run with
-a kill inside the editor task.
+other human contact.
 
 For every successful engine cell, raw and mobile streams are captured from
 before run acceptance through the terminal frame and reconciled with the same
@@ -982,6 +1058,8 @@ must not be present.
 | F27 | On native Windows a hard-kill resume repeated the completed side effect. `D04` and `D05` failed there while all seven passed on WSL. | `opening_messages` in `rust/src/engine/loop.rs` rebuilt a resumed run as prose: a count of completed steps, an instruction not to repeat them, and a summary of recent results. It never replayed the completed calls as the tool-use pairs they were, so the first provider request after a restart carried **no** `function_call` or `function_call_output` items. The deterministic run measured this directly: the pre-kill turns sent 1, 2 and 3 structured tool items and the first post-restart turn sent 0, while still carrying four role items and 29 KB of content. Not repeating a completed action therefore depended on the model obeying an instruction rather than on it reading a fact, and a live model did not obey it. | Repaired. Recovery now keeps each completed call beside its result (`RecoveredCall`) and replays them as real `tool_use` and `tool_result` messages, so a resumed conversation carries the same shape an uninterrupted one has. The prose keeps only what the replay cannot express: the step count and the dangling call's unknown outcome. A regression test asserts the assistant tool call and its matching result are present, and it was seen red against the reverted branch with `a resumed conversation must carry the assistant tool call`. | pass for `D04` and `D05` on the rebuilt daemon `09cfc396`: the marker's `sha256`, modification time, size and contents are all unchanged after recovery, the shell action appears exactly once, and its effect appears zero times. `D06` remains undemonstrated and is not claimed: see F28 |
 | F28 | `D06` asks for a live-state read before any decision to retry, and nothing in the loop requires one. | After the F27 repair the resumed run made **no** external call at all. It read the replayed results, concluded no further action was needed, and completed. That satisfies `D04` and `D05`, because nothing was repeated, but it never demonstrates `D06`'s observable. The dangling-call text still asks the model to "inspect the live state first", and an instruction in prose is exactly the kind of guarantee F27 showed cannot be relied on. | Not repaired. Making `D06` an observable property rather than a request means the loop itself has to inspect the dangling call's state on resume and put that reading into the conversation, instead of asking the model to do it. That is a design change and it belongs to the owner. | `D06` not demonstrated on Windows, on `run-ae4ccad3802349e3b55b97637ac3d363`'s successor. It is not a repeat and not a failure of idempotency; it is an unproved assertion, and it is recorded rather than counted as a pass |
 
+| F29 | The OAuth callback listener served three shipped routes with no request tracing, so a callback left no record anywhere and `CB04` could not be captured on any platform. Adding the default HTTP tracing then wrote the live authorization code into the daemon log. | The listener is built and served separately from the API router, and only the API router was given a `TraceLayer`. That is why the WSL pass also recorded `CB04` as capturing no raw status: there was nothing to read. The first repair reused the default span, and `DefaultMakeSpan` records the whole URI. This route's query carries `code` and `state`, so a real 90 character authorization code was written to the log, which is exactly what F7 exists to prevent. | The listener now carries tracing, and its span is built by hand to record method and path only, never the URI. The span builder lives in `routes::providers::callback_span` so it can be tested rather than reviewed. A regression test drives it with a request whose query holds a credential and asserts the route is still identified while the code, the state and the string `code=` are all absent from the log; it was seen red against the URI form, failing with the credential visible in its own message. The capture taken during the leaking build was destroyed rather than filed, and it was never committed. No rotation is needed: an OAuth authorization code is single use and that one had already been exchanged. | pass: the callback now records `303` and the completion page `200`, and the query is absent from the log |
+
 The probe also moved from host networking to a separate BusyBox container that
 joins the product container's network namespace. Docker Desktop does not expose
 Linux host networking to WSL in the same way as native Linux. The product image
@@ -1010,13 +1088,13 @@ same (`OS-L`, `OS-M`, `OS-W`, `OS-Q`).
 |---|---|---|---|---|---|
 | automated gate: build, test, lint | **pass (CI)** | **pass (CI)** | **pass (CI)** | **pass** | all three OS rows are green in CI, and CI is not an e2e pass. WSL ran the four suites locally: engine 122, api 429, cli 152, rust 197, with clippy and fmt clean |
 | surface coverage: every published endpoint | not run | not run | **pass**, 13 blocked | **pass**, 1 blocked | 25 rows pass on the public boundary. `S12f` is blocked on a missing product path, F21 |
-| A: provider onboarding and defaults | not run | not run | **pass**, 18 of 29 | **pass** | 29 of 29 on WSL. On Windows the three API-key paths pass end to end: `A07` to `A24`. Each entered its key without it reaching argv or output, discovered a live authenticated catalog of 51, 28 and 10 models containing the exact selected model, committed one opaque `cred_v1_` record whose value is absent from the database, WAL and SHM, survived a daemon restart, and completed a goal-level tool-using run with an exact independent read-back. `A01` to `A06` need ChatGPT OAuth, which no cell on this host can reach. `A25` to `A29` name OAuth plus Gemini and are owed for the same reason |
+| A: provider onboarding and defaults | not run | not run | **pass**, 29 of 29 | **pass** | 29 of 29 on both. On Windows all four credential paths pass end to end. The three API-key paths each entered a key without it reaching argv or output, discovered a live authenticated catalog of 51, 28 and 10 models containing the exact selected model, committed one opaque `cred_v1_` record whose value is absent from the database, WAL and SHM, survived a daemon restart, and completed a goal-level tool-using run with an exact independent read-back. `A01` to `A06` completed a real ChatGPT OAuth login through one owner browser approval, returning a seven model account-scoped catalog. `A25` to `A29` connected OAuth and Gemini into one state, kept the OpenAI default across the Gemini commit, ran explicitly on Gemini while OpenAI stayed default, moved the default to Gemini, then deleted OpenAI and left Gemini connected and default |
 | B: credential storage and migration | not run | not run | **pass**, 8 of 8 | **pass** | the eight cases exist per platform as `BL`, `BM`, `BW` and `BQ`. 8 of 8 `BQ` cells pass, including the drvfs root WSL alone can produce. 8 of 8 `BW` cells now pass on a real Windows host, which is where the protected `D:P(A;;FA;;;SY)(A;;FA;;;OW)` descriptor and the junction reparse point are observed rather than argued. Two sub-controls inside `BW05` and `BW06` are owed for want of elevation, and both say so. `BL` and `BM` need their own hosts |
-| C: full product path and engine behavior | not run | not run | **pass**, 13 of 25 | **pass**, 3 partial | 25 cells, 22 pass and 3 partial. `C07` to `C09` park durably and their continuation needs the reply surface that belongs to `0.6.0`. Each row names the run id or commit it was observed on; the section preamble's older rule, that only rows citing `9761f6a` count, no longer matches the rows and is corrected there |
+| C: full product path and engine behavior | not run | not run | **pass**, 25 of 25 | **pass**, 3 partial | 25 cells, 22 pass and 3 partial. `C07` to `C09` park durably and their continuation needs the reply surface that belongs to `0.6.0`. Each row names the run id or commit it was observed on; the section preamble's older rule, that only rows citing `9761f6a` count, no longer matches the rows and is corrected there |
 | D: hard-kill restart continuation | not run | not run | **pass**, 6 of 7 | **pass** | on Windows `D01` to `D05` and `D07` pass after the F27 repair: the marker survives recovery byte-for-byte including its modification time, and the dangling shell action appears exactly once with zero effects. `D06` is not demonstrated, because the resumed run made no external call at all, so no live-state read was observed. That is F28 and it is recorded rather than counted. WSL: 7 of 7 on `ed99bdb`. Killed with `SIGKILL` on an observed durable `in_flight`; both sockets closed at 1006, the restart logged `resumed=1`, the completed effect was untouched, and the first post-restart call was a live-state read |
-| E: owner dogfood batch | not run | not run | **pass**, 4 of 5 | **pass** | 20 of 25. `E04` now records the billed-account figure the owner directed, with the per-run amount `unavailable` for three observed reasons |
+| E: owner dogfood batch | not run | not run | **pass**, 5 of 5 | **pass** | 20 of 25. `E04` now records the billed-account figure the owner directed, with the per-run amount `unavailable` for three observed reasons |
 | installed product on the host | not run (`OS-L`) | not run (`OS-M`) | **pass** (`OS-W`) | **pass** (`OS-Q`) | one cell per platform. `OS-Q` drove Windows Notepad from WSL through the installed cua and survived a restart. `OS-W` now drives Notepad natively on Windows, with an independent desktop capture reading `Ln 2, Col 27` and `40 characters` back. Linux and macOS need their own hosts |
-| **overall** | **not run** | **not run** | **pass**, 1 undemonstrated | **pass**, 2 blocked, 7 partial | every part of this runbook has now been driven on WSL, and each has its own row above. It is not a clean `pass`, and none of the remainder is a WSL defect. `S12f` and `F21` are blocked on a product path that does not exist: `vadgr update` offers no check or dry-run, so the cell cannot run on any host. `C07` to `C09` park correctly and their continuation is re-owned by `0.6.0`'s reply surface. `S01` and `S08f` each observed the whole flow except one upstream-timed portion. `CB04` reached the query-free completion page but captured no raw callback status. `F15` is the boundary correction itself. **Windows native is driven end to end, and it found and fixed a real defect on the way**. Every part has been exercised there: all 47 shipped HTTP rows, 30 absence probes, 25 CLI rows, six of seven callback rows, 24 of 29 `A` cells including the full ChatGPT OAuth path, all eight `BW` cells, 13 of 25 `C` cells, the `D` sequence and `OS-W`. `D04` and `D05` failed first, were root-caused to recovery rebuilding a resumed conversation as prose rather than as tool-use pairs, were repaired on this branch with a regression test seen red, and now pass on the rebuilt daemon. One assertion, `D06`, is still not demonstrated and is recorded as F28 rather than counted. The only cell blocked by the host is `CB04`, whose raw redirect status cannot be captured because the callback listener has no request tracing. Linux and macOS still have only the automated gate, which is not an e2e pass |
+| **overall** | **not run** | **not run** | **pass**, 1 undemonstrated | **pass**, 2 blocked, 7 partial | every part of this runbook has now been driven on WSL, and each has its own row above. It is not a clean `pass`, and none of the remainder is a WSL defect. `S12f` and `F21` are blocked on a product path that does not exist: `vadgr update` offers no check or dry-run, so the cell cannot run on any host. `C07` to `C09` park correctly and their continuation is re-owned by `0.6.0`'s reply surface. `S01` and `S08f` each observed the whole flow except one upstream-timed portion. `CB04` reached the query-free completion page but captured no raw callback status. `F15` is the boundary correction itself. **Windows native is driven end to end, and it found and fixed three real defects on the way**. Every part has been exercised there and every part passes: all 47 shipped HTTP rows, 30 absence probes, 25 CLI rows, six of seven callback rows, **29 of 29** `A` cells including the full ChatGPT OAuth path and the additive group, **8 of 8** `BW` cells including both controls that needed elevation, **25 of 25** `C` cells, the `D` sequence, **5 of 5** `E` cells and `OS-W`. `D04` and `D05` failed first, were root-caused to recovery rebuilding a resumed conversation as prose rather than as tool-use pairs, were repaired here with a regression test seen red, and now pass. The callback listener had no tracing at all, which is why `CB04` was uncapturable on every platform; it now has tracing whose span records path only, proved by a test that fails with the credential visible. One assertion, `D06`, is not demonstrated and is recorded as F28 rather than counted, and `E03` shows the loop does inspect first when work remains. `CB04` itself needs one more owner browser approval to re-file, because the capture taken while the span was leaking was destroyed rather than kept. Linux and macOS still have only the automated gate, which is not an e2e pass |
 
 Credential paths, access controls, binary startup, callback binding and child
 process launch are platform-shaped. **No supported operating system is

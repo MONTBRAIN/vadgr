@@ -91,9 +91,20 @@ async fn main() -> Result<()> {
                 Ok(listener) => {
                     callback_state.providers.set_oauth_callback_available(true);
                     tracing::info!(addr = "127.0.0.1:1455", "OpenAI callback listening");
+                    // The callback listener is a served surface like any other,
+                    // so it gets the same tracing. Without it a callback left no
+                    // record at all: the redirect a browser followed could not be
+                    // read back from the daemon log on any platform, which made
+                    // the live-authorization row unverifiable rather than merely
+                    // unrun. Query values never reach the log, because the span
+                    // records the path only.
                     if let Err(error) = axum::serve(
                         listener,
-                        routes::providers::callback_router(callback_state.clone()),
+                        routes::providers::callback_router(callback_state.clone()).layer(
+                            TraceLayer::new_for_http()
+                                .make_span_with(routes::providers::callback_span)
+                                .on_response(DefaultOnResponse::new().level(Level::INFO)),
+                        ),
                     )
                     .await
                     {
