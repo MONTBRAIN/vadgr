@@ -13,6 +13,47 @@ bracket notes as you go; a leftover placeholder is the tell that a runbook was
 written and never run. The cross-cutting rules are in
 [`../README.md`](../README.md) and are not repeated here.>
 
+## How a pass is run, before anything else in this file
+
+**These four rules come first because every one of them was learned by breaking
+it. They hold on every supported operating system, for every agent that drives a
+runbook, and they are not negotiable against a deadline or a token budget.**
+
+**1. Whatever needs the owner runs first.** Before a single automated cell,
+read the whole matrix, list every cell that cannot proceed without a human, and
+run those cells at the start of the pass. A browser approval, a physical
+handset, a hardware key, an elevation prompt, a paid account that must be
+enabled: all of it is scheduled first, in one batch, with the owner told exactly
+what to click and when. The owner is not a resource you discover you needed
+after four hours of work. A pass that reaches its end and then asks for a
+browser click has wasted the owner's day and produced a runbook that is still
+`not run` where it matters most.
+
+**2. Do not stop the pass to report.** The pass runs to completion for the
+operating system it is on. Findings, blocked cells, corrections and questions
+are written into the runbook and the evidence as they happen, and they are
+reported when the pass ends. The only thing that stops a pass is a cell that
+physically cannot proceed without the owner, and rule 1 exists so that never
+happens after the start. Reporting a blocker mid-pass, and waiting, converts one
+run into many and leaves every later cell unexecuted.
+
+**3. A bug you find is a bug you fix, here, now.** The purpose of an e2e is not
+to catalogue defects. It is to establish that the product works on the target
+operating system. So when a cell fails, you fix the code, you add a test that
+fails without the fix and passes with it, you re-run the failing cell until it
+passes, you commit and push to the PR branch, and only then do you carry on with
+the rest of the matrix. **A finding recorded without a fix is a moved problem,
+not a found one.** The fix ships on the PR branch as it is made; the branch is
+the working surface, and holding a fix back to ask permission is the mistake.
+
+**4. A fix invalidates the cells it touched, on every operating system that
+already passed them.** A shared-behaviour fix means the earlier passes were
+observing different code. Name the affected cells in the finding, mark them
+`not run` again on the operating systems that had passed them, and say in the
+per-OS matrix which fix invalidated them. The host that made the fix re-runs
+them itself. The other hosts re-run them from the PR branch before merge. **No
+operating system inherits a result from a build that no longer exists.**
+
 ## Scope exception - **delete this section unless you need it**
 
 <Only when the minor genuinely cannot be driven through a product surface. State
@@ -53,6 +94,44 @@ claude --dangerously-skip-permissions --output-format stream-json --verbose -p \
   "<the goal-level task. Name a goal, never a call.>" \
   | tee /tmp/e2e-<version>.jsonl
 ```
+
+## One command at a time, and read its output before the next
+
+**Every product command is invoked on its own, and its output is read before the
+next command is chosen.** This holds on every supported operating system and for
+every agent that drives a runbook. A wrapper script that runs a whole group in
+one shot is not an execution of that group, even when every command inside it is
+the real public surface.
+
+The failure it stops is specific. A batch prints one wall of output, so no line
+can be attributed to the command that produced it. It reports one exit code, so
+the exit codes of the commands inside it are never read, and **a result from a
+command whose exit code you did not read is not a result**. A failure in the
+middle is carried past by the lines printed after it, and the author writes down
+the batch's outcome instead of each cell's. The batch also decides the order in
+advance, which is exactly what an e2e must not do: what the previous command
+returned is what tells you whether the next one is still the right one, and a
+cell whose precondition was never observed is not a cell that ran.
+
+So:
+
+- Run one command. Read its output and its exit code. Record the cell. Then
+  choose the next command.
+- Never chain product commands with `&&`, `;` or a loop so that one invocation
+  covers several cells.
+- Never wrap a group in a driver script that logs in, runs, restarts and reads
+  back without stopping.
+
+A helper is still allowed exactly where it always was: it may build isolated
+state **before** the group starts, and it may capture, sanitize or parse
+evidence **after** a command has already run. It may not sequence the product
+commands, and a file that does is a harness pretending to be an operator.
+
+The exception is a single cell whose own definition is a loop or a matrix, such
+as staging one weakened access control per isolated copy. There the repetition
+is the cell, it is written that way in the table, and each iteration still
+prints its own labelled result. If a reader cannot tell from the evidence which
+command produced which line, the rule was broken whatever the file was called.
 
 ## Before you file a finding, suspect your own harness
 
