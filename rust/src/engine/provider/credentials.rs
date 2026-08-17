@@ -428,7 +428,17 @@ fn reject_access_acl(path: &Path) -> std::io::Result<()> {
     // rejected one, but keeping both operations no-follow closes that gap.
     let acl = unsafe { acl_get_link_np(path.as_ptr(), ACL_TYPE_EXTENDED) };
     if acl.is_null() {
-        return Err(std::io::Error::last_os_error());
+        // **A file with no extended ACL is the case this function wants**, and
+        // Darwin reports it by returning NULL with ENOENT rather than by
+        // returning an empty ACL. Treating that as a failure rejected every
+        // ordinary file, so the credential store could not accept any path on
+        // macOS at all. The Linux arm above already maps its own equivalents,
+        // NODATA and NOTSUP, to success; this is the same rule for Darwin.
+        let error = std::io::Error::last_os_error();
+        return match error.raw_os_error() {
+            Some(2) => Ok(()),
+            _ => Err(error),
+        };
     }
     let mut entry = std::ptr::null_mut();
     let result = unsafe { acl_get_entry(acl, ACL_FIRST_ENTRY, &mut entry) };
@@ -519,8 +529,9 @@ mod windows_security {
         ACCESS_ALLOWED_ACE, CreateWellKnownSid, DACL_SECURITY_INFORMATION, EqualSid, GetAce,
         GetSecurityDescriptorControl, GetSecurityDescriptorDacl, GetTokenInformation,
         OWNER_SECURITY_INFORMATION, PROTECTED_DACL_SECURITY_INFORMATION, PSECURITY_DESCRIPTOR,
-        PSID, SE_DACL_PROTECTED, SECURITY_ATTRIBUTES, SECURITY_MAX_SID_SIZE, TOKEN_QUERY,
-        TOKEN_USER, TokenUser, WinCreatorOwnerRightsSid, WinLocalSystemSid,
+        PSID, SE_DACL_PROTECTED, SECURITY_ATTRIBUTES, SECURITY_MAX_SID_SIZE, TOKEN_OWNER,
+        TOKEN_QUERY, TOKEN_USER, TokenOwner, TokenUser, WinCreatorOwnerRightsSid,
+        WinLocalSystemSid,
     };
     use windows_sys::Win32::Storage::FileSystem::{
         CREATE_NEW, CreateDirectoryW, CreateFileW, FILE_ALL_ACCESS, FILE_ATTRIBUTE_NORMAL,
@@ -670,8 +681,16 @@ mod windows_security {
             if owner.is_null() || dacl.is_null() {
                 return Err(std::io::Error::other("credential DACL is absent"));
             }
+            // Accept the token's user or the owner Windows would assign to
+            // anything this token creates. The confidentiality guarantee is
+            // carried by the DACL check below, which is unchanged: this only
+            // decides whether the object belongs to us, and on an admin account
+            // the honest answer is the Administrators group.
             let current_user = current_user_sid()?;
-            if unsafe { EqualSid(owner, current_user.as_ptr() as PSID) } == 0 {
+            let default_owner = current_owner_sid()?;
+            let ours = unsafe { EqualSid(owner, current_user.as_ptr() as PSID) } != 0
+                || unsafe { EqualSid(owner, default_owner.as_ptr() as PSID) } != 0;
+            if !ours {
                 // Name the path. A refusal that says only "wrong owner" cannot
                 // be diagnosed from a machine you do not have in front of you.
                 // Windows commonly makes the Administrators group the owner of
@@ -743,6 +762,66 @@ mod windows_security {
                 "credential DACL omits the owner or SYSTEM",
             ))
         }
+    }
+
+    /// The SID Windows assigns as the owner of objects this token creates.
+    ///
+    /// **This is not the same as the token's user, and the difference is the
+    /// common case rather than an edge one.** When the account is a local
+    /// administrator, Windows makes the Administrators group the owner of the
+    /// objects that account creates. A store that compares only against the
+    /// token user then refuses a directory the process itself just made, which
+    /// is what happens on any personal machine where the owner is an admin.
+    fn current_owner_sid() -> std::io::Result<Vec<usize>> {
+        let mut token = std::ptr::null_mut();
+        if unsafe { OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &mut token) } == 0 {
+            return Err(std::io::Error::last_os_error());
+        }
+        let result = (|| {
+            let mut bytes = 0;
+            unsafe {
+                GetTokenInformation(token, TokenOwner, std::ptr::null_mut(), 0, &mut bytes);
+            }
+            if bytes == 0 {
+                return Err(std::io::Error::last_os_error());
+            }
+            let words = (bytes as usize).div_ceil(std::mem::size_of::<usize>());
+            let mut buffer = vec![0usize; words];
+            if unsafe {
+                GetTokenInformation(
+                    token,
+                    TokenOwner,
+                    buffer.as_mut_ptr().cast(),
+                    bytes,
+                    &mut bytes,
+                )
+            } == 0
+            {
+                return Err(std::io::Error::last_os_error());
+            }
+            let owner = unsafe { &*(buffer.as_ptr() as *const TOKEN_OWNER) };
+            let sid_length = unsafe { windows_sys::Win32::Security::GetLengthSid(owner.Owner) };
+            if sid_length == 0 {
+                return Err(std::io::Error::last_os_error());
+            }
+            let sid_words = (sid_length as usize).div_ceil(std::mem::size_of::<usize>());
+            let mut sid = vec![0usize; sid_words];
+            if unsafe {
+                windows_sys::Win32::Security::CopySid(
+                    sid_length,
+                    sid.as_mut_ptr().cast(),
+                    owner.Owner,
+                )
+            } == 0
+            {
+                return Err(std::io::Error::last_os_error());
+            }
+            Ok(sid)
+        })();
+        unsafe {
+            CloseHandle(token);
+        }
+        result
     }
 
     fn current_user_sid() -> std::io::Result<Vec<usize>> {
