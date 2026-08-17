@@ -31,6 +31,9 @@ All notable changes to this project are documented here. Format follows [Keep a 
   container.
 
 ### Fixed
+- The Python daemon reports the released version. It answered `0.4.5` while the
+  Rust daemon answered `0.4.7`, so a client could not tell which half served it.
+  A test now keeps the two and the changelog in step.
 - Gemini function declarations remove unsupported `additionalProperties`
   fields and complete array item schemas before a request, so installed cua
   and control schemas pass live function calling.
