@@ -190,7 +190,7 @@ stamped every artifact wrongly; both were corrected before the first cell.
 |---|---|
 | tested head | `14b995b6a7cc900e913f537380c100aa0f1fe8df` |
 | release daemon | built from that head, SHA-256 `daebef3143449ba73f4ca696b7c77a16201f977c7aa783f8c5933a1cc8bb0e14` |
-| installed cua | wheel built from the repaired tree, installed non-editable outside the checkout, `vadgr-cua doctor` reports all 33 tools |
+| installed cua | **released `0.7.2`**, installed non-editable outside the checkout, `vadgr-cua doctor` reports all 33 tools. The pass ran against a wheel built from the branch that became that release, and the same checks were re-run against the published PyPI build afterwards, so another host reproduces this with `pip install vadgr-computer-use==0.7.2` rather than by rebuilding a branch that no longer exists |
 | `vadgr` entry point | an installer-shaped home first on `PATH`, resolving to `/home/<owner>/.forge-e2e/bin/vadgr` |
 | capture and input backends | portal screenshot, Mutter RemoteDesktop input, AT-SPI structured reads with `coordinate_trust: per_window` |
 
