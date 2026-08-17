@@ -10,8 +10,10 @@ without an external model CLI in the request path.
 > daemon, installed cua and the real agent loop. OpenAI Platform API key, Gemini
 > API key and Anthropic API key onboarding and work pass. ChatGPT OAuth login,
 > catalog, readiness, restart, work and query-free browser-page observation
-> pass. Its raw callback redirect-status capture remains open. Native Linux,
-> macOS and Windows remain `not run`.
+> pass. Fresh pairing, stale catalog, reauthentication and multi-provider
+> deletion checks also pass. The expired OAuth callback did not reach Vadgr
+> because OpenAI rejected the aged authorization response. Native Linux, macOS
+> and Windows remain `not run`.
 > **17 findings: F15 corrected the E2E boundary,
 > F16 passed its bounded rerun, and F17 prevents formatted journals from
 > bypassing a capture monitor. Untouched cells remain open below.**
@@ -270,15 +272,15 @@ carried here in full and is part of acceptance.
 
 | Part | Axes | Cells | Run | Open |
 |---|---|---:|---:|---:|
-| Surface inventory | 47 HTTP + 7 callback + 25 CLI + 22 branch cells | 101 | 85 | 16 |
-| A: onboarding | 4 credential paths x 6 assertions + 5 additive/default cells | 29 | 24 | 5 |
-| B: credential storage | 4 platforms x 8 assertions | 32 | 0 | 32 |
+| Surface inventory | 47 HTTP + 7 callback + 25 CLI + 22 branch cells | 101 | 90 | 11 |
+| A: onboarding | 4 credential paths x 6 assertions + 5 additive/default cells | 29 | 29 | 0 |
+| B: credential storage | 4 platforms x 8 assertions | 32 | 1 | 31 |
 | OS: installed product | 4 operating systems x 1 full live composition | 4 | 0 | 4 |
 | C: engine behavior | 25 carried native-loop cases | 25 | 3 | 22 |
 | Repeatability | 3 independent passes, each reconciled across 6 observables | 3 | 2 | 1 |
 | D: restart continuation | 1 sequence x 7 assertions | 7 | 0 | 7 |
 | E: owner dogfood | 1 batch x 5 outcomes | 5 | 0 | 5 |
-| | | **206** | **114** | **92** |
+| | | **206** | **125** | **81** |
 
 `Run` now means executed under the corrected public-entry-point method. The old
 numbers are retained only in the private acceptance-diagnostic evidence. Every
@@ -448,11 +450,11 @@ No group begins until its requirement above is available.
 
 | id | precondition and setup | action | expected observable and oracle | evidence boundary | cleanup | status |
 |---|---|---|---|---|---|---|
-| S01 | Fresh OpenAI OAuth attempt; callback URL held outside evidence; callback port free | Leave consent pending beyond the real ten-minute TTL, then complete or cancel in the browser | Callback redirects to `/auth/failed`; attempt is expired; no connection, staged secret or verifier remains | Callback status/location, attempt row, provider rows, credential filenames, daemon log | Close tab; remove expired attempt | not run: owner browser time required |
-| S02 | Fresh state with no connection or default | Run `vadgr pair`, complete one passing provider login | Onboarding appears before any QR; readiness passes; exactly one QR is minted afterwards | Complete CLI transcript, auth attempt, provider/default rows, pair response, daemon log | Revoke pair; remove isolated state | not run |
-| S03 | Connected provider whose catalog row is expired through a documented fixture or elapsed TTL | Call `GET /api/providers` and `vadgr provider status` without refreshing | Provider remains connected, reports the catalog stale, and does not fabricate a fresh verification time | HTTP body, CLI output, catalog row before/after | Restore clock/fixture or refresh | not run |
-| S04 | Connected/default OpenAI in isolated state; second OAuth authorization available | Reauthenticate OpenAI and commit the replacement | New immutable reference commits atomically; compatible default/catalog survive; old file leaves only after commit | Before/after provider/default rows, opaque refs, credential filenames, readiness usage | Keep the new isolated connection or remove state | acceptance observation only on `5034637`; corrected owner approval not run |
-| S05 | OpenAI and Gemini connected; OpenAI remains default | Delete Gemini through API and CLI read-back | Gemini credential/catalog leave; OpenAI credential/catalog/default remain byte-for-byte compatible | API response, provider/default rows, filenames, raw DB secret scan | Remove isolated state | not run: the required ChatGPT OAuth plus Gemini fixture still needs owner browser approval |
+| S01 | Fresh OpenAI OAuth attempt; callback URL held outside evidence; callback port free | Leave consent pending beyond the real ten-minute TTL, then complete or cancel in the browser | Callback redirects to `/auth/failed`; attempt is expired; no connection, staged secret or verifier remains | Callback status/location, attempt row, provider rows, credential filenames, daemon log | Close tab; remove expired attempt | partial on `c990dd2`: public CLI timed out after the real ten-minute TTL; no connection, catalog, default or credential file remained. The later browser approval was rejected upstream, so no daemon callback or `/auth/failed` redirect was observable. |
+| S02 | Fresh state with no connection or default | Run `vadgr pair`, complete one passing provider login | Onboarding appears before any QR; readiness passes; exactly one QR is minted afterwards | Complete CLI transcript, auth attempt, provider/default rows, pair response, daemon log | Revoke pair; remove isolated state | pass on `c990dd2`: loopback pairing first showed the provider chooser; after OpenAI OAuth readiness and a Tailscale restart, one QR was minted. Its one-time payload was not retained. |
+| S03 | Connected provider whose catalog row is expired through a documented fixture or elapsed TTL | Call `GET /api/providers` and `vadgr provider status` without refreshing | Provider remains connected, reports the catalog stale, and does not fabricate a fresh verification time | HTTP body, CLI output, catalog row before/after | Restore clock/fixture or refresh | pass on `c990dd2`: an isolated catalog expiry fixture made both public surfaces report OpenAI as connected and stale; `verified_at` remained unchanged. |
+| S04 | Connected/default OpenAI in isolated state; second OAuth authorization available | Reauthenticate OpenAI and commit the replacement | New immutable reference commits atomically; compatible default/catalog survive; old file leaves only after commit | Before/after provider/default rows, opaque refs, credential filenames, readiness usage | Keep the new isolated connection or remove state | pass on `c990dd2`: a second public OAuth command replaced the opaque reference, removed the old record and preserved `OpenAI / gpt-5.6-sol`. |
+| S05 | OpenAI and Gemini connected; OpenAI remains default | Delete Gemini through API and CLI read-back | Gemini credential/catalog leave; OpenAI credential/catalog/default remain byte-for-byte compatible | API response, provider/default rows, filenames, raw DB secret scan | Remove isolated state | pass on `c990dd2`: public Gemini login preserved the OpenAI default; public Gemini logout removed only Gemini while OpenAI and its default remained. |
 | S06 | Passing connected provider and captured catalog; upstream then made unreachable without changing local state | Request catalog refresh through API and CLI | Refresh fails with the named error; previous credential, catalog and default remain unchanged | Status/code/body, CLI exit/output, before/after DB rows and filenames | Restore network; refresh once | not run |
 | S07 | Two connected providers; captured current default; candidate provider then made unreachable | Request the candidate as default | Readiness fails; old default remains; neither credential nor catalog changes | Status/code/body, before/after default and provider rows | Restore network | not run |
 | S08a | Fresh state; interactive terminal | Run `vadgr provider login` with no provider argument | Provider chooser shows OpenAI, Gemini, Anthropic once and accepts one selection | TTY transcript and zero provider mutation before selection | Cancel before credentials | pass on `9761f6a`: terminal chooser showed all three providers |
@@ -460,10 +462,10 @@ No group begins until its requirement above is available.
 | S08c | Fresh state and owner-supplied OpenAI API key | Complete `vadgr provider login openai --auth api-key` | Hidden entry, live catalog, readiness, immutable credential and successful return; no pairing | CLI transcript without secret, usage, rows, file metadata | Logout and unset key | pass on `9761f6a`: terminal onboarding, live readiness, immutable commit and restart persistence passed |
 | S08d | Fresh state and owner-supplied Gemini API key | Complete `vadgr provider login gemini` | No redundant method screen; hidden entry, live catalog/readiness, immutable credential; no pairing | CLI transcript without secret, usage, rows, file metadata | Logout and unset key | pass on `9761f6a`: terminal onboarding, live readiness, immutable commit and restart persistence passed |
 | S08e | Fresh state and owner-supplied Anthropic API key | Complete `vadgr provider login anthropic` | No redundant method screen; hidden entry, live catalog/readiness, immutable credential; no pairing | CLI transcript without secret, usage, rows, file metadata | Logout and unset key | pass on `9761f6a`: terminal onboarding, live readiness, immutable commit and restart persistence passed |
-| S08f | Interactive login with one deliberately rejected credential followed by a valid owner-supplied credential | Retry through the CLI recovery path | Error is named, input remains hidden, no failed candidate commits, and valid retry succeeds once | CLI exit/output, attempts, rows, filenames before/after | Logout and unset key | not run: API key required |
+| S08f | Interactive login with one deliberately rejected credential followed by a valid owner-supplied credential | Retry through the CLI recovery path | Error is named, input remains hidden, no failed candidate commits, and valid retry succeeds once | CLI exit/output, attempts, rows, filenames before/after | Logout and unset key | partial on `c990dd2`: public terminal invalid-key entry produced the named error and retry menu with zero provider/default mutation. The protected valid-key retry remains open because the automated PTY cannot safely deliver a secret after the interactive recovery prompt. |
 | S09 | Fresh state, OpenAI OAuth account, callback port free | Run one uninterrupted `vadgr provider login openai --auth chatgpt` command through browser approval | The same command returns `0` only after readiness and commit; no manual API call completes it | Full CLI transcript, callback redirect, readiness usage, committed rows | Remove isolated state | pass on `9761f6a`: the public command opened the browser, completed readiness and committed the connection before exit `0` |
 | S10 | At least two available models; interactive terminal; captured old default | Run `vadgr model default` with no model argument and select a different model | Chooser contains the authenticated union; readiness passes before exactly one default changes | TTY transcript, usage, before/after default | Restore original default | pass on `9761f6a`: 89 authenticated models appeared; Gemini became the sole default after readiness; terminal `vadgr` restored OpenAI |
-| S11 | Fresh state with no default | Run `vadgr pair`, choose a provider and authenticate | Successful readiness commits the initial default and continues directly to QR without another question | TTY transcript, usage, rows, pair response | Revoke pair; remove state | not run |
+| S11 | Fresh state with no default | Run `vadgr pair`, choose a provider and authenticate | Successful readiness commits the initial default and continues directly to QR without another question | TTY transcript, usage, rows, pair response | Revoke pair; remove state | pass on `c990dd2`: the S02 fresh state committed the initial OpenAI default before the first QR; the pair command did not ask a second provider or model question. |
 | S12a | Installed release; isolated service stopped; known service name | Run `vadgr start` | Service starts on configured port; health is ready; command output names the real endpoint | CLI transcript, process/service record, health, daemon log | Continue to S12b | not run |
 | S12b | Service started by S12a | Run `vadgr api` | Alias reaches the same installed daemon and prints nonempty output; it does not start a second daemon | CLI transcript, PID/port snapshot, health | None | not run |
 | S12c | Healthy service and active socket capture | Run `vadgr restart` | Old PID exits, port is released, new PID becomes healthy, persisted providers remain | CLI transcript, PID/port snapshots, provider rows, log | Continue to S12d | not run |
@@ -512,11 +514,11 @@ close the full-request cell.
 | A22 | Passing A21 candidate | Commit connection/catalog/default atomically | Strict file and opaque DB reference commit; raw DB files contain no key | Rows, file metadata, DB/WAL/SHM scan | Retain state | pass on `9761f6a`: immutable record and opaque reference committed; raw database scan clean |
 | A23 | Committed A22 state | Restart and read through API and CLI | Anthropic connection, catalog and default persist without exposing the key | API/CLI and SQLite before/after | Retain state | pass on `9761f6a`: connection and 10-model catalog persisted while OpenAI stayed default |
 | A24 | Persisted A23 state with installed cua | Run one goal-level tool task with a reversible effect | Full Anthropic adapter, MCP, journal and both streams complete with read-back | Run id, usage, journal, sockets, API/CLI, effect read-back | Delete effect, logout, unset key | pass on `9761f6a`: `run-fd1af6af9bc6441393b3c0ff6c969655` completed in 2 turns with exact read-back |
-| A25 | Fresh state; OpenAI OAuth and Gemini key available | Connect OpenAI, then Gemini in one isolated state | Both credential files and complete catalogs coexist | Provider/default rows, filenames and DB secret scan after each commit | Retain state for A26-A29 | not run: owner browser approval is required; an API-key preflight was rejected as the wrong fixture |
-| A26 | A25 with OpenAI default | Read providers/default after Gemini commit | OpenAI default remains exactly unchanged | Before/after default and catalog rows | Retain state | blocked: A25 fixture does not exist |
-| A27 | A26 with installed cua | Run explicitly through a Gemini model | Gemini run completes with read-back while OpenAI remains default | Run/journal/sockets and default before/after | Delete effect; retain state | blocked: A26 fixture does not exist |
-| A28 | Passing A27 state | Set a Gemini model as default | Readiness passes, then one atomic default change commits; both catalogs remain | Usage and rows before/after | Retain state | blocked: A27 fixture does not exist |
-| A29 | A28 with OpenAI now non-default | Delete OpenAI connection | Only OpenAI credential/catalog leave; Gemini connection/default survive | API/CLI response, rows, filenames, DB secret scan | Remove isolated state; unset key | blocked: A28 fixture does not exist |
+| A25 | Fresh state; OpenAI OAuth and Gemini key available | Connect OpenAI, then Gemini in one isolated state | Both credential files and complete catalogs coexist | Provider/default rows, filenames and DB secret scan after each commit | Retain state for A26-A29 | pass on `c990dd2`: public OAuth then hidden Gemini-key login committed both isolated credential records and complete catalogs. |
+| A26 | A25 with OpenAI default | Read providers/default after Gemini commit | OpenAI default remains exactly unchanged | Before/after default and catalog rows | Retain state | pass on `c990dd2`: the default remained OpenAI after Gemini catalog commit. |
+| A27 | A26 with installed cua | Run explicitly through a Gemini model | Gemini run completes with read-back while OpenAI remains default | Run/journal/sockets and default before/after | Delete effect; retain state | pass on `c990dd2`: `run-b3a91597d63c4712b825950b9715b49c` completed on `gemini-3.5-flash-lite` with exact file read-back and OpenAI still default. |
+| A28 | Passing A27 state | Set a Gemini model as default | Readiness passes, then one atomic default change commits; both catalogs remain | Usage and rows before/after | Retain state | pass on `c990dd2`: public `vadgr model default gemini/gemini-3.5-flash-lite` committed one Gemini default. |
+| A29 | A28 with OpenAI now non-default | Delete OpenAI connection | Only OpenAI credential/catalog leave; Gemini connection/default survive | API/CLI response, rows, filenames, DB secret scan | Remove isolated state; unset key | pass on `c990dd2`: public OpenAI logout removed only OpenAI while Gemini remained the default. |
 
 **Measured Gemini close.** Run
 `run-06d3f88bf81b4441acd0d6f34df02b89` used `gemini-3.7-flash`, completed in
@@ -573,7 +575,7 @@ Linux, `BM` macOS, `BW` Windows native and `BQ` WSL.
 | BW06 | Windows native | 06 | not run: host required |
 | BW07 | Windows native | 07 | not run: host required |
 | BW08 | Windows native | 08 | not run: host required |
-| BQ01 | WSL | 01 | acceptance observation only; corrected E2E not run |
+| BQ01 | WSL | 01 | pass on `c990dd2`: public CLI and direct health API agreed on a fresh schema-v1 database with no provider, catalog or default rows. |
 | BQ02 | WSL | 02 | acceptance observation only with real `0.4.6` database; corrected E2E not run |
 | BQ03 | WSL | 03 | acceptance observation only; corrected E2E not run |
 | BQ04 | WSL | 04 | acceptance observation only; corrected E2E not run |
@@ -750,7 +752,7 @@ Legend: pass / fail / blocked / not run / **Not-Needed**.
 | build, test, and lint | CI not run | CI not run | CI not run | pass locally |
 | credential matrix | not run | type check only | type check only | not run for E2E; prior acceptance diagnostics retained |
 | clean install | pass in Linux `scratch` | not run | not run | driver host only |
-| live providers | not run | not run | not run | partial: three API-key paths and ChatGPT OAuth onboarding/work/browser page pass; raw callback status open |
+| live providers | not run | not run | not run | partial: three API-key paths and ChatGPT OAuth onboarding/work/browser page pass; coexistence, replacement, deletion, stale catalog and pairing-first pass; expired callback redirect and protected retry remain open |
 | full engine | not run | not run | not run | partial: OpenAI Platform, Gemini and Anthropic public-boundary runs pass |
 | restart and dogfood | not run | not run | not run | not run; prior acceptance diagnostics retained |
 | overall | not run | not run | not run | partial |
@@ -762,8 +764,8 @@ process launch are platform-shaped. No supported operating system is
 ## What this runbook cannot prove
 
 The written open cells do not yet prove the corrected ChatGPT raw callback redirect-status
-capture, Gemini API-key coexistence, replacement and deletion; native Linux, macOS or Windows
-installed-product sessions; the 32 credential-storage cells; 22 engine cells;
-16 surface branch cells; a kill inside the owner dogfood batch;
+capture or the protected valid-key retry; native Linux, macOS or Windows
+installed-product sessions; 31 credential-storage cells; 22 engine cells;
+11 surface branch cells; a kill inside the owner dogfood batch;
 or a monetary cost for ChatGPT OAuth usage. Those cells remain open and prevent
 this runbook from declaring the minor fully accepted.
