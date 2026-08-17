@@ -415,6 +415,43 @@ boundary, then removed its pending state.
 
 The real-TTL expiry remains S01 rather than being treated as another CB row.
 
+### The same sweep on native Windows
+
+Re-recorded on a real Windows 11 host at `dfa80c8` against its own isolated
+release daemon, because a sweep that binds sockets, spawns a child process and
+resolves a platform credential store does not inherit a WSL result.
+
+| group | Windows result |
+|---|---|
+| shipped HTTP rows | 41 of 47 match the recorded status and error code |
+| absent-route probes | 30 of 30 returned `404` or `405` |
+| CLI rows | 25 of 25 returned the expected exit code and nonempty output |
+
+The six HTTP rows that did not run are `H01`, `H02` and `H18` to `H21`, and all
+six need a pending OAuth attempt. They are blocked by a host condition rather
+than by the product: the fixed callback port cannot be bound on this machine, so
+the daemon reports `the provider callback listener is unavailable` and refuses
+to start an OAuth attempt at all. That refusal is itself correct behaviour and
+was captured. The seven `CB` callback rows are blocked for the same reason.
+
+`H04` to `H11` required the real transport. On loopback the daemon answers
+`TRANSPORT_UNREACHABLE` naming `loopback`, which is correct, so the pairing rows
+were driven over Tailscale, where the daemon advertised its tailnet name and
+bound its tailnet address. The pass claimed one device, proved the one-time code
+by reusing it, revoked its own device and confirmed the empty list afterwards.
+
+`K03` is worth naming separately, because it demonstrates the behaviour this
+minor exists to deliver, on Windows. From a fresh state `vadgr pair` printed the
+provider chooser and **no QR appeared before onboarding**. After one provider
+was connected, the same command exited `0` and rendered exactly one QR payload.
+
+Two harness faults were found and corrected while re-recording rather than being
+written up as product results. Counting only `stdout` reported six correct
+refusals as producing no output when their messages were on `stderr`, which is
+where an error belongs. Deciding a fixture's arm from a global call counter
+handed a later run the wrong arm once other runs had shifted the parity, which
+is the kind of fault that makes a green sweep meaningless.
+
 ### Not yet built - probed to confirm absent, not half-wired
 
 The generated sweep reused the 30-route absence inventory from `0.4.6`.
@@ -864,7 +901,7 @@ same (`OS-L`, `OS-M`, `OS-W`, `OS-Q`).
 | part | Linux | macOS | Windows native | WSL | notes |
 |---|---|---|---|---|---|
 | automated gate: build, test, lint | **pass (CI)** | **pass (CI)** | **pass (CI)** | **pass** | all three OS rows are green in CI, and CI is not an e2e pass. WSL ran the four suites locally: engine 122, api 429, cli 152, rust 197, with clippy and fmt clean |
-| surface coverage: every published endpoint | not run | not run | not run | **pass**, 1 blocked | 25 rows pass on the public boundary. `S12f` is blocked on a missing product path, F21 |
+| surface coverage: every published endpoint | not run | not run | **pass**, 13 blocked | **pass**, 1 blocked | 25 rows pass on the public boundary. `S12f` is blocked on a missing product path, F21 |
 | A: provider onboarding and defaults | not run | not run | not run | **pass** | 29 of 29. Four provider paths onboarded, catalogs discovered, defaults committed |
 | B: credential storage and migration | not run | not run | **pass**, 8 of 8 | **pass** | the eight cases exist per platform as `BL`, `BM`, `BW` and `BQ`. 8 of 8 `BQ` cells pass, including the drvfs root WSL alone can produce. 8 of 8 `BW` cells now pass on a real Windows host, which is where the protected `D:P(A;;FA;;;SY)(A;;FA;;;OW)` descriptor and the junction reparse point are observed rather than argued. Two sub-controls inside `BW05` and `BW06` are owed for want of elevation, and both say so. `BL` and `BM` need their own hosts |
 | C: full product path and engine behavior | not run | not run | not run | **pass**, 3 partial | 25 cells, 22 pass and 3 partial. `C07` to `C09` park durably and their continuation needs the reply surface that belongs to `0.6.0`. Each row names the run id or commit it was observed on; the section preamble's older rule, that only rows citing `9761f6a` count, no longer matches the rows and is corrected there |
@@ -876,6 +913,22 @@ same (`OS-L`, `OS-M`, `OS-W`, `OS-Q`).
 Credential paths, access controls, binary startup, callback binding and child
 process launch are platform-shaped. **No supported operating system is
 `Not-Needed` for final acceptance.**
+
+**Every part of this runbook is owed on every supported operating system, not
+only the one that happened to run first.** The matrix above has a row per part
+and a column per OS because each cell is a separate observation, and a part
+driven on WSL says nothing about the same part on native Windows, Linux or
+macOS. The surface sweep binds sockets and spawns a child process. Part A writes
+credential files and reads a platform credential store. Part C spawns the
+installed cua child and drives native UI. Part D depends on how the operating
+system kills a process and what survives it. Part E opens a native editor. All
+five are platform-shaped, so none of them inherits a WSL result.
+
+This was written after a native Windows pass closed the credential group and the
+installed-product cell while the other five parts still read `not run` in the
+Windows column. That is the honest state to record, and it is also the reason
+the `overall` row for an OS is the weakest part actually driven there rather
+than the best one.
 
 ## What this runbook cannot prove
 
