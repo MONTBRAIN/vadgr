@@ -138,6 +138,32 @@ text, documentation or evidence. Run
 `python3 scripts/check_no_secrets.py --env-file ../.env` before every commit and
 before sealing evidence.
 
+## A pass is finished, not paused
+
+**Drive the whole matrix before reporting.** The failure this stops is not
+laziness, it is a pass that stops at the first interesting result: partial
+results look like progress, they get committed, and the cells that never ran
+quietly stay never run. `0.4.7`'s Windows pass had to be restarted by the owner
+several times for exactly this reason.
+
+Three rules follow from it:
+
+- **A blocked cell is owed only after its blocker was investigated.** On that
+  pass a reserved port, a missing toolchain and an unbindable OAuth callback all
+  read as immovable environment facts. All three were removable, and one of them
+  was two daemons the pass had leaked itself.
+- **Ask for the owner's part first and batch it.** A browser approval or an
+  elevation prompt should be requested at the start and answered once, not
+  discovered one cell at a time. Keep driving the unattended cells while it
+  waits.
+- **A fix that lands mid-pass invalidates the rows it touches.** Re-run those
+  cells on every operating system that already passed them, because those
+  results were observed against the old behaviour.
+
+**And fix what you find.** A defect found by a runbook is repaired on the same
+branch with a test that fails without it, and the cell is re-run until it
+passes. Recording a defect and moving on is half the job.
+
 ## Test what this minor can test, and nothing more
 
 A runbook covers **what is testable now**. A check that cannot be run because

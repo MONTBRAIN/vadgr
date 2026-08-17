@@ -54,6 +54,75 @@ claude --dangerously-skip-permissions --output-format stream-json --verbose -p \
   | tee /tmp/e2e-<version>.jsonl
 ```
 
+## Before you file a finding, suspect your own harness
+
+**Most wrong answers in a pass come from the harness, not the product, and every
+one of them looks exactly like a product failure.** These are the ones that have
+actually happened here, each of which produced a confident false result until the
+source was read. Check this list before writing a finding.
+
+- **The tool's schema is not what you assumed.** A control tool called with the
+  wrong field names errors instead of acting, and the cell reads as "the product
+  did not do it". Read the tool's declared `properties` and `required`.
+- **A policy or default silently changed the path.** The same tool called at
+  `risk: low` is auto-allowed by the default policy and never parks, which reads
+  as "it does not park". Only the input the cell actually describes exercises the
+  cell.
+- **You called a route that does not exist.** A `404` from a made-up path leaves
+  the state untouched, so the next assertion tests the wrong state and passes or
+  fails for the wrong reason. Grep the router before driving a verb.
+- **You probed the right route on the wrong listener.** A surface served by its
+  own listener on its own port returns `404` on the API port, which reads as
+  "the route is missing".
+- **You parsed a body you had already truncated.** Keep the full response for
+  parsing and truncate only the recorded copy.
+- **You counted one output stream.** An error belongs on `stderr`; counting only
+  `stdout` reports correct refusals as producing nothing.
+- **Your fixture branched on global state.** A provider stand-in that chooses its
+  reply from a global call counter gets its parity shifted by every other run in
+  the sweep and hands a later run the wrong arm. Decide from the conversation in
+  front of it.
+- **You polled slower than the window you were waiting for.** A screenshot
+  completes in well under a second, so a one second poll walks straight past
+  every moment in which a call is open. Match the poll to the event.
+- **You left your own daemon running.** A leaked daemon holds its port, and the
+  next run reads that as an environment condition. Stop every daemon you start,
+  by pid, and check for strays before blaming the machine.
+
+**A "no secret present" claim is verified against the raw artifact, never
+against your own flag.** A check written as "does the redacted copy still
+contain the secret" is tautologically false and will pass while a live
+credential sits in the file beside it. Grep the file on disk.
+
+## When a cell cannot be captured, ask whether that is the product's fault
+
+An observable the runbook asks for and no platform can produce is usually a gap
+in the product, not a limit of the harness. A shipped route served with no
+tracing leaves no record of itself anywhere, so the row stays owed forever and
+every platform records the same shrug. Fix the gap, then capture the row.
+
+The repair for an observability gap is itself a place to be careful: adding a
+default HTTP span to a route whose query carries a credential writes that
+credential to the log. Record the identifiers, never the whole URI.
+
+## Finish the matrix
+
+**A pass ends when every cell has a verdict or a stated reason, not when the
+first interesting result appears.** Partial results are the failure mode this
+section exists to prevent: they read as progress, they are committed, and the
+remaining cells quietly never run.
+
+- A cell blocked by a host condition is owed only after the condition itself has
+  been investigated. Two leaked daemons, a reserved port and a missing toolchain
+  all looked like immovable environment facts and all three were removable.
+- If a cell needs the owner, ask for that **first**, batch it, and keep working
+  while you wait. Do not let one approval serialise the rest of the matrix.
+- If a fix lands mid-pass, **re-run the cells it touches on every OS that
+  already passed them**, because those rows were observed against the old
+  behaviour.
+- Report once, at the end, with everything. An audit delivered in instalments
+  reads as an endless stream of problems and is really one incomplete sweep.
+
 ## Owner and environment requirements
 
 <Complete this table before the first live cell. Tell the owner what is needed

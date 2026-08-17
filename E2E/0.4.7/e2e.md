@@ -1116,6 +1116,42 @@ Windows column. That is the honest state to record, and it is also the reason
 the `overall` row for an OS is the weakest part actually driven there rather
 than the best one.
 
+## What this pass taught, beyond its findings
+
+The Windows execution produced four repaired defects, and it also produced a
+list of ways a pass reaches a confident wrong answer. Those are written into
+`E2E/TEMPLATE.md` and `E2E/README.md` so the next runbook inherits them instead
+of rediscovering them. The short form:
+
+**Nine harness faults each looked exactly like a product failure**, and each was
+only resolved by reading the source. A control tool called with the wrong schema
+errored instead of parking. The same tool at a risk the default policy
+auto-allows approved instead of parking. Attempts were "cancelled" through a
+route that does not exist, leaving them pending so two rows tested the wrong
+state and one looked like a regression of F7. The callback routes were probed on
+the API port when they are served by their own listener. A response body was
+parsed after truncation. Six correct refusals were reported as silent because
+only `stdout` was counted. A stand-in chose its reply from a global counter
+whose parity other runs had shifted. A kill window was missed by polling once a
+second. And two daemons leaked from crashed runs held the fixed OAuth port for
+hours, which was misdiagnosed as a host condition and even led to a needless
+`wsl --shutdown`.
+
+**A self-reported "no secret" check is worthless.** The first callback capture
+asserted the query was absent using a test that could never be true, while a
+live 90 character authorization code sat in the log beside it. The claim is
+verified by grepping the artifact on disk.
+
+**An uncapturable observable was a product gap, not a harness limit.** `CB04`
+had been owed since WSL because "no raw callback status was captured". The cause
+was that the callback listener had no tracing at all. Fixing that closed the row
+on the first attempt, on both platforms' terms.
+
+**Every part is owed on every operating system.** This runbook's per-OS matrix
+had a Windows column that was entirely `not run` while six parts read `pass`
+from WSL alone. The parts are platform-shaped: sockets, a credential store, a
+spawned child, how the OS kills a process, and a native editor.
+
 ## What this runbook cannot prove
 
 The written open cells do not yet prove the corrected ChatGPT raw callback redirect-status
