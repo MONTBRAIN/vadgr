@@ -220,7 +220,8 @@ two-minute hang and an `ok` returned before any window existed.
 
 **Invoke each public product surface exactly as its user does.** For vadgr, put
 the tested installation on `PATH`, run `vadgr ...` in a terminal, and test
-the public HTTP and WebSocket surfaces separately. Its installed entry point
+direct public HTTP plus both current run WebSocket routes separately. Its
+installed entry point
 can dispatch to Python during migration, but the e2e cannot replace it with
 `python -m cli`, a product import, `cargo run` or a private function. For
 cua, build the exact PR-head wheel, install it without editable mode outside the

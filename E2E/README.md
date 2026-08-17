@@ -55,9 +55,11 @@ PY
 persisted. A status alone is weak evidence: a run ends `completed` on the legacy
 CLI path too. **Pair it with the journal**, which only the native loop writes.
 
-**3. The WebSocket stream - what a watcher actually saw.** `websocat` or
-`vadgr stream`. Needed for any claim about frames reaching a client; a claim
-about `map_event` is a unit-test claim, not an observation of the wire.
+**3. The WebSocket streams - what watchers actually saw.** Use a real wire
+client such as `websocat` or `wscat` against both
+`/api/ws/runs/{run_id}` and `/api/runs/{run_id}/stream`. Needed for any claim
+about frames reaching a client; a claim about `map_event` is a unit-test claim,
+not an observation of the wire.
 
 **4. The driving CLI's session transcript - the fallback.** When Claude Code
 drove the run and its stream is not in your context, the tool calls are in

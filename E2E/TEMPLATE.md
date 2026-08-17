@@ -32,10 +32,10 @@ from the agent's prose.
 
 Both surfaces are exercised and **neither substitutes for the other**:
 
-- **the API + the run WebSocket** - how the phone calls it, and the only way to
-  know a mobile call behaves;
-- **the CLI** (`vadgr run`, `vadgr stream`) - the on-box path, with its own users
-  and its own failure modes.
+- **the API + both run WebSockets** - how the phone calls it, and the only way
+  to know a mobile call behaves;
+- **the CLI** (`vadgr run`, `vadgr runs get`) - the on-box path, with its own
+  users and its own failure modes.
 
 <Put the tested installation on `PATH`. Record `command -v vadgr` and prove its
 target is the exact PR head. Invoke `vadgr ...` in the terminal. The installed
@@ -100,9 +100,23 @@ read the effective settings through the product surface and assert them. A
 fresh database that inherits the owner's config is not isolated.>
 
 ```bash
-export AGENT_FORGE_DATABASE_PATH=$(mktemp -d)/vadgr.db
-export AGENT_FORGE_PORT=8791
-python3 -m uvicorn api.main:app --host 127.0.0.1 --port 8791 &
+export E2E_ROOT="$(mktemp -d)"
+export VADGR_DB="$E2E_ROOT/vadgr.db"
+export VADGR_RUNS_DIR="$E2E_ROOT/runs"
+export VADGR_STATE_HOME="$E2E_ROOT/state"
+export VADGR_CONFIG_HOME="$E2E_ROOT/config"
+export VADGR_PORT=8791
+export FORGE_API_URL=http://127.0.0.1:8791
+mkdir -p "$VADGR_RUNS_DIR" "$VADGR_STATE_HOME" "$VADGR_CONFIG_HOME"
+cd "$E2E_ROOT"
+<absolute-path-to-the-shipped-vadgr-daemon>
+
+# In another terminal whose PATH resolves the tested installation:
+command -v vadgr
+vadgr health
+curl -fsS "$FORGE_API_URL/api/health"
+wscat -c "ws://127.0.0.1:8791/api/ws/runs/<run-id>"
+wscat -c "ws://127.0.0.1:8791/api/runs/<run-id>/stream"
 ```
 
 ## Remote-host handoff for Linux, macOS and Windows
