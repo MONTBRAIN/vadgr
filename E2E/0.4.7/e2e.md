@@ -90,7 +90,7 @@ checks record only present or absent; they never print or persist a secret.
 | native Linux desktop host | BL01-BL08, OS-L | release artifact and installed cua are present on a non-WSL Linux desktop | creates isolated state and reversible test files | remove only the isolated state and test files |
 | macOS host | BM01-BM08, OS-M | release artifact and installed cua are present on macOS | creates local Application Support state and reversible test files | remove only the isolated state and test files |
 | Windows native host | BW01-BW08, OS-W | release artifact and installed cua are present in native Windows | creates local AppData state and reversible test files | remove only the isolated state and test files |
-| WSL2 plus Windows desktop applications | BQ01-BQ08, OS-Q, E01-E05 | installed cua can reach the Windows UI from WSL | opens applications and creates reversible files | delete test files; do not terminate unrelated applications |
+| WSL2 plus Windows desktop applications | BQ01-BQ08, OS-Q, E01-E05 | installed cua can reach the Windows UI from WSL and Windows Notepad is available | opens one unsaved Notepad scratch document | close only the test document without saving; do not terminate unrelated applications |
 | one browser approval and a ten-minute wait | S01 | OpenAI OAuth account is available and callback port `1455` is free | consumes time, not API usage before exchange | close the completion tab and remove the expired attempt |
 | permission to replace and delete live provider connections | S04-S05, A25-A29 | owner confirms the isolated state contains no connection that must be retained | rotates/deletes isolated credentials | restore the intended default or remove the isolated state |
 | permission to hard-kill the assigned daemon during owner work | E03 | owner confirms the task, reversible effect and assigned daemon PID | interrupts one test daemon during a live call | restart only that daemon and remove the reversible effect |
@@ -123,8 +123,8 @@ cost estimate.
 The earlier accepted ChatGPT runs used `gpt-5.6-sol`, and the accepted Gemini
 run used `gemini-3.7-flash`, before this policy was added. Their evidence remains
 valid, but neither expensive choice is repeated for provider-neutral coverage.
-The owner dogfood has a separate ceiling because opening, writing and saving a
-Windows application from WSL requires several grounded UI turns. It is not a
+The owner dogfood has a separate ceiling because opening, writing and reading a
+native Windows application from WSL requires several grounded UI turns. It is not a
 provider-neutral smoke test. Before another billed group runs, its driver must cancel at any ceiling and the
 result row must record actual tokens plus calculated cost. A model comparison
 adds coverage only when the adapter contract differs; sampling extra models for
@@ -186,22 +186,27 @@ from another session:
    rust/Cargo.toml`. Copy the resulting `vadgr-daemon` or `vadgr-daemon.exe`
    into an empty host-local test root and run that copy. Never use `cargo run`
    as the product under test.
-4. Create a fresh Python virtual environment inside that test root. Install
-   `vadgr-computer-use==0.7.0`, record `vadgr-cua doctor`, and set
+4. Build the exact `vadgr-computer-use` PR-head wheel. Create a fresh Python
+   virtual environment inside that test root and install that wheel without
+   editable mode. Record its wheel hash and `vadgr-cua doctor`, then set
    `VADGR_CUA_BIN` to that installed executable. On Linux, run
    `vadgr-cua install-deps --yes`. On macOS, grant Accessibility and Screen
    Recording to that environment's Python. On Windows, keep the test native;
    do not route it through WSL.
-5. Create the evidence directory before the first cell. Record only the commit,
+5. The editor task uses the native application only: GNOME Text Editor on Linux,
+   TextEdit on macOS, and Notepad on Windows and WSL. It opens a new unsaved
+   scratch document, writes the fixed text, and verifies it through the editor
+   UI. It does not open or save a WSL, project, network or other filesystem path.
+6. Create the evidence directory before the first cell. Record only the commit,
    artifact hashes, tool versions, redacted commands, status codes, structured
    responses, access-control metadata, journals, socket frames and independent
    read-backs. Do not record environment values, authorization headers, callback
    queries or unredacted screenshots that contain them.
-6. Run the platform's eight credential cells in order: `BL01`-`BL08`,
+7. Run the platform's eight credential cells in order: `BL01`-`BL08`,
    `BM01`-`BM08` or `BW01`-`BW08`. Then run `OS-L`, `OS-M` or `OS-W`. Preserve
    state only where the next cell names it as a precondition. Use a new state
    root for every unrelated group.
-7. Run the secret check again before the evidence boundary is sealed. Remove
+8. Run the secret check again before the evidence boundary is sealed. Remove
    only the isolated state, virtual environment and reversible test effects.
    Do not stop unrelated applications or processes. Update only the rows that
    this host executed, with `pass`, `fail` or `blocked` and the exact reason.
@@ -599,10 +604,10 @@ credential matrix cannot substitute for them.
 
 | id | precondition and setup | goal | expected observable and oracle | evidence boundary | cleanup | status |
 |---|---|---|---|---|---|---|
-| OS-L | Native Linux desktop; installed release and cua; fresh state; one owner-supplied provider credential | Inspect the native OS/session, create a reversible file through cua, read it back, restart Vadgr and confirm provider persistence | Health says Linux; real model usage is nonzero; installed cua performs the effect; journal/API/CLI/both sockets agree; credential controls survive restart | Artifact hash, install command, provider rows, run id/journal/frames, read-back, restart rows | Delete file and isolated state | not run: native Linux host required |
-| OS-M | macOS desktop; installed release and cua; fresh state; one owner-supplied provider credential | Inspect macOS/session, create and read a reversible file through cua, restart and confirm persistence | Health says macOS; live provider and installed cua complete; journal/API/CLI/sockets and file read-back agree; local Application Support controls survive | Same artifacts as OS-L plus macOS ACL/owner metadata | Delete file and isolated state | not run: macOS host required |
-| OS-W | Native Windows desktop; installed release and cua; fresh state; one owner-supplied provider credential | Inspect Windows/session, create and read a reversible file through cua, restart and confirm persistence | Health says Windows; live provider and installed cua complete; journal/API/CLI/sockets and file read-back agree; AppData DACL survives | Same artifacts as OS-L plus Windows DACL/reparse metadata | Delete file and isolated state | not run: native Windows host required |
-| OS-Q | WSL2 release and installed cua with Windows UI reachability; fresh state; OpenAI OAuth | Inspect WSL and Windows desktop session, perform a reversible WSL/Windows UI task, read back from WSL and restart | Health says WSL; real usage and installed cua calls complete; Windows UI and WSL read-back agree; provider persists with `0700`/`0600` controls | Formal run ids, journals/frames, dogfood read-back, provider and credential matrix | Test file removed; isolated daemon stopped | acceptance observation only; corrected E2E not run |
+| OS-L | Native Linux desktop; installed release and cua; fresh state; one owner-supplied provider credential; the documented native text editor is available | Inspect the native OS/session. Open the native text editor, enter the fixed scratch text in an unsaved document, inspect it through the editor UI, restart Vadgr and confirm provider persistence | Health says Linux; real model usage is nonzero; installed cua performs and reads the editor UI effect; journal/API/CLI/both sockets agree; credential controls survive restart | Artifact hash, install command, provider rows, run id/journal/frames, editor UI read-back, restart rows | Close only the test unsaved document without saving; remove isolated state | not run: native Linux host required |
+| OS-M | macOS desktop; installed release and cua; fresh state; one owner-supplied provider credential; TextEdit is available | Inspect macOS/session. Open TextEdit, enter the fixed scratch text in an unsaved document, inspect it through the editor UI, restart Vadgr and confirm provider persistence | Health says macOS; live provider and installed cua complete; journal/API/CLI/sockets and editor UI read-back agree; local Application Support controls survive | Same artifacts as OS-L plus macOS ACL/owner metadata | Close only the test unsaved document without saving; remove isolated state | not run: macOS host required |
+| OS-W | Native Windows desktop; installed release and cua; fresh state; one owner-supplied provider credential; Notepad is available | Inspect Windows/session. Open Notepad, enter the fixed scratch text in an unsaved document, inspect it through the editor UI, restart Vadgr and confirm provider persistence | Health says Windows; live provider and installed cua complete; journal/API/CLI/sockets and editor UI read-back agree; AppData DACL survives | Same artifacts as OS-L plus Windows DACL/reparse metadata | Close only the test unsaved document without saving; remove isolated state | not run: native Windows host required |
+| OS-Q | WSL2 release and installed cua with Windows UI reachability; fresh state; OpenAI API key; Windows Notepad is available | Inspect WSL and Windows desktop session. Open Windows Notepad through the Windows UI, enter the fixed scratch text in an unsaved document and inspect it through the Notepad UI. Do not open or save a WSL path. Restart Vadgr and confirm provider persistence | Health says WSL; real usage and installed cua calls complete; Windows editor UI read-back agrees; provider persists with `0700`/`0600` controls | Formal run ids, journals/frames, Notepad UI read-back, provider and credential matrix | Close only the test unsaved document without saving; stop only the isolated daemon | corrected E2E not run |
 
 ## Part C: full product path and engine behavior
 
@@ -703,13 +708,25 @@ todo list survived restart and accepted both subsequent updates.
 The rows below are superseded acceptance observations. The corrected E2E result
 for E01-E05 is `not run`.
 
+Each OS uses its native editor only: GNOME Text Editor on the Linux target,
+TextEdit on macOS, and Notepad on native Windows and WSL. The agent creates an
+unsaved scratch document, enters exactly the fixed two lines below, and reads
+them through the editor UI. It must not open, create or save a project, WSL,
+network or other filesystem path. The UI read-back in `trajectory.jsonl` is the
+oracle, not the model's prose or a file read-back.
+
+```text
+Vadgr dogfood
+Verified through editor UI
+```
+
 | id | precondition and setup | goal or trigger | expected observable and oracle | evidence boundary | cleanup | status |
 |---|---|---|---|---|---|---|
-| E01 | Installed release, OpenAI OAuth, installed cua, isolated WSL state, Windows Notepad available | From the CLI, create a WSL file, open it through Windows Notepad, append and save a second line, then verify from WSL | One run reaches completed after real cross-OS work; exact two-line read-back matches | CLI, run row, journal, sockets, file hash/content and UI action records | Delete file; leave unrelated Notepad processes untouched | blocked on `c54544b` with CUA `0.7.1`: valid monitored `run-29e7554250f94c218ce6fd1904d7b47d` reached 14 responses, opened the test file in Windows Notepad, then OpenAI returned provider quota exhausted before the append/read-back. |
-| E02 | E01 setup and reversible target | Let the model choose cua as hands for every machine action | No direct operator mutation substitutes for cua; every external action is countable and independently read back | Journal tool sequence, boundary audit and exact file read-back | Delete reversible target | blocked with E01: the provider failed before final read-back. |
-| E03 | Owner approves assigned daemon PID and reversible marker; same owner-work goal as E01; both sockets attached before start | After at least one completed effect, kill only the assigned daemon with `SIGKILL` while a later cua call is durably `in_flight`; restart same state and let the batch finish | Same run continues; journal prefix and todos survive; live-state inspection precedes any retry; completed effect occurs once; final Notepad/WSL read-back is exact | PID/kill point, pre/post journal, marker metadata, DB/API, both sockets, final work read-back | Remove marker and owner-work file; stop only assigned daemon | not run: owner permission required; Part D alone does not close this cell |
-| E04 | Completed E01 or E03 run plus an authoritative provider response, billed-account usage record or owner-approved pricing rule | Reconcile run usage to elapsed time, model calls, input/output tokens and monetary amount | Record names source and currency and either an exact amount or an owner-approved `unavailable` disposition; no guessed subscription price | Run metrics, provider/account record with secrets removed, calculation and disposition | Remove any sensitive account capture after redacted facts are filed | partial: 86.080s, 22 calls, 1,628,437/1,050 tokens; money source missing |
-| E05 | E01 or E03 complete | Count every approval, question and other human intervention from channel records | Exact contact count and reasons reconcile with journal `await_user` records | Channel record, journal count and summary | None | pass for E01: zero contacts |
+| E01 | Installed release, OpenAI Platform API key, installed cua, isolated WSL state, Windows Notepad available | From the terminal, give the loop a goal to open Windows Notepad, enter the fixed two lines in a new unsaved document, inspect them through the UI and report them. Do not open or save a file. | One run reaches completed after real cross-OS UI work. Journaled editor action and UI read-back contain the exact two lines. | CLI, run row, journal with screenshot payload redacted, both sockets and editor UI action/read-back records | Close only the test unsaved document without saving. Leave unrelated Notepad processes untouched. | not run: revised 2026-08-16 after the prior file-based attempt was blocked by provider quota. |
+| E02 | E01 setup and an unsaved test document | Let the model choose cua as hands for every machine action | No direct operator mutation substitutes for cua. Every external action is countable and the exact editor text is independently read through the UI. | Journal tool sequence, boundary audit and exact editor UI read-back | Close only the test unsaved document without saving | not run: depends on revised E01 |
+| E03 | Owner approves assigned daemon PID; same unsaved editor task as E01; both sockets attached before start | After the fixed text is durably read through the editor UI, kill only the assigned daemon with `SIGKILL` while a later cua inspection call is durably `in_flight`. Restart the same state and let the batch finish. | The same run continues. Journal prefix and todos survive. The first action after restart inspects editor UI state before any retry. The original text appears once and exact final UI read-back matches. | PID/kill point, pre/post journal, DB/API, both sockets and final editor UI read-back | Close only the test unsaved document without saving. Stop only the assigned daemon. | not run: owner permission required; Part D alone does not close this cell |
+| E04 | Completed revised E01 or E03 run plus an authoritative provider response, billed-account usage record or owner-approved pricing rule | Reconcile run usage to elapsed time, model calls, input/output tokens and monetary amount | Record names source and currency and either an exact amount or an owner-approved `unavailable` disposition; no guessed subscription price | Run metrics, provider/account record with secrets removed, calculation and disposition | Remove any sensitive account capture after redacted facts are filed | not run: revised E01 has no completed run yet |
+| E05 | Revised E01 or E03 complete | Count every approval, question and other human intervention from channel records | Exact contact count and reasons reconcile with journal `await_user` records | Channel record, journal count and summary | None | not run: revised E01 has no completed run yet |
 
 ## Evidence
 
@@ -740,7 +757,7 @@ must not be present.
 | F14 | Provider-neutral E2E work used expensive product starters without a dated model comparison or hard spend ceiling. | The runbook declared that credentials were billed but did not require capability/price research, an explicit cost-effective engine model, or cancellation thresholds; the harness inherited the provider default. | Shared engineering, both machine-side entry points and both E2E templates now require current official research, authenticated-catalog validation, explicit cheapest-capable models, bounded iteration/token/money ceilings and evidence-based escalation. This runbook selects Luna, Flash-Lite and Haiku for future generic engine work. | not rerun: the next authorized billed group must prove its driver cancels at the written ceiling |
 | F15 | The WSL evidence called `python -m cli` from Python drivers while the runbook claimed the shipped terminal CLI. | The capture scripts replaced the public `vadgr` entry point. The review treated real daemon and wire activity as sufficient although the on-box user surface was bypassed. | Shared engineering, both machine-side entry points and both E2E templates now require the public command. This runbook reclassifies every affected live result as an acceptance diagnostic. | partial pass: API-key onboarding, three provider runs, 47 shipped HTTP rows, 30 absence probes, 25 CLI rows and six callback rows now use the corrected public boundary; remaining cells stay open |
 | F16 | The corrected Gemini Flash-Lite run completed and matched its read-back, but used seven model iterations against the written six-iteration ceiling. | Foreground `vadgr run` watched the product outcome but no independent guard cancelled the run at the cost boundary. | Keep the six-iteration ceiling. The corrected rerun starts through terminal `vadgr`; a capture-only monitor invokes public `vadgr runs cancel` when the sixth response is durable. | pass: bounded `run-19fa499edbf94542b5d7b4321447d597` completed in two turns before cancellation, with 15,499 input, 106 output and exact read-back |
-| F17 | The WSL/Windows dogfood attempt reached 27 responses although its monitor reported zero. | The monitor matched a spaced JSON form while the live JSONL used compact `"phase":"response"`; a second ad-hoc monitor was also not a valid pre-acceptance guard. | The 27-response attempt is invalid evidence. Every future bounded cell uses a pre-armed, JSON-aware monitor whose recorded count is checked against the journal before verdict. | partial: the final retry's foreground monitor recorded 14 responses correctly, but OpenAI quota exhaustion blocked completion. |
+| F17 | The WSL/Windows dogfood attempt reached 27 responses although its monitor reported zero. | The monitor matched a spaced JSON form while the live JSONL used compact `"phase":"response"`; a second ad-hoc monitor was also not a valid pre-acceptance guard. The file-based goal also crossed the WSL filesystem boundary, which is not the owner task. | The 27-response attempt is invalid evidence. The revised editor-only E01 starts a pre-armed JSON-aware monitor before acceptance, checks its count against the journal, and never opens or saves a file. | open: the revised E01 has not run. |
 | F19 | Cancelling a live CUA shell call ended the Vadgr run but did not terminate the shell child. | Cancellation stopped the Rust dispatch future and later closed the CUA server, but the CUA child process was not cancellation-aware. | CUA `0.7.1` runs `shell.run` asynchronously, terminates its Unix process group or Windows process tree on cancellation, and has a focused regression. | partial: the final installed-wheel WSL rerun cancelled cleanly with no child after five seconds. Linux, macOS and Windows native reruns, plus the owner dogfood rerun, remain required. |
 
 The probe also moved from host networking to a separate BusyBox container that
