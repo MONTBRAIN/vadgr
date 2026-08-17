@@ -80,6 +80,39 @@ def run_acl_check(check, path):
     ).returncode
 
 
+def acl_diagnosis(check, path):
+    """What the check saw, so a remote failure can be read rather than guessed.
+
+    An assertion that prints nothing cannot be diagnosed from a machine you do
+    not have in front of you, which is the same reason the store's own refusals
+    name the path.
+    """
+    script = (
+        "$ErrorActionPreference = 'Continue'; "
+        "$t = $env:VADGR_ACL_TARGET; "
+        "$acl = Get-Acl -LiteralPath $t; "
+        "$id = [System.Security.Principal.WindowsIdentity]::GetCurrent(); "
+        "$ownerRaw = $acl.Owner; "
+        "$ownerSid = try { (New-Object System.Security.Principal.NTAccount($ownerRaw))."
+        "Translate([System.Security.Principal.SecurityIdentifier]).Value } "
+        "catch { 'TRANSLATE-FAILED:' + $_.Exception.Message }; "
+        "[pscustomobject]@{ ownerRaw = $ownerRaw; ownerSid = $ownerSid; "
+        "identityUser = $id.User.Value; identityOwner = $id.Owner.Value; "
+        "protected = $acl.AreAccessRulesProtected; "
+        "aces = @($acl.Access | ForEach-Object { $sid = try { "
+        "$_.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value } "
+        "catch { 'UNRESOLVED' }; \"$($_.AccessControlType) $($_.IdentityReference) $sid\" }) } "
+        "| ConvertTo-Json -Depth 5 -Compress"
+    )
+    proc = subprocess.run(
+        ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", script],
+        env={**os.environ, check.WINDOWS_ACL_TARGET_VAR: str(path)},
+        capture_output=True,
+        text=True,
+    )
+    return (proc.stdout or "") + (proc.stderr or "")
+
+
 @pytest.mark.skipif(os.name != "nt", reason="the DACL control only exists on Windows")
 def test_owner_only_file_is_accepted_and_a_broad_ace_is_refused(check, tmp_path):
     env_file = tmp_path / ".env"
@@ -92,7 +125,10 @@ def test_owner_only_file_is_accepted_and_a_broad_ace_is_refused(check, tmp_path)
         stderr=subprocess.DEVNULL,
         check=True,
     )
-    assert run_acl_check(check, env_file) == 0
+    assert run_acl_check(check, env_file) == 0, (
+        "the check refused an owner-only file. What it saw: "
+        + acl_diagnosis(check, env_file)
+    )
 
     # S-1-5-11 is Authenticated Users, one of the three broad SIDs the gate names.
     subprocess.run(
