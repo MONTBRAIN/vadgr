@@ -660,35 +660,6 @@ For every successful engine cell, raw and mobile streams are captured from
 before run acceptance through the terminal frame and reconciled with the same
 journal. The A/B/C formal passes each reached `run_completed` and `completed`.
 
-## Repeatability - three independent acceptance passes
-
-Three agents used separate ports, databases, state roots, run roots, daemons,
-installed terminal commands and provider attempts. R02 and R03 pass. R01 fails
-because the valid actively guarded attempt reached the six-response ceiling
-before reading the marker. Failed monitor attempts are retained rather than
-substituted for the decisive result.
-
-| id | corrected pass requirement | result |
-|---|---|---|
-| R01 | Agent A uses its own port, database, state, runs, daemon and terminal `vadgr`; reconcile HTTP, CLI, raw socket, mobile socket, journal and usage | fail: guarded attempt cancelled at response 6 before marker read-back; 34,610 input / 404 output |
-| R02 | Agent B runs the identical fixture concurrently with R01 and R03 under its own isolated resources | pass: exact marker in 4 responses; 22,466 input / 176 output; all surfaces agree |
-| R03 | Agent C runs the identical fixture concurrently with R01 and R02 under its own isolated resources | pass: exact marker at response 6; 34,436 input / 346 output; terminal cancel raced completed state; no seventh response |
-
-The following table records the superseded acceptance observations only.
-
-| | pass A | pass B | pass C |
-|---|---|---|---|
-| run | `run-1ce4abf3fa184847928dac457f685842` | `run-21f9bcb4e5e44609ae460581d0df6b43` | `run-db0e530b08d34ce08f26df69e505756b` |
-| HTTP entries | accepted and completed | accepted and completed | accepted and completed |
-| CLI entries | login/readiness and persisted state captured | login/readiness and persisted state captured | login/readiness and persisted state captured |
-| raw / mobile frames | `8 / 5`, terminal | `5 / 5`, terminal | `5 / 5`, terminal |
-| journal phases | `19 / 19`, no error | `16 / 16`, 2 handled errors | `11 / 11`, no error |
-| tokens in / out | `1,077,574 / 1,286` | `913,612 / 2,030` | `317,047 / 796` |
-
-The three runs began with the same 5,458-token input fixture. Their first output
-counts and later trajectories differ, proving independent model calls. The
-comparison normalizes only run id, timestamp, port, and provider request id.
-
 ## Part D: hard-kill restart continuation
 
 The rows below are superseded acceptance observations. The corrected E2E result
@@ -738,6 +709,35 @@ Verified through editor UI
 | E04 | Completed revised E01 or E03 run plus an authoritative provider response, billed-account usage record or owner-approved pricing rule | Reconcile run usage to elapsed time, model calls, input/output tokens and monetary amount | Record names source and currency and either an exact amount or an owner-approved `unavailable` disposition; no guessed subscription price | Run metrics, provider/account record with secrets removed, calculation and disposition | Remove any sensitive account capture after redacted facts are filed | partial, pending an owner disposition: `run-e9b91163b75b487dbf1db546a0a7d4e2` reconciles exactly to 11 model calls, 93,352 input and 572 output tokens, and 39.97 s elapsed, all read from the journal and the run row. **The monetary amount is `unavailable`**: the authenticated model record for `gpt-5.6-sol` carries no pricing field, and the platform usage dashboard aggregates the organization rather than one run, so no exact per-run amount exists from an authoritative source. No subscription price is guessed. The owner is asked to approve this `unavailable` disposition or to name a pricing rule. |
 | E05 | Revised E01 or E03 complete | Count every approval, question and other human intervention from channel records | Exact contact count and reasons reconcile with journal `await_user` records | Channel record, journal count and summary | None | pass: `run-e9b91163b75b487dbf1db546a0a7d4e2` records zero `await_user` entries and the channel shows no approval, question or other human contact. Exact contact count is 0, and it reconciles with the journal. |
 
+## Repeatability - three independent acceptance passes
+
+Three agents used separate ports, databases, state roots, run roots, daemons,
+installed terminal commands and provider attempts. R02 and R03 pass. R01 fails
+because the valid actively guarded attempt reached the six-response ceiling
+before reading the marker. Failed monitor attempts are retained rather than
+substituted for the decisive result.
+
+| id | corrected pass requirement | result |
+|---|---|---|
+| R01 | Agent A uses its own port, database, state, runs, daemon and terminal `vadgr`; reconcile HTTP, CLI, raw socket, mobile socket, journal and usage | fail: guarded attempt cancelled at response 6 before marker read-back; 34,610 input / 404 output |
+| R02 | Agent B runs the identical fixture concurrently with R01 and R03 under its own isolated resources | pass: exact marker in 4 responses; 22,466 input / 176 output; all surfaces agree |
+| R03 | Agent C runs the identical fixture concurrently with R01 and R02 under its own isolated resources | pass: exact marker at response 6; 34,436 input / 346 output; terminal cancel raced completed state; no seventh response |
+
+The following table records the superseded acceptance observations only.
+
+| | pass A | pass B | pass C |
+|---|---|---|---|
+| run | `run-1ce4abf3fa184847928dac457f685842` | `run-21f9bcb4e5e44609ae460581d0df6b43` | `run-db0e530b08d34ce08f26df69e505756b` |
+| HTTP entries | accepted and completed | accepted and completed | accepted and completed |
+| CLI entries | login/readiness and persisted state captured | login/readiness and persisted state captured | login/readiness and persisted state captured |
+| raw / mobile frames | `8 / 5`, terminal | `5 / 5`, terminal | `5 / 5`, terminal |
+| journal phases | `19 / 19`, no error | `16 / 16`, 2 handled errors | `11 / 11`, no error |
+| tokens in / out | `1,077,574 / 1,286` | `913,612 / 2,030` | `317,047 / 796` |
+
+The three runs began with the same 5,458-token input fixture. Their first output
+counts and later trajectories differ, proving independent model calls. The
+comparison normalizes only run id, timestamp, port, and provider request id.
+
 ## Evidence
 
 The final private evidence lives under `e2e_evidence/vadgr-0.4.7/`. It
@@ -779,21 +779,38 @@ remains `scratch`, and the probe still drives it from outside the product.
 
 ## Per-OS results
 
-Legend: pass / fail / blocked / not run / **Not-Needed**.
+Legend: `pass` and `fail` mean it ran. `blocked` means it could not run, and
+says what stopped it. `not run` means nobody ran it, which is honest and visibly
+owed. `Not-Needed` means there is genuinely no OS-specific surface in that part,
+and it is only ever written with its reason. **A cell is marked from
+observation, never expectation.**
 
-| | Linux | macOS | Windows native | WSL |
-|---|---|---|---|---|
-| build, test, and lint | CI not run | CI not run | CI not run | pass locally |
-| credential matrix | not run | type check only | type check only | not run for E2E; prior acceptance diagnostics retained |
-| clean install | pass in Linux `scratch` | not run | not run | driver host only |
-| live providers | not run | not run | not run | partial: three API-key paths and ChatGPT OAuth onboarding/work/browser page pass; coexistence, replacement, deletion, stale catalog and pairing-first pass; expired callback redirect and protected retry remain open |
-| full engine | not run | not run | not run | partial: OpenAI Platform, Gemini and Anthropic public-boundary runs pass |
-| restart and dogfood | not run | not run | not run | not run; prior acceptance diagnostics retained |
-| overall | not run | not run | not run | partial |
+**The automated gate is not an e2e pass.** CI builds an environment and runs the
+unit suites. It drives no session, calls nothing over the wire and reaches no
+glass, so a green CI row says the suites pass on that OS and nothing about
+whether the product works there. The `overall` row never inherits a gate result:
+it is the weakest of the parts actually driven on that OS.
 
-Credential paths, access controls, binary startup, callback binding, and child
-process launch are platform-shaped. No supported operating system is
-**Not-Needed** for final acceptance.
+**The rows are this runbook's own parts**, so a row can be read back to its
+cells. Part B carries its platform in the cell id (`BL` native Linux, `BM`
+macOS, `BW` Windows native, `BQ` WSL), and the installed-product cells do the
+same (`OS-L`, `OS-M`, `OS-W`, `OS-Q`).
+
+| part | Linux | macOS | Windows native | WSL | notes |
+|---|---|---|---|---|---|
+| automated gate: build, test, lint | **pass (CI)** | **pass (CI)** | **pass (CI)** | **pass** | all three OS rows are green in CI, and CI is not an e2e pass. WSL ran the four suites locally: engine 122, api 429, cli 152, rust 197, with clippy and fmt clean |
+| surface coverage: every published endpoint | not run | not run | not run | **pass**, 1 blocked | 25 rows pass on the public boundary. `S12f` is blocked on a missing product path, F21 |
+| A: provider onboarding and defaults | not run | not run | not run | **pass** | 29 of 29. Four provider paths onboarded, catalogs discovered, defaults committed |
+| B: credential storage and migration | not run | not run | not run | not run | the eight cases exist per platform as `BL`, `BM`, `BW` and `BQ`. **`BQ` is runnable on this host and has not been run**, which is the one WSL gap left in this runbook |
+| C: full product path and engine behavior | not run | not run | not run | **pass**, 3 partial | 24 of 28. `C07` to `C09` park durably and their continuation needs the reply surface that belongs to `0.6.0` |
+| D: hard-kill restart continuation | not run | not run | not run | **pass** | 7 of 7. Killed with `SIGKILL` on a durable `in_flight`; the restart logged `resumed=1` and the run completed |
+| E: owner dogfood batch | not run | not run | not run | **pass**, 1 partial | 19 of 25. `E04` is partial pending an owner disposition on the monetary amount |
+| installed product on the host | not run (`OS-L`) | not run (`OS-M`) | not run (`OS-W`) | not run (`OS-Q`) | one cell per platform. `OS-Q` is runnable on this host and has not been run |
+| **overall** | **not run** | **not run** | **not run** | **partial** | WSL carries every part that has been driven, and is `partial` rather than `pass` because Part B's `BQ` cells and `OS-Q` have not been run, `S12f` is blocked, and `C07` to `C09` and `E04` are partial. The three native hosts have only the automated gate, which is not an e2e pass |
+
+Credential paths, access controls, binary startup, callback binding and child
+process launch are platform-shaped. **No supported operating system is
+`Not-Needed` for final acceptance.**
 
 ## What this runbook cannot prove
 
