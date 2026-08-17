@@ -97,6 +97,7 @@ checks record only present or absent; they never print or persist a secret.
 | billed OpenAI Platform API key | A07-A12, S08c | an OpenAI key is present in the owner-only workspace `.env`; map it in memory to `OPENAI_API_KEY` | provider usage is billed | unset after the isolated group; delete the Vadgr connection |
 | billed Gemini API key | A13-A18, S05, S08d | a Gemini key is present in the owner-only workspace `.env`; map it in memory to `GEMINI_API_KEY` | provider usage is billed | unset after the isolated group; delete the Vadgr connection |
 | billed Anthropic API key | A19-A24, S08e | an Anthropic key is present in the owner-only workspace `.env`; map it in memory to `ANTHROPIC_API_KEY` | provider usage is billed | unset after the isolated group; delete the Vadgr connection |
+| build toolchain on each native host | BL01-BL08, BM01-BM08, BW01-BW08, OS-L, OS-M, OS-W | `cargo --version` answers on that host, and so does its platform C compiler | installs a compiler toolchain, several GB on Windows, whose installer asks for elevation | keep the toolchain; it is host tooling rather than isolated test state |
 | native Linux desktop host | BL01-BL08, OS-L | release artifact and installed cua are present on a non-WSL Linux desktop | creates isolated state and reversible test files | remove only the isolated state and test files |
 | macOS host | BM01-BM08, OS-M | release artifact and installed cua are present on macOS | creates local Application Support state and reversible test files | remove only the isolated state and test files |
 | Windows native host | BW01-BW08, OS-W | release artifact and installed cua are present in native Windows | creates local AppData state and reversible test files | remove only the isolated state and test files |
@@ -191,8 +192,23 @@ from another session:
    `OPENAI_API_KEY`, `GEMINI_API_KEY` and `ANTHROPIC_API_KEY` as the portable
    names. A machine-local alias is allowed, but the driver maps it to the
    portable name only in memory. Check names and presence only. Never print values. Run
-   `python3 scripts/check_no_secrets.py --env-file ../.env` before testing.
-3. Build the release with `cargo build --locked --release --manifest-path
+   `python3 scripts/check_no_secrets.py --env-file ../.env` before testing. On
+   Windows a file created under a work directory inherits broad access entries
+   and the gate refuses it. Save the original with `icacls <path> /save
+   <backup>`, then strip inheritance with `icacls <path> /inheritance:r
+   /grant:r <domain>\<user>:(F)`.
+3. Install the build toolchain before anything else: Rust plus that platform's
+   C compiler. Rust alone does not build the daemon, because it takes
+   `rusqlite` with the `bundled` feature and that compiles SQLite from C
+   source. Windows needs Visual Studio Build Tools with the VCTools workload
+   and the `x86_64-pc-windows-msvc` target; macOS needs the Xcode command line
+   tools; Linux needs `build-essential` or the distribution equivalent. There
+   is no prebuilt daemon to download instead. The repository publishes no
+   release assets, CI compiles Rust on all three hosts but only in debug and
+   uploads no artifact, and released per-OS binaries belong to a later minor.
+   Budget the install before reporting a cell as blocked, because a host
+   without a toolchain looks blocked for the wrong reason. Then build the
+   release with `cargo build --locked --release --manifest-path
    rust/Cargo.toml`. Copy the resulting `vadgr-daemon` or `vadgr-daemon.exe`
    into an empty host-local test root and run that copy. Never use `cargo run`
    as the product under test.
@@ -306,10 +322,10 @@ completion figure.
 | D: restart continuation | 1 sequence x 7 assertions | 7 | 7 | 0 | 0 |
 | E: owner dogfood | 1 batch x 5 outcomes | 5 | 5 | 0 | 0 |
 | Repeatability | 3 independent passes, each reconciled across 6 observables | 3 | 3 | 0 | 0 |
-| Findings | corrections recorded during the pass | 22 | 19 | 1 | 2 |
-| | | **258** | **125** | **29** | **104** |
+| Findings | corrections recorded during the pass | 23 | 20 | 1 | 2 |
+| | | **259** | **126** | **29** | **104** |
 
-Across the whole runbook the verdicts are 118 `pass`, 7 `partial`, 27 `not run`
+Across the whole runbook the verdicts are 119 `pass`, 7 `partial`, 27 `not run`
 and 2 `blocked`. Every `not run` names the host it needs, and both `blocked`
 cells name the product path that does not exist. Run
 `python3 <docs>/scripts/check_e2e.py E2E/0.4.7/e2e.md` to reproduce these
@@ -814,6 +830,8 @@ must not be present.
 | F22 | The first attempt at the credential-storage group ran against a daemon binary that was not the commit under test. | The release binary on disk was built at 23:09, but `credentials.rs` changed at 23:49 and four later commits touched the credential store: naming the path when the owner check refuses, two platform repairs for macOS and admin Windows accounts, and closing the staged handle before publishing. Nothing in the harness compared the binary against the source, so every result would have been filed under a commit that did not produce it. | The mismatch was caught by an output that disagreed with the source: the wrong-owner refusal printed the old generic wording while the source had been changed to name the path and both uids. The binary was rebuilt and every cell in the group was re-run against it, which is when the detailed refusal appeared. The harness now records the daemon `sha256` in the evidence boundary, and a cell is filed against a commit only after the built binary is checked against that commit's source. | pass: the group was re-run end to end on the rebuilt binary and all of `BQ02` to `BQ08` hold. |
 | F21 | The service lifecycle cell for the update preflight could not run, because the product has no preflight. | `vadgr update` runs `git pull --ff-only origin master` and then `pip install` directly. `vadgr update --help` offers no dry-run or check flag, so there is no way to ask what an update would do. The runbook's cell requires a check that reports the current and new version and the intended artifact without mutating the installation, and executing the only available path performs exactly the mutation the cell forbids. | Not repaired here. The command needs a check path that reports the current version, the new version and the artifact it would install, and changes nothing. Until then the cell cannot be executed as written by anyone, on any platform. | blocked: S12f. The other five service lifecycle cells pass. |
 | F19 | Cancelling a live CUA shell call ended the Vadgr run but did not terminate the shell child. | Cancellation stopped the Rust dispatch future and later closed the CUA server, but the CUA child process was not cancellation-aware. | CUA `0.7.1` runs `shell.run` asynchronously, terminates its Unix process group or Windows process tree on cancellation, and has a focused regression. | pass on WSL against the released boundary. CUA `0.7.1` is merged and tagged; a wheel built from the tag (`sha256:d11240369ad3e326`) is installed **without editable mode in a fresh environment outside the checkout**, and `doctor` reports 33 tools. A public run opened `/bin/sh -c sleep 400` with its `sleep 400` child; public `vadgr runs cancel` ended the run and **both processes were gone five seconds later**. The earlier WSL result used an editable checkout install whose metadata still read `0.6.6` while running `0.7.x` code, so it could not support a `0.7.1` claim. Linux, macOS and Windows native reruns remain required. |
+
+| F24 | The mandatory credential gate could not pass on native Windows, and had never run there at all. Preparing the Windows host was the first time anyone invoked it with `--env-file` on that platform. | `scripts/check_no_secrets.py` passed the target path as a trailing argument to `powershell.exe -Command`. PowerShell does not bind `$args` under `-Command`; it appends the remaining tokens to the command text instead. `$args[0]` was therefore always empty, `Get-Acl` received nothing, and the check failed closed on every file it was given. The gate reported `the local environment file must have an owner-only Windows DACL` whatever the real DACL was, so a correctly protected file and a world-readable one were indistinguishable. Two things hid it: CI runs the gate only on `ubuntu-latest` and never passes `--env-file`, so the Windows branch executed nowhere, and the gate had no test of its own on any platform. | The target now reaches PowerShell through an environment variable, which also keeps a path containing spaces or quotes out of the parser. Four tests cover it: the invocation contract, the script shape, a real accept and refuse round trip that grants a broad `S-1-5-11` entry through `icacls`, and a missing-target fail-closed. All four were seen red against the reverted script, and the gate itself was seen refusing the same correctly protected file. A new `gate-tests` job runs them on `ubuntu-latest` and `windows-latest`, because the defect survived precisely by having no test and one operating system. | pass: the gate returns `SECRET CHECK PASSED` against the owner-only workspace `.env` on native Windows 11 |
 
 The probe also moved from host networking to a separate BusyBox container that
 joins the product container's network namespace. Docker Desktop does not expose

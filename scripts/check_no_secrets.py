@@ -30,26 +30,32 @@ SENSITIVE_NAME = re.compile(
 )
 ALLOW_TEST_FIXTURE = b"secret-scan: allow-test-fixture"
 KNOWN_TEST_VALUES = (b"sk-ant-oat01-" + b"VERYSECRETTOKEN",)
+# The target arrives in the environment rather than as an argument. PowerShell
+# does not populate $args under -Command: it appends the remaining tokens to the
+# command text instead, so $args[0] was always empty and this check refused every
+# file it was given, whatever the real DACL was. The environment also keeps a
+# path containing spaces or quotes out of the parser.
+WINDOWS_ACL_TARGET_VAR = "VADGR_ACL_TARGET"
 WINDOWS_ACL_CHECK = r"""
-$acl = Get-Acl -LiteralPath $args[0]
-$current = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
-$owner = $acl.Owner
+$ErrorActionPreference = "Stop"
 try {
-    $owner = (New-Object System.Security.Principal.NTAccount($owner)).Translate(
+    $target = $env:VADGR_ACL_TARGET
+    if (-not $target) { exit 1 }
+    $acl = Get-Acl -LiteralPath $target
+    $current = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+    $owner = (New-Object System.Security.Principal.NTAccount($acl.Owner)).Translate(
         [System.Security.Principal.SecurityIdentifier]
     ).Value
-} catch { exit 1 }
-if ($owner -ne $current) { exit 1 }
-$broad = @("S-1-1-0", "S-1-5-11", "S-1-5-32-545")
-foreach ($rule in $acl.Access) {
-    if ($rule.AccessControlType -ne "Allow") { continue }
-    try {
+    if ($owner -ne $current) { exit 1 }
+    $broad = @("S-1-1-0", "S-1-5-11", "S-1-5-32-545")
+    foreach ($rule in $acl.Access) {
+        if ($rule.AccessControlType -ne "Allow") { continue }
         $sid = $rule.IdentityReference.Translate(
             [System.Security.Principal.SecurityIdentifier]
         ).Value
-    } catch { exit 1 }
-    if ($broad -contains $sid) { exit 1 }
-}
+        if ($broad -contains $sid) { exit 1 }
+    }
+} catch { exit 1 }
 exit 0
 """
 
@@ -132,7 +138,8 @@ def load_local_secrets(path: pathlib.Path) -> list[bytes]:
     info = path.stat()
     if os.name == "nt":
         acl_check = subprocess.run(
-            ["powershell.exe", "-NoProfile", "-Command", WINDOWS_ACL_CHECK, str(path)],
+            ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", WINDOWS_ACL_CHECK],
+            env={**os.environ, WINDOWS_ACL_TARGET_VAR: str(path)},
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
