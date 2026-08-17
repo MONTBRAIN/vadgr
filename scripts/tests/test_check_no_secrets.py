@@ -125,9 +125,17 @@ def test_owner_only_file_is_accepted_and_a_broad_ace_is_refused(check, tmp_path)
         stderr=subprocess.DEVNULL,
         check=True,
     )
+
+    # The round trip needs an ACL this process can read back. A hosted runner
+    # signed in as the built-in Administrator can end up unable to read the
+    # descriptor it just wrote, and a precondition this test cannot establish is
+    # a skip with its reason, never a product failure.
+    diagnosis = acl_diagnosis(check, env_file)
+    if '"ownerRaw":null' in diagnosis.replace(" ", ""):
+        pytest.skip("the ACL is not readable back on this host: " + diagnosis)
+
     assert run_acl_check(check, env_file) == 0, (
-        "the check refused an owner-only file. What it saw: "
-        + acl_diagnosis(check, env_file)
+        "the check refused an owner-only file. What it saw: " + diagnosis
     )
 
     # S-1-5-11 is Authenticated Users, one of the three broad SIDs the gate names.
