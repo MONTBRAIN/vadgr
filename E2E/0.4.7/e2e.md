@@ -278,7 +278,7 @@ $env:FORGE_API_URL = "http://127.0.0.1:$env:VADGR_PORT"
 | macOS credential module target check | pass |
 | Linux musl release build | pass: static PIE, SHA-256 `99e4835f3a4607aad9675267401e7030a9355bb44cb004ffc3aac7f31aa813f9` |
 | clean install in `scratch` | pass: healthy `0.4.7`, Linux, loopback, cua disabled, three disconnected providers |
-| required GitHub Actions jobs | pass: all 12 required jobs green on `ed99bdb`, the exact head this runbook was closed against. `engine`, `api` and `cli` on Python 3.11 and 3.12, `rust` on ubuntu, macOS and windows, `clean-install`, and two `secret-scan` jobs. Green here says the suites build and pass on those runners and nothing about whether the product works on them |
+| required GitHub Actions jobs | pass: all 12 required jobs green, most recently on `d5e66a3`. `engine`, `api` and `cli` on Python 3.11 and 3.12, `rust` on ubuntu, macOS and windows, `clean-install`, and two `secret-scan` jobs. This row names the head it last ran green on rather than a fixed commit, because every push moves the head and a pinned hash here would read as current while describing an older tree; it is re-read against the branch head at merge. Green here says the suites build and pass on those runners and **nothing** about whether the product works on them |
 
 The automated tests prove deterministic state, protocol, migration, and error
 cases. They cannot prove an external account can authenticate, a live model can
