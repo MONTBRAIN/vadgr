@@ -322,14 +322,15 @@ completion figure.
 | D: restart continuation | 1 sequence x 7 assertions | 7 | 7 | 0 | 0 |
 | E: owner dogfood | 1 batch x 5 outcomes | 5 | 5 | 0 | 0 |
 | Repeatability | 3 independent passes, each reconciled across 6 observables | 3 | 3 | 0 | 0 |
-| Findings | corrections recorded during the pass | 26 | 22 | 1 | 3 |
-| | | **262** | **137** | **20** | **105** |
+| Findings | corrections recorded during the pass | 27 | 22 | 1 | 4 |
+| | | **263** | **137** | **20** | **106** |
 
-Across the whole runbook the verdicts are 129 `pass`, 1 `fail`, 7 `partial`,
-18 `not run` and 2 `blocked`. The `fail` is F27, and the three Part D cells it
-describes still read `pass` in their own table because that table records the
-WSL execution. The Windows execution of the same three cells is recorded in the
-paragraph below that table and in the per-OS matrix. Every `not run` names the host it needs, and both `blocked`
+Across the whole runbook the verdicts are 130 `pass`, 7 `partial`, 18 `not run`
+and 2 `blocked`. F27 was found as a Windows `fail` and is now repaired, so it
+carries a `pass`; F28 records the one Part D assertion that is still not
+demonstrated there. The Part D cells read `pass` in their own table because that
+table records the WSL execution, and the Windows execution of the same cells is
+recorded in the paragraphs below it and in the per-OS matrix. Every `not run` names the host it needs, and both `blocked`
 cells name the product path that does not exist. Run
 `python3 <docs>/scripts/check_e2e.py E2E/0.4.7/e2e.md` to reproduce these
 numbers from the cells.
@@ -832,16 +833,15 @@ journal is a byte-identical prefix of the final journal and the sequence numbers
 never go backwards. `D07` passes: the database, the public API, the journal and
 the CLI all agree the run completed.
 
-`D04`, `D05` and `D06` fail:
+`D04`, `D05` and `D06` failed on that run:
 
 - `D04`: the completed side effect **was** repeated. The marker's `sha256`, size
-  and contents are unchanged, but its modification time moved, which is the
+  and contents were unchanged, but its modification time moved, which is the
   cell's own oracle for a rewrite.
-- `D05`: the dangling shell action appears **twice** in the final journal and its
-  effect file exists, where the cell requires the effect to appear once.
-- `D06`: the first external call after the restart is `computer-use__fs` with
-  `op: write` of the marker, which is a retry. The cell requires a live-state
-  read before any decision to retry.
+- `D05`: the dangling shell action appeared **twice** in the final journal and
+  its effect file existed, where the cell requires the effect to appear once.
+- `D06`: the first external call after the restart was `computer-use__fs` with
+  `op: write` of the marker, which is a retry.
 
 This was not accepted on the first observation, because a deterministic fixture
 can produce the same shape for its own reasons. It was reproduced with a real
@@ -849,7 +849,21 @@ model and a goal-level task, and the deterministic run on the same host supplied
 the mechanism: the first provider request after the restart carried **zero**
 `function_call` and `function_call_output` items, so nothing in the resumed
 conversation told the model that the marker had already been written. Recorded
-as F27.
+as F27 and repaired on this branch.
+
+**After the repair, `D04` and `D05` pass on the rebuilt daemon `09cfc396`.** The
+marker survives recovery with the same `sha256`, modification time, size and
+contents, and the dangling `computer-use__shell` entry appears exactly once with
+its effect appearing zero times. The run completed in 5 responses for 23,579
+input and 627 output tokens, and every surface agrees.
+
+**`D06` is still not demonstrated, and is not claimed as a pass.** The resumed
+run made no external call at all: it read its replayed results, concluded no
+further action was needed and finished. Nothing was repeated, which is what
+`D04` and `D05` protect, but the cell's own observable, a live-state read before
+any retry decision, never occurred. The loop asks for that inspection in prose,
+and F27 is precisely the demonstration that a prose instruction is not a
+guarantee. Recorded as F28.
 
 The final rerun used source `5558cf6` and run
 `run-6889e6bf31e44e309114f8c9ffe7078b`. It also proved that the reconstructed
@@ -965,7 +979,8 @@ must not be present.
 
 | F26 | On native Windows the structured tier answers a Windows caller with a Linux remedy. `computer-use__ui_windows` returns `at_spi_unavailable` with `No accessibility bus reachable. Enable it and install ...`, which names the Linux accessibility bus on a platform that does not have one. | The Windows structured tier is not built yet, which is correct for this cua minor and is scheduled work. The defect is the answer, not the absence. The tool is advertised in the 33 tool surface, so a model reasonably reaches for it first, and the reply sends it to enable a bus that cannot exist on Windows. The neighbouring `computer-use__apps` shows the honest shape on the same host: `apps_unsupported` with `No apps tier on Windows yet`. | Not repaired here, because it is in the computer-use repository. The remedy is to make the Windows arm report an unsupported tier the way `apps` already does, rather than a Linux enablement instruction. | observed in both completed Windows runs: it cost one wasted model turn each time, then the loop fell through to the pixel tier and completed, so it degrades rather than blocks |
 
-| F27 | On native Windows a hard-kill resume repeats the completed side effect. `D04`, `D05` and `D06` fail there while all seven pass on WSL. | The first provider request after the restart carries **no** `function_call` or `function_call_output` items. The deterministic run on the same host measured this directly: the pre-kill turns sent 1, 2 and 3 structured tool items, and the first post-restart turn sent 0 while still carrying four role items and 29 KB of content. The resumed conversation is rebuilt as message content rather than as the structured tool-use history the provider protocol uses, so the model is not told which calls already completed. It then does the only reasonable thing and starts the task again, rewriting the marker whose modification time the cell watches. | Not repaired here. The fix belongs in how recovery rebuilds the provider conversation: the journaled `in_flight` and `done` entries already hold everything needed, and replaying them as typed tool-use and tool-result items would let the model see its own completed work. Until then boot recovery is safe for the daemon but not idempotent for the world, which is the property `D04` to `D06` exist to protect. | fail on Windows, reproduced twice: once with a deterministic provider and once live with `gpt-5.6-luna` on `run-ae4ccad3802349e3b55b97637ac3d363`. The first observation was not accepted on its own, because a stateless fixture can produce the same shape for its own reasons |
+| F27 | On native Windows a hard-kill resume repeated the completed side effect. `D04` and `D05` failed there while all seven passed on WSL. | `opening_messages` in `rust/src/engine/loop.rs` rebuilt a resumed run as prose: a count of completed steps, an instruction not to repeat them, and a summary of recent results. It never replayed the completed calls as the tool-use pairs they were, so the first provider request after a restart carried **no** `function_call` or `function_call_output` items. The deterministic run measured this directly: the pre-kill turns sent 1, 2 and 3 structured tool items and the first post-restart turn sent 0, while still carrying four role items and 29 KB of content. Not repeating a completed action therefore depended on the model obeying an instruction rather than on it reading a fact, and a live model did not obey it. | Repaired. Recovery now keeps each completed call beside its result (`RecoveredCall`) and replays them as real `tool_use` and `tool_result` messages, so a resumed conversation carries the same shape an uninterrupted one has. The prose keeps only what the replay cannot express: the step count and the dangling call's unknown outcome. A regression test asserts the assistant tool call and its matching result are present, and it was seen red against the reverted branch with `a resumed conversation must carry the assistant tool call`. | pass for `D04` and `D05` on the rebuilt daemon `09cfc396`: the marker's `sha256`, modification time, size and contents are all unchanged after recovery, the shell action appears exactly once, and its effect appears zero times. `D06` remains undemonstrated and is not claimed: see F28 |
+| F28 | `D06` asks for a live-state read before any decision to retry, and nothing in the loop requires one. | After the F27 repair the resumed run made **no** external call at all. It read the replayed results, concluded no further action was needed, and completed. That satisfies `D04` and `D05`, because nothing was repeated, but it never demonstrates `D06`'s observable. The dangling-call text still asks the model to "inspect the live state first", and an instruction in prose is exactly the kind of guarantee F27 showed cannot be relied on. | Not repaired. Making `D06` an observable property rather than a request means the loop itself has to inspect the dangling call's state on resume and put that reading into the conversation, instead of asking the model to do it. That is a design change and it belongs to the owner. | `D06` not demonstrated on Windows, on `run-ae4ccad3802349e3b55b97637ac3d363`'s successor. It is not a repeat and not a failure of idempotency; it is an unproved assertion, and it is recorded rather than counted as a pass |
 
 The probe also moved from host networking to a separate BusyBox container that
 joins the product container's network namespace. Docker Desktop does not expose
@@ -998,10 +1013,10 @@ same (`OS-L`, `OS-M`, `OS-W`, `OS-Q`).
 | A: provider onboarding and defaults | not run | not run | **pass**, 18 of 29 | **pass** | 29 of 29 on WSL. On Windows the three API-key paths pass end to end: `A07` to `A24`. Each entered its key without it reaching argv or output, discovered a live authenticated catalog of 51, 28 and 10 models containing the exact selected model, committed one opaque `cred_v1_` record whose value is absent from the database, WAL and SHM, survived a daemon restart, and completed a goal-level tool-using run with an exact independent read-back. `A01` to `A06` need ChatGPT OAuth, which no cell on this host can reach. `A25` to `A29` name OAuth plus Gemini and are owed for the same reason |
 | B: credential storage and migration | not run | not run | **pass**, 8 of 8 | **pass** | the eight cases exist per platform as `BL`, `BM`, `BW` and `BQ`. 8 of 8 `BQ` cells pass, including the drvfs root WSL alone can produce. 8 of 8 `BW` cells now pass on a real Windows host, which is where the protected `D:P(A;;FA;;;SY)(A;;FA;;;OW)` descriptor and the junction reparse point are observed rather than argued. Two sub-controls inside `BW05` and `BW06` are owed for want of elevation, and both say so. `BL` and `BM` need their own hosts |
 | C: full product path and engine behavior | not run | not run | **pass**, 13 of 25 | **pass**, 3 partial | 25 cells, 22 pass and 3 partial. `C07` to `C09` park durably and their continuation needs the reply surface that belongs to `0.6.0`. Each row names the run id or commit it was observed on; the section preamble's older rule, that only rows citing `9761f6a` count, no longer matches the rows and is corrected there |
-| D: hard-kill restart continuation | not run | not run | **fail**, 4 of 7 | **pass** | on Windows `D01`, `D02`, `D03` and `D07` pass and `D04`, `D05` and `D06` fail: the completed side effect was repeated after recovery, the uncertain action ran a second time, and the first call after the restart was a retry rather than a live-state read. Recorded as F27. WSL: 7 of 7 on `ed99bdb`. Killed with `SIGKILL` on an observed durable `in_flight`; both sockets closed at 1006, the restart logged `resumed=1`, the completed effect was untouched, and the first post-restart call was a live-state read |
+| D: hard-kill restart continuation | not run | not run | **pass**, 6 of 7 | **pass** | on Windows `D01` to `D05` and `D07` pass after the F27 repair: the marker survives recovery byte-for-byte including its modification time, and the dangling shell action appears exactly once with zero effects. `D06` is not demonstrated, because the resumed run made no external call at all, so no live-state read was observed. That is F28 and it is recorded rather than counted. WSL: 7 of 7 on `ed99bdb`. Killed with `SIGKILL` on an observed durable `in_flight`; both sockets closed at 1006, the restart logged `resumed=1`, the completed effect was untouched, and the first post-restart call was a live-state read |
 | E: owner dogfood batch | not run | not run | **pass**, 4 of 5 | **pass** | 20 of 25. `E04` now records the billed-account figure the owner directed, with the per-run amount `unavailable` for three observed reasons |
 | installed product on the host | not run (`OS-L`) | not run (`OS-M`) | **pass** (`OS-W`) | **pass** (`OS-Q`) | one cell per platform. `OS-Q` drove Windows Notepad from WSL through the installed cua and survived a restart. `OS-W` now drives Notepad natively on Windows, with an independent desktop capture reading `Ln 2, Col 27` and `40 characters` back. Linux and macOS need their own hosts |
-| **overall** | **not run** | **not run** | **fail**, 3 cells | **pass**, 2 blocked, 7 partial | every part of this runbook has now been driven on WSL, and each has its own row above. It is not a clean `pass`, and none of the remainder is a WSL defect. `S12f` and `F21` are blocked on a product path that does not exist: `vadgr update` offers no check or dry-run, so the cell cannot run on any host. `C07` to `C09` park correctly and their continuation is re-owned by `0.6.0`'s reply surface. `S01` and `S08f` each observed the whole flow except one upstream-timed portion. `CB04` reached the query-free completion page but captured no raw callback status. `F15` is the boundary correction itself. **Windows native is now driven end to end, and it is the first OS to record a `fail`**. Every part has been exercised there: the surface sweep, all eight `BW` cells, 18 of 29 `A` cells across three live credential paths, 13 of 25 `C` cells, the whole `D` sequence, 4 of 5 `E` cells and `OS-W`. The row is `fail` and not `partial`, because `D04`, `D05` and `D06` fail rather than being owed: after a hard-kill resume the completed side effect is repeated, the uncertain action runs twice, and the first call after the restart is a retry instead of a live-state read. That is F27, it was reproduced with both a deterministic provider and a live model, and it is a real defect rather than a host condition. The host conditions that block cells here are separate and named: the reserved callback port takes out every OAuth path, which is why `A01` to `A06`, `H01`, `H02`, `H18` to `H21` and the seven `CB` rows are owed. Linux and macOS still have only the automated gate, which is not an e2e pass |
+| **overall** | **not run** | **not run** | **pass**, 1 undemonstrated | **pass**, 2 blocked, 7 partial | every part of this runbook has now been driven on WSL, and each has its own row above. It is not a clean `pass`, and none of the remainder is a WSL defect. `S12f` and `F21` are blocked on a product path that does not exist: `vadgr update` offers no check or dry-run, so the cell cannot run on any host. `C07` to `C09` park correctly and their continuation is re-owned by `0.6.0`'s reply surface. `S01` and `S08f` each observed the whole flow except one upstream-timed portion. `CB04` reached the query-free completion page but captured no raw callback status. `F15` is the boundary correction itself. **Windows native is driven end to end, and it found and fixed a real defect on the way**. Every part has been exercised there: all 47 shipped HTTP rows, 30 absence probes, 25 CLI rows, six of seven callback rows, 24 of 29 `A` cells including the full ChatGPT OAuth path, all eight `BW` cells, 13 of 25 `C` cells, the `D` sequence and `OS-W`. `D04` and `D05` failed first, were root-caused to recovery rebuilding a resumed conversation as prose rather than as tool-use pairs, were repaired on this branch with a regression test seen red, and now pass on the rebuilt daemon. One assertion, `D06`, is still not demonstrated and is recorded as F28 rather than counted. The only cell blocked by the host is `CB04`, whose raw redirect status cannot be captured because the callback listener has no request tracing. Linux and macOS still have only the automated gate, which is not an e2e pass |
 
 Credential paths, access controls, binary startup, callback binding and child
 process launch are platform-shaped. **No supported operating system is

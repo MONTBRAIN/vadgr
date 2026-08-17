@@ -157,6 +157,33 @@ fn opening_messages(task: &str, recovery: Option<&RecoveryState>) -> Vec<Message
     let Some(recovery) = recovery else {
         return messages;
     };
+    // Replay the completed calls as the tool-use pairs they were, so a resumed
+    // conversation has the same shape an uninterrupted one has. Describing them
+    // in prose instead made "do not repeat them" an instruction to obey rather
+    // than a fact to read, and a model that did not obey it repeated a completed
+    // side effect.
+    for call in &recovery.recent_calls {
+        let id = format!("recovered_{}", call.seq);
+        messages.push(Message {
+            role: "assistant".to_owned(),
+            content: json!([{
+                "type": "tool_use",
+                "id": id,
+                "name": call.tool,
+                "input": call.params,
+            }]),
+        });
+        messages.push(Message {
+            role: "user".to_owned(),
+            content: json!([{
+                "type": "tool_result",
+                "tool_use_id": id,
+                "content": call.result.content,
+                "is_error": call.result.is_error,
+            }]),
+        });
+    }
+
     let mut lines = vec![
         "This run was interrupted and has been resumed.".to_owned(),
         format!(
@@ -164,13 +191,10 @@ fn opening_messages(task: &str, recovery: Option<&RecoveryState>) -> Vec<Message
             recovery.completed_tool_count
         ),
     ];
-    if !recovery.recent_results.is_empty() {
-        lines.push("The most recent results were:".to_owned());
-        lines.extend(
-            recovery
-                .recent_results
-                .iter()
-                .map(|result| format!("- {}", result_text(result))),
+    if !recovery.recent_calls.is_empty() {
+        lines.push(
+            "The calls above already ran and their results are shown; treat them as done."
+                .to_owned(),
         );
     }
     if let Some(dangling) = &recovery.dangling {
@@ -242,11 +266,12 @@ fn result_text(result: &ToolResult) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{prune_old_images, run_loop};
+    use super::{opening_messages, prune_old_images, run_loop};
     use crate::db::Db;
     use crate::engine::control::RunContext;
     use crate::engine::events::EventSink;
     use crate::engine::journal::Journal;
+    use crate::engine::journal::{RecoveredCall, RecoveryState};
     use crate::engine::mcp::{McpHost, ToolServer};
     use crate::engine::provider::ModelClient;
     use crate::engine::types::{
@@ -259,6 +284,56 @@ mod tests {
     use std::collections::VecDeque;
     use std::sync::{Arc, Mutex};
     use tokio_util::sync::CancellationToken;
+
+    /// A resumed run must show the model its completed calls, not describe them.
+    ///
+    /// Recovery used to emit prose only, so not repeating a completed action
+    /// depended on the model obeying an instruction. On a native Windows pass a
+    /// live model did not obey it and rewrote a file it had already written,
+    /// which is what D04 to D06 exist to catch.
+    #[test]
+    fn a_resumed_run_replays_its_completed_calls_as_tool_use() {
+        let recovery = RecoveryState {
+            run_id: "run-1".to_owned(),
+            last_seq: 1,
+            completed_seqs: vec![0],
+            recent_results: vec![ToolResult::text("wrote the marker")],
+            recent_calls: vec![RecoveredCall {
+                seq: 0,
+                tool: "computer-use__fs".to_owned(),
+                params: json!({"op":"write","path":"marker.txt"}),
+                result: ToolResult::text("wrote the marker"),
+            }],
+            dangling: None,
+            pending_ask: None,
+            completed_tool_count: 1,
+            prior_usage: Usage::default(),
+            todos: Vec::new(),
+        };
+        let messages = opening_messages("do the thing", Some(&recovery));
+
+        let assistant = messages
+            .iter()
+            .find(|message| message.role == "assistant")
+            .expect("a resumed conversation must carry the assistant tool call");
+        let block = &assistant.content[0];
+        assert_eq!(block["type"], "tool_use");
+        assert_eq!(block["name"], "computer-use__fs");
+        assert_eq!(block["input"]["path"], "marker.txt");
+
+        let result = messages
+            .iter()
+            .find(|message| {
+                message
+                    .content
+                    .get(0)
+                    .map(|item| item["type"] == "tool_result")
+                    == Some(true)
+            })
+            .expect("a resumed conversation must carry the matching tool result");
+        assert_eq!(result.content[0]["tool_use_id"], block["id"]);
+        assert_eq!(result.content[0]["is_error"], false);
+    }
 
     struct FakeModel(Mutex<VecDeque<ModelResponse>>);
 

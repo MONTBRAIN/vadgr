@@ -1,4 +1,4 @@
-use crate::engine::types::{ModelResponse, RunId, ToolContent, ToolResult, Usage};
+﻿use crate::engine::types::{ModelResponse, RunId, ToolContent, ToolResult, Usage};
 use serde_json::{Map, Value, json};
 use sha2::{Digest, Sha256};
 use std::fs::OpenOptions;
@@ -31,12 +31,28 @@ pub struct AwaitUserRecord {
     pub request: Value,
 }
 
+/// A completed call and the result it produced, kept together.
+///
+/// Recovery used to keep only the result and describe the work in prose. A model
+/// resuming that way is told what happened instead of being shown it, so whether
+/// it repeats a completed action depends on it obeying an instruction. Keeping
+/// the pair lets the resumed conversation carry the same tool-use shape an
+/// uninterrupted one has.
+#[derive(Clone, Debug, PartialEq)]
+pub struct RecoveredCall {
+    pub seq: i64,
+    pub tool: String,
+    pub params: Value,
+    pub result: ToolResult,
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct RecoveryState {
     pub run_id: RunId,
     pub last_seq: i64,
     pub completed_seqs: Vec<i64>,
     pub recent_results: Vec<ToolResult>,
+    pub recent_calls: Vec<RecoveredCall>,
     pub dangling: Option<InFlightRecord>,
     pub pending_ask: Option<AwaitUserRecord>,
     pub completed_tool_count: u64,
@@ -235,6 +251,7 @@ fn read_recovery_sync(path: &Path, run_id: &str) -> Result<RecoveryState, String
     let mut open = std::collections::BTreeMap::<i64, InFlightRecord>::new();
     let mut completed = Vec::new();
     let mut recent = Vec::new();
+    let mut recent_calls = Vec::new();
     let mut pending = None;
     let mut last_seq = -1;
     let mut prior_usage = Usage::default();
@@ -276,6 +293,17 @@ fn read_recovery_sync(path: &Path, run_id: &str) -> Result<RecoveryState, String
                         }
                         let bounded = bounded_result(value);
                         if let Ok(result) = serde_json::from_value::<ToolResult>(bounded) {
+                            if let Some(call) = completed_call.as_ref() {
+                                recent_calls.push(RecoveredCall {
+                                    seq,
+                                    tool: call.tool.clone(),
+                                    params: call.params.clone(),
+                                    result: result.clone(),
+                                });
+                                if recent_calls.len() > RECENT_RESULTS {
+                                    recent_calls.remove(0);
+                                }
+                            }
                             recent.push(result);
                             if recent.len() > RECENT_RESULTS {
                                 recent.remove(0);
@@ -320,6 +348,7 @@ fn read_recovery_sync(path: &Path, run_id: &str) -> Result<RecoveryState, String
         completed_tool_count: completed.len() as u64,
         completed_seqs: completed,
         recent_results: recent,
+        recent_calls,
         dangling,
         pending_ask: pending,
         prior_usage,
