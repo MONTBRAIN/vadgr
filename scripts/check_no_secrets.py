@@ -42,11 +42,18 @@ try {
     $target = $env:VADGR_ACL_TARGET
     if (-not $target) { exit 1 }
     $acl = Get-Acl -LiteralPath $target
-    $current = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+    # Accept the token's user or the owner Windows would assign to anything this
+    # token creates. On an admin account the honest answer is the Administrators
+    # group, so comparing against the user alone refuses a file the owner
+    # protected correctly. The confidentiality guarantee is carried by the broad
+    # SID check below, which is unchanged and does not list Administrators. This
+    # mirrors what the daemon's own credential store already accepts.
+    $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+    $accepted = @($identity.User.Value, $identity.Owner.Value)
     $owner = (New-Object System.Security.Principal.NTAccount($acl.Owner)).Translate(
         [System.Security.Principal.SecurityIdentifier]
     ).Value
-    if ($owner -ne $current) { exit 1 }
+    if ($accepted -notcontains $owner) { exit 1 }
     $broad = @("S-1-1-0", "S-1-5-11", "S-1-5-32-545")
     foreach ($rule in $acl.Access) {
         if ($rule.AccessControlType -ne "Allow") { continue }

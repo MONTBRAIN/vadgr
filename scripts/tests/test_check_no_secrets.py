@@ -55,6 +55,22 @@ def test_windows_acl_script_reads_the_environment(check):
     assert "$args" not in check.WINDOWS_ACL_CHECK
 
 
+def test_windows_acl_accepts_the_token_default_owner(check):
+    """An admin account owns its files as the Administrators group.
+
+    Comparing against the token user alone refuses a file the owner protected
+    correctly, which is what happens on any Windows administrator account. The
+    daemon's own credential store accepts both, and this check must agree.
+    """
+    assert "$identity.User.Value" in check.WINDOWS_ACL_CHECK
+    assert "$identity.Owner.Value" in check.WINDOWS_ACL_CHECK
+    # Administrators must not be treated as a broad SID; only Everyone,
+    # Authenticated Users and Users are.
+    assert "S-1-5-32-544" not in check.WINDOWS_ACL_CHECK
+    for broad in ("S-1-1-0", "S-1-5-11", "S-1-5-32-545"):
+        assert broad in check.WINDOWS_ACL_CHECK
+
+
 def run_acl_check(check, path):
     return subprocess.run(
         ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", check.WINDOWS_ACL_CHECK],
