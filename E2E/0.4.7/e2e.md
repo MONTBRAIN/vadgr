@@ -322,11 +322,14 @@ completion figure.
 | D: restart continuation | 1 sequence x 7 assertions | 7 | 7 | 0 | 0 |
 | E: owner dogfood | 1 batch x 5 outcomes | 5 | 5 | 0 | 0 |
 | Repeatability | 3 independent passes, each reconciled across 6 observables | 3 | 3 | 0 | 0 |
-| Findings | corrections recorded during the pass | 25 | 21 | 1 | 3 |
-| | | **261** | **136** | **20** | **105** |
+| Findings | corrections recorded during the pass | 26 | 22 | 1 | 3 |
+| | | **262** | **137** | **20** | **105** |
 
-Across the whole runbook the verdicts are 129 `pass`, 7 `partial`, 18 `not run`
-and 2 `blocked`. Every `not run` names the host it needs, and both `blocked`
+Across the whole runbook the verdicts are 129 `pass`, 1 `fail`, 7 `partial`,
+18 `not run` and 2 `blocked`. The `fail` is F27, and the three Part D cells it
+describes still read `pass` in their own table because that table records the
+WSL execution. The Windows execution of the same three cells is recorded in the
+paragraph below that table and in the per-OS matrix. Every `not run` names the host it needs, and both `blocked`
 cells name the product path that does not exist. Run
 `python3 <docs>/scripts/check_e2e.py E2E/0.4.7/e2e.md` to reproduce these
 numbers from the cells.
@@ -606,6 +609,23 @@ close the full-request cell.
 | A28 | Passing A27 state | Set a Gemini model as default | Readiness passes, then one atomic default change commits; both catalogs remain | Usage and rows before/after | Retain state | pass on `c990dd2`: public `vadgr model default gemini/gemini-3.5-flash-lite` committed one Gemini default. |
 | A29 | A28 with OpenAI now non-default | Delete OpenAI connection | Only OpenAI credential/catalog leave; Gemini connection/default survive | API/CLI response, rows, filenames, DB secret scan | Remove isolated state; unset key | pass on `c990dd2`: public OpenAI logout removed only OpenAI while Gemini remained the default. |
 
+**The same three credential paths on native Windows.** Re-run at `dfa80c8` on a
+real Windows 11 host, because a credential path resolves a platform store and
+does not inherit a WSL result. Every row below is the product's own output.
+
+| cells | provider and model | live catalog | run | usage | effect |
+|---|---|---:|---|---|---|
+| A07-A12 | OpenAI Platform API key, `gpt-5.6-luna` | 51 models | `run-eef39f21052949f08ce0028ec9d0d846`, 4 responses | 23,073 input, 311 output, USD 0.0050 | exact marker read back |
+| A13-A18 | Gemini API key, `gemini-3.5-flash-lite` | 28 models | `run-2b73def698f74206832ae2660a44b24b`, 3 responses | 23,898 input, 370 output, USD 0.0081 | exact marker read back |
+| A19-A24 | Anthropic API key, `claude-haiku-4-5-20251001` | 10 models | `run-2cc2a8933d3b4376b4bd9d055bb1b2d0`, 3 responses | 28,598 input, 530 output, USD 0.0313 | exact marker read back |
+
+Each path stayed inside its written ceiling of six engine iterations, 100k
+input and 2k output. For all three the key never appeared in argv or in command
+output, the committed record's filename matched the opaque `cred_v1_<32 hex>`
+form, a scan of the database, WAL and SHM for the exact key value returned zero
+matches, and the connection and its catalog survived a restart of the installed
+daemon.
+
 **Measured Gemini close.** Run
 `run-06d3f88bf81b4441acd0d6f34df02b89` used `gemini-3.7-flash`, completed in
 three iterations, and reported 23,978 input plus 166 output tokens. The journal
@@ -728,6 +748,40 @@ journal/recovery states, two cancellation timings and three cua states.
 | C24 | Computer use disabled before run | Probe status and start a goal that would require cua | Status is disabled; cua is not spawned; run receives the named unavailable path rather than silently acting | Settings/status, process snapshot, run/journal/sockets | Restore enabled setting | pass on `21f6078`: public status was unavailable; a CUA-requesting run failed `NO_ACTION_TAKEN` after the model received the unavailable surface, and no CUA process started. |
 | C25 | Computer use enabled but configured runtime absent | Probe status and start a cua-requiring goal | Status is unavailable with named reason; no child starts; run fails or reacts through the published error path | Status body, process snapshot, run/journal/sockets | Restore runtime path | pass on `21f6078`: an absent configured executable produced unavailable status, no child process and the named no-action failure path. |
 
+**Part C on native Windows: 13 of 25.** Eight were closed against a
+deterministic provider at `dfa80c8`, each on its own state, port and daemon.
+
+| cell | Windows observation |
+|---|---|
+| C14 | `NO_ACTION_TAKEN`, one response, zero tool calls, zero effects |
+| C15 | failed with `provider response was truncated at max_tokens`, never completed |
+| C17 | failed with `agent did not finish in 100 iterations`, and the fixture recorded **exactly 100** provider requests for that run |
+| C18 | restart left the completed run terminal and its journal byte-identical |
+| C19 | `vadgr runs resume` exited `0`, the same run id became active and completed |
+| C21 | cancel during an open provider wait returned exit `0` and the row reached `cancelled` |
+| C24 | computer use disabled: the run received the unavailable surface and failed by name, with no cua child |
+| C25 | computer use enabled with an absent configured runtime: same named failure, no child started |
+
+Five more are carried by the live Windows runs rather than by a fixture: `C01`
+and `C02` by the three Part A runs, which each completed with nonzero usage and
+an exact independent read-back of a reversible effect, `C11` by the same text
+read-back, `C12` by the `OS-W` run whose journal carries five image results
+feeding the next provider turn, and `C23` by `OS-W`, where the public status and
+the installed-cua journal calls agree.
+
+The twelve not run on Windows are `C03` to `C10`, `C13`, `C16`, `C20` and `C22`.
+
+**Part E on native Windows: 4 of 5.** `E01` and `E02` are closed by the `OS-W`
+run, whose journal holds 14 tool calls of which 13 are installed-cua calls and
+one is a control call, so no operator mutation substitutes for cua, and the
+exact fixed text was read back through the editor UI. `E04` reconciles exactly:
+15 model calls, 126,926 input and 676 output tokens on `gpt-5.6-luna`, which at
+the price this runbook checked on the execution date is **USD 0.0262**, and the
+source is the published model page rather than a guess. `E05` reconciles to
+**zero**: the journal records no `await_user` entry and no approval, question or
+other human contact. `E03` is not run, because it needs a second billed run with
+a kill inside the editor task.
+
 For every successful engine cell, raw and mobile streams are captured from
 before run acceptance through the terminal frame and reconciled with the same
 journal. The A/B/C formal passes each reached `run_completed` and `completed`.
@@ -750,6 +804,10 @@ runs root, both sockets attached, a reversible marker absent, and the exact
 assigned daemon PID recorded. It captures at the kill boundary and again at
 terminal completion, then removes the marker and stops only its own daemon.
 
+**The statuses in this table are the WSL execution.** The same seven cells were
+later driven on native Windows, where three of them fail, and that result is
+recorded immediately after the table rather than merged into these rows.
+
 | id | trigger/action | expected observable and oracle | evidence boundary | status |
 |---|---|---|---|---|
 | D01 | Wait until the marker is readable and its creating cua call is durably `in_flight`, then send `SIGKILL` only to the assigned daemon PID | Process exits without graceful completion; DB remains running; both sockets close abnormally | PID, process/port snapshot, marker metadata, pre-kill journal and socket closes | pass on `ed99bdb`: the kill landed at an observed moment rather than a guessed one. The harness waited until the completed effect `marker-effect.txt` was readable and one `computer-use__shell` call was durably `in_flight` with no matching `done`, then sent `SIGKILL` to the one assigned pid. The process exited without graceful completion, the port stopped serving, and the database file remained. Both public sockets closed abnormally at code 1006, the raw one and the mobile one alike. The uncertain action's own effect file was still absent at the kill boundary, and the orphaned shell child did not survive the daemon, so that effect never occurred at all. |
@@ -759,6 +817,39 @@ terminal completion, then removes the marker and stops only its own daemon.
 | D05 | Count the dangling shell action across final journal/process evidence | Boot does not blindly redispatch it; the shell effect appears once | Tool sequence/count and process record | pass on `ed99bdb`: boot did not blindly redispatch the dangling call. The killed `computer-use__shell` entry at sequence 1 was never re-issued by the daemon, and the effect it would have produced appears zero times, which matches the shell child having died with the daemon. |
 | D06 | Inspect the first post-restart external call | Live-state read occurs before any decision to retry the uncertain action | Ordered post-restart tool records | pass on `ed99bdb`: the first external call after the restart was a live-state read, not a retry. The loop wrote a todo reading `Inspect live state of uncertain-effect command; do not replay`, then called `computer-use__fs` with `op: stat` on the uncertain effect's path, which returned an error because the file was absent. Only after that did it report `The expected output file is not present yet` and wait. The read came before any decision about the uncertain action. |
 | D07 | Let the resumed run terminate and reconcile every surface | Database, API, journal and both sockets agree on completed status and usage; restored todos accept later updates | Final API/DB rows, raw/mobile terminal frames, journal/usage and todo report | pass on `ed99bdb`: the resumed run terminated `completed` and every surface agrees. The database row, the public `GET /api/runs/<id>` and the journal all report `completed` with 81,959 input and 1,108 output tokens, and the public `vadgr runs list` shows the same run. The journal's sequence numbers never go backwards across the kill. Both public sockets reach their terminal frame, the raw one with `completed` and the mobile one with `run_completed`; the mobile stream also carries a `run_resumed` frame, which is the resume itself observed on the wire rather than inferred. Restored todos accepted later updates: three `todos` frames follow the restart. |
+
+**The same group on native Windows, and three of its cells fail there.** Run at
+`dfa80c8` with `gpt-5.6-luna`, `run-ae4ccad3802349e3b55b97637ac3d363`, 8
+responses for 23,550 input and 503 output tokens.
+
+`D01` passes: the harness waited until the marker was readable and one
+`computer-use__shell` call was durably `in_flight` with no terminal, then killed
+the one assigned pid. The process exited, the database survived, and the
+uncertain action's own effect was still absent at the kill boundary. `D02`
+passes: restarting the same release on identical roots logged `run recovery scan
+complete resumed=1` with no owner resume request. `D03` passes: the pre-kill
+journal is a byte-identical prefix of the final journal and the sequence numbers
+never go backwards. `D07` passes: the database, the public API, the journal and
+the CLI all agree the run completed.
+
+`D04`, `D05` and `D06` fail:
+
+- `D04`: the completed side effect **was** repeated. The marker's `sha256`, size
+  and contents are unchanged, but its modification time moved, which is the
+  cell's own oracle for a rewrite.
+- `D05`: the dangling shell action appears **twice** in the final journal and its
+  effect file exists, where the cell requires the effect to appear once.
+- `D06`: the first external call after the restart is `computer-use__fs` with
+  `op: write` of the marker, which is a retry. The cell requires a live-state
+  read before any decision to retry.
+
+This was not accepted on the first observation, because a deterministic fixture
+can produce the same shape for its own reasons. It was reproduced with a real
+model and a goal-level task, and the deterministic run on the same host supplied
+the mechanism: the first provider request after the restart carried **zero**
+`function_call` and `function_call_output` items, so nothing in the resumed
+conversation told the model that the marker had already been written. Recorded
+as F27.
 
 The final rerun used source `5558cf6` and run
 `run-6889e6bf31e44e309114f8c9ffe7078b`. It also proved that the reconstructed
@@ -874,6 +965,8 @@ must not be present.
 
 | F26 | On native Windows the structured tier answers a Windows caller with a Linux remedy. `computer-use__ui_windows` returns `at_spi_unavailable` with `No accessibility bus reachable. Enable it and install ...`, which names the Linux accessibility bus on a platform that does not have one. | The Windows structured tier is not built yet, which is correct for this cua minor and is scheduled work. The defect is the answer, not the absence. The tool is advertised in the 33 tool surface, so a model reasonably reaches for it first, and the reply sends it to enable a bus that cannot exist on Windows. The neighbouring `computer-use__apps` shows the honest shape on the same host: `apps_unsupported` with `No apps tier on Windows yet`. | Not repaired here, because it is in the computer-use repository. The remedy is to make the Windows arm report an unsupported tier the way `apps` already does, rather than a Linux enablement instruction. | observed in both completed Windows runs: it cost one wasted model turn each time, then the loop fell through to the pixel tier and completed, so it degrades rather than blocks |
 
+| F27 | On native Windows a hard-kill resume repeats the completed side effect. `D04`, `D05` and `D06` fail there while all seven pass on WSL. | The first provider request after the restart carries **no** `function_call` or `function_call_output` items. The deterministic run on the same host measured this directly: the pre-kill turns sent 1, 2 and 3 structured tool items, and the first post-restart turn sent 0 while still carrying four role items and 29 KB of content. The resumed conversation is rebuilt as message content rather than as the structured tool-use history the provider protocol uses, so the model is not told which calls already completed. It then does the only reasonable thing and starts the task again, rewriting the marker whose modification time the cell watches. | Not repaired here. The fix belongs in how recovery rebuilds the provider conversation: the journaled `in_flight` and `done` entries already hold everything needed, and replaying them as typed tool-use and tool-result items would let the model see its own completed work. Until then boot recovery is safe for the daemon but not idempotent for the world, which is the property `D04` to `D06` exist to protect. | fail on Windows, reproduced twice: once with a deterministic provider and once live with `gpt-5.6-luna` on `run-ae4ccad3802349e3b55b97637ac3d363`. The first observation was not accepted on its own, because a stateless fixture can produce the same shape for its own reasons |
+
 The probe also moved from host networking to a separate BusyBox container that
 joins the product container's network namespace. Docker Desktop does not expose
 Linux host networking to WSL in the same way as native Linux. The product image
@@ -902,13 +995,13 @@ same (`OS-L`, `OS-M`, `OS-W`, `OS-Q`).
 |---|---|---|---|---|---|
 | automated gate: build, test, lint | **pass (CI)** | **pass (CI)** | **pass (CI)** | **pass** | all three OS rows are green in CI, and CI is not an e2e pass. WSL ran the four suites locally: engine 122, api 429, cli 152, rust 197, with clippy and fmt clean |
 | surface coverage: every published endpoint | not run | not run | **pass**, 13 blocked | **pass**, 1 blocked | 25 rows pass on the public boundary. `S12f` is blocked on a missing product path, F21 |
-| A: provider onboarding and defaults | not run | not run | not run | **pass** | 29 of 29. Four provider paths onboarded, catalogs discovered, defaults committed |
+| A: provider onboarding and defaults | not run | not run | **pass**, 18 of 29 | **pass** | 29 of 29 on WSL. On Windows the three API-key paths pass end to end: `A07` to `A24`. Each entered its key without it reaching argv or output, discovered a live authenticated catalog of 51, 28 and 10 models containing the exact selected model, committed one opaque `cred_v1_` record whose value is absent from the database, WAL and SHM, survived a daemon restart, and completed a goal-level tool-using run with an exact independent read-back. `A01` to `A06` need ChatGPT OAuth, which no cell on this host can reach. `A25` to `A29` name OAuth plus Gemini and are owed for the same reason |
 | B: credential storage and migration | not run | not run | **pass**, 8 of 8 | **pass** | the eight cases exist per platform as `BL`, `BM`, `BW` and `BQ`. 8 of 8 `BQ` cells pass, including the drvfs root WSL alone can produce. 8 of 8 `BW` cells now pass on a real Windows host, which is where the protected `D:P(A;;FA;;;SY)(A;;FA;;;OW)` descriptor and the junction reparse point are observed rather than argued. Two sub-controls inside `BW05` and `BW06` are owed for want of elevation, and both say so. `BL` and `BM` need their own hosts |
-| C: full product path and engine behavior | not run | not run | not run | **pass**, 3 partial | 25 cells, 22 pass and 3 partial. `C07` to `C09` park durably and their continuation needs the reply surface that belongs to `0.6.0`. Each row names the run id or commit it was observed on; the section preamble's older rule, that only rows citing `9761f6a` count, no longer matches the rows and is corrected there |
-| D: hard-kill restart continuation | not run | not run | not run | **pass** | 7 of 7 on `ed99bdb`. Killed with `SIGKILL` on an observed durable `in_flight`; both sockets closed at 1006, the restart logged `resumed=1`, the completed effect was untouched, and the first post-restart call was a live-state read |
-| E: owner dogfood batch | not run | not run | not run | **pass** | 20 of 25. `E04` now records the billed-account figure the owner directed, with the per-run amount `unavailable` for three observed reasons |
+| C: full product path and engine behavior | not run | not run | **pass**, 13 of 25 | **pass**, 3 partial | 25 cells, 22 pass and 3 partial. `C07` to `C09` park durably and their continuation needs the reply surface that belongs to `0.6.0`. Each row names the run id or commit it was observed on; the section preamble's older rule, that only rows citing `9761f6a` count, no longer matches the rows and is corrected there |
+| D: hard-kill restart continuation | not run | not run | **fail**, 4 of 7 | **pass** | on Windows `D01`, `D02`, `D03` and `D07` pass and `D04`, `D05` and `D06` fail: the completed side effect was repeated after recovery, the uncertain action ran a second time, and the first call after the restart was a retry rather than a live-state read. Recorded as F27. WSL: 7 of 7 on `ed99bdb`. Killed with `SIGKILL` on an observed durable `in_flight`; both sockets closed at 1006, the restart logged `resumed=1`, the completed effect was untouched, and the first post-restart call was a live-state read |
+| E: owner dogfood batch | not run | not run | **pass**, 4 of 5 | **pass** | 20 of 25. `E04` now records the billed-account figure the owner directed, with the per-run amount `unavailable` for three observed reasons |
 | installed product on the host | not run (`OS-L`) | not run (`OS-M`) | **pass** (`OS-W`) | **pass** (`OS-Q`) | one cell per platform. `OS-Q` drove Windows Notepad from WSL through the installed cua and survived a restart. `OS-W` now drives Notepad natively on Windows, with an independent desktop capture reading `Ln 2, Col 27` and `40 characters` back. Linux and macOS need their own hosts |
-| **overall** | **not run** | **not run** | **partial** | **pass**, 2 blocked, 7 partial | every part of this runbook has now been driven on WSL, and each has its own row above. It is not a clean `pass`, and none of the remainder is a WSL defect. `S12f` and `F21` are blocked on a product path that does not exist: `vadgr update` offers no check or dry-run, so the cell cannot run on any host. `C07` to `C09` park correctly and their continuation is re-owned by `0.6.0`'s reply surface. `S01` and `S08f` each observed the whole flow except one upstream-timed portion. `CB04` reached the query-free completion page but captured no raw callback status. `F15` is the boundary correction itself. **Windows native now carries its own credential and installed-product evidence**: the release daemon was built and driven on a real Windows 11 host, all eight `BW` cells pass, and `OS-W` completed a live model run that drove Notepad through installed cua and survived a restart. It stays `partial` rather than `pass` because the parts nobody has driven there are real ones: the surface sweep, part A, part C, part D and part E were all run on WSL only. Linux and macOS still have only the automated gate, which is not an e2e pass |
+| **overall** | **not run** | **not run** | **fail**, 3 cells | **pass**, 2 blocked, 7 partial | every part of this runbook has now been driven on WSL, and each has its own row above. It is not a clean `pass`, and none of the remainder is a WSL defect. `S12f` and `F21` are blocked on a product path that does not exist: `vadgr update` offers no check or dry-run, so the cell cannot run on any host. `C07` to `C09` park correctly and their continuation is re-owned by `0.6.0`'s reply surface. `S01` and `S08f` each observed the whole flow except one upstream-timed portion. `CB04` reached the query-free completion page but captured no raw callback status. `F15` is the boundary correction itself. **Windows native is now driven end to end, and it is the first OS to record a `fail`**. Every part has been exercised there: the surface sweep, all eight `BW` cells, 18 of 29 `A` cells across three live credential paths, 13 of 25 `C` cells, the whole `D` sequence, 4 of 5 `E` cells and `OS-W`. The row is `fail` and not `partial`, because `D04`, `D05` and `D06` fail rather than being owed: after a hard-kill resume the completed side effect is repeated, the uncertain action runs twice, and the first call after the restart is a retry instead of a live-state read. That is F27, it was reproduced with both a deterministic provider and a live model, and it is a real defect rather than a host condition. The host conditions that block cells here are separate and named: the reserved callback port takes out every OAuth path, which is why `A01` to `A06`, `H01`, `H02`, `H18` to `H21` and the seven `CB` rows are owed. Linux and macOS still have only the automated gate, which is not an e2e pass |
 
 Credential paths, access controls, binary startup, callback binding and child
 process launch are platform-shaped. **No supported operating system is
