@@ -376,8 +376,16 @@ fn validate_unix_node(path: &Path, directory: bool, required_mode: u32) -> std::
     {
         return Err(std::io::Error::other("credential path has an unsafe type"));
     }
-    if metadata.uid() != rustix::process::getuid().as_raw() {
-        return Err(std::io::Error::other("credential path has the wrong owner"));
+    let owner = metadata.uid();
+    let us = rustix::process::getuid().as_raw();
+    if owner != us {
+        // Name the path and both ids. A refusal that says only "wrong owner"
+        // cannot be diagnosed from a machine you do not have in front of you,
+        // and this check runs on four platforms.
+        return Err(std::io::Error::other(format!(
+            "credential path {} is owned by uid {owner}, not by uid {us}",
+            path.display()
+        )));
     }
     if metadata.mode() & 0o777 != required_mode {
         return Err(std::io::Error::other(format!(
@@ -664,7 +672,15 @@ mod windows_security {
             }
             let current_user = current_user_sid()?;
             if unsafe { EqualSid(owner, current_user.as_ptr() as PSID) } == 0 {
-                return Err(std::io::Error::other("credential path has the wrong owner"));
+                // Name the path. A refusal that says only "wrong owner" cannot
+                // be diagnosed from a machine you do not have in front of you.
+                // Windows commonly makes the Administrators group the owner of
+                // a path a user created, which is a legitimate setup this
+                // message has to make visible rather than hide.
+                return Err(std::io::Error::other(format!(
+                    "credential path {} is not owned by the current user",
+                    path.display()
+                )));
             }
             let mut control = 0;
             let mut revision = 0;
