@@ -1,4 +1,4 @@
-﻿use crate::engine::types::{ModelResponse, RunId, ToolContent, ToolResult, Usage};
+use crate::engine::types::{ModelResponse, RunId, ToolContent, ToolResult, Usage};
 use serde_json::{Map, Value, json};
 use sha2::{Digest, Sha256};
 use std::fs::OpenOptions;

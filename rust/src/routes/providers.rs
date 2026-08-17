@@ -1,4 +1,4 @@
-﻿use crate::auth::gate::is_loopback;
+use crate::auth::gate::is_loopback;
 use crate::engine::provider::service::ServiceError;
 use crate::error::{ApiError, ApiResult};
 use crate::state::AppState;
