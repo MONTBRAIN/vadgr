@@ -169,13 +169,28 @@ impl OpenAiResponsesClient {
                 .send()
                 .await
                 .map_err(|error| ProviderError::Request(error.to_string()))?;
-            if retryable(response.status()) && attempt < 2 {
-                tokio::time::sleep(Duration::from_millis(500u64 << attempt)).await;
-                attempt += 1;
-                continue;
-            }
-            if !response.status().is_success() {
-                return Err(classify_status(response.status()));
+            let status = response.status();
+            if !status.is_success() {
+                // **Read the body before deciding anything.** The status alone
+                // cannot tell exhausted credit from a pace limit, and the
+                // earlier version returned on the status and dropped the
+                // response, which destroyed the one field that says which.
+                // Diagnosing a single failure then took an account
+                // investigation that the provider had already answered.
+                let retry_after = retry_after_seconds(response.headers());
+                let body = response.text().await.unwrap_or_default();
+                let error = classify_failure(status, &body);
+                if retryable(&error) && attempt < MAX_RETRIES {
+                    // A pace limit is measured in seconds, so honour the
+                    // provider's own number when it sends one. The earlier
+                    // 500 ms and 1 s could not clear a per-minute window and
+                    // only spent two more requests failing the same way.
+                    let wait = retry_after.unwrap_or_else(|| backoff_seconds(attempt));
+                    tokio::time::sleep(Duration::from_secs(wait)).await;
+                    attempt += 1;
+                    continue;
+                }
+                return Err(error);
             }
             let bytes =
                 super::read_bounded(response, RESPONSE_BODY_LIMIT, "OpenAI response").await?;
@@ -299,7 +314,12 @@ pub async fn discover_platform_models(
     )
     .await?;
     if !response.status().is_success() {
-        return Err(classify_status(response.status()));
+        // Same rule as the model call: read the body, then classify. A catalog
+        // that fails for pace and one that fails for credit are different
+        // problems for the owner.
+        let status = response.status();
+        let body = response.text().await.unwrap_or_default();
+        return Err(classify_failure(status, &body));
     }
     let body = super::read_json(response).await?;
     catalog_rows(&body, "data", false)
@@ -321,7 +341,12 @@ pub async fn discover_chatgpt_models(
     )
     .await?;
     if !response.status().is_success() {
-        return Err(classify_status(response.status()));
+        // Same rule as the model call: read the body, then classify. A catalog
+        // that fails for pace and one that fails for credit are different
+        // problems for the owner.
+        let status = response.status();
+        let body = response.text().await.unwrap_or_default();
+        return Err(classify_failure(status, &body));
     }
     let body = super::read_json(response).await?;
     catalog_rows(&body, "models", true)
@@ -459,7 +484,7 @@ fn convert_messages(messages: &[Message]) -> Vec<Value> {
                             input.push(json!({
                                 "type":"function_call_output",
                                 "call_id":block.get("tool_use_id").and_then(Value::as_str).unwrap_or(""),
-                                "output":tool_result_text(block)
+                                "output":tool_result_output(block)
                             }));
                         }
                         Some("redacted_thinking") => {
@@ -491,25 +516,77 @@ fn flush_message_content(input: &mut Vec<Value>, role: &str, content: &mut Vec<V
     }
 }
 
-fn tool_result_text(block: &Value) -> String {
-    block
-        .get("content")
-        .and_then(Value::as_array)
-        .map(|items| {
-            items
-                .iter()
-                .filter_map(|item| item.get("text").and_then(Value::as_str))
-                .collect::<Vec<_>>()
-                .join("\n")
-        })
-        .filter(|value| !value.is_empty())
-        .unwrap_or_else(|| {
+/// What a tool result becomes in `function_call_output.output`.
+///
+/// **An image must arrive as a typed image part, never as its own base64.**
+/// A screen capture result is `content:[{type:"image",source:{data,media_type}}]`
+/// and carries no `text` field. The earlier version collected `text` fields,
+/// found none, and fell back to serialising the whole array, which put the
+/// base64 into the request as prose: one screen capture became 739,560
+/// characters, roughly 185,000 tokens, in a single request against an
+/// organization ceiling of 200,000 tokens per minute. The model could not see
+/// the image either, because base64 text is not an image to it.
+///
+/// The Responses API accepts a typed array here, verified live against the
+/// service: `[{"type":"input_image","image_url":"data:image/png;base64,..."}]`
+/// returns HTTP 200 and the model reads the picture.
+///
+/// A result with only text stays a plain string, which is the common case and
+/// the cheapest shape on the wire.
+fn tool_result_output(block: &Value) -> Value {
+    let Some(items) = block.get("content").and_then(Value::as_array) else {
+        // No content array at all: keep the old scalar behaviour rather than
+        // inventing a shape the caller did not send.
+        return Value::String(
             block
                 .get("content")
                 .cloned()
                 .unwrap_or(Value::Null)
-                .to_string()
-        })
+                .to_string(),
+        );
+    };
+
+    let mut parts = Vec::new();
+    let mut text_only = Vec::new();
+    for item in items {
+        match item.get("type").and_then(Value::as_str) {
+            Some("image") => {
+                if let Some(source) = item.get("source") {
+                    let media = source
+                        .get("media_type")
+                        .and_then(Value::as_str)
+                        .unwrap_or("image/png");
+                    let data = source.get("data").and_then(Value::as_str).unwrap_or("");
+                    parts.push(json!({
+                        "type":"input_image",
+                        "image_url":format!("data:{media};base64,{data}")
+                    }));
+                }
+            }
+            _ => {
+                if let Some(text) = item.get("text").and_then(Value::as_str) {
+                    text_only.push(text.to_owned());
+                    parts.push(json!({"type":"input_text","text":text}));
+                }
+            }
+        }
+    }
+
+    if parts.iter().any(|part| part["type"] == "input_image") {
+        return Value::Array(parts);
+    }
+    if !text_only.is_empty() {
+        return Value::String(text_only.join("\n"));
+    }
+    // Content the adapter does not recognise: serialise it rather than drop it,
+    // because a tool result the model never sees is a silent hole in the loop.
+    Value::String(
+        block
+            .get("content")
+            .cloned()
+            .unwrap_or(Value::Null)
+            .to_string(),
+    )
 }
 
 fn decode_sse(text: &str) -> Result<Value, ProviderError> {
@@ -556,18 +633,73 @@ fn decode_sse(text: &str) -> Result<Value, ProviderError> {
     Ok(completed)
 }
 
-fn retryable(status: StatusCode) -> bool {
-    status == StatusCode::TOO_MANY_REQUESTS || status.is_server_error()
+/// Two attempts after the first, which is what a per-minute window can afford.
+const MAX_RETRIES: u32 = 2;
+
+fn retryable(error: &ProviderError) -> bool {
+    // Waiting helps a pace limit and a server fault. It cannot help an empty
+    // account, a rejected credential or a request the service will refuse
+    // again, so those return at once rather than spending two more calls.
+    matches!(
+        error,
+        ProviderError::RateLimited | ProviderError::Unavailable
+    )
 }
 
-fn classify_status(status: StatusCode) -> ProviderError {
+fn backoff_seconds(attempt: u32) -> u64 {
+    // 5 s then 20 s. Seconds, because the limit that produces a 429 here is
+    // measured per minute.
+    5u64 << (attempt * 2)
+}
+
+fn retry_after_seconds(headers: &reqwest::header::HeaderMap) -> Option<u64> {
+    headers
+        .get(reqwest::header::RETRY_AFTER)
+        .and_then(|value| value.to_str().ok())
+        .and_then(|value| value.trim().parse::<f64>().ok())
+        .filter(|value| *value >= 0.0)
+        // A provider asking for longer than a minute is asking for more than a
+        // retry is for. Cap it and surface the failure instead of stalling the
+        // run behind a sleep the owner cannot see.
+        .map(|value| (value.ceil() as u64).min(60))
+}
+
+/// The upstream `code`, when the service sent one.
+///
+/// The body is untrusted input and may be anything, so a missing or malformed
+/// body simply yields `None` and the status decides alone.
+fn upstream_code(body: &str) -> Option<String> {
+    serde_json::from_str::<Value>(body)
+        .ok()?
+        .get("error")?
+        .get("code")?
+        .as_str()
+        .map(str::to_owned)
+}
+
+/// Classify a failure from the status **and** the body.
+///
+/// HTTP 429 carries two opposite facts on this service. `insufficient_quota`
+/// means the account has no credit and waiting cannot help. Anything else at
+/// 429 is pace, which clears by itself. Reporting both as exhausted quota sent
+/// an owner to the billing pages of an account that was working.
+fn classify_failure(status: StatusCode, body: &str) -> ProviderError {
+    let code = upstream_code(body);
     match status {
         StatusCode::UNAUTHORIZED => ProviderError::Unauthorized,
         StatusCode::FORBIDDEN => ProviderError::Forbidden,
-        StatusCode::TOO_MANY_REQUESTS => ProviderError::QuotaExhausted,
+        StatusCode::TOO_MANY_REQUESTS => match code.as_deref() {
+            Some("insufficient_quota") => ProviderError::QuotaExhausted,
+            _ => ProviderError::RateLimited,
+        },
         StatusCode::NOT_FOUND => ProviderError::ModelUnavailable,
         status if status.is_server_error() => ProviderError::Unavailable,
-        status => ProviderError::Request(format!("OpenAI request failed with HTTP {status}")),
+        status => ProviderError::Request(match code {
+            // Keep the provider's own code. It is the difference between a
+            // report an owner can act on and one that sends them hunting.
+            Some(code) => format!("OpenAI request failed with HTTP {status} ({code})"),
+            None => format!("OpenAI request failed with HTTP {status}"),
+        }),
     }
 }
 
@@ -770,5 +902,157 @@ mod tests {
         .unwrap();
 
         assert_eq!(value["output"][0]["content"][0]["text"], "OK");
+    }
+
+    /// The defect that blocked the 0.4.7 dogfood cell. A screen capture result
+    /// carries an image block and no text, and the earlier extractor turned the
+    /// whole array into a string, putting 739,560 characters of base64 into one
+    /// request as prose.
+    #[test]
+    fn a_screen_capture_result_rides_as_an_image_not_as_its_own_base64() {
+        let block = json!({
+            "type":"tool_result",
+            "tool_use_id":"call_1",
+            "content":[{"type":"image","source":{
+                "type":"base64","media_type":"image/png","data":"QUJD"}}]
+        });
+
+        let output = tool_result_output(&block);
+
+        let parts = output.as_array().expect("an image result is a typed array");
+        assert_eq!(parts.len(), 1);
+        assert_eq!(parts[0]["type"], "input_image");
+        assert_eq!(parts[0]["image_url"], "data:image/png;base64,QUJD");
+        // The base64 must never appear as prose. Before the fix the whole
+        // content array was stringified into `output`.
+        assert!(
+            !output.is_string(),
+            "the image was serialised as text, which is the defect"
+        );
+    }
+
+    #[test]
+    fn a_text_only_result_stays_a_plain_string() {
+        let block = json!({
+            "type":"tool_result",
+            "content":[{"type":"text","text":"first"},{"type":"text","text":"second"}]
+        });
+        assert_eq!(tool_result_output(&block), json!("first\nsecond"));
+    }
+
+    #[test]
+    fn a_mixed_result_keeps_the_text_beside_the_image() {
+        let block = json!({
+            "type":"tool_result",
+            "content":[
+                {"type":"text","text":"1920x1080"},
+                {"type":"image","source":{"media_type":"image/jpeg","data":"WFla"}}
+            ]
+        });
+        let parts = tool_result_output(&block);
+        let parts = parts.as_array().unwrap();
+        assert_eq!(parts[0], json!({"type":"input_text","text":"1920x1080"}));
+        assert_eq!(parts[1]["type"], "input_image");
+        assert_eq!(parts[1]["image_url"], "data:image/jpeg;base64,WFla");
+    }
+
+    #[test]
+    fn unrecognised_content_is_serialised_rather_than_dropped() {
+        // A tool result the model never sees is a silent hole in the loop.
+        let block = json!({"type":"tool_result","content":[{"type":"future","x":1}]});
+        assert!(
+            tool_result_output(&block)
+                .as_str()
+                .unwrap()
+                .contains("future")
+        );
+    }
+
+    /// The misreport that cost an account investigation. 429 carries two
+    /// opposite facts and only the body says which.
+    #[test]
+    fn exhausted_credit_and_a_pace_limit_are_two_different_answers() {
+        let quota = classify_failure(
+            StatusCode::TOO_MANY_REQUESTS,
+            r#"{"error":{"code":"insufficient_quota","message":"..."}}"#,
+        );
+        assert!(matches!(quota, ProviderError::QuotaExhausted));
+
+        let pace = classify_failure(
+            StatusCode::TOO_MANY_REQUESTS,
+            r#"{"error":{"code":"rate_limit_exceeded","message":"..."}}"#,
+        );
+        assert!(
+            matches!(pace, ProviderError::RateLimited),
+            "a pace limit must not be reported as an empty account"
+        );
+    }
+
+    #[test]
+    fn a_429_with_no_readable_body_is_pace_rather_than_an_empty_account() {
+        // Guessing "no credit" from silence sends the owner to a billing page.
+        // Guessing "wait" costs one retry.
+        for body in ["", "not json", "{}", r#"{"error":{}}"#] {
+            assert!(matches!(
+                classify_failure(StatusCode::TOO_MANY_REQUESTS, body),
+                ProviderError::RateLimited
+            ));
+        }
+    }
+
+    #[test]
+    fn the_upstream_code_survives_into_the_message() {
+        let error = classify_failure(
+            StatusCode::BAD_REQUEST,
+            r#"{"error":{"code":"context_length_exceeded","message":"..."}}"#,
+        );
+        match error {
+            ProviderError::Request(text) => {
+                assert!(text.contains("context_length_exceeded"), "got: {text}")
+            }
+            other => panic!("expected a request error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn only_the_conditions_that_waiting_can_clear_are_retried() {
+        assert!(retryable(&ProviderError::RateLimited));
+        assert!(retryable(&ProviderError::Unavailable));
+        // Retrying these spends two more calls to fail the same way.
+        assert!(!retryable(&ProviderError::QuotaExhausted));
+        assert!(!retryable(&ProviderError::Unauthorized));
+        assert!(!retryable(&ProviderError::ModelUnavailable));
+    }
+
+    #[test]
+    fn the_backoff_is_measured_in_seconds_because_the_limit_is_per_minute() {
+        // 500 ms and 1 s could not clear a per-minute window.
+        assert_eq!(backoff_seconds(0), 5);
+        assert_eq!(backoff_seconds(1), 20);
+    }
+
+    #[test]
+    fn the_providers_own_retry_after_wins_and_is_capped() {
+        let mut headers = reqwest::header::HeaderMap::new();
+        headers.insert(reqwest::header::RETRY_AFTER, "12".parse().unwrap());
+        assert_eq!(retry_after_seconds(&headers), Some(12));
+
+        headers.insert(reqwest::header::RETRY_AFTER, "0.4".parse().unwrap());
+        assert_eq!(
+            retry_after_seconds(&headers),
+            Some(1),
+            "round up, never to zero"
+        );
+
+        // Longer than a minute is more than a retry is for.
+        headers.insert(reqwest::header::RETRY_AFTER, "900".parse().unwrap());
+        assert_eq!(retry_after_seconds(&headers), Some(60));
+
+        // A date form, which this service does not send, must not panic.
+        headers.insert(
+            reqwest::header::RETRY_AFTER,
+            "Wed, 21 Oct 2026 07:28:00 GMT".parse().unwrap(),
+        );
+        assert_eq!(retry_after_seconds(&headers), None);
     }
 }

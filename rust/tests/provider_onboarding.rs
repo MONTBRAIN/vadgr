@@ -407,7 +407,9 @@ async fn fake_response(State(state): State<FakeState>, request: Request) -> Resp
             })
             .is_ok()
     {
-        return StatusCode::SERVICE_UNAVAILABLE.into_response();
+        // The advertised zero-second wait keeps the retry path fast and proves
+        // the client honours the service's own retry-after value.
+        return (StatusCode::SERVICE_UNAVAILABLE, [("retry-after", "0")]).into_response();
     }
     if path == "/openai/responses" && state.reject_openai_model.load(Ordering::SeqCst) {
         return StatusCode::NOT_FOUND.into_response();

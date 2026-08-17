@@ -66,6 +66,45 @@ pub struct ProviderEndpoints {
     pub anthropic_models: String,
 }
 
+impl ProviderEndpoints {
+    /// The published endpoints, with each one overridable by environment.
+    ///
+    /// **This is configuration, not a test hook.** A machine can be required to
+    /// reach a provider through a gateway, a corporate proxy or a compatible
+    /// endpoint that is not the vendor's own host, and without this the daemon
+    /// cannot be pointed anywhere. It also lets a runbook drive a deterministic
+    /// provider or an unreachable one, which is how the failure cells are
+    /// exercised without pretending a real account is broken.
+    ///
+    /// An override is used verbatim. The daemon does not rewrite it, so a
+    /// mistyped host fails as a request error rather than silently falling back
+    /// to the vendor, which would make an override look like it worked.
+    pub fn from_env() -> Self {
+        fn or_env(name: &str, fallback: String) -> String {
+            std::env::var(name)
+                .ok()
+                .map(|value| value.trim().to_owned())
+                .filter(|value| !value.is_empty())
+                .unwrap_or(fallback)
+        }
+        let base = Self::default();
+        Self {
+            openai_oauth: base.openai_oauth,
+            openai_platform_responses: or_env(
+                "VADGR_OPENAI_RESPONSES_URL",
+                base.openai_platform_responses,
+            ),
+            openai_platform_models: or_env("VADGR_OPENAI_MODELS_URL", base.openai_platform_models),
+            openai_chatgpt_responses: base.openai_chatgpt_responses,
+            openai_chatgpt_models: base.openai_chatgpt_models,
+            gemini_api_root: or_env("VADGR_GEMINI_API_ROOT", base.gemini_api_root),
+            gemini_models: or_env("VADGR_GEMINI_MODELS_URL", base.gemini_models),
+            anthropic_messages: or_env("VADGR_ANTHROPIC_MESSAGES_URL", base.anthropic_messages),
+            anthropic_models: or_env("VADGR_ANTHROPIC_MODELS_URL", base.anthropic_models),
+        }
+    }
+}
+
 impl Default for ProviderEndpoints {
     fn default() -> Self {
         Self {
@@ -218,7 +257,7 @@ impl ProviderService {
         let service = Self::new(
             db,
             CredentialStore::native(state_home)?,
-            ProviderEndpoints::default(),
+            ProviderEndpoints::from_env(),
         )?;
         service.set_oauth_callback_available(false);
         Ok(service)
@@ -952,11 +991,56 @@ fn provider_error_code(error: &ProviderError) -> &'static str {
         | ProviderError::Unauthorized => "invalid_credentials",
         ProviderError::Forbidden => "consent_required",
         ProviderError::QuotaExhausted => "quota_exhausted",
+        ProviderError::RateLimited => "rate_limited",
         ProviderError::ModelUnavailable => "model_unavailable",
         ProviderError::Unavailable | ProviderError::Request(_) => "provider_unavailable",
         ProviderError::InvalidResponse(_) => "invalid_provider_response",
         ProviderError::CredentialStore(_) => "credential_store_failed",
         ProviderError::UnknownProvider(_) => "invalid_provider_response",
+    }
+}
+
+#[cfg(test)]
+mod endpoint_config_tests {
+    use super::ProviderEndpoints;
+
+    /// The env lock keeps these two from racing each other, because
+    /// `std::env` is process wide.
+    static ENV_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+    #[test]
+    fn an_override_is_used_verbatim() {
+        let _guard = ENV_LOCK.lock().unwrap_or_else(|error| error.into_inner());
+        unsafe {
+            std::env::set_var(
+                "VADGR_OPENAI_RESPONSES_URL",
+                "http://127.0.0.1:9/v1/responses",
+            )
+        };
+        let endpoints = ProviderEndpoints::from_env();
+        assert_eq!(
+            endpoints.openai_platform_responses,
+            "http://127.0.0.1:9/v1/responses"
+        );
+        // Anything not overridden keeps its published value.
+        assert_eq!(
+            endpoints.anthropic_messages,
+            ProviderEndpoints::default().anthropic_messages
+        );
+        unsafe { std::env::remove_var("VADGR_OPENAI_RESPONSES_URL") };
+    }
+
+    #[test]
+    fn an_empty_or_blank_override_is_ignored_rather_than_used() {
+        // An empty variable is a shell accident, not an instruction to send
+        // requests to the empty string.
+        let _guard = ENV_LOCK.lock().unwrap_or_else(|error| error.into_inner());
+        let published = ProviderEndpoints::default().gemini_api_root;
+        for value in ["", "   "] {
+            unsafe { std::env::set_var("VADGR_GEMINI_API_ROOT", value) };
+            assert_eq!(ProviderEndpoints::from_env().gemini_api_root, published);
+        }
+        unsafe { std::env::remove_var("VADGR_GEMINI_API_ROOT") };
     }
 }
 

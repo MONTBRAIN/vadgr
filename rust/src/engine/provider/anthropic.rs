@@ -79,15 +79,21 @@ impl AnthropicMessagesClient {
                 .send()
                 .await
                 .map_err(|error| ProviderError::Request(error.to_string()))?;
-            if retryable(response.status()) && attempt < 2 {
-                tokio::time::sleep(Duration::from_millis(500u64 << attempt)).await;
-                attempt += 1;
-                continue;
-            }
             if !response.status().is_success() {
+                // Read the body before deciding anything: the status alone
+                // cannot tell a pace limit from an empty account here, and
+                // dropping the response destroys the field that says which.
                 let status = response.status();
+                let retry_after = super::retry_after_seconds(response.headers());
                 let body = response.json::<Value>().await.ok();
-                return Err(classify_error(status, body.as_ref()));
+                let error = classify_error(status, body.as_ref());
+                if retryable(&error) && attempt < super::MAX_RETRIES {
+                    let wait = retry_after.unwrap_or_else(|| super::backoff_seconds(attempt));
+                    tokio::time::sleep(Duration::from_secs(wait)).await;
+                    attempt += 1;
+                    continue;
+                }
+                return Err(error);
             }
             return super::read_json(response).await;
         }
@@ -171,7 +177,10 @@ pub async fn discover_models(
     )
     .await?;
     if !response.status().is_success() {
-        return Err(classify_status(response.status()));
+        // Same rule as the model call: read the body, then classify.
+        let status = response.status();
+        let body = response.json::<Value>().await.ok();
+        return Err(classify_error(status, body.as_ref()));
     }
     let body = super::read_json(response).await?;
     let rows = body
@@ -204,19 +213,14 @@ pub async fn discover_models(
     Ok(models)
 }
 
-fn retryable(status: StatusCode) -> bool {
-    status == StatusCode::TOO_MANY_REQUESTS || status.is_server_error()
-}
-
-fn classify_status(status: StatusCode) -> ProviderError {
-    match status {
-        StatusCode::UNAUTHORIZED => ProviderError::Unauthorized,
-        StatusCode::FORBIDDEN => ProviderError::Forbidden,
-        StatusCode::TOO_MANY_REQUESTS => ProviderError::QuotaExhausted,
-        StatusCode::NOT_FOUND => ProviderError::ModelUnavailable,
-        status if status.is_server_error() => ProviderError::Unavailable,
-        status => ProviderError::Request(format!("Anthropic request failed with HTTP {status}")),
-    }
+fn retryable(error: &ProviderError) -> bool {
+    // Waiting helps a pace limit and a server fault. It cannot help an empty
+    // account, a rejected credential or a request the service will refuse
+    // again, so those return at once rather than spending two more calls.
+    matches!(
+        error,
+        ProviderError::RateLimited | ProviderError::Unavailable
+    )
 }
 
 fn classify_error(status: StatusCode, body: Option<&Value>) -> ProviderError {
@@ -235,7 +239,21 @@ fn classify_error(status: StatusCode, body: Option<&Value>) -> ProviderError {
     {
         return ProviderError::QuotaExhausted;
     }
-    classify_status(status)
+    match status {
+        StatusCode::UNAUTHORIZED => ProviderError::Unauthorized,
+        StatusCode::FORBIDDEN => ProviderError::Forbidden,
+        // This service reports exhausted credit as a 400 `billing_error`,
+        // handled above, so a 429 here is pace and clears by itself.
+        StatusCode::TOO_MANY_REQUESTS => ProviderError::RateLimited,
+        StatusCode::NOT_FOUND => ProviderError::ModelUnavailable,
+        status if status.is_server_error() => ProviderError::Unavailable,
+        status => ProviderError::Request(match provider_type {
+            // Keep the provider's own error type. It is the difference between
+            // a report an owner can act on and one that sends them hunting.
+            Some(kind) => format!("Anthropic request failed with HTTP {status} ({kind})"),
+            None => format!("Anthropic request failed with HTTP {status}"),
+        }),
+    }
 }
 
 fn user_agent() -> String {
@@ -297,6 +315,34 @@ mod tests {
             classify_error(StatusCode::BAD_REQUEST, Some(&body)),
             ProviderError::QuotaExhausted
         ));
+    }
+
+    #[test]
+    fn a_429_is_a_pace_limit_never_an_empty_account() {
+        let body = json!({
+            "type": "error",
+            "error": {"type": "rate_limit_error", "message": "Rate limited."}
+        });
+        assert!(matches!(
+            classify_error(StatusCode::TOO_MANY_REQUESTS, Some(&body)),
+            ProviderError::RateLimited
+        ));
+        assert!(matches!(
+            classify_error(StatusCode::TOO_MANY_REQUESTS, None),
+            ProviderError::RateLimited
+        ));
+    }
+
+    #[test]
+    fn an_unclassified_failure_keeps_the_providers_error_type() {
+        let body = json!({
+            "type": "error",
+            "error": {"type": "request_too_large", "message": "Too large."}
+        });
+        match classify_error(StatusCode::PAYLOAD_TOO_LARGE, Some(&body)) {
+            ProviderError::Request(message) => assert!(message.contains("request_too_large")),
+            other => panic!("expected a request error, got {other:?}"),
+        }
     }
 
     #[test]

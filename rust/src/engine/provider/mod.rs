@@ -107,12 +107,55 @@ async fn send_with_retry(request: RequestBuilder) -> Result<Response, ProviderEr
             .map_err(|error| ProviderError::Request(error.to_string()))?;
         if (response.status() == StatusCode::TOO_MANY_REQUESTS
             || response.status().is_server_error())
-            && attempt < 2
+            && attempt < MAX_RETRIES
         {
-            tokio::time::sleep(Duration::from_millis(500u64 << attempt)).await;
+            let wait =
+                retry_after_seconds(response.headers()).unwrap_or_else(|| backoff_seconds(attempt));
+            tokio::time::sleep(Duration::from_secs(wait)).await;
             attempt += 1;
             continue;
         }
         return Ok(response);
+    }
+}
+
+/// Two attempts after the first, which is what a per-minute window can afford.
+const MAX_RETRIES: u32 = 2;
+
+fn backoff_seconds(attempt: u32) -> u64 {
+    // 5 s then 20 s. Seconds, because the limit that produces a 429 here is
+    // measured per minute; a sub-second retry only spends the attempt.
+    5u64 << (attempt * 2)
+}
+
+fn retry_after_seconds(headers: &reqwest::header::HeaderMap) -> Option<u64> {
+    headers
+        .get(reqwest::header::RETRY_AFTER)
+        .and_then(|value| value.to_str().ok())
+        .and_then(|value| value.trim().parse::<f64>().ok())
+        .filter(|value| *value >= 0.0)
+        // A provider asking for longer than a minute is asking for more than a
+        // retry is for. Cap it and surface the failure instead of stalling the
+        // run behind a sleep the owner cannot see.
+        .map(|value| (value.ceil() as u64).min(60))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::retry_after_seconds;
+    use reqwest::header::{HeaderMap, HeaderValue, RETRY_AFTER};
+
+    #[test]
+    fn the_providers_own_wait_is_honoured_bounded_and_never_negative() {
+        let mut headers = HeaderMap::new();
+        assert_eq!(retry_after_seconds(&headers), None);
+        headers.insert(RETRY_AFTER, HeaderValue::from_static("2.2"));
+        assert_eq!(retry_after_seconds(&headers), Some(3));
+        headers.insert(RETRY_AFTER, HeaderValue::from_static("600"));
+        assert_eq!(retry_after_seconds(&headers), Some(60));
+        headers.insert(RETRY_AFTER, HeaderValue::from_static("-5"));
+        assert_eq!(retry_after_seconds(&headers), None);
+        headers.insert(RETRY_AFTER, HeaderValue::from_static("soon"));
+        assert_eq!(retry_after_seconds(&headers), None);
     }
 }

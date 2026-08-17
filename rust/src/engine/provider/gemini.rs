@@ -77,13 +77,24 @@ impl GeminiClient {
                 .send()
                 .await
                 .map_err(|error| ProviderError::Request(error.to_string()))?;
-            if retryable(response.status()) && attempt < 2 {
-                tokio::time::sleep(Duration::from_millis(500u64 << attempt)).await;
-                attempt += 1;
-                continue;
-            }
             if !response.status().is_success() {
-                return Err(classify_status(response.status()));
+                // Read the body before deciding anything. A Gemini 429 carries
+                // the difference between a per-minute pace limit and a spent
+                // daily quota in the body, and a bad API key arrives as a 400,
+                // not a 401; the status alone misreports both.
+                let status = response.status();
+                let retry_after = super::retry_after_seconds(response.headers());
+                let body = response.json::<Value>().await.ok();
+                let error = classify_error(status, body.as_ref());
+                if retryable(&error) && attempt < super::MAX_RETRIES {
+                    let wait = retry_after
+                        .or_else(|| retry_delay_seconds(body.as_ref()))
+                        .unwrap_or_else(|| super::backoff_seconds(attempt));
+                    tokio::time::sleep(Duration::from_secs(wait)).await;
+                    attempt += 1;
+                    continue;
+                }
+                return Err(error);
             }
             return super::read_json(response).await;
         }
@@ -182,7 +193,10 @@ pub async fn discover_models(
     )
     .await?;
     if !response.status().is_success() {
-        return Err(classify_status(response.status()));
+        // Same rule as the model call: read the body, then classify.
+        let status = response.status();
+        let body = response.json::<Value>().await.ok();
+        return Err(classify_error(status, body.as_ref()));
     }
     let body = super::read_json(response).await?;
     let rows = body
@@ -276,11 +290,48 @@ fn convert_messages(messages: &[Message]) -> Vec<Value> {
                                 .get(id)
                                 .cloned()
                                 .unwrap_or_else(|| "tool".to_owned());
-                            parts.push(json!({"functionResponse":{
+                            // An image in a tool result is a typed
+                            // `inlineData` part on the function response, per
+                            // the service's multimodal function-response
+                            // shape. Embedding the raw block would send the
+                            // screenshot as base64 text the model cannot see.
+                            let mut texts = Vec::new();
+                            let mut media = Vec::new();
+                            match block.get("content") {
+                                Some(Value::Array(items)) => {
+                                    for item in items {
+                                        match item.get("type").and_then(Value::as_str) {
+                                            Some("text") => {
+                                                if let Some(text) =
+                                                    item.get("text").and_then(Value::as_str)
+                                                {
+                                                    texts.push(text.to_owned());
+                                                }
+                                            }
+                                            Some("image") => {
+                                                if let Some(source) = item.get("source") {
+                                                    media.push(json!({"inlineData":{
+                                                        "mimeType":source.get("media_type").and_then(Value::as_str).unwrap_or("image/png"),
+                                                        "data":source.get("data").and_then(Value::as_str).unwrap_or("")
+                                                    }}));
+                                                }
+                                            }
+                                            _ => {}
+                                        }
+                                    }
+                                }
+                                Some(Value::String(text)) => texts.push(text.clone()),
+                                _ => {}
+                            }
+                            let mut part = json!({"functionResponse":{
                                 "id":id,
                                 "name":name,
-                                "response":{"result":block.get("content").cloned().unwrap_or(Value::Null)}
-                            }}));
+                                "response":{"result":texts.join("\n")}
+                            }});
+                            if !media.is_empty() {
+                                part["functionResponse"]["parts"] = Value::Array(media);
+                            }
+                            parts.push(part);
                         }
                         _ => {}
                     }
@@ -318,18 +369,89 @@ fn gemini_schema(value: &Value) -> Value {
     }
 }
 
-fn retryable(status: StatusCode) -> bool {
-    status == StatusCode::TOO_MANY_REQUESTS || status.is_server_error()
+fn retryable(error: &ProviderError) -> bool {
+    // Waiting helps a pace limit and a server fault. It cannot help a spent
+    // daily quota, a rejected key or a request the service will refuse again,
+    // so those return at once rather than spending two more calls.
+    matches!(
+        error,
+        ProviderError::RateLimited | ProviderError::Unavailable
+    )
 }
 
-fn classify_status(status: StatusCode) -> ProviderError {
+fn error_details(body: Option<&Value>) -> &[Value] {
+    body.and_then(|value| value.pointer("/error/details"))
+        .and_then(Value::as_array)
+        .map(Vec::as_slice)
+        .unwrap_or_default()
+}
+
+fn error_reason(body: Option<&Value>) -> Option<&str> {
+    error_details(body)
+        .iter()
+        .find_map(|detail| detail.get("reason").and_then(Value::as_str))
+}
+
+/// Whether the 429 names a per-day quota. A day does not clear inside a retry
+/// window, so it is exhaustion; every other 429 on this service is pace.
+fn daily_quota_exhausted(body: Option<&Value>) -> bool {
+    error_details(body).iter().any(|detail| {
+        detail
+            .get("violations")
+            .and_then(Value::as_array)
+            .is_some_and(|violations| {
+                violations.iter().any(|violation| {
+                    violation
+                        .get("quotaId")
+                        .and_then(Value::as_str)
+                        .is_some_and(|id| id.contains("PerDay"))
+                })
+            })
+    })
+}
+
+/// The wait the service itself asks for, from the `RetryInfo` detail
+/// (`"retryDelay": "58s"`), bounded the same way as a `retry-after` header.
+fn retry_delay_seconds(body: Option<&Value>) -> Option<u64> {
+    error_details(body)
+        .iter()
+        .find_map(|detail| detail.get("retryDelay").and_then(Value::as_str))
+        .and_then(|value| value.trim().trim_end_matches('s').parse::<f64>().ok())
+        .filter(|value| *value >= 0.0)
+        .map(|value| (value.ceil() as u64).min(60))
+}
+
+fn classify_error(status: StatusCode, body: Option<&Value>) -> ProviderError {
+    // A rejected key is a 400 INVALID_ARGUMENT with reason API_KEY_INVALID on
+    // this service, not a 401. Reporting it as a generic request failure sent
+    // the owner to an outage page for a mistyped key.
+    if status == StatusCode::BAD_REQUEST && error_reason(body) == Some("API_KEY_INVALID") {
+        return ProviderError::Unauthorized;
+    }
     match status {
         StatusCode::UNAUTHORIZED => ProviderError::Unauthorized,
         StatusCode::FORBIDDEN => ProviderError::Forbidden,
-        StatusCode::TOO_MANY_REQUESTS => ProviderError::QuotaExhausted,
+        StatusCode::TOO_MANY_REQUESTS => {
+            if daily_quota_exhausted(body) {
+                ProviderError::QuotaExhausted
+            } else {
+                ProviderError::RateLimited
+            }
+        }
         StatusCode::NOT_FOUND => ProviderError::ModelUnavailable,
         status if status.is_server_error() => ProviderError::Unavailable,
-        status => ProviderError::Request(format!("Gemini request failed with HTTP {status}")),
+        status => {
+            let detail = error_reason(body).or_else(|| {
+                body.and_then(|value| value.pointer("/error/status"))
+                    .and_then(Value::as_str)
+            });
+            ProviderError::Request(match detail {
+                // Keep the provider's own code. It is the difference between a
+                // report an owner can act on and one that sends them hunting.
+                Some(code) => format!("Gemini request failed with HTTP {status} ({code})"),
+                None => format!("Gemini request failed with HTTP {status}"),
+            })
+        }
     }
 }
 
@@ -395,6 +517,70 @@ mod tests {
             body["contents"][1]["parts"][0]["thoughtSignature"],
             "signed"
         );
+    }
+
+    #[test]
+    fn an_image_tool_result_is_typed_inline_data_never_base64_text() {
+        let messages = vec![
+            Message {
+                role: "assistant".to_owned(),
+                content: json!([{"type":"tool_use","id":"call-1","name":"test__screenshot","input":{}}]),
+            },
+            Message {
+                role: "user".to_owned(),
+                content: json!([{"type":"tool_result","tool_use_id":"call-1","content":[
+                    {"type":"text","text":"captured"},
+                    {"type":"image","source":{"type":"base64","media_type":"image/png","data":"aWizaW1hZ2U"}}
+                ]}]),
+            },
+        ];
+        let body = client().body(&messages, &[], 512);
+        let response = &body["contents"][1]["parts"][0]["functionResponse"];
+        assert_eq!(response["response"]["result"], "captured");
+        assert_eq!(response["parts"][0]["inlineData"]["mimeType"], "image/png");
+        assert_eq!(response["parts"][0]["inlineData"]["data"], "aWizaW1hZ2U");
+        assert!(!response["response"].to_string().contains("aWizaW1hZ2U"));
+    }
+
+    #[test]
+    fn a_rejected_key_is_unauthorized_even_as_a_400() {
+        let body = json!({"error":{
+            "code":400,
+            "message":"API key not valid. Please pass a valid API key.",
+            "status":"INVALID_ARGUMENT",
+            "details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID"}]
+        }});
+        assert!(matches!(
+            classify_error(StatusCode::BAD_REQUEST, Some(&body)),
+            ProviderError::Unauthorized
+        ));
+    }
+
+    #[test]
+    fn a_429_is_pace_unless_the_body_names_a_daily_quota() {
+        let pace = json!({"error":{"code":429,"status":"RESOURCE_EXHAUSTED","details":[
+            {"@type":"type.googleapis.com/google.rpc.QuotaFailure","violations":[
+                {"quotaId":"GenerateRequestsPerMinutePerProjectPerModel"}]},
+            {"@type":"type.googleapis.com/google.rpc.RetryInfo","retryDelay":"7s"}
+        ]}});
+        assert!(matches!(
+            classify_error(StatusCode::TOO_MANY_REQUESTS, Some(&pace)),
+            ProviderError::RateLimited
+        ));
+        assert_eq!(retry_delay_seconds(Some(&pace)), Some(7));
+
+        let daily = json!({"error":{"code":429,"status":"RESOURCE_EXHAUSTED","details":[
+            {"@type":"type.googleapis.com/google.rpc.QuotaFailure","violations":[
+                {"quotaId":"GenerateRequestsPerDayPerProjectPerModel-FreeTier"}]}
+        ]}});
+        assert!(matches!(
+            classify_error(StatusCode::TOO_MANY_REQUESTS, Some(&daily)),
+            ProviderError::QuotaExhausted
+        ));
+        assert!(matches!(
+            classify_error(StatusCode::TOO_MANY_REQUESTS, None),
+            ProviderError::RateLimited
+        ));
     }
 
     #[test]

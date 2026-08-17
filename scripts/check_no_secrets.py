@@ -17,6 +17,10 @@ PATTERNS = {
         rb"sk-((proj|svcacct|admin|ant)-[A-Za-z0-9_-]{16,}|[A-Za-z0-9_-]{32,})"
     ),
     "Google API key": re.compile(rb"AIza[0-9A-Za-z_-]{30,}"),
+    # OAuth access and identity tokens are the credential this daemon mints at
+    # runtime; they never appear in an env file, so only a shape check can
+    # catch one. The signature floor keeps unsigned test tokens out.
+    "signed JWT": re.compile(rb"eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}"),
     "GitHub token": re.compile(rb"gh[pousr]_[A-Za-z0-9]{30,}"),
     "private key": re.compile(rb"-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----"),
 }

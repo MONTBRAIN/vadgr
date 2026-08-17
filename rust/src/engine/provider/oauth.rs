@@ -142,14 +142,8 @@ async fn token_request(
         .map_err(|error| ProviderError::Request(error.to_string()))?;
     let status = response.status();
     let bytes = super::read_bounded(response, TOKEN_BODY_LIMIT, "OAuth token response").await?;
-    if status == reqwest::StatusCode::UNAUTHORIZED {
-        return Err(ProviderError::Unauthorized);
-    }
     if !status.is_success() {
-        return Err(ProviderError::Request(format!(
-            "OAuth token request failed with HTTP {}",
-            status.as_u16()
-        )));
+        return Err(classify_token_failure(status, &bytes));
     }
     let body: TokenResponse = serde_json::from_slice(&bytes)
         .map_err(|error| ProviderError::InvalidResponse(error.to_string()))?;
@@ -173,6 +167,34 @@ async fn token_request(
             .refresh_token
             .or_else(|| previous_refresh_token.map(str::to_owned)),
         expires_at,
+    })
+}
+
+/// Classify a token failure from the status **and** the body.
+///
+/// A dead or revoked grant arrives as a 400 `invalid_grant`, not a 401.
+/// Reporting it as a generic request failure tells the owner the provider is
+/// down when the sign-in is what died, and hides the one code that says so.
+fn classify_token_failure(status: reqwest::StatusCode, body: &[u8]) -> ProviderError {
+    let code = serde_json::from_slice::<serde_json::Value>(body)
+        .ok()
+        .and_then(|value| {
+            value
+                .get("error")
+                .and_then(serde_json::Value::as_str)
+                .map(str::to_owned)
+        });
+    if status == reqwest::StatusCode::UNAUTHORIZED
+        || matches!(code.as_deref(), Some("invalid_grant" | "invalid_client"))
+    {
+        return ProviderError::Unauthorized;
+    }
+    ProviderError::Request(match code {
+        Some(code) => format!(
+            "OAuth token request failed with HTTP {} ({code})",
+            status.as_u16()
+        ),
+        None => format!("OAuth token request failed with HTTP {}", status.as_u16()),
     })
 }
 
@@ -231,5 +253,34 @@ mod tests {
     fn callback_state_must_match_exactly() {
         assert!(validate_callback("expected", "expected").is_ok());
         assert!(validate_callback("expected", "wrong").is_err());
+    }
+
+    #[test]
+    fn a_dead_grant_is_a_credential_failure_and_other_codes_are_kept() {
+        assert!(matches!(
+            classify_token_failure(
+                reqwest::StatusCode::BAD_REQUEST,
+                br#"{"error":"invalid_grant","error_description":"expired"}"#
+            ),
+            ProviderError::Unauthorized
+        ));
+        assert!(matches!(
+            classify_token_failure(reqwest::StatusCode::UNAUTHORIZED, b""),
+            ProviderError::Unauthorized
+        ));
+        match classify_token_failure(
+            reqwest::StatusCode::BAD_REQUEST,
+            br#"{"error":"unsupported_grant_type"}"#,
+        ) {
+            ProviderError::Request(message) => {
+                assert!(message.contains("unsupported_grant_type"));
+                assert!(message.contains("400"));
+            }
+            other => panic!("expected a request error, got {other:?}"),
+        }
+        assert!(matches!(
+            classify_token_failure(reqwest::StatusCode::SERVICE_UNAVAILABLE, b"not json"),
+            ProviderError::Request(_)
+        ));
     }
 }

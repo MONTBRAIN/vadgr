@@ -172,6 +172,12 @@ pub enum ProviderError {
     Forbidden,
     #[error("the provider quota is exhausted")]
     QuotaExhausted,
+    /// The provider accepted the credentials and refused this request for pace,
+    /// not for money. It is separate from `QuotaExhausted` because the two ask
+    /// the owner for opposite actions: wait, or buy credit. Collapsing them
+    /// sent an owner to the billing pages of a healthy account.
+    #[error("the provider is rate limiting this request")]
+    RateLimited,
     #[error("the selected model is unavailable")]
     ModelUnavailable,
     #[error("the provider is unavailable")]
