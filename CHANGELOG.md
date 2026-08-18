@@ -31,6 +31,27 @@ All notable changes to this project are documented here. Format follows [Keep a 
   container.
 
 ### Fixed
+- The approval gate no longer allows a gated action without asking. It required
+  the risk to be exactly `high` and everything else fell through to automatic
+  approval, while the tool schema declared risk as a bare string with no
+  accepted values, so a model that wrote anything else had its action approved
+  without the owner being asked. Risk is now one of `low`, `medium` or `high`
+  with a description, only the two known-safe values skip the owner, and
+  anything unrecognised asks.
+- A resumed run replays its completed calls as the tool-use pairs they were,
+  instead of describing them in prose. Not repeating a finished action had
+  depended on the model obeying an instruction, and a model that did not obey
+  it repeated a completed side effect after a restart.
+- A cancelled run says so on both run sockets. The run row reached `cancelled`
+  while the sockets went silent, so a client that had been watching saw the run
+  start and then nothing at all.
+- The Tailscale transport reaches the macOS application, not only the daemon
+  socket, and the three transports share one HTTP/1.0 response parser instead
+  of an inline copy each.
+- The repository credential gate passes its target through the environment
+  rather than as a trailing argument to `powershell.exe -Command`, which does
+  not populate `$args`. The Windows access-control check received nothing and
+  refused every file it was given, whatever the real access control said.
 - The Python daemon reports the released version. It answered `0.4.5` while the
   Rust daemon answered `0.4.7`, so a client could not tell which half served it.
   A test now keeps the two and the changelog in step.
