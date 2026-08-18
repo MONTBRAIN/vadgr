@@ -176,7 +176,11 @@ def test_factory_rejects_unknown():
 # decode -- so the request must be HTTP/1.0 (close-delimited body).
 
 import json
+import os
+import shutil
 import socket
+import sys
+import tempfile
 import threading
 
 from api.transport.factory import TailscaledLocalAPI
@@ -216,10 +220,29 @@ def _respond_like_tailscaled(srv):
     srv.close()
 
 
-def test_localapi_parses_real_tailscaled_response(tmp_path):
+# AF_UNIX addresses are capped by the platform: 104 bytes on macOS and the BSDs,
+# 108 on Linux. pytest's `tmp_path` is under the per-user `/var/folders/...`
+# directory on macOS, which spends over 60 bytes before the test name is added,
+# so a socket bound there raises "AF_UNIX path too long" and the stand-in never
+# starts. The real tailscaled path this adapter talks to is short, so the limit
+# is the harness's problem rather than the product's.
+_SUN_PATH_LIMIT = 104
+
+
+def _short_socket_dir() -> str:
+    """A temporary directory whose children fit in an AF_UNIX address."""
+    base = "/tmp" if sys.platform == "darwin" else None
+    return tempfile.mkdtemp(prefix="vgr-", dir=base)
+
+
+def test_localapi_parses_real_tailscaled_response():
     """Regression: a healthy tailscaled must yield a parsed dict. Fails if the
     client requests HTTP/1.1 (the stand-in then chunks and the body won't parse)."""
-    sock_path = str(tmp_path / "tailscaled.sock")
+    sock_dir = _short_socket_dir()
+    sock_path = os.path.join(sock_dir, "ts.sock")
+    # Asserted rather than assumed: binding a too-long path fails with an OSError
+    # that reads like a broken adapter instead of a harness that picked bad state.
+    assert len(sock_path.encode()) < _SUN_PATH_LIMIT, sock_path
     srv = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     srv.bind(sock_path)
     srv.listen(1)
@@ -227,10 +250,12 @@ def test_localapi_parses_real_tailscaled_response(tmp_path):
     thread = threading.Thread(target=_respond_like_tailscaled, args=(srv,), daemon=True)
     thread.start()
 
-    result = TailscaledLocalAPI(socket_path=sock_path).status()
-
-    thread.join(timeout=5.0)
-    assert result == _FAKE_STATUS
+    try:
+        result = TailscaledLocalAPI(socket_path=sock_path).status()
+        thread.join(timeout=5.0)
+        assert result == _FAKE_STATUS
+    finally:
+        shutil.rmtree(sock_dir, ignore_errors=True)
 
 
 def test_localapi_selects_transport_by_platform():

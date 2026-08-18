@@ -35,15 +35,41 @@ def test_a_listening_socket_is_bound_to_the_address_it_was_given():
         sock.close()
 
 
+def _second_loopback_address() -> str | None:
+    """A second address this host really has, for the two-socket case.
+
+    Linux assigns the whole 127/8 to the loopback interface, so 127.0.0.2 is
+    already there. macOS assigns only 127.0.0.1 and needs an explicit
+    `ifconfig lo0 alias` for any other 127/8 address, so asking for 127.0.0.2
+    there fails with EADDRNOTAVAIL and says nothing about the launcher. The
+    IPv6 loopback is present on every supported host, so it is the fallback.
+    Probed rather than branched on `sys.platform`, because what matters is
+    which address this machine actually assigned.
+    """
+    for candidate in ("127.0.0.2", "::1"):
+        try:
+            probe = _listen_socket(candidate, 0)
+        except OSError:
+            continue
+        probe.close()
+        return candidate
+    return None
+
+
 @pytest.mark.skipif(sys.platform == "win32",
                     reason="127.0.0.2 is not bindable on native Windows")
 def test_two_addresses_on_one_port_yield_two_listening_sockets():
     """The whole reason the launcher exists: `uvicorn --host` takes one address,
     and the daemon needs the one a phone dials *and* the one gate 0 recognises."""
+    second = _second_loopback_address()
+    if second is None:
+        pytest.skip("this host assigns no second loopback address")
     port = _free_port()
-    socks = [_listen_socket(h, port) for h in ("127.0.0.1", "127.0.0.2")]
+    socks = [_listen_socket(h, port) for h in ("127.0.0.1", second)]
     try:
-        assert sorted(s.getsockname()[0] for s in socks) == ["127.0.0.1", "127.0.0.2"]
+        bound = sorted(s.getsockname()[0] for s in socks)
+        assert bound == sorted(["127.0.0.1", second])
+        assert len({s.fileno() for s in socks}) == 2
     finally:
         for s in socks:
             s.close()
