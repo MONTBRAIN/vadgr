@@ -1,12 +1,12 @@
 //! `vadgr runs`: list, get, cancel, resume.
 //!
-//! Ported from `cli/commands/runs.py`. Two behaviours here are easy to lose in a
-//! port and both are what a person actually uses: **a run id may be a prefix**,
-//! and a failed run's row carries the error and the command that resumes it.
+//! Two behaviours here are what a person actually uses and both are easy to lose
+//! by accident: **a run id may be a prefix**, and a failed run's row carries the
+//! error and the command that resumes it.
 //!
 //! The run-status to exit-code mapping lives in `stream::Outcome`, which is the
-//! only place a watch ends. A second copy here would be the duplicated source of
-//! truth the migration standard warns about.
+//! only place a watch ends. A second copy here would be a duplicated source of
+//! truth.
 
 use crate::client::Client;
 use crate::error::CliError;

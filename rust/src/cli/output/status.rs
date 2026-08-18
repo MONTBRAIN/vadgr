@@ -1,4 +1,4 @@
-//! The waiting spinner, replacing `rich`'s `console.status`.
+//! The waiting spinner.
 //!
 //! `indicatif` is the one crate added purely for this. It is off when the stream
 //! is not a terminal, so piping a command to a file does not fill it with frames.
@@ -7,7 +7,7 @@ use std::time::Duration;
 
 use indicatif::{ProgressBar, ProgressStyle};
 
-/// The tick pattern `rich` called `dots`, kept so the CLI looks unchanged.
+/// The tick pattern this CLI has always spun.
 const DOTS: &[&str] = &["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 
 /// A spinner that runs while something is awaited.

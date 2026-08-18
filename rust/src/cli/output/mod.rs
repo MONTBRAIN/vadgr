@@ -1,21 +1,19 @@
 //! Everything the CLI puts on a terminal.
 //!
-//! Ported from `cli/output.py`, which already centralised status colouring,
-//! key-value printing and duration formatting. §6a warns against reimplementing
-//! logic the original had factored, so each of those keeps one home here rather
-//! than one per command.
+//! Status colouring, key-value printing, table layout and duration formatting
+//! each keep **one** home here rather than one per command, so a change to how
+//! the CLI looks is a change in one place.
 //!
-//! `rich` has no Rust equivalent worth depending on, so tables come from
-//! `comfy-table` and colour from `anstyle`. `anstyle` is declared in the
-//! manifest because Rust needs a direct dependency to import it, but it adds
-//! nothing to the compiled tree: `clap` already brings it.
+//! `anstyle` is declared in the manifest because Rust needs a direct dependency
+//! to import it, but it adds nothing to the compiled tree: `clap` already brings
+//! it.
 
 use anstyle::{AnsiColor, Color, Style};
 use unicode_width::UnicodeWidthStr;
 
 pub mod status;
 
-/// The status palette, one place, as `_STATUS_STYLES` was in Python.
+/// The status palette, in one place rather than one per command.
 fn status_style(status: &str) -> Style {
     let colour = match status {
         // A run or a provider that is fine.
@@ -74,9 +72,9 @@ fn plain(text: &str) -> String {
 
 /// A table with the shape the CLI has always drawn: **no box.**
 ///
-/// The Python CLI built `rich.Table(show_edge=False, pad_edge=False, box=None)`,
-/// which prints columns padded to their widest cell and separated by two spaces.
-/// A boxed table is a different surface, and the port draws the shipped one.
+/// Columns are padded to their widest cell and separated by two spaces. **A
+/// boxed table is a different surface**, not a nicer one, and the sweep does not
+/// read output, so nothing else would catch the change.
 ///
 /// Widths come from `unicode-width` on the unstyled text, so a wide character
 /// and a coloured status both land in the right column.
@@ -191,8 +189,8 @@ mod tests {
         assert_eq!(out.matches("run-").count(), 2, "no row is dropped");
     }
 
-    /// The shipped table has no box. The Python CLI drew `box=None`, and a boxed
-    /// table is a different surface rather than a nicer one.
+    /// The shipped table has no box, and a boxed one is a different surface
+    /// rather than a nicer one.
     #[test]
     fn the_table_is_padded_columns_and_not_a_box() {
         let out = render_table(&["Service", "PID"], &[vec!["api".into(), "28138".into()]]);
@@ -253,10 +251,10 @@ mod tests {
         );
     }
 
-    /// **Asserted against the shipped CLI's own bytes**, not against what this
-    /// port happened to print. `vadgr health` on the Python CLI produces
-    /// `  Status:       healthy`, and the port dropped both the indent and the
-    /// colon until the WSL pass compared them.
+    /// **The exact bytes `vadgr health` prints**, which are
+    /// `  Status:       healthy`. Asserting what the code happens to produce
+    /// proves nothing: this block lost both its indent and its colon until the
+    /// `0.4.8` pass compared it with the shipped output.
     #[test]
     fn a_key_value_block_is_indented_and_carries_its_colon() {
         let out = render_kv(&[

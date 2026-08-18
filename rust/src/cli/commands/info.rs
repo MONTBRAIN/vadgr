@@ -1,12 +1,12 @@
 //! `vadgr health`, `vadgr providers`, `vadgr computer-use`.
 //!
-//! Ported from `cli/commands/info.py`: the read-only views of what the daemon
-//! currently is, plus the one pair of commands that change a setting.
+//! The read-only views of what the daemon currently is, plus the one pair of
+//! commands that change a setting.
 //!
-//! **The lines are the shipped ones.** The recorded sweep asserts argv, exit
-//! code and whether output was produced, and not one word of what is printed
-//! (§2.0a), so this file is the easiest place in the port to pass every check
-//! while quietly showing a person something different. It does not.
+//! **The recorded sweep asserts argv, exit code and whether output was produced,
+//! and not one word of what is printed.** So this is the easiest file in the CLI
+//! to change by accident and still pass every check. What it prints is asserted
+//! against the bytes the product shipped, never against what the code does.
 
 use crate::client::Client;
 use crate::error::CliError;

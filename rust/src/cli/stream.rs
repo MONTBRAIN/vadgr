@@ -1,10 +1,9 @@
 //! Watching a run over its public socket.
 //!
-//! Ported from `cli/stream.py`, and this is the one file the design marks as
-//! **improved rather than ported**. The Python consumer handles three event
-//! types. The daemon publishes twelve. A cancelled run therefore said nothing at
-//! all to someone watching from the terminal, which is the defect the migration
-//! ratchet requires fixing rather than carrying.
+//! **This consumer handles every event type the daemon publishes.** Before
+//! `0.4.8` it handled three of twelve, so a cancelled run said nothing at all to
+//! someone watching from the terminal and a run parked at the approval gate
+//! looked identical to one still working.
 
 use std::time::{Duration, Instant};
 
@@ -36,9 +35,8 @@ impl Outcome {
             // and detaching is exactly that: the watcher stopped, the run did
             // not. A script reads it as "no verdict yet", never as a failure.
             Self::Detached => 130,
-            // Losing the socket says nothing about the run either, and the
-            // Python CLI exited `0` here. Treating it as a failure would kill
-            // work that is fine.
+            // Losing the socket says nothing about the run either. Treating it
+            // as a failure would kill work that is fine.
             Self::Unknown => 0,
         }
     }
@@ -46,8 +44,8 @@ impl Outcome {
 
 /// Every event type the daemon publishes on the mobile route.
 ///
-/// Listed exhaustively on purpose. The Python consumer matched three and let the
-/// rest fall through, so `run_cancelled` arrived and produced silence.
+/// Listed exhaustively on purpose. Before `0.4.8` the watcher matched three and
+/// let the rest fall through, so `run_cancelled` arrived and produced silence.
 pub fn describe(event_type: &str, data: &serde_json::Value) -> Option<String> {
     let text = |k: &str| data.get(k).and_then(|v| v.as_str()).unwrap_or("");
     Some(match event_type {
@@ -210,7 +208,7 @@ mod tests {
     use super::*;
 
     /// The regression this release fixes: a cancelled run must end the watch and
-    /// say so. Against the Python consumer's three types this is `None`.
+    /// say so. Against the three types handled before `0.4.8` this is `None`.
     #[test]
     fn a_cancelled_run_is_a_terminal_outcome() {
         assert_eq!(terminal_outcome("run_cancelled"), Some(Outcome::Cancelled));
@@ -263,8 +261,8 @@ mod tests {
         assert_eq!(Outcome::Unknown.exit_code(), 0);
     }
 
-    /// Detaching is the shell's interrupted-command code, which is what the
-    /// Python CLI exited and what a script branches on to mean "no verdict yet".
+    /// Detaching is the shell's interrupted-command code, which is what a script
+    /// branches on to mean "no verdict yet".
     #[test]
     fn detaching_exits_one_hundred_and_thirty() {
         assert_eq!(Outcome::Detached.exit_code(), 130);

@@ -1,7 +1,7 @@
 //! `vadgr pair`: mint a one-time code and draw the QR a phone scans.
 //!
-//! Ported from `cli/commands/pair_cmd.py`. The deep link is a cross-repo
-//! contract: `vadgr-mobile`'s `pair_payload.dart` requires `host`, `port`,
+//! The deep link is a cross-repo contract: `vadgr-mobile`'s `pair_payload.dart`
+//! requires `host`, `port`,
 //! `token` and `name`, each with its own error message, so the four parameter
 //! names are fixed by a shipped scanner rather than by taste.
 
@@ -15,8 +15,8 @@ use crate::output;
 
 /// The quiet zone, in modules.
 ///
-/// The specification says four, the Python renderer ships one, and the probe
-/// chose two. At one, terminal text sitting directly against the symbol can
+/// The specification says four, the renderer shipped one, and the probe chose
+/// two. At one, terminal text sitting directly against the symbol can
 /// confuse a camera; two costs two columns and removes that (§2.1b.2).
 const QUIET_ZONE: usize = 2;
 

@@ -102,10 +102,9 @@ fn status_answers_with_the_daemon_down() {
 
 /// The commands that ask a person a question before they touch the daemon.
 ///
-/// **A prompt fails closed when there is no terminal.** `click.prompt` raises on
-/// EOF rather than looping, and a port that read `None` for ever would hang a
-/// script instead of telling it what is wrong. The exit is `1` with a named
-/// reason, never a wait.
+/// **A prompt fails closed when there is no terminal.** Reading EOF in a loop
+/// would hang a script for ever instead of telling it what is wrong. The exit is
+/// `1` with a named reason, never a wait.
 #[test]
 fn a_prompt_without_a_terminal_fails_closed() {
     for args in [
@@ -156,7 +155,7 @@ fn the_service_verbs_and_both_port_spellings_parse() {
     assert!(help.contains("--port"), "the old spelling still reaches it");
 }
 
-/// The two argument rules `click` enforced by hand, which `clap` cannot see.
+/// The two argument rules the parser cannot express, so the command checks them.
 #[test]
 fn the_hand_checked_argument_rules_exit_two() {
     assert_eq!(
@@ -176,7 +175,7 @@ fn the_hand_checked_argument_rules_exit_two() {
     );
 }
 
-/// A missing required argument is `clap`'s `2`, which is `click`'s `2`.
+/// A missing required argument exits `2`, the shipped code for a usage error.
 #[test]
 fn a_missing_argument_exits_two() {
     for args in [

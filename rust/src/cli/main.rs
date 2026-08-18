@@ -1,12 +1,13 @@
 //! `vadgr`, the on-box owner surface.
 //!
-//! Ported from `cli/` at `0.4.8`. The command tree is unchanged: same verbs,
-//! same nesting, same exit codes, because the recorded surface sweep asserts
-//! argv and exit code and a port is judged against it.
+//! The command tree is a contract: the recorded surface sweep asserts every
+//! verb, its nesting and its exit code, so a change here is a change to what a
+//! script can rely on.
 //!
-//! **`vadgr start` still launches the Python daemon in this release.** The
-//! cutover is `0.4.9`, alone in its release, so a defect found after it has one
-//! candidate cause.
+//! **Until the `0.4.9` cutover, `vadgr start` launches the still-shipped daemon
+//! rather than the one in this crate.** The default flips once, in a release
+//! that contains nothing else, so a defect found afterwards has one candidate
+//! cause.
 
 mod client;
 mod commands;
@@ -296,8 +297,8 @@ async fn main() {
             }
         },
         Command::Runs { action } => match action {
-            // `vadgr runs` with no subcommand lists them, which is what the
-            // Python group did with `invoke_without_command`.
+            // `vadgr runs` with no subcommand lists them, which is the shipped
+            // behaviour and what the listing's own output invites.
             None => commands::runs::list(&client, None).await,
             Some(RunsAction::List { status }) => {
                 commands::runs::list(&client, status.as_deref()).await

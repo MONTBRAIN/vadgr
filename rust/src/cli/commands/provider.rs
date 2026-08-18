@@ -1,10 +1,9 @@
 //! `vadgr provider` and `vadgr model`.
 //!
-//! Ported from `cli/commands/provider.py`. Three things in here are the reason
-//! the design calls this file risky, and each is a behaviour rather than a
-//! shape: the OAuth poll and its deadline, the recovery menu keyed on the
-//! daemon's own error code, and the replacement-default flow that only appears
-//! when a connection would otherwise strand the machine default.
+//! Three things in here are behaviours rather than shapes, and each is invisible
+//! in the command tree: the OAuth poll and its deadline, the recovery menu keyed
+//! on the daemon's own error code, and the replacement-default flow that appears
+//! only when a connection would otherwise strand the machine default.
 
 use std::time::{Duration, Instant};
 
@@ -95,7 +94,7 @@ fn api_key(provider: &str) -> Result<String, CliError> {
 /// Whether this Linux is WSL.
 ///
 /// Read from the kernel release rather than from an environment variable, which
-/// is what the Python version did through `platform.release()`.
+/// a user can set to anything.
 fn is_wsl() -> bool {
     #[cfg(target_os = "linux")]
     {
@@ -262,8 +261,8 @@ type Connect<'a> =
 /// Connect one provider, all the way to a saved connection.
 ///
 /// Boxed because it calls itself: every recovery choice except `retry` is the
-/// same flow started again with different answers, which is how the Python
-/// version was written and the shape the menu implies.
+/// same flow started again with different answers, which is the shape the menu
+/// implies.
 pub fn connect<'a>(
     client: &'a Client,
     provider: Option<String>,

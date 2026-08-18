@@ -1,8 +1,9 @@
 //! The CLI's HTTP boundary.
 //!
-//! Ported from `cli/client.py`, and the design calls this the riskiest file in
-//! the port: every behaviour a script depends on lives here, and none of it is
-//! visible in the command tree.
+//! **Every behaviour a script depends on lives here, and none of it is visible
+//! in the command tree**: which failure gets which exit code, how long each call
+//! waits, and when a dead daemon is answered in milliseconds instead of after a
+//! timeout.
 
 use std::net::{SocketAddr, TcpStream, ToSocketAddrs};
 use std::time::Duration;
@@ -162,7 +163,7 @@ pub fn port_is_open(host: &str, port: u16) -> bool {
 ///
 /// Taking the base URL and the underlying client by value rather than reading
 /// them from ambient context is what makes every command testable against a stub
-/// without a live daemon, which is what the Python tests already do.
+/// without a live daemon.
 pub struct Client {
     base_url: String,
     http: reqwest::Client,
@@ -437,8 +438,8 @@ mod tests {
         assert_eq!(e.status, 502);
     }
 
-    /// An intended difference from Python, so it gets its own test (§2.0): the
-    /// status decides whether the CLI points at the daemon log.
+    /// An intended change of behaviour, so it gets its own test: the status
+    /// decides whether the CLI points at the daemon log.
     #[test]
     fn a_server_fault_is_told_apart_from_a_bad_request() {
         let bad_request = api_error(422, &serde_json::json!({"detail": "no"}));

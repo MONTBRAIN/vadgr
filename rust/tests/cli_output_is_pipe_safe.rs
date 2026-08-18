@@ -6,9 +6,8 @@
 //! escapes unconditionally, so `vadgr runs list > file` wrote
 //! `\x1b[34m[vadgr]\x1b[0m No runs yet.` into the file.
 //!
-//! The shipped Python CLI writes clean text when piped, so this was a
-//! regression rather than a new rough edge, and the migration standard's ratchet
-//! makes a regression block the release.
+//! Clean text when piped is shipped behaviour, so this was a regression rather
+//! than a new rough edge, and a regression blocks the release.
 //!
 //! The command here needs no daemon: with nothing listening, the CLI reports the
 //! daemon as unreachable, and that message is styled.
@@ -61,8 +60,7 @@ fn an_unreachable_daemon_exits_three() {
     assert_eq!(out.status.code(), Some(3), "down is exit 3, not 1");
 }
 
-/// A usage error is `clap`'s `2`, the same code `click` produced, because the
-/// recorded surface sweep asserts exit codes.
+/// A usage error exits `2`, which is what the recorded surface sweep asserts.
 #[test]
 fn a_usage_error_exits_two() {
     let out = isolated(&["runs", "get"]);

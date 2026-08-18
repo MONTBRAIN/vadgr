@@ -4,9 +4,9 @@
 //! `tcsetattr` on Unix and `SetConsoleMode` on Windows. It costs nothing to use,
 //! because `indicatif` already brings it for the spinner (§2.1c).
 //!
-//! **A prompt fails closed when there is no terminal.** `click.prompt` raises on
-//! EOF rather than looping, and a port that read `None` forever would hang a
-//! script instead of telling it what is wrong.
+//! **A prompt fails closed when there is no terminal.** Reading EOF in a loop
+//! would hang a script for ever instead of telling it what is wrong, so a
+//! missing terminal is a named error and a non-zero exit.
 
 use console::Term;
 
@@ -31,8 +31,8 @@ fn read_line(t: &Term) -> Result<String, CliError> {
 
 /// Ask for a number in `1..=count`, repeating until one arrives.
 ///
-/// The repeat is `click.IntRange`'s behaviour: a person who types `q` is told
-/// the range again rather than dropped out of the flow they chose.
+/// A person who types `q` is told the range again rather than dropped out of the
+/// flow they chose.
 pub fn select(label: &str, count: usize) -> Result<usize, CliError> {
     let t = term()?;
     loop {

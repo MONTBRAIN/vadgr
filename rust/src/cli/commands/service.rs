@@ -1,11 +1,10 @@
 //! `vadgr start`, `stop`, `restart`, `status`, `logs` and `update`.
 //!
-//! Ported from `cli/commands/service.py`, the largest file in the CLI.
-//!
-//! **This release still starts the Python daemon.** The cutover is `0.4.9`,
-//! alone in its release, so a defect found after it has one candidate cause.
+//! **Until the `0.4.9` cutover, `start` launches the still-shipped daemon rather
+//! than the one in this crate.** The default flips once, in a release that
+//! contains nothing else, so a defect found afterwards has one candidate cause.
 //! Everything here that computes an address, writes a pid file or waits for
-//! health is therefore the Rust CLI supervising a Python process, on purpose.
+//! health is therefore supervising a separate process, on purpose.
 
 use std::io::{BufRead, Read, Seek, SeekFrom, Write};
 use std::net::{TcpStream, ToSocketAddrs};
@@ -21,7 +20,7 @@ use crate::output;
 const API_STARTUP_TIMEOUT: Duration = Duration::from_secs(30);
 /// How long a port probe waits before calling the port closed.
 const PORT_PROBE_TIMEOUT: Duration = Duration::from_secs(1);
-/// The port the Python daemon has always taken.
+/// The port this daemon has always taken.
 pub const DEFAULT_PORT: u16 = 8000;
 /// How far `start` will walk up from a busy port before giving up.
 const PORT_SEARCH_ATTEMPTS: u16 = 20;
@@ -43,7 +42,7 @@ pub fn vadgr_home() -> PathBuf {
         .unwrap_or_else(|| user_home().join(".forge"))
 }
 
-/// The checkout the Python daemon runs from.
+/// The checkout the daemon runs from.
 ///
 /// The installer puts it at `~/.forge/Agent-Forge`, which is what the shipped
 /// launcher hard-codes. A checkout anywhere else sets `VADGR_REPO`, which is how
@@ -235,11 +234,9 @@ fn api_python() -> Result<PathBuf, CliError> {
 
 /// The addresses the daemon binds.
 ///
-/// **This is the coupling the design named** (§2.2). The Python CLI reached
-/// across packages to `api.transport` so that the address `vadgr start` binds
-/// and the address `vadgr pair` advertises could never be two different answers.
-/// In Rust it is a shared module of the same crate, which is what that import
-/// was reaching for.
+/// **The address `vadgr start` binds and the address `vadgr pair` advertises can
+/// never be two different answers**, because both come from this crate's own
+/// transport module rather than from two separate computations.
 ///
 /// Computed here rather than left to the child, because `start` writes a pid
 /// file and prints success, and it must know the address resolves before it does
@@ -506,10 +503,10 @@ fn tail_lines(path: &Path, lines: usize) -> std::io::Result<(Vec<String>, u64)> 
 
 /// `vadgr logs`, following the file itself rather than shelling out.
 ///
-/// **A fixed defect, not an invented feature.** The Python version ran
-/// `tail -f`, which does not exist on Windows, so `vadgr logs` there raised a
-/// `FileNotFoundError` from `subprocess` instead of showing a log. Following the
-/// file directly works on all four platforms and removes a process.
+/// **A fixed defect, not an invented feature.** Before `0.4.8` this shelled out
+/// to `tail -f`, which does not exist on Windows, so `vadgr logs` there failed
+/// with a missing-executable error instead of showing a log. Following the file
+/// directly works on all four platforms and removes a process.
 pub async fn logs(service: &str, follow: bool, lines: usize) -> Result<(), CliError> {
     let path = vadgr_home().join(format!("{service}.log"));
     if !path.exists() {

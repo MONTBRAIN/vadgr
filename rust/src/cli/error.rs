@@ -1,10 +1,10 @@
 //! What a command can fail with, and the code each failure leaves behind.
 //!
 //! `client.rs` owns the two failures that come from the daemon, and their exit
-//! codes are a contract (§2.0). A command has two more of its own, and `click`
-//! already separated them: a usage error exits `2`, and a command that ran and
-//! could not finish exits `1`. Collapsing those is the same mistake as
-//! collapsing "the daemon is down" into "the daemon said no".
+//! codes are a contract. A command has two more of its own, and they stay
+//! separate: a usage error exits `2`, and a command that ran and could not
+//! finish exits `1`. Collapsing those is the same mistake as collapsing "the
+//! daemon is down" into "the daemon said no".
 
 use crate::client::ClientError;
 
@@ -15,7 +15,7 @@ pub enum CliError {
     /// The arguments were wrong. `clap` exits `2` for the ones it parses, and
     /// this is the same code for the ones only the command can check.
     Usage(String),
-    /// The command ran and could not finish. `click.ClickException`'s `1`.
+    /// The command ran and could not finish.
     Failed(String),
     /// The owner detached from a watched run with Ctrl-C.
     ///
