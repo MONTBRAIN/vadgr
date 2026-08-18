@@ -207,6 +207,18 @@ destructive action and owner decision up front, map each to its cells, and
 inform the owner before the affected group runs. Missing setup blocks written
 cells; it never deletes or collapses them.
 
+**The owner's cells are the first cells executed, and announcing them is not
+executing them.** A pass identifies every cell that cannot proceed without a
+human and **runs those first**, before any unattended cell. Naming the
+owner-blocked cell in an opening message and then starting part A satisfies
+nothing: the owner is still waiting, and the cell is still outstanding at the
+end. If such a cell needs setup, that setup is the first work of the pass.
+Before each command, ask **"is this the owner's cell, or could the owner's cell
+run now instead?"** Leaving it for later is the pass treating the owner's time
+as the cheap resource, which is backwards: the machine can wait and the person
+cannot. Written twice now, because the weaker form failed twice, the second time
+in the same message that had just quoted the rule.
+
 **A runbook another operating system can run, and a harness it can run with.**
 The remote-host handoff is written before another OS is asked for anything, and
 it is complete enough that a session with no context executes the pass from it

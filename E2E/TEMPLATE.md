@@ -29,6 +29,15 @@ after four hours of work. A pass that reaches its end and then asks for a
 browser click has wasted the owner's day and produced a runbook that is still
 `not run` where it matters most.
 
+**Running them is the rule. Announcing them is not.** Naming the owner's cell in
+an opening message and then starting part A satisfies nothing: the owner is
+still waiting and the cell is still outstanding. If an owner-blocked cell needs
+setup, that setup is the first work of the pass and nothing else is done until
+the human observation is recorded. Before each command, ask **"is this the
+owner's cell, or could the owner's cell run now instead?"** This paragraph
+exists because `0.4.8`'s Windows pass announced the handset cell in its first
+message and then ran five parts before reaching it.
+
 **2. Do not stop the pass to report.** The pass runs to completion for the
 operating system it is on. Findings, blocked cells, corrections and questions
 are written into the runbook and the evidence as they happen, and they are
