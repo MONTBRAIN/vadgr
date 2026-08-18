@@ -162,8 +162,9 @@ Caught in `vadgr 0.4.8`'s first draft: the design proposed reading the old
 `FORGE_*` environment names beside the new `VADGR_*` ones, with a deprecation
 warning and removal at `0.5.0`. There is exactly one installation, it is the
 owner's, and it sits on the same machine as the new state root the Rust daemon
-already writes to. The adapter served nobody. **Renaming it and moving the
-directory once, told plainly, was the target.**
+already writes to. The adapter served nobody. **The rename, told
+plainly, was the target**, and the directory moves once at the cutover that owns
+the paths rather than twice.
 
 **Design comes before code.** No minor is implemented until its build spec
 exists and every minor in its iteration has one. Exit `0` or do not start:
@@ -380,6 +381,19 @@ happens without the work stopping. "Next I write the runbook and bring it to you
 for approval" is "should I continue?" in different words, and **a gate you have
 not reached is not a gate**: it was written after exactly that sentence ended a
 `vadgr 0.4.8` report with nothing written and nothing run.
+
+**And the operating system that must pass is the one you built on.** One real
+target OS gates opening the PR, and the host that implemented the minor is the
+host with the toolchain, the daemon, the state and the defect in front of it.
+Building on WSL and opening the PR on somebody else's future pass is the same
+deferral wearing a platform label. **You build on it, you pass on it, then you
+open the PR**; the other required targets fetch that branch and gate the merge.
+
+**There is no version of this where the implementation is reported and the pass
+was not run.** A minor whose e2e has not run is not late, not nearly done and not
+awaiting approval: it is **unfinished**, and reporting it as anything else
+misreports it. A pass that genuinely cannot run is a blocker with a named cause,
+reported as a blocker.
 
 **Pushing to the PR branch is not a gate; merging is.** The PR branch is the
 working surface where the e2e runs, so commits go there as they are made, never
