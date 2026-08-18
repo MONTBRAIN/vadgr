@@ -296,6 +296,21 @@ test machine. Include all of these items:>
    workspace `../.env`; never print or persist them. Run the secret check before
    the group and before evidence is sealed.>
 
+
+**The harness travels with this runbook.** Every helper the pass uses - the
+recorder, the generator that turns its record into a table, a decoder, a stand-in
+server - is committed at `E2E/<version>/harness/` with a README saying what each
+one is and that none of them drives the product. **A helper that exists only in a
+temporary directory on the machine that wrote it cannot be run anywhere else**,
+so every other host produces a record nobody can compare, and comparison is the
+point of a recorded sweep. Run each helper from its committed path before the
+runbook is offered.
+
+**Name what a host cannot do, not only what worked.** List the prerequisites the
+pass actually hit, each saying **which cells it blocks** and what a host without
+it records. A handoff assembled from the happy path leaves the next operating
+system discovering a blocker four groups in.
+
 <Provide paste-ready Linux/macOS shell and Windows PowerShell blocks. Use a free
 loopback port per concurrent pass. A platform row with only "run the same test"
 is incomplete.>
