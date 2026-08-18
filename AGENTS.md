@@ -227,7 +227,9 @@ unrun is incomplete.
 **Two conditions gate opening it, and neither has an exception:**
 
 1. **The e2e has passed on at least one real target OS**, with its results in the
-   PR. Not written, not drafted: run, with the artifacts.
+   PR. Not written, not drafted: run, with the artifacts. This binds any change
+   that reaches shipped behaviour. A pure documentation change has no e2e to run,
+   and the PR says that rather than leaving the reader to guess.
 2. **The branch checks are green on the head being pushed.** A failing check the
    author already saw locally and pushed anyway is worse than a surprise: it says
    the gate is decoration.
