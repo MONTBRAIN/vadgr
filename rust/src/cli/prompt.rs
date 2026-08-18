@@ -29,13 +29,25 @@ fn read_line(t: &Term) -> Result<String, CliError> {
         .map_err(|e| CliError::Failed(format!("Could not read the answer: {e}")))
 }
 
-/// Ask for a number in `1..=count`, repeating until one arrives.
+/// How many wrong answers a question takes before it gives up.
+///
+/// **A guard, not a repair for something observed.** `console` documents that
+/// reading a line from a terminal that is not user attended returns an empty
+/// string, every time, so an unbounded retry over that reply is a loop with no
+/// exit. `term()` refuses an unattended stream before this runs, which is why
+/// nothing has ever spun here. The bound costs a person nothing and removes the
+/// only path where a wrong answer could repeat for ever.
+///
+/// Five is generous for somebody who mistypes.
+const MAX_ATTEMPTS: usize = 5;
+
+/// Ask for a number in `1..=count`.
 ///
 /// A person who types `q` is told the range again rather than dropped out of the
-/// flow they chose.
+/// flow they chose, up to `MAX_ATTEMPTS` times.
 pub fn select(label: &str, count: usize) -> Result<usize, CliError> {
     let t = term()?;
-    loop {
+    for _ in 0..MAX_ATTEMPTS {
         t.write_str(&format!("{label}: "))
             .map_err(|e| CliError::Failed(e.to_string()))?;
         let answer = read_line(&t)?;
@@ -46,6 +58,9 @@ pub fn select(label: &str, count: usize) -> Result<usize, CliError> {
             }
         }
     }
+    Err(CliError::Failed(format!(
+        "No choice between 1 and {count} was entered after {MAX_ATTEMPTS} tries."
+    )))
 }
 
 /// Ask for a secret, echoing nothing.
