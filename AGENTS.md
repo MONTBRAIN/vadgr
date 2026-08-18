@@ -151,6 +151,20 @@ configuration, duplicate sources of truth, known defects or misleading status.
 Fix a defect when its code is rewritten and add a regression test. The
 comparison sweep detects differences; it does not define the target.
 
+**"A named released consumer" means one you can point at.** A shipped client, a
+released artifact, an installation that exists. Not a hypothetical user, not "in
+case someone", not the machine you are typing on when you are the only
+installation. **If you cannot name it, the adapter is not compatibility; it is
+the translation you were told not to write**, and it costs a deprecation path, a
+test in both directions and a removal release nobody needed.
+
+Caught in `vadgr 0.4.8`'s first draft: the design proposed reading the old
+`FORGE_*` environment names beside the new `VADGR_*` ones, with a deprecation
+warning and removal at `0.5.0`. There is exactly one installation, it is the
+owner's, and it sits on the same machine as the new state root the Rust daemon
+already writes to. The adapter served nobody. **Renaming it and moving the
+directory once, told plainly, was the target.**
+
 **Design comes before code.** No minor is implemented until its build spec
 exists and every minor in its iteration has one. Exit `0` or do not start:
 
