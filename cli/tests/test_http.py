@@ -26,7 +26,7 @@ class _TestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/api/health":
             self._json(200, {"status": "healthy"})
-        elif self.path == "/api/agents":
+        elif self.path == "/api/runs":
             self._json(200, [{"id": "1", "name": "test"}])
         elif self.path == "/api/missing":
             self._json(404, {"detail": "Not found"})
@@ -72,7 +72,7 @@ class TestApiGet:
         assert result["status"] == "healthy"
 
     def test_returns_list(self, ctx, test_server):
-        result = api_get(ctx, "/api/agents")
+        result = api_get(ctx, "/api/runs")
         assert isinstance(result, list)
         assert result[0]["name"] == "test"
 
@@ -88,17 +88,17 @@ class TestApiGet:
 
 class TestApiPost:
     def test_sends_json_body(self, ctx, test_server):
-        result = api_post(ctx, "/api/agents", {"name": "new-agent"})
-        assert result["received"]["name"] == "new-agent"
+        result = api_post(ctx, "/api/runs", {"task": "a new run"})
+        assert result["received"]["task"] == "a new run"
 
     def test_empty_body(self, ctx, test_server):
-        result = api_post(ctx, "/api/agents")
+        result = api_post(ctx, "/api/runs")
         assert result["received"] == {}
 
 
 class TestApiDelete:
     def test_returns_response(self, ctx, test_server):
-        result = api_delete(ctx, "/api/agents/1")
+        result = api_delete(ctx, "/api/runs/1")
         assert result["deleted"] is True
 
 

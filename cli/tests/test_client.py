@@ -129,9 +129,9 @@ def test_a_post_with_a_body_still_sends_it(monkeypatch):
     seen = _capture_request(monkeypatch)
     ctx = click.Context(click.Command("x"))
     ctx.obj = {"api_url": "http://127.0.0.1:8000"}
-    api_post(ctx, "/api/agents", {"name": "a"})
+    api_post(ctx, "/api/runs", {"task": "a"})
 
-    assert seen["req"].data == b'{"name": "a"}'
+    assert seen["req"].data == b'{"task": "a"}'
     assert seen["req"].get_header("Content-type") == "application/json"
 
 

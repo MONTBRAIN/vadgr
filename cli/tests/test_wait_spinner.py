@@ -29,7 +29,7 @@ class TestWaitWithSpinner:
             return {"status": "creating", "name": "my-agent"}
 
         with mock.patch("cli.output.api_get", mock_get):
-            result = wait_with_spinner(ctx, "/api/agents/1",
+            result = wait_with_spinner(ctx, "/api/runs/1",
                                        lambda r: r["status"] not in ("creating", "updating", "importing"),
                                        "Working...", interval=0.01, timeout=5)
         assert result["status"] == "ready"
@@ -44,6 +44,6 @@ class TestWaitWithSpinner:
 
         with mock.patch("cli.output.api_get", return_value={"status": "creating"}):
             with pytest.raises(click.ClickException, match="timed out"):
-                wait_with_spinner(ctx, "/api/agents/1",
+                wait_with_spinner(ctx, "/api/runs/1",
                                   lambda r: r["status"] == "ready",
                                   "Working...", interval=0.01, timeout=0.05)
