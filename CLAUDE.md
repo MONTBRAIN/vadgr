@@ -224,6 +224,23 @@ approve-the-runbook-before-it-runs step: the owner reviews the results and asks 
 changes if they do not convince. A PR that claims a feature works with its e2e left
 unrun is incomplete.
 
+**Two conditions gate opening it, and neither has an exception:**
+
+1. **The e2e has passed on at least one real target OS**, with its results in the
+   PR. Not written, not drafted: run, with the artifacts.
+2. **The branch checks are green on the head being pushed.** A failing check the
+   author already saw locally and pushed anyway is worse than a surprise: it says
+   the gate is decoration.
+
+**Draft is not an exemption.** A draft PR is still published, still notifies, and
+still asks for someone else's attention. Work that is not ready for either
+condition stays on the branch, which is exactly what a branch is for.
+
+Caught in `vadgr 0.4.8`: a draft PR was opened with **half the command tree
+ported, no e2e run at all, and clippy failing on all three operating systems** -
+3 of 16 checks red, from errors the author had already run locally and seen. The
+branch was the right place for that work; the PR was not.
+
 **Drive the tool over its real wire, not by importing it.** Importing the module
 and calling the function tests the code, not the served tool a client calls: it
 skips the MCP server, its schema and the transport. Call it the way a client does
