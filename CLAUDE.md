@@ -365,13 +365,21 @@ authorized for exactly these investigations, and only for them.
 **Implementation is delegated and driven to a finished PR, not hand-held slice
 by slice.** A minor's build runs the steps end to end and does not come back
 until the PR is review-ready: every slice implemented, the unit suites green,
-the README, CHANGELOG and version updated, and the e2e runbook drafted. Breaking
-the work into internal increments is correct engineering; stopping after one to
-ask "should I continue?" is not, because the increments are the builder's to
+the README, CHANGELOG and version updated, **the e2e runbook written complete,
+and the pass run on a real target OS with its results recorded**. Breaking the
+work into internal increments is correct engineering; stopping after one to ask
+"should I continue?" is not, because the increments are the builder's to
 sequence rather than the owner's to approve one at a time. **Stop for exactly
 two things**: a genuine decision only the owner can make - surfaced with the
-options and a recommendation - or a defined approval gate, which is running the
-e2e (its runbook is approved before it runs) and merge, tag and release.
+options and a recommendation - or merge, tag and release.
+
+**The e2e is not a stopping point, and neither is its runbook.** Writing the
+runbook is part of the build and so is running it. The owner's approval is a
+**review of a written runbook**, which can only happen once one exists, and it
+happens without the work stopping. "Next I write the runbook and bring it to you
+for approval" is "should I continue?" in different words, and **a gate you have
+not reached is not a gate**: it was written after exactly that sentence ended a
+`vadgr 0.4.8` report with nothing written and nothing run.
 
 **Pushing to the PR branch is not a gate; merging is.** The PR branch is the
 working surface where the e2e runs, so commits go there as they are made, never
