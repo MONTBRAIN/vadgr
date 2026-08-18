@@ -348,6 +348,19 @@ for approval is the mistake: the branch is where the change is reviewed and
 tested, and the approval is asked at merge. This holds in every repo in this
 family.
 
+**Nothing reaches a default branch except through a pull request, and the docs
+repo is not an exception.** Branch, push, open the PR, merge it. That covers
+code, plans, design specs, runbooks and **e2e evidence**: evidence is filed on
+the same branch as the work it proves and travels in its PR, never pushed
+straight to `master` because it is "only artifacts". A direct push has no diff
+anyone read, no checks, and no record that a decision was seen before it landed.
+
+It is written here because it was broken wholesale: during `vadgr 0.4.7`, **eight
+commits reached `vadgr-docs` master directly** - build specs, the version
+register, the patch log, four evidence boundaries and a released-status change -
+by more than one agent, while every code change beside them went through a PR.
+The docs repo felt like a notebook, and it is the source of truth.
+
 **Complete means complete: a feature is not done while an implementable part is
 left as a follow-up.** "Scoped but not built", "one more thing remaining" and
 "the last piece is a small fix" are not stopping points, and implementable
