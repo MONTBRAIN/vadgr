@@ -78,6 +78,115 @@ The `vadgr` and `vadgr-daemon` binaries are built from the PR head with
 shape the Rust daemon has been driven in since `0.4.5`: the installer still puts
 the Python CLI on a user's `PATH`, and both halves swap at the `0.4.9` cutover.
 
+## Remote-host handoff for Linux, macOS and Windows
+
+Each native-host session follows this without context from another session.
+**Every prerequisite below was learned by running the pass**, so a host that
+cannot meet one knows before it starts rather than four groups in.
+
+1. **Read first**: `AGENTS.md`, `E2E/README.md` and this runbook, whole. Check
+   out the same PR head, record `git rev-parse HEAD`, and put it in every result
+   you write. **Do not combine results from different commits**: three defects
+   were fixed during the WSL pass and every cell observed against a superseded
+   build was re-run.
+
+2. **Build and install the product, never run it from the source tree.**
+
+   ```bash
+   cargo build --release --bins
+   mkdir -p "$E2E_HOME/bin"
+   cp target/release/vadgr      "$E2E_HOME/bin/vadgr"          # vadgr.exe on Windows
+   cp target/release/vadgr-daemon "$E2E_HOME/bin/vadgr-daemon"
+   ```
+
+   Put `$E2E_HOME/bin` **first** on `PATH`. `A1` records `command -v vadgr` and
+   the `sha256` of what it resolves to, and that hash must be the release build
+   of the head you checked out. `cargo run` is not an invocation of the product.
+
+3. **`vadgr-computer-use` is not needed by this runbook**, and that is not an
+   omission. Nothing here drives a desktop: `computer-use status` reads a
+   setting, and the `F` group runs tasks that use the control tools only. Leave
+   cua uninstalled and expect `modules.computer_use` to be `false`.
+
+4. **Two prerequisites decide which groups you can run**, and neither is
+   negotiable by trying harder:
+
+   - **Part C needs the still-shipped daemon's virtual environment** at
+     `api/.venv`, because `vadgr start` launches it. Create it from
+     `api/requirements.txt` before `C1`. Without it `C1` fails with
+     `API venv not found`, which is the CLI reporting correctly rather than a
+     defect, and `C1`-`C8` plus `B4` are `blocked` with that reason.
+   - **`G2` and `G3` need a transport that advertises an address.** On
+     `loopback` the daemon has no advertise host, so `POST /api/auth/pair`
+     refuses rather than handing out a QR no phone could use. Run those two cells
+     with `VADGR_TRANSPORT=tailscale` on a host where `tailscale status` reports
+     a logged-in node. Without one, `G1` still runs and `G2`-`G4` are `blocked`
+     naming the missing transport.
+
+5. **The isolated environment.** Use a free port per concurrent pass. Nothing
+   here touches the owner's normal installation.
+
+   ```bash
+   export E2E_HOME=/tmp/vadgr-048-e2e            # or an empty host-local root
+   export E2E_ROOT="$E2E_HOME/state"
+   export PATH="$E2E_HOME/bin:$PATH"
+   export VADGR_HOME="$E2E_ROOT/home"            # pid files, port files, api.log
+   export VADGR_DB="$E2E_ROOT/vadgr.db"
+   export VADGR_RUNS_DIR="$E2E_ROOT/runs"
+   export VADGR_STATE_HOME="$E2E_ROOT/state-home"
+   export VADGR_REPO="$(git rev-parse --show-toplevel)"   # Part C only
+   export VADGR_PORT=8811
+   export VADGR_TRANSPORT=loopback               # tailscale for G2 and G3
+   ```
+
+   ```powershell
+   $env:E2E_HOME = "$env:TEMP\vadgr-048-e2e"
+   $env:E2E_ROOT = "$env:E2E_HOME\state"
+   $env:PATH     = "$env:E2E_HOME\bin;$env:PATH"
+   $env:VADGR_HOME        = "$env:E2E_ROOT\home"
+   $env:VADGR_DB          = "$env:E2E_ROOT\vadgr.db"
+   $env:VADGR_RUNS_DIR    = "$env:E2E_ROOT\runs"
+   $env:VADGR_STATE_HOME  = "$env:E2E_ROOT\state-home"
+   $env:VADGR_REPO        = (git rev-parse --show-toplevel)
+   $env:VADGR_PORT        = "8811"
+   $env:VADGR_TRANSPORT   = "loopback"
+   ```
+
+6. **The order, and what carries between cells.** `A` needs nothing running.
+   Start the Rust daemon directly for `B1`-`B3`, `B6`, `D`, `E`, `F`, `G` and
+   `H3`-`H5`. Run `C` next, because `C7` and `C8` leave the port file that `B4`
+   reads and `B5` needs no daemon at all. `E` before `F` and `G`, because a run
+   needs a connected provider and pairing needs a default one. **Run `E6a`
+   before `E6b`**: logging out the default is refused, which is the cell, and the
+   successful logout needs a second provider connected first.
+
+   The task in the `F` group must **take an action**. This engine fails a turn
+   that only replies, with `NO_ACTION_TAKEN`, so use the task the WSL pass used:
+   `Use your todo tool to write a two step plan for ..., mark both steps
+   completed, then finish.`
+
+7. **Evidence, before cleanup.** Create the boundary directory before the first
+   cell and file each group's output at its boundary. Record the host, both
+   artifact hashes and the head in a `host.txt`. Run `harness/sweep.py` once the
+   cells are done, then `harness/tables.py` to generate the coverage tables:
+   **the tables are generated from the record, never typed.** `harness/README.md`
+   explains all four helpers.
+
+8. **Cleanup.** Stop only the daemons you started, **by pid**, and check for
+   strays afterwards. A blanket kill takes down another pass. Remove only the
+   isolated root. Do not stop unrelated processes.
+
+9. **Credentials.** Read only what a cell needs from the owner-only `../.env`,
+   into that command's environment only. Never echo a value, and never put one in
+   an argument, a log or an evidence file. Run
+   `python3 scripts/check_no_secrets.py --env-file ../.env` before the group and
+   again before the evidence is sealed, and grep the sealed boundary for each key
+   you used. The `E` group needs `GEMINI_API_KEY` and `ANTHROPIC_API_KEY`.
+
+10. **Write your own results into the per-OS table and the cell status column**,
+    from observation. A cell you did not run is `not run` with a reason, never a
+    blank and never inherited from another host.
+
 ## Automated gate (necessary, never sufficient)
 
 - `cargo test` in `rust/` -> **266 passed**, 1 ignored (Docker only)

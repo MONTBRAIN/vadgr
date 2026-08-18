@@ -34,3 +34,7 @@ texput.log
 
 # vadgr-computer-use runtime venv (installed by api/services/computer_use_setup)
 .cu_venv/
+
+# The QR oracle is a tiny crate inside the runbook's harness; its build output is not.
+E2E/*/harness/qr-decode/target/
+E2E/*/harness/qr-decode/Cargo.lock
