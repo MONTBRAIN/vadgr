@@ -16,6 +16,8 @@ use vadgr_daemon::db::{self, Db};
 use vadgr_daemon::engine::control::RunContext;
 use vadgr_daemon::engine::journal::Journal;
 use vadgr_daemon::engine::mcp::{HostFactory, McpHost, ToolServer};
+use vadgr_daemon::engine::provider::credentials::CredentialStore;
+use vadgr_daemon::engine::provider::service::{ProviderEndpoints, ProviderService};
 use vadgr_daemon::engine::provider::{ModelClient, ModelFactory};
 use vadgr_daemon::engine::supervisor::RunSupervisor;
 use vadgr_daemon::engine::{
@@ -171,6 +173,7 @@ fn tool_then_finish() -> Vec<ModelResponse> {
                 id: "call-1".to_owned(),
                 name: "test__act".to_owned(),
                 input: json!({"value": 1}),
+                provider_signature: None,
             }],
             StopReason::ToolUse,
         ),
@@ -191,14 +194,27 @@ struct Harness {
 
 fn harness(model: Arc<dyn ModelFactory>, calls: Arc<AtomicUsize>) -> Harness {
     let directory = tempfile::tempdir().unwrap();
-    let providers_path = directory.path().join("providers.yaml");
-    std::fs::write(
-        &providers_path,
-        "default_provider: fake\nproviders:\n  fake:\n    kind: native\n    default_model: fake-model\n",
-    )
-    .unwrap();
     let runs_dir = directory.path().join("runs");
     let db = Db::open(directory.path().join("vadgr.db")).unwrap();
+    db::providers::commit_connection(
+        &db,
+        &db::providers::ConnectionCommit {
+            connection: db::providers::Connection {
+                provider_id: "fake".to_owned(),
+                auth_method: "api_key".to_owned(),
+                secret_ref: "fake-reference".to_owned(),
+                account_id: None,
+                credential_expires_at: None,
+            },
+            models: vec![db::providers::ProviderModel {
+                id: "fake-model".to_owned(),
+                name: "Fake model".to_owned(),
+                capabilities: json!({"text":true,"tools":true}),
+            }],
+            default_model: Some("fake-model".to_owned()),
+        },
+    )
+    .unwrap();
     let ws = Arc::new(ConnectionManager::new());
     let engine = Arc::new(Engine::new(
         model,
@@ -206,19 +222,25 @@ fn harness(model: Arc<dyn ModelFactory>, calls: Arc<AtomicUsize>) -> Harness {
         db.clone(),
         runs_dir.clone(),
     ));
-    let supervisor = RunSupervisor::new(engine, db.clone(), ws.clone(), providers_path.clone());
+    let supervisor = RunSupervisor::new(engine, db.clone(), ws.clone());
     let config = Arc::new(Config {
         port: 0,
         db_path: directory.path().join("vadgr.db"),
         transport_name: "loopback".to_owned(),
-        providers_path,
         runs_dir: runs_dir.clone(),
+        state_home: Some(directory.path().to_owned()),
     });
     let setup = Arc::new(SetupService::new(
         directory.path().join("settings.json"),
         None,
         false,
     ));
+    let providers = ProviderService::new(
+        db.clone(),
+        CredentialStore::new(directory.path().join("credentials")).unwrap(),
+        ProviderEndpoints::default(),
+    )
+    .unwrap();
     Harness {
         state: AppState {
             db,
@@ -226,7 +248,7 @@ fn harness(model: Arc<dyn ModelFactory>, calls: Arc<AtomicUsize>) -> Harness {
             transport: Arc::new(LoopbackTransport),
             pairing: Arc::new(PairingStore::new(300)),
             ws,
-            providers: Arc::new(Vec::new()),
+            providers,
             computer_use_setup: setup,
             computer_use_status: Arc::new(RwLock::new(json!({"venv_ready": false}))),
             supervisor,
@@ -401,6 +423,7 @@ async fn failed_run_resumes_from_its_journal_and_keeps_prior_usage() {
                     id: "old-call".to_owned(),
                     name: "test__act".to_owned(),
                     input: json!({}),
+                    provider_signature: None,
                 }],
                 StopReason::ToolUse,
             ),

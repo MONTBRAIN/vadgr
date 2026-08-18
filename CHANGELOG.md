@@ -2,6 +2,106 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.4.7] - 2026-08-16
+
+### Added
+- Provider onboarding in the Rust daemon for OpenAI, Google Gemini and
+  Anthropic. OpenAI supports direct ChatGPT OAuth or an API key; Gemini and
+  Anthropic support API keys.
+- Native OpenAI Responses, Gemini `generateContent` and Anthropic Messages
+  adapters with authenticated catalog discovery and bounded readiness calls.
+- Additive provider connections, credential-scoped catalog snapshots and one
+  explicit machine default in normalized SQLite tables.
+- One cross-platform credential store using immutable, versioned JSON records
+  behind opaque database references. Linux, WSL and macOS enforce Unix owner,
+  mode and ACL checks. Windows enforces a protected current-user and SYSTEM
+  DACL and rejects reparse points.
+- `vadgr provider login|status|logout` and `vadgr model list|default` as thin
+  Python HTTP clients over the Rust provider routes.
+- A direct ChatGPT OAuth integration test, a three-provider coexistence test,
+  raw database secret inspection and loopback-only mutation coverage.
+
+### Changed
+- `vadgr pair` runs provider onboarding before it mints the first QR when the
+  Rust daemon has no connected machine default.
+- Omitted run provider and model values now resolve from the Rust database.
+  An explicit pair must exist in a connected authenticated catalog.
+- Clean install now proves the static binary starts with empty provider state
+  and serves all three disconnected built-in descriptors from a `scratch`
+  container.
+
+### Fixed
+- The approval gate no longer allows a gated action without asking. It required
+  the risk to be exactly `high` and everything else fell through to automatic
+  approval, while the tool schema declared risk as a bare string with no
+  accepted values, so a model that wrote anything else had its action approved
+  without the owner being asked. Risk is now one of `low`, `medium` or `high`
+  with a description, only the two known-safe values skip the owner, and
+  anything unrecognised asks.
+- A resumed run replays its completed calls as the tool-use pairs they were,
+  instead of describing them in prose. Not repeating a finished action had
+  depended on the model obeying an instruction, and a model that did not obey
+  it repeated a completed side effect after a restart.
+- A cancelled run says so on both run sockets. The run row reached `cancelled`
+  while the sockets went silent, so a client that had been watching saw the run
+  start and then nothing at all.
+- The Tailscale transport reaches the macOS application, not only the daemon
+  socket, and the three transports share one HTTP/1.0 response parser instead
+  of an inline copy each.
+- The repository credential gate passes its target through the environment
+  rather than as a trailing argument to `powershell.exe -Command`, which does
+  not populate `$args`. The Windows access-control check received nothing and
+  refused every file it was given, whatever the real access control said.
+- The Python daemon reports the released version. It answered `0.4.5` while the
+  Rust daemon answered `0.4.7`, so a client could not tell which half served it.
+  A test now keeps the two and the changelog in step.
+- Gemini function declarations remove unsupported `additionalProperties`
+  fields and complete array item schemas before a request, so installed cua
+  and control schemas pass live function calling.
+- Gemini tool calls preserve and replay provider thought signatures across
+  turns, as required by current reasoning models.
+- Anthropic low-credit responses map to the existing quota category instead of
+  the generic provider-unavailable recovery path.
+- Static release builds use embedded Web PKI roots for provider TLS, so they do
+  not require a host certificate store that is absent from `scratch`.
+- Linux containers on a WSL-backed Docker engine report `linux`, while a daemon
+  running directly in WSL continues to report `wsl`.
+- A process already using the OAuth callback port no longer prevents API-key
+  providers or the daemon from starting. The callback listener retries, and an
+  OAuth start reports the unavailable port until it can bind.
+- Expired, cancelled and completed authentication attempts clear staged
+  credentials and OAuth verifier state. A late callback cannot revive an
+  expired attempt.
+- ChatGPT catalog requests use the backend protocol version instead of the
+  Vadgr product version, and native ChatGPT Responses requests omit the
+  unsupported output-token limit.
+- ChatGPT SSE decoding retains completed output items when the terminal frame
+  carries usage but no output array. Live text and tool calls are no longer
+  discarded as `NO_ACTION_TAKEN`.
+- Browser OAuth prints the authorization URL only when launching the browser
+  fails, using Click's documented zero-success return code correctly.
+- Browser OAuth launched from WSL now opens the Windows default browser through
+  a fixed PowerShell command and sends the complete URL over stdin, preserving
+  query parameters without exposing them in process arguments.
+- OAuth callbacks redirect immediately to query-free completion or failure
+  pages, so spent authorization parameters do not remain in the browser address
+  bar. A denied flow now shows failure instead of the connected page.
+- Restart recovery reconstructs the last successful control-plane todo state
+  from the durable journal, so a resumed `todo_update` can continue instead of
+  failing against an empty in-memory list.
+
+### Removed
+- The Rust daemon no longer reads `providers.yaml` or another agent client's
+  credential store. Its Anthropic subscription OAuth and borrowed client
+  attribution are gone.
+
+### Notes
+- Python remains the default daemon until the `0.4.9` cutover. Its legacy
+  `providers.yaml` behavior is unchanged and is not imported into Rust state.
+- Provider credential files are plaintext at rest with owner-only operating
+  system access controls. This beta boundary does not protect against
+  malicious code already running as the same user.
+
 ## [0.4.6] - 2026-08-14
 
 ### Added

@@ -15,7 +15,10 @@ class Settings(BaseSettings):
     # default in code answered `claude_code`, so a run that named no provider
     # would have gone to a deprecated subprocess CLI instead of the native loop.
     provider_timeout: int = 300
-    version: str = "0.4.5"
+    # Kept equal to the crate's version by `test_version_consistency.py`. The two
+    # daemons serve the same product during the migration, so a client cannot be
+    # asked to work out which half answered it.
+    version: str = "0.4.7"
 
     model_config = {"env_prefix": "AGENT_FORGE_"}
 

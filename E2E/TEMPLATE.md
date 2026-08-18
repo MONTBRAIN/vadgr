@@ -13,6 +13,47 @@ bracket notes as you go; a leftover placeholder is the tell that a runbook was
 written and never run. The cross-cutting rules are in
 [`../README.md`](../README.md) and are not repeated here.>
 
+## How a pass is run, before anything else in this file
+
+**These four rules come first because every one of them was learned by breaking
+it. They hold on every supported operating system, for every agent that drives a
+runbook, and they are not negotiable against a deadline or a token budget.**
+
+**1. Whatever needs the owner runs first.** Before a single automated cell,
+read the whole matrix, list every cell that cannot proceed without a human, and
+run those cells at the start of the pass. A browser approval, a physical
+handset, a hardware key, an elevation prompt, a paid account that must be
+enabled: all of it is scheduled first, in one batch, with the owner told exactly
+what to click and when. The owner is not a resource you discover you needed
+after four hours of work. A pass that reaches its end and then asks for a
+browser click has wasted the owner's day and produced a runbook that is still
+`not run` where it matters most.
+
+**2. Do not stop the pass to report.** The pass runs to completion for the
+operating system it is on. Findings, blocked cells, corrections and questions
+are written into the runbook and the evidence as they happen, and they are
+reported when the pass ends. The only thing that stops a pass is a cell that
+physically cannot proceed without the owner, and rule 1 exists so that never
+happens after the start. Reporting a blocker mid-pass, and waiting, converts one
+run into many and leaves every later cell unexecuted.
+
+**3. A bug you find is a bug you fix, here, now.** The purpose of an e2e is not
+to catalogue defects. It is to establish that the product works on the target
+operating system. So when a cell fails, you fix the code, you add a test that
+fails without the fix and passes with it, you re-run the failing cell until it
+passes, you commit and push to the PR branch, and only then do you carry on with
+the rest of the matrix. **A finding recorded without a fix is a moved problem,
+not a found one.** The fix ships on the PR branch as it is made; the branch is
+the working surface, and holding a fix back to ask permission is the mistake.
+
+**4. A fix invalidates the cells it touched, on every operating system that
+already passed them.** A shared-behaviour fix means the earlier passes were
+observing different code. Name the affected cells in the finding, mark them
+`not run` again on the operating systems that had passed them, and say in the
+per-OS matrix which fix invalidated them. The host that made the fix re-runs
+them itself. The other hosts re-run them from the PR branch before merge. **No
+operating system inherits a result from a build that no longer exists.**
+
 ## Scope exception - **delete this section unless you need it**
 
 <Only when the minor genuinely cannot be driven through a product surface. State
@@ -32,10 +73,17 @@ from the agent's prose.
 
 Both surfaces are exercised and **neither substitutes for the other**:
 
-- **the API + the run WebSocket** - how the phone calls it, and the only way to
-  know a mobile call behaves;
-- **the CLI** (`vadgr run`, `vadgr stream`) - the on-box path, with its own users
-  and its own failure modes.
+- **the API + both run WebSockets** - how the phone calls it, and the only way
+  to know a mobile call behaves;
+- **the CLI** (`vadgr run`, `vadgr runs get`) - the on-box path, with its own
+  users and its own failure modes.
+
+<Put the tested installation on `PATH`. Record `command -v vadgr` and prove its
+target is the exact PR head. Invoke `vadgr ...` in the terminal. The installed
+entry point may dispatch to Python during migration, but `python -m cli`, a
+product import, `cargo run` or a private function is not an e2e invocation. A
+helper may prepare state and capture or parse evidence. It must not replace the
+public CLI, drive the owner flow or choose the agent's actions.>
 
 <The agent CLI invocation you actually used, so a reader can repeat it. Use
 the CLI the machine has, and name it and its version beside the results; the
@@ -47,17 +95,210 @@ claude --dangerously-skip-permissions --output-format stream-json --verbose -p \
   | tee /tmp/e2e-<version>.jsonl
 ```
 
+## One command at a time, and read its output before the next
+
+**Every product command is invoked on its own, and its output is read before the
+next command is chosen.** This holds on every supported operating system and for
+every agent that drives a runbook. A wrapper script that runs a whole group in
+one shot is not an execution of that group, even when every command inside it is
+the real public surface.
+
+The failure it stops is specific. A batch prints one wall of output, so no line
+can be attributed to the command that produced it. It reports one exit code, so
+the exit codes of the commands inside it are never read, and **a result from a
+command whose exit code you did not read is not a result**. A failure in the
+middle is carried past by the lines printed after it, and the author writes down
+the batch's outcome instead of each cell's. The batch also decides the order in
+advance, which is exactly what an e2e must not do: what the previous command
+returned is what tells you whether the next one is still the right one, and a
+cell whose precondition was never observed is not a cell that ran.
+
+So:
+
+- Run one command. Read its output and its exit code. Record the cell. Then
+  choose the next command.
+- Never chain product commands with `&&`, `;` or a loop so that one invocation
+  covers several cells.
+- Never wrap a group in a driver script that logs in, runs, restarts and reads
+  back without stopping.
+
+A helper is still allowed exactly where it always was: it may build isolated
+state **before** the group starts, and it may capture, sanitize or parse
+evidence **after** a command has already run. It may not sequence the product
+commands, and a file that does is a harness pretending to be an operator.
+
+The exception is a single cell whose own definition is a loop or a matrix, such
+as staging one weakened access control per isolated copy. There the repetition
+is the cell, it is written that way in the table, and each iteration still
+prints its own labelled result. If a reader cannot tell from the evidence which
+command produced which line, the rule was broken whatever the file was called.
+
+## Before you file a finding, suspect your own harness
+
+**Most wrong answers in a pass come from the harness, not the product, and every
+one of them looks exactly like a product failure.** These are the ones that have
+actually happened here, each of which produced a confident false result until the
+source was read. Check this list before writing a finding.
+
+- **The tool's schema is not what you assumed.** A control tool called with the
+  wrong field names errors instead of acting, and the cell reads as "the product
+  did not do it". Read the tool's declared `properties` and `required`.
+- **A policy or default silently changed the path.** The same tool called at
+  `risk: low` is auto-allowed by the default policy and never parks, which reads
+  as "it does not park". Only the input the cell actually describes exercises the
+  cell.
+- **You called a route that does not exist.** A `404` from a made-up path leaves
+  the state untouched, so the next assertion tests the wrong state and passes or
+  fails for the wrong reason. Grep the router before driving a verb.
+- **You probed the right route on the wrong listener.** A surface served by its
+  own listener on its own port returns `404` on the API port, which reads as
+  "the route is missing".
+- **You parsed a body you had already truncated.** Keep the full response for
+  parsing and truncate only the recorded copy.
+- **You counted one output stream.** An error belongs on `stderr`; counting only
+  `stdout` reports correct refusals as producing nothing.
+- **Your fixture branched on global state.** A provider stand-in that chooses its
+  reply from a global call counter gets its parity shifted by every other run in
+  the sweep and hands a later run the wrong arm. Decide from the conversation in
+  front of it.
+- **You polled slower than the window you were waiting for.** A screenshot
+  completes in well under a second, so a one second poll walks straight past
+  every moment in which a call is open. Match the poll to the event.
+- **You left your own daemon running.** A leaked daemon holds its port, and the
+  next run reads that as an environment condition. Stop every daemon you start,
+  by pid, and check for strays before blaming the machine.
+
+**A "no secret present" claim is verified against the raw artifact, never
+against your own flag.** A check written as "does the redacted copy still
+contain the secret" is tautologically false and will pass while a live
+credential sits in the file beside it. Grep the file on disk.
+
+## When a cell cannot be captured, ask whether that is the product's fault
+
+An observable the runbook asks for and no platform can produce is usually a gap
+in the product, not a limit of the harness. A shipped route served with no
+tracing leaves no record of itself anywhere, so the row stays owed forever and
+every platform records the same shrug. Fix the gap, then capture the row.
+
+The repair for an observability gap is itself a place to be careful: adding a
+default HTTP span to a route whose query carries a credential writes that
+credential to the log. Record the identifiers, never the whole URI.
+
+## Finish the matrix
+
+**A pass ends when every cell has a verdict or a stated reason, not when the
+first interesting result appears.** Partial results are the failure mode this
+section exists to prevent: they read as progress, they are committed, and the
+remaining cells quietly never run.
+
+- A cell blocked by a host condition is owed only after the condition itself has
+  been investigated. Two leaked daemons, a reserved port and a missing toolchain
+  all looked like immovable environment facts and all three were removable.
+- If a cell needs the owner, ask for that **first**, batch it, and keep working
+  while you wait. Do not let one approval serialise the rest of the matrix.
+- If a fix lands mid-pass, **re-run the cells it touches on every OS that
+  already passed them**, because those rows were observed against the old
+  behaviour.
+- Report once, at the end, with everything. An audit delivered in instalments
+  reads as an endless stream of problems and is really one incomplete sweep.
+
+## Owner and environment requirements
+
+<Complete this table before the first live cell. Tell the owner what is needed
+before the affected group starts. Never print or persist a secret while checking
+availability. A missing item blocks the already-written cells; it does not
+remove them or reduce the matrix.>
+
+<Read live credentials only from the workspace `../.env`. Never echo or copy a
+value into a command, log, screenshot, transcript, process listing, GitHub text,
+documentation or evidence. Run
+`python3 scripts/check_no_secrets.py --env-file ../.env` before every commit and
+before sealing evidence.>
+
+| requirement | cells | non-secret availability check | cost or destructive effect | cleanup |
+|---|---|---|---|---|
+| <credential, billed account, OS/host, device, app, permission or decision> | <ids> | <present/absent check> | <none or exact boundary> | <action> |
+
+## Billed model selection
+
+<Complete this table from current official provider pages and the authenticated
+catalog on the execution date. Pick the least expensive model that supports the
+exact cell. An automatic onboarding model is tested once as shipped; repeated
+provider-neutral tasks name an explicit cost-effective model. Do not start a
+billed call with a blank ceiling or an unrecorded escalation path.>
+
+| cells | provider/auth | required capabilities | selected model | official source and date | input/output price | hard iterations/tokens/cost | escalation condition |
+|---|---|---|---|---|---|---|---|
+| <ids> | <provider/method> | <endpoint, tools, content, continuation> | <authenticated id or snapshot> | <URL, YYYY-MM-DD> | <USD per MTok or subscription limitation> | <all three ceilings> | <recorded capability failure or none> |
+
+<Test another model only for a distinct protocol/capability class or a
+prewritten model-specific cell. Record actual tokens and calculated cost after
+the group. Stop when any ceiling is reached. Pixel or screenshot CUA requires
+image input for the selected endpoint and image-bearing tool-result
+continuation into the next model turn; record both in `required capabilities`.
+A text-only model cannot close that visual group.>
+
 ## Prerequisites
 
 <Everything a fresh machine needs, precisely enough to paste. Credentials,
-env vars, a scratch runs dir so a test run never lands in `~/.vadgr/runs/`,
-which port, which database.>
+env vars, isolated state, config, database and runs roots so no test reads or
+writes the owner's normal installation, which port and which transport. Name
+every feature toggle the group relies on. Before the first live submission,
+read the effective settings through the product surface and assert them. A
+fresh database that inherits the owner's config is not isolated.>
 
 ```bash
-export AGENT_FORGE_DATABASE_PATH=$(mktemp -d)/vadgr.db
-export AGENT_FORGE_PORT=8791
-python3 -m uvicorn api.main:app --host 127.0.0.1 --port 8791 &
+export E2E_ROOT="$(mktemp -d)"
+export VADGR_DB="$E2E_ROOT/vadgr.db"
+export VADGR_RUNS_DIR="$E2E_ROOT/runs"
+export VADGR_STATE_HOME="$E2E_ROOT/state"
+export VADGR_CONFIG_HOME="$E2E_ROOT/config"
+export VADGR_PORT=8791
+export FORGE_API_URL=http://127.0.0.1:8791
+mkdir -p "$VADGR_RUNS_DIR" "$VADGR_STATE_HOME" "$VADGR_CONFIG_HOME"
+cd "$E2E_ROOT"
+<absolute-path-to-the-shipped-vadgr-daemon>
+
+# In another terminal whose PATH resolves the tested installation:
+command -v vadgr
+vadgr health
+curl -fsS "$FORGE_API_URL/api/health"
+wscat -c "ws://127.0.0.1:8791/api/ws/runs/<run-id>"
+wscat -c "ws://127.0.0.1:8791/api/runs/<run-id>/stream"
 ```
+
+## Remote-host handoff for Linux, macOS and Windows
+
+<Complete this section before any native-platform group runs. It must let a new
+Codex session execute the group without hidden context or access to the first
+test machine. Include all of these items:>
+
+1. <Files to read first: `AGENTS.md`, `E2E/README.md`, this runbook, and any
+   public install instructions.>
+2. <The exact PR head rule, release build command, delivered artifact path,
+   artifact hash command, and installation into an empty host-local test root.
+   The product under test is the installed release copy, never `cargo run`.>
+3. <The exact installed `vadgr-computer-use` version, fresh-environment install
+   command, `vadgr-cua doctor` check, and platform setup. Include Linux
+   `install-deps`, macOS Accessibility and Screen Recording, and native Windows
+   execution without WSL.>
+4. <The isolated state, config, database, runs, evidence, port, transport,
+   feature toggles, `VADGR_CUA_BIN` and API URL variables for Unix shells and
+   native Windows PowerShell. Use native platform directory and access-control
+   APIs. Assert the effective settings through the installed product before a
+   live task.>
+5. <The exact cell ids and order for each host, state carried between cells,
+   independent read-backs, evidence captured before cleanup, and result rows
+   that host updates.>
+6. <Cleanup boundaries. Remove only the isolated root and reversible effects.
+   Never stop unrelated processes or applications.>
+7. <Credential handling. Read only required values from the owner-only
+   workspace `../.env`; never print or persist them. Run the secret check before
+   the group and before evidence is sealed.>
+
+<Provide paste-ready Linux/macOS shell and Windows PowerShell blocks. Use a free
+loopback port per concurrent pass. A platform row with only "run the same test"
+is incomplete.>
 
 ## Automated gate (necessary, never sufficient)
 
@@ -98,17 +339,17 @@ never "what was checked" - and the second is what a reviewer is asking. Each row
 carries **the response**, not a pointer to a file: nobody should open an artifact
 to learn what an endpoint returned.>
 
-<**Generate these from a recorded sweep. Never type them.** One harness drives
-every surface and writes request, status, error code and body to a JSON record;
-the tables are emitted from that record and both go in the evidence bundle. A
-hand-written table drifts from the run it describes and nothing in it shows that.
-`E2E/0.4.1` is the worked example - `sweep.py` and `gen_tables.py`.>
+<**Generate these from the recorded session. Never type them.** The operator
+invokes every public route and installed command. A recorder writes request,
+status, error code and body to a JSON record. A post-run tool emits the tables
+from that record. The recorder must not replace `vadgr`, drive the user flow or
+import product code. A hand-written table drifts from the run it describes.>
 
-<Before trusting the harness, check it is real. Both of these silently recorded
-nothing on the way to `0.4.1`: invoking the CLI as a module when the entry point
-is the installed binary - it exits `0` printing nothing, so every command
-"passes" - and letting the CLI use its default port while the daemon under test
-is on another. **Assert on output, not only exit codes.**>
+<Before trusting the capture, verify that the installed `vadgr` command produced
+the CLI result and that direct public calls produced the wire result. A Python
+driver that invokes `python -m cli` is acceptance evidence, not e2e evidence.
+Also reject an empty result or a CLI pointed at the wrong port. **Assert on
+output, not only exit codes.**>
 
 ### Shipped
 
@@ -146,9 +387,13 @@ wired, and that is a state nobody notices until a client calls it.>
 
 ## Part <X>: <what it proves>
 
-| # | What | Expected | Status |
-|---|---|---|---|
-| X1 | <the check> | <the observable outcome, not "works"> | <pass / fail -> Fn / not run> |
+<Every counted case is a row before execution. Its Status column is the result
+slot. Do not use aggregate placeholders such as "remaining matrix" or leave
+edge cases in prose.>
+
+| # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
+|---|---|---|---|---|---|---|
+| X1 | <state and setup> | <goal-level task or action> | <observable result and independent machine oracle> | <files/records captured now> | <restore/remove> | <pass / fail -> Fn / blocked: reason / not run> |
 
 **Measured.** <The actual output, pasted. Ids, counts, tokens, exit codes -
 whatever a reader would need to disbelieve you with. A table of passes and no
@@ -212,10 +457,32 @@ If open: why it is acceptable to ship, and the minor that closes it.>
 Legend: pass / fail / blocked / not run / **Not-Needed** (no OS-specific
 surface, so a run there adds no signal - always with its reason).
 
-| | Linux | macOS | Windows native | WSL |
-|---|---|---|---|---|
-| Part <X> | | | | |
-| Overall | | | | |
+**The rows are this runbook's own parts, and nothing else.** A row named for a
+theme rather than a part cannot be read back to the cells that produced it, so a
+reader cannot check it and a reviewer cannot audit it. `vadgr 0.4.7` shipped a
+matrix whose rows were `credential matrix`, `live providers` and `full engine`,
+none of which named a part or a cell, and it was unreadable for exactly that
+reason. Add a row for the automated gate and one for the surface sweep if the
+runbook has them, then `Overall`, and nothing else.
+
+**Put the platform in the cell id wherever a case runs on several platforms**,
+so the matrix row and the cells agree by construction: `BL` native Linux, `BM`
+macOS, `BW` Windows native, `BQ` WSL, and `OS-L` / `OS-M` / `OS-W` / `OS-Q` for
+an installed-product cell. Name those ids in the row's notes.
+
+**`Overall` never inherits the automated gate.** CI builds an environment and
+runs the unit suites. It drives no session, calls nothing over the wire and
+reaches no glass, so a green CI row says the suites pass on that OS and nothing
+about whether the product works there. `Overall` is the weakest of the parts
+actually driven on that OS.
+
+| part | Linux | macOS | Windows native | WSL | notes |
+|---|---|---|---|---|---|
+| automated gate: build, test, lint | | | | | |
+| surface coverage | | | | | |
+| Part <X> | | | | | |
+| installed product on the host | | | | | name `OS-L`, `OS-M`, `OS-W`, `OS-Q` |
+| **Overall** | | | | | |
 
 <Justify every `Not-Needed` in prose. "Pure Python, no socket/pipe/path/registry
 /process branching and no per-OS deps, so the other OSes cannot behave

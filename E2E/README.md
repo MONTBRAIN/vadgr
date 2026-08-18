@@ -8,6 +8,15 @@ not an e2e - it proves the function works, not that the product does. The agent'
 prose ("I started the run and it completed") is **self-report and is not
 evidence**.
 
+The operator invokes the public product surfaces exactly as a user does. Put
+the tested installation on `PATH`, record `command -v vadgr`, prove that the
+entry point targets the exact PR head, and run `vadgr ...` in the terminal. The
+entry point can dispatch to Python during migration. The e2e cannot replace it
+with `python -m cli`, a product import, `cargo run` or a private function call.
+Exercise the public HTTP and WebSocket surfaces over their real wire as a
+separate required half. A helper can prepare state, capture output and parse
+evidence. It cannot drive the user flow or replace a product surface.
+
 The trustworthy verdict comes from what the daemon wrote down, and vadgr has an
 unusually good record for this: **`trajectory.jsonl`**, the run journal. The loop
 writes it, not the model, so it can contradict the agent. **A claimed success
@@ -46,9 +55,11 @@ PY
 persisted. A status alone is weak evidence: a run ends `completed` on the legacy
 CLI path too. **Pair it with the journal**, which only the native loop writes.
 
-**3. The WebSocket stream - what a watcher actually saw.** `websocat` or
-`vadgr stream`. Needed for any claim about frames reaching a client; a claim
-about `map_event` is a unit-test claim, not an observation of the wire.
+**3. The WebSocket streams - what watchers actually saw.** Use a real wire
+client such as `websocat` or `wscat` against both
+`/api/ws/runs/{run_id}` and `/api/runs/{run_id}/stream`. Needed for any claim
+about frames reaching a client; a claim about `map_event` is a unit-test claim,
+not an observation of the wire.
 
 **4. The driving CLI's session transcript - the fallback.** When Claude Code
 drove the run and its stream is not in your context, the tool calls are in
@@ -103,6 +114,55 @@ curl.
   looks broken with nothing failing.
 - If neither a journal nor a transcript is available, the test is **not
   verified** - say so. Do not infer a pass.
+
+## Complete the runbook before the first live cell
+
+Every surface branch and enum-shaped edge case is a separate executable cell
+before credentials are spent or a daemon is started for live evidence. Each
+cell has a stable id, precondition, setup, goal or action, expected observable,
+independent oracle, evidence captured at its boundary, cleanup and result slot.
+A prose list, an unmatched coverage count or a row called "remaining matrix"
+is an unfinished runbook.
+
+Put every owner-supplied prerequisite in one table before the cells: provider
+keys, paid or quota-bearing accounts, operating-system hosts, devices,
+applications, permissions, destructive actions and owner decisions. Map each
+item to its cells, verify availability without printing secrets, and state cost
+and cleanup. Inform the owner before the affected group starts. If an item is
+unavailable, the written cells become `blocked`; they are never deleted,
+collapsed or replaced with a smaller matrix after execution begins.
+
+Provider keys come from the workspace `../.env` only. Never echo them or copy
+them into commands, logs, screenshots, transcripts, process listings, GitHub
+text, documentation or evidence. Run
+`python3 scripts/check_no_secrets.py --env-file ../.env` before every commit and
+before sealing evidence.
+
+## A pass is finished, not paused
+
+**Drive the whole matrix before reporting.** The failure this stops is not
+laziness, it is a pass that stops at the first interesting result: partial
+results look like progress, they get committed, and the cells that never ran
+quietly stay never run. `0.4.7`'s Windows pass had to be restarted by the owner
+several times for exactly this reason.
+
+Three rules follow from it:
+
+- **A blocked cell is owed only after its blocker was investigated.** On that
+  pass a reserved port, a missing toolchain and an unbindable OAuth callback all
+  read as immovable environment facts. All three were removable, and one of them
+  was two daemons the pass had leaked itself.
+- **Ask for the owner's part first and batch it.** A browser approval or an
+  elevation prompt should be requested at the start and answered once, not
+  discovered one cell at a time. Keep driving the unattended cells while it
+  waits.
+- **A fix that lands mid-pass invalidates the rows it touches.** Re-run those
+  cells on every operating system that already passed them, because those
+  results were observed against the old behaviour.
+
+**And fix what you find.** A defect found by a runbook is repaired on the same
+branch with a test that fails without it, and the cell is re-run until it
+passes. Recording a defect and moving on is half the job.
 
 ## Test what this minor can test, and nothing more
 

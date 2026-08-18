@@ -1,4 +1,3 @@
-use crate::config;
 use crate::db::{self, Db};
 use crate::engine::events::EventSink;
 use crate::engine::journal::{RecoveryState, read_recovery};
@@ -57,22 +56,15 @@ pub struct RunSupervisor {
     db: Db,
     events: Arc<ConnectionManager>,
     active: Mutex<HashMap<String, ActiveRun>>,
-    providers_path: std::path::PathBuf,
 }
 
 impl RunSupervisor {
-    pub fn new(
-        engine: Arc<Engine>,
-        db: Db,
-        events: Arc<ConnectionManager>,
-        providers_path: std::path::PathBuf,
-    ) -> Arc<Self> {
+    pub fn new(engine: Arc<Engine>, db: Db, events: Arc<ConnectionManager>) -> Arc<Self> {
         Arc::new(Self {
             engine,
             db,
             events,
             active: Mutex::new(HashMap::new()),
-            providers_path,
         })
     }
 
@@ -284,7 +276,17 @@ impl RunSupervisor {
                     events.emit("run_completed", json!({"outputs":outputs}));
                 }
             }
-            Err(EngineError::Cancelled) => {}
+            // A cancel is a terminal state like the other two, so it says so on
+            // the socket like the other two. `Supervisor::cancel` has already
+            // written the row, which is why this arm broadcasts rather than
+            // calling `finish_if_active` again. Leaving this arm empty is what
+            // made a watching client hang on `agent_started` for ever while the
+            // run row read `cancelled`.
+            Err(EngineError::Cancelled) => {
+                let outputs = json!({"error": "Run was cancelled"});
+                events.emit("agent_cancelled", json!({"run_id":id,"outputs":outputs}));
+                events.emit("run_cancelled", json!({"outputs":outputs}));
+            }
             Err(error) => self.fail(&id, error.to_string(), &events),
         }
     }
@@ -302,9 +304,26 @@ impl RunSupervisor {
             .to_owned();
         let provider = row.get("provider").and_then(Value::as_str);
         let model = row.get("model").and_then(Value::as_str);
-        let (provider, model) =
-            config::resolve_provider_model(&self.providers_path, provider, model)
-                .map_err(RunError::Recovery)?;
+        let (provider, model) = match (provider, model) {
+            (Some(provider), Some(model)) => {
+                if !db::providers::model_exists(&self.db, provider, model)
+                    .map_err(|error| RunError::Storage(error.to_string()))?
+                {
+                    return Err(RunError::Recovery(format!(
+                        "model `{provider}/{model}` is not connected"
+                    )));
+                }
+                (provider.to_owned(), model.to_owned())
+            }
+            (None, None) => db::providers::default_model(&self.db)
+                .map_err(|error| RunError::Storage(error.to_string()))?
+                .ok_or_else(|| RunError::Recovery("no default model is connected".to_owned()))?,
+            _ => {
+                return Err(RunError::Recovery(
+                    "provider and model must be supplied together".to_owned(),
+                ));
+            }
+        };
         db::runs::set_config(&self.db, id, &provider, &model).map_err(storage)?;
         db::runs::update_status(&self.db, id, "running").map_err(storage)?;
         Ok(RunRecord {

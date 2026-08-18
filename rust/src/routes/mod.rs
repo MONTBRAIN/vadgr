@@ -39,6 +39,23 @@ pub fn router(state: AppState) -> Router {
         .route("/api/devices/{device_id}", delete(devices::revoke_device))
         .route("/api/providers", get(providers::list_providers))
         .route(
+            "/api/providers/{provider_id}/auth-attempts",
+            post(providers::start_attempt),
+        )
+        .route(
+            "/api/provider-auth/{attempt_id}",
+            get(providers::get_attempt),
+        )
+        .route(
+            "/api/providers/{provider_id}/connection",
+            put(providers::commit_connection).delete(providers::delete_connection),
+        )
+        .route(
+            "/api/providers/{provider_id}/catalog-refresh",
+            post(providers::refresh_catalog),
+        )
+        .route("/api/default-model", put(providers::put_default_model))
+        .route(
             "/api/settings/computer-use",
             get(settings::get_computer_use),
         )

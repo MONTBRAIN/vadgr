@@ -45,8 +45,24 @@ vadgr run "<task>" --provider codex --model gpt-5.4
 ```
 
 `--provider` and `--model` go together: one without the other is a usage error
-rather than a half-resolved run. With neither, the run takes the machine's
-default from `providers.yaml`.
+rather than a half-resolved run. With neither, the Rust daemon takes its
+default from `machine_settings`. The still-default Python daemon keeps its
+legacy `providers.yaml` behavior until the cutover.
+
+### Providers and models
+
+```
+vadgr provider login [openai|gemini|anthropic]
+vadgr provider status [--refresh] [provider]
+vadgr provider logout <provider>
+vadgr model list
+vadgr model default [provider/model]
+```
+
+OpenAI offers ChatGPT browser sign-in or an API key. Gemini and Anthropic move
+directly to a hidden API-key prompt when no documented environment key is set.
+Connections are additive. Login does not remove another provider or change an
+existing default, and it never starts pairing.
 
 The CLI follows the run over a WebSocket and reports the outcome:
 
@@ -76,12 +92,14 @@ Partial run ids work: `vadgr runs get 654e`.
 ### Computer use
 
 ```
-vadgr computer-use enable     # starts daemon, writes MCP configs
-vadgr computer-use disable    # stops daemon, removes MCP configs
+vadgr computer-use enable     # enables the daemon-owned cua setting
+vadgr computer-use disable    # disables the daemon-owned cua setting
 vadgr computer-use status     # shows enabled state and daemon health
 ```
 
-The daemon runs natively on Windows (WSL2 only) and persists across `vadgr start/stop`. It starts when you enable computer use and stops when you disable it.
+These commands do not install a runtime and do not edit another client's MCP
+configuration. The Rust daemon discovers the installed `vadgr-cua` executable
+when it needs desktop automation.
 
 ### Info
 
@@ -97,7 +115,7 @@ Service commands (start, stop, status, logs) manage OS processes directly. Every
 | Command group | Backend |
 |---|---|
 | start/stop/status/logs | Direct process management |
-| run, runs, health, providers, pair | HTTP to API at localhost:8000 |
+| run, runs, health, providers, provider, model, pair | HTTP to the selected API |
 | run (watching) | WebSocket to API |
 | computer-use | HTTP to API (API manages daemon) |
 

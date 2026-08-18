@@ -69,6 +69,61 @@ written down and broken twice in an hour.
 **4. PR bodies carry code, tests, user-visible changes and caveats.** No
 methodology narration, no SOLID tables, no design-doc citations.
 
+## Cross-platform PR handoff
+
+**One real operating-system pass opens the PR; every required operating system
+still gates merge.** This applies to machine-side changes in `vadgr` and
+`vadgr-computer-use`. Complete and pass the runbook on at least one real target
+OS, then open the PR as cross-platform incomplete. Record the passed OS and
+leave every untested OS as `not run` or `blocked` with its exact requirement.
+
+The PR branch is the handoff. Agents on the other operating systems fetch that
+branch, run their native cells, and push results and required fixes back to the
+same branch. If a later platform fix changes shared behavior, rerun affected
+cells on every earlier passing OS. The owner can review the evolving diff, but
+the PR is not merge-ready until every required OS is `pass` or has an approved
+`Not-Needed` reason, every finding is resolved, and the final branch checks pass.
+Opening the PR is a collaboration gate. It is never cross-platform acceptance.
+
+## Current research before design
+
+**An iteration starts from dated evidence, not remembered facts.** Run `date`
+when the iteration starts and record that date in every design doc. Before a
+design decision, use web search and upstream source search for every fact that
+can change: providers, models, authentication, API endpoints, SDKs and
+libraries, platform behavior, lifecycle or deprecation status, limits and
+pricing. Prefer current primary official sources. When documentation does not
+settle open-source behavior, inspect the current upstream source and record its
+exact commit. For account-scoped provider facts, also inspect the authenticated
+catalog or run a bounded live probe.
+
+The design's `Research basis` records the URLs, dates, exact versions, model ids
+or commits, and the capability evidence that informed the design. Recheck
+changing facts on the implementation and e2e execution dates. If current
+evidence is unavailable, stop; memory and stale examples are not design input.
+
+## Billed E2E model selection
+
+**No billed model call starts from a remembered or flagship default.** On the
+execution date, inspect the provider's official model and pricing pages plus the
+authenticated account catalog. Choose the least expensive available model that
+supports the exact endpoint, function or tool calling, content types, context,
+and multi-turn behavior the cell exercises. Record the model id, capability
+evidence, input/output price, expected worst-case usage, hard iteration/token
+and cost ceilings, and the condition for any escalation before the call.
+
+Pixel or screenshot CUA requires image input and image-bearing tool-result
+continuation on the selected endpoint. Verify both against current official
+model documentation and the authenticated catalog. A text-only model cannot
+close a visual cell, regardless of its lower price.
+
+An automatic product-selected model is tested once because it is user-visible
+behavior. Repeated provider-neutral work uses an explicit cost-effective model.
+Test another model only when it represents a distinct protocol or capability
+class, a written cell requires it, or the cheaper model failed for a recorded
+capability reason. Stop at the ceiling; never upgrade silently or use a
+frontier model merely because it is available.
+
 ## The practices every repo in this family follows
 
 **This section is identical in every code repo, and identical in this repo's
@@ -127,6 +182,26 @@ gate result: it is the weakest of the parts actually driven on that OS. This
 shipped once and was caught in review, with two platforms marked `pass (CI)`
 while their own live rows read `not run`. **A suite is not a session.**
 
+**The runbook is complete before the first live cell runs.** Every surface
+branch and enum-shaped edge case is an independently executable cell with a
+stable id, precondition, setup, action or goal, expected observable, machine
+oracle, evidence boundary, cleanup and result slot. A prose list, a count with
+no matching cells or a "remaining matrix" row is unfinished. List every
+required credential, paid account, OS, device, application, permission,
+destructive action and owner decision up front, map each to its cells, and
+inform the owner before the affected group runs. Missing setup blocks written
+cells; it never deletes or collapses them.
+
+**Credentials never enter Git or evidence.** Local e2e reads only the required
+variables from the workspace `../.env`, without echoing values or placing them
+in command arguments, logs, screenshots, transcripts, process listings, PR
+titles, PR bodies, review comments, documentation or evidence. The file stays
+untracked and owner-only: mode `0600` on Unix and an owner-only DACL on
+Windows. Before every commit and before evidence
+is sealed, run `python3 scripts/check_no_secrets.py --env-file ../.env`. If any
+credential reaches Git or GitHub, stop, rotate it first, purge it from history,
+and rerun the scan. Redaction alone does not make an exposed credential valid.
+
 **The e2e is run before the PR is published, and the owner reviews the results,
 not a plan.** Whoever builds the change runs the e2e the feature needs - a browser
 change against real sites, a desktop or structured change against real
@@ -142,6 +217,20 @@ skips the MCP server, its schema and the transport. Call it the way a client doe
 server from the current code, so it never tests a stale connection. cua `0.7.0`'s
 `app_open` passed its units and an import check while the wire e2e caught a
 two-minute hang and an `ok` returned before any window existed.
+
+**Invoke each public product surface exactly as its user does.** For vadgr, put
+the tested installation on `PATH`, run `vadgr ...` in a terminal, and test
+direct public HTTP plus both current run WebSocket routes separately. Its
+installed entry point
+can dispatch to Python during migration, but the e2e cannot replace it with
+`python -m cli`, a product import, `cargo run` or a private function. For
+cua, build the exact PR-head wheel, install it without editable mode outside the
+checkout, and mount that environment's `vadgr-cua` entry point in the driving
+agent's MCP config. Mobile remains a human session on a physical handset.
+Record every resolved command path, artifact hash and tested PR head. Helpers
+can prepare state, capture output and generate evidence. They cannot drive the
+user flow, choose the agent's actions or replace a public product surface. Such
+automation is an acceptance or contract check and never closes an e2e cell.
 
 **Close an e2e with three independent passes**, run concurrently, each with its
 **own port, database and daemon** - three observations rather than one run
@@ -181,6 +270,18 @@ It holds for a Python wheel and a Rust binary alike; only the install step and
 the readiness signal differ. cua `0.6.6` shipped because a fresh install of
 `0.6.5` could not start at all, and nothing checked a clean install before
 publish. A suite is not an install.
+
+**Before calling a runbook finished, run the arithmetic:**
+
+```bash
+python3 ../vadgr-docs/scripts/check_e2e.py E2E/<version>/e2e.md
+```
+
+It fails on a per-OS matrix row that names no part, and on a `not run` or
+`blocked` cell that gives no reason. Both answers are always acceptable; a bare
+one is not, because nobody can tell an owed cell from a forgotten one. It also
+prints the cell counts every time, so a summary is compared against the cells
+rather than trusted. It cannot tell whether a `pass` is true.
 
 **Evidence is filed while the pass runs, never assembled after it.** The
 evidence directory exists before the first cell, each group files what it

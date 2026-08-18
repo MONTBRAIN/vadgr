@@ -4,6 +4,7 @@ use std::collections::VecDeque;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
+use vadgr_daemon::db::providers::{Connection, ConnectionCommit, ProviderModel};
 use vadgr_daemon::db::{self, Db};
 use vadgr_daemon::engine::control::RunContext;
 use vadgr_daemon::engine::journal::Journal;
@@ -15,6 +16,28 @@ use vadgr_daemon::engine::{
     ToolSpec, Usage,
 };
 use vadgr_daemon::ws::manager::ConnectionManager;
+
+fn seed_fake_model(db: &Db) {
+    db::providers::commit_connection(
+        db,
+        &ConnectionCommit {
+            connection: Connection {
+                provider_id: "fake".to_owned(),
+                auth_method: "api_key".to_owned(),
+                secret_ref: "fake-reference".to_owned(),
+                account_id: None,
+                credential_expires_at: None,
+            },
+            models: vec![ProviderModel {
+                id: "fake-model".to_owned(),
+                name: "Fake model".to_owned(),
+                capabilities: json!({"text":true,"tools":true}),
+            }],
+            default_model: Some("fake-model".to_owned()),
+        },
+    )
+    .unwrap();
+}
 
 struct RecoveryModel {
     responses: Mutex<VecDeque<ModelResponse>>,
@@ -59,6 +82,7 @@ impl ModelFactory for RecoveryModelFactory {
                             id: "inspect-1".to_owned(),
                             name: "side-effect__inspect".to_owned(),
                             input: json!({}),
+                            provider_signature: None,
                         }],
                         stop_reason: Some(StopReason::ToolUse),
                         usage: Usage {
@@ -157,6 +181,7 @@ async fn wait_for_status(db: &Db, id: &str, expected: &str) -> Value {
 async fn boot_recovery_inspects_but_never_replays_a_dangling_call() {
     let directory = tempfile::tempdir().unwrap();
     let db = Db::open(directory.path().join("vadgr.db")).unwrap();
+    seed_fake_model(&db);
     let row = db::runs::create(&db, "make one effect", Some("fake"), Some("fake-model")).unwrap();
     let id = row["id"].as_str().unwrap().to_owned();
     db::runs::update_status(&db, &id, "running").unwrap();
@@ -183,12 +208,7 @@ async fn boot_recovery_inspects_but_never_replays_a_dangling_call() {
         db.clone(),
         directory.path().to_owned(),
     ));
-    let supervisor = RunSupervisor::new(
-        engine,
-        db.clone(),
-        Arc::new(ConnectionManager::new()),
-        directory.path().join("unused-providers.yaml"),
-    );
+    let supervisor = RunSupervisor::new(engine, db.clone(), Arc::new(ConnectionManager::new()));
 
     let report = supervisor.recover_on_boot().await;
     assert_eq!(report.resumed.as_slice(), std::slice::from_ref(&id));
@@ -226,6 +246,7 @@ async fn boot_recovery_inspects_but_never_replays_a_dangling_call() {
 async fn corrupt_active_journal_fails_that_row_without_blocking_the_scan() {
     let directory = tempfile::tempdir().unwrap();
     let db = Db::open(directory.path().join("vadgr.db")).unwrap();
+    seed_fake_model(&db);
     let row = db::runs::create(&db, "recover me", Some("fake"), Some("fake-model")).unwrap();
     let id = row["id"].as_str().unwrap().to_owned();
     let run_dir = directory.path().join(&id);
@@ -243,12 +264,7 @@ async fn corrupt_active_journal_fails_that_row_without_blocking_the_scan() {
         db.clone(),
         directory.path().to_owned(),
     ));
-    let supervisor = RunSupervisor::new(
-        engine,
-        db.clone(),
-        Arc::new(ConnectionManager::new()),
-        directory.path().join("unused-providers.yaml"),
-    );
+    let supervisor = RunSupervisor::new(engine, db.clone(), Arc::new(ConnectionManager::new()));
     let report = supervisor.recover_on_boot().await;
 
     assert_eq!(report.failed.as_slice(), std::slice::from_ref(&id));

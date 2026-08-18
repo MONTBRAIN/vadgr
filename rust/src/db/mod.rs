@@ -1,11 +1,8 @@
-//! The SQLite layer. **The schema is copied, not designed.**
-//!
-//! Two tables and one index is the whole schema after the `0.4.4` deletion.
-//! It is applied verbatim from `api/persistence/database.py:12`: an improvement
-//! here would make every evidence comparison in the migration meaningless,
-//! which is the constraint rather than a preference.
+//! The SQLite connection and repository boundary.
 
 pub mod devices;
+pub mod migrations;
+pub mod providers;
 pub mod runs;
 
 use anyhow::{Context, Result};
@@ -13,7 +10,8 @@ use rusqlite::Connection;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 
-/// Verbatim from `api/persistence/database.py:12`. Do not tidy.
+/// The legacy tables stay byte-for-byte compatible while forward migrations
+/// add Rust-owned state beside them.
 pub const SCHEMA: &str = r#"
 CREATE TABLE IF NOT EXISTS runs (
     id TEXT PRIMARY KEY,
@@ -70,6 +68,7 @@ impl Db {
         conn.execute_batch("PRAGMA foreign_keys = ON")?;
         let _mode: String = conn.query_row("PRAGMA journal_mode = WAL", [], |r| r.get(0))?;
         conn.execute_batch(SCHEMA)?;
+        migrations::apply(&conn)?;
         Ok(Self(Arc::new(Mutex::new(conn))))
     }
 
@@ -79,6 +78,14 @@ impl Db {
     ) -> rusqlite::Result<T> {
         let guard = self.0.lock().expect("db mutex poisoned");
         f(&guard)
+    }
+
+    pub fn with_mut<T>(
+        &self,
+        f: impl FnOnce(&mut Connection) -> rusqlite::Result<T>,
+    ) -> rusqlite::Result<T> {
+        let mut guard = self.0.lock().expect("db mutex poisoned");
+        f(&mut guard)
     }
 }
 

@@ -4,6 +4,7 @@ use crate::auth::pairing::PairingStore;
 use crate::computer_use_setup::SetupService;
 use crate::config::Config;
 use crate::db::Db;
+use crate::engine::provider::ProviderService;
 use crate::engine::supervisor::RunSupervisor;
 use crate::transport::Transport;
 use crate::ws::manager::ConnectionManager;
@@ -18,7 +19,7 @@ pub struct AppState {
     pub transport: Arc<dyn Transport>,
     pub pairing: Arc<PairingStore>,
     pub ws: Arc<ConnectionManager>,
-    pub providers: Arc<Vec<Value>>,
+    pub providers: Arc<ProviderService>,
     pub computer_use_setup: Arc<SetupService>,
     pub computer_use_status: Arc<RwLock<Value>>,
     pub supervisor: Arc<RunSupervisor>,

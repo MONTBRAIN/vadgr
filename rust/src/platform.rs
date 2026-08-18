@@ -14,10 +14,22 @@ fn is_wsl() -> bool {
     if std::env::consts::OS != "linux" {
         return false;
     }
-    if std::env::var_os("WSL_DISTRO_NAME").is_some() || std::env::var_os("WSL_INTEROP").is_some() {
-        return true;
-    }
-    linux_release_mentions_microsoft()
+    let wsl_marker = std::env::var_os("WSL_DISTRO_NAME").is_some()
+        || std::env::var_os("WSL_INTEROP").is_some()
+        || linux_release_mentions_microsoft();
+    classify_linux_runtime(wsl_marker, running_in_container())
+}
+
+#[cfg(target_os = "linux")]
+fn running_in_container() -> bool {
+    std::env::var_os("container").is_some()
+        || std::path::Path::new("/.dockerenv").exists()
+        || std::path::Path::new("/run/.containerenv").exists()
+}
+
+#[cfg(not(target_os = "linux"))]
+fn running_in_container() -> bool {
+    false
 }
 
 #[cfg(target_os = "linux")]
@@ -44,9 +56,13 @@ fn classify_platform(os: &str, wsl: bool) -> &'static str {
     }
 }
 
+fn classify_linux_runtime(wsl_marker: bool, container_marker: bool) -> bool {
+    wsl_marker && !container_marker
+}
+
 #[cfg(test)]
 mod tests {
-    use super::classify_platform;
+    use super::{classify_linux_runtime, classify_platform};
 
     #[test]
     fn public_platform_vocabulary_covers_each_supported_host() {
@@ -55,5 +71,11 @@ mod tests {
         assert_eq!(classify_platform("windows", false), "windows");
         assert_eq!(classify_platform("linux", true), "wsl");
         assert_eq!(classify_platform("windows", true), "windows");
+    }
+
+    #[test]
+    fn a_linux_container_is_not_reported_as_the_wsl_host() {
+        assert!(!classify_linux_runtime(true, true));
+        assert!(classify_linux_runtime(true, false));
     }
 }

@@ -37,8 +37,13 @@ def runner():
     return CliRunner()
 
 
+def _connected_default():
+    return [{"id": "openai", "is_default": True}]
+
+
 def test_pair_command_prints_the_code_and_address(runner):
-    with mock.patch("cli.commands.pair_cmd.api_post") as m:
+    with mock.patch("cli.commands.pair_cmd.api_get", return_value=_connected_default()), \
+         mock.patch("cli.commands.pair_cmd.api_post") as m:
         m.return_value = _PAIR_RESPONSE
         result = runner.invoke(pair, [], obj={"api_url": "http://x"})
     assert result.exit_code == 0
@@ -49,7 +54,8 @@ def test_pair_command_prints_the_code_and_address(runner):
 
 
 def test_pair_command_falls_back_when_qr_lib_missing(runner):
-    with mock.patch("cli.commands.pair_cmd.api_post") as m, \
+    with mock.patch("cli.commands.pair_cmd.api_get", return_value=_connected_default()), \
+         mock.patch("cli.commands.pair_cmd.api_post") as m, \
          mock.patch("cli.commands.pair_cmd._render_qr", return_value=False):
         m.return_value = _PAIR_RESPONSE
         result = runner.invoke(pair, [], obj={"api_url": "http://x"})
@@ -58,7 +64,26 @@ def test_pair_command_falls_back_when_qr_lib_missing(runner):
 
 
 def test_pair_command_errors_on_bad_response(runner):
-    with mock.patch("cli.commands.pair_cmd.api_post") as m:
+    with mock.patch("cli.commands.pair_cmd.api_get", return_value=_connected_default()), \
+         mock.patch("cli.commands.pair_cmd.api_post") as m:
         m.return_value = {"unexpected": True}
         result = runner.invoke(pair, [], obj={"api_url": "http://x"})
     assert result.exit_code != 0
+
+
+def test_pair_connects_a_provider_before_it_mints_a_code(runner):
+    calls = []
+
+    def post(_ctx, path):
+        calls.append(path)
+        return _PAIR_RESPONSE
+
+    with mock.patch("cli.commands.pair_cmd.api_get", return_value=[
+        {"id": "openai", "is_default": False}
+    ]), mock.patch("cli.commands.pair_cmd.connect_provider") as connect, \
+         mock.patch("cli.commands.pair_cmd.api_post", side_effect=post):
+        result = runner.invoke(pair, [], obj={"api_url": "http://x"})
+
+    assert result.exit_code == 0
+    connect.assert_called_once()
+    assert calls == ["/api/auth/pair"]

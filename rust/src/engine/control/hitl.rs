@@ -9,7 +9,14 @@ pub fn approval_spec() -> ToolSpec {
         description: "Ask the owner to approve a gated action.".to_owned(),
         input_schema: schema(json!({
             "type":"object",
-            "properties":{"action":{"type":"string"},"risk":{"type":"string"},"preview":{"type":"string"},"timeout":{"type":"number"}},
+            "properties":{
+                "action":{"type":"string","description":"The action you want approved."},
+                // Named severities, not prose. A free string invited a sentence
+                // describing the risk, which no policy can rank.
+                "risk":{"type":"string","enum":["low","medium","high"],
+                        "description":"Severity of the action. Use high for anything that deletes, overwrites, sends or spends. Anything not recognised is treated as needing the owner."},
+                "preview":{"type":"string","description":"Exactly what will run or change."},
+                "timeout":{"type":"number"}},
             "required":["action","risk","preview"]
         })),
     }

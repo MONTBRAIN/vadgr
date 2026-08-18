@@ -1,4 +1,4 @@
-use crate::engine::types::{ModelResponse, RunId, ToolResult, Usage};
+use crate::engine::types::{ModelResponse, RunId, ToolContent, ToolResult, Usage};
 use serde_json::{Map, Value, json};
 use sha2::{Digest, Sha256};
 use std::fs::OpenOptions;
@@ -31,16 +31,33 @@ pub struct AwaitUserRecord {
     pub request: Value,
 }
 
+/// A completed call and the result it produced, kept together.
+///
+/// Recovery used to keep only the result and describe the work in prose. A model
+/// resuming that way is told what happened instead of being shown it, so whether
+/// it repeats a completed action depends on it obeying an instruction. Keeping
+/// the pair lets the resumed conversation carry the same tool-use shape an
+/// uninterrupted one has.
+#[derive(Clone, Debug, PartialEq)]
+pub struct RecoveredCall {
+    pub seq: i64,
+    pub tool: String,
+    pub params: Value,
+    pub result: ToolResult,
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct RecoveryState {
     pub run_id: RunId,
     pub last_seq: i64,
     pub completed_seqs: Vec<i64>,
     pub recent_results: Vec<ToolResult>,
+    pub recent_calls: Vec<RecoveredCall>,
     pub dangling: Option<InFlightRecord>,
     pub pending_ask: Option<AwaitUserRecord>,
     pub completed_tool_count: u64,
     pub prior_usage: Usage,
+    pub todos: Vec<Value>,
 }
 
 struct WriteCommand {
@@ -234,9 +251,11 @@ fn read_recovery_sync(path: &Path, run_id: &str) -> Result<RecoveryState, String
     let mut open = std::collections::BTreeMap::<i64, InFlightRecord>::new();
     let mut completed = Vec::new();
     let mut recent = Vec::new();
+    let mut recent_calls = Vec::new();
     let mut pending = None;
     let mut last_seq = -1;
     let mut prior_usage = Usage::default();
+    let mut todos = Vec::new();
     for record in records {
         if let Some(seq) = record.get("seq").and_then(Value::as_i64) {
             last_seq = last_seq.max(seq);
@@ -261,13 +280,30 @@ fn read_recovery_sync(path: &Path, run_id: &str) -> Result<RecoveryState, String
                     );
                 }
                 Some("done") | Some("error") => {
-                    open.remove(&seq);
+                    let completed_call = open.remove(&seq);
                     completed.push(seq);
                     if record.get("phase").and_then(Value::as_str) == Some("done")
                         && let Some(value) = record.get("result")
                     {
+                        if let (Some(call), Ok(result)) = (
+                            completed_call.as_ref(),
+                            serde_json::from_value::<ToolResult>(value.clone()),
+                        ) {
+                            apply_todo_result(&call.tool, &result, &mut todos);
+                        }
                         let bounded = bounded_result(value);
                         if let Ok(result) = serde_json::from_value::<ToolResult>(bounded) {
+                            if let Some(call) = completed_call.as_ref() {
+                                recent_calls.push(RecoveredCall {
+                                    seq,
+                                    tool: call.tool.clone(),
+                                    params: call.params.clone(),
+                                    result: result.clone(),
+                                });
+                                if recent_calls.len() > RECENT_RESULTS {
+                                    recent_calls.remove(0);
+                                }
+                            }
                             recent.push(result);
                             if recent.len() > RECENT_RESULTS {
                                 recent.remove(0);
@@ -312,10 +348,46 @@ fn read_recovery_sync(path: &Path, run_id: &str) -> Result<RecoveryState, String
         completed_tool_count: completed.len() as u64,
         completed_seqs: completed,
         recent_results: recent,
+        recent_calls,
         dangling,
         pending_ask: pending,
         prior_usage,
+        todos,
     })
+}
+
+fn apply_todo_result(tool: &str, result: &ToolResult, todos: &mut Vec<Value>) {
+    let Some(text) = result.content.iter().find_map(|content| match content {
+        ToolContent::Text { text } => Some(text),
+        ToolContent::Image { .. } => None,
+    }) else {
+        return;
+    };
+    let Ok(value) = serde_json::from_str::<Value>(text) else {
+        return;
+    };
+    match tool {
+        "control__todo_write" => {
+            if let Some(items) = value.get("todos").and_then(Value::as_array) {
+                *todos = items.clone();
+            }
+        }
+        "control__todo_update" => {
+            let Some(updated) = value.get("todo") else {
+                return;
+            };
+            let Some(id) = updated.get("id").and_then(Value::as_str) else {
+                return;
+            };
+            if let Some(item) = todos
+                .iter_mut()
+                .find(|item| item.get("id").and_then(Value::as_str) == Some(id))
+            {
+                *item = updated.clone();
+            }
+        }
+        _ => {}
+    }
 }
 
 pub fn redact(value: &Value) -> Value {
@@ -426,6 +498,60 @@ mod tests {
         .unwrap();
         assert_eq!(state.completed_seqs, vec![0]);
         assert_eq!(state.dangling.unwrap().seq, 1);
+    }
+
+    #[tokio::test]
+    async fn recovery_restores_the_latest_successful_todo_state() {
+        let directory = tempfile::tempdir().unwrap();
+        let journal = Journal::open(directory.path(), "run-1", -1).await.unwrap();
+        let write = journal
+            .append_in_flight(
+                0,
+                "control__todo_write",
+                &json!({"items":[{"id":"inspect","content":"Inspect","status":"in_progress"}]}),
+            )
+            .await
+            .unwrap();
+        journal
+            .append_done(
+                write,
+                &ToolResult::text(
+                    json!({"ok":true,"todos":[{"id":"inspect","content":"Inspect","status":"in_progress"}]}).to_string(),
+                ),
+            )
+            .await
+            .unwrap();
+        let update = journal
+            .append_in_flight(
+                1,
+                "control__todo_update",
+                &json!({"id":"inspect","status":"done"}),
+            )
+            .await
+            .unwrap();
+        journal
+            .append_done(
+                update,
+                &ToolResult::text(
+                    json!({"ok":true,"todo":{"id":"inspect","content":"Inspect","status":"done"}})
+                        .to_string(),
+                ),
+            )
+            .await
+            .unwrap();
+        drop(journal);
+
+        let state = read_recovery(
+            directory.path().join("run-1/trajectory.jsonl"),
+            "run-1".to_owned(),
+        )
+        .await
+        .unwrap();
+
+        assert_eq!(
+            state.todos,
+            vec![json!({"id":"inspect","content":"Inspect","status":"done"})]
+        );
     }
 
     #[test]

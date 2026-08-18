@@ -53,6 +53,8 @@ pub enum ContentBlock {
         id: String,
         name: String,
         input: Value,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        provider_signature: Option<String>,
     },
 }
 
@@ -158,16 +160,28 @@ impl Default for LoopLimits {
 
 #[derive(Debug, thiserror::Error)]
 pub enum ProviderError {
-    #[error("credentials are missing; run `claude setup-token`")]
+    #[error("provider credentials are missing")]
     MissingCredentials,
     #[error("credentials are malformed: {0}")]
     InvalidCredentials(String),
     #[error("credential store failed: {0}")]
     CredentialStore(String),
-    #[error("Anthropic rejected the credentials (401); run `claude setup-token`")]
+    #[error("the provider rejected the credentials")]
     Unauthorized,
-    #[error("Anthropic validator rejected the request (403)")]
-    ValidatorRejected,
+    #[error("the provider rejected this request")]
+    Forbidden,
+    #[error("the provider quota is exhausted")]
+    QuotaExhausted,
+    /// The provider accepted the credentials and refused this request for pace,
+    /// not for money. It is separate from `QuotaExhausted` because the two ask
+    /// the owner for opposite actions: wait, or buy credit. Collapsing them
+    /// sent an owner to the billing pages of a healthy account.
+    #[error("the provider is rate limiting this request")]
+    RateLimited,
+    #[error("the selected model is unavailable")]
+    ModelUnavailable,
+    #[error("the provider is unavailable")]
+    Unavailable,
     #[error("provider request failed: {0}")]
     Request(String),
     #[error("provider response is invalid: {0}")]

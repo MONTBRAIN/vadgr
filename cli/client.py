@@ -55,11 +55,15 @@ def _request(ctx: click.Context, method: str, path: str, body: dict | None = Non
                 return {}
             return json.loads(body)
     except urllib.error.HTTPError as e:
+        code = None
+        details = {}
         try:
             body = json.loads(e.read())
             # API returns {"error": {"message": "..."}} or {"detail": "..."}
             if "error" in body and isinstance(body["error"], dict):
                 detail = body["error"].get("message", e.reason)
+                code = body["error"].get("code")
+                details = body["error"].get("details") or {}
             else:
                 raw_detail = body.get("detail", e.reason)
                 if isinstance(raw_detail, list):
@@ -74,7 +78,7 @@ def _request(ctx: click.Context, method: str, path: str, body: dict | None = Non
                     detail = raw_detail
         except Exception:
             detail = e.reason
-        raise click.ClickException(f"{detail}") from None
+        raise ApiClientError(f"{detail}", status=e.code, code=code, details=details) from None
     except socket.timeout:
         raise click.ClickException(
             f"Request timed out ({url}). The operation may still be running."
@@ -97,12 +101,24 @@ class DaemonUnreachable(click.ClickException):
     exit_code = 3
 
 
+class ApiClientError(click.ClickException):
+    """A structured daemon error that commands can recover from by code."""
+
+    def __init__(self, message: str, *, status: int, code: str | None,
+                 details: dict):
+        super().__init__(message)
+        self.status = status
+        self.code = code
+        self.details = details
+
+
 def api_get(ctx: click.Context, path: str) -> dict | list:
     return _request(ctx, "GET", path)
 
 
-def api_post(ctx: click.Context, path: str, body: dict | None = None) -> dict | list:
-    return _request(ctx, "POST", path, body)
+def api_post(ctx: click.Context, path: str, body: dict | None = None,
+             timeout: int | None = None) -> dict | list:
+    return _request(ctx, "POST", path, body, timeout=timeout)
 
 
 def api_put(ctx: click.Context, path: str, body: dict | None = None,
