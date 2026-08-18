@@ -407,6 +407,26 @@ branches deleted local and remote, every repo back on its default branch, then
 `PROGRESS.md` updated and the next item named - read from `PLANS.md`'s
 iteration table, not decided.
 
+**A tag and its release are named one way in every repo**, because six shapes
+across three repos is what happens when each release is named freehand: `vadgr
+0.4.7`, `v0.4.6 - the Rust execution engine`, `v0.4.4`, `vadgr 0.4.2 - the web
+dashboard is gone`, `vadgr-mobile v0.4.1` and one carrying an em dash were all
+in use at once. The shape is:
+
+- **the tag is `vX.Y.Z`** and nothing else: no repo name, no suffix, no `release/`
+  prefix. The repo is already the context.
+- **the tag is annotated, and its message is the release notes**, which match
+  the changelog entry for that version. A tag whose subject reads `Merge pull
+  request #181 from ...` is a lightweight tag left on a merge commit, and it
+  tells a reader nothing about what shipped.
+- **the release title is `vX.Y.Z - <what it made true>`**: the tag, a spaced
+  hyphen, then a short lowercase phrase naming what the release changed for
+  someone using the product. Not the repo name, not bare, and never an em dash.
+
+A bare title makes every reader open the notes to learn anything, and a title
+that repeats the repo name spends its only line on something the page already
+says.
+
 **Paths in this document are relative to this repo's parent directory**, with
 the docs repo cloned beside it. If you cloned it under a different name, use
 that name. Nothing here assumes a particular machine, user or absolute path.
