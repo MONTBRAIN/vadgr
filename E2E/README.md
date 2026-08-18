@@ -138,6 +138,34 @@ text, documentation or evidence. Run
 `python3 scripts/check_no_secrets.py --env-file ../.env` before every commit and
 before sealing evidence.
 
+## The owner's cells are executed first, not announced first
+
+**Rule 1 is satisfied by running those cells, not by mentioning them.** Before
+any other cell, identify every cell that cannot proceed without a human, and
+**execute them**. Not list them, not warn about them, not tell the owner to
+stand by: run them, get the human observation, record it, and only then start
+the unattended matrix.
+
+This is written as its own section because the weaker form has already failed
+twice, the second time immediately after the rule was read aloud. `0.4.8`'s
+Windows pass opened by naming the handset cell as the one thing needing the
+owner, then ran parts A, B, C, D and E and reached the owner's cell an hour
+later. Naming it changed nothing: the owner still waited, and the pass still
+had a human-blocked cell outstanding while it did work that could have run at
+any time.
+
+The test to apply before the first command of a pass:
+
+- Which cells need a person? List them.
+- **Is one of them the command I am about to run?** If not, and one of them
+  could run now, run that one instead.
+- A cell that needs a person and also needs setup gets that setup **first**, and
+  nothing else does.
+
+An owner-blocked cell left until later is not scheduling. It is the pass
+deciding the owner's time is the cheap resource, which is exactly backwards: the
+machine can wait and the person cannot.
+
 ## A pass is finished, not paused
 
 **Drive the whole matrix before reporting.** The failure this stops is not
