@@ -6,9 +6,9 @@ daemons over their public surfaces. The environment variables are one family now
 rather than two, and the run watcher no longer goes silent when a run is
 cancelled.
 
-> **Status: run on WSL2 (Ubuntu on Windows), 2026-08-18.** Automated gate green
-> (rust 266, api 432, cli 150, engine 122). Native Linux, native Windows and
-> macOS are `not run`. Findings are listed below. Nothing is marked pass that was
+> **Status: run on WSL2 (Ubuntu on Windows), 2026-08-18, and complete there.**
+> All 45 cells carry a verdict. Automated gate green (rust 266, api 432, cli 150,
+> engine 122). Native Linux, native Windows and macOS are `not run`. Findings are listed below. Nothing is marked pass that was
 > not executed and read back.
 
 ## How a pass is run, before anything else in this file
@@ -211,7 +211,7 @@ QR on the screen encodes the link the phone needs. That is this runbook's half.
 | F runs and the watcher, Rust daemon | outcome x flag | 6 | 6 | 0 |
 | G pair and the QR, Rust daemon | render x decode x handset | 4 | 3 | 1 |
 | H negatives and exit codes | failure class | 5 | 5 | 0 |
-| | | **45** | **44** | **1** |
+| | | **45** | **45** | **0** |
 
 ## Part A: the thing under test is the thing that was built
 
@@ -293,7 +293,7 @@ never printed.
 | G1 | Rust daemon, no provider connected | `vadgr pair` with no terminal for the prompt | says a provider must be connected first and stops without minting a code; no pairing row is created | CLI output, `curl /api/devices` | none | **pass**: with no provider connected the command said `Before this machine can pair, connect a model provider.`, offered the provider choice, and stopped without minting anything. `GET /api/devices` returned `[]`. |
 | G2 | provider connected and default | `vadgr pair` | prints a QR, then `Machine`, `Address` and `Pairing code`, then the one-time validity line; exit `0` | CLI output including the rendered symbol | the code expires | **pass**: a 41 by 21 symbol, then `Machine`, `Address` and `Pairing code`, then the one-time line; exit `0`. The address is the tailnet name the transport advertises. |
 | G3 | G2's output | rebuild the deep link from the printed `Machine`, `Address` and `Pairing code`, encode it at the shipped settings, and compare with the rendered symbol | the two renders are identical, so what is on the screen encodes exactly the link the phone needs | the two renders and their comparison | none | **pass**: `rqrr`, a decoder independent of the encoder under test, read the symbol **as printed** and recovered `vadgr://pair?host=santiago-casa-1.tail323b9e.ts.net&port=8811&token=N36R-GRHC&name=Santiago-Casa`, which is exactly the link rebuilt from the fields printed beside it. Version 5 at error correction level `Low`, as the probe chose. |
-| G4 | G2's QR on screen, handset in the owner's hand | the owner scans it with the Vadgr app | the app reads the machine name and address and pairs | the owner's confirmation and the device row the daemon records | the device is removed | **not run**: it needs the owner's handset, and the owner was told before the `G` group ran. Everything a machine can check about this QR is checked in `G3`. |
+| G4 | G2's QR on screen, handset in the owner's hand | the owner scans it with the Vadgr app | the app reads the machine name and address and pairs | the owner's confirmation and the device row the daemon records | the device is removed | **pass**: the owner scanned the symbol the installed `vadgr pair` printed, with the Vadgr app on a handset over the tailnet. **The verdict is the daemon's, not the owner's report**: `POST /api/auth/claim` answered `200` at `22:07:24` where every earlier probe with an unminted code answered `401`, and `GET /api/devices` then carried one row, `Xiaomi 2406APNFAG`, `paired_at 22:07:24`. Its `last_seen` is later than its `paired_at`, so the phone came back and talked to the machine rather than only completing the claim. **The first attempt did not pair and that is recorded rather than retried away**: no claim reached the daemon at all, because the code had expired, and the cell was re-run inside the five minute window. |
 
 ## Part H: the failures a script branches on
 
@@ -329,9 +329,9 @@ parts actually driven on that OS.
 | D: read-only commands, Rust daemon | **pass**, 6 of 6 | not run | not run | not run | `health`, `providers`, `computer-use status` and `status` are byte for byte identical to the shipped Python CLI on the same daemon. Two defects were fixed to get there, F1 and F3 |
 | E: provider onboarding | **pass**, 7 of 7 | not run | not run | not run | two real credentials, a live 28 model catalog and a live 10 model catalog, one bounded readiness call each, and the secret absent from the database, WAL, SHM and evidence |
 | F: runs and the watcher | **pass**, 6 of 6 | not run | not run | not run | `F3` is the release's own improvement, and it is proved by driving the shipped Python CLI against the same cancellation, where it printed nothing and hung |
-| G: pair and the QR | **pass**, 3 of 4 | not run | not run | not run | `G4` needs the owner's handset. `G3` decodes the printed symbol with an independent decoder, which is everything a machine can check |
+| G: pair and the QR | **pass**, 4 of 4 | not run | not run | not run | `G3` decodes the printed symbol with an independent decoder; `G4` is a real handset, and the daemon recorded the claim at `200` and the device row |
 | H: negatives and exit codes | **pass**, 4 of 5, 1 partial | not run | not run | not run | `H4` is partial: no public CLI invocation can send a malformed body, so the `422` parser is covered by its unit test and the wire shape by a live probe |
-| **overall** | **pass**, 1 not run, 1 partial | not run | not run | not run | every part of this runbook has been driven on WSL. The two open rows are named above and neither is a WSL defect: `G4` needs a person holding a phone, and `H4` has no public path to it. Three defects were found and fixed during the pass, each with a regression test seen red first |
+| **overall** | **pass**, 1 partial | not run | not run | not run | every part of this runbook has been driven on WSL and every cell has a verdict. The one row that is not a clean pass is named above and it is not a WSL defect: `H4` has no public path to it. Three defects were found and fixed during the pass, each with a regression test seen red first |
 
 Process supervision, path handling, terminal rendering and the loopback probe are
 platform-shaped. **No supported operating system is `Not-Needed` for final
