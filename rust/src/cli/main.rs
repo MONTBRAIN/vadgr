@@ -247,7 +247,12 @@ async fn run_task(
     // `--background` exits `0` once the run is accepted, because the outcome is
     // not known yet and inventing one would be a lie a script acts on.
     if background {
-        anstream::println!("  Watch it with: vadgr runs get {run_id}");
+        // Not under `--json`. That flag's whole purpose is a stdout a script can
+        // parse, and a friendly line after the object makes the stream invalid
+        // JSON, so `jq` fails on output the CLI just called machine readable.
+        if !as_json {
+            anstream::println!("  Watch it with: vadgr runs get {run_id}");
+        }
         return Ok(());
     }
 
