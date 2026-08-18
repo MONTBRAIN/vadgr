@@ -321,6 +321,26 @@ per-run iteration cap, so enforcing that ceiling needs the driver to cancel
 mid-run, and this driver did not. Every token ceiling held: the largest run used
 89,289 input against the 100,000 ceiling and 497 output against 2,000.
 
+## What the macOS fixes owe the other operating systems
+
+Rule 4 at the top of this file: a shared-behaviour fix means the earlier passes
+observed different code, so the cells it touches are owed again on every
+operating system that had passed them. This pass made four fixes. Their reach is
+named here rather than left for a reader to work out, and **none of them blocks
+merge**.
+
+| fix | reach | owed elsewhere |
+|---|---|---|
+| `F37` approval gate fails closed | Shared engine code, every operating system. The `high` path is unchanged and still parks, which is the outcome Linux, native Windows and WSL each recorded for `C07`, so no recorded result is contradicted. What did change is the tool schema: `risk` is now an enum of three named severities with a description, so the model is told something different from what it was told before, and which value it sends is an input to the cell | **`C07` on native Linux, native Windows and WSL.** One run each. It confirms the model still sends a severity the policy ranks now that the schema names them |
+| `F35` cua expands a leading tilde | Shared cua code, shipped as `0.7.3`. It changes behaviour only for a path or `cwd` beginning with `~`. The Linux and Windows editor and effect cells used absolute paths, so the behaviour they exercised is unchanged | Nothing is owed for correctness. If this PR raises the required cua to `0.7.3`, the rows that name installed cua `0.7.2` should say `0.7.3` after those hosts reinstall, because a version string that no longer matches the shipped floor misleads the next reader |
+| `F38` platform-aware AT-SPI remedy | Message only. Linux keeps its wording unchanged. macOS and Windows get the new one, and no pass on any host recorded reaching `at_spi_unavailable` | Nothing |
+| `F36` reach the Tailscale macOS application | The discovery is entirely behind `cfg(target_os = "macos")`. One shared change came with it: the HTTP/1.0 response parser the three transports each had inline is now one function, `parse_local_api_response`, called by the unix, macOS and **Windows named-pipe** paths. It is a lift with identical semantics and a test pinning that only a `200` yields a body | Nothing owed for the parser on correctness grounds, but the Windows pairing rows `H04` to `H11` read through the lifted parser, so a host re-running them for any other reason should note it |
+
+The macOS additions to the api suite are test-only and change no product path.
+`test_serve` now probes for a second loopback address the host actually has,
+which on Linux is still `127.0.0.2` and on Windows is still skipped, so the
+Linux and Windows suites assert exactly what they asserted before.
+
 ## Owner and environment requirements
 
 These requirements are declared before another live group runs. Availability
@@ -1084,7 +1104,7 @@ which is the only way to make one specific control tool the subject of a cell.
 | C03 | `control__todo_write` selected and journaled; the canonical list came back with both ids |
 | C04 | `control__todo_update` advanced exactly the two named ids |
 | C06 | `control__get_run_status` returned the same run id, its iteration, its todos and its token counts |
-| C07 | parked durably at `awaiting_approval` with one `await_user` entry |
+| C07 | parked durably at `awaiting_approval` with one `await_user` entry. **Owed again on native Linux, native Windows and WSL after `F37`**: the gate now fails closed and the `risk` schema names three severities, so what the model is told has changed even though the `high` path it recorded is unchanged |
 | C08 | parked durably on `control__ask_user` |
 | C09 | parked durably on `control__propose_plan` with zero machine actions first |
 | C10 | one journaled `control__notify_user`, and the run continued to completion |
