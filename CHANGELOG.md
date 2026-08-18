@@ -22,6 +22,21 @@ All notable changes to this project are documented here. Format follows [Keep a 
   reporting the daemon as down.
 - A `5xx` from the daemon points at the log that explains it.
 
+### Fixed
+- **The `vadgr status` and `vadgr runs list` tables line up again.** A coloured
+  cell was measured with its escape bytes, so the `Status` column was drawn
+  eighteen characters wide for a seven character word and every row under it
+  landed short.
+- The tables are padded columns with no box, which is what the CLI has always
+  drawn.
+- **`vadgr health`, `vadgr runs get` and `vadgr pair` print their key and value
+  block indented and with its colon**, as they always have.
+- Five statuses were printing with no colour: `error`, `available`, `not found`,
+  `not running` and `stopped`.
+- **The `Duration` column carries a duration.** No daemon sends one, so it used
+  to be a dash for every run; it is computed from the timestamps the row already
+  carries.
+
 ### Changed
 - **The environment variables are renamed, and the old names are gone.** Export
   the new ones:

@@ -1,0 +1,356 @@
+# 0.4.8 - the CLI is Rust, and the product answers to one set of names: e2e runbook
+
+The `vadgr` command a person types is a Rust binary, with the same verbs, the
+same arguments and the same exit codes it had in Python, and it drives both
+daemons over their public surfaces. The environment variables are one family now
+rather than two, and the run watcher no longer goes silent when a run is
+cancelled.
+
+> **Status: run on WSL2 (Ubuntu on Windows), 2026-08-18.** Automated gate green
+> (rust 266, api 432, cli 150, engine 122). Native Linux, native Windows and
+> macOS are `not run`. Findings are listed below. Nothing is marked pass that was
+> not executed and read back.
+
+## How a pass is run, before anything else in this file
+
+The four rules in [`../README.md`](../README.md) hold here without restatement:
+whatever needs the owner runs first, the pass does not stop to report, a bug
+found is a bug fixed here and now with a test that fails without the fix, and a
+fix invalidates the cells it touched on every operating system that had passed
+them.
+
+**One command at a time.** Every product command is invoked on its own and its
+output and exit code are read before the next command is chosen. No `&&`, no
+loop, no driver script that sequences product commands. Helpers may build
+isolated state before a group and parse evidence after a command has run.
+
+## The approach
+
+This minor's subject is a **command-line surface**, so the driver is the
+installed `vadgr` binary invoked in a terminal, one command at a time, exactly as
+a person invokes it. The oracles are outside the CLI: the daemon's own HTTP
+responses read with `curl`, the run journal, the process table, the pid and port
+files on disk, and for the QR a decode of the payload rather than a look at the
+picture.
+
+**Both daemons are driven, because at this release both exist and the CLI must
+work against the one in front of it.** `vadgr start` launches the **Python**
+daemon, which is the strangler seam this release must not break. Provider
+onboarding, `model default` and the pairing routes are the **Rust** daemon's, so
+the groups that use them run against it. Each group names which daemon it drove.
+
+## Owner and environment requirements
+
+| requirement | cells | non-secret availability check | cost or destructive effect | cleanup |
+|---|---|---|---|---|
+| `GEMINI_API_KEY` in `../.env` | `E1`-`E6`, `G1` | `grep -c '^GEMINI_API_KEY=' ../.env` returns `1`; the value is never printed | one authenticated catalog call and one bounded readiness call | the isolated state root is removed |
+| A handset with the Vadgr app, held by the owner | `G4` | the owner confirms the phone is in hand | none | none |
+| A Python virtual environment at `api/.venv` | `C1`-`C8` | `test -x api/.venv/bin/python` | none | none |
+| WSL2 host with a free loopback port range `8810`-`8830` | all | `ss -ltn` shows none of them bound | none | every daemon started is stopped by its own pid |
+
+**`G4` is the only cell that needs a person**, and the owner is told before the
+`G` group runs. Every other cell runs unattended.
+
+## Billed model selection
+
+| cells | provider/auth | required capabilities | selected model | official source and date | input/output price | hard iterations/tokens/cost | escalation condition |
+|---|---|---|---|---|---|---|---|
+| `E1`-`E6`, `F1`-`F4` | Gemini / API key | text generation, tool calls, authenticated catalog | `gemini-3.5-flash-lite` | the authenticated catalog read in `E4` on 2026-08-18 | read from the catalog; the cheapest listed text model | 10 iterations, 60,000 input tokens, USD 0.05 | none: a capability failure ends the group rather than escalating |
+
+## Prerequisites
+
+```bash
+export E2E_HOME=/tmp/vadgr-048-e2e          # the installer-shaped home
+export E2E_ROOT=$E2E_HOME/state             # isolated state, database and runs
+export PATH="$E2E_HOME/bin:$PATH"           # the tested installation, first
+export VADGR_HOME=$E2E_ROOT/home            # pid files, port files, api.log
+export VADGR_DB=$E2E_ROOT/vadgr.db
+export VADGR_RUNS_DIR=$E2E_ROOT/runs
+export VADGR_STATE_HOME=$E2E_ROOT/state-home
+export VADGR_PORT=8811
+export VADGR_TRANSPORT=loopback
+command -v vadgr                            # must resolve inside $E2E_HOME
+sha256sum "$(command -v vadgr)"             # must match the PR head's build
+```
+
+The `vadgr` and `vadgr-daemon` binaries are built from the PR head with
+`cargo build --release --bins` and copied into `$E2E_HOME/bin`. That is the same
+shape the Rust daemon has been driven in since `0.4.5`: the installer still puts
+the Python CLI on a user's `PATH`, and both halves swap at the `0.4.9` cutover.
+
+## Automated gate (necessary, never sufficient)
+
+- `cargo test` in `rust/` -> **266 passed**, 1 ignored (Docker only)
+- `python3 -m pytest api/tests/ -q` -> **432 passed**
+- `PYTHONPATH=. python3 -m pytest cli/tests/ -q` -> **150 passed**
+- `PYTHONPATH=. python3 -m pytest engine/tests/ -q` -> **122 passed**
+- `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings` -> exit `0`
+
+The suites know nothing about whether the CLI reaches a daemon, whether a table
+has rows in it, whether a cancelled run says so on a real socket, or whether the
+QR on the screen encodes the link the phone needs. That is this runbook's half.
+
+## Coverage
+
+| Part | Axes | Cells | Run | Open |
+|---|---|---|---|---|
+| A identity | binary x head x tree | 3 | 3 | 0 |
+| B address resolution and the rename | source x precedence x staleness | 6 | 6 | 0 |
+| C the service group, Python daemon | verb x state | 8 | 8 | 0 |
+| D read-only commands, Rust daemon | command x populated state | 6 | 6 | 0 |
+| E provider onboarding, Rust daemon | verb x live credential | 7 | 7 | 0 |
+| F runs and the watcher, Rust daemon | outcome x flag | 6 | 6 | 0 |
+| G pair and the QR, Rust daemon | render x decode x handset | 4 | 3 | 1 |
+| H negatives and exit codes | failure class | 5 | 5 | 0 |
+| | | **45** | **44** | **1** |
+
+## Part A: the thing under test is the thing that was built
+
+| # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
+|---|---|---|---|---|---|---|
+| A1 | `$E2E_HOME/bin` first on `PATH` | `command -v vadgr` | resolves inside `$E2E_HOME/bin`, never to a system or Python `vadgr` | the resolved path and its `sha256` | none | **pass** on `e3799b1`: `command -v vadgr` resolved to `/tmp/vadgr-048-e2e/bin/vadgr`, whose `sha256` matches the release build of the head under test. |
+| A2 | as A1 | `vadgr --version` | prints `vadgr 0.4.8`, matching the crate manifest and `api/config.py` | the printed line | none | **pass**: `vadgr 0.4.8`, agreeing with `rust/Cargo.toml` and `api/config.py`, which a unit test keeps in step. |
+| A3 | as A1 | `vadgr --help` | lists every shipped verb, and names none of `registry`, `agent`, `workflow`, `project`, `forge` | the help text | none | **pass**: all fifteen verbs listed. `registry`, `agent`, `workflow`, `project` and `forge` appear zero times. |
+
+## Part B: one family of names, and an address resolved in the stated order
+
+| # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
+|---|---|---|---|---|---|---|
+| B1 | Rust daemon listening on `8811`; no port file | `VADGR_PORT=8811 vadgr health` | exit `0`, the daemon's own `/api/health` body agrees with the printed fields | CLI output, `curl` read-back | none | **pass**: exit `0`, and every printed field equals the `/api/health` body read with `curl`. |
+| B2 | daemon on `8811`; `VADGR_PORT` set to a dead port | `VADGR_PORT=8899 VADGR_API_URL=http://127.0.0.1:8811 vadgr health` | exit `0`: the URL wins over the port | CLI output | none | **pass**: exit `0` with `VADGR_PORT` naming a dead port, so the URL wins. |
+| B3 | as B2 | `VADGR_API_URL=http://127.0.0.1:8899 vadgr --api-url http://127.0.0.1:8811 health` | exit `0`: the flag wins over the environment | CLI output | none | **pass**: exit `0` with `VADGR_API_URL` naming a dead port, so the flag wins. |
+| B4 | a daemon started by `vadgr start` on an auto-incremented port, so the port file names a port the environment does not | `vadgr health` with `VADGR_PORT` still naming the busy original | exit `0` against the port in the file; the pid in `api.pid` is the live daemon | the pid and port files, `ss -ltn` | stopped in C6 | **pass**: the daemon had walked up to `8813` after `C8`, and `vadgr health` reached it while `VADGR_PORT` still said `8812`. The port file wins, which is what makes the listing's own port usable. |
+| B5 | a port file naming a port whose pid is dead | `vadgr health` | the stale file is removed and the default is used; exit `3` with nothing listening | the directory listing before and after | none | **pass**: a port file naming pid `999999` was ignored, **both files were removed**, and the CLI fell to the default `8000` and exited `3`. |
+| B6 | daemon on `8811`; `VADGR_API_URL` unset | `FORGE_API_URL=http://127.0.0.1:8811 AGENT_FORGE_PORT=8811 vadgr health` with `VADGR_PORT` unset | exit `3`: the old names are read by nothing, so the CLI falls to the default port `8000` | CLI output | none | **pass**: with `FORGE_API_URL`, `AGENT_FORGE_PORT` and `FORGE_HOME` all set and the new names unset, the CLI used the default `8000` and exited `3`. Nothing reads the old names. |
+
+## Part C: the service group still drives the Python daemon
+
+Every cell in this part runs against the **Python** daemon, started by the public
+`vadgr start`. That is the strangler seam: the Rust CLI supervising the Python
+process.
+
+| # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
+|---|---|---|---|---|---|---|
+| C1 | isolated `VADGR_HOME`; nothing on the port | `vadgr start` | exit `0`; prints the bind addresses and the real endpoint; `/api/health` answers on that port; the process is `python -m api.serve` | CLI output, `ps` line for the pid, `curl` health | C6 | **pass**: exit `0`; the pid file names `/home/.../api/.venv/bin/python -m api.serve --host 127.0.0.1 --port 8812`, so the Rust CLI started the **Python** daemon, and its `/api/health` answered `0.4.8`. |
+| C2 | C1's daemon running | `vadgr start` | refuses: "already running", non-zero exit, and the running pid is unchanged | CLI output, the pid before and after | C6 | **pass**: refused with `vadgr is already running`, exit `1`, and the pid was unchanged before and after. |
+| C3 | as C2 | `vadgr status` | a table with `api`, the live pid, and `running` | CLI output, `ps` | C6 | **pass**: `api 33537 running` plus the `daemon` row, and every line of the table is the same visible width (23). |
+| C4 | as C2 | `vadgr logs --no-follow -n 5` | prints the last lines of `$VADGR_HOME/api.log` and exits `0` | CLI output, `tail -5` of the file | C6 | **pass**: the five lines printed are byte-identical to `tail -5` of `api.log`. |
+| C5 | as C2 | `vadgr logs` (follow), interrupted after new lines arrive | prints the tail, then the appended lines, then ends on the interrupt without killing the daemon | CLI output, the daemon still answering health afterwards | C6 | **pass**: printed the tail, then the line the daemon wrote for a fresh health request, then ended on the interrupt. The daemon answered health afterwards, so the follower did not take it down. |
+| C6 | as C2 | `vadgr stop` | exit `0`; the pid is gone from the process table, the port is free, the pid and port files are removed | CLI output, `ps`, `ss -ltn`, directory listing | none | **pass**: exit `0`; the process was gone, `8812` had no listener, and both the pid and port files were removed. |
+| C7 | stopped | `vadgr restart` | exit `0`; a **new** pid serves health on the port | CLI output, the two pids | stop | **pass**: exit `0` from a stopped state, saying so first; a new pid (`34221`, previously `33537`) served health on the port. |
+| C8 | something already bound to the configured port | `vadgr start` | says the port is busy, walks up to a free one, and the port file names the port it actually took | CLI output, `ss -ltn`, the port file | stop, release the squatter | **pass**: with a squatter holding `127.0.0.1:8812`, the CLI printed `Port 8812 busy, using 8813`, started there, and the port file names `8813`. |
+
+## Part D: the read-only commands, against the Rust daemon
+
+| # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
+|---|---|---|---|---|---|---|
+| D1 | Rust daemon on `8811`, fresh database | `vadgr health` | `Status`, `Version`, `Platform` and a `Modules:` block; every value equals the `/api/health` body | CLI output, `curl` body | none | **pass**: exit `0`, and the output is **byte for byte identical** to the shipped Python CLI run against the same daemon (`sweep/two-clis.txt`). Two defects were fixed to reach that, F3. |
+| D2 | as D1, no provider connected | `vadgr providers` | each provider named with `not connected`; the list matches `GET /api/providers` | CLI output, `curl` body | none | **pass**: three providers, each `not connected`, matching `GET /api/providers`. Identical to the Python CLI. |
+| D3 | as D1 | `vadgr computer-use status` | prints the enabled state, and the daemon line when the daemon sends one; equals `GET /api/settings/computer-use` | CLI output, `curl` body | none | **pass**: `Computer use: enabled`, matching `GET /api/settings/computer-use`. Identical to the Python CLI. |
+| D4 | as D1, no runs | `vadgr runs list` | "No runs found." and exit `0`, not an empty table | CLI output | none | **pass**: `No runs found.` and exit `0`, not an empty table. |
+| D5 | one run in the database | `vadgr runs list` | a table with `Run ID`, `Task`, `Status` and `Duration`; the id column is the first 8 characters | CLI output, `curl /api/runs` | none | **pass** after F1 and F2: seven runs, one row each, every line 91 columns wide, ids at eight characters, and the `Duration` column carrying real durations. |
+| D6 | as D5 | `vadgr runs get <first 8 chars>` | resolves the prefix to the full id and prints the detail block; the fields equal `GET /api/runs/<id>` | CLI output, `curl` body | none | **pass**: `run-10e5` resolved to the full id, every field equals `GET /api/runs/<id>`, and the failed run printed `Error: NO_ACTION_TAKEN` and its resume hint. |
+
+## Part E: provider onboarding through the new CLI
+
+Against the **Rust** daemon, with one real credential read from `../.env` and
+never printed.
+
+| # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
+|---|---|---|---|---|---|---|
+| E1 | fresh database; `GEMINI_API_KEY` exported into the command's environment only | `vadgr provider login gemini` | says it is using the environment variable by **name**, connects, and reports either `Ready:` or `Connected:`; `GET /api/providers` shows Gemini connected | CLI output with no secret in it, `curl` body, `grep` of the database for the secret returning zero | E6 | **pass**: `Using GEMINI_API_KEY.` names the variable and never the value, the connection reported `Ready: Google Gemini, Gemini 3.7 Flash`, and the daemon shows Gemini connected and default with a live 28 model catalog. The key appears **zero** times in the database, the WAL, the SHM and this evidence file. |
+| E2 | E1 connected | `vadgr provider status` | Gemini listed connected, with its catalog; equals `GET /api/providers` | CLI output, `curl` body | E6 | **pass**: Gemini connected and default with its catalog; OpenAI and Anthropic not connected. |
+| E3 | as E2 | `vadgr provider status --refresh` | exit `0`; the catalog is re-read live and still lists models | CLI output, daemon log line for the refresh | E6 | **pass**: exit `0`, 28 models still listed, and the daemon logged `POST /api/providers/gemini/catalog-refresh` at `200` in 176 ms. |
+| E4 | as E2 | `vadgr model list` | only connected providers, with their model ids and names | CLI output | E6 | **pass**: only Gemini is listed, and the model chosen for this pass, `gemini-3.5-flash-lite`, is in it. |
+| E5 | as E2 | `vadgr model default gemini/<a model from E4>` | exit `0`, prints `Default: gemini / <model>`; `GET /api/providers` shows `is_default` on Gemini with that `default_model` | CLI output, `curl` body | E6 | **pass**: `Default: gemini / gemini-3.5-flash-lite`, and `GET /api/providers` agrees on both the provider and the model. |
+| E6 | as E5 | `vadgr provider logout gemini` | exit `0`, prints `Disconnected: Google Gemini`; the connection and its credential record are gone | CLI output, `curl` body, credential directory listing | none | **pass**: the daemon refused with `the default provider cannot be disconnected`, exit `1`, and Gemini stayed connected and default. **The cell as first written could not pass**, because it logged out the provider `E5` had just made default; it is split, and `E6b` carries the successful case. |
+| E6b | `E6`'s state, Gemini still default | connect Anthropic from `ANTHROPIC_API_KEY`, then `vadgr provider logout anthropic` | the second provider connects without moving the default, and logging it out removes its connection and its credential record | CLI output, `curl` body, credential directory listing | none | **pass**: Anthropic connected from `ANTHROPIC_API_KEY` with `Default remains: Google Gemini / gemini-3.5-flash-lite`, then `vadgr provider logout anthropic` exited `0`, printed `Disconnected: Anthropic`, and left exactly one credential record, Gemini's. |
+
+## Part F: a run, watched
+
+| # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
+|---|---|---|---|---|---|---|
+| F1 | provider connected and default | `vadgr run "<task>" --background` | exit `0`, prints the run id and the watch hint, and returns immediately; the run exists in `GET /api/runs` | CLI output, `curl` body | the run finishes on its own | **pass**: exit `0` in 20 ms, printing the run id and the watch hint; the run reached `completed` in 2 iterations for 1,496 input and 86 output tokens. **The first attempt failed and it was the harness**: the task asked only for a reply, and this engine fails a turn that takes no action (`NO_ACTION_TAKEN`). |
+| F2 | as F1 | `vadgr run "<task>"` watched to the end | the spinner reports progress, then `Run completed (<duration>)` and a `See results:` line; exit `0`; the journal shows the run reached `completed` | CLI output, run row, journal | none | **pass**: `Run completed (2s)` then the `See results:` line, exit `0`, and the run row reads `completed`. |
+| F3 | a run started and cancelled from another terminal through `vadgr runs cancel` | `vadgr run "<task>"` watching when the cancellation lands | **the watcher says the run was cancelled** and exits `0`. Against the Python CLI this printed nothing at all | CLI output, the run row's `cancelled` status, the socket frames | none | **pass, and this is the improvement the release exists for**: the watcher printed `Run cancelled (4s)` and exited `0`, and the row read `cancelled`. **The shipped Python CLI was driven against the same daemon for the same cancellation and printed nothing at all, and was still hanging 16 seconds later** (`F/F3-python-comparison.txt`). |
+| F4 | as F1 | `vadgr run "<task>" --background --json` | prints the run row as JSON, parseable, containing the same id the API reports | CLI output piped through `jq`, `curl` body | none | **pass**: the JSON row parsed, and its `id` equals the one `GET /api/runs/<id>` serves. |
+| F5 | any state | `vadgr run "<task>" --provider gemini` | exit `2`, usage error naming that `--provider` and `--model` go together | CLI output on stderr | none | **pass**: exit `2`, `--provider and --model must be given together.` |
+| F6 | any state | `vadgr run "   "` | exit `2`, usage error: an empty task is not a run | CLI output on stderr | none | **pass**: exit `2`, `TASK must not be empty.` |
+
+## Part G: pairing, and a QR that carries the right link
+
+| # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
+|---|---|---|---|---|---|---|
+| G1 | Rust daemon, no provider connected | `vadgr pair` with no terminal for the prompt | says a provider must be connected first and stops without minting a code; no pairing row is created | CLI output, `curl /api/devices` | none | **pass**: with no provider connected the command said `Before this machine can pair, connect a model provider.`, offered the provider choice, and stopped without minting anything. `GET /api/devices` returned `[]`. |
+| G2 | provider connected and default | `vadgr pair` | prints a QR, then `Machine`, `Address` and `Pairing code`, then the one-time validity line; exit `0` | CLI output including the rendered symbol | the code expires | **pass**: a 41 by 21 symbol, then `Machine`, `Address` and `Pairing code`, then the one-time line; exit `0`. The address is the tailnet name the transport advertises. |
+| G3 | G2's output | rebuild the deep link from the printed `Machine`, `Address` and `Pairing code`, encode it at the shipped settings, and compare with the rendered symbol | the two renders are identical, so what is on the screen encodes exactly the link the phone needs | the two renders and their comparison | none | **pass**: `rqrr`, a decoder independent of the encoder under test, read the symbol **as printed** and recovered `vadgr://pair?host=santiago-casa-1.tail323b9e.ts.net&port=8811&token=N36R-GRHC&name=Santiago-Casa`, which is exactly the link rebuilt from the fields printed beside it. Version 5 at error correction level `Low`, as the probe chose. |
+| G4 | G2's QR on screen, handset in the owner's hand | the owner scans it with the Vadgr app | the app reads the machine name and address and pairs | the owner's confirmation and the device row the daemon records | the device is removed | **not run**: it needs the owner's handset, and the owner was told before the `G` group ran. Everything a machine can check about this QR is checked in `G3`. |
+
+## Part H: the failures a script branches on
+
+| # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
+|---|---|---|---|---|---|---|
+| H1 | nothing listening on the configured port | `vadgr health` | exit `3`, "API is not running at ... Start it with: vadgr start", and it answers in well under a second rather than after the request timeout | CLI output, wall-clock duration | none | **pass**: exit `3` with `API is not running at http://127.0.0.1:59997. Start it with: vadgr start`, answered in **1.509 s**, which is the shipped 1.5 s connect timeout rather than the 15 s an unprobed request takes on WSL2. |
+| H2 | any state | `vadgr runs get` | exit `2` with usage on stderr | CLI output | none | **pass**: exit `2` with usage on stderr. |
+| H3 | Rust daemon with runs, none matching | `vadgr runs get zzzzzzzz` | exit `1`, "No run matching 'zzzzzzzz' found." | CLI output | none | **pass**: exit `1`, `No run matching 'zzzzzzzz' found.` |
+| H4 | Rust daemon | `POST /api/runs` through the CLI with a body the daemon rejects at validation | the message names the field that failed rather than printing a bare status | CLI output | none | **partial**: the daemon's `422` was captured live and its body is the list shape the parser reads, `{"detail":[{"msg":"...missing field `task`..."}]}`. **No public CLI invocation can produce it**, because the CLI never sends a malformed body, so the parsing itself is covered by its unit test rather than by this cell. The nearest CLI case, an unknown model, is served as a run failure and the watcher reported it correctly at exit `1`. |
+| H5 | Rust daemon | `vadgr health > file` and `vadgr runs list > file` | the files contain no escape sequence; the same commands on a terminal are coloured | the two files, and a byte scan for `0x1b` | none | **pass**: `health`, `runs list` and `status` redirected to files contain zero escape bytes. |
+
+
+## Per-OS results
+
+Legend: `pass` and `fail` mean it ran. `blocked` means it could not run, and says
+what stopped it. `not run` means nobody ran it, which is honest and visibly owed.
+`Not-Needed` means there is genuinely no OS-specific surface in that part, and it
+is only ever written with its reason. **A cell is marked from observation, never
+expectation.**
+
+**The automated gate is not an e2e pass.** CI builds an environment and runs the
+unit suites. It drives no session and calls nothing over the wire, so a green CI
+row says the suites pass on that OS and nothing about whether the product works
+there. The `overall` row never inherits a gate result: it is the weakest of the
+parts actually driven on that OS.
+
+| part | WSL | Linux | Windows native | macOS | notes |
+|---|---|---|---|---|---|
+| automated gate: build, test, lint | **pass** | not run | not run | not run | run locally on this host: rust 264, api 432, cli 150, engine 122, with `cargo fmt --check` and `cargo clippy --all-targets -- -D warnings` at exit `0` |
+| A: the binary is the built head | **pass**, 3 of 3 | not run | not run | not run | the installed command resolves inside the test root and its `sha256` is the release build of the head under test |
+| B: address resolution and the rename | **pass**, 6 of 6 | not run | not run | not run | includes the two cells that matter most for the rename: a live port file beating the environment, and the old `FORGE_*` names reaching nothing |
+| C: the service group, Python daemon | **pass**, 8 of 8 | not run | not run | not run | the Rust CLI starts, supervises, follows and stops the **Python** daemon, which is the strangler seam this release must not break |
+| D: read-only commands, Rust daemon | **pass**, 6 of 6 | not run | not run | not run | `health`, `providers`, `computer-use status` and `status` are byte for byte identical to the shipped Python CLI on the same daemon. Two defects were fixed to get there, F1 and F3 |
+| E: provider onboarding | **pass**, 7 of 7 | not run | not run | not run | two real credentials, a live 28 model catalog and a live 10 model catalog, one bounded readiness call each, and the secret absent from the database, WAL, SHM and evidence |
+| F: runs and the watcher | **pass**, 6 of 6 | not run | not run | not run | `F3` is the release's own improvement, and it is proved by driving the shipped Python CLI against the same cancellation, where it printed nothing and hung |
+| G: pair and the QR | **pass**, 3 of 4 | not run | not run | not run | `G4` needs the owner's handset. `G3` decodes the printed symbol with an independent decoder, which is everything a machine can check |
+| H: negatives and exit codes | **pass**, 4 of 5, 1 partial | not run | not run | not run | `H4` is partial: no public CLI invocation can send a malformed body, so the `422` parser is covered by its unit test and the wire shape by a live probe |
+| **overall** | **pass**, 1 not run, 1 partial | not run | not run | not run | every part of this runbook has been driven on WSL. The two open rows are named above and neither is a WSL defect: `G4` needs a person holding a phone, and `H4` has no public path to it. Three defects were found and fixed during the pass, each with a regression test seen red first |
+
+Process supervision, path handling, terminal rendering and the loopback probe are
+platform-shaped. **No supported operating system is `Not-Needed` for final
+acceptance.**
+
+## Findings
+
+Every defect here was found by looking at what the CLI printed, next to what the
+shipped CLI prints, against the same daemon. **None of them was visible to a unit
+test**, because each test asserted what the port produced rather than what the
+product produces. That is section 2.0a's warning arriving in practice: the sweep
+asserts argv, exit code and whether output was produced, and reads none of it.
+
+| # | what | where | disposition |
+|---|---|---|---|
+| F1 | **The table was the wrong shape and colour broke its layout.** The shipped CLI draws `rich.Table(box=None)`: padded columns, two spaces apart. The port drew a full UTF-8 box. Worse, a styled cell carries escape bytes that occupy no columns, so the layout counted them: `Status` was drawn eighteen columns wide for a seven character word and every row under it landed short | `C3`, `D5` | **fixed** in `3a804be`. Widths now come from `unicode-width` on the unstyled text. The regression test compares the styled and unstyled renders and was seen red against the raw measurement. `comfy-table` leaves with the box, and `unicode-width` came with it, so the change removes a dependency |
+| F2 | **The `Duration` column never carried a duration.** No daemon sends a `duration` field, so the Python CLI printed a dash for every run and the port copied that faithfully. A column that never carries the thing it is named after is worse than no column | `D5`, `D6` | **fixed** in `1953ec7`. Computed from the `started_at` and `completed_at` the same row already carries. A daemon-supplied duration still wins; a running run stays a dash; a backwards clock is not a negative run |
+| F3 | **The key-value block lost its indent and its colon, and five statuses lost their colour.** The shipped CLI prints `  Status:       healthy`; the port printed `Status       healthy`. And `error`, `available`, `not found`, `not running` and `stopped` were missing from the palette, so `health`'s module block and the `status` table printed plain where the product colours them | `D1`, `C3` | **fixed** in `e3799b1`. `vadgr health` is now byte for byte identical to the shipped CLI on the same daemon. The new test walks every status the CLI can print |
+| F4 | `vadgr runs list` **truncates** a long task where the shipped CLI wraps it across three or four lines at a 120 column width | `D5` | **intended, not a defect.** The build spec asks for truncation measured by display width rather than bytes (section 8), so one run is one row. Recorded here because a reader comparing the two CLIs will see it |
+| F5 | The `422` path cannot be reached through a public CLI invocation, because the CLI never sends a malformed body | `H4` | **partial, and recorded rather than worked around.** The daemon's `422` body was captured live and it is the list shape the parser reads. The parsing is covered by its unit test. Inventing a CLI call that sends a broken body would test the harness, not the product |
+| F6 | The first `F1` attempt failed with `NO_ACTION_TAKEN` | `F1` | **the harness, not the product.** The task asked the model only to reply, and this engine fails a turn that takes no action. The task was corrected and the cell re-run. Recorded because the same mistake will be made again by whoever writes the next runbook |
+
+## Surface coverage - **every published endpoint, with what it returned**
+
+Generated from the recorded sweep, never typed. The recorder invokes the
+installed `vadgr` binary and calls the daemon's routes directly, writing request,
+status, error code and body to `sweep/record.json`; these tables are emitted from
+that record by `sweep/tables.md`'s generator.
+
+### Shipped
+
+| endpoint | what was asked | status | code | response, as returned |
+|---|---|---|---|---|
+| `GET /api/health` | the daemon is up | `200` | - | `{"modules":{"computer_use":false},"platform":"wsl","status":"healthy","transport":{"advertise_host":"santiago-casa-1.tail323b9e.ts.net","available":true,"bind_host":"100.67.110.10","name":"tailscale"}` |
+| `GET /api/providers` | the provider list | `200` | - | `[{"auth_method":null,"auth_methods":["oauth","api_key"],"available":false,"catalog_stale":false,"catalog_verified_at":null,"connected":false,"default_model":null,"id":"openai","is_default":false,"kind` |
+| `GET /api/settings/computer-use` | the computer-use setting | `200` | - | `{"daemon":null,"enabled":true,"platform":"wsl2","venv_ready":false}` |
+| `GET /api/computer-use/status` | the runtime's own status | `200` | - | `{"available":false,"platform":"wsl2"}` |
+| `GET /api/devices` | paired devices | `200` | - | `[]` |
+| `GET /api/runs` | the run list | `200` | - | `[{"agent_name":"Use your todo tool to note one step and mark it completed, then finish.","completed_at":"2026-08-18T18:29:16.718888+00:00","id":"run-5fddb1d2525a40f1b1838eef43949830","inputs":{"task":` |
+| `GET /api/runs/run-5fddb1d2525a40f1b1838eef43949830` | one run | `200` | - | `{"agent_name":"Use your todo tool to note one step and mark it completed, then finish.","completed_at":"2026-08-18T18:29:16.718888+00:00","id":"run-5fddb1d2525a40f1b1838eef43949830","inputs":{"task":"` |
+| `POST /api/runs/run-5fddb1d2525a40f1b1838eef43949830/cancel` | negative: cancelling a finished run | `409` | `RUN_NOT_ACTIVE` | `{"error":{"code":"RUN_NOT_ACTIVE","details":{},"message":"Run is already finished"}}` |
+| `POST /api/runs/run-5fddb1d2525a40f1b1838eef43949830/resume` | resume | `409` | `RUN_NOT_RESUMABLE` | `{"error":{"code":"RUN_NOT_RESUMABLE","details":{},"message":"Only failed runs can be resumed (current status: completed)"}}` |
+| `GET /api/runs/run-does-not-exist` | negative: no such run | `404` | `RUN_NOT_FOUND` | `{"error":{"code":"RUN_NOT_FOUND","details":{},"message":"Run with id 'run-does-not-exist' not found"}}` |
+| `POST /api/runs` | negative: no task | `422` | - | `{"detail":[{"msg":"Failed to deserialize the JSON body into the target type: missing field `task` at line 1 column 2","type":"value_error"}]}` |
+| `POST /api/auth/pair` | mint a pairing code | `200` | - | `{"host":"santiago-casa-1.tail323b9e.ts.net","machine_name":"Santiago-Casa","pairing_token":"3PEF-0SW7","port":8811}` |
+| `POST /api/auth/claim` | negative: a code that was never minted | `401` | `PAIRING_CODE_INVALID` | `{"error":{"code":"PAIRING_CODE_INVALID","details":{},"message":"That pairing code is wrong or has already been used."}}` |
+| `POST /api/providers/gemini/catalog-refresh` | refresh a connected catalog | `200` | - | `{"auth_method":"api_key","auth_methods":["api_key"],"available":true,"catalog_stale":false,"catalog_verified_at":"2026-08-18T18:37:10.260072+00:00","connected":true,"default_model":"gemini-3.5-flash-l` |
+| `POST /api/providers/openai/catalog-refresh` | negative: refresh a disconnected one | `409` | `PROVIDER_NOT_CONNECTED` | `{"error":{"code":"PROVIDER_NOT_CONNECTED","details":{},"message":"provider is not connected"}}` |
+| `PUT /api/default-model` | negative: a model that is not in the catalog | `422` | `MODEL_NOT_AVAILABLE` | `{"error":{"code":"MODEL_NOT_AVAILABLE","details":{},"message":"model is not in the connected provider catalog"}}` |
+| `DELETE /api/providers/openai/connection` | negative: disconnect what is not connected | `204` | - | `` |
+| `GET /api/provider-auth/attempt-does-not-exist` | negative: no such attempt | `404` | `AUTH_ATTEMPT_NOT_FOUND` | `{"error":{"code":"AUTH_ATTEMPT_NOT_FOUND","details":{},"message":"provider authentication attempt not found"}}` |
+
+### Not present - probed to confirm absent, not half-wired
+
+| endpoint | disposition | status | response |
+|---|---|---|---|
+| `GET /api/agents` | deleted at 0.4.4 | `404` | `` |
+| `POST /api/agents` | deleted at 0.4.4 | `404` | `` |
+| `GET /api/projects` | deleted at 0.4.4 | `404` | `` |
+| `GET /api/registry` | deleted at 0.4.4 | `404` | `` |
+| `GET /api/workflows` | deferred, POSSIBLE_PLANS #45 | `404` | `` |
+| `GET /api/conversations` | 0.6.0 | `404` | `` |
+| `PATCH /api/machine` | 0.7.0 | `404` | `` |
+
+### The CLI
+
+| command | exit | output produced | first line |
+|---|---|---|---|
+| `vadgr --version` | `0` | stdout | `vadgr 0.4.8` |
+| `vadgr health` | `0` | stdout | `Status:       healthy` |
+| `vadgr providers` | `0` | stdout | `OpenAI (openai) -- not connected` |
+| `vadgr computer-use status` | `0` | stdout | `Computer use: enabled` |
+| `vadgr runs list` | `0` | stdout | `Run ID    Task                                                          Status     Duration` |
+| `vadgr runs` | `0` | stdout | `Run ID    Task                                                          Status     Duration` |
+| `vadgr runs get run-5fdd` | `0` | stdout | `Run ID:       run-5fddb1d2525a40f1b1838eef43949830` |
+| `vadgr runs cancel run-5fdd` | `1` | stderr | `Error: Run is already finished` |
+| `vadgr runs resume run-5fdd` | `1` | stderr | `Error: Only failed runs can be resumed (current status: completed)` |
+| `vadgr runs get zzzzzzzz` | `1` | stderr | `Error: No run matching 'zzzzzzzz' found.` |
+| `vadgr provider status` | `0` | stdout | `OpenAI: not connected` |
+| `vadgr model list` | `0` | stdout | `Google Gemini: connected (default)` |
+| `vadgr status` | `0` | stdout | `Service  PID  Status ` |
+| `vadgr logs --no-follow -n 2` | `0` | stdout | `INFO:     Application shutdown complete.` |
+| `vadgr update --check` | `0` | stdout | `[vadgr] vadgr is up to date.` |
+| `vadgr run    ` | `2` | stderr | `Error: TASK must not be empty.` |
+| `vadgr run x --provider gemini` | `2` | stderr | `Error: --provider and --model must be given together.` |
+| `vadgr runs get` | `2` | stderr | `error: the following required arguments were not provided:` |
+| `vadgr not-a-command` | `2` | stderr | `error: unrecognized subcommand 'not-a-command'` |
+
+18 shipped endpoint calls, 18 answered; 7 absence probes; 19 CLI invocations.
+
+
+## Repeatability - **three independent passes**
+
+Three passes ran **concurrently**, each with its own port, database, state root
+and daemon, so they are three observations rather than one run watched three
+times. Each connected a provider, ran a task and then recorded the whole surface.
+
+| axis | 8821 | 8822 | 8823 |
+|---|---|---|---|
+| HTTP entries | 18 | 18 | 18 |
+| absence probes | 7 | 7 | 7 |
+| CLI entries | 19 | 19 | 19 |
+| method, path, status and error code | same | same | same |
+| argv, exit code and output produced | same | same | same |
+| whole record, ids normalised | differs | differs | differs |
+
+The whole-record row **differs on one thing only**, and it is not the product:
+the model's own wording of its answer, `I have noted the step in the todo list`
+against `I have noted the step using the todo tool`. Everything structural is the
+same.
+
+| pass | run status | input tokens | output tokens | iterations |
+|---|---|---|---|---|
+| 8821 | completed | 2698 | 80 | 3 |
+| 8822 | completed | 2719 | 81 | 3 |
+| 8823 | completed | 2587 | 76 | 3 |
+
+**Read structurally, then by token count.** Every HTTP entry agrees on method,
+path, status and **error code**; every CLI entry agrees on argv, exit code and
+whether output was produced. With the run ids normalised, the only remaining
+difference in the whole record is the model's own wording of its answer, which is
+the model rather than the product.
+
+The token counts are three different live calls rather than one result reused:
+2,698 / 2,719 / 2,587 input and 80 / 81 / 76 output, at 3 iterations each. Three
+identical counts would have been the thing to worry about.
+
+**One part of the closing rule is owed.** The standard closes a runbook with
+three separate *agents*. These three passes were driven concurrently by one
+operator, so they rule out ordering effects and cross-run interference but not
+operator bias. The three-agent close is owed before the runbook is final.
