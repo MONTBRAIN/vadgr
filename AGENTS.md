@@ -162,8 +162,9 @@ Caught in `vadgr 0.4.8`'s first draft: the design proposed reading the old
 `FORGE_*` environment names beside the new `VADGR_*` ones, with a deprecation
 warning and removal at `0.5.0`. There is exactly one installation, it is the
 owner's, and it sits on the same machine as the new state root the Rust daemon
-already writes to. The adapter served nobody. **Renaming it and moving the
-directory once, told plainly, was the target.**
+already writes to. The adapter served nobody. **The rename, told
+plainly, was the target**, and the directory moves once at the cutover that owns
+the paths rather than twice.
 
 **Design comes before code.** No minor is implemented until its build spec
 exists and every minor in its iteration has one. Exit `0` or do not start:
@@ -365,13 +366,34 @@ authorized for exactly these investigations, and only for them.
 **Implementation is delegated and driven to a finished PR, not hand-held slice
 by slice.** A minor's build runs the steps end to end and does not come back
 until the PR is review-ready: every slice implemented, the unit suites green,
-the README, CHANGELOG and version updated, and the e2e runbook drafted. Breaking
-the work into internal increments is correct engineering; stopping after one to
-ask "should I continue?" is not, because the increments are the builder's to
+the README, CHANGELOG and version updated, **the e2e runbook written complete,
+and the pass run on a real target OS with its results recorded**. Breaking the
+work into internal increments is correct engineering; stopping after one to ask
+"should I continue?" is not, because the increments are the builder's to
 sequence rather than the owner's to approve one at a time. **Stop for exactly
 two things**: a genuine decision only the owner can make - surfaced with the
-options and a recommendation - or a defined approval gate, which is running the
-e2e (its runbook is approved before it runs) and merge, tag and release.
+options and a recommendation - or merge, tag and release.
+
+**The e2e is not a stopping point, and neither is its runbook.** Writing the
+runbook is part of the build and so is running it. The owner's approval is a
+**review of a written runbook**, which can only happen once one exists, and it
+happens without the work stopping. "Next I write the runbook and bring it to you
+for approval" is "should I continue?" in different words, and **a gate you have
+not reached is not a gate**: it was written after exactly that sentence ended a
+`vadgr 0.4.8` report with nothing written and nothing run.
+
+**And the operating system that must pass is the one you built on.** One real
+target OS gates opening the PR, and the host that implemented the minor is the
+host with the toolchain, the daemon, the state and the defect in front of it.
+Building on WSL and opening the PR on somebody else's future pass is the same
+deferral wearing a platform label. **You build on it, you pass on it, then you
+open the PR**; the other required targets fetch that branch and gate the merge.
+
+**There is no version of this where the implementation is reported and the pass
+was not run.** A minor whose e2e has not run is not late, not nearly done and not
+awaiting approval: it is **unfinished**, and reporting it as anything else
+misreports it. A pass that genuinely cannot run is a blocker with a named cause,
+reported as a blocker.
 
 **Pushing to the PR branch is not a gate; merging is.** The PR branch is the
 working surface where the e2e runs, so commits go there as they are made, never
