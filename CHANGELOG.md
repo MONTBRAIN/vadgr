@@ -2,6 +2,58 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.4.8] - 2026-08-18
+
+### Added
+- **The CLI is rewritten in Rust.** Every command keeps its name, its arguments
+  and its exit codes: `health`, `providers`, `computer-use`, `pair`, `provider`,
+  `model`, `runs`, `run`, `start`, `api`, `stop`, `restart`, `status`, `logs`
+  and `update`. Like the Rust daemon beside it, it runs from the checkout for
+  now: the installer still puts the Python CLI on your `PATH`, and both halves
+  swap at the `0.4.9` cutover.
+- `vadgr update --check` reports whether an update is available and which
+  dependency files would change, and changes nothing. It makes the update path
+  testable without altering the installation under test.
+- The run watcher handles every event the daemon publishes. A cancelled run now
+  says it was cancelled, a resumed run says so, and a run parked at the approval
+  gate says it is waiting for you.
+- A slow request and a stopped daemon are now different messages. A request that
+  passes its timeout says the operation may still be running, instead of
+  reporting the daemon as down.
+- A `5xx` from the daemon points at the log that explains it.
+
+### Changed
+- **The environment variables are renamed, and the old names are gone.** Export
+  the new ones:
+
+  | old | new |
+  |---|---|
+  | `FORGE_HOME` | `VADGR_HOME` |
+  | `FORGE_REPO` | `VADGR_REPO` |
+  | `FORGE_API_URL` | `VADGR_API_URL` |
+  | `AGENT_FORGE_PORT` | `VADGR_PORT` |
+  | every other `AGENT_FORGE_*` daemon setting | the same name under `VADGR_` |
+
+  There is no compatibility fallback. The CLI and the daemon read one prefix
+  now, where the two halves of the product read differently named variables for
+  the same port before.
+- `vadgr logs --follow` follows the file itself instead of running `tail -f`,
+  which does not exist on Windows.
+- The installer clones `github.com/MONTBRAIN/vadgr`. The old URL reached the
+  repository only through a redirect from its former name.
+- The pairing QR is smaller: error correction `Low` with a two module quiet
+  zone, chosen by measuring and scanning rather than by taking a default.
+
+### Unchanged
+- **`vadgr start` still launches the Python daemon.** The cutover is `0.4.9`.
+- The directories keep their names. `~/.forge` and the checkout inside it hold a
+  real installation's database, credentials, pid files and log, and moving them
+  belongs to the release that owns the paths.
+
+### Removed
+- `wait_with_spinner`, which nothing called and whose only tests polled a route
+  deleted at `0.4.4`.
+
 ## [0.4.7] - 2026-08-16
 
 ### Added

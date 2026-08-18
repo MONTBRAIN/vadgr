@@ -128,9 +128,11 @@ graph LR
 
 ## Modules
 
-### [cli/](cli/) - Command-Line Interface
+### The CLI
 
-Unified CLI built with Click. Starts runs, watches them, and manages the daemon. Talks to the API over HTTP and to the run stream over a WebSocket.
+Starts runs, watches them, and manages the daemon. Talks to the API over HTTP and to the run stream over a WebSocket.
+
+**Rewritten in Rust at `0.4.8`**, in [rust/](rust/), with every command keeping its name, its arguments and its exit codes. Like the Rust daemon beside it, the new CLI is built from the checkout for now: the installer still puts the Python [cli/](cli/) on your `PATH`, and the swap happens at the `0.4.9` cutover.
 
 ### [api/](api/) - REST API + run lifecycle
 
@@ -142,7 +144,7 @@ The provider-agnostic loop that owns the conversation history, calls the model, 
 
 ### [rust/](rust/) - The daemon, being rewritten
 
-The daemon is moving to Rust, and this crate runs **beside** the Python one on its own port and its own database until the cutover. `0.4.7` adds vadgr-owned provider onboarding, credentials, authenticated catalogs and direct OpenAI, Gemini and Anthropic adapters to the native loop, control plane, cua MCP host and durable recovery path. Until the cutover, the Python daemon is still the default product entry point. See [rust/README.md](rust/README.md).
+The daemon is moving to Rust, and this crate runs **beside** the Python one on its own port and its own database until the cutover. **The `vadgr` CLI is already Rust, and lives here too.** `0.4.7` adds vadgr-owned provider onboarding, credentials, authenticated catalogs and direct OpenAI, Gemini and Anthropic adapters to the native loop, control plane, cua MCP host and durable recovery path. Until the cutover, the Python daemon is still the default product entry point. See [rust/README.md](rust/README.md).
 
 ### Desktop Automation
 
@@ -152,7 +154,7 @@ The desktop-automation MCP server lives in its own repository: **[vadgr-computer
 
 ```
 Vadgr/
-├── cli/                   # Unified command-line interface
+├── cli/                   # The Python CLI, still installed, leaving at 0.4.9
 │   ├── main.py            # Root Click group and `vadgr run`
 │   ├── client.py          # HTTP client for the API
 │   ├── stream.py          # The run watcher
@@ -167,7 +169,7 @@ Vadgr/
 │   ├── transport/         # Loopback and Tailscale adapters
 │   └── persistence/       # SQLite database
 ├── engine/                # The native agent loop and its journal
-├── rust/                  # The daemon being rewritten in Rust (see rust/README.md)
+├── rust/                  # The CLI, and the daemon being rewritten in Rust (see rust/README.md)
 ├── E2E/                   # One runbook per release, and its evidence
 # Desktop automation lives in:
 # https://github.com/MONTBRAIN/vadgr-computer-use

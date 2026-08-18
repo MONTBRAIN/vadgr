@@ -2,12 +2,15 @@
 set -e
 
 # Vadgr Installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/MONTBRAIN/Agent-Forge/master/setup.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/MONTBRAIN/vadgr/master/setup.sh | bash
 
-FORGE_HOME="$HOME/.forge"
-FORGE_BIN="$FORGE_HOME/bin"
-FORGE_REPO="$FORGE_HOME/Agent-Forge"
-REPO_URL="https://github.com/MONTBRAIN/Agent-Forge.git"
+# The directory names are the ones a real installation already has, and
+# renaming one moves a user's database. That belongs to the release that
+# owns the paths, not to this one.
+VADGR_HOME="$HOME/.forge"
+VADGR_BIN="$VADGR_HOME/bin"
+VADGR_REPO="$VADGR_HOME/Agent-Forge"
+REPO_URL="https://github.com/MONTBRAIN/vadgr.git"
 REQUIRED_PYTHON_MINOR=12
 
 # ---------------------------------------------------------------------------
@@ -119,19 +122,19 @@ install_python() {
 # ---------------------------------------------------------------------------
 
 setup_repo() {
-    if [ -d "$FORGE_REPO/.git" ]; then
+    if [ -d "$VADGR_REPO/.git" ]; then
         info "Vadgr repo already exists, pulling latest..."
-        git -C "$FORGE_REPO" pull --ff-only origin master || warn "Could not pull latest (offline?)"
+        git -C "$VADGR_REPO" pull --ff-only origin master || warn "Could not pull latest (offline?)"
         # Restore tracked files that were deleted locally
         local deleted
-        deleted=$(git -C "$FORGE_REPO" diff --name-only --diff-filter=D 2>/dev/null)
+        deleted=$(git -C "$VADGR_REPO" diff --name-only --diff-filter=D 2>/dev/null)
         if [ -n "$deleted" ]; then
-            (cd "$FORGE_REPO" && echo "$deleted" | while IFS= read -r f; do git checkout -- "$f" 2>/dev/null; done)
+            (cd "$VADGR_REPO" && echo "$deleted" | while IFS= read -r f; do git checkout -- "$f" 2>/dev/null; done)
         fi
     else
         info "Cloning Vadgr..."
-        mkdir -p "$FORGE_HOME"
-        git clone "$REPO_URL" "$FORGE_REPO"
+        mkdir -p "$VADGR_HOME"
+        git clone "$REPO_URL" "$VADGR_REPO"
     fi
 }
 
@@ -176,32 +179,32 @@ setup_venv() {
 
 setup_api() {
     info "Setting up API..."
-    cd "$FORGE_REPO"
+    cd "$VADGR_REPO"
     setup_venv "api/.venv" "api/requirements.txt"
     mkdir -p data
 }
 
 setup_cli() {
     info "Setting up CLI..."
-    cd "$FORGE_REPO"
+    cd "$VADGR_REPO"
     setup_venv "cli/.venv" "cli/requirements.txt"
 }
 
 # ---------------------------------------------------------------------------
-# Generate forge CLI
+# Generate vadgr CLI
 # ---------------------------------------------------------------------------
 
-generate_forge_cli() {
+generate_vadgr_cli() {
     info "Creating vadgr CLI..."
-    mkdir -p "$FORGE_BIN"
-    cat > "$FORGE_BIN/vadgr" << 'FORGE_SCRIPT'
+    mkdir -p "$VADGR_BIN"
+    cat > "$VADGR_BIN/vadgr" << 'VADGR_SCRIPT'
 #!/usr/bin/env bash
-FORGE_REPO="$HOME/.forge/Agent-Forge"
-cli_python="$FORGE_REPO/cli/.venv/bin/python"
+VADGR_REPO="$HOME/.forge/Agent-Forge"
+cli_python="$VADGR_REPO/cli/.venv/bin/python"
 [ -f "$cli_python" ] || { echo "[vadgr] CLI not found. Run setup.sh first." >&2; exit 1; }
-PYTHONPATH="$FORGE_REPO" exec "$cli_python" -m cli "$@"
-FORGE_SCRIPT
-    chmod +x "$FORGE_BIN/vadgr"
+PYTHONPATH="$VADGR_REPO" exec "$cli_python" -m cli "$@"
+VADGR_SCRIPT
+    chmod +x "$VADGR_BIN/vadgr"
 }
 
 # ---------------------------------------------------------------------------
@@ -209,12 +212,12 @@ FORGE_SCRIPT
 # ---------------------------------------------------------------------------
 
 add_to_path() {
-    local line="export PATH=\"$FORGE_BIN:\$PATH\""
+    local line="export PATH=\"$VADGR_BIN:\$PATH\""
     local found=0
 
     for rcfile in "$HOME/.bashrc" "$HOME/.zshrc"; do
         if [ ! -f "$rcfile" ]; then continue; fi
-        if ! grep -qF "$FORGE_BIN" "$rcfile" 2>/dev/null; then
+        if ! grep -qF "$VADGR_BIN" "$rcfile" 2>/dev/null; then
             echo "" >> "$rcfile"
             echo "# VADGR" >> "$rcfile"
             echo "$line" >> "$rcfile"
@@ -228,10 +231,10 @@ add_to_path() {
         if [ "$OS" = "macos" ]; then default_rc="$HOME/.zshrc"; fi
         echo "# VADGR" >> "$default_rc"
         echo "$line" >> "$default_rc"
-        info "Created $(basename "$default_rc") with forge PATH"
+        info "Created $(basename "$default_rc") with the vadgr PATH"
     fi
 
-    export PATH="$FORGE_BIN:$PATH"
+    export PATH="$VADGR_BIN:$PATH"
 }
 
 # ---------------------------------------------------------------------------
@@ -265,7 +268,7 @@ main() {
     setup_repo
     setup_api
     setup_cli
-    generate_forge_cli
+    generate_vadgr_cli
     add_to_path
 
     echo ""

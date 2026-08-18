@@ -114,6 +114,8 @@ src/
 ├── computer_use_setup.rs daemon-owned cua state and runtime discovery
 ├── error.rs       the error envelope, constructed in exactly one place
 ├── auth/          the gates, tokens, the pairing code
+├── cli/           the `vadgr` binary: the command tree, the HTTP client, the
+│                  run watcher, the terminal output and the QR
 ├── db/            the schema (copied verbatim) and the two repositories
 ├── transport/     tailscale over the local API socket, and loopback
 ├── routes/        HTTP lifecycle, settings, auth and read routes
@@ -121,6 +123,14 @@ src/
 └── ws/            the fan-out, its replay buffer, and both sockets
 tests/             envelope, engine, recovery, repositories, routes and install
 ```
+
+**This crate builds two binaries.** `vadgr-daemon` is the daemon being rewritten
+and `vadgr-cli` is the `vadgr` command, rewritten at `0.4.8`. Both run from the
+checkout while the rewrite is in progress: the installer still puts the Python
+CLI on `PATH`, and both halves swap at the `0.4.9` cutover. They share one crate so
+the CLI depends on `transport/` directly rather than duplicating the address
+computation, which is what the Python CLI's cross-package import was reaching
+for.
 
 The schema is **copied, not improved**. An improvement here would make every
 evidence comparison in the migration meaningless, which is the constraint rather

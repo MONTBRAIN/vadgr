@@ -4,10 +4,10 @@
       "type": "stdio",
       "command": "<PATH_TO_VENV>/bin/python",
       "args": ["-m", "computer_use.mcp_server"],
-      "cwd": "<PATH_TO_AGENT_FORGE>",
+      "cwd": "<PATH_TO_VADGR>",
       "env": {
-        "PYTHONPATH": "<PATH_TO_AGENT_FORGE>",
-        "AGENT_FORGE_DEBUG": "1"
+        "PYTHONPATH": "<PATH_TO_VADGR>",
+        "VADGR_DEBUG": "1"
       }
     }
   }

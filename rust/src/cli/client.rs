@@ -61,6 +61,15 @@ impl ApiClientError {
     pub fn category(&self) -> Option<&str> {
         self.details.get("category").and_then(|v| v.as_str())
     }
+
+    /// Whether the daemon blamed itself.
+    ///
+    /// This is what `status` is carried for. A `4xx` is the request, and the
+    /// message says what to change. A `5xx` is the daemon, and the message
+    /// usually cannot say why, so the CLI points at the one place that can.
+    pub fn is_server_fault(&self) -> bool {
+        (500..600).contains(&self.status)
+    }
 }
 
 impl std::fmt::Display for ApiClientError {
@@ -73,6 +82,16 @@ impl std::fmt::Display for ApiClientError {
 pub enum ClientError {
     Unreachable(DaemonUnreachable),
     Api(ApiClientError),
+    /// The request took longer than its timeout.
+    ///
+    /// **Not the same as unreachable**, and the difference is the sentence a
+    /// person needs: the daemon answered the connect and then took too long, so
+    /// the operation may well still be running. Reporting that as "the API is
+    /// not running" would send someone to restart a daemon that is busy doing
+    /// exactly what they asked.
+    TimedOut {
+        url: String,
+    },
 }
 
 impl ClientError {
@@ -80,7 +99,7 @@ impl ClientError {
     pub fn exit_code(&self) -> i32 {
         match self {
             Self::Unreachable(_) => DaemonUnreachable::EXIT_CODE,
-            Self::Api(_) => ApiClientError::EXIT_CODE,
+            Self::Api(_) | Self::TimedOut { .. } => ApiClientError::EXIT_CODE,
         }
     }
 }
@@ -90,6 +109,10 @@ impl std::fmt::Display for ClientError {
         match self {
             Self::Unreachable(e) => e.fmt(f),
             Self::Api(e) => e.fmt(f),
+            Self::TimedOut { url } => write!(
+                f,
+                "Request timed out ({url}). The operation may still be running."
+            ),
         }
     }
 }
@@ -228,6 +251,7 @@ impl Client {
         let mut req = self
             .http
             .request(method, format!("{}{path}", self.base_url))
+            .header("Accept", "application/json")
             .timeout(timeout);
         if let Some(b) = body {
             req = req.json(&b);
@@ -235,7 +259,12 @@ impl Client {
 
         let response = match req.send().await {
             Ok(r) => r,
-            Err(e) if e.is_connect() || e.is_timeout() => return Err(self.unreachable()),
+            Err(e) if e.is_timeout() => {
+                return Err(ClientError::TimedOut {
+                    url: format!("{}{path}", self.base_url),
+                });
+            }
+            Err(e) if e.is_connect() => return Err(self.unreachable()),
             Err(e) => {
                 return Err(ClientError::Api(ApiClientError {
                     message: e.to_string(),
@@ -253,25 +282,74 @@ impl Client {
             return Ok(payload);
         }
 
-        // The daemon's error envelope, kept whole. `details` reaches the command
-        // that has to branch on it.
-        let error = payload.get("error");
-        Err(ClientError::Api(ApiClientError {
+        Err(ClientError::Api(api_error(status, &payload)))
+    }
+}
+
+/// Read the daemon's error body into the taxonomy commands branch on.
+///
+/// Two shapes arrive on this wire and both are handled, because a port that
+/// knows only the first turns a validation error into a bare status code:
+///
+/// - the daemon's own envelope, `{"error": {"message", "code", "details"}}`
+/// - FastAPI's `{"detail": ...}`, where `detail` is a string, or the **list** a
+///   422 carries, one entry per field that failed
+pub fn api_error(status: u16, payload: &serde_json::Value) -> ApiClientError {
+    if let Some(error) = payload.get("error").filter(|e| e.is_object()) {
+        return ApiClientError {
             message: error
-                .and_then(|e| e.get("message"))
+                .get("message")
                 .and_then(|m| m.as_str())
                 .unwrap_or("the daemon returned an error")
                 .to_owned(),
             status,
             code: error
-                .and_then(|e| e.get("code"))
+                .get("code")
                 .and_then(|c| c.as_str())
                 .map(str::to_owned),
             details: error
-                .and_then(|e| e.get("details"))
+                .get("details")
                 .cloned()
+                .filter(|d| !d.is_null())
                 .unwrap_or(serde_json::Value::Null),
-        }))
+        };
+    }
+
+    let message = match payload.get("detail") {
+        Some(serde_json::Value::String(s)) => s.clone(),
+        Some(serde_json::Value::Array(entries)) => entries
+            .iter()
+            .map(|entry| {
+                // `loc` names the field. `body` is the wrapper every request
+                // shares, so it says nothing and is dropped.
+                let location = entry
+                    .get("loc")
+                    .and_then(|v| v.as_array())
+                    .map(|parts| {
+                        parts
+                            .iter()
+                            .filter_map(|p| p.as_str())
+                            .filter(|p| *p != "body")
+                            .collect::<Vec<_>>()
+                            .join(" -> ")
+                    })
+                    .unwrap_or_default();
+                let msg = entry.get("msg").and_then(|v| v.as_str()).unwrap_or("");
+                if location.is_empty() {
+                    msg.to_owned()
+                } else {
+                    format!("{location}: {msg}")
+                }
+            })
+            .collect::<Vec<_>>()
+            .join("; "),
+        _ => format!("the daemon answered {status}"),
+    };
+    ApiClientError {
+        message,
+        status,
+        code: None,
+        details: serde_json::Value::Null,
     }
 }
 
@@ -310,6 +388,84 @@ mod tests {
         assert_eq!(down.exit_code(), 3, "down is retried after a start");
         assert_eq!(refused.exit_code(), 1, "refused never is");
         assert_ne!(down.exit_code(), refused.exit_code());
+    }
+
+    /// The daemon's own envelope is the shape every recovery path reads.
+    #[test]
+    fn the_daemon_envelope_reaches_the_command_whole() {
+        let payload = serde_json::json!({
+            "error": {
+                "message": "the provider refused the key",
+                "code": "INVALID_CREDENTIALS",
+                "details": {"category": "invalid_credentials"},
+            }
+        });
+        let e = api_error(401, &payload);
+        assert_eq!(e.message, "the provider refused the key");
+        assert_eq!(e.status, 401);
+        assert_eq!(e.code.as_deref(), Some("INVALID_CREDENTIALS"));
+        assert_eq!(e.category(), Some("invalid_credentials"));
+    }
+
+    /// A `422` carries a list, and a port that read only the envelope would show
+    /// a person nothing but a status code for a request they can fix.
+    #[test]
+    fn a_validation_error_names_the_field_that_failed() {
+        let payload = serde_json::json!({
+            "detail": [
+                {"loc": ["body", "task"], "msg": "field required"},
+                {"loc": ["body", "model"], "msg": "not a known model"},
+            ]
+        });
+        let e = api_error(422, &payload);
+        assert_eq!(e.message, "task: field required; model: not a known model");
+        assert_eq!(e.status, 422);
+        assert!(e.code.is_none());
+    }
+
+    #[test]
+    fn a_plain_detail_string_is_the_message() {
+        let payload = serde_json::json!({"detail": "Run not found"});
+        assert_eq!(api_error(404, &payload).message, "Run not found");
+    }
+
+    /// An empty or unreadable body still says something a person can act on.
+    #[test]
+    fn an_empty_body_still_names_the_status() {
+        let e = api_error(502, &serde_json::Value::Null);
+        assert_eq!(e.message, "the daemon answered 502");
+        assert_eq!(e.status, 502);
+    }
+
+    /// An intended difference from Python, so it gets its own test (§2.0): the
+    /// status decides whether the CLI points at the daemon log.
+    #[test]
+    fn a_server_fault_is_told_apart_from_a_bad_request() {
+        let bad_request = api_error(422, &serde_json::json!({"detail": "no"}));
+        let daemon_fault = api_error(500, &serde_json::Value::Null);
+        assert!(!bad_request.is_server_fault());
+        assert!(daemon_fault.is_server_fault());
+        // The boundaries, because an off-by-one here is silent.
+        let mut edge = api_error(499, &serde_json::Value::Null);
+        assert!(!edge.is_server_fault());
+        edge.status = 600;
+        assert!(!edge.is_server_fault());
+    }
+
+    /// **The distinction this release must not lose**: a slow operation is not a
+    /// dead daemon, and the two sentences send a person to different places.
+    #[test]
+    fn a_timeout_is_not_reported_as_a_dead_daemon() {
+        let slow = ClientError::TimedOut {
+            url: "http://127.0.0.1:8000/api/providers/openai/connection".into(),
+        };
+        let down = ClientError::Unreachable(DaemonUnreachable {
+            base_url: "http://127.0.0.1:8000".into(),
+        });
+        assert!(slow.to_string().contains("may still be running"));
+        assert!(down.to_string().contains("Start it with"));
+        assert_eq!(slow.exit_code(), 1);
+        assert_eq!(down.exit_code(), 3);
     }
 
     #[test]

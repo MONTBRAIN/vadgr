@@ -1,106 +1,141 @@
 //! `vadgr health`, `vadgr providers`, `vadgr computer-use`.
 //!
 //! Ported from `cli/commands/info.py`: the read-only views of what the daemon
-//! currently is.
+//! currently is, plus the one pair of commands that change a setting.
+//!
+//! **The lines are the shipped ones.** The recorded sweep asserts argv, exit
+//! code and whether output was produced, and not one word of what is printed
+//! (§2.0a), so this file is the easiest place in the port to pass every check
+//! while quietly showing a person something different. It does not.
 
-use crate::client::{Client, ClientError};
+use crate::client::Client;
+use crate::error::CliError;
 use crate::output;
 
-pub async fn health(client: &Client) -> Result<(), ClientError> {
+pub async fn health(client: &Client) -> Result<(), CliError> {
     let body = client.get("/api/health").await?;
     let field = |k: &str| {
         body.get(k)
             .and_then(|v| v.as_str())
-            .unwrap_or("-")
+            .unwrap_or("unknown")
             .to_owned()
     };
-    let cua = body
+    anstream::println!(
+        "{}",
+        output::render_kv(&[
+            ("Status".to_owned(), output::format_status(&field("status"))),
+            ("Version".to_owned(), field("version")),
+            ("Platform".to_owned(), field("platform")),
+        ])
+    );
+
+    if let Some(modules) = body
         .get("modules")
-        .and_then(|m| m.get("computer_use"))
-        .and_then(|v| v.as_bool())
-        .map(|b| if b { "available" } else { "disabled" })
-        .unwrap_or("-")
-        .to_owned();
-    let pairs = vec![
-        ("Status".to_owned(), output::format_status(&field("status"))),
-        ("Version".to_owned(), field("version")),
-        ("Platform".to_owned(), field("platform")),
-        ("Computer use".to_owned(), cua),
-    ];
-    anstream::println!("{}", output::render_kv(&pairs));
+        .and_then(|v| v.as_object())
+        .filter(|m| !m.is_empty())
+    {
+        anstream::println!("\nModules:");
+        for (name, available) in modules {
+            let state = if available.as_bool().unwrap_or(false) {
+                "available"
+            } else {
+                "not found"
+            };
+            anstream::println!("  {name}: {}", output::format_status(state));
+        }
+    }
     Ok(())
 }
 
-pub async fn providers(client: &Client) -> Result<(), ClientError> {
+pub async fn providers(client: &Client) -> Result<(), CliError> {
     let body = client.get("/api/providers").await?;
     let empty = Vec::new();
     let list = body.as_array().unwrap_or(&empty);
-    let rows: Vec<Vec<String>> = list
-        .iter()
-        .map(|p| {
-            let connected = p
-                .get("connected")
-                .and_then(|v| v.as_bool())
-                .unwrap_or(false);
-            let default = p
-                .get("is_default")
-                .and_then(|v| v.as_bool())
-                .unwrap_or(false);
-            let models = p
-                .get("models")
-                .and_then(|v| v.as_array())
-                .map(|m| m.len())
-                .unwrap_or(0);
-            vec![
-                p.get("name")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("-")
-                    .to_owned(),
-                output::format_status(if connected { "ready" } else { "disabled" }),
-                if default {
-                    "default".to_owned()
-                } else {
-                    String::new()
-                },
-                models.to_string(),
-            ]
-        })
-        .collect();
-    anstream::println!(
-        "{}",
-        output::render_table(&["Provider", "State", "", "Models"], &rows)
-    );
+    if list.is_empty() {
+        anstream::println!("No providers configured.");
+        return Ok(());
+    }
+
+    for provider in list {
+        let name = provider.get("name").and_then(|v| v.as_str()).unwrap_or("-");
+        let id = provider.get("id").and_then(|v| v.as_str()).unwrap_or("-");
+        let available = if provider.get("connected").and_then(|v| v.as_bool()) == Some(true) {
+            "connected"
+        } else {
+            "not connected"
+        };
+        let default = if provider.get("is_default").and_then(|v| v.as_bool()) == Some(true) {
+            " (default)"
+        } else {
+            ""
+        };
+        anstream::println!(
+            "  {name} ({id}) -- {}{default}",
+            output::format_status(available)
+        );
+        if let Some(models) = provider.get("models").and_then(|v| v.as_array()) {
+            for model in models {
+                let model_name = model.get("name").and_then(|v| v.as_str()).unwrap_or("-");
+                let model_id = model.get("id").and_then(|v| v.as_str()).unwrap_or("-");
+                anstream::println!("    - {model_name} ({model_id})");
+            }
+        }
+        anstream::println!();
+    }
     Ok(())
 }
 
-pub async fn computer_use_status(client: &Client) -> Result<(), ClientError> {
+pub async fn computer_use_status(client: &Client) -> Result<(), CliError> {
     let body = client.get("/api/settings/computer-use").await?;
-    let enabled = body
-        .get("enabled")
-        .and_then(|v| v.as_bool())
-        .unwrap_or(false);
-    let pairs = vec![(
-        "Computer use".to_owned(),
-        output::format_status(if enabled { "ready" } else { "disabled" }),
-    )];
-    anstream::println!("{}", output::render_kv(&pairs));
+    let enabled = body.get("enabled").and_then(|v| v.as_bool()) == Some(true);
+    anstream::println!(
+        "  Computer use: {}",
+        output::format_status(if enabled { "enabled" } else { "disabled" })
+    );
+    if let Some(daemon) = body.get("daemon").and_then(|v| v.as_str()) {
+        anstream::println!("  Daemon: {}", output::format_status(daemon));
+    }
     Ok(())
 }
 
-pub async fn computer_use_set(client: &Client, enabled: bool) -> Result<(), ClientError> {
-    client
+/// Enabling can install a daemon, which is why it waits and why it says which
+/// of the three outcomes happened rather than reporting a flat success.
+pub async fn computer_use_enable(client: &Client) -> Result<(), CliError> {
+    let spinner =
+        output::status::Spinner::start("Setting up computer use (this may take a minute)...");
+    let result = client
         .put(
             "/api/settings/computer-use",
-            Some(serde_json::json!({ "enabled": enabled })),
+            Some(serde_json::json!({"enabled": true})),
         )
-        .await?;
-    anstream::println!(
-        "{}",
-        output::success(if enabled {
-            "Computer use enabled."
-        } else {
-            "Computer use disabled."
-        })
-    );
+        .await;
+    spinner.stop();
+    let result = result?;
+
+    match result.get("daemon").and_then(|v| v.as_str()) {
+        Some("running") => anstream::println!(
+            "{}",
+            output::success("Computer use enabled (Windows daemon running)")
+        ),
+        Some("stopped") => anstream::println!(
+            "{}",
+            output::warning("Computer use enabled but daemon did not start. Run: vadgr-cua doctor")
+        ),
+        _ => anstream::println!("{}", output::success("Computer use enabled")),
+    }
+    Ok(())
+}
+
+pub async fn computer_use_disable(client: &Client) -> Result<(), CliError> {
+    let spinner = output::status::Spinner::start("Disabling computer use...");
+    let result = client
+        .put(
+            "/api/settings/computer-use",
+            Some(serde_json::json!({"enabled": false})),
+        )
+        .await;
+    spinner.stop();
+    result?;
+    anstream::println!("{}", output::success("Computer use disabled"));
     Ok(())
 }

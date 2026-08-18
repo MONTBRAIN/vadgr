@@ -6,4 +6,7 @@
 //! produced" assertion checkable per command.
 
 pub mod info;
+pub mod pair;
+pub mod provider;
 pub mod runs;
+pub mod service;

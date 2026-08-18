@@ -10,20 +10,20 @@
 
 mod client;
 mod commands;
+mod error;
 mod output;
+mod prompt;
 mod stream;
+
+use std::time::Duration;
 
 use clap::{Parser, Subcommand};
 
-use client::{Client, ClientError};
+use client::Client;
+use error::CliError;
 
-/// The base URL, resolved once.
-///
-/// `--api-url`, then `VADGR_API_URL`, then `VADGR_PORT` on loopback, then the
-/// default. The old `FORGE_*` names are gone rather than deprecated: §6a allows
-/// an adapter only for a named released consumer, and there is one installation,
-/// the owner's, on the same machine as the new state root.
-const DEFAULT_PORT: u16 = 8000;
+/// The longest a watched run is followed before the watcher detaches.
+const RUN_WATCH_TIMEOUT: Duration = Duration::from_secs(7200);
 
 #[derive(Parser)]
 #[command(
@@ -44,7 +44,11 @@ struct Cli {
 #[derive(Subcommand)]
 enum Command {
     /// Start the vadgr daemon (the API).
-    Api,
+    Api {
+        /// API server port.
+        #[arg(long = "api-port", visible_alias = "port")]
+        api_port: Option<u16>,
+    },
     /// Manage computer use (desktop automation).
     ComputerUse {
         #[command(subcommand)]
@@ -53,7 +57,17 @@ enum Command {
     /// Check API health.
     Health,
     /// Tail service logs.
-    Logs,
+    Logs {
+        #[arg(long, short, default_value = "api")]
+        service: String,
+        /// Follow the log. `--no-follow` prints the tail and returns.
+        #[arg(long, short, default_value_t = true, overrides_with = "no_follow")]
+        follow: bool,
+        #[arg(long = "no-follow")]
+        no_follow: bool,
+        #[arg(long, short = 'n', default_value_t = 50)]
+        lines: usize,
+    },
     /// List models and select the machine default.
     Model {
         #[command(subcommand)]
@@ -69,25 +83,48 @@ enum Command {
     /// List available providers and models.
     Providers,
     /// Restart the vadgr daemon.
-    Restart,
+    Restart {
+        #[arg(long = "api-port", visible_alias = "port")]
+        api_port: Option<u16>,
+    },
     /// Start a run from a task sentence and watch it.
     Run {
         /// What the machine should do.
         task: String,
+        /// Provider to run on (needs --model).
+        #[arg(long, short)]
+        provider: Option<String>,
+        /// Model to run (needs --provider).
+        #[arg(long, short)]
+        model: Option<String>,
+        /// Start it and return.
+        #[arg(long, short)]
+        background: bool,
+        /// Print the run row as JSON.
+        #[arg(long = "json")]
+        as_json: bool,
     },
     /// Manage runs.
     Runs {
         #[command(subcommand)]
-        action: RunsAction,
+        action: Option<RunsAction>,
     },
     /// Start the vadgr daemon (the API).
-    Start,
+    Start {
+        /// API server port.
+        #[arg(long = "api-port", visible_alias = "port")]
+        api_port: Option<u16>,
+    },
     /// Show service status.
     Status,
     /// Stop the vadgr daemon.
     Stop,
     /// Pull latest code and reinstall deps if changed.
-    Update,
+    Update {
+        /// Report what an update would do, and change nothing.
+        #[arg(long)]
+        check: bool,
+    },
 }
 
 #[derive(Subcommand)]
@@ -96,7 +133,7 @@ enum ComputerUseAction {
     Enable,
     /// Disable computer use.
     Disable,
-    /// Show computer-use status.
+    /// Check computer use status.
     Status,
 }
 
@@ -105,7 +142,7 @@ enum ModelAction {
     /// Set the machine default after a live check.
     Default {
         /// The `provider/model` pair.
-        model: String,
+        model: Option<String>,
     },
     /// List models from every connected provider.
     List,
@@ -119,13 +156,16 @@ enum ProviderAction {
         /// `chatgpt` or `api-key`, for OpenAI.
         #[arg(long)]
         auth: Option<String>,
+        #[arg(long = "replacement-default-model", hide = true)]
+        replacement_default_model: Option<String>,
     },
     /// Disconnect one non-default provider.
-    Logout { provider: Option<String> },
+    Logout { provider: String },
     /// Show connected providers and their model catalogs.
     Status {
         #[arg(long = "refresh")]
         refresh: bool,
+        provider: Option<String>,
     },
 }
 
@@ -136,20 +176,88 @@ enum RunsAction {
     /// Show run details.
     Get { run_id: String },
     /// List all runs.
-    List,
+    List {
+        /// Filter by status.
+        #[arg(long, short)]
+        status: Option<String>,
+    },
     /// Resume a failed run.
     Resume { run_id: String },
 }
 
+/// Where the daemon is, resolved once.
+///
+/// `--api-url`, then `VADGR_API_URL` (which `clap` folds into the same option),
+/// then the port a running daemon actually took, then `VADGR_PORT`, then the
+/// default. **The port file comes before the environment** because `start` walks
+/// up from a busy port, and a CLI that ignored that would call a port nothing is
+/// listening on while the daemon runs one along.
+///
+/// The names this product used before `0.4.8` are gone rather than deprecated:
+/// §6a allows an adapter only for a named released consumer, and there is one
+/// installation, the owner's, on the same machine as the new state root.
 fn base_url(explicit: Option<&str>) -> String {
     if let Some(url) = explicit {
         return url.to_owned();
     }
-    let port = std::env::var("VADGR_PORT")
-        .ok()
-        .and_then(|p| p.parse::<u16>().ok())
-        .unwrap_or(DEFAULT_PORT);
+    let port = commands::service::read_active_port("api", commands::service::default_port());
     format!("http://127.0.0.1:{port}")
+}
+
+async fn run_task(
+    client: &Client,
+    task: String,
+    provider: Option<String>,
+    model: Option<String>,
+    background: bool,
+    as_json: bool,
+) -> Result<(), CliError> {
+    if task.trim().is_empty() {
+        return Err(CliError::Usage("TASK must not be empty.".to_owned()));
+    }
+    if provider.is_some() != model.is_some() {
+        return Err(CliError::Usage(
+            "--provider and --model must be given together.".to_owned(),
+        ));
+    }
+
+    let mut body = serde_json::json!({"task": task});
+    if let (Some(provider), Some(model)) = (provider, model) {
+        body["provider"] = serde_json::Value::String(provider);
+        body["model"] = serde_json::Value::String(model);
+    }
+
+    let result = client.post("/api/runs", Some(body)).await?;
+    let run_id = result
+        .get("id")
+        .and_then(|v| v.as_str())
+        .unwrap_or("?")
+        .to_owned();
+
+    if as_json {
+        anstream::println!(
+            "{}",
+            serde_json::to_string_pretty(&result).unwrap_or_else(|_| result.to_string())
+        );
+    } else {
+        anstream::println!("{}", output::success(&format!("Run started: {run_id}")));
+    }
+
+    // `--background` exits `0` once the run is accepted, because the outcome is
+    // not known yet and inventing one would be a lie a script acts on.
+    if background {
+        anstream::println!("  Watch it with: vadgr runs get {run_id}");
+        return Ok(());
+    }
+
+    let outcome = stream::follow(client.base_url(), &run_id, RUN_WATCH_TIMEOUT).await;
+    match outcome.exit_code() {
+        0 => Ok(()),
+        // The outcome was already reported. A second `Error:` line would read as
+        // the CLI having failed rather than the run.
+        130 => Err(CliError::Detached),
+        _ => Err(CliError::Failed(String::new())),
+    }
 }
 
 #[tokio::main]
@@ -157,28 +265,84 @@ async fn main() {
     let cli = Cli::parse();
     let client = Client::new(base_url(cli.api_url.as_deref()));
 
-    let result: Result<(), ClientError> = match cli.command {
+    let result: Result<(), CliError> = match cli.command {
         Command::Health => commands::info::health(&client).await,
         Command::Providers => commands::info::providers(&client).await,
         Command::ComputerUse { action } => match action {
-            ComputerUseAction::Enable => commands::info::computer_use_set(&client, true).await,
-            ComputerUseAction::Disable => commands::info::computer_use_set(&client, false).await,
+            ComputerUseAction::Enable => commands::info::computer_use_enable(&client).await,
+            ComputerUseAction::Disable => commands::info::computer_use_disable(&client).await,
             ComputerUseAction::Status => commands::info::computer_use_status(&client).await,
         },
-        Command::Runs { action } => match action {
-            RunsAction::List => commands::runs::list(&client).await,
-            RunsAction::Get { run_id } => commands::runs::get(&client, &run_id).await,
-            RunsAction::Cancel { run_id } => commands::runs::cancel(&client, &run_id).await,
-            RunsAction::Resume { run_id } => commands::runs::resume(&client, &run_id).await,
+        Command::Pair => commands::pair::pair(&client).await,
+        Command::Provider { action } => match action {
+            ProviderAction::Login {
+                provider,
+                auth,
+                replacement_default_model,
+            } => {
+                commands::provider::login(&client, provider, auth, replacement_default_model).await
+            }
+            ProviderAction::Logout { provider } => {
+                commands::provider::logout(&client, &provider).await
+            }
+            ProviderAction::Status { refresh, provider } => {
+                commands::provider::status(&client, refresh, provider).await
+            }
         },
-        _ => {
-            anstream::eprintln!("{}", output::error("not yet ported at this commit"));
-            std::process::exit(1);
+        Command::Model { action } => match action {
+            ModelAction::List => commands::provider::model_list(&client).await,
+            ModelAction::Default { model } => {
+                commands::provider::model_default(&client, model).await
+            }
+        },
+        Command::Runs { action } => match action {
+            // `vadgr runs` with no subcommand lists them, which is what the
+            // Python group did with `invoke_without_command`.
+            None => commands::runs::list(&client, None).await,
+            Some(RunsAction::List { status }) => {
+                commands::runs::list(&client, status.as_deref()).await
+            }
+            Some(RunsAction::Get { run_id }) => commands::runs::get(&client, &run_id).await,
+            Some(RunsAction::Cancel { run_id }) => commands::runs::cancel(&client, &run_id).await,
+            Some(RunsAction::Resume { run_id }) => commands::runs::resume(&client, &run_id).await,
+        },
+        Command::Run {
+            task,
+            provider,
+            model,
+            background,
+            as_json,
+        } => run_task(&client, task, provider, model, background, as_json).await,
+        Command::Start { api_port } | Command::Api { api_port } => {
+            commands::service::start(api_port).await
         }
+        Command::Stop => commands::service::stop(),
+        Command::Restart { api_port } => commands::service::restart(api_port).await,
+        Command::Status => commands::service::status(&client).await,
+        Command::Logs {
+            service,
+            follow,
+            no_follow,
+            lines,
+        } => commands::service::logs(&service, follow && !no_follow, lines).await,
+        Command::Update { check } => commands::service::update(check).await,
     };
 
     if let Err(e) = result {
-        anstream::eprintln!("{}", output::error(&e.to_string()));
+        // Some failures have already said everything there is to say, and a
+        // command that printed its own warning gets an empty message rather than
+        // a second line contradicting it.
+        let message = e.to_string();
+        if !e.is_silent() && !message.is_empty() {
+            anstream::eprintln!("{}", output::error(&message));
+            // A `5xx` is the daemon blaming itself, and its message rarely says
+            // why. The log does, and nothing else on the machine will point
+            // someone at it.
+            if matches!(&e, CliError::Client(client::ClientError::Api(api)) if api.is_server_fault())
+            {
+                anstream::eprintln!("  The daemon logged it: vadgr logs --no-follow");
+            }
+        }
         std::process::exit(e.exit_code());
     }
 }

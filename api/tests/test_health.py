@@ -49,5 +49,5 @@ class TestConfig:
         assert not hasattr(s, "cors_origins")
 
     def test_env_prefix(self):
-        """Settings use AGENT_FORGE_ env prefix."""
-        assert Settings.model_config["env_prefix"] == "AGENT_FORGE_"
+        """Settings use VADGR_ env prefix."""
+        assert Settings.model_config["env_prefix"] == "VADGR_"

@@ -19,24 +19,24 @@ def runner():
 
 @pytest.fixture
 def tmp_forge(tmp_path, monkeypatch):
-    """Set up fake FORGE_HOME structure with platform-appropriate venv layout."""
+    """Set up fake VADGR_HOME structure with platform-appropriate venv layout."""
     import cli.commands.service as svc
-    forge_home = tmp_path / ".forge"
-    forge_repo = forge_home / "Agent-Forge"
-    pid_dir = forge_home / "pids"
-    forge_repo.mkdir(parents=True)
+    vadgr_home = tmp_path / ".forge"
+    vadgr_repo = vadgr_home / "Agent-Forge"
+    pid_dir = vadgr_home / "pids"
+    vadgr_repo.mkdir(parents=True)
     pid_dir.mkdir(parents=True)
     if _IS_WINDOWS:
-        (forge_repo / "api" / ".venv" / "Scripts").mkdir(parents=True)
-        (forge_repo / "api" / ".venv" / "Scripts" / "python.exe").write_text("")
+        (vadgr_repo / "api" / ".venv" / "Scripts").mkdir(parents=True)
+        (vadgr_repo / "api" / ".venv" / "Scripts" / "python.exe").write_text("")
     else:
-        (forge_repo / "api" / ".venv" / "bin").mkdir(parents=True)
-        (forge_repo / "api" / ".venv" / "bin" / "python").write_text("#!/bin/sh")
+        (vadgr_repo / "api" / ".venv" / "bin").mkdir(parents=True)
+        (vadgr_repo / "api" / ".venv" / "bin" / "python").write_text("#!/bin/sh")
 
-    monkeypatch.setattr(svc, "FORGE_HOME", forge_home)
-    monkeypatch.setattr(svc, "FORGE_REPO", forge_repo)
+    monkeypatch.setattr(svc, "VADGR_HOME", vadgr_home)
+    monkeypatch.setattr(svc, "VADGR_REPO", vadgr_repo)
     monkeypatch.setattr(svc, "PID_DIR", pid_dir)
-    return forge_home
+    return vadgr_home
 
 
 class TestReadPid:
@@ -197,7 +197,7 @@ class TestStartIsApiOnly:
 
     def test_child_env_carries_no_frontend_port(self, tmp_forge):
         from cli.commands.service import _build_env
-        assert "AGENT_FORGE_FRONTEND_PORT" not in _build_env(8000)
+        assert "VADGR_FRONTEND_PORT" not in _build_env(8000)
 
     def test_rejects_the_frontend_port_flag(self, runner, tmp_forge, fake_popen):
         from cli.commands.service import start

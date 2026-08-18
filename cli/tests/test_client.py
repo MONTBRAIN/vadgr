@@ -65,7 +65,7 @@ def test_a_closed_port_is_detected_without_waiting_for_the_request_timeout():
 def test_the_probe_never_invents_a_failure_the_request_would_not_have_hit():
     """It may only make the answer faster, never change it.
 
-    `FORGE_API_URL` can name an `https://` host with no port, where a naive
+    `VADGR_API_URL` can name an `https://` host with no port, where a naive
     `port or 80` would test 80 while the request goes to 443 - reporting a live
     machine as down. And a tailnet host being slow is normal for it, not a
     reason to fail before trying.
@@ -129,9 +129,9 @@ def test_a_post_with_a_body_still_sends_it(monkeypatch):
     seen = _capture_request(monkeypatch)
     ctx = click.Context(click.Command("x"))
     ctx.obj = {"api_url": "http://127.0.0.1:8000"}
-    api_post(ctx, "/api/agents", {"name": "a"})
+    api_post(ctx, "/api/runs", {"task": "a"})
 
-    assert seen["req"].data == b'{"name": "a"}'
+    assert seen["req"].data == b'{"task": "a"}'
     assert seen["req"].get_header("Content-type") == "application/json"
 
 

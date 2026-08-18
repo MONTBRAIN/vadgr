@@ -263,7 +263,7 @@ export VADGR_RUNS_DIR="$E2E_ROOT/runs"
 export VADGR_STATE_HOME="$E2E_ROOT/state"
 export VADGR_CONFIG_HOME="$E2E_ROOT/config"
 export VADGR_PORT=8791
-export FORGE_API_URL=http://127.0.0.1:8791
+export VADGR_API_URL=http://127.0.0.1:8791
 mkdir -p "$VADGR_RUNS_DIR" "$VADGR_STATE_HOME" "$VADGR_CONFIG_HOME"
 cd "$E2E_ROOT"
 <absolute-path-to-the-shipped-vadgr-daemon>
@@ -271,7 +271,7 @@ cd "$E2E_ROOT"
 # In another terminal whose PATH resolves the tested installation:
 command -v vadgr
 vadgr health
-curl -fsS "$FORGE_API_URL/api/health"
+curl -fsS "$VADGR_API_URL/api/health"
 wscat -c "ws://127.0.0.1:8791/api/ws/runs/<run-id>"
 wscat -c "ws://127.0.0.1:8791/api/runs/<run-id>/stream"
 ```

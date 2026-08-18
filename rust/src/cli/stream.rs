@@ -19,7 +19,8 @@ pub enum Outcome {
     Completed,
     Failed,
     Cancelled,
-    /// The watch timed out. The run keeps going without us.
+    /// The watcher left: the deadline passed, or the owner pressed Ctrl-C. The
+    /// run keeps going without us.
     Detached,
     /// The socket dropped. We do not know how the run ended.
     Unknown,
@@ -31,10 +32,14 @@ impl Outcome {
             // A cancellation is what the owner asked for, so it is not a failure.
             Self::Completed | Self::Cancelled => 0,
             Self::Failed => 1,
-            // "Still running" and "we lost the socket" are not failures of the
-            // run, and a script that treats them as one would kill work that is
-            // fine.
-            Self::Detached | Self::Unknown => 0,
+            // `130` is the shell's code for an interrupted foreground command,
+            // and detaching is exactly that: the watcher stopped, the run did
+            // not. A script reads it as "no verdict yet", never as a failure.
+            Self::Detached => 130,
+            // Losing the socket says nothing about the run either, and the
+            // Python CLI exited `0` here. Treating it as a failure would kill
+            // work that is fine.
+            Self::Unknown => 0,
         }
     }
 }
@@ -61,6 +66,17 @@ pub fn describe(event_type: &str, data: &serde_json::Value) -> Option<String> {
         "agent_completed" => "Finished the work".to_owned(),
         "agent_failed" => format!("Step failed: {}", text("error")),
         "agent_cancelled" => "Cancelling...".to_owned(),
+        // The approval gate. Without this the watcher spins in silence while a
+        // run waits for an answer only the owner can give, which is the worst
+        // shape a missing event type can take.
+        "awaiting" => {
+            let question = text("question");
+            if question.is_empty() {
+                "Waiting for your approval...".to_owned()
+            } else {
+                format!("Waiting for your approval: {question}")
+            }
+        }
         // The three terminal frames are handled by the caller, which needs the
         // outcome rather than a line of prose.
         "run_completed" | "run_failed" | "run_cancelled" => return None,
@@ -108,7 +124,20 @@ pub async fn follow(api_url: &str, run_id: &str, timeout: Duration) -> Outcome {
             return Outcome::Detached;
         }
 
-        let next = tokio::time::timeout(Duration::from_secs(3), socket.next()).await;
+        // Ctrl-C detaches the watcher. **It does not cancel the run**: an
+        // unattended batch is the point of the product, and ending hours of work
+        // because somebody closed a terminal is the opposite of it. Cancelling
+        // is `vadgr runs cancel`, and the lines below say so.
+        let next = tokio::select! {
+            _ = tokio::signal::ctrl_c() => {
+                spinner.stop();
+                anstream::println!("\n  Detached. The run continues.");
+                anstream::println!("  Check it with: vadgr runs get {run_id}");
+                anstream::println!("  Stop it with:  vadgr runs cancel {run_id}");
+                return Outcome::Detached;
+            }
+            next = tokio::time::timeout(Duration::from_secs(3), socket.next()) => next,
+        };
         let raw = match next {
             Err(_) => continue,
             Ok(None) => {
@@ -144,6 +173,8 @@ pub async fn follow(api_url: &str, run_id: &str, timeout: Duration) -> Outcome {
                         "{}",
                         output::success(&format!("Run completed ({elapsed})"))
                     );
+                    anstream::println!();
+                    anstream::println!("  See results: {api_url}/api/runs/{run_id}");
                 }
                 Outcome::Failed => {
                     let error = data
@@ -168,10 +199,8 @@ pub async fn follow(api_url: &str, run_id: &str, timeout: Duration) -> Outcome {
             return outcome;
         }
 
-        if let Some(line) = describe(event_type, &data) {
-            if !line.is_empty() {
-                spinner.update(line);
-            }
+        if let Some(line) = describe(event_type, &data).filter(|l| !l.is_empty()) {
+            spinner.update(line);
         }
     }
 }
@@ -211,6 +240,7 @@ mod tests {
             "agent_failed",
             "agent_cancelled",
             "todos",
+            "awaiting",
         ];
         let null = serde_json::Value::Null;
         for t in published {
@@ -231,6 +261,28 @@ mod tests {
     #[test]
     fn losing_the_stream_does_not_fail_the_run() {
         assert_eq!(Outcome::Unknown.exit_code(), 0);
-        assert_eq!(Outcome::Detached.exit_code(), 0);
+    }
+
+    /// Detaching is the shell's interrupted-command code, which is what the
+    /// Python CLI exited and what a script branches on to mean "no verdict yet".
+    #[test]
+    fn detaching_exits_one_hundred_and_thirty() {
+        assert_eq!(Outcome::Detached.exit_code(), 130);
+    }
+
+    /// A run parked at the approval gate must say so. Silence here is the worst
+    /// case: the watcher looks alive and the run is waiting on a person.
+    #[test]
+    fn a_run_waiting_for_approval_says_so() {
+        let data = serde_json::json!({"question": "Delete the branch?"});
+        let line = describe("awaiting", &data).unwrap();
+        assert!(line.contains("approval"), "{line}");
+        assert!(line.contains("Delete the branch?"), "{line}");
+        // And with no question, it still says something.
+        assert!(
+            describe("awaiting", &serde_json::Value::Null)
+                .unwrap()
+                .contains("approval")
+        );
     }
 }

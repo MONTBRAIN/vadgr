@@ -18,9 +18,12 @@ class Settings(BaseSettings):
     # Kept equal to the crate's version by `test_version_consistency.py`. The two
     # daemons serve the same product during the migration, so a client cannot be
     # asked to work out which half answered it.
-    version: str = "0.4.7"
+    version: str = "0.4.8"
 
-    model_config = {"env_prefix": "AGENT_FORGE_"}
+    # One prefix for the whole product. Until 0.4.8 this half read a prefix
+    # named after the repository's former name while the CLI and the Rust daemon
+    # read this one, so neither side was discoverable from the other.
+    model_config = {"env_prefix": "VADGR_"}
 
 
 settings = Settings()

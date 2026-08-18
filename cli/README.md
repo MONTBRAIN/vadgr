@@ -1,6 +1,14 @@
 # CLI - Command-Line Interface
 
-Unified CLI for Vadgr. Starts runs, watches them, and manages computer use and the daemon from the terminal.
+**The CLI has been rewritten in Rust**, in [../rust/](../rust/), with the same
+commands, arguments and exit codes. Like the Rust daemon beside it, the new CLI
+is built from the checkout while the rewrite is in progress: **`setup.sh` still
+installs this Python one**, and the swap happens at the `0.4.9` cutover, when
+the Python tree leaves. This package is documented here for anyone working on
+that transition.
+
+Starts runs, watches them, and manages computer use and the daemon from the
+terminal.
 
 ## Setup
 

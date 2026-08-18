@@ -1,12 +1,15 @@
 # Vadgr Installer for Windows
-# Usage: irm https://raw.githubusercontent.com/MONTBRAIN/Agent-Forge/master/setup.ps1 | iex
+# Usage: irm https://raw.githubusercontent.com/MONTBRAIN/vadgr/master/setup.ps1 | iex
 
 $ErrorActionPreference = "Stop"
 
-$FORGE_HOME = "$env:USERPROFILE\.forge"
-$FORGE_BIN = "$FORGE_HOME\bin"
-$FORGE_REPO = "$FORGE_HOME\Agent-Forge"
-$REPO_URL = "https://github.com/MONTBRAIN/Agent-Forge.git"
+# The directory names are the ones a real installation already has, and
+# renaming one moves a user's database. That belongs to the release that
+# owns the paths, not to this one.
+$VADGR_HOME = "$env:USERPROFILE\.forge"
+$VADGR_BIN = "$VADGR_HOME\bin"
+$VADGR_REPO = "$VADGR_HOME\Agent-Forge"
+$REPO_URL = "https://github.com/MONTBRAIN/vadgr.git"
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -70,25 +73,25 @@ function InstallPython {
 # ---------------------------------------------------------------------------
 
 function SetupRepo {
-    if (Test-Path "$FORGE_REPO\.git") {
+    if (Test-Path "$VADGR_REPO\.git") {
         Info "Vadgr repo already exists, pulling latest..."
-        & { $ErrorActionPreference = 'SilentlyContinue'; git -C $FORGE_REPO pull --ff-only origin master 2>$null }
+        & { $ErrorActionPreference = 'SilentlyContinue'; git -C $VADGR_REPO pull --ff-only origin master 2>$null }
         if ($LASTEXITCODE -ne 0) { Warn "Could not pull latest (offline?)" }
-        $deleted = git -C $FORGE_REPO diff --name-only --diff-filter=D 2>$null
+        $deleted = git -C $VADGR_REPO diff --name-only --diff-filter=D 2>$null
         if ($deleted) {
-            Push-Location $FORGE_REPO
+            Push-Location $VADGR_REPO
             $deleted | ForEach-Object { git checkout -- $_ 2>$null }
             Pop-Location
         }
     } else {
         Info "Cloning Vadgr..."
-        New-Item -ItemType Directory -Force -Path $FORGE_HOME | Out-Null
-        git clone $REPO_URL $FORGE_REPO
+        New-Item -ItemType Directory -Force -Path $VADGR_HOME | Out-Null
+        git clone $REPO_URL $VADGR_REPO
     }
 }
 
 function EnsureVenv($dir, $req) {
-    Push-Location $FORGE_REPO
+    Push-Location $VADGR_REPO
     try {
         $venvPip = "$dir\Scripts\pip.exe"
         if (-not (Test-Path $dir) -or -not (Test-Path $venvPip)) {
@@ -103,7 +106,7 @@ function EnsureVenv($dir, $req) {
 function SetupApi {
     Info "Setting up API..."
     EnsureVenv "api\.venv" "api\requirements.txt"
-    Push-Location $FORGE_REPO
+    Push-Location $VADGR_REPO
     New-Item -ItemType Directory -Force -Path data | Out-Null
     Pop-Location
 }
@@ -114,33 +117,34 @@ function SetupCli {
 }
 
 # ---------------------------------------------------------------------------
-# Generate forge CLI
+# Generate vadgr CLI
 # ---------------------------------------------------------------------------
 
-function GenerateForgeCli {
+function GenerateVadgrCli {
     Info "Creating vadgr CLI..."
-    New-Item -ItemType Directory -Force -Path $FORGE_BIN | Out-Null
+    New-Item -ItemType Directory -Force -Path $VADGR_BIN | Out-Null
 
 
-    $forgeScript = @'
+    $vadgrScript = @'
 param([Parameter(ValueFromRemainingArguments)]$Rest)
-$FORGE_REPO = "$env:USERPROFILE\.forge\Agent-Forge"
-$cliPython = "$FORGE_REPO\cli\.venv\Scripts\python.exe"
+$VADGR_REPO = "$env:USERPROFILE\.forge\Agent-Forge"
+$cliPython = "$VADGR_REPO\cli\.venv\Scripts\python.exe"
 if (-not (Test-Path $cliPython)) { Write-Host "[vadgr] CLI not found. Run setup first." -ForegroundColor Red; exit 1 }
-$env:PYTHONPATH = $FORGE_REPO
+$env:PYTHONPATH = $VADGR_REPO
 & $cliPython -m cli @Rest
 '@
 
-    # Save as _forge.ps1 (underscore prefix) so PowerShell doesn't resolve it
-    # directly when user types "forge". The .bat wrapper calls it with -ExecutionPolicy Bypass.
-    $forgeScript | Out-File -FilePath "$FORGE_BIN\_vadgr.ps1" -Encoding UTF8
+    # Save as _vadgr.ps1 (underscore prefix) so PowerShell does not resolve it
+    # directly when the user types "vadgr". The .bat wrapper calls it with
+    # -ExecutionPolicy Bypass.
+    $vadgrScript | Out-File -FilePath "$VADGR_BIN\_vadgr.ps1" -Encoding UTF8
 
-    # Remove old forge.ps1 if present (from previous installs)
-    if (Test-Path "$FORGE_BIN\vadgr.ps1") { Remove-Item "$FORGE_BIN\vadgr.ps1" }
+    # Remove an old vadgr.ps1 if a previous install left one
+    if (Test-Path "$VADGR_BIN\vadgr.ps1") { Remove-Item "$VADGR_BIN\vadgr.ps1" }
 
     # Batch wrapper — entry point for both cmd.exe and PowerShell
     $batchWrapper = "@echo off`r`npowershell -ExecutionPolicy Bypass -File `"%USERPROFILE%\.forge\bin\_vadgr.ps1`" %*"
-    $batchWrapper | Out-File -FilePath "$FORGE_BIN\vadgr.bat" -Encoding ASCII
+    $batchWrapper | Out-File -FilePath "$VADGR_BIN\vadgr.bat" -Encoding ASCII
 }
 
 # ---------------------------------------------------------------------------
@@ -149,9 +153,9 @@ $env:PYTHONPATH = $FORGE_REPO
 
 function AddToPath {
     $currentPath = [Environment]::GetEnvironmentVariable("PATH", "User")
-    if ($currentPath -notlike "*$FORGE_BIN*") {
-        [Environment]::SetEnvironmentVariable("PATH", "$FORGE_BIN;$currentPath", "User")
-        $env:PATH = "$FORGE_BIN;$env:PATH"
+    if ($currentPath -notlike "*$VADGR_BIN*") {
+        [Environment]::SetEnvironmentVariable("PATH", "$VADGR_BIN;$currentPath", "User")
+        $env:PATH = "$VADGR_BIN;$env:PATH"
         Info "Added vadgr to user PATH"
     }
 }
@@ -184,7 +188,7 @@ function Main {
     SetupRepo
     SetupApi
     SetupCli
-    GenerateForgeCli
+    GenerateVadgrCli
     AddToPath
 
     Write-Host ""
