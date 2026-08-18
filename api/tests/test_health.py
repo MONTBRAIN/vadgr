@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from api.config import Settings
+from api.utils.platform import computer_use_platform, machine_platform
 
 
 class TestHealth:
@@ -17,6 +18,24 @@ class TestHealth:
         assert data["status"] == "healthy"
         assert "modules" in data
         assert data["version"] == Settings().version
+
+    @pytest.mark.asyncio
+    async def test_health_names_this_machine_rather_than_a_constant(self, client):
+        """The platform is read from the host, not baked in.
+
+        The phone prints this string verbatim in its machine row, so a constant
+        told every owner their machine was WSL: a native Windows box reported
+        ``wsl2``, a word the Rust daemon does not even use for the same field.
+        """
+        resp = await client.get("/api/health")
+        assert resp.json()["platform"] == machine_platform()
+        assert resp.json()["platform"] in {"linux", "macos", "windows", "wsl"}
+
+    @pytest.mark.asyncio
+    async def test_computer_use_status_names_this_machine(self, client):
+        resp = await client.get("/api/computer-use/status")
+        assert resp.status_code == 200
+        assert resp.json()["platform"] == computer_use_platform()
 
     @pytest.mark.asyncio
     async def test_health_sends_no_cors_headers(self, client):

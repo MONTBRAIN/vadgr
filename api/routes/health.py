@@ -3,6 +3,7 @@
 from fastapi import APIRouter, Request
 
 from api.config import settings
+from api.utils.platform import machine_platform
 
 router = APIRouter()
 
@@ -15,7 +16,7 @@ async def health(request: Request):
         "modules": {
             "computer_use": settings.computer_use_enabled,
         },
-        "platform": "wsl2",
+        "platform": machine_platform(),
         "version": settings.version,
         "transport": transport.status() if transport is not None else None,
     }
