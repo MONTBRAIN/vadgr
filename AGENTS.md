@@ -207,6 +207,18 @@ destructive action and owner decision up front, map each to its cells, and
 inform the owner before the affected group runs. Missing setup blocks written
 cells; it never deletes or collapses them.
 
+**A runbook another operating system can run, and a harness it can run with.**
+The remote-host handoff is written before another OS is asked for anything, and
+it is complete enough that a session with no context executes the pass from it
+alone. **Every helper lives at `E2E/<version>/harness/`**, committed beside the
+runbook with a README saying what each one is and that none of them drives the
+product: a helper sitting in a temporary directory on the machine that wrote it
+cannot be run anywhere else, so every other host produces a record nobody can
+compare. Run each from its committed path before offering the runbook, and list
+the prerequisites the pass actually hit, **each naming the cells it blocks**. A
+handoff assembled from the happy path leaves the next OS finding a blocker four
+groups in, which is what it exists to prevent.
+
 **Credentials never enter Git or evidence.** Local e2e reads only the required
 variables from the workspace `../.env`, without echoing values or placing them
 in command arguments, logs, screenshots, transcripts, process listings, PR
