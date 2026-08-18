@@ -23,12 +23,45 @@ fn truncate(text: &str, width: usize) -> String {
     format!("{cut}\u{2026}")
 }
 
+/// How long a run took, in seconds, from the timestamps the row carries.
+///
+/// **Neither daemon sends a `duration` field**, so the column the CLI has always
+/// drawn was always a dash. The timestamps are in the same row, so the value is
+/// there to be computed rather than missing, and a column that never carries the
+/// thing it is named after is worse than no column.
+///
+/// A run still going has no `completed_at`, and that stays a dash: it is not
+/// finished, so it has no duration yet.
+fn duration_seconds(row: &serde_json::Value) -> Option<f64> {
+    use time::OffsetDateTime;
+    use time::format_description::well_known::Rfc3339;
+
+    let at = |key: &str| -> Option<OffsetDateTime> {
+        row.get(key)
+            .and_then(|v| v.as_str())
+            .and_then(|s| OffsetDateTime::parse(s, &Rfc3339).ok())
+    };
+    let (started, completed) = (at("started_at")?, at("completed_at")?);
+    let seconds = (completed - started).as_seconds_f64();
+    // A clock that moved backwards is not a negative run.
+    (seconds >= 0.0).then_some(seconds)
+}
+
 /// A duration as the two listings print it: whole seconds in the table, one
-/// decimal in the detail, and a dash when the daemon sent none.
-fn duration_text(value: Option<&serde_json::Value>, decimals: usize) -> String {
-    match value.and_then(|v| v.as_f64()) {
+/// decimal in the detail, and a dash when there is nothing to show.
+///
+/// A `duration` the daemon sent wins, so a daemon that starts sending one is
+/// believed over the arithmetic here.
+fn duration_text(row: &serde_json::Value, decimals: usize) -> String {
+    if let Some(seconds) = row.get("duration").and_then(|v| v.as_f64()) {
+        return format!("{seconds:.decimals$}s");
+    }
+    if let Some(text) = row.get("duration").and_then(|v| v.as_str()) {
+        return text.to_owned();
+    }
+    match duration_seconds(row) {
         Some(seconds) => format!("{seconds:.decimals$}s"),
-        None => value.and_then(|v| v.as_str()).unwrap_or("-").to_owned(),
+        None => "-".to_owned(),
     }
 }
 
@@ -83,7 +116,7 @@ pub async fn list(client: &Client, status: Option<&str>) -> Result<(), CliError>
                 id.chars().take(8).collect(),
                 truncate(task, 60),
                 output::format_status(status),
-                duration_text(r.get("duration"), 0),
+                duration_text(r, 0),
             ]
         })
         .collect();
@@ -127,10 +160,7 @@ pub async fn get(client: &Client, run_id: &str) -> Result<(), CliError> {
             ("Status".to_owned(), output::format_status(&status)),
             ("Provider".to_owned(), field("provider")),
             ("Model".to_owned(), field("model")),
-            (
-                "Duration".to_owned(),
-                duration_text(body.get("duration"), 1)
-            ),
+            ("Duration".to_owned(), duration_text(&body, 1)),
         ])
     );
 
@@ -207,9 +237,52 @@ mod tests {
     /// shipped views print.
     #[test]
     fn a_duration_reads_the_way_each_view_prints_it() {
-        let value = serde_json::json!(12.34);
-        assert_eq!(duration_text(Some(&value), 0), "12s");
-        assert_eq!(duration_text(Some(&value), 1), "12.3s");
-        assert_eq!(duration_text(None, 1), "-");
+        let row = serde_json::json!({"duration": 12.34});
+        assert_eq!(duration_text(&row, 0), "12s");
+        assert_eq!(duration_text(&row, 1), "12.3s");
+        assert_eq!(duration_text(&serde_json::json!({}), 1), "-");
+    }
+
+    /// **The defect this exists for.** No daemon sends `duration`, so the column
+    /// the CLI has always drawn was always a dash. Both timestamps are in the
+    /// same row, so the value is computed rather than missing.
+    #[test]
+    fn a_duration_is_computed_from_the_timestamps_the_row_carries() {
+        let row = serde_json::json!({
+            "started_at": "2026-08-18T18:29:14.088306+00:00",
+            "completed_at": "2026-08-18T18:29:16.718888+00:00",
+        });
+        assert_eq!(duration_text(&row, 0), "3s");
+        assert_eq!(duration_text(&row, 1), "2.6s");
+    }
+
+    /// A run still going has no duration yet, and inventing one would be a lie a
+    /// person reads as fact.
+    #[test]
+    fn a_running_run_has_no_duration() {
+        let row = serde_json::json!({"started_at": "2026-08-18T18:29:14.088306+00:00"});
+        assert_eq!(duration_text(&row, 0), "-");
+    }
+
+    /// A daemon that starts sending its own duration is believed over the
+    /// arithmetic here.
+    #[test]
+    fn a_daemon_supplied_duration_wins() {
+        let row = serde_json::json!({
+            "duration": 99.0,
+            "started_at": "2026-08-18T18:29:14.088306+00:00",
+            "completed_at": "2026-08-18T18:29:16.718888+00:00",
+        });
+        assert_eq!(duration_text(&row, 0), "99s");
+    }
+
+    /// A clock that moved backwards is not a negative run.
+    #[test]
+    fn a_backwards_clock_is_not_a_negative_duration() {
+        let row = serde_json::json!({
+            "started_at": "2026-08-18T18:29:16.718888+00:00",
+            "completed_at": "2026-08-18T18:29:14.088306+00:00",
+        });
+        assert_eq!(duration_text(&row, 0), "-");
     }
 }
