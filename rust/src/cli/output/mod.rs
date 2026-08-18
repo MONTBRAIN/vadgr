@@ -11,7 +11,7 @@
 //! nothing to the compiled tree: `clap` already brings it.
 
 use anstyle::{AnsiColor, Color, Style};
-use comfy_table::{ContentArrangement, Table, presets::UTF8_FULL};
+use unicode_width::UnicodeWidthStr;
 
 pub mod status;
 
@@ -36,17 +36,80 @@ pub fn format_status(status: &str) -> String {
     format!("{s}{status}{s:#}")
 }
 
-/// A table with the shape the CLI has always drawn.
-pub fn render_table(headers: &[&str], rows: &[Vec<String>]) -> String {
-    let mut table = Table::new();
-    table
-        .load_style(UTF8_FULL)
-        .set_content_arrangement(ContentArrangement::Dynamic)
-        .set_header(headers.iter().map(|h| h.to_string()));
-    for row in rows {
-        table.add_row(row.clone());
+/// The visible width of a cell, with any styling discounted.
+///
+/// **Measuring the raw string is the bug this exists to stop.** A styled cell
+/// carries escape bytes that occupy no columns, so a table laid out from the raw
+/// length pads the coloured column by the length of its escapes and every other
+/// row in that column lands short. It was caught on the first `vadgr status` of
+/// the `0.4.8` pass, where `Status` was drawn eighteen columns wide for a seven
+/// character word.
+fn display_width(cell: &str) -> usize {
+    plain(cell).width()
+}
+
+/// A copy of the text with SGR sequences removed.
+fn plain(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    let mut chars = text.chars();
+    while let Some(c) = chars.next() {
+        if c == '\u{1b}' {
+            for c in chars.by_ref() {
+                if c == 'm' {
+                    break;
+                }
+            }
+        } else {
+            out.push(c);
+        }
     }
-    table.to_string()
+    out
+}
+
+/// A table with the shape the CLI has always drawn: **no box.**
+///
+/// The Python CLI built `rich.Table(show_edge=False, pad_edge=False, box=None)`,
+/// which prints columns padded to their widest cell and separated by two spaces.
+/// A boxed table is a different surface, and the port draws the shipped one.
+///
+/// Widths come from `unicode-width` on the unstyled text, so a wide character
+/// and a coloured status both land in the right column.
+pub fn render_table(headers: &[&str], rows: &[Vec<String>]) -> String {
+    let columns = headers.len();
+    let mut widths: Vec<usize> = headers.iter().map(|h| h.width()).collect();
+    for row in rows {
+        for (index, cell) in row.iter().enumerate().take(columns) {
+            widths[index] = widths[index].max(display_width(cell));
+        }
+    }
+
+    let mut out = String::new();
+    let pad = |out: &mut String, cell: &str, width: usize| {
+        out.push_str(cell);
+        for _ in display_width(cell)..width {
+            out.push(' ');
+        }
+    };
+
+    for (index, header) in headers.iter().enumerate() {
+        if index > 0 {
+            out.push_str("  ");
+        }
+        pad(&mut out, header, widths[index]);
+    }
+    out.push('\n');
+
+    for row in rows {
+        for (index, width) in widths.iter().enumerate().take(columns) {
+            if index > 0 {
+                out.push_str("  ");
+            }
+            let cell = row.get(index).map(String::as_str).unwrap_or("");
+            pad(&mut out, cell, *width);
+        }
+        out.push('\n');
+    }
+    out.trim_end_matches('\n').to_owned()
 }
 
 /// Key and value, at the fixed label width the Python version used.
@@ -101,26 +164,6 @@ pub fn error(message: &str) -> String {
 mod tests {
     use super::*;
 
-    /// Assert the rendering as text rather than by eye, which is why colour is
-    /// forced off for these.
-    fn plain(s: &str) -> String {
-        // Strip SGR sequences so the shape is asserted, not the escapes.
-        let mut out = String::new();
-        let mut chars = s.chars();
-        while let Some(c) = chars.next() {
-            if c == '\u{1b}' {
-                for c in chars.by_ref() {
-                    if c == 'm' {
-                        break;
-                    }
-                }
-            } else {
-                out.push(c);
-            }
-        }
-        out
-    }
-
     #[test]
     fn a_table_carries_its_headers_and_every_row() {
         let out = render_table(
@@ -134,6 +177,68 @@ mod tests {
         assert!(out.contains("run-abcd"));
         assert!(out.contains("run-efgh"));
         assert_eq!(out.matches("run-").count(), 2, "no row is dropped");
+    }
+
+    /// The shipped table has no box. The Python CLI drew `box=None`, and a boxed
+    /// table is a different surface rather than a nicer one.
+    #[test]
+    fn the_table_is_padded_columns_and_not_a_box() {
+        let out = render_table(&["Service", "PID"], &[vec!["api".into(), "28138".into()]]);
+        assert_eq!(out, "Service  PID  \napi      28138");
+        for glyph in ['\u{250c}', '\u{2502}', '\u{2500}', '\u{2554}', '\u{2551}'] {
+            assert!(!out.contains(glyph), "{out:?} drew a box");
+        }
+    }
+
+    /// **The defect this test exists for.** A coloured cell carries escape bytes
+    /// that occupy no columns. Laying the table out from the raw length pads the
+    /// coloured column by the length of its escapes, and every other row in it
+    /// lands short. Caught on the first `vadgr status` of the `0.4.8` pass.
+    #[test]
+    fn a_coloured_cell_does_not_widen_its_column() {
+        let coloured = render_table(
+            &["Service", "PID", "Status"],
+            &[
+                vec!["api".into(), "28138".into(), format_status("running")],
+                vec!["daemon".into(), "-".into(), format_status("failed")],
+            ],
+        );
+        let uncoloured = render_table(
+            &["Service", "PID", "Status"],
+            &[
+                vec!["api".into(), "28138".into(), "running".into()],
+                vec!["daemon".into(), "-".into(), "failed".into()],
+            ],
+        );
+        assert_eq!(
+            plain(&coloured),
+            uncoloured,
+            "styling changed the layout, so the columns no longer line up"
+        );
+        // And every rendered line is the same visible width.
+        let widths: Vec<usize> = plain(&coloured).lines().map(|l| l.width()).collect();
+        assert!(
+            widths.windows(2).all(|w| w[0] == w[1]),
+            "ragged lines: {widths:?}"
+        );
+    }
+
+    /// A task sentence is prose, so a wide character must occupy the columns it
+    /// actually occupies.
+    #[test]
+    fn a_wide_character_is_measured_by_its_width() {
+        let out = render_table(
+            &["Task", "Status"],
+            &[
+                vec!["\u{6f22}\u{5b57}".into(), "ok".into()],
+                vec!["abcd".into(), "ok".into()],
+            ],
+        );
+        let widths: Vec<usize> = out.lines().map(|l| l.width()).collect();
+        assert!(
+            widths.windows(2).all(|w| w[0] == w[1]),
+            "ragged: {widths:?}"
+        );
     }
 
     #[test]
