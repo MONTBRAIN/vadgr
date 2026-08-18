@@ -33,6 +33,24 @@ pub struct TailscaledLocalApi {
     socket_path: PathBuf,
     #[cfg(windows)]
     pipe_path: PathBuf,
+    /// macOS only: the LocalAPI reached over loopback TCP instead of a socket.
+    ///
+    /// The open-source `tailscaled` daemon listens on a unix socket, but the
+    /// Tailscale macOS application does not create one at all. Both of its
+    /// builds publish a loopback port and a shared secret instead, so a Mac
+    /// running Tailscale the ordinary way has a healthy tailnet and no socket
+    /// to find. Without this the daemon reports "tailscaled not running or
+    /// logged out" while the tailnet is up, and pairing is unreachable.
+    #[cfg(target_os = "macos")]
+    tcp: Option<MacLocalApi>,
+}
+
+/// The loopback endpoint and shared secret the Tailscale macOS app publishes.
+#[cfg(target_os = "macos")]
+#[derive(Clone)]
+pub struct MacLocalApi {
+    port: u16,
+    token: String,
 }
 
 impl TailscaledLocalApi {
@@ -40,6 +58,8 @@ impl TailscaledLocalApi {
     pub fn new(socket_path: impl Into<PathBuf>) -> Self {
         Self {
             socket_path: socket_path.into(),
+            #[cfg(target_os = "macos")]
+            tcp: mac_local_api(),
         }
     }
 
@@ -81,19 +101,26 @@ impl TailscaledLocalApi {
             use std::os::unix::net::UnixStream;
             use std::time::Duration;
 
-            let mut sock = UnixStream::connect(&self.socket_path).ok()?;
-            sock.set_read_timeout(Some(Duration::from_secs(2))).ok()?;
-            sock.set_write_timeout(Some(Duration::from_secs(2))).ok()?;
-            sock.write_all(req.as_bytes()).ok()?;
-            let mut raw = Vec::new();
-            sock.read_to_end(&mut raw).ok()?;
-            let sep = raw.windows(4).position(|w| w == b"\r\n\r\n")?;
-            let (head, body) = raw.split_at(sep);
-            let status_line = head.split(|b| *b == b'\r').next()?;
-            if !status_line.windows(5).any(|w| w == b" 200 ") {
-                return None;
+            // The socket is the daemon install. When it is absent, macOS may
+            // still have a healthy tailnet behind the application's loopback
+            // endpoint, so that is tried rather than reporting "logged out".
+            if let Ok(mut sock) = UnixStream::connect(&self.socket_path) {
+                sock.set_read_timeout(Some(Duration::from_secs(2))).ok()?;
+                sock.set_write_timeout(Some(Duration::from_secs(2))).ok()?;
+                sock.write_all(req.as_bytes()).ok()?;
+                let mut raw = Vec::new();
+                sock.read_to_end(&mut raw).ok()?;
+                return parse_local_api_response(&raw);
             }
-            serde_json::from_slice(&body[4..]).ok()
+            #[cfg(target_os = "macos")]
+            {
+                let mac = self.tcp.as_ref()?;
+                mac.get(path)
+            }
+            #[cfg(not(target_os = "macos"))]
+            {
+                None
+            }
         }
         #[cfg(windows)]
         {
@@ -111,14 +138,111 @@ impl TailscaledLocalApi {
             pipe.write_all(req.as_bytes()).ok()?;
             let mut raw = Vec::new();
             pipe.read_to_end(&mut raw).ok()?;
-            let sep = raw.windows(4).position(|w| w == b"\r\n\r\n")?;
-            let (head, body) = raw.split_at(sep);
-            let status_line = head.split(|b| *b == b'\r').next()?;
-            if !status_line.windows(5).any(|w| w == b" 200 ") {
-                return None;
-            }
-            serde_json::from_slice(&body[4..]).ok()
+            parse_local_api_response(&raw)
         }
+    }
+}
+
+/// Split one LocalAPI HTTP/1.0 response into its JSON body.
+///
+/// Shared by every transport so the three of them cannot drift on what counts
+/// as a successful answer.
+fn parse_local_api_response(raw: &[u8]) -> Option<Value> {
+    let sep = raw.windows(4).position(|w| w == b"\r\n\r\n")?;
+    let (head, body) = raw.split_at(sep);
+    let status_line = head.split(|b| *b == b'\r').next()?;
+    if !status_line.windows(5).any(|w| w == b" 200 ") {
+        return None;
+    }
+    serde_json::from_slice(&body[4..]).ok()
+}
+
+/// Find the loopback LocalAPI the Tailscale macOS application publishes.
+///
+/// Two builds ship and they advertise themselves differently. The standalone
+/// system-extension build writes `/Library/Tailscale/sameuserproof-<port>`
+/// and puts the shared secret inside the file. The sandboxed App Store build
+/// cannot write there, so it puts both halves in the name of a file in its
+/// group container: `sameuserproof-<port>-<token>`. Neither creates a unix
+/// socket, which is why looking only for one reports a running tailnet as
+/// logged out.
+#[cfg(target_os = "macos")]
+fn mac_local_api() -> Option<MacLocalApi> {
+    if let Some(found) = mac_local_api_from_dir(Path::new("/Library/Tailscale"), true) {
+        return Some(found);
+    }
+    let home = std::env::var_os("HOME")?;
+    let containers = Path::new(&home).join("Library").join("Group Containers");
+    for entry in std::fs::read_dir(containers).ok()?.flatten() {
+        let name = entry.file_name();
+        let name = name.to_string_lossy();
+        if !name.contains("io.tailscale.ipn.macos") {
+            continue;
+        }
+        if let Some(found) = mac_local_api_from_dir(&entry.path(), false) {
+            return Some(found);
+        }
+    }
+    None
+}
+
+/// Read one directory's `sameuserproof-*` entry.
+///
+/// `secret_in_file` picks the build: the standalone one stores the secret as
+/// the file's contents, the sandboxed one as the third field of its name.
+#[cfg(target_os = "macos")]
+fn mac_local_api_from_dir(dir: &Path, secret_in_file: bool) -> Option<MacLocalApi> {
+    for entry in std::fs::read_dir(dir).ok()?.flatten() {
+        let name = entry.file_name();
+        let name = name.to_string_lossy().into_owned();
+        let Some(rest) = name.strip_prefix("sameuserproof-") else {
+            continue;
+        };
+        let (port, token) = if secret_in_file {
+            let token = std::fs::read_to_string(entry.path()).ok()?;
+            (rest.to_owned(), token.trim().to_owned())
+        } else {
+            let (port, token) = rest.split_once('-')?;
+            (port.to_owned(), token.to_owned())
+        };
+        // A proof file with no secret is not usable, and neither is one whose
+        // port does not parse. Skip rather than fail: another entry may serve.
+        let Ok(port) = port.parse::<u16>() else {
+            continue;
+        };
+        if token.is_empty() {
+            continue;
+        }
+        return Some(MacLocalApi { port, token });
+    }
+    None
+}
+
+#[cfg(target_os = "macos")]
+impl MacLocalApi {
+    /// One LocalAPI request over loopback, authenticated with the shared secret.
+    ///
+    /// The secret goes in an HTTP Basic password with an empty user, which is
+    /// the form tailscaled's own clients use.
+    fn get(&self, path: &str) -> Option<Value> {
+        use base64::Engine as _;
+        use std::io::{Read, Write};
+        use std::net::TcpStream;
+        use std::time::Duration;
+
+        let auth = base64::engine::general_purpose::STANDARD.encode(format!(":{}", self.token));
+        let req = format!(
+            "GET {path} HTTP/1.0\r\nHost: local-tailscaled.sock\r\n\
+             Authorization: Basic {auth}\r\nConnection: close\r\n\r\n"
+        );
+        let addr = format!("127.0.0.1:{}", self.port);
+        let mut sock = TcpStream::connect(&addr).ok()?;
+        sock.set_read_timeout(Some(Duration::from_secs(2))).ok()?;
+        sock.set_write_timeout(Some(Duration::from_secs(2))).ok()?;
+        sock.write_all(req.as_bytes()).ok()?;
+        let mut raw = Vec::new();
+        sock.read_to_end(&mut raw).ok()?;
+        parse_local_api_response(&raw)
     }
 }
 
@@ -262,6 +386,9 @@ impl<A: LocalApi> Transport for TailscaleTransport<A> {
 #[cfg(test)]
 mod tests {
     use super::default_local_api_endpoint;
+    #[cfg(target_os = "macos")]
+    use super::mac_local_api_from_dir;
+    use super::parse_local_api_response;
     use std::path::Path;
 
     #[test]
@@ -285,5 +412,70 @@ mod tests {
                 .join("Tailscale")
                 .join("tailscaled")
         );
+    }
+
+    /// The Tailscale macOS application publishes no unix socket. The standalone
+    /// build writes the port in the file name and the secret inside the file.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn the_standalone_mac_app_is_found_by_its_proof_file() {
+        let dir = std::env::temp_dir().join(format!("vadgr-ts-standalone-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("sameuserproof-49161"), "s3cr3t-token\n").unwrap();
+
+        let found = mac_local_api_from_dir(&dir, true).expect("the proof file names an endpoint");
+
+        assert_eq!(found.port, 49161);
+        assert_eq!(
+            found.token, "s3cr3t-token",
+            "the trailing newline is not part of it"
+        );
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    /// The sandboxed App Store build cannot write outside its container, so it
+    /// carries both halves in the file name instead.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn the_sandboxed_mac_app_carries_its_secret_in_the_name() {
+        let dir = std::env::temp_dir().join(format!("vadgr-ts-sandboxed-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("sameuserproof-52525-abc123"), "").unwrap();
+
+        let found = mac_local_api_from_dir(&dir, false).expect("the name carries the endpoint");
+
+        assert_eq!(found.port, 52525);
+        assert_eq!(found.token, "abc123");
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    /// A directory with nothing usable must answer "no endpoint" rather than
+    /// panicking or returning a half-built one.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn an_unusable_proof_is_skipped_rather_than_trusted() {
+        let dir = std::env::temp_dir().join(format!("vadgr-ts-unusable-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("sameuserproof-not-a-port"), "tok").unwrap();
+        std::fs::write(dir.join("unrelated-file"), "tok").unwrap();
+        assert!(mac_local_api_from_dir(&dir, true).is_none());
+
+        // A parseable port with an empty secret is not usable either.
+        std::fs::write(dir.join("sameuserproof-51000"), "   \n").unwrap();
+        assert!(mac_local_api_from_dir(&dir, true).is_none());
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    /// The response parser is shared by all three transports, so it is asserted
+    /// once here rather than three times by hand.
+    #[test]
+    fn only_a_200_response_yields_a_body() {
+        let ok = b"HTTP/1.0 200 OK\r\nContent-Type: application/json\r\n\r\n{\"BackendState\":\"Running\"}";
+        assert_eq!(
+            parse_local_api_response(ok).unwrap()["BackendState"],
+            "Running"
+        );
+        let denied = b"HTTP/1.0 403 Forbidden\r\n\r\n{\"BackendState\":\"Running\"}";
+        assert!(parse_local_api_response(denied).is_none());
     }
 }
