@@ -18,10 +18,16 @@ pub mod status;
 /// The status palette, one place, as `_STATUS_STYLES` was in Python.
 fn status_style(status: &str) -> Style {
     let colour = match status {
-        "ready" | "completed" => AnsiColor::Green,
+        // A run or a provider that is fine.
+        "ready" | "completed" | "available" => AnsiColor::Green,
         "running" => AnsiColor::BrightBlue,
         "creating" | "queued" | "awaiting_approval" => AnsiColor::Yellow,
-        "failed" | "cancelled" => AnsiColor::Red,
+        // A run that ended badly, and the three ways a service says it is not
+        // there. Dropping these left `health`'s module block and the `status`
+        // table uncoloured, which the WSL pass caught by looking at them.
+        "failed" | "cancelled" | "error" | "not found" | "not running" | "stopped" => {
+            AnsiColor::Red
+        }
         _ => return Style::new(),
     };
     Style::new().fg_color(Some(Color::Ansi(colour)))
@@ -112,12 +118,18 @@ pub fn render_table(headers: &[&str], rows: &[Vec<String>]) -> String {
     out.trim_end_matches('\n').to_owned()
 }
 
-/// Key and value, at the fixed label width the Python version used.
+/// Key and value, in the shape the CLI has always printed.
+///
+/// Two leading spaces, the label with its colon, padded to a fixed width, then
+/// the value. The port dropped the indent and the colon, which is a different
+/// block on the screen rather than a tidier one, and no unit test noticed
+/// because the test asserted the port's own output.
 pub fn render_kv(pairs: &[(String, String)]) -> String {
-    const LABEL_WIDTH: usize = 12;
+    // Twelve for the longest label the CLI prints, plus one for the colon.
+    const LABEL_WIDTH: usize = 13;
     pairs
         .iter()
-        .map(|(k, v)| format!("{k:<LABEL_WIDTH$} {v}"))
+        .map(|(k, v)| format!("  {:<LABEL_WIDTH$} {v}", format!("{k}:")))
         .collect::<Vec<_>>()
         .join("\n")
 }
@@ -241,10 +253,46 @@ mod tests {
         );
     }
 
+    /// **Asserted against the shipped CLI's own bytes**, not against what this
+    /// port happened to print. `vadgr health` on the Python CLI produces
+    /// `  Status:       healthy`, and the port dropped both the indent and the
+    /// colon until the WSL pass compared them.
     #[test]
-    fn a_key_value_block_pads_to_the_label_width() {
-        let out = render_kv(&[("Status".into(), "running".into())]);
-        assert_eq!(out, "Status       running");
+    fn a_key_value_block_is_indented_and_carries_its_colon() {
+        let out = render_kv(&[
+            ("Status".into(), "healthy".into()),
+            ("Version".into(), "0.4.8".into()),
+            ("Platform".into(), "wsl".into()),
+        ]);
+        assert_eq!(
+            out,
+            "  Status:       healthy\n  Version:      0.4.8\n  Platform:     wsl"
+        );
+    }
+
+    /// Every status the CLI can print is either coloured on purpose or plain on
+    /// purpose. These five were plain by accident.
+    #[test]
+    fn the_states_that_mean_something_is_wrong_are_coloured() {
+        for status in [
+            "failed",
+            "cancelled",
+            "error",
+            "not found",
+            "not running",
+            "stopped",
+        ] {
+            assert_ne!(
+                format_status(status),
+                status,
+                "`{status}` printed with no styling at all"
+            );
+        }
+        for status in ["ready", "completed", "available", "running", "queued"] {
+            assert_ne!(format_status(status), status, "`{status}` lost its colour");
+        }
+        // And an unknown status still renders, plain rather than dropped.
+        assert_eq!(plain(&format_status("surprising")), "surprising");
     }
 
     #[test]
