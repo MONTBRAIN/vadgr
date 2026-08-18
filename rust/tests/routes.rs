@@ -174,7 +174,10 @@ async fn health_answers_without_a_token_because_it_is_the_probe() {
     .await;
     assert_eq!(status, StatusCode::OK);
     assert_eq!(body["status"], "healthy");
-    assert_eq!(body["version"], "0.4.7");
+    // The version this daemon reports, read from the one place that defines it.
+    // A literal here turns every release bump into a broken test, which is what
+    // happened at 0.4.8.
+    assert_eq!(body["version"], vadgr_daemon::config::VERSION);
     assert_eq!(body["modules"]["computer_use"], true);
     assert!(["linux", "macos", "windows", "wsl"].contains(&body["platform"].as_str().unwrap()));
 }
