@@ -166,21 +166,36 @@ jobs:
         if: runner.os == 'macOS'
         shell: bash
         run: |
-          otool -L target/release/vadgr-daemon
-          # Every library it links must be one macOS ships itself. A link to
-          # anything under /opt or /usr/local is a dependency a user's machine
-          # may not have, which is the failure this job exists to catch.
-          otool -L target/release/vadgr-daemon | tail -n +2 | awk '{print $1}' | while read -r lib; do
+          set -euo pipefail
+          exe=target/release/vadgr-daemon
+          test -x "$exe" || { echo "no binary at $exe"; exit 1; }
+          otool -L "$exe"
+          # Read the list into a variable first. Piping otool into a while loop
+          # puts the loop in a subshell, where an exit does not fail the step,
+          # and an empty list would pass a check that inspected nothing.
+          libs="$(otool -L "$exe" | tail -n +2 | awk '{print $1}')"
+          count="$(printf '%s\n' "$libs" | grep -c . || true)"
+          test "$count" -ge 1 || { echo "read no linked libraries, which cannot be right"; exit 1; }
+          echo "linked libraries: $count"
+          bad=0
+          while IFS= read -r lib; do
+            [ -n "$lib" ] || continue
             case "$lib" in
               /usr/lib/*|/System/Library/*) ;;
-              *) echo "links $lib, which macOS does not guarantee"; exit 1 ;;
+              *) echo "links $lib, which macOS does not guarantee"; bad=1 ;;
             esac
-          done
+          done <<< "$libs"
+          test "$bad" -eq 0 || exit 1
+          # The minimum macOS this binary will start on. Recorded so a build that
+          # silently raises the floor is visible rather than discovered by a user
+          # on an older machine.
+          vtool -show-build "$exe" 2>/dev/null | grep -E "minos|platform" || true
           # No PATH, a home of its own, and nothing else on the machine in reach.
           root="$(mktemp -d)"
           env -i HOME="$root" \
             VADGR_STATE_HOME="$root/state" VADGR_PORT=8100 VADGR_TRANSPORT=loopback \
-            ./target/release/vadgr-daemon > "$root/daemon.log" 2>&1 &
+            "$PWD/$exe" > "$root/daemon.log" 2>&1 &
+          body=""
           for _ in $(seq 1 40); do
             body="$(curl -fsS http://127.0.0.1:8100/api/health 2>/dev/null || true)"
             [ -n "$body" ] && break
@@ -193,15 +208,21 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          # Every DLL it imports must be one Windows ships itself. A vcruntime or
-          # any other redistributable is a dependency a user's machine may not
-          # have, which is the failure this job exists to catch.
+          $exe = "target\x86_64-pc-windows-msvc\release\vadgr-daemon.exe"
+          if (-not (Test-Path $exe)) { throw "no binary at $exe" }
+
           $dumpbin = Get-ChildItem "C:\Program Files*\Microsoft Visual Studio\*\*\VC\Tools\MSVC\*\bin\Hostx64\x64\dumpbin.exe" |
             Select-Object -First 1
-          $imports = & $dumpbin.FullName /dependents target\release\vadgr-daemon.exe |
-            Select-String -Pattern '^\s+(\S+\.dll)$' |
-            ForEach-Object { $_.Matches[0].Groups[1].Value.ToLower() }
+          if (-not $dumpbin) { throw "dumpbin not found on this runner" }
+          $imports = & $dumpbin.FullName /dependents $exe |
+            Select-String -Pattern '^\s+(\S+\.(dll|exe))$' |
+            ForEach-Object { $_.Matches[0].Groups[1].Value.ToLower() } |
+            Sort-Object -Unique
           $imports
+          # A check that read nothing is not a check. This one inspected the
+          # wrong path once and passed because the list was empty.
+          if ($imports.Count -lt 3) { throw "read $($imports.Count) imports, which cannot be right" }
+
           # Every name here ships with Windows itself. vcruntime140.dll is the
           # one that must never appear: it belongs to the Visual C++
           # redistributable, which a user's machine may never have installed.
@@ -215,6 +236,7 @@ jobs:
               throw "imports $dll, which Windows does not guarantee"
             }
           }
+
           # No PATH, a profile of its own, and nothing else on the machine in reach.
           $root = Join-Path $env:RUNNER_TEMP ([guid]::NewGuid())
           New-Item -ItemType Directory -Path $root | Out-Null
@@ -234,6 +256,7 @@ jobs:
             throw "the binary did not serve health on its own"
           }
           Stop-Process -Id $daemon.Id -Force
+          exit 0
 
   clean-install:
     # Build the delivered artifact, then prove it from outside a scratch image
