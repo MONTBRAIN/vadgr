@@ -468,6 +468,11 @@ must show only files your subject is about: **a diff carrying work the title doe
 not mention means the branch point was wrong**, and the fix is to re-cut it from
 the default branch rather than to explain it in the body.
 
+**And CI refuses it**, because prose did not stop it the first time.
+`scripts/check_branch_point.py` fails a pull request whose branch contains
+another open pull request's head: that ancestry is what a branch cut from a
+feature branch looks like, and there is no innocent version of it.
+
 **Nothing reaches a default branch except through a pull request, and the docs
 repo is not an exception.** Branch, push, open the PR, merge it. That covers
 code, plans, design specs, runbooks and **e2e evidence**: evidence is filed on
