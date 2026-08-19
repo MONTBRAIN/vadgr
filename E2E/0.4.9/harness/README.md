@@ -1,4 +1,4 @@
-# `0.4.8` harness
+# `0.4.9` harness
 
 Four helpers. **None of them drives the product**: they build state before a
 group, record what already ran, or check a result with an independent

@@ -163,47 +163,47 @@ daemon said.
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| C1 | nothing on the port | `vadgr start` | exit `0`; **the process is `vadgr-daemon`**, read from the process table, not from the CLI's output | CLI output, `ps` line, health | C4 | |
-| C2 | C1's daemon running | `vadgr start` | refuses, non-zero, the pid unchanged | CLI output, the pid twice | C4 | |
-| C3 | as C2 | `vadgr status`, `vadgr logs --no-follow -n 5` | the table names the live pid; the log tail matches the file | CLI output, `tail -5` | C4 | |
-| C4 | as C2 | `vadgr stop` | the process is gone, the port free, the pid and port files removed | `ps`, listener list, directory | none | |
-| C5 | a listener holding the port and never accepting | `vadgr start` | it walks up and the port file names the port it took | CLI output, listener list, port file | stop | |
-| C6 | stopped | `vadgr restart` | a new pid serves health on the port | the two pids | stop | |
+| C1 | nothing on the port | `vadgr start` | exit `0`; **the process is `vadgr-daemon`**, read from the process table, not from the CLI's output | CLI output, `ps` line, health | C4 | pass |
+| C2 | C1's daemon running | `vadgr start` | refuses, non-zero, the pid unchanged | CLI output, the pid twice | C4 | pass |
+| C3 | as C2 | `vadgr status`, `vadgr logs --no-follow -n 5` | the table names the live pid; the log tail matches the file | CLI output, `tail -5` | C4 | pass |
+| C4 | as C2 | `vadgr stop` | the process is gone, the port free, the pid and port files removed | `ps`, listener list, directory | none | pass |
+| C5 | a listener holding the port and never accepting | `vadgr start` | it walks up and the port file names the port it took | CLI output, listener list, port file | stop | pass |
+| C6 | stopped | `vadgr restart` | a new pid serves health on the port | the two pids | stop | pass |
 
 ## Part D: the read-only commands
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| D1 | daemon running | `vadgr health` | `0.4.9`, the host's platform, and the module block; equals `/api/health` | CLI output, `curl` body | none | |
-| D2 | as D1 | `vadgr providers` | the three providers with their state; equals `GET /api/providers` | CLI output, `curl` body | none | |
-| D3 | as D1, no runs | `vadgr runs list` | "No runs found." and exit `0` | CLI output | none | |
-| D4 | one run present | `vadgr runs list`, `vadgr runs get <prefix>` | the table carries a duration; the prefix resolves; fields equal the API | CLI output, `curl` body | none | |
-| D5 | nothing listening | `vadgr health` | exit `3` with the daemon-is-down line | CLI output | none | |
+| D1 | daemon running | `vadgr health` | `0.4.9`, the host's platform, and the module block; equals `/api/health` | CLI output, `curl` body | none | pass |
+| D2 | as D1 | `vadgr providers` | the three providers with their state; equals `GET /api/providers` | CLI output, `curl` body | none | pass |
+| D3 | as D1, no runs | `vadgr runs list` | "No runs found." and exit `0` | CLI output | none | pass |
+| D4 | one run present | `vadgr runs list`, `vadgr runs get <prefix>` | the table carries a duration; the prefix resolves; fields equal the API | CLI output, `curl` body | none | pass |
+| D5 | nothing listening | `vadgr health` | exit `3` with the daemon-is-down line | CLI output | none | pass |
 
 ## Part E: provider onboarding
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| E1 | fresh state root; the key in the command's environment only | `vadgr provider login gemini` | names the variable, never the value; the daemon reports Gemini connected with a live catalog; **the key is absent from the database, WAL, SHM and this evidence** | CLI output, `curl` body, a grep for the key returning zero | E3 | |
-| E2 | E1 connected | `vadgr model list`, `vadgr model default gemini/<model>` | the catalog lists models; the default is set and the API agrees | CLI output, `curl` body | E3 | |
-| E3 | as E2 | `vadgr provider logout` of a non-default provider | the connection and its credential record are gone | `curl` body, credential directory | none | |
+| E1 | fresh state root; the key in the command's environment only | `vadgr provider login gemini` | names the variable, never the value; the daemon reports Gemini connected with a live catalog; **the key is absent from the database, WAL, SHM and this evidence** | CLI output, `curl` body, a grep for the key returning zero | E3 | pass |
+| E2 | E1 connected | `vadgr model list`, `vadgr model default gemini/<model>` | the catalog lists models; the default is set and the API agrees | CLI output, `curl` body | E3 | pass |
+| E3 | as E2 | `vadgr provider logout` of a non-default provider | the connection and its credential record are gone | `curl` body, credential directory | none | pass |
 
 ## Part F: runs and the watcher
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| F1 | provider connected and default | `vadgr run "<task>" --background` | exit `0`, the id printed; the run reaches a terminal state | CLI output, run row | none | |
-| F2 | as F1 | `vadgr run "<task>"` watched | `Run completed`, the results link, exit `0`; the journal is under the **state root's** `runs/` | CLI output, the journal path | none | |
-| F3 | a run cancelled from another terminal while watched | the watcher | says the run was cancelled, exits `0` | CLI output, the run row | none | |
-| F4 | as F1 | `vadgr run "<task>" --background --json` | stdout parses whole, with no hint on it | the output through a strict parser | none | |
+| F1 | provider connected and default | `vadgr run "<task>" --background` | exit `0`, the id printed; the run reaches a terminal state | CLI output, run row | none | pass |
+| F2 | as F1 | `vadgr run "<task>"` watched | `Run completed`, the results link, exit `0`; the journal is under the **state root's** `runs/` | CLI output, the journal path | none | pass |
+| F3 | a run cancelled from another terminal while watched | the watcher | says the run was cancelled, exits `0` | CLI output, the run row | none | pass |
+| F4 | as F1 | `vadgr run "<task>" --background --json` | stdout parses whole, with no hint on it | the output through a strict parser | none | pass |
 
 ## Part G: pairing
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| G1 | no provider connected | `vadgr pair` | says a provider is needed and mints nothing | CLI output, `GET /api/devices` | none | |
-| G2 | provider default, tailscale transport | `vadgr pair` | a QR, the machine, the address and the code | CLI output | the code expires | |
-| G3 | G2's output | decode the printed symbol with `harness/qr-decode` | it recovers exactly the link rebuilt from the printed fields | the decode output | none | |
+| G1 | no provider connected | `vadgr pair` | says a provider is needed and mints nothing | CLI output, `GET /api/devices` | none | pass |
+| G2 | provider default, tailscale transport | `vadgr pair` | a QR, the machine, the address and the code | CLI output | the code expires | pass |
+| G3 | G2's output | decode the printed symbol with `harness/qr-decode` | it recovers exactly the link rebuilt from the printed fields | the decode output | none | pass |
 
 ## Part H: the phone, held by a person
 
@@ -221,9 +221,9 @@ handheld cells are spent again. The oracle is the daemon, never the screen.
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| I1 | a container with a shell, git and curl, **no toolchain and no vadgr** | assert both absences | `cargo` and `vadgr` are not found | the two failed lookups | the container is removed | |
-| I2 | as I1 | run `setup.sh` against the commit under test | it installs the toolchain, builds, and puts both binaries in the install root | the transcript, the install root listing | as I1 | |
-| I3 | as I2 | `vadgr --version`, then `vadgr health` | the version matches; health exits `3` because nothing is started, which is the correct answer | CLI output and both exit codes | as I1 | |
+| I1 | a container with a shell, git and curl, **no toolchain and no vadgr** | assert both absences | `cargo` and `vadgr` are not found | the two failed lookups | the container is removed | pass |
+| I2 | as I1 | run `setup.sh` against the commit under test | it installs the toolchain, builds, and puts both binaries in the install root | the transcript, the install root listing | as I1 | pass |
+| I3 | as I2 | `vadgr --version`, then `vadgr health` | the version matches; health exits `3` because nothing is started, which is the correct answer | CLI output and both exit codes | as I1 | pass |
 
 ## Per-OS results
 

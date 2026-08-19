@@ -32,25 +32,25 @@ fn user_home() -> PathBuf {
 
 /// Where the installation keeps its pid files, its log and its clone.
 ///
-/// **The directory is still `~/.forge`, and that is deliberate.** `0.4.8`
-/// renames the variables a person types; `0.4.9` moves what the product owns,
-/// with the rest of the paths. Moving a database in the release before the
-/// cutover would give a later defect two candidate causes.
+/// This is the product's own directory, and it is the one the installer
+/// creates. Durable state does not live here: the database, the run journals
+/// and the credentials resolve below the platform's local-state directory.
 pub fn vadgr_home() -> PathBuf {
     std::env::var_os("VADGR_HOME")
         .map(PathBuf::from)
-        .unwrap_or_else(|| user_home().join(".forge"))
+        .unwrap_or_else(|| user_home().join(".vadgr"))
 }
 
 /// The checkout the daemon runs from.
 ///
-/// The installer puts it at `~/.forge/Agent-Forge`, which is what the shipped
-/// launcher hard-codes. A checkout anywhere else sets `VADGR_REPO`, which is how
-/// a development tree runs.
+/// The installer puts it at `~/.vadgr/src`, and `vadgr update` rebuilds from
+/// exactly that tree. The two must name the same directory or an update reports
+/// a checkout that is not there. A checkout anywhere else sets `VADGR_REPO`,
+/// which is how a development tree runs.
 pub fn vadgr_repo() -> PathBuf {
     std::env::var_os("VADGR_REPO")
         .map(PathBuf::from)
-        .unwrap_or_else(|| vadgr_home().join("Agent-Forge"))
+        .unwrap_or_else(|| vadgr_home().join("src"))
 }
 
 fn pid_dir() -> PathBuf {
