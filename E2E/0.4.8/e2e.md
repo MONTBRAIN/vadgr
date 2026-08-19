@@ -6,7 +6,17 @@ daemons over their public surfaces. The environment variables are one family now
 rather than two, and the run watcher no longer goes silent when a run is
 cancelled.
 
-> **Status: run on WSL2 and on native Windows, 2026-08-18, and complete on both.**
+> **Status: run on WSL2, on native Windows and on native Linux, and complete on
+> all three.** Native Linux ran on 2026-08-19 at `bc7921d` on Ubuntu 26.04 with a
+> GNOME Wayland session: all 45 cells carry a verdict, 44 pass and `H4` is the
+> same structural `partial` it is everywhere. The gate matches WSL exactly here,
+> rust 267, api 445, cli 150, engine 122, with `fmt` and `clippy` at exit `0`,
+> and native Linux does not carry the eight api failures `F8` records on Windows.
+> `G4` paired a real handset over the tailnet. Three findings were added, `F12`
+> to `F14`, and two of them are repairs to this runbook's own handoff. **macOS
+> remains `not run`.**
+>
+> **The earlier status: run on WSL2 and on native Windows, 2026-08-18, and complete on both.**
 > All 45 cells carry a verdict on each. Automated gate green on WSL (rust 267,
 > api 445, cli 150, engine 122); on Windows the api suite is 436 of 445 and the
 > eight failures are `F8`, all older than this branch. **Native Linux and macOS
@@ -46,7 +56,7 @@ the groups that use them run against it. Each group names which daemon it drove.
 
 | requirement | cells | non-secret availability check | cost or destructive effect | cleanup |
 |---|---|---|---|---|
-| `GEMINI_API_KEY` in `../.env` | `E1`-`E6`, `G1` | `grep -c '^GEMINI_API_KEY=' ../.env` returns `1`; the value is never printed | one authenticated catalog call and one bounded readiness call | the isolated state root is removed |
+| a Gemini API key in `../.env` | `E1`-`E6`, `G1` | the file carries a Gemini key under `GEMINI_API_KEY` or a machine-local alias; the driver maps the alias to the portable name **in that command's environment only** and never prints the value | one authenticated catalog call and one bounded readiness call | the isolated state root is removed |
 | A handset with the Vadgr app, held by the owner | `G4` | the owner confirms the phone is in hand | none | none |
 | A Python virtual environment at `api/.venv` | `C1`-`C8` | `test -x api/.venv/bin/python` | none | none |
 | WSL2 host with a free loopback port range `8810`-`8830` | all | `ss -ltn` shows none of them bound | none | every daemon started is stopped by its own pid |
@@ -98,7 +108,7 @@ cannot meet one knows before it starts rather than four groups in.
    ```bash
    cargo build --release --bins
    mkdir -p "$E2E_HOME/bin"
-   cp target/release/vadgr      "$E2E_HOME/bin/vadgr"          # vadgr.exe on Windows
+   cp target/release/vadgr-cli  "$E2E_HOME/bin/vadgr"          # vadgr-cli.exe on Windows
    cp target/release/vadgr-daemon "$E2E_HOME/bin/vadgr-daemon"
    ```
 
@@ -325,16 +335,38 @@ parts actually driven on that OS.
 
 | part | WSL | Linux | Windows native | macOS | notes |
 |---|---|---|---|---|---|
-| automated gate: build, test, lint | **pass** | not run | **partial**, api only | not run | run locally on this host: rust 267, api 445, cli 150, engine 122, with `cargo fmt --check` and `cargo clippy --all-targets -- -D warnings` at exit `0`. **Windows**: the api suite runs 445 and 436 pass; the 8 failures are named in `F8` and every one of them predates this branch, proved by re-running them with the branch's changes stashed. The Rust suites were not re-run on Windows. **The green WSL figure above hides something this row must not**: `bash` on Windows resolves to `C:\WINDOWS\system32\bash.exe`, the WSL launcher, so the suite's subprocess tests that shell through `bash` leave Windows to pass |
-| A: the binary is the built head | **pass**, 3 of 3 | not run | **pass**, 3 of 3 | not run | the installed command resolves inside the test root and its `sha256` is the release build of the head under test |
-| B: address resolution and the rename | **pass**, 6 of 6 | not run | **pass**, 6 of 6 | not run | includes the two cells that matter most for the rename: a live port file beating the environment, and the old `FORGE_*` names reaching nothing |
-| C: the service group, Python daemon | **pass**, 8 of 8 | not run | **pass**, 8 of 8 | not run | the Rust CLI starts, supervises, follows and stops the **Python** daemon, which is the strangler seam this release must not break |
-| D: read-only commands, Rust daemon | **pass**, 6 of 6 | not run | **pass**, 6 of 6 | not run | `health`, `providers`, `computer-use status` and `status` are byte for byte identical to the shipped Python CLI on the same daemon. Two defects were fixed to get there, F1 and F3 |
-| E: provider onboarding | **pass**, 7 of 7 | not run | **pass**, 7 of 7 | not run | two real credentials, a live 28 model catalog and a live 10 model catalog, one bounded readiness call each, and the secret absent from the database, WAL, SHM and evidence. **Windows**: re-driven from a fresh database against a daemon on `18816`, because an earlier drive on this OS left no re-readable captures and corroboration is not evidence. `E1` named `GEMINI_API_KEY` rather than its value and reported `Ready: Google Gemini, Gemini 3.7 Flash`; `E3` was proved live by the daemon's own `POST /api/providers/gemini/catalog-refresh status=200` in `153 ms`; `E6` refused with `the default provider cannot be disconnected` exactly as it does on WSL; `E6b` connected Anthropic's 10 model catalog, printed `Default remains: Google Gemini / gemini-2.5-flash-lite`, and its credential record went from two files to one on logout. **The secret-absence oracle was run with the daemon stopped**, because a first attempt could not read the database, WAL, SHM or daemon log while it held them open and would have reported a clean scan of the files that mattered least: 22 files, zero plaintext occurrences of either key, and the credential store's ACL is owner plus `OWNER RIGHTS` and `SYSTEM` only |
-| F: runs and the watcher | **pass**, 6 of 6 | not run | **pass**, 6 of 6 | not run | `F3` is the release's own improvement, and it is proved by driving the shipped Python CLI against the same cancellation, where it printed nothing and hung |
-| G: pair and the QR | **pass**, 4 of 4 | not run | **pass**, 4 of 4 | not run | `G3` decodes the printed symbol with an independent decoder; `G4` is a real handset, and the daemon recorded the claim at `200` and the device row |
-| H: negatives and exit codes | **pass**, 4 of 5, 1 partial | not run | **pass**, 4 of 5, 1 partial | not run | `H4` is partial: no public CLI invocation can send a malformed body, so the `422` parser is covered by its unit test and the wire shape by a live probe |
-| **overall** | **pass**, 1 partial, re-run on `d1b3f2f` | not run | **pass**, 1 partial | not run | **Windows**: every part driven to its stated oracles, 44 of 45 pass. `G3` used this runbook's own `harness/qr-decode`, which builds and runs unchanged here: `rqrr` read the symbol **as printed** and recovered `vadgr://pair?host=santiago-casa.tail323b9e.ts.net&port=18811&token=6Z6E-6DQH&name=Santiago-Casa`, the link rebuilt from the fields beside it, at version 5 and ecc level Low. `H4` is partial and **earned rather than inherited**: the `422` was captured live on this OS, its body is the list shape the parser reads, and its message names the field, `missing field \`task\``. One product defect was found and fixed on this OS (`F7`), and one earlier finding was **retracted** (`F9`) | every part of this runbook has been driven on WSL and every cell has a verdict. The one row that is not a clean pass is named above and it is not a WSL defect: `H4` has no public path to it. Three defects were found and fixed during the WSL pass, each with a regression test seen red first. **Four cells were then re-run on `d1b3f2f`** after the native Windows pass fixed two more: `B1`, `C1` and `D1` for `F7`, which changed the platform field on every OS, and `F4` for `F11`, whose earlier WSL pass is retracted because a lenient oracle hid the defect |
+| automated gate: build, test, lint | **pass** | **pass** | **partial**, api only | not run | run locally on this host: rust 267, api 445, cli 150, engine 122, with `cargo fmt --check` and `cargo clippy --all-targets -- -D warnings` at exit `0`. **Windows**: the api suite runs 445 and 436 pass; the 8 failures are named in `F8` and every one of them predates this branch, proved by re-running them with the branch's changes stashed. The Rust suites were not re-run on Windows. **The green WSL figure above hides something this row must not**: `bash` on Windows resolves to `C:\WINDOWS\system32\bash.exe`, the WSL launcher, so the suite's subprocess tests that shell through `bash` leave Windows to pass |
+| A: the binary is the built head | **pass**, 3 of 3 | **pass**, 3 of 3 | **pass**, 3 of 3 | not run | the installed command resolves inside the test root and its `sha256` is the release build of the head under test |
+| B: address resolution and the rename | **pass**, 6 of 6 | **pass**, 6 of 6 | **pass**, 6 of 6 | not run | includes the two cells that matter most for the rename: a live port file beating the environment, and the old `FORGE_*` names reaching nothing |
+| C: the service group, Python daemon | **pass**, 8 of 8 | **pass**, 8 of 8 | **pass**, 8 of 8 | not run | the Rust CLI starts, supervises, follows and stops the **Python** daemon, which is the strangler seam this release must not break |
+| D: read-only commands, Rust daemon | **pass**, 6 of 6 | **pass**, 6 of 6 | **pass**, 6 of 6 | not run | `health`, `providers`, `computer-use status` and `status` are byte for byte identical to the shipped Python CLI on the same daemon. Two defects were fixed to get there, F1 and F3 |
+| E: provider onboarding | **pass**, 7 of 7 | **pass**, 7 of 7 | **pass**, 7 of 7 | not run | two real credentials, a live 28 model catalog and a live 10 model catalog, one bounded readiness call each, and the secret absent from the database, WAL, SHM and evidence. **Windows**: re-driven from a fresh database against a daemon on `18816`, because an earlier drive on this OS left no re-readable captures and corroboration is not evidence. `E1` named `GEMINI_API_KEY` rather than its value and reported `Ready: Google Gemini, Gemini 3.7 Flash`; `E3` was proved live by the daemon's own `POST /api/providers/gemini/catalog-refresh status=200` in `153 ms`; `E6` refused with `the default provider cannot be disconnected` exactly as it does on WSL; `E6b` connected Anthropic's 10 model catalog, printed `Default remains: Google Gemini / gemini-2.5-flash-lite`, and its credential record went from two files to one on logout. **The secret-absence oracle was run with the daemon stopped**, because a first attempt could not read the database, WAL, SHM or daemon log while it held them open and would have reported a clean scan of the files that mattered least: 22 files, zero plaintext occurrences of either key, and the credential store's ACL is owner plus `OWNER RIGHTS` and `SYSTEM` only |
+| F: runs and the watcher | **pass**, 6 of 6 | **pass**, 6 of 6 | **pass**, 6 of 6 | not run | `F3` is the release's own improvement, and it is proved by driving the shipped Python CLI against the same cancellation, where it printed nothing and hung |
+| G: pair and the QR | **pass**, 4 of 4 | **pass**, 4 of 4 | **pass**, 4 of 4 | not run | `G3` decodes the printed symbol with an independent decoder; `G4` is a real handset, and the daemon recorded the claim at `200` and the device row |
+| H: negatives and exit codes | **pass**, 4 of 5, 1 partial | **pass**, 4 of 5, 1 partial | **pass**, 4 of 5, 1 partial | not run | `H4` is partial: no public CLI invocation can send a malformed body, so the `422` parser is covered by its unit test and the wire shape by a live probe |
+| **overall** | **pass**, 1 partial, re-run on `d1b3f2f` | **pass**, 1 partial | **pass**, 1 partial | not run | **Windows**: every part driven to its stated oracles, 44 of 45 pass. `G3` used this runbook's own `harness/qr-decode`, which builds and runs unchanged here: `rqrr` read the symbol **as printed** and recovered `vadgr://pair?host=santiago-casa.tail323b9e.ts.net&port=18811&token=6Z6E-6DQH&name=Santiago-Casa`, the link rebuilt from the fields beside it, at version 5 and ecc level Low. `H4` is partial and **earned rather than inherited**: the `422` was captured live on this OS, its body is the list shape the parser reads, and its message names the field, `missing field \`task\``. One product defect was found and fixed on this OS (`F7`), and one earlier finding was **retracted** (`F9`) | every part of this runbook has been driven on WSL and every cell has a verdict. The one row that is not a clean pass is named above and it is not a WSL defect: `H4` has no public path to it. Three defects were found and fixed during the WSL pass, each with a regression test seen red first. **Four cells were then re-run on `d1b3f2f`** after the native Windows pass fixed two more: `B1`, `C1` and `D1` for `F7`, which changed the platform field on every OS, and `F4` for `F11`, whose earlier WSL pass is retracted because a lenient oracle hid the defect |
+
+**Native Linux, driven 2026-08-19 at `bc7921d`.** Ubuntu 26.04, GNOME on a
+Wayland session, not WSL. The owner cell ran first in the sense the rules mean:
+the tailnet this host lacked was installed and authenticated before any
+unattended cell, and `G` was reached as early as its own dependencies allow,
+since `G2` needs a connected default provider and so cannot precede `E`.
+
+Every part passes. `G4` paired a real handset, `Xiaomi 2406APNFAG`, over the
+tailnet at `ubuntu26-04.tail323b9e.ts.net:8811`, and the verdict is the
+daemon's: `POST /api/auth/claim` answered `200` at `02:48:32` where an earlier
+expired code answered `401` at `02:03:10`, and the device row's `last_seen` is
+`02:48:37`, later than its `paired_at`, so the phone came back and talked to the
+machine rather than only completing the claim. Two codes expired unscanned
+before it and that is recorded rather than retried away. `F3` printed
+`Run cancelled (10s)` and exited `0`, which is the release's own improvement.
+`H1` answers in **13 ms** here rather than the 1.5 s connect timeout WSL and
+Windows see, because a refused loopback connection on Linux returns at once.
+
+Three findings came out of it. `F12` and `F13` are defects in this runbook's own
+handoff, both found by being the first host to follow it literally, and both
+fixed here. `F14` is a harness fault of this pass, recorded as one rather than
+filed against the product.
 
 Process supervision, path handling, terminal rendering and the loopback probe are
 platform-shaped. **No supported operating system is `Not-Needed` for final
@@ -362,6 +394,9 @@ asserts argv, exit code and whether output was produced, and reads none of it.
 | F9 | `vadgr start` **never returns on Windows** | `C1`, reported twice and acted on once | **retracted: the harness, not the product.** PowerShell's `Start-Process -Wait` and `2>&1 \|` pipelines block on the handle the detached daemon inherits, so the CLI had exited and the terminal had not noticed. Measured directly, `start` exits in `3.5s` and `restart` in `6.2s`. A `DETACHED_PROCESS` change was written for this and **reverted** once the original code was shown to behave identically, rather than shipped as a fix for nothing. Nine cells were reported blocked by it and none of them were |
 | F11 | **`--background --json` printed a hint on stdout, so the output the flag calls machine readable was not valid JSON.** The run row was followed by `Watch it with: vadgr runs get <id>` on the same stream | `F4`, found by driving the CLI on native Windows | **fixed** in `ae16ff1`: the hint is printed only when the caller did not ask for JSON, because it is what a person needs after starting a background run and it simply cannot share stdout with the object. A new integration test stands up a daemon stub and asserts stdout parses on its own; it was seen red against the reverted line. **The WSL pass had marked `F4` a pass, and that was wrong**: the hint is in that run's own captured output, and the oracle sliced from `{` to `}` rather than parsing the stream, so a lenient parse hid the defect it was there to catch. Re-run on WSL against `d1b3f2f` |
 | F10 | `vadgr health` against a dead port answers in `1512 ms` on Windows, where the cell expects "well under a second" | `H1` | **the platform, not a defect, and no fix attempted.** A closed IPv4 loopback port on this host takes `2000 ms` to refuse, on `127.0.0.1` and on `localhost` alike, while `::1` refuses the same port in under `5 ms`. That is the Windows and WSL loopback forwarding layer swallowing the reset, the same behaviour `client.rs` already documents for WSL2. The CLI's own `1500 ms` `CONNECT_TIMEOUT` is what bounds the wait, so the cell's real contrast holds: `1.5s`, not the `15s` request timeout. **No faster probe is sound**, because a daemon bound only to `127.0.0.1` cannot be ruled out by `::1` refusing |
+| F12 | **The handoff's own build step names a binary that has never existed.** Step 2 says `cp target/release/vadgr`, and the crate declares `vadgr-daemon` and `vadgr-cli`; nothing has ever built a `target/release/vadgr`. The first host to follow the handoff literally stopped four lines in with `cannot stat 'target/release/vadgr'`. | the remote-host handoff, step 2 | **fixed on the native Linux pass.** The line now reads `cp target/release/vadgr-cli "$E2E_HOME/bin/vadgr"`, which is the rename that puts the product's own name on the installed command. WSL and Windows passed because both had already built and copied by hand before the step was written down, which is exactly the gap a handoff exists to close. |
+| F13 | **The credential availability check assumes one host's variable names.** The owner table said `grep -c '^GEMINI_API_KEY=' ../.env` must return `1`. On this host the file carries `GEMINI`, `OPEN_AI` and `ANTROPHIC`, so the stated check returns `0` and a host following it literally would mark the whole `E` group blocked with a live key sitting in the file. | the owner and environment requirements table | **fixed on the native Linux pass.** The row now accepts a machine-local alias and says the driver maps it to the portable name in that command's environment only, which is the form `0.4.7`'s handoff already used. The `E` group ran unchanged: `vadgr provider login gemini` printed `Using GEMINI_API_KEY.` because the portable name is what the command's environment carried. |
+| F14 | The first `B5` attempt left both files in place | `B5` | **the harness, not the product.** The fixture was written to `$VADGR_HOME` because the prerequisites gloss that path as "pid files, port files, api.log", and the CLI keeps them in `$VADGR_HOME/pids/`. The CLI never saw the fixture, so it correctly fell to the default port and the files it had not read survived. Re-staged under `pids/` the cell passes as written: both files removed, default port, exit `3`. |
 
 ## Surface coverage - **every published endpoint, with what it returned**
 
