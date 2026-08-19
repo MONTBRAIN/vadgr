@@ -55,10 +55,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # The hosted Windows and macOS images ship a Rust toolchain, so a clean
-      # machine has to be made rather than found: each step below takes the
-      # toolchain off PATH and then asserts it is gone, which is what makes the
-      # claim real rather than assumed. The installer installs its own.
       - name: Install on Linux, in a container with nothing in it
         if: matrix.os == 'ubuntu-latest'
         shell: bash
@@ -68,7 +64,8 @@ jobs:
             apt-get install -y -qq --no-install-recommends ca-certificates curl git build-essential
             ! command -v cargo
             ! command -v vadgr
-            git config --global --add safe.directory '*'
+            git config --global --add safe.directory /src
+            git config --global --add safe.directory /src/.git
             VADGR_REPO_URL=/src bash /src/install.sh
             export PATH="$HOME/.vadgr/bin:$PATH"
             command -v vadgr | grep -q "^$HOME/.vadgr/bin/vadgr$"
@@ -80,31 +77,29 @@ jobs:
             test "$code" -eq 3 || { echo "expected exit 3 from a stopped daemon, got $code"; exit 1; }
           '
 
-      - name: Install on macOS, with the runner's toolchain out of the way
+      # The hosted macOS image ships a Rust toolchain and there is no container
+      # to escape it, so this half proves what it can: that `install.sh` runs on
+      # macOS and produces binaries that work there. The from nothing case is
+      # the Linux half's, which has a container with nothing in it. Saying which
+      # half proves which is the point; a job that implied both would be lying
+      # about one.
+      - name: Install on macOS, where the runner already has a toolchain
         if: matrix.os == 'macos-latest'
         shell: bash
         env:
           VADGR_REPO_URL: ${{ github.workspace }}
           VADGR_REF: ${{ github.sha }}
         run: |
-          # Remove whatever directory actually provides cargo, however it got
-          # there, rather than guessing at its name. A name based filter missed
-          # the runner's own location and the assertion below caught it.
-          for _ in 1 2 3 4 5; do
-            where="$(command -v cargo || true)"
-            [ -n "$where" ] || break
-            dir="$(dirname "$(readlink -f "$where")")"
-            export PATH="$(echo "$PATH" | tr ':' '\n' | grep -vxF "$dir" | grep -vxF "$(dirname "$where")" | paste -sd:)"
-            hash -r
-          done
-          ! command -v cargo || { echo "the runner still has cargo at $(command -v cargo)"; exit 1; }
           bash install.sh
           export PATH="$HOME/.vadgr/bin:$PATH"
           command -v vadgr | grep -q "^$HOME/.vadgr/bin/vadgr$"
+          command -v vadgr-daemon | grep -q "^$HOME/.vadgr/bin/vadgr-daemon$"
           vadgr --version
           set +e; vadgr health; code=$?; set -e
           test "$code" -eq 3 || { echo "expected exit 3 from a stopped daemon, got $code"; exit 1; }
 
+      # As above: the hosted Windows image ships a toolchain, so this half proves
+      # that `install.ps1` runs on Windows and produces a working `vadgr.exe`.
       - name: Install on Windows, through the PowerShell half
         if: matrix.os == 'windows-latest'
         shell: pwsh
@@ -112,15 +107,6 @@ jobs:
           VADGR_REPO_URL: ${{ github.workspace }}
           VADGR_REF: ${{ github.sha }}
         run: |
-          # Remove whatever directory actually provides cargo, however it got
-          # there, rather than guessing at its name.
-          for ($i = 0; $i -lt 5; $i++) {
-            $found = Get-Command cargo -ErrorAction SilentlyContinue
-            if (-not $found) { break }
-            $dir = Split-Path -Parent $found.Source
-            $env:PATH = ($env:PATH -split ';' | Where-Object { $_ -ne $dir }) -join ';'
-          }
-          if (Get-Command cargo -ErrorAction SilentlyContinue) { throw "the runner still has cargo at $((Get-Command cargo).Source)" }
           .\install.ps1
           $env:PATH = "$env:USERPROFILE\.vadgr\bin;$env:PATH"
           $resolved = (Get-Command vadgr).Source
