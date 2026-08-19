@@ -3,8 +3,8 @@
 //! **Nothing resolves relative to the working directory.** An installed daemon
 //! that keeps its database below wherever it was launched from puts a machine's
 //! history somewhere different depending on which terminal started it, which is
-//! the defect D-97 rules out. Every default here comes from the platform's own
-//! local-state root.
+//! the defect this release removes. Every default here comes from the platform's
+//! own local-state root.
 
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
@@ -67,7 +67,7 @@ impl Layout {
     }
 }
 
-/// The local-state root, from `ARCHITECTURE.md` section 3.1.
+/// The local-state root each platform defines for durable machine state.
 ///
 /// `VADGR_STATE_HOME` overrides it exactly, which is the seam tests and managed
 /// deployments use. Everything else derives from the result, because three
@@ -247,9 +247,8 @@ mod tests {
         e
     }
 
-    /// The six cases of `ARCHITECTURE.md` section 3.1, as one test rather than
-    /// four machines. The environment is an input, so every platform's answer is
-    /// checkable from any platform.
+    /// Every platform's root, as one test rather than four machines. The
+    /// environment is an input, so each answer is checkable from any host.
     #[test]
     fn the_platform_root_is_the_one_the_architecture_names() {
         let linux = env(&[("HOME", "/home/o")]);
@@ -304,7 +303,7 @@ mod tests {
         assert!(state_root(&relative_windows, Layout::Windows).is_none());
     }
 
-    /// **The defect D-97 names.** Resolving from two different working
+    /// **The defect this release removes.** Resolving from two different working
     /// directories must produce the same paths, because an installed daemon's
     /// database cannot depend on which terminal started it.
     #[test]
