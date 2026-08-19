@@ -135,18 +135,35 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest]
+        # macos-15 as well as the current image, because a binary built on a
+        # newer macOS can silently require it. An older supported release is the
+        # nearest thing to a machine that is not the one that built it.
+        os: [windows-latest, macos-latest, macos-15]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
       - uses: Swatinem/rust-cache@v2
+
       - name: Build the release daemon
+        if: runner.os != 'Windows'
         run: cargo build --locked --release --bin vadgr-daemon
 
+      # The same build the installer and `vadgr update` perform on Windows: the
+      # C runtime linked in, and the target named explicitly so the flag reaches
+      # the binary rather than the build scripts and proc macros that run on the
+      # host.
+      - name: Build the release daemon, with the C runtime linked in
+        if: runner.os == 'Windows'
+        env:
+          RUSTFLAGS: -C target-feature=+crt-static
+        run: cargo build --locked --release --bin vadgr-daemon --target x86_64-pc-windows-msvc
+
       - name: What the macOS binary links, and whether it serves alone
-        if: matrix.os == 'macos-latest'
+        if: runner.os == 'macOS'
         shell: bash
         run: |
           otool -L target/release/vadgr-daemon
@@ -173,7 +190,7 @@ jobs:
           echo "$body" | grep -q '"status":"healthy"' || { cat "$root/daemon.log"; exit 1; }
 
       - name: What the Windows binary imports, and whether it serves alone
-        if: matrix.os == 'windows-latest'
+        if: runner.os == 'Windows'
         shell: pwsh
         run: |
           # Every DLL it imports must be one Windows ships itself. A vcruntime or
@@ -185,10 +202,14 @@ jobs:
             Select-String -Pattern '^\s+(\S+\.dll)$' |
             ForEach-Object { $_.Matches[0].Groups[1].Value.ToLower() }
           $imports
+          # Every name here ships with Windows itself. vcruntime140.dll is the
+          # one that must never appear: it belongs to the Visual C++
+          # redistributable, which a user's machine may never have installed.
           $guaranteed = @('kernel32.dll','advapi32.dll','ntdll.dll','ws2_32.dll','user32.dll',
-                          'bcrypt.dll','crypt32.dll','secur32.dll','userenv.dll','shell32.dll',
-                          'ole32.dll','oleaut32.dll','powrprof.dll','psapi.dll','api-ms-win-core-synch-l1-2-0.dll',
-                          'ncrypt.dll','ntoskrnl.exe','rpcrt4.dll','iphlpapi.dll')
+                          'bcrypt.dll','bcryptprimitives.dll','crypt32.dll','secur32.dll',
+                          'userenv.dll','shell32.dll','ole32.dll','oleaut32.dll','combase.dll',
+                          'powrprof.dll','psapi.dll','ncrypt.dll','ntoskrnl.exe','rpcrt4.dll',
+                          'iphlpapi.dll','shlwapi.dll','version.dll','winmm.dll')
           foreach ($dll in $imports) {
             if ($guaranteed -notcontains $dll -and $dll -notlike 'api-ms-win-*') {
               throw "imports $dll, which Windows does not guarantee"
@@ -197,7 +218,7 @@ jobs:
           # No PATH, a profile of its own, and nothing else on the machine in reach.
           $root = Join-Path $env:RUNNER_TEMP ([guid]::NewGuid())
           New-Item -ItemType Directory -Path $root | Out-Null
-          $daemon = Start-Process -PassThru -FilePath (Resolve-Path target\release\vadgr-daemon.exe) `
+          $daemon = Start-Process -PassThru -FilePath (Resolve-Path $exe) `
             -Environment @{ PATH=''; USERPROFILE=$root; LOCALAPPDATA=$root;
                             VADGR_STATE_HOME="$root\state"; VADGR_PORT='8100';
                             VADGR_TRANSPORT='loopback' } `

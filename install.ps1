@@ -68,8 +68,15 @@ function BuildAndInstall {
     Info "Building vadgr (this takes a few minutes the first time)..."
     if (-not (CommandExists cargo)) { $env:PATH = "$env:USERPROFILE\.cargo\bin;$env:PATH" }
     Push-Location $VADGR_REPO
-    & cargo build --locked --release --bins
+    # The C runtime is linked in rather than imported. A binary that imports
+    # vcruntime140.dll needs the Visual C++ redistributable, which is not part
+    # of Windows, so it would fail to start on a machine that never installed
+    # it. The target is named explicitly so these flags reach the binary and
+    # not the build scripts and proc macros that run on the host.
+    $env:RUSTFLAGS = "-C target-feature=+crt-static"
+    & cargo build --locked --release --bins --target x86_64-pc-windows-msvc
     $built = $LASTEXITCODE
+    Remove-Item Env:\RUSTFLAGS
     Pop-Location
     if ($built -ne 0) { Fail "The build failed. Nothing was installed." }
 
@@ -77,7 +84,7 @@ function BuildAndInstall {
     # Installed only after the build succeeded, so a failed build leaves the
     # installation that was already working exactly as it was.
     foreach ($binary in @("vadgr.exe", "vadgr-daemon.exe")) {
-        Copy-Item "$VADGR_REPO\target\release\$binary" "$VADGR_BIN\$binary" -Force
+        Copy-Item "$VADGR_REPO\target\x86_64-pc-windows-msvc\release\$binary" "$VADGR_BIN\$binary" -Force
     }
     Ok "Installed vadgr and vadgr-daemon into $VADGR_BIN"
 }

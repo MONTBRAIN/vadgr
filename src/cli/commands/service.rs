@@ -691,16 +691,22 @@ pub async fn update(check: bool) -> Result<(), CliError> {
     anstream::println!("{}", String::from_utf8_lossy(&pulled.stdout).trim());
 
     anstream::println!("{}", output::info("Building the release binaries..."));
-    let built = Command::new("cargo")
-        .args(["build", "--locked", "--release", "--bins"])
-        .current_dir(&repo)
-        .status()
-        .map_err(|e| {
-            CliError::Failed(format!(
-                "Could not run cargo: {e}. An update from a checkout needs the Rust \
+    let mut build = Command::new("cargo");
+    build.args(["build", "--locked", "--release", "--bins"]);
+    // Windows links the C runtime in rather than importing it, so the binary
+    // does not need the Visual C++ redistributable to start. The installer
+    // builds the same way, and an update that built differently would quietly
+    // replace a standalone binary with one that has a dependency.
+    if cfg!(windows) {
+        build.args(["--target", WINDOWS_TARGET]);
+        build.env("RUSTFLAGS", "-C target-feature=+crt-static");
+    }
+    let built = build.current_dir(&repo).status().map_err(|e| {
+        CliError::Failed(format!(
+            "Could not run cargo: {e}. An update from a checkout needs the Rust \
                  toolchain the installer set up."
-            ))
-        })?;
+        ))
+    })?;
     if !built.success() {
         return Err(CliError::Failed(
             "The build failed, so nothing was replaced. The installation you had is \
@@ -734,6 +740,20 @@ pub async fn update(check: bool) -> Result<(), CliError> {
 ///
 /// Beside, rather than to a remembered install path: the command a person typed
 /// is by definition the installation they are updating.
+/// The triple the Windows build is named with, so its flags reach the binary
+/// and not the build scripts and proc macros that run on the host.
+const WINDOWS_TARGET: &str = "x86_64-pc-windows-msvc";
+
+/// Where the release binaries land, which the explicit Windows target moves.
+fn release_dir(repo: &Path) -> std::path::PathBuf {
+    let target = repo.join("target");
+    if cfg!(windows) {
+        target.join(WINDOWS_TARGET).join("release")
+    } else {
+        target.join("release")
+    }
+}
+
 fn install_binaries(repo: &Path) -> Result<usize, CliError> {
     let target = std::env::current_exe()
         .ok()
@@ -744,10 +764,7 @@ fn install_binaries(repo: &Path) -> Result<usize, CliError> {
     let suffix = if cfg!(windows) { ".exe" } else { "" };
     let mut installed = 0;
     for name in ["vadgr", "vadgr-daemon"] {
-        let built = repo
-            .join("target")
-            .join("release")
-            .join(format!("{name}{suffix}"));
+        let built = release_dir(repo).join(format!("{name}{suffix}"));
         if !built.exists() {
             continue;
         }
