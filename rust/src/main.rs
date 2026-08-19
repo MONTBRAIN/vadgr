@@ -12,7 +12,7 @@ use vadgr_daemon::engine::Engine;
 use vadgr_daemon::engine::mcp::DefaultHostFactory;
 use vadgr_daemon::engine::provider::NativeModelFactory;
 use vadgr_daemon::engine::supervisor::RunSupervisor;
-use vadgr_daemon::{auth, computer_use_setup, config, db, routes, transport, ws};
+use vadgr_daemon::{auth, computer_use_setup, config, db, migrate, routes, transport, ws};
 
 use anyhow::Result;
 use std::sync::Arc;
@@ -32,6 +32,23 @@ async fn main() -> Result<()> {
     // A machine with no platform state directory is not a case to guess at: the
     // daemon says so and does not start, rather than inventing somewhere to put
     // a user's credentials.
+    let environment = config::Environment::from_env();
+    let paths = config::Paths::resolve(&environment, config::Layout::host())
+        .map_err(|e| anyhow::anyhow!("{e}"))?;
+
+    // **Before anything is served.** A run submitted into a half-migrated
+    // machine is the defect this ordering removes, and a refusal here stops the
+    // process with the sources untouched rather than starting a machine that has
+    // quietly lost its history.
+    let working_dir = std::env::current_dir().unwrap_or_default();
+    let home = environment.home.clone().map(std::path::PathBuf::from);
+    let inventory = migrate::take_inventory(&paths.root, &working_dir, home.as_deref());
+    let plan = migrate::decide(&inventory, &paths.root).map_err(|e| anyhow::anyhow!("{e}"))?;
+    if !matches!(plan, migrate::Plan::AlreadyHere | migrate::Plan::Fresh) {
+        tracing::info!(?plan, root = %paths.root.display(), "consolidating machine state");
+    }
+    migrate::apply(&plan, &paths.root).map_err(|e| anyhow::anyhow!("{e}"))?;
+
     let config = config::Config::from_env().map_err(|e| anyhow::anyhow!("{e}"))?;
     let db = db::Db::open(&config.db_path)?;
     let transport = transport::create(&config.transport_name)?;
