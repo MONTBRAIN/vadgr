@@ -119,6 +119,9 @@ jobs:
           $ErrorActionPreference = 'Continue'
           vadgr health 2>&1 | ForEach-Object { Write-Host $_ }
           if ($LASTEXITCODE -ne 3) { throw "expected exit 3 from a stopped daemon, got $LASTEXITCODE" }
+          # This shell exits with $LASTEXITCODE, which is the 3 just asserted, so
+          # a passing check would fail the step on the very value it checked.
+          exit 0
 
   clean-install:
     # Build the delivered artifact, then prove it from outside a scratch image
