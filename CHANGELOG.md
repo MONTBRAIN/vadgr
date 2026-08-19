@@ -35,12 +35,44 @@ daemon happened to start in.
 - The default port is `8000`. The second port existed while two daemons ran side
   by side.
 
+### Fixed
+- **A run that looked at the screen failed on Gemini.** A screenshot returned
+  inside the function response is refused by the service with "Multimodal
+  function responses are not supported for this model", so every run that took
+  one died on its next turn. The image now travels as its own part beside the
+  function response, which the model reads.
+- **`vadgr update` named a directory nothing writes.** The installer builds into
+  `~/.vadgr` and clones to `~/.vadgr/src`, while the CLI still resolved the
+  repository's former name, so an update reported a checkout that was not there.
+- **A watched run under `--json` wrote two documents to one stdout**: the run
+  object, then the watcher's own summary and results link. A watched run now
+  prints nothing until it has an outcome, then prints the finished run once. A
+  background run still prints the queued row, because there that is all that
+  will ever be known.
+- **`vadgr health` told you a module was missing when you had turned it off.**
+  The daemon reports whether a module is usable and never says why, and both
+  causes were rendered as "not found". It prints `unavailable`, which is what
+  the daemon said.
+- **The consolidation checked that a database opens, not that it can be served.**
+  A database missing a column every read needs passed the check, and the daemon
+  then failed on the first request. It now opens the target the way the daemon
+  does, runs the migrations, and performs the read the API performs; a target it
+  cannot serve is refused, the half made target is removed, and the sources stay
+  exactly where they were.
+
 ### Removed
 - **The Python daemon, CLI and engine**: 143 files, 17,330 lines. Parked on the
   private attic repository with the history that reaches back through every
   release they shipped in, so reviving any of it is a pull rather than a rewrite.
 - The `rust/` directory. It was a boundary between two languages, and one left.
   The crate is at the repository root.
+- **A tracked Windows virtual environment**: 1441 files of Python bytecode that
+  survived earlier sweeps because every check asked for `.py` and bytecode does
+  not end in `.py`. The repository goes from 1580 tracked files to 143.
+- `providers.yaml` and `PROVIDER_PARSER_GUIDE.md`, the static provider list and
+  the guide to its parser families, both replaced by authenticated catalog
+  snapshots at `0.4.7`. The README's manual setup paragraph linked to those two
+  and to three files the deletion removed, and is gone with them.
 
 ### Upgrade notes
 - **Start the daemon once after upgrading and it consolidates your state.** Two
