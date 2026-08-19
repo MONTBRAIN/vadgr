@@ -434,7 +434,7 @@ under test. That is the command's real shape, stated rather than hidden.
 | I3 | as I2 | `vadgr --version`, then `vadgr health` | the version matches; health exits `3` because nothing is started, which is the correct answer | CLI output and both exit codes | as I1 | pass |
 | I4 | as I3; the clone at a head not behind the released default branch | `vadgr update --check` | exit `0` with "vadgr is up to date." | CLI output and exit code | as I1 | pass |
 | I5 | as I4, then `git -C ~/.vadgr/src reset --hard origin/master~2` | `vadgr update --check` | exit `0`; "2 commit(s) available"; the Cargo.lock line printed **when and only when** the range touches `Cargo.lock` - record which it was | CLI output; `git log --oneline` of the range; whether the range touches `Cargo.lock` | as I1 | pass |
-| I6 | as I5 | `vadgr update` | a fast-forward pull to the released head, a rebuild, and both binaries replaced: their `sha256sum` lines differ from before, and `vadgr --version` still answers | CLI output; the four hash lines, before and after | as I1 | pass |
+| I6 | `I5` done, the checkout two commits behind | `vadgr update` | it pulls fast forward only, rebuilds and reinstalls; the installed checkout's HEAD equals the origin's; **the binary hash changes when the pulled commits changed Rust source, and legitimately does not when they did not**, so record which kind of commits were pulled beside the hashes | the checkout's HEAD before and after, both binary hashes, and what the pulled commits touched | the container is removed | pass |
 
 ## Part J: state lives where the platform says
 

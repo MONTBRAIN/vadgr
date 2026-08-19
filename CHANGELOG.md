@@ -25,6 +25,8 @@ daemon happened to start in.
   relative to the working directory any more**, so an installed daemon's database
   no longer depends on which terminal started it. `VADGR_STATE_HOME`, `VADGR_DB`
   and `VADGR_RUNS_DIR` remain exact overrides for tests and managed deployments.
+- **The installer is `install.sh` and `install.ps1`**, which is what the README
+  has always told a user to run.
 - **The installer installs a binary.** It sets up git and the Rust toolchain,
   builds the release, and copies `vadgr` and `vadgr-daemon` into `~/.vadgr/bin`
   only after the build succeeded, so a failed build leaves a working installation
