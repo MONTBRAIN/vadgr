@@ -203,6 +203,11 @@ remaining cells quietly never run.
 - A cell blocked by a host condition is owed only after the condition itself has
   been investigated. Two leaked daemons, a reserved port and a missing toolchain
   all looked like immovable environment facts and all three were removable.
+- **"It needs a tool this host does not have" is a claim to check, not to
+  report.** Look in this runbook's own `harness/` first: a cell that was called
+  blocked on a missing QR decoder was closed minutes later by the decoder the
+  suite already ships, which built and ran unchanged on the new OS. The suite
+  carries its oracles so that every OS can run them.
 - If a cell needs the owner, ask for that **first**, batch it, and keep working
   while you wait. Do not let one approval serialise the rest of the matrix.
 - If a fix lands mid-pass, **re-run the cells it touches on every OS that
@@ -210,6 +215,31 @@ remaining cells quietly never run.
   behaviour.
 - Report once, at the end, with everything. An audit delivered in instalments
   reads as an endless stream of problems and is really one incomplete sweep.
+
+## Account for what the pass leaves running
+
+**Cleanup columns cover a cell's state. They do not cover the processes the pass
+started, and nothing else will.** A daemon is not evidence, so it is easy to
+finish a matrix, commit it, and leave the fixtures alive.
+
+An orphan does not stay harmless. It holds ports after the session that started
+it is gone, and the next pass meets a port that is bound by nothing it can see,
+which reads as a platform quirk rather than as yesterday's daemon. One pass here
+left a daemon running for **twenty five hours**, its parent long dead, holding
+the OAuth callback port `1455`; any provider login attempted in that window would
+have failed to bind, and the cause would have looked like the host.
+
+- **End a pass by listing every process it started and stopping it**, then
+  showing the ports free. `Get-CimInstance Win32_Process`, `ps`, and the
+  listening-socket table are the oracle; a `stop` command's own exit code is not,
+  because it only speaks for the daemon it knew about.
+- **Prefer the process table to the port table when diagnosing a busy port.** A
+  port with no visible listener is more often an orphan of your own than a
+  platform behaviour, and attributing it to the platform ends the investigation
+  at exactly the wrong moment.
+- Record the leftovers you found in the pass, even when you started them
+  yourself. A daemon that survived a session is a fact about how the pass was
+  run, and the next person inherits the habit, not the process.
 
 ## Owner and environment requirements
 
