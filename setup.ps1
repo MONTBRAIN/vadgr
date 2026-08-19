@@ -3,12 +3,12 @@
 
 $ErrorActionPreference = "Stop"
 
-# The directory names are the ones a real installation already has, and
-# renaming one moves a user's database. That belongs to the release that
-# owns the paths, not to this one.
-$VADGR_HOME = "$env:USERPROFILE\.forge"
+# One install root, named after the product. A machine's durable state does not
+# live here: the daemon resolves that from the platform's own local-state
+# directory, so this holds the binaries and the checkout they are built from.
+$VADGR_HOME = "$env:USERPROFILE\.vadgr"
 $VADGR_BIN = "$VADGR_HOME\bin"
-$VADGR_REPO = "$VADGR_HOME\Agent-Forge"
+$VADGR_REPO = "$VADGR_HOME\src"
 $REPO_URL = "https://github.com/MONTBRAIN/vadgr.git"
 
 # ---------------------------------------------------------------------------
@@ -43,34 +43,39 @@ function InstallGit {
 }
 
 
-function PythonOk {
-    $pyCmd = Get-Command python -ErrorAction SilentlyContinue
-    if (-not $pyCmd) { return $false }
-    if ($pyCmd.Source -like "*WindowsApps*") { return $false }
-    try {
-        $ver = & python -c "import sys; print(sys.version_info.minor)" 2>$null
-        return ($null -ne $ver -and [int]$ver -ge 12)
-    } catch { return $false }
-}
-
-function InstallPython {
-    if (PythonOk) {
-        $ver = python -c "import sys; print(sys.version_info.minor)" 2>$null
-        Info "Python 3.$ver already installed."
-        return
-    }
-    Info "Installing Python 3.12..."
-    EnsureWinget
-    winget install --id Python.Python.3.12 --accept-source-agreements --accept-package-agreements --silent
-    # Refresh PATH to find new Python
-    $pyPath = "$env:LOCALAPPDATA\Programs\Python\Python312"
-    $env:PATH = "$pyPath;$pyPath\Scripts;$env:PATH"
-    if (-not (CommandExists "python")) { Fail "Python installation failed." }
-}
-
 # ---------------------------------------------------------------------------
 # Setup Vadgr
 # ---------------------------------------------------------------------------
+
+function InstallRust {
+    if (CommandExists cargo) { return }
+    Info "Installing the Rust toolchain..."
+    # The official installer, non-interactive. The product is one binary and
+    # this is what builds it.
+    $installer = "$env:TEMP\rustup-init.exe"
+    Invoke-WebRequest -Uri "https://win.rustup.rs/x86_64" -OutFile $installer -UseBasicParsing
+    & $installer -y --no-modify-path | Out-Null
+    $env:PATH = "$env:USERPROFILE\.cargo\bin;$env:PATH"
+    if (-not (CommandExists cargo)) { Fail "Rust installed but cargo is not on PATH. Open a new terminal and run this again." }
+}
+
+function BuildAndInstall {
+    Info "Building vadgr (this takes a few minutes the first time)..."
+    if (-not (CommandExists cargo)) { $env:PATH = "$env:USERPROFILE\.cargo\bin;$env:PATH" }
+    Push-Location $VADGR_REPO
+    & cargo build --locked --release --bins
+    $built = $LASTEXITCODE
+    Pop-Location
+    if ($built -ne 0) { Fail "The build failed. Nothing was installed." }
+
+    New-Item -ItemType Directory -Force -Path $VADGR_BIN | Out-Null
+    # Installed only after the build succeeded, so a failed build leaves the
+    # installation that was already working exactly as it was.
+    foreach ($binary in @("vadgr.exe", "vadgr-daemon.exe")) {
+        Copy-Item "$VADGR_REPO\target\release\$binary" "$VADGR_BIN\$binary" -Force
+    }
+    Ok "Installed vadgr and vadgr-daemon into $VADGR_BIN"
+}
 
 function SetupRepo {
     if (Test-Path "$VADGR_REPO\.git") {
@@ -90,62 +95,9 @@ function SetupRepo {
     }
 }
 
-function EnsureVenv($dir, $req) {
-    Push-Location $VADGR_REPO
-    try {
-        $venvPip = "$dir\Scripts\pip.exe"
-        if (-not (Test-Path $dir) -or -not (Test-Path $venvPip)) {
-            if (Test-Path $dir) { Remove-Item $dir -Recurse -Force }
-            python -m venv $dir
-            if (-not (Test-Path $venvPip)) { Fail "Failed to create venv at $dir" }
-        }
-        & $venvPip install -q -r $req
-    } finally { Pop-Location }
-}
-
-function SetupApi {
-    Info "Setting up API..."
-    EnsureVenv "api\.venv" "api\requirements.txt"
-    Push-Location $VADGR_REPO
-    New-Item -ItemType Directory -Force -Path data | Out-Null
-    Pop-Location
-}
-
-function SetupCli {
-    Info "Setting up CLI..."
-    EnsureVenv "cli\.venv" "cli\requirements.txt"
-}
-
 # ---------------------------------------------------------------------------
 # Generate vadgr CLI
 # ---------------------------------------------------------------------------
-
-function GenerateVadgrCli {
-    Info "Creating vadgr CLI..."
-    New-Item -ItemType Directory -Force -Path $VADGR_BIN | Out-Null
-
-
-    $vadgrScript = @'
-param([Parameter(ValueFromRemainingArguments)]$Rest)
-$VADGR_REPO = "$env:USERPROFILE\.forge\Agent-Forge"
-$cliPython = "$VADGR_REPO\cli\.venv\Scripts\python.exe"
-if (-not (Test-Path $cliPython)) { Write-Host "[vadgr] CLI not found. Run setup first." -ForegroundColor Red; exit 1 }
-$env:PYTHONPATH = $VADGR_REPO
-& $cliPython -m cli @Rest
-'@
-
-    # Save as _vadgr.ps1 (underscore prefix) so PowerShell does not resolve it
-    # directly when the user types "vadgr". The .bat wrapper calls it with
-    # -ExecutionPolicy Bypass.
-    $vadgrScript | Out-File -FilePath "$VADGR_BIN\_vadgr.ps1" -Encoding UTF8
-
-    # Remove an old vadgr.ps1 if a previous install left one
-    if (Test-Path "$VADGR_BIN\vadgr.ps1") { Remove-Item "$VADGR_BIN\vadgr.ps1" }
-
-    # Batch wrapper — entry point for both cmd.exe and PowerShell
-    $batchWrapper = "@echo off`r`npowershell -ExecutionPolicy Bypass -File `"%USERPROFILE%\.forge\bin\_vadgr.ps1`" %*"
-    $batchWrapper | Out-File -FilePath "$VADGR_BIN\vadgr.bat" -Encoding ASCII
-}
 
 # ---------------------------------------------------------------------------
 # Add to PATH
@@ -184,11 +136,9 @@ function Main {
     Write-Host ""
 
     InstallGit
-    InstallPython
+    InstallRust
     SetupRepo
-    SetupApi
-    SetupCli
-    GenerateVadgrCli
+    BuildAndInstall
     AddToPath
 
     Write-Host ""
@@ -196,8 +146,8 @@ function Main {
     Write-Host ""
     Ok "To get started:"
     Ok "  1. Restart your terminal"
-    Ok "  2. Install a CLI provider (e.g. irm https://claude.ai/install.ps1 | iex)"
-    Ok "  3. Run: vadgr start"
+    Ok "  2. Run: vadgr provider login"
+    Ok "  3. Run: vadgr start, then vadgr pair"
     Write-Host ""
 }
 

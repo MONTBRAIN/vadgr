@@ -4,14 +4,13 @@ set -e
 # Vadgr Installer
 # Usage: curl -fsSL https://raw.githubusercontent.com/MONTBRAIN/vadgr/master/setup.sh | bash
 
-# The directory names are the ones a real installation already has, and
-# renaming one moves a user's database. That belongs to the release that
-# owns the paths, not to this one.
-VADGR_HOME="$HOME/.forge"
+# One install root, named after the product. A machine's durable state does not
+# live here: the daemon resolves that from the platform's own local-state
+# directory, so this holds the binaries and the checkout they are built from.
+VADGR_HOME="$HOME/.vadgr"
 VADGR_BIN="$VADGR_HOME/bin"
-VADGR_REPO="$VADGR_HOME/Agent-Forge"
+VADGR_REPO="$VADGR_HOME/src"
 REPO_URL="https://github.com/MONTBRAIN/vadgr.git"
-REQUIRED_PYTHON_MINOR=12
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -37,14 +36,6 @@ detect_os() {
 }
 
 command_exists() { command -v "$1" >/dev/null 2>&1; }
-
-# Check if Python 3.12+ is available
-python_ok() {
-    if ! command_exists python3; then return 1; fi
-    local ver
-    ver=$(python3 -c "import sys; print(sys.version_info.minor)" 2>/dev/null) || return 1
-    [ "$ver" -ge "$REQUIRED_PYTHON_MINOR" ]
-}
 
 # ---------------------------------------------------------------------------
 # Install dependencies
@@ -84,42 +75,38 @@ install_git() {
     esac
 }
 
-install_python() {
-    if python_ok; then return; fi
-    info "Installing Python 3.12+..."
-    case "$OS" in
-        linux|wsl)
-            if command_exists apt-get; then
-                sudo apt-get update -qq
-                sudo apt-get install -y -qq software-properties-common
-                sudo add-apt-repository -y ppa:deadsnakes/ppa
-                sudo apt-get update -qq
-                sudo apt-get install -y -qq python3.12 python3.12-venv python3.12-dev
-                if ! python_ok; then
-                    sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
-                fi
-            elif command_exists dnf; then
-                sudo dnf install -y -q python3.12 python3.12-devel
-            elif command_exists pacman; then
-                sudo pacman -S --noconfirm python
-            else
-                fail "No supported package manager found. Install Python 3.12+ manually."
-            fi
-            ;;
-        macos)
-            install_homebrew
-            brew install python@3.12
-            if ! python_ok; then
-                export PATH="$(brew --prefix python@3.12)/bin:$PATH"
-            fi
-            ;;
-    esac
-    python_ok || fail "Python 3.12+ installation failed."
-}
-
 # ---------------------------------------------------------------------------
 # Setup Vadgr
 # ---------------------------------------------------------------------------
+
+install_rust() {
+    if command_exists cargo; then return; fi
+    info "Installing the Rust toolchain..."
+    # The official installer, non-interactive. The product is one binary and
+    # this is what builds it; nothing else here needs a compiler.
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+    # shellcheck disable=SC1091
+    . "$HOME/.cargo/env"
+    command_exists cargo || fail "Rust installed but cargo is not on PATH. Open a new shell and run this again."
+}
+
+build_and_install() {
+    info "Building vadgr (this takes a few minutes the first time)..."
+    if ! command_exists cargo; then
+        # shellcheck disable=SC1091
+        [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+    fi
+    ( cd "$VADGR_REPO" && cargo build --locked --release --bins ) || fail "The build failed. Nothing was installed."
+
+    mkdir -p "$VADGR_BIN"
+    # Installed only after the build succeeded, so a failed build leaves the
+    # installation that was already working exactly as it was.
+    for binary in vadgr vadgr-daemon; do
+        install -m 0755 "$VADGR_REPO/target/release/$binary" "$VADGR_BIN/$binary" \
+            || fail "Could not install $binary into $VADGR_BIN"
+    done
+    ok "Installed vadgr and vadgr-daemon into $VADGR_BIN"
+}
 
 setup_repo() {
     if [ -d "$VADGR_REPO/.git" ]; then
@@ -138,74 +125,9 @@ setup_repo() {
     fi
 }
 
-ensure_venv_module() {
-    # Check both venv and ensurepip. venv --help can succeed even when
-    # ensurepip is missing, which causes venv creation to fail later.
-    if python3 -c "import venv, ensurepip" 2>/dev/null; then return; fi
-    info "Installing python3-venv package..."
-    local py_minor
-    py_minor=$(python3 -c "import sys; print(sys.version_info.minor)" 2>/dev/null)
-    if command_exists apt-get; then
-        sudo apt-get update -qq >/dev/null 2>&1 || true
-        sudo apt-get install -y -qq "python3.${py_minor}-venv" 2>/dev/null \
-            || sudo apt-get install -y -qq python3-venv 2>/dev/null \
-            || true
-        # If default repos didn't have it, try deadsnakes PPA
-        if ! python3 -c "import venv, ensurepip" 2>/dev/null; then
-            if command_exists add-apt-repository; then
-                info "Trying deadsnakes PPA..."
-                sudo add-apt-repository -y ppa:deadsnakes/ppa >/dev/null 2>&1
-                sudo apt-get update -qq >/dev/null 2>&1
-                sudo apt-get install -y -qq "python3.${py_minor}-venv" 2>/dev/null || true
-            fi
-        fi
-    elif command_exists dnf; then
-        sudo dnf install -y -q python3-libs
-    elif command_exists pacman; then
-        sudo pacman -S --noconfirm python
-    fi
-    python3 -c "import venv, ensurepip" 2>/dev/null || fail "Could not install python3-venv. Install it manually: sudo apt install python3.${py_minor}-venv"
-}
-
-setup_venv() {
-    local dir="$1" req="$2"
-    if [ ! -d "$dir" ] || ! "$dir/bin/python3" -m pip --version >/dev/null 2>&1; then
-        rm -rf "$dir"
-        ensure_venv_module
-        python3 -m venv "$dir" || fail "Failed to create venv at $dir"
-    fi
-    "$dir/bin/pip" install -q -r "$req"
-}
-
-setup_api() {
-    info "Setting up API..."
-    cd "$VADGR_REPO"
-    setup_venv "api/.venv" "api/requirements.txt"
-    mkdir -p data
-}
-
-setup_cli() {
-    info "Setting up CLI..."
-    cd "$VADGR_REPO"
-    setup_venv "cli/.venv" "cli/requirements.txt"
-}
-
 # ---------------------------------------------------------------------------
 # Generate vadgr CLI
 # ---------------------------------------------------------------------------
-
-generate_vadgr_cli() {
-    info "Creating vadgr CLI..."
-    mkdir -p "$VADGR_BIN"
-    cat > "$VADGR_BIN/vadgr" << 'VADGR_SCRIPT'
-#!/usr/bin/env bash
-VADGR_REPO="$HOME/.forge/Agent-Forge"
-cli_python="$VADGR_REPO/cli/.venv/bin/python"
-[ -f "$cli_python" ] || { echo "[vadgr] CLI not found. Run setup.sh first." >&2; exit 1; }
-PYTHONPATH="$VADGR_REPO" exec "$cli_python" -m cli "$@"
-VADGR_SCRIPT
-    chmod +x "$VADGR_BIN/vadgr"
-}
 
 # ---------------------------------------------------------------------------
 # Add to PATH
@@ -264,11 +186,9 @@ main() {
     info "Detected OS: $OS"
 
     install_git
-    install_python
+    install_rust
     setup_repo
-    setup_api
-    setup_cli
-    generate_vadgr_cli
+    build_and_install
     add_to_path
 
     echo ""
@@ -276,8 +196,8 @@ main() {
     echo ""
     ok "To get started:"
     ok "  1. Restart your terminal (or run: source ~/.bashrc)"
-    ok "  2. Install a CLI provider (e.g. curl -fsSL https://claude.ai/install.sh | bash)"
-    ok "  3. Run: vadgr start"
+    ok "  2. Run: vadgr provider login"
+    ok "  3. Run: vadgr start, then vadgr pair"
     echo ""
 }
 

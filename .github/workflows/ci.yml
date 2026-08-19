@@ -7,153 +7,8 @@ on:
     branches: [master]
 
 jobs:
-  # Note: the `computer_use/` module was extracted into
-  # https://github.com/MONTBRAIN/vadgr-computer-use and is consumed as a
-  # PyPI package. Its tests run in that repo's CI. This workflow only
-  # tests modules that still live here.
-
-  # ----- api module -----
-  api:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12"]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Check for api changes
-        id: changes
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE=${{ github.event.pull_request.base.sha }}
-          else
-            BASE=${{ github.event.before }}
-          fi
-          if git diff --name-only "$BASE" HEAD | grep -qE '^api/'; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Set up Python ${{ matrix.python-version }}
-        if: steps.changes.outputs.changed == 'true'
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install Python dependencies
-        if: steps.changes.outputs.changed == 'true'
-        run: pip install -r api/requirements.txt
-
-      - name: Run tests with coverage
-        if: steps.changes.outputs.changed == 'true'
-        env:
-          PYTHONPATH: .
-        run: python -m pytest api/tests/ -v --cov=api --cov-report=term-missing
-
-      - name: Skip (no changes)
-        if: steps.changes.outputs.changed == 'false'
-        run: echo "No api/ changes -- skipping tests."
-
-  # ----- engine module -----
-  engine:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12"]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Check for engine changes
-        id: changes
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE=${{ github.event.pull_request.base.sha }}
-          else
-            BASE=${{ github.event.before }}
-          fi
-          if git diff --name-only "$BASE" HEAD | grep -qE '^engine/'; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Set up Python ${{ matrix.python-version }}
-        if: steps.changes.outputs.changed == 'true'
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install Python dependencies
-        if: steps.changes.outputs.changed == 'true'
-        run: pip install -r engine/requirements.txt
-
-      - name: Run tests with coverage
-        if: steps.changes.outputs.changed == 'true'
-        env:
-          PYTHONPATH: .
-        run: python -m pytest engine/tests/ -v --cov=engine --cov-report=term-missing
-
-      - name: Skip (no changes)
-        if: steps.changes.outputs.changed == 'false'
-        run: echo "No engine/ changes -- skipping tests."
-
-  # ----- cli module -----
-  cli:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12"]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Check for cli changes
-        id: changes
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE=${{ github.event.pull_request.base.sha }}
-          else
-            BASE=${{ github.event.before }}
-          fi
-          if git diff --name-only "$BASE" HEAD | grep -qE '^cli/'; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Set up Python ${{ matrix.python-version }}
-        if: steps.changes.outputs.changed == 'true'
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install Python dependencies
-        if: steps.changes.outputs.changed == 'true'
-        run: pip install -r cli/requirements.txt
-
-      - name: Run tests with coverage
-        if: steps.changes.outputs.changed == 'true'
-        env:
-          PYTHONPATH: .
-        run: python -m pytest cli/tests/ -v --cov=cli --cov-report=term-missing
-
-      - name: Skip (no changes)
-        if: steps.changes.outputs.changed == 'false'
-        run: echo "No cli/ changes -- skipping tests."
-
-  # ----- the rust daemon -----
-  # The crate is judged here rather than only on a developer's machine: from
-  # 0.4.5 onward the daemon is being rewritten beside Python, and a suite that
-  # only ever runs locally is a suite that stops running.
+  # Desktop automation lives in https://github.com/MONTBRAIN/vadgr-computer-use
+  # and is consumed as a package; its tests run in that repository's CI.
   rust:
     strategy:
       fail-fast: false
@@ -166,20 +21,54 @@ jobs:
         with:
           components: clippy, rustfmt
       - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: rust
       - name: Build
-        working-directory: rust
         run: cargo build --locked
       - name: Test
-        working-directory: rust
         run: cargo test --locked
       - name: Lint
-        working-directory: rust
         run: cargo clippy --locked --all-targets --all-features -- -D warnings
       - name: Format
-        working-directory: rust
         run: cargo fmt --all -- --check
+
+  # The installer is the first thing a new user runs, and it had never been
+  # executed by a pipeline: the job below proves the artifact, not the script
+  # that puts the artifact on a machine. Clean means clean: a shell, git and
+  # curl, no toolchain and no state root.
+  installer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container: debian:12-slim
+    steps:
+      - name: A container with nothing in it
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq --no-install-recommends ca-certificates curl git build-essential
+          ! command -v cargo
+          ! command -v vadgr
+      - uses: actions/checkout@v4
+      - name: Run the installer against this checkout
+        env:
+          HOME: /root
+        run: |
+          # The installer clones from the remote by default. Point it at the
+          # commit under test instead, or the job would prove master.
+          sed -i "s|^REPO_URL=.*|REPO_URL=\"$GITHUB_WORKSPACE\"|" setup.sh
+          bash setup.sh
+      - name: Drive the vadgr the installer produced
+        env:
+          HOME: /root
+        run: |
+          export PATH="$HOME/.vadgr/bin:$PATH"
+          command -v vadgr | tee /dev/stderr | grep -q "^$HOME/.vadgr/bin/vadgr$"
+          command -v vadgr-daemon | grep -q "^$HOME/.vadgr/bin/vadgr-daemon$"
+          vadgr --version
+          # Nothing is started, so the daemon is down and saying so is the
+          # correct answer. Exit 3 is that answer, and it is a contract.
+          set +e
+          vadgr health
+          code=$?
+          set -e
+          test "$code" -eq 3 || { echo "expected exit 3 from a stopped daemon, got $code"; exit 1; }
 
   clean-install:
     # Build the delivered artifact, then prove it from outside a scratch image
@@ -200,19 +89,16 @@ jobs:
           sudo apt-get install --yes musl-tools
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: rust
           cache-targets: false
           shared-key: clean-install-musl
       - uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
       - name: Build the static release binary
-        working-directory: rust
         run: cargo build --locked --release --target x86_64-unknown-linux-musl --bin vadgr-daemon
       - name: Verify the release binary is static
         run: |
-          file rust/target/x86_64-unknown-linux-musl/release/vadgr-daemon
-          file rust/target/x86_64-unknown-linux-musl/release/vadgr-daemon | grep -Eq 'static(-pie)? linked'
+          file target/x86_64-unknown-linux-musl/release/vadgr-daemon
+          file target/x86_64-unknown-linux-musl/release/vadgr-daemon | grep -Eq 'static(-pie)? linked'
       - name: Install only the binary in scratch and prove readiness
-        working-directory: rust
         env:
           VADGR_RELEASE_BINARY: target/x86_64-unknown-linux-musl/release/vadgr-daemon
         run: cargo test --locked --test clean_install installed_release_starts_and_serves -- --ignored --exact --nocapture
