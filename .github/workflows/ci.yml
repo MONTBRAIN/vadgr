@@ -123,6 +123,97 @@ jobs:
           # a passing check would fail the step on the very value it checked.
           exit 0
 
+  # The same question on the platforms where `scratch` does not exist: can the
+  # shipped binary run with nothing around it? Neither Windows nor macOS can be
+  # emptied the way a Linux container can, and neither supports a fully static
+  # binary: Apple does not allow libSystem to be linked statically, and a Windows
+  # binary always imports the OS DLLs. So the check is the same in substance and
+  # different in method: prove the binary imports nothing but what the operating
+  # system itself guarantees, then run it with the PATH emptied and a fresh home,
+  # and make it serve.
+  standalone-binary:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build the release daemon
+        run: cargo build --locked --release --bin vadgr-daemon
+
+      - name: What the macOS binary links, and whether it serves alone
+        if: matrix.os == 'macos-latest'
+        shell: bash
+        run: |
+          otool -L target/release/vadgr-daemon
+          # Every library it links must be one macOS ships itself. A link to
+          # anything under /opt or /usr/local is a dependency a user's machine
+          # may not have, which is the failure this job exists to catch.
+          otool -L target/release/vadgr-daemon | tail -n +2 | awk '{print $1}' | while read -r lib; do
+            case "$lib" in
+              /usr/lib/*|/System/Library/*) ;;
+              *) echo "links $lib, which macOS does not guarantee"; exit 1 ;;
+            esac
+          done
+          # No PATH, a home of its own, and nothing else on the machine in reach.
+          root="$(mktemp -d)"
+          env -i HOME="$root" \
+            VADGR_STATE_HOME="$root/state" VADGR_PORT=8100 VADGR_TRANSPORT=loopback \
+            ./target/release/vadgr-daemon > "$root/daemon.log" 2>&1 &
+          for _ in $(seq 1 40); do
+            body="$(curl -fsS http://127.0.0.1:8100/api/health 2>/dev/null || true)"
+            [ -n "$body" ] && break
+            sleep 1
+          done
+          echo "$body"
+          echo "$body" | grep -q '"status":"healthy"' || { cat "$root/daemon.log"; exit 1; }
+
+      - name: What the Windows binary imports, and whether it serves alone
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          # Every DLL it imports must be one Windows ships itself. A vcruntime or
+          # any other redistributable is a dependency a user's machine may not
+          # have, which is the failure this job exists to catch.
+          $dumpbin = Get-ChildItem "C:\Program Files*\Microsoft Visual Studio\*\*\VC\Tools\MSVC\*\bin\Hostx64\x64\dumpbin.exe" |
+            Select-Object -First 1
+          $imports = & $dumpbin.FullName /dependents target\release\vadgr-daemon.exe |
+            Select-String -Pattern '^\s+(\S+\.dll)$' |
+            ForEach-Object { $_.Matches[0].Groups[1].Value.ToLower() }
+          $imports
+          $guaranteed = @('kernel32.dll','advapi32.dll','ntdll.dll','ws2_32.dll','user32.dll',
+                          'bcrypt.dll','crypt32.dll','secur32.dll','userenv.dll','shell32.dll',
+                          'ole32.dll','oleaut32.dll','powrprof.dll','psapi.dll','api-ms-win-core-synch-l1-2-0.dll',
+                          'ncrypt.dll','ntoskrnl.exe','rpcrt4.dll','iphlpapi.dll')
+          foreach ($dll in $imports) {
+            if ($guaranteed -notcontains $dll -and $dll -notlike 'api-ms-win-*') {
+              throw "imports $dll, which Windows does not guarantee"
+            }
+          }
+          # No PATH, a profile of its own, and nothing else on the machine in reach.
+          $root = Join-Path $env:RUNNER_TEMP ([guid]::NewGuid())
+          New-Item -ItemType Directory -Path $root | Out-Null
+          $daemon = Start-Process -PassThru -FilePath (Resolve-Path target\release\vadgr-daemon.exe) `
+            -Environment @{ PATH=''; USERPROFILE=$root; LOCALAPPDATA=$root;
+                            VADGR_STATE_HOME="$root\state"; VADGR_PORT='8100';
+                            VADGR_TRANSPORT='loopback' } `
+            -RedirectStandardOutput "$root\out.log" -RedirectStandardError "$root\err.log"
+          $body = $null
+          foreach ($i in 1..40) {
+            try { $body = (Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8100/api/health).Content; break }
+            catch { Start-Sleep -Seconds 1 }
+          }
+          $body
+          if (-not $body -or $body -notmatch '"status":"healthy"') {
+            Get-Content "$root\err.log" -ErrorAction SilentlyContinue
+            throw "the binary did not serve health on its own"
+          }
+          Stop-Process -Id $daemon.Id -Force
+
   clean-install:
     # Build the delivered artifact, then prove it from outside a scratch image
     # that contains the binary and nothing else.

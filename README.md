@@ -16,7 +16,7 @@
   <i><b>An open-source loop that controls your computer, reachable from your phone.</b></i>
 </p>
 
-Describe your work in a sentence. Vadgr runs it on your machine - writing code, controlling apps, clicking buttons, and delivering results - while you do something else. You start it from this CLI or from the phone app, and watch it from either. It is not tied to one model vendor: the machine talks to whichever provider you point it at. Cross-platform: Linux, Windows (WSL2), and macOS (in progress).
+Describe your work in a sentence. Vadgr runs it on your machine - writing code, controlling apps, clicking buttons, and delivering results - while you do something else. You start it from this CLI or from the phone app, and watch it from either. It is not tied to one model vendor: the machine talks to whichever provider you point it at. Cross-platform: Linux, Windows, WSL2 and macOS.
 
 ## Platform
 
@@ -24,9 +24,10 @@ Describe your work in a sentence. Vadgr runs it on your machine - writing code, 
 
 |  | Technology | Status | Role |
 |:---:|:---:|:---:|:---|
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" width="25" /> | Linux | Stable | Primary platform |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" width="25" /> | Windows / WSL2 | Stable | Supported platform |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" width="25" /> | macOS | WIP | Work in progress |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" width="25" /> | Linux | Supported | Built, tested and released on every change |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" width="25" /> | Windows | Supported | Native, with its own installer |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" width="25" /> | WSL2 | Supported | Desktop automation reaches the Windows side |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" width="25" /> | macOS | Supported | Grant Accessibility and Screen Recording on first use |
 
 </div>
 
@@ -64,8 +65,8 @@ vadgr start
 | `vadgr stop` | Stop the daemon |
 | `vadgr restart` | Restart the daemon |
 | `vadgr status` | Show whether the daemon is running |
-| `vadgr logs` | Tail API server logs |
-| `vadgr update` | Pull latest code and reinstall deps |
+| `vadgr logs` | Tail the daemon's log |
+| `vadgr update` | Pull the latest code, rebuild and reinstall the binaries |
 
 **Runs:**
 
@@ -87,13 +88,13 @@ stops watching and leaves the run going.
 
 | Command | Description |
 |---------|-------------|
-| `vadgr health` | Check API health |
+| `vadgr health` | Check the daemon's health |
 | `vadgr providers` | List available providers and models |
 | `vadgr computer-use enable` | Enable desktop automation |
 | `vadgr computer-use disable` | Disable desktop automation |
 | `vadgr computer-use status` | Show computer use and daemon status |
 
-**Providers on the side-by-side Rust daemon:**
+**Providers:**
 
 | Command | Description |
 |---------|-------------|
@@ -147,7 +148,8 @@ Vadgr/
 │   ├── cli/               # The `vadgr` command
 │   ├── config.rs          # Where a machine's state lives, decided in one place
 │   ├── migrate.rs         # Bringing older state to that root, before serving
-│   ├── routes/            # HTTP endpoints and the two sockets
+│   ├── routes/            # The HTTP endpoints
+│   ├── ws/                # The two run sockets
 │   ├── engine/            # The loop, its journal, providers and the MCP host
 │   ├── auth/              # Pairing and the two gates
 │   ├── db/                # SQLite schema and repositories
