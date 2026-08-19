@@ -36,11 +36,7 @@ pub async fn health(client: &Client) -> Result<(), CliError> {
     {
         anstream::println!("\nModules:");
         for (name, available) in modules {
-            let state = if available.as_bool().unwrap_or(false) {
-                "available"
-            } else {
-                "not found"
-            };
+            let state = module_state(available.as_bool().unwrap_or(false));
             anstream::println!("  {name}: {}", output::format_status(state));
         }
     }
@@ -138,4 +134,35 @@ pub async fn computer_use_disable(client: &Client) -> Result<(), CliError> {
     result?;
     anstream::println!("{}", output::success("Computer use disabled"));
     Ok(())
+}
+
+/// The word the module block prints for one module's availability.
+///
+/// The daemon reports whether a module is usable, never why. It answers `false`
+/// for a module that is absent and for one the owner turned off, so a line
+/// reading "not found" told a user who had just run `vadgr computer-use
+/// disable` that their installation was missing. The rendering states what the
+/// daemon said and adds no cause of its own.
+fn module_state(available: bool) -> &'static str {
+    if available {
+        "available"
+    } else {
+        "unavailable"
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::module_state;
+
+    #[test]
+    fn a_module_the_daemon_calls_false_is_never_reported_as_missing() {
+        assert_eq!(module_state(true), "available");
+        assert_eq!(module_state(false), "unavailable");
+        assert_ne!(
+            module_state(false),
+            "not found",
+            "false means unusable, which is not the same claim as absent"
+        );
+    }
 }

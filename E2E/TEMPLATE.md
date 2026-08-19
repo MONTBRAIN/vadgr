@@ -7,6 +7,10 @@ now demonstrably true that was not before.>
 > Automated gate <green/red> (engine N, api N). <Which parts pass, which are
 > open.> **N findings**, listed below. Nothing is marked pass that was not
 > executed and read back.
+> The header, the coverage counters and the per-OS table are re-read against
+> the cell marks before the runbook is offered: a file that says `not started`
+> over cells that say `pass` is wrong twice, and a reader cannot tell which
+> half to believe. Count the rows, then read the counters against them.
 
 <Copy this file to `E2E/<version>/e2e.md` and fill it in. Delete these angle
 bracket notes as you go; a leftover placeholder is the tell that a runbook was
@@ -179,7 +183,11 @@ observing different code. Name the affected cells in the finding, mark them
 `not run` again on the operating systems that had passed them, and say in the
 per-OS matrix which fix invalidated them. The host that made the fix re-runs
 them itself. The other hosts re-run them from the PR branch before merge. **No
-operating system inherits a result from a build that no longer exists.**
+operating system inherits a result from a build that no longer exists.** And a
+rebuild is a new subject: re-run the identity cell and record the new binary
+hashes **before any further cell**. A `0.4.9` pass filed a cell whose output
+only a later commit could produce, under a host record naming the earlier head;
+nothing tied any result to any build, and the whole pass was invalidated.
 
 **5. The evidence is pushed, not left on the machine that produced it.** The
 boundary directory is created before the first cell, each group files its output
@@ -215,7 +223,10 @@ from the agent's prose.
 Both surfaces are exercised and **neither substitutes for the other**:
 
 - **the API + both run WebSockets** - how the phone calls it, and the only way
-  to know a mobile call behaves;
+  to know a mobile call behaves. Every socket the daemon serves is driven by a
+  **real wire client**, its raw frames filed and their type counts recorded:
+  the CLI watcher is one consumer of one socket and never stands in for the
+  wire;
 - **the CLI** (`vadgr run`, `vadgr runs get`) - the on-box path, with its own
   users and its own failure modes.
 
@@ -576,6 +587,15 @@ wired, and that is a state nobody notices until a client calls it.>
 <Every counted case is a row before execution. Its Status column is the result
 slot. Do not use aggregate placeholders such as "remaining matrix" or leave
 edge cases in prose.>
+
+<Two tests every row passes before the pass starts. **The oracle can detect the
+failure it names**: ask what it returns when the product is wrong, and if the
+answer is "the same thing", it is not an oracle - a mint was once asserted
+through a list the minted thing never appears in, and the cell could not fail.
+**The boundary contains the artifact it names, never a sentence about it**: a
+boundary that says hashes carries the hash lines themselves. "Unchanged: yes"
+is the product's word taken for the state, which is exactly what an oracle
+exists to distrust.>
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
