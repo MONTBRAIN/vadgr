@@ -745,15 +745,21 @@ mod port_selection_tests {
                 &one as *const _ as *const libc::c_void,
                 std::mem::size_of::<libc::c_int>() as libc::socklen_t,
             );
-            let addr = libc::sockaddr_in {
-                sin_len: std::mem::size_of::<libc::sockaddr_in>() as u8,
-                sin_family: libc::AF_INET as libc::sa_family_t,
-                sin_port: port.to_be(),
-                sin_addr: libc::in_addr {
-                    s_addr: u32::from_ne_bytes([127, 0, 0, 1]),
-                },
-                sin_zero: [0; 8],
+            // `sockaddr_in` is not the same struct on every Unix. The BSDs,
+            // macOS included, carry a leading `sin_len`; Linux does not have the
+            // field at all, so naming it there is a compile error rather than a
+            // portability wart. Zeroing the struct and filling the fields every
+            // platform shares keeps one helper for all of them.
+            let mut addr: libc::sockaddr_in = std::mem::zeroed();
+            addr.sin_family = libc::AF_INET as libc::sa_family_t;
+            addr.sin_port = port.to_be();
+            addr.sin_addr = libc::in_addr {
+                s_addr: u32::from_ne_bytes([127, 0, 0, 1]),
             };
+            #[cfg(any(target_os = "macos", target_os = "ios", target_vendor = "apple"))]
+            {
+                addr.sin_len = std::mem::size_of::<libc::sockaddr_in>() as u8;
+            }
             let rc = libc::bind(
                 fd,
                 &addr as *const _ as *const libc::sockaddr,
@@ -778,16 +784,30 @@ mod port_selection_tests {
         let (fd, taken) = hold_port_without_accepting();
 
         // The state that broke it: probing by connecting answers "busy" once and
-        // "free" every time after, so the old search handed back the held port.
-        let first = port_in_use(taken);
-        let second = port_in_use(taken);
-        assert!(first, "the first connect probe should see the listener");
+        // "free" once the accept queue is full, so the old search handed back the
+        // port it had just been told was taken.
+        //
+        // **How many probes that takes is the kernel's business, not this test's.**
+        // macOS refuses the second connect; Linux's effective backlog is larger
+        // than the number asked for, so it queues another first. Asserting the
+        // flip on the second probe made this test pass on one Unix and fail on
+        // another for a reason that is not the product.
         assert!(
-            !second,
-            "this test needs the probe to flip, which is the defect"
+            port_in_use(taken),
+            "the first probe should see the listener"
         );
+        let flipped = (0..8).any(|_| !port_in_use(taken));
 
+        // The invariant holds either way, and it is the thing the fix promises:
+        // the search starts at the held port, so a search that still asked by
+        // connecting would return it and the bind below would fail.
         let chosen = find_free_port(taken).expect("some port above it is free");
+        assert!(
+            flipped,
+            "the probe never reported the held port free, so this run did not \
+             reach the state the defect needed. The assertions below still hold, \
+             but this host proved the invariant rather than the history."
+        );
 
         assert_ne!(chosen, taken, "the search returned the held port");
         let proof = TcpListener::bind(("127.0.0.1", chosen));
