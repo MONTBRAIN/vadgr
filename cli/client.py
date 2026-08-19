@@ -140,7 +140,7 @@ def _should_probe(base_url: str) -> bool:
     the local daemon, and it is only ever allowed to make the answer *faster* -
     never to invent a failure the request itself would not have hit.
 
-    Two ways a broader probe would do exactly that. `--api-url`/`FORGE_API_URL`
+    Two ways a broader probe would do exactly that. `--api-url`/`VADGR_API_URL`
     can point at an `https://` host with no port, where `port or 80` would test
     80 while the request goes to 443 and report a live machine as down. And a
     remote host over a tailnet can be reachable-but-slow, which is a normal

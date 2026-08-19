@@ -296,15 +296,31 @@ fn post(path: &str, body: Option<Value>) -> Request<Body> {
     builder.body(body).unwrap()
 }
 
+/// Wait for a run to reach a state, bounded generously.
+///
+/// **The bound is a failure deadline, not a measurement.** A passing run returns
+/// as soon as the row changes, so a wide ceiling costs a fast machine nothing and
+/// only decides how long a genuinely stuck run hangs before it reports. At 100
+/// polls of 20 ms this was two seconds, which is a Windows CI runner's ordinary
+/// scheduling noise for a run that starts a task, writes a journal and commits to
+/// SQLite: it went red there on the `0.4.8` pull request while both other tests in
+/// this file passed, and while Linux and macOS passed the lot.
 async fn wait_for_status(db: &Db, id: &str, expected: &str) -> Value {
-    for _ in 0..100 {
+    const POLL: Duration = Duration::from_millis(20);
+    const DEADLINE: Duration = Duration::from_secs(20);
+    let started = std::time::Instant::now();
+    let mut last = String::new();
+    while started.elapsed() < DEADLINE {
         let row = db::runs::get(db, id).unwrap().unwrap();
         if row["status"] == expected {
             return row;
         }
-        tokio::time::sleep(Duration::from_millis(20)).await;
+        last = row["status"].as_str().unwrap_or("?").to_owned();
+        tokio::time::sleep(POLL).await;
     }
-    panic!("run {id} did not reach {expected}");
+    // Say what it did reach. "did not reach completed" alone sends the next
+    // reader to the wrong half of the system.
+    panic!("run {id} did not reach {expected} within {DEADLINE:?}; last status was {last:?}");
 }
 
 #[tokio::test]

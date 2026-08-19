@@ -15,7 +15,7 @@ written and never run. The cross-cutting rules are in
 
 ## How a pass is run, before anything else in this file
 
-**These four rules come first because every one of them was learned by breaking
+**These five rules come first because every one of them was learned by breaking
 it. They hold on every supported operating system, for every agent that drives a
 runbook, and they are not negotiable against a deadline or a token budget.**
 
@@ -62,6 +62,20 @@ observing different code. Name the affected cells in the finding, mark them
 per-OS matrix which fix invalidated them. The host that made the fix re-runs
 them itself. The other hosts re-run them from the PR branch before merge. **No
 operating system inherits a result from a build that no longer exists.**
+
+**5. The evidence is pushed, not left on the machine that produced it.** The
+boundary directory is created before the first cell, each group files its output
+at its own boundary, and **the whole boundary is committed on a branch and
+opened as a pull request as part of the pass, not after somebody asks for it**.
+A pass whose evidence sits in a temporary directory on the host that ran it is a
+pass nobody can check: the numbers in the runbook have nothing behind them, the
+next host cannot compare its own record against yours, and the directory is one
+reboot from gone. Filing it is the last cell of every pass, and a report that
+says the pass is complete while the artifacts are still local is wrong about
+what complete means. This is written here because it happened: a full native
+Linux pass was reported as done with its runbook results pushed and 51 evidence
+files still in `/tmp`, and only the owner asking "evidence are pushed?" caught
+it.
 
 ## Scope exception - **delete this section unless you need it**
 
@@ -203,6 +217,11 @@ remaining cells quietly never run.
 - A cell blocked by a host condition is owed only after the condition itself has
   been investigated. Two leaked daemons, a reserved port and a missing toolchain
   all looked like immovable environment facts and all three were removable.
+- **"It needs a tool this host does not have" is a claim to check, not to
+  report.** Look in this runbook's own `harness/` first: a cell that was called
+  blocked on a missing QR decoder was closed minutes later by the decoder the
+  suite already ships, which built and ran unchanged on the new OS. The suite
+  carries its oracles so that every OS can run them.
 - If a cell needs the owner, ask for that **first**, batch it, and keep working
   while you wait. Do not let one approval serialise the rest of the matrix.
 - If a fix lands mid-pass, **re-run the cells it touches on every OS that
@@ -210,6 +229,31 @@ remaining cells quietly never run.
   behaviour.
 - Report once, at the end, with everything. An audit delivered in instalments
   reads as an endless stream of problems and is really one incomplete sweep.
+
+## Account for what the pass leaves running
+
+**Cleanup columns cover a cell's state. They do not cover the processes the pass
+started, and nothing else will.** A daemon is not evidence, so it is easy to
+finish a matrix, commit it, and leave the fixtures alive.
+
+An orphan does not stay harmless. It holds ports after the session that started
+it is gone, and the next pass meets a port that is bound by nothing it can see,
+which reads as a platform quirk rather than as yesterday's daemon. One pass here
+left a daemon running for **twenty five hours**, its parent long dead, holding
+the OAuth callback port `1455`; any provider login attempted in that window would
+have failed to bind, and the cause would have looked like the host.
+
+- **End a pass by listing every process it started and stopping it**, then
+  showing the ports free. `Get-CimInstance Win32_Process`, `ps`, and the
+  listening-socket table are the oracle; a `stop` command's own exit code is not,
+  because it only speaks for the daemon it knew about.
+- **Prefer the process table to the port table when diagnosing a busy port.** A
+  port with no visible listener is more often an orphan of your own than a
+  platform behaviour, and attributing it to the platform ends the investigation
+  at exactly the wrong moment.
+- Record the leftovers you found in the pass, even when you started them
+  yourself. A daemon that survived a session is a fact about how the pass was
+  run, and the next person inherits the habit, not the process.
 
 ## Owner and environment requirements
 
@@ -263,7 +307,7 @@ export VADGR_RUNS_DIR="$E2E_ROOT/runs"
 export VADGR_STATE_HOME="$E2E_ROOT/state"
 export VADGR_CONFIG_HOME="$E2E_ROOT/config"
 export VADGR_PORT=8791
-export FORGE_API_URL=http://127.0.0.1:8791
+export VADGR_API_URL=http://127.0.0.1:8791
 mkdir -p "$VADGR_RUNS_DIR" "$VADGR_STATE_HOME" "$VADGR_CONFIG_HOME"
 cd "$E2E_ROOT"
 <absolute-path-to-the-shipped-vadgr-daemon>
@@ -271,7 +315,7 @@ cd "$E2E_ROOT"
 # In another terminal whose PATH resolves the tested installation:
 command -v vadgr
 vadgr health
-curl -fsS "$FORGE_API_URL/api/health"
+curl -fsS "$VADGR_API_URL/api/health"
 wscat -c "ws://127.0.0.1:8791/api/ws/runs/<run-id>"
 wscat -c "ws://127.0.0.1:8791/api/runs/<run-id>/stream"
 ```

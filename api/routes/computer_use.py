@@ -3,6 +3,7 @@
 from fastapi import APIRouter
 
 from api.config import settings
+from api.utils.platform import computer_use_platform
 
 router = APIRouter(prefix="/api/computer-use", tags=["computer-use"])
 
@@ -12,5 +13,5 @@ async def computer_use_status():
     available = settings.computer_use_enabled
     return {
         "available": available,
-        "platform": "wsl2",
+        "platform": computer_use_platform(),
     }

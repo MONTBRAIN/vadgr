@@ -4,7 +4,7 @@ use std::ffi::OsString;
 use std::path::PathBuf;
 
 /// The version this daemon reports at `GET /api/health`.
-pub const VERSION: &str = "0.4.7";
+pub const VERSION: &str = "0.4.8";
 
 pub struct Config {
     pub port: u16,

@@ -61,16 +61,16 @@ The API starts at http://127.0.0.1:8000. API docs at http://127.0.0.1:8000/docs.
 
 ### Environment variables
 
-All prefixed with `AGENT_FORGE_`:
+All prefixed with `VADGR_`:
 
 | Variable | Default | Description |
 |---|---|---|
-| `AGENT_FORGE_HOST` | `127.0.0.1` | Bind address |
-| `AGENT_FORGE_PORT` | `8000` | Bind port |
-| `AGENT_FORGE_DATABASE_PATH` | `data/agent_forge.db` | SQLite database path |
+| `VADGR_HOST` | `127.0.0.1` | Bind address |
+| `VADGR_PORT` | `8000` | Bind port |
+| `VADGR_DATABASE_PATH` | `data/agent_forge.db` | SQLite database path |
 
 The machine's default provider and model are `providers.yaml`'s, not environment variables.
-| `AGENT_FORGE_PROVIDER_TIMEOUT` | `300` | Provider execution timeout (seconds) |
+| `VADGR_PROVIDER_TIMEOUT` | `300` | Provider execution timeout (seconds) |
 
 ## Tests
 

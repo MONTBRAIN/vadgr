@@ -12,7 +12,9 @@ const PROBE_IMAGE: &str = "busybox:1.37.0-musl";
 fn validate_health(payload: &Value) -> Result<(), String> {
     let expected = [
         ("status", json!("healthy")),
-        ("version", json!("0.4.7")),
+        // Read from the crate rather than repeated, so a release bump does not
+        // break this the way it broke the routes test at 0.4.8.
+        ("version", json!(vadgr_daemon::config::VERSION)),
         ("platform", json!("linux")),
         ("modules", json!({"computer_use": false})),
         (
@@ -265,7 +267,7 @@ fn run_clean_install(binary: &Path, docker: &str) -> Result<Value, String> {
 fn the_clean_install_health_shape_is_accepted() {
     let payload = json!({
         "status": "healthy",
-        "version": "0.4.7",
+        "version": vadgr_daemon::config::VERSION,
         "platform": "linux",
         "modules": {"computer_use": false},
         "transport": {
@@ -283,7 +285,7 @@ fn the_clean_install_health_shape_is_accepted() {
 fn each_required_health_fact_is_checked() {
     let expected = json!({
         "status": "healthy",
-        "version": "0.4.7",
+        "version": vadgr_daemon::config::VERSION,
         "platform": "linux",
         "modules": {"computer_use": false},
         "transport": {

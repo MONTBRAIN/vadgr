@@ -115,29 +115,3 @@ def format_duration(seconds: float) -> str:
     m = s // 60
     s = s % 60
     return f"{m}m {s}s"
-
-
-_SPINNER_STYLE = "dots"
-_DEFAULT_POLL_INTERVAL = 3.0
-_DEFAULT_TIMEOUT = 600.0
-
-
-def wait_with_spinner(ctx, path: str, done_fn, message: str,
-                      interval: float = _DEFAULT_POLL_INTERVAL,
-                      timeout: float = _DEFAULT_TIMEOUT):
-    """Poll an API endpoint with a spinner until done_fn(response) is True."""
-    console = Console()
-    elapsed = 0.0
-
-    with console.status(message, spinner=_SPINNER_STYLE):
-        while elapsed < timeout:
-            try:
-                result = api_get(ctx, path)
-                if done_fn(result):
-                    return result
-            except click.ClickException:
-                pass  # API temporarily unreachable, retry
-            time.sleep(interval)
-            elapsed += interval
-
-    raise click.ClickException(f"Operation timed out after {timeout:.0f}s")

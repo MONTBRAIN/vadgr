@@ -21,7 +21,7 @@ from cli.commands.provider import model_group, provider_group
 from cli.commands.runs import runs_group
 from cli.commands.service import start, stop, restart, status, logs, update
 
-_DEFAULT_API_PORT = os.environ.get("AGENT_FORGE_PORT", "8000")
+_DEFAULT_API_PORT = os.environ.get("VADGR_PORT", "8000")
 
 
 def _resolve_api_url() -> str:
@@ -35,7 +35,7 @@ def _resolve_api_url() -> str:
 
 
 @click.group()
-@click.option("--api-url", default=None, envvar="FORGE_API_URL", hidden=True)
+@click.option("--api-url", default=None, envvar="VADGR_API_URL", hidden=True)
 @click.pass_context
 def cli(ctx, api_url: str | None):
     """vadgr CLI."""

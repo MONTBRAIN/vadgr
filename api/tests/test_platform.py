@@ -13,7 +13,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from api.utils.platform import (
+    computer_use_platform,
+    is_wsl,
     kill_process_tree,
+    machine_platform,
     new_session_kwargs,
     python_command,
     remove_path_entry,
@@ -357,3 +360,78 @@ class TestResolveCommand:
         result = resolve_command("C:\\Python312\\python.exe")
         mock_shutil.which.assert_not_called()
         assert result == "C:\\Python312\\python.exe"
+
+
+# ---------------------------------------------------------------------------
+# machine_platform / computer_use_platform
+# ---------------------------------------------------------------------------
+
+class TestMachinePlatform:
+    """The name this machine publishes for itself.
+
+    The vocabulary is the Rust daemon's, from ``rust/src/platform.rs``. Both
+    daemons answer ``/api/health`` during the strangler migration, and a phone
+    must not learn a different word for the same machine depending on which one
+    replied.
+    """
+
+    @pytest.mark.parametrize(
+        "sys_platform,expected",
+        [("win32", "windows"), ("darwin", "macos"), ("linux", "linux")],
+    )
+    def test_names_the_host_it_runs_on(self, sys_platform, expected):
+        with patch("api.utils.platform.sys.platform", sys_platform), patch(
+            "api.utils.platform.is_wsl", return_value=False
+        ):
+            assert machine_platform() == expected
+
+    def test_wsl_is_its_own_name_and_is_not_spelled_wsl2(self):
+        with patch("api.utils.platform.sys.platform", "linux"), patch(
+            "api.utils.platform.is_wsl", return_value=True
+        ):
+            assert machine_platform() == "wsl"
+
+    def test_published_name_is_always_from_the_agreed_vocabulary(self):
+        assert machine_platform() in {"linux", "macos", "windows", "wsl"}
+
+    def test_windows_is_never_reported_as_wsl(self):
+        """The defect this covers: a constant said every machine was WSL."""
+        with patch("api.utils.platform.sys.platform", "win32"), patch(
+            "api.utils.platform.is_wsl", return_value=False
+        ):
+            assert machine_platform() != "wsl2"
+            assert machine_platform() == "windows"
+
+
+class TestIsWsl:
+
+    def test_only_a_linux_kernel_can_be_wsl(self):
+        with patch("api.utils.platform.sys.platform", "win32"), patch.dict(
+            os.environ, {"WSL_DISTRO_NAME": "Ubuntu"}, clear=False
+        ):
+            assert is_wsl() is False
+
+    def test_the_distro_marker_is_enough_on_linux(self):
+        with patch("api.utils.platform.sys.platform", "linux"), patch.dict(
+            os.environ, {"WSL_DISTRO_NAME": "Ubuntu"}, clear=False
+        ), patch("api.utils.platform._in_container", return_value=False):
+            assert is_wsl() is True
+
+    def test_a_container_on_a_wsl_host_is_not_wsl(self):
+        """It inherits the kernel's marker without being WSL."""
+        with patch("api.utils.platform.sys.platform", "linux"), patch.dict(
+            os.environ, {"WSL_DISTRO_NAME": "Ubuntu"}, clear=False
+        ), patch("api.utils.platform._in_container", return_value=True):
+            assert is_wsl() is False
+
+
+class TestComputerUsePlatform:
+    """A deliberately separate vocabulary: how computer use is installed here."""
+
+    def test_native_when_not_wsl(self):
+        with patch("api.utils.platform.is_wsl", return_value=False):
+            assert computer_use_platform() == "native"
+
+    def test_wsl2_when_wsl(self):
+        with patch("api.utils.platform.is_wsl", return_value=True):
+            assert computer_use_platform() == "wsl2"

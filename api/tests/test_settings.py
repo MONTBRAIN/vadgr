@@ -314,13 +314,13 @@ class TestMcpConfigs:
         assert args == ["--transport", "stdio"]
 
     def test_mcp_json_does_not_set_removed_env_vars(self, paths):
-        """AGENT_FORGE_CACHE_ENABLED / AGENT_FORGE_DEBUG / PYTHONPATH are gone."""
+        """VADGR_CACHE_ENABLED / VADGR_DEBUG / PYTHONPATH are gone."""
         self._enable_with_fake_venv(paths)
         data = json.loads(paths["mcp"].read_text())
         server = data["mcpServers"]["vadgr-computer-use"]
         env = server.get("env", {})
-        assert "AGENT_FORGE_CACHE_ENABLED" not in env
-        assert "AGENT_FORGE_DEBUG" not in env
+        assert "VADGR_CACHE_ENABLED" not in env
+        assert "VADGR_DEBUG" not in env
         assert "PYTHONPATH" not in env
 
     def test_mcp_json_type_is_stdio(self, paths):
@@ -358,13 +358,15 @@ class TestMcpConfigs:
         paths["codex"].write_text(
             'model = "o3"\n\n'
             '[mcp_servers.computer-use]\ncommand = "/old/python"\n\n'
-            '[mcp_servers.computer-use.env]\nAGENT_FORGE_DEBUG = "1"\n'
+            '[mcp_servers.computer-use.env]\nSTALE_DEBUG = "1"\n'
         )
         self._enable_with_fake_venv(paths)
         content = paths["codex"].read_text()
         assert content.count("[mcp_servers.vadgr-computer-use]") == 1
         assert "/old/python" not in content
-        assert "AGENT_FORGE_DEBUG" not in content
+        # The whole stale section goes, not just the keys the new one happens to
+        # write, so a setting nothing writes today must not survive either.
+        assert "STALE_DEBUG" not in content
 
     def test_codex_uses_toml_literal_strings_for_paths(self, paths):
         """Windows-style backslash paths must be wrapped in single quotes."""

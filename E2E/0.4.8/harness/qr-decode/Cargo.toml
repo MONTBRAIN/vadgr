@@ -1,0 +1,11 @@
+[package]
+name = "qr-decode"
+version = "0.1.0"
+edition = "2021"
+
+# The `G3` oracle. `rqrr` is a decoder written by someone else, so reading the
+# printed symbol with it tests the encoder the product uses rather than trusting
+# it. `image` only turns the module grid into pixels a detector can find.
+[dependencies]
+rqrr = "0.10"
+image = "0.25"

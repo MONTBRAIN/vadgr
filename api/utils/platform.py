@@ -18,6 +18,71 @@ from typing import Union
 
 
 # ---------------------------------------------------------------------------
+# Which machine this is
+# ---------------------------------------------------------------------------
+#
+# The published vocabulary is ``linux``, ``macos``, ``windows`` and ``wsl``, and
+# it is the Rust daemon's: ``rust/src/platform.rs`` answers the same question for
+# the same route, and while both daemons ship, a phone paired to one machine must
+# not learn a different word for it depending on which one answered. These
+# functions mirror that file deliberately, including the container carve-out.
+
+
+def _in_container() -> bool:
+    return (
+        "container" in os.environ
+        or Path("/.dockerenv").exists()
+        or Path("/run/.containerenv").exists()
+    )
+
+
+def _linux_release_mentions_microsoft() -> bool:
+    for source in ("/proc/sys/kernel/osrelease", "/proc/version"):
+        try:
+            return "microsoft" in Path(source).read_text().lower()
+        except OSError:
+            continue
+    return False
+
+
+def is_wsl() -> bool:
+    """Whether this is WSL, which only a Linux kernel can be.
+
+    A container on a WSL host inherits the kernel's ``microsoft`` marker without
+    being WSL, so the marker alone would misreport it.
+    """
+    if not sys.platform.startswith("linux"):
+        return False
+    marked = (
+        "WSL_DISTRO_NAME" in os.environ
+        or "WSL_INTEROP" in os.environ
+        or _linux_release_mentions_microsoft()
+    )
+    return marked and not _in_container()
+
+
+def machine_platform() -> str:
+    """The platform name ``/api/health`` publishes, which the phone displays."""
+    if is_wsl():
+        return "wsl"
+    if sys.platform == "darwin":
+        return "macos"
+    if sys.platform == "win32":
+        return "windows"
+    return "linux"
+
+
+def computer_use_platform() -> str:
+    """The setup platform the computer-use status reports.
+
+    A separate vocabulary from :func:`machine_platform` on purpose: this answers
+    *how computer use is installed here*, where WSL and native Windows differ,
+    and the Rust daemon draws the same distinction.
+    """
+    return "wsl2" if is_wsl() else "native"
+
+
+# ---------------------------------------------------------------------------
 # Python command resolution
 # ---------------------------------------------------------------------------
 

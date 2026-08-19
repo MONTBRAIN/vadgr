@@ -23,9 +23,9 @@ from cli.output import print_info, print_success, print_warning, print_error, pr
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-FORGE_HOME = Path(os.environ.get("FORGE_HOME", Path.home() / ".forge"))
-FORGE_REPO = Path(os.environ.get("FORGE_REPO", _PROJECT_ROOT))
-PID_DIR = FORGE_HOME / "pids"
+VADGR_HOME = Path(os.environ.get("VADGR_HOME", Path.home() / ".forge"))
+VADGR_REPO = Path(os.environ.get("VADGR_REPO", _PROJECT_ROOT))
+PID_DIR = VADGR_HOME / "pids"
 
 _API_STARTUP_TIMEOUT = 30
 
@@ -159,9 +159,9 @@ def _wait_for_api(port: int, timeout: int = _API_STARTUP_TIMEOUT) -> bool:
 
 def _get_api_python() -> str:
     if sys.platform == "win32":
-        p = FORGE_REPO / "api" / ".venv" / "Scripts" / "python.exe"
+        p = VADGR_REPO / "api" / ".venv" / "Scripts" / "python.exe"
     else:
-        p = FORGE_REPO / "api" / ".venv" / "bin" / "python"
+        p = VADGR_REPO / "api" / ".venv" / "bin" / "python"
     if not p.exists():
         raise click.ClickException(f"API venv not found at {p}. Run setup first.")
     return str(p)
@@ -197,8 +197,8 @@ def _resolve_bind_hosts() -> list[str]:
 
 def _build_env(api_port: int) -> dict:
     env = os.environ.copy()
-    env["PYTHONPATH"] = str(FORGE_REPO)
-    env["AGENT_FORGE_PORT"] = str(api_port)
+    env["PYTHONPATH"] = str(VADGR_REPO)
+    env["VADGR_PORT"] = str(api_port)
     return env
 
 
@@ -228,7 +228,7 @@ def _file_hash(path: Path) -> str | None:
               help="API server port")
 def start(api_port):
     """Start the vadgr daemon (the API)."""
-    api_port = api_port or _default_port("AGENT_FORGE_PORT", 8000)
+    api_port = api_port or _default_port("VADGR_PORT", 8000)
     PID_DIR.mkdir(parents=True, exist_ok=True)
 
     if _read_pid("api"):
@@ -248,11 +248,11 @@ def start(api_port):
     bind_hosts = _resolve_bind_hosts()
 
     print_info(f"Starting API server ({', '.join(bind_hosts)} on port {api_port})...")
-    api_log = open(FORGE_HOME / "api.log", "w")
+    api_log = open(VADGR_HOME / "api.log", "w")
     host_args = [arg for host in bind_hosts for arg in ("--host", host)]
     api_proc = subprocess.Popen(
         [_get_api_python(), "-m", "api.serve", *host_args, "--port", str(api_port)],
-        cwd=str(FORGE_REPO), env=env,
+        cwd=str(VADGR_REPO), env=env,
         stdout=api_log, stderr=subprocess.STDOUT,
         **_session_kwargs(),
     )
@@ -261,13 +261,13 @@ def start(api_port):
 
     time.sleep(1)
     if api_proc.poll() is not None:
-        print_warning(f"API process died. Port {api_port} may be in use. Check {FORGE_HOME / 'api.log'}")
+        print_warning(f"API process died. Port {api_port} may be in use. Check {VADGR_HOME / 'api.log'}")
         (PID_DIR / "api.pid").unlink(missing_ok=True)
         (PID_DIR / "api.port").unlink(missing_ok=True)
         raise SystemExit(1)
 
     if not _wait_for_api(api_port):
-        print_warning(f"API failed to start. Check {FORGE_HOME / 'api.log'}")
+        print_warning(f"API failed to start. Check {VADGR_HOME / 'api.log'}")
         raise SystemExit(1)
 
     print_success("vadgr is running!")
@@ -279,7 +279,7 @@ def start(api_port):
 @click.command()
 def stop():
     """Stop the vadgr daemon."""
-    api_port = _read_active_port("api", _default_port("AGENT_FORGE_PORT", 8000))
+    api_port = _read_active_port("api", _default_port("VADGR_PORT", 8000))
 
     stopped = False
     pid = _read_pid("api")
@@ -341,7 +341,7 @@ def status():
 @click.option("--lines", "-n", default=50, type=int)
 def logs(service, follow, lines):
     """Tail service logs."""
-    log_path = FORGE_HOME / f"{service}.log"
+    log_path = VADGR_HOME / f"{service}.log"
     if not log_path.exists():
         print_warning(f"No logs found for {service}. Is vadgr running?")
         raise SystemExit(1)
@@ -362,14 +362,14 @@ def update():
     """Pull latest code and reinstall deps if changed."""
     print_info("Updating vadgr...")
 
-    api_req = FORGE_REPO / "api" / "requirements.txt"
-    cli_req = FORGE_REPO / "cli" / "requirements.txt"
+    api_req = VADGR_REPO / "api" / "requirements.txt"
+    cli_req = VADGR_REPO / "cli" / "requirements.txt"
     old_api = _file_hash(api_req)
     old_cli = _file_hash(cli_req)
 
     result = subprocess.run(
         ["git", "pull", "--ff-only", "origin", "master"],
-        cwd=str(FORGE_REPO), capture_output=True, text=True,
+        cwd=str(VADGR_REPO), capture_output=True, text=True,
     )
     if result.returncode != 0:
         print_warning(f"Could not pull: {result.stderr.strip()}")
@@ -383,7 +383,7 @@ def update():
 
     if _file_hash(cli_req) != old_cli:
         print_info("CLI deps changed, reinstalling...")
-        cli_pip = str(FORGE_REPO / "cli" / ".venv" / "bin" / "pip")
+        cli_pip = str(VADGR_REPO / "cli" / ".venv" / "bin" / "pip")
         subprocess.run([cli_pip, "install", "-q", "-r", str(cli_req)], check=True)
 
     if _read_pid("api"):

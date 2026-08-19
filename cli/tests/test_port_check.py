@@ -138,16 +138,16 @@ def tmp_forge(tmp_path, monkeypatch):
     import cli.commands.service as svc
     forge_home = tmp_path / ".forge"
     pid_dir = forge_home / "pids"
-    forge_repo = tmp_path / "Agent-Forge"
+    vadgr_repo = tmp_path / "Agent-Forge"
     pid_dir.mkdir(parents=True)
-    forge_repo.mkdir(parents=True)
+    vadgr_repo.mkdir(parents=True)
     if sys.platform == "win32":
-        (forge_repo / "api" / ".venv" / "Scripts").mkdir(parents=True)
-        (forge_repo / "api" / ".venv" / "Scripts" / "python.exe").write_text("")
+        (vadgr_repo / "api" / ".venv" / "Scripts").mkdir(parents=True)
+        (vadgr_repo / "api" / ".venv" / "Scripts" / "python.exe").write_text("")
     else:
-        (forge_repo / "api" / ".venv" / "bin").mkdir(parents=True)
-        (forge_repo / "api" / ".venv" / "bin" / "python").write_text("#!/bin/sh")
-    monkeypatch.setattr(svc, "FORGE_HOME", forge_home)
-    monkeypatch.setattr(svc, "FORGE_REPO", forge_repo)
+        (vadgr_repo / "api" / ".venv" / "bin").mkdir(parents=True)
+        (vadgr_repo / "api" / ".venv" / "bin" / "python").write_text("#!/bin/sh")
+    monkeypatch.setattr(svc, "VADGR_HOME", forge_home)
+    monkeypatch.setattr(svc, "VADGR_REPO", vadgr_repo)
     monkeypatch.setattr(svc, "PID_DIR", pid_dir)
     return forge_home

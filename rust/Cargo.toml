@@ -1,6 +1,6 @@
 [package]
 name = "vadgr-daemon"
-version = "0.4.7"
+version = "0.4.8"
 edition = "2024"
 description = "The vadgr machine daemon"
 
@@ -12,7 +12,39 @@ path = "src/lib.rs"
 name = "vadgr-daemon"
 path = "src/main.rs"
 
+# The CLI is a binary in this crate rather than a second crate, so it depends on
+# `transport` directly. That is what turns `service.py`'s cross-package import of
+# `api.transport` into a shared module instead of a duplicated address
+# computation.
+[[bin]]
+name = "vadgr-cli"
+path = "src/cli/main.rs"
+
 [dependencies]
+# The CLI's surface. `anstyle` is declared because Rust requires a direct
+# dependency to import it, but it adds nothing to the compiled tree: `clap`
+# already brings it, and `anstream` rides clap's default colour feature.
+# `anstream` is what actually strips colour when the stream is not a terminal.
+# `anstyle` only describes a style; printing it through `std::println!` writes the
+# escapes unconditionally, which leaked into piped output until this was caught by
+# driving the CLI rather than by a unit test.
+anstream = "1.0"
+# The run stream consumer, replacing `websockets`. `futures-util` is already here.
+tokio-tungstenite = { version = "0.30", features = ["rustls-tls-webpki-roots"] }
+anstyle = "1.0"
+clap = { version = "4.6", features = ["derive", "env"] }
+# The two tables the CLI draws are padded columns with no box, which is the
+# shape the Python CLI shipped. `unicode-width` is what makes a wide character
+# and a coloured status land in the right column; it arrived with comfy-table
+# before, so this is a swap that removes a dependency rather than adding one.
+unicode-width = "0.2"
+indicatif = "0.18"
+# `console` arrives with `indicatif` and is declared only because Rust requires
+# a direct dependency to import a crate. It reads a line and reads a secret line
+# on all four platforms, which is why the prompts add no crate of their own.
+console = "0.16"
+qrcode-generator = "6.0"
+
 axum = { version = "0.8", features = ["ws", "macros"] }
 tokio = { version = "1", features = ["full"] }
 tower-http = { version = "0.7", features = ["trace"] }
