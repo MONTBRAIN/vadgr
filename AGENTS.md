@@ -349,6 +349,13 @@ one is not, because nobody can tell an owed cell from a forgotten one. It also
 prints the cell counts every time, so a summary is compared against the cells
 rather than trusted. It cannot tell whether a `pass` is true.
 
+**A pass is finished, not paused, and reporting is not a stopping point.** A
+checkpoint or a progress summary does not end your turn: write it and keep
+driving in the same turn. A pass ends when every cell carries a verdict or a
+named blocker. Only a cell that cannot proceed without the owner, or a decision
+only the owner can make, ends one early. Stopping to report looks like progress
+and is the opposite, because the cells that were never run stay never run.
+
 **Evidence is filed while the pass runs, never assembled after it.** The
 evidence directory exists before the first cell, each group files what it
 produced at its own boundary, and a group that captured nothing gets a note
