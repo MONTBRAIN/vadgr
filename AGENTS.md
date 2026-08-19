@@ -442,6 +442,32 @@ for approval is the mistake: the branch is where the change is reviewed and
 tested, and the approval is asked at merge. This holds in every repo in this
 family.
 
+**Every branch starts from a freshly pulled default branch.** Three commands, in
+this order, every time:
+
+```bash
+git checkout master && git pull        # `main` in `vadgr-mobile`
+git checkout -b <name>
+```
+
+Never from whatever happens to be checked out, and **never from another feature
+branch**. The reason is what a squash merge does: it replays the whole diff
+against the base, so a branch cut from a feature branch carries that feature's
+commits and merging it merges the feature too, under the wrong title and without
+its gate.
+
+It happened during `vadgr 0.4.8`: three doctrine pull requests were cut from the
+release branch, and squash-merging them put **the entire unfinished CLI into
+`master`** under titles about e2e doctrine, ahead of the e2e that was still
+running on two operating systems. Nobody read a diff that said so, because the
+titles said something else.
+
+**Two checks, both one command.** Before branching, `git status -sb` names the
+branch you are about to inherit. Before opening, `git diff --stat <default>...HEAD`
+must show only files your subject is about: **a diff carrying work the title does
+not mention means the branch point was wrong**, and the fix is to re-cut it from
+the default branch rather than to explain it in the body.
+
 **Nothing reaches a default branch except through a pull request, and the docs
 repo is not an exception.** Branch, push, open the PR, merge it. That covers
 code, plans, design specs, runbooks and **e2e evidence**: evidence is filed on
