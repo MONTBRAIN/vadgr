@@ -29,7 +29,10 @@ async fn main() -> Result<()> {
         )
         .init();
 
-    let config = config::Config::from_env();
+    // A machine with no platform state directory is not a case to guess at: the
+    // daemon says so and does not start, rather than inventing somewhere to put
+    // a user's credentials.
+    let config = config::Config::from_env().map_err(|e| anyhow::anyhow!("{e}"))?;
     let db = db::Db::open(&config.db_path)?;
     let transport = transport::create(&config.transport_name)?;
     let providers = vadgr_daemon::engine::provider::ProviderService::native(

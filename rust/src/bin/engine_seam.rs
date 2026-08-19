@@ -10,7 +10,7 @@ use vadgr_daemon::engine::{ContentBlock, Message, StopReason};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let config = Config::from_env();
+    let config = Config::from_env().map_err(|e| anyhow::anyhow!("{e}"))?;
     let db = Db::open(&config.db_path)?;
     let providers = ProviderService::native(db, config.state_home.clone())?;
     let (provider, model_id) = providers

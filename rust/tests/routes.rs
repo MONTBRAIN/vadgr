@@ -79,7 +79,15 @@ fn state_with(transport: Box<dyn Transport>) -> AppState {
         c.execute_batch("INSERT INTO runs (id, title, status) VALUES ('r1','a task','running');")
     })
     .unwrap();
-    let config = Arc::new(Config::from_env());
+    // An isolated root, never the machine's own: a route test that resolved the
+    // real platform root would read and write whatever was already there.
+    let root = std::env::temp_dir().join(format!("vadgr-route-test-{}", uuid::Uuid::new_v4()));
+    let config = Arc::new(Config::for_paths(&vadgr_daemon::config::Paths {
+        db: root.join("vadgr.db"),
+        runs: root.join("runs"),
+        credentials: root.join("credentials"),
+        root,
+    }));
     let ws = Arc::new(ConnectionManager::new());
     let setup = Arc::new(SetupService::new(
         std::env::temp_dir()
