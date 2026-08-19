@@ -9,7 +9,12 @@ $ErrorActionPreference = "Stop"
 $VADGR_HOME = "$env:USERPROFILE\.vadgr"
 $VADGR_BIN = "$VADGR_HOME\bin"
 $VADGR_REPO = "$VADGR_HOME\src"
-$REPO_URL = "https://github.com/MONTBRAIN/vadgr.git"
+# The source and the ref, overridable so a release can be installed and driven
+# before it is merged. An end to end pass has to install the same script a user
+# runs; without these it could only ever test what is already on the default
+# branch, which is never the release being proven.
+$REPO_URL = if ($env:VADGR_REPO_URL) { $env:VADGR_REPO_URL } else { "https://github.com/MONTBRAIN/vadgr.git" }
+$REPO_REF = if ($env:VADGR_REF) { $env:VADGR_REF } else { "master" }
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -80,7 +85,9 @@ function BuildAndInstall {
 function SetupRepo {
     if (Test-Path "$VADGR_REPO\.git") {
         Info "Vadgr repo already exists, pulling latest..."
-        & { $ErrorActionPreference = 'SilentlyContinue'; git -C $VADGR_REPO pull --ff-only origin master 2>$null }
+        & { $ErrorActionPreference = 'SilentlyContinue'; git -C $VADGR_REPO fetch --quiet origin $REPO_REF 2>$null }
+        & { $ErrorActionPreference = 'SilentlyContinue'; git -C $VADGR_REPO checkout --quiet $REPO_REF 2>$null }
+        & { $ErrorActionPreference = 'SilentlyContinue'; git -C $VADGR_REPO pull --ff-only origin $REPO_REF 2>$null }
         if ($LASTEXITCODE -ne 0) { Warn "Could not pull latest (offline?)" }
         $deleted = git -C $VADGR_REPO diff --name-only --diff-filter=D 2>$null
         if ($deleted) {
@@ -92,6 +99,10 @@ function SetupRepo {
         Info "Cloning Vadgr..."
         New-Item -ItemType Directory -Force -Path $VADGR_HOME | Out-Null
         git clone $REPO_URL $VADGR_REPO
+        if ($REPO_REF -ne "master") {
+            git -C $VADGR_REPO checkout --quiet $REPO_REF
+            if ($LASTEXITCODE -ne 0) { Fail "The ref $REPO_REF is not in $REPO_URL. Nothing was installed." }
+        }
     }
 }
 

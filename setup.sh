@@ -10,7 +10,12 @@ set -e
 VADGR_HOME="$HOME/.vadgr"
 VADGR_BIN="$VADGR_HOME/bin"
 VADGR_REPO="$VADGR_HOME/src"
-REPO_URL="https://github.com/MONTBRAIN/vadgr.git"
+# The source and the ref, overridable so a release can be installed and driven
+# before it is merged. An end to end pass has to install the same script a user
+# runs; without these it could only ever test what is already on the default
+# branch, which is never the release being proven.
+REPO_URL="${VADGR_REPO_URL:-https://github.com/MONTBRAIN/vadgr.git}"
+REPO_REF="${VADGR_REF:-master}"
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -111,7 +116,9 @@ build_and_install() {
 setup_repo() {
     if [ -d "$VADGR_REPO/.git" ]; then
         info "Vadgr repo already exists, pulling latest..."
-        git -C "$VADGR_REPO" pull --ff-only origin master || warn "Could not pull latest (offline?)"
+        git -C "$VADGR_REPO" fetch --quiet origin "$REPO_REF" 2>/dev/null || warn "Could not fetch latest (offline?)"
+        git -C "$VADGR_REPO" checkout --quiet "$REPO_REF" 2>/dev/null || true
+        git -C "$VADGR_REPO" pull --ff-only origin "$REPO_REF" || warn "Could not pull latest (offline?)"
         # Restore tracked files that were deleted locally
         local deleted
         deleted=$(git -C "$VADGR_REPO" diff --name-only --diff-filter=D 2>/dev/null)
@@ -122,6 +129,10 @@ setup_repo() {
         info "Cloning Vadgr..."
         mkdir -p "$VADGR_HOME"
         git clone "$REPO_URL" "$VADGR_REPO"
+        if [ "$REPO_REF" != "master" ]; then
+            git -C "$VADGR_REPO" checkout --quiet "$REPO_REF" \
+                || fail "The ref $REPO_REF is not in $REPO_URL. Nothing was installed."
+        fi
     fi
 }
 
