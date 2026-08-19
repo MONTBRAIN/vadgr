@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
-## [0.4.8] - 2026-08-18
+## [0.4.8] - 2026-08-19
 
 ### Added
 - **The CLI is rewritten in Rust.** Every command keeps its name, its arguments
