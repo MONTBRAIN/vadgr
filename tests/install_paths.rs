@@ -149,3 +149,23 @@ fn no_interpreter_artefact_is_tracked_in_this_repository() {
         );
     }
 }
+
+#[test]
+fn the_mcp_example_names_the_installed_entry_point_not_an_interpreter() {
+    // The example is the one file allowed to mention the computer-use runtime,
+    // because that runtime is Python by design. It named a module inside this
+    // repository instead, launched through a virtual environment's interpreter,
+    // and that module moved to its own repository releases ago. An agent
+    // copying it got a server that cannot start.
+    let example = repo_file(".mcp.json.example");
+    assert!(
+        example.contains("vadgr-cua"),
+        "the example must name the installed entry point"
+    );
+    for stale in ["PYTHONPATH", "computer_use.mcp_server", "/bin/python"] {
+        assert!(
+            !example.contains(stale),
+            ".mcp.json.example still names {stale}, which no installation has"
+        );
+    }
+}

@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "vadgr-computer-use": {
+      "type": "stdio",
+      "command": "/path/to/vadgr-cua",
+      "args": ["--transport", "stdio"]
+    }
+  }
+}
