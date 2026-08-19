@@ -15,7 +15,7 @@ written and never run. The cross-cutting rules are in
 
 ## How a pass is run, before anything else in this file
 
-**These four rules come first because every one of them was learned by breaking
+**These five rules come first because every one of them was learned by breaking
 it. They hold on every supported operating system, for every agent that drives a
 runbook, and they are not negotiable against a deadline or a token budget.**
 
@@ -62,6 +62,20 @@ observing different code. Name the affected cells in the finding, mark them
 per-OS matrix which fix invalidated them. The host that made the fix re-runs
 them itself. The other hosts re-run them from the PR branch before merge. **No
 operating system inherits a result from a build that no longer exists.**
+
+**5. The evidence is pushed, not left on the machine that produced it.** The
+boundary directory is created before the first cell, each group files its output
+at its own boundary, and **the whole boundary is committed on a branch and
+opened as a pull request as part of the pass, not after somebody asks for it**.
+A pass whose evidence sits in a temporary directory on the host that ran it is a
+pass nobody can check: the numbers in the runbook have nothing behind them, the
+next host cannot compare its own record against yours, and the directory is one
+reboot from gone. Filing it is the last cell of every pass, and a report that
+says the pass is complete while the artifacts are still local is wrong about
+what complete means. This is written here because it happened: a full native
+Linux pass was reported as done with its runbook results pushed and 51 evidence
+files still in `/tmp`, and only the owner asking "evidence are pushed?" caught
+it.
 
 ## Scope exception - **delete this section unless you need it**
 
