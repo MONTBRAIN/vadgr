@@ -18,7 +18,7 @@ fn create_returns_the_row_the_table_now_holds() {
 
 #[test]
 fn the_list_is_newest_pairing_first() {
-    // The order the Python repository publishes and the phone's device list
+    // The order the repository publishes and the phone's device list
     // draws: `paired_at` descending.
     let db = Db::open(":memory:").unwrap();
     db.with(|c| {
@@ -35,10 +35,10 @@ fn the_list_is_newest_pairing_first() {
 }
 
 #[test]
-fn timestamps_are_written_in_the_shape_the_python_daemon_writes() {
+fn timestamps_are_written_in_the_shape_the_phone_parses() {
     // Both daemons read one set of rows during the migration; a column
     // holding two timestamp shapes is a parser bug waiting in whichever
-    // client reads it next. Python writes `datetime.now(timezone.utc)
+    // client reads it next. The shipped shape is `datetime.now(timezone.utc)
     // .isoformat()`: a `T` separator, microseconds, `+00:00`.
     let stamp = now_iso();
     assert_eq!(

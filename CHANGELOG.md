@@ -2,6 +2,58 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.4.9] - 2026-08-19
+
+**The cutover.** `vadgr` is one binary. The daemon that answers is the Rust one,
+the installation no longer carries an interpreter, and a machine's state lives
+where the platform says durable state lives instead of below the directory the
+daemon happened to start in.
+
+### Changed
+- **`vadgr start` launches the Rust daemon.** The default flips once, in a
+  release that contains nothing else.
+- **State moves to the platform's local-state root**, and the daemon consolidates
+  before it serves:
+
+  | platform | root |
+  |---|---|
+  | Linux and WSL | `$XDG_STATE_HOME/vadgr`, else `~/.local/state/vadgr` |
+  | macOS | `~/Library/Application Support/vadgr/state` |
+  | Windows | `%LOCALAPPDATA%\vadgr`, else `%USERPROFILE%\AppData\Local\vadgr` |
+
+  `vadgr.db`, `runs/` and `credentials/` live beneath it. **Nothing resolves
+  relative to the working directory any more**, so an installed daemon's database
+  no longer depends on which terminal started it. `VADGR_STATE_HOME`, `VADGR_DB`
+  and `VADGR_RUNS_DIR` remain exact overrides for tests and managed deployments.
+- **The installer installs a binary.** It sets up git and the Rust toolchain,
+  builds the release, and copies `vadgr` and `vadgr-daemon` into `~/.vadgr/bin`
+  only after the build succeeded, so a failed build leaves a working installation
+  exactly as it was. No interpreter, no virtual environments, no launcher script.
+- **`vadgr update` rebuilds the binary** rather than reinstalling dependencies.
+  `--check` reports how many commits are available and whether `Cargo.lock` moves.
+  The previous binary is moved aside rather than overwritten.
+- The default port is `8000`. The second port existed while two daemons ran side
+  by side.
+
+### Removed
+- **The Python daemon, CLI and engine**: 143 files, 17,330 lines. Parked on the
+  private attic repository with the history that reaches back through every
+  release they shipped in, so reviving any of it is a pull rather than a rewrite.
+- The `rust/` directory. It was a boundary between two languages, and one left.
+  The crate is at the repository root.
+
+### Upgrade notes
+- **Start the daemon once after upgrading and it consolidates your state.** Two
+  databases exist on any installation that ran through the side-by-side releases;
+  the surviving schema is a superset, so it is kept and the other contributes its
+  runs and devices.
+- **If it refuses, nothing has been moved.** Three cases refuse rather than
+  guess: the same run id in both databases, the same device id in both, or a
+  target directory that exists and is not this product's. Each says what it found
+  and what to do.
+- The old install root is `~/.forge`. After a successful start on the new
+  version, nothing reads it and it can be deleted.
+
 ## [0.4.8] - 2026-08-19
 
 ### Added

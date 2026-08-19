@@ -39,7 +39,7 @@ pub trait Transport: Send + Sync {
     fn status(&self) -> Value;
 }
 
-/// The Python launcher always keeps the local CLI address open. A live
+/// The launcher always keeps the local CLI address open. A live
 /// transport adds its address; an unavailable one leaves loopback working and
 /// makes pairing report the transport failure through its normal route.
 pub fn bind_hosts(transport: &dyn Transport) -> Vec<String> {

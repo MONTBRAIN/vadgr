@@ -27,7 +27,7 @@ fn the_buffer_is_capped_at_five_hundred() {
     assert_eq!(m.buffered_len("r1"), MAX_BUFFER);
     let (_rx, replay) = m.connect("r1");
     assert_eq!(replay.len(), MAX_BUFFER);
-    // The cap drops the newest, not the oldest, which is what the Python does:
+    // The cap drops the newest, not the oldest, which is the shipped behaviour:
     // it appends only while under the cap. Recorded because it is surprising
     // and because the frame counts would show it either way.
     assert_eq!(replay[MAX_BUFFER - 1]["seq"], (MAX_BUFFER - 1) as i64);

@@ -36,7 +36,7 @@ pub fn is_loopback(host: &str) -> bool {
 }
 
 /// The bearer token, however the client spelt the scheme. The scheme is
-/// case-insensitive and the split is on whitespace, both of which the Python
+/// case-insensitive and the split is on whitespace, both of which the shipped extractor
 /// extractor forgives; a port that only took `Bearer<space>` would turn a
 /// lowercase `bearer` into `MISSING_TOKEN` where the other daemon answers
 /// `INVALID_TOKEN`. A non-bearer authorization header is skipped, not a stop:

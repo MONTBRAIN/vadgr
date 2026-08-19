@@ -2,7 +2,7 @@
 //!
 //! The client is injected for exactly this: every branch of availability,
 //! addressing and peer authorization asserted with no tailscaled running.
-//! Each case is carried from the Python adapter's behaviour, not read back
+//! Each case is the behaviour the adapter shipped with, not read back
 //! off the Rust implementation.
 
 use serde_json::{Value, json};
@@ -120,7 +120,7 @@ fn the_v4_address_is_preferred_and_the_first_is_the_fallback() {
     });
     assert_eq!(t.bind_host().unwrap(), "100.64.0.9");
 
-    // No v4 at all: the first address stands in, exactly as the Python
+    // No v4 at all: the first address stands in, which is the shipped
     // adapter answers, rather than the transport reporting no address.
     let t = transport(FakeApi {
         status: running(&["fd7a::1234"], ""),

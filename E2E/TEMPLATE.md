@@ -221,9 +221,8 @@ Both surfaces are exercised and **neither substitutes for the other**:
 
 <Put the tested installation on `PATH`. Record `command -v vadgr` and prove its
 target is the exact PR head. Invoke `vadgr ...` in the terminal. The installed
-entry point may dispatch to Python during migration, but `python -m cli`, a
-product import, `cargo run` or a private function is not an e2e invocation. A
-helper may prepare state and capture or parse evidence. It must not replace the
+entry point is the installed binary; a product import, `cargo run` or a private
+function is not an e2e invocation. A helper may prepare state and capture or parse evidence. It must not replace the
 public CLI, drive the owner flow or choose the agent's actions.>
 
 <The agent CLI invocation you actually used, so a reader can repeat it. Use
@@ -492,8 +491,8 @@ is incomplete.>
 because on every runbook so far, the defects were in the seams the unit tests
 stop at.>
 
-- `PYTHONPATH=. python3 -m pytest engine/tests/ -q` -> **N passed**
-- `python3 -m pytest api/tests/ -q` -> **N passed**
+- `cargo test` -> **N passed**
+- `cargo clippy --all-targets -- -D warnings`, `cargo fmt --check` -> exit `0`
 
 ## Coverage
 
@@ -532,8 +531,9 @@ from that record. The recorder must not replace `vadgr`, drive the user flow or
 import product code. A hand-written table drifts from the run it describes.>
 
 <Before trusting the capture, verify that the installed `vadgr` command produced
-the CLI result and that direct public calls produced the wire result. A Python
-driver that invokes `python -m cli` is acceptance evidence, not e2e evidence.
+the CLI result and that direct public calls produced the wire result. A
+driver that invokes the product's own code rather than its installed command is
+acceptance evidence, not e2e evidence.
 Also reject an empty result or a CLI pointed at the wrong port. **Assert on
 output, not only exit codes.**>
 
@@ -670,7 +670,7 @@ actually driven on that OS.
 | installed product on the host | | | | | name `OS-L`, `OS-M`, `OS-W`, `OS-Q` |
 | **Overall** | | | | | |
 
-<Justify every `Not-Needed` in prose. "Pure Python, no socket/pipe/path/registry
+<Justify every `Not-Needed` in prose. "No socket, pipe, path or registry
 /process branching and no per-OS deps, so the other OSes cannot behave
 differently" is a reason. Silence is not, and neither is "it should be fine".
 

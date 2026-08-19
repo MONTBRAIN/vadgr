@@ -16,7 +16,7 @@ pub async fn get_computer_use(State(state): State<AppState>) -> Json<Value> {
     Json(state.computer_use_status.read().unwrap().clone())
 }
 
-/// Strict, like the Python body it mirrors: an undeclared field is a 422, not
+/// Strict, like every request body on this surface: an undeclared field is a 422, not
 /// silently dropped.
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]

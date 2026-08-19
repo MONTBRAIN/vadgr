@@ -6,7 +6,7 @@
 //! every one of them serialises through [`ApiError::into_response`].
 //!
 //! `details` is always present and defaults to `{}` - never omitted, never
-//! null. Python's `ErrorResponse` declares `details: dict = {}` and always
+//! null. The shipped envelope declares `details` as an object and always
 //! emits it, and a client reading `details` on a serialiser that drops empty
 //! maps is exactly the difference this release exists to rule out.
 
@@ -84,7 +84,7 @@ impl ApiError {
         )
     }
 
-    // The two gate messages are Python's, verbatim, and they are deliberately
+    // The two gate messages are the shipped wording, verbatim, and deliberately
     // the SAME string for both codes. Splitting them would read better and is
     // a contract change this release does not own: the codes carry
     // the difference, the message is prose, and a reader comparing the two

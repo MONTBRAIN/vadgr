@@ -2,7 +2,7 @@
 //!
 //! An unexplained status, code or field change stops the migration. The suite
 //! asserts `details` **present**
-//! rather than merely correct: Python declares `details: dict = {}` and always
+//! rather than merely correct: the envelope declares `details` as an object and always
 //! emits it, and a serialiser that drops empty maps is exactly the difference
 //! this release exists to rule out.
 
@@ -38,7 +38,7 @@ async fn the_envelope_has_exactly_three_keys_under_error() {
 }
 
 #[tokio::test]
-async fn every_code_carries_the_status_python_gives_it() {
+async fn every_code_carries_the_status_it_shipped_with() {
     // Read from api/routes/ rather than from the API reference: the sweep compares
     // against the daemon, and a right status with a wrong code is a defect it
     // would otherwise wave through.
@@ -94,7 +94,7 @@ async fn the_two_401s_stay_two_codes() {
 }
 
 #[tokio::test]
-async fn the_gate_messages_are_pythons_verbatim() {
+async fn the_gate_messages_are_verbatim() {
     // Messages are not contract - the codes are - so this is not the sweep's
     // stop condition. It is here because a gratuitous difference is one a
     // reader has to stop and explain, and the port has nothing to gain from it.

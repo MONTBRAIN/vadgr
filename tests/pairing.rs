@@ -1,6 +1,6 @@
 //! The pairing code: mint, redeem, the five-attempt cap, and the split verdicts.
 //!
-//! Every case here is carried from the Python behaviour before the Rust
+//! Every case here is the behaviour the phone was built against, before the
 //! implementation, not read back off it. A test written from the code it tests
 //! asserts that the code does what it does.
 
@@ -145,7 +145,7 @@ fn a_device_token_has_the_shape_token_urlsafe_produces() {
 
 #[test]
 fn only_the_hash_is_ever_storable_and_it_is_stable() {
-    // Same digest the Python side stores, so a device paired against one daemon
+    // The digest the phone stores, so a device paired against one daemon
     // authenticates against the other during the migration.
     assert_eq!(
         hash_token("hello"),

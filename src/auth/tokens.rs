@@ -82,7 +82,7 @@ pub fn hash_token(token: &str) -> String {
     let mut h = Sha256::new();
     h.update(token.as_bytes());
     // sha2 0.11 returns an array that does not implement LowerHex, so the hex
-    // digest is written here. It must stay lowercase and unpadded: the Python
+    // digest is written here. It must stay lowercase and unpadded: the phone's stored digest
     // daemon stores the same digest, and both daemons compare against one
     // devices table during the migration.
     h.finalize().iter().map(|b| format!("{b:02x}")).collect()

@@ -42,7 +42,7 @@ standard". Sweep before every push:
 
 ```bash
 grep -rn "\bCONTRACT\.md\|\bPLANS\.md\|\bARCHITECTURE\.md\|\bENGINEERING\.md\|\bMOBILE_DESIGN\.md\|vadgr-docs\|\bD-[0-9]" \
-  --include=*.py --include=*.md . | grep -v "\.venv\|AGENTS.md\|CLAUDE.md"
+  --include=*.rs --include=*.md --include=*.toml . | grep -v "AGENTS.md\|CLAUDE.md"
 ```
 
 **The exception, stated so it is not guessed at: this file and `AGENTS.md` name
@@ -591,19 +591,22 @@ offered.
 - **The e2e runbook lives at `E2E/<version>/e2e.md`**, starts from
   `E2E/TEMPLATE.md`, and its doctrine is `E2E/README.md`, all in this repo.
 
-The gate, all four suites, before offering anything:
+The gate, before offering anything:
 
 ```bash
-PYTHONPATH=. python3 -m pytest engine/tests/ -q     # 122
-python3 -m pytest api/tests/ -q                     # 429
-python3 -m pytest cli/tests/ -q                     # 141
-(cd rust && cargo test)                             # 109
+cargo test
+cargo clippy --all-targets -- -D warnings
+cargo fmt --check
+python3 -m pytest scripts/tests -q      # the repository's own gates
 ```
 
-The api and cli counts read `596` and `201` until `0.4.5`, which were their
-pre-deletion sizes: `0.4.4` removed the surfaces those tests covered and nobody
-moved the numbers. A count that is too high reads as a regression to whoever
-runs the suite next, which is the opposite of what it is for.
+**One suite, because there is one product.** Four separate counts lived here
+until `0.4.9` retired the tree they belonged to, and two of them were stale for
+five releases: they read `596` and `201` after `0.4.4` had deleted the surfaces
+those tests covered. A count that is too high reads as a regression to whoever
+runs the suite next, which is the opposite of what a count is for. **This is why
+the numbers are not written here any more**: `cargo test` prints its own, and a
+number in a document is a number nobody re-reads.
 
 One test process at a time wherever anything is shared - two overlapping runs
 look exactly like a hung suite. Runs with their own port, database and daemon

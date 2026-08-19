@@ -61,7 +61,7 @@ impl Db {
             }
             Connection::open(path)?
         };
-        // The same two pragmas the Python daemon sets on connect. WAL is the
+        // The two pragmas every connection sets. WAL is the
         // journal mode the migration's database copies assume (`VACUUM INTO`,
         // never `cp`), so the Rust daemon must not quietly write a different
         // one into a shared file.
@@ -89,7 +89,7 @@ impl Db {
     }
 }
 
-/// The one clock the repositories write with, shaped like the Python
+/// The one clock the repositories write with, shaped like the timestamp every client already parses
 /// daemon's: UTC, microseconds, `+00:00`. Both daemons read one set of rows
 /// during the migration, and a column holding two timestamp shapes is a
 /// parser bug waiting in whichever client reads it next.

@@ -32,7 +32,7 @@ Describe your work in a sentence. Vadgr runs it on your machine - writing code, 
 
 ## Install
 
-Works on **Linux**, **WSL**, and **Windows**. macOS support is in progress (running work locally works, computer use does not). The installer sets up everything: git, Python, dependencies, and the `vadgr` CLI. No Node.js and no browser: the machine's clients are this CLI and the phone app.
+Works on **Linux**, **WSL**, and **Windows**. macOS support is in progress (running work locally works, computer use does not). The installer sets up everything: git, the Rust toolchain, and the `vadgr` binaries. No Node.js and no browser: the machine's clients are this CLI and the phone app.
 
 ```bash
 # Linux / macOS / WSL
@@ -44,11 +44,9 @@ curl -fsSL https://raw.githubusercontent.com/MONTBRAIN/vadgr/master/setup.sh | b
 irm https://raw.githubusercontent.com/MONTBRAIN/vadgr/master/setup.ps1 | iex
 ```
 
-The still-default Python daemon runs work through `providers.yaml` until the
-`0.4.9` cutover. The side-by-side Rust daemon now owns additive OpenAI, Gemini
-and Anthropic connections, authenticated model catalogs and its machine
-default. It calls provider APIs directly and does not use an agent CLI as a
-model runtime.
+The daemon owns OpenAI, Gemini and Anthropic connections, their authenticated
+model catalogs and the machine default. It calls provider APIs directly and does
+not use an agent CLI as a model runtime.
 
 Restart your terminal, then:
 
@@ -130,21 +128,16 @@ graph LR
 
 ### The CLI
 
-Starts runs, watches them, and manages the daemon. Talks to the API over HTTP and to the run stream over a WebSocket.
+`vadgr` starts runs, watches them, pairs the phone and manages the daemon. It
+talks to the daemon over HTTP and to a run over a WebSocket, so it is a client
+like any other, with no private path in.
 
-**Rewritten in Rust at `0.4.8`**, in [rust/](rust/), with every command keeping its name, its arguments and its exit codes. Like the Rust daemon beside it, the new CLI is built from the checkout for now: the installer still puts the Python [cli/](cli/) on your `PATH`, and the swap happens at the `0.4.9` cutover.
+### The daemon
 
-### [api/](api/) - REST API + run lifecycle
-
-FastAPI backend: it takes a task, starts a run, drives the loop, and records the outcome. See [api/README.md](api/README.md).
-
-### [engine/](engine/) - The native agent loop
-
-The provider-agnostic loop that owns the conversation history, calls the model, dispatches tools, and journals every step to `~/.vadgr/runs/`.
-
-### [rust/](rust/) - The daemon, being rewritten
-
-The daemon is moving to Rust, and this crate runs **beside** the Python one on its own port and its own database until the cutover. **The `vadgr` CLI is already Rust, and lives here too.** `0.4.7` adds vadgr-owned provider onboarding, credentials, authenticated catalogs and direct OpenAI, Gemini and Anthropic adapters to the native loop, control plane, cua MCP host and durable recovery path. Until the cutover, the Python daemon is still the default product entry point. See [rust/README.md](rust/README.md).
+One binary. It serves the API the phone and the CLI both call, runs the loop,
+owns the MCP host and the cua connection, and writes an append-only journal per
+run so a killed machine resumes rather than restarts. Its state lives below the
+platform's local-state directory, never below the directory it was started from.
 
 ### Desktop Automation
 
@@ -154,29 +147,26 @@ The desktop-automation MCP server lives in its own repository: **[vadgr-computer
 
 ```
 Vadgr/
-├── cli/                   # The Python CLI, still installed, leaving at 0.4.9
-│   ├── main.py            # Root Click group and `vadgr run`
-│   ├── client.py          # HTTP client for the API
-│   ├── stream.py          # The run watcher
-│   ├── commands/          # runs, info, pair, service
-│   └── tests/             # Unit + integration tests
-├── api/                   # REST API + run lifecycle
-│   ├── main.py            # FastAPI app
+├── Cargo.toml             # The crate: one daemon, one CLI
+├── src/
+│   ├── main.rs            # The daemon
+│   ├── cli/               # The `vadgr` command
+│   ├── config.rs          # Where a machine's state lives, decided in one place
+│   ├── migrate.rs         # Bringing older state to that root, before serving
 │   ├── routes/            # HTTP endpoints and the two sockets
-│   ├── services/          # Run lifecycle, computer-use setup
-│   ├── engine/            # Provider selection and the native bridge
+│   ├── engine/            # The loop, its journal, providers and the MCP host
 │   ├── auth/              # Pairing and the two gates
-│   ├── transport/         # Loopback and Tailscale adapters
-│   └── persistence/       # SQLite database
-├── engine/                # The native agent loop and its journal
-├── rust/                  # The CLI, and the daemon being rewritten in Rust (see rust/README.md)
-├── E2E/                   # One runbook per release, and its evidence
-# Desktop automation lives in:
-# https://github.com/MONTBRAIN/vadgr-computer-use
-# (installed via `pip install vadgr-computer-use` when enabled)
-├── providers.yaml         # Provider configs and the machine default
-└── data/                  # SQLite database (created at runtime)
+│   ├── db/                # SQLite schema and repositories
+│   └── transport/         # Loopback and Tailscale adapters
+├── tests/                 # Integration tests
+├── E2E/                   # One runbook per release, and its harness
+├── setup.sh, setup.ps1    # The installer
+└── scripts/               # The repository's own gates
 ```
+
+Desktop automation lives in its own repository,
+[vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use), and is
+installed as a package when computer use is enabled.
 
 ## Technologies
 
@@ -186,12 +176,11 @@ Vadgr/
 
 |  | Technology | Version | Role |
 |:---:|:---:|:---:|:---|
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg" width="25" /> | FastAPI | 0.115 | Web framework |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" width="25" /> | Python | 3.12 | Runtime language |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sqlite/sqlite-original.svg" width="25" /> | SQLite | 3 | Relational database |
-| <img src="https://cdn.simpleicons.org/pydantic/E92063" width="28" /> | Pydantic | 2.10 | Data validation |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/socketio/socketio-original.svg" width="25" /> | WebSockets | 14.0 | Real-time communication |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pytest/pytest-original.svg" width="25" /> | pytest | 8.0 | Testing framework |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/rust/rust-original.svg" width="25" /> | Rust | 2021 | Runtime language |
+| <img src="https://cdn.simpleicons.org/rust/000000" width="25" /> | axum | 0.8 | HTTP and WebSocket layer |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sqlite/sqlite-original.svg" width="25" /> | SQLite | 3 | Relational database, bundled |
+| <img src="https://cdn.simpleicons.org/rust/000000" width="25" /> | tokio | 1 | Async runtime |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/socketio/socketio-original.svg" width="25" /> | WebSockets | - | Real-time communication |
 
 </div>
 
@@ -201,8 +190,6 @@ Vadgr/
 
 |  | Technology | Version | Role |
 |:---:|:---:|:---:|:---|
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" width="25" /> | Pillow | 10.0 | Image processing |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-plain.svg" width="25" /> | mss | 9.0 | Screenshot capture |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/anthropic/white"><img src="https://cdn.simpleicons.org/anthropic/black" width="25" alt="Anthropic Logo"></picture> | MCP | 2.x | Standardized tool interface |
 
 </div>

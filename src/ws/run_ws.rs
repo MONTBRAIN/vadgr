@@ -70,7 +70,7 @@ fn authorize(
 }
 
 /// Query token first, `Authorization: Bearer` as the fallback - the same two
-/// places the Python routes look, in the same order.
+/// places a client may have put it, in that order.
 fn token_from(auth: &WsAuth, headers: &HeaderMap) -> Option<String> {
     auth.token.clone().or_else(|| gate::extract_bearer(headers))
 }
@@ -109,7 +109,7 @@ fn refusal_response(ws: WebSocketUpgrade, error: AdmissionError) -> Response {
 }
 
 /// The on-box stream the CLI watches: internal events, verbatim. Send-only,
-/// like the Python route: answering a gate is `POST`, never a socket frame.
+/// answering a gate is `POST`, never a socket frame.
 pub async fn run_websocket(
     ws: WebSocketUpgrade,
     State(state): State<AppState>,
@@ -218,7 +218,7 @@ pub fn to_run_event(internal: &Value) -> Option<Value> {
         return None;
     };
     // The broadcast's own timestamp when it carries a well-formed one, the
-    // clock otherwise - the Python translator's exact fallback.
+    // clock otherwise - the translator's fallback.
     let timestamp = internal
         .get("timestamp")
         .and_then(|v| v.as_str())
@@ -284,7 +284,7 @@ async fn pump(
                         }
                     }
                     // Lagged means this client fell far enough behind that the
-                    // channel dropped frames for it. Python's sequential send
+                    // channel dropped frames for it. A sequential send
                     // delays every other subscriber instead; both are the
                     // buffer's consequence and 0.6.0 reshapes it.
                     Err(broadcast::error::RecvError::Lagged(_)) => continue,
@@ -293,7 +293,7 @@ async fn pump(
             }
             _ = revoked.recv() => {
                 // The device was just unpaired. Close now, with the same close
-                // the Python manager sends, rather than streaming on until the
+                // the manager sends, rather than streaming on until the
                 // next reconnect fails the gate.
                 let _ = socket
                     .send(Message::Close(Some(CloseFrame {

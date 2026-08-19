@@ -1,8 +1,8 @@
 //! Daemon-owned computer-use state.
 //!
-//! The Python service configured external agent CLIs. The native loop owns its
-//! MCP host, so this service writes only vadgr's settings and never edits a
-//! project file or another program's global configuration.
+//! **This service writes only vadgr's own settings.** It never edits a project
+//! file or another program's global configuration: the loop owns its MCP host,
+//! so nothing outside this machine's state needs to know computer use is on.
 
 use crate::platform;
 use anyhow::{Context, Result, bail};
@@ -61,7 +61,7 @@ impl SetupService {
         Ok(json!({
             "enabled": self.read_enabled()?.unwrap_or(self.default_enabled),
             // This wire key is kept for the released CLI. It means that a cua
-            // runtime can be mounted, not that vadgr owns a Python virtualenv.
+            // runtime can be mounted, not that vadgr owns the environment it lives in.
             "venv_ready": self.runtime_path.is_some(),
             "daemon": Value::Null,
             "platform": platform::computer_use_platform(),

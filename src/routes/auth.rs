@@ -52,7 +52,7 @@ pub async fn pair(State(state): State<AppState>) -> ApiResult<Json<Value>> {
     })))
 }
 
-/// Strict, like every Python request body: an undeclared field is a 422, not
+/// Strict, like every request body on this surface: an undeclared field is a 422, not
 /// silently dropped, so a typo or a stale field announces itself.
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]

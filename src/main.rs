@@ -1,9 +1,8 @@
 //! `vadgr 0.4.7` - the Rust daemon with provider onboarding.
 //!
-//! The third Rust release. It runs
-//! **beside** the Python daemon on its own port and its own database for five
-//! releases; that is what "strangler" means, and it is what keeps every step
-//! reversible.
+//! **The daemon, and now the only one.** It was built beside the daemon it
+//! replaced, on its own port and its own database, for five releases; that is
+//! what kept every step reversible. `0.4.9` retired the other one.
 //!
 // The modules live in the library (`lib.rs`) and the binary uses them from
 // there rather than declaring them a second time. Declaring both compiles every

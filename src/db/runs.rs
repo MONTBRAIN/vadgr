@@ -39,7 +39,7 @@ const COLS: &str =
 pub fn list_all(db: &Db, status: Option<&str>) -> rusqlite::Result<Vec<Value>> {
     db.with(|c| {
         // Ordered by `started_at` descending with nulls last, which is what the
-        // Python repository does: a queued run has no `started_at` and belongs
+        // The shipped rule: a queued run has no `started_at` and belongs
         // nearest the composer rather than at the top of the list.
         let sql = match status {
             Some(_) => format!(
@@ -146,7 +146,7 @@ pub fn update_status(db: &Db, run_id: &str, status: &str) -> rusqlite::Result<Op
     db.with(|c| {
         match status {
             // COALESCE so a resume never rewrites when the run first started:
-            // the Python repository stamps `started_at` exactly once.
+            // `started_at` is stamped exactly once.
             "running" => c.execute(
                 "UPDATE runs SET status = ?1, started_at = COALESCE(started_at, ?2) WHERE id = ?3",
                 rusqlite::params![status, now, run_id],

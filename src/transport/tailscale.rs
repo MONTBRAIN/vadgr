@@ -349,7 +349,7 @@ impl<A: LocalApi> Transport for TailscaleTransport<A> {
             return false;
         };
         // `BackendState == "Running"` means up and logged in. A missing field
-        // is treated as running, which is what the Python does.
+        // is treated as running, which is the shipped behaviour.
         match s.get("BackendState") {
             None | Some(Value::Null) => {}
             Some(state) if state.as_str() == Some("Running") => {}

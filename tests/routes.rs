@@ -301,7 +301,7 @@ async fn a_paired_device_reaches_the_route() {
 }
 
 #[tokio::test]
-async fn the_bearer_scheme_is_case_insensitive_like_the_python_extractor() {
+async fn the_bearer_scheme_is_case_insensitive() {
     // `bearer x` is a presented token, not an absent one. A port that only
     // took `Bearer<space>` would answer MISSING_TOKEN where the other daemon
     // answers INVALID_TOKEN, and the phone reads those as different failures.
@@ -342,7 +342,7 @@ fn get_with_scheme(path: &str, scheme: &str, token: &str) -> Request<Body> {
 
 #[tokio::test]
 async fn a_claim_body_with_an_undeclared_field_is_a_422() {
-    // Python bodies are strict: a typo or a stale field announces itself
+    // Bodies are strict: a typo or a stale field announces itself
     // instead of being silently dropped.
     let state = state_with(Box::new(EveryoneIsAPeer));
     let claim = Request::builder()
@@ -363,7 +363,7 @@ async fn a_claim_body_with_an_undeclared_field_is_a_422() {
 }
 
 #[tokio::test]
-async fn malformed_json_and_a_missing_content_type_are_422_like_python() {
+async fn malformed_json_and_a_missing_content_type_are_422() {
     for claim in [
         Request::builder()
             .method("POST")
@@ -384,7 +384,7 @@ async fn malformed_json_and_a_missing_content_type_are_422_like_python() {
 }
 
 #[tokio::test]
-async fn the_settings_read_returns_the_python_status_shape() {
+async fn the_settings_read_returns_the_shipped_status_shape() {
     let (status, body) = send(
         state_with(Box::new(LoopbackTransport)),
         get("/api/settings/computer-use"),

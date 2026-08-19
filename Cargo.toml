@@ -1,6 +1,6 @@
 [package]
 name = "vadgr-daemon"
-version = "0.4.8"
+version = "0.4.9"
 edition = "2024"
 description = "The vadgr machine daemon"
 
@@ -36,7 +36,7 @@ tokio-tungstenite = { version = "0.30", features = ["rustls-tls-webpki-roots"] }
 anstyle = "1.0"
 clap = { version = "4.6", features = ["derive", "env"] }
 # The two tables the CLI draws are padded columns with no box, which is the
-# shape the Python CLI shipped. `unicode-width` is what makes a wide character
+# shape this CLI has always drawn. `unicode-width` is what makes a wide character
 # and a coloured status land in the right column; it arrived with comfy-table
 # before, so this is a swap that removes a dependency rather than adding one.
 unicode-width = "0.2"

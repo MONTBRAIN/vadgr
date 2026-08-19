@@ -28,7 +28,7 @@ const COLS: &str = "id, machine_name, paired_at, last_seen";
 
 pub fn list_all(db: &Db) -> rusqlite::Result<Vec<Value>> {
     db.with(|c| {
-        // Newest pairing first, which is the order the Python repository
+        // Newest pairing first, which is the order the phone
         // publishes and the order the phone's device list draws.
         let mut stmt = c.prepare(&format!(
             "SELECT {COLS} FROM devices ORDER BY paired_at DESC"
@@ -88,7 +88,7 @@ pub fn create(db: &Db, machine_name: &str, token_hash: &str) -> rusqlite::Result
         )?;
         Ok(())
     })?;
-    // Read the row back rather than echoing the arguments, like the Python
+    // Read the row back rather than echoing the arguments, rather than the arguments, because a default or a trigger
     // repository: what the caller gets is what the table now says.
     Ok(get(db, &id)?.expect("the row just inserted exists"))
 }
