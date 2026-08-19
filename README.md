@@ -103,12 +103,6 @@ stops watching and leaves the run going.
 | `vadgr model list` | List models from every connected provider |
 | `vadgr model default [provider/model]` | Live-test and set the machine default |
 
-### Manual setup
-
-If you prefer to set things up manually, see [api/README.md](api/README.md) and [cli/README.md](cli/README.md).
-
-Provider parser families and real sample log lines are documented in [PROVIDER_PARSER_GUIDE.md](PROVIDER_PARSER_GUIDE.md).
-
 ## Architecture
 
 ```mermaid

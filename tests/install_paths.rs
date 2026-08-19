@@ -73,3 +73,37 @@ fn nothing_shipped_still_carries_the_repositorys_former_name() {
         "the consolidation still has to find the departing database"
     );
 }
+
+#[test]
+fn every_relative_link_in_the_readme_resolves() {
+    // The README outlived three of its own links: two pointed at the Python
+    // tree's own READMEs and one at a guide for a provider format the product
+    // stopped reading. Nothing failed, so nobody noticed until the files were
+    // counted.
+    let readme = repo_file("README.md");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let mut seen = 0;
+    let mut rest = readme.as_str();
+    while let Some(open) = rest.find("](") {
+        let after = &rest[open + 2..];
+        let Some(close) = after.find(')') else { break };
+        let target = &after[..close];
+        rest = &after[close..];
+        seen += 1;
+        if target.starts_with("http") || target.starts_with('#') || target.is_empty() {
+            continue;
+        }
+        let file = target.split('#').next().unwrap_or(target);
+        if file.is_empty() {
+            continue;
+        }
+        assert!(
+            root.join(file).exists(),
+            "README.md links to {file}, which is not in the repository"
+        );
+    }
+    // The README carries no relative link today, and that is allowed. What is
+    // not allowed is this test reading nothing and reporting success, so it
+    // proves it parsed the links it did find.
+    assert!(seen > 0, "no links were parsed out of README.md at all");
+}
