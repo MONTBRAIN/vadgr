@@ -45,7 +45,7 @@ async fn background_json_output_is_parseable_on_its_own() {
     // above from ever being polled, and the CLI would time out against a server
     // that never got to answer.
     let out = tokio::task::spawn_blocking(move || {
-        Command::new(env!("CARGO_BIN_EXE_vadgr-cli"))
+        Command::new(env!("CARGO_BIN_EXE_vadgr"))
             .args(["run", "a task", "--background", "--json"])
             .env("VADGR_HOME", &home)
             .env("VADGR_API_URL", &base_url)

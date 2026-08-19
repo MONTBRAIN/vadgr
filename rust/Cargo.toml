@@ -16,8 +16,10 @@ path = "src/main.rs"
 # `transport` directly. That is what turns `service.py`'s cross-package import of
 # `api.transport` into a shared module instead of a duplicated address
 # computation.
+# The command a person types is `vadgr`, so that is what the crate builds. It was
+# `vadgr-cli` while a launcher script owned the name; nothing owns it now.
 [[bin]]
-name = "vadgr-cli"
+name = "vadgr"
 path = "src/cli/main.rs"
 
 [dependencies]

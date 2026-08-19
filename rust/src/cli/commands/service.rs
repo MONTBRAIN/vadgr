@@ -231,24 +231,53 @@ async fn wait_for_api(port: u16) -> bool {
     false
 }
 
-/// The interpreter inside the daemon's own virtual environment.
-fn api_python() -> Result<PathBuf, CliError> {
-    let repo = vadgr_repo();
-    let path = if cfg!(windows) {
-        repo.join("api")
-            .join(".venv")
-            .join("Scripts")
-            .join("python.exe")
-    } else {
-        repo.join("api").join(".venv").join("bin").join("python")
-    };
-    if !path.exists() {
-        return Err(CliError::Failed(format!(
-            "API venv not found at {}. Run setup first.",
-            path.display()
-        )));
+/// The daemon this CLI starts.
+///
+/// **Beside the CLI first, then on `PATH`.** An installation puts both binaries
+/// in one directory, and finding the daemon next to the command that starts it
+/// is what keeps two installations on one machine from starting each other's
+/// daemon. `VADGR_DAEMON` overrides it exactly, which is how a development tree
+/// runs a build from `target/`.
+fn daemon_binary() -> Result<PathBuf, CliError> {
+    if let Some(explicit) = std::env::var_os("VADGR_DAEMON") {
+        let path = PathBuf::from(explicit);
+        if !path.exists() {
+            return Err(CliError::Failed(format!(
+                "VADGR_DAEMON names {}, which does not exist.",
+                path.display()
+            )));
+        }
+        return Ok(path);
     }
-    Ok(path)
+
+    let name = if cfg!(windows) {
+        "vadgr-daemon.exe"
+    } else {
+        "vadgr-daemon"
+    };
+    if let Some(beside) = std::env::current_exe()
+        .ok()
+        .and_then(|exe| exe.parent().map(|dir| dir.join(name)))
+        .filter(|path| path.exists())
+    {
+        return Ok(beside);
+    }
+
+    which(name).ok_or_else(|| {
+        CliError::Failed(format!(
+            "{name} was not found beside this command or on PATH. Reinstall, or \
+             set VADGR_DAEMON to the binary you want started."
+        ))
+    })
+}
+
+/// The first `name` on `PATH`, without a crate for it.
+fn which(name: &str) -> Option<PathBuf> {
+    std::env::var_os("PATH").and_then(|paths| {
+        std::env::split_paths(&paths)
+            .map(|dir| dir.join(name))
+            .find(|path| path.exists())
+    })
 }
 
 /// The addresses the daemon binds.
@@ -339,15 +368,15 @@ pub async fn start(api_port: Option<u16>) -> Result<(), CliError> {
         .try_clone()
         .map_err(|e| CliError::Failed(format!("Could not open {}: {e}", log_path.display())))?;
 
-    let mut command = Command::new(api_python()?);
-    command.args(["-m", "api.serve"]);
+    let mut command = Command::new(daemon_binary()?);
     for host in &bind_hosts {
         command.args(["--host", host]);
     }
+    // **No working directory is set on purpose.** The daemon resolves its state
+    // from the platform root, so where it is started from decides nothing, and
+    // passing a directory here would suggest otherwise.
     command
         .args(["--port", &port.to_string()])
-        .current_dir(vadgr_repo())
-        .env("PYTHONPATH", vadgr_repo())
         .env("VADGR_PORT", port.to_string())
         .stdin(Stdio::null())
         .stdout(Stdio::from(log))
@@ -575,18 +604,6 @@ pub async fn logs(service: &str, follow: bool, lines: usize) -> Result<(), CliEr
         }
     }
 }
-
-fn file_hash(path: &Path) -> Option<String> {
-    use sha2::{Digest, Sha256};
-    let bytes = std::fs::read(path).ok()?;
-    Some(
-        Sha256::digest(&bytes)
-            .iter()
-            .map(|byte| format!("{byte:02x}"))
-            .collect(),
-    )
-}
-
 fn git(repo: &Path, args: &[&str]) -> Result<std::process::Output, CliError> {
     Command::new("git")
         .args(args)
@@ -595,17 +612,21 @@ fn git(repo: &Path, args: &[&str]) -> Result<std::process::Output, CliError> {
         .map_err(|e| CliError::Failed(format!("Could not run git: {e}")))
 }
 
-/// `vadgr update`, with the check path the runbook has been blocked on.
+/// `vadgr update`: bring the checkout forward and rebuild the binary.
 ///
-/// `S12f` and `F21` are blocked on every platform in `0.4.7`'s runbook for one
-/// reason: the only way to test `update` was to run it, and running it changes
-/// the installation the rest of the pass is measuring. `--check` answers the
-/// same question and changes nothing, so the cell becomes runnable.
+/// `--check` reports what an update would do and changes nothing, which is what
+/// makes the runbook cells for this command runnable at all: before it existed,
+/// the only way to test `update` was to run it, and running it changes the
+/// installation the rest of the pass is measuring.
+///
+/// The product is one binary now, so an update is a pull and a build rather than
+/// a pull and two dependency installs.
 pub async fn update(check: bool) -> Result<(), CliError> {
     let repo = vadgr_repo();
     if !repo.join(".git").exists() {
         return Err(CliError::Failed(format!(
-            "{} is not a git checkout, so it cannot be updated.",
+            "{} is not a git checkout, so it cannot be updated. Reinstall with the \
+             installer instead.",
             repo.display()
         )));
     }
@@ -637,6 +658,8 @@ pub async fn update(check: bool) -> Result<(), CliError> {
                 "{count} commit(s) available. Run 'vadgr update' to apply them."
             ))
         );
+        // What a person actually wants to know before rebuilding: whether the
+        // dependency set moves, because that is the slow half of the build.
         let names = git(
             &repo,
             &[
@@ -644,23 +667,16 @@ pub async fn update(check: bool) -> Result<(), CliError> {
                 "--name-only",
                 "HEAD..origin/master",
                 "--",
-                "api/requirements.txt",
-                "cli/requirements.txt",
+                "Cargo.lock",
             ],
         )?;
-        let changed = String::from_utf8_lossy(&names.stdout);
-        for line in changed.lines().filter(|l| !l.trim().is_empty()) {
-            anstream::println!("  dependencies change: {line}");
+        if !String::from_utf8_lossy(&names.stdout).trim().is_empty() {
+            anstream::println!("  dependencies change: Cargo.lock");
         }
         return Ok(());
     }
 
     anstream::println!("{}", output::info("Updating vadgr..."));
-    let api_req = repo.join("api").join("requirements.txt");
-    let cli_req = repo.join("cli").join("requirements.txt");
-    let old_api = file_hash(&api_req);
-    let old_cli = file_hash(&cli_req);
-
     let pulled = git(&repo, &["pull", "--ff-only", "origin", "master"])?;
     if !pulled.status.success() {
         anstream::println!(
@@ -674,17 +690,36 @@ pub async fn update(check: bool) -> Result<(), CliError> {
     }
     anstream::println!("{}", String::from_utf8_lossy(&pulled.stdout).trim());
 
-    if file_hash(&api_req) != old_api {
-        anstream::println!("{}", output::info("API deps changed, reinstalling..."));
-        install_requirements(&repo.join("api"), &api_req)?;
-    }
-    if file_hash(&cli_req) != old_cli {
-        anstream::println!("{}", output::info("CLI deps changed, reinstalling..."));
-        install_requirements(&repo.join("cli"), &cli_req)?;
+    anstream::println!("{}", output::info("Building the release binaries..."));
+    let built = Command::new("cargo")
+        .args(["build", "--locked", "--release", "--bins"])
+        .current_dir(&repo)
+        .status()
+        .map_err(|e| {
+            CliError::Failed(format!(
+                "Could not run cargo: {e}. An update from a checkout needs the Rust \
+                 toolchain the installer set up."
+            ))
+        })?;
+    if !built.success() {
+        return Err(CliError::Failed(
+            "The build failed, so nothing was replaced. The installation you had is \
+             still the one on PATH."
+                .to_owned(),
+        ));
     }
 
+    // **Nothing is copied over the running installation until the build passed.**
+    // A half-replaced binary is an installation that neither starts nor rolls
+    // back.
+    let installed = install_binaries(&repo)?;
+    anstream::println!(
+        "{}",
+        output::success(&format!("Updated {installed} binary/binaries."))
+    );
+
     if read_pid("api").is_some() {
-        anstream::println!("{}", output::info("Restarting services..."));
+        anstream::println!("{}", output::info("The daemon is running the old build."));
         anstream::println!("Run 'vadgr restart' to apply changes.");
     } else {
         anstream::println!(
@@ -695,29 +730,51 @@ pub async fn update(check: bool) -> Result<(), CliError> {
     Ok(())
 }
 
-fn install_requirements(package: &Path, requirements: &Path) -> Result<(), CliError> {
-    let pip = if cfg!(windows) {
-        package.join(".venv").join("Scripts").join("pip.exe")
-    } else {
-        package.join(".venv").join("bin").join("pip")
-    };
-    if !pip.exists() {
-        return Err(CliError::Failed(format!(
-            "pip not found at {}. Run setup first.",
-            pip.display()
-        )));
+/// Copy the freshly built binaries beside the command that is running.
+///
+/// Beside, rather than to a remembered install path: the command a person typed
+/// is by definition the installation they are updating.
+fn install_binaries(repo: &Path) -> Result<usize, CliError> {
+    let target = std::env::current_exe()
+        .ok()
+        .and_then(|exe| exe.parent().map(Path::to_path_buf))
+        .ok_or_else(|| {
+            CliError::Failed("Could not work out where this command is installed.".to_owned())
+        })?;
+    let suffix = if cfg!(windows) { ".exe" } else { "" };
+    let mut installed = 0;
+    for name in ["vadgr", "vadgr-daemon"] {
+        let built = repo
+            .join("target")
+            .join("release")
+            .join(format!("{name}{suffix}"));
+        if !built.exists() {
+            continue;
+        }
+        // A running binary cannot be overwritten on Windows, and can be on Unix,
+        // so the old one is moved aside first on both. One code path, and the
+        // aside copy is what a failed update is rolled back from.
+        let destination = target.join(format!("{name}{suffix}"));
+        if destination.exists() {
+            let aside = target.join(format!("{name}{suffix}.previous"));
+            let _ = std::fs::remove_file(&aside);
+            std::fs::rename(&destination, &aside).map_err(|e| {
+                CliError::Failed(format!(
+                    "Could not move {} aside: {e}. Nothing was replaced.",
+                    destination.display()
+                ))
+            })?;
+        }
+        std::fs::copy(&built, &destination).map_err(|e| {
+            CliError::Failed(format!(
+                "Could not install {}: {e}. The previous binary is beside it as \
+                 {name}{suffix}.previous.",
+                destination.display()
+            ))
+        })?;
+        installed += 1;
     }
-    let status = Command::new(pip)
-        .args(["install", "-q", "-r"])
-        .arg(requirements)
-        .status()
-        .map_err(|e| CliError::Failed(format!("Could not run pip: {e}")))?;
-    if !status.success() {
-        return Err(CliError::Failed(
-            "Reinstalling dependencies failed.".to_owned(),
-        ));
-    }
-    Ok(())
+    Ok(installed)
 }
 
 #[cfg(test)]

@@ -23,7 +23,7 @@ fn run(args: &[&str]) -> std::process::Output {
     // The CLI reads a running daemon's port file before the environment, so the
     // home is isolated or these tests would find a real daemon.
     let home = std::env::temp_dir().join(format!("vadgr-argv-test-{}", std::process::id()));
-    let mut command = Command::new(env!("CARGO_BIN_EXE_vadgr-cli"));
+    let mut command = Command::new(env!("CARGO_BIN_EXE_vadgr"));
     command
         .args(args)
         .env("VADGR_HOME", &home)

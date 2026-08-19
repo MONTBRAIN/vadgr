@@ -23,7 +23,7 @@ const DEAD_PORT: &str = "59999";
 /// whatever daemon the developer happens to be running.
 fn isolated(args: &[&str]) -> std::process::Output {
     let home = std::env::temp_dir().join(format!("vadgr-cli-test-{}", std::process::id()));
-    Command::new(env!("CARGO_BIN_EXE_vadgr-cli"))
+    Command::new(env!("CARGO_BIN_EXE_vadgr"))
         .args(args)
         .env("VADGR_HOME", &home)
         .env("VADGR_PORT", DEAD_PORT)
