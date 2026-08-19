@@ -4,8 +4,8 @@
 now demonstrably true that was not before.>
 
 > **Status: <not started | partially run on \<OS\>, \<date\> | run on \<OS\>, \<date\>>.**
-> Automated gate <green/red> (engine N, api N). <Which parts pass, which are
-> open.> **N findings**, listed below. Nothing is marked pass that was not
+> Automated gate <green/red> (engine N, api N), **and the pull request's own
+> checks finished and read**. <Which parts pass, which are open.> **N findings**, listed below. Nothing is marked pass that was not
 > executed and read back.
 > The header, the coverage counters and the per-OS table are re-read against
 > the cell marks before the runbook is offered: a file that says `not started`
@@ -548,6 +548,21 @@ stop at.>
 
 - `cargo test` -> **N passed**
 - `cargo clippy --all-targets -- -D warnings`, `cargo fmt --check` -> exit `0`
+
+**The gate is not green until the pull request's checks have finished.** The
+suites above ran on one machine, the one the pass was driven on. The pull
+request runs them on **every operating system in the matrix**, and those are the
+machines nobody looked at. **A pass is not closed and a pull request is not
+offered for review while a check is still running.** Waiting costs minutes; a
+release announced green over a check still running is a claim about machines
+nobody read.
+
+So the last step of a pass is to watch the checks to completion, record their
+result here beside the local ones, and only then call the pass closed. A red
+check is a finding like any other: it is fixed and the cells it invalidates are
+run again, or it is written down with its reason. This is here because a `0.4.9`
+pull request was offered as finished while its Windows job was still running,
+and that job went red.
 
 ## Coverage
 

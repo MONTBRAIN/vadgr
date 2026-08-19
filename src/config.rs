@@ -310,7 +310,17 @@ mod tests {
     fn no_default_is_relative_to_the_working_directory() {
         let paths = Paths::resolve(&env(&[("HOME", "/home/o")]), Layout::Unix).unwrap();
         for path in [&paths.root, &paths.db, &paths.runs, &paths.credentials] {
-            assert!(path.is_absolute(), "{} is not absolute", path.display());
+            // The layout's own rule, not the host's. `Path::is_absolute` answers
+            // for the machine running the test, so a Unix path checked that way
+            // reads as relative on Windows and this test failed there while
+            // passing everywhere else. The resolver already has the check that
+            // asks the right question, ten lines above the comment warning
+            // about this exact hazard.
+            assert!(
+                is_absolute_for(path, Layout::Unix),
+                "{} is not absolute for a Unix layout",
+                path.display()
+            );
         }
         assert_eq!(paths.db, Path::new("/home/o/.local/state/vadgr/vadgr.db"));
         assert_eq!(paths.runs, Path::new("/home/o/.local/state/vadgr/runs"));
