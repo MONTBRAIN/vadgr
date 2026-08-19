@@ -357,12 +357,35 @@ never deleted.
 **The cutover changes the thing on the other end of the wire**, so the surviving
 handheld cells are spent again. The oracle is the daemon, never the screen.
 
+**Two people, and the tester is told what to do, never left to infer it.** The
+operator drives the machine and reads the daemon; the tester holds the phone and
+does only what the cell tells them, in the order it tells them. A handheld cell
+that says "the owner opens the app" and stops has not been written: the person
+holding the phone cannot see the daemon, the transport or the state, so every
+tap, every toggle and every prerequisite on the device is spelled out.
+
+**Before any cell in this part, the operator reads this aloud and the tester
+does it:**
+
+1. **Turn Tailscale on, on the phone**, and confirm it is connected to the same
+   tailnet as the machine. The daemon advertises a `*.ts.net` address and binds
+   only the tailnet interface, so a handset on plain wifi or mobile data reaches
+   nothing and every cell below fails for a reason that has nothing to do with
+   the product. This is the step the `0.4.9` pass forgot to say out loud.
+2. Open the Vadgr app.
+3. Confirm the phone is not already paired to this machine. If it is, remove the
+   machine in the app first: `H2` claims a fresh code and a paired handset skips
+   the screen under test.
+
+The operator states the tailnet address and the code with each cell; the tester
+never types an address the operator did not give them.
+
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| H1 | a paired handset, the daemon on the tailnet | the owner opens the app | the machine appears with its name and reports healthy | the daemon's request log, the app's machine row | none | |
-| H2 | as H1, unpaired | the owner scans a fresh QR | `POST /api/auth/claim` answers `200` and a device row appears | the log line, `GET /api/devices` | the device is removed | |
-| H3 | as H1, a provider connected | the owner starts a run from the phone | the run appears and reaches a terminal state, watched from the phone | the run row, the journal, the socket frames | none | |
-| H4 | as H3 | the owner reads the run back in the app | the app shows the same status the API serves | both, side by side | none | |
+| H1 | `H2` done, so the handset is paired; Tailscale still on | **tester**: open the app, then open the machine's row | the app names the machine `Santiago-Casa` and shows it healthy; the daemon's request log holds the app's `GET /api/health` from the tailnet address, not from loopback | the daemon's request log lines with their source address, the app's machine row | none | |
+| H2 | Tailscale on and connected on the phone; the app open; this machine not already paired; the operator has just run `vadgr pair` and can see the QR | **tester**: tap Add machine, scan the QR the operator is showing, or type the code exactly as printed including the hyphen | `POST /api/auth/claim` answers `200` in the request log and a device row appears in `GET /api/devices`; the app shows the machine by name | the log line, the device row, the app's machine list | `H4` keeps the device; the operator revokes it at the end of the part | |
+| H3 | `H1` done; a provider connected and a default model set | **tester**: start a new run from the phone and give it a task that needs the screen, for example `Take one screenshot and tell me in five words what you see`, then leave the run open and watch it | the run row appears in `GET /api/runs` within seconds and reaches a terminal state; the journal under the state root's `runs/<id>/` grows; the phone's socket carries `started`, `tool_call`, `output` and `completed` frames | the run row over time, the journal file, the frame record | none | |
+| H4 | `H3` finished | **tester**: leave the run, return to the run list, open the same run again, and read out its status and its result text | the status the app shows equals the status `GET /api/runs/<id>` serves at the same moment, and the result text matches the run's stored `outputs.result` | the tester's spoken status and the API body, captured together with the time | the operator revokes the device: `DELETE /api/devices/<id>` | |
 
 ## Part I: the installer, the update, on a machine that does not have the product
 

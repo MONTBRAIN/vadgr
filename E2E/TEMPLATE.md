@@ -230,6 +230,19 @@ Both surfaces are exercised and **neither substitutes for the other**:
 - **the CLI** (`vadgr run`, `vadgr runs get`) - the on-box path, with its own
   users and its own failure modes.
 
+**A cell driven by a person is written for that person.** Where a part is held
+in someone's hands rather than run in a terminal, the operator drives the
+machine and the tester does only what the cell says, in the order it says it.
+So the cell names **every action on the device and every prerequisite on it**:
+the network or VPN the handset must join, the app state it must start from, the
+taps in order, and what to read back. A tester cannot see the daemon, the
+transport or the state, and cannot infer a step that was left out.
+
+The prerequisites are the half that gets forgotten, because they are invisible
+from the machine: a `0.4.9` pass handed the tester a QR without saying to turn
+the tailnet on first, and the handset simply could not reach the address in the
+code. **A step the operator performs by habit is a step the cell has to state.**
+
 <Put the tested installation on `PATH`. Record `command -v vadgr` and prove its
 target is the exact PR head. Invoke `vadgr ...` in the terminal. The installed
 entry point is the installed binary; a product import, `cargo run` or a private
