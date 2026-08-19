@@ -32,16 +32,16 @@ Describe your work in a sentence. Vadgr runs it on your machine - writing code, 
 
 ## Install
 
-Works on **Linux**, **WSL**, and **Windows**. macOS support is in progress (running work locally works, computer use does not). The installer sets up everything: git, the Rust toolchain, and the `vadgr` binaries. No Node.js and no browser: the machine's clients are this CLI and the phone app.
+Works on **Linux**, **WSL**, **Windows** and **macOS**. Desktop automation is the separate [vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use) package, which supports all four; on macOS it asks for Accessibility and Screen Recording the first time it runs. The installer sets up everything: git, the Rust toolchain, and the `vadgr` binaries. No Node.js and no browser: the machine's clients are this CLI and the phone app.
 
 ```bash
 # Linux / macOS / WSL
-curl -fsSL https://raw.githubusercontent.com/MONTBRAIN/vadgr/master/setup.sh | bash
+curl -fsSL https://raw.githubusercontent.com/MONTBRAIN/vadgr/master/install.sh | bash
 ```
 
 ```powershell
 # Windows (PowerShell)
-irm https://raw.githubusercontent.com/MONTBRAIN/vadgr/master/setup.ps1 | iex
+irm https://raw.githubusercontent.com/MONTBRAIN/vadgr/master/install.ps1 | iex
 ```
 
 The daemon owns OpenAI, Gemini and Anthropic connections, their authenticated
@@ -109,11 +109,11 @@ stops watching and leaves the run going.
 graph LR
     Owner((Owner)) -->|on the box| VCLI[vadgr CLI]
     Phone((Phone)) -->|over the tailnet| API
-    VCLI -->|REST /api| API[API Server<br/>FastAPI]
-    VCLI <-->|WebSocket /ws| API
-    API -->|drives| Loop[engine/<br/>Native agent loop]
-    API -->|read/write| DB[(SQLite)]
-    Loop -->|writes| Journal[~/.vadgr/runs/<br/>Run journals]
+    VCLI -->|REST /api| API[vadgr-daemon<br/>Rust, axum]
+    VCLI <-->|WebSocket| API
+    API -->|drives| Loop[The agent loop<br/>and its MCP host]
+    API -->|read/write| DB[(SQLite<br/>in the state root)]
+    Loop -->|writes| Journal[Run journals<br/>in the state root]
     Loop -.->|if enabled| CU[Computer Use<br/>Desktop Automation]
     CU -->|controls| Desktop[Host OS<br/>Mouse, Keyboard, Screen]
 ```
@@ -154,39 +154,13 @@ Vadgr/
 │   └── transport/         # Loopback and Tailscale adapters
 ├── tests/                 # Integration tests
 ├── E2E/                   # One runbook per release, and its harness
-├── setup.sh, setup.ps1    # The installer
+├── install.sh, install.ps1    # The installer
 └── scripts/               # The repository's own gates
 ```
 
 Desktop automation lives in its own repository,
 [vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use), and is
 installed as a package when computer use is enabled.
-
-## Technologies
-
-**Backend**
-
-<div align="left">
-
-|  | Technology | Version | Role |
-|:---:|:---:|:---:|:---|
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/rust/rust-original.svg" width="25" /> | Rust | 2021 | Runtime language |
-| <img src="https://cdn.simpleicons.org/rust/000000" width="25" /> | axum | 0.8 | HTTP and WebSocket layer |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sqlite/sqlite-original.svg" width="25" /> | SQLite | 3 | Relational database, bundled |
-| <img src="https://cdn.simpleicons.org/rust/000000" width="25" /> | tokio | 1 | Async runtime |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/socketio/socketio-original.svg" width="25" /> | WebSockets | - | Real-time communication |
-
-</div>
-
-**Desktop Automation**
-
-<div align="left">
-
-|  | Technology | Version | Role |
-|:---:|:---:|:---:|:---|
-| <picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/anthropic/white"><img src="https://cdn.simpleicons.org/anthropic/black" width="25" alt="Anthropic Logo"></picture> | MCP | 2.x | Standardized tool interface |
-
-</div>
 
 ## Contributing
 

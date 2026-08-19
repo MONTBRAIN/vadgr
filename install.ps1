@@ -1,5 +1,5 @@
 # Vadgr Installer for Windows
-# Usage: irm https://raw.githubusercontent.com/MONTBRAIN/vadgr/master/setup.ps1 | iex
+# Usage: irm https://raw.githubusercontent.com/MONTBRAIN/vadgr/master/install.ps1 | iex
 
 $ErrorActionPreference = "Stop"
 

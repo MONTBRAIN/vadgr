@@ -2,7 +2,7 @@
 set -e
 
 # Vadgr Installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/MONTBRAIN/vadgr/master/setup.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/MONTBRAIN/vadgr/master/install.sh | bash
 
 # One install root, named after the product. A machine's durable state does not
 # live here: the daemon resolves that from the platform's own local-state

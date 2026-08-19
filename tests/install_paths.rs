@@ -33,7 +33,7 @@ fn assignment(script: &str, name: &str) -> String {
 
 #[test]
 fn the_installer_and_the_cli_agree_on_the_product_directory() {
-    assert_eq!(assignment("setup.sh", "VADGR_HOME"), "$HOME/.vadgr");
+    assert_eq!(assignment("install.sh", "VADGR_HOME"), "$HOME/.vadgr");
     let service = repo_file("src/cli/commands/service.rs");
     assert!(
         service.contains(r#"user_home().join(".vadgr")"#),
@@ -43,7 +43,7 @@ fn the_installer_and_the_cli_agree_on_the_product_directory() {
 
 #[test]
 fn the_installer_puts_the_checkout_where_the_cli_looks_for_it() {
-    assert_eq!(assignment("setup.sh", "VADGR_REPO"), "$VADGR_HOME/src");
+    assert_eq!(assignment("install.sh", "VADGR_REPO"), "$VADGR_HOME/src");
     let service = repo_file("src/cli/commands/service.rs");
     assert!(
         service.contains(r#"vadgr_home().join("src")"#),
@@ -55,8 +55,8 @@ fn the_installer_puts_the_checkout_where_the_cli_looks_for_it() {
 fn nothing_shipped_still_carries_the_repositorys_former_name() {
     let mut checked = 0;
     for name in [
-        "setup.sh",
-        "setup.ps1",
+        "install.sh",
+        "install.ps1",
         "README.md",
         "src/cli/commands/service.rs",
     ] {

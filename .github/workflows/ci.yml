@@ -31,44 +31,88 @@ jobs:
         run: cargo fmt --all -- --check
 
   # The installer is the first thing a new user runs, and it had never been
-  # executed by a pipeline: the job below proves the artifact, not the script
-  # that puts the artifact on a machine. Clean means clean: a shell, git and
-  # curl, no toolchain and no state root.
+  # executed by a pipeline: the clean-install job below proves the artifact, not
+  # the script that puts the artifact on a machine.
+  #
+  # It runs on every platform the product claims, because an installer proved on
+  # one operating system says nothing about the others. Two Windows only test
+  # failures in the 0.4.9 pass are the argument.
   installer:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    container: debian:12-slim
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux gets a container with nothing in it, which is the only place
+          # a truly clean machine is available to us.
+          - os: ubuntu-latest
+            shell: bash
+          - os: windows-latest
+            shell: pwsh
+          - os: macos-latest
+            shell: bash
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
     steps:
-      - name: A container with nothing in it
-        run: |
-          apt-get update -qq
-          apt-get install -y -qq --no-install-recommends ca-certificates curl git build-essential
-          ! command -v cargo
-          ! command -v vadgr
       - uses: actions/checkout@v4
-      - name: Run the installer against this checkout
-        env:
-          HOME: /root
+
+      # The hosted Windows and macOS images ship a Rust toolchain, so a clean
+      # machine has to be made rather than found: each step below takes the
+      # toolchain off PATH and then asserts it is gone, which is what makes the
+      # claim real rather than assumed. The installer installs its own.
+      - name: Install on Linux, in a container with nothing in it
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
         run: |
-          # The installer clones from the remote by default. Point it at the
-          # commit under test instead, or the job would prove master.
-          sed -i "s|^REPO_URL=.*|REPO_URL=\"$GITHUB_WORKSPACE\"|" setup.sh
-          bash setup.sh
-      - name: Drive the vadgr the installer produced
+          docker run --rm -v "$PWD:/src:ro" -e VADGR_REF="$GITHUB_SHA" debian:12-slim bash -eu -c '
+            apt-get update -qq
+            apt-get install -y -qq --no-install-recommends ca-certificates curl git build-essential
+            ! command -v cargo
+            ! command -v vadgr
+            git config --global --add safe.directory /src
+            VADGR_REPO_URL=/src bash /src/install.sh
+            export PATH="$HOME/.vadgr/bin:$PATH"
+            command -v vadgr | grep -q "^$HOME/.vadgr/bin/vadgr$"
+            command -v vadgr-daemon | grep -q "^$HOME/.vadgr/bin/vadgr-daemon$"
+            vadgr --version
+            # Nothing is started, so the daemon is down and saying so is the
+            # correct answer. Exit 3 is that answer, and it is a contract.
+            set +e; vadgr health; code=$?; set -e
+            test "$code" -eq 3 || { echo "expected exit 3 from a stopped daemon, got $code"; exit 1; }
+          '
+
+      - name: Install on macOS, with the runner's toolchain out of the way
+        if: matrix.os == 'macos-latest'
+        shell: bash
         env:
-          HOME: /root
+          VADGR_REPO_URL: ${{ github.workspace }}
+          VADGR_REF: ${{ github.sha }}
         run: |
+          export PATH="$(echo "$PATH" | tr ':' '\n' | grep -v -e cargo -e rustup | paste -sd:)"
+          ! command -v cargo || { echo "the runner still has cargo on PATH"; exit 1; }
+          bash install.sh
           export PATH="$HOME/.vadgr/bin:$PATH"
-          command -v vadgr | tee /dev/stderr | grep -q "^$HOME/.vadgr/bin/vadgr$"
-          command -v vadgr-daemon | grep -q "^$HOME/.vadgr/bin/vadgr-daemon$"
+          command -v vadgr | grep -q "^$HOME/.vadgr/bin/vadgr$"
           vadgr --version
-          # Nothing is started, so the daemon is down and saying so is the
-          # correct answer. Exit 3 is that answer, and it is a contract.
-          set +e
-          vadgr health
-          code=$?
-          set -e
+          set +e; vadgr health; code=$?; set -e
           test "$code" -eq 3 || { echo "expected exit 3 from a stopped daemon, got $code"; exit 1; }
+
+      - name: Install on Windows, through the PowerShell half
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        env:
+          VADGR_REPO_URL: ${{ github.workspace }}
+          VADGR_REF: ${{ github.sha }}
+        run: |
+          $env:PATH = ($env:PATH -split ';' | Where-Object { $_ -notmatch 'cargo|rustup' }) -join ';'
+          if (Get-Command cargo -ErrorAction SilentlyContinue) { throw "the runner still has cargo on PATH" }
+          .\install.ps1
+          $env:PATH = "$env:USERPROFILE\.vadgr\bin;$env:PATH"
+          $resolved = (Get-Command vadgr).Source
+          if ($resolved -ne "$env:USERPROFILE\.vadgr\bin\vadgr.exe") { throw "vadgr resolved to $resolved" }
+          vadgr --version
+          # Exit 3 with nothing started is the contract, on this platform too.
+          vadgr health
+          if ($LASTEXITCODE -ne 3) { throw "expected exit 3 from a stopped daemon, got $LASTEXITCODE" }
 
   clean-install:
     # Build the delivered artifact, then prove it from outside a scratch image
