@@ -235,11 +235,17 @@ async fn run_task(
         .unwrap_or("?")
         .to_owned();
 
+    // Under `--json` a watched run prints nothing yet: the document a script
+    // wants is the finished run, and printing the queued row first would put two
+    // documents on one stdout. A background run prints now, because the queued
+    // row is all that will ever be known here.
     if as_json {
-        anstream::println!(
-            "{}",
-            serde_json::to_string_pretty(&result).unwrap_or_else(|_| result.to_string())
-        );
+        if background {
+            anstream::println!(
+                "{}",
+                serde_json::to_string_pretty(&result).unwrap_or_else(|_| result.to_string())
+            );
+        }
     } else {
         anstream::println!("{}", output::success(&format!("Run started: {run_id}")));
     }
@@ -256,7 +262,15 @@ async fn run_task(
         return Ok(());
     }
 
-    let outcome = stream::follow(client.base_url(), &run_id, RUN_WATCH_TIMEOUT).await;
+    let outcome = stream::follow(client.base_url(), &run_id, RUN_WATCH_TIMEOUT, as_json).await;
+    if as_json {
+        // One document, written once the run has an outcome to describe.
+        let row = client.get(&format!("/api/runs/{run_id}")).await?;
+        anstream::println!(
+            "{}",
+            serde_json::to_string_pretty(&row).unwrap_or_else(|_| row.to_string())
+        );
+    }
     match outcome.exit_code() {
         0 => Ok(()),
         // The outcome was already reported. A second `Error:` line would read as

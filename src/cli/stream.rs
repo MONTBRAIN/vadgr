@@ -93,7 +93,22 @@ pub fn terminal_outcome(event_type: &str) -> Option<Outcome> {
 }
 
 /// Follow a run to its terminal frame.
-pub async fn follow(api_url: &str, run_id: &str, timeout: Duration) -> Outcome {
+/// Watch a run to its outcome.
+///
+/// `quiet` silences everything this function would put on stdout. It exists for
+/// `--json`, whose whole purpose is a stdout a script can parse: the progress
+/// lines and the closing summary are for a person, and printing them beside a
+/// JSON document makes the stream invalid the moment the run ends. The caller
+/// prints the finished run instead.
+pub async fn follow(api_url: &str, run_id: &str, timeout: Duration, quiet: bool) -> Outcome {
+    // Every line this function writes for a person goes through here.
+    macro_rules! say {
+        ($($arg:tt)*) => {
+            if !quiet {
+                anstream::println!($($arg)*);
+            }
+        };
+    }
     let ws_url = format!(
         "{}/api/ws/runs/{run_id}",
         api_url
@@ -102,10 +117,8 @@ pub async fn follow(api_url: &str, run_id: &str, timeout: Duration) -> Outcome {
     );
 
     let Ok((mut socket, _)) = tokio_tungstenite::connect_async(&ws_url).await else {
-        anstream::println!(
-            "  Could not connect to the run stream. The run continues in the background."
-        );
-        anstream::println!("  See the run: vadgr runs get {run_id}");
+        say!("  Could not connect to the run stream. The run continues in the background.");
+        say!("  See the run: vadgr runs get {run_id}");
         return Outcome::Unknown;
     };
 
@@ -115,7 +128,7 @@ pub async fn follow(api_url: &str, run_id: &str, timeout: Duration) -> Outcome {
     loop {
         if started.elapsed() > timeout {
             spinner.stop();
-            anstream::println!(
+            say!(
                 "  Timed out after {}. The run continues in the background.",
                 output::format_duration(timeout.as_secs_f64())
             );
@@ -129,9 +142,9 @@ pub async fn follow(api_url: &str, run_id: &str, timeout: Duration) -> Outcome {
         let next = tokio::select! {
             _ = tokio::signal::ctrl_c() => {
                 spinner.stop();
-                anstream::println!("\n  Detached. The run continues.");
-                anstream::println!("  Check it with: vadgr runs get {run_id}");
-                anstream::println!("  Stop it with:  vadgr runs cancel {run_id}");
+                say!("\n  Detached. The run continues.");
+                say!("  Check it with: vadgr runs get {run_id}");
+                say!("  Stop it with:  vadgr runs cancel {run_id}");
                 return Outcome::Detached;
             }
             next = tokio::time::timeout(Duration::from_secs(3), socket.next()) => next,
@@ -140,13 +153,13 @@ pub async fn follow(api_url: &str, run_id: &str, timeout: Duration) -> Outcome {
             Err(_) => continue,
             Ok(None) => {
                 spinner.stop();
-                anstream::println!("  The run stream closed. The run continues in the background.");
-                anstream::println!("  See the run: vadgr runs get {run_id}");
+                say!("  The run stream closed. The run continues in the background.");
+                say!("  See the run: vadgr runs get {run_id}");
                 return Outcome::Unknown;
             }
             Ok(Some(Err(_))) => {
                 spinner.stop();
-                anstream::println!("  Lost the run stream. The run continues in the background.");
+                say!("  Lost the run stream. The run continues in the background.");
                 return Outcome::Unknown;
             }
             Ok(Some(Ok(Message::Text(t)))) => t.to_string(),
@@ -167,30 +180,24 @@ pub async fn follow(api_url: &str, run_id: &str, timeout: Duration) -> Outcome {
             let elapsed = output::format_duration(started.elapsed().as_secs_f64());
             match outcome {
                 Outcome::Completed => {
-                    anstream::println!(
-                        "{}",
-                        output::success(&format!("Run completed ({elapsed})"))
-                    );
-                    anstream::println!();
-                    anstream::println!("  See results: {api_url}/api/runs/{run_id}");
+                    say!("{}", output::success(&format!("Run completed ({elapsed})")));
+                    say!();
+                    say!("  See results: {api_url}/api/runs/{run_id}");
                 }
                 Outcome::Failed => {
                     let error = data
                         .get("error")
                         .and_then(|v| v.as_str())
                         .unwrap_or("Unknown error");
-                    anstream::println!(
+                    say!(
                         "{}",
                         output::error(&format!("Run failed ({elapsed}): {error}"))
                     );
-                    anstream::println!("  See the run: vadgr runs get {run_id}");
+                    say!("  See the run: vadgr runs get {run_id}");
                 }
                 // The frame this port exists to handle.
                 Outcome::Cancelled => {
-                    anstream::println!(
-                        "{}",
-                        output::warning(&format!("Run cancelled ({elapsed})"))
-                    );
+                    say!("{}", output::warning(&format!("Run cancelled ({elapsed})")));
                 }
                 _ => {}
             }
