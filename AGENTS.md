@@ -1,7 +1,8 @@
 # vadgr - the machine daemon
 
 A daemon per machine: the native agent loop, the MCP host, gates and policy,
-the API the phone talks to, persistence, plus `cli/` - the on-box owner surface.
+the API the phone talks to, persistence, plus `src/cli/` - the on-box owner
+surface.
 v2 has no desktop frontend - `0.4.2` deleted it, and a guardrail test fails the
 suite if it comes back. The clients are this CLI and the phone.
 
@@ -616,7 +617,7 @@ may overlap; that is what makes the three-agent e2e close safe.
 
 - Comments explain **why**, not what. Match the surrounding density and voice.
 - Branch per minor, PR per minor. Never commit to `master`.
-- `CHANGELOG.md` is updated **in the PR**, and the version in `api/config.py`
+- `CHANGELOG.md` is updated **in the PR**, and the version in `Cargo.toml`
   moves with it.
 - **`README.md` is updated in the same PR when the minor changed what it says**,
   and it is the file most people read. A deleted surface, a renamed command, a

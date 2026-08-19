@@ -107,3 +107,45 @@ fn every_relative_link_in_the_readme_resolves() {
     // proves it parsed the links it did find.
     assert!(seen > 0, "no links were parsed out of README.md at all");
 }
+
+#[test]
+fn no_interpreter_artefact_is_tracked_in_this_repository() {
+    // The cutover checked for `.py` files and found none outside the two named
+    // exceptions, while 1441 files of committed Windows bytecode sat in a
+    // virtual environment beside them. A check that names one extension proves
+    // one extension.
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let listing = std::process::Command::new("git")
+        .args(["ls-files"])
+        .current_dir(root)
+        .output()
+        .expect("git lists the tracked files");
+    assert!(listing.status.success(), "git ls-files failed");
+    let files = String::from_utf8(listing.stdout).expect("the listing is text");
+    let mut tracked = 0;
+    for file in files.lines() {
+        tracked += 1;
+        for artefact in [".pyc", ".pyo", ".pyd", ".egg-info", "__pycache__/"] {
+            assert!(
+                !file.contains(artefact),
+                "{file} is an interpreter artefact and must not be tracked"
+            );
+        }
+        for venv in [".venv", "venv/", "site-packages/"] {
+            assert!(
+                !file.contains(venv),
+                "{file} belongs to a virtual environment and must not be tracked"
+            );
+        }
+    }
+    assert!(tracked > 50, "the listing looks empty: {tracked} files");
+
+    // Every surviving `.py` is one of the two named exceptions: this
+    // repository's own gates, and the harnesses beside an older runbook.
+    for file in files.lines().filter(|f| f.ends_with(".py")) {
+        assert!(
+            file.starts_with("scripts/") || file.starts_with("E2E/"),
+            "{file} is Python outside the repository gates and the runbook harnesses"
+        );
+    }
+}

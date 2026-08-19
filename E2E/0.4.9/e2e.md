@@ -132,7 +132,7 @@ phone still reaches the daemon. That is this runbook's half.
 |---|---|---|---|---|---|---|
 | A1 | `$E2E_BIN` first on `PATH` | `command -v vadgr` | resolves inside `$E2E_BIN`; its `sha256` is the release build of the head under test | the path and both hashes | none | pass |
 | A2 | as A1 | `vadgr --version` | prints `0.4.9`, matching the manifest and what the daemon reports at `/api/health` | the printed line, the health body | none | pass |
-| A3 | a clean checkout | `git ls-files` | **no `.py` file outside `scripts/` and an older runbook's `harness/`**, no `requirements.txt`, no `rust/` directory | the file list, the sweep's own output | none | pass |
+| A3 | a clean checkout | `git ls-files` | **no `.py` file outside `scripts/` and an older runbook's `harness/`**, **no interpreter artefact of any kind**: no `.pyc`, `.pyo`, `.pyd`, `__pycache__/`, `site-packages/` or virtual environment, no `requirements.txt`, no `rust/` directory | the file list, the sweep's own output | none | pass |
 
 ## Part B: a machine keeps its history
 
