@@ -545,6 +545,19 @@ branches deleted local and remote, every repo back on its default branch, then
 `PROGRESS.md` updated and the next item named - read from `PLANS.md`'s
 iteration table, not decided.
 
+**The README is checked, because it was wrong in all three repos at once.**
+`scripts/check_readme_touched.py` fails a pull request that moves a version and
+touches no README. It cannot read a README for truth; it can see the shape all
+three of those had, which is a version moving alone. **The escape is a sentence,
+not a flag**: write `README: nothing changed` in the body, and mean it. A rule
+that cannot be answered is one people route around.
+
+**And prose about the product is swept like code.** A README, a design note or a
+doc comment naming a runtime the product no longer has is the same defect as a
+stale command, and it fails no build. When a release removes something, the sweep
+covers the documentation and the comments in the same pull request, not a
+follow-up.
+
 **A tag and its release are named one way in every repo**, because six shapes
 across three repos is what happens when each release is named freehand: `vadgr
 0.4.7`, `v0.4.6 - the Rust execution engine`, `v0.4.4`, `vadgr 0.4.2 - the web
