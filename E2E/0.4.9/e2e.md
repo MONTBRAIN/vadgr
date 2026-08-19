@@ -581,6 +581,27 @@ on the starter model. Open: the fix is a retry or a narrower invalid test in
 daemon code, and rebuilding the daemon mid-pass would invalidate every
 daemon-side cell already run.
 
+### F8 (open, and it belongs to distribution): a built binary carries its build machine's C library
+
+The clean install was pointed at an older distribution than the one that built
+the binary, and the daemon would not start: `GLIBC_2.38 not found`, then
+`GLIBC_2.39 not found`. A binary built on Ubuntu 24.04 does not run on Debian
+12.
+
+**It is not a defect today**, and the reason matters: the installer compiles on
+the user's own machine, so the C library the binary needs is the one that
+machine has, by construction. The check now uses a base image matching the
+distribution the binary was built on, which is what a user's situation actually
+is.
+
+It becomes a defect the moment a release hands someone a **prebuilt** binary
+they did not compile. Then the binary must be built against an old enough C
+library, or statically, or shipped per distribution. That is the distribution
+release's problem and it is recorded here so it arrives as a known question
+rather than a surprise. The same class of problem was found and fixed on
+Windows in this release: the binary imported the Visual C++ redistributable
+until the C runtime was linked in.
+
 ## Surface coverage - **every published endpoint, with what it returned**
 
 

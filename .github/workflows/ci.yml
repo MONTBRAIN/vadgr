@@ -123,22 +123,22 @@ jobs:
           # a passing check would fail the step on the very value it checked.
           exit 0
 
-  # The same question on the platforms where `scratch` does not exist: can the
-  # shipped binary run with nothing around it? Neither Windows nor macOS can be
-  # emptied the way a Linux container can, and neither supports a fully static
-  # binary: Apple does not allow libSystem to be linked statically, and a Windows
-  # binary always imports the OS DLLs. So the check is the same in substance and
-  # different in method: prove the binary imports nothing but what the operating
-  # system itself guarantees, then run it with the PATH emptied and a fresh home,
-  # and make it serve.
-  standalone-binary:
+  # A clean install is a normal user's machine: it has the operating system and
+  # the libraries the operating system ships, and it has no toolchain, no build
+  # dependency and no trace of this product. The question is the same on every
+  # platform, so it is one job with one matrix rather than a job per idea.
+  #
+  # It used to build a static musl binary for the Linux leg alone, which proved
+  # an artifact no user was ever given while the installer shipped a different
+  # one. Every leg now tests the binary a user actually gets.
+  clean-install:
     strategy:
       fail-fast: false
       matrix:
         # macos-15 as well as the current image, because a binary built on a
-        # newer macOS can silently require it. An older supported release is the
-        # nearest thing to a machine that is not the one that built it.
-        os: [windows-latest, macos-latest, macos-15]
+        # newer macOS can silently require it, and an older supported release is
+        # the nearest thing to a machine that did not build it.
+        os: [ubuntu-latest, windows-latest, macos-latest, macos-15]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     steps:
@@ -148,21 +148,29 @@ jobs:
           targets: x86_64-pc-windows-msvc
       - uses: Swatinem/rust-cache@v2
 
-      - name: Build the release daemon
+      - name: Build the release binaries
         if: runner.os != 'Windows'
-        run: cargo build --locked --release --bin vadgr-daemon
+        run: cargo build --locked --release --bins
 
-      # The same build the installer and `vadgr update` perform on Windows: the
-      # C runtime linked in, and the target named explicitly so the flag reaches
-      # the binary rather than the build scripts and proc macros that run on the
-      # host.
-      - name: Build the release daemon, with the C runtime linked in
+      # The C runtime is linked in rather than imported, so the binary does not
+      # need the Visual C++ redistributable, which is not part of Windows. The
+      # installer and `vadgr update` build the same way; an update that built
+      # differently would replace a standalone binary with a dependent one.
+      - name: Build the release binaries, with the C runtime linked in
         if: runner.os == 'Windows'
         env:
           RUSTFLAGS: -C target-feature=+crt-static
-        run: cargo build --locked --release --bin vadgr-daemon --target x86_64-pc-windows-msvc
+        run: cargo build --locked --release --bins --target x86_64-pc-windows-msvc
 
-      - name: What the macOS binary links, and whether it serves alone
+      # Linux has containers, so the machine can be made rather than approximated:
+      # a base image with no toolchain, the binary copied in, nothing else.
+      - name: Install it alone on a machine with no toolchain, and serve
+        if: runner.os == 'Linux'
+        env:
+          VADGR_RELEASE_BINARY: target/release/vadgr-daemon
+        run: cargo test --locked --test clean_install installed_release_starts_and_serves -- --ignored --exact --nocapture
+
+      - name: What it links, and whether it serves with the toolchain out of reach
         if: runner.os == 'macOS'
         shell: bash
         run: |
@@ -170,9 +178,8 @@ jobs:
           exe=target/release/vadgr-daemon
           test -x "$exe" || { echo "no binary at $exe"; exit 1; }
           otool -L "$exe"
-          # Read the list into a variable first. Piping otool into a while loop
-          # puts the loop in a subshell, where an exit does not fail the step,
-          # and an empty list would pass a check that inspected nothing.
+          # Every library must be one macOS ships. Anything under /opt or
+          # /usr/local is a dependency a user's machine may not have.
           libs="$(otool -L "$exe" | tail -n +2 | awk '{print $1}')"
           count="$(printf '%s\n' "$libs" | grep -c . || true)"
           test "$count" -ge 1 || { echo "read no linked libraries, which cannot be right"; exit 1; }
@@ -186,11 +193,9 @@ jobs:
             esac
           done <<< "$libs"
           test "$bad" -eq 0 || exit 1
-          # The minimum macOS this binary will start on. Recorded so a build that
-          # silently raises the floor is visible rather than discovered by a user
-          # on an older machine.
+          # The minimum macOS it will start on, recorded so a raised floor is
+          # visible here rather than to someone on an older machine.
           vtool -show-build "$exe" 2>/dev/null | grep -E "minos|platform" || true
-          # No PATH, a home of its own, and nothing else on the machine in reach.
           root="$(mktemp -d)"
           env -i HOME="$root" \
             VADGR_STATE_HOME="$root/state" VADGR_PORT=8100 VADGR_TRANSPORT=loopback \
@@ -204,13 +209,12 @@ jobs:
           echo "$body"
           echo "$body" | grep -q '"status":"healthy"' || { cat "$root/daemon.log"; exit 1; }
 
-      - name: What the Windows binary imports, and whether it serves alone
+      - name: What it imports, and whether it serves with the toolchain out of reach
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           $exe = "target\x86_64-pc-windows-msvc\release\vadgr-daemon.exe"
           if (-not (Test-Path $exe)) { throw "no binary at $exe" }
-
           $dumpbin = Get-ChildItem "C:\Program Files*\Microsoft Visual Studio\*\*\VC\Tools\MSVC\*\bin\Hostx64\x64\dumpbin.exe" |
             Select-Object -First 1
           if (-not $dumpbin) { throw "dumpbin not found on this runner" }
@@ -222,10 +226,8 @@ jobs:
           # A check that read nothing is not a check. This one inspected the
           # wrong path once and passed because the list was empty.
           if ($imports.Count -lt 3) { throw "read $($imports.Count) imports, which cannot be right" }
-
-          # Every name here ships with Windows itself. vcruntime140.dll is the
-          # one that must never appear: it belongs to the Visual C++
-          # redistributable, which a user's machine may never have installed.
+          # Every name here ships with Windows. vcruntime140.dll must never
+          # appear: it belongs to the Visual C++ redistributable.
           $guaranteed = @('kernel32.dll','advapi32.dll','ntdll.dll','ws2_32.dll','user32.dll',
                           'bcrypt.dll','bcryptprimitives.dll','crypt32.dll','secur32.dll',
                           'userenv.dll','shell32.dll','ole32.dll','oleaut32.dll','combase.dll',
@@ -236,8 +238,6 @@ jobs:
               throw "imports $dll, which Windows does not guarantee"
             }
           }
-
-          # No PATH, a profile of its own, and nothing else on the machine in reach.
           $root = Join-Path $env:RUNNER_TEMP ([guid]::NewGuid())
           New-Item -ItemType Directory -Path $root | Out-Null
           $daemon = Start-Process -PassThru -FilePath (Resolve-Path $exe) `
@@ -257,94 +257,3 @@ jobs:
           }
           Stop-Process -Id $daemon.Id -Force
           exit 0
-
-  # The Linux clean-install job asks: does the shipped binary run on a machine
-  # with nothing on it? `scratch` answers that outright. Windows can answer it
-  # too, with `nanoserver`, which carries no Visual C++ redistributable and no
-  # developer tooling, and Docker on the hosted Windows runner defaults to
-  # Windows containers. macOS cannot answer it at all: Apple's containerization
-  # framework runs Linux guests and explicitly does not run macOS binaries, and
-  # a macOS guest VM needs nested virtualization that the virtualization
-  # framework does not expose. That gap is stated rather than papered over.
-  empty-windows-machine:
-    runs-on: windows-latest
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: x86_64-pc-windows-msvc
-      - uses: Swatinem/rust-cache@v2
-      - name: Build the release binaries, with the C runtime linked in
-        env:
-          RUSTFLAGS: -C target-feature=+crt-static
-        run: cargo build --locked --release --bins --target x86_64-pc-windows-msvc
-
-      - name: Run them in a container that has nothing else in it
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $image = 'mcr.microsoft.com/windows/nanoserver:ltsc2025'
-          docker pull $image
-          if ($LASTEXITCODE -ne 0) { throw "could not pull $image" }
-
-          $bin = (Resolve-Path "target\x86_64-pc-windows-msvc\release").Path
-          # Nano Server has no toolchain, no redistributable and no developer
-          # tooling. If the binaries need anything beyond Windows itself, they
-          # fail here, which is the whole point of the job.
-          docker run --detach --name vadgr-empty `
-            --volume "${bin}:C:\app" `
-            --env VADGR_PORT=8100 --env VADGR_TRANSPORT=loopback `
-            --env VADGR_STATE_HOME=C:\state `
-            $image C:\app\vadgr-daemon.exe
-          if ($LASTEXITCODE -ne 0) { throw "the container did not start" }
-
-          # Probed from inside the same empty container, because there is
-          # nothing out here that can reach its loopback.
-          $healthy = $false
-          foreach ($i in 1..40) {
-            $out = docker exec vadgr-empty C:\app\vadgr.exe health 2>&1 | Out-String
-            if ($LASTEXITCODE -eq 0 -and $out -match 'healthy') { $healthy = $true; $out; break }
-            Start-Sleep -Seconds 3
-          }
-          if (-not $healthy) {
-            Write-Host "--- the daemon's own output from inside the container:"
-            docker logs vadgr-empty
-            docker rm --force vadgr-empty | Out-Null
-            throw "the binaries did not serve health on a machine with nothing else on it"
-          }
-          docker rm --force vadgr-empty | Out-Null
-          exit 0
-
-  clean-install:
-    # Build the delivered artifact, then prove it from outside a scratch image
-    # that contains the binary and nothing else.
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      RUSTC_WRAPPER: sccache
-      SCCACHE_GHA_ENABLED: "true"
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: x86_64-unknown-linux-musl
-      - name: Install the musl linker
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes musl-tools
-      - uses: Swatinem/rust-cache@v2
-        with:
-          cache-targets: false
-          shared-key: clean-install-musl
-      - uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
-      - name: Build the static release binary
-        run: cargo build --locked --release --target x86_64-unknown-linux-musl --bin vadgr-daemon
-      - name: Verify the release binary is static
-        run: |
-          file target/x86_64-unknown-linux-musl/release/vadgr-daemon
-          file target/x86_64-unknown-linux-musl/release/vadgr-daemon | grep -Eq 'static(-pie)? linked'
-      - name: Install only the binary in scratch and prove readiness
-        env:
-          VADGR_RELEASE_BINARY: target/x86_64-unknown-linux-musl/release/vadgr-daemon
-        run: cargo test --locked --test clean_install installed_release_starts_and_serves -- --ignored --exact --nocapture

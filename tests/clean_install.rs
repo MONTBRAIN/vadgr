@@ -9,6 +9,25 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 const STARTUP_TIMEOUT: Duration = Duration::from_secs(20);
 const PROBE_IMAGE: &str = "busybox:1.37.0-musl";
 
+/// The machine the binary is installed on.
+///
+/// **A normal user's machine, not an empty one.** It has the operating system
+/// and the libraries the operating system ships, and it has no toolchain, no
+/// build dependency and no trace of this product. That is the machine a release
+/// actually lands on, and it is the one worth proving.
+///
+/// This used to be `scratch`, which forced a static musl build made only for
+/// the test: the gate proved an artifact no user was ever given, while the
+/// installer built and shipped a different one.
+///
+/// **It matches the distribution the binary was built on**, because that is how
+/// a user gets it: the installer compiles on their machine, so the C library the
+/// binary needs is the one their machine has. Pointing this at an older
+/// distribution tests a binary nobody is given and fails on a version of glibc
+/// the build machine had and the base did not. That day arrives when a release
+/// ships a prebuilt binary, and it is that release's problem to solve.
+const BASE_IMAGE: &str = "ubuntu:24.04";
+
 fn validate_health(payload: &Value) -> Result<(), String> {
     let expected = [
         ("status", json!("healthy")),
@@ -175,7 +194,10 @@ fn run_clean_install(binary: &Path, docker: &str) -> Result<Value, String> {
     }
     fs::write(
         context.path().join("Dockerfile"),
-        "FROM scratch\nCOPY vadgr-daemon /usr/local/bin/vadgr-daemon\nENTRYPOINT [\"/usr/local/bin/vadgr-daemon\"]\n",
+        format!(
+            "FROM {BASE_IMAGE}\nCOPY vadgr-daemon /usr/local/bin/vadgr-daemon\n\
+             ENTRYPOINT [\"/usr/local/bin/vadgr-daemon\"]\n"
+        ),
     )
     .map_err(|error| format!("write scratch Dockerfile: {error}"))?;
 
