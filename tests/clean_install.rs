@@ -1,6 +1,5 @@
 use serde_json::{Value, json};
 use std::fs;
-use std::net::TcpListener;
 use std::path::Path;
 use std::process::{Command, Output, Stdio};
 use std::thread;
@@ -26,6 +25,9 @@ const PROBE_IMAGE: &str = "busybox:1.37.0-musl";
 /// distribution tests a binary nobody is given and fails on a version of glibc
 /// the build machine had and the base did not. That day arrives when a release
 /// ships a prebuilt binary, and it is that release's problem to solve.
+///
+/// The workflow pins its Linux runner to this same distribution rather than a
+/// `-latest` label, so the pairing holds by construction instead of by luck.
 const BASE_IMAGE: &str = "ubuntu:24.04";
 
 fn validate_health(payload: &Value) -> Result<(), String> {
@@ -56,15 +58,6 @@ fn validate_health(payload: &Value) -> Result<(), String> {
         }
     }
     Ok(())
-}
-
-fn unused_loopback_port() -> Result<u16, String> {
-    let listener = TcpListener::bind(("127.0.0.1", 0))
-        .map_err(|error| format!("reserve a loopback port: {error}"))?;
-    listener
-        .local_addr()
-        .map(|address| address.port())
-        .map_err(|error| format!("read reserved loopback port: {error}"))
 }
 
 fn command_output(command: &mut Command, context: &str) -> Result<Output, String> {
@@ -137,6 +130,29 @@ fn container_logs(docker: &str, container: &str) -> String {
         .unwrap_or_else(|error| format!("could not read container logs: {error}"))
 }
 
+/// The other binary the installer puts on the machine, run where it lands: on
+/// the clean base, inside the container, with only what the image ships.
+fn verify_cli(docker: &str, container: &str) -> Result<(), String> {
+    let version = command_output(
+        Command::new(docker).args(["exec", container, "/usr/local/bin/vadgr", "--version"]),
+        "run the installed CLI",
+    )?;
+    let stdout = String::from_utf8_lossy(&version.stdout);
+    if !stdout.contains(vadgr_daemon::config::VERSION) {
+        return Err(format!(
+            "vadgr --version printed {stdout:?}, expected it to name {}",
+            vadgr_daemon::config::VERSION
+        ));
+    }
+    // `vadgr health` exits 0 only after it reached the daemon beside it, so
+    // this is the CLI's own wire proof rather than a rerun of the probe's.
+    command_output(
+        Command::new(docker).args(["exec", container, "/usr/local/bin/vadgr", "health"]),
+        "run the installed CLI against the daemon",
+    )?;
+    Ok(())
+}
+
 struct DockerCleanup {
     docker: String,
     container: String,
@@ -165,6 +181,19 @@ fn run_clean_install(binary: &Path, docker: &str) -> Result<Value, String> {
             binary.display()
         ));
     }
+    // The installer puts two binaries on the machine, so the clean machine
+    // gets both: a dependency added to only the CLI would otherwise never be
+    // run anywhere without a toolchain.
+    let cli = binary
+        .parent()
+        .map(|dir| dir.join("vadgr"))
+        .ok_or_else(|| format!("{} has no parent directory", binary.display()))?;
+    if !cli.is_file() {
+        return Err(format!(
+            "the CLI binary does not exist beside the daemon: {}",
+            cli.display()
+        ));
+    }
 
     let nonce = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -179,27 +208,30 @@ fn run_clean_install(binary: &Path, docker: &str) -> Result<Value, String> {
     };
 
     let context = tempfile::tempdir().map_err(|error| format!("create build context: {error}"))?;
-    let installed_binary = context.path().join("vadgr-daemon");
-    fs::copy(binary, &installed_binary).map_err(|error| {
-        format!(
-            "copy {} into clean build context: {error}",
-            binary.display()
-        )
-    })?;
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        fs::set_permissions(&installed_binary, fs::Permissions::from_mode(0o755))
-            .map_err(|error| format!("mark release binary executable: {error}"))?;
+    for (source, name) in [(binary, "vadgr-daemon"), (&*cli, "vadgr")] {
+        let installed = context.path().join(name);
+        fs::copy(source, &installed).map_err(|error| {
+            format!(
+                "copy {} into clean build context: {error}",
+                source.display()
+            )
+        })?;
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            fs::set_permissions(&installed, fs::Permissions::from_mode(0o755))
+                .map_err(|error| format!("mark {name} executable: {error}"))?;
+        }
     }
     fs::write(
         context.path().join("Dockerfile"),
         format!(
             "FROM {BASE_IMAGE}\nCOPY vadgr-daemon /usr/local/bin/vadgr-daemon\n\
+             COPY vadgr /usr/local/bin/vadgr\n\
              ENTRYPOINT [\"/usr/local/bin/vadgr-daemon\"]\n"
         ),
     )
-    .map_err(|error| format!("write scratch Dockerfile: {error}"))?;
+    .map_err(|error| format!("write clean-install Dockerfile: {error}"))?;
 
     command_output(
         Command::new(docker).args([
@@ -212,7 +244,7 @@ fn run_clean_install(binary: &Path, docker: &str) -> Result<Value, String> {
                 .to_str()
                 .ok_or("build context is not UTF-8")?,
         ]),
-        "build scratch image",
+        "build clean-install image",
     )?;
     command_output(
         Command::new(docker).args(["pull", PROBE_IMAGE]),
@@ -271,7 +303,10 @@ fn run_clean_install(binary: &Path, docker: &str) -> Result<Value, String> {
             }
             Ok(payload)
         }) {
-            Ok(payload) => return Ok(payload),
+            Ok(payload) => {
+                verify_cli(docker, &container)?;
+                return Ok(payload);
+            }
             Err(error) => last_error = error,
         }
         thread::sleep(Duration::from_millis(250));
@@ -334,15 +369,10 @@ fn each_required_health_fact_is_checked() {
 }
 
 #[test]
-fn a_loopback_port_can_be_reserved_for_the_installed_daemon() {
-    assert_ne!(unused_loopback_port().unwrap(), 0);
-}
-
-#[test]
-#[ignore = "requires a static release binary and Docker"]
+#[ignore = "requires the release binaries and Docker"]
 fn installed_release_starts_and_serves() {
     let binary = std::env::var_os("VADGR_RELEASE_BINARY")
-        .expect("VADGR_RELEASE_BINARY must name the static release binary");
+        .expect("VADGR_RELEASE_BINARY must name the release daemon binary");
     let docker = std::env::var("DOCKER").unwrap_or_else(|_| "docker".to_string());
     let payload = run_clean_install(Path::new(&binary), &docker).unwrap();
     println!("clean install served: {payload}");

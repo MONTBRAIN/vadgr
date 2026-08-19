@@ -170,14 +170,25 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new(base_url: impl Into<String>) -> Self {
-        Self {
+    /// Fallible, because the old construction was not and that was the defect:
+    /// it built reqwest's default client, whose rustls verifier reads the
+    /// system trust store and refuses on a machine without one, so `vadgr
+    /// health` panicked on a clean install while talking plain HTTP to
+    /// loopback. The client now carries the product's compiled-in roots
+    /// (`vadgr_daemon::http`, where the judgement is written down) and needs
+    /// nothing from the machine; what can still fail is a defect in vadgr,
+    /// and the error says so instead of panicking on a user.
+    pub fn new(base_url: impl Into<String>) -> Result<Self, String> {
+        let http = vadgr_daemon::http::client(TIMEOUT).map_err(|error| {
+            format!(
+                "Could not build the HTTP client: {error}. This is a defect in vadgr, \
+                 not in your machine's configuration. Please report it."
+            )
+        })?;
+        Ok(Self {
             base_url: base_url.into().trim_end_matches('/').to_owned(),
-            http: reqwest::Client::builder()
-                .timeout(TIMEOUT)
-                .build()
-                .expect("the HTTP client builds"),
-        }
+            http,
+        })
     }
 
     pub fn base_url(&self) -> &str {

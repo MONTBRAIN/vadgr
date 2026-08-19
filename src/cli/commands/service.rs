@@ -219,16 +219,16 @@ fn kill_port(port: u16) {
     }
 }
 
-async fn wait_for_api(port: u16) -> bool {
-    let client = Client::new(format!("http://127.0.0.1:{port}"));
+async fn wait_for_api(port: u16) -> Result<bool, CliError> {
+    let client = Client::new(format!("http://127.0.0.1:{port}")).map_err(CliError::Failed)?;
     let deadline = std::time::Instant::now() + API_STARTUP_TIMEOUT;
     while std::time::Instant::now() < deadline {
         if client.is_running().await {
-            return true;
+            return Ok(true);
         }
         tokio::time::sleep(Duration::from_secs(1)).await;
     }
-    false
+    Ok(false)
 }
 
 /// The daemon this CLI starts.
@@ -403,7 +403,7 @@ pub async fn start(api_port: Option<u16>) -> Result<(), CliError> {
         return Err(CliError::Failed(String::new()));
     }
 
-    if !wait_for_api(port).await {
+    if !wait_for_api(port).await? {
         anstream::println!(
             "{}",
             output::warning(&format!(

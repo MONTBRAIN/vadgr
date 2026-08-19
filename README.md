@@ -33,7 +33,7 @@ Describe your work in a sentence. Vadgr runs it on your machine - writing code, 
 
 ## Install
 
-Works on **Linux**, **WSL**, **Windows** and **macOS**. Desktop automation is the separate [vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use) package, which supports all four; on macOS it asks for Accessibility and Screen Recording the first time it runs. The installer sets up everything: git, the Rust toolchain, and the `vadgr` binaries. No Node.js and no browser: the machine's clients are this CLI and the phone app.
+Works on **Linux**, **WSL**, **Windows** and **macOS**. Desktop automation is the separate [vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use) package, which supports all four; on macOS it asks for Accessibility and Screen Recording the first time it runs. The installer sets up everything: git, the Rust toolchain, the C toolchain the build links with, and the `vadgr` binaries. No Node.js and no browser: the machine's clients are this CLI and the phone app.
 
 ```bash
 # Linux / macOS / WSL

@@ -10,6 +10,7 @@ pub mod config;
 pub mod db;
 pub mod engine;
 pub mod error;
+pub mod http;
 pub mod migrate;
 pub mod platform;
 pub mod routes;

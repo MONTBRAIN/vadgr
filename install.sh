@@ -42,6 +42,18 @@ detect_os() {
 
 command_exists() { command -v "$1" >/dev/null 2>&1; }
 
+# Package installs need root. A desktop user has sudo and no root shell; a
+# container is the reverse, and the installer runs on both.
+as_root() {
+    if [ "$(id -u)" -eq 0 ]; then
+        "$@"
+    elif command_exists sudo; then
+        sudo "$@"
+    else
+        fail "Installing packages needs root. Run as root or install sudo first."
+    fi
+}
+
 # ---------------------------------------------------------------------------
 # Install dependencies
 # ---------------------------------------------------------------------------
@@ -64,11 +76,11 @@ install_git() {
     case "$OS" in
         linux|wsl)
             if command_exists apt-get; then
-                sudo apt-get update -qq && sudo apt-get install -y -qq git
+                as_root apt-get update -qq && as_root apt-get install -y -qq git
             elif command_exists dnf; then
-                sudo dnf install -y -q git
+                as_root dnf install -y -q git
             elif command_exists pacman; then
-                sudo pacman -S --noconfirm git
+                as_root pacman -S --noconfirm git
             else
                 fail "No supported package manager found. Install git manually."
             fi
@@ -76,6 +88,37 @@ install_git() {
         macos)
             install_homebrew
             brew install git
+            ;;
+    esac
+}
+
+install_build_tools() {
+    # rustup installs the compiler but not the system linker it drives, and a
+    # desktop machine rarely has one: without this the build fails minutes in
+    # with "linker `cc` not found".
+    case "$OS" in
+        linux|wsl)
+            if command_exists cc; then return; fi
+            info "Installing the C toolchain the build links with..."
+            if command_exists apt-get; then
+                as_root apt-get update -qq && as_root apt-get install -y -qq build-essential
+            elif command_exists dnf; then
+                as_root dnf install -y -q gcc
+            elif command_exists pacman; then
+                as_root pacman -S --noconfirm --needed base-devel
+            else
+                fail "No supported package manager found. Install a C compiler (cc) manually."
+            fi
+            command_exists cc || fail "Installed a C toolchain but cc is still not on PATH."
+            ;;
+        macos)
+            # A fresh macOS ships /usr/bin/cc and /usr/bin/git as shims that
+            # only open an install dialog, so command -v cannot answer this;
+            # xcode-select can.
+            if xcode-select -p >/dev/null 2>&1; then return; fi
+            info "The Xcode Command Line Tools are missing. Asking macOS to install them..."
+            xcode-select --install >/dev/null 2>&1 || true
+            fail "Finish the Command Line Tools install in the dialog macOS opened, then run this script again."
             ;;
     esac
 }
@@ -196,6 +239,7 @@ main() {
 
     info "Detected OS: $OS"
 
+    install_build_tools
     install_git
     install_rust
     setup_repo

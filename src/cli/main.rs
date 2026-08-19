@@ -283,7 +283,15 @@ async fn run_task(
 #[tokio::main]
 async fn main() {
     let cli = Cli::parse();
-    let client = Client::new(base_url(cli.api_url.as_deref()));
+    let client = match Client::new(base_url(cli.api_url.as_deref())) {
+        Ok(client) => client,
+        // The same rendering and exit code as `CliError::Failed`, without a
+        // command ever having run.
+        Err(message) => {
+            anstream::eprintln!("{}", output::error(&message));
+            std::process::exit(1);
+        }
+    };
 
     let result: Result<(), CliError> = match cli.command {
         Command::Health => commands::info::health(&client).await,

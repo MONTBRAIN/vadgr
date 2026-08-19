@@ -43,6 +43,15 @@ daemon happened to start in.
   by side.
 
 ### Fixed
+- **The CLI crashed on a machine with no CA certificates.** Every `vadgr`
+  command built its HTTP client against the system trust store, so on a machine
+  without a CA bundle the command died with a Rust panic before doing anything,
+  even `vadgr health`, which talks plain HTTP to loopback and never needed a
+  certificate. The client now carries its own compiled-in roots, the same
+  Mozilla list the WebSocket path already used, so provider calls keep
+  verifying TLS and no command needs anything from the machine. A machine
+  behind a TLS-inspecting proxy should exempt the provider hosts from
+  interception, because the proxy's root is not in that list.
 - **A run that looked at the screen failed on Gemini.** A screenshot returned
   inside the function response is refused by the service with "Multimodal
   function responses are not supported for this model", so every run that took

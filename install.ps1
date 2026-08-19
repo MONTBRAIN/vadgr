@@ -52,6 +52,28 @@ function InstallGit {
 # Setup Vadgr
 # ---------------------------------------------------------------------------
 
+function MsvcToolsPresent {
+    $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+    if (-not (Test-Path $vswhere)) { return $false }
+    $path = & $vswhere -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+    return -not [string]::IsNullOrWhiteSpace("$path")
+}
+
+function InstallBuildTools {
+    # rustup installs the compiler but not the MSVC linker it drives, and
+    # Windows does not ship one: without this the build fails minutes in with
+    # "link.exe not found". The Build Tools carry the linker and the Windows
+    # SDK the static C runtime is linked from.
+    if (MsvcToolsPresent) { return }
+    Info "Installing the Visual Studio Build Tools (the MSVC linker; this is the largest download)..."
+    EnsureWinget
+    winget install --id Microsoft.VisualStudio.2022.BuildTools --accept-source-agreements --accept-package-agreements --silent `
+        --override "--quiet --wait --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
+    if (-not (MsvcToolsPresent)) {
+        Fail "The Build Tools did not install. Install 'Visual Studio Build Tools' with the 'Desktop development with C++' workload, then re-run this script."
+    }
+}
+
 function InstallRust {
     if (CommandExists cargo) { return }
     Info "Installing the Rust toolchain..."
@@ -154,6 +176,7 @@ function Main {
     Write-Host ""
 
     InstallGit
+    InstallBuildTools
     InstallRust
     SetupRepo
     BuildAndInstall

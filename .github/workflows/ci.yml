@@ -41,15 +41,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          # Linux gets a container with nothing in it, which is the only place
-          # a truly clean machine is available to us.
-          - os: ubuntu-latest
-            shell: bash
-          - os: windows-latest
-            shell: pwsh
-          - os: macos-latest
-            shell: bash
+        # Linux gets a container with nothing in it, which is the only place
+        # a truly clean machine is available to us.
+        os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     steps:
@@ -60,12 +54,26 @@ jobs:
         shell: bash
         run: |
           docker run --rm -v "$PWD:/src:ro" -e VADGR_REF="$GITHUB_SHA" debian:12-slim bash -eu -c '
+            # Only what the delivery mechanism itself implies: the script
+            # arrives through curl over TLS. git and both toolchains are the
+            # job of the installer, and pre-installing them here would prove a
+            # machine no fresh user has. This job once pre-installed
+            # build-essential, which hid that the installer never set up the
+            # linker the build needs.
             apt-get update -qq
-            apt-get install -y -qq --no-install-recommends ca-certificates curl git build-essential
-            ! command -v cargo
-            ! command -v vadgr
-            git config --global --add safe.directory /src
-            git config --global --add safe.directory /src/.git
+            apt-get install -y -qq --no-install-recommends ca-certificates curl
+            # set -e ignores a pipeline that starts with !, so a negated
+            # command can never fail a step: two of these were decoration
+            # here. Test presence explicitly instead.
+            for tool in cargo cc git vadgr; do
+              if command -v "$tool"; then echo "$tool is preinstalled, so this machine is not clean"; exit 1; fi
+            done
+            # The bind mount belongs to another uid, and git is not installed
+            # yet, so the trust is written as the global config file itself.
+            # It cannot travel as GIT_CONFIG_* environment: git deliberately
+            # ignores safe.directory from anywhere but protected config, and
+            # that route was tried and failed against this exact base image.
+            printf "[safe]\n\tdirectory = /src\n\tdirectory = /src/.git\n" > "$HOME/.gitconfig"
             VADGR_REPO_URL=/src bash /src/install.sh
             export PATH="$HOME/.vadgr/bin:$PATH"
             command -v vadgr | grep -q "^$HOME/.vadgr/bin/vadgr$"
@@ -112,6 +120,12 @@ jobs:
           $resolved = (Get-Command vadgr).Source
           if ($resolved -ne "$env:USERPROFILE\.vadgr\bin\vadgr.exe") { throw "vadgr resolved to $resolved" }
           vadgr --version
+          # The imports gate, on the binaries the script just installed. It is
+          # the regression net for the crt-static flag inside install.ps1
+          # itself: this runner has the redistributable, so a binary that
+          # quietly imported it would run here and fail only on a user's
+          # machine.
+          .\scripts\check_windows_imports.ps1 "$env:USERPROFILE\.vadgr\bin\vadgr.exe" "$env:USERPROFILE\.vadgr\bin\vadgr-daemon.exe"
           # Exit 3 with nothing started is the contract, on this platform too.
           # The message goes to stderr, and this shell runs with a stop
           # preference that turns any native stderr into a terminating error, so
@@ -135,17 +149,27 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # macos-15 as well as the current image, because a binary built on a
-        # newer macOS can silently require it, and an older supported release is
-        # the nearest thing to a machine that did not build it.
-        os: [ubuntu-latest, windows-latest, macos-latest, macos-15]
+        # ubuntu-24.04 pinned rather than ubuntu-latest: the Linux leg runs
+        # the binary in an ubuntu:24.04 base (BASE_IMAGE in
+        # tests/clean_install.rs), and the C library only lines up when the
+        # build machine matches it. A -latest label that moved would break
+        # that pairing silently.
+        #
+        # Two macOS releases, because a user compiles on whichever their
+        # machine runs, so each leg builds and runs on its own image. Neither
+        # leg runs a binary built on the other release: that cross-version
+        # question belongs to the release that ships prebuilt binaries.
+        os: [ubuntu-24.04, windows-latest, macos-latest, macos-15]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
-          targets: x86_64-pc-windows-msvc
+          # The explicit MSVC target exists so the crt-static flag reaches the
+          # binary and not the build scripts; the other platforms build the
+          # host target and need nothing extra.
+          targets: ${{ runner.os == 'Windows' && 'x86_64-pc-windows-msvc' || '' }}
       - uses: Swatinem/rust-cache@v2
 
       - name: Build the release binaries
@@ -166,40 +190,51 @@ jobs:
       # a base image with no toolchain, the binary copied in, nothing else.
       - name: Install it alone on a machine with no toolchain, and serve
         if: runner.os == 'Linux'
+        shell: bash
         env:
           VADGR_RELEASE_BINARY: target/release/vadgr-daemon
-        run: cargo test --locked --test clean_install installed_release_starts_and_serves -- --ignored --exact --nocapture
+        run: |
+          # A filter that matches nothing is "running 0 tests ... ok", so the
+          # exit code alone can go green while running nothing. Read the count
+          # too; the explicit bash shell brings pipefail, so the exit code of
+          # cargo test is still read through the pipe.
+          cargo test --locked --test clean_install installed_release_starts_and_serves -- --ignored --exact --nocapture | tee /tmp/clean-install.log
+          grep -F "test result: ok. 1 passed" /tmp/clean-install.log
 
       - name: What it links, and whether it serves with the toolchain out of reach
         if: runner.os == 'macOS'
         shell: bash
         run: |
           set -euo pipefail
-          exe=target/release/vadgr-daemon
-          test -x "$exe" || { echo "no binary at $exe"; exit 1; }
-          otool -L "$exe"
-          # Every library must be one macOS ships. Anything under /opt or
-          # /usr/local is a dependency a user's machine may not have.
-          libs="$(otool -L "$exe" | tail -n +2 | awk '{print $1}')"
-          count="$(printf '%s\n' "$libs" | grep -c . || true)"
-          test "$count" -ge 1 || { echo "read no linked libraries, which cannot be right"; exit 1; }
-          echo "linked libraries: $count"
-          bad=0
-          while IFS= read -r lib; do
-            [ -n "$lib" ] || continue
-            case "$lib" in
-              /usr/lib/*|/System/Library/*) ;;
-              *) echo "links $lib, which macOS does not guarantee"; bad=1 ;;
-            esac
-          done <<< "$libs"
-          test "$bad" -eq 0 || exit 1
+          # Both binaries the user gets, because a dependency added to only
+          # one of them is exactly the defect an inspection of the other
+          # cannot see.
+          for exe in target/release/vadgr-daemon target/release/vadgr; do
+            test -x "$exe" || { echo "no binary at $exe"; exit 1; }
+            otool -L "$exe"
+            # Every library must be one macOS ships. Anything under /opt or
+            # /usr/local is a dependency a user's machine may not have.
+            libs="$(otool -L "$exe" | tail -n +2 | awk '{print $1}')"
+            count="$(printf '%s\n' "$libs" | grep -c . || true)"
+            test "$count" -ge 1 || { echo "read no linked libraries from $exe, which cannot be right"; exit 1; }
+            echo "$exe links $count libraries"
+            bad=0
+            while IFS= read -r lib; do
+              [ -n "$lib" ] || continue
+              case "$lib" in
+                /usr/lib/*|/System/Library/*) ;;
+                *) echo "$exe links $lib, which macOS does not guarantee"; bad=1 ;;
+              esac
+            done <<< "$libs"
+            test "$bad" -eq 0 || exit 1
+          done
           # The minimum macOS it will start on, recorded so a raised floor is
           # visible here rather than to someone on an older machine.
-          vtool -show-build "$exe" 2>/dev/null | grep -E "minos|platform" || true
+          vtool -show-build target/release/vadgr-daemon 2>/dev/null | grep -E "minos|platform" || true
           root="$(mktemp -d)"
           env -i HOME="$root" \
             VADGR_STATE_HOME="$root/state" VADGR_PORT=8100 VADGR_TRANSPORT=loopback \
-            "$PWD/$exe" > "$root/daemon.log" 2>&1 &
+            "$PWD/target/release/vadgr-daemon" > "$root/daemon.log" 2>&1 &
           body=""
           for _ in $(seq 1 40); do
             body="$(curl -fsS http://127.0.0.1:8100/api/health 2>/dev/null || true)"
@@ -208,36 +243,21 @@ jobs:
           done
           echo "$body"
           echo "$body" | grep -q '"status":"healthy"' || { cat "$root/daemon.log"; exit 1; }
+          # The CLI a user types, run the same way the daemon was: no PATH and
+          # no toolchain in reach. Exit 0 here needs the wire, not just the
+          # binary loading.
+          env -i HOME="$root" VADGR_PORT=8100 "$PWD/target/release/vadgr" health
 
       - name: What it imports, and whether it serves with the toolchain out of reach
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           $exe = "target\x86_64-pc-windows-msvc\release\vadgr-daemon.exe"
-          if (-not (Test-Path $exe)) { throw "no binary at $exe" }
-          $dumpbin = Get-ChildItem "C:\Program Files*\Microsoft Visual Studio\*\*\VC\Tools\MSVC\*\bin\Hostx64\x64\dumpbin.exe" |
-            Select-Object -First 1
-          if (-not $dumpbin) { throw "dumpbin not found on this runner" }
-          $imports = & $dumpbin.FullName /dependents $exe |
-            Select-String -Pattern '^\s+(\S+\.(dll|exe))$' |
-            ForEach-Object { $_.Matches[0].Groups[1].Value.ToLower() } |
-            Sort-Object -Unique
-          $imports
-          # A check that read nothing is not a check. This one inspected the
-          # wrong path once and passed because the list was empty.
-          if ($imports.Count -lt 3) { throw "read $($imports.Count) imports, which cannot be right" }
-          # Every name here ships with Windows. vcruntime140.dll must never
-          # appear: it belongs to the Visual C++ redistributable.
-          $guaranteed = @('kernel32.dll','advapi32.dll','ntdll.dll','ws2_32.dll','user32.dll',
-                          'bcrypt.dll','bcryptprimitives.dll','crypt32.dll','secur32.dll',
-                          'userenv.dll','shell32.dll','ole32.dll','oleaut32.dll','combase.dll',
-                          'powrprof.dll','psapi.dll','ncrypt.dll','ntoskrnl.exe','rpcrt4.dll',
-                          'iphlpapi.dll','shlwapi.dll','version.dll','winmm.dll')
-          foreach ($dll in $imports) {
-            if ($guaranteed -notcontains $dll -and $dll -notlike 'api-ms-win-*') {
-              throw "imports $dll, which Windows does not guarantee"
-            }
-          }
+          $cli = "target\x86_64-pc-windows-msvc\release\vadgr.exe"
+          # Both binaries the user gets, against the one shipped-with-Windows
+          # list the installer job also checks; two copies of that list would
+          # drift apart.
+          .\scripts\check_windows_imports.ps1 $cli $exe
           $root = Join-Path $env:RUNNER_TEMP ([guid]::NewGuid())
           New-Item -ItemType Directory -Path $root | Out-Null
           $daemon = Start-Process -PassThru -FilePath (Resolve-Path $exe) `
@@ -254,6 +274,17 @@ jobs:
           if (-not $body -or $body -notmatch '"status":"healthy"') {
             Get-Content "$root\err.log" -ErrorAction SilentlyContinue
             throw "the binary did not serve health on its own"
+          }
+          # The CLI a user types, run the same way the daemon was: no PATH and
+          # no toolchain in reach. Exit 0 here needs the wire, not just the
+          # binary loading.
+          $cliRun = Start-Process -PassThru -Wait -FilePath (Resolve-Path $cli) -ArgumentList 'health' `
+            -Environment @{ PATH=''; USERPROFILE=$root; LOCALAPPDATA=$root; VADGR_PORT='8100' } `
+            -RedirectStandardOutput "$root\cli.log" -RedirectStandardError "$root\cli.err"
+          Get-Content "$root\cli.log" -ErrorAction SilentlyContinue
+          if ($cliRun.ExitCode -ne 0) {
+            Get-Content "$root\cli.err" -ErrorAction SilentlyContinue
+            throw "the CLI exited $($cliRun.ExitCode) against a healthy daemon"
           }
           Stop-Process -Id $daemon.Id -Force
           exit 0
