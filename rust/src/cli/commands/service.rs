@@ -7,7 +7,7 @@
 //! health is therefore supervising a separate process, on purpose.
 
 use std::io::{BufRead, Read, Seek, SeekFrom, Write};
-use std::net::{TcpStream, ToSocketAddrs};
+use std::net::{TcpListener, TcpStream, ToSocketAddrs};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::time::Duration;
@@ -150,10 +150,29 @@ pub fn port_in_use(port: u16) -> bool {
     })
 }
 
+/// Whether this process could actually take the port.
+///
+/// `port_in_use` asks a different question, and asks it by connecting: it says
+/// whether something answers, which is right for "is a daemon alive" and wrong
+/// for "can I bind this". A listener whose backlog is full refuses the probe, so
+/// two connects in a row disagree and the port reads free while it is held.
+/// Binding is the question being asked here, and its answer does not depend on
+/// what the other process is doing with its accept queue.
+fn port_bindable(port: u16) -> bool {
+    match TcpListener::bind(("127.0.0.1", port)) {
+        Ok(listener) => {
+            drop(listener);
+            true
+        }
+        Err(_) => false,
+    }
+}
+
+/// The first port at or above `default` that this process can bind.
 fn find_free_port(default: u16) -> Option<u16> {
     (0..PORT_SEARCH_ATTEMPTS)
         .filter_map(|offset| default.checked_add(offset))
-        .find(|candidate| !port_in_use(*candidate))
+        .find(|candidate| port_bindable(*candidate))
 }
 
 fn kill_tree(pid: u32) {
@@ -699,4 +718,118 @@ fn install_requirements(package: &Path, requirements: &Path) -> Result<(), CliEr
         ));
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod port_selection_tests {
+    use super::*;
+
+    /// A socket bound and listening with a backlog of one, never accepting.
+    ///
+    /// This is the state a real busy port reaches under probing: the first
+    /// connect fills the queue and every later one is refused, so a probe that
+    /// asks by connecting reports the held port as free.
+    #[cfg(unix)]
+    fn hold_port_without_accepting() -> (i32, u16) {
+        let seed = TcpListener::bind(("127.0.0.1", 0)).unwrap();
+        let port = seed.local_addr().unwrap().port();
+        drop(seed);
+        unsafe {
+            let fd = libc::socket(libc::AF_INET, libc::SOCK_STREAM, 0);
+            assert!(fd >= 0, "socket");
+            let one: libc::c_int = 1;
+            libc::setsockopt(
+                fd,
+                libc::SOL_SOCKET,
+                libc::SO_REUSEADDR,
+                &one as *const _ as *const libc::c_void,
+                std::mem::size_of::<libc::c_int>() as libc::socklen_t,
+            );
+            // `sockaddr_in` is not the same struct on every Unix. The BSDs,
+            // macOS included, carry a leading `sin_len`; Linux does not have the
+            // field at all, so naming it there is a compile error rather than a
+            // portability wart. Zeroing the struct and filling the fields every
+            // platform shares keeps one helper for all of them.
+            let mut addr: libc::sockaddr_in = std::mem::zeroed();
+            addr.sin_family = libc::AF_INET as libc::sa_family_t;
+            addr.sin_port = port.to_be();
+            addr.sin_addr = libc::in_addr {
+                s_addr: u32::from_ne_bytes([127, 0, 0, 1]),
+            };
+            #[cfg(any(target_os = "macos", target_os = "ios", target_vendor = "apple"))]
+            {
+                addr.sin_len = std::mem::size_of::<libc::sockaddr_in>() as u8;
+            }
+            let rc = libc::bind(
+                fd,
+                &addr as *const _ as *const libc::sockaddr,
+                std::mem::size_of::<libc::sockaddr_in>() as libc::socklen_t,
+            );
+            assert_eq!(rc, 0, "bind the held port");
+            assert_eq!(libc::listen(fd, 1), 0, "listen with a backlog of one");
+            (fd, port)
+        }
+    }
+
+    /// The port search must never hand back a port it cannot bind.
+    ///
+    /// It used to decide with `port_in_use`, which answers by connecting. A
+    /// listener that is not accepting refuses the second probe, so the port read
+    /// busy once and free immediately after, and the search returned the very
+    /// port it had just been told was taken. The daemon then died on bind with
+    /// "Port 8815 busy, using 8815" printed above it.
+    #[cfg(unix)]
+    #[test]
+    fn the_search_never_returns_a_port_it_cannot_bind() {
+        let (fd, taken) = hold_port_without_accepting();
+
+        // The state that broke it: probing by connecting answers "busy" once and
+        // "free" once the accept queue is full, so the old search handed back the
+        // port it had just been told was taken.
+        //
+        // **How many probes that takes is the kernel's business, not this test's.**
+        // macOS refuses the second connect; Linux's effective backlog is larger
+        // than the number asked for, so it queues another first. Asserting the
+        // flip on the second probe made this test pass on one Unix and fail on
+        // another for a reason that is not the product.
+        assert!(
+            port_in_use(taken),
+            "the first probe should see the listener"
+        );
+        let flipped = (0..8).any(|_| !port_in_use(taken));
+
+        // The invariant holds either way, and it is the thing the fix promises:
+        // the search starts at the held port, so a search that still asked by
+        // connecting would return it and the bind below would fail.
+        let chosen = find_free_port(taken).expect("some port above it is free");
+        assert!(
+            flipped,
+            "the probe never reported the held port free, so this run did not \
+             reach the state the defect needed. The assertions below still hold, \
+             but this host proved the invariant rather than the history."
+        );
+
+        assert_ne!(chosen, taken, "the search returned the held port");
+        let proof = TcpListener::bind(("127.0.0.1", chosen));
+        assert!(
+            proof.is_ok(),
+            "port {chosen} was reported free but will not bind"
+        );
+        unsafe { libc::close(fd) };
+    }
+
+    /// The two questions are different and must stay different: one asks whether
+    /// anything answers, the other whether this process can take the port.
+    #[test]
+    fn bindability_is_not_the_same_question_as_liveness() {
+        let held = TcpListener::bind(("127.0.0.1", 0)).expect("a port to hold");
+        let taken = held.local_addr().unwrap().port();
+        assert!(!port_bindable(taken), "a held port must not be bindable");
+
+        drop(held);
+        assert!(
+            port_bindable(taken),
+            "a released port must be bindable again"
+        );
+    }
 }

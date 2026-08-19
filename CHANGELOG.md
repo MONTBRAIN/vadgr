@@ -36,6 +36,20 @@ All notable changes to this project are documented here. Format follows [Keep a 
 - **The `Duration` column carries a duration.** No daemon sends one, so it used
   to be a dash for every run; it is computed from the timestamps the row already
   carries.
+- **The daemon names the machine it is on.** `GET /api/health` and
+  `GET /api/computer-use/status` returned a hard-coded `wsl2` on every host, and
+  the phone prints that string in its machine row, so a native Windows box told
+  its owner it was WSL. The word was wrong on WSL too, because the two daemons
+  answered the same route differently while both ship.
+- **`vadgr run --background --json` writes JSON and nothing else.** The run row
+  was followed by the watch hint on the same stream, so the output the flag calls
+  machine readable would not parse. The hint is still printed when the caller did
+  not ask for JSON.
+- **`vadgr start` survives a busy port.** The port search asked whether it could
+  connect rather than whether it could bind, and a listener that is not accepting
+  refuses the second probe, so the search returned the very port it had just been
+  told was taken: it printed `Port 8815 busy, using 8815` and the daemon died on
+  bind.
 
 ### Changed
 - **The environment variables are renamed, and the old names are gone.** Export

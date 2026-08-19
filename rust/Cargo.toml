@@ -90,5 +90,8 @@ windows-sys = { version = "0.61", features = [
 
 [dev-dependencies]
 tower = { version = "0.5", features = ["util"] }
+# The port-search test needs a socket that is bound but not accepting, which is
+# the state that made the old connect probe lie. std cannot express it.
+libc = "0.2"
 http-body-util = "0.1"
 tempfile = "3"
