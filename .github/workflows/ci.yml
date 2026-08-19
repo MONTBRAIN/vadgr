@@ -68,7 +68,7 @@ jobs:
             apt-get install -y -qq --no-install-recommends ca-certificates curl git build-essential
             ! command -v cargo
             ! command -v vadgr
-            git config --global --add safe.directory /src
+            git config --global --add safe.directory '*'
             VADGR_REPO_URL=/src bash /src/install.sh
             export PATH="$HOME/.vadgr/bin:$PATH"
             command -v vadgr | grep -q "^$HOME/.vadgr/bin/vadgr$"
@@ -87,8 +87,17 @@ jobs:
           VADGR_REPO_URL: ${{ github.workspace }}
           VADGR_REF: ${{ github.sha }}
         run: |
-          export PATH="$(echo "$PATH" | tr ':' '\n' | grep -v -e cargo -e rustup | paste -sd:)"
-          ! command -v cargo || { echo "the runner still has cargo on PATH"; exit 1; }
+          # Remove whatever directory actually provides cargo, however it got
+          # there, rather than guessing at its name. A name based filter missed
+          # the runner's own location and the assertion below caught it.
+          for _ in 1 2 3 4 5; do
+            where="$(command -v cargo || true)"
+            [ -n "$where" ] || break
+            dir="$(dirname "$(readlink -f "$where")")"
+            export PATH="$(echo "$PATH" | tr ':' '\n' | grep -vxF "$dir" | grep -vxF "$(dirname "$where")" | paste -sd:)"
+            hash -r
+          done
+          ! command -v cargo || { echo "the runner still has cargo at $(command -v cargo)"; exit 1; }
           bash install.sh
           export PATH="$HOME/.vadgr/bin:$PATH"
           command -v vadgr | grep -q "^$HOME/.vadgr/bin/vadgr$"
@@ -103,8 +112,15 @@ jobs:
           VADGR_REPO_URL: ${{ github.workspace }}
           VADGR_REF: ${{ github.sha }}
         run: |
-          $env:PATH = ($env:PATH -split ';' | Where-Object { $_ -notmatch 'cargo|rustup' }) -join ';'
-          if (Get-Command cargo -ErrorAction SilentlyContinue) { throw "the runner still has cargo on PATH" }
+          # Remove whatever directory actually provides cargo, however it got
+          # there, rather than guessing at its name.
+          for ($i = 0; $i -lt 5; $i++) {
+            $found = Get-Command cargo -ErrorAction SilentlyContinue
+            if (-not $found) { break }
+            $dir = Split-Path -Parent $found.Source
+            $env:PATH = ($env:PATH -split ';' | Where-Object { $_ -ne $dir }) -join ';'
+          }
+          if (Get-Command cargo -ErrorAction SilentlyContinue) { throw "the runner still has cargo at $((Get-Command cargo).Source)" }
           .\install.ps1
           $env:PATH = "$env:USERPROFILE\.vadgr\bin;$env:PATH"
           $resolved = (Get-Command vadgr).Source
