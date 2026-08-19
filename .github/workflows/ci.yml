@@ -113,7 +113,11 @@ jobs:
           if ($resolved -ne "$env:USERPROFILE\.vadgr\bin\vadgr.exe") { throw "vadgr resolved to $resolved" }
           vadgr --version
           # Exit 3 with nothing started is the contract, on this platform too.
-          vadgr health
+          # The message goes to stderr, and this shell runs with a stop
+          # preference that turns any native stderr into a terminating error, so
+          # the exit code would never be read. Read it deliberately instead.
+          $ErrorActionPreference = 'Continue'
+          vadgr health 2>&1 | ForEach-Object { Write-Host $_ }
           if ($LASTEXITCODE -ne 3) { throw "expected exit 3 from a stopped daemon, got $LASTEXITCODE" }
 
   clean-install:
