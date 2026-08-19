@@ -71,8 +71,8 @@ been.
 | `ANTHROPIC_API_KEY` in `../.env` | `E3` | `grep -c '^ANTHROPIC_API_KEY' ../.env` returns `1` | one authenticated catalog call | the connection is removed in `E3` |
 | A paid OpenAI account the owner can sign into (ChatGPT) | `O3` | the owner says so; nothing is typed | one OAuth authorization | the connection is removed |
 | `OPENAI_API_KEY` in `../.env` | `O4` | `grep -c '^OPENAI_API_KEY' ../.env` | one authenticated catalog call | the connection is removed |
-| A handset with the Vadgr app, held by the owner | `H1`-`H4` | the owner confirms the phone is in hand | none | the device is removed |
-| Tailscale up and logged in | `G2`-`G8`, `W4`, `S1`, `H1`-`H4` | `tailscale status` names this node | none | none |
+| A handset with the released Vadgr app (`vadgr-mobile 0.4.1`), held by the tester | `H1`-`H5` | the owner confirms the phone is in hand | none | the device is removed |
+| Tailscale up and logged in | `G2`-`G8`, `W4`, `S1`, `H1`-`H5` | `tailscale status` names this node | none | none |
 | A container runtime, for the installer cells | `I1`-`I6` | `docker info` or `podman info` answers | pulls a base image; `I6` rebuilds inside the container | the container is removed |
 | a wire client for the sockets | `W1`-`W4`, `G8` | `python3 harness/sockets.py --help` (the standard library only, nothing to install) | none | none |
 | `vadgr-computer-use` installed, `vadgr-cua` resolvable | `CU1`-`CU3`, `F1`-`F3`, `F5`, `R1`-`R2`, `H3` | `vadgr-cua --version` prints a version | none | none |
@@ -195,10 +195,10 @@ blank.
 | W the sockets, on the wire | route x admission | 4 | 0 | 4 |
 | S source enforcement | gate x source | 1 | 0 | 1 |
 | O OAuth and the callback | page x port x account | 4 | 0 | 4 |
-| H the phone, held by a person | surviving handheld cells | 4 | 0 | 4 |
+| H the phone, held by a person | what the released app does | 5 | 0 | 5 |
 | I the installer and update | clean host x drive | 6 | 0 | 6 |
 | J the platform state root | default resolution | 1 | 0 | 1 |
-| | | **79** | **0** | **79** |
+| | | **80** | **0** | **80** |
 
 ## Part A: the thing under test is the thing that was built
 
@@ -312,9 +312,9 @@ side effect that appears **exactly once** across an interruption is what
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| R1 | a watched run mid-flight, on a task shaped "wait 30 seconds with your time tool, then run: echo vadgr-e2e-<nonce>, then stop"; the kill lands during the wait | `kill -9` the daemon pid | the watcher prints "The run stream closed. The run continues in the background." and exits `0` - the deliberate no-verdict outcome, observed on purpose; the run row in the database file still reads an active status, read with `sqlite3` directly, since no daemon is alive to ask | the watcher output and exit code; the row read from the file | R2 | |
+| R1 | a watched run mid-flight, on a task shaped "call your time tool's sleep for 30 seconds, then run: echo vadgr-e2e-<nonce>, then stop" (the released runtime's `time` tool ships `sleep`, capped at 60 seconds); the kill lands during the wait | `kill -9` the daemon pid | the watcher prints "The run stream closed. The run continues in the background." and exits `0` - the deliberate no-verdict outcome, observed on purpose; the run row in the database file still reads an active status, read with `sqlite3` directly, since no daemon is alive to ask | the watcher output and exit code; the row read from the file | R2 | |
 | R2 | R1's state root, daemon dead, one active run in it | start the daemon | the log carries the recovery scan line with `resumed=1`; the run reaches a terminal state; **the journal grew past its pre-kill end**, the resumed segment is marked as such, and **the nonce appears in exactly one `done` line across the whole journal** - interrupted plus recovered is still once | the recovery log line; the journal's pre-kill and final line counts; the nonce count | stop | |
-| R3 | provider connected and default | `vadgr run "Use your ask tool to ask the owner whether to continue, and wait for the answer." --background`, then watch it from a second terminal | the row reaches **`awaiting_approval`**; the watcher prints the waiting-for-approval line; the socket carries an `awaiting` frame. **Disposition, stated rather than silent**: this release ships no reply surface for a parked run - the engine's own source says so at `src/engine/control/hitl.rs` - so the shipped exits are cancel and boot re-park, and this cell proves the park is reachable, visible on every surface, and safe. The reply surface belongs to the release that ships the conversation surface | the row; the watcher line; the captured `awaiting` frame | R4 consumes this run | |
+| R3 | provider connected and default | `vadgr run "Use your ask_user tool to ask the owner whether to continue, and wait for the answer." --background`, then watch it from a second terminal | the row reaches **`awaiting_approval`**; the watcher prints the waiting-for-approval line; the socket carries an `awaiting` frame. **Disposition, stated rather than silent**: this release ships no reply surface for a parked run - the engine's own source says so at `src/engine/control/hitl.rs` - so the shipped exits are cancel and boot re-park, and this cell proves the park is reachable, visible on every surface, and safe. The reply surface belongs to the release that ships the conversation surface | the row; the watcher line; the captured `awaiting` frame | R4 consumes this run | |
 | R4 | R3's run parked | restart the daemon, then `vadgr runs cancel <id>` | the recovery scan line says `parked=1` and the row still reads `awaiting_approval` after boot; the cancel then lands: the row reads `cancelled`, and **the daemon stays healthy** - health answers `200` and the log holds no panic | the recovery log line; the row before and after the cancel; health; a grep of the log for panics | stop | |
 
 ## Part G: pairing and devices
@@ -398,10 +398,13 @@ does it:**
 The operator states the tailnet address and the code with each cell; the tester
 never types an address the operator did not give them.
 
-**What this part does not do, and why.** The shipped app is a reader: it pairs,
-lists machines, lists runs, opens a run and consumes the run stream. Starting a
-run from the phone is the mobile repository's `0.5.0`, against `POST /api/runs`,
-so no cell here asks for it and its coverage belongs to that release's runbook.
+**What this part does not do, and why.** These cells are written against the
+released `vadgr-mobile 0.4.1`, read from that repository's source at its tag,
+and they ask the app for nothing that version does not ship. The shipped app is
+a reader: it pairs and unpairs, lists machines, renders a machine's runs as a
+conversation, opens a run's sheet and consumes the run stream. Starting a run
+from the phone is `vadgr-mobile 0.5.0`, against `POST /api/runs`, so no cell
+here asks for it and its handheld cell belongs to that release's runbook.
 What this release owns, and what these cells prove, is the wire underneath: that
 a paired handset on the tailnet reaches the cutover's daemon, is admitted by its
 device token, and receives the stream frames the daemon sends. `W2` drives that
@@ -409,10 +412,11 @@ same socket from the machine; only a handset proves the phone's end of it.
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| H1 | `H2` done, so the handset is paired; Tailscale still on | **tester**: open the app, then open the machine's row | the app names the machine `Santiago-Casa` and shows it healthy; the daemon's request log holds the app's `GET /api/health` from the tailnet address, not from loopback | the daemon's request log lines with their source address, the app's machine row | none | |
-| H2 | Tailscale on and connected on the phone; the app open; this machine not already paired; the operator has just run `vadgr pair` and can see the QR | **tester**: tap Add machine, scan the QR the operator is showing, or type the code exactly as printed including the hyphen | `POST /api/auth/claim` answers `200` in the request log and a device row appears in `GET /api/devices`; the app shows the machine by name | the log line, the device row, the app's machine list | `H4` keeps the device; the operator revokes it at the end of the part | |
-| H3 | `H1` done; a provider connected and a default model set; the tester is on the phone's run list | **operator**: start the run on the machine with `vadgr run "Take one screenshot and tell me in five words what you see" --background`, and say the run id aloud. **tester**: watch the run list, open the run when it appears, and stay on it until it finishes | the run appears on the phone without the tester refreshing anything, and its status advances to the same terminal status `GET /api/runs/<id>` serves; the daemon's log holds the handset's `GET /api/runs/<id>/stream` from the tailnet address, which is the phone's socket and the one no other cell drives from a handset | the daemon's stream log line with its source address, the run row over time, the journal under the state root's `runs/<id>/` | none | |
-| H4 | `H3` finished | **tester**: leave the run, return to the run list, open the same run again, and read out its status and its result text | the status the app shows equals the status `GET /api/runs/<id>` serves at the same moment, and the result text matches the run's stored `outputs.result` | the tester's spoken status and the API body, captured together with the time | the operator revokes the device: `DELETE /api/devices/<id>` | |
+| H1 | `H2` done, so the handset is paired; Tailscale still on | **tester**: open the app, then open the machine's row | the app names the machine by the hostname the operator states and shows it healthy; the daemon's request log holds the app's `GET /api/health` from the tailnet address, not from loopback | the daemon's request log lines with their source address, the app's machine row | none | |
+| H2 | Tailscale on and connected on the phone; the app open; this machine not already paired; the operator has just run `vadgr pair` and can see the QR | **tester**: tap Add machine, scan the QR the operator is showing, or type the code exactly as printed including the hyphen | `POST /api/auth/claim` answers `200` in the request log and a device row appears in `GET /api/devices`; the app shows the machine by name | the log line, the device row, the app's machine list | the device stays for `H1`-`H4`; `H5` unpairs it from the handset | |
+| H3 | `H1` done; a provider connected and a default model set; the tester has the machine's conversation open | **operator**: start the run on the machine with `vadgr run "Take one screenshot and tell me in five words what you see" --background`, and say the run id aloud. **tester**: pull the conversation down to refresh until the run's line appears, then stop pulling and watch the line until it finishes | the run's line appears **on a pull**, never on its own: the released list is a one-shot read behind a pull gesture, and a run arriving unpulled ships with `vadgr-mobile 0.5.0`'s machine stream, so unprompted arrival here is a **fail**, not a bonus. Once present, the live line renders progress **without further pulls** and settles on the same terminal status `GET /api/runs/<id>` serves; the daemon's log holds the handset's `GET /api/runs/<id>/stream` from the tailnet address, which is the phone's socket and the one no other cell drives from a handset | the daemon's stream log line with its source address, the run row over time, the journal under the state root's `runs/<id>/` | none | |
+| H4 | `H3` finished | **tester**: tap the run's line so its sheet opens, and read out the status and the text under "WHAT IT PRODUCED" | the status the sheet shows equals the status `GET /api/runs/<id>` serves at the same moment, and the produced text matches the run's stored `outputs.result`; the daemon's log holds the handset's read of that run | the tester's spoken status and the API body, captured together with the time; the log line | `H5` unpairs from the handset | |
+| H5 | `H4` done; the handset still paired | **tester**: open the machine, choose Unpair, and confirm the dialog that says the phone forgets the machine and its access is revoked | `DELETE /api/devices/<device_id>` arrives in the daemon's request log **from the handset's tailnet address**; the device row is gone from `GET /api/devices`; the app returns to its unpaired state, and any further read from the phone is refused by the token gate | the DELETE log line with its source address; the device list after; the refused read in the log | none: the unpair is the cleanup | |
 
 ## Part I: the installer, the update, on a machine that does not have the product
 
