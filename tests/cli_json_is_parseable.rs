@@ -91,10 +91,10 @@ async fn background_json_output_is_parseable_on_its_own() {
 /// what it prints, once.
 #[test]
 fn the_watched_json_path_writes_one_document_and_the_summary_is_not_on_stdout() {
-    let source = std::fs::read_to_string(
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/cli/main.rs"),
-    )
-    .expect("the CLI entry point is in the repository");
+    // Read with the line endings normalised. Windows checks the tree out with
+    // CRLF, so a pattern written with `\n` matches nothing there, and a test
+    // that reads source text fails on the one platform it was meant to protect.
+    let source = read_normalised("src/cli/main.rs");
 
     // The watcher is told to stay quiet exactly when the output is machine read.
     assert!(
@@ -108,12 +108,20 @@ fn the_watched_json_path_writes_one_document_and_the_summary_is_not_on_stdout() 
         "a watched --json run must not print the queued row before the final one"
     );
 
-    let stream = std::fs::read_to_string(
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/cli/stream.rs"),
-    )
-    .expect("the watcher is in the repository");
+    let stream = read_normalised("src/cli/stream.rs");
     assert!(
         !stream.contains("anstream::println!(\"{}\", output::success"),
         "the watcher's summary must go through the quiet guard, never straight to stdout"
     );
+}
+
+/// Read a source file with its line endings normalised.
+///
+/// A checkout on Windows can carry CRLF, so a multi-line pattern written with
+/// `\n` matches nothing there. A source-reading test that ignores this fails on
+/// exactly one platform, which is the platform these tests exist to protect.
+fn read_normalised(relative: &str) -> String {
+    std::fs::read_to_string(std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(relative))
+        .unwrap_or_else(|_| panic!("{relative} is in the repository"))
+        .replace("\r\n", "\n")
 }

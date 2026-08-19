@@ -9,8 +9,12 @@
 use std::path::Path;
 
 fn repo_file(name: &str) -> String {
+    // Normalised, because a checkout on Windows can carry CRLF and a pattern
+    // written with `\n` would match nothing there. A source-reading test that
+    // ignores this fails on exactly one platform.
     std::fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join(name))
         .unwrap_or_else(|_| panic!("{name} is in the repository"))
+        .replace("\r\n", "\n")
 }
 
 fn assignment(script: &str, name: &str) -> String {
