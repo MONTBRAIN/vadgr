@@ -230,6 +230,37 @@ Both surfaces are exercised and **neither substitutes for the other**:
 - **the CLI** (`vadgr run`, `vadgr runs get`) - the on-box path, with its own
   users and its own failure modes.
 
+**A cell asks a paired repository only for what it has released.** This product
+is one of several that call each other: the phone is a separate repository on
+its own version, and so is the computer-use runtime. A cell that asks the phone
+to do something the shipped app cannot do is a cell specified against a surface
+nobody built, and it fails for a reason that has nothing to do with the release
+under test.
+
+So before writing any cell that touches a paired repository, **read that
+repository, not its README**: its released tag and the source behind the screen
+or the tool you are about to ask for. Then **name the version the cell depends
+on**, in the runbook, in the paired-surfaces section every runbook carries:
+
+```markdown
+## Paired surfaces this pass depends on
+
+| repository | released version | what this pass relies on |
+|---|---|---|
+| vadgr-mobile | 0.4.1 | the app reads machines and runs and consumes the run stream |
+| vadgr-computer-use | 0.7.3 | the screenshot and shell tools, over stdio |
+```
+
+The rule runs in both directions: this runbook does not ask another repo's
+client for a surface it has not shipped, and it does not assume a daemon route
+that has not shipped either. **A cell whose surface arrives in a later release
+is written into that release's runbook, and its absence here is stated rather
+than silent.**
+
+It is written down because a `0.4.9` cell told the tester to start a run from
+the phone. Starting a run from the phone is the mobile app's `0.5.0`; the
+shipped app is a reader. The owner found it holding the handset.
+
 **A cell driven by a person is written for that person.** Where a part is held
 in someone's hands rather than run in a terminal, the operator drives the
 machine and the tester does only what the cell says, in the order it says it.

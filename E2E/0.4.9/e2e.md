@@ -45,6 +45,24 @@ The daemon is driven through its installed public entry point on `PATH`. The
 installer is driven the way a new user drives it: as a script, on a machine that
 does not have the product.
 
+## Paired surfaces this pass depends on
+
+This daemon is called by two other repositories, each on its own version. **A
+cell asks a paired repository only for what it has released.** A cell asking the
+phone for a screen the shipped app does not have is specified against a surface
+nobody built, and it fails for a reason that has nothing to do with this
+release.
+
+| repository | released version | what this pass relies on |
+|---|---|---|
+| vadgr-mobile | 0.4.1 | the app pairs by QR or code, lists machines, lists runs, opens a run, and consumes `GET /api/runs/{run_id}/stream` with its device token. **It is a reader**: starting a run from the phone is that repository's `0.5.0`, against `POST /api/runs`, and no cell here asks for it |
+| vadgr-computer-use | 0.7.3 | the installed `vadgr-cua` entry point over stdio, and the screenshot and shell tools, which are the tools every screen-touching cell here uses |
+
+**What this means for a cell that wants more.** It is written into the runbook
+of the release that delivers the surface, not this one, and its absence here is
+stated rather than silent. Part H says so where the run-start cell would have
+been.
+
 ## Owner and environment requirements
 
 | requirement | cells | non-secret availability check | cost or destructive effect | cleanup |
@@ -380,11 +398,20 @@ does it:**
 The operator states the tailnet address and the code with each cell; the tester
 never types an address the operator did not give them.
 
+**What this part does not do, and why.** The shipped app is a reader: it pairs,
+lists machines, lists runs, opens a run and consumes the run stream. Starting a
+run from the phone is the mobile repository's `0.5.0`, against `POST /api/runs`,
+so no cell here asks for it and its coverage belongs to that release's runbook.
+What this release owns, and what these cells prove, is the wire underneath: that
+a paired handset on the tailnet reaches the cutover's daemon, is admitted by its
+device token, and receives the stream frames the daemon sends. `W2` drives that
+same socket from the machine; only a handset proves the phone's end of it.
+
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
 | H1 | `H2` done, so the handset is paired; Tailscale still on | **tester**: open the app, then open the machine's row | the app names the machine `Santiago-Casa` and shows it healthy; the daemon's request log holds the app's `GET /api/health` from the tailnet address, not from loopback | the daemon's request log lines with their source address, the app's machine row | none | |
 | H2 | Tailscale on and connected on the phone; the app open; this machine not already paired; the operator has just run `vadgr pair` and can see the QR | **tester**: tap Add machine, scan the QR the operator is showing, or type the code exactly as printed including the hyphen | `POST /api/auth/claim` answers `200` in the request log and a device row appears in `GET /api/devices`; the app shows the machine by name | the log line, the device row, the app's machine list | `H4` keeps the device; the operator revokes it at the end of the part | |
-| H3 | `H1` done; a provider connected and a default model set | **tester**: start a new run from the phone and give it a task that needs the screen, for example `Take one screenshot and tell me in five words what you see`, then leave the run open and watch it | the run row appears in `GET /api/runs` within seconds and reaches a terminal state; the journal under the state root's `runs/<id>/` grows; the phone's socket carries `started`, `tool_call`, `output` and `completed` frames | the run row over time, the journal file, the frame record | none | |
+| H3 | `H1` done; a provider connected and a default model set; the tester is on the phone's run list | **operator**: start the run on the machine with `vadgr run "Take one screenshot and tell me in five words what you see" --background`, and say the run id aloud. **tester**: watch the run list, open the run when it appears, and stay on it until it finishes | the run appears on the phone without the tester refreshing anything, and its status advances to the same terminal status `GET /api/runs/<id>` serves; the daemon's log holds the handset's `GET /api/runs/<id>/stream` from the tailnet address, which is the phone's socket and the one no other cell drives from a handset | the daemon's stream log line with its source address, the run row over time, the journal under the state root's `runs/<id>/` | none | |
 | H4 | `H3` finished | **tester**: leave the run, return to the run list, open the same run again, and read out its status and its result text | the status the app shows equals the status `GET /api/runs/<id>` serves at the same moment, and the result text matches the run's stored `outputs.result` | the tester's spoken status and the API body, captured together with the time | the operator revokes the device: `DELETE /api/devices/<id>` | |
 
 ## Part I: the installer, the update, on a machine that does not have the product
