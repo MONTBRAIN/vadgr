@@ -130,11 +130,17 @@ phone still reaches the daemon. That is this runbook's half.
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| A1 | `$E2E_BIN` first on `PATH` | `command -v vadgr` | resolves inside `$E2E_BIN`; its `sha256` is the release build of the head under test | the path and both hashes | none | |
-| A2 | as A1 | `vadgr --version` | prints `0.4.9`, matching the manifest and what the daemon reports at `/api/health` | the printed line, the health body | none | |
-| A3 | a clean checkout | `git ls-files` | **no `.py` file outside `scripts/` and an older runbook's `harness/`**, no `requirements.txt`, no `rust/` directory | the file list, the sweep's own output | none | |
+| A1 | `$E2E_BIN` first on `PATH` | `command -v vadgr` | resolves inside `$E2E_BIN`; its `sha256` is the release build of the head under test | the path and both hashes | none | pass |
+| A2 | as A1 | `vadgr --version` | prints `0.4.9`, matching the manifest and what the daemon reports at `/api/health` | the printed line, the health body | none | pass |
+| A3 | a clean checkout | `git ls-files` | **no `.py` file outside `scripts/` and an older runbook's `harness/`**, no `requirements.txt`, no `rust/` directory | the file list, the sweep's own output | none | pass |
 
 ## Part B: a machine keeps its history
+
+**Every legacy database in this group is built from the shipped schema**, copied
+out of `api/persistence/database.py` at `v0.4.7` rather than retyped. A fixture
+thinner than any real installation passes the move and fails the first request,
+which is a case nobody can be in. The legacy journal tree is where the departing
+daemon kept it, at `~/.vadgr/runs`.
 
 The subject of this release. Each cell builds its own fixture, starts the daemon
 once, and is judged by opening the resulting database rather than by what the
@@ -142,15 +148,16 @@ daemon said.
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| B1 | an empty state root, no legacy database anywhere | start the daemon | it serves; the root holds `vadgr.db` and `credentials/` | directory listing, health | stop | |
-| B2 | a legacy database from the departing daemon with two runs, no other | start the daemon | the root's `vadgr.db` holds both runs; the source is gone | row counts before and after, `GET /api/runs` | stop | |
-| B3 | both legacy databases, different runs in each, and a legacy journal tree | start the daemon | **every run from both** is in the target, the journals are under `runs/`, and both sources are gone | row ids from each source and from the target, the journal file's bytes | stop | |
-| B4 | as B3, plus a run committed to the write-ahead log and not checkpointed | start the daemon | that run is in the target too | the row id, read from the target | stop | |
-| B5 | both databases sharing one run id | start the daemon | **it refuses**: non-zero exit, the id named, and both sources untouched | the message, both files' hashes before and after | none | |
-| B6 | both databases sharing one device id | start the daemon | it refuses and names the device | the message | none | |
-| B7 | a target root holding a file this product did not write | start the daemon | it refuses and names the root | the message, the foreign file still present | none | |
-| B8 | a staging directory left by an interrupted attempt | start the daemon | the debris is discarded and the consolidation completes | the listing before and after | stop | |
-| B9 | a machine already consolidated | start the daemon twice | the second start changes nothing: same row count, same file hashes | hashes before and after | stop | |
+| B1 | an empty state root, no legacy database anywhere | start the daemon | it serves; the root holds `vadgr.db` and `credentials/` | directory listing, health | stop | pass |
+| B2 | a legacy database from the departing daemon with two runs, no other | start the daemon | the root's `vadgr.db` holds both runs; the source is gone | row counts before and after, `GET /api/runs` | stop | pass |
+| B3 | both legacy databases, different runs in each, and a legacy journal tree | start the daemon | **every run from both** is in the target, the journals are under `runs/`, and both sources are gone | row ids from each source and from the target, the journal file's bytes | stop | pass |
+| B4 | as B3, plus a run committed to the write-ahead log and not checkpointed | start the daemon | that run is in the target too | the row id, read from the target | stop | pass |
+| B5 | both databases sharing one run id | start the daemon | **it refuses**: non-zero exit, the id named, and both sources untouched | the message, both files' hashes before and after | none | pass |
+| B6 | both databases sharing one device id | start the daemon | it refuses and names the device | the message | none | pass |
+| B7 | a target root holding a file this product did not write | start the daemon | it refuses and names the root | the message, the foreign file still present | none | pass |
+| B8 | a staging directory left by an interrupted attempt | start the daemon | the debris is discarded and the consolidation completes | the listing before and after | stop | pass |
+| B9 | a machine already consolidated | start the daemon twice | the second start changes nothing: same row count, same file hashes | hashes before and after | stop | pass |
+| B10 | a legacy database that opens, but whose `runs` table is missing a column every read needs | start the daemon | **it refuses**: non-zero exit, the missing column named, no target left behind, and the source byte for byte as it was | the message, the target's absence, the source's hash | none | pass |
 
 ## Part C: the service group
 

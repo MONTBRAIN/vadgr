@@ -290,11 +290,15 @@ fn convert_messages(messages: &[Message]) -> Vec<Value> {
                                 .get(id)
                                 .cloned()
                                 .unwrap_or_else(|| "tool".to_owned());
-                            // An image in a tool result is a typed
-                            // `inlineData` part on the function response, per
-                            // the service's multimodal function-response
-                            // shape. Embedding the raw block would send the
-                            // screenshot as base64 text the model cannot see.
+                            // An image in a tool result travels as its own
+                            // `inlineData` part beside the function response,
+                            // not inside it. The service rejects an image
+                            // within a function response with "Multimodal
+                            // function responses are not supported for this
+                            // model", which fails every run that looks at the
+                            // screen. Beside it, the model reads the picture.
+                            // Embedding the raw block instead would send the
+                            // screenshot as base64 text nothing can see.
                             let mut texts = Vec::new();
                             let mut media = Vec::new();
                             match block.get("content") {
@@ -323,15 +327,13 @@ fn convert_messages(messages: &[Message]) -> Vec<Value> {
                                 Some(Value::String(text)) => texts.push(text.clone()),
                                 _ => {}
                             }
-                            let mut part = json!({"functionResponse":{
+                            let part = json!({"functionResponse":{
                                 "id":id,
                                 "name":name,
                                 "response":{"result":texts.join("\n")}
                             }});
-                            if !media.is_empty() {
-                                part["functionResponse"]["parts"] = Value::Array(media);
-                            }
                             parts.push(part);
+                            parts.extend(media);
                         }
                         _ => {}
                     }
@@ -535,10 +537,18 @@ mod tests {
             },
         ];
         let body = client().body(&messages, &[], 512);
-        let response = &body["contents"][1]["parts"][0]["functionResponse"];
+        let parts = &body["contents"][1]["parts"];
+        let response = &parts[0]["functionResponse"];
         assert_eq!(response["response"]["result"], "captured");
-        assert_eq!(response["parts"][0]["inlineData"]["mimeType"], "image/png");
-        assert_eq!(response["parts"][0]["inlineData"]["data"], "aWizaW1hZ2U");
+        // Beside the function response, never inside it: the service refuses a
+        // multimodal function response and the run dies on the first look at
+        // the screen.
+        assert!(
+            response.get("parts").is_none(),
+            "the image must not sit inside the function response: {response}"
+        );
+        assert_eq!(parts[1]["inlineData"]["mimeType"], "image/png");
+        assert_eq!(parts[1]["inlineData"]["data"], "aWizaW1hZ2U");
         assert!(!response["response"].to_string().contains("aWizaW1hZ2U"));
     }
 

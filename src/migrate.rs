@@ -58,6 +58,8 @@ pub enum Refusal {
     TargetOccupied { root: PathBuf },
     /// A database could not be read at all.
     Unreadable { path: PathBuf, reason: String },
+    /// The consolidated database opens, but the daemon cannot serve it.
+    TargetUnservable { path: PathBuf, reason: String },
 }
 
 impl std::fmt::Display for Refusal {
@@ -88,6 +90,13 @@ impl std::fmt::Display for Refusal {
             Self::Unreadable { path, reason } => write!(
                 f,
                 "{} could not be read: {reason}. Nothing has been moved.",
+                path.display()
+            ),
+            Self::TargetUnservable { path, reason } => write!(
+                f,
+                "the consolidated database at {} cannot be served: {reason}. Nothing \
+                 has been moved: the original files are where they were, and the \
+                 half made target has been removed.",
                 path.display()
             ),
         }
@@ -263,7 +272,13 @@ pub fn apply(plan: &Plan, root: &Path) -> Result<(), Refusal> {
 
     // Verified, then the sources go. A source removed before the target is
     // readable is a machine with no history and no way back.
-    verify(&root.join("vadgr.db"))?;
+    if let Err(refusal) = verify(&root.join("vadgr.db")) {
+        // The sources are all still in place, so the half made target is the
+        // only thing to undo, and undoing it restores exactly what we found.
+        let _ = std::fs::rename(root, &stage);
+        let _ = std::fs::remove_dir_all(&stage);
+        return Err(refusal);
+    }
     for source in [Some(db), contribute].into_iter().flatten() {
         let _ = std::fs::remove_file(&source);
     }
@@ -377,15 +392,17 @@ fn copy_tree(from: &Path, to: &Path) -> Result<(), Refusal> {
 
 /// The target opens and answers, before any source is removed.
 fn verify(db: &Path) -> Result<(), Refusal> {
-    let unreadable = |e: rusqlite::Error| Refusal::Unreadable {
+    let unservable = |reason: String| Refusal::TargetUnservable {
         path: db.to_path_buf(),
-        reason: e.to_string(),
+        reason,
     };
-    let conn = Connection::open(db).map_err(unreadable)?;
-    conn.query_row("SELECT count(*) FROM sqlite_master", [], |row| {
-        row.get::<_, i64>(0)
-    })
-    .map_err(unreadable)?;
+    // Open it the way the daemon opens it, so the schema migrations run here,
+    // and then read what the API reads. That a file opens is not the question.
+    // Whether this machine can serve it is, and the only honest way to ask is
+    // to do the thing. A database that fails here failed before anyone relied
+    // on it, which is the difference between a refusal and an outage.
+    let db = crate::db::Db::open(db).map_err(|e| unservable(e.to_string()))?;
+    crate::db::runs::list_all(&db, None).map_err(|e| unservable(e.to_string()))?;
     Ok(())
 }
 
@@ -393,22 +410,90 @@ fn verify(db: &Path) -> Result<(), Refusal> {
 mod tests {
     use super::*;
 
+    /// Build a database the way a real machine has one: through the daemon's own
+    /// schema, then rows on top. A hand written two column table passes a move
+    /// and fails the first request, so a fixture thinner than any installation
+    /// tests a case nobody can be in.
     fn sqlite(path: &Path, tables: &[(&str, &[&str])]) {
         std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+        drop(crate::db::Db::open(path).unwrap());
         let conn = Connection::open(path).unwrap();
         for (table, ids) in tables {
-            conn.execute_batch(&format!(
-                "CREATE TABLE {table} (id TEXT PRIMARY KEY, title TEXT);"
-            ))
-            .unwrap();
-            for id in *ids {
-                conn.execute(
-                    &format!("INSERT INTO {table} (id, title) VALUES (?1, 'x')"),
-                    [id],
-                )
+            // Fill whatever the real schema insists on, read from the schema
+            // itself, so a new required column does not silently turn these
+            // fixtures back into the thin ones this replaced.
+            let mut columns = vec!["id".to_string()];
+            let mut statement = conn
+                .prepare(&format!("PRAGMA table_info({table})"))
                 .unwrap();
+            let required: Vec<String> = statement
+                .query_map([], |row| {
+                    let name: String = row.get(1)?;
+                    let not_null: i64 = row.get(3)?;
+                    let default: Option<String> = row.get(4)?;
+                    Ok((name, not_null == 1 && default.is_none()))
+                })
+                .unwrap()
+                .map(|r| r.unwrap())
+                .filter(|(name, needed)| *needed && name != "id")
+                .map(|(name, _)| name)
+                .collect();
+            drop(statement);
+            columns.extend(required);
+            let placeholders: Vec<String> = (1..=columns.len()).map(|i| format!("?{i}")).collect();
+            let sql = format!(
+                "INSERT INTO {table} ({}) VALUES ({})",
+                columns.join(", "),
+                placeholders.join(", ")
+            );
+            for id in *ids {
+                let mut values: Vec<String> = vec![(*id).to_string()];
+                values.extend(columns.iter().skip(1).map(|c| format!("fixture-{c}-{id}")));
+                conn.execute(&sql, rusqlite::params_from_iter(values.iter()))
+                    .unwrap();
             }
         }
+    }
+
+    #[test]
+    fn a_database_the_daemon_cannot_serve_is_refused_and_rolled_back() {
+        // A `runs` table that opens fine and answers `SELECT count(*)` fine, but
+        // is missing a column every read of a run needs. Opening it proves
+        // nothing; the daemon finds out on the first request unless we ask here.
+        let dir = temp();
+        let source = dir.join("cwd/data/vadgr-rust.db");
+        std::fs::create_dir_all(source.parent().unwrap()).unwrap();
+        let conn = Connection::open(&source).unwrap();
+        conn.execute_batch(
+            "PRAGMA user_version = 1;
+             CREATE TABLE runs (id TEXT PRIMARY KEY, title TEXT);
+             INSERT INTO runs (id, title) VALUES ('r1', 'x');",
+        )
+        .unwrap();
+        drop(conn);
+
+        let root = dir.join("state");
+        let plan = Plan::Adopt {
+            db: source.clone(),
+            runs: None,
+        };
+        let refusal = apply(&plan, &root).unwrap_err();
+
+        assert!(
+            matches!(refusal, Refusal::TargetUnservable { .. }),
+            "expected an unservable refusal, got {refusal:?}"
+        );
+        assert!(
+            refusal.to_string().contains("Nothing \nhas been moved")
+                || refusal.to_string().contains("Nothing has been moved"),
+            "the refusal must say nothing moved: {refusal}"
+        );
+        assert!(source.exists(), "the source must survive a refusal");
+        assert!(!root.exists(), "the half made target must be removed");
+        assert!(
+            !root.with_extension("staging").exists(),
+            "the staging directory must be removed too"
+        );
     }
 
     fn temp() -> PathBuf {
@@ -689,15 +774,14 @@ mod tests {
         let t = temp();
         let (root, cwd) = (t.join("root"), t.join("cwd"));
         let source = cwd.join("data").join("vadgr-rust.db");
-        std::fs::create_dir_all(source.parent().unwrap()).unwrap();
+        // The real schema, then a row written under WAL and never checkpointed,
+        // so the row lives in the sidecar rather than in the database file.
+        sqlite(&source, &[]);
         let conn = Connection::open(&source).unwrap();
-        conn.execute_batch(
-            "PRAGMA journal_mode=WAL;
-             CREATE TABLE runs (id TEXT PRIMARY KEY, title TEXT);
-             INSERT INTO runs (id, title) VALUES ('in-wal', 'x');",
-        )
-        .unwrap();
-        drop(conn);
+        conn.pragma_update(None, "journal_mode", "WAL").unwrap();
+        conn.execute("INSERT INTO runs (id) VALUES ('in-wal')", [])
+            .unwrap();
+        std::mem::forget(conn);
 
         let inv = take_inventory(&root, &cwd, None);
         apply(&decide(&inv, &root).unwrap(), &root).unwrap();
