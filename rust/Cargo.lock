@@ -2598,6 +2598,7 @@ dependencies = [
  "hostname",
  "http-body-util",
  "indicatif",
+ "libc",
  "qrcode-generator",
  "rand 0.10.2",
  "regex",
