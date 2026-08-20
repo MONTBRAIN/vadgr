@@ -402,6 +402,38 @@ remaining cells quietly never run.
 - Report once, at the end, with everything. An audit delivered in instalments
   reads as an endless stream of problems and is really one incomplete sweep.
 
+## Account for what the pass leaves on disk
+
+**A directory a pass creates is cleaned up by the group that needed it, at that
+group's boundary.** Not at the end of the pass, which may not arrive, and not by
+the next person, who will not know it was ours. This is the same rule as the one
+below for processes, applied to the other thing a pass leaves behind, and it
+fails more quietly: a stray directory costs nothing today and silently changes
+the answer to a cell that runs weeks later.
+
+That is not hypothetical. In `vadgr 0.4.9`, `J1` requires the platform state
+root absent or empty. It was **blocked** on a machine where the product had
+never been installed, because an earlier pass had left two empty directories
+under `%LOCALAPPDATA%\vadgr`, created as a side effect of resolving a path. Zero
+files, zero bytes, and enough to stop the cell. The pass that made them ran to a
+clean verdict and never knew.
+
+- **Name the directories a group creates in that group's `Cleanup` column**, the
+  same way a cell names the daemon it must stop. A group whose cleanup column
+  says `none` is asserting it created nothing, and that assertion is checked.
+- **Isolated roots are removed when the last group that reads them is done**,
+  not left "in case". Evidence that must outlive the pass is filed under the
+  runbook's evidence directory, which is the one place a later reader expects to
+  find things.
+- **A platform location is never a scratch directory.** State roots, config
+  directories and anything under a user profile are the product's, and a pass
+  that writes there restores exactly what it found, listing the location before
+  and after.
+- **Check for your own leavings before you call a cell blocked by the
+  environment.** A precondition that a directory is absent is usually failing
+  because an earlier run of this same runbook created it, and the fix is to
+  clean up rather than to record a blocker.
+
 ## Account for what the pass leaves running
 
 **Cleanup columns cover a cell's state. They do not cover the processes the pass
