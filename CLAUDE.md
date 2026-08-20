@@ -381,6 +381,28 @@ the previous group's teardown - a teardown that did not run leaves the next
 group dirty, and its failure looks like a product defect. Resetting between
 every case is ritual, not rigour.
 
+**One failure is not a finding: reproduce before you diagnose.** A single
+failure, and above all one reported to you rather than seen by you, is an
+observation. It becomes a defect when it happens twice. **Run it again before
+you explain it**, because the cheapest experiment in the world is the one you
+skip when a good story arrives first. Research is what makes this dangerous
+rather than safe: a well-sourced explanation of somebody else's failure will fit
+yours convincingly without being true of it, and the better the sources, the
+more confident the wrong conclusion sounds. Two signals should stop you outright:
+the behaviour worked earlier and **nothing in your code changed it**, and you
+cannot reproduce it on demand. Both are evidence for a transient, not against
+one.
+
+It happened in `vadgr 0.4.9`. One browser error on a ChatGPT sign-in was taken as
+established. A deep investigation followed, with real sources and three other
+projects that had hit the same message, and it produced a confident recommendation
+to change the product's `originator` to another vendor's client string. The owner
+asked for one more attempt first. **It worked, unchanged.** The cell had already
+passed earlier in the same runbook with the same value, which was written down as
+evidence that the server had tightened rather than read as the obvious hint that
+one failure meant nothing. Nothing needed fixing, and a real change to the
+product's identity was nearly made on a single unreproduced data point.
+
 **Every fix gets a test that fails without it.** Stash the fix, watch it go red,
 restore. A test that passes either way tests nothing.
 
