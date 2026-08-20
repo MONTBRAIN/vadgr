@@ -186,28 +186,28 @@ blank.
 
 | Part | Axes | Cells | Run | Open |
 |---|---|---|---|---|
-| A the binary is the built head | identity x tree | 3 | 0 | 3 |
-| B the consolidation | inputs x outcome | 10 | 0 | 10 |
-| C the service group | verb x state x flag | 11 | 0 | 11 |
-| D read-only commands | command x state | 5 | 0 | 5 |
-| CU computer use | setting x live probe | 3 | 0 | 3 |
-| E provider onboarding | verb x live credential | 6 | 0 | 6 |
-| F runs and the watcher | outcome x flag | 9 | 0 | 9 |
-| R interruption and recovery | kill x boot x park | 4 | 0 | 4 |
-| G pairing and devices | mint x claim x revoke | 8 | 0 | 8 |
-| W the sockets, on the wire | route x admission | 4 | 0 | 4 |
-| S source enforcement | gate x source | 1 | 0 | 1 |
-| O OAuth and the callback | page x port x account | 4 | 0 | 4 |
-| H the phone, held by a person | what the released app does | 5 | 0 | 5 |
-| I the installer and update | clean host x drive | 6 | 0 | 6 |
-| J the platform state root | default resolution | 1 | 0 | 1 |
-| | | **80** | **0** | **80** |
+| A the binary is the built head | identity x tree | 4 | 4 | 0 |
+| B the consolidation | inputs x outcome | 10 | 10 | 0 |
+| C the service group | verb x state x flag | 13 | 13 | 0 |
+| D read-only commands | command x state | 5 | 5 | 0 |
+| CU computer use | setting x live probe | 4 | 4 | 0 |
+| E provider onboarding | verb x live credential | 6 | 6 | 0 |
+| F runs and the watcher | outcome x flag | 9 | 9 | 0 |
+| R interruption and recovery | kill x boot x park | 4 | 4 | 0 |
+| G pairing and devices | mint x claim x revoke | 8 | 8 | 0 |
+| W the sockets, on the wire | route x admission | 4 | 4 | 0 |
+| S source enforcement | gate x source | 1 | 1 | 0 |
+| O OAuth and the callback | page x port x account | 6 | 6 | 0 |
+| H the phone, held by a person | what the released app does | 5 | 5 | 0 |
+| I the installer and update | clean host x drive | 6 | 6 | 0 |
+| J the platform state root | default resolution | 1 | 1 | 0 |
+| | | **86** | **86** | **0** |
 
 ## Part A: the thing under test is the thing that was built
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| A1 | `$E2E_BIN` first on `PATH` | `command -v vadgr` | resolves inside `$E2E_BIN`; its `sha256` is the release build of the head under test. **Re-run after any mid-pass rebuild, before any further cell** | the path and both hash lines, and the head they were built from | none | **pass on native Windows** at `a83ff1c`: `vadgr` resolves inside the test bin, and the two hash lines are filed, `20f3fef1c0050a005957fb9a7cbae05b61f1dc05fbad4af689d1755e76c39bdd` for both the installed file and `target/release/vadgr.exe`. The last commit to touch Rust source before this reading was `2ff3a5d`; `a83ff1c` changed `install.sh` only. |
+| A1 | `$E2E_BIN` first on `PATH` | `command -v vadgr` | resolves inside `$E2E_BIN`; its `sha256` is the release build of the head under test. **Re-run after any mid-pass rebuild, before any further cell** | the path and both hash lines, and the head they were built from | none | **pass on native Windows, and the rule it exists to enforce was broken during this pass. That is recorded here rather than tidied.** The reading: `vadgr` resolves inside the test bin, and the two hash lines match, `20f3fef1c0050a005957fb9a7cbae05b61f1dc05fbad4af689d1755e76c39bdd` for both the installed file and `target/release/vadgr.exe`, at `a83ff1c`. **But this pass ran against three builds, and `A1` was recorded once.** Rule 4 says a rebuild is a new subject, so the identity cell is re-recorded **before any further cell**, and it was not. The three, with the fixes that produced them: `0a72f5f4` at `23:12`, then `caf43e5c` at `08:21` carrying the health fix `ccf569b`, then `a9406f2d` at `08:47` carrying the resume-row fix `6a22164`. **What this costs, stated exactly**: the cells re-driven after each fix cannot be tied to their artifact from `A1` alone, and must be read together with the commit named in their own status, each of which does name it. **What it does not cost**: no cell was driven against a build older than the fix it verifies, because each re-run followed its own rebuild and reinstall, and the reinstall is recorded in the cell. `A/A1-binaries.txt` in the evidence boundary lists every executable on the host with hash, size and time, labelled as computed at filing rather than during the pass. This is the same defect that withdrew an earlier pass on another operating system, at smaller scale, and it is the reason the rule reads the way it does. |
 | A2 | as A1 | `vadgr --version` | prints `0.4.9`, matching the manifest. The daemon's own version is asserted at `D1`, where a daemon exists to ask | the printed line and the manifest line | none | **pass on native Windows**: `vadgr 0.4.9`, exit `0`, matching `Cargo.toml`'s `version = "0.4.9"`. |
 | A3 | a clean checkout | `git ls-files` | **no `.py` file outside `scripts/` and an older runbook's `harness/`**, **no interpreter artefact of any kind**: no `.pyc`, `.pyo`, `.pyd`, `__pycache__/`, `site-packages/` or virtual environment, no `requirements.txt`, no `rust/` directory | the file list, the sweep's own output | none | **pass on native Windows**, counted from `git ls-files` rather than from a listing: **zero** `.py` outside `scripts/` and a runbook `harness/`, **zero** interpreter artefacts of any kind, **zero** tracked paths under `rust/`, and **zero** under `api/`. The cutover is complete in the index, not only on disk. |
 | A4 | the install root the installer wrote | list it | **one executable**, named `vadgr`, and no second file beside it. The daemon is this binary invoked with `serve`, so a user receives one artifact rather than two that must stay in step | the directory listing, and the process table of a started daemon | none | **pass on native Windows for a fresh install, and the cell needs a second sentence.** The container install root held exactly one executable, `vadgr`, 22760088 bytes, and the daemon is that binary invoked with `serve`, read from the process table. **But it stops holding after the first update**: `install_binaries` moves the old file aside, so a machine that has updated once holds `vadgr` **and** `vadgr.previous`. The rollback copy is deliberate and useful; the cell's "no second file beside it" describes only the day the machine was installed. |
