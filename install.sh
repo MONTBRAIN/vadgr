@@ -149,11 +149,11 @@ build_and_install() {
     mkdir -p "$VADGR_BIN"
     # Installed only after the build succeeded, so a failed build leaves the
     # installation that was already working exactly as it was.
-    for binary in vadgr vadgr-daemon; do
+    for binary in vadgr; do
         install -m 0755 "$VADGR_REPO/target/release/$binary" "$VADGR_BIN/$binary" \
             || fail "Could not install $binary into $VADGR_BIN"
     done
-    ok "Installed vadgr and vadgr-daemon into $VADGR_BIN"
+    ok "Installed vadgr into $VADGR_BIN"
 }
 
 setup_repo() {

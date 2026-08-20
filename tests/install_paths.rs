@@ -173,3 +173,37 @@ fn the_mcp_example_names_the_installed_entry_point_not_an_interpreter() {
         );
     }
 }
+
+#[test]
+fn the_product_is_one_executable() {
+    // A user received two files, `vadgr` and `vadgr-daemon`, and the CLI found
+    // the daemon beside itself on disk. That asked a user to hold a detail that
+    // belongs to the program, doubled what distribution must sign and publish,
+    // and allowed the two halves to be different versions. It is one file: it
+    // serves when invoked with `serve` and acts as the client otherwise.
+    let manifest = repo_file("Cargo.toml");
+    let targets = manifest.matches("[[bin]]").count();
+    assert_eq!(targets, 1, "the crate must build exactly one binary");
+    assert!(
+        manifest.contains("name = \"vadgr\""),
+        "the one binary is named vadgr"
+    );
+
+    // The installers copy one file, and nothing looks for a sibling daemon.
+    for script in ["install.sh", "install.ps1"] {
+        let text = repo_file(script);
+        assert!(
+            !text.contains("vadgr-daemon"),
+            "{script} still installs a second binary"
+        );
+    }
+    let service = repo_file("src/cli/commands/service.rs");
+    assert!(
+        service.contains("std::env::current_exe()"),
+        "the daemon a start spawns is this executable"
+    );
+    assert!(
+        service.contains("command.arg(\"serve\")"),
+        "the spawned child is told to serve"
+    );
+}

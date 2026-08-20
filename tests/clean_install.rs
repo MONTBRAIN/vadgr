@@ -182,18 +182,9 @@ fn run_clean_install(binary: &Path, docker: &str) -> Result<Value, String> {
         ));
     }
     // The installer puts two binaries on the machine, so the clean machine
-    // gets both: a dependency added to only the CLI would otherwise never be
-    // run anywhere without a toolchain.
-    let cli = binary
-        .parent()
-        .map(|dir| dir.join("vadgr"))
-        .ok_or_else(|| format!("{} has no parent directory", binary.display()))?;
-    if !cli.is_file() {
-        return Err(format!(
-            "the CLI binary does not exist beside the daemon: {}",
-            cli.display()
-        ));
-    }
+    // One file does both jobs since `0.4.9`: it serves when invoked with
+    // `serve` and acts as the client otherwise, so a dependency added to either
+    // half is exercised here.
 
     let nonce = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -208,27 +199,26 @@ fn run_clean_install(binary: &Path, docker: &str) -> Result<Value, String> {
     };
 
     let context = tempfile::tempdir().map_err(|error| format!("create build context: {error}"))?;
-    for (source, name) in [(binary, "vadgr-daemon"), (&*cli, "vadgr")] {
-        let installed = context.path().join(name);
-        fs::copy(source, &installed).map_err(|error| {
+    {
+        let installed = context.path().join("vadgr");
+        fs::copy(binary, &installed).map_err(|error| {
             format!(
                 "copy {} into clean build context: {error}",
-                source.display()
+                binary.display()
             )
         })?;
         #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt;
             fs::set_permissions(&installed, fs::Permissions::from_mode(0o755))
-                .map_err(|error| format!("mark {name} executable: {error}"))?;
+                .map_err(|error| format!("mark vadgr executable: {error}"))?;
         }
     }
     fs::write(
         context.path().join("Dockerfile"),
         format!(
-            "FROM {BASE_IMAGE}\nCOPY vadgr-daemon /usr/local/bin/vadgr-daemon\n\
-             COPY vadgr /usr/local/bin/vadgr\n\
-             ENTRYPOINT [\"/usr/local/bin/vadgr-daemon\"]\n"
+            "FROM {BASE_IMAGE}\nCOPY vadgr /usr/local/bin/vadgr\n\
+             ENTRYPOINT [\"/usr/local/bin/vadgr\", \"serve\"]\n"
         ),
     )
     .map_err(|error| format!("write clean-install Dockerfile: {error}"))?;
@@ -372,7 +362,7 @@ fn each_required_health_fact_is_checked() {
 #[ignore = "requires the release binaries and Docker"]
 fn installed_release_starts_and_serves() {
     let binary = std::env::var_os("VADGR_RELEASE_BINARY")
-        .expect("VADGR_RELEASE_BINARY must name the release daemon binary");
+        .expect("VADGR_RELEASE_BINARY must name the release binary");
     let docker = std::env::var("DOCKER").unwrap_or_else(|_| "docker".to_string());
     let payload = run_clean_install(Path::new(&binary), &docker).unwrap();
     println!("clean install served: {payload}");

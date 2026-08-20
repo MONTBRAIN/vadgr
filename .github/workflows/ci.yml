@@ -77,7 +77,6 @@ jobs:
             VADGR_REPO_URL=/src bash /src/install.sh
             export PATH="$HOME/.vadgr/bin:$PATH"
             command -v vadgr | grep -q "^$HOME/.vadgr/bin/vadgr$"
-            command -v vadgr-daemon | grep -q "^$HOME/.vadgr/bin/vadgr-daemon$"
             vadgr --version
             # Nothing is started, so the daemon is down and saying so is the
             # correct answer. Exit 3 is that answer, and it is a contract.
@@ -101,7 +100,6 @@ jobs:
           bash install.sh
           export PATH="$HOME/.vadgr/bin:$PATH"
           command -v vadgr | grep -q "^$HOME/.vadgr/bin/vadgr$"
-          command -v vadgr-daemon | grep -q "^$HOME/.vadgr/bin/vadgr-daemon$"
           vadgr --version
           set +e; vadgr health; code=$?; set -e
           test "$code" -eq 3 || { echo "expected exit 3 from a stopped daemon, got $code"; exit 1; }
@@ -120,12 +118,12 @@ jobs:
           $resolved = (Get-Command vadgr).Source
           if ($resolved -ne "$env:USERPROFILE\.vadgr\bin\vadgr.exe") { throw "vadgr resolved to $resolved" }
           vadgr --version
-          # The imports gate, on the binaries the script just installed. It is
+          # The imports gate, on the binary the script just installed. It is
           # the regression net for the crt-static flag inside install.ps1
           # itself: this runner has the redistributable, so a binary that
           # quietly imported it would run here and fail only on a user's
           # machine.
-          .\scripts\check_windows_imports.ps1 "$env:USERPROFILE\.vadgr\bin\vadgr.exe" "$env:USERPROFILE\.vadgr\bin\vadgr-daemon.exe"
+          .\scripts\check_windows_imports.ps1 "$env:USERPROFILE\.vadgr\bin\vadgr.exe"
           # Exit 3 with nothing started is the contract, on this platform too.
           # The message goes to stderr, and this shell runs with a stop
           # preference that turns any native stderr into a terminating error, so
@@ -192,7 +190,7 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash
         env:
-          VADGR_RELEASE_BINARY: target/release/vadgr-daemon
+          VADGR_RELEASE_BINARY: target/release/vadgr
         run: |
           # A filter that matches nothing is "running 0 tests ... ok", so the
           # exit code alone can go green while running nothing. Read the count
@@ -209,7 +207,7 @@ jobs:
           # Both binaries the user gets, because a dependency added to only
           # one of them is exactly the defect an inspection of the other
           # cannot see.
-          for exe in target/release/vadgr-daemon target/release/vadgr; do
+          for exe in target/release/vadgr; do
             test -x "$exe" || { echo "no binary at $exe"; exit 1; }
             otool -L "$exe"
             # Every library must be one macOS ships. Anything under /opt or
@@ -230,11 +228,11 @@ jobs:
           done
           # The minimum macOS it will start on, recorded so a raised floor is
           # visible here rather than to someone on an older machine.
-          vtool -show-build target/release/vadgr-daemon 2>/dev/null | grep -E "minos|platform" || true
+          vtool -show-build target/release/vadgr 2>/dev/null | grep -E "minos|platform" || true
           root="$(mktemp -d)"
           env -i HOME="$root" \
             VADGR_STATE_HOME="$root/state" VADGR_PORT=8100 VADGR_TRANSPORT=loopback \
-            "$PWD/target/release/vadgr-daemon" > "$root/daemon.log" 2>&1 &
+            "$PWD/target/release/vadgr" serve > "$root/daemon.log" 2>&1 &
           body=""
           for _ in $(seq 1 40); do
             body="$(curl -fsS http://127.0.0.1:8100/api/health 2>/dev/null || true)"
@@ -252,7 +250,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $exe = "target\x86_64-pc-windows-msvc\release\vadgr-daemon.exe"
+          $exe = "target\x86_64-pc-windows-msvc\release\vadgr.exe"
           $cli = "target\x86_64-pc-windows-msvc\release\vadgr.exe"
           # Both binaries the user gets, against the one shipped-with-Windows
           # list the installer job also checks; two copies of that list would

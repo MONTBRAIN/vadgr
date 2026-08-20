@@ -110,7 +110,7 @@ stops watching and leaves the run going.
 graph LR
     Owner((Owner)) -->|on the box| VCLI[vadgr CLI]
     Phone((Phone)) -->|over the tailnet| API
-    VCLI -->|REST /api| API[vadgr-daemon<br/>Rust, axum]
+    VCLI -->|REST /api| API[The daemon<br/>the same binary, serving]
     VCLI <-->|WebSocket| API
     API -->|drives| Loop[The agent loop<br/>and its MCP host]
     API -->|read/write| DB[(SQLite<br/>in the state root)]

@@ -8,10 +8,6 @@ description = "The vadgr machine daemon"
 name = "vadgr_daemon"
 path = "src/lib.rs"
 
-[[bin]]
-name = "vadgr-daemon"
-path = "src/main.rs"
-
 # The CLI is a binary in this crate rather than a second crate, so it depends on
 # `transport` directly. That is what turns `service.py`'s cross-package import of
 # `api.transport` into a shared module instead of a duplicated address

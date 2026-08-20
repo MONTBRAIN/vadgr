@@ -44,6 +44,21 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    /// Serve. The daemon itself, in the foreground.
+    ///
+    /// Hidden because nobody types it: `vadgr start` spawns this binary again
+    /// with this verb and returns. It exists because the product is one
+    /// executable, so the server and the client are the same file.
+    #[command(hide = true)]
+    Serve {
+        /// An address to bind, repeated once per address.
+        #[arg(long = "host")]
+        host: Vec<String>,
+        /// The port to serve on.
+        #[arg(long = "port")]
+        port: Option<u16>,
+    },
+
     /// Start the vadgr daemon (the API).
     Api {
         /// API server port.
@@ -341,6 +356,9 @@ async fn main() {
             background,
             as_json,
         } => run_task(&client, task, provider, model, background, as_json).await,
+        Command::Serve { host, port } => vadgr_daemon::daemon::serve(host, port)
+            .await
+            .map_err(|e| CliError::Failed(e.to_string())),
         Command::Start { api_port } | Command::Api { api_port } => {
             commands::service::start(api_port).await
         }

@@ -114,7 +114,7 @@ export VADGR_HOME="$E2E_ROOT/home"
 export VADGR_PORT=8861
 export VADGR_TRANSPORT=loopback          # tailscale for G2-G8, W4, S1 and the H group
 cargo build --release --bins
-mkdir -p "$E2E_BIN" && cp target/release/vadgr target/release/vadgr-daemon "$E2E_BIN/"
+mkdir -p "$E2E_BIN" && cp target/release/vadgr "$E2E_BIN/"
 command -v vadgr && sha256sum "$(command -v vadgr)"
 ```
 
@@ -210,6 +210,7 @@ blank.
 | A1 | `$E2E_BIN` first on `PATH` | `command -v vadgr` | resolves inside `$E2E_BIN`; its `sha256` is the release build of the head under test. **Re-run after any mid-pass rebuild, before any further cell** | the path and both hash lines, and the head they were built from | none | pass |
 | A2 | as A1 | `vadgr --version` | prints `0.4.9`, matching the manifest. The daemon's own version is asserted at `D1`, where a daemon exists to ask | the printed line and the manifest line | none | pass |
 | A3 | a clean checkout | `git ls-files` | **no `.py` file outside `scripts/` and an older runbook's `harness/`**, **no interpreter artefact of any kind**: no `.pyc`, `.pyo`, `.pyd`, `__pycache__/`, `site-packages/` or virtual environment, no `requirements.txt`, no `rust/` directory | the file list, the sweep's own output | none | pass |
+| A4 | the install root the installer wrote | list it | **one executable**, named `vadgr`, and no second file beside it. The daemon is this binary invoked with `serve`, so a user receives one artifact rather than two that must stay in step | the directory listing, and the process table of a started daemon | none | |
 
 ## Part B: a machine keeps its history
 
@@ -243,7 +244,7 @@ exists to distrust.
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| C1 | nothing on the port | `vadgr start` | exit `0`; **the process is `vadgr-daemon`**, read from the process table, not from the CLI's output | CLI output, `ps` line, health | C4 | pass |
+| C1 | nothing on the port | `vadgr start` | exit `0`; **the process serving is this same binary invoked with `serve`**, read from the process table rather than from the CLI's output, because the product is one executable and a second file would mean a user had to receive two | CLI output, the `ps` line with its full argument list, health | C4 | pass |
 | C2 | C1's daemon running | `vadgr start` | refuses, non-zero, the pid unchanged | CLI output, the pid twice | C4 | pass |
 | C3 | as C2 | `vadgr status`, `vadgr logs --no-follow -n 5` | the table names the live pid; the log tail matches the file | CLI output, `tail -5` | C4 | pass |
 | C4 | as C2 | `vadgr stop` | the process is gone, the port free, the pid and port files removed | `ps`, listener list, directory | none | pass |
@@ -251,7 +252,7 @@ exists to distrust.
 | C6 | **a daemon running** | `vadgr restart` | the old pid is stopped, a new pid serves health on the port | both pids, from the process table | stop | pass |
 | C7 | stopped, nothing on the port | `vadgr restart` | prints the not-running line, then starts: exit `0`, a daemon serves health | CLI output, the new pid, health | stop | pass |
 | C8 | stopped, nothing on the port | `vadgr stop` | prints "vadgr is not running.", exit `0`, and creates no pid or port file | CLI output, exit code, the pid directory listing | none | pass |
-| C9 | nothing on port `8863` | `vadgr api --port 8863` | the `api` verb starts the daemon on the named port: exit `0`, the port file says `8863`, the process table shows `vadgr-daemon` with `--port 8863`, health answers on `8863` | CLI output, port file, `ps` line, health | stop | pass |
+| C9 | nothing on port `8863` | `vadgr api --port 8863` | the `api` verb starts the daemon on the named port: exit `0`, the port file says `8863`, the process table shows this binary with `serve --port 8863`, health answers on `8863` | CLI output, port file, `ps` line, health | stop | pass |
 | C10 | daemon running | `vadgr logs -n 1` (follow is the default), then one `curl` of `/api/health` from another terminal, then interrupt the follow | the followed output gains the request line the log file gained after the follow began; the interrupt ends the follow | the captured follow output and the file's own tail, diffed | none | pass |
 | C11 | daemon running | `vadgr logs --service nosuch --no-follow` | refuses: "No logs found for nosuch", non-zero exit | CLI output and exit code | none | pass |
 

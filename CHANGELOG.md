@@ -25,6 +25,11 @@ daemon happened to start in.
   relative to the working directory any more**, so an installed daemon's database
   no longer depends on which terminal started it. `VADGR_STATE_HOME`, `VADGR_DB`
   and `VADGR_RUNS_DIR` remain exact overrides for tests and managed deployments.
+- **The product is one executable.** A machine used to receive `vadgr` and
+  `vadgr-daemon`, and the CLI found the daemon beside itself on disk. That asked
+  a user to keep two files in step to run one product, and doubled what an
+  install has to copy and a release has to publish. `vadgr start` now spawns
+  this same binary with `serve`, and the installer copies one file.
 - **The installer is `install.sh` and `install.ps1`**, which is what the README
   has always told a user to run.
 - **The Windows build links the C runtime in.** It imported `vcruntime140.dll`,

@@ -105,10 +105,10 @@ function BuildAndInstall {
     New-Item -ItemType Directory -Force -Path $VADGR_BIN | Out-Null
     # Installed only after the build succeeded, so a failed build leaves the
     # installation that was already working exactly as it was.
-    foreach ($binary in @("vadgr.exe", "vadgr-daemon.exe")) {
+    foreach ($binary in @("vadgr.exe")) {
         Copy-Item "$VADGR_REPO\target\x86_64-pc-windows-msvc\release\$binary" "$VADGR_BIN\$binary" -Force
     }
-    Ok "Installed vadgr and vadgr-daemon into $VADGR_BIN"
+    Ok "Installed vadgr into $VADGR_BIN"
 }
 
 function SetupRepo {

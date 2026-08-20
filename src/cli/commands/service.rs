@@ -230,14 +230,17 @@ async fn wait_for_api(port: u16) -> Result<bool, CliError> {
     }
     Ok(false)
 }
-
-/// The daemon this CLI starts.
+/// The executable that serves, which is this one.
 ///
-/// **Beside the CLI first, then on `PATH`.** An installation puts both binaries
-/// in one directory, and finding the daemon next to the command that starts it
-/// is what keeps two installations on one machine from starting each other's
-/// daemon. `VADGR_DAEMON` overrides it exactly, which is how a development tree
-/// runs a build from `target/`.
+/// The product is a single file: the daemon is this binary invoked with
+/// `serve`. `VADGR_DAEMON` still names another executable for a test or a
+/// managed deployment that wants one, and it is the only way to point
+/// somewhere else.
+///
+/// It used to resolve a sibling `vadgr-daemon` beside this binary, then fall
+/// back to `PATH`. That fallback once started a daemon from an entirely
+/// different installation when the expected file was missing, which took a
+/// while to see, because the product appeared to work.
 fn daemon_binary() -> Result<PathBuf, CliError> {
     if let Some(explicit) = std::env::var_os("VADGR_DAEMON") {
         let path = PathBuf::from(explicit);
@@ -249,37 +252,9 @@ fn daemon_binary() -> Result<PathBuf, CliError> {
         }
         return Ok(path);
     }
-
-    let name = if cfg!(windows) {
-        "vadgr-daemon.exe"
-    } else {
-        "vadgr-daemon"
-    };
-    if let Some(beside) = std::env::current_exe()
-        .ok()
-        .and_then(|exe| exe.parent().map(|dir| dir.join(name)))
-        .filter(|path| path.exists())
-    {
-        return Ok(beside);
-    }
-
-    which(name).ok_or_else(|| {
-        CliError::Failed(format!(
-            "{name} was not found beside this command or on PATH. Reinstall, or \
-             set VADGR_DAEMON to the binary you want started."
-        ))
-    })
+    std::env::current_exe()
+        .map_err(|e| CliError::Failed(format!("Could not work out which binary is running: {e}")))
 }
-
-/// The first `name` on `PATH`, without a crate for it.
-fn which(name: &str) -> Option<PathBuf> {
-    std::env::var_os("PATH").and_then(|paths| {
-        std::env::split_paths(&paths)
-            .map(|dir| dir.join(name))
-            .find(|path| path.exists())
-    })
-}
-
 /// The addresses the daemon binds.
 ///
 /// **The address `vadgr start` binds and the address `vadgr pair` advertises can
@@ -368,7 +343,11 @@ pub async fn start(api_port: Option<u16>) -> Result<(), CliError> {
         .try_clone()
         .map_err(|e| CliError::Failed(format!("Could not open {}: {e}", log_path.display())))?;
 
+    // The product is one executable, so the daemon is this binary again with
+    // `serve`. There is no sibling file to find, which also removes the way a
+    // stale daemon from an older installation used to be picked up off PATH.
     let mut command = Command::new(daemon_binary()?);
+    command.arg("serve");
     for host in &bind_hosts {
         command.args(["--host", host]);
     }
@@ -763,7 +742,7 @@ fn install_binaries(repo: &Path) -> Result<usize, CliError> {
         })?;
     let suffix = if cfg!(windows) { ".exe" } else { "" };
     let mut installed = 0;
-    for name in ["vadgr", "vadgr-daemon"] {
+    for name in ["vadgr"] {
         let built = release_dir(repo).join(format!("{name}{suffix}"));
         if !built.exists() {
             continue;

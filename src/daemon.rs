@@ -1,27 +1,27 @@
-//! `vadgr 0.4.7` - the Rust daemon with provider onboarding.
+//! Serving. The daemon half of the one binary this product ships.
 //!
-//! **The daemon, and now the only one.** It was built beside the daemon it
-//! replaced, on its own port and its own database, for five releases; that is
-//! what kept every step reversible. `0.4.9` retired the other one.
-//!
-// The modules live in the library (`lib.rs`) and the binary uses them from
-// there rather than declaring them a second time. Declaring both compiles every
-// module twice and makes anything the binary happens not to call look dead.
-use vadgr_daemon::engine::Engine;
-use vadgr_daemon::engine::mcp::DefaultHostFactory;
-use vadgr_daemon::engine::provider::NativeModelFactory;
-use vadgr_daemon::engine::supervisor::RunSupervisor;
-use vadgr_daemon::{auth, computer_use_setup, config, db, migrate, routes, transport, ws};
+//! It was a second executable until `0.4.9`. Two files meant a user received
+//! two artifacts, kept them in step and trusted both to run one product, and
+//! every distribution step happened twice. The CLI now spawns itself with
+//! `serve`, so there is one file to build, copy, sign and publish.
 
+use crate::engine::Engine;
+use crate::engine::mcp::DefaultHostFactory;
+use crate::engine::provider::NativeModelFactory;
+use crate::engine::supervisor::RunSupervisor;
+use crate::state::AppState;
+use crate::{auth, computer_use_setup, config, db, migrate, routes, transport, ws};
 use anyhow::Result;
 use std::sync::Arc;
 use std::sync::RwLock;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
 use tracing::Level;
-use vadgr_daemon::state::AppState;
 
-#[tokio::main]
-async fn main() -> Result<()> {
+/// Run the daemon in the foreground until it stops.
+///
+/// The caller has already decided this process serves. `vadgr start` spawns
+/// this binary again with `serve` and returns; nothing else calls it.
+pub async fn serve(hosts: Vec<String>, port: Option<u16>) -> Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()),
@@ -51,10 +51,8 @@ async fn main() -> Result<()> {
     let config = config::Config::from_env().map_err(|e| anyhow::anyhow!("{e}"))?;
     let db = db::Db::open(&config.db_path)?;
     let transport = transport::create(&config.transport_name)?;
-    let providers = vadgr_daemon::engine::provider::ProviderService::native(
-        db.clone(),
-        config.state_home.clone(),
-    )?;
+    let providers =
+        crate::engine::provider::ProviderService::native(db.clone(), config.state_home.clone())?;
     let computer_use_setup = Arc::new(computer_use_setup::SetupService::from_env()?);
     let computer_use_status = computer_use_setup.status()?;
     let ws = Arc::new(ws::manager::ConnectionManager::new());
@@ -75,8 +73,16 @@ async fn main() -> Result<()> {
         "run recovery scan complete"
     );
 
-    let bind_hosts = transport::bind_hosts(transport.as_ref());
-    let port = config.port;
+    // What the caller asked for wins, and what it did not ask for is resolved
+    // as before. These used to be arguments the daemon accepted and ignored,
+    // while the port arrived a second time through the environment: two ways to
+    // say one thing, one of which was decorative.
+    let bind_hosts = if hosts.is_empty() {
+        transport::bind_hosts(transport.as_ref())
+    } else {
+        hosts
+    };
+    let port = port.unwrap_or(config.port);
 
     let state = AppState {
         db,
