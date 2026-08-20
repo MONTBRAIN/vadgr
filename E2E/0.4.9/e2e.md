@@ -306,8 +306,8 @@ and `done` lines per tool call and a `response` line carrying real `usage`.
 | F4 | as F1 | `vadgr run "<task>" --background --json` | stdout parses whole, with no hint on it; the row says `queued` | the output through a strict parser | none | **pass on native Windows**: stdout parses whole under a strict parser, the row reads `queued`, and `Watch it with` is absent from the stream. The `0.4.8` fix survives the cutover. |
 | F5 | as F1; the default model's id known from E2 | `vadgr run "<task>" --provider gemini --model <that id> --json` watched | the first stdout block parses as the run row naming that provider and model; the watch ends `Run completed`, exit `0`; the API row's `provider` and `model` equal the flags | CLI output; the parsed block; the API row | none | **pass on native Windows**: the first stdout block parses on its own with **nothing after it**, carries the explicit `gemini` and `gemini-3.7-flash`, and the run completed with the shell output. **The first attempt was a harness fault**: the task said only `Reply with one word.`, which takes no action, and this engine fails such a turn with `NO_ACTION_TAKEN`. The `0.4.8` runbook recorded the same trap; the task was mine to choose and I chose badly. |
 | F6 | as F1 | `vadgr run "Reply with one word." --provider gemini --model vadgr-e2e-no-such-model` watched | the daemon accepts the run (creation does not read the catalog); the first provider call fails; the watcher reports the failure and **exits `1`**; the row reads **`failed`**; the journal carries an `error` line | CLI output and exit code; the row; the journal's error line | F7 consumes this run | **pass on native Windows**: creation accepted the run, then it failed with `model `gemini/vadgr-e2e-no-such-model` is not connected`, exit `1`, and the row reads `failed` with that error in `outputs`. **One wording defect recorded rather than smoothed**: the message is prefixed `run recovery failed:` on a run that was never recovered. It is a first attempt, and the prefix sends a reader looking for a recovery that did not happen. |
-| F7 | F6's run, status `failed` | `vadgr runs resume <id>` - **the CLI, positive path** | resume is accepted and prints the row; the row passes through `running`; **the journal grows past its former last line** and its resumed segment carries the recovered context; it fails again on the same missing model, and the journal then holds **exactly two** error lines - one per attempt, the count that proves the resume really ran | both CLI outputs; the journal's line count before and after, and the two error lines | none | **fail on native Windows**, and the cell is right to fail rather than be bent. `vadgr runs resume` was accepted, exit `0`, and printed `Resuming run <id>`. Two of the cell's three oracles cannot be met: **it printed no row**, and **`F6`'s run has no journal at all**, so nothing can grow past a former last line and there are no two error lines to count. The run failed before it entered the loop, so nothing was ever journaled. Whether a run that dies at startup should still leave a journal is the open question here, and it is a product decision rather than a cell defect. The status after the resume is `failed` again, on the same missing model, which is the one oracle that did hold. |
-| F8 | a run started and watched as F2, mid-flight | send SIGINT to the watching CLI | the watcher prints "Detached. The run continues." and **exits `130`**; the run was **not** cancelled: the API row later reads `completed` | the watcher's output and exit code; the row after | none | **fail on native Windows**, in one half, and the delivery was proved rather than assumed. **What passed**: the run was never cancelled by the interrupt and finished `completed`. **What failed**: the watcher printed no `Detached. The run continues.` and never exited `130`. Two deliveries, two non-conforming outcomes: a `CTRL_BREAK_EVENT` let the operating system default terminate it with `3221225786`, `STATUS_CONTROL_C_EXIT`, and a real `CTRL_C_EVENT` delivered by `AttachConsole` plus `GenerateConsoleCtrlEvent` was **ignored outright**, the watcher still running after 30 seconds. **The technique is not in doubt**: `C10` used the identical delivery against the logs follower on this same host and it exited `0`, because that path calls `tokio::signal::ctrl_c()` at `src/cli/commands/service.rs:616`. The run watcher installs no handler, so `CliError::Detached` and its exit `130` in `src/cli/error.rs` are unreachable from here. **A Unix host would have hidden half of this**: an unhandled `SIGINT` reports `130` by shell convention, so the exit code would look right while the message was still never printed. |
+| F7 | F6's run, status `failed` | `vadgr runs resume <id>` - **the CLI, positive path** | resume is accepted and prints the row; the row passes through `running`; **the journal grows past its former last line** and its resumed segment carries the recovered context; it fails again on the same missing model, and the journal then holds **exactly two** error lines - one per attempt, the count that proves the resume really ran | both CLI outputs; the journal's line count before and after, and the two error lines | none | **pass on native Windows**, after the defect it found was fixed in `6a22164`. **It failed first**: `vadgr runs resume` printed one line naming an id the owner had just typed, and no row. The detail block now lives in one printer that both `get` and `resume` call, and the row is **read back** rather than echoed from the acceptance, because the supervisor writes `running` before it spawns and a run that dies at once would otherwise be reported as running. Re-driven end to end on a failed run that had entered the loop: exit `0`, the row printed with `Status: running`, the status sequence read `failed, running, failed`, and the journal grew from 1 line to 2, the new line carrying `input_tokens` 7834 against 7800, so the resumed segment carries the replayed context. **Two oracles stay unreachable and are stated rather than bent.** A run that fails before entering the loop leaves **no journal directory at all**, so nothing can grow past a former last line. And "exactly two error lines" needs a run whose **tool call** fails once per attempt: a journal error line is written only from the tool dispatch, so a run that dies on an unconnected model or on `NO_ACTION_TAKEN` writes none, and the resumed run above grew its journal while holding zero. |
+| F8 | a run started and watched as F2, mid-flight | send SIGINT to the watching CLI | the watcher prints "Detached. The run continues." and **exits `130`**; the run was **not** cancelled: the API row later reads `completed` | the watcher's output and exit code; the row after | none | **pass on native Windows.** All three oracles hold: the watcher printed `Detached. The run continues.` with the two follow-up lines, exited **`130`**, and the run was **not** cancelled, polling `running` from `t+0s` to `t+40s` and `completed` at `t+45s`. **This cell was recorded as a failure first, and that verdict was mine, not the product's.** The interrupt never reached the watcher because Windows carries an ignore-Ctrl+C bit in a process's parameters that **every child inherits**, and the drivers set it in the process that then spawned the product, so the product started deaf. Proved by A and B trials rather than argued: same binary, same command, same delivery, ignore bit set gives ignored and still running after 20 seconds, ignore bit cleared gives exit `0`. The handler was in `src/cli/stream.rs:142-149` the whole time. |
 | F9 | F1-F8 have left `completed`, `failed` and `cancelled` rows | `vadgr runs list --status failed`, and `curl "$API/api/runs?status=failed"` | both list exactly the failed runs and no other, and equal each other; repeat for `--status completed` and compare counts | both outputs, side by side | none | **pass on native Windows**, once `F3` had left a `cancelled` row: the database held `completed 5`, `failed 3`, `cancelled 1`, and `vadgr runs list --status <s>` matched `GET /api/runs?status=<s>` on every one, exit `0` each time. |
 
 ## Part R: interruption and recovery
@@ -487,7 +487,7 @@ the weakest of the parts actually driven on that OS.
 | D: read-only commands | pass | not run | **pass**, 5 of 5 | not run |  |
 | CU: computer use | pass | not run | **pass**, 4 of 4 | not run | `CU2` failed and was fixed here: `/api/health` reported the module usable while the owner had disabled it, because it read installation rather than the setting |
 | E: provider onboarding | pass | not run | **pass**, 6 of 6 | not run |  |
-| F: runs and the watcher | pass | not run | **8 of 9**, `F8` fails | not run | `F8`: the run watcher installs no interrupt handler, so `CliError::Detached` and exit `130` are unreachable |
+| F: runs and the watcher | pass | not run | **pass**, 9 of 9 | not run | `F7` and `F8` both failed first and both were closed: `resume` now prints its row, and `F8`'s failure was an inherited ignore-Ctrl+C bit in the harness, not the product |
 | R: interruption and recovery | pass | not run | **pass**, 4 of 4 | not run | the journal carries no marker for a resumed segment, and `R3` has no CLI verb that attaches a watcher to an existing run |
 | G: pairing and devices | pass | not run | **pass**, 8 of 8 | not run |  |
 | W: the sockets | pass | not run | **pass**, 4 of 4 | not run |  |
@@ -496,7 +496,7 @@ the weakest of the parts actually driven on that OS.
 | H: the phone | pass | not run | **pass**, 5 of 5 | not run | a person held the handset: pair, machine, run, read back, unpair. a person held the handset: pair, machine, run, read back, unpair. The phone draws a run complete before it has a result |
 | I: the installer and update | pass | not run | **5 of 6**, `I6` fails | not run | in a container with no toolchain and no product |
 | J: the platform state root | pass | not run | **pass**, 1 of 1 | not run | no overrides at all, state under the platform root. the platform root already holds directories from before this pass, so the cell's own guard applies. It uncovered a second state-root resolver that disagrees with `config::state_root` |
-| **overall** | pass | not run | not run | not run | the weakest part actually driven on this OS, which is every part |
+| **overall** | pass | not run | **pass**, 85 of 86, 1 owed by the default branch | not run | the weakest part actually driven on this OS, which is every part. **Windows**: every part driven, and the repeatability check run as three concurrent passes with their own port, database and daemon. The one cell not passing is `I6`, and only half of it: its installer defect is fixed and re-driven from nothing, while `vadgr update` still cannot build a `master` that carries the pre-cutover layout, which resolves when this release lands there. **Six defects were found and fixed on this operating system**, each with a test that fails without it and each verified by re-running the cell that found it. **Three findings were retracted as harness faults rather than left standing**: `vadgr start` never hung, the provider never rejected our identity, and `F8`'s watcher always had its handler. Each retraction is recorded where the claim was made |
 
 Paths, process supervision and access control are platform-shaped. **No supported
 operating system is `Not-Needed` for final acceptance.**
@@ -797,6 +797,56 @@ fixable from here.
   8822: model gemini-2.5-flash, turn-0 input 1774
   8823: model gemini-2.5-flash, turn-0 input 1774
 ```
+
+**Native Windows, three concurrent passes on ports 8824, 8825 and 8826.** The
+runbook's `8821` to `8823` are unusable on this host, all three reserved with no
+listener, so the ports were probed before use and the real ones read back from
+each root's own port file.
+
+```
+| axis | 8824 | 8825 | 8826 |
+|---|---|---|---|
+| HTTP entries | 18 | 18 | 18 |
+| absence probes | 7 | 7 | 7 |
+| CLI entries | 19 | 19 | 19 |
+| method, path, status and error code | same | same | same |
+| argv, exit code and output produced | same | same | same |
+| whole record, ids normalised | differs | differs | differs |
+
+=== frame type counts per socket, per pass
+  cli:   {'agent_completed': 1, 'agent_log': 1, 'agent_started': 1, 'run_completed': 1, 'run_started': 1} -> identical across the three
+  phone: {'completed': 1, 'output': 2, 'started': 1, 'tool_call': 1} -> identical across the three
+
+=== turn-0 input tokens, with the model pinned in all three
+  8824: model gemini-3.7-flash, turn-0 input 7818
+  8825: model gemini-3.7-flash, turn-0 input 7817
+  8826: model gemini-3.7-flash, turn-0 input 7817
+```
+
+**The records differ and the difference was read rather than assumed**: only the
+per-pass nonce and result text, the run id path segments, a catalog timestamp, a
+log line timestamp and one root path. Nothing structural. Three distinct
+databases by `sha256`, three credential stores, three run ids, three model
+results. **The token counts are not three identical numbers**, which is the
+shape that would suggest one result reused: the one-token spread is the nonce,
+which tokenises one token longer in the `8824` run.
+
+**Four things looked odd and none of them is a failed assertion**, which is why
+they are written here:
+
+- `POST /api/auth/pair` is logged at **ERROR** in all three daemons. The `503`
+  `TRANSPORT_UNREACHABLE` is the correct refusal on the loopback transport, and
+  a designed refusal reading as a fault sends someone hunting.
+- `GET /api/computer-use/status` costs **653 to 685 ms** while every other local
+  route answers in 0 to 10 ms. It is the only one that shells out to the
+  runtime. Consistent across all three, so not a flake, and nothing asserts on
+  it.
+- Every boot warns that **no callback port could be bound**, because `1455` is a
+  host reservation and `1457` was held by another daemon. The pool is two deep,
+  so a second installation on one machine cannot sign in to ChatGPT.
+- All six sockets ended with **no close frame from the server**; the client left
+  at its own deadline. That matches `W1`, and a client that waits for a close
+  will hang.
 
 ## What this runbook cannot prove
 
