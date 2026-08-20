@@ -6,6 +6,10 @@
 //! roots and must build wherever the binary runs. It once did not: the default
 //! reqwest construction read the system store at build time and panicked on
 //! exactly that machine.
+//!
+//! This is a unit test of the construction, in the `rust` job. The clean
+//! install itself is not a test at all: the `clean-install` workflow job
+//! drives the built binaries as a user would, with no harness in the loop.
 
 use std::time::Duration;
 

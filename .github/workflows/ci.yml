@@ -140,18 +140,24 @@ jobs:
   # dependency and no trace of this product. The question is the same on every
   # platform, so it is one job with one matrix rather than a job per idea.
   #
+  # The job is a simulation of a user installing and running the product, not a
+  # test run: cargo builds the artifact and nothing else here goes through the
+  # test harness. Every leg then does the same six things a user would meet:
+  # put the binary on the machine, run `vadgr --version` against Cargo.toml's
+  # version, start it serving, run `vadgr health` from the same machine, read
+  # /api/health field by field, stop it and leave nothing behind.
+  #
   # It used to build a static musl binary for the Linux leg alone, which proved
   # an artifact no user was ever given while the installer shipped a different
-  # one. Every leg now tests the binary a user actually gets.
+  # one. Every leg now drives the one binary a user actually gets.
   clean-install:
     strategy:
       fail-fast: false
       matrix:
         # ubuntu-24.04 pinned rather than ubuntu-latest: the Linux leg runs
-        # the binary in an ubuntu:24.04 base (BASE_IMAGE in
-        # tests/clean_install.rs), and the C library only lines up when the
-        # build machine matches it. A -latest label that moved would break
-        # that pairing silently.
+        # the binary in an ubuntu:24.04 base, and the C library only lines
+        # up when the build machine matches it. A -latest label that moved
+        # would break that pairing silently.
         #
         # Two macOS releases, because a user compiles on whichever their
         # machine runs, so each leg builds and runs on its own image. Neither
@@ -184,55 +190,128 @@ jobs:
           RUSTFLAGS: -C target-feature=+crt-static
         run: cargo build --locked --release --bins --target x86_64-pc-windows-msvc
 
-      # Linux has containers, so the machine can be made rather than approximated:
-      # a base image with no toolchain, the binary copied in, nothing else.
-      - name: Install it alone on a machine with no toolchain, and serve
+      # Linux has containers, so the machine can be MADE rather than
+      # approximated: ubuntu:24.04 with nothing in it, the one binary copied
+      # in, nothing else. The base matches the distribution the binary was
+      # built on, because a user's install compiles on the machine it runs on;
+      # an older base fails on glibc, and that is a recorded finding for the
+      # release that ships prebuilt binaries, not a defect here.
+      - name: Install it alone on a machine with no toolchain, and use it as a user would
         if: runner.os == 'Linux'
         shell: bash
-        env:
-          VADGR_RELEASE_BINARY: target/release/vadgr
         run: |
-          # A filter that matches nothing is "running 0 tests ... ok", so the
-          # exit code alone can go green while running nothing. Read the count
-          # too; the explicit bash shell brings pipefail, so the exit code of
-          # cargo test is still read through the pipe.
-          cargo test --locked --test clean_install installed_release_starts_and_serves -- --ignored --exact --nocapture | tee /tmp/clean-install.log
-          grep -F "test result: ok. 1 passed" /tmp/clean-install.log
+          # The version the binary must name, read from Cargo.toml at run
+          # time, never typed here.
+          version="$(grep -m1 '^version = ' Cargo.toml | cut -d'"' -f2)"
+          test -n "$version" || { echo "read no version from Cargo.toml"; exit 1; }
+          container="vadgr-clean-install"
+          trap 'docker rm -f "$container" >/dev/null 2>&1 || true' EXIT
+          # create, cp, start: no image is built, so nothing but the one
+          # binary a user gets ever enters the machine, and removing the
+          # container removes every trace. The file serves when invoked with
+          # `serve` and is the client otherwise, so both halves are this copy.
+          docker create --name "$container" \
+            --env VADGR_CONFIG_HOME=/var/lib/vadgr \
+            --env VADGR_DB=/var/lib/vadgr/vadgr.db \
+            --env VADGR_STATE_HOME=/var/lib/vadgr/state \
+            --env VADGR_RUNS_DIR=/var/lib/vadgr/runs \
+            --env VADGR_PORT=8100 \
+            --env VADGR_TRANSPORT=loopback \
+            ubuntu:24.04 /usr/local/bin/vadgr serve >/dev/null
+          docker cp -q target/release/vadgr "$container:/usr/local/bin/vadgr"
+          docker start "$container" >/dev/null
+          # The CLI runs on the clean machine and names this checkout's version.
+          out="$(docker exec "$container" /usr/local/bin/vadgr --version)"
+          test "$out" = "vadgr $version" || { echo "vadgr --version said '$out', expected 'vadgr $version'"; exit 1; }
+          # It serves. The base ships no HTTP client, so a pinned busybox
+          # sidecar joins the machine's own network namespace to fetch: the
+          # bytes come from inside, and jq on the runner reads them field by
+          # field.
+          docker pull -q busybox:1.37.0-musl >/dev/null
+          probe() {
+            docker run --rm --network "container:$container" busybox:1.37.0-musl \
+              wget -qO- -T 2 "http://127.0.0.1:8100$1"
+          }
+          body=""
+          for _ in $(seq 1 40); do
+            state="$(docker inspect -f '{{.State.Status}}' "$container")"
+            if [ "$state" != "running" ]; then
+              echo "the daemon exited before readiness"; docker logs "$container"; exit 1
+            fi
+            body="$(probe /api/health || true)"
+            [ -n "$body" ] && break
+            sleep 1
+          done
+          echo "$body"
+          echo "$body" | jq -e --arg version "$version" '
+            .status == "healthy"
+            and .version == $version
+            and .platform == "linux"
+            and .modules == {"computer_use": false}
+            and .transport == {"name": "loopback", "available": true,
+                               "advertise_host": null, "bind_host": "127.0.0.1"}
+          ' >/dev/null || { echo "the health body is wrong"; docker logs "$container"; exit 1; }
+          # A fresh machine has its three providers present and none connected.
+          providers="$(probe /api/providers)"
+          echo "$providers" | jq -e '
+            length == 3
+            and [.[].id] == ["openai", "gemini", "anthropic"]
+            and all(.[]; .connected == false)
+          ' >/dev/null || { echo "the provider rows are wrong: $providers"; exit 1; }
+          # The CLI reaches the daemon from the same machine.
+          docker exec "$container" /usr/local/bin/vadgr health
+          # Stop it; the trap removes the machine whole.
+          docker stop --time 10 "$container" >/dev/null
 
-      - name: What it links, and whether it serves with the toolchain out of reach
+      # No container can be had on the hosted macOS runner, so this leg
+      # APPROXIMATES the machine where the Linux leg makes one: the product
+      # runs with an emptied environment and no PATH, which puts the toolchain
+      # out of reach, but the operating system underneath is still a developer
+      # image. A green run here is a weaker claim than the Linux leg's, and
+      # the probe (curl, jq) is an observer on the runner, not part of the
+      # machine.
+      - name: What it links, and the user's steps with the toolchain out of reach
         if: runner.os == 'macOS'
         shell: bash
         run: |
           set -euo pipefail
-          # Both binaries the user gets, because a dependency added to only
-          # one of them is exactly the defect an inspection of the other
-          # cannot see.
-          for exe in target/release/vadgr; do
-            test -x "$exe" || { echo "no binary at $exe"; exit 1; }
-            otool -L "$exe"
-            # Every library must be one macOS ships. Anything under /opt or
-            # /usr/local is a dependency a user's machine may not have.
-            libs="$(otool -L "$exe" | tail -n +2 | awk '{print $1}')"
-            count="$(printf '%s\n' "$libs" | grep -c . || true)"
-            test "$count" -ge 1 || { echo "read no linked libraries from $exe, which cannot be right"; exit 1; }
-            echo "$exe links $count libraries"
-            bad=0
-            while IFS= read -r lib; do
-              [ -n "$lib" ] || continue
-              case "$lib" in
-                /usr/lib/*|/System/Library/*) ;;
-                *) echo "$exe links $lib, which macOS does not guarantee"; bad=1 ;;
-              esac
-            done <<< "$libs"
-            test "$bad" -eq 0 || exit 1
-          done
+          # The version the binary must name, read from Cargo.toml at run
+          # time, never typed here.
+          version="$(grep -m1 '^version = ' Cargo.toml | cut -d'"' -f2)"
+          test -n "$version" || { echo "read no version from Cargo.toml"; exit 1; }
+          # The one binary a user gets: it serves when invoked with `serve`
+          # and is the client otherwise, so this inspection covers both halves.
+          exe=target/release/vadgr
+          test -x "$exe" || { echo "no binary at $exe"; exit 1; }
+          otool -L "$exe"
+          # Every library must be one macOS ships. Anything under /opt or
+          # /usr/local is a dependency a user's machine may not have.
+          libs="$(otool -L "$exe" | tail -n +2 | awk '{print $1}')"
+          count="$(printf '%s\n' "$libs" | grep -c . || true)"
+          test "$count" -ge 1 || { echo "read no linked libraries from $exe, which cannot be right"; exit 1; }
+          echo "$exe links $count libraries"
+          bad=0
+          while IFS= read -r lib; do
+            [ -n "$lib" ] || continue
+            case "$lib" in
+              /usr/lib/*|/System/Library/*) ;;
+              *) echo "$exe links $lib, which macOS does not guarantee"; bad=1 ;;
+            esac
+          done <<< "$libs"
+          test "$bad" -eq 0 || exit 1
           # The minimum macOS it will start on, recorded so a raised floor is
           # visible here rather than to someone on an older machine.
-          vtool -show-build target/release/vadgr 2>/dev/null | grep -E "minos|platform" || true
+          vtool -show-build "$exe" 2>/dev/null | grep -E "minos|platform" || true
           root="$(mktemp -d)"
+          # The CLI runs with nothing in its environment and names this
+          # checkout's version.
+          out="$(env -i HOME="$root" "$PWD/target/release/vadgr" --version)"
+          test "$out" = "vadgr $version" || { echo "vadgr --version said '$out', expected 'vadgr $version'"; exit 1; }
+          # It serves the same way: no PATH, no toolchain in reach.
           env -i HOME="$root" \
             VADGR_STATE_HOME="$root/state" VADGR_PORT=8100 VADGR_TRANSPORT=loopback \
             "$PWD/target/release/vadgr" serve > "$root/daemon.log" 2>&1 &
+          daemon_pid=$!
           body=""
           for _ in $(seq 1 40); do
             body="$(curl -fsS http://127.0.0.1:8100/api/health 2>/dev/null || true)"
@@ -240,49 +319,111 @@ jobs:
             sleep 1
           done
           echo "$body"
-          echo "$body" | grep -q '"status":"healthy"' || { cat "$root/daemon.log"; exit 1; }
-          # The CLI a user types, run the same way the daemon was: no PATH and
-          # no toolchain in reach. Exit 0 here needs the wire, not just the
-          # binary loading.
+          echo "$body" | jq -e --arg version "$version" '
+            .status == "healthy"
+            and .version == $version
+            and .platform == "macos"
+            and .modules == {"computer_use": false}
+            and .transport == {"name": "loopback", "available": true,
+                               "advertise_host": null, "bind_host": "127.0.0.1"}
+          ' >/dev/null || { echo "the health body is wrong"; cat "$root/daemon.log"; exit 1; }
+          # A fresh machine has its three providers present and none connected.
+          providers="$(curl -fsS http://127.0.0.1:8100/api/providers)"
+          echo "$providers" | jq -e '
+            length == 3
+            and [.[].id] == ["openai", "gemini", "anthropic"]
+            and all(.[]; .connected == false)
+          ' >/dev/null || { echo "the provider rows are wrong: $providers"; exit 1; }
+          # The CLI reaches the daemon from the same emptied environment. Exit
+          # 0 here needs the wire, not just the binary loading.
           env -i HOME="$root" VADGR_PORT=8100 "$PWD/target/release/vadgr" health
+          # Stop it and leave nothing behind.
+          kill "$daemon_pid"
+          wait "$daemon_pid" 2>/dev/null || true
+          rm -rf "$root"
 
-      - name: What it imports, and whether it serves with the toolchain out of reach
+      # As on macOS: no container, so this leg APPROXIMATES the machine where
+      # the Linux leg makes one. The product runs with PATH emptied and its
+      # profile pointed at a scratch root, while the OS underneath is still a
+      # developer image with the toolchain on disk. A green run here is a
+      # weaker claim than the Linux leg's, and the probe runs on the runner,
+      # not the machine.
+      - name: What it imports, and the user's steps with the toolchain out of reach
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $exe = "target\x86_64-pc-windows-msvc\release\vadgr.exe"
+          # The one binary a user gets: it serves when invoked with `serve`
+          # and is the client otherwise. Its imports go against the one
+          # shipped-with-Windows list the installer job also checks; two
+          # copies of that list would drift apart.
           $cli = "target\x86_64-pc-windows-msvc\release\vadgr.exe"
-          # Both binaries the user gets, against the one shipped-with-Windows
-          # list the installer job also checks; two copies of that list would
-          # drift apart.
-          .\scripts\check_windows_imports.ps1 $cli $exe
+          .\scripts\check_windows_imports.ps1 $cli
+          # The version the binary must name, read from Cargo.toml at run
+          # time, never typed here.
+          $m = Select-String -Path Cargo.toml -Pattern '^version = "(.+)"' | Select-Object -First 1
+          if (-not $m) { throw "read no version from Cargo.toml" }
+          $version = $m.Matches[0].Groups[1].Value
           $root = Join-Path $env:RUNNER_TEMP ([guid]::NewGuid())
           New-Item -ItemType Directory -Path $root | Out-Null
-          $daemon = Start-Process -PassThru -FilePath (Resolve-Path $exe) `
-            -Environment @{ PATH=''; USERPROFILE=$root; LOCALAPPDATA=$root;
-                            VADGR_STATE_HOME="$root\state"; VADGR_PORT='8100';
-                            VADGR_TRANSPORT='loopback' } `
+          $cleanEnv = @{ PATH=''; USERPROFILE=$root; LOCALAPPDATA=$root;
+                         VADGR_STATE_HOME="$root\state"; VADGR_PORT='8100';
+                         VADGR_TRANSPORT='loopback' }
+          # The CLI runs with the toolchain out of reach and names this
+          # checkout's version.
+          $verRun = Start-Process -PassThru -Wait -FilePath (Resolve-Path $cli) -ArgumentList '--version' `
+            -Environment $cleanEnv -RedirectStandardOutput "$root\version.log" -RedirectStandardError "$root\version.err"
+          if ($verRun.ExitCode -ne 0) {
+            Get-Content "$root\version.err" -ErrorAction SilentlyContinue
+            throw "vadgr --version exited $($verRun.ExitCode)"
+          }
+          $out = (Get-Content "$root\version.log" -Raw).Trim()
+          if ($out -ne "vadgr $version") { throw "vadgr --version said '$out', expected 'vadgr $version'" }
+          # It serves the same way.
+          $daemon = Start-Process -PassThru -FilePath (Resolve-Path $cli) -ArgumentList 'serve' -Environment $cleanEnv `
             -RedirectStandardOutput "$root\out.log" -RedirectStandardError "$root\err.log"
-          $body = $null
+          $health = $null
           foreach ($i in 1..40) {
-            try { $body = (Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8100/api/health).Content; break }
+            try { $health = Invoke-RestMethod -UseBasicParsing http://127.0.0.1:8100/api/health; break }
             catch { Start-Sleep -Seconds 1 }
           }
-          $body
-          if (-not $body -or $body -notmatch '"status":"healthy"') {
+          if (-not $health) {
             Get-Content "$root\err.log" -ErrorAction SilentlyContinue
-            throw "the binary did not serve health on its own"
+            throw "the daemon never served health on its own"
           }
-          # The CLI a user types, run the same way the daemon was: no PATH and
-          # no toolchain in reach. Exit 0 here needs the wire, not just the
-          # binary loading.
+          $health | ConvertTo-Json -Compress | Write-Host
+          # Field by field, and the key sets pinned, so an extra or missing
+          # field fails the way the other legs' whole-object checks do.
+          if ($health.status -ne 'healthy') { throw "status was '$($health.status)'" }
+          if ($health.version -ne $version) { throw "version was '$($health.version)', expected '$version'" }
+          if ($health.platform -ne 'windows') { throw "platform was '$($health.platform)'" }
+          $moduleKeys = ($health.modules.PSObject.Properties.Name | Sort-Object) -join ','
+          if ($moduleKeys -ne 'computer_use' -or $health.modules.computer_use -ne $false) {
+            throw "modules was $($health.modules | ConvertTo-Json -Compress)"
+          }
+          $t = $health.transport
+          $transportKeys = ($t.PSObject.Properties.Name | Sort-Object) -join ','
+          if ($transportKeys -ne 'advertise_host,available,bind_host,name' -or
+              $t.name -ne 'loopback' -or $t.available -ne $true -or
+              $null -ne $t.advertise_host -or $t.bind_host -ne '127.0.0.1') {
+            throw "transport was $($t | ConvertTo-Json -Compress)"
+          }
+          # A fresh machine has its three providers present and none connected.
+          $providers = @(Invoke-RestMethod -UseBasicParsing http://127.0.0.1:8100/api/providers)
+          $ids = ($providers | ForEach-Object { $_.id }) -join ','
+          $connected = @($providers | Where-Object { $_.connected }).Count
+          if ($providers.Count -ne 3 -or $ids -ne 'openai,gemini,anthropic' -or $connected -ne 0) {
+            throw "the provider rows are wrong: $($providers | ConvertTo-Json -Compress)"
+          }
+          # The CLI reaches the daemon from the same stripped environment.
+          # Exit 0 here needs the wire, not just the binary loading.
           $cliRun = Start-Process -PassThru -Wait -FilePath (Resolve-Path $cli) -ArgumentList 'health' `
-            -Environment @{ PATH=''; USERPROFILE=$root; LOCALAPPDATA=$root; VADGR_PORT='8100' } `
-            -RedirectStandardOutput "$root\cli.log" -RedirectStandardError "$root\cli.err"
+            -Environment $cleanEnv -RedirectStandardOutput "$root\cli.log" -RedirectStandardError "$root\cli.err"
           Get-Content "$root\cli.log" -ErrorAction SilentlyContinue
           if ($cliRun.ExitCode -ne 0) {
             Get-Content "$root\cli.err" -ErrorAction SilentlyContinue
             throw "the CLI exited $($cliRun.ExitCode) against a healthy daemon"
           }
+          # Stop it and leave nothing behind.
           Stop-Process -Id $daemon.Id -Force
+          Remove-Item -Recurse -Force $root
           exit 0
