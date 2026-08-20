@@ -192,6 +192,8 @@ async fn health_answers_without_a_token_because_it_is_the_probe() {
 #[tokio::test]
 async fn oauth_cancellation_redirects_to_a_query_free_failure_page() {
     let state = state_with(Box::new(LoopbackTransport));
+    // The flow needs a bound callback port, because the redirect names it.
+    state.providers.set_oauth_callback_port(Some(1455));
     let attempt = state.providers.start_oauth("openai").await.unwrap();
     let authorization_url = url::Url::parse(attempt.authorization_url.as_deref().unwrap()).unwrap();
     let oauth_state = authorization_url

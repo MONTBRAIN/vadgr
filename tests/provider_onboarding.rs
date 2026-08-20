@@ -154,6 +154,9 @@ async fn owned_chatgpt_oauth_calls_openai_directly_with_vadgr_identity() {
     )
     .unwrap();
 
+    // A bound callback port is a precondition of the flow: the redirect the
+    // browser is sent to names it, so the service refuses without one.
+    service.set_oauth_callback_port(Some(1455));
     let attempt = service.start_oauth("openai").await.unwrap();
     let authorization_url = url::Url::parse(attempt.authorization_url.as_deref().unwrap()).unwrap();
     let state = authorization_url
@@ -239,6 +242,9 @@ async fn chatgpt_unauthorized_refreshes_the_committed_credential_and_retries_onc
     )
     .unwrap();
 
+    // A bound callback port is a precondition of the flow: the redirect the
+    // browser is sent to names it, so the service refuses without one.
+    service.set_oauth_callback_port(Some(1455));
     let attempt = service.start_oauth("openai").await.unwrap();
     let authorization_url = url::Url::parse(attempt.authorization_url.as_deref().unwrap()).unwrap();
     let state = authorization_url

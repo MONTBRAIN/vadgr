@@ -770,7 +770,7 @@ mod tests {
 
     #[test]
     fn chatgpt_authorization_descriptor_matches_the_direct_flow() {
-        let pending = super::super::oauth::begin(&OPENAI_OAUTH).unwrap();
+        let pending = super::super::oauth::begin(&OPENAI_OAUTH, OPENAI_OAUTH.redirect_uri).unwrap();
         let url = url::Url::parse(&pending.authorization_url).unwrap();
         let query = url
             .query_pairs()

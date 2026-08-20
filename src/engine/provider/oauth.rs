@@ -53,7 +53,18 @@ struct TokenResponse {
     _id_token: Option<String>,
 }
 
-pub fn begin(descriptor: &OAuthDescriptor) -> Result<PendingOAuth, ProviderError> {
+/// Start an authorization, redirecting to `redirect_uri`.
+///
+/// **The redirect is a parameter rather than the descriptor's constant because
+/// the daemon does not always get the port it asks for.** The authorization
+/// server matches this value against a fixed allow-list and rejects anything
+/// else, so it cannot be an arbitrary free port; but the daemon must send the
+/// port it actually bound, and [`exchange`] must later send the identical
+/// string or the token request fails.
+pub fn begin(
+    descriptor: &OAuthDescriptor,
+    redirect_uri: &str,
+) -> Result<PendingOAuth, ProviderError> {
     let verifier = random_urlsafe(32);
     let state = random_urlsafe(16);
     let challenge = URL_SAFE_NO_PAD.encode(Sha256::digest(verifier.as_bytes()));
@@ -64,7 +75,7 @@ pub fn begin(descriptor: &OAuthDescriptor) -> Result<PendingOAuth, ProviderError
         query
             .append_pair("response_type", "code")
             .append_pair("client_id", descriptor.client_id)
-            .append_pair("redirect_uri", descriptor.redirect_uri)
+            .append_pair("redirect_uri", redirect_uri)
             .append_pair("scope", &descriptor.scopes.join(" "))
             .append_pair("code_challenge", &challenge)
             .append_pair("code_challenge_method", "S256")
@@ -89,9 +100,17 @@ pub fn validate_callback(expected_state: &str, received_state: &str) -> Result<(
     Ok(())
 }
 
+/// Exchange the code for tokens.
+///
+/// `redirect_uri` must be **the same string [`begin`] sent**, not merely a
+/// valid one: the authorization server compares them, and a mismatch fails the
+/// exchange after the person has already approved the sign-in. That is why the
+/// value is carried on the attempt rather than recomputed here, which would
+/// read whatever port is bound now instead of the one the browser was sent to.
 pub async fn exchange(
     http: &reqwest::Client,
     descriptor: &OAuthDescriptor,
+    redirect_uri: &str,
     code: &str,
     verifier: &str,
 ) -> Result<OAuthTokens, ProviderError> {
@@ -103,7 +122,7 @@ pub async fn exchange(
             ("client_id", descriptor.client_id),
             ("code", code),
             ("code_verifier", verifier),
-            ("redirect_uri", descriptor.redirect_uri),
+            ("redirect_uri", redirect_uri),
         ],
         None,
     )
@@ -219,7 +238,7 @@ mod tests {
 
     #[test]
     fn begin_creates_pkce_state_and_provider_parameters() {
-        let pending = begin(&DESCRIPTOR).unwrap();
+        let pending = begin(&DESCRIPTOR, DESCRIPTOR.redirect_uri).unwrap();
         let url = Url::parse(&pending.authorization_url).unwrap();
         let query = url
             .query_pairs()

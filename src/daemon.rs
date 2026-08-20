@@ -111,11 +111,35 @@ pub async fn serve(hosts: Vec<String>, port: Option<u16>) -> Result<()> {
 
     let callback_state = state.clone();
     let callback = tokio::spawn(async move {
+        // Both ports, in order, because the authorization server matches the
+        // redirect against a fixed allow-list: an arbitrary free port is
+        // rejected, and these two are the ones it accepts. The listener takes
+        // whichever it can get and the flow is told which, so the browser is
+        // sent to the port that is actually listening.
+        const CALLBACK_PORTS: [u16; 2] = [1455, 1457];
+        // A port can be unavailable with nothing listening on it, which is how
+        // Windows reserves ranges, so this state can last for the daemon's
+        // whole life. It is reported once when it changes rather than on every
+        // retry, which would write a line a second forever.
+        let mut reported_unavailable = false;
         loop {
-            match tokio::net::TcpListener::bind(("127.0.0.1", 1455)).await {
-                Ok(listener) => {
-                    callback_state.providers.set_oauth_callback_available(true);
-                    tracing::info!(addr = "127.0.0.1:1455", "OpenAI callback listening");
+            let mut bound = None;
+            for port in CALLBACK_PORTS {
+                match tokio::net::TcpListener::bind(("127.0.0.1", port)).await {
+                    Ok(listener) => {
+                        bound = Some((listener, port));
+                        break;
+                    }
+                    Err(error) => {
+                        tracing::debug!(%error, port, "callback port is unavailable");
+                    }
+                }
+            }
+            match bound.ok_or(()) {
+                Ok((listener, port)) => {
+                    reported_unavailable = false;
+                    callback_state.providers.set_oauth_callback_port(Some(port));
+                    tracing::info!(addr = %format!("127.0.0.1:{port}"), "OpenAI callback listening");
                     // The callback listener is a served surface like any other,
                     // so it gets the same tracing. Without it a callback left no
                     // record at all: the redirect a browser followed could not be
@@ -136,11 +160,21 @@ pub async fn serve(hosts: Vec<String>, port: Option<u16>) -> Result<()> {
                         tracing::warn!(%error, "OpenAI callback listener stopped");
                     }
                 }
-                Err(error) => {
-                    tracing::debug!(%error, "OpenAI callback port is unavailable");
+                Err(()) => {
+                    // At `warn`, because the CLI tells a person to read this
+                    // log when a sign-in refuses, and at `debug` that
+                    // instruction sent them to an empty file.
+                    if !reported_unavailable {
+                        reported_unavailable = true;
+                        tracing::warn!(
+                            ports = ?CALLBACK_PORTS,
+                            "no callback port could be bound, so ChatGPT sign-in \
+                             is refused until one frees"
+                        );
+                    }
                 }
             }
-            callback_state.providers.set_oauth_callback_available(false);
+            callback_state.providers.set_oauth_callback_port(None);
             tokio::time::sleep(std::time::Duration::from_secs(1)).await;
         }
     });

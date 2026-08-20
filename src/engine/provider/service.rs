@@ -13,7 +13,7 @@ use serde_json::{Value, json};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicU16, Ordering};
 use time::{Duration, OffsetDateTime};
 use tokio::sync::Mutex;
 
@@ -149,6 +149,9 @@ struct AuthAttempt {
     authorization_url: Option<String>,
     verifier: Option<String>,
     state: Option<String>,
+    /// The redirect this attempt was started with, kept so the exchange sends
+    /// the same one even if the listener rebinds to a different port meanwhile.
+    redirect_uri: Option<String>,
     exchange_in_progress: bool,
     credential: Option<Credential>,
     account_id: Option<String>,
@@ -249,7 +252,12 @@ pub struct ProviderService {
     endpoints: ProviderEndpoints,
     attempts: Arc<Mutex<HashMap<String, AuthAttempt>>>,
     provider_locks: HashMap<&'static str, Arc<Mutex<()>>>,
-    oauth_callback_available: AtomicBool,
+    /// The loopback port the callback listener actually bound, or `0` for none.
+    ///
+    /// A boolean was not enough once the listener could bind more than one
+    /// port: the authorization URL has to name the port the browser will be
+    /// redirected to, so the flow needs the number rather than the fact.
+    oauth_callback_port: AtomicU16,
 }
 
 impl ProviderService {
@@ -259,7 +267,7 @@ impl ProviderService {
             CredentialStore::native(state_home)?,
             ProviderEndpoints::from_env(),
         )?;
-        service.set_oauth_callback_available(false);
+        service.set_oauth_callback_port(None);
         Ok(service)
     }
 
@@ -282,7 +290,7 @@ impl ProviderService {
             endpoints,
             attempts: Arc::new(Mutex::new(HashMap::new())),
             provider_locks,
-            oauth_callback_available: AtomicBool::new(true),
+            oauth_callback_port: AtomicU16::new(0),
         }))
     }
 
@@ -290,9 +298,18 @@ impl ProviderService {
         &DESCRIPTORS
     }
 
-    pub fn set_oauth_callback_available(&self, available: bool) {
-        self.oauth_callback_available
-            .store(available, Ordering::Release);
+    /// Record the port the callback listener bound, or `None` when it has none.
+    pub fn set_oauth_callback_port(&self, port: Option<u16>) {
+        self.oauth_callback_port
+            .store(port.unwrap_or(0), Ordering::Release);
+    }
+
+    /// The redirect the browser must be sent to, if the listener is up.
+    fn oauth_redirect_uri(&self) -> Option<String> {
+        match self.oauth_callback_port.load(Ordering::Acquire) {
+            0 => None,
+            port => Some(format!("http://localhost:{port}/auth/callback")),
+        }
     }
 
     pub async fn start_api_key(
@@ -314,6 +331,8 @@ impl ProviderService {
             authorization_url: None,
             verifier: None,
             state: None,
+            // An API key attempt never leaves the machine, so it has no redirect.
+            redirect_uri: None,
             exchange_in_progress: false,
             credential: Some(Credential::api_key(provider_id, api_key)),
             account_id: None,
@@ -337,10 +356,10 @@ impl ProviderService {
                 method: "oauth".to_owned(),
             });
         }
-        if !self.oauth_callback_available.load(Ordering::Acquire) {
+        let Some(redirect_uri) = self.oauth_redirect_uri() else {
             return Err(ServiceError::CallbackUnavailable);
-        }
-        let pending = oauth::begin(&self.endpoints.openai_oauth)?;
+        };
+        let pending = oauth::begin(&self.endpoints.openai_oauth, &redirect_uri)?;
         let attempt = AuthAttempt {
             id: attempt_id(),
             provider_id: provider_id.to_owned(),
@@ -349,6 +368,7 @@ impl ProviderService {
             authorization_url: Some(pending.authorization_url),
             verifier: Some(pending.verifier),
             state: Some(pending.state),
+            redirect_uri: Some(redirect_uri),
             exchange_in_progress: false,
             credential: None,
             account_id: None,
@@ -377,7 +397,7 @@ impl ProviderService {
         code: Option<&str>,
         error: Option<&str>,
     ) -> Result<(), ServiceError> {
-        let (id, verifier) = {
+        let (id, verifier, redirect_uri) = {
             let mut attempts = self.attempts.lock().await;
             let attempt = attempts
                 .values_mut()
@@ -401,12 +421,17 @@ impl ProviderService {
                     .verifier
                     .clone()
                     .ok_or(ServiceError::AttemptNotReady)?,
+                attempt
+                    .redirect_uri
+                    .clone()
+                    .ok_or(ServiceError::AttemptNotReady)?,
             )
         };
 
         let result = oauth::exchange(
             &self.http,
             &self.endpoints.openai_oauth,
+            &redirect_uri,
             code.unwrap_or_default(),
             &verifier,
         )
@@ -1079,7 +1104,7 @@ mod tests {
             ProviderEndpoints::default(),
         )
         .unwrap();
-        service.set_oauth_callback_available(false);
+        service.set_oauth_callback_port(None);
 
         let error = service.start_oauth("openai").await.unwrap_err();
         assert!(matches!(error, ServiceError::CallbackUnavailable));
@@ -1123,6 +1148,7 @@ mod tests {
             method: "api_key".to_owned(),
             status: AttemptStatus::Authenticated,
             authorization_url: Some("https://auth.example".to_owned()),
+            redirect_uri: None,
             verifier: Some("verifier".to_owned()),
             state: Some("state".to_owned()),
             exchange_in_progress: false,
@@ -1142,6 +1168,56 @@ mod tests {
         assert!(attempt.state.is_none());
     }
 
+    /// The browser must be sent to the port the listener actually bound.
+    ///
+    /// The redirect used to be a constant, so when the preferred port was taken
+    /// and the listener bound the other registered one, the authorization URL
+    /// still named the port nothing was serving. The person approved the
+    /// sign-in and the redirect landed nowhere.
+    #[tokio::test]
+    async fn the_authorization_url_names_the_port_the_listener_bound() {
+        let directory = tempfile::tempdir().unwrap();
+        let service = ProviderService::new(
+            Db::open(":memory:").unwrap(),
+            CredentialStore::new(directory.path().join("credentials")).unwrap(),
+            ProviderEndpoints::default(),
+        )
+        .unwrap();
+
+        service.set_oauth_callback_port(Some(1457));
+        let pending = service.start_oauth("openai").await.unwrap();
+        let url = url::Url::parse(pending.authorization_url.as_deref().unwrap()).unwrap();
+        let redirect = url
+            .query_pairs()
+            .find(|(key, _)| key == "redirect_uri")
+            .map(|(_, value)| value.into_owned())
+            .expect("the authorization URL carries a redirect");
+
+        assert_eq!(
+            redirect, "http://localhost:1457/auth/callback",
+            "the redirect must name the bound port, not the preferred one"
+        );
+    }
+
+    /// With no listener there is no port, and the flow refuses rather than
+    /// sending someone to a browser whose redirect cannot be answered.
+    #[tokio::test]
+    async fn no_bound_port_refuses_the_attempt() {
+        let directory = tempfile::tempdir().unwrap();
+        let service = ProviderService::new(
+            Db::open(":memory:").unwrap(),
+            CredentialStore::new(directory.path().join("credentials")).unwrap(),
+            ProviderEndpoints::default(),
+        )
+        .unwrap();
+
+        service.set_oauth_callback_port(None);
+        assert!(matches!(
+            service.start_oauth("openai").await,
+            Err(ServiceError::CallbackUnavailable)
+        ));
+    }
+
     #[tokio::test]
     async fn cancelled_oauth_attempt_never_becomes_authenticated() {
         let directory = tempfile::tempdir().unwrap();
@@ -1151,6 +1227,9 @@ mod tests {
             ProviderEndpoints::default(),
         )
         .unwrap();
+        // The listener state is a precondition, not a default: a service with
+        // no bound callback port refuses to start an OAuth attempt.
+        service.set_oauth_callback_port(Some(1455));
         let pending = service.start_oauth("openai").await.unwrap();
         let url = url::Url::parse(pending.authorization_url.as_deref().unwrap()).unwrap();
         let state = url
