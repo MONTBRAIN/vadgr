@@ -198,10 +198,20 @@ pass nobody can check: the numbers in the runbook have nothing behind them, the
 next host cannot compare its own record against yours, and the directory is one
 reboot from gone. Filing it is the last cell of every pass, and a report that
 says the pass is complete while the artifacts are still local is wrong about
-what complete means. This is written here because it happened: a full native
-Linux pass was reported as done with its runbook results pushed and 51 evidence
-files still in `/tmp`, and only the owner asking "evidence are pushed?" caught
-it.
+what complete means. This is written here because it happened twice, the
+second time in the runbook that already carried this rule. A full native Linux
+pass was reported as done with its runbook results pushed and 51 evidence files
+still in `/tmp`. Then a full native Windows pass, on a runbook whose first
+screen is this paragraph, closed 85 cells and reported them complete with every
+artifact still under `%TEMP%`, and the owner caught it with the same question:
+"evidence are pushed?"
+
+**So it is checked now, not remembered.** `check_e2e.py` fails a runbook whose
+per-OS table claims a pass on an operating system with no evidence boundary
+filed for it. Prose stopped neither pass, and the two other rules this project
+had to convert into scripts, the branch point and the attribution trailer, were
+converted for exactly this reason. **A reading typed into a status column is not
+evidence. The artifact is, and the artifact lives in the docs repository.**
 
 ## Scope exception - **delete this section unless you need it**
 
