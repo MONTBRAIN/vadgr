@@ -13,6 +13,117 @@ bracket notes as you go; a leftover placeholder is the tell that a runbook was
 written and never run. The cross-cutting rules are in
 [`../README.md`](../README.md) and are not repeated here.>
 
+## The rules
+
+**Read this before the first cell.** Every rule here was learned by breaking it,
+they hold on every supported operating system and for every driver of a runbook,
+and none of them is negotiable against a deadline or a token budget.
+
+**This list is an index, not the rules themselves.** Each entry is deliberately
+short. A bracketed name is where the rule is stated in full, with the incident
+that produced it: a section of this file, or `../README.md`. Read the entry
+before you start and the section when it bites. Where a bracketed name is not
+present in a given runbook, the entry is all there is.
+
+1. **Whatever needs the owner runs first.** Read the whole matrix, list every
+   cell that cannot proceed without a human, and run those cells before any
+   unattended one. **Running them is the rule; announcing them is not.**
+   [How a pass is run] [../README.md]
+
+2. **Do not stop the pass to report.** The pass runs to completion for the
+   operating system it is on, and what it finds is written down as it happens and
+   reported at the end. [How a pass is run] [../README.md]
+
+3. **A bug you find is a bug you fix, here and now, with a test that fails
+   without the fix.** Re-run the failing cell until it passes and push to the
+   pull request branch before carrying on. [How a pass is run] [../README.md]
+
+4. **A fix invalidates the cells it touched on every operating system that passed
+   them**, so name them, mark them `not run` and re-run them. **A rebuild is a
+   new subject**: re-run the identity cell and record the new hashes before any
+   further cell. [How a pass is run]
+
+5. **The evidence is pushed, not left on the machine that produced it, and it is
+   pushed to the private docs repository** under `e2e_evidence/<repo>-<minor>/`,
+   never into this one. The pull request carrying it is opened there as part of
+   the pass, not after somebody asks. [How a pass is run] [Evidence]
+
+6. **A cell is `pass` only when the observation and the artifact both exist.** A
+   cell that ran, was read correctly and left nothing on disk is `not run` with a
+   note. [How a pass is run]
+
+7. **Evidence is what the execution produced, never a summary somebody wrote**:
+   captured stdout and stderr with the exit code, wire bodies as they arrived,
+   hash lines, listings, log lines, socket frames, journals. A coverage table is
+   generated from a recorded sweep, never typed. [How a pass is run] [Evidence]
+
+8. **One branch per minor for evidence, in the docs repository, and every host
+   pushes into that one branch.** `evidence/<repo>-<version>`, cut once from a
+   freshly pulled default branch there: a later operating system adds its
+   boundary beside the first rather than opening a second pull request, and
+   nothing else travels in it. [How a pass is run]
+
+9. **A fix is verified by re-running the cell that found it**, whole and from its
+   stated precondition, against a rebuilt and reinstalled product. A unit test is
+   necessary and never sufficient.
+   [A fix is verified by the cell that found it] [../README.md]
+
+10. **Never edit a cell so it matches the behaviour you shipped.** If an
+    assertion is genuinely wrong, say so in the cell's status and leave the
+    assertion where the next reader can argue with it.
+    [A fix is verified by the cell that found it]
+
+11. **One failure is not a finding: reproduce before you diagnose, and reproduce
+    through the same path the user used.** Behaviour that worked earlier with
+    nothing changing it, and a failure you cannot reproduce on demand, are both
+    evidence for a transient.
+
+12. **Account for what the pass leaves running and on disk.** List and stop every
+    process the pass started and show the ports free, and name the directories a
+    group created in that group's cleanup column.
+    [Account for what the pass leaves running]
+    [Account for what the pass leaves on disk]
+
+13. **One command at a time, and read its output and exit code before choosing
+    the next.** A result from a command whose exit code you did not read is not a
+    result. [One command at a time, and read its output before the next]
+
+14. **Before you file a finding, suspect your own harness**, and do not stop one
+    question early: a harness can create the condition while the product's answer
+    to that condition is still wrong.
+    [Before you file a finding, suspect your own harness]
+
+15. **Finish the matrix: every cell carries a verdict or a named blocker**, and a
+    blocked cell is owed only after the blocker itself was investigated.
+    `Not-Needed` is a verdict with a reason, never a synonym for "did not run".
+    [Finish the matrix] [Per-OS results] [../README.md]
+
+16. **The oracle is never the product's own report.** The verdict comes from what
+    the machine wrote down, and a claimed success with no confirming read-back is
+    a fail; with neither journal nor transcript the result is `not verified`
+    rather than a pass. [The approach] [../README.md]
+
+17. **The runbook is complete before the first live cell, and the surface is
+    enumerated rather than sampled.** Name the axes, multiply them, write the
+    count, and give every cell an id, precondition, setup, action, expected
+    observable, oracle, evidence boundary, cleanup and result slot. A check that
+    needs something not built yet belongs to the minor that builds it.
+    [Coverage] [../README.md]
+
+18. **Evidence is filed while the pass runs, never assembled after it.** A bundle
+    assembled once the answer was known is a bundle whose artifacts were chosen,
+    and a group that captured nothing gets a note rather than a reconstruction.
+    [Evidence] [../README.md]
+
+19. **Credentials never enter Git or evidence.** Read only what a cell needs from
+    the workspace `../.env`, never echo or copy a value anywhere, and run the
+    secret check before every commit and before evidence is sealed.
+    [Owner and environment requirements]
+
+20. **Passes are independent only when each has its own port, database and
+    daemon.** Two drivers sharing one daemon read each other's work and neither
+    verdict means anything. [Repeatability] [../README.md]
+
 **A pass is finished, not paused, and reporting is not a stopping point.** A
 checkpoint or a progress summary does not end your turn: write it and keep
 driving in the same turn. A pass ends when every cell carries a verdict or a

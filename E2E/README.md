@@ -2,6 +2,13 @@
 
 Applies to **every** runbook in this directory (`E2E/<version>/e2e.md`).
 
+**The rules in one place: `## The rules`, the first section of
+[`TEMPLATE.md`](TEMPLATE.md) and of every runbook copied from it.** That list is
+the index, and it is what gets read before a pass starts. This file is one of
+the long forms it points at: the cross-cutting rules are stated here in full,
+with the incidents that produced them. **A rule is stated in full in one place**,
+so the index stays an index and the two cannot drift.
+
 An e2e is driven by a **real agent given a goal-level task**, never by a script.
 A `.py` that imports `run_loop` and calls it directly is an **acceptance test**,
 not an e2e - it proves the function works, not that the product does. The agent's
