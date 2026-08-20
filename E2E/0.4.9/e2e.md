@@ -554,7 +554,7 @@ poorer for it: an operator debugging a refused request cannot see who was
 refused. Open, and not fixed here, because changing what the daemon logs
 mid-pass would invalidate every cell already run against this build.
 
-### F6 (open): health says a disabled module is available
+### F6 (fixed): health says a disabled module is available
 
 `vadgr computer-use disable` sets `enabled` to `false` on
 `GET /api/settings/computer-use`, and `GET /api/health` goes on reporting
@@ -565,9 +565,17 @@ mounting the tools (`src/engine/mcp/mod.rs`). With the setting off, a run gets
 no computer-use tools and health still calls the module available, so the one
 screen a user checks after turning something off tells them nothing turned off.
 
-Found by `CU2`. Open: the fix is daemon code, and rebuilding the daemon
-mid-pass would invalidate every daemon-side cell already run against this
-build. It is small and belongs in the next release that touches health.
+Found by `CU2`, and **closed on the Windows pass rather than deferred again**.
+The deferral above was written when rebuilding mid-pass would have invalidated
+the daemon-side cells; on Windows the daemon was already being rebuilt for two
+other fixes, so the cost the deferral was avoiding had already been paid.
+
+`src/routes/health.rs` now answers usability rather than installation: a module
+is reported only when it is installed **and** enabled, and a status carrying
+neither field reports not usable, so a missing field never advertises a module.
+Four tests fail without it. **`CU2` was re-run against the rebuilt daemon**,
+which is what closes the finding: `disable` leaves the setting `false` and
+health `false`, `enable` returns both to `true`.
 
 ### F7 (open): the live model check refuses a good model when the provider returns an empty candidate
 
@@ -607,6 +615,101 @@ release's problem and it is recorded here so it arrives as a known question
 rather than a surprise. The same class of problem was found and fixed on
 Windows in this release: the binary imported the Visual C++ redistributable
 until the C runtime was linked in.
+
+### F9 (fixed): the callback listener bound one hard-coded port, and said nothing when it could not
+
+`vadgr provider login openai --auth chatgpt` refused on a host where port `1455`
+is reserved by the operating system with **no listener behind it**. The daemon
+retried that one port every second for its whole life and reported nothing: the
+bind failure was `debug` under an `info` filter, while the CLI told the person
+to read a log that could not contain the line.
+
+The listener now takes either port the authorization server accepts, publishes
+the one it bound, and the authorization URL names that port, so the browser is
+sent where something is listening. The redirect is carried on the attempt rather
+than recomputed, because the token exchange re-sends it and the server compares
+the two. The failure is reported at `warn`, once per state change, not once per
+retry. Found by `O2`, guarded by `O5`, and proved by `O3`: a real sign-in
+completed on the fallback port.
+
+### F10 (fixed): the browser received the part of the URL before the first `&`
+
+The CLI printed a correct authorization URL and sent a truncated one. It opened
+the browser through `cmd /C start`, and `cmd` reads `&` as a command separator;
+the argument is not quoted, because quoting only covers arguments holding
+spaces. The browser got everything up to the first `&` and nothing after it, so
+`client_id`, `redirect_uri` and the PKCE challenge never arrived and the
+provider answered that a required parameter was missing.
+
+**The printed URL is what made this hard to see**, and it is why the guarding
+cell `O6` asserts on the request a listener captures rather than on what the CLI
+displays. Measured both ways: through `cmd` the listener received
+`GET /x?response_type=code` with the rest gone; through
+`rundll32 url.dll,FileProtocolHandler` it received the whole line. No shell now
+sits between the CLI and the browser on any platform.
+
+**This one nearly cost the product its identity.** The failure was first
+diagnosed as the provider rejecting `originator=vadgr`, with three other
+projects having hit the same message and fixed it by sending another vendor's
+string. That change was written and not made. The cause was one line choosing
+`cmd`.
+
+### F11 (fixed): a daemon that refused to start was reported as a busy port
+
+Whenever the spawned daemon exited early, `vadgr start` printed
+`API process died. Port N may be in use`. That is the usual cause and it was the
+wrong one: the daemon had refused to merge two databases sharing a run id, and
+had written a precise reason naming the id, both files, and the fact that
+nothing had been moved. The operator was sent to hunt a port conflict that did
+not exist.
+
+The CLI now reads the daemon's own failure line and repeats it. Only a line the
+daemon wrote as its failure counts, so an earlier warning is never reported as
+the cause. Found by `B5`, and `B10` shows the same fix carrying a different
+refusal: the missing column named to the operator.
+
+### F12 (fixed): the installer left the toolchain it installed unreachable
+
+A machine installed cleanly and its **first** `vadgr update` failed with
+`Could not run cargo`, naming the toolchain the installer had just set up.
+`install.sh` ran rustup with `--no-modify-path`, sourced `$HOME/.cargo/env` in
+its own process only, and wrote just the install bin into the rc file.
+
+The startup line is now written beside the `PATH` line, and only when this
+installer set the toolchain up, so a machine that already had cargo keeps its
+own arrangement. Found by `I6` and **re-driven from nothing to close it**: a new
+login shell resolves cargo and `vadgr update` exits `0`. The counterfactual is
+what makes it conclusive, because a shell that does not read the rc file
+reproduces the old failure exactly.
+
+### F13 (open): a second state-root resolver disagrees with the first
+
+`config::state_root` answers `%LOCALAPPDATA%\vadgr` on Windows, and
+`default_state_root()` in `src/engine/provider/credentials.rs` falls back to
+`data_local_dir()` and answers `%LOCALAPPDATA%\vadgr\data`. The second also
+reads the real known folder rather than the environment variable, so it ignores
+an override the first honours.
+
+At `0.4.9` it looks unreachable from the daemon, which always sets the state
+home explicitly, and the directories that exposed it predated the pass. It is
+recorded because the file's own comment warns that three resolvers is how two of
+them drift, and two of them already have. Found while `J1` was blocked: the
+empty `data\credentials` tree it left is this resolver's fingerprint, and `J1`
+run properly puts `credentials/` directly under the root instead.
+
+### F14 (open, and it resolves on merge): update follows a default branch with the old layout
+
+`vadgr update` pulls `master` and rebuilds. `master` still carries the
+pre-cutover layout with the crate under `rust/`, so the `0.4.9` command cannot
+build the tree its own update pulls: `could not find Cargo.toml`. The fast
+forward is also not rolled back, so the checkout is left on the older source
+while the installed binary is the newer build, and the message that nothing was
+replaced is true of the binary and false of the checkout.
+
+A `0.4.9` user is not exposed while their clone is ahead of `master`, because
+`I4` answers up to date and nothing is pulled. It resolves when this release
+reaches `master`. Found by `I6`, and it is the half of that cell which is not
+fixable from here.
 
 ## Surface coverage - **every published endpoint, with what it returned**
 
