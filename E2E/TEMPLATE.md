@@ -213,6 +213,36 @@ had to convert into scripts, the branch point and the attribution trailer, were
 converted for exactly this reason. **A reading typed into a status column is not
 evidence. The artifact is, and the artifact lives in the docs repository.**
 
+**And a cell is `pass` only when both halves exist.** The verdict is the
+observation **and** the artifact behind it. A cell that ran, was read correctly,
+and left nothing on disk is not `pass`; it is `not run` with a note, because
+there is nothing a reviewer or the next host can check. Write the status from
+the artifact, file the artifact, and if you cannot file it, say so in the status
+rather than claiming the cell.
+
+**What counts as evidence, stated because the wrong answer is the tempting
+one.** Evidence is what the execution produced:
+
+- the command's own **stdout and stderr, captured to a file**, and its **exit
+  code**;
+- the **wire body** a request returned, saved as it arrived, not paraphrased;
+- the **file listing, the hash lines, the process table row, the log lines** the
+  cell's oracle names, copied verbatim;
+- for a socket, the **captured frames**; for a run, the **journal**.
+
+**Evidence is not a summary you wrote.** A sentence saying the daemon answered
+`200`, a table you typed from the terminal, a status column reading "all fields
+match", a count you remember: none of these are evidence, however true they are.
+They are a **reading of** evidence, and a reading with nothing under it is worth
+exactly as much as a reading of something that never happened. The reader cannot
+tell the two apart, which is the whole problem.
+
+The test is simple and it is worth applying to every file you file: **could
+somebody who does not trust you re-derive your status line from this artifact
+alone?** If the answer needs your prose to bridge a gap, the artifact is
+incomplete and the gap is where a mistake lives. A `sha256` line either side of
+an operation passes that test. "The file was unchanged" does not.
+
 ## Scope exception - **delete this section unless you need it**
 
 <Only when the minor genuinely cannot be driven through a product surface. State
