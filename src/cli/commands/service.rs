@@ -158,21 +158,38 @@ pub fn port_in_use(port: u16) -> bool {
 /// two connects in a row disagree and the port reads free while it is held.
 /// Binding is the question being asked here, and its answer does not depend on
 /// what the other process is doing with its accept queue.
-fn port_bindable(port: u16) -> bool {
-    match TcpListener::bind(("127.0.0.1", port)) {
-        Ok(listener) => {
-            drop(listener);
-            true
-        }
-        Err(_) => false,
-    }
+///
+/// **Every host the daemon will bind, not just loopback.** Checking one address
+/// and binding another is the same mistake as checking liveness and binding: the
+/// daemon binds the transport's address too, so a port free on `127.0.0.1` and
+/// taken on the tailnet address would pass this check and still die.
+fn port_bindable(port: u16, hosts: &[String]) -> bool {
+    hosts
+        .iter()
+        .all(|host| match TcpListener::bind((host.as_str(), port)) {
+            Ok(listener) => {
+                drop(listener);
+                true
+            }
+            Err(_) => false,
+        })
 }
 
-/// The first port at or above `default` that this process can bind.
-fn find_free_port(default: u16) -> Option<u16> {
+/// The port to start on, given the one asked for.
+///
+/// Separated from the sockets so the decision itself is testable on every
+/// operating system. The socket-level tests below can only run where a held
+/// port can be simulated; this one runs everywhere, which matters because the
+/// defect it guards was found on Windows.
+fn choose_port(requested: u16, mut bindable: impl FnMut(u16) -> bool) -> Option<u16> {
     (0..PORT_SEARCH_ATTEMPTS)
-        .filter_map(|offset| default.checked_add(offset))
-        .find(|candidate| port_bindable(*candidate))
+        .filter_map(|offset| requested.checked_add(offset))
+        .find(|candidate| bindable(*candidate))
+}
+
+/// The first port at or above `default` that this process can bind on every host.
+fn find_free_port(default: u16, hosts: &[String]) -> Option<u16> {
+    choose_port(default, |candidate| port_bindable(candidate, hosts))
 }
 
 fn kill_tree(pid: u32) {
@@ -308,23 +325,33 @@ pub async fn start(api_port: Option<u16>) -> Result<(), CliError> {
         return Err(CliError::Failed(String::new()));
     }
 
-    if port_in_use(port) {
-        let original = port;
-        let Some(free) = find_free_port(port) else {
-            anstream::println!(
-                "{}",
-                output::warning(&format!("No free port found starting from {original}."))
-            );
-            return Err(CliError::Failed(String::new()));
-        };
-        port = free;
+    // The hosts come first because the port decision depends on them: the search
+    // must try to bind exactly what the daemon will bind.
+    let bind_hosts = resolve_bind_hosts();
+
+    // **One question, asked once.** This used to gate on `port_in_use`, which
+    // answers by connecting, and then search by binding. A port that nothing is
+    // listening on but nothing can bind either failed the gate, so the search
+    // never ran and the daemon died on bind under a message naming a port that
+    // looked free. Windows reserves ports exactly that way, with no listener at
+    // all, so no probe that connects can ever see them: `VADGR_PORT=8861` on a
+    // host with Hyper-V reservations killed the daemon every time.
+    let requested = port;
+    let Some(chosen) = find_free_port(port, &bind_hosts) else {
         anstream::println!(
             "{}",
-            output::info(&format!("Port {original} busy, using {port}"))
+            output::warning(&format!("No free port found starting from {requested}."))
+        );
+        return Err(CliError::Failed(String::new()));
+    };
+    port = chosen;
+    if port != requested {
+        anstream::println!(
+            "{}",
+            output::info(&format!("Port {requested} busy, using {port}"))
         );
     }
 
-    let bind_hosts = resolve_bind_hosts();
     anstream::println!(
         "{}",
         output::info(&format!(
@@ -842,7 +869,8 @@ mod port_selection_tests {
         // The invariant holds either way, and it is the thing the fix promises:
         // the search starts at the held port, so a search that still asked by
         // connecting would return it and the bind below would fail.
-        let chosen = find_free_port(taken).expect("some port above it is free");
+        let loopback = vec!["127.0.0.1".to_owned()];
+        let chosen = find_free_port(taken, &loopback).expect("some port above it is free");
         assert!(
             flipped,
             "the probe never reported the held port free, so this run did not \
@@ -863,14 +891,75 @@ mod port_selection_tests {
     /// anything answers, the other whether this process can take the port.
     #[test]
     fn bindability_is_not_the_same_question_as_liveness() {
+        let loopback = vec!["127.0.0.1".to_owned()];
         let held = TcpListener::bind(("127.0.0.1", 0)).expect("a port to hold");
         let taken = held.local_addr().unwrap().port();
-        assert!(!port_bindable(taken), "a held port must not be bindable");
+        assert!(
+            !port_bindable(taken, &loopback),
+            "a held port must not be bindable"
+        );
 
         drop(held);
         assert!(
-            port_bindable(taken),
+            port_bindable(taken, &loopback),
             "a released port must be bindable again"
+        );
+    }
+
+    /// A port nothing listens on and nothing can bind must still be walked past.
+    ///
+    /// **This is the Windows defect, and it runs on every operating system.** The
+    /// socket-level test above needs a held port it can simulate, so it is Unix
+    /// only, and the platform that actually shipped this bug never executed it.
+    /// Windows reserves port ranges with no listener behind them, so a probe that
+    /// connects reports them free forever; `VADGR_PORT=8861` on a host with
+    /// Hyper-V reservations printed no warning and killed the daemon on bind.
+    #[test]
+    fn a_reserved_port_with_no_listener_is_walked_past() {
+        // Bindable answers false, and nothing is listening, so liveness would
+        // answer false too. Only bindability can see this port.
+        let reserved = [8861u16, 8862];
+        let chosen = choose_port(8861, |port| !reserved.contains(&port))
+            .expect("a port above the reserved range");
+
+        assert_eq!(
+            chosen, 8863,
+            "the search must skip every port it cannot bind, not stop at the first"
+        );
+    }
+
+    /// The requested port is used unchanged when it is available, so the "busy"
+    /// line is never printed for a port that was fine.
+    #[test]
+    fn an_available_port_is_taken_as_asked() {
+        assert_eq!(choose_port(8861, |_| true), Some(8861));
+    }
+
+    /// The search gives up rather than returning a port it cannot bind.
+    #[test]
+    fn a_search_that_finds_nothing_returns_nothing() {
+        assert_eq!(choose_port(8861, |_| false), None);
+    }
+
+    /// Every host the daemon binds has to be free, not just loopback.
+    ///
+    /// A port open on `127.0.0.1` and taken on the transport's address would
+    /// have passed a loopback-only check and died on the second bind.
+    #[test]
+    fn a_port_free_on_one_host_but_not_another_is_not_chosen() {
+        let held = TcpListener::bind(("127.0.0.1", 0)).expect("a port to hold");
+        let taken = held.local_addr().unwrap().port();
+
+        // Loopback is genuinely taken here, so any host list including it must
+        // reject this port however free the other addresses are.
+        let hosts = vec!["127.0.0.1".to_owned()];
+        assert!(!port_bindable(taken, &hosts));
+
+        let empty: Vec<String> = Vec::new();
+        assert!(
+            port_bindable(taken, &empty),
+            "no hosts means nothing to refuse it, which is why the caller must \
+             pass the hosts the daemon will actually bind"
         );
     }
 }
