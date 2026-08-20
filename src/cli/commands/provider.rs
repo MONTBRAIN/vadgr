@@ -108,6 +108,26 @@ fn is_wsl() -> bool {
     }
 }
 
+/// The program that opens a URL in the owner's browser, and its fixed arguments.
+///
+/// **No shell may sit between this and the browser.** An authorization URL is
+/// mostly `&`, and `cmd /C start` reads `&` as a command separator: the URL is
+/// not quoted on the way through, because quoting only covers arguments holding
+/// spaces, so the browser received everything up to the first `&` and nothing
+/// after it. That dropped `client_id`, `redirect_uri` and the PKCE challenge,
+/// and the provider rejected the request for a missing parameter, which reads
+/// as a defect in what was sent rather than in how it was opened.
+/// `FileProtocolHandler` passes the string to the default browser untouched.
+fn browser_command() -> (&'static str, Vec<&'static str>) {
+    if cfg!(target_os = "macos") {
+        ("open", vec![])
+    } else if cfg!(target_os = "windows") {
+        ("rundll32.exe", vec!["url.dll,FileProtocolHandler"])
+    } else {
+        ("xdg-open", vec![])
+    }
+}
+
 /// Open the authorization URL in the owner's real browser.
 ///
 /// **WSL is the case that needs its own path.** There is no browser inside the
@@ -145,13 +165,7 @@ fn launch_authorization_url(url: &str) -> bool {
         }
     }
 
-    let (program, args): (&str, Vec<&str>) = if cfg!(target_os = "macos") {
-        ("open", vec![])
-    } else if cfg!(target_os = "windows") {
-        ("cmd", vec!["/C", "start", ""])
-    } else {
-        ("xdg-open", vec![])
-    };
+    let (program, args) = browser_command();
     Command::new(program)
         .args(args)
         .arg(url)
@@ -660,5 +674,44 @@ fn print_provider_rows(rows: &Value, provider: Option<&str>, connected_only: boo
                 anstream::println!("  {id}  {model_name}");
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::browser_command;
+
+    /// The browser is opened without a shell, on every platform.
+    ///
+    /// An authorization URL carries its parameters after `&`, and a shell reads
+    /// `&` as a separator. Opening one through `cmd` delivered only the part
+    /// before the first `&`, so the provider saw a request with no `client_id`
+    /// and refused it for a missing parameter. The defect was invisible from
+    /// the CLI's own output, which printed the whole URL correctly.
+    #[test]
+    fn the_browser_is_opened_without_a_shell() {
+        let (program, args) = browser_command();
+
+        assert_ne!(program, "cmd", "a shell splits the URL on its ampersands");
+        assert_ne!(program, "sh");
+        assert!(
+            !args.contains(&"start"),
+            "`start` is the shell builtin that ate the query string"
+        );
+        assert!(
+            !args.contains(&"/C") && !args.contains(&"-c"),
+            "passing the URL as a shell command line reparses it"
+        );
+    }
+
+    /// The URL is the last argument and nothing is appended after it, so no
+    /// separator can be read as part of the address.
+    #[test]
+    fn the_launcher_takes_fixed_arguments_only() {
+        let (_, args) = browser_command();
+        assert!(
+            args.iter().all(|arg| !arg.contains("://")),
+            "the URL is supplied by the caller, never baked into the arguments"
+        );
     }
 }
