@@ -192,6 +192,21 @@ fn find_free_port(default: u16, hosts: &[String]) -> Option<u16> {
     choose_port(default, |candidate| port_bindable(candidate, hosts))
 }
 
+/// The reason the daemon gave for stopping, read from the tail of its log.
+///
+/// **Only a line the daemon wrote as its own failure**, so a stray warning
+/// earlier in the file is never reported as the cause. The daemon prints its
+/// refusals as `Error: ...` on the last line before it exits, which is what a
+/// person needs and what the CLI otherwise replaces with a guess.
+fn daemon_failure_reason(log_path: &Path) -> Option<String> {
+    let text = std::fs::read_to_string(log_path).ok()?;
+    text.lines()
+        .rev()
+        .map(str::trim)
+        .find(|line| line.starts_with("Error: "))
+        .map(|line| line.trim_start_matches("Error: ").to_owned())
+}
+
 fn kill_tree(pid: u32) {
     #[cfg(windows)]
     {
@@ -397,12 +412,17 @@ pub async fn start(api_port: Option<u16>) -> Result<(), CliError> {
 
     tokio::time::sleep(Duration::from_secs(1)).await;
     if matches!(child.try_wait(), Ok(Some(_))) {
+        // **Say why it died, not what usually kills it.** Guessing at the port
+        // sent someone hunting a conflict that did not exist while the daemon
+        // had written a precise reason to its log: it had refused to merge two
+        // histories that shared a run id, named the id and both files, and said
+        // nothing had been moved. The daemon knows the cause and the log has
+        // it, so the operator gets it rather than a plausible story.
+        let reported = daemon_failure_reason(&log_path)
+            .unwrap_or_else(|| format!("Port {port} may be in use. Check {}", log_path.display()));
         anstream::println!(
             "{}",
-            output::warning(&format!(
-                "API process died. Port {port} may be in use. Check {}",
-                log_path.display()
-            ))
+            output::warning(&format!("The daemon stopped before it served. {reported}"))
         );
         let _ = std::fs::remove_file(pid_dir().join("api.pid"));
         let _ = std::fs::remove_file(pid_dir().join("api.port"));
@@ -904,6 +924,53 @@ mod port_selection_tests {
             port_bindable(taken, &loopback),
             "a released port must be bindable again"
         );
+    }
+
+    /// A daemon that refused to start says why, and the CLI repeats it.
+    ///
+    /// The CLI used to guess: it printed that the port might be in use, which
+    /// is the usual cause and was the wrong one. The daemon had refused to
+    /// merge two histories sharing a run id and had named the id and both
+    /// files. The operator was sent to hunt a port conflict that did not exist.
+    #[test]
+    fn the_daemon_s_own_reason_is_read_from_its_log() {
+        let directory = std::env::temp_dir().join(format!("vadgr-reason-{}", std::process::id()));
+        std::fs::create_dir_all(&directory).unwrap();
+        let log = directory.join("api.log");
+        std::fs::write(
+            &log,
+            "INFO run recovery scan complete
+             WARN no callback port could be bound
+             Error: run r1 exists in both a.db and b.db. Nothing has been moved.
+",
+        )
+        .unwrap();
+
+        let reason = daemon_failure_reason(&log).expect("the log names a reason");
+        assert!(reason.starts_with("run r1 exists in both"), "got: {reason}");
+        assert!(
+            !reason.contains("callback port"),
+            "an earlier warning is not the cause of death"
+        );
+        let _ = std::fs::remove_file(&log);
+    }
+
+    /// A log with no failure line yields nothing, so the caller keeps its
+    /// fallback rather than reporting an unrelated line as the cause.
+    #[test]
+    fn a_log_without_a_failure_line_reports_nothing() {
+        let directory = std::env::temp_dir().join(format!("vadgr-noreason-{}", std::process::id()));
+        std::fs::create_dir_all(&directory).unwrap();
+        let log = directory.join("api.log");
+        std::fs::write(
+            &log,
+            "INFO listening
+WARN something odd
+",
+        )
+        .unwrap();
+        assert_eq!(daemon_failure_reason(&log), None);
+        let _ = std::fs::remove_file(&log);
     }
 
     /// A port nothing listens on and nothing can bind must still be walked past.
