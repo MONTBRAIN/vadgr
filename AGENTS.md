@@ -207,7 +207,7 @@ shipped once and was caught in review, with two platforms marked `pass (CI)`
 while their own live rows read `not run`. **A suite is not a session.**
 
 **A patch is not a minor, and it merges on a cell rather than a pass.** A minor
-carries a runbook and a full pass. A patch to the `vadgr` daemon does not run
+carries a runbook and a full pass. A patch does not run
 one to merge: a one-line fix must not wait on four operating systems. It does
 have to carry a **cell**. If the behaviour it changes can be driven through a
 product surface, the current `E2E/<version>/e2e.md` gains a cell for it, run on
