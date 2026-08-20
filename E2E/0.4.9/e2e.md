@@ -275,9 +275,9 @@ product. `CU2` before `CU3` so the group ends enabled.
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| CU1 | daemon running, `vadgr-cua` resolvable | `vadgr computer-use status` | prints the availability; equals `GET /api/computer-use/status`, whose `available` comes from a live tool listing against the runtime, and `GET /api/settings/computer-use` | CLI output and both `curl` bodies | none | pass |
-| CU2 | as CU1 | `vadgr computer-use disable` | exit `0`; `GET /api/settings/computer-use` says `"enabled": false`; `/api/health`'s module block says `"computer_use": false` | CLI output, both `curl` bodies | CU3 | pass |
-| CU3 | as CU2 | `vadgr computer-use enable` | exit `0`; the setting reads `"enabled": true` through the API; `GET /api/computer-use/status` reports `"available": true` from its live probe | CLI output, both `curl` bodies | none | pass |
+| CU1 | daemon running, `vadgr-cua` resolvable | `vadgr computer-use status` | prints the availability; equals `GET /api/computer-use/status`, whose `available` comes from a live tool listing against the runtime, and `GET /api/settings/computer-use` | CLI output and both `curl` bodies | none | **pass on native Windows**: `Computer use: enabled`, exit `0`, and the wire agrees, `GET /api/computer-use/status` returning `{"available":true,"platform":"native"}` with the health module block `true`. |
+| CU2 | as CU1 | `vadgr computer-use disable` | exit `0`; `GET /api/settings/computer-use` says `"enabled": false`; `/api/health`'s module block says `"computer_use": false` | CLI output, both `curl` bodies | CU3 | **fail on native Windows**, and it is the product rather than the cell. `vadgr computer-use disable` exits `0` and `GET /api/settings/computer-use` reads `"enabled": false` as required, but **`/api/health` still reports `"computer_use": true`**, polled three times over twelve seconds while the setting read `false` throughout. The cause is in `src/routes/health.rs:10`: the module block is built from `computer_use_status["venv_ready"]`, which answers whether the runtime is **installed**, and never consults the setting. **Finding `F4` states the contract this breaks**: the API answers whether a module is usable, and `false` is meant to cover a module that is absent **and one the owner disabled**. Today it covers only the first, so a machine whose owner has switched computer use off still advertises it as usable. |
+| CU3 | as CU2 | `vadgr computer-use enable` | exit `0`; the setting reads `"enabled": true` through the API; `GET /api/computer-use/status` reports `"available": true` from its live probe | CLI output, both `curl` bodies | none | **pass on native Windows**: `Computer use enabled`, exit `0`, the setting reads `"enabled": true` through the API, and `GET /api/computer-use/status` reports `"available": true` from its live probe. |
 | CU4 | `vadgr-cua` on `PATH`, whatever release the machine has | `vadgr-cua doctor` | exits `0` and prints JSON naming a `tool_count`. **This is the runtime the run cells depend on, checked directly rather than through the daemon**: `vadgr computer-use status` reports the setting the product owns, and a runtime that cannot start would still read as enabled there | the JSON, and its exit code | none | **pass on native Windows** with `vadgr-computer-use 0.7.4`: exits `0` and reports `tool_count 33`. **Against `0.7.3` this cell was the failure**: `doctor` died with `ModuleNotFoundError: No module named fcntl`, because `supervisor.py` imported it at module scope and Windows has none. Fixed in that repo and released as `0.7.4`; this cell is what keeps the class from returning |
 
 ## Part E: provider onboarding
@@ -481,21 +481,21 @@ the weakest of the parts actually driven on that OS.
 |---|---|---|---|---|---|
 | automated gate | pass | not run | not run | not run | |
 | surface sweep | pass | not run | not run | not run | |
-| A: the built head | pass | not run | not run | not run | |
-| B: the consolidation | pass | not run | not run | not run | |
-| C: the service group | pass | not run | not run | not run | |
-| D: read-only commands | pass | not run | not run | not run | |
-| CU: computer use | pass | not run | not run | not run | |
-| E: provider onboarding | pass | not run | not run | not run | |
-| F: runs and the watcher | pass | not run | not run | not run | |
-| R: interruption and recovery | pass | not run | not run | not run | |
-| G: pairing and devices | pass | not run | not run | not run | |
-| W: the sockets | pass | not run | not run | not run | |
-| S: source enforcement | pass | not run | not run | not run | the token gate answers before the source gate; see the cell |
-| O: OAuth and the callback | pass | not run | not run | not run | the owner supplied the account and the key during this pass |
-| H: the phone | pass | not run | not run | not run | a person held the handset: pair, machine, run, read back, unpair |
+| A: the built head | pass | not run | **pass**, 3 of 3 | not run |  |
+| B: the consolidation | pass | not run | **pass**, 10 of 10 | not run | a `WAL` row never checkpointed, interrupted staging debris, and all three refusals naming what they found |
+| C: the service group | pass | not run | **pass**, 13 of 13 | not run | `C13` ran here for the first time: the tailnet address held and loopback free, which is the multi-host bind check |
+| D: read-only commands | pass | not run | **pass**, 5 of 5 | not run |  |
+| CU: computer use | pass | not run | **3 of 4**, `CU2` fails | not run | `CU2`: `/api/health` reports the module usable while the owner has it disabled, because it reads installation rather than the setting |
+| E: provider onboarding | pass | not run | **pass**, 6 of 6 | not run |  |
+| F: runs and the watcher | pass | not run | **8 of 9**, `F8` fails | not run | `F8`: the run watcher installs no interrupt handler, so `CliError::Detached` and exit `130` are unreachable |
+| R: interruption and recovery | pass | not run | **pass**, 4 of 4 | not run | the journal carries no marker for a resumed segment, and `R3` has no CLI verb that attaches a watcher to an existing run |
+| G: pairing and devices | pass | not run | **pass**, 8 of 8 | not run |  |
+| W: the sockets | pass | not run | **pass**, 4 of 4 | not run |  |
+| S: source enforcement | pass | not run | **pass**, 1 of 1 | not run | the token gate answers before the source gate; see the cell. |
+| O: OAuth and the callback | pass | not run | **pass**, 6 of 6 | not run | the owner supplied the account and the key during this pass. |
+| H: the phone | pass | not run | **pass**, 5 of 5 | not run | a person held the handset: pair, machine, run, read back, unpair. a person held the handset: pair, machine, run, read back, unpair. The phone draws a run complete before it has a result |
 | I: the installer and update | pass | not run | not run | not run | in a container with no toolchain and no product |
-| J: the platform state root | pass | not run | not run | not run | no overrides at all, state under the platform root |
+| J: the platform state root | pass | not run | **blocked** | not run | no overrides at all, state under the platform root. the platform root already holds directories from before this pass, so the cell's own guard applies. It uncovered a second state-root resolver that disagrees with `config::state_root` |
 | **overall** | pass | not run | not run | not run | the weakest part actually driven on this OS, which is every part |
 
 Paths, process supervision and access control are platform-shaped. **No supported
