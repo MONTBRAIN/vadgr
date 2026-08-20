@@ -133,6 +133,9 @@ install_rust() {
     # The official installer, non-interactive. The product is one binary and
     # this is what builds it; nothing else here needs a compiler.
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+    # This installer owns the toolchain now, so the shell startup line below is
+    # written for a machine that had none of its own.
+    VADGR_INSTALLED_TOOLCHAIN=1
     # shellcheck disable=SC1091
     . "$HOME/.cargo/env"
     command_exists cargo || fail "Rust installed but cargo is not on PATH. Open a new shell and run this again."
@@ -187,8 +190,24 @@ setup_repo() {
 # Add to PATH
 # ---------------------------------------------------------------------------
 
+# The line that makes the toolchain reachable in later shells.
+#
+# **Only when this installer set the toolchain up.** rustup is invoked with
+# `--no-modify-path` so the installer owns this decision, and the `. cargo/env`
+# it runs during the install lasts for that process alone. Without this a
+# machine installs cleanly and then fails on its first `vadgr update` with
+# "Could not run cargo", naming the toolchain the installer had just left
+# unreachable. A machine that already had cargo keeps its own arrangement.
+cargo_path_line() {
+    if [ ! -f "$HOME/.cargo/env" ]; then return 1; fi
+    if [ -z "$VADGR_INSTALLED_TOOLCHAIN" ]; then return 1; fi
+    printf '%s' '. "$HOME/.cargo/env"'
+}
+
 add_to_path() {
     local line="export PATH=\"$VADGR_BIN:\$PATH\""
+    local cargo_line
+    cargo_line="$(cargo_path_line || true)"
     local found=0
 
     for rcfile in "$HOME/.bashrc" "$HOME/.zshrc"; do
@@ -199,6 +218,10 @@ add_to_path() {
             echo "$line" >> "$rcfile"
             info "Added vadgr to PATH in $(basename "$rcfile")"
         fi
+        if [ -n "$cargo_line" ] && ! grep -qF '.cargo/env' "$rcfile" 2>/dev/null; then
+            echo "$cargo_line" >> "$rcfile"
+            info "Added the Rust toolchain to PATH in $(basename "$rcfile"), which vadgr update needs"
+        fi
         found=1
     done
 
@@ -207,6 +230,7 @@ add_to_path() {
         if [ "$OS" = "macos" ]; then default_rc="$HOME/.zshrc"; fi
         echo "# VADGR" >> "$default_rc"
         echo "$line" >> "$default_rc"
+        if [ -n "$cargo_line" ]; then echo "$cargo_line" >> "$default_rc"; fi
         info "Created $(basename "$default_rc") with the vadgr PATH"
     fi
 
