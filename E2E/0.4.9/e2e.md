@@ -479,8 +479,8 @@ the weakest of the parts actually driven on that OS.
 
 | part | WSL | Linux | Windows native | macOS | notes |
 |---|---|---|---|---|---|
-| automated gate | pass | not run | not run | not run | |
-| surface sweep | pass | not run | not run | not run | |
+| automated gate | pass | not run | **pass** | not run | run locally on this host: **311 tests**, `cargo fmt --check` and `cargo clippy --release --all-targets -- -D warnings` both at exit `0`. **It is not an e2e pass and does not stand in for one**: the parts below are what was driven |
+| surface sweep | pass | not run | **pass** | not run | run from `harness/sweep.py` on this host: 18 published HTTP surfaces, 19 CLI verbs, and **7 absence probes all answering `404`**, so nothing is half wired. The HTTP codes are the deliberate set, `200`, `204`, `401`, `404`, `409` and `422` |
 | A: the built head | pass | not run | **pass**, 4 of 4 | not run |  |
 | B: the consolidation | pass | not run | **pass**, 10 of 10 | not run | a `WAL` row never checkpointed, interrupted staging debris, and all three refusals naming what they found |
 | C: the service group | pass | not run | **pass**, 13 of 13 | not run | `C13` ran here for the first time: the tailnet address held and loopback free, which is the multi-host bind check |
