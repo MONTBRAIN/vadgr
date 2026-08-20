@@ -752,15 +752,15 @@ fixable from here.
 | `GET /api/settings/computer-use` | the computer-use setting | `200` | - | `{"enabled":true,"platform":"wsl2","venv_ready":true}` |
 | `GET /api/computer-use/status` | the runtime's own status | `200` | - | `{"available":true,"platform":"wsl2"}` |
 | `GET /api/devices` | paired devices | `200` | - | `[]` |
-| `GET /api/runs` | the run list | `200` | - | `[{"agent_name":"Take one screenshot.","completed_at":"2026-08-20T01:51:00.947455+00:00","id":"run-6ca83bcdd18e48849c4fef1cb1b537ce","inputs":{"task":"Take one screenshot."},"log_path":null,"model":"ge` |
-| `GET /api/runs/run-6ca83bcdd18e48849c4fef1cb1b537ce` | one run | `200` | - | `{"agent_name":"Take one screenshot.","completed_at":"2026-08-20T01:51:00.947455+00:00","id":"run-6ca83bcdd18e48849c4fef1cb1b537ce","inputs":{"task":"Take one screenshot."},"log_path":null,"model":"gem` |
-| `POST /api/runs/run-6ca83bcdd18e48849c4fef1cb1b537ce/cancel` | negative: cancelling a finished run | `409` | `RUN_NOT_ACTIVE` | `{"error":{"code":"RUN_NOT_ACTIVE","details":{},"message":"Run is already finished"}}` |
-| `POST /api/runs/run-6ca83bcdd18e48849c4fef1cb1b537ce/resume` | resume | `409` | `RUN_NOT_RESUMABLE` | `{"error":{"code":"RUN_NOT_RESUMABLE","details":{},"message":"Only failed runs can be resumed (current status: completed)"}}` |
+| `GET /api/runs` | the run list | `200` | - | `[{"agent_name":"Take one screenshot.","completed_at":"2026-08-20T16:04:10.137178+00:00","id":"run-17d28c002da747178d45865f2a38a495","inputs":{"task":"Take one screenshot."},"log_path":null,"model":"ge` |
+| `GET /api/runs/run-17d28c002da747178d45865f2a38a495` | one run | `200` | - | `{"agent_name":"Take one screenshot.","completed_at":"2026-08-20T16:04:10.137178+00:00","id":"run-17d28c002da747178d45865f2a38a495","inputs":{"task":"Take one screenshot."},"log_path":null,"model":"gem` |
+| `POST /api/runs/run-17d28c002da747178d45865f2a38a495/cancel` | negative: cancelling a finished run | `409` | `RUN_NOT_ACTIVE` | `{"error":{"code":"RUN_NOT_ACTIVE","details":{},"message":"Run is already finished"}}` |
+| `POST /api/runs/run-17d28c002da747178d45865f2a38a495/resume` | resume | `409` | `RUN_NOT_RESUMABLE` | `{"error":{"code":"RUN_NOT_RESUMABLE","details":{},"message":"Only failed runs can be resumed (current status: completed)"}}` |
 | `GET /api/runs/run-does-not-exist` | negative: no such run | `404` | `RUN_NOT_FOUND` | `{"error":{"code":"RUN_NOT_FOUND","details":{},"message":"Run with id 'run-does-not-exist' not found"}}` |
 | `POST /api/runs` | negative: no task | `422` | - | `{"detail":[{"msg":"Failed to deserialize the JSON body into the target type: missing field `task` at line 1 column 2","type":"value_error"}]}` |
 | `POST /api/auth/pair` | mint a pairing code | `503` | `TRANSPORT_UNREACHABLE` | `{"error":{"code":"TRANSPORT_UNREACHABLE","details":{"transport":"loopback"},"message":"Transport cannot advertise a reachable address. Enable Tailscale (VADGR_TRANSPORT=tailscale) to pair over your ta` |
 | `POST /api/auth/claim` | negative: a code that was never minted | `401` | `PAIRING_CODE_INVALID` | `{"error":{"code":"PAIRING_CODE_INVALID","details":{},"message":"That pairing code is wrong or has already been used."}}` |
-| `POST /api/providers/gemini/catalog-refresh` | refresh a connected catalog | `200` | - | `{"auth_method":"api_key","auth_methods":["api_key"],"available":true,"catalog_stale":false,"catalog_verified_at":"2026-08-20T01:51:25.466039+00:00","connected":true,"default_model":"gemini-2.5-flash",` |
+| `POST /api/providers/gemini/catalog-refresh` | refresh a connected catalog | `200` | - | `{"auth_method":"api_key","auth_methods":["api_key"],"available":true,"catalog_stale":false,"catalog_verified_at":"2026-08-20T16:08:30.102886+00:00","connected":true,"default_model":"gemini-2.5-flash",` |
 | `POST /api/providers/openai/catalog-refresh` | negative: refresh a disconnected one | `409` | `PROVIDER_NOT_CONNECTED` | `{"error":{"code":"PROVIDER_NOT_CONNECTED","details":{},"message":"provider is not connected"}}` |
 | `PUT /api/default-model` | negative: a model that is not in the catalog | `422` | `MODEL_NOT_AVAILABLE` | `{"error":{"code":"MODEL_NOT_AVAILABLE","details":{},"message":"model is not in the connected provider catalog"}}` |
 | `DELETE /api/providers/openai/connection` | negative: disconnect what is not connected | `204` | - | `` |
@@ -786,17 +786,17 @@ fixable from here.
 | `vadgr health` | `0` | stdout | `Status:       healthy` |
 | `vadgr providers` | `0` | stdout | `OpenAI (openai) -- not connected` |
 | `vadgr computer-use status` | `0` | stdout | `Computer use: enabled` |
-| `vadgr runs list` | `0` | stdout | `Run ID    Task                  Status     Duration` |
-| `vadgr runs` | `0` | stdout | `Run ID    Task                  Status     Duration` |
-| `vadgr runs get run-6ca8` | `0` | stdout | `Run ID:       run-6ca83bcdd18e48849c4fef1cb1b537ce` |
-| `vadgr runs cancel run-6ca8` | `1` | stderr | `Error: Run is already finished` |
-| `vadgr runs resume run-6ca8` | `1` | stderr | `Error: Only failed runs can be resumed (current status: completed)` |
+| `vadgr runs list` | `0` | stdout | `Run ID    Task                                                          Status     Duration` |
+| `vadgr runs` | `0` | stdout | `Run ID    Task                                                          Status     Duration` |
+| `vadgr runs get run-17d2` | `0` | stdout | `Run ID:       run-17d28c002da747178d45865f2a38a495` |
+| `vadgr runs cancel run-17d2` | `1` | stderr | `Error: Run is already finished` |
+| `vadgr runs resume run-17d2` | `1` | stderr | `Error: Only failed runs can be resumed (current status: completed)` |
 | `vadgr runs get zzzzzzzz` | `1` | stderr | `Error: No run matching 'zzzzzzzz' found.` |
 | `vadgr provider status` | `0` | stdout | `OpenAI: not connected` |
 | `vadgr model list` | `0` | stdout | `Google Gemini: connected (default)` |
 | `vadgr status` | `0` | stdout | `Service  PID    Status ` |
-| `vadgr logs --no-follow -n 2` | `0` | stdout | `2026-08-20T01:51:25.948561Z  INFO request{method=GET uri=/api/providers version=HTTP/1.1}: tower_http::trace::on_response: finished processing request latency=0 ms status=200` |
-| `vadgr update --check` | `1` | stderr | `Error: /tmp/vadgr-049-e2e-final/rerun/vhome/src is not a git checkout, so it cannot be updated. Reinstall with the installer instead.` |
+| `vadgr logs --no-follow -n 2` | `0` | stdout | `2026-08-20T16:08:30.343408Z  INFO request{method=GET uri=/api/providers version=HTTP/1.1}: tower_http::trace::on_response: finished processing request latency=0 ms status=200` |
+| `vadgr update --check` | `1` | stderr | `Error: /tmp/vadgr-049-e2e-final/cu/vhome/src is not a git checkout, so it cannot be updated. Reinstall with the installer instead.` |
 | `vadgr run    ` | `2` | stderr | `Error: TASK must not be empty.` |
 | `vadgr run x --provider gemini` | `2` | stderr | `Error: --provider and --model must be given together.` |
 | `vadgr runs get` | `2` | stderr | `error: the following required arguments were not provided:` |
@@ -821,61 +821,11 @@ fixable from here.
   cli: {'agent_completed': 1, 'agent_log': 1, 'agent_started': 1, 'run_completed': 1, 'run_started': 1} -> identical across the three
   phone: {'completed': 1, 'output': 2, 'started': 1, 'tool_call': 1} -> identical across the three
 
-=== turn-0 input tokens, with the model pinned in all three
-  8821: model gemini-2.5-flash, turn-0 input 1774
-  8822: model gemini-2.5-flash, turn-0 input 1774
-  8823: model gemini-2.5-flash, turn-0 input 1774
+=== turn-0 input tokens, model pinned
+  8821: gemini-2.5-flash, turn-0 input 1774
+  8822: gemini-2.5-flash, turn-0 input 1774
+  8823: gemini-2.5-flash, turn-0 input 1774
 ```
-
-**Native Windows, three concurrent passes on ports 8824, 8825 and 8826.** The
-runbook's `8821` to `8823` are unusable on this host, all three reserved with no
-listener, so the ports were probed before use and the real ones read back from
-each root's own port file.
-
-```
-| axis | 8824 | 8825 | 8826 |
-|---|---|---|---|
-| HTTP entries | 18 | 18 | 18 |
-| absence probes | 7 | 7 | 7 |
-| CLI entries | 19 | 19 | 19 |
-| method, path, status and error code | same | same | same |
-| argv, exit code and output produced | same | same | same |
-| whole record, ids normalised | differs | differs | differs |
-
-=== frame type counts per socket, per pass
-  cli:   {'agent_completed': 1, 'agent_log': 1, 'agent_started': 1, 'run_completed': 1, 'run_started': 1} -> identical across the three
-  phone: {'completed': 1, 'output': 2, 'started': 1, 'tool_call': 1} -> identical across the three
-
-=== turn-0 input tokens, with the model pinned in all three
-  8824: model gemini-3.7-flash, turn-0 input 7818
-  8825: model gemini-3.7-flash, turn-0 input 7817
-  8826: model gemini-3.7-flash, turn-0 input 7817
-```
-
-**The records differ and the difference was read rather than assumed**: only the
-per-pass nonce and result text, the run id path segments, a catalog timestamp, a
-log line timestamp and one root path. Nothing structural. Three distinct
-databases by `sha256`, three credential stores, three run ids, three model
-results. **The token counts are not three identical numbers**, which is the
-shape that would suggest one result reused: the one-token spread is the nonce,
-which tokenises one token longer in the `8824` run.
-
-**Four things looked odd and none of them is a failed assertion**, which is why
-they are written here:
-
-- `POST /api/auth/pair` is logged at **ERROR** in all three daemons. The `503`
-  `TRANSPORT_UNREACHABLE` is the correct refusal on the loopback transport, and
-  a designed refusal reading as a fault sends someone hunting.
-- `GET /api/computer-use/status` costs **653 to 685 ms** while every other local
-  route answers in 0 to 10 ms. It is the only one that shells out to the
-  runtime. Consistent across all three, so not a flake, and nothing asserts on
-  it.
-- Every boot warns that **no callback port could be bound**, because `1455` is a
-  host reservation and `1457` was held by another daemon. The pool is two deep,
-  so a second installation on one machine cannot sign in to ChatGPT.
-- All six sockets ended with **no close frame from the server**; the client left
-  at its own deadline. That matches `W1`, and a client that waits for a close
-  will hang.
 
 ## What this runbook cannot prove
 
