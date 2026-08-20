@@ -13,6 +13,120 @@ bracket notes as you go; a leftover placeholder is the tell that a runbook was
 written and never run. The cross-cutting rules are in
 [`../README.md`](../README.md) and are not repeated here.>
 
+## The rules
+
+**Read this section before the first cell. Every rule in it was learned by
+breaking it, they hold on every supported operating system and for every driver
+of a runbook, and none of them is negotiable against a deadline or a token
+budget.** The list is here, at the top, because the rules that get forgotten are
+the ones a reader had to go looking for.
+
+A bracketed name is the section in this file that carries the rule in full, with
+the incident behind it. Not every runbook carries every section: where the
+bracketed name is not below, this entry is the whole rule.
+
+1. **Whatever needs the owner runs first.** Before a single unattended cell,
+   read the whole matrix, list every cell that cannot proceed without a human,
+   and run those cells at the start of the pass. **Running them is the rule;
+   announcing them is not**, because a cell named in an opening message is still
+   an outstanding cell and the owner is still waiting.
+   [How a pass is run, before anything else in this file]
+
+2. **Do not stop the pass to report.** The pass runs to completion for the
+   operating system it is on: findings, blocked cells, corrections and questions
+   go into the runbook and the evidence as they happen, and they are reported
+   when the pass ends. Only a cell that physically cannot proceed without the
+   owner, or a decision only the owner can make, ends a pass early.
+   [How a pass is run, before anything else in this file]
+
+3. **A bug you find is a bug you fix, here and now, with a test that fails
+   without the fix.** Fix the code, add the test, re-run the failing cell until
+   it passes, and push to the pull request branch before carrying on with the
+   rest of the matrix. A finding recorded without a fix is a moved problem, not
+   a found one. [How a pass is run, before anything else in this file]
+
+4. **A fix invalidates the cells it touched on every operating system that
+   passed them.** Name those cells in the finding, mark them `not run` again,
+   and re-run them: no operating system inherits a result from a build that no
+   longer exists. **A rebuild is a new subject**, so re-run the identity cell and
+   record the new hashes before any further cell.
+   [How a pass is run, before anything else in this file]
+
+5. **The evidence is pushed, not left on the machine that produced it.** The
+   boundary directory exists before the first cell, each group files its output
+   at its own boundary, and the whole boundary is committed on a branch and
+   opened as a pull request **as part of the pass**, not after somebody asks for
+   it. [How a pass is run, before anything else in this file]
+
+6. **A cell is `pass` only when the observation and the artifact both exist.** A
+   cell that ran, was read correctly and left nothing on disk is `not run` with a
+   note, because there is nothing a reviewer or the next host can check.
+   [How a pass is run, before anything else in this file]
+
+7. **Evidence is what the execution produced, never a summary somebody wrote.**
+   Captured stdout and stderr with the exit code, the wire body as it arrived,
+   the hash lines, the listing, the log lines, the socket frames, the journal.
+   The test to apply to every file you file: **could somebody who does not trust
+   you re-derive your status line from this artifact alone?**
+   [How a pass is run, before anything else in this file]
+
+8. **One branch per minor for evidence, and every host pushes into it.** One
+   branch cut once from a freshly pulled default branch, one boundary directory
+   per host, and **nothing else travels in it**: not a script, not a rule, not
+   another release's evidence. The second host to finish adds its boundary beside
+   the first rather than opening a second pull request.
+   [How a pass is run, before anything else in this file]
+
+9. **A fix is verified by re-running the cell that found it**, whole, from its
+   stated precondition, against a rebuilt and reinstalled product. A unit test
+   that fails without the fix is necessary and it is never sufficient: it speaks
+   for the function you changed, not for the thing the cell was watching.
+   [A fix is verified by the cell that found it, not by the test you wrote for it]
+
+10. **Never edit a cell so it matches the behaviour you shipped.** If an
+    assertion is genuinely wrong, say so in the cell's status, with the evidence,
+    and leave the assertion where the next reader can argue with it. Weakening an
+    oracle to turn a red cell green destroys the only record that the product
+    ever behaved differently.
+    [A fix is verified by the cell that found it, not by the test you wrote for it]
+
+11. **One failure is not a finding: reproduce before you diagnose, and reproduce
+    through the same path the user used.** A well sourced explanation of somebody
+    else's failure will fit yours convincingly without being true of it, and a
+    failure seen only through your own wrapper is a fact about the wrapper. The
+    behaviour that worked earlier with nothing changing it, and the failure you
+    cannot reproduce on demand, are both evidence for a transient.
+
+12. **Account for what the pass leaves running and on disk.** End the pass by
+    listing every process it started, stopping it and showing the ports free, and
+    name in each group's cleanup the directories that group created so they go at
+    that group's boundary. A stray daemon or an empty directory blocks a cell
+    weeks later and reads as a platform fact.
+    [Account for what the pass leaves running]
+    [Account for what the pass leaves on disk]
+
+13. **One command at a time, and read its output and exit code before choosing
+    the next.** A wrapper script that runs a whole group in one shot is not an
+    execution of that group, and **a result from a command whose exit code you
+    did not read is not a result**. A helper may build state before a group and
+    parse evidence after a command has run; it may not sequence the product
+    commands. [One command at a time, and read its output before the next]
+
+14. **Before you file a finding, suspect your own harness.** A schema you assumed,
+    a default that changed the path, a route that does not exist, a body you had
+    already truncated, one output stream counted, a poll slower than the event,
+    your own leaked daemon: each produces a confident false result that looks
+    exactly like a product failure. Suspecting the harness is the right instinct
+    and it must not stop one question early: a harness can produce the condition
+    and the product's answer to that condition can still be wrong.
+    [Before you file a finding, suspect your own harness]
+
+15. **Finish the matrix: every cell carries a verdict or a named blocker.** A
+    blocked cell is owed only after the blocker itself was investigated, and
+    "it needs a tool this host does not have" is a claim to check rather than to
+    report. Partial results read as progress, get committed, and the cells that
+    never ran quietly stay never run. [Finish the matrix]
+
 **A pass is finished, not paused, and reporting is not a stopping point.** A
 checkpoint or a progress summary does not end your turn: write it and keep
 driving in the same turn. A pass ends when every cell carries a verdict or a
