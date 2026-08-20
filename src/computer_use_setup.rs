@@ -63,7 +63,6 @@ impl SetupService {
             // This wire key is kept for the released CLI. It means that a cua
             // runtime can be mounted, not that vadgr owns the environment it lives in.
             "venv_ready": self.runtime_path.is_some(),
-            "daemon": Value::Null,
             "platform": platform::computer_use_platform(),
         }))
     }
@@ -374,7 +373,6 @@ mod tests {
         let status = service.status().unwrap();
         assert_eq!(status["enabled"], true);
         assert_eq!(status["venv_ready"], true);
-        assert!(status["daemon"].is_null());
     }
 
     #[test]

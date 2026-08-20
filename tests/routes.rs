@@ -123,7 +123,6 @@ fn state_with(transport: Box<dyn Transport>) -> AppState {
         computer_use_status: Arc::new(RwLock::new(serde_json::json!({
             "enabled": true,
             "venv_ready": true,
-            "daemon": "running",
             "platform": "wsl2",
         }))),
         supervisor,
@@ -398,7 +397,7 @@ async fn the_settings_read_returns_the_shipped_status_shape() {
         .keys()
         .map(String::as_str)
         .collect();
-    assert_eq!(keys, vec!["daemon", "enabled", "platform", "venv_ready"]);
+    assert_eq!(keys, vec!["enabled", "platform", "venv_ready"]);
 }
 
 #[tokio::test]

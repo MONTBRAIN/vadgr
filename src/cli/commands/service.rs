@@ -460,7 +460,13 @@ pub async fn restart(api_port: Option<u16>) -> Result<(), CliError> {
     start(api_port).await
 }
 
-pub async fn status(client: &Client) -> Result<(), CliError> {
+/// The service table, read from the pid files this CLI writes.
+///
+/// It asks the daemon nothing. It used to, for one extra row carrying the
+/// state of the computer-use bridge, and that row never appeared because the
+/// field behind it has answered null on every platform since the Rust daemon
+/// began serving it.
+pub fn status() -> Result<(), CliError> {
     let mut rows: Vec<Vec<String>> = Vec::new();
     match read_pid("api") {
         Some(pid) => rows.push(vec![
@@ -477,24 +483,6 @@ pub async fn status(client: &Client) -> Result<(), CliError> {
 
     // The daemon's own view, and only when it answers. A stopped daemon is not
     // an error here: the table is the answer to "what is running".
-    if client.is_running().await {
-        let daemon = client
-            .get("/api/settings/computer-use")
-            .await
-            .ok()
-            .and_then(|body| {
-                body.get("daemon")
-                    .and_then(|v| v.as_str())
-                    .map(str::to_owned)
-            });
-        if let Some(daemon) = daemon {
-            rows.push(vec![
-                "daemon".to_owned(),
-                "-".to_owned(),
-                output::format_status(&daemon),
-            ]);
-        }
-    }
 
     anstream::println!(
         "{}",

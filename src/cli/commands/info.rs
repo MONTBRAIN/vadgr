@@ -88,9 +88,6 @@ pub async fn computer_use_status(client: &Client) -> Result<(), CliError> {
         "  Computer use: {}",
         output::format_status(if enabled { "enabled" } else { "disabled" })
     );
-    if let Some(daemon) = body.get("daemon").and_then(|v| v.as_str()) {
-        anstream::println!("  Daemon: {}", output::format_status(daemon));
-    }
     Ok(())
 }
 
@@ -108,17 +105,13 @@ pub async fn computer_use_enable(client: &Client) -> Result<(), CliError> {
     spinner.stop();
     let result = result?;
 
-    match result.get("daemon").and_then(|v| v.as_str()) {
-        Some("running") => anstream::println!(
-            "{}",
-            output::success("Computer use enabled (Windows daemon running)")
-        ),
-        Some("stopped") => anstream::println!(
-            "{}",
-            output::warning("Computer use enabled but daemon did not start. Run: vadgr-cua doctor")
-        ),
-        _ => anstream::println!("{}", output::success("Computer use enabled")),
-    }
+    // The daemon reports whether the setting took, and nothing more. It used
+    // to answer with the state of the computer-use bridge, and this printed one
+    // of three lines from it; the field has answered null on every platform for
+    // as long as the Rust daemon has served it, so two of those lines were
+    // unreachable and the third was the only one anyone saw.
+    let _ = &result;
+    anstream::println!("{}", output::success("Computer use enabled"));
     Ok(())
 }
 

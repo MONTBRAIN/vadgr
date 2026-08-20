@@ -25,6 +25,13 @@ daemon happened to start in.
   relative to the working directory any more**, so an installed daemon's database
   no longer depends on which terminal started it. `VADGR_STATE_HOME`, `VADGR_DB`
   and `VADGR_RUNS_DIR` remain exact overrides for tests and managed deployments.
+- **`GET /api/settings/computer-use` stops answering with a dead `daemon`
+  field.** It was `null` on every platform, and three places in the CLI read it:
+  a line in `computer-use status`, a row in `vadgr status`, and the message
+  after enabling that would have said the bridge did not start and pointed at
+  `vadgr-cua doctor`. None of them could ever print. The computer-use bridge is
+  the separate package's, it starts on first use, and reporting it as a status
+  would call a healthy machine broken.
 - **The product is one executable.** A machine used to receive `vadgr` and
   `vadgr-daemon`, and the CLI found the daemon beside itself on disk. That asked
   a user to keep two files in step to run one product, and doubled what an

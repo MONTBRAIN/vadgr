@@ -210,14 +210,14 @@ mod tests {
             &["Service", "PID", "Status"],
             &[
                 vec!["api".into(), "28138".into(), format_status("running")],
-                vec!["daemon".into(), "-".into(), format_status("failed")],
+                vec!["worker".into(), "-".into(), format_status("failed")],
             ],
         );
         let uncoloured = render_table(
             &["Service", "PID", "Status"],
             &[
                 vec!["api".into(), "28138".into(), "running".into()],
-                vec!["daemon".into(), "-".into(), "failed".into()],
+                vec!["worker".into(), "-".into(), "failed".into()],
             ],
         );
         assert_eq!(

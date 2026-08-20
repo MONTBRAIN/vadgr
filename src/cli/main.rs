@@ -364,7 +364,7 @@ async fn main() {
         }
         Command::Stop => commands::service::stop(),
         Command::Restart { api_port } => commands::service::restart(api_port).await,
-        Command::Status => commands::service::status(&client).await,
+        Command::Status => commands::service::status(),
         Command::Logs {
             service,
             follow,
