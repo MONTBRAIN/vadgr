@@ -72,6 +72,12 @@ daemon happened to start in.
 - **`vadgr update` named a directory nothing writes.** The installer builds into
   `~/.vadgr` and clones to `~/.vadgr/src`, while the CLI still resolved the
   repository's former name, so an update reported a checkout that was not there.
+- **`vadgr runs resume` said a run was resumed and showed nothing of it.** The
+  command printed one line, `Resuming run <id>`, which reports that the daemon
+  accepted the request and says nothing about the run: not the status it went
+  back to, not the provider, not the error that stopped it. It now prints the
+  same detail block `vadgr runs get` prints, from the same printer, so the two
+  commands cannot describe one run differently.
 - **A watched run under `--json` wrote two documents to one stdout**: the run
   object, then the watcher's own summary and results link. A watched run now
   prints nothing until it has an outcome, then prints the finished run once. A

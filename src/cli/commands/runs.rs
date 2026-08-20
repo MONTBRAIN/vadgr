@@ -127,12 +127,13 @@ pub async fn list(client: &Client, status: Option<&str>) -> Result<(), CliError>
     Ok(())
 }
 
-pub async fn get(client: &Client, run_id: &str) -> Result<(), CliError> {
-    let run_id = resolve_run_id(client, run_id).await?;
-    let body = client.get(&format!("/api/runs/{run_id}")).await?;
-    if !body.is_object() {
-        return Err(CliError::Failed(format!("Run '{run_id}' not found.")));
-    }
+/// The detail block a run is shown with.
+///
+/// **Both commands that hand a run back to its owner print this one block.**
+/// `runs get` and `runs resume` answer the same question, "what is this run
+/// doing now", and a second printer beside this one drifts until the two
+/// commands describe the same run differently.
+fn print_run(body: &serde_json::Value) {
     let field = |k: &str| {
         body.get(k)
             .and_then(|v| v.as_str())
@@ -160,7 +161,7 @@ pub async fn get(client: &Client, run_id: &str) -> Result<(), CliError> {
             ("Status".to_owned(), output::format_status(&status)),
             ("Provider".to_owned(), field("provider")),
             ("Model".to_owned(), field("model")),
-            ("Duration".to_owned(), duration_text(&body, 1)),
+            ("Duration".to_owned(), duration_text(body, 1)),
         ])
     );
 
@@ -177,7 +178,21 @@ pub async fn get(client: &Client, run_id: &str) -> Result<(), CliError> {
         let short: String = field("id").chars().take(8).collect();
         anstream::println!("\nResume with: vadgr runs resume {short}");
     }
+}
+
+/// Read a run and print its detail block.
+async fn show(client: &Client, run_id: &str) -> Result<(), CliError> {
+    let body = client.get(&format!("/api/runs/{run_id}")).await?;
+    if !body.is_object() {
+        return Err(CliError::Failed(format!("Run '{run_id}' not found.")));
+    }
+    print_run(&body);
     Ok(())
+}
+
+pub async fn get(client: &Client, run_id: &str) -> Result<(), CliError> {
+    let run_id = resolve_run_id(client, run_id).await?;
+    show(client, &run_id).await
 }
 
 pub async fn cancel(client: &Client, run_id: &str) -> Result<(), CliError> {
@@ -204,7 +219,10 @@ pub async fn resume(client: &Client, run_id: &str) -> Result<(), CliError> {
             anstream::println!("{}", output::success(&format!("Resuming run {run_id}")));
         }
     }
-    Ok(())
+    // Then the row itself. A line saying the resume was accepted does not say
+    // what was accepted, and the owner had to run `runs get` to find out. It is
+    // the same block that command prints, from the same printer.
+    show(client, &run_id).await
 }
 
 #[cfg(test)]
