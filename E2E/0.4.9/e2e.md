@@ -59,7 +59,7 @@ release.
 | repository | released version | what this pass relies on |
 |---|---|---|
 | vadgr-mobile | 0.4.1 | the app pairs by QR or code, lists machines, lists runs, opens a run, and consumes `GET /api/runs/{run_id}/stream` with its device token. **It is a reader**: starting a run from the phone is that repository's `0.5.0`, against `POST /api/runs`, and no cell here asks for it |
-| vadgr-computer-use | 0.7.3 | the installed `vadgr-cua` entry point over stdio, and the screenshot and shell tools, which are the tools every screen-touching cell here uses |
+| vadgr-computer-use | 0.7.4 | the installed `vadgr-cua` entry point over stdio, and the screenshot and shell tools, which are the tools every screen-touching cell here uses. **`0.7.4` rather than `0.7.3` because this pass found the reason for it**: on `0.7.3` the entry point could not run on Windows at all, so every cell below that reaches the screen was unreachable on this platform. `CU4` is the cell that now checks it |
 
 **What this means for a cell that wants more.** It is written into the runbook
 of the release that delivers the surface, not this one, and its absence here is
@@ -78,7 +78,7 @@ been.
 | Tailscale up and logged in | `G2`-`G8`, `W4`, `S1`, `H1`-`H5` | `tailscale status` names this node | none | none |
 | A container runtime, for the installer cells | `I1`-`I6` | `docker info` or `podman info` answers | pulls a base image; `I6` rebuilds inside the container | the container is removed |
 | a wire client for the sockets | `W1`-`W4`, `G8` | `python3 harness/sockets.py --help` (the standard library only, nothing to install) | none | none |
-| `vadgr-computer-use` installed, `vadgr-cua` resolvable | `CU1`-`CU3`, `F1`-`F3`, `F5`, `R1`-`R2`, `H3` | `vadgr-cua --version` prints a version | none | none |
+| `vadgr-computer-use` installed, `vadgr-cua` resolvable | `CU1`-`CU3`, `F1`-`F3`, `F5`, `R1`-`R2`, `H3` | `vadgr-cua doctor` exits `0` and prints its JSON. **Not `--version`, which this runtime does not accept**: the entry point is subcommand-only, so the check as first written failed on every platform and said nothing about whether the runtime worked | none | none |
 | The platform state root free of a real installation | `J1` | the directory listed in `J1` is absent or empty | none: the cell is `blocked` by name rather than touching a real installation | `J1` removes exactly what it created |
 | Five minutes of wall clock | `G6` | none | time only: the cell waits out a pairing code's full lifetime | none |
 | Rust toolchain and git | all | `cargo --version`, `git --version` | none | none |
@@ -278,6 +278,7 @@ product. `CU2` before `CU3` so the group ends enabled.
 | CU1 | daemon running, `vadgr-cua` resolvable | `vadgr computer-use status` | prints the availability; equals `GET /api/computer-use/status`, whose `available` comes from a live tool listing against the runtime, and `GET /api/settings/computer-use` | CLI output and both `curl` bodies | none | pass |
 | CU2 | as CU1 | `vadgr computer-use disable` | exit `0`; `GET /api/settings/computer-use` says `"enabled": false`; `/api/health`'s module block says `"computer_use": false` | CLI output, both `curl` bodies | CU3 | pass |
 | CU3 | as CU2 | `vadgr computer-use enable` | exit `0`; the setting reads `"enabled": true` through the API; `GET /api/computer-use/status` reports `"available": true` from its live probe | CLI output, both `curl` bodies | none | pass |
+| CU4 | `vadgr-cua` on `PATH`, whatever release the machine has | `vadgr-cua doctor` | exits `0` and prints JSON naming a `tool_count`. **This is the runtime the run cells depend on, checked directly rather than through the daemon**: `vadgr computer-use status` reports the setting the product owns, and a runtime that cannot start would still read as enabled there | the JSON, and its exit code | none | **pass on native Windows** with `vadgr-computer-use 0.7.4`: exits `0` and reports `tool_count 33`. **Against `0.7.3` this cell was the failure**: `doctor` died with `ModuleNotFoundError: No module named fcntl`, because `supervisor.py` imported it at module scope and Windows has none. Fixed in that repo and released as `0.7.4`; this cell is what keeps the class from returning |
 
 ## Part E: provider onboarding
 
