@@ -210,7 +210,7 @@ blank.
 | A1 | `$E2E_BIN` first on `PATH` | `command -v vadgr` | resolves inside `$E2E_BIN`; its `sha256` is the release build of the head under test. **Re-run after any mid-pass rebuild, before any further cell** | the path and both hash lines, and the head they were built from | none | pass |
 | A2 | as A1 | `vadgr --version` | prints `0.4.9`, matching the manifest. The daemon's own version is asserted at `D1`, where a daemon exists to ask | the printed line and the manifest line | none | pass |
 | A3 | a clean checkout | `git ls-files` | **no `.py` file outside `scripts/` and an older runbook's `harness/`**, **no interpreter artefact of any kind**: no `.pyc`, `.pyo`, `.pyd`, `__pycache__/`, `site-packages/` or virtual environment, no `requirements.txt`, no `rust/` directory | the file list, the sweep's own output | none | pass |
-| A4 | the install root the installer wrote | list it | **one executable**, named `vadgr`, and no second file beside it. The daemon is this binary invoked with `serve`, so a user receives one artifact rather than two that must stay in step | the directory listing, and the process table of a started daemon | none | |
+| A4 | the install root the installer wrote | list it | **one executable**, named `vadgr`, and no second file beside it. The daemon is this binary invoked with `serve`, so a user receives one artifact rather than two that must stay in step | the directory listing, and the process table of a started daemon | none | pass |
 
 ## Part B: a machine keeps its history
 
@@ -612,18 +612,18 @@ until the C runtime was linked in.
 |---|---|---|---|---|
 | `GET /api/health` | the daemon is up | `200` | - | `{"modules":{"computer_use":true},"platform":"wsl","status":"healthy","transport":{"advertise_host":null,"available":true,"bind_host":"127.0.0.1","name":"loopback"},"version":"0.4.9"}` |
 | `GET /api/providers` | the provider list | `200` | - | `[{"auth_method":null,"auth_methods":["oauth","api_key"],"available":false,"catalog_stale":false,"catalog_verified_at":null,"connected":false,"default_model":null,"id":"openai","is_default":false,"kind` |
-| `GET /api/settings/computer-use` | the computer-use setting | `200` | - | `{"daemon":null,"enabled":true,"platform":"wsl2","venv_ready":true}` |
+| `GET /api/settings/computer-use` | the computer-use setting | `200` | - | `{"enabled":true,"platform":"wsl2","venv_ready":true}` |
 | `GET /api/computer-use/status` | the runtime's own status | `200` | - | `{"available":true,"platform":"wsl2"}` |
 | `GET /api/devices` | paired devices | `200` | - | `[]` |
-| `GET /api/runs` | the run list | `200` | - | `[{"agent_name":"Take one screenshot.","completed_at":"2026-08-19T18:47:43.008773+00:00","id":"run-d347ef4421da4225a5d5bb3b3b2112c0","inputs":{"task":"Take one screenshot."},"log_path":null,"model":"ge` |
-| `GET /api/runs/run-d347ef4421da4225a5d5bb3b3b2112c0` | one run | `200` | - | `{"agent_name":"Take one screenshot.","completed_at":"2026-08-19T18:47:43.008773+00:00","id":"run-d347ef4421da4225a5d5bb3b3b2112c0","inputs":{"task":"Take one screenshot."},"log_path":null,"model":"gem` |
-| `POST /api/runs/run-d347ef4421da4225a5d5bb3b3b2112c0/cancel` | negative: cancelling a finished run | `409` | `RUN_NOT_ACTIVE` | `{"error":{"code":"RUN_NOT_ACTIVE","details":{},"message":"Run is already finished"}}` |
-| `POST /api/runs/run-d347ef4421da4225a5d5bb3b3b2112c0/resume` | resume | `409` | `RUN_NOT_RESUMABLE` | `{"error":{"code":"RUN_NOT_RESUMABLE","details":{},"message":"Only failed runs can be resumed (current status: completed)"}}` |
+| `GET /api/runs` | the run list | `200` | - | `[{"agent_name":"Take one screenshot.","completed_at":"2026-08-20T01:51:00.947455+00:00","id":"run-6ca83bcdd18e48849c4fef1cb1b537ce","inputs":{"task":"Take one screenshot."},"log_path":null,"model":"ge` |
+| `GET /api/runs/run-6ca83bcdd18e48849c4fef1cb1b537ce` | one run | `200` | - | `{"agent_name":"Take one screenshot.","completed_at":"2026-08-20T01:51:00.947455+00:00","id":"run-6ca83bcdd18e48849c4fef1cb1b537ce","inputs":{"task":"Take one screenshot."},"log_path":null,"model":"gem` |
+| `POST /api/runs/run-6ca83bcdd18e48849c4fef1cb1b537ce/cancel` | negative: cancelling a finished run | `409` | `RUN_NOT_ACTIVE` | `{"error":{"code":"RUN_NOT_ACTIVE","details":{},"message":"Run is already finished"}}` |
+| `POST /api/runs/run-6ca83bcdd18e48849c4fef1cb1b537ce/resume` | resume | `409` | `RUN_NOT_RESUMABLE` | `{"error":{"code":"RUN_NOT_RESUMABLE","details":{},"message":"Only failed runs can be resumed (current status: completed)"}}` |
 | `GET /api/runs/run-does-not-exist` | negative: no such run | `404` | `RUN_NOT_FOUND` | `{"error":{"code":"RUN_NOT_FOUND","details":{},"message":"Run with id 'run-does-not-exist' not found"}}` |
 | `POST /api/runs` | negative: no task | `422` | - | `{"detail":[{"msg":"Failed to deserialize the JSON body into the target type: missing field `task` at line 1 column 2","type":"value_error"}]}` |
 | `POST /api/auth/pair` | mint a pairing code | `503` | `TRANSPORT_UNREACHABLE` | `{"error":{"code":"TRANSPORT_UNREACHABLE","details":{"transport":"loopback"},"message":"Transport cannot advertise a reachable address. Enable Tailscale (VADGR_TRANSPORT=tailscale) to pair over your ta` |
 | `POST /api/auth/claim` | negative: a code that was never minted | `401` | `PAIRING_CODE_INVALID` | `{"error":{"code":"PAIRING_CODE_INVALID","details":{},"message":"That pairing code is wrong or has already been used."}}` |
-| `POST /api/providers/gemini/catalog-refresh` | refresh a connected catalog | `200` | - | `{"auth_method":"api_key","auth_methods":["api_key"],"available":true,"catalog_stale":false,"catalog_verified_at":"2026-08-19T18:58:20.796890+00:00","connected":true,"default_model":"gemini-2.5-flash",` |
+| `POST /api/providers/gemini/catalog-refresh` | refresh a connected catalog | `200` | - | `{"auth_method":"api_key","auth_methods":["api_key"],"available":true,"catalog_stale":false,"catalog_verified_at":"2026-08-20T01:51:25.466039+00:00","connected":true,"default_model":"gemini-2.5-flash",` |
 | `POST /api/providers/openai/catalog-refresh` | negative: refresh a disconnected one | `409` | `PROVIDER_NOT_CONNECTED` | `{"error":{"code":"PROVIDER_NOT_CONNECTED","details":{},"message":"provider is not connected"}}` |
 | `PUT /api/default-model` | negative: a model that is not in the catalog | `422` | `MODEL_NOT_AVAILABLE` | `{"error":{"code":"MODEL_NOT_AVAILABLE","details":{},"message":"model is not in the connected provider catalog"}}` |
 | `DELETE /api/providers/openai/connection` | negative: disconnect what is not connected | `204` | - | `` |
@@ -649,17 +649,17 @@ until the C runtime was linked in.
 | `vadgr health` | `0` | stdout | `Status:       healthy` |
 | `vadgr providers` | `0` | stdout | `OpenAI (openai) -- not connected` |
 | `vadgr computer-use status` | `0` | stdout | `Computer use: enabled` |
-| `vadgr runs list` | `0` | stdout | `Run ID    Task                                                          Status     Duration` |
-| `vadgr runs` | `0` | stdout | `Run ID    Task                                                          Status     Duration` |
-| `vadgr runs get run-d347` | `0` | stdout | `Run ID:       run-d347ef4421da4225a5d5bb3b3b2112c0` |
-| `vadgr runs cancel run-d347` | `1` | stderr | `Error: Run is already finished` |
-| `vadgr runs resume run-d347` | `1` | stderr | `Error: Only failed runs can be resumed (current status: completed)` |
+| `vadgr runs list` | `0` | stdout | `Run ID    Task                  Status     Duration` |
+| `vadgr runs` | `0` | stdout | `Run ID    Task                  Status     Duration` |
+| `vadgr runs get run-6ca8` | `0` | stdout | `Run ID:       run-6ca83bcdd18e48849c4fef1cb1b537ce` |
+| `vadgr runs cancel run-6ca8` | `1` | stderr | `Error: Run is already finished` |
+| `vadgr runs resume run-6ca8` | `1` | stderr | `Error: Only failed runs can be resumed (current status: completed)` |
 | `vadgr runs get zzzzzzzz` | `1` | stderr | `Error: No run matching 'zzzzzzzz' found.` |
 | `vadgr provider status` | `0` | stdout | `OpenAI: not connected` |
 | `vadgr model list` | `0` | stdout | `Google Gemini: connected (default)` |
-| `vadgr status` | `0` | stdout | `Service  PID   Status ` |
-| `vadgr logs --no-follow -n 2` | `0` | stdout | `2026-08-19T18:58:21.311322Z  INFO request{method=GET uri=/api/health version=HTTP/1.1}: tower_http::trace::on_response: finished processing request latency=0 ms status=200` |
-| `vadgr update --check` | `1` | stderr | `Error: /tmp/vadgr-049-e2e-final/c/vhome/src is not a git checkout, so it cannot be updated. Reinstall with the installer instead.` |
+| `vadgr status` | `0` | stdout | `Service  PID    Status ` |
+| `vadgr logs --no-follow -n 2` | `0` | stdout | `2026-08-20T01:51:25.948561Z  INFO request{method=GET uri=/api/providers version=HTTP/1.1}: tower_http::trace::on_response: finished processing request latency=0 ms status=200` |
+| `vadgr update --check` | `1` | stderr | `Error: /tmp/vadgr-049-e2e-final/rerun/vhome/src is not a git checkout, so it cannot be updated. Reinstall with the installer instead.` |
 | `vadgr run    ` | `2` | stderr | `Error: TASK must not be empty.` |
 | `vadgr run x --provider gemini` | `2` | stderr | `Error: --provider and --model must be given together.` |
 | `vadgr runs get` | `2` | stderr | `error: the following required arguments were not provided:` |
@@ -681,21 +681,13 @@ until the C runtime was linked in.
 | whole record, ids normalised | differs | differs | differs |
 
 === frame type counts per socket, per pass
-  cli: {'agent_completed': 1, 'agent_log': 1, 'agent_started': 1, 'run_completed': 1, 'run_started': 1}  -> identical across the three
-  phone: {'completed': 1, 'output': 2, 'started': 1, 'tool_call': 1}  -> identical across the three
+  cli: {'agent_completed': 1, 'agent_log': 1, 'agent_started': 1, 'run_completed': 1, 'run_started': 1} -> identical across the three
+  phone: {'completed': 1, 'output': 2, 'started': 1, 'tool_call': 1} -> identical across the three
 
-=== turn-0 input tokens, with the model now pinned in all three
-  8821: model gemini-2.5-flash, turn-0 input 1774, output 12
-  8822: model gemini-2.5-flash, turn-0 input 1774, output 12
-  8823: model gemini-2.5-flash, turn-0 input 1774, output 12
-
-  identical output counts on turn 0 are expected here and are not one
-  result reused: turn 0 is a tool call with no text, so its size is the
-  same shape every time. The three passes are three real calls, and the
-  final turns say so:
-    8821: run run-dae474be8b40  usage {'input_tokens': 3834, 'output_tokens': 18}  result 'I have taken a screenshot.'
-    8822: run run-ada7f67f6161  usage {'input_tokens': 3834, 'output_tokens': 18}  result 'I have taken a screenshot.'
-    8823: run run-18620276396a  usage {'input_tokens': 3834, 'output_tokens': 33}  result 'I have taken a screenshot. Is there anything specific you would like me to do with it or observe?'
+=== turn-0 input tokens, with the model pinned in all three
+  8821: model gemini-2.5-flash, turn-0 input 1774
+  8822: model gemini-2.5-flash, turn-0 input 1774
+  8823: model gemini-2.5-flash, turn-0 input 1774
 ```
 
 ## What this runbook cannot prove
