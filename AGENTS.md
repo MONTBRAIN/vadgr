@@ -206,6 +206,18 @@ gate result: it is the weakest of the parts actually driven on that OS. This
 shipped once and was caught in review, with two platforms marked `pass (CI)`
 while their own live rows read `not run`. **A suite is not a session.**
 
+**A patch is not a minor, and it merges on a cell rather than a pass.** A minor
+carries a runbook and a full pass. A patch to the `vadgr` daemon does not run
+one to merge: a one-line fix must not wait on four operating systems. It does
+have to carry a **cell**. If the behaviour it changes can be driven through a
+product surface, the current `E2E/<version>/e2e.md` gains a cell for it, run on
+the host that made the fix and left `not run` with its reason elsewhere. The
+other hosts close that cell from the branch like any other. **A patch with no
+cell does not merge**, because nothing would notice when the next release breaks
+it again. Written from `vadgr start` dying on a port Windows had reserved with no
+listener: the fix was one predicate, and no runbook on any operating system ever
+drove a reserved port, so the class was invisible everywhere at once.
+
 **The runbook is complete before the first live cell runs.** Every surface
 branch and enum-shaped edge case is an independently executable cell with a
 stable id, precondition, setup, action or goal, expected observable, machine
