@@ -213,6 +213,25 @@ had to convert into scripts, the branch point and the attribution trailer, were
 converted for exactly this reason. **A reading typed into a status column is not
 evidence. The artifact is, and the artifact lives in the docs repository.**
 
+**One branch per minor, and every operating system pushes to it.** The evidence
+for a release is one change: `evidence/<repo>-<version>`, cut once from a freshly
+pulled default branch, carrying one boundary directory per host. The second host
+to finish does not open a second pull request; it pulls that branch, adds its own
+boundary beside the first, and pushes. The pass is not complete for the family
+until every host that ran has filed into it.
+
+**Nothing else travels in that branch.** Not a script, not a rule, not another
+release's evidence. A reviewer opening an evidence pull request is reading
+evidence, and a diff that also moves a checker or a second minor's artifacts
+cannot be read as either. If you find yourself adding a non-evidence file, the
+branch point was wrong: cut a new one for that subject.
+
+This is written because the alternative was tried. `0.4.9` produced one branch
+for the WSL boundary and a second for the Windows boundary, so one release's
+evidence sat in two pull requests that had to be reviewed against each other,
+and a third subject and a fourth release's artifacts drifted into one of them
+until the gate refused it. **One release, one branch, one review.**
+
 **And a cell is `pass` only when both halves exist.** The verdict is the
 observation **and** the artifact behind it. A cell that ran, was read correctly,
 and left nothing on disk is not `pass`; it is `not run` with a note, because
