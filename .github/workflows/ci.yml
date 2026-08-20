@@ -376,7 +376,10 @@ jobs:
             Get-Content "$root\version.err" -ErrorAction SilentlyContinue
             throw "vadgr --version exited $($verRun.ExitCode)"
           }
-          $out = (Get-Content "$root\version.log" -Raw).Trim()
+          # Interpolation, not a cast: an empty file reads as $null, a cast
+          # leaves $null alone in expression position, and .Trim() on it dies
+          # with a message about PowerShell instead of the product.
+          $out = "$(Get-Content "$root\version.log" -Raw)".Trim()
           if ($out -ne "vadgr $version") { throw "vadgr --version said '$out', expected 'vadgr $version'" }
           # It serves the same way.
           $daemon = Start-Process -PassThru -FilePath (Resolve-Path $cli) -ArgumentList 'serve' -Environment $cleanEnv `
@@ -408,11 +411,19 @@ jobs:
             throw "transport was $($t | ConvertTo-Json -Compress)"
           }
           # A fresh machine has its three providers present and none connected.
-          $providers = @(Invoke-RestMethod -UseBasicParsing http://127.0.0.1:8100/api/providers)
+          # Parsed from the raw bytes with the array kept intact: Invoke-
+          # RestMethod hands a JSON array back as one object, so Count read 1,
+          # a Where-Object over it saw a truthy inner collection, and the
+          # check threw on a correct body. The Linux leg reads the same text
+          # with jq; this reads the same text with the shape pinned first.
+          $providersJson = (Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8100/api/providers).Content
+          $providers = ConvertFrom-Json -InputObject $providersJson -NoEnumerate
+          if ($providers -isnot [array]) { throw "the provider response is not an array: $providersJson" }
+          if ($providers.Length -ne 3) { throw "expected 3 provider rows, read $($providers.Length): $providersJson" }
           $ids = ($providers | ForEach-Object { $_.id }) -join ','
-          $connected = @($providers | Where-Object { $_.connected }).Count
-          if ($providers.Count -ne 3 -or $ids -ne 'openai,gemini,anthropic' -or $connected -ne 0) {
-            throw "the provider rows are wrong: $($providers | ConvertTo-Json -Compress)"
+          if ($ids -ne 'openai,gemini,anthropic') { throw "the provider ids are wrong: <$ids>" }
+          foreach ($row in $providers) {
+            if ($row.connected -ne $false) { throw "provider $($row.id) is connected on a fresh machine: $providersJson" }
           }
           # The CLI reaches the daemon from the same stripped environment.
           # Exit 0 here needs the wire, not just the binary loading.
