@@ -501,6 +501,35 @@ the weakest of the parts actually driven on that OS.
 Paths, process supervision and access control are platform-shaped. **No supported
 operating system is `Not-Needed` for final acceptance.**
 
+## What the other operating systems owe, after this pass
+
+**Rule 4: a fix invalidates the cells it touched, on every operating system that
+already passed them.** Seven fixes landed during the native Windows pass. WSL,
+Linux and macOS passed the cells below against code that no longer exists, so
+those rows are owed a re-run from this branch **before merge**, not after.
+
+Each entry names the commit, so a host can check whether its own pass predates
+it rather than re-running everything.
+
+| fix | what changed | cells owed on WSL, Linux and macOS |
+|---|---|---|
+| `7a2ac7d` | `start` chooses its port by binding, on **every** host it will bind, not by connecting to loopback | `C1`, `C5`, `C13`, and any cell whose daemon walked up a port |
+| `281d055` | the OAuth callback listener takes either registered port, publishes the one it bound, and the redirect is carried on the attempt | `O1`, `O2`, `O3`, `O5` |
+| `c997d60` | the browser is opened without a shell on every platform, through one code path | `O3`. **Linux and macOS did not have the defect**, which was `cmd` on Windows, but the launcher they use was refactored into the same function |
+| `2080370` | a daemon that refuses to start reports **its own reason** instead of a busy port | `B5`, `B6`, `B7`, `B10`, and any `start` that was expected to fail |
+| `3fdabab` | `/api/health` answers whether a module is **usable**, so a disabled module reads `false` | `CU1`, `CU2`, `CU3`, `D1`, and every cell that reads the health module block |
+| `4528605` | `vadgr runs resume` prints the run row | `F7` |
+| `8e32278` | the installer writes the toolchain onto `PATH` when it installed it | `I2`, `I6` |
+
+**Two of these change published output**, so they are the ones most likely to
+turn an earlier pass red rather than green: the health module block now reports
+`false` for a disabled module, and a failed `start` now prints the daemon's
+sentence rather than a port guess. A host whose cell asserted the old text will
+fail, and that is the check working.
+
+**One is a no-op outside Windows and is listed anyway**, because the code path
+moved: `xdg-open` and `open` are still what Linux and macOS invoke.
+
 ## Findings
 
 ### F1 (fixed): Gemini refused every run that looked at the screen
