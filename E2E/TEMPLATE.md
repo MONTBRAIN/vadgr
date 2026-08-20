@@ -402,6 +402,44 @@ remaining cells quietly never run.
 - Report once, at the end, with everything. An audit delivered in instalments
   reads as an endless stream of problems and is really one incomplete sweep.
 
+## A fix is verified by the cell that found it, not by the test you wrote for it
+
+**A fix exists because a cell failed. That cell is the verdict, and it is not
+closed until it has been run again, against the rebuilt product, and its status
+rewritten from what the re-run showed.** A unit test that fails without the fix
+is necessary and it is never sufficient: it proves the function you changed does
+what you now think, on the machine you are typing on. It says nothing about
+whether the thing the cell was watching works, which is the only question the
+cell was ever asking.
+
+The order is fixed, and every step is owed:
+
+1. The cell fails. Record what it printed, before you touch anything.
+2. Fix the code, with a test that fails without the fix and passes with it.
+3. **Rebuild and reinstall the product the cells drive.** A cell re-run against
+   the old binary is a cell that did not run. On Windows the running daemon
+   locks the file, so this means stopping it first.
+4. **Run the cell again, whole, from its stated precondition.** Not a smaller
+   version of it, not the one command you think was the interesting part.
+5. Rewrite the cell's status from the re-run, and say in it that it failed first
+   and why. A cell that passes with no history reads as a cell that was always
+   fine, and the next reader loses the defect.
+6. **Re-run the cells the fix invalidated on every operating system that had
+   passed them**, per rule 4 at the top of this file.
+
+**Never edit a cell so that it matches the behaviour you shipped.** If a cell's
+assertion is genuinely wrong, say so in its status, with the evidence, and leave
+the assertion where the next reader can argue with it. Weakening the oracle to
+turn a red cell green destroys the only record that the product ever behaved
+differently, and it is indistinguishable from the product having been fixed.
+
+Both halves were broken in `0.4.9`'s Windows pass, in the same hour. A per-OS
+matrix row was written as passing before the cell behind it had been re-run at
+all, and a fix to the installer was called done on the strength of its function
+being checked in isolation, while the cell that found it, a from-nothing install
+followed by an update, was never driven again. Neither is a lie about the code.
+Both are a claim about the product that no run supports.
+
 ## Account for what the pass leaves on disk
 
 **A directory a pass creates is cleaned up by the group that needed it, at that
