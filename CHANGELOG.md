@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
-## [0.4.9] - 2026-08-19
+## [0.4.9] - 2026-08-21
 
 **The cutover.** `vadgr` is one binary. The daemon that answers is the Rust one,
 the installation no longer carries an interpreter, and a machine's state lives
