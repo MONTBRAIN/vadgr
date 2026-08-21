@@ -205,6 +205,18 @@ gate result: it is the weakest of the parts actually driven on that OS. This
 shipped once and was caught in review, with two platforms marked `pass (CI)`
 while their own live rows read `not run`. **A suite is not a session.**
 
+**A patch is not a minor, and it merges on a cell rather than a pass.** A minor
+carries a runbook and a full pass. A patch does not run
+one to merge: a one-line fix must not wait on four operating systems. It does
+have to carry a **cell**. If the behaviour it changes can be driven through a
+product surface, the current `E2E/<version>/e2e.md` gains a cell for it, run on
+the host that made the fix and left `not run` with its reason elsewhere. The
+other hosts close that cell from the branch like any other. **A patch with no
+cell does not merge**, because nothing would notice when the next release breaks
+it again. Written from `vadgr start` dying on a port Windows had reserved with no
+listener: the fix was one predicate, and no runbook on any operating system ever
+drove a reserved port, so the class was invisible everywhere at once.
+
 **The runbook is complete before the first live cell runs.** Every surface
 branch and enum-shaped edge case is an independently executable cell with a
 stable id, precondition, setup, action or goal, expected observable, machine
@@ -367,6 +379,28 @@ inherits silently, and setup happens at the **start** of a group rather than as
 the previous group's teardown - a teardown that did not run leaves the next
 group dirty, and its failure looks like a product defect. Resetting between
 every case is ritual, not rigour.
+
+**One failure is not a finding: reproduce before you diagnose.** A single
+failure, and above all one reported to you rather than seen by you, is an
+observation. It becomes a defect when it happens twice. **Run it again before
+you explain it**, because the cheapest experiment in the world is the one you
+skip when a good story arrives first. Research is what makes this dangerous
+rather than safe: a well-sourced explanation of somebody else's failure will fit
+yours convincingly without being true of it, and the better the sources, the
+more confident the wrong conclusion sounds. Two signals should stop you outright:
+the behaviour worked earlier and **nothing in your code changed it**, and you
+cannot reproduce it on demand. Both are evidence for a transient, not against
+one.
+
+It happened in `vadgr 0.4.9`. One browser error on a ChatGPT sign-in was taken as
+established. A deep investigation followed, with real sources and three other
+projects that had hit the same message, and it produced a confident recommendation
+to change the product's `originator` to another vendor's client string. The owner
+asked for one more attempt first. **It worked, unchanged.** The cell had already
+passed earlier in the same runbook with the same value, which was written down as
+evidence that the server had tightened rather than read as the obvious hint that
+one failure meant nothing. Nothing needed fixing, and a real change to the
+product's identity was nearly made on a single unreproduced data point.
 
 **Every fix gets a test that fails without it.** Stash the fix, watch it go red,
 restore. A test that passes either way tests nothing.
