@@ -1,13 +1,11 @@
 /data
+/target
 .env
 .env.*
 !.env.example
-__pycache__/
-*.pyc
 *.db
 *.db-wal
 *.db-shm
-**/.venv/
 .mcp.json
 .debug/
 .coverage
@@ -32,8 +30,19 @@ texput.log
 .gemini
 .codex
 
-# vadgr-computer-use runtime venv (installed by api/services/computer_use_setup)
+# The computer-use runtime's virtual environment, which the daemon installs.
 .cu_venv/
+
+# Python belongs to the computer-use runtime and to this repository's own
+# gates, never to a checkout. A Windows virtual environment was committed here
+# once, 1441 files of bytecode, and it survived the cutover because nothing
+# looked for anything but `.py`.
+.venv/
+.venv-*/
+venv/
+__pycache__/
+*.pyc
+*.pyo
 
 # The QR oracle is a tiny crate inside the runbook's harness; its build output is not.
 E2E/*/harness/qr-decode/target/

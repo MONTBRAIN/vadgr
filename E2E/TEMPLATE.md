@@ -17,9 +17,13 @@
 now demonstrably true that was not before.>
 
 > **Status: <not started | partially run on \<OS\>, \<date\> | run on \<OS\>, \<date\>>.**
-> Automated gate <green/red> (engine N, api N). <Which parts pass, which are
-> open.> **N findings**, listed below. Nothing is marked pass that was not
+> Automated gate <green/red> (engine N, api N), **and the pull request's own
+> checks finished and read**. <Which parts pass, which are open.> **N findings**, listed below. Nothing is marked pass that was not
 > executed and read back.
+> The header, the coverage counters and the per-OS table are re-read against
+> the cell marks before the runbook is offered: a file that says `not started`
+> over cells that say `pass` is wrong twice, and a reader cannot tell which
+> half to believe. Count the rows, then read the counters against them.
 
 <Copy this file to `E2E/<version>/e2e.md` and fill it in. Delete these angle
 bracket notes as you go; a leftover placeholder is the tell that a runbook was
@@ -196,7 +200,11 @@ observing different code. Name the affected cells in the finding, mark them
 `not run` again on the operating systems that had passed them, and say in the
 per-OS matrix which fix invalidated them. The host that made the fix re-runs
 them itself. The other hosts re-run them from the PR branch before merge. **No
-operating system inherits a result from a build that no longer exists.**
+operating system inherits a result from a build that no longer exists.** And a
+rebuild is a new subject: re-run the identity cell and record the new binary
+hashes **before any further cell**. A `0.4.9` pass filed a cell whose output
+only a later commit could produce, under a host record naming the earlier head;
+nothing tied any result to any build, and the whole pass was invalidated.
 
 **5. The evidence is pushed, not left on the machine that produced it.** The
 boundary directory is created before the first cell, each group files its output
@@ -207,10 +215,69 @@ pass nobody can check: the numbers in the runbook have nothing behind them, the
 next host cannot compare its own record against yours, and the directory is one
 reboot from gone. Filing it is the last cell of every pass, and a report that
 says the pass is complete while the artifacts are still local is wrong about
-what complete means. This is written here because it happened: a full native
-Linux pass was reported as done with its runbook results pushed and 51 evidence
-files still in `/tmp`, and only the owner asking "evidence are pushed?" caught
-it.
+what complete means. This is written here because it happened twice, the
+second time in the runbook that already carried this rule. A full native Linux
+pass was reported as done with its runbook results pushed and 51 evidence files
+still in `/tmp`. Then a full native Windows pass, on a runbook whose first
+screen is this paragraph, closed 85 cells and reported them complete with every
+artifact still under `%TEMP%`, and the owner caught it with the same question:
+"evidence are pushed?"
+
+**So it is checked now, not remembered.** `check_e2e.py` fails a runbook whose
+per-OS table claims a pass on an operating system with no evidence boundary
+filed for it. Prose stopped neither pass, and the two other rules this project
+had to convert into scripts, the branch point and the attribution trailer, were
+converted for exactly this reason. **A reading typed into a status column is not
+evidence. The artifact is, and the artifact lives in the docs repository.**
+
+**One branch per minor, and every operating system pushes to it.** The evidence
+for a release is one change: `evidence/<repo>-<version>`, cut once from a freshly
+pulled default branch, carrying one boundary directory per host. The second host
+to finish does not open a second pull request; it pulls that branch, adds its own
+boundary beside the first, and pushes. The pass is not complete for the family
+until every host that ran has filed into it.
+
+**Nothing else travels in that branch.** Not a script, not a rule, not another
+release's evidence. A reviewer opening an evidence pull request is reading
+evidence, and a diff that also moves a checker or a second minor's artifacts
+cannot be read as either. If you find yourself adding a non-evidence file, the
+branch point was wrong: cut a new one for that subject.
+
+This is written because the alternative was tried. `0.4.9` produced one branch
+for the WSL boundary and a second for the Windows boundary, so one release's
+evidence sat in two pull requests that had to be reviewed against each other,
+and a third subject and a fourth release's artifacts drifted into one of them
+until the gate refused it. **One release, one branch, one review.**
+
+**And a cell is `pass` only when both halves exist.** The verdict is the
+observation **and** the artifact behind it. A cell that ran, was read correctly,
+and left nothing on disk is not `pass`; it is `not run` with a note, because
+there is nothing a reviewer or the next host can check. Write the status from
+the artifact, file the artifact, and if you cannot file it, say so in the status
+rather than claiming the cell.
+
+**What counts as evidence, stated because the wrong answer is the tempting
+one.** Evidence is what the execution produced:
+
+- the command's own **stdout and stderr, captured to a file**, and its **exit
+  code**;
+- the **wire body** a request returned, saved as it arrived, not paraphrased;
+- the **file listing, the hash lines, the process table row, the log lines** the
+  cell's oracle names, copied verbatim;
+- for a socket, the **captured frames**; for a run, the **journal**.
+
+**Evidence is not a summary you wrote.** A sentence saying the daemon answered
+`200`, a table you typed from the terminal, a status column reading "all fields
+match", a count you remember: none of these are evidence, however true they are.
+They are a **reading of** evidence, and a reading with nothing under it is worth
+exactly as much as a reading of something that never happened. The reader cannot
+tell the two apart, which is the whole problem.
+
+The test is simple and it is worth applying to every file you file: **could
+somebody who does not trust you re-derive your status line from this artifact
+alone?** If the answer needs your prose to bridge a gap, the artifact is
+incomplete and the gap is where a mistake lives. A `sha256` line either side of
+an operation passes that test. "The file was unchanged" does not.
 
 ## Scope exception - **delete this section unless you need it**
 
@@ -232,15 +299,61 @@ from the agent's prose.
 Both surfaces are exercised and **neither substitutes for the other**:
 
 - **the API + both run WebSockets** - how the phone calls it, and the only way
-  to know a mobile call behaves;
+  to know a mobile call behaves. Every socket the daemon serves is driven by a
+  **real wire client**, its raw frames filed and their type counts recorded:
+  the CLI watcher is one consumer of one socket and never stands in for the
+  wire;
 - **the CLI** (`vadgr run`, `vadgr runs get`) - the on-box path, with its own
   users and its own failure modes.
 
+**A cell asks a paired repository only for what it has released.** This product
+is one of several that call each other: the phone is a separate repository on
+its own version, and so is the computer-use runtime. A cell that asks the phone
+to do something the shipped app cannot do is a cell specified against a surface
+nobody built, and it fails for a reason that has nothing to do with the release
+under test.
+
+So before writing any cell that touches a paired repository, **read that
+repository, not its README**: its released tag and the source behind the screen
+or the tool you are about to ask for. Then **name the version the cell depends
+on**, in the runbook, in the paired-surfaces section every runbook carries:
+
+```markdown
+## Paired surfaces this pass depends on
+
+| repository | released version | what this pass relies on |
+|---|---|---|
+| vadgr-mobile | 0.4.1 | the app reads machines and runs and consumes the run stream |
+| vadgr-computer-use | 0.7.3 | the screenshot and shell tools, over stdio |
+```
+
+The rule runs in both directions: this runbook does not ask another repo's
+client for a surface it has not shipped, and it does not assume a daemon route
+that has not shipped either. **A cell whose surface arrives in a later release
+is written into that release's runbook, and its absence here is stated rather
+than silent.**
+
+It is written down because a `0.4.9` cell told the tester to start a run from
+the phone. Starting a run from the phone is the mobile app's `0.5.0`; the
+shipped app is a reader. The owner found it holding the handset.
+
+**A cell driven by a person is written for that person.** Where a part is held
+in someone's hands rather than run in a terminal, the operator drives the
+machine and the tester does only what the cell says, in the order it says it.
+So the cell names **every action on the device and every prerequisite on it**:
+the network or VPN the handset must join, the app state it must start from, the
+taps in order, and what to read back. A tester cannot see the daemon, the
+transport or the state, and cannot infer a step that was left out.
+
+The prerequisites are the half that gets forgotten, because they are invisible
+from the machine: a `0.4.9` pass handed the tester a QR without saying to turn
+the tailnet on first, and the handset simply could not reach the address in the
+code. **A step the operator performs by habit is a step the cell has to state.**
+
 <Put the tested installation on `PATH`. Record `command -v vadgr` and prove its
 target is the exact PR head. Invoke `vadgr ...` in the terminal. The installed
-entry point may dispatch to Python during migration, but `python -m cli`, a
-product import, `cargo run` or a private function is not an e2e invocation. A
-helper may prepare state and capture or parse evidence. It must not replace the
+entry point is the installed binary; a product import, `cargo run` or a private
+function is not an e2e invocation. A helper may prepare state and capture or parse evidence. It must not replace the
 public CLI, drive the owner flow or choose the agent's actions.>
 
 <The agent CLI invocation you actually used, so a reader can repeat it. Use
@@ -364,6 +477,76 @@ remaining cells quietly never run.
   behaviour.
 - Report once, at the end, with everything. An audit delivered in instalments
   reads as an endless stream of problems and is really one incomplete sweep.
+
+## A fix is verified by the cell that found it, not by the test you wrote for it
+
+**A fix exists because a cell failed. That cell is the verdict, and it is not
+closed until it has been run again, against the rebuilt product, and its status
+rewritten from what the re-run showed.** A unit test that fails without the fix
+is necessary and it is never sufficient: it proves the function you changed does
+what you now think, on the machine you are typing on. It says nothing about
+whether the thing the cell was watching works, which is the only question the
+cell was ever asking.
+
+The order is fixed, and every step is owed:
+
+1. The cell fails. Record what it printed, before you touch anything.
+2. Fix the code, with a test that fails without the fix and passes with it.
+3. **Rebuild and reinstall the product the cells drive.** A cell re-run against
+   the old binary is a cell that did not run. On Windows the running daemon
+   locks the file, so this means stopping it first.
+4. **Run the cell again, whole, from its stated precondition.** Not a smaller
+   version of it, not the one command you think was the interesting part.
+5. Rewrite the cell's status from the re-run, and say in it that it failed first
+   and why. A cell that passes with no history reads as a cell that was always
+   fine, and the next reader loses the defect.
+6. **Re-run the cells the fix invalidated on every operating system that had
+   passed them**, per rule 4 at the top of this file.
+
+**Never edit a cell so that it matches the behaviour you shipped.** If a cell's
+assertion is genuinely wrong, say so in its status, with the evidence, and leave
+the assertion where the next reader can argue with it. Weakening the oracle to
+turn a red cell green destroys the only record that the product ever behaved
+differently, and it is indistinguishable from the product having been fixed.
+
+Both halves were broken in `0.4.9`'s Windows pass, in the same hour. A per-OS
+matrix row was written as passing before the cell behind it had been re-run at
+all, and a fix to the installer was called done on the strength of its function
+being checked in isolation, while the cell that found it, a from-nothing install
+followed by an update, was never driven again. Neither is a lie about the code.
+Both are a claim about the product that no run supports.
+
+## Account for what the pass leaves on disk
+
+**A directory a pass creates is cleaned up by the group that needed it, at that
+group's boundary.** Not at the end of the pass, which may not arrive, and not by
+the next person, who will not know it was ours. This is the same rule as the one
+below for processes, applied to the other thing a pass leaves behind, and it
+fails more quietly: a stray directory costs nothing today and silently changes
+the answer to a cell that runs weeks later.
+
+That is not hypothetical. In `vadgr 0.4.9`, `J1` requires the platform state
+root absent or empty. It was **blocked** on a machine where the product had
+never been installed, because an earlier pass had left two empty directories
+under `%LOCALAPPDATA%\vadgr`, created as a side effect of resolving a path. Zero
+files, zero bytes, and enough to stop the cell. The pass that made them ran to a
+clean verdict and never knew.
+
+- **Name the directories a group creates in that group's `Cleanup` column**, the
+  same way a cell names the daemon it must stop. A group whose cleanup column
+  says `none` is asserting it created nothing, and that assertion is checked.
+- **Isolated roots are removed when the last group that reads them is done**,
+  not left "in case". Evidence that must outlive the pass is filed under the
+  runbook's evidence directory, which is the one place a later reader expects to
+  find things.
+- **A platform location is never a scratch directory.** State roots, config
+  directories and anything under a user profile are the product's, and a pass
+  that writes there restores exactly what it found, listing the location before
+  and after.
+- **Check for your own leavings before you call a cell blocked by the
+  environment.** A precondition that a directory is absent is usually failing
+  because an earlier run of this same runbook created it, and the fix is to
+  clean up rather than to record a blocker.
 
 ## Account for what the pass leaves running
 
@@ -509,8 +692,23 @@ is incomplete.>
 because on every runbook so far, the defects were in the seams the unit tests
 stop at.>
 
-- `PYTHONPATH=. python3 -m pytest engine/tests/ -q` -> **N passed**
-- `python3 -m pytest api/tests/ -q` -> **N passed**
+- `cargo test` -> **N passed**
+- `cargo clippy --all-targets -- -D warnings`, `cargo fmt --check` -> exit `0`
+
+**The gate is not green until the pull request's checks have finished.** The
+suites above ran on one machine, the one the pass was driven on. The pull
+request runs them on **every operating system in the matrix**, and those are the
+machines nobody looked at. **A pass is not closed and a pull request is not
+offered for review while a check is still running.** Waiting costs minutes; a
+release announced green over a check still running is a claim about machines
+nobody read.
+
+So the last step of a pass is to watch the checks to completion, record their
+result here beside the local ones, and only then call the pass closed. A red
+check is a finding like any other: it is fixed and the cells it invalidates are
+run again, or it is written down with its reason. This is here because a `0.4.9`
+pull request was offered as finished while its Windows job was still running,
+and that job went red.
 
 ## Coverage
 
@@ -549,8 +747,9 @@ from that record. The recorder must not replace `vadgr`, drive the user flow or
 import product code. A hand-written table drifts from the run it describes.>
 
 <Before trusting the capture, verify that the installed `vadgr` command produced
-the CLI result and that direct public calls produced the wire result. A Python
-driver that invokes `python -m cli` is acceptance evidence, not e2e evidence.
+the CLI result and that direct public calls produced the wire result. A
+driver that invokes the product's own code rather than its installed command is
+acceptance evidence, not e2e evidence.
 Also reject an empty result or a CLI pointed at the wrong port. **Assert on
 output, not only exit codes.**>
 
@@ -593,6 +792,15 @@ wired, and that is a state nobody notices until a client calls it.>
 <Every counted case is a row before execution. Its Status column is the result
 slot. Do not use aggregate placeholders such as "remaining matrix" or leave
 edge cases in prose.>
+
+<Two tests every row passes before the pass starts. **The oracle can detect the
+failure it names**: ask what it returns when the product is wrong, and if the
+answer is "the same thing", it is not an oracle - a mint was once asserted
+through a list the minted thing never appears in, and the cell could not fail.
+**The boundary contains the artifact it names, never a sentence about it**: a
+boundary that says hashes carries the hash lines themselves. "Unchanged: yes"
+is the product's word taken for the state, which is exactly what an oracle
+exists to distrust.>
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
@@ -687,7 +895,7 @@ actually driven on that OS.
 | installed product on the host | | | | | name `OS-L`, `OS-M`, `OS-W`, `OS-Q` |
 | **Overall** | | | | | |
 
-<Justify every `Not-Needed` in prose. "Pure Python, no socket/pipe/path/registry
+<Justify every `Not-Needed` in prose. "No socket, pipe, path or registry
 /process branching and no per-OS deps, so the other OSes cannot behave
 differently" is a reason. Silence is not, and neither is "it should be fine".
 

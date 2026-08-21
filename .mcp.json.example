@@ -1,14 +1,9 @@
 {
   "mcpServers": {
-    "computer_use": {
+    "vadgr-computer-use": {
       "type": "stdio",
-      "command": "<PATH_TO_VENV>/bin/python",
-      "args": ["-m", "computer_use.mcp_server"],
-      "cwd": "<PATH_TO_VADGR>",
-      "env": {
-        "PYTHONPATH": "<PATH_TO_VADGR>",
-        "VADGR_DEBUG": "1"
-      }
+      "command": "/path/to/vadgr-cua",
+      "args": ["--transport", "stdio"]
     }
   }
 }

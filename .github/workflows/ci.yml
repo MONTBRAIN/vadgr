@@ -7,153 +7,8 @@ on:
     branches: [master]
 
 jobs:
-  # Note: the `computer_use/` module was extracted into
-  # https://github.com/MONTBRAIN/vadgr-computer-use and is consumed as a
-  # PyPI package. Its tests run in that repo's CI. This workflow only
-  # tests modules that still live here.
-
-  # ----- api module -----
-  api:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12"]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Check for api changes
-        id: changes
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE=${{ github.event.pull_request.base.sha }}
-          else
-            BASE=${{ github.event.before }}
-          fi
-          if git diff --name-only "$BASE" HEAD | grep -qE '^api/'; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Set up Python ${{ matrix.python-version }}
-        if: steps.changes.outputs.changed == 'true'
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install Python dependencies
-        if: steps.changes.outputs.changed == 'true'
-        run: pip install -r api/requirements.txt
-
-      - name: Run tests with coverage
-        if: steps.changes.outputs.changed == 'true'
-        env:
-          PYTHONPATH: .
-        run: python -m pytest api/tests/ -v --cov=api --cov-report=term-missing
-
-      - name: Skip (no changes)
-        if: steps.changes.outputs.changed == 'false'
-        run: echo "No api/ changes -- skipping tests."
-
-  # ----- engine module -----
-  engine:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12"]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Check for engine changes
-        id: changes
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE=${{ github.event.pull_request.base.sha }}
-          else
-            BASE=${{ github.event.before }}
-          fi
-          if git diff --name-only "$BASE" HEAD | grep -qE '^engine/'; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Set up Python ${{ matrix.python-version }}
-        if: steps.changes.outputs.changed == 'true'
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install Python dependencies
-        if: steps.changes.outputs.changed == 'true'
-        run: pip install -r engine/requirements.txt
-
-      - name: Run tests with coverage
-        if: steps.changes.outputs.changed == 'true'
-        env:
-          PYTHONPATH: .
-        run: python -m pytest engine/tests/ -v --cov=engine --cov-report=term-missing
-
-      - name: Skip (no changes)
-        if: steps.changes.outputs.changed == 'false'
-        run: echo "No engine/ changes -- skipping tests."
-
-  # ----- cli module -----
-  cli:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12"]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Check for cli changes
-        id: changes
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE=${{ github.event.pull_request.base.sha }}
-          else
-            BASE=${{ github.event.before }}
-          fi
-          if git diff --name-only "$BASE" HEAD | grep -qE '^cli/'; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Set up Python ${{ matrix.python-version }}
-        if: steps.changes.outputs.changed == 'true'
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install Python dependencies
-        if: steps.changes.outputs.changed == 'true'
-        run: pip install -r cli/requirements.txt
-
-      - name: Run tests with coverage
-        if: steps.changes.outputs.changed == 'true'
-        env:
-          PYTHONPATH: .
-        run: python -m pytest cli/tests/ -v --cov=cli --cov-report=term-missing
-
-      - name: Skip (no changes)
-        if: steps.changes.outputs.changed == 'false'
-        run: echo "No cli/ changes -- skipping tests."
-
-  # ----- the rust daemon -----
-  # The crate is judged here rather than only on a developer's machine: from
-  # 0.4.5 onward the daemon is being rewritten beside Python, and a suite that
-  # only ever runs locally is a suite that stops running.
+  # Desktop automation lives in https://github.com/MONTBRAIN/vadgr-computer-use
+  # and is consumed as a package; its tests run in that repository's CI.
   rust:
     strategy:
       fail-fast: false
@@ -166,53 +21,420 @@ jobs:
         with:
           components: clippy, rustfmt
       - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: rust
       - name: Build
-        working-directory: rust
         run: cargo build --locked
       - name: Test
-        working-directory: rust
         run: cargo test --locked
       - name: Lint
-        working-directory: rust
         run: cargo clippy --locked --all-targets --all-features -- -D warnings
       - name: Format
-        working-directory: rust
         run: cargo fmt --all -- --check
 
+  # The installer is the first thing a new user runs, and it had never been
+  # executed by a pipeline: the clean-install job below proves the artifact, not
+  # the script that puts the artifact on a machine.
+  #
+  # It runs on every platform the product claims, because an installer proved on
+  # one operating system says nothing about the others. Two Windows only test
+  # failures in the 0.4.9 pass are the argument.
+  installer:
+    strategy:
+      fail-fast: false
+      matrix:
+        # Linux gets a container with nothing in it, which is the only place
+        # a truly clean machine is available to us.
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install on Linux, in a container with nothing in it
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          docker run --rm -v "$PWD:/src:ro" -e VADGR_REF="$GITHUB_SHA" debian:12-slim bash -eu -c '
+            # Only what the delivery mechanism itself implies: the script
+            # arrives through curl over TLS. git and both toolchains are the
+            # job of the installer, and pre-installing them here would prove a
+            # machine no fresh user has. This job once pre-installed
+            # build-essential, which hid that the installer never set up the
+            # linker the build needs.
+            apt-get update -qq
+            apt-get install -y -qq --no-install-recommends ca-certificates curl
+            # set -e ignores a pipeline that starts with !, so a negated
+            # command can never fail a step: two of these were decoration
+            # here. Test presence explicitly instead.
+            for tool in cargo cc git vadgr; do
+              if command -v "$tool"; then echo "$tool is preinstalled, so this machine is not clean"; exit 1; fi
+            done
+            # The bind mount belongs to another uid, and git is not installed
+            # yet, so the trust is written as the global config file itself.
+            # It cannot travel as GIT_CONFIG_* environment: git deliberately
+            # ignores safe.directory from anywhere but protected config, and
+            # that route was tried and failed against this exact base image.
+            printf "[safe]\n\tdirectory = /src\n\tdirectory = /src/.git\n" > "$HOME/.gitconfig"
+            VADGR_REPO_URL=/src bash /src/install.sh
+            export PATH="$HOME/.vadgr/bin:$PATH"
+            command -v vadgr | grep -q "^$HOME/.vadgr/bin/vadgr$"
+            vadgr --version
+            # Nothing is started, so the daemon is down and saying so is the
+            # correct answer. Exit 3 is that answer, and it is a contract.
+            set +e; vadgr health; code=$?; set -e
+            test "$code" -eq 3 || { echo "expected exit 3 from a stopped daemon, got $code"; exit 1; }
+          '
+
+      # The hosted macOS image ships a Rust toolchain and there is no container
+      # to escape it, so this half proves what it can: that `install.sh` runs on
+      # macOS and produces binaries that work there. The from nothing case is
+      # the Linux half's, which has a container with nothing in it. Saying which
+      # half proves which is the point; a job that implied both would be lying
+      # about one.
+      - name: Install on macOS, where the runner already has a toolchain
+        if: matrix.os == 'macos-latest'
+        shell: bash
+        env:
+          VADGR_REPO_URL: ${{ github.workspace }}
+          VADGR_REF: ${{ github.sha }}
+        run: |
+          bash install.sh
+          export PATH="$HOME/.vadgr/bin:$PATH"
+          command -v vadgr | grep -q "^$HOME/.vadgr/bin/vadgr$"
+          vadgr --version
+          set +e; vadgr health; code=$?; set -e
+          test "$code" -eq 3 || { echo "expected exit 3 from a stopped daemon, got $code"; exit 1; }
+
+      # As above: the hosted Windows image ships a toolchain, so this half proves
+      # that `install.ps1` runs on Windows and produces a working `vadgr.exe`.
+      - name: Install on Windows, through the PowerShell half
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        env:
+          VADGR_REPO_URL: ${{ github.workspace }}
+          VADGR_REF: ${{ github.sha }}
+        run: |
+          .\install.ps1
+          $env:PATH = "$env:USERPROFILE\.vadgr\bin;$env:PATH"
+          $resolved = (Get-Command vadgr).Source
+          if ($resolved -ne "$env:USERPROFILE\.vadgr\bin\vadgr.exe") { throw "vadgr resolved to $resolved" }
+          vadgr --version
+          # The imports gate, on the binary the script just installed. It is
+          # the regression net for the crt-static flag inside install.ps1
+          # itself: this runner has the redistributable, so a binary that
+          # quietly imported it would run here and fail only on a user's
+          # machine.
+          .\scripts\check_windows_imports.ps1 "$env:USERPROFILE\.vadgr\bin\vadgr.exe"
+          # Exit 3 with nothing started is the contract, on this platform too.
+          # The message goes to stderr, and this shell runs with a stop
+          # preference that turns any native stderr into a terminating error, so
+          # the exit code would never be read. Read it deliberately instead.
+          $ErrorActionPreference = 'Continue'
+          vadgr health 2>&1 | ForEach-Object { Write-Host $_ }
+          if ($LASTEXITCODE -ne 3) { throw "expected exit 3 from a stopped daemon, got $LASTEXITCODE" }
+          # This shell exits with $LASTEXITCODE, which is the 3 just asserted, so
+          # a passing check would fail the step on the very value it checked.
+          exit 0
+
+  # A clean install is a normal user's machine: it has the operating system and
+  # the libraries the operating system ships, and it has no toolchain, no build
+  # dependency and no trace of this product. The question is the same on every
+  # platform, so it is one job with one matrix rather than a job per idea.
+  #
+  # The job is a simulation of a user installing and running the product, not a
+  # test run: cargo builds the artifact and nothing else here goes through the
+  # test harness. Every leg then does the same six things a user would meet:
+  # put the binary on the machine, run `vadgr --version` against Cargo.toml's
+  # version, start it serving, run `vadgr health` from the same machine, read
+  # /api/health field by field, stop it and leave nothing behind.
+  #
+  # It used to build a static musl binary for the Linux leg alone, which proved
+  # an artifact no user was ever given while the installer shipped a different
+  # one. Every leg now drives the one binary a user actually gets.
   clean-install:
-    # Build the delivered artifact, then prove it from outside a scratch image
-    # that contains the binary and nothing else.
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      RUSTC_WRAPPER: sccache
-      SCCACHE_GHA_ENABLED: "true"
+    strategy:
+      fail-fast: false
+      matrix:
+        # ubuntu-24.04 pinned rather than ubuntu-latest: the Linux leg runs
+        # the binary in an ubuntu:24.04 base, and the C library only lines
+        # up when the build machine matches it. A -latest label that moved
+        # would break that pairing silently.
+        #
+        # Two macOS releases, because a user compiles on whichever their
+        # machine runs, so each leg builds and runs on its own image. Neither
+        # leg runs a binary built on the other release: that cross-version
+        # question belongs to the release that ships prebuilt binaries.
+        os: [ubuntu-24.04, windows-latest, macos-latest, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
-          targets: x86_64-unknown-linux-musl
-      - name: Install the musl linker
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes musl-tools
+          # The explicit MSVC target exists so the crt-static flag reaches the
+          # binary and not the build scripts; the other platforms build the
+          # host target and need nothing extra.
+          targets: ${{ runner.os == 'Windows' && 'x86_64-pc-windows-msvc' || '' }}
       - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: rust
-          cache-targets: false
-          shared-key: clean-install-musl
-      - uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
-      - name: Build the static release binary
-        working-directory: rust
-        run: cargo build --locked --release --target x86_64-unknown-linux-musl --bin vadgr-daemon
-      - name: Verify the release binary is static
-        run: |
-          file rust/target/x86_64-unknown-linux-musl/release/vadgr-daemon
-          file rust/target/x86_64-unknown-linux-musl/release/vadgr-daemon | grep -Eq 'static(-pie)? linked'
-      - name: Install only the binary in scratch and prove readiness
-        working-directory: rust
+
+      - name: Build the release binaries
+        if: runner.os != 'Windows'
+        run: cargo build --locked --release --bins
+
+      # The C runtime is linked in rather than imported, so the binary does not
+      # need the Visual C++ redistributable, which is not part of Windows. The
+      # installer and `vadgr update` build the same way; an update that built
+      # differently would replace a standalone binary with a dependent one.
+      - name: Build the release binaries, with the C runtime linked in
+        if: runner.os == 'Windows'
         env:
-          VADGR_RELEASE_BINARY: target/x86_64-unknown-linux-musl/release/vadgr-daemon
-        run: cargo test --locked --test clean_install installed_release_starts_and_serves -- --ignored --exact --nocapture
+          RUSTFLAGS: -C target-feature=+crt-static
+        run: cargo build --locked --release --bins --target x86_64-pc-windows-msvc
+
+      # Linux has containers, so the machine can be MADE rather than
+      # approximated: ubuntu:24.04 with nothing in it, the one binary copied
+      # in, nothing else. The base matches the distribution the binary was
+      # built on, because a user's install compiles on the machine it runs on;
+      # an older base fails on glibc, and that is a recorded finding for the
+      # release that ships prebuilt binaries, not a defect here.
+      - name: Install it alone on a machine with no toolchain, and use it as a user would
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          # The version the binary must name, read from Cargo.toml at run
+          # time, never typed here.
+          version="$(grep -m1 '^version = ' Cargo.toml | cut -d'"' -f2)"
+          test -n "$version" || { echo "read no version from Cargo.toml"; exit 1; }
+          container="vadgr-clean-install"
+          trap 'docker rm -f "$container" >/dev/null 2>&1 || true' EXIT
+          # create, cp, start: no image is built, so nothing but the one
+          # binary a user gets ever enters the machine, and removing the
+          # container removes every trace. The file serves when invoked with
+          # `serve` and is the client otherwise, so both halves are this copy.
+          docker create --name "$container" \
+            --env VADGR_CONFIG_HOME=/var/lib/vadgr \
+            --env VADGR_DB=/var/lib/vadgr/vadgr.db \
+            --env VADGR_STATE_HOME=/var/lib/vadgr/state \
+            --env VADGR_RUNS_DIR=/var/lib/vadgr/runs \
+            --env VADGR_PORT=8100 \
+            --env VADGR_TRANSPORT=loopback \
+            ubuntu:24.04 /usr/local/bin/vadgr serve >/dev/null
+          docker cp -q target/release/vadgr "$container:/usr/local/bin/vadgr"
+          docker start "$container" >/dev/null
+          # The CLI runs on the clean machine and names this checkout's version.
+          out="$(docker exec "$container" /usr/local/bin/vadgr --version)"
+          test "$out" = "vadgr $version" || { echo "vadgr --version said '$out', expected 'vadgr $version'"; exit 1; }
+          # It serves. The base ships no HTTP client, so a pinned busybox
+          # sidecar joins the machine's own network namespace to fetch: the
+          # bytes come from inside, and jq on the runner reads them field by
+          # field.
+          docker pull -q busybox:1.37.0-musl >/dev/null
+          probe() {
+            docker run --rm --network "container:$container" busybox:1.37.0-musl \
+              wget -qO- -T 2 "http://127.0.0.1:8100$1"
+          }
+          body=""
+          for _ in $(seq 1 40); do
+            state="$(docker inspect -f '{{.State.Status}}' "$container")"
+            if [ "$state" != "running" ]; then
+              echo "the daemon exited before readiness"; docker logs "$container"; exit 1
+            fi
+            body="$(probe /api/health || true)"
+            [ -n "$body" ] && break
+            sleep 1
+          done
+          echo "$body"
+          echo "$body" | jq -e --arg version "$version" '
+            .status == "healthy"
+            and .version == $version
+            and .platform == "linux"
+            and .modules == {"computer_use": false}
+            and .transport == {"name": "loopback", "available": true,
+                               "advertise_host": null, "bind_host": "127.0.0.1"}
+          ' >/dev/null || { echo "the health body is wrong"; docker logs "$container"; exit 1; }
+          # A fresh machine has its three providers present and none connected.
+          providers="$(probe /api/providers)"
+          echo "$providers" | jq -e '
+            length == 3
+            and [.[].id] == ["openai", "gemini", "anthropic"]
+            and all(.[]; .connected == false)
+          ' >/dev/null || { echo "the provider rows are wrong: $providers"; exit 1; }
+          # The CLI reaches the daemon from the same machine.
+          docker exec "$container" /usr/local/bin/vadgr health
+          # Stop it; the trap removes the machine whole.
+          docker stop --time 10 "$container" >/dev/null
+
+      # No container can be had on the hosted macOS runner, so this leg
+      # APPROXIMATES the machine where the Linux leg makes one: the product
+      # runs with an emptied environment and no PATH, which puts the toolchain
+      # out of reach, but the operating system underneath is still a developer
+      # image. A green run here is a weaker claim than the Linux leg's, and
+      # the probe (curl, jq) is an observer on the runner, not part of the
+      # machine.
+      - name: What it links, and the user's steps with the toolchain out of reach
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The version the binary must name, read from Cargo.toml at run
+          # time, never typed here.
+          version="$(grep -m1 '^version = ' Cargo.toml | cut -d'"' -f2)"
+          test -n "$version" || { echo "read no version from Cargo.toml"; exit 1; }
+          # The one binary a user gets: it serves when invoked with `serve`
+          # and is the client otherwise, so this inspection covers both halves.
+          exe=target/release/vadgr
+          test -x "$exe" || { echo "no binary at $exe"; exit 1; }
+          otool -L "$exe"
+          # Every library must be one macOS ships. Anything under /opt or
+          # /usr/local is a dependency a user's machine may not have.
+          libs="$(otool -L "$exe" | tail -n +2 | awk '{print $1}')"
+          count="$(printf '%s\n' "$libs" | grep -c . || true)"
+          test "$count" -ge 1 || { echo "read no linked libraries from $exe, which cannot be right"; exit 1; }
+          echo "$exe links $count libraries"
+          bad=0
+          while IFS= read -r lib; do
+            [ -n "$lib" ] || continue
+            case "$lib" in
+              /usr/lib/*|/System/Library/*) ;;
+              *) echo "$exe links $lib, which macOS does not guarantee"; bad=1 ;;
+            esac
+          done <<< "$libs"
+          test "$bad" -eq 0 || exit 1
+          # The minimum macOS it will start on, recorded so a raised floor is
+          # visible here rather than to someone on an older machine.
+          vtool -show-build "$exe" 2>/dev/null | grep -E "minos|platform" || true
+          root="$(mktemp -d)"
+          # The CLI runs with nothing in its environment and names this
+          # checkout's version.
+          out="$(env -i HOME="$root" "$PWD/target/release/vadgr" --version)"
+          test "$out" = "vadgr $version" || { echo "vadgr --version said '$out', expected 'vadgr $version'"; exit 1; }
+          # It serves the same way: no PATH, no toolchain in reach.
+          env -i HOME="$root" \
+            VADGR_STATE_HOME="$root/state" VADGR_PORT=8100 VADGR_TRANSPORT=loopback \
+            "$PWD/target/release/vadgr" serve > "$root/daemon.log" 2>&1 &
+          daemon_pid=$!
+          body=""
+          for _ in $(seq 1 40); do
+            body="$(curl -fsS http://127.0.0.1:8100/api/health 2>/dev/null || true)"
+            [ -n "$body" ] && break
+            sleep 1
+          done
+          echo "$body"
+          echo "$body" | jq -e --arg version "$version" '
+            .status == "healthy"
+            and .version == $version
+            and .platform == "macos"
+            and .modules == {"computer_use": false}
+            and .transport == {"name": "loopback", "available": true,
+                               "advertise_host": null, "bind_host": "127.0.0.1"}
+          ' >/dev/null || { echo "the health body is wrong"; cat "$root/daemon.log"; exit 1; }
+          # A fresh machine has its three providers present and none connected.
+          providers="$(curl -fsS http://127.0.0.1:8100/api/providers)"
+          echo "$providers" | jq -e '
+            length == 3
+            and [.[].id] == ["openai", "gemini", "anthropic"]
+            and all(.[]; .connected == false)
+          ' >/dev/null || { echo "the provider rows are wrong: $providers"; exit 1; }
+          # The CLI reaches the daemon from the same emptied environment. Exit
+          # 0 here needs the wire, not just the binary loading.
+          env -i HOME="$root" VADGR_PORT=8100 "$PWD/target/release/vadgr" health
+          # Stop it and leave nothing behind.
+          kill "$daemon_pid"
+          wait "$daemon_pid" 2>/dev/null || true
+          rm -rf "$root"
+
+      # As on macOS: no container, so this leg APPROXIMATES the machine where
+      # the Linux leg makes one. The product runs with PATH emptied and its
+      # profile pointed at a scratch root, while the OS underneath is still a
+      # developer image with the toolchain on disk. A green run here is a
+      # weaker claim than the Linux leg's, and the probe runs on the runner,
+      # not the machine.
+      - name: What it imports, and the user's steps with the toolchain out of reach
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # The one binary a user gets: it serves when invoked with `serve`
+          # and is the client otherwise. Its imports go against the one
+          # shipped-with-Windows list the installer job also checks; two
+          # copies of that list would drift apart.
+          $cli = "target\x86_64-pc-windows-msvc\release\vadgr.exe"
+          .\scripts\check_windows_imports.ps1 $cli
+          # The version the binary must name, read from Cargo.toml at run
+          # time, never typed here.
+          $m = Select-String -Path Cargo.toml -Pattern '^version = "(.+)"' | Select-Object -First 1
+          if (-not $m) { throw "read no version from Cargo.toml" }
+          $version = $m.Matches[0].Groups[1].Value
+          $root = Join-Path $env:RUNNER_TEMP ([guid]::NewGuid())
+          New-Item -ItemType Directory -Path $root | Out-Null
+          $cleanEnv = @{ PATH=''; USERPROFILE=$root; LOCALAPPDATA=$root;
+                         VADGR_STATE_HOME="$root\state"; VADGR_PORT='8100';
+                         VADGR_TRANSPORT='loopback' }
+          # The CLI runs with the toolchain out of reach and names this
+          # checkout's version.
+          $verRun = Start-Process -PassThru -Wait -FilePath (Resolve-Path $cli) -ArgumentList '--version' `
+            -Environment $cleanEnv -RedirectStandardOutput "$root\version.log" -RedirectStandardError "$root\version.err"
+          if ($verRun.ExitCode -ne 0) {
+            Get-Content "$root\version.err" -ErrorAction SilentlyContinue
+            throw "vadgr --version exited $($verRun.ExitCode)"
+          }
+          # Interpolation, not a cast: an empty file reads as $null, a cast
+          # leaves $null alone in expression position, and .Trim() on it dies
+          # with a message about PowerShell instead of the product.
+          $out = "$(Get-Content "$root\version.log" -Raw)".Trim()
+          if ($out -ne "vadgr $version") { throw "vadgr --version said '$out', expected 'vadgr $version'" }
+          # It serves the same way.
+          $daemon = Start-Process -PassThru -FilePath (Resolve-Path $cli) -ArgumentList 'serve' -Environment $cleanEnv `
+            -RedirectStandardOutput "$root\out.log" -RedirectStandardError "$root\err.log"
+          $health = $null
+          foreach ($i in 1..40) {
+            try { $health = Invoke-RestMethod -UseBasicParsing http://127.0.0.1:8100/api/health; break }
+            catch { Start-Sleep -Seconds 1 }
+          }
+          if (-not $health) {
+            Get-Content "$root\err.log" -ErrorAction SilentlyContinue
+            throw "the daemon never served health on its own"
+          }
+          $health | ConvertTo-Json -Compress | Write-Host
+          # Field by field, and the key sets pinned, so an extra or missing
+          # field fails the way the other legs' whole-object checks do.
+          if ($health.status -ne 'healthy') { throw "status was '$($health.status)'" }
+          if ($health.version -ne $version) { throw "version was '$($health.version)', expected '$version'" }
+          if ($health.platform -ne 'windows') { throw "platform was '$($health.platform)'" }
+          $moduleKeys = ($health.modules.PSObject.Properties.Name | Sort-Object) -join ','
+          if ($moduleKeys -ne 'computer_use' -or $health.modules.computer_use -ne $false) {
+            throw "modules was $($health.modules | ConvertTo-Json -Compress)"
+          }
+          $t = $health.transport
+          $transportKeys = ($t.PSObject.Properties.Name | Sort-Object) -join ','
+          if ($transportKeys -ne 'advertise_host,available,bind_host,name' -or
+              $t.name -ne 'loopback' -or $t.available -ne $true -or
+              $null -ne $t.advertise_host -or $t.bind_host -ne '127.0.0.1') {
+            throw "transport was $($t | ConvertTo-Json -Compress)"
+          }
+          # A fresh machine has its three providers present and none connected.
+          # Parsed from the raw bytes with the array kept intact: Invoke-
+          # RestMethod hands a JSON array back as one object, so Count read 1,
+          # a Where-Object over it saw a truthy inner collection, and the
+          # check threw on a correct body. The Linux leg reads the same text
+          # with jq; this reads the same text with the shape pinned first.
+          $providersJson = (Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8100/api/providers).Content
+          $providers = ConvertFrom-Json -InputObject $providersJson -NoEnumerate
+          if ($providers -isnot [array]) { throw "the provider response is not an array: $providersJson" }
+          if ($providers.Length -ne 3) { throw "expected 3 provider rows, read $($providers.Length): $providersJson" }
+          $ids = ($providers | ForEach-Object { $_.id }) -join ','
+          if ($ids -ne 'openai,gemini,anthropic') { throw "the provider ids are wrong: <$ids>" }
+          foreach ($row in $providers) {
+            if ($row.connected -ne $false) { throw "provider $($row.id) is connected on a fresh machine: $providersJson" }
+          }
+          # The CLI reaches the daemon from the same stripped environment.
+          # Exit 0 here needs the wire, not just the binary loading.
+          $cliRun = Start-Process -PassThru -Wait -FilePath (Resolve-Path $cli) -ArgumentList 'health' `
+            -Environment $cleanEnv -RedirectStandardOutput "$root\cli.log" -RedirectStandardError "$root\cli.err"
+          Get-Content "$root\cli.log" -ErrorAction SilentlyContinue
+          if ($cliRun.ExitCode -ne 0) {
+            Get-Content "$root\cli.err" -ErrorAction SilentlyContinue
+            throw "the CLI exited $($cliRun.ExitCode) against a healthy daemon"
+          }
+          # Stop it and leave nothing behind.
+          Stop-Process -Id $daemon.Id -Force
+          Remove-Item -Recurse -Force $root
+          exit 0

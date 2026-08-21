@@ -2,6 +2,124 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.4.9] - 2026-08-21
+
+**The cutover.** `vadgr` is one binary. The daemon that answers is the Rust one,
+the installation no longer carries an interpreter, and a machine's state lives
+where the platform says durable state lives instead of below the directory the
+daemon happened to start in.
+
+### Changed
+- **`vadgr start` launches the Rust daemon.** The default flips once, in a
+  release that contains nothing else.
+- **State moves to the platform's local-state root**, and the daemon consolidates
+  before it serves:
+
+  | platform | root |
+  |---|---|
+  | Linux and WSL | `$XDG_STATE_HOME/vadgr`, else `~/.local/state/vadgr` |
+  | macOS | `~/Library/Application Support/vadgr/state` |
+  | Windows | `%LOCALAPPDATA%\vadgr`, else `%USERPROFILE%\AppData\Local\vadgr` |
+
+  `vadgr.db`, `runs/` and `credentials/` live beneath it. **Nothing resolves
+  relative to the working directory any more**, so an installed daemon's database
+  no longer depends on which terminal started it. `VADGR_STATE_HOME`, `VADGR_DB`
+  and `VADGR_RUNS_DIR` remain exact overrides for tests and managed deployments.
+- **`GET /api/settings/computer-use` stops answering with a dead `daemon`
+  field.** It was `null` on every platform, and three places in the CLI read it:
+  a line in `computer-use status`, a row in `vadgr status`, and the message
+  after enabling that would have said the bridge did not start and pointed at
+  `vadgr-cua doctor`. None of them could ever print. The computer-use bridge is
+  the separate package's, it starts on first use, and reporting it as a status
+  would call a healthy machine broken.
+- **The product is one executable.** A machine used to receive `vadgr` and
+  `vadgr-daemon`, and the CLI found the daemon beside itself on disk. That asked
+  a user to keep two files in step to run one product, and doubled what an
+  install has to copy and a release has to publish. `vadgr start` now spawns
+  this same binary with `serve`, and the installer copies one file.
+- **The installer is `install.sh` and `install.ps1`**, which is what the README
+  has always told a user to run.
+- **The Windows build links the C runtime in.** It imported `vcruntime140.dll`,
+  which belongs to the Visual C++ redistributable and is not part of Windows, so
+  the binary would not start on a machine that never installed it. The installer,
+  `vadgr update` and CI all build it the same way, and CI reads the binary's
+  imports and refuses any name Windows does not ship.
+- **The installer installs a binary.** It sets up git and the Rust toolchain,
+  builds the release, and copies `vadgr` and `vadgr-daemon` into `~/.vadgr/bin`
+  only after the build succeeded, so a failed build leaves a working installation
+  exactly as it was. No interpreter, no virtual environments, no launcher script.
+- **`vadgr update` rebuilds the binary** rather than reinstalling dependencies.
+  `--check` reports how many commits are available and whether `Cargo.lock` moves.
+  The previous binary is moved aside rather than overwritten.
+- The default port is `8000`. The second port existed while two daemons ran side
+  by side.
+
+### Fixed
+- **The CLI crashed on a machine with no CA certificates.** Every `vadgr`
+  command built its HTTP client against the system trust store, so on a machine
+  without a CA bundle the command died with a Rust panic before doing anything,
+  even `vadgr health`, which talks plain HTTP to loopback and never needed a
+  certificate. The client now carries its own compiled-in roots, the same
+  Mozilla list the WebSocket path already used, so provider calls keep
+  verifying TLS and no command needs anything from the machine. A machine
+  behind a TLS-inspecting proxy should exempt the provider hosts from
+  interception, because the proxy's root is not in that list.
+- **A run that looked at the screen failed on Gemini.** A screenshot returned
+  inside the function response is refused by the service with "Multimodal
+  function responses are not supported for this model", so every run that took
+  one died on its next turn. The image now travels as its own part beside the
+  function response, which the model reads.
+- **`vadgr update` named a directory nothing writes.** The installer builds into
+  `~/.vadgr` and clones to `~/.vadgr/src`, while the CLI still resolved the
+  repository's former name, so an update reported a checkout that was not there.
+- **`vadgr runs resume` said a run was resumed and showed nothing of it.** The
+  command printed one line, `Resuming run <id>`, which reports that the daemon
+  accepted the request and says nothing about the run: not the status it went
+  back to, not the provider, not the error that stopped it. It now prints the
+  same detail block `vadgr runs get` prints, from the same printer, so the two
+  commands cannot describe one run differently.
+- **A watched run under `--json` wrote two documents to one stdout**: the run
+  object, then the watcher's own summary and results link. A watched run now
+  prints nothing until it has an outcome, then prints the finished run once. A
+  background run still prints the queued row, because there that is all that
+  will ever be known.
+- **`vadgr health` told you a module was missing when you had turned it off.**
+  The daemon reports whether a module is usable and never says why, and both
+  causes were rendered as "not found". It prints `unavailable`, which is what
+  the daemon said.
+- **The consolidation checked that a database opens, not that it can be served.**
+  A database missing a column every read needs passed the check, and the daemon
+  then failed on the first request. It now opens the target the way the daemon
+  does, runs the migrations, and performs the read the API performs; a target it
+  cannot serve is refused, the half made target is removed, and the sources stay
+  exactly where they were.
+
+### Removed
+- **The Python daemon, CLI and engine**: 143 files, 17,330 lines. Parked on the
+  private attic repository with the history that reaches back through every
+  release they shipped in, so reviving any of it is a pull rather than a rewrite.
+- The `rust/` directory. It was a boundary between two languages, and one left.
+  The crate is at the repository root.
+- **A tracked Windows virtual environment**: 1441 files of Python bytecode that
+  survived earlier sweeps because every check asked for `.py` and bytecode does
+  not end in `.py`. The repository goes from 1580 tracked files to 143.
+- `providers.yaml` and `PROVIDER_PARSER_GUIDE.md`, the static provider list and
+  the guide to its parser families, both replaced by authenticated catalog
+  snapshots at `0.4.7`. The README's manual setup paragraph linked to those two
+  and to three files the deletion removed, and is gone with them.
+
+### Upgrade notes
+- **Start the daemon once after upgrading and it consolidates your state.** Two
+  databases exist on any installation that ran through the side-by-side releases;
+  the surviving schema is a superset, so it is kept and the other contributes its
+  runs and devices.
+- **If it refuses, nothing has been moved.** Three cases refuse rather than
+  guess: the same run id in both databases, the same device id in both, or a
+  target directory that exists and is not this product's. Each says what it found
+  and what to do.
+- The old install root is `~/.forge`. After a successful start on the new
+  version, nothing reads it and it can be deleted.
+
 ## [0.4.8] - 2026-08-19
 
 ### Added
