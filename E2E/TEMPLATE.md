@@ -1,5 +1,18 @@
 # <version> - <what this minor made true>: e2e runbook
 
+> **Read this whole file before you run anything, and read
+> [`README.md`](README.md) beside it.** Not the rules that look relevant to the
+> cell in front of you: the whole file. Every rule in it was written because a
+> pass broke it, and a pass that starts at the first cell meets them one at a
+> time, each at the cost of the thing it was protecting.
+>
+> **This instruction exists because a rule that was already written, already
+> indexed and already in front of the driver was broken by three separate
+> passes**: evidence for `vadgr 0.4.7`, `0.4.8` and `0.4.9` was pushed straight
+> to the docs default branch instead of the minor's evidence branch, once per
+> release, by a host that had the rule on its screen. Reading the document is
+> the cheapest of every remedy available, and it is the one that was skipped.
+
 <One sentence: what a reader is being convinced of. Not what changed - what is
 now demonstrably true that was not before.>
 
@@ -61,7 +74,11 @@ present in a given runbook, the entry is all there is.
    pushes into that one branch.** `evidence/<repo>-<version>`, cut once from a
    freshly pulled default branch there: a later operating system adds its
    boundary beside the first rather than opening a second pull request, and
-   nothing else travels in it. [How a pass is run]
+   nothing else travels in it. **The default branch is never the target**, on
+   any host, for any reason, and a pass that cannot find the branch asks for it
+   rather than pushing past it. Broken once per release for three releases
+   running, always by the same host and always with the rule on screen, so it is
+   now a check rather than a sentence. [How a pass is run]
 
 9. **A fix is verified by re-running the cell that found it**, whole and from its
    stated precondition, against a rebuilt and reinstalled product. A unit test is
