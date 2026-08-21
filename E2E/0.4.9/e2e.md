@@ -1,5 +1,18 @@
 # 0.4.9 - the cutover: e2e runbook
 
+> **Read this whole file before you run anything, and read
+> [`../README.md`](../README.md) beside it.** Not the rules that look relevant to the
+> cell in front of you: the whole file. Every rule in it was written because a
+> pass broke it, and a pass that starts at the first cell meets them one at a
+> time, each at the cost of the thing it was protecting.
+>
+> **This instruction exists because a rule that was already written, already
+> indexed and already in front of the driver was broken by three separate
+> passes**: evidence for `vadgr 0.4.7`, `0.4.8` and `0.4.9` was pushed straight
+> to the docs default branch instead of the minor's evidence branch, once per
+> release, by a host that had the rule on its screen. Reading the document is
+> the cheapest of every remedy available, and it is the one that was skipped.
+
 `vadgr` is one binary. `vadgr start` launches the Rust daemon, a machine's state
 lives where the platform says durable state lives rather than below the directory
 the daemon was started from, and an installation that ran through the
@@ -36,6 +49,13 @@ whatever needs the owner runs first, the pass does not stop to report, a bug
 found is a bug fixed here and now with a test that fails without the fix, a fix
 invalidates the cells it touched on every operating system that had passed them,
 and the evidence is pushed as part of the pass, never left on the machine.
+
+**Where the evidence goes, stated here because this runbook is where it went
+wrong.** Every host pushes its boundary into the one branch this minor's
+evidence lives on, `evidence/vadgr-0.4.9` in the docs repository, and opens or
+updates the one pull request on it. **The default branch is never the target.**
+The macOS pass pushed its boundary straight to master, as the same host had done
+for `0.4.7` and `0.4.8`, so the rule is now checked rather than restated.
 
 **One command at a time.** Every product command is invoked on its own and its
 output and exit code are read before the next is chosen.
