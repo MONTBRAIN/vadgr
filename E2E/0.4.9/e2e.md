@@ -5,7 +5,20 @@ lives where the platform says durable state lives rather than below the director
 the daemon was started from, and an installation that ran through the
 side-by-side releases keeps every run it made.
 
-> **Status: WSL passed, 86 of 86 cells, and native Windows passed 85 of 86,
+> **Status: macOS passed 85 of 86, and it was the last operating system owed.**
+> Run on 2026-08-21 at `500d387` on macOS 26.5.2 build 25F84, arm64. `I6` is the
+> one cell that fails, for the same structural reason it fails on native
+> Windows: `vadgr update` follows the released default branch by design, and
+> that branch still keeps the crate under `rust/` while the cutover moved it to
+> the root, so the rebuild cannot find `Cargo.toml`. **The failure is safe**:
+> nothing was replaced and `vadgr 0.4.9` stayed on `PATH`. It resolves when this
+> release reaches the default branch. The gate ran locally: rust 317, scripts 37,
+> with `fmt` and `clippy` at exit `0`. A real handset drove `H1` to `H5` over the
+> tailnet, and `S1` reached `403 SOURCE_NOT_AUTHORIZED`, which native Windows
+> recorded as unreachable from that host. One finding, `F15`, records that the
+> daemon's own default-model check accepts a model that cannot tool call.
+>
+> **The earlier status: WSL passed, 86 of 86 cells, and native Windows passed 85 of 86,
 > both against the head recorded in `A1`.** `I6` is the one Windows cell that
 > fails, and it resolves when this release reaches the default branch. Linux and
 > macOS are not run. An earlier WSL pass was
@@ -481,24 +494,24 @@ the weakest of the parts actually driven on that OS.
 
 | part | WSL | Linux | Windows native | macOS | notes |
 |---|---|---|---|---|---|
-| automated gate | pass | pass | **pass** | not run | run locally on this host: **311 tests**, `cargo fmt --check` and `cargo clippy --release --all-targets -- -D warnings` both at exit `0`. **It is not an e2e pass and does not stand in for one**: the parts below are what was driven **Linux**: run locally on this host at the head under test, **314 tests**, 0 failed, with `cargo fmt --check` and `cargo clippy --release --all-targets -- -D warnings` both at exit `0`, and `check_branch_point.py`, `check_evidence.py`, `check_no_ai_attribution.py` and `check_no_secrets.py --env-file ../.env` all exit `0`. The three tests above the Windows count are the ones this platform gates in. |
-| surface sweep | pass | pass | **pass** | not run | run from `harness/sweep.py` on this host: 18 published HTTP surfaces, 19 CLI verbs, and **7 absence probes all answering `404`**, so nothing is half wired. The HTTP codes are the deliberate set, `200`, `204`, `401`, `404`, `409` and `422` **Linux**: the same numbers, 18 published HTTP surfaces, 19 CLI verbs and **7 absence probes all answering `404`**, with every HTTP code inside the deliberate set. **Two preconditions the harness does not state and the next host will hit**: the run-dependent surfaces are only swept when a run already exists, so a sweep against an empty database records 15 and 16 instead, and minting on the loopback transport answers `503`, which is correct and outside the set. |
-| A: the built head | pass | pass, 4 of 4 | **pass**, 4 of 4 | not run |  |
-| B: the consolidation | pass | pass, 10 of 10 | **pass**, 10 of 10 | not run | a `WAL` row never checkpointed, interrupted staging debris, and all three refusals naming what they found |
-| C: the service group | pass | pass, 13 of 13 | **pass**, 13 of 13 | not run | `C13` ran here for the first time: the tailnet address held and loopback free, which is the multi-host bind check |
-| D: read-only commands | pass | pass, 5 of 5 | **pass**, 5 of 5 | not run | `D5` failed once here on a live port file this pass had left behind, which is the harness's fault and is recorded as one. |
-| CU: computer use | pass | pass, 4 of 4 | **pass**, 4 of 4 | not run | `CU2` failed and was fixed here: `/api/health` reported the module usable while the owner had disabled it, because it read installation rather than the setting the `CU2` fix holds on this OS: the setting drives both surfaces. |
-| E: provider onboarding | pass | pass, 6 of 6 | **pass**, 6 of 6 | not run | `vadgr model default` takes the provider-qualified id; the bare id is refused by name. |
-| F: runs and the watcher | pass | pass, 9 of 9 | **pass**, 9 of 9 | not run | `F7` and `F8` both failed first and both were closed: `resume` now prints its row, and `F8`'s failure was an inherited ignore-Ctrl+C bit in the harness, not the product **Linux**: all nine. `F8` passes exactly as written, `Detached. The run continues.` and exit `130`. `F7` was recorded `partial` first and then driven properly: its subject must be a failed run **that entered the loop**, which the cell text did not say and both earlier hosts had silently substituted. The cell is corrected and `F17` records it. |
-| R: interruption and recovery | pass | pass, 4 of 4 | **pass**, 4 of 4 | not run | the journal carries no marker for a resumed segment, and `R3` has no CLI verb that attaches a watcher to an existing run **Linux confirms both Windows observations on a second OS**: the journal carries no resumed marker, and the `R1` watcher prints the errored-stream sibling line rather than the one the cell quotes. |
-| G: pairing and devices | pass | pass, 8 of 8 | **pass**, 8 of 8 | not run | `G7` recorded what the true code answers after the cap: `401`, not `429`. |
-| W: the sockets | pass | pass, 4 of 4 | **pass**, 4 of 4 | not run | frame counts identical to Windows on both routes. |
-| S: source enforcement | pass | pass, 1 of 1 | **pass**, 1 of 1 | not run | the token gate answers before the source gate; see the cell. |
-| O: OAuth and the callback | pass | pass, 6 of 6 | **pass**, 6 of 6 | not run | the owner supplied the account and the key during this pass. **Linux**: `O5` must not follow `O3` immediately, because `O3`'s callback leaves `1455` in `FIN-WAIT-2` and `hold_port.py` deliberately omits `SO_REUSEADDR`. |
-| H: the phone | pass | pass, 5 of 5 | **pass**, 5 of 5 | not run | a person held the handset on both hosts: pair, machine, run, read back, unpair. Two findings, both mobile's and both open: `F15`, a typed pairing never learns the machine's name, and `F16`, a sheet watching a run live keeps what the socket gave it when the socket closes, so a finished run is drawn with no result |
-| I: the installer and update | **pass, and worth re-reading** | 5 of 6, `I6` fails | **5 of 6**, `I6` fails | not run | **The two results are different depths of one cell, not a disagreement about the product.** The WSL row carries the word `pass` and no evidence. On Windows an update that pulls nothing behaves the same way and passes: the checkout is ahead of `master`, the pull is a no-op, and the rebuild builds the `0.4.9` tree. The layout failure appears only when the update **actually pulls**, which was forced here by resetting the checkout behind `master`. Both `I6` defects are deterministic against today's `master`, so the WSL pass most likely took the no-op path the cell does not intend | in a container with no toolchain and no product **Linux reaches the same verdict as Windows, in `debian:bookworm-slim` under podman**: the `a83ff1c` toolchain fix is confirmed here including its counterfactual, and `vadgr update` still cannot build a `master` that carries the pre-cutover layout. |
-| J: the platform state root | pass | pass, 1 of 1 | **pass**, 1 of 1 | not run | no overrides at all, state under the platform root. the platform root already holds directories from before this pass, so the cell's own guard applies. It uncovered a second state-root resolver that disagrees with `config::state_root` **Linux was not blocked**: `~/.local/state/vadgr` was genuinely absent, and `vadgr.db` and `credentials/` landed directly under it, which is the same placement Windows recorded. |
-| **overall** | pass | 85 of 86, 1 owed by the default branch | **pass**, 85 of 86, 1 owed by the default branch | not run | the weakest part actually driven on this OS, which is every part. **Windows**: every part driven, and the repeatability check run as three concurrent passes with their own port, database and daemon. The one cell not passing is `I6`, and only half of it: its installer defect is fixed and re-driven from nothing, while `vadgr update` still cannot build a `master` that carries the pre-cutover layout, which resolves when this release lands there. **Six defects were found and fixed on this operating system**, each with a test that fails without it and each verified by re-running the cell that found it. **Three findings were retracted as harness faults rather than left standing**: `vadgr start` never hung, the provider never rejected our identity, and `F8`'s watcher always had its handler. Each retraction is recorded where the claim was made **Linux**: every part driven on a native host. The two cells not passing are `I6`, owed by the default branch and identical to the Windows verdict, and `F7`, which is `partial` because its subject cannot exist on this host as the cell describes it. **No product defect was found on Linux this pass**, and three Windows observations were independently confirmed here rather than taken on trust. |
+| automated gate | pass | pass | **pass** | **pass**, run locally: rust 317, scripts 37, fmt and clippy at 0 | run locally on this host: **311 tests**, `cargo fmt --check` and `cargo clippy --release --all-targets -- -D warnings` both at exit `0`. **It is not an e2e pass and does not stand in for one**: the parts below are what was driven **Linux**: run locally on this host at the head under test, **314 tests**, 0 failed, with `cargo fmt --check` and `cargo clippy --release --all-targets -- -D warnings` both at exit `0`, and `check_branch_point.py`, `check_evidence.py`, `check_no_ai_attribution.py` and `check_no_secrets.py --env-file ../.env` all exit `0`. The three tests above the Windows count are the ones this platform gates in. |
+| surface sweep | pass | pass | **pass** | **pass**, 18 http, 7 absence probes, 19 cli | run from `harness/sweep.py` on this host: 18 published HTTP surfaces, 19 CLI verbs, and **7 absence probes all answering `404`**, so nothing is half wired. The HTTP codes are the deliberate set, `200`, `204`, `401`, `404`, `409` and `422` **Linux**: the same numbers, 18 published HTTP surfaces, 19 CLI verbs and **7 absence probes all answering `404`**, with every HTTP code inside the deliberate set. **Two preconditions the harness does not state and the next host will hit**: the run-dependent surfaces are only swept when a run already exists, so a sweep against an empty database records 15 and 16 instead, and minting on the loopback transport answers `503`, which is correct and outside the set. |
+| A: the built head | pass | pass, 4 of 4 | **pass**, 4 of 4 | **pass**, 4 of 4 |  |
+| B: the consolidation | pass | pass, 10 of 10 | **pass**, 10 of 10 | **pass**, 10 of 10 | a `WAL` row never checkpointed, interrupted staging debris, and all three refusals naming what they found |
+| C: the service group | pass | pass, 13 of 13 | **pass**, 13 of 13 | **pass**, 13 of 13 | `C13` ran here for the first time: the tailnet address held and loopback free, which is the multi-host bind check |
+| D: read-only commands | pass | pass, 5 of 5 | **pass**, 5 of 5 | **pass**, 5 of 5 | `D5` failed once here on a live port file this pass had left behind, which is the harness's fault and is recorded as one. |
+| CU: computer use | pass | pass, 4 of 4 | **pass**, 4 of 4 | **pass**, 4 of 4 | `CU2` failed and was fixed here: `/api/health` reported the module usable while the owner had disabled it, because it read installation rather than the setting the `CU2` fix holds on this OS: the setting drives both surfaces. |
+| E: provider onboarding | pass | pass, 6 of 6 | **pass**, 6 of 6 | **pass**, 6 of 6 | `vadgr model default` takes the provider-qualified id; the bare id is refused by name. |
+| F: runs and the watcher | pass | pass, 9 of 9 | **pass**, 9 of 9 | **pass**, 9 of 9 | `F7` and `F8` both failed first and both were closed: `resume` now prints its row, and `F8`'s failure was an inherited ignore-Ctrl+C bit in the harness, not the product **Linux**: all nine. `F8` passes exactly as written, `Detached. The run continues.` and exit `130`. `F7` was recorded `partial` first and then driven properly: its subject must be a failed run **that entered the loop**, which the cell text did not say and both earlier hosts had silently substituted. The cell is corrected and `F17` records it. |
+| R: interruption and recovery | pass | pass, 4 of 4 | **pass**, 4 of 4 | **pass**, 4 of 4 | the journal carries no marker for a resumed segment, and `R3` has no CLI verb that attaches a watcher to an existing run **Linux confirms both Windows observations on a second OS**: the journal carries no resumed marker, and the `R1` watcher prints the errored-stream sibling line rather than the one the cell quotes. |
+| G: pairing and devices | pass | pass, 8 of 8 | **pass**, 8 of 8 | **pass**, 8 of 8 | `G7` recorded what the true code answers after the cap: `401`, not `429`. |
+| W: the sockets | pass | pass, 4 of 4 | **pass**, 4 of 4 | **pass**, 4 of 4 | frame counts identical to Windows on both routes. |
+| S: source enforcement | pass | pass, 1 of 1 | **pass**, 1 of 1 | **pass**, 1 of 1, and `403` reached here | the token gate answers before the source gate; see the cell. |
+| O: OAuth and the callback | pass | pass, 6 of 6 | **pass**, 6 of 6 | **pass**, 6 of 6 | the owner supplied the account and the key during this pass. **Linux**: `O5` must not follow `O3` immediately, because `O3`'s callback leaves `1455` in `FIN-WAIT-2` and `hold_port.py` deliberately omits `SO_REUSEADDR`. |
+| H: the phone | pass | pass, 5 of 5 | **pass**, 5 of 5 | **pass**, 5 of 5 | a person held the handset on both hosts: pair, machine, run, read back, unpair. Two findings, both mobile's and both open: `F15`, a typed pairing never learns the machine's name, and `F16`, a sheet watching a run live keeps what the socket gave it when the socket closes, so a finished run is drawn with no result |
+| I: the installer and update | **pass, and worth re-reading** | 5 of 6, `I6` fails | **5 of 6**, `I6` fails | **5 of 6**, `I6` fails | **The two results are different depths of one cell, not a disagreement about the product.** The WSL row carries the word `pass` and no evidence. On Windows an update that pulls nothing behaves the same way and passes: the checkout is ahead of `master`, the pull is a no-op, and the rebuild builds the `0.4.9` tree. The layout failure appears only when the update **actually pulls**, which was forced here by resetting the checkout behind `master`. Both `I6` defects are deterministic against today's `master`, so the WSL pass most likely took the no-op path the cell does not intend | in a container with no toolchain and no product **Linux reaches the same verdict as Windows, in `debian:bookworm-slim` under podman**: the `a83ff1c` toolchain fix is confirmed here including its counterfactual, and `vadgr update` still cannot build a `master` that carries the pre-cutover layout. |
+| J: the platform state root | pass | pass, 1 of 1 | **pass**, 1 of 1 | **pass**, 1 of 1 | no overrides at all, state under the platform root. the platform root already holds directories from before this pass, so the cell's own guard applies. It uncovered a second state-root resolver that disagrees with `config::state_root` **Linux was not blocked**: `~/.local/state/vadgr` was genuinely absent, and `vadgr.db` and `credentials/` landed directly under it, which is the same placement Windows recorded. |
+| **overall** | pass | 85 of 86, 1 owed by the default branch | **pass**, 85 of 86, 1 owed by the default branch | **85 of 86**, 1 owed by the default branch | the weakest part actually driven on this OS, which is every part. **Windows**: every part driven, and the repeatability check run as three concurrent passes with their own port, database and daemon. The one cell not passing is `I6`, and only half of it: its installer defect is fixed and re-driven from nothing, while `vadgr update` still cannot build a `master` that carries the pre-cutover layout, which resolves when this release lands there. **Six defects were found and fixed on this operating system**, each with a test that fails without it and each verified by re-running the cell that found it. **Three findings were retracted as harness faults rather than left standing**: `vadgr start` never hung, the provider never rejected our identity, and `F8`'s watcher always had its handler. Each retraction is recorded where the claim was made **Linux**: every part driven on a native host. The two cells not passing are `I6`, owed by the default branch and identical to the Windows verdict, and `F7`, which is `partial` because its subject cannot exist on this host as the cell describes it. **No product defect was found on Linux this pass**, and three Windows observations were independently confirmed here rather than taken on trust. |
 Paths, process supervision and access control are platform-shaped. **No supported
 operating system is `Not-Needed` for final acceptance.**
 
@@ -868,6 +881,40 @@ Found while standing up an isolated root for the `R` group, where the
 environment variable was omitted. It is recorded rather than fixed because the
 fix is a product decision about what a run reports when its tool surface is
 empty, and no cell in this runbook covers it.
+
+### F20 (open, and it is the runbook's): the default-model check accepts a model that cannot tool call
+
+The billed-model table names the daemon's own `vadgr model default` check as the
+arbiter for selecting the run model: "the model this table names is the one that
+check accepts on the execution date". On macOS that produced a model the run
+groups cannot use.
+
+`gemini-2.5-flash`, which the table names, was refused outright by the check:
+`provider response is invalid: candidate has no parts`. Working down the catalog,
+`gemini-2.5-flash-lite` was **accepted**. The first `H3` run on it then failed
+`NO_ACTION_TAKEN` in four seconds, with a live handset watching and nothing to
+see. The journal says why: the model emitted text imitating a tool call,
+
+```text
+call
+print(default_api.computer-use__screenshot())
+```
+
+with `stop_reason: end_turn` and no tool-use block at all.
+
+The check validates that a generation comes back, not that the model speaks the
+function-calling protocol the loop requires. A model can therefore pass selection
+and be unable to drive a single cell in `F`, `R` or `H`.
+
+Nothing was changed in the product for this. The runbook's own escalation rule
+covers the situation once it is noticed: a capability failure ends the group, and
+this pass moved to `gemini-3.7-flash`, which the check accepts and which does
+call tools. `E2`'s boundary records the accepted id, as the table requires.
+
+What the runbook should say, and does not yet, is that the check is **necessary
+and not sufficient**: the selected model must also be seen to call a tool before
+the run groups are driven. The cheapest way to see it is the first `F1`, which is
+one screenshot call and reaches a terminal state in seconds.
 
 ## Surface coverage - **every published endpoint, with what it returned**
 
