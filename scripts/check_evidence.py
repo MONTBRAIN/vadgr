@@ -9,6 +9,14 @@ else, and it reached the default branch inside a pull request nobody read it in.
 Evidence is the record a release rests on. It gets its own change, so a reviewer
 looking at a diff of evidence is looking at evidence.
 
+**Evidence reaches the default branch only through a pull request.** The rule
+was written, indexed as rule 8 of every runbook, and broken once per release for
+three releases running by a host that had it on screen: the `0.4.7`, `0.4.8` and
+`0.4.9` macOS boundaries were each pushed straight to the docs default branch.
+A direct push has no diff anyone read and no checks. The tell is the subject: a
+squash merge carries `(#NN)`, a merge commit has two parents, and a direct push
+has neither.
+
 **Every boundary names the commit it was produced from.** A directory of results
 that cannot say which build produced them is not evidence: three fixes landed
 mid-pass in `vadgr 0.4.9`, the binaries moved three commits, and no cell in that
@@ -16,9 +24,15 @@ pass could name the artifact behind it. The whole pass was withdrawn.
 
     python3 scripts/check_evidence.py [--range <start>..<end>]
 
-With no range it reads the working tree and the index. It prints one line per
-check it performs, because a coverage list restated in prose is the fact that
-drifts.
+With no range it reads the working tree, the index, **and the branch's own
+commits since it left the default branch**. The branch is what a reviewer opens
+in a pull request, so the branch is the change. Reading the working tree alone
+left a hole this gate fell straight through: an `e2e_evidence/` commit and a
+planning-document commit sat side by side on one branch, the working tree was
+clean, and the gate printed `ok`.
+
+It prints one line per check it performs, because a coverage list restated in
+prose is the fact that drifts.
 """
 
 from __future__ import annotations
@@ -39,6 +53,40 @@ def git(*args: str) -> str:
         ["git", *args], cwd=ROOT, capture_output=True, text=True, timeout=60
     )
     return result.stdout
+
+
+def default_branch() -> str | None:
+    """The branch this one was cut from, or None when it cannot be told.
+
+    A gate that guesses wrong fires on correct work, which teaches everyone to
+    ignore it. So when nothing answers, the branch half is skipped and says so
+    rather than inventing a base to diff against.
+    """
+    head = git("symbolic-ref", "--quiet", "--short", "refs/remotes/origin/HEAD").strip()
+    if head.startswith("origin/"):
+        return head[len("origin/") :]
+    for name in ("master", "main"):
+        for ref in (f"refs/heads/{name}", f"refs/remotes/origin/{name}"):
+            if git("rev-parse", "--verify", "--quiet", ref).strip():
+                return name
+    return None
+
+
+def branch_paths() -> tuple[list[str], str]:
+    """What this branch changed since it left the default branch."""
+    base_name = default_branch()
+    if not base_name:
+        return [], "no default branch to compare against, so only the working tree"
+    current = git("rev-parse", "--abbrev-ref", "HEAD").strip()
+    if current == base_name:
+        return [], f"on {base_name} itself, so only the working tree"
+    base = git("merge-base", base_name, "HEAD").strip()
+    if not base:
+        return [], f"no common commit with {base_name}, so only the working tree"
+    out = git("diff", "--name-only", f"{base}..HEAD")
+    return [line.strip() for line in out.splitlines() if line.strip()], (
+        f"the working tree and this branch's commits since {base_name}"
+    )
 
 
 def changed_paths(rev_range: str | None) -> list[str]:
@@ -107,17 +155,71 @@ def every_boundary_names_its_build(paths: list[str]) -> list[str]:
     return problems
 
 
+SQUASHED = re.compile(r"\(#\d+\)\s*$")
+
+
+def evidence_arrived_through_a_pull_request(rev_range: str) -> list[str]:
+    """No commit touching evidence entered this range by a direct push.
+
+    GitHub leaves a mark either way. A squash merge appends `(#NN)` to the
+    subject and a merge commit has two parents; a push straight to the branch
+    has neither. Anything with neither was written onto the branch by a person
+    or an agent with no diff anyone read.
+
+    **It reads a range, never a whole branch**, because the rule has a start
+    date and the history before it does not. Pointed at all of `master` this
+    fires eighteen times on work nobody can now fix, which is the way to make a
+    gate ignored. CI gives it exactly what a push introduced.
+    """
+    out = git(
+        "log", "--no-merges", "--format=%H%x1f%P%x1f%s", rev_range, "--", EVIDENCE
+    )
+    problems = []
+    for line in out.splitlines():
+        if not line.strip():
+            continue
+        sha, parents, subject = line.split("\x1f", 2)
+        if len(parents.split()) > 1:
+            continue
+        if SQUASHED.search(subject):
+            continue
+        problems.append(
+            f"{sha[:8]} pushed evidence with no pull request: "
+            f"{subject!r}. Evidence goes to the minor's evidence branch and "
+            "reaches the default branch by merging that branch's pull request."
+        )
+    return problems
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--range", dest="rev_range", default=None)
+    parser.add_argument(
+        "--require-pull-request",
+        dest="require_pull_request",
+        action="store_true",
+        help="also check that evidence in --range arrived through a pull request",
+    )
     args = parser.parse_args()
 
     problems = []
     paths = changed_paths(args.rev_range)
+    if args.rev_range:
+        scope = f"the range {args.rev_range}"
+    else:
+        committed, scope = branch_paths()
+        paths = sorted(set(paths) | set(committed))
+    print(f"  read  {scope}")
     print("  ok    evidence and documents do not ride in one change")
     problems += evidence_travels_alone(paths)
     print("  ok    every pass this change touches names the commit it came from")
     problems += every_boundary_names_its_build(paths)
+    if args.require_pull_request:
+        if not args.rev_range:
+            print("  ERROR --require-pull-request needs --range")
+            return 2
+        print("  ok    evidence in this range arrived through a pull request")
+        problems += evidence_arrived_through_a_pull_request(args.rev_range)
 
     print()
     if problems:
