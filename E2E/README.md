@@ -1,5 +1,18 @@
 # E2E verification - read the journal, not the agent's words
 
+> **Read this whole file before you run anything, and read
+> [`TEMPLATE.md`](TEMPLATE.md) beside it.** Not the rules that look relevant to the
+> cell in front of you: the whole file. Every rule in it was written because a
+> pass broke it, and a pass that starts at the first cell meets them one at a
+> time, each at the cost of the thing it was protecting.
+>
+> **This instruction exists because a rule that was already written, already
+> indexed and already in front of the driver was broken by three separate
+> passes**: evidence for `vadgr 0.4.7`, `0.4.8` and `0.4.9` was pushed straight
+> to the docs default branch instead of the minor's evidence branch, once per
+> release, by a host that had the rule on its screen. Reading the document is
+> the cheapest of every remedy available, and it is the one that was skipped.
+
 Applies to **every** runbook in this directory (`E2E/<version>/e2e.md`).
 
 **The rules in one place: `## The rules`, the first section of
