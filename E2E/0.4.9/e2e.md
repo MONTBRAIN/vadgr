@@ -15,7 +15,7 @@ side-by-side releases keeps every run it made.
 > release reaches the default branch. The gate ran locally: rust 317, scripts 37,
 > with `fmt` and `clippy` at exit `0`. A real handset drove `H1` to `H5` over the
 > tailnet, and `S1` reached `403 SOURCE_NOT_AUTHORIZED`, which native Windows
-> recorded as unreachable from that host. One finding, `F15`, records that the
+> recorded as unreachable from that host. One finding, `F20`, records that the
 > daemon's own default-model check accepts a model that cannot tool call.
 >
 > **The earlier status: WSL passed, 86 of 86 cells, and native Windows passed 85 of 86,
@@ -494,7 +494,7 @@ the weakest of the parts actually driven on that OS.
 
 | part | WSL | Linux | Windows native | macOS | notes |
 |---|---|---|---|---|---|
-| automated gate | pass | pass | **pass** | **pass**, run locally: rust 317, scripts 37, fmt and clippy at 0 | run locally on this host: **311 tests**, `cargo fmt --check` and `cargo clippy --release --all-targets -- -D warnings` both at exit `0`. **It is not an e2e pass and does not stand in for one**: the parts below are what was driven **Linux**: run locally on this host at the head under test, **314 tests**, 0 failed, with `cargo fmt --check` and `cargo clippy --release --all-targets -- -D warnings` both at exit `0`, and `check_branch_point.py`, `check_evidence.py`, `check_no_ai_attribution.py` and `check_no_secrets.py --env-file ../.env` all exit `0`. The three tests above the Windows count are the ones this platform gates in. |
+| automated gate | pass | pass | **pass** | **pass**, run locally: rust 317, scripts 37, fmt and clippy at 0 | run locally on this host: **311 tests**, `cargo fmt --check` and `cargo clippy --release --all-targets -- -D warnings` both at exit `0`. **It is not an e2e pass and does not stand in for one**: the parts below are what was driven **Linux**: run locally on this host, **rust 314**, 0 failed, and **scripts 37**, 2 skipped, with `cargo fmt --check` and `cargo clippy --release --all-targets -- -D warnings` both at exit `0` and each check script exiting `0` when invoked directly. The scripts figure agrees with macOS exactly. The three rust tests between 314 here and 317 on macOS are the ones that platform gates in, the same gap this family saw at `0.4.8`. |
 | surface sweep | pass | pass | **pass** | **pass**, 18 http, 7 absence probes, 19 cli | run from `harness/sweep.py` on this host: 18 published HTTP surfaces, 19 CLI verbs, and **7 absence probes all answering `404`**, so nothing is half wired. The HTTP codes are the deliberate set, `200`, `204`, `401`, `404`, `409` and `422` **Linux**: the same numbers, 18 published HTTP surfaces, 19 CLI verbs and **7 absence probes all answering `404`**, with every HTTP code inside the deliberate set. **Two preconditions the harness does not state and the next host will hit**: the run-dependent surfaces are only swept when a run already exists, so a sweep against an empty database records 15 and 16 instead, and minting on the loopback transport answers `503`, which is correct and outside the set. |
 | A: the built head | pass | pass, 4 of 4 | **pass**, 4 of 4 | **pass**, 4 of 4 |  |
 | B: the consolidation | pass | pass, 10 of 10 | **pass**, 10 of 10 | **pass**, 10 of 10 | a `WAL` row never checkpointed, interrupted staging debris, and all three refusals naming what they found |
@@ -915,6 +915,32 @@ What the runbook should say, and does not yet, is that the check is **necessary
 and not sufficient**: the selected model must also be seen to call a tool before
 the run groups are driven. The cheapest way to see it is the first `F1`, which is
 one screenshot call and reaches a terminal state in seconds.
+
+**Read again on native Linux, and the result is worth having because it is not a
+confirmation.** The gap in the check is real and is not platform-shaped: it
+validates that a generation comes back, which is code every operating system
+runs. What does not carry across is the model. On Linux the check accepted all
+three ids this finding names, `gemini-2.5-flash`, `gemini-2.5-flash-lite` and
+`gemini-3.7-flash`, including the one macOS found accepted and unusable, and
+`gemini-2.5-flash`, which macOS could not select at all, was accepted here and
+drove every run group. Driven deliberately on `gemini-2.5-flash-lite`, the model
+macOS recorded as unable to speak the protocol, a task requiring a tool call
+**succeeded on Linux**: the journal holds a real tool call, the shell ran, and
+the nonce is in the record.
+
+So the finding stands and its severity is unchanged, but its shape is now
+clearer. **The check is loose everywhere; which model falls through it is a
+property of the provider on the day, not of the host.** A runbook that names one
+model id as the arbiter's expected answer will keep producing this, and the two
+hosts disagreeing about the same three ids on consecutive days is the evidence
+for that.
+
+**One thing Linux ruled out rather than assumed.** This host saw a run fail
+`NO_ACTION_TAKEN` in about two seconds and it was **not** this finding: it was a
+daemon started without its computer-use runtime, so no tools were registered at
+all, which is `F19`. The two present identically to a CLI user. Any host meeting
+`NO_ACTION_TAKEN` should check the daemon log for `vadgr-cua was not found`
+before concluding the model cannot tool call.
 
 ## Surface coverage - **every published endpoint, with what it returned**
 
