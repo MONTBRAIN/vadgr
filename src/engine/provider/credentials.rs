@@ -292,7 +292,7 @@ fn store_error(error: impl std::fmt::Display) -> ProviderError {
 }
 
 #[cfg(unix)]
-fn create_secret_directory(path: &Path) -> std::io::Result<()> {
+pub(crate) fn create_secret_directory(path: &Path) -> std::io::Result<()> {
     use std::os::unix::fs::{DirBuilderExt, PermissionsExt};
 
     std::fs::DirBuilder::new()
@@ -303,17 +303,17 @@ fn create_secret_directory(path: &Path) -> std::io::Result<()> {
 }
 
 #[cfg(all(not(unix), not(windows)))]
-fn create_secret_directory(path: &Path) -> std::io::Result<()> {
+pub(crate) fn create_secret_directory(path: &Path) -> std::io::Result<()> {
     std::fs::create_dir_all(path)
 }
 
 #[cfg(windows)]
-fn create_secret_directory(path: &Path) -> std::io::Result<()> {
+pub(crate) fn create_secret_directory(path: &Path) -> std::io::Result<()> {
     windows_security::create_directory(path)
 }
 
 #[cfg(unix)]
-fn create_secret_file(path: &Path) -> std::io::Result<File> {
+pub(crate) fn create_secret_file(path: &Path) -> std::io::Result<File> {
     use std::os::unix::fs::OpenOptionsExt;
 
     OpenOptions::new()
@@ -325,7 +325,7 @@ fn create_secret_file(path: &Path) -> std::io::Result<File> {
 }
 
 #[cfg(all(not(unix), not(windows)))]
-fn create_secret_file(path: &Path) -> std::io::Result<File> {
+pub(crate) fn create_secret_file(path: &Path) -> std::io::Result<File> {
     OpenOptions::new()
         .read(true)
         .write(true)
@@ -334,7 +334,7 @@ fn create_secret_file(path: &Path) -> std::io::Result<File> {
 }
 
 #[cfg(windows)]
-fn create_secret_file(path: &Path) -> std::io::Result<File> {
+pub(crate) fn create_secret_file(path: &Path) -> std::io::Result<File> {
     windows_security::create_file(path)
 }
 
@@ -358,12 +358,12 @@ fn validate_secret_directory(path: &Path) -> std::io::Result<()> {
 }
 
 #[cfg(unix)]
-fn validate_secret_file(path: &Path) -> std::io::Result<()> {
+pub(crate) fn validate_secret_file(path: &Path) -> std::io::Result<()> {
     validate_unix_node(path, false, 0o600)
 }
 
 #[cfg(all(not(unix), not(windows)))]
-fn validate_secret_file(path: &Path) -> std::io::Result<()> {
+pub(crate) fn validate_secret_file(path: &Path) -> std::io::Result<()> {
     let metadata = std::fs::symlink_metadata(path)?;
     if metadata.file_type().is_symlink() || !metadata.is_file() {
         return Err(std::io::Error::other("credential file is unsafe"));
@@ -372,7 +372,7 @@ fn validate_secret_file(path: &Path) -> std::io::Result<()> {
 }
 
 #[cfg(windows)]
-fn validate_secret_file(path: &Path) -> std::io::Result<()> {
+pub(crate) fn validate_secret_file(path: &Path) -> std::io::Result<()> {
     windows_security::validate(path, false)
 }
 

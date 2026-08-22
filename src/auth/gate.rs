@@ -1,38 +1,43 @@
-//! The gates, ported from `api/auth/middleware.py`.
+//! The gates, ported from the Python daemon's middleware.
 //!
-//! The class there is called `TwoGateMiddleware` and it enforces **three**
-//! numbered gates: 0 loopback, 1 network authorization, 2 token. The name is
-//! the documents' ("the two-gate middleware") and the numbering is the code's;
-//! this port keeps the behaviour of the code and does not reconcile the naming,
-//! because a rename is not what this release is for.
+//! The class there was called `TwoGateMiddleware` and it enforces **three**
+//! numbered gates: 0 local bypass, 1 network authorization, 2 token. The name
+//! is the documents' ("the two-gate middleware") and the numbering is the
+//! code's.
 //!
-//! Order is the security property, and the three public paths bypass all of it.
+//! Order is the security property. What the gate reads is the `Peer` stamp
+//! the accepting transport put on the request, never a socket address: gate 0
+//! and gate 1 are questions the registry dispatches to the transport that
+//! stamped it, so no branch here names one. A request with no stamp, or a
+//! stamp naming a transport this build does not have, is refused - the only
+//! safe reading of "I do not know who this is" is not "this is the owner's
+//! own terminal".
+//!
 //! The helpers here are shared with the websocket handler. That handler owns
 //! admission because an accepted socket can return the published close code.
 
 use crate::error::ApiError;
 use crate::state::AppState;
-use axum::extract::{ConnectInfo, State};
+use crate::transport::{Gate1, Peer};
+use axum::extract::State;
 use axum::http::{HeaderMap, Request};
 use axum::middleware::Next;
 use axum::response::{IntoResponse, Response};
-use std::net::SocketAddr;
 
-/// `/api/health` is the phone's post-pair connectivity probe and the two
-/// pairing routes are what a phone has before it has a token. They bypass every
-/// gate, which is why the set is short and stated in one place.
-const PUBLIC_PATHS: [&str; 3] = ["/api/health", "/api/auth/pair", "/api/auth/claim"];
+/// Answerable with no token on every transport: claim is how a token comes to
+/// exist, health is the phone's connectivity probe, and neither hands
+/// anything out.
+const UNAUTHENTICATED_PATHS: [&str; 2] = ["/api/health", "/api/auth/claim"];
+
+/// Answerable with no token, but only from an authorized peer. Minting is an
+/// owner action taken on the machine, and the response body is a credential:
+/// an unbound peer admitted to it would mint a code of its own, superseding
+/// the owner's, and read the replacement out of the response.
+const PEER_ONLY_PATHS: [&str; 1] = ["/api/auth/pair"];
 
 fn is_websocket_path(path: &str) -> bool {
     (path.starts_with("/api/runs/") && path.ends_with("/stream"))
         || path.starts_with("/api/ws/runs/")
-}
-
-pub fn is_loopback(host: &str) -> bool {
-    host.parse::<std::net::IpAddr>()
-        .is_ok_and(|address| address.is_loopback())
-        || host.eq_ignore_ascii_case("localhost")
-        || host.eq_ignore_ascii_case("testclient")
 }
 
 /// The bearer token, however the client spelt the scheme. The scheme is
@@ -80,12 +85,7 @@ pub fn authenticate_device(
     Ok(Some(device_id))
 }
 
-pub async fn gate<B>(
-    State(state): State<AppState>,
-    ConnectInfo(peer): ConnectInfo<SocketAddr>,
-    req: Request<B>,
-    next: Next,
-) -> Response
+pub async fn gate<B>(State(state): State<AppState>, req: Request<B>, next: Next) -> Response
 where
     B: Into<axum::body::Body>,
 {
@@ -93,21 +93,41 @@ where
     let (parts, body) = req.into_parts();
     let req = Request::from_parts(parts, body.into());
 
-    if PUBLIC_PATHS.contains(&path.as_str()) || is_websocket_path(&path) {
+    // The socket routes own their admission, because an accepted socket can
+    // answer with the published close code; the unauthenticated pair must
+    // keep answering a phone whose pairing this machine has forgotten.
+    if UNAUTHENTICATED_PATHS.contains(&path.as_str()) || is_websocket_path(&path) {
         return next.run(req).await;
     }
 
-    let host = peer.ip().to_string();
+    // No stamp, or a stamp from a transport this build does not have, is a
+    // wiring defect and is refused rather than assumed to be loopback.
+    let Some(peer) = req.extensions().get::<Peer>().cloned() else {
+        return ApiError::source_not_authorized().into_response();
+    };
 
-    // Gate 0: loopback bypass.
-    if is_loopback(&host) {
+    // Gate 0: the transport's own answer about its peers.
+    if state.transports.grants_local_bypass(&peer) {
         return next.run(req).await;
     }
 
     // Gate 1: network authorization, before any token work. A source that is
-    // not a peer on this transport never reaches the token comparison at all.
-    if !state.transport.is_authorized_source(&host) {
+    // not a peer on the transport it arrived over never reaches the token
+    // comparison at all.
+    if !state.transports.authorizes(
+        &peer,
+        Gate1 {
+            db: &state.db,
+            pairing: &state.pairing,
+        },
+    ) {
         return ApiError::source_not_authorized().into_response();
+    }
+
+    // Peer-only paths take gate 0 and gate 1 and skip gate 2: minting needs
+    // no token, and it needs an authorized peer.
+    if PEER_ONLY_PATHS.contains(&path.as_str()) {
+        return next.run(req).await;
     }
 
     // Gate 2: token.

@@ -109,7 +109,7 @@ stops watching and leaves the run going.
 ```mermaid
 graph LR
     Owner((Owner)) -->|on the box| VCLI[vadgr CLI]
-    Phone((Phone)) -->|over the tailnet| API
+    Phone((Phone)) -->|built-in transport or Tailscale| API
     VCLI -->|REST /api| API[The daemon<br/>the same binary, serving]
     VCLI <-->|WebSocket| API
     API -->|drives| Loop[The agent loop<br/>and its MCP host]
@@ -134,6 +134,42 @@ owns the MCP host and the cua connection, and writes an append-only journal per
 run so a killed machine resumes rather than restarts. Its state lives below the
 platform's local-state directory, never below the directory it was started from.
 
+### Reaching it from the phone
+
+The daemon serves every transport it supports and reports the list; the phone
+picks between them at pairing. Today that list is two entries on every machine:
+
+- **Built-in.** An [iroh](https://www.iroh.computer/) endpoint inside the
+  binary. Nothing installs it and nothing switches it on. The machine's
+  identity is a public key, a relay introduces the two ends, and most
+  connections go direct after that. Traffic is end-to-end encrypted between
+  the two endpoint keys; a relay forwards sealed packets it cannot read.
+- **Tailscale.** The tailnet adapter, as before. Whether it works is
+  discovered when it is used: if tailscaled is not running here, pairing says
+  so in that transport's own words and the built-in transport carries the
+  phone.
+
+Run `vadgr pair` and scan the QR. The code is one-time and valid for five
+minutes, and every route needs both an authorized peer and the device token.
+
+Two settings exist, and neither is needed for normal use:
+
+- `VADGR_IROH_RELAYS` points the built-in transport's rendezvous somewhere
+  else: a comma-separated list of `https` relay URLs for self-hosted
+  [iroh-relay](https://github.com/n0-computer/iroh) instances, or `none` for
+  a directly reachable machine. Unset means n0's public relays, which are
+  fine for development and testing; they see connection metadata (addresses,
+  timing, volume), never payloads. `none` is deliberately not the default:
+  it fails on exactly the networks strangers bring, and the app cannot tell
+  "machine off" from "this NAT pair cannot meet".
+- `VADGR_TRANSPORT=loopback` serves nothing off this machine. It is the mode
+  tests and CI run in, it takes no other value, and removing it restores the
+  default: the machine serves what it supports.
+
+The endpoint's secret key lives at `credentials/iroh_secret_key` under the
+state root, owner-only. Keep it: a new key is a new machine as far as every
+paired phone is concerned.
+
 ### Desktop Automation
 
 The desktop-automation MCP server lives in its own repository: **[vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use)**. Install with `pip install vadgr-computer-use`. It gives agents eyes and hands: take a screenshot, reason, click or type, repeat. On WSL2 the package manages its own Windows-side bridge daemon automatically.
@@ -153,7 +189,7 @@ Vadgr/
 │   ├── engine/            # The loop, its journal, providers and the MCP host
 │   ├── auth/              # Pairing and the two gates
 │   ├── db/                # SQLite schema and repositories
-│   └── transport/         # Loopback and Tailscale adapters
+│   └── transport/         # The registry: loopback, the built-in iroh transport, Tailscale
 ├── tests/                 # Integration tests
 ├── E2E/                   # One runbook per release, and its harness
 ├── install.sh, install.ps1    # The installer

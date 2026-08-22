@@ -99,3 +99,56 @@ pub fn delete(db: &Db, device_id: &str) -> rusqlite::Result<bool> {
         Ok(n > 0)
     })
 }
+
+/// Bind a transport-proven peer identity to a device, in one transaction.
+///
+/// **The newest claim owns the identity**: any other row holding
+/// `(transport, peer_id)` goes first, because one phone pairing twice
+/// presents the same proven identity both times and must not fail on the
+/// primary key. Taking someone else's binding requires their secret key,
+/// which is what makes the take safe.
+pub fn bind_peer(db: &Db, device_id: &str, transport: &str, peer_id: &str) -> rusqlite::Result<()> {
+    db.with_mut(|c| {
+        let tx = c.transaction()?;
+        tx.execute(
+            "DELETE FROM device_peers WHERE transport = ?1 AND peer_id = ?2",
+            rusqlite::params![transport, peer_id],
+        )?;
+        tx.execute(
+            "INSERT INTO device_peers (device_id, transport, peer_id) VALUES (?1, ?2, ?3)",
+            rusqlite::params![device_id, transport, peer_id],
+        )?;
+        tx.commit()
+    })
+}
+
+/// The device a peer identity is bound to on one transport, or `None`. Read
+/// at connection accept, per stream and at gate 1, which is what makes
+/// revocation cut the network path: the row goes with the device row.
+pub fn peer_device(db: &Db, transport: &str, peer_id: &str) -> rusqlite::Result<Option<String>> {
+    db.with(|c| {
+        let mut stmt =
+            c.prepare("SELECT device_id FROM device_peers WHERE transport = ?1 AND peer_id = ?2")?;
+        let mut rows = stmt.query_map(rusqlite::params![transport, peer_id], |r| {
+            r.get::<_, String>("device_id")
+        })?;
+        match rows.next() {
+            Some(v) => Ok(Some(v?)),
+            None => Ok(None),
+        }
+    })
+}
+
+/// Whether any device holds a binding on one transport. The built-in
+/// transport's accept loop asks this to refuse, before any handshake, on a
+/// machine that could admit nobody.
+pub fn any_peer_bound(db: &Db, transport: &str) -> rusqlite::Result<bool> {
+    db.with(|c| {
+        let count: i64 = c.query_row(
+            "SELECT count(*) FROM device_peers WHERE transport = ?1",
+            [transport],
+            |r| r.get(0),
+        )?;
+        Ok(count > 0)
+    })
+}

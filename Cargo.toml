@@ -1,6 +1,6 @@
 [package]
 name = "vadgr-daemon"
-version = "0.4.9"
+version = "0.4.10"
 edition = "2024"
 description = "The vadgr machine daemon"
 
@@ -73,6 +73,18 @@ tokio-util = "0.7"
 base64 = "0.23"
 directories = "6"
 url = "2.5"
+# The built-in transport. Pinned at or above 1.0.2, the release that closed a
+# pre-authentication denial of service in the relay parser; an iroh release
+# note is read on every bump.
+# tls-aws-lc-rs instead of the default tls-ring: the rest of this tree
+# (reqwest through hyper-rustls) already compiles rustls with aws-lc-rs, and
+# rustls refuses to pick a process provider when two are enabled.
+iroh = { version = ">=1.0.2, <2", default-features = false, features = ["tls-aws-lc-rs", "metrics", "portmapper", "fast-apple-datapath"] }
+# Serving axum over a QUIC stream: hyper drives one HTTP/1.1 connection per
+# accepted bidirectional stream, with upgrades so the run WebSocket rides a
+# stream like any request. hyper-util adapts tokio IO and tower services.
+hyper = { version = "1", features = ["http1", "server"] }
+hyper-util = { version = "0.1", features = ["tokio", "service"] }
 
 [target.'cfg(unix)'.dependencies]
 rustix = { version = "1.1", features = ["fs", "process"] }

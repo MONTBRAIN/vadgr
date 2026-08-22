@@ -6,7 +6,7 @@ use crate::config::Config;
 use crate::db::Db;
 use crate::engine::provider::ProviderService;
 use crate::engine::supervisor::RunSupervisor;
-use crate::transport::Transport;
+use crate::transport::Transports;
 use crate::ws::manager::ConnectionManager;
 use serde_json::Value;
 use std::sync::Arc;
@@ -16,7 +16,7 @@ use std::sync::RwLock;
 pub struct AppState {
     pub db: Db,
     pub config: Arc<Config>,
-    pub transport: Arc<dyn Transport>,
+    pub transports: Arc<Transports>,
     pub pairing: Arc<PairingStore>,
     pub ws: Arc<ConnectionManager>,
     pub providers: Arc<ProviderService>,

@@ -291,40 +291,26 @@ fn daemon_binary() -> Result<PathBuf, CliError> {
 ///
 /// **The address `vadgr start` binds and the address `vadgr pair` advertises can
 /// never be two different answers**, because both come from this crate's own
-/// transport module rather than from two separate computations.
+/// transport registry rather than from two separate computations: the union of
+/// every supported transport's bind hosts. A transport that is down listens on
+/// nothing and says so through its own reach, so it never fails the probe for
+/// the others; the built-in transport binds its own UDP socket and contributes
+/// no host here.
 ///
 /// Computed here rather than left to the child, because `start` writes a pid
-/// file and prints success, and it must know the address resolves before it does
-/// either. A transport that is down falls back to loopback loudly: the CLI, runs
-/// and the journal are all loopback clients, and a tailnet outage should not
-/// stop someone using their own machine.
-fn resolve_bind_hosts() -> Vec<String> {
-    let name = std::env::var("VADGR_TRANSPORT").unwrap_or_else(|_| "loopback".to_owned());
-    let transport = match vadgr_daemon::transport::create(&name) {
-        Ok(t) => t,
-        Err(error) => {
-            anstream::println!(
-                "{}",
-                output::warning(&format!(
-                    "{error} Binding 127.0.0.1 only; pairing will refuse."
-                ))
-            );
-            return vec!["127.0.0.1".to_owned()];
-        }
-    };
-    match transport.bind_host() {
-        Ok(primary) if primary == "127.0.0.1" => vec![primary],
-        Ok(primary) => vec![primary, "127.0.0.1".to_owned()],
-        Err(error) => {
-            anstream::println!(
-                "{}",
-                output::warning(&format!(
-                    "{error} Binding 127.0.0.1 only; pairing will refuse."
-                ))
-            );
-            vec!["127.0.0.1".to_owned()]
-        }
+/// file and prints success, and it must know the address resolves before it
+/// does either. A refused configuration (an illegal `VADGR_TRANSPORT` value,
+/// a malformed relay list) stops `start` before anything spawns, with the
+/// daemon's own boot refusal as the message.
+fn resolve_bind_hosts() -> Result<Vec<String>, CliError> {
+    let config = vadgr_daemon::config::Config::from_env()
+        .map_err(|error| CliError::Failed(error.to_string()))?;
+    let registry = vadgr_daemon::transport::Transports::from_config(&config, config.port, None);
+    let mut hosts = registry.bind_hosts();
+    if !hosts.iter().any(|h| h == "127.0.0.1") {
+        hosts.push("127.0.0.1".to_owned());
     }
+    Ok(hosts)
 }
 
 pub async fn start(api_port: Option<u16>) -> Result<(), CliError> {
@@ -342,7 +328,7 @@ pub async fn start(api_port: Option<u16>) -> Result<(), CliError> {
 
     // The hosts come first because the port decision depends on them: the search
     // must try to bind exactly what the daemon will bind.
-    let bind_hosts = resolve_bind_hosts();
+    let bind_hosts = resolve_bind_hosts()?;
 
     // **One question, asked once.** This used to gate on `port_in_use`, which
     // answers by connecting, and then search by binding. A port that nothing is

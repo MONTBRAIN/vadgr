@@ -4,18 +4,21 @@
 //! handler would put internal event names on the phone's wire.
 //!
 //! Auth failures and missing runs accept the upgrade and then close with a
-//! stable code. A source outside the selected transport still fails at HTTP
-//! because it is not allowed to open a socket.
+//! stable code. A source that is not an authorized peer on the transport it
+//! arrived over still fails at HTTP, with no upgrade, and so does a request
+//! carrying no `Peer` stamp at all: the stamp is the only source fact read
+//! here, never a socket address.
 
 use crate::auth::gate;
 use crate::state::AppState;
+use crate::transport::{Gate1, Peer};
+use axum::Extension;
 use axum::extract::ws::{CloseFrame, Message, WebSocket, WebSocketUpgrade};
-use axum::extract::{ConnectInfo, Path, Query, State};
+use axum::extract::{Path, Query, State};
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::{IntoResponse, Response};
 use serde::Deserialize;
 use serde_json::{Value, json};
-use std::net::SocketAddr;
 use tokio::sync::broadcast;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -45,19 +48,32 @@ pub struct WsAuth {
     token: Option<String>,
 }
 
-/// On success: the owning device id, or `None` for a loopback caller.
+/// On success: the owning device id, or `None` for a local caller.
+///
+/// `peer` is the stamp the accepting transport put on the request. Absent is
+/// `Source`, a plain `403` with no upgrade: over a QUIC stream there is no
+/// socket address, and a synthesised loopback here would hand a remote peer
+/// this tokenless CLI socket in one move.
 fn authorize(
     state: &AppState,
-    peer: &SocketAddr,
+    peer: Option<&Peer>,
     token: Option<&str>,
 ) -> Result<Option<String>, AdmissionError> {
-    let host = peer.ip().to_string();
-    // Gate 0: loopback bypass - the CLI connects with no token.
-    if gate::is_loopback(&host) {
+    let Some(peer) = peer else {
+        return Err(AdmissionError::Source);
+    };
+    // Gate 0: the transport's own bypass - the CLI connects with no token.
+    if state.transports.grants_local_bypass(peer) {
         return Ok(None);
     }
     // Gate 1: network authorization, before any token work.
-    if !state.transport.is_authorized_source(&host) {
+    if !state.transports.authorizes(
+        peer,
+        Gate1 {
+            db: &state.db,
+            pairing: &state.pairing,
+        },
+    ) {
         return Err(AdmissionError::Source);
     }
     // Gate 2: token.
@@ -78,7 +94,7 @@ fn token_from(auth: &WsAuth, headers: &HeaderMap) -> Option<String> {
 /// The shared admission path: both gates, then the run lookup.
 fn admit(
     state: &AppState,
-    peer: &SocketAddr,
+    peer: Option<&Peer>,
     run_id: &str,
     token: Option<&str>,
 ) -> Result<Option<String>, AdmissionError> {
@@ -113,13 +129,13 @@ fn refusal_response(ws: WebSocketUpgrade, error: AdmissionError) -> Response {
 pub async fn run_websocket(
     ws: WebSocketUpgrade,
     State(state): State<AppState>,
-    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    peer: Option<Extension<Peer>>,
     Path(run_id): Path<String>,
     Query(auth): Query<WsAuth>,
     headers: HeaderMap,
 ) -> Response {
     let token = token_from(&auth, &headers);
-    match admit(&state, &peer, &run_id, token.as_deref()) {
+    match admit(&state, peer.as_deref(), &run_id, token.as_deref()) {
         // The CLI socket is not device-tracked, so revoking a phone never
         // touches it: loopback callers have no device to revoke.
         Ok(_) => ws.on_upgrade(move |socket| pump(socket, state, run_id, None, Framing::Raw)),
@@ -132,13 +148,13 @@ pub async fn run_websocket(
 pub async fn run_stream(
     ws: WebSocketUpgrade,
     State(state): State<AppState>,
-    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    peer: Option<Extension<Peer>>,
     Path(run_id): Path<String>,
     Query(auth): Query<WsAuth>,
     headers: HeaderMap,
 ) -> Response {
     let token = token_from(&auth, &headers);
-    match admit(&state, &peer, &run_id, token.as_deref()) {
+    match admit(&state, peer.as_deref(), &run_id, token.as_deref()) {
         Ok(device_id) => {
             ws.on_upgrade(move |socket| pump(socket, state, run_id, device_id, Framing::RunEvents))
         }

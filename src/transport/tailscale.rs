@@ -15,7 +15,9 @@
 //! and additionally verify each peer is a tailnet member via WhoIs, falling
 //! back to the 100.64.0.0/10 CGNAT range when WhoIs is unavailable.
 
-use super::Transport;
+use super::{Gate1, Peer, Reach, Scope, Transport, public_diagnostics};
+use axum::Router;
+use futures_util::future::BoxFuture;
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
 
@@ -285,11 +287,15 @@ fn in_tailnet_cgnat(ip: std::net::IpAddr) -> bool {
 
 pub struct TailscaleTransport<A: LocalApi> {
     api: A,
+    /// The daemon's port, carried so the transport's own address form is a
+    /// complete dial target: gate 1 here proves membership of a network, and
+    /// the phone still needs a socket on it.
+    port: u16,
 }
 
 impl<A: LocalApi> TailscaleTransport<A> {
-    pub fn new(api: A) -> Self {
-        Self { api }
+    pub fn new(api: A, port: u16) -> Self {
+        Self { api, port }
     }
 
     fn self_ip(&self) -> Option<String> {
@@ -319,24 +325,7 @@ impl<A: LocalApi> TailscaleTransport<A> {
     }
 }
 
-impl<A: LocalApi> Transport for TailscaleTransport<A> {
-    fn name(&self) -> &'static str {
-        "tailscale"
-    }
-
-    /// **The F2 fix, reproduced rather than the bug it replaced.** The daemon
-    /// binds what the transport advertises, so the address the QR carries is
-    /// one the daemon answers on. Unavailable is an error, not a silent fall
-    /// back to loopback: binding an interface the transport did not name is
-    /// the exact bug the fix removed.
-    fn bind_host(&self) -> anyhow::Result<String> {
-        self.self_ip().ok_or_else(|| {
-            anyhow::anyhow!(
-                "Tailscale transport unavailable: tailscaled not running or logged out."
-            )
-        })
-    }
-
+impl<A: LocalApi> TailscaleTransport<A> {
     fn advertise_host(&self) -> Option<String> {
         if !self.is_available() {
             return None;
@@ -357,29 +346,99 @@ impl<A: LocalApi> Transport for TailscaleTransport<A> {
         }
         self.self_ip().is_some()
     }
+}
 
-    fn is_authorized_source(&self, host: &str) -> bool {
+/// The words this transport gives out when it is down, in the `503`'s
+/// message, `vadgr pair`'s print and the health block alike.
+const DOWN: &str = "tailscaled is not running or logged out";
+
+impl<A: LocalApi> Transport for TailscaleTransport<A> {
+    fn name(&self) -> &'static str {
+        "tailscale"
+    }
+
+    fn label(&self) -> &'static str {
+        "Tailscale"
+    }
+
+    fn serve(
+        &self,
+        app: Router,
+        port: u16,
+        hosts: &[String],
+    ) -> BoxFuture<'static, anyhow::Result<()>> {
+        // The daemon's --host override wins where it names non-loopback
+        // addresses, which are the ones this transport's own bind_hosts
+        // produced for the port probe. **The F2 fix, kept**: the daemon binds
+        // what the transport advertises, never a silent fall back to another
+        // interface.
+        let mut mine: Vec<String> = hosts
+            .iter()
+            .filter(|h| !super::loopback::is_loopback_identity(h))
+            .cloned()
+            .collect();
+        if mine.is_empty() && hosts.is_empty() {
+            mine = self.bind_hosts();
+        }
+        Box::pin(super::serve_tcp("tailscale", app, mine, port))
+    }
+
+    /// The 100.x address when tailscaled is up, and **empty** when it is not:
+    /// a transport that is down listens on nothing rather than failing the
+    /// port probe for every other transport.
+    fn bind_hosts(&self) -> Vec<String> {
+        self.self_ip().into_iter().collect()
+    }
+
+    fn reach(&self) -> Reach {
+        match self.advertise_host() {
+            Some(host) => Reach::At(json!({ "host": host, "port": self.port })),
+            None => Reach::Unavailable(DOWN),
+        }
+    }
+
+    fn grants_local_bypass(&self) -> bool {
+        false
+    }
+
+    fn authorizes(&self, peer: &Peer, _ctx: Gate1<'_>) -> bool {
         // A string that is not an address is refused before anything is asked
         // about it: garbage never earns a WhoIs roundtrip.
-        let Ok(ip) = host.parse::<std::net::IpAddr>() else {
+        let Ok(ip) = peer.identity.parse::<std::net::IpAddr>() else {
             return false;
         };
         // Prefer an authoritative WhoIs identity check.
-        if self.api.whois(host).is_some() {
+        if self.api.whois(&peer.identity).is_some() {
             return true;
         }
         // Fall back to the CGNAT range when WhoIs is unavailable.
         in_tailnet_cgnat(ip)
     }
 
-    fn status(&self) -> Value {
+    /// An IP is asserted by whoever sent the packet, and an unverified
+    /// binding is worse than none: a tailnet claim binds nothing, exactly as
+    /// it always has.
+    fn bindable_identity(&self, _peer: &Peer) -> Option<String> {
+        None
+    }
+
+    fn diagnostics(&self, scope: Scope) -> Value {
         let available = self.is_available();
-        json!({
-            "name": self.name(),
-            "available": available,
-            "advertise_host": if available { self.advertise_host() } else { None },
-            "bind_host": self.self_ip(),
-        })
+        match scope {
+            Scope::Public => public_diagnostics(self.name(), available),
+            Scope::Full => {
+                let mut block = json!({
+                    "name": self.name(),
+                    "available": available,
+                    "advertise_host": if available { self.advertise_host() } else { None },
+                    "bind_host": self.self_ip(),
+                });
+                if !available {
+                    block["reason"] = json!(DOWN);
+                }
+                block
+            }
+        }
     }
 }
 

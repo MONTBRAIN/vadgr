@@ -152,3 +152,92 @@ fn only_the_hash_is_ever_storable_and_it_is_stable() {
         "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
     );
 }
+
+// ------------------------------------------------------ the admission window
+//
+// The built-in transport admits unbound peers only while a code is
+// outstanding, and it holds the window id a connection was admitted under.
+// The id changes on every transition of the one slot - mint, redeem, burn,
+// and expiry - so a connection admitted under one window can be told apart
+// from one admitted under the next.
+
+#[test]
+fn no_code_means_no_window() {
+    let store = PairingStore::new(300);
+    assert!(store.window().is_none());
+}
+
+#[test]
+fn a_mint_opens_a_window_and_a_second_mint_is_a_new_one() {
+    let store = PairingStore::new(300);
+    store.mint();
+    let (first, deadline) = store.window().expect("a live code is a window");
+    assert!(deadline > std::time::Instant::now());
+    store.mint();
+    let (second, _) = store.window().expect("still one live code");
+    assert_ne!(first, second, "a fresh window is a fresh admission");
+}
+
+#[test]
+fn redemption_closes_the_window() {
+    let store = PairingStore::new(300);
+    let code = store.mint();
+    assert_eq!(store.redeem(&code), ClaimResult::Ok);
+    assert!(store.window().is_none());
+}
+
+#[test]
+fn the_burn_on_the_fifth_failure_closes_the_window() {
+    let store = PairingStore::new(300);
+    store.mint();
+    for _ in 0..PAIRING_MAX_FAILURES {
+        store.redeem("AAAA-AAAA");
+    }
+    assert!(store.window().is_none());
+}
+
+#[test]
+fn an_expired_code_is_no_window_even_before_anyone_redeems() {
+    // Expiry is evaluated lazily at redeem, but the window read must not
+    // wait for a redeem: the reaper reads it at the deadline.
+    let store = PairingStore::new(0);
+    store.mint();
+    assert!(store.window().is_none());
+}
+
+#[tokio::test]
+async fn every_transition_wakes_a_subscriber() {
+    let store = PairingStore::new(300);
+    let mut watch = store.subscribe();
+    let seen = *watch.borrow();
+
+    store.mint();
+    watch.changed().await.expect("mint notifies");
+    assert_ne!(*watch.borrow(), seen);
+
+    let code = store.mint();
+    watch.changed().await.expect("supersede notifies");
+
+    assert_eq!(store.redeem(&code), ClaimResult::Ok);
+    watch.changed().await.expect("redemption notifies");
+
+    store.mint();
+    watch.changed().await.expect("the next mint notifies");
+    for _ in 0..PAIRING_MAX_FAILURES {
+        store.redeem("AAAA-AAAA");
+    }
+    watch.changed().await.expect("the burn notifies");
+}
+
+#[test]
+fn a_failed_attempt_below_the_cap_is_not_a_transition() {
+    // The window that admitted a connection still stands after a wrong
+    // guess, so the id must not move: moving it would close the owner's own
+    // in-progress pairing on a stranger's typo.
+    let store = PairingStore::new(300);
+    store.mint();
+    let (before, _) = store.window().unwrap();
+    store.redeem("AAAA-AAAA");
+    let (after, _) = store.window().unwrap();
+    assert_eq!(before, after);
+}

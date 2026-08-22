@@ -1,15 +1,14 @@
-use crate::auth::gate::is_loopback;
 use crate::engine::provider::service::ServiceError;
 use crate::error::{ApiError, ApiResult};
 use crate::state::AppState;
+use crate::transport::Peer;
 use axum::extract::rejection::JsonRejection;
-use axum::extract::{ConnectInfo, Path, Query, State};
+use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use axum::response::{Html, IntoResponse, Redirect, Response};
-use axum::{Json, Router};
+use axum::{Extension, Json, Router};
 use serde::Deserialize;
 use serde_json::{Value, json};
-use std::net::SocketAddr;
 
 pub async fn list_providers(State(state): State<AppState>) -> ApiResult<Json<Vec<Value>>> {
     Ok(Json(state.providers.list_rows().map_err(service_error)?))
@@ -28,10 +27,10 @@ pub struct StartAttemptBody {
 pub async fn start_attempt(
     State(state): State<AppState>,
     Path(provider_id): Path<String>,
-    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    peer: Option<Extension<Peer>>,
     body: Result<Json<StartAttemptBody>, JsonRejection>,
 ) -> Response {
-    if let Err(error) = require_loopback(peer) {
+    if let Err(error) = require_loopback(&state, peer.as_deref()) {
         return error.into_response();
     }
     let Json(body) = match body {
@@ -69,9 +68,9 @@ pub async fn start_attempt(
 pub async fn get_attempt(
     State(state): State<AppState>,
     Path(attempt_id): Path<String>,
-    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    peer: Option<Extension<Peer>>,
 ) -> ApiResult<Json<impl serde::Serialize>> {
-    require_loopback(peer)?;
+    require_loopback(&state, peer.as_deref())?;
     Ok(Json(
         state
             .providers
@@ -92,10 +91,10 @@ pub struct CommitBody {
 pub async fn commit_connection(
     State(state): State<AppState>,
     Path(provider_id): Path<String>,
-    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    peer: Option<Extension<Peer>>,
     body: Result<Json<CommitBody>, JsonRejection>,
 ) -> Response {
-    if let Err(error) = require_loopback(peer) {
+    if let Err(error) = require_loopback(&state, peer.as_deref()) {
         return error.into_response();
     }
     let Json(body) = match body {
@@ -119,9 +118,9 @@ pub async fn commit_connection(
 pub async fn delete_connection(
     State(state): State<AppState>,
     Path(provider_id): Path<String>,
-    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    peer: Option<Extension<Peer>>,
 ) -> Response {
-    if let Err(error) = require_loopback(peer) {
+    if let Err(error) = require_loopback(&state, peer.as_deref()) {
         return error.into_response();
     }
     match state.providers.disconnect(&provider_id).await {
@@ -133,9 +132,9 @@ pub async fn delete_connection(
 pub async fn refresh_catalog(
     State(state): State<AppState>,
     Path(provider_id): Path<String>,
-    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    peer: Option<Extension<Peer>>,
 ) -> Response {
-    if let Err(error) = require_loopback(peer) {
+    if let Err(error) = require_loopback(&state, peer.as_deref()) {
         return error.into_response();
     }
     match state.providers.refresh_catalog(&provider_id).await {
@@ -153,10 +152,10 @@ pub struct DefaultModelBody {
 
 pub async fn put_default_model(
     State(state): State<AppState>,
-    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    peer: Option<Extension<Peer>>,
     body: Result<Json<DefaultModelBody>, JsonRejection>,
 ) -> Response {
-    if let Err(error) = require_loopback(peer) {
+    if let Err(error) = require_loopback(&state, peer.as_deref()) {
         return error.into_response();
     }
     let Json(body) = match body {
@@ -232,11 +231,16 @@ pub fn callback_router(state: AppState) -> Router {
         .with_state(state)
 }
 
-fn require_loopback(peer: SocketAddr) -> ApiResult<()> {
-    if is_loopback(&peer.ip().to_string()) {
-        Ok(())
-    } else {
-        Err(ApiError::source_not_authorized())
+/// These six routes drive provider sign-in, so they are the owner's alone:
+/// only a transport that vouches for its peers being the owner at the machine
+/// grants the bypass. A request with no `Peer` stamp is refused, never
+/// assumed local - over a QUIC stream there is no socket address, and a
+/// synthesised loopback here would hand a remote peer the provider
+/// authentication flow.
+fn require_loopback(state: &AppState, peer: Option<&Peer>) -> ApiResult<()> {
+    match peer {
+        Some(peer) if state.transports.grants_local_bypass(peer) => Ok(()),
+        _ => Err(ApiError::source_not_authorized()),
     }
 }
 

@@ -50,7 +50,6 @@ pub async fn serve(hosts: Vec<String>, port: Option<u16>) -> Result<()> {
 
     let config = config::Config::from_env().map_err(|e| anyhow::anyhow!("{e}"))?;
     let db = db::Db::open(&config.db_path)?;
-    let transport = transport::create(&config.transport_name)?;
     let providers =
         crate::engine::provider::ProviderService::native(db.clone(), config.state_home.clone())?;
     let computer_use_setup = Arc::new(computer_use_setup::SetupService::from_env()?);
@@ -74,23 +73,34 @@ pub async fn serve(hosts: Vec<String>, port: Option<u16>) -> Result<()> {
     );
 
     // What the caller asked for wins, and what it did not ask for is resolved
-    // as before. These used to be arguments the daemon accepted and ignored,
-    // while the port arrived a second time through the environment: two ways to
-    // say one thing, one of which was decorative.
-    let bind_hosts = if hosts.is_empty() {
-        transport::bind_hosts(transport.as_ref())
-    } else {
-        hosts
-    };
+    // as before: `vadgr start` passes the hosts its port probe bound, and each
+    // transport takes its own out of that override.
     let port = port.unwrap_or(config.port);
+    let pairing = Arc::new(auth::pairing::PairingStore::new(
+        auth::pairing::PAIRING_TTL_SECONDS,
+    ));
+    // The registry: every transport this build supports, or the loopback
+    // transport alone under the local-only override. The daemon names no
+    // member and counts none; it serves whatever the registry holds.
+    let transports = Arc::new(transport::Transports::from_config(
+        &config,
+        port,
+        Some(transport::TransportRuntime {
+            db: db.clone(),
+            pairing: pairing.clone(),
+            ws: ws.clone(),
+        }),
+    ));
+    tracing::info!(
+        supported = ?transports.iter().map(|t| t.name()).collect::<Vec<_>>(),
+        "transports"
+    );
 
     let state = AppState {
         db,
         config: Arc::new(config),
-        transport: Arc::from(transport),
-        pairing: Arc::new(auth::pairing::PairingStore::new(
-            auth::pairing::PAIRING_TTL_SECONDS,
-        )),
+        transports: transports.clone(),
+        pairing,
         ws,
         providers,
         computer_use_setup,
@@ -179,23 +189,23 @@ pub async fn serve(hosts: Vec<String>, port: Option<u16>) -> Result<()> {
         }
     });
 
-    let mut listeners = Vec::new();
-    for host in bind_hosts {
-        let addr = transport::listener_address(&host, port)?;
-        listeners.push((addr, tokio::net::TcpListener::bind(addr).await?));
-        tracing::info!(%addr, "vadgr daemon (rust) listening");
+    // Serve every member of the registry. A transport that cannot come up
+    // does not stop the others: its error is logged at warn, its reach turns
+    // unavailable in its own words, and loopback keeps serving, so the CLI
+    // and the journal never depend on a network being there. The daemon ends
+    // only when nothing at all is serving.
+    let mut serving = Vec::new();
+    for member in transports.iter() {
+        let name = member.name();
+        let serve = member.serve(app.clone(), port, &hosts);
+        serving.push(async move {
+            if let Err(error) = serve.await {
+                tracing::warn!(transport = name, %error, "transport is not serving");
+            }
+            name
+        });
     }
-    futures_util::future::try_join_all(listeners.into_iter().map(|(_, listener)| {
-        let app = app.clone();
-        async move {
-            axum::serve(
-                listener,
-                app.into_make_service_with_connect_info::<std::net::SocketAddr>(),
-            )
-            .await
-        }
-    }))
-    .await?;
+    futures_util::future::join_all(serving).await;
     callback.abort();
-    Ok(())
+    anyhow::bail!("no transport is serving; see the log for each one's refusal")
 }

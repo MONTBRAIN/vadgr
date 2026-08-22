@@ -4,7 +4,6 @@ use axum::http::{Request, StatusCode};
 use http_body_util::BodyExt;
 use serde_json::{Map, Value, json};
 use std::collections::VecDeque;
-use std::net::SocketAddr;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex, RwLock};
 use std::time::Duration;
@@ -226,7 +225,8 @@ fn harness(model: Arc<dyn ModelFactory>, calls: Arc<AtomicUsize>) -> Harness {
     let config = Arc::new(Config {
         port: 0,
         db_path: directory.path().join("vadgr.db"),
-        transport_name: "loopback".to_owned(),
+        local_only: true,
+        relays: vadgr_daemon::config::RelayChoice::Default,
         runs_dir: runs_dir.clone(),
         state_home: Some(directory.path().to_owned()),
     });
@@ -245,7 +245,9 @@ fn harness(model: Arc<dyn ModelFactory>, calls: Arc<AtomicUsize>) -> Harness {
         state: AppState {
             db,
             config,
-            transport: Arc::new(LoopbackTransport),
+            transports: Arc::new(vadgr_daemon::transport::Transports::new(vec![Arc::new(
+                LoopbackTransport,
+            )])),
             pairing: Arc::new(PairingStore::new(300)),
             ws,
             providers,
@@ -259,19 +261,22 @@ fn harness(model: Arc<dyn ModelFactory>, calls: Arc<AtomicUsize>) -> Harness {
 }
 
 async fn send(state: AppState, request: Request<Body>) -> (StatusCode, Value) {
-    let peer: SocketAddr = "127.0.0.1:5000".parse().unwrap();
+    // The stamp the loopback listener would have put on the request; the
+    // gate reads no socket address any more.
     let response = vadgr_daemon::routes::router(state.clone())
         .layer(axum::middleware::from_fn_with_state(
             state,
             vadgr_daemon::auth::gate::gate,
         ))
-        .layer(axum::Extension(peer))
         .into_service::<Body>()
         .oneshot({
             let mut request = request;
             request
                 .extensions_mut()
-                .insert(axum::extract::ConnectInfo(peer));
+                .insert(vadgr_daemon::transport::Peer {
+                    transport: "loopback",
+                    identity: "127.0.0.1".to_string(),
+                });
             request
         })
         .await
