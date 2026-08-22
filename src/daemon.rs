@@ -14,13 +14,35 @@ use crate::{auth, computer_use_setup, config, db, migrate, routes, transport, ws
 use anyhow::Result;
 use std::sync::Arc;
 use std::sync::RwLock;
-use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
+use tower_http::trace::{DefaultOnResponse, TraceLayer};
 use tracing::Level;
 
 /// Run the daemon in the foreground until it stops.
 ///
 /// The caller has already decided this process serves. `vadgr start` spawns
 /// this binary again with `serve` and returns; nothing else calls it.
+/// The request span, without the query string.
+///
+/// The run sockets take the device token as a query parameter, because a
+/// WebSocket client cannot set an Authorization header. The default span logs
+/// the whole URI, so every socket open wrote a live device token into the
+/// daemon's own log, where it outlives the connection and travels with any
+/// log the owner sends anybody. This was found by the `0.4.10` pass.
+///
+/// The query is dropped whole rather than filtered by parameter name: a
+/// redaction list has to be maintained and will drift behind the next
+/// parameter that carries a secret, and nothing in the query has ever been
+/// needed to read a log line. The OAuth callback span already logs method and
+/// path alone for the same reason.
+fn request_span<B>(request: &axum::http::Request<B>) -> tracing::Span {
+    tracing::info_span!(
+        "request",
+        method = %request.method(),
+        path = %request.uri().path(),
+        version = ?request.version(),
+    )
+}
+
 pub async fn serve(hosts: Vec<String>, port: Option<u16>) -> Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(
@@ -115,7 +137,7 @@ pub async fn serve(hosts: Vec<String>, port: Option<u16>) -> Result<()> {
         ))
         .layer(
             TraceLayer::new_for_http()
-                .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
+                .make_span_with(request_span)
                 .on_response(DefaultOnResponse::new().level(Level::INFO)),
         );
 
@@ -208,4 +230,74 @@ pub async fn serve(hosts: Vec<String>, port: Option<u16>) -> Result<()> {
     futures_util::future::join_all(serving).await;
     callback.abort();
     anyhow::bail!("no transport is serving; see the log for each one's refusal")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::request_span;
+    use std::io;
+    use std::sync::{Arc, Mutex};
+    use tracing::subscriber::with_default;
+    use tracing_subscriber::fmt::MakeWriter;
+
+    #[derive(Clone, Default)]
+    struct Captured(Arc<Mutex<Vec<u8>>>);
+
+    impl io::Write for Captured {
+        fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+            self.0.lock().expect("capture lock poisoned").extend_from_slice(buf);
+            Ok(buf.len())
+        }
+        fn flush(&mut self) -> io::Result<()> {
+            Ok(())
+        }
+    }
+
+    impl<'a> MakeWriter<'a> for Captured {
+        type Writer = Captured;
+        fn make_writer(&'a self) -> Self::Writer {
+            self.clone()
+        }
+    }
+
+    /// The run sockets carry the device token in the query, because a
+    /// WebSocket client cannot set a header. Nothing the request span writes
+    /// may carry it: a log is kept, copied and sent to other people, and a
+    /// token in one is a credential that outlives the connection it opened.
+    #[test]
+    fn the_request_span_never_writes_the_query() {
+        let captured = Captured::default();
+        let subscriber = tracing_subscriber::fmt()
+            .with_writer(captured.clone())
+            .with_span_events(tracing_subscriber::fmt::format::FmtSpan::NEW)
+            .with_ansi(false)
+            .finish();
+
+        with_default(subscriber, || {
+            let request = axum::http::Request::builder()
+                .method("GET")
+                .uri("/api/runs/run-1/stream?token=vk-a-real-looking-device-token&x=1")
+                .body(())
+                .expect("the request builds");
+            let _span = request_span(&request).entered();
+        });
+
+        let written = String::from_utf8(
+            captured.0.lock().expect("capture lock poisoned").clone(),
+        )
+        .expect("the captured log is utf-8");
+
+        assert!(
+            written.contains("/api/runs/run-1/stream"),
+            "the path is what makes a log line readable: {written}"
+        );
+        assert!(
+            !written.contains("vk-a-real-looking-device-token"),
+            "the device token reached the log: {written}"
+        );
+        assert!(
+            !written.contains("token="),
+            "the query reached the log: {written}"
+        );
+    }
 }

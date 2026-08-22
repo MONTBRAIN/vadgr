@@ -13,13 +13,20 @@ each route answers.
 
 | file | what it is | when it runs |
 |---|---|---|
-| `dialer/` | the built-in-transport client. A Rust binary that dials an endpoint id over its relays and direct addresses, opens one bidirectional stream per HTTP request, and records the status, error code and body. It also records whether the QUIC handshake completed, which is the whole of the out-of-the-box cell. It drives no product flow: a cell hands it a request list and reads the record | every built-in-transport cell |
-| `sockets.py` | the run-socket client, carried from `0.4.9`. Opens both run sockets with a standard-library implementation and records frame type counts and close codes. It reaches the built-in transport's run socket only indirectly, through the dialer's upgrade path | the socket cells |
+| `dialer/` | the built-in-transport client. A Rust binary that dials an endpoint id over its relays and direct addresses, opens one bidirectional stream per HTTP request, and records the status, error code and body. It also records its own endpoint id, so a cell can name the identity a claim bound; whether the QUIC handshake completed, which is the whole of the out-of-the-box cell; and, with `hold_ms`, whether the daemon closed the connection during a hold and what reason it gave. With `sockets` it performs the WebSocket upgrade on a stream and records frame type counts. It drives no product flow: a cell hands it a job and reads the record | every built-in-transport cell |
+| `sockets.py` | the run-socket client, carried from `0.4.9`. Opens both run sockets with a standard-library implementation and records frame type counts and close codes. It speaks TCP, so it drives loopback and Tailscale; the built-in transport's run sockets are driven by the dialer, which records the same fields under the same names so the three records compare directly | the socket cells |
 
 `sweep.py`, `tables.py` and `compare.py` from the `0.4.9` harness are reused
 unchanged for the deletion sweep re-run; copy them beside these before the pass,
 or point at them in the `0.4.9` directory. They read the daemon's own published
 surface over loopback and assert nothing.
+
+`qr-decode` is reused from the same place, and the P3 cell names it. It reads
+the symbol the installed `vadgr pair` printed, rebuilds the module matrix and
+decodes it with an implementation that is not the encoder under test. Build it
+once in the `0.4.9` directory and run it against the captured render. A cell
+that asks what the QR carries is asking about the thing the phone scans, which
+is not the same object as the pairing response the API returned beside it.
 
 ## The dialer
 

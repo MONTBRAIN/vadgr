@@ -99,6 +99,17 @@ reports the list, and the owner picks between them on the phone.
 - A run of `vadgr pair` on a machine whose Tailscale is not running no longer
   fails with "unexpected response from the API": the QR builds from the
   transports that are dialable.
+- **Device tokens no longer reach the daemon's log.** The run sockets take the
+  device token as a query parameter, because a WebSocket client cannot set an
+  Authorization header, and the request log recorded the whole URI. Every
+  socket open therefore wrote a live token into the log in clear, where it
+  outlived the connection and travelled with any log the owner shared. The log
+  now records the method and path and never the query.
+- **The daemon says when it closes a connection on the built-in transport.**
+  Both closes are logged with the peer: the one that ends with the pairing
+  window that admitted it, and the one that reaches its sixty second lifetime
+  without being claimed. A connection that vanished with no line was
+  indistinguishable from a network fault.
 
 **The cutover.** `vadgr` is one binary. The daemon that answers is the Rust one,
 the installation no longer carries an interpreter, and a machine's state lives

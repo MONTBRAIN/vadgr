@@ -346,6 +346,11 @@ async fn reaper(shared: Arc<Shared>, runtime: TransportRuntime) {
             if unbound_conn_lives(entry.window, live, bound_now) {
                 return true;
             }
+            tracing::info!(
+                peer = %entry.id,
+                window = entry.window,
+                "unbound connection closed: the window that admitted it ended"
+            );
             entry
                 .conn
                 .close(CLOSE_WINDOW_ENDED.into(), b"pairing window ended");
@@ -418,6 +423,10 @@ async fn connection(
             tokio::select! {
                 () = serve_streams(&conn, &runtime, app, &id, Some(window)) => {}
                 () = lifetime => {
+                    tracing::info!(
+                        peer = %id,
+                        "unbound connection closed: it reached its lifetime without being claimed"
+                    );
                     conn.close(CLOSE_WINDOW_ENDED.into(), b"unbound connection lifetime");
                 }
             }

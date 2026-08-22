@@ -57,6 +57,35 @@ struct Job {
     /// what the unbound-knocker cells want.
     #[serde(default)]
     secret_key: Option<String>,
+    /// Hold the connection open for this long after the first request list,
+    /// then send `after_hold` on the same connection. A cell that asks what
+    /// happens to a connection admitted under one window and used after that
+    /// window closed needs the connection to outlive the window, and a
+    /// request list alone finishes far too fast to straddle it.
+    #[serde(default)]
+    hold_ms: u64,
+    #[serde(default)]
+    after_hold: Vec<ReqSpec>,
+    /// Run sockets to open on this connection, after the request list. The
+    /// deletion sweep re-run compares frame type counts per socket across
+    /// transports, and `sockets.py` cannot speak QUIC, so this is the built-in
+    /// transport's half of that comparison. The record it produces has the
+    /// same shape as `sockets.py`'s so the two can be compared directly.
+    #[serde(default)]
+    sockets: Vec<SocketSpec>,
+}
+
+#[derive(Deserialize)]
+struct SocketSpec {
+    path: String,
+    #[serde(default)]
+    token: Option<String>,
+    #[serde(default = "default_socket_seconds")]
+    seconds: u64,
+}
+
+fn default_socket_seconds() -> u64 {
+    25
 }
 
 fn default_timeout() -> u64 {
@@ -79,10 +108,44 @@ struct ReqSpec {
 #[derive(Serialize)]
 struct Record {
     node: String,
+    /// The dialer's own endpoint id. A cell that asks what a claim bound needs
+    /// to name the identity that claimed, and only the dialer knows it.
+    #[serde(rename = "self")]
+    self_id: String,
     handshake: Handshake,
     #[serde(skip_serializing_if = "Option::is_none")]
     error: Option<String>,
     responses: Vec<RespRecord>,
+    /// Absent unless the job asked for a hold.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    held_ms: Option<u64>,
+    /// The peer's close reason observed at the end of the hold, or `null` if
+    /// the connection was still open. This is the oracle's own reading of
+    /// whether the daemon cut the connection, independent of whether the
+    /// requests after the hold were answered.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    closed_during_hold: Option<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    after_hold: Vec<RespRecord>,
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    sockets: Vec<SocketRecord>,
+}
+
+/// Deliberately the same field names `sockets.py` writes, so a comparison
+/// between the transports is a comparison of records rather than a
+/// translation between two formats.
+#[derive(Serialize, Default)]
+struct SocketRecord {
+    path: String,
+    token_supplied: bool,
+    opened: bool,
+    http_status: Option<u16>,
+    status_line: Option<String>,
+    frames: u32,
+    frame_types: std::collections::BTreeMap<String, u32>,
+    close_code: Option<u16>,
+    close_reason: Option<String>,
+    error: Option<String>,
 }
 
 #[derive(Serialize, PartialEq)]
@@ -150,8 +213,13 @@ async fn main() -> Result<()> {
     let connect = endpoint.connect(addr, ALPN);
     let mut record = Record {
         node: job.node.clone(),
+        self_id: endpoint.id().to_string(),
         handshake: Handshake::NotAttempted,
         error: None,
+        held_ms: None,
+        closed_during_hold: None,
+        after_hold: Vec::new(),
+        sockets: Vec::new(),
         responses: Vec::new(),
     };
 
@@ -169,6 +237,17 @@ async fn main() -> Result<()> {
             if job.expect_handshake {
                 for spec in &job.requests {
                     record.responses.push(one_request(&conn, spec).await);
+                }
+            }
+            for spec in &job.sockets {
+                record.sockets.push(one_socket(&conn, spec).await);
+            }
+            if job.hold_ms > 0 {
+                record.held_ms = Some(job.hold_ms);
+                tokio::time::sleep(Duration::from_millis(job.hold_ms)).await;
+                record.closed_during_hold = conn.close_reason().map(|reason| reason.to_string());
+                for spec in &job.after_hold {
+                    record.after_hold.push(one_request(&conn, spec).await);
                 }
             }
             conn.close(0u32.into(), b"done");
@@ -310,4 +389,173 @@ fn content_length(head: &[u8]) -> usize {
         }
     }
     0
+}
+
+/// Open one run socket over a QUIC stream and record what arrives.
+///
+/// The daemon serves HTTP/1.1 on a stream, so the WebSocket upgrade is the
+/// same handshake it is over TCP: the only difference is what carries the
+/// bytes. Server-to-client frames are never masked, which is what keeps the
+/// reader this short.
+async fn one_socket(conn: &iroh::endpoint::Connection, spec: &SocketSpec) -> SocketRecord {
+    let mut record = SocketRecord {
+        path: spec.path.clone(),
+        token_supplied: spec.token.is_some(),
+        ..Default::default()
+    };
+    if let Err(error) = drive_socket(conn, spec, &mut record).await {
+        record.error = Some(format!("{error:#}"));
+    }
+    record
+}
+
+async fn drive_socket(
+    conn: &iroh::endpoint::Connection,
+    spec: &SocketSpec,
+    record: &mut SocketRecord,
+) -> Result<()> {
+    let (mut send, mut recv) = conn.open_bi().await.context("opening a stream")?;
+    let target = match &spec.token {
+        Some(token) => format!("{}?token={token}", spec.path),
+        None => spec.path.clone(),
+    };
+    // A fixed key: the server echoes an accept derived from it and this client
+    // does not check the echo, so nothing here needs to be unpredictable.
+    let head = format!(
+        "GET {target} HTTP/1.1\r\nHost: vadgr\r\nUpgrade: websocket\r\n\
+         Connection: Upgrade\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n\
+         Sec-WebSocket-Version: 13\r\n\r\n"
+    );
+    send.write_all(head.as_bytes()).await?;
+
+    let deadline = tokio::time::Instant::now() + Duration::from_secs(spec.seconds);
+    let mut buffer: Vec<u8> = Vec::new();
+    let mut chunk = [0u8; 8192];
+
+    // The response head, up to and including the blank line.
+    let head_end = loop {
+        if let Some(at) = find(&buffer, b"\r\n\r\n") {
+            break at + 4;
+        }
+        if !pull(&mut recv, &mut chunk, &mut buffer, deadline).await? {
+            anyhow::bail!("the connection ended before the upgrade response");
+        }
+    };
+    let line = String::from_utf8_lossy(&buffer[..head_end])
+        .lines()
+        .next()
+        .unwrap_or_default()
+        .to_string();
+    record.http_status = line.split_whitespace().nth(1).and_then(|s| s.parse().ok());
+    record.status_line = Some(line);
+    if record.http_status != Some(101) {
+        return Ok(());
+    }
+    record.opened = true;
+    buffer.drain(..head_end);
+
+    loop {
+        // One frame: the two byte header, then the length, then the payload.
+        while buffer.len() < 2 {
+            if !pull(&mut recv, &mut chunk, &mut buffer, deadline).await? {
+                return Ok(());
+            }
+        }
+        let opcode = buffer[0] & 0x0f;
+        let masked = buffer[1] & 0x80 != 0;
+        let short = (buffer[1] & 0x7f) as usize;
+        let (mut at, mut length) = (2usize, short);
+        if short == 126 {
+            while buffer.len() < 4 {
+                if !pull(&mut recv, &mut chunk, &mut buffer, deadline).await? {
+                    return Ok(());
+                }
+            }
+            length = u16::from_be_bytes([buffer[2], buffer[3]]) as usize;
+            at = 4;
+        } else if short == 127 {
+            while buffer.len() < 10 {
+                if !pull(&mut recv, &mut chunk, &mut buffer, deadline).await? {
+                    return Ok(());
+                }
+            }
+            let mut wide = [0u8; 8];
+            wide.copy_from_slice(&buffer[2..10]);
+            length = u64::from_be_bytes(wide) as usize;
+            at = 10;
+        }
+        let mask_at = at;
+        if masked {
+            at += 4;
+        }
+        while buffer.len() < at + length {
+            if !pull(&mut recv, &mut chunk, &mut buffer, deadline).await? {
+                return Ok(());
+            }
+        }
+        let mut payload = buffer[at..at + length].to_vec();
+        if masked {
+            let mask: Vec<u8> = buffer[mask_at..mask_at + 4].to_vec();
+            for (i, byte) in payload.iter_mut().enumerate() {
+                *byte ^= mask[i % 4];
+            }
+        }
+        buffer.drain(..at + length);
+
+        match opcode {
+            0x8 => {
+                if payload.len() >= 2 {
+                    record.close_code = Some(u16::from_be_bytes([payload[0], payload[1]]));
+                    record.close_reason =
+                        Some(String::from_utf8_lossy(&payload[2..]).into_owned());
+                }
+                return Ok(());
+            }
+            0x9 => *record.frame_types.entry("ping".into()).or_insert(0) += 1,
+            0xa => *record.frame_types.entry("pong".into()).or_insert(0) += 1,
+            0x2 => {
+                record.frames += 1;
+                *record.frame_types.entry("binary".into()).or_insert(0) += 1;
+            }
+            _ => {
+                record.frames += 1;
+                let text = String::from_utf8_lossy(&payload).into_owned();
+                let name = match serde_json::from_str::<serde_json::Value>(&text) {
+                    Ok(value) => value
+                        .get("type")
+                        .or_else(|| value.get("phase"))
+                        .and_then(|v| v.as_str())
+                        .map(|s| s.to_string())
+                        .unwrap_or_else(|| "text/untyped".into()),
+                    Err(_) => "text/not-json".into(),
+                };
+                *record.frame_types.entry(name).or_insert(0) += 1;
+            }
+        }
+    }
+}
+
+fn find(haystack: &[u8], needle: &[u8]) -> Option<usize> {
+    haystack.windows(needle.len()).position(|w| w == needle)
+}
+
+/// Read more bytes, or report that nothing more is coming. `false` means the
+/// stream ended or the socket's own deadline passed, both of which end a
+/// reading cell rather than failing it.
+async fn pull(
+    recv: &mut iroh::endpoint::RecvStream,
+    chunk: &mut [u8; 8192],
+    buffer: &mut Vec<u8>,
+    deadline: tokio::time::Instant,
+) -> Result<bool> {
+    match tokio::time::timeout_at(deadline, recv.read(chunk)).await {
+        Err(_) => Ok(false),
+        Ok(read) => match read.context("reading the socket")? {
+            None | Some(0) => Ok(false),
+            Some(n) => {
+                buffer.extend_from_slice(&chunk[..n]);
+                Ok(true)
+            }
+        },
+    }
 }
