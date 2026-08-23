@@ -245,7 +245,10 @@ mod tests {
 
     impl io::Write for Captured {
         fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-            self.0.lock().expect("capture lock poisoned").extend_from_slice(buf);
+            self.0
+                .lock()
+                .expect("capture lock poisoned")
+                .extend_from_slice(buf);
             Ok(buf.len())
         }
         fn flush(&mut self) -> io::Result<()> {
@@ -282,10 +285,8 @@ mod tests {
             let _span = request_span(&request).entered();
         });
 
-        let written = String::from_utf8(
-            captured.0.lock().expect("capture lock poisoned").clone(),
-        )
-        .expect("the captured log is utf-8");
+        let written = String::from_utf8(captured.0.lock().expect("capture lock poisoned").clone())
+            .expect("the captured log is utf-8");
 
         assert!(
             written.contains("/api/runs/run-1/stream"),

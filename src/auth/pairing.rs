@@ -204,7 +204,7 @@ mod transition_tests {
     fn redeeming_does_not_announce_the_transition_by_itself() {
         let store = PairingStore::new(300);
         let code = store.mint();
-        let mut watcher = store.subscribe();
+        let watcher = store.subscribe();
 
         assert_eq!(store.redeem(&code), ClaimResult::Ok);
 
@@ -222,7 +222,7 @@ mod transition_tests {
     fn settling_announces_it() {
         let store = PairingStore::new(300);
         let code = store.mint();
-        let mut watcher = store.subscribe();
+        let watcher = store.subscribe();
 
         let outcome = store.redeem(&code);
         store.settled(outcome);
@@ -240,7 +240,7 @@ mod transition_tests {
     fn an_expired_code_also_announces_when_settled() {
         let store = PairingStore::new(0);
         let code = store.mint();
-        let mut watcher = store.subscribe();
+        let watcher = store.subscribe();
 
         let outcome = store.redeem(&code);
         assert_eq!(outcome, ClaimResult::Expired);
@@ -255,7 +255,7 @@ mod transition_tests {
     fn a_wrong_code_announces_nothing() {
         let store = PairingStore::new(300);
         let _ = store.mint();
-        let mut watcher = store.subscribe();
+        let watcher = store.subscribe();
 
         let outcome = store.redeem("ZZZZ-ZZZZ");
         assert_eq!(outcome, ClaimResult::Invalid);

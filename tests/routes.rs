@@ -1343,3 +1343,262 @@ async fn health_serves_addresses_only_to_a_caller_who_proved_something() {
         "a bound peer's tokenless probe is the refresh"
     );
 }
+
+// ------------------------------------------------------- adopting a transport
+//
+// A device holding a valid token may bind the identity the transport
+// itself proved, over the transport it is adopting, once per transport. The
+// route is the third gate path class: reachable by a peer with no binding,
+// refused without a valid token.
+
+fn adopt_with_token(token: &str) -> Request<Body> {
+    Request::builder()
+        .method("POST")
+        .uri("/api/devices/self/transports")
+        .header("authorization", format!("Bearer {token}"))
+        .body(Body::empty())
+        .unwrap()
+}
+
+fn tailnet_peer() -> Peer {
+    Peer {
+        transport: "tailscale",
+        identity: "100.64.0.9".to_string(),
+    }
+}
+
+/// The identity bound is the one the accepting transport stamped on the
+/// request, never a field the caller sent: the route reads no body at all,
+/// so a smuggled identity changes nothing. The stamp is an **unbound**
+/// endpoint id, which gate 1 refuses everywhere else, so the 200 is also the
+/// token-only path class working.
+#[tokio::test]
+async fn adoption_binds_the_stamped_identity_and_a_body_field_cannot_choose_it() {
+    let state = state_with(Box::new(EveryoneIsAPeer));
+    // Paired over the tailnet, which binds nothing: the recovery case this
+    // route exists for.
+    let claim = pair_and_claim(&state, tailnet_peer(), "tailnet phone").await;
+    let token = claim["token"].as_str().unwrap();
+    let device_id = claim["device_id"].as_str().unwrap();
+
+    let request = Request::builder()
+        .method("POST")
+        .uri("/api/devices/self/transports")
+        .header("authorization", format!("Bearer {token}"))
+        .header("content-type", "application/json")
+        .body(Body::from(
+            r#"{"identity": "attacker-chosen", "node_key": "attacker-chosen"}"#,
+        ))
+        .unwrap();
+    let (status, body) = send_stamped(
+        state.clone(),
+        request,
+        Some(iroh_peer("recovering-endpoint-id")),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+    assert_eq!(body["transport"], "iroh");
+    assert_eq!(body["adopted"], true);
+    assert_eq!(
+        vadgr_daemon::db::devices::peer_device(&state.db, "iroh", "recovering-endpoint-id")
+            .unwrap(),
+        Some(device_id.to_string()),
+        "the handshake's identity is bound"
+    );
+    assert_eq!(
+        vadgr_daemon::db::devices::peer_device(&state.db, "iroh", "attacker-chosen").unwrap(),
+        None,
+        "the body's identity is not"
+    );
+}
+
+/// Once per transport per device: the same identity answers 200 again and
+/// leaves one row; a different identity answers 409 and changes nothing, so
+/// a stolen token cannot displace the phone that owns the pairing.
+#[tokio::test]
+async fn adopting_again_is_200_for_the_same_identity_and_409_for_another() {
+    let state = state_with(Box::new(EveryoneIsAPeer));
+    let claim = pair_and_claim(&state, tailnet_peer(), "tailnet phone").await;
+    let token = claim["token"].as_str().unwrap();
+    let device_id = claim["device_id"].as_str().unwrap().to_string();
+
+    let (status, _) = send_stamped(
+        state.clone(),
+        adopt_with_token(token),
+        Some(iroh_peer("phone-endpoint-id")),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+
+    // The same identity again: idempotent.
+    let (status, body) = send_stamped(
+        state.clone(),
+        adopt_with_token(token),
+        Some(iroh_peer("phone-endpoint-id")),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+    assert_eq!(body["adopted"], true);
+
+    // A different identity holding the same token: refused, nothing written.
+    let (status, body) = send_stamped(
+        state.clone(),
+        adopt_with_token(token),
+        Some(iroh_peer("thief-endpoint-id")),
+    )
+    .await;
+    assert_eq!(status, StatusCode::CONFLICT, "{body}");
+    assert_eq!(body["error"]["code"], "TRANSPORT_ALREADY_ADOPTED");
+    assert_eq!(
+        vadgr_daemon::db::devices::peer_device(&state.db, "iroh", "phone-endpoint-id").unwrap(),
+        Some(device_id.clone()),
+        "the first binding stands"
+    );
+    assert_eq!(
+        vadgr_daemon::db::devices::peer_device(&state.db, "iroh", "thief-endpoint-id").unwrap(),
+        None
+    );
+    let rows: i64 = state
+        .db
+        .with(|c| {
+            c.query_row(
+                "SELECT count(*) FROM device_peers WHERE device_id = ?1",
+                [&device_id],
+                |r| r.get(0),
+            )
+        })
+        .unwrap();
+    assert_eq!(rows, 1, "one binding per transport per device");
+}
+
+/// Loopback proves the caller is at the machine and the tailnet proves
+/// membership; neither proves a key, so neither has an identity to bind and
+/// both answer 422.
+#[tokio::test]
+async fn a_transport_that_proves_no_identity_answers_422() {
+    let state = state_with(Box::new(EveryoneIsAPeer));
+    let claim = pair_and_claim(&state, tailnet_peer(), "tailnet phone").await;
+    let token = claim["token"].as_str().unwrap();
+    let device_id = claim["device_id"].as_str().unwrap().to_string();
+
+    for stamp in [
+        Peer {
+            transport: "loopback",
+            identity: "127.0.0.1".to_string(),
+        },
+        tailnet_peer(),
+    ] {
+        let name = stamp.transport;
+        let (status, body) =
+            send_stamped(state.clone(), adopt_with_token(token), Some(stamp)).await;
+        assert_eq!(status, StatusCode::UNPROCESSABLE_ENTITY, "{name}: {body}");
+        assert_eq!(body["error"]["code"], "TRANSPORT_PROVES_NO_IDENTITY");
+    }
+    let rows: i64 = state
+        .db
+        .with(|c| {
+            c.query_row(
+                "SELECT count(*) FROM device_peers WHERE device_id = ?1",
+                [&device_id],
+                |r| r.get(0),
+            )
+        })
+        .unwrap();
+    assert_eq!(rows, 0, "nothing was bound");
+}
+
+/// Token-only means the token is the whole admission: no token is 401
+/// MISSING_TOKEN even from a peer gate 1 would refuse, and a token whose
+/// device was revoked while dialing is 401 INVALID_TOKEN with nothing
+/// re-bound, because revocation cascaded the binding and killed the token.
+#[tokio::test]
+async fn adoption_is_401_with_no_token_and_after_revocation() {
+    let state = state_with(Box::new(EveryoneIsAPeer));
+
+    // A stranger with a connection and no token: refused for the missing
+    // token, not for the unbound peer.
+    let request = Request::builder()
+        .method("POST")
+        .uri("/api/devices/self/transports")
+        .body(Body::empty())
+        .unwrap();
+    let (status, body) = send_stamped(
+        state.clone(),
+        request,
+        Some(iroh_peer("stranger-endpoint-id")),
+    )
+    .await;
+    assert_eq!(status, StatusCode::UNAUTHORIZED, "{body}");
+    assert_eq!(body["error"]["code"], "MISSING_TOKEN");
+
+    // A revoked device's token authenticates as nobody.
+    let claim = pair_and_claim(&state, tailnet_peer(), "tailnet phone").await;
+    let token = claim["token"].as_str().unwrap();
+    let device_id = claim["device_id"].as_str().unwrap();
+    let (status, _) = send_stamped(
+        state.clone(),
+        Request::builder()
+            .method("DELETE")
+            .uri(format!("/api/devices/{device_id}"))
+            .header("authorization", format!("Bearer {token}"))
+            .body(Body::empty())
+            .unwrap(),
+        Some(tailnet_peer()),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+    let (status, body) = send_stamped(
+        state.clone(),
+        adopt_with_token(token),
+        Some(iroh_peer("phone-endpoint-id")),
+    )
+    .await;
+    assert_eq!(status, StatusCode::UNAUTHORIZED, "{body}");
+    assert_eq!(body["error"]["code"], "INVALID_TOKEN");
+    assert_eq!(
+        vadgr_daemon::db::devices::peer_device(&state.db, "iroh", "phone-endpoint-id").unwrap(),
+        None,
+        "a revoked device cannot come back"
+    );
+}
+
+/// The third path class widens nothing: a valid token from an unbound peer
+/// earns adoption alone, `pair` still wants an authorized peer, and a
+/// request with no stamp at all is still the wiring defect it always was.
+#[tokio::test]
+async fn a_valid_token_from_an_unbound_peer_earns_adoption_and_nothing_else() {
+    let state = state_with(Box::new(EveryoneIsAPeer));
+    let claim = pair_and_claim(&state, tailnet_peer(), "tailnet phone").await;
+    let token = claim["token"].as_str().unwrap();
+
+    // Gate 1 still refuses the unbound peer on a full-auth path, token or
+    // not: the token-only set is one path, not a widening of the others.
+    let (status, body) = send_stamped(
+        state.clone(),
+        get_with_token("/api/devices", token),
+        Some(iroh_peer("unbound-endpoint-id")),
+    )
+    .await;
+    assert_eq!(status, StatusCode::FORBIDDEN, "{body}");
+    assert_eq!(body["error"]["code"], "SOURCE_NOT_AUTHORIZED");
+
+    // The peer-only path keeps its own rule too.
+    let (status, body) = send_stamped(
+        state.clone(),
+        Request::builder()
+            .method("POST")
+            .uri("/api/auth/pair")
+            .header("authorization", format!("Bearer {token}"))
+            .body(Body::empty())
+            .unwrap(),
+        Some(iroh_peer("unbound-endpoint-id")),
+    )
+    .await;
+    assert_eq!(status, StatusCode::FORBIDDEN, "{body}");
+    assert_eq!(body["error"]["code"], "SOURCE_NOT_AUTHORIZED");
+
+    // And a stamp is still required: token-only does not mean stampless.
+    let (status, body) = send_stamped(state.clone(), adopt_with_token(token), None).await;
+    assert_eq!(status, StatusCode::FORBIDDEN, "{body}");
+    assert_eq!(body["error"]["code"], "SOURCE_NOT_AUTHORIZED");
+}

@@ -9,12 +9,13 @@
 //! Who gets a connection at all is this module's own rule, because it is an
 //! answer only a transport that proves identities in a handshake can give:
 //! a peer whose endpoint id is bound to a paired device, always; an unbound
-//! peer, only while a pairing code is outstanding, into a small number of
-//! slots, for at most a minute, and even then the gate serves it exactly two
-//! routes. The identity is what the TLS 1.3 handshake proved (raw public
-//! keys, RFC 7250), so the checks that need the id run after the handshake
-//! completes; the pre-handshake refusals cover the machine that could admit
-//! nobody at all.
+//! peer, while a pairing code is outstanding or, on a machine with a paired
+//! device, to reach transport adoption, into a small number of
+//! slots, for at most a minute, and even then the gate serves it only the
+//! routes its class earns. The identity is what the TLS 1.3 handshake proved
+//! (raw public keys, RFC 7250), so the checks that need the id run after the
+//! handshake completes; the pre-handshake refusal covers the machine that
+//! could admit nobody: no window, no bound peer, and no device rows at all.
 
 use super::{Gate1, Peer, Reach, Scope, Transport, TransportRuntime, public_diagnostics};
 use crate::auth::pairing::WindowId;
@@ -44,6 +45,13 @@ const ALPN: &[u8] = b"vadgr/http/1";
 /// in-progress pairing out, turning a limit meant to protect pairing into a
 /// tool for stopping it.
 pub(crate) const MAX_UNBOUND: usize = 4;
+
+/// The adoption slots, a separate partition with the same shape: refusal at
+/// the cap, never eviction. Adopt admissions counting against the pairing
+/// slots would let anyone holding the endpoint id starve the owner's open
+/// window from a machine that has ever paired, so the two classes never
+/// share a count.
+pub(crate) const MAX_ADOPTING: usize = 4;
 
 /// Bound peers have their own, generous limit, so a paired phone that
 /// reconnects across a network change is never refused because a stranger is
@@ -85,16 +93,16 @@ struct Shared {
     bound: AtomicUsize,
 }
 
-/// One live connection from an unbound endpoint id, and the window it was
-/// admitted under. Admission is a property of a moment and a connection
-/// outlives moments, so the ledger is what lets the reaper close exactly the
-/// connections whose moment has passed.
+/// One live connection from an unbound endpoint id, and how it was admitted.
+/// Admission is a property of a moment and a connection outlives moments, so
+/// the ledger is what lets the reaper close exactly the connections whose
+/// moment has passed.
 struct UnboundEntry {
     /// Distinguishes this connection in the ledger; ids and windows can both
     /// repeat across reconnects.
     seq: u64,
     id: String,
-    window: WindowId,
+    admission: UnboundAdmission,
     conn: iroh::endpoint::Connection,
 }
 
@@ -286,12 +294,17 @@ impl Shared {
             }
             // The identity is proven by the handshake, so identity checks run
             // after it. What can be refused before it is the machine that
-            // could admit nobody: no pairing window open and no endpoint id
-            // bound to any device. On that machine the handshake never
-            // completes, which is the out-of-the-box posture.
-            if runtime.pairing.window().is_none()
-                && !crate::db::devices::any_peer_bound(&runtime.db, "iroh").unwrap_or(false)
-            {
+            // could admit nobody: no pairing window open, no endpoint id
+            // bound to any device, and no device rows at all. On that machine
+            // the handshake never completes, which is the out-of-the-box
+            // posture. A machine that has paired anything completes the
+            // handshake instead and refuses at the route, which is what makes
+            // transport adoption reachable.
+            if refuse_before_handshake(
+                runtime.pairing.window().is_some(),
+                crate::db::devices::any_peer_bound(&runtime.db, "iroh").unwrap_or(false),
+                crate::db::devices::any_devices(&runtime.db).unwrap_or(false),
+            ) {
                 incoming.refuse();
                 continue;
             }
@@ -343,12 +356,12 @@ async fn reaper(shared: Arc<Shared>, runtime: TransportRuntime) {
         let mut ledger = shared.unbound.lock().expect("unbound lock poisoned");
         ledger.retain(|entry| {
             let bound_now = is_bound(&runtime.db, &entry.id);
-            if unbound_conn_lives(entry.window, live, bound_now) {
+            if unbound_conn_lives(entry.admission, live, bound_now) {
                 return true;
             }
             tracing::info!(
                 peer = %entry.id,
-                window = entry.window,
+                admission = ?entry.admission,
                 "unbound connection closed: the window that admitted it ended"
             );
             entry
@@ -375,9 +388,24 @@ async fn connection(
     let id = conn.remote_id().to_string();
     let bound = is_bound(&runtime.db, &id);
     let live = runtime.pairing.window().map(|(window, _)| window);
-    let unbound_count = shared.unbound.lock().expect("unbound lock poisoned").len();
+    let any_devices = crate::db::devices::any_devices(&runtime.db).unwrap_or(false);
+    let (window_count, adopting_count) = {
+        let ledger = shared.unbound.lock().expect("unbound lock poisoned");
+        let windowed = ledger
+            .iter()
+            .filter(|e| matches!(e.admission, UnboundAdmission::Window(_)))
+            .count();
+        (windowed, ledger.len() - windowed)
+    };
     let bound_count = shared.bound.load(Ordering::SeqCst);
-    match admit(bound, live, unbound_count, bound_count) {
+    match admit(
+        bound,
+        live,
+        any_devices,
+        window_count,
+        adopting_count,
+        bound_count,
+    ) {
         Admit::Bound => {
             shared.bound.fetch_add(1, Ordering::SeqCst);
             // Revocation cuts the network path, not only the token: the
@@ -400,7 +428,7 @@ async fn connection(
             }
             shared.bound.fetch_sub(1, Ordering::SeqCst);
         }
-        Admit::Unbound(window) => {
+        Admit::Unbound(admission) => {
             let seq = ENTRY_SEQ.fetch_add(1, Ordering::SeqCst);
             shared
                 .unbound
@@ -409,19 +437,19 @@ async fn connection(
                 .push(UnboundEntry {
                     seq,
                     id: id.clone(),
-                    window,
+                    admission,
                     conn: conn.clone(),
                 });
             let lifetime = async {
                 tokio::time::sleep(UNBOUND_LIFETIME).await;
-                // A connection whose claim succeeded was promoted and is no
-                // longer on the clock.
+                // A connection whose claim or adoption succeeded was promoted
+                // and is no longer on the clock.
                 if is_bound(&runtime.db, &id) {
                     std::future::pending::<()>().await;
                 }
             };
             tokio::select! {
-                () = serve_streams(&conn, &runtime, app, &id, Some(window)) => {}
+                () = serve_streams(&conn, &runtime, app, &id, Some(admission)) => {}
                 () = lifetime => {
                     tracing::info!(
                         peer = %id,
@@ -446,6 +474,10 @@ async fn connection(
             tracing::warn!(peer = %id, "unbound connection refused: the pairing slots are full");
             conn.close(CLOSE_BUSY.into(), b"pairing slots are full");
         }
+        Admit::RefuseAdoptCap => {
+            tracing::warn!(peer = %id, "unbound connection refused: the adoption slots are full");
+            conn.close(CLOSE_BUSY.into(), b"adoption slots are full");
+        }
         Admit::RefuseBoundCap => {
             tracing::warn!(peer = %id, "bound connection refused: the connection cap is reached");
             conn.close(CLOSE_BUSY.into(), b"connection cap reached");
@@ -463,7 +495,7 @@ async fn serve_streams(
     runtime: &TransportRuntime,
     app: Router,
     id: &str,
-    admitted: Option<WindowId>,
+    admitted: Option<UnboundAdmission>,
 ) {
     loop {
         let (send, recv) = match conn.accept_bi().await {
@@ -506,22 +538,43 @@ async fn serve_streams(
 // Pure, so the admission matrix is a unit test with no endpoint and no
 // network. The functions above are wiring; these are the rule.
 
+/// Why a connection from an unbound endpoint id was admitted. The two
+/// classes share the machinery (a small cap, refusal at it, the 60 second
+/// lifetime, promotion once the identity is bound) and nothing else: their
+/// caps are separate partitions, and only the window class dies with a
+/// window.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum UnboundAdmission {
+    /// Under a live pairing window, to reach the claim.
+    Window(WindowId),
+    /// On a machine with at least one paired device, to reach
+    /// `POST /api/devices/self/transports`. The gate still refuses
+    /// everything a valid token does not earn.
+    Adoption,
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum Admit {
     Bound,
-    Unbound(WindowId),
-    /// No live pairing window: an unbound id gets no connection at all.
+    Unbound(UnboundAdmission),
+    /// No live pairing window and no paired device: an unbound id gets no
+    /// connection at all.
     RefuseOutsideWindow,
-    /// The unbound slots are full. The new connection is refused and no
+    /// The pairing slots are full. The new connection is refused and no
     /// existing one is evicted.
     RefuseUnboundCap,
+    /// The adoption slots are full: the same refusal-not-eviction rule, in
+    /// its own partition so adopt admissions never starve a pairing window.
+    RefuseAdoptCap,
     RefuseBoundCap,
 }
 
 pub(crate) fn admit(
     bound: bool,
     live_window: Option<WindowId>,
-    unbound_count: usize,
+    any_devices: bool,
+    window_count: usize,
+    adopting_count: usize,
     bound_count: usize,
 ) -> Admit {
     if bound {
@@ -531,39 +584,67 @@ pub(crate) fn admit(
         return Admit::Bound;
     }
     match live_window {
+        Some(_) if window_count >= MAX_UNBOUND => Admit::RefuseUnboundCap,
+        Some(window) => Admit::Unbound(UnboundAdmission::Window(window)),
+        // No window, but this machine has paired: the handshake completes so
+        // adoption is reachable, and the refusal of everything else moves to
+        // the route.
+        None if any_devices && adopting_count >= MAX_ADOPTING => Admit::RefuseAdoptCap,
+        None if any_devices => Admit::Unbound(UnboundAdmission::Adoption),
         None => Admit::RefuseOutsideWindow,
-        Some(_) if unbound_count >= MAX_UNBOUND => Admit::RefuseUnboundCap,
-        Some(window) => Admit::Unbound(window),
     }
 }
 
-/// Whether an unbound connection admitted under `admitted` survives the
-/// window transitioning to `live`. A promoted connection (its identity is now
-/// bound) is kept: it belongs to the phone that just paired. A **new** mint
-/// does not rescue an old connection: a fresh window is a fresh admission,
-/// and the peer may dial again.
+/// Whether the accept loop refuses an incoming attempt before its handshake.
+/// True only on the machine that could admit nobody: no pairing window open,
+/// no endpoint id bound to any device, and no device rows at all. The third
+/// clause is transport adoption's: a machine that has ever paired completes
+/// the handshake
+/// and refuses at the route instead, and a machine that never has keeps the
+/// out-of-the-box posture byte for byte.
+pub(crate) fn refuse_before_handshake(
+    window_open: bool,
+    any_peer_bound: bool,
+    any_devices: bool,
+) -> bool {
+    !window_open && !any_peer_bound && !any_devices
+}
+
+/// Whether an unbound connection survives the window transitioning to
+/// `live`. A promoted connection (its identity is now bound) is kept: it
+/// belongs to the phone that just paired or adopted. A **new** mint does not
+/// rescue an old window connection: a fresh window is a fresh admission, and
+/// the peer may dial again. An adoption connection was never a window's, so
+/// no transition closes it; its bound is the 60 second lifetime.
 pub(crate) fn unbound_conn_lives(
-    admitted: WindowId,
+    admission: UnboundAdmission,
     live: Option<WindowId>,
     bound_now: bool,
 ) -> bool {
-    bound_now || live == Some(admitted)
+    bound_now
+        || match admission {
+            UnboundAdmission::Window(admitted) => live == Some(admitted),
+            UnboundAdmission::Adoption => true,
+        }
 }
 
 /// Whether one accepted stream is served. `admitted` is `None` for a
 /// connection admitted as bound; such a connection keeps serving only while
 /// the binding stands, so a revoked device's streams die here as well as at
-/// the close.
+/// the close. An adoption connection serves until its close: what each
+/// stream's request earns is the gate's question, and the connection itself
+/// is on the 60 second clock.
 pub(crate) fn stream_may_serve(
     bound_now: bool,
-    admitted: Option<WindowId>,
+    admitted: Option<UnboundAdmission>,
     live: Option<WindowId>,
 ) -> bool {
     if bound_now {
         return true;
     }
     match admitted {
-        Some(window) => live == Some(window),
+        Some(UnboundAdmission::Window(window)) => live == Some(window),
+        Some(UnboundAdmission::Adoption) => true,
         None => false,
     }
 }
@@ -685,16 +766,53 @@ mod tests {
 
     // ------------------------------------------------------- the admission
 
-    #[test]
-    fn a_bound_id_is_admitted_regardless_of_window() {
-        assert_eq!(admit(true, None, 0, 0), Admit::Bound);
-        assert_eq!(admit(true, Some(7), MAX_UNBOUND, 0), Admit::Bound);
+    fn window(id: WindowId) -> UnboundAdmission {
+        UnboundAdmission::Window(id)
     }
 
     #[test]
-    fn an_unbound_id_needs_a_live_window() {
-        assert_eq!(admit(false, None, 0, 0), Admit::RefuseOutsideWindow);
-        assert_eq!(admit(false, Some(7), 0, 0), Admit::Unbound(7));
+    fn a_bound_id_is_admitted_regardless_of_window() {
+        assert_eq!(admit(true, None, false, 0, 0, 0), Admit::Bound);
+        assert_eq!(admit(true, Some(7), true, MAX_UNBOUND, 0, 0), Admit::Bound);
+    }
+
+    #[test]
+    fn an_unbound_id_needs_a_live_window_on_a_machine_with_no_devices() {
+        assert_eq!(
+            admit(false, None, false, 0, 0, 0),
+            Admit::RefuseOutsideWindow
+        );
+        assert_eq!(
+            admit(false, Some(7), false, 0, 0, 0),
+            Admit::Unbound(window(7))
+        );
+    }
+
+    /// Transport adoption's clause: no window and no bound peer, but the machine has
+    /// paired a device, so the handshake completes and the refusal of
+    /// everything a token does not earn moves to the route. With zero
+    /// devices the verdict is exactly what it always was.
+    #[test]
+    fn an_unbound_id_is_admitted_for_adoption_only_where_a_device_exists() {
+        assert_eq!(
+            admit(false, None, true, 0, 0, 0),
+            Admit::Unbound(UnboundAdmission::Adoption)
+        );
+        assert_eq!(
+            admit(false, None, false, 0, 0, 0),
+            Admit::RefuseOutsideWindow
+        );
+    }
+
+    /// The pre-handshake refusal fires only on the machine that could admit
+    /// nobody: X1's fresh installation refuses with no device rows, and one
+    /// paired device is enough to let the handshake complete.
+    #[test]
+    fn the_handshake_is_refused_only_on_a_machine_that_never_paired() {
+        assert!(refuse_before_handshake(false, false, false));
+        assert!(!refuse_before_handshake(false, false, true));
+        assert!(!refuse_before_handshake(false, true, true));
+        assert!(!refuse_before_handshake(true, false, false));
     }
 
     /// The anti-eviction assertion: the fifth concurrent unbound connection
@@ -703,9 +821,38 @@ mod tests {
     /// this rule first took and it is itself the attack.
     #[test]
     fn the_fifth_unbound_connection_is_refused_and_no_slot_is_freed() {
-        assert_eq!(admit(false, Some(7), MAX_UNBOUND - 1, 0), Admit::Unbound(7));
         assert_eq!(
-            admit(false, Some(7), MAX_UNBOUND, 0),
+            admit(false, Some(7), true, MAX_UNBOUND - 1, 0, 0),
+            Admit::Unbound(window(7))
+        );
+        assert_eq!(
+            admit(false, Some(7), true, MAX_UNBOUND, 0, 0),
+            Admit::RefuseUnboundCap
+        );
+    }
+
+    /// The adoption slots are their own partition, refused at their own cap:
+    /// full adoption slots never refuse a pairing-window admission, which is
+    /// B5's property, and full pairing slots never refuse an adoption.
+    #[test]
+    fn adopt_admissions_cannot_starve_the_pairing_window() {
+        // The pairing window admits while every adoption slot is taken.
+        assert_eq!(
+            admit(false, Some(7), true, 0, MAX_ADOPTING, 0),
+            Admit::Unbound(window(7))
+        );
+        // Adoption admits while every pairing slot is taken.
+        assert_eq!(
+            admit(false, None, true, MAX_UNBOUND, 0, 0),
+            Admit::Unbound(UnboundAdmission::Adoption)
+        );
+        // And each refuses at its own cap, evicting nothing.
+        assert_eq!(
+            admit(false, None, true, 0, MAX_ADOPTING, 0),
+            Admit::RefuseAdoptCap
+        );
+        assert_eq!(
+            admit(false, Some(7), true, MAX_UNBOUND, 0, 0),
             Admit::RefuseUnboundCap
         );
     }
@@ -714,8 +861,11 @@ mod tests {
     /// caps are independent.
     #[test]
     fn a_bound_peer_is_admitted_while_the_unbound_cap_is_full() {
-        assert_eq!(admit(true, Some(7), MAX_UNBOUND, 0), Admit::Bound);
-        assert_eq!(admit(true, None, 0, MAX_BOUND), Admit::RefuseBoundCap);
+        assert_eq!(admit(true, Some(7), true, MAX_UNBOUND, 0, 0), Admit::Bound);
+        assert_eq!(
+            admit(true, None, true, 0, 0, MAX_BOUND),
+            Admit::RefuseBoundCap
+        );
     }
 
     // ------------------------------------------- the window and the streams
@@ -723,11 +873,25 @@ mod tests {
     #[test]
     fn an_unbound_connection_dies_with_the_window_that_admitted_it() {
         // Redeem, burn or expiry: the window is gone.
-        assert!(!unbound_conn_lives(7, None, false));
+        assert!(!unbound_conn_lives(window(7), None, false));
         // A new mint is a fresh admission and does not rescue the old one.
-        assert!(!unbound_conn_lives(7, Some(8), false));
+        assert!(!unbound_conn_lives(window(7), Some(8), false));
         // The window that admitted it still stands.
-        assert!(unbound_conn_lives(7, Some(7), false));
+        assert!(unbound_conn_lives(window(7), Some(7), false));
+    }
+
+    /// An adoption connection was never a window's, so no window transition
+    /// closes it: its bound is the 60 second lifetime, and its promotion is
+    /// the binding the route writes.
+    #[test]
+    fn an_adoption_connection_survives_window_transitions_unbound() {
+        assert!(unbound_conn_lives(UnboundAdmission::Adoption, None, false));
+        assert!(unbound_conn_lives(
+            UnboundAdmission::Adoption,
+            Some(8),
+            false
+        ));
+        assert!(unbound_conn_lives(UnboundAdmission::Adoption, None, true));
     }
 
     /// The claimant is promoted, not closed: a connection whose identity is
@@ -735,8 +899,8 @@ mod tests {
     /// millisecond after its 200 would be the release's first bug.
     #[test]
     fn a_promoted_connection_survives_every_window_transition() {
-        assert!(unbound_conn_lives(7, None, true));
-        assert!(unbound_conn_lives(7, Some(8), true));
+        assert!(unbound_conn_lives(window(7), None, true));
+        assert!(unbound_conn_lives(window(7), Some(8), true));
     }
 
     /// Held-open connections cannot outrun the close: a stream accepted on a
@@ -744,10 +908,31 @@ mod tests {
     /// raced.
     #[test]
     fn a_stream_on_an_ended_window_is_not_served() {
-        assert!(!stream_may_serve(false, Some(7), None));
-        assert!(!stream_may_serve(false, Some(7), Some(8)));
-        assert!(stream_may_serve(false, Some(7), Some(7)));
-        assert!(stream_may_serve(true, Some(7), None), "promoted");
+        assert!(!stream_may_serve(false, Some(window(7)), None));
+        assert!(!stream_may_serve(false, Some(window(7)), Some(8)));
+        assert!(stream_may_serve(false, Some(window(7)), Some(7)));
+        assert!(stream_may_serve(true, Some(window(7)), None), "promoted");
+    }
+
+    /// An adoption connection's streams are served with no window at all:
+    /// the adopt request itself arrives on one, and what it earns is the
+    /// gate's question, not this one's.
+    #[test]
+    fn a_stream_on_an_adoption_connection_is_served_without_a_window() {
+        assert!(stream_may_serve(
+            false,
+            Some(UnboundAdmission::Adoption),
+            None
+        ));
+        assert!(stream_may_serve(
+            false,
+            Some(UnboundAdmission::Adoption),
+            Some(7)
+        ));
+        assert!(
+            stream_may_serve(true, Some(UnboundAdmission::Adoption), None),
+            "promoted"
+        );
     }
 
     /// A revoked device's connection stops being served per stream as well as

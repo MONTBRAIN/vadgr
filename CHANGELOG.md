@@ -57,6 +57,23 @@ reports the list, and the owner picks between them on the phone.
 - **A successful claim writes one `info` log line** with the device id, the
   device name and the transport the claim arrived over, so the daemon log
   records that a pairing happened.
+- **A paired phone can adopt a transport it did not pair over.**
+  `POST /api/devices/self/transports`, device token required, no body: the
+  daemon binds the identity the accepting transport proved in its handshake
+  to the device that owns the token, so a phone paired over Tailscale can
+  start using the built-in transport without pairing again. The route reads
+  no body because the identity is never the caller's to declare. Adopting
+  again from the same identity answers `200`; a different identity on a
+  transport the device already adopted answers `409` and changes nothing, so
+  a stolen token cannot displace the phone that owns the pairing; a
+  transport that proves no identity (loopback, Tailscale) answers `422`; a
+  missing or revoked token answers `401`. Revoking the device cascades the
+  binding, so a removed phone cannot adopt its way back. The accept loop's
+  pre-handshake refusal now also asks whether any device is paired at all: a
+  machine that has never paired refuses exactly as before, and a machine
+  that has completes the handshake and refuses at the route instead.
+  Adoption admissions get their own connection slots, so they can never
+  starve the owner's open pairing window.
 
 ### Changed
 - **The daemon reports the transports it supports; the owner configures

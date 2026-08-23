@@ -218,13 +218,22 @@ async fn every_transition_wakes_a_subscriber() {
     let code = store.mint();
     watch.changed().await.expect("supersede notifies");
 
-    assert_eq!(store.redeem(&code), ClaimResult::Ok);
-    watch.changed().await.expect("redemption notifies");
+    // A redemption announces at `settled`, not at `redeem`: the claim binds
+    // its peer between the two, and a reaper woken earlier closed the very
+    // connection the claim was answering on.
+    let outcome = store.redeem(&code);
+    assert_eq!(outcome, ClaimResult::Ok);
+    store.settled(outcome);
+    watch
+        .changed()
+        .await
+        .expect("a settled redemption notifies");
 
     store.mint();
     watch.changed().await.expect("the next mint notifies");
     for _ in 0..PAIRING_MAX_FAILURES {
-        store.redeem("AAAA-AAAA");
+        let outcome = store.redeem("AAAA-AAAA");
+        store.settled(outcome);
     }
     watch.changed().await.expect("the burn notifies");
 }

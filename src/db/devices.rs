@@ -152,3 +152,73 @@ pub fn any_peer_bound(db: &Db, transport: &str) -> rusqlite::Result<bool> {
         Ok(count > 0)
     })
 }
+
+/// Whether any device is paired at all. The built-in transport's accept loop
+/// asks this beside `any_peer_bound`: a machine that has never paired
+/// anything still refuses before the handshake, and a machine that has
+/// paired completes it so transport adoption is reachable at the route.
+pub fn any_devices(db: &Db) -> rusqlite::Result<bool> {
+    db.with(|c| {
+        let count: i64 = c.query_row("SELECT count(*) FROM devices", [], |r| r.get(0))?;
+        Ok(count > 0)
+    })
+}
+
+/// What `POST /api/devices/self/transports` did to the binding table.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Adoption {
+    /// The device had no identity on this transport; one row was written.
+    Written,
+    /// The device already holds exactly this identity: idempotent, no write.
+    Unchanged,
+    /// The device already holds a **different** identity on this transport.
+    /// Nothing is written: displacing a binding would turn token theft into
+    /// association takeover, so the route answers `409`.
+    DifferentIdentity,
+}
+
+/// Adopt a transport: bind `peer_id` to `device_id` unless the device
+/// already holds an identity there, checked and written in one transaction
+/// so two concurrent adopts cannot each pass the check.
+///
+/// A row another device holds on `(transport, peer_id)` is taken, the same
+/// rule `bind_peer` states for a re-pairing phone: taking a binding requires
+/// that identity's secret key, which is what makes the take safe.
+pub fn adopt_peer(
+    db: &Db,
+    device_id: &str,
+    transport: &str,
+    peer_id: &str,
+) -> rusqlite::Result<Adoption> {
+    db.with_mut(|c| {
+        let tx = c.transaction()?;
+        let held: Option<String> = {
+            let mut stmt = tx.prepare(
+                "SELECT peer_id FROM device_peers WHERE device_id = ?1 AND transport = ?2",
+            )?;
+            let mut rows = stmt.query_map(rusqlite::params![device_id, transport], |r| {
+                r.get::<_, String>("peer_id")
+            })?;
+            match rows.next() {
+                Some(v) => Some(v?),
+                None => None,
+            }
+        };
+        match held.as_deref() {
+            Some(held) if held == peer_id => Ok(Adoption::Unchanged),
+            Some(_) => Ok(Adoption::DifferentIdentity),
+            None => {
+                tx.execute(
+                    "DELETE FROM device_peers WHERE transport = ?1 AND peer_id = ?2",
+                    rusqlite::params![transport, peer_id],
+                )?;
+                tx.execute(
+                    "INSERT INTO device_peers (device_id, transport, peer_id) VALUES (?1, ?2, ?3)",
+                    rusqlite::params![device_id, transport, peer_id],
+                )?;
+                tx.commit()?;
+                Ok(Adoption::Written)
+            }
+        }
+    })
+}

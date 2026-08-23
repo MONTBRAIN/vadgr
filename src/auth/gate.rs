@@ -35,6 +35,16 @@ const UNAUTHENTICATED_PATHS: [&str; 2] = ["/api/health", "/api/auth/claim"];
 /// the owner's, and read the replacement out of the response.
 const PEER_ONLY_PATHS: [&str; 1] = ["/api/auth/pair"];
 
+/// Answerable from any peer its transport admitted, bound or not, but never
+/// without a valid device token. Adoption is how a device with no binding on
+/// a transport writes one, so gate 1, which on the built-in
+/// transport **is** that binding, cannot be its precondition; gate 2 alone
+/// carries it. Gate 0 is skipped too, in the strict direction: the route
+/// binds an identity to the device that owns the token, so even the owner's
+/// terminal needs a token here, and a caller with none is `401`, not
+/// admitted as nobody.
+const TOKEN_ONLY_PATHS: [&str; 1] = ["/api/devices/self/transports"];
+
 fn is_websocket_path(path: &str) -> bool {
     (path.starts_with("/api/runs/") && path.ends_with("/stream"))
         || path.starts_with("/api/ws/runs/")
@@ -106,28 +116,32 @@ where
         return ApiError::source_not_authorized().into_response();
     };
 
-    // Gate 0: the transport's own answer about its peers.
-    if state.transports.grants_local_bypass(&peer) {
-        return next.run(req).await;
-    }
+    // Token-only paths go straight to gate 2. Everything else takes gate 0
+    // and gate 1 in order, exactly as before this set existed.
+    if !TOKEN_ONLY_PATHS.contains(&path.as_str()) {
+        // Gate 0: the transport's own answer about its peers.
+        if state.transports.grants_local_bypass(&peer) {
+            return next.run(req).await;
+        }
 
-    // Gate 1: network authorization, before any token work. A source that is
-    // not a peer on the transport it arrived over never reaches the token
-    // comparison at all.
-    if !state.transports.authorizes(
-        &peer,
-        Gate1 {
-            db: &state.db,
-            pairing: &state.pairing,
-        },
-    ) {
-        return ApiError::source_not_authorized().into_response();
-    }
+        // Gate 1: network authorization, before any token work. A source that
+        // is not a peer on the transport it arrived over never reaches the
+        // token comparison at all.
+        if !state.transports.authorizes(
+            &peer,
+            Gate1 {
+                db: &state.db,
+                pairing: &state.pairing,
+            },
+        ) {
+            return ApiError::source_not_authorized().into_response();
+        }
 
-    // Peer-only paths take gate 0 and gate 1 and skip gate 2: minting needs
-    // no token, and it needs an authorized peer.
-    if PEER_ONLY_PATHS.contains(&path.as_str()) {
-        return next.run(req).await;
+        // Peer-only paths take gate 0 and gate 1 and skip gate 2: minting
+        // needs no token, and it needs an authorized peer.
+        if PEER_ONLY_PATHS.contains(&path.as_str()) {
+            return next.run(req).await;
+        }
     }
 
     // Gate 2: token.

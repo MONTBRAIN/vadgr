@@ -137,7 +137,8 @@ platform's local-state directory, never below the directory it was started from.
 ### Reaching it from the phone
 
 The daemon serves every transport it supports and reports the list; the phone
-picks between them at pairing. Today that list is two entries on every machine:
+picks between them at pairing, and a paired phone can switch to another one
+later without pairing again. Today that list is two entries on every machine:
 
 - **Built-in.** An [iroh](https://www.iroh.computer/) endpoint inside the
   binary. Nothing installs it and nothing switches it on. The machine's
