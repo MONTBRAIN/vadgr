@@ -268,10 +268,15 @@ status, and the pairing store's window.
 | B1 | A pairing window open (owner ran `vadgr pair`); a fresh unbound dialer identity | dial and drive `GET /api/health` | handshake completes; `200`. Oracle: the dialer record and the daemon access log | the dialer record | let the window expire | pass |
 | B2 | as B1 | dial and drive `POST /api/auth/pair` | `403 SOURCE_NOT_AUTHORIZED`, and the owner's outstanding code still claims afterward. Oracle: the status, then a loopback claim of the owner's code succeeds | the dialer record, the follow-up claim | let the window expire | pass |
 | B3 | as B1 | dial and drive `GET /api/devices` and `POST /api/runs` | both `403 SOURCE_NOT_AUTHORIZED`, token or no token. Oracle: the statuses | the dialer record | let the window expire | pass |
-| B4 | No pairing window, no bound device (fresh machine) | dial with a fresh unbound identity, `expect_handshake:false` | the handshake does not complete: refused at accept. Oracle: the dialer's `Refused` and the daemon's accept-loop refusal log | the dialer record, the daemon log | none | pass |
+| B4 | No pairing window, **and no device rows at all** (fresh machine) | dial with a fresh unbound identity, `expect_handshake:false` | the handshake does not complete: refused at accept. Oracle: the dialer's `Refused` and the daemon's accept-loop refusal log. **The precondition tightened with D-101**: a machine that has ever paired a device now completes the handshake and refuses at the route instead, which B8 covers | the dialer record, the daemon log | none | **re-run needed: the predicate changed** |
 | B5 | A window open; four unbound identities already holding connections | a fifth unbound identity dials | the fifth is refused and the first four keep working. Oracle: the four still answer `GET /api/health`; the daemon logs the refusal with the peer id | the five dialer records, the daemon log | close the four | pass |
 | B6 | An unbound connection admitted during a window, held open; the owner then claims (redeeming the window) with a different phone | on the held connection, send a request after the claim | the held connection is closed and the late request is not served. Oracle: the dialer's stream error and the daemon's connection-close log | the dialer record, the daemon log | none | pass |
 | B7 | A window open; an unbound connection admitted, then held silent | wait past 60 seconds without a request | the connection is closed at its lifetime. Oracle: the daemon's lifetime-close log and the dialer's connection end | the dialer record, the daemon log | none | pass |
+| B8 | A machine with **at least one paired device** and **no window open**; a fresh unbound identity with **no token** | dial and drive `POST /api/devices/self/transports`, then `GET /api/devices` | the handshake completes now, where B4's fresh machine refuses it, and the requests are refused at the route: `401 MISSING_TOKEN` on adopt and `403 SOURCE_NOT_AUTHORIZED` on devices. Nothing is bound. Oracle: the statuses and an unchanged `device_peers` | the dialer record, the table read back | none | not run: needs D-101 built |
+| B9 | The same machine; a dialer holding **a valid device token** whose device was paired over a transport that binds nothing | dial and drive `POST /api/devices/self/transports` | `200` with `{"transport":"iroh","adopted":true}`, and `device_peers` gains exactly one row pairing that device with **the endpoint id the handshake proved**, not any value the caller sent. Oracle: the row read back against the dialer's own reported id | the dialer record, the row | remove the device | not run: needs D-101 built |
+| B10 | The device from B9, already adopted | adopt again from **the same** identity, then from **a different** identity | the same identity answers `200` and leaves one row; a different identity answers `409 TRANSPORT_ALREADY_ADOPTED` and changes nothing. This is what stops a stolen token displacing the phone that owns the pairing | both dialer records, the row count | remove the device | not run: needs D-101 built |
+| B11 | A device adopted per B9, then revoked with `DELETE /api/devices/{id}` | dial with that identity and adopt again | `401 INVALID_TOKEN`: the deletion cascaded the binding and killed the token, so there is nothing left to authenticate with and nothing to re-bind. Oracle: the status and an empty `device_peers` | the dialer record, the table | none | not run: needs D-101 built |
+| B12 | A device paired over Tailscale; the tailnet claim's own connection | drive `POST /api/devices/self/transports` **over Tailscale** | `422 TRANSPORT_PROVES_NO_IDENTITY`: a transport that proves membership rather than a key has nothing to bind and needs nothing bound. Oracle: the status and code | the response body | remove the device | not run: needs D-101 built |
 
 ## Part C: a claim binds what the transport proved
 
@@ -328,7 +333,7 @@ structurally: method, path, status, error code, and the run-socket frame counts.
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| X1 | A freshly installed daemon, nothing configured, no bound device, no window; the second network holds the endpoint id | dial with a fresh unbound identity, `expect_handshake:false` | the handshake does not complete. This is §7.6's claim: installing the release makes the machine dialable by a bound peer or during a window the owner opened, and by nobody else. Oracle: the dialer's `Refused` against the fresh machine's own endpoint id | the dialer record, the fresh boot log | remove the state root | pass |
+| X1 | A freshly installed daemon, nothing configured, **no device rows at all**, no window; the second network holds the endpoint id | dial with a fresh unbound identity, `expect_handshake:false` | the handshake does not complete. This is §7.6's claim, and D-101 leaves it exactly as it was: a machine that has never paired anything refuses before the handshake, so a fresh installation is dialable by nobody. Oracle: the dialer's `Refused` against the fresh machine's own endpoint id | the dialer record, the fresh boot log | remove the state root | **re-run needed: the predicate changed, and this cell is the one that proves it did not loosen here** |
 
 ## Part K: the secret key file, per platform
 
@@ -345,11 +350,55 @@ side by the dialer in Parts T, B, C and H.
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| M1 | A default provider connected; a phone paired (dialer stands in until mobile 0.4.5); a CLI-triggered run | watch the run over the built-in transport | the run's frames arrive over the built-in transport's upgraded stream exactly as over the socket. Oracle: the frame counts against a loopback watch of the same run | the frame counts, the run journal | remove the run | not run: needs a run watched from the handset, after M3 passes |
+| M1 | A default provider connected; a phone paired (dialer stands in until mobile 0.4.5); a CLI-triggered run | watch the run over the built-in transport | the run's frames arrive over the built-in transport's upgraded stream exactly as over the socket. Oracle: the frame counts against a loopback watch of the same run | the frame counts, the run journal | remove the run | pass: a CLI-triggered run reached the phone over the built-in transport, complete |
 | M2 | A released `vadgr-mobile 0.4.1` handset; Tailscale up | pair by scanning the QR, over Tailscale | the released app pairs unchanged: the QR still carries `host` and `port`. Oracle: the daemon's `device paired` line names transport `tailscale` | the daemon log, the tester's note | remove the device | pass: the released 0.4.1 app paired unchanged, transport=tailscale |
-| M3 | A handset with Tailscale uninstalled and the built-in-transport app, **on mobile data rather than the home wifi** (the owner's ruling, 2026-08-21): a carrier NAT on one side and the home NAT on the other, which is the away case this transport exists for, driven by the real client rather than staged with a harness | scan the QR, pair over the built-in transport, watch a CLI-triggered run | the app asks how to connect **before** the camera opens (D-100's eighth amendment), listing the transports the app can dial with Built-in pre-selected. The owner leaves Built-in, scans, and is not asked again: the machine reports Built-in, so the answer stands. It pairs over it and the run appears. Oracle: the daemon's `device paired` line names transport `iroh` | the daemon log, the tester's note | remove the device | **fail**: the away case did not connect. The phone reported the relay reachable and the machine silent |
+| M3 | A handset with Tailscale uninstalled and the built-in-transport app, **on mobile data rather than the home wifi** (the owner's ruling, 2026-08-21): a carrier NAT on one side and the home NAT on the other, which is the away case this transport exists for, driven by the real client rather than staged with a harness | scan the QR, pair over the built-in transport, watch a CLI-triggered run | the app asks how to connect **before** the camera opens (D-100's eighth amendment), listing the transports the app can dial with Built-in pre-selected. The owner leaves Built-in, scans, and is not asked again: the machine reports Built-in, so the answer stands. It pairs over it and the run appears. Oracle: the daemon's `device paired` line names transport `iroh` | the daemon log, the tester's note | remove the device | pass: paired over the built-in transport from mobile data, transport=iroh; found six defects, all fixed |
 | M4 | A handset that can use both transports | choose Tailscale on the opening screen, before the scan, and pair over it | neither path ships unexercised: the deliberate Tailscale choice pairs over Tailscale. Oracle: the daemon's `device paired` line names transport `tailscale` | the daemon log, the tester's note | remove the device | pass on the daemon oracle: transport=tailscale, chosen before the scan |
-| M5 | A paired phone in a live run; the chosen transport taken down | recover from the conversation and pick the run back up | the machine reads as not reachable, the owner recovers, and the run re-attaches through the socket's replay. Oracle: the run continues with no gap | the tester's note, the run journal | remove the device | not run: needs a paired phone in a live run, so it waits on M3 |
+| M5 | A paired phone **on Tailscale**, in a live run, with Built-in also offered; the tailnet address then blocked on the machine | recover from the conversation and pick the run back up, taking **Built-in**, which the phone adopts first (D-101) |
+| M6 | A paired phone with **Tailscale turned off on the handset**, reaching the machine over Built-in | from the connection surface, try to take **Tailscale** | it is **not** taken. The phone runs that transport's own check first (D-100's third amendment, D-101), it fails on its precondition, and the words are Tailscale's own: **Tailscale is off on this phone**, drawn at `0.4.5-pairing-tailscale-off`. The machine's record still says the phone is on Built-in afterwards, and the connection is unbroken. Oracle: the tester's note against the drawn screen, and the machine's device record unchanged | the tester's note, the record read back | none | not run: needs the handset |
+| M7 | A paired phone with **Tailscale on** but the machine's tailnet path blocked | from the connection surface, try to take **Tailscale** | it is not taken, and the words are the other Tailscale failure: **Can't reach `<machine>` over Tailscale**, drawn at `0.4.5-pairing-tailscale-unreachable`. The two failures are different screens because they are different facts, and a phone with Tailscale off must never be told the machine did not answer | the tester's note, the daemon log | unblock the tailnet | not run: needs the handset | the machine reads as not reachable, the owner recovers, and the run re-attaches through the socket's replay. Oracle: the run continues with no gap, read from the run's own record rather than the screen | the tester's note, the run journal | remove the device | not run: needs a paired phone in a live run, so it waits on M3 |
+
+**What D-101 changed in this runbook, and what it costs to re-drive.** The
+first attempt at M5 found that a phone paired over Tailscale can never adopt
+the built-in transport: that transport's gate 1 is a binding, a Tailscale
+claim proves membership rather than a key so it binds nothing (C3), and the
+phone was refused at a transport it could reach while holding a valid token.
+The owner ruled adoption in rather than deferring it, so this runbook changes
+with the product.
+
+**B4 and X1 are re-run, not amended away.** The pre-handshake refusal now
+needs no window, no bound peer **and no device rows at all**. X1 is the cell
+that proves the fresh-machine posture did not loosen, and B4 is the cell whose
+precondition tightened, so both are driven again rather than reasoned about.
+**B8 to B12 are new** and are the security of adoption itself: a stranger with
+no token cannot adopt, the identity bound is the one the handshake proved, a
+second identity cannot displace the first, a revoked device cannot come back,
+and a transport that proves nothing refuses.
+
+**M6 and M7 are new and are the other half of the same rule.** A transport is
+taken only when its own preconditions are met, and each failure has its own
+words because each is a different fact: Tailscale off on the handset is not
+Tailscale on and the machine silent. Both screens are already drawn, so these
+cells check the product against the mockups rather than inventing an expected
+result.
+
+The families that assert the admission posture are re-driven in full, because
+they are what would hide a regression: **B1 to B12, S1 to S6, and X1**. All of
+them are harness-driven and need no handset.
+
+**Why M5 names Tailscale as the transport that goes down.** The first attempt
+took the built-in transport down instead, and could not: blocking its home
+relay made the endpoint fail over to another, blocking those made it fail over
+again, and an outside dial still completed. Blocking its UDP socket removes
+only the direct paths, because relay traffic rides TCP to whichever relay it
+lands on. That is the transport being resilient, which is what it is for, and
+it makes "take it down" an unreliable precondition rather than a step.
+
+A tailnet address is one address and does not fail over, so blocking it is
+deterministic. The cell also gains value from the swap rather than losing it:
+recovering **to** the built-in transport is this minor's own claim, where
+recovering away from it is `0.4.6`'s. The run is the oracle either way, and it
+is read from the run's record rather than from the screen.
 
 ## Per-OS results
 

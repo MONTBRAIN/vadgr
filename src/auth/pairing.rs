@@ -112,19 +112,39 @@ impl PairingStore {
         display
     }
 
+    /// Redeem a code. **The transition is not announced here**: the caller
+    /// announces it with [`settled`] once the claim's own work is done.
+    ///
+    /// It used to be announced here, and that cost a release. A reaper woken
+    /// by the transition asks the database whether the peer is bound, and on
+    /// a successful claim the binding is written by the caller *after* this
+    /// returns. So the reaper saw an unbound peer on a window that had just
+    /// ended, and closed the very connection the claim was answering on. The
+    /// daemon paired the device, wrote the row, returned `200`, and the phone
+    /// never received it, because the connection carrying it was gone
+    /// fourteen milliseconds earlier. Found on a handheld away-case pass, and
+    /// predicted word for word by the reaper's own doc comment.
     pub fn redeem(&self, presented: &str) -> ClaimResult {
-        let result = self.redeem_locked(presented);
+        self.redeem_locked(presented)
+    }
+
+    /// Announce the transition this claim caused, after the caller has
+    /// finished everything the claim implies: the device row, and the binding
+    /// that decides whether the connection survives the window it arrived on.
+    ///
+    /// Safe to call for any outcome. Only the three that move the slot
+    /// announce anything, so a wrong guess costs nothing and a forgotten call
+    /// is the bug this exists to stop.
+    pub fn settled(&self, result: ClaimResult) {
         if matches!(
             result,
             ClaimResult::Ok | ClaimResult::Expired | ClaimResult::RateLimited
         ) {
-            // The slot transitioned, so every reaper watching the window is
-            // told. Outside the slot lock, because a watch send can wake a
-            // task that immediately reads the window back.
+            // Outside the slot lock, because a watch send can wake a task
+            // that immediately reads the window back.
             let id = self.next_window();
             self.transition(id);
         }
-        result
     }
 
     fn redeem_locked(&self, presented: &str) -> ClaimResult {
@@ -163,5 +183,84 @@ impl PairingStore {
             return ClaimResult::RateLimited;
         }
         ClaimResult::Invalid
+    }
+}
+
+#[cfg(test)]
+mod transition_tests {
+    use super::{ClaimResult, PairingStore};
+
+    /// Redeeming must not wake a reaper on its own.
+    ///
+    /// The reaper's job is to close connections whose window ended, keeping
+    /// the ones whose peer is now bound. On a successful claim the binding is
+    /// written by the caller *after* redeem returns, so a transition
+    /// announced inside redeem reaches the reaper while the peer still looks
+    /// unbound, and it closes the connection the claim is answering on. That
+    /// is not hypothetical: a handheld pass paired a device, wrote its row,
+    /// returned 200, and the phone never saw the response, because the
+    /// connection carrying it was closed fourteen milliseconds earlier.
+    #[test]
+    fn redeeming_does_not_announce_the_transition_by_itself() {
+        let store = PairingStore::new(300);
+        let code = store.mint();
+        let mut watcher = store.subscribe();
+
+        assert_eq!(store.redeem(&code), ClaimResult::Ok);
+
+        assert!(
+            !watcher.has_changed().expect("the channel is open"),
+            "redeem announced the transition before the caller could bind \
+             the peer, which is what closes the claim's own connection",
+        );
+    }
+
+    /// And the announcement still happens, once the caller says so. A fix
+    /// that simply stopped announcing would leave every unbound connection
+    /// alive until its own timer, which is the opposite defect.
+    #[test]
+    fn settling_announces_it() {
+        let store = PairingStore::new(300);
+        let code = store.mint();
+        let mut watcher = store.subscribe();
+
+        let outcome = store.redeem(&code);
+        store.settled(outcome);
+
+        assert!(
+            watcher.has_changed().expect("the channel is open"),
+            "nothing woke the reaper, so a connection on the ended window \
+             would live until its own lifetime ran out",
+        );
+    }
+
+    /// An outcome that moved the slot without binding anything still
+    /// announces: the window ended, and connections admitted under it must go.
+    #[test]
+    fn an_expired_code_also_announces_when_settled() {
+        let store = PairingStore::new(0);
+        let code = store.mint();
+        let mut watcher = store.subscribe();
+
+        let outcome = store.redeem(&code);
+        assert_eq!(outcome, ClaimResult::Expired);
+        store.settled(outcome);
+
+        assert!(watcher.has_changed().expect("the channel is open"));
+    }
+
+    /// A wrong code moves nothing, so it announces nothing: waking every
+    /// reaper on each mistyped character is work for no reason.
+    #[test]
+    fn a_wrong_code_announces_nothing() {
+        let store = PairingStore::new(300);
+        let _ = store.mint();
+        let mut watcher = store.subscribe();
+
+        let outcome = store.redeem("ZZZZ-ZZZZ");
+        assert_eq!(outcome, ClaimResult::Invalid);
+        store.settled(outcome);
+
+        assert!(!watcher.has_changed().expect("the channel is open"));
     }
 }

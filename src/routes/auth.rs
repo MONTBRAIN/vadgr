@@ -157,7 +157,12 @@ async fn claim_valid(
     pairing_token: &str,
     device_name: String,
 ) -> ApiResult<Json<Value>> {
-    match state.pairing.redeem(pairing_token) {
+    let outcome = state.pairing.redeem(pairing_token);
+    // Every arm below announces the transition as the last thing it does, so
+    // a reaper woken by it sees the binding this claim wrote. See
+    // `PairingStore::settled`. A `let` rather than a guard object because the
+    // announcement must land after the binding, not at an arbitrary drop.
+    let response = match outcome {
         // 429, fired exactly once, at the moment the cap acts. That is the one
         // moment "too many attempts" is a fact distinct from "not claimable",
         // and what lets the phone say the code is dead rather than inviting
@@ -226,7 +231,11 @@ async fn claim_valid(
                 "transports": state.transports.report(),
             })))
         }
-    }
+    };
+    // Now, and not before: the binding above decides whether the connection
+    // this response is travelling on survives the window it arrived on.
+    state.pairing.settled(outcome);
+    response
 }
 
 #[cfg(test)]
