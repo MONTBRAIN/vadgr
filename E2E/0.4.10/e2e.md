@@ -11,13 +11,12 @@ endpoint, beside Tailscale; it reports the transports it supports rather than
 serving a set an owner configured; and gate 1 on the built-in transport is a
 handshake-proven endpoint id, bound at claim.
 
-> **Status: not started.** The runbook is complete and its harness builds. No
-> live cell has run. The automated gate ran green on the build host (WSL):
-> `cargo test`, `cargo clippy --all-targets -- -D warnings`, `cargo fmt --check`
-> and `python3 -m pytest scripts/tests -q` all passed. The gate is necessary and
-> never sufficient: it drives no transport and reaches no phone, so every live
-> cell below is owed. The per-OS table reads `not run` on every row until a host
-> drives it.
+> **Status: partially run on WSL, 2026-08-21 through 2026-08-24.** Forty-nine
+> of fifty cells carry a verdict. `T1` still needs a second real network. `F1`
+> records a partial verdict because its second-network dial remains unrun. The
+> rebuilt handset cells `M6` and `M7` pass. The automated gate was green, but it
+> is necessary and never sufficient because it reaches neither a real transport
+> nor the phone.
 
 ## How a pass is run, before anything else in this file
 
@@ -216,19 +215,19 @@ half. The gate's counts and exit codes are filed in `gate/` before Part A.
 
 | Part | Axes | Cells | Run | Open |
 |---|---|---|---|---|
-| A the binary is the built head | identity x version | 2 | 0 | 2 |
+| A the binary is the built head | identity x version | 2 | 2 | pass |
 | T the traversal spike, first | network x path | 1 | 0 | 1 |
-| P: pairing and the report | transport x reach | 4 | 0 | pass |
-| B: the admission rule | binding x window x route | 7 | 0 | pass |
-| C the claim binds what the transport proved | transport x binding | 4 | 0 | 4 |
-| H: health's scope | caller x entry | 4 | 0 | pass |
-| S: the security surface | attacker x control | 6 | 0 | pass |
-| D the deletion sweep, per transport | transport x surface | 2 | 0 | 2 |
-| F: failure and recovery | failure x recovery | 6 | 0 | partial: F1 substituted, its second-network half not run |
-| X: out of the box | fresh machine x dial | 1 | 0 | pass |
-| K: the secret key file | platform x permission | 1 | 0 | pass |
-| M the phone, held by a person | what mobile 0.4.5 does | 5 | 0 | 5 |
-| | | **43** | **0** | **43** |
+| P: pairing and the report | transport x reach | 4 | 4 | pass |
+| B: the admission rule | binding x window x route | 12 | 12 | pass |
+| C the claim binds what the transport proved | transport x binding | 4 | 4 | pass |
+| H: health's scope | caller x entry | 4 | 4 | pass |
+| S: the security surface | attacker x control | 6 | 6 | pass |
+| D the deletion sweep, per transport | transport x surface | 2 | 2 | pass |
+| F: failure and recovery | failure x recovery | 6 | 6 | partial: F1 substituted, its second-network half not run |
+| X: out of the box | fresh machine x dial | 1 | 1 | pass |
+| K: the secret key file | platform x permission | 1 | 1 | pass |
+| M the phone, held by a person | what mobile 0.4.5 does | 7 | 7 | pass |
+| | | **50** | **49** | **1** |
 
 ## Part A: the thing under test is the thing that was built
 
@@ -355,8 +354,8 @@ side by the dialer in Parts T, B, C and H.
 | M3 | A handset with Tailscale uninstalled and the built-in-transport app, **on mobile data rather than the home wifi** (the owner's ruling, 2026-08-21): a carrier NAT on one side and the home NAT on the other, which is the away case this transport exists for, driven by the real client rather than staged with a harness | scan the QR, pair over the built-in transport, watch a CLI-triggered run | the app asks how to connect **before** the camera opens , listing the transports the app can dial with Built-in pre-selected. The owner leaves Built-in, scans, and is not asked again: the machine reports Built-in, so the answer stands. It pairs over it and the run appears. Oracle: the daemon's `device paired` line names transport `iroh` | the daemon log, the tester's note | remove the device | pass: paired over the built-in transport from mobile data, transport=iroh; found six defects, all fixed |
 | M4 | A handset that can use both transports | choose Tailscale on the opening screen, before the scan, and pair over it | neither path ships unexercised: the deliberate Tailscale choice pairs over Tailscale. Oracle: the daemon's `device paired` line names transport `tailscale` | the daemon log, the tester's note | remove the device | pass on the daemon oracle: transport=tailscale, chosen before the scan |
 | M5 | A paired phone **on Tailscale**, in a live run, with Built-in also offered; the tailnet address then blocked on the machine | recover from the conversation and pick the run back up, taking **Built-in**, which the phone adopts first | the machine reads as not reachable, the owner recovers, and the run re-attaches through the socket's replay. Oracle: the run continues with no gap, read from the run's own record rather than the screen | the tester's note, the run journal, the daemon's adoption line | remove the device | pass: recovered to Built-in mid-run, the phone adopted it, and the run carried on |
-| M6 | A paired phone on Built-in with **Tailscale turned off on the handset**; the daemon stopped; the recovery band already shows Built-in **no answer** after a completed verification, a dropped live watch or conversation re-entry | from the recovery, select **Tailscale** | the Tailscale row becomes selected, then the full **Connecting over Tailscale** screen appears. Tailscale's precondition is local and fails without any network attempt, so the verdict is immediate and the words are its own: **Tailscale is off on this phone**, drawn at `0.4.5-pairing-tailscale-off`. The failure creates neither a Tailscale connection nor an adoption, but Connection and the hub retain the selected **Tailscale** choice. It must not say the machine did not answer | the tester's note against the drawn screen, the hub label, and the time to a verdict | restart the daemon | not run: invalidated by the selected-choice and terminal-verification corrections; rebuild and re-run on the handset |
-| M7 | A paired phone on Built-in with **Tailscale on**; the daemon stopped; the recovery band already shows Built-in **no answer** after a completed verification, a dropped live watch or conversation re-entry | from the recovery, select **Tailscale** | the Tailscale row becomes selected, then the full **Connecting over Tailscale** screen appears. It reaches the other Tailscale failure: **Can't reach `<machine>` over Tailscale**, drawn at `0.4.5-pairing-tailscale-unreachable`, within the transport's bound and without another dial after that verdict. The failure creates neither a connection nor an adoption, but Connection and the hub retain the selected **Tailscale** choice. The two failures are different screens because they are different facts, and a phone with Tailscale off must never be told the machine went silent | the tester's note, Connection and hub screenshots, the daemon log, and the time to a verdict | restart the daemon | not run: invalidated by the selected-choice and terminal-verification corrections; rebuild and re-run on the handset |
+| M6 | A paired phone on Built-in with **Tailscale turned off on the handset**; the daemon stopped; the recovery band already shows Built-in **no answer** after a completed verification, a dropped live watch or conversation re-entry | from the recovery, select **Tailscale** | the Tailscale row becomes selected, then the full **Connecting over Tailscale** screen appears. Tailscale's precondition is local and fails without any network attempt, so the verdict is immediate and the words are its own: **Tailscale is off on this phone**, drawn at `0.4.5-pairing-tailscale-off`. The failure creates neither a Tailscale connection nor an adoption, but Connection and the hub retain the selected **Tailscale** choice. It must not say the machine did not answer | the tester's note against the drawn screen, the hub label, and the time to a verdict | restart the daemon | pass: a release APK matched to the clean build; the local Tailscale-off error appeared immediately, and Connection and the hub retained Tailscale |
+| M7 | A paired phone on Built-in with **Tailscale on**; the daemon stopped; the recovery band already shows Built-in **no answer** after a completed verification, a dropped live watch or conversation re-entry | from the recovery, select **Tailscale** | the Tailscale row becomes selected, then the full **Connecting over Tailscale** screen appears. It reaches the other Tailscale failure: **Can't reach `<machine>` over Tailscale**, drawn at `0.4.5-pairing-tailscale-unreachable`, within the transport's bound and without another dial after that verdict. The failure creates neither a connection nor an adoption, but Connection and the hub retain the selected **Tailscale** choice. The two failures are different screens because they are different facts, and a phone with Tailscale off must never be told the machine went silent | the tester's note, Connection and hub screenshots, the daemon log, and the time to a verdict | restart the daemon | pass: the error appeared immediately, remained stable for 35 seconds, and the failure and hub captures both showed Tailscale selected |
 
 **What adopting a transport changed in this runbook, and what it costs to re-drive.** The
 first attempt at M5 found that a phone paired over Tailscale can never adopt
@@ -382,6 +381,11 @@ because each is a different fact: Tailscale off on the handset is not
 Tailscale on and the machine silent. Both screens are already drawn, so these
 cells check the product against the mockups rather than inventing an expected
 result.
+
+**Connection selection at `0.4.5` starts from recovery.** The machine hub
+shows the selected connection and its verdict, but has no transport-change
+control in this release. Establish the alternate selection from the recovery
+screen before a cell expects it to persist in the hub.
 
 The families that assert the admission posture are re-driven in full, because
 they are what would hide a regression: **B1 to B12, S1 to S6, and X1**. All of
@@ -420,8 +424,8 @@ the parts actually driven on that OS.
 | F: failure and recovery | not run: needs the second network | not run: needs the second network | not run: needs the second network | partial: F1 substituted, its second-network half not run |
 | X: out of the box | not run: needs a fresh root and a second network | not run: needs a fresh root and a second network | not run: needs a fresh root and a second network | pass |
 | K: the secret key file | not run: the permission branch is asserted per OS | not run: the DACL branch is asserted on Windows | not run: the permission branch is asserted per OS | pass |
-| M: the phone | not run: blocked on vadgr-mobile 0.4.5 | not run: blocked on vadgr-mobile 0.4.5 | not run: blocked on vadgr-mobile 0.4.5 | **not run**: M6 and M7 were invalidated by the selected-choice and terminal-verification corrections; rebuild and re-run them on the handset |
-| overall | not run: no live cell has run | not run: no live cell has run | not run: no live cell has run | **not run**: the repaired handset cells M6 and M7 still need their live results |
+| M: the phone | not run: blocked on vadgr-mobile 0.4.5 | not run: blocked on vadgr-mobile 0.4.5 | not run: blocked on vadgr-mobile 0.4.5 | pass: M6 and M7 re-run on the matched release APK |
+| overall | not run: no live cell has run | not run: no live cell has run | not run: no live cell has run | **not run**: T1 still needs two real networks; F1 still needs its second-network dial |
 
 This WSL column was recorded while the branch was still moving. The pass found
 two defects and both were fixed on it, so the binary changed twice under the

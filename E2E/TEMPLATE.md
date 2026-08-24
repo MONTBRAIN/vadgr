@@ -177,6 +177,12 @@ owner's cell, or could the owner's cell run now instead?"** This paragraph
 exists because `0.4.8`'s Windows pass announced the handset cell in its first
 message and then ran five parts before reaching it.
 
+**A handset screenshot is a scheduled owner action.** Before a cell needs one,
+name the exact screen and the capture point. Tell the owner to keep the product
+focused until capture is confirmed. If a reply would switch apps, get it before
+the focus step or from another device. A capture from another app is discarded,
+never filed, and the required cell is re-run.
+
 **2. Do not stop the pass to report.** The pass runs to completion for the
 operating system it is on. Findings, blocked cells, corrections and questions
 are written into the runbook and the evidence as they happen, and they are
