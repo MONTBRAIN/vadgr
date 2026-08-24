@@ -74,8 +74,10 @@ and `token`), `secret_key` (optional 64-hex, one identity across dials),
 a request), `connect_timeout_ms` (default 15000).
 
 The record carries `handshake` (`Completed`, `Refused` or `NotAttempted`) and,
-per request, `status`, `error_code`, `body` and any `stream_error`. A cell
-reads it and decides; the dialer asserts nothing.
+on a completed handshake, `connect_ms` plus `selected_path` (`direct`, `relay`
+or `unknown`). Those route fields intentionally carry no address. Per request,
+it records `status`, `error_code`, `body` and any `stream_error`. A cell reads
+it and decides; the dialer asserts nothing.
 
 **One operational note, learned building it.** A QUIC client must not finish its
 send half before reading the response: finishing races the daemon's reply on

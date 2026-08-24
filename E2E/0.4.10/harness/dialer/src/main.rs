@@ -34,7 +34,7 @@ use iroh::endpoint::presets;
 use iroh::{Endpoint, EndpointAddr, EndpointId, RelayMode, SecretKey};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 const ALPN: &[u8] = b"vadgr/http/1";
 
@@ -114,6 +114,10 @@ struct Record {
     self_id: String,
     handshake: Handshake,
     #[serde(skip_serializing_if = "Option::is_none")]
+    connect_ms: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    selected_path: Option<PathKind>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     error: Option<String>,
     responses: Vec<RespRecord>,
     /// Absent unless the job asked for a hold.
@@ -153,6 +157,15 @@ enum Handshake {
     Completed,
     Refused,
     NotAttempted,
+}
+
+/// The selected route without its address, which is private test input.
+#[derive(Debug, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+enum PathKind {
+    Direct,
+    Relay,
+    Unknown,
 }
 
 #[derive(Serialize)]
@@ -210,11 +223,14 @@ async fn main() -> Result<()> {
         .await
         .context("binding the dialer endpoint")?;
 
+    let connect_started = Instant::now();
     let connect = endpoint.connect(addr, ALPN);
     let mut record = Record {
         node: job.node.clone(),
         self_id: endpoint.id().to_string(),
         handshake: Handshake::NotAttempted,
+        connect_ms: None,
+        selected_path: None,
         error: None,
         held_ms: None,
         closed_during_hold: None,
@@ -234,11 +250,13 @@ async fn main() -> Result<()> {
         }
         Ok(Ok(conn)) => {
             record.handshake = Handshake::Completed;
+            record.connect_ms = Some(connect_started.elapsed().as_millis() as u64);
             if job.expect_handshake {
                 for spec in &job.requests {
                     record.responses.push(one_request(&conn, spec).await);
                 }
             }
+            record.selected_path = selected_path(&conn);
             for spec in &job.sockets {
                 record.sockets.push(one_socket(&conn, spec).await);
             }
@@ -259,6 +277,23 @@ async fn main() -> Result<()> {
     println!("{}", serde_json::to_string_pretty(&record)?);
     endpoint.close().await;
     Ok(())
+}
+
+fn selected_path(conn: &iroh::endpoint::Connection) -> Option<PathKind> {
+    conn.paths()
+        .iter()
+        .find(|path| path.is_selected())
+        .map(|path| path_kind(path.is_ip(), path.is_relay()))
+}
+
+fn path_kind(is_ip: bool, is_relay: bool) -> PathKind {
+    if is_ip {
+        PathKind::Direct
+    } else if is_relay {
+        PathKind::Relay
+    } else {
+        PathKind::Unknown
+    }
 }
 
 async fn one_request(conn: &iroh::endpoint::Connection, spec: &ReqSpec) -> RespRecord {
@@ -295,7 +330,7 @@ async fn request_over_stream(
     let body = spec
         .body
         .as_ref()
-        .map(|b| serde_json::to_vec(b))
+        .map(serde_json::to_vec)
         .transpose()?
         .unwrap_or_default();
     let mut head = format!(
@@ -506,8 +541,7 @@ async fn drive_socket(
             0x8 => {
                 if payload.len() >= 2 {
                     record.close_code = Some(u16::from_be_bytes([payload[0], payload[1]]));
-                    record.close_reason =
-                        Some(String::from_utf8_lossy(&payload[2..]).into_owned());
+                    record.close_reason = Some(String::from_utf8_lossy(&payload[2..]).into_owned());
                 }
                 return Ok(());
             }
@@ -557,5 +591,17 @@ async fn pull(
                 Ok(true)
             }
         },
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{PathKind, path_kind};
+
+    #[test]
+    fn classifies_the_selected_path_without_recording_its_address() {
+        assert_eq!(path_kind(true, false), PathKind::Direct);
+        assert_eq!(path_kind(false, true), PathKind::Relay);
+        assert_eq!(path_kind(false, false), PathKind::Unknown);
     }
 }
