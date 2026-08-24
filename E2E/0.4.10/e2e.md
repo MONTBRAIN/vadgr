@@ -1,5 +1,13 @@
 # 0.4.10 - the built-in transport: e2e runbook
 
+> **vadgr 0.4.10 PR:**
+> [vadgr PR #207](https://github.com/MONTBRAIN/vadgr/pull/207).
+> **vadgr 0.4.10 evidence PR:**
+> [vadgr-docs PR #114](https://github.com/MONTBRAIN/vadgr-docs/pull/114).
+>
+> Every later host adds evidence to #114. It does not open another evidence
+> pull request for this minor.
+
 > **Read this whole file before you run anything, and read
 > [`../README.md`](../README.md) beside it.** Not the rules that look relevant to
 > the cell in front of you: the whole file. Every rule in it was written because
