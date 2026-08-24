@@ -11,11 +11,12 @@ endpoint, beside Tailscale; it reports the transports it supports rather than
 serving a set an owner configured; and gate 1 on the built-in transport is a
 handshake-proven endpoint id, bound at claim.
 
-> **Status: partially run on WSL, 2026-08-21 through 2026-08-24.** All fifty
+> **Status: run on WSL, 2026-08-21 through 2026-08-24.** All fifty
 > cells carry a verdict. `T1` passes from an external macOS client. `F1` passes
 > from that client with relay loss modelled in disposable product state. The
-> rebuilt handset cells `M6` and `M7` pass. The three independent closing passes
-> remain. The automated gate was green, but it is necessary and never sufficient
+> rebuilt handset cells `M6` and `M7` pass. Three independent closing passes
+> pass against one frozen installed artifact. The automated gate was green, but
+> it is necessary and never sufficient
 > because it reaches neither a real transport nor the phone.
 
 ## How a pass is run, before anything else in this file
@@ -425,7 +426,7 @@ the parts actually driven on that OS.
 | X: out of the box | not run: needs a fresh root and a second network | not run: needs a fresh root and a second network | not run: needs a fresh root and a second network | pass |
 | K: the secret key file | not run: the permission branch is asserted per OS | not run: the DACL branch is asserted on Windows | not run: the permission branch is asserted per OS | pass |
 | M: the phone | not run: blocked on vadgr-mobile 0.4.5 | not run: blocked on vadgr-mobile 0.4.5 | not run: blocked on vadgr-mobile 0.4.5 | pass: M6 and M7 re-run on the matched release APK |
-| overall | not run: no live cell has run | not run: no live cell has run | not run: no live cell has run | **partial**: every cell passes; the three independent closing passes remain |
+| overall | not run: no live cell has run | not run: no live cell has run | not run: no live cell has run | **pass**: every cell and all three independent closing passes pass |
 
 This WSL column was recorded while the branch was still moving. The pass found
 two defects and both were fixed on it, so the binary changed twice under the
@@ -445,3 +446,11 @@ doctrine: every HTTP entry on method, path, status and error code; the dialer
 records on handshake verdict and per-request status; the run-socket frame counts
 per transport. Then read the token counts, the fixture pinned first. Ask each
 agent what looked odd, not only whether its cells passed.
+
+**Closing result (2026-08-24): pass.** Three independent service-managed
+passes used the same frozen installed artifact. Each recorded fifteen HTTP
+entries, seven absent-route entries, and sixteen CLI entries; their structural
+method/path/status/error-code and CLI shapes matched. An initial second-pass
+setup launched the daemon outside the public service command and therefore did
+not produce the service log; it was invalid as a closing pass and was repeated
+with the public command. The valid passes reported no odd product behavior.
