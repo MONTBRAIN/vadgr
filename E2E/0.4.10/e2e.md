@@ -11,12 +11,12 @@ endpoint, beside Tailscale; it reports the transports it supports rather than
 serving a set an owner configured; and gate 1 on the built-in transport is a
 handshake-proven endpoint id, bound at claim.
 
-> **Status: partially run on WSL, 2026-08-21 through 2026-08-24.** Forty-nine
-> of fifty cells carry a verdict. `T1` still needs a second real network. `F1`
-> records a partial verdict because its second-network dial remains unrun. The
-> rebuilt handset cells `M6` and `M7` pass. The automated gate was green, but it
-> is necessary and never sufficient because it reaches neither a real transport
-> nor the phone.
+> **Status: partially run on WSL, 2026-08-21 through 2026-08-24.** All fifty
+> cells carry a verdict. `T1` passes from an external macOS client. `F1` passes
+> from that client with relay loss modelled in disposable product state. The
+> rebuilt handset cells `M6` and `M7` pass. The three independent closing passes
+> remain. The automated gate was green, but it is necessary and never sufficient
+> because it reaches neither a real transport nor the phone.
 
 ## How a pass is run, before anything else in this file
 
@@ -223,7 +223,7 @@ half. The gate's counts and exit codes are filed in `gate/` before Part A.
 | H: health's scope | caller x entry | 4 | 4 | pass |
 | S: the security surface | attacker x control | 6 | 6 | pass |
 | D the deletion sweep, per transport | transport x surface | 2 | 2 | pass |
-| F: failure and recovery | failure x recovery | 6 | 6 | partial: F1 substituted, its second-network half not run |
+| F: failure and recovery | failure x recovery | 6 | 6 | pass |
 | X: out of the box | fresh machine x dial | 1 | 1 | pass |
 | K: the secret key file | platform x permission | 1 | 1 | pass |
 | M the phone, held by a person | what mobile 0.4.5 does | 7 | 7 | pass |
@@ -245,7 +245,7 @@ than surfacing four groups in.
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| T1 | The daemon up with nothing set (default relays), behind the home NAT; a second network (phone hotspot or a namespace with no LAN route to the machine) | `vadgr pair` on the machine; read `node`, `relays` from the QR; from the second network, `$DIALER` dials the endpoint id and drives `GET /api/health` then a claim | the handshake completes; health answers `200`; the claim answers `200`. Record whether rendezvous was direct or relayed and the connect latency. Oracle: the daemon's `device paired` log line and the `device_peers` row | the dialer record, the daemon log for the window, the pairing report, the direct/relayed reading and latency | remove the device | not run: the owner's opening cell, needs two real networks |
+| T1 | The daemon up with nothing set (default relays), behind the home NAT; a second network (phone hotspot or a namespace with no LAN route to the machine) | `vadgr pair` on the machine; read `node`, `relays` from the QR; from the second network, `$DIALER` dials the endpoint id and drives `GET /api/health` then a claim | the handshake completes; health answers `200`; the claim answers `200`. Record whether rendezvous was direct or relayed and the connect latency. Oracle: the daemon's `device paired` log line and the `device_peers` row | the dialer record, the daemon log for the window, the pairing report, the direct/relayed reading and latency | remove the device | pass: external macOS client, relay path, 1.122 s; health and claim `200`; daemon oracle and cleanup pass |
 
 ## Part P: pairing reports every supported transport
 
@@ -321,7 +321,7 @@ structurally: method, path, status, error code, and the run-socket frame counts.
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| F1 | The relay firewalled at pairing (block the relay host outbound) | the second network dials during a window | rendezvous fails cleanly; `vadgr pair`'s report and the health block name the built-in transport's own words; loopback and Tailscale keep serving. Oracle: the daemon stays up and the other transports answer | the dialer record, the health block, the daemon log | unblock the relay | partial: the daemon-side half passes; the second-network dial is the owner's |
+| F1 | Before the daemon starts, give the disposable daemon test instance a product-scoped relay list whose endpoint is unreachable. Give the second-network dialer that relay list and no direct addresses. Do not change the host firewall, DNS, routing, proxy, VPN or network service. | the second network dials during a window | rendezvous fails cleanly; `vadgr pair`'s report and the health block name the built-in transport's own words; loopback and Tailscale keep serving. Oracle: the daemon stays up and the other transports answer | the dialer record, the health block, the daemon log | stop the disposable daemon and remove its test state | pass: external macOS client was refused before any HTTP request; loopback and Tailscale health stayed `200`; no host network state changed |
 | F2 | A phone bound over the built-in transport; the daemon then stopped | the phone dials | the handshake does not complete; the daemon log ends cleanly. Oracle: the dialer's `Refused` and the absence of a daemon process | the dialer record | restart the daemon | pass |
 | F3 | A phone bound over the built-in transport; then `DELETE /api/devices/{id}` over loopback | the revoked phone dials again | nothing is served: the binding is gone, so the identity is admitted only inside a window and there is none. The handshake still completes, because only a machine that could admit nobody refuses before the handshake (B4, X1) and another device is still bound here; the refusal shows as the stream that cannot be opened. Oracle: the dialer's stream error and the empty `device_peers` for that id | the dialer record, the row read back | none | pass |
 | F4 | A device paired over Tailscale before this release (no binding row) | the device dials over Tailscale | it still works, gate 1 is tailnet membership, no binding needed. Oracle: a tokened request answers `200` | the request record | remove the device | pass |
@@ -414,18 +414,18 @@ the parts actually driven on that OS.
 | Part | Linux | Windows | macOS | WSL |
 |---|---|---|---|---|
 | A: the built head | not run: the owner runs it | not run: the owner runs it | not run: the owner runs it | pass |
-| T: the traversal spike | not run: needs two networks | not run: needs two networks | not run: needs two networks | not run: the owner's cell |
+| T: the traversal spike | not run: needs two networks | not run: needs two networks | not run: needs two networks | pass: external macOS client; relay path; health and claim `200` |
 | P: pairing and the report | not run: the owner runs it | not run: the owner runs it | not run: the owner runs it | pass |
 | B: the admission rule | not run: needs the second network | not run: needs the second network | not run: needs the second network | pass |
 | C: the claim binds | not run: needs the second network | not run: needs the second network | not run: needs the second network | pass |
 | H: health's scope | not run: needs the second network | not run: needs the second network | not run: needs the second network | pass |
 | S: the security surface | not run: needs the second network | not run: needs the second network | not run: needs the second network | pass |
 | D: the deletion sweep | not run: needs Tailscale and a second network | not run: needs Tailscale and a second network | not run: needs Tailscale and a second network | pass |
-| F: failure and recovery | not run: needs the second network | not run: needs the second network | not run: needs the second network | partial: F1 substituted, its second-network half not run |
+| F: failure and recovery | not run: needs the second network | not run: needs the second network | not run: needs the second network | pass: external client refused through controlled unreachable relay; both unaffected paths stayed healthy |
 | X: out of the box | not run: needs a fresh root and a second network | not run: needs a fresh root and a second network | not run: needs a fresh root and a second network | pass |
 | K: the secret key file | not run: the permission branch is asserted per OS | not run: the DACL branch is asserted on Windows | not run: the permission branch is asserted per OS | pass |
 | M: the phone | not run: blocked on vadgr-mobile 0.4.5 | not run: blocked on vadgr-mobile 0.4.5 | not run: blocked on vadgr-mobile 0.4.5 | pass: M6 and M7 re-run on the matched release APK |
-| overall | not run: no live cell has run | not run: no live cell has run | not run: no live cell has run | **not run**: T1 still needs two real networks; F1 still needs its second-network dial |
+| overall | not run: no live cell has run | not run: no live cell has run | not run: no live cell has run | **partial**: every cell passes; the three independent closing passes remain |
 
 This WSL column was recorded while the branch was still moving. The pass found
 two defects and both were fixed on it, so the binary changed twice under the
