@@ -580,6 +580,10 @@ before the affected group starts. Never print or persist a secret while checking
 availability. A missing item blocks the already-written cells; it does not
 remove them or reduce the matrix.>
 
+<Host networking is never e2e state. Do not change the host firewall, DNS,
+routing, proxy, VPN or network service. Model a network failure in isolated
+test state. A host network change is never an e2e cell.>
+
 <Read live credentials only from the workspace `../.env`. Never echo or copy a
 value into a command, log, screenshot, transcript, process listing, GitHub text,
 documentation or evidence. Run

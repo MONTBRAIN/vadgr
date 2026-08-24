@@ -228,6 +228,10 @@ destructive action and owner decision up front, map each to its cells, and
 inform the owner before the affected group runs. Missing setup blocks written
 cells; it never deletes or collapses them.
 
+**Host networking is never e2e state.** Do not change the host firewall, DNS,
+routing, proxy, VPN or network service. Model a network failure in isolated
+test state. A host network change is never an e2e cell.
+
 **The owner's cells are the first cells executed, and announcing them is not
 executing them.** A pass identifies every cell that cannot proceed without a
 human and **runs those first**, before any unattended cell. Naming the
