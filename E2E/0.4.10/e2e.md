@@ -422,19 +422,19 @@ the parts actually driven on that OS.
 
 | Part | Linux | Windows | macOS | WSL |
 |---|---|---|---|---|
-| A: the built head | not run: the owner runs it | not run: the owner runs it | not run: the owner runs it | pass |
-| T: the traversal spike | not run: needs two networks | not run: needs two networks | not run: needs two networks | pass: external macOS client; relay path; health and claim `200` |
-| P: pairing and the report | not run: the owner runs it | not run: the owner runs it | not run: the owner runs it | pass |
-| B: the admission rule | not run: needs the second network | not run: needs the second network | not run: needs the second network | pass |
-| C: the claim binds | not run: needs the second network | not run: needs the second network | not run: needs the second network | pass |
-| H: health's scope | not run: needs the second network | not run: needs the second network | not run: needs the second network | pass |
-| S: the security surface | not run: needs the second network | not run: needs the second network | not run: needs the second network | pass |
-| D: the deletion sweep | not run: needs Tailscale and a second network | not run: needs Tailscale and a second network | not run: needs Tailscale and a second network | pass |
-| F: failure and recovery | not run: needs the second network | not run: needs the second network | not run: needs the second network | pass: external client refused through controlled unreachable relay; both unaffected paths stayed healthy |
-| X: out of the box | not run: needs a fresh root and a second network | not run: needs a fresh root and a second network | not run: needs a fresh root and a second network | pass |
-| K: the secret key file | not run: the permission branch is asserted per OS | not run: the DACL branch is asserted on Windows | not run: the permission branch is asserted per OS | pass |
-| M: the phone | not run: blocked on vadgr-mobile 0.4.5 | not run: blocked on vadgr-mobile 0.4.5 | not run: blocked on vadgr-mobile 0.4.5 | pass: M6 and M7 re-run on the matched release APK |
-| overall | not run: no live cell has run | not run: no live cell has run | not run: no live cell has run | **pass**: every cell and all three independent closing passes pass |
+| A: the built head | not run: the owner runs it | pass: installed 0.4.10 binary and health version match | not run: the owner runs it | pass |
+| T: the traversal spike | not run: needs two networks | pass: external MacBook on mobile data; direct path; health and claim `200` in 445 ms | not run: needs two networks | pass: external macOS client; relay path; health and claim `200` |
+| P: pairing and the report | not run: the owner runs it | pass | not run: the owner runs it | pass |
+| B: the admission rule | not run: needs the second network | pass | not run: needs the second network | pass |
+| C: the claim binds | not run: needs the second network | pass | not run: needs the second network | pass |
+| H: health's scope | not run: needs the second network | pass | not run: needs the second network | pass |
+| S: the security surface | not run: needs the second network | pass | not run: needs the second network | pass |
+| D: the deletion sweep | not run: needs Tailscale and a second network | pass: paired Tailscale and built-in HTTP/sockets match | not run: needs Tailscale and a second network | pass |
+| F: failure and recovery | not run: needs the second network | pass | not run: needs the second network | pass: external client refused through controlled unreachable relay; both unaffected paths stayed healthy |
+| X: out of the box | not run: needs a fresh root and a second network | pass: fresh root refused before handshake | not run: needs a fresh root and a second network | pass |
+| K: the secret key file | not run: the permission branch is asserted per OS | pass: protected owner-rights DACL; corrupt key leaves loopback and Tailscale healthy | not run: the permission branch is asserted per OS | pass |
+| M: the phone | not run: blocked on vadgr-mobile 0.4.5 | pass: M1 through M7 recorded on the physical handset | not run: blocked on vadgr-mobile 0.4.5 | pass: M6 and M7 re-run on the matched release APK |
+| overall | not run: no live cell has run | **pass**: every cell and all three independent closing passes pass | not run: no live cell has run | **pass**: every cell and all three independent closing passes pass |
 
 This WSL column was recorded while the branch was still moving. The pass found
 two defects and both were fixed on it, so the binary changed twice under the
