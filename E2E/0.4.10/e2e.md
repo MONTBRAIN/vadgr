@@ -43,6 +43,19 @@ the target.**
 **One command at a time.** Every product command is invoked on its own and its
 output and exit code are read before the next is chosen.
 
+**The agent drives the handset.** Part M runs on a physical handset connected
+through ADB or an equivalent device interface. The agent performs every action
+that interface exposes, captures screenshots at each meaningful state, and
+assesses the visible result itself against the expected result. It corroborates
+the screen with the daemon oracle where the cell names one. The owner performs
+only an unavoidable physical or protected action that the interface cannot
+perform, such as scanning a prepared QR code with the handset camera. Before
+requesting that help, the agent prepares the exact screen and artifact, asks for
+one precise action and its completion signal, then resumes the device drive.
+Asking the owner to tap, navigate, type, install, relaunch, change a software
+setting or report visible state when the device interface can do so invalidates
+the cell.
+
 **A rebuild is a new subject.** If any fix lands mid-pass, the binaries are
 rebuilt, `A1` is re-run and its new hashes recorded **before any further cell**,
 and every cell the changed files touch goes back to `not run`.
@@ -92,10 +105,10 @@ between them would pass for the wrong reason. That is the same defect as
 dialing loopback, one layer out, and a result produced that way is worth less
 than no result.
 
-**So the away case is proved once, by the real client, in `M3`.** The owner
-holds the handset on **mobile data**: a carrier NAT on one side, the home NAT on
-the other, which is the pair the built-in transport exists to cross. It is the
-product's own client rather than the harness, and it needs no container, no
+**So the away case is proved once, by the real client, in `M3`.** The agent
+drives the handset on **mobile data**: a carrier NAT on one side, the home NAT
+on the other, which is the pair the built-in transport exists to cross. It is
+the product's own client rather than the harness, and it needs no container, no
 namespace and no second machine.
 
 **What the rest of the pass does instead, and what each cell may therefore
@@ -122,16 +135,17 @@ claims it does.
 |---|---|---|---|---|
 | A default provider/model connected, so a run can start | `M1` | `vadgr providers` shows a default | one billed run's calls | the isolated root is removed |
 | `GEMINI_API_KEY` (or another provider key) in `../.env` | `M1` | `grep -c '^GEMINI_API_KEY' ../.env` returns `1`; the value is never printed | one billed run | the isolated root is removed |
-| **The away case: the owner's handset on mobile data** (not the home wifi). Every device on this network is on this network, so no arrangement of them produces two NATs; the phone's carrier is the only real second network available | `M3` | the tester holds the phone and turns wifi off | none | the device is revoked at the end |
+| **The away case: the physical handset on mobile data** (not the home wifi). Every device on this network is on this network, so no arrangement of them produces two NATs; the phone's carrier is the only real second network available | `M3` | the device interface lists the handset; the agent turns wifi off, turns mobile data on and verifies the active network | none | the device is revoked at the end |
 | Tailscale up and logged in | `P2`, `D1`, `F4`, `M2` | `tailscale status` names this node | none | none |
 | A container runtime or a second network namespace, for the away and security cells | `T1`, `B`-`S`, `X1` | `docker info`, `podman info`, or `ip netns` answers | none | the namespace or container is removed |
-| A real handset with the built-in-transport app (`vadgr-mobile 0.4.5`) | `M3`-`M5` | the app is installed and the tester holds the phone | none | the device is removed |
+| A real handset with the applicable mobile build | `M2`-`M7` | the device interface lists the handset and the package manager reports the installed build | none | the device is removed |
 | `vadgr-computer-use` installed, `vadgr-cua` resolvable | `M1` | `vadgr-cua doctor` exits `0` | none | none |
 | The built-in transport's dialer, built from its committed path | every `T`, `B`, `C`, `H`, `S`, `F`, `X` cell | `cargo build --release` in `harness/dialer` produces the binary | none | none |
 | Rust toolchain and git | all | `cargo --version`, `git --version` | none | none |
 
-**The handset group (Part M) runs first**, per the rule that owner cells open a
-pass. Its setup, a provider login and a build onto the phone, is the first work.
+**The handset group (Part M) runs first.** Its setup, a provider login, a build
+onto the phone and the unavoidable QR scans are the first work. The agent drives
+all other handset actions.
 
 ## Billed model selection
 
@@ -191,7 +205,8 @@ Each native-host session follows this without context from another session.
    the built-in transport carries the phone in `F4`'s place.
 5. **The environment** is the block above. Windows PowerShell mirrors it with
    `$env:` assignments, as the `0.4.9` runbook shows.
-6. **Order.** `M` first, because it needs a person and a build onto the phone.
+6. **Order.** `M` first, because it needs a physical handset, a build onto the
+   phone and unavoidable QR scans.
    Then `A`, the automated gate, then `T` (the traversal spike, the first live
    boundary), then `P`, `B`, `C`, `H`, `S`, `D`, `F`, `X`, `K`.
 7. **Evidence** goes in a dated directory created before the first cell. The
@@ -235,7 +250,7 @@ half. The gate's counts and exit codes are filed in `gate/` before Part A.
 | F: failure and recovery | failure x recovery | 6 | 6 | pass |
 | X: out of the box | fresh machine x dial | 1 | 1 | pass |
 | K: the secret key file | platform x permission | 1 | 1 | pass |
-| M the phone, held by a person | what mobile 0.4.5 does | 7 | 7 | pass |
+| M: the agent-driven physical handset | what mobile 0.4.5 does | 7 | 7 | pass |
 | | | **50** | **49** | **1** |
 
 ## Part A: the thing under test is the thing that was built
@@ -349,22 +364,24 @@ structurally: method, path, status, error code, and the run-socket frame counts.
 |---|---|---|---|---|---|---|
 | K1 | A fresh state root; boot once, then read `credentials/iroh_secret_key` | inspect the file's permissions, then corrupt it and reboot | the file is owner-only (Unix mode `0600`; a current-user DACL on Windows), stable across reboots; a corrupt file fails the built-in transport loudly while loopback and Tailscale keep serving. Oracle: the mode read on this platform, and the daemon still answering loopback with the built-in transport marked unavailable | the permission read, the boot logs before and after corruption | remove the state root | pass |
 
-## Part M: the phone, held by a person
+## Part M: the agent-driven physical handset
 
 The built-in transport's phone client is `vadgr-mobile 0.4.5`, unreleased at this
 runbook's writing. These cells are the handheld flows that release owes, named
 here so the daemon behaviour each leans on is on the record and driven from this
-side by the dialer in Parts T, B, C and H.
+side by the dialer in Parts T, B, C and H. The agent drives these cells through
+the device interface and assesses its own screenshots. The prepared QR scans in
+M2 through M4 are the only owner actions.
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| M1 | A default provider connected; a phone paired (dialer stands in until mobile 0.4.5); a CLI-triggered run | watch the run over the built-in transport | the run's frames arrive over the built-in transport's upgraded stream exactly as over the socket. Oracle: the frame counts against a loopback watch of the same run | the frame counts, the run journal | remove the run | pass: a CLI-triggered run reached the phone over the built-in transport, complete |
-| M2 | A released `vadgr-mobile 0.4.1` handset; Tailscale up | pair by scanning the QR, over Tailscale | the released app pairs unchanged: the QR still carries `host` and `port`. Oracle: the daemon's `device paired` line names transport `tailscale` | the daemon log, the tester's note | remove the device | pass: the released 0.4.1 app paired unchanged, transport=tailscale |
-| M3 | A handset with Tailscale **installed but its VPN disconnected**, and the built-in-transport app, **on mobile data rather than the home wifi** (the owner's ruling, 2026-08-21): a carrier NAT on one side and the home NAT on the other, which is the away case this transport exists for, driven by the real client rather than staged with a harness | scan the QR, pair over the built-in transport, watch a CLI-triggered run | the app asks how to connect **before** the camera opens , listing the transports the app can dial with Built-in pre-selected. The owner leaves Built-in, scans, and is not asked again: the machine reports Built-in, so the answer stands. It pairs over it and the run appears. Oracle: the daemon's `device paired` line names transport `iroh` | the daemon log, the tester's note | remove the device; leave Tailscale installed and reconnect it only when a later cell needs it | pass: paired over the built-in transport from mobile data, transport=iroh; found six defects, all fixed |
-| M4 | A handset that can use both transports | choose Tailscale on the opening screen, before the scan, and pair over it | neither path ships unexercised: the deliberate Tailscale choice pairs over Tailscale. Oracle: the daemon's `device paired` line names transport `tailscale` | the daemon log, the tester's note | remove the device | pass on the daemon oracle: transport=tailscale, chosen before the scan |
-| M5 | A paired phone **on Tailscale**, in a live run, with Built-in also offered; the tailnet address then blocked on the machine | recover from the conversation and pick the run back up, taking **Built-in**, which the phone adopts first | the machine reads as not reachable, the owner recovers, and the run re-attaches through the socket's replay. Oracle: the run continues with no gap, read from the run's own record rather than the screen | the tester's note, the run journal, the daemon's adoption line | remove the device | pass: recovered to Built-in mid-run, the phone adopted it, and the run carried on |
-| M6 | A paired phone on Built-in with **Tailscale turned off on the handset**; the daemon stopped; the recovery band already shows Built-in **no answer** after a completed verification, a dropped live watch or conversation re-entry | from the recovery, select **Tailscale** | the Tailscale row becomes selected, then the full **Connecting over Tailscale** screen appears. Tailscale's precondition is local and fails without any network attempt, so the verdict is immediate and the words are its own: **Tailscale is off on this phone**, drawn at `0.4.5-pairing-tailscale-off`. The failure creates neither a Tailscale connection nor an adoption, but Connection and the hub retain the selected **Tailscale** choice. It must not say the machine did not answer | the tester's note against the drawn screen, the hub label, and the time to a verdict | restart the daemon | pass: a release APK matched to the clean build; the local Tailscale-off error appeared immediately, and Connection and the hub retained Tailscale |
-| M7 | A paired phone on Built-in with **Tailscale on**; the daemon stopped; the recovery band already shows Built-in **no answer** after a completed verification, a dropped live watch or conversation re-entry | from the recovery, select **Tailscale** | the Tailscale row becomes selected, then the full **Connecting over Tailscale** screen appears. It reaches the other Tailscale failure: **Can't reach `<machine>` over Tailscale**, drawn at `0.4.5-pairing-tailscale-unreachable`, within the transport's bound and without another dial after that verdict. The failure creates neither a connection nor an adoption, but Connection and the hub retain the selected **Tailscale** choice. The two failures are different screens because they are different facts, and a phone with Tailscale off must never be told the machine went silent | the tester's note, Connection and hub screenshots, the daemon log, and the time to a verdict | restart the daemon | pass: the error appeared immediately, remained stable for 35 seconds, and the failure and hub captures both showed Tailscale selected |
+| M1 | A default provider connected; a phone paired (dialer stands in until mobile 0.4.5); a CLI-triggered run | the agent opens and watches the run over the built-in transport | the run's frames arrive over the built-in transport's upgraded stream exactly as over the socket. Oracle: the frame counts against a loopback watch of the same run | the agent's run screenshot, the frame counts, the run journal | remove the run | pass: a CLI-triggered run reached the phone over the built-in transport, complete |
+| M2 | A released `vadgr-mobile 0.4.1` handset; Tailscale up; the pairing QR prepared | the agent opens the scanner; the owner scans the prepared QR when requested; the agent resumes and completes the Tailscale pairing | the released app pairs unchanged: the QR still carries `host` and `port`. Oracle: the daemon's `device paired` line names transport `tailscale` | the agent's pairing screenshot and the daemon log | remove the device | pass: the released 0.4.1 app paired unchanged, transport=tailscale |
+| M3 | A handset with Tailscale **installed but its VPN disconnected**, and the built-in-transport app, **on mobile data rather than the home wifi** (the owner's ruling, 2026-08-21): a carrier NAT on one side and the home NAT on the other, which is the away case this transport exists for, driven by the real client rather than staged with a harness; the pairing QR prepared | the agent leaves Built-in selected and opens the scanner; the owner scans the prepared QR when requested; the agent resumes, completes pairing and opens the CLI-triggered run | the app asks how to connect **before** the camera opens, listing the transports the app can dial with Built-in pre-selected. The agent leaves Built-in selected and is not asked again: the machine reports Built-in, so the answer stands. It pairs over it and the run appears. Oracle: the daemon's `device paired` line names transport `iroh` | the agent's connection, pairing and run screenshots; the daemon log | remove the device; leave Tailscale installed and reconnect it only when a later cell needs it | pass: paired over the built-in transport from mobile data, transport=iroh; found six defects, all fixed |
+| M4 | A handset that can use both transports; the pairing QR prepared | the agent selects Tailscale before the scan and opens the scanner; the owner scans the prepared QR when requested; the agent resumes and completes pairing | neither path ships unexercised: the deliberate Tailscale choice pairs over Tailscale. Oracle: the daemon's `device paired` line names transport `tailscale` | the agent's selection and paired-state screenshots; the daemon log | remove the device | pass on the daemon oracle: transport=tailscale, chosen before the scan |
+| M5 | A paired phone **on Tailscale**, in a live run, with Built-in also offered; the tailnet address then blocked on the machine | the agent recovers from the conversation and picks the run back up, taking **Built-in**, which the phone adopts first | the machine reads as not reachable, the agent recovers, and the run re-attaches through the socket's replay. Oracle: the run continues with no gap, read from the run's own record rather than the screen | the agent's failure, selection and resumed-run screenshots; the run journal; the daemon's adoption line | remove the device | pass: recovered to Built-in mid-run, the phone adopted it, and the run carried on |
+| M6 | A paired phone on Built-in with **Tailscale turned off on the handset**; the daemon stopped; the recovery band already shows Built-in **no answer** after a completed verification, a dropped live watch or conversation re-entry | the agent selects **Tailscale** from recovery | the Tailscale row becomes selected, then the full **Connecting over Tailscale** screen appears. Tailscale's precondition is local and fails without any network attempt, so the verdict is immediate and the words are its own: **Tailscale is off on this phone**, drawn at `0.4.5-pairing-tailscale-off`. The failure creates neither a Tailscale connection nor an adoption, but Connection and the hub retain the selected **Tailscale** choice. It must not say the machine did not answer | the agent's Connection, failure and hub screenshots; the daemon log; the time to a verdict | restart the daemon | pass: a release APK matched to the clean build; the local Tailscale-off error appeared immediately, and Connection and the hub retained Tailscale |
+| M7 | A paired phone on Built-in with **Tailscale on**; the daemon stopped; the recovery band already shows Built-in **no answer** after a completed verification, a dropped live watch or conversation re-entry | the agent selects **Tailscale** from recovery | the Tailscale row becomes selected, then the full **Connecting over Tailscale** screen appears. It reaches the other Tailscale failure: **Can't reach `<machine>` over Tailscale**, drawn at `0.4.5-pairing-tailscale-unreachable`, within the transport's bound and without another dial after that verdict. The failure creates neither a connection nor an adoption, but Connection and the hub retain the selected **Tailscale** choice. The two failures are different screens because they are different facts, and a phone with Tailscale off must never be told the machine went silent | the agent's Connection, failure and hub screenshots; the daemon log; the time to a verdict | restart the daemon | pass: the error appeared immediately, remained stable for 35 seconds, and the failure and hub captures both showed Tailscale selected |
 
 **What adopting a transport changed in this runbook, and what it costs to re-drive.** The
 first attempt at M5 found that a phone paired over Tailscale can never adopt
@@ -433,7 +450,7 @@ the parts actually driven on that OS.
 | F: failure and recovery | not run: needs the second network | pass | not run: needs the second network | pass: external client refused through controlled unreachable relay; both unaffected paths stayed healthy |
 | X: out of the box | not run: needs a fresh root and a second network | pass: fresh root refused before handshake | not run: needs a fresh root and a second network | pass |
 | K: the secret key file | not run: the permission branch is asserted per OS | pass: protected owner-rights DACL; corrupt key leaves loopback and Tailscale healthy | not run: the permission branch is asserted per OS | pass |
-| M: the phone | not run: blocked on vadgr-mobile 0.4.5 | pass: M1 through M7 recorded on the physical handset | not run: blocked on vadgr-mobile 0.4.5 | pass: M6 and M7 re-run on the matched release APK |
+| M: the agent-driven physical handset | not run: blocked on vadgr-mobile 0.4.5 | pass: M1 through M7 recorded on the physical handset | not run: blocked on vadgr-mobile 0.4.5 | pass: M6 and M7 re-run on the matched release APK |
 | overall | not run: no live cell has run | **pass**: every cell and all three independent closing passes pass | not run: no live cell has run | **pass**: every cell and all three independent closing passes pass |
 
 This WSL column was recorded while the branch was still moving. The pass found
