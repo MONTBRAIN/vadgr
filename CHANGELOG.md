@@ -122,6 +122,24 @@ reports the list, and the owner picks between them on the phone.
   socket open therefore wrote a live token into the log in clear, where it
   outlived the connection and travelled with any log the owner shared. The log
   now records the method and path and never the query.
+- **A stopped Tailscale no longer stops the daemon from starting.** A Tailscale
+  that is not running still answers its local API and still lists the node's
+  addresses, but the interface holding them is gone. The port search binds
+  every address it is given for every candidate port, so that one unbindable
+  address failed the whole range and `vadgr start` died reporting "No free port
+  found" about ports that were all free. An unavailable transport now
+  contributes no address to bind.
+- **A finished turn with nothing left to say is no longer read as a broken
+  response.** Gemini answers such a turn with a content object holding only its
+  role: the parts array is absent, not empty, and the output token count is
+  omitted with it. The decoder required both and refused the reply, which
+  failed the whole run after every tool call in it had already succeeded.
+- **A tool call that failed is no longer counted as an action.** The end-turn
+  guard counted every call the model made, whatever it returned, so a run whose
+  only call came back "unknown tool" ended as a success with the task
+  untouched: the CLI printed "Run completed" and exited `0` with nothing done.
+  The same count told a resumed run that the failed step was already finished,
+  so it would not be retried.
 - **The daemon says when it closes a connection on the built-in transport.**
   Both closes are logged with the peer: the one that ends with the pairing
   window that admitted it, and the one that reaches its sixty second lifetime
