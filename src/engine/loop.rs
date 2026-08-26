@@ -26,9 +26,9 @@ pub async fn run_loop(
         .as_ref()
         .map(|state| state.prior_usage.clone())
         .unwrap_or_default();
-    let mut completed_tool_count = recovery
+    let mut succeeded_tool_count = recovery
         .as_ref()
-        .map(|state| state.completed_tool_count)
+        .map(|state| state.succeeded_tool_count)
         .unwrap_or(0);
 
     for iteration in 0..limits.max_iterations {
@@ -78,7 +78,12 @@ pub async fn run_loop(
             }
             Some(StopReason::ToolUse) => {}
             Some(StopReason::MaxTokens) => return Err(EngineError::MaxTokens),
-            Some(StopReason::EndTurn) if completed_tool_count == 0 => {
+            // A call that was tried and failed is not an action. The count
+            // used to rise on every call whatever it returned, so a run whose
+            // only tool call came back `unknown tool` ended as a success with
+            // the task untouched: the model apologised in text and the CLI
+            // exited 0. Nothing was done, so the run did nothing.
+            Some(StopReason::EndTurn) if succeeded_tool_count == 0 => {
                 return Err(EngineError::NoActionTaken);
             }
             Some(StopReason::EndTurn) => {
@@ -132,7 +137,9 @@ pub async fn run_loop(
                     ToolResult::error(format!("Error: {error}"))
                 }
             };
-            completed_tool_count += 1;
+            if !result.is_error {
+                succeeded_tool_count += 1;
+            }
             tool_results.push(json!({
                 "type":"tool_result",
                 "tool_use_id":id,
@@ -188,7 +195,7 @@ fn opening_messages(task: &str, recovery: Option<&RecoveryState>) -> Vec<Message
         "This run was interrupted and has been resumed.".to_owned(),
         format!(
             "{} step(s) already completed before the interruption; do not repeat them.",
-            recovery.completed_tool_count
+            recovery.succeeded_tool_count
         ),
     ];
     if !recovery.recent_calls.is_empty() {
@@ -306,7 +313,7 @@ mod tests {
             }],
             dangling: None,
             pending_ask: None,
-            completed_tool_count: 1,
+            succeeded_tool_count: 1,
             prior_usage: Usage::default(),
             todos: Vec::new(),
         };
@@ -462,6 +469,47 @@ mod tests {
         assert_eq!(result.final_text, "finished");
         assert_eq!(*calls.lock().unwrap(), ["act", "act"]);
         assert_eq!(result.usage.input_tokens, 2);
+    }
+
+    /// The live shape this came from: the model called a tool the host does not
+    /// have, the call came back an error, and the model then explained itself
+    /// in text. The run used to end as a success with the task untouched.
+    #[tokio::test]
+    async fn a_run_whose_only_call_failed_took_no_action() {
+        let (model, mut host, journal, context, _) = harness(vec![
+            response(
+                vec![ContentBlock::ToolUse {
+                    id: "1".to_owned(),
+                    // The live one was `computer_usefs`: the model dropped the
+                    // separator out of `computer-use__fs`, so nothing resolved.
+                    name: "testact".to_owned(),
+                    input: json!({}),
+                    provider_signature: None,
+                }],
+                StopReason::ToolUse,
+            ),
+            response(
+                vec![ContentBlock::Text {
+                    text: "I could not do that.".to_owned(),
+                }],
+                StopReason::EndTurn,
+            ),
+        ])
+        .await;
+        assert!(matches!(
+            run_loop(
+                &model,
+                &mut host,
+                &journal,
+                &context,
+                "task",
+                None,
+                CancellationToken::new(),
+                LoopLimits::default()
+            )
+            .await,
+            Err(EngineError::NoActionTaken)
+        ));
     }
 
     #[tokio::test]

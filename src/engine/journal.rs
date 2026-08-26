@@ -55,7 +55,10 @@ pub struct RecoveryState {
     pub recent_calls: Vec<RecoveredCall>,
     pub dangling: Option<InFlightRecord>,
     pub pending_ask: Option<AwaitUserRecord>,
-    pub completed_tool_count: u64,
+    /// Tool calls that ran and returned a result, not calls that were tried.
+    /// A call that failed did not do the step, so a resumed run must be free to
+    /// try it again, and a run whose every call failed did nothing at all.
+    pub succeeded_tool_count: u64,
     pub prior_usage: Usage,
     pub todos: Vec<Value>,
 }
@@ -250,6 +253,7 @@ fn read_recovery_sync(path: &Path, run_id: &str) -> Result<RecoveryState, String
 
     let mut open = std::collections::BTreeMap::<i64, InFlightRecord>::new();
     let mut completed = Vec::new();
+    let mut succeeded = 0u64;
     let mut recent = Vec::new();
     let mut recent_calls = Vec::new();
     let mut pending = None;
@@ -282,6 +286,9 @@ fn read_recovery_sync(path: &Path, run_id: &str) -> Result<RecoveryState, String
                 Some("done") | Some("error") => {
                     let completed_call = open.remove(&seq);
                     completed.push(seq);
+                    if record.get("phase").and_then(Value::as_str) == Some("done") {
+                        succeeded += 1;
+                    }
                     if record.get("phase").and_then(Value::as_str) == Some("done")
                         && let Some(value) = record.get("result")
                     {
@@ -345,7 +352,7 @@ fn read_recovery_sync(path: &Path, run_id: &str) -> Result<RecoveryState, String
     Ok(RecoveryState {
         run_id: run_id.to_owned(),
         last_seq,
-        completed_tool_count: completed.len() as u64,
+        succeeded_tool_count: succeeded,
         completed_seqs: completed,
         recent_results: recent,
         recent_calls,
