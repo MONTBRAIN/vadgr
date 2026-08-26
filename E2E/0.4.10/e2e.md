@@ -439,7 +439,7 @@ the parts actually driven on that OS.
 
 | Part | Linux | Windows | macOS | WSL |
 |---|---|---|---|---|
-| A: the built head | not run: the owner runs it | pass: installed 0.4.10 binary and health version match | pass: installed 0.4.10 binary sha `94720ab9`, equal to the release build, and the health version matches | pass |
+| A: the built head | not run: the owner runs it | pass: installed 0.4.10 binary and health version match | pass: the installed binary is sha `04291f18`, equal to the release build of the final head, and `vadgr --version`, `Cargo.toml` and `GET /api/health` all read `0.4.10`. The pass rebuilt three times because it found and fixed defects, so `A1` was re-recorded each time and every part above was re-driven against this artifact | pass |
 | T: the traversal spike | not run: needs two networks | pass: external MacBook on mobile data; direct path; health and claim `200` in 445 ms | blocked: needs a second network, and the handset that provides the hotspot is away with the owner. Every other part ran | pass: external macOS client; relay path; health and claim `200` |
 | P: pairing and the report | not run: the owner runs it | pass | pass | pass |
 | B: the admission rule | not run: needs the second network | pass | pass: driven over the real built-in wire with the independent dialer, including the four-slot limit, the window-end close and the sixty second lifetime close | pass |
