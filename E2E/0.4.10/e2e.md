@@ -439,19 +439,19 @@ the parts actually driven on that OS.
 
 | Part | Linux | Windows | macOS | WSL |
 |---|---|---|---|---|
-| A: the built head | not run: the owner runs it | pass: installed 0.4.10 binary and health version match | not run: the owner runs it | pass |
-| T: the traversal spike | not run: needs two networks | pass: external MacBook on mobile data; direct path; health and claim `200` in 445 ms | not run: needs two networks | pass: external macOS client; relay path; health and claim `200` |
-| P: pairing and the report | not run: the owner runs it | pass | not run: the owner runs it | pass |
-| B: the admission rule | not run: needs the second network | pass | not run: needs the second network | pass |
-| C: the claim binds | not run: needs the second network | pass | not run: needs the second network | pass |
-| H: health's scope | not run: needs the second network | pass | not run: needs the second network | pass |
-| S: the security surface | not run: needs the second network | pass | not run: needs the second network | pass |
-| D: the deletion sweep | not run: needs Tailscale and a second network | pass: paired Tailscale and built-in HTTP/sockets match | not run: needs Tailscale and a second network | pass |
-| F: failure and recovery | not run: needs the second network | pass | not run: needs the second network | pass: external client refused through controlled unreachable relay; both unaffected paths stayed healthy |
-| X: out of the box | not run: needs a fresh root and a second network | pass: fresh root refused before handshake | not run: needs a fresh root and a second network | pass |
-| K: the secret key file | not run: the permission branch is asserted per OS | pass: protected owner-rights DACL; corrupt key leaves loopback and Tailscale healthy | not run: the permission branch is asserted per OS | pass |
-| M: the agent-driven physical handset | not run: blocked on vadgr-mobile 0.4.5 | pass: M1 through M7 recorded on the physical handset | not run: blocked on vadgr-mobile 0.4.5 | pass: M6 and M7 re-run on the matched release APK |
-| overall | not run: no live cell has run | **pass**: every cell and all three independent closing passes pass | not run: no live cell has run | **pass**: every cell and all three independent closing passes pass |
+| A: the built head | not run: the owner runs it | pass: installed 0.4.10 binary and health version match | pass: installed 0.4.10 binary sha `94720ab9`, equal to the release build, and the health version matches | pass |
+| T: the traversal spike | not run: needs two networks | pass: external MacBook on mobile data; direct path; health and claim `200` in 445 ms | blocked: needs a second network, and the handset that provides the hotspot is away with the owner. Every other part ran | pass: external macOS client; relay path; health and claim `200` |
+| P: pairing and the report | not run: the owner runs it | pass | pass | pass |
+| B: the admission rule | not run: needs the second network | pass | pass: driven over the real built-in wire with the independent dialer, including the four-slot limit, the window-end close and the sixty second lifetime close | pass |
+| C: the claim binds | not run: needs the second network | pass | pass | pass |
+| H: health's scope | not run: needs the second network | pass | pass | pass |
+| S: the security surface | not run: needs the second network | pass | pass: `S4` and `S5` are `B6` and `B5` read from the attacker side and cite that evidence | pass |
+| D: the deletion sweep | not run: needs Tailscale and a second network | pass: paired Tailscale and built-in HTTP/sockets match | pass: the surface matches loopback on every route a phone may reach, and both run-socket routes carry identical frame counts and frame types on loopback, the tailnet and the built-in transport. Five owner-only provider routes answer `403 SOURCE_NOT_AUTHORIZED` off loopback, which `require_loopback` makes deliberate | pass |
+| F: failure and recovery | not run: needs the second network | pass | pass | pass: external client refused through controlled unreachable relay; both unaffected paths stayed healthy |
+| X: out of the box | not run: needs a fresh root and a second network | pass: fresh root refused before handshake | pass: a fresh root with no device rows refused before the handshake | pass |
+| K: the secret key file | not run: the permission branch is asserted per OS | pass: protected owner-rights DACL; corrupt key leaves loopback and Tailscale healthy | pass: mode `0600` with no extended ACL entry, the endpoint id stable across two reboots, and a corrupt key fails the built-in transport loudly and names the reason while loopback and Tailscale keep serving | pass |
+| M: the agent-driven physical handset | not run: blocked on vadgr-mobile 0.4.5 | pass: M1 through M7 recorded on the physical handset | partial: `M1` and `M2` pass; `M3` to `M7` are held for the owner, who has the handset | pass: M6 and M7 re-run on the matched release APK |
+| overall | not run: no live cell has run | **pass**: every cell and all three independent closing passes pass | **pass**, except `T1`: every part driven passes and all three independent closing passes pass against one frozen head. `T1` is blocked on a second network and `M3` to `M7` wait on the owner | **pass**: every cell and all three independent closing passes pass |
 
 This WSL column was recorded while the branch was still moving. The pass found
 two defects and both were fixed on it, so the binary changed twice under the
@@ -460,6 +460,166 @@ unbound connection, and the request span stopped writing the query string. Every
 cell whose result could depend on either was re-run against the newer head and
 says so in its boundary. **The three closing passes run against one frozen head
 and this column is not one of them**: it is the pass that found the defects.
+
+## Findings
+
+Ids here are findings, not the Part F cells that share the letter.
+
+### F1 (fixed): a stopped Tailscale offered an address that could not be bound
+
+A Tailscale that is not running still answers its local API and still lists the
+node's addresses, but the interface holding them is gone. `bind_hosts()` had no
+availability guard, so the port search bound every address it was given for
+every candidate port, one address failed with `EADDRNOTAVAIL`, and `vadgr start`
+died reporting "No free port found" about a range that was entirely free.
+Fixed in `src/transport/tailscale.rs`: an unavailable transport contributes no
+address to bind. Two tests fail without it. Found by `P3`. Invalidates: every
+cell driven before the rebuild.
+
+### F2 (fixed): a finished turn with nothing to say was read as a broken response
+
+Gemini answers a turn it has nothing to add to with a content object holding
+only its role: the `parts` array is absent rather than empty, and the output
+token count is omitted with it. The decoder required both and refused the reply
+as invalid, which failed the whole run **after every tool call in it had already
+succeeded**. Measured against the live endpoint on a two-turn task, six of eight
+replies came back this way, and two of five real runs died with the work
+already done. Fixed in `src/engine/provider/gemini.rs`: a candidate with no
+parts decodes to an empty turn when the finish reason is a normal stop, an
+absent output count reads as zero, and a reason that means the answer was cut
+short or withheld still refuses and names itself. Three tests fail without it.
+Invalidates: `D1`, `D2`, `M1`.
+
+### F3 (fixed): a tool call that failed counted as an action
+
+The end-turn guard counted every tool call the model made, whatever it
+returned. A run whose only call came back `unknown tool` therefore ended as a
+success with the task untouched: the model apologised in text, the CLI printed
+"Run completed" and exited `0`, and the file the owner asked for was never
+written. The same count told a resumed run that the failed step was already
+done, so it would not be retried. Fixed in `src/engine/loop.rs` and
+`src/engine/journal.rs`: the count rises only for a call that ran and returned
+a result. A test fails without it. Invalidates: `D1`, `D2`, `M1`.
+
+### F4 (fixed): the run's own bookkeeping counted as work done on the machine
+
+The control plane's tools succeed with no tool host at all. When the
+computer-use server failed to start, the model was left holding only
+`todo_write`, `report_progress`, `request_approval` and `notify_user`, called
+them, announced that it had written the file, and the run ended `completed`
+with nothing done. **All three independent closing passes hit this, nine runs
+between them, and not one wrote its marker**, while every run reported success.
+Fixed in `src/engine/loop.rs`: the guard counts only a call that acts on the
+machine, so a run left with nothing but its own bookkeeping says it did
+nothing. A test fails without it. Invalidates: `D1`, `D2`, `M1`, and the first
+round of closing passes.
+
+### F5 (fixed, and it closes `0.4.9`'s F7): a model was refused on one empty answer
+
+`0.4.9` recorded that the live model check refuses a good model when the
+provider returns an empty candidate, and left it open because the fix belonged
+in daemon code and a mid-pass rebuild would have invalidated its cells. F2 above
+changed that path, so it could not be left half-changed: after F2 the same empty
+turn reached the readiness check as zero token usage and was refused there
+instead. Fixed in `src/engine/provider/service.rs`: the check asks twice and
+refuses only if both answers are empty. Two tests fail without it.
+
+### F6 (observation): the CLI reports the setting, the API reports reality
+
+`vadgr computer-use status` prints "Computer use: enabled" from the stored
+setting. `GET /api/computer-use/status` starts the server and lists its tools,
+so it answers `available: false` when the binary is missing. With the tool host
+absent the owner is told on the box that computer use is enabled while the
+daemon cannot reach it. Recorded, not fixed: which of the two the CLI should
+print is an owner decision about what that command means.
+
+### F7 (observation): `machine_name` names the device on one route and the machine on another
+
+`POST /api/auth/claim` returns `machine_name` as the machine
+(`Victors-MacBook-Air.local`). `GET /api/devices` returns each row's
+`machine_name` as the **device** name that was sent at claim. One field name,
+opposite referents, on two routes a phone reads in the same session. It is in
+the schema, not the serialiser: `src/routes/auth.rs` passes `device_name` into
+`crate::db::devices::create`, which writes it to a column named `machine_name`,
+and the row serialises that column straight back out. A phone listing devices
+shows the handset's own nickname where the claim screen showed the laptop's
+hostname. Recorded, not fixed: renaming a shipped field is a contract change.
+
+### F8 (observation): a connection that never existed is deleted with `204`
+
+`DELETE /api/providers/anthropic/connection` answers `204` on a provider that
+was never connected. The sweep records the same shape for `openai`. Recorded:
+whether a delete should be idempotent here is a contract decision.
+
+### F9 (observation): a parked run has no answer route
+
+A run that reaches the human gate goes to `awaiting_approval` and emits the
+question on both sockets. `POST /api/runs/{id}/resume` answers `409
+RUN_NOT_RESUMABLE`, "Only failed runs can be resumed", and the pending channel
+returns only when the cancellation token fires, so the only way out is
+`POST /api/runs/{id}/cancel`. The owner can be asked a question they have no
+way to answer. Recorded: the answer route is a surface this minor does not own.
+
+### F10 (observation): the sign-in callback ports are fixed, so daemons contend
+
+Every daemon after the first logs `no callback port could be bound, so ChatGPT
+sign-in is refused until one frees ports=[1455, 1457]`. Those ports are not
+derived from `VADGR_PORT`, so isolated daemons are not isolated on this
+resource and only one of them can offer browser sign-in. It changed nothing
+here, because these passes authenticate with an API key. Recorded.
+
+### F11 (observation): the published relay list is the home relay alone
+
+Health and the pairing payload both publish one relay while the daemon's own
+startup line lists four. The daemon settles it three seconds after boot: `home
+is now relay https://use1-1.relay.n0.iroh.link./, was None`. The log prints the
+configured set and health prints the selected home relay, which is the one that
+can introduce this node, so a phone handed the other three would gain nothing.
+Correct rather than a defect, recorded so the next reader does not file it as a
+missing failover list. The two are the same field name over different things.
+
+### F12 (observation): `GET /api/devices` does not say what bound the device
+
+A row carries `id`, `machine_name`, `paired_at` and `last_seen`. The binding a
+claim created over the built-in transport is in `device_peers` and is not
+visible from the surface. Recorded: the owner cannot see from the API which of
+their devices is bound to an endpoint id.
+
+### F13 (observation): the stored credential holds the key unwrapped
+
+`state/credentials/cred_v1_*.json` holds `api_key` as a plain string. The file
+is mode `0600` and owner-only, which is the control the runbook asserts, and
+the value itself is not wrapped. Recorded, not fixed: at-rest wrapping is a
+design decision, not a pass's to make.
+
+### F14 (observation): `vadgr update --check` exits `1` on an installed root
+
+On a from-nothing install the command reports `<VADGR_HOME>/src is not a git
+checkout, so it cannot be updated` and exits `1`, so a clean installation
+always reports its update check as a failure. Recorded.
+
+### F15 (observation): the server does not close a run socket when the run ends
+
+Both routes stayed open for the full watch window with no close code after
+`run_completed`. A client that attached forty seconds after a run finished still
+received the whole frame history, which is what makes the cross-transport
+comparison above sound, and it also means those counts are a replay rather than
+a live stream. Recorded, with the reading, because a later pass comparing frame
+counts needs to know which it is looking at.
+
+### F16 (observation): `vadgr runs get <unknown-id>` says no runs exist
+
+The HTTP layer answers `404 RUN_NOT_FOUND` for one missing id. The CLI prints
+`Error: No runs found.` and exits `1`, which reads as "this machine has no
+runs" to an owner who has many and mistyped one. Recorded.
+
+### F17 (observation): the workspace credential file uses spaces around its `=`
+
+`../.env` writes `GEMINI = <value>`. A reader matching the literal prefix
+`GEMINI=` finds nothing and yields an empty key, which then fails as an
+authentication error rather than a parse error. Two of the three closing passes
+hit exactly that before widening the match. Recorded here because it costs the
+next host the same twenty minutes, and the fix is one regular expression.
 
 ## Close: three independent passes
 
@@ -479,3 +639,29 @@ method/path/status/error-code and CLI shapes matched. An initial second-pass
 setup launched the daemon outside the public service command and therefore did
 not produce the service log; it was invalid as a closing pass and was repeated
 with the public command. The valid passes reported no odd product behavior.
+
+**Closing result (2026-08-26, macOS): pass.** Three agents ran concurrently,
+each with its own port, state root, database and daemon, against one frozen
+installed artifact (`04291f18`). Each recorded fifteen HTTP entries, seven
+absent-route entries and sixteen CLI entries, and the three agree entry for
+entry on method, path, status and error code, and argv for argv on exit code.
+Each dialed the built-in transport with an independent client: handshake
+completed, direct path, `37` to `43` ms. Each watched one run on both socket
+routes over loopback and over the built-in transport at the same time, and the
+two transports carry the same frame counts and the same frame type counts on
+both routes, in all three passes.
+
+**The token counts differ, which is the point of reading them.** The three runs
+spent `31766/149`, `23694/108` and `31766/146` input and output tokens over
+four, three and four iterations. Three real calls, not one result read three
+times. An earlier round of these passes returned identical counts and identical
+`completed` verdicts while **not one of its nine runs did the work**; that round
+is not a closing pass, it is the pass that found `F4`.
+
+**What the passes were asked and what they said.** Each was asked what looked
+odd rather than only whether its steps passed, and every observation they
+returned is filed above as `F6` through `F17`. The one that mattered most was
+not a failed assertion: three passes reported a marker file that did not exist
+beside a run that reported success, which is `F4`. One pass set a default model
+five times in a row after the `F5` fix and got `200` every time, which is the
+live check on the fix that closes `0.4.9`'s `F7`.
