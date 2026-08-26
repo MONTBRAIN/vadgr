@@ -124,6 +124,10 @@ pub struct ControlPlaneServer {
     policy: Arc<dyn PolicyHook>,
 }
 
+/// The control plane's namespace. Named here because the engine loop has to
+/// tell the run's own bookkeeping apart from work done on the machine.
+pub const CONTROL_NAMESPACE: &str = "control";
+
 impl ControlPlaneServer {
     pub fn new(context: RunContext, policy: Arc<dyn PolicyHook>) -> Self {
         Self { context, policy }
@@ -133,7 +137,7 @@ impl ControlPlaneServer {
 #[async_trait]
 impl ToolServer for ControlPlaneServer {
     fn namespace(&self) -> &str {
-        "control"
+        CONTROL_NAMESPACE
     }
 
     async fn list_tools(&mut self) -> Result<Vec<ToolSpec>, McpError> {

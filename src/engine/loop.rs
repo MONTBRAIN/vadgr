@@ -1,6 +1,6 @@
-use crate::engine::control::RunContext;
+use crate::engine::control::{CONTROL_NAMESPACE, RunContext};
 use crate::engine::journal::{Journal, RecoveryState};
-use crate::engine::mcp::McpHost;
+use crate::engine::mcp::{McpHost, NAMESPACE_SEPARATOR};
 use crate::engine::provider::ModelClient;
 use crate::engine::types::{
     ContentBlock, EngineError, LoopLimits, Message, RunResult, StopReason, ToolContent, ToolResult,
@@ -137,7 +137,7 @@ pub async fn run_loop(
                     ToolResult::error(format!("Error: {error}"))
                 }
             };
-            if !result.is_error {
+            if !result.is_error && acts_on_the_machine(&name) {
                 succeeded_tool_count += 1;
             }
             tool_results.push(json!({
@@ -271,11 +271,24 @@ fn result_text(result: &ToolResult) -> String {
         .join("\n")
 }
 
+/// The run's own bookkeeping is not work done on the machine. `todo_write`,
+/// `report_progress` and `notify_user` all succeed with no tool host at all,
+/// so counting them let a run whose acting tools never loaded finish green
+/// while the model narrated a file it had not written. Seen for real: the
+/// computer-use server failed to start, the model called five control tools,
+/// and `vadgr run` printed "Run completed" and exited 0 with nothing done.
+fn acts_on_the_machine(tool: &str) -> bool {
+    !matches!(
+        tool.split_once(NAMESPACE_SEPARATOR),
+        Some((CONTROL_NAMESPACE, _))
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::{opening_messages, prune_old_images, run_loop};
     use crate::db::Db;
-    use crate::engine::control::RunContext;
+    use crate::engine::control::{CONTROL_NAMESPACE, RunContext};
     use crate::engine::events::EventSink;
     use crate::engine::journal::Journal;
     use crate::engine::journal::{RecoveredCall, RecoveryState};
@@ -385,6 +398,33 @@ mod tests {
         async fn close(&mut self) {}
     }
 
+    /// Stands in for the real control plane: it always succeeds, because the
+    /// run's own bookkeeping does not need a tool host to work.
+    struct FakeControl(Arc<Mutex<Vec<String>>>);
+
+    #[async_trait]
+    impl ToolServer for FakeControl {
+        fn namespace(&self) -> &str {
+            CONTROL_NAMESPACE
+        }
+        async fn list_tools(&mut self) -> Result<Vec<ToolSpec>, McpError> {
+            Ok(vec![ToolSpec {
+                name: "todo_write".to_owned(),
+                description: String::new(),
+                input_schema: Map::new(),
+            }])
+        }
+        async fn call_tool(
+            &mut self,
+            name: &str,
+            _args: Map<String, Value>,
+        ) -> Result<ToolResult, McpError> {
+            self.0.lock().unwrap().push(format!("control:{name}"));
+            Ok(ToolResult::text("{\"ok\":true}"))
+        }
+        async fn close(&mut self) {}
+    }
+
     async fn harness(
         responses: Vec<ModelResponse>,
     ) -> (
@@ -395,7 +435,10 @@ mod tests {
         Arc<Mutex<Vec<String>>>,
     ) {
         let calls = Arc::new(Mutex::new(Vec::new()));
-        let mut host = McpHost::new(vec![Box::new(FakeServer(calls.clone()))]);
+        let mut host = McpHost::new(vec![
+            Box::new(FakeServer(calls.clone())),
+            Box::new(FakeControl(calls.clone())),
+        ]);
         host.connect().await.unwrap();
         let directory = tempfile::tempdir().unwrap().keep();
         let journal = Journal::open(&directory, "run", -1).await.unwrap();
@@ -469,6 +512,45 @@ mod tests {
         assert_eq!(result.final_text, "finished");
         assert_eq!(*calls.lock().unwrap(), ["act", "act"]);
         assert_eq!(result.usage.input_tokens, 2);
+    }
+
+    /// The live shape this came from: the computer-use server failed to start,
+    /// so the only tools the model had were the run's own bookkeeping. It
+    /// ticked a todo off and said the file was written. Nothing was.
+    #[tokio::test]
+    async fn bookkeeping_alone_is_not_action() {
+        let (model, mut host, journal, context, _) = harness(vec![
+            response(
+                vec![ContentBlock::ToolUse {
+                    id: "1".to_owned(),
+                    name: "control__todo_write".to_owned(),
+                    input: json!({"todos":[]}),
+                    provider_signature: None,
+                }],
+                StopReason::ToolUse,
+            ),
+            response(
+                vec![ContentBlock::Text {
+                    text: "The word ready has been written to the file.".to_owned(),
+                }],
+                StopReason::EndTurn,
+            ),
+        ])
+        .await;
+        assert!(matches!(
+            run_loop(
+                &model,
+                &mut host,
+                &journal,
+                &context,
+                "task",
+                None,
+                CancellationToken::new(),
+                LoopLimits::default()
+            )
+            .await,
+            Err(EngineError::NoActionTaken)
+        ));
     }
 
     /// The live shape this came from: the model called a tool the host does not
