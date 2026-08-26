@@ -134,6 +134,17 @@ reports the list, and the owner picks between them on the phone.
   role: the parts array is absent, not empty, and the output token count is
   omitted with it. The decoder required both and refused the reply, which
   failed the whole run after every tool call in it had already succeeded.
+- **A model is asked twice before it is refused.** The readiness check that
+  guards `PUT /api/default-model` treated a turn with no tokens in it as a
+  verdict, and a provider can end a turn with nothing in it for its own
+  reasons, so setting a default failed intermittently on models that answered
+  perfectly seconds later on the same account.
+- **The run's own bookkeeping no longer counts as work done on the machine.**
+  The end-turn guard counted any tool call that succeeded, and the control
+  plane's tools succeed with no tool host at all. When the computer-use server
+  failed to start, the model was left holding only `todo_write`,
+  `report_progress` and `notify_user`, called them, announced that it had
+  written a file, and the run ended `completed` with nothing done.
 - **A tool call that failed is no longer counted as an action.** The end-turn
   guard counted every call the model made, whatever it returned, so a run whose
   only call came back "unknown tool" ended as a success with the task
