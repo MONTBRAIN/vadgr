@@ -8,6 +8,12 @@ import json, os, subprocess, sys, urllib.error, urllib.request
 
 BASE = os.environ["VADGR_API_URL"]
 VADGR = os.environ["VADGR_BIN"]
+# Optional, and empty by default so every earlier run of this sweep is unchanged.
+# Loopback is pre-authorized, so the sweep needed no token while it only ran
+# there. Over any other transport the gate answers first, and a tokenless sweep
+# records MISSING_TOKEN for every route instead of the route's own answer, which
+# compares as a surface difference when it is only the gate doing its job.
+TOKEN = os.environ.get("VADGR_TOKEN", "")
 OUT = sys.argv[1]
 record = {"http": [], "cli": [], "absent": []}
 
@@ -18,6 +24,8 @@ def http(method, path, body=None, label=""):
     headers = {"Accept": "application/json"}
     if data is not None:
         headers["Content-Type"] = "application/json"
+    if TOKEN:
+        headers["Authorization"] = f"Bearer {TOKEN}"
     req = urllib.request.Request(url, data=data, headers=headers, method=method)
     try:
         with urllib.request.urlopen(req, timeout=30) as r:
