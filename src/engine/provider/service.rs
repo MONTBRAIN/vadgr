@@ -829,17 +829,39 @@ impl ProviderService {
         account_id: Option<&str>,
     ) -> Result<(), ServiceError> {
         let client = self.client_for(provider_id, model_id, credential, account_id)?;
+        readiness_of(client.as_ref()).await
+    }
+}
+
+/// Asked twice before it is refused, because one empty answer does not
+/// mean the model cannot answer. A provider may end a turn with nothing in it,
+/// and this check treating that as a verdict refused models that worked seconds
+/// later on the same account: an intermittent refusal to set a default that is
+/// perfectly good. A model that is genuinely unavailable answers nothing both
+/// times, so the second ask costs one short request on the rare path and
+/// settles the common one.
+async fn readiness_of(client: &dyn ModelClient) -> Result<(), ServiceError> {
+    let mut last = None;
+    for _ in 0..2 {
         let response = client
             .complete(&[Message::text("user", READINESS_PROMPT)], &[], 32)
             .await?;
-        if response.usage.input_tokens == 0 || response.usage.output_tokens == 0 {
-            return Err(ServiceError::Provider(ProviderError::InvalidResponse(
-                "readiness response has zero token usage".to_owned(),
-            )));
+        if response.usage.input_tokens > 0 && response.usage.output_tokens > 0 {
+            return Ok(());
         }
-        Ok(())
+        last = Some(response);
     }
+    let usage = last.map(|response| response.usage).unwrap_or_default();
+    Err(ServiceError::Provider(ProviderError::InvalidResponse(
+        format!(
+            "the model answered twice with nothing in it \
+             (input {} and output {} tokens the second time)",
+            usage.input_tokens, usage.output_tokens
+        ),
+    )))
+}
 
+impl ProviderService {
     fn client_for(
         &self,
         provider_id: &str,
@@ -1072,6 +1094,60 @@ mod endpoint_config_tests {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::engine::types::{ModelResponse, StopReason, Usage};
+    use std::sync::Mutex;
+
+    /// Answers from a fixed script, so a test can say what the provider does on
+    /// the first ask and what it does on the second.
+    struct ScriptedModel(Mutex<std::collections::VecDeque<Usage>>);
+
+    #[async_trait::async_trait]
+    impl ModelClient for ScriptedModel {
+        async fn complete(
+            &self,
+            _messages: &[Message],
+            _tools: &[crate::engine::types::ToolSpec],
+            _max_tokens: u32,
+        ) -> Result<ModelResponse, ProviderError> {
+            let usage = self.0.lock().unwrap().pop_front().unwrap_or_default();
+            Ok(ModelResponse {
+                content: Vec::new(),
+                stop_reason: Some(StopReason::EndTurn),
+                usage,
+            })
+        }
+    }
+
+    fn scripted(usages: Vec<Usage>) -> ScriptedModel {
+        ScriptedModel(Mutex::new(usages.into()))
+    }
+
+    fn spent(input: u64, output: u64) -> Usage {
+        Usage {
+            input_tokens: input,
+            output_tokens: output,
+        }
+    }
+
+    /// `0.4.9` left this open: one empty turn from the provider refused a model
+    /// that answered perfectly seconds later.
+    #[tokio::test]
+    async fn one_empty_answer_does_not_condemn_a_working_model() {
+        let model = scripted(vec![spent(0, 0), spent(12, 3)]);
+        readiness_of(&model)
+            .await
+            .expect("the second answer settles it");
+    }
+
+    #[tokio::test]
+    async fn a_model_that_answers_nothing_twice_is_refused() {
+        let model = scripted(vec![spent(0, 0), spent(0, 0)]);
+        let error = readiness_of(&model).await.expect_err("two empty answers");
+        assert!(
+            error.to_string().contains("twice"),
+            "the message says it asked twice: {error}"
+        );
+    }
 
     #[tokio::test]
     async fn methods_are_provider_owned_and_api_keys_are_staged_without_echo() {
