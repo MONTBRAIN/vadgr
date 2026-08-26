@@ -387,6 +387,17 @@ impl<A: LocalApi> Transport for TailscaleTransport<A> {
     /// a transport that is down listens on nothing rather than failing the
     /// port probe for every other transport.
     fn bind_hosts(&self) -> Vec<String> {
+        // The same guard `advertise_host` uses, and for a sharper reason. A
+        // stopped Tailscale still answers its LocalAPI and still lists the
+        // node's addresses, but the interface holding them is gone, so binding
+        // one fails with EADDRNOTAVAIL. The port search binds every host it is
+        // given for every candidate port, so one address that cannot be bound
+        // failed the whole range and `vadgr start` died reporting "No free port
+        // found" about ports that were all free. An unavailable transport
+        // contributes no address to bind.
+        if !self.is_available() {
+            return Vec::new();
+        }
         self.self_ip().into_iter().collect()
     }
 
@@ -445,6 +456,65 @@ impl<A: LocalApi> Transport for TailscaleTransport<A> {
 #[cfg(test)]
 mod tests {
     use super::default_local_api_endpoint;
+    use super::{LocalApi, TailscaleTransport, Transport};
+    use serde_json::{Value, json};
+
+    /// A LocalAPI that answers exactly what a stopped Tailscale answered on
+    /// macOS: the backend is `Stopped`, and the node's addresses are still
+    /// listed because the daemon remembers them.
+    struct StoppedButRemembersItsIps;
+
+    impl LocalApi for StoppedButRemembersItsIps {
+        fn status(&self) -> Option<Value> {
+            Some(json!({
+                "BackendState": "Stopped",
+                "Self": {"TailscaleIPs": ["100.90.226.66", "fd7a:115c:a1e0::ce32:e242"]}
+            }))
+        }
+        fn whois(&self, _peer_ip: &str) -> Option<Value> {
+            None
+        }
+    }
+
+    struct RunningWithAnIp;
+
+    impl LocalApi for RunningWithAnIp {
+        fn status(&self) -> Option<Value> {
+            Some(json!({
+                "BackendState": "Running",
+                "Self": {"TailscaleIPs": ["100.90.226.66"]}
+            }))
+        }
+        fn whois(&self, _peer_ip: &str) -> Option<Value> {
+            None
+        }
+    }
+
+    /// A stopped Tailscale must contribute no address to bind.
+    ///
+    /// It answers its LocalAPI and still lists the node's addresses, but the
+    /// interface holding them is gone. The port search binds every host it is
+    /// given, so one unbindable address failed every candidate port and
+    /// `vadgr start` reported "No free port found" about ports that were free.
+    #[test]
+    fn a_stopped_tailscale_offers_no_bind_host() {
+        let t = TailscaleTransport::new(StoppedButRemembersItsIps, 8861);
+        assert!(!t.is_available(), "the fixture is a stopped backend");
+        assert!(
+            t.bind_hosts().is_empty(),
+            "a stopped transport offered {:?} to bind",
+            t.bind_hosts()
+        );
+    }
+
+    /// And the working case still contributes its address, so the guard did not
+    /// simply switch the transport off.
+    #[test]
+    fn a_running_tailscale_still_offers_its_address() {
+        let t = TailscaleTransport::new(RunningWithAnIp, 8861);
+        assert_eq!(t.bind_hosts(), vec!["100.90.226.66".to_owned()]);
+    }
+
     #[cfg(target_os = "macos")]
     use super::mac_local_api_from_dir;
     use super::parse_local_api_response;
