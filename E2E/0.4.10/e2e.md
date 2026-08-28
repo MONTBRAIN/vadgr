@@ -27,6 +27,12 @@ handshake-proven endpoint id, bound at claim.
 > it is necessary and never sufficient
 > because it reaches neither a real transport nor the phone.
 
+> **Linux final result: pass, 2026-08-28.** All fifty cells and all three
+> independent closing passes pass against the final post-finding artifact at
+> `ab5b6ad`. The other hosts retain their earlier live results, but must rebuild
+> and repeat the affected build, Unix-permission and closing CLI boundaries
+> after this shared final fix before the pull request merges.
+
 ## How a pass is run, before anything else in this file
 
 The five rules in [`../README.md`](../README.md) hold here without restatement:
@@ -257,7 +263,7 @@ half. The gate's counts and exit codes are filed in `gate/` before Part A.
 
 | # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| A1 | `$E2E_BIN` first on `PATH`, and the dialer built | `command -v vadgr`; `sha256sum` it and the dialer binary | both resolve inside the isolated tree; the `vadgr` hash is the release build of the head under test. Re-run after any mid-pass rebuild | the path and hash lines, and the head they were built from | none | pass |
+| A1 | `$E2E_BIN` first on `PATH`, and the dialer built | `command -v vadgr`; `sha256sum` it and the dialer binary | both resolve inside the isolated tree; the `vadgr` hash is the release build of the head under test. Re-run after any mid-pass rebuild | the path and hash lines, and the head they were built from | none | pass: final Linux head `ab5b6ad`, VADGR SHA-256 `bffa55b8`, dialer SHA-256 `d0aa7481` |
 | A2 | as A1 | `vadgr --version` | prints `0.4.10`, matching the manifest and `GET /api/health`'s `version` | the printed line and the manifest line | none | pass |
 
 ## Part T: the traversal spike runs first, before the rest
@@ -439,7 +445,7 @@ the parts actually driven on that OS.
 
 | Part | Linux | Windows | macOS | WSL |
 |---|---|---|---|---|
-| A: the built head | pass: final head `95b0314`; installed Linux binary sha `a5bcf4d5`; `vadgr --version`, `Cargo.toml` and `GET /api/health` all read `0.4.10`; fmt, clippy, 167 library tests plus every integration suite, and 46 Python checks pass with 2 expected skips | pass: installed 0.4.10 binary and health version match | pass: the installed binary is sha `04291f18`, equal to the release build of the final head, and `vadgr --version`, `Cargo.toml` and `GET /api/health` all read `0.4.10`. The pass rebuilt three times because it found and fixed defects, so `A1` was re-recorded each time and every part above was re-driven against this artifact | pass |
+| A: the built head | pass: final head `ab5b6ad`; installed Linux binary sha `bffa55b8`; `vadgr --version`, `Cargo.toml` and `GET /api/health` all read `0.4.10`; fmt, clippy, 170 library tests, 60 CLI tests, every integration suite, and 46 Python checks pass with 2 expected skips | targeted re-run required: rebuild `ab5b6ad` and repeat the affected CLI close boundary | targeted re-run required: rebuild `ab5b6ad`, repeat the Unix permission boundary and the affected CLI close boundary | targeted re-run required: rebuild `ab5b6ad`, repeat the Unix permission boundary and the affected CLI close boundary |
 | T: the traversal spike | pass: external Apple Silicon Mac on a second network with Tailscale disconnected before dialing; public direct path after relay rendezvous, handshake in 1121 ms, health and claim both `200`, and the daemon bound the client's own handshake identity over Built-in | pass: external MacBook on mobile data; direct path; health and claim `200` in 445 ms | pass: a WSL client on a second network, with no route to the home LAN or the tailnet, dialed the endpoint id; `relay` path, handshake in 1256 ms, health and claim both `200`, and the binding holds the client's own endpoint id | pass: external macOS client; relay path; health and claim `200` |
 | P: pairing and the report | pass: both transports and legacy fields reported; the independent decoder matched the no-Tailscale terminal QR byte for byte; local-only pairing returned the named 503 | pass | pass | pass |
 | B: the admission rule | pass: B1-B12 driven over the independent Built-in client, including the four-slot limit, window-end close, sixty-second lifetime, identity-safe adoption and revocation | pass | pass: driven over the real built-in wire with the independent dialer, including the four-slot limit, the window-end close and the sixty second lifetime close | pass |
@@ -449,9 +455,9 @@ the parts actually driven on that OS.
 | D: the deletion sweep | pass: all 18 HTTP routes match between Tailscale and Built-in; every phone route matches loopback; both run sockets carry identical four-frame replays over all three transports | pass: paired Tailscale and built-in HTTP/sockets match | pass: the surface matches loopback on every route a phone may reach, and both run-socket routes carry identical frame counts and frame types on loopback, the tailnet and the built-in transport. Five owner-only provider routes answer `403 SOURCE_NOT_AUTHORIZED` off loopback, which `require_loopback` makes deliberate | pass |
 | F: failure and recovery | pass: F1-F6, including bounded unreachable-relay failure, absent daemon, adoption-era revoke scope, unchanged Tailscale token, direct-only Built-in and local-only override | pass | pass | pass: external client refused through controlled unreachable relay; both unaffected paths stayed healthy |
 | X: out of the box | pass: fresh root with zero device and peer rows refused before the handshake | pass: fresh root refused before handshake | pass: a fresh root with no device rows refused before the handshake | pass |
-| K: the secret key file | pass: mode `0600` with owner-only ACL, stable endpoint across restart; corrupt key names the Built-in failure while loopback and Tailscale remain healthy | pass: protected owner-rights DACL; corrupt key leaves loopback and Tailscale healthy | pass: mode `0600` with no extended ACL entry, the endpoint id stable across two reboots, and a corrupt key fails the built-in transport loudly and names the reason while loopback and Tailscale keep serving | pass |
-| M: the agent-driven physical handset | pass: `M1` through `M7` recorded on the physical handset against the final VADGR head; the official 0.4.1 compatibility APK and the restored 0.4.5 APK both matched their recorded digests, and the owner acted only for the three QR scans | pass: M1 through M7 recorded on the physical handset | pass: `M1` to `M7` driven on the handset against a release APK built from the `0.4.5` pull request head, sha `23ef9fbf`, matched byte for byte to what the phone runs. The owner scanned twice, for `M3` and `M4`, and every other action was driven over ADB | pass: M6 and M7 re-run on the matched release APK |
-| overall | **cells pass**: all 50 cells pass on the final head, including the external traversal spike and the physical-handset part; only the three independent closing passes remain owed | **pass**: every cell and all three independent closing passes pass | **pass**: all 50 cells pass, including the handset part and the traversal spike, and all three independent closing passes pass against one frozen head | **pass**: every cell and all three independent closing passes pass |
+| K: the secret key file | pass: the secret-key corruption boundary remains green; the final closing passes additionally read `0700` for state/service/run roots and `0600` for the key, credential records, DB family, log and trajectory | pass: protected owner-rights DACL; corrupt key leaves loopback and Tailscale healthy | targeted Unix-permission re-run required on `ab5b6ad`; the earlier secret-key corruption boundary passed | targeted Unix-permission re-run required on `ab5b6ad`; the earlier secret-key corruption boundary passed |
+| M: the agent-driven physical handset | pass: `M1` through `M7` recorded on the physical handset against `95b0314`; the final `ab5b6ad` changes only local file protection and CLI rendering, so no handset or transport behavior was invalidated. The official 0.4.1 compatibility APK and restored 0.4.5 APK matched their recorded digests, and the owner acted only for the three QR scans | pass: M1 through M7 recorded on the physical handset | pass: `M1` to `M7` driven on the handset against a release APK built from the `0.4.5` pull request head, sha `23ef9fbf`, matched byte for byte to what the phone runs. The owner scanned twice, for `M3` and `M4`, and every other action was driven over ADB | pass: M6 and M7 re-run on the matched release APK |
+| overall | **pass**: all 50 cells and all three independent closing passes pass; final artifact `bffa55b8` from `ab5b6ad` | **partial after final shared fix**: earlier cells pass; the rebuilt artifact and affected closing CLI rows remain | **partial after final shared fix**: earlier cells pass; rebuilt artifact, Unix permissions and affected closing CLI rows remain | **partial after final shared fix**: earlier cells pass; rebuilt artifact, Unix permissions and affected closing CLI rows remain |
 
 This WSL column was recorded while the branch was still moving. The pass found
 two defects and both were fixed on it, so the binary changed twice under the
@@ -662,6 +668,46 @@ prerequisite the runbook does not list. The APK that was pulled back off the
 handset from an earlier session was a debug build, which `M6` cannot use.
 Recorded as a handoff gap rather than a product defect.
 
+### F22 (fixed): ordinary machine state was readable beyond its owner on Unix
+
+The first Linux closing security pass created a genuinely fresh default-like
+installation under each ordinary umask and found state and service roots at
+`0755` or `0775`, the database at `0644`, and the service log and trajectory at
+`0664`. The credential directory and files were already private, but the other
+files disclose device and reach metadata plus the owner's task and tool history.
+This reproduced without the harness pre-creating the roots, so it was a product
+defect rather than a fixture mode.
+
+Fixed at `ab5b6ad`: owner-private creation and hardening now covers the Unix
+state and service roots, SQLite family, service log, run directories and
+trajectory. Five regression tests fail without the change. Live probes under
+umasks `022` and `002`, and a pre-existing explicit root, read `0700` for every
+private directory and `0600` for every private file. All three post-fix closing
+passes independently read those modes from their own live state.
+
+### F23 (fixed): the CLI named the default provider but not its selected model
+
+The product closing pass read the real authenticated catalog and found
+`vadgr model list` marked Google Gemini as `(default)` while printing all thirty
+models identically. The API held the selected model correctly; the owner-facing
+list dropped that half of the setting. Fixed at `ab5b6ad`: the shared renderer
+keeps the provider marker and marks exactly the catalog row matching that
+provider's `default_model`. Its regression asserts exactly one marker at each
+level. All three post-fix closing passes saw one provider marker and one model
+marker in the actual CLI output.
+
+### F24 (fact for the next host): socket replay is process-local
+
+The reliability review restarted an isolated daemon after a completed run. The
+run row, marker, provider, model and built-in identity persisted, and every
+socket upgraded, but the new process replayed zero frames. This is not the
+compatibility claim under test: the retained 500-frame adapter lets a released
+phone reconnect to the same daemon process, while hard-kill run continuation is
+a separate engine boundary. The same-process late and reconnecting subscribers
+received all five frames on every valid closing pass. Recorded so a later host
+does not silently turn an in-memory compatibility buffer into a durable event
+store while investigating the same observation.
+
 ## Close: three independent passes
 
 The runbook is closed with **three separate agents running the sweep
@@ -691,6 +737,19 @@ completed, direct path, `37` to `43` ms. Each watched one run on both socket
 routes over loopback and over the built-in transport at the same time, and the
 two transports carry the same frame counts and the same frame type counts on
 both routes, in all three passes.
+
+**Closing result (2026-08-28, Linux): pass.** Three agents ran concurrently
+against the rebuilt installed artifact `bffa55b8` from `ab5b6ad`, each with its
+own service-managed daemon, port, private state root and database. Each recorded
+fifteen HTTP entries, seven absent-route entries and sixteen CLI entries. Each
+completed an independent Built-in claim, a real marker-writing run and
+simultaneous loopback/Built-in watches; all four socket upgrades answered `101`
+and both routes carried five frames per transport with identical frame types.
+The three live runs used `23838/153`, `23249/138` and `23214/140` input/output
+tokens over three iterations each. Every pass read exactly one default-provider
+and one default-model marker, `0700` private directories and `0600` private
+files. The earlier Linux round is the round that found `F22` and `F23`, not a
+close; discarded fixture and ordering attempts are likewise not counted.
 
 **The token counts differ, which is the point of reading them.** The three runs
 spent `31766/149`, `23694/108` and `31766/146` input and output tokens over
