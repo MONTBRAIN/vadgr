@@ -116,8 +116,7 @@ impl TailscaledLocalApi {
             }
             #[cfg(target_os = "macos")]
             {
-                let mac = self.tcp.as_ref()?;
-                mac.get(path)
+                mac_get(self.tcp.as_ref(), path, mac_local_api)
             }
             #[cfg(not(target_os = "macos"))]
             {
@@ -246,6 +245,31 @@ impl MacLocalApi {
         sock.read_to_end(&mut raw).ok()?;
         parse_local_api_response(&raw)
     }
+}
+
+/// Ask the application's loopback endpoint, and look it up again if the one we
+/// hold has gone stale.
+///
+/// The Tailscale macOS application publishes a fresh port and secret every time
+/// it starts, and this daemon resolves them once when it boots. So quitting
+/// Tailscale and opening it again left the daemon holding an endpoint nobody
+/// answers on: `is_available` read that silence as the tailnet being down and
+/// said "tailscaled is not running or logged out" while `tailscale status`
+/// listed a healthy tailnet. Only restarting the daemon cleared it. Re-reading
+/// costs a directory scan, and only on the path that was about to report the
+/// transport down anyway.
+#[cfg(target_os = "macos")]
+fn mac_get(
+    cached: Option<&MacLocalApi>,
+    path: &str,
+    resolve: impl Fn() -> Option<MacLocalApi>,
+) -> Option<Value> {
+    if let Some(mac) = cached
+        && let Some(value) = mac.get(path)
+    {
+        return Some(value);
+    }
+    resolve()?.get(path)
 }
 
 fn default_local_api_endpoint(os: &str) -> PathBuf {
@@ -517,6 +541,98 @@ mod tests {
 
     #[cfg(target_os = "macos")]
     use super::mac_local_api_from_dir;
+
+    /// Stands in for the application's loopback endpoint: one request, one
+    /// answer, then gone. It checks the shared secret, because a stale endpoint
+    /// that happens to hit a live port must not be mistaken for the real one.
+    #[cfg(target_os = "macos")]
+    fn a_local_api_that_answers_once(
+        token: &str,
+    ) -> (super::MacLocalApi, std::thread::JoinHandle<()>) {
+        use std::io::{Read, Write};
+        use std::net::TcpListener;
+
+        let listener = TcpListener::bind("127.0.0.1:0").expect("a loopback port");
+        let port = listener.local_addr().unwrap().port();
+        let expected = base64::Engine::encode(
+            &base64::engine::general_purpose::STANDARD,
+            format!(":{token}"),
+        );
+        let handle = std::thread::spawn(move || {
+            if let Ok((mut sock, _)) = listener.accept() {
+                let mut buf = [0u8; 1024];
+                let read = sock.read(&mut buf).unwrap_or(0);
+                let request = String::from_utf8_lossy(&buf[..read]).to_string();
+                let body = if request.contains(&expected) {
+                    "{\"BackendState\":\"Running\"}"
+                } else {
+                    "{\"BackendState\":\"NeedsLogin\"}"
+                };
+                let _ = sock.write_all(
+                    format!("HTTP/1.0 200 OK\r\nContent-Type: application/json\r\n\r\n{body}")
+                        .as_bytes(),
+                );
+            }
+        });
+        (
+            super::MacLocalApi {
+                port,
+                token: token.to_owned(),
+            },
+            handle,
+        )
+    }
+
+    /// The reproduction: quit Tailscale and open it again, and the endpoint this
+    /// daemon resolved at boot answers nobody. Before this was fixed the daemon
+    /// reported the tailnet down until it was restarted.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_relaunched_tailscale_is_found_again_without_restarting_the_daemon() {
+        let (live, handle) = a_local_api_that_answers_once("the-new-secret");
+        // Nothing listens here: the port the daemon held before the relaunch.
+        let stale = super::MacLocalApi {
+            port: reserved_dead_port(),
+            token: "the-old-secret".to_owned(),
+        };
+        assert!(
+            stale.get("/localapi/v0/status").is_none(),
+            "the stale endpoint must answer nothing, or the test proves nothing"
+        );
+        let found = super::mac_get(Some(&stale), "/localapi/v0/status", move || {
+            Some(live.clone())
+        });
+        handle.join().ok();
+        assert_eq!(
+            found
+                .as_ref()
+                .and_then(|v| v.get("BackendState"))
+                .and_then(|v| v.as_str()),
+            Some("Running"),
+            "a relaunched Tailscale is reachable again by looking the endpoint up"
+        );
+    }
+
+    /// And when Tailscale really is gone, looking again finds nothing and the
+    /// transport still reports down.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_tailscale_that_is_really_gone_still_reports_down() {
+        let stale = super::MacLocalApi {
+            port: reserved_dead_port(),
+            token: "the-old-secret".to_owned(),
+        };
+        assert!(super::mac_get(Some(&stale), "/localapi/v0/status", || None).is_none());
+    }
+
+    /// A port bound and dropped, so connecting to it is refused rather than
+    /// hanging on something unrelated that happens to be listening.
+    #[cfg(target_os = "macos")]
+    fn reserved_dead_port() -> u16 {
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        listener.local_addr().unwrap().port()
+    }
+
     use super::parse_local_api_response;
     use std::path::Path;
 
