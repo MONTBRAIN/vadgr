@@ -924,9 +924,17 @@ signal.
 removal, daemon request log and final device list. Cleanup leaves no device
 row and stops only processes started by this cell.
 
-**Result:** not run on WSL. Linux, Windows and macOS are `Not-Needed`: this
-patch changes transport response ordering and P1 drives the real wire on the
-host and handset that reproduced it.
+**Result (2026-08-28, WSL and physical Android handset): pass.** The public
+installer installed branch head `3c32fd601f011af0f53c86b83f09133f3ae40c15`
+as `vadgr 0.4.11`; the installed binary digest was
+`8b8a6fe54909eb52bfde8f4765c3edb47626a89e0c24e026b91320dc9cc0e16b`.
+The phone paired over Built-in, which answered direct in 77ms. Removing it
+returned directly to **No machines yet**, with no fallback dialog. The daemon
+recorded the Built-in claim as `transport=iroh`, returned `200` for the DELETE,
+and then returned `[]` from `GET /api/devices`. The regression test proves that
+the revoked connection refuses a later stream while an active response drains.
+Linux, Windows and macOS are `Not-Needed`: this patch changes transport response
+ordering, and P1 drove the real wire on the host and handset that reproduced it.
 
 **Targeted re-run (2026-08-28, macOS, on the `F23` fix): pass.** Only the
 boundaries that fix touches were re-driven, because it is macOS-only code and
