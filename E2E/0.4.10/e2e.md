@@ -454,7 +454,7 @@ the parts actually driven on that OS.
 
 | Part | Linux | Windows | macOS | WSL |
 |---|---|---|---|---|
-| A: the built head | pass: final head `ab5b6ad`; installed Linux binary sha `bffa55b8`; `vadgr --version`, `Cargo.toml` and `GET /api/health` all read `0.4.10`; fmt, clippy, 170 library tests, 60 CLI tests, every integration suite, and 46 Python checks pass with 2 expected skips | pass: rebuilt final code at `ab5b6ad`; installed Windows binary sha `82B51620`; `vadgr --version`, `Cargo.toml` and `GET /api/health` read `0.4.10`; three isolated roots each showed one default provider and one default model, corroborated by `GET /api/providers` | pass: rebuilt at `ab5b6ad` (branch head `757195f`); installed macOS binary sha `789629ae`, equal to the release build; `vadgr --version`, `Cargo.toml` and `GET /api/health` all read `0.4.10`; fmt, clippy, 27 suites and 46 Python checks pass with 2 expected skips | pass: rebuilt PR head `36567b7`, whose product code is `ab5b6ad`; installed WSL binary sha `ca23b333`; `vadgr --version`, `Cargo.toml` and `GET /api/health` read `0.4.10`; three isolated roots each showed one default provider and one default model, corroborated by `GET /api/providers` |
+| A: the built head | pass: final head `ab5b6ad`; installed Linux binary sha `bffa55b8`; `vadgr --version`, `Cargo.toml` and `GET /api/health` all read `0.4.10`; fmt, clippy, 170 library tests, 60 CLI tests, every integration suite, and 46 Python checks pass with 2 expected skips | pass: rebuilt final code at `ab5b6ad`; installed Windows binary sha `82B51620`; `vadgr --version`, `Cargo.toml` and `GET /api/health` read `0.4.10`; three isolated roots each showed one default provider and one default model, corroborated by `GET /api/providers` | pass: rebuilt at the `F23` fix (branch head `3aa2caf`); installed macOS binary sha `28067315`, equal to the release build; `vadgr --version`, `Cargo.toml` and `GET /api/health` all read `0.4.10`; fmt, clippy and the suites pass, including two new tests that fail without the fix | pass: rebuilt PR head `36567b7`, whose product code is `ab5b6ad`; installed WSL binary sha `ca23b333`; `vadgr --version`, `Cargo.toml` and `GET /api/health` read `0.4.10`; three isolated roots each showed one default provider and one default model, corroborated by `GET /api/providers` |
 | T: the traversal spike | pass: external Apple Silicon Mac on a second network with Tailscale disconnected before dialing; public direct path after relay rendezvous, handshake in 1121 ms, health and claim both `200`, and the daemon bound the client's own handshake identity over Built-in | pass: external MacBook on mobile data; direct path; health and claim `200` in 445 ms | pass: a WSL client on a second network, with no route to the home LAN or the tailnet, dialed the endpoint id; `relay` path, handshake in 1256 ms, health and claim both `200`, and the binding holds the client's own endpoint id | pass: external macOS client; relay path; health and claim `200` |
 | P: pairing and the report | pass: both transports and legacy fields reported; the independent decoder matched the no-Tailscale terminal QR byte for byte; local-only pairing returned the named 503 | pass | pass | pass |
 | B: the admission rule | pass: B1-B12 driven over the independent Built-in client, including the four-slot limit, window-end close, sixty-second lifetime, identity-safe adoption and revocation | pass | pass: driven over the real built-in wire with the independent dialer, including the four-slot limit, the window-end close and the sixty second lifetime close | pass |
@@ -737,37 +737,45 @@ The result, on one machine at one moment:
 default fact and silently drops the other, on the command whose whole output is
 a list of models. Two of the three closing passes found this independently.
 
-Not fixed here, and the reason is the cost rather than the difficulty: the fix
-is a few lines in `info.rs`, but changing product code moves the head, and
-Linux, Windows and WSL have all just closed their passes on `ab5b6ad`. Fixing a
-display line would reopen four operating systems. **The owner rules whether it
-ships in `0.4.10` or waits**, and the data is correct and reachable from two
-other surfaces meanwhile.
+**Not blocking, and not an open question.** The published surface requires
+`vadgr provider status` and `vadgr model list` to identify the default model,
+and both do; so does the API. `vadgr providers` is a third view that omits it.
+This is recorded as consistency cleanup for a later minor rather than a defect
+this release owes, because nothing a caller depends on is wrong or missing.
 
-### F23 (observation, mechanism identified but not reproduced on demand)
+### F23 (fixed): a relaunched Tailscale stayed invisible until the daemon restarted
 
 The daemon reported `tailscale` unavailable, with the reason "tailscaled is not
 running or logged out", while `tailscale status` on the same machine listed the
 tailnet and its own address. Restarting the daemon alone cleared it.
 
-**It did not reproduce under a `down` then `up` cycle.** With the daemon left
-running, taking Tailscale down flipped the health block to unavailable and
-bringing it back up flipped it to available again, correctly and without a
-restart. That path keeps `tailscaled` alive, so the daemon's handle stays good.
+A `down` then `up` cycle does **not** reproduce it, which is what made the
+first sighting look like a one-off: that path keeps `tailscaled` alive, so the
+held endpoint stays good and the health block tracks it correctly.
 
-The symptom followed Tailscale being **stopped entirely and relaunched**, which
-is the case the code makes plausible: `TailscaledLocalApi::new` resolves the
-macOS local API once, storing a port and a token, and a relaunched `tailscaled`
-mints new ones. `is_available` then calls a live endpoint with stale
-credentials and reads that as down. This is macOS-only code, so Linux and
-Windows use a socket path that survives a restart.
+**A full relaunch does reproduce it**, on demand:
 
-One thing is certain from the source either way: the reason is a single fixed
-string, so whatever the cause, the health block, the `503` message and `vadgr
-pair` all blame `tailscaled`. In this case `tailscaled` was healthy and the
-owner was pointed at the wrong component. **Recorded rather than fixed**: the
-mechanism is a guess until a full relaunch reproduces it, and the fix would
-move the head after three other operating systems have closed.
+    tailscale up, daemon up        available true
+    quit the Tailscale application available false   (correct)
+    open it again, status healthy  available false   (wrong)
+
+The application publishes a fresh loopback port and secret every time it
+starts, and `TailscaledLocalApi::new` resolved them once at boot. The daemon
+then held an endpoint nobody answers on, read that silence as the tailnet being
+down, and said "tailscaled is not running or logged out" while `tailscale
+status` listed a healthy tailnet. Only restarting the daemon cleared it, and
+the reason is a single fixed string, so the owner was pointed at a component
+that was working.
+
+Fixed in `src/transport/tailscale.rs`: the endpoint is looked up again when the
+held one answers nothing, which costs a directory scan only on the path that
+was about to report the transport down anyway. Two tests fail without it,
+driven against a real loopback listener that checks the shared secret so a
+stale endpoint landing on a live port cannot pass by accident. macOS-only code,
+so Linux and Windows are untouched and need no live re-run.
+
+Found by the closing passes' "what looked odd" review rather than by any
+assertion: every predefined check in all three passes was green.
 
 ## Close: three independent passes
 
@@ -884,3 +892,20 @@ surfaced it: every assertion in all three was green.
 planned and turned out to be worth having. Both daemons started and served
 normally, which is the `F1` defect this pass fixed earlier, re-confirmed on the
 final head by a case nobody staged.
+
+**Targeted re-run (2026-08-28, macOS, on the `F23` fix): pass.** Only the
+boundaries that fix touches were re-driven, because it is macOS-only code and
+Linux, Windows and WSL had already closed on `ab5b6ad`.
+
+- `A1` and `A2` on the rebuilt head: installed sha `28067315`, version `0.4.10`
+  in the binary, `Cargo.toml` and the health block alike.
+- **The defect itself, live**: Tailscale up and serving, the application quit
+  and the transport correctly goes unavailable, the application opened again
+  and the daemon reports it available with its tailnet name **without being
+  restarted**. That last step reported unavailable before the fix.
+- Pairing over the relaunched tailnet: `vadgr pair` offers the Tailscale
+  address, the claim answers `200`, and the daemon records
+  `transport=tailscale`.
+- The affected closing transport check: one run watched on both socket routes
+  over loopback and over the tailnet at once, identical frame counts and frame
+  types on both, and the run did the work its status claims.
