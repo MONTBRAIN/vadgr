@@ -29,9 +29,14 @@ handshake-proven endpoint id, bound at claim.
 
 > **Linux final result: pass, 2026-08-28.** All fifty cells and all three
 > independent closing passes pass against the final post-finding artifact at
-> `ab5b6ad`. The other hosts retain their earlier live results, but must rebuild
+> `ab5b6ad`. macOS and WSL retain their earlier live results, but must rebuild
 > and repeat the affected build, Unix-permission and closing CLI boundaries
 > after this shared final fix before the pull request merges.
+>
+> **Windows final result: pass, 2026-08-28.** The rebuilt artifact from
+> `ab5b6ad` passed `A1` and `A2`. Three isolated service-managed roots each
+> showed exactly one default provider and one default model through the installed
+> CLI. The API corroborated `gemini/gemini-3.7-flash` in every root.
 
 ## How a pass is run, before anything else in this file
 
@@ -445,7 +450,7 @@ the parts actually driven on that OS.
 
 | Part | Linux | Windows | macOS | WSL |
 |---|---|---|---|---|
-| A: the built head | pass: final head `ab5b6ad`; installed Linux binary sha `bffa55b8`; `vadgr --version`, `Cargo.toml` and `GET /api/health` all read `0.4.10`; fmt, clippy, 170 library tests, 60 CLI tests, every integration suite, and 46 Python checks pass with 2 expected skips | targeted re-run required: rebuild `ab5b6ad` and repeat the affected CLI close boundary | targeted re-run required: rebuild `ab5b6ad`, repeat the Unix permission boundary and the affected CLI close boundary | targeted re-run required: rebuild `ab5b6ad`, repeat the Unix permission boundary and the affected CLI close boundary |
+| A: the built head | pass: final head `ab5b6ad`; installed Linux binary sha `bffa55b8`; `vadgr --version`, `Cargo.toml` and `GET /api/health` all read `0.4.10`; fmt, clippy, 170 library tests, 60 CLI tests, every integration suite, and 46 Python checks pass with 2 expected skips | pass: rebuilt final code at `ab5b6ad`; installed Windows binary sha `82B51620`; `vadgr --version`, `Cargo.toml` and `GET /api/health` read `0.4.10`; three isolated roots each showed one default provider and one default model, corroborated by `GET /api/providers` | targeted re-run required: rebuild `ab5b6ad`, repeat the Unix permission boundary and the affected CLI close boundary | targeted re-run required: rebuild `ab5b6ad`, repeat the Unix permission boundary and the affected CLI close boundary |
 | T: the traversal spike | pass: external Apple Silicon Mac on a second network with Tailscale disconnected before dialing; public direct path after relay rendezvous, handshake in 1121 ms, health and claim both `200`, and the daemon bound the client's own handshake identity over Built-in | pass: external MacBook on mobile data; direct path; health and claim `200` in 445 ms | pass: a WSL client on a second network, with no route to the home LAN or the tailnet, dialed the endpoint id; `relay` path, handshake in 1256 ms, health and claim both `200`, and the binding holds the client's own endpoint id | pass: external macOS client; relay path; health and claim `200` |
 | P: pairing and the report | pass: both transports and legacy fields reported; the independent decoder matched the no-Tailscale terminal QR byte for byte; local-only pairing returned the named 503 | pass | pass | pass |
 | B: the admission rule | pass: B1-B12 driven over the independent Built-in client, including the four-slot limit, window-end close, sixty-second lifetime, identity-safe adoption and revocation | pass | pass: driven over the real built-in wire with the independent dialer, including the four-slot limit, the window-end close and the sixty second lifetime close | pass |
@@ -457,7 +462,7 @@ the parts actually driven on that OS.
 | X: out of the box | pass: fresh root with zero device and peer rows refused before the handshake | pass: fresh root refused before handshake | pass: a fresh root with no device rows refused before the handshake | pass |
 | K: the secret key file | pass: the secret-key corruption boundary remains green; the final closing passes additionally read `0700` for state/service/run roots and `0600` for the key, credential records, DB family, log and trajectory | pass: protected owner-rights DACL; corrupt key leaves loopback and Tailscale healthy | targeted Unix-permission re-run required on `ab5b6ad`; the earlier secret-key corruption boundary passed | targeted Unix-permission re-run required on `ab5b6ad`; the earlier secret-key corruption boundary passed |
 | M: the agent-driven physical handset | pass: `M1` through `M7` recorded on the physical handset against `95b0314`; the final `ab5b6ad` changes only local file protection and CLI rendering, so no handset or transport behavior was invalidated. The official 0.4.1 compatibility APK and restored 0.4.5 APK matched their recorded digests, and the owner acted only for the three QR scans | pass: M1 through M7 recorded on the physical handset | pass: `M1` to `M7` driven on the handset against a release APK built from the `0.4.5` pull request head, sha `23ef9fbf`, matched byte for byte to what the phone runs. The owner scanned twice, for `M3` and `M4`, and every other action was driven over ADB | pass: M6 and M7 re-run on the matched release APK |
-| overall | **pass**: all 50 cells and all three independent closing passes pass; final artifact `bffa55b8` from `ab5b6ad` | **partial after final shared fix**: earlier cells pass; the rebuilt artifact and affected closing CLI rows remain | **partial after final shared fix**: earlier cells pass; rebuilt artifact, Unix permissions and affected closing CLI rows remain | **partial after final shared fix**: earlier cells pass; rebuilt artifact, Unix permissions and affected closing CLI rows remain |
+| overall | **pass**: all 50 cells and all three independent closing passes pass; final artifact `bffa55b8` from `ab5b6ad` | **pass**: the earlier 50-cell Windows pass remains valid; rebuilt artifact identity and the affected final CLI rows pass in three isolated roots | **partial after final shared fix**: earlier cells pass; rebuilt artifact, Unix permissions and affected closing CLI rows remain | **partial after final shared fix**: earlier cells pass; rebuilt artifact, Unix permissions and affected closing CLI rows remain |
 
 This WSL column was recorded while the branch was still moving. The pass found
 two defects and both were fixed on it, so the binary changed twice under the
@@ -750,6 +755,16 @@ tokens over three iterations each. Every pass read exactly one default-provider
 and one default-model marker, `0700` private directories and `0600` private
 files. The earlier Linux round is the round that found `F22` and `F23`, not a
 close; discarded fixture and ordering attempts are likewise not counted.
+
+**Targeted closing result (2026-08-28, Windows): pass.** The rebuilt installed
+artifact had SHA-256 `82B51620F9964077D3DC0E94AFDF7C9B78B8D50B886005CD0B019A77225FBBF2`.
+Three isolated service-managed roots used ports `8991`, `8992` and `8993`.
+Each root ran the affected CLI rows and read exactly one default-provider marker
+and one default-model marker. `GET /api/providers` independently read Gemini as
+the only default provider and `gemini-3.7-flash` as its selected model. The
+owned daemons stopped, all three ports were free, and the isolated roots were
+removed after evidence capture. Failed setup attempts are retained and do not
+contribute to the verdict.
 
 **The token counts differ, which is the point of reading them.** The three runs
 spent `31766/149`, `23694/108` and `31766/146` input and output tokens over
