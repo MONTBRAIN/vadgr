@@ -29,9 +29,7 @@ handshake-proven endpoint id, bound at claim.
 
 > **Linux final result: pass, 2026-08-28.** All fifty cells and all three
 > independent closing passes pass against the final post-finding artifact at
-> `ab5b6ad`. macOS retains its earlier live results, but must rebuild and repeat
-> the affected build, Unix-permission and closing CLI boundaries after this
-> shared final fix before the pull request merges.
+> `ab5b6ad`.
 >
 > **Windows final result: pass, 2026-08-28.** The rebuilt artifact from
 > `ab5b6ad` passed `A1` and `A2`. Three isolated service-managed roots each
@@ -466,7 +464,7 @@ the parts actually driven on that OS.
 | X: out of the box | pass: fresh root with zero device and peer rows refused before the handshake | pass: fresh root refused before handshake | pass: a fresh root with no device rows refused before the handshake | pass |
 | K: the secret key file | pass: the secret-key corruption boundary remains green; the final closing passes additionally read `0700` for state/service/run roots and `0600` for the key, credential records, DB family, log and trajectory | pass: protected owner-rights DACL; corrupt key leaves loopback and Tailscale healthy | pass: re-run on `ab5b6ad`. On a from-nothing root under `umask 022` the state root, credentials directory, secret key, database, its WAL and shared memory, and the daemon log are all owner-only, and a newly written run journal is `0700` over `0600`. `pids/` stays `0755` holding a process id and a port, both already visible to `ps`, under a `0700` parent. The earlier corruption boundary stands: a corrupt key fails the built-in transport loudly and names the reason while loopback and Tailscale keep serving | pass: the earlier secret-key corruption boundary remains green; three final targeted roots under umasks `022` and `002` and a permissive pre-existing root read `0700` for service/state/credential/run directories and `0600` for the credential record, DB family, log and trajectory |
 | M: the agent-driven physical handset | pass: `M1` through `M7` recorded on the physical handset against `95b0314`; the final `ab5b6ad` changes only local file protection and CLI rendering, so no handset or transport behavior was invalidated. The official 0.4.1 compatibility APK and restored 0.4.5 APK matched their recorded digests, and the owner acted only for the three QR scans | pass: M1 through M7 recorded on the physical handset | pass: `M1` to `M7` driven on the handset against a release APK built from the `0.4.5` pull request head, sha `23ef9fbf`, matched byte for byte to what the phone runs. The owner scanned twice, for `M3` and `M4`, and every other action was driven over ADB | pass: M6 and M7 re-run on the matched release APK |
-| overall | **pass**: all 50 cells and all three independent closing passes pass; final artifact `bffa55b8` from `ab5b6ad` | **pass**: the earlier 50-cell Windows pass remains valid; rebuilt artifact identity and the affected final CLI rows pass in three isolated roots | **partial after final shared fix**: earlier cells pass; rebuilt artifact, Unix permissions and affected closing CLI rows remain | **pass**: the earlier 50-cell WSL pass remains valid; rebuilt artifact identity, Unix permissions and affected closing CLI rows pass in three isolated roots |
+| overall | **pass**: all 50 cells and all three independent closing passes pass; final artifact `bffa55b8` from `ab5b6ad` | **pass**: the earlier 50-cell Windows pass remains valid; rebuilt artifact identity and the affected final CLI rows pass in three isolated roots | **pass**: all 50 cells and all three independent closing passes pass; the affected final-head permission and CLI boundaries pass on `ab5b6ad`, and the macOS-only Tailscale relaunch regression passes on `3aa2caf` | **pass**: the earlier 50-cell WSL pass remains valid; rebuilt artifact identity, Unix permissions and affected closing CLI rows pass in three isolated roots |
 
 This WSL column was recorded while the branch was still moving. The pass found
 two defects and both were fixed on it, so the binary changed twice under the
@@ -717,7 +715,7 @@ received all five frames on every valid closing pass. Recorded so a later host
 does not silently turn an in-memory compatibility buffer into a durable event
 store while investigating the same observation.
 
-### F22 (observation, and it needs an owner ruling): two provider renderers, one drops the default model
+### F22 (observation, non-blocking): two provider renderers, one drops the default model
 
 `ab5b6ad` set out to identify the default model, and it does: `provider_lines`
 in `src/cli/commands/provider.rs` marks it, which is what `vadgr provider
