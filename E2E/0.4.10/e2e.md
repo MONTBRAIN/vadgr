@@ -454,7 +454,7 @@ the parts actually driven on that OS.
 
 | Part | Linux | Windows | macOS | WSL |
 |---|---|---|---|---|
-| A: the built head | pass: final head `ab5b6ad`; installed Linux binary sha `bffa55b8`; `vadgr --version`, `Cargo.toml` and `GET /api/health` all read `0.4.10`; fmt, clippy, 170 library tests, 60 CLI tests, every integration suite, and 46 Python checks pass with 2 expected skips | pass: rebuilt final code at `ab5b6ad`; installed Windows binary sha `82B51620`; `vadgr --version`, `Cargo.toml` and `GET /api/health` read `0.4.10`; three isolated roots each showed one default provider and one default model, corroborated by `GET /api/providers` | targeted re-run required: rebuild `ab5b6ad`, repeat the Unix permission boundary and the affected CLI close boundary | pass: rebuilt PR head `36567b7`, whose product code is `ab5b6ad`; installed WSL binary sha `ca23b333`; `vadgr --version`, `Cargo.toml` and `GET /api/health` read `0.4.10`; three isolated roots each showed one default provider and one default model, corroborated by `GET /api/providers` |
+| A: the built head | pass: final head `ab5b6ad`; installed Linux binary sha `bffa55b8`; `vadgr --version`, `Cargo.toml` and `GET /api/health` all read `0.4.10`; fmt, clippy, 170 library tests, 60 CLI tests, every integration suite, and 46 Python checks pass with 2 expected skips | pass: rebuilt final code at `ab5b6ad`; installed Windows binary sha `82B51620`; `vadgr --version`, `Cargo.toml` and `GET /api/health` read `0.4.10`; three isolated roots each showed one default provider and one default model, corroborated by `GET /api/providers` | pass: rebuilt at `ab5b6ad` (branch head `757195f`); installed macOS binary sha `789629ae`, equal to the release build; `vadgr --version`, `Cargo.toml` and `GET /api/health` all read `0.4.10`; fmt, clippy, 27 suites and 46 Python checks pass with 2 expected skips | pass: rebuilt PR head `36567b7`, whose product code is `ab5b6ad`; installed WSL binary sha `ca23b333`; `vadgr --version`, `Cargo.toml` and `GET /api/health` read `0.4.10`; three isolated roots each showed one default provider and one default model, corroborated by `GET /api/providers` |
 | T: the traversal spike | pass: external Apple Silicon Mac on a second network with Tailscale disconnected before dialing; public direct path after relay rendezvous, handshake in 1121 ms, health and claim both `200`, and the daemon bound the client's own handshake identity over Built-in | pass: external MacBook on mobile data; direct path; health and claim `200` in 445 ms | pass: a WSL client on a second network, with no route to the home LAN or the tailnet, dialed the endpoint id; `relay` path, handshake in 1256 ms, health and claim both `200`, and the binding holds the client's own endpoint id | pass: external macOS client; relay path; health and claim `200` |
 | P: pairing and the report | pass: both transports and legacy fields reported; the independent decoder matched the no-Tailscale terminal QR byte for byte; local-only pairing returned the named 503 | pass | pass | pass |
 | B: the admission rule | pass: B1-B12 driven over the independent Built-in client, including the four-slot limit, window-end close, sixty-second lifetime, identity-safe adoption and revocation | pass | pass: driven over the real built-in wire with the independent dialer, including the four-slot limit, the window-end close and the sixty second lifetime close | pass |
@@ -464,7 +464,7 @@ the parts actually driven on that OS.
 | D: the deletion sweep | pass: all 18 HTTP routes match between Tailscale and Built-in; every phone route matches loopback; both run sockets carry identical four-frame replays over all three transports | pass: paired Tailscale and built-in HTTP/sockets match | pass: the surface matches loopback on every route a phone may reach, and both run-socket routes carry identical frame counts and frame types on loopback, the tailnet and the built-in transport. Five owner-only provider routes answer `403 SOURCE_NOT_AUTHORIZED` off loopback, which `require_loopback` makes deliberate | pass |
 | F: failure and recovery | pass: F1-F6, including bounded unreachable-relay failure, absent daemon, adoption-era revoke scope, unchanged Tailscale token, direct-only Built-in and local-only override | pass | pass | pass: external client refused through controlled unreachable relay; both unaffected paths stayed healthy |
 | X: out of the box | pass: fresh root with zero device and peer rows refused before the handshake | pass: fresh root refused before handshake | pass: a fresh root with no device rows refused before the handshake | pass |
-| K: the secret key file | pass: the secret-key corruption boundary remains green; the final closing passes additionally read `0700` for state/service/run roots and `0600` for the key, credential records, DB family, log and trajectory | pass: protected owner-rights DACL; corrupt key leaves loopback and Tailscale healthy | targeted Unix-permission re-run required on `ab5b6ad`; the earlier secret-key corruption boundary passed | pass: the earlier secret-key corruption boundary remains green; three final targeted roots under umasks `022` and `002` and a permissive pre-existing root read `0700` for service/state/credential/run directories and `0600` for the credential record, DB family, log and trajectory |
+| K: the secret key file | pass: the secret-key corruption boundary remains green; the final closing passes additionally read `0700` for state/service/run roots and `0600` for the key, credential records, DB family, log and trajectory | pass: protected owner-rights DACL; corrupt key leaves loopback and Tailscale healthy | pass: re-run on `ab5b6ad`. On a from-nothing root under `umask 022` the state root, credentials directory, secret key, database, its WAL and shared memory, and the daemon log are all owner-only, and a newly written run journal is `0700` over `0600`. `pids/` stays `0755` holding a process id and a port, both already visible to `ps`, under a `0700` parent. The earlier corruption boundary stands: a corrupt key fails the built-in transport loudly and names the reason while loopback and Tailscale keep serving | pass: the earlier secret-key corruption boundary remains green; three final targeted roots under umasks `022` and `002` and a permissive pre-existing root read `0700` for service/state/credential/run directories and `0600` for the credential record, DB family, log and trajectory |
 | M: the agent-driven physical handset | pass: `M1` through `M7` recorded on the physical handset against `95b0314`; the final `ab5b6ad` changes only local file protection and CLI rendering, so no handset or transport behavior was invalidated. The official 0.4.1 compatibility APK and restored 0.4.5 APK matched their recorded digests, and the owner acted only for the three QR scans | pass: M1 through M7 recorded on the physical handset | pass: `M1` to `M7` driven on the handset against a release APK built from the `0.4.5` pull request head, sha `23ef9fbf`, matched byte for byte to what the phone runs. The owner scanned twice, for `M3` and `M4`, and every other action was driven over ADB | pass: M6 and M7 re-run on the matched release APK |
 | overall | **pass**: all 50 cells and all three independent closing passes pass; final artifact `bffa55b8` from `ab5b6ad` | **pass**: the earlier 50-cell Windows pass remains valid; rebuilt artifact identity and the affected final CLI rows pass in three isolated roots | **partial after final shared fix**: earlier cells pass; rebuilt artifact, Unix permissions and affected closing CLI rows remain | **pass**: the earlier 50-cell WSL pass remains valid; rebuilt artifact identity, Unix permissions and affected closing CLI rows pass in three isolated roots |
 
@@ -717,6 +717,58 @@ received all five frames on every valid closing pass. Recorded so a later host
 does not silently turn an in-memory compatibility buffer into a durable event
 store while investigating the same observation.
 
+### F22 (observation, and it needs an owner ruling): two provider renderers, one drops the default model
+
+`ab5b6ad` set out to identify the default model, and it does: `provider_lines`
+in `src/cli/commands/provider.rs` marks it, which is what `vadgr provider
+status` and `vadgr model list` print. But `vadgr providers` is wired to a second
+renderer, `src/cli/commands/info.rs`, which prints each model as
+`- {name} ({id})` and never reads `default_model` at all.
+
+The result, on one machine at one moment:
+
+    vadgr providers        Google Gemini (gemini) -- connected (default)
+                             - Gemini 3.1 Flash Lite (gemini-3.1-flash-lite)
+    vadgr provider status  Google Gemini: connected (default)
+                             gemini-3.1-flash-lite  Gemini 3.1 Flash Lite (default)
+    GET /api/providers     default_model: gemini-3.1-flash-lite
+
+`vadgr providers` already prints `(default)` for the provider, so it reports one
+default fact and silently drops the other, on the command whose whole output is
+a list of models. Two of the three closing passes found this independently.
+
+Not fixed here, and the reason is the cost rather than the difficulty: the fix
+is a few lines in `info.rs`, but changing product code moves the head, and
+Linux, Windows and WSL have all just closed their passes on `ab5b6ad`. Fixing a
+display line would reopen four operating systems. **The owner rules whether it
+ships in `0.4.10` or waits**, and the data is correct and reachable from two
+other surfaces meanwhile.
+
+### F23 (observation, mechanism identified but not reproduced on demand)
+
+The daemon reported `tailscale` unavailable, with the reason "tailscaled is not
+running or logged out", while `tailscale status` on the same machine listed the
+tailnet and its own address. Restarting the daemon alone cleared it.
+
+**It did not reproduce under a `down` then `up` cycle.** With the daemon left
+running, taking Tailscale down flipped the health block to unavailable and
+bringing it back up flipped it to available again, correctly and without a
+restart. That path keeps `tailscaled` alive, so the daemon's handle stays good.
+
+The symptom followed Tailscale being **stopped entirely and relaunched**, which
+is the case the code makes plausible: `TailscaledLocalApi::new` resolves the
+macOS local API once, storing a port and a token, and a relaunched `tailscaled`
+mints new ones. `is_available` then calls a live endpoint with stale
+credentials and reads that as down. This is macOS-only code, so Linux and
+Windows use a socket path that survives a restart.
+
+One thing is certain from the source either way: the reason is a single fixed
+string, so whatever the cause, the health block, the `503` message and `vadgr
+pair` all blame `tailscaled`. In this case `tailscaled` was healthy and the
+owner was pointed at the wrong component. **Recorded rather than fixed**: the
+mechanism is a guess until a full relaunch reproduces it, and the fix would
+move the head after three other operating systems have closed.
+
 ## Close: three independent passes
 
 The runbook is closed with **three separate agents running the sweep
@@ -797,3 +849,38 @@ not a failed assertion: three passes reported a marker file that did not exist
 beside a run that reported success, which is `F4`. One pass set a default model
 five times in a row after the `F5` fix and got `200` every time, which is the
 live check on the fix that closes `0.4.9`'s `F7`.
+
+**Closing result (2026-08-28, macOS, on `ab5b6ad`): pass.** The three passes ran
+again after `ab5b6ad` moved the head, because that commit hardens the state root
+and changes how the default model is reported, and the earlier round had closed
+on `04291f18`. Three agents, three ports, three state roots, three daemons, one
+frozen artifact (`789629ae`).
+
+They agree entry for entry: fifteen HTTP rows, seven absent-route rows and
+sixteen CLI rows, identical on method, path, status and error code, and on argv
+and exit code. Each dialed the built-in transport with an independent client and
+completed the handshake on a direct path in 37 to 39 ms. Each watched one run on
+both socket routes over loopback and over the built-in transport at once, and
+the two transports carry the same frame counts and the same frame types on both
+routes, in all three.
+
+**Each run did the work its status claimed**, which is what `F4` cost a whole
+round to establish: three runs, three markers written, three `completed`
+verdicts that match the disk. Token counts differ across the three, so they are
+three calls rather than one result read three times.
+
+**The state hardening holds.** In every root the credentials directory, the
+secret key, the database with its write-ahead log, the daemon log and every run
+journal are owner-only, and `state/` and `state/runs/` are `0700`. Only
+`home/pids/` stays permissive, holding a process id and a port under a `0700`
+parent.
+
+**Two of the three found the same thing about the default model**, filed as
+`F22`, and one of them traced it to the second renderer. The passes were asked
+what looked odd rather than only whether their steps passed, and that is what
+surfaced it: every assertion in all three was green.
+
+**Tailscale was stopped on the host for the first two passes**, which was not
+planned and turned out to be worth having. Both daemons started and served
+normally, which is the `F1` defect this pass fixed earlier, re-confirmed on the
+final head by a case nobody staged.
