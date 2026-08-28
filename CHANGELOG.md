@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.4.11] - 2026-08-28
+
+### Fixed
+
+- A phone unpairing over the built-in transport now receives the successful
+  revoke response before that transport closes its connection. Revocation
+  still blocks new streams immediately and closes live run streams, but the
+  phone no longer falsely says the machine still lists it after the daemon
+  already removed the device.
+
 ## [0.4.10] - 2026-08-21
 
 **The built-in transport.** The daemon gains a second phone-reachable
