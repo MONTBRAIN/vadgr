@@ -1,7 +1,6 @@
 use crate::engine::types::{ModelResponse, RunId, ToolContent, ToolResult, Usage};
 use serde_json::{Map, Value, json};
 use sha2::{Digest, Sha256};
-use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -84,12 +83,8 @@ impl Journal {
         tokio::task::spawn_blocking(move || {
             let result = (|| -> Result<std::fs::File, String> {
                 let parent = writer_path.parent().ok_or("journal has no parent")?;
-                std::fs::create_dir_all(parent).map_err(|error| error.to_string())?;
-                OpenOptions::new()
-                    .create(true)
-                    .append(true)
-                    .open(&writer_path)
-                    .map_err(|error| error.to_string())
+                crate::private_fs::create_dir_all(parent).map_err(|error| error.to_string())?;
+                crate::private_fs::append(&writer_path).map_err(|error| error.to_string())
             })();
             let mut file = match result {
                 Ok(file) => file,
@@ -478,6 +473,37 @@ mod tests {
     use super::{Journal, bounded_result, read_recovery, redact};
     use crate::engine::types::ToolResult;
     use serde_json::json;
+
+    #[cfg(unix)]
+    use std::os::unix::fs::PermissionsExt;
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn an_existing_journal_is_hardened_for_the_owner() {
+        let directory = tempfile::tempdir().unwrap();
+        let run = directory.path().join("run-1");
+        let path = run.join("trajectory.jsonl");
+        std::fs::create_dir(&run).unwrap();
+        std::fs::write(&path, []).unwrap();
+        std::fs::set_permissions(&run, std::fs::Permissions::from_mode(0o777)).unwrap();
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o666)).unwrap();
+
+        let journal = Journal::open(directory.path(), "run-1", -1).await.unwrap();
+        journal
+            .append_in_flight(0, "probe", &json!({}))
+            .await
+            .unwrap();
+        drop(journal);
+
+        assert_eq!(
+            std::fs::metadata(&run).unwrap().permissions().mode() & 0o777,
+            0o700
+        );
+        assert_eq!(
+            std::fs::metadata(&path).unwrap().permissions().mode() & 0o777,
+            0o600
+        );
+    }
 
     #[tokio::test]
     async fn sequence_continues_and_closes_reuse_the_opening_number() {

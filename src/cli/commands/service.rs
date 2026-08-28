@@ -16,6 +16,41 @@ use crate::client::Client;
 use crate::error::CliError;
 use crate::output;
 
+#[cfg(unix)]
+fn create_service_home(path: &Path) -> std::io::Result<()> {
+    use std::os::unix::fs::{DirBuilderExt, PermissionsExt};
+
+    std::fs::DirBuilder::new()
+        .recursive(true)
+        .mode(0o700)
+        .create(path)?;
+    std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o700))
+}
+
+#[cfg(not(unix))]
+fn create_service_home(path: &Path) -> std::io::Result<()> {
+    std::fs::create_dir_all(path)
+}
+
+#[cfg(unix)]
+fn open_service_log(path: &Path) -> std::io::Result<std::fs::File> {
+    use std::os::unix::fs::{OpenOptionsExt, PermissionsExt};
+
+    let file = std::fs::OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .mode(0o600)
+        .open(path)?;
+    file.set_permissions(std::fs::Permissions::from_mode(0o600))?;
+    Ok(file)
+}
+
+#[cfg(not(unix))]
+fn open_service_log(path: &Path) -> std::io::Result<std::fs::File> {
+    std::fs::File::create(path)
+}
+
 /// How long the CLI waits for the daemon to answer health after spawning it.
 const API_STARTUP_TIMEOUT: Duration = Duration::from_secs(30);
 /// How long a port probe waits before calling the port closed.
@@ -362,10 +397,10 @@ pub async fn start(api_port: Option<u16>) -> Result<(), CliError> {
     );
 
     let log_path = vadgr_home().join("api.log");
-    std::fs::create_dir_all(vadgr_home()).map_err(|e| {
+    create_service_home(&vadgr_home()).map_err(|e| {
         CliError::Failed(format!("Could not create {}: {e}", vadgr_home().display()))
     })?;
-    let log = std::fs::File::create(&log_path)
+    let log = open_service_log(&log_path)
         .map_err(|e| CliError::Failed(format!("Could not open {}: {e}", log_path.display())))?;
     let errors = log
         .try_clone()
@@ -797,6 +832,42 @@ fn install_binaries(repo: &Path) -> Result<usize, CliError> {
 #[cfg(test)]
 mod port_selection_tests {
     use super::*;
+
+    #[cfg(unix)]
+    #[test]
+    fn an_existing_service_log_is_hardened_for_the_owner() {
+        use std::os::unix::fs::PermissionsExt;
+
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("api.log");
+        std::fs::write(&path, []).unwrap();
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o666)).unwrap();
+
+        let _log = open_service_log(&path).unwrap();
+
+        assert_eq!(
+            std::fs::metadata(&path).unwrap().permissions().mode() & 0o777,
+            0o600
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn an_existing_service_home_is_hardened_for_the_owner() {
+        use std::os::unix::fs::PermissionsExt;
+
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("home");
+        std::fs::create_dir(&path).unwrap();
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o777)).unwrap();
+
+        create_service_home(&path).unwrap();
+
+        assert_eq!(
+            std::fs::metadata(&path).unwrap().permissions().mode() & 0o777,
+            0o700
+        );
+    }
 
     /// A socket bound and listening with a backlog of one, never accepting.
     ///

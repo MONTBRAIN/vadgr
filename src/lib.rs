@@ -14,6 +14,7 @@ pub mod error;
 pub mod http;
 pub mod migrate;
 pub mod platform;
+pub(crate) mod private_fs;
 pub mod routes;
 pub mod state;
 pub mod transport;
