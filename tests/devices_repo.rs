@@ -85,3 +85,132 @@ fn deleting_says_whether_anything_was_there() {
         "the second delete found nothing"
     );
 }
+
+// ------------------------------------------------------------- device peers
+
+/// One transport may not hold an identity twice, and the newest claim owns
+/// it: one phone pairing twice presents the same proven identity both times.
+#[test]
+fn the_newest_claim_takes_the_binding_rather_than_failing_on_the_key() {
+    let db = Db::open(":memory:").unwrap();
+    let first = devices::create(&db, "phone", "h1").unwrap();
+    let second = devices::create(&db, "phone again", "h2").unwrap();
+    let first_id = first["id"].as_str().unwrap();
+    let second_id = second["id"].as_str().unwrap();
+
+    devices::bind_peer(&db, first_id, "iroh", "endpoint-a").unwrap();
+    devices::bind_peer(&db, second_id, "iroh", "endpoint-a").unwrap();
+
+    assert_eq!(
+        devices::peer_device(&db, "iroh", "endpoint-a").unwrap(),
+        Some(second_id.to_string())
+    );
+}
+
+/// Two transports may hold the same identity string: the primary key is per
+/// transport, so a fourth transport's ids cannot collide with this one's.
+#[test]
+fn the_same_identity_may_be_bound_on_two_transports() {
+    let db = Db::open(":memory:").unwrap();
+    let device = devices::create(&db, "phone", "h1").unwrap();
+    let id = device["id"].as_str().unwrap();
+    devices::bind_peer(&db, id, "iroh", "same-string").unwrap();
+    devices::bind_peer(&db, id, "future-transport", "same-string").unwrap();
+    assert_eq!(
+        devices::peer_device(&db, "iroh", "same-string").unwrap(),
+        Some(id.to_string())
+    );
+    assert_eq!(
+        devices::peer_device(&db, "future-transport", "same-string").unwrap(),
+        Some(id.to_string())
+    );
+}
+
+/// Revocation cuts the network path with the token: deleting the device
+/// drops its peer rows through the foreign key.
+#[test]
+fn deleting_a_device_drops_its_bindings() {
+    let db = Db::open(":memory:").unwrap();
+    let device = devices::create(&db, "phone", "h1").unwrap();
+    let id = device["id"].as_str().unwrap();
+    devices::bind_peer(&db, id, "iroh", "endpoint-a").unwrap();
+    assert!(devices::any_peer_bound(&db, "iroh").unwrap());
+
+    assert!(devices::delete(&db, id).unwrap());
+
+    assert_eq!(
+        devices::peer_device(&db, "iroh", "endpoint-a").unwrap(),
+        None
+    );
+    assert!(!devices::any_peer_bound(&db, "iroh").unwrap());
+}
+
+/// Transport adoption's repository half: one write, idempotent on the same
+/// identity, and a different identity is refused rather than displaced,
+/// because displacement would turn token theft into association takeover.
+#[test]
+fn adoption_writes_once_answers_unchanged_twice_and_never_displaces() {
+    let db = Db::open(":memory:").unwrap();
+    let device = devices::create(&db, "phone", "h1").unwrap();
+    let id = device["id"].as_str().unwrap();
+
+    assert_eq!(
+        devices::adopt_peer(&db, id, "iroh", "endpoint-a").unwrap(),
+        devices::Adoption::Written
+    );
+    assert_eq!(
+        devices::adopt_peer(&db, id, "iroh", "endpoint-a").unwrap(),
+        devices::Adoption::Unchanged
+    );
+    assert_eq!(
+        devices::adopt_peer(&db, id, "iroh", "endpoint-b").unwrap(),
+        devices::Adoption::DifferentIdentity
+    );
+    // The refusal wrote nothing: the first identity still holds, the second
+    // was never bound, and the device holds exactly one row.
+    assert_eq!(
+        devices::peer_device(&db, "iroh", "endpoint-a").unwrap(),
+        Some(id.to_string())
+    );
+    assert_eq!(
+        devices::peer_device(&db, "iroh", "endpoint-b").unwrap(),
+        None
+    );
+}
+
+/// Adopting an identity another device holds takes it, the claim's own rule:
+/// the handshake proved the caller holds that identity's secret key, which
+/// is what makes the take safe.
+#[test]
+fn adoption_takes_an_identity_another_device_held() {
+    let db = Db::open(":memory:").unwrap();
+    let first = devices::create(&db, "phone", "h1").unwrap();
+    let second = devices::create(&db, "phone again", "h2").unwrap();
+    let first_id = first["id"].as_str().unwrap();
+    let second_id = second["id"].as_str().unwrap();
+
+    devices::bind_peer(&db, first_id, "iroh", "endpoint-a").unwrap();
+    assert_eq!(
+        devices::adopt_peer(&db, second_id, "iroh", "endpoint-a").unwrap(),
+        devices::Adoption::Written
+    );
+    assert_eq!(
+        devices::peer_device(&db, "iroh", "endpoint-a").unwrap(),
+        Some(second_id.to_string())
+    );
+}
+
+/// The accept loop's third question, added with transport adoption: are
+/// there any devices at all.
+/// It moves with pairing and revocation, so a machine whose last device is
+/// revoked goes back to refusing before the handshake.
+#[test]
+fn any_devices_moves_with_pairing_and_revocation() {
+    let db = Db::open(":memory:").unwrap();
+    assert!(!devices::any_devices(&db).unwrap());
+    let device = devices::create(&db, "phone", "h1").unwrap();
+    let id = device["id"].as_str().unwrap();
+    assert!(devices::any_devices(&db).unwrap());
+    assert!(devices::delete(&db, id).unwrap());
+    assert!(!devices::any_devices(&db).unwrap());
+}

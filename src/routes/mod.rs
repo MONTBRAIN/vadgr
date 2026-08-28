@@ -36,6 +36,10 @@ pub fn router(state: AppState) -> Router {
         .route("/api/auth/pair", post(auth::pair))
         .route("/api/auth/claim", post(auth::claim))
         .route("/api/devices", get(devices::list_devices))
+        .route(
+            "/api/devices/self/transports",
+            post(devices::adopt_transport),
+        )
         .route("/api/devices/{device_id}", delete(devices::revoke_device))
         .route("/api/providers", get(providers::list_providers))
         .route(

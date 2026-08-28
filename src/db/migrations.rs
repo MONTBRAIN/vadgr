@@ -1,6 +1,6 @@
 use rusqlite::{Connection, Error};
 
-const CURRENT_VERSION: i64 = 1;
+const CURRENT_VERSION: i64 = 2;
 
 const MIGRATION_ONE: &str = r#"
 CREATE TABLE provider_connections (
@@ -44,6 +44,27 @@ INSERT INTO machine_settings (id, default_provider, default_model)
 VALUES (1, NULL, NULL);
 "#;
 
+/// The identity a transport proved at claim, bound to the device that
+/// claimed. A table rather than a `devices` column named after one transport:
+/// a fourth transport that proves identities binds a row here, and the
+/// primary key gives per-transport uniqueness for free. No backfill: a device
+/// with no row cannot pass the built-in transport's peer gate yet, which is
+/// the honest state of every earlier pairing.
+const MIGRATION_TWO: &str = r#"
+CREATE TABLE device_peers (
+    device_id TEXT NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
+    transport TEXT NOT NULL,
+    peer_id   TEXT NOT NULL,
+    PRIMARY KEY (transport, peer_id)
+);
+CREATE INDEX idx_device_peers_device ON device_peers(device_id);
+"#;
+
+/// The ladder, in order. `apply` runs every rung above the stored version,
+/// so a version-one database takes rung two alone and is never re-run
+/// through rung one.
+const MIGRATIONS: [(i64, &str); 2] = [(1, MIGRATION_ONE), (2, MIGRATION_TWO)];
+
 pub fn apply(conn: &Connection) -> rusqlite::Result<()> {
     let version: i64 = conn.query_row("PRAGMA user_version", [], |row| row.get(0))?;
     if version > CURRENT_VERSION {
@@ -56,7 +77,11 @@ pub fn apply(conn: &Connection) -> rusqlite::Result<()> {
     }
 
     let tx = conn.unchecked_transaction()?;
-    tx.execute_batch(MIGRATION_ONE)?;
+    for (rung, sql) in MIGRATIONS {
+        if rung > version {
+            tx.execute_batch(sql)?;
+        }
+    }
     tx.pragma_update(None, "user_version", CURRENT_VERSION)?;
     tx.commit()
 }

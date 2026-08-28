@@ -1,6 +1,6 @@
-use crate::engine::control::RunContext;
+use crate::engine::control::{CONTROL_NAMESPACE, RunContext};
 use crate::engine::journal::{Journal, RecoveryState};
-use crate::engine::mcp::McpHost;
+use crate::engine::mcp::{McpHost, NAMESPACE_SEPARATOR};
 use crate::engine::provider::ModelClient;
 use crate::engine::types::{
     ContentBlock, EngineError, LoopLimits, Message, RunResult, StopReason, ToolContent, ToolResult,
@@ -26,9 +26,9 @@ pub async fn run_loop(
         .as_ref()
         .map(|state| state.prior_usage.clone())
         .unwrap_or_default();
-    let mut completed_tool_count = recovery
+    let mut succeeded_tool_count = recovery
         .as_ref()
-        .map(|state| state.completed_tool_count)
+        .map(|state| state.succeeded_tool_count)
         .unwrap_or(0);
 
     for iteration in 0..limits.max_iterations {
@@ -78,7 +78,12 @@ pub async fn run_loop(
             }
             Some(StopReason::ToolUse) => {}
             Some(StopReason::MaxTokens) => return Err(EngineError::MaxTokens),
-            Some(StopReason::EndTurn) if completed_tool_count == 0 => {
+            // A call that was tried and failed is not an action. The count
+            // used to rise on every call whatever it returned, so a run whose
+            // only tool call came back `unknown tool` ended as a success with
+            // the task untouched: the model apologised in text and the CLI
+            // exited 0. Nothing was done, so the run did nothing.
+            Some(StopReason::EndTurn) if succeeded_tool_count == 0 => {
                 return Err(EngineError::NoActionTaken);
             }
             Some(StopReason::EndTurn) => {
@@ -132,7 +137,9 @@ pub async fn run_loop(
                     ToolResult::error(format!("Error: {error}"))
                 }
             };
-            completed_tool_count += 1;
+            if !result.is_error && acts_on_the_machine(&name) {
+                succeeded_tool_count += 1;
+            }
             tool_results.push(json!({
                 "type":"tool_result",
                 "tool_use_id":id,
@@ -188,7 +195,7 @@ fn opening_messages(task: &str, recovery: Option<&RecoveryState>) -> Vec<Message
         "This run was interrupted and has been resumed.".to_owned(),
         format!(
             "{} step(s) already completed before the interruption; do not repeat them.",
-            recovery.completed_tool_count
+            recovery.succeeded_tool_count
         ),
     ];
     if !recovery.recent_calls.is_empty() {
@@ -264,11 +271,24 @@ fn result_text(result: &ToolResult) -> String {
         .join("\n")
 }
 
+/// The run's own bookkeeping is not work done on the machine. `todo_write`,
+/// `report_progress` and `notify_user` all succeed with no tool host at all,
+/// so counting them let a run whose acting tools never loaded finish green
+/// while the model narrated a file it had not written. Seen for real: the
+/// computer-use server failed to start, the model called five control tools,
+/// and `vadgr run` printed "Run completed" and exited 0 with nothing done.
+fn acts_on_the_machine(tool: &str) -> bool {
+    !matches!(
+        tool.split_once(NAMESPACE_SEPARATOR),
+        Some((CONTROL_NAMESPACE, _))
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::{opening_messages, prune_old_images, run_loop};
     use crate::db::Db;
-    use crate::engine::control::RunContext;
+    use crate::engine::control::{CONTROL_NAMESPACE, RunContext};
     use crate::engine::events::EventSink;
     use crate::engine::journal::Journal;
     use crate::engine::journal::{RecoveredCall, RecoveryState};
@@ -306,7 +326,7 @@ mod tests {
             }],
             dangling: None,
             pending_ask: None,
-            completed_tool_count: 1,
+            succeeded_tool_count: 1,
             prior_usage: Usage::default(),
             todos: Vec::new(),
         };
@@ -378,6 +398,33 @@ mod tests {
         async fn close(&mut self) {}
     }
 
+    /// Stands in for the real control plane: it always succeeds, because the
+    /// run's own bookkeeping does not need a tool host to work.
+    struct FakeControl(Arc<Mutex<Vec<String>>>);
+
+    #[async_trait]
+    impl ToolServer for FakeControl {
+        fn namespace(&self) -> &str {
+            CONTROL_NAMESPACE
+        }
+        async fn list_tools(&mut self) -> Result<Vec<ToolSpec>, McpError> {
+            Ok(vec![ToolSpec {
+                name: "todo_write".to_owned(),
+                description: String::new(),
+                input_schema: Map::new(),
+            }])
+        }
+        async fn call_tool(
+            &mut self,
+            name: &str,
+            _args: Map<String, Value>,
+        ) -> Result<ToolResult, McpError> {
+            self.0.lock().unwrap().push(format!("control:{name}"));
+            Ok(ToolResult::text("{\"ok\":true}"))
+        }
+        async fn close(&mut self) {}
+    }
+
     async fn harness(
         responses: Vec<ModelResponse>,
     ) -> (
@@ -388,7 +435,10 @@ mod tests {
         Arc<Mutex<Vec<String>>>,
     ) {
         let calls = Arc::new(Mutex::new(Vec::new()));
-        let mut host = McpHost::new(vec![Box::new(FakeServer(calls.clone()))]);
+        let mut host = McpHost::new(vec![
+            Box::new(FakeServer(calls.clone())),
+            Box::new(FakeControl(calls.clone())),
+        ]);
         host.connect().await.unwrap();
         let directory = tempfile::tempdir().unwrap().keep();
         let journal = Journal::open(&directory, "run", -1).await.unwrap();
@@ -462,6 +512,86 @@ mod tests {
         assert_eq!(result.final_text, "finished");
         assert_eq!(*calls.lock().unwrap(), ["act", "act"]);
         assert_eq!(result.usage.input_tokens, 2);
+    }
+
+    /// The live shape this came from: the computer-use server failed to start,
+    /// so the only tools the model had were the run's own bookkeeping. It
+    /// ticked a todo off and said the file was written. Nothing was.
+    #[tokio::test]
+    async fn bookkeeping_alone_is_not_action() {
+        let (model, mut host, journal, context, _) = harness(vec![
+            response(
+                vec![ContentBlock::ToolUse {
+                    id: "1".to_owned(),
+                    name: "control__todo_write".to_owned(),
+                    input: json!({"todos":[]}),
+                    provider_signature: None,
+                }],
+                StopReason::ToolUse,
+            ),
+            response(
+                vec![ContentBlock::Text {
+                    text: "The word ready has been written to the file.".to_owned(),
+                }],
+                StopReason::EndTurn,
+            ),
+        ])
+        .await;
+        assert!(matches!(
+            run_loop(
+                &model,
+                &mut host,
+                &journal,
+                &context,
+                "task",
+                None,
+                CancellationToken::new(),
+                LoopLimits::default()
+            )
+            .await,
+            Err(EngineError::NoActionTaken)
+        ));
+    }
+
+    /// The live shape this came from: the model called a tool the host does not
+    /// have, the call came back an error, and the model then explained itself
+    /// in text. The run used to end as a success with the task untouched.
+    #[tokio::test]
+    async fn a_run_whose_only_call_failed_took_no_action() {
+        let (model, mut host, journal, context, _) = harness(vec![
+            response(
+                vec![ContentBlock::ToolUse {
+                    id: "1".to_owned(),
+                    // The live one was `computer_usefs`: the model dropped the
+                    // separator out of `computer-use__fs`, so nothing resolved.
+                    name: "testact".to_owned(),
+                    input: json!({}),
+                    provider_signature: None,
+                }],
+                StopReason::ToolUse,
+            ),
+            response(
+                vec![ContentBlock::Text {
+                    text: "I could not do that.".to_owned(),
+                }],
+                StopReason::EndTurn,
+            ),
+        ])
+        .await;
+        assert!(matches!(
+            run_loop(
+                &model,
+                &mut host,
+                &journal,
+                &context,
+                "task",
+                None,
+                CancellationToken::new(),
+                LoopLimits::default()
+            )
+            .await,
+            Err(EngineError::NoActionTaken)
+        ));
     }
 
     #[tokio::test]

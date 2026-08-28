@@ -233,7 +233,7 @@ pub fn apply(plan: &Plan, root: &Path) -> Result<(), Refusal> {
 
     let (db, runs, contribute) = match plan {
         Plan::Fresh | Plan::AlreadyHere => {
-            std::fs::create_dir_all(root).map_err(io(root))?;
+            crate::private_fs::create_dir_all(root).map_err(io(root))?;
             return Ok(());
         }
         Plan::Adopt { db, runs } => (db.clone(), runs.clone(), None),
@@ -249,7 +249,7 @@ pub fn apply(plan: &Plan, root: &Path) -> Result<(), Refusal> {
         // A stage from an interrupted attempt is not state, it is debris.
         std::fs::remove_dir_all(&stage).map_err(io(&stage))?;
     }
-    std::fs::create_dir_all(&stage).map_err(io(&stage))?;
+    crate::private_fs::create_dir_all(&stage).map_err(io(&stage))?;
 
     // Copy rather than rename, because the source may be on another filesystem
     // and a rename across one fails rather than falling back.
@@ -409,6 +409,24 @@ fn verify(db: &Path) -> Result<(), Refusal> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[cfg(unix)]
+    #[test]
+    fn an_existing_state_root_is_hardened_for_the_owner() {
+        use std::os::unix::fs::PermissionsExt;
+
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().join("state");
+        std::fs::create_dir(&root).unwrap();
+        std::fs::set_permissions(&root, std::fs::Permissions::from_mode(0o777)).unwrap();
+
+        apply(&Plan::AlreadyHere, &root).unwrap();
+
+        assert_eq!(
+            std::fs::metadata(&root).unwrap().permissions().mode() & 0o777,
+            0o700
+        );
+    }
 
     /// Build a database the way a real machine has one: through the daemon's own
     /// schema, then rows on top. A hand written two column table passes a move

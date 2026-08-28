@@ -248,8 +248,8 @@ jobs:
             and .version == $version
             and .platform == "linux"
             and .modules == {"computer_use": false}
-            and .transport == {"name": "loopback", "available": true,
-                               "advertise_host": null, "bind_host": "127.0.0.1"}
+            and .transport == {"loopback": {"name": "loopback", "available": true,
+                               "advertise_host": null, "bind_host": "127.0.0.1"}}
           ' >/dev/null || { echo "the health body is wrong"; docker logs "$container"; exit 1; }
           # A fresh machine has its three providers present and none connected.
           providers="$(probe /api/providers)"
@@ -324,8 +324,8 @@ jobs:
             and .version == $version
             and .platform == "macos"
             and .modules == {"computer_use": false}
-            and .transport == {"name": "loopback", "available": true,
-                               "advertise_host": null, "bind_host": "127.0.0.1"}
+            and .transport == {"loopback": {"name": "loopback", "available": true,
+                               "advertise_host": null, "bind_host": "127.0.0.1"}}
           ' >/dev/null || { echo "the health body is wrong"; cat "$root/daemon.log"; exit 1; }
           # A fresh machine has its three providers present and none connected.
           providers="$(curl -fsS http://127.0.0.1:8100/api/providers)"
@@ -403,12 +403,20 @@ jobs:
           if ($moduleKeys -ne 'computer_use' -or $health.modules.computer_use -ne $false) {
             throw "modules was $($health.modules | ConvertTo-Json -Compress)"
           }
+          # The health block now reports one entry per registered transport,
+          # keyed by wire name. Under VADGR_TRANSPORT=loopback the registry
+          # holds only the loopback transport, so the map has one key.
           $t = $health.transport
-          $transportKeys = ($t.PSObject.Properties.Name | Sort-Object) -join ','
-          if ($transportKeys -ne 'advertise_host,available,bind_host,name' -or
-              $t.name -ne 'loopback' -or $t.available -ne $true -or
-              $null -ne $t.advertise_host -or $t.bind_host -ne '127.0.0.1') {
-            throw "transport was $($t | ConvertTo-Json -Compress)"
+          $registeredKeys = ($t.PSObject.Properties.Name | Sort-Object) -join ','
+          if ($registeredKeys -ne 'loopback') {
+            throw "transport keys were '$registeredKeys', expected 'loopback'"
+          }
+          $lo = $t.loopback
+          $loopbackKeys = ($lo.PSObject.Properties.Name | Sort-Object) -join ','
+          if ($loopbackKeys -ne 'advertise_host,available,bind_host,name' -or
+              $lo.name -ne 'loopback' -or $lo.available -ne $true -or
+              $null -ne $lo.advertise_host -or $lo.bind_host -ne '127.0.0.1') {
+            throw "loopback transport was $($lo | ConvertTo-Json -Compress)"
           }
           # A fresh machine has its three providers present and none connected.
           # Parsed from the raw bytes with the array kept intact: Invoke-

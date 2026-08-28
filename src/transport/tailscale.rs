@@ -15,7 +15,9 @@
 //! and additionally verify each peer is a tailnet member via WhoIs, falling
 //! back to the 100.64.0.0/10 CGNAT range when WhoIs is unavailable.
 
-use super::Transport;
+use super::{Gate1, Peer, Reach, Scope, Transport, public_diagnostics};
+use axum::Router;
+use futures_util::future::BoxFuture;
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
 
@@ -114,8 +116,7 @@ impl TailscaledLocalApi {
             }
             #[cfg(target_os = "macos")]
             {
-                let mac = self.tcp.as_ref()?;
-                mac.get(path)
+                mac_get(self.tcp.as_ref(), path, mac_local_api)
             }
             #[cfg(not(target_os = "macos"))]
             {
@@ -246,6 +247,31 @@ impl MacLocalApi {
     }
 }
 
+/// Ask the application's loopback endpoint, and look it up again if the one we
+/// hold has gone stale.
+///
+/// The Tailscale macOS application publishes a fresh port and secret every time
+/// it starts, and this daemon resolves them once when it boots. So quitting
+/// Tailscale and opening it again left the daemon holding an endpoint nobody
+/// answers on: `is_available` read that silence as the tailnet being down and
+/// said "tailscaled is not running or logged out" while `tailscale status`
+/// listed a healthy tailnet. Only restarting the daemon cleared it. Re-reading
+/// costs a directory scan, and only on the path that was about to report the
+/// transport down anyway.
+#[cfg(target_os = "macos")]
+fn mac_get(
+    cached: Option<&MacLocalApi>,
+    path: &str,
+    resolve: impl Fn() -> Option<MacLocalApi>,
+) -> Option<Value> {
+    if let Some(mac) = cached
+        && let Some(value) = mac.get(path)
+    {
+        return Some(value);
+    }
+    resolve()?.get(path)
+}
+
 fn default_local_api_endpoint(os: &str) -> PathBuf {
     match os {
         "windows" => Path::new(r"\\.\pipe")
@@ -285,11 +311,15 @@ fn in_tailnet_cgnat(ip: std::net::IpAddr) -> bool {
 
 pub struct TailscaleTransport<A: LocalApi> {
     api: A,
+    /// The daemon's port, carried so the transport's own address form is a
+    /// complete dial target: gate 1 here proves membership of a network, and
+    /// the phone still needs a socket on it.
+    port: u16,
 }
 
 impl<A: LocalApi> TailscaleTransport<A> {
-    pub fn new(api: A) -> Self {
-        Self { api }
+    pub fn new(api: A, port: u16) -> Self {
+        Self { api, port }
     }
 
     fn self_ip(&self) -> Option<String> {
@@ -319,24 +349,7 @@ impl<A: LocalApi> TailscaleTransport<A> {
     }
 }
 
-impl<A: LocalApi> Transport for TailscaleTransport<A> {
-    fn name(&self) -> &'static str {
-        "tailscale"
-    }
-
-    /// **The F2 fix, reproduced rather than the bug it replaced.** The daemon
-    /// binds what the transport advertises, so the address the QR carries is
-    /// one the daemon answers on. Unavailable is an error, not a silent fall
-    /// back to loopback: binding an interface the transport did not name is
-    /// the exact bug the fix removed.
-    fn bind_host(&self) -> anyhow::Result<String> {
-        self.self_ip().ok_or_else(|| {
-            anyhow::anyhow!(
-                "Tailscale transport unavailable: tailscaled not running or logged out."
-            )
-        })
-    }
-
+impl<A: LocalApi> TailscaleTransport<A> {
     fn advertise_host(&self) -> Option<String> {
         if !self.is_available() {
             return None;
@@ -357,37 +370,269 @@ impl<A: LocalApi> Transport for TailscaleTransport<A> {
         }
         self.self_ip().is_some()
     }
+}
 
-    fn is_authorized_source(&self, host: &str) -> bool {
+/// The words this transport gives out when it is down, in the `503`'s
+/// message, `vadgr pair`'s print and the health block alike.
+const DOWN: &str = "tailscaled is not running or logged out";
+
+impl<A: LocalApi> Transport for TailscaleTransport<A> {
+    fn name(&self) -> &'static str {
+        "tailscale"
+    }
+
+    fn label(&self) -> &'static str {
+        "Tailscale"
+    }
+
+    fn serve(
+        &self,
+        app: Router,
+        port: u16,
+        hosts: &[String],
+    ) -> BoxFuture<'static, anyhow::Result<()>> {
+        // The daemon's --host override wins where it names non-loopback
+        // addresses, which are the ones this transport's own bind_hosts
+        // produced for the port probe. **The F2 fix, kept**: the daemon binds
+        // what the transport advertises, never a silent fall back to another
+        // interface.
+        let mut mine: Vec<String> = hosts
+            .iter()
+            .filter(|h| !super::loopback::is_loopback_identity(h))
+            .cloned()
+            .collect();
+        if mine.is_empty() && hosts.is_empty() {
+            mine = self.bind_hosts();
+        }
+        Box::pin(super::serve_tcp("tailscale", app, mine, port))
+    }
+
+    /// The 100.x address when tailscaled is up, and **empty** when it is not:
+    /// a transport that is down listens on nothing rather than failing the
+    /// port probe for every other transport.
+    fn bind_hosts(&self) -> Vec<String> {
+        // The same guard `advertise_host` uses, and for a sharper reason. A
+        // stopped Tailscale still answers its LocalAPI and still lists the
+        // node's addresses, but the interface holding them is gone, so binding
+        // one fails with EADDRNOTAVAIL. The port search binds every host it is
+        // given for every candidate port, so one address that cannot be bound
+        // failed the whole range and `vadgr start` died reporting "No free port
+        // found" about ports that were all free. An unavailable transport
+        // contributes no address to bind.
+        if !self.is_available() {
+            return Vec::new();
+        }
+        self.self_ip().into_iter().collect()
+    }
+
+    fn reach(&self) -> Reach {
+        match self.advertise_host() {
+            Some(host) => Reach::At(json!({ "host": host, "port": self.port })),
+            None => Reach::Unavailable(DOWN),
+        }
+    }
+
+    fn grants_local_bypass(&self) -> bool {
+        false
+    }
+
+    fn authorizes(&self, peer: &Peer, _ctx: Gate1<'_>) -> bool {
         // A string that is not an address is refused before anything is asked
         // about it: garbage never earns a WhoIs roundtrip.
-        let Ok(ip) = host.parse::<std::net::IpAddr>() else {
+        let Ok(ip) = peer.identity.parse::<std::net::IpAddr>() else {
             return false;
         };
         // Prefer an authoritative WhoIs identity check.
-        if self.api.whois(host).is_some() {
+        if self.api.whois(&peer.identity).is_some() {
             return true;
         }
         // Fall back to the CGNAT range when WhoIs is unavailable.
         in_tailnet_cgnat(ip)
     }
 
-    fn status(&self) -> Value {
+    /// An IP is asserted by whoever sent the packet, and an unverified
+    /// binding is worse than none: a tailnet claim binds nothing, exactly as
+    /// it always has.
+    fn bindable_identity(&self, _peer: &Peer) -> Option<String> {
+        None
+    }
+
+    fn diagnostics(&self, scope: Scope) -> Value {
         let available = self.is_available();
-        json!({
-            "name": self.name(),
-            "available": available,
-            "advertise_host": if available { self.advertise_host() } else { None },
-            "bind_host": self.self_ip(),
-        })
+        match scope {
+            Scope::Public => public_diagnostics(self.name(), available),
+            Scope::Full => {
+                let mut block = json!({
+                    "name": self.name(),
+                    "available": available,
+                    "advertise_host": if available { self.advertise_host() } else { None },
+                    "bind_host": self.self_ip(),
+                });
+                if !available {
+                    block["reason"] = json!(DOWN);
+                }
+                block
+            }
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::default_local_api_endpoint;
+    use super::{LocalApi, TailscaleTransport, Transport};
+    use serde_json::{Value, json};
+
+    /// A LocalAPI that answers exactly what a stopped Tailscale answered on
+    /// macOS: the backend is `Stopped`, and the node's addresses are still
+    /// listed because the daemon remembers them.
+    struct StoppedButRemembersItsIps;
+
+    impl LocalApi for StoppedButRemembersItsIps {
+        fn status(&self) -> Option<Value> {
+            Some(json!({
+                "BackendState": "Stopped",
+                "Self": {"TailscaleIPs": ["100.90.226.66", "fd7a:115c:a1e0::ce32:e242"]}
+            }))
+        }
+        fn whois(&self, _peer_ip: &str) -> Option<Value> {
+            None
+        }
+    }
+
+    struct RunningWithAnIp;
+
+    impl LocalApi for RunningWithAnIp {
+        fn status(&self) -> Option<Value> {
+            Some(json!({
+                "BackendState": "Running",
+                "Self": {"TailscaleIPs": ["100.90.226.66"]}
+            }))
+        }
+        fn whois(&self, _peer_ip: &str) -> Option<Value> {
+            None
+        }
+    }
+
+    /// A stopped Tailscale must contribute no address to bind.
+    ///
+    /// It answers its LocalAPI and still lists the node's addresses, but the
+    /// interface holding them is gone. The port search binds every host it is
+    /// given, so one unbindable address failed every candidate port and
+    /// `vadgr start` reported "No free port found" about ports that were free.
+    #[test]
+    fn a_stopped_tailscale_offers_no_bind_host() {
+        let t = TailscaleTransport::new(StoppedButRemembersItsIps, 8861);
+        assert!(!t.is_available(), "the fixture is a stopped backend");
+        assert!(
+            t.bind_hosts().is_empty(),
+            "a stopped transport offered {:?} to bind",
+            t.bind_hosts()
+        );
+    }
+
+    /// And the working case still contributes its address, so the guard did not
+    /// simply switch the transport off.
+    #[test]
+    fn a_running_tailscale_still_offers_its_address() {
+        let t = TailscaleTransport::new(RunningWithAnIp, 8861);
+        assert_eq!(t.bind_hosts(), vec!["100.90.226.66".to_owned()]);
+    }
+
     #[cfg(target_os = "macos")]
     use super::mac_local_api_from_dir;
+
+    /// Stands in for the application's loopback endpoint: one request, one
+    /// answer, then gone. It checks the shared secret, because a stale endpoint
+    /// that happens to hit a live port must not be mistaken for the real one.
+    #[cfg(target_os = "macos")]
+    fn a_local_api_that_answers_once(
+        token: &str,
+    ) -> (super::MacLocalApi, std::thread::JoinHandle<()>) {
+        use std::io::{Read, Write};
+        use std::net::TcpListener;
+
+        let listener = TcpListener::bind("127.0.0.1:0").expect("a loopback port");
+        let port = listener.local_addr().unwrap().port();
+        let expected = base64::Engine::encode(
+            &base64::engine::general_purpose::STANDARD,
+            format!(":{token}"),
+        );
+        let handle = std::thread::spawn(move || {
+            if let Ok((mut sock, _)) = listener.accept() {
+                let mut buf = [0u8; 1024];
+                let read = sock.read(&mut buf).unwrap_or(0);
+                let request = String::from_utf8_lossy(&buf[..read]).to_string();
+                let body = if request.contains(&expected) {
+                    "{\"BackendState\":\"Running\"}"
+                } else {
+                    "{\"BackendState\":\"NeedsLogin\"}"
+                };
+                let _ = sock.write_all(
+                    format!("HTTP/1.0 200 OK\r\nContent-Type: application/json\r\n\r\n{body}")
+                        .as_bytes(),
+                );
+            }
+        });
+        (
+            super::MacLocalApi {
+                port,
+                token: token.to_owned(),
+            },
+            handle,
+        )
+    }
+
+    /// The reproduction: quit Tailscale and open it again, and the endpoint this
+    /// daemon resolved at boot answers nobody. Before this was fixed the daemon
+    /// reported the tailnet down until it was restarted.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_relaunched_tailscale_is_found_again_without_restarting_the_daemon() {
+        let (live, handle) = a_local_api_that_answers_once("the-new-secret");
+        // Nothing listens here: the port the daemon held before the relaunch.
+        let stale = super::MacLocalApi {
+            port: reserved_dead_port(),
+            token: "the-old-secret".to_owned(),
+        };
+        assert!(
+            stale.get("/localapi/v0/status").is_none(),
+            "the stale endpoint must answer nothing, or the test proves nothing"
+        );
+        let found = super::mac_get(Some(&stale), "/localapi/v0/status", move || {
+            Some(live.clone())
+        });
+        handle.join().ok();
+        assert_eq!(
+            found
+                .as_ref()
+                .and_then(|v| v.get("BackendState"))
+                .and_then(|v| v.as_str()),
+            Some("Running"),
+            "a relaunched Tailscale is reachable again by looking the endpoint up"
+        );
+    }
+
+    /// And when Tailscale really is gone, looking again finds nothing and the
+    /// transport still reports down.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_tailscale_that_is_really_gone_still_reports_down() {
+        let stale = super::MacLocalApi {
+            port: reserved_dead_port(),
+            token: "the-old-secret".to_owned(),
+        };
+        assert!(super::mac_get(Some(&stale), "/localapi/v0/status", || None).is_none());
+    }
+
+    /// A port bound and dropped, so connecting to it is refused rather than
+    /// hanging on something unrelated that happens to be listening.
+    #[cfg(target_os = "macos")]
+    fn reserved_dead_port() -> u16 {
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        listener.local_addr().unwrap().port()
+    }
+
     use super::parse_local_api_response;
     use std::path::Path;
 

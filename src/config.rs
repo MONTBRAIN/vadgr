@@ -10,7 +10,7 @@ use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
 /// The version this daemon reports at `GET /api/health`.
-pub const VERSION: &str = "0.4.9";
+pub const VERSION: &str = "0.4.10";
 
 /// The environment a path is resolved from, as values rather than as globals.
 ///
@@ -176,23 +176,41 @@ impl std::fmt::Display for PathError {
     }
 }
 
+/// Where the built-in transport meets the network: the rendezvous setting,
+/// not a transport set. `VADGR_IROH_RELAYS` unset is the library default;
+/// a list of `https` URLs is the self-host setting; `none` is the documented
+/// configuration for a directly reachable machine, never the default.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum RelayChoice {
+    Default,
+    Custom(Vec<String>),
+    Disabled,
+}
+
+#[derive(Debug)]
 pub struct Config {
     pub port: u16,
     pub db_path: PathBuf,
-    pub transport_name: String,
+    /// `VADGR_TRANSPORT=loopback`, the one value the variable takes: serve
+    /// nothing off this machine. It never names a transport to switch on,
+    /// because nothing is switched on; the daemon serves every transport it
+    /// supports.
+    pub local_only: bool,
+    pub relays: RelayChoice,
     pub runs_dir: PathBuf,
     pub state_home: Option<PathBuf>,
 }
 
 impl Config {
-    pub fn from_env() -> Result<Self, PathError> {
+    pub fn from_env() -> Result<Self, ConfigError> {
         let environment = Environment::from_env();
-        let paths = Paths::resolve(&environment, Layout::host())?;
-        Ok(Self::from_values(
+        let paths = Paths::resolve(&environment, Layout::host()).map_err(ConfigError::Path)?;
+        Self::from_values(
             std::env::var("VADGR_PORT").ok(),
             std::env::var("VADGR_TRANSPORT").ok(),
+            std::env::var("VADGR_IROH_RELAYS").ok(),
             &paths,
-        ))
+        )
     }
 
     /// A config for an explicit set of paths.
@@ -202,18 +220,99 @@ impl Config {
     /// already there, so an isolated root is an argument rather than an
     /// environment variable the test has to remember to set.
     pub fn for_paths(paths: &Paths) -> Self {
-        Self::from_values(None, None, paths)
+        Self::from_values(None, None, None, paths).expect("no values, nothing to refuse")
     }
 
-    fn from_values(port: Option<String>, transport_name: Option<String>, paths: &Paths) -> Self {
-        Self {
+    pub fn from_values(
+        port: Option<String>,
+        transport: Option<String>,
+        relays: Option<String>,
+        paths: &Paths,
+    ) -> Result<Self, ConfigError> {
+        // The variable takes exactly one value. Refusing the old values is
+        // louder than ignoring them, and the fix is one line: delete the
+        // variable. A daemon that silently ignored VADGR_TRANSPORT=tailscale
+        // would leave an owner believing they had configured something.
+        let local_only = match transport.as_deref().map(str::trim) {
+            None | Some("") => false,
+            Some(value) if value.eq_ignore_ascii_case("loopback") => true,
+            Some(other) => return Err(ConfigError::NotLocalOnly(other.to_string())),
+        };
+        Ok(Self {
             // 8000 is the port the product has always answered on. The second
             // port existed while two daemons ran side by side; one does now.
             port: port.and_then(|v| v.parse().ok()).unwrap_or(8000),
             db_path: paths.db.clone(),
-            transport_name: transport_name.unwrap_or_else(|| "loopback".to_string()),
+            local_only,
+            relays: parse_relays(relays.as_deref())?,
             runs_dir: paths.runs.clone(),
             state_home: Some(paths.root.clone()),
+        })
+    }
+
+    /// Where credential-grade files live, the built-in transport's secret key
+    /// included. Derived from the state root so there is one resolver.
+    pub fn credentials_dir(&self) -> PathBuf {
+        match &self.state_home {
+            Some(root) => root.join("credentials"),
+            None => PathBuf::from("credentials"),
+        }
+    }
+}
+
+/// `VADGR_IROH_RELAYS`, parsed once. A malformed value refuses at boot: a
+/// relay list that silently fell back to the default would leave an owner
+/// believing their machine talks to their own relay.
+fn parse_relays(value: Option<&str>) -> Result<RelayChoice, ConfigError> {
+    let Some(raw) = value.map(str::trim).filter(|v| !v.is_empty()) else {
+        return Ok(RelayChoice::Default);
+    };
+    if raw.eq_ignore_ascii_case("none") {
+        return Ok(RelayChoice::Disabled);
+    }
+    let mut urls = Vec::new();
+    for part in raw.split(',') {
+        let part = part.trim();
+        if part.is_empty() {
+            continue;
+        }
+        if !part.to_ascii_lowercase().starts_with("https://") {
+            return Err(ConfigError::RelayNotHttps(part.to_string()));
+        }
+        urls.push(part.to_string());
+    }
+    if urls.is_empty() {
+        return Err(ConfigError::RelayNotHttps(raw.to_string()));
+    }
+    Ok(RelayChoice::Custom(urls))
+}
+
+/// The ways reading the configuration can fail, each refused at boot rather
+/// than corrected in silence.
+#[derive(Debug, PartialEq, Eq)]
+pub enum ConfigError {
+    Path(PathError),
+    NotLocalOnly(String),
+    RelayNotHttps(String),
+}
+
+impl std::fmt::Display for ConfigError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Path(err) => err.fmt(f),
+            Self::NotLocalOnly(value) => write!(
+                f,
+                "VADGR_TRANSPORT={value:?} is not a value this daemon takes. The daemon \
+                 serves every transport it supports; this variable exists only to serve \
+                 none of them, and its one legal value is 'loopback'. Remove the \
+                 variable to serve every transport."
+            ),
+            Self::RelayNotHttps(value) => write!(
+                f,
+                "VADGR_IROH_RELAYS carries {value:?}, which is not an https:// URL. Give \
+                 a comma-separated list of https relay URLs, 'none' for a directly \
+                 reachable machine, or remove the variable for the default relays."
+            ),
         }
     }
 }
@@ -387,10 +486,66 @@ mod tests {
     #[test]
     fn the_default_port_is_the_one_the_product_has_always_answered_on() {
         let paths = Paths::resolve(&env(&[("HOME", "/home/o")]), Layout::Unix).unwrap();
-        assert_eq!(Config::from_values(None, None, &paths).port, 8000);
         assert_eq!(
-            Config::from_values(Some("9001".into()), None, &paths).port,
+            Config::from_values(None, None, None, &paths).unwrap().port,
+            8000
+        );
+        assert_eq!(
+            Config::from_values(Some("9001".into()), None, None, &paths)
+                .unwrap()
+                .port,
             9001
         );
+    }
+
+    /// `VADGR_TRANSPORT` takes exactly one value, `loopback`: serve nothing
+    /// off this machine. There is no per-machine transport set, so the old
+    /// selector values refuse at boot rather than being silently honoured or
+    /// silently ignored.
+    #[test]
+    fn the_transport_variable_takes_one_value_and_refuses_the_rest() {
+        let paths = Paths::resolve(&env(&[("HOME", "/home/o")]), Layout::Unix).unwrap();
+        assert!(
+            !Config::from_values(None, None, None, &paths)
+                .unwrap()
+                .local_only
+        );
+        assert!(
+            Config::from_values(None, Some("loopback".into()), None, &paths)
+                .unwrap()
+                .local_only
+        );
+        for illegal in ["tailscale", "iroh", "iroh,tailscale", "anything"] {
+            let refused =
+                Config::from_values(None, Some(illegal.into()), None, &paths).unwrap_err();
+            let message = refused.to_string();
+            assert!(
+                message.contains("loopback"),
+                "{message} names the one legal value"
+            );
+        }
+    }
+
+    /// The rendezvous setting, not a transport set: unset is the library
+    /// default, a list of https URLs self-hosts, `none` is relay-free, and a
+    /// malformed value refuses at boot rather than silently using a relay
+    /// the owner did not choose.
+    #[test]
+    fn the_relay_setting_parses_its_three_shapes_and_refuses_garbage() {
+        let paths = Paths::resolve(&env(&[("HOME", "/home/o")]), Layout::Unix).unwrap();
+        let relays = |value: Option<&str>| {
+            Config::from_values(None, None, value.map(str::to_owned), &paths).map(|c| c.relays)
+        };
+        assert_eq!(relays(None).unwrap(), RelayChoice::Default);
+        assert_eq!(relays(Some("none")).unwrap(), RelayChoice::Disabled);
+        assert_eq!(
+            relays(Some("https://a.example, https://b.example")).unwrap(),
+            RelayChoice::Custom(vec![
+                "https://a.example".to_owned(),
+                "https://b.example".to_owned()
+            ])
+        );
+        assert!(relays(Some("http://insecure.example")).is_err());
+        assert!(relays(Some("not a url")).is_err());
     }
 }

@@ -59,6 +59,7 @@ impl Db {
                 std::fs::create_dir_all(parent)
                     .with_context(|| format!("creating database directory {}", parent.display()))?;
             }
+            drop(crate::private_fs::touch(path)?);
             Connection::open(path)?
         };
         // The two pragmas every connection sets. WAL is the
@@ -69,6 +70,11 @@ impl Db {
         let _mode: String = conn.query_row("PRAGMA journal_mode = WAL", [], |r| r.get(0))?;
         conn.execute_batch(SCHEMA)?;
         migrations::apply(&conn)?;
+        if path != Path::new(":memory:") {
+            crate::private_fs::harden(path)?;
+            crate::private_fs::harden(&path.with_extension("db-wal"))?;
+            crate::private_fs::harden(&path.with_extension("db-shm"))?;
+        }
         Ok(Self(Arc::new(Mutex::new(conn))))
     }
 
@@ -100,4 +106,31 @@ pub fn now_iso() -> String {
     time::OffsetDateTime::now_utc()
         .format(&format)
         .expect("a fixed format cannot fail on a real instant")
+}
+
+#[cfg(all(test, unix))]
+mod permission_tests {
+    use super::Db;
+    use std::os::unix::fs::PermissionsExt;
+
+    #[test]
+    fn an_existing_database_is_hardened_for_the_owner() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("vadgr.db");
+        std::fs::write(&path, []).unwrap();
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o666)).unwrap();
+
+        let _db = Db::open(&path).unwrap();
+
+        assert_eq!(
+            std::fs::metadata(&path).unwrap().permissions().mode() & 0o777,
+            0o600
+        );
+        for sidecar in [path.with_extension("db-wal"), path.with_extension("db-shm")] {
+            assert_eq!(
+                std::fs::metadata(sidecar).unwrap().permissions().mode() & 0o777,
+                0o600
+            );
+        }
+    }
 }

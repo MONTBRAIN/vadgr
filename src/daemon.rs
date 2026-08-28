@@ -14,13 +14,35 @@ use crate::{auth, computer_use_setup, config, db, migrate, routes, transport, ws
 use anyhow::Result;
 use std::sync::Arc;
 use std::sync::RwLock;
-use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
+use tower_http::trace::{DefaultOnResponse, TraceLayer};
 use tracing::Level;
 
 /// Run the daemon in the foreground until it stops.
 ///
 /// The caller has already decided this process serves. `vadgr start` spawns
 /// this binary again with `serve` and returns; nothing else calls it.
+/// The request span, without the query string.
+///
+/// The run sockets take the device token as a query parameter, because a
+/// WebSocket client cannot set an Authorization header. The default span logs
+/// the whole URI, so every socket open wrote a live device token into the
+/// daemon's own log, where it outlives the connection and travels with any
+/// log the owner sends anybody. This was found by the `0.4.10` pass.
+///
+/// The query is dropped whole rather than filtered by parameter name: a
+/// redaction list has to be maintained and will drift behind the next
+/// parameter that carries a secret, and nothing in the query has ever been
+/// needed to read a log line. The OAuth callback span already logs method and
+/// path alone for the same reason.
+fn request_span<B>(request: &axum::http::Request<B>) -> tracing::Span {
+    tracing::info_span!(
+        "request",
+        method = %request.method(),
+        path = %request.uri().path(),
+        version = ?request.version(),
+    )
+}
+
 pub async fn serve(hosts: Vec<String>, port: Option<u16>) -> Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(
@@ -50,7 +72,6 @@ pub async fn serve(hosts: Vec<String>, port: Option<u16>) -> Result<()> {
 
     let config = config::Config::from_env().map_err(|e| anyhow::anyhow!("{e}"))?;
     let db = db::Db::open(&config.db_path)?;
-    let transport = transport::create(&config.transport_name)?;
     let providers =
         crate::engine::provider::ProviderService::native(db.clone(), config.state_home.clone())?;
     let computer_use_setup = Arc::new(computer_use_setup::SetupService::from_env()?);
@@ -74,23 +95,34 @@ pub async fn serve(hosts: Vec<String>, port: Option<u16>) -> Result<()> {
     );
 
     // What the caller asked for wins, and what it did not ask for is resolved
-    // as before. These used to be arguments the daemon accepted and ignored,
-    // while the port arrived a second time through the environment: two ways to
-    // say one thing, one of which was decorative.
-    let bind_hosts = if hosts.is_empty() {
-        transport::bind_hosts(transport.as_ref())
-    } else {
-        hosts
-    };
+    // as before: `vadgr start` passes the hosts its port probe bound, and each
+    // transport takes its own out of that override.
     let port = port.unwrap_or(config.port);
+    let pairing = Arc::new(auth::pairing::PairingStore::new(
+        auth::pairing::PAIRING_TTL_SECONDS,
+    ));
+    // The registry: every transport this build supports, or the loopback
+    // transport alone under the local-only override. The daemon names no
+    // member and counts none; it serves whatever the registry holds.
+    let transports = Arc::new(transport::Transports::from_config(
+        &config,
+        port,
+        Some(transport::TransportRuntime {
+            db: db.clone(),
+            pairing: pairing.clone(),
+            ws: ws.clone(),
+        }),
+    ));
+    tracing::info!(
+        supported = ?transports.iter().map(|t| t.name()).collect::<Vec<_>>(),
+        "transports"
+    );
 
     let state = AppState {
         db,
         config: Arc::new(config),
-        transport: Arc::from(transport),
-        pairing: Arc::new(auth::pairing::PairingStore::new(
-            auth::pairing::PAIRING_TTL_SECONDS,
-        )),
+        transports: transports.clone(),
+        pairing,
         ws,
         providers,
         computer_use_setup,
@@ -105,7 +137,7 @@ pub async fn serve(hosts: Vec<String>, port: Option<u16>) -> Result<()> {
         ))
         .layer(
             TraceLayer::new_for_http()
-                .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
+                .make_span_with(request_span)
                 .on_response(DefaultOnResponse::new().level(Level::INFO)),
         );
 
@@ -179,23 +211,94 @@ pub async fn serve(hosts: Vec<String>, port: Option<u16>) -> Result<()> {
         }
     });
 
-    let mut listeners = Vec::new();
-    for host in bind_hosts {
-        let addr = transport::listener_address(&host, port)?;
-        listeners.push((addr, tokio::net::TcpListener::bind(addr).await?));
-        tracing::info!(%addr, "vadgr daemon (rust) listening");
+    // Serve every member of the registry. A transport that cannot come up
+    // does not stop the others: its error is logged at warn, its reach turns
+    // unavailable in its own words, and loopback keeps serving, so the CLI
+    // and the journal never depend on a network being there. The daemon ends
+    // only when nothing at all is serving.
+    let mut serving = Vec::new();
+    for member in transports.iter() {
+        let name = member.name();
+        let serve = member.serve(app.clone(), port, &hosts);
+        serving.push(async move {
+            if let Err(error) = serve.await {
+                tracing::warn!(transport = name, %error, "transport is not serving");
+            }
+            name
+        });
     }
-    futures_util::future::try_join_all(listeners.into_iter().map(|(_, listener)| {
-        let app = app.clone();
-        async move {
-            axum::serve(
-                listener,
-                app.into_make_service_with_connect_info::<std::net::SocketAddr>(),
-            )
-            .await
-        }
-    }))
-    .await?;
+    futures_util::future::join_all(serving).await;
     callback.abort();
-    Ok(())
+    anyhow::bail!("no transport is serving; see the log for each one's refusal")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::request_span;
+    use std::io;
+    use std::sync::{Arc, Mutex};
+    use tracing::subscriber::with_default;
+    use tracing_subscriber::fmt::MakeWriter;
+
+    #[derive(Clone, Default)]
+    struct Captured(Arc<Mutex<Vec<u8>>>);
+
+    impl io::Write for Captured {
+        fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+            self.0
+                .lock()
+                .expect("capture lock poisoned")
+                .extend_from_slice(buf);
+            Ok(buf.len())
+        }
+        fn flush(&mut self) -> io::Result<()> {
+            Ok(())
+        }
+    }
+
+    impl<'a> MakeWriter<'a> for Captured {
+        type Writer = Captured;
+        fn make_writer(&'a self) -> Self::Writer {
+            self.clone()
+        }
+    }
+
+    /// The run sockets carry the device token in the query, because a
+    /// WebSocket client cannot set a header. Nothing the request span writes
+    /// may carry it: a log is kept, copied and sent to other people, and a
+    /// token in one is a credential that outlives the connection it opened.
+    #[test]
+    fn the_request_span_never_writes_the_query() {
+        let captured = Captured::default();
+        let subscriber = tracing_subscriber::fmt()
+            .with_writer(captured.clone())
+            .with_span_events(tracing_subscriber::fmt::format::FmtSpan::NEW)
+            .with_ansi(false)
+            .finish();
+
+        with_default(subscriber, || {
+            let request = axum::http::Request::builder()
+                .method("GET")
+                .uri("/api/runs/run-1/stream?token=vk-a-real-looking-device-token&x=1")
+                .body(())
+                .expect("the request builds");
+            let _span = request_span(&request).entered();
+        });
+
+        let written = String::from_utf8(captured.0.lock().expect("capture lock poisoned").clone())
+            .expect("the captured log is utf-8");
+
+        assert!(
+            written.contains("/api/runs/run-1/stream"),
+            "the path is what makes a log line readable: {written}"
+        );
+        assert!(
+            !written.contains("vk-a-real-looking-device-token"),
+            "the device token reached the log: {written}"
+        );
+        assert!(
+            !written.contains("token="),
+            "the query reached the log: {written}"
+        );
+    }
 }

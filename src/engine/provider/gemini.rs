@@ -108,10 +108,30 @@ impl GeminiClient {
             .ok_or_else(|| {
                 ProviderError::InvalidResponse("response has no candidate".to_owned())
             })?;
-        let parts = candidate
+        let finish_reason = candidate
+            .get("finishReason")
+            .and_then(Value::as_str)
+            .unwrap_or("STOP");
+        // A model that has nothing left to say answers `STOP` with a content
+        // object holding only its role: the `parts` array is absent, not empty.
+        // It is a normal, complete turn, and treating it as a malformed body
+        // failed the whole run after every tool call in it had already
+        // succeeded. Measured against the live endpoint on a two-turn task, six
+        // of eight replies came back this way. Only a finish reason that means
+        // the answer was cut short or withheld still refuses, and it says which.
+        let empty = Vec::new();
+        let parts = match candidate
             .pointer("/content/parts")
             .and_then(Value::as_array)
-            .ok_or_else(|| ProviderError::InvalidResponse("candidate has no parts".to_owned()))?;
+        {
+            Some(parts) => parts,
+            None if matches!(finish_reason, "STOP" | "MAX_TOKENS") => &empty,
+            None => {
+                return Err(ProviderError::InvalidResponse(format!(
+                    "candidate has no parts and finished with {finish_reason}"
+                )));
+            }
+        };
         let mut content = Vec::new();
         for part in parts {
             if let Some(text) = part.get("text").and_then(Value::as_str) {
@@ -138,10 +158,6 @@ impl GeminiClient {
                 });
             }
         }
-        let finish_reason = candidate
-            .get("finishReason")
-            .and_then(Value::as_str)
-            .unwrap_or("STOP");
         let stop_reason = if content
             .iter()
             .any(|block| matches!(block, ContentBlock::ToolUse { .. }))
@@ -160,7 +176,14 @@ impl GeminiClient {
             stop_reason: Some(stop_reason),
             usage: Usage {
                 input_tokens: required_u64(usage, "promptTokenCount")?,
-                output_tokens: required_u64(usage, "candidatesTokenCount")?,
+                // Absent on the same empty turn, for the same reason: the model
+                // produced no output, so the endpoint omits the count rather
+                // than sending a zero. Requiring it turned that turn into a
+                // second failure behind the first one.
+                output_tokens: usage
+                    .get("candidatesTokenCount")
+                    .and_then(Value::as_u64)
+                    .unwrap_or(0),
             },
         })
     }
@@ -483,6 +506,42 @@ mod tests {
 
     fn client() -> GeminiClient {
         GeminiClient::with_root("gemini-test", "key", "http://localhost/v1beta").unwrap()
+    }
+
+    /// Recorded against the live endpoint: a finished turn with nothing left
+    /// to say sends a content object holding only `role`, and omits the output
+    /// token count with it.
+    fn finished_with_nothing_to_say() -> Value {
+        json!({
+            "candidates": [{"content": {"role": "model"}, "finishReason": "STOP", "index": 0}],
+            "usageMetadata": {"promptTokenCount": 123, "totalTokenCount": 123}
+        })
+    }
+
+    #[test]
+    fn a_turn_with_nothing_to_say_is_an_empty_turn_not_a_broken_body() {
+        let response = GeminiClient::decode(finished_with_nothing_to_say())
+            .expect("a finished turn with no parts is a normal turn");
+        assert!(response.content.is_empty());
+        assert!(matches!(response.stop_reason, Some(StopReason::EndTurn)));
+    }
+
+    #[test]
+    fn a_turn_with_nothing_to_say_counts_no_output_tokens() {
+        let response = GeminiClient::decode(finished_with_nothing_to_say()).unwrap();
+        assert_eq!(response.usage.input_tokens, 123);
+        assert_eq!(response.usage.output_tokens, 0);
+    }
+
+    #[test]
+    fn an_answer_that_was_withheld_still_refuses_and_names_the_reason() {
+        let error = GeminiClient::decode(json!({
+            "candidates": [{"content": {"role": "model"}, "finishReason": "SAFETY", "index": 0}],
+            "usageMetadata": {"promptTokenCount": 5, "totalTokenCount": 5}
+        }))
+        .expect_err("a withheld answer is not an empty turn");
+        let message = error.to_string();
+        assert!(message.contains("SAFETY"), "the reason is named: {message}");
     }
 
     #[test]

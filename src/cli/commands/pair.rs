@@ -1,9 +1,11 @@
 //! `vadgr pair`: mint a one-time code and draw the QR a phone scans.
 //!
-//! The deep link is a cross-repo contract: `vadgr-mobile`'s `pair_payload.dart`
-//! requires `host`, `port`,
-//! `token` and `name`, each with its own error message, so the four parameter
-//! names are fixed by a shipped scanner rather than by taste.
+//! The deep link is a cross-repo contract. `token` and `name` are required;
+//! every other parameter is one key of one transport's own address form,
+//! flattened by the builder with no knowledge of what those keys are, so the
+//! shipped scanner's `host` and `port` come out of the tailscale entry
+//! exactly as they always did, and a machine without a dialable tailscale
+//! mints a QR with no `host` at all.
 
 use qrcode_generator::qr::{Encoder, ErrorCorrection};
 use serde_json::Value;
@@ -24,7 +26,9 @@ const QUIET_ZONE: usize = 2;
 ///
 /// The value in `token` is the pairing code. The field is named `pairing_token`
 /// on the wire and that name is the invariant; only the value it carries became
-/// a short typeable code at `0.4.3`.
+/// a short typeable code at `0.4.3`. `token` and `name` are the only required
+/// halves: a transport with no address contributes nothing, and the ordinary
+/// machine without a dialable tailscale must still mint a QR.
 pub fn build_pair_uri(pair: &Value) -> Result<String, CliError> {
     let field = |key: &str| -> Result<String, CliError> {
         match pair.get(key) {
@@ -35,13 +39,113 @@ pub fn build_pair_uri(pair: &Value) -> Result<String, CliError> {
             )),
         }
     };
-    let query = url::form_urlencoded::Serializer::new(String::new())
-        .append_pair("host", &field("host")?)
-        .append_pair("port", &field("port")?)
+    let mut query = url::form_urlencoded::Serializer::new(String::new());
+    query
         .append_pair("token", &field("pairing_token")?)
-        .append_pair("name", &field("machine_name")?)
-        .finish();
-    Ok(format!("vadgr://pair?{query}"))
+        .append_pair("name", &field("machine_name")?);
+    // One query parameter per key of each transport's address form: a scalar
+    // becomes one pair, an array a repeated pair. The builder knows nothing
+    // about the keys, which is what keeps a new transport out of this file.
+    if let Some(report) = pair.get("transports").and_then(Value::as_object) {
+        for form in report.values() {
+            let Some(form) = form.as_object() else {
+                continue;
+            };
+            for (key, value) in form {
+                match value {
+                    Value::Array(items) => {
+                        for item in items {
+                            query.append_pair(key, &scalar(item));
+                        }
+                    }
+                    other => {
+                        query.append_pair(key, &scalar(other));
+                    }
+                }
+            }
+        }
+    }
+    Ok(format!("vadgr://pair?{}", query.finish()))
+}
+
+/// One address-form value as query text. Address forms carry strings and
+/// numbers; anything else is serialised rather than dropped, so a defect is
+/// visible in the link instead of silently absent.
+fn scalar(value: &Value) -> String {
+    match value {
+        Value::String(s) => s.clone(),
+        other => other.to_string(),
+    }
+}
+
+/// One printed line per entry of the pairing report: the transport's
+/// person-facing label, and a compact reading of its address form. The line
+/// count follows the registry, not a list in this file.
+fn transport_lines(
+    report: &serde_json::Map<String, Value>,
+    health: &Value,
+) -> Vec<(String, String)> {
+    let labels = label_map();
+    report
+        .iter()
+        .map(|(name, form)| {
+            let label = labels
+                .iter()
+                .find(|(n, _)| n == name)
+                .map(|(_, l)| (*l).to_owned())
+                .unwrap_or_else(|| name.clone());
+            (label, address_summary(name, form, health))
+        })
+        .collect()
+}
+
+/// The person-facing labels, read from the registry every build carries
+/// rather than from a list here. The probe registry serves nothing; it is
+/// names and labels.
+fn label_map() -> Vec<(String, &'static str)> {
+    let Ok(config) = vadgr_daemon::config::Config::from_env() else {
+        return Vec::new();
+    };
+    let registry = vadgr_daemon::transport::Transports::from_config(&config, config.port, None);
+    registry
+        .iter()
+        .map(|t| (t.name().to_owned(), t.label()))
+        .collect()
+}
+
+/// A compact reading of one address form: `host:port` where the form carries
+/// both, the first relay for a rendezvous form, the transport's own words
+/// from the health block when it is down, and the first value otherwise.
+fn address_summary(name: &str, form: &Value, health: &Value) -> String {
+    if let Some(form) = form.as_object() {
+        if let (Some(host), Some(port)) = (form.get("host"), form.get("port")) {
+            return format!("{}:{}", scalar(host), scalar(port));
+        }
+        if let Some(relay) = form
+            .get("relays")
+            .and_then(Value::as_array)
+            .and_then(|r| r.first())
+        {
+            let relay = scalar(relay);
+            let via = relay
+                .trim_start_matches("https://")
+                .trim_end_matches('/')
+                .trim_end_matches('.');
+            return format!("via {via}");
+        }
+        if let Some(first) = form.values().next() {
+            return scalar(first);
+        }
+    }
+    // A transport that is down is present with `null`, and its own words are
+    // in the health block's entry for it.
+    let reason = health
+        .get("transport")
+        .and_then(|t| t.get(name))
+        .and_then(|entry| entry.get("reason"))
+        .and_then(Value::as_str)
+        .unwrap_or("this transport cannot be dialed right now");
+    format!("not available ({reason})")
 }
 
 /// The symbol, drawn with half blocks: two module rows per printed line.
@@ -125,25 +229,45 @@ pub async fn pair(client: &Client) -> Result<(), CliError> {
             .unwrap_or("-")
             .to_owned()
     };
-    let port = data
-        .get("port")
-        .map(|v| v.to_string().trim_matches('"').to_owned())
-        .unwrap_or_else(|| "-".to_owned());
-    anstream::println!(
-        "{}",
-        output::render_kv(&[
-            ("Machine".to_owned(), text("machine_name")),
-            ("Address".to_owned(), format!("{}:{port}", text("host"))),
-            ("Pairing code".to_owned(), text("pairing_token")),
-        ])
-    );
+    let empty = serde_json::Map::new();
+    let report = data
+        .get("transports")
+        .and_then(Value::as_object)
+        .unwrap_or(&empty);
+    // A down transport's own words live in the health block, so it is read
+    // once when any entry is down; the pair response carries addresses only.
+    let health = if report.values().any(Value::is_null) {
+        client.get("/api/health").await.unwrap_or(Value::Null)
+    } else {
+        Value::Null
+    };
+    let mut rows = vec![("Machine".to_owned(), text("machine_name"))];
+    for (label, summary) in transport_lines(report, &health) {
+        rows.push((label, summary));
+    }
+    rows.push(("Pairing code".to_owned(), text("pairing_token")));
+    anstream::println!("{}", output::render_kv(&rows));
     anstream::println!();
-    anstream::println!(
-        "{}",
-        output::success(
-            "Scan with the Vadgr mobile app, or type the code. One-time, valid for 5 minutes."
-        )
-    );
+    // The typed fallback needs a typeable address, which is a host and port.
+    let typeable = report.values().any(|form| {
+        form.as_object()
+            .is_some_and(|f| f.contains_key("host") && f.contains_key("port"))
+    });
+    if typeable {
+        anstream::println!(
+            "{}",
+            output::success(
+                "Scan with the Vadgr mobile app, or type the code. One-time, valid for 5 minutes."
+            )
+        );
+    } else {
+        anstream::println!(
+            "{}",
+            output::success(
+                "Scan with the Vadgr mobile app. One-time, valid for 5 minutes. This machine                  pairs by QR only; typing an address needs Tailscale running here."
+            )
+        );
+    }
     Ok(())
 }
 
@@ -158,18 +282,35 @@ mod tests {
             "port": 8000,
             "pairing_token": "K7M2-9QRT",
             "machine_name": "santiago-wsl",
+            "transports": {
+                "iroh": {
+                    "node": "ee5c4b2f",
+                    "relays": ["https://use1-1.relay.n0.iroh.link./"],
+                    "direct": ["192.168.1.20:8000", "[fd12::7]:8000"],
+                },
+                "tailscale": {
+                    "host": "santiago-wsl.tail4b2c.ts.net",
+                    "port": 8000,
+                },
+            },
         })
     }
 
-    /// The four names are a shipped scanner's contract, not a preference.
+    /// The scanner's `host`, `port`, `token` and `name` still come out, and
+    /// each transport's own keys beside them: the builder flattens the report
+    /// with no knowledge of what the keys are.
     #[test]
-    fn the_deep_link_carries_the_four_names_the_phone_reads() {
+    fn the_deep_link_carries_the_shipped_names_and_every_transport_key() {
         let uri = build_pair_uri(&payload()).unwrap();
         assert!(uri.starts_with("vadgr://pair?"));
-        for key in ["host=", "port=", "token=", "name="] {
+        for key in [
+            "host=", "port=", "token=", "name=", "node=", "relays=", "direct=",
+        ] {
             assert!(uri.contains(key), "{uri} is missing {key}");
         }
         assert!(uri.contains("token=K7M2-9QRT"));
+        // An array is a repeated parameter, one per member.
+        assert_eq!(uri.matches("direct=").count(), 2);
     }
 
     /// A numeric port arrives as a number and must not reach the phone as `8000.0`
@@ -185,6 +326,42 @@ mod tests {
         let mut broken = payload();
         broken.as_object_mut().unwrap().remove("machine_name");
         assert!(build_pair_uri(&broken).is_err());
+    }
+
+    /// **The regression that would have broken `vadgr pair` on the ordinary
+    /// machine**: no Tailscale means no `host` and no `port` anywhere, and
+    /// the URI must still build, because the built-in transport's keys are
+    /// what the phone dials.
+    #[test]
+    fn the_uri_builds_with_no_host_and_no_port_at_all() {
+        let payload = json!({
+            "pairing_token": "K7M2-9QRT",
+            "machine_name": "santiago-wsl",
+            "transports": {
+                "iroh": { "node": "ee5c4b2f", "relays": ["https://r.example"], "direct": [] },
+                "tailscale": null,
+            },
+        });
+        let uri = build_pair_uri(&payload).unwrap();
+        assert!(!uri.contains("host="), "{uri}");
+        assert!(uri.contains("node=ee5c4b2f"), "{uri}");
+    }
+
+    /// The builder knows nothing about transport names: a fabricated two-key
+    /// form produces two parameters, and a null member produces nothing.
+    #[test]
+    fn the_flattening_is_shape_driven_not_name_driven() {
+        let payload = json!({
+            "pairing_token": "K7M2-9QRT",
+            "machine_name": "m",
+            "transports": {
+                "carrier-nobody-built": { "alpha": "1", "beta": ["x", "y"] },
+                "down-one": null,
+            },
+        });
+        let uri = build_pair_uri(&payload).unwrap();
+        assert!(uri.contains("alpha=1"), "{uri}");
+        assert_eq!(uri.matches("beta=").count(), 2, "{uri}");
     }
 
     /// A machine name with a space must survive the round trip, because a person

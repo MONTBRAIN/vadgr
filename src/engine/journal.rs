@@ -1,7 +1,6 @@
 use crate::engine::types::{ModelResponse, RunId, ToolContent, ToolResult, Usage};
 use serde_json::{Map, Value, json};
 use sha2::{Digest, Sha256};
-use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -55,7 +54,10 @@ pub struct RecoveryState {
     pub recent_calls: Vec<RecoveredCall>,
     pub dangling: Option<InFlightRecord>,
     pub pending_ask: Option<AwaitUserRecord>,
-    pub completed_tool_count: u64,
+    /// Tool calls that ran and returned a result, not calls that were tried.
+    /// A call that failed did not do the step, so a resumed run must be free to
+    /// try it again, and a run whose every call failed did nothing at all.
+    pub succeeded_tool_count: u64,
     pub prior_usage: Usage,
     pub todos: Vec<Value>,
 }
@@ -81,12 +83,8 @@ impl Journal {
         tokio::task::spawn_blocking(move || {
             let result = (|| -> Result<std::fs::File, String> {
                 let parent = writer_path.parent().ok_or("journal has no parent")?;
-                std::fs::create_dir_all(parent).map_err(|error| error.to_string())?;
-                OpenOptions::new()
-                    .create(true)
-                    .append(true)
-                    .open(&writer_path)
-                    .map_err(|error| error.to_string())
+                crate::private_fs::create_dir_all(parent).map_err(|error| error.to_string())?;
+                crate::private_fs::append(&writer_path).map_err(|error| error.to_string())
             })();
             let mut file = match result {
                 Ok(file) => file,
@@ -250,6 +248,7 @@ fn read_recovery_sync(path: &Path, run_id: &str) -> Result<RecoveryState, String
 
     let mut open = std::collections::BTreeMap::<i64, InFlightRecord>::new();
     let mut completed = Vec::new();
+    let mut succeeded = 0u64;
     let mut recent = Vec::new();
     let mut recent_calls = Vec::new();
     let mut pending = None;
@@ -282,6 +281,9 @@ fn read_recovery_sync(path: &Path, run_id: &str) -> Result<RecoveryState, String
                 Some("done") | Some("error") => {
                     let completed_call = open.remove(&seq);
                     completed.push(seq);
+                    if record.get("phase").and_then(Value::as_str) == Some("done") {
+                        succeeded += 1;
+                    }
                     if record.get("phase").and_then(Value::as_str) == Some("done")
                         && let Some(value) = record.get("result")
                     {
@@ -345,7 +347,7 @@ fn read_recovery_sync(path: &Path, run_id: &str) -> Result<RecoveryState, String
     Ok(RecoveryState {
         run_id: run_id.to_owned(),
         last_seq,
-        completed_tool_count: completed.len() as u64,
+        succeeded_tool_count: succeeded,
         completed_seqs: completed,
         recent_results: recent,
         recent_calls,
@@ -471,6 +473,37 @@ mod tests {
     use super::{Journal, bounded_result, read_recovery, redact};
     use crate::engine::types::ToolResult;
     use serde_json::json;
+
+    #[cfg(unix)]
+    use std::os::unix::fs::PermissionsExt;
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn an_existing_journal_is_hardened_for_the_owner() {
+        let directory = tempfile::tempdir().unwrap();
+        let run = directory.path().join("run-1");
+        let path = run.join("trajectory.jsonl");
+        std::fs::create_dir(&run).unwrap();
+        std::fs::write(&path, []).unwrap();
+        std::fs::set_permissions(&run, std::fs::Permissions::from_mode(0o777)).unwrap();
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o666)).unwrap();
+
+        let journal = Journal::open(directory.path(), "run-1", -1).await.unwrap();
+        journal
+            .append_in_flight(0, "probe", &json!({}))
+            .await
+            .unwrap();
+        drop(journal);
+
+        assert_eq!(
+            std::fs::metadata(&run).unwrap().permissions().mode() & 0o777,
+            0o700
+        );
+        assert_eq!(
+            std::fs::metadata(&path).unwrap().permissions().mode() & 0o777,
+            0o600
+        );
+    }
 
     #[tokio::test]
     async fn sequence_continues_and_closes_reuse_the_opening_number() {

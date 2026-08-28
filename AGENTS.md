@@ -309,11 +309,21 @@ can dispatch to Python during migration, but the e2e cannot replace it with
 `python -m cli`, a product import, `cargo run` or a private function. For
 cua, build the exact PR-head wheel, install it without editable mode outside the
 checkout, and mount that environment's `vadgr-cua` entry point in the driving
-agent's MCP config. Mobile remains a human session on a physical handset.
-Record every resolved command path, artifact hash and tested PR head. Helpers
-can prepare state, capture output and generate evidence. They cannot drive the
-user flow, choose the agent's actions or replace a public product surface. Such
-automation is an acceptance or contract check and never closes an e2e cell.
+agent's MCP config. Mobile runs on a physical handset, and the agent drives every
+action that device automation can perform through ADB or an equivalent device
+interface. The agent captures screenshots at each meaningful state, inspects
+them itself against the expected result, and corroborates visible state with the
+daemon's log, journal or database. It never asks the owner to tap, navigate,
+type, install, relaunch, change a software setting or report what the screen
+shows when the device interface can perform or observe that work. The owner
+handles only an unavoidable physical or protected step that automation cannot
+perform, such as scanning a prepared QR code with the handset camera, unlocking
+the device or approving a protected platform prompt. The agent prepares the
+exact state first, requests one precise action and its completion signal, then
+resumes the device drive immediately. Record every resolved command path,
+artifact hash, device interface and tested PR head. Helpers can prepare state,
+capture output and generate evidence. They cannot choose the agent's actions,
+judge the visible result or replace a public product surface.
 
 **Close an e2e with three independent passes**, run concurrently, each with its
 **own port, database and daemon** - three observations rather than one run

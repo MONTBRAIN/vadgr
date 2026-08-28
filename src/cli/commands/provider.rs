@@ -638,6 +638,14 @@ pub async fn model_default(client: &Client, selection: Option<String>) -> Result
 
 /// The provider listing both `provider status` and `model list` print.
 fn print_provider_rows(rows: &Value, provider: Option<&str>, connected_only: bool) {
+    for line in provider_lines(rows, provider, connected_only) {
+        anstream::println!("{line}");
+    }
+}
+
+/// Render the provider rows before writing them, so the two default facts stay
+/// independently testable: which provider is default, and which model it uses.
+fn provider_lines(rows: &Value, provider: Option<&str>, connected_only: bool) -> Vec<String> {
     let empty = Vec::new();
     let items = rows.as_array().unwrap_or(&empty);
     let shown: Vec<&Value> = items
@@ -646,9 +654,9 @@ fn print_provider_rows(rows: &Value, provider: Option<&str>, connected_only: boo
         .filter(|r| !connected_only || r.get("connected").and_then(|v| v.as_bool()) == Some(true))
         .collect();
     if shown.is_empty() {
-        anstream::println!("No connected providers.");
-        return;
+        return vec!["No connected providers.".to_owned()];
     }
+    let mut lines = Vec::new();
     for row in shown {
         let name = row.get("name").and_then(|v| v.as_str()).unwrap_or("-");
         let state = if row.get("connected").and_then(|v| v.as_bool()) == Some(true) {
@@ -666,20 +674,82 @@ fn print_provider_rows(rows: &Value, provider: Option<&str>, connected_only: boo
         } else {
             ""
         };
-        anstream::println!("{name}: {state}{suffix}{stale}");
+        lines.push(format!("{name}: {state}{suffix}{stale}"));
+        let default_model = (row.get("is_default").and_then(|v| v.as_bool()) == Some(true))
+            .then(|| row.get("default_model").and_then(|v| v.as_str()))
+            .flatten();
         if let Some(models) = row.get("models").and_then(|v| v.as_array()) {
             for model in models {
                 let id = model.get("id").and_then(|v| v.as_str()).unwrap_or("-");
                 let model_name = model.get("name").and_then(|v| v.as_str()).unwrap_or("-");
-                anstream::println!("  {id}  {model_name}");
+                let model_suffix = if default_model == Some(id) {
+                    " (default)"
+                } else {
+                    ""
+                };
+                lines.push(format!("  {id}  {model_name}{model_suffix}"));
             }
         }
     }
+    lines
 }
 
 #[cfg(test)]
 mod tests {
-    use super::browser_command;
+    use super::{browser_command, provider_lines};
+    use serde_json::json;
+
+    #[test]
+    fn the_model_list_marks_exactly_one_default_model_and_keeps_the_provider_marker() {
+        let rows = json!([
+            {
+                "id": "openai",
+                "name": "OpenAI",
+                "connected": true,
+                "is_default": false,
+                "default_model": null,
+                "catalog_stale": false,
+                "models": [
+                    {"id": "gpt-fast", "name": "GPT Fast"}
+                ]
+            },
+            {
+                "id": "gemini",
+                "name": "Google Gemini",
+                "connected": true,
+                "is_default": true,
+                "default_model": "gemini-fast",
+                "catalog_stale": false,
+                "models": [
+                    {"id": "gemini-fast", "name": "Gemini Fast"},
+                    {"id": "gemini-pro", "name": "Gemini Pro"}
+                ]
+            }
+        ]);
+
+        let lines = provider_lines(&rows, None, true);
+        let provider_markers: Vec<_> = lines
+            .iter()
+            .filter(|line| !line.starts_with("  ") && line.ends_with(" (default)"))
+            .map(String::as_str)
+            .collect();
+        let model_markers: Vec<_> = lines
+            .iter()
+            .filter(|line| line.starts_with("  ") && line.ends_with(" (default)"))
+            .map(String::as_str)
+            .collect();
+
+        assert_eq!(
+            provider_markers,
+            vec!["Google Gemini: connected (default)"],
+            "the provider-level default remains visible"
+        );
+        assert_eq!(
+            model_markers,
+            vec!["  gemini-fast  Gemini Fast (default)"],
+            "exactly the selected provider/model pair is marked"
+        );
+    }
 
     /// The browser is opened without a shell, on every platform.
     ///

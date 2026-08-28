@@ -2,7 +2,160 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
-## [0.4.9] - 2026-08-21
+## [0.4.10] - 2026-08-21
+
+**The built-in transport.** The daemon gains a second phone-reachable
+transport: an iroh endpoint served beside Tailscale, so a phone can pair and
+talk to the machine with no second product installed on either end. The
+machine's identity is a public key, a relay is the rendezvous point, and most
+connections go direct after the relay introduces them. Tailscale is not
+removed and not deprecated: the daemon serves every transport it supports and
+reports the list, and the owner picks between them on the phone.
+
+### Added
+- **The built-in transport (`iroh`).** Ships inside the binary; nothing
+  installs it and nothing switches it on. It serves the same routes, statuses
+  and WebSocket frames as every socket transport: each accepted QUIC stream
+  carries one HTTP/1.1 connection through the same router, upgrades included.
+- **The pairing payload reports every supported transport.**
+  `POST /api/auth/pair` gains a `transports` object with one member per
+  supported transport, keyed by wire name (`iroh`, `tailscale`), valued with
+  that transport's address form or `null` when it has none right now. The
+  built-in entry carries the endpoint identity (`node`), the relay list and
+  up to four direct addresses. The top-level `host` and `port` stay, produced
+  from the Tailscale entry, for the released CLI and phone scanner; they are
+  planned for removal at `0.6.0`.
+- **The claim response gains `machine_name` and `transports`**, so a phone
+  that pairs by typing the code finally learns the machine's name, and every
+  phone learns what this machine supports. The request body is unchanged.
+- **A claim binds what the transport proved.** A claim arriving over the
+  built-in transport binds the connection's handshake-proven endpoint id to
+  the new device row (`device_peers` table, schema version 2). A claim over
+  loopback or Tailscale binds nothing, exactly as before. Revoking the device
+  (`DELETE /api/devices/{id}`) drops the binding, so the revoked phone's next
+  connection is refused before any request exists.
+- **The QR carries each transport's own reach.** `vadgr://pair` keeps `token`
+  and `name` and gains one query parameter per key of each transport's
+  address form (`node`, repeated `relays` and `direct` for the built-in
+  transport; the shipped `host` and `port` from Tailscale). A machine without
+  a dialable Tailscale mints a QR with no `host` at all, and `vadgr pair` now
+  builds it instead of failing.
+- **`vadgr pair` prints one line per supported transport**, each with that
+  transport's address or its own words when it is down. No verb, argument or
+  exit code changed.
+- **`VADGR_IROH_RELAYS`**: the rendezvous setting. Unset uses the default
+  public relays (n0's, suitable for development and testing; they see
+  connection metadata, never payloads, which are end-to-end encrypted between
+  the two endpoint keys). A comma-separated list of `https` URLs points the
+  machine at self-hosted relays. `none` disables relays for a directly
+  reachable machine, and is never the default.
+- **The endpoint secret key** persists at `credentials/iroh_secret_key` under
+  the state root, created once with owner-only permissions. It is never
+  regenerated while it exists: a new key would be a new machine to every
+  paired phone. An unreadable or malformed file fails the transport loudly
+  while loopback and Tailscale keep serving.
+- **A successful claim writes one `info` log line** with the device id, the
+  device name and the transport the claim arrived over, so the daemon log
+  records that a pairing happened.
+- **A paired phone can adopt a transport it did not pair over.**
+  `POST /api/devices/self/transports`, device token required, no body: the
+  daemon binds the identity the accepting transport proved in its handshake
+  to the device that owns the token, so a phone paired over Tailscale can
+  start using the built-in transport without pairing again. The route reads
+  no body because the identity is never the caller's to declare. Adopting
+  again from the same identity answers `200`; a different identity on a
+  transport the device already adopted answers `409` and changes nothing, so
+  a stolen token cannot displace the phone that owns the pairing; a
+  transport that proves no identity (loopback, Tailscale) answers `422`; a
+  missing or revoked token answers `401`. Revoking the device cascades the
+  binding, so a removed phone cannot adopt its way back. The accept loop's
+  pre-handshake refusal now also asks whether any device is paired at all: a
+  machine that has never paired refuses exactly as before, and a machine
+  that has completes the handshake and refuses at the route instead.
+  Adoption admissions get their own connection slots, so they can never
+  starve the owner's open pairing window.
+
+### Changed
+- **The daemon reports the transports it supports; the owner configures
+  nothing.** There is no per-machine transport set. `VADGR_TRANSPORT` takes
+  exactly one value, `loopback`, meaning serve nothing off this machine (the
+  mode tests and CI run in). Any other value, `tailscale` and `iroh`
+  included, refuses at boot with a message naming the one legal value.
+- **`POST /api/auth/pair` requires an authorized peer.** It still needs no
+  token, and it now takes the peer gate first, because its response body is a
+  fresh pairing credential and minting supersedes the outstanding one. No
+  caller that could reach it before gets a different answer: the CLI arrives
+  over loopback and a tailnet member passes the peer gate as it always did.
+  The unauthenticated set is now `GET /api/health` and `POST /api/auth/claim`.
+- **The peer gate is per transport.** A request must be an authorized peer on
+  the transport it arrived over: tailnet membership (WhoIs, with the CGNAT
+  fallback) on Tailscale, a handshake-proven endpoint id bound to a paired
+  device on the built-in transport. Same `403 SOURCE_NOT_AUTHORIZED` as
+  before. An unbound endpoint id gets a connection only while a pairing code
+  is outstanding, is served exactly the two unauthenticated routes, is capped
+  at four concurrent connections and sixty seconds each, and is closed when
+  the window that admitted it ends. Outside a window it is refused before any
+  HTTP exists.
+- **`GET /api/health`'s `transport` block becomes one entry per registered
+  transport**, keyed by wire name, and it is scope-gated: a caller who has
+  proved nothing (an unbound peer inside a pairing window) sees name and
+  liveness only, for every entry, so neither the endpoint identity nor the
+  machine's tailnet name reaches it. Loopback callers, authorized peers and
+  authenticated devices see the full block, including a paired phone's
+  tokenless probe, which is how a phone refreshes a changed relay list.
+- **`503 TRANSPORT_UNREACHABLE` fires only when no supported transport can
+  reach a phone**: the local-only override, or every transport down at once.
+  The message says which, one clause per transport in its own words, and
+  `details.transports` carries the report.
+- **`device_name` is validated on every claim**: 1 to 64 characters after
+  trimming, no control characters and no bidirectional overrides, because the
+  value reaches the owner's terminal. A bad value is the same `422` shape the
+  strict body already produces, naming the field.
+
+### Fixed
+- A run of `vadgr pair` on a machine whose Tailscale is not running no longer
+  fails with "unexpected response from the API": the QR builds from the
+  transports that are dialable.
+- **Device tokens no longer reach the daemon's log.** The run sockets take the
+  device token as a query parameter, because a WebSocket client cannot set an
+  Authorization header, and the request log recorded the whole URI. Every
+  socket open therefore wrote a live token into the log in clear, where it
+  outlived the connection and travelled with any log the owner shared. The log
+  now records the method and path and never the query.
+- **A stopped Tailscale no longer stops the daemon from starting.** A Tailscale
+  that is not running still answers its local API and still lists the node's
+  addresses, but the interface holding them is gone. The port search binds
+  every address it is given for every candidate port, so that one unbindable
+  address failed the whole range and `vadgr start` died reporting "No free port
+  found" about ports that were all free. An unavailable transport now
+  contributes no address to bind.
+- **A finished turn with nothing left to say is no longer read as a broken
+  response.** Gemini answers such a turn with a content object holding only its
+  role: the parts array is absent, not empty, and the output token count is
+  omitted with it. The decoder required both and refused the reply, which
+  failed the whole run after every tool call in it had already succeeded.
+- **A model is asked twice before it is refused.** The readiness check that
+  guards `PUT /api/default-model` treated a turn with no tokens in it as a
+  verdict, and a provider can end a turn with nothing in it for its own
+  reasons, so setting a default failed intermittently on models that answered
+  perfectly seconds later on the same account.
+- **The run's own bookkeeping no longer counts as work done on the machine.**
+  The end-turn guard counted any tool call that succeeded, and the control
+  plane's tools succeed with no tool host at all. When the computer-use server
+  failed to start, the model was left holding only `todo_write`,
+  `report_progress` and `notify_user`, called them, announced that it had
+  written a file, and the run ended `completed` with nothing done.
+- **A tool call that failed is no longer counted as an action.** The end-turn
+  guard counted every call the model made, whatever it returned, so a run whose
+  only call came back "unknown tool" ended as a success with the task
+  untouched: the CLI printed "Run completed" and exited `0` with nothing done.
+  The same count told a resumed run that the failed step was already finished,
+  so it would not be retried.
+- **The daemon says when it closes a connection on the built-in transport.**
+  Both closes are logged with the peer: the one that ends with the pairing
+  window that admitted it, and the one that reaches its sixty second lifetime
+  without being claimed. A connection that vanished with no line was
+  indistinguishable from a network fault.
 
 **The cutover.** `vadgr` is one binary. The daemon that answers is the Rust one,
 the installation no longer carries an interpreter, and a machine's state lives

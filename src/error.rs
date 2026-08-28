@@ -105,6 +105,22 @@ impl ApiError {
         )
     }
 
+    pub fn transport_already_adopted() -> Self {
+        Self::new(
+            StatusCode::CONFLICT,
+            "TRANSPORT_ALREADY_ADOPTED",
+            "This device already holds a different identity on this transport.",
+        )
+    }
+
+    pub fn transport_proves_no_identity() -> Self {
+        Self::new(
+            StatusCode::UNPROCESSABLE_ENTITY,
+            "TRANSPORT_PROVES_NO_IDENTITY",
+            "The transport this request arrived on proves no identity, so there is nothing to adopt.",
+        )
+    }
+
     pub fn source_not_authorized() -> Self {
         Self::new(
             StatusCode::FORBIDDEN,

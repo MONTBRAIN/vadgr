@@ -1,0 +1,18 @@
+[package]
+name = "vadgr-iroh-dialer"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+# The one thing sockets.py cannot do: speak QUIC to the built-in transport.
+# It dials an endpoint id over its relays and direct addresses, opens one
+# bidirectional stream per HTTP request, and records the status and body. It
+# is an independent client of the served surface, exactly as sockets.py is for
+# the run sockets. It drives no product flow and chooses no action: a cell
+# hands it a request and reads the record it writes.
+[dependencies]
+iroh = { version = ">=1.0.2, <2", default-features = false, features = ["tls-aws-lc-rs", "metrics", "portmapper", "fast-apple-datapath"] }
+tokio = { version = "1", features = ["full"] }
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
