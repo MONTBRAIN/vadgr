@@ -19,10 +19,10 @@ A clean vadgr installation supplies its own pinned, isolated Python 3.12.14 and
 Python environment, and leaves the owner machine unchanged outside vadgr's
 explicit install and state roots.
 
-> **Status: not started.** Local automated gates are green (179 library tests
-> plus integration suites; clippy and formatting exit 0). The implementation
-> PR does not exist until one real target OS passes. **0 findings.** Every live
-> cell is `not run` with its outstanding host reason below.
+> **Status: WSL Part A passed.** Local automated gates are green (179 library
+> tests plus integration suites; clippy and formatting exit 0). The
+> implementation PR does not exist until one complete real target OS passes.
+> **0 open findings.** WSL Parts B-E and all native-host cells remain owed below.
 
 ## The rules
 
@@ -149,20 +149,20 @@ run id may differ; no other field is normalised.
 
 | Part | Axes | Cells | Run | Open |
 |---|---|---:|---:|---:|
-| A: clean installation and ready payload | 4 OS x 3 boundaries | 12 | 0 | 12 |
+| A: clean installation and ready payload | 4 OS x 3 boundaries | 12 | 3 | 9 |
 | B: real tool and hostile PATH | 4 OS x 3 boundaries | 12 | 0 | 12 |
 | C: damaged payload isolation | WSL x 1 boundary | 1 | 0 | 1 |
 | D: owner-machine non-mutation | 4 OS x 1 boundary | 4 | 0 | 4 |
 | E: independent close | 3 isolated WSL agents | 3 | 0 | 3 |
-| | | **32** | **0** | **32** |
+| | | **32** | **3** | **29** |
 
 ## Part A: clean installation and ready payload
 
 | # | Precondition and setup | Goal or action | Expected observable and independent oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| WA1 | Fresh WSL root; source at recorded commit; none of Python/pip/uv/cua resolves | Run the source installer with no system-dependency consent | Installed `vadgr` is 0.4.12; manifest pins Python 3.12.14, cua 0.7.5 and this target; private interpreter and distribution report those versions | install transcript/exit, resolution failures, head/path/hash, manifest and version outputs | retain root through WD1 | not run: WSL live pass has not started |
-| WA2 | WA1 installed root | Inspect setup output and host package inventory | WSL applies no OS dependency plan and changes no host package or network state | setup output and before/after package inventory | none | not run: WSL live pass has not started |
-| WA3 | WA1 root; daemon started | Run `vadgr computer-use status` and read health/settings API | Computer use is enabled, available and ready; daemon stays healthy | CLI/API bodies, daemon log and private child process row | stop only this daemon by pid after group | not run: WSL live pass has not started |
+| WA1 | Fresh WSL root; source at recorded commit; none of Python/pip/uv/cua resolves | Run the source installer with no system-dependency consent | Installed `vadgr` is 0.4.12; manifest pins Python 3.12.14, cua 0.7.5 and this target; private interpreter and distribution report those versions | install transcript/exit, resolution failures, head/path/hash, manifest and version outputs | retain root through WD1 | **pass on WSL**: exact source `cbf04f3`; installed `vadgr 0.4.12`; manifest and private runtime report Python 3.12.14 and cua 0.7.5; all five forbidden host commands were absent |
+| WA2 | WA1 installed root | Inspect setup output and host package inventory | WSL applies no OS dependency plan and changes no host package or network state | setup output and before/after package inventory | none | **pass on WSL**: installer applied no system plan and the sorted package inventory is byte-identical before and after |
+| WA3 | WA1 root; daemon started | Run `vadgr computer-use status` and read health/settings API | Computer use is enabled, available and ready; daemon stays healthy | CLI/API bodies, daemon log and private child process row | stop only this daemon by pid after group | **pass on WSL**: installed daemon executable verified under the isolated root; CLI says enabled; status reports available on `wsl2`; settings report enabled and ready; health remains healthy |
 | LA1 | Fresh native Linux root; same clean-PATH setup | Run source installer and decline dependency application | Same identity/pins as WA1; printed plan changes nothing | same WA1 artifacts plus dry-run plan | retain root through LD1 | not run: native Linux host has not run it |
 | LA2 | LA1; owner has read and explicitly approved exact printed plan | Repeat setup with explicit consent | Only the approved system plan is applied; payload remains same pins | consent record without secrets, command output, package diff | retain approved system deps; remove test root later | not run: native Linux owner action and host are outstanding |
 | LA3 | LA2 root; daemon started | Run status and APIs | Computer use ready and healthy | same WA3 artifacts | stop own daemon | not run: native Linux host has not run it |
@@ -225,12 +225,12 @@ different output counts.
 
 | Part | WSL | Linux | Windows native | macOS |
 |---|---|---|---|---|
-| A: clean installation and ready payload | not run: WSL execution not started | not run: host outstanding | not run: host outstanding | not run: host outstanding |
+| A: clean installation and ready payload | pass: WA1-WA3 on exact source `cbf04f3` with cua 0.7.5 | not run: host outstanding | not run: host outstanding | not run: host outstanding |
 | B: real tool and hostile PATH | not run: WSL execution not started | not run: host outstanding | not run: host outstanding | not run: host outstanding |
 | C: damaged payload isolation | not run: WSL execution not started | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B |
 | D: owner-machine non-mutation | not run: WSL execution not started | not run: host outstanding | not run: host outstanding | not run: host outstanding |
 | E: independent close | not run: WSL close not started | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed |
-| **overall** | **not run: WSL execution not started** | **not run: native Linux outstanding** | **not run: native Windows outstanding** | **not run: macOS outstanding** |
+| **overall** | **partial: Part A passed; Parts B-E remain owed** | **not run: native Linux outstanding** | **not run: native Windows outstanding** | **not run: macOS outstanding** |
 
 ## Evidence and remote-host handoff
 
@@ -240,6 +240,13 @@ its first cell. At each part boundary copy raw command output, exits, hashes,
 manifest, process rows, API bodies and journals; run the secret scan; commit and
 push that boundary immediately. A group with no artifact gets a note and cannot
 pass.
+
+| operating system | filed evidence boundary |
+|---|---|
+| WSL | `e2e_evidence/vadgr-0.4.12/20260829-wsl/part-a/` at evidence commit `55239c0` |
+| native Linux | not run: host outstanding |
+| native Windows | not run: host outstanding |
+| macOS | not run: host outstanding |
 
 A fresh OS agent needs only this file and the committed harness. It must:
 
