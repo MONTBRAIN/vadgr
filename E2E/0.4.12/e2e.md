@@ -19,10 +19,10 @@ A clean vadgr installation supplies its own pinned, isolated Python 3.12.14 and
 Python environment, and leaves the owner machine unchanged outside vadgr's
 explicit install and state roots.
 
-> **Status: WSL Parts A-D passed.** Local automated gates are green (179 library
+> **Status: WSL complete.** Local automated gates are green (179 library
 > tests plus integration suites; clippy and formatting exit 0). The
 > implementation PR does not exist until one complete real target OS passes.
-> **0 open findings.** WSL's independent close and all native-host cells remain owed below.
+> **0 open product findings.** Native Linux, Windows and macOS remain owed below.
 
 ## The rules
 
@@ -153,8 +153,8 @@ run id may differ; no other field is normalised.
 | B: real tool and hostile PATH | 4 OS x 3 boundaries | 12 | 3 | 9 |
 | C: damaged payload isolation | WSL x 1 boundary | 1 | 1 | 0 |
 | D: owner-machine non-mutation | 4 OS x 1 boundary | 4 | 1 | 3 |
-| E: independent close | 3 isolated WSL agents | 3 | 0 | 3 |
-| | | **32** | **8** | **24** |
+| E: independent close | 3 isolated WSL agents | 3 | 3 | 0 |
+| | | **32** | **11** | **21** |
 
 ## Part A: clean installation and ready payload
 
@@ -217,9 +217,9 @@ different output counts.
 
 | # | Precondition and setup | Goal or action | Expected observable and independent oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| E1 | Isolated close root/port/database A; provider ready | Independent agent drives WB1 goal once | One real get_platform call, completed journal and usage; driver reports anything odd | driver transcript/version, CLI output, journal, API row, process identity | stop only A pid; remove A root after comparison | not run: WSL live pass has not started |
-| E2 | Isolated close root/port/database B; provider ready | Independent agent drives WB1 goal once concurrently with E1/E3 | Same E1 oracle, independently produced | same E1 boundary for B | stop only B pid; remove B root after comparison | not run: WSL live pass has not started |
-| E3 | Isolated close root/port/database C; provider ready | Independent agent drives WB1 goal once concurrently with E1/E2 | Same E1 oracle; structural comparison passes and output counts are not suspiciously identical | same E1 boundary for C plus generated structural comparison | stop only C pid; remove C root | not run: WSL live pass has not started |
+| E1 | Isolated close root/port/database A; provider ready | Independent agent drives WB1 goal once | One real get_platform call, completed journal and usage; driver reports anything odd | driver transcript/version, CLI output, journal, API row, process identity | stop only A pid; remove A root after comparison | **pass on WSL**: shared-epoch run `run-3502c88d7b2d4574a959931f291f9327`; one successful call/result, real usage, nothing odd, exact daemon stopped |
+| E2 | Isolated close root/port/database B; provider ready | Independent agent drives WB1 goal once concurrently with E1/E3 | Same E1 oracle, independently produced | same E1 boundary for B | stop only B pid; remove B root after comparison | **pass on WSL**: shared-epoch run `run-2f913bd51f1d4233b65d61adf9c99625`; same successful structure and usage; a post-run harness quoting error was independently repaired against retained artifacts; no product oddity |
+| E3 | Isolated close root/port/database C; provider ready | Independent agent drives WB1 goal once concurrently with E1/E2 | Same E1 oracle; structural comparison passes and output counts are not suspiciously identical | same E1 boundary for C plus generated structural comparison | stop only C pid; remove C root | **pass on WSL**: shared-epoch run `run-e567276ace734ef4b33be9ef44ce3a04`; all command intervals overlap with 10.3 ms launch spread; unique runs/daemons and distinct first-response hashes prove identical output counts are deterministic, not reused |
 
 ## Per-OS results
 
@@ -229,8 +229,8 @@ different output counts.
 | B: real tool and hostile PATH | pass: WB1-WB3, one real call both normally and under hostile PATH | not run: host outstanding | not run: host outstanding | not run: host outstanding |
 | C: damaged payload isolation | pass: WC1 failed closed without fallback and restored exact manifest | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B |
 | D: owner-machine non-mutation | pass: WD1 snapshot body unchanged after trashing isolated root | not run: host outstanding | not run: host outstanding | not run: host outstanding |
-| E: independent close | not run: WSL close not started | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed |
-| **overall** | **partial: Parts A-D passed; independent close remains owed** | **not run: native Linux outstanding** | **not run: native Windows outstanding** | **not run: macOS outstanding** |
+| E: independent close | pass: three isolated shared-epoch runs overlap and match structurally | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed |
+| **overall** | **pass: all eleven WSL cells completed with no product finding** | **not run: native Linux outstanding** | **not run: native Windows outstanding** | **not run: macOS outstanding** |
 
 ## Evidence and remote-host handoff
 
@@ -243,7 +243,7 @@ pass.
 
 | operating system | filed evidence boundary |
 |---|---|
-| WSL | `e2e_evidence/vadgr-0.4.12/20260829-wsl/part-a/` through `part-d/`, latest evidence commit `8991971` |
+| WSL | `e2e_evidence/vadgr-0.4.12/20260829-wsl/part-a/` through `part-e/`, latest evidence commit `e4740f5` |
 | native Linux | not run: host outstanding |
 | native Windows | not run: host outstanding |
 | macOS | not run: host outstanding |
@@ -270,4 +270,6 @@ change.
 
 ## Findings
 
-None before live execution.
+No product findings on WSL. Two successful close attempts were rejected because
+their command intervals did not overlap; the accepted shared-epoch attempt is
+filed with the rejected intervals and structural comparison in Part E evidence.
