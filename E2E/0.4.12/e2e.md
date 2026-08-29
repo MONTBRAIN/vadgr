@@ -275,5 +275,9 @@ filed with the rejected intervals and structural comparison in Part E evidence.
 The first PR gate found three clean-install checks that typed the prior payload
 generation and CUA version. Commit `d64addc` makes each operating-system check
 discover the one private generation and compare it with the installed manifest.
-The regression test prevents a later payload pin from leaving CI stale again.
-This changes only CI and its test, so it invalidates no completed live cell.
+The next gate exposed CRLF conversion in the WSL checkout, obsolete settings
+fields on the native hosts, and a Linux check that moved a private environment
+after assembly. Commit `842d09b` pins shell files to LF, checks the published
+settings shape, and mounts Linux's payload at its original absolute path. Local
+clean-container reproduction passes. Regression tests cover each harness defect.
+These changes only affect CI and its tests, so they invalidate no live cell.
