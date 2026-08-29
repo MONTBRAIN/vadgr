@@ -1,14 +1,13 @@
 # 0.4.12 - computer use ships inside vadgr: e2e runbook
 
 > **vadgr 0.4.12 implementation:**
-> `feature/0.4.12-bundled-cua` at exact tested source `cbf04f3` (product commit
-> `cbf04f3`) before the first host passes.
+> [vadgr PR #213](https://github.com/MONTBRAIN/vadgr/pull/213), with WSL tested
+> from exact product commit `cbf04f3` before later evidence-only runbook commits.
 > **vadgr 0.4.12 evidence PR:**
 > [vadgr-docs PR #128](https://github.com/MONTBRAIN/vadgr-docs/pull/128).
 >
-> Every host adds its boundary to #128. After the first real target OS passes
-> and branch checks are green, replace the branch/head line with the public
-> implementation PR URL before another host starts.
+> Every host adds its boundary to #128 and pushes runbook results or shared fixes
+> to PR #213. Each host records the exact implementation commit it tested.
 
 > **Read this whole file and [`../README.md`](../README.md) before running a
 > cell.** Evidence is execution output, every owner-dependent cell runs first,
