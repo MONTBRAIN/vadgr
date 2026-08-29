@@ -2,7 +2,7 @@
 
 > **vadgr 0.4.12 implementation:**
 > [vadgr PR #213](https://github.com/MONTBRAIN/vadgr/pull/213), with WSL tested
-> from exact product commit `cbf04f3` before later evidence-only runbook commits.
+> from exact product commit `cbf04f3` before later test, CI and runbook commits.
 > **vadgr 0.4.12 evidence PR:**
 > [vadgr-docs PR #128](https://github.com/MONTBRAIN/vadgr-docs/pull/128).
 >
@@ -20,7 +20,7 @@ explicit install and state roots.
 
 > **Status: WSL complete.** Local automated gates are green (179 library
 > tests plus integration suites; clippy and formatting exit 0). The
-> implementation PR does not exist until one complete real target OS passes.
+> implementation is open as PR #213 for the remaining native-OS passes.
 > **0 open product findings.** Native Linux, Windows and macOS remain owed below.
 
 ## The rules
@@ -272,3 +272,8 @@ change.
 No product findings on WSL. Two successful close attempts were rejected because
 their command intervals did not overlap; the accepted shared-epoch attempt is
 filed with the rejected intervals and structural comparison in Part E evidence.
+The first PR gate found three clean-install checks that typed the prior payload
+generation and CUA version. Commit `d64addc` makes each operating-system check
+discover the one private generation and compare it with the installed manifest.
+The regression test prevents a later payload pin from leaving CI stale again.
+This changes only CI and its test, so it invalidates no completed live cell.
