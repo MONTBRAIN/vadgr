@@ -700,9 +700,9 @@ typing-inspection==0.4.4 \
 uvicorn==0.52.4 ; sys_platform != 'emscripten' \
     --hash=sha256:73acfee47a0b133c5de13d219492d62d8a31e935f4fe6e41a232451a15379f86 \
     --hash=sha256:f86e41a149d7d05a9969337e3946a9c171c06a5d42680896daaba624aeac8da1
-vadgr-computer-use==0.7.4 \
-    --hash=sha256:4a84f933c7c2b93b7672d6cd284035cc28daa2fa6993ecaf3070000f45471139 \
-    --hash=sha256:5d21c9b31aba3ef83fb2bdee838f37904d1a082d08de45558fef5208679c09f3
+vadgr-computer-use==0.7.5 \
+    --hash=sha256:b94c456b7b23318bb3e38e98774157c1c92299b187a2b150ca693ebe3650d0a6 \
+    --hash=sha256:f6a224eec898637574f62c399120999c4b341b6f32753810032fb99b604db5e9
 websockets==17.1 \
     --hash=sha256:0014eaff8ad5b3b43feda2279f9d34bf2eaae040720b9fbbb55944b10f40b14d \
     --hash=sha256:00679b7468b4c2b12b0757118174e8eabac56bb2f579a928a104d9554a56e098 \

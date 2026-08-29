@@ -15,7 +15,7 @@
 > and no host firewall, DNS, routing, proxy, VPN or network service is changed.
 
 A clean vadgr installation supplies its own pinned, isolated Python 3.12.14 and
-`vadgr-computer-use` 0.7.4 payload, launches it without consulting the owner's
+`vadgr-computer-use` 0.7.5 payload, launches it without consulting the owner's
 Python environment, and leaves the owner machine unchanged outside vadgr's
 explicit install and state roots.
 
@@ -49,7 +49,7 @@ explicit install and state roots.
 
 | repository | released version | what this pass relies on |
 |---|---:|---|
-| vadgr-computer-use | 0.7.4 | the pinned MCP server and its released `computer-use__get_platform` tool |
+| vadgr-computer-use | 0.7.5 | the pinned MCP server and its released `computer-use__get_platform` tool |
 | vadgr-mobile | 0.4.5 | nothing; listed because dependency-plan wording contains the checker's conservative client keyword |
 
 No external client repository participates in this machine payload verification.
@@ -160,7 +160,7 @@ run id may differ; no other field is normalised.
 
 | # | Precondition and setup | Goal or action | Expected observable and independent oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| WA1 | Fresh WSL root; source at recorded commit; none of Python/pip/uv/cua resolves | Run the source installer with no system-dependency consent | Installed `vadgr` is 0.4.12; manifest pins Python 3.12.14, cua 0.7.4 and this target; private interpreter and distribution report those versions | install transcript/exit, resolution failures, head/path/hash, manifest and version outputs | retain root through WD1 | not run: WSL live pass has not started |
+| WA1 | Fresh WSL root; source at recorded commit; none of Python/pip/uv/cua resolves | Run the source installer with no system-dependency consent | Installed `vadgr` is 0.4.12; manifest pins Python 3.12.14, cua 0.7.5 and this target; private interpreter and distribution report those versions | install transcript/exit, resolution failures, head/path/hash, manifest and version outputs | retain root through WD1 | not run: WSL live pass has not started |
 | WA2 | WA1 installed root | Inspect setup output and host package inventory | WSL applies no OS dependency plan and changes no host package or network state | setup output and before/after package inventory | none | not run: WSL live pass has not started |
 | WA3 | WA1 root; daemon started | Run `vadgr computer-use status` and read health/settings API | Computer use is enabled, available and ready; daemon stays healthy | CLI/API bodies, daemon log and private child process row | stop only this daemon by pid after group | not run: WSL live pass has not started |
 | LA1 | Fresh native Linux root; same clean-PATH setup | Run source installer and decline dependency application | Same identity/pins as WA1; printed plan changes nothing | same WA1 artifacts plus dry-run plan | retain root through LD1 | not run: native Linux host has not run it |

@@ -7,7 +7,7 @@ All notable changes to this project are documented here. Format follows [Keep a 
 ### Added
 
 - Vadgr now carries a private Python 3.12.14 runtime and a fully hashed
-  `vadgr-computer-use` 0.7.4 environment on Linux, WSL, macOS and Windows.
+  `vadgr-computer-use` 0.7.5 environment on Linux, WSL, macOS and Windows.
 - The Rust candidate downloads and verifies pinned uv and CPython archives.
   Installation needs no existing Python, pip, uv or `vadgr-cua` command.
 - Installers assemble and validate the computer-use payload before replacing
