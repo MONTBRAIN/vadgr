@@ -218,6 +218,12 @@ it again. Written from `vadgr start` dying on a port Windows had reserved with n
 listener: the fix was one predicate, and no runbook on any operating system ever
 drove a reserved port, so the class was invisible everywhere at once.
 
+**A patch cannot silently consume a planned version.** Before a patch tag, read
+the plan's version register, the progress tracker and the design index. The
+patch still uses the next SemVer when that number is reserved. Move the planned
+work to the next free version in one complete docs PR. Merge that repair before
+later work uses either number. Never tag first and leave the plan contradictory.
+
 **The runbook is complete before the first live cell runs.** Every surface
 branch and enum-shaped edge case is an independently executable cell with a
 stable id, precondition, setup, action or goal, expected observable, machine

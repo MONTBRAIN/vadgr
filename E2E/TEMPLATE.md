@@ -3,10 +3,10 @@
 > **<repository> <version> PR:**
 > `<https://github.com/MONTBRAIN/<repository>/pull/<number>>`.
 > **<repository> <version> evidence PR:**
-> `<https://github.com/MONTBRAIN/vadgr-docs/pull/<number>>`.
+> `<resolved private evidence PR URL>`.
 >
 > Replace both placeholders before the first live cell. The evidence link names
-> the one private-docs branch for this minor. Every host adds its boundary to
+> the one private evidence branch for this minor. Every host adds its boundary to
 > that pull request; it does not open another evidence pull request. A runbook
 > without both resolved links is incomplete and does not start.
 
