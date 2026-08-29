@@ -19,9 +19,9 @@ A clean vadgr installation supplies its own pinned, isolated Python 3.12.14 and
 Python environment, and leaves the owner machine unchanged outside vadgr's
 explicit install and state roots.
 
-> **Status: WSL installer cleanup in progress.** WA1-WA3 pass at `df23826`.
-> Local automated gates are green (180 library tests plus integration suites;
-> clippy and formatting exit 0). Native Linux, Windows and macOS remain owed.
+> **Status: WSL complete.** WA1-WA3 and WD1 pass at `df23826`. Local
+> automated gates are green (180 library tests plus integration suites; clippy
+> and formatting exit 0). Native Linux, Windows and macOS remain owed.
 
 ## The rules
 
@@ -152,9 +152,9 @@ run id may differ; no other field is normalised.
 | A: clean installation and ready payload | 4 OS x 3 boundaries | 12 | 3 | 9 |
 | B: real tool and hostile PATH | 4 OS x 3 boundaries | 12 | 3 | 9 |
 | C: damaged payload isolation | WSL x 1 boundary | 1 | 1 | 0 |
-| D: owner-machine non-mutation | 4 OS x 1 boundary | 4 | 0 | 4 |
+| D: owner-machine non-mutation | 4 OS x 1 boundary | 4 | 1 | 3 |
 | E: independent close | 3 isolated WSL agents | 3 | 3 | 0 |
-| | | **32** | **10** | **22** |
+| | | **32** | **11** | **21** |
 
 ## Part A: clean installation and ready payload
 
@@ -200,7 +200,7 @@ run id may differ; no other field is normalised.
 
 | # | Precondition and setup | Goal or action | Expected observable and independent oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| WD1 | WSL before snapshot exists; WA-WC complete and manifest restored | Stop own processes, trash isolated root, take after snapshot and compare | Profiles, user Python state/caches, selected env names and network configuration are unchanged | both raw snapshots, diff exit and process/port checks | trash only isolated root | not run: the repaired installer root must complete WA1-WA3 first |
+| WD1 | WSL before snapshot exists; WA-WC complete and manifest restored | Stop own processes, trash isolated root, take after snapshot and compare | Profiles, user Python state/caches, selected env names and network configuration are unchanged | both raw snapshots, diff exit and process/port checks | trash only isolated root | **pass on WSL after repair**: the installed CLI stopped the exact daemon; its port is free; the root moved to trash; the snapshot bodies are byte-identical |
 | LD1 | Linux before snapshot exists; LA/LB complete | Stop own processes, trash isolated root, snapshot/compare | Same as WD1 except owner-approved LA2 package changes are the only named difference | snapshots, diff, approved package delta, process/port checks | trash test root; retain approved deps | not run: native Linux host has not run it |
 | ND1 | Windows before snapshot exists; NA/NB complete | Stop own processes, trash isolated root, snapshot/compare | Profiles, registry Python state, caches, environment and network hashes unchanged | snapshots, comparison, process/port checks | trash only isolated root | not run: native Windows host has not run it |
 | MD1 | macOS before snapshot exists; MA/MB complete | Stop own processes, trash isolated root, snapshot/compare | Same as WD1; only the explicitly granted privacy entries may differ | snapshots, diff, grant delta, process/port checks | trash root; owner may remove grants | not run: macOS host has not run it |
@@ -228,9 +228,9 @@ different output counts.
 | A: clean installation and ready payload | pass: WA1-WA3 passed on exact source `df23826` with cua 0.7.5 | not run: host outstanding | not run: host outstanding | not run: host outstanding |
 | B: real tool and hostile PATH | pass: WB1-WB3, one real call both normally and under hostile PATH | not run: host outstanding | not run: host outstanding | not run: host outstanding |
 | C: damaged payload isolation | pass: WC1 failed closed without fallback and restored exact manifest | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B |
-| D: owner-machine non-mutation | not run: WD1 follows the repaired installer validation | not run: host outstanding | not run: host outstanding | not run: host outstanding |
+| D: owner-machine non-mutation | pass: WD1 snapshot body unchanged after trashing the repaired install root | not run: host outstanding | not run: host outstanding | not run: host outstanding |
 | E: independent close | pass: three isolated shared-epoch runs overlap and match structurally | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed |
-| **overall** | **not run: WD1 cleanup and final snapshot remain** | **not run: native Linux outstanding** | **not run: native Windows outstanding** | **not run: macOS outstanding** |
+| **overall** | **pass: all eleven WSL cells completed; repaired installer cells pass at `df23826`** | **not run: native Linux outstanding** | **not run: native Windows outstanding** | **not run: macOS outstanding** |
 
 ## Evidence and remote-host handoff
 
@@ -243,7 +243,7 @@ pass.
 
 | operating system | filed evidence boundary |
 |---|---|
-| WSL | prior pass through `e4740f5`; repair revalidation at `8bb3cbd` under `revalidation-404100f/` |
+| WSL | prior pass through `e4740f5`; final repair evidence through `9dd1ead` under `revalidation-df23826/` |
 | native Linux | not run: host outstanding |
 | native Windows | not run: host outstanding |
 | macOS | not run: host outstanding |
@@ -294,6 +294,7 @@ directory as the protected source workspace. The repair derives that workspace
 from the candidate executable. It also gives the Windows clean-install check a
 separate profile root, so the check does not request installation into home.
 WA1-WA3 and WD1 are invalidated until they run against the repair commit.
-WA1-WA3 pass on exact product commit `df23826`. The clean path also omitted the
-Rust toolchain, so the source installer supplied Rust only inside its isolated
-home. WD1 remains open until that daemon stops and its root moves to trash.
+WA1-WA3 and WD1 pass on exact product commit `df23826`. The clean path also
+omitted the Rust toolchain, so the source installer supplied Rust only inside
+its isolated home. The installed CLI stopped the exact daemon, its port is free,
+the isolated root moved to trash, and the snapshot bodies are byte-identical.
