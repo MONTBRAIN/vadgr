@@ -3,7 +3,8 @@
 > **vadgr 0.4.12 implementation:**
 > [vadgr PR #213](https://github.com/MONTBRAIN/vadgr/pull/213). WSL tool and
 > isolation cells used product commit `cbf04f3`. WSL installer cells use
-> source-workspace repair commit `df23826`.
+> source-workspace repair commit `df23826`. Native Windows cells use
+> alternate-profile repair commit `49c30d3`.
 > **vadgr 0.4.12 evidence PR:**
 > [vadgr-docs PR #128](https://github.com/MONTBRAIN/vadgr-docs/pull/128).
 >
@@ -19,9 +20,10 @@ A clean vadgr installation supplies its own pinned, isolated Python 3.12.14 and
 Python environment, and leaves the owner machine unchanged outside vadgr's
 explicit install and state roots.
 
-> **Status: WSL complete.** WA1-WA3 and WD1 pass at `df23826`. Local
+> **Status: WSL and native Windows complete.** Windows NA1-NB3 and ND1 pass
+> at `49c30d3`. WSL WA1-WA3 and WD1 pass at `df23826`. Local
 > automated gates are green (180 library tests plus integration suites; clippy
-> and formatting exit 0). Native Linux, Windows and macOS remain owed.
+> and formatting exit 0). Native Linux and macOS remain owed.
 
 ## The rules
 
@@ -48,8 +50,8 @@ explicit install and state roots.
 
 | repository | released version | what this pass relies on |
 |---|---:|---|
-| vadgr-computer-use | 0.7.5 | the pinned MCP server and its released `computer-use__get_platform` tool |
-| vadgr-mobile | 0.4.5 | nothing; listed because dependency-plan wording contains the checker's conservative client keyword |
+| vadgr-computer-use | 0.7.4 released; 0.7.5 pinned candidate | the bundled MCP server and its released `computer-use__get_platform` surface |
+| vadgr-mobile | 0.4.1 | nothing; listed because dependency-plan wording contains the checker's conservative client keyword |
 
 No external client repository participates in this machine payload verification.
 
@@ -149,12 +151,12 @@ run id may differ; no other field is normalised.
 
 | Part | Axes | Cells | Run | Open |
 |---|---|---:|---:|---:|
-| A: clean installation and ready payload | 4 OS x 3 boundaries | 12 | 3 | 9 |
-| B: real tool and hostile PATH | 4 OS x 3 boundaries | 12 | 3 | 9 |
+| A: clean installation and ready payload | 4 OS x 3 boundaries | 12 | 6 | 6 |
+| B: real tool and hostile PATH | 4 OS x 3 boundaries | 12 | 6 | 6 |
 | C: damaged payload isolation | WSL x 1 boundary | 1 | 1 | 0 |
-| D: owner-machine non-mutation | 4 OS x 1 boundary | 4 | 1 | 3 |
+| D: owner-machine non-mutation | 4 OS x 1 boundary | 4 | 2 | 2 |
 | E: independent close | 3 isolated WSL agents | 3 | 3 | 0 |
-| | | **32** | **11** | **21** |
+| | | **32** | **18** | **14** |
 
 ## Part A: clean installation and ready payload
 
@@ -166,9 +168,9 @@ run id may differ; no other field is normalised.
 | LA1 | Fresh native Linux root; same clean-PATH setup | Run source installer and decline dependency application | Same identity/pins as WA1; printed plan changes nothing | same WA1 artifacts plus dry-run plan | retain root through LD1 | not run: native Linux host has not run it |
 | LA2 | LA1; owner has read and explicitly approved exact printed plan | Repeat setup with explicit consent | Only the approved system plan is applied; payload remains same pins | consent record without secrets, command output, package diff | retain approved system deps; remove test root later | not run: native Linux owner action and host are outstanding |
 | LA3 | LA2 root; daemon started | Run status and APIs | Computer use ready and healthy | same WA3 artifacts | stop own daemon | not run: native Linux host has not run it |
-| NA1 | Fresh native Windows profile; no Python/pip/uv/cua resolves | Run checked-out `install.ps1` | Same identity/pins as WA1 with `.exe` and Windows target | PowerShell transcript/exit, Get-Command failures, head/path/hash, manifest/version | retain root through ND1 | not run: native Windows host has not run it |
-| NA2 | NA1 installed root | Inspect setup output and registry/package inventories | No system Python, registry, PATH or network change | setup output plus before/after inventories | none | not run: native Windows host has not run it |
-| NA3 | NA1 root; daemon started | Run status and APIs | Computer use ready and healthy | same WA3 artifacts | stop own daemon | not run: native Windows host has not run it |
+| NA1 | Fresh native Windows profile; no Python/pip/uv/cua resolves | Run checked-out `install.ps1` | Same identity/pins as WA1 with `.exe` and Windows target | PowerShell transcript/exit, Get-Command failures, head/path/hash, manifest/version | retain root through ND1 | **pass on native Windows after repair**: exact source `49c30d3`; the isolated install reports vadgr 0.4.12, Python 3.12.14, cua 0.7.5 and the Windows x86-64 target |
+| NA2 | NA1 installed root | Inspect setup output and registry/package inventories | No system Python, registry, PATH or network change | setup output plus before/after inventories | none | **pass on native Windows after repair**: setup persisted no alternate-profile PATH; registry, package, cache, environment and network checks are unchanged |
+| NA3 | NA1 root; daemon started | Run status and APIs | Computer use ready and healthy | same WA3 artifacts | stop own daemon | **pass on native Windows after repair**: the installed daemon served the isolated port; health reports Windows and computer use; settings report enabled and ready |
 | MA1 | Fresh macOS root; no Python/pip/uv/cua resolves | Run source installer | Same identity/pins as WA1 with macOS target | install transcript/exit, resolution failures, head/path/hash, manifest/version | retain root through MD1 | not run: macOS host has not run it |
 | MA2 | MA1 private interpreter path prepared; owner grants Accessibility and Screen Recording first | Run the reported setup/doctor check again | Both grants apply to the private interpreter and setup exits 0; no Settings page was opened automatically | grant-path record and setup output; no unrelated privacy entries | owner may remove grants after MD1 | not run: macOS owner action and host are outstanding |
 | MA3 | MA2 root; daemon started | Run status and APIs | Computer use ready and healthy | same WA3 artifacts | stop own daemon | not run: macOS host has not run it |
@@ -183,9 +185,9 @@ run id may differ; no other field is normalised.
 | LB1 | LA3 plus provider login | Repeat WB1 | Same WB1 oracle | same WB1 boundary | retain provider state for LB3 | not run: native Linux host has not run it |
 | LB2 | LB1 | Repeat WB2 | Same WB2 oracle | same WB2 boundary | none | not run: native Linux host has not run it |
 | LB3 | Hostile shims first on PATH | Repeat WB3 | Same WB3 oracle | same WB3 boundary | remove shim dir | not run: native Linux host has not run it |
-| NB1 | NA3 plus provider login | Repeat WB1 | Same WB1 oracle | same WB1 boundary | retain provider state for NB3 | not run: native Windows host has not run it |
-| NB2 | NB1 | Repeat WB2 with native process inspection | Same WB2 oracle | executable path, command line and environment-name inventory | none | not run: native Windows host has not run it |
-| NB3 | Hostile `.cmd`/`.exe` shims first on PATH | Repeat WB3 | Same WB3 oracle | same WB3 boundary | remove shim dir | not run: native Windows host has not run it |
+| NB1 | NA3 plus provider login | Repeat WB1 | Same WB1 oracle | same WB1 boundary | retain provider state for NB3 | **pass on native Windows**: run `run-2d16b196d53b4a549b7c7fd6afb17099` completed in five seconds; one platform call returned `windows` with real usage |
+| NB2 | NB1 | Repeat WB2 with native process inspection | Same WB2 oracle | executable path, command line and environment-name inventory | none | **pass on native Windows**: samples show private Python, `-I` and absolute bootstrap paths; forbidden override names are absent from the daemon environment |
+| NB3 | Hostile `.cmd`/`.exe` shims first on PATH | Repeat WB3 | Same WB3 oracle | same WB3 boundary | remove shim dir | **pass on native Windows**: run `run-179119b731b1426e9c06b8732f333967` returned `windows`; all hostile shims resolved first and the sentinel stayed empty |
 | MB1 | MA3 plus provider login | Repeat WB1 | Same WB1 oracle | same WB1 boundary | retain provider state for MB3 | not run: macOS host has not run it |
 | MB2 | MB1 | Repeat WB2 | Same WB2 oracle | same WB2 boundary | none | not run: macOS host has not run it |
 | MB3 | Hostile shims first on PATH | Repeat WB3 | Same WB3 oracle | same WB3 boundary | remove shim dir | not run: macOS host has not run it |
@@ -202,7 +204,7 @@ run id may differ; no other field is normalised.
 |---|---|---|---|---|---|---|
 | WD1 | WSL before snapshot exists; WA-WC complete and manifest restored | Stop own processes, trash isolated root, take after snapshot and compare | Profiles, user Python state/caches, selected env names and network configuration are unchanged | both raw snapshots, diff exit and process/port checks | trash only isolated root | **pass on WSL after repair**: the installed CLI stopped the exact daemon; its port is free; the root moved to trash; the snapshot bodies are byte-identical |
 | LD1 | Linux before snapshot exists; LA/LB complete | Stop own processes, trash isolated root, snapshot/compare | Same as WD1 except owner-approved LA2 package changes are the only named difference | snapshots, diff, approved package delta, process/port checks | trash test root; retain approved deps | not run: native Linux host has not run it |
-| ND1 | Windows before snapshot exists; NA/NB complete | Stop own processes, trash isolated root, snapshot/compare | Profiles, registry Python state, caches, environment and network hashes unchanged | snapshots, comparison, process/port checks | trash only isolated root | not run: native Windows host has not run it |
+| ND1 | Windows before snapshot exists; NA/NB complete | Stop own processes, trash isolated root, snapshot/compare | Profiles, registry Python state, caches, environment and network hashes unchanged | snapshots, comparison, process/port checks | trash only isolated root | **pass on native Windows after repair**: the installed CLI stopped its daemon; port 18797 is free; seven exact roots moved to the Recycle Bin; snapshots and package inventories match |
 | MD1 | macOS before snapshot exists; MA/MB complete | Stop own processes, trash isolated root, snapshot/compare | Same as WD1; only the explicitly granted privacy entries may differ | snapshots, diff, grant delta, process/port checks | trash root; owner may remove grants | not run: macOS host has not run it |
 
 ## Part E: independent close
@@ -225,12 +227,12 @@ different output counts.
 
 | Part | WSL | Linux | Windows native | macOS |
 |---|---|---|---|---|
-| A: clean installation and ready payload | pass: WA1-WA3 passed on exact source `df23826` with cua 0.7.5 | not run: host outstanding | not run: host outstanding | not run: host outstanding |
-| B: real tool and hostile PATH | pass: WB1-WB3, one real call both normally and under hostile PATH | not run: host outstanding | not run: host outstanding | not run: host outstanding |
+| A: clean installation and ready payload | pass: WA1-WA3 passed on exact source `df23826` with cua 0.7.5 | not run: host outstanding | pass: NA1-NA3 passed on exact source `49c30d3` with cua 0.7.5 | not run: host outstanding |
+| B: real tool and hostile PATH | pass: WB1-WB3, one real call both normally and under hostile PATH | not run: host outstanding | pass: NB1-NB3 made one real call normally and under hostile PATH | not run: host outstanding |
 | C: damaged payload isolation | pass: WC1 failed closed without fallback and restored exact manifest | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B |
-| D: owner-machine non-mutation | pass: WD1 snapshot body unchanged after trashing the repaired install root | not run: host outstanding | not run: host outstanding | not run: host outstanding |
+| D: owner-machine non-mutation | pass: WD1 snapshot body unchanged after trashing the repaired install root | not run: host outstanding | pass: ND1 snapshots and package inventory unchanged after recycling exact test roots | not run: host outstanding |
 | E: independent close | pass: three isolated shared-epoch runs overlap and match structurally | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed |
-| **overall** | **pass: all eleven WSL cells completed; repaired installer cells pass at `df23826`** | **not run: native Linux outstanding** | **not run: native Windows outstanding** | **not run: macOS outstanding** |
+| **overall** | **pass: all eleven WSL cells completed; repaired installer cells pass at `df23826`** | **not run: native Linux outstanding** | **pass: all seven native Windows cells completed at `49c30d3`** | **not run: macOS outstanding** |
 
 ## Evidence and remote-host handoff
 
@@ -245,7 +247,7 @@ pass.
 |---|---|
 | WSL | prior pass through `e4740f5`; final repair evidence through `bf9f2f3` under `revalidation-df23826/` |
 | native Linux | not run: host outstanding |
-| native Windows | not run: host outstanding |
+| native Windows | Parts A through `d00e576`; B through `9ebcebf`; D through `2235110` under `20260829-windows-native/` |
 | macOS | not run: host outstanding |
 
 A fresh OS agent needs only this file and the committed harness. It must:
@@ -298,3 +300,12 @@ WA1-WA3 and WD1 pass on exact product commit `df23826`. The clean path also
 omitted the Rust toolchain, so the source installer supplied Rust only inside
 its isolated home. The installed CLI stopped the exact daemon, its port is free,
 the isolated root moved to trash, and the snapshot bodies are byte-identical.
+
+Native Windows found that `install.ps1` persisted an alternate test profile's
+bin path into the owner's real user PATH. Two clean installs reproduced the
+defect. Commit `49c30d3` compares the requested profile with the real Windows
+profile and skips persistent PATH changes for alternate profiles. Its regression
+failed before the repair and passed after it. NA1-NA3, NB1-NB3 and ND1 then
+passed at that exact commit. Three billed platform runs used 11,206 input and 23
+output tokens each, costing at most $0.045284 each and $0.135852 total at the
+listed rates. The final host snapshots and 204-package inventories match.
