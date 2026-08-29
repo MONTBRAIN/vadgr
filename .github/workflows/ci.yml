@@ -161,9 +161,13 @@ jobs:
           export PATH="$HOME/.vadgr/bin:$PATH"
           version="$(grep -m1 '^version = ' Cargo.toml | cut -d'"' -f2)"
           test "$(vadgr --version)" = "vadgr $version"
-          private_python="$HOME/.vadgr/lib/cua/environments/0.7.4-e5aafb050143/bin/python"
-          "$private_python" -I -c 'import importlib.metadata,sys; assert sys.version.split()[0] == "3.12.14"; assert importlib.metadata.version("vadgr-computer-use") == "0.7.4"'
-          test -f "$HOME/.vadgr/lib/cua/payload.json"
+          manifest="$HOME/.vadgr/lib/cua/payload.json"
+          test -f "$manifest"
+          private_pythons=( "$HOME"/.vadgr/lib/cua/environments/*/bin/python )
+          test "${#private_pythons[@]}" -eq 1
+          private_python="${private_pythons[0]}"
+          test -f "$private_python"
+          "$private_python" -I -c 'import importlib.metadata,json,pathlib,sys; manifest=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")); assert sys.version.split()[0] == manifest["python_version"]; assert importlib.metadata.version("vadgr-computer-use") == manifest["cua_version"]' "$manifest"
           VADGR_TRANSPORT=loopback vadgr start
           vadgr computer-use status
           vadgr stop
@@ -238,8 +242,15 @@ jobs:
           env PATH="$shim" "$PWD/target/release/vadgr" __payload-setup \
             --install-root "$install_root" --payload-only
           cp "$PWD/target/release/vadgr" "$install_root/bin/vadgr"
-          "$install_root/lib/cua/environments/0.7.4-e5aafb050143/bin/python" -I -c \
-            'import importlib.metadata,sys; assert sys.version.split()[0] == "3.12.14"; assert importlib.metadata.version("vadgr-computer-use") == "0.7.4"'
+          manifest="$install_root/lib/cua/payload.json"
+          test -f "$manifest"
+          private_pythons=( "$install_root"/lib/cua/environments/*/bin/python )
+          test "${#private_pythons[@]}" -eq 1
+          private_python="${private_pythons[0]}"
+          test -f "$private_python"
+          "$private_python" -I -c \
+            'import importlib.metadata,json,pathlib,sys; manifest=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")); assert sys.version.split()[0] == manifest["python_version"]; assert importlib.metadata.version("vadgr-computer-use") == manifest["cua_version"]' \
+            "$manifest"
           echo "CLEAN_INSTALL_ROOT=$install_root" >> "$GITHUB_ENV"
 
       - name: Assemble the complete clean install on Windows without Python tools
@@ -259,8 +270,14 @@ jobs:
           ) -Environment $clean
           if ($run.ExitCode -ne 0) { throw "payload setup exited $($run.ExitCode)" }
           Copy-Item $candidate "$installRoot\bin\vadgr.exe"
-          & "$installRoot\lib\cua\environments\0.7.4-e5aafb050143\Scripts\python.exe" -I -c `
-            'import importlib.metadata,sys; assert sys.version.split()[0] == "3.12.14"; assert importlib.metadata.version("vadgr-computer-use") == "0.7.4"'
+          $manifest = "$installRoot\lib\cua\payload.json"
+          if (-not (Test-Path -PathType Leaf $manifest)) { throw "payload manifest is missing: $manifest" }
+          $generations = @(Get-ChildItem "$installRoot\lib\cua\environments" -Directory)
+          if ($generations.Count -ne 1) { throw "expected one private payload generation, found $($generations.Count)" }
+          $privatePython = Join-Path $generations[0].FullName 'Scripts\python.exe'
+          if (-not (Test-Path -PathType Leaf $privatePython)) { throw "private Python is missing: $privatePython" }
+          $verifyPayload = 'import importlib.metadata,json,pathlib,sys; manifest=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")); assert sys.version.split()[0] == manifest["python_version"]; assert importlib.metadata.version("vadgr-computer-use") == manifest["cua_version"]'
+          & $privatePython -I -c $verifyPayload $manifest
           if ($LASTEXITCODE -ne 0) { throw 'private payload version check failed' }
           "CLEAN_INSTALL_ROOT=$installRoot" | Out-File -FilePath $env:GITHUB_ENV -Append
 

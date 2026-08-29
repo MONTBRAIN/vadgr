@@ -189,3 +189,22 @@ fn the_product_is_one_executable() {
         "the spawned child is told to serve"
     );
 }
+
+#[test]
+fn clean_install_checks_follow_the_payload_manifest() {
+    // The clean-install jobs once named a prior payload generation and prior
+    // CUA version directly. A pin update then broke every clean-install leg,
+    // although the installer had assembled the new payload correctly.
+    let workflow = repo_file(".github/workflows/ci.yml");
+    assert!(
+        !workflow.contains("/lib/cua/environments/0.")
+            && !workflow.contains(r"\lib\cua\environments\0."),
+        "clean-install must discover the private generation instead of typing one"
+    );
+    assert!(
+        workflow.matches("lib/cua/payload.json").count()
+            + workflow.matches(r"lib\cua\payload.json").count()
+            >= 3,
+        "every clean-install path must validate versions against payload.json"
+    );
+}
