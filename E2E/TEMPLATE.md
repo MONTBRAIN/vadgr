@@ -1,14 +1,17 @@
 # <version> - <what this minor made true>: e2e runbook
 
-> **<repository> <version> PR:**
-> `<https://github.com/MONTBRAIN/<repository>/pull/<number>>`.
+> **<repository> <version> implementation:**
+> `<branch name> at <exact head commit before the first host passes>`.
 > **<repository> <version> evidence PR:**
 > `<resolved private evidence PR URL>`.
 >
-> Replace both placeholders before the first live cell. The evidence link names
-> the one private evidence branch for this minor. Every host adds its boundary to
-> that pull request; it does not open another evidence pull request. A runbook
-> without both resolved links is incomplete and does not start.
+> Resolve the branch, head and evidence link before the first live cell. The
+> evidence link names the one private evidence branch for this minor. Every host
+> adds its boundary to that pull request; it does not open another evidence pull
+> request. After the first real target OS passes and branch checks are green,
+> replace the branch/head line with the implementation PR URL before handing the
+> branch to another host. Do not open a draft or reservation PR to fill this
+> line: publication itself requires that first live pass.
 
 > **Read this whole file before you run anything, and read
 > [`README.md`](README.md) beside it.** Not the rules that look relevant to the
