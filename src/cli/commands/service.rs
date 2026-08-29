@@ -750,6 +750,35 @@ pub async fn update(check: bool) -> Result<(), CliError> {
         ));
     }
 
+    // The matching private runtime is ready before the new executable moves.
+    // A payload failure leaves the currently installed binary untouched.
+    let current = std::env::current_exe().map_err(|error| {
+        CliError::Failed(format!(
+            "Could not locate the installed vadgr binary: {error}"
+        ))
+    })?;
+    let install_root = vadgr_daemon::cua_payload::install_root_from_executable(&current)
+        .map_err(|error| CliError::Failed(error.to_string()))?;
+    let suffix = if cfg!(windows) { ".exe" } else { "" };
+    let candidate = release_dir(&repo).join(format!("vadgr{suffix}"));
+    let payload = Command::new(&candidate)
+        .arg("__payload-setup")
+        .arg("--install-root")
+        .arg(&install_root)
+        .arg("--payload-only")
+        .status()
+        .map_err(|error| {
+            CliError::Failed(format!(
+                "Could not run the built candidate at {}: {error}",
+                candidate.display()
+            ))
+        })?;
+    if !payload.success() {
+        return Err(CliError::Failed(
+            "The matching computer-use payload failed, so nothing was replaced.".to_owned(),
+        ));
+    }
+
     // **Nothing is copied over the running installation until the build passed.**
     // A half-replaced binary is an installation that neither starts nor rolls
     // back.

@@ -7,6 +7,7 @@
 pub mod auth;
 pub mod computer_use_setup;
 pub mod config;
+pub mod cua_payload;
 pub mod daemon;
 pub mod db;
 pub mod engine;

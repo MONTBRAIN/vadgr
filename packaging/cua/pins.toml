@@ -1,0 +1,28 @@
+cua = "0.7.4"
+python = "3.12.14"
+python_build = "20260825"
+uv = "0.12.7"
+
+[targets.x86_64-unknown-linux-gnu]
+python_sha256 = "cbdd2f0cf02f941bc5c81e546f377275e322733abffe805ac29d2b7e8a58f7e3"
+uv_sha256 = "788f18abea7c5f55d6216e4f5613fd89d4d59b631efeec117b2b07fe72f1da21"
+
+[targets.aarch64-unknown-linux-gnu]
+python_sha256 = "70162d3fa61a7bf52a9f098ad6f46046f9813ab50e0d2b3cfeb81ee1bad78f1c"
+uv_sha256 = "66393193038dd7eb108abd7a218d9cec04ac70ab98242b0720fa94de19223b7c"
+
+[targets.x86_64-apple-darwin]
+python_sha256 = "65da7bc373ea36cb7e413f2a20bcced9eeb7e5a83fa554ce9f6ec79abb8d7e31"
+uv_sha256 = "06b8ae1da8c2661c5434507a66f8c2b0b835933bf955b5958a9ac357a37d1959"
+
+[targets.aarch64-apple-darwin]
+python_sha256 = "62eef3fcf48fa4f792d0d6d267c140b81aaea0edca4ae0641d8021854314f966"
+uv_sha256 = "127ebdda7ad953cdf198e964b570ea5771b85467ea93eb7cb6d6f8e6f55408f3"
+
+[targets.x86_64-pc-windows-msvc]
+python_sha256 = "15d25c455ea25d6b24d7e58eabdf744fd0db3cfb977934ae08fd2237acd8ccc1"
+uv_sha256 = "bf1518af459a3915511a11fdc6e2f43ef9a2afa138b9d498eeb9642fe9d85218"
+
+[targets.aarch64-pc-windows-msvc]
+python_sha256 = "57dd692b459609127d1b2d448e2033606da7089b9c5d3f9868a54899a87fad26"
+uv_sha256 = "1611d0f4be72b0a354ad9a6ae954093dd4c91e93e36b8b490326a05a039ffe14"

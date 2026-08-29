@@ -149,11 +149,29 @@ build_and_install() {
     fi
     ( cd "$VADGR_REPO" && cargo build --locked --release --bins ) || fail "The build failed. Nothing was installed."
 
+    local candidate="$VADGR_REPO/target/release/vadgr"
+    info "Assembling vadgr's private computer-use runtime..."
+    "$candidate" __payload-setup --install-root "$VADGR_HOME" \
+        || fail "Computer use could not be prepared. The installed binary was not changed."
+    if [ "$OS" = "linux" ]; then
+        local apply_deps="${VADGR_CUA_APPLY_SYSTEM_DEPS:-}"
+        if [ -z "$apply_deps" ] && [ -t 0 ]; then
+            printf "Apply the printed Linux computer-use system plan? [y/N] "
+            read -r apply_deps
+        fi
+        case "$apply_deps" in
+            1|y|Y|yes|YES)
+                "$candidate" __payload-setup --install-root "$VADGR_HOME" --apply-system-deps \
+                    || fail "The approved Linux computer-use setup failed. The installed binary was not changed."
+                ;;
+        esac
+    fi
+
     mkdir -p "$VADGR_BIN"
     # Installed only after the build succeeded, so a failed build leaves the
     # installation that was already working exactly as it was.
     for binary in vadgr; do
-        install -m 0755 "$VADGR_REPO/target/release/$binary" "$VADGR_BIN/$binary" \
+        install -m 0755 "$candidate" "$VADGR_BIN/$binary" \
             || fail "Could not install $binary into $VADGR_BIN"
     done
     ok "Installed vadgr into $VADGR_BIN"

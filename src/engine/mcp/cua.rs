@@ -1,4 +1,5 @@
 use super::ToolServer;
+use crate::cua_payload::CuaCommand;
 use crate::engine::types::{ImageSource, McpError, ToolContent, ToolResult, ToolSpec};
 use async_trait::async_trait;
 use rmcp::model::{CallToolRequestParams, ContentBlock};
@@ -6,7 +7,7 @@ use rmcp::service::RunningService;
 use rmcp::transport::{ConfigureCommandExt, TokioChildProcess};
 use rmcp::{RoleClient, ServiceExt};
 use serde_json::{Map, Value};
-use std::path::PathBuf;
+use std::ffi::OsString;
 use std::process::Stdio;
 use std::time::Duration;
 use tokio::io::{AsyncBufReadExt, BufReader};
@@ -16,15 +17,29 @@ const STDERR_LINE_LIMIT: usize = 4096;
 const CLOSE_TIMEOUT: Duration = Duration::from_secs(3);
 
 pub struct CuaServer {
-    command: PathBuf,
+    command: CuaCommand,
+    environment: Vec<(OsString, OsString)>,
     client: Option<RunningService<RoleClient, ()>>,
     stderr_task: Option<JoinHandle<()>>,
 }
 
 impl CuaServer {
-    pub fn new(command: PathBuf) -> Self {
+    pub fn new(command: CuaCommand) -> Self {
         Self {
             command,
+            environment: Vec::new(),
+            client: None,
+            stderr_task: None,
+        }
+    }
+
+    pub(crate) fn with_environment(
+        command: CuaCommand,
+        environment: Vec<(OsString, OsString)>,
+    ) -> Self {
+        Self {
+            command,
+            environment,
             client: None,
             stderr_task: None,
         }
@@ -34,9 +49,13 @@ impl CuaServer {
         if self.client.is_some() {
             return Ok(());
         }
-        let command_path = self.command.clone();
-        let command = tokio::process::Command::new(command_path).configure(|command| {
-            command.arg("--transport").arg("stdio").kill_on_drop(true);
+        let child = self.command.clone();
+        let environment = self.environment.clone();
+        let command = tokio::process::Command::new(child.program).configure(|command| {
+            command
+                .args(child.args)
+                .envs(environment)
+                .kill_on_drop(true);
             configure_windows_process(command);
         });
         let (transport, stderr) = TokioChildProcess::builder(command)

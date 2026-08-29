@@ -33,7 +33,11 @@ Describe your work in a sentence. Vadgr runs it on your machine - writing code, 
 
 ## Install
 
-Works on **Linux**, **WSL**, **Windows** and **macOS**. Desktop automation is the separate [vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use) package, which supports all four; on macOS it asks for Accessibility and Screen Recording the first time it runs. The installer sets up everything: git, the Rust toolchain, the C toolchain the build links with, and the `vadgr` binaries. No Node.js and no browser: the machine's clients are this CLI and the phone app.
+Works on **Linux**, **WSL**, **Windows** and **macOS**. Vadgr carries its pinned
+desktop-automation runtime on all four. The owner needs no Python, pip or uv.
+On macOS, grant Accessibility and Screen Recording to vadgr's private Python
+when the operating system asks. The installer also sets up git and the build
+toolchain. No Node.js and no browser are required.
 
 ```bash
 # Linux / macOS / WSL
@@ -173,7 +177,11 @@ paired phone is concerned.
 
 ### Desktop Automation
 
-The desktop-automation MCP server lives in its own repository: **[vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use)**. Install with `pip install vadgr-computer-use`. It gives agents eyes and hands: take a screenshot, reason, click or type, repeat. On WSL2 the package manages its own Windows-side bridge daemon automatically.
+Vadgr installs its pinned desktop-automation MCP server inside its private
+payload. It gives runs eyes and hands: take a screenshot, reason, click or type,
+then repeat. Do not install Python or `vadgr-computer-use` separately. Linux
+prints its system-package plan before changing anything. WSL and Windows need
+no payload setup. macOS reports the grants its private interpreter needs.
 
 ## Structure
 
@@ -197,9 +205,9 @@ Vadgr/
 └── scripts/               # The repository's own gates
 ```
 
-Desktop automation lives in its own repository,
-[vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use), and is
-installed as a package when computer use is enabled.
+Desktop automation ships as a released package from
+[vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use). Vadgr
+pins and installs that package inside its own private payload.
 
 ## Contributing
 
