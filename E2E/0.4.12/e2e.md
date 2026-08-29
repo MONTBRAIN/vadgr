@@ -1,8 +1,9 @@
 # 0.4.12 - computer use ships inside vadgr: e2e runbook
 
 > **vadgr 0.4.12 implementation:**
-> [vadgr PR #213](https://github.com/MONTBRAIN/vadgr/pull/213), with WSL tested
-> from exact product commit `cbf04f3` before later test, CI and runbook commits.
+> [vadgr PR #213](https://github.com/MONTBRAIN/vadgr/pull/213). WSL tool and
+> isolation cells used product commit `cbf04f3`; installer cells are being
+> revalidated against Windows-path repair commit `404100f`.
 > **vadgr 0.4.12 evidence PR:**
 > [vadgr-docs PR #128](https://github.com/MONTBRAIN/vadgr-docs/pull/128).
 >
@@ -18,10 +19,11 @@ A clean vadgr installation supplies its own pinned, isolated Python 3.12.14 and
 Python environment, and leaves the owner machine unchanged outside vadgr's
 explicit install and state roots.
 
-> **Status: WSL complete.** Local automated gates are green (179 library
+> **Status: WSL installer revalidation in progress.** Local automated gates are green (179 library
 > tests plus integration suites; clippy and formatting exit 0). The
 > implementation is open as PR #213 for the remaining native-OS passes.
-> **0 open product findings.** Native Linux, Windows and macOS remain owed below.
+> Windows finding is fixed; WA1-WA3 and WD1 must pass again. Native Linux,
+> Windows and macOS remain owed below.
 
 ## The rules
 
@@ -148,20 +150,20 @@ run id may differ; no other field is normalised.
 
 | Part | Axes | Cells | Run | Open |
 |---|---|---:|---:|---:|
-| A: clean installation and ready payload | 4 OS x 3 boundaries | 12 | 3 | 9 |
+| A: clean installation and ready payload | 4 OS x 3 boundaries | 12 | 0 | 12 |
 | B: real tool and hostile PATH | 4 OS x 3 boundaries | 12 | 3 | 9 |
 | C: damaged payload isolation | WSL x 1 boundary | 1 | 1 | 0 |
-| D: owner-machine non-mutation | 4 OS x 1 boundary | 4 | 1 | 3 |
+| D: owner-machine non-mutation | 4 OS x 1 boundary | 4 | 0 | 4 |
 | E: independent close | 3 isolated WSL agents | 3 | 3 | 0 |
-| | | **32** | **11** | **21** |
+| | | **32** | **7** | **25** |
 
 ## Part A: clean installation and ready payload
 
 | # | Precondition and setup | Goal or action | Expected observable and independent oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| WA1 | Fresh WSL root; source at recorded commit; none of Python/pip/uv/cua resolves | Run the source installer with no system-dependency consent | Installed `vadgr` is 0.4.12; manifest pins Python 3.12.14, cua 0.7.5 and this target; private interpreter and distribution report those versions | install transcript/exit, resolution failures, head/path/hash, manifest and version outputs | retain root through WD1 | **pass on WSL**: exact source `cbf04f3`; installed `vadgr 0.4.12`; manifest and private runtime report Python 3.12.14 and cua 0.7.5; all five forbidden host commands were absent |
-| WA2 | WA1 installed root | Inspect setup output and host package inventory | WSL applies no OS dependency plan and changes no host package or network state | setup output and before/after package inventory | none | **pass on WSL**: installer applied no system plan and the sorted package inventory is byte-identical before and after |
-| WA3 | WA1 root; daemon started | Run `vadgr computer-use status` and read health/settings API | Computer use is enabled, available and ready; daemon stays healthy | CLI/API bodies, daemon log and private child process row | stop only this daemon by pid after group | **pass on WSL**: installed daemon executable verified under the isolated root; CLI says enabled; status reports available on `wsl2`; settings report enabled and ready; health remains healthy |
+| WA1 | Fresh WSL root; source at recorded commit; none of Python/pip/uv/cua resolves | Run the source installer with no system-dependency consent | Installed `vadgr` is 0.4.12; manifest pins Python 3.12.14, cua 0.7.5 and this target; private interpreter and distribution report those versions | install transcript/exit, resolution failures, head/path/hash, manifest and version outputs | retain root through WD1 | not run after `404100f`: prior pass invalidated by shared installer-path repair |
+| WA2 | WA1 installed root | Inspect setup output and host package inventory | WSL applies no OS dependency plan and changes no host package or network state | setup output and before/after package inventory | none | not run after `404100f`: prior pass invalidated with WA1 |
+| WA3 | WA1 root; daemon started | Run `vadgr computer-use status` and read health/settings API | Computer use is enabled, available and ready; daemon stays healthy | CLI/API bodies, daemon log and private child process row | stop only this daemon by pid after group | not run after `404100f`: prior pass invalidated with WA1 |
 | LA1 | Fresh native Linux root; same clean-PATH setup | Run source installer and decline dependency application | Same identity/pins as WA1; printed plan changes nothing | same WA1 artifacts plus dry-run plan | retain root through LD1 | not run: native Linux host has not run it |
 | LA2 | LA1; owner has read and explicitly approved exact printed plan | Repeat setup with explicit consent | Only the approved system plan is applied; payload remains same pins | consent record without secrets, command output, package diff | retain approved system deps; remove test root later | not run: native Linux owner action and host are outstanding |
 | LA3 | LA2 root; daemon started | Run status and APIs | Computer use ready and healthy | same WA3 artifacts | stop own daemon | not run: native Linux host has not run it |
@@ -199,7 +201,7 @@ run id may differ; no other field is normalised.
 
 | # | Precondition and setup | Goal or action | Expected observable and independent oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| WD1 | WSL before snapshot exists; WA-WC complete and manifest restored | Stop own processes, trash isolated root, take after snapshot and compare | Profiles, user Python state/caches, selected env names and network configuration are unchanged | both raw snapshots, diff exit and process/port checks | trash only isolated root | **pass on WSL**: exact daemons stopped, port free, isolated root moved to trash; snapshot bodies are byte-identical and raw diff changes only the requested label |
+| WD1 | WSL before snapshot exists; WA-WC complete and manifest restored | Stop own processes, trash isolated root, take after snapshot and compare | Profiles, user Python state/caches, selected env names and network configuration are unchanged | both raw snapshots, diff exit and process/port checks | trash only isolated root | not run after `404100f`: fresh install cleanup and snapshot comparison owed |
 | LD1 | Linux before snapshot exists; LA/LB complete | Stop own processes, trash isolated root, snapshot/compare | Same as WD1 except owner-approved LA2 package changes are the only named difference | snapshots, diff, approved package delta, process/port checks | trash test root; retain approved deps | not run: native Linux host has not run it |
 | ND1 | Windows before snapshot exists; NA/NB complete | Stop own processes, trash isolated root, snapshot/compare | Profiles, registry Python state, caches, environment and network hashes unchanged | snapshots, comparison, process/port checks | trash only isolated root | not run: native Windows host has not run it |
 | MD1 | macOS before snapshot exists; MA/MB complete | Stop own processes, trash isolated root, snapshot/compare | Same as WD1; only the explicitly granted privacy entries may differ | snapshots, diff, grant delta, process/port checks | trash root; owner may remove grants | not run: macOS host has not run it |
@@ -224,12 +226,12 @@ different output counts.
 
 | Part | WSL | Linux | Windows native | macOS |
 |---|---|---|---|---|
-| A: clean installation and ready payload | pass: WA1-WA3 on exact source `cbf04f3` with cua 0.7.5 | not run: host outstanding | not run: host outstanding | not run: host outstanding |
+| A: clean installation and ready payload | not run after `404100f`: WA1-WA3 revalidation in progress | not run: host outstanding | not run: host outstanding | not run: host outstanding |
 | B: real tool and hostile PATH | pass: WB1-WB3, one real call both normally and under hostile PATH | not run: host outstanding | not run: host outstanding | not run: host outstanding |
 | C: damaged payload isolation | pass: WC1 failed closed without fallback and restored exact manifest | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B |
-| D: owner-machine non-mutation | pass: WD1 snapshot body unchanged after trashing isolated root | not run: host outstanding | not run: host outstanding | not run: host outstanding |
+| D: owner-machine non-mutation | not run after `404100f`: WD1 revalidation in progress | not run: host outstanding | not run: host outstanding | not run: host outstanding |
 | E: independent close | pass: three isolated shared-epoch runs overlap and match structurally | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed |
-| **overall** | **pass: all eleven WSL cells completed with no product finding** | **not run: native Linux outstanding** | **not run: native Windows outstanding** | **not run: macOS outstanding** |
+| **overall** | **not run: four installer-related cells require revalidation** | **not run: native Linux outstanding** | **not run: native Windows outstanding** | **not run: macOS outstanding** |
 
 ## Evidence and remote-host handoff
 
@@ -242,7 +244,7 @@ pass.
 
 | operating system | filed evidence boundary |
 |---|---|
-| WSL | `e2e_evidence/vadgr-0.4.12/20260829-wsl/part-a/` through `part-e/`, latest evidence commit `e4740f5` |
+| WSL | prior pass through `e4740f5`; `404100f` installer revalidation boundary pending |
 | native Linux | not run: host outstanding |
 | native Windows | not run: host outstanding |
 | macOS | not run: host outstanding |
@@ -281,3 +283,8 @@ after assembly. Commit `842d09b` pins shell files to LF, checks the published
 settings shape, and mounts Linux's payload at its original absolute path. Local
 clean-container reproduction passes. Regression tests cover each harness defect.
 These changes only affect CI and its tests, so they invalidate no live cell.
+The Windows Rust gate then found that ordinary absolute install roots compare
+unequal with verbatim-prefixed canonical paths. Commit `404100f` keeps the
+symlink-escape check through compatible canonicalization and makes hashed lock
+bytes checkout-independent. Native Windows regression tests pass. This is a
+product installer change, so WA1-WA3 and WD1 were invalidated before rerun.
