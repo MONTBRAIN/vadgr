@@ -151,6 +151,14 @@ function SetupRepo {
 # ---------------------------------------------------------------------------
 
 function AddToPath {
+    $realProfile = [Environment]::GetFolderPath([Environment+SpecialFolder]::UserProfile)
+    $requestedProfile = [IO.Path]::GetFullPath($env:USERPROFILE).TrimEnd('\')
+    $realProfile = [IO.Path]::GetFullPath($realProfile).TrimEnd('\')
+    if ($requestedProfile -ne $realProfile) {
+        Info "Skipped the persistent PATH update for the alternate user profile"
+        return
+    }
+
     $currentPath = [Environment]::GetEnvironmentVariable("PATH", "User")
     if ($currentPath -notlike "*$VADGR_BIN*") {
         [Environment]::SetEnvironmentVariable("PATH", "$VADGR_BIN;$currentPath", "User")

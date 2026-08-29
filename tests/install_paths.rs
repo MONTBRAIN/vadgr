@@ -74,6 +74,25 @@ fn the_current_e2e_uses_the_installers_real_override_names() {
 }
 
 #[test]
+fn the_windows_installer_does_not_persist_path_for_an_alternate_profile() {
+    let installer = repo_file("install.ps1");
+    let add_to_path = installer
+        .split("function AddToPath")
+        .nth(1)
+        .and_then(|text| text.split("# Main").next())
+        .expect("install.ps1 contains the AddToPath function");
+
+    assert!(
+        add_to_path.contains("[Environment+SpecialFolder]::UserProfile"),
+        "the installer must compare USERPROFILE with the real Windows profile"
+    );
+    assert!(
+        add_to_path.contains("return"),
+        "an alternate profile must return before changing the real user PATH"
+    );
+}
+
+#[test]
 fn nothing_shipped_still_carries_the_repositorys_former_name() {
     let mut checked = 0;
     for name in [
