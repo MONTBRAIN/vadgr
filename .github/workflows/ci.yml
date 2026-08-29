@@ -258,17 +258,27 @@ jobs:
         shell: pwsh
         run: |
           $installRoot = Join-Path $env:RUNNER_TEMP 'vadgr-clean-install'
+          $profileRoot = Join-Path $env:RUNNER_TEMP 'vadgr-clean-profile'
           $shim = Join-Path $env:RUNNER_TEMP 'vadgr-python-shims'
-          New-Item -ItemType Directory -Force -Path "$installRoot\bin", $shim | Out-Null
+          New-Item -ItemType Directory -Force -Path "$installRoot\bin", $profileRoot, $shim | Out-Null
           foreach ($name in @('python','python3','pip','pip3','uv','vadgr-cua')) {
             Set-Content -Path "$shim\$name.cmd" -Value "@echo $name was resolved 1>&2`r`n@exit /b 97"
           }
           $candidate = Resolve-Path 'target\x86_64-pc-windows-msvc\release\vadgr.exe'
-          $clean = @{ PATH=$shim; USERPROFILE=$installRoot; LOCALAPPDATA=$installRoot }
+          $clean = @{
+            PATH=$shim
+            USERPROFILE=$profileRoot
+            LOCALAPPDATA=(Join-Path $profileRoot 'AppData\Local')
+          }
+          $stdout = Join-Path $env:RUNNER_TEMP 'payload-setup.stdout.log'
+          $stderr = Join-Path $env:RUNNER_TEMP 'payload-setup.stderr.log'
           $run = Start-Process -PassThru -Wait -FilePath $candidate -ArgumentList @(
             '__payload-setup','--install-root',$installRoot,'--payload-only'
-          ) -Environment $clean
-          if ($run.ExitCode -ne 0) { throw "payload setup exited $($run.ExitCode)" }
+          ) -Environment $clean -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+          if ($run.ExitCode -ne 0) {
+            Get-Content $stdout, $stderr
+            throw "payload setup exited $($run.ExitCode)"
+          }
           Copy-Item $candidate "$installRoot\bin\vadgr.exe"
           $manifest = "$installRoot\lib\cua\payload.json"
           if (-not (Test-Path -PathType Leaf $manifest)) { throw "payload manifest is missing: $manifest" }

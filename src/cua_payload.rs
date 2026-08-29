@@ -370,6 +370,11 @@ pub fn install_root_from_executable(executable: &Path) -> Result<PathBuf> {
 }
 
 fn validate_install_root(root: &Path) -> Result<()> {
+    let source_workspace = source_workspace_from_executable();
+    validate_install_root_for_workspace(root, source_workspace.as_deref())
+}
+
+fn validate_install_root_for_workspace(root: &Path, source_workspace: Option<&Path>) -> Result<()> {
     ensure!(root.is_absolute(), "cua install root must be absolute");
     ensure!(
         root.parent().is_some(),
@@ -381,9 +386,9 @@ fn validate_install_root(root: &Path) -> Result<()> {
         home.as_deref() != Some(root),
         "cua install root cannot be the home directory"
     );
-    if let Ok(workspace) = std::env::current_dir() {
+    if let Some(workspace) = source_workspace {
         ensure!(
-            root != workspace && !root.starts_with(&workspace),
+            root != workspace && !root.starts_with(workspace),
             "cua install root cannot be the workspace or live below it"
         );
     }
@@ -399,6 +404,15 @@ fn validate_install_root(root: &Path) -> Result<()> {
         );
     }
     Ok(())
+}
+
+fn source_workspace_from_executable() -> Option<PathBuf> {
+    let executable = dunce::canonicalize(std::env::current_exe().ok()?).ok()?;
+    executable.ancestors().skip(1).find_map(|ancestor| {
+        let manifest = ancestor.join("Cargo.toml");
+        let payload_source = ancestor.join("src/cua_payload.rs");
+        (manifest.is_file() && payload_source.is_file()).then(|| ancestor.to_path_buf())
+    })
 }
 
 fn validate_payload_root(install_root: &Path, cua_root: &Path) -> Result<()> {
@@ -959,11 +973,21 @@ mod tests {
 
     #[test]
     fn install_root_refuses_the_workspace_and_children_but_allows_an_external_directory() {
-        let workspace = std::env::current_dir().unwrap();
+        let workspace = dunce::canonicalize(env!("CARGO_MANIFEST_DIR")).unwrap();
         let outside = tempfile::tempdir().unwrap();
-        assert!(validate_install_root(&workspace).is_err());
-        assert!(validate_install_root(&workspace.join("install")).is_err());
-        assert!(validate_install_root(outside.path()).is_ok());
+        let outside = dunce::canonicalize(outside.path()).unwrap();
+        assert!(validate_install_root_for_workspace(&workspace, Some(&workspace)).is_err());
+        assert!(
+            validate_install_root_for_workspace(&workspace.join("install"), Some(&workspace))
+                .is_err()
+        );
+        assert!(validate_install_root_for_workspace(&outside, Some(&workspace)).is_ok());
+    }
+
+    #[test]
+    fn install_root_workspace_is_the_candidate_source_checkout() {
+        let expected = dunce::canonicalize(env!("CARGO_MANIFEST_DIR")).unwrap();
+        assert_eq!(source_workspace_from_executable(), Some(expected));
     }
 
     #[cfg(unix)]

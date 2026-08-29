@@ -26,6 +26,8 @@ All notable changes to this project are documented here. Format follows [Keep a 
 - Windows installation accepts ordinary absolute install roots while retaining
   symlink-escape checks. Checkout line endings cannot change the hashed payload
   lock or make the WSL shell installer unreadable.
+- Payload setup protects the candidate's source checkout instead of treating
+  the caller's current directory as that checkout.
 
 ## [0.4.11] - 2026-08-28
 
