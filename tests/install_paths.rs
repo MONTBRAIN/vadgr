@@ -207,4 +207,30 @@ fn clean_install_checks_follow_the_payload_manifest() {
             >= 3,
         "every clean-install path must validate versions against payload.json"
     );
+    assert!(
+        !workflow.contains(".available == true and .platform ==")
+            && !workflow.contains("$computerUse.available"),
+        "clean-install must assert the published computer-use settings fields"
+    );
+    assert!(
+        workflow.matches("venv_ready").count() >= 3,
+        "every clean-install OS must assert that the private payload is ready"
+    );
+    assert!(
+        !workflow.contains(r#"docker cp -q "$CLEAN_INSTALL_ROOT/.""#),
+        "the private environment is not relocatable after assembly"
+    );
+    assert!(
+        workflow.contains(r#"src=$CLEAN_INSTALL_ROOT,dst=$CLEAN_INSTALL_ROOT,readonly"#),
+        "the clean Linux machine must mount the assembled root at its original path"
+    );
+}
+
+#[test]
+fn shell_installers_keep_unix_line_endings_on_windows_checkouts() {
+    let attributes = repo_file(".gitattributes");
+    assert!(
+        attributes.lines().any(|line| line == "*.sh text eol=lf"),
+        "Windows checkouts must not convert shell installers to CRLF"
+    );
 }

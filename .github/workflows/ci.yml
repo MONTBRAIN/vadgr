@@ -297,20 +297,22 @@ jobs:
           test -n "$version" || { echo "read no version from Cargo.toml"; exit 1; }
           container="vadgr-clean-install"
           trap 'docker rm -f "$container" >/dev/null 2>&1 || true' EXIT
-          # create, copy the complete verified install, then start it. No image
-          # is built, and removing the container removes every trace.
+          # Mount the complete verified install at the same absolute path, then
+          # start it. Python environments are not relocatable after assembly;
+          # a user's installation also remains where the installer created it.
+          # No image is built, and removing the container removes every trace.
           docker create --name "$container" \
+            --mount "type=bind,src=$CLEAN_INSTALL_ROOT,dst=$CLEAN_INSTALL_ROOT,readonly" \
             --env VADGR_CONFIG_HOME=/var/lib/vadgr \
             --env VADGR_DB=/var/lib/vadgr/vadgr.db \
             --env VADGR_STATE_HOME=/var/lib/vadgr/state \
             --env VADGR_RUNS_DIR=/var/lib/vadgr/runs \
             --env VADGR_PORT=8100 \
             --env VADGR_TRANSPORT=loopback \
-            ubuntu:24.04 /opt/vadgr/bin/vadgr serve >/dev/null
-          docker cp -q "$CLEAN_INSTALL_ROOT/." "$container:/opt/vadgr"
+            ubuntu:24.04 "$CLEAN_INSTALL_ROOT/bin/vadgr" serve >/dev/null
           docker start "$container" >/dev/null
           # The CLI runs on the clean machine and names this checkout's version.
-          out="$(docker exec "$container" /opt/vadgr/bin/vadgr --version)"
+          out="$(docker exec "$container" "$CLEAN_INSTALL_ROOT/bin/vadgr" --version)"
           test "$out" = "vadgr $version" || { echo "vadgr --version said '$out', expected 'vadgr $version'"; exit 1; }
           # It serves. The base ships no HTTP client, so a pinned busybox
           # sidecar joins the machine's own network namespace to fetch: the
@@ -348,10 +350,11 @@ jobs:
             and all(.[]; .connected == false)
           ' >/dev/null || { echo "the provider rows are wrong: $providers"; exit 1; }
           computer_use="$(probe /api/settings/computer-use)"
-          echo "$computer_use" | jq -e '.available == true and .platform == "linux"' >/dev/null \
+          echo "$computer_use" | jq -e \
+            '. == {"enabled": true, "platform": "native", "venv_ready": true}' >/dev/null \
             || { echo "the bundled MCP server is unavailable: $computer_use"; docker logs "$container"; exit 1; }
           # The CLI reaches the daemon from the same machine.
-          docker exec "$container" /opt/vadgr/bin/vadgr health
+          docker exec "$container" "$CLEAN_INSTALL_ROOT/bin/vadgr" health
           # Stop it; the trap removes the machine whole.
           docker stop --time 10 "$container" >/dev/null
 
@@ -427,7 +430,8 @@ jobs:
             and all(.[]; .connected == false)
           ' >/dev/null || { echo "the provider rows are wrong: $providers"; exit 1; }
           computer_use="$(curl -fsS http://127.0.0.1:8100/api/settings/computer-use)"
-          echo "$computer_use" | jq -e '.available == true and .platform == "macos"' >/dev/null \
+          echo "$computer_use" | jq -e \
+            '. == {"enabled": true, "platform": "native", "venv_ready": true}' >/dev/null \
             || { echo "the bundled MCP server is unavailable: $computer_use"; cat "$root/daemon.log"; exit 1; }
           # The CLI reaches the daemon from the same emptied environment. Exit
           # 0 here needs the wire, not just the binary loading.
@@ -529,7 +533,10 @@ jobs:
             if ($row.connected -ne $false) { throw "provider $($row.id) is connected on a fresh machine: $providersJson" }
           }
           $computerUse = Invoke-RestMethod -UseBasicParsing http://127.0.0.1:8100/api/settings/computer-use
-          if ($computerUse.available -ne $true -or $computerUse.platform -ne 'windows') {
+          $computerUseKeys = ($computerUse.PSObject.Properties.Name | Sort-Object) -join ','
+          if ($computerUseKeys -ne 'enabled,platform,venv_ready' -or
+              $computerUse.enabled -ne $true -or $computerUse.platform -ne 'native' -or
+              $computerUse.venv_ready -ne $true) {
             throw "the bundled MCP server is unavailable: $($computerUse | ConvertTo-Json -Compress)"
           }
           # The CLI reaches the daemon from the same stripped environment.
