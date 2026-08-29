@@ -30,6 +30,7 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex, OnceLock, RwLock};
 use std::time::Duration;
+use tokio::task::JoinSet;
 
 /// The key file below the credentials directory. The identity must be stable:
 /// a new key is a new machine as far as every paired phone is concerned, so
@@ -409,22 +410,17 @@ async fn connection(
         Admit::Bound => {
             shared.bound.fetch_add(1, Ordering::SeqCst);
             // Revocation cuts the network path, not only the token: the
-            // moment this device's row goes, its association goes with it,
-            // the same moment the shipped code cuts its live run stream.
+            // moment this device's row goes, no new stream is accepted. The
+            // streams already being served drain before the connection is
+            // closed, because one of them may carry the successful revoke
+            // response itself. Live run streams receive the same signal and
+            // close through their own device watch while the drain happens.
             let device = crate::db::devices::peer_device(&runtime.db, "iroh", &id)
                 .ok()
                 .flatten();
-            let mut revoked = device.as_deref().map(|d| runtime.ws.watch_device(d));
-            tokio::select! {
-                () = serve_streams(&conn, &runtime, app, &id, None) => {}
-                _ = async {
-                    match revoked.as_mut() {
-                        Some(watch) => { let _ = watch.recv().await; }
-                        None => std::future::pending().await,
-                    }
-                } => {
-                    conn.close(CLOSE_REVOKED.into(), b"device revoked");
-                }
+            let revoked = device.as_deref().map(|d| runtime.ws.watch_device(d));
+            if serve_streams(&conn, &runtime, app, &id, None, revoked).await {
+                conn.close(CLOSE_REVOKED.into(), b"device revoked");
             }
             shared.bound.fetch_sub(1, Ordering::SeqCst);
         }
@@ -449,7 +445,7 @@ async fn connection(
                 }
             };
             tokio::select! {
-                () = serve_streams(&conn, &runtime, app, &id, Some(admission)) => {}
+                _ = serve_streams(&conn, &runtime, app, &id, Some(admission), None) => {}
                 () = lifetime => {
                     tracing::info!(
                         peer = %id,
@@ -496,11 +492,21 @@ async fn serve_streams(
     app: Router,
     id: &str,
     admitted: Option<UnboundAdmission>,
-) {
-    loop {
-        let (send, recv) = match conn.accept_bi().await {
+    mut revoked: Option<tokio::sync::broadcast::Receiver<()>>,
+) -> bool {
+    let mut active = JoinSet::new();
+    let was_revoked = loop {
+        let accepted = tokio::select! {
+            pair = conn.accept_bi() => Some(pair),
+            _ = wait_for_revocation(&mut revoked) => break true,
+            _ = active.join_next(), if !active.is_empty() => None,
+        };
+        let Some(accepted) = accepted else {
+            continue;
+        };
+        let (send, recv) = match accepted {
             Ok(pair) => pair,
-            Err(_) => return,
+            Err(_) => break false,
         };
         // The close is the timely path and this re-check is the correct one:
         // a stream on a connection whose window has ended is dropped with no
@@ -516,7 +522,7 @@ async fn serve_streams(
             identity: id.to_string(),
         };
         let app = app.clone().layer(axum::Extension(peer));
-        tokio::spawn(async move {
+        active.spawn(async move {
             let io = hyper_util::rt::TokioIo::new(tokio::io::join(recv, send));
             let service = hyper_util::service::TowerToHyperService::new(app);
             if let Err(error) = hyper::server::conn::http1::Builder::new()
@@ -530,7 +536,22 @@ async fn serve_streams(
                 tracing::debug!(%error, "stream-served connection ended");
             }
         });
+    };
+    drain_active_streams(&mut active).await;
+    was_revoked
+}
+
+async fn wait_for_revocation(revoked: &mut Option<tokio::sync::broadcast::Receiver<()>>) {
+    match revoked {
+        Some(watch) => {
+            let _ = watch.recv().await;
+        }
+        None => std::future::pending().await,
     }
+}
+
+async fn drain_active_streams(active: &mut JoinSet<()>) {
+    while active.join_next().await.is_some() {}
 }
 
 // --------------------------------------------------------------- the policy
@@ -941,6 +962,35 @@ mod tests {
     fn a_bound_connection_whose_binding_is_gone_serves_nothing() {
         assert!(stream_may_serve(true, None, None));
         assert!(!stream_may_serve(false, None, Some(7)));
+    }
+
+    /// The request that revokes a device is itself an active stream on the
+    /// connection being cut. Closing first loses its successful response and
+    /// makes the phone claim the machine still lists it. Draining sends that
+    /// response before the transport closes, while the binding check already
+    /// refuses every new stream.
+    #[tokio::test]
+    async fn revocation_drains_the_active_response_before_connection_close() {
+        let (response_sent, response_read) = tokio::sync::oneshot::channel();
+        let mut active = JoinSet::new();
+        active.spawn(async move {
+            let _ = response_read.await;
+        });
+
+        let drain = tokio::spawn(async move {
+            drain_active_streams(&mut active).await;
+        });
+        tokio::task::yield_now().await;
+        assert!(
+            !drain.is_finished(),
+            "the connection must stay open while the revoke response is active"
+        );
+
+        response_sent.send(()).unwrap();
+        tokio::time::timeout(Duration::from_secs(1), drain)
+            .await
+            .expect("the connection closes after its active response drains")
+            .expect("the drain task completes");
     }
 
     // ------------------------------------------------------------- the key

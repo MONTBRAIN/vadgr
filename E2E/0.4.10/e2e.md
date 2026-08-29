@@ -891,6 +891,51 @@ planned and turned out to be worth having. Both daemons started and served
 normally, which is the `F1` defect this pass fixed earlier, re-confirmed on the
 final head by a case nobody staged.
 
+## Patch 0.4.11 - the built-in revoke response reaches the phone
+
+This patch adds one cell to the current minor rather than repeating its full
+pass. Mobile `0.4.5` found the defect while cleaning up a Built-in pairing and
+reproduced it on a second pairing: the daemon deleted the device and logged a
+successful response, but closed the same transport connection before the
+phone received that response.
+
+**Cell P1 - unpairing over Built-in receives success before the connection
+closes**
+
+**Precondition:** the public installer has installed the `0.4.11` branch head;
+its `vadgr --version`, binary digest and health version are recorded. The
+physical Android handset runs the mobile `0.4.5` pull request build, has no
+machine paired, and its Tailscale VPN remains connected. The daemon serves its
+defaults with no transport override.
+
+1. Run `vadgr pair` through the installed entry point.
+2. On the phone, leave **Built-in** selected and scan the printed QR.
+3. Confirm the outcome names **Built-in** and open the machine hub.
+4. Tap **Remove this machine from this phone**, then **Remove**.
+
+Expected: the phone returns directly to **No machines yet**. It does not show
+the fallback dialog claiming the machine still lists the phone. The daemon log
+records `DELETE /api/devices/<id>` as `200`; loopback `GET /api/devices`
+returns `[]`; a later stream from the revoked Built-in identity is refused.
+Any live run stream held by the device closes on the existing revocation
+signal.
+
+**Evidence boundary:** the installed identity, pairing outcome, screen after
+removal, daemon request log and final device list. Cleanup leaves no device
+row and stops only processes started by this cell.
+
+**Result (2026-08-28, WSL and physical Android handset): pass.** The public
+installer installed branch head `3c32fd601f011af0f53c86b83f09133f3ae40c15`
+as `vadgr 0.4.11`; the installed binary digest was
+`8b8a6fe54909eb52bfde8f4765c3edb47626a89e0c24e026b91320dc9cc0e16b`.
+The phone paired over Built-in, which answered direct in 77ms. Removing it
+returned directly to **No machines yet**, with no fallback dialog. The daemon
+recorded the Built-in claim as `transport=iroh`, returned `200` for the DELETE,
+and then returned `[]` from `GET /api/devices`. The regression test proves that
+the revoked connection refuses a later stream while an active response drains.
+Linux, Windows and macOS are `Not-Needed`: this patch changes transport response
+ordering, and P1 drove the real wire on the host and handset that reproduced it.
+
 **Targeted re-run (2026-08-28, macOS, on the `F23` fix): pass.** Only the
 boundaries that fix touches were re-driven, because it is macOS-only code and
 Linux, Windows and WSL had already closed on `ab5b6ad`.
