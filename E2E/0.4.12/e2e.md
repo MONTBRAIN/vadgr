@@ -243,7 +243,7 @@ pass.
 
 | operating system | filed evidence boundary |
 |---|---|
-| WSL | prior pass through `e4740f5`; final repair evidence through `9dd1ead` under `revalidation-df23826/` |
+| WSL | prior pass through `e4740f5`; final repair evidence through `bf9f2f3` under `revalidation-df23826/` |
 | native Linux | not run: host outstanding |
 | native Windows | not run: host outstanding |
 | macOS | not run: host outstanding |
