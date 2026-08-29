@@ -394,7 +394,7 @@ fn validate_install_root(root: &Path) -> Result<()> {
             "cua install root must be a real directory"
         );
         ensure!(
-            root.canonicalize()? == root,
+            dunce::canonicalize(root)? == root,
             "cua install root cannot pass through a symlink"
         );
     }
@@ -825,10 +825,11 @@ mod tests {
 
     #[test]
     fn child_command_is_absolute_and_isolated() {
+        let install = tempfile::tempdir().unwrap();
         let runtime = CuaRuntime {
-            interpreter: PathBuf::from("/install/lib/cua/environments/current/bin/python"),
-            bootstrap: PathBuf::from("/install/lib/cua/bootstrap.py"),
-            environment: PathBuf::from("/install/lib/cua/environments/current"),
+            interpreter: install.path().join("environments/current/bin/python"),
+            bootstrap: install.path().join("bootstrap.py"),
+            environment: install.path().join("environments/current"),
         };
         let command = runtime.stdio_command();
         assert!(command.program.is_absolute());
@@ -957,11 +958,12 @@ mod tests {
     }
 
     #[test]
-    fn install_root_refuses_the_workspace_and_children_but_allows_its_parent() {
+    fn install_root_refuses_the_workspace_and_children_but_allows_an_external_directory() {
         let workspace = std::env::current_dir().unwrap();
+        let outside = tempfile::tempdir().unwrap();
         assert!(validate_install_root(&workspace).is_err());
         assert!(validate_install_root(&workspace.join("install")).is_err());
-        assert!(validate_install_root(workspace.parent().unwrap()).is_ok());
+        assert!(validate_install_root(outside.path()).is_ok());
     }
 
     #[cfg(unix)]

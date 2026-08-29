@@ -233,4 +233,10 @@ fn shell_installers_keep_unix_line_endings_on_windows_checkouts() {
         attributes.lines().any(|line| line == "*.sh text eol=lf"),
         "Windows checkouts must not convert shell installers to CRLF"
     );
+    assert!(
+        attributes
+            .lines()
+            .any(|line| line == "packaging/cua/requirements.lock text eol=lf"),
+        "the hashed payload lock must have identical bytes on every checkout"
+    );
 }

@@ -21,6 +21,12 @@ All notable changes to this project are documented here. Format follows [Keep a 
 - Linux system setup prints a dry-run plan by default. It applies only after
   interactive consent or `VADGR_CUA_APPLY_SYSTEM_DEPS=1`.
 
+### Fixed
+
+- Windows installation accepts ordinary absolute install roots while retaining
+  symlink-escape checks. Checkout line endings cannot change the hashed payload
+  lock or make the WSL shell installer unreadable.
+
 ## [0.4.11] - 2026-08-28
 
 ### Fixed

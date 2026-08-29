@@ -4290,6 +4290,7 @@ dependencies = [
  "clap",
  "console",
  "directories",
+ "dunce",
  "flate2",
  "futures-util",
  "hostname",

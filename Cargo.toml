@@ -61,6 +61,10 @@ sha2 = "0.11"
 rand = "0.10"
 futures-util = "0.3"
 anyhow = "1"
+# `std::fs::canonicalize` returns verbatim-prefixed paths on Windows. This
+# preserves the symlink-escape comparison while making ordinary drive paths
+# compare in their compatible form; it is a no-op wrapper on Unix.
+dunce = "1.0.5"
 hostname = "0.4"
 async-trait = "0.1"
 regex = "1"
