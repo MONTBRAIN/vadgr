@@ -154,7 +154,7 @@ run id may differ; no other field is normalised.
 | C: damaged payload isolation | WSL x 1 boundary | 1 | 1 | 0 |
 | D: owner-machine non-mutation | 4 OS x 1 boundary | 4 | 1 | 3 |
 | E: independent close | 3 isolated WSL agents | 3 | 0 | 3 |
-| | | **32** | **7** | **25** |
+| | | **32** | **8** | **24** |
 
 ## Part A: clean installation and ready payload
 
