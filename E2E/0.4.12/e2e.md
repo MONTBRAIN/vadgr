@@ -124,10 +124,11 @@ Compare-Object (Get-Content "$E2ERoot\before.txt") (Get-Content "$E2ERoot\after.
 ```
 
 The source installer is the public setup surface. Unix runs
-`VADGR_REPO="$E2E_ROOT/source" VADGR_HOME="$VADGR_HOME" ./install.sh`; Windows
-runs the checked-out `install.ps1` with the equivalent environment. The Linux
-first invocation declines dependency application; LA2 repeats only after the
-owner approves. Capture `command -v vadgr`/`Get-Command vadgr`, binary SHA-256,
+`HOME="$E2E_HOME" VADGR_REPO_URL="$E2E_ROOT/source" VADGR_REF="$SUBJECT_COMMIT"
+./install.sh`. Windows sets `$env:USERPROFILE`, `$env:VADGR_REPO_URL` and
+`$env:VADGR_REF`, then runs the checked-out `install.ps1`. The Linux first
+invocation declines dependency application; LA2 repeats only after the owner
+approves. Capture `command -v vadgr`/`Get-Command vadgr`, binary SHA-256,
 `vadgr --version`, `lib/cua/payload.json`, the private interpreter version and
 the installed cua distribution version, normalising only the temporary root.
 

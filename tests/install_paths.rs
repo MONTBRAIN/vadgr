@@ -52,6 +52,28 @@ fn the_installer_puts_the_checkout_where_the_cli_looks_for_it() {
 }
 
 #[test]
+fn the_current_e2e_uses_the_installers_real_override_names() {
+    let runbook = repo_file("E2E/0.4.12/e2e.md");
+    for expected in [
+        "HOME=\"$E2E_HOME\"",
+        "VADGR_REPO_URL=\"$E2E_ROOT/source\"",
+        "VADGR_REF=\"$SUBJECT_COMMIT\"",
+        "$env:USERPROFILE",
+        "$env:VADGR_REPO_URL",
+        "$env:VADGR_REF",
+    ] {
+        assert!(
+            runbook.contains(expected),
+            "the runbook must set {expected}"
+        );
+    }
+    assert!(
+        !runbook.contains("VADGR_REPO=\"$E2E_ROOT/source\""),
+        "the runbook must not set an installer-local shell variable"
+    );
+}
+
+#[test]
 fn nothing_shipped_still_carries_the_repositorys_former_name() {
     let mut checked = 0;
     for name in [
