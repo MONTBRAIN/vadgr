@@ -1,8 +1,8 @@
 # 0.4.12 - computer use ships inside vadgr: e2e runbook
 
 > **vadgr 0.4.12 implementation:**
-> `feature/0.4.12-bundled-cua` at product commit `4bb0f59` before the first
-> host passes.
+> `feature/0.4.12-bundled-cua` at exact head `72557a6` (product commit
+> `4bb0f59`) before the first host passes.
 > **vadgr 0.4.12 evidence PR:**
 > [vadgr-docs PR #128](https://github.com/MONTBRAIN/vadgr-docs/pull/128).
 >
