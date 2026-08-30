@@ -110,6 +110,111 @@ fn the_windows_installer_does_not_persist_path_for_an_alternate_profile() {
     );
 }
 
+/// Every line of macOS grant guidance sits inside a macOS guard.
+///
+/// The prompt only exists on macOS, so telling a Linux or Windows owner about
+/// Accessibility or Screen Recording is noise about a dialog they will never
+/// see. Both guard shapes the installer uses are honoured: the `if` around the
+/// payload step and the `case` arm the platform helpers use.
+#[test]
+fn macos_guidance_never_reaches_another_operating_system() {
+    let text = repo_file("install.sh");
+    let mut guarded = false;
+    let mut depth = 0usize;
+    let mut guard_at: Option<usize> = None;
+    let mut unguarded = Vec::new();
+
+    for line in text.lines() {
+        let trimmed = line.trim();
+
+        if trimmed.starts_with("if ") {
+            depth += 1;
+            if trimmed.contains("= \"macos\"") {
+                guard_at.get_or_insert(depth);
+            }
+        } else if trimmed == "fi" {
+            if guard_at == Some(depth) {
+                guard_at = None;
+            }
+            depth = depth.saturating_sub(1);
+        } else if trimmed.starts_with("macos)") {
+            guarded = true;
+        } else if trimmed == ";;" {
+            guarded = false;
+        }
+
+        let inside = guarded || guard_at.is_some();
+        let prints = trimmed.starts_with("info \"") || trimmed.starts_with("ok \"");
+        let grant_text = trimmed.contains("Accessibility") || trimmed.contains("Screen Recording");
+        if prints && grant_text && !inside {
+            unguarded.push(trimmed.to_owned());
+        }
+    }
+
+    assert!(
+        unguarded.is_empty(),
+        "these lines print macOS grant guidance outside a macOS guard: {unguarded:#?}"
+    );
+}
+
+/// The Windows installer carries none of it either.
+#[test]
+fn the_windows_installer_says_nothing_about_macos_grants() {
+    let text = repo_file("install.ps1").to_lowercase();
+    for term in ["accessibility", "screen recording", "macos"] {
+        assert!(
+            !text.contains(term),
+            "install.ps1 mentions {term}, which belongs to macOS alone"
+        );
+    }
+}
+
+/// The closing step names the file the installer wrote.
+///
+/// It told every Unix owner to source `~/.bashrc` on a machine where it had
+/// just printed that it created `.zshrc`. macOS defaults to zsh, so the one
+/// file it named was the one file it had not written.
+#[test]
+fn the_closing_step_does_not_name_a_profile_it_never_wrote() {
+    let text = repo_file("install.sh");
+    let code_says_bashrc = text
+        .lines()
+        .filter(|line| !line.trim_start().starts_with('#'))
+        .any(|line| line.contains("source ~/.bashrc"));
+    assert!(
+        !code_says_bashrc,
+        "the closing step must name the profile that was written, not a fixed one"
+    );
+    assert!(
+        text.contains("VADGR_PROFILE=\"$default_rc\""),
+        "the written profile must be recorded so the closing step can name it"
+    );
+}
+
+/// The non-mutation snapshot must not hash a countdown.
+///
+/// `netstat -rn` carries an Expire timer on cached neighbour entries. It ticks
+/// every second, and macOS has no `ip`, so that timer was the whole network
+/// hash: the same untouched machine hashed differently four seconds apart and
+/// the non-mutation cell could never pass.
+#[test]
+fn the_unix_snapshot_hashes_routes_rather_than_their_expiry() {
+    let text = repo_file("E2E/0.4.12/harness/snapshot-unix.sh");
+    let netstat = text
+        .lines()
+        .filter(|line| !line.trim_start().starts_with('#'))
+        .find(|line| line.contains("netstat -rn"))
+        .expect("the snapshot reads the routing table");
+    assert!(
+        netstat.contains("awk"),
+        "netstat output must be reduced to stable columns, found: {netstat}"
+    );
+    assert!(
+        netstat.contains("$1, $2, $3, $4"),
+        "only destination, gateway, flags and interface are stable, found: {netstat}"
+    );
+}
+
 #[test]
 fn nothing_shipped_still_carries_the_repositorys_former_name() {
     let mut checked = 0;
