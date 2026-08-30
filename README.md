@@ -27,7 +27,7 @@ Describe your work in a sentence. Vadgr runs it on your machine - writing code, 
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" width="25" /> | Linux | Supported | Built, tested and released on every change |
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" width="25" /> | Windows | Supported | Native, with its own installer |
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" width="25" /> | WSL2 | Supported | Desktop automation reaches the Windows side |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" width="25" /> | macOS | Supported | Grant Accessibility and Screen Recording on first use |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" width="25" /> | macOS | Limited in 0.4.12 | Computer use must start from the terminal that holds Accessibility and Screen Recording; signed background identity arrives in 0.5.0 |
 
 </div>
 
@@ -35,9 +35,13 @@ Describe your work in a sentence. Vadgr runs it on your machine - writing code, 
 
 Works on **Linux**, **WSL**, **Windows** and **macOS**. Vadgr carries its pinned
 desktop-automation runtime on all four. The owner needs no Python, pip or uv.
-On macOS, grant Accessibility and Screen Recording to vadgr's private Python
-when the operating system asks. The installer also sets up git and the build
-toolchain. No Node.js and no browser are required.
+On macOS `0.4.12`, grant Accessibility and Screen Recording to the terminal
+named by the operating-system dialogs, restart that terminal, and start vadgr
+from it. Those grants do not follow the private interpreter into a login,
+`launchd` or independently started daemon. The signed `0.5.0` distribution owns
+the stable application identity required for those background launches. The
+installer also sets up git and the build toolchain. No Node.js and no browser
+are required.
 
 ```bash
 # Linux / macOS / WSL

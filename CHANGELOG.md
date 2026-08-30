@@ -29,6 +29,15 @@ All notable changes to this project are documented here. Format follows [Keep a 
 - Payload setup protects the candidate's source checkout instead of treating
   the caller's current directory as that checkout.
 
+### Known limitation
+
+- On macOS, computer use works in the tested session only when vadgr starts
+  from the terminal that holds Accessibility and Screen Recording. The grants
+  attach to that responsible process, not to the private interpreter, so a
+  login, `launchd` or independently started daemon does not inherit them. E2E
+  cell MA2 remains failed. The signed `0.5.0` distribution owns the stable
+  application identity required to close it.
+
 ## [0.4.11] - 2026-08-28
 
 ### Fixed
