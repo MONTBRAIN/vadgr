@@ -6,7 +6,8 @@
 > source-workspace repair commit `df23826`, with WA1 and WD1 revalidated at
 > current feature head `a42a514`. Native Windows cells use
 > alternate-profile repair commit `49c30d3`. Native Linux cells use
-> installer-mode repair commit `254b521`.
+> installer-mode repair commit `254b521`, with LA1 and LD1 revalidated at
+> current feature head `a501007`.
 > **vadgr 0.4.12 evidence PR:**
 > [vadgr-docs PR #128](https://github.com/MONTBRAIN/vadgr-docs/pull/128).
 >
@@ -22,11 +23,11 @@ A clean vadgr installation supplies its own pinned, isolated Python 3.12.14 and
 Python environment, and leaves the owner machine unchanged outside vadgr's
 explicit install and state roots.
 
-> **Status: WSL and native Windows complete.** WSL WA1 and WD1 pass at
-> `a42a514`; its other nine cells remain valid. Windows remains valid at
-> `49c30d3`. macOS MB1-MB3 remain valid at `50b6ab6`, but MA1-MA3 and MD1 must
-> rerun after the macOS repairs. Native Linux LA1 and LD1 must rerun after the
-> shared Unix installer and snapshot repairs; its other five cells remain valid.
+> **Status: WSL, native Linux and native Windows complete.** WSL WA1 and WD1
+> pass at `a42a514`; its other nine cells remain valid. Windows remains valid
+> at `49c30d3`. Native Linux LA1 and LD1 pass at `a501007`; its other five
+> cells remain valid. All seven macOS cells were driven at `a501007`; six pass
+> and MA2 fails its private-interpreter grant assertion with the finding below.
 
 ## The rules
 
@@ -154,12 +155,12 @@ run id may differ; no other field is normalised.
 
 | Part | Axes | Cells | Run | Open |
 |---|---|---:|---:|---:|
-| A: clean installation and ready payload | 4 OS x 3 boundaries | 12 | 8 | 4 |
+| A: clean installation and ready payload | 4 OS x 3 boundaries | 12 | 12 | 0 |
 | B: real tool and hostile PATH | 4 OS x 3 boundaries | 12 | 12 | 0 |
 | C: damaged payload isolation | WSL x 1 boundary | 1 | 1 | 0 |
-| D: owner-machine non-mutation | 4 OS x 1 boundary | 4 | 2 | 2 |
+| D: owner-machine non-mutation | 4 OS x 1 boundary | 4 | 4 | 0 |
 | E: independent close | 3 isolated WSL agents | 3 | 3 | 0 |
-| | | **32** | **26** | **6** |
+| | | **32** | **32** | **0** |
 
 ## Part A: clean installation and ready payload
 
@@ -168,14 +169,14 @@ run id may differ; no other field is normalised.
 | WA1 | Fresh WSL root; source at recorded commit; none of Python/pip/uv/cua resolves | Run the source installer with no system-dependency consent | Installed `vadgr` is 0.4.12; manifest pins Python 3.12.14, cua 0.7.5 and this target; private interpreter and distribution report those versions | install transcript/exit, resolution failures, head/path/hash, manifest and version outputs | retain root through WD1 | **pass on WSL after macOS repairs**: exact source `a42a514`; direct `./install.sh` invocation from mode 0755 exited 0; the clean path excluded Python, pip, uv, cua and Rust; no macOS guidance printed; the closing step named the isolated `.bashrc` it created; installed vadgr reports 0.4.12 with private Python 3.12.14 and cua 0.7.5 |
 | WA2 | WA1 installed root | Inspect setup output and host package inventory | WSL applies no OS dependency plan and changes no host package or network state | setup output and before/after package inventory | none | **pass on WSL after repair**: no system plan ran and the sorted package inventories have identical SHA-256 values |
 | WA3 | WA1 root; daemon started | Run `vadgr computer-use status` and read health/settings API | Computer use is enabled, available and ready; daemon stays healthy | CLI/API bodies, daemon log and private child process row | stop only this daemon by pid after group | **pass on WSL after repair**: one installed daemon serves the isolated port; health reports `wsl` and computer use available; settings report enabled, ready and `wsl2` |
-| LA1 | Fresh native Linux root; same clean-PATH setup | Run source installer and decline dependency application | Same identity/pins as WA1; printed plan changes nothing | same WA1 artifacts plus dry-run plan | retain root through LD1 | not run after invalidation: the shared Unix installer now names the profile it created, so native Linux must rerun this touched installer cell at `a42a514` |
+| LA1 | Fresh native Linux root; same clean-PATH setup | Run source installer and decline dependency application | Same identity/pins as WA1; printed plan changes nothing | same WA1 artifacts plus dry-run plan | retain root through LD1 | **pass on native Linux after Unix repairs**: exact source `a501007`; direct `./install.sh` exited 0; clean PATH excluded Python, pip, uv, cua and Rust; dependency application remained declined; the installer named the isolated `.bashrc`; installed vadgr reports 0.4.12 with private Python 3.12.14 and cua 0.7.5 |
 | LA2 | LA1; owner has read and explicitly approved exact printed plan | Repeat setup with explicit consent | Only the approved system plan is applied; payload remains same pins | consent record without secrets, command output, package diff | retain approved system deps; remove test root later | **pass on native Linux**: the owner approved the exact empty plan; setup reported all dependencies present; package inventories have identical hashes |
 | LA3 | LA2 root; daemon started | Run status and APIs | Computer use ready and healthy | same WA3 artifacts | stop own daemon | **pass on native Linux**: installed daemon PID 275162 served isolated port 18812; CLI status and health/settings APIs report computer use enabled, available and ready |
 | NA1 | Fresh native Windows profile; no Python/pip/uv/cua resolves | Run checked-out `install.ps1` | Same identity/pins as WA1 with `.exe` and Windows target | PowerShell transcript/exit, Get-Command failures, head/path/hash, manifest/version | retain root through ND1 | **pass on native Windows after repair**: exact source `49c30d3`; the isolated install reports vadgr 0.4.12, Python 3.12.14, cua 0.7.5 and the Windows x86-64 target |
 | NA2 | NA1 installed root | Inspect setup output and registry/package inventories | No system Python, registry, PATH or network change | setup output plus before/after inventories | none | **pass on native Windows after repair**: setup persisted no alternate-profile PATH; registry, package, cache, environment and network checks are unchanged |
 | NA3 | NA1 root; daemon started | Run status and APIs | Computer use ready and healthy | same WA3 artifacts | stop own daemon | **pass on native Windows after repair**: the installed daemon served the isolated port; health reports Windows and computer use; settings report enabled and ready |
 | MA1 | Fresh macOS root; no Python/pip/uv/cua resolves | Run source installer | Same identity/pins as WA1 with macOS target | install transcript/exit, resolution failures, head/path/hash, manifest/version | retain root through MD1 | **pass on macOS** at `a501007`: the source installer exited 0 from a clean path resolving none of Python, pip, uv or cua; installed vadgr reports 0.4.12, sha `1f3aa56c`, and the payload pins cua 0.7.5, Python 3.12.14 and `aarch64-apple-darwin`, which the private interpreter and distribution confirm themselves |
-| MA2 | MA1 private interpreter path prepared; owner grants Accessibility and Screen Recording first | Run the reported setup/doctor check again | Both grants apply to the private interpreter and setup exits 0; no Settings page was opened automatically | grant-path record and setup output; no unrelated privacy entries | owner may remove grants after MD1 | **finding on macOS, not a pass** at `a501007`: setup fires the prompts and the installer opens no Settings page by itself, but the grants do not attach to the private interpreter. The same binary reports both `true` when its responsible process is the terminal and both `false` under `launchd`, because macOS attributes a grant to the responsible process. Granted from a terminal the payload works only when launched from that terminal, and a daemon started at login has neither |
+| MA2 | MA1 private interpreter path prepared; owner grants Accessibility and Screen Recording first | Run the reported setup/doctor check again | Both grants apply to the private interpreter and setup exits 0; no Settings page was opened automatically | grant-path record and setup output; no unrelated privacy entries | owner may remove grants after MD1 | **fail on macOS; finding filed** at `a501007`: setup fires the prompts and the installer opens no Settings page by itself, but the grants do not attach to the private interpreter. The same binary reports both `true` when its responsible process is the terminal and both `false` under `launchd`, because macOS attributes a grant to the responsible process. Granted from a terminal the payload works only when launched from that terminal, and a daemon started at login has neither |
 | MA3 | MA2 root; daemon started | Run status and APIs | Computer use ready and healthy | same WA3 artifacts | stop own daemon | **pass on macOS** at `a501007`: the installed daemon served isolated port 18861; health reports `macos`, healthy and computer use present; the status API reports available and settings report enabled and ready |
 
 ## Part B: real tool and hostile PATH
@@ -206,7 +207,7 @@ run id may differ; no other field is normalised.
 | # | Precondition and setup | Goal or action | Expected observable and independent oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
 | WD1 | WSL before snapshot exists; WA-WC complete and manifest restored | Stop own processes, trash isolated root, take after snapshot and compare | Profiles, user Python state/caches, selected env names and network configuration are unchanged | both raw snapshots, diff exit and process/port checks | trash only isolated root | **pass on WSL after snapshot repair**: exact source `a42a514`; the installed CLI started and stopped the isolated daemon; its port is free; the root moved to trash; profile, Python, cache, environment and filtered network-configuration snapshot bodies are byte-identical |
-| LD1 | Linux before snapshot exists; LA/LB complete | Stop own processes, trash isolated root, snapshot/compare | Same as WD1 except owner-approved LA2 package changes are the only named difference | snapshots, diff, approved package delta, process/port checks | trash test root; retain approved deps | not run after invalidation: the shared Unix snapshot helper now excludes neighbour-cache state, so native Linux must rerun this touched cell at `a42a514` |
+| LD1 | Linux before snapshot exists; LA/LB complete | Stop own processes, trash isolated root, snapshot/compare | Same as WD1 except owner-approved LA2 package changes are the only named difference | snapshots, diff, approved package delta, process/port checks | trash test root; retain approved deps | **pass on native Linux after Unix repairs**: exact source `a501007`; installed CLI started and stopped PID 312755; port 18813 is free; filtered snapshot bodies and package inventories match; isolated root moved to trash |
 | ND1 | Windows before snapshot exists; NA/NB complete | Stop own processes, trash isolated root, snapshot/compare | Profiles, registry Python state, caches, environment and network hashes unchanged | snapshots, comparison, process/port checks | trash only isolated root | **pass on native Windows after repair**: the installed CLI stopped its daemon; port 18797 is free; seven exact roots moved to the Recycle Bin; snapshots and package inventories match |
 | MD1 | macOS before snapshot exists; MA/MB complete | Stop own processes, trash isolated root, snapshot/compare | Same as WD1; only the explicitly granted privacy entries may differ | snapshots, diff, grant delta, process/port checks | trash root; owner may remove grants | **pass on macOS** at `a501007`: the installed CLI stopped its own daemon, the port is free, no payload process survived, only the isolated root moved to trash, and the snapshot bodies are byte-identical |
 
@@ -230,12 +231,12 @@ different output counts.
 
 | Part | WSL | Linux | Windows native | macOS |
 |---|---|---|---|---|
-| A: clean installation and ready payload | pass: WA1 revalidated on exact source `a42a514`; WA2-WA3 remain valid | not run after invalidation: LA1 must rerun after the shared Unix installer repair; LA2-LA3 remain valid | pass: NA1-NA3 passed on exact source `49c30d3` with cua 0.7.5 | pass: MA1-MA3 at exact product commit `a501007`; installed vadgr 0.4.12 sha `1f3aa56c`, payload pins cua 0.7.5, Python 3.12.14 and `aarch64-apple-darwin`, and the private interpreter and distribution report those versions themselves. MA2 is a finding rather than a pass, recorded below |
+| A: clean installation and ready payload | pass: WA1 revalidated on exact source `a42a514`; WA2-WA3 remain valid | pass: LA1 revalidated on exact source `a501007`; LA2-LA3 remain valid | pass: NA1-NA3 passed on exact source `49c30d3` with cua 0.7.5 | fail: MA1 and MA3 pass at exact product commit `a501007`; installed vadgr 0.4.12 sha `1f3aa56c`, payload pins cua 0.7.5, Python 3.12.14 and `aarch64-apple-darwin`, and the private interpreter and distribution report those versions themselves. MA2 fails the private-interpreter grant assertion, as recorded below |
 | B: real tool and hostile PATH | pass: WB1-WB3, one real call both normally and under hostile PATH | pass: LB1-LB3 made one real call normally and under hostile PATH | pass: NB1-NB3 made one real call normally and under hostile PATH | pass: MB1-MB3 re-driven at `a501007`; one `computer-use__get_platform` call returning `macos` normally and again under hostile shims, two non-zero usage rows each, the private CPython with `-I` and an absolute bootstrap, no override names and a zero-byte sentinel |
 | C: damaged payload isolation | pass: WC1 failed closed without fallback and restored exact manifest | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B |
-| D: owner-machine non-mutation | pass: WD1 filtered snapshot body unchanged at exact source `a42a514` | not run after invalidation: LD1 must rerun with the repaired Unix snapshot helper | pass: ND1 snapshots and package inventory unchanged after recycling exact test roots | pass: MD1 at `a501007`; the installed CLI stopped its own daemon, the port is free, no payload process survived, the isolated root moved to trash and the snapshot bodies are byte-identical |
+| D: owner-machine non-mutation | pass: WD1 filtered snapshot body unchanged at exact source `a42a514` | pass: LD1 filtered snapshot body and package inventory unchanged at exact source `a501007` | pass: ND1 snapshots and package inventory unchanged after recycling exact test roots | pass: MD1 at `a501007`; the installed CLI stopped its own daemon, the port is free, no payload process survived, the isolated root moved to trash and the snapshot bodies are byte-identical |
 | E: independent close | pass: three isolated shared-epoch runs overlap and match structurally | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed |
-| **overall** | **pass: WA1 and WD1 revalidated at `a42a514`; nine other WSL cells remain valid** | **not run after invalidation: LA1 and LD1 require reruns; five cells remain valid** | **pass: all seven native Windows cells remain valid at `49c30d3`** | **pass with one finding**: all seven macOS cells driven at `a501007`. MA2 does not hold on macOS: the grants attach to the responsible process, so they land on the terminal and never on the private interpreter |
+| **overall** | **pass: WA1 and WD1 revalidated at `a42a514`; nine other WSL cells remain valid** | **pass: LA1 and LD1 revalidated at `a501007`; five other native Linux cells remain valid** | **pass: all seven native Windows cells remain valid at `49c30d3`** | **fail with one finding**: all seven macOS cells were driven at `a501007`; six pass, while MA2 does not hold because the grants attach to the responsible process, so they land on the terminal and never on the private interpreter |
 
 ## Evidence and remote-host handoff
 
@@ -249,9 +250,9 @@ pass.
 | operating system | filed evidence boundary |
 |---|---|
 | WSL | prior pass through `e4740f5`; final repair evidence through `bf9f2f3` under `revalidation-df23826/`; executable-mode evidence at `ffdcb79`; Unix installer and snapshot revalidation at `5e60b6a` under `20260830-wsl/revalidation-a42a514/` |
-| native Linux | setup and Part A through `8d9cab1`; Part B through `db5d830`; Part D and final gates through `13b2a63` under `20260829-linux-native/` |
+| native Linux | initial pass through `13b2a63` under `20260829-linux-native/`; Unix installer revalidation at `d6aa5d5` and snapshot revalidation at `ecdf265` under `20260830-linux-native/revalidation-a501007/` |
 | native Windows | Parts A through `d00e576`; B through `9ebcebf`; D through `2235110` under `20260829-windows-native/` |
-| macOS | initial Parts A-B at `3878271`; repaired Part D artifacts at `ddc30ff` under `20260830-macos/`; affected A and D cells require exact-head reruns |
+| macOS | initial Parts A-B at `3878271`; repaired Part D artifacts at `ddc30ff`; all seven cells re-driven at `a501007` and filed through `2041d86` under `20260830-macos/` |
 
 A fresh OS agent needs only this file and the committed harness. It must:
 
@@ -381,5 +382,15 @@ These changes touch WA1 and WD1 on WSL, LA1 and LD1 on native Linux, and
 MA1-MA3 plus MD1 on macOS. Windows is not affected because neither its installer,
 snapshot helper nor runtime path changed. WSL WA1 and WD1 pass again on exact
 head `a42a514`; the installed daemon stopped, its port is free, the root moved
-to trash, and the corrected snapshot bodies are byte-identical. Native Linux
-and macOS retain the honest invalidated statuses above until their host reruns.
+to trash, and the corrected snapshot bodies are byte-identical. The macOS host
+re-drove all seven cells at `a501007`; six pass and MA2 produced the finding
+above.
+
+Native Linux LA1 and LD1 pass again on exact feature head `a501007`. Direct
+`./install.sh` invocation from a clean path exited 0, printed the Linux profile
+it created and emitted no macOS permission guidance. The pinned installed
+identity matches. The installed CLI started and stopped only PID 312755, port
+18813 is free, and the isolated root moved to trash. Package inventories and
+the corrected filtered snapshot bodies are byte-identical. LA2-LA3 and LB1-LB3
+remain valid because the repairs do not touch their dependency, readiness or
+runtime tool paths.
