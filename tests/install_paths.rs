@@ -193,25 +193,31 @@ fn the_closing_step_does_not_name_a_profile_it_never_wrote() {
 
 /// The non-mutation snapshot must not hash a countdown.
 ///
-/// `netstat -rn` carries an Expire timer on cached neighbour entries. It ticks
-/// every second, and macOS has no `ip`, so that timer was the whole network
-/// hash: the same untouched machine hashed differently four seconds apart and
-/// the non-mutation cell could never pass.
+/// `netstat -rn` mixes the routing table with the ARP and NDP caches, and macOS
+/// has no `ip`, so those caches were the whole network hash. They move on their
+/// own: an Expire timer counts down every second, flags age, and a VPN peer
+/// route comes and goes. On an idle machine with vadgr not running the table
+/// changed twice in ninety seconds, so the cell could never pass.
 #[test]
-fn the_unix_snapshot_hashes_routes_rather_than_their_expiry() {
+fn the_unix_snapshot_hashes_routes_rather_than_neighbour_state() {
     let text = repo_file("E2E/0.4.12/harness/snapshot-unix.sh");
-    let netstat = text
-        .lines()
-        .filter(|line| !line.trim_start().starts_with('#'))
-        .find(|line| line.contains("netstat -rn"))
+    let at = text
+        .find("netstat -rn")
         .expect("the snapshot reads the routing table");
+    // The invocation carries a line continuation, so take the statement rather
+    // than the line: a single-line search reads the call and misses its filter.
+    let statement = &text[at..text[at..]
+        .find("\n        fi")
+        .map(|end| at + end)
+        .unwrap_or(text.len())];
     assert!(
-        netstat.contains("awk"),
-        "netstat output must be reduced to stable columns, found: {netstat}"
+        statement.contains("awk"),
+        "netstat output must be reduced before hashing, found: {statement}"
     );
     assert!(
-        netstat.contains("$1, $2, $3, $4"),
-        "only destination, gateway, flags and interface are stable, found: {netstat}"
+        statement.contains("$2 !~ /:/") && statement.contains("$2 !~ /^link#/"),
+        "rows reached through a link-layer address or an interface scope are the \
+         ARP and NDP caches, which move on their own, found: {statement}"
     );
 }
 

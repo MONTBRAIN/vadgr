@@ -52,13 +52,21 @@ hash_tree() {
     printf 'network=%s\n' "$({
         cat /etc/resolv.conf 2>/dev/null || true
         if command -v ip >/dev/null 2>&1; then ip route show 2>/dev/null || true; fi
-        # Only the routing columns. `netstat -rn` carries an Expire countdown on
-        # cached neighbour entries, and on macOS it ticks every second: the same
-        # machine, untouched, hashes differently four seconds apart, so a
-        # before/after comparison could never match and the cell could never
-        # pass. There is no `ip` on macOS, so this was the whole network hash.
+        # Configuration, not neighbour state. `netstat -rn` mixes the routing
+        # table with the ARP and NDP caches, and on macOS there is no `ip`, so
+        # those caches were the whole network hash. They move on their own: an
+        # Expire column counts down every second, entry flags age from `UHLWIi`
+        # to `UHLWI`, and a VPN peer route appears and vanishes as the peer
+        # comes and goes. Measured on an idle machine with vadgr not running at
+        # all, the table changed twice in ninety seconds, so the non-mutation
+        # comparison could never pass on a host with a tailnet or a busy LAN.
+        #
+        # Rows reached through a link-layer address or an interface scope are
+        # that cache. What is left is the configuration a change would show up
+        # in: destination, gateway and interface, defaults included.
         if command -v netstat >/dev/null 2>&1; then
-            netstat -rn 2>/dev/null | awk '{ print $1, $2, $3, $4 }' || true
+            netstat -rn 2>/dev/null \
+                | awk '$2 !~ /:/ && $2 !~ /^link#/ { print $1, $2, $4 }' || true
         fi
     } | hash_stream)"
 } > "$output"
