@@ -8,11 +8,11 @@
 > alternate-profile repair commit `49c30d3`. Native Linux cells use
 > installer-mode repair commit `254b521`, with LA1 and LD1 revalidated at
 > current feature head `a501007`.
-> **vadgr 0.4.12 evidence PR:**
-> [vadgr-docs PR #128](https://github.com/MONTBRAIN/vadgr-docs/pull/128).
+> **vadgr 0.4.12 evidence:** recorded in the owner's private evidence boundary.
 >
-> Every host adds its boundary to #128 and pushes runbook results or shared fixes
-> to PR #213. Each host records the exact implementation commit it tested.
+> Every host adds its boundary to the private evidence record and pushes runbook
+> results or shared fixes to PR #213. Each host records the exact implementation
+> commit it tested.
 
 > **Read this whole file and [`../README.md`](../README.md) before running a
 > cell.** Evidence is execution output, every owner-dependent cell runs first,
@@ -242,12 +242,11 @@ different output counts.
 
 ## Evidence and remote-host handoff
 
-Evidence lives only in `vadgr-docs` branch `evidence/vadgr-0.4.12`, PR #128,
-under `e2e_evidence/vadgr-0.4.12/<date>-<os>/`. Create that OS directory before
-its first cell. At each part boundary copy raw command output, exits, hashes,
-manifest, process rows, API bodies and journals; run the secret scan; commit and
-push that boundary immediately. A group with no artifact gets a note and cannot
-pass.
+Evidence lives only in the owner's private evidence boundary, under the
+minor's dated per-OS directory. Create that OS directory before its first cell.
+At each part boundary copy raw command output, exits, hashes, manifest, process
+rows, API bodies and journals; run the secret scan; commit and push that
+boundary immediately. A group with no artifact gets a note and cannot pass.
 
 | operating system | filed evidence boundary |
 |---|---|
