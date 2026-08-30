@@ -8,6 +8,9 @@
 
 use std::path::Path;
 
+#[cfg(unix)]
+use std::os::unix::fs::PermissionsExt;
+
 fn repo_file(name: &str) -> String {
     // Normalised, because a checkout on Windows can carry CRLF and a pattern
     // written with `\n` would match nothing there. A source-reading test that
@@ -31,6 +34,21 @@ fn assignment(script: &str, name: &str) -> String {
         .to_owned()
 }
 
+#[cfg(unix)]
+#[test]
+fn the_unix_installer_can_be_invoked_directly() {
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("install.sh");
+    let mode = std::fs::metadata(path)
+        .expect("install.sh is in the repository")
+        .permissions()
+        .mode();
+    assert_ne!(
+        mode & 0o111,
+        0,
+        "install.sh must be executable because the public runbook invokes it directly"
+    );
+}
+
 #[test]
 fn the_installer_and_the_cli_agree_on_the_product_directory() {
     assert_eq!(assignment("install.sh", "VADGR_HOME"), "$HOME/.vadgr");
@@ -48,6 +66,158 @@ fn the_installer_puts_the_checkout_where_the_cli_looks_for_it() {
     assert!(
         service.contains(r#"vadgr_home().join("src")"#),
         "the CLI must rebuild the checkout the installer created"
+    );
+}
+
+#[test]
+fn the_current_e2e_uses_the_installers_real_override_names() {
+    let runbook = repo_file("E2E/0.4.12/e2e.md");
+    for expected in [
+        "HOME=\"$E2E_HOME\"",
+        "VADGR_REPO_URL=\"$E2E_ROOT/source\"",
+        "VADGR_REF=\"$SUBJECT_COMMIT\"",
+        "$env:USERPROFILE",
+        "$env:VADGR_REPO_URL",
+        "$env:VADGR_REF",
+    ] {
+        assert!(
+            runbook.contains(expected),
+            "the runbook must set {expected}"
+        );
+    }
+    assert!(
+        !runbook.contains("VADGR_REPO=\"$E2E_ROOT/source\""),
+        "the runbook must not set an installer-local shell variable"
+    );
+}
+
+#[test]
+fn the_windows_installer_does_not_persist_path_for_an_alternate_profile() {
+    let installer = repo_file("install.ps1");
+    let add_to_path = installer
+        .split("function AddToPath")
+        .nth(1)
+        .and_then(|text| text.split("# Main").next())
+        .expect("install.ps1 contains the AddToPath function");
+
+    assert!(
+        add_to_path.contains("[Environment+SpecialFolder]::UserProfile"),
+        "the installer must compare USERPROFILE with the real Windows profile"
+    );
+    assert!(
+        add_to_path.contains("return"),
+        "an alternate profile must return before changing the real user PATH"
+    );
+}
+
+/// Every line of macOS grant guidance sits inside a macOS guard.
+///
+/// The prompt only exists on macOS, so telling a Linux or Windows owner about
+/// Accessibility or Screen Recording is noise about a dialog they will never
+/// see. Both guard shapes the installer uses are honoured: the `if` around the
+/// payload step and the `case` arm the platform helpers use.
+#[test]
+fn macos_guidance_never_reaches_another_operating_system() {
+    let text = repo_file("install.sh");
+    let mut guarded = false;
+    let mut depth = 0usize;
+    let mut guard_at: Option<usize> = None;
+    let mut unguarded = Vec::new();
+
+    for line in text.lines() {
+        let trimmed = line.trim();
+
+        if trimmed.starts_with("if ") {
+            depth += 1;
+            if trimmed.contains("= \"macos\"") {
+                guard_at.get_or_insert(depth);
+            }
+        } else if trimmed == "fi" {
+            if guard_at == Some(depth) {
+                guard_at = None;
+            }
+            depth = depth.saturating_sub(1);
+        } else if trimmed.starts_with("macos)") {
+            guarded = true;
+        } else if trimmed == ";;" {
+            guarded = false;
+        }
+
+        let inside = guarded || guard_at.is_some();
+        let prints = trimmed.starts_with("info \"") || trimmed.starts_with("ok \"");
+        let grant_text = trimmed.contains("Accessibility") || trimmed.contains("Screen Recording");
+        if prints && grant_text && !inside {
+            unguarded.push(trimmed.to_owned());
+        }
+    }
+
+    assert!(
+        unguarded.is_empty(),
+        "these lines print macOS grant guidance outside a macOS guard: {unguarded:#?}"
+    );
+}
+
+/// The Windows installer carries none of it either.
+#[test]
+fn the_windows_installer_says_nothing_about_macos_grants() {
+    let text = repo_file("install.ps1").to_lowercase();
+    for term in ["accessibility", "screen recording", "macos"] {
+        assert!(
+            !text.contains(term),
+            "install.ps1 mentions {term}, which belongs to macOS alone"
+        );
+    }
+}
+
+/// The closing step names the file the installer wrote.
+///
+/// It told every Unix owner to source `~/.bashrc` on a machine where it had
+/// just printed that it created `.zshrc`. macOS defaults to zsh, so the one
+/// file it named was the one file it had not written.
+#[test]
+fn the_closing_step_does_not_name_a_profile_it_never_wrote() {
+    let text = repo_file("install.sh");
+    let code_says_bashrc = text
+        .lines()
+        .filter(|line| !line.trim_start().starts_with('#'))
+        .any(|line| line.contains("source ~/.bashrc"));
+    assert!(
+        !code_says_bashrc,
+        "the closing step must name the profile that was written, not a fixed one"
+    );
+    assert!(
+        text.contains("VADGR_PROFILE=\"$default_rc\""),
+        "the written profile must be recorded so the closing step can name it"
+    );
+}
+
+/// The non-mutation snapshot must not hash a countdown.
+///
+/// `netstat -rn` mixes the routing table with the ARP and NDP caches, and macOS
+/// has no `ip`, so those caches were the whole network hash. They move on their
+/// own: an Expire timer counts down every second, flags age, and a VPN peer
+/// route comes and goes. On an idle machine with vadgr not running the table
+/// changed twice in ninety seconds, so the cell could never pass.
+#[test]
+fn the_unix_snapshot_hashes_routes_rather_than_neighbour_state() {
+    let text = repo_file("E2E/0.4.12/harness/snapshot-unix.sh");
+    let at = text
+        .find("netstat -rn")
+        .expect("the snapshot reads the routing table");
+    // The invocation carries a line continuation, so take the statement rather
+    // than the line: a single-line search reads the call and misses its filter.
+    let statement = &text[at..text[at..]
+        .find("\n        fi")
+        .map(|end| at + end)
+        .unwrap_or(text.len())];
+    assert!(
+        statement.contains("awk"),
+        "netstat output must be reduced before hashing, found: {statement}"
+    );
+    assert!(
+        statement.contains("$2 !~ /:/") && statement.contains("$2 !~ /^link#/"),
+        "rows reached through a link-layer address or an interface scope are the \
+         ARP and NDP caches, which move on their own, found: {statement}"
     );
 }
 
@@ -144,32 +314,14 @@ fn no_interpreter_artefact_is_tracked_in_this_repository() {
     }
     assert!(tracked > 50, "the listing looks empty: {tracked} files");
 
-    // Every surviving `.py` is one of the two named exceptions: this
-    // repository's own gates, and the harnesses beside an older runbook.
+    // Every surviving `.py` is a gate, an E2E harness or the declared bundled
+    // payload launcher. Product implementation remains Rust.
     for file in files.lines().filter(|f| f.ends_with(".py")) {
         assert!(
-            file.starts_with("scripts/") || file.starts_with("E2E/"),
-            "{file} is Python outside the repository gates and the runbook harnesses"
-        );
-    }
-}
-
-#[test]
-fn the_mcp_example_names_the_installed_entry_point_not_an_interpreter() {
-    // The example is the one file allowed to mention the computer-use runtime,
-    // because that runtime is Python by design. It named a module inside this
-    // repository instead, launched through a virtual environment's interpreter,
-    // and that module moved to its own repository releases ago. An agent
-    // copying it got a server that cannot start.
-    let example = repo_file(".mcp.json.example");
-    assert!(
-        example.contains("vadgr-cua"),
-        "the example must name the installed entry point"
-    );
-    for stale in ["PYTHONPATH", "computer_use.mcp_server", "/bin/python"] {
-        assert!(
-            !example.contains(stale),
-            ".mcp.json.example still names {stale}, which no installation has"
+            file.starts_with("scripts/")
+                || file.starts_with("E2E/")
+                || file == "packaging/cua/bootstrap.py",
+            "{file} is Python outside the declared gates, harnesses and payload"
         );
     }
 }
@@ -205,5 +357,56 @@ fn the_product_is_one_executable() {
     assert!(
         service.contains("command.arg(\"serve\")"),
         "the spawned child is told to serve"
+    );
+}
+
+#[test]
+fn clean_install_checks_follow_the_payload_manifest() {
+    // The clean-install jobs once named a prior payload generation and prior
+    // CUA version directly. A pin update then broke every clean-install leg,
+    // although the installer had assembled the new payload correctly.
+    let workflow = repo_file(".github/workflows/ci.yml");
+    assert!(
+        !workflow.contains("/lib/cua/environments/0.")
+            && !workflow.contains(r"\lib\cua\environments\0."),
+        "clean-install must discover the private generation instead of typing one"
+    );
+    assert!(
+        workflow.matches("lib/cua/payload.json").count()
+            + workflow.matches(r"lib\cua\payload.json").count()
+            >= 3,
+        "every clean-install path must validate versions against payload.json"
+    );
+    assert!(
+        !workflow.contains(".available == true and .platform ==")
+            && !workflow.contains("$computerUse.available"),
+        "clean-install must assert the published computer-use settings fields"
+    );
+    assert!(
+        workflow.matches("venv_ready").count() >= 3,
+        "every clean-install OS must assert that the private payload is ready"
+    );
+    assert!(
+        !workflow.contains(r#"docker cp -q "$CLEAN_INSTALL_ROOT/.""#),
+        "the private environment is not relocatable after assembly"
+    );
+    assert!(
+        workflow.contains(r#"src=$CLEAN_INSTALL_ROOT,dst=$CLEAN_INSTALL_ROOT,readonly"#),
+        "the clean Linux machine must mount the assembled root at its original path"
+    );
+}
+
+#[test]
+fn shell_installers_keep_unix_line_endings_on_windows_checkouts() {
+    let attributes = repo_file(".gitattributes");
+    assert!(
+        attributes.lines().any(|line| line == "*.sh text eol=lf"),
+        "Windows checkouts must not convert shell installers to CRLF"
+    );
+    assert!(
+        attributes
+            .lines()
+            .any(|line| line == "packaging/cua/requirements.lock text eol=lf"),
+        "the hashed payload lock must have identical bytes on every checkout"
     );
 }

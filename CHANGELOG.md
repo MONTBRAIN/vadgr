@@ -2,6 +2,42 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.4.12] - 2026-08-29
+
+### Added
+
+- Vadgr now carries a private Python 3.12.14 runtime and a fully hashed
+  `vadgr-computer-use` 0.7.5 environment on Linux, WSL, macOS and Windows.
+- The Rust candidate downloads and verifies pinned uv and CPython archives.
+  Installation needs no existing Python, pip, uv or `vadgr-cua` command.
+- Installers assemble and validate the computer-use payload before replacing
+  the vadgr binary. Updates run the newly built candidate for the same check.
+
+### Changed
+
+- Computer use starts the bundled environment's absolute Python path in
+  isolated mode. It no longer searches `PATH`, `.cu_venv` or environment
+  overrides for another cua installation.
+- Linux system setup prints a dry-run plan by default. It applies only after
+  interactive consent or `VADGR_CUA_APPLY_SYSTEM_DEPS=1`.
+
+### Fixed
+
+- Windows installation accepts ordinary absolute install roots while retaining
+  symlink-escape checks. Checkout line endings cannot change the hashed payload
+  lock or make the WSL shell installer unreadable.
+- Payload setup protects the candidate's source checkout instead of treating
+  the caller's current directory as that checkout.
+
+### Known limitation
+
+- On macOS, computer use works in the tested session only when vadgr starts
+  from the terminal that holds Accessibility and Screen Recording. The grants
+  attach to that responsible process, not to the private interpreter, so a
+  login, `launchd` or independently started daemon does not inherit them. E2E
+  cell MA2 remains failed. The signed `0.5.0` distribution owns the stable
+  application identity required to close it.
+
 ## [0.4.11] - 2026-08-28
 
 ### Fixed

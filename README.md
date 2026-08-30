@@ -27,13 +27,21 @@ Describe your work in a sentence. Vadgr runs it on your machine - writing code, 
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" width="25" /> | Linux | Supported | Built, tested and released on every change |
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" width="25" /> | Windows | Supported | Native, with its own installer |
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" width="25" /> | WSL2 | Supported | Desktop automation reaches the Windows side |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" width="25" /> | macOS | Supported | Grant Accessibility and Screen Recording on first use |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" width="25" /> | macOS | Limited in 0.4.12 | Computer use must start from the terminal that holds Accessibility and Screen Recording; signed background identity arrives in 0.5.0 |
 
 </div>
 
 ## Install
 
-Works on **Linux**, **WSL**, **Windows** and **macOS**. Desktop automation is the separate [vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use) package, which supports all four; on macOS it asks for Accessibility and Screen Recording the first time it runs. The installer sets up everything: git, the Rust toolchain, the C toolchain the build links with, and the `vadgr` binaries. No Node.js and no browser: the machine's clients are this CLI and the phone app.
+Works on **Linux**, **WSL**, **Windows** and **macOS**. Vadgr carries its pinned
+desktop-automation runtime on all four. The owner needs no Python, pip or uv.
+On macOS `0.4.12`, grant Accessibility and Screen Recording to the terminal
+named by the operating-system dialogs, restart that terminal, and start vadgr
+from it. Those grants do not follow the private interpreter into a login,
+`launchd` or independently started daemon. The signed `0.5.0` distribution owns
+the stable application identity required for those background launches. The
+installer also sets up git and the build toolchain. No Node.js and no browser
+are required.
 
 ```bash
 # Linux / macOS / WSL
@@ -173,7 +181,11 @@ paired phone is concerned.
 
 ### Desktop Automation
 
-The desktop-automation MCP server lives in its own repository: **[vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use)**. Install with `pip install vadgr-computer-use`. It gives agents eyes and hands: take a screenshot, reason, click or type, repeat. On WSL2 the package manages its own Windows-side bridge daemon automatically.
+Vadgr installs its pinned desktop-automation MCP server inside its private
+payload. It gives runs eyes and hands: take a screenshot, reason, click or type,
+then repeat. Do not install Python or `vadgr-computer-use` separately. Linux
+prints its system-package plan before changing anything. WSL and Windows need
+no payload setup. macOS reports the grants its private interpreter needs.
 
 ## Structure
 
@@ -197,9 +209,9 @@ Vadgr/
 └── scripts/               # The repository's own gates
 ```
 
-Desktop automation lives in its own repository,
-[vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use), and is
-installed as a package when computer use is enabled.
+Desktop automation ships as a released package from
+[vadgr-computer-use](https://github.com/MONTBRAIN/vadgr-computer-use). Vadgr
+pins and installs that package inside its own private payload.
 
 ## Contributing
 

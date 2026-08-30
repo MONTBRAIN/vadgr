@@ -16,6 +16,7 @@ mod output;
 mod prompt;
 mod stream;
 
+use std::path::PathBuf;
 use std::time::Duration;
 
 use clap::{Parser, Subcommand};
@@ -44,6 +45,16 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    /// Assemble vadgr's pinned private computer-use payload.
+    #[command(name = "__payload-setup", hide = true)]
+    PayloadSetup {
+        #[arg(long)]
+        install_root: PathBuf,
+        #[arg(long)]
+        apply_system_deps: bool,
+        #[arg(long)]
+        payload_only: bool,
+    },
     /// Serve. The daemon itself, in the foreground.
     ///
     /// Hidden because nobody types it: `vadgr start` spawns this binary again
@@ -309,6 +320,11 @@ async fn main() {
     };
 
     let result: Result<(), CliError> = match cli.command {
+        Command::PayloadSetup {
+            install_root,
+            apply_system_deps,
+            payload_only,
+        } => payload_setup(install_root, apply_system_deps, payload_only).await,
         Command::Health => commands::info::health(&client).await,
         Command::Providers => commands::info::providers(&client).await,
         Command::ComputerUse { action } => match action {
@@ -391,4 +407,33 @@ async fn main() {
         }
         std::process::exit(e.exit_code());
     }
+}
+
+async fn payload_setup(
+    install_root: PathBuf,
+    apply_system_deps: bool,
+    payload_only: bool,
+) -> Result<(), CliError> {
+    let installer = vadgr_daemon::cua_payload::CuaPayloadInstaller::new(install_root)
+        .map_err(|error| CliError::Failed(error.to_string()))?;
+    let runtime = installer
+        .assemble()
+        .await
+        .map_err(|error| CliError::Failed(format!("Could not assemble computer use: {error:#}")))?;
+    if payload_only {
+        return Ok(());
+    }
+    let setup = runtime.setup_command(apply_system_deps);
+    let status = std::process::Command::new(setup.program)
+        .args(setup.args)
+        .status()
+        .map_err(|error| {
+            CliError::Failed(format!("Could not check computer-use setup: {error}"))
+        })?;
+    if !status.success() {
+        return Err(CliError::Failed(
+            "Computer-use setup did not complete. Nothing was installed.".to_owned(),
+        ));
+    }
+    Ok(())
 }

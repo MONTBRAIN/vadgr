@@ -10,7 +10,7 @@ use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
 /// The version this daemon reports at `GET /api/health`.
-pub const VERSION: &str = "0.4.11";
+pub const VERSION: &str = "0.4.12";
 
 /// The environment a path is resolved from, as values rather than as globals.
 ///

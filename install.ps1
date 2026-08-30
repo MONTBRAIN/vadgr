@@ -102,11 +102,18 @@ function BuildAndInstall {
     Pop-Location
     if ($built -ne 0) { Fail "The build failed. Nothing was installed." }
 
+    $candidate = "$VADGR_REPO\target\x86_64-pc-windows-msvc\release\vadgr.exe"
+    Info "Assembling vadgr's private computer-use runtime..."
+    & $candidate __payload-setup --install-root $VADGR_HOME
+    if ($LASTEXITCODE -ne 0) {
+        Fail "Computer use could not be prepared. The installed binary was not changed."
+    }
+
     New-Item -ItemType Directory -Force -Path $VADGR_BIN | Out-Null
     # Installed only after the build succeeded, so a failed build leaves the
     # installation that was already working exactly as it was.
     foreach ($binary in @("vadgr.exe")) {
-        Copy-Item "$VADGR_REPO\target\x86_64-pc-windows-msvc\release\$binary" "$VADGR_BIN\$binary" -Force
+        Copy-Item $candidate "$VADGR_BIN\$binary" -Force
     }
     Ok "Installed vadgr into $VADGR_BIN"
 }
@@ -144,6 +151,14 @@ function SetupRepo {
 # ---------------------------------------------------------------------------
 
 function AddToPath {
+    $realProfile = [Environment]::GetFolderPath([Environment+SpecialFolder]::UserProfile)
+    $requestedProfile = [IO.Path]::GetFullPath($env:USERPROFILE).TrimEnd('\')
+    $realProfile = [IO.Path]::GetFullPath($realProfile).TrimEnd('\')
+    if ($requestedProfile -ne $realProfile) {
+        Info "Skipped the persistent PATH update for the alternate user profile"
+        return
+    }
+
     $currentPath = [Environment]::GetEnvironmentVariable("PATH", "User")
     if ($currentPath -notlike "*$VADGR_BIN*") {
         [Environment]::SetEnvironmentVariable("PATH", "$VADGR_BIN;$currentPath", "User")

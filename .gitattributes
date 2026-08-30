@@ -1,0 +1,2 @@
+*.sh text eol=lf
+packaging/cua/requirements.lock text eol=lf

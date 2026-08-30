@@ -65,7 +65,7 @@ jobs:
             # set -e ignores a pipeline that starts with !, so a negated
             # command can never fail a step: two of these were decoration
             # here. Test presence explicitly instead.
-            for tool in cargo cc git vadgr; do
+            for tool in python python3 pip pip3 uv vadgr-cua cargo cc git vadgr; do
               if command -v "$tool"; then echo "$tool is preinstalled, so this machine is not clean"; exit 1; fi
             done
             # The bind mount belongs to another uid, and git is not installed
@@ -135,6 +135,43 @@ jobs:
           # a passing check would fail the step on the very value it checked.
           exit 0
 
+  wsl-clean-install:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Vampire/setup-wsl@v7
+        with:
+          distribution: Debian-12
+      - name: Run the real source installer inside a clean WSL distribution
+        shell: wsl-bash {0}
+        env:
+          VADGR_REF: ${{ github.sha }}
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq --no-install-recommends ca-certificates curl
+          for tool in python python3 pip pip3 uv vadgr-cua cargo cc git vadgr; do
+            if command -v "$tool"; then
+              echo "$tool is preinstalled, so this WSL machine is not clean"
+              exit 1
+            fi
+          done
+          printf "[safe]\n\tdirectory = %s\n\tdirectory = %s/.git\n" "$PWD" "$PWD" > "$HOME/.gitconfig"
+          VADGR_REPO_URL="$PWD" bash install.sh
+          export PATH="$HOME/.vadgr/bin:$PATH"
+          version="$(grep -m1 '^version = ' Cargo.toml | cut -d'"' -f2)"
+          test "$(vadgr --version)" = "vadgr $version"
+          manifest="$HOME/.vadgr/lib/cua/payload.json"
+          test -f "$manifest"
+          private_pythons=( "$HOME"/.vadgr/lib/cua/environments/*/bin/python )
+          test "${#private_pythons[@]}" -eq 1
+          private_python="${private_pythons[0]}"
+          test -f "$private_python"
+          "$private_python" -I -c 'import importlib.metadata,json,pathlib,sys; manifest=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")); assert sys.version.split()[0] == manifest["python_version"]; assert importlib.metadata.version("vadgr-computer-use") == manifest["cua_version"]' "$manifest"
+          VADGR_TRANSPORT=loopback vadgr start
+          vadgr computer-use status
+          vadgr stop
+
   # A clean install is a normal user's machine: it has the operating system and
   # the libraries the operating system ships, and it has no toolchain, no build
   # dependency and no trace of this product. The question is the same on every
@@ -190,6 +227,70 @@ jobs:
           RUSTFLAGS: -C target-feature=+crt-static
         run: cargo build --locked --release --bins --target x86_64-pc-windows-msvc
 
+      - name: Assemble the complete clean install on Unix without Python tools
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          install_root="$RUNNER_TEMP/vadgr-clean-install"
+          shim="$RUNNER_TEMP/vadgr-python-shims"
+          mkdir -p "$install_root/bin" "$shim"
+          for name in python python3 pip pip3 uv vadgr-cua; do
+            printf '#!/bin/sh\necho "%s was resolved" >&2\nexit 97\n' "$name" > "$shim/$name"
+            chmod +x "$shim/$name"
+          done
+          env PATH="$shim" "$PWD/target/release/vadgr" __payload-setup \
+            --install-root "$install_root" --payload-only
+          cp "$PWD/target/release/vadgr" "$install_root/bin/vadgr"
+          manifest="$install_root/lib/cua/payload.json"
+          test -f "$manifest"
+          private_pythons=( "$install_root"/lib/cua/environments/*/bin/python )
+          test "${#private_pythons[@]}" -eq 1
+          private_python="${private_pythons[0]}"
+          test -f "$private_python"
+          "$private_python" -I -c \
+            'import importlib.metadata,json,pathlib,sys; manifest=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")); assert sys.version.split()[0] == manifest["python_version"]; assert importlib.metadata.version("vadgr-computer-use") == manifest["cua_version"]' \
+            "$manifest"
+          echo "CLEAN_INSTALL_ROOT=$install_root" >> "$GITHUB_ENV"
+
+      - name: Assemble the complete clean install on Windows without Python tools
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $installRoot = Join-Path $env:RUNNER_TEMP 'vadgr-clean-install'
+          $profileRoot = Join-Path $env:RUNNER_TEMP 'vadgr-clean-profile'
+          $shim = Join-Path $env:RUNNER_TEMP 'vadgr-python-shims'
+          New-Item -ItemType Directory -Force -Path "$installRoot\bin", $profileRoot, $shim | Out-Null
+          foreach ($name in @('python','python3','pip','pip3','uv','vadgr-cua')) {
+            Set-Content -Path "$shim\$name.cmd" -Value "@echo $name was resolved 1>&2`r`n@exit /b 97"
+          }
+          $candidate = Resolve-Path 'target\x86_64-pc-windows-msvc\release\vadgr.exe'
+          $clean = @{
+            PATH=$shim
+            USERPROFILE=$profileRoot
+            LOCALAPPDATA=(Join-Path $profileRoot 'AppData\Local')
+          }
+          $stdout = Join-Path $env:RUNNER_TEMP 'payload-setup.stdout.log'
+          $stderr = Join-Path $env:RUNNER_TEMP 'payload-setup.stderr.log'
+          $run = Start-Process -PassThru -Wait -FilePath $candidate -ArgumentList @(
+            '__payload-setup','--install-root',$installRoot,'--payload-only'
+          ) -Environment $clean -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+          if ($run.ExitCode -ne 0) {
+            Get-Content $stdout, $stderr
+            throw "payload setup exited $($run.ExitCode)"
+          }
+          Copy-Item $candidate "$installRoot\bin\vadgr.exe"
+          $manifest = "$installRoot\lib\cua\payload.json"
+          if (-not (Test-Path -PathType Leaf $manifest)) { throw "payload manifest is missing: $manifest" }
+          $generations = @(Get-ChildItem "$installRoot\lib\cua\environments" -Directory)
+          if ($generations.Count -ne 1) { throw "expected one private payload generation, found $($generations.Count)" }
+          $privatePython = Join-Path $generations[0].FullName 'Scripts\python.exe'
+          if (-not (Test-Path -PathType Leaf $privatePython)) { throw "private Python is missing: $privatePython" }
+          $verifyPayload = 'import importlib.metadata,json,pathlib,sys; manifest=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")); assert sys.version.split()[0] == manifest["python_version"]; assert importlib.metadata.version("vadgr-computer-use") == manifest["cua_version"]'
+          & $privatePython -I -c $verifyPayload $manifest
+          if ($LASTEXITCODE -ne 0) { throw 'private payload version check failed' }
+          "CLEAN_INSTALL_ROOT=$installRoot" | Out-File -FilePath $env:GITHUB_ENV -Append
+
       # Linux has containers, so the machine can be MADE rather than
       # approximated: ubuntu:24.04 with nothing in it, the one binary copied
       # in, nothing else. The base matches the distribution the binary was
@@ -206,22 +307,22 @@ jobs:
           test -n "$version" || { echo "read no version from Cargo.toml"; exit 1; }
           container="vadgr-clean-install"
           trap 'docker rm -f "$container" >/dev/null 2>&1 || true' EXIT
-          # create, cp, start: no image is built, so nothing but the one
-          # binary a user gets ever enters the machine, and removing the
-          # container removes every trace. The file serves when invoked with
-          # `serve` and is the client otherwise, so both halves are this copy.
+          # Mount the complete verified install at the same absolute path, then
+          # start it. Python environments are not relocatable after assembly;
+          # a user's installation also remains where the installer created it.
+          # No image is built, and removing the container removes every trace.
           docker create --name "$container" \
+            --mount "type=bind,src=$CLEAN_INSTALL_ROOT,dst=$CLEAN_INSTALL_ROOT,readonly" \
             --env VADGR_CONFIG_HOME=/var/lib/vadgr \
             --env VADGR_DB=/var/lib/vadgr/vadgr.db \
             --env VADGR_STATE_HOME=/var/lib/vadgr/state \
             --env VADGR_RUNS_DIR=/var/lib/vadgr/runs \
             --env VADGR_PORT=8100 \
             --env VADGR_TRANSPORT=loopback \
-            ubuntu:24.04 /usr/local/bin/vadgr serve >/dev/null
-          docker cp -q target/release/vadgr "$container:/usr/local/bin/vadgr"
+            ubuntu:24.04 "$CLEAN_INSTALL_ROOT/bin/vadgr" serve >/dev/null
           docker start "$container" >/dev/null
           # The CLI runs on the clean machine and names this checkout's version.
-          out="$(docker exec "$container" /usr/local/bin/vadgr --version)"
+          out="$(docker exec "$container" "$CLEAN_INSTALL_ROOT/bin/vadgr" --version)"
           test "$out" = "vadgr $version" || { echo "vadgr --version said '$out', expected 'vadgr $version'"; exit 1; }
           # It serves. The base ships no HTTP client, so a pinned busybox
           # sidecar joins the machine's own network namespace to fetch: the
@@ -247,7 +348,7 @@ jobs:
             .status == "healthy"
             and .version == $version
             and .platform == "linux"
-            and .modules == {"computer_use": false}
+            and .modules == {"computer_use": true}
             and .transport == {"loopback": {"name": "loopback", "available": true,
                                "advertise_host": null, "bind_host": "127.0.0.1"}}
           ' >/dev/null || { echo "the health body is wrong"; docker logs "$container"; exit 1; }
@@ -258,8 +359,12 @@ jobs:
             and [.[].id] == ["openai", "gemini", "anthropic"]
             and all(.[]; .connected == false)
           ' >/dev/null || { echo "the provider rows are wrong: $providers"; exit 1; }
+          computer_use="$(probe /api/settings/computer-use)"
+          echo "$computer_use" | jq -e \
+            '. == {"enabled": true, "platform": "native", "venv_ready": true}' >/dev/null \
+            || { echo "the bundled MCP server is unavailable: $computer_use"; docker logs "$container"; exit 1; }
           # The CLI reaches the daemon from the same machine.
-          docker exec "$container" /usr/local/bin/vadgr health
+          docker exec "$container" "$CLEAN_INSTALL_ROOT/bin/vadgr" health
           # Stop it; the trap removes the machine whole.
           docker stop --time 10 "$container" >/dev/null
 
@@ -281,7 +386,7 @@ jobs:
           test -n "$version" || { echo "read no version from Cargo.toml"; exit 1; }
           # The one binary a user gets: it serves when invoked with `serve`
           # and is the client otherwise, so this inspection covers both halves.
-          exe=target/release/vadgr
+          exe="$CLEAN_INSTALL_ROOT/bin/vadgr"
           test -x "$exe" || { echo "no binary at $exe"; exit 1; }
           otool -L "$exe"
           # Every library must be one macOS ships. Anything under /opt or
@@ -305,12 +410,12 @@ jobs:
           root="$(mktemp -d)"
           # The CLI runs with nothing in its environment and names this
           # checkout's version.
-          out="$(env -i HOME="$root" "$PWD/target/release/vadgr" --version)"
+          out="$(env -i HOME="$root" "$exe" --version)"
           test "$out" = "vadgr $version" || { echo "vadgr --version said '$out', expected 'vadgr $version'"; exit 1; }
           # It serves the same way: no PATH, no toolchain in reach.
           env -i HOME="$root" \
             VADGR_STATE_HOME="$root/state" VADGR_PORT=8100 VADGR_TRANSPORT=loopback \
-            "$PWD/target/release/vadgr" serve > "$root/daemon.log" 2>&1 &
+            "$exe" serve > "$root/daemon.log" 2>&1 &
           daemon_pid=$!
           body=""
           for _ in $(seq 1 40); do
@@ -323,7 +428,7 @@ jobs:
             .status == "healthy"
             and .version == $version
             and .platform == "macos"
-            and .modules == {"computer_use": false}
+            and .modules == {"computer_use": true}
             and .transport == {"loopback": {"name": "loopback", "available": true,
                                "advertise_host": null, "bind_host": "127.0.0.1"}}
           ' >/dev/null || { echo "the health body is wrong"; cat "$root/daemon.log"; exit 1; }
@@ -334,9 +439,13 @@ jobs:
             and [.[].id] == ["openai", "gemini", "anthropic"]
             and all(.[]; .connected == false)
           ' >/dev/null || { echo "the provider rows are wrong: $providers"; exit 1; }
+          computer_use="$(curl -fsS http://127.0.0.1:8100/api/settings/computer-use)"
+          echo "$computer_use" | jq -e \
+            '. == {"enabled": true, "platform": "native", "venv_ready": true}' >/dev/null \
+            || { echo "the bundled MCP server is unavailable: $computer_use"; cat "$root/daemon.log"; exit 1; }
           # The CLI reaches the daemon from the same emptied environment. Exit
           # 0 here needs the wire, not just the binary loading.
-          env -i HOME="$root" VADGR_PORT=8100 "$PWD/target/release/vadgr" health
+          env -i HOME="$root" VADGR_PORT=8100 "$exe" health
           # Stop it and leave nothing behind.
           kill "$daemon_pid"
           wait "$daemon_pid" 2>/dev/null || true
@@ -356,7 +465,7 @@ jobs:
           # and is the client otherwise. Its imports go against the one
           # shipped-with-Windows list the installer job also checks; two
           # copies of that list would drift apart.
-          $cli = "target\x86_64-pc-windows-msvc\release\vadgr.exe"
+          $cli = "$env:CLEAN_INSTALL_ROOT\bin\vadgr.exe"
           .\scripts\check_windows_imports.ps1 $cli
           # The version the binary must name, read from Cargo.toml at run
           # time, never typed here.
@@ -400,7 +509,7 @@ jobs:
           if ($health.version -ne $version) { throw "version was '$($health.version)', expected '$version'" }
           if ($health.platform -ne 'windows') { throw "platform was '$($health.platform)'" }
           $moduleKeys = ($health.modules.PSObject.Properties.Name | Sort-Object) -join ','
-          if ($moduleKeys -ne 'computer_use' -or $health.modules.computer_use -ne $false) {
+          if ($moduleKeys -ne 'computer_use' -or $health.modules.computer_use -ne $true) {
             throw "modules was $($health.modules | ConvertTo-Json -Compress)"
           }
           # The health block now reports one entry per registered transport,
@@ -432,6 +541,13 @@ jobs:
           if ($ids -ne 'openai,gemini,anthropic') { throw "the provider ids are wrong: <$ids>" }
           foreach ($row in $providers) {
             if ($row.connected -ne $false) { throw "provider $($row.id) is connected on a fresh machine: $providersJson" }
+          }
+          $computerUse = Invoke-RestMethod -UseBasicParsing http://127.0.0.1:8100/api/settings/computer-use
+          $computerUseKeys = ($computerUse.PSObject.Properties.Name | Sort-Object) -join ','
+          if ($computerUseKeys -ne 'enabled,platform,venv_ready' -or
+              $computerUse.enabled -ne $true -or $computerUse.platform -ne 'native' -or
+              $computerUse.venv_ready -ne $true) {
+            throw "the bundled MCP server is unavailable: $($computerUse | ConvertTo-Json -Compress)"
           }
           # The CLI reaches the daemon from the same stripped environment.
           # Exit 0 here needs the wire, not just the binary loading.

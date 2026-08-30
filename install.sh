@@ -149,11 +149,41 @@ build_and_install() {
     fi
     ( cd "$VADGR_REPO" && cargo build --locked --release --bins ) || fail "The build failed. Nothing was installed."
 
+    local candidate="$VADGR_REPO/target/release/vadgr"
+    info "Assembling vadgr's private computer-use runtime..."
+    if [ "$OS" = "macos" ]; then
+        # macOS asks for Accessibility and Screen Recording through a dialog,
+        # and grants a running application the moment you allow them. It still
+        # says the application cannot record "until it is quit", because the
+        # already-running process keeps its old answer until it restarts. An
+        # owner who takes that literally quits the terminal mid-install and
+        # kills it, so say plainly what to click and when to restart.
+        info "macOS will ask for Accessibility and Screen Recording next."
+        info "  Allow both. If it says the terminal cannot record until it is"
+        info "  quit, choose Later: quitting now would stop this installation."
+        info "  Restart your terminal once the install finishes."
+    fi
+    "$candidate" __payload-setup --install-root "$VADGR_HOME" \
+        || fail "Computer use could not be prepared. The installed binary was not changed."
+    if [ "$OS" = "linux" ]; then
+        local apply_deps="${VADGR_CUA_APPLY_SYSTEM_DEPS:-}"
+        if [ -z "$apply_deps" ] && [ -t 0 ]; then
+            printf "Apply the printed Linux computer-use system plan? [y/N] "
+            read -r apply_deps
+        fi
+        case "$apply_deps" in
+            1|y|Y|yes|YES)
+                "$candidate" __payload-setup --install-root "$VADGR_HOME" --apply-system-deps \
+                    || fail "The approved Linux computer-use setup failed. The installed binary was not changed."
+                ;;
+        esac
+    fi
+
     mkdir -p "$VADGR_BIN"
     # Installed only after the build succeeded, so a failed build leaves the
     # installation that was already working exactly as it was.
     for binary in vadgr; do
-        install -m 0755 "$VADGR_REPO/target/release/$binary" "$VADGR_BIN/$binary" \
+        install -m 0755 "$candidate" "$VADGR_BIN/$binary" \
             || fail "Could not install $binary into $VADGR_BIN"
     done
     ok "Installed vadgr into $VADGR_BIN"
@@ -232,6 +262,10 @@ add_to_path() {
         echo "$line" >> "$default_rc"
         if [ -n "$cargo_line" ]; then echo "$cargo_line" >> "$default_rc"; fi
         info "Created $(basename "$default_rc") with the vadgr PATH"
+        # Named so the closing step can tell the owner to source the file that
+        # was actually written. It said `source ~/.bashrc` on a machine where
+        # it had just created `.zshrc`, which is the default shell on macOS.
+        VADGR_PROFILE="$default_rc"
     fi
 
     export PATH="$VADGR_BIN:$PATH"
@@ -274,7 +308,20 @@ main() {
     ok "VADGR installed successfully!"
     echo ""
     ok "To get started:"
-    ok "  1. Restart your terminal (or run: source ~/.bashrc)"
+    if [ "$OS" = "macos" ]; then
+        # The grants only take effect for a process started after they were
+        # given, so on macOS the restart is the step that makes computer use
+        # work rather than a convenience for PATH.
+        ok "  1. Restart your terminal. On macOS this is what makes the"
+        ok "     Accessibility and Screen Recording grants take effect, not"
+        ok "     just a PATH refresh."
+    else
+        if [ -n "${VADGR_PROFILE:-}" ]; then
+            ok "  1. Restart your terminal (or run: . $VADGR_PROFILE)"
+        else
+            ok "  1. Restart your terminal so the vadgr PATH applies"
+        fi
+    fi
     ok "  2. Run: vadgr provider login"
     ok "  3. Run: vadgr start, then vadgr pair"
     echo ""

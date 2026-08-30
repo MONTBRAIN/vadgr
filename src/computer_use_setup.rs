@@ -4,10 +4,11 @@
 //! file or another program's global configuration: the loop owns its MCP host,
 //! so nothing outside this machine's state needs to know computer use is on.
 
+use crate::cua_payload::{CuaCommand, CuaRuntime, install_root_from_executable};
 use crate::platform;
 use anyhow::{Context, Result, bail};
 use serde_json::{Map, Value, json};
-use std::ffi::{OsStr, OsString};
+use std::ffi::OsString;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
@@ -16,14 +17,14 @@ const SETTINGS_FILE: &str = "settings.json";
 #[derive(Clone)]
 pub struct SetupService {
     settings_path: PathBuf,
-    runtime_path: Option<PathBuf>,
+    runtime: Option<CuaRuntime>,
     default_enabled: bool,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ComputerUseEntry {
     pub enabled: bool,
-    pub command: Option<PathBuf>,
+    pub command: Option<CuaCommand>,
 }
 
 impl SetupService {
@@ -35,9 +36,13 @@ impl SetupService {
                 bail!("VADGR_COMPUTER_USE must be true, false, 1 or 0")
             }
         };
+        let runtime = std::env::current_exe()
+            .ok()
+            .and_then(|executable| install_root_from_executable(&executable).ok())
+            .and_then(|root| CuaRuntime::below_install_root(&root).ok());
         Ok(Self::new(
             config_home()?.join(SETTINGS_FILE),
-            find_runtime(),
+            runtime,
             default_enabled,
         ))
     }
@@ -45,14 +50,10 @@ impl SetupService {
     /// Construct the service with explicit dependencies. The daemon uses
     /// `from_env`; tests and embedders use this constructor without mutating the
     /// process environment.
-    pub fn new(
-        settings_path: PathBuf,
-        runtime_path: Option<PathBuf>,
-        default_enabled: bool,
-    ) -> Self {
+    pub fn new(settings_path: PathBuf, runtime: Option<CuaRuntime>, default_enabled: bool) -> Self {
         Self {
             settings_path,
-            runtime_path,
+            runtime,
             default_enabled,
         }
     }
@@ -62,7 +63,7 @@ impl SetupService {
             "enabled": self.read_enabled()?.unwrap_or(self.default_enabled),
             // This wire key is kept for the released CLI. It means that a cua
             // runtime can be mounted, not that vadgr owns the environment it lives in.
-            "venv_ready": self.runtime_path.is_some(),
+            "venv_ready": self.runtime.is_some(),
             "platform": platform::computer_use_platform(),
         }))
     }
@@ -70,7 +71,7 @@ impl SetupService {
     pub fn entry(&self) -> Result<ComputerUseEntry> {
         Ok(ComputerUseEntry {
             enabled: self.read_enabled()?.unwrap_or(self.default_enabled),
-            command: self.runtime_path.clone(),
+            command: self.runtime.as_ref().map(CuaRuntime::stdio_command),
         })
     }
 
@@ -252,101 +253,10 @@ fn replace_file(source: &Path, destination: &Path) -> std::io::Result<()> {
     }
 }
 
-fn find_runtime() -> Option<PathBuf> {
-    find_runtime_from(
-        std::env::var_os("VADGR_CUA_BIN"),
-        std::env::current_dir().ok(),
-        std::env::var_os("PATH"),
-        std::env::var_os("PATHEXT"),
-        cfg!(windows),
-    )
-}
-
-fn find_runtime_from(
-    explicit: Option<OsString>,
-    current_dir: Option<PathBuf>,
-    path: Option<OsString>,
-    path_ext: Option<OsString>,
-    windows: bool,
-) -> Option<PathBuf> {
-    if let Some(explicit) = explicit {
-        let explicit = PathBuf::from(explicit);
-        return is_executable(&explicit).then_some(explicit);
-    }
-
-    if let Some(current_dir) = current_dir {
-        let local = local_runtime_path(&current_dir, windows);
-        if is_executable(&local) {
-            return Some(local);
-        }
-    }
-
-    find_on_path("vadgr-cua", path.as_deref(), path_ext.as_deref(), windows)
-}
-
-fn local_runtime_path(root: &Path, windows: bool) -> PathBuf {
-    if windows {
-        root.join(".cu_venv").join("Scripts").join("vadgr-cua.exe")
-    } else {
-        root.join(".cu_venv").join("bin").join("vadgr-cua")
-    }
-}
-
-fn find_on_path(
-    command: &str,
-    path: Option<&OsStr>,
-    path_ext: Option<&OsStr>,
-    windows: bool,
-) -> Option<PathBuf> {
-    for directory in std::env::split_paths(path?) {
-        for name in command_names(command, path_ext, windows) {
-            let candidate = directory.join(name);
-            if is_executable(&candidate) {
-                return Some(candidate);
-            }
-        }
-    }
-    None
-}
-
-fn command_names(command: &str, path_ext: Option<&OsStr>, windows: bool) -> Vec<OsString> {
-    if !windows || Path::new(command).extension().is_some() {
-        return vec![command.into()];
-    }
-    path_ext
-        .unwrap_or_else(|| OsStr::new(".COM;.EXE;.BAT;.CMD"))
-        .to_string_lossy()
-        .split(';')
-        .filter_map(|extension| {
-            let extension = extension.trim();
-            if extension.is_empty() {
-                return None;
-            }
-            let separator = if extension.starts_with('.') { "" } else { "." };
-            Some(OsString::from(format!("{command}{separator}{extension}")))
-        })
-        .collect()
-}
-
-#[cfg(unix)]
-fn is_executable(path: &Path) -> bool {
-    use std::os::unix::fs::PermissionsExt;
-    std::fs::metadata(path)
-        .map(|metadata| metadata.is_file() && metadata.permissions().mode() & 0o111 != 0)
-        .unwrap_or(false)
-}
-
-#[cfg(not(unix))]
-fn is_executable(path: &Path) -> bool {
-    path.is_file()
-}
-
 #[cfg(test)]
 mod tests {
-    use super::{SetupService, command_names, config_home_from, find_on_path, local_runtime_path};
+    use super::{SetupService, config_home_from};
     use serde_json::Value;
-    use std::ffi::OsStr;
-    use std::path::Path;
 
     #[test]
     fn toggle_writes_only_daemon_settings_and_preserves_other_keys() {
@@ -365,8 +275,7 @@ mod tests {
     #[test]
     fn status_reports_runtime_presence_without_starting_a_process() {
         let directory = tempfile::tempdir().unwrap();
-        let runtime = directory.path().join("vadgr-cua");
-        std::fs::write(&runtime, "runtime").unwrap();
+        let runtime = crate::cua_payload::CuaRuntime::for_test(directory.path());
         let service =
             SetupService::new(directory.path().join("settings.json"), Some(runtime), true);
 
@@ -510,63 +419,6 @@ mod tests {
         assert_eq!(
             config_home_from(None, None, None, None, None, "linux"),
             None
-        );
-    }
-
-    #[test]
-    fn local_runtime_paths_use_native_components() {
-        let root = Path::new("root");
-        assert_eq!(
-            local_runtime_path(root, false),
-            root.join(".cu_venv").join("bin").join("vadgr-cua")
-        );
-        assert_eq!(
-            local_runtime_path(root, true),
-            root.join(".cu_venv").join("Scripts").join("vadgr-cua.exe")
-        );
-    }
-
-    #[test]
-    fn windows_command_names_follow_pathext_without_requiring_a_dot() {
-        assert_eq!(
-            command_names("vadgr-cua", Some(OsStr::new("EXE;.CMD")), true),
-            vec!["vadgr-cua.EXE", "vadgr-cua.CMD"]
-        );
-        assert_eq!(
-            command_names("vadgr-cua.exe", Some(OsStr::new(".EXE")), true),
-            vec!["vadgr-cua.exe"]
-        );
-    }
-
-    #[cfg(unix)]
-    #[test]
-    fn unix_path_discovery_rejects_a_file_without_an_execute_bit() {
-        use std::os::unix::fs::PermissionsExt;
-
-        let directory = tempfile::tempdir().unwrap();
-        let runtime = directory.path().join("vadgr-cua");
-        std::fs::write(&runtime, "runtime").unwrap();
-        let path = std::env::join_paths([directory.path()]).unwrap();
-        assert_eq!(find_on_path("vadgr-cua", Some(&path), None, false), None);
-
-        std::fs::set_permissions(&runtime, std::fs::Permissions::from_mode(0o700)).unwrap();
-        assert_eq!(
-            find_on_path("vadgr-cua", Some(&path), None, false),
-            Some(runtime)
-        );
-    }
-
-    #[cfg(windows)]
-    #[test]
-    fn windows_path_discovery_uses_pathext() {
-        let directory = tempfile::tempdir().unwrap();
-        let runtime = directory.path().join("vadgr-cua.EXE");
-        std::fs::write(&runtime, "runtime").unwrap();
-        let path = std::env::join_paths([directory.path()]).unwrap();
-
-        assert_eq!(
-            find_on_path("vadgr-cua", Some(&path), Some(OsStr::new(".EXE")), true),
-            Some(runtime)
         );
     }
 }
