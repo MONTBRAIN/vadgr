@@ -389,6 +389,14 @@ named blocker. Only a cell that cannot proceed without the owner, or a decision
 only the owner can make, ends one early. Stopping to report looks like progress
 and is the opposite, because the cells that were never run stay never run.
 
+**After a host completes every E2E cell for a minor, perform post-E2E cleanup
+before reporting completion.** First confirm that all evidence is committed and
+pushed. Stop only processes started by the pass, and preserve source, evidence,
+configuration, credentials and uncommitted work. Remove only validated isolated
+test roots. Run the build system's standard clean command in each completed
+worktree, including `cargo clean` for Rust, then record and report the space
+reclaimed.
+
 **Evidence is filed while the pass runs, never assembled after it.** The
 evidence directory exists before the first cell, each group files what it
 produced at its own boundary, and a group that captured nothing gets a note
