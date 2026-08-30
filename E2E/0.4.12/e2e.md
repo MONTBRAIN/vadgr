@@ -4,7 +4,8 @@
 > [vadgr PR #213](https://github.com/MONTBRAIN/vadgr/pull/213). WSL tool and
 > isolation cells used product commit `cbf04f3`. WSL installer cells use
 > source-workspace repair commit `df23826`. Native Windows cells use
-> alternate-profile repair commit `49c30d3`.
+> alternate-profile repair commit `49c30d3`. Native Linux cells use
+> installer-mode repair commit `254b521`.
 > **vadgr 0.4.12 evidence PR:**
 > [vadgr-docs PR #128](https://github.com/MONTBRAIN/vadgr-docs/pull/128).
 >
@@ -20,10 +21,10 @@ A clean vadgr installation supplies its own pinned, isolated Python 3.12.14 and
 Python environment, and leaves the owner machine unchanged outside vadgr's
 explicit install and state roots.
 
-> **Status: WSL and native Windows complete.** Windows NA1-NB3 and ND1 pass
-> at `49c30d3`. WSL WA1-WA3 and WD1 pass at `df23826`. Local
-> automated gates are green (180 library tests plus integration suites; clippy
-> and formatting exit 0). Native Linux and macOS remain owed.
+> **Status: native Linux and native Windows complete.** Linux LA1-LB3 and LD1
+> pass at `254b521`. Windows NA1-NB3 and ND1 pass at `49c30d3`. WSL WA2-WA3,
+> WB1-WB3, WC1, WD1 and E1-E3 remain valid at `df23826`, but WA1 must rerun
+> after the Unix installer-mode repair. macOS remains owed.
 
 ## The rules
 
@@ -151,23 +152,23 @@ run id may differ; no other field is normalised.
 
 | Part | Axes | Cells | Run | Open |
 |---|---|---:|---:|---:|
-| A: clean installation and ready payload | 4 OS x 3 boundaries | 12 | 6 | 6 |
-| B: real tool and hostile PATH | 4 OS x 3 boundaries | 12 | 6 | 6 |
+| A: clean installation and ready payload | 4 OS x 3 boundaries | 12 | 8 | 4 |
+| B: real tool and hostile PATH | 4 OS x 3 boundaries | 12 | 9 | 3 |
 | C: damaged payload isolation | WSL x 1 boundary | 1 | 1 | 0 |
-| D: owner-machine non-mutation | 4 OS x 1 boundary | 4 | 2 | 2 |
+| D: owner-machine non-mutation | 4 OS x 1 boundary | 4 | 3 | 1 |
 | E: independent close | 3 isolated WSL agents | 3 | 3 | 0 |
-| | | **32** | **18** | **14** |
+| | | **32** | **24** | **8** |
 
 ## Part A: clean installation and ready payload
 
 | # | Precondition and setup | Goal or action | Expected observable and independent oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
-| WA1 | Fresh WSL root; source at recorded commit; none of Python/pip/uv/cua resolves | Run the source installer with no system-dependency consent | Installed `vadgr` is 0.4.12; manifest pins Python 3.12.14, cua 0.7.5 and this target; private interpreter and distribution report those versions | install transcript/exit, resolution failures, head/path/hash, manifest and version outputs | retain root through WD1 | **pass on WSL after repair**: exact source `df23826`; the clean path also excluded Rust; the installer supplied isolated Rust; vadgr reports 0.4.12; the manifest and private runtime report Python 3.12.14 and cua 0.7.5 |
+| WA1 | Fresh WSL root; source at recorded commit; none of Python/pip/uv/cua resolves | Run the source installer with no system-dependency consent | Installed `vadgr` is 0.4.12; manifest pins Python 3.12.14, cua 0.7.5 and this target; private interpreter and distribution report those versions | install transcript/exit, resolution failures, head/path/hash, manifest and version outputs | retain root through WD1 | not run after invalidation: the Unix installer executable-mode repair at `254b521` affects direct invocation, so WSL must rerun this cell |
 | WA2 | WA1 installed root | Inspect setup output and host package inventory | WSL applies no OS dependency plan and changes no host package or network state | setup output and before/after package inventory | none | **pass on WSL after repair**: no system plan ran and the sorted package inventories have identical SHA-256 values |
 | WA3 | WA1 root; daemon started | Run `vadgr computer-use status` and read health/settings API | Computer use is enabled, available and ready; daemon stays healthy | CLI/API bodies, daemon log and private child process row | stop only this daemon by pid after group | **pass on WSL after repair**: one installed daemon serves the isolated port; health reports `wsl` and computer use available; settings report enabled, ready and `wsl2` |
-| LA1 | Fresh native Linux root; same clean-PATH setup | Run source installer and decline dependency application | Same identity/pins as WA1; printed plan changes nothing | same WA1 artifacts plus dry-run plan | retain root through LD1 | not run: native Linux host has not run it |
-| LA2 | LA1; owner has read and explicitly approved exact printed plan | Repeat setup with explicit consent | Only the approved system plan is applied; payload remains same pins | consent record without secrets, command output, package diff | retain approved system deps; remove test root later | not run: native Linux owner action and host are outstanding |
-| LA3 | LA2 root; daemon started | Run status and APIs | Computer use ready and healthy | same WA3 artifacts | stop own daemon | not run: native Linux host has not run it |
+| LA1 | Fresh native Linux root; same clean-PATH setup | Run source installer and decline dependency application | Same identity/pins as WA1; printed plan changes nothing | same WA1 artifacts plus dry-run plan | retain root through LD1 | **pass on native Linux after repair**: exact source `254b521`; clean PATH excluded Python, pip, uv, cua and Rust; installed vadgr reports 0.4.12; bundled payload reports Python 3.12.14 and cua 0.7.5 |
+| LA2 | LA1; owner has read and explicitly approved exact printed plan | Repeat setup with explicit consent | Only the approved system plan is applied; payload remains same pins | consent record without secrets, command output, package diff | retain approved system deps; remove test root later | **pass on native Linux**: the owner approved the exact empty plan; setup reported all dependencies present; package inventories have identical hashes |
+| LA3 | LA2 root; daemon started | Run status and APIs | Computer use ready and healthy | same WA3 artifacts | stop own daemon | **pass on native Linux**: installed daemon PID 275162 served isolated port 18812; CLI status and health/settings APIs report computer use enabled, available and ready |
 | NA1 | Fresh native Windows profile; no Python/pip/uv/cua resolves | Run checked-out `install.ps1` | Same identity/pins as WA1 with `.exe` and Windows target | PowerShell transcript/exit, Get-Command failures, head/path/hash, manifest/version | retain root through ND1 | **pass on native Windows after repair**: exact source `49c30d3`; the isolated install reports vadgr 0.4.12, Python 3.12.14, cua 0.7.5 and the Windows x86-64 target |
 | NA2 | NA1 installed root | Inspect setup output and registry/package inventories | No system Python, registry, PATH or network change | setup output plus before/after inventories | none | **pass on native Windows after repair**: setup persisted no alternate-profile PATH; registry, package, cache, environment and network checks are unchanged |
 | NA3 | NA1 root; daemon started | Run status and APIs | Computer use ready and healthy | same WA3 artifacts | stop own daemon | **pass on native Windows after repair**: the installed daemon served the isolated port; health reports Windows and computer use; settings report enabled and ready |
@@ -182,9 +183,9 @@ run id may differ; no other field is normalised.
 | WB1 | WA3 root; API-key login complete; exact billed model selected | Run the bounded goal once | Completed run; exactly one get_platform `in_flight` and matching `done`; real usage present | CLI transcript/exit, run row, complete journal and daemon log | retain provider state for WB3 only | **pass on WSL**: installed CLI completed in six seconds; one `computer-use__get_platform` call returned `wsl2`; one matching successful `done` and two non-zero usage rows were journalled |
 | WB2 | WB1; sample the cua child while running or from daemon spawn instrumentation | Read executable and argv and inspect its environment | Executable is below install root; argv contains `-I` and absolute bootstrap; no system executable, `.cu_venv` or `VADGR_CUA_BIN` selects it | process row/argv/environment-name inventory and manifest | none | **pass on WSL**: repeated samples resolve the private CPython and absolute bootstrap below the install root with `-I`; the environment-name inventory carries none of the four forbidden override names |
 | WB3 | Fake Python/pip/uv/cua shims first on PATH, sentinel empty | Repeat WB1 exactly once | Same journal result; sentinel remains empty; child path/argv still match WB2 | shim definitions, empty sentinel, transcript, run row, journal, process row | remove shim dir | **pass on WSL**: the eight-second repeat has the same one-call successful journal and real usage; all five hostile shims resolve first, but their sentinel remains zero bytes |
-| LB1 | LA3 plus provider login | Repeat WB1 | Same WB1 oracle | same WB1 boundary | retain provider state for LB3 | not run: native Linux host has not run it |
-| LB2 | LB1 | Repeat WB2 | Same WB2 oracle | same WB2 boundary | none | not run: native Linux host has not run it |
-| LB3 | Hostile shims first on PATH | Repeat WB3 | Same WB3 oracle | same WB3 boundary | remove shim dir | not run: native Linux host has not run it |
+| LB1 | LA3 plus provider login | Repeat WB1 | Same WB1 oracle | same WB1 boundary | retain provider state for LB3 | **pass on native Linux**: run `run-d229186dd00a4fb2ac6ed26a1691f81e` completed in four seconds; one platform call returned `linux` with real usage |
+| LB2 | LB1 | Repeat WB2 | Same WB2 oracle | same WB2 boundary | none | **pass on native Linux**: live sampling shows private Python below the install root, `-I`, and the absolute bundled bootstrap; forbidden override and Python environment names are absent |
+| LB3 | Hostile shims first on PATH | Repeat WB3 | Same WB3 oracle | same WB3 boundary | remove shim dir | **pass on native Linux**: run `run-c09b0e860bd14bb797497383457c0880` returned `linux`; all five hostile shims resolved first and the sentinel stayed empty |
 | NB1 | NA3 plus provider login | Repeat WB1 | Same WB1 oracle | same WB1 boundary | retain provider state for NB3 | **pass on native Windows**: run `run-2d16b196d53b4a549b7c7fd6afb17099` completed in five seconds; one platform call returned `windows` with real usage |
 | NB2 | NB1 | Repeat WB2 with native process inspection | Same WB2 oracle | executable path, command line and environment-name inventory | none | **pass on native Windows**: samples show private Python, `-I` and absolute bootstrap paths; forbidden override names are absent from the daemon environment |
 | NB3 | Hostile `.cmd`/`.exe` shims first on PATH | Repeat WB3 | Same WB3 oracle | same WB3 boundary | remove shim dir | **pass on native Windows**: run `run-179119b731b1426e9c06b8732f333967` returned `windows`; all hostile shims resolved first and the sentinel stayed empty |
@@ -203,7 +204,7 @@ run id may differ; no other field is normalised.
 | # | Precondition and setup | Goal or action | Expected observable and independent oracle | Evidence boundary | Cleanup | Status |
 |---|---|---|---|---|---|---|
 | WD1 | WSL before snapshot exists; WA-WC complete and manifest restored | Stop own processes, trash isolated root, take after snapshot and compare | Profiles, user Python state/caches, selected env names and network configuration are unchanged | both raw snapshots, diff exit and process/port checks | trash only isolated root | **pass on WSL after repair**: the installed CLI stopped the exact daemon; its port is free; the root moved to trash; the snapshot bodies are byte-identical |
-| LD1 | Linux before snapshot exists; LA/LB complete | Stop own processes, trash isolated root, snapshot/compare | Same as WD1 except owner-approved LA2 package changes are the only named difference | snapshots, diff, approved package delta, process/port checks | trash test root; retain approved deps | not run: native Linux host has not run it |
+| LD1 | Linux before snapshot exists; LA/LB complete | Stop own processes, trash isolated root, snapshot/compare | Same as WD1 except owner-approved LA2 package changes are the only named difference | snapshots, diff, approved package delta, process/port checks | trash test root; retain approved deps | **pass on native Linux**: installed CLI stopped PID 275162; port 18812 is free; snapshot bodies and package inventory hashes match; isolated root moved to trash |
 | ND1 | Windows before snapshot exists; NA/NB complete | Stop own processes, trash isolated root, snapshot/compare | Profiles, registry Python state, caches, environment and network hashes unchanged | snapshots, comparison, process/port checks | trash only isolated root | **pass on native Windows after repair**: the installed CLI stopped its daemon; port 18797 is free; seven exact roots moved to the Recycle Bin; snapshots and package inventories match |
 | MD1 | macOS before snapshot exists; MA/MB complete | Stop own processes, trash isolated root, snapshot/compare | Same as WD1; only the explicitly granted privacy entries may differ | snapshots, diff, grant delta, process/port checks | trash root; owner may remove grants | not run: macOS host has not run it |
 
@@ -227,12 +228,12 @@ different output counts.
 
 | Part | WSL | Linux | Windows native | macOS |
 |---|---|---|---|---|
-| A: clean installation and ready payload | pass: WA1-WA3 passed on exact source `df23826` with cua 0.7.5 | not run: host outstanding | pass: NA1-NA3 passed on exact source `49c30d3` with cua 0.7.5 | not run: host outstanding |
-| B: real tool and hostile PATH | pass: WB1-WB3, one real call both normally and under hostile PATH | not run: host outstanding | pass: NB1-NB3 made one real call normally and under hostile PATH | not run: host outstanding |
+| A: clean installation and ready payload | not run after invalidation: WA1 must rerun at `254b521`; WA2-WA3 remain valid | pass: LA1-LA3 passed on exact source `254b521` with cua 0.7.5 | pass: NA1-NA3 passed on exact source `49c30d3` with cua 0.7.5 | not run: host outstanding |
+| B: real tool and hostile PATH | pass: WB1-WB3, one real call both normally and under hostile PATH | pass: LB1-LB3 made one real call normally and under hostile PATH | pass: NB1-NB3 made one real call normally and under hostile PATH | not run: host outstanding |
 | C: damaged payload isolation | pass: WC1 failed closed without fallback and restored exact manifest | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B |
-| D: owner-machine non-mutation | pass: WD1 snapshot body unchanged after trashing the repaired install root | not run: host outstanding | pass: ND1 snapshots and package inventory unchanged after recycling exact test roots | not run: host outstanding |
+| D: owner-machine non-mutation | pass: WD1 snapshot body unchanged after trashing the repaired install root | pass: LD1 snapshot body and package inventory unchanged after trashing the exact test root | pass: ND1 snapshots and package inventory unchanged after recycling exact test roots | not run: host outstanding |
 | E: independent close | pass: three isolated shared-epoch runs overlap and match structurally | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed |
-| **overall** | **pass: all eleven WSL cells completed; repaired installer cells pass at `df23826`** | **not run: native Linux outstanding** | **pass: all seven native Windows cells completed at `49c30d3`** | **not run: macOS outstanding** |
+| **overall** | **not run after invalidation: WA1 must rerun at `254b521`; ten other WSL cells remain valid** | **pass: all seven native Linux cells completed at `254b521`** | **pass: all seven native Windows cells completed at `49c30d3`** | **not run: macOS outstanding** |
 
 ## Evidence and remote-host handoff
 
@@ -246,7 +247,7 @@ pass.
 | operating system | filed evidence boundary |
 |---|---|
 | WSL | prior pass through `e4740f5`; final repair evidence through `bf9f2f3` under `revalidation-df23826/` |
-| native Linux | not run: host outstanding |
+| native Linux | setup and Part A through `8d9cab1`; Part B through `db5d830`; Part D and final gates through `13b2a63` under `20260829-linux-native/` |
 | native Windows | Parts A through `d00e576`; B through `9ebcebf`; D through `2235110` under `20260829-windows-native/` |
 | macOS | not run: host outstanding |
 
@@ -309,3 +310,16 @@ failed before the repair and passed after it. NA1-NA3, NB1-NB3 and ND1 then
 passed at that exact commit. Three billed platform runs used 11,206 input and 23
 output tokens each, costing at most $0.045284 each and $0.135852 total at the
 listed rates. The final host snapshots and 204-package inventories match.
+
+Native Linux found that the documented direct `./install.sh` command could not
+execute because Git stored the file with mode 0644. Two clean invocations failed
+with exit 126. The Unix installer regression failed before the repair with exit
+101. Commit `254b521` stores `install.sh` with mode 0755, and the regression then
+passed. This changes direct Unix installer invocation, so WA1 is invalidated and
+must rerun on WSL. The remaining WSL cells are not affected. LA1-LA3, LB1-LB3
+and LD1 pass on exact product commit `254b521`. Four bounded billed goals ran.
+The first two were the required normal and hostile-path goals. Two repeats
+captured a valid live environment-name sample after the first monitor matched
+its own harness shell. Each accepted trajectory made one platform call and
+returned `linux`. The hostile sentinel stayed empty. The final host snapshot and
+package inventory match their baselines.
