@@ -174,9 +174,9 @@ run id may differ; no other field is normalised.
 | NA1 | Fresh native Windows profile; no Python/pip/uv/cua resolves | Run checked-out `install.ps1` | Same identity/pins as WA1 with `.exe` and Windows target | PowerShell transcript/exit, Get-Command failures, head/path/hash, manifest/version | retain root through ND1 | **pass on native Windows after repair**: exact source `49c30d3`; the isolated install reports vadgr 0.4.12, Python 3.12.14, cua 0.7.5 and the Windows x86-64 target |
 | NA2 | NA1 installed root | Inspect setup output and registry/package inventories | No system Python, registry, PATH or network change | setup output plus before/after inventories | none | **pass on native Windows after repair**: setup persisted no alternate-profile PATH; registry, package, cache, environment and network checks are unchanged |
 | NA3 | NA1 root; daemon started | Run status and APIs | Computer use ready and healthy | same WA3 artifacts | stop own daemon | **pass on native Windows after repair**: the installed daemon served the isolated port; health reports Windows and computer use; settings report enabled and ready |
-| MA1 | Fresh macOS root; no Python/pip/uv/cua resolves | Run source installer | Same identity/pins as WA1 with macOS target | install transcript/exit, resolution failures, head/path/hash, manifest/version | retain root through MD1 | not run after invalidation: the first pass at `50b6ab6` found that setup reported the terminal parent's grants; the repaired installer and rebuilt product require a clean exact-head rerun |
-| MA2 | MA1 private interpreter path prepared; owner grants Accessibility and Screen Recording first | Run the reported setup/doctor check again | Both grants apply to the private interpreter and setup exits 0; no Settings page was opened automatically | grant-path record and setup output; no unrelated privacy entries | owner may remove grants after MD1 | not run after invalidation: commit `3a1cfd6` changes this cell from reporting the parent to prompting for the private interpreter; rerun at the current head |
-| MA3 | MA2 root; daemon started | Run status and APIs | Computer use ready and healthy | same WA3 artifacts | stop own daemon | not run after invalidation: readiness must be observed after the repaired private-interpreter grant path |
+| MA1 | Fresh macOS root; no Python/pip/uv/cua resolves | Run source installer | Same identity/pins as WA1 with macOS target | install transcript/exit, resolution failures, head/path/hash, manifest/version | retain root through MD1 | **pass on macOS** at `a501007`: the source installer exited 0 from a clean path resolving none of Python, pip, uv or cua; installed vadgr reports 0.4.12, sha `1f3aa56c`, and the payload pins cua 0.7.5, Python 3.12.14 and `aarch64-apple-darwin`, which the private interpreter and distribution confirm themselves |
+| MA2 | MA1 private interpreter path prepared; owner grants Accessibility and Screen Recording first | Run the reported setup/doctor check again | Both grants apply to the private interpreter and setup exits 0; no Settings page was opened automatically | grant-path record and setup output; no unrelated privacy entries | owner may remove grants after MD1 | **finding on macOS, not a pass** at `a501007`: setup fires the prompts and the installer opens no Settings page by itself, but the grants do not attach to the private interpreter. The same binary reports both `true` when its responsible process is the terminal and both `false` under `launchd`, because macOS attributes a grant to the responsible process. Granted from a terminal the payload works only when launched from that terminal, and a daemon started at login has neither |
+| MA3 | MA2 root; daemon started | Run status and APIs | Computer use ready and healthy | same WA3 artifacts | stop own daemon | **pass on macOS** at `a501007`: the installed daemon served isolated port 18861; health reports `macos`, healthy and computer use present; the status API reports available and settings report enabled and ready |
 
 ## Part B: real tool and hostile PATH
 
@@ -191,9 +191,9 @@ run id may differ; no other field is normalised.
 | NB1 | NA3 plus provider login | Repeat WB1 | Same WB1 oracle | same WB1 boundary | retain provider state for NB3 | **pass on native Windows**: run `run-2d16b196d53b4a549b7c7fd6afb17099` completed in five seconds; one platform call returned `windows` with real usage |
 | NB2 | NB1 | Repeat WB2 with native process inspection | Same WB2 oracle | executable path, command line and environment-name inventory | none | **pass on native Windows**: samples show private Python, `-I` and absolute bootstrap paths; forbidden override names are absent from the daemon environment |
 | NB3 | Hostile `.cmd`/`.exe` shims first on PATH | Repeat WB3 | Same WB3 oracle | same WB3 boundary | remove shim dir | **pass on native Windows**: run `run-179119b731b1426e9c06b8732f333967` returned `windows`; all hostile shims resolved first and the sentinel stayed empty |
-| MB1 | MA3 plus provider login | Repeat WB1 | Same WB1 oracle | same WB1 boundary | retain provider state for MB3 | **pass on macOS**: run `run-542e11ba3f59465dbbb7b3bca9cc830f` made one successful platform call returning `macos` with real usage at `50b6ab6`; later repairs do not touch the runtime tool path |
-| MB2 | MB1 | Repeat WB2 | Same WB2 oracle | same WB2 boundary | none | **pass on macOS**: live samples show private CPython, `-I` and the absolute bundled bootstrap; forbidden override names are absent |
-| MB3 | Hostile shims first on PATH | Repeat WB3 | Same WB3 oracle | same WB3 boundary | remove shim dir | **pass on macOS**: run `run-bbb86c1b510149f889b6b711da148bed` returned `macos`; the hostile sentinel remained empty |
+| MB1 | MA3 plus provider login | Repeat WB1 | Same WB1 oracle | same WB1 boundary | retain provider state for MB3 | **pass on macOS** at `a501007`: run `run-49e3a0fcfa1b4779913167e3353f5a70` completed in four seconds with exactly one `computer-use__get_platform` `in_flight` and one matching successful `done` returning `macos`, and two non-zero usage rows |
+| MB2 | MB1 | Repeat WB2 | Same WB2 oracle | same WB2 boundary | none | **pass on macOS** at `a501007`: the live child is the private CPython below the install root with `-I` and the absolute bundled bootstrap; `VADGR_CUA_BIN`, `PYTHONPATH`, `VIRTUAL_ENV` and `PYTHONHOME` are absent from the daemon environment and no `.cu_venv` exists |
+| MB3 | Hostile shims first on PATH | Repeat WB3 | Same WB3 oracle | same WB3 boundary | remove shim dir | **pass on macOS** at `a501007`: run `run-298130c74ce7468aae17e49541241499` returned `macos` with the same one-call journal and real usage while all five hostile shims resolved first, and their sentinel stayed zero bytes |
 
 ## Part C: damaged payload isolation
 
@@ -208,7 +208,7 @@ run id may differ; no other field is normalised.
 | WD1 | WSL before snapshot exists; WA-WC complete and manifest restored | Stop own processes, trash isolated root, take after snapshot and compare | Profiles, user Python state/caches, selected env names and network configuration are unchanged | both raw snapshots, diff exit and process/port checks | trash only isolated root | **pass on WSL after snapshot repair**: exact source `a42a514`; the installed CLI started and stopped the isolated daemon; its port is free; the root moved to trash; profile, Python, cache, environment and filtered network-configuration snapshot bodies are byte-identical |
 | LD1 | Linux before snapshot exists; LA/LB complete | Stop own processes, trash isolated root, snapshot/compare | Same as WD1 except owner-approved LA2 package changes are the only named difference | snapshots, diff, approved package delta, process/port checks | trash test root; retain approved deps | not run after invalidation: the shared Unix snapshot helper now excludes neighbour-cache state, so native Linux must rerun this touched cell at `a42a514` |
 | ND1 | Windows before snapshot exists; NA/NB complete | Stop own processes, trash isolated root, snapshot/compare | Profiles, registry Python state, caches, environment and network hashes unchanged | snapshots, comparison, process/port checks | trash only isolated root | **pass on native Windows after repair**: the installed CLI stopped its daemon; port 18797 is free; seven exact roots moved to the Recycle Bin; snapshots and package inventories match |
-| MD1 | macOS before snapshot exists; MA/MB complete | Stop own processes, trash isolated root, snapshot/compare | Same as WD1; only the explicitly granted privacy entries may differ | snapshots, diff, grant delta, process/port checks | trash root; owner may remove grants | not run after invalidation: the repaired full-cycle log shows matching filtered snapshots, but its source clone did not record the exact tested head; rerun at a frozen current head |
+| MD1 | macOS before snapshot exists; MA/MB complete | Stop own processes, trash isolated root, snapshot/compare | Same as WD1; only the explicitly granted privacy entries may differ | snapshots, diff, grant delta, process/port checks | trash root; owner may remove grants | **pass on macOS** at `a501007`: the installed CLI stopped its own daemon, the port is free, no payload process survived, only the isolated root moved to trash, and the snapshot bodies are byte-identical |
 
 ## Part E: independent close
 
@@ -230,12 +230,12 @@ different output counts.
 
 | Part | WSL | Linux | Windows native | macOS |
 |---|---|---|---|---|
-| A: clean installation and ready payload | pass: WA1 revalidated on exact source `a42a514`; WA2-WA3 remain valid | not run after invalidation: LA1 must rerun after the shared Unix installer repair; LA2-LA3 remain valid | pass: NA1-NA3 passed on exact source `49c30d3` with cua 0.7.5 | not run after invalidation: MA1-MA3 must rerun after the private-interpreter grant repair |
-| B: real tool and hostile PATH | pass: WB1-WB3, one real call both normally and under hostile PATH | pass: LB1-LB3 made one real call normally and under hostile PATH | pass: NB1-NB3 made one real call normally and under hostile PATH | pass: MB1-MB3 made one real call normally and under hostile PATH at `50b6ab6`; later repairs do not touch this path |
+| A: clean installation and ready payload | pass: WA1 revalidated on exact source `a42a514`; WA2-WA3 remain valid | not run after invalidation: LA1 must rerun after the shared Unix installer repair; LA2-LA3 remain valid | pass: NA1-NA3 passed on exact source `49c30d3` with cua 0.7.5 | pass: MA1-MA3 at exact product commit `a501007`; installed vadgr 0.4.12 sha `1f3aa56c`, payload pins cua 0.7.5, Python 3.12.14 and `aarch64-apple-darwin`, and the private interpreter and distribution report those versions themselves. MA2 is a finding rather than a pass, recorded below |
+| B: real tool and hostile PATH | pass: WB1-WB3, one real call both normally and under hostile PATH | pass: LB1-LB3 made one real call normally and under hostile PATH | pass: NB1-NB3 made one real call normally and under hostile PATH | pass: MB1-MB3 re-driven at `a501007`; one `computer-use__get_platform` call returning `macos` normally and again under hostile shims, two non-zero usage rows each, the private CPython with `-I` and an absolute bootstrap, no override names and a zero-byte sentinel |
 | C: damaged payload isolation | pass: WC1 failed closed without fallback and restored exact manifest | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B |
-| D: owner-machine non-mutation | pass: WD1 filtered snapshot body unchanged at exact source `a42a514` | not run after invalidation: LD1 must rerun with the repaired Unix snapshot helper | pass: ND1 snapshots and package inventory unchanged after recycling exact test roots | not run after invalidation: repaired evidence does not name its exact tested product head |
+| D: owner-machine non-mutation | pass: WD1 filtered snapshot body unchanged at exact source `a42a514` | not run after invalidation: LD1 must rerun with the repaired Unix snapshot helper | pass: ND1 snapshots and package inventory unchanged after recycling exact test roots | pass: MD1 at `a501007`; the installed CLI stopped its own daemon, the port is free, no payload process survived, the isolated root moved to trash and the snapshot bodies are byte-identical |
 | E: independent close | pass: three isolated shared-epoch runs overlap and match structurally | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed |
-| **overall** | **pass: WA1 and WD1 revalidated at `a42a514`; nine other WSL cells remain valid** | **not run after invalidation: LA1 and LD1 require reruns; five cells remain valid** | **pass: all seven native Windows cells remain valid at `49c30d3`** | **not run after invalidation: MB1-MB3 remain valid; MA1-MA3 and MD1 require exact-head reruns** |
+| **overall** | **pass: WA1 and WD1 revalidated at `a42a514`; nine other WSL cells remain valid** | **not run after invalidation: LA1 and LD1 require reruns; five cells remain valid** | **pass: all seven native Windows cells remain valid at `49c30d3`** | **pass with one finding**: all seven macOS cells driven at `a501007`. MA2 does not hold on macOS: the grants attach to the responsible process, so they land on the terminal and never on the private interpreter |
 
 ## Evidence and remote-host handoff
 
@@ -274,6 +274,43 @@ must appear in the connected provider catalog. None authorises a host-network
 change.
 
 ## Findings
+
+macOS found that the installer asked the payload for its state instead of
+asking the owner for the grants. `setup_command` ran cua's `doctor`, which only
+reports, and on macOS what it reports is the responsible parent process's
+grants: installed from a terminal that already held Accessibility and Screen
+Recording it printed both as granted while the interpreter had neither. The
+owner was told computer use was ready and it then failed whenever the daemon
+started from anywhere else. Commit `3a1cfd6` runs cua's `setup` on macOS, which
+fires the two prompts in the order macOS requires and prints the state after
+they are answered. Windows and WSL keep the reporting path, so their recorded
+setup output is unchanged and no other host reran.
+
+That repair exposed the limit underneath it, which no commit fixes. macOS
+attributes a grant to the responsible process, so the prompt names the terminal
+and the grant lands there. Measured three ways at `a501007`: the same
+interpreter reports both grants `true` under a terminal and both `false` under
+`launchd`, and the dialog itself names the terminal. `MA2`'s expected
+observable, that both grants apply to the private interpreter, is not
+achievable through this install path, so `MA2` is filed as a finding rather
+than forced to a pass by adding the binary to Settings by hand.
+
+Two owner-facing repairs followed. The install dialog says the terminal cannot
+record until it is quit, and an owner who takes that literally quits mid-install
+and kills it, so `572ad0f` says to allow both, to choose Later, and that the
+restart afterwards is what makes the grants take effect. The same commit stops
+the closing step telling every Unix owner to source `~/.bashrc` on a machine
+where it had just created `.zshrc`.
+
+The non-mutation harness needed two repairs before `MD1` could pass anywhere
+with a tailnet. `snapshot-unix.sh` hashed `netstat -rn` whole, which on macOS
+mixes the routing table with the ARP and NDP caches and is the entire network
+hash because there is no `ip`. Measured with vadgr not running at all, that
+table changed twice in ninety seconds: a peer route vanished as the peer went
+offline and an entry aged from `UHLWIi` to `UHLWI`. Rows reached through a
+link-layer address or an interface scope are now dropped. Three samples thirty
+seconds apart agree, and `MD1` then passed with byte-identical bodies. Each of
+these repairs carries a test that fails without it.
 
 No product findings on WSL. Two successful close attempts were rejected because
 their command intervals did not overlap; the accepted shared-epoch attempt is
