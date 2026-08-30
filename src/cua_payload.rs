@@ -149,6 +149,20 @@ impl CuaRuntime {
             if apply {
                 args.push("--yes".into());
             }
+        } else if cfg!(target_os = "macos") {
+            // `doctor` only reports, and on macOS what it reports is the
+            // responsible parent process's grants rather than this
+            // interpreter's. Installed from a terminal that already holds
+            // Accessibility and Screen Recording, it printed both as granted
+            // while the interpreter had neither: the same binary answers false
+            // under launchd. The owner was told computer use was ready, and it
+            // then failed whenever the daemon started from anywhere else.
+            //
+            // `setup` fires the two prompts in the order macOS requires and
+            // prints the state afterwards, so the owner grants the payload the
+            // way every other macOS application asks, and the printed state is
+            // the state after they answered.
+            args.push("setup".into());
         } else {
             args.push("doctor".into());
         }
@@ -849,6 +863,53 @@ mod tests {
         assert!(command.program.is_absolute());
         assert_eq!(command.args[0], "-I");
         assert_eq!(command.args.last().unwrap(), "stdio");
+    }
+
+    /// macOS asks the owner for Accessibility and Screen Recording the way
+    /// every other application does, by firing the prompts. `doctor` only
+    /// reports, and what it reports on macOS is the responsible parent
+    /// process's grants: run from a terminal that already holds them it printed
+    /// both as granted while this interpreter had neither.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn macos_setup_asks_the_owner_rather_than_reporting_the_parent() {
+        let install = tempfile::tempdir().unwrap();
+        let runtime = CuaRuntime {
+            interpreter: install.path().join("environments/current/bin/python"),
+            bootstrap: install.path().join("bootstrap.py"),
+            environment: install.path().join("environments/current"),
+        };
+        let command = runtime.setup_command(false);
+        assert_eq!(
+            command.args.last().unwrap(),
+            "setup",
+            "macOS must fire the permission prompts, not only report state"
+        );
+        assert!(
+            !command.args.iter().any(|a| a == "doctor"),
+            "doctor reports the parent's grants on macOS, so it must not be the setup path"
+        );
+    }
+
+    /// Windows and WSL keep the reporting path, so their recorded setup output
+    /// does not change under this fix.
+    #[cfg(any(
+        target_os = "windows",
+        all(target_os = "linux", not(target_os = "macos"))
+    ))]
+    #[test]
+    fn only_macos_switches_to_the_prompting_setup() {
+        let install = tempfile::tempdir().unwrap();
+        let runtime = CuaRuntime {
+            interpreter: install.path().join("environments/current/bin/python"),
+            bootstrap: install.path().join("bootstrap.py"),
+            environment: install.path().join("environments/current"),
+        };
+        let command = runtime.setup_command(false);
+        assert!(
+            !command.args.iter().any(|a| a == "setup"),
+            "the prompting setup is macOS only"
+        );
     }
 
     #[test]
