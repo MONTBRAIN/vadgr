@@ -262,6 +262,10 @@ add_to_path() {
         echo "$line" >> "$default_rc"
         if [ -n "$cargo_line" ]; then echo "$cargo_line" >> "$default_rc"; fi
         info "Created $(basename "$default_rc") with the vadgr PATH"
+        # Named so the closing step can tell the owner to source the file that
+        # was actually written. It said `source ~/.bashrc` on a machine where
+        # it had just created `.zshrc`, which is the default shell on macOS.
+        VADGR_PROFILE="$default_rc"
     fi
 
     export PATH="$VADGR_BIN:$PATH"
@@ -312,7 +316,11 @@ main() {
         ok "     Accessibility and Screen Recording grants take effect, not"
         ok "     just a PATH refresh."
     else
-        ok "  1. Restart your terminal (or run: source ~/.bashrc)"
+        if [ -n "${VADGR_PROFILE:-}" ]; then
+            ok "  1. Restart your terminal (or run: . $VADGR_PROFILE)"
+        else
+            ok "  1. Restart your terminal so the vadgr PATH applies"
+        fi
     fi
     ok "  2. Run: vadgr provider login"
     ok "  3. Run: vadgr start, then vadgr pair"
