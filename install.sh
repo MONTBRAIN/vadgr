@@ -151,6 +151,18 @@ build_and_install() {
 
     local candidate="$VADGR_REPO/target/release/vadgr"
     info "Assembling vadgr's private computer-use runtime..."
+    if [ "$OS" = "macos" ]; then
+        # macOS asks for Accessibility and Screen Recording through a dialog,
+        # and grants a running application the moment you allow them. It still
+        # says the application cannot record "until it is quit", because the
+        # already-running process keeps its old answer until it restarts. An
+        # owner who takes that literally quits the terminal mid-install and
+        # kills it, so say plainly what to click and when to restart.
+        info "macOS will ask for Accessibility and Screen Recording next."
+        info "  Allow both. If it says the terminal cannot record until it is"
+        info "  quit, choose Later: quitting now would stop this installation."
+        info "  Restart your terminal once the install finishes."
+    fi
     "$candidate" __payload-setup --install-root "$VADGR_HOME" \
         || fail "Computer use could not be prepared. The installed binary was not changed."
     if [ "$OS" = "linux" ]; then
@@ -292,7 +304,16 @@ main() {
     ok "VADGR installed successfully!"
     echo ""
     ok "To get started:"
-    ok "  1. Restart your terminal (or run: source ~/.bashrc)"
+    if [ "$OS" = "macos" ]; then
+        # The grants only take effect for a process started after they were
+        # given, so on macOS the restart is the step that makes computer use
+        # work rather than a convenience for PATH.
+        ok "  1. Restart your terminal. On macOS this is what makes the"
+        ok "     Accessibility and Screen Recording grants take effect, not"
+        ok "     just a PATH refresh."
+    else
+        ok "  1. Restart your terminal (or run: source ~/.bashrc)"
+    fi
     ok "  2. Run: vadgr provider login"
     ok "  3. Run: vadgr start, then vadgr pair"
     echo ""
