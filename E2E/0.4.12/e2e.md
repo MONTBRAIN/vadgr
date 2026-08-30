@@ -28,6 +28,8 @@ explicit install and state roots.
 > at `49c30d3`. Native Linux LA1 and LD1 pass at `a501007`; its other five
 > cells remain valid. All seven macOS cells were driven at `a501007`; six pass
 > and MA2 fails its private-interpreter grant assertion with the finding below.
+> MA2 remains failed and is owed to `0.5.0`, where the signed macOS
+> distribution must provide the stable responsible-process identity it needs.
 
 ## The rules
 
@@ -55,7 +57,7 @@ explicit install and state roots.
 | repository | released version | what this pass relies on |
 |---|---:|---|
 | vadgr-computer-use | 0.7.4 released; 0.7.5 pinned candidate | the bundled MCP server and its released `computer-use__get_platform` surface |
-| vadgr-mobile | 0.4.1 | nothing; listed because dependency-plan wording contains the checker's conservative client keyword |
+| vadgr-mobile | 0.4.5 | nothing; listed because dependency-plan wording contains the checker's conservative client keyword |
 
 No external client repository participates in this machine payload verification.
 
@@ -176,7 +178,7 @@ run id may differ; no other field is normalised.
 | NA2 | NA1 installed root | Inspect setup output and registry/package inventories | No system Python, registry, PATH or network change | setup output plus before/after inventories | none | **pass on native Windows after repair**: setup persisted no alternate-profile PATH; registry, package, cache, environment and network checks are unchanged |
 | NA3 | NA1 root; daemon started | Run status and APIs | Computer use ready and healthy | same WA3 artifacts | stop own daemon | **pass on native Windows after repair**: the installed daemon served the isolated port; health reports Windows and computer use; settings report enabled and ready |
 | MA1 | Fresh macOS root; no Python/pip/uv/cua resolves | Run source installer | Same identity/pins as WA1 with macOS target | install transcript/exit, resolution failures, head/path/hash, manifest/version | retain root through MD1 | **pass on macOS** at `a501007`: the source installer exited 0 from a clean path resolving none of Python, pip, uv or cua; installed vadgr reports 0.4.12, sha `1f3aa56c`, and the payload pins cua 0.7.5, Python 3.12.14 and `aarch64-apple-darwin`, which the private interpreter and distribution confirm themselves |
-| MA2 | MA1 private interpreter path prepared; owner grants Accessibility and Screen Recording first | Run the reported setup/doctor check again | Both grants apply to the private interpreter and setup exits 0; no Settings page was opened automatically | grant-path record and setup output; no unrelated privacy entries | owner may remove grants after MD1 | **fail on macOS; finding filed** at `a501007`: setup fires the prompts and the installer opens no Settings page by itself, but the grants do not attach to the private interpreter. The same binary reports both `true` when its responsible process is the terminal and both `false` under `launchd`, because macOS attributes a grant to the responsible process. Granted from a terminal the payload works only when launched from that terminal, and a daemon started at login has neither |
+| MA2 | MA1 private interpreter path prepared; owner grants Accessibility and Screen Recording first | Run the reported setup/doctor check again | Both grants apply to the private interpreter and setup exits 0; no Settings page was opened automatically | grant-path record and setup output; no unrelated privacy entries | owner may remove grants after MD1 | **fail on macOS; owed to `0.5.0` signed distribution** at `a501007`: setup fires the prompts and the installer opens no Settings page by itself, but the grants do not attach to the private interpreter. The same binary reports both `true` when its responsible process is the terminal and both `false` under `launchd`, because macOS attributes a grant to the responsible process. Granted from a terminal the payload works only when launched from that terminal, and a daemon started at login has neither. The `0.5.0` macOS artifact must supply a stable signed responsible-process identity before this cell can pass |
 | MA3 | MA2 root; daemon started | Run status and APIs | Computer use ready and healthy | same WA3 artifacts | stop own daemon | **pass on macOS** at `a501007`: the installed daemon served isolated port 18861; health reports `macos`, healthy and computer use present; the status API reports available and settings report enabled and ready |
 
 ## Part B: real tool and hostile PATH
@@ -231,12 +233,12 @@ different output counts.
 
 | Part | WSL | Linux | Windows native | macOS |
 |---|---|---|---|---|
-| A: clean installation and ready payload | pass: WA1 revalidated on exact source `a42a514`; WA2-WA3 remain valid | pass: LA1 revalidated on exact source `a501007`; LA2-LA3 remain valid | pass: NA1-NA3 passed on exact source `49c30d3` with cua 0.7.5 | fail: MA1 and MA3 pass at exact product commit `a501007`; installed vadgr 0.4.12 sha `1f3aa56c`, payload pins cua 0.7.5, Python 3.12.14 and `aarch64-apple-darwin`, and the private interpreter and distribution report those versions themselves. MA2 fails the private-interpreter grant assertion, as recorded below |
+| A: clean installation and ready payload | pass: WA1 revalidated on exact source `a42a514`; WA2-WA3 remain valid | pass: LA1 revalidated on exact source `a501007`; LA2-LA3 remain valid | pass: NA1-NA3 passed on exact source `49c30d3` with cua 0.7.5 | fail: MA1 and MA3 pass at exact product commit `a501007`; installed vadgr 0.4.12 sha `1f3aa56c`, payload pins cua 0.7.5, Python 3.12.14 and `aarch64-apple-darwin`, and the private interpreter and distribution report those versions themselves. MA2 fails the private-interpreter grant assertion and is owed to `0.5.0` signed distribution, as recorded below |
 | B: real tool and hostile PATH | pass: WB1-WB3, one real call both normally and under hostile PATH | pass: LB1-LB3 made one real call normally and under hostile PATH | pass: NB1-NB3 made one real call normally and under hostile PATH | pass: MB1-MB3 re-driven at `a501007`; one `computer-use__get_platform` call returning `macos` normally and again under hostile shims, two non-zero usage rows each, the private CPython with `-I` and an absolute bootstrap, no override names and a zero-byte sentinel |
 | C: damaged payload isolation | pass: WC1 failed closed without fallback and restored exact manifest | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B | Not-Needed: WSL covers manifest isolation in shared code after per-OS spawn is proven in B |
 | D: owner-machine non-mutation | pass: WD1 filtered snapshot body unchanged at exact source `a42a514` | pass: LD1 filtered snapshot body and package inventory unchanged at exact source `a501007` | pass: ND1 snapshots and package inventory unchanged after recycling exact test roots | pass: MD1 at `a501007`; the installed CLI stopped its own daemon, the port is free, no payload process survived, the isolated root moved to trash and the snapshot bodies are byte-identical |
 | E: independent close | pass: three isolated shared-epoch runs overlap and match structurally | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed | Not-Needed: repeatability closes the frozen payload once after all OS-specific launch branches are completed |
-| **overall** | **pass: WA1 and WD1 revalidated at `a42a514`; nine other WSL cells remain valid** | **pass: LA1 and LD1 revalidated at `a501007`; five other native Linux cells remain valid** | **pass: all seven native Windows cells remain valid at `49c30d3`** | **fail with one finding**: all seven macOS cells were driven at `a501007`; six pass, while MA2 does not hold because the grants attach to the responsible process, so they land on the terminal and never on the private interpreter |
+| **overall** | **pass: WA1 and WD1 revalidated at `a42a514`; nine other WSL cells remain valid** | **pass: LA1 and LD1 revalidated at `a501007`; five other native Linux cells remain valid** | **pass: all seven native Windows cells remain valid at `49c30d3`** | **fail with one cell owed to `0.5.0`**: all seven macOS cells were driven at `a501007`; six pass, while MA2 does not hold because the grants attach to the responsible process, so they land on the terminal and never on the private interpreter. The signed `0.5.0` macOS distribution owns the stable identity needed to rerun it |
 
 ## Evidence and remote-host handoff
 
@@ -294,7 +296,9 @@ interpreter reports both grants `true` under a terminal and both `false` under
 `launchd`, and the dialog itself names the terminal. `MA2`'s expected
 observable, that both grants apply to the private interpreter, is not
 achievable through this install path, so `MA2` is filed as a finding rather
-than forced to a pass by adding the binary to Settings by hand.
+than forced to a pass by adding the binary to Settings by hand. It remains a
+failed cell owed to `0.5.0`; that distribution must give the responsible
+computer-use process a stable signed identity before the cell is rerun.
 
 Two owner-facing repairs followed. The install dialog says the terminal cannot
 record until it is quit, and an owner who takes that literally quits mid-install
