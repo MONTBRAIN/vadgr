@@ -8,6 +8,9 @@
 
 use std::path::Path;
 
+#[cfg(unix)]
+use std::os::unix::fs::PermissionsExt;
+
 fn repo_file(name: &str) -> String {
     // Normalised, because a checkout on Windows can carry CRLF and a pattern
     // written with `\n` would match nothing there. A source-reading test that
@@ -29,6 +32,21 @@ fn assignment(script: &str, name: &str) -> String {
         .trim()
         .trim_matches('"')
         .to_owned()
+}
+
+#[cfg(unix)]
+#[test]
+fn the_unix_installer_can_be_invoked_directly() {
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("install.sh");
+    let mode = std::fs::metadata(path)
+        .expect("install.sh is in the repository")
+        .permissions()
+        .mode();
+    assert_ne!(
+        mode & 0o111,
+        0,
+        "install.sh must be executable because the public runbook invokes it directly"
+    );
 }
 
 #[test]
