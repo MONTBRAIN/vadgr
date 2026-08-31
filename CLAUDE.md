@@ -234,6 +234,15 @@ destructive action and owner decision up front, map each to its cells, and
 inform the owner before the affected group runs. Missing setup blocks written
 cells; it never deletes or collapses them.
 
+**The implementation pull request opens only after the first required live OS
+or device pass succeeds.** Before that pass, push the working branch and make
+the runbook name that branch, the exact product head and the evidence pull
+request. Do not open a draft, reservation or review pull request. After the
+first live pass succeeds and branch checks are green, open the implementation
+pull request and replace the branch/head reference with its URL before another
+host consumes the handoff. Every remaining required OS or device still gates
+merge.
+
 **Host networking is never e2e state.** Do not change the host firewall, DNS,
 routing, proxy, VPN or network service. Model a network failure in isolated
 test state. A host network change is never an e2e cell.
