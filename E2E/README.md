@@ -186,6 +186,40 @@ An owner-blocked cell left until later is not scheduling. It is the pass
 deciding the owner's time is the cheap resource, which is exactly backwards: the
 machine can wait and the person cannot.
 
+An owner cell contains only an unavoidable human boundary. The driver first
+proves that no safe automation or accessibility interface can perform the step.
+The driver prepares the application and surrounding state before the handoff.
+The instruction names one physical or protected action, the printed control or
+object involved, and the visible result that returns control to the driver.
+Camera scans, device unlocks, private credential entry, elevation, and protected
+operating-system prompts can qualify. Routine clicks, key entry, navigation,
+captures, application launches, and screen reports do not qualify when the
+available interface can perform or inspect them.
+
+## The agent drives the native console and reads both surfaces
+
+For a native installed console, the agent uses the platform accessibility tree
+to discover and operate the application. It acts through semantic roles and
+supported actions. It confirms each transition with a fresh structured read.
+Coordinates and pixel matching do not replace the accessibility interface.
+
+At each visual evidence boundary, capture only the exact application client
+area. The capture must not require the application to have focus. Open the image
+and inspect the complete view against the approved mockup. The accessibility
+tree proves the interaction surface. The image proves the rendered surface.
+Neither proves the product effect.
+
+Confirm every mutation with an independent record. Use the daemon API, journal,
+database, process table, package manager, signature tool, filesystem, or another
+oracle that does not depend on the console's own claim.
+
+Enumerate every control before the first live console cell. Invoke each enabled
+control through accessibility and verify its independent effect. A future
+control must be disabled and visibly name the exact registered minor that
+enables it, such as **Available in 0.6.0**. A control which is unavailable only
+because of current machine state shows that truthful reason instead. An enabled
+no-op, an inaccessible control, or an unlabeled future control is a finding.
+
 ## A pass is finished, not paused
 
 **Drive the whole matrix before reporting.** The failure this stops is not

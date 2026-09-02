@@ -59,7 +59,10 @@ repository, internal document or path, decision id, evidence, runbook,
 development phase, planned minor or editorial note. A canonical user-facing
 block in a private design document follows the same rule. Put the rationale
 outside that block in private prose. Then render and read the exact user text
-and scan it for internal names before release.
+and scan it for internal names before release. One narrow exception is a
+disabled control whose backing capability has a registered release: its visible
+availability label names the exact public version, such as `Available in
+0.6.0`. The label names no phase, private plan or internal note.
 
 **2. No AI attribution, anywhere, and it is checked.** No `Co-Authored-By`, no
 "generated with", no credit to a tool - in commits, PR bodies, comments or
@@ -671,6 +674,20 @@ offered.
 
 - **The e2e runbook lives at `E2E/<version>/e2e.md`**, starts from
   `E2E/TEMPLATE.md`, and its doctrine is `E2E/README.md`, all in this repo.
+- **The agent drives every native console action that the platform accessibility
+  interface can perform.** It discovers controls from the accessibility tree,
+  acts on their semantic roles, and confirms changes with a fresh structured
+  read. It also captures the exact application client area without requiring
+  focus, inspects the image against the approved mockup, and checks the daemon,
+  package manager or operating system as the independent oracle. The owner acts
+  only at an unavoidable physical or protected boundary after the agent prepares
+  the exact state and gives one explicit instruction.
+- **A native console has no silent dead controls.** Every enabled control works
+  in this minor and has an independent E2E oracle. A future control is disabled
+  and visibly names the exact registered minor that enables it. A control which
+  is unavailable only because of current machine state shows that truthful
+  reason instead. An enabled no-op, an inaccessible control, or an unlabeled
+  future control is a finding.
 
 The gate, before offering anything:
 
