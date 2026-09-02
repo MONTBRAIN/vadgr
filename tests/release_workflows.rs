@@ -53,6 +53,15 @@ fn candidate_is_manual_secret_free_and_builds_the_complete_matrix() {
 }
 
 #[test]
+fn candidate_payloads_are_assembled_outside_the_source_checkout() {
+    let workflow = repo_file(".github/workflows/candidate.yml");
+    assert!(!workflow.contains("--install-root \"$PWD/dist/payload\""));
+    assert_eq!(workflow.matches("$RUNNER_TEMP/vadgr-payload").count(), 3);
+    assert_eq!(workflow.matches("$env:RUNNER_TEMP").count(), 1);
+    assert_eq!(workflow.matches("dist/payload").count(), 9);
+}
+
+#[test]
 fn release_is_signed_tag_only_and_separates_protected_environments() {
     let workflow = repo_file(".github/workflows/release.yml");
     assert!(workflow.contains("tags:\n      - v*"));

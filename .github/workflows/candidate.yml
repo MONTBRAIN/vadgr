@@ -99,7 +99,10 @@ jobs:
         run: |
           set -euo pipefail
           cargo build --locked --release --bin vadgr
-          target/release/vadgr __payload-setup --install-root "$PWD/dist/payload" --payload-only
+          payload_root="$RUNNER_TEMP/vadgr-payload"
+          target/release/vadgr __payload-setup --install-root "$payload_root" --payload-only
+          mkdir -p dist/payload
+          cp -R "$payload_root/lib" dist/payload/
       - name: Acquire the hash-pinned AppImage tool
         env:
           GH_TOKEN: ${{ github.token }}
@@ -155,7 +158,10 @@ jobs:
         run: |
           set -euo pipefail
           cargo build --locked --release --bin vadgr
-          target/release/vadgr __payload-setup --install-root "$PWD/dist/payload" --payload-only
+          payload_root="$RUNNER_TEMP/vadgr-payload"
+          target/release/vadgr __payload-setup --install-root "$payload_root" --payload-only
+          mkdir -p dist/payload
+          cp -R "$payload_root/lib" dist/payload/
           packaging/wsl/build.sh 0.5.0 "${{ matrix.arch }}"
           tar -tzf "target/package/Vadgr-0.5.0-wsl-${{ matrix.arch }}.tar.gz" >/dev/null
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -191,7 +197,10 @@ jobs:
         run: |
           set -euo pipefail
           cargo build --locked --release --bin vadgr
-          target/release/vadgr __payload-setup --install-root "$PWD/dist/payload" --payload-only
+          payload_root="$RUNNER_TEMP/vadgr-payload"
+          target/release/vadgr __payload-setup --install-root "$payload_root" --payload-only
+          mkdir -p dist/payload
+          cp -R "$payload_root/lib" dist/payload/
           packaging/macos/build.sh 0.5.0 "${{ matrix.arch }}"
           if pkgutil --check-signature "target/package/Vadgr-0.5.0-macos-${{ matrix.arch }}-unsigned.pkg"; then
             echo "candidate package unexpectedly carries a release signature" >&2
@@ -239,7 +248,10 @@ jobs:
         run: |
           cargo build --locked --release --target '${{ matrix.rust_target }}' --features native-gui --bin vadgr --bin vadgr-app
           $target = 'target/${{ matrix.rust_target }}/release'
-          & "$target/vadgr.exe" __payload-setup --install-root "$PWD/dist/payload" --payload-only
+          $payloadRoot = Join-Path $env:RUNNER_TEMP 'vadgr-payload'
+          & "$target/vadgr.exe" __payload-setup --install-root $payloadRoot --payload-only
+          New-Item -ItemType Directory -Force -Path dist/payload | Out-Null
+          Copy-Item (Join-Path $payloadRoot 'lib') -Destination dist/payload -Recurse
           $stage = "$PWD/target/package/windows-${{ matrix.arch }}-payload"
           New-Item -ItemType Directory -Force -Path $stage | Out-Null
           Copy-Item "$target/vadgr.exe", "$target/vadgr-app.exe" -Destination $stage
