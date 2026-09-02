@@ -85,8 +85,8 @@ jobs:
           $payload = Get-ChildItem unsigned -Directory -Recurse | Where-Object Name -Like '*-payload' | Select-Object -First 1
           if (-not $payload) { throw 'Unsigned Windows payload is missing.' }
           $installed = @(Get-ChildItem $payload.FullName -Recurse -File | Where-Object Extension -In '.exe','.dll','.pyd').Count
-          $total = $installed + 3
-          "Windows ${{ matrix.arch }} requires $total one-shot signatures: $installed installed PE files, one MSI, one detached Burn engine, and one final setup."
+          $total = $installed + 4
+          "Windows ${{ matrix.arch }} requires $total one-shot signatures: $installed installed PE files, one bootstrapper extension, one MSI, one detached Burn engine, and one final setup."
 
   sign-windows:
     name: sign-windows-${{ matrix.arch }}
@@ -106,6 +106,9 @@ jobs:
       - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         with:
           dotnet-version: 8.0.424
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable 2026-09-02
+        with:
+          targets: ${{ matrix.arch == 'x64' && 'x86_64-pc-windows-msvc' || 'aarch64-pc-windows-msvc' }}
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: candidate-windows-${{ matrix.arch }}
@@ -113,6 +116,7 @@ jobs:
       - name: Sign each Windows layer once and verify it immediately
         env:
           EXPECTED_PUBLISHER_THUMBPRINT: ${{ vars.WINDOWS_PUBLISHER_THUMBPRINT }}
+          RUSTFLAGS: -C target-feature=+crt-static
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -143,10 +147,20 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'MSI rebuild failed.' }
           $msi = "$output/Vadgr-0.5.0-windows-${{ matrix.arch }}.msi"
           Sign-Once $msi
+          $rustTarget = '${{ matrix.arch }}' -eq 'x64' ? 'x86_64-pc-windows-msvc' : 'aarch64-pc-windows-msvc'
+          $env:VADGR_TERMS_VERSION = '1.0'
+          $env:VADGR_TERMS_SHA256 = (Get-FileHash -Algorithm SHA256 -LiteralPath packaging/legal/TERMS.txt).Hash.ToLowerInvariant()
+          cargo rustc --locked --manifest-path packaging/windows/ba-functions/Cargo.toml --release --target $rustTarget -- -C target-feature=+crt-static
+          if ($LASTEXITCODE -ne 0) { throw 'Bootstrapper extension build failed.' }
+          $baFunctions = "$PWD/packaging/windows/ba-functions/target/$rustTarget/release/vadgr_windows_ba_functions.dll"
+          scripts/check_windows_imports.ps1 $baFunctions
+          Sign-Once $baFunctions
           dotnet build packaging/windows/VadgrBundle.wixproj --configuration Release --nologo `
             -p:Platform=${{ matrix.arch }} -p:VadgrVersion=0.5.0 "-p:MsiPath=$msi" `
             "-p:TermsRtf=$PWD/packaging/legal/TERMS.rtf" -p:TermsVersion=1.0 `
-            "-p:ThemeFile=$PWD/packaging/windows/VadgrTheme.xml" "-p:OutputPath=$output"
+            "-p:ThemeFile=$PWD/packaging/windows/VadgrTheme.xml" `
+            "-p:ThemeLocalizationFile=$PWD/packaging/windows/VadgrTheme.wxl" `
+            "-p:BAFunctionsPath=$baFunctions" "-p:OutputPath=$output"
           if ($LASTEXITCODE -ne 0) { throw 'Burn rebuild failed.' }
           dotnet tool install wix --tool-path "$PWD/target/wix" --version 4.0.6
           if ($LASTEXITCODE -ne 0) { throw 'Pinned WiX command installation failed.' }

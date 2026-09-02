@@ -74,12 +74,42 @@ $projectRoot = $PSScriptRoot
 $repoRoot = Split-Path -Parent (Split-Path -Parent $projectRoot)
 $themeFile = Join-Path $projectRoot 'VadgrTheme.xml'
 $themeLocalizationFile = Join-Path $projectRoot 'VadgrTheme.wxl'
+$baManifest = Join-Path $projectRoot 'ba-functions\Cargo.toml'
 $generatedPayload = Join-Path $output 'PrivatePayload.wxs'
 $python = Get-Command python -ErrorAction Stop
 & $python.Source (Join-Path $repoRoot 'scripts\generate_windows_payload_wxs.py') `
     --payload-lib (Join-Path $payload 'lib') --output $generatedPayload
 if ($LASTEXITCODE -ne 0) {
     throw 'The deterministic Windows payload authoring step failed.'
+}
+
+$rustTarget = switch ($Architecture) {
+    'x64' { 'x86_64-pc-windows-msvc' }
+    'arm64' { 'aarch64-pc-windows-msvc' }
+    default { throw "Unsupported Windows installer architecture: $Architecture" }
+}
+$termsText = Join-Path $payload 'legal\TERMS.txt'
+if (-not (Test-Path -LiteralPath $termsText -PathType Leaf)) {
+    throw "The payload has no canonical terms file: $termsText"
+}
+$previousTermsVersion = $env:VADGR_TERMS_VERSION
+$previousTermsSha256 = $env:VADGR_TERMS_SHA256
+try {
+    $env:VADGR_TERMS_VERSION = $TermsVersion
+    $env:VADGR_TERMS_SHA256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $termsText).Hash.ToLowerInvariant()
+    & cargo rustc --locked --manifest-path $baManifest --release --target $rustTarget -- `
+        -C 'target-feature=+crt-static'
+    if ($LASTEXITCODE -ne 0) {
+        throw 'The Windows bootstrapper terms integration build failed.'
+    }
+}
+finally {
+    $env:VADGR_TERMS_VERSION = $previousTermsVersion
+    $env:VADGR_TERMS_SHA256 = $previousTermsSha256
+}
+$baFunctionsPath = Join-Path $projectRoot "ba-functions\target\$rustTarget\release\vadgr_windows_ba_functions.dll"
+if (-not (Test-Path -LiteralPath $baFunctionsPath -PathType Leaf)) {
+    throw "The Windows bootstrapper terms integration is missing: $baFunctionsPath"
 }
 
 & $dotnet.Source build (Join-Path $projectRoot 'VadgrMsi.wixproj') `
@@ -110,6 +140,7 @@ if (-not (Test-Path -LiteralPath $msi -PathType Leaf)) {
     -p:TermsVersion=$TermsVersion `
     -p:ThemeFile=$themeFile `
     -p:ThemeLocalizationFile=$themeLocalizationFile `
+    -p:BAFunctionsPath=$baFunctionsPath `
     -p:OutputPath=$output
 if ($LASTEXITCODE -ne 0) {
     throw 'The Burn bundle build failed.'

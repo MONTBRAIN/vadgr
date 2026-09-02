@@ -24,3 +24,9 @@ Pass `-DevelopmentUnsigned` only for a local development build. That build does
 not cache its untrusted setup as a rollback vehicle, so it can exercise the
 installer UI and unaffected package lifecycle without weakening the default
 candidate build. Candidate and release automation must never pass this switch.
+
+The Burn bundle includes a native BAFunctions DLL built from `ba-functions` for
+the bundle architecture. It compares the preserved acceptance record with the
+exact compiled terms version and checksum. A match labels the current terms as
+already accepted and does not request assent again; a missing, malformed or
+mismatched record leaves the checkbox clear and required.

@@ -264,6 +264,7 @@ jobs:
             -TermsVersion 1.0 -OutputDirectory target/package/windows-${{ matrix.arch }}
           scripts/check_windows_imports.ps1 "$target/vadgr.exe"
           scripts/check_windows_imports.ps1 "$target/vadgr-app.exe"
+          scripts/check_windows_imports.ps1 "packaging/windows/ba-functions/target/${{ matrix.rust_target }}/release/vadgr_windows_ba_functions.dll"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: candidate-windows-${{ matrix.arch }}
@@ -299,7 +300,8 @@ jobs:
             --arg cargo_lock "$(sha256sum Cargo.lock | cut -d' ' -f1)" \
             --arg cua_lock "$(sha256sum packaging/cua/requirements.lock | cut -d' ' -f1)" \
             --rawfile artifacts candidate-sha256.txt \
-            '{schema:1,source_commit:$source,runner_image:$runner,cargo_lock_sha256:$cargo_lock,cua_lock_sha256:$cua_lock,artifact_sha256:$artifacts,required_signing:["Windows Authenticode: installed PE files, MSI, detached Burn engine, final setup","macOS Developer ID: nested code, app, installer package, notarization and staple","offline Minisign: release-manifest.json"],windows_signing_quota:"calculate from the final payload inventory before approval; no signing occurs here"}' \
+            --arg ba_functions_lock "$(sha256sum packaging/windows/ba-functions/Cargo.lock | cut -d' ' -f1)" \
+            '{schema:1,source_commit:$source,runner_image:$runner,cargo_lock_sha256:$cargo_lock,ba_functions_lock_sha256:$ba_functions_lock,cua_lock_sha256:$cua_lock,artifact_sha256:$artifacts,required_signing:["Windows Authenticode: installed PE files, bootstrapper extension, MSI, detached Burn engine, final setup","macOS Developer ID: nested code, app, installer package, notarization and staple","offline Minisign: release-manifest.json"],windows_signing_quota:"calculate from the final payload inventory before approval; no signing occurs here"}' \
             > candidate.json
       - uses: actions/attest-build-provenance@8beda2b7ed98355c0e97c0a63bec38ae472e66c4 # v4
         with:

@@ -16,6 +16,7 @@
         Value="[LocalAppDataFolder]Programs\Vadgr"
         Persisted="yes" />
     <BootstrapperApplication>
+      <Payload SourceFile="$(var.BAFunctionsPath)" bal:BAFunctions="yes" />
       <bal:WixStandardBootstrapperApplication
           Theme="rtfLargeLicense"
           ThemeFile="$(var.ThemeFile)"

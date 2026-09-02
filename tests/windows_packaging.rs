@@ -36,6 +36,8 @@ fn burn_owns_terms_progress_repair_uninstall_and_console_launch() {
     assert!(bundle.contains("Theme=\"rtfLargeLicense\""));
     assert!(bundle.contains("ThemeFile=\"$(var.ThemeFile)\""));
     assert!(bundle.contains("LocalizationFile=\"$(var.ThemeLocalizationFile)\""));
+    assert!(bundle.contains("bal:BAFunctions=\"yes\""));
+    assert!(bundle.contains("SourceFile=\"$(var.BAFunctionsPath)\""));
     assert!(bundle.contains("LicenseFile=\"$(var.TermsRtf)\""));
     assert!(bundle.contains("SuppressRepair=\"no\""));
     assert!(bundle.contains("LaunchTarget=\"[InstallFolder]\\vadgr-app.exe\""));
@@ -61,9 +63,19 @@ fn burn_owns_terms_progress_repair_uninstall_and_console_launch() {
     let build = repo_file("packaging/windows/build.ps1");
     assert!(build.contains("[switch] $DevelopmentUnsigned"));
     assert!(build.contains("-p:DevelopmentUnsigned="));
+    assert!(build.contains("VADGR_TERMS_SHA256"));
+    assert!(build.contains("-p:BAFunctionsPath="));
+    assert!(build.contains("cargo rustc --locked"));
+    assert!(build.contains("target-feature=+crt-static"));
     let project = repo_file("packaging/windows/VadgrMsi.wixproj");
     assert!(project.contains("<DevelopmentUnsigned Condition="));
     assert!(project.contains("DevelopmentUnsigned=$(DevelopmentUnsigned)"));
+    let ba = repo_file("packaging/windows/ba-functions/src/lib.rs");
+    assert!(ba.contains("BAFunctionsCreate"));
+    assert!(ba.contains("BA_FUNCTIONS_MESSAGE_ON_THEME_CONTROL_LOADED"));
+    assert!(ba.contains("Terms version {} was accepted previously"));
+    assert!(ba.contains("env!(\"VADGR_TERMS_SHA256\")"));
+    assert!(ba.contains("eq_ignore_ascii_case(terms_sha256)"));
 }
 
 #[test]
