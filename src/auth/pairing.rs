@@ -112,6 +112,27 @@ impl PairingStore {
         display
     }
 
+    /// Close the current pairing window. Returns false when no live window exists.
+    pub fn cancel(&self) -> bool {
+        let cancelled = {
+            let mut guard = self.slot.lock().expect("pairing mutex poisoned");
+            if guard
+                .as_ref()
+                .is_some_and(|slot| Instant::now() < slot.expires_at)
+            {
+                *guard = None;
+                true
+            } else {
+                false
+            }
+        };
+        if cancelled {
+            let id = self.next_window();
+            self.transition(id);
+        }
+        cancelled
+    }
+
     /// Redeem a code. **The transition is not announced here**: the caller
     /// announces it with [`settled`] once the claim's own work is done.
     ///
@@ -262,5 +283,17 @@ mod transition_tests {
         store.settled(outcome);
 
         assert!(!watcher.has_changed().expect("the channel is open"));
+    }
+
+    #[test]
+    fn cancelling_closes_and_announces_the_live_window() {
+        let store = PairingStore::new(300);
+        let _ = store.mint();
+        let watcher = store.subscribe();
+
+        assert!(store.cancel());
+        assert!(store.window().is_none());
+        assert!(watcher.has_changed().expect("the channel is open"));
+        assert!(!store.cancel());
     }
 }

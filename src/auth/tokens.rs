@@ -16,7 +16,9 @@ const TOKEN_ENTROPY_BYTES: usize = 32;
 
 pub fn generate_token() -> String {
     let mut rng = rand::rng();
-    let bytes: Vec<u8> = (0..TOKEN_ENTROPY_BYTES).map(|_| rng.random()).collect();
+    let bytes: Vec<u8> = (0..TOKEN_ENTROPY_BYTES)
+        .map(|_| rng.random::<u8>())
+        .collect();
     // URL-safe, unpadded: the same shape `secrets.token_urlsafe` produces.
     base64_url_nopad(&bytes)
 }

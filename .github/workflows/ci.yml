@@ -16,11 +16,11 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable 2026-09-02
         with:
           components: clippy, rustfmt
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@49a0bdc70d2e1b713ca9e2869b211fcce03d3c1c # v2
       - name: Build
         run: cargo build --locked
       - name: Test
@@ -30,79 +30,44 @@ jobs:
       - name: Format
         run: cargo fmt --all -- --check
 
-  # The installer is the first thing a new user runs, and it had never been
-  # executed by a pipeline: the clean-install job below proves the artifact, not
-  # the script that puts the artifact on a machine.
-  #
-  # It runs on every platform the product claims, because an installer proved on
-  # one operating system says nothing about the others. Two Windows only test
-  # failures in the 0.4.9 pass are the argument.
+  # Ordinary CI keeps each installer on its declared platform boundary. Fully
+  # assembled package transactions run in the candidate workflow after the
+  # reviewed public key, legal bundle and pinned CUA release exist.
   installer:
     strategy:
       fail-fast: false
       matrix:
-        # Linux gets a container with nothing in it, which is the only place
-        # a truly clean machine is available to us.
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - name: Install on Linux, in a container with nothing in it
+      - name: Keep native Linux on the graphical package boundary
         if: matrix.os == 'ubuntu-latest'
         shell: bash
         run: |
-          docker run --rm -v "$PWD:/src:ro" -e VADGR_REF="$GITHUB_SHA" debian:12-slim bash -eu -c '
-            # Only what the delivery mechanism itself implies: the script
-            # arrives through curl over TLS. git and both toolchains are the
-            # job of the installer, and pre-installing them here would prove a
-            # machine no fresh user has. This job once pre-installed
-            # build-essential, which hid that the installer never set up the
-            # linker the build needs.
-            apt-get update -qq
-            apt-get install -y -qq --no-install-recommends ca-certificates curl
-            # set -e ignores a pipeline that starts with !, so a negated
-            # command can never fail a step: two of these were decoration
-            # here. Test presence explicitly instead.
-            for tool in python python3 pip pip3 uv vadgr-cua cargo cc git vadgr; do
-              if command -v "$tool"; then echo "$tool is preinstalled, so this machine is not clean"; exit 1; fi
-            done
-            # The bind mount belongs to another uid, and git is not installed
-            # yet, so the trust is written as the global config file itself.
-            # It cannot travel as GIT_CONFIG_* environment: git deliberately
-            # ignores safe.directory from anywhere but protected config, and
-            # that route was tried and failed against this exact base image.
-            printf "[safe]\n\tdirectory = /src\n\tdirectory = /src/.git\n" > "$HOME/.gitconfig"
-            VADGR_REPO_URL=/src bash /src/install.sh
-            export PATH="$HOME/.vadgr/bin:$PATH"
-            command -v vadgr | grep -q "^$HOME/.vadgr/bin/vadgr$"
-            vadgr --version
-            # Nothing is started, so the daemon is down and saying so is the
-            # correct answer. Exit 3 is that answer, and it is a contract.
-            set +e; vadgr health; code=$?; set -e
-            test "$code" -eq 3 || { echo "expected exit 3 from a stopped daemon, got $code"; exit 1; }
-          '
+          before=$(find "$HOME" -mindepth 1 -maxdepth 3 -print | sort | sha256sum)
+          set +e
+          sh install.sh --source "$PWD" --accept-terms 1.0
+          code=$?
+          set -e
+          test "$code" -eq 2
+          after=$(find "$HOME" -mindepth 1 -maxdepth 3 -print | sort | sha256sum)
+          test "$before" = "$after"
 
-      # The hosted macOS image ships a Rust toolchain and there is no container
-      # to escape it, so this half proves what it can: that `install.sh` runs on
-      # macOS and produces binaries that work there. The from nothing case is
-      # the Linux half's, which has a container with nothing in it. Saying which
-      # half proves which is the point; a job that implied both would be lying
-      # about one.
-      - name: Install on macOS, where the runner already has a toolchain
+      - name: Keep macOS on the signed package boundary
         if: matrix.os == 'macos-latest'
         shell: bash
-        env:
-          VADGR_REPO_URL: ${{ github.workspace }}
-          VADGR_REF: ${{ github.sha }}
         run: |
-          bash install.sh
-          export PATH="$HOME/.vadgr/bin:$PATH"
-          command -v vadgr | grep -q "^$HOME/.vadgr/bin/vadgr$"
-          vadgr --version
-          set +e; vadgr health; code=$?; set -e
-          test "$code" -eq 3 || { echo "expected exit 3 from a stopped daemon, got $code"; exit 1; }
+          before=$(find "$HOME" -mindepth 1 -maxdepth 3 -print | sort | shasum -a 256)
+          set +e
+          sh install.sh --source "$PWD" --accept-terms 1.0
+          code=$?
+          set -e
+          test "$code" -eq 2
+          after=$(find "$HOME" -mindepth 1 -maxdepth 3 -print | sort | shasum -a 256)
+          test "$before" = "$after"
 
       # As above: the hosted Windows image ships a toolchain, so this half proves
       # that `install.ps1` runs on Windows and produces a working `vadgr.exe`.
@@ -139,38 +104,22 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
-      - uses: Vampire/setup-wsl@v7
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: Vampire/setup-wsl@d1da7f2c0322a5ee4f24975344f67fc0f5baf364 # v7
         with:
           distribution: Debian-12
-      - name: Run the real source installer inside a clean WSL distribution
+      - name: Prove an unconfigured WSL candidate fails before mutation
         shell: wsl-bash {0}
-        env:
-          VADGR_REF: ${{ github.sha }}
         run: |
-          apt-get update -qq
-          apt-get install -y -qq --no-install-recommends ca-certificates curl
-          for tool in python python3 pip pip3 uv vadgr-cua cargo cc git vadgr; do
-            if command -v "$tool"; then
-              echo "$tool is preinstalled, so this WSL machine is not clean"
-              exit 1
-            fi
-          done
-          printf "[safe]\n\tdirectory = %s\n\tdirectory = %s/.git\n" "$PWD" "$PWD" > "$HOME/.gitconfig"
-          VADGR_REPO_URL="$PWD" bash install.sh
-          export PATH="$HOME/.vadgr/bin:$PATH"
-          version="$(grep -m1 '^version = ' Cargo.toml | cut -d'"' -f2)"
-          test "$(vadgr --version)" = "vadgr $version"
-          manifest="$HOME/.vadgr/lib/cua/payload.json"
-          test -f "$manifest"
-          private_pythons=( "$HOME"/.vadgr/lib/cua/environments/*/bin/python )
-          test "${#private_pythons[@]}" -eq 1
-          private_python="${private_pythons[0]}"
-          test -f "$private_python"
-          "$private_python" -I -c 'import importlib.metadata,json,pathlib,sys; manifest=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")); assert sys.version.split()[0] == manifest["python_version"]; assert importlib.metadata.version("vadgr-computer-use") == manifest["cua_version"]' "$manifest"
-          VADGR_TRANSPORT=loopback vadgr start
-          vadgr computer-use status
-          vadgr stop
+          test "$(tr -d '\r\n' < packaging/release-public-key.txt)" = UNCONFIGURED
+          before=$(find "$HOME" -mindepth 1 -maxdepth 4 -print | sort | sha256sum)
+          set +e
+          WSL_DISTRO_NAME=Debian sh install.sh --source "$PWD" --accept-terms 1.0
+          code=$?
+          set -e
+          test "$code" -eq 2
+          after=$(find "$HOME" -mindepth 1 -maxdepth 4 -print | sort | sha256sum)
+          test "$before" = "$after"
 
   # A clean install is a normal user's machine: it has the operating system and
   # the libraries the operating system ships, and it has no toolchain, no build
@@ -204,14 +153,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable 2026-09-02
         with:
           # The explicit MSVC target exists so the crt-static flag reaches the
           # binary and not the build scripts; the other platforms build the
           # host target and need nothing extra.
           targets: ${{ runner.os == 'Windows' && 'x86_64-pc-windows-msvc' || '' }}
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@49a0bdc70d2e1b713ca9e2869b211fcce03d3c1c # v2
 
       - name: Build the release binaries
         if: runner.os != 'Windows'

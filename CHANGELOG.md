@@ -2,6 +2,27 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.5.0] - Unreleased
+
+### Added
+
+- Native Windows, macOS and Linux packages install the CLI, private CUA/Python
+  payload, local machine console, ordinary user-session daemon launch, legal
+  bundle and package lifecycle controls.
+- The local console manages the supported machine settings, providers, paired
+  devices and transports, pairing, daemon restart, updates, repair, rollback,
+  uninstall and the separate owner-data deletion flow.
+- Signed release manifests bind immutable target artifacts, terms, source and
+  monotonic release sequence; native packages additionally require their
+  platform publisher identity.
+- WSL receives a CLI-only verified archive lifecycle through `install.sh` with
+  install, repair, rollback and data-preserving uninstall.
+
+### Changed
+
+- The daemon and console version now derive from the package version rather
+  than a separately maintained constant.
+
 ## [0.4.12] - 2026-08-29
 
 ### Added

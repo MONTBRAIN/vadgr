@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "version": "0.5.0",
+  "package_kind": "msi",
+  "product_code": "{CEFD8482-734F-403D-B9BB-5ABD06A2A79E}",
+  "release_sequence": 500,
+  "manifest_sha256": null,
+  "update_origin": "https://github.com/MONTBRAIN/vadgr/releases/latest/download",
+  "publisher": null,
+  "rollback_vehicle": "cache/previous-setup.exe"
+}

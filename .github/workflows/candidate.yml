@@ -1,0 +1,302 @@
+name: Release candidate
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      release_mode:
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: candidate-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: release-metadata
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      checks: read
+      statuses: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate immutable candidate source and inputs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ github.sha }}
+          SOURCE_REF: ${{ github.ref_name }}
+          RELEASE_MODE: ${{ inputs.release_mode || false }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml | head -1)"
+          if [ "$RELEASE_MODE" = true ]; then
+            test "$SOURCE_REF" = "v${version}"
+          else
+            [[ "$SOURCE_REF" =~ ^release/v([0-9]+\.[0-9]+\.[0-9]+)/rc-([1-9][0-9]*)$ ]]
+            test "$version" = "${BASH_REMATCH[1]}"
+          fi
+          grep -Fqx "## [${version}] - Unreleased" CHANGELOG.md
+          grep -Fqx 'cua = "0.7.6"' packaging/cua/pins.toml
+          test "$(tr -d '\r\n' < packaging/release-public-key.txt)" != UNCONFIGURED
+          test -f packaging/legal/TERMS.txt
+          test -f packaging/legal/TERMS.rtf
+          test -f "packaging/sbom/vadgr-${version}.spdx.json"
+          test -f packaging/README-OFFLINE.txt
+          git fetch --no-tags origin master
+          test "$SOURCE_SHA" = "$(git rev-parse origin/master)"
+          git merge-base --is-ancestor "$SOURCE_SHA" origin/master
+          if [ "$RELEASE_MODE" != true ]; then
+            ! git show-ref --verify --quiet "refs/tags/v${version}"
+            if gh api "repos/${GITHUB_REPOSITORY}/releases/tags/v${version}" --silent >/dev/null 2>&1; then
+              echo "release v${version} already exists" >&2
+              exit 1
+            fi
+          fi
+          required="$(gh api "repos/${GITHUB_REPOSITORY}/branches/master/protection/required_status_checks/contexts" --jq '.[]')"
+          test -n "$required"
+          checks="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${SOURCE_SHA}/check-runs" --paginate --jq '.check_runs[] | [.name,.status,.conclusion] | @tsv')"
+          statuses="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${SOURCE_SHA}/status" --jq '.statuses[] | [.context,.state] | @tsv')"
+          while IFS= read -r context; do
+            test -n "$context" || continue
+            printf '%s\n%s\n' "$checks" "$statuses" | awk -F '\t' -v wanted="$context" '
+              $1 == wanted && (($2 == "completed" && $3 == "success") || $2 == "success") { ok=1 }
+              END { exit(ok ? 0 : 1) }
+            '
+          done <<< "$required"
+
+  linux:
+    name: candidate-linux-${{ matrix.arch }}
+    needs: validate
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable 2026-09-02
+      - name: Assemble pinned private payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo build --locked --release --bin vadgr
+          target/release/vadgr __payload-setup --install-root "$PWD/dist/payload" --payload-only
+      - name: Acquire the hash-pinned AppImage tool
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARCH: ${{ matrix.arch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          id="$(jq -r --arg arch "$ARCH" '.appimagetool[$arch].asset_id' packaging/toolchain.json)"
+          digest="$(jq -r --arg arch "$ARCH" '.appimagetool[$arch].sha256' packaging/toolchain.json)"
+          tool="$RUNNER_TEMP/appimagetool"
+          curl --fail --location --proto '=https' --tlsv1.2 \
+            -H 'Accept: application/octet-stream' -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/AppImage/appimagetool/releases/assets/$id" -o "$tool"
+          echo "$digest  $tool" | sha256sum --check --strict
+          chmod 0755 "$tool"
+          echo "APPIMAGETOOL=$tool" >> "$GITHUB_ENV"
+      - name: Build and inspect AppImage
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: "1"
+        shell: bash
+        run: |
+          set -euo pipefail
+          packaging/linux/build.sh 0.5.0 "${{ matrix.arch }}"
+          file "target/package/Vadgr-0.5.0-linux-${{ matrix.arch }}-installer.AppImage"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: candidate-linux-${{ matrix.arch }}
+          path: target/package/Vadgr-0.5.0-linux-${{ matrix.arch }}-installer.AppImage
+          if-no-files-found: error
+          retention-days: 14
+
+  wsl:
+    name: candidate-wsl-${{ matrix.arch }}
+    needs: validate
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable 2026-09-02
+      - name: Assemble archive from locks
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo build --locked --release --bin vadgr
+          target/release/vadgr __payload-setup --install-root "$PWD/dist/payload" --payload-only
+          packaging/wsl/build.sh 0.5.0 "${{ matrix.arch }}"
+          tar -tzf "target/package/Vadgr-0.5.0-wsl-${{ matrix.arch }}.tar.gz" >/dev/null
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: candidate-wsl-${{ matrix.arch }}
+          path: |
+            target/package/Vadgr-0.5.0-wsl-${{ matrix.arch }}.tar.gz
+            target/package/vadgr-release-verify-${{ matrix.arch }}
+          if-no-files-found: error
+          retention-days: 14
+
+  macos:
+    name: candidate-macos-${{ matrix.arch }}
+    needs: validate
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: macos-15-intel
+          - arch: arm64
+            runner: macos-15
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable 2026-09-02
+      - name: Assemble unsigned package from locks
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo build --locked --release --bin vadgr
+          target/release/vadgr __payload-setup --install-root "$PWD/dist/payload" --payload-only
+          packaging/macos/build.sh 0.5.0 "${{ matrix.arch }}"
+          if pkgutil --check-signature "target/package/Vadgr-0.5.0-macos-${{ matrix.arch }}-unsigned.pkg"; then
+            echo "candidate package unexpectedly carries a release signature" >&2
+            exit 1
+          fi
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: candidate-macos-${{ matrix.arch }}
+          path: |
+            target/package/Vadgr-0.5.0-macos-${{ matrix.arch }}-unsigned.pkg
+            target/package/Vadgr-0.5.0-macos-${{ matrix.arch }}-unsigned-root.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+
+  windows:
+    name: candidate-windows-${{ matrix.arch }}
+    needs: validate
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            rust_target: x86_64-pc-windows-msvc
+            runner: windows-2025
+          - arch: arm64
+            rust_target: aarch64-pc-windows-msvc
+            runner: windows-11-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable 2026-09-02
+        with:
+          targets: ${{ matrix.rust_target }}
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: 8.0.424
+      - name: Assemble payload and unsigned setup
+        shell: pwsh
+        env:
+          RUSTFLAGS: -C target-feature=+crt-static
+        run: |
+          cargo build --locked --release --target '${{ matrix.rust_target }}' --features native-gui --bin vadgr --bin vadgr-app
+          $target = 'target/${{ matrix.rust_target }}/release'
+          & "$target/vadgr.exe" __payload-setup --install-root "$PWD/dist/payload" --payload-only
+          $stage = "$PWD/target/package/windows-${{ matrix.arch }}-payload"
+          New-Item -ItemType Directory -Force -Path $stage | Out-Null
+          Copy-Item "$target/vadgr.exe", "$target/vadgr-app.exe" -Destination $stage
+          Copy-Item packaging/windows/install-receipt.json, packaging/README-OFFLINE.txt -Destination $stage
+          Copy-Item packaging/legal, packaging/sbom, dist/payload/lib -Destination $stage -Recurse
+          $sdk = (Get-Content packaging/toolchain.json | ConvertFrom-Json).dotnet_sdk
+          if (-not ((dotnet --version) -like "$sdk*")) { throw "Expected .NET SDK $sdk" }
+          packaging/windows/build.ps1 -Architecture '${{ matrix.arch }}' -Version 0.5.0 `
+            -PayloadDirectory $stage -TermsRtf packaging/legal/TERMS.rtf `
+            -TermsVersion 1.0 -OutputDirectory target/package/windows-${{ matrix.arch }}
+          scripts/check_windows_imports.ps1 "$target/vadgr.exe"
+          scripts/check_windows_imports.ps1 "$target/vadgr-app.exe"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: candidate-windows-${{ matrix.arch }}
+          path: |
+            target/package/windows-${{ matrix.arch }}/Vadgr-0.5.0-windows-${{ matrix.arch }}.msi
+            target/package/windows-${{ matrix.arch }}/Vadgr-0.5.0-windows-${{ matrix.arch }}-setup.exe
+            target/package/windows-${{ matrix.arch }}-payload
+          if-no-files-found: error
+          retention-days: 14
+
+  record:
+    name: candidate-record
+    needs: [linux, wsl, macos, windows]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          path: candidate
+      - name: Write immutable candidate record
+        shell: bash
+        run: |
+          set -euo pipefail
+          find candidate -type f -print0 | sort -z | xargs -0 sha256sum > candidate-sha256.txt
+          jq -n --arg source "${GITHUB_SHA}" --arg runner "${ImageOS:-ubuntu24}" \
+            --arg cargo_lock "$(sha256sum Cargo.lock | cut -d' ' -f1)" \
+            --arg cua_lock "$(sha256sum packaging/cua/requirements.lock | cut -d' ' -f1)" \
+            --rawfile artifacts candidate-sha256.txt \
+            '{schema:1,source_commit:$source,runner_image:$runner,cargo_lock_sha256:$cargo_lock,cua_lock_sha256:$cua_lock,artifact_sha256:$artifacts,required_signing:["Windows Authenticode: installed PE files, MSI, detached Burn engine, final setup","macOS Developer ID: nested code, app, installer package, notarization and staple","offline Minisign: release-manifest.json"],windows_signing_quota:"calculate from the final payload inventory before approval; no signing occurs here"}' \
+            > candidate.json
+      - uses: actions/attest-build-provenance@8beda2b7ed98355c0e97c0a63bec38ae472e66c4 # v4
+        with:
+          subject-path: candidate.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: candidate-record
+          path: |
+            candidate.json
+            candidate-sha256.txt
+          if-no-files-found: error
+          retention-days: 90

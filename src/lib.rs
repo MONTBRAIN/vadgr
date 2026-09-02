@@ -7,12 +7,17 @@
 pub mod auth;
 pub mod computer_use_setup;
 pub mod config;
+#[cfg(feature = "native-gui")]
+pub mod console;
 pub mod cua_payload;
 pub mod daemon;
 pub mod db;
 pub mod engine;
 pub mod error;
 pub mod http;
+pub mod install;
+#[cfg(feature = "native-gui")]
+pub mod installer;
 pub mod migrate;
 pub mod platform;
 pub(crate) mod private_fs;

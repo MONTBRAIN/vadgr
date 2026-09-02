@@ -1,0 +1,58 @@
+#!/bin/sh
+set -eu
+
+app=/Applications/Vadgr.app
+backend="$app/Contents/MacOS/vadgr"
+login_helper="$app/Contents/Helpers/vadgr-login-item"
+terms="$app/Contents/Resources/legal/TERMS.txt"
+package=${PACKAGE_PATH:-}
+transaction_root='/Library/Application Support/MONTBRAIN/Vadgr/install-transaction'
+backup="$transaction_root/previous.app"
+owner=$(/usr/bin/stat -f '%Su' /dev/console)
+[ "$owner" != root ] && [ "$owner" != loginwindow ] || { echo "No interactive owner is available." >&2; exit 1; }
+owner_home=$(/usr/bin/dscl . -read "/Users/$owner" NFSHomeDirectory | /usr/bin/awk '{print $2}')
+cache="$owner_home/Library/Application Support/vadgr/package-cache"
+pending="$cache/.pending.pkg"
+committed=false
+
+restore_previous() {
+  [ "$committed" = false ] || return 0
+  /bin/rm -f -- "$pending"
+  /bin/rm -rf -- "$app"
+  if [ -d "$backup" ]; then
+    /bin/mv "$backup" "$app"
+    /usr/bin/sudo -H -u "$owner" "$app/Contents/MacOS/vadgr" start >/dev/null 2>&1 || true
+  fi
+}
+trap restore_previous EXIT HUP INT TERM
+
+[ -x "$backend" ] || { echo "The installed Vadgr executable is missing." >&2; exit 1; }
+[ -f "$terms" ] || { echo "The installed terms are missing." >&2; exit 1; }
+[ -f "$package" ] || { echo "Installer did not provide the package path." >&2; exit 1; }
+
+/bin/mkdir -p "$cache"
+/bin/cp "$package" "$pending"
+/usr/sbin/chown -R "$owner" "$cache"
+
+if ! /usr/bin/sudo -H -u "$owner" "$backend" start; then
+  echo "The installed Vadgr daemon did not become healthy." >&2
+  exit 1
+fi
+
+/usr/bin/sudo -H -u "$owner" "$backend" __record-terms-acceptance \
+  --terms-version 1.0 --installer-version 0.5.0 \
+  --terms-file "$terms" --installer-file "$package"
+
+if [ -x "$login_helper" ]; then
+  /usr/bin/sudo -H -u "$owner" "$login_helper" enable || true
+fi
+
+if [ -f "$cache/current.pkg" ]; then
+  /bin/mv -f "$cache/current.pkg" "$cache/previous.pkg"
+fi
+/bin/mv "$pending" "$cache/current.pkg"
+committed=true
+/bin/rm -rf -- "$backup"
+/bin/rmdir "$transaction_root" 2>/dev/null || true
+trap - EXIT HUP INT TERM
+exit 0

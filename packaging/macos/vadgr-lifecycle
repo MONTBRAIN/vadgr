@@ -1,0 +1,41 @@
+#!/bin/sh
+set -eu
+
+app=/Applications/Vadgr.app
+backend="$app/Contents/MacOS/vadgr"
+login_helper="$app/Contents/Helpers/vadgr-login-item"
+cache_root="$HOME/Library/Application Support/vadgr/package-cache"
+action=${1:-}
+
+case "$action" in
+  repair)
+    [ -f "$cache_root/current.pkg" ] || { echo "The retained signed repair package is missing." >&2; exit 1; }
+    "$backend" __verify-install-vehicle --installer-file "$cache_root/current.pkg"
+    /usr/bin/open -W "$cache_root/current.pkg"
+    ;;
+  rollback)
+    [ -f "$cache_root/previous.pkg" ] || { echo "No retained signed rollback package is available." >&2; exit 1; }
+    rollback_copy="$cache_root/.rollback.pkg"
+    /bin/cp "$cache_root/previous.pkg" "$rollback_copy"
+    trap '/bin/rm -f -- "$rollback_copy"' EXIT HUP INT TERM
+    "$backend" __verify-install-vehicle --installer-file "$rollback_copy"
+    /usr/bin/open -W "$rollback_copy"
+    ;;
+  uninstall)
+    shift
+    purge=false
+    if [ "${1:-}" = --purge-owner-state ]; then purge=true; fi
+    if [ -x "$login_helper" ]; then "$login_helper" disable || true; fi
+    if [ "$purge" = true ]; then "$backend" __purge-owner-state; fi
+    if [ -L /usr/local/bin/vadgr ]; then
+      target=$(/usr/bin/readlink /usr/local/bin/vadgr)
+      [ "$target" = "$backend" ] || { echo "The vadgr command link belongs to another installation." >&2; exit 1; }
+    fi
+    /bin/rm -rf -- "$cache_root"
+    /usr/bin/osascript -e 'do shell script "/bin/rm -rf -- /Applications/Vadgr.app; /bin/rm -f -- /usr/local/bin/vadgr; /usr/sbin/pkgutil --forget com.montbrain.vadgr.pkg >/dev/null 2>&1 || true" with administrator privileges'
+    ;;
+  *)
+    echo "Usage: vadgr-lifecycle repair|rollback|uninstall [--purge-owner-state]" >&2
+    exit 64
+    ;;
+esac

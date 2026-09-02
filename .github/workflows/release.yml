@@ -1,0 +1,329 @@
+name: Signed release draft
+
+on:
+  push:
+    tags:
+      - v*
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  validate-tag:
+    name: validate-tag
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify signed immutable source
+        env:
+          APPROVED_TAG_SIGNER_FINGERPRINT: ${{ vars.APPROVED_TAG_SIGNER_FINGERPRINT }}
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml | head -1)"
+          test "$GITHUB_REF_NAME" = "v${version}"
+          test -n "$APPROVED_TAG_SIGNER_FINGERPRINT"
+          verification="$(git verify-tag --raw "$GITHUB_REF_NAME" 2>&1)"
+          printf '%s\n' "$verification" | grep -F "VALIDSIG $APPROVED_TAG_SIGNER_FINGERPRINT"
+          test "$(git rev-list -n1 "$GITHUB_REF_NAME")" = "$GITHUB_SHA"
+          git fetch --no-tags origin master
+          test "$GITHUB_SHA" = "$(git rev-parse origin/master)"
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/master
+          if gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" --silent >/dev/null 2>&1; then
+            echo "a release already owns this tag" >&2
+            exit 1
+          fi
+          count="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/candidate.yml/runs?event=workflow_dispatch&status=success" \
+            --jq "[.workflow_runs[] | select(.head_sha == \"${GITHUB_SHA}\")] | length")"
+          test "$count" -ge 1
+
+  build:
+    name: rebuild-from-tag
+    needs: validate-tag
+    uses: ./.github/workflows/candidate.yml
+    with:
+      release_mode: true
+    permissions:
+      contents: read
+      checks: read
+      statuses: read
+      id-token: write
+      attestations: write
+
+  windows-quota:
+    name: windows-signing-quota-${{ matrix.arch }}
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64, arm64]
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: candidate-windows-${{ matrix.arch }}
+          path: unsigned
+      - name: Display the one-shot signature count before approval
+        shell: pwsh
+        run: |
+          $payload = Get-ChildItem unsigned -Directory -Recurse | Where-Object Name -Like '*-payload' | Select-Object -First 1
+          if (-not $payload) { throw 'Unsigned Windows payload is missing.' }
+          $installed = @(Get-ChildItem $payload.FullName -Recurse -File | Where-Object Extension -In '.exe','.dll','.pyd').Count
+          $total = $installed + 3
+          "Windows ${{ matrix.arch }} requires $total one-shot signatures: $installed installed PE files, one MSI, one detached Burn engine, and one final setup."
+
+  sign-windows:
+    name: sign-windows-${{ matrix.arch }}
+    needs: [build, windows-quota]
+    environment: release-windows
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64, arm64]
+    runs-on: windows-2025
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: 8.0.424
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: candidate-windows-${{ matrix.arch }}
+          path: unsigned
+      - name: Sign each Windows layer once and verify it immediately
+        env:
+          EXPECTED_PUBLISHER_THUMBPRINT: ${{ vars.WINDOWS_PUBLISHER_THUMBPRINT }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:EXPECTED_PUBLISHER_THUMBPRINT -notmatch '^[0-9A-Fa-f]{40}$') { throw 'Approved publisher thumbprint is not configured.' }
+          $signTool = (Get-Command signtool.exe -ErrorAction Stop).Source
+          $certificate = Get-ChildItem Cert:\CurrentUser\My | Where-Object Thumbprint -EQ $env:EXPECTED_PUBLISHER_THUMBPRINT
+          if (@($certificate).Count -ne 1) { throw 'The protected signing provider did not expose exactly one approved certificate.' }
+          function Sign-Once([string] $file) {
+            & $signTool sign /fd SHA256 /sha1 $env:EXPECTED_PUBLISHER_THUMBPRINT /tr 'http://ts.ssl.com' /td SHA256 $file
+            if ($LASTEXITCODE -ne 0) { throw "SignTool sign failed for $([IO.Path]::GetFileName($file))" }
+            & $signTool verify /pa /all $file
+            if ($LASTEXITCODE -ne 0) { throw "SignTool verify failed for $([IO.Path]::GetFileName($file))" }
+            $actual = (Get-AuthenticodeSignature -LiteralPath $file).SignerCertificate.Thumbprint
+            if ($actual -ne $env:EXPECTED_PUBLISHER_THUMBPRINT) { throw 'Signed file has the wrong publisher.' }
+          }
+          $payload = Get-ChildItem unsigned -Directory -Recurse | Where-Object Name -Like '*-payload' | Select-Object -First 1
+          if (-not $payload) { throw 'Unsigned Windows payload is missing.' }
+          $peFiles = @(Get-ChildItem $payload.FullName -Recurse -File | Where-Object Extension -In '.exe','.dll','.pyd' | Sort-Object FullName)
+          foreach ($file in $peFiles) { Sign-Once $file.FullName }
+          $output = "$PWD/target/release-windows-${{ matrix.arch }}"
+          New-Item -ItemType Directory -Force -Path $output | Out-Null
+          $generatedPayload = "$output/PrivatePayload.wxs"
+          python scripts/generate_windows_payload_wxs.py --payload-lib "$($payload.FullName)/lib" --output $generatedPayload
+          if ($LASTEXITCODE -ne 0) { throw 'Deterministic payload authoring failed.' }
+          dotnet build packaging/windows/VadgrMsi.wixproj --configuration Release --nologo `
+            -p:Platform=${{ matrix.arch }} -p:VadgrVersion=0.5.0 "-p:PayloadDir=$($payload.FullName)" `
+            "-p:GeneratedPayloadWxs=$generatedPayload" "-p:OutputPath=$output"
+          if ($LASTEXITCODE -ne 0) { throw 'MSI rebuild failed.' }
+          $msi = "$output/Vadgr-0.5.0-windows-${{ matrix.arch }}.msi"
+          Sign-Once $msi
+          dotnet build packaging/windows/VadgrBundle.wixproj --configuration Release --nologo `
+            -p:Platform=${{ matrix.arch }} -p:VadgrVersion=0.5.0 "-p:MsiPath=$msi" `
+            "-p:TermsRtf=$PWD/packaging/legal/TERMS.rtf" -p:TermsVersion=1.0 `
+            "-p:ThemeFile=$PWD/packaging/windows/VadgrTheme.xml" "-p:OutputPath=$output"
+          if ($LASTEXITCODE -ne 0) { throw 'Burn rebuild failed.' }
+          dotnet tool install wix --tool-path "$PWD/target/wix" --version 4.0.6
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned WiX command installation failed.' }
+          $unsigned = "$output/Vadgr-0.5.0-windows-${{ matrix.arch }}-setup.exe"
+          $engine = "$output/burn-engine.exe"
+          $final = "$output/Vadgr-0.5.0-windows-${{ matrix.arch }}-final.exe"
+          & "$PWD/target/wix/wix.exe" burn detach $unsigned -engine $engine
+          if ($LASTEXITCODE -ne 0) { throw 'Burn engine detach failed.' }
+          Sign-Once $engine
+          & "$PWD/target/wix/wix.exe" burn reattach $unsigned -engine $engine -o $final
+          if ($LASTEXITCODE -ne 0) { throw 'Burn engine reattach failed.' }
+          Sign-Once $final
+          Move-Item -LiteralPath $final -Destination $unsigned -Force
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: final-windows-${{ matrix.arch }}
+          path: |
+            target/release-windows-${{ matrix.arch }}/Vadgr-0.5.0-windows-${{ matrix.arch }}.msi
+            target/release-windows-${{ matrix.arch }}/Vadgr-0.5.0-windows-${{ matrix.arch }}-setup.exe
+          if-no-files-found: error
+          retention-days: 30
+
+  sign-macos:
+    name: sign-macos-${{ matrix.arch }}
+    needs: build
+    environment: release-macos
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: macos-15-intel
+          - arch: arm64
+            runner: macos-15
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: candidate-macos-${{ matrix.arch }}
+          path: unsigned
+      - name: Sign inside-out, notarize, staple and verify
+        env:
+          APPLICATION_IDENTITY: ${{ vars.MACOS_APPLICATION_IDENTITY }}
+          INSTALLER_IDENTITY: ${{ vars.MACOS_INSTALLER_IDENTITY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$APPLICATION_IDENTITY"
+          test -n "$INSTALLER_IDENTITY"
+          expected="$(cat packaging/macos/cua-designated-requirement.txt)"
+          test "$expected" != UNCONFIGURED
+          root="$RUNNER_TEMP/vadgr-root"
+          mkdir -p "$root"
+          tar -C "$root" -xzf "unsigned/Vadgr-0.5.0-macos-${{ matrix.arch }}-unsigned-root.tar.gz"
+          app="$root/Applications/Vadgr.app"
+          cua="$app/Contents/Library/LoginItems/Vadgr Computer Use.app"
+          while IFS= read -r -d '' file; do
+            if file "$file" | grep -q 'Mach-O'; then
+              codesign --force --options runtime --timestamp --sign "$APPLICATION_IDENTITY" "$file"
+              codesign --verify --strict --verbose=2 "$file"
+            fi
+          done < <(find "$app" -type f -print0 | sort -z)
+          codesign --force --options runtime --timestamp --entitlements packaging/macos/Vadgr.entitlements --sign "$APPLICATION_IDENTITY" "$cua"
+          codesign --force --options runtime --timestamp --entitlements packaging/macos/Vadgr.entitlements --sign "$APPLICATION_IDENTITY" "$app"
+          codesign --verify --deep --strict --verbose=2 "$app"
+          actual="$(codesign -d -r- "$cua" 2>&1 | sed -n 's/^designated => //p')"
+          test "$actual" = "$expected"
+          work="$RUNNER_TEMP/vadgr-package"
+          mkdir -p "$work/resources" "$PWD/target/final-macos"
+          cp packaging/macos/resources/WELCOME.txt packaging/macos/resources/CONCLUSION.txt "$work/resources/"
+          cp packaging/legal/TERMS.txt "$work/resources/TERMS.txt"
+          pkgbuild --root "$root" --identifier com.montbrain.vadgr.pkg --version 0.5.0 \
+            --install-location / --scripts packaging/macos/scripts --sign "$INSTALLER_IDENTITY" "$work/Vadgr-component.pkg"
+          final="$PWD/target/final-macos/Vadgr-0.5.0-macos-${{ matrix.arch }}.pkg"
+          productbuild --distribution packaging/macos/Distribution.xml --resources "$work/resources" \
+            --package-path "$work" --sign "$INSTALLER_IDENTITY" "$final"
+          xcrun notarytool submit "$final" --keychain-profile vadgr-release --wait
+          xcrun stapler staple "$final"
+          xcrun stapler validate "$final"
+          pkgutil --check-signature "$final"
+          spctl --assess --type install --verbose=2 "$final"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: final-macos-${{ matrix.arch }}
+          path: target/final-macos/Vadgr-0.5.0-macos-${{ matrix.arch }}.pkg
+          if-no-files-found: error
+          retention-days: 30
+
+  finalize-linux-wsl:
+    name: finalize-linux-wsl
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: candidate-linux-*
+          path: final
+          merge-multiple: true
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: candidate-wsl-*
+          path: final
+          merge-multiple: true
+      - name: Refuse an incomplete unsigned-native set
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(find final -maxdepth 1 -name '*.AppImage' | wc -l)" -eq 2
+          test "$(find final -maxdepth 1 -name '*.tar.gz' | wc -l)" -eq 2
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: final-linux-wsl
+          path: final
+          if-no-files-found: error
+          retention-days: 30
+
+  attest:
+    name: attest
+    needs: [sign-windows, sign-macos, finalize-linux-wsl]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: final-*
+          path: final
+          merge-multiple: true
+      - uses: actions/attest-build-provenance@8beda2b7ed98355c0e97c0a63bec38ae472e66c4 # v4
+        with:
+          subject-path: |
+            final/**/*
+            install.sh
+
+  draft-release:
+    name: draft-release
+    needs: attest
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: final-*
+          path: final
+          merge-multiple: true
+      - name: Verify final set and create the unsigned manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/build_release_manifest.py --artifacts final --source-commit "$GITHUB_SHA" \
+            --terms-version 1.0 --terms packaging/legal/TERMS.txt --output release-manifest.json
+          python -c 'import json; row=json.load(open("release-manifest.json", encoding="utf-8")); assert row["schema"] == 1 and len(row["artifacts"]) == 8'
+      - name: Create one draft without publishing it
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -d '' assets < <(find final -maxdepth 1 -type f \
+            \( -name '*-setup.exe' -o -name '*.pkg' -o -name '*.AppImage' \
+               -o -name '*.tar.gz' -o -name 'vadgr-release-verify-*' \) -print0 | sort -z)
+          gh release create "$GITHUB_REF_NAME" --draft --verify-tag --title "Vadgr 0.5.0" \
+            --notes-file CHANGELOG.md "${assets[@]}" release-manifest.json install.sh \
+            packaging/README-OFFLINE.txt packaging/sbom/* packaging/legal/*

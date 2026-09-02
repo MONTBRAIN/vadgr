@@ -1,0 +1,17 @@
+<Project Sdk="WixToolset.Sdk/4.0.6">
+  <PropertyGroup>
+    <OutputName>Vadgr-$(VadgrVersion)-windows-$(Platform)</OutputName>
+    <DefineConstants>VadgrVersion=$(VadgrVersion);PayloadDir=$(PayloadDir)</DefineConstants>
+    <InstallerPlatform>$(Platform)</InstallerPlatform>
+    <SuppressValidation>false</SuppressValidation>
+    <!-- ICE91 assumes a package might switch to per-machine scope; this one is
+         fixed per-user. ICE61 rejects deliberate signed local rollback. All
+         other Windows Installer validation remains enabled. -->
+    <SuppressIces>ICE61;ICE91</SuppressIces>
+    <EnableDefaultItems>false</EnableDefaultItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Package.wxs" />
+    <Compile Include="$(GeneratedPayloadWxs)" />
+  </ItemGroup>
+</Project>

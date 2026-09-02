@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="2">
+  <title>Vadgr</title>
+  <organization>com.montbrain</organization>
+  <domains enable_localSystem="true" enable_currentUserHome="false" enable_anywhere="false"/>
+  <options customize="never" require-scripts="true" rootVolumeOnly="true"/>
+  <license file="TERMS.txt" mime-type="text/plain"/>
+  <welcome file="WELCOME.txt" mime-type="text/plain"/>
+  <conclusion file="CONCLUSION.txt" mime-type="text/plain"/>
+  <choices-outline><line choice="default"><line choice="com.montbrain.vadgr"/></line></choices-outline>
+  <choice id="default"/>
+  <choice id="com.montbrain.vadgr" visible="false"><pkg-ref id="com.montbrain.vadgr.pkg"/></choice>
+  <pkg-ref id="com.montbrain.vadgr.pkg">Vadgr-component.pkg</pkg-ref>
+</installer-gui-script>

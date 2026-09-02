@@ -1,8 +1,14 @@
 [package]
 name = "vadgr-daemon"
-version = "0.4.12"
+version = "0.5.0"
 edition = "2024"
 description = "The vadgr machine daemon"
+
+[features]
+default = []
+native-gui = ["dep:eframe"]
+macos-cua-host = []
+release-verifier = []
 
 [lib]
 name = "vadgr_daemon"
@@ -17,6 +23,21 @@ path = "src/lib.rs"
 [[bin]]
 name = "vadgr"
 path = "src/cli/main.rs"
+
+[[bin]]
+name = "vadgr-app"
+path = "src/console/launcher.rs"
+required-features = ["native-gui"]
+
+[[bin]]
+name = "vadgr-cua-host"
+path = "src/bin/vadgr-cua-host.rs"
+required-features = ["macos-cua-host"]
+
+[[bin]]
+name = "vadgr-release-verify"
+path = "src/bin/vadgr-release-verify.rs"
+required-features = ["release-verifier"]
 
 [dependencies]
 # The CLI's surface. `anstyle` is declared because Rust requires a direct
@@ -58,6 +79,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 uuid = { version = "1", features = ["v4"] }
 time = { version = "0.3", features = ["formatting", "parsing", "macros"] }
 sha2 = "0.11"
+minisign-verify = "=0.2.5"
 rand = "0.10"
 futures-util = "0.3"
 anyhow = "1"
@@ -69,6 +91,7 @@ hostname = "0.4"
 async-trait = "0.1"
 regex = "1"
 reqwest = { version = "0.13", default-features = false, features = ["form", "json", "rustls", "stream"] }
+eframe = { version = "=0.36.1", optional = true, default-features = false, features = ["accesskit", "default_fonts", "glow", "wayland", "x11"] }
 flate2 = "1"
 tar = "0.4"
 zip = { version = "4", default-features = false, features = ["deflate"] }

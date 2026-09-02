@@ -1,6 +1,7 @@
 //! The SQLite connection and repository boundary.
 
 pub mod devices;
+pub mod machine;
 pub mod migrations;
 pub mod providers;
 pub mod runs;

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package
+      Name="Vadgr"
+      Manufacturer="MONTBRAIN"
+      Version="$(var.VadgrVersion)"
+      ProductCode="{CEFD8482-734F-403D-B9BB-5ABD06A2A79E}"
+      UpgradeCode="{5504409E-BAA2-4B82-9BA1-CB6C45E5EACB}"
+      Scope="perUser"
+      InstallerVersion="500">
+    <SummaryInformation Description="Vadgr local machine agent" />
+    <MajorUpgrade
+        Schedule="afterInstallInitialize"
+        AllowDowngrades="yes" />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+    <Property Id="TERMSACCEPTED" Secure="yes" />
+    <Property Id="TERMSVERSION" Secure="yes" />
+    <Property Id="BUNDLESOURCE" Secure="yes" Hidden="yes" />
+    <Property Id="PURGEOWNERDATA" Secure="yes" />
+    <Launch
+        Condition="Installed OR TERMSACCEPTED = 1"
+        Message="Install Vadgr through its setup application and accept the current terms first." />
+
+    <StandardDirectory Id="LocalAppDataFolder">
+      <Directory Id="ProgramsDirectory" Name="Programs">
+        <Directory Id="INSTALLFOLDER" Name="Vadgr">
+          <Directory Id="PackageCacheFolder" Name="cache" />
+          <Directory Id="PrivateLibFolder" Name="lib" />
+          <Directory Id="LegalFolder" Name="legal" />
+          <Directory Id="SbomFolder" Name="sbom" />
+        </Directory>
+      </Directory>
+    </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="Vadgr" />
+    </StandardDirectory>
+
+    <Feature Id="Complete" Title="Vadgr" Level="1">
+      <ComponentGroupRef Id="PrivatePayload" />
+      <ComponentRef Id="VadgrBackend" />
+      <ComponentRef Id="VadgrApplication" />
+      <ComponentRef Id="PackageMetadata" />
+      <ComponentRef Id="LegalPayload" />
+      <ComponentRef Id="SbomPayload" />
+      <ComponentRef Id="InstallFolderCleanup" />
+      <ComponentRef Id="StartMenuEntry" />
+      <ComponentRef Id="StartupEntry" />
+      <ComponentRef Id="PackageCacheCleanup" />
+    </Feature>
+
+    <Component Id="VadgrBackend" Directory="INSTALLFOLDER" Guid="{CE560AD1-3C47-4BE8-9844-A34E1F2A65B0}">
+      <File Id="VadgrBackendFile" Source="$(var.PayloadDir)\vadgr.exe" />
+      <RegistryValue Root="HKCU" Key="Software\MONTBRAIN\Vadgr\Components" Name="Backend" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+    <Component Id="VadgrApplication" Directory="INSTALLFOLDER" Guid="{E6A20354-0AEC-4C07-936E-021BED19E13C}">
+      <File Id="VadgrApplicationFile" Source="$(var.PayloadDir)\vadgr-app.exe" />
+      <RegistryValue Root="HKCU" Key="Software\MONTBRAIN\Vadgr\Components" Name="Application" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+    <Component Id="PackageMetadata" Directory="INSTALLFOLDER" Guid="{720A2781-42CC-4CA3-892B-3C5863957166}">
+      <File Id="InstallReceiptFile" Source="$(var.PayloadDir)\install-receipt.json" />
+      <File Id="OfflineReadmeFile" Source="$(var.PayloadDir)\README-OFFLINE.txt" />
+      <RegistryValue Root="HKCU" Key="Software\MONTBRAIN\Vadgr\Components" Name="Metadata" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+    <Component Id="LegalPayload" Directory="LegalFolder" Guid="{A9E7B842-2C30-44D8-BBD3-78EE0C68C8EE}">
+      <File Source="$(var.PayloadDir)\legal\TERMS.txt" />
+      <File Source="$(var.PayloadDir)\legal\PRIVACY-NOTICE.txt" />
+      <File Source="$(var.PayloadDir)\legal\SECURITY-AND-PERMISSIONS.txt" />
+      <File Source="$(var.PayloadDir)\legal\THIRD-PARTY-NOTICES.txt" />
+      <File Source="$(var.PayloadDir)\legal\SUPPORT.txt" />
+      <File Source="$(var.PayloadDir)\legal\UNINSTALL-AND-DATA.txt" />
+      <RegistryValue Root="HKCU" Key="Software\MONTBRAIN\Vadgr\Components" Name="Legal" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+    <Component Id="SbomPayload" Directory="SbomFolder" Guid="{23A654B1-EF22-491A-9C39-B0078A8C8753}">
+      <File Source="$(var.PayloadDir)\sbom\vadgr-0.5.0.spdx.json" />
+      <RegistryValue Root="HKCU" Key="Software\MONTBRAIN\Vadgr\Components" Name="Sbom" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+    <Component Id="InstallFolderCleanup" Directory="INSTALLFOLDER" Guid="{F769D82B-844F-4D60-B8CE-8F1A39032D9F}">
+      <RegistryValue Root="HKCU" Key="Software\MONTBRAIN\Vadgr\Components" Name="Folders" Type="integer" Value="1" KeyPath="yes" />
+      <RemoveFolder Id="RemoveLegalFolder" Directory="LegalFolder" On="uninstall" />
+      <RemoveFolder Id="RemovePrivateLibFolder" Directory="PrivateLibFolder" On="uninstall" />
+      <RemoveFolder Id="RemoveSbomFolder" Directory="SbomFolder" On="uninstall" />
+      <RemoveFolder Id="RemoveInstallFolder" Directory="INSTALLFOLDER" On="uninstall" />
+      <RemoveFolder Id="RemoveProgramsDirectory" Directory="ProgramsDirectory" On="uninstall" />
+    </Component>
+
+    <CustomAction
+        Id="RecordTermsAcceptance"
+        FileRef="VadgrBackendFile"
+        ExeCommand="__record-terms-acceptance --terms-version &quot;[TERMSVERSION]&quot; --installer-version &quot;[ProductVersion]&quot; --terms-file &quot;[INSTALLFOLDER]legal\TERMS.txt&quot; --installer-file &quot;[BUNDLESOURCE]&quot;"
+        Execute="commit"
+        Impersonate="yes"
+        Return="check"
+        HideTarget="yes" />
+    <CustomAction
+        Id="PurgeOwnerState"
+        FileRef="VadgrBackendFile"
+        ExeCommand="__purge-owner-state"
+        Execute="deferred"
+        Impersonate="yes"
+        Return="check"
+        HideTarget="yes" />
+    <CustomAction
+        Id="CacheInstallVehicle"
+        FileRef="VadgrBackendFile"
+        ExeCommand="__cache-install-vehicle --installer-file &quot;[BUNDLESOURCE]&quot;"
+        Execute="commit"
+        Impersonate="yes"
+        Return="check"
+        HideTarget="yes" />
+    <InstallExecuteSequence>
+      <Custom
+          Action="RecordTermsAcceptance"
+          Before="InstallFinalize"
+          Condition="NOT Installed AND TERMSACCEPTED = 1" />
+      <Custom
+          Action="CacheInstallVehicle"
+          Before="InstallFinalize"
+          Condition="NOT Installed AND TERMSACCEPTED = 1" />
+      <Custom
+          Action="PurgeOwnerState"
+          Before="RemoveFiles"
+          Condition="REMOVE~=&quot;ALL&quot; AND PURGEOWNERDATA = 1" />
+    </InstallExecuteSequence>
+
+    <Component Id="StartMenuEntry" Directory="ApplicationProgramsFolder" Guid="{F38294D0-D344-4D64-8B8A-09219AF09CA5}">
+      <Shortcut
+          Id="VadgrStartMenuShortcut"
+          Name="Vadgr"
+          Description="Open the Vadgr local machine console"
+          Target="[INSTALLFOLDER]vadgr-app.exe"
+          WorkingDirectory="INSTALLFOLDER" />
+      <RemoveFolder Id="RemoveApplicationProgramsFolder" On="uninstall" />
+      <RegistryValue
+          Root="HKCU"
+          Key="Software\MONTBRAIN\Vadgr"
+          Name="StartMenuEntry"
+          Type="integer"
+          Value="1"
+          KeyPath="yes" />
+    </Component>
+
+    <Component Id="StartupEntry" Directory="INSTALLFOLDER" Guid="{FCFBC40E-836E-4EA6-AB66-28658C889518}">
+      <RegistryValue
+          Root="HKCU"
+          Key="Software\Microsoft\Windows\CurrentVersion\Run"
+          Name="Vadgr"
+          Type="string"
+          Value="&quot;[INSTALLFOLDER]vadgr-app.exe&quot; --daemon"
+          KeyPath="yes" />
+    </Component>
+
+    <Component Id="PackageCacheCleanup" Directory="PackageCacheFolder" Guid="{CD6D7B1B-FA3D-4AF6-B457-073F87A8FC55}">
+      <RemoveFile Id="RemoveVadgrCachedSetups" Name="*.exe" On="uninstall" />
+      <RemoveFolder Id="RemoveVadgrPackageCache" On="uninstall" />
+      <RegistryValue
+          Root="HKCU"
+          Key="Software\MONTBRAIN\Vadgr"
+          Name="PackageCache"
+          Type="integer"
+          Value="1"
+          KeyPath="yes" />
+    </Component>
+  </Package>
+</Wix>

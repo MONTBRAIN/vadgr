@@ -32,15 +32,32 @@ const RUN_WATCH_TIMEOUT: Duration = Duration::from_secs(7200);
     name = "vadgr",
     about = "vadgr CLI.",
     version,
-    disable_help_subcommand = true
+    disable_help_subcommand = true,
+    arg_required_else_help = true
 )]
 struct Cli {
     /// The daemon's base URL.
     #[arg(long, global = true, env = "VADGR_API_URL", hide = true)]
     api_url: Option<String>,
 
+    /// Open the installed local machine console.
+    #[arg(long, conflicts_with_all = ["daemon", "installer"])]
+    console: bool,
+
+    /// Run the installed daemon in the foreground.
+    #[arg(long, hide = true, conflicts_with_all = ["console", "installer"])]
+    daemon: bool,
+
+    /// Open the native release-vehicle installer.
+    #[arg(long, hide = true, conflicts_with_all = ["console", "daemon"])]
+    installer: bool,
+
+    /// Exact release vehicle being installed.
+    #[arg(long, hide = true, requires = "installer")]
+    vehicle: Option<PathBuf>,
+
     #[command(subcommand)]
-    command: Command,
+    command: Option<Command>,
 }
 
 #[derive(Subcommand)]
@@ -54,6 +71,53 @@ enum Command {
         apply_system_deps: bool,
         #[arg(long)]
         payload_only: bool,
+    },
+    /// Commit the package terms record after a successful installer transaction.
+    #[command(name = "__record-terms-acceptance", hide = true)]
+    RecordTermsAcceptance {
+        #[arg(long)]
+        terms_version: String,
+        #[arg(long)]
+        installer_version: String,
+        #[arg(long)]
+        terms_file: PathBuf,
+        #[arg(long)]
+        installer_file: PathBuf,
+    },
+    /// Retain the natively verified Windows setup after a committed MSI transaction.
+    #[command(name = "__cache-install-vehicle", hide = true)]
+    CacheInstallVehicle {
+        #[arg(long)]
+        installer_file: PathBuf,
+    },
+    /// Verify a retained native package against this installation's publisher.
+    #[command(name = "__verify-install-vehicle", hide = true)]
+    VerifyInstallVehicle {
+        #[arg(long)]
+        installer_file: PathBuf,
+    },
+    /// Delete owner state after the package UI received explicit confirmation.
+    #[command(name = "__purge-owner-state", hide = true)]
+    PurgeOwnerState,
+    /// Commit anti-downgrade state after a fully successful package commit.
+    #[command(name = "__accept-release-sequence", hide = true)]
+    AcceptReleaseSequence {
+        #[arg(long)]
+        manifest: PathBuf,
+        #[arg(long)]
+        signature: PathBuf,
+    },
+    /// Verify one release artifact without executing it.
+    #[command(name = "__verify-release-artifact", hide = true)]
+    VerifyReleaseArtifact {
+        #[arg(long)]
+        manifest: PathBuf,
+        #[arg(long)]
+        signature: PathBuf,
+        #[arg(long)]
+        target: String,
+        #[arg(long)]
+        artifact: PathBuf,
     },
     /// Serve. The daemon itself, in the foreground.
     ///
@@ -81,6 +145,11 @@ enum Command {
         #[command(subcommand)]
         action: ComputerUseAction,
     },
+    /// Read or change machine configuration.
+    Config {
+        #[command(subcommand)]
+        action: ConfigAction,
+    },
     /// Check API health.
     Health,
     /// Tail service logs.
@@ -99,6 +168,12 @@ enum Command {
     Model {
         #[command(subcommand)]
         action: ModelAction,
+    },
+    /// Show this machine and its complete configuration.
+    Machine {
+        /// Print the machine as JSON.
+        #[arg(long = "json")]
+        as_json: bool,
     },
     /// Pair a mobile device: mint a one-time code and show a QR.
     Pair,
@@ -162,6 +237,14 @@ enum ComputerUseAction {
     Disable,
     /// Check computer use status.
     Status,
+}
+
+#[derive(Subcommand)]
+enum ConfigAction {
+    /// Read one machine setting.
+    Get { key: String },
+    /// Change one machine setting.
+    Set { key: String, value: String },
 }
 
 #[derive(Subcommand)]
@@ -319,75 +402,159 @@ async fn main() {
         }
     };
 
-    let result: Result<(), CliError> = match cli.command {
-        Command::PayloadSetup {
-            install_root,
-            apply_system_deps,
-            payload_only,
-        } => payload_setup(install_root, apply_system_deps, payload_only).await,
-        Command::Health => commands::info::health(&client).await,
-        Command::Providers => commands::info::providers(&client).await,
-        Command::ComputerUse { action } => match action {
-            ComputerUseAction::Enable => commands::info::computer_use_enable(&client).await,
-            ComputerUseAction::Disable => commands::info::computer_use_disable(&client).await,
-            ComputerUseAction::Status => commands::info::computer_use_status(&client).await,
-        },
-        Command::Pair => commands::pair::pair(&client).await,
-        Command::Provider { action } => match action {
-            ProviderAction::Login {
-                provider,
-                auth,
-                replacement_default_model,
-            } => {
-                commands::provider::login(&client, provider, auth, replacement_default_model).await
-            }
-            ProviderAction::Logout { provider } => {
-                commands::provider::logout(&client, &provider).await
-            }
-            ProviderAction::Status { refresh, provider } => {
-                commands::provider::status(&client, refresh, provider).await
-            }
-        },
-        Command::Model { action } => match action {
-            ModelAction::List => commands::provider::model_list(&client).await,
-            ModelAction::Default { model } => {
-                commands::provider::model_default(&client, model).await
-            }
-        },
-        Command::Runs { action } => match action {
-            // `vadgr runs` with no subcommand lists them, which is the shipped
-            // behaviour and what the listing's own output invites.
-            None => commands::runs::list(&client, None).await,
-            Some(RunsAction::List { status }) => {
-                commands::runs::list(&client, status.as_deref()).await
-            }
-            Some(RunsAction::Get { run_id }) => commands::runs::get(&client, &run_id).await,
-            Some(RunsAction::Cancel { run_id }) => commands::runs::cancel(&client, &run_id).await,
-            Some(RunsAction::Resume { run_id }) => commands::runs::resume(&client, &run_id).await,
-        },
-        Command::Run {
-            task,
-            provider,
-            model,
-            background,
-            as_json,
-        } => run_task(&client, task, provider, model, background, as_json).await,
-        Command::Serve { host, port } => vadgr_daemon::daemon::serve(host, port)
+    let result: Result<(), CliError> = if cli.console {
+        open_console(base_url(cli.api_url.as_deref()))
+    } else if cli.installer {
+        open_installer(cli.vehicle)
+    } else if cli.daemon {
+        vadgr_daemon::daemon::serve(Vec::new(), None)
             .await
-            .map_err(|e| CliError::Failed(e.to_string())),
-        Command::Start { api_port } | Command::Api { api_port } => {
-            commands::service::start(api_port).await
+            .map_err(|error| CliError::Failed(error.to_string()))
+    } else {
+        match cli.command {
+            None => Err(CliError::Usage("a command is required".to_owned())),
+            Some(Command::PayloadSetup {
+                install_root,
+                apply_system_deps,
+                payload_only,
+            }) => payload_setup(install_root, apply_system_deps, payload_only).await,
+            Some(Command::RecordTermsAcceptance {
+                terms_version,
+                installer_version,
+                terms_file,
+                installer_file,
+            }) => vadgr_daemon::install::record_terms_acceptance(
+                &terms_version,
+                &installer_version,
+                &terms_file,
+                &installer_file,
+            )
+            .map(|_| ())
+            .map_err(|error| CliError::Failed(error.to_string())),
+            Some(Command::CacheInstallVehicle { installer_file }) => {
+                vadgr_daemon::install::cache_install_vehicle(&installer_file)
+                    .map_err(|error| CliError::Failed(error.to_string()))
+            }
+            Some(Command::VerifyInstallVehicle { installer_file }) => {
+                vadgr_daemon::install::verify_install_vehicle(&installer_file)
+                    .map_err(|error| CliError::Failed(error.to_string()))
+            }
+            Some(Command::PurgeOwnerState) => vadgr_daemon::install::purge_owner_state()
+                .map_err(|error| CliError::Failed(error.to_string())),
+            Some(Command::AcceptReleaseSequence {
+                manifest,
+                signature,
+            }) => {
+                let result = (|| -> anyhow::Result<()> {
+                    let verified = vadgr_daemon::install::VerifiedManifest::open(
+                        &manifest,
+                        &signature,
+                        vadgr_daemon::install::RELEASE_PUBLIC_KEY,
+                    )?;
+                    let state = vadgr_daemon::config::Config::from_env()
+                        .map_err(|error| anyhow::anyhow!(error.to_string()))?
+                        .state_home
+                        .ok_or_else(|| anyhow::anyhow!("the Vadgr state root is unavailable"))?;
+                    verified.accept_sequence(&state)
+                })();
+                result.map_err(|error| CliError::Failed(error.to_string()))
+            }
+            Some(Command::VerifyReleaseArtifact {
+                manifest,
+                signature,
+                target,
+                artifact,
+            }) => {
+                let result = (|| -> anyhow::Result<()> {
+                    let verified = vadgr_daemon::install::VerifiedManifest::open(
+                        &manifest,
+                        &signature,
+                        vadgr_daemon::install::RELEASE_PUBLIC_KEY,
+                    )?;
+                    let row = verified.verify_artifact(&artifact, &target)?;
+                    if row.artifact.kind == "tar.gz" {
+                        vadgr_daemon::install::validate_tar_gz(&artifact)?;
+                    }
+                    Ok(())
+                })();
+                result.map_err(|error| CliError::Failed(error.to_string()))
+            }
+            Some(Command::Health) => commands::info::health(&client).await,
+            Some(Command::Providers) => commands::info::providers(&client).await,
+            Some(Command::ComputerUse { action }) => match action {
+                ComputerUseAction::Enable => commands::info::computer_use_enable(&client).await,
+                ComputerUseAction::Disable => commands::info::computer_use_disable(&client).await,
+                ComputerUseAction::Status => commands::info::computer_use_status(&client).await,
+            },
+            Some(Command::Config { action }) => match action {
+                ConfigAction::Get { key } => commands::machine::get(&client, &key).await,
+                ConfigAction::Set { key, value } => {
+                    commands::machine::set(&client, &key, &value).await
+                }
+            },
+            Some(Command::Pair) => commands::pair::pair(&client).await,
+            Some(Command::Provider { action }) => match action {
+                ProviderAction::Login {
+                    provider,
+                    auth,
+                    replacement_default_model,
+                } => {
+                    commands::provider::login(&client, provider, auth, replacement_default_model)
+                        .await
+                }
+                ProviderAction::Logout { provider } => {
+                    commands::provider::logout(&client, &provider).await
+                }
+                ProviderAction::Status { refresh, provider } => {
+                    commands::provider::status(&client, refresh, provider).await
+                }
+            },
+            Some(Command::Model { action }) => match action {
+                ModelAction::List => commands::provider::model_list(&client).await,
+                ModelAction::Default { model } => {
+                    commands::provider::model_default(&client, model).await
+                }
+            },
+            Some(Command::Machine { as_json }) => commands::machine::show(&client, as_json).await,
+            Some(Command::Runs { action }) => match action {
+                // `vadgr runs` with no subcommand lists them, which is the shipped
+                // behaviour and what the listing's own output invites.
+                None => commands::runs::list(&client, None).await,
+                Some(RunsAction::List { status }) => {
+                    commands::runs::list(&client, status.as_deref()).await
+                }
+                Some(RunsAction::Get { run_id }) => commands::runs::get(&client, &run_id).await,
+                Some(RunsAction::Cancel { run_id }) => {
+                    commands::runs::cancel(&client, &run_id).await
+                }
+                Some(RunsAction::Resume { run_id }) => {
+                    commands::runs::resume(&client, &run_id).await
+                }
+            },
+            Some(Command::Run {
+                task,
+                provider,
+                model,
+                background,
+                as_json,
+            }) => run_task(&client, task, provider, model, background, as_json).await,
+            Some(Command::Serve { host, port }) => vadgr_daemon::daemon::serve(host, port)
+                .await
+                .map_err(|e| CliError::Failed(e.to_string())),
+            Some(Command::Start { api_port }) | Some(Command::Api { api_port }) => {
+                commands::service::start(api_port).await
+            }
+            Some(Command::Stop) => commands::service::stop(),
+            Some(Command::Restart { api_port }) => commands::service::restart(api_port).await,
+            Some(Command::Status) => commands::service::status(),
+            Some(Command::Logs {
+                service,
+                follow,
+                no_follow,
+                lines,
+            }) => commands::service::logs(&service, follow && !no_follow, lines).await,
+            Some(Command::Update { check }) => commands::service::update(check).await,
         }
-        Command::Stop => commands::service::stop(),
-        Command::Restart { api_port } => commands::service::restart(api_port).await,
-        Command::Status => commands::service::status(),
-        Command::Logs {
-            service,
-            follow,
-            no_follow,
-            lines,
-        } => commands::service::logs(&service, follow && !no_follow, lines).await,
-        Command::Update { check } => commands::service::update(check).await,
     };
 
     if let Err(e) = result {
@@ -407,6 +574,32 @@ async fn main() {
         }
         std::process::exit(e.exit_code());
     }
+}
+
+#[cfg(feature = "native-gui")]
+fn open_installer(vehicle: Option<PathBuf>) -> Result<(), CliError> {
+    let vehicle =
+        vehicle.ok_or_else(|| CliError::Usage("--installer requires --vehicle".to_owned()))?;
+    vadgr_daemon::installer::run(vehicle).map_err(|error| CliError::Failed(error.to_string()))
+}
+
+#[cfg(not(feature = "native-gui"))]
+fn open_installer(_vehicle: Option<PathBuf>) -> Result<(), CliError> {
+    Err(CliError::Failed(
+        "This build does not include the native installer.".to_owned(),
+    ))
+}
+
+#[cfg(feature = "native-gui")]
+fn open_console(base_url: String) -> Result<(), CliError> {
+    vadgr_daemon::console::run(base_url).map_err(|error| CliError::Failed(error.to_string()))
+}
+
+#[cfg(not(feature = "native-gui"))]
+fn open_console(_base_url: String) -> Result<(), CliError> {
+    Err(CliError::Failed(
+        "This build does not include the native console.".to_owned(),
+    ))
 }
 
 async fn payload_setup(

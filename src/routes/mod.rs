@@ -4,6 +4,7 @@ pub mod auth;
 pub mod computer_use;
 pub mod devices;
 pub mod health;
+pub mod machine;
 pub mod providers;
 pub mod runs;
 pub mod settings;
@@ -33,7 +34,10 @@ fn validation_error(rejection: JsonRejection) -> (StatusCode, Json<Value>) {
 pub fn router(state: AppState) -> Router {
     Router::new()
         .route("/api/health", get(health::health))
-        .route("/api/auth/pair", post(auth::pair))
+        .route(
+            "/api/auth/pair",
+            post(auth::pair).delete(auth::cancel_pairing),
+        )
         .route("/api/auth/claim", post(auth::claim))
         .route("/api/devices", get(devices::list_devices))
         .route(
@@ -59,6 +63,10 @@ pub fn router(state: AppState) -> Router {
             post(providers::refresh_catalog),
         )
         .route("/api/default-model", put(providers::put_default_model))
+        .route(
+            "/api/machine",
+            get(machine::get_machine).patch(machine::patch_machine),
+        )
         .route(
             "/api/settings/computer-use",
             get(settings::get_computer_use),

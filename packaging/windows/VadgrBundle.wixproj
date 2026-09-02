@@ -1,0 +1,13 @@
+<Project Sdk="WixToolset.Sdk/4.0.6">
+  <PropertyGroup>
+    <OutputType>Bundle</OutputType>
+    <OutputName>Vadgr-$(VadgrVersion)-windows-$(Platform)-setup</OutputName>
+    <DefineConstants>VadgrVersion=$(VadgrVersion);MsiPath=$(MsiPath);TermsRtf=$(TermsRtf);TermsVersion=$(TermsVersion);ThemeFile=$(ThemeFile)</DefineConstants>
+    <InstallerPlatform>$(Platform)</InstallerPlatform>
+    <EnableDefaultItems>false</EnableDefaultItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Bundle.wxs" />
+    <PackageReference Include="WixToolset.Bal.wixext" Version="4.0.6" />
+  </ItemGroup>
+</Project>

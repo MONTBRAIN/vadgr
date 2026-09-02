@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Theme xmlns="http://wixtoolset.org/schemas/v4/thmutil">
+  <Font Id="0" Height="-13" Weight="500" Foreground="ebf2f4" Background="121212">Segoe UI</Font>
+  <Font Id="1" Height="-28" Weight="700" Foreground="ebf2f4" Background="121212">Segoe UI</Font>
+  <Font Id="2" Height="-17" Weight="600" Foreground="ebf2f4" Background="121212">Segoe UI</Font>
+  <Font Id="3" Height="-12" Weight="500" Foreground="a8b2b5" Background="121212">Segoe UI</Font>
+  <Font Id="4" Height="-12" Weight="600" Foreground="525bce" Background="121212">Segoe UI</Font>
+
+  <Window Width="760" Height="540" HexStyle="100a0000" FontId="0" Caption="Vadgr setup">
+    <Label X="34" Y="28" Width="150" Height="34" FontId="1" DisablePrefix="yes">vadgr.</Label>
+    <Label X="34" Y="65" Width="300" Height="18" FontId="3" DisablePrefix="yes">LOCAL MACHINE AGENT</Label>
+
+    <Page Name="Loading">
+      <Label Name="CheckingForUpdatesLabel" X="34" Y="120" Width="-34" Height="24" FontId="2" DisablePrefix="yes">Preparing setup...</Label>
+    </Page>
+
+    <Page Name="Help">
+      <Label X="34" Y="120" Width="-34" Height="28" FontId="2" DisablePrefix="yes">Vadgr setup help</Label>
+      <Label X="34" Y="158" Width="-34" Height="80" FontId="0" DisablePrefix="yes">Install, repair, or remove the Vadgr local machine agent for this Windows account.</Label>
+      <Button Name="HelpCloseButton" X="-34" Y="-28" Width="100" Height="32" TabStop="yes">Close<CloseWindowAction /></Button>
+    </Page>
+
+    <Page Name="Install">
+      <Label X="220" Y="31" Width="-34" Height="32" FontId="1" DisablePrefix="yes">Install Vadgr</Label>
+      <Label X="220" Y="67" Width="-34" Height="20" FontId="3" DisablePrefix="yes">Review the terms before anything changes on this machine.</Label>
+      <Label X="34" Y="112" Width="-34" Height="-118" FontId="0" HexStyle="800000" DisablePrefix="yes" />
+      <Richedit Name="EulaRichedit" X="35" Y="113" Width="-35" Height="-119" TabStop="yes" FontId="0" />
+      <Label Name="InstallVersion" X="34" Y="-72" Width="220" Height="20" FontId="3" DisablePrefix="yes" VisibleCondition="WixStdBAShowVersion">Version [WixBundleVersion]</Label>
+      <Checkbox Name="EulaAcceptCheckbox" X="-34" Y="-72" Width="390" Height="20" TabStop="yes" FontId="0" HideWhenDisabled="yes">I have read and accept these terms</Checkbox>
+      <Button Name="InstallUpdateButton" X="34" Y="-28" Width="190" Height="32" TabStop="yes" EnableCondition="WixStdBAUpdateAvailable" HideWhenDisabled="yes">Install available update</Button>
+      <Button Name="InstallButton" X="-150" Y="-28" Width="116" Height="32" TabStop="yes">Install Vadgr</Button>
+      <Button Name="InstallCancelButton" X="-278" Y="-28" Width="116" Height="32" TabStop="yes">Decline<CloseWindowAction /></Button>
+    </Page>
+
+    <Page Name="Progress">
+      <Label X="220" Y="31" Width="-34" Height="32" FontId="1" DisablePrefix="yes">Installing Vadgr</Label>
+      <Label X="220" Y="67" Width="-34" Height="20" FontId="3" DisablePrefix="yes">Setup reports the work it has actually completed.</Label>
+      <Label X="34" Y="144" Width="150" Height="20" FontId="3" DisablePrefix="yes">Current package</Label>
+      <Label Name="OverallProgressPackageText" X="176" Y="144" Width="-34" Height="20" FontId="0" DisablePrefix="yes">Preparing...</Label>
+      <Progressbar Name="OverallCalculatedProgressbar" X="34" Y="184" Width="-34" Height="16" />
+      <Button Name="ProgressCancelButton" X="-150" Y="-28" Width="116" Height="32" TabStop="yes">Cancel</Button>
+    </Page>
+
+    <Page Name="Modify">
+      <Label X="220" Y="31" Width="-34" Height="32" FontId="1" DisablePrefix="yes">Vadgr is installed</Label>
+      <Label X="220" Y="67" Width="-34" Height="20" FontId="3" DisablePrefix="yes">Repair package files or remove the installed application.</Label>
+      <Button Name="ModifyUpdateButton" X="34" Y="-28" Width="190" Height="32" TabStop="yes" EnableCondition="WixStdBAUpdateAvailable" HideWhenDisabled="yes">Install available update</Button>
+      <Button Name="RepairButton" X="-406" Y="-28" Width="116" Height="32" TabStop="yes" HideWhenDisabled="yes">Repair</Button>
+      <Button Name="UninstallButton" X="-278" Y="-28" Width="116" Height="32" TabStop="yes">Uninstall</Button>
+      <Button Name="ModifyCancelButton" X="-150" Y="-28" Width="116" Height="32" TabStop="yes">Close<CloseWindowAction /></Button>
+    </Page>
+
+    <Page Name="Success">
+      <Label X="220" Y="31" Width="-34" Height="32" FontId="1" DisablePrefix="yes">Setup completed</Label>
+      <Label X="34" Y="128" Width="-34" Height="28" FontId="2" DisablePrefix="yes">
+        <Text>Vadgr is ready.</Text>
+        <Text Condition="WixBundleAction = 4">Vadgr was removed. Owner data was preserved.</Text>
+        <Text Condition="WixBundleAction = 8">Vadgr was repaired.</Text>
+      </Label>
+      <Label X="34" Y="166" Width="-34" Height="45" FontId="3" DisablePrefix="yes">You can open the local machine console now or close setup.</Label>
+      <Button Name="LaunchButton" X="-278" Y="-28" Width="116" Height="32" TabStop="yes" HideWhenDisabled="yes">Open Vadgr</Button>
+      <Button Name="SuccessRestartButton" X="-278" Y="-28" Width="116" Height="32" TabStop="yes" HideWhenDisabled="yes">Restart</Button>
+      <Label X="34" Y="-72" Width="420" Height="32" FontId="3" DisablePrefix="yes" VisibleCondition="WixStdBARestartRequired">Windows must restart to finish this operation.</Label>
+      <Button Name="SuccessCloseButton" X="-150" Y="-28" Width="116" Height="32" TabStop="yes">Close<CloseWindowAction /></Button>
+    </Page>
+
+    <Page Name="Failure">
+      <Label X="220" Y="31" Width="-34" Height="32" FontId="1" DisablePrefix="yes">Setup could not finish</Label>
+      <Label X="34" Y="128" Width="-34" Height="42" FontId="4" DisablePrefix="yes">Setup selected no incomplete replacement. If Vadgr was already installed, that working installation remains available.</Label>
+      <Hypertext Name="FailureLogFileLink" X="34" Y="184" Width="-34" Height="35" FontId="0" TabStop="yes" HideWhenDisabled="yes">Open the setup log</Hypertext>
+      <Hypertext Name="FailureMessageText" X="34" Y="230" Width="-34" Height="80" FontId="0" TabStop="yes" HideWhenDisabled="yes" />
+      <Label Name="FailureRestartText" X="34" Y="-72" Width="420" Height="32" FontId="3" HideWhenDisabled="yes" DisablePrefix="yes">Windows must restart before you retry.</Label>
+      <Button Name="FailureRestartButton" X="-278" Y="-28" Width="116" Height="32" TabStop="yes" HideWhenDisabled="yes">Restart</Button>
+      <Button Name="FailureCloseButton" X="-150" Y="-28" Width="116" Height="32" TabStop="yes">Close<CloseWindowAction /></Button>
+    </Page>
+  </Window>
+</Theme>

@@ -525,6 +525,132 @@ async fn computer_use_status_does_not_claim_an_engine_is_available() {
     assert!(["native", "wsl2"].contains(&body["platform"].as_str().unwrap()));
 }
 
+#[tokio::test]
+async fn machine_read_and_patch_share_the_persistent_store() {
+    let state = state_with(Box::new(LoopbackTransport));
+    let (status, before) = send(state.clone(), get("/api/machine"), "127.0.0.1").await;
+    assert_eq!(status, StatusCode::OK);
+    assert!(!before["id"].as_str().unwrap().is_empty());
+
+    let request = Request::builder()
+        .method("PATCH")
+        .uri("/api/machine")
+        .header("content-type", "application/json")
+        .body(Body::from(
+            r#"{"name":"Studio workstation","autonomy":{"mode":"paranoid"}}"#,
+        ))
+        .unwrap();
+    let (status, changed) = send(state.clone(), request, "127.0.0.1").await;
+    assert_eq!(status, StatusCode::OK, "{changed}");
+    assert_eq!(changed["id"], before["id"]);
+    assert_eq!(changed["name"], "Studio workstation");
+    assert_eq!(changed["autonomy"]["mode"], "paranoid");
+
+    let (_, reread) = send(state, get("/api/machine"), "127.0.0.1").await;
+    assert_eq!(reread, changed);
+}
+
+#[tokio::test]
+async fn machine_read_reports_only_the_safe_terms_summary() {
+    let state = state_with(Box::new(EveryoneIsAPeer));
+    let root = state.config.state_home.as_ref().unwrap();
+    std::fs::create_dir_all(root).unwrap();
+    std::fs::write(
+        root.join("terms-acceptance.json"),
+        serde_json::to_vec(&serde_json::json!({
+            "schema": 1,
+            "terms_version": "1.0",
+            "terms_sha256": "0".repeat(64),
+            "accepted_at": "2026-09-02T12:00:00Z",
+            "installer_version": "0.5.0",
+            "installer_artifact_sha256": "1".repeat(64),
+            "install_scope": "user",
+            "installation_id": "installation-test",
+            "assent_method": "unchecked_checkbox_then_install"
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    let (status, body) = send(state, get("/api/machine"), "127.0.0.1").await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(body["terms"]["version"], "1.0");
+    assert_eq!(body["terms"]["accepted_at"], "2026-09-02T12:00:00Z");
+    assert!(body["terms"].get("installation_id").is_none());
+    assert!(body["terms"].get("installer_artifact_sha256").is_none());
+}
+
+#[tokio::test]
+async fn machine_patch_refuses_read_only_fields_and_incomplete_defaults() {
+    let state = state_with(Box::new(LoopbackTransport));
+    for (body, field) in [
+        (serde_json::json!({"id": "replacement"}), None),
+        (
+            serde_json::json!({"default_provider": "anthropic"}),
+            Some("default_provider"),
+        ),
+    ] {
+        let request = Request::builder()
+            .method("PATCH")
+            .uri("/api/machine")
+            .header("content-type", "application/json")
+            .body(Body::from(body.to_string()))
+            .unwrap();
+        let (status, response) = send(state.clone(), request, "127.0.0.1").await;
+        assert_eq!(status, StatusCode::UNPROCESSABLE_ENTITY, "{response}");
+        if let Some(field) = field {
+            assert_eq!(response["error"]["details"]["field"], field);
+        }
+    }
+}
+
+#[tokio::test]
+async fn pairing_cancel_closes_the_window_and_names_an_absent_one() {
+    let state = state_with(Box::new(EveryoneIsAPeer));
+    let pair = Request::builder()
+        .method("POST")
+        .uri("/api/auth/pair")
+        .body(Body::empty())
+        .unwrap();
+    let (status, _) = send(state.clone(), pair, "100.64.0.9").await;
+    assert_eq!(status, StatusCode::OK);
+
+    let cancel = || {
+        Request::builder()
+            .method("DELETE")
+            .uri("/api/auth/pair")
+            .body(Body::empty())
+            .unwrap()
+    };
+    let (status, body) = send(state.clone(), cancel(), "127.0.0.1").await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(body["status"], "cancelled");
+
+    let (status, body) = send(state, cancel(), "127.0.0.1").await;
+    assert_eq!(status, StatusCode::NOT_FOUND);
+    assert_eq!(body["error"]["code"], "PAIRING_WINDOW_NOT_FOUND");
+}
+
+#[tokio::test]
+async fn pairing_cancel_is_local_only() {
+    let state = state_with(Box::new(EveryoneIsAPeer));
+    let pair = Request::builder()
+        .method("POST")
+        .uri("/api/auth/pair")
+        .body(Body::empty())
+        .unwrap();
+    let (status, _) = send(state.clone(), pair, "100.64.0.9").await;
+    assert_eq!(status, StatusCode::OK);
+
+    let cancel = Request::builder()
+        .method("DELETE")
+        .uri("/api/auth/pair")
+        .body(Body::empty())
+        .unwrap();
+    let (status, body) = send(state, cancel, "100.64.0.9").await;
+    assert_eq!(status, StatusCode::FORBIDDEN, "{body}");
+    assert_eq!(body["error"]["code"], "SOURCE_NOT_AUTHORIZED");
+}
+
 async fn websocket_attempt(state: AppState, path: &str) -> Vec<u8> {
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
 

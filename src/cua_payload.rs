@@ -44,6 +44,7 @@ pub struct CuaRuntime {
     interpreter: PathBuf,
     bootstrap: PathBuf,
     environment: PathBuf,
+    responsible_host: Option<PathBuf>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -65,6 +66,7 @@ impl CuaRuntime {
             interpreter: root.join("bin/python"),
             bootstrap: root.join("bootstrap.py"),
             environment: root.to_path_buf(),
+            responsible_host: None,
         }
     }
 
@@ -111,6 +113,7 @@ impl CuaRuntime {
             interpreter: environment_python(&environment),
             bootstrap: cua_root.join("bootstrap.py"),
             environment,
+            responsible_host: responsible_host(root),
         };
         ensure!(
             runtime.interpreter.is_file(),
@@ -122,20 +125,25 @@ impl CuaRuntime {
             "cua bootstrap is missing: {}",
             runtime.bootstrap.display()
         );
+        #[cfg(target_os = "macos")]
+        ensure!(
+            runtime
+                .responsible_host
+                .as_ref()
+                .is_some_and(|path| path.is_file()),
+            "the signed Vadgr Computer Use host is missing"
+        );
         Ok(runtime)
     }
 
     pub fn stdio_command(&self) -> CuaCommand {
-        CuaCommand {
-            program: self.interpreter.clone(),
-            args: vec![
-                "-I".into(),
-                self.bootstrap.as_os_str().to_owned(),
-                "computer_use.mcp_server".into(),
-                "--transport".into(),
-                "stdio".into(),
-            ],
-        }
+        self.command(vec![
+            "-I".into(),
+            self.bootstrap.as_os_str().to_owned(),
+            "computer_use.mcp_server".into(),
+            "--transport".into(),
+            "stdio".into(),
+        ])
     }
 
     pub fn setup_command(&self, apply: bool) -> CuaCommand {
@@ -166,10 +174,7 @@ impl CuaRuntime {
         } else {
             args.push("doctor".into());
         }
-        CuaCommand {
-            program: self.interpreter.clone(),
-            args,
-        }
+        self.command(args)
     }
 
     pub fn interpreter(&self) -> &Path {
@@ -179,6 +184,41 @@ impl CuaRuntime {
     pub fn environment(&self) -> &Path {
         &self.environment
     }
+
+    fn command(&self, args: Vec<OsString>) -> CuaCommand {
+        if let Some(host) = &self.responsible_host {
+            let mut hosted = vec![
+                OsString::from("--python"),
+                self.interpreter.as_os_str().to_owned(),
+                OsString::from("--"),
+            ];
+            hosted.extend(args);
+            CuaCommand {
+                program: host.clone(),
+                args: hosted,
+            }
+        } else {
+            CuaCommand {
+                program: self.interpreter.clone(),
+                args,
+            }
+        }
+    }
+}
+
+fn responsible_host(install_root: &Path) -> Option<PathBuf> {
+    if !cfg!(target_os = "macos") {
+        return None;
+    }
+    install_root.ancestors().find_map(|ancestor| {
+        (ancestor.file_name().is_some_and(|name| name == "Resources"))
+            .then(|| ancestor.parent())
+            .flatten()
+            .map(|contents| {
+                contents
+                    .join("Library/LoginItems/Vadgr Computer Use.app/Contents/MacOS/vadgr-cua-host")
+            })
+    })
 }
 
 fn is_wsl() -> bool {
@@ -314,6 +354,7 @@ impl CuaPayloadInstaller {
             interpreter: environment_interpreter,
             bootstrap: bootstrap_staging,
             environment: environment_staging.clone(),
+            responsible_host: responsible_host(&self.install_root),
         };
         let probe_home = staging.join("probe-home");
         std::fs::create_dir(&probe_home)?;
@@ -373,14 +414,26 @@ pub fn install_root_from_executable(executable: &Path) -> Result<PathBuf> {
     let bin = executable
         .parent()
         .context("vadgr executable has no parent directory")?;
-    ensure!(
-        bin.file_name().is_some_and(|name| name == "bin"),
-        "vadgr must run from an install root bin directory"
-    );
-    Ok(bin
-        .parent()
-        .context("vadgr bin directory has no install root")?
-        .to_path_buf())
+    if bin.file_name().is_some_and(|name| name == "bin") {
+        return Ok(bin
+            .parent()
+            .context("vadgr bin directory has no install root")?
+            .to_path_buf());
+    }
+    if cfg!(target_os = "macos")
+        && bin.file_name().is_some_and(|name| name == "MacOS")
+        && bin
+            .parent()
+            .is_some_and(|path| path.file_name().is_some_and(|name| name == "Contents"))
+    {
+        return Ok(bin.parent().expect("checked Contents").join("Resources"));
+    }
+    if bin.join("lib/cua").is_dir() || bin.join("install-receipt.json").is_file() {
+        return Ok(bin.to_path_buf());
+    }
+    Err(anyhow::anyhow!(
+        "vadgr is not running from a complete install root"
+    ))
 }
 
 fn validate_install_root(root: &Path) -> Result<()> {
@@ -838,6 +891,21 @@ mod tests {
         })
     }
 
+    fn test_install_root(temporary: &Path) -> PathBuf {
+        #[cfg(target_os = "macos")]
+        {
+            let root = temporary.join("Vadgr.app/Contents/Resources");
+            let host = temporary.join("Vadgr.app/Contents/Library/LoginItems/Vadgr Computer Use.app/Contents/MacOS/vadgr-cua-host");
+            std::fs::create_dir_all(host.parent().unwrap()).unwrap();
+            std::fs::write(host, b"test host").unwrap();
+            root
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            temporary.to_path_buf()
+        }
+    }
+
     fn write_manifest(root: &Path, manifest: &serde_json::Value) {
         std::fs::write(
             root.join("lib/cua/payload.json"),
@@ -858,6 +926,7 @@ mod tests {
             interpreter: install.path().join("environments/current/bin/python"),
             bootstrap: install.path().join("bootstrap.py"),
             environment: install.path().join("environments/current"),
+            responsible_host: None,
         };
         let command = runtime.stdio_command();
         assert!(command.program.is_absolute());
@@ -878,6 +947,7 @@ mod tests {
             interpreter: install.path().join("environments/current/bin/python"),
             bootstrap: install.path().join("bootstrap.py"),
             environment: install.path().join("environments/current"),
+            responsible_host: None,
         };
         let command = runtime.setup_command(false);
         assert_eq!(
@@ -904,6 +974,7 @@ mod tests {
             interpreter: install.path().join("environments/current/bin/python"),
             bootstrap: install.path().join("bootstrap.py"),
             environment: install.path().join("environments/current"),
+            responsible_host: None,
         };
         let command = runtime.setup_command(false);
         assert!(
@@ -914,16 +985,25 @@ mod tests {
 
     #[test]
     fn a_valid_manifest_resolves_only_the_private_generation() {
-        let root = tempfile::tempdir().unwrap();
-        let manifest = valid_payload(root.path());
-        write_manifest(root.path(), &manifest);
+        let temporary = tempfile::tempdir().unwrap();
+        let root = test_install_root(temporary.path());
+        let manifest = valid_payload(&root);
+        write_manifest(&root, &manifest);
 
-        let runtime = CuaRuntime::below_install_root(root.path()).unwrap();
-        assert!(runtime.interpreter().starts_with(root.path()));
-        assert!(runtime.environment().starts_with(root.path()));
+        let runtime = CuaRuntime::below_install_root(&root).unwrap();
+        assert!(runtime.interpreter().starts_with(&root));
+        assert!(runtime.environment().starts_with(&root));
+        #[cfg(not(target_os = "macos"))]
         assert_eq!(
             runtime.stdio_command().program,
             environment_python(runtime.environment())
+        );
+        #[cfg(target_os = "macos")]
+        assert!(
+            runtime
+                .stdio_command()
+                .program
+                .ends_with("Vadgr Computer Use.app/Contents/MacOS/vadgr-cua-host")
         );
     }
 
@@ -940,11 +1020,12 @@ mod tests {
             ("target", serde_json::json!("wrong")),
         ];
         for (field, wrong) in cases {
-            let root = tempfile::tempdir().unwrap();
-            let mut manifest = valid_payload(root.path());
+            let temporary = tempfile::tempdir().unwrap();
+            let root = test_install_root(temporary.path());
+            let mut manifest = valid_payload(&root);
             manifest[field] = wrong;
-            write_manifest(root.path(), &manifest);
-            let error = CuaRuntime::below_install_root(root.path()).unwrap_err();
+            write_manifest(&root, &manifest);
+            let error = CuaRuntime::below_install_root(&root).unwrap_err();
             assert!(
                 error.to_string().contains(field),
                 "{field} mismatch was reported as {error:#}"

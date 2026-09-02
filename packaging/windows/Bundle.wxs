@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal">
+  <Bundle
+      Name="Vadgr"
+      Manufacturer="MONTBRAIN"
+      Version="$(var.VadgrVersion)"
+      UpgradeCode="{A34B6A27-D376-4CC4-A08A-F201470A3E38}"
+      Compressed="yes">
+    <bal:Condition
+        Condition="WixBundleInstalled OR WixBundleUILevel = 4"
+        Message="A new Vadgr installation requires the full setup window so the current terms can be reviewed and accepted." />
+    <Variable
+        Name="InstallFolder"
+        Type="formatted"
+        Value="[LocalAppDataFolder]Programs\Vadgr"
+        Persisted="yes" />
+    <BootstrapperApplication>
+      <bal:WixStandardBootstrapperApplication
+          Theme="none"
+          ThemeFile="$(var.ThemeFile)"
+          LicenseFile="$(var.TermsRtf)"
+          ShowVersion="yes"
+          SuppressOptionsUI="yes"
+          SuppressRepair="no"
+          LaunchTarget="[InstallFolder]\vadgr-app.exe" />
+    </BootstrapperApplication>
+    <Chain>
+      <MsiPackage SourceFile="$(var.MsiPath)" Compressed="yes" Vital="yes">
+        <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
+        <MsiProperty Name="TERMSACCEPTED" Value="1" />
+        <MsiProperty Name="TERMSVERSION" Value="$(var.TermsVersion)" />
+        <MsiProperty Name="BUNDLESOURCE" Value="[WixBundleOriginalSource]" />
+      </MsiPackage>
+    </Chain>
+  </Bundle>
+</Wix>

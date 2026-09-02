@@ -1,5 +1,7 @@
 /data
 /target
+/packaging/windows/bin/
+/packaging/windows/obj/
 .env
 .env.*
 !.env.example

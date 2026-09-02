@@ -3,8 +3,9 @@
 A daemon per machine: the native agent loop, the MCP host, gates and policy,
 the API the phone talks to, persistence, plus `src/cli/` - the on-box owner
 surface.
-v2 has no desktop frontend - `0.4.2` deleted it, and a guardrail test fails the
-suite if it comes back. The clients are this CLI and the phone.
+The installed native product gains one small local desktop console in `0.5.0`.
+It uses the same loopback API as the CLI and never opens daemon state directly.
+WSL remains CLI-only. The phone remains the remote client.
 
 **This file is loaded automatically. The rules live in the docs repo and are not
 copied here** - a second copy drifts, and a drifted rule is worse than none.

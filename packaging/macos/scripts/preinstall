@@ -1,0 +1,18 @@
+#!/bin/sh
+set -eu
+
+app=/Applications/Vadgr.app
+transaction_root='/Library/Application Support/MONTBRAIN/Vadgr/install-transaction'
+backup="$transaction_root/previous.app"
+
+[ ! -L "$app" ] || { echo "The existing Vadgr application is a symbolic link." >&2; exit 1; }
+[ ! -e "$backup" ] || { echo "A prior Vadgr install transaction still needs recovery." >&2; exit 1; }
+
+/bin/mkdir -p "$transaction_root"
+if [ -d "$app" ]; then
+  identifier=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Contents/Info.plist" 2>/dev/null || true)
+  [ "$identifier" = com.montbrain.vadgr ] || { echo "The application at /Applications/Vadgr.app is not owned by this package." >&2; exit 1; }
+  /bin/mv "$app" "$backup"
+fi
+
+exit 0

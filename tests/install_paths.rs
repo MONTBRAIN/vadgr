@@ -1,10 +1,5 @@
-//! The installer and the CLI must name the same directories.
-//!
-//! `vadgr update` rebuilds the checkout the installer created. When the two
-//! disagree the update reports a checkout that is not there, and the message
-//! names a directory nothing ever wrote. That shipped: the installer moved to
-//! `~/.vadgr` while the CLI still resolved the repository's former name, and
-//! only a sweep of the whole surface caught it, inside an error string.
+//! The legacy development installers and the 0.5.0 package entry points must
+//! keep their platform boundaries explicit.
 
 use std::path::Path;
 
@@ -18,20 +13,6 @@ fn repo_file(name: &str) -> String {
     std::fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join(name))
         .unwrap_or_else(|_| panic!("{name} is in the repository"))
         .replace("\r\n", "\n")
-}
-
-fn assignment(script: &str, name: &str) -> String {
-    let text = repo_file(script);
-    let line = text
-        .lines()
-        .find(|line| line.trim_start().starts_with(&format!("{name}=")))
-        .unwrap_or_else(|| panic!("{script} sets {name}"));
-    line.split_once('=')
-        .expect("an assignment")
-        .1
-        .trim()
-        .trim_matches('"')
-        .to_owned()
 }
 
 #[cfg(unix)]
@@ -50,22 +31,24 @@ fn the_unix_installer_can_be_invoked_directly() {
 }
 
 #[test]
-fn the_installer_and_the_cli_agree_on_the_product_directory() {
-    assert_eq!(assignment("install.sh", "VADGR_HOME"), "$HOME/.vadgr");
-    let service = repo_file("src/cli/commands/service.rs");
+fn the_wsl_installer_and_runtime_agree_on_the_package_directory() {
+    let installer = repo_file("install.sh");
     assert!(
-        service.contains(r#"user_home().join(".vadgr")"#),
-        "the CLI must default to the directory the installer creates"
+        installer.contains(r#"DATA_HOME=${XDG_DATA_HOME:-"$HOME/.local/share"}"#)
+            && installer.contains(r#"ROOT="$DATA_HOME/vadgr""#)
+            && installer.contains(r#"CURRENT="$ROOT/current""#),
+        "WSL must use the versioned XDG package root"
     );
 }
 
 #[test]
-fn the_installer_puts_the_checkout_where_the_cli_looks_for_it() {
-    assert_eq!(assignment("install.sh", "VADGR_REPO"), "$VADGR_HOME/src");
-    let service = repo_file("src/cli/commands/service.rs");
+fn the_wsl_installer_never_creates_or_updates_a_source_checkout() {
+    let installer = repo_file("install.sh");
     assert!(
-        service.contains(r#"vadgr_home().join("src")"#),
-        "the CLI must rebuild the checkout the installer created"
+        !installer.contains("git clone")
+            && !installer.contains("git pull")
+            && !installer.contains("VADGR_REPO="),
+        "the released WSL installer must consume only verified release artifacts"
     );
 }
 
@@ -169,26 +152,18 @@ fn the_windows_installer_says_nothing_about_macos_grants() {
     }
 }
 
-/// The closing step names the file the installer wrote.
-///
-/// It told every Unix owner to source `~/.bashrc` on a machine where it had
-/// just printed that it created `.zshrc`. macOS defaults to zsh, so the one
-/// file it named was the one file it had not written.
+/// The package installer must not mutate or tell the owner to source a shell
+/// profile: it installs one stable link under the conventional user bin path.
 #[test]
 fn the_closing_step_does_not_name_a_profile_it_never_wrote() {
     let text = repo_file("install.sh");
-    let code_says_bashrc = text
-        .lines()
-        .filter(|line| !line.trim_start().starts_with('#'))
-        .any(|line| line.contains("source ~/.bashrc"));
-    assert!(
-        !code_says_bashrc,
-        "the closing step must name the profile that was written, not a fixed one"
-    );
-    assert!(
-        text.contains("VADGR_PROFILE=\"$default_rc\""),
-        "the written profile must be recorded so the closing step can name it"
-    );
+    for profile in [".bashrc", ".zshrc", ".profile"] {
+        assert!(
+            !text.contains(profile),
+            "install.sh must not mutate {profile}"
+        );
+    }
+    assert!(text.contains(r#"BIN="$HOME/.local/bin/vadgr""#));
 }
 
 /// The non-mutation snapshot must not hash a countdown.
@@ -327,21 +302,42 @@ fn no_interpreter_artefact_is_tracked_in_this_repository() {
 }
 
 #[test]
-fn the_product_is_one_executable() {
+fn the_product_has_one_backend_and_only_declared_native_helpers() {
     // A user received two files, `vadgr` and `vadgr-daemon`, and the CLI found
     // the daemon beside itself on disk. That asked a user to hold a detail that
     // belongs to the program, doubled what distribution must sign and publish,
-    // and allowed the two halves to be different versions. It is one file: it
-    // serves when invoked with `serve` and acts as the client otherwise.
+    // and allowed the two halves to be different versions. The product logic is
+    // one file: it serves under an explicit mode and acts as the client otherwise.
+    // Native packages add one windowless launcher with no product logic so Start
+    // menu and login launch do not create a terminal window. WSL does not build it.
     let manifest = repo_file("Cargo.toml");
     let targets = manifest.matches("[[bin]]").count();
-    assert_eq!(targets, 1, "the crate must build exactly one binary");
+    assert_eq!(
+        targets, 4,
+        "only the declared product and release binaries may ship"
+    );
     assert!(
         manifest.contains("name = \"vadgr\""),
-        "the one binary is named vadgr"
+        "the backend binary is named vadgr"
+    );
+    assert!(
+        manifest.contains("name = \"vadgr-app\"")
+            && manifest.contains("required-features = [\"native-gui\"]"),
+        "the launcher must remain native-GUI-only"
+    );
+    assert!(
+        manifest.contains("name = \"vadgr-cua-host\"")
+            && manifest.contains("required-features = [\"macos-cua-host\"]"),
+        "the macOS responsible process must remain an explicit package-only helper"
+    );
+    assert!(
+        manifest.contains("name = \"vadgr-release-verify\"")
+            && manifest.contains("required-features = [\"release-verifier\"]"),
+        "the WSL bootstrap verifier must remain an explicit release helper"
     );
 
-    // The installers copy one file, and nothing looks for a sibling daemon.
+    // The legacy script installers remain CLI-only and nothing looks for a
+    // sibling daemon executable.
     for script in ["install.sh", "install.ps1"] {
         let text = repo_file(script);
         assert!(
@@ -374,8 +370,8 @@ fn clean_install_checks_follow_the_payload_manifest() {
     assert!(
         workflow.matches("lib/cua/payload.json").count()
             + workflow.matches(r"lib\cua\payload.json").count()
-            >= 3,
-        "every clean-install path must validate versions against payload.json"
+            >= 2,
+        "both native clean-install assembly paths must validate versions against payload.json"
     );
     assert!(
         !workflow.contains(".available == true and .platform ==")

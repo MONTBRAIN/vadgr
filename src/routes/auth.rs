@@ -80,6 +80,26 @@ pub async fn pair(State(state): State<AppState>) -> ApiResult<Json<Value>> {
     Ok(Json(body))
 }
 
+pub async fn cancel_pairing(
+    State(state): State<AppState>,
+    peer: Option<Extension<Peer>>,
+) -> ApiResult<Json<Value>> {
+    let Some(Extension(peer)) = peer else {
+        return Err(ApiError::source_not_authorized());
+    };
+    if !state.transports.grants_local_bypass(&peer) {
+        return Err(ApiError::source_not_authorized());
+    }
+    if !state.pairing.cancel() {
+        return Err(ApiError::new(
+            StatusCode::NOT_FOUND,
+            "PAIRING_WINDOW_NOT_FOUND",
+            "No pairing window is open.",
+        ));
+    }
+    Ok(Json(json!({"status": "cancelled"})))
+}
+
 /// Strict, like every request body on this surface: an undeclared field is a 422, not
 /// silently dropped, so a typo or a stale field announces itself.
 #[derive(Deserialize)]
