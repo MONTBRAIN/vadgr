@@ -927,14 +927,22 @@ impl ConsoleApp {
                     skill_options,
                     server_options,
                 } => {
-                    ui.label("Machine name");
-                    ui.text_edit_singleline(&mut edit.name);
-                    ui.label("Workspace");
+                    let machine_name_label = ui.label("Machine name");
+                    ui.text_edit_singleline(&mut edit.name)
+                        .labelled_by(machine_name_label.id);
+                    let workspace_label = ui.label("Workspace");
                     let mut workspace = edit.workspace.clone().unwrap_or_default();
-                    if ui.text_edit_singleline(&mut workspace).changed() { edit.workspace = (!workspace.trim().is_empty()).then_some(workspace); }
-                    ui.label("Role prompt");
-                    ui.add(egui::TextEdit::multiline(&mut edit.role_prompt).desired_rows(4));
-                    ui.label("Autonomy mode");
+                    if ui
+                        .text_edit_singleline(&mut workspace)
+                        .labelled_by(workspace_label.id)
+                        .changed()
+                    {
+                        edit.workspace = (!workspace.trim().is_empty()).then_some(workspace);
+                    }
+                    let role_prompt_label = ui.label("Role prompt");
+                    ui.add(egui::TextEdit::multiline(&mut edit.role_prompt).desired_rows(4))
+                        .labelled_by(role_prompt_label.id);
+                    let autonomy_label = ui.label("Autonomy mode");
                     let mode = edit
                         .autonomy
                         .get("mode")
@@ -952,7 +960,9 @@ impl ConsoleApp {
                                     candidate,
                                 );
                             }
-                        });
+                        })
+                        .response
+                        .labelled_by(autonomy_label.id);
                     edit.autonomy = serde_json::json!({"mode": selected_mode});
                     if !skill_options.is_empty() {
                         ui.label("Skill grants");
@@ -1015,8 +1025,9 @@ impl ConsoleApp {
                     if ui.button("Cancel").clicked() { keep = false; }
                 }
                 Dialog::ProviderKey { provider, value } => {
-                    ui.label(format!("Enter the {provider} API key."));
-                    ui.add(egui::TextEdit::singleline(value).password(true).hint_text("API key"));
+                    let key_label = ui.label(format!("Enter the {provider} API key."));
+                    ui.add(egui::TextEdit::singleline(value).password(true).hint_text("API key"))
+                        .labelled_by(key_label.id);
                     ui.label(RichText::new("The key goes directly to the local daemon. Vadgr never displays it again.").color(theme::muted()));
                     ui.horizontal(|ui| {
                         if ui.button("Cancel").clicked() { value.clear(); keep = false; }
@@ -1063,8 +1074,11 @@ impl ConsoleApp {
                 Dialog::Uninstall { purge, confirmation } => {
                     ui.checkbox(purge, "Also delete settings, credentials, pairings and journals");
                     if *purge {
-                        ui.label("Type DELETE OWNER DATA to confirm the separate data deletion.");
-                        ui.text_edit_singleline(confirmation);
+                        let confirmation_label = ui.label(
+                            "Type DELETE OWNER DATA to confirm the separate data deletion.",
+                        );
+                        ui.text_edit_singleline(confirmation)
+                            .labelled_by(confirmation_label.id);
                     }
                     ui.label(
                         RichText::new(
