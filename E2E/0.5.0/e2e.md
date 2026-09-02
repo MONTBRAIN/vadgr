@@ -1,7 +1,7 @@
 # 0.5.0 - the product is installable: E2E runbook
 
 > **Implementation:** `feature/0.5.0-distribution` at
-> `d8f9cd001e35e16976a453bb210ba428b887f181`; the PR resolves after the first
+> `001c0b17f495212a3a542012f39b8fe8a836bb71`; the PR resolves after the first
 > target passes. **Private evidence PR:** resolve before the
 > first live cell. Do not create a replacement PR.
 >
