@@ -62,6 +62,22 @@ fn candidate_payloads_are_assembled_outside_the_source_checkout() {
 }
 
 #[test]
+fn windows_import_gate_accepts_native_gui_system_libraries_but_not_the_vc_runtime() {
+    let gate = repo_file("scripts/check_windows_imports.ps1").to_ascii_lowercase();
+    for library in [
+        "dwmapi.dll",
+        "gdi32.dll",
+        "imm32.dll",
+        "opengl32.dll",
+        "uiautomationcore.dll",
+        "uxtheme.dll",
+    ] {
+        assert!(gate.contains(&format!("'{library}'")));
+    }
+    assert!(!gate.contains("'vcruntime140.dll'"));
+}
+
+#[test]
 fn release_is_signed_tag_only_and_separates_protected_environments() {
     let workflow = repo_file(".github/workflows/release.yml");
     assert!(workflow.contains("tags:\n      - v*"));
