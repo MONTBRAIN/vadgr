@@ -5,9 +5,10 @@
 > target passes. **Private evidence PR:** resolve before the
 > first live cell. Do not create a replacement PR.
 >
-> **Status: not started.** No cell below is a pass. Signing identities, reviewed
-> terms, release public key, CUA 0.7.6, candidate artifacts and private evidence
-> boundary are still prerequisites.
+> **Status: development qualification in progress.** No cell below is a formal
+> release pass. Signing identities, reviewed terms, release public key, CUA
+> 0.7.6, candidate artifacts and private evidence boundary remain prerequisites
+> for the final candidate pass.
 
 This runbook proves that a published Vadgr release installs, operates, repairs,
 updates, rolls back and uninstalls without a checkout, system Python or separate
@@ -24,6 +25,22 @@ every host. Public status contains outcomes and finding identifiers only. Raw
 installer logs, screenshots, signature reports, journals and wire responses stay
 under the private `e2e_evidence/vadgr-0.5.0/HOST_NAME/` boundary. Redact no failure;
 prevent credentials and owner-private paths from entering the capture.
+
+## Development qualification before the candidate
+
+The host lead may run live development qualification against the exact feature
+commit before signed or published artifacts exist. Use an isolated test state
+and label every result `development`, never `pass`. The currently released CUA
+0.7.5 may prove console, daemon and released computer-use integration. It does
+not prove the final package contains CUA 0.7.6. An unsigned local package may
+prove installer flow and lifecycle behavior, but it cannot satisfy W-I1 or any
+oracle that specifically requires a signature, immutable candidate, clean host
+or published release.
+
+Run every unaffected action and oracle now. Defer only the unavailable assertion
+inside a cell, then rerun that assertion and any behavior it can affect against
+the final candidate. Development findings are real implementation findings and
+must be fixed before the candidate is produced.
 
 ## Native console driving
 
@@ -66,7 +83,7 @@ the visual and accessibility oracle.
 
 ## Owner and external prerequisites
 
-- Before any live cell: owner-approved Version 1.0 terms bytes; final legal
+- Before any formal candidate cell: owner-approved Version 1.0 terms bytes; final legal
   bundle; published Minisign public key and offline signature; protected
   candidate run; immutable artifacts and attestations; private evidence PR.
 - Windows: clean x64 and arm64 targets where supported, administrator approval,

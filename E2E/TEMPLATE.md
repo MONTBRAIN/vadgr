@@ -5,8 +5,9 @@
 > **<repository> <version> evidence PR:**
 > `<resolved private evidence PR URL>`.
 >
-> Resolve the branch, head and evidence link before the first live cell. The
-> evidence link names the one private evidence branch for this minor. Every host
+> Resolve the branch and head before the first development cell. Resolve the
+> evidence link before any captured artifact leaves its host and before the first
+> formal candidate cell. The evidence link names the one private evidence branch for this minor. Every host
 > adds its boundary to that pull request; it does not open another evidence pull
 > request. After the first real target OS passes and branch checks are green,
 > replace the branch/head line with the implementation PR URL before handing the
@@ -29,7 +30,7 @@
 <One sentence: what a reader is being convinced of. Not what changed - what is
 now demonstrably true that was not before.>
 
-> **Status: <not started | partially run on \<OS\>, \<date\> | run on \<OS\>, \<date\>>.**
+> **Status: <not started | development qualification on \<OS\>, \<date\> | partially run on \<OS\>, \<date\> | run on \<OS\>, \<date\>>.**
 > Automated gate <green/red> (engine N, api N), **and the pull request's own
 > checks finished and read**. <Which parts pass, which are open.> **N findings**, listed below. Nothing is marked pass that was not
 > executed and read back.
@@ -42,6 +43,27 @@ now demonstrably true that was not before.>
 bracket notes as you go; a leftover placeholder is the tell that a runbook was
 written and never run. The cross-cutting rules are in
 [`../README.md`](../README.md) and are not repeated here.>
+
+## Development qualification before the candidate
+
+<Keep this section when the implementation can run before final signing,
+publishing or dependency release. Delete only statements that do not apply.>
+
+Development qualification starts as soon as an exact implementation commit can
+run safely in isolated state. It does not wait for signing identities, a signed
+tag, immutable release assets, a published dependency or a final evidence PR.
+Use the latest available released dependency when it can exercise the behavior,
+and record its exact version. A dependency source commit intended for the next
+release may also be tested from a separate clean worktree when the runbook names
+that provenance. Never touch an existing dirty dependency worktree.
+
+Mark these results `development`, not `pass`. Signing, notarization, package
+identity, immutable artifact, clean-host and final bundled-version assertions
+wait only when their required subject does not exist. Run every unaffected
+action and oracle now. A missing release-only input does not block console,
+daemon, API, accessibility, provider, device or currently available computer-use
+behavior. Development findings are real defects: fix them, add the failing test,
+rebuild and rerun the affected development cell.
 
 ## The rules
 
@@ -56,8 +78,10 @@ before you start and the section when it bites. Where a bracketed name is not
 present in a given runbook, the entry is all there is.
 
 1. **Whatever needs the owner runs first.** Read the whole matrix, list every
-   cell that cannot proceed without a human, and run those cells before any
-   unattended one. **Running them is the rule; announcing them is not.**
+   cell that cannot proceed without a human, prove that automation cannot do
+   the required step, and run those cells before any unattended one. The agent
+   drives every other action. **Running them is the rule; announcing them is
+   not.**
    [How a pass is run] [../README.md]
 
 2. **Do not stop the pass to report.** The pass runs to completion for the
@@ -158,6 +182,17 @@ present in a given runbook, the entry is all there is.
     daemon.** Two drivers sharing one daemon read each other's work and neither
     verdict means anything. [Repeatability] [../README.md]
 
+21. **The agent drives the native console through accessibility.** Discover and
+    operate semantic controls through the platform tree, confirm each transition
+    with a fresh structured read, capture only the exact application client area
+    without requiring focus, inspect it against the approved mockup, and verify
+    each effect with an independent machine oracle. [Native console driving]
+
+22. **A native console has no silent dead controls.** Invoke every enabled
+    control through accessibility. Each future control is disabled and visibly
+    names the exact registered minor that enables it. A current-state limitation
+    shows its truthful reason instead. [Native console driving]
+
 **A pass is finished, not paused, and reporting is not a stopping point.** A
 checkpoint or a progress summary does not end your turn: write it and keep
 driving in the same turn. A pass ends when every cell carries a verdict or a
@@ -190,11 +225,15 @@ owner's cell, or could the owner's cell run now instead?"** This paragraph
 exists because `0.4.8`'s Windows pass announced the handset cell in its first
 message and then ran five parts before reaching it.
 
-**A handset screenshot is a scheduled owner action.** Before a cell needs one,
-name the exact screen and the capture point. Tell the owner to keep the product
-focused until capture is confirmed. If a reply would switch apps, get it before
-the focus step or from another device. A capture from another app is discarded,
-never filed, and the required cell is re-run.
+**An owner cell contains only an unavoidable human boundary.** First prove that
+no safe automation or accessibility interface can perform the step. Prepare the
+exact application and surrounding state. Then give one instruction which names
+the physical or protected action, the printed control or object involved, and
+the visible result that returns control to the driver. Camera scans, device
+unlocks, private credential entry, elevation, and protected operating-system
+prompts can qualify. Routine clicks, key entry, navigation, captures,
+application launches, and screen reports do not qualify when the interface can
+perform or inspect them.
 
 **2. Do not stop the pass to report.** The pass runs to completion for the
 operating system it is on. Findings, blocked cells, corrections and questions
@@ -592,6 +631,30 @@ have failed to bind, and the cause would have looked like the host.
   yourself. A daemon that survived a session is a fact about how the pass was
   run, and the next person inherits the habit, not the process.
 
+## Native console driving
+
+<Delete this section only when the minor has no native graphical surface. Name
+the exact accessibility backend and the command or tool used to inspect it. Name
+the exact application-only capture method and prove that it does not require
+focus. The driver opens every capture and compares the complete view with the
+approved mockup. Screenshots confirm rendering but never locate controls or
+drive the structured tier.>
+
+<Inventory every console control before the first live cell. An enabled control
+must work in this minor. A future control must be disabled and show the exact
+registered minor that enables it. A control unavailable because of current
+machine state shows that reason instead. Do not assign a future version to a
+temporary state.>
+
+| view | accessible name | role and action | state in this minor | enabling minor or state reason | independent oracle | cell |
+|---|---|---|---|---|---|---|
+| <view> | <printed label> | <role and supported action> | <enabled / disabled future / disabled by state> | <current / X.Y.Z / reason> | <daemon, package, process, file or OS read-back> | <id> |
+
+<The driver invokes every enabled row through the accessibility interface. It
+confirms every disabled future row is inaccessible to activation and visibly
+shows its version label. An enabled no-op, an inaccessible enabled control, or
+an unlabeled future control is a finding.>
+
 ## Owner and environment requirements
 
 <Complete this table before the first live cell. Tell the owner what is needed
@@ -825,9 +888,9 @@ boundary that says hashes carries the hash lines themselves. "Unchanged: yes"
 is the product's word taken for the state, which is exactly what an oracle
 exists to distrust.>
 
-| # | Precondition and setup | Goal or action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
-|---|---|---|---|---|---|---|
-| X1 | <state and setup> | <goal-level task or action> | <observable result and independent machine oracle> | <files/records captured now> | <restore/remove> | <pass / fail -> Fn / blocked: reason / not run> |
+| # | Precondition and setup | Goal or action | Owner action | Expected observable and oracle | Evidence boundary | Cleanup | Status |
+|---|---|---|---|---|---|---|---|
+| X1 | <state and setup> | <goal-level task or action> | <none, or one unavoidable physical/protected action with the prepared state, exact instruction and visible completion result> | <observable result and independent machine oracle> | <files/records captured now> | <restore/remove> | <pass / fail -> Fn / blocked: reason / not run> |
 
 **Measured.** <The actual output, pasted. Ids, counts, tokens, exit codes -
 whatever a reader would need to disbelieve you with. A table of passes and no
