@@ -445,22 +445,47 @@ impl ConsoleApp {
         ui.separator();
         ui.add_space(22.0);
         if data.devices.is_empty() {
+            let compact = ui.clip_rect().bottom() - ui.cursor().top() < 190.0;
             theme::card().show(ui, |ui| {
-                ui.set_min_height(168.0);
-                ui.vertical_centered(|ui| {
-                    ui.add_space(16.0);
-                    icon_tile(ui, Icon::Phone, "Phone");
-                    ui.add_space(4.0);
-                    ui.label(
-                        RichText::new("No paired devices")
-                            .family(theme::heading_family())
-                            .size(16.0),
-                    );
-                    ui.label(
-                        RichText::new("Pair a phone to reach this machine away from your desk.")
+                ui.set_min_width(ui.available_width());
+                if compact {
+                    ui.set_min_height(58.0);
+                    ui.horizontal_centered(|ui| {
+                        paint_icon(ui, Icon::Phone, 24.0, theme::muted(), "Phone");
+                        ui.add_space(8.0);
+                        ui.vertical(|ui| {
+                            ui.label(
+                                RichText::new("No paired devices")
+                                    .family(theme::heading_family())
+                                    .size(16.0),
+                            );
+                            ui.label(
+                                RichText::new(
+                                    "Pair a phone to reach this machine away from your desk.",
+                                )
+                                .color(theme::muted()),
+                            );
+                        });
+                    });
+                } else {
+                    ui.set_min_height(168.0);
+                    ui.vertical_centered(|ui| {
+                        ui.add_space(16.0);
+                        icon_tile(ui, Icon::Phone, "Phone");
+                        ui.add_space(4.0);
+                        ui.label(
+                            RichText::new("No paired devices")
+                                .family(theme::heading_family())
+                                .size(16.0),
+                        );
+                        ui.label(
+                            RichText::new(
+                                "Pair a phone to reach this machine away from your desk.",
+                            )
                             .color(theme::muted()),
-                    );
-                });
+                        );
+                    });
+                }
             });
         }
         for device in data.devices {

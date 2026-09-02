@@ -112,10 +112,12 @@
           Action="RecordTermsAcceptance"
           Before="InstallFinalize"
           Condition="NOT Installed AND TERMSACCEPTED = 1" />
+      <?if $(var.DevelopmentUnsigned) = false ?>
       <Custom
           Action="CacheInstallVehicle"
           Before="InstallFinalize"
           Condition="NOT Installed AND TERMSACCEPTED = 1" />
+      <?endif?>
       <Custom
           Action="PurgeOwnerState"
           Before="RemoveFiles"

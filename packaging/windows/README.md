@@ -19,3 +19,8 @@ placeholder terms.
 The output of these projects is unsigned. Release automation must sign and
 verify every installed PE and DLL, the MSI, the detached Burn engine, and the
 final setup in the required order. An unsigned build is for development only.
+
+Pass `-DevelopmentUnsigned` only for a local development build. That build does
+not cache its untrusted setup as a rollback vehicle, so it can exercise the
+installer UI and unaffected package lifecycle without weakening the default
+candidate build. Candidate and release automation must never pass this switch.

@@ -33,8 +33,9 @@ fn windows_package_is_per_user_and_owns_native_launch_entries() {
 fn burn_owns_terms_progress_repair_uninstall_and_console_launch() {
     let bundle = repo_file("packaging/windows/Bundle.wxs");
     assert!(bundle.contains("WixStandardBootstrapperApplication"));
-    assert!(bundle.contains("Theme=\"none\""));
+    assert!(bundle.contains("Theme=\"rtfLargeLicense\""));
     assert!(bundle.contains("ThemeFile=\"$(var.ThemeFile)\""));
+    assert!(bundle.contains("LocalizationFile=\"$(var.ThemeLocalizationFile)\""));
     assert!(bundle.contains("LicenseFile=\"$(var.TermsRtf)\""));
     assert!(bundle.contains("SuppressRepair=\"no\""));
     assert!(bundle.contains("LaunchTarget=\"[InstallFolder]\\vadgr-app.exe\""));
@@ -47,11 +48,22 @@ fn burn_owns_terms_progress_repair_uninstall_and_console_launch() {
     assert!(package.contains("Id=\"RecordTermsAcceptance\""));
     assert!(package.contains("Id=\"CacheInstallVehicle\""));
     assert!(package.contains("__cache-install-vehicle"));
+    assert!(package.contains("$(var.DevelopmentUnsigned) = false"));
     assert!(package.contains("Execute=\"commit\""));
     assert!(package.contains("HideTarget=\"yes\""));
     assert!(package.contains("AllowDowngrades=\"yes\""));
     let receipt = repo_file("packaging/windows/install-receipt.json");
     assert!(receipt.contains("cache/previous-setup.exe"));
+    let localization = repo_file("packaging/windows/VadgrTheme.wxl");
+    assert!(localization.contains("Culture=\"en-US\""));
+    assert!(localization.contains("Id=\"ConfirmCancelMessage\""));
+    assert!(localization.contains("Id=\"FilesInUseTitle\""));
+    let build = repo_file("packaging/windows/build.ps1");
+    assert!(build.contains("[switch] $DevelopmentUnsigned"));
+    assert!(build.contains("-p:DevelopmentUnsigned="));
+    let project = repo_file("packaging/windows/VadgrMsi.wixproj");
+    assert!(project.contains("<DevelopmentUnsigned Condition="));
+    assert!(project.contains("DevelopmentUnsigned=$(DevelopmentUnsigned)"));
 }
 
 #[test]

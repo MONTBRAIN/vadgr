@@ -1,7 +1,8 @@
 <Project Sdk="WixToolset.Sdk/4.0.6">
   <PropertyGroup>
+    <DevelopmentUnsigned Condition="'$(DevelopmentUnsigned)' == ''">false</DevelopmentUnsigned>
     <OutputName>Vadgr-$(VadgrVersion)-windows-$(Platform)</OutputName>
-    <DefineConstants>VadgrVersion=$(VadgrVersion);PayloadDir=$(PayloadDir)</DefineConstants>
+    <DefineConstants>VadgrVersion=$(VadgrVersion);PayloadDir=$(PayloadDir);DevelopmentUnsigned=$(DevelopmentUnsigned)</DefineConstants>
     <InstallerPlatform>$(Platform)</InstallerPlatform>
     <SuppressValidation>false</SuppressValidation>
     <!-- ICE91 assumes a package might switch to per-machine scope; this one is

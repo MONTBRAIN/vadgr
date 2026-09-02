@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>Bundle</OutputType>
     <OutputName>Vadgr-$(VadgrVersion)-windows-$(Platform)-setup</OutputName>
-    <DefineConstants>VadgrVersion=$(VadgrVersion);MsiPath=$(MsiPath);TermsRtf=$(TermsRtf);TermsVersion=$(TermsVersion);ThemeFile=$(ThemeFile)</DefineConstants>
+    <DefineConstants>VadgrVersion=$(VadgrVersion);MsiPath=$(MsiPath);TermsRtf=$(TermsRtf);TermsVersion=$(TermsVersion);ThemeFile=$(ThemeFile);ThemeLocalizationFile=$(ThemeLocalizationFile)</DefineConstants>
     <InstallerPlatform>$(Platform)</InstallerPlatform>
     <EnableDefaultItems>false</EnableDefaultItems>
   </PropertyGroup>

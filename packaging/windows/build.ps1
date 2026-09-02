@@ -17,7 +17,9 @@ param(
     [string] $TermsVersion,
 
     [Parameter(Mandatory = $true)]
-    [string] $OutputDirectory
+    [string] $OutputDirectory,
+
+    [switch] $DevelopmentUnsigned
 )
 
 $ErrorActionPreference = 'Stop'
@@ -71,6 +73,7 @@ New-Item -ItemType Directory -Path $output -Force | Out-Null
 $projectRoot = $PSScriptRoot
 $repoRoot = Split-Path -Parent (Split-Path -Parent $projectRoot)
 $themeFile = Join-Path $projectRoot 'VadgrTheme.xml'
+$themeLocalizationFile = Join-Path $projectRoot 'VadgrTheme.wxl'
 $generatedPayload = Join-Path $output 'PrivatePayload.wxs'
 $python = Get-Command python -ErrorAction Stop
 & $python.Source (Join-Path $repoRoot 'scripts\generate_windows_payload_wxs.py') `
@@ -86,6 +89,7 @@ if ($LASTEXITCODE -ne 0) {
     -p:VadgrVersion=$Version `
     -p:PayloadDir=$payload `
     -p:GeneratedPayloadWxs=$generatedPayload `
+    -p:DevelopmentUnsigned=$($DevelopmentUnsigned.IsPresent.ToString().ToLowerInvariant()) `
     -p:OutputPath=$output
 if ($LASTEXITCODE -ne 0) {
     throw 'The MSI build failed.'
@@ -105,6 +109,7 @@ if (-not (Test-Path -LiteralPath $msi -PathType Leaf)) {
     -p:TermsRtf=$terms `
     -p:TermsVersion=$TermsVersion `
     -p:ThemeFile=$themeFile `
+    -p:ThemeLocalizationFile=$themeLocalizationFile `
     -p:OutputPath=$output
 if ($LASTEXITCODE -ne 0) {
     throw 'The Burn bundle build failed.'

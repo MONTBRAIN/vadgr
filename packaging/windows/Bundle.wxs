@@ -17,8 +17,9 @@
         Persisted="yes" />
     <BootstrapperApplication>
       <bal:WixStandardBootstrapperApplication
-          Theme="none"
+          Theme="rtfLargeLicense"
           ThemeFile="$(var.ThemeFile)"
+          LocalizationFile="$(var.ThemeLocalizationFile)"
           LicenseFile="$(var.TermsRtf)"
           ShowVersion="yes"
           SuppressOptionsUI="yes"
