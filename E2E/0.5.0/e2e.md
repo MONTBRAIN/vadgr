@@ -1,7 +1,7 @@
 # 0.5.0 - the product is installable: E2E runbook
 
 > **Implementation:** `feature/0.5.0-distribution` at
-> `99633d608f407859187362568a76704459563e80`; the PR resolves after the first
+> `9c7d06970e39c5e9c141205a5b88dd64914497f1`; the PR resolves after the first
 > target passes. **Private evidence PR:** resolve before the
 > first live cell. Do not create a replacement PR.
 >
@@ -192,7 +192,7 @@ candidate inside the private evidence boundary.
 
 | date | exact product subject | affected cells | development observation |
 |---|---|---|---|
-| 2026-09-02 | `99633d608f407859187362568a76704459563e80` | W-I2 | Accessibility-driven machine edits agreed with CLI and loopback API reads, survived daemon restart, rejected a read-only field, and restored nullable workspace state. The probe found and fixed omitted-versus-null request handling. |
-| 2026-09-02 | `99633d608f407859187362568a76704459563e80` | W-I4 | Accessibility-driven restart showed the health transition and a new daemon process. A bounded screenshot task completed through an isolated installed-layout payload carrying released CUA 0.7.5. The required candidate rerun still owes CUA 0.7.6. |
-| 2026-09-02 | `99633d608f407859187362568a76704459563e80` | O2 | Machine, Providers and Settings exposed named controls through Windows UI Automation; keyboard and Narrator traversal reached all three views; unavailable package actions stated why they were disabled. Pairing QR layout remained centered at normal and compact sizes in app-only capture. Empty, failure, destructive and installed-package states remain owed. |
-| 2026-09-02 | `99633d608f407859187362568a76704459563e80` | W-I1 preflight | Locally built x64 release executables with static CRT passed the Windows system-import allowlist. No signature, installer vehicle, clean-host or immutable-candidate assertion ran. |
+| 2026-09-02 | `9c7d06970e39c5e9c141205a5b88dd64914497f1` | W-I2 | Accessibility-driven machine edits agreed with CLI and loopback API reads, survived daemon restart, rejected a read-only field, and restored nullable workspace state. The probe found and fixed omitted-versus-null request handling. |
+| 2026-09-02 | `9c7d06970e39c5e9c141205a5b88dd64914497f1` | W-I4 | Accessibility-driven restart showed the health transition and a new daemon process. A bounded screenshot task completed through an isolated installed-layout payload carrying released CUA 0.7.5. The required candidate rerun still owes CUA 0.7.6. |
+| 2026-09-02 | `9c7d06970e39c5e9c141205a5b88dd64914497f1` | O2 | Machine, Providers and Settings exposed named controls through Windows UI Automation; keyboard and Narrator traversal reached all three views; form inputs exposed associated names; unavailable package actions stated why they were disabled. Pairing QR layout remained centered at normal and compact sizes in app-only capture. Empty and daemon-failure states were readable, while destructive and installed-package states remain owed. |
+| 2026-09-02 | `9c7d06970e39c5e9c141205a5b88dd64914497f1` | W-I1 preflight | Locally built x64 release executables with static CRT passed the Windows system-import allowlist. No signature, installer vehicle, clean-host or immutable-candidate assertion ran. |
