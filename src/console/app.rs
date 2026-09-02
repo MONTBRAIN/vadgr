@@ -4,7 +4,7 @@ use super::controller::{
 };
 use super::theme;
 use anyhow::{Result, anyhow};
-use eframe::egui::{self, Align, Color32, Layout, RichText};
+use eframe::egui::{self, Align, Color32, Layout, RichText, Sense, Stroke, StrokeKind, Vec2};
 use std::sync::{Arc, mpsc};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -12,6 +12,21 @@ enum View {
     Machine,
     Providers,
     Settings,
+}
+
+#[derive(Clone, Copy)]
+enum Icon {
+    Machine,
+    Key,
+    Gear,
+    Plug,
+    Globe,
+    Phone,
+    Play,
+    Info,
+    Shield,
+    Undo,
+    Close,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -66,6 +81,7 @@ pub struct ConsoleApp {
     dialog: Option<Dialog>,
     notice: Option<(bool, String)>,
     available_update: Option<String>,
+    last_refresh: std::time::Instant,
 }
 
 impl ConsoleApp {
@@ -79,6 +95,7 @@ impl ConsoleApp {
             dialog: None,
             notice: None,
             available_update: None,
+            last_refresh: std::time::Instant::now(),
         };
         app.reload();
         app
@@ -140,8 +157,23 @@ impl ConsoleApp {
         };
         match receiver.try_recv() {
             Ok(Ok(OperationResult::Loaded(data))) => {
+                let paired = matches!(
+                    &self.dialog,
+                    Some(Dialog::Pairing {
+                        session: _,
+                        opened_at: _
+                    })
+                ) && self
+                    .data
+                    .as_ref()
+                    .is_some_and(|previous| data.devices.len() > previous.devices.len());
                 self.data = Some(*data);
                 self.pending = None;
+                self.last_refresh = std::time::Instant::now();
+                if paired {
+                    self.dialog = None;
+                    self.notice = Some((true, "The device is paired.".to_owned()));
+                }
             }
             Ok(Ok(OperationResult::Pairing(session))) => {
                 self.dialog = Some(Dialog::Pairing {
@@ -152,8 +184,8 @@ impl ConsoleApp {
             }
             Ok(Ok(OperationResult::Changed)) => {
                 self.pending = None;
-                self.notice = Some((true, "The change completed.".to_owned()));
                 self.reload();
+                self.notice = Some((true, "The change completed.".to_owned()));
             }
             Ok(Ok(OperationResult::UpdateChecked(update))) => {
                 self.pending = None;
@@ -187,11 +219,18 @@ impl ConsoleApp {
             .exact_size(188.0)
             .frame(
                 egui::Frame::new()
-                    .fill(theme::bg())
+                    .fill(theme::nav())
                     .inner_margin(egui::Margin::symmetric(15, 24)),
             )
             .show(root, |ui| {
-                ui.label(RichText::new("vadgr.").size(24.0).strong());
+                if self.dialog.is_some() {
+                    ui.disable();
+                }
+                ui.label(
+                    RichText::new("vadgr.")
+                        .family(theme::heading_family())
+                        .size(24.0),
+                );
                 ui.label(
                     RichText::new(format!("LOCAL  ·  {}", env!("CARGO_PKG_VERSION")))
                         .monospace()
@@ -199,16 +238,19 @@ impl ConsoleApp {
                         .color(theme::muted()),
                 );
                 ui.add_space(40.0);
-                nav(ui, &mut self.view, View::Machine, "▣", "Machine");
-                nav(ui, &mut self.view, View::Providers, "▰", "Providers");
-                nav(ui, &mut self.view, View::Settings, "◉", "Settings");
+                nav(ui, &mut self.view, View::Machine, Icon::Machine, "Machine");
+                nav(ui, &mut self.view, View::Providers, Icon::Key, "Providers");
+                nav(ui, &mut self.view, View::Settings, Icon::Gear, "Settings");
             });
     }
 
     fn heading(ui: &mut egui::Ui, title: &str, subtitle: &str) {
-        ui.label(RichText::new(title).heading().strong());
+        ui.label(
+            RichText::new(title)
+                .heading()
+                .family(theme::heading_family()),
+        );
         ui.label(RichText::new(subtitle).color(theme::muted()));
-        ui.add_space(20.0);
     }
 
     fn machine_view(&mut self, ui: &mut egui::Ui) {
@@ -216,19 +258,12 @@ impl ConsoleApp {
             loading(ui, "Reading this machine...");
             return;
         };
-        ui.horizontal(|ui| {
-            ui.vertical(|ui| {
-                Self::heading(
-                    ui,
-                    if data.machine.name.is_empty() {
-                        "This machine"
-                    } else {
-                        &data.machine.name
-                    },
-                    "This machine and its paired devices",
-                )
-            });
-            ui.with_layout(Layout::right_to_left(Align::TOP), |ui| {
+        let header_width = visible_width(ui);
+        fixed_ui(
+            ui,
+            Vec2::new(header_width, 62.0),
+            Layout::right_to_left(Align::TOP),
+            |ui| {
                 if ui
                     .add_enabled(self.pending.is_none(), egui::Button::new("Restart Vadgr"))
                     .clicked()
@@ -238,75 +273,104 @@ impl ConsoleApp {
                         Ok(OperationResult::Changed)
                     });
                 }
-            });
-        });
-
-        theme::card().show(ui, |ui| {
-            ui.horizontal(|ui| {
-                ui.label(RichText::new("▰").size(20.0));
-                ui.vertical(|ui| {
-                    let default = data
-                        .machine
-                        .default_provider
-                        .as_deref()
-                        .zip(data.machine.default_model.as_deref());
-                    let provider_ready = default.is_some_and(|(provider, _)| {
-                        data.providers
-                            .iter()
-                            .any(|row| row.id == provider && row.connected && row.available)
-                    });
-                    match (default, provider_ready) {
-                        (Some((provider, model)), true) => {
-                            ui.label(RichText::new(format!("{provider} · {model}")).strong());
-                            ui.label(
-                                RichText::new("Machine default · ready").color(theme::muted()),
-                            );
-                        }
-                        (Some((provider, model)), false) => {
-                            ui.label(RichText::new(format!("{provider} · {model}")).strong());
-                            ui.label(
-                                RichText::new("Default provider needs attention")
-                                    .color(theme::warning()),
-                            );
-                        }
-                        (None, _) => {
-                            ui.label(RichText::new("No model provider").strong());
-                            ui.label(
-                                RichText::new("Connect a provider before pairing")
-                                    .color(theme::warning()),
-                            );
-                        }
-                    }
+                ui.with_layout(Layout::top_down(Align::Min), |ui| {
+                    Self::heading(
+                        ui,
+                        if data.machine.name.is_empty() {
+                            "This machine"
+                        } else {
+                            &data.machine.name
+                        },
+                        "This machine and its paired devices",
+                    )
                 });
-                ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-                    if ui.button("Manage providers").clicked() {
+            },
+        );
+        ui.separator();
+        ui.add_space(22.0);
+        let default = data
+            .machine
+            .default_provider
+            .as_deref()
+            .zip(data.machine.default_model.as_deref());
+        let provider_ready = default.is_some_and(|(provider, _)| {
+            data.providers
+                .iter()
+                .any(|row| row.id == provider && row.connected && row.available)
+        });
+        theme::card().show(ui, |ui| {
+            let row_width = visible_width(ui);
+            fixed_ui(
+                ui,
+                Vec2::new(row_width, 46.0),
+                Layout::right_to_left(Align::Center),
+                |ui| {
+                    let manage = if provider_ready {
+                        ui.button("Manage providers").clicked()
+                    } else {
+                        primary_button(ui, "Manage providers", true)
+                    };
+                    if manage {
                         self.view = View::Providers;
                     }
-                });
-            });
+                    ui.with_layout(Layout::left_to_right(Align::Center), |ui| {
+                        paint_icon(ui, Icon::Key, 20.0, theme::muted(), "Model provider");
+                        ui.vertical(|ui| match (default, provider_ready) {
+                            (Some((provider, model)), true) => {
+                                ui.label(RichText::new(format!("{provider} · {model}")).strong());
+                                ui.label(
+                                    RichText::new("Machine default · ready").color(theme::muted()),
+                                );
+                            }
+                            (Some((provider, model)), false) => {
+                                ui.label(RichText::new(format!("{provider} · {model}")).strong());
+                                ui.label(
+                                    RichText::new("Default provider needs attention")
+                                        .color(theme::warning()),
+                                );
+                            }
+                            (None, _) => {
+                                ui.label(RichText::new("No model provider").strong());
+                                ui.label(
+                                    RichText::new("Connect a provider before pairing")
+                                        .color(theme::warning()),
+                                );
+                            }
+                        });
+                    });
+                },
+            );
         });
         ui.add_space(18.0);
-        section_label(ui, "MACHINE");
-        ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-            if ui.button("Edit machine").clicked() {
-                self.dialog = Some(Dialog::EditMachine {
-                    skill_options: data.machine.granted_skills.clone(),
-                    server_options: data.machine.granted_mcp_servers.clone(),
-                    edit: MachineEdit {
-                        name: data.machine.name.clone(),
-                        role_prompt: data.machine.role_prompt.clone(),
-                        autonomy: data.machine.autonomy.clone(),
-                        workspace: data.machine.workspace.clone(),
-                        granted_skills: data.machine.granted_skills.clone(),
-                        granted_mcp_servers: data.machine.granted_mcp_servers.clone(),
-                    },
+        let section_width = visible_width(ui);
+        fixed_ui(
+            ui,
+            Vec2::new(section_width, 35.0),
+            Layout::right_to_left(Align::Center),
+            |ui| {
+                if ui.button("Edit machine").clicked() {
+                    self.dialog = Some(Dialog::EditMachine {
+                        skill_options: data.machine.granted_skills.clone(),
+                        server_options: data.machine.granted_mcp_servers.clone(),
+                        edit: MachineEdit {
+                            name: data.machine.name.clone(),
+                            role_prompt: data.machine.role_prompt.clone(),
+                            autonomy: data.machine.autonomy.clone(),
+                            workspace: data.machine.workspace.clone(),
+                            granted_skills: data.machine.granted_skills.clone(),
+                            granted_mcp_servers: data.machine.granted_mcp_servers.clone(),
+                        },
+                    });
+                }
+                ui.with_layout(Layout::left_to_right(Align::Center), |ui| {
+                    section_label(ui, "MACHINE")
                 });
-            }
-        });
+            },
+        );
         theme::card().show(ui, |ui| {
             info_row(
                 ui,
-                "▣",
+                Icon::Machine,
                 if data.machine.name.is_empty() {
                     "This machine"
                 } else {
@@ -326,7 +390,7 @@ impl ConsoleApp {
             ui.separator();
             info_row(
                 ui,
-                "◆",
+                Icon::Plug,
                 "Computer use",
                 &format!("Included · version {}", crate::cua_payload::CUA_VERSION),
                 if data
@@ -343,12 +407,21 @@ impl ConsoleApp {
             );
             ui.separator();
             let (transport_detail, transport_status) = transport_summary(&data.machine.transport);
-            info_row(ui, "◎", "Connection", &transport_detail, &transport_status);
+            info_row(
+                ui,
+                Icon::Globe,
+                "Connection",
+                &transport_detail,
+                &transport_status,
+            );
         });
         ui.add_space(18.0);
-        ui.horizontal(|ui| {
-            section_label(ui, "PAIRED DEVICES");
-            ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+        let devices_width = visible_width(ui);
+        fixed_ui(
+            ui,
+            Vec2::new(devices_width, 38.0),
+            Layout::right_to_left(Align::Center),
+            |ui| {
                 let provider_ready = data
                     .machine
                     .default_provider
@@ -359,25 +432,32 @@ impl ConsoleApp {
                             .iter()
                             .any(|row| row.id == provider && row.connected && row.available)
                     });
-                if ui
-                    .add_enabled(
-                        self.pending.is_none() && provider_ready,
-                        egui::Button::new("Pair device"),
-                    )
-                    .clicked()
-                {
+                if primary_button(ui, "Pair device", self.pending.is_none() && provider_ready) {
                     self.start(|controller| {
                         Ok(OperationResult::Pairing(controller.start_pairing()?))
                     });
                 }
-            });
-        });
+                ui.with_layout(Layout::left_to_right(Align::Center), |ui| {
+                    section_label(ui, "PAIRED DEVICES")
+                });
+            },
+        );
+        ui.separator();
+        ui.add_space(22.0);
         if data.devices.is_empty() {
             theme::card().show(ui, |ui| {
+                ui.set_min_height(168.0);
                 ui.vertical_centered(|ui| {
-                    ui.label(RichText::new("No paired devices").strong());
+                    ui.add_space(16.0);
+                    icon_tile(ui, Icon::Phone, "Phone");
+                    ui.add_space(4.0);
                     ui.label(
-                        RichText::new("Pair the vadgr mobile app to control this machine.")
+                        RichText::new("No paired devices")
+                            .family(theme::heading_family())
+                            .size(16.0),
+                    );
+                    ui.label(
+                        RichText::new("Pair a phone to reach this machine away from your desk.")
                             .color(theme::muted()),
                     );
                 });
@@ -385,39 +465,50 @@ impl ConsoleApp {
         }
         for device in data.devices {
             theme::card().show(ui, |ui| {
+                let row_width = visible_width(ui);
                 ui.horizontal(|ui| {
-                    ui.label(RichText::new("▯").size(20.0));
-                    ui.vertical(|ui| {
-                        ui.label(RichText::new(&device.name).strong());
-                        if device.transports.is_empty() {
-                            ui.label(RichText::new("Paired device").color(theme::muted()));
-                        }
-                        for transport in &device.transports {
-                            let detail = transport
-                                .detail
-                                .as_deref()
-                                .map(|value| format!(" · {value}"))
-                                .unwrap_or_default();
-                            ui.label(
-                                RichText::new(format!(
-                                    "{} · {}{}",
-                                    transport.label, transport.status, detail
-                                ))
-                                .color(theme::muted()),
-                            );
-                        }
-                    });
-                    ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-                        if ui.button("Unpair").clicked() {
-                            self.dialog = Some(Dialog::Revoke(device.clone()));
-                        }
-                        let (status, color) = if device.connected {
-                            ("● Connected", theme::success())
-                        } else {
-                            ("○ Paired", theme::muted())
-                        };
-                        ui.label(RichText::new(status).color(color));
-                    });
+                    paint_icon(ui, Icon::Phone, 20.0, theme::muted(), "Phone");
+                    fixed_ui(
+                        ui,
+                        Vec2::new((row_width - 280.0).max(200.0), 58.0),
+                        Layout::top_down(Align::Min),
+                        |ui| {
+                            ui.label(RichText::new(&device.name).strong());
+                            if device.transports.is_empty() {
+                                ui.label(RichText::new("Paired device").color(theme::muted()));
+                            }
+                            for transport in &device.transports {
+                                let detail = transport
+                                    .detail
+                                    .as_deref()
+                                    .map(|value| format!(" · {value}"))
+                                    .unwrap_or_default();
+                                ui.label(
+                                    RichText::new(format!(
+                                        "{} · {}{}",
+                                        transport.label, transport.status, detail
+                                    ))
+                                    .color(theme::muted()),
+                                );
+                            }
+                        },
+                    );
+                    fixed_ui(
+                        ui,
+                        Vec2::new(240.0, 58.0),
+                        Layout::right_to_left(Align::Center),
+                        |ui| {
+                            if ui.button("Unpair").clicked() {
+                                self.dialog = Some(Dialog::Revoke(device.clone()));
+                            }
+                            let (status, color) = if device.connected {
+                                ("● Connected", theme::success())
+                            } else {
+                                ("○ Paired", theme::muted())
+                            };
+                            ui.label(RichText::new(status).color(color));
+                        },
+                    );
                 });
             });
         }
@@ -428,62 +519,65 @@ impl ConsoleApp {
             loading(ui, "Reading providers...");
             return;
         };
-        ui.horizontal(|ui| {
-            ui.vertical(|ui| Self::heading(ui, "Providers", "Connections and default model"));
-            ui.with_layout(Layout::right_to_left(Align::TOP), |ui| {
+        let header_width = visible_width(ui);
+        fixed_ui(
+            ui,
+            Vec2::new(header_width, 62.0),
+            Layout::right_to_left(Align::TOP),
+            |ui| {
                 let available = data
                     .providers
                     .iter()
                     .filter(|provider| !provider.connected)
                     .cloned()
                     .collect::<Vec<_>>();
-                if ui
-                    .add_enabled(!available.is_empty(), egui::Button::new("Connect provider"))
-                    .clicked()
-                {
+                if primary_button(ui, "Connect provider", !available.is_empty()) {
                     self.dialog = Some(Dialog::ProviderPicker(available));
                 }
-            });
-        });
-        if data.providers.is_empty() {
+                ui.with_layout(Layout::top_down(Align::Min), |ui| {
+                    Self::heading(ui, "Providers", "Connections and default model")
+                });
+            },
+        );
+        if !data.providers.iter().any(|provider| provider.connected) {
             theme::card().show(ui, |ui| {
+                ui.set_min_height(188.0);
                 ui.vertical_centered(|ui| {
-                    ui.label(RichText::new("No providers are available").strong());
+                    ui.add_space(20.0);
+                    icon_tile(ui, Icon::Key, "Provider");
+                    ui.add_space(4.0);
                     ui.label(
-                        RichText::new("The daemon returned no provider descriptors.")
+                        RichText::new("No providers connected")
+                            .family(theme::heading_family())
+                            .size(16.0),
+                    );
+                    ui.label(
+                        RichText::new(
+                            "Connect one provider and Vadgr will verify a starter model before saving it.",
+                        )
                             .color(theme::muted()),
                     );
                 });
             });
+            return;
         }
         for provider in data.providers {
             theme::card().show(ui, |ui| {
-                ui.horizontal(|ui| {
-                    ui.label(RichText::new("▰").size(20.0));
-                    ui.vertical(|ui| {
-                        ui.label(RichText::new(&provider.name).strong());
-                        let detail = if provider.connected {
-                            format!(
-                                "{} · {} models",
-                                provider.auth_method.as_deref().unwrap_or("Connected"),
-                                provider.models.len()
-                            )
-                        } else {
-                            "Not connected".to_owned()
-                        };
-                        ui.label(RichText::new(detail).color(theme::muted()));
-                    });
-                    ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                let row_width = visible_width(ui);
+                fixed_ui(
+                    ui,
+                    Vec2::new(row_width, 46.0),
+                    Layout::right_to_left(Align::Center),
+                    |ui| {
                         if provider.connected && !provider.available {
                             ui.label(RichText::new("● Needs attention").color(theme::warning()));
                         } else if provider.connected {
-                            if provider.catalog_stale {
-                                ui.label(
-                                    RichText::new("● Models need refresh").color(theme::warning()),
-                                );
+                            let status = if provider.catalog_stale {
+                                RichText::new("● Models need refresh").color(theme::warning())
                             } else {
-                                ui.label(RichText::new("● Connected").color(theme::success()));
-                            }
+                                RichText::new("● Connected").color(theme::success())
+                            };
+                            ui.label(status);
                             if provider.default_model.is_some() {
                                 ui.label(
                                     RichText::new("DEFAULT").monospace().color(theme::muted()),
@@ -492,24 +586,33 @@ impl ConsoleApp {
                         } else if ui.button("Connect").clicked() {
                             self.open_provider_auth(provider.clone());
                         }
-                    });
-                });
+                        ui.with_layout(Layout::left_to_right(Align::Center), |ui| {
+                            paint_icon(ui, Icon::Key, 20.0, theme::muted(), "Provider");
+                            ui.vertical(|ui| {
+                                ui.label(RichText::new(&provider.name).strong());
+                                let detail = if provider.connected {
+                                    format!(
+                                        "{} · {} models",
+                                        provider.auth_method.as_deref().unwrap_or("Connected"),
+                                        provider.models.len()
+                                    )
+                                } else {
+                                    "Not connected".to_owned()
+                                };
+                                ui.label(RichText::new(detail).color(theme::muted()));
+                            });
+                        });
+                    },
+                );
                 if provider.connected {
                     ui.separator();
-                    ui.horizontal(|ui| {
-                        if let Some(model) = &provider.default_model {
-                            ui.label(RichText::new(model).monospace());
-                            ui.label(RichText::new("Machine default").color(theme::muted()));
-                        } else {
-                            ui.label(
-                                RichText::new("Not the machine default").color(theme::muted()),
-                            );
-                        }
-                        ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-                            if ui
-                                .button(RichText::new("Disconnect").color(theme::danger()))
-                                .clicked()
-                            {
+                    let footer_width = visible_width(ui);
+                    fixed_ui(
+                        ui,
+                        Vec2::new(footer_width, 38.0),
+                        Layout::right_to_left(Align::Center),
+                        |ui| {
+                            if danger_button(ui, "Disconnect", true) {
                                 self.dialog = Some(Dialog::DisconnectProvider(provider.clone()));
                             }
                             if ui.button("Refresh models").clicked() {
@@ -531,8 +634,21 @@ impl ConsoleApp {
                                     provider: provider.clone(),
                                 });
                             }
-                        });
-                    });
+                            ui.with_layout(Layout::left_to_right(Align::Center), |ui| {
+                                if let Some(model) = &provider.default_model {
+                                    ui.label(RichText::new(model).monospace());
+                                    ui.label(
+                                        RichText::new("Machine default").color(theme::muted()),
+                                    );
+                                } else {
+                                    ui.label(
+                                        RichText::new("Not the machine default")
+                                            .color(theme::muted()),
+                                    );
+                                }
+                            });
+                        },
+                    );
                 }
             });
             ui.add_space(10.0);
@@ -556,11 +672,13 @@ impl ConsoleApp {
             return;
         };
         Self::heading(ui, "Settings", "Startup, updates, repair and uninstall");
+        ui.separator();
+        ui.add_space(22.0);
         section_label(ui, "INSTALLATION");
         theme::card().show(ui, |ui| {
             if setting_row(
                 ui,
-                "▷",
+                Icon::Play,
                 "Launch at login",
                 "Start Vadgr when you sign in",
                 if data.install.launch_at_login {
@@ -584,7 +702,7 @@ impl ConsoleApp {
             };
             if setting_row(
                 ui,
-                "◉",
+                Icon::Info,
                 &format!("Version {}", data.install.version),
                 &data.install.update_state,
                 update_label,
@@ -602,7 +720,7 @@ impl ConsoleApp {
             ui.separator();
             if setting_row(
                 ui,
-                "◇",
+                Icon::Shield,
                 "Legal and notices",
                 "Terms, licenses and software notices",
                 "Open",
@@ -616,7 +734,7 @@ impl ConsoleApp {
             ui.separator();
             if setting_row(
                 ui,
-                "↶",
+                Icon::Undo,
                 "Roll back",
                 "Return to the retained previous signed generation",
                 "Roll back",
@@ -630,7 +748,7 @@ impl ConsoleApp {
             ui.separator();
             if setting_row(
                 ui,
-                "◇",
+                Icon::Shield,
                 "Repair installation",
                 "Check and restore the Vadgr installation",
                 "Repair",
@@ -642,30 +760,30 @@ impl ConsoleApp {
                 });
             }
             ui.separator();
-            ui.horizontal(|ui| {
-                ui.label(RichText::new("×").size(20.0));
-                ui.vertical(|ui| {
-                    ui.label(RichText::new("Uninstall Vadgr").strong());
-                    ui.label(
-                        RichText::new("Keeps your settings and data by default")
-                            .color(theme::muted()),
-                    );
-                });
-                ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-                    if ui
-                        .add_enabled(
-                            data.install.lifecycle_available,
-                            egui::Button::new(RichText::new("Uninstall...").color(theme::danger())),
-                        )
-                        .clicked()
-                    {
+            let uninstall_width = visible_width(ui);
+            fixed_ui(
+                ui,
+                Vec2::new(uninstall_width, 46.0),
+                Layout::right_to_left(Align::Center),
+                |ui| {
+                    if danger_button(ui, "Uninstall...", data.install.lifecycle_available) {
                         self.dialog = Some(Dialog::Uninstall {
                             purge: false,
                             confirmation: String::new(),
                         });
                     }
-                });
-            });
+                    ui.with_layout(Layout::left_to_right(Align::Center), |ui| {
+                        paint_icon(ui, Icon::Close, 20.0, theme::muted(), "Uninstall");
+                        ui.vertical(|ui| {
+                            ui.label(RichText::new("Uninstall Vadgr").strong());
+                            ui.label(
+                                RichText::new("Keeps your settings and data by default")
+                                    .color(theme::muted()),
+                            );
+                        });
+                    });
+                },
+            );
         });
     }
 
@@ -674,40 +792,88 @@ impl ConsoleApp {
             return;
         };
         let mut keep = true;
+        let screen = ctx.content_rect();
+        egui::Area::new("console-modal-scrim".into())
+            .order(egui::Order::Foreground)
+            .fixed_pos(screen.min)
+            .show(ctx, |ui| {
+                let (rect, _) = ui.allocate_exact_size(screen.size(), Sense::click_and_drag());
+                ui.painter()
+                    .rect_filled(rect, 0.0, Color32::from_black_alpha(176));
+            });
         egui::Window::new(dialog_title(&dialog))
+            .title_bar(false)
             .collapsible(false)
             .resizable(false)
-            .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
-            .min_width(520.0)
-            .show(ctx, |ui| match &mut dialog {
+            .order(egui::Order::Foreground)
+            .anchor(egui::Align2::CENTER_BOTTOM, [94.0, -25.0])
+            .min_width(570.0)
+            .max_width(570.0)
+            .frame(
+                egui::Frame::new()
+                    .fill(theme::panel())
+                    .stroke(Stroke::new(1.0, theme::border()))
+                    .corner_radius(20)
+                    .inner_margin(26),
+            )
+            .show(ctx, |ui| {
+                ui.vertical_centered(|ui| {
+                    let (bar, _) =
+                        ui.allocate_exact_size(Vec2::new(36.0, 4.0), Sense::hover());
+                    ui.painter().rect_filled(bar, 2.0, theme::border());
+                });
+                ui.add_space(10.0);
+                ui.label(
+                    RichText::new(dialog_title(&dialog))
+                        .family(theme::heading_family())
+                        .size(19.0),
+                );
+                ui.add_space(5.0);
+                match &mut dialog {
                 Dialog::Pairing { session, opened_at } => {
                     let elapsed = opened_at.elapsed().as_secs();
                     let remaining = crate::auth::pairing::PAIRING_TTL_SECONDS
                         .saturating_sub(elapsed);
-                    ui.label("Scan this code with the vadgr mobile app, or type the code.");
-                    ui.add_space(12.0);
-                    ui.vertical_centered(|ui| {
+                    ui.label(
+                        RichText::new(format!(
+                            "Scan or enter the same one-time code. Both expire in {}:{:02}.",
+                            remaining / 60,
+                            remaining % 60
+                        ))
+                        .color(theme::muted()),
+                    );
+                    ui.add_space(18.0);
+                    ui.horizontal(|ui| {
                         if let Err(error) = pairing_qr(ui, session) {
                             ui.label(RichText::new(error.to_string()).color(theme::danger()));
                         }
-                        ui.label(RichText::new(&session.code).monospace().size(28.0).strong());
-                        ui.label(RichText::new(format!("Machine: {}", session.machine_name)).color(theme::muted()));
-                        if remaining == 0 {
+                        ui.add_space(12.0);
+                        ui.vertical(|ui| {
                             ui.label(
-                                RichText::new("This pairing code expired.")
-                                    .color(theme::danger()),
+                                RichText::new("Open Vadgr on your phone and choose Pair machine.")
+                                    .color(theme::muted()),
                             );
-                        } else {
+                            ui.add_space(14.0);
                             ui.label(
-                                RichText::new(format!(
-                                    "Expires in {}:{:02}",
-                                    remaining / 60,
-                                    remaining % 60
-                                ))
-                                .color(theme::muted()),
+                                RichText::new(&session.code)
+                                    .monospace()
+                                    .size(20.0)
+                                    .strong(),
                             );
-                            ui.ctx().request_repaint_after(std::time::Duration::from_secs(1));
-                        }
+                            ui.label(
+                                RichText::new("Typing the code pairs the same way as scanning it.")
+                                    .color(theme::muted()),
+                            );
+                            if remaining == 0 {
+                                ui.label(
+                                    RichText::new("This pairing code expired.")
+                                        .color(theme::danger()),
+                                );
+                            } else {
+                                ui.ctx()
+                                    .request_repaint_after(std::time::Duration::from_secs(1));
+                            }
+                        });
                     });
                     ui.add_space(14.0);
                     if ui
@@ -723,11 +889,10 @@ impl ConsoleApp {
                     }
                 }
                 Dialog::Revoke(device) => {
-                    ui.label(format!("Unpair {}?", device.name));
                     ui.label(RichText::new("This device will lose access now. You can pair it again later.").color(theme::muted()));
                     ui.horizontal(|ui| {
                         if ui.button("Keep paired").clicked() { keep = false; }
-                        if ui.button(RichText::new("Unpair device").color(theme::danger())).clicked() {
+                        if danger_button(ui, "Unpair device", true) {
                             let id = device.id.clone();
                             self.start(move |c| { c.revoke_device(&id)?; Ok(OperationResult::Changed) });
                             keep = false;
@@ -854,7 +1019,6 @@ impl ConsoleApp {
                     if ui.button("Cancel").clicked() { keep = false; }
                 }
                 Dialog::DisconnectProvider(provider) => {
-                    ui.label(format!("Disconnect {}?", provider.name));
                     ui.label(
                         RichText::new(
                             "Vadgr keeps the connection if this provider still owns the machine default.",
@@ -863,7 +1027,7 @@ impl ConsoleApp {
                     );
                     ui.horizontal(|ui| {
                         if ui.button("Keep connected").clicked() { keep = false; }
-                        if ui.button(RichText::new("Disconnect").color(theme::danger())).clicked() {
+                        if danger_button(ui, "Disconnect", true) {
                             let id = provider.id.clone();
                             self.start(move |c| {
                                 c.disconnect_provider(&id)?;
@@ -888,15 +1052,7 @@ impl ConsoleApp {
                     let confirmed = !*purge || confirmation == "DELETE OWNER DATA";
                     ui.horizontal(|ui| {
                         if ui.button("Keep installed").clicked() { keep = false; }
-                        if ui
-                            .add_enabled(
-                                confirmed,
-                                egui::Button::new(
-                                    RichText::new("Uninstall Vadgr").color(theme::danger()),
-                                ),
-                            )
-                            .clicked()
-                        {
+                        if danger_button(ui, "Uninstall Vadgr", confirmed) {
                             let purge = *purge;
                             self.start(move |c| {
                                 c.uninstall(purge)?;
@@ -905,6 +1061,7 @@ impl ConsoleApp {
                             keep = false;
                         }
                     });
+                }
                 }
             });
         if keep {
@@ -992,7 +1149,7 @@ fn pairing_qr(ui: &mut egui::Ui, session: &PairingSession) -> Result<()> {
     let matrix = symbol.to_matrix();
     let quiet_zone = 4usize;
     let modules = matrix.len() + quiet_zone * 2;
-    let side = 236.0;
+    let side = 165.0;
     let (response, painter) = ui.allocate_painter(egui::vec2(side, side), egui::Sense::hover());
     painter.rect_filled(response.rect, 5.0, Color32::WHITE);
     let module = side / modules as f32;
@@ -1021,6 +1178,18 @@ impl eframe::App for ConsoleApp {
         let ctx = root.ctx().clone();
         theme::refresh(&ctx);
         self.poll(&ctx);
+        let refresh_after = if matches!(self.dialog, Some(Dialog::Pairing { .. })) {
+            std::time::Duration::from_secs(2)
+        } else {
+            std::time::Duration::from_secs(8)
+        };
+        if self.pending.is_none()
+            && (self.dialog.is_none() || matches!(self.dialog, Some(Dialog::Pairing { .. })))
+            && self.last_refresh.elapsed() >= refresh_after
+        {
+            self.reload();
+        }
+        ctx.request_repaint_after(refresh_after);
         self.sidebar(root);
         egui::CentralPanel::default()
             .frame(
@@ -1029,6 +1198,12 @@ impl eframe::App for ConsoleApp {
                     .inner_margin(egui::Margin::symmetric(35, 22)),
             )
             .show(root, |ui| {
+                // A modal sheet owns interaction and focus while it is open.
+                // The scrim is visual; this state is what makes the underlying
+                // AccessKit tree unavailable to keyboard and automation users.
+                if self.dialog.is_some() {
+                    ui.disable();
+                }
                 if let Some((success, message)) = &self.notice {
                     let color = if *success {
                         theme::success()
@@ -1054,16 +1229,27 @@ impl eframe::App for ConsoleApp {
                     });
                     ui.add_space(12.0);
                 }
-                match self.view {
-                    View::Machine => self.machine_view(ui),
-                    View::Providers => self.providers_view(ui),
-                    View::Settings => self.settings_view(ui),
-                }
-                if self.pending.is_some() {
-                    ui.with_layout(Layout::bottom_up(Align::RIGHT), |ui| {
-                        ui.spinner();
+                egui::ScrollArea::vertical()
+                    .auto_shrink([false, false])
+                    .show(ui, |ui| {
+                        match self.view {
+                            View::Machine => self.machine_view(ui),
+                            View::Providers => self.providers_view(ui),
+                            View::Settings => self.settings_view(ui),
+                        }
+                        if self.pending.is_some() {
+                            ui.add_space(12.0);
+                            theme::card().show(ui, |ui| {
+                                ui.horizontal(|ui| {
+                                    ui.spinner();
+                                    ui.label(
+                                        RichText::new("Vadgr is completing this action...")
+                                            .color(theme::muted()),
+                                    );
+                                });
+                            });
+                        }
                     });
-                }
             });
         self.draw_dialog(&ctx);
     }
@@ -1085,11 +1271,41 @@ pub fn run(base_url: String) -> Result<()> {
     .map_err(|error| anyhow!(error.to_string()))
 }
 
-fn nav(ui: &mut egui::Ui, current: &mut View, target: View, icon: &str, label: &str) {
+fn nav(ui: &mut egui::Ui, current: &mut View, target: View, icon: Icon, label: &str) {
     let selected = *current == target;
-    let response = ui.add_sized(
-        [158.0, 44.0],
-        egui::Button::selectable(selected, format!("{icon}    {label}")),
+    let (rect, response) = ui.allocate_exact_size(Vec2::new(158.0, 42.0), Sense::click());
+    response.widget_info(|| {
+        egui::WidgetInfo::selected(egui::WidgetType::Button, true, selected, label)
+    });
+    let fill = if selected || response.hovered() {
+        theme::tertiary()
+    } else {
+        Color32::TRANSPARENT
+    };
+    ui.painter().rect_filled(rect, 10.0, fill);
+    if response.has_focus() {
+        ui.painter().rect_stroke(
+            rect,
+            10.0,
+            Stroke::new(1.0, theme::text()),
+            StrokeKind::Inside,
+        );
+    }
+    let icon_rect = egui::Rect::from_center_size(
+        egui::pos2(rect.left() + 20.0, rect.center().y),
+        Vec2::splat(18.0),
+    );
+    paint_icon_at(ui.painter(), icon_rect, icon, theme::muted());
+    ui.painter().text(
+        egui::pos2(rect.left() + 40.0, rect.center().y),
+        egui::Align2::LEFT_CENTER,
+        label,
+        egui::FontId::new(13.0, theme::medium_family()),
+        if selected {
+            theme::text()
+        } else {
+            theme::muted()
+        },
     );
     if response.clicked() {
         *current = target;
@@ -1106,39 +1322,318 @@ fn section_label(ui: &mut egui::Ui, text: &str) {
     );
 }
 
-fn info_row(ui: &mut egui::Ui, icon: &str, title: &str, detail: &str, status: &str) {
-    ui.horizontal(|ui| {
-        ui.label(RichText::new(icon).size(19.0));
-        ui.vertical(|ui| {
-            ui.label(RichText::new(title).strong());
-            ui.label(RichText::new(detail).color(theme::muted()));
-        });
-        ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+fn fixed_ui<R>(
+    ui: &mut egui::Ui,
+    size: Vec2,
+    layout: Layout,
+    add_contents: impl FnOnce(&mut egui::Ui) -> R,
+) -> R {
+    let (rect, _) = ui.allocate_exact_size(size, Sense::hover());
+    ui.scope_builder(
+        egui::UiBuilder::new().max_rect(rect).layout(layout),
+        add_contents,
+    )
+    .inner
+}
+
+fn visible_width(ui: &egui::Ui) -> f32 {
+    (ui.max_rect().right() - ui.cursor().left()).max(0.0)
+}
+
+fn info_row(ui: &mut egui::Ui, icon: Icon, title: &str, detail: &str, status: &str) {
+    let row_width = visible_width(ui);
+    fixed_ui(
+        ui,
+        Vec2::new(row_width, 46.0),
+        Layout::right_to_left(Align::Center),
+        |ui| {
             ui.label(RichText::new(status).color(theme::muted()));
-        });
-    });
+            ui.with_layout(Layout::left_to_right(Align::Center), |ui| {
+                paint_icon(ui, icon, 19.0, theme::muted(), title);
+                ui.vertical(|ui| {
+                    ui.label(RichText::new(title).strong());
+                    ui.label(RichText::new(detail).color(theme::muted()));
+                });
+            });
+        },
+    );
 }
 
 fn setting_row(
     ui: &mut egui::Ui,
-    icon: &str,
+    icon: Icon,
     title: &str,
     detail: &str,
     action: &str,
     enabled: bool,
 ) -> bool {
     let mut clicked = false;
-    ui.horizontal(|ui| {
-        ui.label(RichText::new(icon).size(19.0));
-        ui.vertical(|ui| {
-            ui.label(RichText::new(title).strong());
-            ui.label(RichText::new(detail).color(theme::muted()));
-        });
-        ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-            clicked = ui.add_enabled(enabled, egui::Button::new(action)).clicked();
-        });
-    });
+    let row_width = visible_width(ui);
+    fixed_ui(
+        ui,
+        Vec2::new(row_width, 46.0),
+        Layout::right_to_left(Align::Center),
+        |ui| {
+            clicked = if title == "Launch at login" {
+                toggle_switch(ui, action == "Turn off", enabled, title)
+            } else {
+                ui.add_enabled(enabled, egui::Button::new(action)).clicked()
+            };
+            ui.with_layout(Layout::left_to_right(Align::Center), |ui| {
+                paint_icon(ui, icon, 19.0, theme::muted(), title);
+                ui.vertical(|ui| {
+                    ui.label(RichText::new(title).strong());
+                    ui.label(RichText::new(detail).color(theme::muted()));
+                });
+            });
+        },
+    );
     clicked
+}
+
+fn paint_icon(ui: &mut egui::Ui, icon: Icon, size: f32, color: Color32, label: &str) {
+    let (rect, response) = ui.allocate_exact_size(Vec2::splat(size), Sense::hover());
+    response.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Image, true, label));
+    paint_icon_at(ui.painter(), rect, icon, color);
+}
+
+fn icon_tile(ui: &mut egui::Ui, icon: Icon, label: &str) {
+    let (rect, response) = ui.allocate_exact_size(Vec2::splat(64.0), Sense::hover());
+    response.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Image, true, label));
+    ui.painter().rect_filled(rect, 21.0, theme::tertiary());
+    ui.painter().rect_stroke(
+        rect,
+        21.0,
+        Stroke::new(1.0, theme::border()),
+        StrokeKind::Inside,
+    );
+    paint_icon_at(
+        ui.painter(),
+        egui::Rect::from_center_size(rect.center(), Vec2::splat(28.0)),
+        icon,
+        theme::muted(),
+    );
+}
+
+fn primary_button(ui: &mut egui::Ui, label: &str, enabled: bool) -> bool {
+    ui.add_enabled(
+        enabled,
+        egui::Button::new(
+            RichText::new(label)
+                .family(theme::medium_family())
+                .color(theme::accent_text()),
+        )
+        .fill(theme::accent())
+        .stroke(Stroke::new(1.0, theme::accent())),
+    )
+    .clicked()
+}
+
+fn danger_button(ui: &mut egui::Ui, label: &str, enabled: bool) -> bool {
+    ui.add_enabled(
+        enabled,
+        egui::Button::new(
+            RichText::new(label)
+                .family(theme::medium_family())
+                .color(theme::danger()),
+        )
+        .fill(theme::danger().gamma_multiply(0.14))
+        .stroke(Stroke::new(1.0, theme::danger().gamma_multiply(0.5))),
+    )
+    .clicked()
+}
+
+fn toggle_switch(ui: &mut egui::Ui, selected: bool, enabled: bool, label: &str) -> bool {
+    let response = ui.add_enabled_ui(enabled, |ui| {
+        let (rect, response) = ui.allocate_exact_size(Vec2::new(38.0, 22.0), Sense::click());
+        response.widget_info(|| {
+            egui::WidgetInfo::selected(egui::WidgetType::Checkbox, enabled, selected, label)
+        });
+        let rail = if selected {
+            theme::accent()
+        } else {
+            theme::border()
+        };
+        ui.painter().rect_filled(rect, 11.0, rail);
+        let knob_x = if selected {
+            rect.right() - 11.0
+        } else {
+            rect.left() + 11.0
+        };
+        ui.painter().circle_filled(
+            egui::pos2(knob_x, rect.center().y),
+            8.0,
+            if selected {
+                theme::accent_text()
+            } else {
+                theme::text()
+            },
+        );
+        response.clicked()
+    });
+    response.inner
+}
+
+fn paint_icon_at(painter: &egui::Painter, rect: egui::Rect, icon: Icon, color: Color32) {
+    let stroke = Stroke::new((rect.width() / 12.0).max(1.25), color);
+    let c = rect.center();
+    let r = rect.width() * 0.38;
+    match icon {
+        Icon::Machine => {
+            let body = egui::Rect::from_center_size(c, Vec2::new(r * 1.05, r * 1.75));
+            painter.rect_stroke(body, 1.5, stroke, StrokeKind::Inside);
+            painter.line_segment(
+                [
+                    egui::pos2(body.left() + r * 0.22, body.top() + r * 0.42),
+                    egui::pos2(body.right() - r * 0.22, body.top() + r * 0.42),
+                ],
+                stroke,
+            );
+            painter.circle_filled(
+                egui::pos2(c.x, body.bottom() - r * 0.25),
+                stroke.width * 0.65,
+                color,
+            );
+        }
+        Icon::Key => {
+            painter.circle_stroke(egui::pos2(c.x - r * 0.55, c.y), r * 0.43, stroke);
+            painter.line_segment(
+                [egui::pos2(c.x - r * 0.12, c.y), egui::pos2(c.x + r, c.y)],
+                stroke,
+            );
+            painter.line_segment(
+                [
+                    egui::pos2(c.x + r * 0.52, c.y),
+                    egui::pos2(c.x + r * 0.52, c.y + r * 0.4),
+                ],
+                stroke,
+            );
+            painter.line_segment(
+                [
+                    egui::pos2(c.x + r * 0.82, c.y),
+                    egui::pos2(c.x + r * 0.82, c.y + r * 0.28),
+                ],
+                stroke,
+            );
+        }
+        Icon::Gear => {
+            painter.circle_stroke(c, r * 0.55, stroke);
+            painter.circle_stroke(c, r * 0.18, stroke);
+            for (x, y) in [(0.0, -1.0), (1.0, 0.0), (0.0, 1.0), (-1.0, 0.0)] {
+                painter.line_segment(
+                    [c + Vec2::new(x, y) * r * 0.63, c + Vec2::new(x, y) * r],
+                    stroke,
+                );
+            }
+        }
+        Icon::Plug => {
+            painter.line_segment(
+                [egui::pos2(c.x - r, c.y), egui::pos2(c.x + r * 0.6, c.y)],
+                stroke,
+            );
+            painter.line_segment(
+                [
+                    egui::pos2(c.x - r * 0.55, c.y - r * 0.45),
+                    egui::pos2(c.x - r * 0.55, c.y + r * 0.45),
+                ],
+                stroke,
+            );
+            painter.line_segment(
+                [
+                    egui::pos2(c.x + r * 0.1, c.y - r * 0.45),
+                    egui::pos2(c.x + r * 0.1, c.y + r * 0.45),
+                ],
+                stroke,
+            );
+            painter.line_segment(
+                [
+                    egui::pos2(c.x + r * 0.6, c.y),
+                    egui::pos2(c.x + r, c.y + r * 0.45),
+                ],
+                stroke,
+            );
+        }
+        Icon::Globe => {
+            painter.circle_stroke(c, r, stroke);
+            painter.line_segment([egui::pos2(c.x - r, c.y), egui::pos2(c.x + r, c.y)], stroke);
+            painter.line_segment([egui::pos2(c.x, c.y - r), egui::pos2(c.x, c.y + r)], stroke);
+        }
+        Icon::Phone => {
+            let body = egui::Rect::from_center_size(c, Vec2::new(r * 1.05, r * 1.8));
+            painter.rect_stroke(body, 2.0, stroke, StrokeKind::Inside);
+            painter.circle_filled(
+                egui::pos2(c.x, body.bottom() - r * 0.2),
+                stroke.width * 0.55,
+                color,
+            );
+        }
+        Icon::Play => {
+            painter.add(egui::Shape::convex_polygon(
+                vec![
+                    egui::pos2(c.x - r * 0.55, c.y - r),
+                    egui::pos2(c.x + r, c.y),
+                    egui::pos2(c.x - r * 0.55, c.y + r),
+                ],
+                color,
+                Stroke::NONE,
+            ));
+        }
+        Icon::Info => {
+            painter.circle_stroke(c, r, stroke);
+            painter.circle_filled(egui::pos2(c.x, c.y - r * 0.45), stroke.width, color);
+            painter.line_segment(
+                [
+                    egui::pos2(c.x, c.y - r * 0.05),
+                    egui::pos2(c.x, c.y + r * 0.55),
+                ],
+                stroke,
+            );
+        }
+        Icon::Shield => {
+            painter.add(egui::Shape::closed_line(
+                vec![
+                    egui::pos2(c.x, c.y - r),
+                    egui::pos2(c.x + r * 0.82, c.y - r * 0.6),
+                    egui::pos2(c.x + r * 0.65, c.y + r * 0.4),
+                    egui::pos2(c.x, c.y + r),
+                    egui::pos2(c.x - r * 0.65, c.y + r * 0.4),
+                    egui::pos2(c.x - r * 0.82, c.y - r * 0.6),
+                ],
+                stroke,
+            ));
+        }
+        Icon::Undo => {
+            painter.line_segment(
+                [
+                    egui::pos2(c.x - r, c.y),
+                    egui::pos2(c.x - r * 0.3, c.y - r * 0.62),
+                ],
+                stroke,
+            );
+            painter.line_segment(
+                [
+                    egui::pos2(c.x - r, c.y),
+                    egui::pos2(c.x - r * 0.3, c.y + r * 0.62),
+                ],
+                stroke,
+            );
+            painter.line_segment(
+                [egui::pos2(c.x - r, c.y), egui::pos2(c.x + r * 0.45, c.y)],
+                stroke,
+            );
+            painter.circle_stroke(egui::pos2(c.x + r * 0.25, c.y), r * 0.72, stroke);
+        }
+        Icon::Close => {
+            painter.line_segment(
+                [egui::pos2(c.x - r, c.y - r), egui::pos2(c.x + r, c.y + r)],
+                stroke,
+            );
+            painter.line_segment(
+                [egui::pos2(c.x + r, c.y - r), egui::pos2(c.x - r, c.y + r)],
+                stroke,
+            );
+        }
+    }
 }
 
 fn loading(ui: &mut egui::Ui, message: &str) {
@@ -1174,17 +1669,26 @@ fn grant_checkbox(ui: &mut egui::Ui, selected: &mut Vec<String>, value: &str, re
     }
 }
 
-fn dialog_title(dialog: &Dialog) -> &'static str {
+fn dialog_title(dialog: &Dialog) -> String {
     match dialog {
-        Dialog::Pairing { .. } => "Pair a device",
-        Dialog::Revoke(_) => "Unpair device",
-        Dialog::EditMachine { .. } => "Edit machine",
-        Dialog::ProviderAuth(_) => "Connect provider",
-        Dialog::ProviderPicker(_) => "Connect provider",
-        Dialog::ProviderKey { .. } => "Connect provider",
-        Dialog::Models { .. } => "Change default",
-        Dialog::DisconnectProvider(_) => "Disconnect provider",
-        Dialog::Uninstall { .. } => "Uninstall Vadgr",
+        Dialog::Pairing { .. } => "Pair a device".to_owned(),
+        Dialog::Revoke(device) => format!("Unpair {}?", device.name),
+        Dialog::EditMachine { .. } => "Machine settings".to_owned(),
+        Dialog::ProviderAuth(provider) => format!("Connect {}", provider.name),
+        Dialog::ProviderPicker(_) => "Connect provider".to_owned(),
+        Dialog::ProviderKey { provider, .. } => format!("Connect {}", provider_name(provider)),
+        Dialog::Models { .. } => "Choose the default model".to_owned(),
+        Dialog::DisconnectProvider(provider) => format!("Disconnect {}?", provider.name),
+        Dialog::Uninstall { .. } => "Uninstall Vadgr?".to_owned(),
+    }
+}
+
+fn provider_name(id: &str) -> &str {
+    match id {
+        "openai" => "OpenAI",
+        "gemini" => "Gemini",
+        "anthropic" => "Anthropic",
+        other => other,
     }
 }
 
