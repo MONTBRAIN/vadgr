@@ -551,6 +551,37 @@ async fn machine_read_and_patch_share_the_persistent_store() {
 }
 
 #[tokio::test]
+async fn machine_patch_distinguishes_null_from_an_omitted_field() {
+    let state = state_with(Box::new(LoopbackTransport));
+    let set_values = Request::builder()
+        .method("PATCH")
+        .uri("/api/machine")
+        .header("content-type", "application/json")
+        .body(Body::from(
+            r#"{"role_prompt":"Temporary role","workspace":"C:\\temporary"}"#,
+        ))
+        .unwrap();
+    let (status, changed) = send(state.clone(), set_values, "127.0.0.1").await;
+    assert_eq!(status, StatusCode::OK, "{changed}");
+    assert_eq!(changed["role_prompt"], "Temporary role");
+    assert_eq!(changed["workspace"], "C:\\temporary");
+
+    let clear_values = Request::builder()
+        .method("PATCH")
+        .uri("/api/machine")
+        .header("content-type", "application/json")
+        .body(Body::from(r#"{"role_prompt":null,"workspace":null}"#))
+        .unwrap();
+    let (status, cleared) = send(state, clear_values, "127.0.0.1").await;
+    assert_eq!(status, StatusCode::OK, "{cleared}");
+    assert_eq!(
+        cleared["role_prompt"],
+        "Prefer the smallest action that finishes the job."
+    );
+    assert_eq!(cleared["workspace"], Value::Null);
+}
+
+#[tokio::test]
 async fn machine_read_reports_only_the_safe_terms_summary() {
     let state = state_with(Box::new(EveryoneIsAPeer));
     let root = state.config.state_home.as_ref().unwrap();

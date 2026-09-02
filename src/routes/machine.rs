@@ -6,7 +6,7 @@ use crate::transport::Scope;
 use axum::extract::State;
 use axum::http::StatusCode;
 use axum::{Json, response::IntoResponse};
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 use serde_json::{Value, json};
 
 #[derive(Debug, Deserialize)]
@@ -24,16 +24,24 @@ pub struct MachinePatchBody {
     pub default_provider: Option<String>,
     #[serde(default)]
     pub default_model: Option<String>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "present_nullable")]
     pub role_prompt: Option<Option<String>>,
     #[serde(default)]
     pub autonomy: Option<AutonomyPatch>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "present_nullable")]
     pub workspace: Option<Option<String>>,
     #[serde(default)]
     pub granted_skills: Option<Vec<String>>,
     #[serde(default)]
     pub granted_mcp_servers: Option<Vec<String>>,
+}
+
+fn present_nullable<'de, D, T>(deserializer: D) -> Result<Option<Option<T>>, D::Error>
+where
+    D: Deserializer<'de>,
+    T: Deserialize<'de>,
+{
+    Option::<T>::deserialize(deserializer).map(Some)
 }
 
 pub async fn get_machine(State(state): State<AppState>) -> ApiResult<Json<Value>> {

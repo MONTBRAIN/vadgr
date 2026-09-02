@@ -803,8 +803,15 @@ impl ConsoleApp {
         let Some(mut dialog) = self.dialog.take() else {
             return;
         };
+        let pairing_dialog = matches!(&dialog, Dialog::Pairing { .. });
         let mut keep = true;
         let screen = ctx.content_rect();
+        let compact_dialog = screen.height() < 650.0 || screen.width() < 1000.0;
+        let dialog_width = if pairing_dialog {
+            if compact_dialog { 560.0 } else { 620.0 }
+        } else {
+            570.0
+        };
         egui::Area::new("console-modal-scrim".into())
             .order(egui::Order::Foreground)
             .fixed_pos(screen.min)
@@ -818,9 +825,9 @@ impl ConsoleApp {
             .collapsible(false)
             .resizable(false)
             .order(egui::Order::Foreground)
-            .anchor(egui::Align2::CENTER_BOTTOM, [94.0, -25.0])
-            .min_width(570.0)
-            .max_width(570.0)
+            .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
+            .min_width(dialog_width)
+            .max_width(dialog_width)
             .frame(
                 egui::Frame::new()
                     .fill(theme::panel())
@@ -835,70 +842,74 @@ impl ConsoleApp {
                     ui.painter().rect_filled(bar, 2.0, theme::border());
                 });
                 ui.add_space(10.0);
-                ui.label(
-                    RichText::new(dialog_title(&dialog))
-                        .family(theme::heading_family())
-                        .size(19.0),
-                );
+                let title = RichText::new(dialog_title(&dialog))
+                    .family(theme::heading_family())
+                    .size(if pairing_dialog { 22.0 } else { 19.0 });
+                if pairing_dialog {
+                    ui.vertical_centered(|ui| {
+                        ui.label(title);
+                    });
+                } else {
+                    ui.label(title);
+                }
                 ui.add_space(5.0);
                 match &mut dialog {
                 Dialog::Pairing { session, opened_at } => {
                     let elapsed = opened_at.elapsed().as_secs();
                     let remaining = crate::auth::pairing::PAIRING_TTL_SECONDS
                         .saturating_sub(elapsed);
-                    ui.label(
-                        RichText::new(format!(
-                            "Scan or enter the same one-time code. Both expire in {}:{:02}.",
-                            remaining / 60,
-                            remaining % 60
-                        ))
-                        .color(theme::muted()),
-                    );
-                    ui.add_space(18.0);
-                    ui.horizontal(|ui| {
-                        if let Err(error) = pairing_qr(ui, session) {
+                    ui.vertical_centered(|ui| {
+                        ui.label(
+                            RichText::new(format!(
+                                "Scan or enter the same one-time code. Both expire in {}:{:02}.",
+                                remaining / 60,
+                                remaining % 60
+                            ))
+                            .color(theme::muted()),
+                        );
+                        ui.add_space(18.0);
+                        let qr_side = if compact_dialog { 190.0 } else { 230.0 };
+                        if let Err(error) = pairing_qr(ui, session, qr_side) {
                             ui.label(RichText::new(error.to_string()).color(theme::danger()));
                         }
-                        ui.add_space(12.0);
-                        ui.vertical(|ui| {
+                        ui.add_space(14.0);
+                        ui.label(
+                            RichText::new("Open Vadgr on your phone and choose Pair machine.")
+                                .color(theme::muted()),
+                        );
+                        ui.add_space(5.0);
+                        ui.label(
+                            RichText::new(&session.code)
+                                .monospace()
+                                .size(23.0)
+                                .strong(),
+                        );
+                        ui.label(
+                            RichText::new("Typing the code pairs the same way as scanning it.")
+                                .color(theme::muted()),
+                        );
+                        if remaining == 0 {
                             ui.label(
-                                RichText::new("Open Vadgr on your phone and choose Pair machine.")
-                                    .color(theme::muted()),
+                                RichText::new("This pairing code expired.")
+                                    .color(theme::danger()),
                             );
-                            ui.add_space(14.0);
-                            ui.label(
-                                RichText::new(&session.code)
-                                    .monospace()
-                                    .size(20.0)
-                                    .strong(),
-                            );
-                            ui.label(
-                                RichText::new("Typing the code pairs the same way as scanning it.")
-                                    .color(theme::muted()),
-                            );
-                            if remaining == 0 {
-                                ui.label(
-                                    RichText::new("This pairing code expired.")
-                                        .color(theme::danger()),
-                                );
-                            } else {
-                                ui.ctx()
-                                    .request_repaint_after(std::time::Duration::from_secs(1));
-                            }
-                        });
-                    });
-                    ui.add_space(14.0);
-                    if ui
-                        .button(if remaining == 0 {
-                            "Close"
                         } else {
-                            "Cancel pairing"
-                        })
-                        .clicked()
-                    {
-                        self.start(|c| { c.cancel_pairing()?; Ok(OperationResult::Changed) });
-                        keep = false;
-                    }
+                            ui.ctx()
+                                .request_repaint_after(std::time::Duration::from_secs(1));
+                        }
+                        ui.add_space(18.0);
+                        if ui
+                            .button(if remaining == 0 {
+                                "Close"
+                            } else {
+                                "Cancel pairing"
+                            })
+                            .clicked()
+                        {
+                            self.start(|c| { c.cancel_pairing()?; Ok(OperationResult::Changed) });
+                            keep = false;
+                        }
+                    });
                 }
                 Dialog::Revoke(device) => {
                     ui.label(RichText::new("This device will lose access now. You can pair it again later.").color(theme::muted()));
@@ -1152,7 +1163,7 @@ fn transport_summary(value: &serde_json::Value) -> (String, String) {
     )
 }
 
-fn pairing_qr(ui: &mut egui::Ui, session: &PairingSession) -> Result<()> {
+fn pairing_qr(ui: &mut egui::Ui, session: &PairingSession, side: f32) -> Result<()> {
     use qrcode_generator::qr::{Encoder, ErrorCorrection};
 
     let symbol = Encoder::new(ErrorCorrection::Low)
@@ -1161,7 +1172,6 @@ fn pairing_qr(ui: &mut egui::Ui, session: &PairingSession) -> Result<()> {
     let matrix = symbol.to_matrix();
     let quiet_zone = 4usize;
     let modules = matrix.len() + quiet_zone * 2;
-    let side = 165.0;
     let (response, painter) = ui.allocate_painter(egui::vec2(side, side), egui::Sense::hover());
     painter.rect_filled(response.rect, 5.0, Color32::WHITE);
     let module = side / modules as f32;
