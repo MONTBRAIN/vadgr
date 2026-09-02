@@ -680,7 +680,11 @@ impl ConsoleApp {
                 ui,
                 Icon::Play,
                 "Launch at login",
-                "Start Vadgr when you sign in",
+                if data.install.installed {
+                    "Start Vadgr when you sign in"
+                } else {
+                    INSTALLED_ONLY_DETAIL
+                },
                 if data.install.launch_at_login {
                     "Turn off"
                 } else {
@@ -722,7 +726,7 @@ impl ConsoleApp {
                 ui,
                 Icon::Shield,
                 "Legal and notices",
-                "Terms, licenses and software notices",
+                legal_detail(&data.install),
                 "Open",
                 data.install.legal_available,
             ) {
@@ -736,7 +740,7 @@ impl ConsoleApp {
                 ui,
                 Icon::Undo,
                 "Roll back",
-                "Return to the retained previous signed generation",
+                rollback_detail(&data.install),
                 "Roll back",
                 data.install.rollback_available,
             ) {
@@ -750,7 +754,11 @@ impl ConsoleApp {
                 ui,
                 Icon::Shield,
                 "Repair installation",
-                "Check and restore the Vadgr installation",
+                if data.install.lifecycle_available {
+                    "Check and restore the Vadgr installation"
+                } else {
+                    INSTALLED_ONLY_DETAIL
+                },
                 "Repair",
                 data.install.lifecycle_available,
             ) {
@@ -777,8 +785,12 @@ impl ConsoleApp {
                         ui.vertical(|ui| {
                             ui.label(RichText::new("Uninstall Vadgr").strong());
                             ui.label(
-                                RichText::new("Keeps your settings and data by default")
-                                    .color(theme::muted()),
+                                RichText::new(if data.install.lifecycle_available {
+                                    "Keeps your settings and data by default"
+                                } else {
+                                    INSTALLED_ONLY_DETAIL
+                                })
+                                .color(theme::muted()),
                             );
                         });
                     });
@@ -1391,6 +1403,28 @@ fn setting_row(
     clicked
 }
 
+const INSTALLED_ONLY_DETAIL: &str = "Available after Vadgr is installed";
+
+fn legal_detail(install: &crate::install::InstallStatus) -> &'static str {
+    if install.legal_available {
+        "Terms, licenses and software notices"
+    } else if install.installed {
+        "Installed legal bundle is missing"
+    } else {
+        INSTALLED_ONLY_DETAIL
+    }
+}
+
+fn rollback_detail(install: &crate::install::InstallStatus) -> &'static str {
+    if install.rollback_available {
+        "Return to the retained previous signed generation"
+    } else if install.installed {
+        "No verified previous generation is retained"
+    } else {
+        INSTALLED_ONLY_DETAIL
+    }
+}
+
 fn paint_icon(ui: &mut egui::Ui, icon: Icon, size: f32, color: Color32, label: &str) {
     let (rect, response) = ui.allocate_exact_size(Vec2::splat(size), Sense::hover());
     response.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Image, true, label));
@@ -1695,6 +1729,26 @@ fn provider_name(id: &str) -> &str {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn unavailable_installation_controls_name_the_current_state() {
+        let development = crate::install::InstallStatus::default();
+        assert_eq!(legal_detail(&development), INSTALLED_ONLY_DETAIL);
+        assert_eq!(rollback_detail(&development), INSTALLED_ONLY_DETAIL);
+
+        let installed_without_optional_assets = crate::install::InstallStatus {
+            installed: true,
+            ..Default::default()
+        };
+        assert_eq!(
+            legal_detail(&installed_without_optional_assets),
+            "Installed legal bundle is missing"
+        );
+        assert_eq!(
+            rollback_detail(&installed_without_optional_assets),
+            "No verified previous generation is retained"
+        );
+    }
 
     #[test]
     fn pairing_qr_keeps_the_mobile_deep_link_shape() {
