@@ -52,6 +52,15 @@ cannot name what it points at is useless. The ban is on everything a stranger
 reads as the product: code, comments, docstrings, test names, the CHANGELOG and
 PR bodies. Those cite the substance, never the document.
 
+**Public product text is self-contained.** Anything a user can see in an
+installer, application, CLI, error, README, public document, release note,
+package or public PR states only the product fact. It never names a private
+repository, internal document or path, decision id, evidence, runbook,
+development phase, planned minor or editorial note. A canonical user-facing
+block in a private design document follows the same rule. Put the rationale
+outside that block in private prose. Then render and read the exact user text
+and scan it for internal names before release.
+
 **2. No AI attribution, anywhere, and it is checked.** No `Co-Authored-By`, no
 "generated with", no credit to a tool - in commits, PR bodies, comments or
 generated files. `scripts/check_no_ai_attribution.py` runs in CI over the same
