@@ -1,7 +1,8 @@
 # 0.5.0 - the product is installable: E2E runbook
 
-> **Implementation:** `feature/0.5.0-distribution`; exact head and PR resolve
-> after the first target passes. **Private evidence PR:** resolve before the
+> **Implementation:** `feature/0.5.0-distribution` at
+> `3c5d82fc48a8b8557fb5c57e83a1c20d54efaa4d`; the PR resolves after the first
+> target passes. **Private evidence PR:** resolve before the
 > first live cell. Do not create a replacement PR.
 >
 > **Status: not started.** No cell below is a pass. Signing identities, reviewed
