@@ -7,6 +7,9 @@ use anyhow::{Result, anyhow};
 use eframe::egui::{self, Align, Color32, Layout, RichText, Sense, Stroke, StrokeKind, Vec2};
 use std::sync::{Arc, mpsc};
 
+const MODAL_SCRIM_ORDER: egui::Order = egui::Order::Middle;
+const MODAL_DIALOG_ORDER: egui::Order = egui::Order::Foreground;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum View {
     Machine,
@@ -71,6 +74,25 @@ enum Dialog {
         purge: bool,
         confirmation: String,
     },
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum DialogDismissal {
+    Close,
+    CancelPairing,
+}
+
+impl Dialog {
+    fn prepare_for_dismissal(&mut self) -> DialogDismissal {
+        match self {
+            Self::Pairing { .. } => DialogDismissal::CancelPairing,
+            Self::ProviderKey { value, .. } => {
+                value.clear();
+                DialogDismissal::Close
+            }
+            _ => DialogDismissal::Close,
+        }
+    }
 }
 
 pub struct ConsoleApp {
@@ -824,12 +846,25 @@ impl ConsoleApp {
         });
     }
 
+    fn dismiss_dialog(&mut self, mut dialog: Dialog) {
+        if dialog.prepare_for_dismissal() == DialogDismissal::CancelPairing {
+            // Pairing polls for a completed claim. Dismissal owns the next
+            // request, so discard an in-flight poll result before cancellation.
+            self.pending = None;
+            self.start(|controller| {
+                controller.cancel_pairing()?;
+                Ok(OperationResult::Changed)
+            });
+        }
+    }
+
     fn draw_dialog(&mut self, ctx: &egui::Context) {
         let Some(mut dialog) = self.dialog.take() else {
             return;
         };
         let pairing_dialog = matches!(&dialog, Dialog::Pairing { .. });
         let mut keep = true;
+        let mut dismiss_requested = ctx.input(|input| input.key_pressed(egui::Key::Escape));
         let screen = ctx.content_rect();
         let compact_dialog = screen.height() < 650.0 || screen.width() < 1000.0;
         let dialog_width = if pairing_dialog {
@@ -837,19 +872,22 @@ impl ConsoleApp {
         } else {
             570.0
         };
-        egui::Area::new("console-modal-scrim".into())
-            .order(egui::Order::Foreground)
+        dismiss_requested |= egui::Area::new("console-modal-scrim".into())
+            .order(MODAL_SCRIM_ORDER)
+            .movable(false)
             .fixed_pos(screen.min)
             .show(ctx, |ui| {
-                let (rect, _) = ui.allocate_exact_size(screen.size(), Sense::click_and_drag());
+                let (rect, response) = ui.allocate_exact_size(screen.size(), Sense::click());
                 ui.painter()
                     .rect_filled(rect, 0.0, Color32::from_black_alpha(176));
-            });
+                response.clicked()
+            })
+            .inner;
         egui::Window::new(dialog_title(&dialog))
             .title_bar(false)
             .collapsible(false)
             .resizable(false)
-            .order(egui::Order::Foreground)
+            .order(MODAL_DIALOG_ORDER)
             .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
             .min_width(dialog_width)
             .max_width(dialog_width)
@@ -931,15 +969,14 @@ impl ConsoleApp {
                             })
                             .clicked()
                         {
-                            self.start(|c| { c.cancel_pairing()?; Ok(OperationResult::Changed) });
-                            keep = false;
+                            dismiss_requested = true;
                         }
                     });
                 }
                 Dialog::Revoke(device) => {
                     ui.label(RichText::new("This device will lose access now. You can pair it again later.").color(theme::muted()));
                     ui.horizontal(|ui| {
-                        if ui.button("Keep paired").clicked() { keep = false; }
+                        if ui.button("Keep paired").clicked() { dismiss_requested = true; }
                         if danger_button(ui, "Unpair device", true) {
                             let id = device.id.clone();
                             self.start(move |c| { c.revoke_device(&id)?; Ok(OperationResult::Changed) });
@@ -1001,7 +1038,7 @@ impl ConsoleApp {
                         grant_checkbox(ui, &mut edit.granted_mcp_servers, server, required);
                     }
                     ui.horizontal(|ui| {
-                        if ui.button("Cancel").clicked() { keep = false; }
+                        if ui.button("Cancel").clicked() { dismiss_requested = true; }
                         if ui.button("Save changes").clicked() {
                             let value = edit.clone();
                             self.start(move |c| { c.update_machine(&value)?; Ok(OperationResult::Changed) });
@@ -1035,7 +1072,7 @@ impl ConsoleApp {
                         });
                         keep = false;
                     }
-                    if ui.button("Cancel").clicked() { keep = false; }
+                    if ui.button("Cancel").clicked() { dismiss_requested = true; }
                 }
                 Dialog::ProviderPicker(providers) => {
                     ui.label("Choose a provider to connect.");
@@ -1047,7 +1084,7 @@ impl ConsoleApp {
                             keep = false;
                         }
                     }
-                    if ui.button("Cancel").clicked() { keep = false; }
+                    if ui.button("Cancel").clicked() { dismiss_requested = true; }
                 }
                 Dialog::ProviderKey { provider, value } => {
                     let key_label = ui.label(format!("Enter the {provider} API key."));
@@ -1055,7 +1092,7 @@ impl ConsoleApp {
                         .labelled_by(key_label.id);
                     ui.label(RichText::new("The key goes directly to the local daemon. Vadgr never displays it again.").color(theme::muted()));
                     ui.horizontal(|ui| {
-                        if ui.button("Cancel").clicked() { value.clear(); keep = false; }
+                        if ui.button("Cancel").clicked() { dismiss_requested = true; }
                         if ui.add_enabled(!value.trim().is_empty(), egui::Button::new("Connect")).clicked() {
                             let id = provider.clone();
                             let secret = std::mem::take(value);
@@ -1075,7 +1112,7 @@ impl ConsoleApp {
                             keep = false;
                         }
                     }
-                    if ui.button("Cancel").clicked() { keep = false; }
+                    if ui.button("Cancel").clicked() { dismiss_requested = true; }
                 }
                 Dialog::DisconnectProvider(provider) => {
                     ui.label(
@@ -1085,7 +1122,7 @@ impl ConsoleApp {
                         .color(theme::muted()),
                     );
                     ui.horizontal(|ui| {
-                        if ui.button("Keep connected").clicked() { keep = false; }
+                        if ui.button("Keep connected").clicked() { dismiss_requested = true; }
                         if danger_button(ui, "Disconnect", true) {
                             let id = provider.id.clone();
                             self.start(move |c| {
@@ -1113,7 +1150,7 @@ impl ConsoleApp {
                     );
                     let confirmed = !*purge || confirmation == "DELETE OWNER DATA";
                     ui.horizontal(|ui| {
-                        if ui.button("Keep installed").clicked() { keep = false; }
+                        if ui.button("Keep installed").clicked() { dismiss_requested = true; }
                         if danger_button(ui, "Uninstall Vadgr", confirmed) {
                             let purge = *purge;
                             self.start(move |c| {
@@ -1126,7 +1163,9 @@ impl ConsoleApp {
                 }
                 }
             });
-        if keep {
+        if dismiss_requested {
+            self.dismiss_dialog(dialog);
+        } else if keep {
             self.dialog = Some(dialog);
         }
     }
@@ -1826,5 +1865,51 @@ mod tests {
             Some("100.64.0.2")
         );
         assert_eq!(query.get("port").map(|value| value.as_ref()), Some("8000"));
+    }
+
+    #[test]
+    fn the_modal_scrim_cannot_cover_the_dialog_after_an_outside_click() {
+        assert!(
+            MODAL_SCRIM_ORDER < MODAL_DIALOG_ORDER,
+            "the scrim must remain below the interactive dialog"
+        );
+    }
+
+    #[test]
+    fn dismissing_pairing_closes_its_daemon_window() {
+        let mut dialog = Dialog::Pairing {
+            session: PairingSession {
+                code: "ABCD-1234".to_owned(),
+                machine_name: "Studio PC".to_owned(),
+                transports: serde_json::json!({}),
+            },
+            opened_at: std::time::Instant::now(),
+        };
+
+        assert_eq!(
+            dialog.prepare_for_dismissal(),
+            DialogDismissal::CancelPairing
+        );
+    }
+
+    #[test]
+    fn dismissing_a_secret_entry_clears_the_secret() {
+        let mut dialog = Dialog::ProviderKey {
+            provider: "anthropic".to_owned(),
+            value: "owner-secret".to_owned(),
+        };
+
+        assert_eq!(dialog.prepare_for_dismissal(), DialogDismissal::Close);
+        let Dialog::ProviderKey { value, .. } = dialog else {
+            unreachable!();
+        };
+        assert!(value.is_empty());
+    }
+
+    #[test]
+    fn dismissing_an_ordinary_dialog_only_closes_the_local_view() {
+        let mut dialog = Dialog::ProviderPicker(Vec::new());
+
+        assert_eq!(dialog.prepare_for_dismissal(), DialogDismissal::Close);
     }
 }
