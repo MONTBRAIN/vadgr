@@ -437,6 +437,8 @@ impl ConsoleApp {
                 &transport_status,
             );
         });
+        ui.add_space(9.0);
+        connection_details_card(ui, &data.machine.transport);
         ui.add_space(18.0);
         let devices_width = visible_width(ui);
         fixed_ui(
@@ -1241,6 +1243,157 @@ fn transport_summary(value: &serde_json::Value) -> (String, String) {
     )
 }
 
+#[derive(Debug, PartialEq, Eq)]
+struct ConnectionDetail {
+    name: &'static str,
+    status: String,
+    fields: Vec<(&'static str, String)>,
+}
+
+fn connection_details(value: &serde_json::Value) -> Vec<ConnectionDetail> {
+    let transports = value.as_object();
+    let built_in = transports.and_then(|rows| rows.get("iroh"));
+    let tailscale = transports.and_then(|rows| rows.get("tailscale"));
+
+    let built_in_available = transport_available(built_in);
+    let mut built_in_fields = Vec::new();
+    if let Some(direct) = built_in
+        .and_then(|row| row.get("direct"))
+        .and_then(serde_json::Value::as_array)
+    {
+        let addresses = direct
+            .iter()
+            .filter_map(serde_json::Value::as_str)
+            .collect::<Vec<_>>();
+        if !addresses.is_empty() {
+            built_in_fields.push(("Direct", addresses.join(" · ")));
+        }
+    }
+    if let Some(node) = built_in
+        .and_then(|row| row.get("node"))
+        .and_then(serde_json::Value::as_str)
+    {
+        built_in_fields.push(("Endpoint ID", node.to_owned()));
+    }
+    let relay_count = built_in
+        .and_then(|row| row.get("relays"))
+        .and_then(serde_json::Value::as_array)
+        .map(Vec::len)
+        .unwrap_or(0);
+    if relay_count > 0 {
+        built_in_fields.push((
+            "Relay",
+            if relay_count == 1 {
+                "Fallback ready".to_owned()
+            } else {
+                format!("{relay_count} fallbacks ready")
+            },
+        ));
+    }
+    if built_in_fields.is_empty() {
+        built_in_fields.push(("Details", "Not available".to_owned()));
+    }
+
+    let tailscale_available = transport_available(tailscale);
+    let mut tailscale_fields = Vec::new();
+    if let Some(host) = tailscale
+        .and_then(|row| row.get("advertise_host"))
+        .and_then(serde_json::Value::as_str)
+    {
+        let port = tailscale
+            .and_then(|row| row.get("port"))
+            .and_then(serde_json::Value::as_u64);
+        tailscale_fields.push((
+            "Address",
+            port.map_or_else(|| host.to_owned(), |port| host_port(host, port)),
+        ));
+    }
+    if tailscale_fields.is_empty() {
+        tailscale_fields.push(("Address", "Not available".to_owned()));
+    }
+
+    vec![
+        ConnectionDetail {
+            name: "Built-in",
+            status: if built_in_available {
+                "Ready"
+            } else {
+                "Unavailable"
+            }
+            .to_owned(),
+            fields: built_in_fields,
+        },
+        ConnectionDetail {
+            name: "Tailscale",
+            status: if tailscale_available {
+                "Ready"
+            } else {
+                "Unavailable"
+            }
+            .to_owned(),
+            fields: tailscale_fields,
+        },
+    ]
+}
+
+fn transport_available(value: Option<&serde_json::Value>) -> bool {
+    value
+        .and_then(|row| row.get("available"))
+        .and_then(serde_json::Value::as_bool)
+        .unwrap_or(false)
+}
+
+fn host_port(host: &str, port: u64) -> String {
+    if host.contains(':') && !(host.starts_with('[') && host.ends_with(']')) {
+        format!("[{host}]:{port}")
+    } else {
+        format!("{host}:{port}")
+    }
+}
+
+fn connection_details_card(ui: &mut egui::Ui, value: &serde_json::Value) {
+    let details = connection_details(value);
+    theme::card().show(ui, |ui| {
+        ui.horizontal(|ui| {
+            ui.label(RichText::new("Connection details").strong());
+            ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                ui.label(
+                    RichText::new("READ-ONLY")
+                        .monospace()
+                        .size(10.0)
+                        .color(theme::muted()),
+                );
+            });
+        });
+        ui.add_space(8.0);
+        ui.columns(2, |columns| {
+            for (column, detail) in columns.iter_mut().zip(details.iter()) {
+                column.with_layout(Layout::top_down(Align::Min), |ui| {
+                    ui.horizontal(|ui| {
+                        ui.label(RichText::new(detail.name).strong());
+                        ui.label(
+                            RichText::new(&detail.status)
+                                .size(11.0)
+                                .color(theme::muted()),
+                        );
+                    });
+                    for (label, value) in &detail.fields {
+                        ui.add(
+                            egui::Label::new(
+                                RichText::new(format!("{label}: {value}"))
+                                    .monospace()
+                                    .size(11.0)
+                                    .color(theme::muted()),
+                            )
+                            .wrap(),
+                        );
+                    }
+                });
+            }
+        });
+    });
+}
+
 fn pairing_qr(ui: &mut egui::Ui, session: &PairingSession, side: f32) -> Result<()> {
     use qrcode_generator::qr::{Encoder, ErrorCorrection};
 
@@ -1865,6 +2018,68 @@ mod tests {
             Some("100.64.0.2")
         );
         assert_eq!(query.get("port").map(|value| value.as_ref()), Some("8000"));
+    }
+
+    #[test]
+    fn connection_details_preserve_the_daemons_read_only_addresses() {
+        let details = connection_details(&serde_json::json!({
+            "iroh": {
+                "available": true,
+                "node": "built-in-endpoint-id",
+                "direct": ["192.168.1.24:8000", "[2001:db8::7]:8000"],
+                "relays": ["https://relay.example"]
+            },
+            "tailscale": {
+                "available": true,
+                "advertise_host": "machine.tail.example",
+                "port": 8000
+            }
+        }));
+
+        assert_eq!(
+            details,
+            vec![
+                ConnectionDetail {
+                    name: "Built-in",
+                    status: "Ready".to_owned(),
+                    fields: vec![
+                        (
+                            "Direct",
+                            "192.168.1.24:8000 · [2001:db8::7]:8000".to_owned()
+                        ),
+                        ("Endpoint ID", "built-in-endpoint-id".to_owned()),
+                        ("Relay", "Fallback ready".to_owned()),
+                    ],
+                },
+                ConnectionDetail {
+                    name: "Tailscale",
+                    status: "Ready".to_owned(),
+                    fields: vec![("Address", "machine.tail.example:8000".to_owned())],
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn connection_details_name_unavailable_transports_and_format_ipv6() {
+        let details = connection_details(&serde_json::json!({
+            "iroh": {"available": false},
+            "tailscale": {
+                "available": true,
+                "advertise_host": "fd7a:115c:a1e0::1",
+                "port": 8861
+            }
+        }));
+
+        assert_eq!(details[0].status, "Unavailable");
+        assert_eq!(
+            details[0].fields,
+            vec![("Details", "Not available".to_owned())]
+        );
+        assert_eq!(
+            details[1].fields,
+            vec![("Address", "[fd7a:115c:a1e0::1]:8861".to_owned())]
+        );
     }
 
     #[test]
