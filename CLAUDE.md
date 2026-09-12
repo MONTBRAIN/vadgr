@@ -639,6 +639,14 @@ branches deleted local and remote, every repo back on its default branch, then
 `PROGRESS.md` updated and the next item named - read from `PLANS.md`'s
 iteration table, not decided.
 
+**A release closes every issue it fully resolves.** Before merge, compare the
+minor's scope and changelog with that repository's open issues. Put
+`Closes #NN` in the implementation PR for each fully resolved issue. GitHub closes
+it when the PR merges. A related or partly resolved issue stays open and gets a
+comment naming the remaining gap and the release that owns it. After release,
+verify every referenced issue is closed and links to the merged PR and release.
+If GitHub missed one, close it immediately with those references.
+
 **The README is checked, because it was wrong in all three repos at once.**
 `scripts/check_readme_touched.py` fails a pull request that moves a version and
 touches no README. It cannot read a README for truth; it can see the shape all
