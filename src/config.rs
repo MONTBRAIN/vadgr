@@ -322,6 +322,11 @@ pub fn is_our_root(path: &Path) -> bool {
     path.join("vadgr.db").exists()
         || path.join("runs").is_dir()
         || path.join("credentials").is_dir()
+        // Native installers record assent before the daemon creates its
+        // database. That terms-only directory is already Vadgr-owned state,
+        // so the first installed launch must not reject it as an unrelated
+        // legacy directory.
+        || path.join("terms-acceptance.json").is_file()
 }
 
 #[cfg(test)]
@@ -344,6 +349,14 @@ mod tests {
             }
         }
         e
+    }
+
+    #[test]
+    fn installer_terms_record_marks_the_state_root_as_ours() {
+        let directory = tempfile::tempdir().unwrap();
+        std::fs::write(directory.path().join("terms-acceptance.json"), b"{}").unwrap();
+
+        assert!(is_our_root(directory.path()));
     }
 
     /// Every platform's root, as one test rather than four machines. The
