@@ -59,6 +59,7 @@ pub fn apply_update() -> Result<UpdateCheck> {
     })
 }
 
+#[cfg(target_os = "windows")]
 pub(super) fn launch_retained_native(receipt: &InstallReceipt) -> Result<()> {
     let relative = receipt
         .rollback_vehicle
@@ -346,7 +347,8 @@ mod native {
         ensure!(
             kind == "appimage",
             "the Linux update vehicle is not an AppImage"
-        )
+        );
+        Ok(())
     }
     pub fn launch(path: &Path, kind: &str) -> Result<()> {
         ensure!(
@@ -385,5 +387,12 @@ mod tests {
     fn version_order_is_numeric() {
         assert!(version_parts("0.10.0").unwrap() > version_parts("0.9.9").unwrap());
         assert!(version_parts("0.5").is_err());
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn linux_update_verifier_accepts_only_appimages() {
+        assert!(native::verify(Path::new("unused"), "appimage", None).is_ok());
+        assert!(native::verify(Path::new("unused"), "archive", None).is_err());
     }
 }

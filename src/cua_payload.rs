@@ -12,12 +12,12 @@ use std::io::Write;
 use std::path::{Component, Path, PathBuf};
 use std::process::{Command, Output};
 
-pub const CUA_VERSION: &str = "0.7.5";
+pub const CUA_VERSION: &str = "0.7.8";
 pub const PYTHON_VERSION: &str = "3.12.14";
 pub const PYTHON_BUILD: &str = "20260825";
 pub const UV_VERSION: &str = "0.12.7";
 pub const REQUIREMENTS_SHA256: &str =
-    "744699eb30ce59ccc65273210ebe62eba1552966c58a92e6035d1586814e5c27";
+    "bee2f5d1d104d2b4782f8d185071acd4bf7f2fa14c388318e7c159e7a591727e";
 
 const REQUIREMENTS: &[u8] = include_bytes!("../packaging/cua/requirements.lock");
 const BOOTSTRAP: &[u8] = include_bytes!("../packaging/cua/bootstrap.py");

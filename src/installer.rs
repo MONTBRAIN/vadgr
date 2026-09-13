@@ -57,7 +57,6 @@ struct Preflight {
     manifest: PathBuf,
     signature: PathBuf,
     bundle_root: PathBuf,
-    terms: PathBuf,
     terms_version: String,
     version: String,
     terms_text: String,
@@ -94,7 +93,6 @@ impl Preflight {
             manifest,
             signature,
             bundle_root: app_dir,
-            terms,
             terms_version: verified.manifest.terms_version.clone(),
             version: verified.manifest.version.clone(),
             terms_text,
@@ -161,8 +159,9 @@ impl InstallerApp {
 
 #[cfg(target_os = "linux")]
 impl eframe::App for InstallerApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        crate::console::theme::refresh(ctx);
+    fn ui(&mut self, root: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        let ctx = root.ctx().clone();
+        crate::console::theme::refresh(&ctx);
         if let Some(receiver) = &self.receiver {
             while let Ok(state) = receiver.try_recv() {
                 self.state = state;
@@ -171,7 +170,7 @@ impl eframe::App for InstallerApp {
                 ctx.request_repaint_after(std::time::Duration::from_millis(100));
             }
         }
-        egui::CentralPanel::default().show(ctx, |ui| {
+        egui::CentralPanel::default().show(root, |ui| {
             ui.add_space(24.0);
             ui.horizontal(|ui| {
                 ui.heading("VADGR");

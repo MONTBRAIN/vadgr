@@ -397,7 +397,7 @@ mod tests {
             source_commit: "a".repeat(40),
             terms_version: "1.0".to_owned(),
             terms_sha256: "b".repeat(64),
-            cua_version: "0.7.6".to_owned(),
+            cua_version: "0.7.8".to_owned(),
             python_version: "3.12.14".to_owned(),
             artifacts: vec![Artifact {
                 name: "Vadgr-0.5.0-windows-x86_64-setup.exe".to_owned(),

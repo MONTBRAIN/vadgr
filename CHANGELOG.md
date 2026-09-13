@@ -22,6 +22,8 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 - The daemon and console version now derive from the package version rather
   than a separately maintained constant.
+- The bundled computer-use payload now carries released version 0.7.8, including
+  browser broker discovery and safe released-version upgrade handoff repairs.
 
 ## [0.4.12] - 2026-08-29
 

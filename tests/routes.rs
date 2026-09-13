@@ -553,18 +553,26 @@ async fn machine_read_and_patch_share_the_persistent_store() {
 #[tokio::test]
 async fn machine_patch_distinguishes_null_from_an_omitted_field() {
     let state = state_with(Box::new(LoopbackTransport));
+    let workspace = std::env::temp_dir()
+        .join("vadgr-route-workspace")
+        .to_string_lossy()
+        .into_owned();
     let set_values = Request::builder()
         .method("PATCH")
         .uri("/api/machine")
         .header("content-type", "application/json")
         .body(Body::from(
-            r#"{"role_prompt":"Temporary role","workspace":"C:\\temporary"}"#,
+            serde_json::json!({
+                "role_prompt": "Temporary role",
+                "workspace": workspace.clone(),
+            })
+            .to_string(),
         ))
         .unwrap();
     let (status, changed) = send(state.clone(), set_values, "127.0.0.1").await;
     assert_eq!(status, StatusCode::OK, "{changed}");
     assert_eq!(changed["role_prompt"], "Temporary role");
-    assert_eq!(changed["workspace"], "C:\\temporary");
+    assert_eq!(changed["workspace"], workspace);
 
     let clear_values = Request::builder()
         .method("PATCH")
