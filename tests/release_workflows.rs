@@ -62,6 +62,29 @@ fn candidate_payloads_are_assembled_outside_the_source_checkout() {
 }
 
 #[test]
+fn macos_candidate_assembles_payload_beside_the_responsible_host() {
+    let workflow = repo_file(".github/workflows/candidate.yml");
+    assert!(workflow.contains(
+        "cargo build --locked --release --features macos-cua-host --bin vadgr --bin vadgr-cua-host"
+    ));
+    assert!(workflow.contains(
+        "$payload_bundle/Contents/Library/LoginItems/Vadgr Computer Use.app/Contents/MacOS/vadgr-cua-host"
+    ));
+    assert!(workflow.contains("--install-root \"$payload_root\" --payload-only"));
+}
+
+#[test]
+fn candidate_invokes_non_executable_packaging_sources_through_the_shell() {
+    let workflow = repo_file(".github/workflows/candidate.yml");
+    for source in ["linux", "wsl", "macos"] {
+        assert!(
+            workflow.contains(&format!("sh packaging/{source}/build.sh 0.5.0")),
+            "candidate executes the non-executable {source} package source directly"
+        );
+    }
+}
+
+#[test]
 fn windows_import_gate_accepts_native_gui_system_libraries_but_not_the_vc_runtime() {
     let gate = repo_file("scripts/check_windows_imports.ps1").to_ascii_lowercase();
     for library in [
