@@ -84,6 +84,13 @@ present in a given runbook, the entry is all there is.
    not.**
    [How a pass is run] [../README.md]
 
+   For a phone QR cell, the agent uses ADB/accessibility to launch the mobile
+   app, select the intended machine and transport, reach the live scanner, and
+   handle every automatable permission or dialog. The owner's row contains only
+   the physical camera aim and its exact visible stop condition. Never ask the
+   owner to open the app, navigate, choose a transport, type a code, inspect the
+   result, or report an oracle the agent can read.
+
 2. **Do not stop the pass to report.** The pass runs to completion for the
    operating system it is on, and what it finds is written down as it happens and
    reported at the end. [How a pass is run] [../README.md]

@@ -182,6 +182,14 @@ The test to apply before the first command of a pass:
 - A cell that needs a person and also needs setup gets that setup **first**, and
   nothing else does.
 
+For a physical-phone QR cell, that setup includes the entire automatable
+handset path. The agent confirms ADB, launches Vadgr Mobile, navigates to the
+correct machine and transport flow, grants every automatable permission, and
+leaves the live scanner aimed at the desktop QR region. The owner only moves
+the physical camera until the prepared app reports the named result. Opening
+the app, choosing a transport, finding the scanner, typing a code, dismissing a
+dialog, or reading the phone back to the agent are not owner actions.
+
 An owner-blocked cell left until later is not scheduling. It is the pass
 deciding the owner's time is the cheap resource, which is exactly backwards: the
 machine can wait and the person cannot.
