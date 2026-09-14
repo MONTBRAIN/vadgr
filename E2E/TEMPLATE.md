@@ -691,9 +691,13 @@ exact cell. An automatic onboarding model is tested once as shipped; repeated
 provider-neutral tasks name an explicit cost-effective model. Do not start a
 billed call with a blank ceiling or an unrecorded escalation path.>
 
-<Routine candidates are Claude Sonnet, GPT Luna at medium reasoning and Gemini
-Flash; GPT Terra is the next OpenAI lane only when Luna lacks a required
-capability. Resolve the exact current catalog id. Fable, Sol, Opus and equivalent
+<Use live internet access on the execution date to read current official model
+and pricing pages, then intersect those results with the authenticated catalog.
+Routine cost targets today are the Claude Sonnet, GPT Luna at medium reasoning
+and Gemini Flash families; GPT Terra is the next OpenAI lane only when Luna
+lacks a required capability. They are examples, not frozen ids or a permanent
+allowlist. A newly launched cheaper capable model replaces them. Never infer
+price from catalog order or model naming. Fable, Sol, Opus and equivalent
 frontier tiers are prohibited for setup, navigation, screenshots, smoke tasks
 and ordinary provider-neutral cells. A frontier row is valid only when it names
 the captured lower-cost capability failure from the same cell, the prewritten

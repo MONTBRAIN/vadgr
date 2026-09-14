@@ -114,11 +114,16 @@ the visual and accessibility oracle.
 
 ## Billed model selection for this pass
 
-Routine provider-neutral cells use the cheapest capable authenticated lane:
-Claude Sonnet, GPT Luna at medium reasoning, or Gemini Flash. GPT Terra is the
-OpenAI fallback only for a capability Luna lacks. Fable, Sol, Opus and equivalent
-frontier tiers are not allowed for setup, navigation, screenshots, smoke tasks
-or ordinary CUA checks. Before any frontier call, the evidence must already
+Before each billed group, use live internet access to read the providers'
+current official model and pricing pages and intersect them with the
+authenticated catalog. Choose the cheapest model that satisfies the cell's
+tool, image and continuation requirements. Current cost targets are the Claude
+Sonnet, GPT Luna at medium reasoning and Gemini Flash families; GPT Terra is the
+OpenAI fallback only for a capability Luna lacks. These are examples, not
+frozen ids; a newly launched cheaper capable model replaces them. Fable, Sol,
+Opus and equivalent frontier tiers are not allowed for setup, navigation,
+screenshots, smoke tasks or ordinary CUA checks. Before any frontier call, the
+evidence must already
 contain the cheaper model's capability failure from the same cell, the written
 escalation condition that fired, and a separate hard cost ceiling. A persisted
 expensive default is changed before the first routine billed call.

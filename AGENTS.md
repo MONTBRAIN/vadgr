@@ -143,10 +143,14 @@ class, a written cell requires it, or the cheaper model failed for a recorded
 capability reason. Stop at the ceiling; never upgrade silently or use a
 frontier model merely because it is available.
 
-**The routine E2E lanes are Claude Sonnet, GPT Luna at medium reasoning (Terra
-only when Luna lacks a required capability), and Gemini Flash.** Resolve the
-exact current model id from the authenticated catalog and verify its required
-capabilities before use. Fable, Sol, Opus and another provider's frontier tier
+**The current routine E2E cost targets are the Claude Sonnet, GPT Luna at medium
+reasoning, and Gemini Flash families; Terra is the next OpenAI lane only when
+Luna lacks a required capability. These are cost classes, not frozen model ids
+or a permanent allowlist.** On every execution date, use live internet access
+to read the provider's current official model and pricing pages, then intersect
+that result with the authenticated catalog. If a newly launched cheaper model
+supports the cell, it replaces today's example. Never infer price from catalog
+order or a model name. Fable, Sol, Opus and another provider's frontier tier
 are forbidden for setup, navigation, screenshots, smoke tasks and ordinary
 provider-neutral cells. A frontier call is allowed only after the same cell has
 a recorded lower-cost capability failure, the runbook's prewritten escalation

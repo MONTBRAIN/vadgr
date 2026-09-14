@@ -380,11 +380,14 @@ a reader can find the verdict without learning a new document.
 
 ## Keep routine model calls in the low-cost lane
 
-Provider-neutral E2E work starts with one of the named economical lanes:
-Claude Sonnet, GPT Luna at medium reasoning, or Gemini Flash. GPT Terra is the
-next OpenAI lane only when Luna lacks a required capability. The driver resolves
-the exact current catalog id and proves the cell's tool, image and continuation
-requirements before the call.
+Provider-neutral E2E work uses live internet research on every execution date.
+Read the provider's current official model and pricing pages, intersect them
+with the authenticated catalog, and choose the cheapest model that proves the
+cell's tool, image and continuation requirements. The present cost targets are
+the Claude Sonnet, GPT Luna at medium reasoning and Gemini Flash families; GPT
+Terra is the next OpenAI lane only when Luna lacks a required capability. Those
+families are examples, not frozen ids: a newly launched cheaper capable model
+replaces them. Catalog order and model naming are not price evidence.
 
 Fable, Sol, Opus and equivalent frontier tiers are not routine E2E defaults.
 They do not run setup, navigation, smoke tasks, screenshots or ordinary CUA
