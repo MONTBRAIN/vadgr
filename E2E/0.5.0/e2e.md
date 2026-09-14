@@ -1,13 +1,13 @@
 # 0.5.0 - the product is installable: E2E runbook
 
 > **Implementation:** `feature/0.5.0-distribution` at
-> `d96e4fe40f22e7ebcadc0232fb9ecd13005dc7c9`; the PR resolves after the first
+> `5df1ad3b9ef96ebb9f7bf0732d06fa01750d5a53`; the PR resolves after the first
 > target passes. **Private evidence PR:** resolve before the
 > first live cell. Do not create a replacement PR.
 >
 > **Status: development qualification in progress.** No cell below is a formal
-> release pass. Signing identities, reviewed terms, release public key, CUA
-> 0.7.8, candidate artifacts and private evidence boundary remain prerequisites
+> release pass. Signing identities, reviewed terms, release public key,
+> candidate artifacts and private evidence boundary remain prerequisites
 > for the final candidate pass.
 
 This runbook proves that a published Vadgr release installs, operates, repairs,
@@ -30,15 +30,15 @@ prevent credentials and owner-private paths from entering the capture.
 
 | repository | released version | exact released subject | what this pass relies on |
 |---|---|---|---|
-| vadgr-mobile | 0.4.5 | `9ac2324b7de731475ce6c750a34640ac0244f910` | account-independent pairing, machine display and run observation used by the physical-phone cells |
+| vadgr-mobile | 0.4.6 | `c7c17759bcce4080f6e3d1a9f42a02db93e9aaf5` | account-independent pairing, machine display and run observation used by the physical-phone cells |
 | vadgr-computer-use | 0.7.8 | `af347a0cdd782626a84542f7fd781e23c87d87d2` | the bundled screenshot runtime plus browser discovery and released-broker upgrade handoff |
 
 ## Development qualification before the candidate
 
 The host lead may run live development qualification against the exact feature
 commit before signed or published artifacts exist. Use an isolated test state
-and label every result `development`, never `pass`. The currently released CUA
-0.7.5 proved earlier console, daemon and released computer-use integration. It
+and label every result `development`, never `pass`. CUA 0.7.5 proved earlier
+console, daemon and released computer-use integration. It
 does not prove the final package contains CUA 0.7.8. An unsigned local package may
 prove installer flow and lifecycle behavior, but it cannot satisfy W03 or any
 oracle that specifically requires a signature, immutable candidate, clean host
@@ -144,8 +144,8 @@ oracles. Windows executes only the Windows rows in this session.
 
 | cell | operating system and architecture | owner/environment requirements | precondition | setup | exact action | oracle | expected result | evidence boundary | cleanup | cost, accounts, devices and permissions | result |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| M01 | macOS Intel, then Apple Silicon | clean host; no owner action | no Vadgr app, shim, state or login item | agent records the before inventory and verifies package signature, notarization and staple offline | agent opens the package through accessibility, inspects terms and invokes decline | before/after `/Applications`, shim, state and background-items inventory | installer makes no mutation | private macOS boundary | delete download after filing | administrator must not be requested before acceptance | not run: awaiting the final signed immutable candidate; run unaffected assertions only as development qualification |
-| M03 | Intel and Apple Silicon macOS | protected signed artifacts | M02 installed | network off after download | run `pkgutil`, `spctl`, `codesign` and stapler checks on package, app, CUA host and nested code | expected Team ID, hardened runtime, timestamp, staple and no `get-task-allow` | every layer verifies offline | private macOS signature report | none | no notarization call | not run: awaiting the final signed immutable candidate; run unaffected assertions only as development qualification |
+| M01 | macOS Intel, then Apple Silicon | clean host; no owner action | no Vadgr app, shim, state or login item | agent records the before inventory and verifies package signature, notarization and staple offline | agent opens the package through accessibility, inspects terms and invokes decline | before/after `/Applications`, shim, state and background-items inventory | installer makes no mutation | private macOS boundary | delete download after filing | administrator must not be requested before acceptance | partial: Apple Silicon unsigned development package opened natively, exposed Version 1.0 terms and declined with no mutation at `5df1ad3`; Intel, final legal, immutable, signature, notarization and staple assertions remain owed |
+| M03 | Intel and Apple Silicon macOS | protected signed artifacts | M02 installed | network off after download | run `pkgutil`, `spctl`, `codesign` and stapler checks on package, app, CUA host and nested code | expected Team ID, hardened runtime, timestamp, staple and no `get-task-allow` | every layer verifies offline | private macOS signature report | none | no notarization call | partial: Apple Silicon development package correctly reported no package signature, no staple, no usable Gatekeeper signature and no helper Team ID at `5df1ad3`; all signed-candidate and Intel assertions remain owed |
 | M04 | both macOS architectures | owner | M02 grants active | record helper designated requirement | restart app, restart daemon, sign out/in and launch normally | CUA task and requirement string after each boundary | helper identity is byte-equal and grants survive all launches | private macOS identity capture | stay installed | Accessibility and Screen Recording | not run: awaiting the final signed immutable candidate; run unaffected assertions only as development qualification |
 | M05 | both macOS architectures | owner and provider | M04 complete | one paired phone | repeat W04 through W06 on macOS | CLI/API/console, device rows, health and journal | same shared behavior; platform launch uses SMAppService agent | private macOS functional capture | remove test run/device | provider billing and phone | not run: awaiting the final signed immutable candidate; run unaffected assertions only as development qualification |
 | M06 | both macOS architectures | signed next package and isolated E2E state | M05 complete | agent captures helper requirement and TCC result | agent drives update, repair, rollback, uninstall-preserve, reinstall and the separate explicit purge confirmation | signatures, requirement, health and isolated-state identities | prior install survives failure; rollback and repair work; MA2 closes across update without new grant | private macOS lifecycle/MA2 capture | agent removes product and test grants after filing | protected administrator or privacy prompt only if shown | not run: awaiting the final signed immutable candidate; run unaffected assertions only as development qualification |
@@ -176,8 +176,8 @@ oracles. Windows executes only the Windows rows in this session.
 | cell | operating system and architecture | owner/environment requirements | precondition | setup | exact action | oracle | expected result | evidence boundary | cleanup | cost, accounts, devices and permissions | result |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | O1 | every installed target | isolated offline test snapshot | target functional cells pass | start from a test snapshot whose external network is already unavailable; do not change host firewall, DNS, routing or VPN state | agent launches CLI/console, opens bundled legal notices, restarts, repairs, rolls back and uninstalls | process/health, offline files and package receipts | installed product lifecycle works without repository infrastructure | each private host boundary | discard only the isolated snapshot after evidence is filed | no host network mutation or administrator action | not run: awaiting the final signed immutable candidate; run unaffected assertions only as development qualification |
-| O2 | every native GUI target | native accessibility API and screen reader available | GUI installed | agent resets to empty/no-provider and populated states | agent drives all focus, names, roles, loading, empty, failure, destructive confirmation and success states without pointer | AccessKit plus Narrator, VoiceOver or Orca output, app-only capture and backend oracle | complete operation is understandable and actionable; every control works or has a truthful disabled reason | private accessibility capture; no secret entry recorded | agent restores screen reader state | no owner action | not run: awaiting the final signed immutable candidate; run unaffected assertions only as development qualification |
-| C1 | each host after all its cells | none | every host cell has terminal result and evidence | agent enumerates Vadgr processes, temporary artifacts, devices, test credentials and isolated test state | agent stops only Vadgr test processes and removes only validated test artifacts, devices and credentials | final process/path/network/device inventory | no test process or artifact remains; source, evidence, configuration, normal owner state and unrelated files remain | private host cleanup record | none beyond this row | no owner action; scope is limited to runbook-created test items | not run: awaiting the final signed immutable candidate; run unaffected assertions only as development qualification |
+| O2 | every native GUI target | native accessibility API and screen reader available | GUI installed | agent resets to empty/no-provider and populated states | agent drives all focus, names, roles, loading, empty, failure, destructive confirmation and success states without pointer | AccessKit plus Narrator, VoiceOver or Orca output, app-only capture and backend oracle | complete operation is understandable and actionable; every control works or has a truthful disabled reason | private accessibility capture; no secret entry recorded | agent restores screen reader state | no owner action | partial on macOS: native accessibility exposed and invoked the Installer terms controls at `5df1ad3`; the installed console and its full state matrix remain owed |
+| C1 | each host after all its cells | none | every host cell has terminal result and evidence | agent enumerates Vadgr processes, temporary artifacts, devices, test credentials and isolated test state | agent stops only Vadgr test processes and removes only validated test artifacts, devices and credentials | final process/path/network/device inventory | no test process or artifact remains; source, evidence, configuration, normal owner state and unrelated files remain | private host cleanup record | none beyond this row | no owner action; scope is limited to runbook-created test items | partial on macOS: Installer stopped, no test process, installed path, launch item, state root or package receipt remains; the isolated candidate root is intentionally preserved for the attended continuation |
 
 ## Per-OS results
 
@@ -185,17 +185,17 @@ oracles. Windows executes only the Windows rows in this session.
 |---|---|---|---|---|
 | H: protected owner boundaries | not run: final Windows candidate unavailable | not run: final macOS candidate unavailable | not run: final Linux candidate unavailable | Not-Needed: WSL has no native GUI or protected installer prompt |
 | W: Windows cells | not run: unsigned development handoff is next | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells |
-| M: macOS cells | Not-Needed: macOS-only cells | not run: final macOS candidate unavailable | Not-Needed: macOS-only cells | Not-Needed: macOS-only cells |
+| M: macOS cells | Not-Needed: macOS-only cells | partial: Apple Silicon unsigned M01 and M03 assertions ran; signed, Intel, installed, owner and phone assertions remain owed | Not-Needed: macOS-only cells | Not-Needed: macOS-only cells |
 | L: native Linux cells | Not-Needed: native-Linux-only cells | Not-Needed: native-Linux-only cells | not run: x86_64 Wayland development observations are recorded below; final Linux candidate unavailable | Not-Needed: native-Linux-only cells |
 | S: WSL cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | not run: final WSL candidate unavailable |
-| O: shared offline, accessibility and cleanup cells | not run: host qualification is incomplete | not run: host qualification is incomplete | not run: host qualification is incomplete | not run: host qualification is incomplete |
+| O: shared offline, accessibility and cleanup cells | not run: host qualification is incomplete | partial: Installer accessibility and safe interim cleanup ran; installed accessibility, offline and final artifact removal remain owed | not run: host qualification is incomplete | not run: host qualification is incomplete |
 
 ## Completion ledger
 
 | host | cells | result |
 |---|---:|---|
 | Windows x64/arm64 | W01, W02, F01, W03 through W10, O1, O2, C1 | not run: unsigned development qualification is the next handoff; signed candidate unavailable |
-| macOS Intel/Apple Silicon | M01, M02, F01, M03 through M06, O1, O2, C1 | not run: no host pass has started and signed candidate unavailable |
+| macOS Intel/Apple Silicon | M01, M02, F01, M03 through M06, O1, O2, C1 | partial: Apple Silicon unsigned development qualification is filed; signed candidate, Intel, installed, owner and phone assertions remain owed |
 | Linux x86_64/aarch64 X11/Wayland | L01, L02, F01, L03 through L06, O1, O2, C1 | not run: no host pass has started and signed candidate unavailable |
 | WSL x64/arm64 | S01 through S06, O1, C1 | not run: no host pass has started and final candidate unavailable |
 
@@ -234,3 +234,15 @@ candidate inside the private evidence boundary.
 | 2026-09-14 | `730bed8d57644364f03c80cb3d7f04925236c115` | L04, O2 | CLI and loopback API machine reads agreed after name, role, autonomy and workspace edits; the values survived restart, a read-only field was rejected, a no-op was idempotent, and original values were restored. Gemini connected from the protected environment, became the ready default, and completed one read-only screenshot task through the installed CUA 0.7.8 payload in two iterations. AT-SPI exposed the populated provider state and restarted the daemon to a new PID without losing that default. The pinned Linux adapter exposes entries without EditableText, and host Wayland rejected AT-SPI keyboard synthesis, so console text entry and the typed purge remain owed. Orca also hit its host-service watchdog, and app-only pixel capture was unavailable under the protected Wayland capture boundary. Phone and paired-device assertions remain owed. |
 | 2026-09-13 | `730bed8d57644364f03c80cb3d7f04925236c115` | L05 | Fixed Repair falsely reporting failure after it restored a corrupted owned AppImage while the daemon was already healthy. The regression failed before the health fallback and passed after it. A rebuilt development AppImage then restored the exact expected hash, kept health available and showed no repair error. Signed update, rollback and the remaining distinct-generation fault matrix remain owed. |
 | 2026-09-13 | `730bed8d57644364f03c80cb3d7f04925236c115` | L06, C1 | Accessibility drove uninstall with state preservation and reinstall, and the preserved state was found. The separate purge dialog defaulted off and required the exact typed phrase, but the adapter and Wayland text-input boundary prevented autonomous entry. Test windows and Orca were stopped and the original accessibility settings were restored. The fixed development installation, healthy daemon and isolated owner state remain intentionally installed for the attended phone continuation. |
+
+## macOS development probe log
+
+These observations are implementation feedback only. They do not satisfy the
+signed, immutable, Intel, owner-attended or phone-dependent assertions.
+
+| date | exact product subject | affected cells | development observation |
+|---|---|---|---|
+| 2026-09-13 | `936cce15cd0d9162d2a689346352a414989fb954` | candidate assembly | Fixed two candidate workflow failures. macOS now assembles the payload beside the temporary responsible host. Linux, WSL and macOS invoke their non-executable package sources through `sh`. Both regression tests failed before the fixes and passed after them. |
+| 2026-09-13 | `5df1ad3b9ef96ebb9f7bf0732d06fa01750d5a53` | M01 | Fixed the false Rosetta requirement on the arm64 package by generating exact target host architecture metadata. The regression test failed before the fix. The rebuilt unsigned package opened natively, showed the Version 1.0 terms, accepted the accessibility-driven Disagree action and left every product path and receipt absent. Final legal, signature, notarization, immutable and Intel assertions remain owed. |
+| 2026-09-13 | `5df1ad3b9ef96ebb9f7bf0732d06fa01750d5a53` | M03 | The arm64 development package reported no package signature, no usable Gatekeeper signature and no staple. The helper was arm64 with bundle identifier `com.montbrain.vadgr.cua`, but it had only a linker ad hoc signature and no Team ID. This is the expected unsigned state, not a signature pass. |
+| 2026-09-13 | `5df1ad3b9ef96ebb9f7bf0732d06fa01750d5a53` | O2 | macOS accessibility exposed named Installer controls for the terms and decline path. The installed console state matrix remains owed because accepting the legal terms and the protected installation prompt require the owner. |
