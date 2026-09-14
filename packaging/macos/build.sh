@@ -50,7 +50,11 @@ unsigned="$repo/target/package/Vadgr-$version-macos-$arch-unsigned.pkg"
 root_archive="$repo/target/package/Vadgr-$version-macos-$arch-unsigned-root.tar.gz"
 pkgbuild --root "$root" --identifier com.montbrain.vadgr.pkg --version "$version" \
   --install-location / --scripts "$repo/packaging/macos/scripts" "$component"
-productbuild --distribution "$repo/packaging/macos/Distribution.xml" \
+distribution="$work/Distribution.xml"
+sed "s/hostArchitectures=\"arm64,x86_64\"/hostArchitectures=\"$arch\"/" \
+  "$repo/packaging/macos/Distribution.xml" > "$distribution"
+grep -q "hostArchitectures=\"$arch\"" "$distribution"
+productbuild --distribution "$distribution" \
   --resources "$resources" --package-path "$work" "$unsigned"
 COPYFILE_DISABLE=1 tar -C "$root" -czf "$root_archive" .
 

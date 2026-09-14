@@ -3,7 +3,7 @@
   <title>Vadgr</title>
   <organization>com.montbrain</organization>
   <domains enable_localSystem="true" enable_currentUserHome="false" enable_anywhere="false"/>
-  <options customize="never" require-scripts="true" rootVolumeOnly="true"/>
+  <options hostArchitectures="arm64,x86_64" customize="never" require-scripts="true" rootVolumeOnly="true"/>
   <license file="TERMS.txt" mime-type="text/plain"/>
   <welcome file="WELCOME.txt" mime-type="text/plain"/>
   <conclusion file="CONCLUSION.txt" mime-type="text/plain"/>

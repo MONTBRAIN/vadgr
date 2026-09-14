@@ -72,6 +72,16 @@ fn macos_packages_the_stable_responsible_process() {
 }
 
 #[test]
+fn macos_package_declares_its_exact_host_architecture() {
+    let build = read("packaging/macos/build.sh");
+    assert!(build.contains(r#"hostArchitectures=\"$arch\""#));
+    let distribution = read("packaging/macos/Distribution.xml");
+    assert!(
+        distribution.contains("<options hostArchitectures=\"arm64,x86_64\" customize=\"never\"")
+    );
+}
+
+#[test]
 fn e2e_runbook_names_every_required_lifecycle_negative() {
     let runbook = read("E2E/0.5.0/e2e.md").to_ascii_lowercase();
     for required in [
