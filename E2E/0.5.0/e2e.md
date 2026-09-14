@@ -1,7 +1,8 @@
 # 0.5.0 - the product is installable: E2E runbook
 
 > **Implementation:** `feature/0.5.0-distribution` at
-> `5df1ad3b9ef96ebb9f7bf0732d06fa01750d5a53`; the PR resolves after the first
+> product subject `ec66315d80c3dea5934e3e94b433ffbba79098bd`; later commits on
+> the same branch record E2E results and policy only. The PR resolves after the first
 > target passes. **Private evidence PR:** resolve before the
 > first live cell. Do not create a replacement PR.
 >
@@ -199,18 +200,18 @@ oracles. Windows executes only the Windows rows in this session.
 
 | Part | Windows native | macOS | native Linux | WSL |
 |---|---|---|---|---|
-| H: protected owner boundaries | not run: final Windows candidate unavailable | not run: final macOS candidate unavailable | not run: final Linux candidate unavailable | Not-Needed: WSL has no native GUI or protected installer prompt |
-| W: Windows cells | not run: unsigned development handoff is next | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells |
+| H: protected owner boundaries | partial development: physical F01 QR completed; typed-code/Tailscale and signed W02 remain owed | not run: final macOS candidate unavailable | not run: final Linux candidate unavailable | Not-Needed: WSL has no native GUI or protected installer prompt |
+| W: Windows cells | partial development: unaffected unsigned assertions ran; signed candidate, fault matrix, typed-code/Tailscale and isolated purge assertions remain owed | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells |
 | M: macOS cells | Not-Needed: macOS-only cells | partial: Apple Silicon unsigned M01 and M03 assertions ran; signed, Intel, installed, owner and phone assertions remain owed | Not-Needed: macOS-only cells | Not-Needed: macOS-only cells |
 | L: native Linux cells | Not-Needed: native-Linux-only cells | Not-Needed: native-Linux-only cells | not run: x86_64 Wayland development observations are recorded below; final Linux candidate unavailable | Not-Needed: native-Linux-only cells |
 | S: WSL cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | not run: final WSL candidate unavailable |
-| O: shared offline, accessibility and cleanup cells | not run: host qualification is incomplete | partial: Installer accessibility and safe interim cleanup ran; installed accessibility, offline and final artifact removal remain owed | not run: host qualification is incomplete | not run: host qualification is incomplete |
+| O: shared offline, accessibility and cleanup cells | partial development: UI Automation and app-only capture covered installed states; offline snapshot, full Narrator matrix and final-candidate cleanup remain owed | partial: Installer accessibility and safe interim cleanup ran; installed accessibility, offline and final artifact removal remain owed | not run: host qualification is incomplete | not run: host qualification is incomplete |
 
 ## Completion ledger
 
 | host | cells | result |
 |---|---:|---|
-| Windows x64/arm64 | W01, W02, F01, W03 through W10, O1, O2, C1 | not run: unsigned development qualification is the next handoff; signed candidate unavailable |
+| Windows x64/arm64 | W01, W02, F01, W03 through W10, O1, O2, C1 | partial: x64 unsigned development qualification is filed; signed candidate, arm64, typed-code/Tailscale, fault matrix, offline snapshot, full Narrator matrix and isolated destructive purge remain owed |
 | macOS Intel/Apple Silicon | M01, M02, F01, M03 through M06, O1, O2, C1 | partial: Apple Silicon unsigned development qualification is filed; signed candidate, Intel, installed, owner and phone assertions remain owed |
 | Linux x86_64/aarch64 X11/Wayland | L01, L02, F01, L03 through L06, O1, O2, C1 | not run: no host pass has started and signed candidate unavailable |
 | WSL x64/arm64 | S01 through S06, O1, C1 | not run: no host pass has started and final candidate unavailable |
