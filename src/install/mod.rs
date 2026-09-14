@@ -500,6 +500,8 @@ mod platform {
 
     const RUN_KEY: &str = r"HKCU\Software\Microsoft\Windows\CurrentVersion\Run";
     const RUN_VALUE: &str = "Vadgr";
+    const UNINSTALL_KEY: &str = r"HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall";
+    const BUNDLE_UPGRADE_CODE: &str = "{A34B6A27-D376-4CC4-A08A-F201470A3E38}";
 
     pub fn legal_path(receipt: &InstallReceipt) -> PathBuf {
         receipt.install_root.join("legal")
@@ -584,7 +586,79 @@ mod platform {
     }
 
     pub fn uninstall(receipt: &InstallReceipt, purge_owner_state: bool) -> Result<()> {
-        run_msiexec(receipt, "/x", purge_owner_state)
+        ensure!(
+            receipt.package_kind == "msi",
+            "this is not a Windows MSI installation"
+        );
+        let setup = registered_bundle_path()?;
+        let mut command = Command::new(setup);
+        command.args(["/uninstall", "/quiet", "/norestart"]);
+        if purge_owner_state {
+            command.arg("PurgeOwnerData=1");
+        }
+        let status = command.status().context("starting the Vadgr uninstaller")?;
+        ensure!(status.success(), "Vadgr setup returned {status}");
+        Ok(())
+    }
+
+    fn registered_bundle_path() -> Result<PathBuf> {
+        let listed = Command::new("reg.exe")
+            .args(["query", UNINSTALL_KEY])
+            .output()
+            .context("listing installed Windows applications")?;
+        ensure!(
+            listed.status.success(),
+            "Windows could not list installed applications"
+        );
+        for line in String::from_utf8_lossy(&listed.stdout).lines() {
+            let key = line.trim();
+            if !key.starts_with(r"HKEY_CURRENT_USER\") {
+                continue;
+            }
+            let Some(upgrade_code) = registry_value(key, "BundleUpgradeCode")? else {
+                continue;
+            };
+            if !upgrade_code.eq_ignore_ascii_case(BUNDLE_UPGRADE_CODE) {
+                continue;
+            }
+            let cached = registry_value(key, "BundleCachePath")?
+                .ok_or_else(|| anyhow!("the registered Vadgr setup has no cache path"))?;
+            let cached = dunce::canonicalize(PathBuf::from(cached))
+                .context("resolving the registered Vadgr setup")?;
+            let local = std::env::var_os("LOCALAPPDATA")
+                .map(PathBuf::from)
+                .ok_or_else(|| anyhow!("LOCALAPPDATA is unavailable"))?;
+            let package_cache = dunce::canonicalize(local.join("Package Cache"))
+                .context("resolving the Windows package cache")?;
+            ensure!(
+                cached.starts_with(&package_cache) && cached.is_file(),
+                "the registered Vadgr setup is outside the Windows package cache"
+            );
+            return Ok(cached);
+        }
+        Err(anyhow!("the registered Vadgr setup was not found"))
+    }
+
+    fn registry_value(key: &str, name: &str) -> Result<Option<String>> {
+        let output = Command::new("reg.exe")
+            .args(["query", key, "/v", name])
+            .output()
+            .with_context(|| format!("reading the {name} registry value"))?;
+        if !output.status.success() {
+            return Ok(None);
+        }
+        for line in String::from_utf8_lossy(&output.stdout).lines() {
+            let line = line.trim();
+            if !line.starts_with(name) {
+                continue;
+            }
+            for marker in ["REG_SZ", "REG_MULTI_SZ"] {
+                if let Some((_, value)) = line.split_once(marker) {
+                    return Ok(Some(value.trim().to_owned()));
+                }
+            }
+        }
+        Ok(None)
     }
 
     fn run_msiexec(receipt: &InstallReceipt, verb: &str, purge_owner_state: bool) -> Result<()> {

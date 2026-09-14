@@ -44,6 +44,8 @@ fn burn_owns_terms_progress_repair_uninstall_and_console_launch() {
     assert!(bundle.contains("Name=\"TERMSACCEPTED\" Value=\"1\""));
     assert!(bundle.contains("WixBundleInstalled OR WixBundleUILevel = 4"));
     assert!(bundle.contains("Name=\"BUNDLESOURCE\""));
+    assert!(bundle.contains("Name=\"PurgeOwnerData\""));
+    assert!(bundle.contains("Name=\"PURGEOWNERDATA\" Value=\"[PurgeOwnerData]\""));
     assert!(bundle.contains("<MsiPackage"));
     let package = repo_file("packaging/windows/Package.wxs");
     assert!(package.contains("Condition=\"Installed OR TERMSACCEPTED = 1\""));
@@ -54,6 +56,7 @@ fn burn_owns_terms_progress_repair_uninstall_and_console_launch() {
     assert!(package.contains("Execute=\"commit\""));
     assert!(package.contains("HideTarget=\"yes\""));
     assert!(package.contains("AllowDowngrades=\"yes\""));
+    assert!(package.contains("util:RemoveFolderEx"));
     let receipt = repo_file("packaging/windows/install-receipt.json");
     assert!(receipt.contains("cache/previous-setup.exe"));
     let localization = repo_file("packaging/windows/VadgrTheme.wxl");
@@ -70,6 +73,7 @@ fn burn_owns_terms_progress_repair_uninstall_and_console_launch() {
     let project = repo_file("packaging/windows/VadgrMsi.wixproj");
     assert!(project.contains("<DevelopmentUnsigned Condition="));
     assert!(project.contains("DevelopmentUnsigned=$(DevelopmentUnsigned)"));
+    assert!(project.contains("WixToolset.Util.wixext"));
     let ba = repo_file("packaging/windows/ba-functions/src/lib.rs");
     assert!(ba.contains("BAFunctionsCreate"));
     assert!(ba.contains("BA_FUNCTIONS_MESSAGE_ON_THEME_CONTROL_LOADED"));

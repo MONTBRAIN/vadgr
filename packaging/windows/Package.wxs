@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
   <Package
       Name="Vadgr"
       Manufacturer="MONTBRAIN"
@@ -76,6 +77,7 @@
     </Component>
     <Component Id="InstallFolderCleanup" Directory="INSTALLFOLDER" Guid="{F769D82B-844F-4D60-B8CE-8F1A39032D9F}">
       <RegistryValue Root="HKCU" Key="Software\MONTBRAIN\Vadgr\Components" Name="Folders" Type="integer" Value="1" KeyPath="yes" />
+      <util:RemoveFolderEx On="uninstall" Property="INSTALLFOLDER" />
       <RemoveFolder Id="RemoveLegalFolder" Directory="LegalFolder" On="uninstall" />
       <RemoveFolder Id="RemovePrivateLibFolder" Directory="PrivateLibFolder" On="uninstall" />
       <RemoveFolder Id="RemoveSbomFolder" Directory="SbomFolder" On="uninstall" />

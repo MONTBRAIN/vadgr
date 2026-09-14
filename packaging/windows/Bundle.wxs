@@ -15,6 +15,7 @@
         Type="formatted"
         Value="[LocalAppDataFolder]Programs\Vadgr"
         Persisted="yes" />
+    <Variable Name="PurgeOwnerData" Type="numeric" Value="0" Hidden="yes" />
     <BootstrapperApplication>
       <Payload SourceFile="$(var.BAFunctionsPath)" bal:BAFunctions="yes" />
       <bal:WixStandardBootstrapperApplication
@@ -33,6 +34,7 @@
         <MsiProperty Name="TERMSACCEPTED" Value="1" />
         <MsiProperty Name="TERMSVERSION" Value="$(var.TermsVersion)" />
         <MsiProperty Name="BUNDLESOURCE" Value="[WixBundleOriginalSource]" />
+        <MsiProperty Name="PURGEOWNERDATA" Value="[PurgeOwnerData]" />
       </MsiPackage>
     </Chain>
   </Bundle>
