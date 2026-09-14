@@ -125,7 +125,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          packaging/linux/build.sh 0.5.0 "${{ matrix.arch }}"
+          sh packaging/linux/build.sh 0.5.0 "${{ matrix.arch }}"
           file "target/package/Vadgr-0.5.0-linux-${{ matrix.arch }}-installer.AppImage"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -162,7 +162,7 @@ jobs:
           target/release/vadgr __payload-setup --install-root "$payload_root" --payload-only
           mkdir -p dist/payload
           cp -R "$payload_root/lib" dist/payload/
-          packaging/wsl/build.sh 0.5.0 "${{ matrix.arch }}"
+          sh packaging/wsl/build.sh 0.5.0 "${{ matrix.arch }}"
           tar -tzf "target/package/Vadgr-0.5.0-wsl-${{ matrix.arch }}.tar.gz" >/dev/null
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -196,12 +196,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cargo build --locked --release --bin vadgr
-          payload_root="$RUNNER_TEMP/vadgr-payload"
+          cargo build --locked --release --features macos-cua-host --bin vadgr --bin vadgr-cua-host
+          payload_bundle="$RUNNER_TEMP/vadgr-payload/Vadgr.app"
+          payload_root="$payload_bundle/Contents/Resources"
+          host="$payload_bundle/Contents/Library/LoginItems/Vadgr Computer Use.app/Contents/MacOS/vadgr-cua-host"
+          mkdir -p "$(dirname "$host")"
+          cp target/release/vadgr-cua-host "$host"
           target/release/vadgr __payload-setup --install-root "$payload_root" --payload-only
           mkdir -p dist/payload
           cp -R "$payload_root/lib" dist/payload/
-          packaging/macos/build.sh 0.5.0 "${{ matrix.arch }}"
+          sh packaging/macos/build.sh 0.5.0 "${{ matrix.arch }}"
           if pkgutil --check-signature "target/package/Vadgr-0.5.0-macos-${{ matrix.arch }}-unsigned.pkg"; then
             echo "candidate package unexpectedly carries a release signature" >&2
             exit 1
