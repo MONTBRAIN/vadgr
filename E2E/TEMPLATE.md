@@ -65,6 +65,24 @@ daemon, API, accessibility, provider, device or currently available computer-use
 behavior. Development findings are real defects: fix them, add the failing test,
 rebuild and rerun the affected development cell.
 
+### Qualification lanes
+
+<Fill both ledgers before the first live cell. Put each assertion in the lane
+required by its actual oracle, not by the cell number that happens to contain
+it. A mixed cell appears in both rows with its assertion slices named.>
+
+| lane | assertions in this minor | execution rule | completion meaning |
+|---|---|---|---|
+| unsigned development qualification | <cell ids and exact non-signing assertion slices> | run immediately on every available host; signing is not a blocker | development evidence only; never a signed-candidate pass |
+| signing-only acceptance | <cell ids and exact publisher/chain/timestamp/notarization/designated-requirement/trust/update assertion slices> | run when the immutable signed subject exists | required for release acceptance |
+
+Do not park an entire mixed cell behind signing. Terms decline, ordinary
+install/launch, console and daemon behavior, accessibility, phone transports,
+isolated repair/uninstall/data deletion, offline operation and cleanup remain
+development-runnable unless their individual oracle consumes a signed subject.
+Keep the signed assertion in the second ledger and preserve its original
+expected result.
+
 ## The rules
 
 **Read this before the first cell.** Every rule here was learned by breaking it,

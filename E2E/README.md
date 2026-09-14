@@ -158,6 +158,30 @@ text, documentation or evidence. Run
 `python3 scripts/check_no_secrets.py --env-file ../.env` before every commit and
 before sealing evidence.
 
+## Separate runnable development work from signing-only acceptance
+
+When an installable-product minor can run before its release identities exist,
+the runbook has two explicit ledgers before the platform cells:
+
+- **Unsigned development qualification** contains every action and oracle whose
+  truth does not require a signed artifact: terms and zero-mutation decline,
+  install and ordinary launch, daemon and console behavior, accessibility,
+  device transports, failure preservation that can be injected without trust
+  assertions, isolated repair/uninstall/data deletion, offline behavior and
+  cleanup. Run these now on every available host.
+- **Signing-only acceptance** contains only assertions whose oracle actually
+  needs the release identity or immutable signed vehicle: publisher and chain,
+  timestamps, notarization/stapling/designated requirements, trust-policy
+  launch, and signed update/rollback verification. Leave only these owed until
+  that subject exists.
+
+A platform cell may contain assertions from both ledgers. Split its status and
+evidence by assertion instead of parking the whole cell behind signing. Do not
+change the expected behavior, remove a signing check, or promote development
+evidence to a release pass. Conversely, `awaiting signing` is never a valid
+blocker for an accessibility, phone, lifecycle, offline or cleanup assertion
+that can be observed honestly against the unsigned development package.
+
 ## The owner's cells are executed first, not announced first
 
 **Rule 1 is satisfied by running those cells, not by mentioning them.** Before
