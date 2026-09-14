@@ -112,6 +112,17 @@ the visual and accessibility oracle.
   Supply secrets only through the repository-approved local secret input. Never
   capture their values.
 
+## Billed model selection for this pass
+
+Routine provider-neutral cells use the cheapest capable authenticated lane:
+Claude Sonnet, GPT Luna at medium reasoning, or Gemini Flash. GPT Terra is the
+OpenAI fallback only for a capability Luna lacks. Fable, Sol, Opus and equivalent
+frontier tiers are not allowed for setup, navigation, screenshots, smoke tasks
+or ordinary CUA checks. Before any frontier call, the evidence must already
+contain the cheaper model's capability failure from the same cell, the written
+escalation condition that fired, and a separate hard cost ceiling. A persisted
+expensive default is changed before the first routine billed call.
+
 ## Part H: protected owner boundaries executed first
 
 Each host lead reaches these boundaries before unrelated unattended cells. Only

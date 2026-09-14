@@ -143,6 +143,18 @@ class, a written cell requires it, or the cheaper model failed for a recorded
 capability reason. Stop at the ceiling; never upgrade silently or use a
 frontier model merely because it is available.
 
+**The routine E2E lanes are Claude Sonnet, GPT Luna at medium reasoning (Terra
+only when Luna lacks a required capability), and Gemini Flash.** Resolve the
+exact current model id from the authenticated catalog and verify its required
+capabilities before use. Fable, Sol, Opus and another provider's frontier tier
+are forbidden for setup, navigation, screenshots, smoke tasks and ordinary
+provider-neutral cells. A frontier call is allowed only after the same cell has
+a recorded lower-cost capability failure, the runbook's prewritten escalation
+condition is met, and a new hard cost ceiling is recorded. Quality preference,
+availability in the picker, and a previously persisted default are not
+escalation reasons. Change an inherited expensive default before the first
+routine billed call; never spend against it for convenience.
+
 ## The practices every repo in this family follows
 
 **This section is identical in every code repo, and identical in this repo's

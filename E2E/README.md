@@ -377,3 +377,19 @@ row to the patch log naming this runbook in the *found by* column.
 
 **Start from [`TEMPLATE.md`](TEMPLATE.md).** Every runbook has the same shape so
 a reader can find the verdict without learning a new document.
+
+## Keep routine model calls in the low-cost lane
+
+Provider-neutral E2E work starts with one of the named economical lanes:
+Claude Sonnet, GPT Luna at medium reasoning, or Gemini Flash. GPT Terra is the
+next OpenAI lane only when Luna lacks a required capability. The driver resolves
+the exact current catalog id and proves the cell's tool, image and continuation
+requirements before the call.
+
+Fable, Sol, Opus and equivalent frontier tiers are not routine E2E defaults.
+They do not run setup, navigation, smoke tasks, screenshots or ordinary CUA
+checks. Using one requires all three facts in the runbook before the call: the
+cheaper lane failed the same cell for a captured capability reason, the written
+escalation condition is met, and a separate hard cost ceiling is present. An
+inherited expensive default is changed before routine billed work; it is not a
+reason to spend against that model.

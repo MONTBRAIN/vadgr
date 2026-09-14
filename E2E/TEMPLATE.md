@@ -691,6 +691,15 @@ exact cell. An automatic onboarding model is tested once as shipped; repeated
 provider-neutral tasks name an explicit cost-effective model. Do not start a
 billed call with a blank ceiling or an unrecorded escalation path.>
 
+<Routine candidates are Claude Sonnet, GPT Luna at medium reasoning and Gemini
+Flash; GPT Terra is the next OpenAI lane only when Luna lacks a required
+capability. Resolve the exact current catalog id. Fable, Sol, Opus and equivalent
+frontier tiers are prohibited for setup, navigation, screenshots, smoke tasks
+and ordinary provider-neutral cells. A frontier row is valid only when it names
+the captured lower-cost capability failure from the same cell, the prewritten
+escalation condition that fired and a separate hard cost ceiling. A persisted
+expensive default must be changed before routine billed work.>
+
 | cells | provider/auth | required capabilities | selected model | official source and date | input/output price | hard iterations/tokens/cost | escalation condition |
 |---|---|---|---|---|---|---|---|
 | <ids> | <provider/method> | <endpoint, tools, content, continuation> | <authenticated id or snapshot> | <URL, YYYY-MM-DD> | <USD per MTok or subscription limitation> | <all three ceilings> | <recorded capability failure or none> |
