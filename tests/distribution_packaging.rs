@@ -42,6 +42,13 @@ fn native_linux_is_graphical_and_wsl_is_cli_only() {
 }
 
 #[test]
+fn linux_lifecycle_accepts_an_already_healthy_daemon() {
+    let linux = read("src/install/linux.rs");
+    assert!(linux.contains(".arg(\"health\")"));
+    assert!(linux.contains("the installed Vadgr daemon is not healthy"));
+}
+
+#[test]
 fn every_unsigned_or_unconfigured_trust_path_fails_closed() {
     assert_eq!(
         read("packaging/release-public-key.txt").trim(),

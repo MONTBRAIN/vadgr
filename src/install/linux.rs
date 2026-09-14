@@ -134,10 +134,16 @@ fn start_and_probe(root: &Path) -> Result<()> {
         .arg("start")
         .status()
         .context("starting the installed Vadgr daemon")?;
-    ensure!(
-        status.success(),
-        "the installed Vadgr daemon did not become healthy"
-    );
+    if !status.success() {
+        let health = std::process::Command::new(root.join("current/Vadgr.AppImage"))
+            .arg("health")
+            .status()
+            .context("checking the installed Vadgr daemon")?;
+        ensure!(
+            health.success(),
+            "the installed Vadgr daemon is not healthy"
+        );
+    }
     Ok(())
 }
 
