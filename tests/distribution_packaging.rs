@@ -34,6 +34,7 @@ fn native_linux_is_graphical_and_wsl_is_cli_only() {
     let wsl = read("install.sh");
     assert!(app_run.contains("--installer --vehicle"));
     assert!(linux_build.contains("--features native-gui"));
+    assert!(linux_build.contains("docs/pet.svg\" \"$appdir/com.montbrain.vadgr.svg"));
     assert!(wsl.contains("Native Linux uses the graphical AppImage installer"));
     assert!(!wsl.contains(".desktop"));
     assert!(!wsl.contains("autostart"));

@@ -32,6 +32,7 @@ cp -R -- "$repo/packaging/sbom/." "$appdir/sbom/"
 cp -- "$repo/packaging/README-OFFLINE.txt" "$appdir/README-OFFLINE.txt"
 install -m 0755 "$repo/packaging/linux/AppRun" "$appdir/AppRun"
 install -m 0644 "$repo/packaging/linux/com.montbrain.vadgr.desktop" "$appdir/com.montbrain.vadgr.desktop"
+install -m 0644 "$repo/docs/pet.svg" "$appdir/com.montbrain.vadgr.svg"
 
 output="$repo/target/package/Vadgr-$version-linux-$arch-installer.AppImage"
 ARCH="$arch" "$APPIMAGETOOL" "$appdir" "$output"
