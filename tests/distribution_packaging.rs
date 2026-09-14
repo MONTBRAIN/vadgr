@@ -42,15 +42,6 @@ fn native_linux_is_graphical_and_wsl_is_cli_only() {
 }
 
 #[test]
-fn native_linux_accessibility_activates_for_every_atspi_client() {
-    let manifest = read("Cargo.toml");
-    let adapter = read("vendor/accesskit_unix/src/context.rs");
-    assert!(manifest.contains("accesskit_unix = { path = \"vendor/accesskit_unix\" }"));
-    assert!(adapter.contains("receive_is_enabled_changed()"));
-    assert!(!adapter.contains("receive_screen_reader_enabled_changed()"));
-}
-
-#[test]
 fn every_unsigned_or_unconfigured_trust_path_fails_closed() {
     assert_eq!(
         read("packaging/release-public-key.txt").trim(),

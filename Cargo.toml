@@ -135,9 +135,3 @@ tower = { version = "0.5", features = ["util"] }
 libc = "0.2"
 http-body-util = "0.1"
 tempfile = "3"
-
-[patch.crates-io]
-# accesskit_unix 0.21.1 watches ScreenReaderEnabled, so ordinary AT-SPI
-# clients cannot activate the tree. Keep the dependency surface frozen and
-# backport the upstream IsEnabled correction documented in the vendored copy.
-accesskit_unix = { path = "vendor/accesskit_unix" }
