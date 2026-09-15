@@ -30,8 +30,11 @@ def validate_workflow(text):
     assert signer.index("Revalidate current source after environment approval") < signer.index("Download exact same-run artifact")
     assert "--self-check validate-macos-candidate" in before
     assert "packaging/release-public-key.txt)\" != UNCONFIGURED" in before
-    assert "test -s packaging/legal/TERMS.txt" in before
-    assert "test -s packaging/sbom/vadgr-0.5.0.spdx.json" in before
+    source_validation = before.split("\n  build:\n", 1)[0]
+    for arch, target in (("arm64", "aarch64-apple-darwin"), ("x86_64", "x86_64-apple-darwin")):
+        assert ("python3 scripts/validate_package_inputs.py --source-only --source-root . "
+                f"--root packaging/inputs/macos-{arch} --version 0.5.0 --target {target}") in source_validation
+    assert "--source-only" not in signer
     assert "assert state['head_sha'] == os.environ['GITHUB_SHA']" in signer
     assert "str(state['run_attempt']) == attempt" in signer
     assert "assert artifact['digest'].removeprefix('sha256:') == expected" in signer
@@ -58,7 +61,9 @@ def test_workflow_has_protected_source_digest_and_credential_boundaries():
     ("startsWith(github.event.head_commit.message, 'candidate: macos ')", "true"),
     ("if: >-\n      github.event_name ==", "if: github.event_name =="),
     ("--self-check validate-macos-candidate", "--self-check unused"),
-    ("test -s packaging/legal/TERMS.txt", "true"),
+    ("--root packaging/inputs/macos-arm64", "--root packaging/inputs/macos-x86_64"),
+    ("--target x86_64-apple-darwin", "--target aarch64-apple-darwin"),
+    ("--source-only --source-root .", "--source-only --source-root other"),
     ("assert state['head_sha'] == os.environ['GITHUB_SHA']", "assert True"),
     ("str(state['run_attempt']) == attempt", "True"),
     ("assert hashlib.sha256(data).hexdigest() == expected", "assert True"),
@@ -101,3 +106,37 @@ def test_missing_native_macos_gate_goes_red():
     text = (ROOT / ".github/workflows/secret-scan.yml").read_text()
     with pytest.raises(AssertionError):
         validate_gate_matrix(text.replace(", macos-15]", "]"))
+
+
+def validate_package_builder(text):
+    assert 'inputs="$repo/packaging/inputs/macos-$arch"' in text
+    command = ('python3 "$repo/scripts/validate_package_inputs.py" --root "$inputs" '
+               '--source-root "$repo" --version "$version" --target "$rust_target"')
+    assert command in text
+    assert '--payload-manifest "$repo/dist/payload/lib/cua/payload.json"' in text
+    assert "--source-only" not in text
+    assert text.index(command) < text.index("cargo build")
+    for name in ("package-input-review.json", "package-input-inventory.json", "README-OFFLINE.txt"):
+        assert f'cp -- "$inputs/{name}" "$app/Contents/Resources/{name}"' in text
+    for directory in ("legal", "sbom"):
+        assert f'cp -R -- "$inputs/{directory}/." "$app/Contents/Resources/{directory}/"' in text
+    assert '"$repo/packaging/legal' not in text
+    assert '"$repo/packaging/sbom' not in text
+
+
+def test_builder_verifies_actual_target_payload_and_copies_review_metadata():
+    validate_package_builder((ROOT / "packaging/macos/build.sh").read_text())
+
+
+@pytest.mark.parametrize("old,new", [
+    ('inputs="$repo/packaging/inputs/macos-$arch"', 'inputs="$repo/packaging"'),
+    ('--payload-manifest "$repo/dist/payload/lib/cua/payload.json"', '--source-only'),
+    ('--target "$rust_target"', '--target all'),
+    ('cp -- "$inputs/package-input-review.json"', 'true #'),
+    ('cp -- "$inputs/package-input-inventory.json"', 'true #'),
+])
+def test_builder_rejects_missing_target_review_boundary(old, new):
+    text = (ROOT / "packaging/macos/build.sh").read_text()
+    assert old in text
+    with pytest.raises(AssertionError):
+        validate_package_builder(text.replace(old, new))

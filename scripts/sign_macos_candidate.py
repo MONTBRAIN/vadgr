@@ -21,6 +21,8 @@ import tomllib
 import unicodedata
 import xml.etree.ElementTree as ET
 
+from validate_package_inputs import PackageInputError, read_owned, validate_package_inputs
+
 
 REPO = Path(__file__).resolve().parents[1]
 VERSION = "0.5.0"
@@ -248,6 +250,24 @@ def credentials(env: dict[str, str]) -> tuple[str, str, Path, Path]:
     return application, installer, keychain, key
 
 
+def validate_package_review(resources: Path, repo: Path, arch: str) -> None:
+    target = {"arm64": "aarch64-apple-darwin", "x86_64": "x86_64-apple-darwin"}[arch]
+    try:
+        review = validate_package_inputs(resources, repo, VERSION, target)
+    except PackageInputError:
+        raise SigningError("package input review failed") from None
+    if not isinstance(review, dict) or review.get("scope") != "assembled-payload":
+        raise SigningError("package input review did not verify the assembled payload")
+    for name in ("package-input-review.json", "package-input-inventory.json"):
+        try:
+            expected = read_owned(repo, f"packaging/inputs/macos-{arch}/{name}")
+            actual = read_owned(resources, name)
+        except PackageInputError:
+            raise SigningError("package input review source is not package-owned") from None
+        if expected != actual:
+            raise SigningError("package input review differs from the approved source")
+
+
 def sign_candidate(source: Path, metadata_path: Path, arch: str, output: Path, *,
                    env: dict[str, str] | None = None, repo: Path = REPO, run=run_tool) -> None:
     env = dict(os.environ) if env is None else env
@@ -269,9 +289,11 @@ def sign_candidate(source: Path, metadata_path: Path, arch: str, output: Path, *
         work = Path(temporary)
         root = work / "root"
         extract_archive(source, root, metadata["archive_sha256"])
+        app, helper = root.joinpath(*APP.parts), root.joinpath(*HELPER.parts)
+        # Recheck archive-owned resources, not the review left in the checkout.
+        validate_package_review(app / "Contents/Resources", repo, arch)
         targets, binaries = signing_targets(root)
         application, installer, keychain, key = credentials(env)
-        app, helper = root.joinpath(*APP.parts), root.joinpath(*HELPER.parts)
         for target in targets:
             if target in binaries:
                 run(["/usr/bin/lipo", "-verify_arch", arch, str(target)], "Mach-O architecture")

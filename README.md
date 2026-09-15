@@ -194,7 +194,9 @@ Vadgr installs its pinned desktop-automation MCP server inside its private
 payload. It gives runs eyes and hands: take a screenshot, reason, click or type,
 then repeat. Do not install Python or `vadgr-computer-use` separately. Linux
 prints its system-package plan before changing anything. WSL and Windows need
-no payload setup. macOS reports the grants its private interpreter needs.
+no payload setup. macOS runs computer control under the bundled
+`Vadgr Computer Use` host. Accessibility and Screen Recording apply to that
+stable identity, not to the terminal that installed Vadgr.
 
 ## Structure
 

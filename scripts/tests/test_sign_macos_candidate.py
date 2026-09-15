@@ -8,6 +8,7 @@ from pathlib import Path
 import plistlib
 import subprocess
 import tarfile
+from types import SimpleNamespace
 
 import pytest
 
@@ -22,10 +23,12 @@ requires_posix_filesystem = pytest.mark.skipif(
 
 
 @pytest.fixture
-def signer():
+def signer(monkeypatch):
+    monkeypatch.syspath_prepend(str(SCRIPT.parent))
     spec = importlib.util.spec_from_file_location("sign_macos_candidate", SCRIPT)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    module.sys = SimpleNamespace(**vars(module.sys))
     return module
 
 
@@ -43,13 +46,15 @@ def archive(path, entries):
 
 
 @pytest.fixture
-def candidate(tmp_path, signer, monkeypatch):
+def candidate(tmp_path, signer, monkeypatch, request):
+    from test_validate_package_inputs import make_approved_fixture
+
     monkeypatch.setattr(signer.sys, "platform", "darwin")
+    arch = getattr(request, "param", "arm64")
+    target = {"arm64": "aarch64-apple-darwin", "x86_64": "x86_64-apple-darwin"}[arch]
     repo = tmp_path / "repo"
-    for name in signer.LOCKS:
-        path = repo / name
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text('cua = "0.7.8"\npython = "3.12.14"\n')
+    inputs = repo / "packaging/inputs" / f"macos-{arch}"
+    make_approved_fixture(inputs, repo, target=target)
     macos = repo / "packaging/macos"
     (macos / "scripts").mkdir(parents=True)
     (macos / "resources").mkdir()
@@ -69,10 +74,12 @@ def candidate(tmp_path, signer, monkeypatch):
         })))
         entries.append((path + "/Contents/MacOS/" + executable, b"\xcf\xfa\xed\xfefixture"))
     entries += [(APP + "/Contents/MacOS/vadgr", b"\xcf\xfa\xed\xfefixture"),
-                (APP + "/Contents/Resources/lib/extension.so", b"\xcf\xfa\xed\xfefixture"),
-                (APP + "/Contents/Resources/legal/TERMS.txt", b"Terms fixture"),
-                ("usr/local/bin/vadgr", (tarfile.SYMTYPE, "/Applications/Vadgr.app/Contents/MacOS/vadgr"))]
-    source = tmp_path / "Vadgr-0.5.0-macos-arm64-unsigned-root.tar.gz"
+                (APP + "/Contents/Resources/lib/extension.so", b"\xcf\xfa\xed\xfefixture")]
+    entries.extend((APP + "/Contents/Resources/" + path.relative_to(inputs).as_posix(), path.read_bytes())
+                   for path in sorted(inputs.rglob("*")) if path.is_file())
+    if os.name == "posix":
+        entries.append(("usr/local/bin/vadgr", (tarfile.SYMTYPE, "/Applications/Vadgr.app/Contents/MacOS/vadgr")))
+    source = tmp_path / f"Vadgr-0.5.0-macos-{arch}-unsigned-root.tar.gz"
     archive(source, entries)
     key = tmp_path / "key.p8"
     key.write_text("synthetic key")
@@ -91,7 +98,7 @@ def candidate(tmp_path, signer, monkeypatch):
     }
     metadata = {
         "schema": 1, "source_sha": env["SOURCE_SHA"], "source_tree": env["SOURCE_TREE"],
-        "run_id": "123", "run_attempt": "2", "architecture": "arm64",
+        "run_id": "123", "run_attempt": "2", "architecture": arch,
         "archive_name": source.name, "archive_sha256": signer.sha256(source),
         "lock_sha256": {name: signer.sha256(repo / name) for name in signer.LOCKS},
         "unsigned_development": True,
@@ -236,15 +243,11 @@ def test_subprocess_failures_never_echo_output_or_arguments(signer, monkeypatch)
 
 
 @requires_posix_filesystem
+@pytest.mark.parametrize("candidate", ["x86_64"], indirect=True)
 def test_x86_installer_targets_only_its_architecture(signer, candidate):
     repo, source, record, env, output = candidate
-    destination = source.with_name(source.name.replace("arm64", "x86_64"))
-    source.rename(destination)
-    metadata = json.loads(record.read_text())
-    metadata.update(architecture="x86_64", archive_name=destination.name)
-    record.write_text(json.dumps(metadata))
     tools = NativeTools(env, arch="x86_64")
-    signer.sign_candidate(destination, record, "x86_64", output, env=env, repo=repo, run=tools)
+    signer.sign_candidate(source, record, "x86_64", output, env=env, repo=repo, run=tools)
     assert (output / "Vadgr-0.5.0-macos-x86_64.pkg").is_file()
     assert all(argv[2] == "x86_64" for argv, _ in tools.calls if Path(argv[0]).name == "lipo")
 
@@ -319,3 +322,134 @@ def test_archive_digest_is_rechecked_at_extraction(signer, tmp_path):
     with pytest.raises(signer.SigningError, match="digest"):
         signer.extract_archive(source, output, "0" * 64)
     assert not output.exists()
+
+
+def test_archive_without_review_is_rejected_before_native_signing(signer, candidate):
+    rewrite_candidate_archive(signer, candidate, lambda name, value: (
+        None if name.endswith("/package-input-review.json") else (name, value)))
+    tools = NativeTools(candidate[3])
+    with pytest.raises(signer.SigningError, match="package input"):
+        execute(signer, candidate, tools)
+    assert not any(Path(argv[0]).name == "codesign" for argv, _ in tools.calls)
+    assert not candidate[4].exists()
+
+
+def rewrite_candidate_archive(signer, candidate, transform, extra=()):
+    source, record = candidate[1:3]
+    entries = []
+    with tarfile.open(source, "r:gz") as current:
+        for entry in current.getmembers():
+            if entry.isdir():
+                continue
+            value = ((entry.type, entry.linkname) if entry.issym()
+                     else current.extractfile(entry).read())
+            changed = transform(entry.name, value)
+            if changed is not None:
+                entries.append(changed)
+    entries.extend(extra)
+    archive(source, entries)
+    metadata = json.loads(record.read_text())
+    metadata["archive_sha256"] = signer.sha256(source)
+    record.write_text(json.dumps(metadata))
+
+
+def test_source_only_review_result_is_not_artifact_verification(signer, candidate, monkeypatch):
+    calls = []
+    def source_only(resources, repo, version, target, **kwargs):
+        calls.append((resources, repo, version, target, kwargs))
+        return {"scope": "source-inputs"}
+    monkeypatch.setattr(signer, "validate_package_inputs", source_only)
+    tools = NativeTools(candidate[3])
+    with pytest.raises(signer.SigningError, match="assembled payload"):
+        execute(signer, candidate, tools)
+    assert len(calls) == 1
+    resources, repo, version, target, kwargs = calls[0]
+    assert resources.parts[-4:] == ("Applications", "Vadgr.app", "Contents", "Resources")
+    assert repo == candidate[0] and version == "0.5.0" and target == "aarch64-apple-darwin"
+    assert kwargs == {}
+    assert not any(Path(argv[0]).name == "codesign" for argv, _ in tools.calls)
+
+
+@pytest.mark.parametrize("name", ["legal/TERMS.txt", "legal/TERMS.rtf", "README-OFFLINE.txt",
+                                 "sbom/vadgr-0.5.0.spdx.json", "lib/cua/payload.json"])
+def test_archive_resource_tampering_fails_with_unchanged_source_review(signer, candidate, name):
+    source_inputs = candidate[0] / "packaging/inputs/macos-arm64"
+    result = signer.validate_package_inputs(source_inputs, candidate[0], "0.5.0", "aarch64-apple-darwin", source_only=True)
+    assert result["scope"] == "source-inputs"
+    resource = APP + "/Contents/Resources/" + name
+    rewrite_candidate_archive(signer, candidate, lambda path, value: (
+        path, value + b" altered" if path == resource else value))
+    tools = NativeTools(candidate[3])
+    with pytest.raises(signer.SigningError, match="package input"):
+        execute(signer, candidate, tools)
+    assert not any(Path(argv[0]).name == "codesign" for argv, _ in tools.calls)
+    assert not candidate[4].exists()
+
+
+@pytest.mark.parametrize("field,value", [("status", "draft"), ("synthetic", True),
+                                         ("target", "x86_64-apple-darwin"), ("version", "0.5.1")])
+def test_unapproved_archive_review_fails_before_codesign(signer, candidate, field, value):
+    def change_review(path, content):
+        if path.endswith("/package-input-review.json"):
+            review = json.loads(content)
+            review[field] = value
+            content = json.dumps(review).encode()
+        return path, content
+    rewrite_candidate_archive(signer, candidate, change_review)
+    tools = NativeTools(candidate[3])
+    with pytest.raises(signer.SigningError, match="package input"):
+        execute(signer, candidate, tools)
+    assert not any(Path(argv[0]).name == "codesign" for argv, _ in tools.calls)
+
+
+def test_archive_review_must_be_the_exact_review_from_source(signer, candidate):
+    rewrite_candidate_archive(signer, candidate, lambda path, value: (
+        path, value + b"\n" if path.endswith("/package-input-review.json") else value))
+    tools = NativeTools(candidate[3])
+    with pytest.raises(signer.SigningError, match="approved source"):
+        execute(signer, candidate, tools)
+    assert not any(Path(argv[0]).name == "codesign" for argv, _ in tools.calls)
+
+
+def test_extra_unreviewed_legal_file_is_rejected(signer, candidate):
+    rewrite_candidate_archive(signer, candidate, lambda path, value: (path, value),
+                              [(APP + "/Contents/Resources/legal/unreviewed.txt", b"Unreviewed fixture")])
+    tools = NativeTools(candidate[3])
+    with pytest.raises(signer.SigningError, match="package input"):
+        execute(signer, candidate, tools)
+    assert not any(Path(argv[0]).name == "codesign" for argv, _ in tools.calls)
+
+
+def test_current_lock_must_still_match_review_after_provenance_refresh(signer, candidate):
+    lock = candidate[0] / "Cargo.lock"
+    lock.write_text(lock.read_text() + "\n# Changed fixture lock\n")
+    record = candidate[2]
+    metadata = json.loads(record.read_text())
+    metadata["lock_sha256"]["Cargo.lock"] = signer.sha256(lock)
+    record.write_text(json.dumps(metadata))
+    tools = NativeTools(candidate[3])
+    with pytest.raises(signer.SigningError, match="package input"):
+        execute(signer, candidate, tools)
+    assert not any(Path(argv[0]).name == "codesign" for argv, _ in tools.calls)
+
+
+def test_package_review_error_never_echoes_input_contents(signer, tmp_path, monkeypatch):
+    def failed(*args, **kwargs):
+        raise signer.PackageInputError("private-input-value")
+    monkeypatch.setattr(signer, "validate_package_inputs", failed)
+    with pytest.raises(signer.SigningError) as result:
+        signer.validate_package_review(tmp_path, tmp_path, "arm64")
+    assert str(result.value) == "package input review failed"
+
+
+@requires_posix_filesystem
+@pytest.mark.parametrize("relative", ["packaging/inputs", "packaging/inputs/macos-arm64"])
+def test_source_review_parent_cannot_redirect_to_another_directory(signer, candidate, relative):
+    original = candidate[0] / relative
+    outside = candidate[0].parent / "redirected-inputs"
+    original.rename(outside)
+    original.symlink_to(outside, target_is_directory=True)
+    tools = NativeTools(candidate[3])
+    with pytest.raises(signer.SigningError, match="not package-owned"):
+        execute(signer, candidate, tools)
+    assert not any(Path(argv[0]).name == "codesign" for argv, _ in tools.calls)

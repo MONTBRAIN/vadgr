@@ -17,6 +17,9 @@ All notable changes to this project are documented here. Format follows [Keep a 
   platform publisher identity.
 - WSL receives a CLI-only verified archive lifecycle through `install.sh` with
   install, repair, rollback and data-preserving uninstall.
+- A local legal-bundle generator copies explicit public inputs into a draft
+  package with escaped terms, verbatim notices and an SPDX inventory. It cannot
+  approve terms or create a signing waiver.
 
 ### Changed
 
@@ -26,6 +29,10 @@ All notable changes to this project are documented here. Format follows [Keep a 
   browser broker discovery and safe released-version upgrade handoff repairs.
 - Unix payload assembly uses relative links to its bundled interpreter and
   rejects runtime paths that retain an external assembly dependency.
+- The protected macOS candidate checks architecture-specific legal, inventory
+  and review bytes before assembly and again in the extracted package before
+  signing. Draft inputs, changed bytes and source-only checks cannot pass the
+  signing boundary.
 
 ## [0.4.12] - 2026-08-29
 

@@ -8,12 +8,12 @@ case "$arch" in x86_64|arm64) ;; *) echo "Unsupported macOS architecture: $arch"
 
 repo=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
 [ "$(tr -d '\r\n' < "$repo/packaging/release-public-key.txt")" != UNCONFIGURED ] || { echo "The reviewed release public key is not configured." >&2; exit 2; }
-[ -d "$repo/packaging/legal" ] || { echo "The generated legal bundle is missing." >&2; exit 2; }
-[ -d "$repo/packaging/sbom" ] || { echo "The generated SBOM bundle is missing." >&2; exit 2; }
-[ -f "$repo/packaging/README-OFFLINE.txt" ] || { echo "The offline README is missing." >&2; exit 2; }
 [ -d "$repo/dist/payload" ] || { echo "The pinned private CUA payload is missing." >&2; exit 2; }
 
 case "$arch" in arm64) rust_target=aarch64-apple-darwin;; *) rust_target=x86_64-apple-darwin;; esac
+inputs="$repo/packaging/inputs/macos-$arch"
+python3 "$repo/scripts/validate_package_inputs.py" --root "$inputs" --source-root "$repo" --version "$version" --target "$rust_target" \
+  --payload-manifest "$repo/dist/payload/lib/cua/payload.json"
 cargo build --locked --release --features native-gui,macos-cua-host --target "$rust_target" --bin vadgr --bin vadgr-app --bin vadgr-cua-host
 
 work="$repo/target/package/macos-$arch"
@@ -28,9 +28,11 @@ install -m 0755 "$repo/target/$rust_target/release/vadgr" "$app/Contents/MacOS/v
 install -m 0755 "$repo/target/$rust_target/release/vadgr-app" "$app/Contents/MacOS/vadgr-app"
 install -m 0755 "$repo/target/$rust_target/release/vadgr-cua-host" "$cua/Contents/MacOS/vadgr-cua-host"
 cp -R -- "$repo/dist/payload/." "$app/Contents/Resources/"
-cp -R -- "$repo/packaging/legal/." "$app/Contents/Resources/legal/"
-cp -R -- "$repo/packaging/sbom/." "$app/Contents/Resources/sbom/"
-cp -- "$repo/packaging/README-OFFLINE.txt" "$app/Contents/Resources/README-OFFLINE.txt"
+cp -R -- "$inputs/legal/." "$app/Contents/Resources/legal/"
+cp -R -- "$inputs/sbom/." "$app/Contents/Resources/sbom/"
+cp -- "$inputs/README-OFFLINE.txt" "$app/Contents/Resources/README-OFFLINE.txt"
+cp -- "$inputs/package-input-review.json" "$app/Contents/Resources/package-input-review.json"
+cp -- "$inputs/package-input-inventory.json" "$app/Contents/Resources/package-input-inventory.json"
 cp "$repo/packaging/macos/com.montbrain.vadgr.agent.plist" "$app/Contents/Library/LaunchAgents/"
 install -m 0755 "$repo/packaging/macos/vadgr-lifecycle" "$app/Contents/Helpers/vadgr-lifecycle"
 swiftc "$repo/packaging/macos/LoginItemController.swift" -o "$app/Contents/Helpers/vadgr-login-item"
@@ -43,7 +45,7 @@ rm -rf -- "$resources"
 mkdir -p "$resources"
 cp -- "$repo/packaging/macos/resources/WELCOME.txt" "$resources/WELCOME.txt"
 cp -- "$repo/packaging/macos/resources/CONCLUSION.txt" "$resources/CONCLUSION.txt"
-cp -- "$repo/packaging/legal/TERMS.txt" "$resources/TERMS.txt"
+cp -- "$inputs/legal/TERMS.txt" "$resources/TERMS.txt"
 
 scripts="$work/scripts"
 mkdir -p "$scripts"
@@ -66,4 +68,4 @@ COPYFILE_DISABLE=1 tar -C "$root" -czf "$root_archive" .
 
 printf '%s\n' "$unsigned"
 printf '%s\n' "$root_archive"
-echo "Signing, notarization, stapling and final package verification run only in the protected release job."
+echo "Signing, notarization, stapling and final package verification run only in the protected candidate job."
