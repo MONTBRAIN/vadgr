@@ -120,6 +120,25 @@ impl CuaRuntime {
             "cua interpreter is missing: {}",
             runtime.interpreter.display()
         );
+        #[cfg(unix)]
+        {
+            validate_payload_root(root, &cua_root)?;
+            ensure!(
+                std::fs::canonicalize(&runtime.interpreter)?
+                    .starts_with(std::fs::canonicalize(&cua_root)?),
+                "cua interpreter escapes its owned payload"
+            );
+            ensure!(
+                !std::fs::read_link(&runtime.interpreter)?.is_absolute(),
+                "cua interpreter retains an absolute assembly path"
+            );
+            ensure!(
+                !std::fs::read_to_string(runtime.environment.join("pyvenv.cfg"))?
+                    .lines()
+                    .any(is_python_home_field),
+                "cua environment retains assembly home metadata"
+            );
+        }
         ensure!(
             runtime.bootstrap.is_file(),
             "cua bootstrap is missing: {}",
@@ -341,6 +360,8 @@ impl CuaPayloadInstaller {
             .env("UV_CACHE_DIR", &cache)
             .output()?;
         require_success("syncing the pinned cua packages", output)?;
+        #[cfg(unix)]
+        finalize_unix_environment(&environment_staging, &python_final)?;
 
         let bootstrap_staging = staging.join("bootstrap.py");
         std::fs::write(&bootstrap_staging, BOOTSTRAP)?;
@@ -551,7 +572,69 @@ fn target_triple() -> Result<&'static str> {
 }
 
 fn environment_generation() -> String {
-    format!("{}-{}", CUA_VERSION, &REQUIREMENTS_SHA256[..12])
+    let generation = format!("{}-{}", CUA_VERSION, &REQUIREMENTS_SHA256[..12]);
+    if cfg!(unix) {
+        format!("{generation}-unix-relative-v1")
+    } else {
+        generation
+    }
+}
+
+#[cfg(unix)]
+fn is_python_home_field(line: &str) -> bool {
+    line.split_once('=')
+        .is_some_and(|(key, _)| key.trim() == "home")
+}
+
+#[cfg(unix)]
+fn finalize_unix_environment(environment: &Path, python_root: &Path) -> Result<()> {
+    let container = environment
+        .parent()
+        .context("environment has no staging directory")?;
+    ensure!(
+        container
+            .file_name()
+            .is_some_and(|name| name.to_string_lossy().starts_with(".staging-")),
+        "only a staged cua environment can be finalized"
+    );
+    let cua_root =
+        std::fs::canonicalize(container.parent().context("staging has no payload root")?)?;
+    let canonical_python_root = std::fs::canonicalize(python_root)?;
+    let target = std::fs::canonicalize(base_python(python_root))?;
+    ensure!(
+        canonical_python_root.starts_with(&cua_root)
+            && target.starts_with(&canonical_python_root)
+            && target.is_file(),
+        "base Python escapes its owned payload"
+    );
+    let relative_target = Path::new("../../..").join(target.strip_prefix(&cua_root)?);
+    let interpreter = environment_python(environment);
+    ensure!(
+        std::fs::symlink_metadata(&interpreter)?
+            .file_type()
+            .is_symlink(),
+        "staged cua interpreter is not a symbolic link"
+    );
+    ensure!(
+        std::fs::canonicalize(
+            interpreter
+                .parent()
+                .context("interpreter has no directory")?
+                .join(&relative_target)
+        )? == target,
+        "relative cua interpreter does not resolve to its private Python"
+    );
+    let config_path = environment.join("pyvenv.cfg");
+    let config = std::fs::read_to_string(&config_path)?;
+    let config: String = config
+        .split_inclusive('\n')
+        .filter(|line| !is_python_home_field(line))
+        .collect();
+    let staged_link = interpreter.with_file_name(format!(".python-{}", uuid::Uuid::new_v4()));
+    std::os::unix::fs::symlink(&relative_target, &staged_link)?;
+    std::fs::write(config_path, config)?;
+    std::fs::rename(staged_link, interpreter)?;
+    Ok(())
 }
 
 fn environment_python(environment: &Path) -> PathBuf {
@@ -872,12 +955,325 @@ fn safe_remove_staging(root: &Path, staging: &Path) -> Result<()> {
 mod tests {
     use super::*;
 
+    #[cfg(unix)]
+    fn unix_environment_fixture(root: &Path, container: &str) -> (PathBuf, PathBuf) {
+        let python = root.join("python").join(PYTHON_VERSION);
+        let environment = root.join(container).join(environment_generation());
+        std::fs::create_dir_all(python.join("bin")).unwrap();
+        std::fs::create_dir_all(environment.join("bin")).unwrap();
+        std::fs::write(python.join("bin/python3.12"), b"private python").unwrap();
+        std::os::unix::fs::symlink("python3.12", python.join("bin/python3")).unwrap();
+        std::os::unix::fs::symlink(base_python(&python), environment_python(&environment)).unwrap();
+        std::fs::write(environment.join("pyvenv.cfg"), format!(
+            "home = {}\nimplementation = CPython\nversion_info = {PYTHON_VERSION}\ninclude-system-site-packages = false\nrelocatable = true\n", python.join("bin").display()
+        )).unwrap();
+        (environment, python)
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn unix_generation_does_not_reuse_the_legacy_recipe() {
+        assert!(environment_generation().ends_with("-unix-relative-v1"));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn unix_finalization_never_patches_a_committed_generation() {
+        let temporary = tempfile::tempdir().unwrap();
+        let (environment, python) = unix_environment_fixture(temporary.path(), "environments");
+        let before = std::fs::read(environment.join("pyvenv.cfg")).unwrap();
+        assert!(finalize_unix_environment(&environment, &python).is_err());
+        assert_eq!(
+            std::fs::read(environment.join("pyvenv.cfg")).unwrap(),
+            before
+        );
+        assert!(
+            std::fs::read_link(environment_python(&environment))
+                .unwrap()
+                .is_absolute()
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn unix_finalization_preserves_metadata_and_survives_generation_moves() {
+        let temporary = tempfile::tempdir().unwrap();
+        let root = temporary.path().join("original/lib/cua");
+        let (environment, python) = unix_environment_fixture(&root, ".staging-test");
+        let legacy = root
+            .join("environments")
+            .join(format!("{CUA_VERSION}-{}", &REQUIREMENTS_SHA256[..12]));
+        std::fs::create_dir_all(&legacy).unwrap();
+        std::fs::write(legacy.join("unchanged"), b"legacy generation").unwrap();
+        finalize_unix_environment(&environment, &python).unwrap();
+        let link = std::fs::read_link(environment_python(&environment)).unwrap();
+        assert!(
+            !link.is_absolute(),
+            "the interpreter must not retain the assembly root"
+        );
+        assert_eq!(link, Path::new("../../../python/3.12.14/bin/python3.12"));
+        let config = std::fs::read_to_string(environment.join("pyvenv.cfg")).unwrap();
+        assert_eq!(
+            config,
+            "implementation = CPython\nversion_info = 3.12.14\ninclude-system-site-packages = false\nrelocatable = true\n"
+        );
+        let final_environment = root.join("environments").join(environment_generation());
+        std::fs::rename(&environment, &final_environment).unwrap();
+        assert_eq!(
+            std::fs::read(legacy.join("unchanged")).unwrap(),
+            b"legacy generation"
+        );
+        let moved = temporary
+            .path()
+            .join("moved app/Contents/Resources/lib/cua");
+        std::fs::create_dir_all(moved.parent().unwrap()).unwrap();
+        std::fs::rename(&root, &moved).unwrap();
+        assert!(!root.exists());
+        assert_eq!(
+            std::fs::canonicalize(environment_python(
+                &moved.join("environments").join(environment_generation())
+            ))
+            .unwrap(),
+            std::fs::canonicalize(moved.join("python/3.12.14/bin/python3.12")).unwrap()
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn unix_finalization_refuses_an_external_base_before_mutation() {
+        let temporary = tempfile::tempdir().unwrap();
+        let (environment, python) =
+            unix_environment_fixture(&temporary.path().join("cua"), ".staging-test");
+        let outside = temporary.path().join("outside-python");
+        std::fs::write(&outside, b"foreign python").unwrap();
+        std::fs::remove_file(python.join("bin/python3.12")).unwrap();
+        std::os::unix::fs::symlink(&outside, python.join("bin/python3.12")).unwrap();
+        let before = std::fs::read(environment.join("pyvenv.cfg")).unwrap();
+        assert!(
+            finalize_unix_environment(&environment, &python).is_err(),
+            "external base must be refused"
+        );
+        assert_eq!(
+            std::fs::read(environment.join("pyvenv.cfg")).unwrap(),
+            before
+        );
+        assert!(
+            std::fs::read_link(environment_python(&environment))
+                .unwrap()
+                .is_absolute()
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn unix_runtime_refuses_an_existing_external_interpreter() {
+        let temporary = tempfile::tempdir().unwrap();
+        let root = test_install_root(temporary.path());
+        let manifest = valid_payload(&root);
+        write_manifest(&root, &manifest);
+        let interpreter = environment_python(
+            &root
+                .join("lib/cua/environments")
+                .join(environment_generation()),
+        );
+        let outside = temporary.path().join("outside-python");
+        std::fs::write(&outside, b"foreign python").unwrap();
+        std::fs::remove_file(&interpreter).unwrap();
+        std::os::unix::fs::symlink(outside, &interpreter).unwrap();
+        assert!(
+            CuaRuntime::below_install_root(&root).is_err(),
+            "a live external interpreter must not satisfy readiness"
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn unix_runtime_refuses_unrelocatable_metadata_without_modifying_it() {
+        let temporary = tempfile::tempdir().unwrap();
+        let root = test_install_root(temporary.path());
+        let manifest = valid_payload(&root);
+        write_manifest(&root, &manifest);
+        let environment = root
+            .join("lib/cua/environments")
+            .join(environment_generation());
+        let interpreter = environment_python(&environment);
+        let target = std::fs::canonicalize(&interpreter).unwrap();
+        std::fs::remove_file(&interpreter).unwrap();
+        std::os::unix::fs::symlink(&target, &interpreter).unwrap();
+        assert!(
+            CuaRuntime::below_install_root(&root)
+                .unwrap_err()
+                .to_string()
+                .contains("absolute assembly path")
+        );
+        assert_eq!(std::fs::read_link(&interpreter).unwrap(), target);
+        std::fs::remove_file(&interpreter).unwrap();
+        std::os::unix::fs::symlink("../../../python/3.12.14/bin/python3.12", &interpreter).unwrap();
+        std::fs::write(
+            environment.join("pyvenv.cfg"),
+            "home = obsolete\ninclude-system-site-packages = false\n",
+        )
+        .unwrap();
+        assert!(
+            CuaRuntime::below_install_root(&root)
+                .unwrap_err()
+                .to_string()
+                .contains("assembly home metadata")
+        );
+        assert!(
+            std::fs::read_to_string(environment.join("pyvenv.cfg"))
+                .unwrap()
+                .starts_with("home = obsolete")
+        );
+    }
+
+    #[cfg(unix)]
+    fn copy_unix_fixture(source: &Path, destination: &Path) {
+        let metadata = std::fs::symlink_metadata(source).unwrap();
+        if metadata.file_type().is_symlink() {
+            std::os::unix::fs::symlink(std::fs::read_link(source).unwrap(), destination).unwrap();
+        } else if metadata.is_dir() {
+            std::fs::create_dir_all(destination).unwrap();
+            for entry in std::fs::read_dir(source).unwrap() {
+                let entry = entry.unwrap();
+                copy_unix_fixture(&entry.path(), &destination.join(entry.file_name()));
+            }
+        } else {
+            std::fs::copy(source, destination).unwrap();
+        }
+    }
+
+    /// Explicit fixtures: VADGR_TEST_CUA_PAYLOAD is an assembled lib/cua directory;
+    /// VADGR_TEST_UV is the pinned uv executable. Runs on macOS and Linux without
+    /// downloading packages, importing computer use, or changing either fixture.
+    #[cfg(unix)]
+    #[test]
+    #[ignore = "requires explicit pinned standalone Python, wheel and uv fixtures"]
+    fn unix_cold_runtime_closure_with_pinned_fixtures() {
+        let fixture = PathBuf::from(
+            std::env::var_os("VADGR_TEST_CUA_PAYLOAD").expect("set VADGR_TEST_CUA_PAYLOAD"),
+        );
+        let uv = PathBuf::from(std::env::var_os("VADGR_TEST_UV").expect("set VADGR_TEST_UV"));
+        let pins = current_pins().unwrap();
+        let manifest: PayloadManifest =
+            serde_json::from_slice(&std::fs::read(fixture.join("payload.json")).unwrap()).unwrap();
+        assert_eq!(manifest.python_version, PYTHON_VERSION);
+        assert_eq!(manifest.python_build, PYTHON_BUILD);
+        assert_eq!(manifest.python_archive_sha256, pins.python_archive_sha256);
+        assert_eq!(manifest.requirements_sha256, REQUIREMENTS_SHA256);
+        assert_eq!(manifest.uv_archive_sha256, pins.uv_archive_sha256);
+        assert_eq!(manifest.target, target_triple().unwrap());
+        let version = clean_command(&uv).arg("--version").output().unwrap();
+        assert!(version.status.success());
+        assert!(String::from_utf8_lossy(&version.stdout).starts_with(&format!("uv {UV_VERSION} ")));
+        let temporary = tempfile::tempdir().unwrap();
+        let origin = temporary.path().join("assembly origin/lib/cua");
+        let python = origin.join("python").join(PYTHON_VERSION);
+        copy_unix_fixture(&fixture.join("python").join(PYTHON_VERSION), &python);
+        let environment = origin.join(".staging-test").join(environment_generation());
+        let home = temporary.path().join("isolated-home");
+        std::fs::create_dir(&home).unwrap();
+        let output = Command::new(&uv)
+            .env_clear()
+            .env("HOME", &home)
+            .env("PATH", "")
+            .env("UV_OFFLINE", "true")
+            .env("UV_CACHE_DIR", temporary.path().join("cache"))
+            .args([
+                "venv",
+                "--relocatable",
+                "--no-config",
+                "--no-project",
+                "--no-python-downloads",
+                "--python",
+            ])
+            .arg(base_python(&python))
+            .arg(&environment)
+            .output()
+            .unwrap();
+        println!(
+            "{}",
+            serde_json::json!({"phase":"fresh_venv", "exit_code": output.status.code(), "stdout":String::from_utf8_lossy(&output.stdout), "stderr":String::from_utf8_lossy(&output.stderr)})
+        );
+        assert!(output.status.success());
+        let source_environment = fixture
+            .join("environments")
+            .join(format!("{CUA_VERSION}-{}", &REQUIREMENTS_SHA256[..12]));
+        let source_environment = if source_environment.is_dir() {
+            source_environment
+        } else {
+            fixture.join("environments").join(environment_generation())
+        };
+        copy_unix_fixture(
+            &source_environment.join("lib/python3.12/site-packages"),
+            &environment.join("lib/python3.12/site-packages"),
+        );
+        finalize_unix_environment(&environment, &python).unwrap();
+        let final_environment = origin.join("environments").join(environment_generation());
+        std::fs::create_dir(origin.join("environments")).unwrap();
+        std::fs::rename(environment, final_environment).unwrap();
+        let copied = temporary
+            .path()
+            .join("copied app/Contents/Resources/lib/cua");
+        copy_unix_fixture(&origin, &copied);
+        std::fs::rename(&origin, temporary.path().join("hidden-origin")).unwrap();
+        assert!(!origin.exists());
+        let probe = r#"import ctypes, encodings, importlib.metadata, json, pathlib, sqlite3, ssl, sys
+root = pathlib.Path(sys.argv[1]).resolve()
+paths = [sys.executable, sys.prefix, sys.base_prefix, encodings.__file__, ssl.__file__, sqlite3.__file__, ctypes.__file__, *sys.path]
+distributions = sorted((d.metadata['Name'], d.version, str(d.locate_file('').resolve())) for d in importlib.metadata.distributions())
+outside = [p for p in paths + [d[2] for d in distributions] if not pathlib.Path(p).resolve().is_relative_to(root)]
+print(json.dumps({'python':sys.version.split()[0], 'paths':paths, 'distributions':[(d[0], d[1]) for d in distributions], 'outside':outside}))
+assert sys.version.split()[0] == '3.12.14'
+assert importlib.metadata.version('vadgr-computer-use') == '0.7.8'
+assert not outside
+"#;
+        let result = Command::new(environment_python(
+            &copied.join("environments").join(environment_generation()),
+        ))
+        .env_clear()
+        .env("HOME", &home)
+        .env("PATH", "")
+        .current_dir(&home)
+        .args(["-I", "-B", "-c", probe])
+        .arg(&copied)
+        .output();
+        match result {
+            Ok(output) => {
+                println!(
+                    "{}",
+                    serde_json::json!({"phase":"cold_closure", "exit_code":output.status.code(), "stdout":String::from_utf8_lossy(&output.stdout), "stderr":String::from_utf8_lossy(&output.stderr)})
+                );
+                assert!(output.status.success(), "cold interpreter closure failed");
+            }
+            Err(error) => {
+                println!(
+                    "{}",
+                    serde_json::json!({"phase":"cold_closure", "exit_code":null, "launch_error":error.to_string(), "raw_os_error":error.raw_os_error()})
+                );
+                panic!("cold interpreter could not launch: {error}");
+            }
+        }
+    }
+
     fn valid_payload(root: &Path) -> serde_json::Value {
         let pins = current_pins().unwrap();
         let cua_root = root.join("lib/cua");
         let environment = cua_root.join("environments").join(environment_generation());
         std::fs::create_dir_all(environment_python(&environment).parent().unwrap()).unwrap();
+        #[cfg(not(unix))]
         std::fs::write(environment_python(&environment), b"private python").unwrap();
+        #[cfg(unix)]
+        {
+            let (staged, python) = unix_environment_fixture(&cua_root, ".staging-test");
+            finalize_unix_environment(&staged, &python).unwrap();
+            std::fs::rename(
+                environment_python(&staged),
+                environment_python(&environment),
+            )
+            .unwrap();
+            std::fs::rename(staged.join("pyvenv.cfg"), environment.join("pyvenv.cfg")).unwrap();
+        }
         std::fs::write(cua_root.join("bootstrap.py"), b"bootstrap").unwrap();
         serde_json::json!({
             "schema": 1,

@@ -311,23 +311,23 @@ jobs:
           version="$(grep -m1 '^version = ' Cargo.toml | cut -d'"' -f2)"
           test -n "$version" || { echo "read no version from Cargo.toml"; exit 1; }
           container="vadgr-clean-install"
+          container_root="/opt/vadgr"
           trap 'docker rm -f "$container" >/dev/null 2>&1 || true' EXIT
-          # Mount the complete verified install at the same absolute path, then
-          # start it. Python environments are not relocatable after assembly;
-          # a user's installation also remains where the installer created it.
+          # Only the copied install exists inside the clean machine. A build-root
+          # interpreter link must fail instead of borrowing the runner's Python.
           # No image is built, and removing the container removes every trace.
           docker create --name "$container" \
-            --mount "type=bind,src=$CLEAN_INSTALL_ROOT,dst=$CLEAN_INSTALL_ROOT,readonly" \
+            --mount "type=bind,src=$CLEAN_INSTALL_ROOT,dst=$container_root,readonly" \
             --env VADGR_CONFIG_HOME=/var/lib/vadgr \
             --env VADGR_DB=/var/lib/vadgr/vadgr.db \
             --env VADGR_STATE_HOME=/var/lib/vadgr/state \
             --env VADGR_RUNS_DIR=/var/lib/vadgr/runs \
             --env VADGR_PORT=8100 \
             --env VADGR_TRANSPORT=loopback \
-            ubuntu:24.04 "$CLEAN_INSTALL_ROOT/bin/vadgr" serve >/dev/null
+            ubuntu:24.04 "$container_root/bin/vadgr" serve >/dev/null
           docker start "$container" >/dev/null
           # The CLI runs on the clean machine and names this checkout's version.
-          out="$(docker exec "$container" "$CLEAN_INSTALL_ROOT/bin/vadgr" --version)"
+          out="$(docker exec "$container" "$container_root/bin/vadgr" --version)"
           test "$out" = "vadgr $version" || { echo "vadgr --version said '$out', expected 'vadgr $version'"; exit 1; }
           # It serves. The base ships no HTTP client, so a pinned busybox
           # sidecar joins the machine's own network namespace to fetch: the
@@ -369,7 +369,7 @@ jobs:
             '. == {"enabled": true, "platform": "native", "venv_ready": true}' >/dev/null \
             || { echo "the bundled MCP server is unavailable: $computer_use"; docker logs "$container"; exit 1; }
           # The CLI reaches the daemon from the same machine.
-          docker exec "$container" "$CLEAN_INSTALL_ROOT/bin/vadgr" health
+          docker exec "$container" "$container_root/bin/vadgr" health
           # Stop it; the trap removes the machine whole.
           docker stop --time 10 "$container" >/dev/null
 

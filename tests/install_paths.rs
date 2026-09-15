@@ -384,11 +384,17 @@ fn clean_install_checks_follow_the_payload_manifest() {
     );
     assert!(
         !workflow.contains(r#"docker cp -q "$CLEAN_INSTALL_ROOT/.""#),
-        "the private environment is not relocatable after assembly"
+        "clean install must use only the verified read-only payload mount"
     );
     assert!(
-        workflow.contains(r#"src=$CLEAN_INSTALL_ROOT,dst=$CLEAN_INSTALL_ROOT,readonly"#),
-        "the clean Linux machine must mount the assembled root at its original path"
+        workflow.contains(r#"container_root="/opt/vadgr""#)
+            && workflow.contains(r#"src=$CLEAN_INSTALL_ROOT,dst=$container_root,readonly"#)
+            && !workflow.contains(r#"dst=$CLEAN_INSTALL_ROOT,readonly"#),
+        "the clean Linux machine must not expose the assembly root"
+    );
+    assert!(
+        workflow.matches(r#""$container_root/bin/vadgr""#).count() == 3,
+        "all installed container entry points must use the relocated root"
     );
 }
 

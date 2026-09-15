@@ -24,6 +24,8 @@ All notable changes to this project are documented here. Format follows [Keep a 
   than a separately maintained constant.
 - The bundled computer-use payload now carries released version 0.7.8, including
   browser broker discovery and safe released-version upgrade handoff repairs.
+- Unix payload assembly uses relative links to its bundled interpreter and
+  rejects runtime paths that retain an external assembly dependency.
 
 ## [0.4.12] - 2026-08-29
 
