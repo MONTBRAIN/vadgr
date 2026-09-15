@@ -201,14 +201,20 @@ fn macos_installer_creates_owner_cache_without_root_owned_parents() {
 #[test]
 fn macos_rollback_tracks_start_failure_and_stops_before_removing_the_app() {
     let script = read("packaging/macos/scripts/postinstall");
+    assert_macos_rollback_order(&script);
+}
+
+fn assert_macos_rollback_order(script: &str) {
     let start = script
         .find("start_status=0")
         .expect("track the start result");
     let capture = script[start..]
-        .find("remember_started_daemon\n")
+        .lines()
+        .position(|line| line == "remember_started_daemon")
         .expect("capture the child even when startup fails");
     let failure = script[start..]
-        .find("if [ \"$start_status\" -ne 0 ]")
+        .lines()
+        .position(|line| line.starts_with("if [ \"$start_status\" -ne 0 ]"))
         .unwrap();
     assert!(capture < failure);
     let rollback = script.split("restore_previous() {").nth(1).unwrap();
@@ -217,6 +223,27 @@ fn macos_rollback_tracks_start_failure_and_stops_before_removing_the_app() {
             < rollback.find("/bin/rm -rf -- \"$app\"").unwrap()
     );
     assert!(!rollback.contains("\"$backend\" stop"));
+}
+
+#[test]
+fn macos_rollback_source_oracle_accepts_lf_and_crlf() {
+    let lf = read("packaging/macos/scripts/postinstall").replace("\r\n", "\n");
+    for script in [lf.clone(), lf.replace('\n', "\r\n")] {
+        assert_macos_rollback_order(&script);
+    }
+}
+
+#[test]
+fn macos_rollback_source_oracle_rejects_missing_or_late_capture() {
+    let lf = read("packaging/macos/scripts/postinstall").replace("\r\n", "\n");
+    let missing = lf.replace("\nremember_started_daemon\n", "\n");
+    assert_ne!(missing, lf);
+    let late = format!("{missing}\nremember_started_daemon\n");
+    for source in [missing, late] {
+        for script in [source.clone(), source.replace('\n', "\r\n")] {
+            assert!(std::panic::catch_unwind(|| assert_macos_rollback_order(&script)).is_err());
+        }
+    }
 }
 
 #[cfg(unix)]
