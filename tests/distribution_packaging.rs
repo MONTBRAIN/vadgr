@@ -161,3 +161,104 @@ fn macos_installer_creates_owner_cache_without_root_owned_parents() {
     );
     assert!(!postinstall.contains("/usr/sbin/chown -R"));
 }
+
+#[test]
+fn macos_rollback_tracks_start_failure_and_stops_before_removing_the_app() {
+    let script = read("packaging/macos/scripts/postinstall");
+    let start = script
+        .find("start_status=0")
+        .expect("track the start result");
+    let capture = script[start..]
+        .find("remember_started_daemon\n")
+        .expect("capture the child even when startup fails");
+    let failure = script[start..]
+        .find("if [ \"$start_status\" -ne 0 ]")
+        .unwrap();
+    assert!(capture < failure);
+    let rollback = script.split("restore_previous() {").nth(1).unwrap();
+    assert!(
+        rollback.find("stop_started_daemon").unwrap()
+            < rollback.find("/bin/rm -rf -- \"$app\"").unwrap()
+    );
+    assert!(!rollback.contains("\"$backend\" stop"));
+}
+
+#[cfg(unix)]
+#[test]
+fn macos_rollback_never_signals_an_old_or_changed_process() {
+    let script = read("packaging/macos/scripts/postinstall");
+    let functions = script
+        .split_once("remember_started_daemon() {")
+        .expect("rollback must identify the transaction's daemon")
+        .1
+        .split_once("restore_previous() {")
+        .unwrap()
+        .0;
+    let functions = format!("remember_started_daemon() {{{functions}")
+        .replace("/bin/cat", "fixture_cat")
+        .replace("/bin/ps", "fixture_ps")
+        .replace("/usr/bin/sudo -H -u \"$owner\" /bin/kill", "fixture_kill")
+        .replace("/bin/sleep", "fixture_sleep");
+    for (scenario, expected) in [
+        ("new", "signal:-TERM 202\n"),
+        ("old", ""),
+        ("malformed", ""),
+        ("foreign-owner", ""),
+        ("foreign-command", ""),
+        ("changed", "refused\n"),
+        ("exited", ""),
+        ("stuck", "signal:-TERM 202\nrefused\n"),
+    ] {
+        let fixture = tempfile::tempdir().unwrap();
+        let body = format!(
+            r#"
+set -eu
+cd "$1"
+scenario=$2
+owner=fixture
+owner_uid=501
+backend=/Applications/Vadgr.app/Contents/MacOS/vadgr
+pid_file=unused
+previous_pid=101
+started_pid=
+started_identity=
+phase=capture
+fixture_cat() {{
+  case "$scenario" in old) echo 101;; malformed) echo invalid;; *) echo 202;; esac
+}}
+fixture_ps() {{
+  if [ -f stopped ] || [ "$scenario:$phase" = exited:cleanup ]; then return 1; fi
+  if [ "$4" = uid= ]; then
+    if [ "$scenario" = foreign-owner ]; then echo 999; else echo 501; fi
+  elif [ "$4" = command= ]; then
+    if [ "$scenario" = foreign-command ]; then echo /usr/bin/unrelated; else echo "$backend serve --port 8765"; fi
+  else
+    if [ "$scenario:$phase" = changed:cleanup ]; then echo replacement; else echo "Tue Sep 15 09:00:00 2026 $backend serve --port 8765"; fi
+  fi
+}}
+fixture_kill() {{ printf 'signal:%s %s\n' "$1" "$2"; if [ "$scenario" != stuck ]; then touch stopped; fi; }}
+fixture_sleep() {{ :; }}
+{functions}
+remember_started_daemon
+phase=cleanup
+stop_started_daemon || echo refused
+"#
+        );
+        let output = std::process::Command::new("sh")
+            .args(["-ec", &body, "rollback-fixture"])
+            .arg(fixture.path())
+            .arg(scenario)
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{scenario}: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert_eq!(
+            String::from_utf8_lossy(&output.stdout),
+            expected,
+            "{scenario}"
+        );
+    }
+}

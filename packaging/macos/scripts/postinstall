@@ -11,12 +11,52 @@ backup="$transaction_root/previous.app"
 owner=$(/usr/bin/stat -f '%Su' /dev/console)
 [ "$owner" != root ] && [ "$owner" != loginwindow ] || { echo "No interactive owner is available." >&2; exit 1; }
 owner_home=$(/usr/bin/dscl . -read "/Users/$owner" NFSHomeDirectory | /usr/bin/awk '{print $2}')
+owner_uid=$(/usr/bin/id -u "$owner")
 cache="$owner_home/Library/Application Support/vadgr/package-cache"
 pending="$cache/.pending.pkg"
+pid_file="$owner_home/.vadgr/pids/api.pid"
+previous_pid=
+started_pid=
+started_identity=
 committed=false
+
+remember_started_daemon() {
+  candidate=$(/bin/cat "$pid_file" 2>/dev/null || true)
+  case "$candidate" in ''|*[!0-9]*) return 0;; esac
+  [ "$candidate" != "$previous_pid" ] || return 0
+  uid=$(/bin/ps -p "$candidate" -o uid= 2>/dev/null | /usr/bin/tr -d ' ')
+  [ "$uid" = "$owner_uid" ] || return 0
+  command=$(/bin/ps -p "$candidate" -o command= 2>/dev/null || true)
+  case "$command" in "$backend serve "*) ;; *) return 0;; esac
+  identity=$(/bin/ps -p "$candidate" -o lstart= -o command= 2>/dev/null || true)
+  [ -n "$identity" ] || return 0
+  started_pid=$candidate
+  started_identity=$identity
+}
+
+stop_started_daemon() {
+  [ -n "$started_pid" ] || return 0
+  identity=$(/bin/ps -p "$started_pid" -o lstart= -o command= 2>/dev/null || true)
+  [ -n "$identity" ] || return 0
+  if [ "$identity" != "$started_identity" ]; then
+    echo "The Vadgr process identity changed; automatic rollback stopped." >&2
+    return 1
+  fi
+  /usr/bin/sudo -H -u "$owner" /bin/kill -TERM "$started_pid" || return 1
+  attempts=0
+  while [ "$attempts" -lt 50 ]; do
+    identity=$(/bin/ps -p "$started_pid" -o lstart= -o command= 2>/dev/null || true)
+    [ "$identity" = "$started_identity" ] || return 0
+    /bin/sleep 0.1
+    attempts=$((attempts + 1))
+  done
+  echo "The new Vadgr daemon did not stop; the application and rollback copy were preserved." >&2
+  return 1
+}
 
 restore_previous() {
   [ "$committed" = false ] || return 0
+  stop_started_daemon || return 1
   /bin/rm -f -- "$pending"
   /bin/rm -rf -- "$app"
   if [ -d "$backup" ]; then
@@ -34,7 +74,11 @@ trap restore_previous EXIT HUP INT TERM
 /usr/bin/sudo -H -u "$owner" /bin/mkdir -p "$cache"
 /usr/bin/sudo -H -u "$owner" /bin/cp "$package" "$pending"
 
-if ! /usr/bin/sudo -H -u "$owner" "$backend" start; then
+previous_pid=$(/bin/cat "$pid_file" 2>/dev/null || true)
+start_status=0
+/usr/bin/sudo -H -u "$owner" "$backend" start || start_status=$?
+remember_started_daemon
+if [ "$start_status" -ne 0 ]; then
   echo "The installed Vadgr daemon did not become healthy." >&2
   exit 1
 fi
