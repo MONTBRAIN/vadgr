@@ -13,18 +13,6 @@ use axum::{Extension, Json};
 use serde::Deserialize;
 use serde_json::{Value, json};
 
-fn machine_name_from(value: Result<std::ffi::OsString, std::io::Error>) -> String {
-    value
-        .ok()
-        .map(|s| s.to_string_lossy().trim().to_string())
-        .filter(|s| !s.is_empty())
-        .unwrap_or_else(|| "vadgr".to_string())
-}
-
-fn machine_name() -> String {
-    machine_name_from(hostname::get())
-}
-
 /// Refuses `503` only when no supported transport can reach a phone, which on
 /// a machine running normally does not happen: the local-only override is
 /// set, or every transport is down at once. The message says which, and the
@@ -53,13 +41,14 @@ pub async fn pair(State(state): State<AppState>) -> ApiResult<Json<Value>> {
         .with_details(json!({ "transports": report })));
     }
 
+    let machine = crate::db::machine::get(&state.db).map_err(ApiError::internal)?;
     let code = state.pairing.mint();
     // **The field on the wire stays `pairing_token`.** Only the value it
     // carries changed shape at `0.4.3`; renaming the field would break the
     // shipped CLI and the shipped phone.
     let mut body = json!({
         "pairing_token": code,
-        "machine_name": machine_name(),
+        "machine_name": machine.name,
         "transports": report,
     });
     // The top-level `host` and `port` are the tailscale entry's own fields,
@@ -177,6 +166,7 @@ async fn claim_valid(
     pairing_token: &str,
     device_name: String,
 ) -> ApiResult<Json<Value>> {
+    let machine = crate::db::machine::get(&state.db).map_err(ApiError::internal)?;
     let outcome = state.pairing.redeem(pairing_token);
     // Every arm below announces the transition as the last thing it does, so
     // a reaper woken by it sees the binding this claim wrote. See
@@ -247,7 +237,7 @@ async fn claim_valid(
             Ok(Json(json!({
                 "token": token,
                 "device_id": device_id,
-                "machine_name": machine_name(),
+                "machine_name": machine.name,
                 "transports": state.transports.report(),
             })))
         }
@@ -260,22 +250,7 @@ async fn claim_valid(
 
 #[cfg(test)]
 mod tests {
-    use super::{device_name_rejection, machine_name_from};
-
-    #[test]
-    fn the_platform_hostname_is_used_without_reading_a_unix_file() {
-        let name = machine_name_from(Ok("review-host".into()));
-        assert_eq!(name, "review-host");
-    }
-
-    #[test]
-    fn an_unavailable_or_empty_hostname_has_the_existing_fallback() {
-        assert_eq!(machine_name_from(Ok("  ".into())), "vadgr");
-        assert_eq!(
-            machine_name_from(Err(std::io::Error::other("no hostname"))),
-            "vadgr"
-        );
-    }
+    use super::device_name_rejection;
 
     /// A person names their own phone: spaces, accents and emoji all pass.
     #[test]

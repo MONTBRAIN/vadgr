@@ -1346,6 +1346,67 @@ async fn a_hostile_device_name_is_a_422_naming_the_field_on_every_transport() {
 
 // ----------------------------------------------------------------- the shapes
 
+#[tokio::test]
+async fn pairing_reports_the_current_saved_machine_name_without_restart() {
+    let state = state_with(Box::new(EveryoneIsAPeer));
+    for name in ["Studio workstation", "Renamed studio workstation"] {
+        let request = Request::builder()
+            .method("PATCH")
+            .uri("/api/machine")
+            .header("content-type", "application/json")
+            .body(Body::from(serde_json::json!({"name": name}).to_string()))
+            .unwrap();
+        let (status, machine) = send(state.clone(), request, "127.0.0.1").await;
+        assert_eq!(status, StatusCode::OK);
+        let (status, pair) = send(
+            state.clone(),
+            Request::builder()
+                .method("POST")
+                .uri("/api/auth/pair")
+                .body(Body::empty())
+                .unwrap(),
+            "127.0.0.1",
+        )
+        .await;
+        assert_eq!(status, StatusCode::OK);
+        assert_eq!(pair["machine_name"], machine["name"]);
+    }
+}
+
+#[tokio::test]
+async fn claiming_reports_the_saved_machine_name_and_keeps_the_phone_name_separate() {
+    let state = state_with(Box::new(EveryoneIsAPeer));
+    let code = state.pairing.mint();
+    let request = Request::builder()
+        .method("PATCH")
+        .uri("/api/machine")
+        .header("content-type", "application/json")
+        .body(Body::from(r#"{"name":"Renamed after opening pairing"}"#))
+        .unwrap();
+    let (status, machine) = send(state.clone(), request, "127.0.0.1").await;
+    assert_eq!(status, StatusCode::OK);
+    let (status, claim) = send_stamped(
+        state.clone(),
+        post_json(
+            "/api/auth/claim",
+            serde_json::json!({"pairing_token": code, "device_name": "Studio phone"}),
+        ),
+        Some(iroh_peer("phone-endpoint-id")),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(claim["machine_name"], machine["name"]);
+    let (status, devices) = send(state, get("/api/devices"), "127.0.0.1").await;
+    assert_eq!(status, StatusCode::OK);
+    let device = devices
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|device| device["id"] == claim["device_id"])
+        .unwrap();
+    assert_eq!(device["machine_name"], "Studio phone");
+}
+
 /// `transports` carries one member per supported transport, always: null for
 /// one that cannot be dialed right now, never an absent key. The top-level
 /// host and port are the tailscale entry's own fields.

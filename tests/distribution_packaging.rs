@@ -262,3 +262,111 @@ stop_started_daemon || echo refused
         );
     }
 }
+
+#[test]
+fn macos_upgrade_stops_both_installed_daemon_entries_before_moving_the_app() {
+    let script = read("packaging/macos/scripts/preinstall");
+    let identify = script
+        .find("cli_identity=$(previous_daemon_identity")
+        .expect("validate the CLI daemon");
+    let agent = script
+        .find("agent_identity=$(previous_daemon_identity")
+        .expect("validate the login daemon");
+    let stop = script
+        .find("stop_previous_daemon \"$cli_pid\"")
+        .expect("stop the previous daemon");
+    let stop_agent = script.find("stop_previous_daemon \"$agent_pid\"").unwrap();
+    let move_app = script.find("/bin/mv \"$app\" \"$backup\"").unwrap();
+    assert!(identify < stop && agent < stop && stop < stop_agent && stop_agent < move_app);
+    assert!(script.contains("gui/$owner_uid/com.montbrain.vadgr.agent"));
+    assert!(!script.contains("\"$backend\" stop"));
+    assert!(!script.contains("pkill"));
+}
+
+#[cfg(unix)]
+#[test]
+fn macos_upgrade_checks_owner_executable_and_process_generation_before_signaling() {
+    let script = read("packaging/macos/scripts/preinstall");
+    let functions = script
+        .split_once("previous_daemon_identity() {")
+        .expect("identify the previous installed daemon")
+        .1
+        .split_once("[ ! -L \"$app\" ]")
+        .unwrap()
+        .0;
+    let functions = format!("previous_daemon_identity() {{{functions}")
+        .replace("/bin/ps", "fixture_ps")
+        .replace("/usr/sbin/lsof", "fixture_lsof")
+        .replace("/usr/bin/sudo -H -u \"$owner\" /bin/kill", "fixture_kill")
+        .replace("/bin/sleep", "fixture_sleep");
+    for (scenario, expected) in [
+        ("cli", "signal:-TERM 202\n"),
+        ("agent", "signal:-TERM 202\n"),
+        ("absent", ""),
+        ("stale", ""),
+        ("malformed", "refused\n"),
+        ("reserved-pid", "refused\n"),
+        ("foreign-owner", "refused\n"),
+        ("foreign-command", "refused\n"),
+        ("foreign-executable", "refused\n"),
+        ("changed", "refused\n"),
+        ("stuck", "signal:-TERM 202\nrefused\n"),
+    ] {
+        let fixture = tempfile::tempdir().unwrap();
+        let body = format!(
+            r#"
+set -eu
+cd "$1"
+scenario=$2
+owner=fixture
+owner_uid=501
+backend=/Applications/Vadgr.app/Contents/MacOS/vadgr
+phase=identify
+fixture_ps() {{
+  if [ -f stopped ] || [ "$scenario" = stale ]; then return 1; fi
+  if [ "$4" = uid= ]; then
+    if [ "$scenario" = foreign-owner ]; then echo 999; else echo 501; fi
+  elif [ "$4" = command= ]; then
+    case "$scenario" in
+      foreign-command) echo /usr/bin/unrelated;;
+      agent) echo "$backend --daemon";;
+      *) echo "$backend serve --port 8765";;
+    esac
+  else
+    if [ "$scenario:$phase" = changed:stop ]; then echo replacement; else echo "Tue Sep 15 09:00:00 2026 $backend"; fi
+  fi
+}}
+fixture_lsof() {{
+  if [ "$scenario" = foreign-executable ]; then echo n/usr/bin/unrelated; else printf 'p202\nn%s\n' "$backend"; fi
+}}
+fixture_kill() {{ printf 'signal:%s %s\n' "$1" "$2"; if [ "$scenario" != stuck ]; then touch stopped; fi; }}
+fixture_sleep() {{ :; }}
+{functions}
+pid=202
+case "$scenario" in absent) pid=;; malformed) pid=invalid;; reserved-pid) pid=1;; esac
+if identity=$(previous_daemon_identity "$pid"); then
+  phase=stop
+  stop_previous_daemon "$pid" "$identity" || echo refused
+else
+  echo refused
+fi
+"#
+        );
+        let output = std::process::Command::new("sh")
+            .args(["-ec", &body, "upgrade-fixture"])
+            .arg(fixture.path())
+            .arg(scenario)
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{scenario}: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert_eq!(
+            String::from_utf8_lossy(&output.stdout),
+            expected,
+            "{scenario}"
+        );
+    }
+}
