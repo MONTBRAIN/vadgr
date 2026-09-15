@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [master]
+    branches: [master, feature/0.5.0-distribution]
   pull_request:
     branches: [master]
 
@@ -111,15 +111,34 @@ jobs:
       - name: Prove an unconfigured WSL candidate fails before mutation
         shell: wsl-bash {0}
         run: |
-          test "$(tr -d '\r\n' < packaging/release-public-key.txt)" = UNCONFIGURED
-          before=$(find "$HOME" -mindepth 1 -maxdepth 4 -print | sort | sha256sum)
+          set -euo pipefail
+          fixture=$(mktemp -d "${TMPDIR:-/tmp}/vadgr-wsl-unconfigured.XXXXXXXX")
+          trap 'rm -rf -- "$fixture"' EXIT
+          # The refusal fixture must not depend on production trust inputs.
+          sed -E 's/^(VERIFIER_SHA_(X86_64|AARCH64))=.*/\1=UNCONFIGURED/' \
+            install.sh > "$fixture/install.sh"
+          mkdir "$fixture/home" "$fixture/tmp"
+          printf '%s\n' 'preserve owner state' > "$fixture/home/owner-state"
+          snapshot() {
+            { find "$fixture/home" -mindepth 1 -print; \
+              find "$fixture/home" -type f -exec sha256sum {} \;; } | sort | sha256sum
+          }
+          before=$(snapshot)
           set +e
-          WSL_DISTRO_NAME=Debian sh install.sh --source "$PWD" --accept-terms 1.0
+          HOME="$fixture/home" XDG_DATA_HOME="$fixture/home/data" \
+            XDG_STATE_HOME="$fixture/home/state" TMPDIR="$fixture/tmp" \
+            WSL_DISTRO_NAME=Debian sh "$fixture/install.sh" \
+            --source "$PWD" --accept-terms 1.0 > "$fixture/stdout" 2> "$fixture/stderr"
           code=$?
           set -e
           test "$code" -eq 2
-          after=$(find "$HOME" -mindepth 1 -maxdepth 4 -print | sort | sha256sum)
+          test ! -s "$fixture/stdout"
+          test "$(cat "$fixture/stderr")" = \
+            'The reviewed verifier hash is not configured. This candidate cannot install.'
+          after=$(snapshot)
           test "$before" = "$after"
+          test -z "$(find "$fixture/tmp" -mindepth 1 -print)"
+          echo 'Unconfigured WSL fixture refused before mutation.'
 
   # A clean install is a normal user's machine: it has the operating system and
   # the libraries the operating system ships, and it has no toolchain, no build

@@ -50,10 +50,6 @@ fn linux_lifecycle_accepts_an_already_healthy_daemon() {
 
 #[test]
 fn every_unsigned_or_unconfigured_trust_path_fails_closed() {
-    assert_eq!(
-        read("packaging/release-public-key.txt").trim(),
-        "UNCONFIGURED"
-    );
     for source in [
         read("packaging/linux/build.sh"),
         read("packaging/macos/build.sh"),
@@ -62,6 +58,46 @@ fn every_unsigned_or_unconfigured_trust_path_fails_closed() {
         assert!(source.contains("UNCONFIGURED"));
         assert!(!source.contains("self-sign"));
         assert!(!source.contains("ad-hoc"));
+    }
+}
+
+#[test]
+#[cfg(unix)]
+fn native_builds_refuse_an_isolated_unconfigured_public_key() {
+    for platform in ["linux", "macos"] {
+        let fixture = tempfile::tempdir().unwrap();
+        let packaging = fixture.path().join("packaging");
+        let scripts = packaging.join(platform);
+        std::fs::create_dir_all(&scripts).unwrap();
+        std::fs::write(packaging.join("release-public-key.txt"), "UNCONFIGURED\n").unwrap();
+        let script = scripts.join("build.sh");
+        std::fs::copy(
+            root().join(format!("packaging/{platform}/build.sh")),
+            &script,
+        )
+        .unwrap();
+        let output = std::process::Command::new("sh")
+            .arg(script)
+            .args(["0.5.0", "x86_64"])
+            .env_clear()
+            .env("PATH", "/usr/bin:/bin")
+            .env("HOME", fixture.path())
+            .current_dir(fixture.path())
+            .output()
+            .unwrap();
+        assert_eq!(output.status.code(), Some(2), "{platform}");
+        assert_eq!(
+            String::from_utf8(output.stderr).unwrap().trim(),
+            "The reviewed release public key is not configured.",
+            "{platform}"
+        );
+        assert!(output.stdout.is_empty(), "{platform}");
+        assert!(!fixture.path().join("target").exists(), "{platform}");
+        assert_eq!(std::fs::read_dir(fixture.path()).unwrap().count(), 1);
+        assert_eq!(
+            std::fs::read_to_string(packaging.join("release-public-key.txt")).unwrap(),
+            "UNCONFIGURED\n"
+        );
     }
 }
 
