@@ -936,14 +936,140 @@ mod platform {
         if purge {
             command.arg("--purge-owner-state");
         }
-        let status = command
-            .status()
+        let mut child = command
+            .stdout(Stdio::null())
+            .stderr(Stdio::piped())
+            .env("NO_COLOR", "1")
+            .spawn()
             .context("starting the macOS package lifecycle")?;
+        let mut stderr = child.stderr.take().expect("lifecycle stderr is piped");
+        let mut diagnostic = Vec::new();
+        // Drain even oversized output so the helper cannot block on a full
+        // pipe. Only this bounded prefix is retained, never logged verbatim.
+        let read_result = stderr
+            .by_ref()
+            .take(8192)
+            .read_to_end(&mut diagnostic)
+            .and_then(|_| std::io::copy(&mut stderr, &mut std::io::sink()));
+        let status = child
+            .wait()
+            .context("waiting for the macOS package lifecycle")?;
+        if !status.success()
+            && read_result.is_ok()
+            && let Some(reason) = lifecycle_failure(&diagnostic)
+        {
+            return Err(anyhow!(
+                "the macOS package lifecycle returned {status}: {reason}"
+            ));
+        }
         ensure!(
             status.success(),
             "the macOS package lifecycle returned {status}"
         );
         Ok(())
+    }
+
+    fn lifecycle_failure(stderr: &[u8]) -> Option<&'static str> {
+        // These are complete product-owned messages, not arbitrary subprocess
+        // diagnostics. Paths, OS error details and additional text stay private.
+        const REASONS: &[&str] = &[
+            "the expected Developer ID Installer identity is not configured",
+            "macOS rejected the package signature",
+            "the macOS package publisher does not match the installed identity",
+            "macOS rejected the notarized package",
+            "The retained signed repair package is missing.",
+            "No retained signed rollback package is available.",
+            "The vadgr command link belongs to another installation.",
+            "the package vehicle is unavailable",
+            "the package uninstaller refuses to delete an overridden state root",
+            "the resolved owner-state path is not a Vadgr default",
+            "the owner-state root is a link",
+        ];
+        let text = String::from_utf8_lossy(stderr);
+        text.split_inclusive('\n')
+            .filter(|line| line.ends_with('\n') || stderr.len() < 8192)
+            .find_map(|line| {
+                let line = line.trim();
+                let line = line.strip_prefix("Error: ").unwrap_or(line);
+                REASONS.iter().copied().find(|reason| *reason == line)
+            })
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use std::os::unix::fs::PermissionsExt;
+
+        // Each case starts with its own package tree and a harmless helper.
+        // No installed package, owner state or platform UI is used.
+        fn lifecycle(script: &str) -> Result<()> {
+            let root = tempfile::tempdir().unwrap();
+            let install_root = root.path().join("Contents/MacOS");
+            std::fs::create_dir_all(&install_root).unwrap();
+            let helpers = root.path().join("Contents/Helpers");
+            std::fs::create_dir_all(&helpers).unwrap();
+            let helper = helpers.join("vadgr-lifecycle");
+            std::fs::write(&helper, format!("#!/bin/sh\n{script}\n")).unwrap();
+            std::fs::set_permissions(&helper, std::fs::Permissions::from_mode(0o755)).unwrap();
+            let receipt = InstallReceipt {
+                schema: 1,
+                version: "0.5.0".to_owned(),
+                install_root,
+                package_kind: "pkg".to_owned(),
+                product_code: None,
+                release_sequence: None,
+                manifest_sha256: None,
+                update_origin: None,
+                publisher: None,
+                rollback_vehicle: None,
+            };
+            run_lifecycle(&receipt, "repair", false)
+        }
+
+        #[test]
+        fn macos_lifecycle_reports_known_trust_and_package_failures() {
+            for reason in [
+                "the expected Developer ID Installer identity is not configured",
+                "macOS rejected the package signature",
+                "the macOS package publisher does not match the installed identity",
+                "macOS rejected the notarized package",
+                "The retained signed repair package is missing.",
+                "No retained signed rollback package is available.",
+            ] {
+                for prefix in ["", "Error: "] {
+                    let error =
+                        lifecycle(&format!("printf '%s\\n' '{prefix}{reason}' >&2\nexit 1"))
+                            .unwrap_err()
+                            .to_string();
+                    assert!(error.ends_with(reason), "{error}");
+                }
+            }
+        }
+
+        #[test]
+        fn macos_lifecycle_does_not_surface_arbitrary_output() {
+            let error = lifecycle(
+                "printf '%s\\n' 'private stdout marker'\nprintf '%s\\n' 'private stderr marker' 'Error: macOS rejected the package signature: private suffix' >&2\nexit 1",
+            )
+            .unwrap_err()
+            .to_string();
+            assert_eq!(error, "the macOS package lifecycle returned exit status: 1");
+        }
+
+        #[test]
+        fn macos_lifecycle_success_ignores_stderr() {
+            lifecycle("printf '%s\\n' 'macOS rejected the package signature' >&2\nexit 0").unwrap();
+        }
+
+        #[test]
+        fn macos_lifecycle_ignores_stdout_and_drains_oversized_stderr() {
+            let error = lifecycle(
+                "printf '%s\\n' 'macOS rejected the package signature'\ni=0\nwhile [ \"$i\" -lt 10000 ]; do printf '%s\\n' 'unrelated diagnostic' >&2; i=$((i + 1)); done\nprintf '%s\\n' 'macOS rejected the package signature' >&2\nexit 1",
+            )
+            .unwrap_err()
+            .to_string();
+            assert_eq!(error, "the macOS package lifecycle returned exit status: 1");
+        }
     }
 }
 

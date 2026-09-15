@@ -2,6 +2,7 @@ use super::controller::{
     ConsoleController, DeviceSnapshot, HealthSnapshot, HttpConsoleController, MachineEdit,
     MachineSnapshot, PairingSession, ProviderSnapshot,
 };
+use super::text_input::TextInput;
 use super::theme;
 use anyhow::{Result, anyhow};
 use eframe::egui::{self, Align, Color32, Layout, RichText, Sense, Stroke, StrokeKind, Vec2};
@@ -992,19 +993,19 @@ impl ConsoleApp {
                     server_options,
                 } => {
                     let machine_name_label = ui.label("Machine name");
-                    ui.text_edit_singleline(&mut edit.name)
+                    TextInput::Singleline.show(ui, ui.make_persistent_id("machine-name"), &mut edit.name)
                         .labelled_by(machine_name_label.id);
                     let workspace_label = ui.label("Workspace");
                     let mut workspace = edit.workspace.clone().unwrap_or_default();
-                    if ui
-                        .text_edit_singleline(&mut workspace)
+                    if TextInput::Singleline
+                        .show(ui, ui.make_persistent_id("machine-workspace"), &mut workspace)
                         .labelled_by(workspace_label.id)
                         .changed()
                     {
                         edit.workspace = (!workspace.trim().is_empty()).then_some(workspace);
                     }
                     let role_prompt_label = ui.label("Role prompt");
-                    ui.add(egui::TextEdit::multiline(&mut edit.role_prompt).desired_rows(4))
+                    TextInput::Multiline.show(ui, ui.make_persistent_id("machine-role-prompt"), &mut edit.role_prompt)
                         .labelled_by(role_prompt_label.id);
                     let autonomy_label = ui.label("Autonomy mode");
                     let mode = edit
@@ -1090,7 +1091,7 @@ impl ConsoleApp {
                 }
                 Dialog::ProviderKey { provider, value } => {
                     let key_label = ui.label(format!("Enter the {provider} API key."));
-                    ui.add(egui::TextEdit::singleline(value).password(true).hint_text("API key"))
+                    TextInput::Password.show(ui, ui.make_persistent_id(("provider-key", provider.as_str())), value)
                         .labelled_by(key_label.id);
                     ui.label(RichText::new("The key goes directly to the local daemon. Vadgr never displays it again.").color(theme::muted()));
                     ui.horizontal(|ui| {
@@ -1141,7 +1142,7 @@ impl ConsoleApp {
                         let confirmation_label = ui.label(
                             "Type DELETE OWNER DATA to confirm the separate data deletion.",
                         );
-                        ui.text_edit_singleline(confirmation)
+                        TextInput::Singleline.show(ui, ui.make_persistent_id("purge-confirmation"), confirmation)
                             .labelled_by(confirmation_label.id);
                     }
                     ui.label(
@@ -1970,6 +1971,197 @@ fn provider_name(id: &str) -> &str {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[cfg(target_os = "macos")]
+    mod native_text {
+        use super::*;
+        use egui::accesskit::{Action, ActionData, ActionRequest, NodeId, Role, TreeId};
+
+        fn app(dialog: Dialog) -> (egui::Context, ConsoleApp) {
+            let ctx = egui::Context::default();
+            ctx.enable_accesskit();
+            theme::install(&ctx);
+            // Render real dialogs without starting a worker or contacting a daemon.
+            let app = ConsoleApp {
+                controller: Arc::new(HttpConsoleController::new("http://127.0.0.1:1").unwrap()),
+                view: View::Machine,
+                data: None,
+                pending: None,
+                dialog: Some(dialog),
+                notice: None,
+                available_update: None,
+                last_refresh: std::time::Instant::now(),
+            };
+            (ctx, app)
+        }
+
+        fn draw(
+            ctx: &egui::Context,
+            app: &mut ConsoleApp,
+            events: Vec<egui::Event>,
+        ) -> egui::FullOutput {
+            let mut output = ctx.run_ui(
+                egui::RawInput {
+                    screen_rect: Some(egui::Rect::from_min_size(
+                        egui::Pos2::ZERO,
+                        egui::vec2(1200.0, 720.0),
+                    )),
+                    events,
+                    ..Default::default()
+                },
+                |_| app.draw_dialog(ctx),
+            );
+            output.textures_delta.clear();
+            output
+        }
+
+        fn fields(output: &egui::FullOutput) -> Vec<NodeId> {
+            output
+                .platform_output
+                .accesskit_update
+                .as_ref()
+                .unwrap()
+                .nodes
+                .iter()
+                .filter(|(_, node)| {
+                    matches!(
+                        node.role(),
+                        Role::TextInput | Role::MultilineTextInput | Role::PasswordInput
+                    )
+                })
+                .map(|(id, _)| *id)
+                .collect()
+        }
+
+        fn named_field(output: &egui::FullOutput, label: &str) -> NodeId {
+            let nodes = &output
+                .platform_output
+                .accesskit_update
+                .as_ref()
+                .unwrap()
+                .nodes;
+            let label_id = nodes
+                .iter()
+                .find(|(_, node)| node.value() == Some(label))
+                .unwrap()
+                .0;
+            nodes
+                .iter()
+                .find(|(_, node)| node.labelled_by().contains(&label_id))
+                .unwrap()
+                .0
+        }
+
+        fn set_value(id: NodeId, value: &str) -> egui::Event {
+            egui::Event::AccessKitActionRequest(ActionRequest {
+                action: Action::SetValue,
+                target_tree: TreeId::ROOT,
+                target_node: id,
+                data: Some(ActionData::Value(value.into())),
+            })
+        }
+
+        #[test]
+        fn native_values_update_every_machine_draft_field_and_clear_workspace() {
+            let (ctx, mut app) = app(Dialog::EditMachine {
+                edit: MachineEdit {
+                    name: "Original".into(),
+                    ..Default::default()
+                },
+                skill_options: vec![],
+                server_options: vec![],
+            });
+            let output = draw(&ctx, &mut app, vec![]);
+            let ids = fields(&output);
+            assert_eq!(ids.len(), 3);
+            let ids = [
+                named_field(&output, "Machine name"),
+                named_field(&output, "Workspace"),
+                named_field(&output, "Role prompt"),
+            ];
+            draw(
+                &ctx,
+                &mut app,
+                vec![
+                    set_value(ids[0], "Machine café"),
+                    set_value(ids[1], "/tmp/console-workspace"),
+                    set_value(ids[2], "First line\nSecond line"),
+                ],
+            );
+            let Some(Dialog::EditMachine { edit, .. }) = &app.dialog else {
+                panic!("machine dialog closed")
+            };
+            assert_eq!(edit.name, "Machine café");
+            assert_eq!(edit.workspace.as_deref(), Some("/tmp/console-workspace"));
+            assert_eq!(edit.role_prompt, "First line\nSecond line");
+            draw(&ctx, &mut app, vec![set_value(ids[1], "")]);
+            let Some(Dialog::EditMachine { edit, .. }) = &app.dialog else {
+                panic!("machine dialog closed")
+            };
+            assert_eq!(edit.workspace, None);
+        }
+
+        #[test]
+        fn native_provider_value_stays_masked_and_enables_connect() {
+            let (ctx, mut app) = app(Dialog::ProviderKey {
+                provider: "gemini".into(),
+                value: String::new(),
+            });
+            let output = draw(&ctx, &mut app, vec![]);
+            let ids = fields(&output);
+            assert_eq!(ids.len(), 1);
+            let output = draw(
+                &ctx,
+                &mut app,
+                vec![set_value(ids[0], "synthetic-key-for-widget-test")],
+            );
+            let Some(Dialog::ProviderKey { value, .. }) = &app.dialog else {
+                panic!("provider dialog closed")
+            };
+            assert_eq!(value, "synthetic-key-for-widget-test");
+            let nodes = &output
+                .platform_output
+                .accesskit_update
+                .as_ref()
+                .unwrap()
+                .nodes;
+            assert!(!format!("{nodes:?}").contains("synthetic-key-for-widget-test"));
+            assert!(
+                nodes
+                    .iter()
+                    .any(|(_, node)| node.label() == Some("Connect") && !node.is_disabled())
+            );
+        }
+
+        #[test]
+        fn native_purge_value_enables_only_the_exact_confirmation() {
+            let (ctx, mut app) = app(Dialog::Uninstall {
+                purge: true,
+                confirmation: String::new(),
+            });
+            let output = draw(&ctx, &mut app, vec![]);
+            let id = fields(&output)[0];
+            for (value, enabled) in [("wrong", false), ("DELETE OWNER DATA", true), ("", false)] {
+                let output = draw(&ctx, &mut app, vec![set_value(id, value)]);
+                let Some(Dialog::Uninstall { confirmation, .. }) = &app.dialog else {
+                    panic!("uninstall dialog closed")
+                };
+                assert_eq!(confirmation, value);
+                assert!(
+                    output
+                        .platform_output
+                        .accesskit_update
+                        .as_ref()
+                        .unwrap()
+                        .nodes
+                        .iter()
+                        .any(|(_, node)| node.label() == Some("Uninstall Vadgr")
+                            && node.is_disabled() != enabled)
+                );
+            }
+            assert!(app.pending.is_none());
+        }
+    }
 
     #[test]
     fn unavailable_installation_controls_name_the_current_state() {
