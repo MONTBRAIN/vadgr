@@ -89,6 +89,50 @@ fn macos_package_declares_its_exact_host_architecture() {
 }
 
 #[test]
+fn macos_package_stages_executable_installer_scripts() {
+    let build = read("packaging/macos/build.sh");
+    for name in ["preinstall", "postinstall"] {
+        assert!(
+            build.contains(&format!(
+                "install -m 0755 \"$repo/packaging/macos/scripts/{name}\" \"$scripts/{name}\""
+            )),
+            "package must stage {name} with executable permissions"
+        );
+    }
+    assert!(build.contains("--scripts \"$scripts\""));
+    assert!(!build.contains("--scripts \"$repo/packaging/macos/scripts\""));
+
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let staged = tempfile::tempdir().unwrap();
+        let commands = build
+            .lines()
+            .filter(|line| line.starts_with("install -m 0755 \"$repo/packaging/macos/scripts/"))
+            .collect::<Vec<_>>()
+            .join("\n");
+        let status = std::process::Command::new("sh")
+            .args(["-ec", &format!("repo=$1; scripts=$2; {commands}"), "stage"])
+            .arg(root())
+            .arg(staged.path())
+            .status()
+            .unwrap();
+        assert!(status.success());
+        for name in ["preinstall", "postinstall"] {
+            let path = staged.path().join(name);
+            assert_eq!(
+                std::fs::read(&path).unwrap(),
+                std::fs::read(root().join("packaging/macos/scripts").join(name)).unwrap()
+            );
+            assert_eq!(
+                std::fs::metadata(path).unwrap().permissions().mode() & 0o777,
+                0o755
+            );
+        }
+    }
+}
+
+#[test]
 fn e2e_runbook_names_every_required_lifecycle_negative() {
     let runbook = read("E2E/0.5.0/e2e.md").to_ascii_lowercase();
     for required in [

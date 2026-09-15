@@ -45,11 +45,17 @@ cp -- "$repo/packaging/macos/resources/WELCOME.txt" "$resources/WELCOME.txt"
 cp -- "$repo/packaging/macos/resources/CONCLUSION.txt" "$resources/CONCLUSION.txt"
 cp -- "$repo/packaging/legal/TERMS.txt" "$resources/TERMS.txt"
 
+scripts="$work/scripts"
+mkdir -p "$scripts"
+# Git snapshots need not preserve executable bits, but Installer executes these directly.
+install -m 0755 "$repo/packaging/macos/scripts/preinstall" "$scripts/preinstall"
+install -m 0755 "$repo/packaging/macos/scripts/postinstall" "$scripts/postinstall"
+
 component="$work/Vadgr-component.pkg"
 unsigned="$repo/target/package/Vadgr-$version-macos-$arch-unsigned.pkg"
 root_archive="$repo/target/package/Vadgr-$version-macos-$arch-unsigned-root.tar.gz"
 pkgbuild --root "$root" --identifier com.montbrain.vadgr.pkg --version "$version" \
-  --install-location / --scripts "$repo/packaging/macos/scripts" "$component"
+  --install-location / --scripts "$scripts" "$component"
 distribution="$work/Distribution.xml"
 sed "s/hostArchitectures=\"arm64,x86_64\"/hostArchitectures=\"$arch\"/" \
   "$repo/packaging/macos/Distribution.xml" > "$distribution"
