@@ -592,13 +592,18 @@ mod platform {
         );
         let setup = registered_bundle_path()?;
         let mut command = Command::new(setup);
-        command.args(["/uninstall", "/quiet", "/norestart"]);
-        if purge_owner_state {
-            command.arg("PurgeOwnerData=1");
-        }
+        command.args(bundle_uninstall_args(purge_owner_state));
         let status = command.status().context("starting the Vadgr uninstaller")?;
         ensure!(status.success(), "Vadgr setup returned {status}");
         Ok(())
+    }
+
+    fn bundle_uninstall_args(purge_owner_state: bool) -> Vec<&'static str> {
+        let mut arguments = vec!["/uninstall", "/quiet", "/norestart"];
+        if purge_owner_state {
+            arguments.push("PurgeOwnerData=1");
+        }
+        arguments
     }
 
     fn registered_bundle_path() -> Result<PathBuf> {
@@ -712,6 +717,18 @@ mod platform {
             assert!(valid_product_code("{12345678-1234-1234-1234-123456789ABC}"));
             assert!(!valid_product_code("/quiet C:\\owner"));
             assert!(!valid_product_code("12345678-1234-1234-1234-123456789ABC"));
+        }
+
+        #[test]
+        fn purge_is_an_explicit_burn_variable() {
+            assert_eq!(
+                bundle_uninstall_args(true),
+                ["/uninstall", "/quiet", "/norestart", "PurgeOwnerData=1"]
+            );
+            assert_eq!(
+                bundle_uninstall_args(false),
+                ["/uninstall", "/quiet", "/norestart"]
+            );
         }
     }
 }

@@ -15,7 +15,12 @@
         Type="formatted"
         Value="[LocalAppDataFolder]Programs\Vadgr"
         Persisted="yes" />
-    <Variable Name="PurgeOwnerData" Type="numeric" Value="0" Hidden="yes" />
+    <Variable
+        Name="PurgeOwnerData"
+        Type="numeric"
+        Value="0"
+        Hidden="yes"
+        bal:Overridable="yes" />
     <BootstrapperApplication>
       <Payload SourceFile="$(var.BAFunctionsPath)" bal:BAFunctions="yes" />
       <bal:WixStandardBootstrapperApplication

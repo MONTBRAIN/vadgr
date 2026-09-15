@@ -45,6 +45,7 @@ fn burn_owns_terms_progress_repair_uninstall_and_console_launch() {
     assert!(bundle.contains("WixBundleInstalled OR WixBundleUILevel = 4"));
     assert!(bundle.contains("Name=\"BUNDLESOURCE\""));
     assert!(bundle.contains("Name=\"PurgeOwnerData\""));
+    assert!(bundle.contains("bal:Overridable=\"yes\""));
     assert!(bundle.contains("Name=\"PURGEOWNERDATA\" Value=\"[PurgeOwnerData]\""));
     assert!(bundle.contains("<MsiPackage"));
     let package = repo_file("packaging/windows/Package.wxs");
