@@ -30,9 +30,9 @@ trap restore_previous EXIT HUP INT TERM
 [ -f "$terms" ] || { echo "The installed terms are missing." >&2; exit 1; }
 [ -f "$package" ] || { echo "Installer did not provide the package path." >&2; exit 1; }
 
-/bin/mkdir -p "$cache"
-/bin/cp "$package" "$pending"
-/usr/sbin/chown -R "$owner" "$cache"
+# The state root shares this parent, so create it as the owner before startup.
+/usr/bin/sudo -H -u "$owner" /bin/mkdir -p "$cache"
+/usr/bin/sudo -H -u "$owner" /bin/cp "$package" "$pending"
 
 if ! /usr/bin/sudo -H -u "$owner" "$backend" start; then
   echo "The installed Vadgr daemon did not become healthy." >&2

@@ -151,3 +151,13 @@ fn e2e_runbook_names_every_required_lifecycle_negative() {
         assert!(runbook.contains(required), "runbook lacks {required}");
     }
 }
+
+#[test]
+fn macos_installer_creates_owner_cache_without_root_owned_parents() {
+    let postinstall = read("packaging/macos/scripts/postinstall");
+    assert!(postinstall.contains("/usr/bin/sudo -H -u \"$owner\" /bin/mkdir -p \"$cache\""));
+    assert!(
+        postinstall.contains("/usr/bin/sudo -H -u \"$owner\" /bin/cp \"$package\" \"$pending\"")
+    );
+    assert!(!postinstall.contains("/usr/sbin/chown -R"));
+}
