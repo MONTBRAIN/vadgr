@@ -1007,6 +1007,95 @@ mod tests {
         );
     }
 
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn macos_flat_or_hostless_payload_refuses_at_the_host_guard() {
+        let temporary = tempfile::tempdir().unwrap();
+        for root in [
+            temporary.path().join("flat"),
+            temporary.path().join("Vadgr.app/Contents/Resources"),
+        ] {
+            let manifest = valid_payload(&root);
+            write_manifest(&root, &manifest);
+            let error = CuaRuntime::below_install_root(&root).unwrap_err();
+            assert_eq!(
+                error.to_string(),
+                "the signed Vadgr Computer Use host is missing"
+            );
+        }
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn macos_ci_staging_resolves_the_same_payload_from_the_installed_cli() {
+        let temporary = tempfile::tempdir().unwrap();
+        let checkout = temporary.path().join("checkout");
+        let binaries = checkout.join("target/release");
+        std::fs::create_dir_all(&binaries).unwrap();
+        // This fixture checks paths without starting Python or requesting grants.
+        for name in ["vadgr", "vadgr-cua-host"] {
+            std::fs::write(binaries.join(name), b"fixture executable").unwrap();
+        }
+        let packaging = checkout.join("packaging/macos");
+        std::fs::create_dir_all(&packaging).unwrap();
+        for name in ["Vadgr-Info.plist", "CuaHost-Info.plist"] {
+            std::fs::copy(
+                Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("packaging/macos")
+                    .join(name),
+                packaging.join(name),
+            )
+            .unwrap();
+        }
+        let workflow = std::fs::read_to_string(
+            Path::new(env!("CARGO_MANIFEST_DIR")).join(".github/workflows/ci.yml"),
+        )
+        .unwrap();
+        let step = workflow
+            .split_once("- name: Assemble the macOS app without Python tools\n")
+            .or_else(|| {
+                workflow.split_once(
+                    "- name: Assemble the complete clean install on Unix without Python tools\n",
+                )
+            })
+            .unwrap()
+            .1;
+        let prefix = step
+            .split_once("        run: |\n")
+            .unwrap()
+            .1
+            .split_once("          env PATH=")
+            .unwrap()
+            .0;
+        let runner = temporary.path().join("runner");
+        std::fs::create_dir(&runner).unwrap();
+        let output = Command::new("bash")
+            .args(["-euc", &format!("{prefix}\nprintf '%s' \"$install_root\"")])
+            .env_clear()
+            .env("HOME", temporary.path())
+            .env("PATH", "/usr/bin:/bin")
+            .env("RUNNER_TEMP", &runner)
+            .current_dir(&checkout)
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let root = PathBuf::from(String::from_utf8(output.stdout).unwrap());
+        let manifest = valid_payload(&root);
+        write_manifest(&root, &manifest);
+        let runtime = CuaRuntime::below_install_root(&root).unwrap();
+        let executable = runner.join("vadgr-clean-install/Vadgr.app/Contents/MacOS/vadgr");
+        assert!(executable.is_file());
+        assert_eq!(install_root_from_executable(&executable).unwrap(), root);
+        assert_eq!(
+            runtime.stdio_command().program,
+            responsible_host(&root).unwrap()
+        );
+    }
+
     #[test]
     fn every_manifest_mismatch_fails_closed_and_names_its_field() {
         let cases = [

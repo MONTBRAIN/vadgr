@@ -182,8 +182,12 @@ jobs:
       - uses: Swatinem/rust-cache@49a0bdc70d2e1b713ca9e2869b211fcce03d3c1c # v2
 
       - name: Build the release binaries
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         run: cargo build --locked --release --bins
+
+      - name: Build the macOS CLI and responsible-process host
+        if: runner.os == 'macOS'
+        run: cargo build --locked --release --features macos-cua-host --bin vadgr --bin vadgr-cua-host
 
       # The C runtime is linked in rather than imported, so the binary does not
       # need the Visual C++ redistributable, which is not part of Windows. The
@@ -196,7 +200,7 @@ jobs:
         run: cargo build --locked --release --bins --target x86_64-pc-windows-msvc
 
       - name: Assemble the complete clean install on Unix without Python tools
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: bash
         run: |
           set -euo pipefail
@@ -220,6 +224,39 @@ jobs:
             'import importlib.metadata,json,pathlib,sys; manifest=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")); assert sys.version.split()[0] == manifest["python_version"]; assert importlib.metadata.version("vadgr-computer-use") == manifest["cua_version"]' \
             "$manifest"
           echo "CLEAN_INSTALL_ROOT=$install_root" >> "$GITHUB_ENV"
+
+      - name: Assemble the macOS app without Python tools
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Unsigned CI checks bundle layout and startup, not publisher trust or grants.
+          app="$RUNNER_TEMP/vadgr-clean-install/Vadgr.app"
+          install_root="$app/Contents/Resources"
+          host="$app/Contents/Library/LoginItems/Vadgr Computer Use.app/Contents"
+          shim="$RUNNER_TEMP/vadgr-python-shims"
+          mkdir -p "$app/Contents/MacOS" "$install_root" "$host/MacOS" "$shim"
+          cp packaging/macos/Vadgr-Info.plist "$app/Contents/Info.plist"
+          cp packaging/macos/CuaHost-Info.plist "$host/Info.plist"
+          install -m 0755 "$PWD/target/release/vadgr" "$app/Contents/MacOS/vadgr"
+          install -m 0755 "$PWD/target/release/vadgr-cua-host" "$host/MacOS/vadgr-cua-host"
+          for name in python python3 pip pip3 uv vadgr-cua; do
+            printf '#!/bin/sh\necho "%s was resolved" >&2\nexit 97\n' "$name" > "$shim/$name"
+            chmod +x "$shim/$name"
+          done
+          env PATH="$shim" "$app/Contents/MacOS/vadgr" __payload-setup \
+            --install-root "$install_root" --payload-only
+          manifest="$install_root/lib/cua/payload.json"
+          test -f "$manifest"
+          private_pythons=( "$install_root"/lib/cua/environments/*/bin/python )
+          test "${#private_pythons[@]}" -eq 1
+          private_python="${private_pythons[0]}"
+          test -f "$private_python"
+          "$private_python" -I -c \
+            'import importlib.metadata,json,pathlib,sys; manifest=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")); assert sys.version.split()[0] == manifest["python_version"]; assert importlib.metadata.version("vadgr-computer-use") == manifest["cua_version"]' \
+            "$manifest"
+          echo "CLEAN_INSTALL_ROOT=$install_root" >> "$GITHUB_ENV"
+          echo "CLEAN_INSTALL_EXECUTABLE=$app/Contents/MacOS/vadgr" >> "$GITHUB_ENV"
 
       - name: Assemble the complete clean install on Windows without Python tools
         if: runner.os == 'Windows'
@@ -354,7 +391,7 @@ jobs:
           test -n "$version" || { echo "read no version from Cargo.toml"; exit 1; }
           # The one binary a user gets: it serves when invoked with `serve`
           # and is the client otherwise, so this inspection covers both halves.
-          exe="$CLEAN_INSTALL_ROOT/bin/vadgr"
+          exe="$CLEAN_INSTALL_EXECUTABLE"
           test -x "$exe" || { echo "no binary at $exe"; exit 1; }
           otool -L "$exe"
           # Every library must be one macOS ships. Anything under /opt or

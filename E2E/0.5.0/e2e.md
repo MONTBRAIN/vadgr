@@ -1,10 +1,13 @@
 # 0.5.0 - the product is installable: E2E runbook
 
 > **Implementation:** `feature/0.5.0-distribution` at
-> product subject `ec66315d80c3dea5934e3e94b433ffbba79098bd`; later commits on
-> the same branch record E2E results and policy only. The PR resolves after the first
-> target passes. **Private evidence PR:** resolve before the
-> first live cell. Do not create a replacement PR.
+> each observation's recorded source commit. Later branch commits include
+> product repairs and signing workflow changes, not only policy or evidence.
+> No signed candidate is frozen yet. Freeze the exact current source and
+> artifact hashes before each new live group. The implementation PR opens
+> after the first required real target pass and green source checks.
+> **Private evidence PR:** resolve before the next live group.
+> Do not create a replacement PR.
 >
 > **Status: development qualification in progress.** No cell below is a formal
 > release pass. Signing identities, reviewed terms, release public key,

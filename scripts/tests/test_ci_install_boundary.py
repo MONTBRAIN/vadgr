@@ -103,3 +103,25 @@ def test_ci_probe_requires_the_exact_refusal_and_checks_state():
     assert 'test "$code" -eq 2' in step
     assert 'test "$before" = "$after"' in step
     assert "release-public-key.txt" not in step
+
+
+def test_macos_clean_install_uses_the_native_bundle_and_real_host_build():
+    text = WORKFLOW.read_text()
+    assert "cargo build --locked --release --features macos-cua-host --bin vadgr --bin vadgr-cua-host" in text
+    assembly = text.split("- name: Assemble the macOS app without Python tools\n", 1)[1]
+    assembly = assembly.split("\n      - name:", 1)[0]
+    assert "if: runner.os == 'macOS'" in assembly
+    assert 'app="$RUNNER_TEMP/vadgr-clean-install/Vadgr.app"' in assembly
+    assert 'install_root="$app/Contents/Resources"' in assembly
+    assert 'host="$app/Contents/Library/LoginItems/Vadgr Computer Use.app/Contents"' in assembly
+    assert 'packaging/macos/Vadgr-Info.plist' in assembly
+    assert 'packaging/macos/CuaHost-Info.plist' in assembly
+    assert assembly.index('"$host/MacOS/vadgr-cua-host"') < assembly.index('__payload-setup')
+    assert '--install-root "$install_root" --payload-only' in assembly
+    assert 'CLEAN_INSTALL_EXECUTABLE=$app/Contents/MacOS/vadgr' in assembly
+    assert 'manifest="$install_root/lib/cua/payload.json"' in assembly
+    macos_probe = text.split("- name: What it links, and the user's steps with the toolchain out of reach\n", 1)[1]
+    macos_probe = macos_probe.split("\n      - name:", 1)[0]
+    assert 'exe="$CLEAN_INSTALL_EXECUTABLE"' in macos_probe
+    assert 'exe="$CLEAN_INSTALL_ROOT/bin/vadgr"' not in macos_probe
+    assert "codesign" not in assembly
