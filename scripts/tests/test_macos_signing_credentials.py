@@ -9,6 +9,7 @@ import plistlib
 import signal
 import subprocess
 import sys
+from types import SimpleNamespace
 
 import pytest
 
@@ -21,6 +22,8 @@ def signing():
     spec = importlib.util.spec_from_file_location("macos_signing_credentials", SCRIPT)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    # Keep platform simulation local; pathlib and subprocess use the real host.
+    module.sys = SimpleNamespace(**vars(sys))
     return module
 
 
@@ -85,10 +88,18 @@ class FakeSecurity:
         self.events.append("close")
 
 
-def test_platform_and_host_guard_precede_native_api(signing, runner, monkeypatch):
-    monkeypatch.setattr(signing.sys, "platform", "linux")
+@pytest.mark.parametrize("platform", ["linux", "win32"])
+def test_platform_and_host_guard_precede_native_api(signing, runner, monkeypatch, platform):
+    actual_platform = sys.platform
+    monkeypatch.setattr(signing.sys, "platform", platform)
     with pytest.raises(signing.SigningError, match="GitHub-hosted macOS"):
         signing.require_runner(runner)
+    backend = FakeSecurity()
+    with pytest.raises(signing.SigningError, match="GitHub-hosted macOS"):
+        with signing.Credentials(runner, backend):
+            pass
+    assert not backend.events
+    assert sys.platform == actual_platform
     monkeypatch.setattr(signing.sys, "platform", "darwin")
     for name, value in (("GITHUB_ACTIONS", "false"), ("RUNNER_ENVIRONMENT", "self-hosted"),
                         ("GITHUB_REPOSITORY", "someone/fork"), ("GITHUB_EVENT_NAME", "pull_request_target")):
@@ -102,8 +113,11 @@ def test_credentials_exist_only_during_command(signing, runner, monkeypatch):
     root = None
     with signing.Credentials(runner, backend) as child:
         root = Path(child["VADGR_NOTARY_KEY_FILE"]).parent
-        assert root.stat().st_mode & 0o777 == 0o700
-        assert Path(child["VADGR_NOTARY_KEY_FILE"]).stat().st_mode & 0o777 == 0o600
+        notary_file = Path(child["VADGR_NOTARY_KEY_FILE"])
+        if os.name == "posix":
+            assert root.stat().st_mode & 0o777 == 0o700
+            assert notary_file.stat().st_mode & 0o777 == 0o600
+        assert notary_file.read_text(encoding="utf-8") == runner["MACOS_NOTARY_PRIVATE_KEY"]
         assert child["APPLICATION_IDENTITY"] == "A" * 40
         assert child["INSTALLER_IDENTITY"] == "B" * 40
         assert not any(name in child for name in signing.SECRET_NAMES)
@@ -153,14 +167,13 @@ def test_child_argv_never_contains_credentials(signing, runner, monkeypatch):
 
     def popen(argv, **kwargs):
         recorded.update(argv=argv, **kwargs)
-        from types import SimpleNamespace
         return SimpleNamespace(pid=47290, wait=lambda timeout=None: 7)
 
     def absent_group(*args):
         raise ProcessLookupError()
 
     monkeypatch.setattr(signing.subprocess, "Popen", popen)
-    monkeypatch.setattr(signing.os, "killpg", absent_group)
+    monkeypatch.setattr(signing.os, "killpg", absent_group, raising=False)
     assert signing.run_command(["/bin/sh", "sign-package.sh"], runner, backend) == 7
     assert recorded["argv"] == ["/bin/sh", "sign-package.sh"]
     assert recorded["start_new_session"] is True
@@ -234,7 +247,6 @@ def test_partition_acl_uses_native_password_buffer(signing, monkeypatch):
 
     backend.sec = Security()
     # Substitute only this module's ctypes namespace; do not alter global ctypes.
-    from types import SimpleNamespace
     monkeypatch.setattr(signing, "C", SimpleNamespace(c_void_p=PointerType,
                                                      c_uint32=ctypes.c_uint32,
                                                      byref=ctypes.byref))
@@ -248,7 +260,6 @@ def test_missing_partition_acl_fails_closed(signing, monkeypatch):
     backend.copied = lambda *args: 100
     backend.retain_result = lambda value: value
     backend.values = lambda array: []
-    from types import SimpleNamespace
     backend.sec = SimpleNamespace(SecAccessCopyMatchingACLList=lambda *args: 200)
     pointer = SimpleNamespace(in_dll=lambda *args: SimpleNamespace(value=300))
     monkeypatch.setattr(signing, "C", SimpleNamespace(c_void_p=pointer))
@@ -295,7 +306,7 @@ def test_interrupted_child_group_stops_before_credentials_are_removed(
 
     monkeypatch.setattr(signing.subprocess, "run", old_run)
     monkeypatch.setattr(signing.subprocess, "Popen", popen)
-    monkeypatch.setattr(signing.os, "killpg", killpg)
+    monkeypatch.setattr(signing.os, "killpg", killpg, raising=False)
     with pytest.raises(interruption):
         signing.run_command(["/bin/sh", "sign-package.sh"], runner, backend)
     assert "stopped-group" in backend.events
@@ -307,11 +318,11 @@ def test_interrupted_child_group_stops_before_credentials_are_removed(
 def test_unresponsive_descendants_are_killed_after_the_grace_period(signing, monkeypatch):
     calls = []
     ticks = iter([0.0, 6.0])
-    from types import SimpleNamespace
     process = SimpleNamespace(pid=47292, poll=lambda: 0,
                               wait=lambda timeout: calls.append(("wait", timeout)))
-    monkeypatch.setattr(signing.os, "killpg", lambda pid, number: calls.append((pid, number)))
+    monkeypatch.setattr(signing.os, "killpg", lambda pid, number: calls.append((pid, number)), raising=False)
+    monkeypatch.setattr(signing, "signal", SimpleNamespace(SIGTERM=signal.SIGTERM, SIGKILL=9))
     clock = SimpleNamespace(monotonic=lambda: next(ticks), sleep=lambda seconds: None)
     monkeypatch.setattr(signing, "time", clock, raising=False)
     signing.stop_owned_group(process)
-    assert calls == [(47292, signal.SIGTERM), (47292, signal.SIGKILL), ("wait", 5)]
+    assert calls == [(47292, signal.SIGTERM), (47292, 9), ("wait", 5)]

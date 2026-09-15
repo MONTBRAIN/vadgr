@@ -3,6 +3,7 @@
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
 import plistlib
 import subprocess
@@ -15,6 +16,9 @@ SCRIPT = Path(__file__).resolve().parents[1] / "sign_macos_candidate.py"
 APP = "Applications/Vadgr.app"
 HELPER = APP + "/Contents/Library/LoginItems/Vadgr Computer Use.app"
 REQUIREMENT = 'identifier "com.montbrain.vadgr.cua" and anchor apple generic and certificate leaf[subject.OU] = "TESTTEAM00"'
+requires_posix_filesystem = pytest.mark.skipif(
+    os.name != "posix", reason="requires real POSIX permissions, ownership and symlink semantics",
+)
 
 
 @pytest.fixture
@@ -167,6 +171,7 @@ def test_archive_paths_are_rejected_before_any_extraction(signer, tmp_path, entr
     assert not output.exists()
 
 
+@requires_posix_filesystem
 def test_signing_is_inside_out_and_publishes_only_verified_sanitized_results(signer, candidate):
     tools = execute(signer, candidate)
     signed = [argv for argv, _ in tools.calls if Path(argv[0]).name == "codesign" and "--sign" in argv]
@@ -193,6 +198,7 @@ def test_signing_is_inside_out_and_publishes_only_verified_sanitized_results(sig
     assert result["package_sha256"] == signer.sha256(candidate[4] / files[0])
 
 
+@requires_posix_filesystem
 def test_notary_rejection_publishes_nothing_and_never_staples(signer, candidate):
     tools = NativeTools(candidate[3], "Invalid")
     with pytest.raises(signer.SigningError, match="notarization"):
@@ -229,6 +235,7 @@ def test_subprocess_failures_never_echo_output_or_arguments(signer, monkeypatch)
     assert str(result.value) == "nested signature failed"
 
 
+@requires_posix_filesystem
 def test_x86_installer_targets_only_its_architecture(signer, candidate):
     repo, source, record, env, output = candidate
     destination = source.with_name(source.name.replace("arm64", "x86_64"))
@@ -242,10 +249,13 @@ def test_x86_installer_targets_only_its_architecture(signer, candidate):
     assert all(argv[2] == "x86_64" for argv, _ in tools.calls if Path(argv[0]).name == "lipo")
 
 
+@requires_posix_filesystem
 @pytest.mark.parametrize("failure", ["runtime", "timestamp", "entitlements", "requirement", "staple verification", "installer trust assessment"])
 def test_failed_signature_or_post_notary_verification_publishes_nothing(signer, candidate, failure):
     native = NativeTools(candidate[3])
+    phases = []
     def run(argv, phase, **kwargs):
+        phases.append(phase)
         if phase == failure:
             raise signer.SigningError("verification failed")
         result = native(argv, phase, **kwargs)
@@ -260,6 +270,9 @@ def test_failed_signature_or_post_notary_verification_publishes_nothing(signer, 
         return result
     with pytest.raises(signer.SigningError):
         execute(signer, candidate, run)
+    expected_phase = {"runtime": "signature attributes", "timestamp": "signature attributes",
+                      "entitlements": "signed entitlements", "requirement": "CUA designated requirement"}.get(failure, failure)
+    assert expected_phase in phases
     assert not candidate[4].exists()
 
 
@@ -278,6 +291,7 @@ def test_checkout_tree_must_match_even_when_metadata_matches(signer, candidate):
     assert not any("--sign" in argv for argv, _ in native.calls)
 
 
+@requires_posix_filesystem
 def test_notary_key_must_be_private(signer, candidate):
     Path(candidate[3]["VADGR_NOTARY_KEY_FILE"]).chmod(0o644)
     native = NativeTools(candidate[3])
@@ -286,6 +300,7 @@ def test_notary_key_must_be_private(signer, candidate):
     assert not any("--sign" in argv for argv, _ in native.calls)
 
 
+@requires_posix_filesystem
 def test_internal_framework_links_and_canonical_cli_link_remain_supported(signer, tmp_path):
     source, output = tmp_path / "links.tar.gz", tmp_path / "root"
     entries = [(APP + "/Contents/Frameworks/Python.framework/Versions/A/Python", b"fixture"),

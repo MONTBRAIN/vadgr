@@ -85,3 +85,19 @@ def test_legacy_tag_workflow_stops_before_checkout_or_signing():
     first_job = text.split("  validate-tag:\n", 1)[1].split("\n  build:\n", 1)[0]
     assert first_job.index("exit 2") < first_job.index("uses: actions/checkout@")
     assert "legacy rebuild-and-sign path is disabled" in first_job
+
+
+def validate_gate_matrix(text):
+    assert "os: [ubuntu-latest, windows-latest, macos-15]" in text
+    assert "environment: release-macos" not in text
+    assert "${{ secrets.MACOS_" not in text
+
+
+def test_native_macos_gate_runs_without_production_signing_secrets():
+    validate_gate_matrix((ROOT / ".github/workflows/secret-scan.yml").read_text())
+
+
+def test_missing_native_macos_gate_goes_red():
+    text = (ROOT / ".github/workflows/secret-scan.yml").read_text()
+    with pytest.raises(AssertionError):
+        validate_gate_matrix(text.replace(", macos-15]", "]"))
