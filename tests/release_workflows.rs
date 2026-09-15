@@ -1,7 +1,25 @@
 use std::path::PathBuf;
 
 fn repo_file(relative: &str) -> String {
-    std::fs::read_to_string(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(relative)).unwrap()
+    // Source assertions compare logical text, not checkout line endings.
+    std::fs::read_to_string(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(relative))
+        .unwrap()
+        .replace("\r\n", "\n")
+}
+
+#[test]
+fn workflow_source_reader_accepts_lf_and_crlf_without_changing_the_tag_guard() {
+    let source = repo_file(".github/workflows/release.yml").replace("\r\n", "\n");
+    let fixture = tempfile::tempdir().unwrap();
+    let path = fixture.path().join("release.yml");
+    for text in [source.clone(), source.replace('\n', "\r\n")] {
+        std::fs::write(&path, &text).unwrap();
+        let workflow = repo_file(path.to_str().unwrap());
+        assert!(workflow.contains("tags:\n      - v*"));
+        assert_eq!(workflow, source);
+        std::fs::write(&path, text.replace("- v*", "- untrusted*")).unwrap();
+        assert!(!repo_file(path.to_str().unwrap()).contains("tags:\n      - v*"));
+    }
 }
 
 fn assert_actions_are_full_sha(workflow: &str) {

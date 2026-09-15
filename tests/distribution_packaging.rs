@@ -5,7 +5,24 @@ fn root() -> PathBuf {
 }
 
 fn read(relative: &str) -> String {
-    std::fs::read_to_string(root().join(relative)).unwrap()
+    // Source assertions compare logical text, not checkout line endings.
+    std::fs::read_to_string(root().join(relative))
+        .unwrap()
+        .replace("\r\n", "\n")
+}
+
+#[test]
+fn package_source_reader_accepts_lf_and_crlf_without_changing_content() {
+    let source = read("packaging/macos/vadgr-lifecycle").replace("\r\n", "\n");
+    let fixture = tempfile::tempdir().unwrap();
+    let path = fixture.path().join("lifecycle");
+    for text in [source.clone(), source.replace('\n', "\r\n")] {
+        std::fs::write(&path, text).unwrap();
+        assert!(
+            read(path.to_str().unwrap()) == source,
+            "the source reader must normalize CRLF only"
+        );
+    }
 }
 
 #[test]
