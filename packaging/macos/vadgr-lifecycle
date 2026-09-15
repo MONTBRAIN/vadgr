@@ -7,6 +7,141 @@ login_helper="$app/Contents/Helpers/vadgr-login-item"
 cache_root="$HOME/Library/Application Support/vadgr/package-cache"
 action=${1:-}
 
+process_identity() (
+  pid=$1
+  kind=$2
+  case "$pid" in ''|*[!0-9]*) echo "The recorded Vadgr process ID is invalid." >&2; return 1;; esac
+  [ "$pid" -gt 1 ] || { echo "The recorded Vadgr process ID is invalid." >&2; return 1; }
+  identity=$(/bin/ps -p "$pid" -o lstart= -o command= 2>/dev/null || true)
+  [ -n "$identity" ] || return 0
+  uid=$(/bin/ps -p "$pid" -o uid= 2>/dev/null | /usr/bin/tr -d ' ')
+  [ "$uid" = "$owner_uid" ] || { echo "The recorded Vadgr process belongs to another user." >&2; return 1; }
+  command=$(/bin/ps -p "$pid" -o command= 2>/dev/null || true)
+  if [ "$kind" = daemon ]; then
+    case "$command" in
+      "$backend serve "*|"$backend --daemon") ;;
+      *) echo "The recorded process is not the installed Vadgr daemon." >&2; return 1;;
+    esac
+    /usr/sbin/lsof -a -p "$pid" -d txt -Fn 2>/dev/null | /usr/bin/grep -F -x "n$backend" >/dev/null || {
+      echo "The Vadgr process executable could not be verified." >&2; return 1
+    }
+  else
+    host="$app/Contents/Library/LoginItems/Vadgr Computer Use.app/Contents/MacOS/vadgr-cua-host"
+    case "$command" in
+      "$host --python "*|"$app/Contents/Resources/lib/cua/"*) ;;
+      *) echo "A Vadgr child process is not part of the installed payload." >&2; return 1;;
+    esac
+    /usr/sbin/lsof -a -p "$pid" -d txt -Fn 2>/dev/null | /usr/bin/awk -v app="$app" -v host="$host" '
+      /^n/ { path=substr($0, 2); valid=(path == host || index(path, app "/Contents/Resources/lib/cua/") == 1); exit }
+      END { exit !valid }
+    ' || { echo "The Vadgr child executable could not be verified." >&2; return 1; }
+  fi
+  printf '%s\n' "$identity"
+)
+
+capture_process_tree() (
+  pid=$1
+  kind=$2
+  [ -n "$pid" ] || return 0
+  identity=$(process_identity "$pid" "$kind") || return 1
+  [ -n "$identity" ] || return 0
+  [ ! -e "$snapshot/$pid" ] || return 0
+  /bin/mkdir "$snapshot/$pid" || return 1
+  printf '%s\n' "$identity" > "$snapshot/$pid/identity" || return 1
+  printf '%s\n' "$kind" > "$snapshot/$pid/kind" || return 1
+  children=$(/usr/bin/pgrep -P "$pid" || true)
+  for child in $children; do
+    parent=$(/bin/ps -p "$child" -o ppid= 2>/dev/null | /usr/bin/tr -d ' ')
+    [ "$parent" = "$pid" ] || { echo "The Vadgr process tree changed; uninstall was stopped." >&2; return 1; }
+    capture_process_tree "$child" child || return 1
+  done
+  # Leaves precede their parents. Only this captured tree belongs to uninstall;
+  # detached or shared brokers are not found or signaled by executable name.
+  printf '%s\n' "$pid" >> "$snapshot/order"
+)
+
+check_captured_process() (
+  pid=$1
+  kind=$(/bin/cat "$snapshot/$pid/kind")
+  expected=$(/bin/cat "$snapshot/$pid/identity")
+  identity=$(process_identity "$pid" "$kind") || return 1
+  [ -n "$identity" ] || return 0
+  [ "$identity" = "$expected" ] || { echo "The Vadgr process identity changed; uninstall was stopped." >&2; return 1; }
+  children=$(/usr/bin/pgrep -P "$pid" || true)
+  for child in $children; do
+    [ -f "$snapshot/$child/identity" ] || { echo "The Vadgr process tree changed; uninstall was stopped." >&2; return 1; }
+  done
+)
+
+stop_captured_process() (
+  pid=$1
+  check_captured_process "$pid" || return 1
+  expected=$(/bin/cat "$snapshot/$pid/identity")
+  identity=$(/bin/ps -p "$pid" -o lstart= -o command= 2>/dev/null || true)
+  [ -n "$identity" ] || return 0
+  [ "$identity" = "$expected" ] || { echo "The Vadgr process identity changed; uninstall was stopped." >&2; return 1; }
+  /usr/bin/sudo -H -u "$owner" /bin/kill -TERM "$pid" || return 1
+  attempts=0
+  while [ "$attempts" -lt 50 ]; do
+    identity=$(/bin/ps -p "$pid" -o lstart= -o command= 2>/dev/null || true)
+    [ "$identity" = "$expected" ] || return 0
+    /bin/sleep 0.1
+    attempts=$((attempts + 1))
+  done
+  echo "A Vadgr process did not stop; the application was preserved." >&2
+  return 1
+)
+
+uninstall_authorized() {
+  [ "$(/usr/bin/id -u)" = 0 ] || { echo "The macOS uninstaller requires administrator authorization." >&2; return 1; }
+  owner_uid=$1
+  purge=$2
+  case "$owner_uid" in ''|0|*[!0-9]*) echo "No interactive owner is available." >&2; return 1;; esac
+  [ "$(/usr/bin/stat -f '%u' /dev/console)" = "$owner_uid" ] || { echo "The interactive owner changed; uninstall was stopped." >&2; return 1; }
+  owner=$(/usr/bin/id -un "$owner_uid")
+  owner_home=$(/usr/bin/dscl . -read "/Users/$owner" NFSHomeDirectory | /usr/bin/sed -n 's/^NFSHomeDirectory: //p')
+  case "$owner_home" in /*) ;; *) echo "The Vadgr owner home is unavailable." >&2; return 1;; esac
+  [ "$owner_home" != / ] || return 1
+  cache_root="$owner_home/Library/Application Support/vadgr/package-cache"
+  [ ! -L "$app" ] || { echo "The existing Vadgr application is a symbolic link." >&2; return 1; }
+  identifier=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Contents/Info.plist" 2>/dev/null || true)
+  [ "$identifier" = com.montbrain.vadgr ] || { echo "The installed application is not owned by this package." >&2; return 1; }
+  if [ -e /usr/local/bin/vadgr ] || [ -L /usr/local/bin/vadgr ]; then
+    [ -L /usr/local/bin/vadgr ] && [ "$(/usr/bin/readlink /usr/local/bin/vadgr)" = "$backend" ] || {
+      echo "The vadgr command link belongs to another installation." >&2; return 1
+    }
+  fi
+  for directory in "$owner_home/Library" "$owner_home/Library/Application Support" "$owner_home/Library/Application Support/vadgr" "$cache_root"; do
+    [ ! -L "$directory" ] || { echo "The Vadgr package cache path is a symbolic link." >&2; return 1; }
+  done
+  snapshot=$(/usr/bin/mktemp -d /private/tmp/vadgr-uninstall.XXXXXX)
+  trap '/bin/rm -rf -- "$snapshot"' EXIT
+  trap 'exit 1' HUP INT TERM
+  : > "$snapshot/order"
+  cli_pid=$(/bin/cat "$owner_home/.vadgr/pids/api.pid" 2>/dev/null || true)
+  agent_pid=$(/bin/launchctl print "gui/$owner_uid/com.montbrain.vadgr.agent" 2>/dev/null | /usr/bin/awk '$1 == "pid" && $2 == "=" {print $3; exit}')
+  capture_process_tree "$cli_pid" daemon
+  capture_process_tree "$agent_pid" daemon
+  while IFS= read -r pid; do check_captured_process "$pid"; done < "$snapshot/order"
+  if [ -x "$login_helper" ]; then
+    login_status=$(/bin/launchctl asuser "$owner_uid" /usr/bin/sudo -H -u "$owner" "$login_helper" status 2>/dev/null || true)
+    case "$login_status" in
+      disabled) ;;
+      enabled|requires-approval)
+        /bin/launchctl asuser "$owner_uid" /usr/bin/sudo -H -u "$owner" "$login_helper" disable || {
+          echo "macOS did not accept the login-item change." >&2; return 1
+        };;
+      *) echo "The Vadgr login-item state could not be verified." >&2; return 1;;
+    esac
+  fi
+  while IFS= read -r pid; do stop_captured_process "$pid"; done < "$snapshot/order"
+  if [ "$purge" = true ]; then /usr/bin/sudo -H -u "$owner" "$backend" __purge-owner-state; fi
+  /usr/bin/sudo -H -u "$owner" /bin/rm -rf -- "$cache_root"
+  /bin/rm -rf -- "$app"
+  /bin/rm -f -- /usr/local/bin/vadgr
+  /usr/sbin/pkgutil --forget com.montbrain.vadgr.pkg >/dev/null
+}
+
 case "$action" in
   repair)
     [ -f "$cache_root/current.pkg" ] || { echo "The retained signed repair package is missing." >&2; exit 1; }
@@ -25,14 +160,29 @@ case "$action" in
     shift
     purge=false
     if [ "${1:-}" = --purge-owner-state ]; then purge=true; fi
-    if [ -x "$login_helper" ]; then "$login_helper" disable || true; fi
-    if [ "$purge" = true ]; then "$backend" __purge-owner-state; fi
-    if [ -L /usr/local/bin/vadgr ]; then
-      target=$(/usr/bin/readlink /usr/local/bin/vadgr)
-      [ "$target" = "$backend" ] || { echo "The vadgr command link belongs to another installation." >&2; exit 1; }
+    if [ "$purge" = true ] && [ "${VADGR_STATE_HOME+x}" = x ]; then
+      echo "the package uninstaller refuses to delete an overridden state root" >&2; exit 1
     fi
-    /bin/rm -rf -- "$cache_root"
-    /usr/bin/osascript -e 'do shell script "/bin/rm -rf -- /Applications/Vadgr.app; /bin/rm -f -- /usr/local/bin/vadgr; /usr/sbin/pkgutil --forget com.montbrain.vadgr.pkg >/dev/null 2>&1 || true" with administrator privileges'
+    if [ -n "${VADGR_HOME:-}" ] && [ "$VADGR_HOME" != "$HOME/.vadgr" ]; then
+      echo "The package uninstaller refuses an overridden process-state root." >&2; exit 1
+    fi
+    owner_uid=$(/usr/bin/id -u)
+    if [ "$purge" = true ]; then
+      owner=$(/usr/bin/id -un)
+      owner_home=$(/usr/bin/dscl . -read "/Users/$owner" NFSHomeDirectory | /usr/bin/sed -n 's/^NFSHomeDirectory: //p')
+      [ "$HOME" = "$owner_home" ] || { echo "the package uninstaller refuses to delete an overridden state root" >&2; exit 1; }
+    fi
+    /usr/bin/osascript \
+      -e 'on run argv' \
+      -e 'set command to quoted form of (item 1 of argv) & " __uninstall-authorized " & quoted form of (item 2 of argv) & " " & quoted form of (item 3 of argv)' \
+      -e 'do shell script command with administrator privileges' \
+      -e 'end run' \
+      "$app/Contents/Helpers/vadgr-lifecycle" "$owner_uid" "$purge"
+    ;;
+  __uninstall-authorized)
+    [ "$#" = 3 ] || exit 64
+    case "$3" in true|false) ;; *) exit 64;; esac
+    uninstall_authorized "$2" "$3"
     ;;
   *)
     echo "Usage: vadgr-lifecycle repair|rollback|uninstall [--purge-owner-state]" >&2

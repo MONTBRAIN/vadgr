@@ -370,3 +370,390 @@ fi
         );
     }
 }
+
+#[cfg(unix)]
+#[test]
+fn macos_uninstall_denied_authorization_preserves_the_entire_installation() {
+    use std::os::unix::fs::PermissionsExt;
+    // An isolated package tree, owner home and denied authorization command.
+    // The fixture never calls the host's administrator prompt or login service.
+    let fixture = tempfile::tempdir().unwrap();
+    let app = fixture.path().join("Vadgr.app");
+    let home = fixture.path().join("owner");
+    let cache = home.join("Library/Application Support/vadgr/package-cache");
+    std::fs::create_dir_all(app.join("Contents/MacOS")).unwrap();
+    std::fs::create_dir_all(app.join("Contents/Helpers")).unwrap();
+    std::fs::create_dir_all(&cache).unwrap();
+    let retained = cache.join("current.pkg");
+    std::fs::write(&retained, "retained package").unwrap();
+    for (path, body) in [
+        (app.join("Contents/MacOS/vadgr"), "echo purge >> \"$TRACE\""),
+        (
+            app.join("Contents/Helpers/vadgr-login-item"),
+            "echo login-change >> \"$TRACE\"",
+        ),
+        (
+            fixture.path().join("deny-authorization"),
+            "echo denied >> \"$TRACE\"; exit 1",
+        ),
+        (
+            fixture.path().join("owner-directory"),
+            "printf 'NFSHomeDirectory: %s\\n' \"$HOME\"",
+        ),
+    ] {
+        std::fs::write(&path, format!("#!/bin/sh\n{body}\n")).unwrap();
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o755)).unwrap();
+    }
+    let script = read("packaging/macos/vadgr-lifecycle")
+        .replace("/Applications/Vadgr.app", app.to_str().unwrap())
+        .replace(
+            "/usr/local/bin/vadgr",
+            fixture.path().join("vadgr-link").to_str().unwrap(),
+        )
+        .replace(
+            "/usr/bin/dscl",
+            fixture.path().join("owner-directory").to_str().unwrap(),
+        )
+        .replace(
+            "/usr/bin/osascript",
+            fixture.path().join("deny-authorization").to_str().unwrap(),
+        );
+    let script_path = fixture.path().join("lifecycle");
+    std::fs::write(&script_path, script).unwrap();
+    let trace = fixture.path().join("trace");
+    let output = std::process::Command::new("sh")
+        .arg(script_path)
+        .args(["uninstall", "--purge-owner-state"])
+        .env("HOME", &home)
+        .env_remove("VADGR_HOME")
+        .env_remove("VADGR_STATE_HOME")
+        .env("TRACE", &trace)
+        .output()
+        .unwrap();
+    assert!(!output.status.success());
+    assert!(
+        retained.exists(),
+        "authorization denial removed the retained package"
+    );
+    assert_eq!(std::fs::read_to_string(trace).unwrap(), "denied\n");
+    assert!(app.join("Contents/MacOS/vadgr").is_file());
+}
+
+#[cfg(unix)]
+#[test]
+fn macos_authorized_uninstall_validates_processes_before_any_owner_mutation() {
+    let functions = read("packaging/macos/vadgr-lifecycle")
+        .split_once("process_identity() (")
+        .expect("uninstall must identify its daemon before deleting its package")
+        .1
+        .split_once("\ncase \"$action\" in")
+        .unwrap()
+        .0
+        .to_owned();
+    let functions = format!("process_identity() ({functions}")
+        .replace("/bin/ps", "fixture_ps")
+        .replace("/usr/bin/pgrep", "fixture_children")
+        .replace("/usr/sbin/lsof", "fixture_lsof")
+        .replace("/usr/bin/id", "fixture_id")
+        .replace("/usr/bin/stat", "fixture_stat")
+        .replace("/usr/bin/dscl", "fixture_directory")
+        .replace("/usr/libexec/PlistBuddy", "fixture_bundle")
+        .replace("/bin/launchctl", "fixture_launchctl")
+        .replace("/usr/bin/sudo", "fixture_sudo")
+        .replace("/bin/kill", "fixture_kill")
+        .replace("/bin/sleep", "fixture_sleep")
+        .replace("/usr/bin/mktemp", "fixture_mktemp")
+        .replace("/usr/sbin/pkgutil", "fixture_receipt")
+        .replace("/usr/local/bin/vadgr", "\"$fixture_link\"");
+    for (scenario, success, expected) in [
+        ("preserve", true, "disable\nstop:303\nstop:202\nforget\n"),
+        (
+            "purge",
+            true,
+            "disable\nstop:303\nstop:202\npurge\nforget\n",
+        ),
+        (
+            "agent",
+            true,
+            "disable\nstop:303\nstop:202\nstop:204\nforget\n",
+        ),
+        ("stale", true, "disable\nforget\n"),
+        ("foreign-owner", false, ""),
+        ("foreign-command", false, ""),
+        ("foreign-executable", false, ""),
+        ("foreign-child", false, ""),
+        ("changed", false, ""),
+        ("new-child", false, ""),
+        ("foreign-link", false, ""),
+        ("cache-link", false, ""),
+        ("login-failure", false, "disable\n"),
+        ("stuck", false, "disable\nstop:303\n"),
+    ] {
+        let fixture = tempfile::tempdir().unwrap();
+        let body = format!(
+            r#"
+set -eu
+cd "$1"
+scenario=$2
+app="$PWD/Vadgr.app"
+backend="$app/Contents/MacOS/vadgr"
+login_helper="$app/Contents/Helpers/vadgr-login-item"
+owner_home="$PWD/owner"
+fixture_link="$PWD/vadgr-link"
+cache="$owner_home/Library/Application Support/vadgr/package-cache"
+mkdir -p "$app/Contents/MacOS" "$app/Contents/Helpers" "$owner_home/.vadgr/pids" "$cache"
+touch "$backend" "$login_helper" "$cache/current.pkg" "$owner_home/data"
+chmod +x "$login_helper"
+printf '202\n' > "$owner_home/.vadgr/pids/api.pid"
+: > trace
+if [ "$scenario" = foreign-link ]; then touch "$fixture_link"; fi
+if [ "$scenario" = cache-link ]; then mv "$cache" cache-retained; ln -s "$PWD/cache-retained" "$cache"; fi
+fixture_id() {{ if [ "$1" = -u ]; then echo 0; else echo fixture; fi; }}
+fixture_stat() {{ echo 501; }}
+fixture_directory() {{ printf 'NFSHomeDirectory: %s\n' "$owner_home"; }}
+fixture_bundle() {{ echo com.montbrain.vadgr; }}
+fixture_mktemp() {{ mktemp -d "$PWD/snapshot.XXXXXX"; }}
+fixture_receipt() {{ echo forget >> trace; }}
+fixture_sleep() {{ :; }}
+fixture_launchctl() {{
+  if [ "$1" = print ]; then
+    if [ "$scenario" = agent ]; then echo 'pid = 204'; fi
+  else shift 2; "$@"; fi
+}}
+fixture_sudo() {{
+  shift 3
+  if [ "$1" = "$login_helper" ]; then
+    if [ "$2" = status ]; then echo enabled; else
+      echo disable >> trace
+      [ "$scenario" != login-failure ]
+    fi
+  elif [ "$1" = "$backend" ]; then
+    [ "$2" = __purge-owner-state ]
+    echo purge >> trace
+    rm "$owner_home/data"
+  else "$@"; fi
+}}
+fixture_ps() {{
+  pid=$2
+  if [ -e "stopped-$pid" ] || [ "$scenario" = stale ]; then return 1; fi
+  case "$4" in
+    uid=) if [ "$scenario" = foreign-owner ]; then echo 999; else echo 501; fi;;
+    ppid=) echo 202;;
+    command=)
+      if [ "$scenario" = foreign-command ] || {{ [ "$scenario" = foreign-child ] && [ "$pid" = 303 ]; }}; then echo /usr/bin/unrelated;
+      elif [ "$pid" = 303 ]; then echo "$app/Contents/Resources/lib/cua/python/bin/python3.12 -m computer_use.browser.broker";
+      elif [ "$pid" = 204 ]; then echo "$backend --daemon";
+      else echo "$backend serve --port 8765"; fi;;
+    *)
+      if [ "$scenario" = changed ] && [ -e "seen-$pid" ]; then echo replacement;
+      else echo "Tue Sep 15 09:00:00 2026 process-$pid"; touch "seen-$pid"; fi;;
+  esac
+}}
+fixture_children() {{
+  if [ "$2" = 202 ] && [ ! -e stopped-303 ]; then
+    echo 303
+    if [ "$scenario" = new-child ] && [ -e children-seen ]; then echo 304; fi
+    touch children-seen
+  fi
+}}
+fixture_lsof() {{
+  if [ "$scenario" = foreign-executable ]; then echo n/usr/bin/unrelated;
+  elif [ "$3" = 303 ]; then printf 'p303\nn%s/Contents/Resources/lib/cua/python/bin/python3.12\n' "$app";
+  else printf 'p%s\nn%s\n' "$3" "$backend"; fi
+}}
+fixture_kill() {{ echo "stop:$2" >> trace; if [ "$scenario" != stuck ]; then touch "stopped-$2"; fi; }}
+{functions}
+purge=false
+if [ "$scenario" = purge ]; then purge=true; fi
+uninstall_authorized 501 "$purge"
+"#
+        );
+        let output = std::process::Command::new("sh")
+            .args(["-ec", &body, "uninstall-fixture"])
+            .arg(fixture.path())
+            .arg(scenario)
+            .output()
+            .unwrap();
+        assert_eq!(
+            output.status.success(),
+            success,
+            "{scenario}: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert_eq!(
+            std::fs::read_to_string(fixture.path().join("trace")).unwrap(),
+            expected,
+            "{scenario}"
+        );
+        assert_eq!(
+            fixture.path().join("Vadgr.app").exists(),
+            !success,
+            "{scenario}"
+        );
+        assert_eq!(
+            fixture.path().join("owner/data").exists(),
+            scenario != "purge",
+            "{scenario}"
+        );
+        assert_eq!(
+            fixture
+                .path()
+                .join("owner/Library/Application Support/vadgr/package-cache/current.pkg")
+                .exists(),
+            !success,
+            "{scenario}"
+        );
+    }
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn macos_uninstall_stops_only_its_captured_native_fixture_tree() {
+    use std::io::{BufRead, BufReader};
+    use std::process::{Child, Command, Stdio};
+    struct FixtureProcess(Child);
+    impl Drop for FixtureProcess {
+        fn drop(&mut self) {
+            if self.0.try_wait().unwrap().is_none() {
+                let _ = Command::new("/bin/kill")
+                    .args(["-TERM", &self.0.id().to_string()])
+                    .status();
+                let _ = self.0.wait();
+            }
+        }
+    }
+    // Native processes in an isolated package-shaped tree. The parent owns and
+    // reaps its fixture child, including when an assertion aborts the test.
+    let fixture = tempfile::tempdir().unwrap();
+    let app = fixture.path().canonicalize().unwrap().join("Vadgr.app");
+    let backend = app.join("Contents/MacOS/vadgr");
+    let child_path = app
+        .join("Contents/Library/LoginItems/Vadgr Computer Use.app/Contents/MacOS/vadgr-cua-host");
+    for path in [&backend, &child_path] {
+        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+    }
+    let source = fixture.path().join("process.c");
+    std::fs::write(
+        &source,
+        r#"
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
+static volatile sig_atomic_t stopping;
+static void stop(int signal) { (void)signal; stopping = 1; }
+int main(int argc, char **argv) {
+    pid_t child = 0;
+    if (argc == 3 && strcmp(argv[1], "serve") == 0) {
+        int ready[2];
+        if (pipe(ready) != 0) return 1;
+        child = fork();
+        if (child < 0) return 1;
+        if (child == 0) {
+            char descriptor[24];
+            close(ready[0]);
+            snprintf(descriptor, sizeof(descriptor), "%d", ready[1]);
+            execl(argv[2], argv[2], "--python", "fixture", descriptor, (char *)0);
+            _exit(2);
+        }
+        close(ready[1]);
+        char marker;
+        if (read(ready[0], &marker, 1) != 1) { waitpid(child, 0, 0); return 2; }
+        close(ready[0]);
+        printf("%d\n", child);
+        fflush(stdout);
+    }
+    signal(SIGTERM, stop);
+    if (argc == 4) { int descriptor = atoi(argv[3]); write(descriptor, "1", 1); close(descriptor); }
+    while (!stopping) pause();
+    if (child > 0) { kill(child, SIGTERM); waitpid(child, 0, 0); }
+    return 0;
+}
+"#,
+    )
+    .unwrap();
+    let built = Command::new("cc")
+        .arg(&source)
+        .arg("-o")
+        .arg(&backend)
+        .output()
+        .unwrap();
+    assert!(
+        built.status.success(),
+        "{}",
+        String::from_utf8_lossy(&built.stderr)
+    );
+    std::fs::copy(&backend, &child_path).unwrap();
+    let mut parent = FixtureProcess(
+        Command::new(&backend)
+            .arg("serve")
+            .arg(&child_path)
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::null())
+            .spawn()
+            .unwrap(),
+    );
+    let mut child_pid = String::new();
+    BufReader::new(parent.0.stdout.take().unwrap())
+        .read_line(&mut child_pid)
+        .unwrap();
+    let child_pid = child_pid.trim().to_owned();
+    let mut foreign = FixtureProcess(
+        Command::new("/bin/sleep")
+            .arg("60")
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+            .unwrap(),
+    );
+    let functions = read("packaging/macos/vadgr-lifecycle")
+        .split_once("process_identity() (")
+        .unwrap()
+        .1
+        .split_once("\nuninstall_authorized() {")
+        .unwrap()
+        .0
+        .to_owned();
+    let functions = format!("process_identity() ({functions}")
+        .replace("/usr/bin/sudo -H -u \"$owner\" /bin/kill", "/bin/kill");
+    let body = format!(
+        r#"
+set -eu
+app=$1
+backend="$app/Contents/MacOS/vadgr"
+snapshot=$2
+owner_uid=$(/usr/bin/id -u)
+mkdir "$snapshot"
+: > "$snapshot/order"
+{functions}
+capture_process_tree "$3" daemon
+while IFS= read -r pid; do check_captured_process "$pid"; done < "$snapshot/order"
+while IFS= read -r pid; do stop_captured_process "$pid"; done < "$snapshot/order"
+"#
+    );
+    let output = Command::new("sh")
+        .args(["-ec", &body, "native-uninstall-fixture"])
+        .arg(&app)
+        .arg(fixture.path().join("snapshot"))
+        .arg(parent.0.id().to_string())
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert_eq!(
+        std::fs::read_to_string(fixture.path().join("snapshot/order")).unwrap(),
+        format!("{child_pid}\n{}\n", parent.0.id())
+    );
+    assert!(parent.0.wait().unwrap().success());
+    assert!(
+        foreign.0.try_wait().unwrap().is_none(),
+        "an unrelated process was stopped"
+    );
+}
