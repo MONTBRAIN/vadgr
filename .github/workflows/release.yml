@@ -20,6 +20,11 @@ jobs:
       contents: read
       actions: read
     steps:
+      - name: Refuse legacy rebuild and signing before promotion is qualified
+        shell: bash
+        run: |
+          echo "Release promotion requires qualified held candidates. This legacy rebuild-and-sign path is disabled." >&2
+          exit 2
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ github.sha }}
