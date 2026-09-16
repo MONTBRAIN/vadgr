@@ -1,0 +1,37 @@
+name: Isolated Windows signing probe
+
+on:
+  push:
+    branches: [signing-smoke-iv-20260916]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: isolated-windows-signing-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    if: github.repository == 'MONTBRAIN/vadgr' && github.ref == 'refs/heads/signing-smoke-iv-20260916' && github.run_attempt == 1
+    environment: release-windows
+    runs-on: windows-2025
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '17.0.20.1+1'
+      - name: Prepare and test without credentials
+        shell: pwsh
+        run: scripts/signing/smoke.ps1 -Mode prepare
+      - name: Inspect public certificate only
+        shell: pwsh
+        env:
+          ES_USERNAME: ${{ secrets.ES_USERNAME }}
+          ES_PASSWORD: ${{ secrets.ES_PASSWORD }}
+        run: scripts/signing/smoke.ps1 -Mode inspect
