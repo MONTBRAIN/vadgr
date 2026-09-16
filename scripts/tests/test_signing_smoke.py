@@ -52,6 +52,12 @@ def test_inspect_workflow_never_receives_totp_or_sign_mode():
     assert '-Mode sign' not in workflow
 
 
+def test_java_pin_uses_supported_three_component_version():
+    workflow = (ROOT / '.github/workflows/signing-smoke.yml').read_text()
+    assert "java-version: '17.0.20+8'" in workflow
+    assert '17.0.20.1+1' not in workflow
+
+
 def test_shell_never_substitutes_secrets_into_commands():
     script = (ROOT / 'scripts/signing/smoke.ps1').read_text()
     assert '-password=' not in script

@@ -1,6 +1,7 @@
 # Windows signing service qualification
 
-Status: not run. This is an isolated two-cell service test, not a product release
+Status: first attempt failed during Java setup, before service authentication.
+Neither live cell has passed. This is an isolated two-cell service test, not a product release
 or installer acceptance pass. The branch is `signing-smoke-iv-20260916`, based
 on `e4e9ff2`. Record the exact committed test head and Actions run URL before
 each cell. No release, tag, installer, or signed artifact is published.
@@ -41,7 +42,7 @@ pre-sign subject comparison.
 
 | ID | Precondition | Setup and action | Expected observable | Independent oracle | Evidence boundary | Cleanup | Result |
 |---|---|---|---|---|---|---|---|
-| S1 | Automated gate passed; owner reviewed exact inspect-only head; required reviewer and exact branch policy confirmed; account secrets present | Push reviewed exact branch, then owner approves only the inspect job. Prepare pinned tool; authenticate; list the same EVCS/OVCS credential classes used by the vendor command; read public certificates | Only public subject, issuer, validity, SHA-256 and SHA-1 are printed. No credential ID, token, seed, password or signing response is printed. No signature is requested | Owner compares the public certificate bundle from SSL.com with the certificate SHA-256 and subject; verify the workflow has no TOTP environment input or sign-mode invocation | Record exact head, run URL, job conclusion, public certificate facts and owner comparison result in `evidence/signing-smoke/`; retain no authentication response or vendor log | Runner is ephemeral; do not approve signing if identity differs or no certificate appears | not run: reviewed branch has not been pushed and the protected job has not been approved |
+| S1 | Automated gate passed; owner reviewed exact inspect-only head; required reviewer and exact branch policy confirmed; account secrets present | Push reviewed exact branch, then owner approves only the inspect job. Prepare pinned tool; authenticate; list the same EVCS/OVCS credential classes used by the vendor command; read public certificates | Only public subject, issuer, validity, SHA-256 and SHA-1 are printed. No credential ID, token, seed, password or signing response is printed. No signature is requested | Owner compares the public certificate bundle from SSL.com with the certificate SHA-256 and subject; verify the workflow has no TOTP environment input or sign-mode invocation | Record exact head, run URL, job conclusion, public certificate facts and owner comparison result in `evidence/signing-smoke/`; retain no authentication response or vendor log | Runner is ephemeral; do not approve signing if identity differs or no certificate appears | blocked: run 35160875240 failed during Java setup before authentication; corrected head needs a separate approved run |
 | S2 | S1 passed; owner independently confirmed fingerprint and subject; separate reviewed sign-enabling change; one-sign quota approved; TOTP secret available | Owner approves distinct protected job. Build one inert EXE locally, verify unsigned state, preflight exact certificate, validity and code-signing EKU; reject online OTP; invoke one vendor sign operation with malware blocking; never execute sample | Exactly one signed inert sample. All signing failures stop with a fixed non-secret diagnostic. No retry, release or artifact upload | Windows SignTool `verify /pa /all /tw` returns zero; `Get-AuthenticodeSignature` returns Valid with timestamp certificate; signed leaf SHA-256 equals independently pinned certificate. Java verifies the X.500 subject before signing | Record exact head, run URL, exit codes, public publisher and timestamp facts, and sample SHA-256 in `evidence/signing-smoke/`; no tool raw debug logs or signed binary uploaded | Ephemeral runner discards files; remove temporary environment branch allowance after the test, including failure | blocked: S1 and separate sign-enabling review/approval are required; current workflow cannot sign |
 
 ## Research and limits
@@ -59,6 +60,8 @@ the JAR SHA-256 is
 `caa356347aa64ba04666545d548dad87211c9aa960f16db8797a880a67ba91d1`.
 The download URL is mutable, so any byte change blocks execution for review.
 The bundled old runtime is not used by the hosted job.
+The hosted job pins Temurin `17.0.20+8`; the Java setup action rejected the
+four-component release version in the first attempt before authentication.
 
 The vendor JAR logs to a rolling file by default. The launcher installs a
 log-disabled configuration before vendor classes initialize and discards
