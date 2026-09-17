@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## Unreleased tooling
+
+### Added
+
+- A manual Windows candidate workflow with separate source builds, artifact
+  validation, protected authorization and one-use signing claims. Candidate
+  artifacts remain unpublished. Signing requires configured protections,
+  approved package inputs and separate owner approvals.
+
 ## [0.4.12] - 2026-08-29
 
 ### Added

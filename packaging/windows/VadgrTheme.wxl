@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization
+    Culture="en-US"
+    Codepage="1252"
+    xmlns="http://wixtoolset.org/schemas/v4/wxl">
+  <String Id="Caption" Value="Vadgr setup" />
+  <String Id="ConfirmCancelMessage" Value="Decline these terms and close setup? Nothing will be installed." />
+  <String Id="ExecuteUpgradeRelatedBundleMessage" Value="Previous Vadgr version" />
+  <String Id="FilesInUseTitle" Value="Vadgr files are in use" />
+  <String Id="FilesInUseLabel" Value="Close the applications using Vadgr files before setup continues:" />
+  <String Id="FilesInUseNetfxCloseRadioButton" Value="Close the applications." />
+  <String Id="FilesInUseCloseRadioButton" Value="Close the applications and try to restart them." />
+  <String Id="FilesInUseDontCloseRadioButton" Value="Do not close applications. Windows may need to restart." />
+  <String Id="FilesInUseRetryButton" Value="Retry" />
+  <String Id="FilesInUseIgnoreButton" Value="Ignore" />
+  <String Id="FilesInUseExitButton" Value="Exit setup" />
+</WixLocalization>
