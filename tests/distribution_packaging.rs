@@ -71,7 +71,11 @@ fn every_unsigned_or_unconfigured_trust_path_fails_closed() {
     assert!(installer.contains("VERIFIER_SHA_X86_64=UNCONFIGURED"));
     assert!(installer.contains("VERIFIER_SHA_AARCH64=UNCONFIGURED"));
     assert!(installer.contains("[ \"$VERIFIER_SHA\" != UNCONFIGURED ]"));
-    for source in [read("packaging/linux/build.sh"), read("packaging/macos/build.sh"), installer] {
+    for source in [
+        read("packaging/linux/build.sh"),
+        read("packaging/macos/build.sh"),
+        installer,
+    ] {
         assert!(!source.contains("self-sign"));
         assert!(!source.contains("ad-hoc"));
     }
