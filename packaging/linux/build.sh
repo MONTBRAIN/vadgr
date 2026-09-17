@@ -7,8 +7,6 @@ case "$version" in 0.5.0) ;; *) echo "This package source is only for 0.5.0." >&
 case "$arch" in x86_64|aarch64) ;; *) echo "Unsupported Linux architecture: $arch" >&2; exit 2;; esac
 
 repo=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
-public_key=$(tr -d '\r\n' < "$repo/packaging/release-public-key.txt")
-[ "$public_key" != UNCONFIGURED ] || { echo "The reviewed release public key is not configured." >&2; exit 2; }
 
 : "${APPIMAGETOOL:?Set APPIMAGETOOL to the reviewed pinned appimagetool binary.}"
 [ -x "$APPIMAGETOOL" ] || { echo "APPIMAGETOOL is not executable." >&2; exit 2; }

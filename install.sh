@@ -61,7 +61,7 @@ case "$ACTION" in
     [ "$#" -eq 1 ] && [ -f "$1" ] || { echo "The retained generation has no unique archive." >&2; exit 1; }
     "$active_backend" __verify-release-artifact \
       --manifest "$VERSIONS/$candidate/release-manifest.json" \
-      --signature "$VERSIONS/$candidate/release-manifest.json.minisig" \
+      --bundle "$VERSIONS/$candidate/release-manifest.json.bundle.jsonl" \
       --target "wsl-$ARCH" --artifact "$1"
     link="$ROOT/.current-$$"
     ln -s "versions/$candidate" "$link"
@@ -108,26 +108,26 @@ fetch() {
 }
 
 MANIFEST="$TMP_ROOT/release-manifest.json"
-SIGNATURE="$TMP_ROOT/release-manifest.json.minisig"
+BUNDLE="$TMP_ROOT/release-manifest.json.bundle.jsonl"
 VERIFIER="$TMP_ROOT/vadgr-release-verify"
 ARCHIVE_NAME="Vadgr-$VERSION-wsl-$ARCH.tar.gz"
 ARCHIVE="$TMP_ROOT/$ARCHIVE_NAME"
 if [ "$ACTION" = repair ]; then
   [ -L "$CURRENT" ] || { echo "No installed Vadgr generation is available to repair." >&2; exit 1; }
   cp -- "$CURRENT/release-manifest.json" "$MANIFEST"
-  cp -- "$CURRENT/release-manifest.json.minisig" "$SIGNATURE"
+  cp -- "$CURRENT/release-manifest.json.bundle.jsonl" "$BUNDLE"
   cp -- "$CURRENT/cache/vadgr-release-verify-$ARCH" "$VERIFIER"
   cp -- "$CURRENT/cache/$ARCHIVE_NAME" "$ARCHIVE"
 else
   fetch release-manifest.json "$MANIFEST"
-  fetch release-manifest.json.minisig "$SIGNATURE"
+  fetch release-manifest.json.bundle.jsonl "$BUNDLE"
   fetch "vadgr-release-verify-$ARCH" "$VERIFIER"
   fetch "$ARCHIVE_NAME" "$ARCHIVE"
 fi
 printf '%s  %s\n' "$VERIFIER_SHA" "$VERIFIER" | sha256sum --check --status -
 chmod 0755 "$VERIFIER"
-"$VERIFIER" --manifest "$MANIFEST" --signature "$SIGNATURE" --target "wsl-$ARCH" >/dev/null
-"$VERIFIER" --manifest "$MANIFEST" --signature "$SIGNATURE" --target "wsl-$ARCH" --artifact "$ARCHIVE" >/dev/null
+"$VERIFIER" --manifest "$MANIFEST" --bundle "$BUNDLE" --target "wsl-$ARCH" >/dev/null
+"$VERIFIER" --manifest "$MANIFEST" --bundle "$BUNDLE" --target "wsl-$ARCH" --artifact "$ARCHIVE" >/dev/null
 
 PAYLOAD="$TMP_ROOT/payload"
 mkdir "$PAYLOAD"
@@ -157,7 +157,7 @@ staging="$ROOT/.stage-$$"
 rm -rf -- "$staging"
 mv -- "$PAYLOAD" "$staging"
 cp -- "$MANIFEST" "$staging/release-manifest.json"
-cp -- "$SIGNATURE" "$staging/release-manifest.json.minisig"
+cp -- "$BUNDLE" "$staging/release-manifest.json.bundle.jsonl"
 mkdir -p "$staging/cache"
 cp -- "$ARCHIVE" "$staging/cache/$ARCHIVE_NAME"
 cp -- "$VERIFIER" "$staging/cache/vadgr-release-verify-$ARCH"
@@ -197,5 +197,5 @@ if [ -n "$aside" ]; then rm -rf -- "$aside"; fi
 if [ "$ACTION" = install ]; then
   "$CURRENT/bin/vadgr" __record-terms-acceptance --terms-version "$TERMS_VERSION" --installer-version "$VERSION" --terms-file "$CURRENT/legal/TERMS.txt" --installer-file "$CURRENT/cache/$ARCHIVE_NAME"
 fi
-"$CURRENT/bin/vadgr" __accept-release-sequence --manifest "$CURRENT/release-manifest.json" --signature "$CURRENT/release-manifest.json.minisig"
+"$CURRENT/bin/vadgr" __accept-release-sequence --manifest "$CURRENT/release-manifest.json" --bundle "$CURRENT/release-manifest.json.bundle.jsonl"
 echo "Vadgr $VERSION is installed and healthy."

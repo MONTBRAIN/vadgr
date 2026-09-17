@@ -7,7 +7,6 @@ arch=${2:-$(uname -m)}
 case "$arch" in x86_64|arm64) ;; *) echo "Unsupported macOS architecture: $arch" >&2; exit 2;; esac
 
 repo=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
-[ "$(tr -d '\r\n' < "$repo/packaging/release-public-key.txt")" != UNCONFIGURED ] || { echo "The reviewed release public key is not configured." >&2; exit 2; }
 [ -d "$repo/dist/payload" ] || { echo "The pinned private CUA payload is missing." >&2; exit 2; }
 
 case "$arch" in arm64) rust_target=aarch64-apple-darwin;; *) rust_target=x86_64-apple-darwin;; esac
