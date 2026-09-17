@@ -2,6 +2,7 @@
 
 First build: `3d8bfc9614e1c1ea43986a878ebfde44e2407aad`.
 Repaired build: `5cd8065676cfd9faab674ff1a5a2c49718a97500`.
+Required macOS gate repair: `1c0901dbd47dfa9f156bb67ac03235cea32254d5`.
 Source branch: `feat/trusted-candidate-bootstrap`.
 
 This directory records sanitized command output and independent filesystem
