@@ -46,7 +46,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(tr -d '\r\n' < packaging/release-public-key.txt)" != UNCONFIGURED
+          test -s packaging/release-trusted-root.jsonl
           python3 scripts/validate_package_inputs.py --source-only --source-root . --root packaging/inputs/macos-arm64 --version 0.5.0 --target aarch64-apple-darwin
           python3 scripts/validate_package_inputs.py --source-only --source-root . --root packaging/inputs/macos-x86_64 --version 0.5.0 --target x86_64-apple-darwin
           grep -Fqx 'cua = "0.7.8"' packaging/cua/pins.toml

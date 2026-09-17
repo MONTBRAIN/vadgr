@@ -29,7 +29,7 @@ def validate_workflow(text):
     assert "Revalidate current source after environment approval" in signer
     assert signer.index("Revalidate current source after environment approval") < signer.index("Download exact same-run artifact")
     assert "--self-check validate-macos-candidate" in before
-    assert "packaging/release-public-key.txt)\" != UNCONFIGURED" in before
+    assert "test -s packaging/release-trusted-root.jsonl" in before
     source_validation = before.split("\n  build:\n", 1)[0]
     for arch, target in (("arm64", "aarch64-apple-darwin"), ("x86_64", "x86_64-apple-darwin")):
         assert ("python3 scripts/validate_package_inputs.py --source-only --source-root . "
