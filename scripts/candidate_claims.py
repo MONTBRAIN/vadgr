@@ -346,7 +346,10 @@ def fetch_qualification(api, auth):
 
 
 def claim_ref(auth):
-    key = {name: auth[name] for name in ("repository", "source_sha", "architecture", "input_digest", "unsigned_artifact_digest")}
+    # A different ZIP envelope must not mint another claim for the same files.
+    # The archive digest remains in the authorization for exact transport checks.
+    key = {name: auth[name] for name in ("repository", "source_sha", "architecture", "input_digest")}
+    key["files_digest"] = digest(canonical(auth["files"]))
     return "refs/tags/signing-claims/" + digest(canonical(key))
 
 

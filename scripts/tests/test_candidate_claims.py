@@ -134,6 +134,18 @@ def test_probe_proves_denied_mutations_and_create_is_one_shot():
     assert len([name for name in api.refs if "/probe/" not in name]) == 1
 
 
+def test_repacked_identical_files_cannot_obtain_another_signing_claim():
+    api = GitHub()
+    auth, record = qualify(api, authorization())
+    claims.create(api, auth, record)
+    repacked = dict(auth, unsigned_artifact_digest="sha256:" + "0" * 64)
+    assert claims.claim_ref(repacked) == claims.claim_ref(auth)
+    with pytest.raises(claims.Refused, match="already claimed"):
+        claims.create(api, repacked, record)
+    changed_files = dict(repacked, files={"payload/vadgr.exe": {"sha256": "1" * 64, "size": 12}})
+    assert claims.claim_ref(changed_files) != claims.claim_ref(auth)
+
+
 @pytest.mark.parametrize("field,value", [("run_attempt", 2), ("repository", "other/repo"),
                                          ("budget", True), ("source_sha", "master"),
                                          ("unsigned_artifact_id", -1)])
