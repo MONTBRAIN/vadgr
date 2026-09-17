@@ -47,6 +47,9 @@ That test is not a pass for W03 or for this release workflow. The release uses
 CodeSignTool signing and independent Windows verification. The `.pyd` staging
 name, MSI and Burn layers remain subject to W03 on the final candidate.
 No production signing run is authorized by this development qualification.
+The release workflow's existing held-candidate promotion gate still stops before
+the signing jobs. The Windows integration does not remove that gate. A complete
+approved promotion path is also required before a production signing run.
 
 The host lead may run live development qualification against the exact feature
 commit before signed or published artifacts exist. Use an isolated test state

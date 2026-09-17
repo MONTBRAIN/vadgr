@@ -1,5 +1,9 @@
 # Windows cloud signing
 
+The Windows signing steps are wired into the tag release workflow, but its
+existing promotion gate deliberately stops before any signing job. This change
+does not remove that gate or qualify a held-candidate promotion path.
+
 `release.ps1` prepares the hash-pinned CodeSignTool 1.3.3 JAR, compiles the
 in-process launcher and checks dummy-secret suppression without real credentials.
 The release workflow uses Temurin 17.0.20+8, not the runtime bundled in the ZIP.
