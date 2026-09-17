@@ -137,7 +137,6 @@ fn release_is_signed_tag_only_and_separates_protected_environments() {
 fn signing_inputs_are_environment_scoped_and_never_literal_values() {
     let workflow = repo_file(".github/workflows/release.yml");
     for name in [
-        "WINDOWS_PUBLISHER_THUMBPRINT",
         "MACOS_APPLICATION_IDENTITY",
         "MACOS_INSTALLER_IDENTITY",
         "APPROVED_TAG_SIGNER_FINGERPRINT",
@@ -147,6 +146,10 @@ fn signing_inputs_are_environment_scoped_and_never_literal_values() {
     assert!(!workflow.contains("BEGIN PRIVATE KEY"));
     assert!(!workflow.contains(".p12"));
     assert!(!workflow.contains(".pfx"));
+    for name in ["ES_USERNAME", "ES_PASSWORD", "ES_TOTP_SECRET"] {
+        assert!(workflow.contains(&format!("secrets.{name}")));
+    }
+    assert!(workflow.contains("scripts/signing/release.ps1 -Mode sign"));
 }
 
 #[test]

@@ -23,6 +23,9 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Changed
 
+- Windows releases sign each executable and installer layer through a pinned
+  cloud signing tool, with isolated credentials and immediate publisher and
+  timestamp verification.
 - The daemon and console version now derive from the package version rather
   than a separately maintained constant.
 - The bundled computer-use payload now carries released version 0.7.8, including

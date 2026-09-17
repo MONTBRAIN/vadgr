@@ -118,29 +118,36 @@ jobs:
         with:
           name: candidate-windows-${{ matrix.arch }}
           path: unsigned
-      - name: Sign each Windows layer once and verify it immediately
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v4
+        with:
+          distribution: temurin
+          java-version: '17.0.20+8'
+      - name: Prepare the pinned credential-safe signer without secrets
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_RUN_ATTEMPT -ne '1') { throw 'Signing workflow reruns are refused; review the spent quota first.' }
+          $payloads = @(Get-ChildItem unsigned -Directory -Recurse | Where-Object Name -Like '*-payload')
+          if ($payloads.Count -ne 1) { throw 'Exactly one unsigned payload is required.' }
+          $payload = $payloads[0]
+          $count = @(Get-ChildItem $payload.FullName -Recurse -File | Where-Object Extension -In '.exe','.dll','.pyd').Count + 4
+          scripts/signing/release.ps1 -Mode prepare -Budget $count
+      - name: Sign and verify installed Windows payload
         env:
-          EXPECTED_PUBLISHER_THUMBPRINT: ${{ vars.WINDOWS_PUBLISHER_THUMBPRINT }}
+          ES_USERNAME: ${{ secrets.ES_USERNAME }}
+          ES_PASSWORD: ${{ secrets.ES_PASSWORD }}
+          ES_TOTP_SECRET: ${{ secrets.ES_TOTP_SECRET }}
+        shell: pwsh
+        run: |
+          $payload = Get-ChildItem unsigned -Directory -Recurse | Where-Object Name -Like '*-payload' | Select-Object -First 1
+          $files = @(Get-ChildItem $payload.FullName -Recurse -File | Where-Object Extension -In '.exe','.dll','.pyd' | Sort-Object FullName)
+          scripts/signing/release.ps1 -Mode sign -Files $files.FullName
+      - name: Build MSI and bootstrapper extension without signing credentials
+        env:
           RUSTFLAGS: -C target-feature=+crt-static
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          if ($env:EXPECTED_PUBLISHER_THUMBPRINT -notmatch '^[0-9A-Fa-f]{40}$') { throw 'Approved publisher thumbprint is not configured.' }
-          $signTool = (Get-Command signtool.exe -ErrorAction Stop).Source
-          $certificate = Get-ChildItem Cert:\CurrentUser\My | Where-Object Thumbprint -EQ $env:EXPECTED_PUBLISHER_THUMBPRINT
-          if (@($certificate).Count -ne 1) { throw 'The protected signing provider did not expose exactly one approved certificate.' }
-          function Sign-Once([string] $file) {
-            & $signTool sign /fd SHA256 /sha1 $env:EXPECTED_PUBLISHER_THUMBPRINT /tr 'http://ts.ssl.com' /td SHA256 $file
-            if ($LASTEXITCODE -ne 0) { throw "SignTool sign failed for $([IO.Path]::GetFileName($file))" }
-            & $signTool verify /pa /all $file
-            if ($LASTEXITCODE -ne 0) { throw "SignTool verify failed for $([IO.Path]::GetFileName($file))" }
-            $actual = (Get-AuthenticodeSignature -LiteralPath $file).SignerCertificate.Thumbprint
-            if ($actual -ne $env:EXPECTED_PUBLISHER_THUMBPRINT) { throw 'Signed file has the wrong publisher.' }
-          }
           $payload = Get-ChildItem unsigned -Directory -Recurse | Where-Object Name -Like '*-payload' | Select-Object -First 1
-          if (-not $payload) { throw 'Unsigned Windows payload is missing.' }
-          $peFiles = @(Get-ChildItem $payload.FullName -Recurse -File | Where-Object Extension -In '.exe','.dll','.pyd' | Sort-Object FullName)
-          foreach ($file in $peFiles) { Sign-Once $file.FullName }
           $output = "$PWD/target/release-windows-${{ matrix.arch }}"
           New-Item -ItemType Directory -Force -Path $output | Out-Null
           $generatedPayload = "$output/PrivatePayload.wxs"
@@ -151,7 +158,6 @@ jobs:
             "-p:GeneratedPayloadWxs=$generatedPayload" "-p:OutputPath=$output"
           if ($LASTEXITCODE -ne 0) { throw 'MSI rebuild failed.' }
           $msi = "$output/Vadgr-0.5.0-windows-${{ matrix.arch }}.msi"
-          Sign-Once $msi
           $rustTarget = '${{ matrix.arch }}' -eq 'x64' ? 'x86_64-pc-windows-msvc' : 'aarch64-pc-windows-msvc'
           $env:VADGR_TERMS_VERSION = '1.0'
           $env:VADGR_TERMS_SHA256 = (Get-FileHash -Algorithm SHA256 -LiteralPath packaging/legal/TERMS.txt).Hash.ToLowerInvariant()
@@ -159,7 +165,26 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Bootstrapper extension build failed.' }
           $baFunctions = "$PWD/packaging/windows/ba-functions/target/$rustTarget/release/vadgr_windows_ba_functions.dll"
           scripts/check_windows_imports.ps1 $baFunctions
-          Sign-Once $baFunctions
+      - name: Sign and verify MSI and bootstrapper extension
+        env:
+          ES_USERNAME: ${{ secrets.ES_USERNAME }}
+          ES_PASSWORD: ${{ secrets.ES_PASSWORD }}
+          ES_TOTP_SECRET: ${{ secrets.ES_TOTP_SECRET }}
+        shell: pwsh
+        run: |
+          $output = "$PWD/target/release-windows-${{ matrix.arch }}"
+          $msi = "$output/Vadgr-0.5.0-windows-${{ matrix.arch }}.msi"
+          $rustTarget = '${{ matrix.arch }}' -eq 'x64' ? 'x86_64-pc-windows-msvc' : 'aarch64-pc-windows-msvc'
+          $baFunctions = "$PWD/packaging/windows/ba-functions/target/$rustTarget/release/vadgr_windows_ba_functions.dll"
+          scripts/signing/release.ps1 -Mode sign -Files @($msi, $baFunctions)
+      - name: Build and detach Burn without signing credentials
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = "$PWD/target/release-windows-${{ matrix.arch }}"
+          $msi = "$output/Vadgr-0.5.0-windows-${{ matrix.arch }}.msi"
+          $rustTarget = '${{ matrix.arch }}' -eq 'x64' ? 'x86_64-pc-windows-msvc' : 'aarch64-pc-windows-msvc'
+          $baFunctions = "$PWD/packaging/windows/ba-functions/target/$rustTarget/release/vadgr_windows_ba_functions.dll"
           dotnet build packaging/windows/VadgrBundle.wixproj --configuration Release --nologo `
             -p:Platform=${{ matrix.arch }} -p:VadgrVersion=0.5.0 "-p:MsiPath=$msi" `
             "-p:TermsRtf=$PWD/packaging/legal/TERMS.rtf" -p:TermsVersion=1.0 `
@@ -174,10 +199,40 @@ jobs:
           $final = "$output/Vadgr-0.5.0-windows-${{ matrix.arch }}-final.exe"
           & "$PWD/target/wix/wix.exe" burn detach $unsigned -engine $engine
           if ($LASTEXITCODE -ne 0) { throw 'Burn engine detach failed.' }
-          Sign-Once $engine
+      - name: Sign and verify detached Burn engine
+        env:
+          ES_USERNAME: ${{ secrets.ES_USERNAME }}
+          ES_PASSWORD: ${{ secrets.ES_PASSWORD }}
+          ES_TOTP_SECRET: ${{ secrets.ES_TOTP_SECRET }}
+        shell: pwsh
+        run: |
+          $output = "$PWD/target/release-windows-${{ matrix.arch }}"
+          $unsigned = "$output/Vadgr-0.5.0-windows-${{ matrix.arch }}-setup.exe"
+          $engine = "$output/burn-engine.exe"
+          $final = "$output/Vadgr-0.5.0-windows-${{ matrix.arch }}-final.exe"
+          scripts/signing/release.ps1 -Mode sign -Files @($engine)
+      - name: Reattach the verified Burn engine without signing credentials
+        shell: pwsh
+        run: |
+          $output = "$PWD/target/release-windows-${{ matrix.arch }}"
+          $unsigned = "$output/Vadgr-0.5.0-windows-${{ matrix.arch }}-setup.exe"
+          $engine = "$output/burn-engine.exe"
+          $final = "$output/Vadgr-0.5.0-windows-${{ matrix.arch }}-final.exe"
           & "$PWD/target/wix/wix.exe" burn reattach $unsigned -engine $engine -o $final
           if ($LASTEXITCODE -ne 0) { throw 'Burn engine reattach failed.' }
-          Sign-Once $final
+      - name: Sign and verify final setup
+        env:
+          ES_USERNAME: ${{ secrets.ES_USERNAME }}
+          ES_PASSWORD: ${{ secrets.ES_PASSWORD }}
+          ES_TOTP_SECRET: ${{ secrets.ES_TOTP_SECRET }}
+        shell: pwsh
+        run: |
+          $output = "$PWD/target/release-windows-${{ matrix.arch }}"
+          $unsigned = "$output/Vadgr-0.5.0-windows-${{ matrix.arch }}-setup.exe"
+          $engine = "$output/burn-engine.exe"
+          $final = "$output/Vadgr-0.5.0-windows-${{ matrix.arch }}-final.exe"
+          scripts/signing/release.ps1 -Mode sign -Files @($final)
+          scripts/signing/release.ps1 -Mode complete
           Move-Item -LiteralPath $final -Destination $unsigned -Force
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
