@@ -33,6 +33,13 @@ Describe your work in a sentence. Vadgr runs it on your machine - writing code, 
 
 ## Install
 
+Release engineering uses a manually approved, default-branch candidate workflow.
+Windows candidates remain unpublished while signatures, approved legal inputs
+and installation behaviour are checked. A keyless manifest attestation binds
+the held installer and its legal and SBOM hashes; its offline verification
+bundle is retained with the candidate. This does not replace Windows code
+signing, approve unreviewed terms, or make an untested candidate a release.
+
 Works on **Linux**, **WSL**, **Windows** and **macOS**. Vadgr carries its pinned
 desktop-automation runtime on all four. The owner needs no Python, pip or uv.
 On macOS `0.4.12`, grant Accessibility and Screen Recording to the terminal

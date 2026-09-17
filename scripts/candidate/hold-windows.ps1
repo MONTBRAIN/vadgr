@@ -46,10 +46,19 @@ Copy-Item -LiteralPath $Authorization -Destination (Join-Path $held 'authorizati
 $reports | ConvertTo-Json -Depth 10 | Set-Content -Encoding utf8 -LiteralPath (Join-Path $held 'signature-verification.json')
 $setup = Get-Item -LiteralPath (Join-Path $held "Vadgr-0.5.0-windows-$Architecture-setup.exe")
 $target = if ($Architecture -eq 'x64') { 'windows-x86_64' } else { 'windows-aarch64' }
+$legalHashes = @{}
+$sbomHashes = @{}
+foreach ($path in Get-ChildItem (Join-Path $held 'legal') -File -Recurse) {
+    $legalHashes[[IO.Path]::GetRelativePath($held, $path.FullName).Replace('\', '/')] = (Get-FileHash -Algorithm SHA256 -LiteralPath $path.FullName).Hash.ToLowerInvariant()
+}
+foreach ($path in Get-ChildItem (Join-Path $held 'sbom') -File -Recurse) {
+    $sbomHashes[[IO.Path]::GetRelativePath($held, $path.FullName).Replace('\', '/')] = (Get-FileHash -Algorithm SHA256 -LiteralPath $path.FullName).Hash.ToLowerInvariant()
+}
 @{
     schema = 1; product = 'vadgr'; version = '0.5.0'; release_sequence = 500; tag = 'v0.5.0';
     source_commit = $approved.source_sha; terms_version = '1.0';
     terms_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $held 'legal/TERMS.txt')).Hash.ToLowerInvariant();
+    legal_hashes = $legalHashes; sbom_hashes = $sbomHashes;
     cua_version = $approved.cua_version; python_version = $approved.python_version;
     artifacts = @(@{ name = $setup.Name; target = $target; kind = 'burn'; size = $setup.Length;
         sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $setup.FullName).Hash.ToLowerInvariant(); native_signature = 'authenticode' })
@@ -64,4 +73,4 @@ $files = @(Get-ChildItem $held -Recurse -File | ForEach-Object {
     candidate_id = $approved.candidate_id; run_id = $approved.run_id; run_attempt = $approved.run_attempt;
     status = 'held-unpublished'; artifacts = $files
 } | ConvertTo-Json -Depth 20 | Set-Content -Encoding utf8 -LiteralPath (Join-Path $held 'candidate-manifest.json')
-Write-Output 'Verified signed bytes held without publication. Offline manifest signing and native installation tests remain required.'
+Write-Output 'Verified signed bytes held without publication. Keyless manifest attestation and native installation tests remain required.'

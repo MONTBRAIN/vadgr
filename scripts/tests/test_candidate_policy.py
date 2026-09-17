@@ -54,7 +54,7 @@ class PolicyTests(unittest.TestCase):
         with self.assertRaises(gate.Refused):
             gate.require_pull_requests([bad], "feature/0.5.0-distribution", sha)
 
-    def test_unconfigured_public_key_and_unreviewed_terms_refused(self):
+    def test_unconfigured_public_root_and_unreviewed_terms_refused(self):
         with self.assertRaises(gate.Refused):
             gate.require_release_inputs("UNCONFIGURED\n", "# Terms\nStatus: draft", False, False)
 
