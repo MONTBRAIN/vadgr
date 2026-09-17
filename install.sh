@@ -151,7 +151,11 @@ mkdir "$PAYLOAD"
 tar -xzf "$ARCHIVE" -C "$PAYLOAD" --no-same-owner --no-same-permissions
 [ -x "$PAYLOAD/bin/vadgr" ] || { echo "The verified archive has no Vadgr executable." >&2; exit 1; }
 [ -f "$PAYLOAD/legal/TERMS.txt" ] || { echo "The verified archive has no terms." >&2; exit 1; }
-timeout -k 5s 30s "$PAYLOAD/bin/vadgr" --version | grep -Fx "vadgr $VERSION" >/dev/null || {
+version_output=$(timeout -k 5s 30s "$PAYLOAD/bin/vadgr" --version) || {
+  echo "The candidate failed its bounded pre-activation executable check." >&2
+  exit 1
+}
+[ "$version_output" = "vadgr $VERSION" ] || {
   echo "The candidate failed its bounded pre-activation executable check." >&2
   exit 1
 }

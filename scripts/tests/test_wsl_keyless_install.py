@@ -17,7 +17,7 @@ def test_sequence_and_archive_verification_precede_extraction_and_activation():
 
 def test_candidate_is_bounded_before_and_after_activation():
     installer = (ROOT / "install.sh").read_text()
-    assert "timeout -k 5s 30s \"$PAYLOAD/bin/vadgr\" --version" in installer
+    assert 'version_output=$(timeout -k 5s 30s "$PAYLOAD/bin/vadgr" --version)' in installer
     assert installer.index("timeout -k 5s 30s") < installer.index("mv -- \"$PAYLOAD\" \"$staging\"")
     assert installer.count('timeout -k 5s 60s "$CURRENT/bin/vadgr" restart') == 2
 
