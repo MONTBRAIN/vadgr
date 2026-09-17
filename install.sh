@@ -66,7 +66,7 @@ case "$ACTION" in
     link="$ROOT/.current-$$"
     ln -s "versions/$candidate" "$link"
     mv -Tf "$link" "$CURRENT"
-    if ! "$CURRENT/bin/vadgr" restart; then
+    if ! timeout -k 5s 60s "$CURRENT/bin/vadgr" restart; then
       ln -s "versions/$active" "$link"
       mv -Tf "$link" "$CURRENT"
       "$CURRENT/bin/vadgr" start || true
@@ -127,13 +127,18 @@ fi
 printf '%s  %s\n' "$VERIFIER_SHA" "$VERIFIER" | sha256sum --check --status -
 chmod 0755 "$VERIFIER"
 "$VERIFIER" --manifest "$MANIFEST" --bundle "$BUNDLE" --target "wsl-$ARCH" >/dev/null
-"$VERIFIER" --manifest "$MANIFEST" --bundle "$BUNDLE" --target "wsl-$ARCH" --artifact "$ARCHIVE" >/dev/null
+"$VERIFIER" --manifest "$MANIFEST" --bundle "$BUNDLE" --target "wsl-$ARCH" \
+  --state-root "$STATE_HOME" --artifact "$ARCHIVE" >/dev/null
 
 PAYLOAD="$TMP_ROOT/payload"
 mkdir "$PAYLOAD"
 tar -xzf "$ARCHIVE" -C "$PAYLOAD" --no-same-owner --no-same-permissions
 [ -x "$PAYLOAD/bin/vadgr" ] || { echo "The verified archive has no Vadgr executable." >&2; exit 1; }
 [ -f "$PAYLOAD/legal/TERMS.txt" ] || { echo "The verified archive has no terms." >&2; exit 1; }
+timeout -k 5s 30s "$PAYLOAD/bin/vadgr" --version | grep -Fx "vadgr $VERSION" >/dev/null || {
+  echo "The candidate failed its bounded pre-activation executable check." >&2
+  exit 1
+}
 
 if [ "$ACTION" = install ]; then
   if [ "$ACCEPTED" != "$TERMS_VERSION" ]; then
@@ -181,7 +186,7 @@ bin_link="$HOME/.local/bin/.vadgr-$$"
 ln -s "$CURRENT/bin/vadgr" "$bin_link"
 mv -Tf "$bin_link" "$BIN"
 
-if ! "$CURRENT/bin/vadgr" restart; then
+if ! timeout -k 5s 60s "$CURRENT/bin/vadgr" restart; then
   if [ -n "$aside" ]; then rm -rf -- "$generation"; mv -- "$aside" "$generation"; fi
   if [ -n "$previous" ]; then
     ln -s "$previous" "$link"; mv -Tf "$link" "$CURRENT"; "$CURRENT/bin/vadgr" start || true

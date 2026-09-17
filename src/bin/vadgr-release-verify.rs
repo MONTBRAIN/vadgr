@@ -15,11 +15,13 @@ fn run() -> anyhow::Result<()> {
     let mut bundle = None;
     let mut artifact = None;
     let mut target = None;
+    let mut state_root = None;
     while let Some(argument) = arguments.next() {
         match argument.to_str() {
             Some("--manifest") => manifest = arguments.next().map(PathBuf::from),
             Some("--bundle") => bundle = arguments.next().map(PathBuf::from),
             Some("--artifact") => artifact = arguments.next().map(PathBuf::from),
+            Some("--state-root") => state_root = arguments.next().map(PathBuf::from),
             Some("--target") => {
                 target = arguments.next().and_then(|value| value.into_string().ok())
             }
@@ -30,6 +32,9 @@ fn run() -> anyhow::Result<()> {
     let bundle = bundle.ok_or_else(|| anyhow::anyhow!("--bundle is required"))?;
     let target = target.unwrap_or(vadgr_daemon::install::current_target()?);
     let verified = vadgr_daemon::install::VerifiedManifest::open(&manifest, &bundle)?;
+    if let Some(state_root) = state_root {
+        verified.ensure_sequence(&state_root)?;
+    }
     let row = verified.artifact_for_target(&target)?;
     if let Some(path) = artifact {
         if path.file_name().and_then(|value| value.to_str()) != Some(row.name.as_str()) {

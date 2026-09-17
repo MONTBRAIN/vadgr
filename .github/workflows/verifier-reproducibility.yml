@@ -25,10 +25,10 @@ jobs:
         include:
           - arch: x86_64
             target: x86_64-unknown-linux-gnu
-            runner: ubuntu-24.04
+            runner: ubuntu-22.04
           - arch: aarch64
             target: aarch64-unknown-linux-gnu
-            runner: ubuntu-24.04-arm
+            runner: ubuntu-22.04-arm
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -57,6 +57,10 @@ jobs:
           cmp --silent out/verifier-one out/verifier-two
           cp out/verifier-one "out/vadgr-release-verify-$ARCHITECTURE"
           sha256sum "out/vadgr-release-verify-$ARCHITECTURE" > "out/verifier-$ARCHITECTURE.sha256"
+          newest_glibc="$(readelf --version-info "out/vadgr-release-verify-$ARCHITECTURE" |
+            grep -oE 'GLIBC_[0-9]+\.[0-9]+' | sort -Vu | tail -1)"
+          test -n "$newest_glibc"
+          test "$(printf '%s\n%s\n' "$newest_glibc" GLIBC_2.35 | sort -V | tail -1)" = GLIBC_2.35
           test "$(uname -m)" = "$ARCHITECTURE"
           missing="$RUNNER_TEMP/missing-release-manifest.json"
           test ! -e "$missing"

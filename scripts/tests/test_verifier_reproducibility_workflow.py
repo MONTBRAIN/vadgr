@@ -7,8 +7,8 @@ WORKFLOW = (Path(__file__).resolve().parents[2] / ".github/workflows/verifier-re
 
 
 def test_reproducible_verifier_matrix_is_secret_free_and_hosted():
-    assert "ubuntu-24.04-arm" in WORKFLOW
-    assert "ubuntu-24.04\n" in WORKFLOW
+    assert "runner: ubuntu-22.04-arm" in WORKFLOW
+    assert "runner: ubuntu-22.04\n" in WORKFLOW
     assert "cmp --silent out/verifier-one out/verifier-two" in WORKFLOW
     assert "--locked --release --features release-verifier" in WORKFLOW
     assert "sha256sum \"out/vadgr-release-verify-$ARCHITECTURE\"" in WORKFLOW

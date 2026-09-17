@@ -26,6 +26,18 @@ def test_publish_gate_checks_keyless_policy_before_reading_untrusted_manifest():
     check_policy(WORKFLOW.read_text())
 
 
+def test_publish_rechecks_tag_release_identity_and_exact_asset_bytes_after_approval():
+    workflow = WORKFLOW.read_text()
+    protected_job = workflow[workflow.index("  publish:\n"):]
+    assert "environment: release-publish" in protected_job
+    assert "git verify-tag --raw" in protected_job
+    assert "EXPECTED_RELEASE_ID: ${{ needs.verify-draft.outputs.release_id }}" in protected_job
+    assert "EXPECTED_ASSET_IDS: ${{ needs.verify-draft.outputs.asset_ids }}" in protected_job
+    assert "test \"$current_ids\" = \"$EXPECTED_ASSET_IDS\"" in protected_job
+    assert "cmp --silent \"$expected\"" in protected_job
+    assert protected_job.index("cmp --silent") < protected_job.index("gh release edit")
+
+
 @pytest.mark.parametrize("old,new", [
     ("--bundle assets/release-manifest.json.bundle.jsonl", "--bundle untrusted.json"),
     ("--custom-trusted-root packaging/release-trusted-root.jsonl", "--custom-trusted-root asset.jsonl"),

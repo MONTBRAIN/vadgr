@@ -142,9 +142,9 @@ jobs:
       matrix:
         include:
           - arch: x86_64
-            runner: ubuntu-24.04
+            runner: ubuntu-22.04
           - arch: aarch64
-            runner: ubuntu-24.04-arm
+            runner: ubuntu-22.04-arm
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 90
     steps:
@@ -168,6 +168,12 @@ jobs:
           cp -R "$payload_root/lib" dist/payload/
           sh packaging/wsl/build.sh 0.5.0 "${{ matrix.arch }}"
           tar -tzf "target/package/Vadgr-0.5.0-wsl-${{ matrix.arch }}.tar.gz" >/dev/null
+          arch="${{ matrix.arch }}"
+          if [ "$arch" = x86_64 ]; then key=VERIFIER_SHA_X86_64; else key=VERIFIER_SHA_AARCH64; fi
+          expected="$(sed -n "s/^${key}=//p" install.sh)"
+          [[ "$expected" =~ ^[0-9a-f]{64}$ ]]
+          printf '%s  %s\n' "$expected" "target/package/vadgr-release-verify-$arch" |
+            sha256sum --check --strict -
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: candidate-wsl-${{ matrix.arch }}

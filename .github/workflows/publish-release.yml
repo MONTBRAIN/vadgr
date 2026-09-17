@@ -19,6 +19,9 @@ jobs:
   verify-draft:
     name: verify-draft
     runs-on: ubuntu-24.04
+    outputs:
+      release_id: ${{ steps.draft.outputs.release_id }}
+      asset_ids: ${{ steps.draft.outputs.asset_ids }}
     permissions:
       contents: read
     steps:
@@ -27,7 +30,8 @@ jobs:
           ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - name: Require the exact signed tag and immutable draft
+      - id: draft
+        name: Require the exact signed tag and immutable draft
         env:
           APPROVED_TAG_SIGNER_FINGERPRINT: ${{ vars.APPROVED_TAG_SIGNER_FINGERPRINT }}
           GH_TOKEN: ${{ github.token }}
@@ -42,6 +46,8 @@ jobs:
           printf '%s\n' "$verification" | grep -F "VALIDSIG $APPROVED_TAG_SIGNER_FINGERPRINT"
           test "$(git rev-list -n1 "$GITHUB_REF_NAME")" = "$GITHUB_SHA"
           test "$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" --jq '.draft')" = true
+          echo "release_id=$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" --jq '.id')" >> "$GITHUB_OUTPUT"
+          echo "asset_ids=$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" --jq '[.assets[].id] | sort | join(",")')" >> "$GITHUB_OUTPUT"
           mkdir assets
           gh release download "$GITHUB_REF_NAME" --dir assets
           test -f assets/release-manifest.json
@@ -196,14 +202,44 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: verified-draft
+          path: verified-draft
       - name: Publish the existing draft without replacing any asset
         env:
           GH_TOKEN: ${{ github.token }}
           REQUESTED_TAG: ${{ inputs.tag }}
+          EXPECTED_RELEASE_ID: ${{ needs.verify-draft.outputs.release_id }}
+          EXPECTED_ASSET_IDS: ${{ needs.verify-draft.outputs.asset_ids }}
+          APPROVED_TAG_SIGNER_FINGERPRINT: ${{ vars.APPROVED_TAG_SIGNER_FINGERPRINT }}
         shell: bash
         run: |
           set -euo pipefail
           test "$GITHUB_REF_TYPE" = tag
           test "$REQUESTED_TAG" = "$GITHUB_REF_NAME"
+          verification="$(git verify-tag --raw "$GITHUB_REF_NAME" 2>&1)"
+          printf '%s\n' "$verification" | grep -F "VALIDSIG $APPROVED_TAG_SIGNER_FINGERPRINT"
+          test "$(git rev-list -n1 "$GITHUB_REF_NAME")" = "$GITHUB_SHA"
           test "$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" --jq '.draft')" = true
+          test "$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" --jq '.id')" = "$EXPECTED_RELEASE_ID"
+          current_ids="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" --jq '[.assets[].id] | sort | join(",")')"
+          test -n "$EXPECTED_ASSET_IDS"
+          test "$current_ids" = "$EXPECTED_ASSET_IDS"
+          mkdir draft-current
+          gh release download "$GITHUB_REF_NAME" --dir draft-current
+          test "$(find verified-draft -mindepth 1 -maxdepth 1 -type f | wc -l)" -gt 0
+          test -z "$(find verified-draft draft-current -type l -print)"
+          test -z "$(find verified-draft draft-current -mindepth 2 -print)"
+          diff -u <(find verified-draft -maxdepth 1 -type f -printf '%f\n' | sort) \
+                  <(find draft-current -maxdepth 1 -type f -printf '%f\n' | sort)
+          for expected in verified-draft/*; do
+            test -f "$expected"
+            cmp --silent "$expected" "draft-current/$(basename "$expected")"
+          done
           gh release edit "$GITHUB_REF_NAME" --draft=false --latest=false
