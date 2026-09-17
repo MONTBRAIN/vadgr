@@ -10,7 +10,7 @@
 > Do not create a replacement PR.
 >
 > **Status: development qualification in progress.** No cell below is a formal
-> release pass. Signing identities, reviewed terms, release public key,
+> release pass. Signing identities, reviewed terms, pinned keyless trust roots,
 > candidate artifacts and private evidence boundary remain prerequisites
 > for the final candidate pass.
 
@@ -123,7 +123,8 @@ the visual and accessibility oracle.
 ## Owner and external prerequisites
 
 - Before any formal candidate cell: owner-approved Version 1.0 terms bytes; final legal
-  bundle; published Minisign public key and offline signature; protected
+  bundle; reviewed verifier and trusted-root hashes, keyless attestation bundle;
+  protected
   candidate run; immutable artifacts and attestations; private evidence PR.
 - Windows: clean x64 and arm64 targets where supported, administrator approval,
   Smart App Control target, issued public Authenticode identity and approved
@@ -145,6 +146,16 @@ the visual and accessibility oracle.
   FUSE, and separate approval before a distro package manager changes anything.
 - WSL: clean x64 and arm64 distributions where supported. No GUI, service,
   autostart or Windows mutation is permitted.
+- Mac and native Linux leads: read the merged release design before preparing
+  a candidate. Do not generate a permanent offline manifest key or request
+  encrypted key backups. The candidate now requires an immutable
+  `release-manifest.json.bundle.jsonl` from the protected GitHub signer,
+  verified against the independently pinned root and exact workflow identity.
+  On macOS, keep Developer ID signing, notarization and the stable CUA helper
+  requirement; the manifest bundle does not replace any native signature.
+  On Linux, verify the bundle offline before trusting AppImage hashes, and
+  repeat the root, workflow, manifest and artifact tamper matrix on both GUI
+  backends. Neither host marks signed cells complete from unsigned evidence.
 - Functional cells: a test provider account with bounded billing, one physical
   phone where pairing is named, and permission for one harmless screenshot task.
   Supply secrets only through the repository-approved local secret input. Never
@@ -209,7 +220,7 @@ oracles. Windows executes only the Windows rows in this session.
 | cell | operating system and architecture | owner/environment requirements | precondition | setup | exact action | oracle | expected result | evidence boundary | cleanup | cost, accounts, devices and permissions | result |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | L01 | native Linux x86_64, then aarch64; X11 and Wayland | clean graphical session; no owner action | no Vadgr XDG generation, command, desktop or autostart entry | agent records the before inventory and externally verifies manifest signature and AppImage hash | agent opens the AppImage through accessibility, inspects terms and invokes **Decline and close** | before/after XDG data/config, command and state inventories | no product or owner-state mutation | private Linux boundary | remove downloaded files after filing | no root or package-manager action | not run: awaiting the final signed immutable candidate; run unaffected assertions only as development qualification |
-| L03 | x86_64/aarch64, X11/Wayland | clean GUI hosts | L02 installed | keep FUSE; prepare extraction test | verify Minisign first, size/hash second; launch normally and with `--appimage-extract-and-run` | signature output, target match and both launches | both paths work; wrong key/signature/target/size/hash fails before XDG mutation | private Linux integrity capture | delete tampered copies | none | not run: awaiting the final signed immutable candidate; run unaffected assertions only as development qualification |
+| L03 | x86_64/aarch64, X11/Wayland | clean GUI hosts | L02 installed | keep FUSE; prepare extraction test | verify the manifest bundle offline first, size/hash second; launch normally and with `--appimage-extract-and-run` | certified workflow/runner output, target match and both launches | both paths work; wrong root/bundle/workflow/ref/target/size/hash fails before XDG mutation | private Linux integrity capture | delete tampered copies | none | not run: awaiting the final attested immutable candidate; run unaffected assertions only as development qualification |
 | L04 | same matrix | provider and phone | L03 complete | one provider/default and paired device | repeat W04 through W06 | CLI/API/console, transport and journal | shared console/backend behavior matches Windows | private Linux functional capture | remove run/device | bounded provider call and phone | not run: awaiting the final signed immutable candidate; run unaffected assertions only as development qualification |
 | L05 | same matrix | fault-injection host | L04 complete | signed local previous/next generations | inject every W07 failure; repair, update and roll back | `current` link, version receipts, health and state identity | atomic link restores prior generation; repair uses retained verified source | private Linux lifecycle capture | select fixed generation | no root | not run: awaiting the final signed immutable candidate; run unaffected assertions only as development qualification |
 | L06 | same matrix | isolated E2E state only | L05 complete | agent records XDG and isolated state roots | agent drives uninstall-preserve/reinstall, then the separate typed purge | exact paths and isolated-state identity | only package/XDG entries removed first; state found on reinstall; purge deletes the exact isolated state root | private Linux uninstall capture | agent removes all test artifacts | no owner action unless a protected package prompt appears | not run: awaiting the final signed immutable candidate; run unaffected assertions only as development qualification |
@@ -220,7 +231,7 @@ oracles. Windows executes only the Windows rows in this session.
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | S01 | WSL x64, then arm64 | clean distribution; no owner action | no Vadgr generation, command or state | agent verifies script attestation and points `RELEASE_DIR` at the immutable local assets | agent runs `./install.sh --source "$RELEASE_DIR"`, inspects the terms and enters anything except `ACCEPT 1.0` | before/after Linux roots plus Windows registry and network snapshots | no WSL or Windows mutation | private WSL boundary | remove temporary download directory | no GUI, elevation or Windows permission | not run: awaiting the final signed immutable candidate; run unaffected assertions only as development qualification |
 | S02 | WSL x64/arm64 | clean distributions | S01 complete | local immutable release in `$RELEASE_DIR`; network blocked | run `install.sh --source "$RELEASE_DIR" --accept-terms 1.0` | verifier output, archive inventory, version/target/pins and health | CLI-only install succeeds with CUA 0.7.8/Python pin and no system Python/toolchain | private WSL install capture | keep installation | no elevation or GUI | not run: awaiting the final signed immutable candidate; run unaffected assertions only as development qualification |
-| S03 | WSL x64/arm64 | none | S02 clean snapshot | tampered copies | independently alter verifier, public key build, manifest, signature, target, size, hash, traversal and escaping link | exit and before/after WSL/Windows inventories | every case fails before install mutation; Windows registry, DNS, firewall, VPN and files unchanged | private WSL negative matrix | delete tampered files | none | not run: awaiting the final signed immutable candidate; run unaffected assertions only as development qualification |
+| S03 | WSL x64/arm64 | none | S02 clean snapshot | tampered copies | independently alter verifier, pinned root, manifest, bundle, certified signer/ref/runner, target, size, hash, traversal and escaping link | exit and before/after WSL/Windows inventories | every case fails before install mutation; Windows registry, DNS, firewall, VPN and files unchanged | private WSL negative matrix | delete tampered files | none | not run: awaiting the final attested immutable candidate; run unaffected assertions only as development qualification |
 | S04 | WSL x64/arm64 | provider account | S02 healthy | provider configured securely | run one screenshot task through bundled CUA; compare CLI/API machine config after edits | journal and pin records | task succeeds; machine store persists; no GUI/autostart/service exists | private WSL functional capture | remove run and provider credential | bounded provider call | not run: awaiting the final signed immutable candidate; run unaffected assertions only as development qualification |
 | S05 | WSL x64/arm64 | fault-injection distribution | S04 complete | retained previous/next archives | inject failures, update, repair and rollback through `install.sh` | `current`, receipts, health and state identity | prior generation remains runnable and rollback is verified/local | private WSL lifecycle capture | restore fixed version | none | not run: awaiting the final signed immutable candidate; run unaffected assertions only as development qualification |
 | S06 | WSL x64/arm64 | isolated E2E state only | S05 complete | agent records isolated state identity | agent drives uninstall-preserve/reinstall, then `--delete-owner-state` and types the confirmation | exact Linux roots and Windows no-change snapshot | state survives first cycle; separate purge removes only isolated WSL Vadgr state | private WSL uninstall capture | agent removes test assets | no owner action | not run: awaiting the final signed immutable candidate; run unaffected assertions only as development qualification |
