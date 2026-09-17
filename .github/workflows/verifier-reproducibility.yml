@@ -58,7 +58,14 @@ jobs:
           cp out/verifier-one "out/vadgr-release-verify-$ARCHITECTURE"
           sha256sum "out/vadgr-release-verify-$ARCHITECTURE" > "out/verifier-$ARCHITECTURE.sha256"
           test "$(uname -m)" = "$ARCHITECTURE"
-          "out/vadgr-release-verify-$ARCHITECTURE" --help >/dev/null
+          missing="$RUNNER_TEMP/missing-release-manifest.json"
+          test ! -e "$missing"
+          if output="$("out/vadgr-release-verify-$ARCHITECTURE" \
+            --manifest "$missing" --bundle "$missing" --target "wsl-$ARCHITECTURE" 2>&1)"; then
+            echo "The verifier accepted a missing manifest." >&2
+            exit 1
+          fi
+          [[ "$output" == *"reading release manifest metadata"* ]]
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: reviewed-verifier-${{ matrix.arch }}
