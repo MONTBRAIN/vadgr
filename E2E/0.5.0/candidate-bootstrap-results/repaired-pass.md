@@ -316,5 +316,3 @@ OpenJDK Runtime Environment Temurin-17.0.20+8 (build 17.0.20+8)
 OpenJDK 64-Bit Server VM Temurin-17.0.20+8 (build 17.0.20+8, mixed mode, sharing)
 PASS: exact source copy; pinned JAR; no vendor logs; missing input absent; zero signing attempts.
 ```
-
-

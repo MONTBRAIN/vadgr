@@ -261,5 +261,3 @@ At NATIVE-TEMP\signing\release.ps1:89 char:5
     + CategoryInfo          : OperationStopped: (Signing is rest...anch candidate.:String) [], RuntimeException
     + FullyQualifiedErrorId : Signing is restricted to the first attempt of an approved default-branch candidate.
 ```
-
-
