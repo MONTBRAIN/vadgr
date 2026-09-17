@@ -18,9 +18,9 @@ import sys
 import tomllib
 from urllib.parse import quote
 
-try:
+if __package__:
     from scripts.validate_package_inputs import PackageInputError, validate_package_inputs
-except ModuleNotFoundError:
+else:
     from validate_package_inputs import PackageInputError, validate_package_inputs
 
 REPOSITORY = "MONTBRAIN/vadgr"

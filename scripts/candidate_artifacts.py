@@ -14,14 +14,11 @@ import sys
 import tempfile
 import zipfile
 
-try:
+if __package__:
     from scripts import candidate_policy
-except ModuleNotFoundError:
-    import candidate_policy  # trusted direct execution from scripts/
-
-try:
     from scripts.validate_package_inputs import PackageInputError, validate_package_inputs
-except ModuleNotFoundError:
+else:
+    import candidate_policy  # trusted direct execution from scripts/
     from validate_package_inputs import PackageInputError, validate_package_inputs
 
 REPOSITORY = "MONTBRAIN/vadgr"

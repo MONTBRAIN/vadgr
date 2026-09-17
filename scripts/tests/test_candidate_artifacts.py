@@ -1,12 +1,32 @@
 """Untrusted build output cannot authorize a privileged signing request."""
 
 import io
+import os
 from pathlib import Path
+import subprocess
+import sys
 import tempfile
 import unittest
 import zipfile
 
 from scripts import candidate_artifacts as artifacts
+
+
+class DirectInvocationTests(unittest.TestCase):
+    def test_trusted_scripts_import_their_siblings_under_shadow_namespace(self):
+        with tempfile.TemporaryDirectory() as directory:
+            shadow = Path(directory) / "scripts"
+            shadow.mkdir()
+            (shadow / "__init__.py").write_text("", encoding="utf-8")
+            root = Path(artifacts.__file__).resolve().parent
+            for script in ("candidate_artifacts.py", "candidate_policy.py"):
+                with self.subTest(script=script):
+                    result = subprocess.run(
+                        [sys.executable, str(root / script), "--help"],
+                        cwd=directory,
+                        env={**os.environ, "PYTHONPATH": str(directory)},
+                        capture_output=True, text=True, timeout=10, check=False)
+                    self.assertEqual(result.returncode, 0, result.stderr)
 
 
 class ArchiveTests(unittest.TestCase):
