@@ -7,7 +7,7 @@ use sha2::Digest;
 use sigstore_trust_root::TrustedRoot;
 use sigstore_types::{Bundle, MediaType, SignatureContent};
 use sigstore_verify::{VerificationPolicy, Verifier};
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 use std::path::{Path, PathBuf};
 use x509_cert::der::{Decode, asn1::Utf8StringRef};
 
@@ -38,6 +38,8 @@ pub struct ReleaseManifest {
     pub terms_sha256: String,
     pub cua_version: String,
     pub python_version: String,
+    pub legal_hashes: BTreeMap<String, String>,
+    pub sbom_hashes: BTreeMap<String, String>,
     pub artifacts: Vec<Artifact>,
 }
 
@@ -403,6 +405,31 @@ fn validate_manifest(manifest: &ReleaseManifest) -> Result<()> {
         !manifest.python_version.trim().is_empty(),
         "the Python version is empty"
     );
+    for (prefix, hashes) in [
+        ("legal/", &manifest.legal_hashes),
+        ("sbom/", &manifest.sbom_hashes),
+    ] {
+        ensure!(!hashes.is_empty(), "the {prefix} inventory is empty");
+        for (path, digest) in hashes {
+            let Some(name) = path.strip_prefix(prefix) else {
+                return Err(anyhow!(
+                    "a {prefix} inventory path is outside its directory"
+                ));
+            };
+            ensure!(
+                !name.is_empty() && name.split('/').all(safe_file_name),
+                "a {prefix} inventory path is unsafe"
+            );
+            ensure!(
+                valid_sha256(digest),
+                "a {prefix} inventory digest is invalid"
+            );
+        }
+    }
+    ensure!(
+        manifest.legal_hashes.get("legal/TERMS.txt") == Some(&manifest.terms_sha256),
+        "the signed terms checksum must match the legal inventory"
+    );
     ensure!(
         !manifest.artifacts.is_empty(),
         "the release manifest has no artifacts"
@@ -516,6 +543,8 @@ mod tests {
             terms_sha256: "b".repeat(64),
             cua_version: "0.7.8".to_owned(),
             python_version: "3.12.14".to_owned(),
+            legal_hashes: BTreeMap::from([("legal/TERMS.txt".to_owned(), "b".repeat(64))]),
+            sbom_hashes: BTreeMap::from([("sbom/release.json".to_owned(), "e".repeat(64))]),
             artifacts: vec![Artifact {
                 name: "Vadgr-0.5.0-windows-x86_64-setup.exe".to_owned(),
                 target: "windows-x86_64".to_owned(),
@@ -538,6 +567,13 @@ mod tests {
         validate_manifest(&manifest()).unwrap();
         let mut row = manifest();
         row.artifacts[0].name = "../setup.exe".to_owned();
+        assert!(validate_manifest(&row).is_err());
+        let mut row = manifest();
+        row.legal_hashes
+            .insert("legal/../escape".to_owned(), "d".repeat(64));
+        assert!(validate_manifest(&row).is_err());
+        let mut row = manifest();
+        row.sbom_hashes.clear();
         assert!(validate_manifest(&row).is_err());
     }
 

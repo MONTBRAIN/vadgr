@@ -387,7 +387,8 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/build_release_manifest.py --artifacts final --source-commit "$GITHUB_SHA" \
-            --terms-version 1.0 --terms packaging/legal/TERMS.txt --output release-manifest.json
+            --terms-version 1.0 --terms final/legal/TERMS.txt \
+            --legal-root final/legal --sbom-root final/sbom --output release-manifest.json
           python -c 'import json; row=json.load(open("release-manifest.json", encoding="utf-8")); assert row["schema"] == 1 and len(row["artifacts"]) == 8'
       - name: Create one draft without publishing it
         env:

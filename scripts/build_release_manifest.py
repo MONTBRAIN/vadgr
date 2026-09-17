@@ -31,12 +31,34 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def inventory(root: Path, prefix: str) -> dict[str, str]:
+    if not root.is_dir() or root.is_symlink():
+        raise SystemExit(f"missing or unsafe {prefix} directory")
+    result = {}
+    for path in sorted(root.rglob("*")):
+        if path.is_symlink():
+            raise SystemExit(f"symlink in {prefix} inventory: {path}")
+        if path.is_dir():
+            continue
+        if not path.is_file():
+            raise SystemExit(f"special file in {prefix} inventory: {path}")
+        relative = path.relative_to(root)
+        if any(part in (".", "..") or "\\" in part for part in relative.parts):
+            raise SystemExit(f"unsafe {prefix} inventory path: {path}")
+        result[f"{prefix}/{relative.as_posix()}"] = sha256(path)
+    if not result:
+        raise SystemExit(f"empty {prefix} inventory")
+    return result
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--artifacts", type=Path, required=True)
     parser.add_argument("--source-commit", required=True)
     parser.add_argument("--terms-version", required=True)
     parser.add_argument("--terms", type=Path, required=True)
+    parser.add_argument("--legal-root", type=Path, required=True)
+    parser.add_argument("--sbom-root", type=Path, required=True)
     parser.add_argument("--pins", type=Path, default=Path("packaging/cua/pins.toml"))
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -60,6 +82,9 @@ def main() -> None:
                 "native_signature": signature,
             }
         )
+    legal_hashes = inventory(args.legal_root, "legal")
+    if legal_hashes.get("legal/TERMS.txt") != sha256(args.terms):
+        raise SystemExit("the terms checksum must match legal/TERMS.txt")
     manifest = {
         "schema": 1,
         "product": "vadgr",
@@ -71,6 +96,8 @@ def main() -> None:
         "terms_sha256": sha256(args.terms),
         "cua_version": pins["cua"],
         "python_version": pins["python"],
+        "legal_hashes": legal_hashes,
+        "sbom_hashes": inventory(args.sbom_root, "sbom"),
         "artifacts": rows,
     }
     args.output.write_text(
