@@ -20,6 +20,44 @@ authoring. It never compiles or executes a candidate DLL.
 `hold-windows.ps1` verifies the final signatures and writes the held inventory.
 `record.py` extracts one bounded JSON record without extracting archive paths.
 
-The output is an unpublished Windows candidate. Offline manifest signing and
-native installer tests remain required. This workflow creates no release and
-does not change any existing tag or environment protections.
+`read_held.py` checks the exact held ZIP, its file hashes and producing run.
+`validate_manifest.py` then checks the default-branch workflow identity, exact
+authorization, reviewed legal and SBOM bytes, and every release manifest field.
+Fresh native verification follows before a separate credential-free job attests
+the single `release-manifest.json` subject using SLSA provenance v1. The manifest
+contains `legal_hashes` and `sbom_hashes` maps keyed by relative `legal/...` and
+`sbom/...` paths; the terms digest must equal `legal/TERMS.txt`.
+
+The public Sigstore root snapshot in `packaging/release-trusted-root.jsonl` was
+obtained using `gh attestation trusted-root` on 2026-09-17. It excludes GitHub's
+private-instance root. Its SHA-256 is pinned in `candidate_policy.py`; candidate
+source cannot substitute another root. Root rotation is a reviewed tooling and
+verifier change, not a workflow input. No owner manifest private key is needed.
+
+The downloadable `held-windows-attested` artifact includes the exact native
+installer, manifest, and `release-manifest.json.bundle.jsonl`. The workflow
+verifies the bundle using the pinned root, GitHub issuer, this repository's
+`candidate.yml` on `refs/heads/master`, and a GitHub-hosted runner constraint.
+No online trust-root lookup is needed for that verification.
+
+The output remains an unpublished Windows candidate, not an installation-test
+pass. Native installer tests remain required. This workflow creates no release
+and does not change any existing tag or environment protections.
+
+## Fail-closed prerequisites
+
+The default branch must contain the reviewed `candidate-legal-approval.json`
+under `packaging/`, with exact per-architecture legal, inventory, generator and
+SBOM hashes. The candidate source must carry approved package inputs, the public
+root and the matching manifest schema. Missing approval is a hard refusal, not
+permission to sign fixture or unsigned release bytes.
+
+Protected `candidate-authorize` and `candidate-windows` approvals, successful
+claim qualification, the native certificate and available signing quota still
+gate the producer. These checks have not been relaxed by keyless attestation.
+This Windows producer does not claim to produce macOS, Linux or WSL packages.
+Those targets require their own reviewed build and validation jobs before they
+can enter a manifest. There is no general-purpose upload-and-attest endpoint.
+
+See [keyless bootstrap qualification](KEYLESS-QUALIFICATION.md) for the bounded
+acceptance checks and the unclaimed live signing boundary.

@@ -6,6 +6,11 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Added
 
+- Keyless held-candidate manifest attestations after fresh Windows signature
+  verification and approved legal and SBOM byte checks. The downloadable bundle
+  uses a pinned public Sigstore root and does not publish a release or replace
+  native signing or installation qualification.
+
 - A manual Windows candidate workflow with separate source builds, artifact
   validation, protected authorization and one-use signing claims. Candidate
   artifacts remain unpublished. Signing requires configured protections,

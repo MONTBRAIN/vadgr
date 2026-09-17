@@ -413,20 +413,36 @@ jobs:
           set -euo pipefail
           python scripts/candidate_artifacts.py download --artifact-id "${{ needs.sign-windows.outputs.artifact_id }}" --digest "${{ needs.sign-windows.outputs.artifact_digest }}" --run-id "$GITHUB_RUN_ID" --run-attempt 1 --repository "$GITHUB_REPOSITORY" --producer-sha "$GITHUB_SHA" --architecture "${{ inputs.architecture }}" --out held.zip --metadata held-artifact.json
           python scripts/candidate/read_held.py --archive held.zip --out held
+          python scripts/candidate/validate_manifest.py --directory held --architecture "${{ inputs.architecture }}"
       - name: Verify final native signatures on a fresh runner
         shell: pwsh
         run: scripts/candidate/verify-held-windows.ps1 -Directory held
-      - uses: actions/attest-build-provenance@8beda2b7ed98355c0e97c0a63bec38ae472e66c4
+      - name: Attest only the validated release manifest
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
+        id: manifest
         with:
-          subject-path: held/**/*
-      - name: Verify provenance and report unpublished status
+          subject-path: held/release-manifest.json
+      - name: Retain and verify the offline manifest bundle
         shell: bash
+        env:
+          MANIFEST_BUNDLE: ${{ steps.manifest.outputs.bundle-path }}
         run: |
           set -euo pipefail
-          find held -type f -print0 | while IFS= read -r -d '' file; do
-            gh attestation verify "$file" --repo "$GITHUB_REPOSITORY"
-          done
+          cp -- "$MANIFEST_BUNDLE" held/release-manifest.json.bundle.jsonl
+          gh attestation verify held/release-manifest.json --repo MONTBRAIN/vadgr \
+            --bundle held/release-manifest.json.bundle.jsonl \
+            --custom-trusted-root packaging/release-trusted-root.jsonl \
+            --cert-oidc-issuer https://token.actions.githubusercontent.com \
+            --signer-workflow MONTBRAIN/vadgr/.github/workflows/candidate.yml \
+            --source-ref refs/heads/master --deny-self-hosted-runners \
+            --predicate-type https://slsa.dev/provenance/v1
           echo 'Held candidate only. No tag, release, publication, installer execution or signed E2E pass occurred.' >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: held-windows-attested
+          path: held/
+          if-no-files-found: error
+          retention-days: 90
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: held-artifact-record

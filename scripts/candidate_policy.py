@@ -24,6 +24,7 @@ else:
     from validate_package_inputs import PackageInputError, validate_package_inputs
 
 REPOSITORY = "MONTBRAIN/vadgr"
+TRUSTED_ROOT_SHA256 = "3c2cc7f357dc064ec527fdcd78da6e9245c21a381e1abaa0f2b62b186bcac1a1"
 BASE = "master"
 EXCLUDED = "E2E/0.5.0/e2e.md"
 SHA = re.compile(r"[0-9a-f]{40}\Z")
@@ -257,9 +258,9 @@ def require_trusted_check_runs(selected: list[dict], checks: list[dict],
     return result
 
 
-def require_release_inputs(public_key: str, terms: str, legal: bool, sbom: bool) -> None:
-    require(bool(public_key.strip()) and "UNCONFIGURED" not in public_key
-            and "untrusted comment:" in public_key, "offline public key is unconfigured")
+def require_release_inputs(trusted_root: str, terms: str, legal: bool, sbom: bool) -> None:
+    require(hashlib.sha256(trusted_root.encode()).hexdigest() == TRUSTED_ROOT_SHA256,
+            "candidate Sigstore public root differs from reviewed trust policy")
     require(bool(terms.strip()) and not re.search(r"draft|proposed|pending legal review", terms, re.I),
             "terms have not received final legal review")
     require(legal and sbom, "legal files, SBOM or pinned inputs are missing")
@@ -338,7 +339,8 @@ def preflight(args) -> dict:
     names = {name for _, _, _, name in rows}
     arch_name = {"x64": "x86_64", "arm64": "aarch64"}[args.architecture]
     legal_prefix = f"packaging/inputs/windows-{arch_name}/"
-    require_release_inputs(blob("packaging/release-public-key.txt"),
+    require_release_inputs(git(root, "show", f"{sha}:packaging/release-trusted-root.jsonl",
+                               binary=True).decode("utf-8"),
                            blob(legal_prefix + "legal/TERMS.txt"),
                            all(legal_prefix + name in names for name in
                                ("package-input-inventory.json", "package-input-review.json",
