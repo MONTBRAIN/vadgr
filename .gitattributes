@@ -1,2 +1,3 @@
 *.sh text eol=lf
 packaging/cua/requirements.lock text eol=lf
+packaging/release-trusted-root.jsonl text eol=lf

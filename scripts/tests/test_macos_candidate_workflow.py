@@ -94,6 +94,13 @@ def test_legacy_tag_workflow_stops_before_checkout_or_signing():
     assert "secrets." not in text
 
 
+def test_feature_branch_cannot_receive_developer_id_credentials():
+    workflow = WORKFLOW.read_text()
+    signer = workflow.split("\n  sign:\n", 1)[1]
+    assert "if: ${{ false }}" in signer.split("\n    steps:\n", 1)[0]
+    assert "branches: [feature/0.5.0-distribution]" in workflow
+
+
 def validate_gate_matrix(text):
     assert "os: [ubuntu-latest, windows-latest, macos-15]" in text
     assert "environment: release-macos" not in text

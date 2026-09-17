@@ -146,8 +146,11 @@ the visual and accessibility oracle.
 - macOS: clean Intel and Apple Silicon hosts, administrator approval, active
   Apple Developer membership, Developer ID Application and Installer identities,
   notarization permission, and an owner present for Login Items, Accessibility
-  and Screen Recording. Notarization and certificate use happen only in the
-  protected environment.
+  and Screen Recording. The prior feature-branch macOS signer is disabled:
+  its scripts could run with Developer ID credentials. Do not request approval
+  or mark M02/M03 signed until a reviewed default-branch trusted signer accepts
+  exact held artifacts and produces the required manifest bundle. Unsigned
+  macOS builds and their development-only cells may still run.
 - Linux: clean x86_64 and aarch64 targets, X11 and Wayland sessions, optional
   FUSE, and separate approval before a distro package manager changes anything.
 - WSL: clean x64 and arm64 distributions where supported, including an Ubuntu

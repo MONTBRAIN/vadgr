@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Build the deterministic public release manifest from final artifact bytes."""
+"""Prepare one target's deterministic manifest data; not approval or attestation.
+
+Never combine target-specific legal/SBOM inventories in one manifest. The trusted
+default-branch producer must separately validate source, compliance and native
+signatures before attesting these bytes.
+"""
 
 from __future__ import annotations
 
@@ -54,6 +59,7 @@ def inventory(root: Path, prefix: str) -> dict[str, str]:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--artifacts", type=Path, required=True)
+    parser.add_argument("--target", choices=sorted({row[0] for row in ARTIFACTS.values()}), required=True)
     parser.add_argument("--source-commit", required=True)
     parser.add_argument("--terms-version", required=True)
     parser.add_argument("--terms", type=Path, required=True)
@@ -68,6 +74,8 @@ def main() -> None:
     pins = tomllib.loads(args.pins.read_text(encoding="utf-8"))
     rows = []
     for name, (target, kind, signature) in ARTIFACTS.items():
+        if target != args.target:
+            continue
         matches = list(args.artifacts.rglob(name))
         if len(matches) != 1:
             raise SystemExit(f"expected exactly one {name}, found {len(matches)}")

@@ -35,6 +35,7 @@ class KeylessManifest(unittest.TestCase):
             (sbom / "release.json").write_text("{}", encoding="utf-8")
             output = root / "manifest.json"
             command = [sys.executable, str(SCRIPT), "--artifacts", str(artifacts),
+                       "--target", "windows-x86_64",
                        "--source-commit", "a" * 40, "--terms-version", "1.0",
                        "--terms", str(terms), "--pins", str(ROOT / "packaging/cua/pins.toml"),
                        "--legal-root", str(legal), "--sbom-root", str(sbom),
@@ -48,13 +49,20 @@ class KeylessManifest(unittest.TestCase):
                              hashlib.sha256(terms.read_bytes()).hexdigest())
             self.assertEqual(json.loads(first)["sbom_hashes"]["sbom/release.json"],
                              hashlib.sha256((sbom / "release.json").read_bytes()).hexdigest())
-            self.assertEqual(len(rows), 8)
+            self.assertEqual(len(rows), 1)
             for row in rows:
                 self.assertEqual(row["sha256"], hashlib.sha256(row["name"].encode()).hexdigest())
                 self.assertEqual(row["size"], len(row["name"].encode()))
                 if row["target"].startswith(("linux-", "wsl-")):
                     self.assertEqual(row["native_signature"], "keyless-manifest")
             self.assertNotIn(b"minisign", first)
+            for target in sorted({row[0] for row in BUILDER.ARTIFACTS.values()}):
+                command[command.index("--target") + 1] = target
+                subprocess.run(command, check=True, capture_output=True)
+                selected = json.loads(output.read_bytes())["artifacts"]
+                self.assertEqual(len(selected), 1)
+                self.assertEqual(selected[0]["target"], target)
+            first = output.read_bytes()
             (legal / "TERMS.txt").write_text("Different terms", encoding="utf-8")
             changed = subprocess.run(command, capture_output=True, text=True)
             self.assertNotEqual(changed.returncode, 0)

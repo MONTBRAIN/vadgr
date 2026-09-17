@@ -141,6 +141,10 @@ jobs:
 
   sign:
     name: held-signed-macos-${{ matrix.arch }}
+    # Feature-branch signing scripts must never receive Developer ID credentials.
+    # Restore this job only after a reviewed default-branch trusted signer and
+    # held-artifact authorization exist. Unsigned builds remain independently usable.
+    if: ${{ false }}
     needs: [validate, build]
     environment: release-macos
     strategy:

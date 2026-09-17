@@ -610,6 +610,11 @@ mod tests {
 
     #[test]
     fn embedded_root_is_reviewed_public_good_snapshot() {
+        assert!(
+            include_str!("../../.gitattributes")
+                .contains("packaging/release-trusted-root.jsonl text eol=lf"),
+            "Windows checkouts must preserve the independently pinned root bytes"
+        );
         assert_eq!(
             sha256_bytes(TRUSTED_ROOT.as_bytes()),
             "3c2cc7f357dc064ec527fdcd78da6e9245c21a381e1abaa0f2b62b186bcac1a1"
