@@ -46,10 +46,19 @@ def test_subject_is_compared_before_signing_as_x500_not_display_text():
     assert '$cert.Subject -ne $env:EXPECTED_CERT_SUBJECT' not in shell
 
 
-def test_inspect_workflow_never_receives_totp_or_sign_mode():
+def test_sign_workflow_pins_independent_identity_and_one_signature():
     workflow = (ROOT / '.github/workflows/signing-smoke.yml').read_text()
-    assert 'ES_TOTP_SECRET' not in workflow
-    assert '-Mode sign' not in workflow
+    assert workflow.count('secrets.ES_TOTP_SECRET') == 1
+    assert workflow.count('-Mode sign') == 1
+    assert 'EXPECTED_CERT_SHA256: 2DBA70DB8174B6FAB9002ED906C0076E5321C5BE82C9B4B6C1775456FEF90D22' in workflow
+    assert "APPROVED_SIGNATURE_COUNT: '1'" in workflow
+    assert 'EXPECTED_CERT_SUBJECT:' in workflow
+    assert "paths-ignore: ['E2E/**']" in workflow
+
+
+def test_java_output_encoding_is_explicit():
+    script = (ROOT / 'scripts/signing/smoke.ps1').read_text()
+    assert "'-Dfile.encoding=UTF-8'" in script
 
 
 def test_java_pin_uses_supported_three_component_version():

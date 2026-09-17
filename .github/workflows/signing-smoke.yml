@@ -1,8 +1,9 @@
-name: Isolated Windows signing probe
+name: Isolated Windows one-file signing test
 
 on:
   push:
     branches: [signing-smoke-iv-20260916]
+    paths-ignore: ['E2E/**']
 
 permissions:
   contents: read
@@ -13,6 +14,7 @@ concurrency:
 
 jobs:
   probe:
+    name: One inert EXE, at most one signature, no publication
     if: github.repository == 'MONTBRAIN/vadgr' && github.ref == 'refs/heads/signing-smoke-iv-20260916' && github.run_attempt == 1
     environment: release-windows
     runs-on: windows-2025
@@ -29,9 +31,13 @@ jobs:
       - name: Prepare and test without credentials
         shell: pwsh
         run: scripts/signing/smoke.ps1 -Mode prepare
-      - name: Inspect public certificate only
+      - name: Sign one inert EXE and verify its independent publisher identity
         shell: pwsh
         env:
           ES_USERNAME: ${{ secrets.ES_USERNAME }}
           ES_PASSWORD: ${{ secrets.ES_PASSWORD }}
-        run: scripts/signing/smoke.ps1 -Mode inspect
+          ES_TOTP_SECRET: ${{ secrets.ES_TOTP_SECRET }}
+          EXPECTED_CERT_SHA256: 2DBA70DB8174B6FAB9002ED906C0076E5321C5BE82C9B4B6C1775456FEF90D22
+          EXPECTED_CERT_SUBJECT: CN=Victor Santiago Montaño Diaz,O=Victor Santiago Montaño Diaz,L=Pasto,ST=Nariño,C=CO
+          APPROVED_SIGNATURE_COUNT: '1'
+        run: scripts/signing/smoke.ps1 -Mode sign

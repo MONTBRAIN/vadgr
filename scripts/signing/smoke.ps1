@@ -23,7 +23,7 @@ function Invoke-Wrapper([string] $Operation) {
         [Environment]::SetEnvironmentVariable($name, $null, 'Process')
     }
     $env:SMOKE_LOG_CONFIG = Join-Path $source 'log4j2-off.xml'
-    & java '-XX:-HeapDumpOnOutOfMemoryError' '-XX:ErrorFile=NUL' '-cp' "$classes;$jar" SigningSmoke $Operation
+    & java '-Dfile.encoding=UTF-8' '-XX:-HeapDumpOnOutOfMemoryError' '-XX:ErrorFile=NUL' '-cp' "$classes;$jar" SigningSmoke $Operation
     if ($LASTEXITCODE -ne 0) { throw 'The signing probe failed. No retry is permitted.' }
 }
 
