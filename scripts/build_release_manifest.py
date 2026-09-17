@@ -16,10 +16,10 @@ ARTIFACTS = {
     "Vadgr-0.5.0-windows-arm64-setup.exe": ("windows-aarch64", "burn", "authenticode"),
     "Vadgr-0.5.0-macos-x86_64.pkg": ("macos-x86_64", "pkg", "developer-id-notarized"),
     "Vadgr-0.5.0-macos-arm64.pkg": ("macos-aarch64", "pkg", "developer-id-notarized"),
-    "Vadgr-0.5.0-linux-x86_64-installer.AppImage": ("linux-x86_64", "appimage", "minisign-manifest"),
-    "Vadgr-0.5.0-linux-aarch64-installer.AppImage": ("linux-aarch64", "appimage", "minisign-manifest"),
-    "Vadgr-0.5.0-wsl-x86_64.tar.gz": ("wsl-x86_64", "tar.gz", "minisign-manifest"),
-    "Vadgr-0.5.0-wsl-aarch64.tar.gz": ("wsl-aarch64", "tar.gz", "minisign-manifest"),
+    "Vadgr-0.5.0-linux-x86_64-installer.AppImage": ("linux-x86_64", "appimage", "keyless-manifest"),
+    "Vadgr-0.5.0-linux-aarch64-installer.AppImage": ("linux-aarch64", "appimage", "keyless-manifest"),
+    "Vadgr-0.5.0-wsl-x86_64.tar.gz": ("wsl-x86_64", "tar.gz", "keyless-manifest"),
+    "Vadgr-0.5.0-wsl-aarch64.tar.gz": ("wsl-aarch64", "tar.gz", "keyless-manifest"),
 }
 
 

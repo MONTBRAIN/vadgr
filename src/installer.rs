@@ -69,17 +69,13 @@ impl Preflight {
             .parent()
             .ok_or_else(|| anyhow!("the installer vehicle has no parent"))?;
         let manifest = parent.join("release-manifest.json");
-        let signature = parent.join("release-manifest.json.minisig");
+        let signature = parent.join("release-manifest.json.bundle.jsonl");
         let app_dir = std::env::var_os("APPDIR")
             .map(PathBuf::from)
             .filter(|path| path.is_absolute())
             .ok_or_else(|| anyhow!("the AppImage runtime did not provide APPDIR"))?;
         let terms = app_dir.join("legal/TERMS.txt");
-        let verified = crate::install::VerifiedManifest::open(
-            &manifest,
-            &signature,
-            crate::install::RELEASE_PUBLIC_KEY,
-        )?;
+        let verified = crate::install::VerifiedManifest::open(&manifest, &signature)?;
         let artifact = verified.artifact_for_target(&crate::install::current_target()?)?;
         verified.verify_bytes_at(vehicle, &artifact)?;
         ensure!(

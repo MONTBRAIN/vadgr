@@ -2,15 +2,28 @@
 
 use super::{commit_file, sha256_file, valid_sha256};
 use anyhow::{Context, Result, anyhow, ensure};
-use minisign_verify::{PublicKey, Signature};
 use serde::{Deserialize, Serialize};
 use sha2::Digest;
+use sigstore_trust_root::TrustedRoot;
+use sigstore_types::{Bundle, MediaType, SignatureContent};
+use sigstore_verify::{VerificationPolicy, Verifier};
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
+use x509_cert::der::{Decode, asn1::Utf8StringRef};
 
 const MAX_MANIFEST_BYTES: u64 = 4 * 1024 * 1024;
 const SEQUENCE_FILE: &str = "release-sequence.json";
-pub const RELEASE_PUBLIC_KEY: &str = include_str!("../../packaging/release-public-key.txt");
+const MAX_BUNDLE_BYTES: u64 = 4 * 1024 * 1024;
+// Public Sigstore root obtained with `gh attestation trusted-root` on 2026-09-17.
+// https://cli.github.com/manual/gh_attestation_trusted-root
+// The GitHub private-instance root is deliberately excluded. Root rotation requires
+// a reviewed verifier release; no bundle or command-line input can replace it.
+const TRUSTED_ROOT: &str = include_str!("../../packaging/release-trusted-root.jsonl");
+const RELEASE_IDENTITY: &str =
+    "https://github.com/MONTBRAIN/vadgr/.github/workflows/candidate.yml@refs/heads/master";
+const RELEASE_ISSUER: &str = "https://token.actions.githubusercontent.com";
+const RELEASE_REPOSITORY: &str = "https://github.com/MONTBRAIN/vadgr";
+const RELEASE_REF: &str = "refs/heads/master";
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -63,7 +76,7 @@ struct AcceptedSequence {
 
 impl VerifiedManifest {
     /// Verify the signature before parsing or trusting any manifest field.
-    pub fn open(manifest_path: &Path, signature_path: &Path, public_key: &str) -> Result<Self> {
+    pub fn open(manifest_path: &Path, bundle_path: &Path) -> Result<Self> {
         let metadata =
             std::fs::metadata(manifest_path).context("reading release manifest metadata")?;
         ensure!(
@@ -71,7 +84,23 @@ impl VerifiedManifest {
             "the release manifest is larger than the supported limit"
         );
         let bytes = std::fs::read(manifest_path).context("reading the release manifest")?;
-        verify_signature(&bytes, signature_path, public_key)?;
+        ensure!(
+            bytes.len() as u64 <= MAX_MANIFEST_BYTES,
+            "the release manifest is larger than the supported limit"
+        );
+        let metadata =
+            std::fs::metadata(bundle_path).context("reading release attestation metadata")?;
+        ensure!(
+            metadata.len() <= MAX_BUNDLE_BYTES,
+            "the release attestation is larger than the supported limit"
+        );
+        let bundle =
+            std::fs::read_to_string(bundle_path).context("reading the release attestation")?;
+        ensure!(
+            bundle.len() as u64 <= MAX_BUNDLE_BYTES,
+            "the release attestation is larger than the supported limit"
+        );
+        verify_attestation(&bytes, &bundle)?;
         let manifest: ReleaseManifest =
             serde_json::from_slice(&bytes).context("parsing the verified release manifest")?;
         validate_manifest(&manifest)?;
@@ -228,21 +257,109 @@ fn is_wsl() -> bool {
             .unwrap_or(false)
 }
 
-fn verify_signature(bytes: &[u8], signature_path: &Path, public_key: &str) -> Result<()> {
-    let public_key = public_key.trim();
+fn verify_attestation(bytes: &[u8], encoded: &str) -> Result<()> {
+    // Parsing exactly one JSON value also rejects concatenated JSONL attestations.
+    let bundle = Bundle::from_json(encoded).context("parsing the release attestation")?;
     ensure!(
-        !public_key.is_empty() && !public_key.eq_ignore_ascii_case("unconfigured"),
-        "the release public key is not configured"
+        bundle.version()? == MediaType::Bundle0_3,
+        "unsupported release attestation bundle version"
     );
-    let public_key = PublicKey::from_base64(public_key)
-        .map_err(|error| anyhow!("the release public key is invalid: {error}"))?;
-    let encoded = std::fs::read_to_string(signature_path)
-        .context("reading the release manifest signature")?;
-    let signature = Signature::decode(&encoded)
-        .map_err(|error| anyhow!("the release manifest signature is invalid: {error}"))?;
-    public_key
-        .verify(bytes, &signature, false)
-        .map_err(|error| anyhow!("the release manifest signature did not verify: {error}"))
+    let SignatureContent::DsseEnvelope(envelope) = &bundle.content else {
+        return Err(anyhow!(
+            "the release attestation must contain a DSSE statement"
+        ));
+    };
+    ensure!(
+        envelope.signatures.len() == 1,
+        "the release attestation must contain exactly one signature"
+    );
+    ensure!(
+        envelope.payload_type == "application/vnd.in-toto+json",
+        "unsupported release attestation payload type"
+    );
+    let root =
+        TrustedRoot::from_json(TRUSTED_ROOT).context("loading the embedded release trust root")?;
+    let policy = VerificationPolicy::default()
+        .require_identity(RELEASE_IDENTITY)
+        .require_issuer(RELEASE_ISSUER);
+    // This synchronous API uses only the embedded root and bundle. Keep the
+    // default certificate, SCT, log inclusion/checkpoint and time checks enabled.
+    let verified = Verifier::new(&root)
+        .verify(bytes, &bundle, &policy)
+        .context("the release attestation did not verify")?;
+    ensure!(
+        verified.warnings.is_empty(),
+        "the release attestation produced verification warnings"
+    );
+    let certificate = bundle
+        .signing_certificate()
+        .ok_or_else(|| anyhow!("the release attestation has no signing certificate"))?;
+    let certificate = x509_cert::Certificate::from_der(certificate.as_bytes())
+        .context("parsing the verified release certificate")?;
+    verify_release_certificate(&certificate)?;
+    verify_release_statement(envelope.payload.as_bytes(), bytes)
+}
+
+fn verify_release_certificate(certificate: &x509_cert::Certificate) -> Result<()> {
+    // Fulcio OIDs .8 and later are DER UTF8String, not the legacy raw UTF-8.
+    // https://github.com/sigstore/fulcio/blob/main/docs/oid-info.md
+    for (oid, expected) in [
+        ("1.3.6.1.4.1.57264.1.8", RELEASE_ISSUER),
+        ("1.3.6.1.4.1.57264.1.9", RELEASE_IDENTITY),
+        ("1.3.6.1.4.1.57264.1.11", "github-hosted"),
+        ("1.3.6.1.4.1.57264.1.12", RELEASE_REPOSITORY),
+        ("1.3.6.1.4.1.57264.1.14", RELEASE_REF),
+    ] {
+        let extensions = certificate
+            .tbs_certificate
+            .extensions
+            .as_deref()
+            .unwrap_or_default();
+        let matching = extensions
+            .iter()
+            .filter(|extension| extension.extn_id.to_string() == oid)
+            .collect::<Vec<_>>();
+        ensure!(
+            matching.len() == 1,
+            "the release certificate must contain exactly one required identity claim: {oid}"
+        );
+        let value = Utf8StringRef::from_der(matching[0].extn_value.as_bytes())
+            .context("the release certificate identity claim is malformed")?;
+        ensure!(
+            value.as_str() == expected,
+            "the release certificate identity claim is not authorized: {oid}"
+        );
+    }
+    Ok(())
+}
+
+fn verify_release_statement(payload: &[u8], manifest: &[u8]) -> Result<()> {
+    let statement: serde_json::Value =
+        serde_json::from_slice(payload).context("parsing the verified release statement")?;
+    ensure!(
+        statement["_type"] == "https://in-toto.io/Statement/v1",
+        "unsupported release statement type"
+    );
+    ensure!(
+        statement["predicateType"] == "https://slsa.dev/provenance/v1",
+        "unsupported release provenance type"
+    );
+    let subjects = statement["subject"]
+        .as_array()
+        .ok_or_else(|| anyhow!("the release statement has no subjects"))?;
+    ensure!(
+        subjects.len() == 1,
+        "the release statement must bind exactly one manifest"
+    );
+    ensure!(
+        subjects[0]["name"] == "release-manifest.json",
+        "the release statement names another artifact"
+    );
+    ensure!(
+        subjects[0]["digest"]["sha256"] == sha256_bytes(manifest),
+        "the release statement does not bind these manifest bytes"
+    );
+    Ok(())
 }
 
 fn validate_manifest(manifest: &ReleaseManifest) -> Result<()> {
@@ -368,8 +485,8 @@ fn valid_native_signature(rule: &str, target: &str) -> bool {
         (target.split('-').next(), rule),
         (Some("windows"), "authenticode")
             | (Some("macos"), "developer-id-notarized")
-            | (Some("linux"), "minisign-manifest")
-            | (Some("wsl"), "minisign-manifest")
+            | (Some("linux"), "keyless-manifest")
+            | (Some("wsl"), "keyless-manifest")
     )
 }
 
@@ -411,6 +528,12 @@ mod tests {
     }
 
     #[test]
+    fn linux_requires_keyless_manifest() {
+        assert!(valid_native_signature("keyless-manifest", "linux-x86_64"));
+        assert!(!valid_native_signature("minisign-manifest", "linux-x86_64"));
+    }
+
+    #[test]
     fn validates_the_exact_release_shape() {
         validate_manifest(&manifest()).unwrap();
         let mut row = manifest();
@@ -443,12 +566,161 @@ mod tests {
     }
 
     #[test]
-    fn known_minisign_vector_verifies_and_tampering_fails() {
-        let root = tempfile::tempdir().unwrap();
-        let signature = root.path().join("manifest.minisig");
-        std::fs::write(&signature, "untrusted comment: signature from minisign secret key\nRUQf6LRCGA9i559r3g7V1qNyJDApGip8MfqcadIgT9CuhV3EMhHoN1mGTkUidF/z7SrlQgXdy8ofjb7bNJJylDOocrCo8KLzZwo=\ntrusted comment: timestamp:1556193335\tfile:test\ny/rUw2y8/hOUYjZU71eHp/Wo1KZ40fGy2VJEDl34XMJM+TX48Ss/17u3IvIfbVR1FkZZSNCisQbuQY+bHwhEBg==\n").unwrap();
-        let key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
-        verify_signature(b"test", &signature, key).unwrap();
-        assert!(verify_signature(b"tampered", &signature, key).is_err());
+    fn embedded_root_is_reviewed_public_good_snapshot() {
+        assert_eq!(
+            sha256_bytes(TRUSTED_ROOT.as_bytes()),
+            "3c2cc7f357dc064ec527fdcd78da6e9245c21a381e1abaa0f2b62b186bcac1a1"
+        );
+        TrustedRoot::from_json(TRUSTED_ROOT).unwrap();
+    }
+
+    #[test]
+    fn public_github_attestations_verify_offline_but_are_not_vadgr_releases() {
+        use base64::Engine as _;
+        let artifact = base64::engine::general_purpose::STANDARD
+            .decode(include_str!("../../tests/fixtures/sigstore/package.conda.base64").trim())
+            .unwrap();
+        let root = TrustedRoot::from_json(TRUSTED_ROOT).unwrap();
+        let policy = VerificationPolicy::default()
+            .require_identity("https://github.com/prefix-dev/sigstore-example/.github/workflows/action.yaml@refs/heads/main")
+            .require_issuer(RELEASE_ISSUER);
+        for encoded in [include_str!(
+            "../../tests/fixtures/sigstore/conda-attestation.sigstore.json"
+        )] {
+            let bundle = Bundle::from_json(encoded).unwrap();
+            let verified = Verifier::new(&root)
+                .verify(artifact.as_slice(), &bundle, &policy)
+                .unwrap_or_else(|error| {
+                    panic!(
+                        "log {:?}: {error}",
+                        bundle.verification_material.tlog_entries[0].kind_version
+                    )
+                });
+            assert!(verified.warnings.is_empty(), "{:?}", verified.warnings);
+            assert!(
+                Verifier::new(&root)
+                    .verify(b"tampered".as_slice(), &bundle, &policy)
+                    .is_err()
+            );
+            assert!(verify_attestation(&artifact, encoded).is_err());
+            let certificate =
+                x509_cert::Certificate::from_der(bundle.signing_certificate().unwrap().as_bytes())
+                    .unwrap();
+            assert!(verify_release_certificate(&certificate).is_err());
+            let mut altered = serde_json::from_str::<serde_json::Value>(encoded).unwrap();
+            altered["verificationMaterial"]["tlogEntries"] = serde_json::json!([]);
+            let altered = Bundle::from_json(&altered.to_string()).unwrap();
+            assert!(
+                Verifier::new(&root)
+                    .verify(artifact.as_slice(), &altered, &policy)
+                    .is_err()
+            );
+        }
+        let staging = Bundle::from_json(include_str!(
+            "../../tests/fixtures/sigstore/conda-attestation-rekor2.sigstore.json"
+        ))
+        .unwrap();
+        assert!(
+            Verifier::new(&root)
+                .verify(
+                    artifact.as_slice(),
+                    &staging,
+                    &VerificationPolicy::default()
+                )
+                .is_err()
+        );
+    }
+
+    #[test]
+    fn certificate_policy_requires_every_authenticated_identity_claim() {
+        use x509_cert::der::{Encode, asn1::OctetString};
+        let bundle = Bundle::from_json(include_str!(
+            "../../tests/fixtures/sigstore/conda-attestation.sigstore.json"
+        ))
+        .unwrap();
+        let mut certificate =
+            x509_cert::Certificate::from_der(bundle.signing_certificate().unwrap().as_bytes())
+                .unwrap();
+        let claims = [
+            ("1.3.6.1.4.1.57264.1.8", RELEASE_ISSUER),
+            ("1.3.6.1.4.1.57264.1.9", RELEASE_IDENTITY),
+            ("1.3.6.1.4.1.57264.1.11", "github-hosted"),
+            ("1.3.6.1.4.1.57264.1.12", RELEASE_REPOSITORY),
+            ("1.3.6.1.4.1.57264.1.14", RELEASE_REF),
+        ];
+        // Synthetic claims test policy only. This modified certificate no longer
+        // has a valid signature and is never accepted by verify_attestation.
+        for (oid, expected) in claims {
+            let extensions = certificate.tbs_certificate.extensions.as_mut().unwrap();
+            extensions.retain(|extension| extension.extn_id.to_string() != oid);
+            extensions.push(x509_cert::ext::Extension {
+                extn_id: oid.parse().unwrap(),
+                critical: false,
+                extn_value: OctetString::new(
+                    Utf8StringRef::new(expected).unwrap().to_der().unwrap(),
+                )
+                .unwrap(),
+            });
+        }
+        verify_release_certificate(&certificate).unwrap();
+        for (oid, _) in claims {
+            for mode in 0..4 {
+                let mut altered = certificate.clone();
+                let extensions = altered.tbs_certificate.extensions.as_mut().unwrap();
+                let index = extensions
+                    .iter()
+                    .position(|extension| extension.extn_id.to_string() == oid)
+                    .unwrap();
+                match mode {
+                    0 => {
+                        extensions.remove(index);
+                    }
+                    1 => extensions.push(extensions[index].clone()),
+                    2 => {
+                        extensions[index].extn_value = OctetString::new(
+                            Utf8StringRef::new("unauthorized")
+                                .unwrap()
+                                .to_der()
+                                .unwrap(),
+                        )
+                        .unwrap()
+                    }
+                    _ => {
+                        extensions[index].extn_value =
+                            OctetString::new(b"not DER".to_vec()).unwrap()
+                    }
+                }
+                assert!(
+                    verify_release_certificate(&altered).is_err(),
+                    "accepted {oid} mutation {mode}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn malformed_and_multiple_bundles_fail_closed() {
+        for bundle in ["", "{}", "{}\n{}", "unconfigured"] {
+            assert!(verify_attestation(b"manifest", bundle).is_err());
+        }
+    }
+
+    #[test]
+    fn statement_binds_exact_manifest_and_subject() {
+        let bytes = b"manifest";
+        let mut statement = serde_json::json!({
+            "_type": "https://in-toto.io/Statement/v1",
+            "predicateType": "https://slsa.dev/provenance/v1",
+            "subject": [{"name": "release-manifest.json", "digest": {"sha256": sha256_bytes(bytes)}}]
+        });
+        let encode = |value: &serde_json::Value| serde_json::to_vec(value).unwrap();
+        verify_release_statement(&encode(&statement), bytes).unwrap();
+        assert!(verify_release_statement(&encode(&statement), b"tampered").is_err());
+        statement["subject"][0]["name"] = "other.json".into();
+        assert!(verify_release_statement(&encode(&statement), bytes).is_err());
+        statement["subject"][0]["name"] = "release-manifest.json".into();
+        let duplicate = statement["subject"][0].clone();
+        statement["subject"].as_array_mut().unwrap().push(duplicate);
+        assert!(verify_release_statement(&encode(&statement), bytes).is_err());
     }
 }

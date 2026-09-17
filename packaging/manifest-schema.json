@@ -45,7 +45,7 @@
         "size": { "type": "integer", "minimum": 1 },
         "sha256": { "$ref": "#/$defs/sha256" },
         "native_signature": {
-          "enum": ["authenticode", "developer-id-notarized", "minisign-manifest"]
+          "enum": ["authenticode", "developer-id-notarized", "keyless-manifest"]
         }
       }
     }

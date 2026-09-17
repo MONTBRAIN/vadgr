@@ -1,6 +1,6 @@
 //! Native Linux AppImage installation and retained-generation lifecycle.
 
-use super::{InstallReceipt, RELEASE_PUBLIC_KEY, VerifiedManifest, record_terms_acceptance};
+use super::{InstallReceipt, VerifiedManifest, record_terms_acceptance};
 use anyhow::{Context, Result, anyhow, ensure};
 use std::os::unix::fs::{PermissionsExt, symlink};
 use std::path::{Path, PathBuf};
@@ -52,7 +52,7 @@ where
         target.starts_with("linux-"),
         "the AppImage installer runs only on native Linux"
     );
-    let verified = VerifiedManifest::open(manifest_path, signature_path, RELEASE_PUBLIC_KEY)?;
+    let verified = VerifiedManifest::open(manifest_path, signature_path)?;
     let artifact = verified.artifact_for_target(&target)?;
     ensure!(
         artifact.kind == "appimage",
@@ -153,8 +153,10 @@ pub fn repair(receipt: &InstallReceipt) -> Result<()> {
         "this is not a Linux AppImage installation"
     );
     let manifest_path = receipt.install_root.join("release-manifest.json");
-    let signature_path = receipt.install_root.join("release-manifest.json.minisig");
-    let verified = VerifiedManifest::open(&manifest_path, &signature_path, RELEASE_PUBLIC_KEY)?;
+    let signature_path = receipt
+        .install_root
+        .join("release-manifest.json.bundle.jsonl");
+    let verified = VerifiedManifest::open(&manifest_path, &signature_path)?;
     let artifact = verified.artifact_for_target(&super::manifest::current_target()?)?;
     let cached = receipt.install_root.join("cache").join(&artifact.name);
     verified.verify_bytes_at(&cached, &artifact)?;
@@ -214,8 +216,7 @@ pub fn rollback_appimage() -> Result<String> {
 fn verify_and_restore_generation(generation: &Path) -> Result<()> {
     let verified = VerifiedManifest::open(
         &generation.join("release-manifest.json"),
-        &generation.join("release-manifest.json.minisig"),
-        RELEASE_PUBLIC_KEY,
+        &generation.join("release-manifest.json.bundle.jsonl"),
     )?;
     let artifact = verified.artifact_for_target(&super::manifest::current_target()?)?;
     ensure!(
@@ -293,7 +294,7 @@ fn stage_generation(
         .context("staging the release manifest")?;
     std::fs::copy(
         signature_path,
-        staging.join("release-manifest.json.minisig"),
+        staging.join("release-manifest.json.bundle.jsonl"),
     )
     .context("staging the manifest signature")?;
     copy_tree(&bundle_root.join("legal"), &staging.join("legal"))

@@ -105,7 +105,7 @@ enum Command {
         #[arg(long)]
         manifest: PathBuf,
         #[arg(long)]
-        signature: PathBuf,
+        bundle: PathBuf,
     },
     /// Verify one release artifact without executing it.
     #[command(name = "__verify-release-artifact", hide = true)]
@@ -113,7 +113,7 @@ enum Command {
         #[arg(long)]
         manifest: PathBuf,
         #[arg(long)]
-        signature: PathBuf,
+        bundle: PathBuf,
         #[arg(long)]
         target: String,
         #[arg(long)]
@@ -441,16 +441,10 @@ async fn main() {
             }
             Some(Command::PurgeOwnerState) => vadgr_daemon::install::purge_owner_state()
                 .map_err(|error| CliError::Failed(error.to_string())),
-            Some(Command::AcceptReleaseSequence {
-                manifest,
-                signature,
-            }) => {
+            Some(Command::AcceptReleaseSequence { manifest, bundle }) => {
                 let result = (|| -> anyhow::Result<()> {
-                    let verified = vadgr_daemon::install::VerifiedManifest::open(
-                        &manifest,
-                        &signature,
-                        vadgr_daemon::install::RELEASE_PUBLIC_KEY,
-                    )?;
+                    let verified =
+                        vadgr_daemon::install::VerifiedManifest::open(&manifest, &bundle)?;
                     let state = vadgr_daemon::config::Config::from_env()
                         .map_err(|error| anyhow::anyhow!(error.to_string()))?
                         .state_home
@@ -461,16 +455,13 @@ async fn main() {
             }
             Some(Command::VerifyReleaseArtifact {
                 manifest,
-                signature,
+                bundle,
                 target,
                 artifact,
             }) => {
                 let result = (|| -> anyhow::Result<()> {
-                    let verified = vadgr_daemon::install::VerifiedManifest::open(
-                        &manifest,
-                        &signature,
-                        vadgr_daemon::install::RELEASE_PUBLIC_KEY,
-                    )?;
+                    let verified =
+                        vadgr_daemon::install::VerifiedManifest::open(&manifest, &bundle)?;
                     let row = verified.verify_artifact(&artifact, &target)?;
                     if row.artifact.kind == "tar.gz" {
                         vadgr_daemon::install::validate_tar_gz(&artifact)?;

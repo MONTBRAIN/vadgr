@@ -1,8 +1,6 @@
 //! Signed update discovery and native vehicle handoff.
 
-use super::{
-    InstallReceipt, RELEASE_PUBLIC_KEY, VerifiedManifest, current_target, require_receipt,
-};
+use super::{InstallReceipt, VerifiedManifest, current_target, require_receipt};
 use anyhow::{Context, Result, anyhow, ensure};
 use futures_util::StreamExt;
 use serde::Serialize;
@@ -97,7 +95,7 @@ pub(super) fn verify_native_vehicle(
 fn fetch_manifest(receipt: &InstallReceipt, staging: &DownloadStaging) -> Result<VerifiedManifest> {
     let origin = origin(receipt)?;
     let manifest = staging.root.join("release-manifest.json");
-    let signature = staging.root.join("release-manifest.json.minisig");
+    let signature = staging.root.join("release-manifest.json.bundle.jsonl");
     fetch(
         &origin,
         "release-manifest.json",
@@ -106,11 +104,11 @@ fn fetch_manifest(receipt: &InstallReceipt, staging: &DownloadStaging) -> Result
     )?;
     fetch(
         &origin,
-        "release-manifest.json.minisig",
+        "release-manifest.json.bundle.jsonl",
         &signature,
         Some(64 * 1024),
     )?;
-    VerifiedManifest::open(&manifest, &signature, RELEASE_PUBLIC_KEY)
+    VerifiedManifest::open(&manifest, &signature)
 }
 
 fn origin(receipt: &InstallReceipt) -> Result<String> {

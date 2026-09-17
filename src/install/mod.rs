@@ -13,10 +13,7 @@ mod archive;
 mod manifest;
 pub use archive::validate_tar_gz;
 mod update;
-pub use manifest::{
-    Artifact, RELEASE_PUBLIC_KEY, ReleaseManifest, VerifiedArtifact, VerifiedManifest,
-    current_target,
-};
+pub use manifest::{Artifact, ReleaseManifest, VerifiedArtifact, VerifiedManifest, current_target};
 pub use update::{UpdateCheck, apply_update, check_for_updates};
 #[cfg(target_os = "linux")]
 mod linux;
