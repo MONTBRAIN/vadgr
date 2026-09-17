@@ -20,3 +20,11 @@ def test_candidate_is_bounded_before_and_after_activation():
     assert "timeout -k 5s 30s \"$PAYLOAD/bin/vadgr\" --version" in installer
     assert installer.index("timeout -k 5s 30s") < installer.index("mv -- \"$PAYLOAD\" \"$staging\"")
     assert installer.count('timeout -k 5s 60s "$CURRENT/bin/vadgr" restart') == 2
+
+
+def test_unsupported_libc_refused_before_fetch_without_blocking_uninstall():
+    installer = (ROOT / "install.sh").read_text()
+    assert "getconf GNU_LIBC_VERSION" in installer
+    assert "glibc 2.35 or newer" in installer
+    assert installer.index("  uninstall)") < installer.index("getconf GNU_LIBC_VERSION")
+    assert installer.index("getconf GNU_LIBC_VERSION") < installer.index("fetch release-manifest.json")

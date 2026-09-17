@@ -144,8 +144,10 @@ the visual and accessibility oracle.
   protected environment.
 - Linux: clean x86_64 and aarch64 targets, X11 and Wayland sessions, optional
   FUSE, and separate approval before a distro package manager changes anything.
-- WSL: clean x64 and arm64 distributions where supported. No GUI, service,
-  autostart or Windows mutation is permitted.
+- WSL: clean x64 and arm64 distributions where supported, including an Ubuntu
+  22.04 WSL baseline with glibc 2.35 and a current Ubuntu distribution. An
+  older glibc or musl-only fixture must refuse installation before mutation.
+  No GUI, service, autostart or Windows mutation is permitted.
 - Mac and native Linux leads: read the merged release design before preparing
   a candidate. Do not generate a permanent offline manifest key or request
   encrypted key backups. The candidate now requires an immutable

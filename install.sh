@@ -93,6 +93,22 @@ case "$ACTION" in
   *) usage >&2; exit 64 ;;
 esac
 
+glibc=$(getconf GNU_LIBC_VERSION 2>/dev/null || true)
+case "$glibc" in
+  'glibc 2.'*)
+    minor=${glibc#glibc 2.}
+    case "$minor" in ''|*[!0-9]*) minor=0 ;; esac
+    [ "$minor" -ge 35 ] || {
+      echo "Vadgr 0.5.0 for WSL requires glibc 2.35 or newer (Ubuntu 22.04 or newer)." >&2
+      exit 2
+    }
+    ;;
+  *)
+    echo "Vadgr 0.5.0 for WSL requires a glibc-based distribution (2.35 or newer)." >&2
+    exit 2
+    ;;
+esac
+
 TMP_ROOT=$(mktemp -d "${TMPDIR:-/tmp}/vadgr-install.XXXXXXXX")
 cleanup() { rm -rf -- "$TMP_ROOT"; }
 trap cleanup EXIT HUP INT TERM
