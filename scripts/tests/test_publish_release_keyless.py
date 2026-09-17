@@ -18,6 +18,8 @@ def check_policy(text: str) -> None:
     assert "--source-ref refs/heads/master --deny-self-hosted-runners" in text
     assert "--manifest assets/release-manifest.json --bundle assets/release-manifest.json.bundle.jsonl" in text
     assert "release-manifest.json.minisig" not in text
+    assert "      - name: Verify the keyless manifest bundle before trusting artifact metadata\n        env:\n          GH_TOKEN: ${{ github.token }}" in text
+    assert "id-token: write" not in text
 
 
 def test_publish_gate_checks_keyless_policy_before_reading_untrusted_manifest():
