@@ -60,7 +60,10 @@ repository, internal document or path, decision id, evidence, runbook,
 development phase, planned minor or editorial note. A canonical user-facing
 block in a private design document follows the same rule. Put the rationale
 outside that block in private prose. Then render and read the exact user text
-and scan it for internal names before release.
+and scan it for internal names before release. One narrow exception is a
+disabled control whose backing capability has a registered release: its visible
+availability label names the exact public version, such as `Available in
+0.6.0`. The label names no phase, private plan or internal note.
 
 **2. No AI attribution, anywhere, and it is checked.** No `Co-Authored-By`, no
 "generated with", no credit to a tool - in commits, PR bodies, comments or
@@ -222,6 +225,16 @@ so the design stays the source of truth and the next reader is not misled by a
 spec describing what was replaced. A design left describing the code that no
 longer exists is a defect, the same as a stale comment. This holds in every repo
 in this family.
+
+**Every new or changed diagram requires a visual review before the PR is
+offered or merged.** Render the final source and open every rendered diagram
+at its intended reading size. Inspect labels, clipping, contrast, spacing,
+arrow direction, edge crossings and agreement with the surrounding text.
+Check light and dark themes where supported. Split an overcrowded diagram
+rather than shrink it until unreadable. Re-render and inspect after every
+diagram edit. Record the renderer/version, diagrams checked and result in the
+PR; source inspection or a successful parser is not a visual pass. If rendering
+or inspection is unavailable, report the block and do not claim completion.
 
 **CI is not an e2e pass.** The automated gate builds an environment and runs the
 unit suites. It drives no session, calls nothing over the wire and reaches no
@@ -643,6 +656,14 @@ branches deleted local and remote, every repo back on its default branch, then
 `PROGRESS.md` updated and the next item named - read from `PLANS.md`'s
 iteration table, not decided.
 
+**A release closes every issue it fully resolves.** Before merge, compare the
+minor's scope and changelog with that repository's open issues. Put
+`Closes #NN` in the implementation PR for each fully resolved issue. GitHub closes
+it when the PR merges. A related or partly resolved issue stays open and gets a
+comment naming the remaining gap and the release that owns it. After release,
+verify every referenced issue is closed and links to the merged PR and release.
+If GitHub missed one, close it immediately with those references.
+
 **The README is checked, because it was wrong in all three repos at once.**
 `scripts/check_readme_touched.py` fails a pull request that moves a version and
 touches no README. It cannot read a README for truth; it can see the shape all
@@ -688,6 +709,20 @@ offered.
 
 - **The e2e runbook lives at `E2E/<version>/e2e.md`**, starts from
   `E2E/TEMPLATE.md`, and its doctrine is `E2E/README.md`, all in this repo.
+- **The agent drives every native console action that the platform accessibility
+  interface can perform.** It discovers controls from the accessibility tree,
+  acts on their semantic roles, and confirms changes with a fresh structured
+  read. It also captures the exact application client area without requiring
+  focus, inspects the image against the approved mockup, and checks the daemon,
+  package manager or operating system as the independent oracle. The owner acts
+  only at an unavoidable physical or protected boundary after the agent prepares
+  the exact state and gives one explicit instruction.
+- **A native console has no silent dead controls.** Every enabled control works
+  in this minor and has an independent E2E oracle. A future control is disabled
+  and visibly names the exact registered minor that enables it. A control which
+  is unavailable only because of current machine state shows that truthful
+  reason instead. An enabled no-op, an inaccessible control, or an unlabeled
+  future control is a finding.
 
 The gate, before offering anything:
 

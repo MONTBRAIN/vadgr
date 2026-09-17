@@ -7,12 +7,15 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class ReleaseSigning(unittest.TestCase):
     def test_credentials_are_only_in_sign_steps(self):
-        workflow = (ROOT / '.github/workflows/release.yml').read_text()
+        workflow = (ROOT / '.github/workflows/candidate.yml').read_text()
         steps = workflow.split('      - name: ')
         secret_steps = [step for step in steps if 'secrets.ES_PASSWORD' in step]
         self.assertEqual(len(secret_steps), 4)
         for step in secret_steps:
             self.assertIn('release.ps1 -Mode sign', step)
+            self.assertIn('-Authorization authorization.json', step)
+            self.assertIn('-Qualification qualification.json', step)
+            self.assertIn('-Claim claim.json', step)
             self.assertNotIn('dotnet build', step)
             self.assertNotIn('cargo rustc', step)
         self.assertNotIn('$signTool sign', workflow)
@@ -30,7 +33,9 @@ class ReleaseSigning(unittest.TestCase):
     def test_one_shot_ledger_and_independent_verifier(self):
         source = (ROOT / 'scripts/signing/release.ps1').read_text()
         self.assertIn("$env:GITHUB_RUN_ATTEMPT -ne '1'", source)
-        self.assertIn("$env:GITHUB_REF_TYPE -ne 'tag'", source)
+        self.assertIn("$env:GITHUB_REF_TYPE -ne 'branch'", source)
+        self.assertIn("$env:GITHUB_REF -ne 'refs/heads/master'", source)
+        self.assertIn('candidate_claims.py', source)
         self.assertLess(source.index('Reserve-Attempt $inputFile'), source.index("Invoke-Wrapper 'sign'"))
         self.assertIn('verify /pa /all /tw /v', source)
         self.assertIn('TimeStamperCertificate', source)

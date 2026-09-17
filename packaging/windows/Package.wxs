@@ -41,8 +41,8 @@
       <ComponentRef Id="VadgrBackend" />
       <ComponentRef Id="VadgrApplication" />
       <ComponentRef Id="PackageMetadata" />
-      <ComponentRef Id="LegalPayload" />
-      <ComponentRef Id="SbomPayload" />
+      <ComponentGroupRef Id="LegalPayload" />
+      <ComponentGroupRef Id="SbomPayload" />
       <ComponentRef Id="InstallFolderCleanup" />
       <ComponentRef Id="StartMenuEntry" />
       <ComponentRef Id="StartupEntry" />
@@ -60,20 +60,9 @@
     <Component Id="PackageMetadata" Directory="INSTALLFOLDER" Guid="{720A2781-42CC-4CA3-892B-3C5863957166}">
       <File Id="InstallReceiptFile" Source="$(var.PayloadDir)\install-receipt.json" />
       <File Id="OfflineReadmeFile" Source="$(var.PayloadDir)\README-OFFLINE.txt" />
+      <File Id="PackageInputInventoryFile" Source="$(var.PayloadDir)\package-input-inventory.json" />
+      <File Id="PackageInputReviewFile" Source="$(var.PayloadDir)\package-input-review.json" />
       <RegistryValue Root="HKCU" Key="Software\MONTBRAIN\Vadgr\Components" Name="Metadata" Type="integer" Value="1" KeyPath="yes" />
-    </Component>
-    <Component Id="LegalPayload" Directory="LegalFolder" Guid="{A9E7B842-2C30-44D8-BBD3-78EE0C68C8EE}">
-      <File Source="$(var.PayloadDir)\legal\TERMS.txt" />
-      <File Source="$(var.PayloadDir)\legal\PRIVACY-NOTICE.txt" />
-      <File Source="$(var.PayloadDir)\legal\SECURITY-AND-PERMISSIONS.txt" />
-      <File Source="$(var.PayloadDir)\legal\THIRD-PARTY-NOTICES.txt" />
-      <File Source="$(var.PayloadDir)\legal\SUPPORT.txt" />
-      <File Source="$(var.PayloadDir)\legal\UNINSTALL-AND-DATA.txt" />
-      <RegistryValue Root="HKCU" Key="Software\MONTBRAIN\Vadgr\Components" Name="Legal" Type="integer" Value="1" KeyPath="yes" />
-    </Component>
-    <Component Id="SbomPayload" Directory="SbomFolder" Guid="{23A654B1-EF22-491A-9C39-B0078A8C8753}">
-      <File Source="$(var.PayloadDir)\sbom\vadgr-0.5.0.spdx.json" />
-      <RegistryValue Root="HKCU" Key="Software\MONTBRAIN\Vadgr\Components" Name="Sbom" Type="integer" Value="1" KeyPath="yes" />
     </Component>
     <Component Id="InstallFolderCleanup" Directory="INSTALLFOLDER" Guid="{F769D82B-844F-4D60-B8CE-8F1A39032D9F}">
       <RegistryValue Root="HKCU" Key="Software\MONTBRAIN\Vadgr\Components" Name="Folders" Type="integer" Value="1" KeyPath="yes" />

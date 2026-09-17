@@ -15,10 +15,10 @@ fn workflow_source_reader_accepts_lf_and_crlf_without_changing_the_tag_guard() {
     for text in [source.clone(), source.replace('\n', "\r\n")] {
         std::fs::write(&path, &text).unwrap();
         let workflow = repo_file(path.to_str().unwrap());
-        assert!(workflow.contains("tags:\n      - v*"));
+        assert!(workflow.contains("tags:\n      - 'v*'"));
         assert_eq!(workflow, source);
-        std::fs::write(&path, text.replace("- v*", "- untrusted*")).unwrap();
-        assert!(!repo_file(path.to_str().unwrap()).contains("tags:\n      - v*"));
+        std::fs::write(&path, text.replace("- 'v*'", "- 'untrusted*'")).unwrap();
+        assert!(!repo_file(path.to_str().unwrap()).contains("tags:\n      - 'v*'"));
     }
 }
 
@@ -49,24 +49,26 @@ fn assert_actions_are_full_sha(workflow: &str) {
 }
 
 #[test]
-fn candidate_is_manual_secret_free_and_builds_the_complete_matrix() {
+fn candidate_is_manual_protected_and_builds_without_attesting_unreviewed_platforms() {
     let workflow = repo_file(".github/workflows/candidate.yml");
     assert!(workflow.contains("workflow_dispatch:"));
     assert!(!workflow.contains("pull_request_target"));
     assert!(!workflow.contains("workflow_run"));
-    assert!(!workflow.contains("secrets."));
     assert!(workflow.contains("cancel-in-progress: false"));
     for target in [
         "candidate-linux-${{ matrix.arch }}",
         "candidate-wsl-${{ matrix.arch }}",
-        "candidate-macos-${{ matrix.arch }}",
-        "candidate-windows-${{ matrix.arch }}",
-        "ubuntu-24.04-arm",
+        "sign-windows:",
+        "attest:",
+        "refs/heads/master",
+        "-Authorization authorization.json",
+        "release-manifest.json.bundle.jsonl",
         "windows-11-arm",
-        "macos-15-intel",
     ] {
         assert!(workflow.contains(target), "candidate omits {target}");
     }
+    assert!(workflow.contains("secrets.ES_PASSWORD"));
+    assert!(!workflow.contains("subject-path: held/**/*"));
     assert_actions_are_full_sha(&workflow);
 }
 
@@ -74,14 +76,14 @@ fn candidate_is_manual_secret_free_and_builds_the_complete_matrix() {
 fn candidate_payloads_are_assembled_outside_the_source_checkout() {
     let workflow = repo_file(".github/workflows/candidate.yml");
     assert!(!workflow.contains("--install-root \"$PWD/dist/payload\""));
-    assert_eq!(workflow.matches("$RUNNER_TEMP/vadgr-payload").count(), 3);
-    assert_eq!(workflow.matches("$env:RUNNER_TEMP").count(), 1);
-    assert_eq!(workflow.matches("dist/payload").count(), 9);
+    assert_eq!(workflow.matches("$RUNNER_TEMP/vadgr-payload").count(), 2);
+    assert!(workflow.contains("scripts/candidate/build-windows.ps1"));
+    assert!(!workflow.contains("--install-root \"$PWD/source_checkout"));
 }
 
 #[test]
 fn macos_candidate_assembles_payload_beside_the_responsible_host() {
-    let workflow = repo_file(".github/workflows/candidate.yml");
+    let workflow = repo_file(".github/workflows/signed-candidate-macos.yml");
     assert!(workflow.contains(
         "cargo build --locked --release --features macos-cua-host --bin vadgr --bin vadgr-cua-host"
     ));
@@ -94,12 +96,16 @@ fn macos_candidate_assembles_payload_beside_the_responsible_host() {
 #[test]
 fn candidate_invokes_non_executable_packaging_sources_through_the_shell() {
     let workflow = repo_file(".github/workflows/candidate.yml");
-    for source in ["linux", "wsl", "macos"] {
+    for source in ["linux", "wsl"] {
         assert!(
             workflow.contains(&format!("sh packaging/{source}/build.sh 0.5.0")),
             "candidate executes the non-executable {source} package source directly"
         );
     }
+    assert!(
+        repo_file(".github/workflows/signed-candidate-macos.yml")
+            .contains("sh packaging/macos/build.sh 0.5.0")
+    );
 }
 
 #[test]
@@ -119,30 +125,25 @@ fn windows_import_gate_accepts_native_gui_system_libraries_but_not_the_vc_runtim
 }
 
 #[test]
-fn release_is_signed_tag_only_and_separates_protected_environments() {
+fn tag_triggered_release_remains_disabled_without_rebuilding_or_resigning() {
     let workflow = repo_file(".github/workflows/release.yml");
-    assert!(workflow.contains("tags:\n      - v*"));
+    assert!(workflow.contains("tags:\n      - 'v*'"));
     assert!(!workflow.contains("workflow_dispatch:"));
-    assert!(workflow.contains("git verify-tag --raw"));
-    assert!(workflow.contains("environment: release-windows"));
-    assert!(workflow.contains("environment: release-macos"));
-    assert!(workflow.contains("burn detach"));
-    assert!(workflow.contains("xcrun notarytool submit"));
-    assert!(workflow.contains("--draft --verify-tag"));
-    assert!(workflow.contains("cancel-in-progress: false"));
+    assert!(workflow.contains("Tag-triggered rebuild and signing are disabled"));
+    assert!(!workflow.contains("uses: ./.github/workflows/candidate.yml"));
+    assert!(!workflow.contains("secrets."));
     assert_actions_are_full_sha(&workflow);
 }
 
 #[test]
 fn signing_inputs_are_environment_scoped_and_never_literal_values() {
-    let workflow = repo_file(".github/workflows/release.yml");
-    for name in [
-        "MACOS_APPLICATION_IDENTITY",
-        "MACOS_INSTALLER_IDENTITY",
-        "APPROVED_TAG_SIGNER_FINGERPRINT",
-    ] {
-        assert!(workflow.contains(&format!("vars.{name}")));
-    }
+    let workflow = repo_file(".github/workflows/candidate.yml");
+    assert!(workflow.contains("environment: candidate-windows"));
+    assert!(workflow.contains("environment: candidate-authorize"));
+    assert!(
+        repo_file(".github/workflows/signed-candidate-macos.yml")
+            .contains("environment: release-macos")
+    );
     assert!(!workflow.contains("BEGIN PRIVATE KEY"));
     assert!(!workflow.contains(".p12"));
     assert!(!workflow.contains(".pfx"));

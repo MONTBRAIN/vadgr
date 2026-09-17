@@ -87,9 +87,11 @@ def test_build_cannot_receive_signing_secrets():
 
 def test_legacy_tag_workflow_stops_before_checkout_or_signing():
     text = (ROOT / ".github/workflows/release.yml").read_text()
-    first_job = text.split("  validate-tag:\n", 1)[1].split("\n  build:\n", 1)[0]
-    assert first_job.index("exit 2") < first_job.index("uses: actions/checkout@")
-    assert "legacy rebuild-and-sign path is disabled" in first_job
+    assert "exit 1" in text
+    assert "Tag-triggered rebuild and signing are disabled" in text
+    assert "uses: actions/checkout@" not in text
+    assert "uses: ./.github/workflows/candidate.yml" not in text
+    assert "secrets." not in text
 
 
 def validate_gate_matrix(text):

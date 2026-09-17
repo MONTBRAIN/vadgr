@@ -36,6 +36,21 @@ Describe your work in a sentence. Vadgr runs it on your machine - writing code, 
 Vadgr carries its pinned desktop-automation and Python runtime. An installed
 machine needs no checkout, system Python, pip, uv, Rust, Git or Node.js.
 
+Release engineering uses a manually approved, default-branch candidate workflow.
+Windows candidates remain unpublished while signatures, approved legal inputs
+and installation behaviour are checked. A keyless manifest attestation binds
+the held installer and its legal and SBOM hashes; its offline verification
+bundle is retained with the candidate. This does not replace Windows code
+signing, approve unreviewed terms, or make an untested candidate a release.
+
+Vadgr runs on **Linux**, **WSL**, **Windows** and **macOS**.
+On macOS `0.4.12`, grant Accessibility and Screen Recording to the terminal
+named by the operating-system dialogs, restart that terminal, and start vadgr
+from it. Those grants do not follow the private interpreter into a login,
+`launchd` or independently started daemon. The signed `0.5.0` distribution owns
+the stable application identity required for those background launches. The
+installer also sets up git and the build toolchain. No browser is required.
+
 - Windows uses the signed `Vadgr-0.5.0-windows-<arch>-setup.exe` wizard.
 - macOS uses the signed and notarized `Vadgr-0.5.0-macos-<arch>.pkg` wizard.
 - native Linux uses the graphical

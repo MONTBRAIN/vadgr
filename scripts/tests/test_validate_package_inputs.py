@@ -33,7 +33,10 @@ def make_approved_fixture(root: Path, source_root: Path, *, version=VERSION, tar
     for name in package.SOURCE_INPUTS:
         path = source_root / name
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes((REPO / name).read_bytes())
+        if name == "packaging/toolchain.json":
+            path.write_bytes(b'{"schema":1,"fixture":true}\n')
+        else:
+            path.write_bytes((REPO / name).read_bytes())
     (source_root / "Cargo.toml").write_text(f'[package]\nname="synthetic-vadgr"\nversion="{version}"\n', encoding="utf-8")
     pins = tomllib.loads((source_root / "packaging/cua/pins.toml").read_text())
     hashes = {name: package.sha256_bytes((source_root / name).read_bytes()) for name in package.SOURCE_INPUTS}

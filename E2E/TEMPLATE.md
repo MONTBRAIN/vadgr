@@ -218,6 +218,14 @@ present in a given runbook, the entry is all there is.
     names the exact registered minor that enables it. A current-state limitation
     shows its truthful reason instead. [Native console driving]
 
+23. **Local development artifacts are unsigned. Production signing belongs to
+    protected CD.** A signed candidate is identified by its source commit and
+    hash, then tested as a separate subject. A runbook may declare one narrow
+    first-signing bootstrap exception while its signing service is unavailable.
+    That exception can change only the PR-opening gate. It cannot turn a signing
+    cell green or permit merge or release, and it expires when CD can produce
+    signed candidates. [Unsigned development and signed CD candidates]
+
 **A pass is finished, not paused, and reporting is not a stopping point.** A
 checkpoint or a progress summary does not end your turn: write it and keep
 driving in the same turn. A pass ends when every cell carries a verdict or a
@@ -833,6 +841,56 @@ check is a finding like any other: it is fixed and the cells it invalidates are
 run again, or it is written down with its reason. This is here because a `0.4.9`
 pull request was offered as finished while its Windows job was still running,
 and that job went red.
+
+## Unsigned development and signed CD candidates
+
+<Use this section when a minor adds or changes a signed application, installer
+or package. Delete it when the minor has no signing surface.>
+
+Local development, debugging and the ordinary host pass use an unsigned
+development artifact. Label it as development-only. Record its exact source
+commit and hash. Do not copy a production signing key, token or certificate to a
+workstation. An unsigned pass proves product behavior. It proves no publisher
+identity, trust chain, timestamp, notarization, designated requirement or
+operating-system reputation behavior.
+
+Production signing runs only in protected CD while the implementation PR is
+open. CD builds from the frozen pushed head, records artifact provenance and
+hashes, signs without exporting the credential, and holds the candidate from
+publication. The runbook treats that signed output as a new subject. Run
+artifact identity, installation, update, rollback, uninstall and every
+signature-dependent cell against its exact hash. A fix creates a new candidate
+and invalidates the earlier signed verdicts.
+
+**A first-signing bootstrap exception changes only the PR-opening gate.** A
+runbook can use it only when that minor creates the protected signing path and
+the external signing service is not issued or usable. The runbook names the
+external condition and the event that expires the exception. One real OS can
+pass the unsigned development artifact and open the implementation PR for
+cross-platform work. Every unavailable signing cell stays `not run` or
+`blocked` with the exact condition. It cannot be marked `pass`, inherited from
+an unsigned artifact or omitted. The exact signed CD output must pass before
+merge and release.
+
+The exception ends when protected CD can produce signed candidates. After that,
+a PR that changes signing, packaging, installation or platform trust must first
+run the applicable signed-candidate cells on one real OS. Push the branch, invoke
+the protected non-publishing CD candidate workflow, test its exact output, then
+open the PR. Local work remains unsigned. The other required operating systems
+consume that PR branch and its recorded candidate. Every required signed cell
+passes before merge.
+
+Merge and release promote the exact signed bytes that passed. CD does not rebuild
+or re-sign them after the pass. Before publication, compare the held artifact's
+SHA-256, provenance and platform signature with the recorded candidate. This is
+an identity check, not a new E2E pass. Any changed byte, source tree or signature
+stops release and creates a new candidate that must run the affected E2E cells.
+
+| stage | artifact | required identity | gate |
+|---|---|---|---|
+| local development | unsigned development build | source commit and SHA-256 | one real OS opens the PR; every required development OS still gates completion |
+| protected CD candidate | signed, not public | frozen PR head, source-tree hash, workflow run, provenance, SHA-256 and platform signature | every required signed cell passes before merge |
+| release promotion | the same tested bytes | candidate SHA-256, provenance and signature match exactly | identity check before publication; no new E2E pass |
 
 ## Coverage
 

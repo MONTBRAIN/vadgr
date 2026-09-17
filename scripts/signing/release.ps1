@@ -2,6 +2,9 @@ param(
     [Parameter(Mandatory)][ValidateSet('prepare', 'sign', 'complete')][string] $Mode,
     [string[]] $Files,
     [int] $Budget = 0,
+    [string] $Authorization,
+    [string] $Claim,
+    [string] $Qualification,
     [string] $Root = (Join-Path $env:RUNNER_TEMP "release-signing-$env:GITHUB_RUN_ID")
 )
 $ErrorActionPreference = 'Stop'
@@ -81,12 +84,18 @@ if ($Mode -eq 'prepare') {
 }
 
 if ($env:GITHUB_ACTIONS -ne 'true' -or $env:GITHUB_REPOSITORY -ne 'MONTBRAIN/vadgr' -or
-    $env:GITHUB_REF_TYPE -ne 'tag' -or $env:GITHUB_REF -notmatch '^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$' -or
+    $env:GITHUB_REF_TYPE -ne 'branch' -or $env:GITHUB_REF -ne 'refs/heads/master' -or
     $env:GITHUB_RUN_ATTEMPT -ne '1') {
-    throw 'Signing is restricted to the first attempt of an approved release tag.'
+    throw 'Signing is restricted to the first attempt of an approved default-branch candidate.'
 }
+if (-not $Authorization -or -not $Claim -or -not $Qualification) { throw 'The protected authorization and durable claim are required.' }
+$policy = Join-Path (Split-Path -Parent $PSScriptRoot) 'candidate_claims.py'
+& python $policy verify --authorization $Authorization --qualification $Qualification --claim $Claim
+if ($LASTEXITCODE -ne 0) { throw 'The protected signing claim did not verify.' }
+$approved = Get-Content -Raw -LiteralPath $Authorization | ConvertFrom-Json
 $ledgerPath = Join-Path $Root 'ledger.json'
 $ledger = Get-Content -Raw -LiteralPath $ledgerPath | ConvertFrom-Json
+if ($ledger.budget -ne $approved.budget) { throw 'The local budget differs from the protected authorization.' }
 if ($Mode -eq 'complete') {
     if (@($ledger.attempts).Count -ne $ledger.budget) { throw 'The signature quota does not match the completed layers.' }
     Write-Output "Verified signing attempts: $($ledger.attempts.Count). No retry performed."
