@@ -14,6 +14,12 @@ def test_pre_pr_ci_only_adds_named_candidate_source_branch():
     assert not re.search(r'^\s+environment:', workflow, re.MULTILINE)
 
 
+def test_all_required_secret_gate_runners_are_emitted():
+    workflow = (ROOT / '.github/workflows/secret-scan.yml').read_text()
+    gates = workflow.split('\n  gate-tests:', 1)[1]
+    assert 'os: [ubuntu-latest, windows-latest, macos-15]' in gates
+
+
 def test_dispatch_is_default_branch_only_and_one_shot():
     workflow = (ROOT / '.github/workflows/candidate.yml').read_text()
     assert 'workflow_dispatch:' in workflow
