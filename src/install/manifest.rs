@@ -421,7 +421,10 @@ fn validate_manifest(manifest: &ReleaseManifest) -> Result<()> {
                 "a {prefix} inventory path is unsafe"
             );
             ensure!(
-                valid_sha256(digest),
+                digest.len() == 64
+                    && digest
+                        .bytes()
+                        .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte)),
                 "a {prefix} inventory digest is invalid"
             );
         }
@@ -575,6 +578,10 @@ mod tests {
         let mut row = manifest();
         row.sbom_hashes.clear();
         assert!(validate_manifest(&row).is_err());
+        let mut row = manifest();
+        row.sbom_hashes
+            .insert("sbom/release.json".to_owned(), "A".repeat(64));
+        assert!(validate_manifest(&row).is_err());
     }
 
     #[test]
@@ -620,38 +627,35 @@ mod tests {
         let policy = VerificationPolicy::default()
             .require_identity("https://github.com/prefix-dev/sigstore-example/.github/workflows/action.yaml@refs/heads/main")
             .require_issuer(RELEASE_ISSUER);
-        for encoded in [include_str!(
-            "../../tests/fixtures/sigstore/conda-attestation.sigstore.json"
-        )] {
-            let bundle = Bundle::from_json(encoded).unwrap();
-            let verified = Verifier::new(&root)
-                .verify(artifact.as_slice(), &bundle, &policy)
-                .unwrap_or_else(|error| {
-                    panic!(
-                        "log {:?}: {error}",
-                        bundle.verification_material.tlog_entries[0].kind_version
-                    )
-                });
-            assert!(verified.warnings.is_empty(), "{:?}", verified.warnings);
-            assert!(
-                Verifier::new(&root)
-                    .verify(b"tampered".as_slice(), &bundle, &policy)
-                    .is_err()
-            );
-            assert!(verify_attestation(&artifact, encoded).is_err());
-            let certificate =
-                x509_cert::Certificate::from_der(bundle.signing_certificate().unwrap().as_bytes())
-                    .unwrap();
-            assert!(verify_release_certificate(&certificate).is_err());
-            let mut altered = serde_json::from_str::<serde_json::Value>(encoded).unwrap();
-            altered["verificationMaterial"]["tlogEntries"] = serde_json::json!([]);
-            let altered = Bundle::from_json(&altered.to_string()).unwrap();
-            assert!(
-                Verifier::new(&root)
-                    .verify(artifact.as_slice(), &altered, &policy)
-                    .is_err()
-            );
-        }
+        let encoded = include_str!("../../tests/fixtures/sigstore/conda-attestation.sigstore.json");
+        let bundle = Bundle::from_json(encoded).unwrap();
+        let verified = Verifier::new(&root)
+            .verify(artifact.as_slice(), &bundle, &policy)
+            .unwrap_or_else(|error| {
+                panic!(
+                    "log {:?}: {error}",
+                    bundle.verification_material.tlog_entries[0].kind_version
+                )
+            });
+        assert!(verified.warnings.is_empty(), "{:?}", verified.warnings);
+        assert!(
+            Verifier::new(&root)
+                .verify(b"tampered".as_slice(), &bundle, &policy)
+                .is_err()
+        );
+        assert!(verify_attestation(&artifact, encoded).is_err());
+        let certificate =
+            x509_cert::Certificate::from_der(bundle.signing_certificate().unwrap().as_bytes())
+                .unwrap();
+        assert!(verify_release_certificate(&certificate).is_err());
+        let mut altered = serde_json::from_str::<serde_json::Value>(encoded).unwrap();
+        altered["verificationMaterial"]["tlogEntries"] = serde_json::json!([]);
+        let altered = Bundle::from_json(&altered.to_string()).unwrap();
+        assert!(
+            Verifier::new(&root)
+                .verify(artifact.as_slice(), &altered, &policy)
+                .is_err()
+        );
         let staging = Bundle::from_json(include_str!(
             "../../tests/fixtures/sigstore/conda-attestation-rekor2.sigstore.json"
         ))
