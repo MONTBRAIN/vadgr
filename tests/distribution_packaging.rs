@@ -41,7 +41,7 @@ fn release_manifest_schema_and_runtime_have_the_same_closed_shape() {
     assert_eq!(schema["properties"]["product"]["const"], "vadgr");
     assert_eq!(schema["additionalProperties"], false);
     assert!(read("src/install/manifest.rs").contains("#[serde(deny_unknown_fields)]"));
-    assert!(read("src/install/manifest.rs").contains("verify_signature(&bytes"));
+    assert!(read("src/install/manifest.rs").contains("verify_attestation(&bytes, &bundle)?"));
 }
 
 #[test]
