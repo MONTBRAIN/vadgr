@@ -157,7 +157,9 @@ fn publication_reverifies_before_one_protected_state_change() {
     let workflow = repo_file(".github/workflows/publish-release.yml");
     assert!(workflow.contains("workflow_dispatch:"));
     assert!(workflow.contains("test \"$GITHUB_REF_TYPE\" = tag"));
-    assert!(workflow.contains("release-manifest.json.minisig"));
+    assert!(workflow.contains("release-manifest.json.bundle.jsonl"));
+    assert!(workflow.contains("--custom-trusted-root packaging/release-trusted-root.jsonl"));
+    assert!(!workflow.contains("release-manifest.json.minisig"));
     assert!(workflow.contains("gh attestation verify"));
     assert!(workflow.contains("environment: release-publish"));
     assert!(workflow.contains("gh release edit \"$GITHUB_REF_NAME\" --draft=false"));
