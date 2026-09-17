@@ -46,11 +46,16 @@ jobs:
           mkdir assets
           gh release download "$GITHUB_REF_NAME" --dir assets
           test -f assets/release-manifest.json
-          test -f assets/release-manifest.json.minisig
-      - name: Verify Minisign before trusting any artifact metadata
+          test -f assets/release-manifest.json.bundle.jsonl
+      - name: Verify the keyless manifest bundle before trusting artifact metadata
         shell: bash
         run: |
           set -euo pipefail
+          gh attestation verify assets/release-manifest.json -R "$GITHUB_REPOSITORY" \
+            --bundle assets/release-manifest.json.bundle.jsonl \
+            --custom-trusted-root packaging/release-trusted-root.jsonl \
+            --signer-workflow MONTBRAIN/vadgr/.github/workflows/candidate.yml \
+            --source-ref refs/heads/master --deny-self-hosted-runners
           for target in windows-x86_64 windows-aarch64 macos-x86_64 macos-aarch64 linux-x86_64 linux-aarch64 wsl-x86_64 wsl-aarch64; do
             name="$(python - "$target" <<'PY'
           import json,sys
@@ -61,11 +66,15 @@ jobs:
           PY
           )"
             cargo run --quiet --locked --features release-verifier --bin vadgr-release-verify -- \
-              --manifest assets/release-manifest.json --signature assets/release-manifest.json.minisig \
+              --manifest assets/release-manifest.json --bundle assets/release-manifest.json.bundle.jsonl \
               --target "$target" --artifact "assets/$name" >/dev/null
-            gh attestation verify "assets/$name" -R "$GITHUB_REPOSITORY"
+            gh attestation verify "assets/$name" -R "$GITHUB_REPOSITORY" \
+              --signer-workflow MONTBRAIN/vadgr/.github/workflows/candidate.yml \
+              --source-ref refs/heads/master --deny-self-hosted-runners
           done
-          gh attestation verify assets/install.sh -R "$GITHUB_REPOSITORY"
+          gh attestation verify assets/install.sh -R "$GITHUB_REPOSITORY" \
+            --signer-workflow MONTBRAIN/vadgr/.github/workflows/candidate.yml \
+            --source-ref refs/heads/master --deny-self-hosted-runners
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: verified-draft
