@@ -1,0 +1,435 @@
+name: Held Windows candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact pushed feature commit (40 lowercase hexadecimal characters)
+        type: string
+        required: true
+      source_branch:
+        description: Same-repository implementation branch
+        type: string
+        required: true
+      candidate_id:
+        description: Unique candidate identifier
+        type: string
+        required: true
+      architecture:
+        description: Windows architecture to sign
+        type: choice
+        options: [x64, arm64]
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: candidate-0.5.0
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    if: ${{ github.repository == 'MONTBRAIN/vadgr' && github.ref == 'refs/heads/master' && github.run_attempt == 1 }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+      checks: read
+      statuses: read
+      pull-requests: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      SOURCE_BRANCH: ${{ inputs.source_branch }}
+      CANDIDATE_ID: ${{ inputs.candidate_id }}
+      ARCHITECTURE: ${{ inputs.architecture }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ inputs.source_sha }}
+          path: source_checkout
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate exact source and active requirements
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C source_checkout fetch --no-tags origin "$SOURCE_BRANCH"
+          python scripts/candidate_policy.py preflight --source-root source_checkout --branch "$SOURCE_BRANCH" --source-sha "$SOURCE_SHA" --version 0.5.0 --candidate-id "$CANDIDATE_ID" --architecture "$ARCHITECTURE" --out preflight.json
+
+  build-windows:
+    needs: preflight
+    runs-on: ${{ inputs.architecture == 'x64' && 'windows-2025' || 'windows-11-arm' }}
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      actions: read
+      checks: read
+      statuses: read
+      pull-requests: read
+    outputs:
+      artifact_id: ${{ steps.unsigned.outputs.artifact-id }}
+      artifact_digest: sha256:${{ steps.unsigned.outputs.artifact-digest }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      SOURCE_BRANCH: ${{ inputs.source_branch }}
+      CANDIDATE_ID: ${{ inputs.candidate_id }}
+      ARCHITECTURE: ${{ inputs.architecture }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c
+        with:
+          targets: ${{ inputs.architecture == 'x64' && 'x86_64-pc-windows-msvc' || 'aarch64-pc-windows-msvc' }}
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ inputs.source_sha }}
+          path: source_checkout
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Materialize only sealed source inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C source_checkout fetch --no-tags origin "$SOURCE_BRANCH"
+          python scripts/candidate_policy.py preflight --source-root source_checkout --branch "$SOURCE_BRANCH" --source-sha "$SOURCE_SHA" --version 0.5.0 --candidate-id "$CANDIDATE_ID" --architecture "$ARCHITECTURE" --out preflight.json --materialize source
+      - name: Build complete unsigned payload without secrets
+        shell: pwsh
+        env:
+          GH_TOKEN: ''
+        run: |
+          scripts/candidate/build-windows.ps1 -Architecture $env:ARCHITECTURE -SourceDirectory source -OutputDirectory unsigned
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        id: unsigned
+        with:
+          name: unsigned-windows
+          path: unsigned/
+          if-no-files-found: error
+          retention-days: 90
+
+  validate-artifacts:
+    needs: [preflight, build-windows]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+      checks: read
+      statuses: read
+      pull-requests: read
+    outputs:
+      artifact_id: ${{ steps.record.outputs.artifact-id }}
+      artifact_digest: sha256:${{ steps.record.outputs.artifact-digest }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      SOURCE_BRANCH: ${{ inputs.source_branch }}
+      CANDIDATE_ID: ${{ inputs.candidate_id }}
+      ARCHITECTURE: ${{ inputs.architecture }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ inputs.source_sha }}
+          path: source_checkout
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Independently validate inventory, legal inputs, provenance and quota
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C source_checkout fetch --no-tags origin "$SOURCE_BRANCH"
+          python scripts/candidate_policy.py preflight --source-root source_checkout --branch "$SOURCE_BRANCH" --source-sha "$SOURCE_SHA" --version 0.5.0 --candidate-id "$CANDIDATE_ID" --architecture "$ARCHITECTURE" --out preflight.json --materialize source
+          python scripts/candidate_artifacts.py download --artifact-id "${{ needs.build-windows.outputs.artifact_id }}" --digest "${{ needs.build-windows.outputs.artifact_digest }}" --run-id "$GITHUB_RUN_ID" --run-attempt 1 --repository "$GITHUB_REPOSITORY" --producer-sha "$GITHUB_SHA" --architecture "${{ inputs.architecture }}" --out unsigned.zip --metadata unsigned-artifact.json
+          python scripts/candidate_artifacts.py validate --archive unsigned.zip --metadata unsigned-artifact.json --source-root source --preflight preflight.json --architecture "$ARCHITECTURE" --extract verified --out authorization.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        id: record
+        with:
+          name: preliminary-authorization
+          path: authorization.json
+          if-no-files-found: error
+          retention-days: 90
+
+  claim-probe:
+    needs: validate-artifacts
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      actions: read
+    outputs:
+      artifact_id: ${{ steps.record.outputs.artifact-id }}
+      artifact_digest: sha256:${{ steps.record.outputs.artifact-digest }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Qualify actual protected claim namespace without vendor credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/candidate_artifacts.py download --artifact-id "${{ needs.validate-artifacts.outputs.artifact_id }}" --digest "${{ needs.validate-artifacts.outputs.artifact_digest }}" --run-id "$GITHUB_RUN_ID" --run-attempt 1 --repository "$GITHUB_REPOSITORY" --producer-sha "$GITHUB_SHA" --architecture "${{ inputs.architecture }}" --out authorization.zip --metadata authorization-artifact.json
+          python scripts/candidate/record.py --archive authorization.zip --name authorization.json --out authorization.json
+          python scripts/candidate_claims.py probe --authorization authorization.json --out qualification.json --allow-probe-mutations
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        id: record
+        with:
+          name: claim-qualification
+          path: qualification.json
+          if-no-files-found: error
+          retention-days: 90
+
+  prepare-authorization:
+    needs: [validate-artifacts, claim-probe]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      artifact_id: ${{ steps.record.outputs.artifact-id }}
+      artifact_digest: sha256:${{ steps.record.outputs.artifact-digest }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Bind the tested protections to the exact displayed signing budget
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/candidate_artifacts.py download --artifact-id "${{ needs.validate-artifacts.outputs.artifact_id }}" --digest "${{ needs.validate-artifacts.outputs.artifact_digest }}" --run-id "$GITHUB_RUN_ID" --run-attempt 1 --repository "$GITHUB_REPOSITORY" --producer-sha "$GITHUB_SHA" --architecture "${{ inputs.architecture }}" --out authorization.zip --metadata authorization-artifact.json
+          python scripts/candidate/record.py --archive authorization.zip --name authorization.json --out authorization.json
+          python scripts/candidate_artifacts.py download --artifact-id "${{ needs.claim-probe.outputs.artifact_id }}" --digest "${{ needs.claim-probe.outputs.artifact_digest }}" --run-id "$GITHUB_RUN_ID" --run-attempt 1 --repository "$GITHUB_REPOSITORY" --producer-sha "$GITHUB_SHA" --architecture "${{ inputs.architecture }}" --out qualification.zip --metadata qualification-artifact.json
+          python scripts/candidate/record.py --archive qualification.zip --name qualification.json --out qualification.json
+          mv authorization.json preliminary.json
+          python scripts/candidate_claims.py bind --authorization preliminary.json --qualification qualification.json --artifact-id "${{ needs.claim-probe.outputs.artifact_id }}" --digest "${{ needs.claim-probe.outputs.artifact_digest }}" --out authorization.json
+          cat authorization.json >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        id: record
+        with:
+          name: protected-authorization
+          path: authorization.json
+          if-no-files-found: error
+          retention-days: 90
+
+  authorize-signing:
+    needs: [prepare-authorization, claim-probe]
+    runs-on: ubuntu-24.04
+    environment: candidate-authorize
+    permissions:
+      contents: read
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Record the approved immutable tuple without signing or write permissions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/candidate_artifacts.py download --artifact-id "${{ needs.prepare-authorization.outputs.artifact_id }}" --digest "${{ needs.prepare-authorization.outputs.artifact_digest }}" --run-id "$GITHUB_RUN_ID" --run-attempt 1 --repository "$GITHUB_REPOSITORY" --producer-sha "$GITHUB_SHA" --architecture "${{ inputs.architecture }}" --out authorization.zip --metadata authorization-artifact.json
+          python scripts/candidate/record.py --archive authorization.zip --name authorization.json --out authorization.json
+          python scripts/candidate_artifacts.py download --artifact-id "${{ needs.claim-probe.outputs.artifact_id }}" --digest "${{ needs.claim-probe.outputs.artifact_digest }}" --run-id "$GITHUB_RUN_ID" --run-attempt 1 --repository "$GITHUB_REPOSITORY" --producer-sha "$GITHUB_SHA" --architecture "${{ inputs.architecture }}" --out qualification.zip --metadata qualification-artifact.json
+          python scripts/candidate/record.py --archive qualification.zip --name qualification.json --out qualification.json
+          python scripts/candidate_claims.py approve --authorization authorization.json --qualification qualification.json
+
+  claim-signing:
+    needs: [prepare-authorization, authorize-signing, claim-probe]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      actions: read
+    outputs:
+      artifact_id: ${{ steps.record.outputs.artifact-id }}
+      artifact_digest: sha256:${{ steps.record.outputs.artifact-digest }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Atomically consume the approved tuple before any vendor request
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/candidate_artifacts.py download --artifact-id "${{ needs.prepare-authorization.outputs.artifact_id }}" --digest "${{ needs.prepare-authorization.outputs.artifact_digest }}" --run-id "$GITHUB_RUN_ID" --run-attempt 1 --repository "$GITHUB_REPOSITORY" --producer-sha "$GITHUB_SHA" --architecture "${{ inputs.architecture }}" --out authorization.zip --metadata authorization-artifact.json
+          python scripts/candidate/record.py --archive authorization.zip --name authorization.json --out authorization.json
+          python scripts/candidate_artifacts.py download --artifact-id "${{ needs.claim-probe.outputs.artifact_id }}" --digest "${{ needs.claim-probe.outputs.artifact_digest }}" --run-id "$GITHUB_RUN_ID" --run-attempt 1 --repository "$GITHUB_REPOSITORY" --producer-sha "$GITHUB_SHA" --architecture "${{ inputs.architecture }}" --out qualification.zip --metadata qualification-artifact.json
+          python scripts/candidate/record.py --archive qualification.zip --name qualification.json --out qualification.json
+          python scripts/candidate_claims.py create --authorization authorization.json --qualification qualification.json --out claim.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        id: record
+        with:
+          name: signing-claim
+          path: claim.json
+          if-no-files-found: error
+          retention-days: 90
+
+  sign-windows:
+    needs: [prepare-authorization, authorize-signing, claim-signing]
+    runs-on: windows-2025
+    timeout-minutes: 60
+    environment: candidate-windows
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      artifact_id: ${{ steps.signed.outputs.artifact-id }}
+      artifact_digest: sha256:${{ steps.signed.outputs.artifact-digest }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ARCHITECTURE: ${{ inputs.architecture }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9
+        with:
+          dotnet-version: 8.0.424
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '17.0.20+8'
+      - name: Verify authorization, claim and every unsigned byte before credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/candidate_artifacts.py download --artifact-id "${{ needs.prepare-authorization.outputs.artifact_id }}" --digest "${{ needs.prepare-authorization.outputs.artifact_digest }}" --run-id "$GITHUB_RUN_ID" --run-attempt 1 --repository "$GITHUB_REPOSITORY" --producer-sha "$GITHUB_SHA" --architecture "${{ inputs.architecture }}" --out authorization.zip --metadata authorization-artifact.json
+          python scripts/candidate/record.py --archive authorization.zip --name authorization.json --out authorization.json
+          python scripts/candidate_artifacts.py download --artifact-id "${{ needs.claim-signing.outputs.artifact_id }}" --digest "${{ needs.claim-signing.outputs.artifact_digest }}" --run-id "$GITHUB_RUN_ID" --run-attempt 1 --repository "$GITHUB_REPOSITORY" --producer-sha "$GITHUB_SHA" --architecture "${{ inputs.architecture }}" --out claim.zip --metadata claim-artifact.json
+          python scripts/candidate/record.py --archive claim.zip --name claim.json --out claim.json
+          python scripts/candidate_claims.py fetch-qualification --authorization authorization.json --out qualification.json
+          python scripts/candidate_claims.py verify --authorization authorization.json --qualification qualification.json --claim claim.json
+          python scripts/candidate_artifacts.py fetch-verified --authorization authorization.json --extract verified
+      - name: Prepare the pinned signer without vendor secrets
+        shell: pwsh
+        run: |
+          $approved = Get-Content -Raw authorization.json | ConvertFrom-Json
+          scripts/signing/release.ps1 -Mode prepare -Budget $approved.budget
+      - name: Sign installed PE files and bootstrapper DLL exactly once
+        shell: pwsh
+        env:
+          ES_USERNAME: ${{ secrets.ES_USERNAME }}
+          ES_PASSWORD: ${{ secrets.ES_PASSWORD }}
+          ES_TOTP_SECRET: ${{ secrets.ES_TOTP_SECRET }}
+        run: |
+          $files = @(Get-ChildItem verified/payload -Recurse -File | Where-Object Extension -In '.exe','.dll','.pyd' | Sort-Object FullName)
+          $paths = @($files.FullName) + @("$PWD/verified/ba-functions.dll")
+          scripts/signing/release.ps1 -Mode sign -Files $paths -Authorization authorization.json -Qualification qualification.json -Claim claim.json
+      - name: Package MSI with trusted authoring and no vendor secrets
+        shell: pwsh
+        run: scripts/candidate/package-windows.ps1 -Mode msi -Architecture $env:ARCHITECTURE -InputDirectory verified -OutputDirectory final
+      - name: Sign MSI exactly once
+        shell: pwsh
+        env:
+          ES_USERNAME: ${{ secrets.ES_USERNAME }}
+          ES_PASSWORD: ${{ secrets.ES_PASSWORD }}
+          ES_TOTP_SECRET: ${{ secrets.ES_TOTP_SECRET }}
+        run: |
+          scripts/signing/release.ps1 -Mode sign -Files @("$PWD/final/Vadgr-0.5.0-windows-$env:ARCHITECTURE.msi") -Authorization authorization.json -Qualification qualification.json -Claim claim.json
+      - name: Package and detach Burn with trusted authoring and no vendor secrets
+        shell: pwsh
+        run: |
+          scripts/candidate/package-windows.ps1 -Mode bundle -Architecture $env:ARCHITECTURE -InputDirectory verified -OutputDirectory final
+          scripts/candidate/package-windows.ps1 -Mode detach -Architecture $env:ARCHITECTURE -InputDirectory verified -OutputDirectory final
+      - name: Sign Burn engine exactly once
+        shell: pwsh
+        env:
+          ES_USERNAME: ${{ secrets.ES_USERNAME }}
+          ES_PASSWORD: ${{ secrets.ES_PASSWORD }}
+          ES_TOTP_SECRET: ${{ secrets.ES_TOTP_SECRET }}
+        run: |
+          scripts/signing/release.ps1 -Mode sign -Files @("$PWD/final/burn-engine.exe") -Authorization authorization.json -Qualification qualification.json -Claim claim.json
+      - name: Reattach the engine without vendor secrets
+        shell: pwsh
+        run: scripts/candidate/package-windows.ps1 -Mode reattach -Architecture $env:ARCHITECTURE -InputDirectory verified -OutputDirectory final
+      - name: Sign final setup exactly once and verify the total quota
+        shell: pwsh
+        env:
+          ES_USERNAME: ${{ secrets.ES_USERNAME }}
+          ES_PASSWORD: ${{ secrets.ES_PASSWORD }}
+          ES_TOTP_SECRET: ${{ secrets.ES_TOTP_SECRET }}
+        run: |
+          scripts/signing/release.ps1 -Mode sign -Files @("$PWD/final/Vadgr-0.5.0-windows-$env:ARCHITECTURE-final.exe") -Authorization authorization.json -Qualification qualification.json -Claim claim.json
+          scripts/signing/release.ps1 -Mode complete -Authorization authorization.json -Qualification qualification.json -Claim claim.json
+          Move-Item -LiteralPath "final/Vadgr-0.5.0-windows-$env:ARCHITECTURE-final.exe" -Destination "final/Vadgr-0.5.0-windows-$env:ARCHITECTURE-setup.exe" -Force
+      - name: Verify and assemble the held file set
+        shell: pwsh
+        run: scripts/candidate/hold-windows.ps1 -Architecture $env:ARCHITECTURE -InputDirectory verified -OutputDirectory final -Authorization authorization.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        id: signed
+        with:
+          name: held-windows
+          path: held/
+          if-no-files-found: error
+          retention-days: 90
+
+  attest:
+    needs: sign-windows
+    runs-on: windows-2025
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+      attestations: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify the held archive identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/candidate_artifacts.py download --artifact-id "${{ needs.sign-windows.outputs.artifact_id }}" --digest "${{ needs.sign-windows.outputs.artifact_digest }}" --run-id "$GITHUB_RUN_ID" --run-attempt 1 --repository "$GITHUB_REPOSITORY" --producer-sha "$GITHUB_SHA" --architecture "${{ inputs.architecture }}" --out held.zip --metadata held-artifact.json
+          python scripts/candidate/read_held.py --archive held.zip --out held
+      - name: Verify final native signatures on a fresh runner
+        shell: pwsh
+        run: scripts/candidate/verify-held-windows.ps1 -Directory held
+      - uses: actions/attest-build-provenance@8beda2b7ed98355c0e97c0a63bec38ae472e66c4
+        with:
+          subject-path: held/**/*
+      - name: Verify provenance and report unpublished status
+        shell: bash
+        run: |
+          set -euo pipefail
+          find held -type f -print0 | while IFS= read -r -d '' file; do
+            gh attestation verify "$file" --repo "$GITHUB_REPOSITORY"
+          done
+          echo 'Held candidate only. No tag, release, publication, installer execution or signed E2E pass occurred.' >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: held-artifact-record
+          path: held-artifact.json
+          if-no-files-found: error
+          retention-days: 90
