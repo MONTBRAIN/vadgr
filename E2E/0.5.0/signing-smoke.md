@@ -1,10 +1,11 @@
 # Windows signing service qualification
 
-Status: S1 passed. Native Windows inspection succeeded in run `35161663373`
+Status: S1 and S2 passed on native Windows. Inspection succeeded in run `35161663373`
 at `c160b5f94f891e450477658f29fa8b8344e7604d`. The independently downloaded
 public DER certificate exactly matched its SHA-256 after the owner restored
-the portal session. S2 awaits separate protected job approval; zero signatures
-have been requested.
+the portal session. Separately approved run `35168877860` signed and verified
+one inert EXE at `75c70d1307e969dc5541edd74f68322d29e3b07e` on 2026-09-17 UTC.
+The vendor returned zero without a retry. No release or artifact was published.
 The first attempt failed during Java setup, before service authentication.
 This is an isolated two-cell service test, not a product release
 or installer acceptance pass. The branch is `signing-smoke-iv-20260916`, based
@@ -49,15 +50,15 @@ pre-sign subject comparison.
 | ID | Precondition | Setup and action | Expected observable | Independent oracle | Evidence boundary | Cleanup | Result |
 |---|---|---|---|---|---|---|---|
 | S1 | Automated gate passed; owner reviewed exact inspect-only head; required reviewer and exact branch policy confirmed; account secrets present | Push reviewed exact branch, then owner approves only the inspect job. Prepare pinned tool; authenticate; list the same EVCS/OVCS credential classes used by the vendor command; read public certificates | Only public subject, issuer, validity, SHA-256 and SHA-1 are printed. No credential ID, token, seed, password or signing response is printed. No signature is requested | Operator compares the independently downloaded public certificate with the inspection SHA-256; verify the tested workflow has no TOTP environment input or sign-mode invocation | Record exact head, run URL, job conclusion, public certificate facts and independent comparison result in `evidence/signing-smoke/`; retain no authentication response or vendor log | Runner is ephemeral; do not approve signing if identity differs or no certificate appears | pass: run 35161663373 passed native Windows service inspection with zero signature requests; the independently downloaded public DER certificate exactly matched its SHA-256 |
-| S2 | S1 passed; independently confirmed public certificate identity; separate reviewed sign-enabling change; one-sign quota approved; TOTP secret available | Owner approves distinct protected job. Build one inert EXE locally, verify unsigned state, preflight exact certificate, validity and code-signing EKU; reject online OTP; invoke one vendor sign operation with malware blocking; never execute sample | Exactly one signed inert sample. All signing failures stop with a fixed non-secret diagnostic. No retry, release or artifact upload | Windows SignTool `verify /pa /all /tw` returns zero; `Get-AuthenticodeSignature` returns Valid with timestamp certificate; signed leaf SHA-256 equals independently pinned certificate. Java verifies the X.500 subject before signing | Record exact head, run URL, exit codes, public publisher and timestamp facts, and sample SHA-256 in `evidence/signing-smoke/`; no tool raw debug logs or signed binary uploaded | Ephemeral runner discards files; remove temporary environment branch allowance after the test, including failure | not run: separate protected job approval is required for the sign-enabling head |
+| S2 | S1 passed; independently confirmed public certificate identity; separate reviewed sign-enabling change; one-sign quota approved; TOTP secret available | Owner approves distinct protected job. Build one inert EXE locally, verify unsigned state, preflight exact certificate, validity and code-signing EKU; reject online OTP; invoke one vendor sign operation with malware blocking; never execute sample | Exactly one signed inert sample. All signing failures stop with a fixed non-secret diagnostic. No retry, release or artifact upload | Windows SignTool `verify /pa /all /tw` returns zero; `Get-AuthenticodeSignature` returns Valid with timestamp certificate; signed leaf SHA-256 equals independently pinned certificate. Java verifies the X.500 subject before signing | Record exact head, run URL, exit codes, public publisher and timestamp facts, and sample SHA-256 in `evidence/signing-smoke/`; no tool raw debug logs or signed binary uploaded | Ephemeral runner discards files; remove temporary environment branch allowance after the test, including failure | pass: run 35168877860 signed one inert EXE and passed both Windows verifiers, exact publisher certificate matching and timestamp checks without retry or publication |
 
 ## Research and limits
 
 Checked 2026-09-16 against the
 [vendor command guide](https://www.ssl.com/guide/esigner-codesigntool-command-guide/)
 and the downloaded CodeSignTool 1.3.3 bytecode. The guide advertises automated
-TOTP use but describes EV certificates. IV acceptance remains unproven until
-the exact certificate passes S2. An empty credential list is a failed probe,
+TOTP use but describes EV certificates. S2 now proves acceptance of the exact
+issued IV certificate through CodeSignTool, not through CKA. An empty credential list is a failed probe,
 not proof that IV can never work.
 
 The ZIP SHA-256 is

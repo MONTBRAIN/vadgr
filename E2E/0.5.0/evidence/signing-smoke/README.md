@@ -1,8 +1,8 @@
 # Signing probe record
 
-The inspect-only service call succeeded. No signature has been requested.
+The inspect-only service call and one-file signing test succeeded.
 This directory existed before S1. Independent certificate comparison completed
-after the owner restored the portal session, so S1 passed. S2 has not run.
+after the owner restored the portal session. S1 and S2 passed.
 
 ## Attempt 1: setup failure
 
@@ -43,9 +43,33 @@ oracle. No private key, enrollment QR, account credential or OTP was accessed
 for that comparison.
 
 S1 passed. This proves certificate discovery and independently matched public
-identity, not signing acceptance. S2 still requires a separate protected job
-approval. Its reviewed configuration pins this exact certificate, permits at
-most one signature, and publishes nothing.
+identity. The following separately approved run proves signing acceptance.
+
+## Attempt 3: one-file signing and independent Windows verification passed
+
+Actions run [35168877860](https://github.com/MONTBRAIN/vadgr/actions/runs/35168877860)
+tested exact commit `75c70d1307e969dc5541edd74f68322d29e3b07e` on native Windows.
+The job concluded `success` on 2026-09-17 UTC after protected environment
+approval. The vendor signing command returned zero without a retry. Windows
+SignTool independently verified the file; the PowerShell verifier checked
+trusted signature status, timestamp presence and the pinned certificate hash.
+
+Public output copied from the signing step:
+
+```text
+Vendor signing exit code: 0. No retry performed.
+Verified public publisher: CN=Victor Santiago Montaño Diaz, O=Victor Santiago Montaño Diaz, L=Pasto, S=Nariño, C=CO
+Verified public certificate SHA256: 2DBA70DB8174B6FAB9002ED906C0076E5321C5BE82C9B4B6C1775456FEF90D22
+Verified public certificate SHA1: 57C1C20806BD6DD3ED5099237A1A62192FF624D2
+Verified timestamp authority: CN=SSL.com Timestamping Unit 2025 E1, O=SSL Corp, L=Houston, S=Texas, C=US
+Signed sample SHA256: D0D009F0140F7AEF2F649F1022F705D4A66B610665A4082D21AF640F566A69D0
+One-file signing probe verified. No release created; no artifact uploaded.
+```
+
+S2 passed. One inert EXE was signed and timestamped. This confirms unattended
+CodeSignTool signing with this issued certificate, not CKA compatibility,
+installer acceptance or operating-system reputation. No production release
+workflow changed. No signed binary or credential-bearing artifact was uploaded.
 
 ## Recording boundaries
 
