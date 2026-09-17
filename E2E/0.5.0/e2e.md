@@ -22,9 +22,10 @@ The negative control records **terms declined** and proves zero mutation.
 
 ## Fixed subject and evidence boundary
 
-Record the implementation commit, signed tag, candidate workflow run, artifact
-names, byte sizes and SHA-256 values before any host runs. Every host downloads
-the same immutable release assets. A rebuild invalidates the affected cells on
+Record the implementation commit, protected candidate workflow run, held artifact
+IDs, names, byte sizes and SHA-256 values before any host runs. Record the signed
+tag only when one has actually been made. Every host tests the same immutable
+held candidate bytes; release promotion must preserve those bytes. A rebuild invalidates the affected cells on
 every host. Public status contains outcomes and finding identifiers only. Raw
 installer logs, screenshots, signature reports, journals and wire responses stay
 under the private `e2e_evidence/vadgr-0.5.0/HOST_NAME/` boundary. Redact no failure;
@@ -42,14 +43,17 @@ prevent credentials and owner-private paths from entering the capture.
 Windows cloud access was separately qualified with one inert EXE in Actions
 run `35168877860`, at `75c70d1307e969dc5541edd74f68322d29e3b07e`.
 Its public certificate SHA-256 matched an independent issued-certificate DER.
-That test is not a pass for W03 or for this release workflow. The release uses
+That test is not a pass for W03 or for the protected candidate workflow. It uses
 `scripts/signing/publisher.json` as its reviewed public identity, with
 CodeSignTool signing and independent Windows verification. The `.pyd` staging
 name, MSI and Burn layers remain subject to W03 on the final candidate.
 No production signing run is authorized by this development qualification.
-The release workflow's existing held-candidate promotion gate still stops before
-the signing jobs. The Windows integration does not remove that gate. A complete
-approved promotion path is also required before a production signing run.
+The default-branch `candidate.yml` requires validated source, reviewed legal
+inputs, a protected `candidate-authorize` approval, durable one-use signing
+claim, and a separate `candidate-windows` approval before native signing. The
+legacy tag-triggered `release.yml` is deliberately disabled; it is not a way to
+sign or promote a candidate. An exact held-artifact promotion path is required
+before any production release.
 
 The host lead may run live development qualification against the exact feature
 commit before signed or published artifacts exist. Use an isolated test state
@@ -130,11 +134,13 @@ the visual and accessibility oracle.
   Smart App Control target, issued public Authenticode identity and approved
   secure signing route. Signing operations may be billed. Never retry them
   automatically.
-  The protected `release-windows` environment must contain `ES_USERNAME`,
-  `ES_PASSWORD` and `ES_TOTP_SECRET`, with a required reviewer and only `v*`
-  tag deployments allowed. Confirm names and protection without reading values.
-  Review the displayed per-architecture quota before approving either signing
-  job. One failed or uncertain attempt stops the job; do not rerun it.
+  The protected `candidate-windows` environment holds `ES_USERNAME`,
+  `ES_PASSWORD` and `ES_TOTP_SECRET`; `candidate-authorize` separately gates
+  the exact feature source and one-use claim. Both require the configured owner
+  review and permit only trusted default-branch deployments, not `v*` tags.
+  Confirm names and protection without reading values. Review the displayed
+  per-architecture quota before approving the signing job. One failed or
+  uncertain attempt stops the job; do not rerun it.
   The Java runtime and both vendor archive hashes must pass before credentials
   are supplied. CodeSignTool reads credentials in-process, never from OS argv.
 - macOS: clean Intel and Apple Silicon hosts, administrator approval, active

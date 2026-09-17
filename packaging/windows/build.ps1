@@ -76,12 +76,22 @@ $themeFile = Join-Path $projectRoot 'VadgrTheme.xml'
 $themeLocalizationFile = Join-Path $projectRoot 'VadgrTheme.wxl'
 $baManifest = Join-Path $projectRoot 'ba-functions\Cargo.toml'
 $generatedPayload = Join-Path $output 'PrivatePayload.wxs'
+$generatedLegal = Join-Path $output 'LegalPayload.wxs'
+$generatedSbom = Join-Path $output 'SbomPayload.wxs'
 $python = Get-Command python -ErrorAction Stop
 & $python.Source (Join-Path $repoRoot 'scripts\generate_windows_payload_wxs.py') `
     --payload-lib (Join-Path $payload 'lib') --output $generatedPayload
 if ($LASTEXITCODE -ne 0) {
     throw 'The deterministic Windows payload authoring step failed.'
 }
+& $python.Source (Join-Path $repoRoot 'scripts\generate_windows_payload_wxs.py') `
+    --payload-lib (Join-Path $payload 'legal') --output $generatedLegal `
+    --directory-id LegalFolder --group-id LegalPayload
+if ($LASTEXITCODE -ne 0) { throw 'The deterministic Windows legal authoring step failed.' }
+& $python.Source (Join-Path $repoRoot 'scripts\generate_windows_payload_wxs.py') `
+    --payload-lib (Join-Path $payload 'sbom') --output $generatedSbom `
+    --directory-id SbomFolder --group-id SbomPayload
+if ($LASTEXITCODE -ne 0) { throw 'The deterministic Windows SBOM authoring step failed.' }
 
 $rustTarget = switch ($Architecture) {
     'x64' { 'x86_64-pc-windows-msvc' }
@@ -119,6 +129,8 @@ if (-not (Test-Path -LiteralPath $baFunctionsPath -PathType Leaf)) {
     -p:VadgrVersion=$Version `
     -p:PayloadDir=$payload `
     -p:GeneratedPayloadWxs=$generatedPayload `
+    -p:GeneratedLegalWxs=$generatedLegal `
+    -p:GeneratedSbomWxs=$generatedSbom `
     -p:DevelopmentUnsigned=$($DevelopmentUnsigned.IsPresent.ToString().ToLowerInvariant()) `
     -p:OutputPath=$output
 if ($LASTEXITCODE -ne 0) {

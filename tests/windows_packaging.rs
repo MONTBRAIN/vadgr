@@ -23,6 +23,13 @@ fn windows_package_is_per_user_and_owns_native_launch_entries() {
     assert!(project.contains("<OutputType>Bundle</OutputType>"));
     let msi_project = repo_file("packaging/windows/VadgrMsi.wixproj");
     assert!(msi_project.contains("$(GeneratedPayloadWxs)"));
+    for group in ["Legal", "Sbom"] {
+        assert!(msi_project.contains(&format!("$(Generated{group}Wxs)")));
+        let developer = repo_file("packaging/windows/build.ps1");
+        assert!(developer.contains(&format!("-p:Generated{group}Wxs=$generated{group}")));
+        let trusted = repo_file("scripts/candidate/package-windows.ps1");
+        assert!(trusted.contains(&format!("-p:Generated{group}Wxs=$generated{group}")));
+    }
     assert!(!msi_project.contains("WixToolset.Heat"));
     let generator = repo_file("scripts/generate_windows_payload_wxs.py");
     assert!(generator.contains("uuid.uuid5"));
