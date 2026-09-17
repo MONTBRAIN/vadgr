@@ -71,6 +71,10 @@ CodeSignTool signing with this issued certificate, not CKA compatibility,
 installer acceptance or operating-system reputation. No production release
 workflow changed. No signed binary or credential-bearing artifact was uploaded.
 
+Cleanup: the temporary signing branch allowance was removed from
+`release-windows`. A read-only policy check returned only the `v*` tag rule.
+The smoke branch can no longer obtain this environment's credentials.
+
 ## Recording boundaries
 
 Record the exact tested commit, Actions run URL, job conclusion and public
