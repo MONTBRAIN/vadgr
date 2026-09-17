@@ -68,9 +68,20 @@ fn linux_lifecycle_accepts_an_already_healthy_daemon() {
 #[test]
 fn every_unsigned_or_unconfigured_trust_path_fails_closed() {
     let installer = read("install.sh");
-    assert!(installer.contains("VERIFIER_SHA_X86_64=UNCONFIGURED"));
-    assert!(installer.contains("VERIFIER_SHA_AARCH64=UNCONFIGURED"));
+    for arch in ["X86_64", "AARCH64"] {
+        let prefix = format!("VERIFIER_SHA_{arch}=");
+        let pin = installer
+            .lines()
+            .find_map(|line| line.strip_prefix(&prefix))
+            .expect("each WSL architecture requires an exact verifier pin");
+        assert_eq!(pin.len(), 64);
+        assert!(
+            pin.bytes()
+                .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+        );
+    }
     assert!(installer.contains("[ \"$VERIFIER_SHA\" != UNCONFIGURED ]"));
+    assert!(installer.contains("sha256sum --check --status -"));
     for source in [
         read("packaging/linux/build.sh"),
         read("packaging/macos/build.sh"),
