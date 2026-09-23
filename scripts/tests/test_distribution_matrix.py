@@ -176,6 +176,11 @@ def test_workflow_keeps_partial_qualification_distinct_from_complete_distributio
     assert "complete eight-target held candidate is not assembled" in workflow
     publish = (ROOT / ".github/workflows/publish-release.yml").read_text()
     assert "distribution_matrix.py manifest --manifest assets/release-manifest.json --directory assets" in publish
+    assert 'grep -q \'hostArchitectures="${{ matrix.arch }}"\'' in publish
+    assert 'distribution_matrix.py binary --target "$target"' in publish
+    assert "distribution_matrix.py binary --target 'linux-${{ matrix.arch }}'" in publish
+    assert "distribution_matrix.py binary --target 'wsl-${{ matrix.arch }}'" in publish
+    assert "Final Windows vehicle architecture mismatch." in publish
     held = (ROOT / "scripts/candidate/hold-windows.ps1").read_text()
     assert "scope = 'single-target-qualification'; complete_distribution = $false" in held
 
