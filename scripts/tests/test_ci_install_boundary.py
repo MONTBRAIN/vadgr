@@ -24,7 +24,22 @@ def push_branches(text):
 
 def wsl_step(text):
     block = text.split("  wsl-clean-install:\n", 1)[1].split("\n  clean-install:\n", 1)[0]
-    return textwrap.dedent(block.split("        run: |\n", 1)[1].split("\n  #", 1)[0])
+    script = block.split("        run: |\n", 1)[1].split("\n  #", 1)[0]
+    return textwrap.dedent(re.split(r"\n      - ", script, maxsplit=1)[0])
+
+
+def test_wsl_probe_stops_before_another_release_layout_step():
+    text = (
+        "  wsl-clean-install:\n"
+        "      - name: distribution\n"
+        "        run: |\n"
+        "          echo distribution\n"
+        "      - name: legacy\n"
+        "        run: |\n"
+        "          echo legacy\n"
+        "  clean-install:\n"
+    )
+    assert wsl_step(text).strip() == "echo distribution"
 
 
 def test_normal_ci_runs_on_the_exact_candidate_source_before_a_pr():
