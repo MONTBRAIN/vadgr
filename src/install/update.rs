@@ -131,44 +131,52 @@ fn fetch(origin: &str, name: &str, destination: &Path, limit: Option<u64>) -> Re
             "an update origin must use HTTPS or a local directory"
         );
         let url = format!("{}/{}", origin.trim_end_matches('/'), name);
-        let runtime = tokio::runtime::Builder::new_current_thread()
-            .enable_all()
-            .build()?;
-        return runtime.block_on(async {
-            let response = reqwest::Client::builder()
-                .timeout(std::time::Duration::from_secs(120))
-                .build()?
-                .get(&url)
-                .send()
-                .await
-                .with_context(|| format!("downloading {name}"))?
-                .error_for_status()
-                .with_context(|| format!("downloading {name}"))?;
-            if let (Some(maximum), Some(length)) = (limit, response.content_length()) {
-                ensure!(
-                    length <= maximum,
-                    "the downloaded {name} is larger than its allowed bound"
-                );
-            }
-            let mut file = std::fs::File::create(destination)
-                .with_context(|| format!("creating staged {name}"))?;
-            let mut total = 0_u64;
-            let mut stream = response.bytes_stream();
-            while let Some(chunk) = stream.next().await {
-                let chunk = chunk.with_context(|| format!("reading downloaded {name}"))?;
-                total = total
-                    .checked_add(chunk.len() as u64)
-                    .ok_or_else(|| anyhow!("the downloaded size overflowed"))?;
-                if let Some(maximum) = limit {
-                    ensure!(
-                        total <= maximum,
-                        "the downloaded {name} is larger than its allowed bound"
-                    );
-                }
-                std::io::Write::write_all(&mut file, &chunk)?;
-            }
-            std::io::Write::flush(&mut file)?;
-            Ok(())
+        return std::thread::scope(|scope| {
+            scope
+                .spawn(|| -> Result<()> {
+                    let runtime = tokio::runtime::Builder::new_current_thread()
+                        .enable_all()
+                        .build()?;
+                    runtime.block_on(async {
+                        let response = reqwest::Client::builder()
+                            .timeout(std::time::Duration::from_secs(120))
+                            .build()?
+                            .get(&url)
+                            .send()
+                            .await
+                            .with_context(|| format!("downloading {name}"))?
+                            .error_for_status()
+                            .with_context(|| format!("downloading {name}"))?;
+                        if let (Some(maximum), Some(length)) = (limit, response.content_length()) {
+                            ensure!(
+                                length <= maximum,
+                                "the downloaded {name} is larger than its allowed bound"
+                            );
+                        }
+                        let mut file = std::fs::File::create(destination)
+                            .with_context(|| format!("creating staged {name}"))?;
+                        let mut total = 0_u64;
+                        let mut stream = response.bytes_stream();
+                        while let Some(chunk) = stream.next().await {
+                            let chunk =
+                                chunk.with_context(|| format!("reading downloaded {name}"))?;
+                            total = total
+                                .checked_add(chunk.len() as u64)
+                                .ok_or_else(|| anyhow!("the downloaded size overflowed"))?;
+                            if let Some(maximum) = limit {
+                                ensure!(
+                                    total <= maximum,
+                                    "the downloaded {name} is larger than its allowed bound"
+                                );
+                            }
+                            std::io::Write::write_all(&mut file, &chunk)?;
+                        }
+                        std::io::Write::flush(&mut file)?;
+                        Ok(())
+                    })
+                })
+                .join()
+                .map_err(|_| anyhow!("the update download worker failed"))?
         });
     }
     let root = PathBuf::from(origin);
@@ -385,6 +393,28 @@ mod tests {
     fn version_order_is_numeric() {
         assert!(version_parts("0.10.0").unwrap() > version_parts("0.9.9").unwrap());
         assert!(version_parts("0.5").is_err());
+    }
+
+    #[test]
+    fn network_fetch_does_not_start_a_nested_async_runtime() {
+        let directory = tempfile::tempdir().unwrap();
+        let destination = directory.path().join("manifest.json");
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+        let outcome = std::panic::catch_unwind(|| {
+            runtime.block_on(async {
+                fetch(
+                    "https://127.0.0.1:9",
+                    "manifest.json",
+                    &destination,
+                    Some(1024),
+                )
+            })
+        });
+        assert!(outcome.is_ok(), "fetch started a runtime inside a runtime");
+        assert!(outcome.unwrap().is_err());
     }
 
     #[cfg(target_os = "linux")]
