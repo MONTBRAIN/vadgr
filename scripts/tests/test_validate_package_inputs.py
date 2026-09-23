@@ -128,7 +128,12 @@ def test_refuses_package_input_mutations(bundle, change):
         path = root / "legal/SUPPORT.txt"
         path.unlink()
         if change == "symlink":
-            path.symlink_to(root / "legal/TERMS.txt")
+            try:
+                path.symlink_to(root / "legal/TERMS.txt")
+            except OSError as error:
+                if getattr(error, "winerror", None) != 1314:
+                    raise
+                pytest.skip("Windows symlink creation requires a privilege absent on this host")
         else:
             path.hardlink_to(root / "legal/TERMS.txt")
     elif change == "escape":
@@ -193,7 +198,24 @@ def test_inventory_malformed_membership_values_have_safe_errors(bundle, field):
 def test_explicit_payload_rejects_symlinked_ancestor(bundle, tmp_path):
     root, _, _, _, payload = bundle
     linked = tmp_path / "linked"
-    linked.symlink_to(root / "lib", target_is_directory=True)
+    try:
+        linked.symlink_to(root / "lib", target_is_directory=True)
+    except OSError as error:
+        if getattr(error, "winerror", None) != 1314:
+            raise
+        pytest.skip("Windows symlink creation requires a privilege absent on this host")
+    with pytest.raises(package.PackageInputError):
+        validate(bundle, payload_manifest=linked / "cua/payload.json")
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows junction boundary")
+def test_explicit_payload_rejects_junction_ancestor(bundle, tmp_path):
+    import _winapi
+
+    root, _, _, _, _ = bundle
+    linked = tmp_path / "linked"
+    _winapi.CreateJunction(str(root / "lib"), str(linked))
+    assert linked.is_junction()
     with pytest.raises(package.PackageInputError):
         validate(bundle, payload_manifest=linked / "cua/payload.json")
 

@@ -7,6 +7,36 @@ on:
     branches: [master]
 
 jobs:
+  release-layout:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      layout: ${{ steps.layout.outputs.layout }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - name: Select the reviewed release layout
+        id: layout
+        shell: python
+        run: |
+          import os
+          from pathlib import Path
+          import tomllib
+
+          package = tomllib.loads(Path("Cargo.toml").read_text(encoding="utf-8"))["package"]
+          layouts = {"0.4.12": "legacy", "0.5.0": "distribution"}
+          if package.get("name") != "vadgr-daemon" or package.get("version") not in layouts:
+              raise SystemExit("The package has no reviewed CI layout.")
+          layout = layouts[package["version"]]
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"layout={layout}\n")
+          print(f"Reviewed CI layout: {layout}")
+
   # Desktop automation lives in https://github.com/MONTBRAIN/vadgr-computer-use
   # and is consumed as a package; its tests run in that repository's CI.
   rust:
@@ -16,11 +46,11 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable 2026-09-02
         with:
           components: clippy, rustfmt
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@49a0bdc70d2e1b713ca9e2869b211fcce03d3c1c # v2
       - name: Build
         run: cargo build --locked
       - name: Test
@@ -30,27 +60,21 @@ jobs:
       - name: Format
         run: cargo fmt --all -- --check
 
-  # The installer is the first thing a new user runs, and it had never been
-  # executed by a pipeline: the clean-install job below proves the artifact, not
-  # the script that puts the artifact on a machine.
-  #
-  # It runs on every platform the product claims, because an installer proved on
-  # one operating system says nothing about the others. Two Windows only test
-  # failures in the 0.4.9 pass are the argument.
+  # The current release keeps its source-install checks. Distribution candidates
+  # use their native package boundary and keep signing in the protected workflow.
   installer:
+    needs: release-layout
     strategy:
       fail-fast: false
       matrix:
-        # Linux gets a container with nothing in it, which is the only place
-        # a truly clean machine is available to us.
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Install on Linux, in a container with nothing in it
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && needs.release-layout.outputs.layout == 'legacy'
         shell: bash
         run: |
           docker run --rm -v "$PWD:/src:ro" -e VADGR_REF="$GITHUB_SHA" debian:12-slim bash -eu -c '
@@ -91,7 +115,7 @@ jobs:
       # half proves which is the point; a job that implied both would be lying
       # about one.
       - name: Install on macOS, where the runner already has a toolchain
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-latest' && needs.release-layout.outputs.layout == 'legacy'
         shell: bash
         env:
           VADGR_REPO_URL: ${{ github.workspace }}
@@ -103,6 +127,32 @@ jobs:
           vadgr --version
           set +e; vadgr health; code=$?; set -e
           test "$code" -eq 3 || { echo "expected exit 3 from a stopped daemon, got $code"; exit 1; }
+
+      - name: Keep native Linux on the graphical package boundary
+        if: matrix.os == 'ubuntu-latest' && needs.release-layout.outputs.layout == 'distribution'
+        shell: bash
+        run: |
+          before=$(find "$HOME" -mindepth 1 -maxdepth 3 -print | sort | sha256sum)
+          set +e
+          sh install.sh --source "$PWD" --accept-terms 1.0
+          code=$?
+          set -e
+          test "$code" -eq 2
+          after=$(find "$HOME" -mindepth 1 -maxdepth 3 -print | sort | sha256sum)
+          test "$before" = "$after"
+
+      - name: Keep macOS on the signed package boundary
+        if: matrix.os == 'macos-latest' && needs.release-layout.outputs.layout == 'distribution'
+        shell: bash
+        run: |
+          before=$(find "$HOME" -mindepth 1 -maxdepth 3 -print | sort | shasum -a 256)
+          set +e
+          sh install.sh --source "$PWD" --accept-terms 1.0
+          code=$?
+          set -e
+          test "$code" -eq 2
+          after=$(find "$HOME" -mindepth 1 -maxdepth 3 -print | sort | shasum -a 256)
+          test "$before" = "$after"
 
       # As above: the hosted Windows image ships a toolchain, so this half proves
       # that `install.ps1` runs on Windows and produces a working `vadgr.exe`.
@@ -136,14 +186,49 @@ jobs:
           exit 0
 
   wsl-clean-install:
+    needs: release-layout
     runs-on: windows-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
-      - uses: Vampire/setup-wsl@v7
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: Vampire/setup-wsl@d1da7f2c0322a5ee4f24975344f67fc0f5baf364 # v7
         with:
           distribution: Debian-12
+      - name: Prove an unconfigured WSL candidate fails before mutation
+        if: needs.release-layout.outputs.layout == 'distribution'
+        shell: wsl-bash {0}
+        run: |
+          set -euo pipefail
+          fixture=$(mktemp -d "${TMPDIR:-/tmp}/vadgr-wsl-unconfigured.XXXXXXXX")
+          trap 'rm -rf -- "$fixture"' EXIT
+          # The refusal fixture must not depend on production trust inputs.
+          sed -E 's/^(VERIFIER_SHA_(X86_64|AARCH64))=.*/\1=UNCONFIGURED/' \
+            install.sh > "$fixture/install.sh"
+          mkdir "$fixture/home" "$fixture/tmp"
+          printf '%s\n' 'preserve owner state' > "$fixture/home/owner-state"
+          snapshot() {
+            { find "$fixture/home" -mindepth 1 -print; \
+              find "$fixture/home" -type f -exec sha256sum {} \;; } | sort | sha256sum
+          }
+          before=$(snapshot)
+          set +e
+          HOME="$fixture/home" XDG_DATA_HOME="$fixture/home/data" \
+            XDG_STATE_HOME="$fixture/home/state" TMPDIR="$fixture/tmp" \
+            WSL_DISTRO_NAME=Debian sh "$fixture/install.sh" \
+            --source "$PWD" --accept-terms 1.0 > "$fixture/stdout" 2> "$fixture/stderr"
+          code=$?
+          set -e
+          test "$code" -eq 2
+          test ! -s "$fixture/stdout"
+          test "$(cat "$fixture/stderr")" = \
+            'The reviewed verifier hash is not configured. This candidate cannot install.'
+          after=$(snapshot)
+          test "$before" = "$after"
+          test -z "$(find "$fixture/tmp" -mindepth 1 -print)"
+          echo 'Unconfigured WSL fixture refused before mutation.'
+
       - name: Run the real source installer inside a clean WSL distribution
+        if: needs.release-layout.outputs.layout == 'legacy'
         shell: wsl-bash {0}
         env:
           VADGR_REF: ${{ github.sha }}
@@ -188,6 +273,7 @@ jobs:
   # an artifact no user was ever given while the installer shipped a different
   # one. Every leg now drives the one binary a user actually gets.
   clean-install:
+    needs: release-layout
     strategy:
       fail-fast: false
       matrix:
@@ -204,18 +290,22 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable 2026-09-02
         with:
           # The explicit MSVC target exists so the crt-static flag reaches the
           # binary and not the build scripts; the other platforms build the
           # host target and need nothing extra.
           targets: ${{ runner.os == 'Windows' && 'x86_64-pc-windows-msvc' || '' }}
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@49a0bdc70d2e1b713ca9e2869b211fcce03d3c1c # v2
 
       - name: Build the release binaries
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux' || (runner.os == 'macOS' && needs.release-layout.outputs.layout == 'legacy')
         run: cargo build --locked --release --bins
+
+      - name: Build the macOS CLI and responsible-process host
+        if: runner.os == 'macOS' && needs.release-layout.outputs.layout == 'distribution'
+        run: cargo build --locked --release --features macos-cua-host --bin vadgr --bin vadgr-cua-host
 
       # The C runtime is linked in rather than imported, so the binary does not
       # need the Visual C++ redistributable, which is not part of Windows. The
@@ -228,7 +318,7 @@ jobs:
         run: cargo build --locked --release --bins --target x86_64-pc-windows-msvc
 
       - name: Assemble the complete clean install on Unix without Python tools
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux' || (runner.os == 'macOS' && needs.release-layout.outputs.layout == 'legacy')
         shell: bash
         run: |
           set -euo pipefail
@@ -252,6 +342,40 @@ jobs:
             'import importlib.metadata,json,pathlib,sys; manifest=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")); assert sys.version.split()[0] == manifest["python_version"]; assert importlib.metadata.version("vadgr-computer-use") == manifest["cua_version"]' \
             "$manifest"
           echo "CLEAN_INSTALL_ROOT=$install_root" >> "$GITHUB_ENV"
+          echo "CLEAN_INSTALL_EXECUTABLE=$install_root/bin/vadgr" >> "$GITHUB_ENV"
+
+      - name: Assemble the macOS app without Python tools
+        if: runner.os == 'macOS' && needs.release-layout.outputs.layout == 'distribution'
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Unsigned CI checks bundle layout and startup, not publisher trust or grants.
+          app="$RUNNER_TEMP/vadgr-clean-install/Vadgr.app"
+          install_root="$app/Contents/Resources"
+          host="$app/Contents/Library/LoginItems/Vadgr Computer Use.app/Contents"
+          shim="$RUNNER_TEMP/vadgr-python-shims"
+          mkdir -p "$app/Contents/MacOS" "$install_root" "$host/MacOS" "$shim"
+          cp packaging/macos/Vadgr-Info.plist "$app/Contents/Info.plist"
+          cp packaging/macos/CuaHost-Info.plist "$host/Info.plist"
+          install -m 0755 "$PWD/target/release/vadgr" "$app/Contents/MacOS/vadgr"
+          install -m 0755 "$PWD/target/release/vadgr-cua-host" "$host/MacOS/vadgr-cua-host"
+          for name in python python3 pip pip3 uv vadgr-cua; do
+            printf '#!/bin/sh\necho "%s was resolved" >&2\nexit 97\n' "$name" > "$shim/$name"
+            chmod +x "$shim/$name"
+          done
+          env PATH="$shim" "$app/Contents/MacOS/vadgr" __payload-setup \
+            --install-root "$install_root" --payload-only
+          manifest="$install_root/lib/cua/payload.json"
+          test -f "$manifest"
+          private_pythons=( "$install_root"/lib/cua/environments/*/bin/python )
+          test "${#private_pythons[@]}" -eq 1
+          private_python="${private_pythons[0]}"
+          test -f "$private_python"
+          "$private_python" -I -c \
+            'import importlib.metadata,json,pathlib,sys; manifest=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")); assert sys.version.split()[0] == manifest["python_version"]; assert importlib.metadata.version("vadgr-computer-use") == manifest["cua_version"]' \
+            "$manifest"
+          echo "CLEAN_INSTALL_ROOT=$install_root" >> "$GITHUB_ENV"
+          echo "CLEAN_INSTALL_EXECUTABLE=$app/Contents/MacOS/vadgr" >> "$GITHUB_ENV"
 
       - name: Assemble the complete clean install on Windows without Python tools
         if: runner.os == 'Windows'
@@ -306,23 +430,26 @@ jobs:
           version="$(grep -m1 '^version = ' Cargo.toml | cut -d'"' -f2)"
           test -n "$version" || { echo "read no version from Cargo.toml"; exit 1; }
           container="vadgr-clean-install"
+          container_root="$CLEAN_INSTALL_ROOT"
+          if [ "${{ needs.release-layout.outputs.layout }}" = distribution ]; then
+            container_root="/opt/vadgr"
+          fi
           trap 'docker rm -f "$container" >/dev/null 2>&1 || true' EXIT
-          # Mount the complete verified install at the same absolute path, then
-          # start it. Python environments are not relocatable after assembly;
-          # a user's installation also remains where the installer created it.
+          # Only the copied install exists inside the clean machine. A build-root
+          # interpreter link must fail instead of borrowing the runner's Python.
           # No image is built, and removing the container removes every trace.
           docker create --name "$container" \
-            --mount "type=bind,src=$CLEAN_INSTALL_ROOT,dst=$CLEAN_INSTALL_ROOT,readonly" \
+            --mount "type=bind,src=$CLEAN_INSTALL_ROOT,dst=$container_root,readonly" \
             --env VADGR_CONFIG_HOME=/var/lib/vadgr \
             --env VADGR_DB=/var/lib/vadgr/vadgr.db \
             --env VADGR_STATE_HOME=/var/lib/vadgr/state \
             --env VADGR_RUNS_DIR=/var/lib/vadgr/runs \
             --env VADGR_PORT=8100 \
             --env VADGR_TRANSPORT=loopback \
-            ubuntu:24.04 "$CLEAN_INSTALL_ROOT/bin/vadgr" serve >/dev/null
+            ubuntu:24.04 "$container_root/bin/vadgr" serve >/dev/null
           docker start "$container" >/dev/null
           # The CLI runs on the clean machine and names this checkout's version.
-          out="$(docker exec "$container" "$CLEAN_INSTALL_ROOT/bin/vadgr" --version)"
+          out="$(docker exec "$container" "$container_root/bin/vadgr" --version)"
           test "$out" = "vadgr $version" || { echo "vadgr --version said '$out', expected 'vadgr $version'"; exit 1; }
           # It serves. The base ships no HTTP client, so a pinned busybox
           # sidecar joins the machine's own network namespace to fetch: the
@@ -364,7 +491,7 @@ jobs:
             '. == {"enabled": true, "platform": "native", "venv_ready": true}' >/dev/null \
             || { echo "the bundled MCP server is unavailable: $computer_use"; docker logs "$container"; exit 1; }
           # The CLI reaches the daemon from the same machine.
-          docker exec "$container" "$CLEAN_INSTALL_ROOT/bin/vadgr" health
+          docker exec "$container" "$container_root/bin/vadgr" health
           # Stop it; the trap removes the machine whole.
           docker stop --time 10 "$container" >/dev/null
 
@@ -386,7 +513,7 @@ jobs:
           test -n "$version" || { echo "read no version from Cargo.toml"; exit 1; }
           # The one binary a user gets: it serves when invoked with `serve`
           # and is the client otherwise, so this inspection covers both halves.
-          exe="$CLEAN_INSTALL_ROOT/bin/vadgr"
+          exe="$CLEAN_INSTALL_EXECUTABLE"
           test -x "$exe" || { echo "no binary at $exe"; exit 1; }
           otool -L "$exe"
           # Every library must be one macOS ships. Anything under /opt or
