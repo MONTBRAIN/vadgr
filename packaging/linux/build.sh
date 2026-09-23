@@ -10,12 +10,12 @@ repo=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
 
 : "${APPIMAGETOOL:?Set APPIMAGETOOL to the reviewed pinned appimagetool binary.}"
 [ -x "$APPIMAGETOOL" ] || { echo "APPIMAGETOOL is not executable." >&2; exit 2; }
-[ -d "$repo/packaging/legal" ] || { echo "The generated legal bundle is missing." >&2; exit 2; }
-[ -d "$repo/packaging/sbom" ] || { echo "The generated SBOM bundle is missing." >&2; exit 2; }
-[ -f "$repo/packaging/README-OFFLINE.txt" ] || { echo "The offline README is missing." >&2; exit 2; }
 [ -d "$repo/dist/payload" ] || { echo "The pinned private CUA payload is missing." >&2; exit 2; }
 
 case "$arch" in aarch64) rust_target=aarch64-unknown-linux-gnu;; *) rust_target=x86_64-unknown-linux-gnu;; esac
+inputs="$repo/packaging/inputs/linux-$arch"
+python3 "$repo/scripts/validate_package_inputs.py" --root "$inputs" --source-root "$repo" --version "$version" --target "$rust_target" \
+  --payload-manifest "$repo/dist/payload/lib/cua/payload.json"
 cargo build --locked --release --features native-gui --target "$rust_target" --bin vadgr
 target="target/$rust_target/release"
 
@@ -25,9 +25,10 @@ rm -rf -- "$appdir"
 mkdir -p "$appdir/usr/bin" "$appdir/usr/lib" "$appdir/usr/share/metainfo" "$appdir/legal" "$appdir/sbom"
 install -m 0755 "$repo/$target/vadgr" "$appdir/usr/bin/vadgr"
 cp -R -- "$repo/dist/payload/." "$appdir/usr/"
-cp -R -- "$repo/packaging/legal/." "$appdir/legal/"
-cp -R -- "$repo/packaging/sbom/." "$appdir/sbom/"
-cp -- "$repo/packaging/README-OFFLINE.txt" "$appdir/README-OFFLINE.txt"
+cp -R -- "$inputs/legal/." "$appdir/legal/"
+cp -R -- "$inputs/sbom/." "$appdir/sbom/"
+cp -- "$inputs/README-OFFLINE.txt" "$appdir/README-OFFLINE.txt"
+cp -- "$inputs/package-input-inventory.json" "$inputs/package-input-review.json" "$appdir/"
 install -m 0755 "$repo/packaging/linux/AppRun" "$appdir/AppRun"
 install -m 0644 "$repo/packaging/linux/com.montbrain.vadgr.desktop" "$appdir/com.montbrain.vadgr.desktop"
 install -m 0644 "$repo/docs/pet.svg" "$appdir/com.montbrain.vadgr.svg"

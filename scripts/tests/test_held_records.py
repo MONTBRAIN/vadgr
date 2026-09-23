@@ -24,13 +24,15 @@ def test_single_record_extracts_exact_bytes_and_refuses_extra_member(tmp_path):
     assert not (tmp_path / "extra").exists()
 
 
-def test_held_records_bind_source_run_and_every_file(tmp_path, monkeypatch):
+@pytest.mark.parametrize("complete", [False, True, None])
+def test_held_records_bind_source_run_and_every_file(tmp_path, monkeypatch, complete):
     monkeypatch.setenv("GITHUB_SHA", "a" * 40)
     monkeypatch.setenv("GITHUB_RUN_ID", "12")
     authorization = {"run_id": 12, "run_attempt": 1, "candidate_id": "v0.5.0-rc-1",
                      "input_digest": "b" * 64, "source_sha": "c" * 40, "source_tree": "d" * 40}
     files = {"authorization.json": json.dumps(authorization).encode(), "release-manifest.json": b"{}"}
     candidate = {**authorization, "status": "held-unpublished", "trusted_tooling_commit": "a" * 40,
+                 "scope": "single-target-qualification", "complete_distribution": complete,
                  "source_commit": authorization["source_sha"],
                  "artifacts": [{"name": name, "size": len(data), "sha256": hashlib.sha256(data).hexdigest()}
                                for name, data in files.items()]}
@@ -39,6 +41,11 @@ def test_held_records_bind_source_run_and_every_file(tmp_path, monkeypatch):
     with zipfile.ZipFile(archive, "w") as stream:
         for name, data in files.items():
             stream.writestr(name, data)
+    if complete is not False:
+        with pytest.raises(ValueError, match="complete distribution"):
+            extract(archive, tmp_path / "refused-complete")
+        assert not (tmp_path / "refused-complete").exists()
+        return
     extract(archive, tmp_path / "accepted")
     assert (tmp_path / "accepted/authorization.json").read_bytes() == files["authorization.json"]
     monkeypatch.setenv("GITHUB_RUN_ID", "13")

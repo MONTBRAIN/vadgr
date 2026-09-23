@@ -65,7 +65,7 @@ if (-not $termsPrefix.StartsWith('{\rtf')) {
 $dotnet = Get-Command dotnet -ErrorAction Stop
 $sdk = & $dotnet.Source --list-sdks
 if (-not $sdk) {
-    throw 'A .NET SDK is required to run the pinned WiX v4 build.'
+    throw 'A .NET SDK is required to run the pinned WiX 7 build.'
 }
 
 $output = [IO.Path]::GetFullPath($OutputDirectory)
@@ -136,6 +136,7 @@ if (-not (Test-Path -LiteralPath $baFunctionsPath -PathType Leaf)) {
 if ($LASTEXITCODE -ne 0) {
     throw 'The MSI build failed.'
 }
+& (Join-Path $projectRoot 'verify-wix-payload.ps1') -Kind msi -Architecture $Architecture -OutputDirectory $output
 
 $msi = Join-Path $output "Vadgr-$Version-windows-$Architecture.msi"
 if (-not (Test-Path -LiteralPath $msi -PathType Leaf)) {
@@ -157,5 +158,6 @@ if (-not (Test-Path -LiteralPath $msi -PathType Leaf)) {
 if ($LASTEXITCODE -ne 0) {
     throw 'The Burn bundle build failed.'
 }
+& (Join-Path $projectRoot 'verify-wix-payload.ps1') -Kind bundle -Architecture $Architecture -OutputDirectory $output
 
 Write-Output (Join-Path $output "Vadgr-$Version-windows-$Architecture-setup.exe")

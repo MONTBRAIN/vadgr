@@ -40,14 +40,16 @@ try {
             if ($LASTEXITCODE -ne 0) { throw 'Trusted SBOM authoring failed.' }
             & dotnet build (Join-Path $project 'VadgrMsi.wixproj') @common "-p:PayloadDir=$payload" "-p:GeneratedPayloadWxs=$generated" "-p:GeneratedLegalWxs=$generatedLegal" "-p:GeneratedSbomWxs=$generatedSbom"
             if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $msi)) { throw 'Trusted MSI packaging failed.' }
+            & (Join-Path $project 'verify-wix-payload.ps1') -Kind msi -Architecture $Architecture -OutputDirectory $output
         }
         'bundle' {
             & dotnet build (Join-Path $project 'VadgrBundle.wixproj') @common "-p:MsiPath=$msi" "-p:TermsRtf=$terms" '-p:TermsVersion=1.0' `
                 "-p:ThemeFile=$project/VadgrTheme.xml" "-p:ThemeLocalizationFile=$project/VadgrTheme.wxl" "-p:BAFunctionsPath=$ba"
             if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $bundle)) { throw 'Trusted Burn packaging failed.' }
+            & (Join-Path $project 'verify-wix-payload.ps1') -Kind bundle -Architecture $Architecture -OutputDirectory $output
         }
         'detach' {
-            & dotnet tool install wix --tool-path (Join-Path $output 'wix') --version 4.0.6
+            & dotnet tool install wix --tool-path (Join-Path $output 'wix') --version 7.0.0
             if ($LASTEXITCODE -ne 0) { throw 'Pinned WiX installation failed.' }
             & "$output/wix/wix.exe" burn detach $bundle -engine $engine
             if ($LASTEXITCODE -ne 0) { throw 'Burn detach failed.' }

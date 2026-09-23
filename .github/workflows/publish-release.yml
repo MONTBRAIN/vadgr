@@ -63,6 +63,7 @@ jobs:
             --custom-trusted-root packaging/release-trusted-root.jsonl \
             --signer-workflow MONTBRAIN/vadgr/.github/workflows/candidate.yml \
             --source-ref refs/heads/master --deny-self-hosted-runners
+          python scripts/distribution_matrix.py manifest --manifest assets/release-manifest.json --directory assets
           for target in windows-x86_64 windows-aarch64 macos-x86_64 macos-aarch64 linux-x86_64 linux-aarch64 wsl-x86_64 wsl-aarch64; do
             name="$(python - "$target" <<'PY'
           import json,sys
@@ -115,7 +116,7 @@ jobs:
         run: |
           $identity = Get-Content -Raw -Encoding UTF8 scripts/signing/publisher.json | ConvertFrom-Json
           $setup = Resolve-Path "assets/Vadgr-0.5.0-windows-${{ matrix.arch }}-setup.exe"
-          $signTool = Get-ChildItem "${env:ProgramFiles(x86)}/Windows Kits/10/bin/*/x64/signtool.exe" | Sort-Object FullName -Descending | Select-Object -First 1
+          $signTool = Get-ChildItem "${env:ProgramFiles(x86)}/Windows Kits/10/bin/*/${{ matrix.arch }}/signtool.exe" | Sort-Object FullName -Descending | Select-Object -First 1
           if (-not $signTool) { throw 'Windows SDK SignTool is required.' }
           & $signTool.FullName verify /pa /all /tw $setup
           if ($LASTEXITCODE -ne 0) { throw 'Setup signature verification failed.' }

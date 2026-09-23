@@ -107,7 +107,8 @@ $env:EXPECTED_CERT_SHA256 = $identity.sha256
 $env:EXPECTED_CERT_SHA1 = $identity.sha1
 $env:EXPECTED_CERT_SUBJECT = $identity.subject
 Assert-Hash $jar $jarHash
-$signTool = Get-ChildItem "${env:ProgramFiles(x86)}/Windows Kits/10/bin/*/x64/signtool.exe" |
+$native = if ([Runtime.InteropServices.RuntimeInformation]::OSArchitecture -eq 'Arm64') { 'arm64' } else { 'x64' }
+$signTool = Get-ChildItem "${env:ProgramFiles(x86)}/Windows Kits/10/bin/*/$native/signtool.exe" |
     Sort-Object FullName -Descending | Select-Object -First 1
 if (-not $signTool) { throw 'Windows SDK SignTool is required before signing.' }
 

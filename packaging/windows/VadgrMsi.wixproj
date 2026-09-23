@@ -1,5 +1,6 @@
-<Project Sdk="WixToolset.Sdk/4.0.6">
+<Project Sdk="WixToolset.Sdk/7.0.0">
   <PropertyGroup>
+    <AcceptEula>wix7</AcceptEula>
     <DevelopmentUnsigned Condition="'$(DevelopmentUnsigned)' == ''">false</DevelopmentUnsigned>
     <OutputName>Vadgr-$(VadgrVersion)-windows-$(Platform)</OutputName>
     <DefineConstants>VadgrVersion=$(VadgrVersion);PayloadDir=$(PayloadDir);DevelopmentUnsigned=$(DevelopmentUnsigned)</DefineConstants>
@@ -16,6 +17,6 @@
     <Compile Include="$(GeneratedPayloadWxs)" />
     <Compile Include="$(GeneratedLegalWxs)" />
     <Compile Include="$(GeneratedSbomWxs)" />
-    <PackageReference Include="WixToolset.Util.wixext" Version="4.0.6" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="7.0.0" />
   </ItemGroup>
 </Project>

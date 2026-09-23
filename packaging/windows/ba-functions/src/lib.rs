@@ -14,7 +14,8 @@ use windows_sys::Win32::UI::WindowsAndMessaging::{PostMessageW, SendMessageW, Se
 const S_OK: i32 = 0;
 const E_FAIL: i32 = 0x8000_4005_u32 as i32;
 const E_INVALIDARG: i32 = 0x8007_0057_u32 as i32;
-const BA_FUNCTIONS_MESSAGE_ON_DETECT_COMPLETE: u32 = 1;
+const BA_FUNCTIONS_MESSAGE_ON_DETECT_COMPLETE: u32 = 65_542;
+const BA_FUNCTIONS_API_VERSION: u64 = (2024_u64 << 48) | (1 << 32) | (1 << 16);
 const BA_FUNCTIONS_MESSAGE_ON_THEME_LOADED: u32 = 1024;
 const BA_FUNCTIONS_MESSAGE_WINDOW_PROC: u32 = 1025;
 const BA_FUNCTIONS_MESSAGE_ON_THEME_CONTROL_LOADED: u32 = 1029;
@@ -28,7 +29,8 @@ static CONTEXT: AtomicPtr<Context> = AtomicPtr::new(ptr::null_mut());
 pub struct BaFunctionsCreateArgs {
     cb_size: u32,
     api_version: u64,
-    bootstrapper_create_args: *mut c_void,
+    bootstrapper_engine: *mut c_void,
+    bootstrapper_command: *mut c_void,
 }
 
 type BaFunctionsProc =
@@ -136,13 +138,24 @@ impl Context {
 ///
 /// # Safety
 ///
-/// WiX must pass pointers to structures matching the WiX 4.0 BAFunctions ABI.
+/// WiX must pass pointers to structures matching the WiX 7 BAFunctions ABI.
 #[unsafe(no_mangle)]
 pub unsafe extern "system" fn BAFunctionsCreate(
     args: *const BaFunctionsCreateArgs,
     results: *mut BaFunctionsCreateResults,
 ) -> i32 {
     if args.is_null() || results.is_null() {
+        return E_INVALIDARG;
+    }
+    // SAFETY: both structures start with cbSize; reject a different ABI before use.
+    if unsafe {
+        (*args).cb_size as usize != std::mem::size_of::<BaFunctionsCreateArgs>()
+            || (*results).cb_size as usize != std::mem::size_of::<BaFunctionsCreateResults>()
+    } {
+        return E_INVALIDARG;
+    }
+    // SAFETY: the complete create structure size was checked above.
+    if unsafe { (*args).api_version != BA_FUNCTIONS_API_VERSION } {
         return E_INVALIDARG;
     }
     let created = std::panic::catch_unwind(|| Box::new(Context::new()));
@@ -175,7 +188,7 @@ pub unsafe extern "system" fn BAFunctionsCreate(
 ///
 /// # Safety
 ///
-/// WiX must pass a writable results structure matching the WiX 4.0 BAFunctions ABI.
+/// WiX must pass a writable results structure matching the WiX 7 BAFunctions ABI.
 #[unsafe(no_mangle)]
 pub unsafe extern "system" fn BAFunctionsDestroy(
     _args: *const BaFunctionsDestroyArgs,
@@ -346,6 +359,35 @@ fn valid_sha256(value: &str) -> bool {
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn create_rejects_the_previous_abi_before_touching_results() {
+        let mut args = BaFunctionsCreateArgs {
+            cb_size: 24,
+            api_version: BA_FUNCTIONS_API_VERSION,
+            bootstrapper_engine: ptr::null_mut(),
+            bootstrapper_command: ptr::null_mut(),
+        };
+        let mut results = BaFunctionsCreateResults {
+            cb_size: std::mem::size_of::<BaFunctionsCreateResults>() as u32,
+            callback: None,
+            context: ptr::null_mut(),
+        };
+        // SAFETY: test-owned complete structures remain live through these calls.
+        assert_eq!(
+            unsafe { BAFunctionsCreate(&args, &mut results) },
+            E_INVALIDARG
+        );
+        args.cb_size = std::mem::size_of::<BaFunctionsCreateArgs>() as u32;
+        args.api_version = 0;
+        assert_eq!(
+            unsafe { BAFunctionsCreate(&args, &mut results) },
+            E_INVALIDARG
+        );
+        assert!(results.callback.is_none());
+        assert!(results.context.is_null());
+        assert_eq!(BA_FUNCTIONS_MESSAGE_ON_DETECT_COMPLETE, 65_542);
+    }
 
     #[test]
     fn digest_shape_is_closed() {

@@ -17,7 +17,8 @@ $output = (Resolve-Path -LiteralPath $OutputDirectory).Path
 $held = Join-Path $PWD 'held'
 if (Test-Path -LiteralPath $held) { throw 'Held output must not exist.' }
 New-Item -ItemType Directory -Path $held | Out-Null
-$signTool = Get-ChildItem "${env:ProgramFiles(x86)}/Windows Kits/10/bin/*/x64/signtool.exe" |
+$native = if ($Architecture -eq 'arm64') { 'arm64' } else { 'x64' }
+$signTool = Get-ChildItem "${env:ProgramFiles(x86)}/Windows Kits/10/bin/*/$native/signtool.exe" |
     Sort-Object FullName -Descending | Select-Object -First 1
 if (-not $signTool) { throw 'Windows SDK SignTool is required.' }
 $layers = @(Get-ChildItem (Join-Path $inputRoot 'payload') -Recurse -File | Where-Object Extension -In '.exe','.dll','.pyd')
@@ -43,6 +44,7 @@ foreach ($layer in $layers) {
 Copy-Item -LiteralPath (Join-Path $output "Vadgr-0.5.0-windows-$Architecture.msi"), (Join-Path $output "Vadgr-0.5.0-windows-$Architecture-setup.exe") -Destination $held
 Copy-Item -LiteralPath (Join-Path $inputRoot 'payload/legal'), (Join-Path $inputRoot 'payload/sbom') -Destination $held -Recurse
 Copy-Item -LiteralPath $Authorization -Destination (Join-Path $held 'authorization.json')
+Copy-Item -LiteralPath (Join-Path $output 'wix-vendor-msi.json'), (Join-Path $output 'wix-vendor-bundle.json') -Destination $held
 $reports | ConvertTo-Json -Depth 10 | Set-Content -Encoding utf8 -LiteralPath (Join-Path $held 'signature-verification.json')
 $setup = Get-Item -LiteralPath (Join-Path $held "Vadgr-0.5.0-windows-$Architecture-setup.exe")
 $target = if ($Architecture -eq 'x64') { 'windows-x86_64' } else { 'windows-aarch64' }
@@ -71,6 +73,6 @@ $files = @(Get-ChildItem $held -Recurse -File | ForEach-Object {
     source_commit = $approved.source_sha; source_tree = $approved.source_tree;
     trusted_tooling_commit = $approved.trusted_sha; input_digest = $approved.input_digest;
     candidate_id = $approved.candidate_id; run_id = $approved.run_id; run_attempt = $approved.run_attempt;
-    status = 'held-unpublished'; artifacts = $files
+    status = 'held-unpublished'; scope = 'single-target-qualification'; complete_distribution = $false; artifacts = $files
 } | ConvertTo-Json -Depth 20 | Set-Content -Encoding utf8 -LiteralPath (Join-Path $held 'candidate-manifest.json')
 Write-Output 'Verified signed bytes held without publication. Keyless manifest attestation and native installation tests remain required.'

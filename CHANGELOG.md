@@ -31,6 +31,10 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Changed
 
+- The distribution build matrix covers eight native targets with exact vehicle
+  names and architecture checks. Windows uses WiX 7.0.0, its current bootstrapper
+  interface and verified upstream native payloads. Partial Windows qualification
+  cannot claim a complete distribution.
 - Windows releases sign each executable and installer layer through a pinned
   cloud signing tool, with isolated credentials and immediate publisher and
   timestamp verification.

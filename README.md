@@ -42,6 +42,9 @@ and installation behaviour are checked. A keyless manifest attestation binds
 the held installer and its legal and SBOM hashes; its offline verification
 bundle is retained with the candidate. This does not replace Windows code
 signing, approve unreviewed terms, or make an untested candidate a release.
+The build matrix contains eight native OS and architecture targets. Windows uses
+WiX 7.0.0 and separate native x64 and ARM64 runners. A held Windows installer
+qualifies only that target; publication requires all eight exact final vehicles.
 
 Vadgr runs on **Linux**, **WSL**, **Windows** and **macOS**.
 On macOS `0.4.12`, grant Accessibility and Screen Recording to the terminal

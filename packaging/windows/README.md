@@ -1,6 +1,6 @@
 # Windows package inputs
 
-These WiX v4 projects build the current-user MSI and Burn setup selected for
+These WiX 7.0.0 projects build the current-user MSI and Burn setup selected for
 Vadgr 0.5.0. The MSI is fixed to the current user and does not offer a
 machine-wide choice. The deterministic payload generator gives every private
 payload file a stable UUIDv5 component identity and HKCU key path, and gives
@@ -30,3 +30,8 @@ the bundle architecture. It compares the preserved acceptance record with the
 exact compiled terms version and checksum. A match labels the current terms as
 already accepted and does not request assent again; a missing, malformed or
 mismatched record leaves the checkbox clear and required.
+
+The projects record the publisher's acceptance of the WiX 7 build-tool EULA.
+That agreement applies to the build tooling. The Vadgr installer presents only
+the separately reviewed Vadgr terms. Changing the WiX pin requires review of
+the supported release and the bootstrapper extension ABI.

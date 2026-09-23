@@ -1,5 +1,6 @@
-<Project Sdk="WixToolset.Sdk/4.0.6">
+<Project Sdk="WixToolset.Sdk/7.0.0">
   <PropertyGroup>
+    <AcceptEula>wix7</AcceptEula>
     <OutputType>Bundle</OutputType>
     <OutputName>Vadgr-$(VadgrVersion)-windows-$(Platform)-setup</OutputName>
     <DefineConstants>VadgrVersion=$(VadgrVersion);MsiPath=$(MsiPath);TermsRtf=$(TermsRtf);TermsVersion=$(TermsVersion);ThemeFile=$(ThemeFile);ThemeLocalizationFile=$(ThemeLocalizationFile);BAFunctionsPath=$(BAFunctionsPath)</DefineConstants>
@@ -8,6 +9,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Bundle.wxs" />
-    <PackageReference Include="WixToolset.Bal.wixext" Version="4.0.6" />
+    <PackageReference Include="WixToolset.Bal.wixext" Version="7.0.0" />
   </ItemGroup>
 </Project>

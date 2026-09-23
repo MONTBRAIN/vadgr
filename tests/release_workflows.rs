@@ -56,8 +56,10 @@ fn candidate_is_manual_protected_and_builds_without_attesting_unreviewed_platfor
     assert!(!workflow.contains("workflow_run"));
     assert!(workflow.contains("cancel-in-progress: false"));
     for target in [
-        "candidate-linux-${{ matrix.arch }}",
-        "candidate-wsl-${{ matrix.arch }}",
+        "native-build-${{ matrix.target }}",
+        "matrix: ${{ fromJSON(needs.preflight.outputs.remaining_matrix) }}",
+        "runs-on: ${{ matrix.runner }}",
+        "distribution_matrix.py matrix --except-windows",
         "sign-windows:",
         "attest:",
         "refs/heads/master",
@@ -76,7 +78,9 @@ fn candidate_is_manual_protected_and_builds_without_attesting_unreviewed_platfor
 fn candidate_payloads_are_assembled_outside_the_source_checkout() {
     let workflow = repo_file(".github/workflows/candidate.yml");
     assert!(!workflow.contains("--install-root \"$PWD/dist/payload\""));
-    assert_eq!(workflow.matches("$RUNNER_TEMP/vadgr-payload").count(), 2);
+    let native = repo_file("scripts/candidate/build-native.sh");
+    assert!(native.contains("payload_root=\"$RUNNER_TEMP/vadgr-payload\""));
+    assert!(native.contains("--install-root \"$payload_root\" --payload-only"));
     assert!(workflow.contains("scripts/candidate/build-windows.ps1"));
     assert!(!workflow.contains("--install-root \"$PWD/source_checkout"));
 }
@@ -96,12 +100,11 @@ fn macos_candidate_assembles_payload_beside_the_responsible_host() {
 #[test]
 fn candidate_invokes_non_executable_packaging_sources_through_the_shell() {
     let workflow = repo_file(".github/workflows/candidate.yml");
-    for source in ["linux", "wsl"] {
-        assert!(
-            workflow.contains(&format!("sh packaging/{source}/build.sh 0.5.0")),
-            "candidate executes the non-executable {source} package source directly"
-        );
-    }
+    assert!(workflow.contains("sh scripts/candidate/build-native.sh"));
+    assert!(
+        repo_file("scripts/candidate/build-native.sh")
+            .contains("sh \"packaging/$platform/build.sh\" 0.5.0")
+    );
     assert!(
         repo_file(".github/workflows/signed-candidate-macos.yml")
             .contains("sh packaging/macos/build.sh 0.5.0")
