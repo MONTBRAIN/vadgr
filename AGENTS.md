@@ -739,6 +739,10 @@ offered.
   `PrintWindow(PW_CLIENTONLY)` capture. Use the bundled CUA only inside a cell
   whose product assertion explicitly runs a computer-use task. A CUA screenshot,
   pointer click, or OCR result cannot replace the native accessibility oracle.
+  Vadgr CUA may become the common native-console driver only after its structured
+  accessibility tier exists and is qualified on Windows, macOS and native Linux,
+  and the current runbook explicitly adopts it. Until then, every host uses its
+  platform accessibility API.
 - **A native console has no silent dead controls.** Every enabled control works
   in this minor and has an independent E2E oracle. A future control is disabled
   and visibly names the exact registered minor that enables it. A control which
