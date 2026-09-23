@@ -164,9 +164,9 @@ routine billed call; never spend against it for convenience.
 
 ## The practices every repo in this family follows
 
-**This section is identical in every code repo, and identical in this repo's
-`CLAUDE.md` and `AGENTS.md`.** An agent loads one or the other depending on the
-tool it runs under, and it must not get a different standard depending on which.
+**This section is identical in every code repo. `AGENTS.md` is the canonical
+policy, and `CLAUDE.md` imports it.** An agent must get the same standard with
+either tool.
 The long form of every rule here is `vadgr-docs/general/ENGINEERING.md`; these
 are the ones that cost the most when missed.
 
@@ -444,6 +444,22 @@ configuration, credentials and uncommitted work. Remove only validated isolated
 test roots. Run the build system's standard clean command in each completed
 worktree, including `cargo clean` for Rust, then record and report the space
 reclaimed.
+
+**Build output has a bounded lifetime and a release size budget.** Before a
+build or live pass, record free space on the physical backing volume and name
+every output root. Use one explicit build root per worktree. Include nested
+helper projects, because each can create its own `target`, `build`, `.gradle`
+or package cache. After evidence is pushed, stop owned processes, run each
+build system's standard clean command, and remove only validated isolated
+roots. Apply the same cleanup after a failed or interrupted pass. Build output
+is not evidence and never stays merely because a run failed.
+
+A production package excludes compiler databases, incremental state, caches,
+test fixtures, source maps and debug symbols such as `.pdb` and `.dSYM` unless
+an approved design ships a separate symbol artifact. Each packaging run records
+total bytes and bytes by top-level component. A release gate enforces the
+approved platform budget. A size increase requires a reviewed explanation and
+a deliberate budget change. It never becomes the new baseline silently.
 
 **Evidence is filed while the pass runs, never assembled after it.** The
 evidence directory exists before the first cell, each group files what it
