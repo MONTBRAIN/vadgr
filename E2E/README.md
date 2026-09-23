@@ -245,6 +245,17 @@ and inspect the complete view against the approved mockup. The accessibility
 tree proves the interaction surface. The image proves the rendered surface.
 Neither proves the product effect.
 
+Use the host-native app-only capture path. On Windows, use
+`PrintWindow(PW_CLIENTONLY)` under a per-monitor-aware DPI context. On macOS,
+use `SCScreenshotManager` with an
+`SCContentFilter(desktopIndependentWindow:)` for the target window. On native
+Linux Wayland, use the XDG Desktop Portal ScreenCast interface with one WINDOW
+source and read its PipeWire stream. On X11, use the target window ID and the
+XComposite window pixmap. Prove once per host that the capture still succeeds
+while another application has focus. A focused capture, desktop capture,
+monitor capture or crop from either is not a substitute. If the host cannot
+make the exact unfocused capture, the visual assertion remains owed.
+
 Confirm every mutation with an independent record. Use the daemon API, journal,
 database, process table, package manager, signature tool, filesystem, or another
 oracle that does not depend on the console's own claim.

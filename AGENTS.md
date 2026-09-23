@@ -736,7 +736,16 @@ offered.
 - **The installed Vadgr CUA payload is not the installer or native-console E2E
   driver.** Use the host platform accessibility API for those surfaces. On
   Windows, use Windows UI Automation through the AccessKit tree and an app-only
-  `PrintWindow(PW_CLIENTONLY)` capture. Use the bundled CUA only inside a cell
+  `PrintWindow(PW_CLIENTONLY)` capture under a per-monitor-aware DPI context. On
+  macOS, use `SCScreenshotManager` with an
+  `SCContentFilter(desktopIndependentWindow:)` for the target window. On native
+  Linux Wayland, use the XDG Desktop Portal ScreenCast interface with one WINDOW
+  source and read its PipeWire stream. On X11, use the target window ID and the
+  XComposite window pixmap. Prove once per host that the exact app-only capture
+  still works while another application has focus. A focused capture, desktop
+  capture, monitor capture or crop from either is not a substitute. If the host
+  cannot make the exact unfocused capture, leave the visual assertion owed and
+  record the limitation. Use the bundled CUA only inside a cell
   whose product assertion explicitly runs a computer-use task. A CUA screenshot,
   pointer click, or OCR result cannot replace the native accessibility oracle.
   Vadgr CUA may become the common native-console driver only after its structured

@@ -87,12 +87,20 @@ assertion. Evidence and status name the exact slice that ran.
 ## Native console driving
 
 The host lead drives every automatable installer, console, CLI and connected
-phone action. On Windows, use Windows UI Automation through the AccessKit tree.
-Take an app-only client-area capture with `PrintWindow(PW_CLIENTONLY)` under a
-per-monitor-aware DPI context. Prove once that capture works while the console
-is not focused. After every action, reacquire the UI Automation elements, inspect
-the app-only capture against the approved mockups, and verify the result through
-the API, process, package, filesystem or journal oracle named by the cell.
+phone action. Use the host platform accessibility tree. Use Windows UI
+Automation through AccessKit on Windows. Use macOS Accessibility on macOS. Use
+AT-SPI on native Linux. Take an exact app-only capture through the host-native
+path: `PrintWindow(PW_CLIENTONLY)` under a per-monitor-aware DPI context on
+Windows; `SCScreenshotManager` with an
+`SCContentFilter(desktopIndependentWindow:)` on macOS; one XDG Desktop Portal
+ScreenCast WINDOW source and its PipeWire stream on Wayland; or the target
+window ID and XComposite window pixmap on X11. Prove once per host that capture
+works while another application has focus. A focused capture, desktop capture,
+monitor capture or crop from either is not a substitute. If exact unfocused
+capture is unavailable, leave the visual assertion owed. After every action,
+reacquire the accessibility elements, inspect the app-only capture against the
+approved mockups, and verify the result through the API, process, package,
+filesystem or journal oracle named by the cell.
 The bundled Vadgr CUA payload is not the Windows installer or console driver.
 Use it only for a cell that explicitly runs a product computer-use task. Its
 screenshot, pointer, OCR and browser tools do not satisfy the native Windows UI

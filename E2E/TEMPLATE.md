@@ -213,6 +213,16 @@ present in a given runbook, the entry is all there is.
     without requiring focus, inspect it against the approved mockup, and verify
     each effect with an independent machine oracle. [Native console driving]
 
+    Use `PrintWindow(PW_CLIENTONLY)` under a per-monitor-aware DPI context on
+    Windows. Use `SCScreenshotManager` with an
+    `SCContentFilter(desktopIndependentWindow:)` on macOS. On native Linux, use
+    one XDG Desktop Portal ScreenCast WINDOW source and its PipeWire stream on
+    Wayland, or the target window ID and XComposite window pixmap on X11. Prove
+    once per host that capture works while another application has focus. A
+    focused capture, desktop capture, monitor capture or crop is not a
+    substitute. An unavailable exact unfocused capture leaves the visual
+    assertion owed. [Native console driving]
+
 22. **A native console has no silent dead controls.** Invoke every enabled
     control through accessibility. Each future control is disabled and visibly
     names the exact registered minor that enables it. A current-state limitation
@@ -667,11 +677,13 @@ have failed to bind, and the cause would have looked like the host.
 ## Native console driving
 
 <Delete this section only when the minor has no native graphical surface. Name
-the exact accessibility backend and the command or tool used to inspect it. Name
-the exact application-only capture method and prove that it does not require
-focus. The driver opens every capture and compares the complete view with the
-approved mockup. Screenshots confirm rendering but never locate controls or
-drive the structured tier.>
+the exact accessibility backend and the command or tool used to inspect it. Use
+the standard host-native application-only capture path named in doctrine and
+prove that it works while another application has focus. A focused capture,
+desktop capture, monitor capture or crop is not a substitute. If exact unfocused
+capture is unavailable, leave the visual assertion owed. The driver opens every
+capture and compares the complete view with the approved mockup. Screenshots
+confirm rendering but never locate controls or drive the structured tier.>
 
 <Inventory every console control before the first live cell. An enabled control
 must work in this minor. A future control must be disabled and show the exact
