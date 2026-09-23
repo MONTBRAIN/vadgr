@@ -12,6 +12,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOW = ROOT / ".github/workflows/ci.yml"
+LAYOUT_GUARD = "Require a successful reviewed layout"
 
 
 def job(name):
@@ -98,7 +99,7 @@ def test_unknown_or_invalid_package_cannot_select_a_layout(tmp_path, metadata):
 ])
 def test_each_installer_runs_only_its_version_and_platform(layout, runner, image, legacy, distribution):
     assert selected_steps("installer", layout, runner, image) == {
-        legacy if layout == "legacy" else distribution}
+        LAYOUT_GUARD, legacy if layout == "legacy" else distribution}
 
 
 @pytest.mark.parametrize("layout,expected", [
@@ -106,7 +107,8 @@ def test_each_installer_runs_only_its_version_and_platform(layout, runner, image
     ("distribution", "Prove an unconfigured WSL candidate fails before mutation"),
 ])
 def test_wsl_runs_exactly_the_required_version_probe(layout, expected):
-    assert selected_steps("wsl-clean-install", layout, "Windows", "windows-latest") == {expected}
+    assert selected_steps("wsl-clean-install", layout, "Windows", "windows-latest") == {
+        LAYOUT_GUARD, expected}
 
 
 @pytest.mark.parametrize("layout", ["legacy", "distribution"])
@@ -127,13 +129,46 @@ def test_clean_install_selects_one_build_and_one_matching_assembly(layout, runne
         assert assemblies == {"Assemble the complete clean install on Windows without Python tools"}
 
 
-def test_layout_failure_blocks_installer_jobs_without_renaming_required_checks():
+def test_layout_failure_fails_required_jobs_instead_of_skipping_them():
     for name in ("installer", "wsl-clean-install", "clean-install"):
         assert "    needs: release-layout\n" in job(name)
-        assert "always()" not in job(name)
+        assert "    if: ${{ always() }}\n" in job(name)
+        assert job(name).split("    steps:\n", 1)[1].startswith(f"      - name: {LAYOUT_GUARD}\n")
+        guard = step(name, LAYOUT_GUARD)
+        assert "if:" not in guard and "continue-on-error:" not in guard
+        assert "RELEASE_LAYOUT_RESULT: ${{ needs.release-layout.result }}" in guard
+        assert "RELEASE_LAYOUT: ${{ needs.release-layout.outputs.layout }}" in guard
     assert "os: [ubuntu-latest, windows-latest, macos-latest]" in job("rust")
     assert "os: [ubuntu-latest, windows-latest, macos-latest]" in job("installer")
     assert "os: [ubuntu-24.04, windows-latest, macos-latest, macos-15]" in job("clean-install")
+
+
+@pytest.mark.parametrize("job_name", ["installer", "wsl-clean-install", "clean-install"])
+@pytest.mark.parametrize("result,layout,accepted", [
+    ("success", "legacy", True),
+    ("success", "distribution", True),
+    ("failure", "legacy", False),
+    ("failure", "distribution", False),
+    ("skipped", "legacy", False),
+    ("cancelled", "distribution", False),
+    ("", "legacy", False),
+    ("success", "", False),
+    ("success", "unknown", False),
+])
+def test_required_job_guard_rejects_failed_or_missing_layout(tmp_path, job_name, result, layout, accepted):
+    body = step(job_name, LAYOUT_GUARD)
+    assert "        shell: python\n" in body
+    script = textwrap.dedent(body.split("        run: |\n", 1)[1]).strip()
+    probe = subprocess.run(
+        [sys.executable, "-c", script], cwd=tmp_path,
+        env={**os.environ, "RELEASE_LAYOUT_RESULT": result, "RELEASE_LAYOUT": layout},
+        capture_output=True, text=True, timeout=15,
+    )
+    assert (probe.returncode == 0) == accepted, probe.stdout + probe.stderr
+    if accepted:
+        assert probe.stdout.strip() == "Reviewed layout prerequisite passed."
+    else:
+        assert "The reviewed release layout did not succeed." in probe.stderr
 
 
 def test_both_workflows_keep_actions_pinned_and_cannot_use_signing_credentials():

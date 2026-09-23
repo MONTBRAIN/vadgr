@@ -62,8 +62,10 @@ jobs:
 
   # The current release keeps its source-install checks. Distribution candidates
   # use their native package boundary and keep signing in the protected workflow.
+  # Skipped required jobs permit merging, so each job must fail when selection fails.
   installer:
     needs: release-layout
+    if: ${{ always() }}
     strategy:
       fail-fast: false
       matrix:
@@ -71,6 +73,19 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     steps:
+      - name: Require a successful reviewed layout
+        shell: python
+        env:
+          RELEASE_LAYOUT_RESULT: ${{ needs.release-layout.result }}
+          RELEASE_LAYOUT: ${{ needs.release-layout.outputs.layout }}
+        run: |
+          import os
+
+          if (os.environ["RELEASE_LAYOUT_RESULT"] != "success"
+                  or os.environ["RELEASE_LAYOUT"] not in {"legacy", "distribution"}):
+              raise SystemExit("The reviewed release layout did not succeed.")
+          print("Reviewed layout prerequisite passed.")
+
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Install on Linux, in a container with nothing in it
@@ -247,9 +262,23 @@ jobs:
 
   wsl-clean-install:
     needs: release-layout
+    if: ${{ always() }}
     runs-on: windows-latest
     timeout-minutes: 45
     steps:
+      - name: Require a successful reviewed layout
+        shell: python
+        env:
+          RELEASE_LAYOUT_RESULT: ${{ needs.release-layout.result }}
+          RELEASE_LAYOUT: ${{ needs.release-layout.outputs.layout }}
+        run: |
+          import os
+
+          if (os.environ["RELEASE_LAYOUT_RESULT"] != "success"
+                  or os.environ["RELEASE_LAYOUT"] not in {"legacy", "distribution"}):
+              raise SystemExit("The reviewed release layout did not succeed.")
+          print("Reviewed layout prerequisite passed.")
+
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: Vampire/setup-wsl@d1da7f2c0322a5ee4f24975344f67fc0f5baf364 # v7
         with:
@@ -334,6 +363,7 @@ jobs:
   # one. Every leg now drives the one binary a user actually gets.
   clean-install:
     needs: release-layout
+    if: ${{ always() }}
     strategy:
       fail-fast: false
       matrix:
@@ -350,6 +380,19 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     steps:
+      - name: Require a successful reviewed layout
+        shell: python
+        env:
+          RELEASE_LAYOUT_RESULT: ${{ needs.release-layout.result }}
+          RELEASE_LAYOUT: ${{ needs.release-layout.outputs.layout }}
+        run: |
+          import os
+
+          if (os.environ["RELEASE_LAYOUT_RESULT"] != "success"
+                  or os.environ["RELEASE_LAYOUT"] not in {"legacy", "distribution"}):
+              raise SystemExit("The reviewed release layout did not succeed.")
+          print("Reviewed layout prerequisite passed.")
+
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable 2026-09-02
         with:
