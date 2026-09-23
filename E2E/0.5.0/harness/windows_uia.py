@@ -124,7 +124,12 @@ def element_row(element):
     return row
 
 
-def matching_elements(window, name: str, control_type: str | None, enabled_only: bool):
+def matching_elements(
+    window, name: str, control_type: str | None, automation_id: str | None,
+    enabled_only: bool,
+):
+    if automation_id == "<empty>":
+        automation_id = ""
     matches = []
     for element in window.descendants():
         info = element.element_info
@@ -132,14 +137,19 @@ def matching_elements(window, name: str, control_type: str | None, enabled_only:
             continue
         if control_type is not None and info.control_type.casefold() != control_type.casefold():
             continue
+        if automation_id is not None and info.automation_id != automation_id:
+            continue
         if enabled_only and not element.is_enabled():
             continue
         matches.append(element)
     return matches
 
 
-def select_element(window, name: str, control_type: str | None, enabled_only: bool):
-    matches = matching_elements(window, name, control_type, enabled_only)
+def select_element(
+    window, name: str, control_type: str | None, automation_id: str | None,
+    enabled_only: bool,
+):
+    matches = matching_elements(window, name, control_type, automation_id, enabled_only)
     if len(matches) != 1:
         print(json.dumps([element_row(item) for item in matches], indent=2), file=sys.stderr)
         raise SystemExit(f"expected one UIA element named {name!r}, found {len(matches)}")
@@ -224,6 +234,7 @@ def main() -> int:
         if name in ("find", "act"):
             command.add_argument("--name", required=True)
             command.add_argument("--control-type")
+            command.add_argument("--automation-id")
             command.add_argument("--enabled-only", action="store_true")
         if name == "act":
             command.add_argument("--action", choices=("invoke", "toggle", "select", "set-value"), required=True)
@@ -242,9 +253,13 @@ def main() -> int:
         print(json.dumps([element_row(item) for item in window.descendants()], indent=2))
     elif args.command == "find":
         print(json.dumps([element_row(item) for item in matching_elements(
-            window, args.name, args.control_type, args.enabled_only)], indent=2))
+            window, args.name, args.control_type, args.automation_id,
+            args.enabled_only)], indent=2))
     elif args.command == "act":
-        element = select_element(window, args.name, args.control_type, args.enabled_only)
+        element = select_element(
+            window, args.name, args.control_type, args.automation_id,
+            args.enabled_only,
+        )
         before = element_row(element)
         invoke(element, args.action, args.text)
         print(json.dumps({"before": before, "action": args.action}, indent=2))

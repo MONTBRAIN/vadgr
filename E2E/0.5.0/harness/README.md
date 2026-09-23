@@ -15,7 +15,9 @@ Select one window with `--pid` or `--title-regex`. Use `--focus-window` only
 when a visible interactive action needs focus. Use `--restore-window` when the
 target is hidden or minimized but focus is not part of the action. Use
 `--enabled-only` when a modal and its disabled background expose controls with
-the same accessible name.
+the same accessible name. Use `--automation-id` when enabled controls share a
+name; pass the literal value `<empty>` only when the intended element has an
+empty automation ID.
 
 Examples:
 
