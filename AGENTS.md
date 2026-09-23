@@ -733,6 +733,12 @@ offered.
   package manager or operating system as the independent oracle. The owner acts
   only at an unavoidable physical or protected boundary after the agent prepares
   the exact state and gives one explicit instruction.
+- **The installed Vadgr CUA payload is not the installer or native-console E2E
+  driver.** Use the host platform accessibility API for those surfaces. On
+  Windows, use Windows UI Automation through the AccessKit tree and an app-only
+  `PrintWindow(PW_CLIENTONLY)` capture. Use the bundled CUA only inside a cell
+  whose product assertion explicitly runs a computer-use task. A CUA screenshot,
+  pointer click, or OCR result cannot replace the native accessibility oracle.
 - **A native console has no silent dead controls.** Every enabled control works
   in this minor and has an independent E2E oracle. A future control is disabled
   and visibly names the exact registered minor that enables it. A control which

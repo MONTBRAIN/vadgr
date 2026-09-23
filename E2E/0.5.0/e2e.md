@@ -93,6 +93,10 @@ per-monitor-aware DPI context. Prove once that capture works while the console
 is not focused. After every action, reacquire the UI Automation elements, inspect
 the app-only capture against the approved mockups, and verify the result through
 the API, process, package, filesystem or journal oracle named by the cell.
+The bundled Vadgr CUA payload is not the Windows installer or console driver.
+Use it only for a cell that explicitly runs a product computer-use task. Its
+screenshot, pointer, OCR and browser tools do not satisfy the native Windows UI
+Automation oracle.
 
 The owner acts only when the operating system protects the interaction from
 automation or a physical camera must scan a QR code. The runbook's isolated

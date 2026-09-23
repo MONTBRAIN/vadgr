@@ -234,6 +234,10 @@ For a native installed console, the agent uses the platform accessibility tree
 to discover and operate the application. It acts through semantic roles and
 supported actions. It confirms each transition with a fresh structured read.
 Coordinates and pixel matching do not replace the accessibility interface.
+The installed product's bundled CUA payload is not this driver. Use it only
+when a cell explicitly tests a computer-use task. In particular, Windows
+installer and console actions use Windows UI Automation through AccessKit, not
+Vadgr CUA screenshot, pointer, OCR, or browser tools.
 
 At each visual evidence boundary, capture only the exact application client
 area. The capture must not require the application to have focus. Open the image
