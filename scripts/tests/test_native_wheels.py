@@ -176,6 +176,7 @@ def test_cargo_prefetch_covers_metadata_graph_before_offline_build(monkeypatch):
 
 def test_windows_compiler_environment_normalizes_case(monkeypatch):
     from scripts import build_native_wheels as build
+    monkeypatch.setattr(build, "native_make", lambda *_: Path("C:/VS/tools/bin/Hostarm64/arm64/nmake.exe"))
     monkeypatch.setattr(build.platform, "system", lambda: "Windows")
     monkeypatch.setenv("ProgramFiles(x86)", "C:/Programs")
     monkeypatch.setenv("PATH", "original")
@@ -191,6 +192,7 @@ def test_windows_compiler_environment_normalizes_case(monkeypatch):
 @pytest.mark.skipif(os.name != "nt", reason="executes the native Windows command processor")
 def test_windows_compiler_batch_path_with_spaces_executes(tmp_path, monkeypatch):
     from scripts import build_native_wheels as build
+    monkeypatch.setattr(build, "native_make", lambda *_: Path("C:/native-tools/bin/Hostarm64/arm64/nmake.exe"))
     installation = tmp_path / "Program Files (fixture)" / "Visual Studio"
     script = installation / "VC/Auxiliary/Build/vcvarsall.bat"
     script.parent.mkdir(parents=True)
