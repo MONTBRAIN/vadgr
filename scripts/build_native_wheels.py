@@ -67,6 +67,16 @@ def wheel_command(uv, python, source, out):
             "--python", str(python), "--out-dir", str(out), str(source)]
 
 
+def prefetch_cargo(source, environment):
+    # Maturin metadata reads the locked graph for every target, including crates
+    # not built on this host. A target-filtered fetch leaves that graph incomplete.
+    run(["cargo", "fetch", "--locked"], cwd=source, env=environment)
+    environment["CARGO_NET_OFFLINE"] = "true"
+    run(["cargo", "metadata", "--locked", "--offline", "--format-version", "1",
+         "--manifest-path", source / "src/rust/Cargo.toml", "--features", "pyo3/abi3-py311"],
+        cwd=source, env=environment, capture=True)
+
+
 def compiler_environment(configuration, image):
     environment = os.environ.copy()
     for key in tuple(environment):
@@ -179,8 +189,7 @@ def build(inputs, target, work, out):
     gate.require(cargo_lock.is_file(), "upstream Cargo lock missing")
     gate.require(gate.digest(cargo_lock.read_bytes()) == descriptor["cryptography"]["cargo_lock_sha256"],
                  "upstream Cargo lock does not match approved source")
-    run(["cargo", "fetch", "--locked", "--target", configuration["rust_target"]], cwd=source, env=environment)
-    environment["CARGO_NET_OFFLINE"] = "true"
+    prefetch_cargo(source, environment)
     environment["OPENSSL_STATIC"] = "1"
     environment["OPENSSL_DIR"] = str(work / "openssl-install")
     configure_target = "VC-WIN64-ARM" if target.startswith("windows") else "darwin64-x86_64-cc"
