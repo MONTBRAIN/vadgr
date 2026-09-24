@@ -43,6 +43,50 @@ def test_claim_rejects_changed_cua_binding(key, value):
         claims.validate_authorization(auth)
 
 
+def profile_authorization():
+    auth = authorization()
+    binding = {"release_profile": "windows-x86_64", "cua_profile_manifest_sha256": "7" * 64}
+    auth["cua_inputs"].update(binding)
+    auth["cua_payload"].update(binding)
+    relay = "payload/lib/cua/environments/generation/Lib/site-packages/computer_use/browser/winhost/x86_64/vadgr-cua-host.exe"
+    auth["files"][relay] = {"size": 1, "sha256": "8" * 64}
+    policy = {"input_sha256": "f" * 64, "trust_class": "publisher-sign", "signer_policy_sha256": "1" * 64,
+              "legal_approval_sha256": "2" * 64, "certificate_sha256": "3" * 64, "chain_root_sha256": "4" * 64,
+              "signer": "synthetic publisher", "digest_algorithm": "sha256", "timestamp_algorithm": "rfc3161-sha256"}
+    auth.update(helper_claim_sha256="5" * 64, helper_policy_sha256="6" * 64, helper_input_artifact_id=100,
+                helper_input_artifact_digest="sha256:" + "7" * 64, wsl_artifact_id=101,
+                wsl_artifact_digest="sha256:" + "8" * 64, helper_signing_operations=2,
+                outer_signing_operations=4, signing_policy={"schema": 1, "files": {"payload/vadgr.exe": policy}}, budget=6)
+    return auth
+
+
+def test_profile_claim_binds_shared_and_outer_operation_budget():
+    claims.validate_authorization(profile_authorization())
+
+
+@pytest.mark.parametrize("mutation", ["missing-helper", "budget", "class", "chain", "extra-policy", "relay", "wsl-digest"])
+def test_profile_claim_refuses_incomplete_or_ambiguous_authorization(mutation):
+    auth = profile_authorization()
+    policy = auth["signing_policy"]["files"]["payload/vadgr.exe"]
+    if mutation == "missing-helper":
+        del auth["helper_claim_sha256"]
+    elif mutation == "budget":
+        auth["budget"] += 1
+    elif mutation == "class":
+        policy["trust_class"] = "data"
+    elif mutation == "chain":
+        policy["chain_root_sha256"] = None
+    elif mutation == "extra-policy":
+        policy["unreviewed"] = True
+    elif mutation == "relay":
+        relay = next(path for path in auth["files"] if "winhost" in path)
+        auth["files"][relay.replace("vadgr-cua-host.exe", "other.exe")] = auth["files"].pop(relay)
+    else:
+        auth["wsl_artifact_digest"] = "8" * 64
+    with pytest.raises(claims.Refused):
+        claims.validate_authorization(auth)
+
+
 class GitHub:
     def __init__(self):
         self.calls = []

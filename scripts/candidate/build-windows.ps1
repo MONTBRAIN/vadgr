@@ -23,15 +23,25 @@ $trustedRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../..')).Pat
 $wheelhouse = (Resolve-Path -LiteralPath $WheelhouseDirectory).Path
 & python (Join-Path $trustedRoot 'scripts/cua_wheelhouse.py') --source $sourceRoot --target $target --verify $wheelhouse
 if ($LASTEXITCODE -ne 0) { throw 'Offline wheelhouse verification failed.' }
+$closedInputs = Get-Content -Raw -LiteralPath (Join-Path $wheelhouse 'wheelhouse.json') | ConvertFrom-Json
+if ($closedInputs.PSObject.Properties.Name -contains 'release_profile') {
+    if ($closedInputs.release_profile -ne $complianceTarget) { throw 'Reviewed wheelhouse profile differs.' }
+    $releaseProfile = $closedInputs.release_profile
+} else {
+    $releaseProfile = $null
+}
 New-Item -ItemType Directory -Path $output | Out-Null
 $payload = Join-Path $output 'payload'
 New-Item -ItemType Directory -Path $payload | Out-Null
 Push-Location $sourceRoot
 try {
     $env:RUSTFLAGS = '-C target-feature=+crt-static'
-    $env:VADGR_RELEASE_PAYLOAD_BUILD = '1'
+    [Environment]::SetEnvironmentVariable('VADGR_RELEASE_PROFILE', $null)
+    [Environment]::SetEnvironmentVariable('VADGR_RELEASE_PAYLOAD_BUILD', $null)
     & cargo test --locked --all-targets --features native-gui --target $target
     if ($LASTEXITCODE -ne 0) { throw 'Candidate tests failed.' }
+    $env:VADGR_RELEASE_PAYLOAD_BUILD = '1'
+    [Environment]::SetEnvironmentVariable('VADGR_RELEASE_PROFILE', $releaseProfile)
     & cargo build --locked --release --features native-gui --bin vadgr --bin vadgr-app --target $target
     if ($LASTEXITCODE -ne 0) { throw 'Candidate compilation failed.' }
     $binary = Join-Path $sourceRoot "target/$target/release"

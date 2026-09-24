@@ -354,6 +354,14 @@ def preflight(args) -> dict:
     trusted_root = Path(__file__).resolve().parents[1]
     cua_inputs = cua_release_inputs.reviewed_inputs(
         root, trusted_root, f"{arch_name}-pc-windows-msvc")
+    cua_version = pins["cua"]
+    if "release_profile" in cua_inputs:
+        if __package__:
+            from scripts import cua_profiles
+        else:
+            import cua_profiles
+        _, _, catalog = cua_profiles.reviewed(root, trusted_root, cua_inputs["release_profile"])
+        cua_version = catalog["cua_version"]
     cua_release_inputs.verify_origin(trusted_root)
     approval = trusted_approval(args.architecture)
     legal_root = root / legal_prefix
@@ -364,11 +372,18 @@ def preflight(args) -> dict:
     review = json.loads((legal_root / "package-input-review.json").read_text(encoding="utf-8"))
     require(review.get("terms_version") == "1.0", "reviewed terms version differs from release policy")
     for name, expected in approval["legal_hashes"].items():
-        source_name = (legal_prefix + "legal/TERMS.rtf" if name == "TERMS.rtf"
+        source_name = (name if name.startswith("packaging/cua/helper-signing/")
+                       else legal_prefix + "legal/TERMS.rtf" if name == "TERMS.rtf"
                        else legal_prefix + name.removeprefix("payload/"))
         require(source_name in names and hashlib.sha256(
             git(root, "show", f"{sha}:{source_name}", binary=True)).hexdigest() == expected,
             "sealed legal source does not match reviewed bytes")
+    if "release_profile" in cua_inputs:
+        for suffix in (".json", "-outer.json"):
+            name = f"packaging/cua/helper-signing/{arch_name}{suffix}"
+            require(name in approval["legal_hashes"] and (trusted_root / name).is_file()
+                    and hashlib.sha256((trusted_root / name).read_bytes()).hexdigest() == approval["legal_hashes"][name],
+                    "profile signing policy lacks exact trusted legal approval")
     require(hashlib.sha256(git(root, "show", f"{sha}:{legal_prefix}package-input-inventory.json",
                                 binary=True)).hexdigest() == approval["inventory_sha256"],
             "sealed dependency inventory differs from legal approval")
@@ -388,7 +403,7 @@ def preflight(args) -> dict:
             "source_sha": sha, "source_tree": tree, "input_digest": digest,
             "version": args.version, "candidate_id": args.candidate_id,
             "architecture": args.architecture, "pull_request": pull,
-            "cua_version": pins["cua"], "python_version": pins["python"],
+            "cua_version": cua_version, "python_version": pins["python"],
             "cua_inputs": cua_inputs,
             "legal_approval_sha256": hashlib.sha256(json.dumps(approval, sort_keys=True).encode()).hexdigest(),
             "trusted_sha": os.environ.get("GITHUB_SHA", ""), "required_checks": required,

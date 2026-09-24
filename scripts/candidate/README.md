@@ -47,6 +47,17 @@ token is restored to later upload or cleanup steps. Missing or partial
 inputs never select a development lock. These source gates are not signed
 installation qualification.
 
+The feature workflow applies the same preparation and offline verification to
+its seven additional native builds. Both Windows architecture calls receive
+the prepared wheelhouse explicitly; Unix builds receive it as their fourth
+argument. These additional jobs stay on the implementation branch. They do not
+extend the reviewed Windows-only producer on the default branch.
+
+Common clean-install CI uses `prepare_cua_build.py` before compilation.
+Development mode requires explicit permission and no reviewed wheel inputs.
+Once any reviewed input exists, the complete selected closure must match the
+default branch. Missing inputs cannot fall back to the development lock.
+
 The public Sigstore root snapshot in `packaging/release-trusted-root.jsonl` was
 obtained using `gh attestation trusted-root` on 2026-09-17. It excludes GitHub's
 private-instance root. Its SHA-256 is pinned in `candidate_policy.py`; candidate

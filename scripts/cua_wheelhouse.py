@@ -19,6 +19,7 @@ import sys
 import tempfile
 import urllib.parse
 import urllib.request
+import unicodedata
 import zipfile
 
 if __package__:
@@ -115,15 +116,15 @@ def filename_tags(filename: str) -> tuple[str, str, set[str]]:
     return normalized(package), version, tags
 
 
-def archive_members(data: bytes) -> dict[str, bytes]:
-    require(len(data) <= MAX_ARCHIVE, "wheel archive exceeds size limit")
+def archive_members(data: bytes, *, limit=MAX_ARCHIVE) -> dict[str, bytes]:
+    require(len(data) <= limit, "wheel archive exceeds size limit")
     members, seen, total = {}, set(), 0
     with zipfile.ZipFile(io.BytesIO(data)) as archive:
         require(len(archive.infolist()) <= 20_000, "wheel archive has too many members")
         for item in archive.infolist():
             name = item.filename.rstrip("/")
             relative_path(name)
-            key = name.casefold()
+            key = unicodedata.normalize("NFC", name).casefold()
             require(key not in seen, "wheel archive has duplicate or case-colliding members")
             seen.add(key)
             kind = (item.external_attr >> 16) & 0o170000
@@ -137,10 +138,14 @@ def archive_members(data: bytes) -> dict[str, bytes]:
             contents = archive.read(item)
             require(len(contents) == item.file_size, "wheel archive member size differs")
             members[name] = contents
+    file_keys = {unicodedata.normalize("NFC", path).casefold() for path in members}
+    for name in seen:
+        require(not any("/".join(name.split("/")[:index]) in file_keys
+                        for index in range(1, len(name.split("/")))), "wheel archive file/directory collision")
     return members
 
 
-def validate_wheel(data, filename, name, version, target):
+def validate_wheel(data, filename, name, version, target, *, profile=None, role_manifest=None):
     package, wheel_version, tags = filename_tags(filename)
     require(package == name and wheel_version == version and any(compatible(tag, target) for tag in tags),
             "wheel target, ABI or package differs")
@@ -160,6 +165,14 @@ def validate_wheel(data, filename, name, version, target):
             and normalized(metadata["Name"]) == name and metadata.get_all("Version") == [version]
             and set(wheel.get_all("Tag", [])) == tags and len(wheel.get_all("Tag", [])) == len(tags),
             "wheel metadata does not match selected identity")
+    if profile is not None and name == "vadgr-computer-use":
+        if __package__:
+            from scripts import cua_profiles
+        else:
+            import cua_profiles
+        require(cua_profiles.target_for(profile) == target, "profile differs from Rust target")
+        cua_profiles.validate_members(members, profile, role_manifest)
+        return members
     expected = target.split("-", 1)[0]
     kind = "pe" if target.endswith("windows-msvc") else "macho" if target.endswith("apple-darwin") else "elf"
     for content in members.values():
@@ -219,22 +232,48 @@ def custom_wheel(row):
     return row["filename"], members[row["filename"]]
 
 
-def materialize(source: Path, trusted: Path, target: str, output: Path):
+def profile_inputs(source, trusted, target, profile):
+    promoted = any((root / "packaging/cua/profile-inputs.json").exists() for root in (source, trusted))
+    if profile is None and not promoted:
+        return release.reviewed_inputs(source, trusted, target), release.lock_path(target), None
+    if __package__:
+        from scripts import cua_profiles
+    else:
+        import cua_profiles
+    profile = profile or cua_profiles.native_profile(target)
+    binding, inputs, catalog = cua_profiles.reviewed(source, trusted, profile)
+    require(binding["target"] == target, "profile differs from build target")
+    return binding, cua_profiles.lock_path(profile), (inputs, catalog)
+
+
+def materialize(source: Path, trusted: Path, target: str, output: Path, profile=None):
     require(output.is_absolute() and not output.exists() and output.parent.is_dir() and not output.is_symlink(),
             "wheelhouse output must be a new directory")
     require(all(not path.is_symlink() and not getattr(path, "is_junction", lambda: False)()
                 for path in (output.parent, *output.parent.parents)), "wheelhouse output parent is linked")
-    binding = release.reviewed_inputs(source, trusted, target)
+    binding, lock_name, profiles = profile_inputs(source, trusted, target, profile)
+    profile = binding.get("release_profile")
     release.verify_origin(trusted)
     _, manifest = release.manifest(trusted)
-    selected = release.selected_lock(read_owned(trusted, release.lock_path(target)))
+    selected = release.selected_lock(read_owned(trusted, lock_name))
+    profile_files = None
+    if profiles is not None:
+        if __package__:
+            from scripts import cua_profiles
+        else:
+            import cua_profiles
+        profile_files = cua_profiles.retrieve(trusted, *profiles)
     with tempfile.TemporaryDirectory(prefix="vadgr-wheelhouse-", dir=output.parent) as temporary:
         stage = Path(temporary) / "closed"
         stage.mkdir()
         records = []
         for name, (version, digest) in sorted(selected.items()):
             custom = [row for row in manifest["wheels"] if row["sha256"] == digest]
-            if custom:
+            if profile_files is not None and name == "vadgr-computer-use":
+                entry = profiles[1]["profiles"][profile]
+                filename = entry["wheel"]["filename"]
+                data = profile_files[filename]
+            elif custom:
                 require(len(custom) == 1 and name == "cryptography" and version == "50.0.1"
                         and custom[0]["target"] == release.CUSTOM_TARGETS.get(target),
                         "custom wheel is not reviewed for this target")
@@ -242,7 +281,8 @@ def materialize(source: Path, trusted: Path, target: str, output: Path):
             else:
                 filename, data = upstream_wheel(name, version, digest, target)
             require(sha256_bytes(data) == digest, "wheel differs from selected target lock")
-            validate_wheel(data, filename, name, version, target)
+            validate_wheel(data, filename, name, version, target, profile=profile,
+                           role_manifest=binding.get("cua_profile_manifest_sha256"))
             with (stage / filename).open("xb") as stream:
                 stream.write(data)
             records.append({"filename": filename, "name": name, "version": version,
@@ -252,13 +292,14 @@ def materialize(source: Path, trusted: Path, target: str, output: Path):
         stage.rename(output)
 
 
-def verify_materialized(source: Path, trusted: Path, target: str, output: Path):
+def verify_materialized(source: Path, trusted: Path, target: str, output: Path, profile=None):
     """Recheck the closed bytes offline before executing any feature code."""
     require(output.is_absolute() and output.is_dir()
             and all(not path.is_symlink() and not getattr(path, "is_junction", lambda: False)()
                     for path in (output, *output.parents)), "wheelhouse directory is linked or missing")
-    binding = release.reviewed_inputs(source, trusted, target)
-    selected = release.selected_lock(read_owned(trusted, release.lock_path(target)))
+    binding, lock_name, _ = profile_inputs(source, trusted, target, profile)
+    profile = binding.get("release_profile")
+    selected = release.selected_lock(read_owned(trusted, lock_name))
     metadata = parse_json(read_owned(output, "wheelhouse.json"))
     require(set(metadata) == {"schema", *binding, "wheels"}
             and type(metadata["schema"]) is int and metadata["schema"] == 1
@@ -277,7 +318,8 @@ def verify_materialized(source: Path, trusted: Path, target: str, output: Path):
         data = read_owned(output, name)
         require(len(data) == row["size"] and sha256_bytes(data) == row["sha256"],
                 "offline wheel bytes differ")
-        validate_wheel(data, name, row["name"], row["version"], target)
+        validate_wheel(data, name, row["name"], row["version"], target, profile=profile,
+                       role_manifest=binding.get("cua_profile_manifest_sha256"))
         expected.add(name)
         observed.add(row["name"])
     require(observed == set(selected) and {path.name for path in output.iterdir()} == expected,
@@ -288,6 +330,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--target", choices=sorted(release.TARGETS), required=True)
+    parser.add_argument("--release-profile", help="Reviewed build profile; not a runtime override")
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--out", type=Path)
     mode.add_argument("--verify", type=Path)
@@ -295,7 +338,7 @@ def main():
     try:
         operation = verify_materialized if args.verify else materialize
         operation(args.source.resolve(), Path(__file__).resolve().parents[1], args.target,
-                  (args.verify or args.out).absolute())
+                  (args.verify or args.out).absolute(), args.release_profile)
     except (PackageInputError, OSError, ValueError, TypeError, KeyError, zipfile.BadZipFile,
             subprocess.SubprocessError):
         print("CUA wheelhouse refused: reviewed closure or producer verification failed.", file=sys.stderr)

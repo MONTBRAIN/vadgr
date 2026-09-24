@@ -3,7 +3,8 @@ param(
     [Parameter(Mandatory)][ValidateSet('x64', 'arm64')][string] $Architecture,
     [Parameter(Mandatory)][string] $InputDirectory,
     [Parameter(Mandatory)][string] $OutputDirectory,
-    [Parameter(Mandatory)][string] $Authorization
+    [Parameter(Mandatory)][string] $Authorization,
+    [Parameter(Mandatory)][string] $Ledger
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -15,6 +16,10 @@ $identity = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot '../signing/p
 $inputRoot = (Resolve-Path -LiteralPath $InputDirectory).Path
 & python (Join-Path $PSScriptRoot 'cua_signing.py') verify --authorization $Authorization --root $inputRoot --records cua-records
 if ($LASTEXITCODE -ne 0) { throw 'Final CUA inventory changed after signing.' }
+& python (Join-Path $PSScriptRoot 'cua_shared.py') ledger-complete --authorization $Authorization --ledger $Ledger
+if ($LASTEXITCODE -ne 0) { throw 'Real signing ledger is incomplete.' }
+& python (Join-Path $PSScriptRoot 'cua_workflow.py') verify-runtime --authorization $Authorization --root (Join-Path $inputRoot 'payload')
+if ($LASTEXITCODE -ne 0) { throw 'Runtime authorization attestation did not verify.' }
 $output = (Resolve-Path -LiteralPath $OutputDirectory).Path
 $held = Join-Path $PWD 'held'
 if (Test-Path -LiteralPath $held) { throw 'Held output must not exist.' }
@@ -26,7 +31,12 @@ if (-not $signTool) { throw 'Windows SDK SignTool is required.' }
 $layers = @(Get-ChildItem (Join-Path $inputRoot 'payload') -Recurse -File | Where-Object Extension -In '.exe','.dll','.pyd')
 $layers += Get-Item -LiteralPath (Join-Path $inputRoot 'ba-functions.dll')
 $layers += Get-Item -LiteralPath (Join-Path $output "Vadgr-0.5.0-windows-$Architecture.msi"), (Join-Path $output "Vadgr-0.5.0-windows-$Architecture-setup.exe"), (Join-Path $output 'burn-engine.exe')
-if ($layers.Count -ne $approved.budget) { throw 'Final layer count differs from approval.' }
+$helperPolicy = Get-Content -Raw -LiteralPath "cua-records/helper-records/publisher-policy.json" | ConvertFrom-Json
+$helperRelayPolicy = $helperPolicy.files.PSObject.Properties['relay.exe'].Value
+$relay = (Get-Content -Raw -LiteralPath (Join-Path $inputRoot 'payload/cua-runtime-authorization.json') | ConvertFrom-Json).relay.path
+$relayPath = 'payload/lib/cua/' + $relay
+$expectedNativeCount = @($approved.signing_policy.files.PSObject.Properties).Count + 4
+if ($layers.Count -ne $expectedNativeCount) { throw 'Final native file count differs from class policies.' }
 $reports = @()
 foreach ($layer in $layers) {
     & $signTool.FullName verify /pa /all /tw $layer.FullName
@@ -38,8 +48,14 @@ foreach ($layer in $layers) {
     $sha = [Security.Cryptography.SHA256]::Create()
     try { $fingerprint = ([BitConverter]::ToString($sha.ComputeHash($signature.SignerCertificate.RawData))).Replace('-', '') }
     finally { $sha.Dispose() }
-    if ($fingerprint -ne $identity.sha256 -or $signature.SignerCertificate.Thumbprint -ne $identity.sha1) {
-        throw 'Held layer has the wrong publisher.'
+    $relative = [IO.Path]::GetRelativePath($inputRoot, $layer.FullName).Replace('\', '/')
+    $selected = $approved.signing_policy.files.PSObject.Properties[$relative]
+    $expectedCertificate = $identity.sha256
+    if ($selected) { $expectedCertificate = $selected.Value.certificate_sha256 }
+    elseif ($relative -eq $relayPath) { $expectedCertificate = $helperRelayPolicy.certificate_sha256 }
+    elseif (-not $layer.FullName.StartsWith($output + [IO.Path]::DirectorySeparatorChar)) { throw 'Held native file has no exact class policy.' }
+    if ($fingerprint -ne $expectedCertificate) {
+        throw 'Held layer has the wrong class-specific certificate.'
     }
     $reports += @{ name = $layer.Name; sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $layer.FullName).Hash.ToLowerInvariant(); certificate_sha256 = $fingerprint; status = 'valid' }
 }
@@ -47,6 +63,8 @@ Copy-Item -LiteralPath (Join-Path $output "Vadgr-0.5.0-windows-$Architecture.msi
 Copy-Item -LiteralPath (Join-Path $inputRoot 'payload/legal'), (Join-Path $inputRoot 'payload/sbom') -Destination $held -Recurse
 Copy-Item -LiteralPath $Authorization -Destination (Join-Path $held 'authorization.json')
 Copy-Item -LiteralPath 'cua-records' -Destination (Join-Path $held 'cua') -Recurse
+Copy-Item -LiteralPath $Ledger -Destination (Join-Path $held 'signing-ledger.json')
+Copy-Item -LiteralPath (Join-Path $inputRoot 'payload/cua-runtime-authorization.sigstore.json') -Destination (Join-Path $held 'runtime.sigstore.json')
 Copy-Item -LiteralPath (Join-Path $output 'wix-vendor-msi.json'), (Join-Path $output 'wix-vendor-bundle.json') -Destination $held
 $reports | ConvertTo-Json -Depth 10 | Set-Content -Encoding utf8 -LiteralPath (Join-Path $held 'signature-verification.json')
 $setup = Get-Item -LiteralPath (Join-Path $held "Vadgr-0.5.0-windows-$Architecture-setup.exe")
@@ -54,14 +72,15 @@ $target = if ($Architecture -eq 'x64') { 'windows-x86_64' } else { 'windows-aarc
 $legalHashes = @{}
 $sbomHashes = @{}
 $cuaHashes = @{}
-foreach ($path in Get-ChildItem (Join-Path $held 'cua') -File) {
-    $cuaHashes['cua/' + $path.Name] = (Get-FileHash -Algorithm SHA256 -LiteralPath $path.FullName).Hash.ToLowerInvariant()
+foreach ($path in Get-ChildItem (Join-Path $held 'cua') -File -Recurse) {
+    $cuaHashes[[IO.Path]::GetRelativePath($held, $path.FullName).Replace('\', '/')] = (Get-FileHash -Algorithm SHA256 -LiteralPath $path.FullName).Hash.ToLowerInvariant()
 }
 $finalCuaManifest = Get-Content -Raw -LiteralPath (Join-Path $held 'cua/payload.json') | ConvertFrom-Json
 $finalCuaPayload = @{
     target = $approved.cua_inputs.target; requirements_sha256 = $approved.cua_inputs.requirements_sha256;
     wheel_manifest_sha256 = $approved.cua_inputs.wheel_manifest_sha256;
     installed_inventory_sha256 = $finalCuaManifest.installed_inventory_sha256
+    release_profile = $approved.cua_inputs.release_profile; cua_profile_manifest_sha256 = $approved.cua_inputs.cua_profile_manifest_sha256
 }
 foreach ($path in Get-ChildItem (Join-Path $held 'legal') -File -Recurse) {
     $legalHashes[[IO.Path]::GetRelativePath($held, $path.FullName).Replace('\', '/')] = (Get-FileHash -Algorithm SHA256 -LiteralPath $path.FullName).Hash.ToLowerInvariant()

@@ -112,6 +112,12 @@ def selected_lock(raw: bytes) -> dict[str, tuple[str, str]]:
 
 
 def reviewed_inputs(source: Path, trusted: Path, target: str) -> dict[str, str]:
+    if any((root / "packaging/cua/profile-inputs.json").exists() for root in (source, trusted)):
+        if __package__:
+            from scripts.cua_profiles import reviewed, native_profile
+        else:
+            from cua_profiles import reviewed, native_profile
+        return reviewed(source, trusted, native_profile(target))[0]
     lock_name = lock_path(target)
     for name in (MANIFEST, BUNDLE, lock_name):
         require(read_owned(source, name) == read_owned(trusted, name),
@@ -199,9 +205,19 @@ def verify_origin(trusted: Path) -> None:
 def validate_payload(root: Path, binding: dict[str, str]) -> dict[str, str]:
     """Check the complete private runtime tree, never execute its interpreter."""
     _, payload = metadata(root, "payload.json")
-    require(type(payload.get("schema")) is int and payload["schema"] == 2,
-            "new candidate requires schema-2 CUA payload")
-    require(set(binding) == {"target", "requirements_sha256", "wheel_manifest_sha256"}
+    profiled = "release_profile" in binding
+    expected = {"target", "requirements_sha256", "wheel_manifest_sha256"}
+    if profiled:
+        expected |= {"release_profile", "cua_profile_manifest_sha256"}
+        if __package__:
+            from scripts.cua_profiles import target_for
+        else:
+            from cua_profiles import target_for
+        require(target_for(binding["release_profile"]) == binding["target"]
+                and valid_hash(binding["cua_profile_manifest_sha256"]), "profile payload target differs")
+    require(type(payload.get("schema")) is int and payload["schema"] == (3 if profiled else 2),
+            "new candidate requires reviewed CUA payload schema")
+    require(set(binding) == expected
             and binding["target"] in TARGETS
             and all(valid_hash(binding[key]) for key in ("requirements_sha256", "wheel_manifest_sha256"))
             and all(payload.get(key) == value for key, value in binding.items()),

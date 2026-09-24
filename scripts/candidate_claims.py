@@ -23,6 +23,9 @@ BASE_FIELDS = {"repository", "source_sha", "source_tree", "input_digest", "trust
                "schema", "branch", "version", "pull_request", "cua_version", "python_version",
                "legal_approval_sha256", "required_checks", "rules_digest", "cua_inputs", "cua_payload"}
 BOUND_FIELDS = {"qualification_artifact_id", "qualification_artifact_digest"}
+PROFILE_FIELDS = {"helper_claim_sha256", "helper_policy_sha256", "helper_input_artifact_id",
+                  "helper_input_artifact_digest", "wsl_artifact_id", "wsl_artifact_digest",
+                  "helper_signing_operations", "outer_signing_operations", "signing_policy"}
 
 
 class Refused(Exception):
@@ -70,7 +73,9 @@ def archive_digest(value):
 
 
 def validate_authorization(auth, bound=False):
-    require(isinstance(auth, dict) and set(auth) == BASE_FIELDS | (BOUND_FIELDS if bound else set()),
+    profiled = isinstance(auth, dict) and isinstance(auth.get("cua_inputs"), dict) and "release_profile" in auth["cua_inputs"]
+    require(isinstance(auth, dict) and set(auth) == BASE_FIELDS | (BOUND_FIELDS if bound else set())
+            | (PROFILE_FIELDS if profiled else set()),
             "authorization fields do not match the trusted schema")
     require(auth["repository"] == REPOSITORY and auth["run_attempt"] == 1
             and type(auth["run_attempt"]) is int, "repository or attempt refused")
@@ -92,8 +97,13 @@ def validate_authorization(auth, bound=False):
             "candidate target refused")
     cua_inputs, cua_payload = auth["cua_inputs"], auth["cua_payload"]
     target = {"x64": "x86_64", "arm64": "aarch64"}[auth["architecture"]] + "-pc-windows-msvc"
+    input_fields = {"target", "requirements_sha256", "wheel_manifest_sha256"}
+    if isinstance(cua_inputs, dict) and "release_profile" in cua_inputs:
+        input_fields |= {"release_profile", "cua_profile_manifest_sha256"}
+        require(cua_inputs["release_profile"] == "windows-" + target.split("-", 1)[0]
+                and hashed(cua_inputs["cua_profile_manifest_sha256"]), "CUA release profile refused")
     require(isinstance(cua_inputs, dict) and isinstance(cua_payload, dict)
-            and set(cua_inputs) == {"target", "requirements_sha256", "wheel_manifest_sha256"}
+            and set(cua_inputs) == input_fields
             and set(cua_payload) == set(cua_inputs) | {"installed_inventory_sha256"}
             and cua_inputs["target"] == target
             and all(cua_payload.get(key) == value for key, value in cua_inputs.items())
@@ -103,6 +113,41 @@ def validate_authorization(auth, bound=False):
     require(isinstance(auth["files"], dict) and auth["files"]
             and isinstance(auth["legal_hashes"], dict) and auth["legal_hashes"], "empty input inventory")
     require(all(hashed(value) for value in auth["legal_hashes"].values()), "legal hash refused")
+    if profiled:
+        require(all(hashed(auth[k]) for k in ("helper_claim_sha256", "helper_policy_sha256"))
+                and all(positive(auth[k]) for k in ("helper_input_artifact_id", "wsl_artifact_id",
+                                                    "helper_signing_operations", "outer_signing_operations"))
+                and all(archive_digest(auth[k]) for k in ("helper_input_artifact_digest", "wsl_artifact_digest"))
+                and auth["budget"] == auth["helper_signing_operations"] + auth["outer_signing_operations"],
+                "profile shared helper identity or operation budget refused")
+        policy = auth["signing_policy"]
+        require(isinstance(policy, dict) and set(policy) == {"schema", "files"} and policy["schema"] == 1
+                and isinstance(policy["files"], dict), "profile outer signing policy differs")
+        native = {p for p in auth["files"] if p.lower().endswith((".exe", ".dll", ".pyd"))}
+        omitted = native - set(policy["files"])
+        require(set(policy["files"]) < native and len(omitted) == 1,
+                "profile signing policy must omit exactly one shared helper relay")
+        relay_path = next(iter(omitted))
+        require(relay_path.endswith("/computer_use/browser/winhost/" + target.split("-", 1)[0] + "/vadgr-cua-host.exe")
+                and relay_path.startswith("payload/lib/cua/environments/"), "profile omitted native file is not the shared relay")
+        operations = 3  # MSI, detached Burn engine, reattached setup vehicle.
+        for path, selected in policy["files"].items():
+            require(isinstance(selected, dict) and set(selected) == {
+                        "input_sha256", "trust_class", "signer_policy_sha256", "legal_approval_sha256", "signer",
+                        "certificate_sha256", "chain_root_sha256", "digest_algorithm", "timestamp_algorithm"}
+                    and selected.get("input_sha256") == auth["files"][path]["sha256"]
+                    and selected.get("trust_class") in ("publisher-sign", "vendor-preserve"),
+                    "profile signing classification absent")
+            if selected["trust_class"] == "publisher-sign":
+                operations += 1
+            if selected["trust_class"] in ("publisher-sign", "vendor-preserve"):
+                require(all(hashed(selected.get(k)) for k in ("signer_policy_sha256", "legal_approval_sha256",
+                                                             "certificate_sha256", "chain_root_sha256"))
+                        and selected.get("digest_algorithm") == "sha256"
+                        and selected.get("timestamp_algorithm") == "rfc3161-sha256"
+                        and isinstance(selected.get("signer"), str) and selected["signer"],
+                        "profile signer identity, chain or legal policy missing")
+        require(operations == auth["outer_signing_operations"], "profile outer signing operation count differs")
     # The artifact validator owns file formats. Claims preserve its entire inventory.
     canonical(auth)
     if bound:
