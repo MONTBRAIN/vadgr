@@ -27,6 +27,17 @@ All notable changes to this project are documented here. Format follows [Keep a 
 - A local legal-bundle generator copies explicit public inputs into a draft
   package with escaped terms, verbatim notices and an SPDX inventory. It cannot
   approve terms or create a signing waiver.
+- Exact manifest and attestation bundle for native dependency run 35957405519,
+  plus a Windows x64 runtime lock selecting 40 released upstream wheels.
+  Windows ARM64 and macOS target locks remain unavailable because CUA's
+  embedded Windows helper does not satisfy their native target checks.
+  Legal approval, signing and installed-product qualification remain separate.
+
+- Trusted candidate admission for reviewed per-target wheelhouses and schema-2
+  runtime inventories. Offline compilation follows separate read-only downloads.
+  Windows signing records exact input/output hashes and reseals runtime metadata
+  before WiX 7 packaging. The Windows output retains single-target
+  qualification scope; no release inputs are approved by this change.
 - Keyless held-candidate manifest attestations after fresh Windows signature
   verification and approved legal and SBOM byte checks. The downloadable bundle
   uses a pinned public Sigstore root and does not publish a release or replace
