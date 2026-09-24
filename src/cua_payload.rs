@@ -304,6 +304,7 @@ pub struct CuaPayloadInstaller {
     install_root: PathBuf,
     pins: CuaPins,
     wheelhouse: Option<PathBuf>,
+    target_unpromoted: bool,
 }
 
 impl CuaPayloadInstaller {
@@ -313,6 +314,7 @@ impl CuaPayloadInstaller {
             install_root,
             pins: current_pins()?,
             wheelhouse: None,
+            target_unpromoted: RELEASE_TARGET_UNPROMOTED,
         })
     }
 
@@ -323,6 +325,10 @@ impl CuaPayloadInstaller {
     }
 
     pub async fn assemble(&self) -> Result<CuaRuntime> {
+        ensure!(
+            !self.target_unpromoted,
+            "this target has no reviewed CUA wheel closure"
+        );
         if let Ok(runtime) = CuaRuntime::below_install_root(&self.install_root) {
             return Ok(runtime);
         }
@@ -1115,6 +1121,17 @@ fn safe_remove_staging(root: &Path, staging: &Path) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[tokio::test]
+    async fn unpromoted_target_refuses_payload_assembly_before_filesystem_mutation() {
+        let temporary = tempfile::tempdir().unwrap();
+        let root = test_install_root(temporary.path());
+        let mut installer = CuaPayloadInstaller::new(root.clone()).unwrap();
+        installer.target_unpromoted = true;
+        let error = installer.assemble().await.unwrap_err();
+        assert!(error.to_string().contains("no reviewed CUA wheel closure"));
+        assert!(!root.join("lib").exists());
+    }
 
     #[test]
     fn release_runtime_excludes_debug_cache_tests_and_foreign_launcher_templates() {

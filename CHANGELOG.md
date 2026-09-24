@@ -6,6 +6,15 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Fixed
 
+- Ordinary builds work when another target has reviewed wheel inputs but the
+  current target does not. Release builds and payload assembly still refuse
+  missing target locks. CI records those targets as refusal checks, not clean
+  installation passes.
+- The Windows source entry point directs users to the graphical installer
+  without creating files, downloading dependencies or changing the user PATH.
+- Private payload assembly removes debug files, tests, bytecode caches and
+  foreign launcher templates before sealing its inventory. Binary source
+  archives remain intact and receive hash references in the source-offer text.
 - Native wheel attestation checks use the exact certificate identity without a
   conflicting GitHub CLI selector. Windows checkouts preserve the pinned trust
   root's LF bytes. Repository, issuer, source, signer and hosted-runner checks

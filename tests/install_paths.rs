@@ -75,22 +75,26 @@ fn the_current_e2e_uses_the_installers_real_override_names() {
 }
 
 #[test]
-fn the_windows_installer_does_not_persist_path_for_an_alternate_profile() {
+fn the_windows_source_installer_refuses_before_mutation() {
     let installer = repo_file("install.ps1");
-    let add_to_path = installer
-        .split("function AddToPath")
-        .nth(1)
-        .and_then(|text| text.split("# Main").next())
-        .expect("install.ps1 contains the AddToPath function");
-
     assert!(
-        add_to_path.contains("[Environment+SpecialFolder]::UserProfile"),
-        "the installer must compare USERPROFILE with the real Windows profile"
+        installer.contains("Windows uses the graphical Vadgr installer. Download the Windows installer from https://github.com/MONTBRAIN/vadgr/releases.")
+            && installer.contains("exit 2"),
+        "the source entry point must direct Windows users to the graphical installer"
     );
-    assert!(
-        add_to_path.contains("return"),
-        "an alternate profile must return before changing the real user PATH"
-    );
+    for forbidden in [
+        "New-Item",
+        "SetEnvironmentVariable",
+        "git clone",
+        "winget",
+        "cargo",
+        "Invoke-WebRequest",
+    ] {
+        assert!(
+            !installer.contains(forbidden),
+            "the refusal must not contain {forbidden}"
+        );
+    }
 }
 
 /// Every line of macOS grant guidance sits inside a macOS guard.

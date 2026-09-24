@@ -23,3 +23,19 @@ The exact Windows x64 legal packet must be regenerated from the corrected CUA
 profile. Nested signing, final native verification and the owner's exact legal
 review remain required. No closure, candidate admission or signing approval is
 granted here. ARM64 and macOS package inputs remain absent and owed.
+
+## Failed CI retained
+
+`failed-ci-runs.json` records the failed jobs and exact source revision from
+runs 35962297116 and 35962297141. The ordinary Linux and macOS builds and both
+verifier builds stopped at the assertion that a target lock and the global
+wheel manifest must arrive together. Ordinary compilation now permits a target
+whose reviewed lock is absent. Release compilation and payload assembly still
+refuse that target.
+
+The Windows installer job invoked the retired source installer without the
+required closed wheelhouse. The source entry point now refuses without changing
+owner state and directs users to the graphical installer. The Unix clean-install
+jobs refused missing target locks during preparation. CI now checks that refusal
+explicitly and records clean installation as not run. This is not an installed
+product pass and does not qualify those targets for a candidate.

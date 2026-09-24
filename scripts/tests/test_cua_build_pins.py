@@ -50,7 +50,20 @@ class BuildPinsTests(unittest.TestCase):
         self.assertNotEqual(self.run_selector(required=True)[0], 0)
         for name in ("packaging/cua/native-wheel-manifest.json",
                      "packaging/cua/locks/x86_64-pc-windows-msvc.lock"):
-            self.assertNotEqual(self.run_selector(files=(name,))[0], 0)
+            self.assertNotEqual(self.run_selector(required=True, files=(name,))[0], 0)
+        self.assertNotEqual(self.run_selector(files=("packaging/cua/locks/x86_64-pc-windows-msvc.lock",))[0], 0)
+
+    def test_ordinary_unpromoted_targets_compile_without_enabling_payload_assembly(self):
+        for target in ("x86_64-unknown-linux-gnu", "aarch64-unknown-linux-gnu",
+                       "x86_64-apple-darwin", "aarch64-apple-darwin", "aarch64-pc-windows-msvc"):
+            with self.subTest(target=target):
+                files = ("packaging/cua/native-wheel-manifest.json",
+                         "packaging/cua/locks/x86_64-pc-windows-msvc.lock")
+                code, generated = self.run_selector(target=target, files=files)
+                self.assertEqual(code, 0)
+                self.assertEqual(generated.count("= None;"), 2)
+                self.assertIn("const RELEASE_TARGET_UNPROMOTED: bool = true;", generated)
+                self.assertNotEqual(self.run_selector(required=True, target=target, files=files)[0], 0)
 
     def test_compiled_inputs_are_selected_for_exact_cargo_target(self):
         names = ("packaging/cua/native-wheel-manifest.json",

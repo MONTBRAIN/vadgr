@@ -42,8 +42,7 @@ def test_reviewed_mode_materializes_before_emitting_release_environment(tmp_path
 def test_clean_install_prepares_before_compile_and_passes_wheelhouse():
     root = Path(__file__).resolve().parents[2]
     text = (root / ".github/workflows/ci.yml").read_text().split("\n  clean-install:", 1)[1]
-    assert text.index("prepare_cua_build.py") < text.index("cargo build")
-    assert "--allow-development" in text
+    assert text.index("check_cua_ci_boundary.py") < text.index("cargo build")
     assert "--trusted .trusted-cua" in text
     assert "VADGR_BUILD_WHEELHOUSE" in text and text.count("--wheelhouse") >= 3
     macos = (root / ".github/workflows/signed-candidate-macos.yml").read_text()

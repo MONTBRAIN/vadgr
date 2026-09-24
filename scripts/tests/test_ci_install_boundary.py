@@ -131,7 +131,7 @@ def test_macos_clean_install_uses_the_native_bundle_and_real_host_build():
     assert "cargo build --locked --release --features macos-cua-host --bin vadgr --bin vadgr-cua-host" in text
     assembly = text.split("- name: Assemble the macOS app without Python tools\n", 1)[1]
     assembly = assembly.split("\n      - name:", 1)[0]
-    assert "if: runner.os == 'macOS'" in assembly
+    assert "&& runner.os == 'macOS'" in assembly
     assert 'app="$RUNNER_TEMP/vadgr-clean-install/Vadgr.app"' in assembly
     assert 'install_root="$app/Contents/Resources"' in assembly
     assert 'host="$app/Contents/Library/LoginItems/Vadgr Computer Use.app/Contents"' in assembly

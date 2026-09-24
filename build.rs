@@ -31,14 +31,17 @@ fn main() {
     };
     let present = [&lock, manifest].map(|name| root.join(name).is_file());
     assert!(
-        present[0] == present[1],
-        "the reviewed target lock and wheel manifest must arrive together"
+        !present[0] || present[1],
+        "a reviewed target lock requires the wheel manifest"
     );
     assert!(
         !required || present[0],
         "release payload build requires reviewed per-target wheel inputs"
     );
-    let mut output = String::new();
+    let mut output = format!(
+        "const RELEASE_TARGET_UNPROMOTED: bool = {};\n",
+        present[1] && !present[0]
+    );
     for (name, path) in [
         ("RELEASE_REQUIREMENTS", lock.as_str()),
         ("RELEASE_WHEEL_MANIFEST", manifest),

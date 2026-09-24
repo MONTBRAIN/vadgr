@@ -56,8 +56,8 @@ On macOS `0.4.12`, grant Accessibility and Screen Recording to the terminal
 named by the operating-system dialogs, restart that terminal, and start vadgr
 from it. Those grants do not follow the private interpreter into a login,
 `launchd` or independently started daemon. The signed `0.5.0` distribution owns
-the stable application identity required for those background launches. The
-installer also sets up git and the build toolchain. No browser is required.
+the stable application identity required for those background launches.
+Native package installation does not install Git or a build toolchain.
 
 - Windows uses the signed `Vadgr-0.5.0-windows-<arch>-setup.exe` wizard.
 - macOS uses the signed and notarized `Vadgr-0.5.0-macos-<arch>.pkg` wizard.
@@ -65,6 +65,9 @@ installer also sets up git and the build toolchain. No browser is required.
   `Vadgr-0.5.0-linux-<arch>-installer.AppImage`.
 - WSL remains GUI-free and uses the release's attested `install.sh` plus its
   architecture-specific archive.
+
+The Windows `install.ps1` entry point only directs users to the graphical
+installer. It does not install dependencies or change user state.
 
 Download the vehicle, signed release manifest, signature and published hashes
 from the immutable v0.5.0 release. Verify them before launch. Every installer
