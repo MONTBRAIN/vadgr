@@ -276,7 +276,12 @@ def aggregate_files(inventory: dict, files: dict[str, bytes], field: str) -> byt
     result = []
     for component in sorted(inventory["components"], key=lambda item: item["id"]):
         for entry in sorted(component[field], key=lambda item: item["path"]):
-            result.extend([component["name"].encode("utf-8") + b"\n", files[entry["path"]], b"\n"])
+            data = files[entry["path"]]
+            if field == "source_offer_files" and entry["path"].lower().endswith(
+                    (".zip", ".whl", ".crate", ".tar.gz", ".tar.xz", ".tgz")):
+                data = (f"Included source archive: {entry['path']}\n"
+                        f"SHA-256: {sha256_bytes(data)}\n").encode("utf-8")
+            result.extend([component["name"].encode("utf-8") + b"\n", data, b"\n"])
     return b"".join(result) or b"No additional third-party NOTICE files are required by the component inventory.\n"
 
 

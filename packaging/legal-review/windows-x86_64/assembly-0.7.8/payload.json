@@ -1,0 +1,12 @@
+{
+  "schema": 2,
+  "cua_version": "0.7.8",
+  "python_version": "3.12.14",
+  "python_build": "20260825",
+  "requirements_sha256": "83bdf9d395ea701f032e30cba1537483ebfefe8cdac03f30b9eccdccb4e98292",
+  "python_archive_sha256": "15d25c455ea25d6b24d7e58eabdf744fd0db3cfb977934ae08fd2237acd8ccc1",
+  "uv_archive_sha256": "bf1518af459a3915511a11fdc6e2f43ef9a2afa138b9d498eeb9642fe9d85218",
+  "target": "x86_64-pc-windows-msvc",
+  "wheel_manifest_sha256": "2f86c4d2c6493d32019a617c669e3c0babefc565f9da73c6182475286ad499b8",
+  "installed_inventory_sha256": "2cc8d1ff4cb04000ce2f0298f0b2c886ecbd6a850c4015e8e2224083c75f1907"
+}

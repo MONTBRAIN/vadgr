@@ -393,6 +393,7 @@ impl CuaPayloadInstaller {
             extracted_python.is_dir(),
             "Python archive has no python directory"
         );
+        prune_python_runtime(&extracted_python, target)?;
         let python_final = self
             .install_root
             .join("lib/cua/python")
@@ -454,6 +455,7 @@ impl CuaPayloadInstaller {
         }
         #[cfg(unix)]
         finalize_unix_environment(&environment_staging, &python_final)?;
+        prune_python_runtime(&environment_staging, target)?;
 
         let bootstrap_staging = staging.join("bootstrap.py");
         std::fs::write(&bootstrap_staging, BOOTSTRAP)?;
@@ -1026,6 +1028,64 @@ fn write_manifest_last(path: &Path, manifest: &PayloadManifest) -> Result<()> {
     Ok(())
 }
 
+fn collect_regular_files(root: &Path, files: &mut Vec<PathBuf>) -> Result<()> {
+    for entry in std::fs::read_dir(root)? {
+        let path = entry?.path();
+        let metadata = std::fs::symlink_metadata(&path)?;
+        if metadata.file_type().is_symlink() {
+            // The standalone Unix runtime uses relative executable links.
+            ensure!(
+                !cfg!(windows) && !path.is_dir(),
+                "linked Python directory refused"
+            );
+            continue;
+        }
+        if metadata.is_dir() {
+            collect_regular_files(&path, files)?;
+        } else {
+            ensure!(metadata.is_file(), "special Python file refused");
+            files.push(path);
+        }
+    }
+    Ok(())
+}
+
+fn prune_python_runtime(root: &Path, target: &str) -> Result<()> {
+    let canonical_root = root.canonicalize()?;
+    let mut files = Vec::new();
+    collect_regular_files(root, &mut files)?;
+    for path in files {
+        let relative = path
+            .strip_prefix(root)?
+            .to_string_lossy()
+            .replace('\\', "/");
+        let lower = relative.to_ascii_lowercase();
+        let name = lower.rsplit('/').next().unwrap_or("");
+        let development = lower.ends_with(".pdb")
+            || lower.ends_with(".pyc")
+            || lower.ends_with(".pyo")
+            || lower
+                .split('/')
+                .any(|part| matches!(part, "test" | "tests" | "__pycache__" | "idle_test"))
+            || (lower.starts_with("dlls/")
+                && (name.starts_with("_test") || name.starts_with("_ctypes_test")));
+        let launcher = lower.contains("/pip/_vendor/distlib/") && lower.ends_with(".exe");
+        let allowed_launcher = match target {
+            "x86_64-pc-windows-msvc" => matches!(name, "t64.exe" | "w64.exe"),
+            "aarch64-pc-windows-msvc" => matches!(name, "t64-arm.exe" | "w64-arm.exe"),
+            _ => false,
+        };
+        if development || (launcher && !allowed_launcher) {
+            ensure!(
+                path.canonicalize()?.starts_with(&canonical_root),
+                "Python cleanup escaped staging"
+            );
+            std::fs::remove_file(path)?;
+        }
+    }
+    Ok(())
+}
+
 fn safe_remove_staging(root: &Path, staging: &Path) -> Result<()> {
     let expected_parent = root.join("lib/cua");
     ensure!(
@@ -1055,6 +1115,78 @@ fn safe_remove_staging(root: &Path, staging: &Path) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn release_runtime_excludes_debug_cache_tests_and_foreign_launcher_templates() {
+        let root = tempfile::tempdir().unwrap();
+        for name in [
+            "DLLs/_ssl.pdb",
+            "DLLs/_testcapi.pyd",
+            "DLLs/_ctypes_test.pyd",
+            "Lib/test/test_ssl.py",
+            "Lib/json/tests/test_decode.py",
+            "Lib/site-packages/example/test/helper.py",
+            "Lib/json/__pycache__/decoder.cpython-312.pyc",
+            "Lib/site-packages/pip/_vendor/distlib/t32.exe",
+            "Lib/site-packages/pip/_vendor/distlib/t64-arm.exe",
+            "Lib/site-packages/pip/_vendor/distlib/w32.exe",
+            "Lib/site-packages/pip/_vendor/distlib/w64-arm.exe",
+            "DLLs/_ssl.pyd",
+            "Lib/json/decoder.py",
+            "Lib/site-packages/pip/_vendor/distlib/t64.exe",
+            "LICENSE.txt",
+        ] {
+            let path = root.path().join(name);
+            std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+            std::fs::write(path, b"fixture").unwrap();
+        }
+        prune_python_runtime(root.path(), "x86_64-pc-windows-msvc").unwrap();
+        let remaining = [
+            "DLLs/_ssl.pyd",
+            "Lib/json/decoder.py",
+            "Lib/site-packages/pip/_vendor/distlib/t64.exe",
+            "LICENSE.txt",
+        ];
+        for name in remaining {
+            assert!(root.path().join(name).is_file(), "{name}");
+        }
+        let mut files = Vec::new();
+        collect_regular_files(root.path(), &mut files).unwrap();
+        assert_eq!(files.len(), remaining.len());
+    }
+
+    #[test]
+    fn runtime_launcher_templates_are_selected_for_the_actual_target() {
+        for (target, retained) in [
+            ("x86_64-pc-windows-msvc", vec!["t64.exe", "w64.exe"]),
+            (
+                "aarch64-pc-windows-msvc",
+                vec!["t64-arm.exe", "w64-arm.exe"],
+            ),
+            ("x86_64-unknown-linux-gnu", vec![]),
+        ] {
+            let root = tempfile::tempdir().unwrap();
+            let launchers = root.path().join("Lib/site-packages/pip/_vendor/distlib");
+            std::fs::create_dir_all(&launchers).unwrap();
+            for name in [
+                "t32.exe",
+                "w32.exe",
+                "t64.exe",
+                "w64.exe",
+                "t64-arm.exe",
+                "w64-arm.exe",
+            ] {
+                std::fs::write(launchers.join(name), b"fixture").unwrap();
+            }
+            prune_python_runtime(root.path(), target).unwrap();
+            let mut names = std::fs::read_dir(launchers)
+                .unwrap()
+                .map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned())
+                .collect::<Vec<_>>();
+            names.sort();
+            assert_eq!(names, retained);
+        }
+    }
 
     #[cfg(unix)]
     fn unix_environment_fixture(root: &Path, container: &str) -> (PathBuf, PathBuf) {
