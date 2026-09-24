@@ -264,7 +264,7 @@ fn a_string_that_is_not_an_address_is_refused() {
 // ------------------------------------------------------------- diagnostics
 
 #[test]
-fn the_full_health_block_carries_the_four_fields_the_phone_reads() {
+fn the_full_health_block_carries_connection_details() {
     let t = transport(FakeApi {
         status: running(&["100.64.0.7"], "machine.tail.ts.net."),
         ..Default::default()
@@ -274,6 +274,7 @@ fn the_full_health_block_carries_the_four_fields_the_phone_reads() {
     assert_eq!(s["available"], true);
     assert_eq!(s["advertise_host"], "machine.tail.ts.net");
     assert_eq!(s["bind_host"], "100.64.0.7");
+    assert_eq!(s["port"], 8000);
 }
 
 #[test]

@@ -32,13 +32,14 @@ def step(job_name, step_name):
     return matches[0]
 
 
-def selected_steps(job_name, layout, runner, image):
+def selected_steps(job_name, layout, runner, image, payload_mode="reviewed"):
     selected = set()
     for name, body in steps(job_name):
         condition = re.search(r"(?m)^        if: (.*)$", body)
         if condition:
             expression = condition[1].replace("needs.release-layout.outputs.layout", repr(layout))
             expression = expression.replace("runner.os", repr(runner)).replace("matrix.os", repr(image))
+            expression = expression.replace("steps.payload-inputs.outputs.mode", repr(payload_mode))
             expression = expression.replace("&&", "and").replace("||", "or")
             if not eval(expression, {"__builtins__": {}}, {}):
                 continue
@@ -95,7 +96,7 @@ def test_unknown_or_invalid_package_cannot_select_a_layout(tmp_path, metadata):
     ("macOS", "macos-latest", "Install on macOS, where the runner already has a toolchain",
      "Keep macOS on the signed package boundary"),
     ("Windows", "windows-latest", "Install on Windows, through the PowerShell half",
-     "Install on Windows, through the PowerShell half"),
+     "Keep Windows on the graphical installer boundary"),
 ])
 def test_each_installer_runs_only_its_version_and_platform(layout, runner, image, legacy, distribution):
     assert selected_steps("installer", layout, runner, image) == {
@@ -127,6 +128,15 @@ def test_clean_install_selects_one_build_and_one_matching_assembly(layout, runne
         assert assemblies == {"Assemble the complete clean install on Unix without Python tools"}
     else:
         assert assemblies == {"Assemble the complete clean install on Windows without Python tools"}
+
+
+@pytest.mark.parametrize("runner,image", [("Linux", "ubuntu-24.04"), ("macOS", "macos-latest"),
+                                          ("macOS", "macos-15")])
+def test_unpromoted_targets_only_record_refusal_not_a_clean_install(runner, image):
+    selected = selected_steps("clean-install", "distribution", runner, image, "unpromoted")
+    assert "Record the missing target closure without an install claim" in selected
+    assert not any(name.startswith(("Build ", "Assemble ", "Install it alone", "What it links"))
+                   for name in selected)
 
 
 def test_layout_failure_fails_required_jobs_instead_of_skipping_them():

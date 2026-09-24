@@ -11,7 +11,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 
 
-@pytest.mark.parametrize("job", ["build-windows"])
+@pytest.mark.parametrize("job", ["build-windows", "build-native"])
 def test_trusted_materialization_precedes_token_free_compilation(job):
     workflow = (ROOT / ".github/workflows/candidate.yml").read_text()
     block = workflow.split(f"\n  {job}:\n", 1)[1]
@@ -30,7 +30,7 @@ def test_trusted_materialization_precedes_token_free_compilation(job):
             assert "wheelhouse" in step
 
 
-@pytest.mark.parametrize("file", ["build-windows.ps1"])
+@pytest.mark.parametrize("file", ["build-windows.ps1", "build-native.sh"])
 def test_compiler_refuses_credentials_and_never_downloads_wheels(file):
     source = (ROOT / "scripts/candidate" / file).read_text()
     assert "GH_TOKEN" in source and "GITHUB_TOKEN" in source
@@ -65,17 +65,32 @@ def test_windows_builder_refuses_github_access_before_reading_feature(tmp_path):
     assert not list(tmp_path.iterdir())
 
 
-def test_build_job_has_no_inherited_github_token_for_post_steps():
+@pytest.mark.parametrize("job_name", ["build-windows", "build-native"])
+def test_build_job_has_no_inherited_github_token_for_post_steps(job_name):
     workflow = (ROOT / ".github/workflows/candidate.yml").read_text()
-    job = workflow.split("\n  build-windows:\n", 1)[1].split("\n  validate-artifacts:", 1)[0]
+    job = workflow.split(f"\n  {job_name}:\n", 1)[1]
+    job = re.split(r"\n  [\w-]+:\n", job, maxsplit=1)[0]
     header, steps = job.split("    steps:\n", 1)
     assert "GH_TOKEN:" not in header and "GITHUB_TOKEN:" not in header
     assert "contents: write" not in job and "id-token: write" not in job
     assert "environment:" not in job and "secrets." not in job
-    after_feature = steps.split("- name: Build complete unsigned payload", 1)[1]
+    after_feature = steps.split("- name: Build", 1)[1]
     assert "github.token" not in after_feature
     assert "GH_TOKEN: ''" in after_feature and "GITHUB_TOKEN: ''" in after_feature
     # Checkout cleanup must not restore persisted credentials. GitHub's own
     # read-only action context is not claimed to be isolated from this runner.
     assert steps.count("persist-credentials: false") == 2
     assert "persist-credentials: true" not in steps
+
+
+@pytest.mark.skipif(os.name == "nt", reason="native Unix shell boundary")
+def test_native_builder_refuses_github_access_before_reading_feature(tmp_path):
+    result = subprocess.run([
+        "sh", str(ROOT / "scripts/candidate/build-native.sh"), "linux-x86_64",
+        str(tmp_path / "absent-source"), str(tmp_path / "absent-output"),
+        str(tmp_path / "absent-wheelhouse"),
+    ], env={**os.environ, "GH_TOKEN": "synthetic-boundary-marker"}, capture_output=True, text=True)
+    assert result.returncode != 0
+    assert "Source build must have no GitHub, signing or identity credential." in result.stderr
+    assert "synthetic-boundary-marker" not in result.stdout + result.stderr
+    assert not list(tmp_path.iterdir())

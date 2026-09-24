@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate deterministic WiX v4 authoring for the private Windows payload."""
+"""Generate deterministic WiX authoring for the private Windows payload."""
 
 from __future__ import annotations
 

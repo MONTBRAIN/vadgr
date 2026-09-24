@@ -2,10 +2,19 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
-## Unreleased tooling
+## [0.5.0] - Unreleased
 
 ### Fixed
 
+- Ordinary builds work when another target has reviewed wheel inputs but the
+  current target does not. Release builds and payload assembly still refuse
+  missing target locks. CI records those targets as refusal checks, not clean
+  installation passes.
+- The Windows source entry point directs users to the graphical installer
+  without creating files, downloading dependencies or changing the user PATH.
+- Private payload assembly removes debug files, tests, bytecode caches and
+  foreign launcher templates before sealing its inventory. Binary source
+  archives remain intact and receive hash references in the source-offer text.
 - Native wheel attestation checks use the exact certificate identity without a
   conflicting GitHub CLI selector. Windows checkouts preserve the pinned trust
   root's LF bytes. Repository, issuer, source, signer and hosted-runner checks
@@ -13,6 +22,26 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Added
 
+- Reviewed eight-profile CUA wheel selection, bounded recursive executable-role
+  checks, and schema-3 runtime pins. Native Linux and WSL use distinct locks.
+  Held profile inputs do not approve publication or change released pins.
+- A shared Windows/WSL helper transformation per architecture, with explicit
+  publisher-sign and vendor-preserve policy, deterministic archives, separate
+  consumer receipts and an authenticated installed launch channel.
+- Native Windows, macOS and Linux packages install the CLI, private CUA/Python
+  payload, local machine console, ordinary user-session daemon launch, legal
+  bundle and package lifecycle controls.
+- The local console manages the supported machine settings, providers, paired
+  devices and transports, pairing, daemon restart, updates, repair, rollback,
+  uninstall and the separate owner-data deletion flow.
+- Signed release manifests bind immutable target artifacts, terms, source and
+  monotonic release sequence; native packages additionally require their
+  platform publisher identity.
+- WSL receives a CLI-only verified archive lifecycle through `install.sh` with
+  install, repair, rollback and data-preserving uninstall.
+- A local legal-bundle generator copies explicit public inputs into a draft
+  package with escaped terms, verbatim notices and an SPDX inventory. It cannot
+  approve terms or create a signing waiver.
 - Exact manifest and attestation bundle for native dependency run 35957405519,
   plus a Windows x64 runtime lock selecting 40 released upstream wheels.
   Windows ARM64 and macOS target locks remain unavailable because CUA's
@@ -24,12 +53,10 @@ All notable changes to this project are documented here. Format follows [Keep a 
   Windows signing records exact input/output hashes and reseals runtime metadata
   before WiX 7 packaging. The Windows output retains single-target
   qualification scope; no release inputs are approved by this change.
-
 - Keyless held-candidate manifest attestations after fresh Windows signature
   verification and approved legal and SBOM byte checks. The downloadable bundle
   uses a pinned public Sigstore root and does not publish a release or replace
   native signing or installation qualification.
-
 - A manual Windows candidate workflow with separate source builds, artifact
   validation, protected authorization and one-use signing claims. Candidate
   artifacts remain unpublished. Signing requires configured protections,
@@ -39,7 +66,42 @@ All notable changes to this project are documented here. Format follows [Keep a 
   validation and an attested wheel manifest. Produced bytes require review
   before payload use; this workflow does not sign or publish the product.
 
+### Changed
+
+- Candidate admission binds reviewed target locks and attested native-wheel
+  producer identities to schema-2 private-runtime inventories. Missing reviewed
+  wheel inputs, changed payload files and legacy payload manifests fail closed.
+- Release payload builders embed the reviewed target lock and wheel manifest,
+  materialize one verified wheel per package, and install from that closed
+  wheelhouse without package-index access. Runtime checks cover the private
+  file inventory, and Python does not add bytecode to the installed tree.
+- Windows signing preserves authorized input hashes, verifies signed outputs,
+  and seals the final private-runtime inventory before packaging. Held and
+  release manifests bind both metadata generations and the complete file mapping.
+- The distribution build matrix covers eight native targets with exact vehicle
+  names and architecture checks. Windows uses WiX 7.0.0, its current bootstrapper
+  interface and verified upstream native payloads. Partial Windows qualification
+  cannot claim a complete distribution.
+- Windows releases sign each executable and installer layer through a pinned
+  cloud signing tool, with isolated credentials and immediate publisher and
+  timestamp verification.
+- The daemon and console version now derive from the package version rather
+  than a separately maintained constant.
+- The bundled computer-use payload now carries released version 0.7.8, including
+  browser broker discovery and safe released-version upgrade handoff repairs.
+- Unix payload assembly uses relative links to its bundled interpreter and
+  rejects runtime paths that retain an external assembly dependency.
+- The protected macOS candidate checks architecture-specific legal, inventory
+  and review bytes before assembly and again in the extracted package before
+  signing. Draft inputs, changed bytes and source-only checks cannot pass the
+  signing boundary.
+
 ### Fixed
+
+- Candidate builds materialize reviewed wheelhouses in trusted preparation
+  steps, then verify the closed bytes offline before feature compilation.
+  Explicit GitHub tokens do not persist at job scope or return in later upload
+  steps. Signing and write credentials remain isolated on separate runners.
 
 - Native dependency test policy records seven upstream Unix-only mmap cases
   on Windows by exact test identity and reason. The Intel macOS policy and

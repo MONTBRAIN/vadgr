@@ -96,4 +96,28 @@ impl ConnectionManager {
             let _ = tx.send(());
         }
     }
+
+    /// Whether this device currently owns at least one live socket.
+    pub fn device_connected(&self, device_id: &str) -> bool {
+        self.device_revocations
+            .lock()
+            .expect("ws mutex poisoned")
+            .get(device_id)
+            .is_some_and(|sender| sender.receiver_count() > 0)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn device_connection_status_follows_live_receivers() {
+        let manager = ConnectionManager::new();
+        assert!(!manager.device_connected("device-1"));
+        let receiver = manager.watch_device("device-1");
+        assert!(manager.device_connected("device-1"));
+        drop(receiver);
+        assert!(!manager.device_connected("device-1"));
+    }
 }

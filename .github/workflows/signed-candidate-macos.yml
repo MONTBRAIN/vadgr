@@ -1,0 +1,262 @@
+name: Protected macOS candidate
+
+on:
+  workflow_dispatch:
+  # Only the first distribution PR needs registration before this workflow reaches master.
+  push:
+    branches: [feature/0.5.0-distribution]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: signed-macos-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: validate-macos-candidate
+    if: >-
+      github.event_name == 'workflow_dispatch' || startsWith(github.event.head_commit.message, 'candidate: macos ')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: read
+      checks: read
+      statuses: read
+    outputs:
+      source_tree: ${{ steps.source.outputs.source_tree }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - name: Validate frozen source and current required checks
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          python3 scripts/validate_macos_candidate.py
+          --sha "$GITHUB_SHA" --repository "$GITHUB_REPOSITORY"
+          --ref "$GITHUB_REF_NAME" --self-check validate-macos-candidate
+      - name: Require reviewed public package inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s packaging/release-trusted-root.jsonl
+          python3 scripts/validate_package_inputs.py --source-only --source-root . --root packaging/inputs/macos-arm64 --version 0.5.0 --target aarch64-apple-darwin
+          python3 scripts/validate_package_inputs.py --source-only --source-root . --root packaging/inputs/macos-x86_64 --version 0.5.0 --target x86_64-apple-darwin
+          grep -Fqx 'cua = "0.7.8"' packaging/cua/pins.toml
+      - id: source
+        name: Freeze source tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          echo "source_tree=$(git rev-parse HEAD^{tree})" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: unsigned-macos-${{ matrix.arch }}
+    needs: validate
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-15
+          - arch: x86_64
+            runner: macos-15-intel
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      arm64_digest: ${{ steps.coordinates.outputs.arm64_digest }}
+      x86_64_digest: ${{ steps.coordinates.outputs.x86_64_digest }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable 2026-09-02
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - name: Read reviewed default-branch CUA inputs
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: master
+          path: .trusted-cua
+          persist-credentials: false
+      - name: Prepare reviewed offline package inputs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/prepare_cua_build.py --trusted .trusted-cua \
+            --out "$RUNNER_TEMP/vadgr-macos-wheelhouse" --github-env "$GITHUB_ENV"
+      - name: Assemble pinned unsigned package
+        env:
+          ARCHITECTURE: ${{ matrix.arch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo build --locked --release --features macos-cua-host --bin vadgr --bin vadgr-cua-host
+          payload_bundle="$RUNNER_TEMP/vadgr-payload/Vadgr.app"
+          payload_root="$payload_bundle/Contents/Resources"
+          host="$payload_bundle/Contents/Library/LoginItems/Vadgr Computer Use.app/Contents/MacOS/vadgr-cua-host"
+          mkdir -p "$(dirname "$host")"
+          install -m 0755 target/release/vadgr-cua-host "$host"
+          target/release/vadgr __payload-setup --install-root "$payload_root" --payload-only --wheelhouse "$VADGR_BUILD_WHEELHOUSE"
+          mkdir -p dist/payload
+          cp -R "$payload_root/lib" dist/payload/
+          sh packaging/macos/build.sh 0.5.0 "$ARCHITECTURE"
+      - name: Record unsigned archive provenance
+        env:
+          SOURCE_TREE: ${{ needs.validate.outputs.source_tree }}
+          ARCHITECTURE: ${{ matrix.arch }}
+        shell: python
+        run: |
+          import hashlib, json, os, pathlib, subprocess
+          assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == os.environ['GITHUB_SHA']
+          assert subprocess.check_output(['git', 'rev-parse', 'HEAD^{tree}'], text=True).strip() == os.environ['SOURCE_TREE']
+          archive = pathlib.Path('target/package') / ('Vadgr-0.5.0-macos-' + os.environ['ARCHITECTURE'] + '-unsigned-root.tar.gz')
+          metadata = {
+              'schema': 1, 'source_sha': os.environ['GITHUB_SHA'],
+              'source_tree': os.environ['SOURCE_TREE'],
+              'run_id': os.environ['GITHUB_RUN_ID'], 'run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'architecture': os.environ['ARCHITECTURE'], 'archive_name': archive.name,
+              'archive_sha256': hashlib.file_digest(archive.open('rb'), 'sha256').hexdigest(),
+              'lock_sha256': {p: hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()
+                             for p in ('Cargo.lock', 'packaging/cua/pins.toml', 'packaging/cua/requirements.lock', 'packaging/toolchain.json')},
+              'unsigned_development': True,
+          }
+          (archive.parent / 'unsigned-provenance.json').write_text(json.dumps(metadata, indent=2) + '\n')
+      - id: upload
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: unsigned-macos-${{ matrix.arch }}
+          path: |
+            target/package/Vadgr-0.5.0-macos-${{ matrix.arch }}-unsigned-root.tar.gz
+            target/package/unsigned-provenance.json
+          if-no-files-found: error
+          retention-days: 14
+      - id: coordinates
+        env:
+          ARCHITECTURE: ${{ matrix.arch }}
+          ARTIFACT_DIGEST: ${{ steps.upload.outputs.artifact-digest }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$ARTIFACT_DIGEST"
+          echo "${ARCHITECTURE}_digest=$ARTIFACT_DIGEST" >> "$GITHUB_OUTPUT"
+
+  sign:
+    name: held-signed-macos-${{ matrix.arch }}
+    # Feature-branch signing scripts must never receive Developer ID credentials.
+    # Restore this job only after a reviewed default-branch trusted signer and
+    # held-artifact authorization exist. Unsigned builds remain independently usable.
+    if: ${{ false }}
+    needs: [validate, build]
+    environment: release-macos
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-15
+          - arch: x86_64
+            runner: macos-15-intel
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+      checks: read
+      statuses: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - name: Revalidate current source after environment approval
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          python3 scripts/validate_macos_candidate.py
+          --sha "$GITHUB_SHA" --repository "$GITHUB_REPOSITORY"
+          --ref "$GITHUB_REF_NAME" --self-check validate-macos-candidate
+      - name: Download exact same-run artifact and reject digest mismatch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARCHITECTURE: ${{ matrix.arch }}
+          EXPECTED_DIGEST: ${{ matrix.arch == 'arm64' && needs.build.outputs.arm64_digest || needs.build.outputs.x86_64_digest }}
+        shell: python
+        run: |
+          import hashlib, io, json, os, pathlib, re, subprocess, zipfile
+          def api(path):
+              return subprocess.run(['gh', 'api', path], capture_output=True, check=True).stdout
+          assert os.environ['GITHUB_REPOSITORY'] == 'MONTBRAIN/vadgr'
+          expected = os.environ['EXPECTED_DIGEST'].removeprefix('sha256:')
+          assert re.fullmatch('[0-9a-f]{64}', expected)
+          run = os.environ['GITHUB_RUN_ID']
+          attempt = os.environ['GITHUB_RUN_ATTEMPT']
+          state = json.loads(api('repos/MONTBRAIN/vadgr/actions/runs/' + run))
+          assert state['head_sha'] == os.environ['GITHUB_SHA'] and str(state['run_attempt']) == attempt
+          assert state['event'] in ('push', 'workflow_dispatch')
+          items = json.loads(api('repos/MONTBRAIN/vadgr/actions/runs/' + run + '/artifacts?per_page=100'))['artifacts']
+          name = 'unsigned-macos-' + os.environ['ARCHITECTURE']
+          matches = [a for a in items if a['name'] == name and not a['expired']]
+          assert len(matches) == 1
+          artifact = matches[0]
+          assert artifact['digest'].removeprefix('sha256:') == expected
+          data = api('repos/MONTBRAIN/vadgr/actions/artifacts/' + str(artifact['id']) + '/zip')
+          assert hashlib.sha256(data).hexdigest() == expected
+          allowed = {'unsigned-provenance.json', 'Vadgr-0.5.0-macos-' + os.environ['ARCHITECTURE'] + '-unsigned-root.tar.gz'}
+          destination = pathlib.Path('unsigned')
+          destination.mkdir()
+          with zipfile.ZipFile(io.BytesIO(data)) as archive:
+              assert set(archive.namelist()) == allowed and len(archive.namelist()) == len(allowed)
+              for entry in archive.infolist():
+                  assert entry.file_size <= 2_000_000_000 and (entry.external_attr >> 16) & 0o170000 != 0o120000
+                  (destination / entry.filename).write_bytes(archive.read(entry))
+      - name: Sign, notarize and hold the exact candidate
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+          SOURCE_TREE: ${{ needs.validate.outputs.source_tree }}
+          ARCHITECTURE: ${{ matrix.arch }}
+          MACOS_APPLICATION_P12_BASE64: ${{ secrets.MACOS_APPLICATION_P12_BASE64 }}
+          MACOS_APPLICATION_P12_PASSWORD: ${{ secrets.MACOS_APPLICATION_P12_PASSWORD }}
+          MACOS_INSTALLER_P12_BASE64: ${{ secrets.MACOS_INSTALLER_P12_BASE64 }}
+          MACOS_INSTALLER_P12_PASSWORD: ${{ secrets.MACOS_INSTALLER_P12_PASSWORD }}
+          MACOS_NOTARY_PRIVATE_KEY: ${{ secrets.MACOS_NOTARY_PRIVATE_KEY }}
+          MACOS_NOTARY_KEY_ID: ${{ secrets.MACOS_NOTARY_KEY_ID }}
+          MACOS_NOTARY_ISSUER_ID: ${{ secrets.MACOS_NOTARY_ISSUER_ID }}
+          MACOS_APPLICATION_SHA1: ${{ vars.MACOS_APPLICATION_SHA1 }}
+          MACOS_INSTALLER_SHA1: ${{ vars.MACOS_INSTALLER_SHA1 }}
+          MACOS_CUA_REQUIREMENT: ${{ vars.MACOS_CUA_REQUIREMENT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/macos_signing_credentials.py -- \
+            python3 scripts/sign_macos_candidate.py \
+            --archive "unsigned/Vadgr-0.5.0-macos-$ARCHITECTURE-unsigned-root.tar.gz" \
+            --metadata unsigned/unsigned-provenance.json \
+            --arch "$ARCHITECTURE" --output-dir held
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: held-signed-macos-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            held/Vadgr-0.5.0-macos-${{ matrix.arch }}.pkg
+            held/provenance.json
+          if-no-files-found: error
+          retention-days: 90

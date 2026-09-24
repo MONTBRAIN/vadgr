@@ -1,0 +1,3 @@
+Vadgr is installed. Open Vadgr from Applications. macOS may ask you to approve
+its login item and the Accessibility and Screen Recording permissions used by
+computer use.

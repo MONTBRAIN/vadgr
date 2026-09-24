@@ -1,0 +1,40 @@
+Vadgr security and permissions
+Version 1.0
+
+Vadgr acts with the access you give its machine process, connected tools,
+providers and paired devices. Computer control can read, create, change or
+delete files; use applications and signed-in services; send information; and
+cause financial, legal or other external effects. A model can make mistakes.
+Review important actions and keep backups outside Vadgr.
+
+Use the narrowest permissions that work for the task. Check the machine's
+autonomy mode and tool grants. A role prompt describes the machine's job; it
+does not replace permission controls. Operating-system permissions and the
+access available to your signed-in accounts also limit what tools can do.
+
+Desktop automation can capture screen content and enter input. Grant access
+only to the applications and data needed for the work. On macOS, computer
+control uses the Vadgr Computer Use host and its Accessibility and Screen
+Recording permissions. Other platforms apply their own session and application
+access controls. A denied permission can prevent a task from completing.
+
+Keep provider credentials, machine identity keys and pairing information
+private. Revoke a lost or untrusted paired device. Disconnect credentials you
+no longer use and revoke them with the provider if they might be exposed.
+Someone who can access your computer or credentials can gain the authority
+those items provide. Local storage is not protection from a compromised
+operating system or another process with sufficient access.
+
+The built-in device connection encrypts Vadgr content between endpoints. Relay
+operators can still observe connection metadata. Encryption does not make an
+untrusted paired device safe. See PRIVACY-NOTICE.txt for data destinations.
+
+Keep your operating system and Vadgr updated. Verify the publisher signature
+and integrity information supplied with an installer before opening it. Use
+the installed update and repair controls for package maintenance. If a
+verification check fails, stop and obtain a valid package.
+
+Network paths, providers, websites and applications can fail or change. Neither
+permissions nor encryption guarantees that a task will complete correctly.
+Report a suspected security problem to support@montbrain.ai without sending
+credentials or private task content.

@@ -1,5 +1,8 @@
 //! The pinned, private computer-use payload carried by a vadgr installation.
 
+mod managed;
+mod release;
+
 use crate::engine::mcp::ToolServer;
 use crate::engine::mcp::cua::CuaServer;
 use anyhow::{Context, Result, bail, ensure};
@@ -11,16 +14,78 @@ use std::fs::File;
 use std::io::Write;
 use std::path::{Component, Path, PathBuf};
 use std::process::{Command, Output};
+use std::sync::OnceLock;
 
-pub const CUA_VERSION: &str = "0.7.5";
+pub const CUA_VERSION: &str = "0.7.8";
 pub const PYTHON_VERSION: &str = "3.12.14";
 pub const PYTHON_BUILD: &str = "20260825";
 pub const UV_VERSION: &str = "0.12.7";
 pub const REQUIREMENTS_SHA256: &str =
-    "744699eb30ce59ccc65273210ebe62eba1552966c58a92e6035d1586814e5c27";
+    "bee2f5d1d104d2b4782f8d185071acd4bf7f2fa14c388318e7c159e7a591727e";
 
 const REQUIREMENTS: &[u8] = include_bytes!("../packaging/cua/requirements.lock");
 const BOOTSTRAP: &[u8] = include_bytes!("../packaging/cua/bootstrap.py");
+include!(concat!(env!("OUT_DIR"), "/cua_release_pins.rs"));
+
+fn selected_requirements() -> &'static [u8] {
+    RELEASE_REQUIREMENTS.unwrap_or(REQUIREMENTS)
+}
+
+fn selected_requirements_sha256() -> &'static str {
+    static HASH: OnceLock<String> = OnceLock::new();
+    HASH.get_or_init(|| hex_sha256(selected_requirements()))
+}
+
+fn selected_wheel_manifest_sha256() -> Option<&'static str> {
+    static HASH: OnceLock<String> = OnceLock::new();
+    RELEASE_WHEEL_MANIFEST.map(|bytes| HASH.get_or_init(|| hex_sha256(bytes)).as_str())
+}
+
+fn selected_cua_version() -> Result<&'static str> {
+    static VERSION: OnceLock<String> = OnceLock::new();
+    let Some(raw) = RELEASE_PROFILE_CATALOG else {
+        return Ok(CUA_VERSION);
+    };
+    let catalog: serde_json::Value = serde_json::from_slice(raw)?;
+    let version = catalog["cua_version"]
+        .as_str()
+        .context("compiled profile catalog has no CUA version")?;
+    ensure!(
+        version.split('.').count() == 3
+            && version
+                .split('.')
+                .all(|p| !p.is_empty() && p.bytes().all(|b| b.is_ascii_digit())),
+        "compiled CUA profile version is invalid"
+    );
+    Ok(VERSION.get_or_init(|| version.to_owned()))
+}
+
+fn selected_profile_manifest_sha256() -> Result<Option<&'static str>> {
+    static HASH: OnceLock<String> = OnceLock::new();
+    let Some(profile) = RELEASE_PROFILE else {
+        return Ok(None);
+    };
+    let raw = RELEASE_PROFILE_INPUTS.context("compiled profile input mapping is missing")?;
+    let inputs: serde_json::Value = serde_json::from_slice(raw)?;
+    let catalog = RELEASE_PROFILE_CATALOG.context("compiled profile catalog is missing")?;
+    ensure!(
+        inputs["schema"] == 1
+            && inputs["catalog_sha256"] == hex_sha256(catalog)
+            && inputs["profiles"][profile]["requirements_sha256"] == selected_requirements_sha256(),
+        "compiled profile catalog or transitive lock differs"
+    );
+    let hash = inputs["profiles"][profile]["role_manifest_sha256"]
+        .as_str()
+        .context("compiled role manifest pin is missing")?;
+    ensure!(
+        hash.len() == 64
+            && hash
+                .bytes()
+                .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)),
+        "compiled profile role manifest digest is invalid"
+    );
+    Ok(Some(HASH.get_or_init(|| hash.to_owned())))
+}
 
 #[derive(Clone, Copy, Debug)]
 pub struct CuaPins {
@@ -31,12 +96,17 @@ pub struct CuaPins {
     pub requirements_sha256: &'static str,
     pub python_archive_sha256: &'static str,
     pub uv_archive_sha256: &'static str,
+    pub wheel_manifest_sha256: Option<&'static str>,
+    pub release_profile: Option<&'static str>,
+    pub cua_profile_manifest_sha256: Option<&'static str>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct CuaCommand {
     pub program: PathBuf,
     pub args: Vec<OsString>,
+    authorization: Option<Vec<u8>>,
+    authorization_root: Option<PathBuf>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -44,9 +114,13 @@ pub struct CuaRuntime {
     interpreter: PathBuf,
     bootstrap: PathBuf,
     environment: PathBuf,
+    responsible_host: Option<PathBuf>,
+    authorization: Option<Vec<u8>>,
+    authorization_root: Option<PathBuf>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 struct PayloadManifest {
     schema: u32,
     cua_version: String,
@@ -56,6 +130,14 @@ struct PayloadManifest {
     python_archive_sha256: String,
     uv_archive_sha256: String,
     target: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    wheel_manifest_sha256: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    installed_inventory_sha256: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    release_profile: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    cua_profile_manifest_sha256: Option<String>,
 }
 
 impl CuaRuntime {
@@ -65,6 +147,9 @@ impl CuaRuntime {
             interpreter: root.join("bin/python"),
             bootstrap: root.join("bootstrap.py"),
             environment: root.to_path_buf(),
+            responsible_host: None,
+            authorization: None,
+            authorization_root: None,
         }
     }
 
@@ -77,7 +162,42 @@ impl CuaRuntime {
                 .with_context(|| format!("reading {}", manifest_path.display()))?,
         )
         .with_context(|| format!("parsing {}", manifest_path.display()))?;
-        check_field("schema", manifest.schema, 1)?;
+        check_field(
+            "schema",
+            manifest.schema,
+            if pins.release_profile.is_some() {
+                3
+            } else if pins.wheel_manifest_sha256.is_some() {
+                2
+            } else {
+                1
+            },
+        )?;
+        ensure!(
+            manifest.wheel_manifest_sha256.as_deref() == pins.wheel_manifest_sha256,
+            "CUA wheel manifest differs from compiled release pins"
+        );
+        ensure!(
+            manifest.release_profile.as_deref() == pins.release_profile
+                && manifest.cua_profile_manifest_sha256.as_deref()
+                    == pins.cua_profile_manifest_sha256,
+            "CUA profile differs from compiled release pins"
+        );
+        if pins.wheel_manifest_sha256.is_some() {
+            release::validate_inventory(
+                &cua_root,
+                target_triple()?,
+                manifest
+                    .installed_inventory_sha256
+                    .as_deref()
+                    .context("CUA inventory pin is missing")?,
+            )?;
+        } else {
+            ensure!(
+                manifest.installed_inventory_sha256.is_none(),
+                "development payload cannot claim release inventory"
+            );
+        }
         check_field("cua_version", manifest.cua_version.as_str(), pins.cua)?;
         check_field(
             "python_version",
@@ -111,36 +231,69 @@ impl CuaRuntime {
             interpreter: environment_python(&environment),
             bootstrap: cua_root.join("bootstrap.py"),
             environment,
+            responsible_host: responsible_host(root),
+            authorization: if let Some(profile) = pins.release_profile {
+                managed::installed_authorization(root, &cua_root, &manifest, profile)?
+            } else {
+                None
+            },
+            authorization_root: pins.release_profile.map(|_| root.to_path_buf()),
         };
         ensure!(
             runtime.interpreter.is_file(),
             "cua interpreter is missing: {}",
             runtime.interpreter.display()
         );
+        #[cfg(unix)]
+        {
+            validate_payload_root(root, &cua_root)?;
+            ensure!(
+                std::fs::canonicalize(&runtime.interpreter)?
+                    .starts_with(std::fs::canonicalize(&cua_root)?),
+                "cua interpreter escapes its owned payload"
+            );
+            ensure!(
+                !std::fs::read_link(&runtime.interpreter)?.is_absolute(),
+                "cua interpreter retains an absolute assembly path"
+            );
+            ensure!(
+                !std::fs::read_to_string(runtime.environment.join("pyvenv.cfg"))?
+                    .lines()
+                    .any(is_python_home_field),
+                "cua environment retains assembly home metadata"
+            );
+        }
         ensure!(
             runtime.bootstrap.is_file(),
             "cua bootstrap is missing: {}",
             runtime.bootstrap.display()
         );
+        #[cfg(target_os = "macos")]
+        ensure!(
+            runtime
+                .responsible_host
+                .as_ref()
+                .is_some_and(|path| path.is_file()),
+            "the signed Vadgr Computer Use host is missing"
+        );
         Ok(runtime)
     }
 
     pub fn stdio_command(&self) -> CuaCommand {
-        CuaCommand {
-            program: self.interpreter.clone(),
-            args: vec![
-                "-I".into(),
-                self.bootstrap.as_os_str().to_owned(),
-                "computer_use.mcp_server".into(),
-                "--transport".into(),
-                "stdio".into(),
-            ],
-        }
+        self.command(vec![
+            "-I".into(),
+            "-B".into(),
+            self.bootstrap.as_os_str().to_owned(),
+            "computer_use.mcp_server".into(),
+            "--transport".into(),
+            "stdio".into(),
+        ])
     }
 
     pub fn setup_command(&self, apply: bool) -> CuaCommand {
         let mut args = vec![
             "-I".into(),
+            "-B".into(),
             self.bootstrap.as_os_str().to_owned(),
             "computer_use.mcp_server".into(),
         ];
@@ -166,10 +319,7 @@ impl CuaRuntime {
         } else {
             args.push("doctor".into());
         }
-        CuaCommand {
-            program: self.interpreter.clone(),
-            args,
-        }
+        self.command(args)
     }
 
     pub fn interpreter(&self) -> &Path {
@@ -179,6 +329,45 @@ impl CuaRuntime {
     pub fn environment(&self) -> &Path {
         &self.environment
     }
+
+    fn command(&self, args: Vec<OsString>) -> CuaCommand {
+        if let Some(host) = &self.responsible_host {
+            let mut hosted = vec![
+                OsString::from("--python"),
+                self.interpreter.as_os_str().to_owned(),
+                OsString::from("--"),
+            ];
+            hosted.extend(args);
+            CuaCommand {
+                program: host.clone(),
+                args: hosted,
+                authorization: self.authorization.clone(),
+                authorization_root: self.authorization_root.clone(),
+            }
+        } else {
+            CuaCommand {
+                program: self.interpreter.clone(),
+                args,
+                authorization: self.authorization.clone(),
+                authorization_root: self.authorization_root.clone(),
+            }
+        }
+    }
+}
+
+fn responsible_host(install_root: &Path) -> Option<PathBuf> {
+    if !cfg!(target_os = "macos") {
+        return None;
+    }
+    install_root.ancestors().find_map(|ancestor| {
+        (ancestor.file_name().is_some_and(|name| name == "Resources"))
+            .then(|| ancestor.parent())
+            .flatten()
+            .map(|contents| {
+                contents
+                    .join("Library/LoginItems/Vadgr Computer Use.app/Contents/MacOS/vadgr-cua-host")
+            })
+    })
 }
 
 fn is_wsl() -> bool {
@@ -191,6 +380,8 @@ fn is_wsl() -> bool {
 pub struct CuaPayloadInstaller {
     install_root: PathBuf,
     pins: CuaPins,
+    wheelhouse: Option<PathBuf>,
+    target_unpromoted: bool,
 }
 
 impl CuaPayloadInstaller {
@@ -199,14 +390,38 @@ impl CuaPayloadInstaller {
         Ok(Self {
             install_root,
             pins: current_pins()?,
+            wheelhouse: None,
+            target_unpromoted: RELEASE_TARGET_UNPROMOTED,
         })
     }
 
+    /// Only the secret-free candidate builder supplies this already verified closure.
+    pub fn with_wheelhouse(mut self, wheelhouse: Option<PathBuf>) -> Self {
+        self.wheelhouse = wheelhouse;
+        self
+    }
+
     pub async fn assemble(&self) -> Result<CuaRuntime> {
+        ensure!(
+            !self.target_unpromoted,
+            "this target has no reviewed CUA wheel closure"
+        );
         if let Ok(runtime) = CuaRuntime::below_install_root(&self.install_root) {
             return Ok(runtime);
         }
         validate_embedded_lock(self.pins.requirements_sha256)?;
+        match (self.pins.wheel_manifest_sha256, self.wheelhouse.as_deref()) {
+            (Some(hash), Some(wheelhouse)) => release::validate_wheelhouse(
+                wheelhouse,
+                target_triple()?,
+                selected_requirements(),
+                hash,
+            )?,
+            (None, None) => {}
+            _ => bail!(
+                "release payload assembly requires compiled reviewed pins and a closed wheelhouse"
+            ),
+        }
         let cua_root = self.install_root.join("lib").join("cua");
         std::fs::create_dir_all(&cua_root)?;
         validate_payload_root(&self.install_root, &cua_root)?;
@@ -214,10 +429,30 @@ impl CuaPayloadInstaller {
         std::fs::create_dir(&staging).with_context(|| format!("creating {}", staging.display()))?;
         let result = self.assemble_in(&staging).await;
         safe_remove_staging(&self.install_root, &staging)?;
-        result
+        let mut manifest = result?;
+        if self.pins.wheel_manifest_sha256.is_some() {
+            manifest.installed_inventory_sha256 =
+                Some(release::write_inventory(&cua_root, target_triple()?)?);
+        }
+        write_manifest_last(&cua_root.join("payload.json"), &manifest)?;
+        if self.pins.release_profile.is_some() {
+            // Secret-free assembly precedes the protected signed authorization.
+            // This build-only runtime can list tools, but managed CUA refuses
+            // helper execution without its inherited signed authorization.
+            let environment = cua_root.join("environments").join(environment_generation());
+            return Ok(CuaRuntime {
+                interpreter: environment_python(&environment),
+                bootstrap: cua_root.join("bootstrap.py"),
+                environment,
+                responsible_host: responsible_host(&self.install_root),
+                authorization: None,
+                authorization_root: None,
+            });
+        }
+        CuaRuntime::below_install_root(&self.install_root)
     }
 
-    async fn assemble_in(&self, staging: &Path) -> Result<CuaRuntime> {
+    async fn assemble_in(&self, staging: &Path) -> Result<PayloadManifest> {
         let target = target_triple()?;
         let python_name = format!(
             "cpython-{}+{}-{}-install_only.tar.gz",
@@ -255,6 +490,7 @@ impl CuaPayloadInstaller {
             extracted_python.is_dir(),
             "Python archive has no python directory"
         );
+        prune_python_runtime(&extracted_python, target)?;
         let python_final = self
             .install_root
             .join("lib/cua/python")
@@ -267,7 +503,7 @@ impl CuaPayloadInstaller {
             .context("uv archive has no uv executable")?;
         let environment_staging = staging.join(environment_generation());
         let requirements = staging.join("requirements.lock");
-        std::fs::write(&requirements, REQUIREMENTS)?;
+        std::fs::write(&requirements, selected_requirements())?;
         let cache = staging.join("uv-cache");
         let output = clean_command(&uv)
             .args([
@@ -284,23 +520,39 @@ impl CuaPayloadInstaller {
             .output()?;
         require_success("creating the private cua environment", output)?;
         let environment_interpreter = environment_python(&environment_staging);
-        let output = clean_command(&uv)
-            .args([
-                OsString::from("pip"),
-                OsString::from("sync"),
-                OsString::from("--python"),
-                environment_interpreter.as_os_str().to_owned(),
-                OsString::from("--require-hashes"),
-                OsString::from("--only-binary"),
-                OsString::from(":all:"),
-                OsString::from("--no-config"),
-                OsString::from("--no-cache"),
-                OsString::from("--no-python-downloads"),
-                requirements.as_os_str().to_owned(),
-            ])
-            .env("UV_CACHE_DIR", &cache)
-            .output()?;
+        let mut sync = clean_command(&uv);
+        sync.args([
+            OsString::from("pip"),
+            OsString::from("sync"),
+            OsString::from("--python"),
+            environment_interpreter.as_os_str().to_owned(),
+            OsString::from("--require-hashes"),
+            OsString::from("--only-binary"),
+            OsString::from(":all:"),
+            OsString::from("--no-config"),
+            OsString::from("--no-cache"),
+            OsString::from("--no-python-downloads"),
+            requirements.as_os_str().to_owned(),
+        ])
+        .env("UV_CACHE_DIR", &cache);
+        if let Some(wheelhouse) = &self.wheelhouse {
+            sync.args(["--offline", "--no-index", "--find-links"])
+                .arg(wheelhouse);
+        }
+        let output = sync.output()?;
         require_success("syncing the pinned cua packages", output)?;
+        let output = clean_command(&uv)
+            .args(["pip", "check", "--no-config", "--offline", "--python"])
+            .arg(&environment_interpreter)
+            .output()?;
+        require_success("checking the complete cua dependency closure", output)?;
+        if let (Some(hash), Some(wheelhouse)) = (self.pins.wheel_manifest_sha256, &self.wheelhouse)
+        {
+            release::validate_wheelhouse(wheelhouse, target, selected_requirements(), hash)?;
+        }
+        #[cfg(unix)]
+        finalize_unix_environment(&environment_staging, &python_final)?;
+        prune_python_runtime(&environment_staging, target)?;
 
         let bootstrap_staging = staging.join("bootstrap.py");
         std::fs::write(&bootstrap_staging, BOOTSTRAP)?;
@@ -314,6 +566,9 @@ impl CuaPayloadInstaller {
             interpreter: environment_interpreter,
             bootstrap: bootstrap_staging,
             environment: environment_staging.clone(),
+            responsible_host: responsible_host(&self.install_root),
+            authorization: None,
+            authorization_root: None,
         };
         let probe_home = staging.join("probe-home");
         std::fs::create_dir(&probe_home)?;
@@ -355,7 +610,13 @@ impl CuaPayloadInstaller {
             &cua_root.join("licenses"),
         )?;
         let manifest = PayloadManifest {
-            schema: 1,
+            schema: if self.pins.release_profile.is_some() {
+                3
+            } else if self.pins.wheel_manifest_sha256.is_some() {
+                2
+            } else {
+                1
+            },
             cua_version: self.pins.cua.to_owned(),
             python_version: self.pins.python.to_owned(),
             python_build: self.pins.python_build.to_owned(),
@@ -363,9 +624,12 @@ impl CuaPayloadInstaller {
             python_archive_sha256: self.pins.python_archive_sha256.to_owned(),
             uv_archive_sha256: self.pins.uv_archive_sha256.to_owned(),
             target: target.to_owned(),
+            wheel_manifest_sha256: self.pins.wheel_manifest_sha256.map(str::to_owned),
+            installed_inventory_sha256: None,
+            release_profile: self.pins.release_profile.map(str::to_owned),
+            cua_profile_manifest_sha256: self.pins.cua_profile_manifest_sha256.map(str::to_owned),
         };
-        write_manifest_last(&cua_root.join("payload.json"), &manifest)?;
-        CuaRuntime::below_install_root(&self.install_root)
+        Ok(manifest)
     }
 }
 
@@ -373,14 +637,26 @@ pub fn install_root_from_executable(executable: &Path) -> Result<PathBuf> {
     let bin = executable
         .parent()
         .context("vadgr executable has no parent directory")?;
-    ensure!(
-        bin.file_name().is_some_and(|name| name == "bin"),
-        "vadgr must run from an install root bin directory"
-    );
-    Ok(bin
-        .parent()
-        .context("vadgr bin directory has no install root")?
-        .to_path_buf())
+    if bin.file_name().is_some_and(|name| name == "bin") {
+        return Ok(bin
+            .parent()
+            .context("vadgr bin directory has no install root")?
+            .to_path_buf());
+    }
+    if cfg!(target_os = "macos")
+        && bin.file_name().is_some_and(|name| name == "MacOS")
+        && bin
+            .parent()
+            .is_some_and(|path| path.file_name().is_some_and(|name| name == "Contents"))
+    {
+        return Ok(bin.parent().expect("checked Contents").join("Resources"));
+    }
+    if bin.join("lib/cua").is_dir() || bin.join("install-receipt.json").is_file() {
+        return Ok(bin.to_path_buf());
+    }
+    Err(anyhow::anyhow!(
+        "vadgr is not running from a complete install root"
+    ))
 }
 
 fn validate_install_root(root: &Path) -> Result<()> {
@@ -475,13 +751,16 @@ fn current_pins() -> Result<CuaPins> {
         target => bail!("cua payload does not support target {target}"),
     };
     Ok(CuaPins {
-        cua: CUA_VERSION,
+        cua: selected_cua_version()?,
         python: PYTHON_VERSION,
         python_build: PYTHON_BUILD,
         uv: UV_VERSION,
-        requirements_sha256: REQUIREMENTS_SHA256,
+        requirements_sha256: selected_requirements_sha256(),
         python_archive_sha256,
         uv_archive_sha256,
+        wheel_manifest_sha256: selected_wheel_manifest_sha256(),
+        release_profile: RELEASE_PROFILE,
+        cua_profile_manifest_sha256: selected_profile_manifest_sha256()?,
     })
 }
 
@@ -498,7 +777,73 @@ fn target_triple() -> Result<&'static str> {
 }
 
 fn environment_generation() -> String {
-    format!("{}-{}", CUA_VERSION, &REQUIREMENTS_SHA256[..12])
+    let generation = format!(
+        "{}-{}",
+        selected_cua_version().expect("validated CUA profile pins"),
+        &selected_requirements_sha256()[..12]
+    );
+    if cfg!(unix) {
+        format!("{generation}-unix-relative-v1")
+    } else {
+        generation
+    }
+}
+
+#[cfg(unix)]
+fn is_python_home_field(line: &str) -> bool {
+    line.split_once('=')
+        .is_some_and(|(key, _)| key.trim() == "home")
+}
+
+#[cfg(unix)]
+fn finalize_unix_environment(environment: &Path, python_root: &Path) -> Result<()> {
+    let container = environment
+        .parent()
+        .context("environment has no staging directory")?;
+    ensure!(
+        container
+            .file_name()
+            .is_some_and(|name| name.to_string_lossy().starts_with(".staging-")),
+        "only a staged cua environment can be finalized"
+    );
+    let cua_root =
+        std::fs::canonicalize(container.parent().context("staging has no payload root")?)?;
+    let canonical_python_root = std::fs::canonicalize(python_root)?;
+    let target = std::fs::canonicalize(base_python(python_root))?;
+    ensure!(
+        canonical_python_root.starts_with(&cua_root)
+            && target.starts_with(&canonical_python_root)
+            && target.is_file(),
+        "base Python escapes its owned payload"
+    );
+    let relative_target = Path::new("../../..").join(target.strip_prefix(&cua_root)?);
+    let interpreter = environment_python(environment);
+    ensure!(
+        std::fs::symlink_metadata(&interpreter)?
+            .file_type()
+            .is_symlink(),
+        "staged cua interpreter is not a symbolic link"
+    );
+    ensure!(
+        std::fs::canonicalize(
+            interpreter
+                .parent()
+                .context("interpreter has no directory")?
+                .join(&relative_target)
+        )? == target,
+        "relative cua interpreter does not resolve to its private Python"
+    );
+    let config_path = environment.join("pyvenv.cfg");
+    let config = std::fs::read_to_string(&config_path)?;
+    let config: String = config
+        .split_inclusive('\n')
+        .filter(|line| !is_python_home_field(line))
+        .collect();
+    let staged_link = interpreter.with_file_name(format!(".python-{}", uuid::Uuid::new_v4()));
+    std::os::unix::fs::symlink(&relative_target, &staged_link)?;
+    std::fs::write(config_path, config)?;
+    std::fs::rename(staged_link, interpreter)?;
+    Ok(())
 }
 
 fn environment_python(environment: &Path) -> PathBuf {
@@ -528,7 +873,7 @@ fn check_field<T: std::fmt::Display + PartialEq>(name: &str, actual: T, expected
 fn validate_embedded_lock(expected: &str) -> Result<()> {
     check_field(
         "requirements_sha256",
-        hex_sha256(REQUIREMENTS),
+        hex_sha256(selected_requirements()),
         expected.to_owned(),
     )
 }
@@ -734,12 +1079,15 @@ fn validate_environment(
     );
     require_success(
         "validating private Python and cua versions",
-        Command::new(python).args(["-I", "-c", &code]).output()?,
+        Command::new(python)
+            .args(["-I", "-B", "-c", &code])
+            .output()?,
     )?;
     require_success(
         "running cua doctor",
         Command::new(python)
             .arg("-I")
+            .arg("-B")
             .arg(bootstrap)
             .arg("doctor")
             .output()?,
@@ -789,6 +1137,64 @@ fn write_manifest_last(path: &Path, manifest: &PayloadManifest) -> Result<()> {
     Ok(())
 }
 
+fn collect_regular_files(root: &Path, files: &mut Vec<PathBuf>) -> Result<()> {
+    for entry in std::fs::read_dir(root)? {
+        let path = entry?.path();
+        let metadata = std::fs::symlink_metadata(&path)?;
+        if metadata.file_type().is_symlink() {
+            // The standalone Unix runtime uses relative executable links.
+            ensure!(
+                !cfg!(windows) && !path.is_dir(),
+                "linked Python directory refused"
+            );
+            continue;
+        }
+        if metadata.is_dir() {
+            collect_regular_files(&path, files)?;
+        } else {
+            ensure!(metadata.is_file(), "special Python file refused");
+            files.push(path);
+        }
+    }
+    Ok(())
+}
+
+fn prune_python_runtime(root: &Path, target: &str) -> Result<()> {
+    let canonical_root = root.canonicalize()?;
+    let mut files = Vec::new();
+    collect_regular_files(root, &mut files)?;
+    for path in files {
+        let relative = path
+            .strip_prefix(root)?
+            .to_string_lossy()
+            .replace('\\', "/");
+        let lower = relative.to_ascii_lowercase();
+        let name = lower.rsplit('/').next().unwrap_or("");
+        let development = lower.ends_with(".pdb")
+            || lower.ends_with(".pyc")
+            || lower.ends_with(".pyo")
+            || lower
+                .split('/')
+                .any(|part| matches!(part, "test" | "tests" | "__pycache__" | "idle_test"))
+            || (lower.starts_with("dlls/")
+                && (name.starts_with("_test") || name.starts_with("_ctypes_test")));
+        let launcher = lower.contains("/pip/_vendor/distlib/") && lower.ends_with(".exe");
+        let allowed_launcher = match target {
+            "x86_64-pc-windows-msvc" => matches!(name, "t64.exe" | "w64.exe"),
+            "aarch64-pc-windows-msvc" => matches!(name, "t64-arm.exe" | "w64-arm.exe"),
+            _ => false,
+        };
+        if development || (launcher && !allowed_launcher) {
+            ensure!(
+                path.canonicalize()?.starts_with(&canonical_root),
+                "Python cleanup escaped staging"
+            );
+            std::fs::remove_file(path)?;
+        }
+    }
+    Ok(())
+}
+
 fn safe_remove_staging(root: &Path, staging: &Path) -> Result<()> {
     let expected_parent = root.join("lib/cua");
     ensure!(
@@ -819,15 +1225,413 @@ fn safe_remove_staging(root: &Path, staging: &Path) -> Result<()> {
 mod tests {
     use super::*;
 
+    #[tokio::test]
+    async fn unpromoted_target_refuses_payload_assembly_before_filesystem_mutation() {
+        let temporary = tempfile::tempdir().unwrap();
+        // Hosted runners can expose TEMP through a junction. This fixture
+        // tests missing pins, not the separate install-root link refusal.
+        let root = test_install_root(&dunce::canonicalize(temporary.path()).unwrap());
+        let mut installer = CuaPayloadInstaller::new(root.clone()).unwrap();
+        installer.target_unpromoted = true;
+        let error = installer.assemble().await.unwrap_err();
+        assert!(error.to_string().contains("no reviewed CUA wheel closure"));
+        assert!(!root.join("lib").exists());
+    }
+
+    #[test]
+    fn release_runtime_excludes_debug_cache_tests_and_foreign_launcher_templates() {
+        let root = tempfile::tempdir().unwrap();
+        for name in [
+            "DLLs/_ssl.pdb",
+            "DLLs/_testcapi.pyd",
+            "DLLs/_ctypes_test.pyd",
+            "Lib/test/test_ssl.py",
+            "Lib/json/tests/test_decode.py",
+            "Lib/site-packages/example/test/helper.py",
+            "Lib/json/__pycache__/decoder.cpython-312.pyc",
+            "Lib/site-packages/pip/_vendor/distlib/t32.exe",
+            "Lib/site-packages/pip/_vendor/distlib/t64-arm.exe",
+            "Lib/site-packages/pip/_vendor/distlib/w32.exe",
+            "Lib/site-packages/pip/_vendor/distlib/w64-arm.exe",
+            "DLLs/_ssl.pyd",
+            "Lib/json/decoder.py",
+            "Lib/site-packages/pip/_vendor/distlib/t64.exe",
+            "LICENSE.txt",
+        ] {
+            let path = root.path().join(name);
+            std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+            std::fs::write(path, b"fixture").unwrap();
+        }
+        prune_python_runtime(root.path(), "x86_64-pc-windows-msvc").unwrap();
+        let remaining = [
+            "DLLs/_ssl.pyd",
+            "Lib/json/decoder.py",
+            "Lib/site-packages/pip/_vendor/distlib/t64.exe",
+            "LICENSE.txt",
+        ];
+        for name in remaining {
+            assert!(root.path().join(name).is_file(), "{name}");
+        }
+        let mut files = Vec::new();
+        collect_regular_files(root.path(), &mut files).unwrap();
+        assert_eq!(files.len(), remaining.len());
+    }
+
+    #[test]
+    fn runtime_launcher_templates_are_selected_for_the_actual_target() {
+        for (target, retained) in [
+            ("x86_64-pc-windows-msvc", vec!["t64.exe", "w64.exe"]),
+            (
+                "aarch64-pc-windows-msvc",
+                vec!["t64-arm.exe", "w64-arm.exe"],
+            ),
+            ("x86_64-unknown-linux-gnu", vec![]),
+        ] {
+            let root = tempfile::tempdir().unwrap();
+            let launchers = root.path().join("Lib/site-packages/pip/_vendor/distlib");
+            std::fs::create_dir_all(&launchers).unwrap();
+            for name in [
+                "t32.exe",
+                "w32.exe",
+                "t64.exe",
+                "w64.exe",
+                "t64-arm.exe",
+                "w64-arm.exe",
+            ] {
+                std::fs::write(launchers.join(name), b"fixture").unwrap();
+            }
+            prune_python_runtime(root.path(), target).unwrap();
+            let mut names = std::fs::read_dir(launchers)
+                .unwrap()
+                .map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned())
+                .collect::<Vec<_>>();
+            names.sort();
+            assert_eq!(names, retained);
+        }
+    }
+
+    #[cfg(unix)]
+    fn unix_environment_fixture(root: &Path, container: &str) -> (PathBuf, PathBuf) {
+        let python = root.join("python").join(PYTHON_VERSION);
+        let environment = root.join(container).join(environment_generation());
+        std::fs::create_dir_all(python.join("bin")).unwrap();
+        std::fs::create_dir_all(environment.join("bin")).unwrap();
+        std::fs::write(python.join("bin/python3.12"), b"private python").unwrap();
+        std::os::unix::fs::symlink("python3.12", python.join("bin/python3")).unwrap();
+        std::os::unix::fs::symlink(base_python(&python), environment_python(&environment)).unwrap();
+        std::fs::write(environment.join("pyvenv.cfg"), format!(
+            "home = {}\nimplementation = CPython\nversion_info = {PYTHON_VERSION}\ninclude-system-site-packages = false\nrelocatable = true\n", python.join("bin").display()
+        )).unwrap();
+        (environment, python)
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn unix_generation_does_not_reuse_the_legacy_recipe() {
+        assert!(environment_generation().ends_with("-unix-relative-v1"));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn unix_finalization_never_patches_a_committed_generation() {
+        let temporary = tempfile::tempdir().unwrap();
+        let (environment, python) = unix_environment_fixture(temporary.path(), "environments");
+        let before = std::fs::read(environment.join("pyvenv.cfg")).unwrap();
+        assert!(finalize_unix_environment(&environment, &python).is_err());
+        assert_eq!(
+            std::fs::read(environment.join("pyvenv.cfg")).unwrap(),
+            before
+        );
+        assert!(
+            std::fs::read_link(environment_python(&environment))
+                .unwrap()
+                .is_absolute()
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn unix_finalization_preserves_metadata_and_survives_generation_moves() {
+        let temporary = tempfile::tempdir().unwrap();
+        let root = temporary.path().join("original/lib/cua");
+        let (environment, python) = unix_environment_fixture(&root, ".staging-test");
+        let legacy = root
+            .join("environments")
+            .join(format!("{CUA_VERSION}-{}", &REQUIREMENTS_SHA256[..12]));
+        std::fs::create_dir_all(&legacy).unwrap();
+        std::fs::write(legacy.join("unchanged"), b"legacy generation").unwrap();
+        finalize_unix_environment(&environment, &python).unwrap();
+        let link = std::fs::read_link(environment_python(&environment)).unwrap();
+        assert!(
+            !link.is_absolute(),
+            "the interpreter must not retain the assembly root"
+        );
+        assert_eq!(link, Path::new("../../../python/3.12.14/bin/python3.12"));
+        let config = std::fs::read_to_string(environment.join("pyvenv.cfg")).unwrap();
+        assert_eq!(
+            config,
+            "implementation = CPython\nversion_info = 3.12.14\ninclude-system-site-packages = false\nrelocatable = true\n"
+        );
+        let final_environment = root.join("environments").join(environment_generation());
+        std::fs::rename(&environment, &final_environment).unwrap();
+        assert_eq!(
+            std::fs::read(legacy.join("unchanged")).unwrap(),
+            b"legacy generation"
+        );
+        let moved = temporary
+            .path()
+            .join("moved app/Contents/Resources/lib/cua");
+        std::fs::create_dir_all(moved.parent().unwrap()).unwrap();
+        std::fs::rename(&root, &moved).unwrap();
+        assert!(!root.exists());
+        assert_eq!(
+            std::fs::canonicalize(environment_python(
+                &moved.join("environments").join(environment_generation())
+            ))
+            .unwrap(),
+            std::fs::canonicalize(moved.join("python/3.12.14/bin/python3.12")).unwrap()
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn unix_finalization_refuses_an_external_base_before_mutation() {
+        let temporary = tempfile::tempdir().unwrap();
+        let (environment, python) =
+            unix_environment_fixture(&temporary.path().join("cua"), ".staging-test");
+        let outside = temporary.path().join("outside-python");
+        std::fs::write(&outside, b"foreign python").unwrap();
+        std::fs::remove_file(python.join("bin/python3.12")).unwrap();
+        std::os::unix::fs::symlink(&outside, python.join("bin/python3.12")).unwrap();
+        let before = std::fs::read(environment.join("pyvenv.cfg")).unwrap();
+        assert!(
+            finalize_unix_environment(&environment, &python).is_err(),
+            "external base must be refused"
+        );
+        assert_eq!(
+            std::fs::read(environment.join("pyvenv.cfg")).unwrap(),
+            before
+        );
+        assert!(
+            std::fs::read_link(environment_python(&environment))
+                .unwrap()
+                .is_absolute()
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn unix_runtime_refuses_an_existing_external_interpreter() {
+        let temporary = tempfile::tempdir().unwrap();
+        let root = test_install_root(temporary.path());
+        let manifest = valid_payload(&root);
+        write_manifest(&root, &manifest);
+        let interpreter = environment_python(
+            &root
+                .join("lib/cua/environments")
+                .join(environment_generation()),
+        );
+        let outside = temporary.path().join("outside-python");
+        std::fs::write(&outside, b"foreign python").unwrap();
+        std::fs::remove_file(&interpreter).unwrap();
+        std::os::unix::fs::symlink(outside, &interpreter).unwrap();
+        assert!(
+            CuaRuntime::below_install_root(&root).is_err(),
+            "a live external interpreter must not satisfy readiness"
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn unix_runtime_refuses_unrelocatable_metadata_without_modifying_it() {
+        let temporary = tempfile::tempdir().unwrap();
+        let root = test_install_root(temporary.path());
+        let manifest = valid_payload(&root);
+        write_manifest(&root, &manifest);
+        let environment = root
+            .join("lib/cua/environments")
+            .join(environment_generation());
+        let interpreter = environment_python(&environment);
+        let target = std::fs::canonicalize(&interpreter).unwrap();
+        std::fs::remove_file(&interpreter).unwrap();
+        std::os::unix::fs::symlink(&target, &interpreter).unwrap();
+        assert!(
+            CuaRuntime::below_install_root(&root)
+                .unwrap_err()
+                .to_string()
+                .contains("absolute assembly path")
+        );
+        assert_eq!(std::fs::read_link(&interpreter).unwrap(), target);
+        std::fs::remove_file(&interpreter).unwrap();
+        std::os::unix::fs::symlink("../../../python/3.12.14/bin/python3.12", &interpreter).unwrap();
+        std::fs::write(
+            environment.join("pyvenv.cfg"),
+            "home = obsolete\ninclude-system-site-packages = false\n",
+        )
+        .unwrap();
+        assert!(
+            CuaRuntime::below_install_root(&root)
+                .unwrap_err()
+                .to_string()
+                .contains("assembly home metadata")
+        );
+        assert!(
+            std::fs::read_to_string(environment.join("pyvenv.cfg"))
+                .unwrap()
+                .starts_with("home = obsolete")
+        );
+    }
+
+    #[cfg(unix)]
+    fn copy_unix_fixture(source: &Path, destination: &Path) {
+        let metadata = std::fs::symlink_metadata(source).unwrap();
+        if metadata.file_type().is_symlink() {
+            std::os::unix::fs::symlink(std::fs::read_link(source).unwrap(), destination).unwrap();
+        } else if metadata.is_dir() {
+            std::fs::create_dir_all(destination).unwrap();
+            for entry in std::fs::read_dir(source).unwrap() {
+                let entry = entry.unwrap();
+                copy_unix_fixture(&entry.path(), &destination.join(entry.file_name()));
+            }
+        } else {
+            std::fs::copy(source, destination).unwrap();
+        }
+    }
+
+    /// Explicit fixtures: VADGR_TEST_CUA_PAYLOAD is an assembled lib/cua directory;
+    /// VADGR_TEST_UV is the pinned uv executable. Runs on macOS and Linux without
+    /// downloading packages, importing computer use, or changing either fixture.
+    #[cfg(unix)]
+    #[test]
+    #[ignore = "requires explicit pinned standalone Python, wheel and uv fixtures"]
+    fn unix_cold_runtime_closure_with_pinned_fixtures() {
+        let fixture = PathBuf::from(
+            std::env::var_os("VADGR_TEST_CUA_PAYLOAD").expect("set VADGR_TEST_CUA_PAYLOAD"),
+        );
+        let uv = PathBuf::from(std::env::var_os("VADGR_TEST_UV").expect("set VADGR_TEST_UV"));
+        let pins = current_pins().unwrap();
+        let manifest: PayloadManifest =
+            serde_json::from_slice(&std::fs::read(fixture.join("payload.json")).unwrap()).unwrap();
+        assert_eq!(manifest.python_version, PYTHON_VERSION);
+        assert_eq!(manifest.python_build, PYTHON_BUILD);
+        assert_eq!(manifest.python_archive_sha256, pins.python_archive_sha256);
+        assert_eq!(manifest.requirements_sha256, REQUIREMENTS_SHA256);
+        assert_eq!(manifest.uv_archive_sha256, pins.uv_archive_sha256);
+        assert_eq!(manifest.target, target_triple().unwrap());
+        let version = clean_command(&uv).arg("--version").output().unwrap();
+        assert!(version.status.success());
+        assert!(String::from_utf8_lossy(&version.stdout).starts_with(&format!("uv {UV_VERSION} ")));
+        let temporary = tempfile::tempdir().unwrap();
+        let origin = temporary.path().join("assembly origin/lib/cua");
+        let python = origin.join("python").join(PYTHON_VERSION);
+        copy_unix_fixture(&fixture.join("python").join(PYTHON_VERSION), &python);
+        let environment = origin.join(".staging-test").join(environment_generation());
+        let home = temporary.path().join("isolated-home");
+        std::fs::create_dir(&home).unwrap();
+        let output = Command::new(&uv)
+            .env_clear()
+            .env("HOME", &home)
+            .env("PATH", "")
+            .env("UV_OFFLINE", "true")
+            .env("UV_CACHE_DIR", temporary.path().join("cache"))
+            .args([
+                "venv",
+                "--relocatable",
+                "--no-config",
+                "--no-project",
+                "--no-python-downloads",
+                "--python",
+            ])
+            .arg(base_python(&python))
+            .arg(&environment)
+            .output()
+            .unwrap();
+        println!(
+            "{}",
+            serde_json::json!({"phase":"fresh_venv", "exit_code": output.status.code(), "stdout":String::from_utf8_lossy(&output.stdout), "stderr":String::from_utf8_lossy(&output.stderr)})
+        );
+        assert!(output.status.success());
+        let source_environment = fixture
+            .join("environments")
+            .join(format!("{CUA_VERSION}-{}", &REQUIREMENTS_SHA256[..12]));
+        let source_environment = if source_environment.is_dir() {
+            source_environment
+        } else {
+            fixture.join("environments").join(environment_generation())
+        };
+        copy_unix_fixture(
+            &source_environment.join("lib/python3.12/site-packages"),
+            &environment.join("lib/python3.12/site-packages"),
+        );
+        finalize_unix_environment(&environment, &python).unwrap();
+        let final_environment = origin.join("environments").join(environment_generation());
+        std::fs::create_dir(origin.join("environments")).unwrap();
+        std::fs::rename(environment, final_environment).unwrap();
+        let copied = temporary
+            .path()
+            .join("copied app/Contents/Resources/lib/cua");
+        copy_unix_fixture(&origin, &copied);
+        std::fs::rename(&origin, temporary.path().join("hidden-origin")).unwrap();
+        assert!(!origin.exists());
+        let probe = r#"import ctypes, encodings, importlib.metadata, json, pathlib, sqlite3, ssl, sys
+root = pathlib.Path(sys.argv[1]).resolve()
+paths = [sys.executable, sys.prefix, sys.base_prefix, encodings.__file__, ssl.__file__, sqlite3.__file__, ctypes.__file__, *sys.path]
+distributions = sorted((d.metadata['Name'], d.version, str(d.locate_file('').resolve())) for d in importlib.metadata.distributions())
+outside = [p for p in paths + [d[2] for d in distributions] if not pathlib.Path(p).resolve().is_relative_to(root)]
+print(json.dumps({'python':sys.version.split()[0], 'paths':paths, 'distributions':[(d[0], d[1]) for d in distributions], 'outside':outside}))
+assert sys.version.split()[0] == '3.12.14'
+assert importlib.metadata.version('vadgr-computer-use') == '0.7.8'
+assert not outside
+"#;
+        let result = Command::new(environment_python(
+            &copied.join("environments").join(environment_generation()),
+        ))
+        .env_clear()
+        .env("HOME", &home)
+        .env("PATH", "")
+        .current_dir(&home)
+        .args(["-I", "-B", "-c", probe])
+        .arg(&copied)
+        .output();
+        match result {
+            Ok(output) => {
+                println!(
+                    "{}",
+                    serde_json::json!({"phase":"cold_closure", "exit_code":output.status.code(), "stdout":String::from_utf8_lossy(&output.stdout), "stderr":String::from_utf8_lossy(&output.stderr)})
+                );
+                assert!(output.status.success(), "cold interpreter closure failed");
+            }
+            Err(error) => {
+                println!(
+                    "{}",
+                    serde_json::json!({"phase":"cold_closure", "exit_code":null, "launch_error":error.to_string(), "raw_os_error":error.raw_os_error()})
+                );
+                panic!("cold interpreter could not launch: {error}");
+            }
+        }
+    }
+
     fn valid_payload(root: &Path) -> serde_json::Value {
         let pins = current_pins().unwrap();
         let cua_root = root.join("lib/cua");
         let environment = cua_root.join("environments").join(environment_generation());
         std::fs::create_dir_all(environment_python(&environment).parent().unwrap()).unwrap();
+        #[cfg(not(unix))]
         std::fs::write(environment_python(&environment), b"private python").unwrap();
+        #[cfg(unix)]
+        {
+            let (staged, python) = unix_environment_fixture(&cua_root, ".staging-test");
+            finalize_unix_environment(&staged, &python).unwrap();
+            std::fs::rename(
+                environment_python(&staged),
+                environment_python(&environment),
+            )
+            .unwrap();
+            std::fs::rename(staged.join("pyvenv.cfg"), environment.join("pyvenv.cfg")).unwrap();
+        }
         std::fs::write(cua_root.join("bootstrap.py"), b"bootstrap").unwrap();
-        serde_json::json!({
-            "schema": 1,
+        let mut manifest = serde_json::json!({
+            "schema": if pins.wheel_manifest_sha256.is_some() { 2 } else { 1 },
             "cua_version": pins.cua,
             "python_version": pins.python,
             "python_build": pins.python_build,
@@ -835,7 +1639,30 @@ mod tests {
             "python_archive_sha256": pins.python_archive_sha256,
             "uv_archive_sha256": pins.uv_archive_sha256,
             "target": target_triple().unwrap(),
-        })
+        });
+        if let Some(hash) = pins.wheel_manifest_sha256 {
+            manifest["wheel_manifest_sha256"] = hash.into();
+            manifest["installed_inventory_sha256"] =
+                release::write_inventory(&cua_root, target_triple().unwrap())
+                    .unwrap()
+                    .into();
+        }
+        manifest
+    }
+
+    fn test_install_root(temporary: &Path) -> PathBuf {
+        #[cfg(target_os = "macos")]
+        {
+            let root = temporary.join("Vadgr.app/Contents/Resources");
+            let host = temporary.join("Vadgr.app/Contents/Library/LoginItems/Vadgr Computer Use.app/Contents/MacOS/vadgr-cua-host");
+            std::fs::create_dir_all(host.parent().unwrap()).unwrap();
+            std::fs::write(host, b"test host").unwrap();
+            root
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            temporary.to_path_buf()
+        }
     }
 
     fn write_manifest(root: &Path, manifest: &serde_json::Value) {
@@ -848,7 +1675,8 @@ mod tests {
 
     #[test]
     fn embedded_lock_matches_the_compiled_pin() {
-        validate_embedded_lock(REQUIREMENTS_SHA256).unwrap();
+        assert_eq!(hex_sha256(REQUIREMENTS), REQUIREMENTS_SHA256);
+        validate_embedded_lock(current_pins().unwrap().requirements_sha256).unwrap();
     }
 
     #[test]
@@ -858,6 +1686,9 @@ mod tests {
             interpreter: install.path().join("environments/current/bin/python"),
             bootstrap: install.path().join("bootstrap.py"),
             environment: install.path().join("environments/current"),
+            responsible_host: None,
+            authorization: None,
+            authorization_root: None,
         };
         let command = runtime.stdio_command();
         assert!(command.program.is_absolute());
@@ -878,6 +1709,9 @@ mod tests {
             interpreter: install.path().join("environments/current/bin/python"),
             bootstrap: install.path().join("bootstrap.py"),
             environment: install.path().join("environments/current"),
+            responsible_host: None,
+            authorization: None,
+            authorization_root: None,
         };
         let command = runtime.setup_command(false);
         assert_eq!(
@@ -904,6 +1738,9 @@ mod tests {
             interpreter: install.path().join("environments/current/bin/python"),
             bootstrap: install.path().join("bootstrap.py"),
             environment: install.path().join("environments/current"),
+            responsible_host: None,
+            authorization: None,
+            authorization_root: None,
         };
         let command = runtime.setup_command(false);
         assert!(
@@ -914,23 +1751,128 @@ mod tests {
 
     #[test]
     fn a_valid_manifest_resolves_only_the_private_generation() {
-        let root = tempfile::tempdir().unwrap();
-        let manifest = valid_payload(root.path());
-        write_manifest(root.path(), &manifest);
+        let temporary = tempfile::tempdir().unwrap();
+        let root = test_install_root(temporary.path());
+        let manifest = valid_payload(&root);
+        write_manifest(&root, &manifest);
 
-        let runtime = CuaRuntime::below_install_root(root.path()).unwrap();
-        assert!(runtime.interpreter().starts_with(root.path()));
-        assert!(runtime.environment().starts_with(root.path()));
+        let runtime = CuaRuntime::below_install_root(&root).unwrap();
+        assert!(runtime.interpreter().starts_with(&root));
+        assert!(runtime.environment().starts_with(&root));
+        #[cfg(not(target_os = "macos"))]
         assert_eq!(
             runtime.stdio_command().program,
             environment_python(runtime.environment())
+        );
+        #[cfg(target_os = "macos")]
+        assert!(
+            runtime
+                .stdio_command()
+                .program
+                .ends_with("Vadgr Computer Use.app/Contents/MacOS/vadgr-cua-host")
+        );
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn macos_flat_or_hostless_payload_refuses_at_the_host_guard() {
+        let temporary = tempfile::tempdir().unwrap();
+        for root in [
+            temporary.path().join("flat"),
+            temporary.path().join("Vadgr.app/Contents/Resources"),
+        ] {
+            let manifest = valid_payload(&root);
+            write_manifest(&root, &manifest);
+            let error = CuaRuntime::below_install_root(&root).unwrap_err();
+            assert_eq!(
+                error.to_string(),
+                "the signed Vadgr Computer Use host is missing"
+            );
+        }
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn macos_ci_staging_resolves_the_same_payload_from_the_installed_cli() {
+        let temporary = tempfile::tempdir().unwrap();
+        let checkout = temporary.path().join("checkout");
+        let binaries = checkout.join("target/release");
+        std::fs::create_dir_all(&binaries).unwrap();
+        // This fixture checks paths without starting Python or requesting grants.
+        for name in ["vadgr", "vadgr-cua-host"] {
+            std::fs::write(binaries.join(name), b"fixture executable").unwrap();
+        }
+        let packaging = checkout.join("packaging/macos");
+        std::fs::create_dir_all(&packaging).unwrap();
+        for name in ["Vadgr-Info.plist", "CuaHost-Info.plist"] {
+            std::fs::copy(
+                Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("packaging/macos")
+                    .join(name),
+                packaging.join(name),
+            )
+            .unwrap();
+        }
+        let workflow = std::fs::read_to_string(
+            Path::new(env!("CARGO_MANIFEST_DIR")).join(".github/workflows/ci.yml"),
+        )
+        .unwrap();
+        let step = workflow
+            .split_once("- name: Assemble the macOS app without Python tools\n")
+            .or_else(|| {
+                workflow.split_once(
+                    "- name: Assemble the complete clean install on Unix without Python tools\n",
+                )
+            })
+            .unwrap()
+            .1;
+        let prefix = step
+            .split_once("        run: |\n")
+            .unwrap()
+            .1
+            .split_once("          env PATH=")
+            .unwrap()
+            .0;
+        let runner = temporary.path().join("runner");
+        std::fs::create_dir(&runner).unwrap();
+        let output = Command::new("bash")
+            .args(["-euc", &format!("{prefix}\nprintf '%s' \"$install_root\"")])
+            .env_clear()
+            .env("HOME", temporary.path())
+            .env("PATH", "/usr/bin:/bin")
+            .env("RUNNER_TEMP", &runner)
+            .current_dir(&checkout)
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let root = PathBuf::from(String::from_utf8(output.stdout).unwrap());
+        let manifest = valid_payload(&root);
+        write_manifest(&root, &manifest);
+        let runtime = CuaRuntime::below_install_root(&root).unwrap();
+        let executable = runner.join("vadgr-clean-install/Vadgr.app/Contents/MacOS/vadgr");
+        assert!(executable.is_file());
+        assert_eq!(install_root_from_executable(&executable).unwrap(), root);
+        assert_eq!(
+            runtime.stdio_command().program,
+            responsible_host(&root).unwrap()
         );
     }
 
     #[test]
     fn every_manifest_mismatch_fails_closed_and_names_its_field() {
         let cases = [
-            ("schema", serde_json::json!(2)),
+            (
+                "schema",
+                serde_json::json!(if current_pins().unwrap().wheel_manifest_sha256.is_some() {
+                    1
+                } else {
+                    2
+                }),
+            ),
             ("cua_version", serde_json::json!("wrong")),
             ("python_version", serde_json::json!("wrong")),
             ("python_build", serde_json::json!("wrong")),
@@ -940,11 +1882,12 @@ mod tests {
             ("target", serde_json::json!("wrong")),
         ];
         for (field, wrong) in cases {
-            let root = tempfile::tempdir().unwrap();
-            let mut manifest = valid_payload(root.path());
+            let temporary = tempfile::tempdir().unwrap();
+            let root = test_install_root(temporary.path());
+            let mut manifest = valid_payload(&root);
             manifest[field] = wrong;
-            write_manifest(root.path(), &manifest);
-            let error = CuaRuntime::below_install_root(root.path()).unwrap_err();
+            write_manifest(&root, &manifest);
+            let error = CuaRuntime::below_install_root(&root).unwrap_err();
             assert!(
                 error.to_string().contains(field),
                 "{field} mismatch was reported as {error:#}"

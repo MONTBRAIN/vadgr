@@ -158,6 +158,30 @@ text, documentation or evidence. Run
 `python3 scripts/check_no_secrets.py --env-file ../.env` before every commit and
 before sealing evidence.
 
+## Separate runnable development work from signing-only acceptance
+
+When an installable-product minor can run before its release identities exist,
+the runbook has two explicit ledgers before the platform cells:
+
+- **Unsigned development qualification** contains every action and oracle whose
+  truth does not require a signed artifact: terms and zero-mutation decline,
+  install and ordinary launch, daemon and console behavior, accessibility,
+  device transports, failure preservation that can be injected without trust
+  assertions, isolated repair/uninstall/data deletion, offline behavior and
+  cleanup. Run these now on every available host.
+- **Signing-only acceptance** contains only assertions whose oracle actually
+  needs the release identity or immutable signed vehicle: publisher and chain,
+  timestamps, notarization/stapling/designated requirements, trust-policy
+  launch, and signed update/rollback verification. Leave only these owed until
+  that subject exists.
+
+A platform cell may contain assertions from both ledgers. Split its status and
+evidence by assertion instead of parking the whole cell behind signing. Do not
+change the expected behavior, remove a signing check, or promote development
+evidence to a release pass. Conversely, `awaiting signing` is never a valid
+blocker for an accessibility, phone, lifecycle, offline or cleanup assertion
+that can be observed honestly against the unsigned development package.
+
 ## The owner's cells are executed first, not announced first
 
 **Rule 1 is satisfied by running those cells, not by mentioning them.** Before
@@ -182,6 +206,14 @@ The test to apply before the first command of a pass:
 - A cell that needs a person and also needs setup gets that setup **first**, and
   nothing else does.
 
+For a physical-phone QR cell, that setup includes the entire automatable
+handset path. The agent confirms ADB, launches Vadgr Mobile, navigates to the
+correct machine and transport flow, grants every automatable permission, and
+leaves the live scanner aimed at the desktop QR region. The owner only moves
+the physical camera until the prepared app reports the named result. Opening
+the app, choosing a transport, finding the scanner, typing a code, dismissing a
+dialog, or reading the phone back to the agent are not owner actions.
+
 An owner-blocked cell left until later is not scheduling. It is the pass
 deciding the owner's time is the cheap resource, which is exactly backwards: the
 machine can wait and the person cannot.
@@ -202,12 +234,27 @@ For a native installed console, the agent uses the platform accessibility tree
 to discover and operate the application. It acts through semantic roles and
 supported actions. It confirms each transition with a fresh structured read.
 Coordinates and pixel matching do not replace the accessibility interface.
+The installed product's bundled CUA payload is not this driver. Use it only
+when a cell explicitly tests a computer-use task. In particular, Windows
+installer and console actions use Windows UI Automation through AccessKit, not
+Vadgr CUA screenshot, pointer, OCR, or browser tools.
 
 At each visual evidence boundary, capture only the exact application client
 area. The capture must not require the application to have focus. Open the image
 and inspect the complete view against the approved mockup. The accessibility
 tree proves the interaction surface. The image proves the rendered surface.
 Neither proves the product effect.
+
+Use the host-native app-only capture path. On Windows, use
+`PrintWindow(PW_CLIENTONLY)` under a per-monitor-aware DPI context. On macOS,
+use `SCScreenshotManager` with an
+`SCContentFilter(desktopIndependentWindow:)` for the target window. On native
+Linux Wayland, use the XDG Desktop Portal ScreenCast interface with one WINDOW
+source and read its PipeWire stream. On X11, use the target window ID and the
+XComposite window pixmap. Prove once per host that the capture still succeeds
+while another application has focus. A focused capture, desktop capture,
+monitor capture or crop from either is not a substitute. If the host cannot
+make the exact unfocused capture, the visual assertion remains owed.
 
 Confirm every mutation with an independent record. Use the daemon API, journal,
 database, process table, package manager, signature tool, filesystem, or another
@@ -403,3 +450,22 @@ row to the patch log naming this runbook in the *found by* column.
 
 **Start from [`TEMPLATE.md`](TEMPLATE.md).** Every runbook has the same shape so
 a reader can find the verdict without learning a new document.
+
+## Keep routine model calls in the low-cost lane
+
+Provider-neutral E2E work uses live internet research on every execution date.
+Read the provider's current official model and pricing pages, intersect them
+with the authenticated catalog, and choose the cheapest model that proves the
+cell's tool, image and continuation requirements. The present cost targets are
+the Claude Sonnet, GPT Luna at medium reasoning and Gemini Flash families; GPT
+Terra is the next OpenAI lane only when Luna lacks a required capability. Those
+families are examples, not frozen ids: a newly launched cheaper capable model
+replaces them. Catalog order and model naming are not price evidence.
+
+Fable, Sol, Opus and equivalent frontier tiers are not routine E2E defaults.
+They do not run setup, navigation, smoke tasks, screenshots or ordinary CUA
+checks. Using one requires all three facts in the runbook before the call: the
+cheaper lane failed the same cell for a captured capability reason, the written
+escalation condition is met, and a separate hard cost ceiling is present. An
+inherited expensive default is changed before routine billed work; it is not a
+reason to spend against that model.

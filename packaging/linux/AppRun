@@ -1,0 +1,31 @@
+#!/bin/sh
+set -eu
+
+if [ -z "${APPDIR:-}" ] || [ -z "${APPIMAGE:-}" ]; then
+  echo "Vadgr must run through its AppImage runtime." >&2
+  exit 1
+fi
+
+export VADGR_APPDIR="$APPDIR"
+case "$(basename -- "${ARGV0:-$0}")" in
+  vadgr)
+    exec "$APPDIR/usr/bin/vadgr" "$@"
+    ;;
+esac
+
+case "${1:-}" in
+  --console)
+    install_root=$(dirname -- "$(readlink -f -- "$APPIMAGE")")
+    export VADGR_INSTALL_ROOT="$install_root"
+    "$APPDIR/usr/bin/vadgr" start >/dev/null 2>&1 || true
+    exec "$APPDIR/usr/bin/vadgr" --console
+    ;;
+  --daemon|start|stop|restart|status|health|logs|pair|provider|providers|model|machine|config|run|runs|computer-use|update)
+    install_root=$(dirname -- "$(readlink -f -- "$APPIMAGE")")
+    export VADGR_INSTALL_ROOT="$install_root"
+    exec "$APPDIR/usr/bin/vadgr" "$@"
+    ;;
+  *)
+    exec "$APPDIR/usr/bin/vadgr" --installer --vehicle "$APPIMAGE"
+    ;;
+esac

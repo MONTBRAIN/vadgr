@@ -3,8 +3,9 @@
 A daemon per machine: the native agent loop, the MCP host, gates and policy,
 the API the phone talks to, persistence, plus `src/cli/` - the on-box owner
 surface.
-v2 has no desktop frontend - `0.4.2` deleted it, and a guardrail test fails the
-suite if it comes back. The clients are this CLI and the phone.
+The installed native product gains one small local desktop console in `0.5.0`.
+It uses the same loopback API as the CLI and never opens daemon state directly.
+WSL remains CLI-only. The phone remains the remote client.
 
 **This file is loaded automatically. The rules live in the docs repo and are not
 copied here** - a second copy drifts, and a drifted rule is worse than none.
@@ -185,6 +186,22 @@ Test another model only when it represents a distinct protocol or capability
 class, a written cell requires it, or the cheaper model failed for a recorded
 capability reason. Stop at the ceiling; never upgrade silently or use a
 frontier model merely because it is available.
+
+**The current routine E2E cost targets are the Claude Sonnet, GPT Luna at medium
+reasoning, and Gemini Flash families; Terra is the next OpenAI lane only when
+Luna lacks a required capability. These are cost classes, not frozen model ids
+or a permanent allowlist.** On every execution date, use live internet access
+to read the provider's current official model and pricing pages, then intersect
+that result with the authenticated catalog. If a newly launched cheaper model
+supports the cell, it replaces today's example. Never infer price from catalog
+order or a model name. Fable, Sol, Opus and another provider's frontier tier
+are forbidden for setup, navigation, screenshots, smoke tasks and ordinary
+provider-neutral cells. A frontier call is allowed only after the same cell has
+a recorded lower-cost capability failure, the runbook's prewritten escalation
+condition is met, and a new hard cost ceiling is recorded. Quality preference,
+availability in the picker, and a previously persisted default are not
+escalation reasons. Change an inherited expensive default before the first
+routine billed call; never spend against it for convenience.
 
 ## The practices every repo in this family follows
 
@@ -757,6 +774,25 @@ offered.
   package manager or operating system as the independent oracle. The owner acts
   only at an unavoidable physical or protected boundary after the agent prepares
   the exact state and gives one explicit instruction.
+- **The installed Vadgr CUA payload is not the installer or native-console E2E
+  driver.** Use the host platform accessibility API for those surfaces. On
+  Windows, use Windows UI Automation through the AccessKit tree and an app-only
+  `PrintWindow(PW_CLIENTONLY)` capture under a per-monitor-aware DPI context. On
+  macOS, use `SCScreenshotManager` with an
+  `SCContentFilter(desktopIndependentWindow:)` for the target window. On native
+  Linux Wayland, use the XDG Desktop Portal ScreenCast interface with one WINDOW
+  source and read its PipeWire stream. On X11, use the target window ID and the
+  XComposite window pixmap. Prove once per host that the exact app-only capture
+  still works while another application has focus. A focused capture, desktop
+  capture, monitor capture or crop from either is not a substitute. If the host
+  cannot make the exact unfocused capture, leave the visual assertion owed and
+  record the limitation. Use the bundled CUA only inside a cell
+  whose product assertion explicitly runs a computer-use task. A CUA screenshot,
+  pointer click, or OCR result cannot replace the native accessibility oracle.
+  Vadgr CUA may become the common native-console driver only after its structured
+  accessibility tier exists and is qualified on Windows, macOS and native Linux,
+  and the current runbook explicitly adopts it. Until then, every host uses its
+  platform accessibility API.
 - **A native console has no silent dead controls.** Every enabled control works
   in this minor and has an independent E2E oracle. A future control is disabled
   and visibly names the exact registered minor that enables it. A control which

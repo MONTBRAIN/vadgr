@@ -1,0 +1,73 @@
+#!/bin/sh
+set -eu
+
+app=/Applications/Vadgr.app
+backend="$app/Contents/MacOS/vadgr"
+transaction_root='/Library/Application Support/MONTBRAIN/Vadgr/install-transaction'
+backup="$transaction_root/previous.app"
+
+previous_daemon_identity() {
+  pid=$1
+  [ -n "$pid" ] || return 0
+  case "$pid" in *[!0-9]*) echo "The recorded Vadgr process ID is invalid." >&2; return 1;; esac
+  [ "$pid" -gt 1 ] || { echo "The recorded Vadgr process ID is invalid." >&2; return 1; }
+  identity=$(/bin/ps -p "$pid" -o lstart= -o command= 2>/dev/null || true)
+  [ -n "$identity" ] || return 0
+  uid=$(/bin/ps -p "$pid" -o uid= 2>/dev/null | /usr/bin/tr -d ' ')
+  [ "$uid" = "$owner_uid" ] || { echo "The recorded Vadgr process belongs to another user." >&2; return 1; }
+  command=$(/bin/ps -p "$pid" -o command= 2>/dev/null || true)
+  case "$command" in
+    "$backend serve "*|"$backend --daemon") ;;
+    *) echo "The recorded process is not the installed Vadgr daemon." >&2; return 1;;
+  esac
+  /usr/sbin/lsof -a -p "$pid" -d txt -Fn 2>/dev/null | /usr/bin/grep -F -x "n$backend" >/dev/null || {
+    echo "The Vadgr process executable could not be verified." >&2
+    return 1
+  }
+  printf '%s\n' "$identity"
+}
+
+stop_previous_daemon() {
+  pid=$1
+  expected_identity=$2
+  [ -n "$expected_identity" ] || return 0
+  identity=$(previous_daemon_identity "$pid") || return 1
+  [ -n "$identity" ] || return 0
+  if [ "$identity" != "$expected_identity" ]; then
+    echo "The Vadgr process identity changed; the existing application was preserved." >&2
+    return 1
+  fi
+  /usr/bin/sudo -H -u "$owner" /bin/kill -TERM "$pid" || return 1
+  attempts=0
+  while [ "$attempts" -lt 50 ]; do
+    identity=$(/bin/ps -p "$pid" -o lstart= -o command= 2>/dev/null || true)
+    [ "$identity" = "$expected_identity" ] || return 0
+    /bin/sleep 0.1
+    attempts=$((attempts + 1))
+  done
+  echo "The previous Vadgr daemon did not stop; the existing application was preserved." >&2
+  return 1
+}
+
+[ ! -L "$app" ] || { echo "The existing Vadgr application is a symbolic link." >&2; exit 1; }
+[ ! -e "$backup" ] || { echo "A prior Vadgr install transaction still needs recovery." >&2; exit 1; }
+
+/bin/mkdir -p "$transaction_root"
+if [ -d "$app" ]; then
+  identifier=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Contents/Info.plist" 2>/dev/null || true)
+  [ "$identifier" = com.montbrain.vadgr ] || { echo "The application at /Applications/Vadgr.app is not owned by this package." >&2; exit 1; }
+  owner=$(/usr/bin/stat -f '%Su' /dev/console)
+  [ "$owner" != root ] && [ "$owner" != loginwindow ] || { echo "No interactive owner is available." >&2; exit 1; }
+  owner_home=$(/usr/bin/dscl . -read "/Users/$owner" NFSHomeDirectory | /usr/bin/awk '{print $2}')
+  owner_uid=$(/usr/bin/id -u "$owner")
+  cli_pid=$(/bin/cat "$owner_home/.vadgr/pids/api.pid" 2>/dev/null || true)
+  agent_pid=$(/bin/launchctl print "gui/$owner_uid/com.montbrain.vadgr.agent" 2>/dev/null | /usr/bin/awk '$1 == "pid" && $2 == "=" {print $3; exit}')
+  # Validate both entry points before stopping either one. Login registration stays intact.
+  cli_identity=$(previous_daemon_identity "$cli_pid")
+  agent_identity=$(previous_daemon_identity "$agent_pid")
+  stop_previous_daemon "$cli_pid" "$cli_identity"
+  stop_previous_daemon "$agent_pid" "$agent_identity"
+  /bin/mv "$app" "$backup"
+fi
+
+exit 0

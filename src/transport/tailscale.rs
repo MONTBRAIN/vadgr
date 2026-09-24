@@ -467,6 +467,7 @@ impl<A: LocalApi> Transport for TailscaleTransport<A> {
                     "available": available,
                     "advertise_host": if available { self.advertise_host() } else { None },
                     "bind_host": self.self_ip(),
+                    "port": self.port,
                 });
                 if !available {
                     block["reason"] = json!(DOWN);

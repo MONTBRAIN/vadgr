@@ -1,0 +1,268 @@
+name: Verify and publish release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Exact signed tag; dispatch this workflow from the same tag
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  verify-draft:
+    name: verify-draft
+    runs-on: ubuntu-24.04
+    outputs:
+      release_id: ${{ steps.draft.outputs.release_id }}
+      asset_ids: ${{ steps.draft.outputs.asset_ids }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - id: draft
+        name: Require the exact signed tag and immutable draft
+        env:
+          APPROVED_TAG_SIGNER_FINGERPRINT: ${{ vars.APPROVED_TAG_SIGNER_FINGERPRINT }}
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_TAG: ${{ inputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_TYPE" = tag
+          test "$REQUESTED_TAG" = "$GITHUB_REF_NAME"
+          test -n "$APPROVED_TAG_SIGNER_FINGERPRINT"
+          verification="$(git verify-tag --raw "$GITHUB_REF_NAME" 2>&1)"
+          printf '%s\n' "$verification" | grep -F "VALIDSIG $APPROVED_TAG_SIGNER_FINGERPRINT"
+          test "$(git rev-list -n1 "$GITHUB_REF_NAME")" = "$GITHUB_SHA"
+          test "$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" --jq '.draft')" = true
+          echo "release_id=$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" --jq '.id')" >> "$GITHUB_OUTPUT"
+          echo "asset_ids=$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" --jq '[.assets[].id] | sort | join(",")')" >> "$GITHUB_OUTPUT"
+          mkdir assets
+          gh release download "$GITHUB_REF_NAME" --dir assets
+          test -f assets/release-manifest.json
+          test -f assets/release-manifest.json.bundle.jsonl
+      - name: Verify the keyless manifest bundle before trusting artifact metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh attestation verify assets/release-manifest.json -R "$GITHUB_REPOSITORY" \
+            --bundle assets/release-manifest.json.bundle.jsonl \
+            --custom-trusted-root packaging/release-trusted-root.jsonl \
+            --signer-workflow MONTBRAIN/vadgr/.github/workflows/candidate.yml \
+            --source-ref refs/heads/master --deny-self-hosted-runners
+          python scripts/distribution_matrix.py manifest --manifest assets/release-manifest.json --directory assets
+          for target in windows-x86_64 windows-aarch64 macos-x86_64 macos-aarch64 linux-x86_64 linux-aarch64 wsl-x86_64 wsl-aarch64; do
+            name="$(python - "$target" <<'PY'
+          import json,sys
+          row=json.load(open('assets/release-manifest.json', encoding='utf-8'))
+          matches=[item['name'] for item in row['artifacts'] if item['target'] == sys.argv[1]]
+          assert len(matches) == 1
+          print(matches[0])
+          PY
+          )"
+            cargo run --quiet --locked --features release-verifier --bin vadgr-release-verify -- \
+              --manifest assets/release-manifest.json --bundle assets/release-manifest.json.bundle.jsonl \
+              --target "$target" --artifact "assets/$name" >/dev/null
+            gh attestation verify "assets/$name" -R "$GITHUB_REPOSITORY" \
+              --signer-workflow MONTBRAIN/vadgr/.github/workflows/candidate.yml \
+              --source-ref refs/heads/master --deny-self-hosted-runners
+          done
+          gh attestation verify assets/install.sh -R "$GITHUB_REPOSITORY" \
+            --signer-workflow MONTBRAIN/vadgr/.github/workflows/candidate.yml \
+            --source-ref refs/heads/master --deny-self-hosted-runners
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: verified-draft
+          path: assets
+          if-no-files-found: error
+          retention-days: 7
+
+  verify-windows:
+    name: verify-windows-${{ matrix.arch }}
+    needs: verify-draft
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: windows-2025
+          - arch: arm64
+            runner: windows-11-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: verified-draft
+          path: assets
+      - name: Reverify Authenticode and executable loading
+        shell: pwsh
+        run: |
+          $identity = Get-Content -Raw -Encoding UTF8 scripts/signing/publisher.json | ConvertFrom-Json
+          $setup = Resolve-Path "assets/Vadgr-0.5.0-windows-${{ matrix.arch }}-setup.exe"
+          $target = if ('${{ matrix.arch }}' -eq 'x64') { 'windows-x86_64' } else { 'windows-aarch64' }
+          python scripts/distribution_matrix.py binary --target $target --file $setup
+          if ($LASTEXITCODE -ne 0) { throw 'Final Windows vehicle architecture mismatch.' }
+          $signTool = Get-ChildItem "${env:ProgramFiles(x86)}/Windows Kits/10/bin/*/${{ matrix.arch }}/signtool.exe" | Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $signTool) { throw 'Windows SDK SignTool is required.' }
+          & $signTool.FullName verify /pa /all /tw $setup
+          if ($LASTEXITCODE -ne 0) { throw 'Setup signature verification failed.' }
+          $signature = Get-AuthenticodeSignature -LiteralPath $setup
+          if ($signature.Status -ne 'Valid') { throw "Setup signature is $($signature.Status)." }
+          $fingerprint = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($signature.SignerCertificate.RawData))
+          if ($signature.SignerCertificate.Thumbprint -ne $identity.sha1 -or $fingerprint -ne $identity.sha256) { throw 'Setup publisher is wrong.' }
+          if (-not $signature.TimeStamperCertificate) { throw 'Setup timestamp is missing.' }
+          $process = Start-Process -PassThru -Wait -FilePath $setup -ArgumentList '/help'
+          if ($process.ExitCode -ne 0) { throw "Setup help exited $($process.ExitCode)." }
+
+  verify-macos:
+    name: verify-macos-${{ matrix.arch }}
+    needs: verify-draft
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: macos-15-intel
+          - arch: arm64
+            runner: macos-15
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: verified-draft
+          path: assets
+      - name: Reverify Developer ID, notarization and package contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          package="assets/Vadgr-0.5.0-macos-${{ matrix.arch }}.pkg"
+          pkgutil --check-signature "$package"
+          xcrun stapler validate "$package"
+          spctl --assess --type install --verbose=2 "$package"
+          expanded="$RUNNER_TEMP/vadgr-expanded"
+          pkgutil --expand-full "$package" "$expanded"
+          app="$(find "$expanded" -path '*/Applications/Vadgr.app' -type d -print -quit)"
+          test -n "$app"
+          codesign --verify --deep --strict --verbose=2 "$app"
+          if [ '${{ matrix.arch }}' = arm64 ]; then target=macos-aarch64; else target=macos-x86_64; fi
+          grep -q 'hostArchitectures="${{ matrix.arch }}"' "$expanded/Distribution"
+          python3 scripts/distribution_matrix.py binary --target "$target" \
+            --file "$app/Contents/MacOS/vadgr" --file "$app/Contents/MacOS/vadgr-app" \
+            --file "$app/Contents/Library/LoginItems/Vadgr Computer Use.app/Contents/MacOS/vadgr-cua-host"
+          python3 scripts/distribution_matrix.py payload --target "$target" \
+            --root "$app/Contents/Resources" --pins packaging/cua/pins.toml
+          "$app/Contents/MacOS/vadgr" --version | grep -Fx 'vadgr 0.5.0'
+
+  verify-linux-wsl:
+    name: verify-linux-wsl-${{ matrix.arch }}
+    needs: verify-draft
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: verified-draft
+          path: assets
+      - name: Inspect the two portable vehicles and load their exact binaries
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: "1"
+        shell: bash
+        run: |
+          set -euo pipefail
+          image="assets/Vadgr-0.5.0-linux-${{ matrix.arch }}-installer.AppImage"
+          chmod 0755 "$image"
+          work="$RUNNER_TEMP/appimage"
+          mkdir "$work"
+          (cd "$work" && "$GITHUB_WORKSPACE/$image" --appimage-extract >/dev/null)
+          python3 scripts/distribution_matrix.py binary --target 'linux-${{ matrix.arch }}' --file "$work/squashfs-root/usr/bin/vadgr"
+          python3 scripts/distribution_matrix.py payload --target 'linux-${{ matrix.arch }}' --root "$work/squashfs-root/usr" --pins packaging/cua/pins.toml
+          "$work/squashfs-root/usr/bin/vadgr" --version | grep -Fx 'vadgr 0.5.0'
+          archive="assets/Vadgr-0.5.0-wsl-${{ matrix.arch }}.tar.gz"
+          root="$RUNNER_TEMP/wsl-archive"
+          mkdir "$root"
+          tar -xzf "$archive" -C "$root" --no-same-owner --no-same-permissions
+          python3 scripts/distribution_matrix.py binary --target 'wsl-${{ matrix.arch }}' --file "$root/bin/vadgr"
+          python3 scripts/distribution_matrix.py payload --target 'wsl-${{ matrix.arch }}' --root "$root" --pins packaging/cua/pins.toml
+          "$root/bin/vadgr" --version | grep -Fx 'vadgr 0.5.0'
+
+  publish:
+    name: publish
+    needs: [verify-windows, verify-macos, verify-linux-wsl]
+    environment: release-publish
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: verified-draft
+          path: verified-draft
+      - name: Publish the existing draft without replacing any asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_TAG: ${{ inputs.tag }}
+          EXPECTED_RELEASE_ID: ${{ needs.verify-draft.outputs.release_id }}
+          EXPECTED_ASSET_IDS: ${{ needs.verify-draft.outputs.asset_ids }}
+          APPROVED_TAG_SIGNER_FINGERPRINT: ${{ vars.APPROVED_TAG_SIGNER_FINGERPRINT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_TYPE" = tag
+          test "$REQUESTED_TAG" = "$GITHUB_REF_NAME"
+          verification="$(git verify-tag --raw "$GITHUB_REF_NAME" 2>&1)"
+          printf '%s\n' "$verification" | grep -F "VALIDSIG $APPROVED_TAG_SIGNER_FINGERPRINT"
+          test "$(git rev-list -n1 "$GITHUB_REF_NAME")" = "$GITHUB_SHA"
+          test "$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" --jq '.draft')" = true
+          test "$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" --jq '.id')" = "$EXPECTED_RELEASE_ID"
+          current_ids="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" --jq '[.assets[].id] | sort | join(",")')"
+          test -n "$EXPECTED_ASSET_IDS"
+          test "$current_ids" = "$EXPECTED_ASSET_IDS"
+          mkdir draft-current
+          gh release download "$GITHUB_REF_NAME" --dir draft-current
+          test "$(find verified-draft -mindepth 1 -maxdepth 1 -type f | wc -l)" -gt 0
+          test -z "$(find verified-draft draft-current -type l -print)"
+          test -z "$(find verified-draft draft-current -mindepth 2 -print)"
+          diff -u <(find verified-draft -maxdepth 1 -type f -printf '%f\n' | sort) \
+                  <(find draft-current -maxdepth 1 -type f -printf '%f\n' | sort)
+          for expected in verified-draft/*; do
+            test -f "$expected"
+            cmp --silent "$expected" "draft-current/$(basename "$expected")"
+          done
+          gh release edit "$GITHUB_REF_NAME" --draft=false --latest=false

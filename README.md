@@ -24,14 +24,17 @@ Describe your work in a sentence. Vadgr runs it on your machine - writing code, 
 
 |  | Technology | Status | Role |
 |:---:|:---:|:---:|:---|
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" width="25" /> | Linux | Supported | Built, tested and released on every change |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" width="25" /> | Windows | Supported | Native, with its own installer |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" width="25" /> | WSL2 | Supported | Desktop automation reaches the Windows side |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" width="25" /> | macOS | Limited in 0.4.12 | Computer use must start from the terminal that holds Accessibility and Screen Recording; signed background identity arrives in 0.5.0 |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" width="25" /> | Linux | Native | Graphical AppImage installer and local console on x86_64 and aarch64 |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" width="25" /> | Windows | Native | Authenticode-signed setup and local console on x64 and arm64 |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" width="25" /> | WSL2 | CLI-only | Signed-manifest `install.sh` lifecycle on x86_64 and aarch64 |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" width="25" /> | macOS | Native | Notarized package, local console, and stable signed computer-use host on Intel and Apple Silicon |
 
 </div>
 
 ## Install
+
+Vadgr carries its pinned desktop-automation and Python runtime. An installed
+machine needs no checkout, system Python, pip, uv, Rust, Git or Node.js.
 
 Release engineering uses a manually approved, default-branch candidate workflow.
 Windows candidates remain unpublished while signatures, approved legal inputs
@@ -39,31 +42,50 @@ and installation behaviour are checked. A keyless manifest attestation binds
 the held installer and its legal and SBOM hashes; its offline verification
 bundle is retained with the candidate. This does not replace Windows code
 signing, approve unreviewed terms, or make an untested candidate a release.
+The build matrix contains eight native OS and architecture targets. Windows uses
+WiX 7.0.0 and separate native x64 and ARM64 runners. A held Windows installer
+qualifies only that target; publication requires all eight exact final vehicles.
 
 A separate credential-free dependency producer builds the missing Windows ARM64
 and Intel macOS cryptography wheels from pinned sources on native runners. Its
 validated, attested output still requires exact-hash review before payload use;
 it grants no signing approval and does not qualify an installer.
 
-Works on **Linux**, **WSL**, **Windows** and **macOS**. Vadgr carries its pinned
-desktop-automation runtime on all four. The owner needs no Python, pip or uv.
+Release-profile builds select a separately reviewed CUA wheel and complete
+dependency lock for each native or WSL target. Windows and WSL share one signed
+helper closure per architecture; vendor-signed files retain their original
+bytes. Installed schema-3 runtimes require authenticated inventory and helper
+records before launch. Missing profile approvals never fall back to another
+platform's wheel or an unsigned helper. The released CUA pin remains unchanged
+until the paired profile artifacts have been qualified and published.
+
+Vadgr runs on **Linux**, **WSL**, **Windows** and **macOS**.
 On macOS `0.4.12`, grant Accessibility and Screen Recording to the terminal
 named by the operating-system dialogs, restart that terminal, and start vadgr
 from it. Those grants do not follow the private interpreter into a login,
 `launchd` or independently started daemon. The signed `0.5.0` distribution owns
-the stable application identity required for those background launches. The
-installer also sets up git and the build toolchain. No Node.js and no browser
-are required.
+the stable application identity required for those background launches.
+Native package installation does not install Git or a build toolchain.
 
-```bash
-# Linux / macOS / WSL
-curl -fsSL https://raw.githubusercontent.com/MONTBRAIN/vadgr/master/install.sh | bash
-```
+- Windows uses the signed `Vadgr-0.5.0-windows-<arch>-setup.exe` wizard.
+- macOS uses the signed and notarized `Vadgr-0.5.0-macos-<arch>.pkg` wizard.
+- native Linux uses the graphical
+  `Vadgr-0.5.0-linux-<arch>-installer.AppImage`.
+- WSL remains GUI-free and uses the release's attested `install.sh` plus its
+  architecture-specific archive.
 
-```powershell
-# Windows (PowerShell)
-irm https://raw.githubusercontent.com/MONTBRAIN/vadgr/master/install.ps1 | iex
-```
+The Windows `install.ps1` entry point only directs users to the graphical
+installer. It does not install dependencies or change user state.
+
+Download the vehicle, signed release manifest, signature and published hashes
+from the immutable v0.5.0 release. Verify them before launch. Every installer
+shows the canonical terms before mutation and records explicit acceptance only
+after a successful install. Declining or failed verification changes nothing.
+
+Windows, macOS and native Linux install one small local console for machine
+information and editing, device/transport status, pairing, provider setup,
+daemon restart, update, repair, rollback and package-aware uninstall. Owner data
+is preserved by default; deleting it is a separate typed destructive action.
 
 The daemon owns OpenAI, Gemini and Anthropic connections, their authenticated
 model catalogs and the machine default. It calls provider APIs directly and does
@@ -86,7 +108,7 @@ vadgr start
 | `vadgr restart` | Restart the daemon |
 | `vadgr status` | Show whether the daemon is running |
 | `vadgr logs` | Tail the daemon's log |
-| `vadgr update` | Pull the latest code, rebuild and reinstall the binaries |
+| `vadgr update` | Verify and launch the platform's signed package update |
 
 **Runs:**
 
@@ -113,6 +135,15 @@ stops watching and leaves the run going.
 | `vadgr computer-use enable` | Enable desktop automation |
 | `vadgr computer-use disable` | Disable desktop automation |
 | `vadgr computer-use status` | Show computer use and daemon status |
+
+**Machine:**
+
+| Command | Description |
+|---------|-------------|
+| `vadgr machine` | Show the machine identity and complete configuration |
+| `vadgr config get <key>` | Read one editable machine setting |
+| `vadgr config set name <name>` | Rename the local machine |
+| `vadgr config set default_model <provider>/<model>` | Change the validated default model pair |
 
 **Providers:**
 
@@ -197,28 +228,29 @@ Vadgr installs its pinned desktop-automation MCP server inside its private
 payload. It gives runs eyes and hands: take a screenshot, reason, click or type,
 then repeat. Do not install Python or `vadgr-computer-use` separately. Linux
 prints its system-package plan before changing anything. WSL and Windows need
-no payload setup. macOS reports the grants its private interpreter needs.
+no payload setup. macOS runs computer control under the bundled
+`Vadgr Computer Use` host. Accessibility and Screen Recording apply to that
+stable identity, not to the terminal that installed Vadgr.
 
 ## Structure
 
-```
+```text
 Vadgr/
-├── Cargo.toml             # The crate: one daemon, one CLI
-├── src/
-│   ├── main.rs            # The daemon
-│   ├── cli/               # The `vadgr` command
-│   ├── config.rs          # Where a machine's state lives, decided in one place
-│   ├── migrate.rs         # Bringing older state to that root, before serving
-│   ├── routes/            # The HTTP endpoints
-│   ├── ws/                # The two run sockets
-│   ├── engine/            # The loop, its journal, providers and the MCP host
-│   ├── auth/              # Pairing and the two gates
-│   ├── db/                # SQLite schema and repositories
-│   └── transport/         # The registry: loopback, the built-in iroh transport, Tailscale
-├── tests/                 # Integration tests
-├── E2E/                   # One runbook per release, and its harness
-├── install.sh, install.ps1    # The installer
-└── scripts/               # The repository's own gates
+|-- Cargo.toml              # backend, CLI and native console crate
+|-- src/
+|   |-- cli/                # the `vadgr` command
+|   |-- console/            # installed eframe machine console
+|   |-- install/            # verified package lifecycle and receipts
+|   |-- routes/             # HTTP endpoints
+|   |-- engine/             # loop, journal, providers and MCP host
+|   |-- auth/               # pairing and authorization gates
+|   |-- db/                 # SQLite schema and repositories
+|   `-- transport/          # loopback, built-in iroh and Tailscale
+|-- packaging/              # native package sources and integrity policy
+|-- tests/                  # unit and integration tests
+|-- E2E/                    # public release runbooks
+|-- install.sh              # WSL-only package lifecycle
+`-- scripts/                # repository and release gates
 ```
 
 Desktop automation ships as a released package from

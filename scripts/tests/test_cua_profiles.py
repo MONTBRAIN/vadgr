@@ -121,3 +121,9 @@ def test_profile_target_not_only_interpreter_platform():
 def test_missing_promotion_never_falls_back(tmp_path):
     with pytest.raises(PackageInputError):
         profiles.reviewed(tmp_path, tmp_path, "windows-x86_64")
+
+
+def test_producer_workflow_head_is_distinct_from_candidate_source():
+    producer = {"source_commit": "a" * 40, "tooling_commit": "b" * 40}
+    assert profiles.producer_head(producer) == "b" * 40
+    assert profiles.producer_head(producer) != producer["source_commit"]

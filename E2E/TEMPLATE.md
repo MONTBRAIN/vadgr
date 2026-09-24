@@ -5,8 +5,9 @@
 > **<repository> <version> evidence PR:**
 > `<resolved private evidence PR URL>`.
 >
-> Resolve the branch, head and evidence link before the first live cell. The
-> evidence link names the one private evidence branch for this minor. Every host
+> Resolve the branch and head before the first development cell. Resolve the
+> evidence link before any captured artifact leaves its host and before the first
+> formal candidate cell. The evidence link names the one private evidence branch for this minor. Every host
 > adds its boundary to that pull request; it does not open another evidence pull
 > request. After the first real target OS passes and branch checks are green,
 > replace the branch/head line with the implementation PR URL before handing the
@@ -29,7 +30,7 @@
 <One sentence: what a reader is being convinced of. Not what changed - what is
 now demonstrably true that was not before.>
 
-> **Status: <not started | partially run on \<OS\>, \<date\> | run on \<OS\>, \<date\>>.**
+> **Status: <not started | development qualification on \<OS\>, \<date\> | partially run on \<OS\>, \<date\> | run on \<OS\>, \<date\>>.**
 > Automated gate <green/red> (engine N, api N), **and the pull request's own
 > checks finished and read**. <Which parts pass, which are open.> **N findings**, listed below. Nothing is marked pass that was not
 > executed and read back.
@@ -42,6 +43,45 @@ now demonstrably true that was not before.>
 bracket notes as you go; a leftover placeholder is the tell that a runbook was
 written and never run. The cross-cutting rules are in
 [`../README.md`](../README.md) and are not repeated here.>
+
+## Development qualification before the candidate
+
+<Keep this section when the implementation can run before final signing,
+publishing or dependency release. Delete only statements that do not apply.>
+
+Development qualification starts as soon as an exact implementation commit can
+run safely in isolated state. It does not wait for signing identities, a signed
+tag, immutable release assets, a published dependency or a final evidence PR.
+Use the latest available released dependency when it can exercise the behavior,
+and record its exact version. A dependency source commit intended for the next
+release may also be tested from a separate clean worktree when the runbook names
+that provenance. Never touch an existing dirty dependency worktree.
+
+Mark these results `development`, not `pass`. Signing, notarization, package
+identity, immutable artifact, clean-host and final bundled-version assertions
+wait only when their required subject does not exist. Run every unaffected
+action and oracle now. A missing release-only input does not block console,
+daemon, API, accessibility, provider, device or currently available computer-use
+behavior. Development findings are real defects: fix them, add the failing test,
+rebuild and rerun the affected development cell.
+
+### Qualification lanes
+
+<Fill both ledgers before the first live cell. Put each assertion in the lane
+required by its actual oracle, not by the cell number that happens to contain
+it. A mixed cell appears in both rows with its assertion slices named.>
+
+| lane | assertions in this minor | execution rule | completion meaning |
+|---|---|---|---|
+| unsigned development qualification | <cell ids and exact non-signing assertion slices> | run immediately on every available host; signing is not a blocker | development evidence only; never a signed-candidate pass |
+| signing-only acceptance | <cell ids and exact publisher/chain/timestamp/notarization/designated-requirement/trust/update assertion slices> | run when the immutable signed subject exists | required for release acceptance |
+
+Do not park an entire mixed cell behind signing. Terms decline, ordinary
+install/launch, console and daemon behavior, accessibility, phone transports,
+isolated repair/uninstall/data deletion, offline operation and cleanup remain
+development-runnable unless their individual oracle consumes a signed subject.
+Keep the signed assertion in the second ledger and preserve its original
+expected result.
 
 ## The rules
 
@@ -61,6 +101,13 @@ present in a given runbook, the entry is all there is.
    drives every other action. **Running them is the rule; announcing them is
    not.**
    [How a pass is run] [../README.md]
+
+   For a phone QR cell, the agent uses ADB/accessibility to launch the mobile
+   app, select the intended machine and transport, reach the live scanner, and
+   handle every automatable permission or dialog. The owner's row contains only
+   the physical camera aim and its exact visible stop condition. Never ask the
+   owner to open the app, navigate, choose a transport, type a code, inspect the
+   result, or report an oracle the agent can read.
 
 2. **Do not stop the pass to report.** The pass runs to completion for the
    operating system it is on, and what it finds is written down as it happens and
@@ -165,6 +212,16 @@ present in a given runbook, the entry is all there is.
     with a fresh structured read, capture only the exact application client area
     without requiring focus, inspect it against the approved mockup, and verify
     each effect with an independent machine oracle. [Native console driving]
+
+    Use `PrintWindow(PW_CLIENTONLY)` under a per-monitor-aware DPI context on
+    Windows. Use `SCScreenshotManager` with an
+    `SCContentFilter(desktopIndependentWindow:)` on macOS. On native Linux, use
+    one XDG Desktop Portal ScreenCast WINDOW source and its PipeWire stream on
+    Wayland, or the target window ID and XComposite window pixmap on X11. Prove
+    once per host that capture works while another application has focus. A
+    focused capture, desktop capture, monitor capture or crop is not a
+    substitute. An unavailable exact unfocused capture leaves the visual
+    assertion owed. [Native console driving]
 
 22. **A native console has no silent dead controls.** Invoke every enabled
     control through accessibility. Each future control is disabled and visibly
@@ -620,11 +677,13 @@ have failed to bind, and the cause would have looked like the host.
 ## Native console driving
 
 <Delete this section only when the minor has no native graphical surface. Name
-the exact accessibility backend and the command or tool used to inspect it. Name
-the exact application-only capture method and prove that it does not require
-focus. The driver opens every capture and compares the complete view with the
-approved mockup. Screenshots confirm rendering but never locate controls or
-drive the structured tier.>
+the exact accessibility backend and the command or tool used to inspect it. Use
+the standard host-native application-only capture path named in doctrine and
+prove that it works while another application has focus. A focused capture,
+desktop capture, monitor capture or crop is not a substitute. If exact unfocused
+capture is unavailable, leave the visual assertion owed. The driver opens every
+capture and compares the complete view with the approved mockup. Screenshots
+confirm rendering but never locate controls or drive the structured tier.>
 
 <Inventory every console control before the first live cell. An enabled control
 must work in this minor. A future control must be disabled and show the exact
@@ -669,6 +728,19 @@ catalog on the execution date. Pick the least expensive model that supports the
 exact cell. An automatic onboarding model is tested once as shipped; repeated
 provider-neutral tasks name an explicit cost-effective model. Do not start a
 billed call with a blank ceiling or an unrecorded escalation path.>
+
+<Use live internet access on the execution date to read current official model
+and pricing pages, then intersect those results with the authenticated catalog.
+Routine cost targets today are the Claude Sonnet, GPT Luna at medium reasoning
+and Gemini Flash families; GPT Terra is the next OpenAI lane only when Luna
+lacks a required capability. They are examples, not frozen ids or a permanent
+allowlist. A newly launched cheaper capable model replaces them. Never infer
+price from catalog order or model naming. Fable, Sol, Opus and equivalent
+frontier tiers are prohibited for setup, navigation, screenshots, smoke tasks
+and ordinary provider-neutral cells. A frontier row is valid only when it names
+the captured lower-cost capability failure from the same cell, the prewritten
+escalation condition that fired and a separate hard cost ceiling. A persisted
+expensive default must be changed before routine billed work.>
 
 | cells | provider/auth | required capabilities | selected model | official source and date | input/output price | hard iterations/tokens/cost | escalation condition |
 |---|---|---|---|---|---|---|---|

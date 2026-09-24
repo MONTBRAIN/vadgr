@@ -229,10 +229,13 @@ jobs:
           test "$before" = "$after"
           echo 'Native installer refused before mutation in isolated owner state.'
 
-      # As above: the hosted Windows image ships a toolchain, so this half proves
-      # that `install.ps1` runs on Windows and produces a working `vadgr.exe`.
+      - name: Keep Windows on the graphical installer boundary
+        if: matrix.os == 'windows-latest' && needs.release-layout.outputs.layout == 'distribution'
+        shell: pwsh
+        run: python scripts/check_windows_installer_boundary.py
+
       - name: Install on Windows, through the PowerShell half
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-latest' && needs.release-layout.outputs.layout == 'legacy'
         shell: pwsh
         env:
           VADGR_REPO_URL: ${{ github.workspace }}
@@ -362,7 +365,11 @@ jobs:
   # an artifact no user was ever given while the installer shipped a different
   # one. Every leg now drives the one binary a user actually gets.
   clean-install:
+    name: Payload assembly or missing-input refusal (${{ matrix.os }})
     needs: release-layout
+    permissions:
+      contents: read
+      actions: read
     if: ${{ always() }}
     strategy:
       fail-fast: false
@@ -402,12 +409,35 @@ jobs:
           targets: ${{ runner.os == 'Windows' && 'x86_64-pc-windows-msvc' || '' }}
       - uses: Swatinem/rust-cache@49a0bdc70d2e1b713ca9e2869b211fcce03d3c1c # v2
 
+      - name: Read reviewed default-branch CUA inputs
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: master
+          path: .trusted-cua
+          persist-credentials: false
+      - name: Prepare the explicit clean-install payload mode
+        id: payload-inputs
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python scripts/check_cua_ci_boundary.py --trusted .trusted-cua \
+            --out "$RUNNER_TEMP/vadgr-clean-wheelhouse" --github-env "$GITHUB_ENV" \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Record the missing target closure without an install claim
+        if: steps.payload-inputs.outputs.mode == 'unpromoted'
+        shell: bash
+        run: |
+          echo 'Missing reviewed target closure: refusal verified; clean installation NOT RUN.'
+          echo 'Clean installation: **not run**. Reviewed target wheels are still owed.' >> "$GITHUB_STEP_SUMMARY"
+
       - name: Build the release binaries
-        if: runner.os == 'Linux' || (runner.os == 'macOS' && needs.release-layout.outputs.layout == 'legacy')
+        if: steps.payload-inputs.outputs.mode != 'unpromoted' && (runner.os == 'Linux' || (runner.os == 'macOS' && needs.release-layout.outputs.layout == 'legacy'))
         run: cargo build --locked --release --bins
 
       - name: Build the macOS CLI and responsible-process host
-        if: runner.os == 'macOS' && needs.release-layout.outputs.layout == 'distribution'
+        if: steps.payload-inputs.outputs.mode != 'unpromoted' && runner.os == 'macOS' && needs.release-layout.outputs.layout == 'distribution'
         run: cargo build --locked --release --features macos-cua-host --bin vadgr --bin vadgr-cua-host
 
       # The C runtime is linked in rather than imported, so the binary does not
@@ -415,17 +445,19 @@ jobs:
       # installer and `vadgr update` build the same way; an update that built
       # differently would replace a standalone binary with a dependent one.
       - name: Build the release binaries, with the C runtime linked in
-        if: runner.os == 'Windows'
+        if: steps.payload-inputs.outputs.mode != 'unpromoted' && runner.os == 'Windows'
         env:
           RUSTFLAGS: -C target-feature=+crt-static
         run: cargo build --locked --release --bins --target x86_64-pc-windows-msvc
 
       - name: Assemble the complete clean install on Unix without Python tools
-        if: runner.os == 'Linux' || (runner.os == 'macOS' && needs.release-layout.outputs.layout == 'legacy')
+        if: steps.payload-inputs.outputs.mode != 'unpromoted' && (runner.os == 'Linux' || (runner.os == 'macOS' && needs.release-layout.outputs.layout == 'legacy'))
         shell: bash
         run: |
           set -euo pipefail
           install_root="$RUNNER_TEMP/vadgr-clean-install"
+          set --
+          if [ -n "${VADGR_BUILD_WHEELHOUSE:-}" ]; then set -- --wheelhouse "$VADGR_BUILD_WHEELHOUSE"; fi
           shim="$RUNNER_TEMP/vadgr-python-shims"
           mkdir -p "$install_root/bin" "$shim"
           for name in python python3 pip pip3 uv vadgr-cua; do
@@ -433,7 +465,7 @@ jobs:
             chmod +x "$shim/$name"
           done
           env PATH="$shim" "$PWD/target/release/vadgr" __payload-setup \
-            --install-root "$install_root" --payload-only
+            --install-root "$install_root" --payload-only "$@"
           cp "$PWD/target/release/vadgr" "$install_root/bin/vadgr"
           manifest="$install_root/lib/cua/payload.json"
           test -f "$manifest"
@@ -441,19 +473,21 @@ jobs:
           test "${#private_pythons[@]}" -eq 1
           private_python="${private_pythons[0]}"
           test -f "$private_python"
-          "$private_python" -I -c \
+          "$private_python" -I -B -c \
             'import importlib.metadata,json,pathlib,sys; manifest=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")); assert sys.version.split()[0] == manifest["python_version"]; assert importlib.metadata.version("vadgr-computer-use") == manifest["cua_version"]' \
             "$manifest"
           echo "CLEAN_INSTALL_ROOT=$install_root" >> "$GITHUB_ENV"
           echo "CLEAN_INSTALL_EXECUTABLE=$install_root/bin/vadgr" >> "$GITHUB_ENV"
 
       - name: Assemble the macOS app without Python tools
-        if: runner.os == 'macOS' && needs.release-layout.outputs.layout == 'distribution'
+        if: steps.payload-inputs.outputs.mode != 'unpromoted' && runner.os == 'macOS' && needs.release-layout.outputs.layout == 'distribution'
         shell: bash
         run: |
           set -euo pipefail
           # Unsigned CI checks bundle layout and startup, not publisher trust or grants.
           app="$RUNNER_TEMP/vadgr-clean-install/Vadgr.app"
+          set --
+          if [ -n "${VADGR_BUILD_WHEELHOUSE:-}" ]; then set -- --wheelhouse "$VADGR_BUILD_WHEELHOUSE"; fi
           install_root="$app/Contents/Resources"
           host="$app/Contents/Library/LoginItems/Vadgr Computer Use.app/Contents"
           shim="$RUNNER_TEMP/vadgr-python-shims"
@@ -467,21 +501,21 @@ jobs:
             chmod +x "$shim/$name"
           done
           env PATH="$shim" "$app/Contents/MacOS/vadgr" __payload-setup \
-            --install-root "$install_root" --payload-only
+            --install-root "$install_root" --payload-only "$@"
           manifest="$install_root/lib/cua/payload.json"
           test -f "$manifest"
           private_pythons=( "$install_root"/lib/cua/environments/*/bin/python )
           test "${#private_pythons[@]}" -eq 1
           private_python="${private_pythons[0]}"
           test -f "$private_python"
-          "$private_python" -I -c \
+          "$private_python" -I -B -c \
             'import importlib.metadata,json,pathlib,sys; manifest=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")); assert sys.version.split()[0] == manifest["python_version"]; assert importlib.metadata.version("vadgr-computer-use") == manifest["cua_version"]' \
             "$manifest"
           echo "CLEAN_INSTALL_ROOT=$install_root" >> "$GITHUB_ENV"
           echo "CLEAN_INSTALL_EXECUTABLE=$app/Contents/MacOS/vadgr" >> "$GITHUB_ENV"
 
       - name: Assemble the complete clean install on Windows without Python tools
-        if: runner.os == 'Windows'
+        if: steps.payload-inputs.outputs.mode != 'unpromoted' && runner.os == 'Windows'
         shell: pwsh
         run: |
           $installRoot = Join-Path $env:RUNNER_TEMP 'vadgr-clean-install'
@@ -499,9 +533,11 @@ jobs:
           }
           $stdout = Join-Path $env:RUNNER_TEMP 'payload-setup.stdout.log'
           $stderr = Join-Path $env:RUNNER_TEMP 'payload-setup.stderr.log'
-          $run = Start-Process -PassThru -Wait -FilePath $candidate -ArgumentList @(
+          $assemblyArguments = @(
             '__payload-setup','--install-root',$installRoot,'--payload-only'
-          ) -Environment $clean -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+          )
+          if ($env:VADGR_BUILD_WHEELHOUSE) { $assemblyArguments += @('--wheelhouse', $env:VADGR_BUILD_WHEELHOUSE) }
+          $run = Start-Process -WindowStyle Hidden -PassThru -Wait -FilePath $candidate -ArgumentList $assemblyArguments -Environment $clean -RedirectStandardOutput $stdout -RedirectStandardError $stderr
           if ($run.ExitCode -ne 0) {
             Get-Content $stdout, $stderr
             throw "payload setup exited $($run.ExitCode)"
@@ -514,7 +550,7 @@ jobs:
           $privatePython = Join-Path $generations[0].FullName 'Scripts\python.exe'
           if (-not (Test-Path -PathType Leaf $privatePython)) { throw "private Python is missing: $privatePython" }
           $verifyPayload = 'import importlib.metadata,json,pathlib,sys; manifest=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")); assert sys.version.split()[0] == manifest["python_version"]; assert importlib.metadata.version("vadgr-computer-use") == manifest["cua_version"]'
-          & $privatePython -I -c $verifyPayload $manifest
+          & $privatePython -I -B -c $verifyPayload $manifest
           if ($LASTEXITCODE -ne 0) { throw 'private payload version check failed' }
           "CLEAN_INSTALL_ROOT=$installRoot" | Out-File -FilePath $env:GITHUB_ENV -Append
 
@@ -525,7 +561,7 @@ jobs:
       # an older base fails on glibc, and that is a recorded finding for the
       # release that ships prebuilt binaries, not a defect here.
       - name: Install it alone on a machine with no toolchain, and use it as a user would
-        if: runner.os == 'Linux'
+        if: steps.payload-inputs.outputs.mode != 'unpromoted' && runner.os == 'Linux'
         shell: bash
         run: |
           # The version the binary must name, read from Cargo.toml at run
@@ -606,7 +642,7 @@ jobs:
       # the probe (curl, jq) is an observer on the runner, not part of the
       # machine.
       - name: What it links, and the user's steps with the toolchain out of reach
-        if: runner.os == 'macOS'
+        if: steps.payload-inputs.outputs.mode != 'unpromoted' && runner.os == 'macOS'
         shell: bash
         run: |
           set -euo pipefail
@@ -688,7 +724,7 @@ jobs:
       # weaker claim than the Linux leg's, and the probe runs on the runner,
       # not the machine.
       - name: What it imports, and the user's steps with the toolchain out of reach
-        if: runner.os == 'Windows'
+        if: steps.payload-inputs.outputs.mode != 'unpromoted' && runner.os == 'Windows'
         shell: pwsh
         run: |
           # The one binary a user gets: it serves when invoked with `serve`

@@ -25,7 +25,9 @@ $guaranteed = @('kernel32.dll','advapi32.dll','ntdll.dll','ws2_32.dll','user32.d
                 'bcrypt.dll','bcryptprimitives.dll','crypt32.dll','secur32.dll',
                 'userenv.dll','shell32.dll','ole32.dll','oleaut32.dll','combase.dll',
                 'powrprof.dll','psapi.dll','ncrypt.dll','ntoskrnl.exe','rpcrt4.dll',
-                'iphlpapi.dll','shlwapi.dll','version.dll','winmm.dll')
+                'iphlpapi.dll','shlwapi.dll','version.dll','winmm.dll','dwmapi.dll',
+                'gdi32.dll','imm32.dll','opengl32.dll','uiautomationcore.dll',
+                'uxtheme.dll')
 
 foreach ($exe in $Executables) {
     if (-not (Test-Path $exe)) { throw "no binary at $exe" }

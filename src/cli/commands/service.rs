@@ -657,6 +657,34 @@ fn git(repo: &Path, args: &[&str]) -> Result<std::process::Output, CliError> {
 /// The product is one binary now, so an update is a pull and a build rather than
 /// a pull and two dependency installs.
 pub async fn update(check: bool) -> Result<(), CliError> {
+    let package =
+        vadgr_daemon::install::status().map_err(|error| CliError::Failed(error.to_string()))?;
+    if package.installed {
+        if check {
+            let update = vadgr_daemon::install::check_for_updates()
+                .map_err(|error| CliError::Failed(error.to_string()))?;
+            if update.update_available {
+                anstream::println!(
+                    "{}",
+                    output::info(&format!("Vadgr {} is available.", update.available_version))
+                );
+            } else {
+                anstream::println!("{}", output::success("vadgr is up to date."));
+            }
+            return Ok(());
+        }
+        let update = vadgr_daemon::install::apply_update()
+            .map_err(|error| CliError::Failed(error.to_string()))?;
+        anstream::println!(
+            "{}",
+            output::success(&format!(
+                "The signed Vadgr {} installer completed.",
+                update.available_version
+            ))
+        );
+        return Ok(());
+    }
+
     let repo = vadgr_repo();
     if !repo.join(".git").exists() {
         return Err(CliError::Failed(format!(
