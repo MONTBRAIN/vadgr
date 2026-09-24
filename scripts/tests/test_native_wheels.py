@@ -47,7 +47,7 @@ def test_reviewed_descriptor_covers_exact_native_targets():
         assert "cryptography_vectors" in names
 
 
-@pytest.mark.parametrize("mutation", ["source", "version", "target", "hash", "http", "filename", "duplicate", "rust"])
+@pytest.mark.parametrize("mutation", ["source", "version", "target", "hash", "http", "filename", "duplicate", "rust", "cargo"])
 def test_descriptor_refuses_ambiguous_or_unreviewed_inputs(mutation):
     data = copy.deepcopy(descriptor())
     row = data["targets"]["windows-aarch64"]["python_dependencies"][0]
@@ -65,6 +65,8 @@ def test_descriptor_refuses_ambiguous_or_unreviewed_inputs(mutation):
         row["filename"] = "../outside.whl"
     elif mutation == "duplicate":
         data["targets"]["windows-aarch64"]["python_dependencies"].append(row)
+    elif mutation == "cargo":
+        data["cryptography"]["cargo_packages_sha256"] = "0" * 64
     else:
         data["rust"]["version"] = "stable"
     with pytest.raises(gate.Refused):
@@ -141,13 +143,23 @@ def test_windows_compiler_environment_normalizes_case(monkeypatch):
 def test_upstream_report_cannot_substitute_skips_or_failures_for_passes(kind):
     body = f'<testcase><{kind} message="reason"/></testcase>' * 1000
     with pytest.raises(gate.Refused):
-        gate.test_counts(f"<testsuite>{body}</testsuite>".encode())
+        gate.test_counts(f"<testsuite>{body}</testsuite>".encode(), {"minimum_passed": 1000, "skips": {}})
 
 
 def test_upstream_report_retains_explained_skips():
     body = '<testcase/>' * 1000 + '<testcase><skipped message="platform"/></testcase>'
-    counts = gate.test_counts(f"<testsuite>{body}</testsuite>".encode())
-    assert counts == {"total": 1001, "passed": 1000, "skipped": 1, "skip_reasons": ["platform"]}
+    counts = gate.test_counts(f"<testsuite>{body}</testsuite>".encode(),
+                             {"minimum_passed": 1000, "skips": {"platform": 1}})
+    assert counts == {"total": 1001, "passed": 1000, "skipped": 1, "skip_reasons": ["platform"],
+                      "skip_counts": {"platform": 1}}
+
+
+@pytest.mark.parametrize("reason,count", [("arbitrary", 1), ("platform", 100000), ("platform", 2)])
+def test_upstream_skips_require_reviewed_reason_and_exact_count(reason, count):
+    body = '<testcase/>' * 1000 + f'<testcase><skipped message="{reason}"/></testcase>' * count
+    with pytest.raises(gate.Refused, match="reviewed exact reason/count"):
+        gate.test_counts(f"<testsuite>{body}</testsuite>".encode(),
+                         {"minimum_passed": 1000, "skips": {"platform": 1}})
 
 
 def test_pe_delayed_imports_cannot_hide_external_crypto():
@@ -174,7 +186,8 @@ def test_recipe_hash_survives_native_checkout_line_endings(tmp_path):
     assert gate.recipe_digest(recipe) == gate.digest(b"line one\nline two\n")
 
 
-@pytest.mark.parametrize("mutation", [None, "source", "recipe", "compiler", "inventory", "cargo", "tests"])
+@pytest.mark.parametrize("mutation", [None, "source", "recipe", "compiler", "inventory", "cargo", "tests", "cargo_hash",
+                                      "rust_hash", "rust_host", "rust_commit", "cargo_binary"])
 def test_reports_bind_tools_sources_inventory_and_test_results(mutation):
     data = descriptor()
     configuration = data["targets"]["windows-aarch64"]
@@ -195,8 +208,17 @@ def test_reports_bind_tools_sources_inventory_and_test_results(mutation):
     sbom = {"schema": 1, "kind": "build-input-inventory", "target": "windows-aarch64", "static_openssl": True,
             "cryptography": data["cryptography"], "openssl": data["openssl"],
             "python_build_tools": configuration["python_dependencies"], "wheel_sha256": wheel_hash,
-            "cargo_lock_sha256": "b" * 64,
+            "cargo_lock_sha256": data["cryptography"]["cargo_lock_sha256"],
             "cargo_packages": [{"name": "fixture", "version": "1", "source": "upstream-source"}]}
+    # Isolate report comparison with a small fixture; descriptor validation above
+    # separately refuses changes to the real sdist-derived inventory digest.
+    data["cryptography"]["cargo_packages_sha256"] = gate.digest(gate.canonical(sbom["cargo_packages"]))
+    report["rust_components"] = {"rustc": {"version": "1.97.1 (abc123 2026-07-14)"},
+                                 "cargo": {"version": "0.98.0 (def456 2026-06-30)"}}
+    configuration["rust_components_sha256"] = gate.digest(gate.canonical(report["rust_components"]))
+    report["rust"] = "rustc 1.97.1 (abc123 2026-07-14)"
+    report["rust_verbose"] = "host: aarch64-pc-windows-msvc\ncommit-hash: abc123456"
+    report["cargo"] = "cargo 1.97.0 (def456 2026-06-30)"
     if mutation == "source":
         report["sources"]["openssl"]["sha256"] = "c" * 64
     elif mutation == "recipe":
@@ -209,6 +231,16 @@ def test_reports_bind_tools_sources_inventory_and_test_results(mutation):
         sbom["cargo_packages"][0]["source"] = "git+https://example.invalid/moving"
     elif mutation == "tests":
         report["tests"]["passed"] = 1
+    elif mutation == "cargo_hash":
+        sbom["cargo_lock_sha256"] = "b" * 64
+    elif mutation == "rust_hash":
+        report["rust_components"]["rustc"]["version"] = "unreviewed"
+    elif mutation == "rust_host":
+        report["rust_verbose"] = "host: x86_64-pc-windows-msvc\ncommit-hash: abc123456"
+    elif mutation == "rust_commit":
+        report["rust_verbose"] = "host: aarch64-pc-windows-msvc\ncommit-hash: other"
+    elif mutation == "cargo_binary":
+        report["cargo"] = "cargo 1.97.0 (other 2026-06-30)"
     if mutation:
         with pytest.raises(gate.Refused):
             gate.validate_reports(report, sbom, data, "windows-aarch64", counts, wheel_hash)

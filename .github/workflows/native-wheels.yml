@@ -28,6 +28,14 @@ jobs:
         run: |
           python scripts/build_native_wheels.py --target windows-aarch64 --work "$env:RUNNER_TEMP/native-wheel-work" --out "$env:RUNNER_TEMP/native-wheel-output"
           if ($LASTEXITCODE -ne 0) { throw 'Native dependency build failed.' }
+      - name: Retain test-only diagnostics after a refused build
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-wheel-diagnostics-windows-aarch64
+          path: ${{ runner.temp }}/native-wheel-output/tests.xml
+          if-no-files-found: warn
+          retention-days: 14
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: native-wheel-windows-aarch64
@@ -61,6 +69,14 @@ jobs:
           targets: x86_64-apple-darwin
       - name: Build and test the reviewed native dependency
         run: python3 scripts/build_native_wheels.py --target macos-x86_64 --work "$RUNNER_TEMP/native-wheel-work" --out "$RUNNER_TEMP/native-wheel-output"
+      - name: Retain test-only diagnostics after a refused build
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-wheel-diagnostics-macos-x86_64
+          path: ${{ runner.temp }}/native-wheel-output/tests.xml
+          if-no-files-found: warn
+          retention-days: 14
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: native-wheel-macos-x86_64

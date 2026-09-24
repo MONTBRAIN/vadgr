@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import email
 import hashlib
 import json
@@ -20,6 +21,8 @@ import zipfile
 REPOSITORY = "MONTBRAIN/vadgr"
 WORKFLOW = ".github/workflows/native-wheels.yml"
 TARGETS = {"windows-aarch64": "win_arm64", "macos-x86_64": "macosx_13_0_x86_64"}
+RUST_COMPONENTS = {"windows-aarch64": "b7249d38c710fb5e0223d4e824525ae67fd76b1306082e470a821543df1e6b39",
+                   "macos-x86_64": "1c1c3c259fbb5e188c22455c0ed46fcfefaba10c91957d0bfb3bab07d396b04b"}
 SOURCE_SHA256 = "5dd9bda1c12b4162f6ff568eeb5e0ff956c28d14406e875cfe8a63a2d414ff20"
 OPENSSL_SHA256 = "736b467530f916737b7031310ccb21d8218c6229e61e8e160cd1d3458cd543a8"
 HASH = re.compile(r"[0-9a-f]{64}\Z")
@@ -79,6 +82,8 @@ def validate_descriptor(data):
             "unsupported descriptor or target matrix")
     source, ssl, rust = data["cryptography"], data["openssl"], data["rust"]
     require(source.get("version") == "50.0.1" and source.get("sha256") == SOURCE_SHA256
+            and source.get("cargo_lock_sha256") == "081ae57e95dabac9f47e2f070d2a3f0e8638ce9a560101b7d459b67cf4481fec"
+            and source.get("cargo_packages_sha256") == "5a53e329a67504fc318ccd128baf0689db1a9e2fdd919c00f34fcd9a45b01526"
             and source.get("commit") == "ffde75a2b594822c740a2e4748b56c00548302bf",
             "unreviewed cryptography source")
     require(ssl.get("version") == "4.0.2" and ssl.get("sha256") == OPENSSL_SHA256,
@@ -92,6 +97,12 @@ def validate_descriptor(data):
             "macos-15-intel", "x86_64-apple-darwin")
         require((configuration.get("runner"), configuration.get("rust_target")) == expected,
                 "native runner or target mismatch")
+        require(configuration.get("rust_components_sha256") == RUST_COMPONENTS[target],
+                "unreviewed Rust components")
+        policy = configuration.get("test_policy", {})
+        require(policy.get("minimum_passed", 0) >= 1000 and isinstance(policy.get("skips"), dict)
+                and all(isinstance(reason, str) and reason and type(count) is int and count > 0
+                        for reason, count in policy["skips"].items()), "invalid reviewed test policy")
         require(configuration.get("images") and configuration["python"].get("version") == "3.12.14"
                 and configuration["uv"].get("version") == "0.12.7", "unreviewed runtime/tool pin")
         names = [row["name"] for row in configuration["python_dependencies"]]
@@ -224,20 +235,44 @@ def inspect_wheel(path, target):
             "native_members": native, "imports": imports}
 
 
-def test_counts(data):
+def test_counts(data, policy):
     require(len(data) < 128 * 1024 * 1024 and b"<!DOCTYPE" not in data, "unsafe test report")
     root = ET.fromstring(data)
     cases = list(root.iter("testcase"))
     require(len(cases) >= 1000 and not list(root.iter("failure")) and not list(root.iter("error")),
             "upstream tests did not complete successfully")
     skips = [node.get("message", "") for node in root.iter("skipped")]
-    require(all(skips) and len(cases) - len(skips) >= 1000, "insufficient passing tests or unexplained skip")
+    require(all(skips) and len(cases) - len(skips) >= policy["minimum_passed"],
+            "insufficient passing tests or unexplained skip")
+    require(dict(Counter(skips)) == policy["skips"], "upstream skips differ from reviewed exact reason/count policy")
     return {"total": len(cases), "skipped": len(skips), "passed": len(cases) - len(skips),
-            "skip_reasons": sorted(set(skips))}
+            "skip_reasons": sorted(set(skips)), "skip_counts": dict(sorted(Counter(skips).items()))}
+
+
+def rust_components(manifest, target):
+    return {name: {"version": manifest["pkg"][name]["version"],
+                   "target": {key: manifest["pkg"][name]["target"][target][key]
+                              for key in ("available", "url", "hash", "xz_url", "xz_hash")}}
+            for name in ("rustc", "cargo", "rust-std")}
+
+
+def validate_rust(report, configuration):
+    components = report.get("rust_components", {})
+    require(digest(canonical(components)) == configuration["rust_components_sha256"],
+            "installed Rust components differ from approved manifest")
+    require(report.get("rust") == "rustc " + components["rustc"]["version"], "rustc binary version mismatch")
+    verbose = dict(line.split(": ", 1) for line in report.get("rust_verbose", "").splitlines() if ": " in line)
+    commit = components["rustc"]["version"].split("(", 1)[1].split()[0]
+    cargo = report.get("cargo", "").split(" ", 2)
+    require(verbose.get("host") == configuration["rust_target"] and verbose.get("commit-hash", "").startswith(commit)
+            and len(cargo) == 3 and cargo[0] == "cargo" and cargo[1] in ("1.97.0", "1.97.1")
+            and cargo[2] == components["cargo"]["version"].split(" ", 1)[1],
+            "Rust host, commit or Cargo binary mismatch")
 
 
 def validate_reports(report, sbom, descriptor, target, counts, wheel_hash):
     configuration = descriptor["targets"][target]
+    validate_rust(report, configuration)
     image = configuration["images"][report["image_version"]]
     require(report.get("schema") == 1 and report.get("tests") == counts
             and report.get("wheel_sha256") == wheel_hash
@@ -268,7 +303,9 @@ def validate_reports(report, sbom, descriptor, target, counts, wheel_hash):
             and sbom.get("openssl") == descriptor["openssl"]
             and sbom.get("python_build_tools") == configuration["python_dependencies"]
             and sbom.get("wheel_sha256") == wheel_hash and sbom.get("cargo_packages")
-            and HASH.fullmatch(sbom.get("cargo_lock_sha256", "")), "build inventory identity mismatch")
+            and sbom.get("cargo_lock_sha256") == descriptor["cryptography"]["cargo_lock_sha256"]
+            and digest(canonical(sbom.get("cargo_packages"))) == descriptor["cryptography"]["cargo_packages_sha256"],
+            "build inventory identity mismatch")
     for package in sbom["cargo_packages"]:
         require(package.get("name") and package.get("version") and
                 (package.get("source") == "upstream-source" or
@@ -332,7 +369,7 @@ def seal(input_path, destination):
                 and report["producer_sha"] == os.environ["GITHUB_SHA"] and report["run_id"] == run["id"]
                 and report["run_attempt"] == 1 and report["image_version"] in descriptor["targets"][target]["images"],
                 "build report is not bound to approved producer inputs")
-        counts = test_counts(members["tests.xml"])
+        counts = test_counts(members["tests.xml"], descriptor["targets"][target]["test_policy"])
         wheel_path = destination / wheel_name
         wheel_path.write_bytes(members[wheel_name])
         record = inspect_wheel(wheel_path, target)
