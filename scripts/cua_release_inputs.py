@@ -150,7 +150,6 @@ def verify_attestation(root: Path, value: dict) -> None:
         "--bundle", str(root / BUNDLE), "--repo", REPOSITORY,
         "--cert-identity", f"https://github.com/{REPOSITORY}/{WORKFLOW}@refs/heads/master",
         "--cert-oidc-issuer", "https://token.actions.githubusercontent.com",
-        "--signer-workflow", f"{REPOSITORY}/{WORKFLOW}",
         "--signer-digest", value["producer_sha"],
         "--source-digest", value["input_commit"], "--source-ref", "refs/heads/master",
         "--custom-trusted-root", str(root / TRUSTED_ROOT),
