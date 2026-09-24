@@ -73,6 +73,26 @@ def release_source_inputs(target: str) -> set[str]:
         f"packaging/cua/locks/{target}.lock", "packaging/cua/native-wheel-manifest.json"}
 
 
+def profile_source_inputs(profile: str) -> set[str]:
+    require(re.fullmatch(r"(windows|macos|linux|wsl)-(x86_64|aarch64)", profile) is not None,
+            "invalid release profile")
+    return (set(SOURCE_INPUTS) - {"packaging/cua/requirements.lock"}) | {
+        f"packaging/cua/profile-locks/{profile}.lock", "packaging/cua/native-wheel-manifest.json",
+        "packaging/cua/profile-inputs.json", "packaging/cua/cua-profile-catalog.json",
+        "packaging/cua/cua-profile-catalog.sigstore.json"}
+
+
+def profile_from_inputs(names, target):
+    for system in ("windows", "macos", "linux", "wsl"):
+        suffix = {"windows": "pc-windows-msvc", "macos": "apple-darwin",
+                  "linux": "unknown-linux-gnu", "wsl": "unknown-linux-gnu"}[system]
+        for architecture in ("x86_64", "aarch64"):
+            profile = system + "-" + architecture
+            if target == architecture + "-" + suffix and set(names) == profile_source_inputs(profile):
+                return profile
+    return None
+
+
 def relative_path(value: object) -> str:
     require(isinstance(value, str) and bool(value) and "\\" not in value and ":" not in value, "unsafe path")
     path = PurePosixPath(value)
@@ -171,7 +191,8 @@ def validate_inventory(inventory: dict) -> None:
     require(isinstance(inventory["terms_version"], str) and re.fullmatch(r"\d+(?:\.\d+)+", inventory["terms_version"]), "invalid inventory")
     require(valid_hash(inventory["terms_sha256"]) and valid_hash(inventory["payload_manifest_sha256"]), "invalid inventory")
     require(isinstance(inventory["source_inputs"], dict)
-            and set(inventory["source_inputs"]) in (set(SOURCE_INPUTS), release_source_inputs(inventory["target"]))
+            and (set(inventory["source_inputs"]) in (set(SOURCE_INPUTS), release_source_inputs(inventory["target"]))
+                 or profile_from_inputs(inventory["source_inputs"], inventory["target"]) is not None)
             and all(valid_hash(value) for value in inventory["source_inputs"].values()), "invalid inventory")
     coverage = inventory["coverage"]
     require(isinstance(coverage, dict) and set(coverage) == KINDS, "incomplete coverage")
@@ -276,7 +297,12 @@ def aggregate_files(inventory: dict, files: dict[str, bytes], field: str) -> byt
     result = []
     for component in sorted(inventory["components"], key=lambda item: item["id"]):
         for entry in sorted(component[field], key=lambda item: item["path"]):
-            result.extend([component["name"].encode("utf-8") + b"\n", files[entry["path"]], b"\n"])
+            data = files[entry["path"]]
+            if field == "source_offer_files" and entry["path"].lower().endswith(
+                    (".zip", ".whl", ".crate", ".tar.gz", ".tar.xz", ".tgz")):
+                data = (f"Included source archive: {entry['path']}\n"
+                        f"SHA-256: {sha256_bytes(data)}\n").encode("utf-8")
+            result.extend([component["name"].encode("utf-8") + b"\n", data, b"\n"])
     return b"".join(result) or b"No additional third-party NOTICE files are required by the component inventory.\n"
 
 
@@ -310,11 +336,22 @@ def _validate_package_inputs(root, source_root, version, target, payload_manifes
     pins = tomllib.loads(source_bytes["packaging/cua/pins.toml"].decode("utf-8"))
     target_pins = pins["targets"][target]
     schema_two = set(source_bytes) == release_source_inputs(target)
-    lock_name = f"packaging/cua/locks/{target}.lock" if schema_two else "packaging/cua/requirements.lock"
+    profile = profile_from_inputs(source_bytes, target)
+    lock_name = (f"packaging/cua/profile-locks/{profile}.lock" if profile else
+                 f"packaging/cua/locks/{target}.lock" if schema_two else "packaging/cua/requirements.lock")
     expected_payload = {"schema": 2 if schema_two else 1, "cua_version": pins["cua"], "python_version": pins["python"],
                         "python_build": pins["python_build"], "target": target,
                         "requirements_sha256": inventory["source_inputs"][lock_name],
                         "python_archive_sha256": target_pins["python_sha256"], "uv_archive_sha256": target_pins["uv_sha256"]}
+    if profile:
+        profile_inputs = parse_json(source_bytes["packaging/cua/profile-inputs.json"])
+        catalog_bytes = source_bytes["packaging/cua/cua-profile-catalog.json"]
+        catalog = parse_json(catalog_bytes)
+        require(profile_inputs.get("schema") == 1 and profile_inputs.get("catalog_sha256") == sha256_bytes(catalog_bytes)
+                and profile_inputs["profiles"][profile]["requirements_sha256"] == inventory["source_inputs"][lock_name],
+                "profile legal input binding differs")
+        expected_payload.update(schema=3, cua_version=catalog["cua_version"], release_profile=profile,
+            cua_profile_manifest_sha256=profile_inputs["profiles"][profile]["role_manifest_sha256"])
     if not source_only:
         if payload_manifest is None:
             payload_bytes = read_owned(root, "lib/cua/payload.json")
@@ -322,22 +359,23 @@ def _validate_package_inputs(root, source_root, version, target, payload_manifes
             payload_bytes = read_owned(payload_manifest.parent, payload_manifest.name)
         require(sha256_bytes(payload_bytes) == inventory["payload_manifest_sha256"], "payload identity mismatch")
         actual_payload = parse_json(payload_bytes)
-        if schema_two:
+        if schema_two or profile:
             runtime_root = payload_manifest.parent if payload_manifest else root / "lib/cua"
             expected_payload.update({
                 "wheel_manifest_sha256": inventory["source_inputs"]["packaging/cua/native-wheel-manifest.json"],
                 "installed_inventory_sha256": sha256_bytes(read_owned(runtime_root, "installed-inventory.json")),
             })
         require(type(actual_payload.get("schema")) is int and actual_payload == expected_payload, "payload pins mismatch")
-        if schema_two:
+        if schema_two or profile:
             # This import is local because the runtime validator shares the safe readers here.
             if __package__:
                 from scripts import cua_release_inputs
             else:
                 import cua_release_inputs
-            cua_release_inputs.validate_payload(runtime_root, {
-                key: expected_payload[key] for key in ("target", "requirements_sha256", "wheel_manifest_sha256")
-            })
+            binding_keys = ["target", "requirements_sha256", "wheel_manifest_sha256"]
+            if profile:
+                binding_keys += ["release_profile", "cua_profile_manifest_sha256"]
+            cua_release_inputs.validate_payload(runtime_root, {key: expected_payload[key] for key in binding_keys})
     generated = {"legal/TERMS.rtf", "legal/THIRD-PARTY-NOTICES.txt", f"sbom/vadgr-{version}.spdx.json"}
     if any(component["source_offer_files"] for component in inventory["components"]):
         generated.add("legal/SOURCE-OFFER.txt")

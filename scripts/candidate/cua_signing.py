@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 import sys
+import subprocess
 
 if __package__:
     from scripts import cua_release_inputs as release
@@ -27,6 +28,9 @@ else:
 PREFIX = "payload/lib/cua/"
 NAMES = {"pre-payload.json", "pre-inventory.json", "payload.json",
          "installed-inventory.json", "input-output.json"}
+HELPER_RECORDS = {"pre-signing-claim.json", "broker-final-manifest.json", "helper-closure-authorization.json",
+                  "authorization.sigstore.json", "input-output.json", "publisher-policy.json", "signature-reports.json",
+                  "receipt-windows.json", "receipt-wsl.json", "relay.exe", "broker.zip"}
 
 
 def identity(data):
@@ -46,7 +50,12 @@ def authorized(auth):
     binding = auth["cua_inputs"]
     require(binding["target"] in ("x86_64-pc-windows-msvc", "aarch64-pc-windows-msvc"),
             "this signer transition requires a reviewed Windows target")
-    require(set(binding) == {"target", "requirements_sha256", "wheel_manifest_sha256"}
+    fields = {"target", "requirements_sha256", "wheel_manifest_sha256"}
+    if "release_profile" in binding:
+        fields |= {"release_profile", "cua_profile_manifest_sha256"}
+        require(binding["release_profile"] == "windows-" + binding["target"].split("-", 1)[0]
+                and valid_hash(binding["cua_profile_manifest_sha256"]), "invalid reviewed CUA profile")
+    require(set(binding) == fields
             and all(valid_hash(binding[key]) for key in ("requirements_sha256", "wheel_manifest_sha256")),
             "invalid reviewed CUA binding")
     require(auth["cua_payload"] == {**binding, "installed_inventory_sha256":
@@ -100,7 +109,7 @@ def original(records, auth):
             and sha256_bytes(raw_inventory) == auth["cua_payload"]["installed_inventory_sha256"],
             "pre-signing metadata differs from authorization")
     payload, inventory = parse_json(raw_payload), parse_json(raw_inventory)
-    require(payload.get("schema") == 2 and type(payload["schema"]) is int
+    require(payload.get("schema") == (3 if "release_profile" in auth["cua_inputs"] else 2) and type(payload["schema"]) is int
             and all(payload.get(key) == value for key, value in auth["cua_payload"].items()),
             "pre-signing payload binding differs")
     expected = {name.removeprefix(PREFIX): row for name, row in files.items()
@@ -111,6 +120,7 @@ def original(records, auth):
 
 
 def reseal(root, auth, records, receipt):
+    require("release_profile" not in auth["cua_inputs"], "profile payload requires class-specific reseal")
     files = authorized(auth)
     payload, inventory = original(records, auth)
     require(set(tree(records)) == {"pre-payload.json", "pre-inventory.json"}, "signer records were already sealed")
@@ -147,6 +157,12 @@ def reseal(root, auth, records, receipt):
 
 
 def validate_records(records, auth):
+    if "release_profile" in auth["cua_inputs"]:
+        if __package__ == "scripts.candidate":
+            from scripts.candidate.cua_profile_signing import validate_records as profile_records
+        else:
+            from candidate.cua_profile_signing import validate_records as profile_records
+        return profile_records(records, auth)
     files = authorized(auth)
     before, inventory = original(records, auth)
     actual_records = tree(records)
@@ -179,24 +195,43 @@ def validate_records(records, auth):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode", choices=("snapshot", "reseal", "verify"))
+    parser.add_argument("mode", choices=("snapshot", "reseal", "reseal-profile", "verify"))
     parser.add_argument("--authorization", type=Path, required=True)
     parser.add_argument("--records", type=Path, required=True)
     parser.add_argument("--root", type=Path)
     parser.add_argument("--receipt", type=Path)
+    parser.add_argument("--helper-records", type=Path)
+    parser.add_argument("--profile-root", type=Path, help="Separately verified WSL payload root")
     args = parser.parse_args()
     try:
         auth = parse_json(args.authorization.read_bytes())
         records = args.records.absolute()
         if args.mode == "snapshot":
             snapshot(args.root.resolve(), auth, records)
+        elif args.mode == "reseal-profile":
+            if __package__ == "scripts.candidate":
+                from scripts.candidate.cua_profile_signing import reseal_profile
+            else:
+                from candidate.cua_profile_signing import reseal_profile
+            reseal_profile(args.root.resolve(), auth, records, parse_json(args.receipt.read_bytes()),
+                           args.helper_records.resolve(), profile_root=args.profile_root.resolve() if args.profile_root else None,
+                           signature_reports=parse_json(Path(str(args.receipt) + ".reports.json").read_bytes()) if not args.profile_root else None)
         elif args.mode == "reseal":
             reseal(args.root.resolve(), auth, records, parse_json(args.receipt.read_bytes()))
         else:
             validate_records(records, auth)
             if args.root:
                 mapping = parse_json(read_owned(records, "input-output.json"))
-                require(tree(args.root.resolve()) == {name: row["output"] for name, row in mapping.items()},
+                actual = tree(args.root.resolve())
+                if "release_profile" in auth["cua_inputs"]:
+                    if __package__ == "scripts.candidate":
+                        from scripts.candidate.cua_profile_signing import verify_runtime
+                    else:
+                        from candidate.cua_profile_signing import verify_runtime
+                    verify_runtime(args.root.resolve() / "payload", auth)
+                    require(actual.pop("payload/cua-runtime-authorization.sigstore.json", None) is not None,
+                            "runtime attestation bundle missing")
+                require(actual == {name: row["output"] for name, row in mapping.items()},
                         "final installed files changed after reseal")
     except (PackageInputError, KeyError, TypeError, ValueError, OSError, AttributeError):
         print("CUA signing transition refused; no candidate can proceed.", file=sys.stderr)
