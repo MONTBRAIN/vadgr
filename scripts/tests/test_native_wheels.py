@@ -4,6 +4,7 @@ import copy
 import hashlib
 import io
 import json
+import os
 from pathlib import Path
 import re
 import struct
@@ -137,6 +138,28 @@ def test_windows_compiler_environment_normalizes_case(monkeypatch):
     environment, report = build.compiler_environment({}, {"visual_studio": "reviewed", "sdk": "pinned"})
     assert environment["PATH"] == "C:/native-compiler" and "Path" not in environment
     assert report["msvc_tools"] == "C:/VS/tools"
+
+
+@pytest.mark.skipif(os.name != "nt", reason="executes the native Windows command processor")
+def test_windows_compiler_batch_path_with_spaces_executes(tmp_path, monkeypatch):
+    from scripts import build_native_wheels as build
+    installation = tmp_path / "Program Files (fixture)" / "Visual Studio"
+    script = installation / "VC/Auxiliary/Build/vcvarsall.bat"
+    script.parent.mkdir(parents=True)
+    script.write_text('@echo off\nif not "%1" == "arm64" exit /b 2\n'
+                      'if not "%2" == "10.0.26100.0" exit /b 3\n'
+                      'set VSCMD_ARG_TGT_ARCH=arm64\nset VCToolsInstallDir=C:\\native-tools\nexit /b 0\n')
+    actual_run = build.run
+
+    def command(command, **kwargs):
+        if isinstance(command, list) and str(command[0]).endswith("vswhere.exe"):
+            return json.dumps([{"installationVersion": "reviewed", "installationPath": str(installation)}])
+        return actual_run(command, **kwargs)
+
+    monkeypatch.setattr(build, "run", command)
+    environment, report = build.compiler_environment({}, {"visual_studio": "reviewed", "sdk": "10.0.26100.0"})
+    assert environment["VSCMD_ARG_TGT_ARCH"] == "arm64"
+    assert report["msvc_tools"] == "C:\\native-tools"
 
 
 @pytest.mark.parametrize("kind", ["skipped", "failure", "error"])
