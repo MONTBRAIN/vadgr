@@ -4,6 +4,13 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## Unreleased tooling
 
+### Fixed
+
+- Native wheel attestation checks use the exact certificate identity without a
+  conflicting GitHub CLI selector. Windows checkouts preserve the pinned trust
+  root's LF bytes. Repository, issuer, source, signer and hosted-runner checks
+  remain required; no dependency output is approved by this change.
+
 ### Added
 
 - Trusted candidate admission for reviewed per-target wheelhouses and schema-2
