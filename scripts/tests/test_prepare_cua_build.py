@@ -49,3 +49,11 @@ def test_clean_install_prepares_before_compile_and_passes_wheelhouse():
     macos = (root / ".github/workflows/signed-candidate-macos.yml").read_text()
     assert macos.index("prepare_cua_build.py") < macos.index("cargo build")
     assert "--allow-development" not in macos
+
+
+def test_ci_empty_wheelhouse_arguments_work_with_macos_bash_nounset():
+    text = (Path(__file__).resolve().parents[2] / ".github/workflows/ci.yml").read_text()
+    # Bash 3.2 rejects expansion of an empty array under nounset; positional
+    # parameters preserve argument boundaries and safely represent no override.
+    assert "wheelhouse_args" not in text
+    assert text.count('--payload-only "$@"') == 2

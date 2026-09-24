@@ -443,8 +443,8 @@ jobs:
         run: |
           set -euo pipefail
           install_root="$RUNNER_TEMP/vadgr-clean-install"
-          wheelhouse_args=()
-          if [ -n "${VADGR_BUILD_WHEELHOUSE:-}" ]; then wheelhouse_args=(--wheelhouse "$VADGR_BUILD_WHEELHOUSE"); fi
+          set --
+          if [ -n "${VADGR_BUILD_WHEELHOUSE:-}" ]; then set -- --wheelhouse "$VADGR_BUILD_WHEELHOUSE"; fi
           shim="$RUNNER_TEMP/vadgr-python-shims"
           mkdir -p "$install_root/bin" "$shim"
           for name in python python3 pip pip3 uv vadgr-cua; do
@@ -452,7 +452,7 @@ jobs:
             chmod +x "$shim/$name"
           done
           env PATH="$shim" "$PWD/target/release/vadgr" __payload-setup \
-            --install-root "$install_root" --payload-only "${wheelhouse_args[@]}"
+            --install-root "$install_root" --payload-only "$@"
           cp "$PWD/target/release/vadgr" "$install_root/bin/vadgr"
           manifest="$install_root/lib/cua/payload.json"
           test -f "$manifest"
@@ -473,8 +473,8 @@ jobs:
           set -euo pipefail
           # Unsigned CI checks bundle layout and startup, not publisher trust or grants.
           app="$RUNNER_TEMP/vadgr-clean-install/Vadgr.app"
-          wheelhouse_args=()
-          if [ -n "${VADGR_BUILD_WHEELHOUSE:-}" ]; then wheelhouse_args=(--wheelhouse "$VADGR_BUILD_WHEELHOUSE"); fi
+          set --
+          if [ -n "${VADGR_BUILD_WHEELHOUSE:-}" ]; then set -- --wheelhouse "$VADGR_BUILD_WHEELHOUSE"; fi
           install_root="$app/Contents/Resources"
           host="$app/Contents/Library/LoginItems/Vadgr Computer Use.app/Contents"
           shim="$RUNNER_TEMP/vadgr-python-shims"
@@ -488,7 +488,7 @@ jobs:
             chmod +x "$shim/$name"
           done
           env PATH="$shim" "$app/Contents/MacOS/vadgr" __payload-setup \
-            --install-root "$install_root" --payload-only "${wheelhouse_args[@]}"
+            --install-root "$install_root" --payload-only "$@"
           manifest="$install_root/lib/cua/payload.json"
           test -f "$manifest"
           private_pythons=( "$install_root"/lib/cua/environments/*/bin/python )
