@@ -125,7 +125,16 @@ def build(inputs, target, work, out):
     rust_manifest = {"url": descriptor["rust"]["manifest_url"], "sha256": descriptor["rust"]["manifest_sha256"]}
     fetch(rust_manifest, downloads / "rust-channel.toml")
     rust_version = run(["rustc", "+1.97.1", "--version"], capture=True)
-    gate.require(rust_version.startswith("rustc 1.97.1 "), "Rust toolchain version changed")
+    sysroot = Path(run(["rustc", "+1.97.1", "--print", "sysroot"], capture=True))
+    installed_manifest = tomllib.loads((sysroot / "lib/rustlib/multirust-channel-manifest.toml").read_text(encoding="utf-8"))
+    approved_manifest = tomllib.loads((downloads / "rust-channel.toml").read_text(encoding="utf-8"))
+    installed_components = gate.rust_components(installed_manifest, configuration["rust_target"])
+    gate.require(installed_components == gate.rust_components(approved_manifest, configuration["rust_target"]),
+                 "installed Rust manifest differs from pinned release")
+    rust_report = {"rust": rust_version, "rust_components": installed_components,
+                   "rust_verbose": run(["rustc", "+1.97.1", "-vV"], capture=True),
+                   "cargo": run(["cargo", "+1.97.1", "-V"], capture=True)}
+    gate.validate_rust(rust_report, configuration)
     environment["RUSTUP_TOOLCHAIN"] = "1.97.1"
     environment["CARGO_HOME"] = str(work / "cargo")
     environment["CARGO_TARGET_DIR"] = str(work / "cargo-target")
@@ -163,6 +172,8 @@ def build(inputs, target, work, out):
     openssl = work / "openssl/openssl-4.0.2"
     cargo_lock = source / "Cargo.lock"
     gate.require(cargo_lock.is_file(), "upstream Cargo lock missing")
+    gate.require(gate.digest(cargo_lock.read_bytes()) == descriptor["cryptography"]["cargo_lock_sha256"],
+                 "upstream Cargo lock does not match approved source")
     run(["cargo", "fetch", "--locked", "--target", configuration["rust_target"]], cwd=source, env=environment)
     environment["CARGO_NET_OFFLINE"] = "true"
     environment["OPENSSL_STATIC"] = "1"
@@ -185,10 +196,12 @@ def build(inputs, target, work, out):
     gate.require(smoke[0] == "50.0.1" and smoke[1].lower() == configuration["machine"].lower()
                  and smoke[2].startswith("OpenSSL 4.0.2 "), "native crypto/OpenSSL smoke identity mismatch")
     run([interpreter, "-m", "pytest", "tests", "--junitxml=" + str(out / "tests.xml")], cwd=source, env=environment)
-    tests = gate.test_counts((out / "tests.xml").read_bytes())
+    tests = gate.test_counts((out / "tests.xml").read_bytes(), configuration["test_policy"])
     cargo = tomllib.loads(cargo_lock.read_text(encoding="utf-8"))
     components = [{"name": row["name"], "version": row["version"], "source": row.get("source", "upstream-source"),
                    "sha256": row.get("checksum")} for row in cargo["package"]]
+    gate.require(gate.digest(gate.canonical(components)) == descriptor["cryptography"]["cargo_packages_sha256"],
+                 "Cargo inventory does not match approved source")
     sbom = {"schema": 1, "kind": "build-input-inventory", "target": target,
             "cryptography": descriptor["cryptography"], "openssl": descriptor["openssl"],
             "static_openssl": True, "cargo_lock_sha256": gate.digest(cargo_lock.read_bytes()),
@@ -201,6 +214,7 @@ def build(inputs, target, work, out):
               "rust": rust_version, "python": observed, "openssl": smoke[2], "tests": tests,
               "build_lock_sha256": gate.digest(build_lock.read_bytes()), "wheel_sha256": wheel["sha256"],
               "recipe_sha256": gate.recipe_digest(Path(__file__)), "sources": source_archives}
+    report.update(rust_report)
     (out / "build-report.json").write_bytes(gate.canonical(report))
     print(f"Built and tested {wheel['filename']}; {tests['passed']} upstream tests passed.")
 

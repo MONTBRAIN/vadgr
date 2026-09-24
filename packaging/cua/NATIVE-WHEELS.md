@@ -8,6 +8,18 @@ an input change; a moving runner label is not an approval.
 The explicit `pyo3/abi3-py311` feature matches upstream's limited-API build
 family; its `cp311-abi3` wheels are tested on the bundled Python 3.12.14.
 
+The Cargo lock and canonical package-list digests come from the hash-verified
+source archive. Installed Rust component metadata must match the hash-verified
+release manifest; compiler host/commit and Cargo binary identity are also checked.
+Both comparisons are repeated by the independent output validator.
+
+The initial test policy permits no skips and requires at least 1,000 passing
+upstream tests. Supported platform skips must first be classified from native
+execution and committed as exact reason/count pairs for that target. An unknown
+reason or changed count refuses output attestation. Failed runs may retain only
+test-report diagnostics, never an approved wheel artifact. Diagnostic reports
+are not evidence of a qualified dependency.
+
 The manual `Native dependency wheels` workflow runs only on `master`, attempt 1.
 The checked-out commit is the input commit. It accepts no alternate source ref,
 URL, command or hash. Source jobs have read-only repository access and no signing
