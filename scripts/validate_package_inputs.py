@@ -33,7 +33,7 @@ COMPONENT_KEYS = {"id", "name", "version", "kind", "sha256", "download_location"
 TARGETS = {f"{arch}-{suffix}" for arch in ("aarch64", "x86_64") for suffix in ("apple-darwin", "unknown-linux-gnu", "pc-windows-msvc")}
 # A new identifier needs an explicit supported-terms change, not a guessed license.
 LICENSE_IDS = set("""Apache-2.0 MIT BSD-2-Clause BSD-3-Clause BSD-4-Clause ISC Zlib
-BSL-1.0 CC0-1.0 Unlicense MPL-2.0 OFL-1.1 Ubuntu-font-1.0
+BSL-1.0 CC0-1.0 Unlicense MPL-2.0 MS-RL OFL-1.1 Ubuntu-font-1.0 Bitstream-Vera
 Unicode-3.0 Unicode-DFS-2016 Unicode-DFS-2015 Python-2.0 PSF-2.0
 BlueOak-1.0.0 0BSD BSD-3-Clause-Clear BSD-3-Clause-Open-MPI BSD-3-Clause-LBNL
 BSD-2-Clause-Views BSD-2-Clause-Patent BSD-3-Clause-Attribution

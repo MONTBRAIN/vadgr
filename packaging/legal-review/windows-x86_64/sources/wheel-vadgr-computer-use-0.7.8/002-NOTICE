@@ -1,0 +1,11 @@
+Vadgr
+Copyright 2026 Victor Santiago Montaño Diaz
+
+Vadgr is a platform for AI agents that work on your computer. Describe
+your task, Vadgr builds the agent, and the agent runs autonomously --
+writing code, controlling apps, and delivering results. Works with
+Claude, Codex, Gemini, or any CLI agent tool.
+
+https://github.com/MONTBRAIN/vadgr
+
+Licensed under the Apache License, Version 2.0.

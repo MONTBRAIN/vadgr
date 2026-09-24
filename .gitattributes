@@ -2,3 +2,5 @@
 packaging/cua/requirements.lock text eol=lf
 packaging/release-trusted-root.jsonl text eol=lf
 packaging/legal/*.txt text eol=lf
+packaging/legal-review/**/*.json text eol=lf
+packaging/legal-review/**/sources/** -text -diff -whitespace

@@ -1,0 +1,52 @@
+Metadata-Version: 2.5
+Name: httpx2
+Version: 2.12.0
+Summary: The next generation HTTP client.
+Project-URL: Changelog, https://github.com/pydantic/httpx2/blob/main/src/httpx2/CHANGELOG.md
+Project-URL: Homepage, https://github.com/pydantic/httpx2
+Project-URL: Source, https://github.com/pydantic/httpx2
+Author-email: Tom Christie <tom@tomchristie.com>
+Maintainer-email: "Pydantic Services Inc." <engineering@pydantic.dev>
+License-Expression: BSD-3-Clause
+License-File: LICENSE.md
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Web Environment
+Classifier: Framework :: AnyIO
+Classifier: Framework :: AsyncIO
+Classifier: Framework :: Trio
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Programming Language :: Python :: 3.15
+Classifier: Topic :: Internet :: WWW/HTTP
+Requires-Python: >=3.10
+Requires-Dist: anyio>=4.10; sys_platform != 'emscripten'
+Requires-Dist: httpcore2==2.12.0; sys_platform != 'emscripten'
+Requires-Dist: httpx2-jsfetch; sys_platform == 'emscripten' and python_version >= '3.12'
+Requires-Dist: idna>=3.18
+Requires-Dist: truststore>=0.10; sys_platform != 'emscripten'
+Requires-Dist: typing-extensions>=4.5.0; python_version < '3.13'
+Provides-Extra: brotli
+Requires-Dist: brotli>=1.2.0; (platform_python_implementation == 'CPython') and extra == 'brotli'
+Requires-Dist: brotlicffi>=1.2.0.0; (platform_python_implementation != 'CPython') and extra == 'brotli'
+Provides-Extra: cli
+Requires-Dist: click>=8.4.2; extra == 'cli'
+Requires-Dist: pygments==2.*; extra == 'cli'
+Requires-Dist: rich<16,>=10; extra == 'cli'
+Provides-Extra: http2
+Requires-Dist: h2<5,>=3; extra == 'http2'
+Provides-Extra: socks
+Requires-Dist: socksio==1.*; extra == 'socks'
+Provides-Extra: ws
+Requires-Dist: wsproto>=1.2; extra == 'ws'
+Provides-Extra: zstd
+Requires-Dist: backports-zstd>=1.0.0; (python_version <= '3.13') and extra == 'zstd'
+Description-Content-Type: text/markdown
+

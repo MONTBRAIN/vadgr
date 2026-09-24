@@ -1,0 +1,24 @@
+Metadata-Version: 2.4
+Name: uniseg
+Version: 0.10.1
+Summary: Determine Unicode text segmentations
+Author-email: Masaaki Shibata <mshibata@emptypage.jp>
+Project-URL: Homepage, https://bitbucket.org/emptypage/uniseg-py
+Project-URL: Documentation, https://uniseg-py.readthedocs.io/
+Project-URL: Repository, https://bitbucket.org/emptypage/uniseg-py.git
+Keywords: text,unicode
+Classifier: Development Status :: 4 - Beta
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Text Processing
+Requires-Python: >=3.9
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+Dynamic: license-file
+
