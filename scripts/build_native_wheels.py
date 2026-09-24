@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import shutil
 import subprocess
 import tarfile
@@ -21,7 +22,8 @@ else:
 
 
 def run(command, *, cwd=None, env=None, capture=False):
-    result = subprocess.run([str(x) for x in command], cwd=cwd, env=env, check=True,
+    arguments = command if isinstance(command, str) else [str(x) for x in command]
+    result = subprocess.run(arguments, cwd=cwd, env=env, check=True,
                             text=True, stdout=subprocess.PIPE if capture else None,
                             stderr=subprocess.STDOUT, timeout=5400)
     return result.stdout.strip() if capture else None
@@ -76,9 +78,12 @@ def compiler_environment(configuration, image):
         matches = [row for row in installations if row["installationVersion"] == image["visual_studio"]]
         gate.require(len(matches) == 1, "reviewed Visual Studio version unavailable")
         script = Path(matches[0]["installationPath"]) / "VC/Auxiliary/Build/vcvarsall.bat"
-        gate.require(script.is_file() and '"' not in str(script), "compiler initialization script missing")
-        text = run(["cmd.exe", "/d", "/s", "/c", f'""{script}" arm64 {image["sdk"]} >nul && set"'],
-                   capture=True)
+        gate.require(script.is_file() and not re.search(r'["%\r\n]', str(script))
+                     and re.fullmatch(r"\d+\.\d+\.\d+\.\d+", image["sdk"]),
+                     "unsafe compiler initialization input")
+        # cmd parses its own expression, not the C argv quoting used for programs.
+        # Passing this expression through list2cmdline inserts literal backslashes.
+        text = run(f'cmd.exe /d /v:off /s /c ""{script}" arm64 {image["sdk"]} >nul && set"', capture=True)
         allowed = {"path", "include", "lib", "libpath", "vctoolsinstalldir", "windowssdkdir",
                    "windowssdkversion", "universalcrtsdkdir", "ucrtversion", "vscmd_arg_tgt_arch"}
         for line in text.splitlines():
