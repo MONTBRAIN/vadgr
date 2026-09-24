@@ -65,6 +65,9 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Fixed
 
+- Native dependency test policy records seven upstream Unix-only mmap cases
+  on Windows by exact test identity and reason. The Intel macOS policy and
+  rejection of unknown, duplicate or missing skips remain unchanged.
 - Native Windows dependency builds use an absolute ARM64 `nmake.exe` from the
   reviewed Visual Studio installation. Missing, redirected or non-native tools
   stop before downloads or compilation.

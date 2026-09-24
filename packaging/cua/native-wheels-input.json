@@ -27,7 +27,7 @@
       "rust_components_sha256": "b7249d38c710fb5e0223d4e824525ae67fd76b1306082e470a821543df1e6b39",
       "test_policy": {
         "total": 4681,
-        "minimum_passed": 4658,
+        "minimum_passed": 4651,
         "skips": [
           {
             "classname": "tests.hazmat.primitives.test_aead",
@@ -143,6 +143,41 @@
             "classname": "tests.hazmat.primitives.test_ssh.TestOpenSSHSerialization",
             "name": "test_missing_bcrypt",
             "reason": "Requires that bcrypt is missing (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_aead.TestChaCha20Poly1305",
+            "name": "test_data_too_large",
+            "reason": "mmap and 64-bit platform required"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_aead.TestAESCCM",
+            "name": "test_data_too_large",
+            "reason": "mmap and 64-bit platform required"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_aead.TestAESGCM",
+            "name": "test_data_too_large",
+            "reason": "mmap and 64-bit platform required"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_aead.TestAESOCB3",
+            "name": "test_data_too_large",
+            "reason": "mmap and 64-bit platform required"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_aead.TestAESSIV",
+            "name": "test_data_too_large",
+            "reason": "mmap and 64-bit platform required"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_aead.TestAESGCMSIV",
+            "name": "test_data_too_large",
+            "reason": "mmap and 64-bit platform required"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_ciphers",
+            "name": "test_update_auto_chunking",
+            "reason": "mmap required"
           }
         ]
       },
