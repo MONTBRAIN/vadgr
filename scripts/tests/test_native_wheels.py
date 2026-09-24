@@ -135,7 +135,7 @@ def test_windows_compiler_environment_normalizes_case(monkeypatch):
     replies = iter([json.dumps([{"installationVersion": "reviewed", "installationPath": "C:/VS"}]),
                     "Path=C:/native-compiler\nVCToolsInstallDir=C:/VS/tools\nVSCMD_ARG_TGT_ARCH=arm64"])
     monkeypatch.setattr(build, "run", lambda *args, **kwargs: next(replies))
-    environment, report = build.compiler_environment({}, {"visual_studio": "reviewed", "sdk": "pinned"})
+    environment, report = build.compiler_environment({}, {"visual_studio": "reviewed", "sdk": "10.0.26100.0"})
     assert environment["PATH"] == "C:/native-compiler" and "Path" not in environment
     assert report["msvc_tools"] == "C:/VS/tools"
 

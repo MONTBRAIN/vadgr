@@ -20,6 +20,12 @@ All notable changes to this project are documented here. Format follows [Keep a 
   validation and an attested wheel manifest. Produced bytes require review
   before payload use; this workflow does not sign or publish the product.
 
+### Fixed
+
+- Native Windows dependency builds initialize the reviewed compiler correctly
+  when its installation path contains spaces. Source, compiler, architecture
+  and provenance checks remain required.
+
 ## [0.4.12] - 2026-08-29
 
 ### Added
