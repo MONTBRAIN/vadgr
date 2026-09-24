@@ -29,6 +29,14 @@ HASH = re.compile(r"[0-9a-f]{64}\Z")
 COMMIT = re.compile(r"[0-9a-f]{40}\Z")
 MAX_ARCHIVE = 256 * 1024 * 1024
 MAX_EXPANDED = 512 * 1024 * 1024
+TEST_DATA = {
+    "wycheproof": ("b61843a9a5115bb758134b6a1f5d5e502d445342",
+                   "fb3654761053844cea4766db3fcdd41caf8a64a6700040d2bed1d135552911b3"),
+    "x509-limbo": ("341400395157bcd720afc37c8fdf026fcc7a88e9",
+                   "e025551ba5957935a0f8565c19586d05213691239c9c4b80f7b60f64b8d2cf6b"),
+}
+BCRYPT = {"windows-aarch64": "f2347d3534e76bf50bca5500989d6c1d05ed64b440408057a37673282c654927",
+          "macos-x86_64": "0c418ca99fd47e9c59a301744d63328f17798b5947b0f791e9af3c1c499c2d0a"}
 
 
 class Refused(ValueError):
@@ -77,6 +85,11 @@ def safe_name(name):
     return name
 
 
+def source_inputs(data, configuration):
+    return {"cryptography": data["cryptography"], "openssl": data["openssl"],
+            "python": configuration["python"], "uv": configuration["uv"], **data["test_data"]}
+
+
 def validate_descriptor(data):
     require(data.get("schema") == 1 and set(data.get("targets", {})) == set(TARGETS),
             "unsupported descriptor or target matrix")
@@ -91,7 +104,15 @@ def validate_descriptor(data):
     require(rust.get("version") == "1.97.1" and rust.get("manifest_sha256") ==
             "03569b1886ceb5c05276b50c8431ab111de944cd6140fe1fa7d821dd8e0f29cf",
             "unreviewed Rust toolchain")
-    rows = [source, ssl]
+    require(isinstance(data.get("test_data"), dict) and set(data["test_data"]) == set(TEST_DATA),
+            "incomplete test data snapshots")
+    for name, (commit, sha256) in TEST_DATA.items():
+        row = data["test_data"][name]
+        require(row.get("commit") == commit and row.get("sha256") == sha256
+                and row.get("filename") == f"{name}-{commit}.tar.gz"
+                and row.get("url") == f"https://github.com/C2SP/{name}/archive/{commit}.tar.gz",
+                "unreviewed test data snapshot")
+    rows = [source, ssl, *data["test_data"].values()]
     for target, configuration in data["targets"].items():
         expected = ("windows-11-arm", "aarch64-pc-windows-msvc") if target.startswith("windows") else (
             "macos-15-intel", "x86_64-apple-darwin")
@@ -100,14 +121,25 @@ def validate_descriptor(data):
         require(configuration.get("rust_components_sha256") == RUST_COMPONENTS[target],
                 "unreviewed Rust components")
         policy = configuration.get("test_policy", {})
-        require(policy.get("minimum_passed", 0) >= 1000 and isinstance(policy.get("skips"), dict)
-                and all(isinstance(reason, str) and reason and type(count) is int and count > 0
-                        for reason, count in policy["skips"].items()), "invalid reviewed test policy")
+        require(policy.get("total") == 4681 and isinstance(policy.get("skips"), list)
+                and len(policy["skips"]) == (23 if target.startswith("windows") else 27)
+                and policy.get("minimum_passed") == 4681 - len(policy["skips"]),
+                "invalid reviewed test policy")
+        identities = []
+        for case in policy["skips"]:
+            require(isinstance(case, dict) and set(case) == {"classname", "name", "reason"}
+                    and all(isinstance(value, str) and value for value in case.values()),
+                    "invalid reviewed skip case")
+            identities.append((case["classname"], case["name"]))
+        require(len(identities) == len(set(identities)), "duplicate reviewed skip case")
         require(configuration.get("images") and configuration["python"].get("version") == "3.12.14"
                 and configuration["uv"].get("version") == "0.12.7", "unreviewed runtime/tool pin")
         names = [row["name"] for row in configuration["python_dependencies"]]
         require(len(names) == len(set(names)) and {"maturin", "cffi", "pytest", "cryptography_vectors"} <= set(names),
                 "incomplete or duplicate build closure")
+        bcrypt = [row for row in configuration["python_dependencies"] if row["name"] == "bcrypt"]
+        require(len(bcrypt) == 1 and bcrypt[0].get("version") == "5.0.0"
+                and bcrypt[0].get("sha256") == BCRYPT[target], "unreviewed bcrypt test dependency")
         rows += [configuration["python"], configuration["uv"], *configuration["python_dependencies"]]
     for row in rows:
         require(HASH.fullmatch(row.get("sha256", "")), "invalid input digest")
@@ -239,14 +271,28 @@ def test_counts(data, policy):
     require(len(data) < 128 * 1024 * 1024 and b"<!DOCTYPE" not in data, "unsafe test report")
     root = ET.fromstring(data)
     cases = list(root.iter("testcase"))
-    require(len(cases) >= 1000 and not list(root.iter("failure")) and not list(root.iter("error")),
+    require(len(cases) == policy["total"] and len(cases) >= 1000
+            and not list(root.iter("failure")) and not list(root.iter("error")),
             "upstream tests did not complete successfully")
+    identities = [(case.get("classname", ""), case.get("name", "")) for case in cases]
+    require(all(classname and name for classname, name in identities)
+            and len(set(identities)) == len(identities), "missing or duplicate test case identity")
+    skip_cases = []
+    for case in cases:
+        nodes = list(case.iter("skipped"))
+        require(len(nodes) <= 1, "duplicate skip in test case")
+        if nodes:
+            skip_cases.append({"classname": case.get("classname"), "name": case.get("name"),
+                               "reason": nodes[0].get("message", "")})
     skips = [node.get("message", "") for node in root.iter("skipped")]
     require(all(skips) and len(cases) - len(skips) >= policy["minimum_passed"],
             "insufficient passing tests or unexplained skip")
-    require(dict(Counter(skips)) == policy["skips"], "upstream skips differ from reviewed exact reason/count policy")
+    order = lambda row: (row["classname"], row["name"], row["reason"])
+    require(len(skips) == len(skip_cases) and sorted(skip_cases, key=order) == sorted(policy["skips"], key=order),
+            "upstream skips differ from reviewed exact case/reason policy")
     return {"total": len(cases), "skipped": len(skips), "passed": len(cases) - len(skips),
-            "skip_reasons": sorted(set(skips)), "skip_counts": dict(sorted(Counter(skips).items()))}
+            "skip_reasons": sorted(set(skips)), "skip_counts": dict(sorted(Counter(skips).items())),
+            "skip_cases": sorted(skip_cases, key=order)}
 
 
 def rust_components(manifest, target):
@@ -288,9 +334,7 @@ def validate_reports(report, sbom, descriptor, target, counts, wheel_hash):
         require(compiler.get("xcode") == f'Xcode {image["xcode"]}\nBuild version {image["xcode_build"]}'
                 and compiler.get("clang"), "Xcode identity mismatch")
     expected_sources = {name: {"url": row["url"], "sha256": row["sha256"]}
-                        for name, row in {"cryptography": descriptor["cryptography"],
-                                          "openssl": descriptor["openssl"],
-                                          "python": configuration["python"], "uv": configuration["uv"]}.items()}
+                        for name, row in source_inputs(descriptor, configuration).items()}
     require(report.get("sources") == expected_sources, "source report mismatch")
     lock = "".join(f'{row["name"]}=={row["version"]} --hash=sha256:{row["sha256"]}\n'
                    for row in configuration["python_dependencies"])
@@ -301,6 +345,7 @@ def validate_reports(report, sbom, descriptor, target, counts, wheel_hash):
             and sbom.get("target") == target and sbom.get("static_openssl") is True
             and sbom.get("cryptography") == descriptor["cryptography"]
             and sbom.get("openssl") == descriptor["openssl"]
+            and sbom.get("test_data") == descriptor["test_data"]
             and sbom.get("python_build_tools") == configuration["python_dependencies"]
             and sbom.get("wheel_sha256") == wheel_hash and sbom.get("cargo_packages")
             and sbom.get("cargo_lock_sha256") == descriptor["cryptography"]["cargo_lock_sha256"]
