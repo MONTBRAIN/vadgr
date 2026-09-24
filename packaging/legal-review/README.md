@@ -36,3 +36,40 @@ Git treats these copies as binary for diffs so it does not reinterpret license
 formatting as whitespace defects or conflict markers. Each file remains readable
 on disk, and its SHA-256 is recorded for direct review. Wheel metadata retains
 its exact header block, including license fields, without unrelated README text.
+
+## Nested source supplement
+
+`supplement/collection.json` adds 143 exact Rust crate versions from the
+cryptography, pydantic-core and rpds-py wheel catalogues, both full Python build
+archives, 14 native/source artifacts and explicit upstream license grants.
+It binds the existing target collections and original embedded SBOMs. All 478
+copied evidence files retain their original bytes. Source archives remain in
+the acquisition cache and are not included in this source-text packet.
+
+Verify the committed supplement without network access:
+
+```powershell
+python scripts/import_legal_supplement.py --source-root . --output packaging/legal-review/supplement --verify
+```
+
+The importer accepts the four recorded acquisition reports and their exact
+files in an acquisition directory. It verifies cached archive hashes, copied
+file hashes and original SBOM component claims before creating a new output
+directory. It does not execute upstream code or change approval status.
+
+```powershell
+python scripts/import_legal_supplement.py --source-root . --source acquisition-directory --output new-supplement
+```
+
+These catalogues are not a final shipped-component inventory. Python's generic
+metadata contains stale OpenSSL DLL names. The actual Windows build script
+selects OpenSSL 3.5.8, patched libffi 3.4.2 and different Tcl/Tk inputs for x64
+(8.6.12) and ARM64 (8.6.14). The exact build script and source archive records
+are retained. The generic Pillow SBOM also lists optional components that the
+Windows wheels need not link. Preserve the bundled notices and resolve target
+scope before concluding obligations. Do not treat a generic catalogue entry as
+proof of GPL or LGPL linkage.
+
+The supplement remains explicitly incomplete and unreviewed. It does not
+supply a recipient source offer, close redistribution duties or approve any
+wheel, payload, package or signing operation.
