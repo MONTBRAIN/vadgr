@@ -5,6 +5,7 @@ import hashlib
 import io
 import json
 from pathlib import Path
+import re
 import struct
 import zipfile
 
@@ -101,18 +102,17 @@ def test_json_duplicate_fields_are_rejected(tmp_path):
 
 
 def test_workflow_keeps_builds_without_credentials():
-    import yaml
-    workflow = yaml.safe_load((ROOT / ".github/workflows/native-wheels.yml").read_text())
-    assert workflow["permissions"] == {"contents": "read"}
+    workflow = (ROOT / ".github/workflows/native-wheels.yml").read_text()
+    assert "\npermissions:\n  contents: read\n\njobs:" in workflow
+    assert "secrets." not in workflow and "continue-on-error" not in workflow
     for name in ("build-windows", "build-macos"):
-        job = workflow["jobs"][name]
-        assert job.get("permissions", {}) == {"contents": "read"}
-        assert "environment" not in job
-        assert "continue-on-error" not in job
-    attest = workflow["jobs"]["validate-and-attest"]
-    assert attest["permissions"]["id-token"] == "write"
-    assert set(attest["needs"]) == {"build-windows", "build-macos"}
-    assert "environment" not in attest
+        job = re.search(rf"(?ms)^  {name}:\n(.*?)(?=^  [a-z-]+:|\Z)", workflow).group(1)
+        assert re.search(r"(?m)^    permissions:\n      contents: read\n    steps:", job)
+        assert "write" not in job and "environment:" not in job
+    attest = workflow.split("\n  validate-and-attest:\n", 1)[1]
+    assert "\n      id-token: write\n" in attest
+    assert "\n    needs: [build-windows, build-macos]\n" in attest
+    assert "environment:" not in attest
 
 
 def test_native_recipe_keeps_build_resolution_offline():
