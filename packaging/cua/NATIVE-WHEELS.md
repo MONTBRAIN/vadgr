@@ -82,3 +82,60 @@ manifest and wheel hashes before connecting target-specific runtime locks or
 payload assembly. The consumer must verify the attestation, producer identity
 and frozen bytes; it must never select a latest artifact. Signing, final legal
 inventory and native installed-product tests remain separate requirements.
+
+## Retained output identity
+
+
+Run [35957405519](https://github.com/MONTBRAIN/vadgr/actions/runs/35957405519),
+attempt 1, completed successfully at source commit
+`4624073d81f44bf8ae88ca4fbe482d7f138095f1` on `master`.
+`native-wheel-manifest.json` retains its exact canonical bytes. Its SHA-256 is
+`2f86c4d2c6493d32019a617c669e3c0babefc565f9da73c6182475286ad499b8`.
+The adjacent verification bundle has SHA-256
+`8e8f9ec6f85662872c06b15b0e9d205fbff6a62d02fad1121b0ee00fe71f3708`.
+[Attestation 49747958](https://github.com/MONTBRAIN/vadgr/attestations/49747958)
+binds that manifest to the exact source and signer commit, GitHub Actions issuer,
+default-branch workflow and hosted-runner identity. Independent verification
+checked the certificate and statement identities as well as the signature.
+
+| Target | Artifact ID | Job ID | Wheel SHA-256 | Passed / skipped |
+| --- | --- | --- | --- | --- |
+| Windows ARM64 | 10790957494 | 107498542111 | `900c3a689b80ca7c3f0c0846af6c1023f8c02cc4b1555f0126adb4e9789fce70` | 4651 / 30 |
+| Intel macOS | 10791711091 | 107498542241 | `e414d09a63dca5056ed46bcb915ecd5a27c3c08a23a540337d5f061b09c8c665` | 4654 / 27 |
+
+The manifest binds original artifact digests, wheel sizes, exact skip identities,
+source/tool inputs and report hashes. Validated artifact `10791402002` contains
+13,917,611 bytes, SHA-256
+`8c6e69ec29661d78369d4759b599c82279b9497f91c0dcf350b3d6236a5258ff`.
+Its validation job is `107501687012`; repository ID is `1158230114` and workflow
+ID is `365688750`. No wheel binary is committed here. The consumer downloads
+only the manifest's exact immutable artifact IDs and refuses unavailable bytes.
+The original artifact retention ends on 2026-12-23; a rebuild needs new review.
+
+Both targets had zero test failures or errors and four deprecation warnings from
+certificate fixtures. macOS also had 14 upstream CFFI const-qualifier compiler
+warnings. The artifact uploader reported Node deprecations. These results are
+native producer tests, not installed-product qualification or legal approval.
+
+`locks/x86_64-pc-windows-msvc.lock` selects the complete 40-distribution Windows
+x64 runtime closure for CPython 3.12.14 and CUA 0.7.8. Its SHA-256 is
+`83bdf9d395ea701f032e30cba1537483ebfefe8cdac03f30b9eccdccb4e98292`.
+Each entry selects one downloaded, hash-verified upstream wheel. Package metadata,
+platform markers, extras and version constraints were checked for a complete
+active closure. This target uses upstream cryptography 50.0.1, not either custom
+wheel. The development lock is unchanged. This input record is not a legal
+approval, signed candidate or installed-product pass.
+
+Windows ARM64 and macOS target locks are not promoted. The released
+`vadgr_computer_use-0.7.8-py3-none-any.whl` includes the x64 PE member
+`computer_use/browser/winhost/vadgr-cua-host.exe`. The unchanged native-member
+validator rejects it for both Windows ARM64 and macOS. A complete target-native
+CUA packaging repair is required before either runtime lock can be admitted.
+No file removal, architecture exception or emulation approval is implied here.
+
+A Windows x64 candidate source must synchronize the manifest, bundle and selected
+lock without changing their bytes. Missing reviewed target locks still refuse
+consumption on other targets. The trusted materializer must
+verify origin and attestation, download and inspect every selected wheel, and
+produce the offline wheelhouse before compilation. Signing, legal closure and
+native installation tests remain separate gates.

@@ -13,6 +13,12 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Added
 
+- Exact manifest and attestation bundle for native dependency run 35957405519,
+  plus a Windows x64 runtime lock selecting 40 released upstream wheels.
+  Windows ARM64 and macOS target locks remain unavailable because CUA's
+  embedded Windows helper does not satisfy their native target checks.
+  Legal approval, signing and installed-product qualification remain separate.
+
 - Trusted candidate admission for reviewed per-target wheelhouses and schema-2
   runtime inventories. Offline compilation follows separate read-only downloads.
   Windows signing records exact input/output hashes and reseals runtime metadata
