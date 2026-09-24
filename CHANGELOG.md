@@ -65,6 +65,9 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Fixed
 
+- Native Windows dependency builds use an absolute ARM64 `nmake.exe` from the
+  reviewed Visual Studio installation. Missing, redirected or non-native tools
+  stop before downloads or compilation.
 - Native dependency tests now receive pinned Wycheproof, x509-limbo and bcrypt
   inputs. Target-specific skip policies check exact test identities and reasons,
   reject missing tests and bind test data into the build-input inventory.

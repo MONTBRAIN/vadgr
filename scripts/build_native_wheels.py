@@ -10,6 +10,7 @@ from pathlib import Path
 import platform
 import re
 import shutil
+import struct
 import subprocess
 import tarfile
 import tomllib
@@ -88,6 +89,29 @@ def test_arguments(work, descriptor):
     return ["--wycheproof-root=" + str(roots["wycheproof"]), "--x509-limbo-root=" + str(roots["x509-limbo"])]
 
 
+def native_make(environment, installation):
+    tools = Path(environment.get("VCTOOLSINSTALLDIR", ""))
+    gate.require(tools.is_absolute(), "MSVC tools directory is not absolute")
+    tools = tools.resolve()
+    gate.require(tools.parent == (installation / "VC/Tools/MSVC").resolve(),
+                 "MSVC tools are outside the reviewed installation")
+    executable = tools / "bin/Hostarm64/arm64/nmake.exe"
+    gate.require(executable.is_file() and not executable.is_symlink()
+                 and executable.resolve() == executable, "reviewed native nmake executable missing or redirected")
+    with executable.open("rb") as stream:
+        header = stream.read(64)
+        gate.require(len(header) == 64 and header[:2] == b"MZ", "nmake is not a PE executable")
+        offset = struct.unpack_from("<I", header, 0x3c)[0]
+        gate.require(64 <= offset <= 1024 * 1024, "invalid nmake PE offset")
+        stream.seek(offset)
+        pe = stream.read(26)
+    gate.require(len(pe) == 26 and pe[:4] == b"PE\0\0"
+                 and struct.unpack_from("<H", pe, 4)[0] == 0xAA64
+                 and struct.unpack_from("<H", pe, 24)[0] == 0x20B,
+                 "nmake is not a native ARM64 executable")
+    return executable
+
+
 def compiler_environment(configuration, image):
     environment = os.environ.copy()
     for key in tuple(environment):
@@ -112,8 +136,9 @@ def compiler_environment(configuration, image):
             if separator and key.lower() in allowed:
                 environment[key.upper()] = value
         gate.require(environment.get("VSCMD_ARG_TGT_ARCH", "").lower() == "arm64", "MSVC target is not ARM64")
+        make = native_make(environment, Path(matches[0]["installationPath"]))
         return environment, {"visual_studio": image["visual_studio"], "sdk": image["sdk"],
-                             "msvc_tools": environment.get("VCTOOLSINSTALLDIR", "")}
+                             "msvc_tools": environment.get("VCTOOLSINSTALLDIR", ""), "nmake": str(make)}
     environment["DEVELOPER_DIR"] = f'/Applications/Xcode_{image["xcode"]}.app/Contents/Developer'
     version = run(["xcodebuild", "-version"], env=environment, capture=True)
     gate.require(version == f'Xcode {image["xcode"]}\nBuild version {image["xcode_build"]}', "Xcode version changed")
@@ -206,7 +231,8 @@ def build(inputs, target, work, out):
     configure_target = "VC-WIN64-ARM" if target.startswith("windows") else "darwin64-x86_64-cc"
     run(["perl", "Configure", configure_target, "no-shared", "no-module", "no-zlib", "no-comp",
          "no-tests", "no-asm", "--prefix=" + environment["OPENSSL_DIR"]], cwd=openssl, env=environment)
-    make = "nmake" if target.startswith("windows") else "/usr/bin/make"
+    # Windows does not use env.PATH to resolve the top-level executable.
+    make = compiler["nmake"] if target.startswith("windows") else "/usr/bin/make"
     run([make, "build_libs"], cwd=openssl, env=environment)
     run([make, "install_dev"], cwd=openssl, env=environment)
     run(wheel_command(uv, interpreter, source, out), env=environment)
