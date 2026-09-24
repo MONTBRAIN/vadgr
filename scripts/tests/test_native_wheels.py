@@ -218,7 +218,7 @@ def test_reports_bind_tools_sources_inventory_and_test_results(mutation):
     configuration["rust_components_sha256"] = gate.digest(gate.canonical(report["rust_components"]))
     report["rust"] = "rustc 1.97.1 (abc123 2026-07-14)"
     report["rust_verbose"] = "host: aarch64-pc-windows-msvc\ncommit-hash: abc123456"
-    report["cargo"] = "cargo 1.97.0 (def456 2026-06-30)"
+    report["cargo"] = "cargo 1.97.1 (def456 2026-06-30)"
     if mutation == "source":
         report["sources"]["openssl"]["sha256"] = "c" * 64
     elif mutation == "recipe":
@@ -240,7 +240,7 @@ def test_reports_bind_tools_sources_inventory_and_test_results(mutation):
     elif mutation == "rust_commit":
         report["rust_verbose"] = "host: aarch64-pc-windows-msvc\ncommit-hash: other"
     elif mutation == "cargo_binary":
-        report["cargo"] = "cargo 1.97.0 (other 2026-06-30)"
+        report["cargo"] = "cargo 1.97.1 (other 2026-06-30)"
     if mutation:
         with pytest.raises(gate.Refused):
             gate.validate_reports(report, sbom, data, "windows-aarch64", counts, wheel_hash)
