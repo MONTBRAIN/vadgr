@@ -15,10 +15,11 @@ import tempfile
 import zipfile
 
 if __package__:
-    from scripts import candidate_policy
+    from scripts import candidate_policy, cua_release_inputs
     from scripts.validate_package_inputs import PackageInputError, validate_package_inputs
 else:
     import candidate_policy  # trusted direct execution from scripts/
+    import cua_release_inputs
     from validate_package_inputs import PackageInputError, validate_package_inputs
 
 REPOSITORY = "MONTBRAIN/vadgr"
@@ -312,6 +313,13 @@ def main() -> int:
             budget = operation_budget(list(files))
             extract(args.archive, args.extract, files)
             target_arch = {"x64": "x86_64", "arm64": "aarch64"}[args.architecture]
+            cua_inputs = cua_release_inputs.reviewed_inputs(
+                args.source_root, Path(__file__).resolve().parents[1],
+                f"{target_arch}-pc-windows-msvc")
+            require(preflight.get("cua_inputs") == cua_inputs,
+                    "reviewed CUA inputs changed after source preflight")
+            cua_payload = cua_release_inputs.validate_payload(
+                args.extract / "payload/lib/cua", cua_inputs)
             package_result = validate_package_inputs(
                 args.extract / "payload", args.source_root, preflight["version"],
                 f"{target_arch}-pc-windows-msvc")
@@ -322,7 +330,8 @@ def main() -> int:
                 "run_id": metadata["run_id"], "run_attempt": 1,
                 "unsigned_artifact_id": metadata["artifact_id"],
                 "unsigned_artifact_digest": metadata["artifact_digest"],
-                "files": files, "legal_hashes": legal, "budget": budget}, sort_keys=True, indent=2) + "\n",
+                "files": files, "legal_hashes": legal, "budget": budget,
+                "cua_payload": cua_payload}, sort_keys=True, indent=2) + "\n",
                 encoding="utf-8")
         else:
             record = read_json(args.authorization)

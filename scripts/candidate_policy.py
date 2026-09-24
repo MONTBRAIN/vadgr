@@ -19,8 +19,10 @@ import tomllib
 from urllib.parse import quote
 
 if __package__:
+    from scripts import cua_release_inputs
     from scripts.validate_package_inputs import PackageInputError, validate_package_inputs
 else:
+    import cua_release_inputs
     from validate_package_inputs import PackageInputError, validate_package_inputs
 
 REPOSITORY = "MONTBRAIN/vadgr"
@@ -349,6 +351,10 @@ def preflight(args) -> dict:
     pins = tomllib.loads(blob("packaging/cua/pins.toml"))
     require(all(re.fullmatch(r"[0-9]+(?:\.[0-9]+){2}", pins.get(key, ""))
                 for key in ("cua", "python")), "CUA or Python version is not pinned")
+    trusted_root = Path(__file__).resolve().parents[1]
+    cua_inputs = cua_release_inputs.reviewed_inputs(
+        root, trusted_root, f"{arch_name}-pc-windows-msvc")
+    cua_release_inputs.verify_origin(trusted_root)
     approval = trusted_approval(args.architecture)
     legal_root = root / legal_prefix
     package_validation = validate_package_inputs(
@@ -383,6 +389,7 @@ def preflight(args) -> dict:
             "version": args.version, "candidate_id": args.candidate_id,
             "architecture": args.architecture, "pull_request": pull,
             "cua_version": pins["cua"], "python_version": pins["python"],
+            "cua_inputs": cua_inputs,
             "legal_approval_sha256": hashlib.sha256(json.dumps(approval, sort_keys=True).encode()).hexdigest(),
             "trusted_sha": os.environ.get("GITHUB_SHA", ""), "required_checks": required,
             "rules_digest": hashlib.sha256(json.dumps(rules, sort_keys=True).encode()).hexdigest()}
@@ -411,7 +418,8 @@ def main() -> int:
         require(result["trusted_sha"] != result["source_sha"],
                 "candidate may not be the trusted bootstrap itself")
         args.out.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    except (Refused, PackageInputError, OSError, ValueError, TypeError, KeyError, IndexError) as exc:
+    except (Refused, PackageInputError, OSError, ValueError, TypeError, KeyError, IndexError,
+            subprocess.SubprocessError) as exc:
         print("CANDIDATE REFUSED: " + (str(exc) if isinstance(exc, Refused)
               else "required metadata is invalid"), file=sys.stderr)
         return 1

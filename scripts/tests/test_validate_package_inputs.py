@@ -97,6 +97,51 @@ def rebind(bundle):
     write_json(root / "package-input-review.json", review)
 
 
+def test_schema_two_legal_source_inputs_bind_target_lock_and_native_manifest(bundle):
+    root, source, inventory, review, _ = bundle
+    target_lock = f"packaging/cua/locks/{TARGET}.lock"
+    manifest = "packaging/cua/native-wheel-manifest.json"
+    for name, content in ((target_lock, b"synthetic==1 --hash=sha256:" + b"a" * 64 + b"\n"),
+                          (manifest, b'{"schema":1,"synthetic":true}\n')):
+        path = source / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
+    inventory["source_inputs"].pop("packaging/cua/requirements.lock")
+    inventory["source_inputs"].update({name: package.sha256_bytes((source / name).read_bytes())
+                                      for name in (target_lock, manifest)})
+    review["source_inputs"] = deepcopy(inventory["source_inputs"])
+    sbom_name = f"sbom/vadgr-{VERSION}.spdx.json"
+    sbom = package.canonical_json(package.build_sbom(inventory))
+    (root / sbom_name).write_bytes(sbom)
+    review["files"][sbom_name] = package.sha256_bytes(sbom)
+    rebind(bundle)
+    assert validate(bundle, source_only=True)["scope"] == "source-inputs"
+    runtime = root / "lib/cua"
+    member = runtime / "runtime.txt"
+    member.write_bytes(b"synthetic payload")
+    installed = {"schema": 1, "target": TARGET, "files": {"runtime.txt": {
+        "size": member.stat().st_size, "sha256": package.sha256_bytes(member.read_bytes())}}}
+    write_json(runtime / "installed-inventory.json", installed)
+    payload = json.loads((runtime / "payload.json").read_bytes())
+    payload.update(schema=2, requirements_sha256=inventory["source_inputs"][target_lock],
+                   wheel_manifest_sha256=inventory["source_inputs"][manifest],
+                   installed_inventory_sha256=package.sha256_bytes(package.canonical_json(installed)))
+    write_json(runtime / "payload.json", payload)
+    inventory["payload_manifest_sha256"] = package.sha256_bytes(package.canonical_json(payload))
+    review["payload_manifest_sha256"] = inventory["payload_manifest_sha256"]
+    sbom = package.canonical_json(package.build_sbom(inventory))
+    (root / sbom_name).write_bytes(sbom)
+    review["files"][sbom_name] = package.sha256_bytes(sbom)
+    rebind(bundle)
+    validate(bundle)
+    member.write_bytes(b"changed payload")
+    with pytest.raises(package.PackageInputError):
+        validate(bundle)
+    (source / target_lock).write_bytes(b"changed")
+    with pytest.raises(package.PackageInputError, match="source input mismatch"):
+        validate(bundle, source_only=True)
+
+
 @pytest.mark.parametrize("field,value", [("status", "draft"), ("synthetic", True), ("schema", 2), ("version", "9.9.9"), ("target", "x86_64-apple-darwin"), ("terms_version", "2.0"), ("terms_sha256", "0" * 64), ("inventory_sha256", "0" * 64)])
 def test_refuses_unapproved_or_unbound_review(bundle, field, value):
     root, _, _, review, _ = bundle

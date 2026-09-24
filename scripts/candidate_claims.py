@@ -21,7 +21,7 @@ BASE_FIELDS = {"repository", "source_sha", "source_tree", "input_digest", "trust
                "candidate_id", "architecture", "run_id", "run_attempt", "unsigned_artifact_id",
                "unsigned_artifact_digest", "files", "legal_hashes", "budget",
                "schema", "branch", "version", "pull_request", "cua_version", "python_version",
-               "legal_approval_sha256", "required_checks", "rules_digest"}
+               "legal_approval_sha256", "required_checks", "rules_digest", "cua_inputs", "cua_payload"}
 BOUND_FIELDS = {"qualification_artifact_id", "qualification_artifact_digest"}
 
 
@@ -90,6 +90,16 @@ def validate_authorization(auth, bound=False):
     require(auth["architecture"] in {"x64", "arm64"} and isinstance(auth["candidate_id"], str)
             and re.fullmatch(r"v0\.5\.0-rc-[1-9][0-9]*", auth["candidate_id"]),
             "candidate target refused")
+    cua_inputs, cua_payload = auth["cua_inputs"], auth["cua_payload"]
+    target = {"x64": "x86_64", "arm64": "aarch64"}[auth["architecture"]] + "-pc-windows-msvc"
+    require(isinstance(cua_inputs, dict) and isinstance(cua_payload, dict)
+            and set(cua_inputs) == {"target", "requirements_sha256", "wheel_manifest_sha256"}
+            and set(cua_payload) == set(cua_inputs) | {"installed_inventory_sha256"}
+            and cua_inputs["target"] == target
+            and all(cua_payload.get(key) == value for key, value in cua_inputs.items())
+            and all(hashed(cua_payload[key]) for key in (
+                "requirements_sha256", "wheel_manifest_sha256", "installed_inventory_sha256")),
+            "CUA target, selected wheels or installed inventory refused")
     require(isinstance(auth["files"], dict) and auth["files"]
             and isinstance(auth["legal_hashes"], dict) and auth["legal_hashes"], "empty input inventory")
     require(all(hashed(value) for value in auth["legal_hashes"].values()), "legal hash refused")

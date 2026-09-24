@@ -37,6 +37,8 @@ def extract(archive: Path, output: Path) -> None:
         authorization = json.loads(bundle.read("authorization.json"))
         if candidate["status"] != "held-unpublished" or candidate["trusted_tooling_commit"] != os.environ.get("GITHUB_SHA"):
             raise ValueError("held tooling identity mismatch")
+        if candidate.get("scope") != "single-target-qualification" or candidate.get("complete_distribution") is not False:
+            raise ValueError("single-target qualification cannot claim a complete distribution")
         for field in ("run_id", "run_attempt", "candidate_id", "input_digest"):
             if candidate[field] != authorization[field]:
                 raise ValueError("held authorization mismatch")
