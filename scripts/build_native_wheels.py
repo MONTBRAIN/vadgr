@@ -77,6 +77,17 @@ def prefetch_cargo(source, environment):
         cwd=source, env=environment, capture=True)
 
 
+def test_arguments(work, descriptor):
+    roots = {name: work / name / (name + "-" + row["commit"])
+             for name, row in descriptor["test_data"].items()}
+    for name, filename, field in (("wycheproof", "testvectors_v1/aes_gcm_test.json", "testGroups"),
+                                  ("x509-limbo", "limbo.json", "testcases")):
+        path = roots[name] / filename
+        gate.require(path.is_file() and not path.is_symlink(), "required test data file missing")
+        gate.require(json.loads(path.read_text(encoding="utf-8")).get(field), "required test data is empty")
+    return ["--wycheproof-root=" + str(roots["wycheproof"]), "--x509-limbo-root=" + str(roots["x509-limbo"])]
+
+
 def compiler_environment(configuration, image):
     environment = os.environ.copy()
     for key in tuple(environment):
@@ -132,11 +143,11 @@ def build(inputs, target, work, out):
     environment, compiler = compiler_environment(configuration, image)
     downloads = work / "downloads"
     source_archives = {}
-    for key, row in {"cryptography": descriptor["cryptography"], "openssl": descriptor["openssl"],
-                     "python": configuration["python"], "uv": configuration["uv"]}.items():
+    for key, row in gate.source_inputs(descriptor, configuration).items():
         archive = fetch(row, downloads / row["filename"])
         extract(archive, work / key)
         source_archives[key] = {"url": row["url"], "sha256": row["sha256"]}
+    test_options = test_arguments(work, descriptor)
     rust_manifest = {"url": descriptor["rust"]["manifest_url"], "sha256": descriptor["rust"]["manifest_sha256"]}
     fetch(rust_manifest, downloads / "rust-channel.toml")
     rust_version = run(["rustc", "+1.97.1", "--version"], capture=True)
@@ -209,7 +220,8 @@ def build(inputs, target, work, out):
         env=environment, capture=True))
     gate.require(smoke[0] == "50.0.1" and smoke[1].lower() == configuration["machine"].lower()
                  and smoke[2].startswith("OpenSSL 4.0.2 "), "native crypto/OpenSSL smoke identity mismatch")
-    run([interpreter, "-m", "pytest", "tests", "--junitxml=" + str(out / "tests.xml")], cwd=source, env=environment)
+    run([interpreter, "-m", "pytest", "tests", *test_options, "--junitxml=" + str(out / "tests.xml")],
+        cwd=source, env=environment)
     tests = gate.test_counts((out / "tests.xml").read_bytes(), configuration["test_policy"])
     cargo = tomllib.loads(cargo_lock.read_text(encoding="utf-8"))
     components = [{"name": row["name"], "version": row["version"], "source": row.get("source", "upstream-source"),
@@ -218,6 +230,7 @@ def build(inputs, target, work, out):
                  "Cargo inventory does not match approved source")
     sbom = {"schema": 1, "kind": "build-input-inventory", "target": target,
             "cryptography": descriptor["cryptography"], "openssl": descriptor["openssl"],
+            "test_data": descriptor["test_data"],
             "static_openssl": True, "cargo_lock_sha256": gate.digest(cargo_lock.read_bytes()),
             "cargo_packages": components, "python_build_tools": configuration["python_dependencies"],
             "wheel_sha256": wheel["sha256"]}

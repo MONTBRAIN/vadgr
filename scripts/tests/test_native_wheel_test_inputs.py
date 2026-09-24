@@ -48,7 +48,7 @@ def test_native_skip_policy_refuses_case_substitution_or_collection_drift(mutati
     elif mutation == "reason":
         case[0].set("message", "unreviewed")
     elif mutation == "duplicate":
-        suite.append(copy.deepcopy(case))
+        suite[0] = copy.deepcopy(case)
     elif mutation == "extra":
         ET.SubElement(suite[0], "skipped", message=case[0].get("message"))
     elif mutation == "missing":

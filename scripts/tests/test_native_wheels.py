@@ -214,23 +214,26 @@ def test_windows_compiler_batch_path_with_spaces_executes(tmp_path, monkeypatch)
 def test_upstream_report_cannot_substitute_skips_or_failures_for_passes(kind):
     body = f'<testcase><{kind} message="reason"/></testcase>' * 1000
     with pytest.raises(gate.Refused):
-        gate.test_counts(f"<testsuite>{body}</testsuite>".encode(), {"minimum_passed": 1000, "skips": {}})
+        gate.test_counts(f"<testsuite>{body}</testsuite>".encode(), {"total": 1000, "minimum_passed": 1000, "skips": []})
 
 
 def test_upstream_report_retains_explained_skips():
-    body = '<testcase/>' * 1000 + '<testcase><skipped message="platform"/></testcase>'
+    body = ''.join(f'<testcase classname="passed" name="{i}"/>' for i in range(1000))
+    body += '<testcase classname="target" name="negative"><skipped message="platform"/></testcase>'
+    skipped = [{"classname": "target", "name": "negative", "reason": "platform"}]
     counts = gate.test_counts(f"<testsuite>{body}</testsuite>".encode(),
-                             {"minimum_passed": 1000, "skips": {"platform": 1}})
+                             {"total": 1001, "minimum_passed": 1000, "skips": skipped})
     assert counts == {"total": 1001, "passed": 1000, "skipped": 1, "skip_reasons": ["platform"],
-                      "skip_counts": {"platform": 1}}
+                      "skip_counts": {"platform": 1}, "skip_cases": skipped}
 
 
 @pytest.mark.parametrize("reason,count", [("arbitrary", 1), ("platform", 100000), ("platform", 2)])
 def test_upstream_skips_require_reviewed_reason_and_exact_count(reason, count):
     body = '<testcase/>' * 1000 + f'<testcase><skipped message="{reason}"/></testcase>' * count
-    with pytest.raises(gate.Refused, match="reviewed exact reason/count"):
+    with pytest.raises(gate.Refused):
         gate.test_counts(f"<testsuite>{body}</testsuite>".encode(),
-                         {"minimum_passed": 1000, "skips": {"platform": 1}})
+                         {"total": 1001, "minimum_passed": 1000,
+                          "skips": [{"classname": "target", "name": "negative", "reason": "platform"}]})
 
 
 def test_pe_delayed_imports_cannot_hide_external_crypto():
@@ -257,7 +260,7 @@ def test_recipe_hash_survives_native_checkout_line_endings(tmp_path):
     assert gate.recipe_digest(recipe) == gate.digest(b"line one\nline two\n")
 
 
-@pytest.mark.parametrize("mutation", [None, "source", "recipe", "compiler", "inventory", "cargo", "tests", "cargo_hash",
+@pytest.mark.parametrize("mutation", [None, "source", "recipe", "compiler", "inventory", "cargo", "tests", "cargo_hash", "test_data",
                                       "rust_hash", "rust_host", "rust_commit", "cargo_binary"])
 def test_reports_bind_tools_sources_inventory_and_test_results(mutation):
     data = descriptor()
@@ -274,10 +277,10 @@ def test_reports_bind_tools_sources_inventory_and_test_results(mutation):
               "build_lock_sha256": gate.digest(lock.encode()),
               "recipe_sha256": gate.recipe_digest(ROOT / "scripts/build_native_wheels.py"),
               "sources": {name: {"url": row["url"], "sha256": row["sha256"]}
-                          for name, row in {"cryptography": data["cryptography"], "openssl": data["openssl"],
-                                            "python": configuration["python"], "uv": configuration["uv"]}.items()}}
+                          for name, row in gate.source_inputs(data, configuration).items()}}
     sbom = {"schema": 1, "kind": "build-input-inventory", "target": "windows-aarch64", "static_openssl": True,
             "cryptography": data["cryptography"], "openssl": data["openssl"],
+            "test_data": copy.deepcopy(data["test_data"]),
             "python_build_tools": configuration["python_dependencies"], "wheel_sha256": wheel_hash,
             "cargo_lock_sha256": data["cryptography"]["cargo_lock_sha256"],
             "cargo_packages": [{"name": "fixture", "version": "1", "source": "upstream-source"}]}
@@ -298,6 +301,8 @@ def test_reports_bind_tools_sources_inventory_and_test_results(mutation):
         report["compiler"]["sdk"] = "unreviewed"
     elif mutation == "inventory":
         sbom["static_openssl"] = False
+    elif mutation == "test_data":
+        sbom["test_data"]["wycheproof"]["sha256"] = "c" * 64
     elif mutation == "cargo":
         sbom["cargo_packages"][0]["source"] = "git+https://example.invalid/moving"
     elif mutation == "tests":
