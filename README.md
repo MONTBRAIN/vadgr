@@ -40,6 +40,11 @@ the held installer and its legal and SBOM hashes; its offline verification
 bundle is retained with the candidate. This does not replace Windows code
 signing, approve unreviewed terms, or make an untested candidate a release.
 
+A separate credential-free dependency producer builds the missing Windows ARM64
+and Intel macOS cryptography wheels from pinned sources on native runners. Its
+validated, attested output still requires exact-hash review before payload use;
+it grants no signing approval and does not qualify an installer.
+
 Works on **Linux**, **WSL**, **Windows** and **macOS**. Vadgr carries its pinned
 desktop-automation runtime on all four. The owner needs no Python, pip or uv.
 On macOS `0.4.12`, grant Accessibility and Screen Recording to the terminal
