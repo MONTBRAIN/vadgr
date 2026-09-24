@@ -123,6 +123,20 @@ def test_native_recipe_keeps_build_resolution_offline():
     assert "--config-settings=build-args=--features=pyo3/abi3-py311" in command
 
 
+def test_windows_compiler_environment_normalizes_case(monkeypatch):
+    from scripts import build_native_wheels as build
+    monkeypatch.setattr(build.platform, "system", lambda: "Windows")
+    monkeypatch.setenv("ProgramFiles(x86)", "C:/Programs")
+    monkeypatch.setenv("PATH", "original")
+    monkeypatch.setattr(Path, "is_file", lambda _: True)
+    replies = iter([json.dumps([{"installationVersion": "reviewed", "installationPath": "C:/VS"}]),
+                    "Path=C:/native-compiler\nVCToolsInstallDir=C:/VS/tools\nVSCMD_ARG_TGT_ARCH=arm64"])
+    monkeypatch.setattr(build, "run", lambda *args, **kwargs: next(replies))
+    environment, report = build.compiler_environment({}, {"visual_studio": "reviewed", "sdk": "pinned"})
+    assert environment["PATH"] == "C:/native-compiler" and "Path" not in environment
+    assert report["msvc_tools"] == "C:/VS/tools"
+
+
 @pytest.mark.parametrize("kind", ["skipped", "failure", "error"])
 def test_upstream_report_cannot_substitute_skips_or_failures_for_passes(kind):
     body = f'<testcase><{kind} message="reason"/></testcase>' * 1000

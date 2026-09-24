@@ -84,10 +84,10 @@ def compiler_environment(configuration, image):
         for line in text.splitlines():
             key, separator, value = line.partition("=")
             if separator and key.lower() in allowed:
-                environment[key] = value
+                environment[key.upper()] = value
         gate.require(environment.get("VSCMD_ARG_TGT_ARCH", "").lower() == "arm64", "MSVC target is not ARM64")
         return environment, {"visual_studio": image["visual_studio"], "sdk": image["sdk"],
-                             "msvc_tools": environment.get("VCToolsInstallDir", "")}
+                             "msvc_tools": environment.get("VCTOOLSINSTALLDIR", "")}
     environment["DEVELOPER_DIR"] = f'/Applications/Xcode_{image["xcode"]}.app/Contents/Developer'
     version = run(["xcodebuild", "-version"], env=environment, capture=True)
     gate.require(version == f'Xcode {image["xcode"]}\nBuild version {image["xcode_build"]}', "Xcode version changed")
