@@ -386,15 +386,33 @@ fn clean_install_checks_follow_the_payload_manifest() {
         !workflow.contains(r#"docker cp -q "$CLEAN_INSTALL_ROOT/.""#),
         "clean install must use only the verified read-only payload mount"
     );
+    let root_policy = [
+        r#"container_root="$CLEAN_INSTALL_ROOT""#,
+        r#"if [ "${{ needs.release-layout.outputs.layout }}" = distribution ]; then"#,
+        r#"container_root="/opt/vadgr""#,
+        "fi",
+    ];
+    let lines = workflow.lines().map(str::trim).collect::<Vec<_>>();
     assert!(
-        workflow.contains(r#"container_root="/opt/vadgr""#)
-            && workflow.contains(r#"src=$CLEAN_INSTALL_ROOT,dst=$container_root,readonly"#)
-            && !workflow.contains(r#"dst=$CLEAN_INSTALL_ROOT,readonly"#),
-        "the clean Linux machine must not expose the assembly root"
+        lines
+            .windows(root_policy.len())
+            .any(|window| window == root_policy)
+            && lines
+                .iter()
+                .filter(|line| line.starts_with("container_root="))
+                .count()
+                == 2,
+        "legacy installs keep the assembly root; only distribution checks relocate it"
     );
     assert!(
-        workflow.matches(r#""$container_root/bin/vadgr""#).count() == 3,
-        "all installed container entry points must use the relocated root"
+        workflow.contains(r#"src=$CLEAN_INSTALL_ROOT,dst=$container_root,readonly"#)
+            && !workflow.contains(r#"dst=$CLEAN_INSTALL_ROOT,readonly"#),
+        "the clean Linux mount must use the root selected for its release layout"
+    );
+    assert_eq!(
+        workflow.matches(r#""$container_root/bin/vadgr""#).count(),
+        3,
+        "startup, version and health checks must use the selected container root"
     );
 }
 
