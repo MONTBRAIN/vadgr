@@ -171,13 +171,13 @@ present in a given runbook, the entry is all there is.
     names the exact registered minor that enables it. A current-state limitation
     shows its truthful reason instead. [Native console driving]
 
-23. **Local development artifacts are unsigned. Production signing belongs to
-    protected CD.** A signed candidate is identified by its source commit and
-    hash, then tested as a separate subject. A runbook may declare one narrow
-    first-signing bootstrap exception while its signing service is unavailable.
-    That exception can change only the PR-opening gate. It cannot turn a signing
-    cell green or permit merge or release, and it expires when CD can produce
-    signed candidates. [Unsigned development and signed CD candidates]
+23. **Protected signing must not create a circular PR gate.** Identify whether
+    the approved producer can hold a candidate from an open PR or requires
+    merged product source. In the latter case, unsigned development acceptance
+    opens and gates the implementation PR; signing-dependent cells stay owed
+    before release and run against the held post-merge candidate. Unsigned
+    evidence never passes a signing assertion. [Unsigned development and signed
+    CD candidates]
 
 **A pass is finished, not paused, and reporting is not a stopping point.** A
 checkpoint or a progress summary does not end your turn: write it and keep
@@ -794,43 +794,59 @@ workstation. An unsigned pass proves product behavior. It proves no publisher
 identity, trust chain, timestamp, notarization, designated requirement or
 operating-system reputation behavior.
 
-Production signing runs only in protected CD while the implementation PR is
-open. CD builds from the frozen pushed head, records artifact provenance and
-hashes, signs without exporting the credential, and holds the candidate from
-publication. The runbook treats that signed output as a new subject. Run
-artifact identity, installation, update, rollback, uninstall and every
-signature-dependent cell against its exact hash. A fix creates a new candidate
-and invalidates the earlier signed verdicts.
+Before live work, state which approved producer shape applies and cite the
+repository rule or credential boundary that establishes it. Trusted
+default-branch workflow code alone is not proof that product source must already
+be merged: that workflow may still be allowed to consume a reviewed PR artifact
+as untrusted data.
 
-**A first-signing bootstrap exception changes only the PR-opening gate.** A
-runbook can use it only when that minor creates the protected signing path and
-the external signing service is not issued or usable. The runbook names the
-external condition and the event that expires the exception. One real OS can
-pass the unsigned development artifact and open the implementation PR for
-cross-platform work. Every unavailable signing cell stays `not run` or
-`blocked` with the exact condition. It cannot be marked `pass`, inherited from
-an unsigned artifact or omitted. The exact signed CD output must pass before
-merge and release.
+**Open-PR candidate producer.** When protected CD can safely build and hold a
+candidate from the open implementation PR, CD builds from the frozen pushed
+head, records artifact provenance and hashes, signs without exporting the
+credential and holds the candidate from publication. Applicable signed cells
+run against its exact hash and gate merge as well as release.
 
-The exception ends when protected CD can produce signed candidates. After that,
-a PR that changes signing, packaging, installation or platform trust must first
-run the applicable signed-candidate cells on one real OS. Push the branch, invoke
-the protected non-publishing CD candidate workflow, test its exact output, then
-open the PR. Local work remains unsigned. The other required operating systems
-consume that PR branch and its recorded candidate. Every required signed cell
-passes before merge.
+**Merged-source-only candidate producer.** When repository policy permits the
+approved producer to consume product source only after it has merged to the
+trusted default branch:
 
-Merge and release promote the exact signed bytes that passed. CD does not rebuild
-or re-sign them after the pass. Before publication, compare the held artifact's
-SHA-256, provenance and platform signature with the recorded candidate. This is
-an identity check, not a new E2E pass. Any changed byte, source tree or signature
-stops release and creates a new candidate that must run the affected E2E cells.
+1. Open the implementation PR after the ordinary first-host unsigned
+   development pass and source gates. Signing-dependent cells are explicitly
+   `owed before release`; they do not block PR opening because no eligible
+   signed subject exists yet.
+2. Run every required source gate and every applicable unsigned,
+   non-signature cell on every mandated host before merge. Classify assertions,
+   not whole features: installation, repair, rollback, pairing and accessibility
+   normally have unsigned behavior that can run now, while platform trust stays
+   owed. Resolve all findings and wait for every PR check.
+3. Merge authorizes candidate production, not release. Protected CD creates one
+   held, non-public candidate from the exact merged commit. Record source,
+   workflow, target, inventory, hashes, provenance and signing identity.
+4. Run every required signature-, trust-, notarization-, adoption- and
+   signed-lifecycle cell against those retained bytes before a final tag or
+   public release. A failure blocks release, is preserved, and is fixed through
+   a new implementation PR. The resulting merged commit produces a new candidate
+   and invalidates affected earlier verdicts.
+
+Missing credentials or an unavailable signer do not select the merged-source
+lifecycle and never turn a signing cell green. A first-signing/bootstrap minor
+uses the same stages and records the owner approvals and external conditions at
+the stage where they are actually required.
+
+Release promotes the exact signed bytes that passed. CD does not rebuild or
+re-sign them after qualification. Before publication, compare the held
+artifact's SHA-256, provenance and platform signature with the recorded
+candidate. After publication, download the public assets and repeat that
+identity comparison. Neither comparison is a first signing E2E pass. Any
+changed byte, source tree or signature stops release and creates a new candidate
+that must run the affected cells.
 
 | stage | artifact | required identity | gate |
 |---|---|---|---|
-| local development | unsigned development build | source commit and SHA-256 | one real OS opens the PR; every required development OS still gates completion |
-| protected CD candidate | signed, not public | frozen PR head, source-tree hash, workflow run, provenance, SHA-256 and platform signature | every required signed cell passes before merge |
-| release promotion | the same tested bytes | candidate SHA-256, provenance and signature match exactly | identity check before publication; no new E2E pass |
+| local development | unsigned development build | source commit and SHA-256 | one real OS plus ordinary source gates opens the PR; every required unsigned OS cell gates merge |
+| open-PR protected candidate | signed, held and not public | frozen PR head, source-tree hash, workflow run, provenance, inventory, SHA-256 and platform signature | applicable signed cells gate merge and release |
+| post-merge protected candidate | signed, held and not public | exact merged commit, source-tree hash, workflow run, provenance, inventory, SHA-256 and platform signature | only for an explicitly merged-source-only producer; signed cells gate tag and release |
+| release promotion | the same qualified bytes | candidate inventory, SHA-256, provenance and signatures match exactly | identity check before publication and after download; never a first signing pass |
 
 ## Coverage
 
