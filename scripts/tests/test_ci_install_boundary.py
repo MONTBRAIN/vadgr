@@ -24,14 +24,20 @@ def push_branches(text):
 
 def wsl_step(text):
     block = text.split("  wsl-clean-install:\n", 1)[1].split("\n  clean-install:\n", 1)[0]
-    script = block.split("        run: |\n", 1)[1].split("\n  #", 1)[0]
+    named = block.split(
+        "      - name: Prove an unconfigured WSL candidate fails before mutation\n", 1
+    )[1]
+    script = named.split("        run: |\n", 1)[1]
     return textwrap.dedent(re.split(r"\n      - ", script, maxsplit=1)[0])
 
 
 def test_wsl_probe_stops_before_another_release_layout_step():
     text = (
         "  wsl-clean-install:\n"
-        "      - name: distribution\n"
+        "      - name: prerequisite\n"
+        "        run: |\n"
+        "          echo prerequisite\n"
+        "      - name: Prove an unconfigured WSL candidate fails before mutation\n"
         "        run: |\n"
         "          echo distribution\n"
         "      - name: legacy\n"
