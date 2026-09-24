@@ -12,6 +12,10 @@ import tempfile
 
 EXPECTED = ("Windows uses the graphical Vadgr installer. Download the Windows installer "
             "from https://github.com/MONTBRAIN/vadgr/releases.")
+HOST_CACHES = {
+    "shell-profile/AppData/Local/Microsoft/PowerShell/StartupProfileData-NonInteractive",
+    "shell-profile/AppData/Local/Microsoft/Windows/PowerShell/StartupProfileData-NonInteractive",
+}
 
 
 def persistent_path():
@@ -25,8 +29,10 @@ def persistent_path():
 
 
 def snapshot(root):
-    return [(str(path.relative_to(root)),
-             hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None)
+    return [(path.relative_to(root).as_posix(),
+             "shell-startup-cache" if path.is_file() and not path.is_symlink()
+             and path.relative_to(root).as_posix() in HOST_CACHES
+             else hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None)
             for path in sorted(root.rglob("*"))]
 
 
@@ -39,24 +45,37 @@ def verify(installer: Path, temporary: Path):
     with tempfile.TemporaryDirectory(prefix="vadgr-windows-refusal-", dir=temporary) as directory:
         root = Path(directory)
         profile = root / "profile"
+        shell_profile = root / "shell-profile"
         scratch = root / "temporary"
         profile.mkdir()
+        shell_profile.mkdir()
         scratch.mkdir()
-        (profile / "AppData/Local").mkdir(parents=True)
-        (profile / "AppData/Roaming").mkdir()
+        for directory in (profile, shell_profile):
+            (directory / "AppData/Local").mkdir(parents=True)
+            (directory / "AppData/Roaming").mkdir()
         (profile / "owner-state").write_bytes(b"preserve owner state\n")
         # Normalize Windows environment keys before replacing inherited values.
         environment = {key.upper(): value for key, value in os.environ.items()}
-        environment.update(USERPROFILE=str(profile), APPDATA=str(profile / "AppData/Roaming"),
-                           LOCALAPPDATA=str(profile / "AppData/Local"), TEMP=str(scratch), TMP=str(scratch))
-        # Windows PowerShell creates its own startup cache even with no profile.
-        # Initialize that host state before the installer mutation boundary.
+        environment.update(USERPROFILE=str(shell_profile), APPDATA=str(shell_profile / "AppData/Roaming"),
+                           LOCALAPPDATA=str(shell_profile / "AppData/Local"), TEMP=str(scratch), TMP=str(scratch),
+                           VADGR_PROBE_PROFILE=str(profile), VADGR_PROBE_INSTALLER=str(installer.resolve()))
+        # The shell records JIT startup data even after a warmup. Its cached
+        # host path stays separate from every owner path visible to the script.
+        wrapper = root / "invoke.ps1"
+        wrapper.write_text(
+            "$env:USERPROFILE = $env:VADGR_PROBE_PROFILE\n"
+            "$env:APPDATA = [IO.Path]::Combine($env:USERPROFILE, 'AppData', 'Roaming')\n"
+            "$env:LOCALAPPDATA = [IO.Path]::Combine($env:USERPROFILE, 'AppData', 'Local')\n"
+            "& $env:VADGR_PROBE_INSTALLER\n"
+            "exit $LASTEXITCODE\n", encoding="utf-8", newline="\n")
+        warmup = root / "warmup.ps1"
+        warmup.write_text("exit 0\n", encoding="utf-8", newline="\n")
         command = [shell, "-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass"]
-        subprocess.run(command + ["-Command", "exit 0"], cwd=root, env=environment,
+        subprocess.run(command + ["-File", str(warmup)], cwd=root, env=environment,
                        capture_output=True, check=True, timeout=30)
         before = snapshot(root)
         path_before = persistent_path()
-        result = subprocess.run(command + ["-File", str(installer.resolve())],
+        result = subprocess.run(command + ["-File", str(wrapper)],
                                 cwd=root, env=environment, capture_output=True, text=True, timeout=30)
         if snapshot(root) != before or persistent_path() != path_before:
             raise RuntimeError("Windows source entry point changed owner state")

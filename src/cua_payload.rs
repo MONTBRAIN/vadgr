@@ -1125,7 +1125,9 @@ mod tests {
     #[tokio::test]
     async fn unpromoted_target_refuses_payload_assembly_before_filesystem_mutation() {
         let temporary = tempfile::tempdir().unwrap();
-        let root = test_install_root(temporary.path());
+        // Hosted runners can expose TEMP through a junction. This fixture
+        // tests missing pins, not the separate install-root link refusal.
+        let root = test_install_root(&dunce::canonicalize(temporary.path()).unwrap());
         let mut installer = CuaPayloadInstaller::new(root.clone()).unwrap();
         installer.target_unpromoted = true;
         let error = installer.assemble().await.unwrap_err();

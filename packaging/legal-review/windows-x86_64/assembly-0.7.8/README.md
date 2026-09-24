@@ -39,3 +39,16 @@ owner state and directs users to the graphical installer. The Unix clean-install
 jobs refused missing target locks during preparation. CI now checks that refusal
 explicitly and records clean installation as not run. This is not an installed
 product pass and does not qualify those targets for a candidate.
+
+`powershell-probe-failure.json` retains the subsequent CI failures at source
+`a081a6caf2e55b6d18ff653d7a9c610d7f8620fa`. PowerShell 7.6.5 rewrote
+`StartupProfileData-NonInteractive` in the isolated profile, even after a
+file-mode warmup. The exact runner version reproduced this twice locally.
+The probe now separates the shell's profile from the installer's profile.
+Only content changes to the two exact shell startup cache paths are permitted;
+unknown paths, cache removal and every installer-profile change remain checked.
+
+The Rust missing-lock refusal fixture also failed because the runner exposed
+its temporary directory through a junction. An isolated local junction
+reproduced the failure. Canonicalizing that synthetic fixture fixed it without
+changing the production refusal of linked install roots.
