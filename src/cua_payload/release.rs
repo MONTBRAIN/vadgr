@@ -325,6 +325,7 @@ mod tests {
     #[test]
     fn closed_wheelhouse_binds_exact_target_lock_and_every_wheel() {
         let temp = tempfile::tempdir().unwrap();
+        let canonical = dunce::canonicalize(temp.path()).unwrap();
         let name = "synthetic-1.0-py3-none-any.whl";
         let wheel = b"synthetic fixture, not a real wheel";
         let hash = digest(wheel);
@@ -340,7 +341,7 @@ mod tests {
         )
         .unwrap();
         validate_wheelhouse(
-            temp.path(),
+            &canonical,
             "x86_64-pc-windows-msvc",
             lock.as_bytes(),
             &"a".repeat(64),
@@ -349,7 +350,7 @@ mod tests {
         std::fs::write(temp.path().join("unexpected.whl"), b"extra").unwrap();
         assert!(
             validate_wheelhouse(
-                temp.path(),
+                &canonical,
                 "x86_64-pc-windows-msvc",
                 lock.as_bytes(),
                 &"a".repeat(64)
