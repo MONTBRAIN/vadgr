@@ -111,7 +111,7 @@ def test_workflow_keeps_builds_without_credentials():
         assert "write" not in job and "environment:" not in job
     attest = workflow.split("\n  validate-and-attest:\n", 1)[1]
     assert "\n      id-token: write\n" in attest
-    assert "\n    needs: [build-windows, build-macos]\n" in attest
+    assert attest.startswith("    needs: [build-windows, build-macos]\n")
     assert "environment:" not in attest
 
 
