@@ -265,7 +265,7 @@ def validate_rust(report, configuration):
     commit = components["rustc"]["version"].split("(", 1)[1].split()[0]
     cargo = report.get("cargo", "").split(" ", 2)
     require(verbose.get("host") == configuration["rust_target"] and verbose.get("commit-hash", "").startswith(commit)
-            and len(cargo) == 3 and cargo[0] == "cargo" and cargo[1] in ("1.97.0", "1.97.1")
+            and len(cargo) == 3 and cargo[0] == "cargo" and cargo[1] == "1.97.1"
             and cargo[2] == components["cargo"]["version"].split(" ", 1)[1],
             "Rust host, commit or Cargo binary mismatch")
 
