@@ -2,11 +2,12 @@
 param(
     [Parameter(Mandatory)][ValidateSet('x64', 'arm64')][string] $Architecture,
     [Parameter(Mandatory)][string] $SourceDirectory,
-    [Parameter(Mandatory)][string] $OutputDirectory
+    [Parameter(Mandatory)][string] $OutputDirectory,
+    [Parameter(Mandatory)][string] $WheelhouseDirectory
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
-foreach ($name in @('ES_USERNAME', 'ES_PASSWORD', 'ES_TOTP_SECRET', 'ACTIONS_ID_TOKEN_REQUEST_TOKEN')) {
+foreach ($name in @('GH_TOKEN', 'GITHUB_TOKEN', 'ES_USERNAME', 'ES_PASSWORD', 'ES_TOTP_SECRET', 'ACTIONS_ID_TOKEN_REQUEST_TOKEN')) {
     if ([Environment]::GetEnvironmentVariable($name)) { throw 'Source build must have no signing or identity credential.' }
 }
 $sourceRoot = (Resolve-Path -LiteralPath $SourceDirectory).Path
@@ -19,9 +20,9 @@ $target = if ($Architecture -eq 'x64') { 'x86_64-pc-windows-msvc' } else { 'aarc
 $complianceTarget = if ($Architecture -eq 'x64') { 'windows-x86_64' } else { 'windows-aarch64' }
 $compliance = Join-Path $sourceRoot "packaging/inputs/$complianceTarget"
 $trustedRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../..')).Path
-$wheelhouse = Join-Path $env:RUNNER_TEMP "vadgr-wheelhouse-$target"
-& python (Join-Path $trustedRoot 'scripts/cua_wheelhouse.py') --source $sourceRoot --target $target --out $wheelhouse
-if ($LASTEXITCODE -ne 0) { throw 'Reviewed wheelhouse materialization failed.' }
+$wheelhouse = (Resolve-Path -LiteralPath $WheelhouseDirectory).Path
+& python (Join-Path $trustedRoot 'scripts/cua_wheelhouse.py') --source $sourceRoot --target $target --verify $wheelhouse
+if ($LASTEXITCODE -ne 0) { throw 'Offline wheelhouse verification failed.' }
 New-Item -ItemType Directory -Path $output | Out-Null
 $payload = Join-Path $output 'payload'
 New-Item -ItemType Directory -Path $payload | Out-Null

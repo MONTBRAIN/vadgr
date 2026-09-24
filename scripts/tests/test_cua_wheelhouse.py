@@ -8,6 +8,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 import zipfile
+import pytest
 
 from scripts import cua_wheelhouse as wheels
 from scripts.validate_package_inputs import PackageInputError
@@ -107,6 +108,42 @@ class WheelhouseTests(unittest.TestCase):
                  self.assertRaises(PackageInputError):
                 wheels.materialize(root, root, binding["target"], output)
             self.assertFalse(output.exists())
+
+
+@pytest.mark.parametrize("mutation", [None, "bytes", "extra", "missing", "binding", "record"])
+def test_offline_verification_checks_exact_closed_bytes_without_network(tmp_path, monkeypatch, mutation):
+    root = tmp_path.resolve()
+    output = root / "wheelhouse"
+    output.mkdir()
+    data = wheel_bytes()
+    filename = "synthetic-1.0-py3-none-any.whl"
+    digest = hashlib.sha256(data).hexdigest()
+    binding = {"target": "x86_64-pc-windows-msvc", "requirements_sha256": "a" * 64,
+               "wheel_manifest_sha256": "b" * 64}
+    record = {"filename": filename, "name": "synthetic", "version": "1.0", "size": len(data), "sha256": digest}
+    metadata = {"schema": 1, **binding, "wheels": [record]}
+    monkeypatch.setattr(wheels.release, "reviewed_inputs", lambda *args: binding)
+    monkeypatch.setattr(wheels.release, "lock_path", lambda target: "fixture.lock")
+    (root / "fixture.lock").write_text(f"synthetic==1.0 --hash=sha256:{digest}\n")
+    monkeypatch.setattr(wheels.release, "verify_origin", lambda *args: pytest.fail("network attempted"))
+    monkeypatch.setattr(wheels, "fetch", lambda *args: pytest.fail("network attempted"))
+    (output / filename).write_bytes(data)
+    if mutation == "bytes":
+        (output / filename).write_bytes(b"changed")
+    elif mutation == "extra":
+        (output / "extra.whl").write_bytes(data)
+    elif mutation == "missing":
+        (output / filename).unlink()
+    elif mutation == "binding":
+        metadata["requirements_sha256"] = "c" * 64
+    elif mutation == "record":
+        record["name"] = "different"
+    (output / "wheelhouse.json").write_bytes(wheels.canonical_json(metadata))
+    if mutation:
+        with pytest.raises(PackageInputError):
+            wheels.verify_materialized(root, root, binding["target"], output)
+    else:
+        wheels.verify_materialized(root, root, binding["target"], output)
 
 
 if __name__ == "__main__":

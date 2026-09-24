@@ -1,0 +1,96 @@
+"""Trusted downloads finish before feature code can run without credentials."""
+
+from pathlib import Path
+import re
+import os
+import subprocess
+
+import pytest
+
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+@pytest.mark.parametrize("job", ["build-windows", "build-native"])
+def test_trusted_materialization_precedes_token_free_compilation(job):
+    workflow = (ROOT / ".github/workflows/candidate.yml").read_text()
+    block = workflow.split(f"\n  {job}:\n", 1)[1]
+    block = re.split(r"\n  [\w-]+:\n", block, maxsplit=1)[0]
+    prepare = block.index("- name: Materialize reviewed wheelhouse with read-only access")
+    compile_at = block.index("- name: Build", prepare)
+    preparation = block[prepare:compile_at]
+    assert "GH_TOKEN: ${{ github.token }}" in preparation
+    assert "scripts/cua_wheelhouse.py" in preparation
+    assert "cargo " not in preparation
+    assert "contents: write" not in block and "id-token: write" not in block
+    for step in re.split(r"\n      - ", block[compile_at:]):
+        if "scripts/candidate/build-" in step:
+            assert "GH_TOKEN: ''" in step
+            assert "GITHUB_TOKEN: ''" in step
+            assert "wheelhouse" in step
+
+
+@pytest.mark.parametrize("file", ["build-windows.ps1", "build-native.sh"])
+def test_compiler_refuses_credentials_and_never_downloads_wheels(file):
+    source = (ROOT / "scripts/candidate" / file).read_text()
+    assert "GH_TOKEN" in source and "GITHUB_TOKEN" in source
+    assert "--verify" in source
+    assert "--out" not in source
+    assert "gh api" not in source and "gh attestation" not in source
+
+
+def test_wix_projects_and_vendor_verification_use_same_reviewed_version():
+    for name in ("VadgrMsi", "VadgrBundle"):
+        source = (ROOT / f"packaging/windows/{name}.wixproj").read_text()
+        assert 'Sdk="WixToolset.Sdk/7.0.0"' in source
+        assert "<AcceptEula>wix7</AcceptEula>" in source
+    assert "--version 7.0.0" in (ROOT / "scripts/candidate/package-windows.ps1").read_text()
+    source = (ROOT / "packaging/windows/verify-wix-payload.ps1").read_text()
+    assert "verify /pa /all /tw" in source and "TimeStamperCertificate" in source
+
+
+@pytest.mark.skipif(os.name != "nt", reason="native PowerShell boundary")
+def test_windows_builder_refuses_github_access_before_reading_feature(tmp_path):
+    result = subprocess.run([
+        "powershell", "-NoProfile", "-NonInteractive", "-File",
+        str(ROOT / "scripts/candidate/build-windows.ps1"), "-Architecture", "x64",
+        "-SourceDirectory", str(tmp_path / "absent-source"),
+        "-OutputDirectory", str(tmp_path / "absent-output"),
+        "-WheelhouseDirectory", str(tmp_path / "absent-wheelhouse"),
+    ], env={**os.environ, "GH_TOKEN": "synthetic-boundary-marker"}, capture_output=True, text=True,
+       creationflags=subprocess.CREATE_NO_WINDOW)
+    assert result.returncode != 0
+    assert "Source build must have no signing or identity credential." in result.stderr
+    assert "synthetic-boundary-marker" not in result.stdout + result.stderr
+    assert not list(tmp_path.iterdir())
+
+
+@pytest.mark.parametrize("job_name", ["build-windows", "build-native"])
+def test_build_job_has_no_inherited_github_token_for_post_steps(job_name):
+    workflow = (ROOT / ".github/workflows/candidate.yml").read_text()
+    job = workflow.split(f"\n  {job_name}:\n", 1)[1]
+    job = re.split(r"\n  [\w-]+:\n", job, maxsplit=1)[0]
+    header, steps = job.split("    steps:\n", 1)
+    assert "GH_TOKEN:" not in header and "GITHUB_TOKEN:" not in header
+    assert "contents: write" not in job and "id-token: write" not in job
+    assert "environment:" not in job and "secrets." not in job
+    after_feature = steps.split("- name: Build", 1)[1]
+    assert "github.token" not in after_feature
+    assert "GH_TOKEN: ''" in after_feature and "GITHUB_TOKEN: ''" in after_feature
+    # Checkout cleanup must not restore persisted credentials. GitHub's own
+    # read-only action context is not claimed to be isolated from this runner.
+    assert steps.count("persist-credentials: false") == 2
+    assert "persist-credentials: true" not in steps
+
+
+@pytest.mark.skipif(os.name == "nt", reason="native Unix shell boundary")
+def test_native_builder_refuses_github_access_before_reading_feature(tmp_path):
+    result = subprocess.run([
+        "sh", str(ROOT / "scripts/candidate/build-native.sh"), "linux-x86_64",
+        str(tmp_path / "absent-source"), str(tmp_path / "absent-output"),
+        str(tmp_path / "absent-wheelhouse"),
+    ], env={**os.environ, "GH_TOKEN": "synthetic-boundary-marker"}, capture_output=True, text=True)
+    assert result.returncode != 0
+    assert "Source build must have no GitHub, signing or identity credential." in result.stderr
+    assert "synthetic-boundary-marker" not in result.stdout + result.stderr
+    assert not list(tmp_path.iterdir())

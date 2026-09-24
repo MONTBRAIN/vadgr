@@ -1,9 +1,13 @@
 #!/bin/sh
-# Secret-free native builds. Source is the sealed materialization, never signing tooling.
+# No signing credentials. Source is sealed materialization, never signing tooling.
 set -eu
+[ -z "${GH_TOKEN:-}${GITHUB_TOKEN:-}${ES_USERNAME:-}${ES_PASSWORD:-}${ES_TOTP_SECRET:-}${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}" ] || {
+  echo 'Source build must have no GitHub, signing or identity credential.' >&2; exit 2;
+}
 target=$1
 source=$2
 output=$3
+wheelhouse=$4
 trusted=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
 case "$target" in macos-*|linux-*|wsl-*) ;; *) echo 'Unsupported native build target.' >&2; exit 2;; esac
 [ ! -e "$output" ] || { echo 'Build output must not exist.' >&2; exit 2; }
@@ -18,8 +22,7 @@ case "$target" in
   macos-x86_64) package_arch=x86_64; rust_target=x86_64-apple-darwin;;
   *) package_arch=$arch; rust_target=$arch-unknown-linux-gnu;;
 esac
-wheelhouse="$RUNNER_TEMP/vadgr-wheelhouse-$rust_target"
-python3 "$trusted/scripts/cua_wheelhouse.py" --source "$PWD" --target "$rust_target" --out "$wheelhouse"
+python3 "$trusted/scripts/cua_wheelhouse.py" --source "$PWD" --target "$rust_target" --verify "$wheelhouse"
 export VADGR_RELEASE_PAYLOAD_BUILD=1
 export SOURCE_DATE_EPOCH=1609459200
 export RUSTFLAGS="--remap-path-prefix=$PWD=/vadgr-source"
@@ -76,7 +79,7 @@ case "$platform" in
     vehicle="target/package/Vadgr-0.5.0-wsl-$arch.tar.gz"
     expanded="$RUNNER_TEMP/vadgr-wsl-expanded"
     mkdir "$expanded"
-    # This archive was built in this secret-free process. The installer separately
+    # This archive was built in this source-build process. The installer separately
     # enforces untrusted archive safety before it can install released bytes.
     tar -xzf "$vehicle" -C "$expanded"
     python3 "$trusted/scripts/distribution_matrix.py" binary --target "$target" --file "$expanded/bin/vadgr"

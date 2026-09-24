@@ -85,7 +85,6 @@ jobs:
       artifact_id: ${{ steps.unsigned.outputs.artifact-id }}
       artifact_digest: sha256:${{ steps.unsigned.outputs.artifact-digest }}
     env:
-      GH_TOKEN: ${{ github.token }}
       SOURCE_SHA: ${{ inputs.source_sha }}
       SOURCE_BRANCH: ${{ inputs.source_branch }}
       CANDIDATE_ID: ${{ inputs.candidate_id }}
@@ -107,17 +106,28 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Materialize only sealed source inputs
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
           git -C source_checkout fetch --no-tags origin "$SOURCE_BRANCH"
           python scripts/candidate_policy.py preflight --source-root source_checkout --branch "$SOURCE_BRANCH" --source-sha "$SOURCE_SHA" --version 0.5.0 --candidate-id "$CANDIDATE_ID" --architecture "$ARCHITECTURE" --out preflight.json --materialize source
-      - name: Build complete unsigned payload without secrets
+      - name: Materialize reviewed wheelhouse with read-only access
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $target = if ($env:ARCHITECTURE -eq 'x64') { 'x86_64-pc-windows-msvc' } else { 'aarch64-pc-windows-msvc' }
+          python scripts/cua_wheelhouse.py --source source --target $target --out "$env:RUNNER_TEMP/vadgr-wheelhouse"
+          if ($LASTEXITCODE -ne 0) { throw 'Reviewed wheelhouse materialization failed.' }
+      - name: Build complete unsigned payload without signing credentials
         shell: pwsh
         env:
           GH_TOKEN: ''
+          GITHUB_TOKEN: ''
         run: |
-          scripts/candidate/build-windows.ps1 -Architecture $env:ARCHITECTURE -SourceDirectory source -OutputDirectory unsigned
+          scripts/candidate/build-windows.ps1 -Architecture $env:ARCHITECTURE -SourceDirectory source -OutputDirectory unsigned -WheelhouseDirectory "$env:RUNNER_TEMP/vadgr-wheelhouse"
           $target = if ($env:ARCHITECTURE -eq 'x64') { 'windows-x86_64' } else { 'windows-aarch64' }
           python scripts/distribution_matrix.py binary --target $target --file unsigned/payload/vadgr.exe --file unsigned/payload/vadgr-app.exe --file unsigned/ba-functions.dll
           if ($LASTEXITCODE -ne 0) { throw 'Native Windows executable validation failed.' }
@@ -518,15 +528,28 @@ jobs:
           test "$RUNNER_ARCH" = '${{ matrix.runner_arch }}'
           git -C source_checkout fetch --no-tags origin "$SOURCE_BRANCH"
           python scripts/candidate_policy.py preflight --source-root source_checkout --branch "$SOURCE_BRANCH" --source-sha "$SOURCE_SHA" --version 0.5.0 --candidate-id "$CANDIDATE_ID" --architecture "$ARCHITECTURE" --out preflight.json --materialize source
-      - name: Build and inspect native Unix vehicles without credentials
-        if: ${{ !startsWith(matrix.target, 'windows-') }}
+      - name: Materialize reviewed wheelhouse with read-only access
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
-        run: sh scripts/candidate/build-native.sh '${{ matrix.target }}' source native-output
-      - name: Build the other Windows architecture without credentials
+        run: |
+          set -euo pipefail
+          python scripts/cua_wheelhouse.py --source source --target '${{ matrix.rust_target }}' --out "$RUNNER_TEMP/vadgr-wheelhouse"
+      - name: Build and inspect native Unix vehicles without signing credentials
+        if: ${{ !startsWith(matrix.target, 'windows-') }}
+        env:
+          GH_TOKEN: ''
+          GITHUB_TOKEN: ''
+        shell: bash
+        run: sh scripts/candidate/build-native.sh '${{ matrix.target }}' source native-output "$RUNNER_TEMP/vadgr-wheelhouse"
+      - name: Build the other Windows architecture without signing credentials
         if: startsWith(matrix.target, 'windows-')
+        env:
+          GH_TOKEN: ''
+          GITHUB_TOKEN: ''
         shell: pwsh
         run: |
-          scripts/candidate/build-windows.ps1 -Architecture '${{ matrix.package_arch }}' -SourceDirectory source -OutputDirectory unsigned
+          scripts/candidate/build-windows.ps1 -Architecture '${{ matrix.package_arch }}' -SourceDirectory source -OutputDirectory unsigned -WheelhouseDirectory "$env:RUNNER_TEMP/vadgr-wheelhouse"
           python scripts/distribution_matrix.py binary --target '${{ matrix.target }}' --file unsigned/payload/vadgr.exe --file unsigned/payload/vadgr-app.exe --file unsigned/ba-functions.dll
           if ($LASTEXITCODE -ne 0) { throw 'Native Windows executable validation failed.' }
           python scripts/distribution_matrix.py payload --target '${{ matrix.target }}' --root unsigned/payload --pins source/packaging/cua/pins.toml

@@ -65,6 +65,11 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Fixed
 
+- Candidate builds materialize reviewed wheelhouses in trusted preparation
+  steps, then verify the closed bytes offline before feature compilation.
+  Explicit GitHub tokens do not persist at job scope or return in later upload
+  steps. Signing and write credentials remain isolated on separate runners.
+
 - Native dependency test policy records seven upstream Unix-only mmap cases
   on Windows by exact test identity and reason. The Intel macOS policy and
   rejection of unknown, duplicate or missing skips remain unchanged.

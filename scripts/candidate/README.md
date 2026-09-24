@@ -14,7 +14,7 @@ job consumes that authorization with an immutable Git claim. The Windows signing
 environment then approves one signing attempt. Failed or uncertain attempts stay
 spent. Recovery needs a reconciled quota and a new explicit authorization.
 
-`build-windows.ps1` runs only on a secret-free source-build runner.
+`build-windows.ps1` runs without signing or write credentials on its build runner.
 `package-windows.ps1` reads compiled payloads as data and uses trusted WiX
 authoring. It never compiles or executes a candidate DLL.
 `hold-windows.ps1` verifies the final signatures and writes the held inventory.
@@ -36,12 +36,27 @@ contains `legal_hashes`, `sbom_hashes` and `cua_hashes` maps keyed by relative
 `legal/TERMS.txt`. The CUA records bind both metadata generations and the complete
 input/output mapping. Runtime file checks use the final signed inventory.
 
-Common clean-install CI uses `prepare_cua_build.py` before compilation. Development
-mode is explicit and works only when no reviewed wheel inputs exist. Once any
-reviewed input exists, the selected target must materialize its complete verified
-wheelhouse from matching default-branch inputs. Missing or partial inputs never
-fall back to the development lock. Protected candidate builders always require
-reviewed mode. These source gates are not signed installation qualification.
+The trusted workflow materializes each reviewed wheelhouse in a separate step
+with read-only GitHub access. Compilation receives only its directory, with both
+GitHub token variables cleared. The build helpers refuse credentials and verify
+every wheel again offline before executing feature code. Read-only GitHub access
+can still exist in the hosted runner's action context; this is not absolute
+token isolation. Signing and write credentials remain on separate protected
+runners, which consume feature artifacts only as data. No job-scoped GitHub
+token is restored to later upload or cleanup steps. Missing or partial
+inputs never select a development lock. These source gates are not signed
+installation qualification.
+
+The feature workflow applies the same preparation and offline verification to
+its seven additional native builds. Both Windows architecture calls receive
+the prepared wheelhouse explicitly; Unix builds receive it as their fourth
+argument. These additional jobs stay on the implementation branch. They do not
+extend the reviewed Windows-only producer on the default branch.
+
+Common clean-install CI uses `prepare_cua_build.py` before compilation.
+Development mode requires explicit permission and no reviewed wheel inputs.
+Once any reviewed input exists, the complete selected closure must match the
+default branch. Missing inputs cannot fall back to the development lock.
 
 The public Sigstore root snapshot in `packaging/release-trusted-root.jsonl` was
 obtained using `gh attestation trusted-root` on 2026-09-17. It excludes GitHub's
@@ -70,9 +85,10 @@ permission to sign fixture or unsigned release bytes.
 Protected `candidate-authorize` and `candidate-windows` approvals, successful
 claim qualification, the native certificate and available signing quota still
 gate the producer. These checks have not been relaxed by keyless attestation.
-This Windows producer does not claim to produce macOS, Linux or WSL packages.
-Those targets require their own reviewed build and validation jobs before they
-can enter a manifest. There is no general-purpose upload-and-attest endpoint.
+The attested Windows output explicitly has single-target qualification scope.
+This bootstrap adds no build path for other operating systems. A complete
+distribution still requires every target's native signing, integrity and
+installation gates. There is no general-purpose upload-and-attest endpoint.
 
 See [keyless bootstrap qualification](KEYLESS-QUALIFICATION.md) for the bounded
 acceptance checks and the unclaimed live signing boundary.

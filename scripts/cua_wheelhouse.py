@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Materialize the reviewed target closure for an offline, secret-free build.
+"""Materialize the reviewed target closure for an offline source build.
 
 Never resolves dependencies or approves a new hash. PyPI catalog entries must
 match the reviewed selected digest; custom outputs use exact artifact IDs.
@@ -13,6 +13,7 @@ import io
 import itertools
 from pathlib import Path
 import re
+import struct
 import subprocess
 import sys
 import tempfile
@@ -22,14 +23,12 @@ import zipfile
 
 if __package__:
     from scripts import cua_release_inputs as release
-    from scripts import distribution_matrix
     from scripts.validate_package_inputs import (
         PackageInputError, canonical_json, parse_json, read_owned, relative_path,
         require, sha256_bytes,
     )
 else:
     import cua_release_inputs as release
-    import distribution_matrix
     from validate_package_inputs import (
         PackageInputError, canonical_json, parse_json, read_owned, relative_path,
         require, sha256_bytes,
@@ -37,6 +36,35 @@ else:
 
 MAX_ARCHIVE = 256 * 1024 * 1024
 MAX_EXPANDED = 1024 * 1024 * 1024
+
+
+def binary_architecture(data):
+    if len(data) >= 64 and data[:2] == b"MZ":
+        offset = struct.unpack_from("<I", data, 0x3c)[0]
+        require(offset <= len(data) - 6 and data[offset:offset + 4] == b"PE\0\0", "invalid PE header")
+        machine = struct.unpack_from("<H", data, offset + 4)[0]
+        require(machine in (0x8664, 0xaa64), "unsupported PE architecture")
+        return "pe", {0x8664: "x86_64", 0xaa64: "aarch64"}[machine]
+    if len(data) >= 64 and data[:6] == b"\x7fELF\x02\x01":
+        machine = struct.unpack_from("<H", data, 18)[0]
+        require(machine in (62, 183), "unsupported ELF architecture")
+        return "elf", {62: "x86_64", 183: "aarch64"}[machine]
+    if len(data) >= 32 and data[:4] == b"\xcf\xfa\xed\xfe":
+        machine = struct.unpack_from("<I", data, 4)[0]
+        require(machine in (0x1000007, 0x100000c), "unsupported Mach-O architecture")
+        return "macho", {0x1000007: "x86_64", 0x100000c: "aarch64"}[machine]
+    if len(data) >= 8 and data[:4] in (b"\xca\xfe\xba\xbe", b"\xca\xfe\xba\xbf"):
+        count = struct.unpack_from(">I", data, 4)[0]
+        width = 20 if data[3] == 0xbe else 32
+        require(count in (1, 2) and len(data) >= 8 + count * width, "invalid universal Mach-O header")
+        architectures = []
+        for index in range(count):
+            cpu = struct.unpack_from(">I", data, 8 + index * width)[0]
+            require(cpu in (0x1000007, 0x100000c), "unsupported universal Mach-O architecture")
+            architectures.append({0x1000007: "x86_64", 0x100000c: "aarch64"}[cpu])
+        require(len(set(architectures)) == count, "duplicate universal Mach-O architecture")
+        return "macho", "+".join(sorted(architectures))
+    raise PackageInputError("missing or unsupported native executable header")
 
 
 def normalized(name):
@@ -136,10 +164,7 @@ def validate_wheel(data, filename, name, version, target):
     kind = "pe" if target.endswith("windows-msvc") else "macho" if target.endswith("apple-darwin") else "elf"
     for content in members.values():
         if content[:2] == b"MZ" or content[:4] in (b"\x7fELF", b"\xcf\xfa\xed\xfe", b"\xca\xfe\xba\xbe", b"\xca\xfe\xba\xbf"):
-            try:
-                native_kind, architecture = distribution_matrix.binary_architecture(content)
-            except distribution_matrix.Refused:
-                raise PackageInputError("wheel native executable header is invalid") from None
+            native_kind, architecture = binary_architecture(content)
             require(native_kind == kind and expected in architecture.split("+"),
                     "wheel includes incompatible native executable")
     return members
@@ -227,19 +252,56 @@ def materialize(source: Path, trusted: Path, target: str, output: Path):
         stage.rename(output)
 
 
+def verify_materialized(source: Path, trusted: Path, target: str, output: Path):
+    """Recheck the closed bytes offline before executing any feature code."""
+    require(output.is_absolute() and output.is_dir()
+            and all(not path.is_symlink() and not getattr(path, "is_junction", lambda: False)()
+                    for path in (output, *output.parents)), "wheelhouse directory is linked or missing")
+    binding = release.reviewed_inputs(source, trusted, target)
+    selected = release.selected_lock(read_owned(trusted, release.lock_path(target)))
+    metadata = parse_json(read_owned(output, "wheelhouse.json"))
+    require(set(metadata) == {"schema", *binding, "wheels"}
+            and type(metadata["schema"]) is int and metadata["schema"] == 1
+            and all(metadata[key] == value for key, value in binding.items())
+            and isinstance(metadata["wheels"], list), "offline wheelhouse binding differs")
+    expected, observed = {"wheelhouse.json"}, set()
+    for row in metadata["wheels"]:
+        require(isinstance(row, dict)
+                and set(row) == {"filename", "name", "version", "size", "sha256"}
+                and isinstance(row["name"], str) and row["name"] not in observed
+                and selected.get(row["name"]) == (row["version"], row["sha256"])
+                and type(row["size"]) is int and 0 < row["size"] <= MAX_ARCHIVE,
+                "offline wheel record differs")
+        name = relative_path(row["filename"])
+        require("/" not in name and name not in expected, "offline wheel filename differs")
+        data = read_owned(output, name)
+        require(len(data) == row["size"] and sha256_bytes(data) == row["sha256"],
+                "offline wheel bytes differ")
+        validate_wheel(data, name, row["name"], row["version"], target)
+        expected.add(name)
+        observed.add(row["name"])
+    require(observed == set(selected) and {path.name for path in output.iterdir()} == expected,
+            "offline wheelhouse file set differs")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--target", choices=sorted(release.TARGETS), required=True)
-    parser.add_argument("--out", type=Path, required=True)
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--out", type=Path)
+    mode.add_argument("--verify", type=Path)
     args = parser.parse_args()
     try:
-        materialize(args.source.resolve(), Path(__file__).resolve().parents[1], args.target, args.out.absolute())
+        operation = verify_materialized if args.verify else materialize
+        operation(args.source.resolve(), Path(__file__).resolve().parents[1], args.target,
+                  (args.verify or args.out).absolute())
     except (PackageInputError, OSError, ValueError, TypeError, KeyError, zipfile.BadZipFile,
             subprocess.SubprocessError):
         print("CUA wheelhouse refused: reviewed closure or producer verification failed.", file=sys.stderr)
         return 1
-    print("Reviewed CUA wheelhouse materialized for offline assembly.")
+    print("Reviewed CUA wheelhouse verified offline." if args.verify
+          else "Reviewed CUA wheelhouse materialized for offline assembly.")
     return 0
 
 
