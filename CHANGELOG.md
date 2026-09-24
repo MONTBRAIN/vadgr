@@ -35,6 +35,9 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Changed
 
+- Candidate admission binds reviewed target locks and attested native-wheel
+  producer identities to schema-2 private-runtime inventories. Missing reviewed
+  wheel inputs, changed payload files and legacy payload manifests fail closed.
 - The distribution build matrix covers eight native targets with exact vehicle
   names and architecture checks. Windows uses WiX 7.0.0, its current bootstrapper
   interface and verified upstream native payloads. Partial Windows qualification

@@ -73,6 +73,7 @@ $files = @(Get-ChildItem $held -Recurse -File | ForEach-Object {
     source_commit = $approved.source_sha; source_tree = $approved.source_tree;
     trusted_tooling_commit = $approved.trusted_sha; input_digest = $approved.input_digest;
     candidate_id = $approved.candidate_id; run_id = $approved.run_id; run_attempt = $approved.run_attempt;
+    cua_inputs = $approved.cua_inputs; pre_signing_cua_payload = $approved.cua_payload;
     status = 'held-unpublished'; scope = 'single-target-qualification'; complete_distribution = $false; artifacts = $files
 } | ConvertTo-Json -Depth 20 | Set-Content -Encoding utf8 -LiteralPath (Join-Path $held 'candidate-manifest.json')
 Write-Output 'Verified signed bytes held without publication. Keyless manifest attestation and native installation tests remain required.'
