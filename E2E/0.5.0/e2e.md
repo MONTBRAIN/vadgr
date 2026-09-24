@@ -6,7 +6,7 @@
 > No signed candidate is frozen yet. Freeze the exact current source and
 > artifact hashes before each new live group. The implementation PR opens
 > after the first required real target pass and green source checks.
-> **Private evidence PR:** resolve before the next live group.
+> **Private evidence PR:** `https://github.com/MONTBRAIN/vadgr-docs/pull/176`.
 > Do not create a replacement PR.
 >
 > **Status: development qualification in progress.** No cell below is a formal
