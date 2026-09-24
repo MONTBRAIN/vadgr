@@ -28,6 +28,10 @@ All notable changes to this project are documented here. Format follows [Keep a 
   validation, protected authorization and one-use signing claims. Candidate
   artifacts remain unpublished. Signing requires configured protections,
   approved package inputs and separate owner approvals.
+- A native dependency producer for Windows ARM64 and Intel macOS cryptography,
+  with pinned source and tool inputs, upstream tests, independent artifact
+  validation and an attested wheel manifest. Produced bytes require review
+  before payload use; this workflow does not sign or publish the product.
 
 ### Changed
 

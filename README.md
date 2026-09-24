@@ -46,6 +46,11 @@ The build matrix contains eight native OS and architecture targets. Windows uses
 WiX 7.0.0 and separate native x64 and ARM64 runners. A held Windows installer
 qualifies only that target; publication requires all eight exact final vehicles.
 
+A separate credential-free dependency producer builds the missing Windows ARM64
+and Intel macOS cryptography wheels from pinned sources on native runners. Its
+validated, attested output still requires exact-hash review before payload use;
+it grants no signing approval and does not qualify an installer.
+
 Vadgr runs on **Linux**, **WSL**, **Windows** and **macOS**.
 On macOS `0.4.12`, grant Accessibility and Screen Recording to the terminal
 named by the operating-system dialogs, restart that terminal, and start vadgr
