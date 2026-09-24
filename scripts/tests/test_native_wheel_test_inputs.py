@@ -102,3 +102,42 @@ def test_native_test_command_requires_both_populated_data_roots(tmp_path):
     assert len(arguments) == 2
     assert arguments[0].startswith("--wycheproof-root=")
     assert arguments[1].startswith("--x509-limbo-root=")
+
+
+WINDOWS_MMAP_CASES = [
+    {"classname": "tests.hazmat.primitives.test_aead." + name, "name": "test_data_too_large",
+     "reason": "mmap and 64-bit platform required"}
+    for name in ("TestChaCha20Poly1305", "TestAESCCM", "TestAESGCM", "TestAESOCB3", "TestAESSIV", "TestAESGCMSIV")
+] + [{"classname": "tests.hazmat.primitives.test_ciphers", "name": "test_update_auto_chunking", "reason": "mmap required"}]
+
+
+def test_only_windows_excludes_the_seven_upstream_unix_mmap_cases():
+    data = descriptor()
+    windows = data["targets"]["windows-aarch64"]["test_policy"]
+    macos = data["targets"]["macos-x86_64"]["test_policy"]
+    observed = [row for row in windows["skips"] if "mmap" in row["reason"]]
+    assert observed == WINDOWS_MMAP_CASES
+    assert windows["minimum_passed"] == 4651 and len(windows["skips"]) == 30
+    assert macos["minimum_passed"] == 4654 and len(macos["skips"]) == 27
+    assert not any("mmap" in row["reason"] for row in macos["skips"])
+    assert not any("malloc_failure" in row["name"] for row in windows["skips"])
+
+
+@pytest.mark.parametrize("expected", WINDOWS_MMAP_CASES)
+@pytest.mark.parametrize("field", ["classname", "name", "reason", "missing", "duplicate"])
+def test_windows_mmap_skip_requires_its_exact_reviewed_identity(expected, field):
+    policy = descriptor()["targets"]["windows-aarch64"]["test_policy"]
+    assert expected in policy["skips"]
+    suite = report(policy)
+    case = next(case for case in suite if case.get("classname") == expected["classname"]
+                and case.get("name") == expected["name"])
+    if field == "reason":
+        case[0].set("message", "mmap is unavailable for an unrelated reason")
+    elif field == "missing":
+        case.remove(case[0])
+    elif field == "duplicate":
+        suite[0] = copy.deepcopy(case)
+    else:
+        case.set(field, "different_test")
+    with pytest.raises(gate.Refused):
+        gate.test_counts(ET.tostring(suite), policy)
