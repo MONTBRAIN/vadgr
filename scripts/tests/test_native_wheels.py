@@ -126,6 +126,28 @@ def test_native_recipe_keeps_build_resolution_offline():
     assert "--config-settings=build-args=--features=pyo3/abi3-py311" in command
 
 
+def test_cargo_prefetch_covers_metadata_graph_before_offline_build(monkeypatch):
+    from scripts import build_native_wheels as build
+    fetched, calls = set(), []
+
+    def cargo(command, **kwargs):
+        calls.append((command, kwargs["env"].copy()))
+        if command[1] == "fetch":
+            assert "--locked" in command
+            fetched.update({"core"} if "--target" in command else {"core", "portable-atomic"})
+        else:
+            assert "portable-atomic" in fetched, "target-filtered fetch omitted metadata dependency"
+            assert "--offline" in command and "--locked" in command
+            assert "pyo3/abi3-py311" in command
+            assert kwargs["env"]["CARGO_NET_OFFLINE"] == "true"
+
+    monkeypatch.setattr(build, "run", cargo)
+    environment = {}
+    build.prefetch_cargo(Path("source"), environment)
+    assert len(calls) == 2 and "--target" not in calls[0][0]
+    assert environment["CARGO_NET_OFFLINE"] == "true"
+
+
 def test_windows_compiler_environment_normalizes_case(monkeypatch):
     from scripts import build_native_wheels as build
     monkeypatch.setattr(build.platform, "system", lambda: "Windows")
