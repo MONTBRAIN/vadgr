@@ -48,6 +48,32 @@ def test_reviewed_descriptor_covers_exact_native_targets():
         assert "cryptography_vectors" in names
 
 
+@pytest.mark.parametrize("version,accepted", [("20260914.169.1", True), ("20260914.159.1", True),
+                                              ("20260920.174.1", True), ("20260920.174.2", False),
+                                              ("20260921.174.1", False), ("latest", False)])
+def test_native_build_accepts_only_exact_reviewed_images(tmp_path, monkeypatch, version, accepted):
+    from scripts import build_native_wheels as build
+
+    class ImageAccepted(Exception):
+        pass
+
+    def compiler(configuration, image):
+        if version == "20260920.174.1":
+            assert image == {"visual_studio": "17.14.37710.0", "sdk": "10.0.26100.0", "perl": "5.32.1",
+                             "inventory_commit": "19df66a4db26107b6b1a6d92b9b1fc99f52112cb"}
+        raise ImageAccepted
+
+    monkeypatch.setattr(build.platform, "machine", lambda: "ARM64")
+    monkeypatch.setattr(build.shutil, "disk_usage", lambda _: type("Space", (), {"free": 20 * 1024**3})())
+    monkeypatch.setattr(build, "compiler_environment", compiler)
+    for key, value in {"GITHUB_REPOSITORY": gate.REPOSITORY, "GITHUB_REF": "refs/heads/master",
+                       "GITHUB_RUN_ATTEMPT": "1", "ImageVersion": version}.items():
+        monkeypatch.setenv(key, value)
+    with pytest.raises(ImageAccepted if accepted else gate.Refused):
+        build.build(ROOT / "packaging/cua/native-wheels-input.json", "windows-aarch64",
+                    tmp_path / "work", tmp_path / "out")
+
+
 @pytest.mark.parametrize("mutation", ["source", "version", "target", "hash", "http", "filename", "duplicate", "rust", "cargo"])
 def test_descriptor_refuses_ambiguous_or_unreviewed_inputs(mutation):
     data = copy.deepcopy(descriptor())

@@ -22,6 +22,9 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Fixed
 
+- The native Windows dependency producer recognizes the reviewed 20260920.174.1
+  hosted image with its exact Visual Studio and SDK versions; unknown images
+  still stop before dependency compilation.
 - Native Windows dependency builds initialize the reviewed compiler correctly
   when its installation path contains spaces. Source, compiler, architecture
   and provenance checks remain required.
