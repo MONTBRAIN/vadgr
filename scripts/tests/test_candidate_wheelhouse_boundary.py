@@ -11,7 +11,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 
 
-@pytest.mark.parametrize("job", ["build-windows", "build-native"])
+@pytest.mark.parametrize("job", ["build-windows"])
 def test_trusted_materialization_precedes_token_free_compilation(job):
     workflow = (ROOT / ".github/workflows/candidate.yml").read_text()
     block = workflow.split(f"\n  {job}:\n", 1)[1]
@@ -30,7 +30,7 @@ def test_trusted_materialization_precedes_token_free_compilation(job):
             assert "wheelhouse" in step
 
 
-@pytest.mark.parametrize("file", ["build-windows.ps1", "build-native.sh"])
+@pytest.mark.parametrize("file", ["build-windows.ps1"])
 def test_compiler_refuses_credentials_and_never_downloads_wheels(file):
     source = (ROOT / "scripts/candidate" / file).read_text()
     assert "GH_TOKEN" in source and "GITHUB_TOKEN" in source
@@ -57,18 +57,25 @@ def test_windows_builder_refuses_github_access_before_reading_feature(tmp_path):
         "-SourceDirectory", str(tmp_path / "absent-source"),
         "-OutputDirectory", str(tmp_path / "absent-output"),
         "-WheelhouseDirectory", str(tmp_path / "absent-wheelhouse"),
-    ], env={**os.environ, "GH_TOKEN": "synthetic-boundary-marker"}, capture_output=True, text=True)
+    ], env={**os.environ, "GH_TOKEN": "synthetic-boundary-marker"}, capture_output=True, text=True,
+       creationflags=subprocess.CREATE_NO_WINDOW)
     assert result.returncode != 0
     assert "Source build must have no signing or identity credential." in result.stderr
     assert "synthetic-boundary-marker" not in result.stdout + result.stderr
     assert not list(tmp_path.iterdir())
 
 
-def test_native_matrix_has_exactly_eight_distinct_targets():
-    from scripts import distribution_matrix as matrix
-    rows = matrix.matrix()
-    assert {row["target"] for row in rows} == {
-        "windows-x86_64", "windows-aarch64", "macos-x86_64", "macos-aarch64",
-        "linux-x86_64", "linux-aarch64", "wsl-x86_64", "wsl-aarch64"}
-    for architecture in ("x64", "arm64"):
-        assert len(matrix.remaining_builds(architecture)) == 7
+def test_build_job_has_no_inherited_github_token_for_post_steps():
+    workflow = (ROOT / ".github/workflows/candidate.yml").read_text()
+    job = workflow.split("\n  build-windows:\n", 1)[1].split("\n  validate-artifacts:", 1)[0]
+    header, steps = job.split("    steps:\n", 1)
+    assert "GH_TOKEN:" not in header and "GITHUB_TOKEN:" not in header
+    assert "contents: write" not in job and "id-token: write" not in job
+    assert "environment:" not in job and "secrets." not in job
+    after_feature = steps.split("- name: Build complete unsigned payload", 1)[1]
+    assert "github.token" not in after_feature
+    assert "GH_TOKEN: ''" in after_feature and "GITHUB_TOKEN: ''" in after_feature
+    # Checkout cleanup must not restore persisted credentials. GitHub's own
+    # read-only action context is not claimed to be isolated from this runner.
+    assert steps.count("persist-credentials: false") == 2
+    assert "persist-credentials: true" not in steps

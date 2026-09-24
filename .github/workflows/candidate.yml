@@ -1,4 +1,4 @@
-name: Native builds and held Windows qualification
+name: Held Windows candidate
 
 on:
   workflow_dispatch:
@@ -32,8 +32,6 @@ jobs:
   preflight:
     if: ${{ github.repository == 'MONTBRAIN/vadgr' && github.ref == 'refs/heads/master' && github.run_attempt == 1 }}
     runs-on: ubuntu-24.04
-    outputs:
-      remaining_matrix: ${{ steps.matrix.outputs.remaining_matrix }}
     permissions:
       contents: read
       actions: read
@@ -64,12 +62,6 @@ jobs:
           set -euo pipefail
           git -C source_checkout fetch --no-tags origin "$SOURCE_BRANCH"
           python scripts/candidate_policy.py preflight --source-root source_checkout --branch "$SOURCE_BRANCH" --source-sha "$SOURCE_SHA" --version 0.5.0 --candidate-id "$CANDIDATE_ID" --architecture "$ARCHITECTURE" --out preflight.json
-      - name: Generate the other seven native build targets
-        id: matrix
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "remaining_matrix=$(python scripts/distribution_matrix.py matrix --except-windows "$ARCHITECTURE")" >> "$GITHUB_OUTPUT"
 
   build-windows:
     needs: preflight
@@ -85,7 +77,6 @@ jobs:
       artifact_id: ${{ steps.unsigned.outputs.artifact-id }}
       artifact_digest: sha256:${{ steps.unsigned.outputs.artifact-digest }}
     env:
-      GH_TOKEN: ${{ github.token }}
       SOURCE_SHA: ${{ inputs.source_sha }}
       SOURCE_BRANCH: ${{ inputs.source_branch }}
       CANDIDATE_ID: ${{ inputs.candidate_id }}
@@ -107,6 +98,8 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Materialize only sealed source inputs
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
@@ -120,18 +113,13 @@ jobs:
           $target = if ($env:ARCHITECTURE -eq 'x64') { 'x86_64-pc-windows-msvc' } else { 'aarch64-pc-windows-msvc' }
           python scripts/cua_wheelhouse.py --source source --target $target --out "$env:RUNNER_TEMP/vadgr-wheelhouse"
           if ($LASTEXITCODE -ne 0) { throw 'Reviewed wheelhouse materialization failed.' }
-      - name: Build complete unsigned payload without secrets
+      - name: Build complete unsigned payload without signing credentials
         shell: pwsh
         env:
           GH_TOKEN: ''
           GITHUB_TOKEN: ''
         run: |
           scripts/candidate/build-windows.ps1 -Architecture $env:ARCHITECTURE -SourceDirectory source -OutputDirectory unsigned -WheelhouseDirectory "$env:RUNNER_TEMP/vadgr-wheelhouse"
-          $target = if ($env:ARCHITECTURE -eq 'x64') { 'windows-x86_64' } else { 'windows-aarch64' }
-          python scripts/distribution_matrix.py binary --target $target --file unsigned/payload/vadgr.exe --file unsigned/payload/vadgr-app.exe --file unsigned/ba-functions.dll
-          if ($LASTEXITCODE -ne 0) { throw 'Native Windows executable validation failed.' }
-          python scripts/distribution_matrix.py payload --target $target --root unsigned/payload --pins source/packaging/cua/pins.toml
-          if ($LASTEXITCODE -ne 0) { throw 'Native Windows runtime validation failed.' }
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         id: unsigned
         with:
@@ -474,95 +462,5 @@ jobs:
         with:
           name: held-artifact-record
           path: held-artifact.json
-          if-no-files-found: error
-          retention-days: 90
-
-  # The selected Windows build above plus these seven jobs form exactly eight
-  # native targets. Unsigned artifacts never constitute a complete held candidate.
-  build-native:
-    name: build-${{ matrix.target }}
-    needs: preflight
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJSON(needs.preflight.outputs.remaining_matrix) }}
-    runs-on: ${{ matrix.runner }}
-    timeout-minutes: 90
-    permissions:
-      contents: read
-      actions: read
-      checks: read
-      statuses: read
-      pull-requests: read
-    env:
-      SOURCE_SHA: ${{ inputs.source_sha }}
-      SOURCE_BRANCH: ${{ inputs.source_branch }}
-      CANDIDATE_ID: ${{ inputs.candidate_id }}
-      ARCHITECTURE: ${{ inputs.architecture }}
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          ref: ${{ github.sha }}
-          fetch-depth: 0
-          persist-credentials: false
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          ref: ${{ inputs.source_sha }}
-          path: source_checkout
-          fetch-depth: 0
-          persist-credentials: false
-      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c
-        with:
-          targets: ${{ matrix.rust_target }}
-          toolchain: 1.97.1
-      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9
-        if: startsWith(matrix.target, 'windows-')
-        with:
-          dotnet-version: 8.0.424
-      - name: Materialize identical sealed inputs for every native target
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          test "$RUNNER_ARCH" = '${{ matrix.runner_arch }}'
-          git -C source_checkout fetch --no-tags origin "$SOURCE_BRANCH"
-          python scripts/candidate_policy.py preflight --source-root source_checkout --branch "$SOURCE_BRANCH" --source-sha "$SOURCE_SHA" --version 0.5.0 --candidate-id "$CANDIDATE_ID" --architecture "$ARCHITECTURE" --out preflight.json --materialize source
-      - name: Materialize reviewed wheelhouse with read-only access
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          python scripts/cua_wheelhouse.py --source source --target '${{ matrix.rust_target }}' --out "$RUNNER_TEMP/vadgr-wheelhouse"
-      - name: Build and inspect native Unix vehicles without credentials
-        if: ${{ !startsWith(matrix.target, 'windows-') }}
-        env:
-          GH_TOKEN: ''
-          GITHUB_TOKEN: ''
-        shell: bash
-        run: sh scripts/candidate/build-native.sh '${{ matrix.target }}' source native-output "$RUNNER_TEMP/vadgr-wheelhouse"
-      - name: Build the other Windows architecture without credentials
-        if: startsWith(matrix.target, 'windows-')
-        env:
-          GH_TOKEN: ''
-          GITHUB_TOKEN: ''
-        shell: pwsh
-        run: |
-          scripts/candidate/build-windows.ps1 -Architecture '${{ matrix.package_arch }}' -SourceDirectory source -OutputDirectory unsigned -WheelhouseDirectory "$env:RUNNER_TEMP/vadgr-wheelhouse"
-          python scripts/distribution_matrix.py binary --target '${{ matrix.target }}' --file unsigned/payload/vadgr.exe --file unsigned/payload/vadgr-app.exe --file unsigned/ba-functions.dll
-          if ($LASTEXITCODE -ne 0) { throw 'Native Windows executable validation failed.' }
-          python scripts/distribution_matrix.py payload --target '${{ matrix.target }}' --root unsigned/payload --pins source/packaging/cua/pins.toml
-          if ($LASTEXITCODE -ne 0) { throw 'Native Windows runtime validation failed.' }
-          scripts/candidate/package-windows.ps1 -Mode msi -Architecture '${{ matrix.package_arch }}' -InputDirectory unsigned -OutputDirectory packaged
-          scripts/candidate/package-windows.ps1 -Mode bundle -Architecture '${{ matrix.package_arch }}' -InputDirectory unsigned -OutputDirectory packaged
-          New-Item -ItemType Directory native-output | Out-Null
-          Copy-Item -LiteralPath 'packaged/${{ matrix.vehicle }}' -Destination native-output
-          Copy-Item -LiteralPath packaged/wix-vendor-msi.json, packaged/wix-vendor-bundle.json -Destination native-output
-          python scripts/distribution_matrix.py binary --target '${{ matrix.target }}' --file 'native-output/${{ matrix.vehicle }}'
-          if ($LASTEXITCODE -ne 0) { throw 'Native Windows vehicle validation failed.' }
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: native-build-${{ matrix.target }}
-          path: native-output/
           if-no-files-found: error
           retention-days: 90

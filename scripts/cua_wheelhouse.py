@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Materialize the reviewed target closure for an offline, secret-free build.
+"""Materialize the reviewed target closure for an offline source build.
 
 Never resolves dependencies or approves a new hash. PyPI catalog entries must
 match the reviewed selected digest; custom outputs use exact artifact IDs.
@@ -13,6 +13,7 @@ import io
 import itertools
 from pathlib import Path
 import re
+import struct
 import subprocess
 import sys
 import tempfile
@@ -22,14 +23,12 @@ import zipfile
 
 if __package__:
     from scripts import cua_release_inputs as release
-    from scripts import distribution_matrix
     from scripts.validate_package_inputs import (
         PackageInputError, canonical_json, parse_json, read_owned, relative_path,
         require, sha256_bytes,
     )
 else:
     import cua_release_inputs as release
-    import distribution_matrix
     from validate_package_inputs import (
         PackageInputError, canonical_json, parse_json, read_owned, relative_path,
         require, sha256_bytes,
@@ -37,6 +36,35 @@ else:
 
 MAX_ARCHIVE = 256 * 1024 * 1024
 MAX_EXPANDED = 1024 * 1024 * 1024
+
+
+def binary_architecture(data):
+    if len(data) >= 64 and data[:2] == b"MZ":
+        offset = struct.unpack_from("<I", data, 0x3c)[0]
+        require(offset <= len(data) - 6 and data[offset:offset + 4] == b"PE\0\0", "invalid PE header")
+        machine = struct.unpack_from("<H", data, offset + 4)[0]
+        require(machine in (0x8664, 0xaa64), "unsupported PE architecture")
+        return "pe", {0x8664: "x86_64", 0xaa64: "aarch64"}[machine]
+    if len(data) >= 64 and data[:6] == b"\x7fELF\x02\x01":
+        machine = struct.unpack_from("<H", data, 18)[0]
+        require(machine in (62, 183), "unsupported ELF architecture")
+        return "elf", {62: "x86_64", 183: "aarch64"}[machine]
+    if len(data) >= 32 and data[:4] == b"\xcf\xfa\xed\xfe":
+        machine = struct.unpack_from("<I", data, 4)[0]
+        require(machine in (0x1000007, 0x100000c), "unsupported Mach-O architecture")
+        return "macho", {0x1000007: "x86_64", 0x100000c: "aarch64"}[machine]
+    if len(data) >= 8 and data[:4] in (b"\xca\xfe\xba\xbe", b"\xca\xfe\xba\xbf"):
+        count = struct.unpack_from(">I", data, 4)[0]
+        width = 20 if data[3] == 0xbe else 32
+        require(count in (1, 2) and len(data) >= 8 + count * width, "invalid universal Mach-O header")
+        architectures = []
+        for index in range(count):
+            cpu = struct.unpack_from(">I", data, 8 + index * width)[0]
+            require(cpu in (0x1000007, 0x100000c), "unsupported universal Mach-O architecture")
+            architectures.append({0x1000007: "x86_64", 0x100000c: "aarch64"}[cpu])
+        require(len(set(architectures)) == count, "duplicate universal Mach-O architecture")
+        return "macho", "+".join(sorted(architectures))
+    raise PackageInputError("missing or unsupported native executable header")
 
 
 def normalized(name):
@@ -136,10 +164,7 @@ def validate_wheel(data, filename, name, version, target):
     kind = "pe" if target.endswith("windows-msvc") else "macho" if target.endswith("apple-darwin") else "elf"
     for content in members.values():
         if content[:2] == b"MZ" or content[:4] in (b"\x7fELF", b"\xcf\xfa\xed\xfe", b"\xca\xfe\xba\xbe", b"\xca\xfe\xba\xbf"):
-            try:
-                native_kind, architecture = distribution_matrix.binary_architecture(content)
-            except distribution_matrix.Refused:
-                raise PackageInputError("wheel native executable header is invalid") from None
+            native_kind, architecture = binary_architecture(content)
             require(native_kind == kind and expected in architecture.split("+"),
                     "wheel includes incompatible native executable")
     return members

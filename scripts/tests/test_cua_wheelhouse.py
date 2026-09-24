@@ -87,7 +87,7 @@ class WheelhouseTests(unittest.TestCase):
 
     def test_candidate_builds_require_reviewed_wheelhouse_before_compilation(self):
         root = Path(__file__).resolve().parents[2]
-        for name in ("build-windows.ps1", "build-native.sh"):
+        for name in ("build-windows.ps1",):
             source = (root / "scripts/candidate" / name).read_text()
             self.assertLess(source.index("cua_wheelhouse.py"), source.index("cargo build"))
             self.assertIn("VADGR_RELEASE_PAYLOAD_BUILD", source)

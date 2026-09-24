@@ -9,8 +9,8 @@ All notable changes to this project are documented here. Format follows [Keep a 
 - Trusted candidate admission for reviewed per-target wheelhouses and schema-2
   runtime inventories. Offline compilation follows separate read-only downloads.
   Windows signing records exact input/output hashes and reseals runtime metadata
-  before WiX 7 packaging. Eight native builds remain separate from signed
-  single-target qualification; no release inputs are approved by this change.
+  before WiX 7 packaging. The Windows output retains single-target
+  qualification scope; no release inputs are approved by this change.
 
 - Keyless held-candidate manifest attestations after fresh Windows signature
   verification and approved legal and SBOM byte checks. The downloadable bundle

@@ -14,7 +14,7 @@ job consumes that authorization with an immutable Git claim. The Windows signing
 environment then approves one signing attempt. Failed or uncertain attempts stay
 spent. Recovery needs a reconciled quota and a new explicit authorization.
 
-`build-windows.ps1` runs only on a secret-free source-build runner.
+`build-windows.ps1` runs without signing or write credentials on its build runner.
 `package-windows.ps1` reads compiled payloads as data and uses trusted WiX
 authoring. It never compiles or executes a candidate DLL.
 `hold-windows.ps1` verifies the final signatures and writes the held inventory.
@@ -39,7 +39,11 @@ input/output mapping. Runtime file checks use the final signed inventory.
 The trusted workflow materializes each reviewed wheelhouse in a separate step
 with read-only GitHub access. Compilation receives only its directory, with both
 GitHub token variables cleared. The build helpers refuse credentials and verify
-every wheel again offline before executing feature code. Missing or partial
+every wheel again offline before executing feature code. Read-only GitHub access
+can still exist in the hosted runner's action context; this is not absolute
+token isolation. Signing and write credentials remain on separate protected
+runners, which consume feature artifacts only as data. No job-scoped GitHub
+token is restored to later upload or cleanup steps. Missing or partial
 inputs never select a development lock. These source gates are not signed
 installation qualification.
 
@@ -70,12 +74,10 @@ permission to sign fixture or unsigned release bytes.
 Protected `candidate-authorize` and `candidate-windows` approvals, successful
 claim qualification, the native certificate and available signing quota still
 gate the producer. These checks have not been relaxed by keyless attestation.
-The selected Windows target and seven additional native jobs build the exact
-eight-target matrix. The additional outputs are unsigned development packages,
-not final release artifacts. The attested Windows output explicitly has
-single-target qualification scope. A complete distribution still requires every
-target's native signing, integrity and installation gates. There is no
-general-purpose upload-and-attest endpoint.
+The attested Windows output explicitly has single-target qualification scope.
+This bootstrap adds no build path for other operating systems. A complete
+distribution still requires every target's native signing, integrity and
+installation gates. There is no general-purpose upload-and-attest endpoint.
 
 See [keyless bootstrap qualification](KEYLESS-QUALIFICATION.md) for the bounded
 acceptance checks and the unclaimed live signing boundary.

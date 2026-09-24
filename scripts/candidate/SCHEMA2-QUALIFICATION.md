@@ -3,7 +3,8 @@
 This bootstrap changes trusted tooling only. It does not approve dependency
 bytes, legal inputs, signing quota or a product installation. Run these native
 Windows checks before offering the tooling update. Other hosts run the Python
-gate and their own native build qualification; no host inherits a Windows pass.
+gate; no host inherits a Windows pass. Other native producer paths are outside
+this bootstrap.
 
 ## Native Windows checks
 
@@ -17,7 +18,7 @@ the commands. No command below creates a candidate or calls a signing service.
 | S01 | Run `python scripts/cua_wheelhouse.py --source . --target x86_64-pc-windows-msvc --verify target/schema2-absent` | Exit 1; closed wheelhouse refusal; the absent directory remains absent | Nothing created |
 | S02 | Run `python scripts/cua_wheelhouse.py --source . --target x86_64-pc-windows-msvc --out target/schema2-absent/output` | Exit 1 before network access; missing reviewed output parent is refused; no output exists | Nothing created |
 | S03 | Run `python scripts/candidate/cua_signing.py verify --authorization target/schema2-absent/authorization.json --records target/schema2-absent/records` | Exit 1; missing authorization is refused; no record directory exists | Nothing created |
-| S04 | Run `python -m pytest scripts/tests/test_candidate_wheelhouse_boundary.py scripts/tests/test_cua_wheelhouse.py scripts/tests/test_cua_signing.py scripts/tests/test_distribution_matrix.py -q` | Every applicable test passes; native PowerShell subprocess rejects a dummy GitHub token before touching an absent feature path; the dummy value is absent from output | Pytest owns its isolated fixtures; retain no candidate output |
+| S04 | Run `python -m pytest scripts/tests/test_candidate_wheelhouse_boundary.py scripts/tests/test_cua_wheelhouse.py scripts/tests/test_cua_signing.py -q` | Every applicable test passes; native PowerShell subprocess rejects a dummy GitHub token before touching an absent feature path; the dummy value is absent from output | Pytest owns its isolated fixtures; retain no candidate output |
 
 Run all repository gates after these checks. Record actual native command exits
 and gate counts in the pull request. A hosted CI result is a source-gate result,
@@ -30,8 +31,10 @@ Before dispatch, review and merge the exact native-wheel manifest, attestation,
 selected target locks and legal inventory approval into the default branch.
 The feature source must carry identical reviewed inputs. The workflow downloads
 and verifies these inputs using trusted code with read-only GitHub access.
-It then clears GitHub credentials and verifies every wheel offline before
-executing feature code. The protected signer never checks out feature code.
+It then clears explicit GitHub token environment variables and verifies every
+wheel offline before executing feature code. Read-only GitHub access can still
+exist in the runner's action context. Signing and write credentials stay on
+separate runners. The protected signer never checks out feature code.
 
 After independent artifact validation, protected authorization and a one-use
 claim still precede paid signing. The signer binds every initial PE digest,
