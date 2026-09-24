@@ -3,7 +3,8 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 $manifest = Get-Content -Raw -LiteralPath (Join-Path $Directory 'release-manifest.json') | ConvertFrom-Json
 $identity = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot '../signing/publisher.json') | ConvertFrom-Json
-$signTool = Get-ChildItem "${env:ProgramFiles(x86)}/Windows Kits/10/bin/*/x64/signtool.exe" |
+$native = if ([Runtime.InteropServices.RuntimeInformation]::OSArchitecture -eq 'Arm64') { 'arm64' } else { 'x64' }
+$signTool = Get-ChildItem "${env:ProgramFiles(x86)}/Windows Kits/10/bin/*/$native/signtool.exe" |
     Sort-Object FullName -Descending | Select-Object -First 1
 if (-not $signTool) { throw 'Windows SDK signature verifier required.' }
 $files = @(Get-ChildItem -LiteralPath $Directory -File | Where-Object Extension -In '.exe','.msi')

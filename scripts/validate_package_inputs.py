@@ -33,7 +33,7 @@ COMPONENT_KEYS = {"id", "name", "version", "kind", "sha256", "download_location"
 TARGETS = {f"{arch}-{suffix}" for arch in ("aarch64", "x86_64") for suffix in ("apple-darwin", "unknown-linux-gnu", "pc-windows-msvc")}
 # A new identifier needs an explicit supported-terms change, not a guessed license.
 LICENSE_IDS = set("""Apache-2.0 MIT BSD-2-Clause BSD-3-Clause BSD-4-Clause ISC Zlib
-BSL-1.0 CC0-1.0 Unlicense MPL-2.0 OFL-1.1 Ubuntu-font-1.0
+BSL-1.0 CC0-1.0 Unlicense MPL-2.0 MS-RL OFL-1.1 Ubuntu-font-1.0 Bitstream-Vera
 Unicode-3.0 Unicode-DFS-2016 Unicode-DFS-2015 Python-2.0 PSF-2.0
 BlueOak-1.0.0 0BSD BSD-3-Clause-Clear BSD-3-Clause-Open-MPI BSD-3-Clause-LBNL
 BSD-2-Clause-Views BSD-2-Clause-Patent BSD-3-Clause-Attribution
@@ -65,6 +65,12 @@ def sha256_bytes(value: bytes) -> str:
 
 def valid_hash(value: object) -> bool:
     return isinstance(value, str) and re.fullmatch(r"[0-9a-f]{64}", value) is not None
+
+
+def release_source_inputs(target: str) -> set[str]:
+    require(target in TARGETS, "invalid target")
+    return (set(SOURCE_INPUTS) - {"packaging/cua/requirements.lock"}) | {
+        f"packaging/cua/locks/{target}.lock", "packaging/cua/native-wheel-manifest.json"}
 
 
 def relative_path(value: object) -> str:
@@ -164,7 +170,8 @@ def validate_inventory(inventory: dict) -> None:
     require(isinstance(inventory["target"], str) and inventory["target"] in TARGETS, "invalid inventory")
     require(isinstance(inventory["terms_version"], str) and re.fullmatch(r"\d+(?:\.\d+)+", inventory["terms_version"]), "invalid inventory")
     require(valid_hash(inventory["terms_sha256"]) and valid_hash(inventory["payload_manifest_sha256"]), "invalid inventory")
-    require(isinstance(inventory["source_inputs"], dict) and set(inventory["source_inputs"]) == set(SOURCE_INPUTS)
+    require(isinstance(inventory["source_inputs"], dict)
+            and set(inventory["source_inputs"]) in (set(SOURCE_INPUTS), release_source_inputs(inventory["target"]))
             and all(valid_hash(value) for value in inventory["source_inputs"].values()), "invalid inventory")
     coverage = inventory["coverage"]
     require(isinstance(coverage, dict) and set(coverage) == KINDS, "incomplete coverage")
@@ -296,15 +303,17 @@ def _validate_package_inputs(root, source_root, version, target, payload_manifes
     for field in REVIEW_KEYS & INVENTORY_KEYS:
         require(review[field] == inventory[field], "review identity mismatch")
     require(review["inventory_sha256"] == sha256_bytes(inventory_bytes), "inventory mismatch")
-    source_bytes = {name: read_owned(source_root, name) for name in SOURCE_INPUTS}
+    source_bytes = {name: read_owned(source_root, name) for name in inventory["source_inputs"]}
     require({name: sha256_bytes(data) for name, data in source_bytes.items()} == inventory["source_inputs"], "source input mismatch")
     source_version = tomllib.loads(read_owned(source_root, "Cargo.toml").decode("utf-8"))["package"]["version"]
     require(source_version == version, "source version mismatch")
     pins = tomllib.loads(source_bytes["packaging/cua/pins.toml"].decode("utf-8"))
     target_pins = pins["targets"][target]
-    expected_payload = {"schema": 1, "cua_version": pins["cua"], "python_version": pins["python"],
+    schema_two = set(source_bytes) == release_source_inputs(target)
+    lock_name = f"packaging/cua/locks/{target}.lock" if schema_two else "packaging/cua/requirements.lock"
+    expected_payload = {"schema": 2 if schema_two else 1, "cua_version": pins["cua"], "python_version": pins["python"],
                         "python_build": pins["python_build"], "target": target,
-                        "requirements_sha256": inventory["source_inputs"]["packaging/cua/requirements.lock"],
+                        "requirements_sha256": inventory["source_inputs"][lock_name],
                         "python_archive_sha256": target_pins["python_sha256"], "uv_archive_sha256": target_pins["uv_sha256"]}
     if not source_only:
         if payload_manifest is None:
@@ -313,7 +322,22 @@ def _validate_package_inputs(root, source_root, version, target, payload_manifes
             payload_bytes = read_owned(payload_manifest.parent, payload_manifest.name)
         require(sha256_bytes(payload_bytes) == inventory["payload_manifest_sha256"], "payload identity mismatch")
         actual_payload = parse_json(payload_bytes)
+        if schema_two:
+            runtime_root = payload_manifest.parent if payload_manifest else root / "lib/cua"
+            expected_payload.update({
+                "wheel_manifest_sha256": inventory["source_inputs"]["packaging/cua/native-wheel-manifest.json"],
+                "installed_inventory_sha256": sha256_bytes(read_owned(runtime_root, "installed-inventory.json")),
+            })
         require(type(actual_payload.get("schema")) is int and actual_payload == expected_payload, "payload pins mismatch")
+        if schema_two:
+            # This import is local because the runtime validator shares the safe readers here.
+            if __package__:
+                from scripts import cua_release_inputs
+            else:
+                import cua_release_inputs
+            cua_release_inputs.validate_payload(runtime_root, {
+                key: expected_payload[key] for key in ("target", "requirements_sha256", "wheel_manifest_sha256")
+            })
     generated = {"legal/TERMS.rtf", "legal/THIRD-PARTY-NOTICES.txt", f"sbom/vadgr-{version}.spdx.json"}
     if any(component["source_offer_files"] for component in inventory["components"]):
         generated.add("legal/SOURCE-OFFER.txt")

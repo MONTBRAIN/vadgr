@@ -14,10 +14,16 @@ job consumes that authorization with an immutable Git claim. The Windows signing
 environment then approves one signing attempt. Failed or uncertain attempts stay
 spent. Recovery needs a reconciled quota and a new explicit authorization.
 
-`build-windows.ps1` runs only on a secret-free source-build runner.
+`build-windows.ps1` runs without signing or write credentials on its build runner.
 `package-windows.ps1` reads compiled payloads as data and uses trusted WiX
 authoring. It never compiles or executes a candidate DLL.
 `hold-windows.ps1` verifies the final signatures and writes the held inventory.
+`cua_signing.py` preserves the authorized private-runtime metadata and records
+the exact input/output identity of every installed file. The signer verifies
+each input against authorization immediately before its paid operation.
+`reseal-cua.ps1` independently verifies every signed PE file without credentials,
+then rebuilds the final inventory before MSI packaging. The wheel and target-lock
+hashes never change during signing. Non-native file changes are refused.
 `record.py` extracts one bounded JSON record without extracting archive paths.
 
 `read_held.py` checks the exact held ZIP, its file hashes and producing run.
@@ -25,8 +31,21 @@ authoring. It never compiles or executes a candidate DLL.
 authorization, reviewed legal and SBOM bytes, and every release manifest field.
 Fresh native verification follows before a separate credential-free job attests
 the single `release-manifest.json` subject using SLSA provenance v1. The manifest
-contains `legal_hashes` and `sbom_hashes` maps keyed by relative `legal/...` and
-`sbom/...` paths; the terms digest must equal `legal/TERMS.txt`.
+contains `legal_hashes`, `sbom_hashes` and `cua_hashes` maps keyed by relative
+`legal/...`, `sbom/...` and `cua/...` paths. The terms digest must equal
+`legal/TERMS.txt`. The CUA records bind both metadata generations and the complete
+input/output mapping. Runtime file checks use the final signed inventory.
+
+The trusted workflow materializes each reviewed wheelhouse in a separate step
+with read-only GitHub access. Compilation receives only its directory, with both
+GitHub token variables cleared. The build helpers refuse credentials and verify
+every wheel again offline before executing feature code. Read-only GitHub access
+can still exist in the hosted runner's action context; this is not absolute
+token isolation. Signing and write credentials remain on separate protected
+runners, which consume feature artifacts only as data. No job-scoped GitHub
+token is restored to later upload or cleanup steps. Missing or partial
+inputs never select a development lock. These source gates are not signed
+installation qualification.
 
 The public Sigstore root snapshot in `packaging/release-trusted-root.jsonl` was
 obtained using `gh attestation trusted-root` on 2026-09-17. It excludes GitHub's
@@ -55,9 +74,10 @@ permission to sign fixture or unsigned release bytes.
 Protected `candidate-authorize` and `candidate-windows` approvals, successful
 claim qualification, the native certificate and available signing quota still
 gate the producer. These checks have not been relaxed by keyless attestation.
-This Windows producer does not claim to produce macOS, Linux or WSL packages.
-Those targets require their own reviewed build and validation jobs before they
-can enter a manifest. There is no general-purpose upload-and-attest endpoint.
+The attested Windows output explicitly has single-target qualification scope.
+This bootstrap adds no build path for other operating systems. A complete
+distribution still requires every target's native signing, integrity and
+installation gates. There is no general-purpose upload-and-attest endpoint.
 
 See [keyless bootstrap qualification](KEYLESS-QUALIFICATION.md) for the bounded
 acceptance checks and the unclaimed live signing boundary.

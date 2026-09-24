@@ -26,7 +26,21 @@ def authorization():
                 run_id=123, run_attempt=1, unsigned_artifact_id=99,
                 unsigned_artifact_digest="sha256:" + "e" * 64,
                 files={"payload/vadgr.exe": {"sha256": "f" * 64, "size": 12}},
-                legal_hashes={"TERMS.txt": "a" * 64}, budget=5)
+                legal_hashes={"TERMS.txt": "a" * 64}, budget=5,
+                cua_inputs=dict(target="x86_64-pc-windows-msvc", requirements_sha256="3" * 64,
+                                wheel_manifest_sha256="4" * 64),
+                cua_payload=dict(target="x86_64-pc-windows-msvc", requirements_sha256="3" * 64,
+                                 wheel_manifest_sha256="4" * 64, installed_inventory_sha256="5" * 64))
+
+
+@pytest.mark.parametrize("key,value", [("target", "aarch64-pc-windows-msvc"),
+                                       ("wheel_manifest_sha256", "a" * 64),
+                                       ("installed_inventory_sha256", "")])
+def test_claim_rejects_changed_cua_binding(key, value):
+    auth = authorization()
+    auth["cua_payload"][key] = value
+    with pytest.raises(claims.Refused):
+        claims.validate_authorization(auth)
 
 
 class GitHub:
@@ -199,6 +213,21 @@ def test_changed_approved_tuple_cannot_reuse_claim():
         claims.verify(api, auth, record, claim)
 
 
+def test_changed_runtime_inventory_cannot_reuse_claim():
+    api = GitHub()
+    auth, record = qualify(api, authorization())
+    claim = claims.create(api, auth, record)
+    auth["cua_payload"]["installed_inventory_sha256"] = "9" * 64
+    with pytest.raises(claims.Refused):
+        claims.verify(api, auth, record, claim)
+
+
+def test_held_candidate_preserves_pre_signing_runtime_identity():
+    script = (Path(__file__).resolve().parents[1] / "candidate/hold-windows.ps1").read_text()
+    assert "cua_inputs = $approved.cua_inputs" in script
+    assert "pre_signing_cua_payload = $approved.cua_payload" in script
+
+
 def test_preflight_and_artifact_schema_round_trip(tmp_path):
     """Synthetic producer-shaped data, not evidence of a signed source or legal approval."""
     from scripts import candidate_artifacts
@@ -211,6 +240,7 @@ def test_preflight_and_artifact_schema_round_trip(tmp_path):
         "legal_approval_sha256": "1" * 64, "trusted_sha": "d" * 40,
         "required_checks": [{"context": "ci", "integration_id": 15368, "check_id": 456}],
         "rules_digest": "2" * 64,
+        "cua_inputs": authorization()["cua_inputs"],
     }
     archive_path = tmp_path / "synthetic.zip"
     with zipfile.ZipFile(archive_path, "w") as archive:
@@ -219,7 +249,8 @@ def test_preflight_and_artifact_schema_round_trip(tmp_path):
     assert isinstance(files, dict) and "payload/vadgr.exe" in files
     auth = {**preflight, "run_id": 123, "run_attempt": 1, "unsigned_artifact_id": 99,
             "unsigned_artifact_digest": "sha256:" + claims.digest(archive_path.read_bytes()),
-            "files": files, "legal_hashes": {"payload/legal/TERMS.txt": "a" * 64}, "budget": 5}
+            "files": files, "legal_hashes": {"payload/legal/TERMS.txt": "a" * 64}, "budget": 5,
+            "cua_payload": authorization()["cua_payload"]}
     claims.validate_authorization(auth)
     api = GitHub()
     bound, qualification = qualify(api, auth)

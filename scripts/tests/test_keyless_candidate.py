@@ -7,6 +7,8 @@ import pytest
 
 from scripts import candidate_policy
 from scripts.candidate import validate_manifest as gate
+from scripts.tests.test_cua_signing import transition, sign_fixture
+from scripts.candidate import cua_signing
 
 
 def sha(data):
@@ -14,7 +16,7 @@ def sha(data):
 
 
 @pytest.fixture
-def held(tmp_path, monkeypatch):
+def held(tmp_path, monkeypatch, transition):
     monkeypatch.setenv("GITHUB_REPOSITORY", "MONTBRAIN/vadgr")
     monkeypatch.setenv("GITHUB_REF", "refs/heads/master")
     monkeypatch.setenv("GITHUB_SHA", "a" * 40)
@@ -45,6 +47,15 @@ def held(tmp_path, monkeypatch):
                     "sha256": sha(b"fixture"), "native_signature": "authenticode"}]}
     manifest["legal_hashes"] = {name: sha(data) for name, data in payload.items() if name.startswith("legal/")}
     manifest["sbom_hashes"] = {"sbom/vadgr.json": sha(b"{}")}
+    runtime, _, cua_auth = transition
+    authorization.update(cua_auth)
+    records = tmp_path.resolve() / "cua"
+    cua_signing.snapshot(runtime, authorization, records)
+    final = cua_signing.reseal(runtime, authorization, records, sign_fixture(runtime, authorization))
+    manifest["cua_hashes"] = final["hashes"]
+    (tmp_path / "candidate-manifest.json").write_text(json.dumps({
+        "cua_inputs": authorization["cua_inputs"], "pre_signing_cua_payload": final["pre_signing"],
+        "final_cua_payload": final["final"], "cua_hashes": final["hashes"]}))
     for name, value in (("authorization.json", authorization), ("release-manifest.json", manifest)):
         (tmp_path / name).write_text(json.dumps(value))
     return tmp_path, manifest
@@ -60,7 +71,7 @@ def test_validated_manifest_preserves_exact_bytes(held):
 @pytest.mark.parametrize("field,value", [("schema", True), ("source_commit", "e" * 40),
     ("release_sequence", 501), ("version", "0.5.1"), ("terms_sha256", "f" * 64),
     ("cua_version", "0.7.7"), ("extra", "not allowed"), ("legal_hashes", {}),
-    ("sbom_hashes", {})])
+    ("sbom_hashes", {}), ("cua_hashes", {})])
 def test_manifest_substitution_refused(held, field, value):
     root, manifest = held
     manifest[field] = value

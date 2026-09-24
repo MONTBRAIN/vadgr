@@ -77,7 +77,6 @@ jobs:
       artifact_id: ${{ steps.unsigned.outputs.artifact-id }}
       artifact_digest: sha256:${{ steps.unsigned.outputs.artifact-digest }}
     env:
-      GH_TOKEN: ${{ github.token }}
       SOURCE_SHA: ${{ inputs.source_sha }}
       SOURCE_BRANCH: ${{ inputs.source_branch }}
       CANDIDATE_ID: ${{ inputs.candidate_id }}
@@ -90,6 +89,7 @@ jobs:
           persist-credentials: false
       - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c
         with:
+          toolchain: 1.97.1
           targets: ${{ inputs.architecture == 'x64' && 'x86_64-pc-windows-msvc' || 'aarch64-pc-windows-msvc' }}
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -98,17 +98,28 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Materialize only sealed source inputs
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
           git -C source_checkout fetch --no-tags origin "$SOURCE_BRANCH"
           python scripts/candidate_policy.py preflight --source-root source_checkout --branch "$SOURCE_BRANCH" --source-sha "$SOURCE_SHA" --version 0.5.0 --candidate-id "$CANDIDATE_ID" --architecture "$ARCHITECTURE" --out preflight.json --materialize source
-      - name: Build complete unsigned payload without secrets
+      - name: Materialize reviewed wheelhouse with read-only access
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $target = if ($env:ARCHITECTURE -eq 'x64') { 'x86_64-pc-windows-msvc' } else { 'aarch64-pc-windows-msvc' }
+          python scripts/cua_wheelhouse.py --source source --target $target --out "$env:RUNNER_TEMP/vadgr-wheelhouse"
+          if ($LASTEXITCODE -ne 0) { throw 'Reviewed wheelhouse materialization failed.' }
+      - name: Build complete unsigned payload without signing credentials
         shell: pwsh
         env:
           GH_TOKEN: ''
+          GITHUB_TOKEN: ''
         run: |
-          scripts/candidate/build-windows.ps1 -Architecture $env:ARCHITECTURE -SourceDirectory source -OutputDirectory unsigned
+          scripts/candidate/build-windows.ps1 -Architecture $env:ARCHITECTURE -SourceDirectory source -OutputDirectory unsigned -WheelhouseDirectory "$env:RUNNER_TEMP/vadgr-wheelhouse"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         id: unsigned
         with:
@@ -292,7 +303,7 @@ jobs:
 
   sign-windows:
     needs: [prepare-authorization, authorize-signing, claim-signing]
-    runs-on: windows-2025
+    runs-on: ${{ inputs.architecture == 'x64' && 'windows-2025' || 'windows-11-arm' }}
     timeout-minutes: 60
     environment: candidate-windows
     permissions:
@@ -328,6 +339,7 @@ jobs:
           python scripts/candidate_claims.py fetch-qualification --authorization authorization.json --out qualification.json
           python scripts/candidate_claims.py verify --authorization authorization.json --qualification qualification.json --claim claim.json
           python scripts/candidate_artifacts.py fetch-verified --authorization authorization.json --extract verified
+          python scripts/candidate/cua_signing.py snapshot --authorization authorization.json --root verified --records cua-records
       - name: Prepare the pinned signer without vendor secrets
         shell: pwsh
         run: |
@@ -342,7 +354,10 @@ jobs:
         run: |
           $files = @(Get-ChildItem verified/payload -Recurse -File | Where-Object Extension -In '.exe','.dll','.pyd' | Sort-Object FullName)
           $paths = @($files.FullName) + @("$PWD/verified/ba-functions.dll")
-          scripts/signing/release.ps1 -Mode sign -Files $paths -Authorization authorization.json -Qualification qualification.json -Claim claim.json
+          scripts/signing/release.ps1 -Mode sign -Files $paths -Authorization authorization.json -Qualification qualification.json -Claim claim.json -PayloadRoot verified -Receipt payload-signing.json
+      - name: Verify signed installed files and seal the final CUA inventory without credentials
+        shell: pwsh
+        run: scripts/candidate/reseal-cua.ps1 -InputDirectory verified -Authorization authorization.json -Receipt payload-signing.json -Records cua-records
       - name: Package MSI with trusted authoring and no vendor secrets
         shell: pwsh
         run: scripts/candidate/package-windows.ps1 -Mode msi -Architecture $env:ARCHITECTURE -InputDirectory verified -OutputDirectory final
@@ -393,7 +408,7 @@ jobs:
 
   attest:
     needs: sign-windows
-    runs-on: windows-2025
+    runs-on: ${{ inputs.architecture == 'x64' && 'windows-2025' || 'windows-11-arm' }}
     permissions:
       contents: read
       actions: read
@@ -436,7 +451,7 @@ jobs:
             --signer-workflow MONTBRAIN/vadgr/.github/workflows/candidate.yml \
             --source-ref refs/heads/master --deny-self-hosted-runners \
             --predicate-type https://slsa.dev/provenance/v1
-          echo 'Held candidate only. No tag, release, publication, installer execution or signed E2E pass occurred.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Windows target qualification only. The complete eight-target held candidate is not assembled. No tag, release, publication, installer execution or signed E2E pass occurred.' >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: held-windows-attested

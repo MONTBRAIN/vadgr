@@ -5,6 +5,8 @@ param(
     [string] $Authorization,
     [string] $Claim,
     [string] $Qualification,
+    [string] $PayloadRoot,
+    [string] $Receipt,
     [string] $Root = (Join-Path $env:RUNNER_TEMP "release-signing-$env:GITHUB_RUN_ID")
 )
 $ErrorActionPreference = 'Stop'
@@ -102,12 +104,38 @@ if ($Mode -eq 'complete') {
     return
 }
 if (-not $Files -or $Files.Count -eq 0) { throw 'Explicit input files are required.' }
+$transitions = @{}
+$beforeFiles = @{}
+if ($PayloadRoot -or $Receipt) {
+    if (-not $PayloadRoot -or -not $Receipt -or (Test-Path -LiteralPath $Receipt)) {
+        throw 'Installed-file signing requires a new receipt and an explicit input root.'
+    }
+    $payloadBoundary = (Resolve-Path -LiteralPath $PayloadRoot).Path
+    foreach ($path in $Files) {
+        $absolute = (Resolve-Path -LiteralPath $path).Path
+        $relative = [IO.Path]::GetRelativePath($payloadBoundary, $absolute).Replace('\', '/')
+        if ($relative.StartsWith('../') -or [IO.Path]::IsPathRooted($relative) -or $beforeFiles.ContainsKey($relative)) {
+            throw 'Signing input is outside the authorized root or duplicated.'
+        }
+        $entry = $approved.files.PSObject.Properties[$relative]
+        if (-not $entry) { throw 'Signing input is absent from the exact authorization.' }
+        $inputHash = (Get-FileHash -LiteralPath $absolute -Algorithm SHA256).Hash.ToLowerInvariant()
+        $size = (Get-Item -LiteralPath $absolute).Length
+        if ($inputHash -ne $entry.Value.sha256 -or $size -ne $entry.Value.size) {
+            throw 'Signing input bytes changed after authorization.'
+        }
+        $beforeFiles[$relative] = @{ sha256 = $inputHash; size = $size }
+    }
+    $expectedInputs = @($approved.files.PSObject.Properties | Where-Object { [IO.Path]::GetExtension($_.Name) -in '.exe','.dll','.pyd' })
+    if ($expectedInputs.Count -ne $beforeFiles.Count) { throw 'Installed signing inputs omit an authorized native file.' }
+}
 $identity = Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $source 'publisher.json') | ConvertFrom-Json
 $env:EXPECTED_CERT_SHA256 = $identity.sha256
 $env:EXPECTED_CERT_SHA1 = $identity.sha1
 $env:EXPECTED_CERT_SUBJECT = $identity.subject
 Assert-Hash $jar $jarHash
-$signTool = Get-ChildItem "${env:ProgramFiles(x86)}/Windows Kits/10/bin/*/x64/signtool.exe" |
+$native = if ([Runtime.InteropServices.RuntimeInformation]::OSArchitecture -eq 'Arm64') { 'arm64' } else { 'x64' }
+$signTool = Get-ChildItem "${env:ProgramFiles(x86)}/Windows Kits/10/bin/*/$native/signtool.exe" |
     Sort-Object FullName -Descending | Select-Object -First 1
 if (-not $signTool) { throw 'Windows SDK SignTool is required before signing.' }
 
@@ -124,6 +152,12 @@ function Reserve-Attempt([string] $InputFile) {
 try {
     foreach ($file in $Files) {
         $inputFile = (Resolve-Path -LiteralPath $file).Path
+        if ($PayloadRoot) {
+            $relative = [IO.Path]::GetRelativePath($payloadBoundary, $inputFile).Replace('\', '/')
+            if ((Get-FileHash -LiteralPath $inputFile -Algorithm SHA256).Hash.ToLowerInvariant() -ne $beforeFiles[$relative].sha256) {
+                throw 'Signing input changed before its paid operation.'
+            }
+        }
         if ([IO.Path]::GetExtension($inputFile) -notin @('.exe', '.dll', '.pyd', '.msi')) {
             throw 'The signing input is not a supported release layer.'
         }
@@ -167,6 +201,13 @@ try {
             throw 'The signed layer has the wrong publisher certificate.'
         }
         Move-Item -LiteralPath $signed -Destination $inputFile -Force
+        if ($PayloadRoot) {
+            $transitions[$relative] = @{ input = $beforeFiles[$relative]; output = @{
+                size = (Get-Item -LiteralPath $inputFile).Length;
+                sha256 = (Get-FileHash -LiteralPath $inputFile -Algorithm SHA256).Hash.ToLowerInvariant()
+            } }
+            $transitions | ConvertTo-Json -Depth 10 | Set-Content -Encoding utf8 -LiteralPath $Receipt
+        }
         Write-Output "Verified layer: $([IO.Path]::GetFileName($inputFile)); certificate SHA256: $fingerprint; SHA1: $($cert.Thumbprint); timestamp: $($signature.TimeStamperCertificate.Subject)"
     }
 } finally {
