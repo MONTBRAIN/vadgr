@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import shutil
 import subprocess
 import tarfile
@@ -21,7 +22,8 @@ else:
 
 
 def run(command, *, cwd=None, env=None, capture=False):
-    result = subprocess.run([str(x) for x in command], cwd=cwd, env=env, check=True,
+    arguments = command if isinstance(command, str) else [str(x) for x in command]
+    result = subprocess.run(arguments, cwd=cwd, env=env, check=True,
                             text=True, stdout=subprocess.PIPE if capture else None,
                             stderr=subprocess.STDOUT, timeout=5400)
     return result.stdout.strip() if capture else None
@@ -65,6 +67,16 @@ def wheel_command(uv, python, source, out):
             "--python", str(python), "--out-dir", str(out), str(source)]
 
 
+def prefetch_cargo(source, environment):
+    # Maturin metadata reads the locked graph for every target, including crates
+    # not built on this host. A target-filtered fetch leaves that graph incomplete.
+    run(["cargo", "fetch", "--locked"], cwd=source, env=environment)
+    environment["CARGO_NET_OFFLINE"] = "true"
+    run(["cargo", "metadata", "--locked", "--offline", "--format-version", "1",
+         "--manifest-path", source / "src/rust/Cargo.toml", "--features", "pyo3/abi3-py311"],
+        cwd=source, env=environment, capture=True)
+
+
 def compiler_environment(configuration, image):
     environment = os.environ.copy()
     for key in tuple(environment):
@@ -76,9 +88,12 @@ def compiler_environment(configuration, image):
         matches = [row for row in installations if row["installationVersion"] == image["visual_studio"]]
         gate.require(len(matches) == 1, "reviewed Visual Studio version unavailable")
         script = Path(matches[0]["installationPath"]) / "VC/Auxiliary/Build/vcvarsall.bat"
-        gate.require(script.is_file() and '"' not in str(script), "compiler initialization script missing")
-        text = run(["cmd.exe", "/d", "/s", "/c", f'""{script}" arm64 {image["sdk"]} >nul && set"'],
-                   capture=True)
+        gate.require(script.is_file() and not re.search(r'["%\r\n]', str(script))
+                     and re.fullmatch(r"\d+\.\d+\.\d+\.\d+", image["sdk"]),
+                     "unsafe compiler initialization input")
+        # cmd parses its own expression, not the C argv quoting used for programs.
+        # Passing this expression through list2cmdline inserts literal backslashes.
+        text = run(f'cmd.exe /d /v:off /s /c ""{script}" arm64 {image["sdk"]} >nul && set"', capture=True)
         allowed = {"path", "include", "lib", "libpath", "vctoolsinstalldir", "windowssdkdir",
                    "windowssdkversion", "universalcrtsdkdir", "ucrtversion", "vscmd_arg_tgt_arch"}
         for line in text.splitlines():
@@ -174,8 +189,7 @@ def build(inputs, target, work, out):
     gate.require(cargo_lock.is_file(), "upstream Cargo lock missing")
     gate.require(gate.digest(cargo_lock.read_bytes()) == descriptor["cryptography"]["cargo_lock_sha256"],
                  "upstream Cargo lock does not match approved source")
-    run(["cargo", "fetch", "--locked", "--target", configuration["rust_target"]], cwd=source, env=environment)
-    environment["CARGO_NET_OFFLINE"] = "true"
+    prefetch_cargo(source, environment)
     environment["OPENSSL_STATIC"] = "1"
     environment["OPENSSL_DIR"] = str(work / "openssl-install")
     configure_target = "VC-WIN64-ARM" if target.startswith("windows") else "darwin64-x86_64-cc"

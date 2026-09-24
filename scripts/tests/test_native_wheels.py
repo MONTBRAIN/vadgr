@@ -4,6 +4,7 @@ import copy
 import hashlib
 import io
 import json
+import os
 from pathlib import Path
 import re
 import struct
@@ -125,6 +126,28 @@ def test_native_recipe_keeps_build_resolution_offline():
     assert "--config-settings=build-args=--features=pyo3/abi3-py311" in command
 
 
+def test_cargo_prefetch_covers_metadata_graph_before_offline_build(monkeypatch):
+    from scripts import build_native_wheels as build
+    fetched, calls = set(), []
+
+    def cargo(command, **kwargs):
+        calls.append((command, kwargs["env"].copy()))
+        if command[1] == "fetch":
+            assert "--locked" in command
+            fetched.update({"core"} if "--target" in command else {"core", "portable-atomic"})
+        else:
+            assert "portable-atomic" in fetched, "target-filtered fetch omitted metadata dependency"
+            assert "--offline" in command and "--locked" in command
+            assert "pyo3/abi3-py311" in command
+            assert kwargs["env"]["CARGO_NET_OFFLINE"] == "true"
+
+    monkeypatch.setattr(build, "run", cargo)
+    environment = {}
+    build.prefetch_cargo(Path("source"), environment)
+    assert len(calls) == 2 and "--target" not in calls[0][0]
+    assert environment["CARGO_NET_OFFLINE"] == "true"
+
+
 def test_windows_compiler_environment_normalizes_case(monkeypatch):
     from scripts import build_native_wheels as build
     monkeypatch.setattr(build.platform, "system", lambda: "Windows")
@@ -134,9 +157,31 @@ def test_windows_compiler_environment_normalizes_case(monkeypatch):
     replies = iter([json.dumps([{"installationVersion": "reviewed", "installationPath": "C:/VS"}]),
                     "Path=C:/native-compiler\nVCToolsInstallDir=C:/VS/tools\nVSCMD_ARG_TGT_ARCH=arm64"])
     monkeypatch.setattr(build, "run", lambda *args, **kwargs: next(replies))
-    environment, report = build.compiler_environment({}, {"visual_studio": "reviewed", "sdk": "pinned"})
+    environment, report = build.compiler_environment({}, {"visual_studio": "reviewed", "sdk": "10.0.26100.0"})
     assert environment["PATH"] == "C:/native-compiler" and "Path" not in environment
     assert report["msvc_tools"] == "C:/VS/tools"
+
+
+@pytest.mark.skipif(os.name != "nt", reason="executes the native Windows command processor")
+def test_windows_compiler_batch_path_with_spaces_executes(tmp_path, monkeypatch):
+    from scripts import build_native_wheels as build
+    installation = tmp_path / "Program Files (fixture)" / "Visual Studio"
+    script = installation / "VC/Auxiliary/Build/vcvarsall.bat"
+    script.parent.mkdir(parents=True)
+    script.write_text('@echo off\nif not "%1" == "arm64" exit /b 2\n'
+                      'if not "%2" == "10.0.26100.0" exit /b 3\n'
+                      'set VSCMD_ARG_TGT_ARCH=arm64\nset VCToolsInstallDir=C:\\native-tools\nexit /b 0\n')
+    actual_run = build.run
+
+    def command(command, **kwargs):
+        if isinstance(command, list) and str(command[0]).endswith("vswhere.exe"):
+            return json.dumps([{"installationVersion": "reviewed", "installationPath": str(installation)}])
+        return actual_run(command, **kwargs)
+
+    monkeypatch.setattr(build, "run", command)
+    environment, report = build.compiler_environment({}, {"visual_studio": "reviewed", "sdk": "10.0.26100.0"})
+    assert environment["VSCMD_ARG_TGT_ARCH"] == "arm64"
+    assert report["msvc_tools"] == "C:\\native-tools"
 
 
 @pytest.mark.parametrize("kind", ["skipped", "failure", "error"])
