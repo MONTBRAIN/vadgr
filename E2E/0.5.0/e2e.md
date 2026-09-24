@@ -55,6 +55,27 @@ legacy tag-triggered `release.yml` is deliberately disabled; it is not a way to
 sign or promote a candidate. An exact held-artifact promotion path is required
 before any production release.
 
+### Producer shape and release gates
+
+Vadgr 0.5.0 uses the **open-PR candidate producer** lifecycle. The protected
+`candidate.yml` workflow itself runs from trusted `master`, but its reviewed
+inputs deliberately identify `feature/0.5.0-distribution` and an exact
+`source_sha`. The preflight requires that SHA to be the pushed head of the open
+implementation PR, verifies its required checks and materializes it only as
+candidate data. Merged product source is therefore not a prerequisite for this
+minor's held candidate.
+
+The implementation PR may open after the ordinary first-host unsigned pass and
+green source checks. Every required unsigned, non-signature host assertion,
+finding and PR check still gates merge. Signing-dependent assertions do not gate
+PR opening, but they do gate merge because this producer can create the held
+candidate while the PR is open. Run them against the exact held bytes before
+merge. Publication then promotes those same qualified bytes without rebuilding
+or re-signing; its checks compare inventory, provenance, hashes and signatures
+before publication and again after public download. Never merge this branch to
+manufacture its test candidate, and never use an unsigned result as a signing
+pass.
+
 The host lead may run live development qualification against the exact feature
 commit before signed or published artifacts exist. Use an isolated test state
 and label every result `development`, never `pass`. CUA 0.7.5 proved earlier
