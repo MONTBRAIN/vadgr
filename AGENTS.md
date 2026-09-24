@@ -107,6 +107,47 @@ the PR is not merge-ready until every required OS is `pass` or has an approved
 `Not-Needed` reason, every finding is resolved, and the final branch checks pass.
 Opening the PR is a collaboration gate. It is never cross-platform acceptance.
 
+## Protected release-candidate lifecycle
+
+**Do not create a PR-opening, merge or signing deadlock.** The runbook must name
+the approved producer shape before live work starts. A workflow merely running
+trusted default-branch code does not by itself prove that the product source
+must already be merged; cite the repository rule or credential boundary that
+makes a merge necessary.
+
+When protected CD can safely build and hold a candidate from an open PR, use
+the ordinary lifecycle: the applicable signed-candidate cells run before merge
+and gate that merge.
+
+When the approved protected producer can consume product source only after it
+has merged to the trusted default branch, use this lifecycle instead:
+
+1. Open the implementation PR as soon as its ordinary PR-opening requirement
+   is met using an exact unsigned development artifact. Signing cells are not a
+   PR-opening prerequisite because no eligible signed subject can exist yet.
+2. Before merge, complete every source gate and every applicable unsigned,
+   non-signature E2E cell on every required operating system. Preserve exact
+   source and artifact identities. Unsigned observations never pass a signature,
+   trust, notarization or adoption assertion.
+3. Merge only when that unsigned matrix, all findings and all PR checks are
+   complete. The merge authorizes candidate production, not release.
+4. Protected CD builds and signs one held, non-public candidate from the exact
+   merged commit. Record the workflow identity, provenance, artifact inventory,
+   hashes and platform signatures; do not tag or publish it.
+5. Run every signature-, trust-, notarization-, adoption- and signed-lifecycle
+   cell against those exact held bytes. These results gate tag and release. A
+   failure creates a normal follow-up fix PR, a new merged commit and a wholly
+   new candidate; never patch or bless the failed bytes.
+6. Release promotes the exact qualified bytes without rebuilding or re-signing.
+   Post-release work only downloads the public assets and verifies byte identity,
+   provenance and signatures against the held candidate. It is never the first
+   execution of a signing assertion.
+
+A missing credential, unavailable signer or desire to merge early does not
+select the second lifecycle. Only an explicit trusted-producer constraint does.
+The runbook names the PR-opening gate, merge gate and release gate separately so
+that `not run`, `blocked`, `pass` and `Not-Needed` remain honest.
+
 ## Current research before design
 
 **An iteration starts from dated evidence, not remembered facts.** Run `date`
