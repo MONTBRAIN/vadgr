@@ -27,7 +27,7 @@ def report(policy):
     return suite
 
 
-@pytest.mark.parametrize("target,count", [("windows-aarch64", 23), ("macos-x86_64", 27)])
+@pytest.mark.parametrize("target,count", [("windows-aarch64", 30), ("macos-x86_64", 27)])
 def test_reviewed_skips_bind_each_target_case_and_reason(target, count):
     policy = descriptor()["targets"][target]["test_policy"]
     assert len(policy["skips"]) == count
