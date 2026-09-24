@@ -33,12 +33,17 @@ class KeylessManifest(unittest.TestCase):
             sbom = root / "sbom"
             sbom.mkdir()
             (sbom / "release.json").write_text("{}", encoding="utf-8")
+            cua = root / "cua"
+            cua.mkdir()
+            for name in ("payload.json", "installed-inventory.json"):
+                (cua / name).write_text("{}", encoding="utf-8")
             output = root / "manifest.json"
             command = [sys.executable, str(SCRIPT), "--artifacts", str(artifacts),
                        "--target", "windows-x86_64",
                        "--source-commit", "a" * 40, "--terms-version", "1.0",
                        "--terms", str(terms), "--pins", str(ROOT / "packaging/cua/pins.toml"),
                        "--legal-root", str(legal), "--sbom-root", str(sbom),
+                       "--cua-records", str(cua),
                        "--output", str(output)]
             subprocess.run(command, check=True, capture_output=True)
             first = output.read_bytes()

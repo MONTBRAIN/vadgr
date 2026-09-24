@@ -65,6 +65,7 @@ def main() -> None:
     parser.add_argument("--terms", type=Path, required=True)
     parser.add_argument("--legal-root", type=Path, required=True)
     parser.add_argument("--sbom-root", type=Path, required=True)
+    parser.add_argument("--cua-records", type=Path, required=True)
     parser.add_argument("--pins", type=Path, default=Path("packaging/cua/pins.toml"))
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -91,6 +92,9 @@ def main() -> None:
             }
         )
     legal_hashes = inventory(args.legal_root, "legal")
+    cua_hashes = inventory(args.cua_records, "cua")
+    if not {"cua/payload.json", "cua/installed-inventory.json"} <= set(cua_hashes):
+        raise SystemExit("final CUA metadata is required")
     if legal_hashes.get("legal/TERMS.txt") != sha256(args.terms):
         raise SystemExit("the terms checksum must match legal/TERMS.txt")
     manifest = {
@@ -106,6 +110,7 @@ def main() -> None:
         "python_version": pins["python"],
         "legal_hashes": legal_hashes,
         "sbom_hashes": inventory(args.sbom_root, "sbom"),
+        "cua_hashes": cua_hashes,
         "artifacts": rows,
     }
     args.output.write_text(

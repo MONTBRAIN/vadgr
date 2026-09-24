@@ -42,6 +42,9 @@ All notable changes to this project are documented here. Format follows [Keep a 
   materialize one verified wheel per package, and install from that closed
   wheelhouse without package-index access. Runtime checks cover the private
   file inventory, and Python does not add bytecode to the installed tree.
+- Windows signing preserves authorized input hashes, verifies signed outputs,
+  and seals the final private-runtime inventory before packaging. Held and
+  release manifests bind both metadata generations and the complete file mapping.
 - The distribution build matrix covers eight native targets with exact vehicle
   names and architecture checks. Windows uses WiX 7.0.0, its current bootstrapper
   interface and verified upstream native payloads. Partial Windows qualification

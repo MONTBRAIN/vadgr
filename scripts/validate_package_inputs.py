@@ -329,6 +329,15 @@ def _validate_package_inputs(root, source_root, version, target, payload_manifes
                 "installed_inventory_sha256": sha256_bytes(read_owned(runtime_root, "installed-inventory.json")),
             })
         require(type(actual_payload.get("schema")) is int and actual_payload == expected_payload, "payload pins mismatch")
+        if schema_two:
+            # This import is local because the runtime validator shares the safe readers here.
+            if __package__:
+                from scripts import cua_release_inputs
+            else:
+                import cua_release_inputs
+            cua_release_inputs.validate_payload(runtime_root, {
+                key: expected_payload[key] for key in ("target", "requirements_sha256", "wheel_manifest_sha256")
+            })
     generated = {"legal/TERMS.rtf", "legal/THIRD-PARTY-NOTICES.txt", f"sbom/vadgr-{version}.spdx.json"}
     if any(component["source_offer_files"] for component in inventory["components"]):
         generated.add("legal/SOURCE-OFFER.txt")

@@ -14,9 +14,11 @@ import sys
 
 if __package__:
     from scripts.candidate_policy import REPOSITORY, SHA, SHA256, Refused, require, trusted_approval
+    from scripts.candidate import cua_signing
 else:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
     from candidate_policy import REPOSITORY, SHA, SHA256, Refused, require, trusted_approval
+    from candidate import cua_signing
 
 
 def digest(path):
@@ -77,6 +79,12 @@ def validate(root, architecture):
     require(legal == approved_legal and "legal/TERMS.txt" in legal,
             "held legal bytes do not match reviewed approval")
     sbom = files(root, "sbom")
+    cua = cua_signing.validate_records(root.resolve() / "cua", authorization)
+    candidate = read(root / "candidate-manifest.json")
+    require(candidate.get("cua_inputs") == authorization["cua_inputs"]
+            and candidate.get("pre_signing_cua_payload") == cua["pre_signing"]
+            and candidate.get("final_cua_payload") == cua["final"]
+            and candidate.get("cua_hashes") == cua["hashes"], "held CUA transition differs from candidate record")
     require(len(sbom) == 1 and next(iter(sbom.values())) == approval["sbom_sha256"],
             "held SBOM bytes do not match reviewed approval")
     setup = root / f"Vadgr-0.5.0-windows-{architecture}-setup.exe"
@@ -85,7 +93,7 @@ def validate(root, architecture):
     expected = {"schema": 1, "product": "vadgr", "version": "0.5.0", "release_sequence": 500,
                 "tag": "v0.5.0", "source_commit": authorization["source_sha"],
                 "terms_version": "1.0", "terms_sha256": legal["legal/TERMS.txt"],
-                "legal_hashes": legal, "sbom_hashes": sbom,
+                "legal_hashes": legal, "sbom_hashes": sbom, "cua_hashes": cua["hashes"],
                 "cua_version": authorization["cua_version"], "python_version": authorization["python_version"],
                 "artifacts": [{"name": setup.name,
                     "target": "windows-" + {"x64": "x86_64", "arm64": "aarch64"}[architecture],
@@ -104,7 +112,7 @@ def main():
     args = parser.parse_args()
     try:
         validate(args.directory, args.architecture)
-    except (Refused, KeyError, TypeError, ValueError, OSError) as error:
+    except (Refused, cua_signing.PackageInputError, KeyError, TypeError, ValueError, OSError) as error:
         print(f"REFUSED: {error}", file=sys.stderr)
         return 1
     print("Held manifest and reviewed compliance bytes verified; native verification must follow.")

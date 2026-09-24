@@ -40,6 +40,7 @@ pub struct ReleaseManifest {
     pub python_version: String,
     pub legal_hashes: BTreeMap<String, String>,
     pub sbom_hashes: BTreeMap<String, String>,
+    pub cua_hashes: BTreeMap<String, String>,
     pub artifacts: Vec<Artifact>,
 }
 
@@ -408,6 +409,7 @@ fn validate_manifest(manifest: &ReleaseManifest) -> Result<()> {
     for (prefix, hashes) in [
         ("legal/", &manifest.legal_hashes),
         ("sbom/", &manifest.sbom_hashes),
+        ("cua/", &manifest.cua_hashes),
     ] {
         ensure!(!hashes.is_empty(), "the {prefix} inventory is empty");
         for (path, digest) in hashes {
@@ -429,6 +431,13 @@ fn validate_manifest(manifest: &ReleaseManifest) -> Result<()> {
             );
         }
     }
+    ensure!(
+        manifest.cua_hashes.contains_key("cua/payload.json")
+            && manifest
+                .cua_hashes
+                .contains_key("cua/installed-inventory.json"),
+        "the signed manifest must bind final CUA metadata"
+    );
     ensure!(
         manifest.legal_hashes.get("legal/TERMS.txt") == Some(&manifest.terms_sha256),
         "the signed terms checksum must match the legal inventory"
@@ -548,6 +557,10 @@ mod tests {
             python_version: "3.12.14".to_owned(),
             legal_hashes: BTreeMap::from([("legal/TERMS.txt".to_owned(), "b".repeat(64))]),
             sbom_hashes: BTreeMap::from([("sbom/release.json".to_owned(), "e".repeat(64))]),
+            cua_hashes: BTreeMap::from([
+                ("cua/payload.json".to_owned(), "f".repeat(64)),
+                ("cua/installed-inventory.json".to_owned(), "a".repeat(64)),
+            ]),
             artifacts: vec![Artifact {
                 name: "Vadgr-0.5.0-windows-x86_64-setup.exe".to_owned(),
                 target: "windows-x86_64".to_owned(),
@@ -582,6 +595,27 @@ mod tests {
         row.sbom_hashes
             .insert("sbom/release.json".to_owned(), "A".repeat(64));
         assert!(validate_manifest(&row).is_err());
+    }
+
+    #[test]
+    fn final_cua_metadata_is_required_and_bound_by_safe_hashes() {
+        let mut row = manifest();
+        row.cua_hashes.clear();
+        assert!(validate_manifest(&row).is_err());
+        let mut row = manifest();
+        row.cua_hashes.remove("cua/installed-inventory.json");
+        assert!(validate_manifest(&row).is_err());
+        let mut row = manifest();
+        row.cua_hashes
+            .insert("cua/payload.json".to_owned(), "not-a-hash".to_owned());
+        assert!(validate_manifest(&row).is_err());
+        let mut row = manifest();
+        row.cua_hashes
+            .insert("cua/../escape".to_owned(), "a".repeat(64));
+        assert!(validate_manifest(&row).is_err());
+        let mut raw = serde_json::to_value(manifest()).unwrap();
+        raw.as_object_mut().unwrap().remove("cua_hashes");
+        assert!(serde_json::from_value::<ReleaseManifest>(raw).is_err());
     }
 
     #[test]

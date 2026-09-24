@@ -342,6 +342,7 @@ jobs:
           python scripts/candidate_claims.py fetch-qualification --authorization authorization.json --out qualification.json
           python scripts/candidate_claims.py verify --authorization authorization.json --qualification qualification.json --claim claim.json
           python scripts/candidate_artifacts.py fetch-verified --authorization authorization.json --extract verified
+          python scripts/candidate/cua_signing.py snapshot --authorization authorization.json --root verified --records cua-records
       - name: Prepare the pinned signer without vendor secrets
         shell: pwsh
         run: |
@@ -356,7 +357,10 @@ jobs:
         run: |
           $files = @(Get-ChildItem verified/payload -Recurse -File | Where-Object Extension -In '.exe','.dll','.pyd' | Sort-Object FullName)
           $paths = @($files.FullName) + @("$PWD/verified/ba-functions.dll")
-          scripts/signing/release.ps1 -Mode sign -Files $paths -Authorization authorization.json -Qualification qualification.json -Claim claim.json
+          scripts/signing/release.ps1 -Mode sign -Files $paths -Authorization authorization.json -Qualification qualification.json -Claim claim.json -PayloadRoot verified -Receipt payload-signing.json
+      - name: Verify signed installed files and seal the final CUA inventory without credentials
+        shell: pwsh
+        run: scripts/candidate/reseal-cua.ps1 -InputDirectory verified -Authorization authorization.json -Receipt payload-signing.json -Records cua-records
       - name: Package MSI with trusted authoring and no vendor secrets
         shell: pwsh
         run: scripts/candidate/package-windows.ps1 -Mode msi -Architecture $env:ARCHITECTURE -InputDirectory verified -OutputDirectory final
