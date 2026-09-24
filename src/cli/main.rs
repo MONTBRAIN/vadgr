@@ -71,6 +71,8 @@ enum Command {
         apply_system_deps: bool,
         #[arg(long)]
         payload_only: bool,
+        #[arg(long, hide = true, requires = "payload_only")]
+        wheelhouse: Option<PathBuf>,
     },
     /// Commit the package terms record after a successful installer transaction.
     #[command(name = "__record-terms-acceptance", hide = true)]
@@ -417,7 +419,8 @@ async fn main() {
                 install_root,
                 apply_system_deps,
                 payload_only,
-            }) => payload_setup(install_root, apply_system_deps, payload_only).await,
+                wheelhouse,
+            }) => payload_setup(install_root, apply_system_deps, payload_only, wheelhouse).await,
             Some(Command::RecordTermsAcceptance {
                 terms_version,
                 installer_version,
@@ -597,9 +600,11 @@ async fn payload_setup(
     install_root: PathBuf,
     apply_system_deps: bool,
     payload_only: bool,
+    wheelhouse: Option<PathBuf>,
 ) -> Result<(), CliError> {
     let installer = vadgr_daemon::cua_payload::CuaPayloadInstaller::new(install_root)
-        .map_err(|error| CliError::Failed(error.to_string()))?;
+        .map_err(|error| CliError::Failed(error.to_string()))?
+        .with_wheelhouse(wheelhouse);
     let runtime = installer
         .assemble()
         .await

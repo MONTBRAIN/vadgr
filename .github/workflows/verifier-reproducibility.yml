@@ -7,7 +7,10 @@ on:
       - .github/workflows/verifier-reproducibility.yml
       - Cargo.toml
       - Cargo.lock
+      - build.rs
       - src/**
+      - packaging/cua/locks/**
+      - packaging/cua/native-wheel-manifest.json
       - packaging/release-trusted-root.jsonl
   workflow_dispatch:
 

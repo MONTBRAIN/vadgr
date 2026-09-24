@@ -18,6 +18,9 @@ case "$target" in
   macos-x86_64) package_arch=x86_64; rust_target=x86_64-apple-darwin;;
   *) package_arch=$arch; rust_target=$arch-unknown-linux-gnu;;
 esac
+wheelhouse="$RUNNER_TEMP/vadgr-wheelhouse-$rust_target"
+python3 "$trusted/scripts/cua_wheelhouse.py" --source "$PWD" --target "$rust_target" --out "$wheelhouse"
+export VADGR_RELEASE_PAYLOAD_BUILD=1
 export SOURCE_DATE_EPOCH=1609459200
 export RUSTFLAGS="--remap-path-prefix=$PWD=/vadgr-source"
 payload_root="$RUNNER_TEMP/vadgr-payload"
@@ -31,7 +34,7 @@ if [ "$platform" = macos ]; then
 else
   cargo build --locked --release --target "$rust_target" --bin vadgr
 fi
-"target/$rust_target/release/vadgr" __payload-setup --install-root "$payload_root" --payload-only
+"target/$rust_target/release/vadgr" __payload-setup --install-root "$payload_root" --payload-only --wheelhouse "$wheelhouse"
 python3 "$trusted/scripts/distribution_matrix.py" binary --target "$target" --file "target/$rust_target/release/vadgr"
 python3 "$trusted/scripts/distribution_matrix.py" payload --target "$target" --root "$payload_root" --pins packaging/cua/pins.toml
 mkdir -p dist/payload

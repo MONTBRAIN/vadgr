@@ -38,6 +38,10 @@ All notable changes to this project are documented here. Format follows [Keep a 
 - Candidate admission binds reviewed target locks and attested native-wheel
   producer identities to schema-2 private-runtime inventories. Missing reviewed
   wheel inputs, changed payload files and legacy payload manifests fail closed.
+- Release payload builders embed the reviewed target lock and wheel manifest,
+  materialize one verified wheel per package, and install from that closed
+  wheelhouse without package-index access. Runtime checks cover the private
+  file inventory, and Python does not add bytecode to the installed tree.
 - The distribution build matrix covers eight native targets with exact vehicle
   names and architecture checks. Windows uses WiX 7.0.0, its current bootstrapper
   interface and verified upstream native payloads. Partial Windows qualification

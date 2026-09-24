@@ -8,6 +8,7 @@ inputs never select the development lock or permit online package resolution.
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -132,6 +133,7 @@ def reviewed_inputs(source: Path, trusted: Path, target: str) -> dict[str, str]:
 def github(endpoint: str):
     result = subprocess.run(["gh", "api", "--method", "GET",
                              f"repos/{REPOSITORY}/{endpoint}"],
+                            cwd=Path(__file__).resolve().parents[1],
                             capture_output=True, timeout=90, check=False)
     require(result.returncode == 0 and len(result.stdout) <= MAX_METADATA,
             "native wheel origin cannot be resolved")
@@ -153,7 +155,7 @@ def verify_attestation(root: Path, value: dict) -> None:
         "--source-digest", value["input_commit"], "--source-ref", "refs/heads/master",
         "--custom-trusted-root", str(root / TRUSTED_ROOT),
         "--deny-self-hosted-runners", "--format", "json",
-    ], capture_output=True, timeout=120, check=False)
+    ], cwd=root, capture_output=True, timeout=120, check=False)
     require(result.returncode == 0 and 0 < len(result.stdout) <= MAX_METADATA,
             "native wheel attestation verification failed")
     verified = json.loads(result.stdout)
@@ -225,13 +227,23 @@ def validate_payload(root: Path, binding: dict[str, str]) -> dict[str, str]:
         require(isinstance(record, dict) and set(record) == {"size", "sha256"}
                 and type(record["size"]) is int and record["size"] >= 0
                 and valid_hash(record["sha256"]), "installed CUA file identity invalid")
-        data = read_owned(root, name)
+        path = root / name
+        if path.is_symlink():
+            require(os.name != "nt" and not Path(os.readlink(path)).is_absolute()
+                    and path.resolve().is_relative_to(root.resolve()) and path.is_file(),
+                    "installed CUA link escapes private runtime")
+            resolved = path.resolve()
+            data = read_owned(root, resolved.relative_to(root.resolve()).as_posix())
+            require(path.resolve() == resolved, "installed CUA link changed")
+        else:
+            data = read_owned(root, name)
         require(len(data) == record["size"] and sha256_bytes(data) == record["sha256"],
                 "installed CUA file bytes differ")
     actual = set()
     for path in root.rglob("*"):
-        require(not path.is_symlink() and not getattr(path, "is_junction", lambda: False)(),
-                "installed CUA inventory contains unrecorded link")
+        require(not getattr(path, "is_junction", lambda: False)()
+                and not (path.is_symlink() and (os.name == "nt" or path.is_dir())),
+                "installed CUA inventory contains an unsupported link")
         if path.is_file():
             actual.add(path.relative_to(root).as_posix())
     require(actual == set(files) | {INVENTORY, "payload.json"},

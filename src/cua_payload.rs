@@ -1,5 +1,7 @@
 //! The pinned, private computer-use payload carried by a vadgr installation.
 
+mod release;
+
 use crate::engine::mcp::ToolServer;
 use crate::engine::mcp::cua::CuaServer;
 use anyhow::{Context, Result, bail, ensure};
@@ -11,6 +13,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::{Component, Path, PathBuf};
 use std::process::{Command, Output};
+use std::sync::OnceLock;
 
 pub const CUA_VERSION: &str = "0.7.8";
 pub const PYTHON_VERSION: &str = "3.12.14";
@@ -21,6 +24,21 @@ pub const REQUIREMENTS_SHA256: &str =
 
 const REQUIREMENTS: &[u8] = include_bytes!("../packaging/cua/requirements.lock");
 const BOOTSTRAP: &[u8] = include_bytes!("../packaging/cua/bootstrap.py");
+include!(concat!(env!("OUT_DIR"), "/cua_release_pins.rs"));
+
+fn selected_requirements() -> &'static [u8] {
+    RELEASE_REQUIREMENTS.unwrap_or(REQUIREMENTS)
+}
+
+fn selected_requirements_sha256() -> &'static str {
+    static HASH: OnceLock<String> = OnceLock::new();
+    HASH.get_or_init(|| hex_sha256(selected_requirements()))
+}
+
+fn selected_wheel_manifest_sha256() -> Option<&'static str> {
+    static HASH: OnceLock<String> = OnceLock::new();
+    RELEASE_WHEEL_MANIFEST.map(|bytes| HASH.get_or_init(|| hex_sha256(bytes)).as_str())
+}
 
 #[derive(Clone, Copy, Debug)]
 pub struct CuaPins {
@@ -31,6 +49,7 @@ pub struct CuaPins {
     pub requirements_sha256: &'static str,
     pub python_archive_sha256: &'static str,
     pub uv_archive_sha256: &'static str,
+    pub wheel_manifest_sha256: Option<&'static str>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -48,6 +67,7 @@ pub struct CuaRuntime {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 struct PayloadManifest {
     schema: u32,
     cua_version: String,
@@ -57,6 +77,10 @@ struct PayloadManifest {
     python_archive_sha256: String,
     uv_archive_sha256: String,
     target: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    wheel_manifest_sha256: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    installed_inventory_sha256: Option<String>,
 }
 
 impl CuaRuntime {
@@ -79,7 +103,34 @@ impl CuaRuntime {
                 .with_context(|| format!("reading {}", manifest_path.display()))?,
         )
         .with_context(|| format!("parsing {}", manifest_path.display()))?;
-        check_field("schema", manifest.schema, 1)?;
+        check_field(
+            "schema",
+            manifest.schema,
+            if pins.wheel_manifest_sha256.is_some() {
+                2
+            } else {
+                1
+            },
+        )?;
+        ensure!(
+            manifest.wheel_manifest_sha256.as_deref() == pins.wheel_manifest_sha256,
+            "CUA wheel manifest differs from compiled release pins"
+        );
+        if pins.wheel_manifest_sha256.is_some() {
+            release::validate_inventory(
+                &cua_root,
+                target_triple()?,
+                manifest
+                    .installed_inventory_sha256
+                    .as_deref()
+                    .context("CUA inventory pin is missing")?,
+            )?;
+        } else {
+            ensure!(
+                manifest.installed_inventory_sha256.is_none(),
+                "development payload cannot claim release inventory"
+            );
+        }
         check_field("cua_version", manifest.cua_version.as_str(), pins.cua)?;
         check_field(
             "python_version",
@@ -158,6 +209,7 @@ impl CuaRuntime {
     pub fn stdio_command(&self) -> CuaCommand {
         self.command(vec![
             "-I".into(),
+            "-B".into(),
             self.bootstrap.as_os_str().to_owned(),
             "computer_use.mcp_server".into(),
             "--transport".into(),
@@ -168,6 +220,7 @@ impl CuaRuntime {
     pub fn setup_command(&self, apply: bool) -> CuaCommand {
         let mut args = vec![
             "-I".into(),
+            "-B".into(),
             self.bootstrap.as_os_str().to_owned(),
             "computer_use.mcp_server".into(),
         ];
@@ -250,6 +303,7 @@ fn is_wsl() -> bool {
 pub struct CuaPayloadInstaller {
     install_root: PathBuf,
     pins: CuaPins,
+    wheelhouse: Option<PathBuf>,
 }
 
 impl CuaPayloadInstaller {
@@ -258,7 +312,14 @@ impl CuaPayloadInstaller {
         Ok(Self {
             install_root,
             pins: current_pins()?,
+            wheelhouse: None,
         })
+    }
+
+    /// Only the secret-free candidate builder supplies this already verified closure.
+    pub fn with_wheelhouse(mut self, wheelhouse: Option<PathBuf>) -> Self {
+        self.wheelhouse = wheelhouse;
+        self
     }
 
     pub async fn assemble(&self) -> Result<CuaRuntime> {
@@ -266,6 +327,18 @@ impl CuaPayloadInstaller {
             return Ok(runtime);
         }
         validate_embedded_lock(self.pins.requirements_sha256)?;
+        match (self.pins.wheel_manifest_sha256, self.wheelhouse.as_deref()) {
+            (Some(hash), Some(wheelhouse)) => release::validate_wheelhouse(
+                wheelhouse,
+                target_triple()?,
+                selected_requirements(),
+                hash,
+            )?,
+            (None, None) => {}
+            _ => bail!(
+                "release payload assembly requires compiled reviewed pins and a closed wheelhouse"
+            ),
+        }
         let cua_root = self.install_root.join("lib").join("cua");
         std::fs::create_dir_all(&cua_root)?;
         validate_payload_root(&self.install_root, &cua_root)?;
@@ -273,10 +346,16 @@ impl CuaPayloadInstaller {
         std::fs::create_dir(&staging).with_context(|| format!("creating {}", staging.display()))?;
         let result = self.assemble_in(&staging).await;
         safe_remove_staging(&self.install_root, &staging)?;
-        result
+        let mut manifest = result?;
+        if self.pins.wheel_manifest_sha256.is_some() {
+            manifest.installed_inventory_sha256 =
+                Some(release::write_inventory(&cua_root, target_triple()?)?);
+        }
+        write_manifest_last(&cua_root.join("payload.json"), &manifest)?;
+        CuaRuntime::below_install_root(&self.install_root)
     }
 
-    async fn assemble_in(&self, staging: &Path) -> Result<CuaRuntime> {
+    async fn assemble_in(&self, staging: &Path) -> Result<PayloadManifest> {
         let target = target_triple()?;
         let python_name = format!(
             "cpython-{}+{}-{}-install_only.tar.gz",
@@ -326,7 +405,7 @@ impl CuaPayloadInstaller {
             .context("uv archive has no uv executable")?;
         let environment_staging = staging.join(environment_generation());
         let requirements = staging.join("requirements.lock");
-        std::fs::write(&requirements, REQUIREMENTS)?;
+        std::fs::write(&requirements, selected_requirements())?;
         let cache = staging.join("uv-cache");
         let output = clean_command(&uv)
             .args([
@@ -343,23 +422,36 @@ impl CuaPayloadInstaller {
             .output()?;
         require_success("creating the private cua environment", output)?;
         let environment_interpreter = environment_python(&environment_staging);
-        let output = clean_command(&uv)
-            .args([
-                OsString::from("pip"),
-                OsString::from("sync"),
-                OsString::from("--python"),
-                environment_interpreter.as_os_str().to_owned(),
-                OsString::from("--require-hashes"),
-                OsString::from("--only-binary"),
-                OsString::from(":all:"),
-                OsString::from("--no-config"),
-                OsString::from("--no-cache"),
-                OsString::from("--no-python-downloads"),
-                requirements.as_os_str().to_owned(),
-            ])
-            .env("UV_CACHE_DIR", &cache)
-            .output()?;
+        let mut sync = clean_command(&uv);
+        sync.args([
+            OsString::from("pip"),
+            OsString::from("sync"),
+            OsString::from("--python"),
+            environment_interpreter.as_os_str().to_owned(),
+            OsString::from("--require-hashes"),
+            OsString::from("--only-binary"),
+            OsString::from(":all:"),
+            OsString::from("--no-config"),
+            OsString::from("--no-cache"),
+            OsString::from("--no-python-downloads"),
+            requirements.as_os_str().to_owned(),
+        ])
+        .env("UV_CACHE_DIR", &cache);
+        if let Some(wheelhouse) = &self.wheelhouse {
+            sync.args(["--offline", "--no-index", "--find-links"])
+                .arg(wheelhouse);
+        }
+        let output = sync.output()?;
         require_success("syncing the pinned cua packages", output)?;
+        let output = clean_command(&uv)
+            .args(["pip", "check", "--no-config", "--offline", "--python"])
+            .arg(&environment_interpreter)
+            .output()?;
+        require_success("checking the complete cua dependency closure", output)?;
+        if let (Some(hash), Some(wheelhouse)) = (self.pins.wheel_manifest_sha256, &self.wheelhouse)
+        {
+            release::validate_wheelhouse(wheelhouse, target, selected_requirements(), hash)?;
+        }
         #[cfg(unix)]
         finalize_unix_environment(&environment_staging, &python_final)?;
 
@@ -417,7 +509,11 @@ impl CuaPayloadInstaller {
             &cua_root.join("licenses"),
         )?;
         let manifest = PayloadManifest {
-            schema: 1,
+            schema: if self.pins.wheel_manifest_sha256.is_some() {
+                2
+            } else {
+                1
+            },
             cua_version: self.pins.cua.to_owned(),
             python_version: self.pins.python.to_owned(),
             python_build: self.pins.python_build.to_owned(),
@@ -425,9 +521,10 @@ impl CuaPayloadInstaller {
             python_archive_sha256: self.pins.python_archive_sha256.to_owned(),
             uv_archive_sha256: self.pins.uv_archive_sha256.to_owned(),
             target: target.to_owned(),
+            wheel_manifest_sha256: self.pins.wheel_manifest_sha256.map(str::to_owned),
+            installed_inventory_sha256: None,
         };
-        write_manifest_last(&cua_root.join("payload.json"), &manifest)?;
-        CuaRuntime::below_install_root(&self.install_root)
+        Ok(manifest)
     }
 }
 
@@ -553,9 +650,10 @@ fn current_pins() -> Result<CuaPins> {
         python: PYTHON_VERSION,
         python_build: PYTHON_BUILD,
         uv: UV_VERSION,
-        requirements_sha256: REQUIREMENTS_SHA256,
+        requirements_sha256: selected_requirements_sha256(),
         python_archive_sha256,
         uv_archive_sha256,
+        wheel_manifest_sha256: selected_wheel_manifest_sha256(),
     })
 }
 
@@ -572,7 +670,7 @@ fn target_triple() -> Result<&'static str> {
 }
 
 fn environment_generation() -> String {
-    let generation = format!("{}-{}", CUA_VERSION, &REQUIREMENTS_SHA256[..12]);
+    let generation = format!("{}-{}", CUA_VERSION, &selected_requirements_sha256()[..12]);
     if cfg!(unix) {
         format!("{generation}-unix-relative-v1")
     } else {
@@ -664,7 +762,7 @@ fn check_field<T: std::fmt::Display + PartialEq>(name: &str, actual: T, expected
 fn validate_embedded_lock(expected: &str) -> Result<()> {
     check_field(
         "requirements_sha256",
-        hex_sha256(REQUIREMENTS),
+        hex_sha256(selected_requirements()),
         expected.to_owned(),
     )
 }
@@ -870,12 +968,15 @@ fn validate_environment(
     );
     require_success(
         "validating private Python and cua versions",
-        Command::new(python).args(["-I", "-c", &code]).output()?,
+        Command::new(python)
+            .args(["-I", "-B", "-c", &code])
+            .output()?,
     )?;
     require_success(
         "running cua doctor",
         Command::new(python)
             .arg("-I")
+            .arg("-B")
             .arg(bootstrap)
             .arg("doctor")
             .output()?,
@@ -1275,8 +1376,8 @@ assert not outside
             std::fs::rename(staged.join("pyvenv.cfg"), environment.join("pyvenv.cfg")).unwrap();
         }
         std::fs::write(cua_root.join("bootstrap.py"), b"bootstrap").unwrap();
-        serde_json::json!({
-            "schema": 1,
+        let mut manifest = serde_json::json!({
+            "schema": if pins.wheel_manifest_sha256.is_some() { 2 } else { 1 },
             "cua_version": pins.cua,
             "python_version": pins.python,
             "python_build": pins.python_build,
@@ -1284,7 +1385,15 @@ assert not outside
             "python_archive_sha256": pins.python_archive_sha256,
             "uv_archive_sha256": pins.uv_archive_sha256,
             "target": target_triple().unwrap(),
-        })
+        });
+        if let Some(hash) = pins.wheel_manifest_sha256 {
+            manifest["wheel_manifest_sha256"] = hash.into();
+            manifest["installed_inventory_sha256"] =
+                release::write_inventory(&cua_root, target_triple().unwrap())
+                    .unwrap()
+                    .into();
+        }
+        manifest
     }
 
     fn test_install_root(temporary: &Path) -> PathBuf {
@@ -1312,7 +1421,8 @@ assert not outside
 
     #[test]
     fn embedded_lock_matches_the_compiled_pin() {
-        validate_embedded_lock(REQUIREMENTS_SHA256).unwrap();
+        assert_eq!(hex_sha256(REQUIREMENTS), REQUIREMENTS_SHA256);
+        validate_embedded_lock(current_pins().unwrap().requirements_sha256).unwrap();
     }
 
     #[test]
@@ -1495,7 +1605,14 @@ assert not outside
     #[test]
     fn every_manifest_mismatch_fails_closed_and_names_its_field() {
         let cases = [
-            ("schema", serde_json::json!(2)),
+            (
+                "schema",
+                serde_json::json!(if current_pins().unwrap().wheel_manifest_sha256.is_some() {
+                    1
+                } else {
+                    2
+                }),
+            ),
             ("cua_version", serde_json::json!("wrong")),
             ("python_version", serde_json::json!("wrong")),
             ("python_build", serde_json::json!("wrong")),

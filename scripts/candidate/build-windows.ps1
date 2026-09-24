@@ -18,18 +18,23 @@ if (Test-Path -LiteralPath (Join-Path $sourceRoot 'E2E/0.5.0/e2e.md')) {
 $target = if ($Architecture -eq 'x64') { 'x86_64-pc-windows-msvc' } else { 'aarch64-pc-windows-msvc' }
 $complianceTarget = if ($Architecture -eq 'x64') { 'windows-x86_64' } else { 'windows-aarch64' }
 $compliance = Join-Path $sourceRoot "packaging/inputs/$complianceTarget"
+$trustedRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../..')).Path
+$wheelhouse = Join-Path $env:RUNNER_TEMP "vadgr-wheelhouse-$target"
+& python (Join-Path $trustedRoot 'scripts/cua_wheelhouse.py') --source $sourceRoot --target $target --out $wheelhouse
+if ($LASTEXITCODE -ne 0) { throw 'Reviewed wheelhouse materialization failed.' }
 New-Item -ItemType Directory -Path $output | Out-Null
 $payload = Join-Path $output 'payload'
 New-Item -ItemType Directory -Path $payload | Out-Null
 Push-Location $sourceRoot
 try {
     $env:RUSTFLAGS = '-C target-feature=+crt-static'
+    $env:VADGR_RELEASE_PAYLOAD_BUILD = '1'
     & cargo test --locked --all-targets --features native-gui --target $target
     if ($LASTEXITCODE -ne 0) { throw 'Candidate tests failed.' }
     & cargo build --locked --release --features native-gui --bin vadgr --bin vadgr-app --target $target
     if ($LASTEXITCODE -ne 0) { throw 'Candidate compilation failed.' }
     $binary = Join-Path $sourceRoot "target/$target/release"
-    & "$binary/vadgr.exe" __payload-setup --install-root $payload --payload-only
+    & "$binary/vadgr.exe" __payload-setup --install-root $payload --payload-only --wheelhouse $wheelhouse
     if ($LASTEXITCODE -ne 0) { throw 'Private runtime assembly failed.' }
     Copy-Item -LiteralPath "$binary/vadgr.exe", "$binary/vadgr-app.exe" -Destination $payload
     Copy-Item -LiteralPath 'packaging/windows/install-receipt.json' -Destination $payload
