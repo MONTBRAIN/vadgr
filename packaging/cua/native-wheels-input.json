@@ -1,0 +1,353 @@
+{
+  "schema": 1,
+  "researched": "2026-09-23",
+  "cryptography": {
+    "version": "50.0.1",
+    "cargo_lock_sha256": "081ae57e95dabac9f47e2f070d2a3f0e8638ce9a560101b7d459b67cf4481fec",
+    "cargo_packages_sha256": "5a53e329a67504fc318ccd128baf0689db1a9e2fdd919c00f34fcd9a45b01526",
+    "commit": "ffde75a2b594822c740a2e4748b56c00548302bf",
+    "filename": "cryptography-50.0.1.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/bb/ad/5d6702db60b1e40b41ef513b6967ff5848f307d50f8449baf1634f5908f1/cryptography-50.0.1.tar.gz",
+    "sha256": "5dd9bda1c12b4162f6ff568eeb5e0ff956c28d14406e875cfe8a63a2d414ff20"
+  },
+  "openssl": {
+    "version": "4.0.2",
+    "filename": "openssl-4.0.2.tar.gz",
+    "url": "https://github.com/openssl/openssl/releases/download/openssl-4.0.2/openssl-4.0.2.tar.gz",
+    "sha256": "736b467530f916737b7031310ccb21d8218c6229e61e8e160cd1d3458cd543a8"
+  },
+  "rust": {
+    "version": "1.97.1",
+    "manifest_url": "https://static.rust-lang.org/dist/channel-rust-1.97.1.toml",
+    "manifest_sha256": "03569b1886ceb5c05276b50c8431ab111de944cd6140fe1fa7d821dd8e0f29cf"
+  },
+  "targets": {
+    "windows-aarch64": {
+      "rust_target": "aarch64-pc-windows-msvc",
+      "rust_components_sha256": "b7249d38c710fb5e0223d4e824525ae67fd76b1306082e470a821543df1e6b39",
+      "test_policy": {"minimum_passed": 1000, "skips": {}},
+      "runner": "windows-11-arm",
+      "machine": "ARM64",
+      "deployment_floor": "10.0",
+      "images": {
+        "20260914.169.1": {
+          "visual_studio": "17.14.37628.2",
+          "sdk": "10.0.26100.0"
+        },
+        "20260914.159.1": {
+          "visual_studio": "18.10.12201.205",
+          "sdk": "10.0.26100.0"
+        }
+      },
+      "python": {
+        "version": "3.12.14",
+        "filename": "cpython-3.12.14+20260825-aarch64-pc-windows-msvc-install_only.tar.gz",
+        "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14%2B20260825-aarch64-pc-windows-msvc-install_only.tar.gz",
+        "sha256": "57dd692b459609127d1b2d448e2033606da7089b9c5d3f9868a54899a87fad26"
+      },
+      "uv": {
+        "version": "0.12.7",
+        "filename": "uv-aarch64-pc-windows-msvc.zip",
+        "url": "https://github.com/astral-sh/uv/releases/download/0.12.7/uv-aarch64-pc-windows-msvc.zip",
+        "sha256": "1611d0f4be72b0a354ad9a6ae954093dd4c91e93e36b8b490326a05a039ffe14"
+      },
+      "python_dependencies": [
+        {
+          "name": "certifi",
+          "version": "2026.7.22",
+          "url": "https://files.pythonhosted.org/packages/0b/a7/71ac2cff56fec219ed242bb11b8efb69fcc4bec75db06fb7bfe35de520e6/certifi-2026.7.22-py3-none-any.whl",
+          "filename": "certifi-2026.7.22-py3-none-any.whl",
+          "sha256": "62f22742b58a1a33014a2b6b706588a8d7e2a88ae7bd1a6ebe8c992928483775"
+        },
+        {
+          "name": "cffi",
+          "version": "2.1.1",
+          "url": "https://files.pythonhosted.org/packages/70/c6/d0ea84713fe46b243a436a18fcd47d639732747e21635c8a27191b06dc30/cffi-2.1.1-cp312-cp312-win_arm64.whl",
+          "filename": "cffi-2.1.1-cp312-cp312-win_arm64.whl",
+          "sha256": "7bde5e4cc5c10140859842b9d383af292b22639a4dffb725314baf45968cef80"
+        },
+        {
+          "name": "colorama",
+          "version": "0.4.6",
+          "url": "https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl",
+          "filename": "colorama-0.4.6-py2.py3-none-any.whl",
+          "sha256": "4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"
+        },
+        {
+          "name": "coverage",
+          "version": "7.16.1",
+          "url": "https://files.pythonhosted.org/packages/94/00/90e9f5c4434878494306b9c0ee8068ebbd829483737d8cefccc58884d728/coverage-7.16.1-cp312-cp312-win_arm64.whl",
+          "filename": "coverage-7.16.1-cp312-cp312-win_arm64.whl",
+          "sha256": "2959978f9d1d20a2c0c15d0a68baaeccf615ac1aa214cf4a05a10d6f568926c8"
+        },
+        {
+          "name": "cryptography_vectors",
+          "version": "50.0.1",
+          "url": "https://files.pythonhosted.org/packages/53/56/a9a57d947870175b49fa61da3b827c790179bceb746bb99743ca90fa9e02/cryptography_vectors-50.0.1-py3-none-any.whl",
+          "filename": "cryptography_vectors-50.0.1-py3-none-any.whl",
+          "sha256": "d3cee4b954c6de4c187f0ceb9e92c2da4dda24aa67b17aa84d7bd2e52c813531"
+        },
+        {
+          "name": "execnet",
+          "version": "2.1.2",
+          "url": "https://files.pythonhosted.org/packages/ab/84/02fc1827e8cdded4aa65baef11296a9bbe595c474f0d6d758af082d849fd/execnet-2.1.2-py3-none-any.whl",
+          "filename": "execnet-2.1.2-py3-none-any.whl",
+          "sha256": "67fba928dd5a544b783f6056f449e5e3931a5c378b128bc18501f7ea79e296ec"
+        },
+        {
+          "name": "iniconfig",
+          "version": "2.3.0",
+          "url": "https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl",
+          "filename": "iniconfig-2.3.0-py3-none-any.whl",
+          "sha256": "f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12"
+        },
+        {
+          "name": "maturin",
+          "version": "1.14.1",
+          "url": "https://files.pythonhosted.org/packages/51/d4/dac8c0720ae246be1700afb6fbdbbea20fe35b13f6570b2f70faa005df77/maturin-1.14.1-py3-none-win_arm64.whl",
+          "filename": "maturin-1.14.1-py3-none-win_arm64.whl",
+          "sha256": "15cea8fcb3ba47dd636f50092bb34baea8b04ac777392f23e6bf8a9a61efb894"
+        },
+        {
+          "name": "packaging",
+          "version": "26.3",
+          "url": "https://files.pythonhosted.org/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl",
+          "filename": "packaging-26.3-py3-none-any.whl",
+          "sha256": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c"
+        },
+        {
+          "name": "pluggy",
+          "version": "1.6.0",
+          "url": "https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl",
+          "filename": "pluggy-1.6.0-py3-none-any.whl",
+          "sha256": "e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746"
+        },
+        {
+          "name": "pretend",
+          "version": "1.0.9",
+          "url": "https://files.pythonhosted.org/packages/49/1f/3d4f0579913edd3ad5b23ad52fcc42531cb736ad52af2ba6c057da8785b6/pretend-1.0.9-py2.py3-none-any.whl",
+          "filename": "pretend-1.0.9-py2.py3-none-any.whl",
+          "sha256": "e389b12b7073604be67845dbe32bf8297360ad9a609b24846fe15d86e0b7dc01"
+        },
+        {
+          "name": "pycparser",
+          "version": "3.0",
+          "url": "https://files.pythonhosted.org/packages/0c/c3/44f3fbbfa403ea2a7c779186dc20772604442dde72947e7d01069cbe98e3/pycparser-3.0-py3-none-any.whl",
+          "filename": "pycparser-3.0-py3-none-any.whl",
+          "sha256": "b727414169a36b7d524c1c3e31839a521725078d7b2ff038656844266160a992"
+        },
+        {
+          "name": "py-cpuinfo2",
+          "version": "10.1.1",
+          "url": "https://files.pythonhosted.org/packages/23/0a/ba69d2dde1ae12ef1d389ea5a216384c5ff6ef7a1e7a48d1e9b6686f6790/py_cpuinfo2-10.1.1-py3-none-any.whl",
+          "filename": "py_cpuinfo2-10.1.1-py3-none-any.whl",
+          "sha256": "adc53396bfb206e6498d078ec2ab407f85799ecd819584ac36a8f80a2d4d762d"
+        },
+        {
+          "name": "pygments",
+          "version": "2.21.0",
+          "url": "https://files.pythonhosted.org/packages/71/46/17f022dd3e953bf20a04a028a21ec746d942f8d2af30fa0f124fa0e6a684/pygments-2.21.0-py3-none-any.whl",
+          "filename": "pygments-2.21.0-py3-none-any.whl",
+          "sha256": "2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9"
+        },
+        {
+          "name": "pytest",
+          "version": "9.1.1",
+          "url": "https://files.pythonhosted.org/packages/24/25/1de2678b631f5a49215c6c96fff41ba892b0a34df68d6d80292b1b48aa7f/pytest-9.1.1-py3-none-any.whl",
+          "filename": "pytest-9.1.1-py3-none-any.whl",
+          "sha256": "37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c"
+        },
+        {
+          "name": "pytest-benchmark",
+          "version": "5.3.0",
+          "url": "https://files.pythonhosted.org/packages/eb/42/7e80f7cfa191e0a766d1de99b4661847415ad5db34f8209d81fd42175b59/pytest_benchmark-5.3.0-py3-none-any.whl",
+          "filename": "pytest_benchmark-5.3.0-py3-none-any.whl",
+          "sha256": "920ab1dfcffa718d49aa15ba144c7e357bda59216a0dc308016cc1c7236f719d"
+        },
+        {
+          "name": "pytest-cov",
+          "version": "7.1.0",
+          "url": "https://files.pythonhosted.org/packages/9d/7a/d968e294073affff457b041c2be9868a40c1c71f4a35fcc1e45e5493067b/pytest_cov-7.1.0-py3-none-any.whl",
+          "filename": "pytest_cov-7.1.0-py3-none-any.whl",
+          "sha256": "a0461110b7865f9a271aa1b51e516c9a95de9d696734a2f71e3e78f46e1d4678"
+        },
+        {
+          "name": "pytest-xdist",
+          "version": "3.8.0",
+          "url": "https://files.pythonhosted.org/packages/ca/31/d4e37e9e550c2b92a9cbc2e4d0b7420a27224968580b5a447f420847c975/pytest_xdist-3.8.0-py3-none-any.whl",
+          "filename": "pytest_xdist-3.8.0-py3-none-any.whl",
+          "sha256": "202ca578cfeb7370784a8c33d6d05bc6e13b4f25b5053c30a152269fd10f0b88"
+        },
+        {
+          "name": "setuptools",
+          "version": "82.0.1",
+          "url": "https://files.pythonhosted.org/packages/9d/76/f789f7a86709c6b087c5a2f52f911838cad707cc613162401badc665acfe/setuptools-82.0.1-py3-none-any.whl",
+          "filename": "setuptools-82.0.1-py3-none-any.whl",
+          "sha256": "a59e362652f08dcd477c78bb6e7bd9d80a7995bc73ce773050228a348ce2e5bb"
+        }
+      ]
+    },
+    "macos-x86_64": {
+      "rust_target": "x86_64-apple-darwin",
+      "rust_components_sha256": "1c1c3c259fbb5e188c22455c0ed46fcfefaba10c91957d0bfb3bab07d396b04b",
+      "test_policy": {"minimum_passed": 1000, "skips": {}},
+      "runner": "macos-15-intel",
+      "machine": "x86_64",
+      "deployment_floor": "13.0",
+      "images": {
+        "20260824.0482.1": {
+          "xcode": "16.4",
+          "xcode_build": "16F6",
+          "sdk": "15.5"
+        }
+      },
+      "python": {
+        "version": "3.12.14",
+        "filename": "cpython-3.12.14+20260825-x86_64-apple-darwin-install_only.tar.gz",
+        "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14%2B20260825-x86_64-apple-darwin-install_only.tar.gz",
+        "sha256": "65da7bc373ea36cb7e413f2a20bcced9eeb7e5a83fa554ce9f6ec79abb8d7e31"
+      },
+      "uv": {
+        "version": "0.12.7",
+        "filename": "uv-x86_64-apple-darwin.tar.gz",
+        "url": "https://github.com/astral-sh/uv/releases/download/0.12.7/uv-x86_64-apple-darwin.tar.gz",
+        "sha256": "06b8ae1da8c2661c5434507a66f8c2b0b835933bf955b5958a9ac357a37d1959"
+      },
+      "python_dependencies": [
+        {
+          "name": "certifi",
+          "version": "2026.7.22",
+          "url": "https://files.pythonhosted.org/packages/0b/a7/71ac2cff56fec219ed242bb11b8efb69fcc4bec75db06fb7bfe35de520e6/certifi-2026.7.22-py3-none-any.whl",
+          "filename": "certifi-2026.7.22-py3-none-any.whl",
+          "sha256": "62f22742b58a1a33014a2b6b706588a8d7e2a88ae7bd1a6ebe8c992928483775"
+        },
+        {
+          "name": "cffi",
+          "version": "2.1.1",
+          "url": "https://files.pythonhosted.org/packages/10/69/43965eccfdead3b9220015fd1320e117be8c6ed01a62ffab76eeb752f5d5/cffi-2.1.1-cp312-cp312-macosx_10_15_x86_64.whl",
+          "filename": "cffi-2.1.1-cp312-cp312-macosx_10_15_x86_64.whl",
+          "sha256": "c8c69575568085ba0b1b10c0249d779a214aea6f6522e949a0fc9fb0fcb449d0"
+        },
+        {
+          "name": "colorama",
+          "version": "0.4.6",
+          "url": "https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl",
+          "filename": "colorama-0.4.6-py2.py3-none-any.whl",
+          "sha256": "4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"
+        },
+        {
+          "name": "coverage",
+          "version": "7.16.1",
+          "url": "https://files.pythonhosted.org/packages/1a/f7/7cd4c9f2a3b7574414222ec425d5eee21cc690d867a013315e3be8ba185c/coverage-7.16.1-cp312-cp312-macosx_10_13_x86_64.whl",
+          "filename": "coverage-7.16.1-cp312-cp312-macosx_10_13_x86_64.whl",
+          "sha256": "b7f2c26ce6ce0b1e0ca0d5fae96ea510e3a2e78b7207f06e76b7f2c87fa3d0af"
+        },
+        {
+          "name": "cryptography_vectors",
+          "version": "50.0.1",
+          "url": "https://files.pythonhosted.org/packages/53/56/a9a57d947870175b49fa61da3b827c790179bceb746bb99743ca90fa9e02/cryptography_vectors-50.0.1-py3-none-any.whl",
+          "filename": "cryptography_vectors-50.0.1-py3-none-any.whl",
+          "sha256": "d3cee4b954c6de4c187f0ceb9e92c2da4dda24aa67b17aa84d7bd2e52c813531"
+        },
+        {
+          "name": "execnet",
+          "version": "2.1.2",
+          "url": "https://files.pythonhosted.org/packages/ab/84/02fc1827e8cdded4aa65baef11296a9bbe595c474f0d6d758af082d849fd/execnet-2.1.2-py3-none-any.whl",
+          "filename": "execnet-2.1.2-py3-none-any.whl",
+          "sha256": "67fba928dd5a544b783f6056f449e5e3931a5c378b128bc18501f7ea79e296ec"
+        },
+        {
+          "name": "iniconfig",
+          "version": "2.3.0",
+          "url": "https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl",
+          "filename": "iniconfig-2.3.0-py3-none-any.whl",
+          "sha256": "f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12"
+        },
+        {
+          "name": "maturin",
+          "version": "1.14.1",
+          "url": "https://files.pythonhosted.org/packages/43/b6/79c881410a3b1c187f7eb3d407aecae646c6a4433d630d72200359015e83/maturin-1.14.1-py3-none-macosx_10_12_x86_64.whl",
+          "filename": "maturin-1.14.1-py3-none-macosx_10_12_x86_64.whl",
+          "sha256": "f3306078070c1508fd715b9116070cbcaff5959024272a9f1e6f5cb29768b86c"
+        },
+        {
+          "name": "packaging",
+          "version": "26.3",
+          "url": "https://files.pythonhosted.org/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl",
+          "filename": "packaging-26.3-py3-none-any.whl",
+          "sha256": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c"
+        },
+        {
+          "name": "pluggy",
+          "version": "1.6.0",
+          "url": "https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl",
+          "filename": "pluggy-1.6.0-py3-none-any.whl",
+          "sha256": "e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746"
+        },
+        {
+          "name": "pretend",
+          "version": "1.0.9",
+          "url": "https://files.pythonhosted.org/packages/49/1f/3d4f0579913edd3ad5b23ad52fcc42531cb736ad52af2ba6c057da8785b6/pretend-1.0.9-py2.py3-none-any.whl",
+          "filename": "pretend-1.0.9-py2.py3-none-any.whl",
+          "sha256": "e389b12b7073604be67845dbe32bf8297360ad9a609b24846fe15d86e0b7dc01"
+        },
+        {
+          "name": "pycparser",
+          "version": "3.0",
+          "url": "https://files.pythonhosted.org/packages/0c/c3/44f3fbbfa403ea2a7c779186dc20772604442dde72947e7d01069cbe98e3/pycparser-3.0-py3-none-any.whl",
+          "filename": "pycparser-3.0-py3-none-any.whl",
+          "sha256": "b727414169a36b7d524c1c3e31839a521725078d7b2ff038656844266160a992"
+        },
+        {
+          "name": "py-cpuinfo2",
+          "version": "10.1.1",
+          "url": "https://files.pythonhosted.org/packages/23/0a/ba69d2dde1ae12ef1d389ea5a216384c5ff6ef7a1e7a48d1e9b6686f6790/py_cpuinfo2-10.1.1-py3-none-any.whl",
+          "filename": "py_cpuinfo2-10.1.1-py3-none-any.whl",
+          "sha256": "adc53396bfb206e6498d078ec2ab407f85799ecd819584ac36a8f80a2d4d762d"
+        },
+        {
+          "name": "pygments",
+          "version": "2.21.0",
+          "url": "https://files.pythonhosted.org/packages/71/46/17f022dd3e953bf20a04a028a21ec746d942f8d2af30fa0f124fa0e6a684/pygments-2.21.0-py3-none-any.whl",
+          "filename": "pygments-2.21.0-py3-none-any.whl",
+          "sha256": "2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9"
+        },
+        {
+          "name": "pytest",
+          "version": "9.1.1",
+          "url": "https://files.pythonhosted.org/packages/24/25/1de2678b631f5a49215c6c96fff41ba892b0a34df68d6d80292b1b48aa7f/pytest-9.1.1-py3-none-any.whl",
+          "filename": "pytest-9.1.1-py3-none-any.whl",
+          "sha256": "37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c"
+        },
+        {
+          "name": "pytest-benchmark",
+          "version": "5.3.0",
+          "url": "https://files.pythonhosted.org/packages/eb/42/7e80f7cfa191e0a766d1de99b4661847415ad5db34f8209d81fd42175b59/pytest_benchmark-5.3.0-py3-none-any.whl",
+          "filename": "pytest_benchmark-5.3.0-py3-none-any.whl",
+          "sha256": "920ab1dfcffa718d49aa15ba144c7e357bda59216a0dc308016cc1c7236f719d"
+        },
+        {
+          "name": "pytest-cov",
+          "version": "7.1.0",
+          "url": "https://files.pythonhosted.org/packages/9d/7a/d968e294073affff457b041c2be9868a40c1c71f4a35fcc1e45e5493067b/pytest_cov-7.1.0-py3-none-any.whl",
+          "filename": "pytest_cov-7.1.0-py3-none-any.whl",
+          "sha256": "a0461110b7865f9a271aa1b51e516c9a95de9d696734a2f71e3e78f46e1d4678"
+        },
+        {
+          "name": "pytest-xdist",
+          "version": "3.8.0",
+          "url": "https://files.pythonhosted.org/packages/ca/31/d4e37e9e550c2b92a9cbc2e4d0b7420a27224968580b5a447f420847c975/pytest_xdist-3.8.0-py3-none-any.whl",
+          "filename": "pytest_xdist-3.8.0-py3-none-any.whl",
+          "sha256": "202ca578cfeb7370784a8c33d6d05bc6e13b4f25b5053c30a152269fd10f0b88"
+        },
+        {
+          "name": "setuptools",
+          "version": "82.0.1",
+          "url": "https://files.pythonhosted.org/packages/9d/76/f789f7a86709c6b087c5a2f52f911838cad707cc613162401badc665acfe/setuptools-82.0.1-py3-none-any.whl",
+          "filename": "setuptools-82.0.1-py3-none-any.whl",
+          "sha256": "a59e362652f08dcd477c78bb6e7bd9d80a7995bc73ce773050228a348ce2e5bb"
+        }
+      ]
+    }
+  }
+}
