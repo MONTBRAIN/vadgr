@@ -1,6 +1,7 @@
 # 0.5.0 - the product is installable: E2E runbook
 
-> **Implementation:** `feature/0.5.0-distribution` at
+> **Implementation PR:** `https://github.com/MONTBRAIN/vadgr/pull/239` from
+> `feature/0.5.0-distribution` at
 > each observation's recorded source commit. Later branch commits include
 > product repairs and signing workflow changes, not only policy or evidence.
 > No signed candidate is frozen yet. Freeze the exact current source and
