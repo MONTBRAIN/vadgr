@@ -22,7 +22,7 @@ do not enter the produced wheel or become shipped-component claims.
 The test policy requires exactly 4,681 unique named cases. It binds every skip
 to its exact class, parameterized name and reason, separately for each target.
 Intel macOS requires 4,654 passes and 27 classified skips. Windows ARM64 requires
-4,658 passes and 23 classified skips; its four memory-allocation tests must run.
+4,651 passes and 30 classified skips; its four memory-allocation tests must run.
 Missing test data or bcrypt never qualifies for a skip. Unknown, duplicate,
 changed or missing expected skips refuse output attestation. Failed runs may
 retain only test-report diagnostics, never an approved wheel artifact.
@@ -34,6 +34,16 @@ and four host memory-allocation cases. Installing bcrypt enables its 14 tests
 and makes the one bcrypt-absence negative case inapplicable. The Windows policy
 does not copy macOS memory behavior: different native results remain a refusal.
 These expected results are not a claim that a corrected native run has passed.
+
+Run `35955082393` subsequently completed all Windows upstream tests with 4,651
+passes and 30 skips, but the earlier 23-case policy correctly refused output.
+The seven additional identities are six AEAD `test_data_too_large` cases and
+`test_ciphers.test_update_auto_chunking`. The pinned upstream source explicitly
+limits those tests to Linux and macOS because their helper uses Unix-only
+`mmap.PROT_READ`. The generic skip message does not mean Windows is 32-bit or
+missing a dependency. Only those exact Windows class/name/reason rows are
+included; the macOS policy is unchanged. This policy update does not retroactively
+qualify a failed run or replace a new two-target build and attestation.
 
 The snapshots match the [upstream fetch action](https://github.com/pyca/cryptography/blob/ffde75a2b594822c740a2e4748b56c00548302bf/.github/actions/fetch-vectors/action.yml):
 Wycheproof `b61843a9a5115bb758134b6a1f5d5e502d445342` and x509-limbo

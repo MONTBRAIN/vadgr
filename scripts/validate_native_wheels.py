@@ -122,7 +122,7 @@ def validate_descriptor(data):
                 "unreviewed Rust components")
         policy = configuration.get("test_policy", {})
         require(policy.get("total") == 4681 and isinstance(policy.get("skips"), list)
-                and len(policy["skips"]) == (23 if target.startswith("windows") else 27)
+                and len(policy["skips"]) == (30 if target.startswith("windows") else 27)
                 and policy.get("minimum_passed") == 4681 - len(policy["skips"]),
                 "invalid reviewed test policy")
         identities = []
