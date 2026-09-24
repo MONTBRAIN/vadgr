@@ -80,6 +80,11 @@ def validate(root, architecture):
             "held legal bytes do not match reviewed approval")
     sbom = files(root, "sbom")
     cua = cua_signing.validate_records(root.resolve() / "cua", authorization)
+    if "release_profile" in authorization["cua_inputs"]:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+        from scripts.candidate import cua_shared, cua_workflow
+        cua_shared.ledger_complete(root / "signing-ledger.json", authorization)
+        cua_workflow.verify_subject(root / "cua/cua-runtime-authorization.json", root / "runtime.sigstore.json", authorization)
     candidate = read(root / "candidate-manifest.json")
     require(candidate.get("cua_inputs") == authorization["cua_inputs"]
             and candidate.get("pre_signing_cua_payload") == cua["pre_signing"]

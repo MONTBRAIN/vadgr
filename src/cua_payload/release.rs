@@ -188,6 +188,10 @@ struct Wheelhouse {
     requirements_sha256: String,
     wheel_manifest_sha256: String,
     wheels: Vec<Wheel>,
+    #[serde(default)]
+    release_profile: Option<String>,
+    #[serde(default)]
+    cua_profile_manifest_sha256: Option<String>,
 }
 
 pub(super) fn validate_wheelhouse(
@@ -207,6 +211,12 @@ pub(super) fn validate_wheelhouse(
             && receipt.requirements_sha256 == digest(lock)
             && receipt.wheel_manifest_sha256 == manifest_hash,
         "wheelhouse differs from compiled release pins"
+    );
+    ensure!(
+        receipt.release_profile.as_deref() == super::RELEASE_PROFILE
+            && receipt.cua_profile_manifest_sha256.as_deref()
+                == super::selected_profile_manifest_sha256()?,
+        "wheelhouse differs from compiled release profile"
     );
     let lock = std::str::from_utf8(lock)?
         .replace("\\\r\n", " ")

@@ -613,12 +613,21 @@ async fn payload_setup(
         return Ok(());
     }
     let setup = runtime.setup_command(apply_system_deps);
-    let status = std::process::Command::new(setup.program)
-        .args(setup.args)
-        .status()
+    let mut process = std::process::Command::new(&setup.program);
+    process.args(&setup.args);
+    let authorization = setup.authorize_process(&mut process).map_err(|error| {
+        CliError::Failed(format!("Could not authorize computer-use setup: {error}"))
+    })?;
+    let child = process.spawn().map_err(|error| {
+        CliError::Failed(format!("Could not check computer-use setup: {error}"))
+    })?;
+    drop(authorization);
+    let status = child
+        .wait_with_output()
         .map_err(|error| {
-            CliError::Failed(format!("Could not check computer-use setup: {error}"))
-        })?;
+            CliError::Failed(format!("Could not wait for computer-use setup: {error}"))
+        })?
+        .status;
     if !status.success() {
         return Err(CliError::Failed(
             "Computer-use setup did not complete. Nothing was installed.".to_owned(),

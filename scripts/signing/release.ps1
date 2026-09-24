@@ -7,6 +7,10 @@ param(
     [string] $Qualification,
     [string] $PayloadRoot,
     [string] $Receipt,
+    [string] $HelperInputs,
+    [string] $SharedClaim,
+    [string] $HelperOutput,
+    [string] $ResumeLedger,
     [string] $Root = (Join-Path $env:RUNNER_TEMP "release-signing-$env:GITHUB_RUN_ID")
 )
 $ErrorActionPreference = 'Stop'
@@ -17,6 +21,8 @@ $zipHash = '317D429BE3AA12A5F2C1FFDD575EAB0CB0CE5E2408AB0056BCDCAAB29875F73D'
 $source = $PSScriptRoot
 $jar = Join-Path $Root 'code_sign_tool-1.3.3.jar'
 $classes = Join-Path $Root 'classes'
+$sharedTool = Join-Path $source '../candidate/cua_shared.py'
+. (Join-Path $source 'verify-policy.ps1')
 
 function Assert-Hash([string] $Path, [string] $Expected) {
     if ((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash -ne $Expected) {
@@ -81,7 +87,13 @@ if ($Mode -eq 'prepare') {
         Pop-Location
     }
     if ($Budget -lt 5) { throw 'The approved signature budget is missing.' }
-    @{ budget = $Budget; attempts = @() } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $Root 'ledger.json')
+    if (-not $Authorization) { throw 'An exact authorization is required before ledger initialization.' }
+    if ($ResumeLedger) {
+        Copy-Item -LiteralPath $ResumeLedger -Destination (Join-Path $Root 'ledger.json')
+    } else {
+        & python $sharedTool ledger-init --authorization $Authorization --ledger (Join-Path $Root 'ledger.json')
+        if ($LASTEXITCODE -ne 0) { throw 'Signer ledger initialization failed.' }
+    }
     return
 }
 
@@ -99,35 +111,64 @@ $ledgerPath = Join-Path $Root 'ledger.json'
 $ledger = Get-Content -Raw -LiteralPath $ledgerPath | ConvertFrom-Json
 if ($ledger.budget -ne $approved.budget) { throw 'The local budget differs from the protected authorization.' }
 if ($Mode -eq 'complete') {
-    if (@($ledger.attempts).Count -ne $ledger.budget) { throw 'The signature quota does not match the completed layers.' }
+    & python $sharedTool ledger-complete --authorization $Authorization --ledger $ledgerPath
+    if ($LASTEXITCODE -ne 0) { throw 'The signature quota contains missing or uncertain operations.' }
     Write-Output "Verified signing attempts: $($ledger.attempts.Count). No retry performed."
     return
 }
-if (-not $Files -or $Files.Count -eq 0) { throw 'Explicit input files are required.' }
 $transitions = @{}
 $beforeFiles = @{}
-if ($PayloadRoot -or $Receipt) {
-    if (-not $PayloadRoot -or -not $Receipt -or (Test-Path -LiteralPath $Receipt)) {
-        throw 'Installed-file signing requires a new receipt and an explicit input root.'
+$reports = @{}
+$classPolicy = $null
+$unit = 'vehicle'
+$claimHash = (Get-FileHash -LiteralPath $Authorization -Algorithm SHA256).Hash.ToLowerInvariant()
+if ($HelperInputs) {
+    if (-not $SharedClaim -or -not $HelperOutput -or $PayloadRoot -or $Receipt -or $Files -or
+        (Test-Path -LiteralPath $HelperOutput)) { throw 'Shared helper signing requires fresh isolated output.' }
+    & python $sharedTool verify-claim --authorization $Authorization --qualification $Qualification --helper-inputs $HelperInputs --shared-claim $SharedClaim
+    if ($LASTEXITCODE -ne 0) { throw 'The architecture-scoped durable claim did not verify.' }
+    Assert-Hash (Join-Path $HelperInputs 'publisher-policy.json') $approved.helper_policy_sha256
+    Copy-Item -LiteralPath (Join-Path $HelperInputs 'members') -Destination $HelperOutput -Recurse
+    $payloadBoundary = (Resolve-Path -LiteralPath $HelperOutput).Path
+    $classPolicy = (Get-Content -Raw -LiteralPath (Join-Path $HelperInputs 'publisher-policy.json') | ConvertFrom-Json).files
+    $claimHash = (Get-FileHash -LiteralPath (Join-Path $HelperInputs 'pre-signing-claim.json') -Algorithm SHA256).Hash.ToLowerInvariant()
+    $unit = 'shared-helper'
+} elseif ($PayloadRoot -or $Receipt) {
+    if (-not $PayloadRoot -or -not $Receipt -or (Test-Path -LiteralPath $Receipt) -or $Files) {
+        throw 'Installed signing derives its exact file set from the approved class policy.'
     }
     $payloadBoundary = (Resolve-Path -LiteralPath $PayloadRoot).Path
-    foreach ($path in $Files) {
-        $absolute = (Resolve-Path -LiteralPath $path).Path
-        $relative = [IO.Path]::GetRelativePath($payloadBoundary, $absolute).Replace('\', '/')
-        if ($relative.StartsWith('../') -or [IO.Path]::IsPathRooted($relative) -or $beforeFiles.ContainsKey($relative)) {
-            throw 'Signing input is outside the authorized root or duplicated.'
+    $classPolicy = $approved.signing_policy.files
+    $unit = 'outer'
+}
+if ($classPolicy) {
+    $Files = @()
+    foreach ($entry in $classPolicy.PSObject.Properties) {
+        $relative = $entry.Name
+        $absolute = [IO.Path]::GetFullPath((Join-Path $payloadBoundary $relative))
+        if (-not $absolute.StartsWith($payloadBoundary + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase) -or
+            $relative.Contains('\') -or $relative.Contains('..')) { throw 'Policy input escapes its root.' }
+        $cursor = Get-Item -LiteralPath $absolute
+        while ($cursor.FullName -ne $payloadBoundary) {
+            if ($cursor.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Linked signing input is forbidden.' }
+            $cursor = Get-Item -LiteralPath (Split-Path -Parent $cursor.FullName)
         }
-        $entry = $approved.files.PSObject.Properties[$relative]
-        if (-not $entry) { throw 'Signing input is absent from the exact authorization.' }
         $inputHash = (Get-FileHash -LiteralPath $absolute -Algorithm SHA256).Hash.ToLowerInvariant()
         $size = (Get-Item -LiteralPath $absolute).Length
-        if ($inputHash -ne $entry.Value.sha256 -or $size -ne $entry.Value.size) {
-            throw 'Signing input bytes changed after authorization.'
+        if ($inputHash -ne $entry.Value.input_sha256) { throw 'Class-policy input digest differs.' }
+        if ($unit -eq 'outer') {
+            $authorized = $approved.files.PSObject.Properties[$relative]
+            if (-not $authorized -or $authorized.Value.sha256 -ne $inputHash -or $authorized.Value.size -ne $size) {
+                throw 'Outer input is absent from exact authorization.'
+            }
         }
         $beforeFiles[$relative] = @{ sha256 = $inputHash; size = $size }
+        if ($entry.Value.trust_class -eq 'publisher-sign') { $Files += $absolute }
+        elseif ($entry.Value.trust_class -notin @('vendor-preserve', 'data') -or
+                ($unit -eq 'outer' -and $entry.Value.trust_class -eq 'data')) { throw 'Unknown or misplaced trust class.' }
     }
-    $expectedInputs = @($approved.files.PSObject.Properties | Where-Object { [IO.Path]::GetExtension($_.Name) -in '.exe','.dll','.pyd' })
-    if ($expectedInputs.Count -ne $beforeFiles.Count) { throw 'Installed signing inputs omit an authorized native file.' }
+} elseif (-not $Files -or $Files.Count -ne 1) {
+    throw 'Exactly one explicit vehicle layer is required.'
 }
 $identity = Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $source 'publisher.json') | ConvertFrom-Json
 $env:EXPECTED_CERT_SHA256 = $identity.sha256
@@ -139,24 +180,35 @@ $signTool = Get-ChildItem "${env:ProgramFiles(x86)}/Windows Kits/10/bin/*/$nativ
     Sort-Object FullName -Descending | Select-Object -First 1
 if (-not $signTool) { throw 'Windows SDK SignTool is required before signing.' }
 
-function Reserve-Attempt([string] $InputFile) {
-    $ledger = Get-Content -Raw -LiteralPath $ledgerPath | ConvertFrom-Json
-    if (@($ledger.attempts).Count -ge $ledger.budget -or $ledger.attempts -contains $InputFile) {
-        throw 'A duplicate signing attempt or quota overrun was refused.'
-    }
-    $ledger.attempts = @($ledger.attempts) + $InputFile
-    # Persist BEFORE authentication. Uncertain attempts consume the local budget too.
-    $ledger | ConvertTo-Json | Set-Content -LiteralPath $ledgerPath
+function Reserve-Attempt([string] $Relative, [string] $InputHash) {
+    # Persist BEFORE authentication. Uncertain attempts consume the same carried ledger.
+    & python $sharedTool ledger-reserve --authorization $Authorization --ledger $ledgerPath --unit $unit --path $Relative --input-sha256 $InputHash --claim-sha256 $claimHash
+    if ($LASTEXITCODE -ne 0) { throw 'A duplicate signing attempt or quota overrun was refused.' }
 }
-
 try {
+    # Preserved signatures are prerequisites, checked before any paid request.
+    if ($classPolicy) {
+        foreach ($entry in $classPolicy.PSObject.Properties) {
+            if ($entry.Value.trust_class -eq 'vendor-preserve') {
+                $reports[$entry.Name] = Get-PolicySignatureReport (Join-Path $payloadBoundary $entry.Name) $entry.Value $signTool.FullName
+            }
+        }
+    }
     foreach ($file in $Files) {
         $inputFile = (Resolve-Path -LiteralPath $file).Path
-        if ($PayloadRoot) {
+        $relative = [IO.Path]::GetFileName($inputFile)
+        $inputHash = (Get-FileHash -LiteralPath $inputFile -Algorithm SHA256).Hash.ToLowerInvariant()
+        $selected = $null
+        if ($classPolicy) {
             $relative = [IO.Path]::GetRelativePath($payloadBoundary, $inputFile).Replace('\', '/')
-            if ((Get-FileHash -LiteralPath $inputFile -Algorithm SHA256).Hash.ToLowerInvariant() -ne $beforeFiles[$relative].sha256) {
-                throw 'Signing input changed before its paid operation.'
+            $selected = $classPolicy.PSObject.Properties[$relative].Value
+            if ($selected.trust_class -ne 'publisher-sign' -or $selected.input_sha256 -ne $inputHash -or
+                $selected.certificate_sha256 -ne $identity.sha256.ToLowerInvariant() -or $selected.signer -ne $identity.subject) {
+                throw 'Publisher signing is not permitted for this exact input.'
             }
+        } elseif ($relative -notin @("Vadgr-0.5.0-windows-$($approved.architecture).msi", 'burn-engine.exe',
+                                    "Vadgr-0.5.0-windows-$($approved.architecture)-final.exe")) {
+            throw 'Unapproved vehicle signing layer.'
         }
         if ([IO.Path]::GetExtension($inputFile) -notin @('.exe', '.dll', '.pyd', '.msi')) {
             throw 'The signing input is not a supported release layer.'
@@ -164,8 +216,7 @@ try {
         $output = Join-Path $Root ([Guid]::NewGuid().ToString('N'))
         New-Item -ItemType Directory -Path $output | Out-Null
         $env:SIGNING_INPUT = $inputFile
-        # CPython extension modules are PE DLLs, but the vendor dispatches by suffix.
-        # Only the temporary basename changes; the PE bytes and quota stay identical.
+        # The vendor dispatches by suffix; only the temporary basename changes.
         if ([IO.Path]::GetExtension($inputFile) -eq '.pyd') {
             $temporaryInput = Join-Path $output 'python-extension.dll'
             Copy-Item -LiteralPath $inputFile -Destination $temporaryInput
@@ -175,7 +226,7 @@ try {
         $vendorOutput = Join-Path $output 'signed'
         New-Item -ItemType Directory -Path $vendorOutput | Out-Null
         $env:SIGNING_OUTPUT = $vendorOutput
-        Reserve-Attempt $inputFile
+        Reserve-Attempt $relative $inputHash
         Push-Location $Root
         try { Invoke-Wrapper 'sign' } finally { Pop-Location }
         $signed = Join-Path $vendorOutput $vendorName
@@ -188,27 +239,51 @@ try {
         Invoke-Wrapper 'verify-metadata'
         $verification = & $signTool.FullName verify /pa /all /tw /v $signed 2>&1
         if ($LASTEXITCODE -ne 0) { throw 'Independent Windows verification failed. No retry permitted.' }
-        if (($verification | Out-String) -notmatch 'Hash of file \(sha256\)') {
-            throw 'The file digest algorithm is not SHA256.'
-        }
+        if (($verification | Out-String) -notmatch 'Hash of file \(sha256\)') { throw 'The file digest algorithm is not SHA256.' }
         $signature = Get-AuthenticodeSignature -LiteralPath $signed
-        if ($signature.Status -ne 'Valid' -or -not $signature.TimeStamperCertificate) {
-            throw 'A trusted signature and timestamp are required.'
-        }
+        if ($signature.Status -ne 'Valid' -or -not $signature.TimeStamperCertificate) { throw 'A trusted signature and timestamp are required.' }
         $cert = $signature.SignerCertificate
         $fingerprint = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($cert.RawData))
-        if ($fingerprint -ne $identity.sha256 -or $cert.Thumbprint -ne $identity.sha1) {
-            throw 'The signed layer has the wrong publisher certificate.'
-        }
+        if ($fingerprint -ne $identity.sha256 -or $cert.Thumbprint -ne $identity.sha1) { throw 'The signed layer has the wrong publisher certificate.' }
+        if ($selected) { $reports[$relative] = Get-PolicySignatureReport $signed $selected $signTool.FullName }
         Move-Item -LiteralPath $signed -Destination $inputFile -Force
-        if ($PayloadRoot) {
+        $outputHash = (Get-FileHash -LiteralPath $inputFile -Algorithm SHA256).Hash.ToLowerInvariant()
+        & python $sharedTool ledger-verify --authorization $Authorization --ledger $ledgerPath --unit $unit --path $relative --input-sha256 $inputHash --claim-sha256 $claimHash --output-sha256 $outputHash
+        if ($LASTEXITCODE -ne 0) { throw 'The exact reserved operation did not complete.' }
+        if ($unit -eq 'outer') {
             $transitions[$relative] = @{ input = $beforeFiles[$relative]; output = @{
-                size = (Get-Item -LiteralPath $inputFile).Length;
-                sha256 = (Get-FileHash -LiteralPath $inputFile -Algorithm SHA256).Hash.ToLowerInvariant()
-            } }
-            $transitions | ConvertTo-Json -Depth 10 | Set-Content -Encoding utf8 -LiteralPath $Receipt
+                size = (Get-Item -LiteralPath $inputFile).Length; sha256 = $outputHash
+            }; trust_class = 'publisher-sign'; signature_report = $reports[$relative] }
         }
-        Write-Output "Verified layer: $([IO.Path]::GetFileName($inputFile)); certificate SHA256: $fingerprint; SHA1: $($cert.Thumbprint); timestamp: $($signature.TimeStamperCertificate.Subject)"
+        Write-Output "Verified layer: $([IO.Path]::GetFileName($inputFile)); certificate SHA256: $fingerprint"
+    }
+    if ($classPolicy) {
+        foreach ($entry in $classPolicy.PSObject.Properties) {
+            if ($entry.Value.trust_class -eq 'publisher-sign') { continue }
+            $relative = $entry.Name
+            $absolute = Join-Path $payloadBoundary $relative
+            if ((Get-FileHash -LiteralPath $absolute -Algorithm SHA256).Hash.ToLowerInvariant() -ne $beforeFiles[$relative].sha256) {
+                throw 'Vendor-preserve or data bytes changed.'
+            }
+            if ($entry.Value.trust_class -eq 'vendor-preserve') {
+                $reports[$relative] = Get-PolicySignatureReport $absolute $entry.Value $signTool.FullName
+                if ($unit -eq 'outer') {
+                    $transitions[$relative] = @{ input = $beforeFiles[$relative]; output = $beforeFiles[$relative];
+                        trust_class = 'vendor-preserve'; signature_report = $reports[$relative] }
+                }
+            }
+        }
+        $rawReports = Join-Path $Root "$unit-signature-reports.native.json"
+        $reports | ConvertTo-Json -Depth 20 | Set-Content -Encoding utf8 -LiteralPath $rawReports
+        $reportDestination = if ($unit -eq 'shared-helper') { Join-Path $HelperOutput 'signature-reports.json' } else { $Receipt + '.reports.json' }
+        & python $sharedTool canonical-reports --input $rawReports --out $reportDestination
+        if ($LASTEXITCODE -ne 0) { throw 'Canonical policy reports failed.' }
+        if ($unit -eq 'outer') {
+            $rawReceipt = Join-Path $Root 'outer-receipt.native.json'
+            $transitions | ConvertTo-Json -Depth 20 | Set-Content -Encoding utf8 -LiteralPath $rawReceipt
+            & python $sharedTool canonical-receipt --input $rawReceipt --out $Receipt
+            if ($LASTEXITCODE -ne 0) { throw 'Canonical outer receipt failed.' }
+        }
     }
 } finally {
     foreach ($name in @('ES_USERNAME', 'ES_PASSWORD', 'ES_TOTP_SECRET')) {

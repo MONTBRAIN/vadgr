@@ -36,6 +36,9 @@ def test_exact_native_target_matrix():
         assert len(rows) == 7
         assert len({row["target"] for row in rows}) == 7
         assert "windows-" + {"x64": "x86_64", "arm64": "aarch64"}[selected] not in {r["target"] for r in rows}
+        paired = gate.remaining_builds(selected, selected)
+        assert len(paired) == 6
+        assert "wsl-" + {"x64": "x86_64", "arm64": "aarch64"}[selected] not in {r["target"] for r in paired}
 
 
 @pytest.fixture

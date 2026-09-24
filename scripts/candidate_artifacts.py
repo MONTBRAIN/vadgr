@@ -187,6 +187,15 @@ def require_legal(source_root: Path, members: dict[str, dict], architecture: str
     require(members["TERMS.rtf"]["sha256"] == members["payload/legal/TERMS.rtf"]["sha256"],
             "package terms and installer terms differ")
     approved = candidate_policy.trusted_approval(architecture)
+    if (source_root / "packaging/cua/profile-inputs.json").exists():
+        trusted_root = Path(candidate_policy.__file__).resolve().parents[1]
+        for suffix in (".json", "-outer.json"):
+            name = f"packaging/cua/helper-signing/{target}{suffix}"
+            original, trusted = source_root / name, trusted_root / name
+            require(original.is_file() and trusted.is_file()
+                    and digest(original) == digest(trusted) == approved["legal_hashes"].get(name),
+                    "profile signing policy differs from exact trusted legal approval")
+            legal[name] = digest(original)
     require(legal == approved["legal_hashes"]
             and list(sbom.values())[0] == approved["sbom_sha256"],
             "candidate compliance bytes do not match reviewed approval")

@@ -1,5 +1,6 @@
 //! The pinned, private computer-use payload carried by a vadgr installation.
 
+mod managed;
 mod release;
 
 use crate::engine::mcp::ToolServer;
@@ -40,6 +41,52 @@ fn selected_wheel_manifest_sha256() -> Option<&'static str> {
     RELEASE_WHEEL_MANIFEST.map(|bytes| HASH.get_or_init(|| hex_sha256(bytes)).as_str())
 }
 
+fn selected_cua_version() -> Result<&'static str> {
+    static VERSION: OnceLock<String> = OnceLock::new();
+    let Some(raw) = RELEASE_PROFILE_CATALOG else {
+        return Ok(CUA_VERSION);
+    };
+    let catalog: serde_json::Value = serde_json::from_slice(raw)?;
+    let version = catalog["cua_version"]
+        .as_str()
+        .context("compiled profile catalog has no CUA version")?;
+    ensure!(
+        version.split('.').count() == 3
+            && version
+                .split('.')
+                .all(|p| !p.is_empty() && p.bytes().all(|b| b.is_ascii_digit())),
+        "compiled CUA profile version is invalid"
+    );
+    Ok(VERSION.get_or_init(|| version.to_owned()))
+}
+
+fn selected_profile_manifest_sha256() -> Result<Option<&'static str>> {
+    static HASH: OnceLock<String> = OnceLock::new();
+    let Some(profile) = RELEASE_PROFILE else {
+        return Ok(None);
+    };
+    let raw = RELEASE_PROFILE_INPUTS.context("compiled profile input mapping is missing")?;
+    let inputs: serde_json::Value = serde_json::from_slice(raw)?;
+    let catalog = RELEASE_PROFILE_CATALOG.context("compiled profile catalog is missing")?;
+    ensure!(
+        inputs["schema"] == 1
+            && inputs["catalog_sha256"] == hex_sha256(catalog)
+            && inputs["profiles"][profile]["requirements_sha256"] == selected_requirements_sha256(),
+        "compiled profile catalog or transitive lock differs"
+    );
+    let hash = inputs["profiles"][profile]["role_manifest_sha256"]
+        .as_str()
+        .context("compiled role manifest pin is missing")?;
+    ensure!(
+        hash.len() == 64
+            && hash
+                .bytes()
+                .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)),
+        "compiled profile role manifest digest is invalid"
+    );
+    Ok(Some(HASH.get_or_init(|| hash.to_owned())))
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct CuaPins {
     pub cua: &'static str,
@@ -50,12 +97,16 @@ pub struct CuaPins {
     pub python_archive_sha256: &'static str,
     pub uv_archive_sha256: &'static str,
     pub wheel_manifest_sha256: Option<&'static str>,
+    pub release_profile: Option<&'static str>,
+    pub cua_profile_manifest_sha256: Option<&'static str>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct CuaCommand {
     pub program: PathBuf,
     pub args: Vec<OsString>,
+    authorization: Option<Vec<u8>>,
+    authorization_root: Option<PathBuf>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -64,6 +115,8 @@ pub struct CuaRuntime {
     bootstrap: PathBuf,
     environment: PathBuf,
     responsible_host: Option<PathBuf>,
+    authorization: Option<Vec<u8>>,
+    authorization_root: Option<PathBuf>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -81,6 +134,10 @@ struct PayloadManifest {
     wheel_manifest_sha256: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     installed_inventory_sha256: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    release_profile: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    cua_profile_manifest_sha256: Option<String>,
 }
 
 impl CuaRuntime {
@@ -91,6 +148,8 @@ impl CuaRuntime {
             bootstrap: root.join("bootstrap.py"),
             environment: root.to_path_buf(),
             responsible_host: None,
+            authorization: None,
+            authorization_root: None,
         }
     }
 
@@ -106,7 +165,9 @@ impl CuaRuntime {
         check_field(
             "schema",
             manifest.schema,
-            if pins.wheel_manifest_sha256.is_some() {
+            if pins.release_profile.is_some() {
+                3
+            } else if pins.wheel_manifest_sha256.is_some() {
                 2
             } else {
                 1
@@ -115,6 +176,12 @@ impl CuaRuntime {
         ensure!(
             manifest.wheel_manifest_sha256.as_deref() == pins.wheel_manifest_sha256,
             "CUA wheel manifest differs from compiled release pins"
+        );
+        ensure!(
+            manifest.release_profile.as_deref() == pins.release_profile
+                && manifest.cua_profile_manifest_sha256.as_deref()
+                    == pins.cua_profile_manifest_sha256,
+            "CUA profile differs from compiled release pins"
         );
         if pins.wheel_manifest_sha256.is_some() {
             release::validate_inventory(
@@ -165,6 +232,12 @@ impl CuaRuntime {
             bootstrap: cua_root.join("bootstrap.py"),
             environment,
             responsible_host: responsible_host(root),
+            authorization: if let Some(profile) = pins.release_profile {
+                managed::installed_authorization(root, &cua_root, &manifest, profile)?
+            } else {
+                None
+            },
+            authorization_root: pins.release_profile.map(|_| root.to_path_buf()),
         };
         ensure!(
             runtime.interpreter.is_file(),
@@ -268,11 +341,15 @@ impl CuaRuntime {
             CuaCommand {
                 program: host.clone(),
                 args: hosted,
+                authorization: self.authorization.clone(),
+                authorization_root: self.authorization_root.clone(),
             }
         } else {
             CuaCommand {
                 program: self.interpreter.clone(),
                 args,
+                authorization: self.authorization.clone(),
+                authorization_root: self.authorization_root.clone(),
             }
         }
     }
@@ -358,6 +435,20 @@ impl CuaPayloadInstaller {
                 Some(release::write_inventory(&cua_root, target_triple()?)?);
         }
         write_manifest_last(&cua_root.join("payload.json"), &manifest)?;
+        if self.pins.release_profile.is_some() {
+            // Secret-free assembly precedes the protected signed authorization.
+            // This build-only runtime can list tools, but managed CUA refuses
+            // helper execution without its inherited signed authorization.
+            let environment = cua_root.join("environments").join(environment_generation());
+            return Ok(CuaRuntime {
+                interpreter: environment_python(&environment),
+                bootstrap: cua_root.join("bootstrap.py"),
+                environment,
+                responsible_host: responsible_host(&self.install_root),
+                authorization: None,
+                authorization_root: None,
+            });
+        }
         CuaRuntime::below_install_root(&self.install_root)
     }
 
@@ -476,6 +567,8 @@ impl CuaPayloadInstaller {
             bootstrap: bootstrap_staging,
             environment: environment_staging.clone(),
             responsible_host: responsible_host(&self.install_root),
+            authorization: None,
+            authorization_root: None,
         };
         let probe_home = staging.join("probe-home");
         std::fs::create_dir(&probe_home)?;
@@ -517,7 +610,9 @@ impl CuaPayloadInstaller {
             &cua_root.join("licenses"),
         )?;
         let manifest = PayloadManifest {
-            schema: if self.pins.wheel_manifest_sha256.is_some() {
+            schema: if self.pins.release_profile.is_some() {
+                3
+            } else if self.pins.wheel_manifest_sha256.is_some() {
                 2
             } else {
                 1
@@ -531,6 +626,8 @@ impl CuaPayloadInstaller {
             target: target.to_owned(),
             wheel_manifest_sha256: self.pins.wheel_manifest_sha256.map(str::to_owned),
             installed_inventory_sha256: None,
+            release_profile: self.pins.release_profile.map(str::to_owned),
+            cua_profile_manifest_sha256: self.pins.cua_profile_manifest_sha256.map(str::to_owned),
         };
         Ok(manifest)
     }
@@ -654,7 +751,7 @@ fn current_pins() -> Result<CuaPins> {
         target => bail!("cua payload does not support target {target}"),
     };
     Ok(CuaPins {
-        cua: CUA_VERSION,
+        cua: selected_cua_version()?,
         python: PYTHON_VERSION,
         python_build: PYTHON_BUILD,
         uv: UV_VERSION,
@@ -662,6 +759,8 @@ fn current_pins() -> Result<CuaPins> {
         python_archive_sha256,
         uv_archive_sha256,
         wheel_manifest_sha256: selected_wheel_manifest_sha256(),
+        release_profile: RELEASE_PROFILE,
+        cua_profile_manifest_sha256: selected_profile_manifest_sha256()?,
     })
 }
 
@@ -678,7 +777,11 @@ fn target_triple() -> Result<&'static str> {
 }
 
 fn environment_generation() -> String {
-    let generation = format!("{}-{}", CUA_VERSION, &selected_requirements_sha256()[..12]);
+    let generation = format!(
+        "{}-{}",
+        selected_cua_version().expect("validated CUA profile pins"),
+        &selected_requirements_sha256()[..12]
+    );
     if cfg!(unix) {
         format!("{generation}-unix-relative-v1")
     } else {
@@ -1584,6 +1687,8 @@ assert not outside
             bootstrap: install.path().join("bootstrap.py"),
             environment: install.path().join("environments/current"),
             responsible_host: None,
+            authorization: None,
+            authorization_root: None,
         };
         let command = runtime.stdio_command();
         assert!(command.program.is_absolute());
@@ -1605,6 +1710,8 @@ assert not outside
             bootstrap: install.path().join("bootstrap.py"),
             environment: install.path().join("environments/current"),
             responsible_host: None,
+            authorization: None,
+            authorization_root: None,
         };
         let command = runtime.setup_command(false);
         assert_eq!(
@@ -1632,6 +1739,8 @@ assert not outside
             bootstrap: install.path().join("bootstrap.py"),
             environment: install.path().join("environments/current"),
             responsible_host: None,
+            authorization: None,
+            authorization_root: None,
         };
         let command = runtime.setup_command(false);
         assert!(

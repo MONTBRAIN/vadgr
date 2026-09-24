@@ -261,6 +261,26 @@ fn is_wsl() -> bool {
 }
 
 fn verify_attestation(bytes: &[u8], encoded: &str) -> Result<()> {
+    verify_named_attestation(bytes, encoded, "release-manifest.json")
+}
+
+pub(crate) fn verify_cua_attestation(bytes: &[u8], encoded: &str, helper: bool) -> Result<()> {
+    ensure!(
+        bytes.len() as u64 <= MAX_MANIFEST_BYTES && encoded.len() as u64 <= MAX_BUNDLE_BYTES,
+        "CUA authorization exceeds its limit"
+    );
+    verify_named_attestation(
+        bytes,
+        encoded,
+        if helper {
+            "helper-closure-authorization.json"
+        } else {
+            "cua-runtime-authorization.json"
+        },
+    )
+}
+
+fn verify_named_attestation(bytes: &[u8], encoded: &str, subject: &str) -> Result<()> {
     // Parsing exactly one JSON value also rejects concatenated JSONL attestations.
     let bundle = Bundle::from_json(encoded).context("parsing the release attestation")?;
     ensure!(
@@ -300,7 +320,7 @@ fn verify_attestation(bytes: &[u8], encoded: &str) -> Result<()> {
     let certificate = x509_cert::Certificate::from_der(certificate.as_bytes())
         .context("parsing the verified release certificate")?;
     verify_release_certificate(&certificate)?;
-    verify_release_statement(envelope.payload.as_bytes(), bytes)
+    verify_named_statement(envelope.payload.as_bytes(), bytes, subject)
 }
 
 fn verify_release_certificate(certificate: &x509_cert::Certificate) -> Result<()> {
@@ -336,7 +356,12 @@ fn verify_release_certificate(certificate: &x509_cert::Certificate) -> Result<()
     Ok(())
 }
 
+#[cfg(test)]
 fn verify_release_statement(payload: &[u8], manifest: &[u8]) -> Result<()> {
+    verify_named_statement(payload, manifest, "release-manifest.json")
+}
+
+fn verify_named_statement(payload: &[u8], manifest: &[u8], subject: &str) -> Result<()> {
     let statement: serde_json::Value =
         serde_json::from_slice(payload).context("parsing the verified release statement")?;
     ensure!(
@@ -355,7 +380,7 @@ fn verify_release_statement(payload: &[u8], manifest: &[u8]) -> Result<()> {
         "the release statement must bind exactly one manifest"
     );
     ensure!(
-        subjects[0]["name"] == "release-manifest.json",
+        subjects[0]["name"] == subject,
         "the release statement names another artifact"
     );
     ensure!(

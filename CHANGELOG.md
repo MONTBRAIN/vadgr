@@ -22,6 +22,12 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Added
 
+- Reviewed eight-profile CUA wheel selection, bounded recursive executable-role
+  checks, and schema-3 runtime pins. Native Linux and WSL use distinct locks.
+  Held profile inputs do not approve publication or change released pins.
+- A shared Windows/WSL helper transformation per architecture, with explicit
+  publisher-sign and vendor-preserve policy, deterministic archives, separate
+  consumer receipts and an authenticated installed launch channel.
 - Native Windows, macOS and Linux packages install the CLI, private CUA/Python
   payload, local machine console, ordinary user-session daemon launch, legal
   bundle and package lifecycle controls.

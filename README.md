@@ -51,6 +51,14 @@ and Intel macOS cryptography wheels from pinned sources on native runners. Its
 validated, attested output still requires exact-hash review before payload use;
 it grants no signing approval and does not qualify an installer.
 
+Release-profile builds select a separately reviewed CUA wheel and complete
+dependency lock for each native or WSL target. Windows and WSL share one signed
+helper closure per architecture; vendor-signed files retain their original
+bytes. Installed schema-3 runtimes require authenticated inventory and helper
+records before launch. Missing profile approvals never fall back to another
+platform's wheel or an unsigned helper. The released CUA pin remains unchanged
+until the paired profile artifacts have been qualified and published.
+
 Vadgr runs on **Linux**, **WSL**, **Windows** and **macOS**.
 On macOS `0.4.12`, grant Accessibility and Screen Recording to the terminal
 named by the operating-system dialogs, restart that terminal, and start vadgr

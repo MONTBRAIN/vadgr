@@ -36,7 +36,7 @@ def test_signer_has_no_source_checkout_or_build_execution():
     workflow = (ROOT / '.github/workflows/candidate.yml').read_text()
     signer = workflow.split('\n  sign-windows:', 1)[1].split('\n  attest:', 1)[0]
     assert 'environment: candidate-windows' in signer
-    assert 'needs: [prepare-authorization, authorize-signing, claim-signing]' in signer
+    assert 'needs: [prepare-authorization, authorize-signing, claim-signing, attest-windows-runtime]' in signer
     assert 'ref: ${{ github.sha }}' in signer
     assert 'cargo ' not in signer
     assert 'source_sha' not in signer
@@ -58,7 +58,7 @@ def test_trusted_packager_never_compiles_or_executes_payload():
 
 def test_quota_reserves_before_vendor_request():
     script = (ROOT / 'scripts/signing/release.ps1').read_text()
-    assert script.index('Reserve-Attempt $inputFile') < script.index("Invoke-Wrapper 'sign'")
+    assert script.index('Reserve-Attempt $relative $inputHash') < script.index("Invoke-Wrapper 'sign'")
     assert 'candidate_claims.py' in script
     assert 'refs/heads/master' in script
     assert 'refs/tags/v' not in script

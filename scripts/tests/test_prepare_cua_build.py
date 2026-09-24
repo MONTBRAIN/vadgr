@@ -20,6 +20,7 @@ def test_development_requires_explicit_permission_and_no_reviewed_inputs(tmp_pat
 
 @pytest.mark.parametrize("name", ["packaging/cua/native-wheel-manifest.json",
                                  "packaging/cua/native-wheel-manifest.json.bundle.jsonl",
+                                 "packaging/cua/profile-inputs.json",
                                  "packaging/cua/locks/other-target.lock"])
 def test_partial_inputs_never_select_development(tmp_path, name):
     path = tmp_path / name

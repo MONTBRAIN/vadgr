@@ -10,7 +10,7 @@ class ReleaseSigning(unittest.TestCase):
         workflow = (ROOT / '.github/workflows/candidate.yml').read_text()
         steps = workflow.split('      - name: ')
         secret_steps = [step for step in steps if 'secrets.ES_PASSWORD' in step]
-        self.assertEqual(len(secret_steps), 4)
+        self.assertEqual(len(secret_steps), 5)
         for step in secret_steps:
             self.assertIn('release.ps1 -Mode sign', step)
             self.assertIn('-Authorization authorization.json', step)
@@ -36,7 +36,7 @@ class ReleaseSigning(unittest.TestCase):
         self.assertIn("$env:GITHUB_REF_TYPE -ne 'branch'", source)
         self.assertIn("$env:GITHUB_REF -ne 'refs/heads/master'", source)
         self.assertIn('candidate_claims.py', source)
-        self.assertLess(source.index('Reserve-Attempt $inputFile'), source.index("Invoke-Wrapper 'sign'"))
+        self.assertLess(source.index('Reserve-Attempt $relative $inputHash'), source.index("Invoke-Wrapper 'sign'"))
         self.assertIn('verify /pa /all /tw /v', source)
         self.assertIn('TimeStamperCertificate', source)
         self.assertIn('SHA256', source)

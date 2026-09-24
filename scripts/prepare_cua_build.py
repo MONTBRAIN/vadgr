@@ -8,15 +8,16 @@ import sys
 
 if __package__:
     from scripts import cua_wheelhouse as wheels
-    from scripts.validate_package_inputs import PackageInputError, require
+    from scripts.validate_package_inputs import PackageInputError, require, parse_json, read_owned
 else:
     import cua_wheelhouse as wheels
-    from validate_package_inputs import PackageInputError, require
+    from validate_package_inputs import PackageInputError, require, parse_json, read_owned
 
 
 def prepare(source, trusted, target, output, allow_development):
     require(target in wheels.release.TARGETS, "unsupported build host target")
-    names = (wheels.release.MANIFEST, wheels.release.BUNDLE, "packaging/cua/locks")
+    names = (wheels.release.MANIFEST, wheels.release.BUNDLE, "packaging/cua/locks",
+             "packaging/cua/profile-inputs.json")
     present = any((root / name).exists() or (root / name).is_symlink()
                   for root in (source, trusted) for name in names)
     if allow_development and not present:
@@ -24,7 +25,10 @@ def prepare(source, trusted, target, output, allow_development):
                 and not os.environ.get("VADGR_BUILD_WHEELHOUSE"), "inherited release selection conflicts with development")
         return {}
     wheels.materialize(source, trusted, target, output)
-    return {"VADGR_RELEASE_PAYLOAD_BUILD": "1", "VADGR_BUILD_WHEELHOUSE": str(output)}
+    values = {"VADGR_RELEASE_PAYLOAD_BUILD": "1", "VADGR_BUILD_WHEELHOUSE": str(output)}
+    if any((root / "packaging/cua/profile-inputs.json").exists() for root in (source, trusted)):
+        values["VADGR_RELEASE_PROFILE"] = parse_json(read_owned(output, "wheelhouse.json"))["release_profile"]
+    return values
 
 
 def main():

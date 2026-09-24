@@ -22,7 +22,13 @@ case "$target" in
   macos-x86_64) package_arch=x86_64; rust_target=x86_64-apple-darwin;;
   *) package_arch=$arch; rust_target=$arch-unknown-linux-gnu;;
 esac
-python3 "$trusted/scripts/cua_wheelhouse.py" --source "$PWD" --target "$rust_target" --verify "$wheelhouse"
+if [ -f "$trusted/packaging/cua/profile-inputs.json" ] || [ -f packaging/cua/profile-inputs.json ]; then
+  python3 "$trusted/scripts/cua_wheelhouse.py" --source "$PWD" --target "$rust_target" --release-profile "$target" --verify "$wheelhouse"
+  export VADGR_RELEASE_PROFILE="$target"
+else
+  unset VADGR_RELEASE_PROFILE
+  python3 "$trusted/scripts/cua_wheelhouse.py" --source "$PWD" --target "$rust_target" --verify "$wheelhouse"
+fi
 export VADGR_RELEASE_PAYLOAD_BUILD=1
 export SOURCE_DATE_EPOCH=1609459200
 export RUSTFLAGS="--remap-path-prefix=$PWD=/vadgr-source"

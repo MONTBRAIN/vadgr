@@ -13,6 +13,7 @@ mod archive;
 mod manifest;
 pub use archive::validate_tar_gz;
 mod update;
+pub(crate) use manifest::verify_cua_attestation;
 pub use manifest::{Artifact, ReleaseManifest, VerifiedArtifact, VerifiedManifest, current_target};
 pub use update::{UpdateCheck, apply_update, check_for_updates};
 #[cfg(target_os = "linux")]
