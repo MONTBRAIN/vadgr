@@ -99,6 +99,11 @@ both the complete upstream source and actual modified source are delivered.
 The pywin32 composite retains all named directory grants and its separately
 inventoried LGPL subtree. A native wheel source mapping is recorded only when
 that target's own producer SBOM supplies the matching source hash and build data.
+For the custom ARM64 cryptography wheel, the observed payload pins the exact
+native producer manifest. Its offline attestation is verified independently,
+then its wheel and source hashes are matched to the installed wheel and source
+inventory. The manifest and bundle remain in the packet's producer evidence.
+This producer binding does not approve redistribution or borrow x64 provenance.
 
 Each `review-ledger.json` names exact component questions. `cargo-scope.json`
 separates normal target dependencies from development, build and proc-macro

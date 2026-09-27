@@ -306,3 +306,45 @@ def test_rmcp_transition_preserves_both_code_grants_not_universal_relicensing(mo
     assert "does not license documentation" in result["reason"]
     assert evidence.crate_grant_scope(row, raw, "Apache-2.0", {"Apache-2.0", "MIT", "Unknown"}, retained_sources=sources) is None
     assert evidence.crate_grant_scope(row, raw, "Apache-2.0", {"Apache-2.0", "MIT"}) is None
+
+
+@pytest.mark.parametrize("change", ["none", "payload", "wheel", "source", "target", "attestation"])
+def test_custom_native_mapping_requires_observed_and_attested_producer(tmp_path, monkeypatch, change):
+    from scripts import cua_release_inputs as release
+    inputs = tmp_path / "payload/lib/cua"
+    inputs.mkdir(parents=True)
+    manifest = b"exact manifest fixture"
+    (inputs / "payload.json").write_text(json.dumps({"target": "x86_64-pc-windows-msvc" if change == "target" else "aarch64-pc-windows-msvc",
+        "wheel_manifest_sha256": "bad" if change == "payload" else sha256_bytes(manifest)}))
+    bundle = tmp_path / release.BUNDLE
+    bundle.parent.mkdir(parents=True)
+    bundle.write_bytes(b"verified bundle fixture")
+    descriptor = {"sha256": "a" * 64, "version": "1", "url": "https://example.org/source"}
+    selected = {"target": "windows-aarch64", "sha256": "b" * 64, "native_members": ["cryptography/native.pyd"],
+        "artifact_id": 1, "build_report_sha256": "c" * 64, "build_sbom_sha256": "d" * 64}
+    producer = {"wheels": [selected], "inputs": {"cryptography": descriptor, "openssl": descriptor},
+        "producer_sha": "e" * 40, "run_id": 1}
+    monkeypatch.setattr(release, "manifest", lambda root: (manifest, producer))
+    verified = []
+    def verify(root, value):
+        if change == "attestation":
+            raise PackageInputError("attestation failed")
+        verified.append(value)
+    monkeypatch.setattr(release, "verify_attestation", verify)
+    packet = Packet()
+    for identifier in ("native-cryptography", "native-cryptography-openssl"):
+        packet.components.append({"id": identifier, "sha256": "bad" if change == "source" else descriptor["sha256"],
+            "version": "1", "download_location": descriptor["url"]})
+        packet.evidence.append({"id": identifier})
+        packet.pending.append({"id": identifier, "items": ["target-binary-to-source-mapping", "owner-review"]})
+    packet.components.append({"id": "wheel-cryptography-50.0.1", "sha256": "bad" if change == "wheel" else selected["sha256"]})
+    packet.evidence.append({"id": "wheel-cryptography-50.0.1",
+        "observed_native_members": {"payload/Lib/site-packages/cryptography/native.pyd": "f" * 64}})
+    if change != "none":
+        with pytest.raises(PackageInputError):
+            evidence.map_custom_native_sources(packet, tmp_path, tmp_path, "arm64")
+    else:
+        evidence.map_custom_native_sources(packet, tmp_path, tmp_path, "arm64")
+        assert verified == [producer]
+        assert all(row["items"] == ["owner-review"] for row in packet.pending)
+        assert "custom-native-source-mapping.json" in packet.files

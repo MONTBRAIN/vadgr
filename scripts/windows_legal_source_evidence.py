@@ -549,6 +549,50 @@ def map_wheel_native_sources(packet, architecture):
         "records": records, "limitation": "A missing target-wheel native catalogue is not filled from another architecture's catalogue or a package version string."}))
 
 
+def map_custom_native_sources(packet, source, inputs, architecture):
+    if architecture != "arm64":
+        return
+    if __package__:
+        from scripts import cua_release_inputs as release
+    else:
+        import cua_release_inputs as release
+    raw, producer = release.manifest(source)
+    payload = json.loads(read_owned(inputs, "payload/lib/cua/payload.json"))
+    require(payload["target"] == "aarch64-pc-windows-msvc"
+            and payload["wheel_manifest_sha256"] == sha256_bytes(raw), "observed native producer manifest differs")
+    release.verify_attestation(source, producer)
+    selected = next(row for row in producer["wheels"] if row["target"] == "windows-aarch64")
+    wheel = next(row for row in packet.components if row["id"] == "wheel-cryptography-50.0.1")
+    wheel_evidence = next(row for row in packet.evidence if row["id"] == wheel["id"])
+    observed = wheel_evidence.get("observed_native_members", {})
+    require(wheel["sha256"] == selected["sha256"] and bool(observed)
+            and all(path.count("/site-packages/") == 1 for path in observed)
+            and {path.split("/site-packages/", 1)[1] for path in observed} == set(selected["native_members"]),
+            "observed custom native wheel differs")
+    records = []
+    for identifier, key in (("native-cryptography", "cryptography"), ("native-cryptography-openssl", "openssl")):
+        component = next(row for row in packet.components if row["id"] == identifier)
+        descriptor = producer["inputs"][key]
+        require(component["sha256"] == descriptor["sha256"] and component["version"] == descriptor["version"]
+                and component["download_location"] == descriptor["url"], "custom native source identity differs")
+        record = {"component": identifier, "source_descriptor": descriptor, "target": selected["target"],
+            "wheel_sha256": selected["sha256"], "observed_native_members": observed,
+            "producer_manifest_sha256": sha256_bytes(raw), "producer_sha": producer["producer_sha"],
+            "run_id": producer["run_id"], "artifact_id": selected["artifact_id"],
+            "build_report_sha256": selected["build_report_sha256"], "build_sbom_sha256": selected["build_sbom_sha256"],
+            "basis": "observed-payload-pinned-manifest-with-independently-verified-native-producer-attestation",
+            "limitation": "Exact reviewed producer inputs and observed wheel equality; not a new package approval or independent bit-for-bit rebuild."}
+        records.append(record)
+        evidence = next(row for row in packet.evidence if row["id"] == identifier)
+        evidence.update(scope="native-source-bound-by-observed-payload-and-attested-producer", binary_mapping=record)
+        pending = next(row for row in packet.pending if row["id"] == identifier)
+        pending["items"] = [item for item in pending["items"] if item != "target-binary-to-source-mapping"]
+    packet.put("producer-evidence/native-wheel-manifest.json", raw)
+    packet.put("producer-evidence/native-wheel-manifest.json.bundle.jsonl", read_owned(source, release.BUNDLE))
+    packet.put("custom-native-source-mapping.json", canonical_json({"schema": 1,
+        "status": "source-observations-not-approval", "records": records}))
+
+
 def nodriver_equality(packet, inputs, raw):
     with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as archive:
         source = {member.name.split("/", 1)[1]: archive.extractfile(member).read()

@@ -24,7 +24,7 @@ import zipfile
 if __package__:
     from scripts.inspect_legal_crate_sources import statements as original_statements
     from scripts.copyright_absence import audit_archive, audit_source_tree_zip, source_tree_zip
-    from scripts.windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, map_wheel_native_sources, crate_grant_scope, crate_external_grant, complete_apache_reference, complete_mpl_reference, compare_certifi_source, tix_referenced_grant
+    from scripts.windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, map_wheel_native_sources, map_custom_native_sources, crate_grant_scope, crate_external_grant, complete_apache_reference, complete_mpl_reference, compare_certifi_source, tix_referenced_grant
     from scripts.validate_package_inputs import (
         CLOSURES, KINDS, REQUIRED_FILES, canonical_json, parse_json,
         profile_source_inputs, read_owned, relative_path, render_rtf, require,
@@ -33,7 +33,7 @@ if __package__:
 else:
     from inspect_legal_crate_sources import statements as original_statements
     from copyright_absence import audit_archive, audit_source_tree_zip, source_tree_zip
-    from windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, map_wheel_native_sources, crate_grant_scope, crate_external_grant, complete_apache_reference, complete_mpl_reference, compare_certifi_source, tix_referenced_grant
+    from windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, map_wheel_native_sources, map_custom_native_sources, crate_grant_scope, crate_external_grant, complete_apache_reference, complete_mpl_reference, compare_certifi_source, tix_referenced_grant
     from validate_package_inputs import (
         CLOSURES, KINDS, REQUIRED_FILES, canonical_json, parse_json,
         profile_source_inputs, read_owned, relative_path, render_rtf, require,
@@ -1292,6 +1292,7 @@ def synthesize(source, observation_root, architecture, created, archive_root, cr
     add_reviewed_helpers(packet, source, inputs, architecture)
     map_python_native(packet, inputs, source, architecture)
     map_wheel_native_sources(packet, architecture)
+    map_custom_native_sources(packet, source, inputs, architecture)
     components = sorted(packet.components, key=lambda row: row["id"])
     inventory = {"schema": 1, "created": created, "version": "0.5.0", "target": observation["target"],
                  "terms_version": "1.0", "terms_sha256": sha256_bytes(terms), "source_inputs": bindings,
