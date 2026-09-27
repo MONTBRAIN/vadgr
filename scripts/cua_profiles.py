@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Data-only admission for reviewed CUA release profiles.
 
-Profile inputs are promoted through trusted source review. This module never
+Profile inputs are unexecuted data admitted by trusted tooling. This module never
 resolves a newest artifact, invents a pin, executes a wheel, or approves inputs.
 """
 
@@ -297,10 +297,15 @@ def _verify_publication(source, catalog, members):
     # The CUA publication producer emits compact canonical JSON, while the
     # pre-publication wheel catalog deliberately uses indented canonical JSON.
     raw = read_owned(source, PUBLICATION)
+    require(len(raw) <= release.MAX_METADATA, "publication record is oversized")
     publication = parse_json(raw)
     require((json.dumps(publication, sort_keys=True, separators=(",", ":")) + "\n").encode() == raw,
             "publication record is not canonical")
-    require(publication.get("schema") == 1 and publication.get("repository") == REPOSITORY
+    require(set(publication) == {"schema", "repository", "cua_version", "catalog_sha256", "tag", "release_id", "assets"}
+            and type(publication["schema"]) is int and publication["schema"] == 1
+            and type(publication["release_id"]) is int and publication["release_id"] > 0
+            and isinstance(publication["assets"], list) and publication["assets"]
+            and publication.get("repository") == REPOSITORY
             and publication.get("cua_version") == catalog["cua_version"]
             and publication.get("catalog_sha256") == sha256_bytes(read_owned(source, CATALOG))
             and publication.get("tag") == "v" + catalog["cua_version"], "publication binding differs")
@@ -311,6 +316,9 @@ def _verify_publication(source, catalog, members):
     assets = {a["id"]: a for a in released.get("assets", [])}
     seen = set()
     for row in publication["assets"]:
+        require(isinstance(row, dict) and set(row) == {"filename", "id", "size", "sha256"}
+                and type(row["id"]) is int and row["id"] > 0, "CUA publication asset schema differs")
+        identity({key: value for key, value in row.items() if key != "id"})
         asset = assets.get(row["id"], {})
         require(row["filename"] in members and row["filename"] not in seen
                 and asset.get("name") == row["filename"] and asset.get("size") == row["size"]

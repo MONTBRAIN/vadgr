@@ -209,7 +209,8 @@ def test_retained_member_cannot_change_even_if_archive_metadata_matches(admissio
         profiles.retrieve(a.trusted, a.inputs, a.catalog, source=a.source)
 
 
-@pytest.mark.parametrize("mutation", [None, "not-immutable", "asset-digest", "trusted-copy"])
+@pytest.mark.parametrize("mutation", [None, "not-immutable", "asset-digest", "trusted-copy",
+                                      "extra-field", "boolean-schema", "extra-asset-field"])
 def test_released_data_keeps_signer_stable_only_with_verified_publication(admission, mutation):
     a = admission
     rows = [{"id": index + 100, "filename": name, "size": len(raw), "sha256": sha256_bytes(raw)}
@@ -217,6 +218,12 @@ def test_released_data_keeps_signer_stable_only_with_verified_publication(admiss
     publication = {"schema": 1, "repository": profiles.REPOSITORY, "cua_version": "0.7.9",
                    "catalog_sha256": a.inputs["catalog_sha256"], "tag": "v0.7.9",
                    "release_id": 900, "assets": rows}
+    if mutation == "extra-field":
+        publication["unreviewed"] = True
+    elif mutation == "boolean-schema":
+        publication["schema"] = True
+    elif mutation == "extra-asset-field":
+        rows[0]["unreviewed"] = True
     raw = (json.dumps(publication, sort_keys=True, separators=(",", ":")) + "\n").encode()
     write(a.source, profiles.PUBLICATION, raw)
     a.inputs.update(publication_state="released", publication_sha256=sha256_bytes(raw))
