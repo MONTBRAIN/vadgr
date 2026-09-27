@@ -31,6 +31,18 @@ def write(root, name, raw):
     path.write_bytes(raw)
 
 
+def test_repository_origin_query_has_no_trailing_slash(monkeypatch):
+    commands = []
+
+    def run(command, **kwargs):
+        commands.append(command)
+        return SimpleNamespace(returncode=0, stdout=b'{"id":1}\n')
+
+    monkeypatch.setattr(profiles.subprocess, "run", run)
+    assert profiles._gh("") == {"id": 1}
+    assert commands == [["gh", "api", "--method", "GET", "repos/MONTBRAIN/vadgr-computer-use"]]
+
+
 @pytest.fixture
 def admission(tmp_path, monkeypatch):
     source, trusted = tmp_path / "feature", tmp_path / "trusted"
