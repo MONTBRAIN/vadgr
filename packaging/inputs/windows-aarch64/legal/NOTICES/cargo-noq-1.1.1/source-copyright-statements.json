@@ -2,6 +2,21 @@
   "archive_sha256": "09e4bb6601fa543c110d8957813267d5a8d775a0f8fbaccf1f615d06ba9b10da",
   "original_statement_files": [
     {
+      "path": "noq-1.1.1/LICENSE-APACHE",
+      "sha256": "a237a9d796dd30eebc8def7ee282c691be4c884454444510d702644f20669c15",
+      "size": 11384,
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright [2025] [The quinn developers]"
+        },
+        {
+          "line": 190,
+          "text": "Copyright [2025] [N0, Inc]"
+        }
+      ]
+    },
+    {
       "path": "noq-1.1.1/LICENSE-MIT",
       "sha256": "9e654cd17a17880f43a84c9c024f9ca7a320ed906d521072c15aa2e8daff8df0",
       "size": 1097,
@@ -32,5 +47,5 @@
       ]
     }
   ],
-  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
 }

@@ -24,7 +24,7 @@ import zipfile
 if __package__:
     from scripts.inspect_legal_crate_sources import statements as original_statements
     from scripts.copyright_absence import audit_archive
-    from scripts.windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native
+    from scripts.windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, crate_grant_scope, crate_external_grant
     from scripts.validate_package_inputs import (
         CLOSURES, KINDS, REQUIRED_FILES, canonical_json, parse_json,
         profile_source_inputs, read_owned, relative_path, render_rtf, require,
@@ -33,7 +33,7 @@ if __package__:
 else:
     from inspect_legal_crate_sources import statements as original_statements
     from copyright_absence import audit_archive
-    from windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native
+    from windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, crate_grant_scope, crate_external_grant
     from validate_package_inputs import (
         CLOSURES, KINDS, REQUIRED_FILES, canonical_json, parse_json,
         profile_source_inputs, read_owned, relative_path, render_rtf, require,
@@ -1048,11 +1048,38 @@ def add_crate_evidence(packet, cache, archive_root, architecture):
             if notice["sha256"] not in seen:
                 sources.append((notice["path"], raw))
                 seen.add(notice["sha256"])
+        crate_raw = read_owned(cache, row["name"] + "-" + row["version"] + ".crate")
+        external = crate_external_grant(row, crate_raw, archive_root)
+        if external:
+            sources.append(external[0])
         renewed = Packet()
         renewed.component(identifier=row["id"], name=row["name"], version=row["version"], kind=row["kind"],
                           digest=row["sha256"], location=row["download_location"],
                           declared=evidence["original_license_declaration"], sources=sources,
                           scope=evidence["scope"], pending=issue["items"], origins=evidence["origins"])
+        grants = set().union(*(license_atoms(raw) for _, raw in sources))
+        scoped = crate_grant_scope(row, crate_raw,
+                                  license_choice(evidence["original_license_declaration"], grants), grants)
+        if scoped:
+            renewed = Packet()
+            renewed.component(identifier=row["id"], name=row["name"], version=row["version"], kind=row["kind"],
+                digest=row["sha256"], location=row["download_location"], declared=scoped["expression"], sources=sources,
+                scope=evidence["scope"], pending=issue["items"], origins=evidence["origins"])
+            require(renewed.components[0]["license_concluded"] != "NOASSERTION", "scoped source grants are incomplete")
+            renewed.components[0]["license_declared"] = row["license_declared"]
+            renewed.evidence[0]["original_license_declaration"] = evidence["original_license_declaration"]
+            renewed.evidence[0]["grant_scope_basis"] = scoped
+            renewed.pending[0]["items"] = [item for item in renewed.pending[0]["items"] if item != "additional-retained-grant-scope"]
+            path = "legal/NOTICES/" + row["id"] + "/source-grant-scope.json"
+            raw = canonical_json(scoped)
+            renewed.put(path, raw)
+            renewed.components[0]["notice_files"].append({"path": path, "sha256": sha256_bytes(raw)})
+        if external:
+            path = "legal/NOTICES/" + row["id"] + "/external-grant-provenance.json"
+            raw = canonical_json(external[1])
+            renewed.put(path, raw)
+            renewed.components[0]["notice_files"].append({"path": path, "sha256": sha256_bytes(raw)})
+            renewed.evidence[0]["external_grant_basis"] = external[1]
         retained_text = " ".join(b"\n".join(raw for _, raw in sources).decode("utf-8").split())
         if row["name"] == "libm" and "rust-lang/libm as a whole is available for use under the MIT license" in retained_text:
             renewed.pending[0]["items"] = [item for item in renewed.pending[0]["items"] if item != "additional-retained-grant-scope"]
@@ -1070,12 +1097,18 @@ def add_crate_evidence(packet, cache, archive_root, architecture):
         # The inventory digest identifies the complete source archive. Statements
         # in tests remain attributed to their exact files, not promoted to a
         # claim about library ownership or discarded to create fictional absence.
-        claims = fact["original_statements"]
+        claims = list(fact["original_statements"])
+        if external:
+            grant_name, grant_raw = external[0]
+            grant_claims = original_statements(grant_raw.decode("utf-8"))
+            if grant_claims:
+                claims.append({"path": grant_name, "sha256": sha256_bytes(grant_raw),
+                    "source_url": external[1]["url"], "statements": grant_claims})
         statements = sorted({statement["text"] for claim in claims for statement in claim["statements"]})
         if statements:
             renewed.components[0]["copyright_text"] = "\n".join(statements)
             retained = canonical_json({"archive_sha256": row["sha256"], "original_statement_files": claims,
-                "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."})
+                "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."})
             name = "legal/NOTICES/" + row["id"] + "/source-copyright-statements.json"
             renewed.put(name, retained)
             renewed.components[0]["notice_files"].append({"path": name, "sha256": sha256_bytes(retained)})

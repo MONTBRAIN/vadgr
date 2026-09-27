@@ -6,10 +6,12 @@ redistribution. Cargo graph reachability is distinguished from machine-code proo
 
 from collections import defaultdict, deque
 import io
+import json
 from pathlib import Path
 import re
 import struct
 import tarfile
+import tomllib
 
 if __package__:
     from scripts.inspect_legal_crate_sources import inspect_archive
@@ -27,6 +29,123 @@ WHEEL_SOURCES = {
     "cryptography-50.0.1.tar.gz": ("5dd9bda1c12b4162f6ff568eeb5e0ff956c28d14406e875cfe8a63a2d414ff20",
         "https://files.pythonhosted.org/packages/bb/ad/5d6702db60b1e40b41ef513b6967ff5848f307d50f8449baf1634f5908f1/cryptography-50.0.1.tar.gz"),
 }
+
+
+EXTERNAL_CRATE_GRANTS = {
+    "iroh": ("1.0.3", "f2eb930dda3779c6d852b72f3712aacd6e573ab1", "https://github.com/n0-computer/iroh",
+        "iroh-f2eb930-LICENSE-APACHE.txt", "903131e2786f073a942fbf8fae122d9e576e4dad758c6da7f9f2ba58fd8611ab",
+        "https://raw.githubusercontent.com/n0-computer/iroh/f2eb930dda3779c6d852b72f3712aacd6e573ab1/LICENSE-APACHE"),
+    "cms": ("0.2.3", "5821a21553509dbd03eae593b0a1fad4e2083d4e", "https://github.com/RustCrypto/formats/tree/master/cms",
+        "Apache-2.0-standard.txt", "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "https://www.apache.org/licenses/LICENSE-2.0.txt"),
+}
+EXTERNAL_CRATE_GRANTS["iroh-relay"] = EXTERNAL_CRATE_GRANTS["iroh"]
+
+
+def crate_external_grant(component, raw, archive_root):
+    """Bind a complete grant to the exact crate's explicit application declaration."""
+    spec = EXTERNAL_CRATE_GRANTS.get(component["name"])
+    if spec is None:
+        return None
+    version, revision, repository, filename, digest, url = spec
+    require(component["version"] == version and sha256_bytes(raw) == component["sha256"],
+            "external grant crate identity differs")
+    root = component["name"] + "-" + version + "/"
+    proof = []
+    with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as archive:
+        def member(relative):
+            data = archive.extractfile(root + relative).read()
+            proof.append({"path": root + relative, "sha256": sha256_bytes(data), "size": len(data)})
+            return data
+        manifest = tomllib.loads(member("Cargo.toml").decode("utf-8"))["package"]
+        vcs = json.loads(member(".cargo_vcs_info.json"))
+    require(manifest["name"] == component["name"] and manifest["version"] == version
+            and manifest["repository"] == repository and manifest["license"] in {"Apache-2.0 OR MIT", "MIT OR Apache-2.0"}
+            and vcs["git"]["sha1"] == revision and vcs["path_in_vcs"] == component["name"],
+            "external grant application or source revision differs")
+    grant = read_owned(archive_root, filename)
+    require(sha256_bytes(grant) == digest, "external grant text identity differs")
+    return (filename, grant), {"archive_sha256": component["sha256"], "source_files": proof,
+        "source_revision": revision, "url": url, "grant_sha256": digest,
+        "application": "Exact crate manifest explicitly offers Apache-2.0 OR MIT. The complete Apache text is retained separately from original ownership evidence.",
+        "status": "source-grant-proposal-not-package-approval"}
+
+
+def crate_grant_scope(component, raw, base_expression, grants):
+    """Read explicit upstream file-scope statements, never infer scope from filenames alone."""
+    require(sha256_bytes(raw) == component["sha256"], "grant scope archive identity differs")
+    if not base_expression:
+        return None
+    name = component["name"]
+    root = name + "-" + component["version"] + "/"
+    proof = []
+    with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as archive:
+        def source(relative):
+            member = archive.getmember(root + relative)
+            require(member.isfile() and member.size <= 16 * 1024 * 1024, "grant scope source is invalid")
+            data = archive.extractfile(member).read()
+            proof.append({"path": member.name, "sha256": sha256_bytes(data), "size": len(data)})
+            return " ".join(data.decode("utf-8").split())
+
+        if name in {"iroh", "iroh-relay"}:
+            text = source("LICENSE-BSD3")
+            if "Tailscale" not in text or not {"Apache-2.0", "BSD-3-Clause"} <= grants:
+                return None
+            expression, accounted = "Apache-2.0 AND BSD-3-Clause", {"Apache-2.0", "BSD-3-Clause"}
+            reason = "The exact crate retains BSD terms for Tailscale-derived portions in addition to its declared Apache-or-MIT grant."
+        elif name == "epaint_default_fonts":
+            hack = source("fonts/Hack-Regular.txt")
+            if not all(text in hack for text in ("Source Foundry Authors and licensed under the MIT License",
+                    "Bitstream Vera Sans Mono Copyright 2003 Bitstream Inc. and licensed under the Bitstream Vera License")):
+                return None
+            accounted = {"MIT", "Apache-2.0", "Bitstream-Vera", "OFL-1.1", "Ubuntu-font-1.0"}
+            if grants != accounted:
+                return None
+            expression = "Apache-2.0 AND MIT AND Bitstream-Vera AND OFL-1.1 AND Ubuntu-font-1.0"
+            reason = "The crate's code grant and all four separately inventoried embedded font grants are retained together; Hack explicitly includes both MIT and Bitstream Vera material."
+        elif name in {"accesskit", "accesskit_consumer", "accesskit_windows"}:
+            paths = {"accesskit": ["src/lib.rs"], "accesskit_consumer": ["src/iterators.rs", "src/node.rs"],
+                     "accesskit_windows": ["src/node.rs"]}[name]
+            headers = [source(path) for path in paths]
+            if not all("Derived from Chromium's accessibility abstraction." in text
+                       and "found in the LICENSE.chromium file." in text for text in headers):
+                return None
+            if not {"MIT", "Apache-2.0", "BSD-3-Clause"} <= grants:
+                return None
+            expression, accounted = "Apache-2.0 AND BSD-3-Clause", {"MIT", "Apache-2.0", "BSD-3-Clause"}
+            reason = "Named runtime source files explicitly retain Chromium's BSD grant in addition to AccessKit's Apache-or-MIT terms."
+        elif name == "regex-syntax":
+            source("src/unicode_tables/LICENSE-UNICODE")
+            if not {"MIT", "Apache-2.0", "Unicode-DFS-2016"} <= grants:
+                return None
+            expression, accounted = "Apache-2.0 AND Unicode-DFS-2016", {"MIT", "Apache-2.0", "Unicode-DFS-2016"}
+            reason = "The retained license in the Unicode table source subtree adds the Unicode data grant to the crate's Apache-or-MIT terms."
+        elif name == "crossbeam-channel":
+            text = source("README.md")
+            if not all(item in text for item in ("#### Third party software", "[examples/matching.rs]",
+                    "[tests/mpsc.rs]", "[tests/golang.rs]", "Copies of third party licenses can be found")):
+                return None
+            references = re.findall(r"\* \[([^]]+)\]", text.split("#### Third party software", 1)[1])
+            if sorted(references) != ["examples/matching.rs", "tests/golang.rs", "tests/mpsc.rs"]:
+                return None
+            source("LICENSE-THIRD-PARTY")
+            expression, accounted = base_expression, {"Apache-2.0", "MIT", "BSD-3-Clause"}
+            reason = "Upstream maps the additional grant catalogue to examples/matching.rs, tests/mpsc.rs and tests/golang.rs, not the runtime library. All original notices remain retained."
+        elif name == "ring":
+            text = source("LICENSE-BoringSSL")
+            if not all(item in text for item in ("Licenses for support code", "Parts of the TLS test suite are under the Go license",
+                    "distributing code linked against BoringSSL does not trigger this license",
+                    "The scripts which manage this, and the script for generating build metadata, are under the Chromium license")):
+                return None
+            expression, accounted = base_expression, {"Apache-2.0", "ISC", "BSD-3-Clause"}
+            reason = "Upstream explicitly separates Go test-suite and Chromium build-infrastructure grants from linked BoringSSL code. The Apache and ISC runtime grants remain concluded."
+        else:
+            return None
+    if grants - accounted:
+        return None
+    return {"archive_sha256": component["sha256"], "expression": expression,
+            "accounted_grants": sorted(accounted), "source_files": proof, "reason": reason,
+            "status": "source-scope-proposal-not-package-approval"}
 
 
 def pe_imports(raw, architecture):

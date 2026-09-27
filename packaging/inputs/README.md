@@ -43,6 +43,8 @@ The source directory needs these exact archives:
 | `rpds_py-2026.6.3.tar.gz` | `1cebd1337c242e4ec2293e541f712b2da849b29f48f0c293684b71c0632625d4` | Exact PyPI source URL in `scripts/windows_legal_source_evidence.py` |
 | `cryptography-50.0.1.tar.gz` | `5dd9bda1c12b4162f6ff568eeb5e0ff956c28d14406e875cfe8a63a2d414ff20` | Exact PyPI source URL in `scripts/windows_legal_source_evidence.py` |
 | `sqlite-autoconf-3530100.tar.gz` | `83e6b2020a034e9a7ad4a72feea59e1ad52f162e09cbd26735a3ffb98359fc4f` | [Exact SQLite source](https://www.sqlite.org/2026/sqlite-autoconf-3530100.tar.gz) |
+| `iroh-f2eb930-LICENSE-APACHE.txt` | `903131e2786f073a942fbf8fae122d9e576e4dad758c6da7f9f2ba58fd8611ab` | [Exact Iroh source revision](https://raw.githubusercontent.com/n0-computer/iroh/f2eb930dda3779c6d852b72f3712aacd6e573ab1/LICENSE-APACHE) |
+| `Apache-2.0-standard.txt` | `cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30` | [Complete Apache license](https://www.apache.org/licenses/LICENSE-2.0.txt) |
 
 The crate inspector acquires only exact digest-matching archives named by the
 inventories, without executing source. The synthesizer independently re-reads
@@ -51,6 +53,10 @@ statement locations, archive/member-set digests and Cargo manifests.
 The observed wheel SBOM catalogue supplies any newer exact crate versions absent
 from earlier acquisition lists. Conflicting crate identities are rejected;
 neither an old supplement nor another target's catalogue replaces observed bytes.
+External crate grants require the exact archive manifest, repository and VCS
+revision. Their original declaration remains separate from the proposed choice.
+Source-scope records retain the exact upstream statements for additional grants;
+an unexpected grant or source reference leaves the component unresolved.
 `nested-source-scope.json` classifies wheel SBOM edges using exact source
 dependency kinds and Windows target predicates; it does not claim linker-map
 precision. `python-native-source-mapping.json` retains actual PE imports as well

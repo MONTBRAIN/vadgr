@@ -88178,6 +88178,17 @@
       "name": "iroh-metrics",
       "original_statements": [
         {
+          "path": "iroh-metrics-1.0.1/LICENSE-APACHE",
+          "sha256": "7953ad8cebf4e01199521a5faa221ef59bec5cee0a9856b179590613a8560cbc",
+          "size": 10831,
+          "statements": [
+            {
+              "line": 189,
+              "text": "Copyright [2026] [N0, INC]"
+            }
+          ]
+        },
+        {
           "path": "iroh-metrics-1.0.1/LICENSE-MIT",
           "sha256": "339060c99d5c80c2742cae417f765980afe6b0149a78f959bbf2a79f19ab3af5",
           "size": 1048,
@@ -102659,6 +102670,17 @@
       "name": "n0-error",
       "original_statements": [
         {
+          "path": "n0-error-1.0.0/LICENSE-APACHE",
+          "sha256": "7953ad8cebf4e01199521a5faa221ef59bec5cee0a9856b179590613a8560cbc",
+          "size": 10831,
+          "statements": [
+            {
+              "line": 189,
+              "text": "Copyright [2026] [N0, INC]"
+            }
+          ]
+        },
+        {
           "path": "n0-error-1.0.0/LICENSE-MIT",
           "sha256": "339060c99d5c80c2742cae417f765980afe6b0149a78f959bbf2a79f19ab3af5",
           "size": 1048,
@@ -102961,6 +102983,17 @@
       "name": "n0-future",
       "original_statements": [
         {
+          "path": "n0-future-0.3.2/LICENSE-APACHE",
+          "sha256": "7986218ec4ea89de3511a843ae27fea2584a525036c220ff7b26589179f07888",
+          "size": 10831,
+          "statements": [
+            {
+              "line": 189,
+              "text": "Copyright [2023] [N0, INC]"
+            }
+          ]
+        },
+        {
           "path": "n0-future-0.3.2/LICENSE-MIT",
           "sha256": "33616ec4c88b6e00de66e6c06f1a55d80bb32a9d7939f3aa83d28e673a1adcae",
           "size": 1048,
@@ -103194,6 +103227,17 @@
       },
       "name": "n0-watcher",
       "original_statements": [
+        {
+          "path": "n0-watcher-1.0.0/LICENSE-APACHE",
+          "sha256": "7953ad8cebf4e01199521a5faa221ef59bec5cee0a9856b179590613a8560cbc",
+          "size": 10831,
+          "statements": [
+            {
+              "line": 189,
+              "text": "Copyright [2026] [N0, INC]"
+            }
+          ]
+        },
         {
           "path": "n0-watcher-1.0.0/LICENSE-MIT",
           "sha256": "339060c99d5c80c2742cae417f765980afe6b0149a78f959bbf2a79f19ab3af5",
@@ -105826,6 +105870,21 @@
       "name": "noq",
       "original_statements": [
         {
+          "path": "noq-1.1.1/LICENSE-APACHE",
+          "sha256": "a237a9d796dd30eebc8def7ee282c691be4c884454444510d702644f20669c15",
+          "size": 11384,
+          "statements": [
+            {
+              "line": 189,
+              "text": "Copyright [2025] [The quinn developers]"
+            },
+            {
+              "line": 190,
+              "text": "Copyright [2025] [N0, Inc]"
+            }
+          ]
+        },
+        {
           "path": "noq-1.1.1/LICENSE-MIT",
           "sha256": "9e654cd17a17880f43a84c9c024f9ca7a320ed906d521072c15aa2e8daff8df0",
           "size": 1097,
@@ -106485,6 +106544,21 @@
       "name": "noq-proto",
       "original_statements": [
         {
+          "path": "noq-proto-1.1.1/LICENSE-APACHE",
+          "sha256": "a237a9d796dd30eebc8def7ee282c691be4c884454444510d702644f20669c15",
+          "size": 11384,
+          "statements": [
+            {
+              "line": 189,
+              "text": "Copyright [2025] [The quinn developers]"
+            },
+            {
+              "line": 190,
+              "text": "Copyright [2025] [N0, Inc]"
+            }
+          ]
+        },
+        {
           "path": "noq-proto-1.1.1/LICENSE-MIT",
           "sha256": "9e654cd17a17880f43a84c9c024f9ca7a320ed906d521072c15aa2e8daff8df0",
           "size": 1097,
@@ -106810,6 +106884,21 @@
       },
       "name": "noq-udp",
       "original_statements": [
+        {
+          "path": "noq-udp-1.1.1/LICENSE-APACHE",
+          "sha256": "a237a9d796dd30eebc8def7ee282c691be4c884454444510d702644f20669c15",
+          "size": 11384,
+          "statements": [
+            {
+              "line": 189,
+              "text": "Copyright [2025] [The quinn developers]"
+            },
+            {
+              "line": 190,
+              "text": "Copyright [2025] [N0, Inc]"
+            }
+          ]
+        },
         {
           "path": "noq-udp-1.1.1/LICENSE-MIT",
           "sha256": "9e654cd17a17880f43a84c9c024f9ca7a320ed906d521072c15aa2e8daff8df0",
@@ -153577,6 +153666,17 @@
       },
       "name": "sorted-index-buffer",
       "original_statements": [
+        {
+          "path": "sorted-index-buffer-0.2.1/LICENSE-APACHE",
+          "sha256": "903131e2786f073a942fbf8fae122d9e576e4dad758c6da7f9f2ba58fd8611ab",
+          "size": 10831,
+          "statements": [
+            {
+              "line": 189,
+              "text": "Copyright [2025] [N0, INC]"
+            }
+          ]
+        },
         {
           "path": "sorted-index-buffer-0.2.1/LICENSE-MIT",
           "sha256": "f169adb8124d3b005416d8485d00777c9a7bdd9099982c52a4493f9732e6d050",

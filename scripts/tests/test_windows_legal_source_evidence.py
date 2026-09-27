@@ -94,6 +94,35 @@ def test_original_statement_records_source_line_and_hash():
     assert claim["statements"] == [{"line": 1, "text": "// Copyright 2026 Original Holder"}]
 
 
+def test_filled_bracketed_copyright_is_distinct_from_template():
+    assert crates.statements("Copyright [2025] [N0, INC]") == [
+        {"line": 1, "text": "Copyright [2025] [N0, INC]"}]
+    assert crates.statements("Copyright [yyyy] [name of copyright owner]") == []
+    assert crates.statements("Copyright [2025] [name of copyright owner]") == []
+
+
+@pytest.mark.parametrize("changed", ["none", "vcs", "manifest", "grant"])
+def test_external_grant_binds_application_revision_and_full_text(tmp_path, monkeypatch, changed):
+    grant = b"exact complete external grant"
+    monkeypatch.setitem(evidence.EXTERNAL_CRATE_GRANTS, "demo",
+        ("1", "a" * 40, "https://example.org/demo", "grant.txt", sha256_bytes(grant), "https://example.org/grant"))
+    (tmp_path / "grant.txt").write_bytes(grant + (b"changed" if changed == "grant" else b""))
+    raw = archive({"demo-1/Cargo.toml": (
+        '[package]\nname="demo"\nversion="1"\nrepository="https://example.org/demo"\nlicense="'
+        + ("MIT" if changed == "manifest" else "Apache-2.0 OR MIT") + '"\n').encode(),
+        "demo-1/.cargo_vcs_info.json": json.dumps({"git": {"sha1": ("b" if changed == "vcs" else "a") * 40},
+            "path_in_vcs": "demo"}).encode()})
+    row = {"name": "demo", "version": "1", "sha256": sha256_bytes(raw)}
+    if changed == "none":
+        notice, proof = evidence.crate_external_grant(row, raw, tmp_path)
+        assert notice == ("grant.txt", grant)
+        assert proof["archive_sha256"] == row["sha256"]
+        assert len(proof["source_files"]) == 2
+    else:
+        with pytest.raises(PackageInputError, match="differs"):
+            evidence.crate_external_grant(row, raw, tmp_path)
+
+
 def test_source_archive_traversal_is_rejected():
     raw = archive({"../escape": b"data"})
     with pytest.raises(PackageInputError, match="unsafe path"):
@@ -103,3 +132,38 @@ def test_source_archive_traversal_is_rejected():
 def test_native_mapping_refuses_non_pe():
     with pytest.raises(PackageInputError, match="not PE"):
         evidence.pe_imports(b"not native", "x64")
+
+
+def test_accesskit_scope_requires_explicit_source_notice_and_exact_archive():
+    raw = archive({"accesskit-1/src/lib.rs": b"// Derived from Chromium's accessibility abstraction.\n// found in the LICENSE.chromium file.\n"})
+    row = {"name": "accesskit", "version": "1", "sha256": sha256_bytes(raw)}
+    grants = {"MIT", "Apache-2.0", "BSD-3-Clause"}
+    result = evidence.crate_grant_scope(row, raw, "Apache-2.0", grants)
+    assert result["expression"] == "Apache-2.0 AND BSD-3-Clause"
+    assert result["source_files"][0]["path"] == "accesskit-1/src/lib.rs"
+    assert result["status"] == "source-scope-proposal-not-package-approval"
+    assert evidence.crate_grant_scope(row, raw, "Apache-2.0", grants | {"Unknown"}) is None
+    with pytest.raises(PackageInputError, match="archive identity differs"):
+        evidence.crate_grant_scope(row, raw + b"changed", "Apache-2.0", grants)
+
+
+@pytest.mark.parametrize("extra, resolved", [(b"", True), (b"* [src/runtime.rs](src/runtime.rs) extra grant", False)])
+def test_crossbeam_test_scope_never_discards_a_new_runtime_reference(extra, resolved):
+    readme = (b"#### Third party software\n* [examples/matching.rs](examples/matching.rs)\n"
+              b"* [tests/mpsc.rs](tests/mpsc.rs)\n* [tests/golang.rs](tests/golang.rs)\n"
+              b"Copies of third party licenses can be found\n" + extra)
+    raw = archive({"crossbeam-channel-1/README.md": readme, "crossbeam-channel-1/LICENSE-THIRD-PARTY": b"retained catalogue"})
+    result = evidence.crate_grant_scope({"name": "crossbeam-channel", "version": "1", "sha256": sha256_bytes(raw)},
+        raw, "Apache-2.0", {"Apache-2.0", "MIT", "BSD-3-Clause"})
+    assert (result is not None) is resolved
+
+
+def test_font_crate_scope_requires_all_embedded_grants():
+    raw = archive({"epaint_default_fonts-1/fonts/Hack-Regular.txt":
+        b"Source Foundry Authors and licensed under the MIT License\n"
+        b"Bitstream Vera Sans Mono Copyright 2003 Bitstream Inc. and licensed under the Bitstream Vera License"})
+    row = {"name": "epaint_default_fonts", "version": "1", "sha256": sha256_bytes(raw)}
+    grants = {"Apache-2.0", "MIT", "Bitstream-Vera", "OFL-1.1", "Ubuntu-font-1.0"}
+    assert "Bitstream-Vera" in evidence.crate_grant_scope(row, raw, "Apache-2.0", grants)["expression"]
+    assert evidence.crate_grant_scope(row, raw, "Apache-2.0", grants - {"Bitstream-Vera"}) is None
+    assert evidence.crate_grant_scope(row, raw, "Apache-2.0", grants | {"Unknown"}) is None

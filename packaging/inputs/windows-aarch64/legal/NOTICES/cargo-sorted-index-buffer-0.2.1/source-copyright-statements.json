@@ -2,6 +2,17 @@
   "archive_sha256": "ea06cc588e43c632923a55450401b8f25e628131571d4e1baea1bdfdb2b5ed06",
   "original_statement_files": [
     {
+      "path": "sorted-index-buffer-0.2.1/LICENSE-APACHE",
+      "sha256": "903131e2786f073a942fbf8fae122d9e576e4dad758c6da7f9f2ba58fd8611ab",
+      "size": 10831,
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright [2025] [N0, INC]"
+        }
+      ]
+    },
+    {
       "path": "sorted-index-buffer-0.2.1/LICENSE-MIT",
       "sha256": "f169adb8124d3b005416d8485d00777c9a7bdd9099982c52a4493f9732e6d050",
       "size": 1048,
@@ -24,5 +35,5 @@
       ]
     }
   ],
-  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
 }

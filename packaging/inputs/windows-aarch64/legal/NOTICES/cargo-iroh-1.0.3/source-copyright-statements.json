@@ -11,7 +11,18 @@
           "text": "Copyright (c) 2020 Tailscale Inc & AUTHORS."
         }
       ]
+    },
+    {
+      "path": "iroh-f2eb930-LICENSE-APACHE.txt",
+      "sha256": "903131e2786f073a942fbf8fae122d9e576e4dad758c6da7f9f2ba58fd8611ab",
+      "source_url": "https://raw.githubusercontent.com/n0-computer/iroh/f2eb930dda3779c6d852b72f3712aacd6e573ab1/LICENSE-APACHE",
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright [2025] [N0, INC]"
+        }
+      ]
     }
   ],
-  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
 }

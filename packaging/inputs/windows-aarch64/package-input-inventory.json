@@ -122,7 +122,7 @@
       "download_location": "https://static.crates.io/crates/accesskit/accesskit-0.24.1.crate",
       "id": "cargo-accesskit-0.24.1",
       "kind": "cargo",
-      "license_concluded": "Apache-2.0",
+      "license_concluded": "Apache-2.0 AND BSD-3-Clause",
       "license_declared": "MIT OR Apache-2.0",
       "license_files": [
         {
@@ -131,6 +131,13 @@
           ],
           "path": "legal/LICENSES/cargo-accesskit-0.24.1/000-000-LICENSE-APACHE",
           "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "license_ids": [
+            "BSD-3-Clause"
+          ],
+          "path": "legal/LICENSES/cargo-accesskit-0.24.1/002-002-LICENSE.chromium",
+          "sha256": "845022e0c1db1abb41a6ba4cd3c4b674ec290f3359d9d3c78ae558d4c0ed9308"
         }
       ],
       "name": "accesskit",
@@ -148,8 +155,12 @@
           "sha256": "845022e0c1db1abb41a6ba4cd3c4b674ec290f3359d9d3c78ae558d4c0ed9308"
         },
         {
+          "path": "legal/NOTICES/cargo-accesskit-0.24.1/source-grant-scope.json",
+          "sha256": "539eb9c7b0559f4318f5d860ecf9e0f477bfbb60cde351d4b3f5a67836348c21"
+        },
+        {
           "path": "legal/NOTICES/cargo-accesskit-0.24.1/source-copyright-statements.json",
-          "sha256": "a6d4a79772fcde29f7abd9469c86de3fba99caee5997cd23b564769ccc277d10"
+          "sha256": "7ab70bba051d21663be66efa3ce895d3fcaf72081007373076f4efeb1185bddb"
         }
       ],
       "notice_required": true,
@@ -163,7 +174,7 @@
       "download_location": "https://static.crates.io/crates/accesskit_consumer/accesskit_consumer-0.35.0.crate",
       "id": "cargo-accesskit-consumer-0.35.0",
       "kind": "cargo",
-      "license_concluded": "Apache-2.0",
+      "license_concluded": "Apache-2.0 AND BSD-3-Clause",
       "license_declared": "MIT OR Apache-2.0",
       "license_files": [
         {
@@ -172,6 +183,13 @@
           ],
           "path": "legal/LICENSES/cargo-accesskit-consumer-0.35.0/000-000-LICENSE-APACHE",
           "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "license_ids": [
+            "BSD-3-Clause"
+          ],
+          "path": "legal/LICENSES/cargo-accesskit-consumer-0.35.0/002-002-LICENSE.chromium",
+          "sha256": "845022e0c1db1abb41a6ba4cd3c4b674ec290f3359d9d3c78ae558d4c0ed9308"
         }
       ],
       "name": "accesskit_consumer",
@@ -189,8 +207,12 @@
           "sha256": "845022e0c1db1abb41a6ba4cd3c4b674ec290f3359d9d3c78ae558d4c0ed9308"
         },
         {
+          "path": "legal/NOTICES/cargo-accesskit-consumer-0.35.0/source-grant-scope.json",
+          "sha256": "011885d9bcb1b000ec30a42fe8fee13d0423c42abaf3e453a19070ece09a9f32"
+        },
+        {
           "path": "legal/NOTICES/cargo-accesskit-consumer-0.35.0/source-copyright-statements.json",
-          "sha256": "404a4525462e6e7501e41982ae1fb4fdfc72d81f2955cce1e3d6be119b5ca273"
+          "sha256": "90d0c08db2921f6af96cc869c332bd1eef65f65f5c72de2d44c9224e054d854e"
         }
       ],
       "notice_required": true,
@@ -204,7 +226,7 @@
       "download_location": "https://static.crates.io/crates/accesskit_windows/accesskit_windows-0.32.1.crate",
       "id": "cargo-accesskit-windows-0.32.1",
       "kind": "cargo",
-      "license_concluded": "Apache-2.0",
+      "license_concluded": "Apache-2.0 AND BSD-3-Clause",
       "license_declared": "MIT OR Apache-2.0",
       "license_files": [
         {
@@ -213,6 +235,13 @@
           ],
           "path": "legal/LICENSES/cargo-accesskit-windows-0.32.1/000-000-LICENSE-APACHE",
           "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "license_ids": [
+            "BSD-3-Clause"
+          ],
+          "path": "legal/LICENSES/cargo-accesskit-windows-0.32.1/002-002-LICENSE.chromium",
+          "sha256": "845022e0c1db1abb41a6ba4cd3c4b674ec290f3359d9d3c78ae558d4c0ed9308"
         }
       ],
       "name": "accesskit_windows",
@@ -230,8 +259,12 @@
           "sha256": "845022e0c1db1abb41a6ba4cd3c4b674ec290f3359d9d3c78ae558d4c0ed9308"
         },
         {
+          "path": "legal/NOTICES/cargo-accesskit-windows-0.32.1/source-grant-scope.json",
+          "sha256": "a3cb65693930c5c84226254cf49134a0951fa0bf2f1c5d50007e4d91c1286ee9"
+        },
+        {
           "path": "legal/NOTICES/cargo-accesskit-windows-0.32.1/source-copyright-statements.json",
-          "sha256": "423e57a69b72c02d83a4254d20a3ca90e2f08ea8c5cf430f027b49d2735b9b3a"
+          "sha256": "cac8e2c2fd769b818bdb87f98eeb3a18c14bcb58af3c7668d032acedbd627c98"
         }
       ],
       "notice_required": true,
@@ -272,7 +305,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-accesskit-winit-0.32.2/source-copyright-statements.json",
-          "sha256": "085cc7679732f3583c5008a2428255fbe9a04fb9fcf3f3dd1a68d5b4876c95ca"
+          "sha256": "477ae37c87562b29682bf0094a697ca287dc1cb18923e788bae4a25cdda5a846"
         }
       ],
       "notice_required": true,
@@ -313,7 +346,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-adler2-2.0.1/source-copyright-statements.json",
-          "sha256": "a4a721295f56bb88eb421c03cc80c99d7111ebdb7d42fd59b586ae03fa42a3d8"
+          "sha256": "3b4830327aaf2dd42e2990c7632721adcc1f955a7d882ccd0277b4bbc1eb0870"
         }
       ],
       "notice_required": true,
@@ -350,7 +383,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-aead-0.5.2/source-copyright-statements.json",
-          "sha256": "5a49623b04ccee70cc736a0987a9a3f252b402a73b49044aeb99e5b53b2644dd"
+          "sha256": "14ef9b47bfe661a16a55ff8fb187b4990ac30eddb7611b4041eeed40b33a88b8"
         }
       ],
       "notice_required": true,
@@ -387,7 +420,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-aes-0.8.4/source-copyright-statements.json",
-          "sha256": "7b8e6b4aeb7848d76391283f9467671d7d8d7f896d947f9aaaea8d4bece08b9e"
+          "sha256": "57c3b32778fb8a0ed17c871ec7184d751834b7b40df790084a555d03b69a7963"
         }
       ],
       "notice_required": true,
@@ -424,7 +457,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-aes-gcm-0.10.3/source-copyright-statements.json",
-          "sha256": "c67a52d7b45f52077452738573c5a371af3117f596c04509280cfa6d01c6240e"
+          "sha256": "c5db8ca2ea62a0f0f75a1da6e24edbe61d7f4360697c868e333c237709691c0d"
         }
       ],
       "notice_required": true,
@@ -461,7 +494,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-ahash-0.8.12/source-copyright-statements.json",
-          "sha256": "bf103a8e773624a3a1d5f60845238e748122223f9a103226dfcc87d14896c608"
+          "sha256": "7a211d127065e2777596f2ebc8d1b72f5962a0e96b4de97355f60f46ba8b3a1b"
         }
       ],
       "notice_required": true,
@@ -502,7 +535,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-aho-corasick-1.1.5/source-copyright-statements.json",
-          "sha256": "2deede98d2e923924bbf13df38c5d6120de50a66b59909a9d858f50046442559"
+          "sha256": "4f6d3b7be18bdb33fed9a0066885c4401f42b151130ac39f6163afb1b3659d03"
         }
       ],
       "notice_required": true,
@@ -581,7 +614,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-anstream-1.0.0/source-copyright-statements.json",
-          "sha256": "fc993d5b352df58ef5ce6a3bc716508a46f6ac0196ef1fb3d9a9c78799f5e472"
+          "sha256": "5ed02b20e6697034a2822668022928fea801761dd06c1ce7a78a8fac011570bb"
         }
       ],
       "notice_required": true,
@@ -618,7 +651,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-anstyle-1.0.14/source-copyright-statements.json",
-          "sha256": "5d7dbc082ed46c9c7726d95a19f4e8659115595dbe4edfd8f8c551c5dd4c930c"
+          "sha256": "ecb317e30c0d67714e62066b8d39cc9ace188b519ee6e18af6ae433e3cfe2f60"
         }
       ],
       "notice_required": true,
@@ -655,7 +688,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-anstyle-parse-1.0.0/source-copyright-statements.json",
-          "sha256": "2d1c87c725beac5f7189821f3098568a75e06ea23e7fd73e1423ad6dddee5c2a"
+          "sha256": "8113318638ca3a627920c35eec7e2789dda6b5bbbb447a040ab843968776d3bb"
         }
       ],
       "notice_required": true,
@@ -692,7 +725,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-anstyle-query-1.1.5/source-copyright-statements.json",
-          "sha256": "28a22b7d2f1aa954522c568c0cc6e472ece703fa20dc42acb0dbc7e937cd43ed"
+          "sha256": "2fb8cdffccad3181b93d7fcd6380d0766a6ae2c9ae4fc77a55f08219ca357d38"
         }
       ],
       "notice_required": true,
@@ -729,7 +762,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-anstyle-wincon-3.0.11/source-copyright-statements.json",
-          "sha256": "13ad7b9c9b672bae37a5fcdd2e7ea2cf1b23039fa71652166cf0e46cbc67643f"
+          "sha256": "8de4a84d6485c300984528f4ca94bbdaf6648e51e87ec63425640e31156146b7"
         }
       ],
       "notice_required": true,
@@ -808,7 +841,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-arboard-3.6.1/source-copyright-statements.json",
-          "sha256": "9ae24aaebe1167e36f2fd0018d2c6d5a3b7e5c1d1b79213e5dd8ca67f4612fa1"
+          "sha256": "5cb5ad0f54ba2274afaa0aa5713e14f4ae0e123c6663baa9b13f80e7937fe77f"
         }
       ],
       "notice_required": true,
@@ -845,7 +878,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-arc-swap-1.9.2/source-copyright-statements.json",
-          "sha256": "bc58a7a106d390e0fa109cda14aa049cbe582192cff8d7c915133b59c5e688a3"
+          "sha256": "66237d1ea14ed9287bad8cb43fa72217dbbebf9350c2d2abf225b23dad21c05f"
         }
       ],
       "notice_required": true,
@@ -882,7 +915,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-arrayvec-0.7.8/source-copyright-statements.json",
-          "sha256": "0b52d68389df0f9f24886c3c6fef557f38bf1185b6b281be193bccf92a0c9964"
+          "sha256": "56ec332f513975e5ba98f357834bbd988a4f669f63c51481489ede011ab5557e"
         }
       ],
       "notice_required": true,
@@ -923,7 +956,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-atomic-waker-1.1.2/source-copyright-statements.json",
-          "sha256": "86b2fa10c3380449d0f4b0edd96d17c0cac9745a38af0123b1a31b8316a86838"
+          "sha256": "f07e8c23b653052f53852a7a3b8fa6630ca3ce60719204558b726ee5304dd2ae"
         }
       ],
       "notice_required": true,
@@ -994,7 +1027,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-attohttpc-0.30.1/source-copyright-statements.json",
-          "sha256": "f1000dcb2a03f30f76d3bc98846579fd0e8674a1ee858d8fbddca1506e4fd8b9"
+          "sha256": "f1c968953cbcc396af54bce4091ae23ee12ee36481ebee7704c39eb77b65a761"
         }
       ],
       "notice_required": true,
@@ -1033,7 +1066,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-aws-lc-rs-1.18.0/source-copyright-statements.json",
-          "sha256": "2a8a9246d7e01e8f3a9940d953b585dba8ea54a53d64dc69945a5c96d6758785"
+          "sha256": "754a2d3808bd2b4f9dfe4a6a25f6413cdd619970417a494ab33ec2c2d5eebdae"
         }
       ],
       "notice_required": true,
@@ -1094,7 +1127,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-aws-lc-sys-0.44.0/source-copyright-statements.json",
-          "sha256": "733e5af037f5c8c372babd3eafed8b5c40d0b266bc221cb4fb488f15702d3ad4"
+          "sha256": "c8f5d4336baab5d60f144c30c9f56caa7ac6b5c385a2cecb87745aa133e477cc"
         }
       ],
       "notice_required": true,
@@ -1127,7 +1160,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-axum-0.8.9/source-copyright-statements.json",
-          "sha256": "4cfcceb8456255bab9e1a057c5e54346c1eb61c393d31742dbbf0652e6d493fc"
+          "sha256": "3c6aed15aa395a5bbb7d191e38ade36475ef4399c9ac72c3f9341f035a437411"
         }
       ],
       "notice_required": true,
@@ -1160,7 +1193,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-axum-core-0.5.6/source-copyright-statements.json",
-          "sha256": "c681b5ff21cd38f774777ad07d11b056820248b30cc4cdc053604ea83a63b361"
+          "sha256": "2e4a4843fab4379fad8ede60e1e27a07619eb51256c53332546fcf0dee0b60fa"
         }
       ],
       "notice_required": true,
@@ -1193,7 +1226,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-backon-1.6.0/source-copyright-statements.json",
-          "sha256": "726d3bf904d175714b4a8950ce90e73a206ccc9c5a2c047f9be0eb571c0fd723"
+          "sha256": "1bef5c05a15bf6c984eb79bdec2661df03a9e7258e707689895ebf45eb73771d"
         }
       ],
       "notice_required": true,
@@ -1230,7 +1263,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-base16ct-1.0.0/source-copyright-statements.json",
-          "sha256": "0e4871356e7c001664d2c5fd8b0f2af5987091270096167dc71d698170718baf"
+          "sha256": "40e0340556d978c875d93c30ccce5dc100095262eb0c743ae5f3c3ee8d546d8f"
         }
       ],
       "notice_required": true,
@@ -1267,7 +1300,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-base64-0.22.1/source-copyright-statements.json",
-          "sha256": "ac79f00e85c10444b3a3587e3bfef980bab88e24fd98869e1e98585a7ade84ff"
+          "sha256": "ddea4726c9d505cdbb9dad487109fb14f24b9fb6eadfa572b9860e2ac40a069f"
         }
       ],
       "notice_required": true,
@@ -1304,7 +1337,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-base64-0.23.1/source-copyright-statements.json",
-          "sha256": "06913134f8fe60ff87f99bfaf6edb2a6bf0046f5d57d4bbb82db9fe8de45bacd"
+          "sha256": "a64a7bfbc1b2d0266dcbaee66c5c4d9f04b0485ad595604a107bb75ea8bbe460"
         }
       ],
       "notice_required": true,
@@ -1341,7 +1374,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-base64ct-1.8.3/source-copyright-statements.json",
-          "sha256": "defb68c2fdabc6fc70ceb327007d096d9615627cc584e9d99925485a123bc39f"
+          "sha256": "a87fb1c66294e20d3439ebacc7ed30a83184408aab47d29c83b8831b7f995a37"
         }
       ],
       "notice_required": true,
@@ -1378,7 +1411,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-bit-set-0.10.0/source-copyright-statements.json",
-          "sha256": "26a2f2230721a97b44cbaf70e553d7f3f2bcf389d01e1b3c3973d2dae49e770d"
+          "sha256": "0ea5855c5eb4cf77fe9949145f3f2dec29bd8a5d855b7956ba0f357d926be646"
         }
       ],
       "notice_required": true,
@@ -1415,7 +1448,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-bit-vec-0.9.1/source-copyright-statements.json",
-          "sha256": "d9c1e5d4879f6695733a7fe0fdf15e9ca9f18ff8941af9d269dc0078cb4be8d4"
+          "sha256": "b4031ff9031ef5ca5938bdba4d2541b1c63b9f2566b8a60a12373f6cc149c4ac"
         }
       ],
       "notice_required": true,
@@ -1452,7 +1485,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-bitflags-1.3.2/source-copyright-statements.json",
-          "sha256": "f7bab2eceeed81d7f850bdced2d253d0aa8a4fd870644521d697e7ea67ea1a15"
+          "sha256": "d9717a60190a3c4c1ae611acf470e1258df600f2e0f27ed1d1c9b3adf0d3a77e"
         }
       ],
       "notice_required": true,
@@ -1489,7 +1522,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-bitflags-2.13.1/source-copyright-statements.json",
-          "sha256": "135ed10af90a322d7f50126fd77d8a70932ce982941d02f391669eb030aeace1"
+          "sha256": "22b985505bee3bae934f9d8f7da0d6489a74695baede10f7c289b100674d62c2"
         }
       ],
       "notice_required": true,
@@ -1537,7 +1570,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-blake3-1.8.7/source-copyright-statements.json",
-          "sha256": "d06ed0c0db6b7c481d9303e98df3426eb60f55f44d4030e001046a442bbe0c52"
+          "sha256": "573815867f670b10c8f1a93ab9488526d26a561d29dbee4a41fcd7014ddb565b"
         }
       ],
       "notice_required": true,
@@ -1574,7 +1607,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-block-buffer-0.10.4/source-copyright-statements.json",
-          "sha256": "fc1f13a47c3b9219b6be00ca08948b3812b3e0ef8cb8c2fb07fdafbf09251a54"
+          "sha256": "52c398e9823275acf25e70dbabfeacfc3184a7e3b8c321d7839e51188435b913"
         }
       ],
       "notice_required": true,
@@ -1611,7 +1644,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-block-buffer-0.12.1/source-copyright-statements.json",
-          "sha256": "809a4816034fe33eb31083509260eefd20d53321061b4a37845fd62473c75175"
+          "sha256": "b76745732819ef3a38b27687745591e6b4840f7ac4ac4ac0b9528fb05be78da3"
         }
       ],
       "notice_required": true,
@@ -1652,7 +1685,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-bstr-1.13.1/source-copyright-statements.json",
-          "sha256": "6483fcbe3a378e25f001ac37138171df9a7bf70ed74ab9e2bf2b5be00b505cf5"
+          "sha256": "a4104d8302cc0a351d73102f2793a555eb670f28f093cb22b95b9443963db506"
         }
       ],
       "notice_required": true,
@@ -1689,7 +1722,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-bumpalo-3.20.3/source-copyright-statements.json",
-          "sha256": "208ee619d2989649c2d42a7d9f872a97464dbecf9aa76f28fd1ed9a916f4b01b"
+          "sha256": "606a0cb68259d5a6e3304b5faf38e60cb46f31a25461b78df6b950dc873394f4"
         }
       ],
       "notice_required": true,
@@ -1730,7 +1763,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-bytemuck-1.25.2/source-copyright-statements.json",
-          "sha256": "5481ac00ccbc3458110363747ff62ce0f9571a9803bd0695058d1cc5e7e5a45b"
+          "sha256": "d9c285e1cc621730ca26bc8b948882ca7c3411bf865f918e7426d2a7859148be"
         }
       ],
       "notice_required": true,
@@ -1767,7 +1800,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-byteorder-lite-0.1.0/source-copyright-statements.json",
-          "sha256": "90855c15b9eed799e5a46365e47176fa930ddae5d0070fab65416464249edb4a"
+          "sha256": "07495fc08bde93cc4ddab858aeeba51159363d156ac47f2eeddfd1b353d57356"
         }
       ],
       "notice_required": true,
@@ -1800,7 +1833,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-bytes-1.12.1/source-copyright-statements.json",
-          "sha256": "bfd9bb38debb86b178eeb2468c4b0f4e0593254d624ea15c83c0e703d5a540ed"
+          "sha256": "326ef5e5d69b345637d9250f151b1aa20f9d6682f070964952fa9453c6ccc2fd"
         }
       ],
       "notice_required": true,
@@ -1837,7 +1870,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-cfg-if-1.0.4/source-copyright-statements.json",
-          "sha256": "bf0be264e417adb748fe547490d452f0f6ffc5dd9f3eb489fc9d781ea9d27438"
+          "sha256": "cc32451af80ebea51597cc0a6ed765017c3d8c2b6eb3ed555acb6a849e8a733b"
         }
       ],
       "notice_required": true,
@@ -1874,7 +1907,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-chacha20-0.10.1/source-copyright-statements.json",
-          "sha256": "0a3c0256f76565290174453f286c64c47023b1c40c596edb1ee2a536f800d50c"
+          "sha256": "d1b6a19ce28dcb75e44f7582f5cf59684d272a35432b84a3aa054ed636541eef"
         }
       ],
       "notice_required": true,
@@ -1907,7 +1940,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-chrono-0.4.45/source-copyright-statements.json",
-          "sha256": "164bdd4e63f0ad23e8f6c9ee82a6978d9ac99d602b1493c53b5a1d4977750b45"
+          "sha256": "e7db9b36d6fc7f99e188dc1c2a85107bf6eee9d20edbd1f0871b66cb9e20979b"
         }
       ],
       "notice_required": true,
@@ -1944,7 +1977,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-cipher-0.4.4/source-copyright-statements.json",
-          "sha256": "d0db4a1f2c0bb92d876ff03053188bbfb369b1844c522393355ac1a35911c132"
+          "sha256": "1cd7a39f4bd3f5d1d85a4c98b8f2c6ecfff55c9963b2440aa602e7f3aade8ff5"
         }
       ],
       "notice_required": true,
@@ -1981,7 +2014,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-clap-4.6.6/source-copyright-statements.json",
-          "sha256": "88243df2dc9651d92696225b9090e0c17b89313ddbe36cd36e47c2efa9a88268"
+          "sha256": "5f7878c7893660cad95f46e9d3dee81ed831f2304d75a1b70b9c8844c1f0fe4f"
         }
       ],
       "notice_required": true,
@@ -2018,7 +2051,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-clap-builder-4.6.6/source-copyright-statements.json",
-          "sha256": "143ece54cfbaa30b94b2e7cf826efa438bc53df39fef58b0793ae92cca4dd316"
+          "sha256": "a3748eb76d2f3fcbbf725ad1483d178efbb0d7b058ec10bb1272585330629c99"
         }
       ],
       "notice_required": true,
@@ -2055,7 +2088,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-clap-lex-1.1.0/source-copyright-statements.json",
-          "sha256": "b2b3a0c1810b9eaa9bcdb47ac33a6b831cbf78aa19b356a38729625cfb0e1889"
+          "sha256": "157732f2c81026c6c297f9754bbc8b07b177671d80d02df3a3483a042dbc2dad"
         }
       ],
       "notice_required": true,
@@ -2130,7 +2163,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-cmov-0.5.4/source-copyright-statements.json",
-          "sha256": "d6d94ea6de4395022624375ff51ef1df62a49da9214dd38a99e7482a826aecd0"
+          "sha256": "3f514d27ccfe9a6d6767d132c02afc805cad162b15f288b48041f27d883255df"
         }
       ],
       "notice_required": true,
@@ -2167,7 +2200,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-cmpv2-0.2.0/source-copyright-statements.json",
-          "sha256": "3b0473477ad6c2e2bf9dd027e5571c07ce047f917bfed45cf1519032e4366956"
+          "sha256": "0dcc25b9d6a490fd8faf20a21a68be63c11ecbff198185bd36addf14b29dbbc2"
         }
       ],
       "notice_required": true,
@@ -2181,15 +2214,32 @@
       "download_location": "https://static.crates.io/crates/cms/cms-0.2.3.crate",
       "id": "cargo-cms-0.2.3",
       "kind": "cargo",
-      "license_concluded": "NOASSERTION",
+      "license_concluded": "Apache-2.0",
       "license_declared": "Apache-2.0 OR MIT",
-      "license_files": [],
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/cargo-cms-0.2.3/000-Apache-2.0-standard.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        }
+      ],
       "name": "cms",
-      "notice_files": [],
-      "notice_required": null,
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/cargo-cms-0.2.3/000-Apache-2.0-standard.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "path": "legal/NOTICES/cargo-cms-0.2.3/external-grant-provenance.json",
+          "sha256": "0615a3140d26ae83b72633af7e49c43b576855c313230de0d682a20a6628dde0"
+        }
+      ],
+      "notice_required": true,
       "sha256": "7b77c319abfd5219629c45c34c89ba945ed3c5e49fcde9d16b6c3885f118a730",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "0.2.3"
     },
     {
@@ -2220,7 +2270,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-cobs-0.3.0/source-copyright-statements.json",
-          "sha256": "ccc2fcb2e574cd677e79686da57e80a096469510c506f7f4fe0e0a90fe62f950"
+          "sha256": "65df5b18b878a01383c9b74d2dcdd19bb2457b185336190882cac4b9c7bce6bf"
         }
       ],
       "notice_required": true,
@@ -2295,7 +2345,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-color-0.3.3/source-copyright-statements.json",
-          "sha256": "570763cdd9d7c20c32c35ab19690e9df3e63f0bdf11228bee72fe83c90a6e9aa"
+          "sha256": "86381cd1d4ad6d07b66e8f258c3df41f6e3f6b74229f98fd0e53bb118b208cbc"
         }
       ],
       "notice_required": true,
@@ -2332,7 +2382,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-colorchoice-1.0.5/source-copyright-statements.json",
-          "sha256": "16fa3f3ecb88ba6dc52a5db5946a253314393301da3bb59c7d9288a996ca7133"
+          "sha256": "76a6b51befe35d8600777a0ea4d0c45090c307f8f582867de62d81a0a66c6d5b"
         }
       ],
       "notice_required": true,
@@ -2365,7 +2415,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-console-0.16.4/source-copyright-statements.json",
-          "sha256": "a6b68fa52bac24b485d76a3a47beb8098da98396802d21f0c87e2289f2346f9c"
+          "sha256": "f88175d10801a1f545bb9c5d5f702a3e8878a931420e772abb9e4ae575aacafa"
         }
       ],
       "notice_required": true,
@@ -2402,7 +2452,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-const-oid-0.10.2/source-copyright-statements.json",
-          "sha256": "bfbb0bab9996bed81fd2120ad4cf224f4c026d57422ebf795322beb408d9b6d1"
+          "sha256": "f6966e0e49e95725868135962200a847f4c48555e92987505873ec67cd8eae91"
         }
       ],
       "notice_required": true,
@@ -2439,7 +2489,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-const-oid-0.9.6/source-copyright-statements.json",
-          "sha256": "e300507fb354157c7c57f36b098118f099bbaf9035f2aa6a62d5552839725de8"
+          "sha256": "5661ae217f698e861d9419f813a75b5ed0dc3cfa82a226dfcad4535a0b65557f"
         }
       ],
       "notice_required": true,
@@ -2518,7 +2568,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-cordyceps-0.3.5/source-copyright-statements.json",
-          "sha256": "7d1c59c69510ca6a7bb5983cd0beab9a848bf7969f6580581651e519c8f31338"
+          "sha256": "c39ce6d2929bdd9ca25246879fbffbe8a74cf617b51dd707704a430cf9aa6066"
         }
       ],
       "notice_required": true,
@@ -2555,7 +2605,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-cpufeatures-0.2.17/source-copyright-statements.json",
-          "sha256": "fb72a196d197809e64b738448c324598a061a4a625dc1a21219293151ecdf033"
+          "sha256": "f6583e6eb70f30adb6a0bfca929ae9a9da12fb02446950c194ca1a831423e5e3"
         }
       ],
       "notice_required": true,
@@ -2592,7 +2642,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-cpufeatures-0.3.0/source-copyright-statements.json",
-          "sha256": "8f5557b29f019e4eac843d712e9f93a4a236b0d5d463ca5fd181b8dea562aa4c"
+          "sha256": "9d5f56f0bc88797b86c52b6965e9c63e24550dea22c1c459ab286895b99077c8"
         }
       ],
       "notice_required": true,
@@ -2629,7 +2679,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-crc32fast-1.5.0/source-copyright-statements.json",
-          "sha256": "3aad01e67cea24d874f3b60b6fc497340815cd9ea7b1bb94eb933f184c0e03e6"
+          "sha256": "6aec104f9fe4aa5b08815cfdced99b8e0868d26273986b006f0ac7d6df4febb2"
         }
       ],
       "notice_required": true,
@@ -2666,7 +2716,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-critical-section-1.2.0/source-copyright-statements.json",
-          "sha256": "a157ae1c9c73bae0010817cfc0b4b6339a56ce67023106c36f23cc3f3a531ce8"
+          "sha256": "f3de856131f2ed95194083b9a185daab540d2d45e90b5c81a25e222dc4787a04"
         }
       ],
       "notice_required": true,
@@ -2703,7 +2753,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-crmf-0.2.0/source-copyright-statements.json",
-          "sha256": "4737ccf6d85160cc738bf79b40e3b7255dab238c9af5e2b0ef892b981d534570"
+          "sha256": "1c299af946fcba7173ff8f6675f5627db1ad849c99e4881515427e6b2db26974"
         }
       ],
       "notice_required": true,
@@ -2750,8 +2800,12 @@
           "sha256": "b16db96b93b1d7cf7bea533f572091ec6bca3234fbe0a83038be772ff391a44c"
         },
         {
+          "path": "legal/NOTICES/cargo-crossbeam-channel-0.5.16/source-grant-scope.json",
+          "sha256": "b0fe9a3c71eb79f5626fb3d9a42a9a0f683e8be7e6b10596ea168e37773e0900"
+        },
+        {
           "path": "legal/NOTICES/cargo-crossbeam-channel-0.5.16/source-copyright-statements.json",
-          "sha256": "0100e5bac48d47624f7cc0415205e758f106e2bb9ebc81a2d94c3d0951915065"
+          "sha256": "ba60b8f52fe0ee43919fd1115d46be5d2ee01e08e28aa4f7041570a31fd840c7"
         }
       ],
       "notice_required": true,
@@ -2788,7 +2842,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-crossbeam-epoch-0.9.20/source-copyright-statements.json",
-          "sha256": "f8db322e92b205dc50bdd54080dc4ca60beb4817764f88660479b8582ff7ab8c"
+          "sha256": "453078cc2e0c246cab0d222bd9ad4a8a8081b2d9d4576c41e4862ee5fec8fc31"
         }
       ],
       "notice_required": true,
@@ -2825,7 +2879,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-crossbeam-utils-0.8.22/source-copyright-statements.json",
-          "sha256": "5963e0aaeefc44ee132aa59e337f97b0a88debe275f306dd4e3cd711b73045e0"
+          "sha256": "58cf3c0511d2f9973cdb9e3b25e0b97359705b4d10f821f4d3c71ec11ed57732"
         }
       ],
       "notice_required": true,
@@ -2862,7 +2916,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-crypto-common-0.1.7/source-copyright-statements.json",
-          "sha256": "81ec6132ec83d711d31a5602f242cea2a59dc0ce72d3c673f9e1ea7b8ea5421f"
+          "sha256": "16afae69657eb292520f4aa1f29bccf899cc4bf33b5eb7a46eecc3f20e78d5ef"
         }
       ],
       "notice_required": true,
@@ -2899,7 +2953,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-crypto-common-0.2.2/source-copyright-statements.json",
-          "sha256": "7060bc9c6afb2a4957cf5f0ece0020ed676f42873d71ff74f268eb7caef6cc74"
+          "sha256": "09052c940142a2c3c089462f18a4ebf961b893c2af9213ddb768d42f68720169"
         }
       ],
       "notice_required": true,
@@ -2936,7 +2990,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-ctr-0.9.2/source-copyright-statements.json",
-          "sha256": "3bd8c56cab3053b417e9e98a480da58952e2612acee6637b29ff8476665704e7"
+          "sha256": "75d25da8281fe2330840d4fbdfee0c54cf7b5b0d8018c5f0c0a938301462398d"
         }
       ],
       "notice_required": true,
@@ -2973,7 +3027,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-ctutils-0.4.2/source-copyright-statements.json",
-          "sha256": "40ca0ded5e4ac41b062a351f09c37f7b77de2e2e20fd5b862c73dc711b0ad6a0"
+          "sha256": "c8ab3a1fabb3fcccfdea2d347b8246797b9bea78459d3dd9ca63aaa386167720"
         }
       ],
       "notice_required": true,
@@ -3014,7 +3068,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-cursor-icon-1.2.0/source-copyright-statements.json",
-          "sha256": "63d48673fa662e3cea4fbe0308d1fe3610c6b407c5342f7f149e62fc31a283d4"
+          "sha256": "afc2909f856c5be381e60e5b8b406e8e67c38cb795582c55a62b7b948d9a0a32"
         }
       ],
       "notice_required": true,
@@ -3047,7 +3101,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-curve25519-dalek-5.0.0/source-copyright-statements.json",
-          "sha256": "0d026f40ab0c781d07314e3adb37f7341b466afb9510cf94b8587d002128f2b2"
+          "sha256": "753a9a026cd93e559df23ca5d11565e7c78c3335451f607db9888242915b1cb2"
         }
       ],
       "notice_required": true,
@@ -3080,7 +3134,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-data-encoding-2.11.1/source-copyright-statements.json",
-          "sha256": "e66e93bf423cdf3f1ea90edef0073b799d1229e107040558bb2ac0b091cca2cd"
+          "sha256": "a7fabef5c020296b5c476bbb8183e7270002607dc0964c17417a0944f2e4955b"
         }
       ],
       "notice_required": true,
@@ -3113,7 +3167,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-data-encoding-macro-0.1.21/source-copyright-statements.json",
-          "sha256": "711a66bc6805fc3515e871a2a1441dae83c38fddf8b25493733340fa4dd50692"
+          "sha256": "5b218b4d7d940edf37437eb4b9c7f292c699ccce67a337e94866abef539957ea"
         }
       ],
       "notice_required": true,
@@ -3150,7 +3204,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-defmt-1.1.1/source-copyright-statements.json",
-          "sha256": "fa3b284d74f322d9d2491fcd09be037f6bf6f387dd778231f80eda010e36d821"
+          "sha256": "235fa322ca40eab64cf7986a022073776e67c3b5e4323bdaa307fdef09540e3f"
         }
       ],
       "notice_required": true,
@@ -3187,7 +3241,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-der-0.7.10/source-copyright-statements.json",
-          "sha256": "b1531c5e2c602b5aa0ab70ca753414a7bab9e2f27b9a56a952720ba305bc3a14"
+          "sha256": "4f20cd9480cc7bc72f1d2a4e0e70d19c7ef33154b092f97a6d7fefb0a1368217"
         }
       ],
       "notice_required": true,
@@ -3224,7 +3278,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-der-0.8.1/source-copyright-statements.json",
-          "sha256": "c5b9d931da388eb93450ce7552fdb698a0a5f5bda772b8d7686b8a8959795063"
+          "sha256": "b1bdae22f6264c86a2305077f92d8dc1a850023e6f4f0d92bbe6dad77d01f8e6"
         }
       ],
       "notice_required": true,
@@ -3261,7 +3315,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-deranged-0.5.8/source-copyright-statements.json",
-          "sha256": "bbecc6fe816b1c7cb7b496491fd860c5ac4e6e747b12c3529b9ab29157f0c99b"
+          "sha256": "d688a1f062642f45cb9e54c6429b1d8a0956864d19c4b7a6212e12b3f6f3031f"
         }
       ],
       "notice_required": true,
@@ -3294,7 +3348,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-derive-more-2.1.1/source-copyright-statements.json",
-          "sha256": "99a3177ab2045a09a7cb291619f45f7241ebffc9b9c14f4550dbb37ef40d6bde"
+          "sha256": "04bc9e9524c3d10772e5cd12a175d5b1cc2bfa4e424cbc6f757b366ba9dab97e"
         }
       ],
       "notice_required": true,
@@ -3331,7 +3385,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-diatomic-waker-0.2.3/source-copyright-statements.json",
-          "sha256": "6e936f7a7c3a22ecfdde6067797067b1b398ba5dd23489242547f9d784975c7a"
+          "sha256": "47ea0c34751ca88dbf3a52dca05a6e2c592f480b881aabb65703a7bccc5b71ce"
         }
       ],
       "notice_required": true,
@@ -3368,7 +3422,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-digest-0.10.7/source-copyright-statements.json",
-          "sha256": "2819e57d094f4ae8a7bcedd2a9ec7fc4d528652e16315ac773b4ed33f42a2642"
+          "sha256": "8d615d3c6e68b7cbbdde24b5b12bd4a26d9e5df4f562bdaca136302efd23160f"
         }
       ],
       "notice_required": true,
@@ -3405,7 +3459,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-digest-0.11.3/source-copyright-statements.json",
-          "sha256": "b94971354305c2cbce1612376d875abc67ffd7f7fff7e74013072092aa183648"
+          "sha256": "3a1451827db3aecd16e3ce706587256221d063307c14df2654cb55f3e7f5da52"
         }
       ],
       "notice_required": true,
@@ -3442,7 +3496,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-directories-6.0.0/source-copyright-statements.json",
-          "sha256": "842b67807e0ddaf4dbe9bf99d7a9a641d776f2ecafd001e846646e7e58ee2662"
+          "sha256": "6c653792389bfd8ed4a4287eec7cf586545a6ecab30ce7a2d328ea428c76e428"
         }
       ],
       "notice_required": true,
@@ -3479,7 +3533,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-dirs-sys-0.5.0/source-copyright-statements.json",
-          "sha256": "290336b96f78d9a68e560aecfa7559082b1b3f7ae041b1cd2eee49b7dc5aecdb"
+          "sha256": "e1a921f3dc15a183be2e7bf9f583b95ad2d6c88d4683b64ddc58e8ad64f4d4d5"
         }
       ],
       "notice_required": true,
@@ -3523,7 +3577,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-dpi-0.1.2/source-copyright-statements.json",
-          "sha256": "018d379765970c9df4396300f64869880166f18fc226af90ba45f351a3f1f0d5"
+          "sha256": "bf123f1bb68cd80a753d770bcd5686bf594d72da8584b6237b2fe7779da50731"
         }
       ],
       "notice_required": true,
@@ -3631,7 +3685,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-ed25519-3.0.0/source-copyright-statements.json",
-          "sha256": "6516947f01a1729370ff6d0438b4a68feca160b5f4873c5af9ffb9d0d575216e"
+          "sha256": "a96eaaea4d33e9cdd2791058354fac1fb004cd94ace58792d184d712a978d50e"
         }
       ],
       "notice_required": true,
@@ -3664,7 +3718,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-ed25519-dalek-3.0.0/source-copyright-statements.json",
-          "sha256": "b78366c55bb05c0dc36727ac387901be7a439f49c50b28bfc0ce8da1f906ad85"
+          "sha256": "5b4c464d7b6b8ba8a3adf7f97e8289bd700c9fd6033da31edfd763f930107119"
         }
       ],
       "notice_required": true,
@@ -3734,7 +3788,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-egui-0.36.1/source-copyright-statements.json",
-          "sha256": "42b505f6ea6be3447546291424a8a24798f749a6b01146dff7f115e1d35f0fe9"
+          "sha256": "32a06f6dbabef6f1b4bbc84c5d0e726d09747ea8cfc078ae5953d1e4a08d2ee8"
         }
       ],
       "notice_required": true,
@@ -3870,7 +3924,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-either-1.18.0/source-copyright-statements.json",
-          "sha256": "44b33749dd32c2d8df1950cd2b018fd96bbaf5d11281c88ad5f3f48e3804cfed"
+          "sha256": "6564de3cfba1420c76470ee382ded38a5b794c03cf9c5c24a3bc625c2cf849ec"
         }
       ],
       "notice_required": true,
@@ -3940,7 +3994,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-embedded-io-0.4.0/source-copyright-statements.json",
-          "sha256": "60355087dc6b1b848f7ab9abfa3ca56612217b91ab904965c535832e49478391"
+          "sha256": "98156b4d445f83999d4bf9f84e40f953f0a831b3a70e1866748199993193b559"
         }
       ],
       "notice_required": true,
@@ -3977,7 +4031,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-embedded-io-0.6.1/source-copyright-statements.json",
-          "sha256": "59b60a9e68434c8885876b9bd249f2a620bff6d831334bd03f70795bb8a0d658"
+          "sha256": "114151dba647bd4ceab2ef4cf53719724d3ccd708c70635d323e6d3643453415"
         }
       ],
       "notice_required": true,
@@ -4018,7 +4072,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-encode-unicode-1.0.0/source-copyright-statements.json",
-          "sha256": "aafc0460fbf305034ab20bdbade4b7620d1bb82d847a9f7864c1d9e4069cba49"
+          "sha256": "8733a01a29a475b3ee952e2ba3f82a3eea4b3a286311c3b4cf016071e5a98a02"
         }
       ],
       "notice_required": true,
@@ -4065,9 +4119,17 @@
       "download_location": "https://static.crates.io/crates/epaint_default_fonts/epaint_default_fonts-0.36.1.crate",
       "id": "cargo-epaint-default-fonts-0.36.1",
       "kind": "cargo",
-      "license_concluded": "(Apache-2.0) AND OFL-1.1 AND Ubuntu-font-1.0",
+      "license_concluded": "Apache-2.0 AND MIT AND Bitstream-Vera AND OFL-1.1 AND Ubuntu-font-1.0",
       "license_declared": "(MIT OR Apache-2.0) AND OFL-1.1 AND Ubuntu-font-1.0",
       "license_files": [
+        {
+          "license_ids": [
+            "Bitstream-Vera",
+            "MIT"
+          ],
+          "path": "legal/LICENSES/cargo-epaint-default-fonts-0.36.1/000-000-Hack-Regular.txt",
+          "sha256": "47c0cccbeec7e8614548cc485588b28149e7874188df5f41b36efebcee285c87"
+        },
         {
           "license_ids": [
             "OFL-1.1"
@@ -4084,10 +4146,24 @@
         },
         {
           "license_ids": [
+            "MIT"
+          ],
+          "path": "legal/LICENSES/cargo-epaint-default-fonts-0.36.1/003-003-emoji-icon-font-mit-license.txt",
+          "sha256": "b9d2c1d909aa149996fd4c91dcb92b2362a04431640c1d200959da94caf8cde1"
+        },
+        {
+          "license_ids": [
             "Apache-2.0"
           ],
           "path": "legal/LICENSES/cargo-epaint-default-fonts-0.36.1/004-004-LICENSE-APACHE",
           "sha256": "8173d5c29b4f956d532781d2b86e4e30f83e6b7878dce18c919451d6ba707c90"
+        },
+        {
+          "license_ids": [
+            "MIT"
+          ],
+          "path": "legal/LICENSES/cargo-epaint-default-fonts-0.36.1/005-005-LICENSE-MIT",
+          "sha256": "95ca92f5f8ea5231f1580b3a2a799e8260af3114b900e1def5355a7f44bcf60c"
         }
       ],
       "name": "epaint_default_fonts",
@@ -4117,8 +4193,12 @@
           "sha256": "95ca92f5f8ea5231f1580b3a2a799e8260af3114b900e1def5355a7f44bcf60c"
         },
         {
+          "path": "legal/NOTICES/cargo-epaint-default-fonts-0.36.1/source-grant-scope.json",
+          "sha256": "93fb3adb86815a70d7be318dd33c95291733c1392a776e3d7e9f0970b95a570b"
+        },
+        {
           "path": "legal/NOTICES/cargo-epaint-default-fonts-0.36.1/source-copyright-statements.json",
-          "sha256": "fce9390472e7dd47e577057012976b3d5d58811cfcc439e404bc75f1752dbc4a"
+          "sha256": "06f63d8eff5d7ace1a20be94bf8682b41e1352a728facf7cf1793ef14a4a4aec"
         }
       ],
       "notice_required": true,
@@ -4155,7 +4235,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-equivalent-1.0.2/source-copyright-statements.json",
-          "sha256": "49bf178d3e4e1dc3966a3a29574829da0402719618c535eb848043b16e968ab1"
+          "sha256": "f4e34a07147bf548e11a2e64a339b6469a95c57783b550df3fc108323f9c1b92"
         }
       ],
       "notice_required": true,
@@ -4234,7 +4314,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-euclid-0.22.14/source-copyright-statements.json",
-          "sha256": "de5b8a45660502c7951e27a0eda2164443174bca7c4446b3e9f9f5f775872ffa"
+          "sha256": "3eb2da00e76b414f0b5feb1fc280f353a6cc67dfc4abb2302291d7506a680a25"
         }
       ],
       "notice_required": true,
@@ -4271,7 +4351,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-fallible-iterator-0.3.0/source-copyright-statements.json",
-          "sha256": "75dca9578638b8a16753b244562d0eaf627a4174efb0ca1577f832af4f6621d1"
+          "sha256": "d0fa9c01d5aacf911af7f4e2ac56aac5025d7d8b177126e6bd7b43242e45ca1d"
         }
       ],
       "notice_required": true,
@@ -4308,7 +4388,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-fallible-streaming-iterator-0.1.9/source-copyright-statements.json",
-          "sha256": "0c7198d77f7530ae82977abe11a64b656103fce1a28479f4b9e81a63d0dc618d"
+          "sha256": "78a3729ee4eadb02bf9dd5b420bdeec59e5a31bed6f6868e33656977a9e68206"
         }
       ],
       "notice_required": true,
@@ -4383,7 +4463,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-fax-0.2.7/source-copyright-statements.json",
-          "sha256": "1b360067b9677d50e8d6548f9b0b334008c3bb052af2a25299f6fbf0b4a44e22"
+          "sha256": "5933ea7c5af068d12592f81bd30fb2348b036f4277cf4ff57e9d1b3c2f76c888"
         }
       ],
       "notice_required": true,
@@ -4453,7 +4533,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-fearless-simd-0.4.1/source-copyright-statements.json",
-          "sha256": "fa50f8da381c939e2ebc07b6ea15466198df0ee283c81a109d87124ce387d39a"
+          "sha256": "73deead754b61355e57469a3e088b1c79d5777c821964048ef9ea013657afe94"
         }
       ],
       "notice_required": true,
@@ -4490,7 +4570,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-filetime-0.2.29/source-copyright-statements.json",
-          "sha256": "d1cce26b9d9a884a736416cfcf869bb5b2ee107c883442c6d77ee1ba0285d854"
+          "sha256": "e7d18e0a67c76c9331cb5df323b57962f416a116237dfbf0cdffb8615bcd9fd2"
         }
       ],
       "notice_required": true,
@@ -4523,7 +4603,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-flagset-0.4.7/source-copyright-statements.json",
-          "sha256": "f0aa1968b20da353b6393b155e41f44d6f46a0aa9b28fe660b0b22d03d72c281"
+          "sha256": "c733015928eb7f086fc2b37eef7fd2214c664b60c17f2f2267c13cd27d225d91"
         }
       ],
       "notice_required": true,
@@ -4560,7 +4640,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-flate2-1.1.9/source-copyright-statements.json",
-          "sha256": "526083202f06cdcba5c5439aa143d1b7215b48c7441e9c36803a9814eb6bd303"
+          "sha256": "8921c082ea134cfbe315e68e56f91b632fb62b04a16cf8311a0cd7b449c636f0"
         }
       ],
       "notice_required": true,
@@ -4597,7 +4677,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-fnv-1.0.7/source-copyright-statements.json",
-          "sha256": "0d5e77e417bf48519988155cd80d4062ee1bad2372970b065e2a5d39f84e5bdc"
+          "sha256": "8b0a14e76a46cbe2ba9c7df97440a4950ecdd5111d56e75deb5dca58e8b184ea"
         }
       ],
       "notice_required": true,
@@ -4630,7 +4710,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-foldhash-0.2.0/source-copyright-statements.json",
-          "sha256": "7fcb384ce7737f289f44576cb92ad9c4f00827ac388d28d62625fbbc392f799b"
+          "sha256": "c1489da761037de51588bdafb53c5fd6791835e15cbba0d4659f99e45f4c8eba"
         }
       ],
       "notice_required": true,
@@ -4667,7 +4747,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-font-types-0.12.4/source-copyright-statements.json",
-          "sha256": "fcae53532c0efff0b68749702c8b1f3405c421c7ff2767350b4ca9474e5634c7"
+          "sha256": "b6090f97329fcadeef7251ffce9fa2fa003a6ae76aa2d6289c3387088995f915"
         }
       ],
       "notice_required": true,
@@ -4704,7 +4784,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-form-urlencoded-1.2.2/source-copyright-statements.json",
-          "sha256": "597d4a56f8d2ca7e8afa8cebd4a8e87c1e561a89b4c0768927f30a9035ec8592"
+          "sha256": "9b25fe5a435f45195cee15a591731858a606cfc20db3eaba1ebfebf9e08af7ce"
         }
       ],
       "notice_required": true,
@@ -4741,7 +4821,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-futures-0.3.34/source-copyright-statements.json",
-          "sha256": "e48accf91df5ebeed8105adeda372cfa709554560f21f6215bbbc41c77c3171f"
+          "sha256": "c363de2ac1976823b23658954d6a68e3d4cf72f68ed9cacefc86119c706c8d1a"
         }
       ],
       "notice_required": true,
@@ -4774,7 +4854,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-futures-buffered-0.2.13/source-copyright-statements.json",
-          "sha256": "6df95b971775d815868d1ecfb4e966ccc6bfec3939e75404138474b431aae7f7"
+          "sha256": "504fdf56f461c6e1ece41d5fe7bb1c15a923851f74d6bf162298882d2e3866f5"
         }
       ],
       "notice_required": true,
@@ -4811,7 +4891,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-futures-channel-0.3.34/source-copyright-statements.json",
-          "sha256": "1a3dbf57737678c3d7560033a4f96926011e0d42e91677b3c32034bdadc5d781"
+          "sha256": "3f041ddfe1483b1928f6e6b44035047f34a096f511917904696f947d308bf023"
         }
       ],
       "notice_required": true,
@@ -4848,7 +4928,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-futures-core-0.3.34/source-copyright-statements.json",
-          "sha256": "9f2dba8b4d0a16833c870344c56932a4ad45ef8427fe54b32fb90108fedffcbf"
+          "sha256": "5b7d472a65dbc35fb468d6915917abd5957436979cdb1fc1a51d7bd1c627e0a6"
         }
       ],
       "notice_required": true,
@@ -4885,7 +4965,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-futures-executor-0.3.34/source-copyright-statements.json",
-          "sha256": "6cef3cf329a3892a15b1a2d844650c24b848b0504275a77300f818b5e4e12ea2"
+          "sha256": "342e2c5b6a817a503010736644a9e535df8964f23646c37c3d64d1ea86d420f2"
         }
       ],
       "notice_required": true,
@@ -4922,7 +5002,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-futures-io-0.3.34/source-copyright-statements.json",
-          "sha256": "45e1d88ae9b2aa333126f5d62b950b91412eb0bd305f1da0da4151cdc5445259"
+          "sha256": "5b3ccee03bb12e6661cd06b57770c202cba5a6cf35ce01a20a5bc07648fbd3c5"
         }
       ],
       "notice_required": true,
@@ -4963,7 +5043,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-futures-lite-2.6.1/source-copyright-statements.json",
-          "sha256": "a818c3bc162d018c131ba4e35b9ae629216b02a088a57d0297bcf3b7d5568ccf"
+          "sha256": "9511ff112cc7438217ce8c93c775467e5382622fe786b2a4697d00a9f721ba80"
         }
       ],
       "notice_required": true,
@@ -5000,7 +5080,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-futures-sink-0.3.34/source-copyright-statements.json",
-          "sha256": "7ad6b8fa37e2623cb21b24626beeb747b9770630bf4ee09e24b0413b285a899c"
+          "sha256": "80a9c4d2e08a9ef8a26565d4c2cb08dcee51fadad7d3f73c9608fd872442762f"
         }
       ],
       "notice_required": true,
@@ -5037,7 +5117,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-futures-task-0.3.34/source-copyright-statements.json",
-          "sha256": "a79e1705147398cd4c6597148d8c5ef7046cded8d3ebca517ef08794f56c3f50"
+          "sha256": "2071fc373a560ad1b7a2224ad329a87f06bfeb7e145d81d29b3c0b2c03727ebd"
         }
       ],
       "notice_required": true,
@@ -5074,7 +5154,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-futures-util-0.3.34/source-copyright-statements.json",
-          "sha256": "12aed7b20ac8d72a3e16facab12af4f58257745681769626a6f466375628d146"
+          "sha256": "ecf42d156e46b4f3bd2d44cca36ea7ccf74e92bd6fe0f6ca38c59f68201085d8"
         }
       ],
       "notice_required": true,
@@ -5107,7 +5187,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-generic-array-0.14.7/source-copyright-statements.json",
-          "sha256": "950904bd0cb377c87a0a0f98bcf88c908ea2cb22bddf116370698c9834d00eef"
+          "sha256": "75fa2b15118c227a5dff3d8b9f0b267a947f2724690a53deb6dea9c9804ca8a3"
         }
       ],
       "notice_required": true,
@@ -5144,7 +5224,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-getrandom-0.2.17/source-copyright-statements.json",
-          "sha256": "57183387c31fa5b23f7022d1db823b49890e8ac784944af12af659f020bbed52"
+          "sha256": "26021b280d27c83635ddaa6fedf51c973bbe1c596c9d04d64c43676c0ce60467"
         }
       ],
       "notice_required": true,
@@ -5181,7 +5261,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-getrandom-0.3.4/source-copyright-statements.json",
-          "sha256": "5af8c8b2b807f34996bb9771d9a0e064cb611749cc42963a8a9edbd445a2cc66"
+          "sha256": "47e013401797883ac9bd2d9bfbae200b4398fc4039e806f50fe7183fe4ec949e"
         }
       ],
       "notice_required": true,
@@ -5218,7 +5298,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-getrandom-0.4.3/source-copyright-statements.json",
-          "sha256": "d4044dcccb825a0cfa4c59fa680ec2c0f6453d163f17ba38bd082ac04d951aab"
+          "sha256": "0dcba7636304ed2f5692e9e855c702123e93d71d3c0557afe229793c7b58c381"
         }
       ],
       "notice_required": true,
@@ -5255,7 +5335,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-ghash-0.5.1/source-copyright-statements.json",
-          "sha256": "fb21834d34975e2eb2add901281eef77572a5f0e5b1285ff14d9894fced06a59"
+          "sha256": "b63f141e95de0f1804e702963fd0c98ec284127c24fa6099cc171f2b72020e06"
         }
       ],
       "notice_required": true,
@@ -5292,7 +5372,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-glifo-0.2.0/source-copyright-statements.json",
-          "sha256": "7db57f1fd2e08a53643b81f70e2f524fddffa2ee05077667bc36b0ae24259790"
+          "sha256": "50dc3d110059b8906e88962fa1a3106ab66e74ee2fbd6f563ea8f7a0b1913822"
         }
       ],
       "notice_required": true,
@@ -5333,7 +5413,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-globset-0.4.20/source-copyright-statements.json",
-          "sha256": "06d3350d7577c585160783b32d64566acb155e7ab893989ca6c9c1f827807d35"
+          "sha256": "e61610edbf055b230ba050d37c907ab94fcaf499bcb86daae3f98f9a3b0c8414"
         }
       ],
       "notice_required": true,
@@ -5412,7 +5492,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-glutin-0.32.3/source-copyright-statements.json",
-          "sha256": "13d910b6125c0fcd073c6cf69527319b25edc5734ba73dc3e5aa212db38b8926"
+          "sha256": "ec5f7d383e6eac811a1d9bd3e293a9c93e6fe9e05b1a3ae48a07b608799cfc98"
         }
       ],
       "notice_required": true,
@@ -5445,7 +5525,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-glutin-egl-sys-0.7.1/source-copyright-statements.json",
-          "sha256": "28512286172744d1c0559877fbccae9d706c9a37e54afa47e475dd3cbd4134b4"
+          "sha256": "c4e0ed7ebcf34673be77915d4c7f2a86bac7e34958d45e1595fc6498b319f667"
         }
       ],
       "notice_required": true,
@@ -5478,7 +5558,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-glutin-wgl-sys-0.6.1/source-copyright-statements.json",
-          "sha256": "ad5b776b19befa4aad263d2fe34a9f2b891dd80f274de23a873d6c1f66056672"
+          "sha256": "7661ecac183bb63fe00409054a88d068efba82b0eadbdce3d30c40ff21047c55"
         }
       ],
       "notice_required": true,
@@ -5511,7 +5591,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-glutin-winit-0.5.0/source-copyright-statements.json",
-          "sha256": "110fdcbbe308ec73dad40872e20552ee24e90b10aff081b2beba2140de1b6202"
+          "sha256": "e85c6c50429e5ce510db61e2d5cd0602d91680fcd93bd15b935b3054d82726d8"
         }
       ],
       "notice_required": true,
@@ -5548,7 +5628,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-guillotiere-0.7.0/source-copyright-statements.json",
-          "sha256": "6429f9bb3047471560977f49971760efac68dd8697cdbaaf3cbce5738b89b82e"
+          "sha256": "80d701a8c4ab8ee3827f453375100fe9070c3348fbbfe8cdbbbc652223404941"
         }
       ],
       "notice_required": true,
@@ -5581,7 +5661,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-h2-0.4.18/source-copyright-statements.json",
-          "sha256": "4db3c90e0a5814ce68109d23d949ab57dab76d9d5fa86d192246755c851766e9"
+          "sha256": "e5216f0c3801324c355d93749e7f12ca49184bd316ad3f04fc40970841b0aef9"
         }
       ],
       "notice_required": true,
@@ -5618,7 +5698,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-half-2.7.1/source-copyright-statements.json",
-          "sha256": "d3e05f34da9cda2a1ece35aca36e7ea4ac5fd00868f3909207771a92af9ac0cb"
+          "sha256": "81fb4a912e9d6742a36ba98762f0edbbec588ef8833c3c861ddf7c3243fc9a8d"
         }
       ],
       "notice_required": true,
@@ -5651,7 +5731,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-harfrust-0.12.0/source-copyright-statements.json",
-          "sha256": "741520dcfb7c41c94e0fe6e9a2c51ec37ee2798b390cdccf9bb9be250c0340fa"
+          "sha256": "221053c07d5b1705ce7702d822f4784b341c9745ae3d2d3cf5a5f0e25e6ace42"
         }
       ],
       "notice_required": true,
@@ -5688,7 +5768,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-hashbrown-0.16.1/source-copyright-statements.json",
-          "sha256": "39f099e75d190c71ff9135b5d753a531229513b6458a217dc5b97a925bf05f6b"
+          "sha256": "0a92c545dec33be5d3c53a327e3ee036795ece308f32fa8b24945079e564b8ee"
         }
       ],
       "notice_required": true,
@@ -5725,7 +5805,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-hashbrown-0.17.1/source-copyright-statements.json",
-          "sha256": "137d8f2e7dabd2d22722f5c2c66c1a4642a0276533b677b15002aa1bb265f9b6"
+          "sha256": "75c73c7a2642746691b4bed586477327cba5913c77bde11e7b4b441d62103e87"
         }
       ],
       "notice_required": true,
@@ -5762,7 +5842,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-hashlink-0.12.1/source-copyright-statements.json",
-          "sha256": "afb94e2520d24b923cc64c5856c4c7bcacd88894f40a1d89facf0969f9ff732e"
+          "sha256": "a3e1fe68e4d6e9bd38217188bc5a49221f50b18f51ee989652adcf583cc991b3"
         }
       ],
       "notice_required": true,
@@ -5799,7 +5879,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-hex-0.4.3/source-copyright-statements.json",
-          "sha256": "1f5fc45e28b0ff240dc361b562a2da1c558e8ff232b5279b49c088cbb9dd2cbb"
+          "sha256": "72e64e47149dba5f1deec98bf3c0a1fcc05d39d4cb825c556261f0506aa5dfd8"
         }
       ],
       "notice_required": true,
@@ -5836,7 +5916,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-hickory-net-0.26.1/source-copyright-statements.json",
-          "sha256": "adce6f31dd427d107393c178d810045aa4aa3e4eab0bef5f518ce8d0f33acc4e"
+          "sha256": "fb8e4719f052645dad4b2cc2b007724fee1c0b8e0fd1bac7386222b99688e391"
         }
       ],
       "notice_required": true,
@@ -5873,7 +5953,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-hickory-proto-0.26.1/source-copyright-statements.json",
-          "sha256": "80f0f89ff305147edae1dc5ffcd0de9eceeaa1dd3805736575977c907e9f9141"
+          "sha256": "ce2c537c7c1b60fa2640e22cbf0dd00fb43f14a1365eb8d1f334f0c2ce0ed99f"
         }
       ],
       "notice_required": true,
@@ -5910,7 +5990,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-hickory-resolver-0.26.1/source-copyright-statements.json",
-          "sha256": "1fbaacd9c34ceca37a648a663a4adb48dc8f930fb7258a8dbb5668beb3f8147b"
+          "sha256": "5c4d211c3206acf0d5752aa6960701ffbaa287a25e08c22ad8858e818f044f4e"
         }
       ],
       "notice_required": true,
@@ -5943,7 +6023,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-hostname-0.4.2/source-copyright-statements.json",
-          "sha256": "56ee3b22e6fdba78ac05e0958dac3e9cf9bcc0cde8102231841d511dbaf5be74"
+          "sha256": "272f27fcd3175ad1a802577d4524a6e8249b2f70492ba0ba1d727160d2bdc247"
         }
       ],
       "notice_required": true,
@@ -5976,7 +6056,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-html-escape-0.2.15/source-copyright-statements.json",
-          "sha256": "7439342fdb6ec53840067bbdb77fe31f4312f787db8b62a442b79132e110e749"
+          "sha256": "f59631b9d4c63c251789ddcee40018f8d2f58c564d1bfc910c459d3be9a19381"
         }
       ],
       "notice_required": true,
@@ -6013,7 +6093,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-http-1.5.0/source-copyright-statements.json",
-          "sha256": "5eefe67b1a7baf406bc4fcd907058e458ad52bdc3bc23be0939cb3218a817b89"
+          "sha256": "84407d559858a73a80e65633c223388e8089f7d67b18bacc5034da10ef1c256e"
         }
       ],
       "notice_required": true,
@@ -6046,7 +6126,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-http-body-1.1.0/source-copyright-statements.json",
-          "sha256": "e2eff6f6efad145dd9bcf048e5e340ea637340933506b7466e683fd27847397f"
+          "sha256": "27bb375029a2beeab45841b98635c8d53d4128637c1eb3eeafb8d63634f9841b"
         }
       ],
       "notice_required": true,
@@ -6079,7 +6159,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-http-body-util-0.1.5/source-copyright-statements.json",
-          "sha256": "30b4b8a1f0d3ec81603e8e0ecc2812d98f4b42c9e15e52f832979e1aa095616f"
+          "sha256": "48c643bfcd9f147d886f733640513223810894e98e8c4e640e50c50197e11b39"
         }
       ],
       "notice_required": true,
@@ -6116,7 +6196,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-httparse-1.10.1/source-copyright-statements.json",
-          "sha256": "090692cc127c31076177ba3faee623d5610d6003d95735e38cb53b7c68bccb27"
+          "sha256": "1411dce4c4db113ea6c603ed39847056c77e52aa49173836e9c5d5e5e5bbf0d5"
         }
       ],
       "notice_required": true,
@@ -6153,7 +6233,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-httpdate-1.0.3/source-copyright-statements.json",
-          "sha256": "42783e031be59d117c1006658151d6b432f29a41889ae33318ad511403cf551d"
+          "sha256": "5ab16920495b9bd2255ed16eb62a978c7ed0e709e8b1164a0c39cf4e76ab1b65"
         }
       ],
       "notice_required": true,
@@ -6190,7 +6270,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-hybrid-array-0.4.14/source-copyright-statements.json",
-          "sha256": "423f62da8fb3cf9f485347b1cdba1762ca935f2cba32d49b33e7eddb4c9123da"
+          "sha256": "34611e06c64c54b4667d6c76d17fe0fc65d0e2e57f56abf32bd80b8a47a3c021"
         }
       ],
       "notice_required": true,
@@ -6223,7 +6303,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-hyper-1.11.0/source-copyright-statements.json",
-          "sha256": "6ba03ade305bb340278d5253bdcb2471470f778d841137f337d3b62812ce9da9"
+          "sha256": "994712b1e5c4d465bb111be247261b9fd797e8eaa583288ea01ff77acd9d9fc1"
         }
       ],
       "notice_required": true,
@@ -6264,7 +6344,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-hyper-rustls-0.27.9/source-copyright-statements.json",
-          "sha256": "bf3e376a8a81e3612a397e5f1a37a710d74f4a3d665d9cd8d64eb0e78ea99c68"
+          "sha256": "3092d4172a76a7ebb931f17df672f85ce62663916fb2ea587099f21613f9c2c5"
         }
       ],
       "notice_required": true,
@@ -6297,7 +6377,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-hyper-util-0.1.20/source-copyright-statements.json",
-          "sha256": "1505d1ffe27242779a06bc23b599a2ba203d8c6c032802c4bc10fda4c0dce2e1"
+          "sha256": "c7e8cd518c62d08efaf04a3ae53c696c88bda831cbd899a433235f4eca3a3b7c"
         }
       ],
       "notice_required": true,
@@ -6330,7 +6410,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-icu-collections-2.3.0/source-copyright-statements.json",
-          "sha256": "4874338da152090ec4f2f0f8351bbc219098b2f405a667ee550116293bd300e4"
+          "sha256": "2696e4554ed0895f02428edcefd06284bd8f4ffb465397f19f05f29e3608eaf4"
         }
       ],
       "notice_required": true,
@@ -6363,7 +6443,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-icu-locale-core-2.3.0/source-copyright-statements.json",
-          "sha256": "b25cae8ca41eb414f2eb40e09bbbfd2599c6bfb62d443019de74e0e3abd0c22c"
+          "sha256": "23bb59a2aa72e5768fbf54a73143acb587244f081c08b65fb5d26f3d0f304282"
         }
       ],
       "notice_required": true,
@@ -6396,7 +6476,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-icu-normalizer-2.3.0/source-copyright-statements.json",
-          "sha256": "3c1efd799b7f82f1fad5888ff61d7747ea800af5064c44eb7eb0d3ff6302c551"
+          "sha256": "f6ae95525663c5567813acb5f2fb66fea991ba3a2883dd6d1aa7367468df7eb8"
         }
       ],
       "notice_required": true,
@@ -6429,7 +6509,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-icu-normalizer-data-2.3.0/source-copyright-statements.json",
-          "sha256": "0d23fcfd9d5d51f76d6d6c46c75603eecbd068f4a9d7d877dee39fe2683bb02e"
+          "sha256": "1c152d7484bbd31b93c7cf758599c554551129eb2e487d1a6271f9682d4120af"
         }
       ],
       "notice_required": true,
@@ -6462,7 +6542,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-icu-properties-2.3.0/source-copyright-statements.json",
-          "sha256": "66717dbf0bb5fd570c0af3cad4ff570ea65aaca39317bb260579b09f9b7d8d67"
+          "sha256": "237e5561607bcf169f56b6f9aa644559fa9c4d21c94cc6dc76ed50b50d0b764c"
         }
       ],
       "notice_required": true,
@@ -6495,7 +6575,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-icu-properties-data-2.3.0/source-copyright-statements.json",
-          "sha256": "d58cf215a496b060866a36ab2149c82b7ea3e94d1c3a25a226a07c03a903ad8f"
+          "sha256": "e953ffef3b29b6b10f60e86239bfa3873cb027c9d39a918b21082e00f8f02354"
         }
       ],
       "notice_required": true,
@@ -6528,7 +6608,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-icu-provider-2.3.0/source-copyright-statements.json",
-          "sha256": "d070cf5bb6c482a804daa511f5a9ca30014f1ba51ce1cd111169a5a66bc26510"
+          "sha256": "460e19628858d7c4db9f75f0ee56b356b5cbbb148b9e7c0d6b7ac0d5aab827e2"
         }
       ],
       "notice_required": true,
@@ -6565,7 +6645,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-identity-hash-0.1.0/source-copyright-statements.json",
-          "sha256": "338d99816662de4483149aa967258685783902a2d31211c9e4c68b6c4e392491"
+          "sha256": "19e10756205b50ffd22cfd603e001077332eabc316b8deb93f279ebaa709d47e"
         }
       ],
       "notice_required": true,
@@ -6602,7 +6682,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-idna-1.1.0/source-copyright-statements.json",
-          "sha256": "757d5493358de745d5a0e78f97b7b4116f598262e2085c1a0a7d9fd839c96b03"
+          "sha256": "b3b1c7e7c82fdf75838b4abe1ec3b68ce6f54e8485dcf170d73b16882548a239"
         }
       ],
       "notice_required": true,
@@ -6639,7 +6719,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-idna-adapter-1.2.2/source-copyright-statements.json",
-          "sha256": "3f34eeb42863b78df8a52f5064e5b8c24ac17e2b5e61cc46beca9d3f309a1e64"
+          "sha256": "5b9aa0240f8586ef07c669494ddb39d908893f4ae2ee181e559b6010825604df"
         }
       ],
       "notice_required": true,
@@ -6672,7 +6752,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-igd-next-0.17.1/source-copyright-statements.json",
-          "sha256": "1e8fda770d58b377d32b6f17cf51e0e3520c84d126127c2393b62a422f9d1bc3"
+          "sha256": "4d0b6c28593308a6d63fca4d273ba969df6baf6e09d9206ab307bc149b23de60"
         }
       ],
       "notice_required": true,
@@ -6709,7 +6789,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-image-0.25.10/source-copyright-statements.json",
-          "sha256": "a9602a80d7e766f00aa80057595f89fcd065eb42a9e17fff89e01e0b2434e690"
+          "sha256": "a6c5f893946bcc3f71f7d53947c621104893aac4c4628bb367ebeee31262add8"
         }
       ],
       "notice_required": true,
@@ -6746,7 +6826,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-indexmap-2.14.0/source-copyright-statements.json",
-          "sha256": "37764b81e0bdb5552258e7929a8660e656a44c4b89b9163698e20bfdd830594a"
+          "sha256": "e11ebd0ea48e36c534a430076e6729109002eaeaf560858d0805d832c988b213"
         }
       ],
       "notice_required": true,
@@ -6779,7 +6859,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-indicatif-0.18.6/source-copyright-statements.json",
-          "sha256": "5e8e3107fb6b64856c4dd8a52304ad5b39d646ee66eeec3b0eabb97506cd4420"
+          "sha256": "575c4aeba3d496c9f7ea31d10652f3536cd7e28d40241fdd826dc0b12ba374fd"
         }
       ],
       "notice_required": true,
@@ -6816,7 +6896,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-inout-0.1.4/source-copyright-statements.json",
-          "sha256": "bf882f2fa063f987d35cee3921ccb20054c5d4a66f689b7f4bda6802ef072eee"
+          "sha256": "f814588d736aa9c505ad3131cca7e0e9b37362754ccd6d7e683719a928da8368"
         }
       ],
       "notice_required": true,
@@ -6853,7 +6933,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-ipconfig-0.3.4/source-copyright-statements.json",
-          "sha256": "3509ddb6a7da220e8d2e55edf5837bd59e5e09408e6d7a3d9b3f980d1fddc109"
+          "sha256": "51bb9f6eefa4e9964e9de7bc6a87f84e8b6579f59a1ac3504ab34daca3f9a3a6"
         }
       ],
       "notice_required": true,
@@ -6890,7 +6970,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-ipnet-2.12.1/source-copyright-statements.json",
-          "sha256": "73a41dc10dacc90cd1ef74809f946118a1926badb1e5fca9071470b569ed923b"
+          "sha256": "d388bcad833664ce521852775b004f263c1ac27f5b64b9dcc443dbf2288ee0c6"
         }
       ],
       "notice_required": true,
@@ -6900,13 +6980,28 @@
       "version": "2.12.1"
     },
     {
-      "copyright_text": "Copyright (c) 2020 Tailscale Inc & AUTHORS.",
+      "copyright_text": "Copyright (c) 2020 Tailscale Inc & AUTHORS.\nCopyright [2025] [N0, INC]",
       "download_location": "https://static.crates.io/crates/iroh/iroh-1.0.3.crate",
       "id": "cargo-iroh-1.0.3",
       "kind": "cargo",
-      "license_concluded": "NOASSERTION",
+      "license_concluded": "Apache-2.0 AND BSD-3-Clause",
       "license_declared": "MIT OR Apache-2.0",
-      "license_files": [],
+      "license_files": [
+        {
+          "license_ids": [
+            "BSD-3-Clause"
+          ],
+          "path": "legal/LICENSES/cargo-iroh-1.0.3/000-000-LICENSE-BSD3",
+          "sha256": "7c6c032bf8c84fb4cd99784965a39be9e836fb7f244b3cf40c42faf4b211c10a"
+        },
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/cargo-iroh-1.0.3/001-iroh-f2eb930-LICENSE-APACHE.txt",
+          "sha256": "903131e2786f073a942fbf8fae122d9e576e4dad758c6da7f9f2ba58fd8611ab"
+        }
+      ],
       "name": "iroh",
       "notice_files": [
         {
@@ -6914,18 +7009,30 @@
           "sha256": "7c6c032bf8c84fb4cd99784965a39be9e836fb7f244b3cf40c42faf4b211c10a"
         },
         {
+          "path": "legal/NOTICES/cargo-iroh-1.0.3/001-iroh-f2eb930-LICENSE-APACHE.txt",
+          "sha256": "903131e2786f073a942fbf8fae122d9e576e4dad758c6da7f9f2ba58fd8611ab"
+        },
+        {
+          "path": "legal/NOTICES/cargo-iroh-1.0.3/source-grant-scope.json",
+          "sha256": "e9d0cdd2e46d58025d4de7cb137ff8386fdfad02311b9f9eb430d533e33a0ec4"
+        },
+        {
+          "path": "legal/NOTICES/cargo-iroh-1.0.3/external-grant-provenance.json",
+          "sha256": "9318c0e4277d7fc2bd900af34bba25d058ce0945858e6794438964e142f38d2e"
+        },
+        {
           "path": "legal/NOTICES/cargo-iroh-1.0.3/source-copyright-statements.json",
-          "sha256": "7680a0f0780f5e3c70ede8aed61c2473cfa66c6b15bb754c40ea589b35d4fa0d"
+          "sha256": "31915a01cfd47f76913b00b313588cc9fb7021a3669f2d5876ea65b4898f4184"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "460de6bc52163b41b1646931f2897e5ab986f0966ade444467fec25024751a72",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "1.0.3"
     },
     {
-      "copyright_text": "Copyright 2025 N0, INC.",
+      "copyright_text": "Copyright 2025 N0, INC.\nCopyright [2025] [N0, INC]",
       "download_location": "https://static.crates.io/crates/iroh-base/iroh-base-1.0.3.crate",
       "id": "cargo-iroh-base-1.0.3",
       "kind": "cargo",
@@ -6958,7 +7065,7 @@
       "version": "1.0.3"
     },
     {
-      "copyright_text": "Copyright 2025 N0, INC.",
+      "copyright_text": "Copyright 2025 N0, INC.\nCopyright [2025] [N0, INC]",
       "download_location": "https://static.crates.io/crates/iroh-dns/iroh-dns-1.0.3.crate",
       "id": "cargo-iroh-dns-1.0.3",
       "kind": "cargo",
@@ -6991,7 +7098,7 @@
       "version": "1.0.3"
     },
     {
-      "copyright_text": "Copyright 2026 N0, INC.",
+      "copyright_text": "Copyright 2026 N0, INC.\nCopyright [2026] [N0, INC]",
       "download_location": "https://static.crates.io/crates/iroh-metrics/iroh-metrics-1.0.1.crate",
       "id": "cargo-iroh-metrics-1.0.1",
       "kind": "cargo",
@@ -7018,7 +7125,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-iroh-metrics-1.0.1/source-copyright-statements.json",
-          "sha256": "434e8f62dcb77caecbca8768bb5a66de56d042c6bbaf7098c4b834ad301bae26"
+          "sha256": "22a81511b5755a7430123a4ba163241bac5d23769682e9fc0a04a1476fcf6886"
         }
       ],
       "notice_required": true,
@@ -7028,13 +7135,28 @@
       "version": "1.0.1"
     },
     {
-      "copyright_text": "Copyright (c) 2020 Tailscale Inc & AUTHORS.",
+      "copyright_text": "Copyright (c) 2020 Tailscale Inc & AUTHORS.\nCopyright [2025] [N0, INC]",
       "download_location": "https://static.crates.io/crates/iroh-relay/iroh-relay-1.0.3.crate",
       "id": "cargo-iroh-relay-1.0.3",
       "kind": "cargo",
-      "license_concluded": "NOASSERTION",
+      "license_concluded": "Apache-2.0 AND BSD-3-Clause",
       "license_declared": "MIT OR Apache-2.0",
-      "license_files": [],
+      "license_files": [
+        {
+          "license_ids": [
+            "BSD-3-Clause"
+          ],
+          "path": "legal/LICENSES/cargo-iroh-relay-1.0.3/000-000-LICENSE-BSD3",
+          "sha256": "bcaa9acadee6c20991d4b5eb56e226191411a3f6ceb92587b272f2ef0221ed71"
+        },
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/cargo-iroh-relay-1.0.3/001-iroh-f2eb930-LICENSE-APACHE.txt",
+          "sha256": "903131e2786f073a942fbf8fae122d9e576e4dad758c6da7f9f2ba58fd8611ab"
+        }
+      ],
       "name": "iroh-relay",
       "notice_files": [
         {
@@ -7042,14 +7164,26 @@
           "sha256": "bcaa9acadee6c20991d4b5eb56e226191411a3f6ceb92587b272f2ef0221ed71"
         },
         {
+          "path": "legal/NOTICES/cargo-iroh-relay-1.0.3/001-iroh-f2eb930-LICENSE-APACHE.txt",
+          "sha256": "903131e2786f073a942fbf8fae122d9e576e4dad758c6da7f9f2ba58fd8611ab"
+        },
+        {
+          "path": "legal/NOTICES/cargo-iroh-relay-1.0.3/source-grant-scope.json",
+          "sha256": "ca0e2bf6628dae8c8e2febafb6c0bcd722f73df042cafb59b78094cd4098dd02"
+        },
+        {
+          "path": "legal/NOTICES/cargo-iroh-relay-1.0.3/external-grant-provenance.json",
+          "sha256": "11a904398ecee9a641e0aa79cb478e59bba35b4716f1666b29d694c572b16749"
+        },
+        {
           "path": "legal/NOTICES/cargo-iroh-relay-1.0.3/source-copyright-statements.json",
-          "sha256": "beb3863a41d844eb7c8b864c85a2867c5ac76e157d99a2fe200fc59d191de52a"
+          "sha256": "841e9beee698d5b4c71bb800a99f8726dbd2647a41b28a123926e761a3a35b8e"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "24bd586cf927f7b700f56ec3639b53cb5fa901ce284784051ff71092bfbf8193",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "1.0.3"
     },
     {
@@ -7080,7 +7214,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-is-terminal-polyfill-1.70.2/source-copyright-statements.json",
-          "sha256": "639bc3328098f06ba727370b9fae286f086a690ec521349f4b613800c2a40029"
+          "sha256": "801e71be334172666bb653d7a22a6c9da5f9e216a3b46212dda054d8ca106e3c"
         }
       ],
       "notice_required": true,
@@ -7117,7 +7251,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-itertools-0.15.0/source-copyright-statements.json",
-          "sha256": "6cc2603b8bcf525c1d4575c239c212d12af9b9c0ad1e6ebf52ffe1e85bb81c83"
+          "sha256": "166475d9c3b8a4381d6a776fee8d2f3c4484436892b4b3062bc93266fe63ee11"
         }
       ],
       "notice_required": true,
@@ -7200,7 +7334,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-jiff-0.2.37/source-copyright-statements.json",
-          "sha256": "7660bab1b61720d39b21c49668b3e3cb7a7bbba57179a7f2c39371f396246d5c"
+          "sha256": "a3e72f74855b1c166353b87cd336076bebcbd353764e51939ff970286d87e65d"
         }
       ],
       "notice_required": true,
@@ -7241,7 +7375,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-jiff-core-0.1.1/source-copyright-statements.json",
-          "sha256": "07a2ede22a94894a868debab9406f59794230d75e2b1815aae600a6cc15fcef2"
+          "sha256": "d3869391827e030f8009d4d35ac2737bca9395baa2459d7bfcaf0120c67a0499"
         }
       ],
       "notice_required": true,
@@ -7282,7 +7416,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-jiff-tzdb-0.1.8/source-copyright-statements.json",
-          "sha256": "fe541d129d2411013b80f382e0ec86bfad2eb79fc0b9af059b9b29a0127e04a6"
+          "sha256": "59177aa97376020865df13e054d0364b74093d584537eb6105fd2bed5b9fca9c"
         }
       ],
       "notice_required": true,
@@ -7323,7 +7457,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-jiff-tzdb-platform-0.1.3/source-copyright-statements.json",
-          "sha256": "136f5b28c59c7c0e59887f907757a391e4768af8d9904999e4b661c6db2c9efb"
+          "sha256": "01aa5d0b5a349e7e0e1f839fa1b1497b3593729c1240748ffb7d7cc79372aa68"
         }
       ],
       "notice_required": true,
@@ -7360,7 +7494,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-kurbo-0.13.1/source-copyright-statements.json",
-          "sha256": "72e94be38ba018f08c20ebbdc78cb38685f3c1379b11e8c973b0d62dd69f6550"
+          "sha256": "a2f835834cc9ce4ef9744e83d18aff61769e2838b05fad67871130295252c568"
         }
       ],
       "notice_required": true,
@@ -7397,7 +7531,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-lazy-static-1.5.0/source-copyright-statements.json",
-          "sha256": "683b6e230ec4709296afaeaf63c560afc0609e0e49a49924dc55a3867f1f6f99"
+          "sha256": "f05d0a1abc868a49689f5fa911e0b582f705c7d74352504de505047bd971e2a4"
         }
       ],
       "notice_required": true,
@@ -7434,7 +7568,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-libc-0.2.189/source-copyright-statements.json",
-          "sha256": "53c639f525fe9affc95e1d6269ef9ec59a44a7a3cafa87d60e9e4557a290d780"
+          "sha256": "e565fcfc4b086dd74b68ffa62d871bed96c9a6981689569d4b97253a17b8903f"
         }
       ],
       "notice_required": true,
@@ -7467,7 +7601,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-libloading-0.8.9/source-copyright-statements.json",
-          "sha256": "861cb76e7e044206f0e536cf41314e88f2de3dab047c46730e5f7967cfa29eb6"
+          "sha256": "ed1363691607ff710c088c40bd6e13fe2272e051796b5751dc0521e9122e3bd5"
         }
       ],
       "notice_required": true,
@@ -7500,7 +7634,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-libm-0.2.16/source-copyright-statements.json",
-          "sha256": "c5d2ba04fbee02b7b7c9d142145b6e9fc1f282136c240a157f53d0b1343fae96"
+          "sha256": "28c8614fc015928ee13a37f3cd4ff0d83df50d50a9bb9a9b8481d8282ab4c4a8"
         }
       ],
       "notice_required": true,
@@ -7537,7 +7671,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-libsqlite3-sys-0.38.2/source-copyright-statements.json",
-          "sha256": "c9e81ff1725b84bf5d4c26c0b525d8af56b3d63910ed86daa4fff8b9b5b78524"
+          "sha256": "bd459cd812c89a33fdc32e9e5ee85fe7903f7c3c178bdaac45369923a5b1f87c"
         }
       ],
       "notice_required": true,
@@ -7578,7 +7712,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-linebender-resource-handle-0.1.1/source-copyright-statements.json",
-          "sha256": "711e4b0e4c7b9aa7b349b07dac651b55582267b006e27caae37a5390c5901570"
+          "sha256": "5e0aff36e8cc3fbe055491be394248f8b937ca5557820bd1e0b5449e1a6c409d"
         }
       ],
       "notice_required": true,
@@ -7611,7 +7745,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-litemap-0.8.3/source-copyright-statements.json",
-          "sha256": "899e857bbfa86a4fb92b1a9f72c7b34aee7d83a3cfa0d9b0d495e80fbea1be2b"
+          "sha256": "1c73e3ff53a4bf30a9d87ebbface7c6e61db513d01c5aa3803d63e6f84ae9f85"
         }
       ],
       "notice_required": true,
@@ -7648,7 +7782,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-lock-api-0.4.14/source-copyright-statements.json",
-          "sha256": "6bdce7217aa5093146e0dc43cbe4cdd0d7877d308adfc114061dc096797aef89"
+          "sha256": "f157d4cc8ec6b0158e056828ae1a72f35f9e680c7b8b28ef338d127a17196571"
         }
       ],
       "notice_required": true,
@@ -7685,7 +7819,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-log-0.4.33/source-copyright-statements.json",
-          "sha256": "2ca91b4aec705323a97346e2ebae4741fb35a0463aba9f44070bd3b890f26d22"
+          "sha256": "d08c0326fb7c4f9b24fe16d34a0d3afc05ffc7df859f6c7f624fa5390d7fdab7"
         }
       ],
       "notice_required": true,
@@ -7718,7 +7852,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-lru-0.18.2/source-copyright-statements.json",
-          "sha256": "d2e04d7b84f9adfff5ed33c4334fa595030648a9faefa0dd747b6c849a25452a"
+          "sha256": "6c48c058ce4f19484113847eb843563be4a91a2c958fe4b93442fdf88066d5b2"
         }
       ],
       "notice_required": true,
@@ -7759,7 +7893,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-lru-slab-0.1.2/source-copyright-statements.json",
-          "sha256": "aa92568c2bef753f6db7dd70bf5bab22f3ccf33dd3aa1c24ba08a6978f02a64d"
+          "sha256": "2bd08ed5aa9334110baf1df397c7f7ac881c297285912a1e10fe9ea003dfb314"
         }
       ],
       "notice_required": true,
@@ -7792,7 +7926,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-mac-addr-0.3.0/source-copyright-statements.json",
-          "sha256": "3f72878596c537ba0861fddadf8585ca04b8972c7a87596ea0a0d5602cf395a6"
+          "sha256": "3010ce33c405211ed0d882592d20589a8d2e10b2fcf6a8fa1a89eab627c35b02"
         }
       ],
       "notice_required": true,
@@ -7825,7 +7959,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-matchers-0.2.0/source-copyright-statements.json",
-          "sha256": "ab92a8e07b39758d39cfa87a061f3e4f693234f5cc7b95d5230fd048f234b278"
+          "sha256": "b82fd6a0cea0583bd5cb1cbb7fa87f7e26d913378f3021f6a7cd3ad5c14686a3"
         }
       ],
       "notice_required": true,
@@ -7869,7 +8003,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-matchit-0.8.4/source-copyright-statements.json",
-          "sha256": "69c6186144f6af7b66134ccf47e026d210784861a236ccde522163a2d9925db2"
+          "sha256": "53f1c2a0a7de859b00244221b86acee78a4debe0db3893d2e85420461f1d68dd"
         }
       ],
       "notice_required": true,
@@ -7910,7 +8044,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-memchr-2.8.3/source-copyright-statements.json",
-          "sha256": "50fc77bf113be5b5e5f0075c9fcd0f38634fdf3594cdd1af24b8815a68ab610b"
+          "sha256": "8a212588289db0d9036b80d333a3ce4dbcba456c569cb7a9a0255d49c8799d93"
         }
       ],
       "notice_required": true,
@@ -7947,7 +8081,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-mime-0.3.17/source-copyright-statements.json",
-          "sha256": "ddb7b4b57700b5bd316e61ff40bf3f9d21a78790f1c889ecae32ef8bf043b8e4"
+          "sha256": "1db5dd79d723ab365521ede11e281e9a8619b8b1b9d69eed4ac2666cc2419e36"
         }
       ],
       "notice_required": true,
@@ -7992,7 +8126,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-miniz-oxide-0.8.9/source-copyright-statements.json",
-          "sha256": "5529cbe68ff41b8508e1fe17749aa53e083ed44e7d48a4d60e663051fefcb1b7"
+          "sha256": "83263747f2e7d403fa4d5bbb1a50389bdf45359ddb64aeb0d09063dea59fa274"
         }
       ],
       "notice_required": true,
@@ -8025,7 +8159,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-mio-1.2.2/source-copyright-statements.json",
-          "sha256": "42285cca0262fa209f97776baebc50a8b3ef3f1b1df5bb18ad24faca56844103"
+          "sha256": "a0eb3cc5bafd28f103873f587b8bee82db4bc708d13eee0cba77b5b3f51dccc4"
         }
       ],
       "notice_required": true,
@@ -8066,7 +8200,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-moka-0.12.16/source-copyright-statements.json",
-          "sha256": "861a1a283fc5ebfad0ad6a71e1dbb9f7eb5c58b8660342f3e075b34b36b5d27e"
+          "sha256": "15c86b42f04e00fa14a3f4af9e554c176e39972844a0f8da7c8de62a8cdf6543"
         }
       ],
       "notice_required": true,
@@ -8103,7 +8237,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-moxcms-0.8.1/source-copyright-statements.json",
-          "sha256": "9e891adcd7e4e62ddc8cc75aa27fc55b40acbd674c6824842d94be3ad61d92af"
+          "sha256": "d88f9c5e2821a2ff13b53cca305c9f1656bdab07127d8b8c4a1a53ae80ef6ef0"
         }
       ],
       "notice_required": true,
@@ -8113,7 +8247,7 @@
       "version": "0.8.1"
     },
     {
-      "copyright_text": "Copyright 2026 N0, INC.",
+      "copyright_text": "Copyright 2026 N0, INC.\nCopyright [2026] [N0, INC]",
       "download_location": "https://static.crates.io/crates/n0-error/n0-error-1.0.0.crate",
       "id": "cargo-n0-error-1.0.0",
       "kind": "cargo",
@@ -8140,7 +8274,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-n0-error-1.0.0/source-copyright-statements.json",
-          "sha256": "f07fbec7deef44cc72f9a6b6bf21b73963a2b6344e0f7c94cb76e833a4495d6c"
+          "sha256": "9847017fc97f202ae25230c84f6afad44d5c9a84f690b5a0888163f9e1b29e68"
         }
       ],
       "notice_required": true,
@@ -8150,7 +8284,7 @@
       "version": "1.0.0"
     },
     {
-      "copyright_text": "Copyright 2023 N0, INC.\nCopyright 2024 N0, INC.",
+      "copyright_text": "Copyright 2023 N0, INC.\nCopyright 2024 N0, INC.\nCopyright [2023] [N0, INC]",
       "download_location": "https://static.crates.io/crates/n0-future/n0-future-0.3.2.crate",
       "id": "cargo-n0-future-0.3.2",
       "kind": "cargo",
@@ -8177,7 +8311,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-n0-future-0.3.2/source-copyright-statements.json",
-          "sha256": "162e883c6f97528dffcb50fbd1b73ac493c0af63353977f7e8484243a2592f9c"
+          "sha256": "f7e503c4be537464817a810e909dd68dd946c483d7676ef48eee6ac2b46a9355"
         }
       ],
       "notice_required": true,
@@ -8187,7 +8321,7 @@
       "version": "0.3.2"
     },
     {
-      "copyright_text": "Copyright 2026 N0, INC.",
+      "copyright_text": "Copyright 2026 N0, INC.\nCopyright [2026] [N0, INC]",
       "download_location": "https://static.crates.io/crates/n0-watcher/n0-watcher-1.0.0.crate",
       "id": "cargo-n0-watcher-1.0.0",
       "kind": "cargo",
@@ -8214,7 +8348,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-n0-watcher-1.0.0/source-copyright-statements.json",
-          "sha256": "76c311ceab67d130125f742aaa13d5450fd060354be5d9253a3540d145f7f290"
+          "sha256": "0f972efa6be51678518980f9bc7cde9e3ddcab1bc1826c3f13d23033712dcf5d"
         }
       ],
       "notice_required": true,
@@ -8251,7 +8385,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-naga-30.0.1/source-copyright-statements.json",
-          "sha256": "026745ce2687b58d1020bd45ddc50c83bec3f0f685ea323a5f27f96b0031f71e"
+          "sha256": "7920b934ac9cc9aeebef3c572c0ce3bc71c90bb9bbaddd42387b623db0ace011"
         }
       ],
       "notice_required": true,
@@ -8288,7 +8422,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-naga-types-30.0.1/source-copyright-statements.json",
-          "sha256": "6f41b7a68f5e571764d85ceb7d2eacd1ce745674be43474dc19019e98176bc4e"
+          "sha256": "456e4b54233bc56dd6312daf5215ff9393db6de37904209870ddd48d200d8359"
         }
       ],
       "notice_required": true,
@@ -8321,7 +8455,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-netdev-0.45.0/source-copyright-statements.json",
-          "sha256": "b172c9d82cef31ebe0b375ae38ae84c27110d4a2e23344c0f4f2f997d89d2819"
+          "sha256": "78501d486ae5afdabb4d91af254104389c7454c16c4d430258a93246cd7fe2f3"
         }
       ],
       "notice_required": true,
@@ -8331,7 +8465,7 @@
       "version": "0.45.0"
     },
     {
-      "copyright_text": "Copyright 2023 N0, INC.",
+      "copyright_text": "Copyright 2023 N0, INC.\nCopyright [2023] [N0, INC]",
       "download_location": "https://static.crates.io/crates/netwatch/netwatch-0.19.1.crate",
       "id": "cargo-netwatch-0.19.1",
       "kind": "cargo",
@@ -8391,7 +8525,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-nohash-hasher-0.2.0/source-copyright-statements.json",
-          "sha256": "de1cd8ab6d86636f816ce9503fba0317f2dd9c204423d9b75227bf96d0d73c45"
+          "sha256": "4f97c8c7ba1de4e4a158d2e2191bbc2f10c3f04a8cddfa7a7e7809dd046c15fd"
         }
       ],
       "notice_required": true,
@@ -8401,7 +8535,7 @@
       "version": "0.2.0"
     },
     {
-      "copyright_text": "Copyright (c) 2018-2025 The quinn Developers\nCopyright (c) 2025 N0, Inc.\nCopyright 2025 N0, INC.\nCopyright 2025 The quinn developers",
+      "copyright_text": "Copyright (c) 2018-2025 The quinn Developers\nCopyright (c) 2025 N0, Inc.\nCopyright 2025 N0, INC.\nCopyright 2025 The quinn developers\nCopyright [2025] [N0, Inc]\nCopyright [2025] [The quinn developers]",
       "download_location": "https://static.crates.io/crates/noq/noq-1.1.1.crate",
       "id": "cargo-noq-1.1.1",
       "kind": "cargo",
@@ -8428,7 +8562,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-noq-1.1.1/source-copyright-statements.json",
-          "sha256": "3dfb9cd33fe4f4b08e1a02b60e86fe0fce47d6c99213254a38bb4041254ff8a9"
+          "sha256": "dade84d7e017e6074a868933332a518337c68a4703cc482ed74604fc0e7630ca"
         }
       ],
       "notice_required": true,
@@ -8438,7 +8572,7 @@
       "version": "1.1.1"
     },
     {
-      "copyright_text": "Copyright (c) 2018-2025 The quinn Developers\nCopyright (c) 2025 N0, Inc.",
+      "copyright_text": "Copyright (c) 2018-2025 The quinn Developers\nCopyright (c) 2025 N0, Inc.\nCopyright [2025] [N0, Inc]\nCopyright [2025] [The quinn developers]",
       "download_location": "https://static.crates.io/crates/noq-proto/noq-proto-1.1.1.crate",
       "id": "cargo-noq-proto-1.1.1",
       "kind": "cargo",
@@ -8465,7 +8599,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-noq-proto-1.1.1/source-copyright-statements.json",
-          "sha256": "ed35c79adc65cd010ce4885c19e19be162263390903970628521ff6bd80ba50d"
+          "sha256": "7b1e097ef4290612c043473142d48f367d6a6c6fd161b681ef3d9445b215461e"
         }
       ],
       "notice_required": true,
@@ -8475,7 +8609,7 @@
       "version": "1.1.1"
     },
     {
-      "copyright_text": "Copyright (c) 2018-2025 The quinn Developers\nCopyright (c) 2025 N0, Inc.",
+      "copyright_text": "Copyright (c) 2018-2025 The quinn Developers\nCopyright (c) 2025 N0, Inc.\nCopyright [2025] [N0, Inc]\nCopyright [2025] [The quinn developers]",
       "download_location": "https://static.crates.io/crates/noq-udp/noq-udp-1.1.1.crate",
       "id": "cargo-noq-udp-1.1.1",
       "kind": "cargo",
@@ -8502,7 +8636,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-noq-udp-1.1.1/source-copyright-statements.json",
-          "sha256": "f5a6364d359d56e278290d1dc1281a305b0b93cd9a68e9846c32d8e4621dd87a"
+          "sha256": "f4a6d2e6fd04579412b38cb2d39a2daccbf2ef10dd50741c52f8b02ef0bd27aa"
         }
       ],
       "notice_required": true,
@@ -8535,7 +8669,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-nu-ansi-term-0.50.3/source-copyright-statements.json",
-          "sha256": "b027d79ba81aedc6ee209495d0b5c30295d0d9f3c6924c303ea75232a3fbae2e"
+          "sha256": "35c9ae4a84c43e506c9e37fb7c9d9da9e6399f30933f2370caa961f97b515f42"
         }
       ],
       "notice_required": true,
@@ -8572,7 +8706,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-num-conv-0.2.2/source-copyright-statements.json",
-          "sha256": "e3c018702f36dd1b3f0f08f426c670ac06a9486f5e113db26632875db18bb97c"
+          "sha256": "c0e95f936f7aa54dcd44f64780e7a52a4db6c1a0598d14ae47324ea3a0df7fdc"
         }
       ],
       "notice_required": true,
@@ -8613,7 +8747,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-num-enum-0.7.6/source-copyright-statements.json",
-          "sha256": "d2d7c83f8565447384d5f4790852f6453ba5fc5743c082943400302f76166dfc"
+          "sha256": "32e4bcc6e378a454ac1b830229a0848252e121b949c6d76cdec67553265a1f1c"
         }
       ],
       "notice_required": true,
@@ -8650,7 +8784,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-num-traits-0.2.19/source-copyright-statements.json",
-          "sha256": "03dcbf84a398180ba150d889d0e72516f903ebc5c1cd67a4365936f1fab81a17"
+          "sha256": "faf79c10f2a0b314b10a1931c44c8a241101eb4f96d5b14fb7213d8fb05617c2"
         }
       ],
       "notice_required": true,
@@ -8729,7 +8863,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-once-cell-polyfill-1.70.2/source-copyright-statements.json",
-          "sha256": "af19daba3d76e8e0636d7e76f28f1aa02502aec764270d55d49e28c45e12e5c0"
+          "sha256": "dce18100f10ac914fa4b80a9ed6eea5102bf75b97c17e64881fa65e168c7c971"
         }
       ],
       "notice_required": true,
@@ -8766,7 +8900,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-opaque-debug-0.3.1/source-copyright-statements.json",
-          "sha256": "4c43711e1dccffee3cbc5e1f64808e49936890a316f234b7639f77b4ec0db282"
+          "sha256": "59cec6c39315b6492f0c154834875f31011706510d328c3afdcef3a6573f6f12"
         }
       ],
       "notice_required": true,
@@ -8883,7 +9017,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-parking-2.2.1/source-copyright-statements.json",
-          "sha256": "aa7605a0bdd7383218eb8bca3c31949b97858f474ca6ad992926ec0aaa048585"
+          "sha256": "2175ffd656c4c545dc2e9c9a81c0acd06b143a094245b094242bfb029126e095"
         }
       ],
       "notice_required": true,
@@ -8920,7 +9054,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-parking-lot-0.12.5/source-copyright-statements.json",
-          "sha256": "8a18c041fcf57d24adf4361da52ffc12faa6deee19e7b19982850178dce82433"
+          "sha256": "2e0d81208efe8c4d98b4a0e689d7bde42c8a26aebdf3bdd0b113272c8bed1f33"
         }
       ],
       "notice_required": true,
@@ -8957,7 +9091,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-parking-lot-core-0.9.12/source-copyright-statements.json",
-          "sha256": "51b28d40d0128d8b2a3973838eda9561a74264d87ae39d2d645e7d701d8be417"
+          "sha256": "8abfec81d5c25912b13f07a22927a6d6c8cd937409e5064b4ec4947a40f867ad"
         }
       ],
       "notice_required": true,
@@ -8990,7 +9124,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-pem-3.0.6/source-copyright-statements.json",
-          "sha256": "9f2f831aa031e8333d835d80c1b706e4069b0597ba5644707a5d47ef7d329f61"
+          "sha256": "6f3d859a699fad08433b729b6657ef532e940c499251e2ced1037a5f2499858d"
         }
       ],
       "notice_required": true,
@@ -9027,7 +9161,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-pem-rfc7468-0.7.0/source-copyright-statements.json",
-          "sha256": "f7bdd32ac307cac62a38ce68bfa3244da9182522641c7e527768194d57d94da8"
+          "sha256": "7312c9781c13c058bd4d34addfb3468650e3d28d894c02d8e543fd22bd3d57c3"
         }
       ],
       "notice_required": true,
@@ -9064,7 +9198,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-pem-rfc7468-1.0.0/source-copyright-statements.json",
-          "sha256": "55d78be81a39379cb06e9df4925bfb6b0fab0199e5b87cec9331a77cc1a9c4ce"
+          "sha256": "1774f2a7fd2eebbc576e2dc826f6f716a4879ecbd89e5ed2cfcd9e3448820b5c"
         }
       ],
       "notice_required": true,
@@ -9101,7 +9235,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-peniko-0.6.1/source-copyright-statements.json",
-          "sha256": "1272fc92fb1bfcd4d1878214c19d64116432116ff7a425d1cb85e0d8a4a9f47c"
+          "sha256": "91801b87d18f17999f48aff5c77425865d6b0b484cf14da8417a88483fce37b3"
         }
       ],
       "notice_required": true,
@@ -9138,7 +9272,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-percent-encoding-2.3.2/source-copyright-statements.json",
-          "sha256": "133a68b8c84bed2e738beeeec5dd1da128ce3951f76a0dd8900820e77e0796d7"
+          "sha256": "1b8e7aa1b8ee29d64568cf2b5049601668f872355a1f533c59f774e9e4febdd3"
         }
       ],
       "notice_required": true,
@@ -9259,7 +9393,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-pkcs8-0.11.0/source-copyright-statements.json",
-          "sha256": "615b49073c7695a77757a6e465535da961a663f647f70a56a5123ae216298396"
+          "sha256": "f6784adbf7c7783ccfdb62465e57d8f1a3b1688145cb84854d47c2af9654d46b"
         }
       ],
       "notice_required": true,
@@ -9296,7 +9430,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-png-0.18.1/source-copyright-statements.json",
-          "sha256": "89039d1e23f573439eb321a389b0ca90951f9906de5f512445e9073eb9187398"
+          "sha256": "b4fa97901f48407e804e774fc9a0de689eba9b77e0c0f6ab26c30006df5df5d0"
         }
       ],
       "notice_required": true,
@@ -9333,7 +9467,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-polycool-0.4.0/source-copyright-statements.json",
-          "sha256": "3991329b2ec9372012e9a498685910d28a36fe46fcc978ea7acef10d748e9030"
+          "sha256": "47ec84ab8cd22474031dc31fefca67756481d44b5c6d40f01e5f9f4d81c60ea4"
         }
       ],
       "notice_required": true,
@@ -9370,7 +9504,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-polyval-0.6.2/source-copyright-statements.json",
-          "sha256": "e0bd121d74665df3b43f86c389917bb7351834828abe666ef4ca250f9d44f985"
+          "sha256": "e0aeb51a98a3a6f19779a29fa7fd8980d66593ebcfb1bca247e18825ce073666"
         }
       ],
       "notice_required": true,
@@ -9422,7 +9556,7 @@
       "version": "1.15.0"
     },
     {
-      "copyright_text": "Copyright 2023 N0, INC.",
+      "copyright_text": "Copyright 2023 N0, INC.\nCopyright [2023] [N0, INC]",
       "download_location": "https://static.crates.io/crates/portmapper/portmapper-0.19.1.crate",
       "id": "cargo-portmapper-0.19.1",
       "kind": "cargo",
@@ -9482,7 +9616,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-postcard-1.1.3/source-copyright-statements.json",
-          "sha256": "46cd6162eaa0c274f53fbb310b3857a289cff7e596e631514e05a3346dae9807"
+          "sha256": "8c814f8fd60728624406579e2644a6d9186625c71ed671a9554c671055507410"
         }
       ],
       "notice_required": true,
@@ -9515,7 +9649,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-potential-utf-0.1.6/source-copyright-statements.json",
-          "sha256": "04322c9cc9b76653f914a6083f419959f441fe9c1de2747fbc311acbd4a2280d"
+          "sha256": "339ff318aba88783ee4d05dd411823cd6896176cbdea0d9a44d43916c4bea58b"
         }
       ],
       "notice_required": true,
@@ -9552,7 +9686,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-powerfmt-0.2.0/source-copyright-statements.json",
-          "sha256": "bf4e76b64d917ad30ab0373d6d9297f1f20035de2326301b89c5a0275af85dee"
+          "sha256": "6547b8fbcbaf97a741bf6e4f0996c3e2162f451e5ed74636c8d15c7927a45fef"
         }
       ],
       "notice_required": true,
@@ -9589,7 +9723,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-ppv-lite86-0.2.21/source-copyright-statements.json",
-          "sha256": "238905139ca042f6e26ebc2f56031eb8a96951cb3c382f08263e36398673a2d8"
+          "sha256": "034d5f43dff028a087d598105022d2264cc903bd1cc01b7a66b3e5792c154b8e"
         }
       ],
       "notice_required": true,
@@ -9626,7 +9760,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-prefix-trie-0.8.4/source-copyright-statements.json",
-          "sha256": "8c7cdf13672ed96904365f657d6eb7e16d44157abd189a978eb435984978f649"
+          "sha256": "e5c877aab2478b555cd12f81e68d768330b2dba64a14182856519da470e905bd"
         }
       ],
       "notice_required": true,
@@ -9667,7 +9801,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-process-wrap-9.1.0/source-copyright-statements.json",
-          "sha256": "edc930de2379fec4580fa4c89d36d1aaca9f156d2bebe8860be29926ae556437"
+          "sha256": "e7b7b602603421623c64a225ef77d54127f5765ac1b2fb128a2b0e3ea7e9d5bc"
         }
       ],
       "notice_required": true,
@@ -9737,7 +9871,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-pxfm-0.1.30/source-copyright-statements.json",
-          "sha256": "d5d63e2eb011592d00baa0f436b4ac2e86880527bcf624aa1a4bd8b0f96e5f9a"
+          "sha256": "0e0f674f5ddec39665369ad5ad0f361c0dfc446126246a4998eec33988ac6d1a"
         }
       ],
       "notice_required": true,
@@ -9770,7 +9904,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-qrcode-generator-6.0.0/source-copyright-statements.json",
-          "sha256": "ccd7f315d2e828474dca15d73d01c68037a8c8131d1ccc84cf1e4da2707115dc"
+          "sha256": "3d2b4b71a34c764d5973034ba00668b377e00ef76e886506642092921bf08cd3"
         }
       ],
       "notice_required": true,
@@ -9807,7 +9941,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-quick-error-2.0.1/source-copyright-statements.json",
-          "sha256": "561389162ae31855bc9ec5a615b1d97ae27e6d12febf1b540b0fcc2cf15cbcec"
+          "sha256": "2d003b431e6b8ad099da2a400fc43e7ee5f89034cf9da500d37f9ce4da92824b"
         }
       ],
       "notice_required": true,
@@ -9844,7 +9978,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-quinn-0.11.11/source-copyright-statements.json",
-          "sha256": "434a475d63762ea4f432dd310c8a2b3f2efb9a29250396fca347ab56f3c31c2f"
+          "sha256": "2fa2807eb81b61ef2d063aae03e5ff2d64930f33a3f540f165493f202591e19f"
         }
       ],
       "notice_required": true,
@@ -9881,7 +10015,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-quinn-proto-0.11.16/source-copyright-statements.json",
-          "sha256": "e329ab24783ed1bb881afbe794a0d332af755f2344ca4744c66c9a27aafa2031"
+          "sha256": "2841097f9d422107cc3193a3d648d125bedabb4aa08449aadf5bf025d405a131"
         }
       ],
       "notice_required": true,
@@ -9918,7 +10052,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-quinn-udp-0.5.15/source-copyright-statements.json",
-          "sha256": "62e01d506550e664b595c9a79b1d1b3288095a92c5fb7197103345d8527a93f2"
+          "sha256": "792ec3f65d2d32559d6a9269cb7531db820989dcbcf9306ddeed7df94011cc21"
         }
       ],
       "notice_required": true,
@@ -9959,7 +10093,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-rand-0.10.2/source-copyright-statements.json",
-          "sha256": "4b43232f510b5cb169ddccc3d94518bd3e728d462f87f5787baeb3edf245e838"
+          "sha256": "d649ead24e21a1ccaca6ff77a6112fa0a307718fc14c6d6ff19dc8510719040a"
         }
       ],
       "notice_required": true,
@@ -10000,7 +10134,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-rand-0.9.5/source-copyright-statements.json",
-          "sha256": "af3c7ebfeee4a3cfb253c393427c993f16bccc9e7b72680c2470e3cb4e713ab8"
+          "sha256": "0072713a10721213d58b69ea554a08767172ba3b95a557c1563dcf3396e347a6"
         }
       ],
       "notice_required": true,
@@ -10041,7 +10175,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-rand-chacha-0.9.0/source-copyright-statements.json",
-          "sha256": "349c638c6086484d453a2a16deb6e3b371b8b53abd92b8e96998d467ad801faf"
+          "sha256": "aa707e1f9930e0c594f878242fcce46f296fdb9634aee4736facd3cc41a9723d"
         }
       ],
       "notice_required": true,
@@ -10082,7 +10216,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-rand-core-0.10.1/source-copyright-statements.json",
-          "sha256": "d77e9f41f1d9ea9119e8cf9828b5c41f932097ba0cbb1397a1ec96f589c12945"
+          "sha256": "c5f4da6e7621e1db29f871d4e07591989accfccf70763c6de6d638f291104257"
         }
       ],
       "notice_required": true,
@@ -10123,7 +10257,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-rand-core-0.6.4/source-copyright-statements.json",
-          "sha256": "3a21809a4120a73cb77fa5c36b925668084e1e7da3fba9d68d1a0973682409c5"
+          "sha256": "9fcc58fe55d47b5700630b629de83d47914da8462c06d7e852a7b548eb1c3cdc"
         }
       ],
       "notice_required": true,
@@ -10164,7 +10298,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-rand-core-0.9.5/source-copyright-statements.json",
-          "sha256": "8ff4a65d9bd74e9a007c22a8907ef802d8d55c3bb66bbbec4b992b73e6d15f9d"
+          "sha256": "b1706002b7a7497b95852f4f0c0aaaa9bfb4a6881ce7f3422f74329d0d8610ff"
         }
       ],
       "notice_required": true,
@@ -10205,7 +10339,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-rand-pcg-0.10.2/source-copyright-statements.json",
-          "sha256": "ec3f4c66e6afabd710b9d5250db7e9aff263856b94dbf26adc0e8f5e99ccb08c"
+          "sha256": "35b55be8505999583e27eb4d58117259ad33a1cf880f6db74baa770133dfee0e"
         }
       ],
       "notice_required": true,
@@ -10246,7 +10380,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-raw-window-handle-0.6.2/source-copyright-statements.json",
-          "sha256": "f4fee77befdd2a298aa29ec7a581dffb9cf42c653e6cf6ee464cd6d05f9e8891"
+          "sha256": "b2299570191eacabe637c61ee2455ec44561477f090897fd88817d2b54a3a9d3"
         }
       ],
       "notice_required": true,
@@ -10283,7 +10417,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-read-fonts-0.41.0/source-copyright-statements.json",
-          "sha256": "1b72d1c599c01d21faa157885d868357ebf6ad9709d7d4e0d32fbbef07c8a6e5"
+          "sha256": "f7d2a71b2e349adc732b30b4a15e41fe00ecf5ce622a0908b77b5727676fc685"
         }
       ],
       "notice_required": true,
@@ -10320,7 +10454,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-regex-1.13.1/source-copyright-statements.json",
-          "sha256": "eb3203b55198a61cd2b00b1ac4e973f02962d60f9bc7277b1cfa3ea07279b2fb"
+          "sha256": "5dd7d9afc466ea0321e40f655b8187c57de32207b32862aba61aac5f575643df"
         }
       ],
       "notice_required": true,
@@ -10357,7 +10491,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-regex-automata-0.4.18/source-copyright-statements.json",
-          "sha256": "e41b46581f87461e1fb17fcb034d71217ea5177904d132121412206f2da9b879"
+          "sha256": "91be39b7c502ce2c2b01f35b62a64f2fc642957ab120aa30e56093c5615be690"
         }
       ],
       "notice_required": true,
@@ -10371,7 +10505,7 @@
       "download_location": "https://static.crates.io/crates/regex-syntax/regex-syntax-0.8.11.crate",
       "id": "cargo-regex-syntax-0.8.11",
       "kind": "cargo",
-      "license_concluded": "Apache-2.0",
+      "license_concluded": "Apache-2.0 AND Unicode-DFS-2016",
       "license_declared": "MIT OR Apache-2.0",
       "license_files": [
         {
@@ -10380,6 +10514,13 @@
           ],
           "path": "legal/LICENSES/cargo-regex-syntax-0.8.11/000-000-LICENSE-APACHE",
           "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "license_ids": [
+            "Unicode-DFS-2016"
+          ],
+          "path": "legal/LICENSES/cargo-regex-syntax-0.8.11/002-002-LICENSE-UNICODE",
+          "sha256": "74db5baf44a41b1000312c673544b3374e4198af5605c7f9080a402cec42cfa3"
         }
       ],
       "name": "regex-syntax",
@@ -10397,8 +10538,12 @@
           "sha256": "74db5baf44a41b1000312c673544b3374e4198af5605c7f9080a402cec42cfa3"
         },
         {
+          "path": "legal/NOTICES/cargo-regex-syntax-0.8.11/source-grant-scope.json",
+          "sha256": "8c578d66fcc531a5d12c80ba119796ade1b39cf3c5a86542516cf6a91a867b99"
+        },
+        {
           "path": "legal/NOTICES/cargo-regex-syntax-0.8.11/source-copyright-statements.json",
-          "sha256": "9529e9ace8d5ec7ab31fe6e444f4822d1fd4a2e2fca9e14868ba0fdebfd2e19a"
+          "sha256": "d5a8344149d3da8497aea3d46eefa2e4ab0a24efe27d20bd170cd4d9ad467a1b"
         }
       ],
       "notice_required": true,
@@ -10435,7 +10580,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-renderdoc-sys-1.1.0/source-copyright-statements.json",
-          "sha256": "af8b35d06e5a21d74b75f0eed54f903d955d57f13117162846eb5f7ac1905410"
+          "sha256": "c59d836f9e3d4eff7f68430393c36cf24cd198c7e9de5e063039eb9ac0fca36d"
         }
       ],
       "notice_required": true,
@@ -10472,7 +10617,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-reqwest-0.13.4/source-copyright-statements.json",
-          "sha256": "6f14605e1aa86d311e9b93839f5b3d0857b9c52a425b74726612dedf9c0e985c"
+          "sha256": "7e83f11d39f7cc6d5e6dbbba0ec37be061480c51fd658809aeceb5609d0e9bae"
         }
       ],
       "notice_required": true,
@@ -10509,7 +10654,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-resolv-conf-0.7.6/source-copyright-statements.json",
-          "sha256": "6e42a35ad5379e3679fddaf8a6ff824ee561e979dcdcd934aaa78d63285cc249"
+          "sha256": "0c2ff34b0e77ad226b09ca7040f75d4ba49ef5d9f51cc9542406cae87db79784"
         }
       ],
       "notice_required": true,
@@ -10575,8 +10720,12 @@
           "sha256": "9eacbcb81be660840c714a560a9d65ba07913db98dd4baf969f78dd499fdd60f"
         },
         {
+          "path": "legal/NOTICES/cargo-ring-0.17.14/source-grant-scope.json",
+          "sha256": "c0d884967ec3b922ad7a8fd994203f63af0d5c0e2a75d47631765a7c1743f115"
+        },
+        {
           "path": "legal/NOTICES/cargo-ring-0.17.14/source-copyright-statements.json",
-          "sha256": "fecde8b3dd6946034ee4ba40598fb23834000ada82a3ccbd13c8bebdd55b17f9"
+          "sha256": "9ae451551988e4f249e3532e13497d950cfe7c6267a5a6ae5599123ac16071ca"
         }
       ],
       "notice_required": true,
@@ -10638,7 +10787,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-rusqlite-0.40.2/source-copyright-statements.json",
-          "sha256": "b72c4b14fe7303a435ee9119d93215374333ed3509e8a752c3a745be82cefdb0"
+          "sha256": "7e668db819a6b7b8071d491e39e85fd4d924a1972462903bc20f13bed514f577"
         }
       ],
       "notice_required": true,
@@ -10675,7 +10824,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-rustc-hash-1.1.0/source-copyright-statements.json",
-          "sha256": "2489b5cd604e923470e924307e31402cdc3c587b11c4865151689ac6a20e6a6d"
+          "sha256": "e25debbcbc5f8ac22d12d40e0405a9336a95b0db44fc2c36ed9d801b7dba7ef0"
         }
       ],
       "notice_required": true,
@@ -10758,7 +10907,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-rustls-0.23.43/source-copyright-statements.json",
-          "sha256": "43ff24f3f974da2ac534f61e30c17a9036754e89c7b4e639bcf56ead7c5ff69c"
+          "sha256": "6dd449fc128713c72ade1f592edbfd891e8c5b57eb7fd2673847d5fb12662980"
         }
       ],
       "notice_required": true,
@@ -10795,7 +10944,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-rustls-pki-types-1.15.1/source-copyright-statements.json",
-          "sha256": "67d2ff6d3beac601a7be12806b0d69d7c278af98273ecf098df7fdc2774b3a2f"
+          "sha256": "836f103d03427711a5b486c6b3a4eaac3d692c101161dbe7f06391f1deec4c05"
         }
       ],
       "notice_required": true,
@@ -10832,7 +10981,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-rustls-platform-verifier-0.7.0/source-copyright-statements.json",
-          "sha256": "c2a6d7479b62d1b69eabe0f26d807d47f2b24ef00fe2fe9082358682ded22853"
+          "sha256": "fe574787dd2c946e8a8c321bbc6c0e132fed45e81cd7c487addb7c888aa916b2"
         }
       ],
       "notice_required": true,
@@ -10865,7 +11014,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-rustls-webpki-0.103.14/source-copyright-statements.json",
-          "sha256": "5e01592eeadf2615e02ee3d67e67c2d657f2f04dd35f35fd1a370f3018e1ec78"
+          "sha256": "548a21daaa21be4993682f4790128bff5dd8f8d9e00ca4d031b0b383dc4057af"
         }
       ],
       "notice_required": true,
@@ -10902,7 +11051,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-ryu-1.0.23/source-copyright-statements.json",
-          "sha256": "037e1eeaf8385f225c7363c4dff9d1f9d175edc0ea0c8556fa91f9ee5bd668d7"
+          "sha256": "c9b81dab8958b75d729a9dd83fda47e7ce36778dfccd05a207cb2dd4eff2af46"
         }
       ],
       "notice_required": true,
@@ -10939,7 +11088,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-ryu-js-1.0.3/source-copyright-statements.json",
-          "sha256": "67b3fa3f2ff7ead91af2b5e75b76bf1203ee917a62b9f61b9d157f4bceab3194"
+          "sha256": "31c05a6c3ff4270d734f504e69c15d6bdab754b1bd348a922febfe3382d8402a"
         }
       ],
       "notice_required": true,
@@ -10976,7 +11125,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-scopeguard-1.2.0/source-copyright-statements.json",
-          "sha256": "cc35d6f01fed7333f315f28e6c04041c4858428f874eda6d8534c63e528ecf58"
+          "sha256": "a12ef2273fea5f66c52e989adb55c52b0ec97e30ab87f260bca9ebd1b72d9a83"
         }
       ],
       "notice_required": true,
@@ -11009,7 +11158,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-seize-0.5.1/source-copyright-statements.json",
-          "sha256": "0090862d03d0289c37bd4495eab4f464ff9d4474fbc6e8c6e523dffd176ad580"
+          "sha256": "842d87d0b9991c33a98b510e66e36fee755b5f84f51d8095686eb17945638791"
         }
       ],
       "notice_required": true,
@@ -11046,7 +11195,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-self-cell-1.3.0/source-copyright-statements.json",
-          "sha256": "fc96978e8df90610b007a1e1d8970610104f949a20286610d2970a7cacc78fa2"
+          "sha256": "2dcfa70040c28bb004f5da60d5a8b7b808db9e40a590880cbea8304cb3c5de68"
         }
       ],
       "notice_required": true,
@@ -11209,7 +11358,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-serde-json-1.0.151/source-copyright-statements.json",
-          "sha256": "988d761b82f09898eacfb3feaaa8e1a93dd7271b852e6da9c7018aff28d0b13d"
+          "sha256": "bf367064e5d3170684512fd7f1b450a2f690a6440f9e19038a8eee30b25fca7b"
         }
       ],
       "notice_required": true,
@@ -11242,7 +11391,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-serde-json-canonicalizer-0.3.2/source-copyright-statements.json",
-          "sha256": "fa0726f5e383b7702828f4487616d4363777f95b6e3f0f8e65745d59620c0d4f"
+          "sha256": "ab27c7946d11e2abe65ebfd7a4d5687d550bd822f48a10b13272dbc921755055"
         }
       ],
       "notice_required": true,
@@ -11321,7 +11470,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-serde-urlencoded-0.7.1/source-copyright-statements.json",
-          "sha256": "5717b41a1701f0e5b0c40aa885cf7adca7b94889d8758a9e448558a87ce6555e"
+          "sha256": "33a70ad4e3bd52a5f698eaf984ec41e7c9bcb52491ae85b46952f8af70c01230"
         }
       ],
       "notice_required": true,
@@ -11358,7 +11507,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-serdect-0.4.3/source-copyright-statements.json",
-          "sha256": "6395280d8fd49ee7f0ff08fb00fd2f50e6bbcbc06eae6afe7a839ed7a05d2b0e"
+          "sha256": "bb8d6f4d2f2ebef0da0f8f0b43884f4b693eac880b5326e37ac820c66be55fc9"
         }
       ],
       "notice_required": true,
@@ -11395,7 +11544,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-sha1-0.10.7/source-copyright-statements.json",
-          "sha256": "cce29483d7df17e59daea420e43dc1a4e77ee0c87855b225df7e2b08cd2b8438"
+          "sha256": "dd4f0ffd13bc9b90d9ade41b45df57aa33a049d1df15a46d29c4511a62fe9b5f"
         }
       ],
       "notice_required": true,
@@ -11432,7 +11581,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-sha1-0.11.0/source-copyright-statements.json",
-          "sha256": "f179c6d953cf3fd8a2a9497dad0aba0ab86b876acc76bc499a7d78e14e7fc5f0"
+          "sha256": "743f3327edb09f23a3e41a4b8a0d0e4596ed2a91da3d4add5835ab1b74259e9a"
         }
       ],
       "notice_required": true,
@@ -11470,7 +11619,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-sha1-smol-1.0.1/source-copyright-statements.json",
-          "sha256": "cfcd584378b5066f4a7272a54a13ff7efd3f1871b21abcd871cfe054dca8a459"
+          "sha256": "ccfdcbb36b66180c4b0075a196675c36c0bef490505e31a4b0751ae757c77ade"
         }
       ],
       "notice_required": true,
@@ -11507,7 +11656,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-sha2-0.10.9/source-copyright-statements.json",
-          "sha256": "92d67944e65948091492d01a02d0a933ad6b18f86f273a6e8c0a1d011e6372cf"
+          "sha256": "453df2892f01ce45367d2f3ee14de082851d58de9ca6638646765c596906c027"
         }
       ],
       "notice_required": true,
@@ -11544,7 +11693,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-sha2-0.11.0/source-copyright-statements.json",
-          "sha256": "30686a4563d89f0a102beae00bf7794a4af8054bcbdc546142125c9956faa998"
+          "sha256": "228c770534d0c07f13169ceb19de419ae077747ca5d56c3ae35b7b50dcf475f8"
         }
       ],
       "notice_required": true,
@@ -11577,7 +11726,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-sharded-slab-0.1.7/source-copyright-statements.json",
-          "sha256": "d1b83efaf6fc95f2e0cf4d49aae6be1ead584228662d6557726ed8d99f878645"
+          "sha256": "a0c541791bb8723746ecb569b80aedcf61532cd17c37b62d46093c45d4db9757"
         }
       ],
       "notice_required": true,
@@ -11614,7 +11763,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-signature-2.2.0/source-copyright-statements.json",
-          "sha256": "ec885aba229b2b4d05505f0c81f139ae68bcfc0137ef56990da49fa6b90e314e"
+          "sha256": "5647291d5eebbb35731f9d1270de0f5efe4512b7587b52b9b54152f078a51bad"
         }
       ],
       "notice_required": true,
@@ -11651,7 +11800,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-signature-3.0.0/source-copyright-statements.json",
-          "sha256": "6deef5e8f01e6d47db0548a8fed0e8b6699358cd82759e23818478ae5bc3e62b"
+          "sha256": "b3a7fa3ee51a24ad491bd104a212178fd568942c7f0439905f45d899e0ff76ab"
         }
       ],
       "notice_required": true,
@@ -11912,7 +12061,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-sigstore-tuf-0.11.0/source-copyright-statements.json",
-          "sha256": "ed8bfefdf5e54c90363bb0d03a593ea0d5b7840475466e6977ccb356c3dff494"
+          "sha256": "e6162ccf387e7b4728541edb890edc3d2b0973e16e61d285c42be44f534a3ebc"
         }
       ],
       "notice_required": true,
@@ -12012,7 +12161,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-simd-adler32-0.3.10/source-copyright-statements.json",
-          "sha256": "633c914f8102b07486973c7145ce03913d788331ce4345ddae2d1809da06b843"
+          "sha256": "b7c93608afc0cd72fc5d037954920bc8b28d25c196d6463a5770836db728d880"
         }
       ],
       "notice_required": true,
@@ -12087,7 +12236,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-simple-dns-0.11.3/source-copyright-statements.json",
-          "sha256": "cd961dbba181c8fa5ebf74b7593325e7f3d2e3f7eef6ee3628b6246f30a22475"
+          "sha256": "0e605f02ab53bbc4fe60d5915d676900b025b5996517cd4889e01d9bcba9108a"
         }
       ],
       "notice_required": true,
@@ -12124,7 +12273,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-skrifa-0.44.0/source-copyright-statements.json",
-          "sha256": "c38dda3086c95934358a33b49f067025193da28b828e14f9780ec9d3b633691b"
+          "sha256": "a993560b01a63f1fc9197bb334258d6d0742e94c415f29707d75bf7f15205902"
         }
       ],
       "notice_required": true,
@@ -12157,7 +12306,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-slab-0.4.12/source-copyright-statements.json",
-          "sha256": "f31ee6bbd0b07acdcf99dfed7691cf09fc77834cd5595d7f1979e52531a36011"
+          "sha256": "3cbd41a9b58fd515c88a2a274f1f07b2fe4b4fe83312635b3103aef6cb49f8b6"
         }
       ],
       "notice_required": true,
@@ -12194,7 +12343,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-smallvec-1.15.2/source-copyright-statements.json",
-          "sha256": "d946273c064b67c67f0c9e028acffde5d621d6a4aae821f76111cb605187e76f"
+          "sha256": "73e8ff8c2996b07a09871f1a0bdbeb575c99b0014d85b58c7f336693fea8c8ff"
         }
       ],
       "notice_required": true,
@@ -12273,7 +12422,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-socket2-0.6.5/source-copyright-statements.json",
-          "sha256": "11ef59fa3adc8f11cf316774a7749b1ac1821a1f6a61ef04748f6f8b159389dc"
+          "sha256": "9a3aaee990969cfedf683b95486823a65326cbb74738b1d2535ab1b2d6131fc4"
         }
       ],
       "notice_required": true,
@@ -12283,7 +12432,7 @@
       "version": "0.6.5"
     },
     {
-      "copyright_text": "Copyright 2025 N0, INC.",
+      "copyright_text": "Copyright 2025 N0, INC.\nCopyright [2025] [N0, INC]",
       "download_location": "https://static.crates.io/crates/sorted-index-buffer/sorted-index-buffer-0.2.1.crate",
       "id": "cargo-sorted-index-buffer-0.2.1",
       "kind": "cargo",
@@ -12310,7 +12459,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-sorted-index-buffer-0.2.1/source-copyright-statements.json",
-          "sha256": "bf202e411335462dc96f969ba16cd817aa2ef722969ce0d79faf81fbfb5bcafe"
+          "sha256": "76d05e2d272f09b609be61455c2ef2de5ef93c940269b0afe990552e022ab1c5"
         }
       ],
       "notice_required": true,
@@ -12343,7 +12492,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-spin-0.10.1/source-copyright-statements.json",
-          "sha256": "324ba61fbc30bde07930766bef6752d547997e8f97d346f8873af629a813b3df"
+          "sha256": "04d74bd90a819bdf859ee7b8267a3826da60eb33208f87dc6db6cbaf5b0f628b"
         }
       ],
       "notice_required": true,
@@ -12380,7 +12529,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-spki-0.7.3/source-copyright-statements.json",
-          "sha256": "e22494c9f9a0e92007c4d933913864dfa8b28156aa76177323eb0e98977cf1aa"
+          "sha256": "f9cb85951ce7e9ef6ccc90ba062b7050d263005fc58120d13f12c5c3614851a9"
         }
       ],
       "notice_required": true,
@@ -12417,7 +12566,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-spki-0.8.0/source-copyright-statements.json",
-          "sha256": "872bfb4f26ab2c3c24a607e2040b3d5d38c51ebdf511aeaa3e363c5839b0eb2b"
+          "sha256": "fbf97a1f23a13f156d6275e93ddf7933a3026a3b636ecaaab51ce0865d6fe81f"
         }
       ],
       "notice_required": true,
@@ -12454,7 +12603,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-stable-deref-trait-1.2.1/source-copyright-statements.json",
-          "sha256": "6ce176ca7ebea9cb2b588018bd91eabb317922b2d0296c015535777b4e73e638"
+          "sha256": "99315a7a107ea0d7c337e07298dc5f17532751486640c1a00dfff787ae04c11d"
         }
       ],
       "notice_required": true,
@@ -12491,7 +12640,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-static-assertions-1.1.0/source-copyright-statements.json",
-          "sha256": "b3a75d638b318eb1ac5240d4b28cf9b0af7fc052ebaa3c1e7f9679abc4d9f6af"
+          "sha256": "07bc8b4e8e03addd1905203721fb4b9713813b833e0fb67cb0d5c35037a58184"
         }
       ],
       "notice_required": true,
@@ -12524,7 +12673,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-strsim-0.11.1/source-copyright-statements.json",
-          "sha256": "5ea209c6dc56f42d62af727cf6be76506eac2f228827b3c7ccc5340fea88baf3"
+          "sha256": "813fdc5cf4754a27d5a3ec83b9b7901d5f6ec027ed74bb5690bb2b063a5d4a5d"
         }
       ],
       "notice_required": true,
@@ -12557,7 +12706,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-strum-0.28.0/source-copyright-statements.json",
-          "sha256": "978df2919e3be48961c71c079a475cee14e2d906f118a45afa8a81191b8898c4"
+          "sha256": "1cc0060dac09ad4c5bbcdd93d4fb42ebe9fcec8e3a964f0f190ce0076fd57800"
         }
       ],
       "notice_required": true,
@@ -12590,7 +12739,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-subtle-2.6.1/source-copyright-statements.json",
-          "sha256": "3606ccfa9ca487f0ed2f3638d6783714c35e69f6f6ac8ac917b196c8dea4894a"
+          "sha256": "0e5cd4704924addf785d363e2c2f1fdd662f622ed30ff4dfb41e07a5f5208de6"
         }
       ],
       "notice_required": true,
@@ -12623,7 +12772,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-sync-wrapper-1.0.2/source-copyright-statements.json",
-          "sha256": "1f136bce4a175f403784b40fdb585c1bee90b5178c615ce8767ef6588cac5dd0"
+          "sha256": "e59b8d2097fc61b07a3eb1f33d74e5e1b346d93033b248190f4be7e2e6fb6ff4"
         }
       ],
       "notice_required": true,
@@ -12660,7 +12809,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tagptr-0.2.0/source-copyright-statements.json",
-          "sha256": "695a8288378aa5627ab442af8db69fbbfea0c302e87f5ddd992ad5a3ea519ce5"
+          "sha256": "82836e9a105ec84068807ca276b6c9929cb19275fc52416bed24a4096ed74d52"
         }
       ],
       "notice_required": true,
@@ -12697,7 +12846,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tar-0.4.46/source-copyright-statements.json",
-          "sha256": "9051aef41e9f995d0ec58cc6923bfdd5bb74d5f90e32f93111f0d4177117586f"
+          "sha256": "0637aeb099d7f662cd91ec91d5c92a2392618803369059f6dfeded86150638a4"
         }
       ],
       "notice_required": true,
@@ -12734,7 +12883,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tempfile-3.27.0/source-copyright-statements.json",
-          "sha256": "6f7a035906db815be9aedcc63b7831261f839a23d32daf64044bc060bb916ab2"
+          "sha256": "2be42a55517be3d6b8f09d964afb77691dd7e0ecb817ddb521caea535efed62d"
         }
       ],
       "notice_required": true,
@@ -12813,7 +12962,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-thread-local-1.1.10/source-copyright-statements.json",
-          "sha256": "f8c98b1d4d8709c1b0d65e97230e6c0429a67b629f2366a9feb86bc4649ffb06"
+          "sha256": "2b23f10c93dde89b620ecf20663e0210ccb7518dcad28a5fde340d49c5fe9b4c"
         }
       ],
       "notice_required": true,
@@ -12850,7 +12999,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tiff-0.11.3/source-copyright-statements.json",
-          "sha256": "f9ac81f80d71bb1e0d07394e1018c4dc8c168436e7d19e2d80db85c26bee0875"
+          "sha256": "2eea6576c537f0ae930669d0174452a11923c3f1a431baf417f87c2621179317"
         }
       ],
       "notice_required": true,
@@ -12887,7 +13036,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-time-0.3.55/source-copyright-statements.json",
-          "sha256": "b0983cc5da74059df7a924d2c80dfe705abbcf4c5b02da4d7ab56f5f4bea1472"
+          "sha256": "10d42f669eec952f9829734fa46ac209d01735a3541ca93f1b02a176b9046df4"
         }
       ],
       "notice_required": true,
@@ -12924,7 +13073,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-time-core-0.1.9/source-copyright-statements.json",
-          "sha256": "19ba19425128e9aa3c80db91faf4e34d4464ff15f4757706cacb5f3f5cef6c23"
+          "sha256": "1a9133f7f45cc121937dd326ca1e28f7ed5c4312d2741dbc86c2257478a192d7"
         }
       ],
       "notice_required": true,
@@ -12957,7 +13106,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tinystr-0.8.4/source-copyright-statements.json",
-          "sha256": "9263366ecdb1708c8cb94209f5c154e32476b04aa0eeaae41692cf992e47a610"
+          "sha256": "8c0cd53ae041062986a10f0b7f7f5ddea9b56c58e7a497d6b67e1df7e9c829ea"
         }
       ],
       "notice_required": true,
@@ -12998,7 +13147,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tinyvec-1.12.0/source-copyright-statements.json",
-          "sha256": "89aa0c3108e0c5527fef0218b5a30687a673098ced7336f5e63f696c203cf984"
+          "sha256": "0dd3d990be4e2099ca18f97503930d96e162f3a8ff01159f1257b22d3d261fda"
         }
       ],
       "notice_required": true,
@@ -13039,7 +13188,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tinyvec-macros-0.1.1/source-copyright-statements.json",
-          "sha256": "a44bee5c79d7a4ca5d388868d7969be67abe08174a9218fc61394e9cd2d7c2f6"
+          "sha256": "3ebca18a3d79a43161f9b7e1ad40122ddcbf26710e942806a9751e9bb59f78aa"
         }
       ],
       "notice_required": true,
@@ -13076,7 +13225,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tls-codec-0.4.2/source-copyright-statements.json",
-          "sha256": "ea0b2375e8ff0c76dce1fb424ca3b50d24b8418204d4c2a66c8397257365572d"
+          "sha256": "fdbe673f3c022683a9b3b6345e966f4f6d12920b1e6a968a4862607dcd101f22"
         }
       ],
       "notice_required": true,
@@ -13109,7 +13258,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tokio-1.53.1/source-copyright-statements.json",
-          "sha256": "3e574ab605ffa5cf4bb761a4f6d45c43a078e43473514e2abfdd7b4e7f2c99ec"
+          "sha256": "55bcf2faa98ffd2de7886a0889b647b96e3d633455c5b37a2b7002fa33279074"
         }
       ],
       "notice_required": true,
@@ -13146,7 +13295,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tokio-rustls-0.26.4/source-copyright-statements.json",
-          "sha256": "e3e0a6e0d7a62e1b4f2bcbd1621e6cb3db9025d95091741f5c983a39aaeb0189"
+          "sha256": "35c5feb18ba334342ff4d8a078081fc3528e09a799deea6a53688c996a6af00f"
         }
       ],
       "notice_required": true,
@@ -13179,7 +13328,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tokio-stream-0.1.19/source-copyright-statements.json",
-          "sha256": "c26f8a3516397bbb8268ee07d70bdcaafcd69aaa6ce73598adbee6e476829b81"
+          "sha256": "d9283bd5f356e14a6488d30b6ae91440da0eef238e1952527b56de60d5568142"
         }
       ],
       "notice_required": true,
@@ -13212,7 +13361,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tokio-tungstenite-0.29.0/source-copyright-statements.json",
-          "sha256": "18f783a679ca794cb767d5181a2ac8c46aa9c78eb2e904c3af3983261f161ee2"
+          "sha256": "b6f73867d78c09887de7cedc5800337577e2e45ba9f826f62027b68a74ed1c44"
         }
       ],
       "notice_required": true,
@@ -13245,7 +13394,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tokio-tungstenite-0.30.0/source-copyright-statements.json",
-          "sha256": "8ca314a58595b4216c04eee1cec06addb500a90b0b72ba5f9fb1da348a0e707c"
+          "sha256": "a6bae939f5eef8072b5be5e1fd5e9cf06a91df4d9b16f88638fb255a3106e70e"
         }
       ],
       "notice_required": true,
@@ -13278,7 +13427,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tokio-util-0.7.19/source-copyright-statements.json",
-          "sha256": "2a84b98501df1e04991c31bf1ab8e425d4747d96bc89f7c208cc921c8a07588b"
+          "sha256": "097977a0f7e87ea2658c3ac8fcf792604c1fd4c686589c1a076f48b53bae6b24"
         }
       ],
       "notice_required": true,
@@ -13311,7 +13460,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tokio-websockets-0.13.3/source-copyright-statements.json",
-          "sha256": "aaabeefc86729e30afa776694eeecfe037ebf906e48f3a92a9cf10bf45d2116a"
+          "sha256": "46990922e55e8f037b86f4ea779b766eaad642e4273026ded5334289a1b4e0d3"
         }
       ],
       "notice_required": true,
@@ -13344,7 +13493,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tower-0.5.3/source-copyright-statements.json",
-          "sha256": "4fcfa091c00728c976f7dab2d94a742ba49b87bbb003a9aa27869cf534cdee8e"
+          "sha256": "c6edb79fad997c8190544160be2331fc2369abbbf31b47a194ed0b977bc3cacd"
         }
       ],
       "notice_required": true,
@@ -13377,7 +13526,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tower-http-0.6.11/source-copyright-statements.json",
-          "sha256": "21939672aee5007bb4cd545014d5314caff8848cd1664908076358e35a8ec755"
+          "sha256": "741fb9b1fc2aa29e6565e0f2e64fcd0b19a136042ff1cc1c62023af790cf7d28"
         }
       ],
       "notice_required": true,
@@ -13410,7 +13559,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tower-http-0.7.0/source-copyright-statements.json",
-          "sha256": "7de6411d2c404aeb5a98c6c8223c10244f497179e0c4469d418c3e2f27f2c94c"
+          "sha256": "bea201fb308c77311f8cbc3a593f955407cd0c8e53619c271a465617cac9b933"
         }
       ],
       "notice_required": true,
@@ -13443,7 +13592,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tower-layer-0.3.3/source-copyright-statements.json",
-          "sha256": "b3e2331a2bfccd995b9959be3142424167a15d2da9e4595b9c068ab8b6de1ec8"
+          "sha256": "668961793555167d11ec624644560826daaeecaf8ffc0f5d48ece254e1598bd0"
         }
       ],
       "notice_required": true,
@@ -13476,7 +13625,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tower-service-0.3.3/source-copyright-statements.json",
-          "sha256": "5d58d6136bf34b229bfc4cccddec51e2db3f8ce76f657299be0eadd272433793"
+          "sha256": "e5804db0bcb5b54cf5f0a3db9be561fc6cc0e89544a3455097a21dd3aa81da6d"
         }
       ],
       "notice_required": true,
@@ -13509,7 +13658,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tracing-0.1.44/source-copyright-statements.json",
-          "sha256": "2751e993c522e7db8c4a3dbc9698c64a87708c1e44e10a73f4e23da8ccb8c8c0"
+          "sha256": "58ba1e3d14cb02edeff9a0648163fcaa705992db15caeb093cd7825e0ef3e920"
         }
       ],
       "notice_required": true,
@@ -13553,7 +13702,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tracing-core-0.1.36/source-copyright-statements.json",
-          "sha256": "79cc196c8d39e7cf64f58a886b2a3547b6df23a351a5ec7d68541d5416e39a19"
+          "sha256": "b2c749872933a843a16115838355745483974e9843661a279bc5d971ad70af36"
         }
       ],
       "notice_required": true,
@@ -13586,7 +13735,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tracing-log-0.2.0/source-copyright-statements.json",
-          "sha256": "dbb2dd7865d1967cc01572f17da8d56d26b256eacfc2590091ad7c09fa58842b"
+          "sha256": "11236ff3c37526d21fb039165d55fc28f87c77c65fc801aae1fb8c6f2de1d255"
         }
       ],
       "notice_required": true,
@@ -13619,7 +13768,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tracing-subscriber-0.3.23/source-copyright-statements.json",
-          "sha256": "4c3dd2fb41f03e8d917d5900c3f515fc84d862c2857c8a72df022196fa471c05"
+          "sha256": "05ec3d24f0555d93af2a1f5d2965c20a78472803599f2388ba38e40bf8a1845c"
         }
       ],
       "notice_required": true,
@@ -13652,7 +13801,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-try-lock-0.2.5/source-copyright-statements.json",
-          "sha256": "35d15ec06c60200f586e35e100ef48c3a0552b02ee0231ad4d2530f81806462d"
+          "sha256": "c2361572f271eeac01d13b952578fd97b35c192f737b4b36049661b2c3ea2094"
         }
       ],
       "notice_required": true,
@@ -13689,7 +13838,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tungstenite-0.29.0/source-copyright-statements.json",
-          "sha256": "1ef4f5ac001755886d4c08934fbc6c9a77f30081f43c53960ad8064f0ba729ea"
+          "sha256": "f1e402c1258020a09ead57459898ab1b2fcc5c772232b73a787ff668a9783998"
         }
       ],
       "notice_required": true,
@@ -13726,7 +13875,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tungstenite-0.30.0/source-copyright-statements.json",
-          "sha256": "e12ab2ceb9bced1077a156ffe4e53b6c60e17b5790fb2f10278329246a2b31d0"
+          "sha256": "1cd9023aa7ece250661affdf91d582fc1a5bcfbae4a9832592a8938d37416667"
         }
       ],
       "notice_required": true,
@@ -13763,7 +13912,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-type-map-0.5.1/source-copyright-statements.json",
-          "sha256": "916634d53be2fc7d2e6c32da75b9495ad0dbd91c28850c45122c5cd5ae52dfe1"
+          "sha256": "a0a97920e5cbfd94d82f33f58bdc255176da4ba4719e04e32ed84388f5f2d8ab"
         }
       ],
       "notice_required": true,
@@ -13804,7 +13953,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-typenum-1.20.1/source-copyright-statements.json",
-          "sha256": "7d4dee3aa0b33e713f11ed5686ec325c187bf9bcdc4f43f8a553468679c01639"
+          "sha256": "46634c97eff6eb2dffc44d7eed48cb910c7559b6331147bc33d7b7503fe09e17"
         }
       ],
       "notice_required": true,
@@ -13890,7 +14039,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-unicode-ident-1.0.24/source-copyright-statements.json",
-          "sha256": "96f7a37d0d29e2d06ff4fe4631c249e0ee111d78543e6a6b7b5f88db13f6e274"
+          "sha256": "d6af1c411617ef3a5c67d7d13dc770dd233c7ed1c10049de0bf6d5d56db4d1a8"
         }
       ],
       "notice_required": true,
@@ -13931,7 +14080,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-unicode-segmentation-1.13.3/source-copyright-statements.json",
-          "sha256": "b0af15e31a944d2c0dc57b1d2ecebf7554c3ab8f61fd280e3a34c9c1f36323db"
+          "sha256": "992e91af5490dd9e4aa0e5a4e5428d51c5d0ca43e726b3db81b1fb870e28f10a"
         }
       ],
       "notice_required": true,
@@ -13972,7 +14121,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-unicode-width-0.2.2/source-copyright-statements.json",
-          "sha256": "802b3db0fa933ed8496559b07cfbf0aaf5185111026ddb83a951730337c541a3"
+          "sha256": "d78c12094ad167d04ef8128a6da022d900f51f0271c0b694abbf25e1cbeaea93"
         }
       ],
       "notice_required": true,
@@ -14005,7 +14154,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-unit-prefix-0.5.2/source-copyright-statements.json",
-          "sha256": "0c62cefbd3546aeea9f602feb78e69c107c284c950445c982606ddb55502eeeb"
+          "sha256": "ad41b87b190b45be8f07ff13f987661f5b418e8a8a47bde5f0b8f12027dd6dce"
         }
       ],
       "notice_required": true,
@@ -14042,7 +14191,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-universal-hash-0.5.1/source-copyright-statements.json",
-          "sha256": "c2cd9a668b09bb1c2de959c80297c6f0b665ee418640a9c6864b2e9de6a940da"
+          "sha256": "55d75abaf73f02f9209d06cdbc8009612f96ba27b87aeb0b01f9eb90f6f55e97"
         }
       ],
       "notice_required": true,
@@ -14075,7 +14224,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-untrusted-0.7.1/source-copyright-statements.json",
-          "sha256": "5d69ebacb18077351cbf2179a2fe10866fe0a8e3529262a61a7f61f66c5e94c9"
+          "sha256": "c4b551287f7fc45379d31db66468f2e7d9f406037c05eb456e8cf0cb2a33a9a1"
         }
       ],
       "notice_required": true,
@@ -14108,7 +14257,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-untrusted-0.9.0/source-copyright-statements.json",
-          "sha256": "8c8e41c5bc9edce85c2ad5c04c8dfb19b5079ecabb16e4db4665665d75d9a036"
+          "sha256": "f721f6240ed58b3aea4e3cc754b65cfd6da93946429c9e394cd09d647ffe890f"
         }
       ],
       "notice_required": true,
@@ -14145,7 +14294,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-url-2.5.8/source-copyright-statements.json",
-          "sha256": "f6bfecfdaf2901b7f4a78fe59f744f312f1c59bf9d83b3aa8ea3b5471e6c60cb"
+          "sha256": "4083bafb424dbe9abf45d920254866b91e7490bade637bb58935361c82322e7f"
         }
       ],
       "notice_required": true,
@@ -14186,7 +14335,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-utf8-iter-1.0.4/source-copyright-statements.json",
-          "sha256": "1363aa073876adc6ee268bcae8d05c2f8db08d3347a75dca21176423ac230915"
+          "sha256": "ee97fbb4595d61d3dbf969b1efca0f3b0949c852e221d161e39a731b85a3402d"
         }
       ],
       "notice_required": true,
@@ -14223,7 +14372,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-utf8parse-0.2.2/source-copyright-statements.json",
-          "sha256": "9716f23d3bd76066e25b3ee071a236c9effc300b77536915b20b6776fd9d58d9"
+          "sha256": "c3c528a733f3e5ee86fe0ff4472cb3ba0e1370d78fa2c9d5f66a8694ea75fe44"
         }
       ],
       "notice_required": true,
@@ -14260,7 +14409,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-uuid-1.24.1/source-copyright-statements.json",
-          "sha256": "2795da7844a4504aa5b72cb384fa6afaf7672cf9c2199521d9d936c7b24d9146"
+          "sha256": "ead6e76cb254759afb5cb634e6897c35f63347392b25896d77db285b697cd579"
         }
       ],
       "notice_required": true,
@@ -14297,7 +14446,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-vello-common-0.1.0/source-copyright-statements.json",
-          "sha256": "fc936461ec22816b16a0f91c57ef61dd2b419d745f732c0979fd7f384f63e735"
+          "sha256": "824b3e5cf625b4668cc6cbba83609d8a569dd5297c64868d86f6bab3f83c233b"
         }
       ],
       "notice_required": true,
@@ -14334,7 +14483,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-vello-cpu-0.1.0/source-copyright-statements.json",
-          "sha256": "3828e09d5e6087230a1fe324d7640cfee2f2599f57c306cfd1a9eefc71ec0d0e"
+          "sha256": "2164e3fda1e28889041f45d40c27f729eab3ee3a1256999eb396429dadd5d38a"
         }
       ],
       "notice_required": true,
@@ -14367,7 +14516,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-want-0.3.1/source-copyright-statements.json",
-          "sha256": "edec6372052b4bfca30cfa642dd9b78700c5be67588b9916ad97faeb2071c263"
+          "sha256": "e658ad2c1cfe247a068037dcdb14b36ea190daf41ada2b577e86882142c9f453"
         }
       ],
       "notice_required": true,
@@ -14404,7 +14553,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-web-time-1.1.0/source-copyright-statements.json",
-          "sha256": "9e79bc4fb52786f93df70987a892b65a8cc5b2c0de6cd7cdd6f9134a58f6e763"
+          "sha256": "b79a0a97e00ca39a0dcfb8062d415625223be75e7adf0dc62890d1d02bf31afa"
         }
       ],
       "notice_required": true,
@@ -14483,7 +14632,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-weezl-0.1.12/source-copyright-statements.json",
-          "sha256": "aff7c0a1d9f31576c9db0ade426534cc61868882ad44589b2159fc062a26775d"
+          "sha256": "fdf3cd022513f1749132711187c8aa15d7538fd63a52ff86ef579584e9d5d16c"
         }
       ],
       "notice_required": true,
@@ -14520,7 +14669,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-wgpu-30.0.1/source-copyright-statements.json",
-          "sha256": "7c7bc75fafb4c2cb6ef4adceee41240a8c625057acb0da896c8d398404a0a55b"
+          "sha256": "5892dd77d2274920a7037f32c8ca1d9bb1fae3c06b802255ef94adcba155543d"
         }
       ],
       "notice_required": true,
@@ -14557,7 +14706,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-wgpu-core-30.0.1/source-copyright-statements.json",
-          "sha256": "61bbc0ae8da00d5a29ed7e510b872d4e44d68de19f337f971316faa5548ddbc1"
+          "sha256": "dbf1d8957627331efd21bbce3094211353bfffd4983108367672dd65461da1a7"
         }
       ],
       "notice_required": true,
@@ -14594,7 +14743,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-wgpu-core-deps-windows-linux-android-30.0.1/source-copyright-statements.json",
-          "sha256": "6789c936cb2dabdc1c5d12b5b82d9c12c69dd0d50b1b7069256b4f9a56092e9b"
+          "sha256": "c4a3bc8439f1088ebc74ec37226072186854a3d9dfa099c09f07b407c111433b"
         }
       ],
       "notice_required": true,
@@ -14631,7 +14780,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-wgpu-hal-30.0.1/source-copyright-statements.json",
-          "sha256": "a7a8c0e45631407f89867ec1afc38a3dcde27b623ac6b2eea63686f9ec413e4c"
+          "sha256": "7aae86f0086ec16fbacf9b59dba473135aec5185e83475e55f379d346b76c235"
         }
       ],
       "notice_required": true,
@@ -14668,7 +14817,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-wgpu-naga-bridge-30.0.1/source-copyright-statements.json",
-          "sha256": "d0787faea50b118e7262bccc1d991e12a384d6b2eb6998dec25d636b1a4fd712"
+          "sha256": "ce3716a034fe4fb2089f4537aaca2552f55966fd7f34afd34b6f2178a76cd2ed"
         }
       ],
       "notice_required": true,
@@ -14705,7 +14854,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-wgpu-types-30.0.1/source-copyright-statements.json",
-          "sha256": "2a57ff43bd7182514e3357635bc3cb78246ef665ba30baae21eb524810d41e92"
+          "sha256": "69d65b11ad3210f7182aceb40e708a37965609d37230119bdf9e1f5679afdfaf"
         }
       ],
       "notice_required": true,
@@ -14742,7 +14891,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-widestring-1.2.1/source-copyright-statements.json",
-          "sha256": "667957a77ef08771ef8c56796b4af3c6a9690b3255c57e4aea4f4d704b7ddcf4"
+          "sha256": "98e7e94ccd249144f1c84dd9c25a9f49346b74072db8f9fa0fd1fa8b0f221cbe"
         }
       ],
       "notice_required": true,
@@ -14779,7 +14928,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-windows-0.62.2/source-copyright-statements.json",
-          "sha256": "f5d52d86650d24454f15fa26811d25b79e5beba645b7b6434687e70a6b86abea"
+          "sha256": "bebd08076acdf1c0201b30f2de2b8afacb7879d7cbb47fc91d4422decec86392"
         }
       ],
       "notice_required": true,
@@ -14816,7 +14965,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-windows-aarch64-msvc-0.52.6/source-copyright-statements.json",
-          "sha256": "8ff4045c77537f4273a3a8ea336f74d57f3dfe58e86d33d383e8d0c04f543938"
+          "sha256": "d88f15421922fb3e92f59d30dbc977875b943c32b58475e7642667d74bccbaf6"
         }
       ],
       "notice_required": true,
@@ -14853,7 +15002,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-windows-collections-0.3.2/source-copyright-statements.json",
-          "sha256": "708f7855e2c2df123635cc3a66d3fb6c81268e872aa623052294be53541f0049"
+          "sha256": "bc50fc1925d75889053a5d0993922f2b72b1c66de6e0958bf72ac17fd0ae3ccb"
         }
       ],
       "notice_required": true,
@@ -14890,7 +15039,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-windows-core-0.62.2/source-copyright-statements.json",
-          "sha256": "96f07a4d529b7adfee04a40d578a0b54090298eccab1c17c3fe7e91e38c6d29e"
+          "sha256": "90f8f4322385eda8ca1ca63211035dde580b1224d1fb876ed060c9161cad9818"
         }
       ],
       "notice_required": true,
@@ -14927,7 +15076,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-windows-future-0.3.2/source-copyright-statements.json",
-          "sha256": "283ce7d645d32fe23b2e5d2666a3ca8d09365714160f66d52a2d8d8cf2b3e7b4"
+          "sha256": "16f0b9cd400939980fd0d9813b55e352a682887b8264f03066fa7f6588d7eef0"
         }
       ],
       "notice_required": true,
@@ -14964,7 +15113,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-windows-link-0.2.1/source-copyright-statements.json",
-          "sha256": "f324d3d92138cac9c5a4a6486a14779bb4bf41edca9f43269554efc2bcd6f30b"
+          "sha256": "38d3e47618378016d4a1983b8120d617189c0041e2f525d4ee357162810428da"
         }
       ],
       "notice_required": true,
@@ -15001,7 +15150,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-windows-numerics-0.3.1/source-copyright-statements.json",
-          "sha256": "5fae2549af5d4287fa8c993b0f43be19cfc32b9801b4bf8696ef5e2ea4a31fc3"
+          "sha256": "a54821f22bdabae677dcd47382587cf329b02e82ffbb325e5028be4a636eb0c6"
         }
       ],
       "notice_required": true,
@@ -15038,7 +15187,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-windows-registry-0.6.1/source-copyright-statements.json",
-          "sha256": "e2b2ecb711fb450c7903804f08fd44e30d700987f49499d554b3c24818bef69c"
+          "sha256": "2e842e48c47f748a1882e958e9fb69963cd9f697fe82f2137a1c54a0651f0887"
         }
       ],
       "notice_required": true,
@@ -15075,7 +15224,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-windows-result-0.4.1/source-copyright-statements.json",
-          "sha256": "356e96adb579b9d9c363f3fb36a85de66f22aaf3ac2616fdf67a0cbda196aa9a"
+          "sha256": "226f5b0765646eb5141cba9e877787457e752d8b587c8dfa128c670b19f79a2c"
         }
       ],
       "notice_required": true,
@@ -15112,7 +15261,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-windows-strings-0.5.1/source-copyright-statements.json",
-          "sha256": "302236b5ee7550f3306db0a94c71ae82ff7b0498b82df2306a24b1eb6385fa86"
+          "sha256": "a72c0eac09ff1114ad809a9b6fe53eecce0b212635690f02e5bc5b66e62de59a"
         }
       ],
       "notice_required": true,
@@ -15149,7 +15298,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-windows-sys-0.52.0/source-copyright-statements.json",
-          "sha256": "5bb850d59184cdb4c9df6f337f191fb1c014280c5676b7f28d5a59be06b0bb3c"
+          "sha256": "c3bf6a6abf07699cafa60467e9df0b127b91517fdecc0d0571b05610290a58ed"
         }
       ],
       "notice_required": true,
@@ -15186,7 +15335,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-windows-sys-0.61.2/source-copyright-statements.json",
-          "sha256": "95e6580acbead1dc17563611901ee6254674186d85fb7c68215290f280afe941"
+          "sha256": "59a03369dee637121995cc42576b3f2c0db9912ea1dda5237d385a3017c625c9"
         }
       ],
       "notice_required": true,
@@ -15223,7 +15372,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-windows-targets-0.52.6/source-copyright-statements.json",
-          "sha256": "18bfa8e7e0116dab29bd9e44f2f4c5a5c08f7ac6f2a07e90a53eb32e607f8523"
+          "sha256": "43b7e8bc4e5bdad62f5ae53d131d9688d561ce8c2be6762dea7a436b7bc2e0ac"
         }
       ],
       "notice_required": true,
@@ -15260,7 +15409,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-windows-threading-0.2.1/source-copyright-statements.json",
-          "sha256": "9c1671bb142ef3fe84e242d2904af70ccec9fed07bf7ddd203821ed142bb6c07"
+          "sha256": "2b0002b4fac8dfc2b00a714ee709d53480dc40771f835a6ba4dcc03fac8953ec"
         }
       ],
       "notice_required": true,
@@ -15293,7 +15442,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-winit-0.30.13/source-copyright-statements.json",
-          "sha256": "a148dcffd24c139fe75652b5e97774d4b9b065ffa56ea8a6d46f5020643bf527"
+          "sha256": "0767f2173074bfd4f77c9e0a015fd2f57f2e06fd56a1801428c6c63ce8124867"
         }
       ],
       "notice_required": true,
@@ -15368,7 +15517,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-writeable-0.6.4/source-copyright-statements.json",
-          "sha256": "d13969fbb6d584ec7625e10de015d64a42911459fd7cd40f4fe21874f3271700"
+          "sha256": "ea90caf6a393db347ac2cf370eed303df5cf271f7a5c1c418e00585d987c22e3"
         }
       ],
       "notice_required": true,
@@ -15405,7 +15554,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-x509-cert-0.2.5/source-copyright-statements.json",
-          "sha256": "f25c89b8f9a8b8d7e5ece2355dc1b69fd0529073cc5aec70388925676542b76f"
+          "sha256": "17cf787c6aabd7ee0d49b480f553b0490f3e5d024979272afc48b49d1da20113"
         }
       ],
       "notice_required": true,
@@ -15442,7 +15591,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-x509-tsp-0.1.0/source-copyright-statements.json",
-          "sha256": "152f1e8442e3969b6932ebbf52e6f7097b6eaa9dbf40d182ad706f44d4249bee"
+          "sha256": "e1ce4c3c16ef760fac81c7d185670f3ea369ae85814282c16a0e42d34587632b"
         }
       ],
       "notice_required": true,
@@ -15475,7 +15624,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-xml-rs-0.8.29/source-copyright-statements.json",
-          "sha256": "1811e42fbe09a266fe4385aa90f36afac3fb0415911ef28b1bd1f195d0138168"
+          "sha256": "c003656e6996798ecbbc12823609a83a04adda9d87d92202ef7ccb2f63cb54e4"
         }
       ],
       "notice_required": true,
@@ -15508,7 +15657,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-xmltree-0.10.3/source-copyright-statements.json",
-          "sha256": "e558f0efd35755621f97fe9dc0ab5f5759553f241f4bda20e97432a118f014ce"
+          "sha256": "a023f68a40f088116a8c20ba4e844593e4a30a8bbf5182046d118436f4be9952"
         }
       ],
       "notice_required": true,
@@ -15541,7 +15690,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-yoke-0.8.3/source-copyright-statements.json",
-          "sha256": "5d6d19a8344a2a1bdbb80dcf7b73cfa989f4c4437e8b3dead1ed782a3d2d5d61"
+          "sha256": "3112ac4042906bf5de1b41801bd6d835c821ca6b98122af97b60db89d9fc4539"
         }
       ],
       "notice_required": true,
@@ -15582,7 +15731,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-zerocopy-0.8.56/source-copyright-statements.json",
-          "sha256": "c1d885ecc38b6ad3b4ef7abf5494045765ccecfb351f4be9bfef911d7e88e4e8"
+          "sha256": "b30a296a1562d5c52a4b1e61f1e07892be6d42e1103031d6b91ff9dc96b89668"
         }
       ],
       "notice_required": true,
@@ -15615,7 +15764,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-zerofrom-0.1.8/source-copyright-statements.json",
-          "sha256": "1cf0f94c0769fc8563b72fb61ea8c5e278dc83e9be5d8c86bce64abcae1ebe5a"
+          "sha256": "a56a7c2be3421420194675a8cabc0821eff038836506eb35becb899d9c8ecb69"
         }
       ],
       "notice_required": true,
@@ -15652,7 +15801,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-zeroize-1.9.0/source-copyright-statements.json",
-          "sha256": "b1965f5f3b7274560da94b80ae141b4cb20f7af7295b8a0118b531d5e0ae437e"
+          "sha256": "f5ba7318c9cfb7984b556a021f5096f05f698647edd70cae1fec89770a663956"
         }
       ],
       "notice_required": true,
@@ -15685,7 +15834,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-zerotrie-0.2.5/source-copyright-statements.json",
-          "sha256": "967f35052e312c5dada86911d9001b83c79525dccb841facd9b8c47b39cb8dea"
+          "sha256": "349098b054bf067e3b65090179e2c93d10a6a3486da6ee588ca3666f490e8e2e"
         }
       ],
       "notice_required": true,
@@ -15718,7 +15867,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-zerovec-0.11.7/source-copyright-statements.json",
-          "sha256": "411fbae75f0045e963d66c848fb7a5af5fee06844a676729c1c86a8d973a276e"
+          "sha256": "833f7a1780768a2d92c4c0189c1fc483c2eb6bb33392ef7cba5e73fe828c27b4"
         }
       ],
       "notice_required": true,
@@ -15751,7 +15900,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-zip-4.6.1/source-copyright-statements.json",
-          "sha256": "da99527ee9c19c4a660585e3031ef532cb45ebf089ee3023b850fb5a0975bf1c"
+          "sha256": "e049c124487623600696497c3b533323a1db29e5d469a5c0740eb6d06b38211d"
         }
       ],
       "notice_required": true,
@@ -15784,7 +15933,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-zlib-rs-0.6.7/source-copyright-statements.json",
-          "sha256": "7e3ac6bca964c639442d5fa2f6505716852197d20b4203ebe7d2b352127130fb"
+          "sha256": "3fa1b344167a66877be7c1e58f0d5e83743878dbacb681e40e3db0a1a53fa973"
         }
       ],
       "notice_required": true,
@@ -15855,7 +16004,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-zopfli-0.8.3/source-copyright-statements.json",
-          "sha256": "81e27b346f9c708386bf8e99cc1aab880285e6693828a87038c732666c883f2a"
+          "sha256": "110327fe28235a692fc3b21ee67645155e4a15abb89af4b24b94abf1938ab635"
         }
       ],
       "notice_required": true,
@@ -15896,7 +16045,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-zune-core-0.5.3/source-copyright-statements.json",
-          "sha256": "a9fc491e4222ccf1a00163bc8877fd87abb5b18ccca84447b8399ddd4258fc6b"
+          "sha256": "b6d46a2619eaafbbb7213f30649a69f71be99f996e0af617e8e27c77de9e92f7"
         }
       ],
       "notice_required": true,
@@ -15937,7 +16086,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-zune-jpeg-0.5.15/source-copyright-statements.json",
-          "sha256": "317b3b364e93a8798d037b7b5a44beaa1ba4b63c52875ba2ebf56343e2448992"
+          "sha256": "463aec27c0f8f13c4c6d980c71bd7c046d734edfabd19e1ff67ac92989f2375c"
         }
       ],
       "notice_required": true,
@@ -16667,7 +16816,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-ahash-0.8.12/source-copyright-statements.json",
-          "sha256": "bf103a8e773624a3a1d5f60845238e748122223f9a103226dfcc87d14896c608"
+          "sha256": "7a211d127065e2777596f2ebc8d1b72f5962a0e96b4de97355f60f46ba8b3a1b"
         }
       ],
       "notice_required": true,
@@ -16708,7 +16857,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-aho-corasick-1.1.3/source-copyright-statements.json",
-          "sha256": "6234e4f02b28c7fc773644e1e001b1900dd1f08b5d57984557ff22e7b0e8f755"
+          "sha256": "3debb3a8c6898bf105f24c984752f254c9e6971726d350320efc872699fcd07b"
         }
       ],
       "notice_required": true,
@@ -16783,7 +16932,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-archery-1.2.2/source-copyright-statements.json",
-          "sha256": "5c455ae100991bb01e451d50996d63dbe46d2e3085ede1422fa3ed209d814986"
+          "sha256": "e1e61803a90ceedc0a7f40d9f03ab4fae2a87af33a1eba34f77666bf1497f21b"
         }
       ],
       "notice_required": true,
@@ -16816,7 +16965,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-asn1-0.24.1/source-copyright-statements.json",
-          "sha256": "534e5fd1f70fd06a06c8a41f26fe4909feed7bc332506a35c0acf25bcf55d7c9"
+          "sha256": "c6f8fd8a07ff721c1cdcf864be7310b9c6662c7846409f253548eaecd5917380"
         }
       ],
       "notice_required": true,
@@ -16849,7 +16998,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-asn1-derive-0.24.1/source-copyright-statements.json",
-          "sha256": "f56f2406bc23d3cb489c7faef8d2338e7abf5226249922a7e1f7e4fe9bb4b8e0"
+          "sha256": "2bc32be664cc461f4b22ca70d95de7474a32fc0808eda6d74fcf4f43f7d1ca62"
         }
       ],
       "notice_required": true,
@@ -16886,7 +17035,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-autocfg-1.3.0/source-copyright-statements.json",
-          "sha256": "a6ee71658214f2b7f3ff74a866f425eea3b879ef18a4ba1428e68ae6292cc538"
+          "sha256": "5d688d4078983de753caf9b9174f66b2a03ae85bf2d274653923282342301088"
         }
       ],
       "notice_required": true,
@@ -16923,7 +17072,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-base64-0.22.1/source-copyright-statements.json",
-          "sha256": "ac79f00e85c10444b3a3587e3bfef980bab88e24fd98869e1e98585a7ade84ff"
+          "sha256": "ddea4726c9d505cdbb9dad487109fb14f24b9fb6eadfa572b9860e2ac40a069f"
         }
       ],
       "notice_required": true,
@@ -16960,7 +17109,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-base64-0.23.0/source-copyright-statements.json",
-          "sha256": "04d56a6b57a714573a1f55f944ea5931d9d079302f598984699d72ba7ed36a0f"
+          "sha256": "73405b50a7f5038dc057810247bb446b906f1e5d2b00e912da7668b1115d28e0"
         }
       ],
       "notice_required": true,
@@ -16993,7 +17142,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-bitvec-1.0.1/source-copyright-statements.json",
-          "sha256": "dae409cb52ad930c51a12ae7e6c7a8d84e5bd09dbd167d776dcdc1c596e03888"
+          "sha256": "391588f2a6122c2edf903eb63a2a2c317c2cec389514e6fb59ddf8d89fe5cc5c"
         }
       ],
       "notice_required": true,
@@ -17030,7 +17179,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-cc-1.0.101/source-copyright-statements.json",
-          "sha256": "eb12e822ed5c11935c90dc11d8b429f811f8fad93b0856af063af4095d11fc15"
+          "sha256": "6c893ca5cac237db07bd3bbdb2b88522af79adf35ed1aedfa7661bfd4ddb0d52"
         }
       ],
       "notice_required": true,
@@ -17067,7 +17216,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-cc-1.4.0/source-copyright-statements.json",
-          "sha256": "4c63f796af6d607ecd979e6bfbbcc270e886ecc80ac430404b4052c6bb64b732"
+          "sha256": "9b84854f7533deffb4573090b44b6477dc3653f7322f038f5a69b7c522a3c5d3"
         }
       ],
       "notice_required": true,
@@ -17104,7 +17253,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-cfg-if-1.0.0/source-copyright-statements.json",
-          "sha256": "2660b09f040063fefca4ee4f1de9cef2c516da5fde33d10ec13ce6c4c4f5f892"
+          "sha256": "84591a834c2bc7d82b36ab2494565ae65ee910766ce1294c9cd5b6c5b9f18ce2"
         }
       ],
       "notice_required": true,
@@ -17179,7 +17328,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-enum-dispatch-0.3.13/source-copyright-statements.json",
-          "sha256": "eb3e8ba478413ce25413cd70d41228684d6f19da671ac051531bb43c5025eed8"
+          "sha256": "a0f4146378318b67594bf404fc96c485953f15dd93a1c414dd4c71cf583cd817"
         }
       ],
       "notice_required": true,
@@ -17216,7 +17365,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-equivalent-1.0.2/source-copyright-statements.json",
-          "sha256": "49bf178d3e4e1dc3966a3a29574829da0402719618c535eb848043b16e968ab1"
+          "sha256": "f4e34a07147bf548e11a2e64a339b6469a95c57783b550df3fc108323f9c1b92"
         }
       ],
       "notice_required": true,
@@ -17253,7 +17402,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-find-msvc-tools-0.1.9/source-copyright-statements.json",
-          "sha256": "f284f863c203450409205f4c8c02e5dec4489c105e7ea4b9262fedac91e93d38"
+          "sha256": "8a2508071d40df4c001553d21a5d34eb75f8b52134a61569a22be16bb168d5b4"
         }
       ],
       "notice_required": true,
@@ -17286,7 +17435,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-foldhash-0.2.0/source-copyright-statements.json",
-          "sha256": "7fcb384ce7737f289f44576cb92ad9c4f00827ac388d28d62625fbbc392f799b"
+          "sha256": "c1489da761037de51588bdafb53c5fd6791835e15cbba0d4659f99e45f4c8eba"
         }
       ],
       "notice_required": true,
@@ -17323,7 +17472,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-foreign-types-0.3.2/source-copyright-statements.json",
-          "sha256": "65199890373b8467d8b2ae9cbb5d94507b2753aee34926cb32ed50cada83660a"
+          "sha256": "1dd254b5b993bba2acd289bb6540fd39fdd5e206353ef70f9ff835f57d622652"
         }
       ],
       "notice_required": true,
@@ -17360,7 +17509,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-foreign-types-shared-0.1.1/source-copyright-statements.json",
-          "sha256": "16c4833c9791479e6789175a958c96604715d3b3fe353939b37e281009a37406"
+          "sha256": "1251c75e43c9f3df6ae4e7c77eac7be05294abed30cba31160d6af492588c73f"
         }
       ],
       "notice_required": true,
@@ -17397,7 +17546,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-form-urlencoded-1.2.2/source-copyright-statements.json",
-          "sha256": "597d4a56f8d2ca7e8afa8cebd4a8e87c1e561a89b4c0768927f30a9035ec8592"
+          "sha256": "9b25fe5a435f45195cee15a591731858a606cfc20db3eaba1ebfebf9e08af7ce"
         }
       ],
       "notice_required": true,
@@ -17430,7 +17579,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-funty-2.0.0/source-copyright-statements.json",
-          "sha256": "26d5daf99f589030c7c49a1170ffa47b5f6aa41a2a236509fcc053736664e4f5"
+          "sha256": "d39f9bfc1d977ac187aa8ff0934669afcc19eb669bb5eebb715359eed6afc596"
         }
       ],
       "notice_required": true,
@@ -17467,7 +17616,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-getrandom-0.3.3/source-copyright-statements.json",
-          "sha256": "a529c00b70a607a01a7b3e4248356626f128462ef48734d0fbdbad1be1f94f1c"
+          "sha256": "14e9fc82d738cf3228c3a5dc9a4190ff54b4e327d56ff327a71609f7a2c03f9c"
         }
       ],
       "notice_required": true,
@@ -17504,7 +17653,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-hashbrown-0.16.1/source-copyright-statements.json",
-          "sha256": "39f099e75d190c71ff9135b5d753a531229513b6458a217dc5b97a925bf05f6b"
+          "sha256": "0a92c545dec33be5d3c53a327e3ee036795ece308f32fa8b24945079e564b8ee"
         }
       ],
       "notice_required": true,
@@ -17541,7 +17690,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-heck-0.5.0/source-copyright-statements.json",
-          "sha256": "8a52f6b4ec1a1f3b20c1bc9b28bcd930be56ae335db1cda0746eca24b4a57f4c"
+          "sha256": "d0e5ce2d5bf7c2e6447b852c2a980d659971f8f998393ae4a652f153265ec62e"
         }
       ],
       "notice_required": true,
@@ -17578,7 +17727,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-hex-0.4.3/source-copyright-statements.json",
-          "sha256": "1f5fc45e28b0ff240dc361b562a2da1c558e8ff232b5279b49c088cbb9dd2cbb"
+          "sha256": "72e64e47149dba5f1deec98bf3c0a1fcc05d39d4cb825c556261f0506aa5dfd8"
         }
       ],
       "notice_required": true,
@@ -17611,7 +17760,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-icu-collections-1.5.0/source-copyright-statements.json",
-          "sha256": "065ecf2245db8312a50819bdfc7297be99e6dba366ee70b379e7dae2c91e2a54"
+          "sha256": "ae349d5e8e01ef1b05002d7789488c81f0129c1ab45056786cd8ae91613bd0b6"
         }
       ],
       "notice_required": true,
@@ -17644,7 +17793,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-icu-locid-1.5.0/source-copyright-statements.json",
-          "sha256": "de4f93f8031ed7c556030b42dcda54809c0178f4e981041464aeb91d83cfc063"
+          "sha256": "b69e450a5fe0bf3af7a9eb3bf845a697bac8548e0da95c12565db5efa5e07714"
         }
       ],
       "notice_required": true,
@@ -17677,7 +17826,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-icu-locid-transform-1.5.0/source-copyright-statements.json",
-          "sha256": "d4fae6505e6b4d3695d02d0b655acd48efd923f977f7100928b3326d17760e74"
+          "sha256": "936fa1847c130c7ef927cde2ab7daa7f36db088ad990274b318df86977ec9b0d"
         }
       ],
       "notice_required": true,
@@ -17710,7 +17859,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-icu-locid-transform-data-1.5.0/source-copyright-statements.json",
-          "sha256": "c7598b367e4837717bd209b88f314aea0ce1c0c4f62e4a078dec13d35d2dbd9d"
+          "sha256": "cf9c2b2245bc69089b2e8ec22f1b449d66839b5cf9b804f63c5441b857d35aad"
         }
       ],
       "notice_required": true,
@@ -17743,7 +17892,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-icu-normalizer-1.5.0/source-copyright-statements.json",
-          "sha256": "fe866679496dc8bd65318f08a850d7cd96269b455aaa4475ff67f4e8a6a6184e"
+          "sha256": "0cba3dd8da359eb863ddeb0de328ce18b4179640f5d4b97914d471958362387f"
         }
       ],
       "notice_required": true,
@@ -17776,7 +17925,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-icu-normalizer-data-1.5.0/source-copyright-statements.json",
-          "sha256": "3006a89838b19d00e8cbbf9ccf500db3ce77fd3dd95e6fb7ff02f0e9a91c5161"
+          "sha256": "bf2b53666eab74afb625967b6dc7394d89440fe4510ade13a689b2f4880c7fa1"
         }
       ],
       "notice_required": true,
@@ -17809,7 +17958,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-icu-properties-1.5.1/source-copyright-statements.json",
-          "sha256": "5a1d4cae9e4540655a3a7ceb3573dc0d42b9840d7def45482ff020bc175804dd"
+          "sha256": "b1fc982be1a811c4a5a912357541e532437ddffc02f2cf647f1c299f0dad0373"
         }
       ],
       "notice_required": true,
@@ -17842,7 +17991,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-icu-properties-data-1.5.0/source-copyright-statements.json",
-          "sha256": "a846e39bf6f64f0c657b654ad29325c035b68dd05aa2a37641a466721f3a561d"
+          "sha256": "77e29ecf49db39709ac36a523784e854b47e6a9812cb093902b20bee5cd24d33"
         }
       ],
       "notice_required": true,
@@ -17875,7 +18024,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-icu-provider-1.5.0/source-copyright-statements.json",
-          "sha256": "9786055b21c6fc3433f8d1ed1370a244a599a2115278c5d3eece27bdad52eeeb"
+          "sha256": "3120b2d9dabe1a7b933b4f64f232e3b388693aa4bf263ad7d8a504df402be29d"
         }
       ],
       "notice_required": true,
@@ -17908,7 +18057,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-icu-provider-macros-1.5.0/source-copyright-statements.json",
-          "sha256": "06495a722352efc40336443c7bd36b839b4a1f7a7878e6a57d0f0291bcc22adc"
+          "sha256": "f3f1f0bc452a6342ae819806ab7151e8a1d98a059a17c31045c0a2ede1e0b502"
         }
       ],
       "notice_required": true,
@@ -17945,7 +18094,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-idna-1.1.0/source-copyright-statements.json",
-          "sha256": "757d5493358de745d5a0e78f97b7b4116f598262e2085c1a0a7d9fd839c96b03"
+          "sha256": "b3b1c7e7c82fdf75838b4abe1ec3b68ce6f54e8485dcf170d73b16882548a239"
         }
       ],
       "notice_required": true,
@@ -17982,7 +18131,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-idna-adapter-1.2.0/source-copyright-statements.json",
-          "sha256": "7806f03a853a3901439f3fd10d5ba85557db1a06451dad38dcff382141d6c9d7"
+          "sha256": "e99ca45d8888ca563e2b607e69bb08e3006052ecf7d197bf8c9ca7a991043593"
         }
       ],
       "notice_required": true,
@@ -18057,7 +18206,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-jiter-0.14.0/source-copyright-statements.json",
-          "sha256": "25e5ab8aba9b03efdbed980b4c2e5727d732219e271f909570a5a766024d404e"
+          "sha256": "a513dc3660160256474b247811cd0924e7ab576eb5f257e25a528281dd06f6b6"
         }
       ],
       "notice_required": true,
@@ -18105,7 +18254,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-lexical-parse-float-1.0.5/source-copyright-statements.json",
-          "sha256": "ec8f0bb02b0a43df4411288119e7d668f5a82ee1f5156ca13013eef45750c952"
+          "sha256": "1ee68c62e2d83bc0ecc6e73a6f9fa6fe07fbe0f4283cab6356f863c8ade63d97"
         }
       ],
       "notice_required": true,
@@ -18153,7 +18302,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-lexical-parse-integer-1.0.5/source-copyright-statements.json",
-          "sha256": "caee26766555671e688abb5af9ac56120a9d5475a663fc758969de46ff85ff51"
+          "sha256": "a344b934dd2fb9e0b389a485dbc6352cff0e81662ea1c43c1129f64bdf1cf869"
         }
       ],
       "notice_required": true,
@@ -18190,7 +18339,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-lexical-util-1.0.6/source-copyright-statements.json",
-          "sha256": "466d356a50c4340ff3ccf25ef0995988d268efb25b20a1652a8d971caf54a912"
+          "sha256": "1f9189cc136b50c31276676e2be5387268ad891a03e735cbf36dd36024e182c7"
         }
       ],
       "notice_required": true,
@@ -18227,7 +18376,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-libc-0.2.177/source-copyright-statements.json",
-          "sha256": "5ecc31fb27d1b86d74d3f5fe50fcab092ffea038a2e85433088c50fd8ca574df"
+          "sha256": "d2cd22e43ec5b4c5c8c7a4956fe59e6431c31e5b56d248cf0807fe1d34f6737b"
         }
       ],
       "notice_required": true,
@@ -18264,7 +18413,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-libc-0.2.185/source-copyright-statements.json",
-          "sha256": "439b1986d36dc91749b4ec45e2e33a7345a56440a54fedec112c366d393211b4"
+          "sha256": "35d985be0043fcbe33eb029e508e15891f7f39b3d676576c14900a0e642648de"
         }
       ],
       "notice_required": true,
@@ -18297,7 +18446,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-litemap-0.7.3/source-copyright-statements.json",
-          "sha256": "8a6c8aafb5a4ebdb1434fb39365b2274d255fa16c392287aa332a1d60ce98ede"
+          "sha256": "07d7e6e5ac9cfc354b4f0ac4bf28729965031c960c6b0a38960a3702af7dc0de"
         }
       ],
       "notice_required": true,
@@ -18330,7 +18479,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-lru-0.16.3/source-copyright-statements.json",
-          "sha256": "1eb7e5f35344ce1b554652721b1365ca180db0856f268b7441d428f85cadebb3"
+          "sha256": "2d035ad9997073c3952aef9758b0de0064fa7cd16ef0143c16ebe70a6e34235b"
         }
       ],
       "notice_required": true,
@@ -18371,7 +18520,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-memchr-2.7.4/source-copyright-statements.json",
-          "sha256": "929fab964e243142260f78bd409d4ec78ffa41c917ee2ba351710f07e690bd80"
+          "sha256": "0f15f96658a07ae3c4b56d50520dcffa2bbf2163afdd8899c512ba85cad9cad6"
         }
       ],
       "notice_required": true,
@@ -18408,7 +18557,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-num-bigint-0.4.6/source-copyright-statements.json",
-          "sha256": "995a93de2f07398c1b1e43746a96ae112a672bfb69f10d22c8268ff96c3d885b"
+          "sha256": "0ff7e005253e351e177af8a1b3cd73d0691678ef0c85a6c9bbe5048526d631f7"
         }
       ],
       "notice_required": true,
@@ -18445,7 +18594,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-num-integer-0.1.46/source-copyright-statements.json",
-          "sha256": "684bba420a8fc7ce4ab8152c7a4112b425e0693357617b6f410698d271aa1ded"
+          "sha256": "1ad71577b3e5d06a134cd93457d6f0590d36eec86fbb06529877a90faebe4e4d"
         }
       ],
       "notice_required": true,
@@ -18482,7 +18631,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-num-traits-0.2.19/source-copyright-statements.json",
-          "sha256": "03dcbf84a398180ba150d889d0e72516f903ebc5c1cd67a4365936f1fab81a17"
+          "sha256": "faf79c10f2a0b314b10a1931c44c8a241101eb4f96d5b14fb7213d8fb05617c2"
         }
       ],
       "notice_required": true,
@@ -18561,7 +18710,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-openssl-0.10.81/source-copyright-statements.json",
-          "sha256": "32c3cb875465212f30424e7c7b73b1883e78f42cc3ae49c6a943bde7e05ba356"
+          "sha256": "96a3ff07833342fbb6c9a7fe85193f09f9d600f6ea7daff13a967c53524bb7d7"
         }
       ],
       "notice_required": true,
@@ -18598,7 +18747,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-openssl-macros-0.1.1/source-copyright-statements.json",
-          "sha256": "a67c2bdf737b31b00b7472fc96ac00f33bfaab8520d150432e5339d283eb0956"
+          "sha256": "ca9ffa74e09a6d79646f834f1240b10cd63e430051959d952ee61538d48b85c9"
         }
       ],
       "notice_required": true,
@@ -18631,7 +18780,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-openssl-sys-0.9.117/source-copyright-statements.json",
-          "sha256": "50ddbe0fdc420e838449a40421da1de9bde2d418c69870b1c1e8d93ee30f5275"
+          "sha256": "3aa8981e5103d17df96a7048f84a372c3fd0187a16a67a34f27416bd7c12faea"
         }
       ],
       "notice_required": true,
@@ -18664,7 +18813,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-pem-4.0.0/source-copyright-statements.json",
-          "sha256": "f5e548458b105a6fee3fbaa7dd3f0913bf3cb45e2ba22a8caa9f797bb7e733d8"
+          "sha256": "a592d99f57042ca7ba25169922683925625089ad7aa31401104ae0b5dc942160"
         }
       ],
       "notice_required": true,
@@ -18701,7 +18850,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-percent-encoding-2.3.2/source-copyright-statements.json",
-          "sha256": "133a68b8c84bed2e738beeeec5dd1da128ce3951f76a0dd8900820e77e0796d7"
+          "sha256": "1b8e7aa1b8ee29d64568cf2b5049601668f872355a1f533c59f774e9e4febdd3"
         }
       ],
       "notice_required": true,
@@ -18738,7 +18887,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-pkg-config-0.3.33/source-copyright-statements.json",
-          "sha256": "b48c49440674ed705be3ca6c2b7f0599a31374146eca132c07dec241e5ed112f"
+          "sha256": "59d1d7832ec55135af888713924a75513fffe6361468ea2a3bef82e6d1f4d27d"
         }
       ],
       "notice_required": true,
@@ -18958,7 +19107,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-pyo3-0.28.3/source-copyright-statements.json",
-          "sha256": "12eb3bad744eb54946f73401a9ad60df616a7da3faf57cad57eda8b883f734bb"
+          "sha256": "68ee68c57112b6313beac7f20b602e72a170b36d5698d24052fdf44c2ce13ac6"
         }
       ],
       "notice_required": true,
@@ -19010,7 +19159,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-pyo3-0.29.0/source-copyright-statements.json",
-          "sha256": "dab4349d3b7b6a597784251a56f36a64b435ab881de80c20d1485bc6959ac64e"
+          "sha256": "29429ae66ccf306cd9f8a87b85fdb727241f5c9597656f34651a189c9b7cb99c"
         }
       ],
       "notice_required": true,
@@ -19047,7 +19196,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-pyo3-build-config-0.28.3/source-copyright-statements.json",
-          "sha256": "488b88107b2cd73f45f85f634c7693966a4b5b1cc269a761437419208c00f570"
+          "sha256": "a07a9aa961ca0be460c291194d03e089afe50443e1b5c65f81a8cc92e08b9821"
         }
       ],
       "notice_required": true,
@@ -19084,7 +19233,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-pyo3-build-config-0.29.0/source-copyright-statements.json",
-          "sha256": "c7739a5cc5d5862a1783b1bb5fc3e0331d2c2e20d6d79458cd50a8bb99062745"
+          "sha256": "189ad81a625e7a026b506b82c99d112e175d5272af00628a95cef355d472f304"
         }
       ],
       "notice_required": true,
@@ -19121,7 +19270,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-pyo3-ffi-0.28.3/source-copyright-statements.json",
-          "sha256": "d75e6cd2e28e89588387583940538a8f639d6b0e764b82af8e1dd4143e198128"
+          "sha256": "9ad3bc497a87d642b626e6df32e57459f53a79b6f0378af11847713f6647af0f"
         }
       ],
       "notice_required": true,
@@ -19158,7 +19307,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-pyo3-ffi-0.29.0/source-copyright-statements.json",
-          "sha256": "cc467821a6644feeb7da43a00de8dbabe98e1675d2bce439946594e12d72e3b7"
+          "sha256": "ed09d66783c7866111982bf158fd487e85df6e8d634ef5119683839e23ce1e97"
         }
       ],
       "notice_required": true,
@@ -19195,7 +19344,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-pyo3-macros-0.28.3/source-copyright-statements.json",
-          "sha256": "990a8f3b6047d01b873b734d7ea7cbd2a8f21f0dda1f8e7ff9cb1ff446c3c6f9"
+          "sha256": "7851d3e10d75bd9655fe608d7fa8c0feb43dc7076d20d180380f9afd7880ae0b"
         }
       ],
       "notice_required": true,
@@ -19232,7 +19381,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-pyo3-macros-0.29.0/source-copyright-statements.json",
-          "sha256": "f3eb7566af922dce46c228551ba60c13f57033bac8ee3adae03cbce3b32fa4ed"
+          "sha256": "4a5858e077ed05e17051a53ce55d46334951e81aa31ed52d53b10f5cb483cd32"
         }
       ],
       "notice_required": true,
@@ -19269,7 +19418,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-pyo3-macros-backend-0.28.3/source-copyright-statements.json",
-          "sha256": "adb10fc3741a1f4d852c6e34ce882457b56056d76e18cbeb5ab78ed7ec69e91f"
+          "sha256": "323fe11b612d0ef28eaf2869478bc49d6bb1d3024db5646ddf27f18dc430c5f4"
         }
       ],
       "notice_required": true,
@@ -19306,7 +19455,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-pyo3-macros-backend-0.29.0/source-copyright-statements.json",
-          "sha256": "87048a22fcfd68e8835ae2f2999c803683e5dfb6a1ad4dc0256a2ff1a9da41a1"
+          "sha256": "34b68da3f075826c92df370f429194326a826b086f5eadde1e9a94827e55d6e1"
         }
       ],
       "notice_required": true,
@@ -19339,7 +19488,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-python3-dll-a-0.2.14/source-copyright-statements.json",
-          "sha256": "2a3efe8e9d4fd7d2d9fdcb5078595158b4e10100dc18a8c8082814225afaeb36"
+          "sha256": "6660a0735755c5b8e0b17f24aaa83b15dcb56d69f8c7916aa2bdcabefed1e432"
         }
       ],
       "notice_required": true,
@@ -19498,7 +19647,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-radium-0.7.0/source-copyright-statements.json",
-          "sha256": "b135c423960eb5bc56d2f34f7c452b021ab09beb95af0b6ef26e0a18bcdafdd3"
+          "sha256": "1715b2c2e346e05eed99b432a794b6f6c30929c17815c9aecea79cee28312679"
         }
       ],
       "notice_required": true,
@@ -19535,7 +19684,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-regex-1.12.3/source-copyright-statements.json",
-          "sha256": "24ed46cc09f0cb0695b8f4e1736599e59ca5e6a9e2f07a43d8bcdef0238431be"
+          "sha256": "1004c957ca533f8d3f26c25cfd604accdb31cd82ccb1fba5d04fb2f6aeaa61ef"
         }
       ],
       "notice_required": true,
@@ -19572,7 +19721,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-regex-automata-0.4.13/source-copyright-statements.json",
-          "sha256": "937f731fb84b4a02c870442c600096baa907e7e3f638e733f2d790cb9fac1d03"
+          "sha256": "fd386b53976258d1a11c27352443f42aee97464e3dfb25871e3515771612cc60"
         }
       ],
       "notice_required": true,
@@ -19586,7 +19735,7 @@
       "download_location": "https://static.crates.io/crates/regex-syntax/regex-syntax-0.8.5.crate",
       "id": "nested-cargo-regex-syntax-0.8.5",
       "kind": "cargo",
-      "license_concluded": "Apache-2.0",
+      "license_concluded": "Apache-2.0 AND Unicode-DFS-2016",
       "license_declared": "MIT OR Apache-2.0",
       "license_files": [
         {
@@ -19595,6 +19744,13 @@
           ],
           "path": "legal/LICENSES/nested-cargo-regex-syntax-0.8.5/000-000-LICENSE-APACHE",
           "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "license_ids": [
+            "Unicode-DFS-2016"
+          ],
+          "path": "legal/LICENSES/nested-cargo-regex-syntax-0.8.5/002-002-LICENSE-UNICODE",
+          "sha256": "74db5baf44a41b1000312c673544b3374e4198af5605c7f9080a402cec42cfa3"
         }
       ],
       "name": "regex-syntax",
@@ -19612,8 +19768,12 @@
           "sha256": "74db5baf44a41b1000312c673544b3374e4198af5605c7f9080a402cec42cfa3"
         },
         {
+          "path": "legal/NOTICES/nested-cargo-regex-syntax-0.8.5/source-grant-scope.json",
+          "sha256": "cc81f70de9a78774bb3040d8e5a5403c9eb4d776e53462037d564514b7027a00"
+        },
+        {
           "path": "legal/NOTICES/nested-cargo-regex-syntax-0.8.5/source-copyright-statements.json",
-          "sha256": "edea3aaa84c866c6c6fe9b68b4090dd69e69faa31d9edf26d65c85ade34ae29c"
+          "sha256": "0b80502f46d0a116a3ab89168f97127fe7441301eb3bafaadf47e0ccd0d257d6"
         }
       ],
       "notice_required": true,
@@ -19646,7 +19806,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-rpds-1.2.1/source-copyright-statements.json",
-          "sha256": "69e2bcbcfca34f34ea15ab951892fad57c8ba79674e941607759dee576cfce5b"
+          "sha256": "182e117558e7ca2953fff45c671ed2056e72234d632919fcdce1d2a63616fc7e"
         }
       ],
       "notice_required": true,
@@ -19809,7 +19969,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-serde-json-1.0.149/source-copyright-statements.json",
-          "sha256": "586e6e7a8ef1cec0ab25e56c347ae6281cc53a5b080eb5d8aa5361a28154769f"
+          "sha256": "bfeab1370b4c67097380c07791de42fafb087c53cea58eaed3be7fa821ee81fe"
         }
       ],
       "notice_required": true,
@@ -19846,7 +20006,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-shlex-2.0.1/source-copyright-statements.json",
-          "sha256": "1562acc7fb05b15bd663a01d182934bc8339d7804580c99a91ee706f620bded8"
+          "sha256": "fdf717b76ac6472d5c8043652732798224c9ae9eda7ef1b0677406888fb19ac5"
         }
       ],
       "notice_required": true,
@@ -19883,7 +20043,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-smallvec-1.15.1/source-copyright-statements.json",
-          "sha256": "b6bcb94c03b4f8d4d9f0609c809967417c54f2445a11564ea02d1bcfea14c938"
+          "sha256": "a08a27b255404590077d32217e433100fd63d78d1af663f91c9c3c6181f435bd"
         }
       ],
       "notice_required": true,
@@ -19916,7 +20076,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-speedate-0.17.0/source-copyright-statements.json",
-          "sha256": "73a838ba9e0381485785cd2b49cde1bbe0199ad8748c30eca6f68440023edea5"
+          "sha256": "b4b5a355d2102f7a08d5eb99142edd0c434ea17335176fcbe16eb7f894d61cab"
         }
       ],
       "notice_required": true,
@@ -19953,7 +20113,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-stable-deref-trait-1.2.0/source-copyright-statements.json",
-          "sha256": "6bd258e5ce4f649dacf582a7f607310f352a7d2d4053e431d53d9f3f4325eb81"
+          "sha256": "813f477965f327a71e50fc29d07b6e89885303853160b1dde35ad4d001810305"
         }
       ],
       "notice_required": true,
@@ -19990,7 +20150,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-static-assertions-1.1.0/source-copyright-statements.json",
-          "sha256": "b3a75d638b318eb1ac5240d4b28cf9b0af7fc052ebaa3c1e7f9679abc4d9f6af"
+          "sha256": "07bc8b4e8e03addd1905203721fb4b9713813b833e0fb67cb0d5c35037a58184"
         }
       ],
       "notice_required": true,
@@ -20023,7 +20183,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-strum-0.27.2/source-copyright-statements.json",
-          "sha256": "ac3677c9b67d2533bac0124098f794d3077cf85cce6924c7952c3b6fefa00fdc"
+          "sha256": "66df37cbe04651806eb8f4610d931f4e4667240bbd6df6eac162f04c53b87f46"
         }
       ],
       "notice_required": true,
@@ -20056,7 +20216,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-strum-macros-0.27.2/source-copyright-statements.json",
-          "sha256": "d344bb144e5bd7b42e19050456a04bd507422492d3f9cc76d838fe5105f9ffbb"
+          "sha256": "66bf00ec1b85017c98ad33fd3bf41db1940d896df68f0b7e898c5e8aeccaf0af"
         }
       ],
       "notice_required": true,
@@ -20215,7 +20375,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-synstructure-0.13.1/source-copyright-statements.json",
-          "sha256": "2db84ac51c39dff8f2d4152b23c221d1641fd77e4f2f5976a76aaed1175aaf4e"
+          "sha256": "f82b2403fb2cb89af317fea68ce59a47aaf5b21ca0af07da70df8442d149115f"
         }
       ],
       "notice_required": true,
@@ -20248,7 +20408,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-tap-1.0.1/source-copyright-statements.json",
-          "sha256": "46575a8390a3196db102912e06bc1c007bd3488cbd8e5da543fde21e08957ab5"
+          "sha256": "b5daf51e606779c636f3f18718f5db6fc610178b26bf9343d7aef067407b4154"
         }
       ],
       "notice_required": true,
@@ -20398,7 +20558,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-tinystr-0.7.6/source-copyright-statements.json",
-          "sha256": "a633b2ca29ce8ff81aced6e4f222e847987d34419a49865a724348c27a8376d4"
+          "sha256": "bcfde599978ddc01306c30b0b22292f8e02b22ae58d00e6166fdb002370443de"
         }
       ],
       "notice_required": true,
@@ -20435,7 +20595,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-triomphe-0.1.15/source-copyright-statements.json",
-          "sha256": "4e61c9511851753c66e0e52ee5851a447a5c1a0285ca33eb7a199b4c130618c5"
+          "sha256": "5b320f625c5745633eef4ac28f51cc2d22bf030a84a31dbd9a3c2224cb34c51f"
         }
       ],
       "notice_required": true,
@@ -20483,7 +20643,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-unicode-ident-1.0.12/source-copyright-statements.json",
-          "sha256": "dfa4eabea2b9c14e598770381174d670d63d0bb9dd976757d9aa6b9dcb4094c5"
+          "sha256": "9923d64963a6340428a8a91eb6631007cd294156db863c7507772bb42d4ece88"
         }
       ],
       "notice_required": true,
@@ -20531,7 +20691,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-unicode-ident-1.0.22/source-copyright-statements.json",
-          "sha256": "7fe38ff899fbebc6202db79b4bb9eb5c632bc2ea3fae8131edc746b0bc05df17"
+          "sha256": "e8b57642c7c08609e03d1de826571cc394bf0e984128dc50c938621d3bc836c9"
         }
       ],
       "notice_required": true,
@@ -20568,7 +20728,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-url-2.5.8/source-copyright-statements.json",
-          "sha256": "f6bfecfdaf2901b7f4a78fe59f744f312f1c59bf9d83b3aa8ea3b5471e6c60cb"
+          "sha256": "4083bafb424dbe9abf45d920254866b91e7490bade637bb58935361c82322e7f"
         }
       ],
       "notice_required": true,
@@ -20609,7 +20769,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-utf16-iter-1.0.5/source-copyright-statements.json",
-          "sha256": "db4c72b5fa1298913521ff12d136ec6838e9fea57e4c768e6ca734c3fface905"
+          "sha256": "1521c5f606a566caff97ddaf463cd9b6c26cdb38a2dec2bee01820674f23899f"
         }
       ],
       "notice_required": true,
@@ -20650,7 +20810,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-utf8-iter-1.0.4/source-copyright-statements.json",
-          "sha256": "1363aa073876adc6ee268bcae8d05c2f8db08d3347a75dca21176423ac230915"
+          "sha256": "ee97fbb4595d61d3dbf969b1efca0f3b0949c852e221d161e39a731b85a3402d"
         }
       ],
       "notice_required": true,
@@ -20687,7 +20847,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-uuid-1.23.0/source-copyright-statements.json",
-          "sha256": "25cacdbf6c42c24215d03e0b5ca039949eb298415489f79c590777581ef06d47"
+          "sha256": "5daee1788f270879a52b0ecb1708d1dfd65e8a09cf18e060072897994e2afca8"
         }
       ],
       "notice_required": true,
@@ -20724,7 +20884,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-vcpkg-0.2.15/source-copyright-statements.json",
-          "sha256": "75a1d7ca0bedd3d2734f932b386a97677023d2a7615985543a32a2e9bc5fa392"
+          "sha256": "082705c21c2593b2c1005a6e968d12255b8280aa40aa4820220993118bb3dc5f"
         }
       ],
       "notice_required": true,
@@ -20761,7 +20921,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-version-check-0.9.5/source-copyright-statements.json",
-          "sha256": "81bf1e01d886db86a08a32f3b317792037123950ebea5b8e8ced8c996d6cadf3"
+          "sha256": "58d55d6c13cfbf4011c9f40694d53db5da999884e85a4118aff02a4529b2f88f"
         }
       ],
       "notice_required": true,
@@ -20802,7 +20962,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-write16-1.0.0/source-copyright-statements.json",
-          "sha256": "ea458f4c44301e90f550ce6eda79b58ef5fb480c312b38a0dd0d4db19612a1c1"
+          "sha256": "f399ce0ac3fe6797aea6a501ad95ebce50e8402352fb20002f9f0c3393ae267e"
         }
       ],
       "notice_required": true,
@@ -20835,7 +20995,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-writeable-0.5.5/source-copyright-statements.json",
-          "sha256": "af5a75695eb4e9509e90d1b06f62579bc19b5582c40e800d161d9854bc401da8"
+          "sha256": "9df6e07f8ed118cc7b9e14f5c1183db77702c0b30438d9cea8b5993185a28e83"
         }
       ],
       "notice_required": true,
@@ -20868,7 +21028,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-wyz-0.5.1/source-copyright-statements.json",
-          "sha256": "0627d021c1e59b3b273f60c3631b6c9a4a8e554964caafd187656a4a3391ee71"
+          "sha256": "a0fa0395d64c89311fca0851432f1143bdad861a90b09799830a7166e4900d37"
         }
       ],
       "notice_required": true,
@@ -20901,7 +21061,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-yoke-0.7.4/source-copyright-statements.json",
-          "sha256": "3b123bb20011dc7a837000896a93dc951bae0cb028fc8cf7c8dc2301d6a00a54"
+          "sha256": "f4e63f299b4b99f77b939be76ecc259f2100aacbae29479bfdfba3bd7a9f7519"
         }
       ],
       "notice_required": true,
@@ -20934,7 +21094,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-yoke-derive-0.7.4/source-copyright-statements.json",
-          "sha256": "64fc8141f3793ce2847c17de1f5cc1c2ac160f40c9cbeb471d67009767b559aa"
+          "sha256": "a2a765482eccf7afddf829f436fd6416787008ea9eaec7f82d937e3a084b3d9e"
         }
       ],
       "notice_required": true,
@@ -20975,7 +21135,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-zerocopy-0.8.25/source-copyright-statements.json",
-          "sha256": "100a87ee5d037ee97dab8c21bf6832431dd6352018c90ab4dd5f30a58108d219"
+          "sha256": "5904735bb823112998130f8e78005da037fb73edededb5734d29a0ee9fa1b223"
         }
       ],
       "notice_required": true,
@@ -21008,7 +21168,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-zerofrom-0.1.4/source-copyright-statements.json",
-          "sha256": "dbd10bd53875b86d9eb88a90b8359a0b55179e29e87820fa2d5903bb27ff4863"
+          "sha256": "551444454051bf10e4df6bde02492083157331f6293f5b0a3739eeef7ab66418"
         }
       ],
       "notice_required": true,
@@ -21041,7 +21201,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-zerofrom-derive-0.1.4/source-copyright-statements.json",
-          "sha256": "1d711d4d3a00d274aac67ff9bf2ebe97916d5fe079382158f8e28bfe504e36ce"
+          "sha256": "5b4747c7e59f039c7db857d93b8666d1574c2b85c95ac70f565b8bd39e520528"
         }
       ],
       "notice_required": true,
@@ -21074,7 +21234,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-zerovec-0.10.4/source-copyright-statements.json",
-          "sha256": "54591a16844015e73f570311160cea0314dfdaa0c855de35d7cb03fe2b4b9b92"
+          "sha256": "c6a44792d76fd648669e8717ff3378abf8201cdd63015c642fba081957d3367e"
         }
       ],
       "notice_required": true,
@@ -21107,7 +21267,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-zerovec-derive-0.10.3/source-copyright-statements.json",
-          "sha256": "aeb5eb5e1847569d1585bb3311845ded3fb4dd1b265c97addeb2271f29a26b5f"
+          "sha256": "7e790c887c867ecabbcc8812f0b6d897ac6a1ff0d50a7d5e09b3919c4ae2a998"
         }
       ],
       "notice_required": true,

@@ -8,7 +8,7 @@
   },
   "dataLicense": "CC0-1.0",
   "documentComment": "Incomplete review inventory, including separately classified build-source candidates. Not an approved shipped-component SBOM.",
-  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-7335bceb7c7878d981a8276a5c9a37c8348899e884e9db25aa6a4e73d6b3130d",
+  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-a1d5e07ce7934b171b1cf684f6a6a941895185caeb4ddaea8c8ecfc6abca2a03",
   "hasExtractedLicensingInfos": [
     {
       "comment": "Exact retained terms; this identifier is not an approval or a claim of SPDX-list equivalence.",
@@ -97,7 +97,7 @@
       "copyrightText": "// Copyright 2018 The Chromium Authors. All rights reserved.\n// Copyright 2018 The kurbo Authors.\n// Copyright 2021 The AccessKit Authors. All rights reserved.\n// Copyright 2023 The AccessKit Authors. All rights reserved.",
       "downloadLocation": "https://static.crates.io/crates/accesskit/accesskit-0.24.1.crate",
       "filesAnalyzed": false,
-      "licenseConcluded": "Apache-2.0",
+      "licenseConcluded": "Apache-2.0 AND BSD-3-Clause",
       "licenseDeclared": "MIT OR Apache-2.0",
       "name": "accesskit",
       "packageComment": "Original upstream declaration: MIT OR Apache-2.0",
@@ -114,7 +114,7 @@
       "copyrightText": "// Copyright 2018 The Chromium Authors. All rights reserved.\n// Copyright 2021 The AccessKit Authors. All rights reserved.\n// Copyright 2021 The Chromium Authors. All rights reserved.\n// Copyright 2022 The AccessKit Authors. All rights reserved.\n// Copyright 2023 The AccessKit Authors. All rights reserved.",
       "downloadLocation": "https://static.crates.io/crates/accesskit_consumer/accesskit_consumer-0.35.0.crate",
       "filesAnalyzed": false,
-      "licenseConcluded": "Apache-2.0",
+      "licenseConcluded": "Apache-2.0 AND BSD-3-Clause",
       "licenseDeclared": "MIT OR Apache-2.0",
       "name": "accesskit_consumer",
       "packageComment": "Original upstream declaration: MIT OR Apache-2.0",
@@ -131,7 +131,7 @@
       "copyrightText": "// Copyright 2021 The AccessKit Authors. All rights reserved.\n// Copyright 2021 The Chromium Authors. All rights reserved.\n// Copyright 2022 The AccessKit Authors. All rights reserved.\n// Copyright 2023 The AccessKit Authors. All rights reserved.\n// Copyright 2024 The AccessKit Authors. All rights reserved.",
       "downloadLocation": "https://static.crates.io/crates/accesskit_windows/accesskit_windows-0.32.1.crate",
       "filesAnalyzed": false,
-      "licenseConcluded": "Apache-2.0",
+      "licenseConcluded": "Apache-2.0 AND BSD-3-Clause",
       "licenseDeclared": "MIT OR Apache-2.0",
       "name": "accesskit_windows",
       "packageComment": "Original upstream declaration: MIT OR Apache-2.0",
@@ -1015,7 +1015,7 @@
       "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/cms/cms-0.2.3.crate",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
+      "licenseConcluded": "Apache-2.0",
       "licenseDeclared": "Apache-2.0 OR MIT",
       "name": "cms",
       "packageComment": "Original upstream declaration: Apache-2.0 OR MIT",
@@ -1899,7 +1899,7 @@
       "copyrightText": "Bitstream Vera Sans Mono Copyright 2003 Bitstream Inc. and licensed under the Bitstream Vera License with Reserved Font Names \"Bitstream\" and \"Vera\"\nCopyright (c) 2003 by Bitstream, Inc. All Rights Reserved. Bitstream Vera is a trademark of Bitstream, Inc.\nCopyright (c) 2014 John Slegers\nCopyright (c) 2018 Source Foundry Authors\nThe work in the Hack project is Copyright 2018 Source Foundry Authors and licensed under the MIT License",
       "downloadLocation": "https://static.crates.io/crates/epaint_default_fonts/epaint_default_fonts-0.36.1.crate",
       "filesAnalyzed": false,
-      "licenseConcluded": "(Apache-2.0) AND OFL-1.1 AND Ubuntu-font-1.0",
+      "licenseConcluded": "Apache-2.0 AND MIT AND Bitstream-Vera AND OFL-1.1 AND Ubuntu-font-1.0",
       "licenseDeclared": "(MIT OR Apache-2.0) AND OFL-1.1 AND Ubuntu-font-1.0",
       "name": "epaint_default_fonts",
       "packageComment": "Original upstream declaration: (MIT OR Apache-2.0) AND OFL-1.1 AND Ubuntu-font-1.0",
@@ -3222,10 +3222,10 @@
           "checksumValue": "460de6bc52163b41b1646931f2897e5ab986f0966ade444467fec25024751a72"
         }
       ],
-      "copyrightText": "Copyright (c) 2020 Tailscale Inc & AUTHORS.",
+      "copyrightText": "Copyright (c) 2020 Tailscale Inc & AUTHORS.\nCopyright [2025] [N0, INC]",
       "downloadLocation": "https://static.crates.io/crates/iroh/iroh-1.0.3.crate",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
+      "licenseConcluded": "Apache-2.0 AND BSD-3-Clause",
       "licenseDeclared": "MIT OR Apache-2.0",
       "name": "iroh",
       "packageComment": "Original upstream declaration: MIT OR Apache-2.0",
@@ -3239,7 +3239,7 @@
           "checksumValue": "6be73e16ee21c923aca9b3121aaa0db936f7c7ecc156ff47b8dac944c68d59a8"
         }
       ],
-      "copyrightText": "Copyright 2025 N0, INC.",
+      "copyrightText": "Copyright 2025 N0, INC.\nCopyright [2025] [N0, INC]",
       "downloadLocation": "https://static.crates.io/crates/iroh-base/iroh-base-1.0.3.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -3256,7 +3256,7 @@
           "checksumValue": "46f6a9b39d18e6345f5c151afd299f2488e2cb5c520fe41b107b6bd3dc4c3349"
         }
       ],
-      "copyrightText": "Copyright 2025 N0, INC.",
+      "copyrightText": "Copyright 2025 N0, INC.\nCopyright [2025] [N0, INC]",
       "downloadLocation": "https://static.crates.io/crates/iroh-dns/iroh-dns-1.0.3.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -3273,7 +3273,7 @@
           "checksumValue": "291065721ad7c477b972e581bbc528df031dc8eb5e39fe1ff3300ae5dfb157ef"
         }
       ],
-      "copyrightText": "Copyright 2026 N0, INC.",
+      "copyrightText": "Copyright 2026 N0, INC.\nCopyright [2026] [N0, INC]",
       "downloadLocation": "https://static.crates.io/crates/iroh-metrics/iroh-metrics-1.0.1.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -3290,10 +3290,10 @@
           "checksumValue": "24bd586cf927f7b700f56ec3639b53cb5fa901ce284784051ff71092bfbf8193"
         }
       ],
-      "copyrightText": "Copyright (c) 2020 Tailscale Inc & AUTHORS.",
+      "copyrightText": "Copyright (c) 2020 Tailscale Inc & AUTHORS.\nCopyright [2025] [N0, INC]",
       "downloadLocation": "https://static.crates.io/crates/iroh-relay/iroh-relay-1.0.3.crate",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
+      "licenseConcluded": "Apache-2.0 AND BSD-3-Clause",
       "licenseDeclared": "MIT OR Apache-2.0",
       "name": "iroh-relay",
       "packageComment": "Original upstream declaration: MIT OR Apache-2.0",
@@ -3783,7 +3783,7 @@
           "checksumValue": "c37e81176a83a77d2514528b91bdafc70ef88aab428f0e1b91aebb8d99888895"
         }
       ],
-      "copyrightText": "Copyright 2026 N0, INC.",
+      "copyrightText": "Copyright 2026 N0, INC.\nCopyright [2026] [N0, INC]",
       "downloadLocation": "https://static.crates.io/crates/n0-error/n0-error-1.0.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -3800,7 +3800,7 @@
           "checksumValue": "e2ab99dfb861450e68853d34ae665243a88b8c493d01ba957321a1e9b2312bbe"
         }
       ],
-      "copyrightText": "Copyright 2023 N0, INC.\nCopyright 2024 N0, INC.",
+      "copyrightText": "Copyright 2023 N0, INC.\nCopyright 2024 N0, INC.\nCopyright [2023] [N0, INC]",
       "downloadLocation": "https://static.crates.io/crates/n0-future/n0-future-0.3.2.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -3817,7 +3817,7 @@
           "checksumValue": "bbc618745ad0b7414b149d0517ad8b5573b2fb4d4e2717add3d2446ce1fdd826"
         }
       ],
-      "copyrightText": "Copyright 2026 N0, INC.",
+      "copyrightText": "Copyright 2026 N0, INC.\nCopyright [2026] [N0, INC]",
       "downloadLocation": "https://static.crates.io/crates/n0-watcher/n0-watcher-1.0.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -3885,7 +3885,7 @@
           "checksumValue": "4d9cbe01741347ef750d743d6690603f5eed8341e679fb51c8e629337aa11976"
         }
       ],
-      "copyrightText": "Copyright 2023 N0, INC.",
+      "copyrightText": "Copyright 2023 N0, INC.\nCopyright [2023] [N0, INC]",
       "downloadLocation": "https://static.crates.io/crates/netwatch/netwatch-0.19.1.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -3919,7 +3919,7 @@
           "checksumValue": "09e4bb6601fa543c110d8957813267d5a8d775a0f8fbaccf1f615d06ba9b10da"
         }
       ],
-      "copyrightText": "Copyright (c) 2018-2025 The quinn Developers\nCopyright (c) 2025 N0, Inc.\nCopyright 2025 N0, INC.\nCopyright 2025 The quinn developers",
+      "copyrightText": "Copyright (c) 2018-2025 The quinn Developers\nCopyright (c) 2025 N0, Inc.\nCopyright 2025 N0, INC.\nCopyright 2025 The quinn developers\nCopyright [2025] [N0, Inc]\nCopyright [2025] [The quinn developers]",
       "downloadLocation": "https://static.crates.io/crates/noq/noq-1.1.1.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -3936,7 +3936,7 @@
           "checksumValue": "baa7b5ccd819a9c68a0d955e67a881032d09b1a17219b1f90b0997a0888e1a15"
         }
       ],
-      "copyrightText": "Copyright (c) 2018-2025 The quinn Developers\nCopyright (c) 2025 N0, Inc.",
+      "copyrightText": "Copyright (c) 2018-2025 The quinn Developers\nCopyright (c) 2025 N0, Inc.\nCopyright [2025] [N0, Inc]\nCopyright [2025] [The quinn developers]",
       "downloadLocation": "https://static.crates.io/crates/noq-proto/noq-proto-1.1.1.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -3953,7 +3953,7 @@
           "checksumValue": "02bba20e097a5a16cd0ad14ec882fae1e80a092a124e9422fc4dddd92e96a647"
         }
       ],
-      "copyrightText": "Copyright (c) 2018-2025 The quinn Developers\nCopyright (c) 2025 N0, Inc.",
+      "copyrightText": "Copyright (c) 2018-2025 The quinn Developers\nCopyright (c) 2025 N0, Inc.\nCopyright [2025] [N0, Inc]\nCopyright [2025] [The quinn developers]",
       "downloadLocation": "https://static.crates.io/crates/noq-udp/noq-udp-1.1.1.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -4378,7 +4378,7 @@
           "checksumValue": "eb3713e4977408279158444a18c1a01ac9bf2e7eaf1fbfd1a19ac9cd18d90721"
         }
       ],
-      "copyrightText": "Copyright 2023 N0, INC.",
+      "copyrightText": "Copyright 2023 N0, INC.\nCopyright [2023] [N0, INC]",
       "downloadLocation": "https://static.crates.io/crates/portmapper/portmapper-0.19.1.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -4806,7 +4806,7 @@
       "copyrightText": "Copyright (c) 2014 The Rust Project Developers\nCopyright \u00a9 1991-2018 Unicode, Inc. All rights reserved.",
       "downloadLocation": "https://static.crates.io/crates/regex-syntax/regex-syntax-0.8.11.crate",
       "filesAnalyzed": false,
-      "licenseConcluded": "Apache-2.0",
+      "licenseConcluded": "Apache-2.0 AND Unicode-DFS-2016",
       "licenseDeclared": "MIT OR Apache-2.0",
       "name": "regex-syntax",
       "packageComment": "Original upstream declaration: MIT OR Apache-2.0",
@@ -5670,7 +5670,7 @@
           "checksumValue": "ea06cc588e43c632923a55450401b8f25e628131571d4e1baea1bdfdb2b5ed06"
         }
       ],
-      "copyrightText": "Copyright 2025 N0, INC.",
+      "copyrightText": "Copyright 2025 N0, INC.\nCopyright [2025] [N0, INC]",
       "downloadLocation": "https://static.crates.io/crates/sorted-index-buffer/sorted-index-buffer-0.2.1.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -9022,7 +9022,7 @@
       "copyrightText": "Copyright (c) 2014 The Rust Project Developers\nCopyright \u00a9 1991-2018 Unicode, Inc. All rights reserved.",
       "downloadLocation": "https://static.crates.io/crates/regex-syntax/regex-syntax-0.8.5.crate",
       "filesAnalyzed": false,
-      "licenseConcluded": "Apache-2.0",
+      "licenseConcluded": "Apache-2.0 AND Unicode-DFS-2016",
       "licenseDeclared": "MIT OR Apache-2.0",
       "name": "regex-syntax",
       "packageComment": "Original upstream declaration: [{'expression': 'MIT OR Apache-2.0'}]",
