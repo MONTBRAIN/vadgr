@@ -2473,7 +2473,7 @@
     "legal/NOTICES/wheel-wrapt-2.3.0/000-LICENSE": "fc5afb82933ac1843af562dc343792687e8a513058aaaffb75d8aba5492a7050",
     "legal/PRIVACY-NOTICE.txt": "aecc86991978649deb6a092f73f3b99c532889e6a16f0a9d90ed695c9da9aee8",
     "legal/SECURITY-AND-PERMISSIONS.txt": "98542e602f4f5fac4920a85aaabc6a2b5412699f5b238c43eba4bfa2dffe3814",
-    "legal/SOURCE-OFFER.txt": "8d973c5e105a8a694bbe7e523ba9e8d01df1a286938413d919b5d964ce354b97",
+    "legal/SOURCE-OFFER.txt": "2d4bbeba34db1e010d7756adeedff4d60e187f393213a79746682c9a91bc1231",
     "legal/SOURCE-OFFERS/cargo-allocator-api2-0.2.21/allocator-api2-0.2.21.crate": "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923",
     "legal/SOURCE-OFFERS/cargo-allocator-api2-0.2.21/copyright-absence.json": "81fdcb2056348ddc50e760bd467a6481dde682dcfcdd75f0eb715a8438dc047c",
     "legal/SOURCE-OFFERS/cargo-anyhow-1.0.104/anyhow-1.0.104.crate": "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470",
@@ -2533,6 +2533,8 @@
     "legal/SOURCE-OFFERS/cargo-sigstore-tsa-0.11.0/sigstore-tsa-0.11.0.crate": "b58fe92d4d8cf4b7215b927b70bc1245b6e0d70d801febdfe0cd265ad97ebf8b",
     "legal/SOURCE-OFFERS/cargo-sigstore-types-0.11.0/copyright-absence.json": "92ad10271d230b8e8035890d902b40c965e29ef52543495328acf96f9f6c2c64",
     "legal/SOURCE-OFFERS/cargo-sigstore-types-0.11.0/sigstore-types-0.11.0.crate": "236474c535a3157839926a0ae18f9c0c22b151e49634da6e5b18ad7cac8a3b69",
+    "legal/SOURCE-OFFERS/cargo-sigstore-verify-0.11.0/copyright-absence.json": "7ac718d86695d83adf0c8535c6e99b431fab9e4076d3dd29ec0267eab67aa501",
+    "legal/SOURCE-OFFERS/cargo-sigstore-verify-0.11.0/sigstore-verify-0.11.0.crate": "558f71aad0e1c5925d29ae2024f55f0f8898a7ad450c93668f99086624c421e0",
     "legal/SOURCE-OFFERS/cargo-simdutf8-0.1.5/copyright-absence.json": "77ac7ab32fe1c9472731bd4bc1d525d65be3b4349c00e3057ad692b9460281af",
     "legal/SOURCE-OFFERS/cargo-simdutf8-0.1.5/simdutf8-0.1.5.crate": "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e",
     "legal/SOURCE-OFFERS/cargo-smol-str-0.2.2/copyright-absence.json": "b0509416d2b5b75887da647ffb22a201b2608dad85a682d73f9049ff678eca7d",
@@ -2600,9 +2602,9 @@
     "legal/TERMS.txt": "18d55dd2431a73b0c29cf58cd310e641bc363cd7e6efe739a2b506c4002a6965",
     "legal/THIRD-PARTY-NOTICES.txt": "667d77880e4fbdd286d30d550a2ad4a7141b0f5be867913729e287c616ec0363",
     "legal/UNINSTALL-AND-DATA.txt": "9090a2789588b59b26f41929f3594301b0ddc4c1762c577f9e47a6fedf14aa4f",
-    "sbom/vadgr-0.5.0.spdx.json": "dafb2017e34318eb4b31bdede560a35c9ca50efa9f03d12257003f9800cd32fc"
+    "sbom/vadgr-0.5.0.spdx.json": "6a117a06f96b6245b5f1567799b9d733329a13d140a2bfa9ab15e3cf243e0a3a"
   },
-  "inventory_sha256": "1d408cfc3d995a0d098ef2e3427247eb92d85320e24a16c8427b5b1f3437ab51",
+  "inventory_sha256": "a0eb7f6bbe60be4a676d51ac2985072fb22c4cbb6c2aa668672bd64c8c2cc179",
   "payload_manifest_sha256": "c49e453b7afbabaf622c011a7a9b2c373542c5f9bc4de9be5af17b2c40c19265",
   "schema": 1,
   "source_inputs": {

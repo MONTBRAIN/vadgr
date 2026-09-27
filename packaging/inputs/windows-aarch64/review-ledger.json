@@ -9516,9 +9516,9 @@
     },
     {
       "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": false,
+        "eligible_for_reviewed_NONE": true,
         "path": "source-copyright-audits/cargo-sigstore-verify-0.11.0.json",
-        "sha256": "3c6f26a690b7278ec3b0e5c64f7f501b89888301fcb3e5518dd897560c9793d1"
+        "sha256": "7ac718d86695d83adf0c8535c6e99b431fab9e4076d3dd29ec0267eab67aa501"
       },
       "id": "cargo-sigstore-verify-0.11.0",
       "original_license_declaration": "Apache-2.0",
@@ -20459,9 +20459,9 @@
   "status": "draft",
   "summary": {
     "component_candidates": 634,
-    "evidence_bound_NONE_proposals": 58,
+    "evidence_bound_NONE_proposals": 59,
     "retained_grant_choices": 633,
-    "rows_with_review_items": 16,
+    "rows_with_review_items": 15,
     "scope_counts": {
       "exact-full-font-bytes-found-in-payload/vadgr.exe": 4,
       "exact-members-match-existing-helper-only-redistribution-review": 1,
@@ -20477,7 +20477,7 @@
       "target-wheel-build-or-generated-code": 41,
       "target-wheel-link-relevant": 80
     },
-    "unresolved_copyright": 5
+    "unresolved_copyright": 4
   },
   "terms": {
     "sha256": "18d55dd2431a73b0c29cf58cd310e641bc363cd7e6efe739a2b506c4002a6965",
@@ -21786,10 +21786,7 @@
     },
     {
       "id": "cargo-sigstore-verify-0.11.0",
-      "items": [
-        "license-choice-and-original-copyright",
-        "no-original-copyright-statement-in-pinned-source"
-      ]
+      "items": []
     },
     {
       "id": "cargo-simd-adler32-0.3.10",
@@ -23087,7 +23084,6 @@
     "license-choice-and-original-copyright": [
       "cargo-cms-0.2.3",
       "cargo-fdeflate-0.3.7",
-      "cargo-sigstore-verify-0.11.0",
       "cargo-webpki-roots-0.26.11",
       "cargo-webpki-roots-1.0.9",
       "runtime-cpython-3.12.14"
@@ -23095,7 +23091,6 @@
     "no-original-copyright-statement-in-pinned-source": [
       "cargo-cms-0.2.3",
       "cargo-fdeflate-0.3.7",
-      "cargo-sigstore-verify-0.11.0",
       "cargo-webpki-roots-0.26.11",
       "cargo-webpki-roots-1.0.9"
     ],

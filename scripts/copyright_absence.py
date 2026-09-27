@@ -1,17 +1,20 @@
 """Conservative, reproducible copyright-absence evidence for exact source archives.
 
-Only entirely decoded text archives qualify. Every ownership-marker occurrence
-outside complete, pinned standard-license templates or reviewed documents is ambiguous.
+Only entirely decoded text or completely inspected, exact pinned binary records
+qualify. Every ownership-marker occurrence outside complete, pinned standard
+license templates or reviewed documents is ambiguous.
 This is evidence for review, not a declaration that a work has no copyright.
 """
 
+import base64
 import hashlib
 import io
 import json
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 import re
 import tarfile
 import zipfile
+import zlib
 
 
 BOILERPLATE = {
@@ -38,13 +41,123 @@ REVIEWED_DOCUMENTS = {
         "Bytecode-Alliance-organizational-code-of-conduct-generic-compliance-clause",
 }
 
+# These two small records were inspected completely, including every section,
+# symbol, byte and archive padding. There are no data or unclassified sections.
+# This is not a binary strings scan, a generic object-file exemption, or an
+# inference from the source author. Any changed byte requires a new inspection.
+REVIEWED_BINARY_RECORDS = {
+    "174c31f5cf1136305232c0b83db0aaa422e8428ae84973e85116d799325850df": {
+        "format": "WebAssembly-1-relocatable-cabi-realloc-trampoline",
+        "size": 261,
+        "parts": [
+            (0, 8, "WebAssembly magic and version 1"),
+            (8, 19, "One function type: four i32 parameters, one i32 result"),
+            (19, 117, "Three env imports: __linear_memory, cabi_realloc_wit_bindgen_0_39_0, __indirect_function_table"),
+            (117, 121, "One function using type zero"),
+            (121, 139, "One function export named cabi_realloc"),
+            (139, 159, "One code body: no locals, load parameters 0 through 3, call relocated function zero, end"),
+            (159, 197, "linking version 2 symbol table: cabi_realloc definition and imported function reference"),
+            (197, 215, "reloc.CODE: one function-index relocation at offset 12"),
+            (215, 261, "target_features: mutable-globals and sign-ext"),
+        ],
+    },
+    "b7b6a5fec27dd1abf3d888d387cb3e02dc66772fab86f5543cef301140a99fd6": {
+        "format": "Unix-ar-containing-only-reviewed-cabi-realloc-object-and-symbol-index",
+        "size": 412,
+        "parts": [
+            (0, 8, "Unix archive magic"),
+            (8, 68, "Symbol-index member header, zero timestamp/user/group/mode, 22-byte content"),
+            (68, 90, "One symbol at member offset 90: cabi_realloc, with terminator and zero padding"),
+            (90, 150, "cabi_realloc.o member header, zero timestamp/user/group, mode 644, 261-byte content"),
+            (150, 411, "Exact separately reviewed WebAssembly object: 174c31f5cf1136305232c0b83db0aaa422e8428ae84973e85116d799325850df"),
+            (411, 412, "Required archive newline alignment byte"),
+        ],
+    },
+}
+
 
 def digest(raw):
     return hashlib.sha256(raw).hexdigest()
 
 
+def inspect_reviewed_conda(value):
+    """Recheck a complete pinned decoding observation, not arbitrary Zstandard data."""
+    expected = "54303491a8418fbed24344b513546182c29b43bf282ceb433af65e2299f9271f"
+    if digest(value) != expected:
+        raise ValueError("reviewed nested archive identity differs")
+    proof = json.loads((Path(__file__).parent / "legal_evidence/sigstore-empty-conda.json").read_bytes())
+    proof_hash = digest(json.dumps(proof, sort_keys=True, separators=(",", ":")).encode())
+    if proof_hash != "e2c835c737edea373e2d62cf608a654b192f375fc54ab70b3a43236c28892f1c":
+        raise ValueError("reviewed nested decoding observation differs")
+    files = []
+    with zipfile.ZipFile(io.BytesIO(value)) as outer:
+        if outer.comment or outer.namelist() != [row["path"] for row in proof["members"]]:
+            raise ValueError("reviewed nested archive member scope differs")
+        for row in proof["members"]:
+            member = outer.getinfo(row["path"])
+            raw = outer.read(member)
+            if (digest(raw) != row["sha256"] or len(raw) != row["size"] or member.comment
+                    or member.extra.hex() != row["extra_hex"] or member.flag_bits != 0
+                    or member.compress_type != 0 or member.header_offset != row["header_offset"]):
+                raise ValueError("reviewed nested archive metadata differs")
+            if "text" in row:
+                if raw != row["text"].encode():
+                    raise ValueError("reviewed nested text differs")
+                files.append(inspect_member(row["path"], raw))
+                continue
+            frame = proof["zstandard_frames"][digest(raw)]
+            # Both complete frame outputs were inspected and are retained here.
+            # The committed observation is bound to the exact compressed input;
+            # no portable validator dependency on an external decoder is needed.
+            decoded = zlib.decompress(base64.b64decode(frame["decoded_zlib_base64"], validate=True))
+            if digest(decoded) != frame["decoded_sha256"] or len(decoded) != frame["decoded_size"]:
+                raise ValueError("reviewed nested decoded bytes differ")
+            offset = 0
+            with tarfile.open(fileobj=io.BytesIO(decoded), mode="r:") as nested:
+                members = nested.getmembers()
+                if [item.name for item in members] != [item["path"] for item in row["decoded_members"]]:
+                    raise ValueError("reviewed TAR member scope differs")
+                for item, retained in zip(members, row["decoded_members"]):
+                    if (not item.isfile() or item.pax_headers or item.uname or item.gname or item.linkname
+                            or item.offset != offset or item.offset_data != offset + 512):
+                        raise ValueError("uninspected reviewed TAR metadata")
+                    header = decoded[offset:offset + 512]
+                    if MARKERS.search(header.decode("ascii")):
+                        raise ValueError("ownership statement in reviewed TAR header")
+                    text = nested.extractfile(item).read()
+                    if (digest(text) != retained["sha256"] or len(text) != retained["size"]
+                            or text != retained["text"].encode()):
+                        raise ValueError("reviewed nested member bytes differ")
+                    end = item.offset_data + item.size
+                    offset = (end + 511) // 512 * 512
+                    if any(decoded[end:offset]):
+                        raise ValueError("uninspected reviewed TAR padding")
+                    files.append({**inspect_member(row["path"] + "/" + item.name, text), "decoded_text": text.decode()})
+            if len(decoded) - offset != 1024 or any(decoded[offset:]):
+                raise ValueError("uninspected reviewed TAR trailer")
+    if not all(row["status"] == "decoded-no-ownership-markers" for row in files):
+        raise ValueError("ambiguous statement in reviewed nested archive")
+    return {"status": "complete-reviewed-nested-archive-no-ownership-statement",
+        "decoding_observation_sha256": proof_hash, "format": proof["format"], "files": files,
+        "decoding_observation": proof,
+        "meaning": "Exact complete decoder observation, with all nested members and zero padding rechecked. Not an arbitrary compressed-file exemption or a package approval."}
+
+
 def inspect_member(name, value):
     row = {"path": name, "size": len(value), "sha256": digest(value)}
+    if row["sha256"] == "54303491a8418fbed24344b513546182c29b43bf282ceb433af65e2299f9271f":
+        return {**row, **inspect_reviewed_conda(value)}
+    reviewed = REVIEWED_BINARY_RECORDS.get(row["sha256"])
+    if reviewed is not None:
+        parts = reviewed["parts"]
+        if (len(value) != reviewed["size"] or parts[0][0] != 0 or parts[-1][1] != len(value)
+                or any(left[1] != right[0] for left, right in zip(parts, parts[1:]))):
+            raise ValueError("incomplete reviewed binary byte coverage")
+        return {**row, "status": "complete-reviewed-binary-record-no-ownership-statement",
+            "format": reviewed["format"],
+            "reviewed_byte_ranges": [{"offset": start, "end_exclusive": end,
+                "interpretation": description, "hex": value[start:end].hex()} for start, end, description in parts],
+            "meaning": "Every byte belongs to the listed inspected format fields. None is a copyright statement. No unparsed member, data section, comment or trailer is ignored."}
     try:
         text = value.decode("utf-8-sig")
         if "\0" in text:
@@ -70,7 +183,9 @@ def inspect_member(name, value):
 
 def audit_result(files, expected):
     eligible = bool(files) and all(row["status"] in {"complete-standard-boilerplate", "decoded-no-ownership-markers",
-                                   "complete-reviewed-document-no-ownership-statement"} for row in files)
+                                   "complete-reviewed-document-no-ownership-statement",
+                                   "complete-reviewed-binary-record-no-ownership-statement",
+                                   "complete-reviewed-nested-archive-no-ownership-statement"} for row in files)
     return {"schema": 1, "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
             "archive_sha256": expected, "eligible_for_reviewed_NONE": eligible,
             "files": sorted(files, key=lambda row: row["path"]),

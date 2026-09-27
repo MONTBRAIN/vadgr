@@ -8,7 +8,7 @@
   },
   "dataLicense": "CC0-1.0",
   "documentComment": "Incomplete review inventory, including separately classified build-source candidates. Not an approved shipped-component SBOM.",
-  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-1d408cfc3d995a0d098ef2e3427247eb92d85320e24a16c8427b5b1f3437ab51",
+  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-a0eb7f6bbe60be4a676d51ac2985072fb22c4cbb6c2aa668672bd64c8c2cc179",
   "hasExtractedLicensingInfos": [
     {
       "comment": "Exact retained terms; this identifier is not an approval or a claim of SPDX-list equivalence.",
@@ -5517,7 +5517,7 @@
           "checksumValue": "558f71aad0e1c5925d29ae2024f55f0f8898a7ad450c93668f99086624c421e0"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/sigstore-verify/sigstore-verify-0.11.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",

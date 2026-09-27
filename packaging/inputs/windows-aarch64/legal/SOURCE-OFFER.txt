@@ -7483,6 +7483,614 @@ sigstore-types
 Included source archive: legal/SOURCE-OFFERS/cargo-sigstore-types-0.11.0/sigstore-types-0.11.0.crate
 SHA-256: 236474c535a3157839926a0ae18f9c0c22b151e49634da6e5b18ad7cac8a3b69
 
+sigstore-verify
+{
+  "archive_sha256": "558f71aad0e1c5925d29ae2024f55f0f8898a7ad450c93668f99086624c421e0",
+  "eligible_for_reviewed_NONE": true,
+  "files": [
+    {
+      "path": "sigstore-verify-0.11.0/.cargo_vcs_info.json",
+      "sha256": "56ba8c12d6414fdfc2c514b3f732df51f7544915e387c5b698e276d70f31c7ba",
+      "size": 116,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/CHANGELOG.md",
+      "sha256": "ab9552faf6aa7dae9b6c60a11a2b781c1f9114c9aba82f089a6b682c8f0f110a",
+      "size": 5862,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/Cargo.lock",
+      "sha256": "b3cf4a16b1f79494228cff6bd7b36c2973e00802bde751003b3431ce91974794",
+      "size": 61824,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/Cargo.toml",
+      "sha256": "c23106f19c79bde6d9f0d23ee91b49aef1f25462231131da8ce9cfa63682a371",
+      "size": 3462,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/Cargo.toml.orig",
+      "sha256": "1643a440637780fa0f80d5139a0522b719a8e496dabee2715648457097c79cdf",
+      "size": 1802,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/README.md",
+      "sha256": "61ddc23332286eb20f470aa1253a540b38696f742a7440027ff9cbf378c7c8d0",
+      "size": 3405,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/examples/verify_bundle.rs",
+      "sha256": "22ebefbbfd836452b32fe146c3bb83320d48addaad376c40e62ebba3d2b0d612",
+      "size": 11604,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/examples/verify_conda_attestation.rs",
+      "sha256": "b36910479b3b586638ff1ffe5d43f4fa605efcf73a05466cead31590229723a8",
+      "size": 6328,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/src/error.rs",
+      "sha256": "62347c72f521f093cb7ed998153c06fcf705b023b589a845d5b44c26a0418368",
+      "size": 635,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/src/lib.rs",
+      "sha256": "7dcff65a5fae3788ec5e055f80e2aa9065ab06d5400e5cff6fad53fb6e3098ac",
+      "size": 1419,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/src/verify.rs",
+      "sha256": "1594b0761267e774a3b0c6f1b19460d461e61d685ca66ecc8e97ed8fec0a7877",
+      "size": 31722,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/src/verify_impl/hashedrekord.rs",
+      "sha256": "03c500a34a67394b71094bb593c986ebbc08a1e0b9d02a38b1139225e4408d62",
+      "size": 10436,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/src/verify_impl/helpers.rs",
+      "sha256": "60c8ea77a9edda40ee1a0b9d23e50c5fa1ff25dee12a8121e2a36f1dc41f794c",
+      "size": 18018,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/src/verify_impl/mod.rs",
+      "sha256": "37777250f1497947aec29ab715612fda4cc1ac3bff9f9114d0a18060d641977f",
+      "size": 378,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/src/verify_impl/rekor.rs",
+      "sha256": "52c449536aa464fa8601b81a42141b15719420a109acfc506c8f9cb1fe0f24fe",
+      "size": 9918,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/src/verify_impl/sct.rs",
+      "sha256": "ba4a048e5df05331001e638fb2e9e3c769a58e729aa4781cf35cbdc67da1f8a1",
+      "size": 8632,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/src/verify_impl/tlog.rs",
+      "sha256": "20bc7da4e7a438de8dc477bb0512880949c0c46a167f072125e98602673a0e79",
+      "size": 10439,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/bundles/bundle_cve_2022_36056.txt.sigstore",
+      "sha256": "9798a1f080bc0653bdc0101500839e63e9d8e3487387059b5fd626aa11be9da1",
+      "size": 5980,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/bundles/bundle_invalid_version.txt.sigstore",
+      "sha256": "a3b5ac004d5b79e939e3ac732bd6df1029ffe8439a6d663af171b67333976fa6",
+      "size": 6027,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/bundles/bundle_no_cert_v1.txt.sigstore",
+      "sha256": "ab0a42c01a4fce136bcb06d94a4f008e1554a56ee85b6ba155c14182cfad8906",
+      "size": 4688,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/bundles/bundle_no_checkpoint.txt.sigstore",
+      "sha256": "3f24798053e698e27c34d05e64276326be4a44e51690255b14d00a7ed1962d61",
+      "size": 4719,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/bundles/bundle_no_log_entry.txt.sigstore",
+      "sha256": "d8760a9328305bc791b79ba64aa4d81f95eb02199adc3b4abcf8af874e79ba5e",
+      "size": 1410,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/bundles/bundle_v3_github.whl.sigstore",
+      "sha256": "b49e7c6b452af421e5965321fc31e004d7554af3acd89f661f8c2f0f94c37e9d",
+      "size": 10040,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/bundles/bundle_v3_no_signed_time.txt.sigstore.json",
+      "sha256": "d3919f9415fda1510be9db09dae4e1b1b22811605db1e6466bbe9730014a5f0c",
+      "size": 5534,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/bundles/conda-attestation-rekor2.sigstore.json",
+      "sha256": "490cc3ca8f3c216c5c836e6c7d9dad6b0d8a2dff91003eb383ad1000675fa8e5",
+      "size": 7017,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/bundles/conda-attestation.sigstore.json",
+      "sha256": "3b68ceda769879104c48b3bf0eb444accb470008c6be29393714922d533ab171",
+      "size": 9768,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/bundles/cosign-v3-blob.sigstore.json",
+      "sha256": "f7afd1c87706839b6ac19974ce23e47c4988c22807791e8257734202308923ec",
+      "size": 6207,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/bundles/cosign-v3-blob.txt",
+      "sha256": "e194b99df6639501325c5f44da79fe3a8efae6f239bd79443a19787e06fb1764",
+      "size": 24,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/bundles/dsse-2sigs.sigstore.json",
+      "sha256": "6603f237e113bbbae2d0132b8e74db79255c3b766503167b2b334533f119273c",
+      "size": 8383,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/bundles/dsse.sigstore.json",
+      "sha256": "b3f8ae41764e44961cc795d585122560dbd77ef8e5652f202f8adeddcb57d132",
+      "size": 8245,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/bundles/github-private-attestation.sigstore.json",
+      "sha256": "a4c4423d3acb5f9e96ccbb5383fce97820c111550cc6c6951e914aca7e504a98",
+      "size": 3757,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/bundles/othername.sigstore.json",
+      "sha256": "e4d4db1b4cbd232fe2a021a7290345d24e6f07f447629cbff51c8cfc52492ed8",
+      "size": 6613,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "decoding_observation": {
+        "format": "Conda-v2-empty-signed-test-package",
+        "inspection": "Complete ZIP directory and all TAR headers, regular-file contents, alignment and end padding inspected. Zstandard 0.25.0 decoded both complete frames without trailing input; Windows tar independently produced the same eight text members and empty package member set.",
+        "members": [
+          {
+            "comment_hex": "",
+            "compression": 0,
+            "extra_hex": "010010001e000000000000001e00000000000000",
+            "flag_bits": 0,
+            "header_offset": 0,
+            "path": "metadata.json",
+            "sha256": "8e44ea2e8d7f97f1214d63e678a0a594e622249804759b52810f29d6bc6b10bd",
+            "size": 30,
+            "text": "{\"conda_pkg_format_version\":2}"
+          },
+          {
+            "comment_hex": "",
+            "compression": 0,
+            "decoded_members": [],
+            "extra_hex": "0100100012000000000000001200000000000000",
+            "flag_bits": 0,
+            "header_offset": 93,
+            "path": "pkg-signed-package-2.1.0-hb0f4dca_0.tar.zst",
+            "sha256": "f2f1aac99b0423e4279ceb4218daed1f80cfabf42c85f088b5058f8b4bd6634c",
+            "size": 18
+          },
+          {
+            "comment_hex": "",
+            "compression": 0,
+            "decoded_members": [
+              {
+                "path": "info/about.json",
+                "sha256": "2b80c4407da54429ab957b6b7b8555a3360540474b8a583ed7a2954f80736200",
+                "size": 69,
+                "text": "{\n  \"channels\": [\n    \"https://conda.anaconda.org/conda-forge/\"\n  ]\n}"
+              },
+              {
+                "path": "info/hash_input.json",
+                "sha256": "d57432de97d0910d532c58d3ede253351f92a4bbb5848a39153a6d01ef3cb7b3",
+                "size": 31,
+                "text": "{\"target_platform\": \"linux-64\"}"
+              },
+              {
+                "path": "info/index.json",
+                "sha256": "0a4b7bc97e184c661c66a009567c0c02909e2e5cd7e2996827f1555ff2e97167",
+                "size": 195,
+                "text": "{\n  \"arch\": \"x86_64\",\n  \"build\": \"hb0f4dca_0\",\n  \"build_number\": 0,\n  \"name\": \"signed-package\",\n  \"platform\": \"linux\",\n  \"subdir\": \"linux-64\",\n  \"timestamp\": 1756728837293,\n  \"version\": \"2.1.0\"\n}"
+              },
+              {
+                "path": "info/paths.json",
+                "sha256": "a0731dccf9e110a03d184ba01467cabe068391cdab188c49a1e7515a17827183",
+                "size": 39,
+                "text": "{\n  \"paths\": [],\n  \"paths_version\": 1\n}"
+              },
+              {
+                "path": "info/recipe/recipe.yaml",
+                "sha256": "7f1fc2891cfbdda10019b0abb3990a2cbd9c11e53f88033b8749c90bab26755f",
+                "size": 52,
+                "text": "package:\n  name: \"signed-package\"\n  version: \"2.1.0\""
+              },
+              {
+                "path": "info/recipe/rendered_recipe.yaml",
+                "sha256": "785bdfe4ee5f3c81aee850a187b47f426e59f26677799e9267cc428e5621f125",
+                "size": 1739,
+                "text": "recipe:\n  schema_version: 1\n  context: {}\n  package:\n    name: signed-package\n    version: 2.1.0\n  build:\n    number: 0\n    string: hb0f4dca_0\n  requirements: {}\nbuild_configuration:\n  target_platform: linux-64\n  host_platform:\n    platform: linux-64\n    virtual_packages:\n    - __unix=0=0\n    - __linux=6.11.0=0\n    - __glibc=2.39=0\n    - __archspec=1=zen2\n  build_platform:\n    platform: linux-64\n    virtual_packages:\n    - __unix=0=0\n    - __linux=6.11.0=0\n    - __glibc=2.39=0\n    - __archspec=1=zen2\n  variant:\n    target_platform: linux-64\n  hash:\n    hash: b0f4dca\n  directories:\n    host_prefix: /home/runner/work/sigstore-example/sigstore-example/output/bld/rattler-build_signed-package_1756728837/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla\n    build_prefix: /home/runner/work/sigstore-example/sigstore-example/output/bld/rattler-build_signed-package_1756728837/build_env\n    work_dir: /home/runner/work/sigstore-example/sigstore-example/output/bld/rattler-build_signed-package_1756728837/work\n    build_dir: /home/runner/work/sigstore-example/sigstore-example/output/bld/rattler-build_signed-package_1756728837\n  channels:\n  - https://conda.anaconda.org/conda-forge\n  channel_priority: strict\n  solve_strategy: highest\n  timestamp: 2025-09-01T12:13:57.293683936Z\n  subpackages:\n    signed-package:\n      name: signed-package\n      version: 2.1.0\n      build_string: hb0f4dca_0\n  packaging_settings:\n    archive_type: conda\n    compression_level: 15\nfinalized_dependencies:\n  build: null\n  host: null\n  run:\n    depends: []\n    constraints: []\nfinalized_sources: []\nsystem_tools:\n  rattler-build: 0.44.0\nextra_meta: {}\n"
+              },
+              {
+                "path": "info/recipe/variant_config.yaml",
+                "sha256": "711a1c6ddd6de3755be8920815c82ba6a60e89de434a245d15d7321d54456e46",
+                "size": 26,
+                "text": "target_platform: linux-64\n"
+              },
+              {
+                "path": "info/tests/tests.yaml",
+                "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+                "size": 3,
+                "text": "[]\n"
+              }
+            ],
+            "extra_hex": "01001000d003000000000000d003000000000000",
+            "flag_bits": 0,
+            "header_offset": 204,
+            "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst",
+            "sha256": "2b4fb1669b6dee8993ec5dce3e592db39df22e6598e0a5e7c9b227e7b0e296d1",
+            "size": 976
+          }
+        ],
+        "schema": 1,
+        "sha256": "54303491a8418fbed24344b513546182c29b43bf282ceb433af65e2299f9271f",
+        "size": 1594,
+        "status": "complete-decoding-observation-not-package-approval",
+        "zip_comment_hex": "",
+        "zstandard_frames": {
+          "2b4fb1669b6dee8993ec5dce3e592db39df22e6598e0a5e7c9b227e7b0e296d1": {
+            "decoded_sha256": "c2914299afa95de2745ec2d16fecbf42c26a16057d1c62afade5a160e56dbf4f",
+            "decoded_size": 10752,
+            "decoded_zlib_base64": "eNrtWttymzwQznWegvF1AXGyE2b8Fr1qp8PIeA36C4JKwnXa6bt3JREfQtp0pin522gvDNrVccX3rRbM+K4L6aYbVPCf7PjVnxCCskxTc0V5eCURya6ijGRZQlYE71ETRynar2aQQSoqPO9ZFnm+uL9Evl573qKsKefQyEXuvccyamqlepmHYdnxLQ0op/amE5VV+Tu8hXCBtT9cf7ty8rcK0/ivqawLxvs/RAJP4Z8kq4f4T6JV6vA/B/4XuPwKVNE3VCGoW+SARcP4cPCX6cIh+1Xgn/EtHF4u/ickmcb/JHP4nyv+U1HWGveHm2WBqH+jdZuBNVutrDdkl25LWpAzQ8GHdgMC7cQoOW1BV5as4rD1e1p+pBXYBhNmsWo5bLZMXNCN0SvWAu5J26MpWmXLVXxzk6zi28RY9yAk67huFgdRQBbu9PH7+O+pquXL4Z+kqyn+s9jhfy78m/3Xh/8Pb47F4oS0yGHs38a/gJL1MF6CO9o28+J/mU7O/1kaOfzPIGOkzhH3OoZPQzgaRiY4hlyHmn8V/5gHCNgWz0wET+A/SaLJ+R/h7/A/h9it1vCXZQ0tLY5gj1BXdlzBQeXe129YOuOKe7a4JAtjOHZgyAJVJmEYG5msAZMGU5JKMF7l3inDQLWATwMT0AJX0oxr8w2cyY5Vg6BK9431Hry2yL37LAJtdSfPLGasR+vhZJlQA22KcQHSVva9ohg4O6zJmhwVpt16GUS4qjN11bBNuY6D5PZMqRMq2UO5jtZfgMf3TvifzWlPBaNc2f5/6k8qa1vL3HnjfqEGMzgoVSfY/TSt6wXs2CH3wrprkVYGzkGEnzvxMcTnRWJ18OGAGV4DU0U3qH5Q4abZhrjZqgHhW99dPmrFKTUMzZjA93ryJdSddfTL3xmHjBs/r0esHV1ipqDHKXCnZhte93y2+BmH1pw1fszQz6Pv/dqHjFMz3CmGj7O6yw09lUozY9fsocAiVVChoWZVDVJbju8qkO1InPnk1ifR2yjOoyTPVkF8myxvEvx5p3sZNpeIvlyE1f2EVx9h1pOLH6VS2xr1hQSl8DoOrJmA4YrUHTK/Z9xg9GXX4nMq9RhFA3toMAhk1zvGacO+4LFgC70+IfByRLsldiT1phlJ91jAfbZj2TZS55bjGFw7khl2R92pd9kNogSrlXdSQVuorrP7eLH7GD6CNEUHYGQStGhBURMo3GHuN89/YzwYY+3z5YFPf/+JJ+e/OFu6898M8uOw77DxavCvMIhJ+/v8b39+Af/T7z9JErv/f8whGGwdCJw4ceLkFcp3h2x7yw==",
+            "entries": [
+              {
+                "gid": 0,
+                "gname": "",
+                "name": "info/about.json",
+                "offset": 0,
+                "offset_data": 512,
+                "pax_headers": {},
+                "size": 69,
+                "type": "0",
+                "uid": 0,
+                "uname": ""
+              },
+              {
+                "gid": 0,
+                "gname": "",
+                "name": "info/hash_input.json",
+                "offset": 1024,
+                "offset_data": 1536,
+                "pax_headers": {},
+                "size": 31,
+                "type": "0",
+                "uid": 0,
+                "uname": ""
+              },
+              {
+                "gid": 0,
+                "gname": "",
+                "name": "info/index.json",
+                "offset": 2048,
+                "offset_data": 2560,
+                "pax_headers": {},
+                "size": 195,
+                "type": "0",
+                "uid": 0,
+                "uname": ""
+              },
+              {
+                "gid": 0,
+                "gname": "",
+                "name": "info/paths.json",
+                "offset": 3072,
+                "offset_data": 3584,
+                "pax_headers": {},
+                "size": 39,
+                "type": "0",
+                "uid": 0,
+                "uname": ""
+              },
+              {
+                "gid": 0,
+                "gname": "",
+                "name": "info/recipe/recipe.yaml",
+                "offset": 4096,
+                "offset_data": 4608,
+                "pax_headers": {},
+                "size": 52,
+                "type": "0",
+                "uid": 0,
+                "uname": ""
+              },
+              {
+                "gid": 0,
+                "gname": "",
+                "name": "info/recipe/rendered_recipe.yaml",
+                "offset": 5120,
+                "offset_data": 5632,
+                "pax_headers": {},
+                "size": 1739,
+                "type": "0",
+                "uid": 0,
+                "uname": ""
+              },
+              {
+                "gid": 0,
+                "gname": "",
+                "name": "info/recipe/variant_config.yaml",
+                "offset": 7680,
+                "offset_data": 8192,
+                "pax_headers": {},
+                "size": 26,
+                "type": "0",
+                "uid": 0,
+                "uname": ""
+              },
+              {
+                "gid": 0,
+                "gname": "",
+                "name": "info/tests/tests.yaml",
+                "offset": 8704,
+                "offset_data": 9216,
+                "pax_headers": {},
+                "size": 3,
+                "type": "0",
+                "uid": 0,
+                "uname": ""
+              }
+            ],
+            "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst",
+            "zstd_size": 976
+          },
+          "f2f1aac99b0423e4279ceb4218daed1f80cfabf42c85f088b5058f8b4bd6634c": {
+            "decoded_sha256": "5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef",
+            "decoded_size": 1024,
+            "decoded_zlib_base64": "eNpjYBgFo2AUjFQAAAQAAAE=",
+            "entries": [],
+            "path": "pkg-signed-package-2.1.0-hb0f4dca_0.tar.zst",
+            "zstd_size": 18
+          }
+        }
+      },
+      "decoding_observation_sha256": "e2c835c737edea373e2d62cf608a654b192f375fc54ab70b3a43236c28892f1c",
+      "files": [
+        {
+          "path": "metadata.json",
+          "sha256": "8e44ea2e8d7f97f1214d63e678a0a594e622249804759b52810f29d6bc6b10bd",
+          "size": 30,
+          "status": "decoded-no-ownership-markers"
+        },
+        {
+          "decoded_text": "{\n  \"channels\": [\n    \"https://conda.anaconda.org/conda-forge/\"\n  ]\n}",
+          "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst/info/about.json",
+          "sha256": "2b80c4407da54429ab957b6b7b8555a3360540474b8a583ed7a2954f80736200",
+          "size": 69,
+          "status": "decoded-no-ownership-markers"
+        },
+        {
+          "decoded_text": "{\"target_platform\": \"linux-64\"}",
+          "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst/info/hash_input.json",
+          "sha256": "d57432de97d0910d532c58d3ede253351f92a4bbb5848a39153a6d01ef3cb7b3",
+          "size": 31,
+          "status": "decoded-no-ownership-markers"
+        },
+        {
+          "decoded_text": "{\n  \"arch\": \"x86_64\",\n  \"build\": \"hb0f4dca_0\",\n  \"build_number\": 0,\n  \"name\": \"signed-package\",\n  \"platform\": \"linux\",\n  \"subdir\": \"linux-64\",\n  \"timestamp\": 1756728837293,\n  \"version\": \"2.1.0\"\n}",
+          "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst/info/index.json",
+          "sha256": "0a4b7bc97e184c661c66a009567c0c02909e2e5cd7e2996827f1555ff2e97167",
+          "size": 195,
+          "status": "decoded-no-ownership-markers"
+        },
+        {
+          "decoded_text": "{\n  \"paths\": [],\n  \"paths_version\": 1\n}",
+          "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst/info/paths.json",
+          "sha256": "a0731dccf9e110a03d184ba01467cabe068391cdab188c49a1e7515a17827183",
+          "size": 39,
+          "status": "decoded-no-ownership-markers"
+        },
+        {
+          "decoded_text": "package:\n  name: \"signed-package\"\n  version: \"2.1.0\"",
+          "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst/info/recipe/recipe.yaml",
+          "sha256": "7f1fc2891cfbdda10019b0abb3990a2cbd9c11e53f88033b8749c90bab26755f",
+          "size": 52,
+          "status": "decoded-no-ownership-markers"
+        },
+        {
+          "decoded_text": "recipe:\n  schema_version: 1\n  context: {}\n  package:\n    name: signed-package\n    version: 2.1.0\n  build:\n    number: 0\n    string: hb0f4dca_0\n  requirements: {}\nbuild_configuration:\n  target_platform: linux-64\n  host_platform:\n    platform: linux-64\n    virtual_packages:\n    - __unix=0=0\n    - __linux=6.11.0=0\n    - __glibc=2.39=0\n    - __archspec=1=zen2\n  build_platform:\n    platform: linux-64\n    virtual_packages:\n    - __unix=0=0\n    - __linux=6.11.0=0\n    - __glibc=2.39=0\n    - __archspec=1=zen2\n  variant:\n    target_platform: linux-64\n  hash:\n    hash: b0f4dca\n  directories:\n    host_prefix: /home/runner/work/sigstore-example/sigstore-example/output/bld/rattler-build_signed-package_1756728837/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla\n    build_prefix: /home/runner/work/sigstore-example/sigstore-example/output/bld/rattler-build_signed-package_1756728837/build_env\n    work_dir: /home/runner/work/sigstore-example/sigstore-example/output/bld/rattler-build_signed-package_1756728837/work\n    build_dir: /home/runner/work/sigstore-example/sigstore-example/output/bld/rattler-build_signed-package_1756728837\n  channels:\n  - https://conda.anaconda.org/conda-forge\n  channel_priority: strict\n  solve_strategy: highest\n  timestamp: 2025-09-01T12:13:57.293683936Z\n  subpackages:\n    signed-package:\n      name: signed-package\n      version: 2.1.0\n      build_string: hb0f4dca_0\n  packaging_settings:\n    archive_type: conda\n    compression_level: 15\nfinalized_dependencies:\n  build: null\n  host: null\n  run:\n    depends: []\n    constraints: []\nfinalized_sources: []\nsystem_tools:\n  rattler-build: 0.44.0\nextra_meta: {}\n",
+          "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst/info/recipe/rendered_recipe.yaml",
+          "sha256": "785bdfe4ee5f3c81aee850a187b47f426e59f26677799e9267cc428e5621f125",
+          "size": 1739,
+          "status": "decoded-no-ownership-markers"
+        },
+        {
+          "decoded_text": "target_platform: linux-64\n",
+          "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst/info/recipe/variant_config.yaml",
+          "sha256": "711a1c6ddd6de3755be8920815c82ba6a60e89de434a245d15d7321d54456e46",
+          "size": 26,
+          "status": "decoded-no-ownership-markers"
+        },
+        {
+          "decoded_text": "[]\n",
+          "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst/info/tests/tests.yaml",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "size": 3,
+          "status": "decoded-no-ownership-markers"
+        }
+      ],
+      "format": "Conda-v2-empty-signed-test-package",
+      "meaning": "Exact complete decoder observation, with all nested members and zero padding rechecked. Not an arbitrary compressed-file exemption or a package approval.",
+      "path": "sigstore-verify-0.11.0/test_data/bundles/signed-package-2.1.0-hb0f4dca_0.conda",
+      "sha256": "54303491a8418fbed24344b513546182c29b43bf282ceb433af65e2299f9271f",
+      "size": 1594,
+      "status": "complete-reviewed-nested-archive-no-ownership-statement"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/bundles/sigstore.js@2.0.0-provenance.sigstore.json",
+      "sha256": "e88fe678350e86bce3275c6ecdfb27731dbe01756b42604ee8b0f4500932ff38",
+      "size": 10767,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/invalid-ct-key_fail/bundle.sigstore.json",
+      "sha256": "1dfecc13bda3c8049b2ba3936ff519b1c0e983857dd2afd476c85524acb6019f",
+      "size": 9982,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/invalid-ct-key_fail/trusted_root.json",
+      "sha256": "f779f7740f789f7aeb2a9df5bb742e34dbef4ec9ef515a992651a571413e13c4",
+      "size": 8128,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/sct-multi-intermediate/staging_bundle.sigstore.json",
+      "sha256": "337d936acc885637e93f8e135db0d6a08a42a4d8541886b34ddf30cb74552a9a",
+      "size": 9223,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/sct-multi-intermediate/staging_trusted_root.json",
+      "sha256": "44deb991d4bbf2150751ccee235d9810bce4434383c26d8898c1bcadbace6ed8",
+      "size": 12722,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/trusted_roots/public-good.json",
+      "sha256": "4364d7724c04cc912ce2a6c45ed2610e8d8d1c4dc857fb500292738d4d9c8d2c",
+      "size": 7014,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/trusted_roots/scaffolding.json",
+      "sha256": "503c669ede6b4416c39de5d48d5964141970d9881fc941370faac0f75789fecf",
+      "size": 3467,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/x509/bogus-intermediate-with-eku.pem",
+      "sha256": "28cd4f0f9519f8c18fad822f655c2884c48b4d23de0113fa56d6448235d0674d",
+      "size": 1143,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/x509/bogus-intermediate.pem",
+      "sha256": "f6cae940317fd98850a4af04e80b5b90c37377ecbae652826b87b01dc6fcf37f",
+      "size": 1115,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/x509/bogus-leaf-invalid-eku.pem",
+      "sha256": "928826f16416d58c4f7dfca161c1aaf07821ced5f618953084172aab37abed50",
+      "size": 1135,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/x509/bogus-leaf-invalid-ku.pem",
+      "sha256": "7a59effb20f2b3259a7e1a07a315279f749dca3f3a41870cc1459a82ea7e1613",
+      "size": 1131,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/x509/bogus-leaf-missing-eku.pem",
+      "sha256": "483109b87b0a87159a30f0b85f6c9b75fd3b7616f14e3fd6126ebf8ebf248b1b",
+      "size": 1107,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/x509/bogus-leaf.pem",
+      "sha256": "29c8db06b427dbe14cdfdb2c79ca9bc6f011a230e4068d72684625a729137f43",
+      "size": 1135,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/x509/bogus-root-invalid-ku.pem",
+      "sha256": "053a53a2283c1d00505d83968348a847795188cf565429741883c807f5886ddd",
+      "size": 1111,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/x509/bogus-root-missing-ku.pem",
+      "sha256": "f81631dc009265b2cc5bb9855ffcc0654589432dff6540c9b88212a6f33abb80",
+      "size": 1090,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/x509/bogus-root-noncritical-bc.pem",
+      "sha256": "be2540f0c709c595f1fb5c23ad0109cbdbc6875e9fe563bcbd4741436fffe59c",
+      "size": 1107,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/x509/bogus-root.pem",
+      "sha256": "1c5f3344138a1daa5645025e35fb8351a1a76422522602ca30ba990385ecd9aa",
+      "size": 1111,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/x509/nonroot-privkey.pem",
+      "sha256": "baf3aefbec567462e740913c8ab3c67d2a7cec4556f0e26b5e42d7da5e67bdf9",
+      "size": 1704,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/test_data/x509/root-privkey.pem",
+      "sha256": "3c4cfa171b9541570a142fceabf1c236f8211529ae1577322394267e3e9a0248",
+      "size": 1704,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-verify-0.11.0/tests/verification_tests.rs",
+      "sha256": "c1cd12fbf32e12b51816802299215f6d351734289a53f195648211bd1f6f74c2",
+      "size": 55065,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
+  "schema": 1
+}
+
+sigstore-verify
+Included source archive: legal/SOURCE-OFFERS/cargo-sigstore-verify-0.11.0/sigstore-verify-0.11.0.crate
+SHA-256: 558f71aad0e1c5925d29ae2024f55f0f8898a7ad450c93668f99086624c421e0
+
 simdutf8
 {
   "archive_sha256": "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e",

@@ -1,6 +1,7 @@
 """NONE is an evidence-bound absence statement, never a copyright waiver."""
 
 import io
+from pathlib import Path
 import tarfile
 import zipfile
 
@@ -41,6 +42,52 @@ def archive(files):
 def test_absence_requires_all_members_decoded_and_no_ambiguous_markers(raw, eligible):
     packed = archive({"demo-1/LICENSE": raw})
     assert absence.audit_archive(packed, package.sha256_bytes(packed))["eligible_for_reviewed_NONE"] is eligible
+
+
+def test_reviewed_binary_requires_exact_complete_byte_coverage(monkeypatch):
+    value = b"\0tiny fully inspected record"
+    record = {"format": "fixture", "size": len(value), "parts": [(0, len(value), "Every fixture byte")]}
+    monkeypatch.setitem(absence.REVIEWED_BINARY_RECORDS, absence.digest(value), record)
+    row = absence.inspect_member("record.o", value)
+    assert row["status"] == "complete-reviewed-binary-record-no-ownership-statement"
+    assert bytes.fromhex(row["reviewed_byte_ranges"][0]["hex"]) == value
+    assert absence.inspect_member("record.o", value + b"changed")["status"] == "undecoded-member-needs-review"
+    assert absence.inspect_member("record.o", b"\0copyright hidden")["status"] == "undecoded-member-needs-review"
+    record["parts"] = [(0, 1, "Header only")]
+    with pytest.raises(ValueError, match="incomplete"):
+        absence.inspect_member("record.o", value)
+
+
+def test_reviewed_binary_record_table_is_exact_and_has_no_uninspected_ranges():
+    assert len(absence.REVIEWED_BINARY_RECORDS) == 2
+    for record in absence.REVIEWED_BINARY_RECORDS.values():
+        parts = record["parts"]
+        assert parts[0][0] == 0 and parts[-1][1] == record["size"]
+        assert all(left[1] == right[0] for left, right in zip(parts, parts[1:]))
+        assert all(end > start for start, end, _ in parts)
+
+
+def test_exact_conda_decoding_observation_is_rechecked_without_optional_decoder(monkeypatch):
+    root = Path(__file__).resolve().parents[2]
+    source = root / ("packaging/inputs/windows-x86_64/legal/SOURCE-OFFERS/"
+        "cargo-sigstore-verify-0.11.0/sigstore-verify-0.11.0.crate")
+    with tarfile.open(source, mode="r:gz") as archive:
+        raw = archive.extractfile("sigstore-verify-0.11.0/test_data/bundles/signed-package-2.1.0-hb0f4dca_0.conda").read()
+    row = absence.inspect_reviewed_conda(raw)
+    assert row["status"] == "complete-reviewed-nested-archive-no-ownership-statement"
+    assert len(row["files"]) == 9
+    assert all(item["status"] == "decoded-no-ownership-markers" for item in row["files"])
+    with pytest.raises(ValueError, match="identity differs"):
+        absence.inspect_reviewed_conda(raw + b"uninspected trailer")
+    assert absence.inspect_member("changed.conda", raw + b"changed")["status"] == "undecoded-member-needs-review"
+    original_loads = absence.json.loads
+    def changed_observation(value):
+        proof = original_loads(value)
+        proof["inspection"] = "Unsupported replacement conclusion"
+        return proof
+    monkeypatch.setattr(absence.json, "loads", changed_observation)
+    with pytest.raises(ValueError, match="decoding observation differs"):
+        absence.inspect_reviewed_conda(raw)
 
 
 def test_none_proof_is_recomputed_from_exact_included_archive():

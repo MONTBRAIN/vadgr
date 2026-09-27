@@ -1,6 +1,6 @@
 {
   "archive_sha256": "558f71aad0e1c5925d29ae2024f55f0f8898a7ad450c93668f99086624c421e0",
-  "eligible_for_reviewed_NONE": false,
+  "eligible_for_reviewed_NONE": true,
   "files": [
     {
       "path": "sigstore-verify-0.11.0/.cargo_vcs_info.json",
@@ -195,10 +195,285 @@
       "status": "decoded-no-ownership-markers"
     },
     {
+      "decoding_observation": {
+        "format": "Conda-v2-empty-signed-test-package",
+        "inspection": "Complete ZIP directory and all TAR headers, regular-file contents, alignment and end padding inspected. Zstandard 0.25.0 decoded both complete frames without trailing input; Windows tar independently produced the same eight text members and empty package member set.",
+        "members": [
+          {
+            "comment_hex": "",
+            "compression": 0,
+            "extra_hex": "010010001e000000000000001e00000000000000",
+            "flag_bits": 0,
+            "header_offset": 0,
+            "path": "metadata.json",
+            "sha256": "8e44ea2e8d7f97f1214d63e678a0a594e622249804759b52810f29d6bc6b10bd",
+            "size": 30,
+            "text": "{\"conda_pkg_format_version\":2}"
+          },
+          {
+            "comment_hex": "",
+            "compression": 0,
+            "decoded_members": [],
+            "extra_hex": "0100100012000000000000001200000000000000",
+            "flag_bits": 0,
+            "header_offset": 93,
+            "path": "pkg-signed-package-2.1.0-hb0f4dca_0.tar.zst",
+            "sha256": "f2f1aac99b0423e4279ceb4218daed1f80cfabf42c85f088b5058f8b4bd6634c",
+            "size": 18
+          },
+          {
+            "comment_hex": "",
+            "compression": 0,
+            "decoded_members": [
+              {
+                "path": "info/about.json",
+                "sha256": "2b80c4407da54429ab957b6b7b8555a3360540474b8a583ed7a2954f80736200",
+                "size": 69,
+                "text": "{\n  \"channels\": [\n    \"https://conda.anaconda.org/conda-forge/\"\n  ]\n}"
+              },
+              {
+                "path": "info/hash_input.json",
+                "sha256": "d57432de97d0910d532c58d3ede253351f92a4bbb5848a39153a6d01ef3cb7b3",
+                "size": 31,
+                "text": "{\"target_platform\": \"linux-64\"}"
+              },
+              {
+                "path": "info/index.json",
+                "sha256": "0a4b7bc97e184c661c66a009567c0c02909e2e5cd7e2996827f1555ff2e97167",
+                "size": 195,
+                "text": "{\n  \"arch\": \"x86_64\",\n  \"build\": \"hb0f4dca_0\",\n  \"build_number\": 0,\n  \"name\": \"signed-package\",\n  \"platform\": \"linux\",\n  \"subdir\": \"linux-64\",\n  \"timestamp\": 1756728837293,\n  \"version\": \"2.1.0\"\n}"
+              },
+              {
+                "path": "info/paths.json",
+                "sha256": "a0731dccf9e110a03d184ba01467cabe068391cdab188c49a1e7515a17827183",
+                "size": 39,
+                "text": "{\n  \"paths\": [],\n  \"paths_version\": 1\n}"
+              },
+              {
+                "path": "info/recipe/recipe.yaml",
+                "sha256": "7f1fc2891cfbdda10019b0abb3990a2cbd9c11e53f88033b8749c90bab26755f",
+                "size": 52,
+                "text": "package:\n  name: \"signed-package\"\n  version: \"2.1.0\""
+              },
+              {
+                "path": "info/recipe/rendered_recipe.yaml",
+                "sha256": "785bdfe4ee5f3c81aee850a187b47f426e59f26677799e9267cc428e5621f125",
+                "size": 1739,
+                "text": "recipe:\n  schema_version: 1\n  context: {}\n  package:\n    name: signed-package\n    version: 2.1.0\n  build:\n    number: 0\n    string: hb0f4dca_0\n  requirements: {}\nbuild_configuration:\n  target_platform: linux-64\n  host_platform:\n    platform: linux-64\n    virtual_packages:\n    - __unix=0=0\n    - __linux=6.11.0=0\n    - __glibc=2.39=0\n    - __archspec=1=zen2\n  build_platform:\n    platform: linux-64\n    virtual_packages:\n    - __unix=0=0\n    - __linux=6.11.0=0\n    - __glibc=2.39=0\n    - __archspec=1=zen2\n  variant:\n    target_platform: linux-64\n  hash:\n    hash: b0f4dca\n  directories:\n    host_prefix: /home/runner/work/sigstore-example/sigstore-example/output/bld/rattler-build_signed-package_1756728837/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla\n    build_prefix: /home/runner/work/sigstore-example/sigstore-example/output/bld/rattler-build_signed-package_1756728837/build_env\n    work_dir: /home/runner/work/sigstore-example/sigstore-example/output/bld/rattler-build_signed-package_1756728837/work\n    build_dir: /home/runner/work/sigstore-example/sigstore-example/output/bld/rattler-build_signed-package_1756728837\n  channels:\n  - https://conda.anaconda.org/conda-forge\n  channel_priority: strict\n  solve_strategy: highest\n  timestamp: 2025-09-01T12:13:57.293683936Z\n  subpackages:\n    signed-package:\n      name: signed-package\n      version: 2.1.0\n      build_string: hb0f4dca_0\n  packaging_settings:\n    archive_type: conda\n    compression_level: 15\nfinalized_dependencies:\n  build: null\n  host: null\n  run:\n    depends: []\n    constraints: []\nfinalized_sources: []\nsystem_tools:\n  rattler-build: 0.44.0\nextra_meta: {}\n"
+              },
+              {
+                "path": "info/recipe/variant_config.yaml",
+                "sha256": "711a1c6ddd6de3755be8920815c82ba6a60e89de434a245d15d7321d54456e46",
+                "size": 26,
+                "text": "target_platform: linux-64\n"
+              },
+              {
+                "path": "info/tests/tests.yaml",
+                "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+                "size": 3,
+                "text": "[]\n"
+              }
+            ],
+            "extra_hex": "01001000d003000000000000d003000000000000",
+            "flag_bits": 0,
+            "header_offset": 204,
+            "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst",
+            "sha256": "2b4fb1669b6dee8993ec5dce3e592db39df22e6598e0a5e7c9b227e7b0e296d1",
+            "size": 976
+          }
+        ],
+        "schema": 1,
+        "sha256": "54303491a8418fbed24344b513546182c29b43bf282ceb433af65e2299f9271f",
+        "size": 1594,
+        "status": "complete-decoding-observation-not-package-approval",
+        "zip_comment_hex": "",
+        "zstandard_frames": {
+          "2b4fb1669b6dee8993ec5dce3e592db39df22e6598e0a5e7c9b227e7b0e296d1": {
+            "decoded_sha256": "c2914299afa95de2745ec2d16fecbf42c26a16057d1c62afade5a160e56dbf4f",
+            "decoded_size": 10752,
+            "decoded_zlib_base64": "eNrtWttymzwQznWegvF1AXGyE2b8Fr1qp8PIeA36C4JKwnXa6bt3JREfQtp0pin522gvDNrVccX3rRbM+K4L6aYbVPCf7PjVnxCCskxTc0V5eCURya6ijGRZQlYE71ETRynar2aQQSoqPO9ZFnm+uL9Evl573qKsKefQyEXuvccyamqlepmHYdnxLQ0op/amE5VV+Tu8hXCBtT9cf7ty8rcK0/ivqawLxvs/RAJP4Z8kq4f4T6JV6vA/B/4XuPwKVNE3VCGoW+SARcP4cPCX6cIh+1Xgn/EtHF4u/ickmcb/JHP4nyv+U1HWGveHm2WBqH+jdZuBNVutrDdkl25LWpAzQ8GHdgMC7cQoOW1BV5as4rD1e1p+pBXYBhNmsWo5bLZMXNCN0SvWAu5J26MpWmXLVXxzk6zi28RY9yAk67huFgdRQBbu9PH7+O+pquXL4Z+kqyn+s9jhfy78m/3Xh/8Pb47F4oS0yGHs38a/gJL1MF6CO9o28+J/mU7O/1kaOfzPIGOkzhH3OoZPQzgaRiY4hlyHmn8V/5gHCNgWz0wET+A/SaLJ+R/h7/A/h9it1vCXZQ0tLY5gj1BXdlzBQeXe129YOuOKe7a4JAtjOHZgyAJVJmEYG5msAZMGU5JKMF7l3inDQLWATwMT0AJX0oxr8w2cyY5Vg6BK9431Hry2yL37LAJtdSfPLGasR+vhZJlQA22KcQHSVva9ohg4O6zJmhwVpt16GUS4qjN11bBNuY6D5PZMqRMq2UO5jtZfgMf3TvifzWlPBaNc2f5/6k8qa1vL3HnjfqEGMzgoVSfY/TSt6wXs2CH3wrprkVYGzkGEnzvxMcTnRWJ18OGAGV4DU0U3qH5Q4abZhrjZqgHhW99dPmrFKTUMzZjA93ryJdSddfTL3xmHjBs/r0esHV1ipqDHKXCnZhte93y2+BmH1pw1fszQz6Pv/dqHjFMz3CmGj7O6yw09lUozY9fsocAiVVChoWZVDVJbju8qkO1InPnk1ifR2yjOoyTPVkF8myxvEvx5p3sZNpeIvlyE1f2EVx9h1pOLH6VS2xr1hQSl8DoOrJmA4YrUHTK/Z9xg9GXX4nMq9RhFA3toMAhk1zvGacO+4LFgC70+IfByRLsldiT1phlJ91jAfbZj2TZS55bjGFw7khl2R92pd9kNogSrlXdSQVuorrP7eLH7GD6CNEUHYGQStGhBURMo3GHuN89/YzwYY+3z5YFPf/+JJ+e/OFu6898M8uOw77DxavCvMIhJ+/v8b39+Af/T7z9JErv/f8whGGwdCJw4ceLkFcp3h2x7yw==",
+            "entries": [
+              {
+                "gid": 0,
+                "gname": "",
+                "name": "info/about.json",
+                "offset": 0,
+                "offset_data": 512,
+                "pax_headers": {},
+                "size": 69,
+                "type": "0",
+                "uid": 0,
+                "uname": ""
+              },
+              {
+                "gid": 0,
+                "gname": "",
+                "name": "info/hash_input.json",
+                "offset": 1024,
+                "offset_data": 1536,
+                "pax_headers": {},
+                "size": 31,
+                "type": "0",
+                "uid": 0,
+                "uname": ""
+              },
+              {
+                "gid": 0,
+                "gname": "",
+                "name": "info/index.json",
+                "offset": 2048,
+                "offset_data": 2560,
+                "pax_headers": {},
+                "size": 195,
+                "type": "0",
+                "uid": 0,
+                "uname": ""
+              },
+              {
+                "gid": 0,
+                "gname": "",
+                "name": "info/paths.json",
+                "offset": 3072,
+                "offset_data": 3584,
+                "pax_headers": {},
+                "size": 39,
+                "type": "0",
+                "uid": 0,
+                "uname": ""
+              },
+              {
+                "gid": 0,
+                "gname": "",
+                "name": "info/recipe/recipe.yaml",
+                "offset": 4096,
+                "offset_data": 4608,
+                "pax_headers": {},
+                "size": 52,
+                "type": "0",
+                "uid": 0,
+                "uname": ""
+              },
+              {
+                "gid": 0,
+                "gname": "",
+                "name": "info/recipe/rendered_recipe.yaml",
+                "offset": 5120,
+                "offset_data": 5632,
+                "pax_headers": {},
+                "size": 1739,
+                "type": "0",
+                "uid": 0,
+                "uname": ""
+              },
+              {
+                "gid": 0,
+                "gname": "",
+                "name": "info/recipe/variant_config.yaml",
+                "offset": 7680,
+                "offset_data": 8192,
+                "pax_headers": {},
+                "size": 26,
+                "type": "0",
+                "uid": 0,
+                "uname": ""
+              },
+              {
+                "gid": 0,
+                "gname": "",
+                "name": "info/tests/tests.yaml",
+                "offset": 8704,
+                "offset_data": 9216,
+                "pax_headers": {},
+                "size": 3,
+                "type": "0",
+                "uid": 0,
+                "uname": ""
+              }
+            ],
+            "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst",
+            "zstd_size": 976
+          },
+          "f2f1aac99b0423e4279ceb4218daed1f80cfabf42c85f088b5058f8b4bd6634c": {
+            "decoded_sha256": "5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef",
+            "decoded_size": 1024,
+            "decoded_zlib_base64": "eNpjYBgFo2AUjFQAAAQAAAE=",
+            "entries": [],
+            "path": "pkg-signed-package-2.1.0-hb0f4dca_0.tar.zst",
+            "zstd_size": 18
+          }
+        }
+      },
+      "decoding_observation_sha256": "e2c835c737edea373e2d62cf608a654b192f375fc54ab70b3a43236c28892f1c",
+      "files": [
+        {
+          "path": "metadata.json",
+          "sha256": "8e44ea2e8d7f97f1214d63e678a0a594e622249804759b52810f29d6bc6b10bd",
+          "size": 30,
+          "status": "decoded-no-ownership-markers"
+        },
+        {
+          "decoded_text": "{\n  \"channels\": [\n    \"https://conda.anaconda.org/conda-forge/\"\n  ]\n}",
+          "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst/info/about.json",
+          "sha256": "2b80c4407da54429ab957b6b7b8555a3360540474b8a583ed7a2954f80736200",
+          "size": 69,
+          "status": "decoded-no-ownership-markers"
+        },
+        {
+          "decoded_text": "{\"target_platform\": \"linux-64\"}",
+          "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst/info/hash_input.json",
+          "sha256": "d57432de97d0910d532c58d3ede253351f92a4bbb5848a39153a6d01ef3cb7b3",
+          "size": 31,
+          "status": "decoded-no-ownership-markers"
+        },
+        {
+          "decoded_text": "{\n  \"arch\": \"x86_64\",\n  \"build\": \"hb0f4dca_0\",\n  \"build_number\": 0,\n  \"name\": \"signed-package\",\n  \"platform\": \"linux\",\n  \"subdir\": \"linux-64\",\n  \"timestamp\": 1756728837293,\n  \"version\": \"2.1.0\"\n}",
+          "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst/info/index.json",
+          "sha256": "0a4b7bc97e184c661c66a009567c0c02909e2e5cd7e2996827f1555ff2e97167",
+          "size": 195,
+          "status": "decoded-no-ownership-markers"
+        },
+        {
+          "decoded_text": "{\n  \"paths\": [],\n  \"paths_version\": 1\n}",
+          "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst/info/paths.json",
+          "sha256": "a0731dccf9e110a03d184ba01467cabe068391cdab188c49a1e7515a17827183",
+          "size": 39,
+          "status": "decoded-no-ownership-markers"
+        },
+        {
+          "decoded_text": "package:\n  name: \"signed-package\"\n  version: \"2.1.0\"",
+          "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst/info/recipe/recipe.yaml",
+          "sha256": "7f1fc2891cfbdda10019b0abb3990a2cbd9c11e53f88033b8749c90bab26755f",
+          "size": 52,
+          "status": "decoded-no-ownership-markers"
+        },
+        {
+          "decoded_text": "recipe:\n  schema_version: 1\n  context: {}\n  package:\n    name: signed-package\n    version: 2.1.0\n  build:\n    number: 0\n    string: hb0f4dca_0\n  requirements: {}\nbuild_configuration:\n  target_platform: linux-64\n  host_platform:\n    platform: linux-64\n    virtual_packages:\n    - __unix=0=0\n    - __linux=6.11.0=0\n    - __glibc=2.39=0\n    - __archspec=1=zen2\n  build_platform:\n    platform: linux-64\n    virtual_packages:\n    - __unix=0=0\n    - __linux=6.11.0=0\n    - __glibc=2.39=0\n    - __archspec=1=zen2\n  variant:\n    target_platform: linux-64\n  hash:\n    hash: b0f4dca\n  directories:\n    host_prefix: /home/runner/work/sigstore-example/sigstore-example/output/bld/rattler-build_signed-package_1756728837/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla\n    build_prefix: /home/runner/work/sigstore-example/sigstore-example/output/bld/rattler-build_signed-package_1756728837/build_env\n    work_dir: /home/runner/work/sigstore-example/sigstore-example/output/bld/rattler-build_signed-package_1756728837/work\n    build_dir: /home/runner/work/sigstore-example/sigstore-example/output/bld/rattler-build_signed-package_1756728837\n  channels:\n  - https://conda.anaconda.org/conda-forge\n  channel_priority: strict\n  solve_strategy: highest\n  timestamp: 2025-09-01T12:13:57.293683936Z\n  subpackages:\n    signed-package:\n      name: signed-package\n      version: 2.1.0\n      build_string: hb0f4dca_0\n  packaging_settings:\n    archive_type: conda\n    compression_level: 15\nfinalized_dependencies:\n  build: null\n  host: null\n  run:\n    depends: []\n    constraints: []\nfinalized_sources: []\nsystem_tools:\n  rattler-build: 0.44.0\nextra_meta: {}\n",
+          "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst/info/recipe/rendered_recipe.yaml",
+          "sha256": "785bdfe4ee5f3c81aee850a187b47f426e59f26677799e9267cc428e5621f125",
+          "size": 1739,
+          "status": "decoded-no-ownership-markers"
+        },
+        {
+          "decoded_text": "target_platform: linux-64\n",
+          "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst/info/recipe/variant_config.yaml",
+          "sha256": "711a1c6ddd6de3755be8920815c82ba6a60e89de434a245d15d7321d54456e46",
+          "size": 26,
+          "status": "decoded-no-ownership-markers"
+        },
+        {
+          "decoded_text": "[]\n",
+          "path": "info-signed-package-2.1.0-hb0f4dca_0.tar.zst/info/tests/tests.yaml",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "size": 3,
+          "status": "decoded-no-ownership-markers"
+        }
+      ],
+      "format": "Conda-v2-empty-signed-test-package",
+      "meaning": "Exact complete decoder observation, with all nested members and zero padding rechecked. Not an arbitrary compressed-file exemption or a package approval.",
       "path": "sigstore-verify-0.11.0/test_data/bundles/signed-package-2.1.0-hb0f4dca_0.conda",
       "sha256": "54303491a8418fbed24344b513546182c29b43bf282ceb433af65e2299f9271f",
       "size": 1594,
-      "status": "undecoded-member-needs-review"
+      "status": "complete-reviewed-nested-archive-no-ownership-statement"
     },
     {
       "path": "sigstore-verify-0.11.0/test_data/bundles/sigstore.js@2.0.0-provenance.sigstore.json",

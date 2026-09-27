@@ -8,7 +8,7 @@
   },
   "dataLicense": "CC0-1.0",
   "documentComment": "Incomplete review inventory, including separately classified build-source candidates. Not an approved shipped-component SBOM.",
-  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-a630753987a81a20143162145cd86fed0d72274f29981044e9f1021511b7ee6e",
+  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-4a8435dd48c5c9aaaaff0a0299e908f0ef919acae85a6c19d43b9ca18e0973c5",
   "hasExtractedLicensingInfos": [
     {
       "comment": "Exact retained terms; this identifier is not an approval or a claim of SPDX-list equivalence.",
@@ -5522,7 +5522,7 @@
           "checksumValue": "558f71aad0e1c5925d29ae2024f55f0f8898a7ad450c93668f99086624c421e0"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/sigstore-verify/sigstore-verify-0.11.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -9891,7 +9891,7 @@
           "checksumValue": "6f42320e61fe2cfd34354ecb597f86f413484a798ba44a8ca1165c58d42da6c1"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/wit-bindgen-rt/wit-bindgen-rt-0.39.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",

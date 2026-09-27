@@ -12122,7 +12122,7 @@
       "version": "0.11.0"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "NONE",
       "download_location": "https://static.crates.io/crates/sigstore-verify/sigstore-verify-0.11.0.crate",
       "id": "cargo-sigstore-verify-0.11.0",
       "kind": "cargo",
@@ -12146,8 +12146,17 @@
       ],
       "notice_required": true,
       "sha256": "558f71aad0e1c5925d29ae2024f55f0f8898a7ad450c93668f99086624c421e0",
-      "source_offer_files": [],
-      "source_offer_required": false,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-sigstore-verify-0.11.0/copyright-absence.json",
+          "sha256": "7ac718d86695d83adf0c8535c6e99b431fab9e4076d3dd29ec0267eab67aa501"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-sigstore-verify-0.11.0/sigstore-verify-0.11.0.crate",
+          "sha256": "558f71aad0e1c5925d29ae2024f55f0f8898a7ad450c93668f99086624c421e0"
+        }
+      ],
+      "source_offer_required": true,
       "version": "0.11.0"
     },
     {

@@ -73,7 +73,16 @@ as producer metadata, including the producer's stale OpenSSL 1.1 path correction
 archive with no ambiguous ownership markers outside exact standard-license
 boilerplate or a complete hash-pinned document whose generic compliance wording
 was separately inspected. A changed document does not inherit that finding.
-Undecoded members and nonstandard notices remain unresolved. The
+Two small pinned WebAssembly/archive records have complete byte-range reviews,
+including all symbols, instructions, archive headers and padding. Their audits
+retain every byte in hexadecimal alongside its interpretation. Any changed byte
+loses that finding. This is not a generic binary-format or strings-scan exemption.
+Other undecoded members and nonstandard notices remain unresolved. The
+empty signed Conda test fixture also has an exact, complete decoding observation
+in `scripts/legal_evidence/sigstore-empty-conda.json`. Both Zstandard frames were
+decoded completely and all nine nested text records inspected. Their decoded
+bytes, TAR headers and zero padding are rechecked without an optional decoder.
+Changed compressed bytes do not inherit that review. The
 exact source archive and per-file audit must be delivered in the package; both
 the generator and validator recompute the audit. An approved package review is
 still mandatory. This is not a public-domain declaration or an author-to-owner
