@@ -4,10 +4,10 @@ import base64
 import copy
 import io
 import json
-from pathlib import Path
-from types import SimpleNamespace
 import subprocess
 import zipfile
+from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -152,7 +152,10 @@ def test_feature_held_data_is_admitted_without_advancing_signer_commit(admission
 
 @pytest.mark.parametrize("name", [profiles.INPUTS, profiles.CATALOG, profiles.BUNDLE,
                                   profiles.lock_path("linux-x86_64")])
-def test_existing_trusted_copy_still_requires_byte_equality(admission, name):
+def test_stale_trusted_profile_proposal_copy_is_rejected(admission, name):
+    # Mutable profile proposals belong on the feature branch. If an obsolete
+    # copy ever remains on trusted master, it must fail closed instead of
+    # forcing the signer commit and candidate data to chase one another.
     a = admission
     write(a.trusted, name, b"changed\n")
     with pytest.raises(PackageInputError, match="differs from trusted"):
