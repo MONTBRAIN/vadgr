@@ -126,8 +126,8 @@ def test_source_test_environment_is_absent_in_child_process(tmp_path, architectu
     if not shell:
         pytest.skip("PowerShell is unavailable")
     script = (ROOT / "scripts/candidate/prepare-unsigned-windows.ps1").read_text()
-    clearing = script.split("Push-Location $sourceRoot\ntry {\n", 1)[1].split("    & cargo test", 1)[0]
-    selection = script.split("throw 'Unsigned preparation source tests failed.' }\n", 1)[1].split("    & cargo build", 1)[0]
+    clearing = script.split("Push-Location $sourceTestRoot\ntry {\n", 1)[1].split("    & cargo test", 1)[0]
+    selection = script.split("Push-Location $sourceRoot\ntry {\n", 1)[1].split("    & cargo build", 1)[0]
     profile_assignment = next(line for line in script.splitlines() if line.startswith("$profile = "))
     names = ("VADGR_RELEASE_PROFILE", "VADGR_RELEASE_PAYLOAD_BUILD", "VADGR_BUILD_WHEELHOUSE")
     child = "import json,os; print(json.dumps({name: os.environ.get(name) for name in " + repr(names) + "}))"
@@ -228,6 +228,99 @@ def test_admission_accepts_exact_source_without_package_approval_and_never_execu
     assert inventory["files"]["build.rs"]["sha256"] == prep.sha256_bytes((source / "build.rs").read_bytes())
 
 
+def test_source_tests_keep_exact_runbook_outside_materialized_build(admission, tmp_path):
+    source, sha, _, _ = admission
+    record, rows = prep.admit(source, prep.BRANCH, sha)
+    materialized = tmp_path / "materialized"
+    gate.materialize(source, sha, rows, materialized)
+    prep.verify_test_source(source, record)
+    assert (source / gate.EXCLUDED).read_bytes() == b"Results only\n"
+    assert not (materialized / gate.EXCLUDED).exists()
+
+
+@pytest.mark.parametrize("defect", ["source_sha", "source_tree", "input_digest", "dirty", "missing-runbook"])
+def test_source_test_checkout_must_still_match_admitted_source(admission, defect):
+    source, sha, _, _ = admission
+    record, _ = prep.admit(source, prep.BRANCH, sha)
+    if defect in ("source_sha", "source_tree", "input_digest"):
+        record[defect] = "b" * len(record[defect])
+    elif defect == "dirty":
+        (source / "build.rs").write_text("changed after admission")
+    else:
+        (source / gate.EXCLUDED).unlink()
+    with pytest.raises(gate.Refused):
+        prep.verify_test_source(source, record)
+
+
+def test_workflow_tests_exact_checkout_then_builds_only_materialized_inputs():
+    script = (ROOT / "scripts/candidate/prepare-unsigned-windows.ps1").read_text()
+    workflow = (ROOT / prep.WORKFLOW).read_text()
+    assert "-SourceTestDirectory source_checkout" in workflow
+    assert "verify-test-source --source-root $sourceTestRoot --source-record $sourceRecordPath" in script
+    test_phase = script.split("Push-Location $sourceTestRoot\ntry {\n", 1)[1].split("} finally {", 1)[0]
+    build_phase = script.split("Push-Location $sourceRoot\ntry {\n", 1)[1]
+    assert "& cargo test --locked --all-targets --features native-gui --target $target" in test_phase
+    assert "--skip" not in test_phase and "--exclude" not in test_phase
+    assert "& cargo build --locked --release" in build_phase
+    assert "& cargo test" not in build_phase
+    assert "$env:CARGO_TARGET_DIR = Join-Path $sourceTestRoot 'target'" in script
+    assert "$env:CARGO_TARGET_DIR = Join-Path $sourceRoot 'target'" in script
+    assert script.count("throw 'The result-only runbook must be absent from the materialized build.'") == 2
+
+
+@pytest.mark.parametrize("outcome", ["success", "failed-test", "unexpected-runbook"])
+def test_source_and_build_phases_use_separate_directories_in_child_process(tmp_path, outcome):
+    shell = shutil.which("pwsh") or shutil.which("powershell.exe")
+    if not shell:
+        pytest.skip("PowerShell is unavailable")
+    source_tests, build = tmp_path / "source-tests", tmp_path / "build"
+    runbook = source_tests / gate.EXCLUDED
+    runbook.parent.mkdir(parents=True)
+    runbook.write_bytes(b"exact admitted runbook")
+    build.mkdir()
+    script = (ROOT / "scripts/candidate/prepare-unsigned-windows.ps1").read_text()
+    phases = script[script.index("Push-Location $sourceTestRoot\n"):script.index("    $binary =")]
+    phases += "} finally { Pop-Location }\n"
+    observer = tmp_path / "observe-phase.py"
+    observer.write_text("import json,os,pathlib,sys\n"
+                        + f"runbook = pathlib.Path({gate.EXCLUDED!r})\n"
+                        + "print(json.dumps({'cwd': os.getcwd(), 'target': os.environ['CARGO_TARGET_DIR'], "
+                          "'runbook': runbook.read_text() if runbook.exists() else None, 'args': sys.argv[1:]}))\n",
+                        encoding="utf-8")
+
+    def quote(value):
+        return "'" + str(value).replace("'", "''") + "'"
+
+    pollution = ""
+    if outcome == "unexpected-runbook":
+        pollution = (f"[IO.Directory]::CreateDirectory({quote((build / gate.EXCLUDED).parent)}) | Out-Null\n"
+                     f"[IO.File]::WriteAllText({quote(build / gate.EXCLUDED)}, 'unexpected')\n")
+    probe = tmp_path / "phase-probe.ps1"
+    probe.write_text("$ErrorActionPreference = 'Stop'\nSet-StrictMode -Version Latest\n"
+                     + f"$sourceTestRoot = {quote(source_tests)}\n$sourceRoot = {quote(build)}\n"
+                     + "$target = 'x86_64-pc-windows-msvc'\n$profile = 'windows-x86_64'\n"
+                     + "$env:CARGO_TARGET_DIR = Join-Path $sourceTestRoot 'target'\n"
+                     + f"function cargo {{ & {quote(sys.executable)} {quote(observer)} @args\n"
+                     + pollution + f"$global:LASTEXITCODE = {1 if outcome == 'failed-test' else 0}\n}}\n"
+                     + phases, encoding="utf-8")
+    result = subprocess.run([shell, "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
+                             "-File", str(probe)], cwd=tmp_path, capture_output=True, text=True, timeout=30)
+    observations = [json.loads(line) for line in result.stdout.splitlines()]
+    assert observations[0] == {"cwd": str(source_tests), "target": str(source_tests / "target"),
+                               "runbook": "exact admitted runbook", "args": ["test", "--locked", "--all-targets",
+                               "--features", "native-gui", "--target", "x86_64-pc-windows-msvc"]}
+    if outcome == "success":
+        assert result.returncode == 0, result.stderr
+        assert len(observations) == 2
+        assert observations[1]["cwd"] == str(build)
+        assert observations[1]["target"] == str(build / "target")
+        assert observations[1]["runbook"] is None and observations[1]["args"][0] == "build"
+    else:
+        assert result.returncode != 0 and len(observations) == 1
+        expected = "source tests failed" if outcome == "failed-test" else "runbook must be absent"
+        assert expected in result.stderr
+
+
 @pytest.mark.parametrize("defect", ["moved", "fork", "failure", "wrong-workflow", "dirty", "wrong-branch"])
 def test_admission_refuses_source_and_ci_defects(admission, defect):
     source, sha, api, check = admission
@@ -326,7 +419,8 @@ def test_native_build_refuses_dummy_credential_before_touching_source(tmp_path):
     dummy = "synthetic-preparation-credential"
     result = subprocess.run([shell, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
         str(ROOT / "scripts/candidate/prepare-unsigned-windows.ps1"), "-Architecture", "x64",
-        "-SourceDirectory", str(tmp_path / "absent"), "-OutputDirectory", str(tmp_path / "output"),
+        "-SourceDirectory", str(tmp_path / "absent"), "-SourceTestDirectory", str(tmp_path / "tests"),
+        "-OutputDirectory", str(tmp_path / "output"),
         "-WheelhouseDirectory", str(tmp_path / "wheels"), "-SourceRecord", str(tmp_path / "record.json")],
         env={**os.environ, "GH_TOKEN": dummy}, cwd=tmp_path, capture_output=True, text=True)
     assert result.returncode != 0

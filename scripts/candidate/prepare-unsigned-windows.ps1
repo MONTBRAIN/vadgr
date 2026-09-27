@@ -2,6 +2,7 @@
 param(
     [Parameter(Mandatory)][ValidateSet('x64', 'arm64')][string] $Architecture,
     [Parameter(Mandatory)][string] $SourceDirectory,
+    [Parameter(Mandatory)][string] $SourceTestDirectory,
     [Parameter(Mandatory)][string] $OutputDirectory,
     [Parameter(Mandatory)][string] $WheelhouseDirectory,
     [Parameter(Mandatory)][string] $SourceRecord
@@ -17,6 +18,12 @@ if ($native -ne $expectedNative -or $env:RUNNER_ARCH -ne $expectedNative) {
     throw 'Unsigned preparation requires the selected native Windows runner.'
 }
 $sourceRoot = (Resolve-Path -LiteralPath $SourceDirectory).Path
+$sourceTestRoot = (Resolve-Path -LiteralPath $SourceTestDirectory).Path
+if ($sourceRoot -eq $sourceTestRoot -or
+    $sourceRoot.StartsWith($sourceTestRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase) -or
+    $sourceTestRoot.StartsWith($sourceRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
+    throw 'Source tests and release compilation require separate source directories.'
+}
 $wheelhouse = (Resolve-Path -LiteralPath $WheelhouseDirectory).Path
 $sourceRecordPath = (Resolve-Path -LiteralPath $SourceRecord).Path
 $output = [IO.Path]::GetFullPath($OutputDirectory)
@@ -28,6 +35,8 @@ if (Test-Path -LiteralPath $output) { throw 'Unsigned preparation output must be
 if (Test-Path -LiteralPath (Join-Path $sourceRoot 'E2E/0.5.0/e2e.md')) {
     throw 'The result-only runbook must be absent from the materialized build.'
 }
+& python $tool verify-test-source --source-root $sourceTestRoot --source-record $sourceRecordPath
+if ($LASTEXITCODE -ne 0) { throw 'Exact source test checkout verification failed.' }
 & python (Join-Path $trustedRoot 'scripts/cua_wheelhouse.py') --source $sourceRoot --target $target --release-profile $profile --verify $wheelhouse
 if ($LASTEXITCODE -ne 0) { throw 'Reviewed profile wheelhouse verification failed.' }
 New-Item -ItemType Directory -Path $output | Out-Null
@@ -40,13 +49,13 @@ if ($LASTEXITCODE -ne 0) { throw 'Proposed terms inspection failed.' }
 $terms = Get-Content -Raw -LiteralPath (Join-Path $output 'terms-input.json') | ConvertFrom-Json
 $cargoHome = Join-Path $env:RUNNER_TEMP 'unsigned-preparation-cargo'
 $env:CARGO_HOME = $cargoHome
-$env:CARGO_TARGET_DIR = Join-Path $sourceRoot 'target'
+$env:CARGO_TARGET_DIR = Join-Path $sourceTestRoot 'target'
 $env:RUSTFLAGS = '-C target-feature=+crt-static'
 & rustc --version --verbose | Set-Content -LiteralPath (Join-Path $output 'rustc-version.txt') -Encoding utf8NoBOM
 if ($LASTEXITCODE -ne 0) { throw 'Rust compiler identity failed.' }
 & cargo --version --verbose | Set-Content -LiteralPath (Join-Path $output 'cargo-version.txt') -Encoding utf8NoBOM
 if ($LASTEXITCODE -ne 0) { throw 'Cargo identity failed.' }
-Push-Location $sourceRoot
+Push-Location $sourceTestRoot
 try {
     foreach ($name in @('VADGR_RELEASE_PROFILE', 'VADGR_RELEASE_PAYLOAD_BUILD', 'VADGR_BUILD_WHEELHOUSE')) {
         # PowerShell 7.5 converts $null to an empty string in the .NET setter.
@@ -55,6 +64,16 @@ try {
     }
     & cargo test --locked --all-targets --features native-gui --target $target
     if ($LASTEXITCODE -ne 0) { throw 'Unsigned preparation source tests failed.' }
+} finally {
+    Pop-Location
+}
+# The complete source suite needs the runbook, but release inputs must never contain it.
+if (Test-Path -LiteralPath (Join-Path $sourceRoot 'E2E/0.5.0/e2e.md')) {
+    throw 'The result-only runbook must be absent from the materialized build.'
+}
+$env:CARGO_TARGET_DIR = Join-Path $sourceRoot 'target'
+Push-Location $sourceRoot
+try {
     $env:VADGR_RELEASE_PAYLOAD_BUILD = '1'
     $env:VADGR_RELEASE_PROFILE = $profile
     & cargo build --locked --release --features native-gui --bin vadgr --bin vadgr-app --target $target

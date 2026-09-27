@@ -131,6 +131,21 @@ def source_snapshot(source, sha, rows, output):
         "schema": 1, **BOUNDARY, "source_sha": sha, "excluded": [gate.EXCLUDED], "files": inventory}))
 
 
+def verify_test_source(source, source_record):
+    """Recheck the full admitted checkout offline before credential-free tests."""
+    sha = source_record["source_sha"]
+    gate.require(gate.SHA.fullmatch(sha) is not None
+                 and gate.git(source, "rev-parse", "HEAD") == sha
+                 and not gate.git(source, "status", "--porcelain", "--untracked-files=all"),
+                 "source test checkout is not the exact clean admitted source")
+    rows = gate.inventory(source, sha)
+    validate_paths(rows)
+    gate.require(gate.git(source, "rev-parse", f"{sha}^{{tree}}") == source_record["source_tree"]
+                 and gate.input_digest(rows) == source_record["input_digest"],
+                 "source test checkout differs from admission")
+    read_owned(source, gate.EXCLUDED)
+
+
 def terms_input(source):
     name = "packaging/legal/TERMS.txt"
     if not (source / name).is_file():
@@ -323,6 +338,9 @@ def main():
     terms = commands.add_parser("terms")
     terms.add_argument("--source-root", type=Path, required=True)
     terms.add_argument("--out", type=Path, required=True)
+    source_tests = commands.add_parser("verify-test-source")
+    source_tests.add_argument("--source-root", type=Path, required=True)
+    source_tests.add_argument("--source-record", type=Path, required=True)
     cargo = commands.add_parser("cargo-notices")
     cargo.add_argument("--metadata", type=Path, required=True)
     cargo.add_argument("--source-root", type=Path, required=True)
@@ -340,6 +358,8 @@ def main():
                 observe(args.source_root.resolve(), record, args.raw.resolve(), args.architecture, args.out.absolute())
         elif args.command == "terms":
             args.out.write_bytes(canonical_json(terms_input(args.source_root)))
+        elif args.command == "verify-test-source":
+            verify_test_source(args.source_root.resolve(), parse_json(args.source_record.read_bytes()))
         else:
             cargo_notices(args.metadata, args.source_root, args.cargo_home, args.out)
     except (gate.Refused, PackageInputError, distribution_matrix.Refused,

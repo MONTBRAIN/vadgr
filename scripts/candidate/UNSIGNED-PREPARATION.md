@@ -33,7 +33,17 @@ again offline before Cargo executes feature code.
 
 The two build jobs run on native `windows-latest` x64 and `windows-11-arm` ARM64.
 The helper checks both the runner architecture and the native operating-system
-architecture. It runs the source tests, compiles the daemon and application with
+architecture. It runs every source test in the full admitted checkout, including
+the result-only runbook. An offline check binds that clean checkout to the
+admitted commit, complete tree and input digest before any source code executes.
+The test output directory is separate from the release output directory.
+No test filter or skip replaces this source suite.
+
+Release compilation uses only the separate materialized build tree. The helper
+checks that the runbook is absent before source testing and again before release
+compilation. It never copies the runbook into that tree, even temporarily.
+A source test failure prevents release compilation. The helper then compiles
+the daemon and application with
 the selected release profile, and assembles the private payload through
 `__payload-setup`. It does not launch the application or perform an installation.
 
