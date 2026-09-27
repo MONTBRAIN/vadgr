@@ -152,7 +152,8 @@ def reviewed(source: Path, trusted: Path, profile: str):
 
 
 def _gh(endpoint, binary=False):
-    result = subprocess.run(["gh", "api", "--method", "GET", f"repos/{REPOSITORY}/{endpoint}"],
+    path = f"repos/{REPOSITORY}" + (f"/{endpoint}" if endpoint else "")
+    result = subprocess.run(["gh", "api", "--method", "GET", path],
                             capture_output=True, timeout=180, check=False)
     require(result.returncode == 0 and len(result.stdout) <= MAX_EXPANDED,
             "reviewed profile origin unavailable")
