@@ -248,12 +248,13 @@ def test_capture_executes_only_pinned_extractor_and_retains_replayable_record(ex
         assert kwargs["cwd"] == output
         calls.append(command[1:])
         assert (output / command[-1]).is_dir()
-        if command[1:3] == ["msi", "decompile"]:
+        assert command[1:3] == ["-acceptEula", "wix7"]
+        if command[3:5] == ["msi", "decompile"]:
             names = ["msi.wxs", *("msi/" + name for name in wix.tree(root / "msi"))]
-        elif command[1:3] == ["burn", "extract"]:
+        elif command[3:5] == ["burn", "extract"]:
             names = [directory + "/" + name for directory in ("ba", "containers") for name in wix.tree(root / directory)]
         else:
-            assert command[1:3] == ["burn", "detach"]
+            assert command[3:5] == ["burn", "detach"]
             names = ["burn-engine.exe"]
         for name in names:
             target = output / name

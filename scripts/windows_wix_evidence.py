@@ -220,9 +220,10 @@ def validate(root, observation_root, architecture, expected_sha256):
 
 def extraction_commands(architecture):
     names = package_names(architecture)
-    return [["msi", "decompile", names["msi"], "-x", "msi", "-o", "msi.wxs", "-intermediateFolder", "temporary/msi"],
-            ["burn", "extract", names["bundle"], "-o", "containers", "-oba", "ba", "-intermediateFolder", "temporary/burn"],
-            ["burn", "detach", names["bundle"], "-engine", "burn-engine.exe", "-intermediateFolder", "temporary/engine"]]
+    eula = ["-acceptEula", "wix7"]
+    return [[*eula, "msi", "decompile", names["msi"], "-x", "msi", "-o", "msi.wxs", "-intermediateFolder", "temporary/msi"],
+            [*eula, "burn", "extract", names["bundle"], "-o", "containers", "-oba", "ba", "-intermediateFolder", "temporary/burn"],
+            [*eula, "burn", "detach", names["bundle"], "-engine", "burn-engine.exe", "-intermediateFolder", "temporary/engine"]]
 
 
 def capture(package_root, observation_root, architecture, tool_root, tool_digest, output):
