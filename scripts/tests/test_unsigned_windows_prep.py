@@ -108,6 +108,10 @@ def test_build_has_no_compliance_or_packaging_fallback():
     script = (ROOT / "scripts/candidate/prepare-unsigned-windows.ps1").read_text()
     assert "VADGR_RELEASE_PAYLOAD_BUILD = '1'" in script
     assert "VADGR_RELEASE_PROFILE = $profile" in script
+    assert "@('VADGR_RELEASE_PROFILE', 'VADGR_RELEASE_PAYLOAD_BUILD', 'VADGR_BUILD_WHEELHOUSE')" in script
+    assert 'Remove-Item -LiteralPath "Env:$name"' in script
+    assert "Unsigned source test environment was not cleared." in script
+    assert script.index('Remove-Item -LiteralPath "Env:$name"') < script.index("& cargo test")
     assert script.index("--verify $wheelhouse") < script.index("& cargo build")
     assert "RuntimeInformation]::OSArchitecture" in script
     assert "VADGR_TERMS_SHA256 = $terms.sha256" in script
