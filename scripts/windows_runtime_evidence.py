@@ -271,15 +271,89 @@ def rust_source_binding(raw_root, record, component, archive_root):
         require(any(name.startswith("libstd-") for name in references), "Rust standard library symbol binding absent")
         linked[executable] = {"executable": row["executable"], "map_sha256": row["sha256"],
             "libraries": {name: {**members[name], "symbols": references[name]} for name in sorted(references)}}
+    scope = {name: {"identity": members[name], "referenced_by": sorted(
+                 executable for executable, row in linked.items() if name in row["libraries"])}
+             for name in sorted(members)}
+    for row in scope.values():
+        row["classification"] = "observed-public-symbol-reference" if row["referenced_by"] else "available-build-input-not-observed-in-public-symbol-map"
     return {"schema": 1, **BOUNDARY, "target": record["target"], "distribution_sha256": component["sha256"],
         "distribution_url": descriptor["xz_url"], "observed_library_count": len(members), "linked": linked,
+        "library_scope": scope,
         "limitation": "Complete target sysroot equality and named public symbols in exact executable link maps. This does not assert every available library was linked or conclude the scope of third-party grants."}
+
+
+PILLOW_FEATURES = {
+    "pkg:generic/freetype2": ("modules", "freetype2"),
+    "pkg:generic/fribidi": ("features", "fribidi"),
+    "pkg:generic/harfbuzz": ("features", "harfbuzz"),
+    "pkg:generic/libavif": ("modules", "avif"),
+    "pkg:generic/libimagequant": ("features", "libimagequant"),
+    "pkg:generic/libjpeg": ("features", "libjpeg_turbo"),
+    "pkg:generic/libtiff": ("codecs", "libtiff"),
+    "pkg:generic/libwebp": ("modules", "webp"),
+    "pkg:generic/libxcb": ("features", "xcb"),
+    "pkg:generic/littlecms2": ("modules", "littlecms2"),
+    "pkg:generic/openjpeg": ("codecs", "jpg_2000"),
+    "pkg:generic/zlib": ("features", "zlib_ng"),
+}
+
+
+def pillow_scope(record, catalogue):
+    """Classify what the native probe establishes, never infer absence from no load."""
+    pillow = record["pillow"]
+    version = pillow["probe"]["pillow"]
+    component = catalogue.get("metadata", {}).get("component", {})
+    require(component.get("name", "").lower() == "pillow" and component.get("version") == version,
+            "Pillow catalogue identity differs")
+    members = {name: identity for name, identity in pillow["files"].items()
+               if name.lower().endswith((".pyd", ".dll"))}
+    loaded = {row["path"] for row in pillow["loaded_modules"] if row["scope"] == "observed-input"}
+    rows, seen = [], set()
+    for item in catalogue.get("components", []):
+        reference = item.get("bom-ref")
+        require(isinstance(reference, str) and reference and reference not in seen, "Pillow catalogue reference differs")
+        seen.add(reference)
+        row = {"bom_ref": reference, "name": item["name"], "declared_version": item.get("version"),
+               "classification": "catalogue-entry-needs-build-scope"}
+        if item["name"].startswith("PIL."):
+            module = item["name"].removeprefix("PIL.")
+            matches = {name: value for name, value in members.items() if Path(name).name.startswith(module + ".")}
+            require(len(matches) <= 1, "ambiguous Pillow native module")
+            row.update(observed_members=matches,
+                loaded_by_probe=any(name in loaded for name in matches),
+                classification="observed-installed-native-module" if matches else "catalogue-module-not-observed")
+        else:
+            selector = PILLOW_FEATURES.get(reference)
+            if reference == f"pkg:pypi/pillow@{version}#thirdparty/raqm":
+                selector = ("features", "raqm")
+            if selector:
+                value = pillow["probe"]["groups"][selector[0]].get(selector[1])
+                row["feature_selector"] = list(selector)
+                if value is not None:
+                    row["native_feature"] = value
+                    row["classification"] = "native-feature-supported" if value["supported"] else "native-feature-not-supported"
+                    row["version_matches_declaration"] = value["version"] is not None and value["version"] == item.get("version")
+        rows.append(row)
+    require(bool(rows), "Pillow catalogue is empty")
+    return {"schema": 1, **BOUNDARY, "target": record["target"], "pillow_version": version,
+        "components": sorted(rows, key=lambda row: row["bom_ref"]),
+        "native_members": {name: {**value, "loaded_by_probe": name in loaded} for name, value in sorted(members.items())},
+        "limitations": ["An unloaded module remains shipped. An unsupported feature does not prove its transitive libraries are absent.",
+                        "Catalogue/probe version differences remain visible; no version is normalized into equality.",
+                        "No catalogue entry is classified build-only and no grant or source duty is concluded by this hook."]}
 
 
 def retain_in_packet(packet, inputs, architecture, archive_root):
     if not (inputs / RECORD).exists():
         return
     record = validate(inputs, architecture)
+    version = record["pillow"]["probe"]["pillow"]
+    site, _ = pillow_tree(inputs)
+    catalogue_name = (site.relative_to(inputs) / f"pillow-{version}.dist-info/sboms/pillow-{version}.cdx.json").as_posix()
+    catalogue_raw = read_owned(inputs, catalogue_name)
+    classification = pillow_scope(record, parse_json(catalogue_raw))
+    classification["catalogue"] = {"path": catalogue_name, **file_record(catalogue_raw)}
+    packet.put("pillow-native-scope.json", canonical_json(classification))
     for name in (RECORD, RUST_MANIFEST):
         packet.put("producer-evidence/" + name, read_owned(inputs, name))
     for row in record["rust"]["link_maps"].values():

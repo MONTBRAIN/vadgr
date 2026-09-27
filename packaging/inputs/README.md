@@ -152,6 +152,48 @@ not third-party grant scope or approval. Old observations without these records
 remain incomplete; local probes cannot retroactively alter their trusted identity.
 The Pillow catalogue's optional entries still need source/build scope matching;
 a supported feature alone is not a complete transitive native-library inventory.
+`pillow-native-scope.json` now matches each catalogue extension to installed
+module bytes and records its native feature result separately. Unloaded modules
+remain shipped. Unsupported features do not prove transitive-library absence.
+Version differences remain explicit. Rust's `library_scope` records each exact
+target library and the executables whose public-symbol maps reference it.
+Libraries without those references are not declared build-only.
+
+Unsigned WiX membership can be captured separately after the existing
+`scripts/candidate/package-windows.ps1` MSI and bundle steps have produced both
+containers and their `wix-vendor-*.json` reports. This does not require product
+signatures. Do not construct approval records merely to obtain an extraction.
+Keep the package output, complete WiX 7.0.0 tool directory and preparation
+observation unchanged. Independently record the tool-directory hash before
+capture. It is SHA-256 of the canonical JSON map from every relative file path
+to its `size` and `sha256`, with no excluded tool files. For example:
+
+```powershell
+python -B -c "from pathlib import Path; from scripts.windows_wix_evidence import tree,file_record,canonical_json,sha256_bytes; print(sha256_bytes(canonical_json({p:file_record(b) for p,b in tree(Path('C:/review/wix-tool')).items()})))"
+python -B scripts/windows_wix_evidence.py capture --architecture x64 --observation C:/review/observations/x64 --package-root C:/review/package-x64 --tool-root C:/review/wix-tool --tool-sha256 <independently-recorded-tool-digest> --root C:/review/wix-x64
+python -B scripts/windows_wix_evidence.py validate --architecture x64 --observation C:/review/observations/x64 --expected-sha256 <retained-capture-digest> --root C:/review/wix-x64
+```
+
+The new capture directory must be outside all input directories. Capture runs
+only the hash-pinned WiX extractor, with no signing credentials. It never
+installs or executes the product. It retains decompiled MSI tables, every
+extracted MSI/Burn member, the detached engine, command logs and all file hashes.
+Manifest membership, exact observed payload hashes, architecture, vendor member
+identities and the one embedded MSI must all match. Unknown native members,
+missing files, extra files, aliases and changed inputs fail closed. The capture
+record remains unapproved and nonpublishable.
+
+Repeat for `arm64`. Retain the complete capture directories and their
+independently recorded `wix-membership.json` digests. Add
+`--wix-evidence C:/review/wix-x64 --wix-evidence-sha256 <retained-capture-digest>`
+to the corresponding synthesis command above. Synthesis retains the producer
+record and adds `wix-runtime-membership.json` without changing source duties,
+license findings or approval fields. Offline validation reruns all membership
+checks as data and never invokes the extractor. The record binds extraction to
+the package and preparation bytes; it is not independent build attestation,
+reproducible-build proof or a conclusion about WiX modifications or source
+completeness. Old observations and synthetic test containers cannot qualify
+a new candidate.
 
 Each `review-ledger.json` names exact component questions. `cargo-scope.json`
 separates normal target dependencies from development, build and proc-macro

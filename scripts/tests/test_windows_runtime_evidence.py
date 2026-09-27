@@ -118,6 +118,10 @@ def test_rust_binding_requires_exact_distribution_and_actual_library_symbols(obs
         data = b"synthetic Rust build input"
         info.size = len(data)
         archive.addfile(info, io.BytesIO(data))
+        unused = tarfile.TarInfo(member.replace("libstd-fixture.rlib", "libunused-fixture.rlib"))
+        unused.size = 4
+        archive.addfile(unused, io.BytesIO(b"data"))
+        record["rust"]["members"]["libunused-fixture.rlib"] = runtime.file_record(b"data")
     raw = output.getvalue()
     put("fixture.tar.xz", raw)
     component = {"download_location": "https://static.rust-lang.org/dist/fixture.tar.xz", "sha256": runtime.sha256_bytes(raw)}
@@ -141,3 +145,66 @@ def test_rust_binding_requires_exact_distribution_and_actual_library_symbols(obs
         assert binding["candidate_approval"] is False
         assert len(binding["linked"]) == 3
         assert all(list(row["libraries"]) == ["libstd-fixture.rlib"] for row in binding["linked"].values())
+        assert binding["library_scope"]["libstd-fixture.rlib"]["classification"] == "observed-public-symbol-reference"
+        assert binding["library_scope"]["libunused-fixture.rlib"] == {
+            "identity": runtime.file_record(b"data"), "referenced_by": [],
+            "classification": "available-build-input-not-observed-in-public-symbol-map"}
+
+
+@pytest.fixture
+def pillow_catalogue(observed):
+    _, record, put = observed
+    pillow = record["pillow"]
+    prefix = next(iter(pillow["files"])).rsplit("/", 1)[0]
+    for name in ("_imaging.pyd", "_imagingcms.cp312-win_amd64.pyd", "_imagingtk.pyd"):
+        path = prefix + "/" + name
+        pillow["files"][path] = put(path, b"synthetic module " + name.encode())
+    pillow["loaded_modules"].append({"scope": "observed-input", "path": prefix + "/_imaging.pyd",
+                                   **pillow["files"][prefix + "/_imaging.pyd"]})
+    pillow["probe"]["groups"]["modules"]["littlecms2"] = {"supported": True, "version": "2.19"}
+    pillow["probe"]["groups"]["features"]["raqm"] = {"supported": False, "version": None}
+    catalogue = {"metadata": {"component": {"name": "pillow", "version": "12.3.0"}}, "components": [
+        {"bom-ref": "PIL._imaging", "name": "PIL._imaging"},
+        {"bom-ref": "PIL._imagingcms", "name": "PIL._imagingcms"},
+        {"bom-ref": "PIL._imagingtk", "name": "PIL._imagingtk"},
+        {"bom-ref": "PIL._missing", "name": "PIL._missing"},
+        {"bom-ref": "pkg:generic/littlecms2", "name": "LittleCMS2", "version": "2.19.1"},
+        {"bom-ref": "pkg:pypi/pillow@12.3.0#thirdparty/raqm", "name": "raqm", "version": "0.10.5"},
+        {"bom-ref": "pkg:generic/pybind11", "name": "pybind11", "version": "3.0.1"}]}
+    return record, catalogue
+
+
+def test_pillow_scope_preserves_unloaded_modules_unsupported_features_and_version_differences(pillow_catalogue):
+    record, catalogue = pillow_catalogue
+    result = runtime.pillow_scope(record, catalogue)
+    rows = {row["name"]: row for row in result["components"]}
+    assert rows["PIL._imaging"]["loaded_by_probe"] is True
+    for name in ("PIL._imagingcms", "PIL._imagingtk"):
+        assert rows[name]["classification"] == "observed-installed-native-module"
+        assert rows[name]["loaded_by_probe"] is False
+    assert rows["PIL._missing"]["classification"] == "catalogue-module-not-observed"
+    assert rows["LittleCMS2"]["native_feature"] == {"supported": True, "version": "2.19"}
+    assert rows["LittleCMS2"]["version_matches_declaration"] is False
+    assert rows["raqm"]["classification"] == "native-feature-not-supported"
+    assert rows["pybind11"]["classification"] == "catalogue-entry-needs-build-scope"
+    assert result["candidate_approval"] is False and result["publishable"] is False
+    assert len(result["native_members"]) == 3
+    catalogue["components"].reverse()
+    assert runtime.pillow_scope(record, catalogue) == result
+
+
+@pytest.mark.parametrize("defect", ["version", "duplicate", "ambiguous-module", "empty", "reference"])
+def test_pillow_scope_rejects_ambiguous_catalogues(pillow_catalogue, defect):
+    record, catalogue = pillow_catalogue
+    if defect == "version":
+        catalogue["metadata"]["component"]["version"] = "12.2.0"
+    elif defect == "duplicate":
+        catalogue["components"].append(catalogue["components"][0])
+    elif defect == "ambiguous-module":
+        record["pillow"]["files"]["other/PIL/_imaging.pyd"] = runtime.file_record(b"another")
+    elif defect == "empty":
+        catalogue["components"] = []
+    else:
+        catalogue["components"][0]["bom-ref"] = ""
+    with pytest.raises(PackageInputError):
+        runtime.pillow_scope(record, catalogue)

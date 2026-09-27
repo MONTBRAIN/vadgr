@@ -22,6 +22,7 @@ import tomllib
 import zipfile
 
 if __package__:
+    from scripts.windows_wix_evidence import retain_in_packet as retain_wix_evidence
     from scripts.windows_runtime_evidence import retain_in_packet as retain_runtime_evidence
     from scripts.windows_crypto_producer import retain_in_packet as retain_upstream_crypto
     from scripts.inspect_legal_crate_sources import statements as original_statements
@@ -33,6 +34,7 @@ if __package__:
         sha256_bytes, aggregate_files, validate_conclusion, PackageInputError, extracted_license_info,
     )
 else:
+    from windows_wix_evidence import retain_in_packet as retain_wix_evidence
     from windows_runtime_evidence import retain_in_packet as retain_runtime_evidence
     from windows_crypto_producer import retain_in_packet as retain_upstream_crypto
     from inspect_legal_crate_sources import statements as original_statements
@@ -1268,7 +1270,9 @@ def add_crate_evidence(packet, cache, archive_root, architecture, inputs):
         "wheel_source_archives": workspace}))
 
 
-def synthesize(source, observation_root, architecture, created, archive_root, crate_cache, observation_binding):
+def synthesize(source, observation_root, architecture, created, archive_root, crate_cache, observation_binding,
+               wix_evidence=None, wix_evidence_sha256=None):
+    require((wix_evidence is None) == (wix_evidence_sha256 is None), "WiX evidence needs its independent digest")
     require(set(observation_binding) == {"schema", "status", "candidate_approval", "publishable", "source_sha",
             "trusted_sha", "run_id", "observations"} and observation_binding["schema"] == 1
             and observation_binding["candidate_approval"] is False and observation_binding["publishable"] is False,
@@ -1300,6 +1304,8 @@ def synthesize(source, observation_root, architecture, created, archive_root, cr
     map_custom_native_sources(packet, source, inputs, architecture)
     retain_upstream_crypto(packet, archive_root, architecture)
     retain_runtime_evidence(packet, inputs, architecture, archive_root)
+    if wix_evidence is not None:
+        retain_wix_evidence(packet, wix_evidence, observation_root, architecture, wix_evidence_sha256)
     components = sorted(packet.components, key=lambda row: row["id"])
     inventory = {"schema": 1, "created": created, "version": "0.5.0", "target": observation["target"],
                  "terms_version": "1.0", "terms_sha256": sha256_bytes(terms), "source_inputs": bindings,
@@ -1390,12 +1396,15 @@ def main():
     parser.add_argument("--observation-bindings", type=Path, default=Path("packaging/inputs/windows-observation-bindings.json"))
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--verify", action="store_true")
+    parser.add_argument("--wix-evidence", type=Path)
+    parser.add_argument("--wix-evidence-sha256")
     args = parser.parse_args()
     try:
         require(re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", args.created), "invalid creation time")
         files = synthesize(args.source_root.resolve(), args.observation.resolve(), args.architecture, args.created,
                            args.source_archives.resolve(), args.crate_cache.resolve(),
-                           document(args.observation_bindings.absolute().parent, args.observation_bindings.name))
+                           document(args.observation_bindings.absolute().parent, args.observation_bindings.name),
+                           args.wix_evidence.resolve() if args.wix_evidence else None, args.wix_evidence_sha256)
         emit(files, args.output.absolute(), args.verify)
         print(f"Draft legal packet: {len(files)} exact files; approval remains blocked.")
         return 0
