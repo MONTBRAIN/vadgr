@@ -18,8 +18,12 @@ import zlib
 
 if __package__:
     from scripts.reviewed_certificate_evidence import REVIEWED as REVIEWED_CERTIFICATES, inspect_certificate
+    from scripts.reviewed_fuzz_evidence import inspect_fuzz
+    from scripts.reviewed_cms_evidence import inspect_cms_fixtures
 else:
     from reviewed_certificate_evidence import REVIEWED as REVIEWED_CERTIFICATES, inspect_certificate
+    from reviewed_fuzz_evidence import inspect_fuzz
+    from reviewed_cms_evidence import inspect_cms_fixtures
 
 
 BOILERPLATE = {
@@ -262,15 +266,18 @@ def audit_archive(raw, expected):
                 raise ValueError("copyright archive expansion limit exceeded")
             value = archive.extractfile(member).read()
             files.append(inspect_member(member.name, value))
-            if expected == "1e6853b52649d4ac5c0bd02320cddc5ba956bdb407c4b75a2c6b75bf51500f8c":
+            if expected in {"1e6853b52649d4ac5c0bd02320cddc5ba956bdb407c4b75a2c6b75bf51500f8c",
+                            "7b77c319abfd5219629c45c34c89ba945ed3c5e49fcde9d16b6c3885f118a730"}:
                 retained[member.name] = value
-    if retained:
+    if expected == "1e6853b52649d4ac5c0bd02320cddc5ba956bdb407c4b75a2c6b75bf51500f8c":
         inspect_exact_fdeflate_fixtures(files, retained)
+    elif expected == "7b77c319abfd5219629c45c34c89ba945ed3c5e49fcde9d16b6c3885f118a730":
+        inspect_cms_fixtures(files, retained, MARKERS)
     return audit_result(files, expected)
 
 
 def inspect_exact_fdeflate_fixtures(files, retained):
-    """Retain complete fixture bytes; only a fully decoded positive case qualifies."""
+    """Decode the positive case and inspect the two exact malformed numerical records."""
     tests = {"fdeflate-0.3.7/src/decompress.rs": "26eea8e94c41422b29b50b83e8077ef8ee37e116f26fc810c15e7e7f0224bc5e",
              "fdeflate-0.3.7/src/decompress/tests/test_utils.rs": "220c8813c35240b1d0dbbb63051b3ec62838ea8f682f5389315c738d4bdff488"}
     if any(digest(retained[name]) != value for name, value in tests.items()):
@@ -298,8 +305,7 @@ def inspect_exact_fdeflate_fixtures(files, retained):
                 observed_adler32=zlib.adler32(decoded), retained_checksum_hex=raw[-4:].hex(),
                 meaning="All compressed input is consumed except the explicit four-byte checksum. The complete output is the listed numerical byte pattern, not text or an ownership statement. Its length and Adler value equal the exact upstream assertions.")
         else:
-            # A negative fixture's decoder rejection does not prove absence.
-            # Preserve its complete bytes and the source's expected error, but
-            # keep its undecoded status and the whole-archive NONE gate closed.
+            # Rejection alone proves nothing. The separate exact-byte inspector
+            # accounts for the entire bit structure and the numerical suffix.
+            row.update(inspect_fuzz(raw))
             row["documented_expected_result"] = "BadLiteralLengthHuffmanTree; the upstream test documents a missing end-of-block symbol."
-            row["remaining_review"] = "The malformed input has no complete standard decompression. Exact numerical fuzz bytes and source context are retained; no copyright absence is inferred from decoder rejection."

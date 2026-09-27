@@ -95,10 +95,21 @@ links, aliases and uninspected ZIP comments. This narrow path does not approve
 opaque crate fixtures or infer ownership from an author or certificate subject.
 Inconclusive copyright audits also retain the complete source archive and audit
 in the offline packet. The exact positive fdeflate fixture fully decodes into
-its documented numerical pattern. The two malformed negative fixtures remain
-unresolved, with complete hexadecimal bytes and exact test-source context.
-Decoder rejection does not become an absence conclusion. Encrypted CMS content
-likewise remains unresolved without sufficient plaintext or ownership evidence.
+its documented numerical pattern. The two exact malformed negative fixtures have
+complete bit-level observations of their dynamic Huffman tables and numerical
+suffixes. Both omit the end-of-block symbol. Every bit is retained and accounted
+for, without claiming successful decompression. Only those complete hash-pinned
+vectors qualify; a decoder rejection or changed suffix never inherits the result.
+Two CMS fixtures fully decode to the exact retained sample text, with the zlib
+checksum and SHA-1 sample digest independently checked. The encrypted CMS fixture
+retains typed envelope fields and its precise unresolved ciphertext range.
+Two public test keys have complete numerical-field observations. Four
+certificates and a certificate request are fully decoded, including the
+misnamed EC key fixture's text, public point and ECDSA signature. Certificate
+names are not copyright owners.
+Encrypted content remains unresolved without sufficient plaintext or ownership
+evidence. These new observations apply on regeneration; the superseded packet
+hashes above do not change or gain approval.
 Certifi's source comparison binds every observed member to the published source
 distribution. Only exact pip import/resource namespace relocations are accepted;
 both the complete upstream source and actual modified source are delivered.
