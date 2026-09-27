@@ -311,7 +311,7 @@ def test_certificate_inspection_is_public_only_and_cannot_sign():
     workflow = (ROOT / ".github/workflows/certificate-inspection.yml").read_text()
     script = (ROOT / "scripts/signing/inspect-certificate.ps1").read_text()
     runner = (ROOT / "scripts/signing/CodeSignRunner.java").read_text()
-    assert "environment: release-windows" in workflow
+    assert "environment: candidate-windows" in workflow
     assert "ES_TOTP_SECRET: ${{" not in workflow
     assert "CodeSignRunner inspect" in script
     assert "CodeSignRunner sign" not in script
