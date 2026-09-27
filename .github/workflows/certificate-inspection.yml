@@ -1,0 +1,34 @@
+name: Inspect public Windows signing certificate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    if: github.repository == 'MONTBRAIN/vadgr' && github.ref == 'refs/heads/master' && github.run_attempt == 1
+    environment: release-windows
+    runs-on: windows-2025
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '17.0.20+8'
+      - name: Inspect the selected public certificate chain without signing
+        shell: pwsh
+        env:
+          ES_USERNAME: ${{ secrets.ES_USERNAME }}
+          ES_PASSWORD: ${{ secrets.ES_PASSWORD }}
+        run: scripts/signing/inspect-certificate.ps1 -OutputDirectory "$env:RUNNER_TEMP/public-certificate-inspection"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: public-windows-signing-certificate
+          path: ${{ runner.temp }}/public-certificate-inspection/
+          if-no-files-found: error
+          retention-days: 30

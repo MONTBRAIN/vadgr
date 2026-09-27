@@ -236,7 +236,9 @@ try {
             $signed = $restoredName
         }
         $env:SIGNING_INPUT = $signed
-        Invoke-Wrapper 'verify-metadata'
+        $env:SIGNING_TRUST_CLASS = 'publisher-sign'
+        try { Invoke-Wrapper 'verify-metadata' }
+        finally { [Environment]::SetEnvironmentVariable('SIGNING_TRUST_CLASS', $null, 'Process') }
         $verification = & $signTool.FullName verify /pa /all /tw /v $signed 2>&1
         if ($LASTEXITCODE -ne 0) { throw 'Independent Windows verification failed. No retry permitted.' }
         if (($verification | Out-String) -notmatch 'Hash of file \(sha256\)') { throw 'The file digest algorithm is not SHA256.' }
