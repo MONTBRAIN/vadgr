@@ -284,6 +284,13 @@ def test_wrapper_preverifies_preserved_files_and_reserves_before_vendor_call():
     for evidence in ("verify /pa /all /tw /v", "TimeStamperCertificate", "chain.Build", "chain_root_sha256",
                      "verify-metadata", "certificate_sha256", "signer_policy_sha256", "legal_approval_sha256"):
         assert evidence in report
+    runner = (ROOT / "scripts/signing/CodeSignRunner.java").read_text()
+    assert 'System.setProperty("org.bouncycastle.asn1.max_cons_depth", "64")' in runner
+    assert 'trustClass.equals("publisher-sign") && signatures.size() != 1' in runner
+    assert 'trustClass.equals("vendor-preserve") && signatures.isEmpty()' in runner
+    assert "for (int index = 0; index < signatures.size(); index++)" in runner
+    assert "All SHA256 signatures and bound RFC3161 SHA256 timestamp metadata verified." in runner
+    assert "$env:SIGNING_TRUST_CLASS = $Policy.trust_class" in report
     assert "Invoke-Wrapper 'sign'" not in report
 
 
@@ -291,9 +298,24 @@ def test_powershell_files_parse_without_executing(tmp_path):
     executable = shutil.which("pwsh") or shutil.which("powershell")
     if executable is None:
         pytest.skip("PowerShell parser is unavailable on this runner")
-    for name in ("signing/release.ps1", "signing/verify-policy.ps1", "candidate/reseal-cua.ps1", "candidate/hold-windows.ps1"):
+    for name in ("signing/release.ps1", "signing/verify-policy.ps1", "signing/inspect-certificate.ps1",
+                 "candidate/reseal-cua.ps1", "candidate/hold-windows.ps1"):
         path = ROOT / "scripts" / name
         script = "$t=$null;$e=$null;[Management.Automation.Language.Parser]::ParseFile('" + str(path).replace("'", "''") + "',[ref]$t,[ref]$e)|Out-Null;if($e.Count){$e;exit 1}"
         result = subprocess.run([executable, "-NoProfile", "-NonInteractive", "-Command", script],
                                 capture_output=True, text=True, timeout=30)
         assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_certificate_inspection_is_public_only_and_cannot_sign():
+    workflow = (ROOT / ".github/workflows/certificate-inspection.yml").read_text()
+    script = (ROOT / "scripts/signing/inspect-certificate.ps1").read_text()
+    runner = (ROOT / "scripts/signing/CodeSignRunner.java").read_text()
+    assert "environment: release-windows" in workflow
+    assert "ES_TOTP_SECRET: ${{" not in workflow
+    assert "CodeSignRunner inspect" in script
+    assert "CodeSignRunner sign" not in script
+    assert "Certificate inspection must not receive a signing secret." in script
+    assert "Signatures requested: 0." in script
+    assert 'Files.write(certificateOutput.resolve("chain-" + index + ".der")' in runner
+    assert "public-windows-signing-certificate" in workflow
