@@ -6,11 +6,9 @@ from pathlib import Path
 
 import pytest
 
-from scripts import cua_profiles as profiles
 from scripts import cua_release_inputs as release
 from scripts import validate_native_wheels as producer
 from scripts.validate_package_inputs import PackageInputError, sha256_bytes
-
 
 ROOT = Path(__file__).resolve().parents[2]
 SHA = "4624073d81f44bf8ae88ca4fbe482d7f138095f1"
@@ -72,14 +70,14 @@ def test_reviewed_bundle_preserves_the_attested_manifest_subject():
         "https://github.com/MONTBRAIN/vadgr/actions/runs/35957405519/attempts/1")
 
 
-def test_windows_x64_profile_selects_complete_released_runtime_without_custom_wheels():
+def test_windows_x64_lock_selects_complete_released_runtime_without_custom_wheels():
     target = "x86_64-pc-windows-msvc"
     binding = release.reviewed_inputs(ROOT, ROOT, target)
-    assert binding["requirements_sha256"] == "e63d09b556a17aed7899f88eb5f3c3245e47f6eda94ed54c4dfb8c8e7db96156"
-    selected = release.selected_lock((ROOT / profiles.lock_path("windows-x86_64")).read_bytes())
+    assert binding["requirements_sha256"] == "83bdf9d395ea701f032e30cba1537483ebfefe8cdac03f30b9eccdccb4e98292"
+    selected = release.selected_lock((ROOT / release.lock_path(target)).read_bytes())
     assert len(selected) == 40
     assert selected["vadgr-computer-use"] == (
-        "0.7.9", "cdfbd45fd528cd3738cc2635e848b3aac3448f51820abcb20c84b33e056282c5")
+        "0.7.8", "1c905c200d0e2190bb3512ecf0c58f1b683900ad15288cef00c14a732fb10535")
     assert selected["uniseg"][0] == "0.10.1"
     assert {"pywin32", "pywinauto", "comtypes"} <= selected.keys()
     assert not {"dbus-fast", "jeepney", "python-xlib", "pyobjc-core", "bcrypt", "pytest"} & selected.keys()
@@ -98,8 +96,8 @@ def test_feature_cannot_change_any_reviewed_input(tmp_path, target, changed):
         for name in (release.MANIFEST, release.BUNDLE, lock):
             path = root / name
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes((f"cryptography==50.0.1 --hash=sha256:{digest}\n".encode()
-                              if name == lock else (ROOT / name).read_bytes()))
+            path.write_bytes(f"cryptography==50.0.1 --hash=sha256:{digest}\n".encode()
+                              if name == lock else (ROOT / name).read_bytes())
     assert release.reviewed_inputs(source, trusted, target)["wheel_manifest_sha256"] == MANIFEST_SHA
     path = source / (lock if changed == "lock" else changed)
     path.write_bytes(path.read_bytes() + b" ")
@@ -108,14 +106,14 @@ def test_feature_cannot_change_any_reviewed_input(tmp_path, target, changed):
 
 
 @pytest.mark.parametrize("target", release.CUSTOM_TARGETS)
-def test_profile_targets_select_exact_reviewed_locks(target):
-    profile = profiles.native_profile(target)
-    lock = ROOT / profiles.lock_path(profile)
+def test_promoted_native_targets_use_exact_selected_locks(target):
+    lock = ROOT / release.lock_path(target)
     assert lock.is_file()
+    selected = release.selected_lock(lock.read_bytes())
+    expected = OUTPUTS[release.CUSTOM_TARGETS[target]][3]
+    assert selected["cryptography"] == ("50.0.1", expected)
     binding = release.reviewed_inputs(ROOT, ROOT, target)
     assert binding["requirements_sha256"] == sha256_bytes(lock.read_bytes())
-    selected = release.selected_lock(lock.read_bytes())
-    assert selected["vadgr-computer-use"][0] == "0.7.9"
 
 
 @pytest.mark.parametrize("field,value", [
