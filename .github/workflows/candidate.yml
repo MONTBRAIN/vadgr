@@ -128,7 +128,7 @@ jobs:
           GH_TOKEN: ''
           GITHUB_TOKEN: ''
         run: |
-          scripts/candidate/build-windows.ps1 -Architecture $env:ARCHITECTURE -SourceDirectory source -OutputDirectory unsigned -WheelhouseDirectory "$env:RUNNER_TEMP/vadgr-wheelhouse"
+          scripts/candidate/build-windows.ps1 -Architecture $env:ARCHITECTURE -SourceDirectory source -SourceTestDirectory source_checkout -OutputDirectory unsigned -WheelhouseDirectory "$env:RUNNER_TEMP/vadgr-wheelhouse" -SourceRecord preflight.json
           $target = if ($env:ARCHITECTURE -eq 'x64') { 'windows-x86_64' } else { 'windows-aarch64' }
           python scripts/distribution_matrix.py binary --target $target --file unsigned/payload/vadgr.exe --file unsigned/payload/vadgr-app.exe --file unsigned/ba-functions.dll
           if ($LASTEXITCODE -ne 0) { throw 'Native Windows executable validation failed.' }
@@ -1094,7 +1094,7 @@ jobs:
           GITHUB_TOKEN: ''
         shell: pwsh
         run: |
-          scripts/candidate/build-windows.ps1 -Architecture '${{ matrix.package_arch }}' -SourceDirectory source -OutputDirectory unsigned -WheelhouseDirectory "$env:RUNNER_TEMP/vadgr-wheelhouse"
+          scripts/candidate/build-windows.ps1 -Architecture '${{ matrix.package_arch }}' -SourceDirectory source -SourceTestDirectory source_checkout -OutputDirectory unsigned -WheelhouseDirectory "$env:RUNNER_TEMP/vadgr-wheelhouse" -SourceRecord preflight.json
           python scripts/distribution_matrix.py binary --target '${{ matrix.target }}' --file unsigned/payload/vadgr.exe --file unsigned/payload/vadgr-app.exe --file unsigned/ba-functions.dll
           if ($LASTEXITCODE -ne 0) { throw 'Native Windows executable validation failed.' }
           python scripts/distribution_matrix.py payload --target '${{ matrix.target }}' --root unsigned/payload --pins source/packaging/cua/pins.toml
