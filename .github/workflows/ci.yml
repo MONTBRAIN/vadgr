@@ -365,7 +365,6 @@ jobs:
   # an artifact no user was ever given while the installer shipped a different
   # one. Every leg now drives the one binary a user actually gets.
   clean-install:
-    name: Payload assembly or missing-input refusal (${{ matrix.os }})
     needs: release-layout
     permissions:
       contents: read
@@ -425,12 +424,12 @@ jobs:
             --out "$RUNNER_TEMP/vadgr-clean-wheelhouse" --github-env "$GITHUB_ENV" \
             --github-output "$GITHUB_OUTPUT"
 
-      - name: Record the missing target closure without an install claim
+      - name: Record unavailable payload assembly without an install claim
         if: steps.payload-inputs.outputs.mode == 'unpromoted'
         shell: bash
         run: |
-          echo 'Missing reviewed target closure: refusal verified; clean installation NOT RUN.'
-          echo 'Clean installation: **not run**. Reviewed target wheels are still owed.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Reviewed payload assembly is unavailable for this source; clean installation NOT RUN.'
+          echo 'Clean installation: **not run**. This source needs the reviewed payload implementation and complete target inputs.' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Build the release binaries
         if: steps.payload-inputs.outputs.mode != 'unpromoted' && (runner.os == 'Linux' || (runner.os == 'macOS' && needs.release-layout.outputs.layout == 'legacy'))

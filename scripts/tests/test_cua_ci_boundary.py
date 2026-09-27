@@ -15,6 +15,8 @@ def inputs(tmp_path):
     source = tmp_path / "source"
     trusted = tmp_path / "trusted"
     for root in (source, trusted):
+        root.mkdir()
+        (root / "Cargo.toml").write_text('[package]\nname = "vadgr-daemon"\nversion = "0.5.0"\n')
         path = root / "packaging/cua"
         path.mkdir(parents=True)
         (path / "native-wheel-manifest.json").write_bytes(b"exact manifest")
@@ -58,6 +60,7 @@ def test_present_target_lock_errors_remain_fatal(tmp_path, which):
 
 
 def test_verified_preparation_preserves_release_environment(tmp_path):
+    (tmp_path / "Cargo.toml").write_text('[package]\nname = "vadgr-daemon"\nversion = "0.5.0"\n')
     values = {"VADGR_RELEASE_PAYLOAD_BUILD": "1", "VADGR_BUILD_WHEELHOUSE": "exact"}
     with patch.object(boundary.prepare, "prepare", return_value=values):
         assert boundary.check(tmp_path, tmp_path, TARGET, tmp_path / "wheels") == ("reviewed", values)
@@ -98,3 +101,42 @@ def test_actual_unpromoted_checkout_refuses_before_materialization(tmp_path):
         pytest.skip("This target now has reviewed inputs")
     assert boundary.check(root, root, TARGET, tmp_path / "wheels") == ("unpromoted", {})
     assert not (tmp_path / "wheels").exists()
+
+
+@pytest.mark.parametrize("target", sorted(boundary.release.TARGETS))
+def test_legacy_source_does_not_assemble_promoted_profiles(tmp_path, target):
+    source, trusted = inputs(tmp_path)
+    (source / "Cargo.toml").write_text('[package]\nname = "vadgr-daemon"\nversion = "0.4.12"\n')
+    for root in (source, trusted):
+        (root / boundary.profiles.INPUTS).write_bytes(b"promoted profile data")
+        lock = root / boundary.profiles.lock_path(boundary.profiles.native_profile(target))
+        lock.parent.mkdir(parents=True)
+        lock.write_bytes(b"present selected profile lock")
+    with patch.object(boundary.prepare, "prepare") as prepare:
+        assert boundary.check(source, trusted, target, tmp_path / "wheels") == ("unpromoted", {})
+        prepare.assert_not_called()
+    assert not (tmp_path / "wheels").exists()
+
+
+@pytest.mark.parametrize("metadata", [
+    '[package]\nname = "another-product"\nversion = "0.4.12"\n',
+    '[package]\nname = "vadgr-daemon"\nversion = "0.4.13"\n',
+    '[package]\nname = "vadgr-daemon"\nversion = "0.5.1"\n',
+    '[package]\nname = "vadgr-daemon"\n',
+])
+def test_unknown_source_cannot_select_unpromoted_or_development(tmp_path, metadata):
+    source, trusted = inputs(tmp_path)
+    (source / "Cargo.toml").write_text(metadata)
+    with patch.object(boundary.prepare, "prepare") as prepare:
+        with pytest.raises(PackageInputError, match="reviewed CI layout"):
+            boundary.check(source, trusted, TARGET, tmp_path / "wheels")
+        prepare.assert_not_called()
+
+
+@pytest.mark.parametrize("name", ["VADGR_RELEASE_PROFILE", "VADGR_RELEASE_PAYLOAD_BUILD", "VADGR_BUILD_WHEELHOUSE"])
+def test_legacy_source_rejects_inherited_release_selection(tmp_path, monkeypatch, name):
+    source, trusted = inputs(tmp_path)
+    (source / "Cargo.toml").write_text('[package]\nname = "vadgr-daemon"\nversion = "0.4.12"\n')
+    monkeypatch.setenv(name, "unexpected")
+    with pytest.raises(PackageInputError, match="inherited"):
+        boundary.check(source, trusted, TARGET, tmp_path / "wheels")

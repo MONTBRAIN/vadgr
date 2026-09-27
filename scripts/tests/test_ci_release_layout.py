@@ -131,11 +131,12 @@ def test_clean_install_selects_one_build_and_one_matching_assembly(layout, runne
 
 
 @pytest.mark.parametrize("runner,image", [("Linux", "ubuntu-24.04"), ("macOS", "macos-latest"),
-                                          ("macOS", "macos-15")])
-def test_unpromoted_targets_only_record_refusal_not_a_clean_install(runner, image):
-    selected = selected_steps("clean-install", "distribution", runner, image, "unpromoted")
-    assert "Record the missing target closure without an install claim" in selected
-    assert not any(name.startswith(("Build ", "Assemble ", "Install it alone", "What it links"))
+                                          ("macOS", "macos-15"), ("Windows", "windows-latest")])
+@pytest.mark.parametrize("layout", ["legacy", "distribution"])
+def test_unpromoted_targets_only_record_unavailability_not_a_clean_install(runner, image, layout):
+    selected = selected_steps("clean-install", layout, runner, image, "unpromoted")
+    assert "Record unavailable payload assembly without an install claim" in selected
+    assert not any(name.startswith(("Build ", "Assemble ", "Verify assembled", "Install it alone", "What it links", "What it imports"))
                    for name in selected)
 
 
@@ -151,6 +152,33 @@ def test_layout_failure_fails_required_jobs_instead_of_skipping_them():
     assert "os: [ubuntu-latest, windows-latest, macos-latest]" in job("rust")
     assert "os: [ubuntu-latest, windows-latest, macos-latest]" in job("installer")
     assert "os: [ubuntu-24.04, windows-latest, macos-latest, macos-15]" in job("clean-install")
+
+
+def test_clean_install_retains_the_required_check_identity():
+    # Branch rules and trusted source admission bind these existing check names.
+    assert not re.search(r"(?m)^    name:", job("clean-install"))
+
+
+@pytest.mark.parametrize("protected", [False, True])
+def test_trusted_workflow_bytes_survive_windows_autocrlf(tmp_path, protected):
+    def git(*arguments):
+        return subprocess.run(["git", *arguments], cwd=tmp_path, capture_output=True, check=True).stdout
+
+    git("init")
+    git("config", "core.autocrlf", "true")
+    directory = tmp_path / ".github/workflows"
+    directory.mkdir(parents=True)
+    attributes = (ROOT / ".github/workflows/.gitattributes").read_bytes() if protected else b""
+    (directory / ".gitattributes").write_bytes(attributes)
+    for name in ("ci.yml", "secret-scan.yml"):
+        path = directory / name
+        path.write_bytes(b"name: synthetic\non: push\n")
+        relative = path.relative_to(tmp_path).as_posix()
+        git("add", relative)
+        path.unlink()
+        git("checkout-index", "--force", "--", relative)
+        assert (path.read_bytes() == git("show", ":" + relative)) is protected
+        assert (b"\r\n" not in path.read_bytes()) is protected
 
 
 @pytest.mark.parametrize("job_name", ["installer", "wsl-clean-install", "clean-install"])
