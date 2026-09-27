@@ -1,5 +1,5 @@
 {
-  "component_sha256": "a5a5589d52c1af0b00ba3393dc38b65279e1b2c5ef7f9ef63b3ae58ce22b01c6",
+  "component_sha256": "1181d3c246f27be9245a868bcc36fa6f094bebca54fee460f7a4fad2d50432bc",
   "original_statement_files": [
     {
       "path": "computer_use/bridge/deployer.py",
@@ -33,7 +33,7 @@
     },
     {
       "path": "computer_use/browser/adoption.py",
-      "sha256": "a55179fab34bd1bbb8a2c54c7507e7fc8d2a85db480db3f9351041268c54fa4a",
+      "sha256": "5ecca7330af9db8b5b9e57e90a44a866b9470ad5093b25a5b89bee46cb71dbc3",
       "statements": [
         {
           "line": 1,
@@ -73,7 +73,7 @@
     },
     {
       "path": "computer_use/browser/managed_authorization.py",
-      "sha256": "14c1d04c090417f4a7876214985c14630b62ea7647f2c3c30d58fb3ef519ba07",
+      "sha256": "bb5c67649d2c5d746e57c4e41112c72f2ce6e8a31afc90b6a6ed7616d8cc8e24",
       "statements": [
         {
           "line": 1,
@@ -142,6 +142,16 @@
       ]
     },
     {
+      "path": "computer_use/browser/signed_transitions.py",
+      "sha256": "2023fe36483391ffaa23f6ec328976e3ca6b195decf7b38bdcf414ecad50ad9c",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Montano Diaz"
+        }
+      ]
+    },
+    {
       "path": "computer_use/browser/standalone_adoption.py",
       "sha256": "010493f8ad8f9d4821c8e988dfa79b95aaf2116b4a551f12e3dd87455bbbd6a1",
       "statements": [
@@ -193,7 +203,7 @@
     },
     {
       "path": "computer_use/browser/windows_broker_entry.py",
-      "sha256": "44efd7e8889d2ad8fd330741504fef3df11901671245afc6bccbbea0acb5f0e1",
+      "sha256": "9b09167ccf032c99d3627957cba3ed60ef6f9470fe8e24c6bac9eb62f6b8d55c",
       "statements": [
         {
           "line": 1,
@@ -203,7 +213,7 @@
     },
     {
       "path": "computer_use/browser/windows_process.py",
-      "sha256": "410c5c76a5d297f5733a12035861475ea6cee8e4917e3e3f33b82e60dd2a250f",
+      "sha256": "2e2086a52dc2d8e68c7349bec665ac07286c24ce132d87a19c65fa80f9be6d84",
       "statements": [
         {
           "line": 1,

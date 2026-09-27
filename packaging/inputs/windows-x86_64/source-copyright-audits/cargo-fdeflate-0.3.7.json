@@ -1,6 +1,6 @@
 {
   "archive_sha256": "1e6853b52649d4ac5c0bd02320cddc5ba956bdb407c4b75a2c6b75bf51500f8c",
-  "eligible_for_reviewed_NONE": false,
+  "eligible_for_reviewed_NONE": true,
   "files": [
     {
       "path": "fdeflate-0.3.7/.cargo_vcs_info.json",
@@ -108,30 +108,6432 @@
       "status": "complete-reviewed-binary-record-no-ownership-statement"
     },
     {
+      "code_length_alphabet": [
+        2,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        4,
+        0,
+        0,
+        2,
+        4
+      ],
+      "code_length_instructions": [
+        {
+          "bit_offset": 87,
+          "count": 1,
+          "end_bit_exclusive": 90,
+          "first_index": 0,
+          "length": 1,
+          "symbol": 1
+        },
+        {
+          "bit_offset": 90,
+          "count": 1,
+          "end_bit_exclusive": 92,
+          "first_index": 1,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 92,
+          "count": 1,
+          "end_bit_exclusive": 94,
+          "first_index": 2,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 94,
+          "count": 1,
+          "end_bit_exclusive": 96,
+          "first_index": 3,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 96,
+          "count": 3,
+          "end_bit_exclusive": 101,
+          "first_index": 4,
+          "length": 0,
+          "symbol": 17
+        },
+        {
+          "bit_offset": 101,
+          "count": 1,
+          "end_bit_exclusive": 103,
+          "first_index": 7,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 103,
+          "count": 1,
+          "end_bit_exclusive": 105,
+          "first_index": 8,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 105,
+          "count": 1,
+          "end_bit_exclusive": 107,
+          "first_index": 9,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 107,
+          "count": 1,
+          "end_bit_exclusive": 109,
+          "first_index": 10,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 109,
+          "count": 1,
+          "end_bit_exclusive": 111,
+          "first_index": 11,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 111,
+          "count": 1,
+          "end_bit_exclusive": 113,
+          "first_index": 12,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 113,
+          "count": 1,
+          "end_bit_exclusive": 115,
+          "first_index": 13,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 115,
+          "count": 1,
+          "end_bit_exclusive": 117,
+          "first_index": 14,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 117,
+          "count": 1,
+          "end_bit_exclusive": 119,
+          "first_index": 15,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 119,
+          "count": 1,
+          "end_bit_exclusive": 121,
+          "first_index": 16,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 121,
+          "count": 6,
+          "end_bit_exclusive": 126,
+          "first_index": 17,
+          "length": 0,
+          "symbol": 17
+        },
+        {
+          "bit_offset": 126,
+          "count": 1,
+          "end_bit_exclusive": 128,
+          "first_index": 23,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 128,
+          "count": 1,
+          "end_bit_exclusive": 130,
+          "first_index": 24,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 130,
+          "count": 1,
+          "end_bit_exclusive": 132,
+          "first_index": 25,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 132,
+          "count": 1,
+          "end_bit_exclusive": 134,
+          "first_index": 26,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 134,
+          "count": 1,
+          "end_bit_exclusive": 136,
+          "first_index": 27,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 136,
+          "count": 50,
+          "end_bit_exclusive": 147,
+          "first_index": 28,
+          "length": 0,
+          "symbol": 18
+        },
+        {
+          "bit_offset": 147,
+          "count": 25,
+          "end_bit_exclusive": 158,
+          "first_index": 78,
+          "length": 0,
+          "symbol": 18
+        },
+        {
+          "bit_offset": 158,
+          "count": 1,
+          "end_bit_exclusive": 160,
+          "first_index": 103,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 160,
+          "count": 138,
+          "end_bit_exclusive": 171,
+          "first_index": 104,
+          "length": 0,
+          "symbol": 18
+        },
+        {
+          "bit_offset": 171,
+          "count": 11,
+          "end_bit_exclusive": 182,
+          "first_index": 242,
+          "length": 0,
+          "symbol": 18
+        },
+        {
+          "bit_offset": 182,
+          "count": 1,
+          "end_bit_exclusive": 184,
+          "first_index": 253,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 184,
+          "count": 1,
+          "end_bit_exclusive": 186,
+          "first_index": 254,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 186,
+          "count": 1,
+          "end_bit_exclusive": 188,
+          "first_index": 255,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 188,
+          "count": 1,
+          "end_bit_exclusive": 190,
+          "first_index": 256,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 190,
+          "count": 1,
+          "end_bit_exclusive": 192,
+          "first_index": 257,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 192,
+          "count": 1,
+          "end_bit_exclusive": 194,
+          "first_index": 258,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 194,
+          "count": 1,
+          "end_bit_exclusive": 196,
+          "first_index": 259,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 196,
+          "count": 1,
+          "end_bit_exclusive": 198,
+          "first_index": 260,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 198,
+          "count": 1,
+          "end_bit_exclusive": 200,
+          "first_index": 261,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 200,
+          "count": 3,
+          "end_bit_exclusive": 205,
+          "first_index": 262,
+          "length": 0,
+          "symbol": 17
+        },
+        {
+          "bit_offset": 205,
+          "count": 1,
+          "end_bit_exclusive": 207,
+          "first_index": 265,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 207,
+          "count": 5,
+          "end_bit_exclusive": 212,
+          "first_index": 266,
+          "length": 0,
+          "symbol": 17
+        },
+        {
+          "bit_offset": 212,
+          "count": 1,
+          "end_bit_exclusive": 214,
+          "first_index": 271,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 214,
+          "count": 1,
+          "end_bit_exclusive": 216,
+          "first_index": 272,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 216,
+          "count": 1,
+          "end_bit_exclusive": 218,
+          "first_index": 273,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 218,
+          "count": 1,
+          "end_bit_exclusive": 220,
+          "first_index": 274,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 220,
+          "count": 1,
+          "end_bit_exclusive": 222,
+          "first_index": 275,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 222,
+          "count": 1,
+          "end_bit_exclusive": 224,
+          "first_index": 276,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 224,
+          "count": 1,
+          "end_bit_exclusive": 226,
+          "first_index": 277,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 226,
+          "count": 1,
+          "end_bit_exclusive": 228,
+          "first_index": 278,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 228,
+          "count": 1,
+          "end_bit_exclusive": 230,
+          "first_index": 279,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 230,
+          "count": 1,
+          "end_bit_exclusive": 232,
+          "first_index": 280,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 232,
+          "count": 1,
+          "end_bit_exclusive": 234,
+          "first_index": 281,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 234,
+          "count": 1,
+          "end_bit_exclusive": 236,
+          "first_index": 282,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 236,
+          "count": 1,
+          "end_bit_exclusive": 239,
+          "first_index": 283,
+          "length": 1,
+          "symbol": 1
+        },
+        {
+          "bit_offset": 239,
+          "count": 1,
+          "end_bit_exclusive": 241,
+          "first_index": 284,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 241,
+          "count": 1,
+          "end_bit_exclusive": 243,
+          "first_index": 285,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 243,
+          "count": 1,
+          "end_bit_exclusive": 245,
+          "first_index": 286,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 245,
+          "count": 1,
+          "end_bit_exclusive": 247,
+          "first_index": 287,
+          "length": 0,
+          "symbol": 0
+        },
+        {
+          "bit_offset": 247,
+          "count": 1,
+          "end_bit_exclusive": 249,
+          "first_index": 288,
+          "length": 13,
+          "symbol": 13
+        },
+        {
+          "bit_offset": 249,
+          "count": 6,
+          "end_bit_exclusive": 254,
+          "first_index": 289,
+          "length": 0,
+          "symbol": 17
+        }
+      ],
       "complete_input_hex": "5809ecc8210a00000010b8010100001a007f7a07ff7f0000008104000030005b020000ffffff00c2c2",
+      "distance_widths": [
+        0,
+        0,
+        13,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
       "documented_expected_result": "BadLiteralLengthHuffmanTree; the upstream test documents a missing end-of-block symbol.",
       "fixture_source_context": {
         "fdeflate-0.3.7/src/decompress.rs": "26eea8e94c41422b29b50b83e8077ef8ee37e116f26fc810c15e7e7f0224bc5e",
         "fdeflate-0.3.7/src/decompress/tests/test_utils.rs": "220c8813c35240b1d0dbbb63051b3ec62838ea8f682f5389315c738d4bdff488"
       },
+      "format": "Exact malformed dynamic-Huffman numerical regression vector",
+      "format_references": [
+        "https://www.rfc-editor.org/rfc/rfc1950#section-2.2",
+        "https://www.rfc-editor.org/rfc/rfc1951#section-3.2.7"
+      ],
+      "literal_length_widths": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "meaning": "Every bit of these exact small test vectors is inspected: zlib and dynamic-block fields, numerical code-table instructions, and the complete listed corrupt suffix. Neither table assigns an end-of-block code. The suffix is retained as numerical fuzz input, not silently discarded or described as plaintext or a validated checksum. There is no ownership statement in this complete inspected record. This exact-byte finding does not infer anything about another malformed stream, its author or its license.",
+      "missing_end_of_block_symbol": 256,
       "path": "fdeflate-0.3.7/tests/input-chunking-sensitivity-example2.zz",
-      "remaining_review": "The malformed input has no complete standard decompression. Exact numerical fuzz bytes and source context are retained; no copyright absence is inferred from decoder rejection.",
+      "reviewed_bit_ranges": [
+        {
+          "bit_offset": 0,
+          "end_bit_exclusive": 8,
+          "interpretation": "Zlib CMF: DEFLATE method 8, window-size exponent 5",
+          "transmission_bits": "00011010",
+          "value_lsb_first": 88
+        },
+        {
+          "bit_offset": 8,
+          "end_bit_exclusive": 16,
+          "interpretation": "Zlib FLG: no preset dictionary, level zero, header check bits",
+          "transmission_bits": "10010000",
+          "value_lsb_first": 9
+        },
+        {
+          "bit_offset": 16,
+          "end_bit_exclusive": 17,
+          "interpretation": "BFINAL flag",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 17,
+          "end_bit_exclusive": 19,
+          "interpretation": "BTYPE: dynamic Huffman block",
+          "transmission_bits": "01",
+          "value_lsb_first": 2
+        },
+        {
+          "bit_offset": 19,
+          "end_bit_exclusive": 24,
+          "interpretation": "HLIT minus 257",
+          "transmission_bits": "10111",
+          "value_lsb_first": 29
+        },
+        {
+          "bit_offset": 24,
+          "end_bit_exclusive": 29,
+          "interpretation": "HDIST minus 1",
+          "transmission_bits": "00010",
+          "value_lsb_first": 8
+        },
+        {
+          "bit_offset": 29,
+          "end_bit_exclusive": 33,
+          "interpretation": "HCLEN minus 4",
+          "transmission_bits": "0111",
+          "value_lsb_first": 14
+        },
+        {
+          "bit_offset": 33,
+          "end_bit_exclusive": 36,
+          "interpretation": "Huffman width for code-length alphabet symbol 16",
+          "transmission_bits": "000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 36,
+          "end_bit_exclusive": 39,
+          "interpretation": "Huffman width for code-length alphabet symbol 17",
+          "transmission_bits": "010",
+          "value_lsb_first": 2
+        },
+        {
+          "bit_offset": 39,
+          "end_bit_exclusive": 42,
+          "interpretation": "Huffman width for code-length alphabet symbol 18",
+          "transmission_bits": "001",
+          "value_lsb_first": 4
+        },
+        {
+          "bit_offset": 42,
+          "end_bit_exclusive": 45,
+          "interpretation": "Huffman width for code-length alphabet symbol 0",
+          "transmission_bits": "010",
+          "value_lsb_first": 2
+        },
+        {
+          "bit_offset": 45,
+          "end_bit_exclusive": 48,
+          "interpretation": "Huffman width for code-length alphabet symbol 8",
+          "transmission_bits": "000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 48,
+          "end_bit_exclusive": 51,
+          "interpretation": "Huffman width for code-length alphabet symbol 7",
+          "transmission_bits": "000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 51,
+          "end_bit_exclusive": 54,
+          "interpretation": "Huffman width for code-length alphabet symbol 9",
+          "transmission_bits": "000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 54,
+          "end_bit_exclusive": 57,
+          "interpretation": "Huffman width for code-length alphabet symbol 6",
+          "transmission_bits": "000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 57,
+          "end_bit_exclusive": 60,
+          "interpretation": "Huffman width for code-length alphabet symbol 10",
+          "transmission_bits": "000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 60,
+          "end_bit_exclusive": 63,
+          "interpretation": "Huffman width for code-length alphabet symbol 5",
+          "transmission_bits": "000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 63,
+          "end_bit_exclusive": 66,
+          "interpretation": "Huffman width for code-length alphabet symbol 11",
+          "transmission_bits": "000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 66,
+          "end_bit_exclusive": 69,
+          "interpretation": "Huffman width for code-length alphabet symbol 4",
+          "transmission_bits": "000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 69,
+          "end_bit_exclusive": 72,
+          "interpretation": "Huffman width for code-length alphabet symbol 12",
+          "transmission_bits": "000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 72,
+          "end_bit_exclusive": 75,
+          "interpretation": "Huffman width for code-length alphabet symbol 3",
+          "transmission_bits": "000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 75,
+          "end_bit_exclusive": 78,
+          "interpretation": "Huffman width for code-length alphabet symbol 13",
+          "transmission_bits": "010",
+          "value_lsb_first": 2
+        },
+        {
+          "bit_offset": 78,
+          "end_bit_exclusive": 81,
+          "interpretation": "Huffman width for code-length alphabet symbol 2",
+          "transmission_bits": "000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 81,
+          "end_bit_exclusive": 84,
+          "interpretation": "Huffman width for code-length alphabet symbol 14",
+          "transmission_bits": "001",
+          "value_lsb_first": 4
+        },
+        {
+          "bit_offset": 84,
+          "end_bit_exclusive": 87,
+          "interpretation": "Huffman width for code-length alphabet symbol 1",
+          "transmission_bits": "110",
+          "value_lsb_first": 3
+        },
+        {
+          "bit_offset": 87,
+          "end_bit_exclusive": 88,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 88,
+          "end_bit_exclusive": 89,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 89,
+          "end_bit_exclusive": 90,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 90,
+          "end_bit_exclusive": 91,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 91,
+          "end_bit_exclusive": 92,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 92,
+          "end_bit_exclusive": 93,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 93,
+          "end_bit_exclusive": 94,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 94,
+          "end_bit_exclusive": 95,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 95,
+          "end_bit_exclusive": 96,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 96,
+          "end_bit_exclusive": 97,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 97,
+          "end_bit_exclusive": 98,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 98,
+          "end_bit_exclusive": 101,
+          "interpretation": "Zero code length repetition count minus 3",
+          "transmission_bits": "000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 101,
+          "end_bit_exclusive": 102,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 102,
+          "end_bit_exclusive": 103,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 103,
+          "end_bit_exclusive": 104,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 104,
+          "end_bit_exclusive": 105,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 105,
+          "end_bit_exclusive": 106,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 106,
+          "end_bit_exclusive": 107,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 107,
+          "end_bit_exclusive": 108,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 108,
+          "end_bit_exclusive": 109,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 109,
+          "end_bit_exclusive": 110,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 110,
+          "end_bit_exclusive": 111,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 111,
+          "end_bit_exclusive": 112,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 112,
+          "end_bit_exclusive": 113,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 113,
+          "end_bit_exclusive": 114,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 114,
+          "end_bit_exclusive": 115,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 115,
+          "end_bit_exclusive": 116,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 116,
+          "end_bit_exclusive": 117,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 117,
+          "end_bit_exclusive": 118,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 118,
+          "end_bit_exclusive": 119,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 119,
+          "end_bit_exclusive": 120,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 120,
+          "end_bit_exclusive": 121,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 121,
+          "end_bit_exclusive": 122,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 122,
+          "end_bit_exclusive": 123,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 123,
+          "end_bit_exclusive": 126,
+          "interpretation": "Zero code length repetition count minus 3",
+          "transmission_bits": "110",
+          "value_lsb_first": 3
+        },
+        {
+          "bit_offset": 126,
+          "end_bit_exclusive": 127,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 127,
+          "end_bit_exclusive": 128,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 128,
+          "end_bit_exclusive": 129,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 129,
+          "end_bit_exclusive": 130,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 130,
+          "end_bit_exclusive": 131,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 131,
+          "end_bit_exclusive": 132,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 132,
+          "end_bit_exclusive": 133,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 133,
+          "end_bit_exclusive": 134,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 134,
+          "end_bit_exclusive": 135,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 135,
+          "end_bit_exclusive": 136,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 136,
+          "end_bit_exclusive": 137,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 137,
+          "end_bit_exclusive": 138,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 138,
+          "end_bit_exclusive": 139,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 139,
+          "end_bit_exclusive": 140,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 140,
+          "end_bit_exclusive": 147,
+          "interpretation": "Zero code length repetition count minus 11",
+          "transmission_bits": "1110010",
+          "value_lsb_first": 39
+        },
+        {
+          "bit_offset": 147,
+          "end_bit_exclusive": 148,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 148,
+          "end_bit_exclusive": 149,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 149,
+          "end_bit_exclusive": 150,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 150,
+          "end_bit_exclusive": 151,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 151,
+          "end_bit_exclusive": 158,
+          "interpretation": "Zero code length repetition count minus 11",
+          "transmission_bits": "0111000",
+          "value_lsb_first": 14
+        },
+        {
+          "bit_offset": 158,
+          "end_bit_exclusive": 159,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 159,
+          "end_bit_exclusive": 160,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 160,
+          "end_bit_exclusive": 161,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 161,
+          "end_bit_exclusive": 162,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 162,
+          "end_bit_exclusive": 163,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 163,
+          "end_bit_exclusive": 164,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 164,
+          "end_bit_exclusive": 171,
+          "interpretation": "Zero code length repetition count minus 11",
+          "transmission_bits": "1111111",
+          "value_lsb_first": 127
+        },
+        {
+          "bit_offset": 171,
+          "end_bit_exclusive": 172,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 172,
+          "end_bit_exclusive": 173,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 173,
+          "end_bit_exclusive": 174,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 174,
+          "end_bit_exclusive": 175,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 175,
+          "end_bit_exclusive": 182,
+          "interpretation": "Zero code length repetition count minus 11",
+          "transmission_bits": "0000000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 182,
+          "end_bit_exclusive": 183,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 183,
+          "end_bit_exclusive": 184,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 184,
+          "end_bit_exclusive": 185,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 185,
+          "end_bit_exclusive": 186,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 186,
+          "end_bit_exclusive": 187,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 187,
+          "end_bit_exclusive": 188,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 188,
+          "end_bit_exclusive": 189,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 189,
+          "end_bit_exclusive": 190,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 190,
+          "end_bit_exclusive": 191,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 191,
+          "end_bit_exclusive": 192,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 192,
+          "end_bit_exclusive": 193,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 193,
+          "end_bit_exclusive": 194,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 194,
+          "end_bit_exclusive": 195,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 195,
+          "end_bit_exclusive": 196,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 196,
+          "end_bit_exclusive": 197,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 197,
+          "end_bit_exclusive": 198,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 198,
+          "end_bit_exclusive": 199,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 199,
+          "end_bit_exclusive": 200,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 200,
+          "end_bit_exclusive": 201,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 201,
+          "end_bit_exclusive": 202,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 202,
+          "end_bit_exclusive": 205,
+          "interpretation": "Zero code length repetition count minus 3",
+          "transmission_bits": "000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 205,
+          "end_bit_exclusive": 206,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 206,
+          "end_bit_exclusive": 207,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 207,
+          "end_bit_exclusive": 208,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 208,
+          "end_bit_exclusive": 209,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 209,
+          "end_bit_exclusive": 212,
+          "interpretation": "Zero code length repetition count minus 3",
+          "transmission_bits": "010",
+          "value_lsb_first": 2
+        },
+        {
+          "bit_offset": 212,
+          "end_bit_exclusive": 213,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 213,
+          "end_bit_exclusive": 214,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 214,
+          "end_bit_exclusive": 215,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 215,
+          "end_bit_exclusive": 216,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 216,
+          "end_bit_exclusive": 217,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 217,
+          "end_bit_exclusive": 218,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 218,
+          "end_bit_exclusive": 219,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 219,
+          "end_bit_exclusive": 220,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 220,
+          "end_bit_exclusive": 221,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 221,
+          "end_bit_exclusive": 222,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 222,
+          "end_bit_exclusive": 223,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 223,
+          "end_bit_exclusive": 224,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 224,
+          "end_bit_exclusive": 225,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 225,
+          "end_bit_exclusive": 226,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 226,
+          "end_bit_exclusive": 227,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 227,
+          "end_bit_exclusive": 228,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 228,
+          "end_bit_exclusive": 229,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 229,
+          "end_bit_exclusive": 230,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 230,
+          "end_bit_exclusive": 231,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 231,
+          "end_bit_exclusive": 232,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 232,
+          "end_bit_exclusive": 233,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 233,
+          "end_bit_exclusive": 234,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 234,
+          "end_bit_exclusive": 235,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 235,
+          "end_bit_exclusive": 236,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 236,
+          "end_bit_exclusive": 237,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 237,
+          "end_bit_exclusive": 238,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 238,
+          "end_bit_exclusive": 239,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 239,
+          "end_bit_exclusive": 240,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 240,
+          "end_bit_exclusive": 241,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 241,
+          "end_bit_exclusive": 242,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 242,
+          "end_bit_exclusive": 243,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 243,
+          "end_bit_exclusive": 244,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 244,
+          "end_bit_exclusive": 245,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 245,
+          "end_bit_exclusive": 246,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 246,
+          "end_bit_exclusive": 247,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 247,
+          "end_bit_exclusive": 248,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 248,
+          "end_bit_exclusive": 249,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 249,
+          "end_bit_exclusive": 250,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 250,
+          "end_bit_exclusive": 251,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 251,
+          "end_bit_exclusive": 254,
+          "interpretation": "Zero code length repetition count minus 3",
+          "transmission_bits": "110",
+          "value_lsb_first": 3
+        },
+        {
+          "bit_offset": 254,
+          "end_bit_exclusive": 255,
+          "interpretation": "Exact inspected numerical fuzz suffix: 1 repeated 1 bits",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 255,
+          "end_bit_exclusive": 257,
+          "interpretation": "Exact inspected numerical fuzz suffix: 2 repeated 0 bits",
+          "transmission_bits": "00",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 257,
+          "end_bit_exclusive": 258,
+          "interpretation": "Exact inspected numerical fuzz suffix: 1 repeated 1 bits",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 258,
+          "end_bit_exclusive": 280,
+          "interpretation": "Exact inspected numerical fuzz suffix: 22 repeated 0 bits",
+          "transmission_bits": "0000000000000000000000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 280,
+          "end_bit_exclusive": 304,
+          "interpretation": "Exact inspected numerical fuzz suffix: 24 repeated 1 bits",
+          "transmission_bits": "111111111111111111111111",
+          "value_lsb_first": 16777215
+        },
+        {
+          "bit_offset": 304,
+          "end_bit_exclusive": 313,
+          "interpretation": "Exact inspected numerical fuzz suffix: 9 repeated 0 bits",
+          "transmission_bits": "000000000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 313,
+          "end_bit_exclusive": 314,
+          "interpretation": "Exact inspected numerical fuzz suffix: 1 repeated 1 bits",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 314,
+          "end_bit_exclusive": 318,
+          "interpretation": "Exact inspected numerical fuzz suffix: 4 repeated 0 bits",
+          "transmission_bits": "0000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 318,
+          "end_bit_exclusive": 320,
+          "interpretation": "Exact inspected numerical fuzz suffix: 2 repeated 1 bits",
+          "transmission_bits": "11",
+          "value_lsb_first": 3
+        },
+        {
+          "bit_offset": 320,
+          "end_bit_exclusive": 321,
+          "interpretation": "Exact inspected numerical fuzz suffix: 1 repeated 0 bits",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 321,
+          "end_bit_exclusive": 322,
+          "interpretation": "Exact inspected numerical fuzz suffix: 1 repeated 1 bits",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 322,
+          "end_bit_exclusive": 326,
+          "interpretation": "Exact inspected numerical fuzz suffix: 4 repeated 0 bits",
+          "transmission_bits": "0000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 326,
+          "end_bit_exclusive": 328,
+          "interpretation": "Exact inspected numerical fuzz suffix: 2 repeated 1 bits",
+          "transmission_bits": "11",
+          "value_lsb_first": 3
+        }
+      ],
       "sha256": "9eafada86c8d8af16b90b280e77fd4aa750fa8fb54e31623dc3aaac8097d0c2f",
       "size": 41,
-      "status": "undecoded-member-needs-review"
+      "status": "complete-reviewed-binary-record-no-ownership-statement",
+      "suffix_runs": [
+        [
+          1,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          0,
+          22
+        ],
+        [
+          1,
+          24
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "suffix_start_bit": 254,
+      "valid_compressed_document": false
     },
     {
+      "code_length_alphabet": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        4,
+        3
+      ],
+      "code_length_instructions": [
+        {
+          "bit_offset": 51,
+          "count": 1,
+          "end_bit_exclusive": 53,
+          "first_index": 0,
+          "length": 7,
+          "symbol": 7
+        },
+        {
+          "bit_offset": 53,
+          "count": 1,
+          "end_bit_exclusive": 54,
+          "first_index": 1,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 54,
+          "count": 1,
+          "end_bit_exclusive": 55,
+          "first_index": 2,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 55,
+          "count": 1,
+          "end_bit_exclusive": 56,
+          "first_index": 3,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 56,
+          "count": 3,
+          "end_bit_exclusive": 63,
+          "first_index": 4,
+          "length": 0,
+          "symbol": 17
+        },
+        {
+          "bit_offset": 63,
+          "count": 1,
+          "end_bit_exclusive": 65,
+          "first_index": 7,
+          "length": 7,
+          "symbol": 7
+        },
+        {
+          "bit_offset": 65,
+          "count": 1,
+          "end_bit_exclusive": 66,
+          "first_index": 8,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 66,
+          "count": 1,
+          "end_bit_exclusive": 67,
+          "first_index": 9,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 67,
+          "count": 1,
+          "end_bit_exclusive": 68,
+          "first_index": 10,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 68,
+          "count": 1,
+          "end_bit_exclusive": 69,
+          "first_index": 11,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 69,
+          "count": 1,
+          "end_bit_exclusive": 70,
+          "first_index": 12,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 70,
+          "count": 1,
+          "end_bit_exclusive": 71,
+          "first_index": 13,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 71,
+          "count": 1,
+          "end_bit_exclusive": 72,
+          "first_index": 14,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 72,
+          "count": 1,
+          "end_bit_exclusive": 73,
+          "first_index": 15,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 73,
+          "count": 1,
+          "end_bit_exclusive": 74,
+          "first_index": 16,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 74,
+          "count": 1,
+          "end_bit_exclusive": 76,
+          "first_index": 17,
+          "length": 7,
+          "symbol": 7
+        },
+        {
+          "bit_offset": 76,
+          "count": 1,
+          "end_bit_exclusive": 77,
+          "first_index": 18,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 77,
+          "count": 1,
+          "end_bit_exclusive": 78,
+          "first_index": 19,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 78,
+          "count": 1,
+          "end_bit_exclusive": 79,
+          "first_index": 20,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 79,
+          "count": 1,
+          "end_bit_exclusive": 80,
+          "first_index": 21,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 80,
+          "count": 1,
+          "end_bit_exclusive": 82,
+          "first_index": 22,
+          "length": 7,
+          "symbol": 7
+        },
+        {
+          "bit_offset": 82,
+          "count": 1,
+          "end_bit_exclusive": 84,
+          "first_index": 23,
+          "length": 7,
+          "symbol": 7
+        },
+        {
+          "bit_offset": 84,
+          "count": 1,
+          "end_bit_exclusive": 85,
+          "first_index": 24,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 85,
+          "count": 1,
+          "end_bit_exclusive": 86,
+          "first_index": 25,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 86,
+          "count": 4,
+          "end_bit_exclusive": 92,
+          "first_index": 26,
+          "length": 8,
+          "symbol": 16
+        },
+        {
+          "bit_offset": 92,
+          "count": 1,
+          "end_bit_exclusive": 93,
+          "first_index": 30,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 93,
+          "count": 1,
+          "end_bit_exclusive": 94,
+          "first_index": 31,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 94,
+          "count": 4,
+          "end_bit_exclusive": 100,
+          "first_index": 32,
+          "length": 8,
+          "symbol": 16
+        },
+        {
+          "bit_offset": 100,
+          "count": 1,
+          "end_bit_exclusive": 101,
+          "first_index": 36,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 101,
+          "count": 1,
+          "end_bit_exclusive": 102,
+          "first_index": 37,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 102,
+          "count": 11,
+          "end_bit_exclusive": 112,
+          "first_index": 38,
+          "length": 0,
+          "symbol": 18
+        },
+        {
+          "bit_offset": 112,
+          "count": 1,
+          "end_bit_exclusive": 113,
+          "first_index": 49,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 113,
+          "count": 1,
+          "end_bit_exclusive": 114,
+          "first_index": 50,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 114,
+          "count": 1,
+          "end_bit_exclusive": 115,
+          "first_index": 51,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 115,
+          "count": 1,
+          "end_bit_exclusive": 116,
+          "first_index": 52,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 116,
+          "count": 1,
+          "end_bit_exclusive": 117,
+          "first_index": 53,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 117,
+          "count": 1,
+          "end_bit_exclusive": 118,
+          "first_index": 54,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 118,
+          "count": 1,
+          "end_bit_exclusive": 119,
+          "first_index": 55,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 119,
+          "count": 1,
+          "end_bit_exclusive": 120,
+          "first_index": 56,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 120,
+          "count": 1,
+          "end_bit_exclusive": 121,
+          "first_index": 57,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 121,
+          "count": 1,
+          "end_bit_exclusive": 122,
+          "first_index": 58,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 122,
+          "count": 1,
+          "end_bit_exclusive": 123,
+          "first_index": 59,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 123,
+          "count": 1,
+          "end_bit_exclusive": 124,
+          "first_index": 60,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 124,
+          "count": 1,
+          "end_bit_exclusive": 125,
+          "first_index": 61,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 125,
+          "count": 1,
+          "end_bit_exclusive": 126,
+          "first_index": 62,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 126,
+          "count": 1,
+          "end_bit_exclusive": 127,
+          "first_index": 63,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 127,
+          "count": 1,
+          "end_bit_exclusive": 128,
+          "first_index": 64,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 128,
+          "count": 1,
+          "end_bit_exclusive": 129,
+          "first_index": 65,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 129,
+          "count": 1,
+          "end_bit_exclusive": 130,
+          "first_index": 66,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 130,
+          "count": 1,
+          "end_bit_exclusive": 131,
+          "first_index": 67,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 131,
+          "count": 1,
+          "end_bit_exclusive": 132,
+          "first_index": 68,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 132,
+          "count": 1,
+          "end_bit_exclusive": 133,
+          "first_index": 69,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 133,
+          "count": 1,
+          "end_bit_exclusive": 134,
+          "first_index": 70,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 134,
+          "count": 1,
+          "end_bit_exclusive": 135,
+          "first_index": 71,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 135,
+          "count": 1,
+          "end_bit_exclusive": 136,
+          "first_index": 72,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 136,
+          "count": 1,
+          "end_bit_exclusive": 137,
+          "first_index": 73,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 137,
+          "count": 1,
+          "end_bit_exclusive": 138,
+          "first_index": 74,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 138,
+          "count": 1,
+          "end_bit_exclusive": 139,
+          "first_index": 75,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 139,
+          "count": 1,
+          "end_bit_exclusive": 140,
+          "first_index": 76,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 140,
+          "count": 1,
+          "end_bit_exclusive": 141,
+          "first_index": 77,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 141,
+          "count": 1,
+          "end_bit_exclusive": 142,
+          "first_index": 78,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 142,
+          "count": 1,
+          "end_bit_exclusive": 143,
+          "first_index": 79,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 143,
+          "count": 1,
+          "end_bit_exclusive": 144,
+          "first_index": 80,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 144,
+          "count": 1,
+          "end_bit_exclusive": 145,
+          "first_index": 81,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 145,
+          "count": 1,
+          "end_bit_exclusive": 146,
+          "first_index": 82,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 146,
+          "count": 1,
+          "end_bit_exclusive": 147,
+          "first_index": 83,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 147,
+          "count": 1,
+          "end_bit_exclusive": 148,
+          "first_index": 84,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 148,
+          "count": 1,
+          "end_bit_exclusive": 149,
+          "first_index": 85,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 149,
+          "count": 1,
+          "end_bit_exclusive": 150,
+          "first_index": 86,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 150,
+          "count": 1,
+          "end_bit_exclusive": 151,
+          "first_index": 87,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 151,
+          "count": 1,
+          "end_bit_exclusive": 152,
+          "first_index": 88,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 152,
+          "count": 1,
+          "end_bit_exclusive": 153,
+          "first_index": 89,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 153,
+          "count": 1,
+          "end_bit_exclusive": 154,
+          "first_index": 90,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 154,
+          "count": 1,
+          "end_bit_exclusive": 155,
+          "first_index": 91,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 155,
+          "count": 1,
+          "end_bit_exclusive": 156,
+          "first_index": 92,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 156,
+          "count": 1,
+          "end_bit_exclusive": 157,
+          "first_index": 93,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 157,
+          "count": 1,
+          "end_bit_exclusive": 158,
+          "first_index": 94,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 158,
+          "count": 1,
+          "end_bit_exclusive": 159,
+          "first_index": 95,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 159,
+          "count": 1,
+          "end_bit_exclusive": 160,
+          "first_index": 96,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 160,
+          "count": 1,
+          "end_bit_exclusive": 161,
+          "first_index": 97,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 161,
+          "count": 1,
+          "end_bit_exclusive": 162,
+          "first_index": 98,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 162,
+          "count": 1,
+          "end_bit_exclusive": 163,
+          "first_index": 99,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 163,
+          "count": 1,
+          "end_bit_exclusive": 164,
+          "first_index": 100,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 164,
+          "count": 1,
+          "end_bit_exclusive": 165,
+          "first_index": 101,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 165,
+          "count": 1,
+          "end_bit_exclusive": 166,
+          "first_index": 102,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 166,
+          "count": 1,
+          "end_bit_exclusive": 167,
+          "first_index": 103,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 167,
+          "count": 1,
+          "end_bit_exclusive": 168,
+          "first_index": 104,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 168,
+          "count": 1,
+          "end_bit_exclusive": 169,
+          "first_index": 105,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 169,
+          "count": 1,
+          "end_bit_exclusive": 170,
+          "first_index": 106,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 170,
+          "count": 1,
+          "end_bit_exclusive": 171,
+          "first_index": 107,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 171,
+          "count": 1,
+          "end_bit_exclusive": 172,
+          "first_index": 108,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 172,
+          "count": 1,
+          "end_bit_exclusive": 173,
+          "first_index": 109,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 173,
+          "count": 1,
+          "end_bit_exclusive": 174,
+          "first_index": 110,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 174,
+          "count": 1,
+          "end_bit_exclusive": 175,
+          "first_index": 111,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 175,
+          "count": 1,
+          "end_bit_exclusive": 176,
+          "first_index": 112,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 176,
+          "count": 1,
+          "end_bit_exclusive": 177,
+          "first_index": 113,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 177,
+          "count": 1,
+          "end_bit_exclusive": 178,
+          "first_index": 114,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 178,
+          "count": 1,
+          "end_bit_exclusive": 179,
+          "first_index": 115,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 179,
+          "count": 1,
+          "end_bit_exclusive": 180,
+          "first_index": 116,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 180,
+          "count": 1,
+          "end_bit_exclusive": 181,
+          "first_index": 117,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 181,
+          "count": 1,
+          "end_bit_exclusive": 182,
+          "first_index": 118,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 182,
+          "count": 1,
+          "end_bit_exclusive": 183,
+          "first_index": 119,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 183,
+          "count": 1,
+          "end_bit_exclusive": 184,
+          "first_index": 120,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 184,
+          "count": 1,
+          "end_bit_exclusive": 185,
+          "first_index": 121,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 185,
+          "count": 1,
+          "end_bit_exclusive": 186,
+          "first_index": 122,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 186,
+          "count": 1,
+          "end_bit_exclusive": 187,
+          "first_index": 123,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 187,
+          "count": 1,
+          "end_bit_exclusive": 188,
+          "first_index": 124,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 188,
+          "count": 1,
+          "end_bit_exclusive": 189,
+          "first_index": 125,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 189,
+          "count": 1,
+          "end_bit_exclusive": 190,
+          "first_index": 126,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 190,
+          "count": 1,
+          "end_bit_exclusive": 191,
+          "first_index": 127,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 191,
+          "count": 1,
+          "end_bit_exclusive": 192,
+          "first_index": 128,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 192,
+          "count": 1,
+          "end_bit_exclusive": 193,
+          "first_index": 129,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 193,
+          "count": 1,
+          "end_bit_exclusive": 194,
+          "first_index": 130,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 194,
+          "count": 1,
+          "end_bit_exclusive": 195,
+          "first_index": 131,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 195,
+          "count": 11,
+          "end_bit_exclusive": 205,
+          "first_index": 132,
+          "length": 0,
+          "symbol": 18
+        },
+        {
+          "bit_offset": 205,
+          "count": 1,
+          "end_bit_exclusive": 206,
+          "first_index": 143,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 206,
+          "count": 1,
+          "end_bit_exclusive": 207,
+          "first_index": 144,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 207,
+          "count": 1,
+          "end_bit_exclusive": 208,
+          "first_index": 145,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 208,
+          "count": 1,
+          "end_bit_exclusive": 209,
+          "first_index": 146,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 209,
+          "count": 1,
+          "end_bit_exclusive": 210,
+          "first_index": 147,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 210,
+          "count": 1,
+          "end_bit_exclusive": 211,
+          "first_index": 148,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 211,
+          "count": 1,
+          "end_bit_exclusive": 212,
+          "first_index": 149,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 212,
+          "count": 1,
+          "end_bit_exclusive": 213,
+          "first_index": 150,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 213,
+          "count": 1,
+          "end_bit_exclusive": 214,
+          "first_index": 151,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 214,
+          "count": 1,
+          "end_bit_exclusive": 215,
+          "first_index": 152,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 215,
+          "count": 1,
+          "end_bit_exclusive": 216,
+          "first_index": 153,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 216,
+          "count": 1,
+          "end_bit_exclusive": 217,
+          "first_index": 154,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 217,
+          "count": 1,
+          "end_bit_exclusive": 218,
+          "first_index": 155,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 218,
+          "count": 1,
+          "end_bit_exclusive": 219,
+          "first_index": 156,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 219,
+          "count": 1,
+          "end_bit_exclusive": 220,
+          "first_index": 157,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 220,
+          "count": 1,
+          "end_bit_exclusive": 221,
+          "first_index": 158,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 221,
+          "count": 1,
+          "end_bit_exclusive": 222,
+          "first_index": 159,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 222,
+          "count": 1,
+          "end_bit_exclusive": 223,
+          "first_index": 160,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 223,
+          "count": 1,
+          "end_bit_exclusive": 224,
+          "first_index": 161,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 224,
+          "count": 1,
+          "end_bit_exclusive": 225,
+          "first_index": 162,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 225,
+          "count": 1,
+          "end_bit_exclusive": 226,
+          "first_index": 163,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 226,
+          "count": 1,
+          "end_bit_exclusive": 227,
+          "first_index": 164,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 227,
+          "count": 1,
+          "end_bit_exclusive": 228,
+          "first_index": 165,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 228,
+          "count": 1,
+          "end_bit_exclusive": 229,
+          "first_index": 166,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 229,
+          "count": 1,
+          "end_bit_exclusive": 230,
+          "first_index": 167,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 230,
+          "count": 1,
+          "end_bit_exclusive": 231,
+          "first_index": 168,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 231,
+          "count": 1,
+          "end_bit_exclusive": 232,
+          "first_index": 169,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 232,
+          "count": 1,
+          "end_bit_exclusive": 233,
+          "first_index": 170,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 233,
+          "count": 1,
+          "end_bit_exclusive": 234,
+          "first_index": 171,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 234,
+          "count": 1,
+          "end_bit_exclusive": 235,
+          "first_index": 172,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 235,
+          "count": 1,
+          "end_bit_exclusive": 236,
+          "first_index": 173,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 236,
+          "count": 1,
+          "end_bit_exclusive": 237,
+          "first_index": 174,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 237,
+          "count": 1,
+          "end_bit_exclusive": 238,
+          "first_index": 175,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 238,
+          "count": 1,
+          "end_bit_exclusive": 239,
+          "first_index": 176,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 239,
+          "count": 1,
+          "end_bit_exclusive": 240,
+          "first_index": 177,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 240,
+          "count": 1,
+          "end_bit_exclusive": 241,
+          "first_index": 178,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 241,
+          "count": 1,
+          "end_bit_exclusive": 242,
+          "first_index": 179,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 242,
+          "count": 1,
+          "end_bit_exclusive": 243,
+          "first_index": 180,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 243,
+          "count": 1,
+          "end_bit_exclusive": 244,
+          "first_index": 181,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 244,
+          "count": 1,
+          "end_bit_exclusive": 245,
+          "first_index": 182,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 245,
+          "count": 1,
+          "end_bit_exclusive": 246,
+          "first_index": 183,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 246,
+          "count": 1,
+          "end_bit_exclusive": 247,
+          "first_index": 184,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 247,
+          "count": 1,
+          "end_bit_exclusive": 248,
+          "first_index": 185,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 248,
+          "count": 1,
+          "end_bit_exclusive": 249,
+          "first_index": 186,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 249,
+          "count": 1,
+          "end_bit_exclusive": 250,
+          "first_index": 187,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 250,
+          "count": 1,
+          "end_bit_exclusive": 251,
+          "first_index": 188,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 251,
+          "count": 1,
+          "end_bit_exclusive": 252,
+          "first_index": 189,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 252,
+          "count": 1,
+          "end_bit_exclusive": 253,
+          "first_index": 190,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 253,
+          "count": 1,
+          "end_bit_exclusive": 254,
+          "first_index": 191,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 254,
+          "count": 1,
+          "end_bit_exclusive": 255,
+          "first_index": 192,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 255,
+          "count": 1,
+          "end_bit_exclusive": 256,
+          "first_index": 193,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 256,
+          "count": 1,
+          "end_bit_exclusive": 257,
+          "first_index": 194,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 257,
+          "count": 1,
+          "end_bit_exclusive": 258,
+          "first_index": 195,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 258,
+          "count": 1,
+          "end_bit_exclusive": 259,
+          "first_index": 196,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 259,
+          "count": 1,
+          "end_bit_exclusive": 260,
+          "first_index": 197,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 260,
+          "count": 1,
+          "end_bit_exclusive": 261,
+          "first_index": 198,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 261,
+          "count": 1,
+          "end_bit_exclusive": 262,
+          "first_index": 199,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 262,
+          "count": 1,
+          "end_bit_exclusive": 263,
+          "first_index": 200,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 263,
+          "count": 1,
+          "end_bit_exclusive": 264,
+          "first_index": 201,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 264,
+          "count": 1,
+          "end_bit_exclusive": 265,
+          "first_index": 202,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 265,
+          "count": 1,
+          "end_bit_exclusive": 266,
+          "first_index": 203,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 266,
+          "count": 1,
+          "end_bit_exclusive": 267,
+          "first_index": 204,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 267,
+          "count": 1,
+          "end_bit_exclusive": 268,
+          "first_index": 205,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 268,
+          "count": 1,
+          "end_bit_exclusive": 269,
+          "first_index": 206,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 269,
+          "count": 1,
+          "end_bit_exclusive": 270,
+          "first_index": 207,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 270,
+          "count": 1,
+          "end_bit_exclusive": 271,
+          "first_index": 208,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 271,
+          "count": 1,
+          "end_bit_exclusive": 272,
+          "first_index": 209,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 272,
+          "count": 1,
+          "end_bit_exclusive": 273,
+          "first_index": 210,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 273,
+          "count": 1,
+          "end_bit_exclusive": 274,
+          "first_index": 211,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 274,
+          "count": 1,
+          "end_bit_exclusive": 275,
+          "first_index": 212,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 275,
+          "count": 1,
+          "end_bit_exclusive": 276,
+          "first_index": 213,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 276,
+          "count": 1,
+          "end_bit_exclusive": 277,
+          "first_index": 214,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 277,
+          "count": 1,
+          "end_bit_exclusive": 278,
+          "first_index": 215,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 278,
+          "count": 1,
+          "end_bit_exclusive": 279,
+          "first_index": 216,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 279,
+          "count": 1,
+          "end_bit_exclusive": 280,
+          "first_index": 217,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 280,
+          "count": 1,
+          "end_bit_exclusive": 281,
+          "first_index": 218,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 281,
+          "count": 1,
+          "end_bit_exclusive": 282,
+          "first_index": 219,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 282,
+          "count": 1,
+          "end_bit_exclusive": 283,
+          "first_index": 220,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 283,
+          "count": 1,
+          "end_bit_exclusive": 284,
+          "first_index": 221,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 284,
+          "count": 1,
+          "end_bit_exclusive": 285,
+          "first_index": 222,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 285,
+          "count": 1,
+          "end_bit_exclusive": 286,
+          "first_index": 223,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 286,
+          "count": 1,
+          "end_bit_exclusive": 287,
+          "first_index": 224,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 287,
+          "count": 1,
+          "end_bit_exclusive": 288,
+          "first_index": 225,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 288,
+          "count": 1,
+          "end_bit_exclusive": 289,
+          "first_index": 226,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 289,
+          "count": 1,
+          "end_bit_exclusive": 290,
+          "first_index": 227,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 290,
+          "count": 1,
+          "end_bit_exclusive": 291,
+          "first_index": 228,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 291,
+          "count": 1,
+          "end_bit_exclusive": 292,
+          "first_index": 229,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 292,
+          "count": 1,
+          "end_bit_exclusive": 293,
+          "first_index": 230,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 293,
+          "count": 1,
+          "end_bit_exclusive": 294,
+          "first_index": 231,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 294,
+          "count": 1,
+          "end_bit_exclusive": 295,
+          "first_index": 232,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 295,
+          "count": 1,
+          "end_bit_exclusive": 296,
+          "first_index": 233,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 296,
+          "count": 1,
+          "end_bit_exclusive": 297,
+          "first_index": 234,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 297,
+          "count": 1,
+          "end_bit_exclusive": 298,
+          "first_index": 235,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 298,
+          "count": 1,
+          "end_bit_exclusive": 299,
+          "first_index": 236,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 299,
+          "count": 1,
+          "end_bit_exclusive": 300,
+          "first_index": 237,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 300,
+          "count": 1,
+          "end_bit_exclusive": 301,
+          "first_index": 238,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 301,
+          "count": 1,
+          "end_bit_exclusive": 302,
+          "first_index": 239,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 302,
+          "count": 1,
+          "end_bit_exclusive": 303,
+          "first_index": 240,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 303,
+          "count": 1,
+          "end_bit_exclusive": 304,
+          "first_index": 241,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 304,
+          "count": 1,
+          "end_bit_exclusive": 305,
+          "first_index": 242,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 305,
+          "count": 1,
+          "end_bit_exclusive": 306,
+          "first_index": 243,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 306,
+          "count": 1,
+          "end_bit_exclusive": 307,
+          "first_index": 244,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 307,
+          "count": 1,
+          "end_bit_exclusive": 308,
+          "first_index": 245,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 308,
+          "count": 1,
+          "end_bit_exclusive": 309,
+          "first_index": 246,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 309,
+          "count": 1,
+          "end_bit_exclusive": 310,
+          "first_index": 247,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 310,
+          "count": 1,
+          "end_bit_exclusive": 311,
+          "first_index": 248,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 311,
+          "count": 1,
+          "end_bit_exclusive": 312,
+          "first_index": 249,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 312,
+          "count": 11,
+          "end_bit_exclusive": 322,
+          "first_index": 250,
+          "length": 0,
+          "symbol": 18
+        },
+        {
+          "bit_offset": 322,
+          "count": 1,
+          "end_bit_exclusive": 323,
+          "first_index": 261,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 323,
+          "count": 1,
+          "end_bit_exclusive": 324,
+          "first_index": 262,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 324,
+          "count": 1,
+          "end_bit_exclusive": 325,
+          "first_index": 263,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 325,
+          "count": 1,
+          "end_bit_exclusive": 326,
+          "first_index": 264,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 326,
+          "count": 1,
+          "end_bit_exclusive": 327,
+          "first_index": 265,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 327,
+          "count": 1,
+          "end_bit_exclusive": 328,
+          "first_index": 266,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 328,
+          "count": 1,
+          "end_bit_exclusive": 330,
+          "first_index": 267,
+          "length": 7,
+          "symbol": 7
+        },
+        {
+          "bit_offset": 330,
+          "count": 1,
+          "end_bit_exclusive": 331,
+          "first_index": 268,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 331,
+          "count": 1,
+          "end_bit_exclusive": 332,
+          "first_index": 269,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 332,
+          "count": 1,
+          "end_bit_exclusive": 333,
+          "first_index": 270,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 333,
+          "count": 1,
+          "end_bit_exclusive": 334,
+          "first_index": 271,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 334,
+          "count": 1,
+          "end_bit_exclusive": 335,
+          "first_index": 272,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 335,
+          "count": 1,
+          "end_bit_exclusive": 336,
+          "first_index": 273,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 336,
+          "count": 1,
+          "end_bit_exclusive": 337,
+          "first_index": 274,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 337,
+          "count": 1,
+          "end_bit_exclusive": 338,
+          "first_index": 275,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 338,
+          "count": 1,
+          "end_bit_exclusive": 339,
+          "first_index": 276,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 339,
+          "count": 1,
+          "end_bit_exclusive": 340,
+          "first_index": 277,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 340,
+          "count": 1,
+          "end_bit_exclusive": 341,
+          "first_index": 278,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 341,
+          "count": 1,
+          "end_bit_exclusive": 342,
+          "first_index": 279,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 342,
+          "count": 1,
+          "end_bit_exclusive": 343,
+          "first_index": 280,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 343,
+          "count": 1,
+          "end_bit_exclusive": 344,
+          "first_index": 281,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 344,
+          "count": 1,
+          "end_bit_exclusive": 345,
+          "first_index": 282,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 345,
+          "count": 1,
+          "end_bit_exclusive": 346,
+          "first_index": 283,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 346,
+          "count": 1,
+          "end_bit_exclusive": 347,
+          "first_index": 284,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 347,
+          "count": 1,
+          "end_bit_exclusive": 348,
+          "first_index": 285,
+          "length": 8,
+          "symbol": 8
+        },
+        {
+          "bit_offset": 348,
+          "count": 1,
+          "end_bit_exclusive": 349,
+          "first_index": 286,
+          "length": 8,
+          "symbol": 8
+        }
+      ],
       "complete_input_hex": "5809ed40c8210a8f0004c5c5c50000000000000000000000180000000000000000000000000000030001000000000000ffffffff",
+      "distance_widths": [
+        8
+      ],
       "documented_expected_result": "BadLiteralLengthHuffmanTree; the upstream test documents a missing end-of-block symbol.",
       "fixture_source_context": {
         "fdeflate-0.3.7/src/decompress.rs": "26eea8e94c41422b29b50b83e8077ef8ee37e116f26fc810c15e7e7f0224bc5e",
         "fdeflate-0.3.7/src/decompress/tests/test_utils.rs": "220c8813c35240b1d0dbbb63051b3ec62838ea8f682f5389315c738d4bdff488"
       },
+      "format": "Exact malformed dynamic-Huffman numerical regression vector",
+      "format_references": [
+        "https://www.rfc-editor.org/rfc/rfc1950#section-2.2",
+        "https://www.rfc-editor.org/rfc/rfc1951#section-3.2.7"
+      ],
+      "literal_length_widths": [
+        7,
+        8,
+        8,
+        8,
+        0,
+        0,
+        0,
+        7,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        7,
+        8,
+        8,
+        8,
+        8,
+        7,
+        7,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        7,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "meaning": "Every bit of these exact small test vectors is inspected: zlib and dynamic-block fields, numerical code-table instructions, and the complete listed corrupt suffix. Neither table assigns an end-of-block code. The suffix is retained as numerical fuzz input, not silently discarded or described as plaintext or a validated checksum. There is no ownership statement in this complete inspected record. This exact-byte finding does not infer anything about another malformed stream, its author or its license.",
+      "missing_end_of_block_symbol": 256,
       "path": "fdeflate-0.3.7/tests/input-chunking-sensitivity-example3.zz",
-      "remaining_review": "The malformed input has no complete standard decompression. Exact numerical fuzz bytes and source context are retained; no copyright absence is inferred from decoder rejection.",
+      "reviewed_bit_ranges": [
+        {
+          "bit_offset": 0,
+          "end_bit_exclusive": 8,
+          "interpretation": "Zlib CMF: DEFLATE method 8, window-size exponent 5",
+          "transmission_bits": "00011010",
+          "value_lsb_first": 88
+        },
+        {
+          "bit_offset": 8,
+          "end_bit_exclusive": 16,
+          "interpretation": "Zlib FLG: no preset dictionary, level zero, header check bits",
+          "transmission_bits": "10010000",
+          "value_lsb_first": 9
+        },
+        {
+          "bit_offset": 16,
+          "end_bit_exclusive": 17,
+          "interpretation": "BFINAL flag",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 17,
+          "end_bit_exclusive": 19,
+          "interpretation": "BTYPE: dynamic Huffman block",
+          "transmission_bits": "01",
+          "value_lsb_first": 2
+        },
+        {
+          "bit_offset": 19,
+          "end_bit_exclusive": 24,
+          "interpretation": "HLIT minus 257",
+          "transmission_bits": "10111",
+          "value_lsb_first": 29
+        },
+        {
+          "bit_offset": 24,
+          "end_bit_exclusive": 29,
+          "interpretation": "HDIST minus 1",
+          "transmission_bits": "00000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 29,
+          "end_bit_exclusive": 33,
+          "interpretation": "HCLEN minus 4",
+          "transmission_bits": "0100",
+          "value_lsb_first": 2
+        },
+        {
+          "bit_offset": 33,
+          "end_bit_exclusive": 36,
+          "interpretation": "Huffman width for code-length alphabet symbol 16",
+          "transmission_bits": "001",
+          "value_lsb_first": 4
+        },
+        {
+          "bit_offset": 36,
+          "end_bit_exclusive": 39,
+          "interpretation": "Huffman width for code-length alphabet symbol 17",
+          "transmission_bits": "001",
+          "value_lsb_first": 4
+        },
+        {
+          "bit_offset": 39,
+          "end_bit_exclusive": 42,
+          "interpretation": "Huffman width for code-length alphabet symbol 18",
+          "transmission_bits": "110",
+          "value_lsb_first": 3
+        },
+        {
+          "bit_offset": 42,
+          "end_bit_exclusive": 45,
+          "interpretation": "Huffman width for code-length alphabet symbol 0",
+          "transmission_bits": "000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 45,
+          "end_bit_exclusive": 48,
+          "interpretation": "Huffman width for code-length alphabet symbol 8",
+          "transmission_bits": "100",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 48,
+          "end_bit_exclusive": 51,
+          "interpretation": "Huffman width for code-length alphabet symbol 7",
+          "transmission_bits": "010",
+          "value_lsb_first": 2
+        },
+        {
+          "bit_offset": 51,
+          "end_bit_exclusive": 52,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 52,
+          "end_bit_exclusive": 53,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 53,
+          "end_bit_exclusive": 54,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 54,
+          "end_bit_exclusive": 55,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 55,
+          "end_bit_exclusive": 56,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 56,
+          "end_bit_exclusive": 57,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 57,
+          "end_bit_exclusive": 58,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 58,
+          "end_bit_exclusive": 59,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 59,
+          "end_bit_exclusive": 60,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 60,
+          "end_bit_exclusive": 63,
+          "interpretation": "Zero code length repetition count minus 3",
+          "transmission_bits": "000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 63,
+          "end_bit_exclusive": 64,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 64,
+          "end_bit_exclusive": 65,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 65,
+          "end_bit_exclusive": 66,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 66,
+          "end_bit_exclusive": 67,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 67,
+          "end_bit_exclusive": 68,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 68,
+          "end_bit_exclusive": 69,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 69,
+          "end_bit_exclusive": 70,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 70,
+          "end_bit_exclusive": 71,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 71,
+          "end_bit_exclusive": 72,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 72,
+          "end_bit_exclusive": 73,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 73,
+          "end_bit_exclusive": 74,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 74,
+          "end_bit_exclusive": 75,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 75,
+          "end_bit_exclusive": 76,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 76,
+          "end_bit_exclusive": 77,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 77,
+          "end_bit_exclusive": 78,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 78,
+          "end_bit_exclusive": 79,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 79,
+          "end_bit_exclusive": 80,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 80,
+          "end_bit_exclusive": 81,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 81,
+          "end_bit_exclusive": 82,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 82,
+          "end_bit_exclusive": 83,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 83,
+          "end_bit_exclusive": 84,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 84,
+          "end_bit_exclusive": 85,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 85,
+          "end_bit_exclusive": 86,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 86,
+          "end_bit_exclusive": 87,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 87,
+          "end_bit_exclusive": 88,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 88,
+          "end_bit_exclusive": 89,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 89,
+          "end_bit_exclusive": 90,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 90,
+          "end_bit_exclusive": 92,
+          "interpretation": "Previous code length repetition count minus 3",
+          "transmission_bits": "10",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 92,
+          "end_bit_exclusive": 93,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 93,
+          "end_bit_exclusive": 94,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 94,
+          "end_bit_exclusive": 95,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 95,
+          "end_bit_exclusive": 96,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 96,
+          "end_bit_exclusive": 97,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 97,
+          "end_bit_exclusive": 98,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 98,
+          "end_bit_exclusive": 100,
+          "interpretation": "Previous code length repetition count minus 3",
+          "transmission_bits": "10",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 100,
+          "end_bit_exclusive": 101,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 101,
+          "end_bit_exclusive": 102,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 102,
+          "end_bit_exclusive": 103,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 103,
+          "end_bit_exclusive": 104,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 104,
+          "end_bit_exclusive": 105,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 105,
+          "end_bit_exclusive": 112,
+          "interpretation": "Zero code length repetition count minus 11",
+          "transmission_bits": "0000000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 112,
+          "end_bit_exclusive": 113,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 113,
+          "end_bit_exclusive": 114,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 114,
+          "end_bit_exclusive": 115,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 115,
+          "end_bit_exclusive": 116,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 116,
+          "end_bit_exclusive": 117,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 117,
+          "end_bit_exclusive": 118,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 118,
+          "end_bit_exclusive": 119,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 119,
+          "end_bit_exclusive": 120,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 120,
+          "end_bit_exclusive": 121,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 121,
+          "end_bit_exclusive": 122,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 122,
+          "end_bit_exclusive": 123,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 123,
+          "end_bit_exclusive": 124,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 124,
+          "end_bit_exclusive": 125,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 125,
+          "end_bit_exclusive": 126,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 126,
+          "end_bit_exclusive": 127,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 127,
+          "end_bit_exclusive": 128,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 128,
+          "end_bit_exclusive": 129,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 129,
+          "end_bit_exclusive": 130,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 130,
+          "end_bit_exclusive": 131,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 131,
+          "end_bit_exclusive": 132,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 132,
+          "end_bit_exclusive": 133,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 133,
+          "end_bit_exclusive": 134,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 134,
+          "end_bit_exclusive": 135,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 135,
+          "end_bit_exclusive": 136,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 136,
+          "end_bit_exclusive": 137,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 137,
+          "end_bit_exclusive": 138,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 138,
+          "end_bit_exclusive": 139,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 139,
+          "end_bit_exclusive": 140,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 140,
+          "end_bit_exclusive": 141,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 141,
+          "end_bit_exclusive": 142,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 142,
+          "end_bit_exclusive": 143,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 143,
+          "end_bit_exclusive": 144,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 144,
+          "end_bit_exclusive": 145,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 145,
+          "end_bit_exclusive": 146,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 146,
+          "end_bit_exclusive": 147,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 147,
+          "end_bit_exclusive": 148,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 148,
+          "end_bit_exclusive": 149,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 149,
+          "end_bit_exclusive": 150,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 150,
+          "end_bit_exclusive": 151,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 151,
+          "end_bit_exclusive": 152,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 152,
+          "end_bit_exclusive": 153,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 153,
+          "end_bit_exclusive": 154,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 154,
+          "end_bit_exclusive": 155,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 155,
+          "end_bit_exclusive": 156,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 156,
+          "end_bit_exclusive": 157,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 157,
+          "end_bit_exclusive": 158,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 158,
+          "end_bit_exclusive": 159,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 159,
+          "end_bit_exclusive": 160,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 160,
+          "end_bit_exclusive": 161,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 161,
+          "end_bit_exclusive": 162,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 162,
+          "end_bit_exclusive": 163,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 163,
+          "end_bit_exclusive": 164,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 164,
+          "end_bit_exclusive": 165,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 165,
+          "end_bit_exclusive": 166,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 166,
+          "end_bit_exclusive": 167,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 167,
+          "end_bit_exclusive": 168,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 168,
+          "end_bit_exclusive": 169,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 169,
+          "end_bit_exclusive": 170,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 170,
+          "end_bit_exclusive": 171,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 171,
+          "end_bit_exclusive": 172,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 172,
+          "end_bit_exclusive": 173,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 173,
+          "end_bit_exclusive": 174,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 174,
+          "end_bit_exclusive": 175,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 175,
+          "end_bit_exclusive": 176,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 176,
+          "end_bit_exclusive": 177,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 177,
+          "end_bit_exclusive": 178,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 178,
+          "end_bit_exclusive": 179,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 179,
+          "end_bit_exclusive": 180,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 180,
+          "end_bit_exclusive": 181,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 181,
+          "end_bit_exclusive": 182,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 182,
+          "end_bit_exclusive": 183,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 183,
+          "end_bit_exclusive": 184,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 184,
+          "end_bit_exclusive": 185,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 185,
+          "end_bit_exclusive": 186,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 186,
+          "end_bit_exclusive": 187,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 187,
+          "end_bit_exclusive": 188,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 188,
+          "end_bit_exclusive": 189,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 189,
+          "end_bit_exclusive": 190,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 190,
+          "end_bit_exclusive": 191,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 191,
+          "end_bit_exclusive": 192,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 192,
+          "end_bit_exclusive": 193,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 193,
+          "end_bit_exclusive": 194,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 194,
+          "end_bit_exclusive": 195,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 195,
+          "end_bit_exclusive": 196,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 196,
+          "end_bit_exclusive": 197,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 197,
+          "end_bit_exclusive": 198,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 198,
+          "end_bit_exclusive": 205,
+          "interpretation": "Zero code length repetition count minus 11",
+          "transmission_bits": "0000000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 205,
+          "end_bit_exclusive": 206,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 206,
+          "end_bit_exclusive": 207,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 207,
+          "end_bit_exclusive": 208,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 208,
+          "end_bit_exclusive": 209,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 209,
+          "end_bit_exclusive": 210,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 210,
+          "end_bit_exclusive": 211,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 211,
+          "end_bit_exclusive": 212,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 212,
+          "end_bit_exclusive": 213,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 213,
+          "end_bit_exclusive": 214,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 214,
+          "end_bit_exclusive": 215,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 215,
+          "end_bit_exclusive": 216,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 216,
+          "end_bit_exclusive": 217,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 217,
+          "end_bit_exclusive": 218,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 218,
+          "end_bit_exclusive": 219,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 219,
+          "end_bit_exclusive": 220,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 220,
+          "end_bit_exclusive": 221,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 221,
+          "end_bit_exclusive": 222,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 222,
+          "end_bit_exclusive": 223,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 223,
+          "end_bit_exclusive": 224,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 224,
+          "end_bit_exclusive": 225,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 225,
+          "end_bit_exclusive": 226,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 226,
+          "end_bit_exclusive": 227,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 227,
+          "end_bit_exclusive": 228,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 228,
+          "end_bit_exclusive": 229,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 229,
+          "end_bit_exclusive": 230,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 230,
+          "end_bit_exclusive": 231,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 231,
+          "end_bit_exclusive": 232,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 232,
+          "end_bit_exclusive": 233,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 233,
+          "end_bit_exclusive": 234,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 234,
+          "end_bit_exclusive": 235,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 235,
+          "end_bit_exclusive": 236,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 236,
+          "end_bit_exclusive": 237,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 237,
+          "end_bit_exclusive": 238,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 238,
+          "end_bit_exclusive": 239,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 239,
+          "end_bit_exclusive": 240,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 240,
+          "end_bit_exclusive": 241,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 241,
+          "end_bit_exclusive": 242,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 242,
+          "end_bit_exclusive": 243,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 243,
+          "end_bit_exclusive": 244,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 244,
+          "end_bit_exclusive": 245,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 245,
+          "end_bit_exclusive": 246,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 246,
+          "end_bit_exclusive": 247,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 247,
+          "end_bit_exclusive": 248,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 248,
+          "end_bit_exclusive": 249,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 249,
+          "end_bit_exclusive": 250,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 250,
+          "end_bit_exclusive": 251,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 251,
+          "end_bit_exclusive": 252,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 252,
+          "end_bit_exclusive": 253,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 253,
+          "end_bit_exclusive": 254,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 254,
+          "end_bit_exclusive": 255,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 255,
+          "end_bit_exclusive": 256,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 256,
+          "end_bit_exclusive": 257,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 257,
+          "end_bit_exclusive": 258,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 258,
+          "end_bit_exclusive": 259,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 259,
+          "end_bit_exclusive": 260,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 260,
+          "end_bit_exclusive": 261,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 261,
+          "end_bit_exclusive": 262,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 262,
+          "end_bit_exclusive": 263,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 263,
+          "end_bit_exclusive": 264,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 264,
+          "end_bit_exclusive": 265,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 265,
+          "end_bit_exclusive": 266,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 266,
+          "end_bit_exclusive": 267,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 267,
+          "end_bit_exclusive": 268,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 268,
+          "end_bit_exclusive": 269,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 269,
+          "end_bit_exclusive": 270,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 270,
+          "end_bit_exclusive": 271,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 271,
+          "end_bit_exclusive": 272,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 272,
+          "end_bit_exclusive": 273,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 273,
+          "end_bit_exclusive": 274,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 274,
+          "end_bit_exclusive": 275,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 275,
+          "end_bit_exclusive": 276,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 276,
+          "end_bit_exclusive": 277,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 277,
+          "end_bit_exclusive": 278,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 278,
+          "end_bit_exclusive": 279,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 279,
+          "end_bit_exclusive": 280,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 280,
+          "end_bit_exclusive": 281,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 281,
+          "end_bit_exclusive": 282,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 282,
+          "end_bit_exclusive": 283,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 283,
+          "end_bit_exclusive": 284,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 284,
+          "end_bit_exclusive": 285,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 285,
+          "end_bit_exclusive": 286,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 286,
+          "end_bit_exclusive": 287,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 287,
+          "end_bit_exclusive": 288,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 288,
+          "end_bit_exclusive": 289,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 289,
+          "end_bit_exclusive": 290,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 290,
+          "end_bit_exclusive": 291,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 291,
+          "end_bit_exclusive": 292,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 292,
+          "end_bit_exclusive": 293,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 293,
+          "end_bit_exclusive": 294,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 294,
+          "end_bit_exclusive": 295,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 295,
+          "end_bit_exclusive": 296,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 296,
+          "end_bit_exclusive": 297,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 297,
+          "end_bit_exclusive": 298,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 298,
+          "end_bit_exclusive": 299,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 299,
+          "end_bit_exclusive": 300,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 300,
+          "end_bit_exclusive": 301,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 301,
+          "end_bit_exclusive": 302,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 302,
+          "end_bit_exclusive": 303,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 303,
+          "end_bit_exclusive": 304,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 304,
+          "end_bit_exclusive": 305,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 305,
+          "end_bit_exclusive": 306,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 306,
+          "end_bit_exclusive": 307,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 307,
+          "end_bit_exclusive": 308,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 308,
+          "end_bit_exclusive": 309,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 309,
+          "end_bit_exclusive": 310,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 310,
+          "end_bit_exclusive": 311,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 311,
+          "end_bit_exclusive": 312,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 312,
+          "end_bit_exclusive": 313,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 313,
+          "end_bit_exclusive": 314,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 314,
+          "end_bit_exclusive": 315,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 315,
+          "end_bit_exclusive": 322,
+          "interpretation": "Zero code length repetition count minus 11",
+          "transmission_bits": "0000000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 322,
+          "end_bit_exclusive": 323,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 323,
+          "end_bit_exclusive": 324,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 324,
+          "end_bit_exclusive": 325,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 325,
+          "end_bit_exclusive": 326,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 326,
+          "end_bit_exclusive": 327,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 327,
+          "end_bit_exclusive": 328,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 328,
+          "end_bit_exclusive": 329,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "1",
+          "value_lsb_first": 1
+        },
+        {
+          "bit_offset": 329,
+          "end_bit_exclusive": 330,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 330,
+          "end_bit_exclusive": 331,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 331,
+          "end_bit_exclusive": 332,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 332,
+          "end_bit_exclusive": 333,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 333,
+          "end_bit_exclusive": 334,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 334,
+          "end_bit_exclusive": 335,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 335,
+          "end_bit_exclusive": 336,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 336,
+          "end_bit_exclusive": 337,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 337,
+          "end_bit_exclusive": 338,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 338,
+          "end_bit_exclusive": 339,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 339,
+          "end_bit_exclusive": 340,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 340,
+          "end_bit_exclusive": 341,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 341,
+          "end_bit_exclusive": 342,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 342,
+          "end_bit_exclusive": 343,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 343,
+          "end_bit_exclusive": 344,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 344,
+          "end_bit_exclusive": 345,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 345,
+          "end_bit_exclusive": 346,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 346,
+          "end_bit_exclusive": 347,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 347,
+          "end_bit_exclusive": 348,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 348,
+          "end_bit_exclusive": 349,
+          "interpretation": "Code-length alphabet Huffman bit, most-significant code bit first",
+          "transmission_bits": "0",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 349,
+          "end_bit_exclusive": 384,
+          "interpretation": "Exact inspected numerical fuzz suffix: 35 repeated 0 bits",
+          "transmission_bits": "00000000000000000000000000000000000",
+          "value_lsb_first": 0
+        },
+        {
+          "bit_offset": 384,
+          "end_bit_exclusive": 416,
+          "interpretation": "Exact inspected numerical fuzz suffix: 32 repeated 1 bits",
+          "transmission_bits": "11111111111111111111111111111111",
+          "value_lsb_first": 4294967295
+        }
+      ],
       "sha256": "bf63f178c0c288e004339e2d3084adce4c43064697b860accf13bb81fa5fa1f2",
       "size": 52,
-      "status": "undecoded-member-needs-review"
+      "status": "complete-reviewed-binary-record-no-ownership-statement",
+      "suffix_runs": [
+        [
+          0,
+          35
+        ],
+        [
+          1,
+          32
+        ]
+      ],
+      "suffix_start_bit": 349,
+      "valid_compressed_document": false
     }
   ],
   "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",

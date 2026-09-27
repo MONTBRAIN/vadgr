@@ -141,10 +141,694 @@
       "status": "decoded-no-ownership-markers"
     },
     {
+      "format": "Exact X.509 DER test certificate with fully decoded fields",
+      "meaning": "Every byte belongs to an inspected typed field. Certificate subject and issuer names are identities, not copyright declarations. All policy text is decoded. No trust or package approval is granted.",
       "path": "cms-0.2.3/tests/examples/GoodCACert.crt",
+      "reviewed_byte_ranges": [
+        {
+          "end_exclusive": 4,
+          "hex": "3082037c",
+          "interpretation": "DER tag 0x30 and definite length 892",
+          "offset": 0
+        },
+        {
+          "end_exclusive": 8,
+          "hex": "30820264",
+          "interpretation": "DER tag 0x30 and definite length 612",
+          "offset": 4
+        },
+        {
+          "end_exclusive": 10,
+          "hex": "a003",
+          "interpretation": "DER tag 0xa0 and definite length 3",
+          "offset": 8
+        },
+        {
+          "end_exclusive": 12,
+          "hex": "0201",
+          "interpretation": "DER tag 0x02 and definite length 1",
+          "offset": 10
+        },
+        {
+          "end_exclusive": 13,
+          "hex": "02",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
+          "offset": 12
+        },
+        {
+          "end_exclusive": 15,
+          "hex": "0201",
+          "interpretation": "DER tag 0x02 and definite length 1",
+          "offset": 13
+        },
+        {
+          "end_exclusive": 16,
+          "hex": "02",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
+          "offset": 15
+        },
+        {
+          "end_exclusive": 18,
+          "hex": "300d",
+          "interpretation": "DER tag 0x30 and definite length 13",
+          "offset": 16
+        },
+        {
+          "end_exclusive": 20,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 18
+        },
+        {
+          "end_exclusive": 29,
+          "hex": "2a864886f70d01010b",
+          "interpretation": "ASN.1 object identifier 1.2.840.113549.1.1.11",
+          "offset": 20
+        },
+        {
+          "end_exclusive": 31,
+          "hex": "0500",
+          "interpretation": "DER tag 0x05 and definite length 0",
+          "offset": 29
+        },
+        {
+          "end_exclusive": 33,
+          "hex": "3045",
+          "interpretation": "DER tag 0x30 and definite length 69",
+          "offset": 31
+        },
+        {
+          "end_exclusive": 35,
+          "hex": "310b",
+          "interpretation": "DER tag 0x31 and definite length 11",
+          "offset": 33
+        },
+        {
+          "end_exclusive": 37,
+          "hex": "3009",
+          "interpretation": "DER tag 0x30 and definite length 9",
+          "offset": 35
+        },
+        {
+          "end_exclusive": 39,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 37
+        },
+        {
+          "end_exclusive": 42,
+          "hex": "550406",
+          "interpretation": "ASN.1 object identifier 2.5.4.6",
+          "offset": 39
+        },
+        {
+          "end_exclusive": 44,
+          "hex": "1302",
+          "interpretation": "DER tag 0x13 and definite length 2",
+          "offset": 42
+        },
+        {
+          "decoded_text": "US",
+          "end_exclusive": 46,
+          "hex": "5553",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 44
+        },
+        {
+          "end_exclusive": 48,
+          "hex": "311f",
+          "interpretation": "DER tag 0x31 and definite length 31",
+          "offset": 46
+        },
+        {
+          "end_exclusive": 50,
+          "hex": "301d",
+          "interpretation": "DER tag 0x30 and definite length 29",
+          "offset": 48
+        },
+        {
+          "end_exclusive": 52,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 50
+        },
+        {
+          "end_exclusive": 55,
+          "hex": "55040a",
+          "interpretation": "ASN.1 object identifier 2.5.4.10",
+          "offset": 52
+        },
+        {
+          "end_exclusive": 57,
+          "hex": "1316",
+          "interpretation": "DER tag 0x13 and definite length 22",
+          "offset": 55
+        },
+        {
+          "decoded_text": "Test Certificates 2011",
+          "end_exclusive": 79,
+          "hex": "54657374204365727469666963617465732032303131",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 57
+        },
+        {
+          "end_exclusive": 81,
+          "hex": "3115",
+          "interpretation": "DER tag 0x31 and definite length 21",
+          "offset": 79
+        },
+        {
+          "end_exclusive": 83,
+          "hex": "3013",
+          "interpretation": "DER tag 0x30 and definite length 19",
+          "offset": 81
+        },
+        {
+          "end_exclusive": 85,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 83
+        },
+        {
+          "end_exclusive": 88,
+          "hex": "550403",
+          "interpretation": "ASN.1 object identifier 2.5.4.3",
+          "offset": 85
+        },
+        {
+          "end_exclusive": 90,
+          "hex": "130c",
+          "interpretation": "DER tag 0x13 and definite length 12",
+          "offset": 88
+        },
+        {
+          "decoded_text": "Trust Anchor",
+          "end_exclusive": 102,
+          "hex": "547275737420416e63686f72",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 90
+        },
+        {
+          "end_exclusive": 104,
+          "hex": "301e",
+          "interpretation": "DER tag 0x30 and definite length 30",
+          "offset": 102
+        },
+        {
+          "end_exclusive": 106,
+          "hex": "170d",
+          "interpretation": "DER tag 0x17 and definite length 13",
+          "offset": 104
+        },
+        {
+          "decoded_text": "100101083000Z",
+          "end_exclusive": 119,
+          "hex": "3130303130313038333030305a",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 106
+        },
+        {
+          "end_exclusive": 121,
+          "hex": "170d",
+          "interpretation": "DER tag 0x17 and definite length 13",
+          "offset": 119
+        },
+        {
+          "decoded_text": "301231083000Z",
+          "end_exclusive": 134,
+          "hex": "3330313233313038333030305a",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 121
+        },
+        {
+          "end_exclusive": 136,
+          "hex": "3040",
+          "interpretation": "DER tag 0x30 and definite length 64",
+          "offset": 134
+        },
+        {
+          "end_exclusive": 138,
+          "hex": "310b",
+          "interpretation": "DER tag 0x31 and definite length 11",
+          "offset": 136
+        },
+        {
+          "end_exclusive": 140,
+          "hex": "3009",
+          "interpretation": "DER tag 0x30 and definite length 9",
+          "offset": 138
+        },
+        {
+          "end_exclusive": 142,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 140
+        },
+        {
+          "end_exclusive": 145,
+          "hex": "550406",
+          "interpretation": "ASN.1 object identifier 2.5.4.6",
+          "offset": 142
+        },
+        {
+          "end_exclusive": 147,
+          "hex": "1302",
+          "interpretation": "DER tag 0x13 and definite length 2",
+          "offset": 145
+        },
+        {
+          "decoded_text": "US",
+          "end_exclusive": 149,
+          "hex": "5553",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 147
+        },
+        {
+          "end_exclusive": 151,
+          "hex": "311f",
+          "interpretation": "DER tag 0x31 and definite length 31",
+          "offset": 149
+        },
+        {
+          "end_exclusive": 153,
+          "hex": "301d",
+          "interpretation": "DER tag 0x30 and definite length 29",
+          "offset": 151
+        },
+        {
+          "end_exclusive": 155,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 153
+        },
+        {
+          "end_exclusive": 158,
+          "hex": "55040a",
+          "interpretation": "ASN.1 object identifier 2.5.4.10",
+          "offset": 155
+        },
+        {
+          "end_exclusive": 160,
+          "hex": "1316",
+          "interpretation": "DER tag 0x13 and definite length 22",
+          "offset": 158
+        },
+        {
+          "decoded_text": "Test Certificates 2011",
+          "end_exclusive": 182,
+          "hex": "54657374204365727469666963617465732032303131",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 160
+        },
+        {
+          "end_exclusive": 184,
+          "hex": "3110",
+          "interpretation": "DER tag 0x31 and definite length 16",
+          "offset": 182
+        },
+        {
+          "end_exclusive": 186,
+          "hex": "300e",
+          "interpretation": "DER tag 0x30 and definite length 14",
+          "offset": 184
+        },
+        {
+          "end_exclusive": 188,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 186
+        },
+        {
+          "end_exclusive": 191,
+          "hex": "550403",
+          "interpretation": "ASN.1 object identifier 2.5.4.3",
+          "offset": 188
+        },
+        {
+          "end_exclusive": 193,
+          "hex": "1307",
+          "interpretation": "DER tag 0x13 and definite length 7",
+          "offset": 191
+        },
+        {
+          "decoded_text": "Good CA",
+          "end_exclusive": 200,
+          "hex": "476f6f64204341",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 193
+        },
+        {
+          "end_exclusive": 204,
+          "hex": "30820122",
+          "interpretation": "DER tag 0x30 and definite length 290",
+          "offset": 200
+        },
+        {
+          "end_exclusive": 206,
+          "hex": "300d",
+          "interpretation": "DER tag 0x30 and definite length 13",
+          "offset": 204
+        },
+        {
+          "end_exclusive": 208,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 206
+        },
+        {
+          "end_exclusive": 217,
+          "hex": "2a864886f70d010101",
+          "interpretation": "ASN.1 object identifier 1.2.840.113549.1.1.1",
+          "offset": 208
+        },
+        {
+          "end_exclusive": 219,
+          "hex": "0500",
+          "interpretation": "DER tag 0x05 and definite length 0",
+          "offset": 217
+        },
+        {
+          "end_exclusive": 223,
+          "hex": "0382010f",
+          "interpretation": "DER tag 0x03 and definite length 271",
+          "offset": 219
+        },
+        {
+          "end_exclusive": 224,
+          "hex": "00",
+          "interpretation": "RSA public-key bit string: zero unused bits",
+          "offset": 223
+        },
+        {
+          "end_exclusive": 228,
+          "hex": "3082010a",
+          "interpretation": "DER tag 0x30 and definite length 266",
+          "offset": 224
+        },
+        {
+          "end_exclusive": 232,
+          "hex": "02820101",
+          "interpretation": "DER tag 0x02 and definite length 257",
+          "offset": 228
+        },
+        {
+          "end_exclusive": 489,
+          "hex": "0090589a47628dfb5df6fba0948f7be5af7d3973206db5590eccc8c6c6b4afe6f267a30b347a73e7ffa498441ff39c0d232c5eaf21e645da046a962bebd2c03fcfce9e4e606a6d5e618f72d843b40c25ada7e418e4b81aa209f3e93d5c62acfaf4145c92ac3a4e3b46ecc3e8f66ea6ae2cd7ac5a2d5a986d40b6e94718d3c1a99e82cd1c9652fc4997c35659ddde18663365a48a5614d1e750699d88629750f5fff47d1f563200690c239c601ba60c82ba65a0cc8c0fa57f84945394af7cfb06856714a8485f37be566406496c59c6f58350df74525d2d2c4a4b824dce571501e15506b9fd793893a9828d7189b20d3e65add7855d6b637dcab34a96824664da8b",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
+          "offset": 232
+        },
+        {
+          "end_exclusive": 491,
+          "hex": "0203",
+          "interpretation": "DER tag 0x02 and definite length 3",
+          "offset": 489
+        },
+        {
+          "end_exclusive": 494,
+          "hex": "010001",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
+          "offset": 491
+        },
+        {
+          "end_exclusive": 496,
+          "hex": "a37c",
+          "interpretation": "DER tag 0xa3 and definite length 124",
+          "offset": 494
+        },
+        {
+          "end_exclusive": 498,
+          "hex": "307a",
+          "interpretation": "DER tag 0x30 and definite length 122",
+          "offset": 496
+        },
+        {
+          "end_exclusive": 500,
+          "hex": "301f",
+          "interpretation": "DER tag 0x30 and definite length 31",
+          "offset": 498
+        },
+        {
+          "end_exclusive": 502,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 500
+        },
+        {
+          "end_exclusive": 505,
+          "hex": "551d23",
+          "interpretation": "ASN.1 object identifier 2.5.29.35",
+          "offset": 502
+        },
+        {
+          "end_exclusive": 507,
+          "hex": "0418",
+          "interpretation": "DER tag 0x04 and definite length 24",
+          "offset": 505
+        },
+        {
+          "end_exclusive": 509,
+          "hex": "3016",
+          "interpretation": "DER tag 0x30 and definite length 22",
+          "offset": 507
+        },
+        {
+          "end_exclusive": 511,
+          "hex": "8014",
+          "interpretation": "DER tag 0x80 and definite length 20",
+          "offset": 509
+        },
+        {
+          "end_exclusive": 531,
+          "hex": "e47d5fd15c9586082c05aebe75b665a7d95da866",
+          "interpretation": "Authority public-key identifier: 20 hash bytes",
+          "offset": 511
+        },
+        {
+          "end_exclusive": 533,
+          "hex": "301d",
+          "interpretation": "DER tag 0x30 and definite length 29",
+          "offset": 531
+        },
+        {
+          "end_exclusive": 535,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 533
+        },
+        {
+          "end_exclusive": 538,
+          "hex": "551d0e",
+          "interpretation": "ASN.1 object identifier 2.5.29.14",
+          "offset": 535
+        },
+        {
+          "end_exclusive": 540,
+          "hex": "0416",
+          "interpretation": "DER tag 0x04 and definite length 22",
+          "offset": 538
+        },
+        {
+          "end_exclusive": 542,
+          "hex": "0414",
+          "interpretation": "DER tag 0x04 and definite length 20",
+          "offset": 540
+        },
+        {
+          "end_exclusive": 562,
+          "hex": "580184241bbc2b52944a3da510721451f5af3ac9",
+          "interpretation": "Subject public-key identifier: 20 hash bytes",
+          "offset": 542
+        },
+        {
+          "end_exclusive": 564,
+          "hex": "300e",
+          "interpretation": "DER tag 0x30 and definite length 14",
+          "offset": 562
+        },
+        {
+          "end_exclusive": 566,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 564
+        },
+        {
+          "end_exclusive": 569,
+          "hex": "551d0f",
+          "interpretation": "ASN.1 object identifier 2.5.29.15",
+          "offset": 566
+        },
+        {
+          "end_exclusive": 571,
+          "hex": "0101",
+          "interpretation": "DER tag 0x01 and definite length 1",
+          "offset": 569
+        },
+        {
+          "end_exclusive": 572,
+          "hex": "ff",
+          "interpretation": "ASN.1 boolean",
+          "offset": 571
+        },
+        {
+          "end_exclusive": 574,
+          "hex": "0404",
+          "interpretation": "DER tag 0x04 and definite length 4",
+          "offset": 572
+        },
+        {
+          "end_exclusive": 576,
+          "hex": "0302",
+          "interpretation": "DER tag 0x03 and definite length 2",
+          "offset": 574
+        },
+        {
+          "end_exclusive": 578,
+          "hex": "0106",
+          "interpretation": "Key-usage flags and unused-bit count",
+          "offset": 576
+        },
+        {
+          "end_exclusive": 580,
+          "hex": "3017",
+          "interpretation": "DER tag 0x30 and definite length 23",
+          "offset": 578
+        },
+        {
+          "end_exclusive": 582,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 580
+        },
+        {
+          "end_exclusive": 585,
+          "hex": "551d20",
+          "interpretation": "ASN.1 object identifier 2.5.29.32",
+          "offset": 582
+        },
+        {
+          "end_exclusive": 587,
+          "hex": "0410",
+          "interpretation": "DER tag 0x04 and definite length 16",
+          "offset": 585
+        },
+        {
+          "end_exclusive": 589,
+          "hex": "300e",
+          "interpretation": "DER tag 0x30 and definite length 14",
+          "offset": 587
+        },
+        {
+          "end_exclusive": 591,
+          "hex": "300c",
+          "interpretation": "DER tag 0x30 and definite length 12",
+          "offset": 589
+        },
+        {
+          "end_exclusive": 593,
+          "hex": "060a",
+          "interpretation": "DER tag 0x06 and definite length 10",
+          "offset": 591
+        },
+        {
+          "end_exclusive": 603,
+          "hex": "60864801650302013001",
+          "interpretation": "ASN.1 object identifier 2.16.840.1.101.3.2.1.48.1",
+          "offset": 593
+        },
+        {
+          "end_exclusive": 605,
+          "hex": "300f",
+          "interpretation": "DER tag 0x30 and definite length 15",
+          "offset": 603
+        },
+        {
+          "end_exclusive": 607,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 605
+        },
+        {
+          "end_exclusive": 610,
+          "hex": "551d13",
+          "interpretation": "ASN.1 object identifier 2.5.29.19",
+          "offset": 607
+        },
+        {
+          "end_exclusive": 612,
+          "hex": "0101",
+          "interpretation": "DER tag 0x01 and definite length 1",
+          "offset": 610
+        },
+        {
+          "end_exclusive": 613,
+          "hex": "ff",
+          "interpretation": "ASN.1 boolean",
+          "offset": 612
+        },
+        {
+          "end_exclusive": 615,
+          "hex": "0405",
+          "interpretation": "DER tag 0x04 and definite length 5",
+          "offset": 613
+        },
+        {
+          "end_exclusive": 617,
+          "hex": "3003",
+          "interpretation": "DER tag 0x30 and definite length 3",
+          "offset": 615
+        },
+        {
+          "end_exclusive": 619,
+          "hex": "0101",
+          "interpretation": "DER tag 0x01 and definite length 1",
+          "offset": 617
+        },
+        {
+          "end_exclusive": 620,
+          "hex": "ff",
+          "interpretation": "ASN.1 boolean",
+          "offset": 619
+        },
+        {
+          "end_exclusive": 622,
+          "hex": "300d",
+          "interpretation": "DER tag 0x30 and definite length 13",
+          "offset": 620
+        },
+        {
+          "end_exclusive": 624,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 622
+        },
+        {
+          "end_exclusive": 633,
+          "hex": "2a864886f70d01010b",
+          "interpretation": "ASN.1 object identifier 1.2.840.113549.1.1.11",
+          "offset": 624
+        },
+        {
+          "end_exclusive": 635,
+          "hex": "0500",
+          "interpretation": "DER tag 0x05 and definite length 0",
+          "offset": 633
+        },
+        {
+          "end_exclusive": 639,
+          "hex": "03820101",
+          "interpretation": "DER tag 0x03 and definite length 257",
+          "offset": 635
+        },
+        {
+          "end_exclusive": 896,
+          "hex": "0035879716e67535cdc012ff965c2142ac276b32bb082d96b17041aa034f5a3ee6b6f43e68b1bcff9d107364ae9fba36567c05f43d7c5147bc1a3dee3d4607fa8488d6f0ddc8a72398c6ca454e2b9347a8dd41cd0d7c2a21573d0904bdb26c95fb1d470b02f84d3aeaf8b5cb2b1fea5628f462a93e5097c0b6b8368e760a5ec0ae14c0504275821abc1ad60d53a61469fd19981e73329d816666b5edcc5cfe53d5c403b0be80fab892a0c8fe255f213d6cea506d741e7496b0d5c25da861f02f5bfeac0b6b1ed9095e6627549abce254d3f8a0479720da2453a4faa7ffc7335146418c368cebe929c2ad5824809de8046e0b066330132a398f24f2749e91c5ab33",
+          "interpretation": "RSA certificate signature: unused-bit count and mathematical signature value",
+          "offset": 639
+        }
+      ],
       "sha256": "86d218374763fce77d5b2b45398db48f10e553da1875be7d6103085baca0343f",
       "size": 896,
-      "status": "undecoded-member-needs-review"
+      "status": "complete-reviewed-binary-record-no-ownership-statement"
     },
     {
       "path": "cms-0.2.3/tests/examples/GoodCACert.pem",
@@ -153,10 +837,640 @@
       "status": "decoded-no-ownership-markers"
     },
     {
+      "format": "Exact X.509 DER test certificate with fully decoded fields",
+      "meaning": "Every byte belongs to an inspected typed field. Certificate subject and issuer names are identities, not copyright declarations. All policy text is decoded. No trust or package approval is granted.",
       "path": "cms-0.2.3/tests/examples/ValidCertificatePathTest1EE.crt",
+      "reviewed_byte_ranges": [
+        {
+          "end_exclusive": 4,
+          "hex": "30820379",
+          "interpretation": "DER tag 0x30 and definite length 889",
+          "offset": 0
+        },
+        {
+          "end_exclusive": 8,
+          "hex": "30820261",
+          "interpretation": "DER tag 0x30 and definite length 609",
+          "offset": 4
+        },
+        {
+          "end_exclusive": 10,
+          "hex": "a003",
+          "interpretation": "DER tag 0xa0 and definite length 3",
+          "offset": 8
+        },
+        {
+          "end_exclusive": 12,
+          "hex": "0201",
+          "interpretation": "DER tag 0x02 and definite length 1",
+          "offset": 10
+        },
+        {
+          "end_exclusive": 13,
+          "hex": "02",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
+          "offset": 12
+        },
+        {
+          "end_exclusive": 15,
+          "hex": "0201",
+          "interpretation": "DER tag 0x02 and definite length 1",
+          "offset": 13
+        },
+        {
+          "end_exclusive": 16,
+          "hex": "01",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
+          "offset": 15
+        },
+        {
+          "end_exclusive": 18,
+          "hex": "300d",
+          "interpretation": "DER tag 0x30 and definite length 13",
+          "offset": 16
+        },
+        {
+          "end_exclusive": 20,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 18
+        },
+        {
+          "end_exclusive": 29,
+          "hex": "2a864886f70d01010b",
+          "interpretation": "ASN.1 object identifier 1.2.840.113549.1.1.11",
+          "offset": 20
+        },
+        {
+          "end_exclusive": 31,
+          "hex": "0500",
+          "interpretation": "DER tag 0x05 and definite length 0",
+          "offset": 29
+        },
+        {
+          "end_exclusive": 33,
+          "hex": "3040",
+          "interpretation": "DER tag 0x30 and definite length 64",
+          "offset": 31
+        },
+        {
+          "end_exclusive": 35,
+          "hex": "310b",
+          "interpretation": "DER tag 0x31 and definite length 11",
+          "offset": 33
+        },
+        {
+          "end_exclusive": 37,
+          "hex": "3009",
+          "interpretation": "DER tag 0x30 and definite length 9",
+          "offset": 35
+        },
+        {
+          "end_exclusive": 39,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 37
+        },
+        {
+          "end_exclusive": 42,
+          "hex": "550406",
+          "interpretation": "ASN.1 object identifier 2.5.4.6",
+          "offset": 39
+        },
+        {
+          "end_exclusive": 44,
+          "hex": "1302",
+          "interpretation": "DER tag 0x13 and definite length 2",
+          "offset": 42
+        },
+        {
+          "decoded_text": "US",
+          "end_exclusive": 46,
+          "hex": "5553",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 44
+        },
+        {
+          "end_exclusive": 48,
+          "hex": "311f",
+          "interpretation": "DER tag 0x31 and definite length 31",
+          "offset": 46
+        },
+        {
+          "end_exclusive": 50,
+          "hex": "301d",
+          "interpretation": "DER tag 0x30 and definite length 29",
+          "offset": 48
+        },
+        {
+          "end_exclusive": 52,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 50
+        },
+        {
+          "end_exclusive": 55,
+          "hex": "55040a",
+          "interpretation": "ASN.1 object identifier 2.5.4.10",
+          "offset": 52
+        },
+        {
+          "end_exclusive": 57,
+          "hex": "1316",
+          "interpretation": "DER tag 0x13 and definite length 22",
+          "offset": 55
+        },
+        {
+          "decoded_text": "Test Certificates 2011",
+          "end_exclusive": 79,
+          "hex": "54657374204365727469666963617465732032303131",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 57
+        },
+        {
+          "end_exclusive": 81,
+          "hex": "3110",
+          "interpretation": "DER tag 0x31 and definite length 16",
+          "offset": 79
+        },
+        {
+          "end_exclusive": 83,
+          "hex": "300e",
+          "interpretation": "DER tag 0x30 and definite length 14",
+          "offset": 81
+        },
+        {
+          "end_exclusive": 85,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 83
+        },
+        {
+          "end_exclusive": 88,
+          "hex": "550403",
+          "interpretation": "ASN.1 object identifier 2.5.4.3",
+          "offset": 85
+        },
+        {
+          "end_exclusive": 90,
+          "hex": "1307",
+          "interpretation": "DER tag 0x13 and definite length 7",
+          "offset": 88
+        },
+        {
+          "decoded_text": "Good CA",
+          "end_exclusive": 97,
+          "hex": "476f6f64204341",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 90
+        },
+        {
+          "end_exclusive": 99,
+          "hex": "301e",
+          "interpretation": "DER tag 0x30 and definite length 30",
+          "offset": 97
+        },
+        {
+          "end_exclusive": 101,
+          "hex": "170d",
+          "interpretation": "DER tag 0x17 and definite length 13",
+          "offset": 99
+        },
+        {
+          "decoded_text": "100101083000Z",
+          "end_exclusive": 114,
+          "hex": "3130303130313038333030305a",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 101
+        },
+        {
+          "end_exclusive": 116,
+          "hex": "170d",
+          "interpretation": "DER tag 0x17 and definite length 13",
+          "offset": 114
+        },
+        {
+          "decoded_text": "301231083000Z",
+          "end_exclusive": 129,
+          "hex": "3330313233313038333030305a",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 116
+        },
+        {
+          "end_exclusive": 131,
+          "hex": "3053",
+          "interpretation": "DER tag 0x30 and definite length 83",
+          "offset": 129
+        },
+        {
+          "end_exclusive": 133,
+          "hex": "310b",
+          "interpretation": "DER tag 0x31 and definite length 11",
+          "offset": 131
+        },
+        {
+          "end_exclusive": 135,
+          "hex": "3009",
+          "interpretation": "DER tag 0x30 and definite length 9",
+          "offset": 133
+        },
+        {
+          "end_exclusive": 137,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 135
+        },
+        {
+          "end_exclusive": 140,
+          "hex": "550406",
+          "interpretation": "ASN.1 object identifier 2.5.4.6",
+          "offset": 137
+        },
+        {
+          "end_exclusive": 142,
+          "hex": "1302",
+          "interpretation": "DER tag 0x13 and definite length 2",
+          "offset": 140
+        },
+        {
+          "decoded_text": "US",
+          "end_exclusive": 144,
+          "hex": "5553",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 142
+        },
+        {
+          "end_exclusive": 146,
+          "hex": "311f",
+          "interpretation": "DER tag 0x31 and definite length 31",
+          "offset": 144
+        },
+        {
+          "end_exclusive": 148,
+          "hex": "301d",
+          "interpretation": "DER tag 0x30 and definite length 29",
+          "offset": 146
+        },
+        {
+          "end_exclusive": 150,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 148
+        },
+        {
+          "end_exclusive": 153,
+          "hex": "55040a",
+          "interpretation": "ASN.1 object identifier 2.5.4.10",
+          "offset": 150
+        },
+        {
+          "end_exclusive": 155,
+          "hex": "1316",
+          "interpretation": "DER tag 0x13 and definite length 22",
+          "offset": 153
+        },
+        {
+          "decoded_text": "Test Certificates 2011",
+          "end_exclusive": 177,
+          "hex": "54657374204365727469666963617465732032303131",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 155
+        },
+        {
+          "end_exclusive": 179,
+          "hex": "3123",
+          "interpretation": "DER tag 0x31 and definite length 35",
+          "offset": 177
+        },
+        {
+          "end_exclusive": 181,
+          "hex": "3021",
+          "interpretation": "DER tag 0x30 and definite length 33",
+          "offset": 179
+        },
+        {
+          "end_exclusive": 183,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 181
+        },
+        {
+          "end_exclusive": 186,
+          "hex": "550403",
+          "interpretation": "ASN.1 object identifier 2.5.4.3",
+          "offset": 183
+        },
+        {
+          "end_exclusive": 188,
+          "hex": "131a",
+          "interpretation": "DER tag 0x13 and definite length 26",
+          "offset": 186
+        },
+        {
+          "decoded_text": "Valid EE Certificate Test1",
+          "end_exclusive": 214,
+          "hex": "56616c6964204545204365727469666963617465205465737431",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 188
+        },
+        {
+          "end_exclusive": 218,
+          "hex": "30820122",
+          "interpretation": "DER tag 0x30 and definite length 290",
+          "offset": 214
+        },
+        {
+          "end_exclusive": 220,
+          "hex": "300d",
+          "interpretation": "DER tag 0x30 and definite length 13",
+          "offset": 218
+        },
+        {
+          "end_exclusive": 222,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 220
+        },
+        {
+          "end_exclusive": 231,
+          "hex": "2a864886f70d010101",
+          "interpretation": "ASN.1 object identifier 1.2.840.113549.1.1.1",
+          "offset": 222
+        },
+        {
+          "end_exclusive": 233,
+          "hex": "0500",
+          "interpretation": "DER tag 0x05 and definite length 0",
+          "offset": 231
+        },
+        {
+          "end_exclusive": 237,
+          "hex": "0382010f",
+          "interpretation": "DER tag 0x03 and definite length 271",
+          "offset": 233
+        },
+        {
+          "end_exclusive": 238,
+          "hex": "00",
+          "interpretation": "RSA public-key bit string: zero unused bits",
+          "offset": 237
+        },
+        {
+          "end_exclusive": 242,
+          "hex": "3082010a",
+          "interpretation": "DER tag 0x30 and definite length 266",
+          "offset": 238
+        },
+        {
+          "end_exclusive": 246,
+          "hex": "02820101",
+          "interpretation": "DER tag 0x02 and definite length 257",
+          "offset": 242
+        },
+        {
+          "end_exclusive": 503,
+          "hex": "00d9dc77181010186041fbe778100ff8847770ef2d6e553b11a699523f6df4bda197fa361e6e444211c853fe75869b5e371288a27dd97108d4493571ce46cf5bd0598e651feb423dca0edc4c90d85469cf5e38b22060dd83512edfdbd55b38915a2dcf9a33b46f9690e576146243698410cf5441f935ea9ed45a979d5e1059bde0e4c35989d7def279b0876b02c059a12a0082156f6b1111005334743df4e1cc5662a2e465e823b1831d585308b2332d96bee57d339e105a277353dd5d98e24b115358918fea7211ecbb94f20d0f50adf216b51a002431e515bd170690aa24b1acdd0c521ef08b6aabb8f7eddf63b4ce9468bf5e96d04496f1f8f47a3a0a791553",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
+          "offset": 246
+        },
+        {
+          "end_exclusive": 505,
+          "hex": "0203",
+          "interpretation": "DER tag 0x02 and definite length 3",
+          "offset": 503
+        },
+        {
+          "end_exclusive": 508,
+          "hex": "010001",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
+          "offset": 505
+        },
+        {
+          "end_exclusive": 510,
+          "hex": "a36b",
+          "interpretation": "DER tag 0xa3 and definite length 107",
+          "offset": 508
+        },
+        {
+          "end_exclusive": 512,
+          "hex": "3069",
+          "interpretation": "DER tag 0x30 and definite length 105",
+          "offset": 510
+        },
+        {
+          "end_exclusive": 514,
+          "hex": "301f",
+          "interpretation": "DER tag 0x30 and definite length 31",
+          "offset": 512
+        },
+        {
+          "end_exclusive": 516,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 514
+        },
+        {
+          "end_exclusive": 519,
+          "hex": "551d23",
+          "interpretation": "ASN.1 object identifier 2.5.29.35",
+          "offset": 516
+        },
+        {
+          "end_exclusive": 521,
+          "hex": "0418",
+          "interpretation": "DER tag 0x04 and definite length 24",
+          "offset": 519
+        },
+        {
+          "end_exclusive": 523,
+          "hex": "3016",
+          "interpretation": "DER tag 0x30 and definite length 22",
+          "offset": 521
+        },
+        {
+          "end_exclusive": 525,
+          "hex": "8014",
+          "interpretation": "DER tag 0x80 and definite length 20",
+          "offset": 523
+        },
+        {
+          "end_exclusive": 545,
+          "hex": "580184241bbc2b52944a3da510721451f5af3ac9",
+          "interpretation": "Authority public-key identifier: 20 hash bytes",
+          "offset": 525
+        },
+        {
+          "end_exclusive": 547,
+          "hex": "301d",
+          "interpretation": "DER tag 0x30 and definite length 29",
+          "offset": 545
+        },
+        {
+          "end_exclusive": 549,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 547
+        },
+        {
+          "end_exclusive": 552,
+          "hex": "551d0e",
+          "interpretation": "ASN.1 object identifier 2.5.29.14",
+          "offset": 549
+        },
+        {
+          "end_exclusive": 554,
+          "hex": "0416",
+          "interpretation": "DER tag 0x04 and definite length 22",
+          "offset": 552
+        },
+        {
+          "end_exclusive": 556,
+          "hex": "0414",
+          "interpretation": "DER tag 0x04 and definite length 20",
+          "offset": 554
+        },
+        {
+          "end_exclusive": 576,
+          "hex": "a83c099d67f6d847baa2d0fc18725688406d9595",
+          "interpretation": "Subject public-key identifier: 20 hash bytes",
+          "offset": 556
+        },
+        {
+          "end_exclusive": 578,
+          "hex": "300e",
+          "interpretation": "DER tag 0x30 and definite length 14",
+          "offset": 576
+        },
+        {
+          "end_exclusive": 580,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 578
+        },
+        {
+          "end_exclusive": 583,
+          "hex": "551d0f",
+          "interpretation": "ASN.1 object identifier 2.5.29.15",
+          "offset": 580
+        },
+        {
+          "end_exclusive": 585,
+          "hex": "0101",
+          "interpretation": "DER tag 0x01 and definite length 1",
+          "offset": 583
+        },
+        {
+          "end_exclusive": 586,
+          "hex": "ff",
+          "interpretation": "ASN.1 boolean",
+          "offset": 585
+        },
+        {
+          "end_exclusive": 588,
+          "hex": "0404",
+          "interpretation": "DER tag 0x04 and definite length 4",
+          "offset": 586
+        },
+        {
+          "end_exclusive": 590,
+          "hex": "0302",
+          "interpretation": "DER tag 0x03 and definite length 2",
+          "offset": 588
+        },
+        {
+          "end_exclusive": 592,
+          "hex": "04f0",
+          "interpretation": "Key-usage flags and unused-bit count",
+          "offset": 590
+        },
+        {
+          "end_exclusive": 594,
+          "hex": "3017",
+          "interpretation": "DER tag 0x30 and definite length 23",
+          "offset": 592
+        },
+        {
+          "end_exclusive": 596,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 594
+        },
+        {
+          "end_exclusive": 599,
+          "hex": "551d20",
+          "interpretation": "ASN.1 object identifier 2.5.29.32",
+          "offset": 596
+        },
+        {
+          "end_exclusive": 601,
+          "hex": "0410",
+          "interpretation": "DER tag 0x04 and definite length 16",
+          "offset": 599
+        },
+        {
+          "end_exclusive": 603,
+          "hex": "300e",
+          "interpretation": "DER tag 0x30 and definite length 14",
+          "offset": 601
+        },
+        {
+          "end_exclusive": 605,
+          "hex": "300c",
+          "interpretation": "DER tag 0x30 and definite length 12",
+          "offset": 603
+        },
+        {
+          "end_exclusive": 607,
+          "hex": "060a",
+          "interpretation": "DER tag 0x06 and definite length 10",
+          "offset": 605
+        },
+        {
+          "end_exclusive": 617,
+          "hex": "60864801650302013001",
+          "interpretation": "ASN.1 object identifier 2.16.840.1.101.3.2.1.48.1",
+          "offset": 607
+        },
+        {
+          "end_exclusive": 619,
+          "hex": "300d",
+          "interpretation": "DER tag 0x30 and definite length 13",
+          "offset": 617
+        },
+        {
+          "end_exclusive": 621,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 619
+        },
+        {
+          "end_exclusive": 630,
+          "hex": "2a864886f70d01010b",
+          "interpretation": "ASN.1 object identifier 1.2.840.113549.1.1.11",
+          "offset": 621
+        },
+        {
+          "end_exclusive": 632,
+          "hex": "0500",
+          "interpretation": "DER tag 0x05 and definite length 0",
+          "offset": 630
+        },
+        {
+          "end_exclusive": 636,
+          "hex": "03820101",
+          "interpretation": "DER tag 0x03 and definite length 257",
+          "offset": 632
+        },
+        {
+          "end_exclusive": 893,
+          "hex": "001e5ad90faf62a5b952bcbcec0c61881301aa0a0f0d47a39ea9b2171bf8a3d92cd28d38be3bb2cfd43188cfce69f48ec7b9700551c00687c695b4f66afa319e2dc417b3ede57a1961186e8cd1e40eda9b6d6c8d0690ee2cd17958d884cd9b41d318e2fe91c65f002714657b12fa2fbda8bf348e2dcf174c585b300f2e69664526262198d3f390ae29875a4ec6bde8287e0fa094e6ff5cb55c4fdd8a61590e05d2ffc569c0d3894ad1c2e5c8f4c808c3fd2a234f84005c2c442d838ac23d22c73c60f28a78e31b4665da998ff863c1d47aa070a67aa7109b9dac7fbe14f044238758ac1015e8f3a0bf1e25cb36ab02695aaeffc06eb0439e089e193ca7306e8dc2",
+          "interpretation": "RSA certificate signature: unused-bit count and mathematical signature value",
+          "offset": 636
+        }
+      ],
       "sha256": "967ed7ed2be0506b82000a377751c5525619d3b9e7fed8a0e7aa554947af5e9e",
       "size": 893,
-      "status": "undecoded-member-needs-review"
+      "status": "complete-reviewed-binary-record-no-ownership-statement"
     },
     {
       "path": "cms-0.2.3/tests/examples/ValidCertificatePathTest1EE.pem",
@@ -207,10 +1521,127 @@
       "status": "undecoded-member-needs-review"
     },
     {
+      "fixture_source_context": {
+        "cms-0.2.3/tests/compressed_data.rs": "abedd3a2b717abeb696acb1c76dd939c4094e861c46b2a59db68643ad2835749"
+      },
+      "format": "Exact CMS compressed_data DER fixture",
+      "format_references": [
+        "https://www.rfc-editor.org/rfc/rfc5652#section-7",
+        "https://www.rfc-editor.org/rfc/rfc5652#section-8",
+        "https://www.rfc-editor.org/rfc/rfc3274"
+      ],
+      "meaning": "Every typed field is inspected. All message content equals the retained sample text, which contains no ownership statement. No author or owner is inferred.",
       "path": "cms-0.2.3/tests/examples/compressed_data.bin",
+      "plaintext_verified": true,
+      "reviewed_byte_ranges": [
+        {
+          "end_exclusive": 4,
+          "hex": "3082014e",
+          "interpretation": "DER tag 0x30 and definite length 334",
+          "offset": 0
+        },
+        {
+          "end_exclusive": 6,
+          "hex": "060b",
+          "interpretation": "DER tag 0x06 and definite length 11",
+          "offset": 4
+        },
+        {
+          "end_exclusive": 17,
+          "hex": "2a864886f70d0109100109",
+          "interpretation": "Object identifier: CMS compressedData 1.2.840.113549.1.9.16.1.9",
+          "offset": 6
+        },
+        {
+          "end_exclusive": 21,
+          "hex": "a082013d",
+          "interpretation": "DER tag 0xa0 and definite length 317",
+          "offset": 17
+        },
+        {
+          "end_exclusive": 25,
+          "hex": "30820139",
+          "interpretation": "DER tag 0x30 and definite length 313",
+          "offset": 21
+        },
+        {
+          "end_exclusive": 27,
+          "hex": "0201",
+          "interpretation": "DER tag 0x02 and definite length 1",
+          "offset": 25
+        },
+        {
+          "end_exclusive": 28,
+          "hex": "00",
+          "interpretation": "CMS version zero",
+          "offset": 27
+        },
+        {
+          "end_exclusive": 30,
+          "hex": "300d",
+          "interpretation": "DER tag 0x30 and definite length 13",
+          "offset": 28
+        },
+        {
+          "end_exclusive": 32,
+          "hex": "060b",
+          "interpretation": "DER tag 0x06 and definite length 11",
+          "offset": 30
+        },
+        {
+          "end_exclusive": 43,
+          "hex": "2a864886f70d0109100308",
+          "interpretation": "Object identifier: Zlib compression 1.2.840.113549.1.9.16.3.8",
+          "offset": 32
+        },
+        {
+          "end_exclusive": 47,
+          "hex": "30820123",
+          "interpretation": "DER tag 0x30 and definite length 291",
+          "offset": 43
+        },
+        {
+          "end_exclusive": 49,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 47
+        },
+        {
+          "end_exclusive": 58,
+          "hex": "2a864886f70d010701",
+          "interpretation": "Object identifier: CMS data 1.2.840.113549.1.7.1",
+          "offset": 49
+        },
+        {
+          "end_exclusive": 62,
+          "hex": "a0820114",
+          "interpretation": "DER tag 0xa0 and definite length 276",
+          "offset": 58
+        },
+        {
+          "end_exclusive": 66,
+          "hex": "04820110",
+          "interpretation": "DER tag 0x04 and definite length 272",
+          "offset": 62
+        },
+        {
+          "decoded_sha256": "56293a80e0394d252e995f2debccea8223e4b5b2b150bee212729b3b39ac4d46",
+          "decoded_size": 446,
+          "decoded_text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n",
+          "end_exclusive": 338,
+          "hex": "789c3590c17143310844efa9620bf0fc2a925bae298020ec30230959028fcb0ff24f6e42c0b2fb3e6d4a838e150dc5aa4d2c755013bf80ad2f61178f092a3a74b1f61ba46a3697945c8068ac66052e6de4b276d6a225ba231c95be531ee2a7b4a0d1ad13a8ea3de8c09743bab6d446d3fd786449ed827be842b7e5330ae42993d5c9d53aa2566a6ca7f21ed2a5fbd24b52470e43288db7f46467803ce507deb724850b74463a39b36ac79431e5477a9199c1f3e36135469e93b49349216b09586bfd27948102d7b82939fa368441338b98073e9e2cc32536c66460cc249c731c430bf9dec814639a16e99be226954739eaa09d1b76bd2a2ba1c892b9bbcdeab6411b90268ef5c735daf1f60b457ea513",
+          "interpretation": "Complete zlib stream, including validated checksum, equals the exact data.txt",
+          "offset": 66
+        }
+      ],
       "sha256": "66279624e806691ca3cd920d357ec1d11141b75cf0372c650294472fb3560d7e",
       "size": 338,
-      "status": "undecoded-member-needs-review"
+      "source_plaintext": {
+        "binding": "exact-decoded-equality",
+        "path": "cms-0.2.3/tests/examples/data.txt",
+        "sha256": "56293a80e0394d252e995f2debccea8223e4b5b2b150bee212729b3b39ac4d46"
+      },
+      "status": "complete-reviewed-binary-record-no-ownership-statement"
     },
     {
       "path": "cms-0.2.3/tests/examples/data.txt",
@@ -219,22 +1650,935 @@
       "status": "decoded-no-ownership-markers"
     },
     {
+      "fixture_source_context": {
+        "cms-0.2.3/tests/digested_data.rs": "84b7b6b74bedba137579bee5358c648cb70cf9e23d705212fabea7b73a836854"
+      },
+      "format": "Exact CMS digested_data DER fixture",
+      "format_references": [
+        "https://www.rfc-editor.org/rfc/rfc5652#section-7",
+        "https://www.rfc-editor.org/rfc/rfc5652#section-8",
+        "https://www.rfc-editor.org/rfc/rfc3274"
+      ],
+      "meaning": "Every typed field is inspected. All message content equals the retained sample text, which contains no ownership statement. No author or owner is inferred.",
       "path": "cms-0.2.3/tests/examples/digested_data.bin",
+      "plaintext_verified": true,
+      "reviewed_byte_ranges": [
+        {
+          "end_exclusive": 4,
+          "hex": "3082020a",
+          "interpretation": "DER tag 0x30 and definite length 522",
+          "offset": 0
+        },
+        {
+          "end_exclusive": 6,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 4
+        },
+        {
+          "end_exclusive": 15,
+          "hex": "2a864886f70d010705",
+          "interpretation": "Object identifier: CMS digestedData 1.2.840.113549.1.7.5",
+          "offset": 6
+        },
+        {
+          "end_exclusive": 19,
+          "hex": "a08201fb",
+          "interpretation": "DER tag 0xa0 and definite length 507",
+          "offset": 15
+        },
+        {
+          "end_exclusive": 23,
+          "hex": "308201f7",
+          "interpretation": "DER tag 0x30 and definite length 503",
+          "offset": 19
+        },
+        {
+          "end_exclusive": 25,
+          "hex": "0201",
+          "interpretation": "DER tag 0x02 and definite length 1",
+          "offset": 23
+        },
+        {
+          "end_exclusive": 26,
+          "hex": "00",
+          "interpretation": "CMS version zero",
+          "offset": 25
+        },
+        {
+          "end_exclusive": 28,
+          "hex": "3007",
+          "interpretation": "DER tag 0x30 and definite length 7",
+          "offset": 26
+        },
+        {
+          "end_exclusive": 30,
+          "hex": "0605",
+          "interpretation": "DER tag 0x06 and definite length 5",
+          "offset": 28
+        },
+        {
+          "end_exclusive": 35,
+          "hex": "2b0e03021a",
+          "interpretation": "Object identifier: SHA-1 digest 1.3.14.3.2.26",
+          "offset": 30
+        },
+        {
+          "end_exclusive": 39,
+          "hex": "308201d1",
+          "interpretation": "DER tag 0x30 and definite length 465",
+          "offset": 35
+        },
+        {
+          "end_exclusive": 41,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 39
+        },
+        {
+          "end_exclusive": 50,
+          "hex": "2a864886f70d010701",
+          "interpretation": "Object identifier: CMS data 1.2.840.113549.1.7.1",
+          "offset": 41
+        },
+        {
+          "end_exclusive": 54,
+          "hex": "a08201c2",
+          "interpretation": "DER tag 0xa0 and definite length 450",
+          "offset": 50
+        },
+        {
+          "end_exclusive": 58,
+          "hex": "048201be",
+          "interpretation": "DER tag 0x04 and definite length 446",
+          "offset": 54
+        },
+        {
+          "decoded_text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n",
+          "end_exclusive": 504,
+          "hex": "4c6f72656d20697073756d20646f6c6f722073697420616d65742c20636f6e73656374657475722061646970697363696e6720656c69742c2073656420646f20656975736d6f642074656d706f7220696e6369646964756e74207574206c61626f726520657420646f6c6f7265206d61676e6120616c697175612e20557420656e696d206164206d696e696d2076656e69616d2c2071756973206e6f737472756420657865726369746174696f6e20756c6c616d636f206c61626f726973206e69736920757420616c697175697020657820656120636f6d6d6f646f20636f6e7365717561742e2044756973206175746520697275726520646f6c6f7220696e20726570726568656e646572697420696e20766f6c7570746174652076656c697420657373652063696c6c756d20646f6c6f726520657520667567696174206e756c6c612070617269617475722e204578636570746575722073696e74206f6363616563617420637570696461746174206e6f6e2070726f6964656e742c2073756e7420696e2063756c706120717569206f666669636961206465736572756e74206d6f6c6c697420616e696d20696420657374206c61626f72756d2e0a",
+          "interpretation": "Encapsulated data equals the exact data.txt",
+          "offset": 58
+        },
+        {
+          "end_exclusive": 506,
+          "hex": "0414",
+          "interpretation": "DER tag 0x04 and definite length 20",
+          "offset": 504
+        },
+        {
+          "end_exclusive": 526,
+          "hex": "4518012e1b365e504001dbc94120624f15b8bbd5",
+          "interpretation": "SHA-1 sample-content checksum, independently recomputed; not a security approval",
+          "offset": 506
+        }
+      ],
       "sha256": "dde579b1b0939c31bba984f67b03dcd1f49764d0aea5751a1a451ecbb9265171",
       "size": 526,
-      "status": "undecoded-member-needs-review"
+      "source_plaintext": {
+        "binding": "exact-decoded-equality",
+        "path": "cms-0.2.3/tests/examples/data.txt",
+        "sha256": "56293a80e0394d252e995f2debccea8223e4b5b2b150bee212729b3b39ac4d46"
+      },
+      "status": "complete-reviewed-binary-record-no-ownership-statement"
     },
     {
+      "format": "Exact X.509 DER test certificate with fully decoded fields",
+      "meaning": "Every byte belongs to an inspected typed field. Certificate subject and issuer names are identities, not copyright declarations. All policy text is decoded. No trust or package approval is granted.",
       "path": "cms-0.2.3/tests/examples/ec384-ee-key.der",
+      "reviewed_byte_ranges": [
+        {
+          "end_exclusive": 4,
+          "hex": "3082020a",
+          "interpretation": "DER tag 0x30 and definite length 522",
+          "offset": 0
+        },
+        {
+          "end_exclusive": 8,
+          "hex": "30820190",
+          "interpretation": "DER tag 0x30 and definite length 400",
+          "offset": 4
+        },
+        {
+          "end_exclusive": 10,
+          "hex": "0214",
+          "interpretation": "DER tag 0x02 and definite length 20",
+          "offset": 8
+        },
+        {
+          "end_exclusive": 30,
+          "hex": "0c8c6a49ce2677bb733dff0fcfb72c062080791b",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
+          "offset": 10
+        },
+        {
+          "end_exclusive": 32,
+          "hex": "300a",
+          "interpretation": "DER tag 0x30 and definite length 10",
+          "offset": 30
+        },
+        {
+          "end_exclusive": 34,
+          "hex": "0608",
+          "interpretation": "DER tag 0x06 and definite length 8",
+          "offset": 32
+        },
+        {
+          "end_exclusive": 42,
+          "hex": "2a8648ce3d040302",
+          "interpretation": "ASN.1 object identifier 1.2.840.10045.4.3.2",
+          "offset": 34
+        },
+        {
+          "end_exclusive": 44,
+          "hex": "3069",
+          "interpretation": "DER tag 0x30 and definite length 105",
+          "offset": 42
+        },
+        {
+          "end_exclusive": 46,
+          "hex": "310b",
+          "interpretation": "DER tag 0x31 and definite length 11",
+          "offset": 44
+        },
+        {
+          "end_exclusive": 48,
+          "hex": "3009",
+          "interpretation": "DER tag 0x30 and definite length 9",
+          "offset": 46
+        },
+        {
+          "end_exclusive": 50,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 48
+        },
+        {
+          "end_exclusive": 53,
+          "hex": "550406",
+          "interpretation": "ASN.1 object identifier 2.5.4.6",
+          "offset": 50
+        },
+        {
+          "end_exclusive": 55,
+          "hex": "1302",
+          "interpretation": "DER tag 0x13 and definite length 2",
+          "offset": 53
+        },
+        {
+          "decoded_text": "US",
+          "end_exclusive": 57,
+          "hex": "5553",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 55
+        },
+        {
+          "end_exclusive": 59,
+          "hex": "310b",
+          "interpretation": "DER tag 0x31 and definite length 11",
+          "offset": 57
+        },
+        {
+          "end_exclusive": 61,
+          "hex": "3009",
+          "interpretation": "DER tag 0x30 and definite length 9",
+          "offset": 59
+        },
+        {
+          "end_exclusive": 63,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 61
+        },
+        {
+          "end_exclusive": 66,
+          "hex": "550408",
+          "interpretation": "ASN.1 object identifier 2.5.4.8",
+          "offset": 63
+        },
+        {
+          "end_exclusive": 68,
+          "hex": "0c02",
+          "interpretation": "DER tag 0x0c and definite length 2",
+          "offset": 66
+        },
+        {
+          "decoded_text": "VA",
+          "end_exclusive": 70,
+          "hex": "5641",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 68
+        },
+        {
+          "end_exclusive": 72,
+          "hex": "3112",
+          "interpretation": "DER tag 0x31 and definite length 18",
+          "offset": 70
+        },
+        {
+          "end_exclusive": 74,
+          "hex": "3010",
+          "interpretation": "DER tag 0x30 and definite length 16",
+          "offset": 72
+        },
+        {
+          "end_exclusive": 76,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 74
+        },
+        {
+          "end_exclusive": 79,
+          "hex": "550407",
+          "interpretation": "ASN.1 object identifier 2.5.4.7",
+          "offset": 76
+        },
+        {
+          "end_exclusive": 81,
+          "hex": "0c09",
+          "interpretation": "DER tag 0x0c and definite length 9",
+          "offset": 79
+        },
+        {
+          "decoded_text": "Arlington",
+          "end_exclusive": 90,
+          "hex": "41726c696e67746f6e",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 81
+        },
+        {
+          "end_exclusive": 92,
+          "hex": "3112",
+          "interpretation": "DER tag 0x31 and definite length 18",
+          "offset": 90
+        },
+        {
+          "end_exclusive": 94,
+          "hex": "3010",
+          "interpretation": "DER tag 0x30 and definite length 16",
+          "offset": 92
+        },
+        {
+          "end_exclusive": 96,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 94
+        },
+        {
+          "end_exclusive": 99,
+          "hex": "55040a",
+          "interpretation": "ASN.1 object identifier 2.5.4.10",
+          "offset": 96
+        },
+        {
+          "end_exclusive": 101,
+          "hex": "0c09",
+          "interpretation": "DER tag 0x0c and definite length 9",
+          "offset": 99
+        },
+        {
+          "decoded_text": "Red Hound",
+          "end_exclusive": 110,
+          "hex": "52656420486f756e64",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 101
+        },
+        {
+          "end_exclusive": 112,
+          "hex": "3110",
+          "interpretation": "DER tag 0x31 and definite length 16",
+          "offset": 110
+        },
+        {
+          "end_exclusive": 114,
+          "hex": "300e",
+          "interpretation": "DER tag 0x30 and definite length 14",
+          "offset": 112
+        },
+        {
+          "end_exclusive": 116,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 114
+        },
+        {
+          "end_exclusive": 119,
+          "hex": "55040b",
+          "interpretation": "ASN.1 object identifier 2.5.4.11",
+          "offset": 116
+        },
+        {
+          "end_exclusive": 121,
+          "hex": "0c07",
+          "interpretation": "DER tag 0x0c and definite length 7",
+          "offset": 119
+        },
+        {
+          "decoded_text": "Testing",
+          "end_exclusive": 128,
+          "hex": "54657374696e67",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 121
+        },
+        {
+          "end_exclusive": 130,
+          "hex": "3113",
+          "interpretation": "DER tag 0x31 and definite length 19",
+          "offset": 128
+        },
+        {
+          "end_exclusive": 132,
+          "hex": "3011",
+          "interpretation": "DER tag 0x30 and definite length 17",
+          "offset": 130
+        },
+        {
+          "end_exclusive": 134,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 132
+        },
+        {
+          "end_exclusive": 137,
+          "hex": "550403",
+          "interpretation": "ASN.1 object identifier 2.5.4.3",
+          "offset": 134
+        },
+        {
+          "end_exclusive": 139,
+          "hex": "0c0a",
+          "interpretation": "DER tag 0x0c and definite length 10",
+          "offset": 137
+        },
+        {
+          "decoded_text": "End Entity",
+          "end_exclusive": 149,
+          "hex": "456e6420456e74697479",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 139
+        },
+        {
+          "end_exclusive": 151,
+          "hex": "301e",
+          "interpretation": "DER tag 0x30 and definite length 30",
+          "offset": 149
+        },
+        {
+          "end_exclusive": 153,
+          "hex": "170d",
+          "interpretation": "DER tag 0x17 and definite length 13",
+          "offset": 151
+        },
+        {
+          "decoded_text": "230116185523Z",
+          "end_exclusive": 166,
+          "hex": "3233303131363138353532335a",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 153
+        },
+        {
+          "end_exclusive": 168,
+          "hex": "170d",
+          "interpretation": "DER tag 0x17 and definite length 13",
+          "offset": 166
+        },
+        {
+          "decoded_text": "240116185523Z",
+          "end_exclusive": 181,
+          "hex": "3234303131363138353532335a",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 168
+        },
+        {
+          "end_exclusive": 183,
+          "hex": "3069",
+          "interpretation": "DER tag 0x30 and definite length 105",
+          "offset": 181
+        },
+        {
+          "end_exclusive": 185,
+          "hex": "310b",
+          "interpretation": "DER tag 0x31 and definite length 11",
+          "offset": 183
+        },
+        {
+          "end_exclusive": 187,
+          "hex": "3009",
+          "interpretation": "DER tag 0x30 and definite length 9",
+          "offset": 185
+        },
+        {
+          "end_exclusive": 189,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 187
+        },
+        {
+          "end_exclusive": 192,
+          "hex": "550406",
+          "interpretation": "ASN.1 object identifier 2.5.4.6",
+          "offset": 189
+        },
+        {
+          "end_exclusive": 194,
+          "hex": "1302",
+          "interpretation": "DER tag 0x13 and definite length 2",
+          "offset": 192
+        },
+        {
+          "decoded_text": "US",
+          "end_exclusive": 196,
+          "hex": "5553",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 194
+        },
+        {
+          "end_exclusive": 198,
+          "hex": "310b",
+          "interpretation": "DER tag 0x31 and definite length 11",
+          "offset": 196
+        },
+        {
+          "end_exclusive": 200,
+          "hex": "3009",
+          "interpretation": "DER tag 0x30 and definite length 9",
+          "offset": 198
+        },
+        {
+          "end_exclusive": 202,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 200
+        },
+        {
+          "end_exclusive": 205,
+          "hex": "550408",
+          "interpretation": "ASN.1 object identifier 2.5.4.8",
+          "offset": 202
+        },
+        {
+          "end_exclusive": 207,
+          "hex": "0c02",
+          "interpretation": "DER tag 0x0c and definite length 2",
+          "offset": 205
+        },
+        {
+          "decoded_text": "VA",
+          "end_exclusive": 209,
+          "hex": "5641",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 207
+        },
+        {
+          "end_exclusive": 211,
+          "hex": "3112",
+          "interpretation": "DER tag 0x31 and definite length 18",
+          "offset": 209
+        },
+        {
+          "end_exclusive": 213,
+          "hex": "3010",
+          "interpretation": "DER tag 0x30 and definite length 16",
+          "offset": 211
+        },
+        {
+          "end_exclusive": 215,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 213
+        },
+        {
+          "end_exclusive": 218,
+          "hex": "550407",
+          "interpretation": "ASN.1 object identifier 2.5.4.7",
+          "offset": 215
+        },
+        {
+          "end_exclusive": 220,
+          "hex": "0c09",
+          "interpretation": "DER tag 0x0c and definite length 9",
+          "offset": 218
+        },
+        {
+          "decoded_text": "Arlington",
+          "end_exclusive": 229,
+          "hex": "41726c696e67746f6e",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 220
+        },
+        {
+          "end_exclusive": 231,
+          "hex": "3112",
+          "interpretation": "DER tag 0x31 and definite length 18",
+          "offset": 229
+        },
+        {
+          "end_exclusive": 233,
+          "hex": "3010",
+          "interpretation": "DER tag 0x30 and definite length 16",
+          "offset": 231
+        },
+        {
+          "end_exclusive": 235,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 233
+        },
+        {
+          "end_exclusive": 238,
+          "hex": "55040a",
+          "interpretation": "ASN.1 object identifier 2.5.4.10",
+          "offset": 235
+        },
+        {
+          "end_exclusive": 240,
+          "hex": "0c09",
+          "interpretation": "DER tag 0x0c and definite length 9",
+          "offset": 238
+        },
+        {
+          "decoded_text": "Red Hound",
+          "end_exclusive": 249,
+          "hex": "52656420486f756e64",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 240
+        },
+        {
+          "end_exclusive": 251,
+          "hex": "3110",
+          "interpretation": "DER tag 0x31 and definite length 16",
+          "offset": 249
+        },
+        {
+          "end_exclusive": 253,
+          "hex": "300e",
+          "interpretation": "DER tag 0x30 and definite length 14",
+          "offset": 251
+        },
+        {
+          "end_exclusive": 255,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 253
+        },
+        {
+          "end_exclusive": 258,
+          "hex": "55040b",
+          "interpretation": "ASN.1 object identifier 2.5.4.11",
+          "offset": 255
+        },
+        {
+          "end_exclusive": 260,
+          "hex": "0c07",
+          "interpretation": "DER tag 0x0c and definite length 7",
+          "offset": 258
+        },
+        {
+          "decoded_text": "Testing",
+          "end_exclusive": 267,
+          "hex": "54657374696e67",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 260
+        },
+        {
+          "end_exclusive": 269,
+          "hex": "3113",
+          "interpretation": "DER tag 0x31 and definite length 19",
+          "offset": 267
+        },
+        {
+          "end_exclusive": 271,
+          "hex": "3011",
+          "interpretation": "DER tag 0x30 and definite length 17",
+          "offset": 269
+        },
+        {
+          "end_exclusive": 273,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 271
+        },
+        {
+          "end_exclusive": 276,
+          "hex": "550403",
+          "interpretation": "ASN.1 object identifier 2.5.4.3",
+          "offset": 273
+        },
+        {
+          "end_exclusive": 278,
+          "hex": "0c0a",
+          "interpretation": "DER tag 0x0c and definite length 10",
+          "offset": 276
+        },
+        {
+          "decoded_text": "End Entity",
+          "end_exclusive": 288,
+          "hex": "456e6420456e74697479",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 278
+        },
+        {
+          "end_exclusive": 290,
+          "hex": "3076",
+          "interpretation": "DER tag 0x30 and definite length 118",
+          "offset": 288
+        },
+        {
+          "end_exclusive": 292,
+          "hex": "3010",
+          "interpretation": "DER tag 0x30 and definite length 16",
+          "offset": 290
+        },
+        {
+          "end_exclusive": 294,
+          "hex": "0607",
+          "interpretation": "DER tag 0x06 and definite length 7",
+          "offset": 292
+        },
+        {
+          "end_exclusive": 301,
+          "hex": "2a8648ce3d0201",
+          "interpretation": "ASN.1 object identifier 1.2.840.10045.2.1",
+          "offset": 294
+        },
+        {
+          "end_exclusive": 303,
+          "hex": "0605",
+          "interpretation": "DER tag 0x06 and definite length 5",
+          "offset": 301
+        },
+        {
+          "end_exclusive": 308,
+          "hex": "2b81040022",
+          "interpretation": "ASN.1 object identifier 1.3.132.0.34",
+          "offset": 303
+        },
+        {
+          "end_exclusive": 310,
+          "hex": "0362",
+          "interpretation": "DER tag 0x03 and definite length 98",
+          "offset": 308
+        },
+        {
+          "end_exclusive": 311,
+          "hex": "00",
+          "interpretation": "Elliptic-curve public-key bit string: zero unused bits",
+          "offset": 310
+        },
+        {
+          "end_exclusive": 312,
+          "hex": "04",
+          "interpretation": "Uncompressed elliptic-curve point format",
+          "offset": 311
+        },
+        {
+          "end_exclusive": 360,
+          "hex": "3ce2024ad6be93efbcef112401117544e11a6f1f6314e20f27eedf1fd5b5cefd376623f486a941cb3b0b7a227d4f12cf",
+          "interpretation": "384-bit mathematical public x coordinate",
+          "offset": 312
+        },
+        {
+          "end_exclusive": 408,
+          "hex": "de18f74135a6777c515804f9713b13f0959e86a09287230e90b9aaeddbea2b103febaaa599d658faf6c1ad18ffa742d0",
+          "interpretation": "384-bit mathematical public y coordinate",
+          "offset": 360
+        },
+        {
+          "end_exclusive": 410,
+          "hex": "300a",
+          "interpretation": "DER tag 0x30 and definite length 10",
+          "offset": 408
+        },
+        {
+          "end_exclusive": 412,
+          "hex": "0608",
+          "interpretation": "DER tag 0x06 and definite length 8",
+          "offset": 410
+        },
+        {
+          "end_exclusive": 420,
+          "hex": "2a8648ce3d040302",
+          "interpretation": "ASN.1 object identifier 1.2.840.10045.4.3.2",
+          "offset": 412
+        },
+        {
+          "end_exclusive": 422,
+          "hex": "0368",
+          "interpretation": "DER tag 0x03 and definite length 104",
+          "offset": 420
+        },
+        {
+          "end_exclusive": 423,
+          "hex": "00",
+          "interpretation": "ECDSA signature bit string: zero unused bits",
+          "offset": 422
+        },
+        {
+          "end_exclusive": 425,
+          "hex": "3065",
+          "interpretation": "DER tag 0x30 and definite length 101",
+          "offset": 423
+        },
+        {
+          "end_exclusive": 427,
+          "hex": "0231",
+          "interpretation": "DER tag 0x02 and definite length 49",
+          "offset": 425
+        },
+        {
+          "end_exclusive": 476,
+          "hex": "00f01eae3c0532a1238c94ddbfb534c43252066521fa04649673e710da4b5ef920fff061a94422264c7f3abe5124743226",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
+          "offset": 427
+        },
+        {
+          "end_exclusive": 478,
+          "hex": "0230",
+          "interpretation": "DER tag 0x02 and definite length 48",
+          "offset": 476
+        },
+        {
+          "end_exclusive": 526,
+          "hex": "32b9f10ce7a3f24dda07914efffc9e8f8edfe22351987c4da0eda7b31baaaa109cead5fd5a3bfa4baa4494a608a75714",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
+          "offset": 478
+        }
+      ],
       "sha256": "e77868335868ec346608b1a2953ac0a892eb3f6fc7040336fa62db63c7b8c2d9",
       "size": 526,
-      "status": "undecoded-member-needs-review"
+      "status": "complete-reviewed-binary-record-no-ownership-statement"
     },
     {
+      "fixture_source_context": {
+        "cms-0.2.3/tests/encrypted_data.rs": "22b657b794a10292acc0f5a9211fe6d041573cd77724c269913716192766e48e"
+      },
+      "format": "Exact CMS encrypted_data DER fixture",
+      "format_references": [
+        "https://www.rfc-editor.org/rfc/rfc5652#section-7",
+        "https://www.rfc-editor.org/rfc/rfc5652#section-8",
+        "https://www.rfc-editor.org/rfc/rfc3274"
+      ],
+      "meaning": "Only the envelope and encryption parameters are decoded. The source test re-encodes ciphertext and supplies no decryption key. Its copied comment names digested_data.bin, not this encrypted input. No plaintext match or copyright absence is inferred.",
       "path": "cms-0.2.3/tests/examples/encrypted_data.bin",
+      "reviewed_byte_ranges": [
+        {
+          "end_exclusive": 4,
+          "hex": "30820208",
+          "interpretation": "DER tag 0x30 and definite length 520",
+          "offset": 0
+        },
+        {
+          "end_exclusive": 6,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 4
+        },
+        {
+          "end_exclusive": 15,
+          "hex": "2a864886f70d010706",
+          "interpretation": "Object identifier: CMS encryptedData 1.2.840.113549.1.7.6",
+          "offset": 6
+        },
+        {
+          "end_exclusive": 19,
+          "hex": "a08201f9",
+          "interpretation": "DER tag 0xa0 and definite length 505",
+          "offset": 15
+        },
+        {
+          "end_exclusive": 23,
+          "hex": "308201f5",
+          "interpretation": "DER tag 0x30 and definite length 501",
+          "offset": 19
+        },
+        {
+          "end_exclusive": 25,
+          "hex": "0201",
+          "interpretation": "DER tag 0x02 and definite length 1",
+          "offset": 23
+        },
+        {
+          "end_exclusive": 26,
+          "hex": "00",
+          "interpretation": "CMS version zero",
+          "offset": 25
+        },
+        {
+          "end_exclusive": 30,
+          "hex": "308201ee",
+          "interpretation": "DER tag 0x30 and definite length 494",
+          "offset": 26
+        },
+        {
+          "end_exclusive": 32,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 30
+        },
+        {
+          "end_exclusive": 41,
+          "hex": "2a864886f70d010701",
+          "interpretation": "Object identifier: CMS data 1.2.840.113549.1.7.1",
+          "offset": 32
+        },
+        {
+          "end_exclusive": 43,
+          "hex": "301d",
+          "interpretation": "DER tag 0x30 and definite length 29",
+          "offset": 41
+        },
+        {
+          "end_exclusive": 45,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 43
+        },
+        {
+          "end_exclusive": 54,
+          "hex": "608648016503040102",
+          "interpretation": "Object identifier: AES-128-CBC 2.16.840.1.101.3.4.1.2",
+          "offset": 45
+        },
+        {
+          "end_exclusive": 56,
+          "hex": "0410",
+          "interpretation": "DER tag 0x04 and definite length 16",
+          "offset": 54
+        },
+        {
+          "end_exclusive": 72,
+          "hex": "898082d894ea58bbfbb46d4626edc2bc",
+          "interpretation": "AES-128-CBC initialization vector, matching the exact source assertion",
+          "offset": 56
+        },
+        {
+          "end_exclusive": 76,
+          "hex": "808201c0",
+          "interpretation": "DER tag 0x80 and definite length 448",
+          "offset": 72
+        },
+        {
+          "end_exclusive": 524,
+          "hex": "d77e0281ad8bd9110fb3dc7277e46cd905d61cfdb0871dae2c0e495fb22e57b26e9ba9b2face9e8e3482e148ac92eff915d4826d9384fd3f6a0b1855153d60e798aef58e091ddfc98d20e3a7ffc6f232c066776d7a1bc490980400c1d0dfc5446f78e0cf731464e5c3ebba1b2b7870181a347f871905ced52a968a344b4ebe60fa390c9aba2a57324b8b5ca4de7ba412746b57838a1218fe636f75c57715edf30a00b84de87381e56ce106b9e34ff57c134296d1afe711fafc0aaa0a6f20d8ad6ecb124f550930b0347067289212959214e998a0a14747c54c3c04ddf48116f7326de26fa13b0fb352cba67c0274723aaf0d80d43c36822a801f3d7065822a021dc2a12b001939cd58cb143f045dc64844536bafe4b23b4a8e9399124ea362f85b7f0eaa48bc55dee1b0a1ef59f6bd33bfed1fcaa38abb77be6d429ced7ca7e15747ced3dec538933fe4db3ddc9921e5b0b1938af6a3580ab645ef4904a1f07b71775417929857c7ae75053722fb1bc17021b805e7b12cba3a476e86306e5b5eee90dbfaffacad12e258f9e273eb739340f82ff0c1deaa95d574c2d2b375fba6ef45cfe2ce1a4b505bdfb7d94b765d0f7c0ca34a2e9ab16573cc4e20dcdfd93c",
+          "interpretation": "Encrypted content: bytes accounted for, plaintext and ownership content unresolved",
+          "offset": 76,
+          "sha256": "bba28a35de250c236b4d6e6fa8cc8f6fa430ce3e92d449b97b164d7ab91edece",
+          "status": "opaque-encrypted-content"
+        }
+      ],
       "sha256": "acf76585010e3f8fb7a7a1709c1d9eec2b3345088dabdfba9dd84022e81ac2dd",
       "size": 524,
-      "status": "undecoded-member-needs-review"
+      "source_plaintext": {
+        "binding": "not-established",
+        "path": "cms-0.2.3/tests/examples/data.txt",
+        "sha256": "56293a80e0394d252e995f2debccea8223e4b5b2b150bee212729b3b39ac4d46"
+      },
+      "status": "undecoded-member-needs-review",
+      "unresolved_encrypted_content": {
+        "offset": 76,
+        "sha256": "bba28a35de250c236b4d6e6fa8cc8f6fa430ce3e92d449b97b164d7ab91edece",
+        "size": 448
+      }
     },
     {
       "path": "cms-0.2.3/tests/examples/enveloped_data_kari.bin",
@@ -285,10 +2629,137 @@
       "status": "undecoded-member-needs-review"
     },
     {
+      "fixture_source_context": {
+        "cms-0.2.3/tests/builder.rs": "75e40cf53b42d81628149ba2425336ae3f2c95470bf79f6b9187a825f598aaaf"
+      },
+      "format": "Exact public CMS regression-test private-key DER fixture",
+      "meaning": "Every byte is an inspected key-format field or mathematical parameter. No attribute bag, identity, text, comment or trailer exists. This public test key must never be used as a production credential; no ownership or trust is inferred.",
       "path": "cms-0.2.3/tests/examples/p256-priv.der",
+      "reviewed_byte_ranges": [
+        {
+          "end_exclusive": 3,
+          "hex": "308187",
+          "interpretation": "PKCS#8 sequence header",
+          "offset": 0
+        },
+        {
+          "end_exclusive": 5,
+          "hex": "0201",
+          "interpretation": "Version INTEGER header",
+          "offset": 3
+        },
+        {
+          "end_exclusive": 6,
+          "hex": "00",
+          "interpretation": "Version zero",
+          "offset": 5
+        },
+        {
+          "end_exclusive": 8,
+          "hex": "3013",
+          "interpretation": "AlgorithmIdentifier sequence header",
+          "offset": 6
+        },
+        {
+          "end_exclusive": 10,
+          "hex": "0607",
+          "interpretation": "Algorithm OBJECT IDENTIFIER header",
+          "offset": 8
+        },
+        {
+          "end_exclusive": 17,
+          "hex": "2a8648ce3d0201",
+          "interpretation": "EC public key algorithm 1.2.840.10045.2.1",
+          "offset": 10
+        },
+        {
+          "end_exclusive": 19,
+          "hex": "0608",
+          "interpretation": "Curve OBJECT IDENTIFIER header",
+          "offset": 17
+        },
+        {
+          "end_exclusive": 27,
+          "hex": "2a8648ce3d030107",
+          "interpretation": "NIST P-256 curve 1.2.840.10045.3.1.7",
+          "offset": 19
+        },
+        {
+          "end_exclusive": 29,
+          "hex": "046d",
+          "interpretation": "Private-key OCTET STRING header",
+          "offset": 27
+        },
+        {
+          "end_exclusive": 31,
+          "hex": "306b",
+          "interpretation": "Nested SEC1 sequence header",
+          "offset": 29
+        },
+        {
+          "end_exclusive": 33,
+          "hex": "0201",
+          "interpretation": "SEC1 version INTEGER header",
+          "offset": 31
+        },
+        {
+          "end_exclusive": 34,
+          "hex": "01",
+          "interpretation": "SEC1 version one",
+          "offset": 33
+        },
+        {
+          "end_exclusive": 36,
+          "hex": "0420",
+          "interpretation": "Private scalar OCTET STRING header",
+          "offset": 34
+        },
+        {
+          "end_exclusive": 68,
+          "hex": "69624171561a63340de0e7d869f2a05492558e1a04868b6a9f854a866788188d",
+          "interpretation": "256-bit mathematical private scalar",
+          "offset": 36
+        },
+        {
+          "end_exclusive": 70,
+          "hex": "a144",
+          "interpretation": "Public-key explicit context 1 header",
+          "offset": 68
+        },
+        {
+          "end_exclusive": 72,
+          "hex": "0342",
+          "interpretation": "Public-key BIT STRING header",
+          "offset": 70
+        },
+        {
+          "end_exclusive": 73,
+          "hex": "00",
+          "interpretation": "Zero unused bits",
+          "offset": 72
+        },
+        {
+          "end_exclusive": 74,
+          "hex": "04",
+          "interpretation": "Uncompressed elliptic-curve point format",
+          "offset": 73
+        },
+        {
+          "end_exclusive": 106,
+          "hex": "1cacffb55f2f2cefd89d89eb374b2681152452802deea09916068137d839cf7f",
+          "interpretation": "256-bit public x coordinate",
+          "offset": 74
+        },
+        {
+          "end_exclusive": 138,
+          "hex": "c481a44492304d7ef66ac117befe83a8d08f155f2b52f9f618dd447029048e0f",
+          "interpretation": "256-bit public y coordinate",
+          "offset": 106
+        }
+      ],
       "sha256": "8125ab208d2181ed3ef05ff0ab1906e5898c36a858277e5b987e78e505288769",
       "size": 138,
-      "status": "undecoded-member-needs-review"
+      "status": "complete-reviewed-binary-record-no-ownership-statement"
     },
     {
       "path": "cms-0.2.3/tests/examples/pkits.p7b",
@@ -303,16 +2774,859 @@
       "status": "undecoded-member-needs-review"
     },
     {
+      "fixture_source_context": {
+        "cms-0.2.3/tests/builder.rs": "75e40cf53b42d81628149ba2425336ae3f2c95470bf79f6b9187a825f598aaaf"
+      },
+      "format": "Exact public CMS regression-test private-key DER fixture",
+      "meaning": "Every byte is an inspected key-format field or mathematical parameter. No attribute bag, identity, text, comment or trailer exists. This public test key must never be used as a production credential; no ownership or trust is inferred.",
       "path": "cms-0.2.3/tests/examples/rsa2048-priv.der",
+      "reviewed_byte_ranges": [
+        {
+          "end_exclusive": 4,
+          "hex": "308204a3",
+          "interpretation": "PKCS#1 sequence header",
+          "offset": 0
+        },
+        {
+          "end_exclusive": 6,
+          "hex": "0201",
+          "interpretation": "Version INTEGER header",
+          "offset": 4
+        },
+        {
+          "end_exclusive": 7,
+          "hex": "00",
+          "interpretation": "Version zero",
+          "offset": 6
+        },
+        {
+          "end_exclusive": 11,
+          "hex": "02820101",
+          "interpretation": "DER INTEGER header: modulus",
+          "offset": 7
+        },
+        {
+          "end_exclusive": 268,
+          "hex": "00b6c42c515f10a6aaf282c63edbe24243a170f3fa2633bd4833637f47ca4f6f36e03a5d29efc3191ac80f390d874b39e30f414fcec1fca0ed81e547edc2cd382c76f61c9018973db9fa537972a7c701f6b77e0982dfc15fc01927ee5e7cd94b4f599ff07013a7c8281bdf22dcbc9ad7cabb7c4311c982f58edb7213ad4558b332266d743aed8192d1884cadb8b14739a8dada66dc970806d9c7ac450cb13d0d7c575fb198534fc61bc41bc0f0574e0e0130c7bbbfbdfdc9f6a6e2e3e2aff1cbeac89ba57884528d55cfb08327a1e8c89f4e003cf2888e933241d9d695bcbbacdc90b44e3e095fa37058ea25b13f5e295cbeac6de838ab8c50af61e298975b872f",
+          "interpretation": "RSA mathematical parameter: modulus",
+          "offset": 11
+        },
+        {
+          "end_exclusive": 270,
+          "hex": "0203",
+          "interpretation": "DER INTEGER header: public exponent",
+          "offset": 268
+        },
+        {
+          "end_exclusive": 273,
+          "hex": "010001",
+          "interpretation": "RSA mathematical parameter: public exponent",
+          "offset": 270
+        },
+        {
+          "end_exclusive": 277,
+          "hex": "02820100",
+          "interpretation": "DER INTEGER header: private exponent",
+          "offset": 273
+        },
+        {
+          "end_exclusive": 533,
+          "hex": "7ecc8362c0edb0741164215e22f74ab9d91ba06900700cf63690e5114d8ee6bdcfbb2e3f9614692a677a083f168a5e52e5968e6407b9d97c6e0e4064f82da0b758a14f17b9b7d41f5f48e28d6551704f56e69e7aa9fa630fc76428c06d25e455dcfc55b7ac2b4f76643fded3fe15ff78abb27e65acc4aad0bdf6db27ef60a6910c5c4a085ed43275ab19c1d997a32c6effce7df2d1935f6e601eede161a12b5cc27ca21f81d2c99c3d1ea08e90e3053ab09befa724def0d0c3a3c1e9740c0d9f76126a149ec0aa7d8078205484254d951db07c4cf91fb6454c096588fd5924dbabeb359ca2025268d004f9d66eb3d6f7adc1139bad40f16dde639e11647376c1",
+          "interpretation": "RSA mathematical parameter: private exponent",
+          "offset": 277
+        },
+        {
+          "end_exclusive": 536,
+          "hex": "028181",
+          "interpretation": "DER INTEGER header: prime one",
+          "offset": 533
+        },
+        {
+          "end_exclusive": 665,
+          "hex": "00dcc061242d4e92afaee72ac513ca65b9f77036f9bd7e0e6e61461a7ef7654225ec153c7e5c31a6157a6e5a13ff6e178e8758c1cb33d9d6bbe3179ef18998e422ecdcbed78f4ecfdbe5f4fcd8aec2c9d0dc86473ca9bd16d9d238d21fb5ddefbeb143ca61d0bd6aa8d91f33a097790e9640dbc91085dc5f26343ba3138f6b2d67",
+          "interpretation": "RSA mathematical parameter: prime one",
+          "offset": 536
+        },
+        {
+          "end_exclusive": 668,
+          "hex": "028181",
+          "interpretation": "DER INTEGER header: prime two",
+          "offset": 665
+        },
+        {
+          "end_exclusive": 797,
+          "hex": "00d3f314757e40e954836f92be24236af2f0da04a34653c180af67e960086d93fde65cb23efd9d09374762f5981e361849af68cdd75394ff6a4e06eb69b209e4228db2dfa70e40f7f9750a528176647b788d0e5777a2cb8b22e3cd267ff70b4f3b02d3aafb0e18c590a564b03188b0aa5fc48156b07622214243bd1227efa7f2f9",
+          "interpretation": "RSA mathematical parameter: prime two",
+          "offset": 668
+        },
+        {
+          "end_exclusive": 800,
+          "hex": "028181",
+          "interpretation": "DER INTEGER header: exponent one",
+          "offset": 797
+        },
+        {
+          "end_exclusive": 929,
+          "hex": "00ce68b7ac1b0d100d636e55488753c5c09843fdb390e2705df7689457c9bd8d9765e30978617e2efc8048f4c324206db86087b654e97bb3d464e7ee3f8cd83fe10436f7df18e9a963c4e64911d67ede34042f2e26e3d3a1ad346adad6b9b7f67708cb094e62dee9ff4d5d6669af988af2255d1ce8ed317c6a7d8691da354d12db",
+          "interpretation": "RSA mathematical parameter: exponent one",
+          "offset": 800
+        },
+        {
+          "end_exclusive": 932,
+          "hex": "028180",
+          "interpretation": "DER INTEGER header: exponent two",
+          "offset": 929
+        },
+        {
+          "end_exclusive": 1060,
+          "hex": "25f6e5944220286b4dfbbf4235c0ee5843d2198091895120d6ca7b200b826d3ece738e2e00498fac0a2a6ca969c7f0c3ca1ab0bc40297132be7538d7bedf4cb0efc6b98ef7dba54f56aa99aabce534c49c27947d4678c51c63c78c7ce1687231b4c8eb587ae6ef0480cbaf4fc0173cfd587a7e67af515fb9b9de751118397229",
+          "interpretation": "RSA mathematical parameter: exponent two",
+          "offset": 932
+        },
+        {
+          "end_exclusive": 1063,
+          "hex": "028180",
+          "interpretation": "DER INTEGER header: CRT coefficient",
+          "offset": 1060
+        },
+        {
+          "end_exclusive": 1191,
+          "hex": "31995406d406207cadeaea35b38d040c5f8a9a1ae0827e9ed06b153d83b6821935b4b36a82be9d56c791b58c27271a5793d53a1d657c08997960b1433e5171987f452f144a7c72306d63e1d3ffc0b71b75ab08f2e45a482e988451cbe478e12eb228d07456c924b66f6ced048d853f533e31a68614f1c3ce6d8ec9983ce72af7",
+          "interpretation": "RSA mathematical parameter: CRT coefficient",
+          "offset": 1063
+        }
+      ],
       "sha256": "f94b60300e4877e863b2bea8d5c366a90432794454c05e0ec098ddbf96263614",
       "size": 1191,
-      "status": "undecoded-member-needs-review"
+      "status": "complete-reviewed-binary-record-no-ownership-statement"
     },
     {
+      "format": "Exact X.509 DER test certificate with fully decoded fields",
+      "meaning": "Every byte belongs to an inspected typed field. Certificate subject and issuer names are identities, not copyright declarations. All policy text is decoded. No trust or package approval is granted.",
       "path": "cms-0.2.3/tests/examples/rsa_cert.der",
+      "reviewed_byte_ranges": [
+        {
+          "end_exclusive": 4,
+          "hex": "30820598",
+          "interpretation": "DER tag 0x30 and definite length 1432",
+          "offset": 0
+        },
+        {
+          "end_exclusive": 8,
+          "hex": "30820380",
+          "interpretation": "DER tag 0x30 and definite length 896",
+          "offset": 4
+        },
+        {
+          "end_exclusive": 10,
+          "hex": "0209",
+          "interpretation": "DER tag 0x02 and definite length 9",
+          "offset": 8
+        },
+        {
+          "end_exclusive": 19,
+          "hex": "00e9d6ad7970133c5a",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
+          "offset": 10
+        },
+        {
+          "end_exclusive": 21,
+          "hex": "300d",
+          "interpretation": "DER tag 0x30 and definite length 13",
+          "offset": 19
+        },
+        {
+          "end_exclusive": 23,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 21
+        },
+        {
+          "end_exclusive": 32,
+          "hex": "2a864886f70d01010b",
+          "interpretation": "ASN.1 object identifier 1.2.840.113549.1.1.11",
+          "offset": 23
+        },
+        {
+          "end_exclusive": 34,
+          "hex": "0500",
+          "interpretation": "DER tag 0x05 and definite length 0",
+          "offset": 32
+        },
+        {
+          "end_exclusive": 37,
+          "hex": "30818d",
+          "interpretation": "DER tag 0x30 and definite length 141",
+          "offset": 34
+        },
+        {
+          "end_exclusive": 39,
+          "hex": "310b",
+          "interpretation": "DER tag 0x31 and definite length 11",
+          "offset": 37
+        },
+        {
+          "end_exclusive": 41,
+          "hex": "3009",
+          "interpretation": "DER tag 0x30 and definite length 9",
+          "offset": 39
+        },
+        {
+          "end_exclusive": 43,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 41
+        },
+        {
+          "end_exclusive": 46,
+          "hex": "550406",
+          "interpretation": "ASN.1 object identifier 2.5.4.6",
+          "offset": 43
+        },
+        {
+          "end_exclusive": 48,
+          "hex": "1302",
+          "interpretation": "DER tag 0x13 and definite length 2",
+          "offset": 46
+        },
+        {
+          "decoded_text": "US",
+          "end_exclusive": 50,
+          "hex": "5553",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 48
+        },
+        {
+          "end_exclusive": 52,
+          "hex": "310b",
+          "interpretation": "DER tag 0x31 and definite length 11",
+          "offset": 50
+        },
+        {
+          "end_exclusive": 54,
+          "hex": "3009",
+          "interpretation": "DER tag 0x30 and definite length 9",
+          "offset": 52
+        },
+        {
+          "end_exclusive": 56,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 54
+        },
+        {
+          "end_exclusive": 59,
+          "hex": "550408",
+          "interpretation": "ASN.1 object identifier 2.5.4.8",
+          "offset": 56
+        },
+        {
+          "end_exclusive": 61,
+          "hex": "0c02",
+          "interpretation": "DER tag 0x0c and definite length 2",
+          "offset": 59
+        },
+        {
+          "decoded_text": "VA",
+          "end_exclusive": 63,
+          "hex": "5641",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 61
+        },
+        {
+          "end_exclusive": 65,
+          "hex": "3112",
+          "interpretation": "DER tag 0x31 and definite length 18",
+          "offset": 63
+        },
+        {
+          "end_exclusive": 67,
+          "hex": "3010",
+          "interpretation": "DER tag 0x30 and definite length 16",
+          "offset": 65
+        },
+        {
+          "end_exclusive": 69,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 67
+        },
+        {
+          "end_exclusive": 72,
+          "hex": "550407",
+          "interpretation": "ASN.1 object identifier 2.5.4.7",
+          "offset": 69
+        },
+        {
+          "end_exclusive": 74,
+          "hex": "0c09",
+          "interpretation": "DER tag 0x0c and definite length 9",
+          "offset": 72
+        },
+        {
+          "decoded_text": "Arlington",
+          "end_exclusive": 83,
+          "hex": "41726c696e67746f6e",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 74
+        },
+        {
+          "end_exclusive": 85,
+          "hex": "3116",
+          "interpretation": "DER tag 0x31 and definite length 22",
+          "offset": 83
+        },
+        {
+          "end_exclusive": 87,
+          "hex": "3014",
+          "interpretation": "DER tag 0x30 and definite length 20",
+          "offset": 85
+        },
+        {
+          "end_exclusive": 89,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 87
+        },
+        {
+          "end_exclusive": 92,
+          "hex": "55040a",
+          "interpretation": "ASN.1 object identifier 2.5.4.10",
+          "offset": 89
+        },
+        {
+          "end_exclusive": 94,
+          "hex": "0c0d",
+          "interpretation": "DER tag 0x0c and definite length 13",
+          "offset": 92
+        },
+        {
+          "decoded_text": "Example, Inc.",
+          "end_exclusive": 107,
+          "hex": "4578616d706c652c20496e632e",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 94
+        },
+        {
+          "end_exclusive": 109,
+          "hex": "3110",
+          "interpretation": "DER tag 0x31 and definite length 16",
+          "offset": 107
+        },
+        {
+          "end_exclusive": 111,
+          "hex": "300e",
+          "interpretation": "DER tag 0x30 and definite length 14",
+          "offset": 109
+        },
+        {
+          "end_exclusive": 113,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 111
+        },
+        {
+          "end_exclusive": 116,
+          "hex": "55040b",
+          "interpretation": "ASN.1 object identifier 2.5.4.11",
+          "offset": 113
+        },
+        {
+          "end_exclusive": 118,
+          "hex": "0c07",
+          "interpretation": "DER tag 0x0c and definite length 7",
+          "offset": 116
+        },
+        {
+          "decoded_text": "Testing",
+          "end_exclusive": 125,
+          "hex": "54657374696e67",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 118
+        },
+        {
+          "end_exclusive": 127,
+          "hex": "3112",
+          "interpretation": "DER tag 0x31 and definite length 18",
+          "offset": 125
+        },
+        {
+          "end_exclusive": 129,
+          "hex": "3010",
+          "interpretation": "DER tag 0x30 and definite length 16",
+          "offset": 127
+        },
+        {
+          "end_exclusive": 131,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 129
+        },
+        {
+          "end_exclusive": 134,
+          "hex": "550403",
+          "interpretation": "ASN.1 object identifier 2.5.4.3",
+          "offset": 131
+        },
+        {
+          "end_exclusive": 136,
+          "hex": "0c09",
+          "interpretation": "DER tag 0x0c and definite length 9",
+          "offset": 134
+        },
+        {
+          "decoded_text": "Test Cert",
+          "end_exclusive": 145,
+          "hex": "546573742043657274",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 136
+        },
+        {
+          "end_exclusive": 147,
+          "hex": "311f",
+          "interpretation": "DER tag 0x31 and definite length 31",
+          "offset": 145
+        },
+        {
+          "end_exclusive": 149,
+          "hex": "301d",
+          "interpretation": "DER tag 0x30 and definite length 29",
+          "offset": 147
+        },
+        {
+          "end_exclusive": 151,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 149
+        },
+        {
+          "end_exclusive": 160,
+          "hex": "2a864886f70d010901",
+          "interpretation": "ASN.1 object identifier 1.2.840.113549.1.9.1",
+          "offset": 151
+        },
+        {
+          "end_exclusive": 162,
+          "hex": "1610",
+          "interpretation": "DER tag 0x16 and definite length 16",
+          "offset": 160
+        },
+        {
+          "decoded_text": "test@example.com",
+          "end_exclusive": 178,
+          "hex": "74657374406578616d706c652e636f6d",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 162
+        },
+        {
+          "end_exclusive": 180,
+          "hex": "301e",
+          "interpretation": "DER tag 0x30 and definite length 30",
+          "offset": 178
+        },
+        {
+          "end_exclusive": 182,
+          "hex": "170d",
+          "interpretation": "DER tag 0x17 and definite length 13",
+          "offset": 180
+        },
+        {
+          "decoded_text": "221018161728Z",
+          "end_exclusive": 195,
+          "hex": "3232313031383136313732385a",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 182
+        },
+        {
+          "end_exclusive": 197,
+          "hex": "170d",
+          "interpretation": "DER tag 0x17 and definite length 13",
+          "offset": 195
+        },
+        {
+          "decoded_text": "231018161728Z",
+          "end_exclusive": 210,
+          "hex": "3233313031383136313732385a",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 197
+        },
+        {
+          "end_exclusive": 213,
+          "hex": "30818d",
+          "interpretation": "DER tag 0x30 and definite length 141",
+          "offset": 210
+        },
+        {
+          "end_exclusive": 215,
+          "hex": "310b",
+          "interpretation": "DER tag 0x31 and definite length 11",
+          "offset": 213
+        },
+        {
+          "end_exclusive": 217,
+          "hex": "3009",
+          "interpretation": "DER tag 0x30 and definite length 9",
+          "offset": 215
+        },
+        {
+          "end_exclusive": 219,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 217
+        },
+        {
+          "end_exclusive": 222,
+          "hex": "550406",
+          "interpretation": "ASN.1 object identifier 2.5.4.6",
+          "offset": 219
+        },
+        {
+          "end_exclusive": 224,
+          "hex": "1302",
+          "interpretation": "DER tag 0x13 and definite length 2",
+          "offset": 222
+        },
+        {
+          "decoded_text": "US",
+          "end_exclusive": 226,
+          "hex": "5553",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 224
+        },
+        {
+          "end_exclusive": 228,
+          "hex": "310b",
+          "interpretation": "DER tag 0x31 and definite length 11",
+          "offset": 226
+        },
+        {
+          "end_exclusive": 230,
+          "hex": "3009",
+          "interpretation": "DER tag 0x30 and definite length 9",
+          "offset": 228
+        },
+        {
+          "end_exclusive": 232,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 230
+        },
+        {
+          "end_exclusive": 235,
+          "hex": "550408",
+          "interpretation": "ASN.1 object identifier 2.5.4.8",
+          "offset": 232
+        },
+        {
+          "end_exclusive": 237,
+          "hex": "0c02",
+          "interpretation": "DER tag 0x0c and definite length 2",
+          "offset": 235
+        },
+        {
+          "decoded_text": "VA",
+          "end_exclusive": 239,
+          "hex": "5641",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 237
+        },
+        {
+          "end_exclusive": 241,
+          "hex": "3112",
+          "interpretation": "DER tag 0x31 and definite length 18",
+          "offset": 239
+        },
+        {
+          "end_exclusive": 243,
+          "hex": "3010",
+          "interpretation": "DER tag 0x30 and definite length 16",
+          "offset": 241
+        },
+        {
+          "end_exclusive": 245,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 243
+        },
+        {
+          "end_exclusive": 248,
+          "hex": "550407",
+          "interpretation": "ASN.1 object identifier 2.5.4.7",
+          "offset": 245
+        },
+        {
+          "end_exclusive": 250,
+          "hex": "0c09",
+          "interpretation": "DER tag 0x0c and definite length 9",
+          "offset": 248
+        },
+        {
+          "decoded_text": "Arlington",
+          "end_exclusive": 259,
+          "hex": "41726c696e67746f6e",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 250
+        },
+        {
+          "end_exclusive": 261,
+          "hex": "3116",
+          "interpretation": "DER tag 0x31 and definite length 22",
+          "offset": 259
+        },
+        {
+          "end_exclusive": 263,
+          "hex": "3014",
+          "interpretation": "DER tag 0x30 and definite length 20",
+          "offset": 261
+        },
+        {
+          "end_exclusive": 265,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 263
+        },
+        {
+          "end_exclusive": 268,
+          "hex": "55040a",
+          "interpretation": "ASN.1 object identifier 2.5.4.10",
+          "offset": 265
+        },
+        {
+          "end_exclusive": 270,
+          "hex": "0c0d",
+          "interpretation": "DER tag 0x0c and definite length 13",
+          "offset": 268
+        },
+        {
+          "decoded_text": "Example, Inc.",
+          "end_exclusive": 283,
+          "hex": "4578616d706c652c20496e632e",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 270
+        },
+        {
+          "end_exclusive": 285,
+          "hex": "3110",
+          "interpretation": "DER tag 0x31 and definite length 16",
+          "offset": 283
+        },
+        {
+          "end_exclusive": 287,
+          "hex": "300e",
+          "interpretation": "DER tag 0x30 and definite length 14",
+          "offset": 285
+        },
+        {
+          "end_exclusive": 289,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 287
+        },
+        {
+          "end_exclusive": 292,
+          "hex": "55040b",
+          "interpretation": "ASN.1 object identifier 2.5.4.11",
+          "offset": 289
+        },
+        {
+          "end_exclusive": 294,
+          "hex": "0c07",
+          "interpretation": "DER tag 0x0c and definite length 7",
+          "offset": 292
+        },
+        {
+          "decoded_text": "Testing",
+          "end_exclusive": 301,
+          "hex": "54657374696e67",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 294
+        },
+        {
+          "end_exclusive": 303,
+          "hex": "3112",
+          "interpretation": "DER tag 0x31 and definite length 18",
+          "offset": 301
+        },
+        {
+          "end_exclusive": 305,
+          "hex": "3010",
+          "interpretation": "DER tag 0x30 and definite length 16",
+          "offset": 303
+        },
+        {
+          "end_exclusive": 307,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 305
+        },
+        {
+          "end_exclusive": 310,
+          "hex": "550403",
+          "interpretation": "ASN.1 object identifier 2.5.4.3",
+          "offset": 307
+        },
+        {
+          "end_exclusive": 312,
+          "hex": "0c09",
+          "interpretation": "DER tag 0x0c and definite length 9",
+          "offset": 310
+        },
+        {
+          "decoded_text": "Test Cert",
+          "end_exclusive": 321,
+          "hex": "546573742043657274",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 312
+        },
+        {
+          "end_exclusive": 323,
+          "hex": "311f",
+          "interpretation": "DER tag 0x31 and definite length 31",
+          "offset": 321
+        },
+        {
+          "end_exclusive": 325,
+          "hex": "301d",
+          "interpretation": "DER tag 0x30 and definite length 29",
+          "offset": 323
+        },
+        {
+          "end_exclusive": 327,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 325
+        },
+        {
+          "end_exclusive": 336,
+          "hex": "2a864886f70d010901",
+          "interpretation": "ASN.1 object identifier 1.2.840.113549.1.9.1",
+          "offset": 327
+        },
+        {
+          "end_exclusive": 338,
+          "hex": "1610",
+          "interpretation": "DER tag 0x16 and definite length 16",
+          "offset": 336
+        },
+        {
+          "decoded_text": "test@example.com",
+          "end_exclusive": 354,
+          "hex": "74657374406578616d706c652e636f6d",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 338
+        },
+        {
+          "end_exclusive": 358,
+          "hex": "30820222",
+          "interpretation": "DER tag 0x30 and definite length 546",
+          "offset": 354
+        },
+        {
+          "end_exclusive": 360,
+          "hex": "300d",
+          "interpretation": "DER tag 0x30 and definite length 13",
+          "offset": 358
+        },
+        {
+          "end_exclusive": 362,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 360
+        },
+        {
+          "end_exclusive": 371,
+          "hex": "2a864886f70d010101",
+          "interpretation": "ASN.1 object identifier 1.2.840.113549.1.1.1",
+          "offset": 362
+        },
+        {
+          "end_exclusive": 373,
+          "hex": "0500",
+          "interpretation": "DER tag 0x05 and definite length 0",
+          "offset": 371
+        },
+        {
+          "end_exclusive": 377,
+          "hex": "0382020f",
+          "interpretation": "DER tag 0x03 and definite length 527",
+          "offset": 373
+        },
+        {
+          "end_exclusive": 378,
+          "hex": "00",
+          "interpretation": "RSA public-key bit string: zero unused bits",
+          "offset": 377
+        },
+        {
+          "end_exclusive": 382,
+          "hex": "3082020a",
+          "interpretation": "DER tag 0x30 and definite length 522",
+          "offset": 378
+        },
+        {
+          "end_exclusive": 386,
+          "hex": "02820201",
+          "interpretation": "DER tag 0x02 and definite length 513",
+          "offset": 382
+        },
+        {
+          "end_exclusive": 899,
+          "hex": "00f28136346eac07edf4dc8e651275c3a95fb6094d60873e26f3f2c0109cdf43a6c7853338baa2763a326ad7a7ca830efd65eb15d10675b3861659c3199d08f5ebe603a0283be6f8d2e5add6e3ba5edaa44e6d6c40041ec07f5df02da868e7b13ca72dfbb3f9d04ea30ba598d5184b520536304dbbb17a8a3c61a3d4a806a68f1145093abe005eaf06c3f8a65a32f0bbf821193abe700d7d98deb3e872efe4611c58b97467d180e37d4709840d018a6eaf381beb57c67ee8dae920abb0731bd1f6af73bd2f27f93e1bfd0bde6952b9e372666aadd55e94ea054475481cf8a0d062390e02dcd8f9974b3cc8508a1dbcde1f444b7ccf63a5f654c58bd49749c3dad4de640bf7e4df29c0702c41bff3504fd08edd8c377fc3ca4a922281c056075d3c17ed3bf1357b29330dfc8ada4e6231d85777e29e273a72e365fcf710ff2f9c65b92d1637a415c03adc500a995cdffe68ec8e8a7e3cc2a65ad8ec985a34a3b9938cc3811a920a003eda168c590102497ce9e11fc7b5471c633c868deb8a386e1a7b853f4daee9b0bb727d320446ad56d5435d084bc3b7c104b42edc0ee0300c61719497bd55daf169c0635879cdd600b690bd4bf0e19f0e0e4dbfa240aedf1bbf4ccfb1f3738d87932fafc97ca3d8e0b0488a7c6e342c44b23e729abda071c3ec1a1d1aeb339eef26e49fbad80f7bd3fd282044b5a7afa87b34fb0f14fba3b8f1",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
+          "offset": 386
+        },
+        {
+          "end_exclusive": 901,
+          "hex": "0203",
+          "interpretation": "DER tag 0x02 and definite length 3",
+          "offset": 899
+        },
+        {
+          "end_exclusive": 904,
+          "hex": "010001",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
+          "offset": 901
+        },
+        {
+          "end_exclusive": 906,
+          "hex": "300d",
+          "interpretation": "DER tag 0x30 and definite length 13",
+          "offset": 904
+        },
+        {
+          "end_exclusive": 908,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 906
+        },
+        {
+          "end_exclusive": 917,
+          "hex": "2a864886f70d01010b",
+          "interpretation": "ASN.1 object identifier 1.2.840.113549.1.1.11",
+          "offset": 908
+        },
+        {
+          "end_exclusive": 919,
+          "hex": "0500",
+          "interpretation": "DER tag 0x05 and definite length 0",
+          "offset": 917
+        },
+        {
+          "end_exclusive": 923,
+          "hex": "03820201",
+          "interpretation": "DER tag 0x03 and definite length 513",
+          "offset": 919
+        },
+        {
+          "end_exclusive": 1436,
+          "hex": "00e634c8a9fa7b94c8b969cf6d13c546d6216fbbcea6d02bb052568800855962e592d5e5f9378270d891923bbf8dd336735795d96dad9ac3fa96ac347eb466dffc91171c26d758e568d2be844be80f60b66526071bda4c6918acc0ecc8a2ad7334f531ed436e5548439e7b346b3395dda3987d7820d35ab000fdb4aa94efbd9b9ee4b2314cdacb8c11725d0047e49886d2340c59893e1ee505b9a45ac918221189b4427967aecee30eb137d4e813373e6b7239f196b3a4aadc76f1fd7e812bc4c89929ab86d18c54b2df3019580f73a829d4803e33e306d3980cc005a327aeb3db80ad35fa607d0001ef0bb6ecbc0dd56899a61bbe5fd8657dd4331641abd3037fe8b07b9ce8e24a3b2c17a247ce6f71dae60be36d73f93479d4d76ef2fe508a46244906aff318326aff72042c7585ccaf12228ffe8babbf2c901db7b8963d3b7188a9eccbcbdad74c4981df7932d7f989cd1b851dec20cd796ce1adf201368e60cb274d28a30897c744c58d5376f2f035f6cab0b9d87aa1861a914ca64e23ce06bf8f40a101a108195dbb41fcc7a1728f3912ca00fcb56077ad4d3f3af8458892595764bc5110bd7b13fdd03bad32e293ba4d73b81aa64341b354a9913f089040dc6c824df636405a18428b7276963257ecbda718aea08554afd956618bf14ae9111e8d34f953b1135d53454325932f86239f5bba5636b753e2c86f1c180d2359",
+          "interpretation": "RSA certificate signature: unused-bit count and mathematical signature value",
+          "offset": 923
+        }
+      ],
       "sha256": "e1eee9ac618291e899456ebc23edb63a9bf732d57c93864f940da142ad05e54d",
       "size": 1436,
-      "status": "undecoded-member-needs-review"
+      "status": "complete-reviewed-binary-record-no-ownership-statement"
     },
     {
       "path": "cms-0.2.3/tests/examples/rsa_sk.pkcs1.pem",
@@ -333,10 +3647,653 @@
       "status": "decoded-no-ownership-markers"
     },
     {
+      "format": "Exact PKCS#10 DER certificate request with fully decoded fields",
+      "meaning": "Every byte belongs to an inspected typed field. Certificate subject and issuer names are identities, not copyright declarations. All policy text is decoded. No trust or package approval is granted.",
       "path": "cms-0.2.3/tests/examples/sceptest_csr.der",
+      "reviewed_byte_ranges": [
+        {
+          "end_exclusive": 4,
+          "hex": "308203a1",
+          "interpretation": "DER tag 0x30 and definite length 929",
+          "offset": 0
+        },
+        {
+          "end_exclusive": 8,
+          "hex": "30820289",
+          "interpretation": "DER tag 0x30 and definite length 649",
+          "offset": 4
+        },
+        {
+          "end_exclusive": 10,
+          "hex": "0201",
+          "interpretation": "DER tag 0x02 and definite length 1",
+          "offset": 8
+        },
+        {
+          "end_exclusive": 11,
+          "hex": "00",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
+          "offset": 10
+        },
+        {
+          "end_exclusive": 14,
+          "hex": "3081c8",
+          "interpretation": "DER tag 0x30 and definite length 200",
+          "offset": 11
+        },
+        {
+          "end_exclusive": 16,
+          "hex": "3114",
+          "interpretation": "DER tag 0x31 and definite length 20",
+          "offset": 14
+        },
+        {
+          "end_exclusive": 18,
+          "hex": "3012",
+          "interpretation": "DER tag 0x30 and definite length 18",
+          "offset": 16
+        },
+        {
+          "end_exclusive": 20,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 18
+        },
+        {
+          "end_exclusive": 23,
+          "hex": "550403",
+          "interpretation": "ASN.1 object identifier 2.5.4.3",
+          "offset": 20
+        },
+        {
+          "end_exclusive": 25,
+          "hex": "0c0b",
+          "interpretation": "DER tag 0x0c and definite length 11",
+          "offset": 23
+        },
+        {
+          "decoded_text": "Common Name",
+          "end_exclusive": 36,
+          "hex": "436f6d6d6f6e204e616d65",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 25
+        },
+        {
+          "end_exclusive": 38,
+          "hex": "310b",
+          "interpretation": "DER tag 0x31 and definite length 11",
+          "offset": 36
+        },
+        {
+          "end_exclusive": 40,
+          "hex": "3009",
+          "interpretation": "DER tag 0x30 and definite length 9",
+          "offset": 38
+        },
+        {
+          "end_exclusive": 42,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 40
+        },
+        {
+          "end_exclusive": 45,
+          "hex": "550406",
+          "interpretation": "ASN.1 object identifier 2.5.4.6",
+          "offset": 42
+        },
+        {
+          "end_exclusive": 47,
+          "hex": "1302",
+          "interpretation": "DER tag 0x13 and definite length 2",
+          "offset": 45
+        },
+        {
+          "decoded_text": "DE",
+          "end_exclusive": 49,
+          "hex": "4445",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 47
+        },
+        {
+          "end_exclusive": 51,
+          "hex": "311f",
+          "interpretation": "DER tag 0x31 and definite length 31",
+          "offset": 49
+        },
+        {
+          "end_exclusive": 53,
+          "hex": "301d",
+          "interpretation": "DER tag 0x30 and definite length 29",
+          "offset": 51
+        },
+        {
+          "end_exclusive": 55,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 53
+        },
+        {
+          "end_exclusive": 58,
+          "hex": "550408",
+          "interpretation": "ASN.1 object identifier 2.5.4.8",
+          "offset": 55
+        },
+        {
+          "end_exclusive": 60,
+          "hex": "0c16",
+          "interpretation": "DER tag 0x0c and definite length 22",
+          "offset": 58
+        },
+        {
+          "decoded_text": "Test State or Province",
+          "end_exclusive": 82,
+          "hex": "54657374205374617465206f722050726f76696e6365",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 60
+        },
+        {
+          "end_exclusive": 84,
+          "hex": "3116",
+          "interpretation": "DER tag 0x31 and definite length 22",
+          "offset": 82
+        },
+        {
+          "end_exclusive": 86,
+          "hex": "3014",
+          "interpretation": "DER tag 0x30 and definite length 20",
+          "offset": 84
+        },
+        {
+          "end_exclusive": 88,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 86
+        },
+        {
+          "end_exclusive": 91,
+          "hex": "550407",
+          "interpretation": "ASN.1 object identifier 2.5.4.7",
+          "offset": 88
+        },
+        {
+          "end_exclusive": 93,
+          "hex": "0c0d",
+          "interpretation": "DER tag 0x0c and definite length 13",
+          "offset": 91
+        },
+        {
+          "decoded_text": "Test Locality",
+          "end_exclusive": 106,
+          "hex": "54657374204c6f63616c697479",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 93
+        },
+        {
+          "end_exclusive": 108,
+          "hex": "311f",
+          "interpretation": "DER tag 0x31 and definite length 31",
+          "offset": 106
+        },
+        {
+          "end_exclusive": 110,
+          "hex": "301d",
+          "interpretation": "DER tag 0x30 and definite length 29",
+          "offset": 108
+        },
+        {
+          "end_exclusive": 112,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 110
+        },
+        {
+          "end_exclusive": 115,
+          "hex": "55040a",
+          "interpretation": "ASN.1 object identifier 2.5.4.10",
+          "offset": 112
+        },
+        {
+          "end_exclusive": 117,
+          "hex": "0c16",
+          "interpretation": "DER tag 0x0c and definite length 22",
+          "offset": 115
+        },
+        {
+          "decoded_text": "Test Organization Name",
+          "end_exclusive": 139,
+          "hex": "54657374204f7267616e697a6174696f6e204e616d65",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 117
+        },
+        {
+          "end_exclusive": 141,
+          "hex": "3126",
+          "interpretation": "DER tag 0x31 and definite length 38",
+          "offset": 139
+        },
+        {
+          "end_exclusive": 143,
+          "hex": "3024",
+          "interpretation": "DER tag 0x30 and definite length 36",
+          "offset": 141
+        },
+        {
+          "end_exclusive": 145,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 143
+        },
+        {
+          "end_exclusive": 148,
+          "hex": "55040b",
+          "interpretation": "ASN.1 object identifier 2.5.4.11",
+          "offset": 145
+        },
+        {
+          "end_exclusive": 150,
+          "hex": "0c1d",
+          "interpretation": "DER tag 0x0c and definite length 29",
+          "offset": 148
+        },
+        {
+          "decoded_text": "Test Organizational Unit Name",
+          "end_exclusive": 179,
+          "hex": "54657374204f7267616e697a6174696f6e616c20556e6974204e616d65",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 150
+        },
+        {
+          "end_exclusive": 181,
+          "hex": "3121",
+          "interpretation": "DER tag 0x31 and definite length 33",
+          "offset": 179
+        },
+        {
+          "end_exclusive": 183,
+          "hex": "301f",
+          "interpretation": "DER tag 0x30 and definite length 31",
+          "offset": 181
+        },
+        {
+          "end_exclusive": 185,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 183
+        },
+        {
+          "end_exclusive": 194,
+          "hex": "2a864886f70d010901",
+          "interpretation": "ASN.1 object identifier 1.2.840.113549.1.9.1",
+          "offset": 185
+        },
+        {
+          "end_exclusive": 196,
+          "hex": "1612",
+          "interpretation": "DER tag 0x16 and definite length 18",
+          "offset": 194
+        },
+        {
+          "decoded_text": "test@email.address",
+          "end_exclusive": 214,
+          "hex": "7465737440656d61696c2e61646472657373",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 196
+        },
+        {
+          "end_exclusive": 218,
+          "hex": "30820122",
+          "interpretation": "DER tag 0x30 and definite length 290",
+          "offset": 214
+        },
+        {
+          "end_exclusive": 220,
+          "hex": "300d",
+          "interpretation": "DER tag 0x30 and definite length 13",
+          "offset": 218
+        },
+        {
+          "end_exclusive": 222,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 220
+        },
+        {
+          "end_exclusive": 231,
+          "hex": "2a864886f70d010101",
+          "interpretation": "ASN.1 object identifier 1.2.840.113549.1.1.1",
+          "offset": 222
+        },
+        {
+          "end_exclusive": 233,
+          "hex": "0500",
+          "interpretation": "DER tag 0x05 and definite length 0",
+          "offset": 231
+        },
+        {
+          "end_exclusive": 237,
+          "hex": "0382010f",
+          "interpretation": "DER tag 0x03 and definite length 271",
+          "offset": 233
+        },
+        {
+          "end_exclusive": 238,
+          "hex": "00",
+          "interpretation": "RSA public-key bit string: zero unused bits",
+          "offset": 237
+        },
+        {
+          "end_exclusive": 242,
+          "hex": "3082010a",
+          "interpretation": "DER tag 0x30 and definite length 266",
+          "offset": 238
+        },
+        {
+          "end_exclusive": 246,
+          "hex": "02820101",
+          "interpretation": "DER tag 0x02 and definite length 257",
+          "offset": 242
+        },
+        {
+          "end_exclusive": 503,
+          "hex": "009d9c7d85b1bcbe6012462115202b788c91b4f2a099095782a394c413665466e589ceddbb8fe44c1adc8d3bbf2a6c491f86b9c0308929c3ca0fa4aa4492d409ab850c8119684776de3dc85c046105c54a87def2c7b070f6cfbf9627b9e4f3b85becf3aafd2c14b9d8254527dc6c80113d540342045c6278f62cd672ef4b3b654b2a8c0f2975f97b2d757c78ed7c508e2270ccde73e5d543e3b5ab4c723560343cfa9b4ccf5b6a6d37e642cd5fd1767ffd7e2d9249a954a32ddb1c48a9ae6fe39253adf1ff507c91a0ae649868ed7499f5e442e8a034412bced72ae54e12501bbd6600551d5e49f9d33116b2b25b74ae2270ce585490f591c77fb580419b3b7a2d",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
+          "offset": 246
+        },
+        {
+          "end_exclusive": 505,
+          "hex": "0203",
+          "interpretation": "DER tag 0x02 and definite length 3",
+          "offset": 503
+        },
+        {
+          "end_exclusive": 508,
+          "hex": "010001",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
+          "offset": 505
+        },
+        {
+          "end_exclusive": 511,
+          "hex": "a08192",
+          "interpretation": "DER tag 0xa0 and definite length 146",
+          "offset": 508
+        },
+        {
+          "end_exclusive": 513,
+          "hex": "3023",
+          "interpretation": "DER tag 0x30 and definite length 35",
+          "offset": 511
+        },
+        {
+          "end_exclusive": 515,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 513
+        },
+        {
+          "end_exclusive": 524,
+          "hex": "2a864886f70d010907",
+          "interpretation": "ASN.1 object identifier 1.2.840.113549.1.9.7",
+          "offset": 515
+        },
+        {
+          "end_exclusive": 526,
+          "hex": "3116",
+          "interpretation": "DER tag 0x31 and definite length 22",
+          "offset": 524
+        },
+        {
+          "end_exclusive": 528,
+          "hex": "0c14",
+          "interpretation": "DER tag 0x0c and definite length 20",
+          "offset": 526
+        },
+        {
+          "decoded_text": "A challenge password",
+          "end_exclusive": 548,
+          "hex": "41206368616c6c656e67652070617373776f7264",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 528
+        },
+        {
+          "end_exclusive": 550,
+          "hex": "306b",
+          "interpretation": "DER tag 0x30 and definite length 107",
+          "offset": 548
+        },
+        {
+          "end_exclusive": 552,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 550
+        },
+        {
+          "end_exclusive": 561,
+          "hex": "2a864886f70d01090e",
+          "interpretation": "ASN.1 object identifier 1.2.840.113549.1.9.14",
+          "offset": 552
+        },
+        {
+          "end_exclusive": 563,
+          "hex": "315e",
+          "interpretation": "DER tag 0x31 and definite length 94",
+          "offset": 561
+        },
+        {
+          "end_exclusive": 565,
+          "hex": "305c",
+          "interpretation": "DER tag 0x30 and definite length 92",
+          "offset": 563
+        },
+        {
+          "end_exclusive": 567,
+          "hex": "300e",
+          "interpretation": "DER tag 0x30 and definite length 14",
+          "offset": 565
+        },
+        {
+          "end_exclusive": 569,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 567
+        },
+        {
+          "end_exclusive": 572,
+          "hex": "551d0f",
+          "interpretation": "ASN.1 object identifier 2.5.29.15",
+          "offset": 569
+        },
+        {
+          "end_exclusive": 574,
+          "hex": "0101",
+          "interpretation": "DER tag 0x01 and definite length 1",
+          "offset": 572
+        },
+        {
+          "end_exclusive": 575,
+          "hex": "ff",
+          "interpretation": "ASN.1 boolean",
+          "offset": 574
+        },
+        {
+          "end_exclusive": 577,
+          "hex": "0404",
+          "interpretation": "DER tag 0x04 and definite length 4",
+          "offset": 575
+        },
+        {
+          "end_exclusive": 579,
+          "hex": "0302",
+          "interpretation": "DER tag 0x03 and definite length 2",
+          "offset": 577
+        },
+        {
+          "end_exclusive": 581,
+          "hex": "05a0",
+          "interpretation": "Key-usage flags and unused-bit count",
+          "offset": 579
+        },
+        {
+          "end_exclusive": 583,
+          "hex": "3013",
+          "interpretation": "DER tag 0x30 and definite length 19",
+          "offset": 581
+        },
+        {
+          "end_exclusive": 585,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 583
+        },
+        {
+          "end_exclusive": 588,
+          "hex": "551d25",
+          "interpretation": "ASN.1 object identifier 2.5.29.37",
+          "offset": 585
+        },
+        {
+          "end_exclusive": 590,
+          "hex": "040c",
+          "interpretation": "DER tag 0x04 and definite length 12",
+          "offset": 588
+        },
+        {
+          "end_exclusive": 592,
+          "hex": "300a",
+          "interpretation": "DER tag 0x30 and definite length 10",
+          "offset": 590
+        },
+        {
+          "end_exclusive": 594,
+          "hex": "0608",
+          "interpretation": "DER tag 0x06 and definite length 8",
+          "offset": 592
+        },
+        {
+          "end_exclusive": 602,
+          "hex": "2b06010505070301",
+          "interpretation": "ASN.1 object identifier 1.3.6.1.5.5.7.3.1",
+          "offset": 594
+        },
+        {
+          "end_exclusive": 604,
+          "hex": "301d",
+          "interpretation": "DER tag 0x30 and definite length 29",
+          "offset": 602
+        },
+        {
+          "end_exclusive": 606,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 604
+        },
+        {
+          "end_exclusive": 609,
+          "hex": "551d0e",
+          "interpretation": "ASN.1 object identifier 2.5.29.14",
+          "offset": 606
+        },
+        {
+          "end_exclusive": 611,
+          "hex": "0416",
+          "interpretation": "DER tag 0x04 and definite length 22",
+          "offset": 609
+        },
+        {
+          "end_exclusive": 613,
+          "hex": "0414",
+          "interpretation": "DER tag 0x04 and definite length 20",
+          "offset": 611
+        },
+        {
+          "end_exclusive": 633,
+          "hex": "4f14cdc0e0926d74f94a50aef5254f9097bde637",
+          "interpretation": "Subject public-key identifier: 20 hash bytes",
+          "offset": 613
+        },
+        {
+          "end_exclusive": 635,
+          "hex": "3016",
+          "interpretation": "DER tag 0x30 and definite length 22",
+          "offset": 633
+        },
+        {
+          "end_exclusive": 637,
+          "hex": "0603",
+          "interpretation": "DER tag 0x06 and definite length 3",
+          "offset": 635
+        },
+        {
+          "end_exclusive": 640,
+          "hex": "551d11",
+          "interpretation": "ASN.1 object identifier 2.5.29.17",
+          "offset": 637
+        },
+        {
+          "end_exclusive": 642,
+          "hex": "040f",
+          "interpretation": "DER tag 0x04 and definite length 15",
+          "offset": 640
+        },
+        {
+          "end_exclusive": 644,
+          "hex": "300d",
+          "interpretation": "DER tag 0x30 and definite length 13",
+          "offset": 642
+        },
+        {
+          "end_exclusive": 646,
+          "hex": "820b",
+          "interpretation": "DER tag 0x82 and definite length 11",
+          "offset": 644
+        },
+        {
+          "decoded_text": "example.com",
+          "end_exclusive": 657,
+          "hex": "6578616d706c652e636f6d",
+          "interpretation": "Certificate name, validity time, DNS name, URI or policy text",
+          "offset": 646
+        },
+        {
+          "end_exclusive": 659,
+          "hex": "300d",
+          "interpretation": "DER tag 0x30 and definite length 13",
+          "offset": 657
+        },
+        {
+          "end_exclusive": 661,
+          "hex": "0609",
+          "interpretation": "DER tag 0x06 and definite length 9",
+          "offset": 659
+        },
+        {
+          "end_exclusive": 670,
+          "hex": "2a864886f70d01010b",
+          "interpretation": "ASN.1 object identifier 1.2.840.113549.1.1.11",
+          "offset": 661
+        },
+        {
+          "end_exclusive": 672,
+          "hex": "0500",
+          "interpretation": "DER tag 0x05 and definite length 0",
+          "offset": 670
+        },
+        {
+          "end_exclusive": 676,
+          "hex": "03820101",
+          "interpretation": "DER tag 0x03 and definite length 257",
+          "offset": 672
+        },
+        {
+          "end_exclusive": 933,
+          "hex": "00592fb1f9b96cf1578bd4dc83a0281e9341c9c679b56450cd045b33e9f4889243620837f222fff56190b495314cc94fdb953a47d5ad0302aea8890c521694f47ce6d3f61014443503de2d99a92418f7b82904ba848679b4defa2c185ec5b83b93400b917f3deef316f9f1a967d67844d41c53380332e82d939258b1206c16bc526ecacd9d9669dd73abc5402f24fab33d036b078fe98b4b6927d58943e8726ca17c2df3199f7f5a5cea24729615028e6711980ac2c1d6a2d7e45508922d47d5390431170c9cecbcdb7dd8cf69d131dc16dab392ec68ee3db6b550c3baf4285a0465e8919c5a2d7c03f5e9cd0af533ec09d9f43f8112b36a02aa1c2fb1b4b2c4c0",
+          "interpretation": "RSA certificate signature: unused-bit count and mathematical signature value",
+          "offset": 676
+        }
+      ],
       "sha256": "aa9ca48b01eba9c03f2c221ff19fb0c29228d5c03a41204411a5367bd305a16f",
       "size": 933,
-      "status": "undecoded-member-needs-review"
+      "status": "complete-reviewed-binary-record-no-ownership-statement"
     },
     {
       "path": "cms-0.2.3/tests/examples/sceptest_key.pem",

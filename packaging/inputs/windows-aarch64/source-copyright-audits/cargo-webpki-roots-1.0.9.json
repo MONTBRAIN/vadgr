@@ -82,7 +82,7 @@
         {
           "end_exclusive": 13,
           "hex": "02",
-          "interpretation": "ASN.1 integer: version, serial number, path constraint or RSA public-key parameter",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
           "offset": 12
         },
         {
@@ -94,7 +94,7 @@
         {
           "end_exclusive": 16,
           "hex": "29",
-          "interpretation": "ASN.1 integer: version, serial number, path constraint or RSA public-key parameter",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
           "offset": 15
         },
         {
@@ -592,7 +592,7 @@
         {
           "end_exclusive": 791,
           "hex": "00bdbfa0e0ac3ace51aea539c40f2a66e1cccb686e8d419e2de638a9ca08084f8ab92e5b2ef7b12ab9ad9194bfc02ad6c6a39e3ab88d942d45ee589ae321cc269dfdbc6f2feb381a8b17b2c82c5e888b770051f388ec7bc5f388a8b4b96206e6f85c84c125ce2c0fb08e0ec51e8279d083739bf63e21e37dea360103fff51fd6fbe8a148b06b569f50a933382548fa8abac9a88abe25dcdcd010361febcc6617307f5436d83ddf748fa6f3c794fff18f51474096fe6edee8309f32d0428c2424ba6e84f517927e01a2cdc0f34866d0405c550416178bf86006c3fa4724ae64d07d3e0aeeea14b1b2406930fa29a607950416fff847520d36d1aad8797d5b049443",
-          "interpretation": "ASN.1 integer: version, serial number, path constraint or RSA public-key parameter",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
           "offset": 534
         },
         {
@@ -604,7 +604,7 @@
         {
           "end_exclusive": 796,
           "hex": "010001",
-          "interpretation": "ASN.1 integer: version, serial number, path constraint or RSA public-key parameter",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
           "offset": 793
         },
         {
@@ -930,7 +930,7 @@
         {
           "end_exclusive": 1191,
           "hex": "00",
-          "interpretation": "ASN.1 integer: version, serial number, path constraint or RSA public-key parameter",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
           "offset": 1190
         },
         {
@@ -1159,7 +1159,7 @@
         {
           "end_exclusive": 13,
           "hex": "02",
-          "interpretation": "ASN.1 integer: version, serial number, path constraint or RSA public-key parameter",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
           "offset": 12
         },
         {
@@ -1171,7 +1171,7 @@
         {
           "end_exclusive": 16,
           "hex": "01",
-          "interpretation": "ASN.1 integer: version, serial number, path constraint or RSA public-key parameter",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
           "offset": 15
         },
         {
@@ -1669,7 +1669,7 @@
         {
           "end_exclusive": 778,
           "hex": "00af753033aabb6bd3992c123784d98d7b9780d36ee7ff9b50953e90955642d7197c26848d92fa011d3a0fe26438b78cbce888f98b24ab2ea3f537e4408e18257983751f3bff6ca8c5c656f8b4ed8a44a3ab6c4cfc1dd0dcef68bdcfe4aacef055f7a234d4836b377c1cc2feb503ec57cebcb4b5c5ed000f53372a4df44f0c83fb86cfcbfe8c4ebd87f9a78b21579c7adf0367892c9d9761a710b855907f0e2d273874dfe7fdda4e12e34d152202c8e0e0fc0fad8ad7c95450cc3b0fca168084d05156c38e567f8922332fe6850abda5a81b36ded3dc2c6d3bc713bd59232ce6e5a4f7d80bedea904044a895bb93d5d08034b646780e1f009346e1eee9f9ec4f17",
-          "interpretation": "ASN.1 integer: version, serial number, path constraint or RSA public-key parameter",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
           "offset": 521
         },
         {
@@ -1681,7 +1681,7 @@
         {
           "end_exclusive": 783,
           "hex": "010001",
-          "interpretation": "ASN.1 integer: version, serial number, path constraint or RSA public-key parameter",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
           "offset": 780
         },
         {
@@ -1907,7 +1907,7 @@
         {
           "end_exclusive": 13,
           "hex": "02",
-          "interpretation": "ASN.1 integer: version, serial number, path constraint or RSA public-key parameter",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
           "offset": 12
         },
         {
@@ -1919,7 +1919,7 @@
         {
           "end_exclusive": 25,
           "hex": "00d2e769988d256bd67e",
-          "interpretation": "ASN.1 integer: version, serial number, path constraint or RSA public-key parameter",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
           "offset": 15
         },
         {
@@ -2454,7 +2454,7 @@
         {
           "end_exclusive": 705,
           "hex": "00c5dada49610eee3631f933d318441560355e69b0473dcf0caeb95502cdf076b940e3d3f572c5d8c2c8d78ef00df4f03d4b095dadd52930de6e6f28c701ce7c934a14b027f3bd4b58314d91cad4587dbe1ff2cc3fe92037ace4485a2a5e948ce358400ac03deebd17fc141b2265a7ae49967d5983c62c3baa419e4c7bc25864299cb9449e290c791469dfc3538c621989babd48d58c2455efd7e3f9c9a21e25279f04a904ef5020c49034e4814d396ca7b88fff9f273e0a1bfe1c40b7588c9bf59d247d6137b34e5a342136d8e7a34c932ad448d3f86d2730a85c2d2a4d9ba4a6551af7d7a2c5905d931beffec7917dba30d8ebbf71e72a010daf4d18c41a6cd5",
-          "interpretation": "ASN.1 integer: version, serial number, path constraint or RSA public-key parameter",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
           "offset": 448
         },
         {
@@ -2466,7 +2466,7 @@
         {
           "end_exclusive": 710,
           "hex": "010001",
-          "interpretation": "ASN.1 integer: version, serial number, path constraint or RSA public-key parameter",
+          "interpretation": "ASN.1 integer: version, serial number, path constraint, RSA parameter or ECDSA signature parameter",
           "offset": 707
         },
         {

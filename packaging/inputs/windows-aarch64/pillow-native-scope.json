@@ -1,0 +1,369 @@
+{
+  "candidate_approval": false,
+  "catalogue": {
+    "path": "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/pillow-12.3.0.dist-info/sboms/pillow-12.3.0.cdx.json",
+    "sha256": "40fa909b0f23405a7b97a6d91671a639a40acea7671b04387da22ba3e9fca50a",
+    "size": 22279
+  },
+  "components": [
+    {
+      "bom_ref": "pkg:generic/freetype2",
+      "classification": "native-feature-supported",
+      "declared_version": "2.14.3",
+      "feature_selector": [
+        "modules",
+        "freetype2"
+      ],
+      "name": "FreeType",
+      "native_feature": {
+        "supported": true,
+        "version": "2.14.3"
+      },
+      "version_matches_declaration": true
+    },
+    {
+      "bom_ref": "pkg:generic/fribidi",
+      "classification": "native-feature-not-supported",
+      "declared_version": "1.0.16",
+      "feature_selector": [
+        "features",
+        "fribidi"
+      ],
+      "name": "FriBiDi",
+      "native_feature": {
+        "supported": false,
+        "version": null
+      },
+      "version_matches_declaration": false
+    },
+    {
+      "bom_ref": "pkg:generic/harfbuzz",
+      "classification": "native-feature-not-supported",
+      "declared_version": "14.2.1",
+      "feature_selector": [
+        "features",
+        "harfbuzz"
+      ],
+      "name": "HarfBuzz",
+      "native_feature": {
+        "supported": false,
+        "version": null
+      },
+      "version_matches_declaration": false
+    },
+    {
+      "bom_ref": "pkg:generic/libavif",
+      "classification": "native-feature-not-supported",
+      "declared_version": "1.4.2",
+      "feature_selector": [
+        "modules",
+        "avif"
+      ],
+      "name": "libavif",
+      "native_feature": {
+        "supported": false,
+        "version": null
+      },
+      "version_matches_declaration": false
+    },
+    {
+      "bom_ref": "pkg:generic/libimagequant",
+      "classification": "native-feature-not-supported",
+      "declared_version": "4.4.1",
+      "feature_selector": [
+        "features",
+        "libimagequant"
+      ],
+      "name": "libimagequant",
+      "native_feature": {
+        "supported": false,
+        "version": null
+      },
+      "version_matches_declaration": false
+    },
+    {
+      "bom_ref": "pkg:generic/libjpeg",
+      "classification": "native-feature-supported",
+      "declared_version": "3.1.4.1",
+      "feature_selector": [
+        "features",
+        "libjpeg_turbo"
+      ],
+      "name": "libjpeg / libjpeg-turbo",
+      "native_feature": {
+        "supported": true,
+        "version": "3.1.4.1"
+      },
+      "version_matches_declaration": true
+    },
+    {
+      "bom_ref": "pkg:generic/libtiff",
+      "classification": "native-feature-supported",
+      "declared_version": "4.7.1",
+      "feature_selector": [
+        "codecs",
+        "libtiff"
+      ],
+      "name": "libtiff",
+      "native_feature": {
+        "supported": true,
+        "version": "4.7.1"
+      },
+      "version_matches_declaration": true
+    },
+    {
+      "bom_ref": "pkg:generic/libwebp",
+      "classification": "native-feature-supported",
+      "declared_version": "1.6.0",
+      "feature_selector": [
+        "modules",
+        "webp"
+      ],
+      "name": "libwebp",
+      "native_feature": {
+        "supported": true,
+        "version": "1.6.0"
+      },
+      "version_matches_declaration": true
+    },
+    {
+      "bom_ref": "pkg:generic/libxcb",
+      "classification": "native-feature-not-supported",
+      "declared_version": "1.17.0",
+      "feature_selector": [
+        "features",
+        "xcb"
+      ],
+      "name": "libxcb",
+      "native_feature": {
+        "supported": false,
+        "version": null
+      },
+      "version_matches_declaration": false
+    },
+    {
+      "bom_ref": "pkg:generic/littlecms2",
+      "classification": "native-feature-supported",
+      "declared_version": "2.19.1",
+      "feature_selector": [
+        "modules",
+        "littlecms2"
+      ],
+      "name": "Little CMS 2",
+      "native_feature": {
+        "supported": true,
+        "version": "2.19"
+      },
+      "version_matches_declaration": false
+    },
+    {
+      "bom_ref": "pkg:generic/openjpeg",
+      "classification": "native-feature-supported",
+      "declared_version": "2.5.4",
+      "feature_selector": [
+        "codecs",
+        "jpg_2000"
+      ],
+      "name": "OpenJPEG",
+      "native_feature": {
+        "supported": true,
+        "version": "2.5.4"
+      },
+      "version_matches_declaration": true
+    },
+    {
+      "bom_ref": "pkg:generic/zlib",
+      "classification": "native-feature-supported",
+      "declared_version": "2.3.3",
+      "feature_selector": [
+        "features",
+        "zlib_ng"
+      ],
+      "name": "zlib",
+      "native_feature": {
+        "supported": true,
+        "version": "2.3.3"
+      },
+      "version_matches_declaration": true
+    },
+    {
+      "bom_ref": "pkg:github/python/pythoncapi-compat",
+      "classification": "catalogue-entry-needs-build-scope",
+      "declared_version": null,
+      "name": "pythoncapi_compat"
+    },
+    {
+      "bom_ref": "pkg:pypi/pillow@12.3.0#c-ext/PIL._avif",
+      "classification": "catalogue-module-not-observed",
+      "declared_version": "12.3.0",
+      "loaded_by_probe": false,
+      "name": "PIL._avif",
+      "observed_members": {}
+    },
+    {
+      "bom_ref": "pkg:pypi/pillow@12.3.0#c-ext/PIL._imaging",
+      "classification": "observed-installed-native-module",
+      "declared_version": "12.3.0",
+      "loaded_by_probe": true,
+      "name": "PIL._imaging",
+      "observed_members": {
+        "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imaging.cp312-win_arm64.pyd": {
+          "sha256": "d7387d3192263a2baaa86549d0319972b76444aabdfafc5240af9251f09017c7",
+          "size": 2068992
+        }
+      }
+    },
+    {
+      "bom_ref": "pkg:pypi/pillow@12.3.0#c-ext/PIL._imagingcms",
+      "classification": "observed-installed-native-module",
+      "declared_version": "12.3.0",
+      "loaded_by_probe": true,
+      "name": "PIL._imagingcms",
+      "observed_members": {
+        "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingcms.cp312-win_arm64.pyd": {
+          "sha256": "f49b2dde657a0ea237b775c09009e9a71864ec926bf633f74def19050275b903",
+          "size": 245248
+        }
+      }
+    },
+    {
+      "bom_ref": "pkg:pypi/pillow@12.3.0#c-ext/PIL._imagingft",
+      "classification": "observed-installed-native-module",
+      "declared_version": "12.3.0",
+      "loaded_by_probe": true,
+      "name": "PIL._imagingft",
+      "observed_members": {
+        "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingft.cp312-win_arm64.pyd": {
+          "sha256": "de5b85aa4574ec3f5eb96d4381b69e5f7bfdd3c8bd5ca91846df9bac226d370f",
+          "size": 1913856
+        }
+      }
+    },
+    {
+      "bom_ref": "pkg:pypi/pillow@12.3.0#c-ext/PIL._imagingmath",
+      "classification": "observed-installed-native-module",
+      "declared_version": "12.3.0",
+      "loaded_by_probe": false,
+      "name": "PIL._imagingmath",
+      "observed_members": {
+        "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingmath.cp312-win_arm64.pyd": {
+          "sha256": "797503fe21a2f6e9f4e47743894e539d4035e35e16744b5b39592ad5ee24e74a",
+          "size": 20992
+        }
+      }
+    },
+    {
+      "bom_ref": "pkg:pypi/pillow@12.3.0#c-ext/PIL._imagingmorph",
+      "classification": "observed-installed-native-module",
+      "declared_version": "12.3.0",
+      "loaded_by_probe": false,
+      "name": "PIL._imagingmorph",
+      "observed_members": {
+        "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingmorph.cp312-win_arm64.pyd": {
+          "sha256": "773d9ac5515e05cf960e295880d6b61b0742f6ce4064d7d0410e80042b816e76",
+          "size": 12800
+        }
+      }
+    },
+    {
+      "bom_ref": "pkg:pypi/pillow@12.3.0#c-ext/PIL._imagingtk",
+      "classification": "observed-installed-native-module",
+      "declared_version": "12.3.0",
+      "loaded_by_probe": false,
+      "name": "PIL._imagingtk",
+      "observed_members": {
+        "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingtk.cp312-win_arm64.pyd": {
+          "sha256": "6f6daca72eeb75b02900e783c56c8c1a0066e0c0280e4fe806c6bcd200742677",
+          "size": 14336
+        }
+      }
+    },
+    {
+      "bom_ref": "pkg:pypi/pillow@12.3.0#c-ext/PIL._webp",
+      "classification": "observed-installed-native-module",
+      "declared_version": "12.3.0",
+      "loaded_by_probe": true,
+      "name": "PIL._webp",
+      "observed_members": {
+        "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_webp.cp312-win_arm64.pyd": {
+          "sha256": "28280dd647059d71b9c4175b10374c48ef6bb974382f95cad44a7edc7784de3a",
+          "size": 348672
+        }
+      }
+    },
+    {
+      "bom_ref": "pkg:pypi/pillow@12.3.0#thirdparty/fribidi-shim",
+      "classification": "catalogue-entry-needs-build-scope",
+      "declared_version": "1.x",
+      "name": "fribidi-shim"
+    },
+    {
+      "bom_ref": "pkg:pypi/pillow@12.3.0#thirdparty/raqm",
+      "classification": "native-feature-not-supported",
+      "declared_version": "0.10.5",
+      "feature_selector": [
+        "features",
+        "raqm"
+      ],
+      "name": "raqm",
+      "native_feature": {
+        "supported": false,
+        "version": null
+      },
+      "version_matches_declaration": false
+    },
+    {
+      "bom_ref": "pkg:pypi/pybind11",
+      "classification": "catalogue-entry-needs-build-scope",
+      "declared_version": null,
+      "name": "pybind11"
+    }
+  ],
+  "limitations": [
+    "An unloaded module remains shipped. An unsupported feature does not prove its transitive libraries are absent.",
+    "Catalogue/probe version differences remain visible; no version is normalized into equality.",
+    "No catalogue entry is classified build-only and no grant or source duty is concluded by this hook."
+  ],
+  "native_members": {
+    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imaging.cp312-win_arm64.pyd": {
+      "loaded_by_probe": true,
+      "sha256": "d7387d3192263a2baaa86549d0319972b76444aabdfafc5240af9251f09017c7",
+      "size": 2068992
+    },
+    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingcms.cp312-win_arm64.pyd": {
+      "loaded_by_probe": true,
+      "sha256": "f49b2dde657a0ea237b775c09009e9a71864ec926bf633f74def19050275b903",
+      "size": 245248
+    },
+    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingft.cp312-win_arm64.pyd": {
+      "loaded_by_probe": true,
+      "sha256": "de5b85aa4574ec3f5eb96d4381b69e5f7bfdd3c8bd5ca91846df9bac226d370f",
+      "size": 1913856
+    },
+    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingmath.cp312-win_arm64.pyd": {
+      "loaded_by_probe": false,
+      "sha256": "797503fe21a2f6e9f4e47743894e539d4035e35e16744b5b39592ad5ee24e74a",
+      "size": 20992
+    },
+    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingmorph.cp312-win_arm64.pyd": {
+      "loaded_by_probe": false,
+      "sha256": "773d9ac5515e05cf960e295880d6b61b0742f6ce4064d7d0410e80042b816e76",
+      "size": 12800
+    },
+    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingtk.cp312-win_arm64.pyd": {
+      "loaded_by_probe": false,
+      "sha256": "6f6daca72eeb75b02900e783c56c8c1a0066e0c0280e4fe806c6bcd200742677",
+      "size": 14336
+    },
+    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_webp.cp312-win_arm64.pyd": {
+      "loaded_by_probe": true,
+      "sha256": "28280dd647059d71b9c4175b10374c48ef6bb974382f95cad44a7edc7784de3a",
+      "size": 348672
+    }
+  },
+  "pillow_version": "12.3.0",
+  "publishable": false,
+  "schema": 1,
+  "status": "unapproved",
+  "target": "aarch64-pc-windows-msvc"
+}

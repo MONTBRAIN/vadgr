@@ -70,7 +70,7 @@
     "nodriver/core/tab.py": "9d876d468632b09570369113d0ee6ee1a3014cd70c4684bacc0d2ee9d74b920c",
     "nodriver/core/util.py": "36422bfee9ba2dfc9f4d81fbf41bf7899e09f3f669b958064b74be21d1a7ea09"
   },
-  "installed_root": "payload/lib/cua/environments/0.7.9-a18356e2a262/Lib/site-packages/nodriver",
+  "installed_root": "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/nodriver",
   "limitation": "No nodriver source changes in the observed installed tree. This does not establish the AGPL boundary or Corresponding Source completeness of a larger combined work.",
   "schema": 1,
   "source_archive_sha256": "24ca688d8646ef8ffad5c8ce65804e5e7671a779ad26a24d76f6465d5666c631",

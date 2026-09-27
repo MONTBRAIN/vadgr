@@ -1,14 +1,14 @@
 {
   "SPDXID": "SPDXRef-DOCUMENT",
   "creationInfo": {
-    "created": "2026-09-27T14:47:24Z",
+    "created": "2026-09-27T22:00:00Z",
     "creators": [
       "Tool: vadgr-windows-legal-preparation"
     ]
   },
   "dataLicense": "CC0-1.0",
   "documentComment": "Incomplete review inventory, including separately classified build-source candidates. Not an approved shipped-component SBOM.",
-  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-b94ab58c5f67b5586d0ec94d958791f2ff9d2813da1499c8cf0658b7c85cc7ba",
+  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-fc9a4f4817d025750fbc42f16b762ce9fab7921477823fa98f664a4ea5064ffe",
   "hasExtractedLicensingInfos": [
     {
       "comment": "Exact retained terms; this identifier is not an approval or a claim of SPDX-list equivalence.",
@@ -2032,7 +2032,7 @@
           "checksumValue": "1e6853b52649d4ac5c0bd02320cddc5ba956bdb407c4b75a2c6b75bf51500f8c"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/fdeflate/fdeflate-0.3.7.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -10070,11 +10070,11 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "974364cf31f183f10465a342cfa51228fe0d7baea78637acab113c7bd47fdf61"
+          "checksumValue": "46490fab184c24c2d6e8c1cc53ecf6b4aa01e6829cf627924bccbf67dd80574b"
         }
       ],
       "copyrightText": "# Copyright (c) 2005-2023, PyInstaller Development Team.\nBased on previous work under copyright (c) 2002 McMillan Enterprises, Inc.\nCopyright (C) 1989, 1991 Free Software Foundation, Inc.\nCopyright (C) 1995-2017 Jean-loup Gailly and Mark Adler\nCopyright (C) The XZ Utils authors and contributors\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper\nCopyright (c) 2001-2022 Expat maintainers\nCopyright (c) 2005-2009, Giovanni Bajo\nCopyright (c) 2008-2020 Stefan Krah. All rights reserved.\nCopyright (c) 2010-2023, PyInstaller Development Team\nCopyright 2009 The Go Authors.\nCopyright 2026 Victor Santiago Monta\u00f1o Diaz\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\nThis software is copyrighted by the Regents of the University of California, Sun Microsystems, Inc., Scriptics Corporation, ActiveState Corporation and other parties.\ndocumentation, are copyright (C) 1996-2010 Julian R Seward.  All\ndocumentation, are copyright (C) 1996-2019 Julian R Seward.  All\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,\nlibffi - Copyright (c) 1996-2019  Anthony Green, Red Hat, Inc and others.",
-      "downloadLocation": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36181636747",
+      "downloadLocation": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36346786722",
       "filesAnalyzed": false,
       "licenseConcluded": "(0BSD) AND (Apache-2.0) AND (BSD-2-Clause) AND (BSD-3-Clause AND Apache-2.0) AND (GPL-2.0-or-later WITH Bootloader-exception AND Apache-2.0) AND (LicenseRef-Python-Windows-Redistribution-e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a) AND (MIT) AND (Python-2.0 AND 0BSD) AND (Zlib) AND (bzip2-1.0.6)",
       "licenseDeclared": "(0BSD) AND (Apache-2.0) AND (BSD-2-Clause) AND (BSD-3-Clause AND Apache-2.0) AND (GPL-2.0-or-later WITH Bootloader-exception AND Apache-2.0) AND (LicenseRef-Python-Windows-Redistribution-e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a) AND (MIT) AND (Python-2.0 AND 0BSD) AND (Zlib) AND (bzip2-1.0.6)",
@@ -10750,11 +10750,11 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "a5a5589d52c1af0b00ba3393dc38b65279e1b2c5ef7f9ef63b3ae58ce22b01c6"
+          "checksumValue": "1181d3c246f27be9245a868bcc36fa6f094bebca54fee460f7a4fad2d50432bc"
         }
       ],
       "copyrightText": "# Copyright 2026 Victor Santiago Montano Diaz\n# Copyright 2026 Victor Santiago Monta\u00f1o Diaz\nCopyright 2026 Victor Santiago Monta\u00f1o Diaz",
-      "downloadLocation": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36312377525",
+      "downloadLocation": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36348372222",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
       "licenseDeclared": "Apache-2.0",

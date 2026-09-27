@@ -2249,7 +2249,7 @@
         },
         {
           "path": "legal/SOURCE-OFFERS/cargo-cms-0.2.3/copyright-absence.json",
-          "sha256": "d41f305a439b8e5ac816a636abba1c360cd8a3918f016c56edd56daf5839b3b5"
+          "sha256": "e01ce2a872c7db6e5a4e069d558d9ca15a72590fa1c215f53356db7451224868"
         }
       ],
       "source_offer_required": true,
@@ -4486,7 +4486,7 @@
       "version": "0.2.7"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "NONE",
       "download_location": "https://static.crates.io/crates/fdeflate/fdeflate-0.3.7.crate",
       "id": "cargo-fdeflate-0.3.7",
       "kind": "cargo",
@@ -4517,7 +4517,7 @@
       "source_offer_files": [
         {
           "path": "legal/SOURCE-OFFERS/cargo-fdeflate-0.3.7/copyright-absence.json",
-          "sha256": "d9fbe8b28863f30543dbb4bd47ae038fbb9bbc81504acd7871c745a2aeda7170"
+          "sha256": "9ba29762910c89c0c18ea22fdbd65aad88caeb9ed6b62530bda0a590ca6868d4"
         },
         {
           "path": "legal/SOURCE-OFFERS/cargo-fdeflate-0.3.7/fdeflate-0.3.7.crate",
@@ -14630,7 +14630,7 @@
       "source_offer_files": [
         {
           "path": "legal/SOURCE-OFFERS/cargo-webpki-roots-0.26.11/copyright-absence.json",
-          "sha256": "cf29b183c186247fa5cd3b1e16aabf06f1d9720776a7eb838b97c684f965651e"
+          "sha256": "8eb838adbc8b53b9b18b21c05f6422f0d9767df0ce66734d73b2d59cfcb77170"
         },
         {
           "path": "legal/SOURCE-OFFERS/cargo-webpki-roots-0.26.11/webpki-roots-0.26.11.crate",
@@ -14668,7 +14668,7 @@
       "source_offer_files": [
         {
           "path": "legal/SOURCE-OFFERS/cargo-webpki-roots-1.0.9/copyright-absence.json",
-          "sha256": "a6856c8cfdccf5cc8ed8471f4f71e1b98241f05b45d6a5962b3231652615ae08"
+          "sha256": "0d839bfacd274524cecf213a629b43d6cdc10feeacd85bce6005429f433ed20e"
         },
         {
           "path": "legal/SOURCE-OFFERS/cargo-webpki-roots-1.0.9/webpki-roots-1.0.9.crate",
@@ -22253,7 +22253,7 @@
     },
     {
       "copyright_text": "# Copyright (c) 2005-2023, PyInstaller Development Team.\nBased on previous work under copyright (c) 2002 McMillan Enterprises, Inc.\nCopyright (C) 1989, 1991 Free Software Foundation, Inc.\nCopyright (C) 1995-2017 Jean-loup Gailly and Mark Adler\nCopyright (C) The XZ Utils authors and contributors\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper\nCopyright (c) 2001-2022 Expat maintainers\nCopyright (c) 2005-2009, Giovanni Bajo\nCopyright (c) 2008-2020 Stefan Krah. All rights reserved.\nCopyright (c) 2010-2023, PyInstaller Development Team\nCopyright 2009 The Go Authors.\nCopyright 2026 Victor Santiago Monta\u00f1o Diaz\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\nThis software is copyrighted by the Regents of the University of California, Sun Microsystems, Inc., Scriptics Corporation, ActiveState Corporation and other parties.\ndocumentation, are copyright (C) 1996-2010 Julian R Seward.  All\ndocumentation, are copyright (C) 1996-2019 Julian R Seward.  All\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,\nlibffi - Copyright (c) 1996-2019  Anthony Green, Red Hat, Inc and others.",
-      "download_location": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36181636747",
+      "download_location": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36346786722",
       "id": "runtime-cua-helper-closure-0.7.9",
       "kind": "runtime",
       "license_concluded": "(0BSD) AND (Apache-2.0) AND (BSD-2-Clause) AND (BSD-3-Clause AND Apache-2.0) AND (GPL-2.0-or-later WITH Bootloader-exception AND Apache-2.0) AND (LicenseRef-Python-Windows-Redistribution-e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a) AND (MIT) AND (Python-2.0 AND 0BSD) AND (Zlib) AND (bzip2-1.0.6)",
@@ -22435,7 +22435,7 @@
         }
       ],
       "notice_required": true,
-      "sha256": "974364cf31f183f10465a342cfa51228fe0d7baea78637acab113c7bd47fdf61",
+      "sha256": "46490fab184c24c2d6e8c1cc53ecf6b4aa01e6829cf627924bccbf67dd80574b",
       "source_offer_files": [],
       "source_offer_required": false,
       "version": "0.7.9"
@@ -22516,6 +22516,10 @@
         {
           "path": "legal/NOTICES/runtime-rust-std-1.97.1/012-012-Unicode-3.0.txt",
           "sha256": "f5062c9a188d81dfe66b56db4182dcf9e4b17c0d9b0d311a8e20b3a1b075c443"
+        },
+        {
+          "path": "legal/NOTICES/runtime-rust-std-1.97.1/target-library-binding.json",
+          "sha256": "04fc5d6f6cb7c06f939ff8116a333f81a90ac6766f37998370ab1f77c37b0838"
         }
       ],
       "notice_required": true,
@@ -23141,6 +23145,10 @@
         {
           "path": "legal/NOTICES/wheel-pillow-12.3.0/observed-source-copyright.json",
           "sha256": "8e1e65571adce9abf7f9dbcc99de3001f6a7ce142938b52a3c59deccb023e9a1"
+        },
+        {
+          "path": "legal/NOTICES/wheel-pillow-12.3.0/runtime-feature-observation.json",
+          "sha256": "607e473656d73d43d102dea7546c2b46861bdfc60aad35daaec3811b3bae3253"
         }
       ],
       "notice_required": true,
@@ -23888,7 +23896,7 @@
     },
     {
       "copyright_text": "# Copyright 2026 Victor Santiago Montano Diaz\n# Copyright 2026 Victor Santiago Monta\u00f1o Diaz\nCopyright 2026 Victor Santiago Monta\u00f1o Diaz",
-      "download_location": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36312377525",
+      "download_location": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36348372222",
       "id": "wheel-vadgr-computer-use-0.7.9",
       "kind": "wheel",
       "license_concluded": "Apache-2.0",
@@ -23914,11 +23922,11 @@
         },
         {
           "path": "legal/NOTICES/wheel-vadgr-computer-use-0.7.9/observed-source-copyright.json",
-          "sha256": "a7eb3f6434f4d8b43885bd5e8ec073c2a9f111caf87b349d90881d96d4bc2e54"
+          "sha256": "6085cf66feb80b81bee5b8056681151e296b8355d614fa5f293dc7429cc75755"
         }
       ],
       "notice_required": true,
-      "sha256": "a5a5589d52c1af0b00ba3393dc38b65279e1b2c5ef7f9ef63b3ae58ce22b01c6",
+      "sha256": "1181d3c246f27be9245a868bcc36fa6f094bebca54fee460f7a4fad2d50432bc",
       "source_offer_files": [],
       "source_offer_required": false,
       "version": "0.7.9"
@@ -24643,17 +24651,17 @@
       "status": "incomplete"
     }
   },
-  "created": "2026-09-27T14:47:24Z",
-  "payload_manifest_sha256": "c49e453b7afbabaf622c011a7a9b2c373542c5f9bc4de9be5af17b2c40c19265",
+  "created": "2026-09-27T22:00:00Z",
+  "payload_manifest_sha256": "af2a47d24b8805bb4bf08c7b96cf07d1fb2e368739d48fe3d96715f8388287e3",
   "schema": 1,
   "source_inputs": {
     "Cargo.lock": "a5a9432e1e0c487912b8548593a251befb0780aef1f3d5fc4d760f7bafa9063c",
-    "packaging/cua/cua-profile-catalog.json": "9624df5842ad9d4f26fef1b678bd11985816c1c6f57c795bbca47d993369ca62",
-    "packaging/cua/cua-profile-catalog.sigstore.json": "1e49f09483dfdfa6e1738c8e6acf1e4e77a1f0682e2cdd8dd9b37f557f30da92",
+    "packaging/cua/cua-profile-catalog.json": "c0a161ff2c8858678bf5696728ba18a59bebb012a7fb91a3389252e5ea907427",
+    "packaging/cua/cua-profile-catalog.sigstore.json": "a73ba0e4b31205e3a9599e73c52955dae28d6381b08e7112760da98b9502f1ca",
     "packaging/cua/native-wheel-manifest.json": "2f86c4d2c6493d32019a617c669e3c0babefc565f9da73c6182475286ad499b8",
     "packaging/cua/pins.toml": "deafdc326e4cbd13238390e3552999b0ca78a8a705932712d07f20c7ab2630fa",
-    "packaging/cua/profile-inputs.json": "2cc0df4e2ee3e0d047c035ab97ece7060ca6591a1fc3e718e4c063066d9cbee4",
-    "packaging/cua/profile-locks/windows-aarch64.lock": "a18356e2a262f8d9a518505bc5b7fa00ad99323068e2b444d73159c8ed57691b",
+    "packaging/cua/profile-inputs.json": "26b34224f753943671c2fac22b18d5cf8000108e6fa341457a2d0fe15c7c34a8",
+    "packaging/cua/profile-locks/windows-aarch64.lock": "e82e8f88eba04a532addc6416fe3a3288024f421fa097c24376ae6e23e869a2a",
     "packaging/toolchain.json": "628b3a9c29fd90805df2b7a80651dd5d9298c6055f8984e07e50b46a0d4a5616"
   },
   "target": "aarch64-pc-windows-msvc",

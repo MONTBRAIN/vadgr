@@ -2249,7 +2249,7 @@
         },
         {
           "path": "legal/SOURCE-OFFERS/cargo-cms-0.2.3/copyright-absence.json",
-          "sha256": "d41f305a439b8e5ac816a636abba1c360cd8a3918f016c56edd56daf5839b3b5"
+          "sha256": "e01ce2a872c7db6e5a4e069d558d9ca15a72590fa1c215f53356db7451224868"
         }
       ],
       "source_offer_required": true,
@@ -4486,7 +4486,7 @@
       "version": "0.2.7"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "NONE",
       "download_location": "https://static.crates.io/crates/fdeflate/fdeflate-0.3.7.crate",
       "id": "cargo-fdeflate-0.3.7",
       "kind": "cargo",
@@ -4517,7 +4517,7 @@
       "source_offer_files": [
         {
           "path": "legal/SOURCE-OFFERS/cargo-fdeflate-0.3.7/copyright-absence.json",
-          "sha256": "d9fbe8b28863f30543dbb4bd47ae038fbb9bbc81504acd7871c745a2aeda7170"
+          "sha256": "9ba29762910c89c0c18ea22fdbd65aad88caeb9ed6b62530bda0a590ca6868d4"
         },
         {
           "path": "legal/SOURCE-OFFERS/cargo-fdeflate-0.3.7/fdeflate-0.3.7.crate",
@@ -14630,7 +14630,7 @@
       "source_offer_files": [
         {
           "path": "legal/SOURCE-OFFERS/cargo-webpki-roots-0.26.11/copyright-absence.json",
-          "sha256": "cf29b183c186247fa5cd3b1e16aabf06f1d9720776a7eb838b97c684f965651e"
+          "sha256": "8eb838adbc8b53b9b18b21c05f6422f0d9767df0ce66734d73b2d59cfcb77170"
         },
         {
           "path": "legal/SOURCE-OFFERS/cargo-webpki-roots-0.26.11/webpki-roots-0.26.11.crate",
@@ -14668,7 +14668,7 @@
       "source_offer_files": [
         {
           "path": "legal/SOURCE-OFFERS/cargo-webpki-roots-1.0.9/copyright-absence.json",
-          "sha256": "a6856c8cfdccf5cc8ed8471f4f71e1b98241f05b45d6a5962b3231652615ae08"
+          "sha256": "0d839bfacd274524cecf213a629b43d6cdc10feeacd85bce6005429f433ed20e"
         },
         {
           "path": "legal/SOURCE-OFFERS/cargo-webpki-roots-1.0.9/webpki-roots-1.0.9.crate",
@@ -16383,7 +16383,7 @@
         },
         {
           "path": "legal/NOTICES/native-cryptography/upstream-source-binding.json",
-          "sha256": "c426ceeb8614e54348f8f36654f32119265a79c9267c801281ba3c4387674d19"
+          "sha256": "21cf609247bfa4f65a1003892d63b418b09da5d91204df1530e8e03937e53fe9"
         }
       ],
       "notice_required": true,
@@ -23127,7 +23127,7 @@
     },
     {
       "copyright_text": "# Copyright (c) 2005-2023, PyInstaller Development Team.\nBased on previous work under copyright (c) 2002 McMillan Enterprises, Inc.\nCopyright (C) 1989, 1991 Free Software Foundation, Inc.\nCopyright (C) 1995-2017 Jean-loup Gailly and Mark Adler\nCopyright (C) The XZ Utils authors and contributors\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 1993-1999 Ioi Kim Lam.\nCopyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper\nCopyright (c) 2000-2001 Tix Project Group.\nCopyright (c) 2001-2022 Expat maintainers\nCopyright (c) 2004 ActiveState\nCopyright (c) 2005-2009, Giovanni Bajo\nCopyright (c) 2008-2020 Stefan Krah. All rights reserved.\nCopyright (c) 2010-2023, PyInstaller Development Team\nCopyright 2009 The Go Authors.\nCopyright 2026 Victor Santiago Monta\u00f1o Diaz\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\nThis software is copyrighted by the Regents of the University of California, Sun Microsystems, Inc., Scriptics Corporation, ActiveState Corporation and other parties.\ndocumentation, are copyright (C) 1996-2010 Julian R Seward.  All\ndocumentation, are copyright (C) 1996-2019 Julian R Seward.  All\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,\nlibffi - Copyright (c) 1996-2019  Anthony Green, Red Hat, Inc and others.",
-      "download_location": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36181636747",
+      "download_location": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36346786722",
       "id": "runtime-cua-helper-closure-0.7.9",
       "kind": "runtime",
       "license_concluded": "(0BSD) AND (Apache-2.0) AND (BSD-2-Clause) AND (BSD-3-Clause AND Apache-2.0) AND (GPL-2.0-or-later WITH Bootloader-exception AND Apache-2.0) AND (LicenseRef-Python-Windows-Redistribution-e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a) AND (MIT) AND (Python-2.0 AND 0BSD) AND (Zlib) AND (bzip2-1.0.6)",
@@ -23309,7 +23309,7 @@
         }
       ],
       "notice_required": true,
-      "sha256": "79ada4f29a0b98a023c62a00b3cb23f8cb0133054dd608141993aef03aa73f2a",
+      "sha256": "a4008d5969883bcc32a484365128a32b26ef9a7f3bb35dfeda156212c4294704",
       "source_offer_files": [],
       "source_offer_required": false,
       "version": "0.7.9"
@@ -23390,6 +23390,10 @@
         {
           "path": "legal/NOTICES/runtime-rust-std-1.97.1/012-012-Unicode-3.0.txt",
           "sha256": "f5062c9a188d81dfe66b56db4182dcf9e4b17c0d9b0d311a8e20b3a1b075c443"
+        },
+        {
+          "path": "legal/NOTICES/runtime-rust-std-1.97.1/target-library-binding.json",
+          "sha256": "d136c220d1247e77f157c6b60490835f8db90eb46d45544b992f62fb827413f1"
         }
       ],
       "notice_required": true,
@@ -24015,6 +24019,10 @@
         {
           "path": "legal/NOTICES/wheel-pillow-12.3.0/observed-source-copyright.json",
           "sha256": "64e643a5aa38e240b5c37b33884219231117ad63a8610c793cf1487566093a79"
+        },
+        {
+          "path": "legal/NOTICES/wheel-pillow-12.3.0/runtime-feature-observation.json",
+          "sha256": "a8a3f364e3e1a7a1bd4fe8e65cb290b4b750769ada9dd40b9a78e2d16ef77b0b"
         }
       ],
       "notice_required": true,
@@ -24762,7 +24770,7 @@
     },
     {
       "copyright_text": "# Copyright 2026 Victor Santiago Montano Diaz\n# Copyright 2026 Victor Santiago Monta\u00f1o Diaz\nCopyright 2026 Victor Santiago Monta\u00f1o Diaz",
-      "download_location": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36312377525",
+      "download_location": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36348372222",
       "id": "wheel-vadgr-computer-use-0.7.9",
       "kind": "wheel",
       "license_concluded": "Apache-2.0",
@@ -24788,11 +24796,11 @@
         },
         {
           "path": "legal/NOTICES/wheel-vadgr-computer-use-0.7.9/observed-source-copyright.json",
-          "sha256": "bc4637fbcd8b892cf1c726dc16e0f0042ac5f94613c78bc160382948b9e06999"
+          "sha256": "dc8e55f6914978bc377a4792b06a7f849db66448a8dce983e11bc58deb55bcc1"
         }
       ],
       "notice_required": true,
-      "sha256": "cdfbd45fd528cd3738cc2635e848b3aac3448f51820abcb20c84b33e056282c5",
+      "sha256": "6ac9a13aeb555d49c4cf555cc2155242c012751f1a89c88111261a8423639b11",
       "source_offer_files": [],
       "source_offer_required": false,
       "version": "0.7.9"
@@ -25539,17 +25547,17 @@
       "status": "incomplete"
     }
   },
-  "created": "2026-09-27T14:47:24Z",
-  "payload_manifest_sha256": "a893378fe4a87fb329d3164ccd6a7996e4642e214f4a60a5a44d5648c32e02ca",
+  "created": "2026-09-27T22:00:00Z",
+  "payload_manifest_sha256": "64e91f3825d50c8a1b49b4e795d365e23e5a467c4d35382bc041acee89eac67e",
   "schema": 1,
   "source_inputs": {
     "Cargo.lock": "a5a9432e1e0c487912b8548593a251befb0780aef1f3d5fc4d760f7bafa9063c",
-    "packaging/cua/cua-profile-catalog.json": "9624df5842ad9d4f26fef1b678bd11985816c1c6f57c795bbca47d993369ca62",
-    "packaging/cua/cua-profile-catalog.sigstore.json": "1e49f09483dfdfa6e1738c8e6acf1e4e77a1f0682e2cdd8dd9b37f557f30da92",
+    "packaging/cua/cua-profile-catalog.json": "c0a161ff2c8858678bf5696728ba18a59bebb012a7fb91a3389252e5ea907427",
+    "packaging/cua/cua-profile-catalog.sigstore.json": "a73ba0e4b31205e3a9599e73c52955dae28d6381b08e7112760da98b9502f1ca",
     "packaging/cua/native-wheel-manifest.json": "2f86c4d2c6493d32019a617c669e3c0babefc565f9da73c6182475286ad499b8",
     "packaging/cua/pins.toml": "deafdc326e4cbd13238390e3552999b0ca78a8a705932712d07f20c7ab2630fa",
-    "packaging/cua/profile-inputs.json": "2cc0df4e2ee3e0d047c035ab97ece7060ca6591a1fc3e718e4c063066d9cbee4",
-    "packaging/cua/profile-locks/windows-x86_64.lock": "e63d09b556a17aed7899f88eb5f3c3245e47f6eda94ed54c4dfb8c8e7db96156",
+    "packaging/cua/profile-inputs.json": "26b34224f753943671c2fac22b18d5cf8000108e6fa341457a2d0fe15c7c34a8",
+    "packaging/cua/profile-locks/windows-x86_64.lock": "2580976f2ff6dc36f4b0ca8847acdfaf242d7005320b7e706405a444849c53b3",
     "packaging/toolchain.json": "628b3a9c29fd90805df2b7a80651dd5d9298c6055f8984e07e50b46a0d4a5616"
   },
   "target": "x86_64-pc-windows-msvc",

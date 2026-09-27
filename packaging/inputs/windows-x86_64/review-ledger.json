@@ -7,7 +7,7 @@
       "origins": [
         {
           "archive_sha256": "18dee69613aac468922cf28a32025eb7d7ed6985b61f73245848e58f37876c98",
-          "binary_sha256": "355d5fe94ba7b34ceb156a8aa02567634739f35c2e5f1c573996ffa5a608b014",
+          "binary_sha256": "547f787e82db0363e24302c683d0dddbc17d360d2735c809cf96ae1b7596fa7f",
           "member": "epaint_default_fonts-0.36.1/fonts/Hack-Regular.ttf"
         }
       ],
@@ -20,7 +20,7 @@
       "origins": [
         {
           "archive_sha256": "18dee69613aac468922cf28a32025eb7d7ed6985b61f73245848e58f37876c98",
-          "binary_sha256": "355d5fe94ba7b34ceb156a8aa02567634739f35c2e5f1c573996ffa5a608b014",
+          "binary_sha256": "547f787e82db0363e24302c683d0dddbc17d360d2735c809cf96ae1b7596fa7f",
           "member": "epaint_default_fonts-0.36.1/fonts/NotoEmoji-Regular.ttf"
         }
       ],
@@ -33,7 +33,7 @@
       "origins": [
         {
           "archive_sha256": "18dee69613aac468922cf28a32025eb7d7ed6985b61f73245848e58f37876c98",
-          "binary_sha256": "355d5fe94ba7b34ceb156a8aa02567634739f35c2e5f1c573996ffa5a608b014",
+          "binary_sha256": "547f787e82db0363e24302c683d0dddbc17d360d2735c809cf96ae1b7596fa7f",
           "member": "epaint_default_fonts-0.36.1/fonts/Ubuntu-Light.ttf"
         }
       ],
@@ -46,7 +46,7 @@
       "origins": [
         {
           "archive_sha256": "18dee69613aac468922cf28a32025eb7d7ed6985b61f73245848e58f37876c98",
-          "binary_sha256": "355d5fe94ba7b34ceb156a8aa02567634739f35c2e5f1c573996ffa5a608b014",
+          "binary_sha256": "547f787e82db0363e24302c683d0dddbc17d360d2735c809cf96ae1b7596fa7f",
           "member": "epaint_default_fonts-0.36.1/fonts/emoji-icon-font.ttf"
         }
       ],
@@ -3044,7 +3044,7 @@
       "copyright_absence_audit": {
         "eligible_for_reviewed_NONE": false,
         "path": "source-copyright-audits/cargo-cms-0.2.3.json",
-        "sha256": "d41f305a439b8e5ac816a636abba1c360cd8a3918f016c56edd56daf5839b3b5"
+        "sha256": "e01ce2a872c7db6e5a4e069d558d9ca15a72590fa1c215f53356db7451224868"
       },
       "external_grant_basis": {
         "application": "Exact crate manifest explicitly offers Apache-2.0 OR MIT. The complete Apache text is retained separately from original ownership evidence.",
@@ -4327,9 +4327,9 @@
     },
     {
       "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": false,
+        "eligible_for_reviewed_NONE": true,
         "path": "source-copyright-audits/cargo-fdeflate-0.3.7.json",
-        "sha256": "d9fbe8b28863f30543dbb4bd47ae038fbb9bbc81504acd7871c745a2aeda7170"
+        "sha256": "9ba29762910c89c0c18ea22fdbd65aad88caeb9ed6b62530bda0a590ca6868d4"
       },
       "id": "cargo-fdeflate-0.3.7",
       "original_license_declaration": "MIT OR Apache-2.0",
@@ -10911,7 +10911,7 @@
       "copyright_absence_audit": {
         "eligible_for_reviewed_NONE": true,
         "path": "source-copyright-audits/cargo-webpki-roots-0.26.11.json",
-        "sha256": "cf29b183c186247fa5cd3b1e16aabf06f1d9720776a7eb838b97c684f965651e"
+        "sha256": "8eb838adbc8b53b9b18b21c05f6422f0d9767df0ce66734d73b2d59cfcb77170"
       },
       "id": "cargo-webpki-roots-0.26.11",
       "original_license_declaration": "CDLA-Permissive-2.0",
@@ -10932,7 +10932,7 @@
       "copyright_absence_audit": {
         "eligible_for_reviewed_NONE": true,
         "path": "source-copyright-audits/cargo-webpki-roots-1.0.9.json",
-        "sha256": "a6856c8cfdccf5cc8ed8471f4f71e1b98241f05b45d6a5962b3231652615ae08"
+        "sha256": "0d839bfacd274524cecf213a629b43d6cdc10feeacd85bce6005429f433ed20e"
       },
       "id": "cargo-webpki-roots-1.0.9",
       "original_license_declaration": "CDLA-Permissive-2.0",
@@ -12178,7 +12178,7 @@
         "job_id": 97940032724,
         "limitation": "Primary GitHub API records and exact artifact equality, not a new independently verified build attestation, reproducible rebuild or legal approval.",
         "observed_native_members": {
-          "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/cryptography/hazmat/bindings/_rust.pyd": "6a42262974f0e086c1f2defaff4ccd9fb25046cf193422135e2dda5b4b29b2a2"
+          "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/cryptography/hazmat/bindings/_rust.pyd": "6a42262974f0e086c1f2defaff4ccd9fb25046cf193422135e2dda5b4b29b2a2"
         },
         "publishable": false,
         "repository": "pyca/cryptography",
@@ -12204,7 +12204,7 @@
         "component": "native-cryptography-openssl",
         "limitation": "Producer source/build declaration and exact installed wheel equality, not independent rebuild or symbol-by-symbol proof.",
         "observed_native_members": {
-          "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/cryptography/hazmat/bindings/_rust.pyd": "6a42262974f0e086c1f2defaff4ccd9fb25046cf193422135e2dda5b4b29b2a2"
+          "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/cryptography/hazmat/bindings/_rust.pyd": "6a42262974f0e086c1f2defaff4ccd9fb25046cf193422135e2dda5b4b29b2a2"
         },
         "producer_sbom": {
           "path": "nested-sboms/wheel-cryptography-50.0.1/001-sbom.json",
@@ -20987,10 +20987,10 @@
       "original_license_declaration": "(0BSD) AND (Apache-2.0) AND (BSD-2-Clause) AND (BSD-3-Clause AND Apache-2.0) AND (GPL-2.0-or-later WITH Bootloader-exception AND Apache-2.0) AND (LicenseRef-Python-Windows-Redistribution-e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a) AND (MIT) AND (Python-2.0 AND 0BSD) AND (Zlib) AND (bzip2-1.0.6)",
       "origins": [
         {
-          "broker_path": "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/computer_use/browser/winbroker/x86_64/vadgr-cua-browser-broker-win-x64.zip",
+          "broker_path": "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/computer_use/browser/winbroker/x86_64/vadgr-cua-browser-broker-win-x64.zip",
           "legal_review_path": "packaging/cua/helper-legal/x86_64.json",
-          "legal_review_sha256": "96ea989da645cde0b85d41f22c55ae7113f7de39628fcf71ecd12cee21f2256c",
-          "relay_path": "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/computer_use/browser/winhost/x86_64/vadgr-cua-host.exe"
+          "legal_review_sha256": "971bf06aff0cf2f9f73b3b488ce88052e40c9f6400271814cb1fdc851526b32c",
+          "relay_path": "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/computer_use/browser/winhost/x86_64/vadgr-cua-host.exe"
         }
       ],
       "retained_notice_count": 17,
@@ -20998,6 +20998,11 @@
     },
     {
       "id": "runtime-rust-std-1.97.1",
+      "native_runtime_observation": {
+        "path": "legal/NOTICES/runtime-rust-std-1.97.1/target-library-binding.json",
+        "scope": "exact-target-runtime-observation-not-license-approval",
+        "sha256": "d136c220d1247e77f157c6b60490835f8db90eb46d45544b992f62fb827413f1"
+      },
       "original_license_declaration": "MIT OR Apache-2.0",
       "origins": [],
       "retained_notice_count": 13,
@@ -21030,7 +21035,7 @@
     {
       "id": "wheel-cffi-2.1.1",
       "observed_native_members": {
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/_cffi_backend.cp312-win_amd64.pyd": "9af5e4f68a41f26b726f2e9424f9d58a4f5666189f6a48be95f406b257102aec"
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/_cffi_backend.cp312-win_amd64.pyd": "9af5e4f68a41f26b726f2e9424f9d58a4f5666189f6a48be95f406b257102aec"
       },
       "original_license_declaration": "MIT-0",
       "original_source_statement_count": 1,
@@ -21065,7 +21070,7 @@
       ],
       "id": "wheel-cryptography-50.0.1",
       "observed_native_members": {
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/cryptography/hazmat/bindings/_rust.pyd": "6a42262974f0e086c1f2defaff4ccd9fb25046cf193422135e2dda5b4b29b2a2"
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/cryptography/hazmat/bindings/_rust.pyd": "6a42262974f0e086c1f2defaff4ccd9fb25046cf193422135e2dda5b4b29b2a2"
       },
       "original_license_declaration": "Apache-2.0 OR BSD-3-Clause",
       "original_source_statement_count": 1,
@@ -21175,15 +21180,20 @@
     },
     {
       "id": "wheel-pillow-12.3.0",
+      "native_runtime_observation": {
+        "path": "legal/NOTICES/wheel-pillow-12.3.0/runtime-feature-observation.json",
+        "scope": "exact-target-runtime-observation-not-license-approval",
+        "sha256": "a8a3f364e3e1a7a1bd4fe8e65cb290b4b750769ada9dd40b9a78e2d16ef77b0b"
+      },
       "observed_native_members": {
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/PIL/_avif.cp312-win_amd64.pyd": "6731dce52baab0b96b0eeb3c664844b5b42c2168ea8668af2430e2fbdd2dfbd8",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/PIL/_imaging.cp312-win_amd64.pyd": "c8c519ec72bf75b2945b4fc4afa854af2fca8b970a403134f9ddda3e164d85e9",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/PIL/_imagingcms.cp312-win_amd64.pyd": "c89c633ae1bf3f26a327d14ff688db66628e19c9866ab925479f27dcb60a2d6f",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/PIL/_imagingft.cp312-win_amd64.pyd": "77c6d37de41733df40fb36d9af47644989ac17da036515e759303969edb22c48",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/PIL/_imagingmath.cp312-win_amd64.pyd": "82ac45c41a008854d05f67deda298b65a7bed850d0d79a3af861ed583f6e7d62",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/PIL/_imagingmorph.cp312-win_amd64.pyd": "b8523bbce8b322b4b931863c61b8107156b3f23fe1bbbfe0bc3fa318ea662fb0",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/PIL/_imagingtk.cp312-win_amd64.pyd": "690cc1cae4a2dc8594a342b9241e691dcc89d81dad4cddcefdf285275365a2b1",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/PIL/_webp.cp312-win_amd64.pyd": "9823cebb84f425af3ac1e7437259bc176e7ad7e25d7fa829b0e1a3e55c11be70"
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/PIL/_avif.cp312-win_amd64.pyd": "6731dce52baab0b96b0eeb3c664844b5b42c2168ea8668af2430e2fbdd2dfbd8",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/PIL/_imaging.cp312-win_amd64.pyd": "c8c519ec72bf75b2945b4fc4afa854af2fca8b970a403134f9ddda3e164d85e9",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/PIL/_imagingcms.cp312-win_amd64.pyd": "c89c633ae1bf3f26a327d14ff688db66628e19c9866ab925479f27dcb60a2d6f",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/PIL/_imagingft.cp312-win_amd64.pyd": "77c6d37de41733df40fb36d9af47644989ac17da036515e759303969edb22c48",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/PIL/_imagingmath.cp312-win_amd64.pyd": "82ac45c41a008854d05f67deda298b65a7bed850d0d79a3af861ed583f6e7d62",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/PIL/_imagingmorph.cp312-win_amd64.pyd": "b8523bbce8b322b4b931863c61b8107156b3f23fe1bbbfe0bc3fa318ea662fb0",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/PIL/_imagingtk.cp312-win_amd64.pyd": "690cc1cae4a2dc8594a342b9241e691dcc89d81dad4cddcefdf285275365a2b1",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/PIL/_webp.cp312-win_amd64.pyd": "9823cebb84f425af3ac1e7437259bc176e7ad7e25d7fa829b0e1a3e55c11be70"
       },
       "original_license_declaration": "MIT-CMU",
       "original_source_statement_count": 77,
@@ -21217,7 +21227,7 @@
       ],
       "id": "wheel-pydantic-core-2.46.5",
       "observed_native_members": {
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/pydantic_core/_pydantic_core.cp312-win_amd64.pyd": "28fd1266fb9946fe61775505a13c0bf803f6932b51b306a0032687393d9a558b"
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/pydantic_core/_pydantic_core.cp312-win_amd64.pyd": "28fd1266fb9946fe61775505a13c0bf803f6932b51b306a0032687393d9a558b"
       },
       "original_license_declaration": "MIT",
       "origins": [],
@@ -21246,63 +21256,63 @@
       "grant_scope_basis": "Composite wheel proposal retains the directory grants, IDLE's cumulative Python license, Scintilla's permission, the explicitly named Microsoft MAPI MIT grant and the separately inventoried adodbapi LGPL source. No single license replaces the others.",
       "id": "wheel-pywin32-312",
       "observed_native_members": {
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/isapi/PyISAPI_loader.dll": "84a805f7cf36a2bb62e3c8c48acfc95e256cbf7f9b357efc74470fb9aaafb44b",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/pythonwin/Pythonwin.exe": "17b95e58e2b486f7d776b90a3e6539802cfb101e9f2ac3b330f2b5e61166f5aa",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/pythonwin/dde.pyd": "8b5d9bc1ae5ecc99daa8a01c35e1cd975159961dcfe24c6ecde8f5c8001f0a2d",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/pythonwin/scintilla.dll": "e13bf37755ada7ce4272556969fedb9f8d408891c41a31763348d53779223fb5",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/pythonwin/win32ui.pyd": "1fc9f8875056b175077ed04e7d93599f58b3cff80bd2077f5f8c8aaa144ab833",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/pythonwin/win32uiole.pyd": "91b64011fe1affbc4723b91562f6259433d9d5ac512e9ce342d8682d9d10993a",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/pywin32_system32/pythoncom312.dll": "18e5d69b62110f48da01842f9ddfd99d06cc561f0866371714ec6534fcb4e5ec",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/pywin32_system32/pywintypes312.dll": "9bd7f8c39a84d7b1ea43bfcd33c04631c60f4ff28167e82bb21987cc1c353766",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/_win32sysloader.pyd": "db277aae2b8417dbd01435a8691cc74707f6699ae3199e1b205f609cefa5ad24",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/_winxptheme.pyd": "cb865450d1abe54466b603658317601750b747cc7a7469726574294e29f65bbc",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/mmapfile.pyd": "8a3f8184cbddf8ae5c0f778fb03b2420dd306d7323896bd3369230d013eda70b",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/odbc.pyd": "c3bd9b159ce6c6baaa4438c305eade1976de19b0a722f986a824dfe56b7e19ef",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/perfmon.pyd": "81e3eba5dce65750eebac8ca294016afb0cd101ba36ab3c23c2670f81bb53480",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/perfmondata.dll": "8dedfea2250765d110c1054474045a984928cd0c34fee00bfad365b611f22f76",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/pythonservice.exe": "e26e252534fd4833c24a6ebad8051482049ddece1b762b556dcec60ee1e03dce",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/servicemanager.pyd": "68aa5d17de3038f041f8340a791e7d3f6dee2586307e7f7c59c9329cf5a028ca",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/timer.pyd": "27f5ef850a849e62b5360af7b076490359e09d3752e8ac379d49c429d72b0b95",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32api.pyd": "8e09d7aa57dc33b663afd219fab21b6a70e9d98cc74a044df4d6cd94799d98c2",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32clipboard.pyd": "3d05fe104ebee5ab81767b568796aae29a5e9b100d24c34f9e1714860e5113f1",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32console.pyd": "7d011b600e495c13d9cfb52261ebb413312ffd6fa205dc3a138e7482a43cd54d",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32cred.pyd": "bd2e3839bf9055f2bdd75950d9f836b33b9880c3f5e337ba2761092bd7ca4c59",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32crypt.pyd": "30cf71545212bbfb7362618f41a40cefcea39327306fdd7926c95374ce9294bf",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32event.pyd": "a6b896456443447a663fe25783dfa95929dc8ade8d7970fd78d3b4e65100371e",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32evtlog.pyd": "f6f8814147d3ca2761d351c0c86e7142b15b63605a502e5eb62d0bbd2b88e73f",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32file.pyd": "359ef2dc11546f619a9ac53c01a399d621c093b7cfc843fb9d7b211d0b15e103",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32gui.pyd": "f468a03be44633fdeabc08b4a9f8b135f9e31d74b935f85631c23c7fbb9367fa",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32help.pyd": "736911a78169959221b7e43b2ec4a612f9e1ab41a845f03001db2279c2dfb6e0",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32inet.pyd": "6a1c203c32e1697539a02430d67c4f431019b0fe05a31aeebf7c21e63ad3a32c",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32job.pyd": "bfc31798ccf0bcf9b4453903918866abcfb546f5b1d6bd59e4691b83cbe44fa8",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32lz.pyd": "0ac423d6a76041c652abbcd4d18108280f07e466624dcadb450b34ad9a87e5a3",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32net.pyd": "1711a1fae657bddbb494566bc79781dec85d63d38cb38fc9a1121b9d341dd495",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32pdh.pyd": "653c4424eb62bba350b920d2ddedfaa3e4cc1b132a52b34dc9fc37aed619a2a2",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32pipe.pyd": "d4b6b8548c828e7cf119281c14b3a008b4e3e03a885b7194467b50fae2e783ba",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32print.pyd": "b676c96d81e2c5cd5d8e1dd3e7b3c018b2397e32b2e4b2237dd4ca7399e8d1d2",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32process.pyd": "6d02ff9b22afa97bdb26d99454462a612848efdc3d0beb54cea2b4912d07a14c",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32profile.pyd": "9ef26b168c64e4af7a57ad0207c6faa9d13fb8eaf47c4b53ef34367339d986bd",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32ras.pyd": "f7ff30e9d47cda4bb01b6531f7895a120ba9e71326a9466ec79cb2c893671157",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32security.pyd": "9bb816a7a8e9f71dd3c2564c632d10d6563b75c0e03c15115235523ce4d19278",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32service.pyd": "5d159572b89146a13117f24ef0b232d6c24982d206c73189f4952259303de496",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32trace.pyd": "3dd640518a4fb1084cfc38a0e312b87ff1b0b0a74535e320bb9936441b9ed8ca",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32transaction.pyd": "a314e2b2abee4c7b118bb86637f147399cf502288cdeda9fb9d00f6c613ed367",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32ts.pyd": "8744c692f4b1893d99de8608b6d48bf594ecd198f046cedf3b8e35d5881ea8c4",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32/win32wnet.pyd": "ef0c579950c61ea061c9157539725bf0296b1507f24b4c51dba5a6901b1b421d",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32comext/adsi/adsi.pyd": "fe6e639f81c12aff83b8b7443f5f467376d7dc815a09131c4746a0740f051fe9",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32comext/authorization/authorization.pyd": "641b5faf9436062a41977593b23e45c5917af0dbaa2f02bb98c5cca1397387d8",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32comext/axcontrol/axcontrol.pyd": "1f75b4d6dd13dd67641295ae80c689096e7fd1ed0f76cdc975d71df5d50f3b28",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32comext/axdebug/axdebug.pyd": "ba166a6a76612e4565e34b1752c385c1ed40f29c829d722d06d46d18ee63dcad",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32comext/axscript/axscript.pyd": "e21d9ccfbb1d899ee50d1d5a5ea8636361b12c98151c19741bf32e61d7b071e3",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32comext/bits/bits.pyd": "e14eb3cc56acbaa24f8de22cf7e34188d14fee8759b546a766d8f06e6ee86f0a",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32comext/directsound/directsound.pyd": "61170311a54d0944787d02d9d7f158581d45ce67d9b01af1dd0804712868a51a",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32comext/ifilter/ifilter.pyd": "5eba3ef516227396247bdff3a80d809992c9e9f36c1fadb8a246eef8c36f6db7",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32comext/internet/internet.pyd": "905a8e7dc6b24f2af5a1d6613ed7001dae3388fb4be994435ee5c355002626d6",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32comext/mapi/exchange.pyd": "20ba85185895ded9b0c1429ec7067dd843f680e0706cd0f2704dd27244bd8a10",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32comext/mapi/mapi.pyd": "1807f1d2cf1370acdc8b79ebfdfb6a969bf6c1c21ac7a837df0f50bdf5b8acdb",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32comext/propsys/propsys.pyd": "11cf37b1df12b81d275a9152ec8ef50a098618bc4c744fe514bd86d57ce7f884",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32comext/shell/shell.pyd": "5ea50b40655b10dfcc972556c87230f473fefa3e141b493ff66d346e9060f2bc",
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/win32comext/taskscheduler/taskscheduler.pyd": "fe24828c0d0bc4d542eb18bf1448b41eb63fed26bc57f6ec0741fd16035971e6"
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/isapi/PyISAPI_loader.dll": "84a805f7cf36a2bb62e3c8c48acfc95e256cbf7f9b357efc74470fb9aaafb44b",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/pythonwin/Pythonwin.exe": "17b95e58e2b486f7d776b90a3e6539802cfb101e9f2ac3b330f2b5e61166f5aa",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/pythonwin/dde.pyd": "8b5d9bc1ae5ecc99daa8a01c35e1cd975159961dcfe24c6ecde8f5c8001f0a2d",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/pythonwin/scintilla.dll": "e13bf37755ada7ce4272556969fedb9f8d408891c41a31763348d53779223fb5",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/pythonwin/win32ui.pyd": "1fc9f8875056b175077ed04e7d93599f58b3cff80bd2077f5f8c8aaa144ab833",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/pythonwin/win32uiole.pyd": "91b64011fe1affbc4723b91562f6259433d9d5ac512e9ce342d8682d9d10993a",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/pywin32_system32/pythoncom312.dll": "18e5d69b62110f48da01842f9ddfd99d06cc561f0866371714ec6534fcb4e5ec",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/pywin32_system32/pywintypes312.dll": "9bd7f8c39a84d7b1ea43bfcd33c04631c60f4ff28167e82bb21987cc1c353766",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/_win32sysloader.pyd": "db277aae2b8417dbd01435a8691cc74707f6699ae3199e1b205f609cefa5ad24",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/_winxptheme.pyd": "cb865450d1abe54466b603658317601750b747cc7a7469726574294e29f65bbc",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/mmapfile.pyd": "8a3f8184cbddf8ae5c0f778fb03b2420dd306d7323896bd3369230d013eda70b",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/odbc.pyd": "c3bd9b159ce6c6baaa4438c305eade1976de19b0a722f986a824dfe56b7e19ef",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/perfmon.pyd": "81e3eba5dce65750eebac8ca294016afb0cd101ba36ab3c23c2670f81bb53480",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/perfmondata.dll": "8dedfea2250765d110c1054474045a984928cd0c34fee00bfad365b611f22f76",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/pythonservice.exe": "e26e252534fd4833c24a6ebad8051482049ddece1b762b556dcec60ee1e03dce",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/servicemanager.pyd": "68aa5d17de3038f041f8340a791e7d3f6dee2586307e7f7c59c9329cf5a028ca",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/timer.pyd": "27f5ef850a849e62b5360af7b076490359e09d3752e8ac379d49c429d72b0b95",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32api.pyd": "8e09d7aa57dc33b663afd219fab21b6a70e9d98cc74a044df4d6cd94799d98c2",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32clipboard.pyd": "3d05fe104ebee5ab81767b568796aae29a5e9b100d24c34f9e1714860e5113f1",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32console.pyd": "7d011b600e495c13d9cfb52261ebb413312ffd6fa205dc3a138e7482a43cd54d",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32cred.pyd": "bd2e3839bf9055f2bdd75950d9f836b33b9880c3f5e337ba2761092bd7ca4c59",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32crypt.pyd": "30cf71545212bbfb7362618f41a40cefcea39327306fdd7926c95374ce9294bf",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32event.pyd": "a6b896456443447a663fe25783dfa95929dc8ade8d7970fd78d3b4e65100371e",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32evtlog.pyd": "f6f8814147d3ca2761d351c0c86e7142b15b63605a502e5eb62d0bbd2b88e73f",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32file.pyd": "359ef2dc11546f619a9ac53c01a399d621c093b7cfc843fb9d7b211d0b15e103",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32gui.pyd": "f468a03be44633fdeabc08b4a9f8b135f9e31d74b935f85631c23c7fbb9367fa",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32help.pyd": "736911a78169959221b7e43b2ec4a612f9e1ab41a845f03001db2279c2dfb6e0",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32inet.pyd": "6a1c203c32e1697539a02430d67c4f431019b0fe05a31aeebf7c21e63ad3a32c",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32job.pyd": "bfc31798ccf0bcf9b4453903918866abcfb546f5b1d6bd59e4691b83cbe44fa8",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32lz.pyd": "0ac423d6a76041c652abbcd4d18108280f07e466624dcadb450b34ad9a87e5a3",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32net.pyd": "1711a1fae657bddbb494566bc79781dec85d63d38cb38fc9a1121b9d341dd495",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32pdh.pyd": "653c4424eb62bba350b920d2ddedfaa3e4cc1b132a52b34dc9fc37aed619a2a2",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32pipe.pyd": "d4b6b8548c828e7cf119281c14b3a008b4e3e03a885b7194467b50fae2e783ba",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32print.pyd": "b676c96d81e2c5cd5d8e1dd3e7b3c018b2397e32b2e4b2237dd4ca7399e8d1d2",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32process.pyd": "6d02ff9b22afa97bdb26d99454462a612848efdc3d0beb54cea2b4912d07a14c",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32profile.pyd": "9ef26b168c64e4af7a57ad0207c6faa9d13fb8eaf47c4b53ef34367339d986bd",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32ras.pyd": "f7ff30e9d47cda4bb01b6531f7895a120ba9e71326a9466ec79cb2c893671157",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32security.pyd": "9bb816a7a8e9f71dd3c2564c632d10d6563b75c0e03c15115235523ce4d19278",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32service.pyd": "5d159572b89146a13117f24ef0b232d6c24982d206c73189f4952259303de496",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32trace.pyd": "3dd640518a4fb1084cfc38a0e312b87ff1b0b0a74535e320bb9936441b9ed8ca",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32transaction.pyd": "a314e2b2abee4c7b118bb86637f147399cf502288cdeda9fb9d00f6c613ed367",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32ts.pyd": "8744c692f4b1893d99de8608b6d48bf594ecd198f046cedf3b8e35d5881ea8c4",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32/win32wnet.pyd": "ef0c579950c61ea061c9157539725bf0296b1507f24b4c51dba5a6901b1b421d",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32comext/adsi/adsi.pyd": "fe6e639f81c12aff83b8b7443f5f467376d7dc815a09131c4746a0740f051fe9",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32comext/authorization/authorization.pyd": "641b5faf9436062a41977593b23e45c5917af0dbaa2f02bb98c5cca1397387d8",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32comext/axcontrol/axcontrol.pyd": "1f75b4d6dd13dd67641295ae80c689096e7fd1ed0f76cdc975d71df5d50f3b28",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32comext/axdebug/axdebug.pyd": "ba166a6a76612e4565e34b1752c385c1ed40f29c829d722d06d46d18ee63dcad",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32comext/axscript/axscript.pyd": "e21d9ccfbb1d899ee50d1d5a5ea8636361b12c98151c19741bf32e61d7b071e3",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32comext/bits/bits.pyd": "e14eb3cc56acbaa24f8de22cf7e34188d14fee8759b546a766d8f06e6ee86f0a",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32comext/directsound/directsound.pyd": "61170311a54d0944787d02d9d7f158581d45ce67d9b01af1dd0804712868a51a",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32comext/ifilter/ifilter.pyd": "5eba3ef516227396247bdff3a80d809992c9e9f36c1fadb8a246eef8c36f6db7",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32comext/internet/internet.pyd": "905a8e7dc6b24f2af5a1d6613ed7001dae3388fb4be994435ee5c355002626d6",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32comext/mapi/exchange.pyd": "20ba85185895ded9b0c1429ec7067dd843f680e0706cd0f2704dd27244bd8a10",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32comext/mapi/mapi.pyd": "1807f1d2cf1370acdc8b79ebfdfb6a969bf6c1c21ac7a837df0f50bdf5b8acdb",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32comext/propsys/propsys.pyd": "11cf37b1df12b81d275a9152ec8ef50a098618bc4c744fe514bd86d57ce7f884",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32comext/shell/shell.pyd": "5ea50b40655b10dfcc972556c87230f473fefa3e141b493ff66d346e9060f2bc",
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/win32comext/taskscheduler/taskscheduler.pyd": "fe24828c0d0bc4d542eb18bf1448b41eb63fed26bc57f6ec0741fd16035971e6"
       },
       "original_license_declaration": "PSF",
       "original_source_statement_count": 11,
@@ -21432,7 +21442,7 @@
       ],
       "id": "wheel-rpds-py-2026.6.3",
       "observed_native_members": {
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/rpds/rpds.cp312-win_amd64.pyd": "8b4b68653e93ffc61124c96fa85fcb3c4f9c8e3059a3706dcfc671af1f0caa1c"
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/rpds/rpds.cp312-win_amd64.pyd": "8b4b68653e93ffc61124c96fa85fcb3c4f9c8e3059a3706dcfc671af1f0caa1c"
       },
       "original_license_declaration": "MIT",
       "origins": [],
@@ -21509,10 +21519,10 @@
     {
       "id": "wheel-vadgr-computer-use-0.7.9",
       "observed_native_members": {
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/computer_use/browser/winhost/x86_64/vadgr-cua-host.exe": "0f8ad4e48b90a531422ae5ec97faca7552052b1a3de2afdd03ee5384cb209b50"
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/computer_use/browser/winhost/x86_64/vadgr-cua-host.exe": "0f8ad4e48b90a531422ae5ec97faca7552052b1a3de2afdd03ee5384cb209b50"
       },
       "original_license_declaration": "Apache-2.0",
-      "original_source_statement_count": 81,
+      "original_source_statement_count": 82,
       "origins": [],
       "retained_notice_count": 2,
       "scope": "installed-wheel"
@@ -21520,7 +21530,7 @@
     {
       "id": "wheel-websockets-17.1",
       "observed_native_members": {
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/websockets/speedups.cp312-win_amd64.pyd": "1347a3c6c5adafc0cacfcd9d07381a37c78959e4f7cf21199a796e5585a5313a"
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/websockets/speedups.cp312-win_amd64.pyd": "1347a3c6c5adafc0cacfcd9d07381a37c78959e4f7cf21199a796e5585a5313a"
       },
       "original_license_declaration": "BSD-3-Clause",
       "origins": [],
@@ -21530,7 +21540,7 @@
     {
       "id": "wheel-wrapt-2.3.0",
       "observed_native_members": {
-        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/wrapt/_wrappers.cp312-win_amd64.pyd": "f7b7edd2fde91eb45614aa7c8a35daf8b5d5a8d6b9cf0610428d86de3bd09172"
+        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/wrapt/_wrappers.cp312-win_amd64.pyd": "f7b7edd2fde91eb45614aa7c8a35daf8b5d5a8d6b9cf0610428d86de3bd09172"
       },
       "original_license_declaration": "BSD-2-Clause",
       "origins": [],
@@ -21538,7 +21548,7 @@
       "scope": "installed-wheel"
     }
   ],
-  "observation_sha256": "f55b7981dc530209017b0a69bacd0a0d9f7d395052cf51b2eca04b953ee43bc8",
+  "observation_sha256": "96a3ec7a451d4715d55d1276890c2e3de464d2b7e7bbda56a6e0d24fee16a453",
   "package_questions": [
     "actual-target-market-rights",
     "product-data-statements",
@@ -21547,17 +21557,17 @@
     "WiX-runtime-source-completeness-and-official-build-terms",
     "nodriver-AGPL-source-and-combined-work-treatment"
   ],
-  "preparation_binding_sha256": "d9a3109d4a08cf97faef681f3cc02b630c1dd94a5eff375a262075d06729a493",
+  "preparation_binding_sha256": "a596ff1684507ec353c6a1eb7eec6d6bfb41cd529b6daed0cf4cd6318c16d4bb",
   "publishable": false,
-  "run_id": 36313384412,
+  "run_id": 36352917712,
   "schema": 1,
-  "source_sha": "fa2d4a4cfae7e7eb44aa8c9fc4724a9f68842542",
+  "source_sha": "0c8fc76030eee5d214d7637fb18d1a8ddf203705",
   "status": "draft",
   "summary": {
     "component_candidates": 656,
-    "evidence_bound_NONE_proposals": 67,
+    "evidence_bound_NONE_proposals": 68,
     "retained_grant_choices": 655,
-    "rows_with_review_items": 12,
+    "rows_with_review_items": 11,
     "scope_counts": {
       "exact-full-font-bytes-found-in-payload/vadgr.exe": 4,
       "exact-members-match-existing-helper-only-redistribution-review": 1,
@@ -21576,14 +21586,14 @@
       "target-wheel-link-relevant": 87,
       "target-wheel-not-target-reachable": 13
     },
-    "unresolved_copyright": 2
+    "unresolved_copyright": 1
   },
   "terms": {
     "sha256": "18d55dd2431a73b0c29cf58cd310e641bc363cd7e6efe739a2b506c4002a6965",
     "status": "owner-approved-draft-retained-unchanged",
     "version": "1.0"
   },
-  "trusted_sha": "519c73500c53dcae9011dff3c9424009aa0c2d5d",
+  "trusted_sha": "772f370902c1ad215ece3d3f531d47c4ddc5ae07",
   "unresolved": [
     {
       "id": "asset-Hack-Regular",
@@ -22062,10 +22072,7 @@
     },
     {
       "id": "cargo-fdeflate-0.3.7",
-      "items": [
-        "license-choice-and-original-copyright",
-        "no-original-copyright-statement-in-pinned-source"
-      ]
+      "items": []
     },
     {
       "id": "cargo-fearless-simd-0.4.1",
@@ -24068,8 +24075,7 @@
     {
       "id": "runtime-rust-std-1.97.1",
       "items": [
-        "additional-retained-grant-scope",
-        "target-binary-to-source-mapping"
+        "additional-retained-grant-scope"
       ]
     },
     {
@@ -24263,12 +24269,10 @@
     ],
     "license-choice-and-original-copyright": [
       "cargo-cms-0.2.3",
-      "cargo-fdeflate-0.3.7",
       "runtime-cpython-3.12.14"
     ],
     "no-original-copyright-statement-in-pinned-source": [
-      "cargo-cms-0.2.3",
-      "cargo-fdeflate-0.3.7"
+      "cargo-cms-0.2.3"
     ],
     "nonstandard-government-rights-and-source-duty-review": [
       "native-tk-windows-bin-8612"
@@ -24285,8 +24289,7 @@
       "framework-wixtoolset.bal.wixext-7.0.0",
       "framework-wixtoolset.sdk-7.0.0",
       "framework-wixtoolset.util.wixext-7.0.0",
-      "native-wix",
-      "runtime-rust-std-1.97.1"
+      "native-wix"
     ],
     "target-specific-nested-SBOM-scope": [
       "wheel-pillow-12.3.0"
