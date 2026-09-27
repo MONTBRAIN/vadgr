@@ -20,6 +20,9 @@ environment then approves one signing attempt. Failed or uncertain attempts stay
 spent. Recovery needs a reconciled quota and a new explicit authorization.
 
 `build-windows.ps1` runs without signing or write credentials on its build runner.
+It verifies the exact complete source checkout against the preflight record and
+runs source tests there. Release compilation uses a separate materialized tree
+that excludes the result-only runbook. The two trees cannot contain each other.
 `package-windows.ps1` reads compiled payloads as data and uses trusted WiX
 authoring. It never compiles or executes a candidate DLL.
 `hold-windows.ps1` verifies the final signatures and writes the held inventory.
@@ -52,11 +55,12 @@ token is restored to later upload or cleanup steps. Missing or partial
 inputs never select a development lock. These source gates are not signed
 installation qualification.
 
-The feature workflow applies the same preparation and offline verification to
+The candidate workflow applies the same preparation and offline verification to
 its seven additional native builds. Both Windows architecture calls receive
-the prepared wheelhouse explicitly; Unix builds receive it as their fourth
-argument. These additional jobs stay on the implementation branch. They do not
-extend the reviewed Windows-only producer on the default branch.
+the prepared wheelhouse, complete test checkout and exact preflight record;
+Unix builds receive the wheelhouse as their fourth argument. These additional
+jobs also run from trusted default-branch workflow code. They do not extend the
+reviewed Windows-only signing producer.
 
 Common clean-install CI uses `prepare_cua_build.py` before compilation.
 Development mode requires explicit permission and no reviewed wheel inputs.

@@ -1,12 +1,11 @@
 """Trusted downloads finish before feature code can run without credentials."""
 
-from pathlib import Path
-import re
 import os
+import re
 import subprocess
+from pathlib import Path
 
 import pytest
-
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -55,10 +54,12 @@ def test_windows_builder_refuses_github_access_before_reading_feature(tmp_path):
         "powershell", "-NoProfile", "-NonInteractive", "-File",
         str(ROOT / "scripts/candidate/build-windows.ps1"), "-Architecture", "x64",
         "-SourceDirectory", str(tmp_path / "absent-source"),
+        "-SourceTestDirectory", str(tmp_path / "absent-test-source"),
         "-OutputDirectory", str(tmp_path / "absent-output"),
         "-WheelhouseDirectory", str(tmp_path / "absent-wheelhouse"),
+        "-SourceRecord", str(tmp_path / "absent-preflight.json"),
     ], env={**os.environ, "GH_TOKEN": "synthetic-boundary-marker"}, capture_output=True, text=True,
-       creationflags=subprocess.CREATE_NO_WINDOW)
+       creationflags=subprocess.CREATE_NO_WINDOW, check=False)
     assert result.returncode != 0
     assert "Source build must have no signing or identity credential." in result.stderr
     assert "synthetic-boundary-marker" not in result.stdout + result.stderr
