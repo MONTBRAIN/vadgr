@@ -1,0 +1,55 @@
+# Windows legal review inputs
+
+The Windows directories contain reproducible **drafts**, not approved package
+inputs. Their review status and coverage remain incomplete. The existing package
+validator must reject them. No signature, publication or release is authorized.
+
+The original Version 1.0 public terms remain unchanged. Exact third-party grants,
+notices and upstream source archives are retained separately. These drafts do
+not change any component's license or assert that a declared license proves
+all redistribution duties have been met.
+
+Reproduce each directory from the final native preparation observations for run
+`36313384412`, not from the intermediate raw artifacts:
+
+```powershell
+python scripts/synthesize_windows_legal.py --source-root . --observation C:/review/observations/x64 --architecture x64 --created 2026-09-27T14:47:24Z --source-archives C:/review/sources --output packaging/inputs/windows-x86_64
+python scripts/synthesize_windows_legal.py --source-root . --observation C:/review/observations/arm64 --architecture arm64 --created 2026-09-27T14:47:24Z --source-archives C:/review/sources --output packaging/inputs/windows-aarch64
+```
+
+Output directories must be absent. Add `--verify` to compare an existing packet
+without changing it. Every recorded observation file is checked by size and hash;
+profile inputs are compared against the exact source Git blobs, not checkout
+line endings. Original notice bytes are never normalized.
+
+The source directory needs these exact archives:
+
+| File | SHA-256 | Source |
+| --- | --- | --- |
+| `nodriver-0.50.3.tar.gz` | `24ca688d8646ef8ffad5c8ce65804e5e7671a779ad26a24d76f6465d5666c631` | [PyPI source distribution](https://files.pythonhosted.org/packages/1a/ad/b8b7472ddbf8c28e4ae37ef46d863400ea2688569f3178a083dda8531f3f/nodriver-0.50.3.tar.gz) |
+| `wix-b8977d6.tar.gz` | `aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b` | [Exact WiX revision](https://codeload.github.com/wixtoolset/wix/tar.gz/b8977d6f88e7b68e000bac226a2814f236770570) |
+| `epaint_default_fonts-0.36.1.crate` | `18dee69613aac468922cf28a32025eb7d7ed6985b61f73245848e58f37876c98` | [Exact font crate](https://static.crates.io/crates/epaint_default_fonts/epaint_default_fonts-0.36.1.crate) |
+
+Each `review-ledger.json` names exact component questions. `cargo-scope.json`
+separates normal target dependencies from development, build and proc-macro
+contexts; it is not a linker map. Nested wheel catalogues remain distinguished
+from binary-linkage proof. All four complete font byte sequences must occur in
+the observed daemon before they enter the asset inventory. Runtime pip's own
+vendored packages are enumerated from the installed vendor catalogue and trees.
+The exact broker members and relay are also compared with the existing
+helper-only redistribution record. That original record and all named nested
+notices are retained. Its authority is not extended to unrelated outer files.
+
+The included nodriver archive supplies its exact upstream source. Whether a
+larger covered combination requires additional source, build instructions or
+AGPL coverage remains an explicit question. Including only that archive does
+not answer it. The WiX archive likewise supplies actual source rather than a
+future promise; final distributed-runtime mapping, any modifications and the
+official-build terms remain separate checks.
+
+License choices backed by retained grant text are proposals. Unknown copyright,
+license or scope remains `NOASSERTION` or an explicit unresolved field. Do not
+turn these values into an approval by mass substitution. Finish the ledger,
+then feed concluded inputs to `scripts/generate_legal_bundle.py` and validate
+the exact generated package before approving its review. The candidate legal
+proposal is intentionally not emitted while these input bundles are incomplete.

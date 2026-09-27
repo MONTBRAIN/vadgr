@@ -1,0 +1,8 @@
+wix
+Included source archive: legal/SOURCE-OFFERS/wix-b8977d6.tar.gz
+SHA-256: aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b
+
+nodriver
+Included source archive: legal/SOURCE-OFFERS/nodriver-0.50.3.tar.gz
+SHA-256: 24ca688d8646ef8ffad5c8ce65804e5e7671a779ad26a24d76f6465d5666c631
+
