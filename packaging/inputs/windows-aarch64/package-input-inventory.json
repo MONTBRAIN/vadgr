@@ -16328,38 +16328,131 @@
       "version": "3.5.8"
     },
     {
-      "copyright_text": "Copyright (c) 2010-2011, WorkWare Systems <http://workware.net.au/>",
+      "copyright_text": "The author disclaims copyright to this source code.",
       "download_location": "https://www.sqlite.org/2026/sqlite-autoconf-3530100.tar.gz",
       "id": "native-sqlite",
       "kind": "runtime",
-      "license_concluded": "NOASSERTION",
-      "license_declared": "NOASSERTION",
-      "license_files": [],
-      "name": "sqlite",
-      "notice_files": [
+      "license_concluded": "blessing",
+      "license_declared": "blessing",
+      "license_files": [
         {
-          "path": "legal/NOTICES/native-sqlite/000-000-LICENSE",
-          "sha256": "679b9208e67df09977456d1d2ae4d885b9badf02c47b45a28cf95ee27c14cb18"
-        },
-        {
-          "path": "legal/NOTICES/native-sqlite/001-001-license.terms",
+          "license_ids": [
+            "blessing"
+          ],
+          "path": "legal/LICENSES/native-sqlite/000-001-license.terms",
           "sha256": "66e056b6e8687f32af30d5187611b98b12a8f46f07aaf62f43585f276e8f0ac9"
         }
       ],
-      "notice_required": null,
+      "name": "sqlite",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/native-sqlite/000-001-license.terms",
+          "sha256": "66e056b6e8687f32af30d5187611b98b12a8f46f07aaf62f43585f276e8f0ac9"
+        },
+        {
+          "path": "legal/NOTICES/native-sqlite/sqlite3-library-header.txt",
+          "sha256": "39fc4986b224f2f5575dec58ae66c7c9ee2d5d3884ba4971c932f1fd5b40b033"
+        }
+      ],
+      "notice_required": true,
       "sha256": "83e6b2020a034e9a7ad4a72feea59e1ad52f162e09cbd26735a3ffb98359fc4f",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "3530100"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "This software is copyrighted by the Regents of the University of California, Sun Microsystems, Inc., Scriptics Corporation, ActiveState Corporation and other parties.\nThis software is copyrighted by the Regents of the University of California, Sun Microsystems, Inc., Scriptics Corporation, ActiveState Corporation, Apple Inc. and other parties.",
       "download_location": "https://github.com/python/cpython-bin-deps/archive/c624cc881bd0e5071dec9de4b120cbe9985d8c14.tar.gz",
       "id": "native-tk-windows-bin-8614",
       "kind": "runtime",
-      "license_concluded": "NOASSERTION",
-      "license_declared": "NOASSERTION",
-      "license_files": [],
+      "license_concluded": "TCL",
+      "license_declared": "TCL",
+      "license_files": [
+        {
+          "license_ids": [
+            "TCL"
+          ],
+          "path": "legal/LICENSES/native-tk-windows-bin-8614/000-000-license.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5"
+        },
+        {
+          "license_ids": [
+            "TCL"
+          ],
+          "path": "legal/LICENSES/native-tk-windows-bin-8614/001-001-license.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5"
+        },
+        {
+          "license_ids": [
+            "TCL"
+          ],
+          "path": "legal/LICENSES/native-tk-windows-bin-8614/002-002-tcllicense.terms",
+          "sha256": "41613eabfc08921a7da9c4bfd7f3ce5d5406f55214b253d89f392ed86eebeb8f"
+        },
+        {
+          "license_ids": [
+            "TCL"
+          ],
+          "path": "legal/LICENSES/native-tk-windows-bin-8614/003-003-tklicense.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5"
+        },
+        {
+          "license_ids": [
+            "TCL"
+          ],
+          "path": "legal/LICENSES/native-tk-windows-bin-8614/004-004-license.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5"
+        },
+        {
+          "license_ids": [
+            "TCL"
+          ],
+          "path": "legal/LICENSES/native-tk-windows-bin-8614/005-005-license.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5"
+        },
+        {
+          "license_ids": [
+            "TCL"
+          ],
+          "path": "legal/LICENSES/native-tk-windows-bin-8614/006-006-tcllicense.terms",
+          "sha256": "41613eabfc08921a7da9c4bfd7f3ce5d5406f55214b253d89f392ed86eebeb8f"
+        },
+        {
+          "license_ids": [
+            "TCL"
+          ],
+          "path": "legal/LICENSES/native-tk-windows-bin-8614/007-007-tklicense.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5"
+        },
+        {
+          "license_ids": [
+            "TCL"
+          ],
+          "path": "legal/LICENSES/native-tk-windows-bin-8614/008-008-license.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5"
+        },
+        {
+          "license_ids": [
+            "TCL"
+          ],
+          "path": "legal/LICENSES/native-tk-windows-bin-8614/009-009-license.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5"
+        },
+        {
+          "license_ids": [
+            "TCL"
+          ],
+          "path": "legal/LICENSES/native-tk-windows-bin-8614/010-010-tcllicense.terms",
+          "sha256": "41613eabfc08921a7da9c4bfd7f3ce5d5406f55214b253d89f392ed86eebeb8f"
+        },
+        {
+          "license_ids": [
+            "TCL"
+          ],
+          "path": "legal/LICENSES/native-tk-windows-bin-8614/011-011-tklicense.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5"
+        }
+      ],
       "name": "tk-windows-bin-8614",
       "notice_files": [
         {
@@ -16411,10 +16504,10 @@
           "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "9b8e77d55f40ceaedd140ccca0daa804f0d43346d5abfcead9b547b5590f82f8",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "8.6.14"
     },
     {
@@ -21609,7 +21702,7 @@
       "version": "2.7.0"
     },
     {
-      "copyright_text": "Copyright (C) 2008-2011 INADA Naoki <songofacandy@gmail.com>\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 2006-2022 by the respective authors (see AUTHORS file).\nCopyright (c) 2008-2020 Andrey Petrov and contributors.\nCopyright (c) 2008-present The pip developers (see AUTHORS.txt file)\nCopyright (c) 2010-202x The platformdirs developers\nCopyright (c) 2013-2026, Kim Davies and contributors.\nCopyright (c) 2017 Thomas Kluyver\nCopyright (c) 2018, Tzu-ping Chung <uranusjr@gmail.com>\nCopyright (c) 2020 Will McGugan\nCopyright (c) 2021 Taneli Hukkinen\nCopyright (c) 2022 Seth Michael Larson\nCopyright (c) Donald Stufft and individual contributors.\nCopyright 2012-2021  Eric Larson\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\ndocumentation, are copyright (C) 1996-2019 Julian R Seward.  All\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,",
+      "copyright_text": "Copyright (C) 2008-2011 INADA Naoki <songofacandy@gmail.com>\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 2006-2022 by the respective authors (see AUTHORS file).\nCopyright (c) 2008-2020 Andrey Petrov and contributors.\nCopyright (c) 2008-present The pip developers (see AUTHORS.txt file)\nCopyright (c) 2010-202x The platformdirs developers\nCopyright (c) 2013-2026, Kim Davies and contributors.\nCopyright (c) 2017 Thomas Kluyver\nCopyright (c) 2018, Tzu-ping Chung <uranusjr@gmail.com>\nCopyright (c) 2020 Will McGugan\nCopyright (c) 2021 Taneli Hukkinen\nCopyright (c) 2022 Seth Michael Larson\nCopyright (c) Donald Stufft and individual contributors.\nCopyright 2012-2021  Eric Larson\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\nThis software is copyrighted by the Regents of the University of California, Sun Microsystems, Inc., Scriptics Corporation, ActiveState Corporation and other parties.\nThis software is copyrighted by the Regents of the University of California, Sun Microsystems, Inc., Scriptics Corporation, ActiveState Corporation, Apple Inc. and other parties.\ndocumentation, are copyright (C) 1996-2019 Julian R Seward.  All\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,",
       "download_location": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-aarch64-pc-windows-msvc-install_only.tar.gz",
       "id": "runtime-cpython-3.12.14",
       "kind": "runtime",
@@ -21802,7 +21895,7 @@
       "version": "3.12.14"
     },
     {
-      "copyright_text": "# Copyright (c) 2005-2023, PyInstaller Development Team.\nBased on previous work under copyright (c) 2002 McMillan Enterprises, Inc.\nCopyright (C) 1989, 1991 Free Software Foundation, Inc.\nCopyright (C) 1995-2017 Jean-loup Gailly and Mark Adler\nCopyright (C) The XZ Utils authors and contributors\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper\nCopyright (c) 2001-2022 Expat maintainers\nCopyright (c) 2005-2009, Giovanni Bajo\nCopyright (c) 2008-2020 Stefan Krah. All rights reserved.\nCopyright (c) 2010-2023, PyInstaller Development Team\nCopyright 2009 The Go Authors.\nCopyright 2026 Victor Santiago Monta\u00f1o Diaz\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\ndocumentation, are copyright (C) 1996-2010 Julian R Seward.  All\ndocumentation, are copyright (C) 1996-2019 Julian R Seward.  All\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,\nlibffi - Copyright (c) 1996-2019  Anthony Green, Red Hat, Inc and others.",
+      "copyright_text": "# Copyright (c) 2005-2023, PyInstaller Development Team.\nBased on previous work under copyright (c) 2002 McMillan Enterprises, Inc.\nCopyright (C) 1989, 1991 Free Software Foundation, Inc.\nCopyright (C) 1995-2017 Jean-loup Gailly and Mark Adler\nCopyright (C) The XZ Utils authors and contributors\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper\nCopyright (c) 2001-2022 Expat maintainers\nCopyright (c) 2005-2009, Giovanni Bajo\nCopyright (c) 2008-2020 Stefan Krah. All rights reserved.\nCopyright (c) 2010-2023, PyInstaller Development Team\nCopyright 2009 The Go Authors.\nCopyright 2026 Victor Santiago Monta\u00f1o Diaz\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\nThis software is copyrighted by the Regents of the University of California, Sun Microsystems, Inc., Scriptics Corporation, ActiveState Corporation and other parties.\ndocumentation, are copyright (C) 1996-2010 Julian R Seward.  All\ndocumentation, are copyright (C) 1996-2019 Julian R Seward.  All\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,\nlibffi - Copyright (c) 1996-2019  Anthony Green, Red Hat, Inc and others.",
       "download_location": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36181636747",
       "id": "runtime-cua-helper-closure-0.7.9",
       "kind": "runtime",
@@ -22964,7 +23057,7 @@
           "sha256": "5ea2f23c7f00c3006bacf267183e816d8d4b6dc95ea57a4ddb0ff81de6d8719e"
         },
         {
-          "path": "legal/NOTICES/wheel-pywin32-312-adodbapi/001-adodbapi.py",
+          "path": "legal/NOTICES/wheel-pywin32-312-adodbapi/001-adodbapi.py.txt",
           "sha256": "4f5717c2b086ecdb1b047e17caa4644bb3d02827cd2da0e602d9d1e38543081d"
         }
       ],

@@ -12006,10 +12006,21 @@
           }
         ]
       },
+      "grant_scope_basis": {
+        "archive_sha256": "83e6b2020a034e9a7ad4a72feea59e1ad52f162e09cbd26735a3ffb98359fc4f",
+        "header_byte_range": [
+          1601,
+          2027
+        ],
+        "header_sha256": "39fc4986b224f2f5575dec58ae66c7c9ee2d5d3884ba4971c932f1fd5b40b033",
+        "scope": "Actual core library amalgamation, not only the separate Tcl wrapper notice.",
+        "source_member": "sqlite-autoconf-3530100/sqlite3.c",
+        "source_member_sha256": "9ac97192c93a6d9671d2ea667ba14e3c8fe3719a171afc5827c9d86d0278fc14"
+      },
       "id": "native-sqlite",
-      "original_license_declaration": [],
+      "original_license_declaration": "blessing",
       "origins": [],
-      "retained_notice_count": 2,
+      "retained_notice_count": 1,
       "scope": "runtime-native-source-mapped-by-producer-build-metadata"
     },
     {
@@ -12073,8 +12084,9 @@
           }
         ]
       },
+      "grant_scope_basis": "Complete Tcl/Tk grants retained. The bundled Tix notice also references docs/license.html_lib; that distinct grant and its shipped source scope are not established by the Tcl grant.",
       "id": "native-tk-windows-bin-8612",
-      "original_license_declaration": null,
+      "original_license_declaration": "TCL",
       "origins": [],
       "retained_notice_count": 10,
       "scope": "runtime-native-source-mapped-by-producer-build-metadata"
@@ -20853,8 +20865,8 @@
   "summary": {
     "component_candidates": 656,
     "evidence_bound_NONE_proposals": 60,
-    "retained_grant_choices": 643,
-    "rows_with_review_items": 43,
+    "retained_grant_choices": 644,
+    "rows_with_review_items": 42,
     "scope_counts": {
       "exact-full-font-bytes-found-in-payload/vadgr.exe": 4,
       "exact-members-match-existing-helper-only-redistribution-review": 1,
@@ -22717,15 +22729,12 @@
     },
     {
       "id": "native-sqlite",
-      "items": [
-        "license-choice-and-original-copyright",
-        "notice-and-source-duty"
-      ]
+      "items": []
     },
     {
       "id": "native-tk-windows-bin-8612",
       "items": [
-        "license-choice-and-original-copyright",
+        "additional-retained-grant-scope",
         "notice-and-source-duty"
       ]
     },
@@ -23638,6 +23647,7 @@
       "cargo-ring-0.17.14",
       "cargo-rmcp-3.1.2",
       "native-cpython-3.12",
+      "native-tk-windows-bin-8612",
       "nested-cargo-lexical-parse-float-1.0.5",
       "nested-cargo-lexical-parse-integer-1.0.5",
       "nested-cargo-regex-syntax-0.8.5",
@@ -23657,8 +23667,6 @@
       "cargo-sigstore-verify-0.11.0",
       "cargo-webpki-roots-0.26.11",
       "cargo-webpki-roots-1.0.9",
-      "native-sqlite",
-      "native-tk-windows-bin-8612",
       "nested-cargo-wasi-0.14.2-wasi-0.2.4",
       "nested-cargo-wit-bindgen-rt-0.39.0",
       "python-vendor-cachecontrol",
@@ -23687,7 +23695,6 @@
       "framework-wixtoolset.bal.wixext-7.0.0",
       "framework-wixtoolset.sdk-7.0.0",
       "framework-wixtoolset.util.wixext-7.0.0",
-      "native-sqlite",
       "native-tk-windows-bin-8612",
       "python-vendor-cachecontrol",
       "python-vendor-certifi",

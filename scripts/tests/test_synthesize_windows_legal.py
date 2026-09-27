@@ -61,6 +61,19 @@ def test_mit_zero_requires_complete_grant_without_mit_notice_condition():
     assert not synthesis.license_atoms(b"MIT No Attribution\nPermission is hereby granted")
 
 
+def test_sqlite_disclaimer_is_not_an_invented_copyright_holder():
+    raw = synthesis.SQLITE_BLESSING.encode()
+    assert synthesis.license_atoms(raw) == {"blessing"}
+    assert synthesis.copyright_lines([("license.terms", raw)]) == "The author disclaims copyright to this source code."
+    assert not synthesis.license_atoms(raw.split(b"May you find")[0])
+
+
+def test_tcl_copyright_statement_preserves_named_parties():
+    raw = b"This software is copyrighted by the Regents of Example University,\nOther Corporation and other parties. The following terms apply to all files."
+    assert synthesis.copyright_lines([("license.terms", raw)]) == (
+        "This software is copyrighted by the Regents of Example University, Other Corporation and other parties.")
+
+
 def test_bsd_third_condition_without_article_is_not_downgraded():
     text = '''Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -153,6 +166,8 @@ def test_adodbapi_source_delivery_is_deterministic_and_separate(monkeypatch):
     assert first.components[0]["source_offer_required"] is True
     assert first.pending[0]["items"] == ["LGPL-source-delivery-review"]
     assert "unrelated.dll" not in first.evidence[0]["members"]
+    assert not any(name.endswith(".py") for name in first.files)
+    assert first.files["legal/NOTICES/wheel-pywin32-312-adodbapi/001-adodbapi.py.txt"] == members["adodbapi/adodbapi.py"]
 
 
 def test_truncated_mit_never_closes_review_or_source_duty():

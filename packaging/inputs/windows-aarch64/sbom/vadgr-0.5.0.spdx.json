@@ -8,7 +8,7 @@
   },
   "dataLicense": "CC0-1.0",
   "documentComment": "Incomplete review inventory, including separately classified build-source candidates. Not an approved shipped-component SBOM.",
-  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-71679ed4b74e450370034ba14efb63732359c95c946dbb3a038dc00b6ee3dca6",
+  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-7335bceb7c7878d981a8276a5c9a37c8348899e884e9db25aa6a4e73d6b3130d",
   "hasExtractedLicensingInfos": [
     {
       "comment": "Exact retained terms; this identifier is not an approval or a claim of SPDX-list equivalence.",
@@ -7574,13 +7574,13 @@
           "checksumValue": "83e6b2020a034e9a7ad4a72feea59e1ad52f162e09cbd26735a3ffb98359fc4f"
         }
       ],
-      "copyrightText": "Copyright (c) 2010-2011, WorkWare Systems <http://workware.net.au/>",
+      "copyrightText": "The author disclaims copyright to this source code.",
       "downloadLocation": "https://www.sqlite.org/2026/sqlite-autoconf-3530100.tar.gz",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "blessing",
+      "licenseDeclared": "blessing",
       "name": "sqlite",
-      "packageComment": "Original upstream declaration: []",
+      "packageComment": "Original upstream declaration: blessing",
       "versionInfo": "3530100"
     },
     {
@@ -7591,13 +7591,13 @@
           "checksumValue": "9b8e77d55f40ceaedd140ccca0daa804f0d43346d5abfcead9b547b5590f82f8"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "This software is copyrighted by the Regents of the University of California, Sun Microsystems, Inc., Scriptics Corporation, ActiveState Corporation and other parties.\nThis software is copyrighted by the Regents of the University of California, Sun Microsystems, Inc., Scriptics Corporation, ActiveState Corporation, Apple Inc. and other parties.",
       "downloadLocation": "https://github.com/python/cpython-bin-deps/archive/c624cc881bd0e5071dec9de4b120cbe9985d8c14.tar.gz",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "TCL",
+      "licenseDeclared": "TCL",
       "name": "tk-windows-bin-8614",
-      "packageComment": "Original upstream declaration: None",
+      "packageComment": "Original upstream declaration: TCL",
       "versionInfo": "8.6.14"
     },
     {
@@ -10056,7 +10056,7 @@
           "checksumValue": "57dd692b459609127d1b2d448e2033606da7089b9c5d3f9868a54899a87fad26"
         }
       ],
-      "copyrightText": "Copyright (C) 2008-2011 INADA Naoki <songofacandy@gmail.com>\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 2006-2022 by the respective authors (see AUTHORS file).\nCopyright (c) 2008-2020 Andrey Petrov and contributors.\nCopyright (c) 2008-present The pip developers (see AUTHORS.txt file)\nCopyright (c) 2010-202x The platformdirs developers\nCopyright (c) 2013-2026, Kim Davies and contributors.\nCopyright (c) 2017 Thomas Kluyver\nCopyright (c) 2018, Tzu-ping Chung <uranusjr@gmail.com>\nCopyright (c) 2020 Will McGugan\nCopyright (c) 2021 Taneli Hukkinen\nCopyright (c) 2022 Seth Michael Larson\nCopyright (c) Donald Stufft and individual contributors.\nCopyright 2012-2021  Eric Larson\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\ndocumentation, are copyright (C) 1996-2019 Julian R Seward.  All\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,",
+      "copyrightText": "Copyright (C) 2008-2011 INADA Naoki <songofacandy@gmail.com>\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 2006-2022 by the respective authors (see AUTHORS file).\nCopyright (c) 2008-2020 Andrey Petrov and contributors.\nCopyright (c) 2008-present The pip developers (see AUTHORS.txt file)\nCopyright (c) 2010-202x The platformdirs developers\nCopyright (c) 2013-2026, Kim Davies and contributors.\nCopyright (c) 2017 Thomas Kluyver\nCopyright (c) 2018, Tzu-ping Chung <uranusjr@gmail.com>\nCopyright (c) 2020 Will McGugan\nCopyright (c) 2021 Taneli Hukkinen\nCopyright (c) 2022 Seth Michael Larson\nCopyright (c) Donald Stufft and individual contributors.\nCopyright 2012-2021  Eric Larson\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\nThis software is copyrighted by the Regents of the University of California, Sun Microsystems, Inc., Scriptics Corporation, ActiveState Corporation and other parties.\nThis software is copyrighted by the Regents of the University of California, Sun Microsystems, Inc., Scriptics Corporation, ActiveState Corporation, Apple Inc. and other parties.\ndocumentation, are copyright (C) 1996-2019 Julian R Seward.  All\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,",
       "downloadLocation": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-aarch64-pc-windows-msvc-install_only.tar.gz",
       "filesAnalyzed": false,
       "licenseConcluded": "NOASSERTION",
@@ -10073,7 +10073,7 @@
           "checksumValue": "974364cf31f183f10465a342cfa51228fe0d7baea78637acab113c7bd47fdf61"
         }
       ],
-      "copyrightText": "# Copyright (c) 2005-2023, PyInstaller Development Team.\nBased on previous work under copyright (c) 2002 McMillan Enterprises, Inc.\nCopyright (C) 1989, 1991 Free Software Foundation, Inc.\nCopyright (C) 1995-2017 Jean-loup Gailly and Mark Adler\nCopyright (C) The XZ Utils authors and contributors\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper\nCopyright (c) 2001-2022 Expat maintainers\nCopyright (c) 2005-2009, Giovanni Bajo\nCopyright (c) 2008-2020 Stefan Krah. All rights reserved.\nCopyright (c) 2010-2023, PyInstaller Development Team\nCopyright 2009 The Go Authors.\nCopyright 2026 Victor Santiago Monta\u00f1o Diaz\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\ndocumentation, are copyright (C) 1996-2010 Julian R Seward.  All\ndocumentation, are copyright (C) 1996-2019 Julian R Seward.  All\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,\nlibffi - Copyright (c) 1996-2019  Anthony Green, Red Hat, Inc and others.",
+      "copyrightText": "# Copyright (c) 2005-2023, PyInstaller Development Team.\nBased on previous work under copyright (c) 2002 McMillan Enterprises, Inc.\nCopyright (C) 1989, 1991 Free Software Foundation, Inc.\nCopyright (C) 1995-2017 Jean-loup Gailly and Mark Adler\nCopyright (C) The XZ Utils authors and contributors\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper\nCopyright (c) 2001-2022 Expat maintainers\nCopyright (c) 2005-2009, Giovanni Bajo\nCopyright (c) 2008-2020 Stefan Krah. All rights reserved.\nCopyright (c) 2010-2023, PyInstaller Development Team\nCopyright 2009 The Go Authors.\nCopyright 2026 Victor Santiago Monta\u00f1o Diaz\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\nThis software is copyrighted by the Regents of the University of California, Sun Microsystems, Inc., Scriptics Corporation, ActiveState Corporation and other parties.\ndocumentation, are copyright (C) 1996-2010 Julian R Seward.  All\ndocumentation, are copyright (C) 1996-2019 Julian R Seward.  All\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,\nlibffi - Copyright (c) 1996-2019  Anthony Green, Red Hat, Inc and others.",
       "downloadLocation": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36181636747",
       "filesAnalyzed": false,
       "licenseConcluded": "(0BSD) AND (Apache-2.0) AND (BSD-2-Clause) AND (BSD-3-Clause AND Apache-2.0) AND (GPL-2.0-or-later WITH Bootloader-exception AND Apache-2.0) AND (LicenseRef-Python-Windows-Redistribution-e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a) AND (MIT) AND (Python-2.0 AND 0BSD) AND (Zlib) AND (bzip2-1.0.6)",

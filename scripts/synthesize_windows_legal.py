@@ -71,6 +71,11 @@ SOFTWARE.'''
 MIT_ZERO_GRANT = MIT_GRANT.replace(
     'furnished to do so, subject to the following conditions:\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.',
     'furnished to do so.')
+SQLITE_BLESSING = '''The author disclaims copyright to this source code. In place of
+a legal notice, here is a blessing:
+May you do good and not evil.
+May you find forgiveness for yourself and forgive others.
+May you share freely, never taking more than you give.'''
 
 
 def declared_expression(declared):
@@ -145,6 +150,17 @@ def license_atoms(data):
     text = text.replace("``", '"').replace("''", '"').replace("\u201c", '"').replace("\u201d", '"')
     folded = " ".join(text.lower().split())
     result = set()
+    if " ".join(SQLITE_BLESSING.lower().split()) in folded:
+        result.add("blessing")
+    if all(part in folded for part in ("the authors hereby grant permission to use, copy, modify, distribute, and license",
+            "this notice is included verbatim in any distributions", "no written agreement, license, or royalty fee",
+            "new terms are clearly indicated on the first page of each file",
+            "in no event shall the authors or distributors be liable", "derivatives thereof",
+            "the authors and distributors specifically disclaim any warranties",
+            "no obligation to provide maintenance, support, updates, enhancements, or modifications",
+            "government use", "restricted rights", "notwithstanding the foregoing",
+            "permission to use and distribute the software in accordance with the terms specified in this license")):
+        result.add("TCL")
     if all(part in folded for part in ("apache license", "version 2.0", "1. definitions", "2. grant of copyright license",
             "3. grant of patent license", "4. redistribution", "5. submission of contributions", "6. trademarks",
             "7. disclaimer of warranty", "8. limitation of liability", "9. accepting warranty", "end of terms and conditions")):
@@ -272,6 +288,12 @@ def copyright_lines(sources):
     result = set()
     for _, data in sources:
         result.update(statement["text"] for statement in original_statements(data.decode("utf-8", errors="replace")))
+        text = " ".join(data.decode("utf-8", errors="replace").split())
+        if "blessing" in license_atoms(data):
+            result.add("The author disclaims copyright to this source code.")
+        match = re.search(r"This software is copyrighted by (.+?)\.\s+The following terms apply", text)
+        if match:
+            result.add("This software is copyrighted by " + match.group(1) + ".")
     return "\n".join(sorted(result)) or "NOASSERTION"
 
 
@@ -632,7 +654,7 @@ def add_adodbapi(packet, wheel_raw, parent_id, location):
         version=version.group(1), kind="wheel", digest=sha256_bytes(raw),
         location=location, declared="LGPL-2.1-or-later",
         sources=[("license.txt", members["adodbapi/license.txt"]),
-                 ("adodbapi.py", members["adodbapi/adodbapi.py"])],
+                 ("adodbapi.py.txt", members["adodbapi/adodbapi.py"])],
         scope="exact-shipped-python-source-subtree", pending=["LGPL-source-delivery-review"])
     path = f"legal/SOURCE-OFFERS/{identifier}/adodbapi-shipped-source.zip"
     packet.put(path, raw)
@@ -681,6 +703,18 @@ def add_supplement(packet, source, collection, architecture):
                     selected.append(entry)
             source_files = selected
         sources = checked_sources(root, source_files)
+        if row["id"] == "sqlite":
+            selected = []
+            for entry, (name, raw) in zip(source_files, sources):
+                retained = "blessing" in license_atoms(raw)
+                native_notice_scopes.append({"component": "native-sqlite", "archive_sha256": row["sha256"],
+                    **entry, "scope": "SQLite-source-copyright-disclaimer" if retained else "autosetup-build-tool-license"})
+                if retained:
+                    selected.append((name, raw))
+                else:
+                    require(b"autosetup - A build environment" in raw, "SQLite separate tool scope differs")
+            require(len(selected) == 1, "SQLite exact disclaimer is missing")
+            sources = selected
         if row["id"] in {"windows-libffi", "xz"}:
             combined = " ".join(b"\n".join(raw for _, raw in sources).decode("utf-8").split())
             if row["id"] == "windows-libffi":
@@ -712,12 +746,24 @@ def add_supplement(packet, source, collection, architecture):
         if row["id"] == "cpython-3.12":
             require("Python-2.0" in set().union(*(license_atoms(raw) for _, raw in sources)), "complete Python license is absent")
             declared = "Python-2.0"
+        if row["id"] == "sqlite":
+            declared = "blessing"
+        if row["id"].startswith("tk-windows-bin-"):
+            require(all("TCL" in license_atoms(raw) for _, raw in sources), "Tcl/Tk component terms need additional scope")
+            declared = "TCL"
         packet.component(identifier="native-" + slug(row["id"]), name=row["name"], version=row["version"],
                          kind="framework" if row["id"] == "wix" else "runtime", digest=row["sha256"],
                          location=row["download_location"], declared=declared,
                          sources=sources, scope="source-build-input-needs-binary-mapping",
                          pending=["target-binary-to-source-mapping", "license-choice-and-original-copyright",
                                   "corresponding-source-delivery" if row["id"] == "wix" else "notice-and-source-duty"])
+        if row["id"].startswith("tk-windows-bin-") and any(b"docs/license.html_lib" in raw for _, raw in sources):
+            packet.components[-1]["license_concluded"] = "NOASSERTION"
+            packet.components[-1]["source_offer_required"] = None
+            packet.pending[-1]["items"] += ["additional-retained-grant-scope", "notice-and-source-duty"]
+            packet.evidence[-1]["grant_scope_basis"] = (
+                "Complete Tcl/Tk grants retained. The bundled Tix notice also references docs/license.html_lib; "
+                "that distinct grant and its shipped source scope are not established by the Tcl grant.")
     packet.put("native-source-notice-scope.json", canonical_json({"schema": 1, **BOUNDARY,
         "files": native_notice_scopes,
         "limitation": "Excluded source notices remain in the pinned upstream archives and acquisition evidence. Runtime redistribution terms of separately bundled Microsoft code are not waived by this classification."}))
@@ -757,6 +803,32 @@ def add_observed_nested_crates(packet):
                 pending=["nested-build-versus-linked-scope", "license-choice-and-original-copyright", "notice-and-source-duty"],
                 origins=[{"path": path, "sha256": sha256_bytes(raw), "bom_ref": row["bom-ref"]}])
             known[key] = packet.components[-1]
+
+
+def add_sqlite_source_scope(packet, archive_root):
+    import io
+    row = next(row for row in packet.components if row["id"] == "native-sqlite")
+    filename = row["download_location"].rsplit("/", 1)[-1]
+    raw = read_owned(archive_root, filename)
+    require(sha256_bytes(raw) == row["sha256"], "SQLite source archive identity differs")
+    with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as archive:
+        name = filename.removesuffix(".tar.gz") + "/sqlite3.c"
+        member = archive.getmember(name)
+        require(member.isfile() and member.size <= 32 * 1024 * 1024, "SQLite amalgamation is absent or oversized")
+        source = archive.extractfile(member).read()
+    marker = source.index(b"The author disclaims copyright to this source code.")
+    begin, end = source.rfind(b"/*", 0, marker), source.index(b"*/", marker) + 2
+    require(0 <= begin < marker < end < 8192, "SQLite library header scope differs")
+    header = source[begin:end]
+    normalized = " ".join(re.sub(r"(?m)^\*\*\s?", "", header.decode("utf-8")).split())
+    require(" ".join(SQLITE_BLESSING.split()) in normalized, "SQLite library disclaimer differs")
+    path = "legal/NOTICES/native-sqlite/sqlite3-library-header.txt"
+    packet.put(path, header)
+    row["notice_files"].append({"path": path, "sha256": sha256_bytes(header)})
+    evidence = next(item for item in packet.evidence if item["id"] == row["id"])
+    evidence["grant_scope_basis"] = {"archive_sha256": row["sha256"], "source_member": name,
+        "source_member_sha256": sha256_bytes(source), "header_byte_range": [begin, end],
+        "header_sha256": sha256_bytes(header), "scope": "Actual core library amalgamation, not only the separate Tcl wrapper notice."}
 
 
 def add_wix_source_mapping(packet, source, collection):
@@ -1077,6 +1149,7 @@ def synthesize(source, observation_root, architecture, created, archive_root, cr
     add_wheels(packet, inputs, source, collection)
     add_supplement(packet, source, collection, architecture)
     add_observed_nested_crates(packet)
+    add_sqlite_source_scope(packet, archive_root)
     add_wix_source_mapping(packet, source, collection)
     add_crate_evidence(packet, crate_cache, archive_root, architecture)
     add_archives_and_fonts(packet, inputs, archive_root)

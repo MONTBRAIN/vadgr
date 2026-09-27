@@ -42,6 +42,7 @@ The source directory needs these exact archives:
 | `pydantic_core-2.46.5.tar.gz` | `10416c15b8839ecc4ef4d0885da76da6fd0f67333a0eb8aff6d93c4b8f2910fc` | Exact PyPI source URL in `scripts/windows_legal_source_evidence.py` |
 | `rpds_py-2026.6.3.tar.gz` | `1cebd1337c242e4ec2293e541f712b2da849b29f48f0c293684b71c0632625d4` | Exact PyPI source URL in `scripts/windows_legal_source_evidence.py` |
 | `cryptography-50.0.1.tar.gz` | `5dd9bda1c12b4162f6ff568eeb5e0ff956c28d14406e875cfe8a63a2d414ff20` | Exact PyPI source URL in `scripts/windows_legal_source_evidence.py` |
+| `sqlite-autoconf-3530100.tar.gz` | `83e6b2020a034e9a7ad4a72feea59e1ad52f162e09cbd26735a3ffb98359fc4f` | [Exact SQLite source](https://www.sqlite.org/2026/sqlite-autoconf-3530100.tar.gz) |
 
 The crate inspector acquires only exact digest-matching archives named by the
 inventories, without executing source. The synthesizer independently re-reads
@@ -86,6 +87,10 @@ the original member path, hash and statement line rather than inventing ownershi
 from package author metadata. Native notice classifications retain upstream
 statements separating libffi build tools and XZ command-line tools from the
 mapped runtime libraries.
+The SQLite library disclaimer is independently checked in the exact core
+amalgamation, with member hash and header byte offsets retained. Its separate
+autosetup build license is not assigned to the runtime library. The retained
+Tcl/Tk terms retain their original named copyright parties.
 
 The included nodriver archive supplies its exact upstream source. Whether a
 larger covered combination requires additional source, build instructions or

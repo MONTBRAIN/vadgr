@@ -42,7 +42,7 @@ Apache-1.1 Artistic-2.0 CC-BY-3.0 CC-BY-4.0 CC-BY-SA-4.0
 LGPL-2.1-only LGPL-2.1-or-later LGPL-3.0-only LGPL-3.0-or-later
 GPL-2.0-only GPL-2.0-or-later GPL-3.0-only GPL-3.0-or-later
 AGPL-3.0-only AGPL-3.0-or-later bzip2-1.0.6 libpng-2.0 Libpng
-FTL IJG TCL X11 W3C HPND curl NCSA libtiff PostgreSQL CDLA-Permissive-2.0""".split())
+FTL IJG TCL X11 W3C HPND curl NCSA libtiff PostgreSQL CDLA-Permissive-2.0 blessing""".split())
 EXCEPTION_IDS = {"LLVM-exception", "GCC-exception-3.1", "Classpath-exception-2.0", "Autoconf-exception-3.0", "Bison-exception-2.2", "Bootloader-exception"}
 
 
