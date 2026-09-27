@@ -65,3 +65,15 @@ def test_false_positive_regex_negative_does_not_qualify():
     proof = absence.audit_archive(raw, package.sha256_bytes(raw))
     assert proof["eligible_for_reviewed_NONE"] is False
     assert proof["files"][0]["status"] == "ambiguous-ownership-marker"
+
+
+def test_reviewed_generic_document_requires_complete_exact_text(monkeypatch):
+    text = b"Do not engage in copyright violation or misattribution."
+    digest = absence.digest(b" ".join(text.split()))
+    monkeypatch.setitem(absence.REVIEWED_DOCUMENTS, digest, "test-reviewed-compliance-document")
+    for suffix, eligible in ((b"", True), (b"\nCopyright Actual Owner", False), (b" modified", False)):
+        packed = archive({"demo-1/CODE.md": text + suffix})
+        proof = absence.audit_archive(packed, absence.digest(packed))
+        assert proof["eligible_for_reviewed_NONE"] is eligible
+        if eligible:
+            assert proof["files"][0]["status"] == "complete-reviewed-document-no-ownership-statement"

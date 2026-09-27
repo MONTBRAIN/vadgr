@@ -5,7 +5,12 @@
     "MIT"
   ],
   "archive_sha256": "eff7009f1a532e917d66970a1e80c965140c6cfbbabbdde3d64e5431e6c78e21",
+  "cargo_metadata": {
+    "path": "cargo-metadata.json",
+    "sha256": "7ab76eb1de5fa7437caf6033e8a003133ad2a98f02851e811191a2f1f9424d0d"
+  },
   "expression": "Apache-2.0 AND BSD-3-Clause",
+  "observed_cargo_features": [],
   "reason": "Named runtime source files explicitly retain Chromium's BSD grant in addition to AccessKit's Apache-or-MIT terms.",
   "source_files": [
     {

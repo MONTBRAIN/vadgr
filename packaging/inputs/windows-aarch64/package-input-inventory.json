@@ -156,7 +156,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-accesskit-0.24.1/source-grant-scope.json",
-          "sha256": "539eb9c7b0559f4318f5d860ecf9e0f477bfbb60cde351d4b3f5a67836348c21"
+          "sha256": "a5aaec5a7ad5a4c1050f85438b210e819da6659eab62260c19b0b08ba1dae93c"
         },
         {
           "path": "legal/NOTICES/cargo-accesskit-0.24.1/source-copyright-statements.json",
@@ -208,7 +208,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-accesskit-consumer-0.35.0/source-grant-scope.json",
-          "sha256": "011885d9bcb1b000ec30a42fe8fee13d0423c42abaf3e453a19070ece09a9f32"
+          "sha256": "5c724b0db3cdeca9966dc66e1e729905b8f5cbfeadd514a16070d0bfe9b0af83"
         },
         {
           "path": "legal/NOTICES/cargo-accesskit-consumer-0.35.0/source-copyright-statements.json",
@@ -260,7 +260,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-accesskit-windows-0.32.1/source-grant-scope.json",
-          "sha256": "a3cb65693930c5c84226254cf49134a0951fa0bf2f1c5d50007e4d91c1286ee9"
+          "sha256": "bae11a63f9ef6474bd6c1e9ad5465dcbb2e34b7536cc85800c7f04937ceca54f"
         },
         {
           "path": "legal/NOTICES/cargo-accesskit-windows-0.32.1/source-copyright-statements.json",
@@ -2801,7 +2801,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-crossbeam-channel-0.5.16/source-grant-scope.json",
-          "sha256": "b0fe9a3c71eb79f5626fb3d9a42a9a0f683e8be7e6b10596ea168e37773e0900"
+          "sha256": "f11447b2ac90aef26791747ccb91ad0b777f3c2fafcf24b66eed594ad5e2bc4b"
         },
         {
           "path": "legal/NOTICES/cargo-crossbeam-channel-0.5.16/source-copyright-statements.json",
@@ -4194,7 +4194,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-epaint-default-fonts-0.36.1/source-grant-scope.json",
-          "sha256": "93fb3adb86815a70d7be318dd33c95291733c1392a776e3d7e9f0970b95a570b"
+          "sha256": "9d7d02fd3658fe8dd404fc32920b2cc88b5a94589442c6eb13319778fc446c96"
         },
         {
           "path": "legal/NOTICES/cargo-epaint-default-fonts-0.36.1/source-copyright-statements.json",
@@ -7014,7 +7014,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-iroh-1.0.3/source-grant-scope.json",
-          "sha256": "e9d0cdd2e46d58025d4de7cb137ff8386fdfad02311b9f9eb430d533e33a0ec4"
+          "sha256": "b53f7724cc1f4f6544b61a40d9c20033857cf97c9849215b19fa648f4e9fdeba"
         },
         {
           "path": "legal/NOTICES/cargo-iroh-1.0.3/external-grant-provenance.json",
@@ -7169,7 +7169,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-iroh-relay-1.0.3/source-grant-scope.json",
-          "sha256": "ca0e2bf6628dae8c8e2febafb6c0bcd722f73df042cafb59b78094cd4098dd02"
+          "sha256": "db125429ad4a414d028392ae35517b3046519d5634aaaecf4b5174a974f5beff"
         },
         {
           "path": "legal/NOTICES/cargo-iroh-relay-1.0.3/external-grant-provenance.json",
@@ -7668,6 +7668,10 @@
         {
           "path": "legal/NOTICES/cargo-libsqlite3-sys-0.38.2/001-001-LICENSE",
           "sha256": "ea4fcb309f14a22065e1ea45362d494d320012249ed865fe9c7c0946db754131"
+        },
+        {
+          "path": "legal/NOTICES/cargo-libsqlite3-sys-0.38.2/source-grant-scope.json",
+          "sha256": "6ef9a7c33d6a8ba1419a95ec9caca23c4637d343eec8852d308a180d70e37c43"
         },
         {
           "path": "legal/NOTICES/cargo-libsqlite3-sys-0.38.2/source-copyright-statements.json",
@@ -10539,7 +10543,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-regex-syntax-0.8.11/source-grant-scope.json",
-          "sha256": "8c578d66fcc531a5d12c80ba119796ade1b39cf3c5a86542516cf6a91a867b99"
+          "sha256": "a65ff198c2d0acc4a96a9a74d62faa72ef829b75c5a2f8ac118ca677fca024b6"
         },
         {
           "path": "legal/NOTICES/cargo-regex-syntax-0.8.11/source-copyright-statements.json",
@@ -10721,7 +10725,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-ring-0.17.14/source-grant-scope.json",
-          "sha256": "c0d884967ec3b922ad7a8fd994203f63af0d5c0e2a75d47631765a7c1743f115"
+          "sha256": "94ed6532695061d7c7442558f2392dcfd074a67f52f15b343bcc3d1e525a0291"
         },
         {
           "path": "legal/NOTICES/cargo-ring-0.17.14/source-copyright-statements.json",
@@ -16248,11 +16252,12 @@
       "download_location": "https://www.python.org/ftp/python/3.12.14/Python-3.12.14.tar.xz",
       "id": "native-cpython-3.12",
       "kind": "runtime",
-      "license_concluded": "Python-2.0",
+      "license_concluded": "Python-2.0 AND 0BSD",
       "license_declared": "Python-2.0",
       "license_files": [
         {
           "license_ids": [
+            "0BSD",
             "Python-2.0"
           ],
           "path": "legal/LICENSES/native-cpython-3.12/000-002-LICENSE",
@@ -18220,7 +18225,7 @@
       "download_location": "https://static.crates.io/crates/lexical-parse-float/lexical-parse-float-1.0.5.crate",
       "id": "nested-cargo-lexical-parse-float-1.0.5",
       "kind": "cargo",
-      "license_concluded": "Apache-2.0",
+      "license_concluded": "Apache-2.0 AND BSD-3-Clause",
       "license_declared": "MIT OR Apache-2.0",
       "license_files": [
         {
@@ -18232,7 +18237,8 @@
         },
         {
           "license_ids": [
-            "Apache-2.0"
+            "Apache-2.0",
+            "BSD-3-Clause"
           ],
           "path": "legal/LICENSES/nested-cargo-lexical-parse-float-1.0.5/002-002-LICENSE.md",
           "sha256": "99aab70a96f3ecab683d8a319d9070af2213ae4c1601fb053fbe85e1361e32fe"
@@ -18251,6 +18257,10 @@
         {
           "path": "legal/NOTICES/nested-cargo-lexical-parse-float-1.0.5/002-002-LICENSE.md",
           "sha256": "99aab70a96f3ecab683d8a319d9070af2213ae4c1601fb053fbe85e1361e32fe"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-lexical-parse-float-1.0.5/source-grant-scope.json",
+          "sha256": "234c73f2d82d8714b6f74634c0a4a584280e8a4d29d75e84573863555cce566e"
         },
         {
           "path": "legal/NOTICES/nested-cargo-lexical-parse-float-1.0.5/source-copyright-statements.json",
@@ -18299,6 +18309,10 @@
         {
           "path": "legal/NOTICES/nested-cargo-lexical-parse-integer-1.0.5/002-002-LICENSE.md",
           "sha256": "99aab70a96f3ecab683d8a319d9070af2213ae4c1601fb053fbe85e1361e32fe"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-lexical-parse-integer-1.0.5/source-grant-scope.json",
+          "sha256": "9d460f194647f0385c3d5b666b05582349f21938737064e4ff4da902d9cc2fba"
         },
         {
           "path": "legal/NOTICES/nested-cargo-lexical-parse-integer-1.0.5/source-copyright-statements.json",
@@ -19769,7 +19783,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-regex-syntax-0.8.5/source-grant-scope.json",
-          "sha256": "cc81f70de9a78774bb3040d8e5a5403c9eb4d776e53462037d564514b7027a00"
+          "sha256": "d86aca72e19e7b0426465542034ccfe9fd2dbb1ca8ba764d751bcbb104f949c0"
         },
         {
           "path": "legal/NOTICES/nested-cargo-regex-syntax-0.8.5/source-copyright-statements.json",
@@ -21348,20 +21362,36 @@
       "download_location": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-aarch64-pc-windows-msvc-install_only.tar.gz",
       "id": "python-vendor-cachecontrol",
       "kind": "runtime",
-      "license_concluded": "NOASSERTION",
-      "license_declared": "NOASSERTION",
-      "license_files": [],
+      "license_concluded": "Apache-2.0",
+      "license_declared": "Apache-2.0",
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/python-vendor-cachecontrol/001-Apache-2.0-standard.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        }
+      ],
       "name": "CacheControl",
       "notice_files": [
         {
           "path": "legal/NOTICES/python-vendor-cachecontrol/000-LICENSE.txt",
           "sha256": "86eeee87be2a43f3ff1f56496f451f69243926f025fedbb033666c304c4c161b"
+        },
+        {
+          "path": "legal/NOTICES/python-vendor-cachecontrol/001-Apache-2.0-standard.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "path": "legal/NOTICES/python-vendor-cachecontrol/external-grant-provenance.json",
+          "sha256": "58aabd4501d603322107202a4d6ab47ba6b9ec7daf6d99b71c37fae2795b397a"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "d6a5495f6fd45ad0d341315c1d317c0c21d81ad8095e2cfd26814e7d48d5243b",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "0.14.4"
     },
     {
@@ -21432,6 +21462,13 @@
           ],
           "path": "legal/LICENSES/python-vendor-distro/000-LICENSE",
           "sha256": "cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14"
+        },
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/python-vendor-distro/001-Apache-2.0-standard.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
         }
       ],
       "name": "distro",
@@ -21439,6 +21476,14 @@
         {
           "path": "legal/NOTICES/python-vendor-distro/000-LICENSE",
           "sha256": "cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14"
+        },
+        {
+          "path": "legal/NOTICES/python-vendor-distro/001-Apache-2.0-standard.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "path": "legal/NOTICES/python-vendor-distro/external-grant-provenance.json",
+          "sha256": "36d42aa7259c36d9f03b9755878b3cd6fc71870827ee79108aff567980453bff"
         },
         {
           "path": "legal/NOTICES/python-vendor-distro/observed-source-copyright.json",
@@ -21485,20 +21530,36 @@
       "download_location": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-aarch64-pc-windows-msvc-install_only.tar.gz",
       "id": "python-vendor-msgpack",
       "kind": "runtime",
-      "license_concluded": "NOASSERTION",
-      "license_declared": "NOASSERTION",
-      "license_files": [],
+      "license_concluded": "Apache-2.0",
+      "license_declared": "Apache-2.0",
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/python-vendor-msgpack/001-Apache-2.0-standard.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        }
+      ],
       "name": "msgpack",
       "notice_files": [
         {
           "path": "legal/NOTICES/python-vendor-msgpack/000-COPYING",
           "sha256": "492dedba85da5872f78e6091bcd1fea474d660d35acb4dee964b8aab3f007427"
+        },
+        {
+          "path": "legal/NOTICES/python-vendor-msgpack/001-Apache-2.0-standard.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "path": "legal/NOTICES/python-vendor-msgpack/external-grant-provenance.json",
+          "sha256": "ceb9bdd88410dbd6cbc44e5cd1d7fbc9b324560e766d33bc0bcfcec7d9129b2f"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "0f486a8160adc25f2c93b3734fe08027c8580d45eb3222190dd5524ab5cd8609",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "1.1.2"
     },
     {
@@ -21634,24 +21695,48 @@
       "version": "1.2.0"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "__copyright__ = \"Copyright Kenneth Reitz\"",
       "download_location": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-aarch64-pc-windows-msvc-install_only.tar.gz",
       "id": "python-vendor-requests",
       "kind": "runtime",
-      "license_concluded": "NOASSERTION",
-      "license_declared": "NOASSERTION",
-      "license_files": [],
+      "license_concluded": "Apache-2.0",
+      "license_declared": "Apache-2.0",
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/python-vendor-requests/002-Apache-2.0-standard.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        }
+      ],
       "name": "requests",
       "notice_files": [
         {
           "path": "legal/NOTICES/python-vendor-requests/000-LICENSE",
           "sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b"
+        },
+        {
+          "path": "legal/NOTICES/python-vendor-requests/001---version--.py.txt",
+          "sha256": "abba90670b0370a3dc40d97c2dea46a35d4bec941ff10d7c3cf3098ef04a17f9"
+        },
+        {
+          "path": "legal/NOTICES/python-vendor-requests/002-Apache-2.0-standard.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "path": "legal/NOTICES/python-vendor-requests/external-grant-provenance.json",
+          "sha256": "a2d054d5a1c735d50e9b304c2e293315e4263cd8d6fb6512f91bd9998ff01d93"
+        },
+        {
+          "path": "legal/NOTICES/python-vendor-requests/observed-source-copyright.json",
+          "sha256": "d3ed938c1560741fdb543f0ef04ccf0b6baa3c237e83d3db66b75a3204d53f35"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "bb0ce3a66731928cf41649238f3b283c814500886c417ce906ba95ba4455b2cc",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "2.34.2"
     },
     {
@@ -23452,12 +23537,13 @@
       "download_location": "https://files.pythonhosted.org/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl",
       "id": "wheel-typing-extensions-4.16.0",
       "kind": "wheel",
-      "license_concluded": "PSF-2.0",
+      "license_concluded": "Python-2.0 AND 0BSD",
       "license_declared": "PSF-2.0",
       "license_files": [
         {
           "license_ids": [
-            "PSF-2.0"
+            "0BSD",
+            "Python-2.0"
           ],
           "path": "legal/LICENSES/wheel-typing-extensions-4.16.0/000-LICENSE",
           "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf"

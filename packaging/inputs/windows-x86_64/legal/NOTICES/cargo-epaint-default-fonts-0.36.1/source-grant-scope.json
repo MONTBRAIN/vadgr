@@ -7,7 +7,12 @@
     "Ubuntu-font-1.0"
   ],
   "archive_sha256": "18dee69613aac468922cf28a32025eb7d7ed6985b61f73245848e58f37876c98",
+  "cargo_metadata": {
+    "path": "cargo-metadata.json",
+    "sha256": "7ab76eb1de5fa7437caf6033e8a003133ad2a98f02851e811191a2f1f9424d0d"
+  },
   "expression": "Apache-2.0 AND MIT AND Bitstream-Vera AND OFL-1.1 AND Ubuntu-font-1.0",
+  "observed_cargo_features": [],
   "reason": "The crate's code grant and all four separately inventoried embedded font grants are retained together; Hack explicitly includes both MIT and Bitstream Vera material.",
   "source_files": [
     {

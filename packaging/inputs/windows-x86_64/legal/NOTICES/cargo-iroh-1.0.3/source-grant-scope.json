@@ -4,7 +4,17 @@
     "BSD-3-Clause"
   ],
   "archive_sha256": "460de6bc52163b41b1646931f2897e5ab986f0966ade444467fec25024751a72",
+  "cargo_metadata": {
+    "path": "cargo-metadata.json",
+    "sha256": "7ab76eb1de5fa7437caf6033e8a003133ad2a98f02851e811191a2f1f9424d0d"
+  },
   "expression": "Apache-2.0 AND BSD-3-Clause",
+  "observed_cargo_features": [
+    "fast-apple-datapath",
+    "metrics",
+    "portmapper",
+    "tls-aws-lc-rs"
+  ],
   "reason": "The exact crate retains BSD terms for Tailscale-derived portions in addition to its declared Apache-or-MIT grant.",
   "source_files": [
     {

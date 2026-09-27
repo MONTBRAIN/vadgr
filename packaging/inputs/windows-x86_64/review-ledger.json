@@ -61,7 +61,12 @@
           "MIT"
         ],
         "archive_sha256": "d3b7f7f85a7e5f68090000ed7622545829afd484d210358702ae4cb97dd0c320",
+        "cargo_metadata": {
+          "path": "cargo-metadata.json",
+          "sha256": "7ab76eb1de5fa7437caf6033e8a003133ad2a98f02851e811191a2f1f9424d0d"
+        },
         "expression": "Apache-2.0 AND BSD-3-Clause",
+        "observed_cargo_features": [],
         "reason": "Named runtime source files explicitly retain Chromium's BSD grant in addition to AccessKit's Apache-or-MIT terms.",
         "source_files": [
           {
@@ -98,7 +103,12 @@
           "MIT"
         ],
         "archive_sha256": "53cf47daed85312e763fbf85ceca136e0d7abc68e0a7e12abe11f48172bc3b10",
+        "cargo_metadata": {
+          "path": "cargo-metadata.json",
+          "sha256": "7ab76eb1de5fa7437caf6033e8a003133ad2a98f02851e811191a2f1f9424d0d"
+        },
         "expression": "Apache-2.0 AND BSD-3-Clause",
+        "observed_cargo_features": [],
         "reason": "Named runtime source files explicitly retain Chromium's BSD grant in addition to AccessKit's Apache-or-MIT terms.",
         "source_files": [
           {
@@ -144,7 +154,12 @@
           "MIT"
         ],
         "archive_sha256": "eff7009f1a532e917d66970a1e80c965140c6cfbbabbdde3d64e5431e6c78e21",
+        "cargo_metadata": {
+          "path": "cargo-metadata.json",
+          "sha256": "7ab76eb1de5fa7437caf6033e8a003133ad2a98f02851e811191a2f1f9424d0d"
+        },
         "expression": "Apache-2.0 AND BSD-3-Clause",
+        "observed_cargo_features": [],
         "reason": "Named runtime source files explicitly retain Chromium's BSD grant in addition to AccessKit's Apache-or-MIT terms.",
         "source_files": [
           {
@@ -3295,7 +3310,15 @@
           "MIT"
         ],
         "archive_sha256": "d85363c37faeca707aef026efa9f3b34d077bce547e48f770770625c6013679e",
+        "cargo_metadata": {
+          "path": "cargo-metadata.json",
+          "sha256": "7ab76eb1de5fa7437caf6033e8a003133ad2a98f02851e811191a2f1f9424d0d"
+        },
         "expression": "Apache-2.0",
+        "observed_cargo_features": [
+          "default",
+          "std"
+        ],
         "reason": "Upstream maps the additional grant catalogue to examples/matching.rs, tests/mpsc.rs and tests/golang.rs, not the runtime library. All original notices remain retained.",
         "source_files": [
           {
@@ -4055,7 +4078,12 @@
           "Ubuntu-font-1.0"
         ],
         "archive_sha256": "18dee69613aac468922cf28a32025eb7d7ed6985b61f73245848e58f37876c98",
+        "cargo_metadata": {
+          "path": "cargo-metadata.json",
+          "sha256": "7ab76eb1de5fa7437caf6033e8a003133ad2a98f02851e811191a2f1f9424d0d"
+        },
         "expression": "Apache-2.0 AND MIT AND Bitstream-Vera AND OFL-1.1 AND Ubuntu-font-1.0",
+        "observed_cargo_features": [],
         "reason": "The crate's code grant and all four separately inventoried embedded font grants are retained together; Hack explicitly includes both MIT and Bitstream Vera material.",
         "source_files": [
           {
@@ -5794,7 +5822,17 @@
           "BSD-3-Clause"
         ],
         "archive_sha256": "460de6bc52163b41b1646931f2897e5ab986f0966ade444467fec25024751a72",
+        "cargo_metadata": {
+          "path": "cargo-metadata.json",
+          "sha256": "7ab76eb1de5fa7437caf6033e8a003133ad2a98f02851e811191a2f1f9424d0d"
+        },
         "expression": "Apache-2.0 AND BSD-3-Clause",
+        "observed_cargo_features": [
+          "fast-apple-datapath",
+          "metrics",
+          "portmapper",
+          "tls-aws-lc-rs"
+        ],
         "reason": "The exact crate retains BSD terms for Tailscale-derived portions in addition to its declared Apache-or-MIT grant.",
         "source_files": [
           {
@@ -5902,7 +5940,15 @@
           "BSD-3-Clause"
         ],
         "archive_sha256": "24bd586cf927f7b700f56ec3639b53cb5fa901ce284784051ff71092bfbf8193",
+        "cargo_metadata": {
+          "path": "cargo-metadata.json",
+          "sha256": "7ab76eb1de5fa7437caf6033e8a003133ad2a98f02851e811191a2f1f9424d0d"
+        },
         "expression": "Apache-2.0 AND BSD-3-Clause",
+        "observed_cargo_features": [
+          "metrics",
+          "tls-aws-lc-rs"
+        ],
         "reason": "The exact crate retains BSD terms for Tailscale-derived portions in addition to its declared Apache-or-MIT grant.",
         "source_files": [
           {
@@ -6257,6 +6303,41 @@
       }
     },
     {
+      "grant_scope_basis": {
+        "accounted_grants": [
+          "BSD-3-Clause",
+          "MIT"
+        ],
+        "archive_sha256": "f1d20bef17f513b9b3004532233187769cd072d790971f4e4da0e346eb6401e8",
+        "cargo_metadata": {
+          "path": "cargo-metadata.json",
+          "sha256": "7ab76eb1de5fa7437caf6033e8a003133ad2a98f02851e811191a2f1f9424d0d"
+        },
+        "expression": "MIT",
+        "observed_cargo_features": [
+          "bundled",
+          "bundled_bindings",
+          "cc",
+          "default",
+          "min_sqlite_version_3_34_1",
+          "pkg-config",
+          "vcpkg"
+        ],
+        "reason": "Exact observed Cargo features do not enable SQLCipher. The retained build script selects sqlite3 rather than the separately licensed SQLCipher subtree.",
+        "source_files": [
+          {
+            "path": "libsqlite3-sys-0.38.2/build.rs",
+            "sha256": "269acf1864de5046ac5b77814926d41fe24108b0d027f635812a1db3c965f81f",
+            "size": 34354
+          },
+          {
+            "path": "libsqlite3-sys-0.38.2/sqlcipher/LICENSE",
+            "sha256": "ea4fcb309f14a22065e1ea45362d494d320012249ed865fe9c7c0946db754131",
+            "size": 1467
+          }
+        ],
+        "status": "source-scope-proposal-not-package-approval"
+      },
       "id": "cargo-libsqlite3-sys-0.38.2",
       "original_license_declaration": "MIT",
       "origins": [
@@ -8199,7 +8280,23 @@
           "Unicode-DFS-2016"
         ],
         "archive_sha256": "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4",
+        "cargo_metadata": {
+          "path": "cargo-metadata.json",
+          "sha256": "7ab76eb1de5fa7437caf6033e8a003133ad2a98f02851e811191a2f1f9424d0d"
+        },
         "expression": "Apache-2.0 AND Unicode-DFS-2016",
+        "observed_cargo_features": [
+          "default",
+          "std",
+          "unicode",
+          "unicode-age",
+          "unicode-bool",
+          "unicode-case",
+          "unicode-gencat",
+          "unicode-perl",
+          "unicode-script",
+          "unicode-segment"
+        ],
         "reason": "The retained license in the Unicode table source subtree adds the Unicode data grant to the crate's Apache-or-MIT terms.",
         "source_files": [
           {
@@ -8291,7 +8388,18 @@
           "ISC"
         ],
         "archive_sha256": "a4689e6c2294d81e88dc6261c768b63bc4fcdb852be6d1352498b114f61383b7",
+        "cargo_metadata": {
+          "path": "cargo-metadata.json",
+          "sha256": "7ab76eb1de5fa7437caf6033e8a003133ad2a98f02851e811191a2f1f9424d0d"
+        },
         "expression": "Apache-2.0 AND ISC",
+        "observed_cargo_features": [
+          "alloc",
+          "default",
+          "dev_urandom_fallback",
+          "std",
+          "wasm32_unknown_unknown_js"
+        ],
         "reason": "Upstream explicitly separates Go test-suite and Chromium build-infrastructure grants from linked BoringSSL code. The Apache and ISC runtime grants remain concluded.",
         "source_files": [
           {
@@ -11940,6 +12048,7 @@
           "shared_lib": "install/python312.dll"
         }
       },
+      "grant_scope_basis": "Complete cumulative Python terms and the explicitly named documentation-code 0BSD grant are both retained. The original upstream declaration remains separate from this composite proposal.",
       "id": "native-cpython-3.12",
       "original_license_declaration": "Python-2.0",
       "origins": [],
@@ -13917,6 +14026,27 @@
       ]
     },
     {
+      "grant_scope_basis": {
+        "accounted_grants": [
+          "Apache-2.0",
+          "BSD-3-Clause",
+          "BSL-1.0",
+          "LLVM-exception",
+          "MIT"
+        ],
+        "archive_sha256": "de6f9cb01fb0b08060209a057c048fcbab8717b4c1ecd2eac66ebfe39a65b0f2",
+        "expression": "Apache-2.0 AND BSD-3-Clause",
+        "observed_cargo_features": null,
+        "reason": "The upstream workspace license explicitly assigns additional algorithms to write-float or parse-float paths, never parse-integer. Parse-float retains its possible Go-derived Bellerophon BSD grant without inferring build features.",
+        "source_files": [
+          {
+            "path": "lexical-parse-float-1.0.5/LICENSE.md",
+            "sha256": "99aab70a96f3ecab683d8a319d9070af2213ae4c1601fb053fbe85e1361e32fe",
+            "size": 19251
+          }
+        ],
+        "status": "source-scope-proposal-not-package-approval"
+      },
       "id": "nested-cargo-lexical-parse-float-1.0.5",
       "original_license_declaration": [
         {
@@ -13947,6 +14077,27 @@
       ]
     },
     {
+      "grant_scope_basis": {
+        "accounted_grants": [
+          "Apache-2.0",
+          "BSD-3-Clause",
+          "BSL-1.0",
+          "LLVM-exception",
+          "MIT"
+        ],
+        "archive_sha256": "72207aae22fc0a121ba7b6d479e42cbfea549af1479c3f3a4f12c70dd66df12e",
+        "expression": "Apache-2.0",
+        "observed_cargo_features": null,
+        "reason": "The upstream workspace license explicitly assigns additional algorithms to write-float or parse-float paths, never parse-integer. Parse-float retains its possible Go-derived Bellerophon BSD grant without inferring build features.",
+        "source_files": [
+          {
+            "path": "lexical-parse-integer-1.0.5/LICENSE.md",
+            "sha256": "99aab70a96f3ecab683d8a319d9070af2213ae4c1601fb053fbe85e1361e32fe",
+            "size": 19251
+          }
+        ],
+        "status": "source-scope-proposal-not-package-approval"
+      },
       "id": "nested-cargo-lexical-parse-integer-1.0.5",
       "original_license_declaration": [
         {
@@ -15306,6 +15457,7 @@
         ],
         "archive_sha256": "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c",
         "expression": "Apache-2.0 AND Unicode-DFS-2016",
+        "observed_cargo_features": null,
         "reason": "The retained license in the Unicode table source subtree adds the Unicode data grant to the crate's Apache-or-MIT terms.",
         "source_files": [
           {
@@ -16373,9 +16525,9 @@
     },
     {
       "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": false,
+        "eligible_for_reviewed_NONE": true,
         "path": "source-copyright-audits/nested-cargo-wasi-0.14.2-wasi-0.2.4.json",
-        "sha256": "7923650e9df54f5c7ebf6dfc537dd417c8ff9e397cf2a035d668f91285ffd8b4"
+        "sha256": "b7a093eaabf86e23b510b2c864da508ae22c640eea3fce2d74d1a2cc455b5cfc"
       },
       "id": "nested-cargo-wasi-0.14.2-wasi-0.2.4",
       "original_license_declaration": [
@@ -17263,8 +17415,20 @@
       "scope": "observed-runtime-distribution-metadata"
     },
     {
+      "external_grant_basis": {
+        "application_files": [
+          {
+            "path": "LICENSE.txt",
+            "sha256": "86eeee87be2a43f3ff1f56496f451f69243926f025fedbb033666c304c4c161b",
+            "size": 558
+          }
+        ],
+        "grant_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "scope": "Complete text for the explicitly applied Apache-2.0 grant; original application notices remain included.",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      },
       "id": "python-vendor-cachecontrol",
-      "original_license_declaration": null,
+      "original_license_declaration": "Apache-2.0",
       "origins": [
         {
           "archive_sha256": "15d25c455ea25d6b24d7e58eabdf744fd0db3cfb977934ae08fd2237acd8ccc1",
@@ -17274,7 +17438,7 @@
           "vendor_manifest_sha256": "3df0c9601bfa2e0dca23cc574a4f900a4d7fdad060ab203fab8354350ed93320"
         }
       ],
-      "retained_notice_count": 1,
+      "retained_notice_count": 2,
       "scope": "observed-runtime-vendored-tree"
     },
     {
@@ -17309,6 +17473,18 @@
       "scope": "observed-runtime-vendored-tree"
     },
     {
+      "external_grant_basis": {
+        "application_files": [
+          {
+            "path": "LICENSE",
+            "sha256": "cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14",
+            "size": 11325
+          }
+        ],
+        "grant_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "scope": "Complete text for the explicitly applied Apache-2.0 grant; original application notices remain included.",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      },
       "id": "python-vendor-distro",
       "original_license_declaration": "Apache-2.0",
       "original_source_statement_count": 1,
@@ -17321,7 +17497,7 @@
           "vendor_manifest_sha256": "3df0c9601bfa2e0dca23cc574a4f900a4d7fdad060ab203fab8354350ed93320"
         }
       ],
-      "retained_notice_count": 1,
+      "retained_notice_count": 2,
       "scope": "observed-runtime-vendored-tree"
     },
     {
@@ -17340,8 +17516,20 @@
       "scope": "observed-runtime-vendored-tree"
     },
     {
+      "external_grant_basis": {
+        "application_files": [
+          {
+            "path": "COPYING",
+            "sha256": "492dedba85da5872f78e6091bcd1fea474d660d35acb4dee964b8aab3f007427",
+            "size": 614
+          }
+        ],
+        "grant_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "scope": "Complete text for the explicitly applied Apache-2.0 grant; original application notices remain included.",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      },
       "id": "python-vendor-msgpack",
-      "original_license_declaration": null,
+      "original_license_declaration": "Apache-2.0",
       "origins": [
         {
           "archive_sha256": "15d25c455ea25d6b24d7e58eabdf744fd0db3cfb977934ae08fd2237acd8ccc1",
@@ -17351,7 +17539,7 @@
           "vendor_manifest_sha256": "3df0c9601bfa2e0dca23cc574a4f900a4d7fdad060ab203fab8354350ed93320"
         }
       ],
-      "retained_notice_count": 1,
+      "retained_notice_count": 2,
       "scope": "observed-runtime-vendored-tree"
     },
     {
@@ -17417,8 +17605,21 @@
       "scope": "observed-runtime-vendored-tree"
     },
     {
+      "external_grant_basis": {
+        "application_files": [
+          {
+            "path": "__version__.py",
+            "sha256": "abba90670b0370a3dc40d97c2dea46a35d4bec941ff10d7c3cf3098ef04a17f9",
+            "size": 435
+          }
+        ],
+        "grant_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "scope": "Complete text for the explicitly applied Apache-2.0 grant; original application notices remain included.",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      },
       "id": "python-vendor-requests",
-      "original_license_declaration": null,
+      "original_license_declaration": "Apache-2.0",
+      "original_source_statement_count": 1,
       "origins": [
         {
           "archive_sha256": "15d25c455ea25d6b24d7e58eabdf744fd0db3cfb977934ae08fd2237acd8ccc1",
@@ -17428,7 +17629,7 @@
           "vendor_manifest_sha256": "3df0c9601bfa2e0dca23cc574a4f900a4d7fdad060ab203fab8354350ed93320"
         }
       ],
-      "retained_notice_count": 1,
+      "retained_notice_count": 3,
       "scope": "observed-runtime-vendored-tree"
     },
     {
@@ -21043,6 +21244,7 @@
       "scope": "installed-wheel"
     },
     {
+      "grant_scope_basis": "Complete cumulative Python terms and the explicitly named documentation-code 0BSD grant are both retained. The original upstream declaration remains separate from this composite proposal.",
       "id": "wheel-typing-extensions-4.16.0",
       "observed_native_members": {},
       "original_license_declaration": "PSF-2.0",
@@ -21124,9 +21326,9 @@
   "status": "draft",
   "summary": {
     "component_candidates": 656,
-    "evidence_bound_NONE_proposals": 60,
-    "retained_grant_choices": 647,
-    "rows_with_review_items": 32,
+    "evidence_bound_NONE_proposals": 61,
+    "retained_grant_choices": 650,
+    "rows_with_review_items": 23,
     "scope_counts": {
       "exact-full-font-bytes-found-in-payload/vadgr.exe": 4,
       "exact-members-match-existing-helper-only-redistribution-review": 1,
@@ -21143,7 +21345,7 @@
       "target-wheel-link-relevant": 87,
       "target-wheel-not-target-reachable": 13
     },
-    "unresolved_copyright": 10
+    "unresolved_copyright": 8
   },
   "terms": {
     "sha256": "18d55dd2431a73b0c29cf58cd310e641bc363cd7e6efe739a2b506c4002a6965",
@@ -21982,9 +22184,7 @@
     },
     {
       "id": "cargo-libsqlite3-sys-0.38.2",
-      "items": [
-        "additional-retained-grant-scope"
-      ]
+      "items": []
     },
     {
       "id": "cargo-linebender-resource-handle-0.1.1",
@@ -22938,9 +23138,7 @@
     },
     {
       "id": "native-cpython-3.12",
-      "items": [
-        "additional-retained-grant-scope"
-      ]
+      "items": []
     },
     {
       "id": "native-cryptography",
@@ -23182,15 +23380,11 @@
     },
     {
       "id": "nested-cargo-lexical-parse-float-1.0.5",
-      "items": [
-        "additional-retained-grant-scope"
-      ]
+      "items": []
     },
     {
       "id": "nested-cargo-lexical-parse-integer-1.0.5",
-      "items": [
-        "additional-retained-grant-scope"
-      ]
+      "items": []
     },
     {
       "id": "nested-cargo-lexical-util-1.0.6",
@@ -23498,10 +23692,7 @@
     },
     {
       "id": "nested-cargo-wasi-0.14.2-wasi-0.2.4",
-      "items": [
-        "license-choice-and-original-copyright",
-        "no-original-copyright-statement-in-pinned-source"
-      ]
+      "items": []
     },
     {
       "id": "nested-cargo-wasm-bindgen-0.2.100",
@@ -23584,10 +23775,7 @@
     },
     {
       "id": "python-vendor-cachecontrol",
-      "items": [
-        "license-choice-and-original-copyright",
-        "notice-and-source-duty"
-      ]
+      "items": []
     },
     {
       "id": "python-vendor-certifi",
@@ -23610,10 +23798,7 @@
     },
     {
       "id": "python-vendor-msgpack",
-      "items": [
-        "license-choice-and-original-copyright",
-        "notice-and-source-duty"
-      ]
+      "items": []
     },
     {
       "id": "python-vendor-packaging",
@@ -23633,10 +23818,7 @@
     },
     {
       "id": "python-vendor-requests",
-      "items": [
-        "license-choice-and-original-copyright",
-        "notice-and-source-duty"
-      ]
+      "items": []
     },
     {
       "id": "python-vendor-resolvelib",
@@ -23836,9 +24018,7 @@
     },
     {
       "id": "wheel-typing-extensions-4.16.0",
-      "items": [
-        "additional-retained-grant-scope"
-      ]
+      "items": []
     },
     {
       "id": "wheel-typing-inspection-0.4.4",
@@ -23874,15 +24054,10 @@
     ],
     "additional-retained-grant-scope": [
       "cargo-accesskit-winit-0.32.2",
-      "cargo-libsqlite3-sys-0.38.2",
       "cargo-rmcp-3.1.2",
-      "native-cpython-3.12",
       "native-tk-windows-bin-8612",
-      "nested-cargo-lexical-parse-float-1.0.5",
-      "nested-cargo-lexical-parse-integer-1.0.5",
       "runtime-rust-std-1.97.1",
-      "wheel-pillow-12.3.0",
-      "wheel-typing-extensions-4.16.0"
+      "wheel-pillow-12.3.0"
     ],
     "covered-combination-or-modification-source-completeness": [
       "native-wix",
@@ -23894,12 +24069,8 @@
       "cargo-sigstore-verify-0.11.0",
       "cargo-webpki-roots-0.26.11",
       "cargo-webpki-roots-1.0.9",
-      "nested-cargo-wasi-0.14.2-wasi-0.2.4",
       "nested-cargo-wit-bindgen-rt-0.39.0",
-      "python-vendor-cachecontrol",
       "python-vendor-certifi",
-      "python-vendor-msgpack",
-      "python-vendor-requests",
       "python-vendor-setuptools",
       "runtime-cpython-3.12.14",
       "wheel-pywin32-312"
@@ -23910,7 +24081,6 @@
       "cargo-sigstore-verify-0.11.0",
       "cargo-webpki-roots-0.26.11",
       "cargo-webpki-roots-1.0.9",
-      "nested-cargo-wasi-0.14.2-wasi-0.2.4",
       "nested-cargo-wit-bindgen-rt-0.39.0"
     ],
     "notice-and-source-duty": [
@@ -23920,10 +24090,7 @@
       "framework-wixtoolset.sdk-7.0.0",
       "framework-wixtoolset.util.wixext-7.0.0",
       "native-tk-windows-bin-8612",
-      "python-vendor-cachecontrol",
       "python-vendor-certifi",
-      "python-vendor-msgpack",
-      "python-vendor-requests",
       "runtime-cpython-3.12.14",
       "wheel-nodriver-0.50.3",
       "wheel-pywin32-312"

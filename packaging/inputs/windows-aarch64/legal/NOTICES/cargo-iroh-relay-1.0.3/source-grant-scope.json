@@ -4,7 +4,15 @@
     "BSD-3-Clause"
   ],
   "archive_sha256": "24bd586cf927f7b700f56ec3639b53cb5fa901ce284784051ff71092bfbf8193",
+  "cargo_metadata": {
+    "path": "cargo-metadata.json",
+    "sha256": "94fa1b5b1279ead8b10ffdcba53ec5b5face07c3995ad2ae9658a520c975f203"
+  },
   "expression": "Apache-2.0 AND BSD-3-Clause",
+  "observed_cargo_features": [
+    "metrics",
+    "tls-aws-lc-rs"
+  ],
   "reason": "The exact crate retains BSD terms for Tailscale-derived portions in addition to its declared Apache-or-MIT grant.",
   "source_files": [
     {

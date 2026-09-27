@@ -71,7 +71,26 @@ def crate_external_grant(component, raw, archive_root):
         "status": "source-grant-proposal-not-package-approval"}
 
 
-def crate_grant_scope(component, raw, base_expression, grants):
+def complete_apache_reference(sources, archive_root):
+    """A short application notice is not a grant; retain the complete referenced text."""
+    application = []
+    for name, raw in sources:
+        text = " ".join(raw.decode("utf-8").split())
+        if ('Licensed under the Apache License, Version 2.0 (the "License");' in text
+                and "www.apache.org/licenses/LICENSE-2.0" in text):
+            application.append({"path": name, "sha256": sha256_bytes(raw), "size": len(raw)})
+        elif re.search(r'(?m)^__license__\s*=\s*[\'"]Apache-2\.0[\'"]\s*$', raw.decode("utf-8")):
+            application.append({"path": name, "sha256": sha256_bytes(raw), "size": len(raw)})
+    if not application:
+        return None
+    _, _, _, filename, digest, url = EXTERNAL_CRATE_GRANTS["cms"]
+    grant = read_owned(archive_root, filename)
+    require(sha256_bytes(grant) == digest, "referenced Apache text differs")
+    return (filename, grant), {"application_files": application, "grant_sha256": digest, "url": url,
+        "scope": "Complete text for the explicitly applied Apache-2.0 grant; original application notices remain included."}
+
+
+def crate_grant_scope(component, raw, base_expression, grants, cargo_features=None):
     """Read explicit upstream file-scope statements, never infer scope from filenames alone."""
     require(sha256_bytes(raw) == component["sha256"], "grant scope archive identity differs")
     if not base_expression:
@@ -87,7 +106,29 @@ def crate_grant_scope(component, raw, base_expression, grants):
             proof.append({"path": member.name, "sha256": sha256_bytes(data), "size": len(data)})
             return " ".join(data.decode("utf-8").split())
 
-        if name in {"iroh", "iroh-relay"}:
+        if name == "libsqlite3-sys":
+            build = source("build.rs")
+            if cargo_features is None or any("sqlcipher" in feature for feature in cargo_features):
+                return None
+            if ('if cfg!(any(feature = "sqlcipher", feature = "bundled-sqlcipher"))' not in build
+                    or '"sqlcipher" } else { "sqlite3" }' not in build):
+                return None
+            source("sqlcipher/LICENSE")
+            expression, accounted = base_expression, {"MIT", "BSD-3-Clause"}
+            reason = "Exact observed Cargo features do not enable SQLCipher. The retained build script selects sqlite3 rather than the separately licensed SQLCipher subtree."
+        elif name in {"lexical-parse-integer", "lexical-parse-float"}:
+            text = source("LICENSE.md")
+            scope = text.split("# License Terms", 1)[0]
+            headings = re.findall(r"## `([^`]+)`", scope)
+            if headings != ["write-floats, not(compact)", "write-floats, compact", "write-floats, radix", "parse-floats, compact"]:
+                return None
+            if not all(text in scope for text in ("lexical-write-float/src/radix.rs", "lexical-parse-float/src/bellerophon.rs",
+                    "lexical-write-float/src/algorithm.rs", "Apache2 With LLVM Exceptions")):
+                return None
+            accounted = {"MIT", "Apache-2.0", "BSD-3-Clause", "BSL-1.0", "LLVM-exception"}
+            expression = base_expression if name == "lexical-parse-integer" else base_expression + " AND BSD-3-Clause"
+            reason = "The upstream workspace license explicitly assigns additional algorithms to write-float or parse-float paths, never parse-integer. Parse-float retains its possible Go-derived Bellerophon BSD grant without inferring build features."
+        elif name in {"iroh", "iroh-relay"}:
             text = source("LICENSE-BSD3")
             if "Tailscale" not in text or not {"Apache-2.0", "BSD-3-Clause"} <= grants:
                 return None
@@ -145,6 +186,7 @@ def crate_grant_scope(component, raw, base_expression, grants):
         return None
     return {"archive_sha256": component["sha256"], "expression": expression,
             "accounted_grants": sorted(accounted), "source_files": proof, "reason": reason,
+            "observed_cargo_features": cargo_features,
             "status": "source-scope-proposal-not-package-approval"}
 
 

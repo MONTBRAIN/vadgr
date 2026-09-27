@@ -5,7 +5,15 @@
     "MIT"
   ],
   "archive_sha256": "d85363c37faeca707aef026efa9f3b34d077bce547e48f770770625c6013679e",
+  "cargo_metadata": {
+    "path": "cargo-metadata.json",
+    "sha256": "7ab76eb1de5fa7437caf6033e8a003133ad2a98f02851e811191a2f1f9424d0d"
+  },
   "expression": "Apache-2.0",
+  "observed_cargo_features": [
+    "default",
+    "std"
+  ],
   "reason": "Upstream maps the additional grant catalogue to examples/matching.rs, tests/mpsc.rs and tests/golang.rs, not the runtime library. All original notices remain retained.",
   "source_files": [
     {

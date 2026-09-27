@@ -34,6 +34,7 @@ def statements(text):
         match = match or re.search(r"^\s*(?://|#|\*)?\s*\([cC]\)\s*[12][0-9]{3}\b", line)
         match = match or re.search(r"Copyrights in this project are retained by their contributors", line)
         match = match or re.search(r"^\s*Copyright \[[12][0-9]{3}\] \[(?!name\b)[A-Za-z0-9][^\]]+\]\s*$", line)
+        match = match or re.search(r"^\s*__copyright__\s*=\s*['\"]Copyright [A-Z][A-Za-z .'-]+['\"]\s*$", line)
         if match and not any(token in line.lower() for token in (
                 "[yyyy]", "<year>", "[year]", "yyyy", "your name", "example copyright", "copyright (c) <")):
             lines.append({"line": number, "text": line.strip()})

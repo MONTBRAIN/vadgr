@@ -1,7 +1,7 @@
 """Conservative, reproducible copyright-absence evidence for exact source archives.
 
 Only entirely decoded text archives qualify. Every ownership-marker occurrence
-outside complete, pinned standard-license templates is ambiguous.
+outside complete, pinned standard-license templates or reviewed documents is ambiguous.
 This is evidence for review, not a declaration that a work has no copyright.
 """
 
@@ -29,6 +29,12 @@ BOILERPLATE = {
 }
 MARKERS = re.compile(r"copyright|\u00a9|&copy;|&#(?:169|x0*a9);|\bcopr\.|\(c\)\s*[12][0-9]{3}|^\s*(?://|#|\*)?\s*\(c\)\s+[A-Z]|all rights reserved|"
                      r"urheberrecht|derechos reservados|droit d.auteur|\u8457\u4f5c\u6a29|\u7248\u6743", re.I)
+REVIEWED_DOCUMENTS = {
+    # The entire retained organizational code was read. Its sole marker forbids
+    # "copyright violation or misattribution"; it asserts no ownership or owner.
+    "35073a462b7169eed28aefd71913871622afa80d92b8b6a229219bfa4691ad56":
+        "Bytecode-Alliance-organizational-code-of-conduct-generic-compliance-clause",
+}
 
 
 def digest(raw):
@@ -65,6 +71,9 @@ def audit_archive(raw, expected):
                 if normalized in BOILERPLATE:
                     row.update(status="complete-standard-boilerplate", template=BOILERPLATE[normalized],
                                normalized_sha256=normalized)
+                elif normalized in REVIEWED_DOCUMENTS:
+                    row.update(status="complete-reviewed-document-no-ownership-statement",
+                               reviewed_document=REVIEWED_DOCUMENTS[normalized], normalized_sha256=normalized)
                 else:
                     mentions = [{"line": number, "text": line} for number, line in enumerate(text.splitlines(), 1)
                                 if MARKERS.search(line)]
@@ -72,7 +81,8 @@ def audit_archive(raw, expected):
                     if mentions:
                         row["mentions"] = mentions
             files.append(row)
-    eligible = bool(files) and all(row["status"] in {"complete-standard-boilerplate", "decoded-no-ownership-markers"}
+    eligible = bool(files) and all(row["status"] in {"complete-standard-boilerplate", "decoded-no-ownership-markers",
+                                   "complete-reviewed-document-no-ownership-statement"}
                                    for row in files)
     return {"schema": 1, "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
             "archive_sha256": expected, "eligible_for_reviewed_NONE": eligible,

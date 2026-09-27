@@ -24,7 +24,7 @@ import zipfile
 if __package__:
     from scripts.inspect_legal_crate_sources import statements as original_statements
     from scripts.copyright_absence import audit_archive
-    from scripts.windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, crate_grant_scope, crate_external_grant
+    from scripts.windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, crate_grant_scope, crate_external_grant, complete_apache_reference
     from scripts.validate_package_inputs import (
         CLOSURES, KINDS, REQUIRED_FILES, canonical_json, parse_json,
         profile_source_inputs, read_owned, relative_path, render_rtf, require,
@@ -33,7 +33,7 @@ if __package__:
 else:
     from inspect_legal_crate_sources import statements as original_statements
     from copyright_absence import audit_archive
-    from windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, crate_grant_scope, crate_external_grant
+    from windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, crate_grant_scope, crate_external_grant, complete_apache_reference
     from validate_package_inputs import (
         CLOSURES, KINDS, REQUIRED_FILES, canonical_json, parse_json,
         profile_source_inputs, read_owned, relative_path, render_rtf, require,
@@ -409,6 +409,11 @@ class Packet:
                     and any(sha256_bytes(raw) == grant_digest for _, raw in sources), "custom source grant differs")
         grants.update(custom_grants)
         inferred = declared_expression(declared)
+        python_scope = (inferred in {"Python-2.0", "PSF-2.0"}
+            and grants == {"Python-2.0", "PSF-2.0", "HPND", "0BSD"}
+            and any(b"ZERO-CLAUSE BSD LICENSE FOR CODE IN THE PYTHON DOCUMENTATION" in raw for _, raw in sources))
+        if python_scope:
+            inferred = "Python-2.0 AND 0BSD"
         inferable_grants = grants - {"PSF-2.0", "HPND"} if "Python-2.0" in grants else grants
         if inferred is None and len(inferable_grants) == 1 and (declared is None or isinstance(declared, str)
                                                       and len(declared) > 150):
@@ -454,6 +459,10 @@ class Packet:
         self.components.append(row)
         self.evidence.append({"id": identifier, "scope": scope, "origins": origins or [], "original_license_declaration": declared,
                               "retained_notice_count": len(notices)})
+        if python_scope:
+            self.evidence[-1]["grant_scope_basis"] = (
+                "Complete cumulative Python terms and the explicitly named documentation-code 0BSD grant are both retained. "
+                "The original upstream declaration remains separate from this composite proposal.")
         self.pending.append({"id": identifier, "items": sorted(set(pending))})
 
 
@@ -900,7 +909,7 @@ def add_archives_and_fonts(packet, inputs, archive_root):
                     packet.pending[-1]["items"] = []
 
 
-def add_installed_python(packet, inputs, collection):
+def add_installed_python(packet, inputs, collection, archive_root):
     runtime = next(row for row in collection["components"] if row["id"] == "runtime-cpython-3.12.14")
     site = inputs / "payload/lib/cua/python/3.12.14/Lib/site-packages"
     vendor_file = "pip/_vendor/vendor.txt"
@@ -915,6 +924,14 @@ def add_installed_python(packet, inputs, collection):
                    for path in vendor_root.rglob("*") if path.is_file()}
         notices = [(member, read_owned(vendor_root, member)) for member in sorted(members)
                    if any(token in Path(member).name.lower() for token in ("license", "copying", "notice"))]
+        application = list(notices)
+        if name == "requests":
+            application.append(("__version__.py", read_owned(vendor_root, "__version__.py")))
+        external = complete_apache_reference(application, archive_root)
+        if external:
+            if name == "requests":
+                notices.append(("__version__.py.txt", application[-1][1]))
+            notices.append(external[0])
         grants = set().union(*(license_atoms(raw) for _, raw in notices))
         # Multiple license files can cover different parts, not alternatives.
         declared = next(iter(grants)) if len(grants) == 1 else None
@@ -929,6 +946,12 @@ def add_installed_python(packet, inputs, collection):
                                    "path": "payload/lib/cua/python/3.12.14/Lib/site-packages/pip/_vendor/" + directory,
                                    "file_count": len(members), "hash_basis": "canonical-relative-path-to-sha256-map"}],
                          pending=["license-choice-and-original-copyright", "notice-and-source-duty"])
+        if external:
+            path = "legal/NOTICES/python-vendor-" + slug(name.lower()) + "/external-grant-provenance.json"
+            raw = canonical_json(external[1])
+            packet.put(path, raw)
+            packet.components[-1]["notice_files"].append({"path": path, "sha256": sha256_bytes(raw)})
+            packet.evidence[-1]["external_grant_basis"] = external[1]
         claims = []
         for member in sorted(members):
             if Path(member).suffix.lower() not in {".py", ".pyi", ".c", ".h"}:
@@ -1030,8 +1053,10 @@ def add_reviewed_helpers(packet, source, inputs, architecture):
     packet.put("reviewed-helper-inputs.json", raw_review)
 
 
-def add_crate_evidence(packet, cache, archive_root, architecture):
+def add_crate_evidence(packet, cache, archive_root, architecture, inputs):
     observations, workspace = inspect_sources(packet.components, cache, archive_root)
+    cargo_raw = read_owned(inputs, "cargo-metadata.json")
+    cargo_features = {node["id"]: node["features"] for node in parse_json(cargo_raw)["resolve"]["nodes"]}
     for index, row in enumerate(list(packet.components)):
         if row["kind"] != "cargo":
             continue
@@ -1059,8 +1084,11 @@ def add_crate_evidence(packet, cache, archive_root, architecture):
                           scope=evidence["scope"], pending=issue["items"], origins=evidence["origins"])
         grants = set().union(*(license_atoms(raw) for _, raw in sources))
         scoped = crate_grant_scope(row, crate_raw,
-                                  license_choice(evidence["original_license_declaration"], grants), grants)
+            license_choice(evidence["original_license_declaration"], grants), grants,
+            cargo_features.get("registry+https://github.com/rust-lang/crates.io-index#" + row["name"] + "@" + row["version"]))
         if scoped:
+            if scoped["observed_cargo_features"] is not None:
+                scoped["cargo_metadata"] = {"path": "cargo-metadata.json", "sha256": sha256_bytes(cargo_raw)}
             renewed = Packet()
             renewed.component(identifier=row["id"], name=row["name"], version=row["version"], kind=row["kind"],
                 digest=row["sha256"], location=row["download_location"], declared=scoped["expression"], sources=sources,
@@ -1184,9 +1212,9 @@ def synthesize(source, observation_root, architecture, created, archive_root, cr
     add_observed_nested_crates(packet)
     add_sqlite_source_scope(packet, archive_root)
     add_wix_source_mapping(packet, source, collection)
-    add_crate_evidence(packet, crate_cache, archive_root, architecture)
+    add_crate_evidence(packet, crate_cache, archive_root, architecture, inputs)
     add_archives_and_fonts(packet, inputs, archive_root)
-    add_installed_python(packet, inputs, collection)
+    add_installed_python(packet, inputs, collection, archive_root)
     add_reviewed_helpers(packet, source, inputs, architecture)
     map_python_native(packet, inputs, source, architecture)
     components = sorted(packet.components, key=lambda row: row["id"])

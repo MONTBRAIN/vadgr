@@ -2,6 +2,7 @@
 
 import io
 import json
+from pathlib import Path
 import zipfile
 
 import pytest
@@ -49,6 +50,24 @@ def test_copyright_does_not_promote_authors_or_template():
 
 def test_license_filename_is_not_a_grant():
     assert synthesis.license_atoms(b"LICENSE-APACHE; see another file") == set()
+
+
+@pytest.mark.parametrize("explicit_scope", [True, False])
+def test_python_composite_preserves_upstream_declaration_and_requires_explicit_scope(explicit_scope):
+    root = Path(__file__).resolve().parents[2] / "packaging/inputs/windows-x86_64"
+    inventory = json.loads((root / "package-input-inventory.json").read_bytes())
+    row = next(row for row in inventory["components"] if row["id"] == "wheel-typing-extensions-4.16.0")
+    raw = (root / row["notice_files"][0]["path"]).read_bytes()
+    if not explicit_scope:
+        raw = raw.replace(b"ZERO-CLAUSE BSD LICENSE FOR CODE IN THE PYTHON DOCUMENTATION", b"Unmapped additional grant")
+    packet = synthesis.Packet()
+    packet.component(identifier="python-example", name="example", version="1", kind="runtime",
+        digest="a" * 64, location="https://example.org", declared="PSF-2.0", sources=[("LICENSE", raw)],
+        scope="test", pending=[])
+    assert packet.components[0]["license_declared"] == "PSF-2.0"
+    assert packet.evidence[0]["original_license_declaration"] == "PSF-2.0"
+    assert (packet.components[0]["license_concluded"] == "Python-2.0 AND 0BSD") is explicit_scope
+    assert ("additional-retained-grant-scope" not in packet.pending[0]["items"]) is explicit_scope
 
 
 def test_lowercase_and_symbol_original_copyright_is_retained():

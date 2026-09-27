@@ -57,6 +57,10 @@ External crate grants require the exact archive manifest, repository and VCS
 revision. Their original declaration remains separate from the proposed choice.
 Source-scope records retain the exact upstream statements for additional grants;
 an unexpected grant or source reference leaves the component unresolved.
+Feature-dependent exclusions also bind the exact observed Cargo feature graph.
+Short vendored Apache application notices retain both their original wording
+and the complete referenced grant. Python's cumulative terms and its explicitly
+named documentation-code grant remain separate from upstream declarations.
 `nested-source-scope.json` classifies wheel SBOM edges using exact source
 dependency kinds and Windows target predicates; it does not claim linker-map
 precision. `python-native-source-mapping.json` retains actual PE imports as well
@@ -64,7 +68,9 @@ as producer metadata, including the producer's stale OpenSSL 1.1 path correction
 
 `copyright_absence.py` permits proposed SPDX `NONE` only for a complete decoded
 archive with no ambiguous ownership markers outside exact standard-license
-boilerplate. Undecoded members and nonstandard notices remain unresolved. The
+boilerplate or a complete hash-pinned document whose generic compliance wording
+was separately inspected. A changed document does not inherit that finding.
+Undecoded members and nonstandard notices remain unresolved. The
 exact source archive and per-file audit must be delivered in the package; both
 the generator and validator recompute the audit. An approved package review is
 still mandatory. This is not a public-domain declaration or an author-to-owner

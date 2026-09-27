@@ -167,3 +167,48 @@ def test_font_crate_scope_requires_all_embedded_grants():
     assert "Bitstream-Vera" in evidence.crate_grant_scope(row, raw, "Apache-2.0", grants)["expression"]
     assert evidence.crate_grant_scope(row, raw, "Apache-2.0", grants - {"Bitstream-Vera"}) is None
     assert evidence.crate_grant_scope(row, raw, "Apache-2.0", grants | {"Unknown"}) is None
+
+
+@pytest.mark.parametrize("features, resolved", [(None, False), (["bundled"], True), (["bundled-sqlcipher"], False)])
+def test_sqlcipher_scope_requires_observed_features(features, resolved):
+    raw = archive({"libsqlite3-sys-1/build.rs":
+        b'if cfg!(any(feature = "sqlcipher", feature = "bundled-sqlcipher")) { "sqlcipher" } else { "sqlite3" }',
+        "libsqlite3-sys-1/sqlcipher/LICENSE": b"retained original SQLCipher grant"})
+    row = {"name": "libsqlite3-sys", "version": "1", "sha256": sha256_bytes(raw)}
+    assert (evidence.crate_grant_scope(row, raw, "MIT", {"MIT", "BSD-3-Clause"}, features) is not None) is resolved
+
+
+@pytest.mark.parametrize("name, extra_bsd", [("lexical-parse-integer", False), ("lexical-parse-float", True)])
+def test_lexical_scope_does_not_assign_write_algorithms_to_parse_crates(name, extra_bsd):
+    text = (b"## `write-floats, not(compact)`\nlexical-write-float/src/algorithm.rs Apache2 With LLVM Exceptions\n"
+        b"## `write-floats, compact`\n## `write-floats, radix`\nlexical-write-float/src/radix.rs\n"
+        b"## `parse-floats, compact`\nlexical-parse-float/src/bellerophon.rs\n# License Terms\n")
+    raw = archive({name + "-1/LICENSE.md": text})
+    row = {"name": name, "version": "1", "sha256": sha256_bytes(raw)}
+    grants = {"Apache-2.0", "MIT", "BSD-3-Clause", "BSL-1.0", "LLVM-exception"}
+    result = evidence.crate_grant_scope(row, raw, "Apache-2.0", grants)
+    assert ("BSD-3-Clause" in result["expression"]) is extra_bsd
+    assert "BSL-1.0" not in result["expression"]
+    assert evidence.crate_grant_scope(row, raw, "Apache-2.0", grants | {"Unknown"}) is None
+
+
+def test_apache_application_notice_requires_complete_separately_pinned_grant(tmp_path, monkeypatch):
+    grant = b"complete pinned text"
+    spec = evidence.EXTERNAL_CRATE_GRANTS["cms"]
+    monkeypatch.setitem(evidence.EXTERNAL_CRATE_GRANTS, "cms", (*spec[:4], sha256_bytes(grant), spec[-1]))
+    (tmp_path / spec[3]).write_bytes(grant)
+    application = [("LICENSE", b'Licensed under the Apache License, Version 2.0 (the "License");\n'
+        b'http://www.apache.org/licenses/LICENSE-2.0')]
+    notice, proof = evidence.complete_apache_reference(application, tmp_path)
+    assert notice[1] == grant
+    assert proof["application_files"][0]["sha256"] == sha256_bytes(application[0][1])
+    assert evidence.complete_apache_reference([("LICENSE", b"Apache")], tmp_path) is None
+    (tmp_path / spec[3]).write_bytes(b"truncated")
+    with pytest.raises(PackageInputError, match="text differs"):
+        evidence.complete_apache_reference(application, tmp_path)
+
+
+def test_explicit_source_copyright_string_is_retained_without_inventing_author_claims():
+    line = '__copyright__ = "Copyright Kenneth Reitz"'
+    assert crates.statements(line) == [{"line": 1, "text": line}]
+    assert crates.statements('__author__ = "Kenneth Reitz"') == []
