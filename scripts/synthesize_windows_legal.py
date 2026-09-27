@@ -22,6 +22,8 @@ import tomllib
 import zipfile
 
 if __package__:
+    from scripts.windows_runtime_evidence import retain_in_packet as retain_runtime_evidence
+    from scripts.windows_crypto_producer import retain_in_packet as retain_upstream_crypto
     from scripts.inspect_legal_crate_sources import statements as original_statements
     from scripts.copyright_absence import audit_archive, audit_source_tree_zip, source_tree_zip
     from scripts.windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, map_wheel_native_sources, map_custom_native_sources, crate_grant_scope, crate_external_grant, complete_apache_reference, complete_mpl_reference, compare_certifi_source, tix_referenced_grant
@@ -31,6 +33,8 @@ if __package__:
         sha256_bytes, aggregate_files, validate_conclusion, PackageInputError, extracted_license_info,
     )
 else:
+    from windows_runtime_evidence import retain_in_packet as retain_runtime_evidence
+    from windows_crypto_producer import retain_in_packet as retain_upstream_crypto
     from inspect_legal_crate_sources import statements as original_statements
     from copyright_absence import audit_archive, audit_source_tree_zip, source_tree_zip
     from windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, map_wheel_native_sources, map_custom_native_sources, crate_grant_scope, crate_external_grant, complete_apache_reference, complete_mpl_reference, compare_certifi_source, tix_referenced_grant
@@ -1293,6 +1297,8 @@ def synthesize(source, observation_root, architecture, created, archive_root, cr
     map_python_native(packet, inputs, source, architecture)
     map_wheel_native_sources(packet, architecture)
     map_custom_native_sources(packet, source, inputs, architecture)
+    retain_upstream_crypto(packet, archive_root, architecture)
+    retain_runtime_evidence(packet, inputs, architecture, archive_root)
     components = sorted(packet.components, key=lambda row: row["id"])
     inventory = {"schema": 1, "created": created, "version": "0.5.0", "target": observation["target"],
                  "terms_version": "1.0", "terms_sha256": sha256_bytes(terms), "source_inputs": bindings,

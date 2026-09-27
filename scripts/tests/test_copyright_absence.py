@@ -67,6 +67,30 @@ def test_reviewed_binary_record_table_is_exact_and_has_no_uninspected_ranges():
         assert all(end > start for start, end, _ in parts)
 
 
+@pytest.mark.parametrize("version", ["0.26.11", "1.0.9"])
+def test_exact_certificate_fixtures_have_complete_typed_byte_coverage(version):
+    root = Path(__file__).resolve().parents[2]
+    name = "webpki-roots-" + version
+    path = root / "packaging/inputs/windows-x86_64/legal/SOURCE-OFFERS" / ("cargo-" + name) / (name + ".crate")
+    raw = path.read_bytes()
+    proof = absence.audit_archive(raw, absence.digest(raw))
+    assert proof["eligible_for_reviewed_NONE"] is True
+    with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as archive:
+        certificates = [member for member in archive if member.name.endswith(".der")]
+        assert len(certificates) == 3
+        for member in certificates:
+            value = archive.extractfile(member).read()
+            row = absence.inspect_member(member.name, value)
+            parts = row["reviewed_byte_ranges"]
+            assert bytes.fromhex("".join(part["hex"] for part in parts)) == value
+            assert all(left["end_exclusive"] == right["offset"] for left, right in zip(parts, parts[1:]))
+            assert any("decoded_text" in part for part in parts)
+            assert "not copyright declarations" in row["meaning"]
+            assert absence.inspect_member(member.name, value + b"uninspected")["status"] == "undecoded-member-needs-review"
+            with pytest.raises(ValueError, match="identity differs"):
+                absence.inspect_certificate(value + b"uninspected", absence.MARKERS)
+
+
 def test_exact_conda_decoding_observation_is_rechecked_without_optional_decoder(monkeypatch):
     root = Path(__file__).resolve().parents[2]
     source = root / ("packaging/inputs/windows-x86_64/legal/SOURCE-OFFERS/"

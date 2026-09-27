@@ -112,7 +112,7 @@ def test_build_has_no_compliance_or_packaging_fallback():
     assert 'Remove-Item -LiteralPath "Env:$name"' in script
     assert "Unsigned source test environment was not cleared." in script
     assert script.index('Remove-Item -LiteralPath "Env:$name"') < script.index("& cargo test")
-    assert script.index("--verify $wheelhouse") < script.index("& cargo build")
+    assert script.index("--verify $wheelhouse") < script.index("& cargo rustc")
     assert "RuntimeInformation]::OSArchitecture" in script
     assert "VADGR_TERMS_SHA256 = $terms.sha256" in script
     for forbidden in ("package-windows.ps1", "package-input-review.json", "ES_PASSWORD =", "signtool"):
@@ -127,7 +127,7 @@ def test_source_test_environment_is_absent_in_child_process(tmp_path, architectu
         pytest.skip("PowerShell is unavailable")
     script = (ROOT / "scripts/candidate/prepare-unsigned-windows.ps1").read_text()
     clearing = script.split("Push-Location $sourceTestRoot\ntry {\n", 1)[1].split("    & cargo test", 1)[0]
-    selection = script.split("Push-Location $sourceRoot\ntry {\n", 1)[1].split("    & cargo build", 1)[0]
+    selection = script.split("Push-Location $sourceRoot\ntry {\n", 1)[1].split("    foreach ($name in @('vadgr', 'vadgr-app'))", 1)[0]
     profile_assignment = next(line for line in script.splitlines() if line.startswith("$profile = "))
     names = ("VADGR_RELEASE_PROFILE", "VADGR_RELEASE_PAYLOAD_BUILD", "VADGR_BUILD_WHEELHOUSE")
     child = "import json,os; print(json.dumps({name: os.environ.get(name) for name in " + repr(names) + "}))"
@@ -261,7 +261,10 @@ def test_workflow_tests_exact_checkout_then_builds_only_materialized_inputs():
     build_phase = script.split("Push-Location $sourceRoot\ntry {\n", 1)[1]
     assert "& cargo test --locked --all-targets --features native-gui --target $target" in test_phase
     assert "--skip" not in test_phase and "--exclude" not in test_phase
-    assert "& cargo build --locked --release" in build_phase
+    assert "& cargo rustc --locked --release" in build_phase
+    assert '"link-arg=/MAP:$mapPath"' in build_phase
+    assert '"link-arg=/MAP:$baMapPath"' in build_phase
+    assert "windows_runtime_evidence.py') capture" in build_phase
     assert "& cargo test" not in build_phase
     assert "$env:CARGO_TARGET_DIR = Join-Path $sourceTestRoot 'target'" in script
     assert "$env:CARGO_TARGET_DIR = Join-Path $sourceRoot 'target'" in script
@@ -299,6 +302,7 @@ def test_source_and_build_phases_use_separate_directories_in_child_process(tmp_p
     probe.write_text("$ErrorActionPreference = 'Stop'\nSet-StrictMode -Version Latest\n"
                      + f"$sourceTestRoot = {quote(source_tests)}\n$sourceRoot = {quote(build)}\n"
                      + "$target = 'x86_64-pc-windows-msvc'\n$profile = 'windows-x86_64'\n"
+                     + f"$linkMaps = {quote(tmp_path / 'link-maps')}\n"
                      + "$env:CARGO_TARGET_DIR = Join-Path $sourceTestRoot 'target'\n"
                      + f"function cargo {{ & {quote(sys.executable)} {quote(observer)} @args\n"
                      + pollution + f"$global:LASTEXITCODE = {1 if outcome == 'failed-test' else 0}\n}}\n"
@@ -311,10 +315,12 @@ def test_source_and_build_phases_use_separate_directories_in_child_process(tmp_p
                                "--features", "native-gui", "--target", "x86_64-pc-windows-msvc"]}
     if outcome == "success":
         assert result.returncode == 0, result.stderr
-        assert len(observations) == 2
-        assert observations[1]["cwd"] == str(build)
-        assert observations[1]["target"] == str(build / "target")
-        assert observations[1]["runbook"] is None and observations[1]["args"][0] == "build"
+        assert len(observations) == 3
+        for observation, name in zip(observations[1:], ("vadgr", "vadgr-app")):
+            assert observation["cwd"] == str(build)
+            assert observation["target"] == str(build / "target")
+            assert observation["runbook"] is None and observation["args"][0] == "rustc"
+            assert f"link-arg=/MAP:{tmp_path / 'link-maps' / (name + '.map')}" in observation["args"]
     else:
         assert result.returncode != 0 and len(observations) == 1
         expected = "source tests failed" if outcome == "failed-test" else "runbook must be absent"
@@ -454,9 +460,12 @@ def test_fresh_observer_retains_hidden_bytes_and_exact_hashes_as_unapproved(admi
     checked = []
     monkeypatch.setattr(prep.cua_wheelhouse, "verify_materialized", lambda *args: checked.append(args))
     monkeypatch.setattr(prep.distribution_matrix, "verify_payload", lambda *args: None)
+    runtime_checked = []
+    monkeypatch.setattr(prep.windows_runtime_evidence, "validate", lambda *args: runtime_checked.append(args))
     monkeypatch.setattr(prep, "producer_record", lambda *args: {"artifact_id": 9})
     output = tmp_path / "observations"
     report = prep.observe(source, record, raw, "x64", output)
+    assert runtime_checked == [(raw, "x64")]
     assert checked[0][-1] == "windows-x86_64"
     assert report["status"] == "unapproved" and report["candidate_approval"] is False
     assert report["publishable"] is False

@@ -16,7 +16,7 @@ from urllib.parse import quote
 import zipfile
 
 if __package__:
-    from scripts import candidate_policy as gate, cua_wheelhouse, distribution_matrix
+    from scripts import candidate_policy as gate, cua_wheelhouse, distribution_matrix, windows_runtime_evidence
     from scripts.validate_package_inputs import (
         PackageInputError, canonical_json, parse_json, read_owned, relative_path, sha256_bytes,
     )
@@ -24,6 +24,7 @@ else:
     import candidate_policy as gate
     import cua_wheelhouse
     import distribution_matrix
+    import windows_runtime_evidence
     from validate_package_inputs import (
         PackageInputError, canonical_json, parse_json, read_owned, relative_path, sha256_bytes,
     )
@@ -279,6 +280,7 @@ def observe(source, source_record, raw, architecture, output):
                  "preparation requires the exact reviewed CUA profile")
     distribution_matrix.verify_payload(raw / "payload", profile, source / "packaging/cua/pins.toml")
     files = file_inventory(raw, profile)
+    windows_runtime_evidence.validate(raw, architecture)
     for name in ("cargo-metadata.json", "cargo-notices/cargo-components.json", "rustc-version.txt", "cargo-version.txt"):
         gate.require(name in files and files[name]["size"] > 0, "dependency or compiler observation is absent")
     for name in ("payload/vadgr.exe", "payload/vadgr-app.exe"):

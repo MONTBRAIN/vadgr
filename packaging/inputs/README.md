@@ -104,6 +104,37 @@ native producer manifest. Its offline attestation is verified independently,
 then its wheel and source hashes are matched to the installed wheel and source
 inventory. The manifest and bundle remain in the packet's producer evidence.
 This producer binding does not approve redistribution or borrow x64 provenance.
+The x64 cryptography binding instead retains upstream run `32890072935` and
+native job `97940032724`, with the exact source and wheel artifact ZIPs. Both
+members must equal the source inventory and installed wheel hashes. The pinned
+workflow and composite action show that this native job builds that source
+artifact. These primary API records are not represented as a new independently
+verified build attestation. Acquire the retained inputs with:
+
+```powershell
+python -B scripts/windows_crypto_producer.py --output <source-archive-directory>/upstream-cryptography-50.0.1-x64
+```
+
+Keep that directory unchanged for offline packet reproduction. Synthesis rejects
+a changed ZIP, source member, wheel member, producer identity or build procedure.
+The reproduction host needs `gh attestation verify` and the retained trusted
+root for this independent offline check.
+
+New unsigned preparation builds also capture native Pillow feature results,
+loaded module identities and the complete observed PIL tree. The private
+interpreter runs with isolated startup, site initialization disabled and bytecode
+writes disabled. Every non-system loaded binary must belong to the observed
+payload. A fresh observer validates these records without executing build output.
+Rust builds emit separate MSVC link maps for each executable and bootstrapper
+library. The exact target sysroot is retained inside a ZIP, so build-only DLLs
+do not enter the executable-signing set. The channel manifest pins its original
+distribution. Add that exact `rust-std-<version>-<target>.tar.xz` to the supplied
+source archive directory. Synthesis compares every library hash with that archive
+and records named link-map symbols. This closes a binary-to-distribution binding,
+not third-party grant scope or approval. Old observations without these records
+remain incomplete; local probes cannot retroactively alter their trusted identity.
+The Pillow catalogue's optional entries still need source/build scope matching;
+a supported feature alone is not a complete transitive native-library inventory.
 
 Each `review-ledger.json` names exact component questions. `cargo-scope.json`
 separates normal target dependencies from development, build and proc-macro

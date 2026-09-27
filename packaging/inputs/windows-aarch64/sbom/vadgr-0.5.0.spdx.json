@@ -8,7 +8,7 @@
   },
   "dataLicense": "CC0-1.0",
   "documentComment": "Incomplete review inventory, including separately classified build-source candidates. Not an approved shipped-component SBOM.",
-  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-a0eb7f6bbe60be4a676d51ac2985072fb22c4cbb6c2aa668672bd64c8c2cc179",
+  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-01d3a1954bf6e6b563763c4b6eab2137d9dfccece4e9838bd33f97a491034f62",
   "hasExtractedLicensingInfos": [
     {
       "comment": "Exact retained terms; this identifier is not an approval or a claim of SPDX-list equivalence.",
@@ -6673,7 +6673,7 @@
           "checksumValue": "521bc38abb08001b01866da9f51eb7c5d647a19260e00054a8c7fd5f9e57f7a9"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/webpki-roots/webpki-roots-0.26.11.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "CDLA-Permissive-2.0",
@@ -6690,7 +6690,7 @@
           "checksumValue": "7dcd9d09a39985f5344844e66b0c530a33843579125f23e21e9f0f220850f22a"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/webpki-roots/webpki-roots-1.0.9.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "CDLA-Permissive-2.0",

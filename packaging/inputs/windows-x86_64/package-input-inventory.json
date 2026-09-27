@@ -14585,7 +14585,7 @@
       "version": "1.1.0"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "NONE",
       "download_location": "https://static.crates.io/crates/webpki-roots/webpki-roots-0.26.11.crate",
       "id": "cargo-webpki-roots-0.26.11",
       "kind": "cargo",
@@ -14609,12 +14609,21 @@
       ],
       "notice_required": true,
       "sha256": "521bc38abb08001b01866da9f51eb7c5d647a19260e00054a8c7fd5f9e57f7a9",
-      "source_offer_files": [],
-      "source_offer_required": false,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-webpki-roots-0.26.11/copyright-absence.json",
+          "sha256": "cf29b183c186247fa5cd3b1e16aabf06f1d9720776a7eb838b97c684f965651e"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-webpki-roots-0.26.11/webpki-roots-0.26.11.crate",
+          "sha256": "521bc38abb08001b01866da9f51eb7c5d647a19260e00054a8c7fd5f9e57f7a9"
+        }
+      ],
+      "source_offer_required": true,
       "version": "0.26.11"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "NONE",
       "download_location": "https://static.crates.io/crates/webpki-roots/webpki-roots-1.0.9.crate",
       "id": "cargo-webpki-roots-1.0.9",
       "kind": "cargo",
@@ -14638,8 +14647,17 @@
       ],
       "notice_required": true,
       "sha256": "7dcd9d09a39985f5344844e66b0c530a33843579125f23e21e9f0f220850f22a",
-      "source_offer_files": [],
-      "source_offer_required": false,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-webpki-roots-1.0.9/copyright-absence.json",
+          "sha256": "a6856c8cfdccf5cc8ed8471f4f71e1b98241f05b45d6a5962b3231652615ae08"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-webpki-roots-1.0.9/webpki-roots-1.0.9.crate",
+          "sha256": "7dcd9d09a39985f5344844e66b0c530a33843579125f23e21e9f0f220850f22a"
+        }
+      ],
+      "source_offer_required": true,
       "version": "1.0.9"
     },
     {
@@ -16344,6 +16362,10 @@
         {
           "path": "legal/NOTICES/native-cryptography/002-002-LICENSE.BSD",
           "sha256": "602c4c7482de6479dd2e9793cda275e5e63d773dacd1eca689232ab7008fb4fb"
+        },
+        {
+          "path": "legal/NOTICES/native-cryptography/upstream-source-binding.json",
+          "sha256": "c426ceeb8614e54348f8f36654f32119265a79c9267c801281ba3c4387674d19"
         }
       ],
       "notice_required": true,

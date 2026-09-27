@@ -16,6 +16,11 @@ import tarfile
 import zipfile
 import zlib
 
+if __package__:
+    from scripts.reviewed_certificate_evidence import REVIEWED as REVIEWED_CERTIFICATES, inspect_certificate
+else:
+    from reviewed_certificate_evidence import REVIEWED as REVIEWED_CERTIFICATES, inspect_certificate
+
 
 BOILERPLATE = {
     # Complete MIT grant, without an owner statement, and complete Apache 2.0
@@ -145,6 +150,8 @@ def inspect_reviewed_conda(value):
 
 def inspect_member(name, value):
     row = {"path": name, "size": len(value), "sha256": digest(value)}
+    if row["sha256"] in REVIEWED_CERTIFICATES:
+        return {**row, **inspect_certificate(value, MARKERS)}
     if row["sha256"] == "54303491a8418fbed24344b513546182c29b43bf282ceb433af65e2299f9271f":
         return {**row, **inspect_reviewed_conda(value)}
     reviewed = REVIEWED_BINARY_RECORDS.get(row["sha256"])

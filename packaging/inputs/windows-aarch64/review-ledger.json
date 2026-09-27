@@ -10909,9 +10909,9 @@
     },
     {
       "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": false,
+        "eligible_for_reviewed_NONE": true,
         "path": "source-copyright-audits/cargo-webpki-roots-0.26.11.json",
-        "sha256": "ac795a8c43a9aa7217029611a8bc639a931e45c843ae1aaa1ebb2c86736281c1"
+        "sha256": "cf29b183c186247fa5cd3b1e16aabf06f1d9720776a7eb838b97c684f965651e"
       },
       "id": "cargo-webpki-roots-0.26.11",
       "original_license_declaration": "CDLA-Permissive-2.0",
@@ -10930,9 +10930,9 @@
     },
     {
       "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": false,
+        "eligible_for_reviewed_NONE": true,
         "path": "source-copyright-audits/cargo-webpki-roots-1.0.9.json",
-        "sha256": "94d9ffbd15093b43ae6e7382df0571169718867845d5fdfc58aca2ba8cdd9e7c"
+        "sha256": "a6856c8cfdccf5cc8ed8471f4f71e1b98241f05b45d6a5962b3231652615ae08"
       },
       "id": "cargo-webpki-roots-1.0.9",
       "original_license_declaration": "CDLA-Permissive-2.0",
@@ -20506,9 +20506,9 @@
   "status": "draft",
   "summary": {
     "component_candidates": 634,
-    "evidence_bound_NONE_proposals": 59,
+    "evidence_bound_NONE_proposals": 61,
     "retained_grant_choices": 633,
-    "rows_with_review_items": 13,
+    "rows_with_review_items": 11,
     "scope_counts": {
       "exact-full-font-bytes-found-in-payload/vadgr.exe": 4,
       "exact-members-match-existing-helper-only-redistribution-review": 1,
@@ -20525,7 +20525,7 @@
       "target-wheel-build-or-generated-code": 41,
       "target-wheel-link-relevant": 80
     },
-    "unresolved_copyright": 4
+    "unresolved_copyright": 2
   },
   "terms": {
     "sha256": "18d55dd2431a73b0c29cf58cd310e641bc363cd7e6efe739a2b506c4002a6965",
@@ -22106,17 +22106,11 @@
     },
     {
       "id": "cargo-webpki-roots-0.26.11",
-      "items": [
-        "license-choice-and-original-copyright",
-        "no-original-copyright-statement-in-pinned-source"
-      ]
+      "items": []
     },
     {
       "id": "cargo-webpki-roots-1.0.9",
-      "items": [
-        "license-choice-and-original-copyright",
-        "no-original-copyright-statement-in-pinned-source"
-      ]
+      "items": []
     },
     {
       "id": "cargo-weezl-0.1.12",
@@ -23128,15 +23122,11 @@
     "license-choice-and-original-copyright": [
       "cargo-cms-0.2.3",
       "cargo-fdeflate-0.3.7",
-      "cargo-webpki-roots-0.26.11",
-      "cargo-webpki-roots-1.0.9",
       "runtime-cpython-3.12.14"
     ],
     "no-original-copyright-statement-in-pinned-source": [
       "cargo-cms-0.2.3",
-      "cargo-fdeflate-0.3.7",
-      "cargo-webpki-roots-0.26.11",
-      "cargo-webpki-roots-1.0.9"
+      "cargo-fdeflate-0.3.7"
     ],
     "notice-and-source-duty": [
       "framework-wixtoolset.bal.wixext-7.0.0",
