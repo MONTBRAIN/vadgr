@@ -3,14 +3,26 @@
 import base64
 import copy
 import io
+import json
 from pathlib import Path
 from types import SimpleNamespace
+import subprocess
 import zipfile
 
 import pytest
 
 from scripts import cua_profiles as profiles
 from scripts.validate_package_inputs import PackageInputError, sha256_bytes
+
+
+def test_canonical_feature_data_keeps_identical_checkout_bytes():
+    root = Path(__file__).resolve().parents[2]
+    names = [profiles.INPUTS, profiles.CATALOG, profiles.BUNDLE, profiles.PUBLICATION,
+             profiles.lock_path("windows-x86_64"), "packaging/cua/helper-signing/x86_64.json",
+             "packaging/candidate-legal-approval.json"]
+    result = subprocess.run(["git", "check-attr", "eol", "--", *names], cwd=root,
+                            capture_output=True, text=True, check=True)
+    assert result.stdout.splitlines() == [name + ": eol: lf" for name in names]
 
 
 def write(root, name, raw):
@@ -195,3 +207,35 @@ def test_retained_member_cannot_change_even_if_archive_metadata_matches(admissio
     a.endpoints["actions/artifacts/5"]["digest"] = "sha256:" + a.inputs["artifact_sha256"]
     with pytest.raises(PackageInputError, match="profile bytes"):
         profiles.retrieve(a.trusted, a.inputs, a.catalog, source=a.source)
+
+
+@pytest.mark.parametrize("mutation", [None, "not-immutable", "asset-digest", "trusted-copy"])
+def test_released_data_keeps_signer_stable_only_with_verified_publication(admission, mutation):
+    a = admission
+    rows = [{"id": index + 100, "filename": name, "size": len(raw), "sha256": sha256_bytes(raw)}
+            for index, (name, raw) in enumerate(a.members.items())]
+    publication = {"schema": 1, "repository": profiles.REPOSITORY, "cua_version": "0.7.9",
+                   "catalog_sha256": a.inputs["catalog_sha256"], "tag": "v0.7.9",
+                   "release_id": 900, "assets": rows}
+    raw = (json.dumps(publication, sort_keys=True, separators=(",", ":")) + "\n").encode()
+    write(a.source, profiles.PUBLICATION, raw)
+    a.inputs.update(publication_state="released", publication_sha256=sha256_bytes(raw))
+    write(a.source, profiles.INPUTS, profiles.canonical(a.inputs))
+    a.endpoints["releases/900"] = {
+        "immutable": True, "draft": False, "prerelease": False, "tag_name": "v0.7.9",
+        "assets": [{"id": row["id"], "name": row["filename"], "size": row["size"],
+                    "digest": "sha256:" + row["sha256"]} for row in rows],
+    }
+    if mutation == "not-immutable":
+        a.endpoints["releases/900"]["immutable"] = False
+    elif mutation == "asset-digest":
+        a.endpoints["releases/900"]["assets"][0]["digest"] = "sha256:" + "f" * 64
+    elif mutation == "trusted-copy":
+        write(a.trusted, profiles.PUBLICATION, b"different\n")
+    if mutation is None:
+        _, inputs, catalog = profiles.reviewed(a.source, a.trusted, "linux-x86_64")
+        assert profiles.retrieve(a.trusted, inputs, catalog, source=a.source) == a.members
+    else:
+        with pytest.raises(PackageInputError):
+            _, inputs, catalog = profiles.reviewed(a.source, a.trusted, "linux-x86_64")
+            profiles.retrieve(a.trusted, inputs, catalog, source=a.source)

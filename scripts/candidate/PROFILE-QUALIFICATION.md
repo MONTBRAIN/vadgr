@@ -4,7 +4,7 @@ Profile candidates extend schema 2; the released input path is not silently
 rewritten. `packaging/cua/profile-inputs.json`, the exact CUA catalog and bundle,
 and each selected `profile-locks/<profile>.lock` are unexecuted candidate data.
 If trusted master contains a copy, the feature copy must be byte-identical.
-Held inputs may exist only on the exact same-repository feature source. Trusted
+Inputs may exist only on the exact same-repository feature source. Trusted
 code independently verifies the catalog attestation's subject, master workflow,
 issuer, hosted runner, tooling commit and exact run/attempt. GitHub repository,
 workflow, jobs, artifact IDs/digests and the producer's committed source descriptor
@@ -18,7 +18,9 @@ remain trusted-master inputs. A profile catalog cannot authorize a different
 dependency, root or publisher.
 The mapping contains all eight profiles. A `held` binding permits unpublished
 qualification only. A `released` binding also requires the reviewed publication
-record and immutable release asset identities promoted to trusted master.
+record and independently verified immutable release asset identities. The
+publication record follows the same existing-trusted-copy equality rule. Moving
+from held to published bytes does not require changing the adopted signer commit.
 
 The canonical legal proposal and exact helper, outer-file and predecessor
 policies may also be feature data. Existing trusted copies still require exact
@@ -124,7 +126,7 @@ keeps the adopted signer commit stable. Complete independent provenance and
 inventory checks, obtain protected approval of the exact authorization, then
 run paired signing qualification. Signing/adoption acceptance gates CUA merge
 and publication; the development pass does not replace it. Publishing those retained
-CUA bytes and promoting their real publication binding precedes final Vadgr
+CUA bytes and binding their real publication record on the feature precedes final Vadgr
 release qualification. The full Vadgr implementation PR still follows a formal
 real-target pass; no bootstrap, synthetic test or inert signing smoke substitutes
 for that pass.

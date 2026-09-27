@@ -86,14 +86,11 @@ def reviewed(source: Path, trusted: Path, profile: str):
     """
     target = target_for(profile)
     profile_names = (INPUTS, CATALOG, BUNDLE, lock_path(profile))
-    feature_only = False
     for name in profile_names:
         raw = read_owned(source, name)
         if os.path.lexists(trusted / name):
             require(raw == read_owned(trusted, name),
                     "CUA profile input differs from trusted default-branch bytes")
-        else:
-            feature_only = True
     for name in (release.MANIFEST, release.BUNDLE):
         require(read_owned(source, name) == read_owned(trusted, name),
                 "CUA profile input differs from trusted default-branch bytes")
@@ -114,11 +111,12 @@ def reviewed(source: Path, trusted: Path, profile: str):
     if value["publication_state"] == "held":
         require(value["publication_sha256"] is None, "held inputs cannot claim publication")
     else:
-        require(not feature_only, "released profile inputs require trusted promotion")
         require(valid_hash(value["publication_sha256"]), "released inputs lack publication")
-        publication = read_owned(trusted, PUBLICATION)
-        require(read_owned(source, PUBLICATION) == publication
-                and sha256_bytes(publication) == value["publication_sha256"],
+        publication = read_owned(source, PUBLICATION)
+        if os.path.lexists(trusted / PUBLICATION):
+            require(publication == read_owned(trusted, PUBLICATION),
+                    "reviewed publication differs from trusted copy")
+        require(sha256_bytes(publication) == value["publication_sha256"],
                 "reviewed publication record differs")
     catalog_raw, bundle = read_owned(source, CATALOG), read_owned(source, BUNDLE)
     require(sha256_bytes(catalog_raw) == value["catalog_sha256"]
@@ -282,7 +280,7 @@ def retrieve(trusted, inputs, catalog, *, source=None):
             expected.add(row["filename"])
     require(set(members) == expected, "retained profile artifact file set differs")
     if inputs["publication_state"] == "released":
-        _verify_publication(trusted, catalog, members)
+        _verify_publication(source, catalog, members)
     return members
 
 
@@ -295,16 +293,16 @@ def _artifact(artifact_id, digest, producer):
             "profile artifact unavailable or origin differs")
 
 
-def _verify_publication(trusted, catalog, members):
+def _verify_publication(source, catalog, members):
     # The CUA publication producer emits compact canonical JSON, while the
     # pre-publication wheel catalog deliberately uses indented canonical JSON.
-    raw = read_owned(trusted, PUBLICATION)
+    raw = read_owned(source, PUBLICATION)
     publication = parse_json(raw)
     require((json.dumps(publication, sort_keys=True, separators=(",", ":")) + "\n").encode() == raw,
             "publication record is not canonical")
     require(publication.get("schema") == 1 and publication.get("repository") == REPOSITORY
             and publication.get("cua_version") == catalog["cua_version"]
-            and publication.get("catalog_sha256") == sha256_bytes(read_owned(trusted, CATALOG))
+            and publication.get("catalog_sha256") == sha256_bytes(read_owned(source, CATALOG))
             and publication.get("tag") == "v" + catalog["cua_version"], "publication binding differs")
     released = _gh(f"releases/{publication['release_id']}")
     require(released.get("immutable") is True and released.get("draft") is False
