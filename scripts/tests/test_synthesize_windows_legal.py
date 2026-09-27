@@ -70,6 +70,27 @@ def test_python_composite_preserves_upstream_declaration_and_requires_explicit_s
     assert ("additional-retained-grant-scope" not in packet.pending[0]["items"]) is explicit_scope
 
 
+def test_cdla_recognition_requires_the_complete_retained_grant():
+    root = Path(__file__).resolve().parents[2] / "packaging/inputs/windows-x86_64"
+    raw = (root / "legal/NOTICES/cargo-webpki-roots-1.0.9/000-000-LICENSE").read_bytes()
+    assert synthesis.license_atoms(raw) == {"CDLA-Permissive-2.0"}
+    assert not synthesis.license_atoms(raw[:100])
+    assert "CDLA-Permissive-2.0" not in synthesis.license_atoms(raw + b"Additional condition")
+
+
+def test_pywin32_composite_refuses_unmapped_lgpl_scope():
+    root = Path(__file__).resolve().parents[2] / "packaging/inputs/windows-x86_64/legal/NOTICES/wheel-pywin32-312"
+    sources = [("adodbapi/license.txt", (root / "000-license.txt").read_bytes()),
+        ("win32/License.txt", (root / "001-License.txt").read_bytes()),
+        ("pythonwin/Scintilla-License.txt", (root / "002-Scintilla-License.txt").read_bytes()),
+        ("pythonwin/pywin/idle/LICENSE.txt", (root / "003-LICENSE.txt").read_bytes()),
+        ("win32comext/mapi/MAPIStubLibrary-License.txt", (root / "014-MAPIStubLibrary-License.txt").read_bytes()),
+        ("win32comext/mapi/NOTICE.md", (root / "015-NOTICE.md").read_bytes())]
+    assert synthesis.pywin32_grant_scope(sources) == "BSD-3-Clause AND HPND AND MIT AND Python-2.0 AND LGPL-2.1-or-later"
+    with pytest.raises(PackageInputError, match="LGPL scope"):
+        synthesis.pywin32_grant_scope([*sources, ("another-library/LICENSE", sources[0][1])])
+
+
 def test_lowercase_and_symbol_original_copyright_is_retained():
     assert synthesis.copyright_lines([("source", b"copyright Alexander Huszagh.\n(C) 2024 Trifecta Tech Foundation\n")]) == (
         "(C) 2024 Trifecta Tech Foundation\ncopyright Alexander Huszagh.")

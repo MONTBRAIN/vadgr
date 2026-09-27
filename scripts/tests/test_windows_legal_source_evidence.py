@@ -212,3 +212,45 @@ def test_explicit_source_copyright_string_is_retained_without_inventing_author_c
     line = '__copyright__ = "Copyright Kenneth Reitz"'
     assert crates.statements(line) == [{"line": 1, "text": line}]
     assert crates.statements('__author__ = "Kenneth Reitz"') == []
+
+
+@pytest.mark.parametrize("changed", ["none", "source", "target", "absent"])
+def test_native_wheel_source_mapping_never_borrows_another_target(changed):
+    packet = Packet()
+    packet.components = [{"id": "native-cryptography-openssl", "sha256": "a" * 64,
+        "download_location": "https://example.org/source", "version": "1"},
+        {"id": "wheel-cryptography-1", "sha256": "b" * 64}]
+    packet.evidence = [{"id": "native-cryptography-openssl"},
+        {"id": "wheel-cryptography-1", "observed_native_members": {"bindings.pyd": "c" * 64}}]
+    packet.pending = [{"id": "native-cryptography-openssl", "items": ["target-binary-to-source-mapping", "owner-review"]}]
+    subject = {"name": "openssl", "version": "1", "purl": "pkg:generic/openssl@1",
+        "hashes": [{"alg": "SHA-256", "content": ("d" if changed == "source" else "a") * 64}],
+        "externalReferences": [{"type": "distribution", "url": "https://example.org/source"}],
+        "properties": [{"name": "build:operating-system", "value": "windows"},
+            {"name": "build:architecture", "value": "arm64" if changed == "target" else "win64"}]}
+    if changed != "absent":
+        packet.files["nested-sboms/wheel-cryptography-1/sbom.json"] = json.dumps({"components": [subject]}).encode()
+    if changed in {"source", "target"}:
+        with pytest.raises(PackageInputError, match="differs"):
+            evidence.map_wheel_native_sources(packet, "x64")
+    else:
+        evidence.map_wheel_native_sources(packet, "x64")
+        assert ("target-binary-to-source-mapping" not in packet.pending[0]["items"]) is (changed == "none")
+        assert "owner-review" in packet.pending[0]["items"]
+
+
+def test_certifi_source_comparison_retains_only_exact_namespace_changes(tmp_path, monkeypatch):
+    members = {"LICENSE": b"original license", "__init__.py": b"version", "__main__.py": b"from certifi import contents, where\n",
+        "core.py": b'files("certifi")\n', "cacert.pem": b"original certificate data", "py.typed": b""}
+    raw = archive({"certifi-2026.6.17/" + ("" if name == "LICENSE" else "certifi/") + name: value for name, value in members.items()})
+    monkeypatch.setattr(evidence, "CERTIFI_SOURCE_SHA256", sha256_bytes(raw))
+    (tmp_path / "certifi-2026.6.17.tar.gz").write_bytes(raw)
+    observed = {**members, "__main__.py": b"from pip._vendor.certifi import contents, where\n",
+        "core.py": b'files("pip._vendor.certifi")\n'}
+    _, retained, proof = evidence.compare_certifi_source(observed, "2026.6.17", tmp_path)
+    assert retained == raw
+    assert sum(row["changed"] for row in proof["members"]) == 2
+    with pytest.raises(PackageInputError, match="modification differs"):
+        evidence.compare_certifi_source({**observed, "cacert.pem": b"changed certificate data"}, "2026.6.17", tmp_path)
+    with pytest.raises(PackageInputError, match="scope differs"):
+        evidence.compare_certifi_source({k: v for k, v in observed.items() if k != "LICENSE"}, "2026.6.17", tmp_path)

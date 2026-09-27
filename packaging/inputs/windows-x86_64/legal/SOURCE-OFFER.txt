@@ -15581,9 +15581,99 @@ zmij
 Included source archive: legal/SOURCE-OFFERS/nested-cargo-zmij-1.0.6/zmij-1.0.6.crate
 SHA-256: aac060176f7020d62c3bcc1cdbcec619d54f48b07ad1963a3f80ce7a0c17755f
 
+certifi
+Included source archive: legal/SOURCE-OFFERS/python-vendor-certifi/certifi-2026.6.17.tar.gz
+SHA-256: 024c88eeec92ca068db80f02b8b07c9cef7b9fe261d1d535abfd5abd6f6af432
+
+certifi
+{
+  "archive_sha256": "2e8ff88ebb5e1fa9e3d84e5f3eb595b2080cebc049320461855c594358fb3034",
+  "component_tree_sha256": "ce8a2637ac3d10cb3466f4bb015adceace13a31e814f24e74ec6cfe975216c39",
+  "eligible_for_reviewed_NONE": true,
+  "files": [
+    {
+      "path": "LICENSE",
+      "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7",
+      "size": 989,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "__init__.py",
+      "sha256": "f96d51ff2f1609a4a44f5b5d8eec47ff34c1658d581fac5081d3759db05a8ce1",
+      "size": 94,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "__main__.py",
+      "sha256": "d64dc2afde6f0b1c464460e58eb5b7c0c76965d2f73617f4bb59fe936a9db026",
+      "size": 255,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cacert.pem",
+      "sha256": "bbc7e9c01d7551bb8a159b5dedd989b8ee3ce105aff522b68eb1b01bf854cab0",
+      "size": 234354,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "core.py",
+      "sha256": "82efc40952359b746ad32b69b0d13ad6181019c29a380b7d46cf46f0ab1308e2",
+      "size": 3442,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "py.typed",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-observed-source-tree-v1",
+  "schema": 1
+}
+
+certifi
+Included source archive: legal/SOURCE-OFFERS/python-vendor-certifi/observed-source.zip
+SHA-256: 2e8ff88ebb5e1fa9e3d84e5f3eb595b2080cebc049320461855c594358fb3034
+
+setuptools
+{
+  "archive_sha256": "4a889585cf0ce38aa4c009aeb580d6164cbb21cf22dc83235a1df7106cba8e3e",
+  "component_tree_sha256": "8a1062ef1068804a2e21457e48b35cb1e22f2af005a4d8a4debde0d886f585f4",
+  "eligible_for_reviewed_NONE": true,
+  "files": [
+    {
+      "normalized_sha256": "fe2a9817987f862eaced948f0468c7f51d2fedfc48c5c505b246a49a3870e9a5",
+      "path": "LICENSE",
+      "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+      "size": 1023,
+      "status": "complete-standard-boilerplate",
+      "template": "MIT-standard-grant-without-owner-statement"
+    },
+    {
+      "path": "__init__.py",
+      "sha256": "bdb4c9d3faee5201b1423944aacaee16688d3d5ca1dadf6afb3c930d3d39df12",
+      "size": 124451,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-observed-source-tree-v1",
+  "schema": 1
+}
+
+setuptools
+Included source archive: legal/SOURCE-OFFERS/python-vendor-setuptools/observed-source.zip
+SHA-256: 4a889585cf0ce38aa4c009aeb580d6164cbb21cf22dc83235a1df7106cba8e3e
+
 nodriver
 Included source archive: legal/SOURCE-OFFERS/nodriver-0.50.3.tar.gz
 SHA-256: 24ca688d8646ef8ffad5c8ce65804e5e7671a779ad26a24d76f6465d5666c631
+
+pywin32
+Included source archive: legal/SOURCE-OFFERS/wheel-pywin32-312-adodbapi/adodbapi-shipped-source.zip
+SHA-256: 17fbf4e27a9e5fc3b8b6520da2578b2b36d46f501691c9c2afbcc1860cd00579
 
 adodbapi (shipped pywin32 subtree)
 Included source archive: legal/SOURCE-OFFERS/wheel-pywin32-312-adodbapi/adodbapi-shipped-source.zip

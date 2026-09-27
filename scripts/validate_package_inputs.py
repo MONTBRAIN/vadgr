@@ -16,6 +16,7 @@ import stat
 import sys
 import tomllib
 import unicodedata
+import zipfile
 from urllib.parse import urlsplit
 
 
@@ -226,12 +227,14 @@ def validate_inventory(inventory: dict) -> None:
         require(isinstance(copyright_text, str) and bool(copyright_text.strip())
                 and "NOASSERTION" not in copyright_text, "unresolved copyright")
         if copyright_text == "NONE":
-            require(component["kind"] == "cargo" and component["source_offer_required"] is True,
+            require(component["kind"] in {"cargo", "runtime"} and component["source_offer_required"] is True,
                     "copyright absence evidence required")
             absence = [entry for entry in component["source_offer_files"]
                        if entry.get("path", "").endswith("/copyright-absence.json")]
             archives = [entry for entry in component["source_offer_files"]
-                        if entry.get("path", "").endswith(".crate") and entry.get("sha256") == component["sha256"]]
+                        if (component["kind"] == "cargo" and entry.get("path", "").endswith(".crate")
+                            and entry.get("sha256") == component["sha256"])
+                        or (component["kind"] == "runtime" and entry.get("path", "").endswith("/observed-source.zip"))]
             require(len(absence) == len(archives) == 1, "copyright absence evidence required")
         covered_licenses = set()
         for field in ("notice_required", "source_offer_required"):
@@ -275,18 +278,22 @@ def expected_legal_files(inventory: dict) -> set[str]:
 def validate_copyright_absence(inventory, files):
     import tarfile
     if __package__:
-        from scripts.copyright_absence import audit_archive
+        from scripts.copyright_absence import audit_archive, audit_source_tree_zip
     else:
-        from copyright_absence import audit_archive
+        from copyright_absence import audit_archive, audit_source_tree_zip
     for component in inventory["components"]:
         if component["copyright_text"] != "NONE":
             continue
         records = component["source_offer_files"]
-        archive = next(row for row in records if row["path"].endswith(".crate") and row["sha256"] == component["sha256"])
+        archive = next(row for row in records if (row["path"].endswith(".crate") and row["sha256"] == component["sha256"])
+                       or (component.get("kind") == "runtime" and row["path"].endswith("/observed-source.zip")))
         evidence = next(row for row in records if row["path"].endswith("/copyright-absence.json"))
         try:
-            actual = audit_archive(files[archive["path"]], component["sha256"])
-        except (ValueError, OSError, tarfile.TarError) as error:
+            source = files[archive["path"]]
+            require(sha256_bytes(source) == archive["sha256"], "copyright absence source differs")
+            actual = (audit_source_tree_zip(source, component["sha256"]) if archive["path"].endswith(".zip")
+                      else audit_archive(source, component["sha256"]))
+        except (ValueError, OSError, tarfile.TarError, zipfile.BadZipFile) as error:
             raise PackageInputError("copyright absence source differs") from error
         require(actual["eligible_for_reviewed_NONE"] is True
                 and canonical_json(actual) == files[evidence["path"]], "copyright absence evidence differs")

@@ -45,6 +45,8 @@ The source directory needs these exact archives:
 | `sqlite-autoconf-3530100.tar.gz` | `83e6b2020a034e9a7ad4a72feea59e1ad52f162e09cbd26735a3ffb98359fc4f` | [Exact SQLite source](https://www.sqlite.org/2026/sqlite-autoconf-3530100.tar.gz) |
 | `iroh-f2eb930-LICENSE-APACHE.txt` | `903131e2786f073a942fbf8fae122d9e576e4dad758c6da7f9f2ba58fd8611ab` | [Exact Iroh source revision](https://raw.githubusercontent.com/n0-computer/iroh/f2eb930dda3779c6d852b72f3712aacd6e573ab1/LICENSE-APACHE) |
 | `Apache-2.0-standard.txt` | `cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30` | [Complete Apache license](https://www.apache.org/licenses/LICENSE-2.0.txt) |
+| `MPL-2.0-standard.txt` | `3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04` | [Complete Mozilla license](https://www.mozilla.org/media/MPL/2.0/index.txt) |
+| `certifi-2026.6.17.tar.gz` | `024c88eeec92ca068db80f02b8b07c9cef7b9fe261d1d535abfd5abd6f6af432` | [Exact certifi source distribution](https://files.pythonhosted.org/packages/c9/c7/424b75da314c1045981bd9777432fad05a9e0c69daa4ed7e308bbaffe405/certifi-2026.6.17.tar.gz) |
 
 The crate inspector acquires only exact digest-matching archives named by the
 inventories, without executing source. The synthesizer independently re-reads
@@ -76,6 +78,17 @@ the generator and validator recompute the audit. An approved package review is
 still mandatory. This is not a public-domain declaration or an author-to-owner
 inference. These validator/generator changes need the normal trusted-source
 review before a protected candidate can rely on them.
+For an observed runtime source tree, the deterministic source ZIP must reproduce
+the entire component's canonical member-hash map. The validator checks every
+member and rejects missing files, binary members, ambiguous ownership markers,
+links, aliases and uninspected ZIP comments. This narrow path does not approve
+opaque crate fixtures or infer ownership from an author or certificate subject.
+Certifi's source comparison binds every observed member to the published source
+distribution. Only exact pip import/resource namespace relocations are accepted;
+both the complete upstream source and actual modified source are delivered.
+The pywin32 composite retains all named directory grants and its separately
+inventoried LGPL subtree. A native wheel source mapping is recorded only when
+that target's own producer SBOM supplies the matching source hash and build data.
 
 Each `review-ledger.json` names exact component questions. `cargo-scope.json`
 separates normal target dependencies from development, build and proc-macro

@@ -1,0 +1,27 @@
+{
+  "limitation": "A missing target-wheel native catalogue is not filled from another architecture's catalogue or a package version string.",
+  "records": [
+    {
+      "basis": "observed-wheel-producer-native-source-SBOM",
+      "build_properties": {
+        "build:architecture": "win64",
+        "build:flags": "no-zlib no-shared no-module no-comp no-apps no-docs no-sm2-precomp no-atexit",
+        "build:operating-system": "windows"
+      },
+      "component": "native-cryptography-openssl",
+      "limitation": "Producer source/build declaration and exact installed wheel equality, not independent rebuild or symbol-by-symbol proof.",
+      "observed_native_members": {
+        "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/cryptography/hazmat/bindings/_rust.pyd": "6a42262974f0e086c1f2defaff4ccd9fb25046cf193422135e2dda5b4b29b2a2"
+      },
+      "producer_sbom": {
+        "path": "nested-sboms/wheel-cryptography-50.0.1/001-sbom.json",
+        "sha256": "3375a1384a4782d4a871ffe6d00d22926c140ab2db7c3671087e15a1ff239234"
+      },
+      "source_sha256": "736b467530f916737b7031310ccb21d8218c6229e61e8e160cd1d3458cd543a8",
+      "source_url": "https://github.com/openssl/openssl/releases/download/openssl-4.0.2/openssl-4.0.2.tar.gz",
+      "wheel_sha256": "aed8db4f6d71c51efb89530e12d9464e7bf2923d46c3205dc794a2a93f8c0648"
+    }
+  ],
+  "schema": 1,
+  "status": "source-observations-not-approval"
+}

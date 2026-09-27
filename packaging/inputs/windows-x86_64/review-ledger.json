@@ -12063,11 +12063,31 @@
       "scope": "source-build-input-needs-binary-mapping"
     },
     {
+      "binary_mapping": {
+        "basis": "observed-wheel-producer-native-source-SBOM",
+        "build_properties": {
+          "build:architecture": "win64",
+          "build:flags": "no-zlib no-shared no-module no-comp no-apps no-docs no-sm2-precomp no-atexit",
+          "build:operating-system": "windows"
+        },
+        "component": "native-cryptography-openssl",
+        "limitation": "Producer source/build declaration and exact installed wheel equality, not independent rebuild or symbol-by-symbol proof.",
+        "observed_native_members": {
+          "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/cryptography/hazmat/bindings/_rust.pyd": "6a42262974f0e086c1f2defaff4ccd9fb25046cf193422135e2dda5b4b29b2a2"
+        },
+        "producer_sbom": {
+          "path": "nested-sboms/wheel-cryptography-50.0.1/001-sbom.json",
+          "sha256": "3375a1384a4782d4a871ffe6d00d22926c140ab2db7c3671087e15a1ff239234"
+        },
+        "source_sha256": "736b467530f916737b7031310ccb21d8218c6229e61e8e160cd1d3458cd543a8",
+        "source_url": "https://github.com/openssl/openssl/releases/download/openssl-4.0.2/openssl-4.0.2.tar.gz",
+        "wheel_sha256": "aed8db4f6d71c51efb89530e12d9464e7bf2923d46c3205dc794a2a93f8c0648"
+      },
       "id": "native-cryptography-openssl",
       "original_license_declaration": "Apache-2.0",
       "origins": [],
       "retained_notice_count": 5,
-      "scope": "source-build-input-needs-binary-mapping"
+      "scope": "native-source-declared-by-observed-wheel-SBOM"
     },
     {
       "binary_mapping": {
@@ -17442,8 +17462,25 @@
       "scope": "observed-runtime-vendored-tree"
     },
     {
+      "copyright_absence_audit": {
+        "path": "legal/SOURCE-OFFERS/python-vendor-certifi/copyright-absence.json",
+        "scope": "Every observed member, including original licenses and data; canonical tree hash equals component identity.",
+        "sha256": "b2af3125a1afcc3c6174248f28892c4b0f8454e55409746fbafc8066f3163f89"
+      },
+      "external_grant_basis": {
+        "application_files": [
+          {
+            "path": "LICENSE",
+            "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7",
+            "size": 989
+          }
+        ],
+        "grant_sha256": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04",
+        "scope": "Complete text for the explicitly applied MPL-2.0 grant; source-form delivery remains separately assessed.",
+        "url": "https://www.mozilla.org/media/MPL/2.0/index.txt"
+      },
       "id": "python-vendor-certifi",
-      "original_license_declaration": null,
+      "original_license_declaration": "MPL-2.0",
       "origins": [
         {
           "archive_sha256": "15d25c455ea25d6b24d7e58eabdf744fd0db3cfb977934ae08fd2237acd8ccc1",
@@ -17453,8 +17490,63 @@
           "vendor_manifest_sha256": "3df0c9601bfa2e0dca23cc574a4f900a4d7fdad060ab203fab8354350ed93320"
         }
       ],
-      "retained_notice_count": 1,
-      "scope": "observed-runtime-vendored-tree"
+      "retained_notice_count": 2,
+      "scope": "observed-runtime-vendored-tree",
+      "source_delivery_basis": {
+        "members": [
+          {
+            "change": "none",
+            "changed": false,
+            "observed_path": "LICENSE",
+            "observed_sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7",
+            "upstream_path": "certifi-2026.6.17/LICENSE",
+            "upstream_sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7"
+          },
+          {
+            "change": "none",
+            "changed": false,
+            "observed_path": "__init__.py",
+            "observed_sha256": "f96d51ff2f1609a4a44f5b5d8eec47ff34c1658d581fac5081d3759db05a8ce1",
+            "upstream_path": "certifi-2026.6.17/certifi/__init__.py",
+            "upstream_sha256": "f96d51ff2f1609a4a44f5b5d8eec47ff34c1658d581fac5081d3759db05a8ce1"
+          },
+          {
+            "change": "pip vendor import/resource namespace relocation",
+            "changed": true,
+            "observed_path": "__main__.py",
+            "observed_sha256": "d64dc2afde6f0b1c464460e58eb5b7c0c76965d2f73617f4bb59fe936a9db026",
+            "upstream_path": "certifi-2026.6.17/certifi/__main__.py",
+            "upstream_sha256": "c410688fdd394d45812d118034e71fee88ba7beddd30fe1c1281bd3b232cd758"
+          },
+          {
+            "change": "none",
+            "changed": false,
+            "observed_path": "cacert.pem",
+            "observed_sha256": "bbc7e9c01d7551bb8a159b5dedd989b8ee3ce105aff522b68eb1b01bf854cab0",
+            "upstream_path": "certifi-2026.6.17/certifi/cacert.pem",
+            "upstream_sha256": "bbc7e9c01d7551bb8a159b5dedd989b8ee3ce105aff522b68eb1b01bf854cab0"
+          },
+          {
+            "change": "pip vendor import/resource namespace relocation",
+            "changed": true,
+            "observed_path": "core.py",
+            "observed_sha256": "82efc40952359b746ad32b69b0d13ad6181019c29a380b7d46cf46f0ab1308e2",
+            "upstream_path": "certifi-2026.6.17/certifi/core.py",
+            "upstream_sha256": "5c55f2727746e697f7edac9e17c377d8752e0da7ecca191531b3b80403d61dad"
+          },
+          {
+            "change": "none",
+            "changed": false,
+            "observed_path": "py.typed",
+            "observed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "upstream_path": "certifi-2026.6.17/certifi/py.typed",
+            "upstream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ],
+        "source_archive_sha256": "024c88eeec92ca068db80f02b8b07c9cef7b9fe261d1d535abfd5abd6f6af432",
+        "source_delivery": "Complete published source distribution plus every actual shipped modified Python/data member in observed-source.zip.",
+        "source_url": "https://files.pythonhosted.org/packages/c9/c7/424b75da314c1045981bd9777432fad05a9e0c69daa4ed7e308bbaffe405/certifi-2026.6.17.tar.gz"
+      }
     },
     {
       "id": "python-vendor-distlib",
@@ -17664,6 +17756,11 @@
       "scope": "observed-runtime-vendored-tree"
     },
     {
+      "copyright_absence_audit": {
+        "path": "legal/SOURCE-OFFERS/python-vendor-setuptools/copyright-absence.json",
+        "scope": "Every observed member, including original licenses and data; canonical tree hash equals component identity.",
+        "sha256": "e9c5f884c23122aa5c10a5aafdc6cf3eec383141864f15e2f01ad0dca9b523ce"
+      },
       "id": "python-vendor-setuptools",
       "original_license_declaration": "MIT",
       "origins": [
@@ -21015,6 +21112,7 @@
       "scope": "installed-wheel"
     },
     {
+      "grant_scope_basis": "Composite wheel proposal retains the directory grants, IDLE's cumulative Python license, Scintilla's permission, the explicitly named Microsoft MAPI MIT grant and the separately inventoried adodbapi LGPL source. No single license replaces the others.",
       "id": "wheel-pywin32-312",
       "observed_native_members": {
         "payload/lib/cua/environments/0.7.9-e63d09b556a1/Lib/site-packages/isapi/PyISAPI_loader.dll": "84a805f7cf36a2bb62e3c8c48acfc95e256cbf7f9b357efc74470fb9aaafb44b",
@@ -21326,26 +21424,27 @@
   "status": "draft",
   "summary": {
     "component_candidates": 656,
-    "evidence_bound_NONE_proposals": 61,
-    "retained_grant_choices": 650,
-    "rows_with_review_items": 23,
+    "evidence_bound_NONE_proposals": 63,
+    "retained_grant_choices": 654,
+    "rows_with_review_items": 19,
     "scope_counts": {
       "exact-full-font-bytes-found-in-payload/vadgr.exe": 4,
       "exact-members-match-existing-helper-only-redistribution-review": 1,
       "exact-shipped-python-source-subtree": 1,
       "installed-wheel": 40,
       "installer-build-framework": 3,
+      "native-source-declared-by-observed-wheel-SBOM": 1,
       "observed-runtime-distribution-metadata": 1,
       "observed-runtime-vendored-tree": 18,
       "runtime-archive": 1,
       "runtime-native-source-mapped-by-producer-build-metadata": 11,
-      "source-build-input-needs-binary-mapping": 3,
+      "source-build-input-needs-binary-mapping": 2,
       "target-normal-dependency": 430,
       "target-wheel-build-or-generated-code": 43,
       "target-wheel-link-relevant": 87,
       "target-wheel-not-target-reachable": 13
     },
-    "unresolved_copyright": 8
+    "unresolved_copyright": 6
   },
   "terms": {
     "sha256": "18d55dd2431a73b0c29cf58cd310e641bc363cd7e6efe739a2b506c4002a6965",
@@ -22935,7 +23034,6 @@
       "id": "cargo-webpki-roots-0.26.11",
       "items": [
         "license-choice-and-original-copyright",
-        "notice-and-source-duty",
         "no-original-copyright-statement-in-pinned-source"
       ]
     },
@@ -22943,7 +23041,6 @@
       "id": "cargo-webpki-roots-1.0.9",
       "items": [
         "license-choice-and-original-copyright",
-        "notice-and-source-duty",
         "no-original-copyright-statement-in-pinned-source"
       ]
     },
@@ -23148,9 +23245,7 @@
     },
     {
       "id": "native-cryptography-openssl",
-      "items": [
-        "target-binary-to-source-mapping"
-      ]
+      "items": []
     },
     {
       "id": "native-expat",
@@ -23779,10 +23874,7 @@
     },
     {
       "id": "python-vendor-certifi",
-      "items": [
-        "license-choice-and-original-copyright",
-        "notice-and-source-duty"
-      ]
+      "items": []
     },
     {
       "id": "python-vendor-distlib",
@@ -23830,9 +23922,7 @@
     },
     {
       "id": "python-vendor-setuptools",
-      "items": [
-        "license-choice-and-original-copyright"
-      ]
+      "items": []
     },
     {
       "id": "python-vendor-tomli",
@@ -23977,10 +24067,7 @@
     },
     {
       "id": "wheel-pywin32-312",
-      "items": [
-        "license-choice-and-original-copyright",
-        "notice-and-source-duty"
-      ]
+      "items": []
     },
     {
       "id": "wheel-pywin32-312-adodbapi",
@@ -24070,10 +24157,7 @@
       "cargo-webpki-roots-0.26.11",
       "cargo-webpki-roots-1.0.9",
       "nested-cargo-wit-bindgen-rt-0.39.0",
-      "python-vendor-certifi",
-      "python-vendor-setuptools",
-      "runtime-cpython-3.12.14",
-      "wheel-pywin32-312"
+      "runtime-cpython-3.12.14"
     ],
     "no-original-copyright-statement-in-pinned-source": [
       "cargo-cms-0.2.3",
@@ -24084,23 +24168,18 @@
       "nested-cargo-wit-bindgen-rt-0.39.0"
     ],
     "notice-and-source-duty": [
-      "cargo-webpki-roots-0.26.11",
-      "cargo-webpki-roots-1.0.9",
       "framework-wixtoolset.bal.wixext-7.0.0",
       "framework-wixtoolset.sdk-7.0.0",
       "framework-wixtoolset.util.wixext-7.0.0",
       "native-tk-windows-bin-8612",
-      "python-vendor-certifi",
       "runtime-cpython-3.12.14",
-      "wheel-nodriver-0.50.3",
-      "wheel-pywin32-312"
+      "wheel-nodriver-0.50.3"
     ],
     "target-binary-to-source-mapping": [
       "framework-wixtoolset.bal.wixext-7.0.0",
       "framework-wixtoolset.sdk-7.0.0",
       "framework-wixtoolset.util.wixext-7.0.0",
       "native-cryptography",
-      "native-cryptography-openssl",
       "native-wix",
       "runtime-rust-std-1.97.1"
     ],

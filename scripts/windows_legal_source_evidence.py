@@ -90,6 +90,51 @@ def complete_apache_reference(sources, archive_root):
         "scope": "Complete text for the explicitly applied Apache-2.0 grant; original application notices remain included."}
 
 
+def complete_mpl_reference(sources, archive_root):
+    application = [{"path": name, "sha256": sha256_bytes(raw), "size": len(raw)} for name, raw in sources
+        if all(part in " ".join(raw.decode("utf-8").split()) for part in (
+            "This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.",
+            "mozilla.org/MPL/2.0/"))]
+    if not application:
+        return None
+    filename = "MPL-2.0-standard.txt"
+    digest = "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04"
+    grant = read_owned(archive_root, filename)
+    require(sha256_bytes(grant) == digest, "referenced MPL text differs")
+    return (filename, grant), {"application_files": application, "grant_sha256": digest,
+        "url": "https://www.mozilla.org/media/MPL/2.0/index.txt",
+        "scope": "Complete text for the explicitly applied MPL-2.0 grant; source-form delivery remains separately assessed."}
+
+
+CERTIFI_SOURCE_SHA256 = "024c88eeec92ca068db80f02b8b07c9cef7b9fe261d1d535abfd5abd6f6af432"
+
+
+def compare_certifi_source(members, version, archive_root):
+    filename = "certifi-2026.6.17.tar.gz"
+    digest = CERTIFI_SOURCE_SHA256
+    require(version == "2026.6.17" and set(members) == {"LICENSE", "__init__.py", "__main__.py", "core.py", "cacert.pem", "py.typed"},
+            "certifi observed source scope differs")
+    raw = read_owned(archive_root, filename)
+    require(sha256_bytes(raw) == digest, "certifi source archive differs")
+    records = []
+    with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as archive:
+        for name, observed in sorted(members.items()):
+            path = "certifi-2026.6.17/" + ("" if name == "LICENSE" else "certifi/") + name
+            original = archive.extractfile(path).read()
+            expected = original
+            if name == "__main__.py":
+                expected = original.replace(b"from certifi import contents, where", b"from pip._vendor.certifi import contents, where")
+            elif name == "core.py":
+                expected = original.replace(b'"certifi"', b'"pip._vendor.certifi"')
+            require(observed == expected, "certifi modification differs from exact import/resource relocation")
+            records.append({"observed_path": name, "upstream_path": path, "upstream_sha256": sha256_bytes(original),
+                "observed_sha256": sha256_bytes(observed), "changed": original != observed,
+                "change": "pip vendor import/resource namespace relocation" if original != observed else "none"})
+    return filename, raw, {"source_archive_sha256": digest,
+        "source_url": "https://files.pythonhosted.org/packages/c9/c7/424b75da314c1045981bd9777432fad05a9e0c69daa4ed7e308bbaffe405/certifi-2026.6.17.tar.gz",
+        "members": records, "source_delivery": "Complete published source distribution plus every actual shipped modified Python/data member in observed-source.zip."}
+
+
 def crate_grant_scope(component, raw, base_expression, grants, cargo_features=None):
     """Read explicit upstream file-scope statements, never infer scope from filenames alone."""
     require(sha256_bytes(raw) == component["sha256"], "grant scope archive identity differs")
@@ -396,6 +441,43 @@ def classify_nested(packet, observations, workspace, architecture):
             pending["items"] = [item for item in pending["items"] if item != "nested-build-versus-linked-scope"]
     packet.put("nested-source-scope.json", canonical_json({"schema": 1, "status": "source-observations-not-approval",
         "graphs": graphs, "limitation": "Exact wheel SBOM edges filtered by pinned source dependency kinds and Windows cfg. Optional feature edges are conservatively retained. Reachability is link relevance, not proof every symbol survives linking; generated-code obligations remain reviewable."}))
+
+
+def map_wheel_native_sources(packet, architecture):
+    records = []
+    for path, raw in list(packet.files.items()):
+        if not path.startswith("nested-sboms/wheel-cryptography-"):
+            continue
+        sbom = json.loads(raw)
+        for subject in sbom.get("components", []):
+            if subject.get("name") != "openssl" or not subject.get("purl", "").startswith("pkg:generic/openssl@"):
+                continue
+            source = next(row for row in packet.components if row["id"] == "native-cryptography-openssl")
+            hashes = {row["content"] for row in subject["hashes"] if row["alg"] == "SHA-256"}
+            urls = {row["url"] for row in subject["externalReferences"] if row["type"] == "distribution"}
+            props = {row["name"]: row["value"] for row in subject.get("properties", [])}
+            require(hashes == {source["sha256"]} and urls == {source["download_location"]}
+                    and subject["version"] == source["version"], "wheel native source identity differs")
+            require(props.get("build:operating-system") == "windows"
+                    and props.get("build:architecture") == {"x64": "win64", "arm64": "arm64"}[architecture],
+                    "wheel native source target differs")
+            wheel_id = path.split("/")[1]
+            wheel = next(row for row in packet.components if row["id"] == wheel_id)
+            wheel_evidence = next(row for row in packet.evidence if row["id"] == wheel_id)
+            observed = wheel_evidence.get("observed_native_members", {})
+            require(bool(observed), "wheel native observed members are absent")
+            record = {"component": source["id"], "source_sha256": source["sha256"],
+                "source_url": source["download_location"], "wheel_sha256": wheel["sha256"],
+                "producer_sbom": {"path": path, "sha256": sha256_bytes(raw)}, "build_properties": props,
+                "observed_native_members": observed, "basis": "observed-wheel-producer-native-source-SBOM",
+                "limitation": "Producer source/build declaration and exact installed wheel equality, not independent rebuild or symbol-by-symbol proof."}
+            records.append(record)
+            evidence = next(row for row in packet.evidence if row["id"] == source["id"])
+            evidence.update(scope="native-source-declared-by-observed-wheel-SBOM", binary_mapping=record)
+            pending = next(row for row in packet.pending if row["id"] == source["id"])
+            pending["items"] = [item for item in pending["items"] if item != "target-binary-to-source-mapping"]
+    packet.put("wheel-native-source-mapping.json", canonical_json({"schema": 1, "status": "source-observations-not-approval",
+        "records": records, "limitation": "A missing target-wheel native catalogue is not filled from another architecture's catalogue or a package version string."}))
 
 
 def nodriver_equality(packet, inputs, raw):

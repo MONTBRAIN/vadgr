@@ -14571,9 +14571,17 @@
       "download_location": "https://static.crates.io/crates/webpki-roots/webpki-roots-0.26.11.crate",
       "id": "cargo-webpki-roots-0.26.11",
       "kind": "cargo",
-      "license_concluded": "NOASSERTION",
+      "license_concluded": "CDLA-Permissive-2.0",
       "license_declared": "CDLA-Permissive-2.0",
-      "license_files": [],
+      "license_files": [
+        {
+          "license_ids": [
+            "CDLA-Permissive-2.0"
+          ],
+          "path": "legal/LICENSES/cargo-webpki-roots-0.26.11/000-000-LICENSE",
+          "sha256": "e271993808fec50ab29350b39539cdec611a9103f827e0aa26d61da70e2d33f8"
+        }
+      ],
       "name": "webpki-roots",
       "notice_files": [
         {
@@ -14581,10 +14589,10 @@
           "sha256": "e271993808fec50ab29350b39539cdec611a9103f827e0aa26d61da70e2d33f8"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "521bc38abb08001b01866da9f51eb7c5d647a19260e00054a8c7fd5f9e57f7a9",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "0.26.11"
     },
     {
@@ -14592,9 +14600,17 @@
       "download_location": "https://static.crates.io/crates/webpki-roots/webpki-roots-1.0.9.crate",
       "id": "cargo-webpki-roots-1.0.9",
       "kind": "cargo",
-      "license_concluded": "NOASSERTION",
+      "license_concluded": "CDLA-Permissive-2.0",
       "license_declared": "CDLA-Permissive-2.0",
-      "license_files": [],
+      "license_files": [
+        {
+          "license_ids": [
+            "CDLA-Permissive-2.0"
+          ],
+          "path": "legal/LICENSES/cargo-webpki-roots-1.0.9/000-000-LICENSE",
+          "sha256": "e271993808fec50ab29350b39539cdec611a9103f827e0aa26d61da70e2d33f8"
+        }
+      ],
       "name": "webpki-roots",
       "notice_files": [
         {
@@ -14602,10 +14618,10 @@
           "sha256": "e271993808fec50ab29350b39539cdec611a9103f827e0aa26d61da70e2d33f8"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "7dcd9d09a39985f5344844e66b0c530a33843579125f23e21e9f0f220850f22a",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "1.0.9"
     },
     {
@@ -22241,24 +22257,57 @@
       "version": "0.14.4"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "NONE",
       "download_location": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-x86_64-pc-windows-msvc-install_only.tar.gz",
       "id": "python-vendor-certifi",
       "kind": "runtime",
-      "license_concluded": "NOASSERTION",
-      "license_declared": "NOASSERTION",
-      "license_files": [],
+      "license_concluded": "MPL-2.0",
+      "license_declared": "MPL-2.0",
+      "license_files": [
+        {
+          "license_ids": [
+            "MPL-2.0"
+          ],
+          "path": "legal/LICENSES/python-vendor-certifi/001-MPL-2.0-standard.txt",
+          "sha256": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04"
+        }
+      ],
       "name": "certifi",
       "notice_files": [
         {
           "path": "legal/NOTICES/python-vendor-certifi/000-LICENSE",
           "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7"
+        },
+        {
+          "path": "legal/NOTICES/python-vendor-certifi/001-MPL-2.0-standard.txt",
+          "sha256": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04"
+        },
+        {
+          "path": "legal/NOTICES/python-vendor-certifi/external-grant-provenance.json",
+          "sha256": "ffb2e213a6f260f11961bda524038f0e46576e8171878b7261e9326085d26c54"
+        },
+        {
+          "path": "legal/NOTICES/python-vendor-certifi/source-comparison.json",
+          "sha256": "6bd32eac04b20fc1977567a7f15687c891d546a2e577909faffa6c019e08a4d4"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "ce8a2637ac3d10cb3466f4bb015adceace13a31e814f24e74ec6cfe975216c39",
-      "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/python-vendor-certifi/copyright-absence.json",
+          "sha256": "b2af3125a1afcc3c6174248f28892c4b0f8454e55409746fbafc8066f3163f89"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/python-vendor-certifi/observed-source.zip",
+          "sha256": "2e8ff88ebb5e1fa9e3d84e5f3eb595b2080cebc049320461855c594358fb3034"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/python-vendor-certifi/certifi-2026.6.17.tar.gz",
+          "sha256": "024c88eeec92ca068db80f02b8b07c9cef7b9fe261d1d535abfd5abd6f6af432"
+        }
+      ],
+      "source_offer_required": true,
       "version": "2026.6.17"
     },
     {
@@ -22648,7 +22697,7 @@
       "version": "14.2.0"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "NONE",
       "download_location": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-x86_64-pc-windows-msvc-install_only.tar.gz",
       "id": "python-vendor-setuptools",
       "kind": "runtime",
@@ -22672,8 +22721,17 @@
       ],
       "notice_required": true,
       "sha256": "8a1062ef1068804a2e21457e48b35cb1e22f2af005a4d8a4debde0d886f585f4",
-      "source_offer_files": [],
-      "source_offer_required": false,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/python-vendor-setuptools/copyright-absence.json",
+          "sha256": "e9c5f884c23122aa5c10a5aafdc6cf3eec383141864f15e2f01ad0dca9b523ce"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/python-vendor-setuptools/observed-source.zip",
+          "sha256": "4a889585cf0ce38aa4c009aeb580d6164cbb21cf22dc83235a1df7106cba8e3e"
+        }
+      ],
+      "source_offer_required": true,
       "version": "70.3.0"
     },
     {
@@ -24045,9 +24103,117 @@
       "download_location": "https://files.pythonhosted.org/packages/03/d9/77040d3b43df3f3be32ea289433d660d2727f5ba327bc73be835127d9d60/pywin32-312-cp312-cp312-win_amd64.whl",
       "id": "wheel-pywin32-312",
       "kind": "wheel",
-      "license_concluded": "NOASSERTION",
+      "license_concluded": "BSD-3-Clause AND HPND AND MIT AND Python-2.0 AND LGPL-2.1-or-later",
       "license_declared": "PSF",
-      "license_files": [],
+      "license_files": [
+        {
+          "license_ids": [
+            "LGPL-2.1-or-later"
+          ],
+          "path": "legal/LICENSES/wheel-pywin32-312/000-license.txt",
+          "sha256": "5ea2f23c7f00c3006bacf267183e816d8d4b6dc95ea57a4ddb0ff81de6d8719e"
+        },
+        {
+          "license_ids": [
+            "BSD-3-Clause"
+          ],
+          "path": "legal/LICENSES/wheel-pywin32-312/001-License.txt",
+          "sha256": "a74d826efb242db087b850348e20abbfd591b51e2081f2048735290913872924"
+        },
+        {
+          "license_ids": [
+            "HPND"
+          ],
+          "path": "legal/LICENSES/wheel-pywin32-312/002-Scintilla-License.txt",
+          "sha256": "57ec79bbeab4fd1cf7460a7ad450d2ab01471810459aeae9e75e4c66b472095f"
+        },
+        {
+          "license_ids": [
+            "HPND",
+            "Python-2.0"
+          ],
+          "path": "legal/LICENSES/wheel-pywin32-312/003-LICENSE.txt",
+          "sha256": "a0fa1e7b8a4230055685e796548ac084a6c0eea395294574093bba72efd9191b"
+        },
+        {
+          "license_ids": [
+            "LGPL-2.1-or-later"
+          ],
+          "path": "legal/LICENSES/wheel-pywin32-312/004-license.txt",
+          "sha256": "5ea2f23c7f00c3006bacf267183e816d8d4b6dc95ea57a4ddb0ff81de6d8719e"
+        },
+        {
+          "license_ids": [
+            "BSD-3-Clause"
+          ],
+          "path": "legal/LICENSES/wheel-pywin32-312/005-License.txt",
+          "sha256": "fad39c18fc3825fa278db1c86fd52cf88d7c525b3c2fbf7817fa383cbae4d423"
+        },
+        {
+          "license_ids": [
+            "MIT"
+          ],
+          "path": "legal/LICENSES/wheel-pywin32-312/006-LICENSE",
+          "sha256": "1c4cf44d2fb8bf2d10214d6da80cc9e05502824cc4460f35be4c7bcb4cde53da"
+        },
+        {
+          "license_ids": [
+            "BSD-3-Clause"
+          ],
+          "path": "legal/LICENSES/wheel-pywin32-312/007-License.txt",
+          "sha256": "a74d826efb242db087b850348e20abbfd591b51e2081f2048735290913872924"
+        },
+        {
+          "license_ids": [
+            "HPND"
+          ],
+          "path": "legal/LICENSES/wheel-pywin32-312/008-License.txt",
+          "sha256": "57ec79bbeab4fd1cf7460a7ad450d2ab01471810459aeae9e75e4c66b472095f"
+        },
+        {
+          "license_ids": [
+            "HPND",
+            "Python-2.0"
+          ],
+          "path": "legal/LICENSES/wheel-pywin32-312/009-LICENSE.txt",
+          "sha256": "a0fa1e7b8a4230055685e796548ac084a6c0eea395294574093bba72efd9191b"
+        },
+        {
+          "license_ids": [
+            "BSD-3-Clause"
+          ],
+          "path": "legal/LICENSES/wheel-pywin32-312/010-License.txt",
+          "sha256": "a74d826efb242db087b850348e20abbfd591b51e2081f2048735290913872924"
+        },
+        {
+          "license_ids": [
+            "BSD-3-Clause"
+          ],
+          "path": "legal/LICENSES/wheel-pywin32-312/011-License.txt",
+          "sha256": "a74d826efb242db087b850348e20abbfd591b51e2081f2048735290913872924"
+        },
+        {
+          "license_ids": [
+            "BSD-3-Clause"
+          ],
+          "path": "legal/LICENSES/wheel-pywin32-312/012-License.txt",
+          "sha256": "fad39c18fc3825fa278db1c86fd52cf88d7c525b3c2fbf7817fa383cbae4d423"
+        },
+        {
+          "license_ids": [
+            "BSD-3-Clause"
+          ],
+          "path": "legal/LICENSES/wheel-pywin32-312/013-License.txt",
+          "sha256": "fad39c18fc3825fa278db1c86fd52cf88d7c525b3c2fbf7817fa383cbae4d423"
+        },
+        {
+          "license_ids": [
+            "MIT"
+          ],
+          "path": "legal/LICENSES/wheel-pywin32-312/014-MAPIStubLibrary-License.txt",
+          "sha256": "1c4cf44d2fb8bf2d10214d6da80cc9e05502824cc4460f35be4c7bcb4cde53da"
+        }
+      ],
       "name": "pywin32",
       "notice_files": [
         {
@@ -24119,10 +24285,15 @@
           "sha256": "00ac8bf3de79d61486ee63cf38f74fc55ee3bc005aacdf75402a763c706754ed"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "b457f6d628a47e8a7346ce22acb7e1a46a4a78b52e1d17e1af56871bd19a93bc",
-      "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/wheel-pywin32-312-adodbapi/adodbapi-shipped-source.zip",
+          "sha256": "17fbf4e27a9e5fc3b8b6520da2578b2b36d46f501691c9c2afbcc1860cd00579"
+        }
+      ],
+      "source_offer_required": true,
       "version": "312"
     },
     {

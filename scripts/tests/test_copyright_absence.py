@@ -2,12 +2,13 @@
 
 import io
 import tarfile
+import zipfile
 
 import pytest
 
 from scripts import copyright_absence as absence
 from scripts import validate_package_inputs as package
-from scripts.synthesize_windows_legal import MIT_GRANT, MIT_ZERO_GRANT
+from scripts.synthesize_windows_legal import MIT_GRANT, MIT_ZERO_GRANT, observed_source_zip
 
 
 def archive(files):
@@ -77,3 +78,49 @@ def test_reviewed_generic_document_requires_complete_exact_text(monkeypatch):
         assert proof["eligible_for_reviewed_NONE"] is eligible
         if eligible:
             assert proof["files"][0]["status"] == "complete-reviewed-document-no-ownership-statement"
+
+
+def tree_digest(members):
+    return package.sha256_bytes(package.canonical_json({name: package.sha256_bytes(raw) for name, raw in members.items()}))
+
+
+def test_observed_tree_absence_rejects_omitted_members_and_recomputes_exact_zip():
+    members = {"LICENSE": MIT_GRANT.encode(), "code.py": b"value = 1\n"}
+    raw = observed_source_zip(members)
+    expected = tree_digest(members)
+    proof = absence.audit_source_tree_zip(raw, expected)
+    assert proof["eligible_for_reviewed_NONE"] is True
+    assert proof["component_tree_sha256"] == expected
+    assert observed_source_zip(dict(reversed(list(members.items())))) == raw
+    source, audit = "legal/SOURCE-OFFERS/demo/observed-source.zip", "legal/SOURCE-OFFERS/demo/copyright-absence.json"
+    component = {"kind": "runtime", "copyright_text": "NONE", "sha256": expected,
+        "source_offer_files": [{"path": source, "sha256": package.sha256_bytes(raw)},
+            {"path": audit, "sha256": package.sha256_bytes(package.canonical_json(proof))}]}
+    files = {source: raw, audit: package.canonical_json(proof)}
+    package.validate_copyright_absence({"components": [component]}, files)
+    with pytest.raises(ValueError, match="tree identity differs"):
+        absence.audit_source_tree_zip(observed_source_zip({"LICENSE": members["LICENSE"]}), expected)
+    with pytest.raises(package.PackageInputError, match="source differs"):
+        package.validate_copyright_absence({"components": [component]}, {**files, source: raw + b"changed"})
+
+
+@pytest.mark.parametrize("value", [b"Copyright Original Owner", b"\0opaque"])
+def test_observed_tree_absence_does_not_discard_binary_or_original_claims(value):
+    members = {"data": value}
+    assert not absence.audit_source_tree_zip(observed_source_zip(members), tree_digest(members))["eligible_for_reviewed_NONE"]
+
+
+def test_observed_tree_absence_rejects_archive_comment():
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, "w") as archive:
+        archive.writestr("file", b"text")
+        archive.comment = b"Copyright Original Owner"
+    with pytest.raises(ValueError, match="uninspected"):
+        absence.audit_source_tree_zip(output.getvalue(), tree_digest({"file": b"text"}))
+
+
+def test_observed_tree_absence_rejects_uninspected_trailing_zip_bytes():
+    members = {"file": b"text"}
+    raw = observed_source_zip(members) + b"Copyright Original Owner"
+    with pytest.raises(ValueError, match="uninspected"):
+        absence.audit_source_tree_zip(raw, tree_digest(members))

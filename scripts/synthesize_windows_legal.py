@@ -23,8 +23,8 @@ import zipfile
 
 if __package__:
     from scripts.inspect_legal_crate_sources import statements as original_statements
-    from scripts.copyright_absence import audit_archive
-    from scripts.windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, crate_grant_scope, crate_external_grant, complete_apache_reference
+    from scripts.copyright_absence import audit_archive, audit_source_tree_zip, source_tree_zip
+    from scripts.windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, map_wheel_native_sources, crate_grant_scope, crate_external_grant, complete_apache_reference, complete_mpl_reference, compare_certifi_source
     from scripts.validate_package_inputs import (
         CLOSURES, KINDS, REQUIRED_FILES, canonical_json, parse_json,
         profile_source_inputs, read_owned, relative_path, render_rtf, require,
@@ -32,8 +32,8 @@ if __package__:
     )
 else:
     from inspect_legal_crate_sources import statements as original_statements
-    from copyright_absence import audit_archive
-    from windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, crate_grant_scope, crate_external_grant, complete_apache_reference
+    from copyright_absence import audit_archive, audit_source_tree_zip, source_tree_zip
+    from windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, map_wheel_native_sources, crate_grant_scope, crate_external_grant, complete_apache_reference, complete_mpl_reference, compare_certifi_source
     from validate_package_inputs import (
         CLOSURES, KINDS, REQUIRED_FILES, canonical_json, parse_json,
         profile_source_inputs, read_owned, relative_path, render_rtf, require,
@@ -150,6 +150,8 @@ def license_atoms(data):
     text = text.replace("``", '"').replace("''", '"').replace("\u201c", '"').replace("\u201d", '"')
     folded = " ".join(text.lower().split())
     result = set()
+    if sha256_bytes(data) == "e271993808fec50ab29350b39539cdec611a9103f827e0aa26d61da70e2d33f8":
+        result.add("CDLA-Permissive-2.0")
     if " ".join(SQLITE_BLESSING.lower().split()) in folded:
         result.add("blessing")
     if all(part in folded for part in ("the authors hereby grant permission to use, copy, modify, distribute, and license",
@@ -195,10 +197,11 @@ def license_atoms(data):
             "not be used in advertising or publicity", "without specific, written prior permission",
             "disclaims all warranties", "in no event shall", "loss of use, data or profits", "performance of this software")):
         result.add("MIT-CMU")
-    if all(part in folded for part in ("python software foundation license version 2", "psf hereby grants licensee",
+    if (any(header in folded for header in ("python software foundation license version 2", "psf license agreement for python 2.2"))
+            and all(part in folded for part in ("psf hereby grants licensee",
             "brief summary of the changes", "psf makes no representations or warranties", "psf shall not be liable",
             "automatically terminate upon a material breach", "does not grant permission to use psf trademarks",
-            "by copying, installing or otherwise using")):
+            "by copying, installing or otherwise using"))):
         result.add("PSF-2.0")
         if all(part in folded for part in ("beopen python open source license agreement version 1",
                 "beopen hereby grants licensee", "beopen shall not be liable", "cnri", "license agreement for python",
@@ -582,10 +585,17 @@ def add_wheels(packet, inputs, source, target_collection):
             issues += ["AGPL-corresponding-source-and-combined-work-review"]
         if sboms:
             issues += ["target-specific-nested-SBOM-scope"]
+        if name == "pywin32":
+            declared = pywin32_grant_scope(notices)
         packet.component(identifier=identifier, name=name, version=wheel["version"], kind="wheel",
                          digest=wheel["sha256"], location=location, declared=declared,
                          sources=notices, scope="installed-wheel", pending=issues)
         packet.evidence[-1]["original_license_declaration"] = raw_declared
+        if name == "pywin32":
+            packet.components[-1]["license_declared"] = raw_declared
+            packet.evidence[-1]["grant_scope_basis"] = (
+                "Composite wheel proposal retains the directory grants, IDLE's cumulative Python license, Scintilla's permission, "
+                "the explicitly named Microsoft MAPI MIT grant and the separately inventoried adodbapi LGPL source. No single license replaces the others.")
         import io
         with zipfile.ZipFile(io.BytesIO(raw)) as archive:
             native = {}
@@ -613,6 +623,24 @@ def add_wheels(packet, inputs, source, target_collection):
             packet.put(path, data)
         if name == "pywin32":
             add_adodbapi(packet, raw, identifier, location)
+            parent = next(row for row in packet.components if row["id"] == identifier)
+            child = packet.components[-1]
+            parent["source_offer_required"] = True
+            parent["source_offer_files"] = list(child["source_offer_files"])
+            question = next(row for row in packet.pending if row["id"] == identifier)
+            question["items"] = [item for item in question["items"] if item != "notice-and-source-duty"]
+
+
+def pywin32_grant_scope(sources):
+    grants = set().union(*(license_atoms(raw) for _, raw in sources))
+    require(grants == {"BSD-3-Clause", "HPND", "MIT", "Python-2.0", "PSF-2.0", "LGPL-2.1-only", "LGPL-2.1-or-later"},
+            "pywin32 composite grant catalogue differs")
+    lgpl = [name for name, raw in sources if "LGPL-2.1-only" in license_atoms(raw)]
+    require(lgpl and all(name.endswith("adodbapi/license.txt") for name in lgpl), "pywin32 additional LGPL scope is unmapped")
+    notices = [raw for name, raw in sources if name.endswith("win32comext/mapi/NOTICE.md")]
+    require(len(notices) == 1 and b"`mapi.pyd` and `exchange.pyd` include compiled code licensed under the MIT License" in notices[0],
+            "pywin32 MAPI native grant scope differs")
+    return "BSD-3-Clause AND HPND AND MIT AND Python-2.0 AND LGPL-2.1-or-later"
 
 
 def add_original_claims(packet, identifier, claims):
@@ -909,6 +937,10 @@ def add_archives_and_fonts(packet, inputs, archive_root):
                     packet.pending[-1]["items"] = []
 
 
+def observed_source_zip(members):
+    return source_tree_zip(members)
+
+
 def add_installed_python(packet, inputs, collection, archive_root):
     runtime = next(row for row in collection["components"] if row["id"] == "runtime-cpython-3.12.14")
     site = inputs / "payload/lib/cua/python/3.12.14/Lib/site-packages"
@@ -927,7 +959,7 @@ def add_installed_python(packet, inputs, collection, archive_root):
         application = list(notices)
         if name == "requests":
             application.append(("__version__.py", read_owned(vendor_root, "__version__.py")))
-        external = complete_apache_reference(application, archive_root)
+        external = complete_apache_reference(application, archive_root) or complete_mpl_reference(application, archive_root)
         if external:
             if name == "requests":
                 notices.append(("__version__.py.txt", application[-1][1]))
@@ -961,6 +993,37 @@ def add_installed_python(packet, inputs, collection, archive_root):
             if found:
                 claims.append({"path": member, "sha256": sha256_bytes(raw), "statements": found})
         add_original_claims(packet, "python-vendor-" + slug(name.lower()), claims)
+        component = packet.components[-1]
+        if component["copyright_text"] == "NOASSERTION":
+            raw = observed_source_zip({member: read_owned(vendor_root, member) for member in sorted(members)})
+            audit = audit_source_tree_zip(raw, component["sha256"])
+            if audit["eligible_for_reviewed_NONE"]:
+                folder = "legal/SOURCE-OFFERS/" + component["id"] + "/"
+                proof = {folder + "observed-source.zip": raw, folder + "copyright-absence.json": canonical_json(audit)}
+                for path, value in proof.items():
+                    packet.put(path, value)
+                component.update(copyright_text="NONE", source_offer_required=True,
+                    source_offer_files=[{"path": path, "sha256": sha256_bytes(value)} for path, value in sorted(proof.items())])
+                packet.evidence[-1]["copyright_absence_audit"] = {"path": folder + "copyright-absence.json",
+                    "sha256": sha256_bytes(canonical_json(audit)), "scope": "Every observed member, including original licenses and data; canonical tree hash equals component identity."}
+                if component["license_concluded"] != "NOASSERTION":
+                    packet.pending[-1]["items"] = [item for item in packet.pending[-1]["items"]
+                                                  if item != "license-choice-and-original-copyright"]
+        if name == "certifi":
+            filename, raw, comparison = compare_certifi_source(
+                {member: read_owned(vendor_root, member) for member in sorted(members)}, version, archive_root)
+            require(component["license_concluded"] == "MPL-2.0"
+                    and any(entry["path"].endswith("/observed-source.zip") for entry in component["source_offer_files"]),
+                    "certifi complete grant and observed source delivery are absent")
+            path = "legal/SOURCE-OFFERS/" + component["id"] + "/" + filename
+            packet.put(path, raw)
+            component["source_offer_files"].append({"path": path, "sha256": sha256_bytes(raw)})
+            path = "legal/NOTICES/" + component["id"] + "/source-comparison.json"
+            raw = canonical_json(comparison)
+            packet.put(path, raw)
+            component["notice_files"].append({"path": path, "sha256": sha256_bytes(raw)})
+            packet.evidence[-1]["source_delivery_basis"] = comparison
+            packet.pending[-1]["items"] = [item for item in packet.pending[-1]["items"] if item != "notice-and-source-duty"]
     for metadata_path in sorted(site.glob("*.dist-info/METADATA")):
         message = BytesParser(policy=policy.default).parsebytes(read_owned(site, metadata_path.relative_to(site).as_posix()))
         notices = [(path.relative_to(site).as_posix(), read_owned(site, path.relative_to(site).as_posix()))
@@ -1217,6 +1280,7 @@ def synthesize(source, observation_root, architecture, created, archive_root, cr
     add_installed_python(packet, inputs, collection, archive_root)
     add_reviewed_helpers(packet, source, inputs, architecture)
     map_python_native(packet, inputs, source, architecture)
+    map_wheel_native_sources(packet, architecture)
     components = sorted(packet.components, key=lambda row: row["id"])
     inventory = {"schema": 1, "created": created, "version": "0.5.0", "target": observation["target"],
                  "terms_version": "1.0", "terms_sha256": sha256_bytes(terms), "source_inputs": bindings,

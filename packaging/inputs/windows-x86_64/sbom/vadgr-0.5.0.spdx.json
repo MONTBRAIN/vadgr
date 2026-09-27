@@ -8,7 +8,7 @@
   },
   "dataLicense": "CC0-1.0",
   "documentComment": "Incomplete review inventory, including separately classified build-source candidates. Not an approved shipped-component SBOM.",
-  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-4017336c2ae63bfd2356decda8de73362e907338ef77a614b6340bd0f235c9d3",
+  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-054dce546d6a942678fb63cf7ece8edec9246652a92948d0466d904cd391686f",
   "hasExtractedLicensingInfos": [
     {
       "comment": "Exact retained terms; this identifier is not an approval or a claim of SPDX-list equivalence.",
@@ -6676,7 +6676,7 @@
       "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/webpki-roots/webpki-roots-0.26.11.crate",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
+      "licenseConcluded": "CDLA-Permissive-2.0",
       "licenseDeclared": "CDLA-Permissive-2.0",
       "name": "webpki-roots",
       "packageComment": "Original upstream declaration: CDLA-Permissive-2.0",
@@ -6693,7 +6693,7 @@
       "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/webpki-roots/webpki-roots-1.0.9.crate",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
+      "licenseConcluded": "CDLA-Permissive-2.0",
       "licenseDeclared": "CDLA-Permissive-2.0",
       "name": "webpki-roots",
       "packageComment": "Original upstream declaration: CDLA-Permissive-2.0",
@@ -10141,13 +10141,13 @@
           "checksumValue": "ce8a2637ac3d10cb3466f4bb015adceace13a31e814f24e74ec6cfe975216c39"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-x86_64-pc-windows-msvc-install_only.tar.gz",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "MPL-2.0",
+      "licenseDeclared": "MPL-2.0",
       "name": "certifi",
-      "packageComment": "Original upstream declaration: None",
+      "packageComment": "Original upstream declaration: MPL-2.0",
       "versionInfo": "2026.6.17"
     },
     {
@@ -10345,7 +10345,7 @@
           "checksumValue": "8a1062ef1068804a2e21457e48b35cb1e22f2af005a4d8a4debde0d886f585f4"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-x86_64-pc-windows-msvc-install_only.tar.gz",
       "filesAnalyzed": false,
       "licenseConcluded": "MIT",
@@ -10909,7 +10909,7 @@
       "copyrightText": "#  Copyright 2002-2003 by Blackdog Software Pty Ltd.\n# Copyright (c) 2000 David Abrahams. Permission to copy, use, modify, sell\n# Copyright (c) 2003 Wavecom Inc.  All rights reserved\n# Copyright (c) 2003-2004 by Chris Nilsson <chris@slort.org>\n(C) Copyright 2014 Enthought, Inc., Austin, TX\nCopyright (C) 1991, 1999 Free Software Foundation, Inc.\nCopyright (C) 2002  Henrik Ekelund\nCopyright (C) 2002 Henrik Ekelund, version 2.1 by Vernon Cole\nCopyright (C) 2002 Henrik Ekelund, versions 2.1 and later by Vernon Cole\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 1994-2008, Mark Hammond\nCopyright (c) 1996-2008, Greg Stein and Mark Hammond.\nCopyright (c) 2018 Microsoft\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\nCopyright \u00a9 2003-2012.\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\nLicense Agreement and PSF's notice of copyright, i.e., \"Copyright (c)\nscintilla = \"Scintilla is Copyright 1998-2020 Neil Hodgson (https://www.scintilla.org)\"",
       "downloadLocation": "https://files.pythonhosted.org/packages/03/d9/77040d3b43df3f3be32ea289433d660d2727f5ba327bc73be835127d9d60/pywin32-312-cp312-cp312-win_amd64.whl",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
+      "licenseConcluded": "BSD-3-Clause AND HPND AND MIT AND Python-2.0 AND LGPL-2.1-or-later",
       "licenseDeclared": "NOASSERTION",
       "name": "pywin32",
       "packageComment": "Original upstream declaration: PSF",
