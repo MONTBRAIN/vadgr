@@ -11812,24 +11812,72 @@
     },
     {
       "id": "framework-wixtoolset.bal.wixext-7.0.0",
+      "native_runtime_observation": {
+        "limitation": "Source revision declared by the retained build packages, not an independently reproduced binary build or a source-completeness decision.",
+        "members": [
+          {
+            "component_id": "framework-wixtoolset.bal.wixext-7.0.0",
+            "path": "ba/wixstdba.exe",
+            "scope": "wix-standard-bootstrapper",
+            "sha256": "52295bd52214ed8a7c39d694e5d3ff07d98481394930ddeac2d307cf6ba90e94",
+            "size": 509360
+          }
+        ],
+        "path": "wix-runtime-membership.json",
+        "sha256": "1eeee6851be8439617d1e67a8385d05d04e719daa5992cb1f3ada8e50bd31733",
+        "source_archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+        "source_commit": "b8977d6f88e7b68e000bac226a2814f236770570"
+      },
       "original_license_declaration": "MS-RL",
       "origins": [],
       "retained_notice_count": 4,
-      "scope": "installer-build-framework"
+      "scope": "observed-installer-members-with-declared-build-source"
     },
     {
       "id": "framework-wixtoolset.sdk-7.0.0",
+      "native_runtime_observation": {
+        "limitation": "Source revision declared by the retained build packages, not an independently reproduced binary build or a source-completeness decision.",
+        "members": [
+          {
+            "component_id": "framework-wixtoolset.sdk-7.0.0",
+            "path": "burn-engine.exe",
+            "scope": "detached-burn-engine",
+            "sha256": "bb89e2b0bc02e91db39ba1825215f30aee820ca16c53899c17ca01f18b2065ff",
+            "size": 1242318
+          }
+        ],
+        "path": "wix-runtime-membership.json",
+        "sha256": "1eeee6851be8439617d1e67a8385d05d04e719daa5992cb1f3ada8e50bd31733",
+        "source_archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+        "source_commit": "b8977d6f88e7b68e000bac226a2814f236770570"
+      },
       "original_license_declaration": "MS-RL",
       "origins": [],
       "retained_notice_count": 3,
-      "scope": "installer-build-framework"
+      "scope": "observed-installer-members-with-declared-build-source"
     },
     {
       "id": "framework-wixtoolset.util.wixext-7.0.0",
+      "native_runtime_observation": {
+        "limitation": "Source revision declared by the retained build packages, not an independently reproduced binary build or a source-completeness decision.",
+        "members": [
+          {
+            "component_id": "framework-wixtoolset.util.wixext-7.0.0",
+            "path": "msi/Binary/Wix4UtilCA_X64",
+            "scope": "wix-util-custom-action",
+            "sha256": "0d7eb1693fd67f17d98be69c8b1fa93ff4d309ee12ad518df9fd6585d906b0ff",
+            "size": 423344
+          }
+        ],
+        "path": "wix-runtime-membership.json",
+        "sha256": "1eeee6851be8439617d1e67a8385d05d04e719daa5992cb1f3ada8e50bd31733",
+        "source_archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+        "source_commit": "b8977d6f88e7b68e000bac226a2814f236770570"
+      },
       "original_license_declaration": "MS-RL",
       "origins": [],
       "retained_notice_count": 4,
-      "scope": "installer-build-framework"
+      "scope": "observed-installer-members-with-declared-build-source"
     },
     {
       "binary_mapping": {
@@ -12657,10 +12705,40 @@
     },
     {
       "id": "native-wix",
+      "native_runtime_observation": {
+        "limitation": "Source revision declared by the retained build packages, not an independently reproduced binary build or a source-completeness decision.",
+        "members": [
+          {
+            "component_id": "framework-wixtoolset.bal.wixext-7.0.0",
+            "path": "ba/wixstdba.exe",
+            "scope": "wix-standard-bootstrapper",
+            "sha256": "52295bd52214ed8a7c39d694e5d3ff07d98481394930ddeac2d307cf6ba90e94",
+            "size": 509360
+          },
+          {
+            "component_id": "framework-wixtoolset.sdk-7.0.0",
+            "path": "burn-engine.exe",
+            "scope": "detached-burn-engine",
+            "sha256": "bb89e2b0bc02e91db39ba1825215f30aee820ca16c53899c17ca01f18b2065ff",
+            "size": 1242318
+          },
+          {
+            "component_id": "framework-wixtoolset.util.wixext-7.0.0",
+            "path": "msi/Binary/Wix4UtilCA_X64",
+            "scope": "wix-util-custom-action",
+            "sha256": "0d7eb1693fd67f17d98be69c8b1fa93ff4d309ee12ad518df9fd6585d906b0ff",
+            "size": 423344
+          }
+        ],
+        "path": "wix-runtime-membership.json",
+        "sha256": "1eeee6851be8439617d1e67a8385d05d04e719daa5992cb1f3ada8e50bd31733",
+        "source_archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+        "source_commit": "b8977d6f88e7b68e000bac226a2814f236770570"
+      },
       "original_license_declaration": "MS-RL",
       "origins": [],
       "retained_notice_count": 1,
-      "scope": "source-build-input-needs-binary-mapping"
+      "scope": "observed-installer-members-with-declared-build-source"
     },
     {
       "binary_mapping": {
@@ -21006,7 +21084,12 @@
       "original_license_declaration": "MIT OR Apache-2.0",
       "origins": [],
       "retained_notice_count": 13,
-      "scope": "runtime-archive"
+      "scope": "runtime-archive",
+      "source_scope_observation": {
+        "path": "rust-source-package-scope.json",
+        "scope": "exact-source-and-native-observation-facts-not-license-approval",
+        "sha256": "b5ccf2b58741a61e688b9e75cf59c129062f15928144057a5a21e20a10f76e33"
+      }
     },
     {
       "id": "wheel-annotated-types-0.8.0",
@@ -21199,7 +21282,12 @@
       "original_source_statement_count": 77,
       "origins": [],
       "retained_notice_count": 1,
-      "scope": "installed-wheel"
+      "scope": "installed-wheel",
+      "source_scope_observation": {
+        "path": "pillow-source-scope.json",
+        "scope": "exact-source-and-native-observation-facts-not-license-approval",
+        "sha256": "d4c2934ac885b8265556da0f11ad3cf47df2b7f5312138780bb508a80dc931a6"
+      }
     },
     {
       "id": "wheel-pycparser-3.0",
@@ -21573,14 +21661,13 @@
       "exact-members-match-existing-helper-only-redistribution-review": 1,
       "exact-shipped-python-source-subtree": 1,
       "installed-wheel": 40,
-      "installer-build-framework": 3,
       "native-source-bound-by-exact-upstream-run-artifacts": 1,
       "native-source-declared-by-observed-wheel-SBOM": 1,
+      "observed-installer-members-with-declared-build-source": 4,
       "observed-runtime-distribution-metadata": 1,
       "observed-runtime-vendored-tree": 18,
       "runtime-archive": 1,
       "runtime-native-source-mapped-by-producer-build-metadata": 11,
-      "source-build-input-needs-binary-mapping": 1,
       "target-normal-dependency": 430,
       "target-wheel-build-or-generated-code": 43,
       "target-wheel-link-relevant": 87,
@@ -23337,22 +23424,22 @@
     {
       "id": "framework-wixtoolset.bal.wixext-7.0.0",
       "items": [
-        "notice-and-source-duty",
-        "target-binary-to-source-mapping"
+        "WiX-source-completeness-and-modification-review",
+        "notice-and-source-duty"
       ]
     },
     {
       "id": "framework-wixtoolset.sdk-7.0.0",
       "items": [
-        "notice-and-source-duty",
-        "target-binary-to-source-mapping"
+        "WiX-source-completeness-and-modification-review",
+        "notice-and-source-duty"
       ]
     },
     {
       "id": "framework-wixtoolset.util.wixext-7.0.0",
       "items": [
-        "notice-and-source-duty",
-        "target-binary-to-source-mapping"
+        "WiX-source-completeness-and-modification-review",
+        "notice-and-source-duty"
       ]
     },
     {
@@ -23401,7 +23488,7 @@
     {
       "id": "native-wix",
       "items": [
-        "target-binary-to-source-mapping",
+        "WiX-source-completeness-and-modification-review",
         "covered-combination-or-modification-source-completeness"
       ]
     },
@@ -24259,6 +24346,12 @@
     "LGPL-source-delivery-review": [
       "wheel-pywin32-312-adodbapi"
     ],
+    "WiX-source-completeness-and-modification-review": [
+      "framework-wixtoolset.bal.wixext-7.0.0",
+      "framework-wixtoolset.sdk-7.0.0",
+      "framework-wixtoolset.util.wixext-7.0.0",
+      "native-wix"
+    ],
     "additional-retained-grant-scope": [
       "runtime-rust-std-1.97.1",
       "wheel-pillow-12.3.0"
@@ -24284,12 +24377,6 @@
       "native-tk-windows-bin-8612",
       "runtime-cpython-3.12.14",
       "wheel-nodriver-0.50.3"
-    ],
-    "target-binary-to-source-mapping": [
-      "framework-wixtoolset.bal.wixext-7.0.0",
-      "framework-wixtoolset.sdk-7.0.0",
-      "framework-wixtoolset.util.wixext-7.0.0",
-      "native-wix"
     ],
     "target-specific-nested-SBOM-scope": [
       "wheel-pillow-12.3.0"
