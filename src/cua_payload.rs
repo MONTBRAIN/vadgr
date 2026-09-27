@@ -1508,7 +1508,7 @@ mod tests {
     fn unix_runtime_refuses_unrelocatable_metadata_without_modifying_it() {
         let temporary = tempfile::tempdir().unwrap();
         let root = test_install_root(temporary.path());
-        let manifest = valid_payload(&root);
+        let mut manifest = valid_payload(&root);
         write_manifest(&root, &manifest);
         let environment = root
             .join("lib/cua/environments")
@@ -1517,12 +1517,15 @@ mod tests {
         let target = std::fs::canonicalize(&interpreter).unwrap();
         std::fs::remove_file(&interpreter).unwrap();
         std::os::unix::fs::symlink(&target, &interpreter).unwrap();
-        assert!(
-            CuaRuntime::below_install_root(&root)
-                .unwrap_err()
-                .to_string()
-                .contains("absolute assembly path")
-        );
+        let error = CuaRuntime::below_install_root(&root)
+            .unwrap_err()
+            .to_string();
+        let expected = if current_pins().unwrap().wheel_manifest_sha256.is_some() {
+            "CUA file link must be relative"
+        } else {
+            "absolute assembly path"
+        };
+        assert!(error.contains(expected), "unexpected refusal: {error}");
         assert_eq!(std::fs::read_link(&interpreter).unwrap(), target);
         std::fs::remove_file(&interpreter).unwrap();
         std::os::unix::fs::symlink("../../../python/3.12.14/bin/python3.12", &interpreter).unwrap();
@@ -1531,6 +1534,13 @@ mod tests {
             "home = obsolete\ninclude-system-site-packages = false\n",
         )
         .unwrap();
+        if manifest.get("installed_inventory_sha256").is_some() {
+            manifest["installed_inventory_sha256"] =
+                release::write_inventory(&root.join("lib/cua"), target_triple().unwrap())
+                    .unwrap()
+                    .into();
+            write_manifest(&root, &manifest);
+        }
         assert!(
             CuaRuntime::below_install_root(&root)
                 .unwrap_err()
