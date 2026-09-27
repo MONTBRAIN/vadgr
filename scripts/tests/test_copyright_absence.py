@@ -114,6 +114,34 @@ def test_exact_conda_decoding_observation_is_rechecked_without_optional_decoder(
         absence.inspect_reviewed_conda(raw)
 
 
+def test_exact_fuzz_decoding_never_approves_malformed_negative_inputs():
+    root = Path(__file__).resolve().parents[2]
+    source = root / "packaging/inputs/windows-x86_64/legal/SOURCE-OFFERS/cargo-fdeflate-0.3.7/fdeflate-0.3.7.crate"
+    raw = source.read_bytes()
+    proof = absence.audit_archive(raw, absence.digest(raw))
+    assert proof["eligible_for_reviewed_NONE"] is False
+    fixtures = [row for row in proof["files"] if row["path"].endswith(".zz")]
+    positive, *negative = fixtures
+    assert positive["status"] == "complete-reviewed-binary-record-no-ownership-statement"
+    assert len(bytes.fromhex(positive["decoded_hex"])) == 281
+    assert positive["observed_adler32"] == 751299
+    assert len(negative) == 2
+    assert all(row["status"] == "undecoded-member-needs-review" for row in negative)
+    assert all("no copyright absence is inferred" in row["remaining_review"] for row in negative)
+    source_name, proof_name = "legal/SOURCE-OFFERS/fdeflate.crate", "legal/SOURCE-OFFERS/copyright-absence.json"
+    evidence = {source_name: raw, proof_name: package.canonical_json(proof)}
+    component = {"copyright_text": "NONE", "sha256": absence.digest(raw), "source_offer_files": [
+        {"path": name, "sha256": absence.digest(value)} for name, value in evidence.items()]}
+    with pytest.raises(package.PackageInputError, match="absence evidence differs"):
+        package.validate_copyright_absence({"components": [component]}, evidence)
+    with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as archive:
+        retained = {member.name: archive.extractfile(member).read() for member in archive if member.isfile()}
+    context = "fdeflate-0.3.7/src/decompress/tests/test_utils.rs"
+    retained[context] += b"changed source context"
+    with pytest.raises(ValueError, match="context differs"):
+        absence.inspect_exact_fdeflate_fixtures(fixtures, retained)
+
+
 def test_none_proof_is_recomputed_from_exact_included_archive():
     raw = archive({"demo-1/src/lib.rs": b"pub fn demo() {}\n"})
     digest = package.sha256_bytes(raw)

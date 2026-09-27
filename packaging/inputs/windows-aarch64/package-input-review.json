@@ -2473,7 +2473,7 @@
     "legal/NOTICES/wheel-wrapt-2.3.0/000-LICENSE": "fc5afb82933ac1843af562dc343792687e8a513058aaaffb75d8aba5492a7050",
     "legal/PRIVACY-NOTICE.txt": "aecc86991978649deb6a092f73f3b99c532889e6a16f0a9d90ed695c9da9aee8",
     "legal/SECURITY-AND-PERMISSIONS.txt": "98542e602f4f5fac4920a85aaabc6a2b5412699f5b238c43eba4bfa2dffe3814",
-    "legal/SOURCE-OFFER.txt": "ff8b7b046014e7a3ea4f8c7496ea70e05bf5847babe43b9c671e05d90ffdb869",
+    "legal/SOURCE-OFFER.txt": "151bc312687ea8ae34bc2cbd3dd484b020fb03780a099ba7bd32c06451b9e77a",
     "legal/SOURCE-OFFERS/cargo-allocator-api2-0.2.21/allocator-api2-0.2.21.crate": "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923",
     "legal/SOURCE-OFFERS/cargo-allocator-api2-0.2.21/copyright-absence.json": "81fdcb2056348ddc50e760bd467a6481dde682dcfcdd75f0eb715a8438dc047c",
     "legal/SOURCE-OFFERS/cargo-anyhow-1.0.104/anyhow-1.0.104.crate": "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470",
@@ -2483,6 +2483,8 @@
     "legal/SOURCE-OFFERS/cargo-attohttpc-0.30.1/attohttpc-0.30.1.crate": "16e2cdb6d5ed835199484bb92bb8b3edd526effe995c61732580439c1a67e2e9",
     "legal/SOURCE-OFFERS/cargo-clipboard-win-5.4.1/clipboard-win-5.4.1.crate": "bde03770d3df201d4fb868f2c9c59e66a3e4e2bd06692a0fe701e7103c7e84d4",
     "legal/SOURCE-OFFERS/cargo-clipboard-win-5.4.1/copyright-absence.json": "6bc779364f7c9d589df91116f5e11dd829756bf5a4a7c827f43c9c2d0528febf",
+    "legal/SOURCE-OFFERS/cargo-cms-0.2.3/cms-0.2.3.crate": "7b77c319abfd5219629c45c34c89ba945ed3c5e49fcde9d16b6c3885f118a730",
+    "legal/SOURCE-OFFERS/cargo-cms-0.2.3/copyright-absence.json": "d41f305a439b8e5ac816a636abba1c360cd8a3918f016c56edd56daf5839b3b5",
     "legal/SOURCE-OFFERS/cargo-codespan-reporting-0.13.1/codespan-reporting-0.13.1.crate": "af491d569909a7e4dee0ad7db7f5341fef5c614d5b8ec8cf765732aba3cff681",
     "legal/SOURCE-OFFERS/cargo-codespan-reporting-0.13.1/copyright-absence.json": "223c6647430d8afc7a04e9f28e079b6227e8132bdc1be774c33167d6c01fa441",
     "legal/SOURCE-OFFERS/cargo-constant-time-eq-0.4.2/constant_time_eq-0.4.2.crate": "3d52eff69cd5e647efe296129160853a42795992097e8af39800e1060caeea9b",
@@ -2493,6 +2495,8 @@
     "legal/SOURCE-OFFERS/cargo-error-code-3.4.0/error-code-3.4.0.crate": "0b5343afd4a8365a643ac588dab4cf234a190c7f6c88c9f6dd6ffe00837661b7",
     "legal/SOURCE-OFFERS/cargo-fastrand-2.5.0/copyright-absence.json": "4b2df8996ed87d3544cee1e615f9a369e5aae4efcfa4b29d9a0a0863f2333ead",
     "legal/SOURCE-OFFERS/cargo-fastrand-2.5.0/fastrand-2.5.0.crate": "da7c62ceae207dd37ea5b845da6a0696c799f85e97da1ab5b7910be3c1c80223",
+    "legal/SOURCE-OFFERS/cargo-fdeflate-0.3.7/copyright-absence.json": "d9fbe8b28863f30543dbb4bd47ae038fbb9bbc81504acd7871c745a2aeda7170",
+    "legal/SOURCE-OFFERS/cargo-fdeflate-0.3.7/fdeflate-0.3.7.crate": "1e6853b52649d4ac5c0bd02320cddc5ba956bdb407c4b75a2c6b75bf51500f8c",
     "legal/SOURCE-OFFERS/cargo-glow-0.17.0/copyright-absence.json": "a813618a0af362e6368d147e58da02bcf809d87382ca1549c46b5d6c4522b096",
     "legal/SOURCE-OFFERS/cargo-glow-0.17.0/glow-0.17.0.crate": "29038e1c483364cc6bb3cf78feee1816002e127c331a1eec55a4d202b9e1adb5",
     "legal/SOURCE-OFFERS/cargo-itoa-1.0.18/copyright-absence.json": "77393b73df649cc6eeb235e8daa47c947292a5dcdebfc8755266cc6a44ebb619",
@@ -2606,9 +2610,9 @@
     "legal/TERMS.txt": "18d55dd2431a73b0c29cf58cd310e641bc363cd7e6efe739a2b506c4002a6965",
     "legal/THIRD-PARTY-NOTICES.txt": "667d77880e4fbdd286d30d550a2ad4a7141b0f5be867913729e287c616ec0363",
     "legal/UNINSTALL-AND-DATA.txt": "9090a2789588b59b26f41929f3594301b0ddc4c1762c577f9e47a6fedf14aa4f",
-    "sbom/vadgr-0.5.0.spdx.json": "60a4c0e8e2877a2fae996067bb16feb7dc4c88f3d6d14bb6c5ef9db1ee52b694"
+    "sbom/vadgr-0.5.0.spdx.json": "4df4217032dd35e80c9b3a050e62c7f9deb4afa6dc8744a0a42282fe14bffbea"
   },
-  "inventory_sha256": "01d3a1954bf6e6b563763c4b6eab2137d9dfccece4e9838bd33f97a491034f62",
+  "inventory_sha256": "b94ab58c5f67b5586d0ec94d958791f2ff9d2813da1499c8cf0658b7c85cc7ba",
   "payload_manifest_sha256": "c49e453b7afbabaf622c011a7a9b2c373542c5f9bc4de9be5af17b2c40c19265",
   "schema": 1,
   "source_inputs": {

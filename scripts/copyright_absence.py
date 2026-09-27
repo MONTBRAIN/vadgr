@@ -246,7 +246,7 @@ def audit_source_tree_zip(raw, expected_tree_hash):
 def audit_archive(raw, expected):
     if len(raw) > 32 * 1024 * 1024 or digest(raw) != expected:
         raise ValueError("copyright source archive identity differs")
-    files, seen, total = [], set(), 0
+    files, seen, total, retained = [], set(), 0, {}
     with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as archive:
         for member in archive:
             path = PurePosixPath(member.name)
@@ -260,5 +260,46 @@ def audit_archive(raw, expected):
             total += member.size
             if member.size > 32 * 1024 * 1024 or total > 512 * 1024 * 1024 or len(files) >= 100000:
                 raise ValueError("copyright archive expansion limit exceeded")
-            files.append(inspect_member(member.name, archive.extractfile(member).read()))
+            value = archive.extractfile(member).read()
+            files.append(inspect_member(member.name, value))
+            if expected == "1e6853b52649d4ac5c0bd02320cddc5ba956bdb407c4b75a2c6b75bf51500f8c":
+                retained[member.name] = value
+    if retained:
+        inspect_exact_fdeflate_fixtures(files, retained)
     return audit_result(files, expected)
+
+
+def inspect_exact_fdeflate_fixtures(files, retained):
+    """Retain complete fixture bytes; only a fully decoded positive case qualifies."""
+    tests = {"fdeflate-0.3.7/src/decompress.rs": "26eea8e94c41422b29b50b83e8077ef8ee37e116f26fc810c15e7e7f0224bc5e",
+             "fdeflate-0.3.7/src/decompress/tests/test_utils.rs": "220c8813c35240b1d0dbbb63051b3ec62838ea8f682f5389315c738d4bdff488"}
+    if any(digest(retained[name]) != value for name, value in tests.items()):
+        raise ValueError("fuzz fixture source context differs")
+    for row in files:
+        if not row["path"].endswith(".zz"):
+            continue
+        raw = retained[row["path"]]
+        row["fixture_source_context"] = tests
+        row["complete_input_hex"] = raw.hex()
+        if row["sha256"] == "215d6eafcce032f917f0559c3f35e575fdfcccd5548df8fed5092bc70cf24812":
+            decoder = zlib.decompressobj(-15)
+            decoded = decoder.decompress(raw[2:], 1024)
+            prefix = bytes.fromhex("0800a2ff4000fc92")
+            pattern = bytes.fromhex("01007ca8ff00a2ff4000fc250106fc92")
+            expected = prefix + pattern * 17 + b"\xe0"
+            if (raw[:2] != b"\x78\xda" or not decoder.eof or decoder.unconsumed_tail
+                    or decoder.unused_data != raw[-4:] or decoded != expected
+                    or len(decoded) != 281 or zlib.adler32(decoded) != 751299):
+                raise ValueError("reviewed numerical fuzz decoding differs")
+            row.update(status="complete-reviewed-binary-record-no-ownership-statement",
+                format="Exact zlib fuzz fixture with complete raw-DEFLATE output and deliberately ignored checksum",
+                decoded_hex=decoded.hex(), decoded_sha256=digest(decoded),
+                decoded_structure={"prefix_hex": prefix.hex(), "repeat_hex": pattern.hex(), "repeat_count": 17, "suffix_hex": "e0"},
+                observed_adler32=zlib.adler32(decoded), retained_checksum_hex=raw[-4:].hex(),
+                meaning="All compressed input is consumed except the explicit four-byte checksum. The complete output is the listed numerical byte pattern, not text or an ownership statement. Its length and Adler value equal the exact upstream assertions.")
+        else:
+            # A negative fixture's decoder rejection does not prove absence.
+            # Preserve its complete bytes and the source's expected error, but
+            # keep its undecoded status and the whole-archive NONE gate closed.
+            row["documented_expected_result"] = "BadLiteralLengthHuffmanTree; the upstream test documents a missing end-of-block symbol."
+            row["remaining_review"] = "The malformed input has no complete standard decompression. Exact numerical fuzz bytes and source context are retained; no copyright absence is inferred from decoder rejection."

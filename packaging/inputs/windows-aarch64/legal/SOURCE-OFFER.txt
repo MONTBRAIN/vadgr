@@ -780,6 +780,393 @@ clipboard-win
   "schema": 1
 }
 
+cms
+Included source archive: legal/SOURCE-OFFERS/cargo-cms-0.2.3/cms-0.2.3.crate
+SHA-256: 7b77c319abfd5219629c45c34c89ba945ed3c5e49fcde9d16b6c3885f118a730
+
+cms
+{
+  "archive_sha256": "7b77c319abfd5219629c45c34c89ba945ed3c5e49fcde9d16b6c3885f118a730",
+  "eligible_for_reviewed_NONE": false,
+  "files": [
+    {
+      "path": "cms-0.2.3/.cargo_vcs_info.json",
+      "sha256": "b6698684015175b959d0e0e71045bcb8c78bff4de701e4058d3ad50e8dc0e177",
+      "size": 97,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/CHANGELOG.md",
+      "sha256": "ad4756f53cfbfc133bcab999857800237335971cffcfd60b9db3c22e408bbd31",
+      "size": 1366,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/Cargo.toml",
+      "sha256": "31694e166b9ba2c236fe7e29be22a96373d51580ecb19717dae8a8086898c513",
+      "size": 2691,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/Cargo.toml.orig",
+      "sha256": "6681b2130600d9de3937e5c8206fc651e5415d4b11bf10fa4a1c0eb2ad9ba1ca",
+      "size": 1802,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/README.md",
+      "sha256": "279211a02ae388bfb1053f8453d77c0eeee261d002d4b235ed66d740e52677c1",
+      "size": 2386,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/src/attr.rs",
+      "sha256": "d5b559230b8c493cf9ff8e6308886d3937ae140803b388f6d5e4b7d3be217ee5",
+      "size": 881,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/src/authenticated_data.rs",
+      "sha256": "c1880c00096e5627216bbbb726a55bfbf82daf288ff5e8fd760e882a0618a038",
+      "size": 2322,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/src/builder.rs",
+      "sha256": "897d23b2aa646469fad0c1bc4526a75e3167ae3fbb4624406fefe2e2cc94c8e5",
+      "size": 43121,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/src/cert.rs",
+      "sha256": "c13f5d826233e7c8d8f0fdc97ae039bb33f071b3adabd2f3e08533a485556567",
+      "size": 2777,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/src/compressed_data.rs",
+      "sha256": "a775c50377109b1c3be2b3199d9874951d83ba0d57b7d3ebbcf4ecfcf680bbed",
+      "size": 764,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/src/content_info.rs",
+      "sha256": "524b2ff01f8dead2e5e84e807b61a03881c304cd725f7fb19167e8f590304fd4",
+      "size": 3993,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/src/digested_data.rs",
+      "sha256": "cf9608e55e45c46e6bd41d0d4e769297d0ef1df2fb1a22f40a78e973346364a9",
+      "size": 1039,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/src/encrypted_data.rs",
+      "sha256": "f1c24f0920bfcf4aab3883f6353939c10ee86e6a10c382260e861558bd57145a",
+      "size": 950,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/src/enveloped_data.rs",
+      "sha256": "62b09715f98a82889399a612cea893cfe73b01fc3cdb1e2b8a7f55efc9bbd9ad",
+      "size": 14074,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/src/lib.rs",
+      "sha256": "49063029d1141ab8f00f5bd090d221efb7917475f42a9fe93a7de15794de89bd",
+      "size": 1083,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/src/revocation.rs",
+      "sha256": "30cf23bd1b40db3f2cf721638160a89420b917a2066cb88c8431e610555fef7c",
+      "size": 2530,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/src/signed_data.rs",
+      "sha256": "d4948ac1327c88fb9bf1f29b84f8bc58724befe23236312ccd7d3a751b55fde5",
+      "size": 6795,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/src/timestamped_data.rs",
+      "sha256": "d7a86af03cea15e1db1e5048db4535e5dea68da29432af8363a9f1e60146c8ad",
+      "size": 5936,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/tests/builder.rs",
+      "sha256": "75e40cf53b42d81628149ba2425336ae3f2c95470bf79f6b9187a825f598aaaf",
+      "size": 22202,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/tests/compressed_data.rs",
+      "sha256": "abedd3a2b717abeb696acb1c76dd939c4094e861c46b2a59db68643ad2835749",
+      "size": 1547,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/tests/digested_data.rs",
+      "sha256": "84b7b6b74bedba137579bee5358c648cb70cf9e23d705212fabea7b73a836854",
+      "size": 1762,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/tests/encrypted_data.rs",
+      "sha256": "22b657b794a10292acc0f5a9211fe6d041573cd77724c269913716192766e48e",
+      "size": 1706,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/tests/enveloped_data.rs",
+      "sha256": "438d2ca8870d1a0d6e5822173d3c1cce5e9457872f60ecbf6bbeda1a71673eb4",
+      "size": 18234,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/GoodCACert.crt",
+      "sha256": "86d218374763fce77d5b2b45398db48f10e553da1875be7d6103085baca0343f",
+      "size": 896,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/GoodCACert.pem",
+      "sha256": "c96a8fdc125718f68b90260bcc98844fc8692995afb1f076bee6cadce035a7e5",
+      "size": 1269,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/ValidCertificatePathTest1EE.crt",
+      "sha256": "967ed7ed2be0506b82000a377751c5525619d3b9e7fed8a0e7aa554947af5e9e",
+      "size": 893,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/ValidCertificatePathTest1EE.pem",
+      "sha256": "a67e794c2a7bb66ee828248ae2367004522bdd7d100cadd4910952cb5a86caf5",
+      "size": 1265,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/apple_mdm_signature_der.bin",
+      "sha256": "21a04c600ece4f12f22abaee157bab83d3d32e68c3a886fac4f7275a82371be0",
+      "size": 1630,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/authroot.stl",
+      "sha256": "c0cf8cc04c34b5b80a2d86ad0eafb2dd71436f070c86b0321fba0201879625fd",
+      "size": 165282,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/authroot.stl.sd",
+      "sha256": "b719c418ac7824b25853c1d7ffeaa2de8e09568f7ba7d97e8bbbd52e5d71fbba",
+      "size": 165261,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/cert.pem",
+      "sha256": "985b8ec3786184b9cdd11eccf5dfa5174a74782af527ad038cc1281181996c18",
+      "size": 627,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/certData.bin",
+      "sha256": "18c4ad92468ae45125ffed03be14ac35bdf297a658b60faf7fa41d7e08f88024",
+      "size": 804,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/cms_ber.bin",
+      "sha256": "42d6c83a9a93a64c504f6901eb4fb1bde42adb04a99d03d6e688d639e2ccc8af",
+      "size": 10914,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/cms_der.bin",
+      "sha256": "6aa1f4bcc7580404726f4de90a64f43706f812eac976da065452751417a9844b",
+      "size": 10872,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/compressed_data.bin",
+      "sha256": "66279624e806691ca3cd920d357ec1d11141b75cf0372c650294472fb3560d7e",
+      "size": 338,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/data.txt",
+      "sha256": "56293a80e0394d252e995f2debccea8223e4b5b2b150bee212729b3b39ac4d46",
+      "size": 446,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/digested_data.bin",
+      "sha256": "dde579b1b0939c31bba984f67b03dcd1f49764d0aea5751a1a451ecbb9265171",
+      "size": 526,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/ec384-ee-key.der",
+      "sha256": "e77868335868ec346608b1a2953ac0a892eb3f6fc7040336fa62db63c7b8c2d9",
+      "size": 526,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/encrypted_data.bin",
+      "sha256": "acf76585010e3f8fb7a7a1709c1d9eec2b3345088dabdfba9dd84022e81ac2dd",
+      "size": 524,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/enveloped_data_kari.bin",
+      "sha256": "6972b64ec1db8cc944b7ce2a5f4e60fbc3dfd5524b956fe9430321ac523a4e87",
+      "size": 856,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/enveloped_data_kekri.bin",
+      "sha256": "e447294d9b76dcf726204d9999f556ca19c21b70349d1a7659ef63e70fef0d95",
+      "size": 578,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/enveloped_data_ktri.bin",
+      "sha256": "c1453aa0f250ea3db55e6181506a69196d6b144a061499de10268d30eeeda9ff",
+      "size": 1224,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/enveloped_data_multi.bin",
+      "sha256": "cce6e95ab1030d28642e51fbe3da3364eda7e9aa3cec7430f32bbbf97ddff982",
+      "size": 1751,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/enveloped_data_pwri.bin",
+      "sha256": "c524a8b88a44de874111833d457b38f9e5d6a751576c7010a58a1e17d5eb7e18",
+      "size": 640,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/example.pfx",
+      "sha256": "94e84d9a00ed9545104823d95aab3741bb1544197f282e4031844f9ef40a05a6",
+      "size": 1516,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/examples_notes.txt",
+      "sha256": "4393bcaa616018e19c25e239d21e53f308de5c71961db52cb60226f4864435e5",
+      "size": 643,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/keyEncryptedData.bin",
+      "sha256": "985c44fed229909e7309806a82f910d2c84d9991013fd5779691cecaa2f30326",
+      "size": 627,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/p256-priv.der",
+      "sha256": "8125ab208d2181ed3ef05ff0ab1906e5898c36a858277e5b987e78e505288769",
+      "size": 138,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/pkits.p7b",
+      "sha256": "fd6019bdc75fbae80e6c1b30c5246d8a3077b83e8d21dae376772dcc1ceb58bd",
+      "size": 1838,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/pkits_ee.p7b",
+      "sha256": "9e146d8832d747985150e7f1fe7b57cc705688fb450416b3375fb932e7b38ade",
+      "size": 942,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/rsa2048-priv.der",
+      "sha256": "f94b60300e4877e863b2bea8d5c366a90432794454c05e0ec098ddbf96263614",
+      "size": 1191,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/rsa_cert.der",
+      "sha256": "e1eee9ac618291e899456ebc23edb63a9bf732d57c93864f940da142ad05e54d",
+      "size": 1436,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/rsa_sk.pkcs1.pem",
+      "sha256": "2bed6a5e8789171f17be288857bf0cee5bc5877ad1fa4d6ebac9a1e3f386bbc1",
+      "size": 887,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/scep_der.bin",
+      "sha256": "0412e0f373171b81631c2a3991ccc05f57fdc2fc9252f1ce8518dee0126c1e83",
+      "size": 2456,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/sceptest_cert-selfsigned.pem",
+      "sha256": "697df7b871cc51097b18ea13a103e9c3a3520b801fc1aebdc11d945f2e92d1e2",
+      "size": 1619,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/sceptest_csr.der",
+      "sha256": "aa9ca48b01eba9c03f2c221ff19fb0c29228d5c03a41204411a5367bd305a16f",
+      "size": 933,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/sceptest_key.pem",
+      "sha256": "a9e34eaa7a5b6a92d6dbad8ea2ed9711c65330e2eafaf952c3dbb9ddb9dd4e11",
+      "size": 1704,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/sd.cms",
+      "sha256": "7ce19db13016ebe9b3d6c4347b1d161147fa0bb7fa5054325d75fbeecb0d6ee6",
+      "size": 2895,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/signer_info_explicit_attrs.bin",
+      "sha256": "e9b8d14e6c09c9d12abcaa13dfbee5a41801311c1e23d1192c1b47d0df762889",
+      "size": 947,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/examples/signer_info_sequence_not_set.bin",
+      "sha256": "d1b2c7209b42b8cb2e68783890cd2ebee5564a5651f0fd8838e47d241f312710",
+      "size": 944,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "cms-0.2.3/tests/signed_data.rs",
+      "sha256": "654becd0622a30ba7c261979b9b4fdacd3d28bc766ab80d5c34e762d350f19c8",
+      "size": 5485,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cms-0.2.3/tests/tests_from_pkcs7_crate.rs",
+      "sha256": "214f52835e10ee092120ad01d12628cbd18693c2768eb69f570f7b1bb5997610",
+      "size": 4812,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
+  "schema": 1
+}
+
 codespan-reporting
 Included source archive: legal/SOURCE-OFFERS/cargo-codespan-reporting-0.13.1/codespan-reporting-0.13.1.crate
 SHA-256: af491d569909a7e4dee0ad7db7f5341fef5c614d5b8ec8cf765732aba3cff681
@@ -1908,6 +2295,152 @@ fastrand
 fastrand
 Included source archive: legal/SOURCE-OFFERS/cargo-fastrand-2.5.0/fastrand-2.5.0.crate
 SHA-256: da7c62ceae207dd37ea5b845da6a0696c799f85e97da1ab5b7910be3c1c80223
+
+fdeflate
+{
+  "archive_sha256": "1e6853b52649d4ac5c0bd02320cddc5ba956bdb407c4b75a2c6b75bf51500f8c",
+  "eligible_for_reviewed_NONE": false,
+  "files": [
+    {
+      "path": "fdeflate-0.3.7/.cargo_vcs_info.json",
+      "sha256": "2d015f7408904d9dbe4613dc70ae57f8c4974123aae9887a0529d7c93c8b2811",
+      "size": 94,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "fdeflate-0.3.7/Cargo.lock",
+      "sha256": "827208fd6f7aa2fdcfb4ca4d3e8ca6ee6bfb3c2b3f24179b25788bd2fcc160dc",
+      "size": 4197,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "fdeflate-0.3.7/Cargo.toml",
+      "sha256": "d5f832103c61c132a406b738c55d0fbc31de926186ded715816bc56ee04e3c53",
+      "size": 1350,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "fdeflate-0.3.7/Cargo.toml.orig",
+      "sha256": "7f18f454c5a2ae4597ed3701887ebb332c8c92327fd99a4fe476ff721aec92f6",
+      "size": 740,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "normalized_sha256": "59d8f0ba87ad9a2f1a431123c8d16646e5b89ba53653e818f16d136d77263c99",
+      "path": "fdeflate-0.3.7/LICENSE-APACHE",
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "size": 10174,
+      "status": "complete-standard-boilerplate",
+      "template": "Apache-2.0-complete-terms-without-application-appendix"
+    },
+    {
+      "normalized_sha256": "7c9b48b52decb9837c70f608678129e1ac79e056829c8d1e82e8cdd8aed562f8",
+      "path": "fdeflate-0.3.7/LICENSE-MIT",
+      "sha256": "c77a4cf9da729987d0fe7ccd811e3bd27393914ddf3d23467c18cc22954513b3",
+      "size": 1036,
+      "status": "complete-standard-boilerplate",
+      "template": "MIT-standard-grant-with-heading-without-owner-statement"
+    },
+    {
+      "path": "fdeflate-0.3.7/README.md",
+      "sha256": "9b8cbc0f3ad8d1eeeef7bb41134dc1d0cbef73e730da0fca8f56354bb5f14132",
+      "size": 1343,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "fdeflate-0.3.7/src/compress.rs",
+      "sha256": "36c2bf996976d86c6a398686aaa5b178defe526340a0717dfb7c956b4be61b6e",
+      "size": 9971,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "fdeflate-0.3.7/src/decompress.rs",
+      "sha256": "26eea8e94c41422b29b50b83e8077ef8ee37e116f26fc810c15e7e7f0224bc5e",
+      "size": 52097,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "fdeflate-0.3.7/src/decompress/tests/test_utils.rs",
+      "sha256": "220c8813c35240b1d0dbbb63051b3ec62838ea8f682f5389315c738d4bdff488",
+      "size": 3497,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "fdeflate-0.3.7/src/huffman.rs",
+      "sha256": "e248ea58bb6f20e61e8f5581cc3bb7f7e8127fb538fd411ffbfd003f66ac5535",
+      "size": 6858,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "fdeflate-0.3.7/src/lib.rs",
+      "sha256": "460007dd0bcb1a3de86b339de2aa5c293270ce5fda280a1437b1ca67205d2c08",
+      "size": 3884,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "fdeflate-0.3.7/src/tables.rs",
+      "sha256": "efaefc9b15380bf4d2047d4f5ef68af9484d71212403fd866e2c37d2e774bbad",
+      "size": 12729,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "complete_input_hex": "78daecbd779415d5d6eefd9b553b7484ee069a9c73ce39a324c9490424239845515010c580a8783083822822202828024a101010090292730e0d74d374ce7bef9adf1fab1bf7b9de733eeff19cf7bedf77efffffff1fc2e2ff87bdff0cb3a2dcd67fe1dfa89aa173374d139a9c7306c99241721245044104092219548282a20411050445250992949c44c939e79c333434341de838e7acf17ea86e9dfb78d63aeeb5f6dee77ff6f53e1fb89ad9d535eb79ea0923dce3beb501de99c2d8e56aff5c5c5cfffffffffff60000fd9b39a3",
+      "decoded_hex": "0800a2ff4000fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc92e0",
+      "decoded_sha256": "d43cb34069584694314352cbf48255e7a0f78926da4e2f337cf770e0a53744bc",
+      "decoded_structure": {
+        "prefix_hex": "0800a2ff4000fc92",
+        "repeat_count": 17,
+        "repeat_hex": "01007ca8ff00a2ff4000fc250106fc92",
+        "suffix_hex": "e0"
+      },
+      "fixture_source_context": {
+        "fdeflate-0.3.7/src/decompress.rs": "26eea8e94c41422b29b50b83e8077ef8ee37e116f26fc810c15e7e7f0224bc5e",
+        "fdeflate-0.3.7/src/decompress/tests/test_utils.rs": "220c8813c35240b1d0dbbb63051b3ec62838ea8f682f5389315c738d4bdff488"
+      },
+      "format": "Exact zlib fuzz fixture with complete raw-DEFLATE output and deliberately ignored checksum",
+      "meaning": "All compressed input is consumed except the explicit four-byte checksum. The complete output is the listed numerical byte pattern, not text or an ownership statement. Its length and Adler value equal the exact upstream assertions.",
+      "observed_adler32": 751299,
+      "path": "fdeflate-0.3.7/tests/input-chunking-sensitivity-example1.zz",
+      "retained_checksum_hex": "fd9b39a3",
+      "sha256": "215d6eafcce032f917f0559c3f35e575fdfcccd5548df8fed5092bc70cf24812",
+      "size": 207,
+      "status": "complete-reviewed-binary-record-no-ownership-statement"
+    },
+    {
+      "complete_input_hex": "5809ecc8210a00000010b8010100001a007f7a07ff7f0000008104000030005b020000ffffff00c2c2",
+      "documented_expected_result": "BadLiteralLengthHuffmanTree; the upstream test documents a missing end-of-block symbol.",
+      "fixture_source_context": {
+        "fdeflate-0.3.7/src/decompress.rs": "26eea8e94c41422b29b50b83e8077ef8ee37e116f26fc810c15e7e7f0224bc5e",
+        "fdeflate-0.3.7/src/decompress/tests/test_utils.rs": "220c8813c35240b1d0dbbb63051b3ec62838ea8f682f5389315c738d4bdff488"
+      },
+      "path": "fdeflate-0.3.7/tests/input-chunking-sensitivity-example2.zz",
+      "remaining_review": "The malformed input has no complete standard decompression. Exact numerical fuzz bytes and source context are retained; no copyright absence is inferred from decoder rejection.",
+      "sha256": "9eafada86c8d8af16b90b280e77fd4aa750fa8fb54e31623dc3aaac8097d0c2f",
+      "size": 41,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "complete_input_hex": "5809ed40c8210a8f0004c5c5c50000000000000000000000180000000000000000000000000000030001000000000000ffffffff",
+      "documented_expected_result": "BadLiteralLengthHuffmanTree; the upstream test documents a missing end-of-block symbol.",
+      "fixture_source_context": {
+        "fdeflate-0.3.7/src/decompress.rs": "26eea8e94c41422b29b50b83e8077ef8ee37e116f26fc810c15e7e7f0224bc5e",
+        "fdeflate-0.3.7/src/decompress/tests/test_utils.rs": "220c8813c35240b1d0dbbb63051b3ec62838ea8f682f5389315c738d4bdff488"
+      },
+      "path": "fdeflate-0.3.7/tests/input-chunking-sensitivity-example3.zz",
+      "remaining_review": "The malformed input has no complete standard decompression. Exact numerical fuzz bytes and source context are retained; no copyright absence is inferred from decoder rejection.",
+      "sha256": "bf63f178c0c288e004339e2d3084adce4c43064697b860accf13bb81fa5fa1f2",
+      "size": 52,
+      "status": "undecoded-member-needs-review"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
+  "schema": 1
+}
+
+fdeflate
+Included source archive: legal/SOURCE-OFFERS/cargo-fdeflate-0.3.7/fdeflate-0.3.7.crate
+SHA-256: 1e6853b52649d4ac5c0bd02320cddc5ba956bdb407c4b75a2c6b75bf51500f8c
 
 glow
 {

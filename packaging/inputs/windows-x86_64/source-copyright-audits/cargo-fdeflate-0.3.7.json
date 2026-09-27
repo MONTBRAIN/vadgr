@@ -85,19 +85,50 @@
       "status": "decoded-no-ownership-markers"
     },
     {
+      "complete_input_hex": "78daecbd779415d5d6eefd9b553b7484ee069a9c73ce39a324c9490424239845515010c580a8783083822822202828024a101010090292730e0d74d374ce7bef9adf1fab1bf7b9de733eeff19cf7bedf77efffffff1fc2e2ff87bdff0cb3a2dcd67fe1dfa89aa173374d139a9c7306c99241721245044104092219548282a20411050445250992949c44c939e79c333434341de838e7acf17ea86e9dfb78d63aeeb5f6dee77ff6f53e1fb89ad9d535eb79ea0923dce3beb501de99c2d8e56aff5c5c5cfffffffffff60000fd9b39a3",
+      "decoded_hex": "0800a2ff4000fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc9201007ca8ff00a2ff4000fc250106fc92e0",
+      "decoded_sha256": "d43cb34069584694314352cbf48255e7a0f78926da4e2f337cf770e0a53744bc",
+      "decoded_structure": {
+        "prefix_hex": "0800a2ff4000fc92",
+        "repeat_count": 17,
+        "repeat_hex": "01007ca8ff00a2ff4000fc250106fc92",
+        "suffix_hex": "e0"
+      },
+      "fixture_source_context": {
+        "fdeflate-0.3.7/src/decompress.rs": "26eea8e94c41422b29b50b83e8077ef8ee37e116f26fc810c15e7e7f0224bc5e",
+        "fdeflate-0.3.7/src/decompress/tests/test_utils.rs": "220c8813c35240b1d0dbbb63051b3ec62838ea8f682f5389315c738d4bdff488"
+      },
+      "format": "Exact zlib fuzz fixture with complete raw-DEFLATE output and deliberately ignored checksum",
+      "meaning": "All compressed input is consumed except the explicit four-byte checksum. The complete output is the listed numerical byte pattern, not text or an ownership statement. Its length and Adler value equal the exact upstream assertions.",
+      "observed_adler32": 751299,
       "path": "fdeflate-0.3.7/tests/input-chunking-sensitivity-example1.zz",
+      "retained_checksum_hex": "fd9b39a3",
       "sha256": "215d6eafcce032f917f0559c3f35e575fdfcccd5548df8fed5092bc70cf24812",
       "size": 207,
-      "status": "undecoded-member-needs-review"
+      "status": "complete-reviewed-binary-record-no-ownership-statement"
     },
     {
+      "complete_input_hex": "5809ecc8210a00000010b8010100001a007f7a07ff7f0000008104000030005b020000ffffff00c2c2",
+      "documented_expected_result": "BadLiteralLengthHuffmanTree; the upstream test documents a missing end-of-block symbol.",
+      "fixture_source_context": {
+        "fdeflate-0.3.7/src/decompress.rs": "26eea8e94c41422b29b50b83e8077ef8ee37e116f26fc810c15e7e7f0224bc5e",
+        "fdeflate-0.3.7/src/decompress/tests/test_utils.rs": "220c8813c35240b1d0dbbb63051b3ec62838ea8f682f5389315c738d4bdff488"
+      },
       "path": "fdeflate-0.3.7/tests/input-chunking-sensitivity-example2.zz",
+      "remaining_review": "The malformed input has no complete standard decompression. Exact numerical fuzz bytes and source context are retained; no copyright absence is inferred from decoder rejection.",
       "sha256": "9eafada86c8d8af16b90b280e77fd4aa750fa8fb54e31623dc3aaac8097d0c2f",
       "size": 41,
       "status": "undecoded-member-needs-review"
     },
     {
+      "complete_input_hex": "5809ed40c8210a8f0004c5c5c50000000000000000000000180000000000000000000000000000030001000000000000ffffffff",
+      "documented_expected_result": "BadLiteralLengthHuffmanTree; the upstream test documents a missing end-of-block symbol.",
+      "fixture_source_context": {
+        "fdeflate-0.3.7/src/decompress.rs": "26eea8e94c41422b29b50b83e8077ef8ee37e116f26fc810c15e7e7f0224bc5e",
+        "fdeflate-0.3.7/src/decompress/tests/test_utils.rs": "220c8813c35240b1d0dbbb63051b3ec62838ea8f682f5389315c738d4bdff488"
+      },
       "path": "fdeflate-0.3.7/tests/input-chunking-sensitivity-example3.zz",
+      "remaining_review": "The malformed input has no complete standard decompression. Exact numerical fuzz bytes and source context are retained; no copyright absence is inferred from decoder rejection.",
       "sha256": "bf63f178c0c288e004339e2d3084adce4c43064697b860accf13bb81fa5fa1f2",
       "size": 52,
       "status": "undecoded-member-needs-review"

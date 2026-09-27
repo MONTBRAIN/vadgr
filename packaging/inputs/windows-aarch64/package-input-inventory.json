@@ -2242,8 +2242,17 @@
       ],
       "notice_required": true,
       "sha256": "7b77c319abfd5219629c45c34c89ba945ed3c5e49fcde9d16b6c3885f118a730",
-      "source_offer_files": [],
-      "source_offer_required": false,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-cms-0.2.3/cms-0.2.3.crate",
+          "sha256": "7b77c319abfd5219629c45c34c89ba945ed3c5e49fcde9d16b6c3885f118a730"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-cms-0.2.3/copyright-absence.json",
+          "sha256": "d41f305a439b8e5ac816a636abba1c360cd8a3918f016c56edd56daf5839b3b5"
+        }
+      ],
+      "source_offer_required": true,
       "version": "0.2.3"
     },
     {
@@ -4505,8 +4514,17 @@
       ],
       "notice_required": true,
       "sha256": "1e6853b52649d4ac5c0bd02320cddc5ba956bdb407c4b75a2c6b75bf51500f8c",
-      "source_offer_files": [],
-      "source_offer_required": false,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-fdeflate-0.3.7/copyright-absence.json",
+          "sha256": "d9fbe8b28863f30543dbb4bd47ae038fbb9bbc81504acd7871c745a2aeda7170"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-fdeflate-0.3.7/fdeflate-0.3.7.crate",
+          "sha256": "1e6853b52649d4ac5c0bd02320cddc5ba956bdb407c4b75a2c6b75bf51500f8c"
+        }
+      ],
+      "source_offer_required": true,
       "version": "0.3.7"
     },
     {

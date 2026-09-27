@@ -4329,7 +4329,7 @@
       "copyright_absence_audit": {
         "eligible_for_reviewed_NONE": false,
         "path": "source-copyright-audits/cargo-fdeflate-0.3.7.json",
-        "sha256": "cf13b1e8967285de33ad89e9810bd5c9bf2ab2565e951c804ff57863a394f7e8"
+        "sha256": "d9fbe8b28863f30543dbb4bd47ae038fbb9bbc81504acd7871c745a2aeda7170"
       },
       "id": "cargo-fdeflate-0.3.7",
       "original_license_declaration": "MIT OR Apache-2.0",

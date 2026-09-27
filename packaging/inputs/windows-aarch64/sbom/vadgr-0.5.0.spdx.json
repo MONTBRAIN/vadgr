@@ -8,7 +8,7 @@
   },
   "dataLicense": "CC0-1.0",
   "documentComment": "Incomplete review inventory, including separately classified build-source candidates. Not an approved shipped-component SBOM.",
-  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-01d3a1954bf6e6b563763c4b6eab2137d9dfccece4e9838bd33f97a491034f62",
+  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-b94ab58c5f67b5586d0ec94d958791f2ff9d2813da1499c8cf0658b7c85cc7ba",
   "hasExtractedLicensingInfos": [
     {
       "comment": "Exact retained terms; this identifier is not an approval or a claim of SPDX-list equivalence.",

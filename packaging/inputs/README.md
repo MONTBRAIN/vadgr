@@ -93,6 +93,12 @@ the entire component's canonical member-hash map. The validator checks every
 member and rejects missing files, binary members, ambiguous ownership markers,
 links, aliases and uninspected ZIP comments. This narrow path does not approve
 opaque crate fixtures or infer ownership from an author or certificate subject.
+Inconclusive copyright audits also retain the complete source archive and audit
+in the offline packet. The exact positive fdeflate fixture fully decodes into
+its documented numerical pattern. The two malformed negative fixtures remain
+unresolved, with complete hexadecimal bytes and exact test-source context.
+Decoder rejection does not become an absence conclusion. Encrypted CMS content
+likewise remains unresolved without sufficient plaintext or ownership evidence.
 Certifi's source comparison binds every observed member to the published source
 distribution. Only exact pip import/resource namespace relocations are accepted;
 both the complete upstream source and actual modified source are delivered.

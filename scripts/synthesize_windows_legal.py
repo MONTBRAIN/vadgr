@@ -1231,13 +1231,14 @@ def add_crate_evidence(packet, cache, archive_root, architecture, inputs):
             renewed.evidence[0]["copyright_absence_audit"] = {
                 "path": audit_path, "sha256": sha256_bytes(canonical_json(audit)),
                 "eligible_for_reviewed_NONE": audit["eligible_for_reviewed_NONE"]}
+            folder = "legal/SOURCE-OFFERS/" + row["id"] + "/"
+            proof_files = {folder + filename: raw, folder + "copyright-absence.json": canonical_json(audit)}
+            for name, data in proof_files.items():
+                renewed.put(name, data)
+            renewed.components[0].update(source_offer_required=True,
+                source_offer_files=[{"path": name, "sha256": sha256_bytes(data)} for name, data in sorted(proof_files.items())])
             if audit["eligible_for_reviewed_NONE"]:
-                folder = "legal/SOURCE-OFFERS/" + row["id"] + "/"
-                proof_files = {folder + filename: raw, folder + "copyright-absence.json": canonical_json(audit)}
-                for name, data in proof_files.items():
-                    renewed.put(name, data)
-                renewed.components[0].update(copyright_text="NONE", source_offer_required=True,
-                    source_offer_files=[{"path": name, "sha256": sha256_bytes(data)} for name, data in sorted(proof_files.items())])
+                renewed.components[0]["copyright_text"] = "NONE"
                 renewed.pending[0]["items"] = [item for item in renewed.pending[0]["items"]
                     if item != "no-original-copyright-statement-in-pinned-source"
                     and not (item == "license-choice-and-original-copyright" and renewed.components[0]["license_concluded"] != "NOASSERTION")]
