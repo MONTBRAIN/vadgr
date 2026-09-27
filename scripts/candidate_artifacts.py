@@ -186,16 +186,13 @@ def require_legal(source_root: Path, members: dict[str, dict], architecture: str
     require(len(sbom) == 1, "candidate must carry one version SBOM")
     require(members["TERMS.rtf"]["sha256"] == members["payload/legal/TERMS.rtf"]["sha256"],
             "package terms and installer terms differ")
-    approved = candidate_policy.trusted_approval(architecture)
+    trusted_root = Path(candidate_policy.__file__).resolve().parents[1]
+    approved = candidate_policy.candidate_approval(source_root, trusted_root, architecture)
     if (source_root / "packaging/cua/profile-inputs.json").exists():
-        trusted_root = Path(candidate_policy.__file__).resolve().parents[1]
-        for suffix in (".json", "-outer.json"):
+        for suffix in (".json", "-outer.json", "-predecessors.json"):
             name = f"packaging/cua/helper-signing/{target}{suffix}"
-            original, trusted = source_root / name, trusted_root / name
-            require(original.is_file() and trusted.is_file()
-                    and digest(original) == digest(trusted) == approved["legal_hashes"].get(name),
-                    "profile signing policy differs from exact trusted legal approval")
-            legal[name] = digest(original)
+            raw = candidate_policy.candidate_policy_data(source_root, trusted_root, name, approved)
+            legal[name] = hashlib.sha256(raw).hexdigest()
     require(legal == approved["legal_hashes"]
             and list(sbom.values())[0] == approved["sbom_sha256"],
             "candidate compliance bytes do not match reviewed approval")
@@ -319,6 +316,11 @@ def main() -> int:
             files = inspect(args.archive)
             require_architecture(args.archive, files, args.architecture)
             legal = require_legal(args.source_root, files, args.architecture)
+            if "release_profile" in preflight.get("cua_inputs", {}):
+                approved = candidate_policy.candidate_approval(
+                    args.source_root, Path(__file__).resolve().parents[1], args.architecture)
+                require(approved == candidate_policy.authorization_approval(preflight),
+                        "candidate legal proposal changed after preflight")
             budget = operation_budget(list(files))
             extract(args.archive, args.extract, files)
             target_arch = {"x64": "x86_64", "arm64": "aarch64"}[args.architecture]
@@ -368,7 +370,7 @@ def main() -> int:
                 require(files == record["files"], "downloaded candidate bytes changed")
                 extract(args.archive, args.extract, files)
             verify_directory(args.extract, files)
-    except (Refused, PackageInputError, OSError, ValueError, TypeError, KeyError, zipfile.BadZipFile,
+    except (Refused, candidate_policy.Refused, PackageInputError, OSError, ValueError, TypeError, KeyError, zipfile.BadZipFile,
             subprocess.SubprocessError) as exc:
         print("CANDIDATE ARTIFACT REFUSED: " + (str(exc) if isinstance(exc, Refused)
               else "invalid artifact metadata or bytes"), file=sys.stderr)

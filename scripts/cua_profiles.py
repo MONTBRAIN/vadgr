@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """Data-only admission for reviewed CUA release profiles.
 
-Profile inputs are promoted through trusted source review. This module never
+Profile inputs are unexecuted data admitted by trusted tooling. This module never
 resolves a newest artifact, invents a pin, executes a wheel, or approves inputs.
 """
 
 from __future__ import annotations
 
 import ast
+import base64
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -77,12 +79,22 @@ def identity(row, key="filename"):
 
 
 def reviewed(source: Path, trusted: Path, profile: str):
-    """Require the feature's entire mapping and selected lock to match master."""
+    """Bind unexecuted profile data; trusted copies, when present, must agree.
+
+    This offline check is not provenance or signing approval. The protected
+    preflight verifies the producer and materialization rechecks retained bytes.
+    """
     target = target_for(profile)
-    for name in (INPUTS, CATALOG, BUNDLE, lock_path(profile), release.MANIFEST, release.BUNDLE):
+    profile_names = (INPUTS, CATALOG, BUNDLE, lock_path(profile))
+    for name in profile_names:
+        raw = read_owned(source, name)
+        if os.path.lexists(trusted / name):
+            require(raw == read_owned(trusted, name),
+                    "CUA profile input differs from trusted default-branch bytes")
+    for name in (release.MANIFEST, release.BUNDLE):
         require(read_owned(source, name) == read_owned(trusted, name),
                 "CUA profile input differs from trusted default-branch bytes")
-    raw = read_owned(trusted, INPUTS)
+    raw = read_owned(source, INPUTS)
     value = document(raw)
     require(set(value) == {"schema", "publication_state", "catalog_sha256", "bundle_sha256",
                            "artifact_id", "artifact_sha256", "publication_sha256", "profiles"}
@@ -100,11 +112,13 @@ def reviewed(source: Path, trusted: Path, profile: str):
         require(value["publication_sha256"] is None, "held inputs cannot claim publication")
     else:
         require(valid_hash(value["publication_sha256"]), "released inputs lack publication")
-        publication = read_owned(trusted, PUBLICATION)
-        require(read_owned(source, PUBLICATION) == publication
-                and sha256_bytes(publication) == value["publication_sha256"],
+        publication = read_owned(source, PUBLICATION)
+        if os.path.lexists(trusted / PUBLICATION):
+            require(publication == read_owned(trusted, PUBLICATION),
+                    "reviewed publication differs from trusted copy")
+        require(sha256_bytes(publication) == value["publication_sha256"],
                 "reviewed publication record differs")
-    catalog_raw, bundle = read_owned(trusted, CATALOG), read_owned(trusted, BUNDLE)
+    catalog_raw, bundle = read_owned(source, CATALOG), read_owned(source, BUNDLE)
     require(sha256_bytes(catalog_raw) == value["catalog_sha256"]
             and sha256_bytes(bundle) == value["bundle_sha256"], "profile catalog binding differs")
     catalog = document(catalog_raw)
@@ -134,12 +148,16 @@ def reviewed(source: Path, trusted: Path, profile: str):
         require(pins["wheel_sha256"] == entry["wheel"]["sha256"]
                 and pins["role_manifest_sha256"] == entry["input_role_manifest"]["sha256"],
                 "profile selected artifact differs")
-    lock = read_owned(trusted, lock_path(profile))
+    lock = read_owned(source, lock_path(profile))
     pins = value["profiles"][profile]
     require(sha256_bytes(lock) == pins["requirements_sha256"], "profile transitive lock differs")
     selected = release.selected_lock(lock)
     require(selected.get("vadgr-computer-use") == (catalog["cua_version"], pins["wheel_sha256"]),
             "profile lock does not select its exact CUA wheel")
+    baseline = release.selected_lock(read_owned(trusted, release.lock_path(target)))
+    require({k: v for k, v in selected.items() if k != "vadgr-computer-use"}
+            == {k: v for k, v in baseline.items() if k != "vadgr-computer-use"},
+            "profile transitive dependencies differ from trusted baseline")
     native_raw, native = release.manifest(trusted)
     if target in release.CUSTOM_TARGETS:
         wheel = next(r for r in native["wheels"] if r["target"] == release.CUSTOM_TARGETS[target])
@@ -159,61 +177,95 @@ def _gh(endpoint, binary=False):
     return result.stdout if binary else parse_json(result.stdout)
 
 
-def retrieve(trusted, inputs, catalog):
-    """Verify the reviewed producer and retrieve an immutable retained closure."""
-    from_scripts = __package__ is not None and bool(__package__)
-    if from_scripts:
-        from scripts.cua_wheelhouse import archive_members
-    else:
-        from cua_wheelhouse import archive_members
+def verify_producer(source, trusted, inputs, catalog):
+    """Authenticate feature data using only trusted code and pinned roots."""
     producer = catalog["producer"]
+    require(sha256_bytes(read_owned(source, CATALOG)) == inputs["catalog_sha256"]
+            and document(read_owned(source, CATALOG)) == catalog
+            and sha256_bytes(read_owned(source, BUNDLE)) == inputs["bundle_sha256"],
+            "profile metadata changed before provenance verification")
     require(sha256_bytes(read_owned(trusted, release.TRUSTED_ROOT)) == release.TRUSTED_ROOT_SHA256,
             "profile verifier root differs")
     verified = subprocess.run([
-        "gh", "attestation", "verify", str(trusted / CATALOG), "--bundle", str(trusted / BUNDLE),
+        "gh", "attestation", "verify", str(source / CATALOG), "--bundle", str(source / BUNDLE),
         "--repo", REPOSITORY, "--cert-identity",
         f"https://github.com/{REPOSITORY}/{WORKFLOW}@refs/heads/master",
         "--cert-oidc-issuer", "https://token.actions.githubusercontent.com",
-        "--source-ref", "refs/heads/master", "--source-digest", producer["source_commit"],
+        "--source-ref", "refs/heads/master", "--source-digest", producer["tooling_commit"],
         "--signer-digest", producer["tooling_commit"], "--deny-self-hosted-runners",
         "--custom-trusted-root", str(trusted / release.TRUSTED_ROOT), "--format", "json",
     ], capture_output=True, timeout=180, check=False)
     require(verified.returncode == 0 and verified.stdout, "profile attestation refused")
+    require(len(verified.stdout) <= release.MAX_METADATA, "profile attestation result is oversized")
+    result = parse_json(b'{"verified":' + verified.stdout + b'}')["verified"]
+    require(isinstance(result, list) and len(result) == 1, "profile attestation is ambiguous")
+    verification = result[0]["verificationResult"]
+    certificate = verification["signature"]["certificate"]
+    subjects = verification["statement"]["subject"]
+    require(len(subjects) == 1 and subjects[0]["digest"] == {"sha256": inputs["catalog_sha256"]}
+            and certificate["runInvocationURI"] ==
+                f"https://github.com/{REPOSITORY}/actions/runs/{producer['run_id']}/attempts/1"
+            and certificate["sourceRepositoryDigest"] == producer["tooling_commit"]
+            and certificate["buildSignerDigest"] == producer["tooling_commit"]
+            and certificate["runnerEnvironment"] == "github-hosted",
+            "profile attestation does not bind the exact producer run and subject")
     repository = _gh("")
     require(repository.get("id") == producer["repository_id"]
             and repository.get("owner", {}).get("id") == producer["owner_id"],
             "profile repository identity differs")
     run = _gh(f"actions/runs/{producer['run_id']}")
     require(all(run.get(k) == v for k, v in {
-        "head_sha": producer["source_commit"], "head_branch": "master", "run_attempt": 1,
+        "head_sha": producer["tooling_commit"], "head_branch": "master", "run_attempt": 1,
         "event": "workflow_dispatch", "workflow_id": producer["workflow_id"],
         "conclusion": "success", "status": "completed", "path": WORKFLOW,
     }.items()), "profile producer run differs")
+    descriptor = _gh("contents/packaging/profiles/source-input.json?ref=" + producer["tooling_commit"])
+    require(descriptor.get("type") == "file" and descriptor.get("encoding") == "base64"
+            and descriptor.get("path") == "packaging/profiles/source-input.json"
+            and isinstance(descriptor.get("content"), str)
+            and len(descriptor["content"]) <= release.MAX_METADATA,
+            "profile producer source descriptor absent")
+    source_input = parse_json(base64.b64decode("".join(descriptor["content"].splitlines()), validate=True))
+    require(type(source_input.get("schema")) is int
+            and source_input == {"schema": 1, "source_commit": producer["source_commit"],
+                             "version": catalog["cua_version"]},
+            "profile producer source descriptor differs")
     jobs = set()
-    for entry in catalog["profiles"].values():
+    for profile, entry in catalog["profiles"].items():
         evidence = entry["evidence"]
         require(set(evidence) == {"build_sha256", "test_sha256", "sbom_sha256", "native_job_ids", "artifacts"}
                 and all(valid_hash(evidence[k]) for k in ("build_sha256", "test_sha256", "sbom_sha256"))
                 and evidence["native_job_ids"] and evidence["artifacts"], "profile producer evidence absent")
         for job_id in evidence["native_job_ids"]:
             require(type(job_id) is int and job_id > 0, "profile native job identity absent")
-            if job_id in jobs:
+            job_key = (job_id, profile.split("-", 1)[1])
+            if job_key in jobs:
                 continue
             job = _gh(f"actions/jobs/{job_id}")
-            require(job.get("run_id") == producer["run_id"] and job.get("head_sha") == producer["source_commit"]
+            require(job.get("run_id") == producer["run_id"] and job.get("head_sha") == producer["tooling_commit"]
                     and job.get("conclusion") == "success" and job.get("runner_group_name") == "GitHub Actions"
-                    and job.get("name") in ("native-x86_64", "native-aarch64"), "profile native job differs")
-            jobs.add(job_id)
+                    and job.get("name") == "native-" + job_key[1], "profile native job differs")
+            jobs.add(job_key)
         for row in evidence["artifacts"]:
             require(set(row) == {"id", "sha256"} and type(row["id"]) is int and row["id"] > 0
                     and valid_hash(row["sha256"]), "profile native artifact identity absent")
             _artifact(row["id"], row["sha256"], producer)
     _artifact(inputs["artifact_id"], inputs["artifact_sha256"], producer)
+
+
+def retrieve(trusted, inputs, catalog, *, source=None):
+    """Verify provenance and every retained member before using profile bytes."""
+    if __package__:
+        from scripts.cua_wheelhouse import archive_members
+    else:
+        from cua_wheelhouse import archive_members
+    source = trusted if source is None else source
+    verify_producer(source, trusted, inputs, catalog)
     raw = _gh(f"actions/artifacts/{inputs['artifact_id']}/zip", binary=True)
     require(sha256_bytes(raw) == inputs["artifact_sha256"], "retained profile artifact changed")
     members = archive_members(raw, limit=MAX_EXPANDED)
-    require(members.get("cua-profile-catalog.json") == read_owned(trusted, CATALOG)
-            and members.get("cua-profile-catalog.sigstore.json") == read_owned(trusted, BUNDLE),
+    require(members.get("cua-profile-catalog.json") == read_owned(source, CATALOG)
+            and members.get("cua-profile-catalog.sigstore.json") == read_owned(source, BUNDLE),
             "retained catalog differs")
     expected = {"cua-profile-catalog.json", "cua-profile-catalog.sigstore.json"}
     for entry in [*catalog["profiles"].values(), catalog["standalone"]]:
@@ -228,7 +280,7 @@ def retrieve(trusted, inputs, catalog):
             expected.add(row["filename"])
     require(set(members) == expected, "retained profile artifact file set differs")
     if inputs["publication_state"] == "released":
-        _verify_publication(trusted, catalog, members)
+        _verify_publication(source, catalog, members)
     return members
 
 
@@ -237,20 +289,25 @@ def _artifact(artifact_id, digest, producer):
     origin = item.get("workflow_run", {})
     require(item.get("id") == artifact_id and item.get("expired") is False
             and item.get("digest") == "sha256:" + digest and origin.get("id") == producer["run_id"]
-            and origin.get("head_sha") == producer["source_commit"] and origin.get("head_branch") == "master",
+            and origin.get("head_sha") == producer["tooling_commit"] and origin.get("head_branch") == "master",
             "profile artifact unavailable or origin differs")
 
 
-def _verify_publication(trusted, catalog, members):
+def _verify_publication(source, catalog, members):
     # The CUA publication producer emits compact canonical JSON, while the
     # pre-publication wheel catalog deliberately uses indented canonical JSON.
-    raw = read_owned(trusted, PUBLICATION)
+    raw = read_owned(source, PUBLICATION)
+    require(len(raw) <= release.MAX_METADATA, "publication record is oversized")
     publication = parse_json(raw)
     require((json.dumps(publication, sort_keys=True, separators=(",", ":")) + "\n").encode() == raw,
             "publication record is not canonical")
-    require(publication.get("schema") == 1 and publication.get("repository") == REPOSITORY
+    require(set(publication) == {"schema", "repository", "cua_version", "catalog_sha256", "tag", "release_id", "assets"}
+            and type(publication["schema"]) is int and publication["schema"] == 1
+            and type(publication["release_id"]) is int and publication["release_id"] > 0
+            and isinstance(publication["assets"], list) and publication["assets"]
+            and publication.get("repository") == REPOSITORY
             and publication.get("cua_version") == catalog["cua_version"]
-            and publication.get("catalog_sha256") == sha256_bytes(read_owned(trusted, CATALOG))
+            and publication.get("catalog_sha256") == sha256_bytes(read_owned(source, CATALOG))
             and publication.get("tag") == "v" + catalog["cua_version"], "publication binding differs")
     released = _gh(f"releases/{publication['release_id']}")
     require(released.get("immutable") is True and released.get("draft") is False
@@ -259,6 +316,9 @@ def _verify_publication(trusted, catalog, members):
     assets = {a["id"]: a for a in released.get("assets", [])}
     seen = set()
     for row in publication["assets"]:
+        require(isinstance(row, dict) and set(row) == {"filename", "id", "size", "sha256"}
+                and type(row["id"]) is int and row["id"] > 0, "CUA publication asset schema differs")
+        identity({key: value for key, value in row.items() if key != "id"})
         asset = assets.get(row["id"], {})
         require(row["filename"] in members and row["filename"] not in seen
                 and asset.get("name") == row["filename"] and asset.get("size") == row["size"]
