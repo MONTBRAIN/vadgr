@@ -1,5 +1,10 @@
 # Held Windows candidate tools
 
+[Unsigned Windows legal preparation](UNSIGNED-PREPARATION.md) supplies exact
+unapproved x64 and native ARM64 observations before package approval. Its separate
+default-branch workflow has no signing or approval authority. Candidate preflight
+still requires the complete reviewed inputs described below.
+
 The manual candidate workflow runs only from the default branch. It builds an
 exact pushed source commit without signing credentials and validates the uploaded
 bytes independently. The source branch does not supply signing scripts or WiX
