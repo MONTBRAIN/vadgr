@@ -228,16 +228,24 @@ def verify_producer(source, trusted, inputs, catalog):
         "event": "workflow_dispatch", "workflow_id": producer["workflow_id"],
         "conclusion": "success", "status": "completed", "path": WORKFLOW,
     }.items()), "profile producer run differs")
-    descriptor = _gh("contents/packaging/profiles/source-input.json?ref=" + producer["tooling_commit"])
-    require(descriptor.get("type") == "file" and descriptor.get("encoding") == "base64"
-            and descriptor.get("path") == "packaging/profiles/source-input.json"
-            and isinstance(descriptor.get("content"), str)
-            and len(descriptor["content"]) <= release.MAX_METADATA,
-            "profile producer source descriptor absent")
-    source_input = parse_json(base64.b64decode("".join(descriptor["content"].splitlines()), validate=True))
-    require(type(source_input.get("schema")) is int
-            and source_input == {"schema": 1, "source_commit": producer["source_commit"],
-                             "version": catalog["cua_version"]},
+    expected_source = {"schema": 1, "source_commit": producer["source_commit"],
+                       "version": catalog["cua_version"]}
+    source_input = None
+    for descriptor_path in (
+            "packaging/profiles/source-input.json",
+            "packaging/profiles/fixtures/upgrade/source-input.json"):
+        descriptor = _gh(f"contents/{descriptor_path}?ref={producer['tooling_commit']}")
+        require(descriptor.get("type") == "file" and descriptor.get("encoding") == "base64"
+                and descriptor.get("path") == descriptor_path
+                and isinstance(descriptor.get("content"), str)
+                and len(descriptor["content"]) <= release.MAX_METADATA,
+                "profile producer source descriptor absent")
+        candidate = parse_json(base64.b64decode(
+            "".join(descriptor["content"].splitlines()), validate=True))
+        if candidate == expected_source:
+            require(source_input is None, "profile producer source descriptor is ambiguous")
+            source_input = candidate
+    require(source_input == expected_source and type(source_input.get("schema")) is int,
             "profile producer source descriptor differs")
     jobs = set()
     for profile, entry in catalog["profiles"].items():

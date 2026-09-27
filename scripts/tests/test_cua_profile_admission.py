@@ -109,6 +109,11 @@ def admission(tmp_path, monkeypatch):
         f"contents/packaging/profiles/source-input.json?ref={producer['tooling_commit']}": {
             "type": "file", "encoding": "base64", "path": "packaging/profiles/source-input.json",
             "content": base64.b64encode(profiles.canonical(source_input)).decode()},
+        f"contents/packaging/profiles/fixtures/upgrade/source-input.json?ref={producer['tooling_commit']}": {
+            "type": "file", "encoding": "base64",
+            "path": "packaging/profiles/fixtures/upgrade/source-input.json",
+            "content": base64.b64encode(profiles.canonical({
+                "schema": 1, "source_commit": "c" * 40, "version": "0.7.9"})).decode()},
         "actions/artifacts/5/zip": archive_raw,
     }
     for job_id, arch in ((10, "x86_64"), (11, "aarch64")):
@@ -148,6 +153,20 @@ def test_feature_held_data_is_admitted_without_advancing_signer_commit(admission
     assert command[command.index("--signer-digest") + 1] == "b" * 40
     assert command[3] == str(a.source / profiles.CATALOG)
     assert command[command.index("--custom-trusted-root") + 1] == str(a.trusted / profiles.release.TRUSTED_ROOT)
+
+
+def test_named_upgrade_fixture_source_is_admitted(admission):
+    a = admission
+    source_commit = "c" * 40
+    a.catalog["source_commit"] = source_commit
+    a.catalog["producer"]["source_commit"] = source_commit
+    raw = profiles.canonical(a.catalog)
+    write(a.source, profiles.CATALOG, raw)
+    a.inputs["catalog_sha256"] = sha256_bytes(raw)
+    write(a.source, profiles.INPUTS, profiles.canonical(a.inputs))
+    a.verification[0]["verificationResult"]["statement"]["subject"][0]["digest"] = {
+        "sha256": a.inputs["catalog_sha256"]}
+    profiles.verify_producer(a.source, a.trusted, a.inputs, a.catalog)
 
 
 @pytest.mark.parametrize("name", [profiles.INPUTS, profiles.CATALOG, profiles.BUNDLE,
@@ -200,6 +219,9 @@ def test_feature_data_requires_independent_provenance(admission, monkeypatch, mu
         key = "contents/packaging/profiles/source-input.json?ref=" + "b" * 40
         a.endpoints[key]["content"] = base64.b64encode(profiles.canonical({
             "schema": 1, "source_commit": "c" * 40, "version": "0.7.9"})).decode()
+        upgrade = "contents/packaging/profiles/fixtures/upgrade/source-input.json?ref=" + "b" * 40
+        a.endpoints[upgrade]["content"] = base64.b64encode(profiles.canonical({
+            "schema": 1, "source_commit": "d" * 40, "version": "0.7.9"})).decode()
     elif mutation == "archive":
         a.endpoints["actions/artifacts/5/zip"] += b"changed"
     else:

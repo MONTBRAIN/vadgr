@@ -74,11 +74,11 @@ def test_reviewed_bundle_preserves_the_attested_manifest_subject():
 def test_windows_x64_profile_selects_complete_released_runtime_without_custom_wheels():
     target = "x86_64-pc-windows-msvc"
     binding = release.reviewed_inputs(ROOT, ROOT, target)
-    assert binding["requirements_sha256"] == "e63d09b556a17aed7899f88eb5f3c3245e47f6eda94ed54c4dfb8c8e7db96156"
+    assert binding["requirements_sha256"] == "2580976f2ff6dc36f4b0ca8847acdfaf242d7005320b7e706405a444849c53b3"
     selected = release.selected_lock((ROOT / profiles.lock_path("windows-x86_64")).read_bytes())
     assert len(selected) == 40
     assert selected["vadgr-computer-use"] == (
-        "0.7.9", "cdfbd45fd528cd3738cc2635e848b3aac3448f51820abcb20c84b33e056282c5")
+        "0.7.9", "6ac9a13aeb555d49c4cf555cc2155242c012751f1a89c88111261a8423639b11")
     assert selected["uniseg"][0] == "0.10.1"
     assert {"pywin32", "pywinauto", "comtypes"} <= selected.keys()
     assert not {"dbus-fast", "jeepney", "python-xlib", "pyobjc-core", "bcrypt", "pytest"} & selected.keys()

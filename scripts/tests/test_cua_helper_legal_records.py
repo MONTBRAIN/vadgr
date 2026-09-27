@@ -55,8 +55,8 @@ def assert_binding(value: dict, architecture: str, expected: dict) -> None:
 
 def test_helper_legal_records_cover_both_exact_transition_revisions():
     for architecture in ("x86_64", "aarch64"):
-        predecessor = record(f"predecessor-{architecture}.json")
-        replacement = record(f"{architecture}.json")
+        predecessor = record(f"{architecture}.json")
+        replacement = record(f"replacement-{architecture}.json")
         assert_binding(predecessor, architecture, PREDECESSOR)
         assert_binding(replacement, architecture, REPLACEMENT)
         assert set(predecessor["members"]) == set(replacement["members"])
