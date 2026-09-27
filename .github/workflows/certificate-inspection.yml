@@ -9,7 +9,7 @@ permissions:
 jobs:
   inspect:
     if: github.repository == 'MONTBRAIN/vadgr' && github.ref == 'refs/heads/master' && github.run_attempt == 1
-    environment: release-windows
+    environment: candidate-windows
     runs-on: windows-2025
     timeout-minutes: 10
     steps:
