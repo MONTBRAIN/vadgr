@@ -90,7 +90,7 @@ jobs:
           GH_TOKEN: ''
           GITHUB_TOKEN: ''
         run: |
-          scripts/candidate/prepare-unsigned-windows.ps1 -Architecture '${{ matrix.architecture }}' -SourceDirectory source -OutputDirectory raw -WheelhouseDirectory "$env:RUNNER_TEMP/reviewed-wheelhouse" -SourceRecord preparation-source.json
+          scripts/candidate/prepare-unsigned-windows.ps1 -Architecture '${{ matrix.architecture }}' -SourceDirectory source -SourceTestDirectory source_checkout -OutputDirectory raw -WheelhouseDirectory "$env:RUNNER_TEMP/reviewed-wheelhouse" -SourceRecord preparation-source.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: unapproved-windows-preparation-raw-${{ matrix.architecture }}
