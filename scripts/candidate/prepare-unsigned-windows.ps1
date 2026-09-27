@@ -49,8 +49,8 @@ if ($LASTEXITCODE -ne 0) { throw 'Cargo identity failed.' }
 Push-Location $sourceRoot
 try {
     foreach ($name in @('VADGR_RELEASE_PROFILE', 'VADGR_RELEASE_PAYLOAD_BUILD', 'VADGR_BUILD_WHEELHOUSE')) {
+        # PowerShell 7.5 converts $null to an empty string in the .NET setter.
         Remove-Item -LiteralPath "Env:$name" -ErrorAction SilentlyContinue
-        [Environment]::SetEnvironmentVariable($name, $null, [EnvironmentVariableTarget]::Process)
         if (Test-Path -LiteralPath "Env:$name") { throw 'Unsigned source test environment was not cleared.' }
     }
     & cargo test --locked --all-targets --features native-gui --target $target
