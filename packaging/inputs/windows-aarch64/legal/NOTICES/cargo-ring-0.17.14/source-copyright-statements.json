@@ -2559,6 +2559,28 @@
       ]
     },
     {
+      "path": "ring-0.17.14/src/tests/bits_tests.rs",
+      "sha256": "aa497cc7b103190d4d47466f0f43baf8e86bf28885cd0add0e6a94575b4628bd",
+      "size": 2422,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "ring-0.17.14/src/tests/mod.rs",
+      "sha256": "2c5791daa813a98bf2aa54bef5263738356784a8db0923550bf29e7b07e71ca1",
+      "size": 824,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 Brian Smith."
+        }
+      ]
+    },
+    {
       "path": "ring-0.17.14/src/testutil.rs",
       "sha256": "b971d1cfe1a3966d3715e565c355ca6b13c3269f862474136cf5b41157972eea",
       "size": 22708,
@@ -2566,6 +2588,138 @@
         {
           "line": 1,
           "text": "// Copyright 2015-2016 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "ring-0.17.14/tests/aead_tests.rs",
+      "sha256": "e7b8e716b46b7951671c4376d1dd7693415060c66584e39940ef73899bd1bcde",
+      "size": 22250,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2021 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "ring-0.17.14/tests/agreement_tests.rs",
+      "sha256": "a84b6dc536f153e75d12e0c52ed303fef80fbb9a62aedacca4f49a92c36a4779",
+      "size": 7521,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2017 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "ring-0.17.14/tests/constant_time_tests.rs",
+      "sha256": "3e83d78368187120f39d857179cb6766374a38e5f6c93c74367373512b9a6682",
+      "size": 2956,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2020 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "ring-0.17.14/tests/digest_tests.rs",
+      "sha256": "68d1acab03e0ecc7fae9334518192a43778715dee850c15e3915b5efb2b4abe4",
+      "size": 5127,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2017 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "ring-0.17.14/tests/ecdsa_tests.rs",
+      "sha256": "b9c0803f76e6728610d6a81aa587c48cc554d509b46440ef13ec053577b5c654",
+      "size": 12072,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2016 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "ring-0.17.14/tests/ed25519_tests.rs",
+      "sha256": "53786031eff672e7cf0e392f7114e4d217ecb0091a40c1da265e01ccc5be2d85",
+      "size": 8167,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2017 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "ring-0.17.14/tests/hkdf_tests.rs",
+      "sha256": "877a614d2d771c21ded679afc56c599b40bf97b34aecbbd7245fb1b893c35a6d",
+      "size": 4366,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "ring-0.17.14/tests/hmac_tests.rs",
+      "sha256": "62a726139d1a9d366ce131ba11b3c53e24e95c6f783f1c48038acd2759b29e7a",
+      "size": 3739,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2016 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "ring-0.17.14/tests/pbkdf2_tests.rs",
+      "sha256": "752fc51008ea34f2d6fb7e2e50aa1aaca72e7c4cf5238c96a0834ebdf2fbfae7",
+      "size": 2906,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2017 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "ring-0.17.14/tests/quic_tests.rs",
+      "sha256": "6dfee0d9d8453918410685271e2b2df175d18cf234b29254db8132cad6654440",
+      "size": 2938,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "ring-0.17.14/tests/rand_tests.rs",
+      "sha256": "666846d3c2b7c678b2848fd36609c3f3c60bd8bb03a78107e7a5ec781042ff63",
+      "size": 2429,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2019 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "ring-0.17.14/tests/rsa_tests.rs",
+      "sha256": "b01ce5b39d53e460771063372b4bc1ae107755fab348dd40b762a127b377f1be",
+      "size": 13214,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2017 Brian Smith."
         }
       ]
     },

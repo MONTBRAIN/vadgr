@@ -13,6 +13,39 @@
       ]
     },
     {
+      "path": "fearless_simd-0.4.1/examples/play.rs",
+      "sha256": "ccedc8139e60e54710b63f7ff3a542721fb7f6b90d6416180cff250457480d85",
+      "size": 1394,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Fearless_SIMD Authors"
+        }
+      ]
+    },
+    {
+      "path": "fearless_simd-0.4.1/examples/sigmoid.rs",
+      "sha256": "3f7bfe20f636f4ae0715e59719dd5f673caba2d023c5627855add2e1721028f5",
+      "size": 769,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Fearless_SIMD Authors"
+        }
+      ]
+    },
+    {
+      "path": "fearless_simd-0.4.1/examples/srgb.rs",
+      "sha256": "573db3ed74b73132aee2198883eee45c544dad835b62a5566da229650b667d4f",
+      "size": 2257,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Fearless_SIMD Authors"
+        }
+      ]
+    },
+    {
       "path": "fearless_simd-0.4.1/src/core_arch/aarch64/mod.rs",
       "sha256": "85dfe81eea7e8d6c6f1b12f691c9302f5045d133639b25e1e3a555aa602fc6d3",
       "size": 240919,

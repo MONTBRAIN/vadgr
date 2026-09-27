@@ -11,6 +11,17 @@
           "text": "Copyright (c) 2023 Attila Mravik"
         }
       ]
+    },
+    {
+      "path": "serde_json_canonicalizer-0.3.2/tests/resources/generated-numbers/numgen.js",
+      "sha256": "a05721015370c1cd6366d8b4242f1ca6ce0a4b163bab0ee9dc1bc010e3cee213",
+      "size": 6341,
+      "statements": [
+        {
+          "line": 2,
+          "text": "//  Copyright 2006-2021 WebPKI.org (http://webpki.org)."
+        }
+      ]
     }
   ],
   "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."

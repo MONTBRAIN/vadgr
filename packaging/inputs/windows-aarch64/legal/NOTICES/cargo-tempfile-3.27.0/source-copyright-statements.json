@@ -22,6 +22,17 @@
           "text": "// Copyright 2015 The Rust Project Developers."
         }
       ]
+    },
+    {
+      "path": "tempfile-3.27.0/tests/tempdir.rs",
+      "sha256": "b52cbe9937525075c83091da520734ef0c4eac35cd13c9c121000e2dcef87cc5",
+      "size": 5261,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2013-2014 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
     }
   ],
   "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."

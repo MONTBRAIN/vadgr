@@ -88,6 +88,83 @@
           "text": "// Copyright 2018 Ulf Adams"
         }
       ]
+    },
+    {
+      "path": "ryu-js-1.0.3/tests/common_test.rs",
+      "sha256": "8a7d1a611944ff4540c1fd8c8f310a989c1e844a1c8f4be502882532e3cb7b89",
+      "size": 2247,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright 2018 Ulf Adams"
+        }
+      ]
+    },
+    {
+      "path": "ryu-js-1.0.3/tests/d2s_intrinsics_test.rs",
+      "sha256": "15d11b70810bf04f33f8b185bf7f010a436a4edb47fa4648b1a036568c2c5d15",
+      "size": 2643,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright 2018 Ulf Adams"
+        }
+      ]
+    },
+    {
+      "path": "ryu-js-1.0.3/tests/d2s_table_test.rs",
+      "sha256": "2b429c5886cd2ad05128ea0ab1de0d4c53d01b6cd9f2d9e4cd2d9d9a5e38a8ed",
+      "size": 1801,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright 2018 Ulf Adams"
+        }
+      ]
+    },
+    {
+      "path": "ryu-js-1.0.3/tests/d2s_test.rs",
+      "sha256": "a8648c178ba30e7b941d846a802b09fb3f3e024139c3294c0b04d272403a188e",
+      "size": 9711,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright 2018 Ulf Adams"
+        }
+      ]
+    },
+    {
+      "path": "ryu-js-1.0.3/tests/f2s_test.rs",
+      "sha256": "bde56e065ed8b468256da53735ea760fc900c78dbb646e00e5a85ec2d8b41c29",
+      "size": 6211,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright 2018 Ulf Adams"
+        }
+      ]
+    },
+    {
+      "path": "ryu-js-1.0.3/tests/s2d_test.rs",
+      "sha256": "7529c3dceca1bc8ad5cfa7cf65028330d8da2c25f66b67bd29d61570d8991101",
+      "size": 5097,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright 2018 Ulf Adams"
+        }
+      ]
+    },
+    {
+      "path": "ryu-js-1.0.3/tests/s2f_test.rs",
+      "sha256": "ca44faee70f56f9ef51349418c41a67561fc46ae07c5d2bf0fe6f95ffd1a44f6",
+      "size": 3120,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright 2018 Ulf Adams"
+        }
+      ]
     }
   ],
   "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."

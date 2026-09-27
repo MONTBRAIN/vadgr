@@ -1,6 +1,7 @@
 """Draft synthesis must preserve provenance and cannot approve unresolved inputs."""
 
 import io
+import json
 import zipfile
 
 import pytest
@@ -48,6 +49,110 @@ def test_copyright_does_not_promote_authors_or_template():
 
 def test_license_filename_is_not_a_grant():
     assert synthesis.license_atoms(b"LICENSE-APACHE; see another file") == set()
+
+
+def test_lowercase_and_symbol_original_copyright_is_retained():
+    assert synthesis.copyright_lines([("source", b"copyright Alexander Huszagh.\n(C) 2024 Trifecta Tech Foundation\n")]) == (
+        "(C) 2024 Trifecta Tech Foundation\ncopyright Alexander Huszagh.")
+
+
+def test_mit_zero_requires_complete_grant_without_mit_notice_condition():
+    assert synthesis.license_atoms(synthesis.MIT_ZERO_GRANT.encode()) == {"MIT-0"}
+    assert not synthesis.license_atoms(b"MIT No Attribution\nPermission is hereby granted")
+
+
+def test_bsd_third_condition_without_article_is_not_downgraded():
+    text = '''Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+Redistributions of source code must retain the above copyright notice,
+this list of conditions and the following disclaimer.
+Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
+Neither name of Holder nor the names of contributors may be used to endorse
+or promote products derived from this software without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.'''
+    assert synthesis.license_atoms(text.encode()) == {"BSD-3-Clause"}
+    assert not synthesis.license_atoms(text.split("THIS SOFTWARE")[0].encode())
+
+
+def test_custom_grant_is_digest_bound_and_cannot_remove_source_review():
+    raw = b"Exact unusual redistribution conditions, Copyright 2026 Holder."
+    digest = synthesis.sha256_bytes(raw)
+    identifier = "LicenseRef-Exact-" + digest
+    packet = synthesis.Packet()
+    packet.component(identifier="custom", name="custom", version="1", kind="runtime", digest="a" * 64,
+        location="https://example.org/source", declared=identifier, sources=[("conditions", raw)],
+        scope="test", pending=["notice-and-source-duty"], custom_grants={identifier: digest})
+    assert packet.components[0]["license_concluded"] == identifier
+    assert packet.components[0]["source_offer_required"] is None
+    assert packet.pending[0]["items"] == ["notice-and-source-duty"]
+    with pytest.raises(PackageInputError, match="custom source grant differs"):
+        synthesis.Packet().component(identifier="bad", name="bad", version="1", kind="runtime", digest="a" * 64,
+            location="https://example.org/source", declared=identifier, sources=[("conditions", raw + b"changed")],
+            scope="test", pending=[], custom_grants={identifier: digest})
+
+
+def test_observed_source_claims_retain_hash_and_do_not_approve():
+    packet = synthesis.Packet()
+    packet.component(identifier="source", name="source", version="1", kind="wheel", digest="a" * 64,
+        location="https://example.org/source", declared="MIT", sources=[("LICENSE", synthesis.MIT_GRANT.encode())],
+        scope="test", pending=["license-choice-and-original-copyright", "separate-scope-review"])
+    claims = [{"path": "source.py", "sha256": "b" * 64,
+               "statements": [{"line": 1, "text": "Copyright 2026 Original Holder"}]}]
+    synthesis.add_original_claims(packet, "source", claims)
+    assert packet.components[0]["copyright_text"] == "Copyright 2026 Original Holder"
+    assert packet.pending[0]["items"] == ["separate-scope-review"]
+    assert packet.evidence[0]["original_source_statement_count"] == 1
+    assert b'"' + b'b' * 64 + b'"' in packet.files["legal/NOTICES/source/observed-source-copyright.json"]
+
+
+def test_observed_wheel_catalogue_adds_missing_exact_crate_and_refuses_conflict():
+    packet = synthesis.Packet()
+    component = {"name": "example", "version": "2", "purl": "pkg:cargo/example@2",
+                 "bom-ref": "registry+https://github.com/rust-lang/crates.io-index#example@2",
+                 "hashes": [{"alg": "SHA-256", "content": "a" * 64}],
+                 "licenses": [{"expression": "MIT OR Apache-2.0"}]}
+    packet.files["nested-sboms/wheel-example/catalogue.json"] = json.dumps({"components": [component]}).encode()
+    synthesis.add_observed_nested_crates(packet)
+    assert packet.components[0]["version"] == "2"
+    assert packet.components[0]["sha256"] == "a" * 64
+    assert packet.components[0]["license_declared"] == "MIT OR Apache-2.0"
+    assert packet.components[0]["license_concluded"] == "NOASSERTION"
+    synthesis.add_observed_nested_crates(packet)
+    assert len(packet.components) == 1
+    component["hashes"][0]["content"] = "b" * 64
+    packet.files["nested-sboms/wheel-example/catalogue.json"] = json.dumps({"components": [component]}).encode()
+    with pytest.raises(PackageInputError, match="nested crate identity conflicts"):
+        synthesis.add_observed_nested_crates(packet)
+
+
+def test_adodbapi_source_delivery_is_deterministic_and_separate(monkeypatch):
+    monkeypatch.setattr(synthesis, "license_atoms", lambda raw: {"LGPL-2.1-or-later"} if raw == b"full grant" else set())
+    stream = io.BytesIO()
+    members = {"adodbapi/license.txt": b"full grant", "adodbapi/setup.py": b"setup",
+               "adodbapi/adodbapi.py": b'Copyright (C) 2002 Holder\nversion 2.1 or any later version\n__version__ = "2.6.2.0"\n',
+               "unrelated.dll": b"not source"}
+    with zipfile.ZipFile(stream, "w") as wheel:
+        for name, raw in members.items():
+            wheel.writestr(name, raw)
+    first, second = synthesis.Packet(), synthesis.Packet()
+    for packet in (first, second):
+        synthesis.add_adodbapi(packet, stream.getvalue(), "wheel-pywin32-312", "https://example.org/wheel")
+    assert first.files == second.files
+    assert first.components[0]["version"] == "2.6.2.0"
+    assert first.components[0]["source_offer_required"] is True
+    assert first.pending[0]["items"] == ["LGPL-source-delivery-review"]
+    assert "unrelated.dll" not in first.evidence[0]["members"]
 
 
 def test_truncated_mit_never_closes_review_or_source_duty():

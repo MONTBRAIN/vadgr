@@ -13,6 +13,160 @@
       ]
     },
     {
+      "path": "kurbo-0.13.1/benches/cubic.rs",
+      "sha256": "753d2822c69a8684032a3b4a5f40e3b03ea4b4553cd8aba39fe6afd159711ab9",
+      "size": 702,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/benches/cubic_arclen.rs",
+      "sha256": "93ad92e94f421ef9b7ee60ed3b59909a59554ade76a18279ccacf8bfcd715477",
+      "size": 1177,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/benches/nearest.rs",
+      "sha256": "8cbf5ead45bce5ea79d1234f72fae704042162a934228b3af9611cf0932ef5fd",
+      "size": 1463,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/benches/quad_arclen.rs",
+      "sha256": "f447a066c32703cbbba14bed66f419841cca1cb83e01ca7511e6f09a5d115e20",
+      "size": 6194,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/benches/quartic.rs",
+      "sha256": "3535c44734c559992b3f62077e5d933300777e248251b883b1451457280df1f3",
+      "size": 823,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/benches/rect_expand.rs",
+      "sha256": "496b987a239680b61b2d65b0ab91cbfab55c807cc1831476bcb08129c092f8de",
+      "size": 1844,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2020 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/examples/arclen_accuracy.rs",
+      "sha256": "7bf354d4d34b42e915e082774d74177209b2997b09ee6972a38cb32dfaf385b2",
+      "size": 8647,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/examples/circle.rs",
+      "sha256": "1416fe74c7a82b15b1d2ee4166d09a75cf8cc9ac6744dddc7df338881258ded3",
+      "size": 794,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2019 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/examples/cubic_arclen.rs",
+      "sha256": "467bcf52b26e3480ad05dddbd06374ce219df54b7dc1fa7fb96367eed41e1d5b",
+      "size": 7986,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/examples/ellipse.rs",
+      "sha256": "22db083067328d2d4f80a2be1ba1cf7e5478950ecde99142563a4cd9fa6dfaca",
+      "size": 883,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2020 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/examples/fit_poly.rs",
+      "sha256": "ed1d8adaf2e0adcee445cfd4fd06a110f064455ef382354ec2a99d3450442654",
+      "size": 2427,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/examples/quad_intersect.rs",
+      "sha256": "56becf3a522316e1c54eaae7d2d75365fa275bbfc17bb2bf6884d63bf887d88a",
+      "size": 2819,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/examples/simplify.rs",
+      "sha256": "7bd3fdcfd60fe9094b9f5da51be4a70061f3df760a62a0ae62e7e8c77f649558",
+      "size": 1690,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/examples/stroke.rs",
+      "sha256": "f055edc18fc05c55c2a3f9ad2e3caa6b997e2d9cd7c5781959d752182afe1b90",
+      "size": 7884,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2025 the Kurbo Authors"
+        }
+      ]
+    },
+    {
       "path": "kurbo-0.13.1/src/affine.rs",
       "sha256": "7288c89bb5ce16acd7d1b046f189df5855cfafa0454d667fc7b0dc4454fa2663",
       "size": 29507,

@@ -13,6 +13,17 @@
       ]
     },
     {
+      "path": "bit-vec-0.9.1/benches/bench.rs",
+      "sha256": "219c551b9de61ff542166209555b501c0ec9f109ef21300548b5904a5920df13",
+      "size": 7675,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
       "path": "bit-vec-0.9.1/src/lib.rs",
       "sha256": "287a545fffc517d552f85ff59c7c68338796e115dd973622959e0c400c0e53ba",
       "size": 106514,

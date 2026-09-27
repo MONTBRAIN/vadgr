@@ -13,6 +13,17 @@
       ]
     },
     {
+      "path": "bit-set-0.10.0/benches/bench.rs",
+      "sha256": "3562afdee8f08d27a0281b7037c016d9fab6c7d7992578f4ec170c60e106751f",
+      "size": 1482,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2024 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
       "path": "bit-set-0.10.0/src/lib.rs",
       "sha256": "59902a9ce1a0781d7a5ab5069d8632b2551503385df03af7814fa8ee32066296",
       "size": 52738,

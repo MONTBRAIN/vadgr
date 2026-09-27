@@ -66,6 +66,28 @@
           "text": "// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT"
         }
       ]
+    },
+    {
+      "path": "unicode-segmentation-1.13.3/tests/test.rs",
+      "sha256": "5d21ec5b729a0f0554f247c28cf8636e0929468bbcb8c0540ee0cf96b7bdb3ef",
+      "size": 8623,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2015 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "unicode-segmentation-1.13.3/tests/testdata/mod.rs",
+      "sha256": "52b9609d96660413c21f51e8f9d15667213f628c05b7c228e54585865bd4c373",
+      "size": 213398,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2018 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
     }
   ],
   "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."

@@ -1,6 +1,6 @@
 {
   "archive_sha256": "a338cc41d27e6cc6dce6cefc13a0729dfbb81c262b1f519331575dd80ef3067f",
-  "eligible_for_reviewed_NONE": false,
+  "eligible_for_reviewed_NONE": true,
   "files": [
     {
       "path": "quote-1.0.42/.cargo_vcs_info.json",
@@ -97,16 +97,10 @@
       "status": "decoded-no-ownership-markers"
     },
     {
-      "mentions": [
-        {
-          "line": 786,
-          "text": "//     quote_token_with_context!(_s @ a b (c) d e f);"
-        }
-      ],
       "path": "quote-1.0.42/src/lib.rs",
       "sha256": "1f852ff55a08bc73e37ec76faf862bdd8769a8b825c2f49e5ca97e9b905b28c7",
       "size": 48671,
-      "status": "ambiguous-ownership-marker"
+      "status": "decoded-no-ownership-markers"
     },
     {
       "path": "quote-1.0.42/src/runtime.rs",

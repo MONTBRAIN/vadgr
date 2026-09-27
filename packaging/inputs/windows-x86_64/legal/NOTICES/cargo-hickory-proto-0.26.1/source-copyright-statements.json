@@ -17,6 +17,17 @@
       ]
     },
     {
+      "path": "hickory-proto-0.26.1/benches/lower_name_benches.rs",
+      "sha256": "9422d216183f1108eb85f9599936de0acd3ca429389095113399065068d1ea57",
+      "size": 2102,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2017 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
       "path": "hickory-proto-0.26.1/src/dnssec/algorithm.rs",
       "sha256": "539d87e82095f82e78b7b461fdc61fa921dd5034730e5ecd0932e30675cad5e8",
       "size": 11736,

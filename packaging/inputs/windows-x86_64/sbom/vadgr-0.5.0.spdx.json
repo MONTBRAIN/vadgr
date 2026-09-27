@@ -8,7 +8,14 @@
   },
   "dataLicense": "CC0-1.0",
   "documentComment": "Incomplete review inventory, including separately classified build-source candidates. Not an approved shipped-component SBOM.",
-  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-294e6015368338eeb719e488f45d733096753c148b5cacde1711f9964a892d82",
+  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-9b33f07f6be41476d0b79cb07b31f3c16f10af15d0127cf8e244c3d09bdba855",
+  "hasExtractedLicensingInfos": [
+    {
+      "comment": "Exact retained terms; this identifier is not an approval or a claim of SPDX-list equivalence.",
+      "extractedText": "Additional Conditions for this Windows binary build\n---------------------------------------------------\n\nThis program is linked with and uses Microsoft Distributable Code,\ncopyrighted by Microsoft Corporation. The Microsoft Distributable Code\nis embedded in each .exe, .dll and .pyd file as a result of running\nthe code through a linker.\n\nIf you further distribute programs that include the Microsoft\nDistributable Code, you must comply with the restrictions on\ndistribution specified by Microsoft. In particular, you must require\ndistributors and external end users to agree to terms that protect the\nMicrosoft Distributable Code at least as much as Microsoft's own\nrequirements for the Distributable Code. See Microsoft's documentation\n(included in its developer tools and on its website at microsoft.com)\nfor specific details.\n\nRedistribution of the Windows binary build of the Python interpreter\ncomplies with this agreement, provided that you do not:\n\n- alter any copyright, trademark or patent notice in Microsoft's\nDistributable Code;\n\n- use Microsoft's trademarks in your programs' names or in a way that\nsuggests your programs come from or are endorsed by Microsoft;\n\n- distribute Microsoft's Distributable Code to run on a platform other\nthan Microsoft operating systems, run-time technologies or application\nplatforms; or\n\n- include Microsoft Distributable Code in malicious, deceptive or\nunlawful programs.\n\nThese restrictions apply only to the Microsoft Distributable Code as\ndefined above, not to Python itself or any programs running on the\nPython interpreter. The redistribution of the Python interpreter and\nlibraries is governed by the Python Software License included with this\nfile, or by other licenses as marked.",
+      "licenseId": "LicenseRef-Python-Windows-Redistribution-e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a"
+    }
+  ],
   "name": "vadgr-0.5.0-x86_64-pc-windows-msvc-unreviewed",
   "packages": [
     {
@@ -444,7 +451,7 @@
           "checksumValue": "ae67d5c03ee972c101a1d8db3ddbf8a9c819ad1ea9d6fd9cd385605547b60edb"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/atomic-write-file/atomic-write-file-0.3.1.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "BSD-3-Clause",
@@ -495,7 +502,7 @@
           "checksumValue": "f09fae7be8bb3174e05c6afdb34199e6dc0c7c04ba9fa237b1967adfbde27483"
         }
       ],
-      "copyrightText": "# Copyright (C) 2022 Intel Corporation\n# Copyright (C) 2023 Intel Corporation\n# Copyright (c) 2012, Intel Corporation. All Rights Reserved.\n# Copyright (c) 2014, Intel Corporation. All Rights Reserved.\n# Copyright (c) 2015 CloudFlare, Inc.\n# Copyright (c) 2015, CloudFlare Ltd.\n# Copyright (c) 2015, Google Inc.\n# Copyright (c) 2017, Google Inc.\n# Copyright (c) 2017, Shay Gueron.\n# Copyright (c) 2018, Amazon Inc.\n# Copyright (c) 2019, Google Inc.\n# Copyright (c) 2020, CloudFlare Ltd.\n# Copyright (c) 2020, Intel Corporation. All Rights Reserved.\n# Copyright (c) 2021, Intel Corporation. All Rights Reserved.\n# Copyright (c) 2022, ARM Inc.\n# Copyright (c) 2023, Google Inc.\n# Copyright 1995-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 1995-2018 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 1995-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 1998-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 1999-2018 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2005-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2006-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2007-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2009-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2010-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2010-2018 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2011-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2011-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2012-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2013-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2013-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2014-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2014-2018 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2014-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2015-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2015-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2017-2022 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2020 Jan Tojnar\n# Copyright 2020-2022 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2020-2023 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2021-2022 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2021-2023 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.\n# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.\n* Copyright (C) 2021 - 2025, Joshua E. Hill <josh@keypair.us>\n* Copyright (C) 2021 - 2025, Stephan Mueller <smueller@chronox.de>\n* Copyright (c) 2022 Hanno Becker\n* Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer\n* Copyright (c) The mldsa-native project authors\n* Copyright (c) The mlkem-native project authors\n* Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.\n* Copyright Stephan Mueller <smueller@chronox.de>, 2013 - 2025\n* Copyright Stephan Mueller <smueller@chronox.de>, 2014 - 2025\n- Arm Ltd (Copyright 2020)\n- Brian Smith (Copyright 2016)\n- Intel Corporation (Copyright 2012-2021)\n- Nokia (Copyright 2005)\n- Robert Nagy (Copyright 2022)\n- Sun Microsystems, Inc. (Copyright 2002)\n/* Copyright (c) 2022 Arm Limited\n/* Copyright (c) The mldsa-native project authors\n// Copyright (C) 1995-1997 Eric Young (eay@cryptsoft.com)\n// Copyright (C) 1995-1997 Eric Young (eay@cryptsoft.com) All rights reserved.\n// Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)\n// Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com) All rights reserved.\n// Copyright (C) 2006, Network Resonance, Inc.\n// Copyright (C) 2011, RTFM, Inc.\n// Copyright (c) 1998-2000 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2001 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2002 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2002 The OpenSSL Project. All rights reserved.\n// Copyright (c) 1998-2003 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2004 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2005 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2006 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2007 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2007 The OpenSSL Project. All rights reserved.\n// Copyright (c) 1998-2011 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2002 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2003 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2004 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2005 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2007 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2008 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2000 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2000-2002 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2000-2003 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2000-2005 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2001 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2001-2011 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2002-2006 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2003 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2004 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2005 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2006 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2006,2007 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2007 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2008 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2008-2016 The OpenSSL Project. All rights reserved.\n// Copyright (c) 2010 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2011 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2012 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2012, Intel Corporation. All Rights Reserved.\n// Copyright (c) 2013 The OpenSSL Project. All rights reserved.\n// Copyright (c) 2014 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2014, Google Inc.\n// Copyright (c) 2014, Intel Corporation. All Rights Reserved.\n// Copyright (c) 2015 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2015, Google Inc.\n// Copyright (c) 2015, Intel Inc.\n// Copyright (c) 2016 Google Inc.\n// Copyright (c) 2016, Google Inc.\n// Copyright (c) 2017, Google Inc.\n// Copyright (c) 2017, the HRSS authors.\n// Copyright (c) 2017-2024 The OpenSSL Project Authors\n// Copyright (c) 2018, Google Inc.\n// Copyright (c) 2019 Google Inc.\n// Copyright (c) 2019, Google Inc.\n// Copyright (c) 2020, Arm Ltd.\n// Copyright (c) 2020, Google Inc.\n// Copyright (c) 2020-2021, Intel Corporation. All Rights Reserved.\n// Copyright (c) 2021, Google Inc.\n// Copyright (c) 2021-2022 Arm Limited\n// Copyright (c) 2022 Arm Limited\n// Copyright (c) 2022 Hanno Becker\n// Copyright (c) 2022 Matthias Kannwischer\n// Copyright (c) 2022, Google Inc.\n// Copyright (c) 2022, Robert Nagy <robert@openbsd.org>\n// Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer\n// Copyright (c) 2023, Google Inc.\n// Copyright (c) 2024 The mlkem-native project authors\n// Copyright (c) 2024, Google Inc.\n// Copyright 1995-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 1995-2022 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2000-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2001-2017 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2002 Sun Microsystems, Inc. ALL RIGHTS RESERVED.\n// Copyright 2005 Nokia. All rights reserved.\n// Copyright 2006-2017 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2006-2019 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2006-2021 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2011-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2013-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2014-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2014-2020 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2015-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2015-2021 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2016 Brian Smith.\n// Copyright 2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2017 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2017-2020 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2018-2022 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2020-2021 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.\n// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.\n; Copyright (c) 2018, Google Inc.\n@ Copyright 2007-2016 The OpenSSL Project Authors. All Rights Reserved.\n@ Copyright 2012-2016 The OpenSSL Project Authors. All Rights Reserved.\nCopyright (C) 2017 - 2025, Stephan Mueller <smueller@chronox.de>.\nCopyright (c) 1995-1998 Eric Young (eay@cryptsoft.com). All rights reserved.\nCopyright (c) 1998-2011 The OpenSSL Project. All rights reserved.\nCopyright (c) 2014-2024 Google Inc.\nCopyright (c) 2015-2020 the fiat-crypto authors (see\nCopyright (c) 2015-2020 the fiat-crypto authors.\nCopyright (c) 2025-2026 Google Inc.\nCopyright (c) The Go Authors. All rights reserved.\nCopyright (c) The mldsa-native project authors.\nCopyright (c) The mlkem-native project authors.\nCopyright 2008 Google Inc.\nCopyright Amazon.com, Inc. or its affiliates. All Rights Reserved.\nout.WriteString(`// Copyright (c) 2015, Google Inc.",
+      "copyrightText": "# Copyright (C) 2022 Intel Corporation\n# Copyright (C) 2023 Intel Corporation\n# Copyright (c) 2012, Intel Corporation. All Rights Reserved.\n# Copyright (c) 2014, Intel Corporation. All Rights Reserved.\n# Copyright (c) 2015 CloudFlare, Inc.\n# Copyright (c) 2015, CloudFlare Ltd.\n# Copyright (c) 2015, Google Inc.\n# Copyright (c) 2017, Google Inc.\n# Copyright (c) 2017, Shay Gueron.\n# Copyright (c) 2018, Amazon Inc.\n# Copyright (c) 2018, Google Inc.\n# Copyright (c) 2019, Google Inc.\n# Copyright (c) 2020, CloudFlare Ltd.\n# Copyright (c) 2020, Intel Corporation. All Rights Reserved.\n# Copyright (c) 2021, Intel Corporation. All Rights Reserved.\n# Copyright (c) 2022, ARM Inc.\n# Copyright (c) 2023, Google Inc.\n# Copyright 1995-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 1995-2018 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 1995-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 1998-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 1999-2018 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2005-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2006-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2007-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2009-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2010-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2010-2018 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2011-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2011-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2012-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2013-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2013-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2014-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2014-2018 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2014-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2015-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2015-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2017-2022 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2020 Jan Tojnar\n# Copyright 2020-2022 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2020-2023 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2021-2022 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2021-2023 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.\n# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.\n* Copyright (C) 2021 - 2025, Joshua E. Hill <josh@keypair.us>\n* Copyright (C) 2021 - 2025, Stephan Mueller <smueller@chronox.de>\n* Copyright (c) 2022 Hanno Becker\n* Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer\n* Copyright (c) The mldsa-native project authors\n* Copyright (c) The mlkem-native project authors\n* Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.\n* Copyright Stephan Mueller <smueller@chronox.de>, 2013 - 2025\n* Copyright Stephan Mueller <smueller@chronox.de>, 2014 - 2025\n- Arm Ltd (Copyright 2020)\n- Brian Smith (Copyright 2016)\n- Intel Corporation (Copyright 2012-2021)\n- Nokia (Copyright 2005)\n- Robert Nagy (Copyright 2022)\n- Sun Microsystems, Inc. (Copyright 2002)\n/* Copyright (c) 2022 Arm Limited\n/* Copyright (c) The mldsa-native project authors\n// Copyright (C) 1995-1997 Eric Young (eay@cryptsoft.com)\n// Copyright (C) 1995-1997 Eric Young (eay@cryptsoft.com) All rights reserved.\n// Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)\n// Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com) All rights reserved.\n// Copyright (C) 2006, Network Resonance, Inc.\n// Copyright (C) 2011, RTFM, Inc.\n// Copyright (c) 1998-2000 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2001 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2002 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2002 The OpenSSL Project. All rights reserved.\n// Copyright (c) 1998-2003 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2004 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2005 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2006 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2007 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2007 The OpenSSL Project. All rights reserved.\n// Copyright (c) 1998-2011 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2002 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2003 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2004 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2005 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2007 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2008 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2000 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2000-2002 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2000-2003 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2000-2005 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2001 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2001-2011 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2002-2006 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2003 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2004 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2005 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2006 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2006,2007 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2007 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2008 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2008-2016 The OpenSSL Project. All rights reserved.\n// Copyright (c) 2010 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2011 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2012 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2012, Intel Corporation. All Rights Reserved.\n// Copyright (c) 2013 The OpenSSL Project. All rights reserved.\n// Copyright (c) 2014 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2014, Google Inc.\n// Copyright (c) 2014, Intel Corporation. All Rights Reserved.\n// Copyright (c) 2015 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2015, Google Inc.\n// Copyright (c) 2015, Intel Inc.\n// Copyright (c) 2016 Google Inc.\n// Copyright (c) 2016, Google Inc.\n// Copyright (c) 2017, Google Inc.\n// Copyright (c) 2017, the HRSS authors.\n// Copyright (c) 2017-2024 The OpenSSL Project Authors\n// Copyright (c) 2018, Google Inc.\n// Copyright (c) 2019 Google Inc.\n// Copyright (c) 2019, Google Inc.\n// Copyright (c) 2020, Arm Ltd.\n// Copyright (c) 2020, Google Inc.\n// Copyright (c) 2020-2021, Intel Corporation. All Rights Reserved.\n// Copyright (c) 2021, Google Inc.\n// Copyright (c) 2021-2022 Arm Limited\n// Copyright (c) 2022 Arm Limited\n// Copyright (c) 2022 Hanno Becker\n// Copyright (c) 2022 Matthias Kannwischer\n// Copyright (c) 2022, Google Inc.\n// Copyright (c) 2022, Robert Nagy <robert@openbsd.org>\n// Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer\n// Copyright (c) 2023, Google Inc.\n// Copyright (c) 2024 The mlkem-native project authors\n// Copyright (c) 2024, Google Inc.\n// Copyright 1995-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 1995-2022 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2000-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2001-2017 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2002 Sun Microsystems, Inc. ALL RIGHTS RESERVED.\n// Copyright 2005 Nokia. All rights reserved.\n// Copyright 2006-2017 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2006-2019 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2006-2021 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2011-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2013-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2014-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2014-2020 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2015-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2015-2021 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2016 Brian Smith.\n// Copyright 2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2017 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2017-2020 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2018-2022 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2020-2021 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.\n// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.\n; Copyright (c) 2018, Google Inc.\n@ Copyright 2007-2016 The OpenSSL Project Authors. All Rights Reserved.\n@ Copyright 2012-2016 The OpenSSL Project Authors. All Rights Reserved.\nCopyright (C) 2017 - 2025, Stephan Mueller <smueller@chronox.de>.\nCopyright (c) 1995-1998 Eric Young (eay@cryptsoft.com). All rights reserved.\nCopyright (c) 1998-2011 The OpenSSL Project. All rights reserved.\nCopyright (c) 2014-2024 Google Inc.\nCopyright (c) 2015-2020 the fiat-crypto authors (see\nCopyright (c) 2015-2020 the fiat-crypto authors.\nCopyright (c) 2025-2026 Google Inc.\nCopyright (c) The Go Authors. All rights reserved.\nCopyright (c) The mldsa-native project authors.\nCopyright (c) The mlkem-native project authors.\nCopyright 2008 Google Inc.\nCopyright Amazon.com, Inc. or its affiliates. All Rights Reserved.\nout.WriteString(`// Copyright (c) 2015, Google Inc.",
       "downloadLocation": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.44.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "ISC AND (Apache-2.0) AND Apache-2.0 AND MIT AND BSD-3-Clause AND (Apache-2.0) AND (Apache-2.0)",
@@ -631,7 +638,7 @@
           "checksumValue": "09ec2f926cc3060f09db9ebc5b52823d85268d24bb917e472c0c4bea35780a7d"
         }
       ],
-      "copyrightText": "// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT\nCopyright (c) 2026 The Rust Project Developers",
+      "copyrightText": "// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT\n// Copyright 2012-2024 The Rust Project Developers. See the COPYRIGHT\nCopyright (c) 2026 The Rust Project Developers",
       "downloadLocation": "https://static.crates.io/crates/bit-set/bit-set-0.10.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -648,7 +655,7 @@
           "checksumValue": "b71798fca2c1fe1086445a7258a4bc81e6e49dcd24c8d0dd9a1e57395b603f51"
         }
       ],
-      "copyrightText": "// Copyright 2012-2023 The Rust Project Developers. See the COPYRIGHT\nCopyright (c) 2023 The Rust Project Developers",
+      "copyrightText": "// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT\n// Copyright 2012-2023 The Rust Project Developers. See the COPYRIGHT\nCopyright (c) 2023 The Rust Project Developers",
       "downloadLocation": "https://static.crates.io/crates/bit-vec/bit-vec-0.9.1.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -1141,7 +1148,7 @@
           "checksumValue": "3d52eff69cd5e647efe296129160853a42795992097e8af39800e1060caeea9b"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/constant_time_eq/constant_time_eq-0.4.2.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -1260,7 +1267,7 @@
           "checksumValue": "d85363c37faeca707aef026efa9f3b34d077bce547e48f770770625c6013679e"
         }
       ],
-      "copyrightText": "Copyright (c) 2009 The Go Authors. All rights reserved.\nCopyright (c) 2019 The Crossbeam Project Developers",
+      "copyrightText": "//!   - Copyright (c) 2009 The Go Authors\n//!   - Copyright 2013-2014 The Rust Project Developers\nCopyright (c) 2009 The Go Authors. All rights reserved.\nCopyright (c) 2019 The Crossbeam Project Developers",
       "downloadLocation": "https://static.crates.io/crates/crossbeam-channel/crossbeam-channel-0.5.16.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -1634,10 +1641,10 @@
           "checksumValue": "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/dunce/dunce-1.0.5.crate",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
+      "licenseConcluded": "CC0-1.0",
       "licenseDeclared": "CC0-1.0 OR MIT-0 OR Apache-2.0",
       "name": "dunce",
       "packageComment": "Original upstream declaration: CC0-1.0 OR MIT-0 OR Apache-2.0",
@@ -1685,7 +1692,7 @@
           "checksumValue": "6ebaa1a2bf1290ab3bfe5a7b771d050ebffab2711c19a81691c683a5144a25de"
         }
       ],
-      "copyrightText": "// Copyright (c) 2017-2019 isis lovecruft\nCopyright (c) 2017-2019 isis agora lovecruft. All rights reserved.",
+      "copyrightText": "// Copyright (c) 2017-2019 isis lovecruft\n// Copyright (c) 2018-2019 isis lovecruft\nCopyright (c) 2017-2019 isis agora lovecruft. All rights reserved.",
       "downloadLocation": "https://static.crates.io/crates/ed25519-dalek/ed25519-dalek-3.0.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "BSD-3-Clause",
@@ -1855,7 +1862,7 @@
           "checksumValue": "34aa73646ffb006b8f5147f3dc182bd4bcb190227ce861fc4a4844bf8e3cb2c0"
         }
       ],
-      "copyrightText": "* Copyright 2018 Aljoscha Meyer\n/* Copyright 2016-2022 Torbj\u00f8rn Birch Moltu\n/* Copyright 2018-2019 Torbj\u00f8rn Birch Moltu\n/* Copyright 2018-2020 Torbj\u00f8rn Birch Moltu",
+      "copyrightText": "* Copyright 2018 Aljoscha Meyer\n/* Copyright 2016-2022 Torbj\u00f8rn Birch Moltu\n/* Copyright 2018 Torbj\u00f8rn Birch Moltu\n/* Copyright 2018-2019 Torbj\u00f8rn Birch Moltu\n/* Copyright 2018-2020 Torbj\u00f8rn Birch Moltu\n/* Copyright 2018-2022 Torbj\u00f8rn Birch Moltu",
       "downloadLocation": "https://static.crates.io/crates/encode_unicode/encode_unicode-1.0.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -1889,7 +1896,7 @@
           "checksumValue": "18dee69613aac468922cf28a32025eb7d7ed6985b61f73245848e58f37876c98"
         }
       ],
-      "copyrightText": "Bitstream Vera Sans Mono Copyright 2003 Bitstream Inc. and licensed under the Bitstream Vera License with Reserved Font Names \"Bitstream\" and \"Vera\"\nCopyright (c) 2003 by Bitstream, Inc. All Rights Reserved. Bitstream Vera is a trademark of Bitstream, Inc.\nCopyright (c) 2014 John Slegers\nCopyright (c) 2018 Source Foundry Authors\nCopyright Holder(s) and the Author(s) or with their explicit written\nThe work in the Hack project is Copyright 2018 Source Foundry Authors and licensed under the MIT License",
+      "copyrightText": "Bitstream Vera Sans Mono Copyright 2003 Bitstream Inc. and licensed under the Bitstream Vera License with Reserved Font Names \"Bitstream\" and \"Vera\"\nCopyright (c) 2003 by Bitstream, Inc. All Rights Reserved. Bitstream Vera is a trademark of Bitstream, Inc.\nCopyright (c) 2014 John Slegers\nCopyright (c) 2018 Source Foundry Authors\nThe work in the Hack project is Copyright 2018 Source Foundry Authors and licensed under the MIT License",
       "downloadLocation": "https://static.crates.io/crates/epaint_default_fonts/epaint_default_fonts-0.36.1.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "(Apache-2.0) AND OFL-1.1 AND Ubuntu-font-1.0",
@@ -1923,7 +1930,7 @@
           "checksumValue": "0b5343afd4a8365a643ac588dab4cf234a190c7f6c88c9f6dd6ffe00837661b7"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/error-code/error-code-3.4.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "BSL-1.0",
@@ -2926,7 +2933,7 @@
           "checksumValue": "fa68d21081c4a05d5a901a1c62add574c77048b6a1c67be3b50ce0b60d4ca513"
         }
       ],
-      "copyrightText": "Copyright \u00a9 2020-2024 Unicode, Inc.\nICU 1.8.1 to ICU 57.1 \u00a9 1995-2016 International Business Machines Corporation and others.",
+      "copyrightText": "# Copyright (C) 2021 and later: Unicode, Inc. and others.\nCopyright \u00a9 2020-2024 Unicode, Inc.\nICU 1.8.1 to ICU 57.1 \u00a9 1995-2016 International Business Machines Corporation and others.",
       "downloadLocation": "https://static.crates.io/crates/icu_collections/icu_collections-2.3.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Unicode-3.0",
@@ -2960,7 +2967,7 @@
           "checksumValue": "12f9cf5f235641ed274641dd81c3f28d870e276763d0797aeeab72317b1c646f"
         }
       ],
-      "copyrightText": "Copyright \u00a9 2020-2024 Unicode, Inc.\nICU 1.8.1 to ICU 57.1 \u00a9 1995-2016 International Business Machines Corporation and others.",
+      "copyrightText": "# \u00a9 2025 Unicode\u00ae, Inc.\nCopyright \u00a9 2020-2024 Unicode, Inc.\nICU 1.8.1 to ICU 57.1 \u00a9 1995-2016 International Business Machines Corporation and others.",
       "downloadLocation": "https://static.crates.io/crates/icu_normalizer/icu_normalizer-2.3.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Unicode-3.0",
@@ -3062,7 +3069,7 @@
           "checksumValue": "3b0875f23caa03898994f6ddc501886a45c7d3d62d04d2d90788d47be1b1e4de"
         }
       ],
-      "copyrightText": "// Copyright 2013 The rust-url developers.\n// Copyright 2013-2014 The rust-url developers.\n// Copyright 2016 The rust-url developers.\n// Copyright The rust-url developers.\nCopyright (c) 2013-2025 The rust-url developers",
+      "copyrightText": "# \u00a9 2024 Unicode\u00ae, Inc.\n// Copyright 2013 The rust-url developers.\n// Copyright 2013-2014 The rust-url developers.\n// Copyright 2016 The rust-url developers.\n// Copyright The rust-url developers.\nCopyright (c) 2013-2025 The rust-url developers",
       "downloadLocation": "https://static.crates.io/crates/idna/idna-1.1.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -3759,7 +3766,7 @@
           "checksumValue": "bb85c154ba489f01b25c0d36ae69a87e4a1c73a72631fc6c0eb6dde34a73e44b"
         }
       ],
-      "copyrightText": "* // Copyright (c) Radzivon Bartoshyk 12/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 2/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 3/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 4/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 5/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 6/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 7/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 8/2025. All rights reserved.\n* // Copyright 2024 (c) the Radzivon Bartoshyk. All rights reserved.\nCopyright (c) Radzivon Bartoshyk. All rights reserved.\nCopyright 2024 Radzivon Bartoshyk",
+      "copyrightText": "* // Copyright (c) Radzivon Bartoshyk 12/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 2/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 3/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 4/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 5/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 6/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 7/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 8/2025. All rights reserved.\n* // Copyright 2024 (c) the Radzivon Bartoshyk. All rights reserved.\nCopyright (c) Radzivon Bartoshyk. All rights reserved.\nCopyright 2024 Radzivon Bartoshyk\ncopyright: Some(ProfileText::Localizable(vec![LocalizableString::new(",
       "downloadLocation": "https://static.crates.io/crates/moxcms/moxcms-0.8.1.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -4082,7 +4089,7 @@
           "checksumValue": "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/option-ext/option-ext-0.2.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "MPL-2.0",
@@ -4099,7 +4106,7 @@
           "checksumValue": "da2442474a9404698c42509b8967f437249dbc7b50493e83020333d3943ec0ae"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/papaya/papaya-0.2.5.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "MIT",
@@ -5153,7 +5160,7 @@
           "checksumValue": "c841b55ecdae098c80dcae9cf767f6f8a0c2cdb3416bbef72181df4d0fe73f14"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "// copyright Alexander Huszagh.",
       "downloadLocation": "https://static.crates.io/crates/serde_json/serde_json-1.0.151.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -5170,7 +5177,7 @@
           "checksumValue": "fe52319a927259afbfa5180c5157cd8167edfd3e8c254f9558c7fef44c5649f2"
         }
       ],
-      "copyrightText": "Copyright (c) 2023 Attila Mravik",
+      "copyrightText": "//  Copyright 2006-2021 WebPKI.org (http://webpki.org).\nCopyright (c) 2023 Attila Mravik",
       "downloadLocation": "https://static.crates.io/crates/serde_json_canonicalizer/serde_json_canonicalizer-0.3.2.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "MIT",
@@ -5275,7 +5282,7 @@
       "copyrightText": "// Copyright (c) 2006-2009 Graydon Hoare\n// Copyright (c) 2009-2013 Mozilla Foundation\nCopyright (c) 2006-2009 Graydon Hoare\nCopyright (c) 2009-2013 Mozilla Foundation\nCopyright (c) 2018, the respective contributors, as shown by the AUTHORS file.",
       "downloadLocation": "https://static.crates.io/crates/sha1_smol/sha1_smol-1.0.1.crate",
       "filesAnalyzed": false,
-      "licenseConcluded": "BSD-3-Clause",
+      "licenseConcluded": "BSD-3-Clause AND MIT",
       "licenseDeclared": "BSD-3-Clause",
       "name": "sha1_smol",
       "packageComment": "Original upstream declaration: BSD-3-Clause",
@@ -5476,7 +5483,7 @@
           "checksumValue": "eedac50883a917b7b434db22e2e6e853ace8c00f4a9c27f53e1e9c87e6d89fe4"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "Copyright Amazon.com, Inc. or its affiliates.",
       "downloadLocation": "https://static.crates.io/crates/sigstore-tuf/sigstore-tuf-0.11.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -5544,7 +5551,7 @@
           "checksumValue": "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/simdutf8/simdutf8-0.1.5.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -5867,7 +5874,7 @@
           "checksumValue": "32497e9a4c7b38532efcdebeef879707aa9f794296a4f0244f6f69e9bc8574bd"
         }
       ],
-      "copyrightText": "// Copyright 2015 The Rust Project Developers.\nCopyright (c) 2015 Steven Allen",
+      "copyrightText": "// Copyright 2013-2014 The Rust Project Developers. See the COPYRIGHT\n// Copyright 2015 The Rust Project Developers.\nCopyright (c) 2015 Steven Allen",
       "downloadLocation": "https://static.crates.io/crates/tempfile/tempfile-3.27.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -6003,7 +6010,7 @@
           "checksumValue": "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
         }
       ],
-      "copyrightText": "Copyright (c) 2020 Soveu\nCopyright 2020 Tomasz \"Soveu\" Marx",
+      "copyrightText": "(C) 2020 Tomasz \"Soveu\" Marx\nCopyright (c) 2020 Soveu\nCopyright 2020 Tomasz \"Soveu\" Marx",
       "downloadLocation": "https://static.crates.io/crates/tinyvec_macros/tinyvec_macros-0.1.1.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -6394,7 +6401,7 @@
           "checksumValue": "0b993bddc193ae5bd0d623b49ec06ac3e9312875fdae725a975c51db1cc1677f"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/unicode-general-category/unicode-general-category-1.1.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -6445,7 +6452,7 @@
           "checksumValue": "b4ac048d71ede7ee76d585517add45da530660ef4390e49b098733c6e897f254"
         }
       ],
-      "copyrightText": "\"\"\"// Copyright 2012-2025 The Rust Project Developers. See the COPYRIGHT\n# Copyright 2011-2025 The Rust Project Developers. See the COPYRIGHT\n// Copyright 2012-2025 The Rust Project Developers. See the COPYRIGHT\nCopyright (c) 2015 The Rust Project Developers",
+      "copyrightText": "\"\"\"// Copyright 2012-2025 The Rust Project Developers. See the COPYRIGHT\n# Copyright 2011-2025 The Rust Project Developers. See the COPYRIGHT\n# \u00a9 2025 Unicode\u00ae, Inc.\n// Copyright 2012-2025 The Rust Project Developers. See the COPYRIGHT\nCopyright (c) 2015 The Rust Project Developers",
       "downloadLocation": "https://static.crates.io/crates/unicode-width/unicode-width-0.2.2.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -6496,7 +6503,7 @@
           "checksumValue": "a156c684c91ea7d62626509bce3cb4e1d9ed5c4d978f7b4352658f96a4c26b4a"
         }
       ],
-      "copyrightText": "// Copyright 2015-2016 Brian Smith.",
+      "copyrightText": "// Copyright 2015-2016 Brian Smith.\n// Copyright 2015-2019 Brian Smith.",
       "downloadLocation": "https://static.crates.io/crates/untrusted/untrusted-0.7.1.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "ISC",
@@ -6513,7 +6520,7 @@
           "checksumValue": "8ecb6da28b8a351d773b68d5825ac39017e680750f980f3a1a85cd8dd28a47c1"
         }
       ],
-      "copyrightText": "# Copyright 2020 Brian Smith.\n// Copyright 2015-2016 Brian Smith.\n// Copyright 2015-2021 Brian Smith.",
+      "copyrightText": "# Copyright 2020 Brian Smith.\n// Copyright 2015-2016 Brian Smith.\n// Copyright 2015-2019 Brian Smith.\n// Copyright 2015-2021 Brian Smith.",
       "downloadLocation": "https://static.crates.io/crates/untrusted/untrusted-0.9.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "ISC",
@@ -6530,7 +6537,7 @@
           "checksumValue": "ff67a8a4397373c3ef660812acab3268222035010ab8680ec4215f38ba3d0eed"
         }
       ],
-      "copyrightText": "// Copyright 2013-2015 The rust-url developers.\n// Copyright 2013-2016 The rust-url developers.\n// Copyright 2016 The rust-url developers.\nCopyright (c) 2013-2025 The rust-url developers",
+      "copyrightText": "// Copyright 2013-2014 The rust-url developers.\n// Copyright 2013-2015 The rust-url developers.\n// Copyright 2013-2016 The rust-url developers.\n// Copyright 2016 The rust-url developers.\nCopyright (c) 2013-2025 The rust-url developers",
       "downloadLocation": "https://static.crates.io/crates/url/url-2.5.8.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -6670,7 +6677,7 @@
       "downloadLocation": "https://static.crates.io/crates/webpki-roots/webpki-roots-0.26.11.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
+      "licenseDeclared": "CDLA-Permissive-2.0",
       "name": "webpki-roots",
       "packageComment": "Original upstream declaration: CDLA-Permissive-2.0",
       "versionInfo": "0.26.11"
@@ -6687,7 +6694,7 @@
       "downloadLocation": "https://static.crates.io/crates/webpki-roots/webpki-roots-1.0.9.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
+      "licenseDeclared": "CDLA-Permissive-2.0",
       "name": "webpki-roots",
       "packageComment": "Original upstream declaration: CDLA-Permissive-2.0",
       "versionInfo": "1.0.9"
@@ -7210,7 +7217,7 @@
           "checksumValue": "556764e583adb45a9f8d413c2a147fa7e8d821e48e12b14fd560b607998b75eb"
         }
       ],
-      "copyrightText": "# Copyright 2018 The Fuchsia Authors\n# Copyright 2023 The Fuchsia Authors\n# Copyright 2024 The Fuchsia Authors\n# Copyright 2025 The Fuchsia Authors\n# Copyright 2026 The Fuchsia Authors\n// Copyright 2018 The Fuchsia Authors\n// Copyright 2019 The Fuchsia Authors\n// Copyright 2022 The Fuchsia Authors\n// Copyright 2023 The Fuchsia Authors\n// Copyright 2024 The Fuchsia Authors\n// Copyright 2025 The Fuchsia Authors\n<!-- Copyright 2023 The Fuchsia Authors\n<!-- Copyright 2024 The Fuchsia Authors\n<!-- Copyright 2025 The Fuchsia Authors\n@rem Copyright 2024 The Fuchsia Authors\nCopyright 2019 The Fuchsia Authors.\nCopyright 2023 The Fuchsia Authors\nCopyright 2026 The Fuchsia Authors",
+      "copyrightText": "# Copyright 2018 The Fuchsia Authors\n# Copyright 2023 The Fuchsia Authors\n# Copyright 2024 The Fuchsia Authors\n# Copyright 2025 The Fuchsia Authors\n# Copyright 2026 The Fuchsia Authors\n// Copyright 2018 The Fuchsia Authors\n// Copyright 2019 The Fuchsia Authors\n// Copyright 2022 The Fuchsia Authors\n// Copyright 2023 The Fuchsia Authors\n// Copyright 2024 The Fuchsia Authors\n// Copyright 2025 The Fuchsia Authors\n// Copyright 2026 The Fuchsia Authors\n<!-- Copyright 2023 The Fuchsia Authors\n<!-- Copyright 2024 The Fuchsia Authors\n<!-- Copyright 2025 The Fuchsia Authors\n@rem Copyright 2024 The Fuchsia Authors\nCopyright 2019 The Fuchsia Authors.\nCopyright 2023 The Fuchsia Authors\nCopyright 2026 The Fuchsia Authors",
       "downloadLocation": "https://static.crates.io/crates/zerocopy/zerocopy-0.8.56.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -7312,7 +7319,7 @@
           "checksumValue": "34b31d188d9d685a4f9c7b46d6e36631b07058d2cfe190267adce54dc230bf12"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "(C) 2024 Trifecta Tech Foundation",
       "downloadLocation": "https://static.crates.io/crates/zlib-rs/zlib-rs-0.6.7.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Zlib",
@@ -7451,7 +7458,7 @@
       "copyrightText": "documentation, are copyright (C) 1996-2019 Julian R Seward.  All",
       "downloadLocation": "https://astral-sh.github.io/mirror/files/bzip2-1.0.8.tar.gz",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
+      "licenseConcluded": "bzip2-1.0.6",
       "licenseDeclared": "bzip2-1.0.6",
       "name": "bzip2",
       "packageComment": "Original upstream declaration: ['bzip2-1.0.6']",
@@ -7465,13 +7472,13 @@
           "checksumValue": "5c8462af5790baf43a321a1559dbe0db06d1be4300fb85fb53c40060668e548a"
         }
       ],
-      "copyrightText": "* Copyright (c) 1991, 2000, 2001 by Lucent Technologies.\n2. Subject to the terms and conditions of this License Agreement, CNRI hereby grants Licensee a nonexclusive, royalty-free, world-wide license to reproduce, analyze, test, perform and/or display publicly, prepare derivative works, distribute, and otherwise use Python 1.6.1 alone or in any derivative version, provided, however, that CNRI's License Agreement and CNRI's notice of copyright, i.e., \"Copyright (c) 1995-2001 Corporation for National Research Initiatives; All Rights Reserved\" are retained in Python 1.6.1 alone or in any derivative version prepared by Licensee. Alternately, in lieu of CNRI's License Agreement, Licensee may substitute the following text (omitting the quotes): \"Python 1.6.1 is made available subject to the terms and conditions in CNRI's License Agreement. This Agreement together with Python 1.6.1 may be located on the internet using the following unique, persistent identifier (known as a handle): 1895.22/1013. This Agreement may also be obtained from a proxy server on the internet using the following URL: http://hdl.handle.net/1895.22/1013\".\\\nCopyright (C) 1995, 1996, 1997, and 1998 WIDE Project.\nCopyright (C) 1995-2011 Jean-loup Gailly and Mark Adler\nCopyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam, The Netherlands. All rights reserved.\\\nCopyright (c) 1991-1995 Stichting Mathematisch Centrum, Amsterdam.\\n\\\nCopyright (c) 1995-2001 Corporation for National Research Initiatives.\\n\\\nCopyright (c) 1996-2008  Red Hat, Inc and others.\nCopyright (c) 1998, 1999, 2000 Thai Open Source Software Center Ltd\nCopyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper\nCopyright (c) 1999-2002 by Fredrik Lundh\nCopyright (c) 1999-2002 by Secret Labs AB\nCopyright (c) 2000 BeOpen.com.\\n\\\nCopyright (c) 2000 Doug White, 2006 James Knight, 2007 Christian Heimes\nCopyright (c) 2001-2006 Twisted Matrix Laboratories.\nCopyright (c) 2001-2023 Python Software Foundation.\\n\\\nCopyright (c) 2001-2025 Expat maintainers\nCopyright (c) 2005 Don Owens\nCopyright (c) 2008-2020 Stefan Krah. All rights reserved.\nCopyright (c) 2013  Marek Majkowski <marek@popcount.org>\nCopyright (c) 2013 W3C(R) (MIT, ERCIM, Keio, Beihang),\nCopyright (c) 2015-2021 MagicStack Inc.  http://magic.io\nCopyright 1991-1995, Stichting Mathematisch Centrum, all rights reserved.\nCopyright 1994 by Lance Ellinghouse\nCopyright 1995-1997, Automatrix, Inc., all rights reserved.\nCopyright 1996 by Sam Rushing\nCopyright 1999, Bioreason, Inc., all rights reserved.\nCopyright 2000 by Timothy O'Malley <timo@alum.mit.edu>\nCopyright 2000, Mojam Media, Inc., all rights reserved.\nCopyright \u00a9 1991 - 1995, Stichting Mathematisch Centrum Amsterdam, The\nCopyright \u00a9 1991-1995 Stichting Mathematisch Centrum. All rights reserved.\nCopyright \u00a9 1995-2000 Corporation for National Research Initiatives. All rights\nCopyright \u00a9 2000 BeOpen.com. All rights reserved.\nCopyright \u00a9 2001-2023 Python Software Foundation. All rights reserved.\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\ncopyright, i.e., \"Copyright \u00a9 2001-2023 Python Software Foundation; All Rights\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,\ni.e., \"Copyright \u00a9 1995-2001 Corporation for National Research Initiatives; All\nportions copyright 2001, Autonomous Zones Industries, Inc., all rights...",
+      "copyrightText": "Copyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 1991-1995 Stichting Mathematisch Centrum, Amsterdam.\\n\\\nCopyright (c) 1995-2001 Corporation for National Research Initiatives.\\n\\\nCopyright (c) 2000 BeOpen.com.\\n\\\nCopyright (c) 2001-2023 Python Software Foundation.\\n\\\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,",
       "downloadLocation": "https://www.python.org/ftp/python/3.12.14/Python-3.12.14.tar.xz",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "Python-2.0",
+      "licenseDeclared": "Python-2.0",
       "name": "cpython-3.12",
-      "packageComment": "Original upstream declaration: ['Python-2.0', 'CNRI-Python']",
+      "packageComment": "Original upstream declaration: Python-2.0",
       "versionInfo": "3.12.14"
     },
     {
@@ -7601,7 +7608,7 @@
           "checksumValue": "f21ae7b0cce58cf9428e01d4d22aac9c3b70722a4e9b2c92b3a97d490a1b401c"
         }
       ],
-      "copyrightText": "Copyright (C) 1989, 1991 Free Software Foundation, Inc.,\nGnomovision version 69, Copyright (C) year name of author\nlibffi - Copyright (c) 1996-2021  Anthony Green, Red Hat, Inc and others.",
+      "copyrightText": "libffi - Copyright (c) 1996-2021  Anthony Green, Red Hat, Inc and others.",
       "downloadLocation": "https://codeload.github.com/python/cpython-source-deps/tar.gz/16fad4855b3d8c03b5910e405ff3a04395b39a98",
       "filesAnalyzed": false,
       "licenseConcluded": "MIT",
@@ -7618,7 +7625,7 @@
           "checksumValue": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b"
         }
       ],
-      "copyrightText": "<!-- Copyright (c) .NET Foundation and contributors. All rights reserved. Licensed under the Microsoft Reciprocal License. See LICENSE.TXT file in the project root for full license information. -->\nCopyright (c) .NET Foundation and contributors.\nCopyright (c) .NET Foundation. All rights reserved.\nCopyright (c) 2011-2018 The Bootstrap Authors\nCopyright (c) 2011-2018 Twitter, Inc.",
+      "copyrightText": "Copyright (c) .NET Foundation and contributors.",
       "downloadLocation": "https://codeload.github.com/wixtoolset/wix/tar.gz/b8977d6f88e7b68e000bac226a2814f236770570",
       "filesAnalyzed": false,
       "licenseConcluded": "MS-RL",
@@ -7635,7 +7642,7 @@
           "checksumValue": "3d3a1b973af218114f4f889bbaa2f4c037deaae0c8e815eec381c3d546b974a0"
         }
       ],
-      "copyrightText": "Copyright (C) 1989, 1991 Free Software Foundation, Inc.,\nCopyright (C) 1991, 1999 Free Software Foundation, Inc.\nCopyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>\nCopyright (C) The XZ Utils authors and contributors\nGnomovision version 69, Copyright (C) year name of author",
+      "copyrightText": "Copyright (C) The XZ Utils authors and contributors",
       "downloadLocation": "https://github.com/tukaani-project/xz/releases/download/v5.8.3/xz-5.8.3.tar.gz",
       "filesAnalyzed": false,
       "licenseConcluded": "0BSD",
@@ -7652,7 +7659,7 @@
           "checksumValue": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16"
         }
       ],
-      "copyrightText": "Copyright (c) 1990-2009 Info-ZIP. All rights reserved.",
+      "copyrightText": "(C) 1995-2026 Jean-loup Gailly and Mark Adler",
       "downloadLocation": "https://github.com/madler/zlib/releases/download/v1.3.2/zlib-1.3.2.tar.gz",
       "filesAnalyzed": false,
       "licenseConcluded": "Zlib",
@@ -8179,7 +8186,7 @@
           "checksumValue": "db2fa452206ebee18c4b5c2274dbf1de17008e874b4dc4f0aea9d01ca79e4526"
         }
       ],
-      "copyrightText": "Copyright \u00a9 2020-2024 Unicode, Inc.\nICU 1.8.1 to ICU 57.1 \u00a9 1995-2016 International Business Machines Corporation and others.",
+      "copyrightText": "# Copyright (C) 2021 and later: Unicode, Inc. and others.\nCopyright \u00a9 2020-2024 Unicode, Inc.\nICU 1.8.1 to ICU 57.1 \u00a9 1995-2016 International Business Machines Corporation and others.",
       "downloadLocation": "https://static.crates.io/crates/icu_collections/icu_collections-1.5.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Unicode-3.0",
@@ -8349,7 +8356,7 @@
           "checksumValue": "3b0875f23caa03898994f6ddc501886a45c7d3d62d04d2d90788d47be1b1e4de"
         }
       ],
-      "copyrightText": "// Copyright 2013 The rust-url developers.\n// Copyright 2013-2014 The rust-url developers.\n// Copyright 2016 The rust-url developers.\n// Copyright The rust-url developers.\nCopyright (c) 2013-2025 The rust-url developers",
+      "copyrightText": "# \u00a9 2024 Unicode\u00ae, Inc.\n// Copyright 2013 The rust-url developers.\n// Copyright 2013-2014 The rust-url developers.\n// Copyright 2016 The rust-url developers.\n// Copyright The rust-url developers.\nCopyright (c) 2013-2025 The rust-url developers",
       "downloadLocation": "https://static.crates.io/crates/idna/idna-1.1.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -8621,7 +8628,7 @@
           "checksumValue": "a5e44f723f1133c9deac646763579fdb3ac745e418f2a7af9cd0c431da1f20b9"
         }
       ],
-      "copyrightText": "// Copyright 2013-2014 The Rust Project Developers. See the COPYRIGHT\nCopyright (c) 2014 The Rust Project Developers",
+      "copyrightText": "// Copyright (c) 2013-2014 The Rust Project Developers\n// Copyright 2013-2014 The Rust Project Developers. See the COPYRIGHT\nCopyright (c) 2014 The Rust Project Developers",
       "downloadLocation": "https://static.crates.io/crates/num-bigint/num-bigint-0.4.6.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -9080,7 +9087,7 @@
           "checksumValue": "a338cc41d27e6cc6dce6cefc13a0729dfbb81c262b1f519331575dd80ef3067f"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/quote/quote-1.0.42.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -9097,7 +9104,7 @@
           "checksumValue": "21b2ebcf727b7760c461f091f9f0f539b77b8e87f2fd88131e7f1b433b3cece4"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/quote/quote-1.0.44.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -9114,7 +9121,7 @@
           "checksumValue": "1fbf4db142a473a8d80c26bbf18454ed458bf8d26c8219c331daecfdbd079001"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/quote/quote-1.0.47.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -9318,7 +9325,7 @@
           "checksumValue": "83fc039473c5595ace860d8c4fafa220ff474b3fc6bfdb4293327f1a37e94d86"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "// copyright Alexander Huszagh.",
       "downloadLocation": "https://static.crates.io/crates/serde_json/serde_json-1.0.149.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -9539,10 +9546,10 @@
           "checksumValue": "df7f62577c25e07834649fc3b39fafdc597c0a3527dc1c60129201ccfcbaa50c"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/target-lexicon/target-lexicon-0.13.3.crate",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
+      "licenseConcluded": "Apache-2.0 WITH LLVM-exception",
       "licenseDeclared": "Apache-2.0 WITH LLVM-exception",
       "name": "target-lexicon",
       "packageComment": "Original upstream declaration: [{'expression': 'Apache-2.0 WITH LLVM-exception'}]",
@@ -9556,10 +9563,10 @@
           "checksumValue": "b1dd07eb858a2067e2f3c7155d54e929265c264e6f37efe3ee7a8d1b5a1dd0ba"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/target-lexicon/target-lexicon-0.13.4.crate",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
+      "licenseConcluded": "Apache-2.0 WITH LLVM-exception",
       "licenseDeclared": "Apache-2.0 WITH LLVM-exception",
       "name": "target-lexicon",
       "packageComment": "Original upstream declaration: [{'expression': 'Apache-2.0 WITH LLVM-exception'}]",
@@ -9573,10 +9580,10 @@
           "checksumValue": "adb6935a6f5c20170eeceb1a3835a49e12e19d792f6dd344ccc76a985ca5a6ca"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "NONE",
       "downloadLocation": "https://static.crates.io/crates/target-lexicon/target-lexicon-0.13.5.crate",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
+      "licenseConcluded": "Apache-2.0 WITH LLVM-exception",
       "licenseDeclared": "Apache-2.0 WITH LLVM-exception",
       "name": "target-lexicon",
       "packageComment": "Original upstream declaration: [{'expression': 'Apache-2.0 WITH LLVM-exception'}]",
@@ -9627,7 +9634,7 @@
       "copyrightText": "Copyright \u00a9 1991-2022 Unicode, Inc. All rights reserved.",
       "downloadLocation": "https://static.crates.io/crates/unicode-ident/unicode-ident-1.0.12.crate",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
+      "licenseConcluded": "(Apache-2.0) AND Unicode-DFS-2016",
       "licenseDeclared": "(MIT OR Apache-2.0) AND Unicode-DFS-2016",
       "name": "unicode-ident",
       "packageComment": "Original upstream declaration: [{'expression': '(MIT OR Apache-2.0) AND Unicode-DFS-2016'}]",
@@ -9675,7 +9682,7 @@
           "checksumValue": "ff67a8a4397373c3ef660812acab3268222035010ab8680ec4215f38ba3d0eed"
         }
       ],
-      "copyrightText": "// Copyright 2013-2015 The rust-url developers.\n// Copyright 2013-2016 The rust-url developers.\n// Copyright 2016 The rust-url developers.\nCopyright (c) 2013-2025 The rust-url developers",
+      "copyrightText": "// Copyright 2013-2014 The rust-url developers.\n// Copyright 2013-2015 The rust-url developers.\n// Copyright 2013-2016 The rust-url developers.\n// Copyright 2016 The rust-url developers.\nCopyright (c) 2013-2025 The rust-url developers",
       "downloadLocation": "https://static.crates.io/crates/url/url-2.5.8.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -9998,7 +10005,7 @@
           "checksumValue": "28a6e20d751156648aa063f3800b706ee209a32c0b4d9f24be3d980b01be55ef"
         }
       ],
-      "copyrightText": "# Copyright 2019 The Fuchsia Authors\n// Copyright 2019 The Fuchsia Authors\n// Copyright 2024 The Fuchsia Authors\nCopyright 2019 The Fuchsia Authors.\nCopyright 2023 The Fuchsia Authors",
+      "copyrightText": "# Copyright 2019 The Fuchsia Authors\n// Copyright 2019 The Fuchsia Authors\n// Copyright 2023 The Fuchsia Authors\n// Copyright 2024 The Fuchsia Authors\n// Copyright 2025 The Fuchsia Authors\nCopyright 2019 The Fuchsia Authors.\nCopyright 2023 The Fuchsia Authors",
       "downloadLocation": "https://static.crates.io/crates/zerocopy-derive/zerocopy-derive-0.8.25.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -10100,7 +10107,7 @@
           "checksumValue": "3a561005822841f2c45f442f6c7a7505172c8c376c9fe274d876c8ac912968cb"
         }
       ],
-      "copyrightText": "Copyright (C) 2008-2011 INADA Naoki <songofacandy@gmail.com>\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 2006-2022 by the respective authors (see AUTHORS file).\nCopyright (c) 2008-2020 Andrey Petrov and contributors.\nCopyright (c) 2008-present The pip developers (see AUTHORS.txt file)\nCopyright (c) 2010-202x The platformdirs developers\nCopyright (c) 2013-2026, Kim Davies and contributors.\nCopyright (c) 2017 Thomas Kluyver\nCopyright (c) 2018, Tzu-ping Chung <uranusjr@gmail.com>\nCopyright (c) 2020 Will McGugan\nCopyright (c) 2021 Taneli Hukkinen\nCopyright (c) 2022 Seth Michael Larson\nCopyright (c) Donald Stufft and individual contributors.\nCopyright 2012-2021  Eric Larson\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010",
+      "copyrightText": "Copyright (c) 2008-present The pip developers (see AUTHORS.txt file)",
       "downloadLocation": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-x86_64-pc-windows-msvc-install_only.tar.gz",
       "filesAnalyzed": false,
       "licenseConcluded": "MIT",
@@ -10151,11 +10158,11 @@
           "checksumValue": "faea7c6cc9491926b00d76018cfb12344df4bcf534364291af0792f28c0d4327"
         }
       ],
-      "copyrightText": "Copyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010",
+      "copyrightText": "# Copyright (C) 2012-2024 Vinay Sajip.\n# Copyright (C) 2012-2026 The Python Software Foundation.\n# Copyright (C) 2013-2026 Vinay Sajip.\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010",
       "downloadLocation": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-x86_64-pc-windows-msvc-install_only.tar.gz",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "Python-2.0",
+      "licenseDeclared": "Python-2.0",
       "name": "distlib",
       "packageComment": "Original upstream declaration: None",
       "versionInfo": "0.4.2"
@@ -10168,7 +10175,7 @@
           "checksumValue": "a785108cb0b4261619500d17942532f58079d94442fd9aba9db3f88a62b87466"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "# Copyright 2015-2021 Nir Cohen",
       "downloadLocation": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-x86_64-pc-windows-msvc-install_only.tar.gz",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -10219,13 +10226,13 @@
           "checksumValue": "880d654153707ff0a47c323528146387cd4d48538a5cc65065bc719764e5b43b"
         }
       ],
-      "copyrightText": "Copyright (c) Donald Stufft and individual contributors.",
+      "copyrightText": "# Copyright (c) 2017-present Ofek Lev <oss@ofek.dev>\nCopyright (c) Donald Stufft and individual contributors.",
       "downloadLocation": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-x86_64-pc-windows-msvc-install_only.tar.gz",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0 OR BSD-2-Clause",
       "name": "packaging",
-      "packageComment": "Original upstream declaration: None",
+      "packageComment": "Original upstream declaration: Apache-2.0 OR BSD-2-Clause",
       "versionInfo": "26.2"
     },
     {
@@ -10253,7 +10260,7 @@
           "checksumValue": "8ad7673e2a788b4cf63046d081471c0affc0e8e7b1a10551ffc8f4eb46fe35df"
         }
       ],
-      "copyrightText": "Copyright (c) 2006-2022 by the respective authors (see AUTHORS file).",
+      "copyrightText": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS.\nCopyright (c) 2006-2022 by the respective authors (see AUTHORS file).",
       "downloadLocation": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-x86_64-pc-windows-msvc-install_only.tar.gz",
       "filesAnalyzed": false,
       "licenseConcluded": "BSD-2-Clause",
@@ -10321,7 +10328,7 @@
           "checksumValue": "a76e3ccce66581cbe3c9caaea31394fe1451914ba5844c63dcb422fa4cfae0e4"
         }
       ],
-      "copyrightText": "Copyright (c) 2020 Will McGugan",
+      "copyrightText": "Copyright (c) 2020 Will McGugan\nCopyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)",
       "downloadLocation": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-x86_64-pc-windows-msvc-install_only.tar.gz",
       "filesAnalyzed": false,
       "licenseConcluded": "MIT",
@@ -10443,10 +10450,10 @@
       "copyrightText": "# Copyright (c) 2005-2023, PyInstaller Development Team.\nBased on previous work under copyright (c) 2002 McMillan Enterprises, Inc.\nCopyright (C) 1989, 1991 Free Software Foundation, Inc.\nCopyright (C) 1995-2017 Jean-loup Gailly and Mark Adler\nCopyright (C) The XZ Utils authors and contributors\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 1993-1999 Ioi Kim Lam.\nCopyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper\nCopyright (c) 2000-2001 Tix Project Group.\nCopyright (c) 2001-2022 Expat maintainers\nCopyright (c) 2004 ActiveState\nCopyright (c) 2005-2009, Giovanni Bajo\nCopyright (c) 2008-2020 Stefan Krah. All rights reserved.\nCopyright (c) 2010-2023, PyInstaller Development Team\nCopyright 2009 The Go Authors.\nCopyright 2026 Victor Santiago Monta\u00f1o Diaz\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\ndocumentation, are copyright (C) 1996-2010 Julian R Seward.  All\ndocumentation, are copyright (C) 1996-2019 Julian R Seward.  All\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,\nlibffi - Copyright (c) 1996-2019  Anthony Green, Red Hat, Inc and others.",
       "downloadLocation": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36181636747",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "(0BSD) AND (Apache-2.0) AND (BSD-2-Clause) AND (BSD-3-Clause AND Apache-2.0) AND (GPL-2.0-or-later WITH Bootloader-exception AND Apache-2.0) AND (LicenseRef-Python-Windows-Redistribution-e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a) AND (MIT) AND (Python-2.0 AND 0BSD) AND (Zlib) AND (bzip2-1.0.6)",
+      "licenseDeclared": "(0BSD) AND (Apache-2.0) AND (BSD-2-Clause) AND (BSD-3-Clause AND Apache-2.0) AND (GPL-2.0-or-later WITH Bootloader-exception AND Apache-2.0) AND (LicenseRef-Python-Windows-Redistribution-e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a) AND (MIT) AND (Python-2.0 AND 0BSD) AND (Zlib) AND (bzip2-1.0.6)",
       "name": "CUA Windows helper closure",
-      "packageComment": "Original upstream declaration: Component-specific grants in the retained helper review",
+      "packageComment": "Original upstream declaration: (0BSD) AND (Apache-2.0) AND (BSD-2-Clause) AND (BSD-3-Clause AND Apache-2.0) AND (GPL-2.0-or-later WITH Bootloader-exception AND Apache-2.0) AND (LicenseRef-Python-Windows-Redistribution-e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a) AND (MIT) AND (Python-2.0 AND 0BSD) AND (Zlib) AND (bzip2-1.0.6)",
       "versionInfo": "0.7.9"
     },
     {
@@ -10525,10 +10532,10 @@
           "checksumValue": "f53e442b08449d42821fa4a4fba000095af9f62742a500f978a9f557ec44339a"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "# Copyright (c) 2024, Rose Davidson",
       "downloadLocation": "https://files.pythonhosted.org/packages/d9/79/615cc094e2fb508cade7de88d3b4f6c4ec2bab695c97bce9153dc65aadf5/cffi-2.1.1-cp312-cp312-win_amd64.whl",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
+      "licenseConcluded": "MIT-0",
       "licenseDeclared": "MIT-0",
       "name": "cffi",
       "packageComment": "Original upstream declaration: MIT-0",
@@ -10542,7 +10549,7 @@
           "checksumValue": "255bc9599cf7748b4b1a446ccc735421bd08a2ae529a8b88597d3de5664ee360"
         }
       ],
-      "copyrightText": "Copyright 2014 Pallets",
+      "copyrightText": "# Copyright 2001-2006 Gregory P. Ward\n# Copyright 2002-2006 Python Software Foundation\nCopyright 2001-2006 Gregory P. Ward. All rights reserved.\nCopyright 2002-2006 Python Software Foundation. All rights reserved.\nCopyright 2014 Pallets",
       "downloadLocation": "https://files.pythonhosted.org/packages/58/50/6c0d534c5f134586a8e1ba4e330569e32f057e33372ae556463212fb4cd3/click-8.5.0-py3-none-any.whl",
       "filesAnalyzed": false,
       "licenseConcluded": "BSD-3-Clause",
@@ -10576,7 +10583,7 @@
           "checksumValue": "aed8db4f6d71c51efb89530e12d9464e7bf2923d46c3205dc794a2a93f8c0648"
         }
       ],
-      "copyrightText": "Copyright (c) Individual contributors.",
+      "copyrightText": "Copyright (c) Individual contributors.\n__copyright__ = f\"Copyright 2013-2026 {__author__}\"",
       "downloadLocation": "https://files.pythonhosted.org/packages/42/8b/cb12b1b60c91b074ca6bf0fdd59aa8f10d8bc5f73af8faece86ef0421b37/cryptography-50.0.1-cp311-abi3-win_amd64.whl",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -10644,7 +10651,7 @@
           "checksumValue": "cc8b6eecb8661c146b8f89a60e97456ee086e91a784ed31ac450c3a9e613dd36"
         }
       ],
-      "copyrightText": "Copyright \u00a9 2019, [Encode OSS Ltd](https://www.encode.io/).\nCopyright \u00a9 2026 to present Pydantic Services Inc. and individual contributors.",
+      "copyrightText": "Copyright (c) 2021 Fran\u00e7ois Voron\nCopyright (c) 2022 Florimond Manca\nCopyright \u00a9 2019, [Encode OSS Ltd](https://www.encode.io/).\nCopyright \u00a9 2026 to present Pydantic Services Inc. and individual contributors.",
       "downloadLocation": "https://files.pythonhosted.org/packages/c8/95/411ba65569158e862368917aaf56597f3e5fa3b91b0502919638465a08f3/httpx2-2.12.0-py3-none-any.whl",
       "filesAnalyzed": false,
       "licenseConcluded": "BSD-3-Clause",
@@ -10746,7 +10753,7 @@
           "checksumValue": "e79f428899280e7e64e38365b5bfed683851ebea807eeaeadaf06eb8e0d67197"
         }
       ],
-      "copyrightText": "Copyright (c) 2013-2026, Micka\u00ebl 'Tiger-222' Schoentgen",
+      "copyrightText": "Copyright (c) 2013-2026, Micka\u00ebl 'Tiger-222' Schoentgen\nCopyright (c) {__date__}, {__author__}",
       "downloadLocation": "https://files.pythonhosted.org/packages/f2/c3/313e14f245c79b4c05bd0f3a84a4813aa26fa10f8993aebd91d04c5fad3f/mss-10.2.0-py3-none-any.whl",
       "filesAnalyzed": false,
       "licenseConcluded": "MIT",
@@ -10763,7 +10770,7 @@
           "checksumValue": "a053533108c14c309a7613445e6c7fb460b6b165c144a062e1b2f39e4f7b396b"
         }
       ],
-      "copyrightText": "Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>",
+      "copyrightText": "# Copyright 2024 by UltrafunkAmsterdam (https://github.com/UltrafunkAmsterdam)\nCopyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>",
       "downloadLocation": "https://files.pythonhosted.org/packages/4d/23/b2dd278ad941c720f217c5264d7cbfc60dd09d882b5f7fb6c365013a8ce0/nodriver-0.50.3-py3-none-any.whl",
       "filesAnalyzed": false,
       "licenseConcluded": "AGPL-3.0-only",
@@ -10780,7 +10787,7 @@
           "checksumValue": "94b98c893a91b88657eaac1e3ba89618cdb85be6918196705354f34728b2cdef"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "# Copyright The OpenTelemetry Authors",
       "downloadLocation": "https://files.pythonhosted.org/packages/ca/6f/a04e900f465ff3221ccc395522503e2d10e79fa21f2723c8e177aae1e0d1/opentelemetry_api-1.44.0-py3-none-any.whl",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -10797,10 +10804,10 @@
           "checksumValue": "a2b55dd6b2a4c4b7d87ffa56bdb33fdc5fdb9a462173861a7bc097f17d91cb09"
         }
       ],
-      "copyrightText": "* Copyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc.\n* Copyright (c) 1995-2026 The PNG Reference Library Authors.\n* Copyright (c) 1996-1997 Andreas Dilger.\n* Copyright (c) 2000-2002, 2004, 2006-2018 Glenn Randers-Pehrson.\n* Copyright (c) 2001-2003, David Janssens\n* Copyright (c) 2002-2003, Yannick Verschueren\n* Copyright (c) 2002-2014, Professor Benoit Macq\n* Copyright (c) 2002-2014, Universite catholique de Louvain (UCL), Belgium\n* Copyright (c) 2003-2009, Francois-Olivier Devaux\n* Copyright (c) 2003-2014, Antonin Descampe\n* Copyright (c) 2005, Herve Drolon, FreeImage Team\n* Copyright (c) 2011-2012, Centre National d'Etudes Spatiales (CNES), France\n* Copyright (c) 2012, CS Systemes d'Information, France\n* Copyright (c) 2018-2026 Cosmin Truta.\nCopyright (C) 1989, 1991 Free Software Foundation, Inc.\nCopyright (C) 2009-2026 D. R. Commander.  All Rights Reserved.<br>\nCopyright (C) 2015 Viktor Szathm\u00e1ry.  All Rights Reserved.\nCopyright (C) The XZ Utils authors and contributors\nCopyright (c) 1985, 1986 The Regents of the University of California.\nCopyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc.\nCopyright (c) 1996-1997 Andreas Dilger, are derived from libpng-0.88,\nCopyright (c) 1998-2000 Glenn Randers-Pehrson, are derived from\nCopyright (c) 2000-2002, 2004, 2006-2018 Glenn Randers-Pehrson, are\nCopyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.\nCopyright (c) 2010, Google Inc. All rights reserved.\nCopyright (c) 2023 Marti Maria Saguer\nCopyright 1996-2002, 2006 by\nCopyright 2011 The LibYuv Project Authors. All rights reserved.\nCopyright 2019 Joe Drago. All rights reserved.\nCopyright 2020 Emmanuel Gil Peyrot. All rights reserved.\nCopyright \u00a9 1988-1997 Sam Leffler\\\nCopyright \u00a9 1991-1997 Silicon Graphics, Inc.\nCopyright \u00a9 1995-2011 by Fredrik Lundh and contributors\nCopyright \u00a9 1997-2011 by Secret Labs AB\nCopyright \u00a9 1998-2005  David Turner and Werner Lemberg\nCopyright \u00a9 2004,2007,2008,2009,2010,2013,2021,2022,2023  Red Hat, Inc.\nCopyright \u00a9 2005,2006,2020,2021,2022,2023  Behdad Esfahbod\nCopyright \u00a9 2007  Chris Wilson\nCopyright \u00a9 2008,2010  Nokia Corporation and/or its subsidiary(-ies)\nCopyright \u00a9 2009  Keith Stribley\nCopyright \u00a9 2010 by Jeffrey 'Alex' Clark and contributors\nCopyright \u00a9 2010-2022  Google, Inc.\nCopyright \u00a9 2011  Codethink Limited\nCopyright \u00a9 2011  Martin Hosken and SIL International\nCopyright \u00a9 2012,2015  Mozilla Foundation\nCopyright \u00a9 2013-2015  Alexei Podtelezhnikov\nCopyright \u00a9 2015-2020  Ebrahim Byagowi\nCopyright \u00a9 2016  Igalia S.L.\nCopyright \u00a9 2018,2019,2020  Adobe, Inc\nCopyright \u00a9 2018,2021  Khaled Hosny\nCopyright \u00a9 2018-2019, VideoLAN and dav1d authors\nCopyright \u00a9 2019,2020  Facebook, Inc.\nCopyright \u00a9 2022  Matthias Clasen\nGnomovision version 69, Copyright (C) year  name of author\nThe FreeType  Project is copyright (C) 1996-2000  by David Turner,\nThis software is copyright (C) 1991-2013, Thomas G. Lane, Guido Vollbeding.\nThis software is copyright (C) 1991-2020, Thomas G. Lane, Guido Vollbeding.",
+      "copyrightText": "# Copyright (C) 2002-2003 Kevin Cazabon\n# Copyright (c) 1995 by Fredrik Lundh\n# Copyright (c) 1995 by Fredrik Lundh.\n# Copyright (c) 1995-1996 by Fredrik Lundh\n# Copyright (c) 1995-1996 by Fredrik Lundh.\n# Copyright (c) 1995-1997 by Fredrik Lundh\n# Copyright (c) 1995-2001 by Fredrik Lundh\n# Copyright (c) 1995-2001 by Fredrik Lundh.\n# Copyright (c) 1995-2002 by Fredrik Lundh.\n# Copyright (c) 1995-2003 by Fredrik Lundh\n# Copyright (c) 1995-2003 by Fredrik Lundh.\n# Copyright (c) 1995-2004 by Fredrik Lundh\n# Copyright (c) 1995-2009 by Fredrik Lundh.\n# Copyright (c) 1995-96 by Fredrik Lundh.\n# Copyright (c) 1996 by Fredrik Lundh\n# Copyright (c) 1996 by Fredrik Lundh.\n# Copyright (c) 1996-1997 by Fredrik Lundh\n# Copyright (c) 1996-1997 by Fredrik Lundh.\n# Copyright (c) 1996-2000 by Fredrik Lundh\n# Copyright (c) 1996-2003 by Fredrik Lundh\n# Copyright (c) 1996-2006 by Fredrik Lundh\n# Copyright (c) 1997 by Fredrik Lundh.\n# Copyright (c) 1997 by Secret Labs AB.\n# Copyright (c) 1997-1998 by Fredrik Lundh\n# Copyright (c) 1997-1998 by Secret Labs AB\n# Copyright (c) 1997-1999 by Secret Labs AB\n# Copyright (c) 1997-2000 by Secret Labs AB\n# Copyright (c) 1997-2001 by Secret Labs AB\n# Copyright (c) 1997-2001 by Secret Labs AB.\n# Copyright (c) 1997-2003 by Fredrik Lundh.\n# Copyright (c) 1997-2003 by Secret Labs AB\n# Copyright (c) 1997-2003 by Secret Labs AB.\n# Copyright (c) 1997-2004 by Secret Labs AB\n# Copyright (c) 1997-2004 by Secret Labs AB.  All rights reserved.\n# Copyright (c) 1997-2005 by Secret Labs AB.  All rights reserved.\n# Copyright (c) 1997-2006 by Secret Labs AB\n# Copyright (c) 1997-2006 by Secret Labs AB.  All rights reserved.\n# Copyright (c) 1997-2009 by Secret Labs AB\n# Copyright (c) 1997-2009 by Secret Labs AB.  All rights reserved.\n# Copyright (c) 1997-98 by Secret Labs AB.\n# Copyright (c) 1998-2003 by Fredrik Lundh\n# Copyright (c) 1999-2005 by Secret Labs AB\n# Copyright (c) 2000-2003 by Fredrik Lundh\n# Copyright (c) 2001-2002 by Fredrik Lundh\n# Copyright (c) 2001-2002 by Secret Labs AB\n# Copyright (c) 2001-2004 by Fredrik Lundh\n# Copyright (c) 2001-2004 by Secret Labs AB\n# Copyright (c) 2002 by Fredrik Lundh\n# Copyright (c) 2002 by Secret Labs AB\n# Copyright (c) 2002-2004 by Fredrik Lundh\n# Copyright (c) 2002-2004 by Secret Labs AB\n# Copyright (c) 2003 by Fredrik Lundh.\n# Copyright (c) 2003 by Secret Labs AB\n# Copyright (c) 2003-2005 by Fredrik Lundh\n# Copyright (c) 2003-2005 by Secret Labs AB\n# Copyright (c) 2004 by Bob Ippolito.\n# Copyright (c) 2004 by Fredrik Lundh.\n# Copyright (c) 2004 by Health Research Inc. (HRI) RENSSELAER, NY 12144.\n# Copyright (c) 2004 by Secret Labs AB.\n# Copyright (c) 2004 by Secret Labs.\n# Copyright (c) 2004 by William Baxter.\n# Copyright (c) 2005 by Fredrik Lundh\n# Copyright (c) 2006 by Fredrik Lundh\n# Copyright (c) 2006 by Fredrik Lundh.\n# Copyright (c) 2006 by Secret Labs AB\n# Copyright (c) 2006 by Secret Labs AB.\n# Copyright (c) 2008 by Karsten Hiddemann.\n# Copyright (c) 2009 by Fredrik Lundh\n# Copyright (c) 2012 by Brian Crowell\n# Copyright (c) 2013 by Eric Soroos\n# Copyright (c) 2014 Alastair Houghton\n# Copyright (c) 2014 Coriolis Systems Limited\n# Copyright (c) 2014 Dov Grobgeld <dov.grobgeld@gmail.com>\n# Copyright (c) 2014 by Alastair Houghton.\n# Copyright (c) 2016 by Mickael Bonfill.\n# Copyright (c) 2020 by Pan Jing.\n# Copyright (c) Eric Soroos 2016.\n# Copyright (c) Eric Soroos 2017.\n# Copyright (c) Fredrik Lundh 1994.\n# Copyright (c) Fredrik Lundh 1995-96.\n# Copyright (c) Fredrik Lundh 1995-97.\n# Copyright (c) Fredrik Lundh 1995.\n# Copyright (c) Fredrik Lundh 1996-2001.\n# Copyright (c) Fredrik Lundh 1996-2003.\n# Copyright (c) Fredrik Lundh 1996-97.\n# Copyright (c) Fredrik Lundh 1996.\n# Copyright (c) Fredrik Lundh 1997-2004.\n# Copyright (c) Fredrik Lundh 1997.\n# Copyright (c) Secret Labs AB 1997-2001.\n# Copyright (c) Secret Labs AB 1997-2002.\n# Copyright (c) Secret Labs AB 1997-2003.\n# Copyright (c) Secret Labs AB 1997-2004.  All rights reserved.\n# Copyright (c) Secret Labs AB 1997-98.\n# Copyright (c) Secret Labs AB 1997.\n# Copyright (c) Secret Labs AB 1999.\n# Copyright (c) Secret Labs AB 2008.\n# Copyright 2008 Bryan Davis\n(C) 1995-2024 Jean-loup Gailly and Mark Adler\n(littleCMS is Copyright (C) 1998-2001 Marti Maria)\n* Copyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc.\n* Copyright (c) 1995-2026 The PNG Reference Library Authors.\n* Copyright (c) 1996-1997 Andreas Dilger.\n* Copyright (c) 2000-2002, 2004, 2006-2018 Glenn Randers-Pehrson.\n* Copyright (c) 2001-2003, David Janssens\n* Copyright (c) 2002-2003, Yannick Verschueren\n* Copyright (c) 2002-2014, Professor Benoit Macq\n* Copyright (c) 2002-2014, Universite catholique de Louvain (UCL), Belgium\n* Copyright (c) 2003-2009, Francois-Olivier Devaux\n* Copyright (c) 2003-2014, Antonin Descampe\n* Copyright (c) 2005, Herve Drolon, FreeImage Team\n* Copyright (c) 2011-2012, Centre National d'Etudes Spatiales (CNES), France\n* Copyright (c) 2012, CS Systemes d'Information, France\n* Copyright (c) 2018-2026 Cosmin Truta.\nCopyright (C) 1989, 1991 Free Software Foundation, Inc.\nCopyright (C) 2002-2003 Kevin Cazabon\nCopyright (C) 2009-2026 D. R. Commander.  All Rights Reserved.<br>\nCopyright (C) 2015 Viktor Szathm\u00e1ry.  All Rights Reserved.\nCopyright (C) The XZ Utils authors and contributors\nCopyright (c) 1985, 1986 The Regents of the University of California.\nCopyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc.\nCopyright (c) 1996-1997 Andreas Dilger, are derived from libpng-0.88,\nCopyright (c) 1998-2000 Glenn Randers-Pehrson, are derived from\nCopyright (c) 1999 by Secret Labs AB.\nCopyright (c) 2000-2002, 2004, 2006-2018 Glenn Randers-Pehrson, are\nCopyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.\nCopyright (c) 2010, Google Inc. All rights reserved.\nCopyright (c) 2023 Marti Maria Saguer\nCopyright 1996-2002, 2006 by\nCopyright 2011 The LibYuv Project Authors. All rights reserved.\nCopyright 2019 Joe Drago. All rights reserved.\nCopyright 2020 Emmanuel Gil Peyrot. All rights reserved.\nCopyright \u00a9 1988-1997 Sam Leffler\\\nCopyright \u00a9 1991-1997 Silicon Graphics, Inc.\nCopyright \u00a9 1995-2011 by Fredrik Lundh and contributors\nCopyright \u00a9 1997-2011 by Secret Labs AB\nCopyright \u00a9 1998-2005  David Turner and Werner Lemberg\nCopyright \u00a9 2004,2007,2008,2009,2010,2013,2021,2022,2023  Red Hat, Inc.\nCopyright \u00a9 2005,2006,2020,2021,2022,2023  Behdad Esfahbod\nCopyright \u00a9 2007  Chris Wilson\nCopyright \u00a9 2008,2010  Nokia Corporation and/or its subsidiary(-ies)\nCopyright \u00a9 2009  Keith Stribley\nCopyright \u00a9 2010 by Jeffrey 'Alex' Clark and contributors\nCopyright \u00a9 2010-2022  Google, Inc.\nCopyright \u00a9 2011  Codethink Limited\nCopyright \u00a9 2011  Martin Hosken and SIL International\nCopyright \u00a9 2012,2015  Mozilla Foundation\nCopyright \u00a9 2013-2015  Alexei Podtelezhnikov\nCopyright \u00a9 2015-2020  Ebrahim Byagowi\nCopyright \u00a9 2016  Igalia S.L.\nCopyright \u00a9 2018,2019,2020  Adobe, Inc\nCopyright \u00a9 2018,2021  Khaled Hosny\nCopyright \u00a9 2018-2019, VideoLAN and dav1d authors\nCopyright \u00a9 2019,2020  Facebook, Inc.\nCopyright \u00a9 2022  Matthias Clasen\nGnomovision version 69, Copyright (C) year  name of author\nThe FreeType  Project is copyright (C) 1996-2000  by David Turner,\nThis software is copyright (C) 1991-2013, Thomas G. Lane, Guido Vollbeding.\nThis software is copyright (C) 1991-2020, Thomas G. Lane, Guido Vollbeding.",
       "downloadLocation": "https://files.pythonhosted.org/packages/45/89/da2f7971a317f83d807fdd4065c0af40208e59e692cc43d315a71a0e96d1/pillow-12.3.0-cp312-cp312-win_amd64.whl",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
+      "licenseConcluded": "MIT-CMU",
       "licenseDeclared": "MIT-CMU",
       "name": "pillow",
       "packageComment": "Original upstream declaration: MIT-CMU",
@@ -10865,7 +10872,7 @@
           "checksumValue": "66adcc2aff09b3f1bbd95fc1e1577df8ac8723c978552fd43304c8a290ac5728"
         }
       ],
-      "copyrightText": "Copyright (c) 2015-2022 Jos\u00e9 Padilla",
+      "copyrightText": "Copyright (c) 2015-2022 Jos\u00e9 Padilla\n__copyright__ = \"Copyright 2015-2026 Jos\u00e9 Padilla\"",
       "downloadLocation": "https://files.pythonhosted.org/packages/a3/5e/ecf12fdb62546d64385c158514e9b2b671f7832108ef2ecd2020ce0af2d1/pyjwt-2.13.0-py3-none-any.whl",
       "filesAnalyzed": false,
       "licenseConcluded": "MIT",
@@ -10882,7 +10889,7 @@
           "checksumValue": "ff6d3f776f16878c894e52e107296ffc890e913c611b1a4ec6c44e2821fe2e23"
         }
       ],
-      "copyrightText": "NOASSERTION",
+      "copyrightText": "# Copyright 2012, Andrew Dunham",
       "downloadLocation": "https://files.pythonhosted.org/packages/e1/04/e8135ebd1ad02c56ec633277529b2602ff99ff634be76cdba5744cf554fd/python_multipart-0.0.32-py3-none-any.whl",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -10899,7 +10906,7 @@
           "checksumValue": "b457f6d628a47e8a7346ce22acb7e1a46a4a78b52e1d17e1af56871bd19a93bc"
         }
       ],
-      "copyrightText": "Copyright (C) 1991, 1999 Free Software Foundation, Inc.\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 1994-2008, Mark Hammond\nCopyright (c) 1996-2008, Greg Stein and Mark Hammond.\nCopyright (c) 2018 Microsoft\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\nLicense Agreement and PSF's notice of copyright, i.e., \"Copyright (c)",
+      "copyrightText": "#  Copyright 2002-2003 by Blackdog Software Pty Ltd.\n# Copyright (c) 2000 David Abrahams. Permission to copy, use, modify, sell\n# Copyright (c) 2003 Wavecom Inc.  All rights reserved\n# Copyright (c) 2003-2004 by Chris Nilsson <chris@slort.org>\n(C) Copyright 2014 Enthought, Inc., Austin, TX\nCopyright (C) 1991, 1999 Free Software Foundation, Inc.\nCopyright (C) 2002  Henrik Ekelund\nCopyright (C) 2002 Henrik Ekelund, version 2.1 by Vernon Cole\nCopyright (C) 2002 Henrik Ekelund, versions 2.1 and later by Vernon Cole\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 1994-2008, Mark Hammond\nCopyright (c) 1996-2008, Greg Stein and Mark Hammond.\nCopyright (c) 2018 Microsoft\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\nCopyright \u00a9 2003-2012.\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\nLicense Agreement and PSF's notice of copyright, i.e., \"Copyright (c)\nscintilla = \"Scintilla is Copyright 1998-2020 Neil Hodgson (https://www.scintilla.org)\"",
       "downloadLocation": "https://files.pythonhosted.org/packages/03/d9/77040d3b43df3f3be32ea289433d660d2727f5ba327bc73be835127d9d60/pywin32-312-cp312-cp312-win_amd64.whl",
       "filesAnalyzed": false,
       "licenseConcluded": "NOASSERTION",
@@ -10909,6 +10916,23 @@
       "versionInfo": "312"
     },
     {
+      "SPDXID": "SPDXRef-wheel-pywin32-312-adodbapi",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "17fbf4e27a9e5fc3b8b6520da2578b2b36d46f501691c9c2afbcc1860cd00579"
+        }
+      ],
+      "copyrightText": "Copyright (C) 1991, 1999 Free Software Foundation, Inc.\nCopyright (C) 2002 Henrik Ekelund, versions 2.1 and later by Vernon Cole",
+      "downloadLocation": "https://files.pythonhosted.org/packages/03/d9/77040d3b43df3f3be32ea289433d660d2727f5ba327bc73be835127d9d60/pywin32-312-cp312-cp312-win_amd64.whl",
+      "filesAnalyzed": false,
+      "licenseConcluded": "LGPL-2.1-or-later",
+      "licenseDeclared": "LGPL-2.1-or-later",
+      "name": "adodbapi (shipped pywin32 subtree)",
+      "packageComment": "Original upstream declaration: adodbapi/adodbapi.py: LGPL version 2.1 or any later version",
+      "versionInfo": "2.6.2.0"
+    },
+    {
       "SPDXID": "SPDXRef-wheel-pywinauto-0.6.9",
       "checksums": [
         {
@@ -10916,7 +10940,7 @@
           "checksumValue": "5924b3072864a1d730c5546bbeb17cf4063ba518b618dbc5e43c18276c7c9356"
         }
       ],
-      "copyrightText": "Copyright (c) 2017, Mark Mc Mahon and Contributors",
+      "copyrightText": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors\nCopyright (c) 2017, Mark Mc Mahon and Contributors",
       "downloadLocation": "https://files.pythonhosted.org/packages/44/46/f2283648e0c237af451dc50ebc42121abfd198d12391fd9ad4df1c6b97d2/pywinauto-0.6.9-py2.py3-none-any.whl",
       "filesAnalyzed": false,
       "licenseConcluded": "BSD-3-Clause",
@@ -10967,7 +10991,7 @@
           "checksumValue": "4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274"
         }
       ],
-      "copyrightText": "Copyright (c) 2010-2024 Benjamin Peterson",
+      "copyrightText": "# Copyright (c) 2010-2024 Benjamin Peterson\nCopyright (c) 2010-2024 Benjamin Peterson",
       "downloadLocation": "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl",
       "filesAnalyzed": false,
       "licenseConcluded": "MIT",
@@ -11038,7 +11062,7 @@
       "copyrightText": "Copyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,",
       "downloadLocation": "https://files.pythonhosted.org/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
+      "licenseConcluded": "PSF-2.0",
       "licenseDeclared": "PSF-2.0",
       "name": "typing-extensions",
       "packageComment": "Original upstream declaration: PSF-2.0",
@@ -11086,7 +11110,7 @@
           "checksumValue": "f86e41a149d7d05a9969337e3946a9c171c06a5d42680896daaba624aeac8da1"
         }
       ],
-      "copyrightText": "Copyright \u00a9 2017-present, [Encode OSS Ltd](https://www.encode.io/).",
+      "copyrightText": "Copyright (c) Django Software Foundation and individual contributors.\nCopyright \u00a9 2017-present, [Encode OSS Ltd](https://www.encode.io/).",
       "downloadLocation": "https://files.pythonhosted.org/packages/f1/79/4a20b54ab0491485ccd8c077db2d39187c7f12b3e15485d38a7be37c81b4/uvicorn-0.52.4-py3-none-any.whl",
       "filesAnalyzed": false,
       "licenseConcluded": "BSD-3-Clause",
@@ -11103,7 +11127,7 @@
           "checksumValue": "cdfbd45fd528cd3738cc2635e848b3aac3448f51820abcb20c84b33e056282c5"
         }
       ],
-      "copyrightText": "Copyright 2026 Victor Santiago Monta\u00f1o Diaz",
+      "copyrightText": "# Copyright 2026 Victor Santiago Montano Diaz\n# Copyright 2026 Victor Santiago Monta\u00f1o Diaz\nCopyright 2026 Victor Santiago Monta\u00f1o Diaz",
       "downloadLocation": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36312377525",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",

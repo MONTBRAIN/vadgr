@@ -1,0 +1,408 @@
+{
+  "candidate_approval": false,
+  "component_expressions": {
+    "CPython": "Python-2.0 AND 0BSD",
+    "Go-runtime-and-CUA-relay": "BSD-3-Clause AND Apache-2.0",
+    "Microsoft-VC-runtime": "LicenseRef-Python-Windows-Redistribution-e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a",
+    "OpenSSL": "Apache-2.0",
+    "PyInstaller-bootloader-and-CUA": "GPL-2.0-or-later WITH Bootloader-exception AND Apache-2.0",
+    "bzip2": "bzip2-1.0.6",
+    "expat": "MIT",
+    "libffi": "MIT",
+    "liblzma": "0BSD",
+    "mpdecimal": "BSD-2-Clause",
+    "vadgr-computer-use": "Apache-2.0",
+    "zlib": "Zlib"
+  },
+  "members": {
+    "PYINSTALLER-COPYING.txt": {
+      "component_expressions": {},
+      "input_sha256": "dcf75fdb959db1e3b41c0f8505069d2ece781b5ec6b3d0a4d30975cfc6580245",
+      "license_and_notice_members": [],
+      "size": 32138
+    },
+    "PYTHON-LICENSE.txt": {
+      "component_expressions": {},
+      "input_sha256": "886a0ead2d89030ee62dbff52b04e47ab91998341295bb9c56fb952b4e081c7a",
+      "license_and_notice_members": [],
+      "size": 25066
+    },
+    "THIRD-PARTY-NOTICES/LICENSE.bzip2.txt": {
+      "component_expressions": {},
+      "input_sha256": "1f38bbc7caacafd65169276d759c0d88c991b753b643ce35d0e45ea1971dd441",
+      "license_and_notice_members": [],
+      "size": 1743
+    },
+    "THIRD-PARTY-NOTICES/LICENSE.expat.txt": {
+      "component_expressions": {},
+      "input_sha256": "122f2c27000472a201d337b9b31f7eb2b52d091b02857061a8880371612d9534",
+      "license_and_notice_members": [],
+      "size": 1144
+    },
+    "THIRD-PARTY-NOTICES/LICENSE.libffi.txt": {
+      "component_expressions": {},
+      "input_sha256": "deaf3a42effb551a5b140fa9afefed183a27f1341c6d1bf430d106a5e6931fc0",
+      "license_and_notice_members": [],
+      "size": 1132
+    },
+    "THIRD-PARTY-NOTICES/LICENSE.liblzma.txt": {
+      "component_expressions": {},
+      "input_sha256": "9a4062de0a2c388a98cf35a35d348b62fa97c838a71c3c28ee1a2d7d0a565b02",
+      "license_and_notice_members": [],
+      "size": 660
+    },
+    "THIRD-PARTY-NOTICES/LICENSE.mpdecimal.txt": {
+      "component_expressions": {},
+      "input_sha256": "669512af7219f58be03a398766d7c9da11a3b3df9d3f05cb74c5ceca25c8da3b",
+      "license_and_notice_members": [],
+      "size": 1284
+    },
+    "THIRD-PARTY-NOTICES/LICENSE.openssl-3.txt": {
+      "component_expressions": {},
+      "input_sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a",
+      "license_and_notice_members": [],
+      "size": 10175
+    },
+    "THIRD-PARTY-NOTICES/LICENSE.zlib.txt": {
+      "component_expressions": {},
+      "input_sha256": "818922b2620f12801a12bf78e399644a30990e66824abd8ca8ec24d451d6f92c",
+      "license_and_notice_members": [],
+      "size": 995
+    },
+    "THIRD-PARTY-NOTICES/cua/LICENSE": {
+      "component_expressions": {},
+      "input_sha256": "95200db3139caae5364ed20b90417e71258fce0c8f6f77904600f4a569cee52c",
+      "license_and_notice_members": [],
+      "size": 10970
+    },
+    "THIRD-PARTY-NOTICES/cua/NOTICE": {
+      "component_expressions": {},
+      "input_sha256": "cec763c4e30dcae7c47ef4503e30b63b6d9a9569bbdc5c5a0a95bfb7999e9df2",
+      "license_and_notice_members": [],
+      "size": 402
+    },
+    "THIRD-PARTY-NOTICES/go/LICENSE": {
+      "component_expressions": {},
+      "input_sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+      "license_and_notice_members": [],
+      "size": 1453
+    },
+    "THIRD-PARTY-NOTICES/go/PATENTS": {
+      "component_expressions": {},
+      "input_sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc",
+      "license_and_notice_members": [],
+      "size": 1303
+    },
+    "THIRD-PARTY-NOTICES/go/src/vendor/golang.org/x/net/LICENSE": {
+      "component_expressions": {},
+      "input_sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+      "license_and_notice_members": [],
+      "size": 1453
+    },
+    "THIRD-PARTY-NOTICES/go/src/vendor/golang.org/x/net/PATENTS": {
+      "component_expressions": {},
+      "input_sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc",
+      "license_and_notice_members": [],
+      "size": 1303
+    },
+    "THIRD-PARTY-NOTICES/source-inventory.json": {
+      "component_expressions": {},
+      "input_sha256": "a9a161de46cc4b3684d995b183d9e459aa85b0b9082b877644040f5ecae6ca60",
+      "license_and_notice_members": [],
+      "size": 120640
+    },
+    "VADGR-CUA-LICENSE.txt": {
+      "component_expressions": {},
+      "input_sha256": "95200db3139caae5364ed20b90417e71258fce0c8f6f77904600f4a569cee52c",
+      "license_and_notice_members": [],
+      "size": 10970
+    },
+    "_internal/VCRUNTIME140.dll": {
+      "component_expressions": {
+        "Microsoft-VC-runtime": "LicenseRef-Python-Windows-Redistribution-e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a"
+      },
+      "input_sha256": "d5e4d9a3e835fa679450145d6a7d94e36573a509317111904d9b3712c30d9066",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ],
+      "size": 124544
+    },
+    "_internal/VCRUNTIME140_1.dll": {
+      "component_expressions": {
+        "Microsoft-VC-runtime": "LicenseRef-Python-Windows-Redistribution-e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a"
+      },
+      "input_sha256": "1f2d41c4aa5db0bc33ebf7b66d72943a817d7ce6cbe880502a9403823633093f",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ],
+      "size": 49792
+    },
+    "_internal/_asyncio.pyd": {
+      "component_expressions": {
+        "CPython": "Python-2.0 AND 0BSD"
+      },
+      "input_sha256": "02c681521aa0eaa4822b206e2ed0cb51de969af86045846a52a321908e041f14",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ],
+      "size": 59392
+    },
+    "_internal/_bz2.pyd": {
+      "component_expressions": {
+        "CPython": "Python-2.0 AND 0BSD",
+        "bzip2": "bzip2-1.0.6"
+      },
+      "input_sha256": "1cedba5927c6f00b4278c2b60b5696506ccc73af4859384a26160e1cf4945d01",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt",
+        "THIRD-PARTY-NOTICES/LICENSE.bzip2.txt"
+      ],
+      "size": 73216
+    },
+    "_internal/_ctypes.pyd": {
+      "component_expressions": {
+        "CPython": "Python-2.0 AND 0BSD"
+      },
+      "input_sha256": "78edcd2a863472cded0f311eac31c778bc30fb9754fa815bb32c4e286eb7f155",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ],
+      "size": 116224
+    },
+    "_internal/_decimal.pyd": {
+      "component_expressions": {
+        "CPython": "Python-2.0 AND 0BSD",
+        "mpdecimal": "BSD-2-Clause"
+      },
+      "input_sha256": "14ec08311a3ee2248eaa332cec544bfda6a777bf649029303ee5675bb8ffa939",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt",
+        "THIRD-PARTY-NOTICES/LICENSE.mpdecimal.txt"
+      ],
+      "size": 248320
+    },
+    "_internal/_hashlib.pyd": {
+      "component_expressions": {
+        "CPython": "Python-2.0 AND 0BSD"
+      },
+      "input_sha256": "0f234dd56319a354cbc103063e58ea25f57b05c0e3825bca0d608518e9c16583",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ],
+      "size": 54784
+    },
+    "_internal/_lzma.pyd": {
+      "component_expressions": {
+        "CPython": "Python-2.0 AND 0BSD",
+        "liblzma": "0BSD"
+      },
+      "input_sha256": "31cfc6fd91059f0e4fd819a3381615db6639faaca7d5428c07c37fb64385b3da",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt",
+        "THIRD-PARTY-NOTICES/LICENSE.liblzma.txt"
+      ],
+      "size": 152576
+    },
+    "_internal/_multiprocessing.pyd": {
+      "component_expressions": {
+        "CPython": "Python-2.0 AND 0BSD"
+      },
+      "input_sha256": "95303df7e7be0b75e67d64127b69704392267e50b2306f5ad45a9e64e7764aa2",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ],
+      "size": 24064
+    },
+    "_internal/_overlapped.pyd": {
+      "component_expressions": {
+        "CPython": "Python-2.0 AND 0BSD"
+      },
+      "input_sha256": "6a36b0102c76e6a931523725380ad8b9d4d559578c528f98110f7b42445feef3",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ],
+      "size": 44032
+    },
+    "_internal/_queue.pyd": {
+      "component_expressions": {
+        "CPython": "Python-2.0 AND 0BSD"
+      },
+      "input_sha256": "6f8dd84f376f5312b206acbe56d2a80eaea53cfadcf81f1c14fb97e75f82fc32",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ],
+      "size": 20480
+    },
+    "_internal/_socket.pyd": {
+      "component_expressions": {
+        "CPython": "Python-2.0 AND 0BSD"
+      },
+      "input_sha256": "df165b012ac7c7dbdd240bfec0237c215dea88ebcd988719658ca8afa4ec7692",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ],
+      "size": 71680
+    },
+    "_internal/_ssl.pyd": {
+      "component_expressions": {
+        "CPython": "Python-2.0 AND 0BSD"
+      },
+      "input_sha256": "480cce65c9b8fd755c5fafab5ba89b04dffd43ce64a1220b30c483e83f28fe6a",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ],
+      "size": 164864
+    },
+    "_internal/_uuid.pyd": {
+      "component_expressions": {
+        "CPython": "Python-2.0 AND 0BSD"
+      },
+      "input_sha256": "89b9c2751660b7821c4107f75821b3b705a6004e9a70517956c7cfb5edae7b42",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ],
+      "size": 13824
+    },
+    "_internal/_wmi.pyd": {
+      "component_expressions": {
+        "CPython": "Python-2.0 AND 0BSD"
+      },
+      "input_sha256": "01e899f2e92bb73c25edfe2d69a7bb55bd2814a1c3f9eeb115377c19b388ed7a",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ],
+      "size": 25600
+    },
+    "_internal/base_library.zip": {
+      "component_expressions": {
+        "CPython": "Python-2.0 AND 0BSD"
+      },
+      "input_sha256": "8caf13545c9cec2d53220690c1338878e6efa3e6fa851ab8979af9fec0e7d3b7",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ],
+      "size": 1333490
+    },
+    "_internal/libcrypto-3-x64.dll": {
+      "component_expressions": {
+        "OpenSSL": "Apache-2.0"
+      },
+      "input_sha256": "7404fb0dc38e868aea1551ff8ceb3fce635ba6173439f882715a6e87e5237370",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt",
+        "THIRD-PARTY-NOTICES/LICENSE.openssl-3.txt"
+      ],
+      "size": 7987712
+    },
+    "_internal/libffi-8.dll": {
+      "component_expressions": {
+        "libffi": "MIT"
+      },
+      "input_sha256": "634bca492b28c5d530f1bc321dd6d240b92c5013f3815f59653ec483890db27b",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt",
+        "THIRD-PARTY-NOTICES/LICENSE.libffi.txt"
+      ],
+      "size": 28160
+    },
+    "_internal/libssl-3-x64.dll": {
+      "component_expressions": {
+        "OpenSSL": "Apache-2.0"
+      },
+      "input_sha256": "48d349578f5584f15fd3501501e75e87c80369c6ed35f39de55fbb92bee02df5",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt",
+        "THIRD-PARTY-NOTICES/LICENSE.openssl-3.txt"
+      ],
+      "size": 1583616
+    },
+    "_internal/predecessor-catalog.json": {
+      "component_expressions": {
+        "vadgr-computer-use": "Apache-2.0"
+      },
+      "input_sha256": "c969f56ddfecb014182ed9dad8373300b3e30520708c1514588c87c6f5532a71",
+      "license_and_notice_members": [],
+      "size": 1354
+    },
+    "_internal/pyexpat.pyd": {
+      "component_expressions": {
+        "CPython": "Python-2.0 AND 0BSD",
+        "expat": "MIT"
+      },
+      "input_sha256": "7c7197db94612b3904ef0ada2a4940bcc6853136cc70f3523a4f26fffccbf37e",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt",
+        "THIRD-PARTY-NOTICES/LICENSE.expat.txt"
+      ],
+      "size": 210432
+    },
+    "_internal/python312.dll": {
+      "component_expressions": {
+        "CPython": "Python-2.0 AND 0BSD"
+      },
+      "input_sha256": "53d38ecd2d9f4e19ac9328a715d1155e3e183473845e15d0044342909fc718a0",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ],
+      "size": 6969856
+    },
+    "_internal/select.pyd": {
+      "component_expressions": {
+        "CPython": "Python-2.0 AND 0BSD"
+      },
+      "input_sha256": "de108cd0108e8cdfb1f1e95e9fe6b3ede886aaa80a9fe86deb2619ec17d4e625",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ],
+      "size": 18944
+    },
+    "_internal/unicodedata.pyd": {
+      "component_expressions": {
+        "CPython": "Python-2.0 AND 0BSD"
+      },
+      "input_sha256": "f7cd7dfbc3c82be5f17fc61424ca316fa43b50193f3e633c5c042d62a47d0dd7",
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ],
+      "size": 1127936
+    },
+    "vadgr-cua-browser-broker.exe": {
+      "component_expressions": {
+        "CPython": "Python-2.0 AND 0BSD",
+        "PyInstaller-bootloader-and-CUA": "GPL-2.0-or-later WITH Bootloader-exception AND Apache-2.0",
+        "vadgr-computer-use": "Apache-2.0",
+        "zlib": "Zlib"
+      },
+      "input_sha256": "0248fe42d3992b639fd5f2e47b8dcec651dfdee1b25ccb79001fba14815d42c4",
+      "license_and_notice_members": [
+        "VADGR-CUA-LICENSE.txt",
+        "THIRD-PARTY-NOTICES/cua/NOTICE",
+        "PYINSTALLER-COPYING.txt",
+        "PYTHON-LICENSE.txt",
+        "THIRD-PARTY-NOTICES/LICENSE.zlib.txt"
+      ],
+      "size": 2883928
+    },
+    "vadgr-cua-host.exe": {
+      "component_expressions": {
+        "Go-runtime-and-CUA-relay": "BSD-3-Clause AND Apache-2.0",
+        "vadgr-computer-use": "Apache-2.0"
+      },
+      "input_sha256": "0f8ad4e48b90a531422ae5ec97faca7552052b1a3de2afdd03ee5384cb209b50",
+      "license_and_notice_members": [
+        "THIRD-PARTY-NOTICES/cua/LICENSE",
+        "THIRD-PARTY-NOTICES/cua/NOTICE",
+        "THIRD-PARTY-NOTICES/go/LICENSE",
+        "THIRD-PARTY-NOTICES/go/PATENTS",
+        "THIRD-PARTY-NOTICES/go/src/vendor/golang.org/x/net/LICENSE",
+        "THIRD-PARTY-NOTICES/go/src/vendor/golang.org/x/net/PATENTS"
+      ],
+      "size": 2658816
+    }
+  },
+  "publishable": false,
+  "reviewed_helper_sha256": "96ea989da645cde0b85d41f22c55ae7113f7de39628fcf71ecd12cee21f2256c",
+  "schema": 1,
+  "scope": "Exact helper-only component mapping; no new approval and no outer-package redistribution conclusion.",
+  "status": "draft"
+}

@@ -13,6 +13,17 @@
       ]
     },
     {
+      "path": "ed25519-dalek-3.0.0/benches/ed25519_benchmarks.rs",
+      "sha256": "25645f94b02844b83fbd7103f87d191d96542350d3f9391eab34f35afc2cde4f",
+      "size": 3392,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2018-2019 isis lovecruft"
+        }
+      ]
+    },
+    {
       "path": "ed25519-dalek-3.0.0/src/batch.rs",
       "sha256": "84e422c5b145950c6c33e402cc33deab7e0ab987ff814e60a4970d80476efed2",
       "size": 9368,
@@ -82,6 +93,17 @@
       "path": "ed25519-dalek-3.0.0/src/verifying.rs",
       "sha256": "f3cd43f2968f09f513591c9e2ebc8939e2d578ff5492c6b9e4f72e89366667e5",
       "size": 26908,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2017-2019 isis lovecruft"
+        }
+      ]
+    },
+    {
+      "path": "ed25519-dalek-3.0.0/tests/ed25519.rs",
+      "sha256": "5e3b0c13a7de2f1f98895aebdbc11e949cc07ae212e71d3b500a96b27166ff05",
+      "size": 28044,
       "statements": [
         {
           "line": 4,

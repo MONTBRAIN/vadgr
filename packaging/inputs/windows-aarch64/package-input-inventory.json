@@ -231,7 +231,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-accesskit-windows-0.32.1/source-copyright-statements.json",
-          "sha256": "72c534981784e12c03e364bded1be5007318e2613dbc1df1a818e182f6dde5fb"
+          "sha256": "423e57a69b72c02d83a4254d20a3ca90e2f08ea8c5cf430f027b49d2735b9b3a"
         }
       ],
       "notice_required": true,
@@ -933,7 +933,7 @@
       "version": "1.1.2"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "NONE",
       "download_location": "https://static.crates.io/crates/atomic-write-file/atomic-write-file-0.3.1.crate",
       "id": "cargo-atomic-write-file-0.3.1",
       "kind": "cargo",
@@ -957,8 +957,17 @@
       ],
       "notice_required": true,
       "sha256": "ae67d5c03ee972c101a1d8db3ddbf8a9c819ad1ea9d6fd9cd385605547b60edb",
-      "source_offer_files": [],
-      "source_offer_required": false,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-atomic-write-file-0.3.1/atomic-write-file-0.3.1.crate",
+          "sha256": "ae67d5c03ee972c101a1d8db3ddbf8a9c819ad1ea9d6fd9cd385605547b60edb"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-atomic-write-file-0.3.1/copyright-absence.json",
+          "sha256": "67fba14131036ddec7e30857ae705d32b9ddadbd14fb3230ba8fe11180ff36b0"
+        }
+      ],
+      "source_offer_required": true,
       "version": "0.3.1"
     },
     {
@@ -1024,7 +1033,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-aws-lc-rs-1.18.0/source-copyright-statements.json",
-          "sha256": "b7299e2aee9ae49a19c1a64b7857605b0b7cda8b8dd52bf2bad9851a1880867c"
+          "sha256": "2a8a9246d7e01e8f3a9940d953b585dba8ea54a53d64dc69945a5c96d6758785"
         }
       ],
       "notice_required": true,
@@ -1034,7 +1043,7 @@
       "version": "1.18.0"
     },
     {
-      "copyright_text": "# Copyright (C) 2022 Intel Corporation\n# Copyright (C) 2023 Intel Corporation\n# Copyright (c) 2012, Intel Corporation. All Rights Reserved.\n# Copyright (c) 2014, Intel Corporation. All Rights Reserved.\n# Copyright (c) 2015 CloudFlare, Inc.\n# Copyright (c) 2015, CloudFlare Ltd.\n# Copyright (c) 2015, Google Inc.\n# Copyright (c) 2017, Google Inc.\n# Copyright (c) 2017, Shay Gueron.\n# Copyright (c) 2018, Amazon Inc.\n# Copyright (c) 2019, Google Inc.\n# Copyright (c) 2020, CloudFlare Ltd.\n# Copyright (c) 2020, Intel Corporation. All Rights Reserved.\n# Copyright (c) 2021, Intel Corporation. All Rights Reserved.\n# Copyright (c) 2022, ARM Inc.\n# Copyright (c) 2023, Google Inc.\n# Copyright 1995-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 1995-2018 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 1995-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 1998-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 1999-2018 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2005-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2006-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2007-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2009-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2010-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2010-2018 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2011-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2011-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2012-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2013-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2013-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2014-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2014-2018 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2014-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2015-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2015-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2017-2022 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2020 Jan Tojnar\n# Copyright 2020-2022 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2020-2023 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2021-2022 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2021-2023 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.\n# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.\n* Copyright (C) 2021 - 2025, Joshua E. Hill <josh@keypair.us>\n* Copyright (C) 2021 - 2025, Stephan Mueller <smueller@chronox.de>\n* Copyright (c) 2022 Hanno Becker\n* Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer\n* Copyright (c) The mldsa-native project authors\n* Copyright (c) The mlkem-native project authors\n* Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.\n* Copyright Stephan Mueller <smueller@chronox.de>, 2013 - 2025\n* Copyright Stephan Mueller <smueller@chronox.de>, 2014 - 2025\n- Arm Ltd (Copyright 2020)\n- Brian Smith (Copyright 2016)\n- Intel Corporation (Copyright 2012-2021)\n- Nokia (Copyright 2005)\n- Robert Nagy (Copyright 2022)\n- Sun Microsystems, Inc. (Copyright 2002)\n/* Copyright (c) 2022 Arm Limited\n/* Copyright (c) The mldsa-native project authors\n// Copyright (C) 1995-1997 Eric Young (eay@cryptsoft.com)\n// Copyright (C) 1995-1997 Eric Young (eay@cryptsoft.com) All rights reserved.\n// Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)\n// Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com) All rights reserved.\n// Copyright (C) 2006, Network Resonance, Inc.\n// Copyright (C) 2011, RTFM, Inc.\n// Copyright (c) 1998-2000 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2001 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2002 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2002 The OpenSSL Project. All rights reserved.\n// Copyright (c) 1998-2003 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2004 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2005 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2006 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2007 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2007 The OpenSSL Project. All rights reserved.\n// Copyright (c) 1998-2011 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2002 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2003 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2004 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2005 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2007 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2008 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2000 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2000-2002 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2000-2003 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2000-2005 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2001 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2001-2011 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2002-2006 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2003 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2004 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2005 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2006 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2006,2007 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2007 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2008 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2008-2016 The OpenSSL Project. All rights reserved.\n// Copyright (c) 2010 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2011 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2012 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2012, Intel Corporation. All Rights Reserved.\n// Copyright (c) 2013 The OpenSSL Project. All rights reserved.\n// Copyright (c) 2014 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2014, Google Inc.\n// Copyright (c) 2014, Intel Corporation. All Rights Reserved.\n// Copyright (c) 2015 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2015, Google Inc.\n// Copyright (c) 2015, Intel Inc.\n// Copyright (c) 2016 Google Inc.\n// Copyright (c) 2016, Google Inc.\n// Copyright (c) 2017, Google Inc.\n// Copyright (c) 2017, the HRSS authors.\n// Copyright (c) 2017-2024 The OpenSSL Project Authors\n// Copyright (c) 2018, Google Inc.\n// Copyright (c) 2019 Google Inc.\n// Copyright (c) 2019, Google Inc.\n// Copyright (c) 2020, Arm Ltd.\n// Copyright (c) 2020, Google Inc.\n// Copyright (c) 2020-2021, Intel Corporation. All Rights Reserved.\n// Copyright (c) 2021, Google Inc.\n// Copyright (c) 2021-2022 Arm Limited\n// Copyright (c) 2022 Arm Limited\n// Copyright (c) 2022 Hanno Becker\n// Copyright (c) 2022 Matthias Kannwischer\n// Copyright (c) 2022, Google Inc.\n// Copyright (c) 2022, Robert Nagy <robert@openbsd.org>\n// Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer\n// Copyright (c) 2023, Google Inc.\n// Copyright (c) 2024 The mlkem-native project authors\n// Copyright (c) 2024, Google Inc.\n// Copyright 1995-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 1995-2022 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2000-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2001-2017 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2002 Sun Microsystems, Inc. ALL RIGHTS RESERVED.\n// Copyright 2005 Nokia. All rights reserved.\n// Copyright 2006-2017 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2006-2019 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2006-2021 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2011-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2013-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2014-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2014-2020 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2015-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2015-2021 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2016 Brian Smith.\n// Copyright 2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2017 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2017-2020 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2018-2022 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2020-2021 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.\n// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.\n; Copyright (c) 2018, Google Inc.\n@ Copyright 2007-2016 The OpenSSL Project Authors. All Rights Reserved.\n@ Copyright 2012-2016 The OpenSSL Project Authors. All Rights Reserved.\nCopyright (C) 2017 - 2025, Stephan Mueller <smueller@chronox.de>.\nCopyright (c) 1995-1998 Eric Young (eay@cryptsoft.com). All rights reserved.\nCopyright (c) 1998-2011 The OpenSSL Project. All rights reserved.\nCopyright (c) 2014-2024 Google Inc.\nCopyright (c) 2015-2020 the fiat-crypto authors (see\nCopyright (c) 2015-2020 the fiat-crypto authors.\nCopyright (c) 2025-2026 Google Inc.\nCopyright (c) The Go Authors. All rights reserved.\nCopyright (c) The mldsa-native project authors.\nCopyright (c) The mlkem-native project authors.\nCopyright 2008 Google Inc.\nCopyright Amazon.com, Inc. or its affiliates. All Rights Reserved.\nout.WriteString(`// Copyright (c) 2015, Google Inc.",
+      "copyright_text": "# Copyright (C) 2022 Intel Corporation\n# Copyright (C) 2023 Intel Corporation\n# Copyright (c) 2012, Intel Corporation. All Rights Reserved.\n# Copyright (c) 2014, Intel Corporation. All Rights Reserved.\n# Copyright (c) 2015 CloudFlare, Inc.\n# Copyright (c) 2015, CloudFlare Ltd.\n# Copyright (c) 2015, Google Inc.\n# Copyright (c) 2017, Google Inc.\n# Copyright (c) 2017, Shay Gueron.\n# Copyright (c) 2018, Amazon Inc.\n# Copyright (c) 2018, Google Inc.\n# Copyright (c) 2019, Google Inc.\n# Copyright (c) 2020, CloudFlare Ltd.\n# Copyright (c) 2020, Intel Corporation. All Rights Reserved.\n# Copyright (c) 2021, Intel Corporation. All Rights Reserved.\n# Copyright (c) 2022, ARM Inc.\n# Copyright (c) 2023, Google Inc.\n# Copyright 1995-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 1995-2018 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 1995-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 1998-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 1999-2018 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2005-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2006-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2007-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2009-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2010-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2010-2018 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2011-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2011-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2012-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2013-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2013-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2014-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2014-2018 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2014-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2015-2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2015-2020 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2016 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2017-2022 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2020 Jan Tojnar\n# Copyright 2020-2022 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2020-2023 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2021-2022 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright 2021-2023 The OpenSSL Project Authors. All Rights Reserved.\n# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.\n# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.\n* Copyright (C) 2021 - 2025, Joshua E. Hill <josh@keypair.us>\n* Copyright (C) 2021 - 2025, Stephan Mueller <smueller@chronox.de>\n* Copyright (c) 2022 Hanno Becker\n* Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer\n* Copyright (c) The mldsa-native project authors\n* Copyright (c) The mlkem-native project authors\n* Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.\n* Copyright Stephan Mueller <smueller@chronox.de>, 2013 - 2025\n* Copyright Stephan Mueller <smueller@chronox.de>, 2014 - 2025\n- Arm Ltd (Copyright 2020)\n- Brian Smith (Copyright 2016)\n- Intel Corporation (Copyright 2012-2021)\n- Nokia (Copyright 2005)\n- Robert Nagy (Copyright 2022)\n- Sun Microsystems, Inc. (Copyright 2002)\n/* Copyright (c) 2022 Arm Limited\n/* Copyright (c) The mldsa-native project authors\n// Copyright (C) 1995-1997 Eric Young (eay@cryptsoft.com)\n// Copyright (C) 1995-1997 Eric Young (eay@cryptsoft.com) All rights reserved.\n// Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)\n// Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com) All rights reserved.\n// Copyright (C) 2006, Network Resonance, Inc.\n// Copyright (C) 2011, RTFM, Inc.\n// Copyright (c) 1998-2000 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2001 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2002 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2002 The OpenSSL Project. All rights reserved.\n// Copyright (c) 1998-2003 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2004 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2005 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2006 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2007 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1998-2007 The OpenSSL Project. All rights reserved.\n// Copyright (c) 1998-2011 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2002 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2003 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2004 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2005 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2007 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 1999-2008 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2000 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2000-2002 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2000-2003 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2000-2005 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2001 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2001-2011 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2002-2006 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2003 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2004 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2005 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2006 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2006,2007 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2007 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2008 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2008-2016 The OpenSSL Project. All rights reserved.\n// Copyright (c) 2010 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2011 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2012 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2012, Intel Corporation. All Rights Reserved.\n// Copyright (c) 2013 The OpenSSL Project. All rights reserved.\n// Copyright (c) 2014 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2014, Google Inc.\n// Copyright (c) 2014, Intel Corporation. All Rights Reserved.\n// Copyright (c) 2015 The OpenSSL Project.  All rights reserved.\n// Copyright (c) 2015, Google Inc.\n// Copyright (c) 2015, Intel Inc.\n// Copyright (c) 2016 Google Inc.\n// Copyright (c) 2016, Google Inc.\n// Copyright (c) 2017, Google Inc.\n// Copyright (c) 2017, the HRSS authors.\n// Copyright (c) 2017-2024 The OpenSSL Project Authors\n// Copyright (c) 2018, Google Inc.\n// Copyright (c) 2019 Google Inc.\n// Copyright (c) 2019, Google Inc.\n// Copyright (c) 2020, Arm Ltd.\n// Copyright (c) 2020, Google Inc.\n// Copyright (c) 2020-2021, Intel Corporation. All Rights Reserved.\n// Copyright (c) 2021, Google Inc.\n// Copyright (c) 2021-2022 Arm Limited\n// Copyright (c) 2022 Arm Limited\n// Copyright (c) 2022 Hanno Becker\n// Copyright (c) 2022 Matthias Kannwischer\n// Copyright (c) 2022, Google Inc.\n// Copyright (c) 2022, Robert Nagy <robert@openbsd.org>\n// Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer\n// Copyright (c) 2023, Google Inc.\n// Copyright (c) 2024 The mlkem-native project authors\n// Copyright (c) 2024, Google Inc.\n// Copyright 1995-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 1995-2022 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2000-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2001-2017 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2002 Sun Microsystems, Inc. ALL RIGHTS RESERVED.\n// Copyright 2005 Nokia. All rights reserved.\n// Copyright 2006-2017 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2006-2019 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2006-2021 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2011-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2013-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2014-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2014-2020 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2015-2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2015-2021 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2016 Brian Smith.\n// Copyright 2016 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2017 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2017-2020 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2018-2022 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright 2020-2021 The OpenSSL Project Authors. All Rights Reserved.\n// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.\n// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.\n; Copyright (c) 2018, Google Inc.\n@ Copyright 2007-2016 The OpenSSL Project Authors. All Rights Reserved.\n@ Copyright 2012-2016 The OpenSSL Project Authors. All Rights Reserved.\nCopyright (C) 2017 - 2025, Stephan Mueller <smueller@chronox.de>.\nCopyright (c) 1995-1998 Eric Young (eay@cryptsoft.com). All rights reserved.\nCopyright (c) 1998-2011 The OpenSSL Project. All rights reserved.\nCopyright (c) 2014-2024 Google Inc.\nCopyright (c) 2015-2020 the fiat-crypto authors (see\nCopyright (c) 2015-2020 the fiat-crypto authors.\nCopyright (c) 2025-2026 Google Inc.\nCopyright (c) The Go Authors. All rights reserved.\nCopyright (c) The mldsa-native project authors.\nCopyright (c) The mlkem-native project authors.\nCopyright 2008 Google Inc.\nCopyright Amazon.com, Inc. or its affiliates. All Rights Reserved.\nout.WriteString(`// Copyright (c) 2015, Google Inc.",
       "download_location": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.44.0.crate",
       "id": "cargo-aws-lc-sys-0.44.0",
       "kind": "cargo",
@@ -1085,7 +1094,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-aws-lc-sys-0.44.0/source-copyright-statements.json",
-          "sha256": "a5a318c98745c27a841509587c89350d2a5a626bd562f90215f99acaad6f24f1"
+          "sha256": "733e5af037f5c8c372babd3eafed8b5c40d0b266bc221cb4fb488f15702d3ad4"
         }
       ],
       "notice_required": true,
@@ -1342,7 +1351,7 @@
       "version": "1.8.3"
     },
     {
-      "copyright_text": "// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT\nCopyright (c) 2026 The Rust Project Developers",
+      "copyright_text": "// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT\n// Copyright 2012-2024 The Rust Project Developers. See the COPYRIGHT\nCopyright (c) 2026 The Rust Project Developers",
       "download_location": "https://static.crates.io/crates/bit-set/bit-set-0.10.0.crate",
       "id": "cargo-bit-set-0.10.0",
       "kind": "cargo",
@@ -1369,7 +1378,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-bit-set-0.10.0/source-copyright-statements.json",
-          "sha256": "655b189fb93598ed0c1a38efa2b576b2bc1f71e0eb9300f553255fa715710e63"
+          "sha256": "26a2f2230721a97b44cbaf70e553d7f3f2bcf389d01e1b3c3973d2dae49e770d"
         }
       ],
       "notice_required": true,
@@ -1379,7 +1388,7 @@
       "version": "0.10.0"
     },
     {
-      "copyright_text": "// Copyright 2012-2023 The Rust Project Developers. See the COPYRIGHT\nCopyright (c) 2023 The Rust Project Developers",
+      "copyright_text": "// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT\n// Copyright 2012-2023 The Rust Project Developers. See the COPYRIGHT\nCopyright (c) 2023 The Rust Project Developers",
       "download_location": "https://static.crates.io/crates/bit-vec/bit-vec-0.9.1.crate",
       "id": "cargo-bit-vec-0.9.1",
       "kind": "cargo",
@@ -1406,7 +1415,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-bit-vec-0.9.1/source-copyright-statements.json",
-          "sha256": "fa43e4ed308400cf9a0a7f4b014b5d70e71c239d977082625c0878443c7c3c9f"
+          "sha256": "d9c1e5d4879f6695733a7fe0fdf15e9ca9f18ff8941af9d269dc0078cb4be8d4"
         }
       ],
       "notice_required": true,
@@ -2286,7 +2295,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-color-0.3.3/source-copyright-statements.json",
-          "sha256": "7c3cc4c6ca5ac3850866fceae212ce5b34c98daa585e9faecd56836c01a7b007"
+          "sha256": "570763cdd9d7c20c32c35ab19690e9df3e63f0bdf11228bee72fe83c90a6e9aa"
         }
       ],
       "notice_required": true,
@@ -2440,7 +2449,7 @@
       "version": "0.9.6"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "NONE",
       "download_location": "https://static.crates.io/crates/constant_time_eq/constant_time_eq-0.4.2.crate",
       "id": "cargo-constant-time-eq-0.4.2",
       "kind": "cargo",
@@ -2472,8 +2481,17 @@
       ],
       "notice_required": true,
       "sha256": "3d52eff69cd5e647efe296129160853a42795992097e8af39800e1060caeea9b",
-      "source_offer_files": [],
-      "source_offer_required": false,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-constant-time-eq-0.4.2/constant_time_eq-0.4.2.crate",
+          "sha256": "3d52eff69cd5e647efe296129160853a42795992097e8af39800e1060caeea9b"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-constant-time-eq-0.4.2/copyright-absence.json",
+          "sha256": "c4e387cbb620b41b6b1772b2e803777a212d269b050a4af83228eb90e1493e12"
+        }
+      ],
+      "source_offer_required": true,
       "version": "0.4.2"
     },
     {
@@ -2695,7 +2713,7 @@
       "version": "0.2.0"
     },
     {
-      "copyright_text": "Copyright (c) 2009 The Go Authors. All rights reserved.\nCopyright (c) 2019 The Crossbeam Project Developers",
+      "copyright_text": "//!   - Copyright (c) 2009 The Go Authors\n//!   - Copyright 2013-2014 The Rust Project Developers\nCopyright (c) 2009 The Go Authors. All rights reserved.\nCopyright (c) 2019 The Crossbeam Project Developers",
       "download_location": "https://static.crates.io/crates/crossbeam-channel/crossbeam-channel-0.5.16.crate",
       "id": "cargo-crossbeam-channel-0.5.16",
       "kind": "cargo",
@@ -2733,7 +2751,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-crossbeam-channel-0.5.16/source-copyright-statements.json",
-          "sha256": "b5fb3b4e4825fde91d17b6050785d90b9a6ff1ea85b8538b4b09798af2f9a447"
+          "sha256": "0100e5bac48d47624f7cc0415205e758f106e2bb9ebc81a2d94c3d0951915065"
         }
       ],
       "notice_required": true,
@@ -3515,13 +3533,21 @@
       "version": "0.1.2"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "NONE",
       "download_location": "https://static.crates.io/crates/dunce/dunce-1.0.5.crate",
       "id": "cargo-dunce-1.0.5",
       "kind": "cargo",
-      "license_concluded": "NOASSERTION",
+      "license_concluded": "CC0-1.0",
       "license_declared": "CC0-1.0 OR MIT-0 OR Apache-2.0",
-      "license_files": [],
+      "license_files": [
+        {
+          "license_ids": [
+            "CC0-1.0"
+          ],
+          "path": "legal/LICENSES/cargo-dunce-1.0.5/000-000-LICENSE",
+          "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+        }
+      ],
       "name": "dunce",
       "notice_files": [
         {
@@ -3529,10 +3555,19 @@
           "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813",
-      "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-dunce-1.0.5/copyright-absence.json",
+          "sha256": "2de5c8832c89facad96cecdbee8498dd44b7ef781783a65155340eb3ad30e985"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-dunce-1.0.5/dunce-1.0.5.crate",
+          "sha256": "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
+        }
+      ],
+      "source_offer_required": true,
       "version": "1.0.5"
     },
     {
@@ -3606,7 +3641,7 @@
       "version": "3.0.0"
     },
     {
-      "copyright_text": "// Copyright (c) 2017-2019 isis lovecruft\nCopyright (c) 2017-2019 isis agora lovecruft. All rights reserved.",
+      "copyright_text": "// Copyright (c) 2017-2019 isis lovecruft\n// Copyright (c) 2018-2019 isis lovecruft\nCopyright (c) 2017-2019 isis agora lovecruft. All rights reserved.",
       "download_location": "https://static.crates.io/crates/ed25519-dalek/ed25519-dalek-3.0.0.crate",
       "id": "cargo-ed25519-dalek-3.0.0",
       "kind": "cargo",
@@ -3629,7 +3664,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-ed25519-dalek-3.0.0/source-copyright-statements.json",
-          "sha256": "f6016ed6bb006f22c81ebaa1fcc7cea16562bec0bfa4021f6b28d307efc9dd1d"
+          "sha256": "b78366c55bb05c0dc36727ac387901be7a439f49c50b28bfc0ce8da1f906ad85"
         }
       ],
       "notice_required": true,
@@ -3952,7 +3987,7 @@
       "version": "0.6.1"
     },
     {
-      "copyright_text": "* Copyright 2018 Aljoscha Meyer\n/* Copyright 2016-2022 Torbj\u00f8rn Birch Moltu\n/* Copyright 2018-2019 Torbj\u00f8rn Birch Moltu\n/* Copyright 2018-2020 Torbj\u00f8rn Birch Moltu",
+      "copyright_text": "* Copyright 2018 Aljoscha Meyer\n/* Copyright 2016-2022 Torbj\u00f8rn Birch Moltu\n/* Copyright 2018 Torbj\u00f8rn Birch Moltu\n/* Copyright 2018-2019 Torbj\u00f8rn Birch Moltu\n/* Copyright 2018-2020 Torbj\u00f8rn Birch Moltu\n/* Copyright 2018-2022 Torbj\u00f8rn Birch Moltu",
       "download_location": "https://static.crates.io/crates/encode_unicode/encode_unicode-1.0.0.crate",
       "id": "cargo-encode-unicode-1.0.0",
       "kind": "cargo",
@@ -3983,7 +4018,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-encode-unicode-1.0.0/source-copyright-statements.json",
-          "sha256": "8ef071b8443f8a242eff86c57bdbee325d6c1b4e85be19e741ea5504aeb64c62"
+          "sha256": "aafc0460fbf305034ab20bdbade4b7620d1bb82d847a9f7864c1d9e4069cba49"
         }
       ],
       "notice_required": true,
@@ -4026,7 +4061,7 @@
       "version": "0.36.1"
     },
     {
-      "copyright_text": "Bitstream Vera Sans Mono Copyright 2003 Bitstream Inc. and licensed under the Bitstream Vera License with Reserved Font Names \"Bitstream\" and \"Vera\"\nCopyright (c) 2003 by Bitstream, Inc. All Rights Reserved. Bitstream Vera is a trademark of Bitstream, Inc.\nCopyright (c) 2014 John Slegers\nCopyright (c) 2018 Source Foundry Authors\nCopyright Holder(s) and the Author(s) or with their explicit written\nThe work in the Hack project is Copyright 2018 Source Foundry Authors and licensed under the MIT License",
+      "copyright_text": "Bitstream Vera Sans Mono Copyright 2003 Bitstream Inc. and licensed under the Bitstream Vera License with Reserved Font Names \"Bitstream\" and \"Vera\"\nCopyright (c) 2003 by Bitstream, Inc. All Rights Reserved. Bitstream Vera is a trademark of Bitstream, Inc.\nCopyright (c) 2014 John Slegers\nCopyright (c) 2018 Source Foundry Authors\nThe work in the Hack project is Copyright 2018 Source Foundry Authors and licensed under the MIT License",
       "download_location": "https://static.crates.io/crates/epaint_default_fonts/epaint_default_fonts-0.36.1.crate",
       "id": "cargo-epaint-default-fonts-0.36.1",
       "kind": "cargo",
@@ -4083,7 +4118,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-epaint-default-fonts-0.36.1/source-copyright-statements.json",
-          "sha256": "77db2e5846218c574c10badaa6092422ebc99fabdaeed4cb9a09b121648e0616"
+          "sha256": "fce9390472e7dd47e577057012976b3d5d58811cfcc439e404bc75f1752dbc4a"
         }
       ],
       "notice_required": true,
@@ -4130,7 +4165,7 @@
       "version": "1.0.2"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "NONE",
       "download_location": "https://static.crates.io/crates/error-code/error-code-3.4.0.crate",
       "id": "cargo-error-code-3.4.0",
       "kind": "cargo",
@@ -4154,8 +4189,17 @@
       ],
       "notice_required": true,
       "sha256": "0b5343afd4a8365a643ac588dab4cf234a190c7f6c88c9f6dd6ffe00837661b7",
-      "source_offer_files": [],
-      "source_offer_required": false,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-error-code-3.4.0/copyright-absence.json",
+          "sha256": "a9d26619ea39bb34dccb1055c1c4d9073796602a1d548920fa5916671a6b10f5"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-error-code-3.4.0/error-code-3.4.0.crate",
+          "sha256": "0b5343afd4a8365a643ac588dab4cf234a190c7f6c88c9f6dd6ffe00837661b7"
+        }
+      ],
+      "source_offer_required": true,
       "version": "3.4.0"
     },
     {
@@ -4409,7 +4453,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-fearless-simd-0.4.1/source-copyright-statements.json",
-          "sha256": "f83793392f420217b4a4fa4616b7723db7593d0b70f13cf16dc3f28a8bba1b07"
+          "sha256": "fa50f8da381c939e2ebc07b6ea15466198df0ee283c81a109d87124ce387d39a"
         }
       ],
       "notice_required": true,
@@ -5829,7 +5873,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-hickory-proto-0.26.1/source-copyright-statements.json",
-          "sha256": "04c299879b921cddf74dee5718aa60377760a54ee71459e0fd444619d0f94504"
+          "sha256": "80f0f89ff305147edae1dc5ffcd0de9eceeaa1dd3805736575977c907e9f9141"
         }
       ],
       "notice_required": true,
@@ -6263,7 +6307,7 @@
       "version": "0.1.20"
     },
     {
-      "copyright_text": "Copyright \u00a9 2020-2024 Unicode, Inc.\nICU 1.8.1 to ICU 57.1 \u00a9 1995-2016 International Business Machines Corporation and others.",
+      "copyright_text": "# Copyright (C) 2021 and later: Unicode, Inc. and others.\nCopyright \u00a9 2020-2024 Unicode, Inc.\nICU 1.8.1 to ICU 57.1 \u00a9 1995-2016 International Business Machines Corporation and others.",
       "download_location": "https://static.crates.io/crates/icu_collections/icu_collections-2.3.0.crate",
       "id": "cargo-icu-collections-2.3.0",
       "kind": "cargo",
@@ -6286,7 +6330,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-icu-collections-2.3.0/source-copyright-statements.json",
-          "sha256": "c2e4e8cb35637c4d4f79b73e88f2532c1bfc586b86770ce88c35271cd105ed46"
+          "sha256": "4874338da152090ec4f2f0f8351bbc219098b2f405a667ee550116293bd300e4"
         }
       ],
       "notice_required": true,
@@ -6329,7 +6373,7 @@
       "version": "2.3.0"
     },
     {
-      "copyright_text": "Copyright \u00a9 2020-2024 Unicode, Inc.\nICU 1.8.1 to ICU 57.1 \u00a9 1995-2016 International Business Machines Corporation and others.",
+      "copyright_text": "# \u00a9 2025 Unicode\u00ae, Inc.\nCopyright \u00a9 2020-2024 Unicode, Inc.\nICU 1.8.1 to ICU 57.1 \u00a9 1995-2016 International Business Machines Corporation and others.",
       "download_location": "https://static.crates.io/crates/icu_normalizer/icu_normalizer-2.3.0.crate",
       "id": "cargo-icu-normalizer-2.3.0",
       "kind": "cargo",
@@ -6352,7 +6396,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-icu-normalizer-2.3.0/source-copyright-statements.json",
-          "sha256": "12a74e04ffa3f30d5b237968c4a542d890995db8bc3c299c2c53f7f0bc33869c"
+          "sha256": "3c1efd799b7f82f1fad5888ff61d7747ea800af5064c44eb7eb0d3ff6302c551"
         }
       ],
       "notice_required": true,
@@ -6531,7 +6575,7 @@
       "version": "0.1.0"
     },
     {
-      "copyright_text": "// Copyright 2013 The rust-url developers.\n// Copyright 2013-2014 The rust-url developers.\n// Copyright 2016 The rust-url developers.\n// Copyright The rust-url developers.\nCopyright (c) 2013-2025 The rust-url developers",
+      "copyright_text": "# \u00a9 2024 Unicode\u00ae, Inc.\n// Copyright 2013 The rust-url developers.\n// Copyright 2013-2014 The rust-url developers.\n// Copyright 2016 The rust-url developers.\n// Copyright The rust-url developers.\nCopyright (c) 2013-2025 The rust-url developers",
       "download_location": "https://static.crates.io/crates/idna/idna-1.1.0.crate",
       "id": "cargo-idna-1.1.0",
       "kind": "cargo",
@@ -6558,7 +6602,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-idna-1.1.0/source-copyright-statements.json",
-          "sha256": "196a4982cf2626f7a12eb3a6c0bd1b37a363cbcd2baef96d3f1a2234c7adc04c"
+          "sha256": "757d5493358de745d5a0e78f97b7b4116f598262e2085c1a0a7d9fd839c96b03"
         }
       ],
       "notice_required": true,
@@ -7316,7 +7360,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-kurbo-0.13.1/source-copyright-statements.json",
-          "sha256": "70541b9b4fc1f6c9dc1594927be0eaca12c7b8043ee93d5c4022700d503691a6"
+          "sha256": "72e94be38ba018f08c20ebbdc78cb38685f3c1379b11e8c973b0d62dd69f6550"
         }
       ],
       "notice_required": true,
@@ -8032,7 +8076,7 @@
       "version": "0.12.16"
     },
     {
-      "copyright_text": "* // Copyright (c) Radzivon Bartoshyk 12/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 2/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 3/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 4/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 5/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 6/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 7/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 8/2025. All rights reserved.\n* // Copyright 2024 (c) the Radzivon Bartoshyk. All rights reserved.\nCopyright (c) Radzivon Bartoshyk. All rights reserved.\nCopyright 2024 Radzivon Bartoshyk",
+      "copyright_text": "* // Copyright (c) Radzivon Bartoshyk 12/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 2/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 3/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 4/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 5/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 6/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 7/2025. All rights reserved.\n* // Copyright (c) Radzivon Bartoshyk 8/2025. All rights reserved.\n* // Copyright 2024 (c) the Radzivon Bartoshyk. All rights reserved.\nCopyright (c) Radzivon Bartoshyk. All rights reserved.\nCopyright 2024 Radzivon Bartoshyk\ncopyright: Some(ProfileText::Localizable(vec![LocalizableString::new(",
       "download_location": "https://static.crates.io/crates/moxcms/moxcms-0.8.1.crate",
       "id": "cargo-moxcms-0.8.1",
       "kind": "cargo",
@@ -8059,7 +8103,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-moxcms-0.8.1/source-copyright-statements.json",
-          "sha256": "373179482d15d00b6d82e280070ed3ae7598157e17aae138b1e5b9e2142f40e4"
+          "sha256": "9e891adcd7e4e62ddc8cc75aa27fc55b40acbd674c6824842d94be3ad61d92af"
         }
       ],
       "notice_required": true,
@@ -8732,7 +8776,7 @@
       "version": "0.3.1"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "NONE",
       "download_location": "https://static.crates.io/crates/option-ext/option-ext-0.2.0.crate",
       "id": "cargo-option-ext-0.2.0",
       "kind": "cargo",
@@ -8758,6 +8802,10 @@
       "sha256": "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d",
       "source_offer_files": [
         {
+          "path": "legal/SOURCE-OFFERS/cargo-option-ext-0.2.0/copyright-absence.json",
+          "sha256": "d1f4078fa107ee1addad402965a6def9c592214d8082d63b772eae461a1e08dc"
+        },
+        {
           "path": "legal/SOURCE-OFFERS/cargo-option-ext-0.2.0/option-ext-0.2.0.crate",
           "sha256": "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
         }
@@ -8766,7 +8814,7 @@
       "version": "0.2.0"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "NONE",
       "download_location": "https://static.crates.io/crates/papaya/papaya-0.2.5.crate",
       "id": "cargo-papaya-0.2.5",
       "kind": "cargo",
@@ -8790,8 +8838,17 @@
       ],
       "notice_required": true,
       "sha256": "da2442474a9404698c42509b8967f437249dbc7b50493e83020333d3943ec0ae",
-      "source_offer_files": [],
-      "source_offer_required": false,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-papaya-0.2.5/copyright-absence.json",
+          "sha256": "ff18afdb83f3641af6f6064769d6f71a2ca6cbb61f279c217e18b3f1f2c56446"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-papaya-0.2.5/papaya-0.2.5.crate",
+          "sha256": "da2442474a9404698c42509b8967f437249dbc7b50493e83020333d3943ec0ae"
+        }
+      ],
+      "source_offer_required": true,
       "version": "0.2.5"
     },
     {
@@ -9276,7 +9333,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-polycool-0.4.0/source-copyright-statements.json",
-          "sha256": "bc51ebf848754ac57d85fe218bdc4fca1a66fa69f88233e4201002e4ef385f9c"
+          "sha256": "3991329b2ec9372012e9a498685910d28a36fe46fcc978ea7acef10d748e9030"
         }
       ],
       "notice_required": true,
@@ -10519,7 +10576,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-ring-0.17.14/source-copyright-statements.json",
-          "sha256": "305575ee9f324a11183e31017023546ef8e4a76813206d1d7ccc4ef0637ca5ca"
+          "sha256": "fecde8b3dd6946034ee4ba40598fb23834000ada82a3ccbd13c8bebdd55b17f9"
         }
       ],
       "notice_required": true,
@@ -10845,7 +10902,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-ryu-1.0.23/source-copyright-statements.json",
-          "sha256": "1aac0b84520a51175cdbc7d204c0397050735d0058a6dfca0a6301933ee7bd17"
+          "sha256": "037e1eeaf8385f225c7363c4dff9d1f9d175edc0ea0c8556fa91f9ee5bd668d7"
         }
       ],
       "notice_required": true,
@@ -10882,7 +10939,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-ryu-js-1.0.3/source-copyright-statements.json",
-          "sha256": "5258662103b6bba4ad69972c9d7bd3d106db41fda2b783a3f771abdc2a2d6dbc"
+          "sha256": "67b3fa3f2ff7ead91af2b5e75b76bf1203ee917a62b9f61b9d157f4bceab3194"
         }
       ],
       "notice_required": true,
@@ -11125,7 +11182,7 @@
       "version": "1.0.229"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "// copyright Alexander Huszagh.",
       "download_location": "https://static.crates.io/crates/serde_json/serde_json-1.0.151.crate",
       "id": "cargo-serde-json-1.0.151",
       "kind": "cargo",
@@ -11149,6 +11206,10 @@
         {
           "path": "legal/NOTICES/cargo-serde-json-1.0.151/001-001-LICENSE-MIT",
           "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        },
+        {
+          "path": "legal/NOTICES/cargo-serde-json-1.0.151/source-copyright-statements.json",
+          "sha256": "988d761b82f09898eacfb3feaaa8e1a93dd7271b852e6da9c7018aff28d0b13d"
         }
       ],
       "notice_required": true,
@@ -11158,7 +11219,7 @@
       "version": "1.0.151"
     },
     {
-      "copyright_text": "Copyright (c) 2023 Attila Mravik",
+      "copyright_text": "//  Copyright 2006-2021 WebPKI.org (http://webpki.org).\nCopyright (c) 2023 Attila Mravik",
       "download_location": "https://static.crates.io/crates/serde_json_canonicalizer/serde_json_canonicalizer-0.3.2.crate",
       "id": "cargo-serde-json-canonicalizer-0.3.2",
       "kind": "cargo",
@@ -11181,7 +11242,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-serde-json-canonicalizer-0.3.2/source-copyright-statements.json",
-          "sha256": "8e522e117553967bf32a4b165d9c3c201bbc9d5e9c6bc710b41c6ed23476d713"
+          "sha256": "fa0726f5e383b7702828f4487616d4363777f95b6e3f0f8e65745d59620c0d4f"
         }
       ],
       "notice_required": true,
@@ -11385,12 +11446,13 @@
       "download_location": "https://static.crates.io/crates/sha1_smol/sha1_smol-1.0.1.crate",
       "id": "cargo-sha1-smol-1.0.1",
       "kind": "cargo",
-      "license_concluded": "BSD-3-Clause",
+      "license_concluded": "BSD-3-Clause AND MIT",
       "license_declared": "BSD-3-Clause",
       "license_files": [
         {
           "license_ids": [
-            "BSD-3-Clause"
+            "BSD-3-Clause",
+            "MIT"
           ],
           "path": "legal/LICENSES/cargo-sha1-smol-1.0.1/000-000-LICENSE",
           "sha256": "282a21b0710441c364025461a447362daf18f5798a7b72ae2f801a2aa536da51"
@@ -11827,7 +11889,7 @@
       "version": "0.11.0"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "Copyright Amazon.com, Inc. or its affiliates.",
       "download_location": "https://static.crates.io/crates/sigstore-tuf/sigstore-tuf-0.11.0.crate",
       "id": "cargo-sigstore-tuf-0.11.0",
       "kind": "cargo",
@@ -11847,6 +11909,10 @@
         {
           "path": "legal/NOTICES/cargo-sigstore-tuf-0.11.0/000-000-LICENSE",
           "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+        },
+        {
+          "path": "legal/NOTICES/cargo-sigstore-tuf-0.11.0/source-copyright-statements.json",
+          "sha256": "ed8bfefdf5e54c90363bb0d03a593ea0d5b7840475466e6977ccb356c3dff494"
         }
       ],
       "notice_required": true,
@@ -11956,7 +12022,7 @@
       "version": "0.3.10"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "NONE",
       "download_location": "https://static.crates.io/crates/simdutf8/simdutf8-0.1.5.crate",
       "id": "cargo-simdutf8-0.1.5",
       "kind": "cargo",
@@ -11984,8 +12050,17 @@
       ],
       "notice_required": true,
       "sha256": "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e",
-      "source_offer_files": [],
-      "source_offer_required": false,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-simdutf8-0.1.5/copyright-absence.json",
+          "sha256": "77ac7ab32fe1c9472731bd4bc1d525d65be3b4349c00e3057ad692b9460281af"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-simdutf8-0.1.5/simdutf8-0.1.5.crate",
+          "sha256": "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e"
+        }
+      ],
+      "source_offer_required": true,
       "version": "0.1.5"
     },
     {
@@ -12632,7 +12707,7 @@
       "version": "0.4.46"
     },
     {
-      "copyright_text": "// Copyright 2015 The Rust Project Developers.\nCopyright (c) 2015 Steven Allen",
+      "copyright_text": "// Copyright 2013-2014 The Rust Project Developers. See the COPYRIGHT\n// Copyright 2015 The Rust Project Developers.\nCopyright (c) 2015 Steven Allen",
       "download_location": "https://static.crates.io/crates/tempfile/tempfile-3.27.0.crate",
       "id": "cargo-tempfile-3.27.0",
       "kind": "cargo",
@@ -12659,7 +12734,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tempfile-3.27.0/source-copyright-statements.json",
-          "sha256": "b324fa1a5162cc36495dbe24d2f9f64ab3cc2329142aef15f901639645c8b8dc"
+          "sha256": "6f7a035906db815be9aedcc63b7831261f839a23d32daf64044bc060bb916ab2"
         }
       ],
       "notice_required": true,
@@ -12933,7 +13008,7 @@
       "version": "1.12.0"
     },
     {
-      "copyright_text": "Copyright (c) 2020 Soveu\nCopyright 2020 Tomasz \"Soveu\" Marx",
+      "copyright_text": "(C) 2020 Tomasz \"Soveu\" Marx\nCopyright (c) 2020 Soveu\nCopyright 2020 Tomasz \"Soveu\" Marx",
       "download_location": "https://static.crates.io/crates/tinyvec_macros/tinyvec_macros-0.1.1.crate",
       "id": "cargo-tinyvec-macros-0.1.1",
       "kind": "cargo",
@@ -12964,7 +13039,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-tinyvec-macros-0.1.1/source-copyright-statements.json",
-          "sha256": "8bcacafa9dfbd6f4219bb0320586b9ad0f27cc130b633c4a82894c26542fea32"
+          "sha256": "a44bee5c79d7a4ca5d388868d7969be67abe08174a9218fc61394e9cd2d7c2f6"
         }
       ],
       "notice_required": true,
@@ -13739,7 +13814,7 @@
       "version": "1.20.1"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "NONE",
       "download_location": "https://static.crates.io/crates/unicode-general-category/unicode-general-category-1.1.0.crate",
       "id": "cargo-unicode-general-category-1.1.0",
       "kind": "cargo",
@@ -13763,8 +13838,17 @@
       ],
       "notice_required": true,
       "sha256": "0b993bddc193ae5bd0d623b49ec06ac3e9312875fdae725a975c51db1cc1677f",
-      "source_offer_files": [],
-      "source_offer_required": false,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-unicode-general-category-1.1.0/copyright-absence.json",
+          "sha256": "6ddb9eb4db602f65ea3cc12e9a2d66eb57383e36cc6bd42ac621f760b8d71df6"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/cargo-unicode-general-category-1.1.0/unicode-general-category-1.1.0.crate",
+          "sha256": "0b993bddc193ae5bd0d623b49ec06ac3e9312875fdae725a975c51db1cc1677f"
+        }
+      ],
+      "source_offer_required": true,
       "version": "1.1.0"
     },
     {
@@ -13847,7 +13931,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-unicode-segmentation-1.13.3/source-copyright-statements.json",
-          "sha256": "45ddca1aed87ca17eca66b31fa8db70c8f152c0cd8587c5e87bdd2822288831d"
+          "sha256": "b0af15e31a944d2c0dc57b1d2ecebf7554c3ab8f61fd280e3a34c9c1f36323db"
         }
       ],
       "notice_required": true,
@@ -13857,7 +13941,7 @@
       "version": "1.13.3"
     },
     {
-      "copyright_text": "\"\"\"// Copyright 2012-2025 The Rust Project Developers. See the COPYRIGHT\n# Copyright 2011-2025 The Rust Project Developers. See the COPYRIGHT\n// Copyright 2012-2025 The Rust Project Developers. See the COPYRIGHT\nCopyright (c) 2015 The Rust Project Developers",
+      "copyright_text": "\"\"\"// Copyright 2012-2025 The Rust Project Developers. See the COPYRIGHT\n# Copyright 2011-2025 The Rust Project Developers. See the COPYRIGHT\n# \u00a9 2025 Unicode\u00ae, Inc.\n// Copyright 2012-2025 The Rust Project Developers. See the COPYRIGHT\nCopyright (c) 2015 The Rust Project Developers",
       "download_location": "https://static.crates.io/crates/unicode-width/unicode-width-0.2.2.crate",
       "id": "cargo-unicode-width-0.2.2",
       "kind": "cargo",
@@ -13888,7 +13972,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-unicode-width-0.2.2/source-copyright-statements.json",
-          "sha256": "3b997b94ee5e6d58fb9ef34001de8739aace9bfbcd44d1ba2fd51fb1e1814cc5"
+          "sha256": "802b3db0fa933ed8496559b07cfbf0aaf5185111026ddb83a951730337c541a3"
         }
       ],
       "notice_required": true,
@@ -13968,7 +14052,7 @@
       "version": "0.5.1"
     },
     {
-      "copyright_text": "// Copyright 2015-2016 Brian Smith.",
+      "copyright_text": "// Copyright 2015-2016 Brian Smith.\n// Copyright 2015-2019 Brian Smith.",
       "download_location": "https://static.crates.io/crates/untrusted/untrusted-0.7.1.crate",
       "id": "cargo-untrusted-0.7.1",
       "kind": "cargo",
@@ -13991,7 +14075,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-untrusted-0.7.1/source-copyright-statements.json",
-          "sha256": "7cc69261088c70482edd66d3edc378ed3c752f81e3f53da3dd5546c72fb9bf31"
+          "sha256": "5d69ebacb18077351cbf2179a2fe10866fe0a8e3529262a61a7f61f66c5e94c9"
         }
       ],
       "notice_required": true,
@@ -14001,7 +14085,7 @@
       "version": "0.7.1"
     },
     {
-      "copyright_text": "# Copyright 2020 Brian Smith.\n// Copyright 2015-2016 Brian Smith.\n// Copyright 2015-2021 Brian Smith.",
+      "copyright_text": "# Copyright 2020 Brian Smith.\n// Copyright 2015-2016 Brian Smith.\n// Copyright 2015-2019 Brian Smith.\n// Copyright 2015-2021 Brian Smith.",
       "download_location": "https://static.crates.io/crates/untrusted/untrusted-0.9.0.crate",
       "id": "cargo-untrusted-0.9.0",
       "kind": "cargo",
@@ -14024,7 +14108,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-untrusted-0.9.0/source-copyright-statements.json",
-          "sha256": "e2734e8070fde2293f395aed6e9b68dc072fcb8711ee5e171393444a16912cfb"
+          "sha256": "8c8e41c5bc9edce85c2ad5c04c8dfb19b5079ecabb16e4db4665665d75d9a036"
         }
       ],
       "notice_required": true,
@@ -14034,7 +14118,7 @@
       "version": "0.9.0"
     },
     {
-      "copyright_text": "// Copyright 2013-2015 The rust-url developers.\n// Copyright 2013-2016 The rust-url developers.\n// Copyright 2016 The rust-url developers.\nCopyright (c) 2013-2025 The rust-url developers",
+      "copyright_text": "// Copyright 2013-2014 The rust-url developers.\n// Copyright 2013-2015 The rust-url developers.\n// Copyright 2013-2016 The rust-url developers.\n// Copyright 2016 The rust-url developers.\nCopyright (c) 2013-2025 The rust-url developers",
       "download_location": "https://static.crates.io/crates/url/url-2.5.8.crate",
       "id": "cargo-url-2.5.8",
       "kind": "cargo",
@@ -14061,7 +14145,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-url-2.5.8/source-copyright-statements.json",
-          "sha256": "8bb764790cfda2815cc3619a1d70f11e155f68dd15089c978419c87ab3699cbc"
+          "sha256": "f6bfecfdaf2901b7f4a78fe59f744f312f1c59bf9d83b3aa8ea3b5471e6c60cb"
         }
       ],
       "notice_required": true,
@@ -14250,7 +14334,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-vello-cpu-0.1.0/source-copyright-statements.json",
-          "sha256": "c7b19c715c40962a8c04ec26ec8c36f9d660c173fdf56a48d559eb98d04f9be8"
+          "sha256": "3828e09d5e6087230a1fe324d7640cfee2f2599f57c306cfd1a9eefc71ec0d0e"
         }
       ],
       "notice_required": true,
@@ -15467,7 +15551,7 @@
       "version": "0.8.3"
     },
     {
-      "copyright_text": "# Copyright 2018 The Fuchsia Authors\n# Copyright 2023 The Fuchsia Authors\n# Copyright 2024 The Fuchsia Authors\n# Copyright 2025 The Fuchsia Authors\n# Copyright 2026 The Fuchsia Authors\n// Copyright 2018 The Fuchsia Authors\n// Copyright 2019 The Fuchsia Authors\n// Copyright 2022 The Fuchsia Authors\n// Copyright 2023 The Fuchsia Authors\n// Copyright 2024 The Fuchsia Authors\n// Copyright 2025 The Fuchsia Authors\n<!-- Copyright 2023 The Fuchsia Authors\n<!-- Copyright 2024 The Fuchsia Authors\n<!-- Copyright 2025 The Fuchsia Authors\n@rem Copyright 2024 The Fuchsia Authors\nCopyright 2019 The Fuchsia Authors.\nCopyright 2023 The Fuchsia Authors\nCopyright 2026 The Fuchsia Authors",
+      "copyright_text": "# Copyright 2018 The Fuchsia Authors\n# Copyright 2023 The Fuchsia Authors\n# Copyright 2024 The Fuchsia Authors\n# Copyright 2025 The Fuchsia Authors\n# Copyright 2026 The Fuchsia Authors\n// Copyright 2018 The Fuchsia Authors\n// Copyright 2019 The Fuchsia Authors\n// Copyright 2022 The Fuchsia Authors\n// Copyright 2023 The Fuchsia Authors\n// Copyright 2024 The Fuchsia Authors\n// Copyright 2025 The Fuchsia Authors\n// Copyright 2026 The Fuchsia Authors\n<!-- Copyright 2023 The Fuchsia Authors\n<!-- Copyright 2024 The Fuchsia Authors\n<!-- Copyright 2025 The Fuchsia Authors\n@rem Copyright 2024 The Fuchsia Authors\nCopyright 2019 The Fuchsia Authors.\nCopyright 2023 The Fuchsia Authors\nCopyright 2026 The Fuchsia Authors",
       "download_location": "https://static.crates.io/crates/zerocopy/zerocopy-0.8.56.crate",
       "id": "cargo-zerocopy-0.8.56",
       "kind": "cargo",
@@ -15498,7 +15582,7 @@
         },
         {
           "path": "legal/NOTICES/cargo-zerocopy-0.8.56/source-copyright-statements.json",
-          "sha256": "7cc0a373532f34191987178a6853e54aa32baea015c6567462d69498ba44b18b"
+          "sha256": "c1d885ecc38b6ad3b4ef7abf5494045765ccecfb351f4be9bfef911d7e88e4e8"
         }
       ],
       "notice_required": true,
@@ -15677,7 +15761,7 @@
       "version": "4.6.1"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "(C) 2024 Trifecta Tech Foundation",
       "download_location": "https://static.crates.io/crates/zlib-rs/zlib-rs-0.6.7.crate",
       "id": "cargo-zlib-rs-0.6.7",
       "kind": "cargo",
@@ -15697,6 +15781,10 @@
         {
           "path": "legal/NOTICES/cargo-zlib-rs-0.6.7/000-000-LICENSE",
           "sha256": "e72111c52b7d96ebe25348dee19f0744f444d3c95ae6b1ecb6ccaecc5bce05ba"
+        },
+        {
+          "path": "legal/NOTICES/cargo-zlib-rs-0.6.7/source-copyright-statements.json",
+          "sha256": "7e3ac6bca964c639442d5fa2f6505716852197d20b4203ebe7d2b352127130fb"
         }
       ],
       "notice_required": true,
@@ -15982,9 +16070,17 @@
       "download_location": "https://astral-sh.github.io/mirror/files/bzip2-1.0.8.tar.gz",
       "id": "native-bzip2",
       "kind": "runtime",
-      "license_concluded": "NOASSERTION",
+      "license_concluded": "bzip2-1.0.6",
       "license_declared": "bzip2-1.0.6",
-      "license_files": [],
+      "license_files": [
+        {
+          "license_ids": [
+            "bzip2-1.0.6"
+          ],
+          "path": "legal/LICENSES/native-bzip2/000-000-LICENSE",
+          "sha256": "c6dbbf828498be844a89eaa3b84adbab3199e342eb5cb2ed2f0d4ba7ec0f38a3"
+        }
+      ],
       "name": "bzip2",
       "notice_files": [
         {
@@ -15992,59 +16088,43 @@
           "sha256": "c6dbbf828498be844a89eaa3b84adbab3199e342eb5cb2ed2f0d4ba7ec0f38a3"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "ab5a03176ee106d3f0fa90e381da478ddae405918153cca248e682cd0c4a2269",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "1.0.8"
     },
     {
-      "copyright_text": "* Copyright (c) 1991, 2000, 2001 by Lucent Technologies.\n2. Subject to the terms and conditions of this License Agreement, CNRI hereby grants Licensee a nonexclusive, royalty-free, world-wide license to reproduce, analyze, test, perform and/or display publicly, prepare derivative works, distribute, and otherwise use Python 1.6.1 alone or in any derivative version, provided, however, that CNRI's License Agreement and CNRI's notice of copyright, i.e., \"Copyright (c) 1995-2001 Corporation for National Research Initiatives; All Rights Reserved\" are retained in Python 1.6.1 alone or in any derivative version prepared by Licensee. Alternately, in lieu of CNRI's License Agreement, Licensee may substitute the following text (omitting the quotes): \"Python 1.6.1 is made available subject to the terms and conditions in CNRI's License Agreement. This Agreement together with Python 1.6.1 may be located on the internet using the following unique, persistent identifier (known as a handle): 1895.22/1013. This Agreement may also be obtained from a proxy server on the internet using the following URL: http://hdl.handle.net/1895.22/1013\".\\\nCopyright (C) 1995, 1996, 1997, and 1998 WIDE Project.\nCopyright (C) 1995-2011 Jean-loup Gailly and Mark Adler\nCopyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam, The Netherlands. All rights reserved.\\\nCopyright (c) 1991-1995 Stichting Mathematisch Centrum, Amsterdam.\\n\\\nCopyright (c) 1995-2001 Corporation for National Research Initiatives.\\n\\\nCopyright (c) 1996-2008  Red Hat, Inc and others.\nCopyright (c) 1998, 1999, 2000 Thai Open Source Software Center Ltd\nCopyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper\nCopyright (c) 1999-2002 by Fredrik Lundh\nCopyright (c) 1999-2002 by Secret Labs AB\nCopyright (c) 2000 BeOpen.com.\\n\\\nCopyright (c) 2000 Doug White, 2006 James Knight, 2007 Christian Heimes\nCopyright (c) 2001-2006 Twisted Matrix Laboratories.\nCopyright (c) 2001-2023 Python Software Foundation.\\n\\\nCopyright (c) 2001-2025 Expat maintainers\nCopyright (c) 2005 Don Owens\nCopyright (c) 2008-2020 Stefan Krah. All rights reserved.\nCopyright (c) 2013  Marek Majkowski <marek@popcount.org>\nCopyright (c) 2013 W3C(R) (MIT, ERCIM, Keio, Beihang),\nCopyright (c) 2015-2021 MagicStack Inc.  http://magic.io\nCopyright 1991-1995, Stichting Mathematisch Centrum, all rights reserved.\nCopyright 1994 by Lance Ellinghouse\nCopyright 1995-1997, Automatrix, Inc., all rights reserved.\nCopyright 1996 by Sam Rushing\nCopyright 1999, Bioreason, Inc., all rights reserved.\nCopyright 2000 by Timothy O'Malley <timo@alum.mit.edu>\nCopyright 2000, Mojam Media, Inc., all rights reserved.\nCopyright \u00a9 1991 - 1995, Stichting Mathematisch Centrum Amsterdam, The\nCopyright \u00a9 1991-1995 Stichting Mathematisch Centrum. All rights reserved.\nCopyright \u00a9 1995-2000 Corporation for National Research Initiatives. All rights\nCopyright \u00a9 2000 BeOpen.com. All rights reserved.\nCopyright \u00a9 2001-2023 Python Software Foundation. All rights reserved.\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\ncopyright, i.e., \"Copyright \u00a9 2001-2023 Python Software Foundation; All Rights\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,\ni.e., \"Copyright \u00a9 1995-2001 Corporation for National Research Initiatives; All\nportions copyright 2001, Autonomous Zones Industries, Inc., all rights...",
+      "copyright_text": "Copyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 1991-1995 Stichting Mathematisch Centrum, Amsterdam.\\n\\\nCopyright (c) 1995-2001 Corporation for National Research Initiatives.\\n\\\nCopyright (c) 2000 BeOpen.com.\\n\\\nCopyright (c) 2001-2023 Python Software Foundation.\\n\\\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,",
       "download_location": "https://www.python.org/ftp/python/3.12.14/Python-3.12.14.tar.xz",
       "id": "native-cpython-3.12",
       "kind": "runtime",
-      "license_concluded": "NOASSERTION",
-      "license_declared": "[\"Python-2.0\", \"CNRI-Python\"]",
-      "license_files": [],
+      "license_concluded": "Python-2.0",
+      "license_declared": "Python-2.0",
+      "license_files": [
+        {
+          "license_ids": [
+            "Python-2.0"
+          ],
+          "path": "legal/LICENSES/native-cpython-3.12/000-002-LICENSE",
+          "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf"
+        }
+      ],
       "name": "cpython-3.12",
       "notice_files": [
         {
-          "path": "legal/NOTICES/native-cpython-3.12/000-000-copyright.rst",
-          "sha256": "9e5e6634a7f5444dd83da55ccb265bac825abf72ecddccf7e394f284636bd9df"
-        },
-        {
-          "path": "legal/NOTICES/native-cpython-3.12/001-001-license.rst",
-          "sha256": "341832873fd316a37927e79385093fbbfd40a467428480835fe435a80cadf4e5"
-        },
-        {
-          "path": "legal/NOTICES/native-cpython-3.12/002-002-LICENSE",
+          "path": "legal/NOTICES/native-cpython-3.12/000-002-LICENSE",
           "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf"
         },
         {
-          "path": "legal/NOTICES/native-cpython-3.12/003-003-License.rtf",
-          "sha256": "ab6df6040a4e24babad38f98454eb3263722fa6a1c441bfaa271798efbe55f27"
-        },
-        {
-          "path": "legal/NOTICES/native-cpython-3.12/004-004-COPYING",
-          "sha256": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87"
-        },
-        {
-          "path": "legal/NOTICES/native-cpython-3.12/005-005-crtlicense.txt",
-          "sha256": "3c71b3ae243121f6f227374cd1ef7c59ed07b1969b330d0e947f91a3a1b3fd73"
-        },
-        {
-          "path": "legal/NOTICES/native-cpython-3.12/006-006-getcopyright.c",
+          "path": "legal/NOTICES/native-cpython-3.12/001-006-getcopyright.c",
           "sha256": "ebaf5f2e950b09bb709255c5839d5b6ff836e86abbf852954821b024b193e78d"
-        },
-        {
-          "path": "legal/NOTICES/native-cpython-3.12/007-007-LICENSE.txt",
-          "sha256": "cb95daf98edda8e08a242e1060691b6941f0911692bf468a3f9c5e4b58c09b8f"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "5c8462af5790baf43a321a1559dbe0db06d1be4300fb85fb53c40060668e548a",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "3.12.14"
     },
     {
@@ -16338,7 +16418,7 @@
       "version": "8.6.14"
     },
     {
-      "copyright_text": "Copyright (C) 1989, 1991 Free Software Foundation, Inc.,\nGnomovision version 69, Copyright (C) year name of author\nlibffi - Copyright (c) 1996-2021  Anthony Green, Red Hat, Inc and others.",
+      "copyright_text": "libffi - Copyright (c) 1996-2021  Anthony Green, Red Hat, Inc and others.",
       "download_location": "https://codeload.github.com/python/cpython-source-deps/tar.gz/16fad4855b3d8c03b5910e405ff3a04395b39a98",
       "id": "native-windows-libffi",
       "kind": "runtime",
@@ -16358,10 +16438,6 @@
         {
           "path": "legal/NOTICES/native-windows-libffi/000-000-LICENSE",
           "sha256": "a61d06e8f7be57928e71e800eb9273b05cb8868c484108afe41e4305bb320dde"
-        },
-        {
-          "path": "legal/NOTICES/native-windows-libffi/001-001-LICENSE-BUILDTOOLS",
-          "sha256": "e67978cd18816c0cb7d29aaaacde7b7447402c2fb321a051698890a8eaedda94"
         }
       ],
       "notice_required": true,
@@ -16371,7 +16447,7 @@
       "version": "16fad4855b3d8c03b5910e405ff3a04395b39a98"
     },
     {
-      "copyright_text": "<!-- Copyright (c) .NET Foundation and contributors. All rights reserved. Licensed under the Microsoft Reciprocal License. See LICENSE.TXT file in the project root for full license information. -->\nCopyright (c) .NET Foundation and contributors.\nCopyright (c) .NET Foundation. All rights reserved.\nCopyright (c) 2011-2018 The Bootstrap Authors\nCopyright (c) 2011-2018 Twitter, Inc.",
+      "copyright_text": "Copyright (c) .NET Foundation and contributors.",
       "download_location": "https://codeload.github.com/wixtoolset/wix/tar.gz/b8977d6f88e7b68e000bac226a2814f236770570",
       "id": "native-wix",
       "kind": "framework",
@@ -16391,50 +16467,6 @@
         {
           "path": "legal/NOTICES/native-wix/000-000-LICENSE.TXT",
           "sha256": "dfdf2048787635215a6baf3b9d461dee89a2904d246787258a44f072a98d4786"
-        },
-        {
-          "path": "legal/NOTICES/native-wix/001-001-LoremIpsumLicense.rtf",
-          "sha256": "15aee9f41cff56ac986684ccbaf7ffa76e9170ab3dd7880c20dfa50bc4fe08ff"
-        },
-        {
-          "path": "legal/NOTICES/native-wix/002-002-License.rtf",
-          "sha256": "0b73c0012454f2bf79ed41108ca966efc100515b1fdae767f0b7e93eadaa930a"
-        },
-        {
-          "path": "legal/NOTICES/native-wix/003-003-LicenseAgreementDlg.wxs",
-          "sha256": "dc5902a2e5912bc5641380f5b559610e3252d54caa9ac829d1e7e2d80affe1b9"
-        },
-        {
-          "path": "legal/NOTICES/native-wix/004-004-CheckLicenseAcceptance.targets",
-          "sha256": "a02d8b6e91108e5eb6401032189490c947328fa87f7979cbc8ae3d4532c1595d"
-        },
-        {
-          "path": "legal/NOTICES/native-wix/005-005-license.txt",
-          "sha256": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
-        },
-        {
-          "path": "legal/NOTICES/native-wix/006-006-LICENSE",
-          "sha256": "7bdab4494c73e3d7271a70d395947a9eb2a68f08d98740fc2308843e319298f9"
-        },
-        {
-          "path": "legal/NOTICES/native-wix/007-007-LICENSE.txt",
-          "sha256": "6c9045c1cf391713484e2b7ee3e766ceae5f4696c111abaf53ed5e23e129ce24"
-        },
-        {
-          "path": "legal/NOTICES/native-wix/008-008-LICENSE.md",
-          "sha256": "f398878cab338b869638bdac1aeae76bf3ac11b2b89da6e0b68bc1a645733440"
-        },
-        {
-          "path": "legal/NOTICES/native-wix/009-009-LICENSE.txt",
-          "sha256": "2b3ed8ba424423a50b023e728530d94bc385cfc7c328ad65a3dfee9c7c0531c5"
-        },
-        {
-          "path": "legal/NOTICES/native-wix/010-010-PrereqLicenseFile.xsd",
-          "sha256": "a55999f9cfd0b8039d1f38030d5dd7fb895640bb71263b58a908fc006bc6612b"
-        },
-        {
-          "path": "legal/NOTICES/native-wix/011-011-PrereqLicenseUrl.xsd",
-          "sha256": "b33bb2273096a0b43a4b3c60e7405fb80e117b43feb6d1c01e4876242ea5d98a"
         }
       ],
       "notice_required": true,
@@ -16449,7 +16481,7 @@
       "version": "b8977d6f88e7b68e000bac226a2814f236770570"
     },
     {
-      "copyright_text": "Copyright (C) 1989, 1991 Free Software Foundation, Inc.,\nCopyright (C) 1991, 1999 Free Software Foundation, Inc.\nCopyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>\nCopyright (C) The XZ Utils authors and contributors\nGnomovision version 69, Copyright (C) year name of author",
+      "copyright_text": "Copyright (C) The XZ Utils authors and contributors",
       "download_location": "https://github.com/tukaani-project/xz/releases/download/v5.8.3/xz-5.8.3.tar.gz",
       "id": "native-xz",
       "kind": "runtime",
@@ -16477,22 +16509,6 @@
         {
           "path": "legal/NOTICES/native-xz/002-002-COPYING.0BSD",
           "sha256": "0b01625d853911cd0e2e088dcfb743261034a091bb379246cb25a14cc4c74bf1"
-        },
-        {
-          "path": "legal/NOTICES/native-xz/003-003-COPYING.GPLv2",
-          "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
-        },
-        {
-          "path": "legal/NOTICES/native-xz/004-004-COPYING.GPLv3",
-          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
-        },
-        {
-          "path": "legal/NOTICES/native-xz/005-005-COPYING.LGPLv2.1",
-          "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95"
-        },
-        {
-          "path": "legal/NOTICES/native-xz/006-006-license-check.sh",
-          "sha256": "2b3fa1d23cb2ab084f3d919908159473cc0e1eed059d106e2a2857c0ec8af98a"
         }
       ],
       "notice_required": true,
@@ -16502,7 +16518,7 @@
       "version": "5.8.3"
     },
     {
-      "copyright_text": "Copyright (c) 1990-2009 Info-ZIP. All rights reserved.",
+      "copyright_text": "(C) 1995-2026 Jean-loup Gailly and Mark Adler",
       "download_location": "https://github.com/madler/zlib/releases/download/v1.3.2/zlib-1.3.2.tar.gz",
       "id": "native-zlib",
       "kind": "runtime",
@@ -16522,14 +16538,6 @@
         {
           "path": "legal/NOTICES/native-zlib/000-000-LICENSE",
           "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
-        },
-        {
-          "path": "legal/NOTICES/native-zlib/001-001-LICENSE-1-0.txt",
-          "sha256": "36266a8fd073568394cb81cdb2b124f7fdae2c64c1a7ed09db34b4d22efa2951"
-        },
-        {
-          "path": "legal/NOTICES/native-zlib/002-002-LICENSE.Info-Zip",
-          "sha256": "fc686023047ce5ce3a18a9b8a777156f0e475929d3de06bac279f3c025d2b2ca"
         }
       ],
       "notice_required": true,
@@ -16692,6 +16700,72 @@
       "version": "1.2.2"
     },
     {
+      "copyright_text": "Copyright (c) Alex Gaynor and individual contributors.",
+      "download_location": "https://static.crates.io/crates/asn1/asn1-0.24.1.crate",
+      "id": "nested-cargo-asn1-0.24.1",
+      "kind": "cargo",
+      "license_concluded": "BSD-3-Clause",
+      "license_declared": "BSD-3-Clause",
+      "license_files": [
+        {
+          "license_ids": [
+            "BSD-3-Clause"
+          ],
+          "path": "legal/LICENSES/nested-cargo-asn1-0.24.1/000-LICENSE",
+          "sha256": "c6deb2d156619439e147f8b62e1b3928598c8e3652ec8b56cc039490696b3985"
+        }
+      ],
+      "name": "asn1",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/nested-cargo-asn1-0.24.1/000-LICENSE",
+          "sha256": "c6deb2d156619439e147f8b62e1b3928598c8e3652ec8b56cc039490696b3985"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-asn1-0.24.1/source-copyright-statements.json",
+          "sha256": "534e5fd1f70fd06a06c8a41f26fe4909feed7bc332506a35c0acf25bcf55d7c9"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "c9795210620c0cb3f9a7ce4f882808c38e1ef7b347c90591dceae0886e031fb1",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "0.24.1"
+    },
+    {
+      "copyright_text": "Copyright (c) Alex Gaynor and individual contributors.",
+      "download_location": "https://static.crates.io/crates/asn1_derive/asn1_derive-0.24.1.crate",
+      "id": "nested-cargo-asn1-derive-0.24.1",
+      "kind": "cargo",
+      "license_concluded": "BSD-3-Clause",
+      "license_declared": "BSD-3-Clause",
+      "license_files": [
+        {
+          "license_ids": [
+            "BSD-3-Clause"
+          ],
+          "path": "legal/LICENSES/nested-cargo-asn1-derive-0.24.1/000-LICENSE",
+          "sha256": "c6deb2d156619439e147f8b62e1b3928598c8e3652ec8b56cc039490696b3985"
+        }
+      ],
+      "name": "asn1_derive",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/nested-cargo-asn1-derive-0.24.1/000-LICENSE",
+          "sha256": "c6deb2d156619439e147f8b62e1b3928598c8e3652ec8b56cc039490696b3985"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-asn1-derive-0.24.1/source-copyright-statements.json",
+          "sha256": "f56f2406bc23d3cb489c7faef8d2338e7abf5226249922a7e1f7e4fe9bb4b8e0"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "909e307f1cc32bb8bccbd98f446e6d1bf03fa30f7b53a4337da7181ad30fa11a",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "0.24.1"
+    },
+    {
       "copyright_text": "Copyright (c) 2018 Josh Stone",
       "download_location": "https://static.crates.io/crates/autocfg/autocfg-1.3.0.crate",
       "id": "nested-cargo-autocfg-1.3.0",
@@ -16766,6 +16840,43 @@
       "version": "0.22.1"
     },
     {
+      "copyright_text": "Copyright (c) 2025 Alice Maz, Marshall Pierce",
+      "download_location": "https://static.crates.io/crates/base64/base64-0.23.0.crate",
+      "id": "nested-cargo-base64-0.23.0",
+      "kind": "cargo",
+      "license_concluded": "Apache-2.0",
+      "license_declared": "MIT OR Apache-2.0",
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/nested-cargo-base64-0.23.0/000-LICENSE-APACHE",
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        }
+      ],
+      "name": "base64",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/nested-cargo-base64-0.23.0/000-LICENSE-APACHE",
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-base64-0.23.0/001-LICENSE-MIT",
+          "sha256": "ab499c75a0f0da8e0fe83bf9ba3a27e5c39705310f07107c6c66b69958d2401c"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-base64-0.23.0/source-copyright-statements.json",
+          "sha256": "04d56a6b57a714573a1f55f944ea5931d9d079302f598984699d72ba7ed36a0f"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "b25655df2c3cdd83c5e5b293b88acd880332b2ddadd7c30ac43144fdc0033da9",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "0.23.0"
+    },
+    {
       "copyright_text": "Copyright (c) 2018 myrrlyn (Alexander Payne)",
       "download_location": "https://static.crates.io/crates/bitvec/bitvec-1.0.1.crate",
       "id": "nested-cargo-bitvec-1.0.1",
@@ -16834,6 +16945,43 @@
       "source_offer_files": [],
       "source_offer_required": false,
       "version": "1.0.101"
+    },
+    {
+      "copyright_text": "Copyright (c) 2014 Alex Crichton",
+      "download_location": "https://static.crates.io/crates/cc/cc-1.4.0.crate",
+      "id": "nested-cargo-cc-1.4.0",
+      "kind": "cargo",
+      "license_concluded": "Apache-2.0",
+      "license_declared": "MIT OR Apache-2.0",
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/nested-cargo-cc-1.4.0/000-LICENSE-APACHE",
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        }
+      ],
+      "name": "cc",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/nested-cargo-cc-1.4.0/000-LICENSE-APACHE",
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-cc-1.4.0/001-LICENSE-MIT",
+          "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-cc-1.4.0/source-copyright-statements.json",
+          "sha256": "4c63f796af6d607ecd979e6bfbbcc270e886ecc80ac430404b4052c6bb64b732"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "5add81bb678e6cb321aff7fa0dc7689ad82b112dbc032cea19f91d6b8e3582b9",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "1.4.0"
     },
     {
       "copyright_text": "Copyright (c) 2014 Alex Crichton",
@@ -16985,6 +17133,43 @@
       "version": "1.0.2"
     },
     {
+      "copyright_text": "// Copyright 2015 The Rust Project Developers. See the COPYRIGHT\n// Copyright \u00a9 2015-2017 winapi-rs developers\n// Copyright \u00a9 2017 winapi-rs developers\nCopyright (c) 2014 Alex Crichton",
+      "download_location": "https://static.crates.io/crates/find-msvc-tools/find-msvc-tools-0.1.9.crate",
+      "id": "nested-cargo-find-msvc-tools-0.1.9",
+      "kind": "cargo",
+      "license_concluded": "Apache-2.0",
+      "license_declared": "MIT OR Apache-2.0",
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/nested-cargo-find-msvc-tools-0.1.9/000-LICENSE-APACHE",
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        }
+      ],
+      "name": "find-msvc-tools",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/nested-cargo-find-msvc-tools-0.1.9/000-LICENSE-APACHE",
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-find-msvc-tools-0.1.9/001-LICENSE-MIT",
+          "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-find-msvc-tools-0.1.9/source-copyright-statements.json",
+          "sha256": "f284f863c203450409205f4c8c02e5dec4489c105e7ea4b9262fedac91e93d38"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "5baebc0774151f905a1a2cc41989300b1e6fbb29aff0ceffa1064fdd3088d582",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "0.1.9"
+    },
+    {
       "copyright_text": "Copyright (c) 2024 Orson Peters",
       "download_location": "https://static.crates.io/crates/foldhash/foldhash-0.2.0.crate",
       "id": "nested-cargo-foldhash-0.2.0",
@@ -17016,6 +17201,80 @@
       "source_offer_files": [],
       "source_offer_required": false,
       "version": "0.2.0"
+    },
+    {
+      "copyright_text": "Copyright (c) 2017 The foreign-types Developers",
+      "download_location": "https://static.crates.io/crates/foreign-types/foreign-types-0.3.2.crate",
+      "id": "nested-cargo-foreign-types-0.3.2",
+      "kind": "cargo",
+      "license_concluded": "Apache-2.0",
+      "license_declared": "MIT OR Apache-2.0",
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/nested-cargo-foreign-types-0.3.2/000-LICENSE-APACHE",
+          "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08"
+        }
+      ],
+      "name": "foreign-types",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/nested-cargo-foreign-types-0.3.2/000-LICENSE-APACHE",
+          "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-foreign-types-0.3.2/001-LICENSE-MIT",
+          "sha256": "333ea3aaa3cadb819f4acd9f9153f9feee060a995ca8710f32bc5bd9a4b91734"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-foreign-types-0.3.2/source-copyright-statements.json",
+          "sha256": "65199890373b8467d8b2ae9cbb5d94507b2753aee34926cb32ed50cada83660a"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "f6f339eb8adc052cd2ca78910fda869aefa38d22d5cb648e6485e4d3fc06f3b1",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "0.3.2"
+    },
+    {
+      "copyright_text": "Copyright (c) 2017 The foreign-types Developers",
+      "download_location": "https://static.crates.io/crates/foreign-types-shared/foreign-types-shared-0.1.1.crate",
+      "id": "nested-cargo-foreign-types-shared-0.1.1",
+      "kind": "cargo",
+      "license_concluded": "Apache-2.0",
+      "license_declared": "MIT OR Apache-2.0",
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/nested-cargo-foreign-types-shared-0.1.1/000-LICENSE-APACHE",
+          "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08"
+        }
+      ],
+      "name": "foreign-types-shared",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/nested-cargo-foreign-types-shared-0.1.1/000-LICENSE-APACHE",
+          "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-foreign-types-shared-0.1.1/001-LICENSE-MIT",
+          "sha256": "333ea3aaa3cadb819f4acd9f9153f9feee060a995ca8710f32bc5bd9a4b91734"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-foreign-types-shared-0.1.1/source-copyright-statements.json",
+          "sha256": "16c4833c9791479e6789175a958c96604715d3b3fe353939b37e281009a37406"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "00b0228411908ca8685dba7fc2cdd70ec9990a6e753e89b6ac91a84c40fbaf4b",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "0.1.1"
     },
     {
       "copyright_text": "// Copyright 2013-2016 The rust-url developers.\nCopyright (c) 2013-2016 The rust-url developers",
@@ -17236,7 +17495,7 @@
       "version": "0.4.3"
     },
     {
-      "copyright_text": "Copyright \u00a9 2020-2024 Unicode, Inc.\nICU 1.8.1 to ICU 57.1 \u00a9 1995-2016 International Business Machines Corporation and others.",
+      "copyright_text": "# Copyright (C) 2021 and later: Unicode, Inc. and others.\nCopyright \u00a9 2020-2024 Unicode, Inc.\nICU 1.8.1 to ICU 57.1 \u00a9 1995-2016 International Business Machines Corporation and others.",
       "download_location": "https://static.crates.io/crates/icu_collections/icu_collections-1.5.0.crate",
       "id": "nested-cargo-icu-collections-1.5.0",
       "kind": "cargo",
@@ -17259,7 +17518,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-icu-collections-1.5.0/source-copyright-statements.json",
-          "sha256": "a04ed67b563d7a73a0dfc1d2b414553e013e537b8cb2b40684b2c01bc2a5a638"
+          "sha256": "065ecf2245db8312a50819bdfc7297be99e6dba366ee70b379e7dae2c91e2a54"
         }
       ],
       "notice_required": true,
@@ -17566,7 +17825,7 @@
       "version": "1.5.0"
     },
     {
-      "copyright_text": "// Copyright 2013 The rust-url developers.\n// Copyright 2013-2014 The rust-url developers.\n// Copyright 2016 The rust-url developers.\n// Copyright The rust-url developers.\nCopyright (c) 2013-2025 The rust-url developers",
+      "copyright_text": "# \u00a9 2024 Unicode\u00ae, Inc.\n// Copyright 2013 The rust-url developers.\n// Copyright 2013-2014 The rust-url developers.\n// Copyright 2016 The rust-url developers.\n// Copyright The rust-url developers.\nCopyright (c) 2013-2025 The rust-url developers",
       "download_location": "https://static.crates.io/crates/idna/idna-1.1.0.crate",
       "id": "nested-cargo-idna-1.1.0",
       "kind": "cargo",
@@ -17593,7 +17852,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-idna-1.1.0/source-copyright-statements.json",
-          "sha256": "196a4982cf2626f7a12eb3a6c0bd1b37a363cbcd2baef96d3f1a2234c7adc04c"
+          "sha256": "757d5493358de745d5a0e78f97b7b4116f598262e2085c1a0a7d9fd839c96b03"
         }
       ],
       "notice_required": true,
@@ -18029,7 +18288,7 @@
       "version": "2.7.4"
     },
     {
-      "copyright_text": "// Copyright 2013-2014 The Rust Project Developers. See the COPYRIGHT\nCopyright (c) 2014 The Rust Project Developers",
+      "copyright_text": "// Copyright (c) 2013-2014 The Rust Project Developers\n// Copyright 2013-2014 The Rust Project Developers. See the COPYRIGHT\nCopyright (c) 2014 The Rust Project Developers",
       "download_location": "https://static.crates.io/crates/num-bigint/num-bigint-0.4.6.crate",
       "id": "nested-cargo-num-bigint-0.4.6",
       "kind": "cargo",
@@ -18056,7 +18315,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-num-bigint-0.4.6/source-copyright-statements.json",
-          "sha256": "8a4a8213d51f2c7f21d19b4fd2bf60bea9aa17c947f585869a60760274c8e5d8"
+          "sha256": "995a93de2f07398c1b1e43746a96ae112a672bfb69f10d22c8268ff96c3d885b"
         }
       ],
       "notice_required": true,
@@ -18182,6 +18441,146 @@
       "version": "1.21.3"
     },
     {
+      "copyright_text": "Copyright 2011-2017 Google Inc.",
+      "download_location": "https://static.crates.io/crates/openssl/openssl-0.10.81.crate",
+      "id": "nested-cargo-openssl-0.10.81",
+      "kind": "cargo",
+      "license_concluded": "Apache-2.0",
+      "license_declared": "Apache-2.0",
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/nested-cargo-openssl-0.10.81/001-LICENSE-APACHE",
+          "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08"
+        }
+      ],
+      "name": "openssl",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/nested-cargo-openssl-0.10.81/000-LICENSE",
+          "sha256": "f3d4287b4a21c5176fea2f9bd4ae800696004e2fb8e05cbc818be513f188a941"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-openssl-0.10.81/001-LICENSE-APACHE",
+          "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-openssl-0.10.81/source-copyright-statements.json",
+          "sha256": "32c3cb875465212f30424e7c7b73b1883e78f42cc3ae49c6a943bde7e05ba356"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "77823a27f0babb03091cb9ed9ef80af3b39dbc82f97e8fa530374b7dafd87a45",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "0.10.81"
+    },
+    {
+      "copyright_text": "Copyright (c) 2022 Steven Fackler",
+      "download_location": "https://static.crates.io/crates/openssl-macros/openssl-macros-0.1.1.crate",
+      "id": "nested-cargo-openssl-macros-0.1.1",
+      "kind": "cargo",
+      "license_concluded": "Apache-2.0",
+      "license_declared": "MIT OR Apache-2.0",
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/nested-cargo-openssl-macros-0.1.1/000-LICENSE-APACHE",
+          "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08"
+        }
+      ],
+      "name": "openssl-macros",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/nested-cargo-openssl-macros-0.1.1/000-LICENSE-APACHE",
+          "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-openssl-macros-0.1.1/001-LICENSE-MIT",
+          "sha256": "ea5ab440900ab271811d5c2dc02a9de6e03a6956ac5727e85c11d76df5883d30"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-openssl-macros-0.1.1/source-copyright-statements.json",
+          "sha256": "a67c2bdf737b31b00b7472fc96ac00f33bfaab8520d150432e5339d283eb0956"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "a948666b637a0f465e8564c73e89d4dde00d72d4d473cc972f390fc3dcee7d9c",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "0.1.1"
+    },
+    {
+      "copyright_text": "Copyright (c) 2014 Alex Crichton",
+      "download_location": "https://static.crates.io/crates/openssl-sys/openssl-sys-0.9.117.crate",
+      "id": "nested-cargo-openssl-sys-0.9.117",
+      "kind": "cargo",
+      "license_concluded": "MIT",
+      "license_declared": "MIT",
+      "license_files": [
+        {
+          "license_ids": [
+            "MIT"
+          ],
+          "path": "legal/LICENSES/nested-cargo-openssl-sys-0.9.117/000-LICENSE-MIT",
+          "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397"
+        }
+      ],
+      "name": "openssl-sys",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/nested-cargo-openssl-sys-0.9.117/000-LICENSE-MIT",
+          "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-openssl-sys-0.9.117/source-copyright-statements.json",
+          "sha256": "50ddbe0fdc420e838449a40421da1de9bde2d418c69870b1c1e8d93ee30f5275"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "b47e7e6bb2c38cd930d25a23b40fa52e068c10e85f3e03a7f5ba5aaca5713695",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "0.9.117"
+    },
+    {
+      "copyright_text": "// Copyright 2016-2017 Jonathan Creekmore\n// Copyright 2017 Jonathan Creekmore\nCopyright (c) 2016 Jonathan Creekmore",
+      "download_location": "https://static.crates.io/crates/pem/pem-4.0.0.crate",
+      "id": "nested-cargo-pem-4.0.0",
+      "kind": "cargo",
+      "license_concluded": "MIT",
+      "license_declared": "MIT",
+      "license_files": [
+        {
+          "license_ids": [
+            "MIT"
+          ],
+          "path": "legal/LICENSES/nested-cargo-pem-4.0.0/000-LICENSE.md",
+          "sha256": "b7c76ff4466a3aeb6a7d903e81b651335e97d64ecb857e2ee9812a36c6fd1acf"
+        }
+      ],
+      "name": "pem",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/nested-cargo-pem-4.0.0/000-LICENSE.md",
+          "sha256": "b7c76ff4466a3aeb6a7d903e81b651335e97d64ecb857e2ee9812a36c6fd1acf"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-pem-4.0.0/source-copyright-statements.json",
+          "sha256": "f5e548458b105a6fee3fbaa7dd3f0913bf3cb45e2ba22a8caa9f797bb7e733d8"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "d354a98a3d1251555de99e8fdd8afda05573c31b82f59063a7b0a29b5527f120",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "4.0.0"
+    },
+    {
       "copyright_text": "// Copyright 2013-2016 The rust-url developers.\nCopyright (c) 2013-2025 The rust-url developers",
       "download_location": "https://static.crates.io/crates/percent-encoding/percent-encoding-2.3.2.crate",
       "id": "nested-cargo-percent-encoding-2.3.2",
@@ -18217,6 +18616,85 @@
       "source_offer_files": [],
       "source_offer_required": false,
       "version": "2.3.2"
+    },
+    {
+      "copyright_text": "Copyright (c) 2014 Alex Crichton",
+      "download_location": "https://static.crates.io/crates/pkg-config/pkg-config-0.3.33.crate",
+      "id": "nested-cargo-pkg-config-0.3.33",
+      "kind": "cargo",
+      "license_concluded": "Apache-2.0",
+      "license_declared": "MIT OR Apache-2.0",
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/nested-cargo-pkg-config-0.3.33/000-LICENSE-APACHE",
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        }
+      ],
+      "name": "pkg-config",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/nested-cargo-pkg-config-0.3.33/000-LICENSE-APACHE",
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-pkg-config-0.3.33/001-LICENSE-MIT",
+          "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-pkg-config-0.3.33/source-copyright-statements.json",
+          "sha256": "b48c49440674ed705be3ca6c2b7f0599a31374146eca132c07dec241e5ed112f"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "19f132c84eca552bf34cab8ec81f1c1dcc229b811638f9d283dceabe58c5569e",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "0.3.33"
+    },
+    {
+      "copyright_text": "NONE",
+      "download_location": "https://static.crates.io/crates/portable-atomic/portable-atomic-1.14.0.crate",
+      "id": "nested-cargo-portable-atomic-1.14.0",
+      "kind": "cargo",
+      "license_concluded": "Apache-2.0",
+      "license_declared": "Apache-2.0 OR MIT",
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/nested-cargo-portable-atomic-1.14.0/000-LICENSE-APACHE",
+          "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+        }
+      ],
+      "name": "portable-atomic",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/nested-cargo-portable-atomic-1.14.0/000-LICENSE-APACHE",
+          "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-portable-atomic-1.14.0/001-LICENSE-MIT",
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "3d20d5497ef88037a52ff98267d066e7f11fcc5e99bbfbd58a42336193aacec3",
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/nested-cargo-portable-atomic-1.14.0/copyright-absence.json",
+          "sha256": "9a293514ea1800ecb3c77b22ff8b5ed9b964dd3bc171426b380fbf06e0313c5d"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/nested-cargo-portable-atomic-1.14.0/portable-atomic-1.14.0.crate",
+          "sha256": "3d20d5497ef88037a52ff98267d066e7f11fcc5e99bbfbd58a42336193aacec3"
+        }
+      ],
+      "source_offer_required": true,
+      "version": "1.14.0"
     },
     {
       "copyright_text": "NONE",
@@ -18259,6 +18737,48 @@
       ],
       "source_offer_required": true,
       "version": "1.0.103"
+    },
+    {
+      "copyright_text": "NONE",
+      "download_location": "https://static.crates.io/crates/proc-macro2/proc-macro2-1.0.107.crate",
+      "id": "nested-cargo-proc-macro2-1.0.107",
+      "kind": "cargo",
+      "license_concluded": "Apache-2.0",
+      "license_declared": "MIT OR Apache-2.0",
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/nested-cargo-proc-macro2-1.0.107/000-LICENSE-APACHE",
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        }
+      ],
+      "name": "proc-macro2",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/nested-cargo-proc-macro2-1.0.107/000-LICENSE-APACHE",
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-proc-macro2-1.0.107/001-LICENSE-MIT",
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "985e7ec9bb745e6ce6535b544d84d6cd6f7ad8bd711c398938ae983b91a766d9",
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/nested-cargo-proc-macro2-1.0.107/copyright-absence.json",
+          "sha256": "1e90e081bcde7ce1fc56052605ecda8ea328a772ec124468673a5c11e1723f16"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/nested-cargo-proc-macro2-1.0.107/proc-macro2-1.0.107.crate",
+          "sha256": "985e7ec9bb745e6ce6535b544d84d6cd6f7ad8bd711c398938ae983b91a766d9"
+        }
+      ],
+      "source_offer_required": true,
+      "version": "1.0.107"
     },
     {
       "copyright_text": "NONE",
@@ -18736,7 +19256,7 @@
       "version": "0.2.14"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "NONE",
       "download_location": "https://static.crates.io/crates/quote/quote-1.0.42.crate",
       "id": "nested-cargo-quote-1.0.42",
       "kind": "cargo",
@@ -18764,12 +19284,21 @@
       ],
       "notice_required": true,
       "sha256": "a338cc41d27e6cc6dce6cefc13a0729dfbb81c262b1f519331575dd80ef3067f",
-      "source_offer_files": [],
-      "source_offer_required": false,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/nested-cargo-quote-1.0.42/copyright-absence.json",
+          "sha256": "66edcf6ec41703b99aef5d9e2e4d87e6608d7d18eba80931376c251f26c511ee"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/nested-cargo-quote-1.0.42/quote-1.0.42.crate",
+          "sha256": "a338cc41d27e6cc6dce6cefc13a0729dfbb81c262b1f519331575dd80ef3067f"
+        }
+      ],
+      "source_offer_required": true,
       "version": "1.0.42"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "NONE",
       "download_location": "https://static.crates.io/crates/quote/quote-1.0.44.crate",
       "id": "nested-cargo-quote-1.0.44",
       "kind": "cargo",
@@ -18797,9 +19326,60 @@
       ],
       "notice_required": true,
       "sha256": "21b2ebcf727b7760c461f091f9f0f539b77b8e87f2fd88131e7f1b433b3cece4",
-      "source_offer_files": [],
-      "source_offer_required": false,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/nested-cargo-quote-1.0.44/copyright-absence.json",
+          "sha256": "f8c7c61629955c065d76441cf17bae65e188fc1c00b808a75ec2744944a12438"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/nested-cargo-quote-1.0.44/quote-1.0.44.crate",
+          "sha256": "21b2ebcf727b7760c461f091f9f0f539b77b8e87f2fd88131e7f1b433b3cece4"
+        }
+      ],
+      "source_offer_required": true,
       "version": "1.0.44"
+    },
+    {
+      "copyright_text": "NONE",
+      "download_location": "https://static.crates.io/crates/quote/quote-1.0.47.crate",
+      "id": "nested-cargo-quote-1.0.47",
+      "kind": "cargo",
+      "license_concluded": "Apache-2.0",
+      "license_declared": "MIT OR Apache-2.0",
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/nested-cargo-quote-1.0.47/000-LICENSE-APACHE",
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        }
+      ],
+      "name": "quote",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/nested-cargo-quote-1.0.47/000-LICENSE-APACHE",
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-quote-1.0.47/001-LICENSE-MIT",
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "1fbf4db142a473a8d80c26bbf18454ed458bf8d26c8219c331daecfdbd079001",
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/nested-cargo-quote-1.0.47/copyright-absence.json",
+          "sha256": "b8dff4aa96c006a53f15600086b203faa8b59d46207ab79332ac217cffb7502b"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/nested-cargo-quote-1.0.47/quote-1.0.47.crate",
+          "sha256": "1fbf4db142a473a8d80c26bbf18454ed458bf8d26c8219c331daecfdbd079001"
+        }
+      ],
+      "source_offer_required": true,
+      "version": "1.0.47"
     },
     {
       "copyright_text": "Copyright (c) 2019 kneecaw (Nika Layzell)",
@@ -19109,7 +19689,7 @@
       "version": "1.0.228"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "// copyright Alexander Huszagh.",
       "download_location": "https://static.crates.io/crates/serde_json/serde_json-1.0.149.crate",
       "id": "nested-cargo-serde-json-1.0.149",
       "kind": "cargo",
@@ -19133,6 +19713,10 @@
         {
           "path": "legal/NOTICES/nested-cargo-serde-json-1.0.149/001-001-LICENSE-MIT",
           "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-serde-json-1.0.149/source-copyright-statements.json",
+          "sha256": "586e6e7a8ef1cec0ab25e56c347ae6281cc53a5b080eb5d8aa5361a28154769f"
         }
       ],
       "notice_required": true,
@@ -19140,6 +19724,43 @@
       "source_offer_files": [],
       "source_offer_required": false,
       "version": "1.0.149"
+    },
+    {
+      "copyright_text": "// Copyright 2015 Nicholas Allegra (comex).\nCopyright (c) 2015 Nicholas Allegra (comex).\nCopyright 2015 Nicholas Allegra (comex).",
+      "download_location": "https://static.crates.io/crates/shlex/shlex-2.0.1.crate",
+      "id": "nested-cargo-shlex-2.0.1",
+      "kind": "cargo",
+      "license_concluded": "MIT",
+      "license_declared": "MIT OR Apache-2.0",
+      "license_files": [
+        {
+          "license_ids": [
+            "MIT"
+          ],
+          "path": "legal/LICENSES/nested-cargo-shlex-2.0.1/001-LICENSE-MIT",
+          "sha256": "4455bf75a91154108304cb283e0fea9948c14f13e20d60887cf2552449dea3b1"
+        }
+      ],
+      "name": "shlex",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/nested-cargo-shlex-2.0.1/000-LICENSE-APACHE",
+          "sha256": "553fffcd9b1cb158bc3e9edc35da85ca5c3b3d7d2e61c883ebcfa8a65814b583"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-shlex-2.0.1/001-LICENSE-MIT",
+          "sha256": "4455bf75a91154108304cb283e0fea9948c14f13e20d60887cf2552449dea3b1"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-shlex-2.0.1/source-copyright-statements.json",
+          "sha256": "1562acc7fb05b15bd663a01d182934bc8339d7804580c99a91ee706f620bded8"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "2.0.1"
     },
     {
       "copyright_text": "Copyright (c) 2018 The Servo Project Developers",
@@ -19395,6 +20016,48 @@
     },
     {
       "copyright_text": "NONE",
+      "download_location": "https://static.crates.io/crates/syn/syn-2.0.119.crate",
+      "id": "nested-cargo-syn-2.0.119",
+      "kind": "cargo",
+      "license_concluded": "Apache-2.0",
+      "license_declared": "MIT OR Apache-2.0",
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/nested-cargo-syn-2.0.119/000-LICENSE-APACHE",
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        }
+      ],
+      "name": "syn",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/nested-cargo-syn-2.0.119/000-LICENSE-APACHE",
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-syn-2.0.119/001-LICENSE-MIT",
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "872831b642d1a07999a962a351ed35b955ea2cfc8f3862091e2a240a84f17297",
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/nested-cargo-syn-2.0.119/copyright-absence.json",
+          "sha256": "f9dcbf0798b6004a8f57920d10c479f781f69ea5351ddfab5d606f9460bf6ed4"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/nested-cargo-syn-2.0.119/syn-2.0.119.crate",
+          "sha256": "872831b642d1a07999a962a351ed35b955ea2cfc8f3862091e2a240a84f17297"
+        }
+      ],
+      "source_offer_required": true,
+      "version": "2.0.119"
+    },
+    {
+      "copyright_text": "NONE",
       "download_location": "https://static.crates.io/crates/syn/syn-2.0.82.crate",
       "id": "nested-cargo-syn-2.0.82",
       "kind": "cargo",
@@ -19502,16 +20165,17 @@
       "version": "1.0.1"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "NONE",
       "download_location": "https://static.crates.io/crates/target-lexicon/target-lexicon-0.13.3.crate",
       "id": "nested-cargo-target-lexicon-0.13.3",
       "kind": "cargo",
-      "license_concluded": "NOASSERTION",
+      "license_concluded": "Apache-2.0 WITH LLVM-exception",
       "license_declared": "Apache-2.0 WITH LLVM-exception",
       "license_files": [
         {
           "license_ids": [
-            "Apache-2.0"
+            "Apache-2.0",
+            "LLVM-exception"
           ],
           "path": "legal/LICENSES/nested-cargo-target-lexicon-0.13.3/000-000-LICENSE",
           "sha256": "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5"
@@ -19524,23 +20188,33 @@
           "sha256": "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "df7f62577c25e07834649fc3b39fafdc597c0a3527dc1c60129201ccfcbaa50c",
-      "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/nested-cargo-target-lexicon-0.13.3/copyright-absence.json",
+          "sha256": "f964efbfc9f60189aebddb0a89f3cb610817da96ec9f8c22037d6695c9d83759"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/nested-cargo-target-lexicon-0.13.3/target-lexicon-0.13.3.crate",
+          "sha256": "df7f62577c25e07834649fc3b39fafdc597c0a3527dc1c60129201ccfcbaa50c"
+        }
+      ],
+      "source_offer_required": true,
       "version": "0.13.3"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "NONE",
       "download_location": "https://static.crates.io/crates/target-lexicon/target-lexicon-0.13.4.crate",
       "id": "nested-cargo-target-lexicon-0.13.4",
       "kind": "cargo",
-      "license_concluded": "NOASSERTION",
+      "license_concluded": "Apache-2.0 WITH LLVM-exception",
       "license_declared": "Apache-2.0 WITH LLVM-exception",
       "license_files": [
         {
           "license_ids": [
-            "Apache-2.0"
+            "Apache-2.0",
+            "LLVM-exception"
           ],
           "path": "legal/LICENSES/nested-cargo-target-lexicon-0.13.4/000-000-LICENSE",
           "sha256": "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5"
@@ -19553,11 +20227,59 @@
           "sha256": "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "b1dd07eb858a2067e2f3c7155d54e929265c264e6f37efe3ee7a8d1b5a1dd0ba",
-      "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/nested-cargo-target-lexicon-0.13.4/copyright-absence.json",
+          "sha256": "7566488962d85e2882a96137ba26759f3fb507a552aeaade5770c39f51ed247f"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/nested-cargo-target-lexicon-0.13.4/target-lexicon-0.13.4.crate",
+          "sha256": "b1dd07eb858a2067e2f3c7155d54e929265c264e6f37efe3ee7a8d1b5a1dd0ba"
+        }
+      ],
+      "source_offer_required": true,
       "version": "0.13.4"
+    },
+    {
+      "copyright_text": "NONE",
+      "download_location": "https://static.crates.io/crates/target-lexicon/target-lexicon-0.13.5.crate",
+      "id": "nested-cargo-target-lexicon-0.13.5",
+      "kind": "cargo",
+      "license_concluded": "Apache-2.0 WITH LLVM-exception",
+      "license_declared": "Apache-2.0 WITH LLVM-exception",
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0",
+            "LLVM-exception"
+          ],
+          "path": "legal/LICENSES/nested-cargo-target-lexicon-0.13.5/000-LICENSE",
+          "sha256": "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5"
+        }
+      ],
+      "name": "target-lexicon",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/nested-cargo-target-lexicon-0.13.5/000-LICENSE",
+          "sha256": "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "adb6935a6f5c20170eeceb1a3835a49e12e19d792f6dd344ccc76a985ca5a6ca",
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/nested-cargo-target-lexicon-0.13.5/copyright-absence.json",
+          "sha256": "33eb48bd227a76f0c42fa1c83ced49d4f80caf038d860a8a742a602a7bdb031c"
+        },
+        {
+          "path": "legal/SOURCE-OFFERS/nested-cargo-target-lexicon-0.13.5/target-lexicon-0.13.5.crate",
+          "sha256": "adb6935a6f5c20170eeceb1a3835a49e12e19d792f6dd344ccc76a985ca5a6ca"
+        }
+      ],
+      "source_offer_required": true,
+      "version": "0.13.5"
     },
     {
       "copyright_text": "Copyright \u00a9 2020-2024 Unicode, Inc.\nICU 1.8.1 to ICU 57.1 \u00a9 1995-2016 International Business Machines Corporation and others.",
@@ -19634,7 +20356,7 @@
       "download_location": "https://static.crates.io/crates/unicode-ident/unicode-ident-1.0.12.crate",
       "id": "nested-cargo-unicode-ident-1.0.12",
       "kind": "cargo",
-      "license_concluded": "NOASSERTION",
+      "license_concluded": "(Apache-2.0) AND Unicode-DFS-2016",
       "license_declared": "(MIT OR Apache-2.0) AND Unicode-DFS-2016",
       "license_files": [
         {
@@ -19643,6 +20365,13 @@
           ],
           "path": "legal/LICENSES/nested-cargo-unicode-ident-1.0.12/000-000-LICENSE-APACHE",
           "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "license_ids": [
+            "Unicode-DFS-2016"
+          ],
+          "path": "legal/LICENSES/nested-cargo-unicode-ident-1.0.12/002-002-LICENSE-UNICODE",
+          "sha256": "68f5b9f5ea36881a0942ba02f558e9e1faf76cc09cb165ad801744c61b738844"
         }
       ],
       "name": "unicode-ident",
@@ -19664,10 +20393,10 @@
           "sha256": "dfa4eabea2b9c14e598770381174d670d63d0bb9dd976757d9aa6b9dcb4094c5"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "1.0.12"
     },
     {
@@ -19719,7 +20448,7 @@
       "version": "1.0.22"
     },
     {
-      "copyright_text": "// Copyright 2013-2015 The rust-url developers.\n// Copyright 2013-2016 The rust-url developers.\n// Copyright 2016 The rust-url developers.\nCopyright (c) 2013-2025 The rust-url developers",
+      "copyright_text": "// Copyright 2013-2014 The rust-url developers.\n// Copyright 2013-2015 The rust-url developers.\n// Copyright 2013-2016 The rust-url developers.\n// Copyright 2016 The rust-url developers.\nCopyright (c) 2013-2025 The rust-url developers",
       "download_location": "https://static.crates.io/crates/url/url-2.5.8.crate",
       "id": "nested-cargo-url-2.5.8",
       "kind": "cargo",
@@ -19746,7 +20475,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-url-2.5.8/source-copyright-statements.json",
-          "sha256": "8bb764790cfda2815cc3619a1d70f11e155f68dd15089c978419c87ab3699cbc"
+          "sha256": "f6bfecfdaf2901b7f4a78fe59f744f312f1c59bf9d83b3aa8ea3b5471e6c60cb"
         }
       ],
       "notice_required": true,
@@ -19873,6 +20602,43 @@
       "source_offer_files": [],
       "source_offer_required": false,
       "version": "1.23.0"
+    },
+    {
+      "copyright_text": "Copyright (c) 2017 Jim McGrath",
+      "download_location": "https://static.crates.io/crates/vcpkg/vcpkg-0.2.15.crate",
+      "id": "nested-cargo-vcpkg-0.2.15",
+      "kind": "cargo",
+      "license_concluded": "Apache-2.0",
+      "license_declared": "MIT OR Apache-2.0",
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/nested-cargo-vcpkg-0.2.15/000-LICENSE-APACHE",
+          "sha256": "60c93a31f490375aadf64098b75f10715010379541021e00261045d7800611d3"
+        }
+      ],
+      "name": "vcpkg",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/nested-cargo-vcpkg-0.2.15/000-LICENSE-APACHE",
+          "sha256": "60c93a31f490375aadf64098b75f10715010379541021e00261045d7800611d3"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-vcpkg-0.2.15/001-LICENSE-MIT",
+          "sha256": "016d20f335060a70e79d9fcf8dfaa6201114d65d592211f4bdfb8ae9ca2bc1dc"
+        },
+        {
+          "path": "legal/NOTICES/nested-cargo-vcpkg-0.2.15/source-copyright-statements.json",
+          "sha256": "75a1d7ca0bedd3d2734f932b386a97677023d2a7615985543a32a2e9bc5fa392"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "0.2.15"
     },
     {
       "copyright_text": "Copyright (c) 2017-2018 Sergio Benitez",
@@ -20116,7 +20882,7 @@
         },
         {
           "path": "legal/NOTICES/nested-cargo-zerocopy-0.8.25/source-copyright-statements.json",
-          "sha256": "5b1a542bd847096865e305f12d4907cbb3fc1ad93a6a0cd8e4e470baf35e04f9"
+          "sha256": "100a87ee5d037ee97dab8c21bf6832431dd6352018c90ab4dd5f30a58108d219"
         }
       ],
       "notice_required": true,
@@ -20296,7 +21062,7 @@
       "version": "1.0.6"
     },
     {
-      "copyright_text": "Copyright (C) 2008-2011 INADA Naoki <songofacandy@gmail.com>\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 2006-2022 by the respective authors (see AUTHORS file).\nCopyright (c) 2008-2020 Andrey Petrov and contributors.\nCopyright (c) 2008-present The pip developers (see AUTHORS.txt file)\nCopyright (c) 2010-202x The platformdirs developers\nCopyright (c) 2013-2026, Kim Davies and contributors.\nCopyright (c) 2017 Thomas Kluyver\nCopyright (c) 2018, Tzu-ping Chung <uranusjr@gmail.com>\nCopyright (c) 2020 Will McGugan\nCopyright (c) 2021 Taneli Hukkinen\nCopyright (c) 2022 Seth Michael Larson\nCopyright (c) Donald Stufft and individual contributors.\nCopyright 2012-2021  Eric Larson\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010",
+      "copyright_text": "Copyright (c) 2008-present The pip developers (see AUTHORS.txt file)",
       "download_location": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-aarch64-pc-windows-msvc-install_only.tar.gz",
       "id": "python-installed-pip",
       "kind": "runtime",
@@ -20309,62 +21075,6 @@
           ],
           "path": "legal/LICENSES/python-installed-pip/000-LICENSE.txt",
           "sha256": "634300a669d49aeae65b12c6c48c924c51a4cdf3d1ff086dc3456dc8bcaa2104"
-        },
-        {
-          "license_ids": [
-            "MIT"
-          ],
-          "path": "legal/LICENSES/python-installed-pip/010-LICENSE",
-          "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741"
-        },
-        {
-          "license_ids": [
-            "MIT"
-          ],
-          "path": "legal/LICENSES/python-installed-pip/011-LICENSE",
-          "sha256": "29e0fd62e929850e86eb28c3fdccf0cefdf4fa94879011cffb3d0d4bed6d4db6"
-        },
-        {
-          "license_ids": [
-            "MIT"
-          ],
-          "path": "legal/LICENSES/python-installed-pip/013-LICENSE",
-          "sha256": "1b22b049b5267d6dfc23a67bf4a84d8ec04b9fdfb1a51d360e42b4342c8b4154"
-        },
-        {
-          "license_ids": [
-            "MIT"
-          ],
-          "path": "legal/LICENSES/python-installed-pip/016-LICENSE",
-          "sha256": "deed7c17a4318158190a3ea239cc879a5a50271cebb98ae7025f48fbe58dca15"
-        },
-        {
-          "license_ids": [
-            "MIT"
-          ],
-          "path": "legal/LICENSES/python-installed-pip/017-LICENSE",
-          "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe"
-        },
-        {
-          "license_ids": [
-            "MIT"
-          ],
-          "path": "legal/LICENSES/python-installed-pip/018-LICENSE",
-          "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe"
-        },
-        {
-          "license_ids": [
-            "MIT"
-          ],
-          "path": "legal/LICENSES/python-installed-pip/019-LICENSE",
-          "sha256": "33be7b7e8fa4fd19b1760e1a8ed8a668bdab852c91b692dd41424bcb725a9fca"
-        },
-        {
-          "license_ids": [
-            "MIT"
-          ],
-          "path": "legal/LICENSES/python-installed-pip/020-LICENSE.txt",
-          "sha256": "130e3a64d5fdd5d096a752694634a7d9df284469de86e5732100268041e3d686"
         }
       ],
       "name": "pip",
@@ -20372,86 +21082,6 @@
         {
           "path": "legal/NOTICES/python-installed-pip/000-LICENSE.txt",
           "sha256": "634300a669d49aeae65b12c6c48c924c51a4cdf3d1ff086dc3456dc8bcaa2104"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/001-LICENSE.txt",
-          "sha256": "86eeee87be2a43f3ff1f56496f451f69243926f025fedbb033666c304c4c161b"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/002-LICENSE",
-          "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/003-LICENSE.txt",
-          "sha256": "808e10c8a6ab8deb149ff9b3fb19f447a808094606d712a9ca57fead3552599d"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/004-LICENSE",
-          "sha256": "cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/005-LICENSE.md",
-          "sha256": "1a9a4f0e3d479a27240ddd59a9137a66ab4a0f9dfdc8ca6188cc0bfd85187f04"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/006-COPYING",
-          "sha256": "492dedba85da5872f78e6091bcd1fea474d660d35acb4dee964b8aab3f007427"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/007-LICENSE",
-          "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/008-LICENSE.APACHE",
-          "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/009-LICENSE.BSD",
-          "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/010-LICENSE",
-          "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/011-LICENSE",
-          "sha256": "29e0fd62e929850e86eb28c3fdccf0cefdf4fa94879011cffb3d0d4bed6d4db6"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/012-LICENSE",
-          "sha256": "a9d66f1d526df02e29dce73436d34e56e8632f46c275bbdffc70569e882f9f17"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/013-LICENSE",
-          "sha256": "1b22b049b5267d6dfc23a67bf4a84d8ec04b9fdfb1a51d360e42b4342c8b4154"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/014-LICENSE",
-          "sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/015-LICENSE",
-          "sha256": "f388fd38cad13112c1dc0f669bbe80e7f84541edbafb72f3030d2ca7642c3c9d"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/016-LICENSE",
-          "sha256": "deed7c17a4318158190a3ea239cc879a5a50271cebb98ae7025f48fbe58dca15"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/017-LICENSE",
-          "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/018-LICENSE",
-          "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/019-LICENSE",
-          "sha256": "33be7b7e8fa4fd19b1760e1a8ed8a668bdab852c91b692dd41424bcb725a9fca"
-        },
-        {
-          "path": "legal/NOTICES/python-installed-pip/020-LICENSE.txt",
-          "sha256": "130e3a64d5fdd5d096a752694634a7d9df284469de86e5732100268041e3d686"
         }
       ],
       "notice_required": true,
@@ -20503,28 +21133,40 @@
       "version": "2026.6.17"
     },
     {
-      "copyright_text": "Copyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010",
+      "copyright_text": "# Copyright (C) 2012-2024 Vinay Sajip.\n# Copyright (C) 2012-2026 The Python Software Foundation.\n# Copyright (C) 2013-2026 Vinay Sajip.\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010",
       "download_location": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-aarch64-pc-windows-msvc-install_only.tar.gz",
       "id": "python-vendor-distlib",
       "kind": "runtime",
-      "license_concluded": "NOASSERTION",
-      "license_declared": "NOASSERTION",
-      "license_files": [],
+      "license_concluded": "Python-2.0",
+      "license_declared": "Python-2.0",
+      "license_files": [
+        {
+          "license_ids": [
+            "Python-2.0"
+          ],
+          "path": "legal/LICENSES/python-vendor-distlib/000-LICENSE.txt",
+          "sha256": "808e10c8a6ab8deb149ff9b3fb19f447a808094606d712a9ca57fead3552599d"
+        }
+      ],
       "name": "distlib",
       "notice_files": [
         {
           "path": "legal/NOTICES/python-vendor-distlib/000-LICENSE.txt",
           "sha256": "808e10c8a6ab8deb149ff9b3fb19f447a808094606d712a9ca57fead3552599d"
+        },
+        {
+          "path": "legal/NOTICES/python-vendor-distlib/observed-source-copyright.json",
+          "sha256": "53a2d7e61a49866a02ae65dc453ff3dcce4bc6e012f0e37447deb9204abf7006"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "f110d237830b3a6c579742cf71324540d99adc76013d38a3536d276d75b1f9f0",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "0.4.2"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "# Copyright 2015-2021 Nir Cohen",
       "download_location": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-aarch64-pc-windows-msvc-install_only.tar.gz",
       "id": "python-vendor-distro",
       "kind": "runtime",
@@ -20544,6 +21186,10 @@
         {
           "path": "legal/NOTICES/python-vendor-distro/000-LICENSE",
           "sha256": "cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14"
+        },
+        {
+          "path": "legal/NOTICES/python-vendor-distro/observed-source-copyright.json",
+          "sha256": "3259910d83bc59bf2d63a3712bdc536857db1e25157362de7f71cef978e0d65b"
         }
       ],
       "notice_required": true,
@@ -20603,13 +21249,21 @@
       "version": "1.1.2"
     },
     {
-      "copyright_text": "Copyright (c) Donald Stufft and individual contributors.",
+      "copyright_text": "# Copyright (c) 2017-present Ofek Lev <oss@ofek.dev>\nCopyright (c) Donald Stufft and individual contributors.",
       "download_location": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-aarch64-pc-windows-msvc-install_only.tar.gz",
       "id": "python-vendor-packaging",
       "kind": "runtime",
-      "license_concluded": "NOASSERTION",
-      "license_declared": "NOASSERTION",
-      "license_files": [],
+      "license_concluded": "Apache-2.0",
+      "license_declared": "Apache-2.0 OR BSD-2-Clause",
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/python-vendor-packaging/001-LICENSE.APACHE",
+          "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+        }
+      ],
       "name": "packaging",
       "notice_files": [
         {
@@ -20623,12 +21277,16 @@
         {
           "path": "legal/NOTICES/python-vendor-packaging/002-LICENSE.BSD",
           "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5"
+        },
+        {
+          "path": "legal/NOTICES/python-vendor-packaging/observed-source-copyright.json",
+          "sha256": "372aea4e125c086f45c50d10c593ad561478db3e52cf7096c6d364269d2b739f"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "880d654153707ff0a47c323528146387cd4d48538a5cc65065bc719764e5b43b",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "26.2"
     },
     {
@@ -20661,7 +21319,7 @@
       "version": "4.10.0"
     },
     {
-      "copyright_text": "Copyright (c) 2006-2022 by the respective authors (see AUTHORS file).",
+      "copyright_text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS.\nCopyright (c) 2006-2022 by the respective authors (see AUTHORS file).",
       "download_location": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-aarch64-pc-windows-msvc-install_only.tar.gz",
       "id": "python-vendor-pygments",
       "kind": "runtime",
@@ -20681,6 +21339,10 @@
         {
           "path": "legal/NOTICES/python-vendor-pygments/000-LICENSE",
           "sha256": "a9d66f1d526df02e29dce73436d34e56e8632f46c275bbdffc70569e882f9f17"
+        },
+        {
+          "path": "legal/NOTICES/python-vendor-pygments/observed-source-copyright.json",
+          "sha256": "7ee8ae92fc33cf14462c14dd38baece07a859f527c530091070df76a84183953"
         }
       ],
       "notice_required": true,
@@ -20769,7 +21431,7 @@
       "version": "1.2.1"
     },
     {
-      "copyright_text": "Copyright (c) 2020 Will McGugan",
+      "copyright_text": "Copyright (c) 2020 Will McGugan\nCopyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)",
       "download_location": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-aarch64-pc-windows-msvc-install_only.tar.gz",
       "id": "python-vendor-rich",
       "kind": "runtime",
@@ -20789,6 +21451,10 @@
         {
           "path": "legal/NOTICES/python-vendor-rich/000-LICENSE",
           "sha256": "deed7c17a4318158190a3ea239cc879a5a50271cebb98ae7025f48fbe58dca15"
+        },
+        {
+          "path": "legal/NOTICES/python-vendor-rich/observed-source-copyright.json",
+          "sha256": "86b2a3449fb6a7f68c209b5b0f3f5afaae7ca34919c97d24d4a322c79bc870e2"
         }
       ],
       "notice_required": true,
@@ -21140,9 +21806,113 @@
       "download_location": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36181636747",
       "id": "runtime-cua-helper-closure-0.7.9",
       "kind": "runtime",
-      "license_concluded": "NOASSERTION",
-      "license_declared": "Component-specific grants in the retained helper review",
-      "license_files": [],
+      "license_concluded": "(0BSD) AND (Apache-2.0) AND (BSD-2-Clause) AND (BSD-3-Clause AND Apache-2.0) AND (GPL-2.0-or-later WITH Bootloader-exception AND Apache-2.0) AND (LicenseRef-Python-Windows-Redistribution-e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a) AND (MIT) AND (Python-2.0 AND 0BSD) AND (Zlib) AND (bzip2-1.0.6)",
+      "license_declared": "(0BSD) AND (Apache-2.0) AND (BSD-2-Clause) AND (BSD-3-Clause AND Apache-2.0) AND (GPL-2.0-or-later WITH Bootloader-exception AND Apache-2.0) AND (LicenseRef-Python-Windows-Redistribution-e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a) AND (MIT) AND (Python-2.0 AND 0BSD) AND (Zlib) AND (bzip2-1.0.6)",
+      "license_files": [
+        {
+          "license_ids": [
+            "Apache-2.0",
+            "Bootloader-exception",
+            "GPL-2.0-or-later",
+            "MIT"
+          ],
+          "path": "legal/LICENSES/runtime-cua-helper-closure-0.7.9/000-PYINSTALLER-COPYING.txt",
+          "sha256": "dcf75fdb959db1e3b41c0f8505069d2ece781b5ec6b3d0a4d30975cfc6580245"
+        },
+        {
+          "license_ids": [
+            "0BSD",
+            "Python-2.0",
+            "bzip2-1.0.6"
+          ],
+          "path": "legal/LICENSES/runtime-cua-helper-closure-0.7.9/001-PYTHON-LICENSE.txt",
+          "sha256": "274a6db71c1e25831048526c96407f364bae8dd7c43c36211706d1a0c63829ea"
+        },
+        {
+          "license_ids": [
+            "bzip2-1.0.6"
+          ],
+          "path": "legal/LICENSES/runtime-cua-helper-closure-0.7.9/002-LICENSE.bzip2.txt",
+          "sha256": "1f38bbc7caacafd65169276d759c0d88c991b753b643ce35d0e45ea1971dd441"
+        },
+        {
+          "license_ids": [
+            "MIT"
+          ],
+          "path": "legal/LICENSES/runtime-cua-helper-closure-0.7.9/003-LICENSE.expat.txt",
+          "sha256": "122f2c27000472a201d337b9b31f7eb2b52d091b02857061a8880371612d9534"
+        },
+        {
+          "license_ids": [
+            "MIT"
+          ],
+          "path": "legal/LICENSES/runtime-cua-helper-closure-0.7.9/004-LICENSE.libffi.txt",
+          "sha256": "deaf3a42effb551a5b140fa9afefed183a27f1341c6d1bf430d106a5e6931fc0"
+        },
+        {
+          "license_ids": [
+            "0BSD"
+          ],
+          "path": "legal/LICENSES/runtime-cua-helper-closure-0.7.9/005-LICENSE.liblzma.txt",
+          "sha256": "9a4062de0a2c388a98cf35a35d348b62fa97c838a71c3c28ee1a2d7d0a565b02"
+        },
+        {
+          "license_ids": [
+            "BSD-2-Clause"
+          ],
+          "path": "legal/LICENSES/runtime-cua-helper-closure-0.7.9/006-LICENSE.mpdecimal.txt",
+          "sha256": "669512af7219f58be03a398766d7c9da11a3b3df9d3f05cb74c5ceca25c8da3b"
+        },
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/runtime-cua-helper-closure-0.7.9/007-LICENSE.openssl-3.txt",
+          "sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a"
+        },
+        {
+          "license_ids": [
+            "Zlib"
+          ],
+          "path": "legal/LICENSES/runtime-cua-helper-closure-0.7.9/008-LICENSE.zlib.txt",
+          "sha256": "818922b2620f12801a12bf78e399644a30990e66824abd8ca8ec24d451d6f92c"
+        },
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/runtime-cua-helper-closure-0.7.9/009-LICENSE",
+          "sha256": "95200db3139caae5364ed20b90417e71258fce0c8f6f77904600f4a569cee52c"
+        },
+        {
+          "license_ids": [
+            "BSD-3-Clause"
+          ],
+          "path": "legal/LICENSES/runtime-cua-helper-closure-0.7.9/011-LICENSE",
+          "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad"
+        },
+        {
+          "license_ids": [
+            "BSD-3-Clause"
+          ],
+          "path": "legal/LICENSES/runtime-cua-helper-closure-0.7.9/013-LICENSE",
+          "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad"
+        },
+        {
+          "license_ids": [
+            "Apache-2.0"
+          ],
+          "path": "legal/LICENSES/runtime-cua-helper-closure-0.7.9/015-VADGR-CUA-LICENSE.txt",
+          "sha256": "95200db3139caae5364ed20b90417e71258fce0c8f6f77904600f4a569cee52c"
+        },
+        {
+          "license_ids": [
+            "LicenseRef-Python-Windows-Redistribution-e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a"
+          ],
+          "path": "legal/LICENSES/runtime-cua-helper-closure-0.7.9/016-PYTHON-WINDOWS-CONDITIONS.txt",
+          "sha256": "e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a"
+        }
+      ],
       "name": "CUA Windows helper closure",
       "notice_files": [
         {
@@ -21208,6 +21978,10 @@
         {
           "path": "legal/NOTICES/runtime-cua-helper-closure-0.7.9/015-VADGR-CUA-LICENSE.txt",
           "sha256": "95200db3139caae5364ed20b90417e71258fce0c8f6f77904600f4a569cee52c"
+        },
+        {
+          "path": "legal/NOTICES/runtime-cua-helper-closure-0.7.9/016-PYTHON-WINDOWS-CONDITIONS.txt",
+          "sha256": "e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a"
         }
       ],
       "notice_required": true,
@@ -21388,28 +22162,40 @@
       "version": "26.1.0"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "# Copyright (c) 2024, Rose Davidson",
       "download_location": "https://files.pythonhosted.org/packages/70/c6/d0ea84713fe46b243a436a18fcd47d639732747e21635c8a27191b06dc30/cffi-2.1.1-cp312-cp312-win_arm64.whl",
       "id": "wheel-cffi-2.1.1",
       "kind": "wheel",
-      "license_concluded": "NOASSERTION",
+      "license_concluded": "MIT-0",
       "license_declared": "MIT-0",
-      "license_files": [],
+      "license_files": [
+        {
+          "license_ids": [
+            "MIT-0"
+          ],
+          "path": "legal/LICENSES/wheel-cffi-2.1.1/000-LICENSE",
+          "sha256": "5ba24ddc57067f9249add644c3afc41a5d6dc37e23433ef759d95df370b0af63"
+        }
+      ],
       "name": "cffi",
       "notice_files": [
         {
           "path": "legal/NOTICES/wheel-cffi-2.1.1/000-LICENSE",
           "sha256": "5ba24ddc57067f9249add644c3afc41a5d6dc37e23433ef759d95df370b0af63"
+        },
+        {
+          "path": "legal/NOTICES/wheel-cffi-2.1.1/observed-source-copyright.json",
+          "sha256": "df4865371d3ad75b772caff58af0525ea2e80dca7acf80d9ed55fd2423a5d818"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "7bde5e4cc5c10140859842b9d383af292b22639a4dffb725314baf45968cef80",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "2.1.1"
     },
     {
-      "copyright_text": "Copyright 2014 Pallets",
+      "copyright_text": "# Copyright 2001-2006 Gregory P. Ward\n# Copyright 2002-2006 Python Software Foundation\nCopyright 2001-2006 Gregory P. Ward. All rights reserved.\nCopyright 2002-2006 Python Software Foundation. All rights reserved.\nCopyright 2014 Pallets",
       "download_location": "https://files.pythonhosted.org/packages/58/50/6c0d534c5f134586a8e1ba4e330569e32f057e33372ae556463212fb4cd3/click-8.5.0-py3-none-any.whl",
       "id": "wheel-click-8.5.0",
       "kind": "wheel",
@@ -21429,6 +22215,10 @@
         {
           "path": "legal/NOTICES/wheel-click-8.5.0/000-LICENSE.txt",
           "sha256": "9a8ad106a394e853bfe21f42f4e72d592819a22805d991b5f3275029292b658d"
+        },
+        {
+          "path": "legal/NOTICES/wheel-click-8.5.0/observed-source-copyright.json",
+          "sha256": "d3b69ea6bc1c96d7bd3d575d5fc47eead69e3b046d04deca187b38aaa61794f6"
         }
       ],
       "notice_required": true,
@@ -21467,7 +22257,7 @@
       "version": "1.4.16"
     },
     {
-      "copyright_text": "Copyright (c) Individual contributors.",
+      "copyright_text": "Copyright (c) Individual contributors.\n__copyright__ = f\"Copyright 2013-2026 {__author__}\"",
       "download_location": "https://github.com/MONTBRAIN/vadgr/actions/runs/35957405519",
       "id": "wheel-cryptography-50.0.1",
       "kind": "wheel",
@@ -21495,6 +22285,10 @@
         {
           "path": "legal/NOTICES/wheel-cryptography-50.0.1/002-LICENSE.BSD",
           "sha256": "602c4c7482de6479dd2e9793cda275e5e63d773dacd1eca689232ab7008fb4fb"
+        },
+        {
+          "path": "legal/NOTICES/wheel-cryptography-50.0.1/observed-source-copyright.json",
+          "sha256": "84ad7024a36f9834001d76e151c8c63a115bf021c5f5f8b0a213ef2e6e5ba390"
         }
       ],
       "notice_required": true,
@@ -21591,7 +22385,7 @@
       "version": "2.12.0"
     },
     {
-      "copyright_text": "Copyright \u00a9 2019, [Encode OSS Ltd](https://www.encode.io/).\nCopyright \u00a9 2026 to present Pydantic Services Inc. and individual contributors.",
+      "copyright_text": "Copyright (c) 2021 Fran\u00e7ois Voron\nCopyright (c) 2022 Florimond Manca\nCopyright \u00a9 2019, [Encode OSS Ltd](https://www.encode.io/).\nCopyright \u00a9 2026 to present Pydantic Services Inc. and individual contributors.",
       "download_location": "https://files.pythonhosted.org/packages/c8/95/411ba65569158e862368917aaf56597f3e5fa3b91b0502919638465a08f3/httpx2-2.12.0-py3-none-any.whl",
       "id": "wheel-httpx2-2.12.0",
       "kind": "wheel",
@@ -21611,6 +22405,10 @@
         {
           "path": "legal/NOTICES/wheel-httpx2-2.12.0/000-LICENSE.md",
           "sha256": "7e7d6dbaf7fe160d39fd6e84fd02c33cab96bcbea34d36998d545bceb4a19c30"
+        },
+        {
+          "path": "legal/NOTICES/wheel-httpx2-2.12.0/observed-source-copyright.json",
+          "sha256": "11bb55bcd7a488b2f08db8b6e8395c1c59f60bb7aa6aa18165b462dcbba7801b"
         }
       ],
       "notice_required": true,
@@ -21765,7 +22563,7 @@
       "version": "2.1.1"
     },
     {
-      "copyright_text": "Copyright (c) 2013-2026, Micka\u00ebl 'Tiger-222' Schoentgen",
+      "copyright_text": "Copyright (c) 2013-2026, Micka\u00ebl 'Tiger-222' Schoentgen\nCopyright (c) {__date__}, {__author__}",
       "download_location": "https://files.pythonhosted.org/packages/f2/c3/313e14f245c79b4c05bd0f3a84a4813aa26fa10f8993aebd91d04c5fad3f/mss-10.2.0-py3-none-any.whl",
       "id": "wheel-mss-10.2.0",
       "kind": "wheel",
@@ -21785,6 +22583,10 @@
         {
           "path": "legal/NOTICES/wheel-mss-10.2.0/000-LICENSE.txt",
           "sha256": "479b38354134f96c0b5f84e5449ae3497c1c585594bcca48a1164e8b819c8c38"
+        },
+        {
+          "path": "legal/NOTICES/wheel-mss-10.2.0/observed-source-copyright.json",
+          "sha256": "e8893c6ecbec813bca2b9725ed9a281390522dd7d0479942dd5d4ecac35089ad"
         }
       ],
       "notice_required": true,
@@ -21794,7 +22596,7 @@
       "version": "10.2.0"
     },
     {
-      "copyright_text": "Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>",
+      "copyright_text": "# Copyright 2024 by UltrafunkAmsterdam (https://github.com/UltrafunkAmsterdam)\nCopyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>",
       "download_location": "https://files.pythonhosted.org/packages/4d/23/b2dd278ad941c720f217c5264d7cbfc60dd09d882b5f7fb6c365013a8ce0/nodriver-0.50.3-py3-none-any.whl",
       "id": "wheel-nodriver-0.50.3",
       "kind": "wheel",
@@ -21814,6 +22616,10 @@
         {
           "path": "legal/NOTICES/wheel-nodriver-0.50.3/000-LICENSE.txt",
           "sha256": "6c680ff0ddf21713c43affed3e7705d0dbfcc72b0a55b4b36661db941584e0cf"
+        },
+        {
+          "path": "legal/NOTICES/wheel-nodriver-0.50.3/observed-source-copyright.json",
+          "sha256": "38d884060ea5258ce783d4b8d67420e45cd50befbae57825da2ae5c72464a1bd"
         }
       ],
       "notice_required": true,
@@ -21828,7 +22634,7 @@
       "version": "0.50.3"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "# Copyright The OpenTelemetry Authors",
       "download_location": "https://files.pythonhosted.org/packages/ca/6f/a04e900f465ff3221ccc395522503e2d10e79fa21f2723c8e177aae1e0d1/opentelemetry_api-1.44.0-py3-none-any.whl",
       "id": "wheel-opentelemetry-api-1.44.0",
       "kind": "wheel",
@@ -21848,6 +22654,10 @@
         {
           "path": "legal/NOTICES/wheel-opentelemetry-api-1.44.0/000-LICENSE",
           "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+        },
+        {
+          "path": "legal/NOTICES/wheel-opentelemetry-api-1.44.0/observed-source-copyright.json",
+          "sha256": "d4e73de8aaded904851702e51872a127ad9cb23b013c2e5252ad360715d1d9e5"
         }
       ],
       "notice_required": true,
@@ -21857,24 +22667,36 @@
       "version": "1.44.0"
     },
     {
-      "copyright_text": "* Copyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc.\n* Copyright (c) 1995-2026 The PNG Reference Library Authors.\n* Copyright (c) 1996-1997 Andreas Dilger.\n* Copyright (c) 2000-2002, 2004, 2006-2018 Glenn Randers-Pehrson.\n* Copyright (c) 2001-2003, David Janssens\n* Copyright (c) 2002-2003, Yannick Verschueren\n* Copyright (c) 2002-2014, Professor Benoit Macq\n* Copyright (c) 2002-2014, Universite catholique de Louvain (UCL), Belgium\n* Copyright (c) 2003-2009, Francois-Olivier Devaux\n* Copyright (c) 2003-2014, Antonin Descampe\n* Copyright (c) 2005, Herve Drolon, FreeImage Team\n* Copyright (c) 2011-2012, Centre National d'Etudes Spatiales (CNES), France\n* Copyright (c) 2012, CS Systemes d'Information, France\n* Copyright (c) 2018-2026 Cosmin Truta.\nCopyright (C) 1989, 1991 Free Software Foundation, Inc.\nCopyright (C) 2009-2026 D. R. Commander.  All Rights Reserved.<br>\nCopyright (C) 2015 Viktor Szathm\u00e1ry.  All Rights Reserved.\nCopyright (C) The XZ Utils authors and contributors\nCopyright (c) 1985, 1986 The Regents of the University of California.\nCopyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc.\nCopyright (c) 1996-1997 Andreas Dilger, are derived from libpng-0.88,\nCopyright (c) 1998-2000 Glenn Randers-Pehrson, are derived from\nCopyright (c) 2000-2002, 2004, 2006-2018 Glenn Randers-Pehrson, are\nCopyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.\nCopyright (c) 2010, Google Inc. All rights reserved.\nCopyright (c) 2023 Marti Maria Saguer\nCopyright 1996-2002, 2006 by\nCopyright \u00a9 1988-1997 Sam Leffler\\\nCopyright \u00a9 1991-1997 Silicon Graphics, Inc.\nCopyright \u00a9 1995-2011 by Fredrik Lundh and contributors\nCopyright \u00a9 1997-2011 by Secret Labs AB\nCopyright \u00a9 1998-2005  David Turner and Werner Lemberg\nCopyright \u00a9 2004,2007,2008,2009,2010,2013,2021,2022,2023  Red Hat, Inc.\nCopyright \u00a9 2005,2006,2020,2021,2022,2023  Behdad Esfahbod\nCopyright \u00a9 2007  Chris Wilson\nCopyright \u00a9 2008,2010  Nokia Corporation and/or its subsidiary(-ies)\nCopyright \u00a9 2009  Keith Stribley\nCopyright \u00a9 2010 by Jeffrey 'Alex' Clark and contributors\nCopyright \u00a9 2010-2022  Google, Inc.\nCopyright \u00a9 2011  Codethink Limited\nCopyright \u00a9 2011  Martin Hosken and SIL International\nCopyright \u00a9 2012,2015  Mozilla Foundation\nCopyright \u00a9 2013-2015  Alexei Podtelezhnikov\nCopyright \u00a9 2015-2020  Ebrahim Byagowi\nCopyright \u00a9 2016  Igalia S.L.\nCopyright \u00a9 2018,2019,2020  Adobe, Inc\nCopyright \u00a9 2018,2021  Khaled Hosny\nCopyright \u00a9 2019,2020  Facebook, Inc.\nCopyright \u00a9 2022  Matthias Clasen\nGnomovision version 69, Copyright (C) year  name of author\nThe FreeType  Project is copyright (C) 1996-2000  by David Turner,\nThis software is copyright (C) 1991-2020, Thomas G. Lane, Guido Vollbeding.",
+      "copyright_text": "# Copyright (C) 2002-2003 Kevin Cazabon\n# Copyright (c) 1995 by Fredrik Lundh\n# Copyright (c) 1995 by Fredrik Lundh.\n# Copyright (c) 1995-1996 by Fredrik Lundh\n# Copyright (c) 1995-1996 by Fredrik Lundh.\n# Copyright (c) 1995-1997 by Fredrik Lundh\n# Copyright (c) 1995-2001 by Fredrik Lundh\n# Copyright (c) 1995-2001 by Fredrik Lundh.\n# Copyright (c) 1995-2002 by Fredrik Lundh.\n# Copyright (c) 1995-2003 by Fredrik Lundh\n# Copyright (c) 1995-2003 by Fredrik Lundh.\n# Copyright (c) 1995-2004 by Fredrik Lundh\n# Copyright (c) 1995-2009 by Fredrik Lundh.\n# Copyright (c) 1995-96 by Fredrik Lundh.\n# Copyright (c) 1996 by Fredrik Lundh\n# Copyright (c) 1996 by Fredrik Lundh.\n# Copyright (c) 1996-1997 by Fredrik Lundh\n# Copyright (c) 1996-1997 by Fredrik Lundh.\n# Copyright (c) 1996-2000 by Fredrik Lundh\n# Copyright (c) 1996-2003 by Fredrik Lundh\n# Copyright (c) 1996-2006 by Fredrik Lundh\n# Copyright (c) 1997 by Fredrik Lundh.\n# Copyright (c) 1997 by Secret Labs AB.\n# Copyright (c) 1997-1998 by Fredrik Lundh\n# Copyright (c) 1997-1998 by Secret Labs AB\n# Copyright (c) 1997-1999 by Secret Labs AB\n# Copyright (c) 1997-2000 by Secret Labs AB\n# Copyright (c) 1997-2001 by Secret Labs AB\n# Copyright (c) 1997-2001 by Secret Labs AB.\n# Copyright (c) 1997-2003 by Fredrik Lundh.\n# Copyright (c) 1997-2003 by Secret Labs AB\n# Copyright (c) 1997-2003 by Secret Labs AB.\n# Copyright (c) 1997-2004 by Secret Labs AB\n# Copyright (c) 1997-2004 by Secret Labs AB.  All rights reserved.\n# Copyright (c) 1997-2005 by Secret Labs AB.  All rights reserved.\n# Copyright (c) 1997-2006 by Secret Labs AB\n# Copyright (c) 1997-2006 by Secret Labs AB.  All rights reserved.\n# Copyright (c) 1997-2009 by Secret Labs AB\n# Copyright (c) 1997-2009 by Secret Labs AB.  All rights reserved.\n# Copyright (c) 1997-98 by Secret Labs AB.\n# Copyright (c) 1998-2003 by Fredrik Lundh\n# Copyright (c) 1999-2005 by Secret Labs AB\n# Copyright (c) 2000-2003 by Fredrik Lundh\n# Copyright (c) 2001-2002 by Fredrik Lundh\n# Copyright (c) 2001-2002 by Secret Labs AB\n# Copyright (c) 2001-2004 by Fredrik Lundh\n# Copyright (c) 2001-2004 by Secret Labs AB\n# Copyright (c) 2002 by Fredrik Lundh\n# Copyright (c) 2002 by Secret Labs AB\n# Copyright (c) 2002-2004 by Fredrik Lundh\n# Copyright (c) 2002-2004 by Secret Labs AB\n# Copyright (c) 2003 by Fredrik Lundh.\n# Copyright (c) 2003 by Secret Labs AB\n# Copyright (c) 2003-2005 by Fredrik Lundh\n# Copyright (c) 2003-2005 by Secret Labs AB\n# Copyright (c) 2004 by Bob Ippolito.\n# Copyright (c) 2004 by Fredrik Lundh.\n# Copyright (c) 2004 by Health Research Inc. (HRI) RENSSELAER, NY 12144.\n# Copyright (c) 2004 by Secret Labs AB.\n# Copyright (c) 2004 by Secret Labs.\n# Copyright (c) 2004 by William Baxter.\n# Copyright (c) 2005 by Fredrik Lundh\n# Copyright (c) 2006 by Fredrik Lundh\n# Copyright (c) 2006 by Fredrik Lundh.\n# Copyright (c) 2006 by Secret Labs AB\n# Copyright (c) 2006 by Secret Labs AB.\n# Copyright (c) 2008 by Karsten Hiddemann.\n# Copyright (c) 2009 by Fredrik Lundh\n# Copyright (c) 2012 by Brian Crowell\n# Copyright (c) 2013 by Eric Soroos\n# Copyright (c) 2014 Alastair Houghton\n# Copyright (c) 2014 Coriolis Systems Limited\n# Copyright (c) 2014 Dov Grobgeld <dov.grobgeld@gmail.com>\n# Copyright (c) 2014 by Alastair Houghton.\n# Copyright (c) 2016 by Mickael Bonfill.\n# Copyright (c) 2020 by Pan Jing.\n# Copyright (c) Eric Soroos 2016.\n# Copyright (c) Eric Soroos 2017.\n# Copyright (c) Fredrik Lundh 1994.\n# Copyright (c) Fredrik Lundh 1995-96.\n# Copyright (c) Fredrik Lundh 1995-97.\n# Copyright (c) Fredrik Lundh 1995.\n# Copyright (c) Fredrik Lundh 1996-2001.\n# Copyright (c) Fredrik Lundh 1996-2003.\n# Copyright (c) Fredrik Lundh 1996-97.\n# Copyright (c) Fredrik Lundh 1996.\n# Copyright (c) Fredrik Lundh 1997-2004.\n# Copyright (c) Fredrik Lundh 1997.\n# Copyright (c) Secret Labs AB 1997-2001.\n# Copyright (c) Secret Labs AB 1997-2002.\n# Copyright (c) Secret Labs AB 1997-2003.\n# Copyright (c) Secret Labs AB 1997-2004.  All rights reserved.\n# Copyright (c) Secret Labs AB 1997-98.\n# Copyright (c) Secret Labs AB 1997.\n# Copyright (c) Secret Labs AB 1999.\n# Copyright (c) Secret Labs AB 2008.\n# Copyright 2008 Bryan Davis\n(C) 1995-2024 Jean-loup Gailly and Mark Adler\n(littleCMS is Copyright (C) 1998-2001 Marti Maria)\n* Copyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc.\n* Copyright (c) 1995-2026 The PNG Reference Library Authors.\n* Copyright (c) 1996-1997 Andreas Dilger.\n* Copyright (c) 2000-2002, 2004, 2006-2018 Glenn Randers-Pehrson.\n* Copyright (c) 2001-2003, David Janssens\n* Copyright (c) 2002-2003, Yannick Verschueren\n* Copyright (c) 2002-2014, Professor Benoit Macq\n* Copyright (c) 2002-2014, Universite catholique de Louvain (UCL), Belgium\n* Copyright (c) 2003-2009, Francois-Olivier Devaux\n* Copyright (c) 2003-2014, Antonin Descampe\n* Copyright (c) 2005, Herve Drolon, FreeImage Team\n* Copyright (c) 2011-2012, Centre National d'Etudes Spatiales (CNES), France\n* Copyright (c) 2012, CS Systemes d'Information, France\n* Copyright (c) 2018-2026 Cosmin Truta.\nCopyright (C) 1989, 1991 Free Software Foundation, Inc.\nCopyright (C) 2002-2003 Kevin Cazabon\nCopyright (C) 2009-2026 D. R. Commander.  All Rights Reserved.<br>\nCopyright (C) 2015 Viktor Szathm\u00e1ry.  All Rights Reserved.\nCopyright (C) The XZ Utils authors and contributors\nCopyright (c) 1985, 1986 The Regents of the University of California.\nCopyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc.\nCopyright (c) 1996-1997 Andreas Dilger, are derived from libpng-0.88,\nCopyright (c) 1998-2000 Glenn Randers-Pehrson, are derived from\nCopyright (c) 1999 by Secret Labs AB.\nCopyright (c) 2000-2002, 2004, 2006-2018 Glenn Randers-Pehrson, are\nCopyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.\nCopyright (c) 2010, Google Inc. All rights reserved.\nCopyright (c) 2023 Marti Maria Saguer\nCopyright 1996-2002, 2006 by\nCopyright \u00a9 1988-1997 Sam Leffler\\\nCopyright \u00a9 1991-1997 Silicon Graphics, Inc.\nCopyright \u00a9 1995-2011 by Fredrik Lundh and contributors\nCopyright \u00a9 1997-2011 by Secret Labs AB\nCopyright \u00a9 1998-2005  David Turner and Werner Lemberg\nCopyright \u00a9 2004,2007,2008,2009,2010,2013,2021,2022,2023  Red Hat, Inc.\nCopyright \u00a9 2005,2006,2020,2021,2022,2023  Behdad Esfahbod\nCopyright \u00a9 2007  Chris Wilson\nCopyright \u00a9 2008,2010  Nokia Corporation and/or its subsidiary(-ies)\nCopyright \u00a9 2009  Keith Stribley\nCopyright \u00a9 2010 by Jeffrey 'Alex' Clark and contributors\nCopyright \u00a9 2010-2022  Google, Inc.\nCopyright \u00a9 2011  Codethink Limited\nCopyright \u00a9 2011  Martin Hosken and SIL International\nCopyright \u00a9 2012,2015  Mozilla Foundation\nCopyright \u00a9 2013-2015  Alexei Podtelezhnikov\nCopyright \u00a9 2015-2020  Ebrahim Byagowi\nCopyright \u00a9 2016  Igalia S.L.\nCopyright \u00a9 2018,2019,2020  Adobe, Inc\nCopyright \u00a9 2018,2021  Khaled Hosny\nCopyright \u00a9 2019,2020  Facebook, Inc.\nCopyright \u00a9 2022  Matthias Clasen\nGnomovision version 69, Copyright (C) year  name of author\nThe FreeType  Project is copyright (C) 1996-2000  by David Turner,\nThis software is copyright (C) 1991-2020, Thomas G. Lane, Guido Vollbeding.",
       "download_location": "https://files.pythonhosted.org/packages/de/47/4845a0a6c0dbf1db8456bd9fc791f13c5ced7ced20606d08a0aacfd25b49/pillow-12.3.0-cp312-cp312-win_arm64.whl",
       "id": "wheel-pillow-12.3.0",
       "kind": "wheel",
-      "license_concluded": "NOASSERTION",
+      "license_concluded": "MIT-CMU",
       "license_declared": "MIT-CMU",
-      "license_files": [],
+      "license_files": [
+        {
+          "license_ids": [
+            "MIT-CMU"
+          ],
+          "path": "legal/LICENSES/wheel-pillow-12.3.0/000-LICENSE",
+          "sha256": "815c672f1027ab4fbd7cc313a238f82a9687c65509a11290a1f984b5ae01868c"
+        }
+      ],
       "name": "pillow",
       "notice_files": [
         {
           "path": "legal/NOTICES/wheel-pillow-12.3.0/000-LICENSE",
           "sha256": "815c672f1027ab4fbd7cc313a238f82a9687c65509a11290a1f984b5ae01868c"
+        },
+        {
+          "path": "legal/NOTICES/wheel-pillow-12.3.0/observed-source-copyright.json",
+          "sha256": "8e1e65571adce9abf7f9dbcc99de3001f6a7ce142938b52a3c59deccb023e9a1"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "331b624368d4f1d069149002f25f44bc61c8919ce8ddb3c45bdad8f6e2d89510",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "12.3.0"
     },
     {
@@ -21965,7 +22787,7 @@
       "version": "2.46.5"
     },
     {
-      "copyright_text": "Copyright (c) 2015-2022 Jos\u00e9 Padilla",
+      "copyright_text": "Copyright (c) 2015-2022 Jos\u00e9 Padilla\n__copyright__ = \"Copyright 2015-2026 Jos\u00e9 Padilla\"",
       "download_location": "https://files.pythonhosted.org/packages/a3/5e/ecf12fdb62546d64385c158514e9b2b671f7832108ef2ecd2020ce0af2d1/pyjwt-2.13.0-py3-none-any.whl",
       "id": "wheel-pyjwt-2.13.0",
       "kind": "wheel",
@@ -21989,6 +22811,10 @@
         {
           "path": "legal/NOTICES/wheel-pyjwt-2.13.0/001-LICENSE",
           "sha256": "797a7a20231d4c433e9f1911db1731d06b5828b98f499819a034f7c0f56f5ce5"
+        },
+        {
+          "path": "legal/NOTICES/wheel-pyjwt-2.13.0/observed-source-copyright.json",
+          "sha256": "70aba551edf1e0228387c1d5bfba8158d1859bcbdb19e6caed5797246ad12a3c"
         }
       ],
       "notice_required": true,
@@ -21998,7 +22824,7 @@
       "version": "2.13.0"
     },
     {
-      "copyright_text": "NOASSERTION",
+      "copyright_text": "# Copyright 2012, Andrew Dunham",
       "download_location": "https://files.pythonhosted.org/packages/e1/04/e8135ebd1ad02c56ec633277529b2602ff99ff634be76cdba5744cf554fd/python_multipart-0.0.32-py3-none-any.whl",
       "id": "wheel-python-multipart-0.0.32",
       "kind": "wheel",
@@ -22018,6 +22844,10 @@
         {
           "path": "legal/NOTICES/wheel-python-multipart-0.0.32/000-LICENSE.txt",
           "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "path": "legal/NOTICES/wheel-python-multipart-0.0.32/observed-source-copyright.json",
+          "sha256": "a4cc5b545d592caf5e6faaa584ee28122cd169bbf5d26e33f77d33027368b611"
         }
       ],
       "notice_required": true,
@@ -22027,7 +22857,7 @@
       "version": "0.0.32"
     },
     {
-      "copyright_text": "Copyright (C) 1991, 1999 Free Software Foundation, Inc.\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 1994-2008, Mark Hammond\nCopyright (c) 1996-2008, Greg Stein and Mark Hammond.\nCopyright (c) 2018 Microsoft\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\nLicense Agreement and PSF's notice of copyright, i.e., \"Copyright (c)",
+      "copyright_text": "#  Copyright 2002-2003 by Blackdog Software Pty Ltd.\n# Copyright (c) 2000 David Abrahams. Permission to copy, use, modify, sell\n# Copyright (c) 2003 Wavecom Inc.  All rights reserved\n# Copyright (c) 2003-2004 by Chris Nilsson <chris@slort.org>\n(C) Copyright 2014 Enthought, Inc., Austin, TX\nCopyright (C) 1991, 1999 Free Software Foundation, Inc.\nCopyright (C) 2002  Henrik Ekelund\nCopyright (C) 2002 Henrik Ekelund, version 2.1 by Vernon Cole\nCopyright (C) 2002 Henrik Ekelund, versions 2.1 and later by Vernon Cole\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 1994-2008, Mark Hammond\nCopyright (c) 1996-2008, Greg Stein and Mark Hammond.\nCopyright (c) 2018 Microsoft\nCopyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\nCopyright \u00a9 2003-2012.\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\nLicense Agreement and PSF's notice of copyright, i.e., \"Copyright (c)\nscintilla = \"Scintilla is Copyright 1998-2020 Neil Hodgson (https://www.scintilla.org)\"",
       "download_location": "https://files.pythonhosted.org/packages/e3/cc/7b1ec671775756020a0ee7f4feeaf3c568f0ab86bd3900088cf986937a92/pywin32-312-cp312-cp312-win_arm64.whl",
       "id": "wheel-pywin32-312",
       "kind": "wheel",
@@ -22099,6 +22929,10 @@
         {
           "path": "legal/NOTICES/wheel-pywin32-312/015-NOTICE.md",
           "sha256": "dedf997c8f5568a0e0aff57d009f501226ea30c401323d67912b6a8f8735a825"
+        },
+        {
+          "path": "legal/NOTICES/wheel-pywin32-312/observed-source-copyright.json",
+          "sha256": "ed36ea355002a576e777e7b3d728ceae9305b73a2159c7fdd59c1285d4e34326"
         }
       ],
       "notice_required": null,
@@ -22108,7 +22942,45 @@
       "version": "312"
     },
     {
-      "copyright_text": "Copyright (c) 2017, Mark Mc Mahon and Contributors",
+      "copyright_text": "Copyright (C) 1991, 1999 Free Software Foundation, Inc.\nCopyright (C) 2002 Henrik Ekelund, versions 2.1 and later by Vernon Cole",
+      "download_location": "https://files.pythonhosted.org/packages/e3/cc/7b1ec671775756020a0ee7f4feeaf3c568f0ab86bd3900088cf986937a92/pywin32-312-cp312-cp312-win_arm64.whl",
+      "id": "wheel-pywin32-312-adodbapi",
+      "kind": "wheel",
+      "license_concluded": "LGPL-2.1-or-later",
+      "license_declared": "LGPL-2.1-or-later",
+      "license_files": [
+        {
+          "license_ids": [
+            "LGPL-2.1-or-later"
+          ],
+          "path": "legal/LICENSES/wheel-pywin32-312-adodbapi/000-license.txt",
+          "sha256": "5ea2f23c7f00c3006bacf267183e816d8d4b6dc95ea57a4ddb0ff81de6d8719e"
+        }
+      ],
+      "name": "adodbapi (shipped pywin32 subtree)",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/wheel-pywin32-312-adodbapi/000-license.txt",
+          "sha256": "5ea2f23c7f00c3006bacf267183e816d8d4b6dc95ea57a4ddb0ff81de6d8719e"
+        },
+        {
+          "path": "legal/NOTICES/wheel-pywin32-312-adodbapi/001-adodbapi.py",
+          "sha256": "4f5717c2b086ecdb1b047e17caa4644bb3d02827cd2da0e602d9d1e38543081d"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "17fbf4e27a9e5fc3b8b6520da2578b2b36d46f501691c9c2afbcc1860cd00579",
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/wheel-pywin32-312-adodbapi/adodbapi-shipped-source.zip",
+          "sha256": "17fbf4e27a9e5fc3b8b6520da2578b2b36d46f501691c9c2afbcc1860cd00579"
+        }
+      ],
+      "source_offer_required": true,
+      "version": "2.6.2.0"
+    },
+    {
+      "copyright_text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors\nCopyright (c) 2017, Mark Mc Mahon and Contributors",
       "download_location": "https://files.pythonhosted.org/packages/44/46/f2283648e0c237af451dc50ebc42121abfd198d12391fd9ad4df1c6b97d2/pywinauto-0.6.9-py2.py3-none-any.whl",
       "id": "wheel-pywinauto-0.6.9",
       "kind": "wheel",
@@ -22128,6 +23000,10 @@
         {
           "path": "legal/NOTICES/wheel-pywinauto-0.6.9/000-LICENSE",
           "sha256": "18a999a95b7b23d86c410b4534e44d69f6d8ce13c3a53719b06ab895d8a2e73a"
+        },
+        {
+          "path": "legal/NOTICES/wheel-pywinauto-0.6.9/observed-source-copyright.json",
+          "sha256": "1331abbf92d8c3b0cd1db642f41f31f877e2940c36bc54564dea1f543af1d9a0"
         }
       ],
       "notice_required": true,
@@ -22195,7 +23071,7 @@
       "version": "2026.6.3"
     },
     {
-      "copyright_text": "Copyright (c) 2010-2024 Benjamin Peterson",
+      "copyright_text": "# Copyright (c) 2010-2024 Benjamin Peterson\nCopyright (c) 2010-2024 Benjamin Peterson",
       "download_location": "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl",
       "id": "wheel-six-1.17.0",
       "kind": "wheel",
@@ -22215,6 +23091,10 @@
         {
           "path": "legal/NOTICES/wheel-six-1.17.0/000-LICENSE",
           "sha256": "4375ba20e2b9c6c4e7cad2940a628fd90e95cc3d50ee92aae755715d8ba1fbd0"
+        },
+        {
+          "path": "legal/NOTICES/wheel-six-1.17.0/observed-source-copyright.json",
+          "sha256": "8a5185ff0cb6710b9394e4c0a730edea30366ed378c3598972ae45f52a5cd214"
         }
       ],
       "notice_required": true,
@@ -22319,9 +23199,17 @@
       "download_location": "https://files.pythonhosted.org/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl",
       "id": "wheel-typing-extensions-4.16.0",
       "kind": "wheel",
-      "license_concluded": "NOASSERTION",
+      "license_concluded": "PSF-2.0",
       "license_declared": "PSF-2.0",
-      "license_files": [],
+      "license_files": [
+        {
+          "license_ids": [
+            "PSF-2.0"
+          ],
+          "path": "legal/LICENSES/wheel-typing-extensions-4.16.0/000-LICENSE",
+          "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf"
+        }
+      ],
       "name": "typing-extensions",
       "notice_files": [
         {
@@ -22329,10 +23217,10 @@
           "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "4.16.0"
     },
     {
@@ -22402,7 +23290,7 @@
       "version": "0.10.1"
     },
     {
-      "copyright_text": "Copyright \u00a9 2017-present, [Encode OSS Ltd](https://www.encode.io/).",
+      "copyright_text": "Copyright (c) Django Software Foundation and individual contributors.\nCopyright \u00a9 2017-present, [Encode OSS Ltd](https://www.encode.io/).",
       "download_location": "https://files.pythonhosted.org/packages/f1/79/4a20b54ab0491485ccd8c077db2d39187c7f12b3e15485d38a7be37c81b4/uvicorn-0.52.4-py3-none-any.whl",
       "id": "wheel-uvicorn-0.52.4",
       "kind": "wheel",
@@ -22422,6 +23310,10 @@
         {
           "path": "legal/NOTICES/wheel-uvicorn-0.52.4/000-LICENSE.md",
           "sha256": "efe1acf3e62fb99c288b0ec73e5a773b7268ef4320fe757ea994214e4b63c371"
+        },
+        {
+          "path": "legal/NOTICES/wheel-uvicorn-0.52.4/observed-source-copyright.json",
+          "sha256": "e4a8cf5bd397435dac88e6a137811989c9165d0a40d605db1ab56acc83367b71"
         }
       ],
       "notice_required": true,
@@ -22431,7 +23323,7 @@
       "version": "0.52.4"
     },
     {
-      "copyright_text": "Copyright 2026 Victor Santiago Monta\u00f1o Diaz",
+      "copyright_text": "# Copyright 2026 Victor Santiago Montano Diaz\n# Copyright 2026 Victor Santiago Monta\u00f1o Diaz\nCopyright 2026 Victor Santiago Monta\u00f1o Diaz",
       "download_location": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36312377525",
       "id": "wheel-vadgr-computer-use-0.7.9",
       "kind": "wheel",
@@ -22455,6 +23347,10 @@
         {
           "path": "legal/NOTICES/wheel-vadgr-computer-use-0.7.9/001-NOTICE",
           "sha256": "5bb7a2cc18f9a59d628c1e4c3ec1acb2225185334ef230a18203a86505d03174"
+        },
+        {
+          "path": "legal/NOTICES/wheel-vadgr-computer-use-0.7.9/observed-source-copyright.json",
+          "sha256": "a7eb3f6434f4d8b43885bd5e8ec073c2a9f111caf87b349d90881d96d4bc2e54"
         }
       ],
       "notice_required": true,
@@ -22968,15 +23864,22 @@
         "nested-cargo-aho-corasick-1.1.3",
         "nested-cargo-allocator-api2-0.2.21",
         "nested-cargo-archery-1.2.2",
+        "nested-cargo-asn1-0.24.1",
+        "nested-cargo-asn1-derive-0.24.1",
         "nested-cargo-autocfg-1.3.0",
         "nested-cargo-base64-0.22.1",
+        "nested-cargo-base64-0.23.0",
         "nested-cargo-bitvec-1.0.1",
         "nested-cargo-cc-1.0.101",
+        "nested-cargo-cc-1.4.0",
         "nested-cargo-cfg-if-1.0.0",
         "nested-cargo-displaydoc-0.2.5",
         "nested-cargo-enum-dispatch-0.3.13",
         "nested-cargo-equivalent-1.0.2",
+        "nested-cargo-find-msvc-tools-0.1.9",
         "nested-cargo-foldhash-0.2.0",
+        "nested-cargo-foreign-types-0.3.2",
+        "nested-cargo-foreign-types-shared-0.1.1",
         "nested-cargo-form-urlencoded-1.2.2",
         "nested-cargo-funty-2.0.0",
         "nested-cargo-getrandom-0.3.3",
@@ -23009,8 +23912,15 @@
         "nested-cargo-num-integer-0.1.46",
         "nested-cargo-num-traits-0.2.19",
         "nested-cargo-once-cell-1.21.3",
+        "nested-cargo-openssl-0.10.81",
+        "nested-cargo-openssl-macros-0.1.1",
+        "nested-cargo-openssl-sys-0.9.117",
+        "nested-cargo-pem-4.0.0",
         "nested-cargo-percent-encoding-2.3.2",
+        "nested-cargo-pkg-config-0.3.33",
+        "nested-cargo-portable-atomic-1.14.0",
         "nested-cargo-proc-macro2-1.0.103",
+        "nested-cargo-proc-macro2-1.0.107",
         "nested-cargo-proc-macro2-1.0.86",
         "nested-cargo-pyo3-0.28.3",
         "nested-cargo-pyo3-0.29.0",
@@ -23025,6 +23935,7 @@
         "nested-cargo-python3-dll-a-0.2.14",
         "nested-cargo-quote-1.0.42",
         "nested-cargo-quote-1.0.44",
+        "nested-cargo-quote-1.0.47",
         "nested-cargo-radium-0.7.0",
         "nested-cargo-regex-1.12.3",
         "nested-cargo-regex-automata-0.4.13",
@@ -23034,6 +23945,7 @@
         "nested-cargo-serde-core-1.0.228",
         "nested-cargo-serde-derive-1.0.228",
         "nested-cargo-serde-json-1.0.149",
+        "nested-cargo-shlex-2.0.1",
         "nested-cargo-smallvec-1.15.1",
         "nested-cargo-speedate-0.17.0",
         "nested-cargo-stable-deref-trait-1.2.0",
@@ -23041,11 +23953,13 @@
         "nested-cargo-strum-0.27.2",
         "nested-cargo-strum-macros-0.27.2",
         "nested-cargo-syn-2.0.111",
+        "nested-cargo-syn-2.0.119",
         "nested-cargo-syn-2.0.82",
         "nested-cargo-synstructure-0.13.1",
         "nested-cargo-tap-1.0.1",
         "nested-cargo-target-lexicon-0.13.3",
         "nested-cargo-target-lexicon-0.13.4",
+        "nested-cargo-target-lexicon-0.13.5",
         "nested-cargo-tinystr-0.7.6",
         "nested-cargo-triomphe-0.1.15",
         "nested-cargo-unicode-ident-1.0.12",
@@ -23054,6 +23968,7 @@
         "nested-cargo-utf16-iter-1.0.5",
         "nested-cargo-utf8-iter-1.0.4",
         "nested-cargo-uuid-1.23.0",
+        "nested-cargo-vcpkg-0.2.15",
         "nested-cargo-version-check-0.9.5",
         "nested-cargo-write16-1.0.0",
         "nested-cargo-writeable-0.5.5",
@@ -23145,6 +24060,7 @@
         "wheel-pyjwt-2.13.0",
         "wheel-python-multipart-0.0.32",
         "wheel-pywin32-312",
+        "wheel-pywin32-312-adodbapi",
         "wheel-pywinauto-0.6.9",
         "wheel-referencing-0.37.0",
         "wheel-rpds-py-2026.6.3",

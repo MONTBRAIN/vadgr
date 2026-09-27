@@ -97,6 +97,27 @@ def test_none_without_exact_source_and_absence_audit_is_rejected(bundle):
         package.validate_inventory(inventory)
 
 
+def test_custom_grant_requires_exact_extracted_text(bundle):
+    _, _, inventory, _, _ = bundle
+    component = inventory["components"][0]
+    raw = b"Exact custom conditions."
+    digest = package.sha256_bytes(raw)
+    identifier = "LicenseRef-Conditions-" + digest
+    entry = component["license_files"][0]
+    entry.update(sha256=digest, license_ids=[identifier])
+    component.update(license_declared=identifier, license_concluded=identifier)
+    package.validate_inventory(inventory)
+    with pytest.raises(package.PackageInputError, match="custom license text required"):
+        package.build_sbom(inventory)
+    with pytest.raises(package.PackageInputError, match="custom license text identity differs"):
+        package.build_sbom(inventory, {entry["path"]: raw + b"changed"})
+    sbom = package.build_sbom(inventory, {entry["path"]: raw})
+    assert sbom["hasExtractedLicensingInfos"][0]["extractedText"] == raw.decode()
+    entry["sha256"] = "a" * 64
+    with pytest.raises(package.PackageInputError, match="custom license text identity differs"):
+        package.validate_inventory(inventory)
+
+
 def test_evidence_bound_none_still_requires_approved_review(bundle):
     import io
     import tarfile

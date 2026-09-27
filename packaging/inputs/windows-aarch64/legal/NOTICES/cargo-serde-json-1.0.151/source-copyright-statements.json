@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "c841b55ecdae098c80dcae9cf767f6f8a0c2cdb3416bbef72181df4d0fe73f14",
+  "original_statement_files": [
+    {
+      "path": "serde_json-1.0.151/src/lexical/mod.rs",
+      "sha256": "ace2ccea2cd541f019a84b9eeb3b9ecd88daf6bccbe9edf0eac00b62704f47c4",
+      "size": 1059,
+      "statements": [
+        {
+          "line": 9,
+          "text": "// copyright Alexander Huszagh."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

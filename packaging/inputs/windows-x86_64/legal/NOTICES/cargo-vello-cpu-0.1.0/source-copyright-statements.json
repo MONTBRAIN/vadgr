@@ -13,6 +13,50 @@
       ]
     },
     {
+      "path": "vello_cpu-0.1.0/examples/basic.rs",
+      "sha256": "aefe73d0d01b5bb473ad4748fc21786df1ef12cb8bd1e37b45ad2525dec179b2",
+      "size": 9066,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2025 the Vello Authors"
+        }
+      ]
+    },
+    {
+      "path": "vello_cpu-0.1.0/examples/clipping.rs",
+      "sha256": "a4fe1c03d6c7cbfd65a8de32efbf076aaaa2d86f905b231496869e3165ae8957",
+      "size": 6404,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2025 the Vello Authors"
+        }
+      ]
+    },
+    {
+      "path": "vello_cpu-0.1.0/examples/masking.rs",
+      "sha256": "9577356b2c20e4f6ade7a711998e7969651e17b8dfb8826801bfbe818e1faf4c",
+      "size": 3988,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2025 the Vello Authors"
+        }
+      ]
+    },
+    {
+      "path": "vello_cpu-0.1.0/examples/paints.rs",
+      "sha256": "a4c33e413b522c750155600b93132e103d3357bb2508158c0e1def27752f4bd2",
+      "size": 4832,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2025 the Vello Authors"
+        }
+      ]
+    },
+    {
       "path": "vello_cpu-0.1.0/src/coarse/bucketer.rs",
       "sha256": "6ffed272657c521b68d59f818fff6c6fe8304c2da7c9ed7cf2e13b6085edaa00",
       "size": 40043,

@@ -25,17 +25,6 @@
       ]
     },
     {
-      "path": "epaint_default_fonts-0.36.1/fonts/OFL.txt",
-      "sha256": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2",
-      "size": 4301,
-      "statements": [
-        {
-          "line": 70,
-          "text": "Copyright Holder(s) and the Author(s) or with their explicit written"
-        }
-      ]
-    },
-    {
       "path": "epaint_default_fonts-0.36.1/fonts/emoji-icon-font-mit-license.txt",
       "sha256": "b9d2c1d909aa149996fd4c91dcb92b2362a04431640c1d200959da94caf8cde1",
       "size": 1069,

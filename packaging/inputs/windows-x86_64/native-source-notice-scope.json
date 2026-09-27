@@ -1,0 +1,265 @@
+{
+  "candidate_approval": false,
+  "files": [
+    {
+      "archive_sha256": "5c8462af5790baf43a321a1559dbe0db06d1be4300fb85fb53c40060668e548a",
+      "component": "native-cpython-3.12",
+      "path": "sources/native_sources/sources/cpython-3.12/000-copyright.rst",
+      "scope": "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component",
+      "sha256": "9e5e6634a7f5444dd83da55ccb265bac825abf72ecddccf7e394f284636bd9df",
+      "upstream_path": "Python-3.12.14/Doc/copyright.rst"
+    },
+    {
+      "archive_sha256": "5c8462af5790baf43a321a1559dbe0db06d1be4300fb85fb53c40060668e548a",
+      "component": "native-cpython-3.12",
+      "path": "sources/native_sources/sources/cpython-3.12/001-license.rst",
+      "scope": "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component",
+      "sha256": "341832873fd316a37927e79385093fbbfd40a467428480835fe435a80cadf4e5",
+      "upstream_path": "Python-3.12.14/Doc/license.rst"
+    },
+    {
+      "archive_sha256": "5c8462af5790baf43a321a1559dbe0db06d1be4300fb85fb53c40060668e548a",
+      "component": "native-cpython-3.12",
+      "path": "sources/native_sources/sources/cpython-3.12/002-LICENSE",
+      "scope": "root-source-license-or-copyright",
+      "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+      "upstream_path": "Python-3.12.14/LICENSE"
+    },
+    {
+      "archive_sha256": "5c8462af5790baf43a321a1559dbe0db06d1be4300fb85fb53c40060668e548a",
+      "component": "native-cpython-3.12",
+      "path": "sources/native_sources/sources/cpython-3.12/003-License.rtf",
+      "scope": "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component",
+      "sha256": "ab6df6040a4e24babad38f98454eb3263722fa6a1c441bfaa271798efbe55f27",
+      "upstream_path": "Python-3.12.14/Mac/BuildScript/resources/License.rtf"
+    },
+    {
+      "archive_sha256": "5c8462af5790baf43a321a1559dbe0db06d1be4300fb85fb53c40060668e548a",
+      "component": "native-cpython-3.12",
+      "path": "sources/native_sources/sources/cpython-3.12/004-COPYING",
+      "scope": "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component",
+      "sha256": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87",
+      "upstream_path": "Python-3.12.14/Modules/expat/COPYING"
+    },
+    {
+      "archive_sha256": "5c8462af5790baf43a321a1559dbe0db06d1be4300fb85fb53c40060668e548a",
+      "component": "native-cpython-3.12",
+      "path": "sources/native_sources/sources/cpython-3.12/005-crtlicense.txt",
+      "scope": "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component",
+      "sha256": "3c71b3ae243121f6f227374cd1ef7c59ed07b1969b330d0e947f91a3a1b3fd73",
+      "upstream_path": "Python-3.12.14/PC/crtlicense.txt"
+    },
+    {
+      "archive_sha256": "5c8462af5790baf43a321a1559dbe0db06d1be4300fb85fb53c40060668e548a",
+      "component": "native-cpython-3.12",
+      "path": "sources/native_sources/sources/cpython-3.12/006-getcopyright.c",
+      "scope": "root-source-license-or-copyright",
+      "sha256": "ebaf5f2e950b09bb709255c5839d5b6ff836e86abbf852954821b024b193e78d",
+      "upstream_path": "Python-3.12.14/Python/getcopyright.c"
+    },
+    {
+      "archive_sha256": "5c8462af5790baf43a321a1559dbe0db06d1be4300fb85fb53c40060668e548a",
+      "component": "native-cpython-3.12",
+      "path": "sources/native_sources/sources/cpython-3.12/007-LICENSE.txt",
+      "scope": "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component",
+      "sha256": "cb95daf98edda8e08a242e1060691b6941f0911692bf468a3f9c5e4b58c09b8f",
+      "upstream_path": "Python-3.12.14/Tools/msi/bundle/bootstrap/LICENSE.txt"
+    },
+    {
+      "archive_sha256": "3d3a1b973af218114f4f889bbaa2f4c037deaae0c8e815eec381c3d546b974a0",
+      "component": "native-xz",
+      "path": "sources/native_sources/sources/xz/000-AUTHORS",
+      "scope": "mapped-library-runtime",
+      "sha256": "01e6df90d71d591f4307db3f397a5a4fac93b18533f5a3862156f1a0a7dc8610",
+      "upstream_path": "xz-5.8.3/AUTHORS"
+    },
+    {
+      "archive_sha256": "3d3a1b973af218114f4f889bbaa2f4c037deaae0c8e815eec381c3d546b974a0",
+      "component": "native-xz",
+      "path": "sources/native_sources/sources/xz/001-COPYING",
+      "scope": "mapped-library-runtime",
+      "sha256": "616a3ad264ce29b8f1cb97e53037b139d406899ca8d1f799651e17bfa09830b8",
+      "upstream_path": "xz-5.8.3/COPYING"
+    },
+    {
+      "archive_sha256": "3d3a1b973af218114f4f889bbaa2f4c037deaae0c8e815eec381c3d546b974a0",
+      "component": "native-xz",
+      "path": "sources/native_sources/sources/xz/002-COPYING.0BSD",
+      "scope": "mapped-library-runtime",
+      "sha256": "0b01625d853911cd0e2e088dcfb743261034a091bb379246cb25a14cc4c74bf1",
+      "upstream_path": "xz-5.8.3/COPYING.0BSD"
+    },
+    {
+      "archive_sha256": "3d3a1b973af218114f4f889bbaa2f4c037deaae0c8e815eec381c3d546b974a0",
+      "component": "native-xz",
+      "path": "sources/native_sources/sources/xz/003-COPYING.GPLv2",
+      "scope": "upstream-explicit-build-tool-or-command-line-scope",
+      "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6",
+      "upstream_path": "xz-5.8.3/COPYING.GPLv2"
+    },
+    {
+      "archive_sha256": "3d3a1b973af218114f4f889bbaa2f4c037deaae0c8e815eec381c3d546b974a0",
+      "component": "native-xz",
+      "path": "sources/native_sources/sources/xz/004-COPYING.GPLv3",
+      "scope": "upstream-explicit-build-tool-or-command-line-scope",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "upstream_path": "xz-5.8.3/COPYING.GPLv3"
+    },
+    {
+      "archive_sha256": "3d3a1b973af218114f4f889bbaa2f4c037deaae0c8e815eec381c3d546b974a0",
+      "component": "native-xz",
+      "path": "sources/native_sources/sources/xz/005-COPYING.LGPLv2.1",
+      "scope": "upstream-explicit-build-tool-or-command-line-scope",
+      "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+      "upstream_path": "xz-5.8.3/COPYING.LGPLv2.1"
+    },
+    {
+      "archive_sha256": "3d3a1b973af218114f4f889bbaa2f4c037deaae0c8e815eec381c3d546b974a0",
+      "component": "native-xz",
+      "path": "sources/native_sources/sources/xz/006-license-check.sh",
+      "scope": "upstream-explicit-build-tool-or-command-line-scope",
+      "sha256": "2b3fa1d23cb2ab084f3d919908159473cc0e1eed059d106e2a2857c0ec8af98a",
+      "upstream_path": "xz-5.8.3/build-aux/license-check.sh"
+    },
+    {
+      "archive_sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16",
+      "component": "native-zlib",
+      "path": "sources/native_sources/sources/zlib/000-LICENSE",
+      "scope": "root-source-license-or-copyright",
+      "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2",
+      "upstream_path": "zlib-1.3.2/LICENSE"
+    },
+    {
+      "archive_sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16",
+      "component": "native-zlib",
+      "path": "sources/native_sources/sources/zlib/001-LICENSE_1_0.txt",
+      "scope": "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component",
+      "sha256": "36266a8fd073568394cb81cdb2b124f7fdae2c64c1a7ed09db34b4d22efa2951",
+      "upstream_path": "zlib-1.3.2/contrib/dotzlib/LICENSE_1_0.txt"
+    },
+    {
+      "archive_sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16",
+      "component": "native-zlib",
+      "path": "sources/native_sources/sources/zlib/002-LICENSE.Info-Zip",
+      "scope": "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component",
+      "sha256": "fc686023047ce5ce3a18a9b8a777156f0e475929d3de06bac279f3c025d2b2ca",
+      "upstream_path": "zlib-1.3.2/contrib/minizip/LICENSE.Info-Zip"
+    },
+    {
+      "archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+      "component": "native-wix",
+      "path": "sources/native_sources/sources/wix/000-LICENSE.TXT",
+      "scope": "root-source-license-or-copyright",
+      "sha256": "dfdf2048787635215a6baf3b9d461dee89a2904d246787258a44f072a98d4786",
+      "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/LICENSE.TXT"
+    },
+    {
+      "archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+      "component": "native-wix",
+      "path": "sources/native_sources/sources/wix/001-LoremIpsumLicense.rtf",
+      "scope": "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component",
+      "sha256": "15aee9f41cff56ac986684ccbaf7ffa76e9170ab3dd7880c20dfa50bc4fe08ff",
+      "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/ext/Bal/stdbas/Resources/LoremIpsumLicense.rtf"
+    },
+    {
+      "archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+      "component": "native-wix",
+      "path": "sources/native_sources/sources/wix/002-License.rtf",
+      "scope": "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component",
+      "sha256": "0b73c0012454f2bf79ed41108ca966efc100515b1fdae767f0b7e93eadaa930a",
+      "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/ext/UI/wixlib/License.rtf"
+    },
+    {
+      "archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+      "component": "native-wix",
+      "path": "sources/native_sources/sources/wix/003-LicenseAgreementDlg.wxs",
+      "scope": "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component",
+      "sha256": "dc5902a2e5912bc5641380f5b559610e3252d54caa9ac829d1e7e2d80affe1b9",
+      "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/ext/UI/wixlib/LicenseAgreementDlg.wxs"
+    },
+    {
+      "archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+      "component": "native-wix",
+      "path": "sources/native_sources/sources/wix/004-CheckLicenseAcceptance.targets",
+      "scope": "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component",
+      "sha256": "a02d8b6e91108e5eb6401032189490c947328fa87f7979cbc8ae3d4532c1595d",
+      "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/internal/targets/CheckLicenseAcceptance.targets"
+    },
+    {
+      "archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+      "component": "native-wix",
+      "path": "sources/native_sources/sources/wix/005-license.txt",
+      "scope": "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component",
+      "sha256": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+      "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/test/burn/TestData/FilesInUseTests/PackageA/license.txt"
+    },
+    {
+      "archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+      "component": "native-wix",
+      "path": "sources/native_sources/sources/wix/006-LICENSE",
+      "scope": "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component",
+      "sha256": "7bdab4494c73e3d7271a70d395947a9eb2a68f08d98740fc2308843e319298f9",
+      "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/test/wix/TestData/CsprojWebApplicationNetCore/wwwroot/lib/bootstrap/LICENSE"
+    },
+    {
+      "archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+      "component": "native-wix",
+      "path": "sources/native_sources/sources/wix/007-LICENSE.txt",
+      "scope": "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component",
+      "sha256": "6c9045c1cf391713484e2b7ee3e766ceae5f4696c111abaf53ed5e23e129ce24",
+      "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/test/wix/TestData/CsprojWebApplicationNetCore/wwwroot/lib/jquery-validation-unobtrusive/LICENSE.txt"
+    },
+    {
+      "archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+      "component": "native-wix",
+      "path": "sources/native_sources/sources/wix/008-LICENSE.md",
+      "scope": "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component",
+      "sha256": "f398878cab338b869638bdac1aeae76bf3ac11b2b89da6e0b68bc1a645733440",
+      "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/test/wix/TestData/CsprojWebApplicationNetCore/wwwroot/lib/jquery-validation/LICENSE.md"
+    },
+    {
+      "archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+      "component": "native-wix",
+      "path": "sources/native_sources/sources/wix/009-LICENSE.txt",
+      "scope": "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component",
+      "sha256": "2b3ed8ba424423a50b023e728530d94bc385cfc7c328ad65a3dfee9c7c0531c5",
+      "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/test/wix/TestData/CsprojWebApplicationNetCore/wwwroot/lib/jquery/LICENSE.txt"
+    },
+    {
+      "archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+      "component": "native-wix",
+      "path": "sources/native_sources/sources/wix/010-PrereqLicenseFile.xsd",
+      "scope": "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component",
+      "sha256": "a55999f9cfd0b8039d1f38030d5dd7fb895640bb71263b58a908fc006bc6612b",
+      "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/xsd/bal/PrereqLicenseFile.xsd"
+    },
+    {
+      "archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+      "component": "native-wix",
+      "path": "sources/native_sources/sources/wix/011-PrereqLicenseUrl.xsd",
+      "scope": "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component",
+      "sha256": "b33bb2273096a0b43a4b3c60e7405fb80e117b43feb6d1c01e4876242ea5d98a",
+      "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/xsd/bal/PrereqLicenseUrl.xsd"
+    },
+    {
+      "archive_sha256": "f21ae7b0cce58cf9428e01d4d22aac9c3b70722a4e9b2c92b3a97d490a1b401c",
+      "component": "native-windows-libffi",
+      "path": "sources/native_sources/sources/windows-libffi/000-LICENSE",
+      "scope": "mapped-library-runtime",
+      "sha256": "a61d06e8f7be57928e71e800eb9273b05cb8868c484108afe41e4305bb320dde",
+      "upstream_path": "cpython-source-deps-16fad4855b3d8c03b5910e405ff3a04395b39a98/LICENSE"
+    },
+    {
+      "archive_sha256": "f21ae7b0cce58cf9428e01d4d22aac9c3b70722a4e9b2c92b3a97d490a1b401c",
+      "component": "native-windows-libffi",
+      "path": "sources/native_sources/sources/windows-libffi/001-LICENSE-BUILDTOOLS",
+      "scope": "upstream-explicit-build-tool-or-command-line-scope",
+      "sha256": "e67978cd18816c0cb7d29aaaacde7b7447402c2fb321a051698890a8eaedda94",
+      "upstream_path": "cpython-source-deps-16fad4855b3d8c03b5910e405ff3a04395b39a98/LICENSE-BUILDTOOLS"
+    }
+  ],
+  "limitation": "Excluded source notices remain in the pinned upstream archives and acquisition evidence. Runtime redistribution terms of separately bundled Microsoft code are not waived by this classification.",
+  "publishable": false,
+  "schema": 1,
+  "status": "draft"
+}

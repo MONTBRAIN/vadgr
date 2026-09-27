@@ -22,20 +22,22 @@ import tomllib
 import zipfile
 
 if __package__:
+    from scripts.inspect_legal_crate_sources import statements as original_statements
     from scripts.copyright_absence import audit_archive
     from scripts.windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native
     from scripts.validate_package_inputs import (
         CLOSURES, KINDS, REQUIRED_FILES, canonical_json, parse_json,
         profile_source_inputs, read_owned, relative_path, render_rtf, require,
-        sha256_bytes, aggregate_files, validate_conclusion, PackageInputError,
+        sha256_bytes, aggregate_files, validate_conclusion, PackageInputError, extracted_license_info,
     )
 else:
+    from inspect_legal_crate_sources import statements as original_statements
     from copyright_absence import audit_archive
     from windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native
     from validate_package_inputs import (
         CLOSURES, KINDS, REQUIRED_FILES, canonical_json, parse_json,
         profile_source_inputs, read_owned, relative_path, render_rtf, require,
-        sha256_bytes, aggregate_files, validate_conclusion, PackageInputError,
+        sha256_bytes, aggregate_files, validate_conclusion, PackageInputError, extracted_license_info,
     )
 
 
@@ -66,6 +68,9 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
+MIT_ZERO_GRANT = MIT_GRANT.replace(
+    'furnished to do so, subject to the following conditions:\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.',
+    'furnished to do so.')
 
 
 def declared_expression(declared):
@@ -103,7 +108,7 @@ def license_choice(declared, available=None):
         expression = re.sub(r"\(([^()]+ OR [^()]+)\)", choose_group, expression)
     if "AND" not in expression and "(" not in expression and ")" not in expression:
         alternatives = expression.split(" OR ")
-        for choice in ("Apache-2.0", "MIT", "BSD-3-Clause", "ISC"):
+        for choice in ("Apache-2.0", "MIT", "BSD-3-Clause", "ISC", "CC0-1.0", "MIT-0"):
             if choice in alternatives and (available is None or choice in available):
                 expression = choice
                 break
@@ -146,6 +151,13 @@ def license_atoms(data):
         result.add("Apache-2.0")
     if " ".join(MIT_GRANT.lower().split()) in folded:
         result.add("MIT")
+    if " ".join(MIT_ZERO_GRANT.lower().split()) in folded:
+        result.add("MIT-0")
+    if all(part in folded for part in ("cc0 1.0 universal", "statement of purpose",
+            "1. copyright and related rights", "2. waiver", "3. public license fallback",
+            "4. limitations and disclaimers", "no trademark or patent rights held by affirmer",
+            "creative commons is not a party to this document")):
+        result.add("CC0-1.0")
     isc = folded.replace("and/or distribute", "and distribute").replace("authors disclaim", "author disclaims")
     if all(part in isc for part in ("permission to use, copy, modify, and distribute this software for any purpose with or without fee",
                                     "copyright notice and this permission notice appear in all copies",
@@ -158,25 +170,72 @@ def license_atoms(data):
         result.add("0BSD")
     if all(part in folded for part in ("redistribution and use in source and binary forms", "this software is provided",
                                       "the origin of this software must not be misrepresented", "altered source versions must be plainly marked",
-                                      "this notice may not be removed or altered", "julian seward", "bzip2")):
+                                      "the name of the author may not be used to endorse or promote", "julian seward", "bzip2",
+                                      "1. redistributions", "2. the origin", "3. altered source", "4. the name",
+                                      "even if advised of the possibility of such damage")):
         result.add("bzip2-1.0.6")
-    if "unicode license v3" in folded:
+    if all(part in folded for part in ("mit-cmu", "by obtaining, using, and/or copying this software",
+            "permission to use, copy, modify and distribute", "both that copyright notice and this permission notice",
+            "not be used in advertising or publicity", "without specific, written prior permission",
+            "disclaims all warranties", "in no event shall", "loss of use, data or profits", "performance of this software")):
+        result.add("MIT-CMU")
+    if all(part in folded for part in ("python software foundation license version 2", "psf hereby grants licensee",
+            "brief summary of the changes", "psf makes no representations or warranties", "psf shall not be liable",
+            "automatically terminate upon a material breach", "does not grant permission to use psf trademarks",
+            "by copying, installing or otherwise using")):
+        result.add("PSF-2.0")
+        if all(part in folded for part in ("beopen python open source license agreement version 1",
+                "beopen hereby grants licensee", "beopen shall not be liable", "cnri", "license agreement for python",
+                "cnri hereby grants licensee", "cnri shall not be liable", "cwi license agreement",
+                "stichting mathematisch centrum", "permission to use, copy, modify, and distribute",
+                "stichting mathematisch centrum disclaims all warranties")):
+            result.add("Python-2.0")
+    if all(part in folded for part in ("llvm exceptions to the apache 2.0 license", "as an exception",
+            "embedded portions", "without complying", "sections 4(a), 4(b) and 4(d)", "gplv2",
+            "retroactively and prospectively", "only with respect to the combined software")):
+        result.add("LLVM-exception")
+    if all(part in folded for part in ("permission to use, copy, modify, and distribute this software and its documentation",
+            "for any purpose and without fee is hereby granted", "copyright notice appear in all copies",
+            "both that copyright notice and this permission notice appear in supporting documentation",
+            "disclaims all warranties", "in no event shall", "whether in an action of contract",
+            "performance of this software")):
+        result.add("HPND")
+    if all(part in folded for part in ("unicode license v3", "permission is hereby granted", "deal in the data files",
+            "copyright and permission notice appear", "provided \"as is\"", "shall not be used in advertising")):
         result.add("Unicode-3.0")
-    if "sil open font license" in folded and "version 1.1" in folded:
+    if all(part in folded for part in ("unicode, inc. license agreement - data files and software",
+            "permission is hereby granted, free of charge", "either (a) this copyright and permission notice",
+            "(b) this copyright and permission notice appear in associated documentation",
+            "noninfringement of third party rights", "in no event shall the copyright holder",
+            "shall not be used in advertising", "written authorization of the copyright holder")):
+        result.add("Unicode-DFS-2016")
+    if all(part in folded for part in ("sil open font license", "version 1.1", "permission & conditions",
+            "font software", "reserved font name", "termination", "disclaimer")):
         result.add("OFL-1.1")
-    if "ubuntu font licence" in folded and "version 1.0" in folded:
+    if all(part in folded for part in ("ubuntu font licence", "version 1.0", "permission & conditions",
+            "termination", "disclaimer", "font software")):
         result.add("Ubuntu-font-1.0")
-    if "bitstream vera" in folded and "bitstream" in folded and "font" in folded:
+    if all(part in folded for part in ("bitstream vera", "permission is hereby granted", "font software",
+            "the above copyright and trademark notices", "not containing either the words", "bitstream", "vera",
+            "font software may be sold", "font software is provided", "without warranty of any kind")):
         result.add("Bitstream-Vera")
     if all(part in folded for part in ("microsoft reciprocal license", "1. definitions", "2. grant of rights",
             "3. conditions and limitations", "reciprocal grants", "no trademark license", "patent claim",
             "retain all copyright", "complete copy of this license", "licensed \"as-is")):
         result.add("MS-RL")
-    if "redistribution and use in source and binary forms" in folded and "this software is provided" in folded:
-        if all(part in folded for part in ("neither the name", "redistributions of source code must retain",
+    bsd_complete = all(part in folded for part in (
+        "redistribution and use in source and binary forms", "with or without modification",
+        "are permitted provided that", "this list of conditions and the following disclaimer",
+        "documentation and/or other materials provided with the distribution", "this software is provided",
+        "express or implied warranties", "merchantability and fitness for a particular purpose",
+        "are disclaimed", "direct, indirect, incidental, special", "procurement of substitute goods or services",
+        "however caused and on any theory of liability", "strict liability", "including negligence or otherwise",
+        "even if advised of the possibility of such damage"))
+    if bsd_complete:
+        if ("neither the name" in folded or "neither name" in folded) and all(part in folded for part in ("redistributions of source code must retain",
                 "redistributions in binary form must reproduce", "in no event shall", "business interruption")):
             result.add("BSD-3-Clause")
-        elif ("redistributions of source code must retain" in folded
+        elif ("neither" not in folded and "redistributions of source code must retain" in folded
               and "redistributions in binary form must reproduce" in folded
               and "in no event shall" in folded and "loss of use, data, or profits" in folded):
             result.add("BSD-2-Clause")
@@ -188,6 +247,20 @@ def license_atoms(data):
                                       "13. remote network interaction", "16. limitation of liability",
                                       "end of terms and conditions")):
         result.add("AGPL-3.0-only")
+    if all(part in folded for part in ("gnu general public license", "version 2, june 1991",
+            "0. this license applies", "1. you may copy", "2. you may modify", "3. you may copy",
+            "4. you may not copy", "5. you are not required", "6. each time you redistribute",
+            "11. because the program", "12. in no event", "end of terms and conditions")):
+        result.update({"GPL-2.0-only", "GPL-2.0-or-later"})
+    if all(part in folded for part in ("bootloader exception", "unlimited permission to link or embed compiled bootloader",
+            "without any restriction coming from the use of those files", "modification of the files",
+            "not linked into a combined executable")):
+        result.add("Bootloader-exception")
+    if all(part in folded for part in ("gnu lesser general public license", "version 2.1, february 1999",
+            "0. this license agreement applies", "1. you may copy", "2. you may modify", "3. you may opt",
+            "4. you may copy", "5. a program", "6. as an exception", "15. because the library",
+            "16. in no event", "end of terms and conditions")):
+        result.update({"LGPL-2.1-only", "LGPL-2.1-or-later"})
     if "boost software license" in folded and "version 1.0" in folded:
         result.add("BSL-1.0")
     if "this software is provided 'as-is'" in folded and "altered source versions must be plainly marked" in folded:
@@ -198,10 +271,7 @@ def license_atoms(data):
 def copyright_lines(sources):
     result = set()
     for _, data in sources:
-        for line in data.decode("utf-8", errors="replace").splitlines():
-            if re.search(r"copyright\s*(?:\(c\)|©|\d{4})", line, re.I) and not any(
-                    token in line.lower() for token in ("[yyyy]", "<year>", "[year]", "yyyy", "your name")):
-                result.add(line.strip())
+        result.update(statement["text"] for statement in original_statements(data.decode("utf-8", errors="replace")))
     return "\n".join(sorted(result)) or "NOASSERTION"
 
 
@@ -295,7 +365,7 @@ class Packet:
         self.files[name] = data
 
     def component(self, *, identifier, name, version, kind, digest, location,
-                  declared, sources, scope, pending, origins=None):
+                  declared, sources, scope, pending, origins=None, custom_grants=None):
         require(not any(row["id"] == identifier for row in self.components), "duplicate component")
         notices = []
         for index, (source_name, data) in enumerate(sources):
@@ -311,10 +381,16 @@ class Packet:
                "notice_required": None, "notice_files": notices,
                "source_offer_required": None, "source_offer_files": []}
         grants = set().union(*(license_atoms(raw) for _, raw in sources))
+        custom_grants = custom_grants or {}
+        for grant_id, grant_digest in custom_grants.items():
+            require(grant_id.startswith("LicenseRef-") and grant_id.endswith("-" + grant_digest)
+                    and any(sha256_bytes(raw) == grant_digest for _, raw in sources), "custom source grant differs")
+        grants.update(custom_grants)
         inferred = declared_expression(declared)
-        if inferred is None and len(grants) == 1 and (declared is None or isinstance(declared, str)
+        inferable_grants = grants - {"PSF-2.0", "HPND"} if "Python-2.0" in grants else grants
+        if inferred is None and len(inferable_grants) == 1 and (declared is None or isinstance(declared, str)
                                                       and len(declared) > 150):
-            inferred = next(iter(grants))
+            inferred = next(iter(inferable_grants))
             row["license_declared"] = inferred
         if inferred is None and declared in ("BSD 3-clause",):
             inferred = "BSD-3-Clause"
@@ -325,6 +401,7 @@ class Packet:
             covered = set()
             for index, (source_name, data) in enumerate(sources):
                 ids = license_atoms(data) & atoms
+                ids |= {identifier for identifier, digest in custom_grants.items() if sha256_bytes(data) == digest} & atoms
                 if not ids:
                     continue
                 target = f"legal/LICENSES/{identifier}/{index:03}-{slug(Path(source_name).name)}"
@@ -335,12 +412,21 @@ class Packet:
                 row["license_concluded"] = selected
                 row["copyright_text"] = copyright_lines(sources)
                 row["notice_required"] = True
-                if not atoms & {"AGPL-3.0-only", "AGPL-3.0-or-later", "GPL-2.0-only", "GPL-3.0-only", "MPL-2.0", "MS-RL"}:
+                if not any(atom.startswith("LicenseRef-") for atom in atoms) and not atoms & {
+                        "AGPL-3.0-only", "AGPL-3.0-or-later", "GPL-2.0-only", "GPL-2.0-or-later", "GPL-3.0-only", "GPL-3.0-or-later",
+                        "LGPL-2.1-only", "LGPL-2.1-or-later", "LGPL-3.0-only", "LGPL-3.0-or-later", "MPL-2.0", "MS-RL"}:
                     row["source_offer_required"] = False
                     pending = [item for item in pending if item != "notice-and-source-duty"]
                 if row["copyright_text"] != "NOASSERTION":
                     pending = [item for item in pending if item != "license-choice-and-original-copyright"]
                 declared_atoms = set(re.findall(r"[A-Za-z0-9.-]+", inferred or ""))
+                if "Python-2.0" in declared_atoms:
+                    declared_atoms.update({"PSF-2.0", "HPND"})
+                # A complete GNU version text can support either declared
+                # version suffix; it does not add a second scope by itself.
+                for family in ("GPL-2.0", "LGPL-2.1"):
+                    if declared_atoms & {family + "-only", family + "-or-later"}:
+                        declared_atoms.update({family + "-only", family + "-or-later"})
                 if grants - declared_atoms:
                     pending = [*pending, "additional-retained-grant-scope"]
         self.components.append(row)
@@ -482,9 +568,80 @@ def add_wheels(packet, inputs, source, target_collection):
                         "installed native wheel member differs")
                 native[candidates[0].relative_to(inputs).as_posix()] = sha256_bytes(value)
             packet.evidence[-1]["observed_native_members"] = native
+            source_claims = []
+            for member in sorted(archive.namelist()):
+                if member.endswith("/") or Path(member).suffix.lower() not in {".py", ".pyi", ".c", ".h", ".rs"}:
+                    continue
+                value = archive.read(member)
+                claims = original_statements(value.decode("utf-8", errors="replace"))
+                if claims:
+                    source_claims.append({"path": member, "sha256": sha256_bytes(value), "statements": claims})
+            add_original_claims(packet, identifier, source_claims)
         for index, (member, data) in enumerate(sboms):
             path = f"nested-sboms/{identifier}/{index:03}-{slug(Path(member).name)}"
             packet.put(path, data)
+        if name == "pywin32":
+            add_adodbapi(packet, raw, identifier, location)
+
+
+def add_original_claims(packet, identifier, claims):
+    if not claims:
+        return
+    component = next(row for row in packet.components if row["id"] == identifier)
+    evidence = next(row for row in packet.evidence if row["id"] == identifier)
+    pending = next(row for row in packet.pending if row["id"] == identifier)
+    raw = canonical_json({"component_sha256": component["sha256"], "original_statement_files": claims,
+        "scope": "Original statements from exact retained source members; no exclusive ownership assertion."})
+    path = f"legal/NOTICES/{identifier}/observed-source-copyright.json"
+    packet.put(path, raw)
+    component["notice_files"].append({"path": path, "sha256": sha256_bytes(raw)})
+    statements = {item["text"] for row in claims for item in row["statements"]}
+    if component["copyright_text"] != "NOASSERTION":
+        statements.update(component["copyright_text"].splitlines())
+    component["copyright_text"] = "\n".join(sorted(statements))
+    evidence["original_source_statement_count"] = len(claims)
+    if component["license_concluded"] != "NOASSERTION":
+        pending["items"] = [item for item in pending["items"] if item != "license-choice-and-original-copyright"]
+
+
+def add_adodbapi(packet, wheel_raw, parent_id, location):
+    """Retain the shipped LGPL Python library separately from broad wheel metadata."""
+    import io
+    with zipfile.ZipFile(io.BytesIO(wheel_raw)) as wheel:
+        members = {name: wheel.read(name) for name in sorted(wheel.namelist())
+                   if name.startswith("adodbapi/") and not name.endswith("/")}
+    require({"adodbapi/adodbapi.py", "adodbapi/license.txt", "adodbapi/setup.py"} <= members.keys(),
+            "adodbapi source scope differs")
+    header = members["adodbapi/adodbapi.py"].decode("utf-8")
+    require("version 2.1" in header and "any later version" in header,
+            "adodbapi later-version declaration differs")
+    version = re.search(r'(?m)^__version__ = "([0-9.]+)"', header)
+    require(version is not None, "adodbapi source version is missing")
+    require("LGPL-2.1-or-later" in license_atoms(members["adodbapi/license.txt"]),
+            "adodbapi complete license is missing")
+    packed = io.BytesIO()
+    with zipfile.ZipFile(packed, "w", compression=zipfile.ZIP_STORED) as output:
+        for name, raw in sorted(members.items()):
+            info = zipfile.ZipInfo(name, (1980, 1, 1, 0, 0, 0))
+            info.create_system = 3
+            info.external_attr = 0o100644 << 16
+            output.writestr(info, raw)
+    identifier = parent_id + "-adodbapi"
+    raw = packed.getvalue()
+    packet.component(identifier=identifier, name="adodbapi (shipped pywin32 subtree)",
+        version=version.group(1), kind="wheel", digest=sha256_bytes(raw),
+        location=location, declared="LGPL-2.1-or-later",
+        sources=[("license.txt", members["adodbapi/license.txt"]),
+                 ("adodbapi.py", members["adodbapi/adodbapi.py"])],
+        scope="exact-shipped-python-source-subtree", pending=["LGPL-source-delivery-review"])
+    path = f"legal/SOURCE-OFFERS/{identifier}/adodbapi-shipped-source.zip"
+    packet.put(path, raw)
+    packet.components[-1]["source_offer_required"] = True
+    packet.components[-1]["source_offer_files"] = [{"path": path, "sha256": sha256_bytes(raw)}]
+    packet.evidence[-1].update(parent_component=parent_id,
+        original_license_declaration="adodbapi/adodbapi.py: LGPL version 2.1 or any later version",
+        members={name: {"size": len(value), "sha256": sha256_bytes(value)} for name, value in members.items()},
+        source_delivery_boundary="Exact shipped Python source, license, setup and tests; no claim about other wheel native modules.")
 
 
 def add_supplement(packet, source, collection, architecture):
@@ -502,10 +659,47 @@ def add_supplement(packet, source, collection, architecture):
                          scope="target-wheel-SBOM-component-not-link-proof", origins=origins,
                          pending=["nested-build-versus-linked-scope", "license-choice-and-original-copyright",
                                   "notice-and-source-duty"])
+    native_notice_scopes = []
     for row in supplement["groups"]["native_sources"]["components"]:
         if row["id"] == ("tk-windows-bin-8614" if architecture == "x64" else "tk-windows-bin-8612"):
             continue
-        sources = checked_sources(root, row["source_files"])
+        source_files = row["source_files"]
+        # These are exact source paths, not license-name heuristics. The root
+        # source license is distinct from test fixtures, templates and unrelated
+        # platform installers included in a complete upstream source archive.
+        if row["id"] in {"wix", "cpython-3.12", "zlib"}:
+            selected = []
+            for entry in source_files:
+                path = entry["upstream_path"].split("/", 1)[1]
+                retained = (path == "LICENSE.TXT" if row["id"] == "wix" else
+                            path in {"LICENSE", "Python/getcopyright.c"} if row["id"] == "cpython-3.12" else
+                            path == "LICENSE")
+                native_notice_scopes.append({"component": "native-" + row["id"], "archive_sha256": row["sha256"],
+                    **entry, "scope": "root-source-license-or-copyright" if retained else
+                    "separate-platform-build-tool-test-template-or-contrib-source-not-the-mapped-runtime-component"})
+                if retained:
+                    selected.append(entry)
+            source_files = selected
+        sources = checked_sources(root, source_files)
+        if row["id"] in {"windows-libffi", "xz"}:
+            combined = " ".join(b"\n".join(raw for _, raw in sources).decode("utf-8").split())
+            if row["id"] == "windows-libffi":
+                require("only used as tooling to assist with the building and testing of libffi" in combined
+                        and "libffi is in no way derived from this code" in combined, "libffi tooling scope differs")
+                excluded = {"LICENSE-BUILDTOOLS"}
+            else:
+                require("liblzma is under the BSD Zero Clause License (0BSD)" in combined
+                        and "These files don't affect the licensing of the binaries being built" in combined,
+                        "liblzma source scope differs")
+                excluded = {"COPYING.GPLv2", "COPYING.GPLv3", "COPYING.LGPLv2.1", "license-check.sh"}
+            retained_sources = []
+            for entry, (name, raw) in zip(source_files, sources):
+                retained = Path(entry["upstream_path"]).name not in excluded
+                native_notice_scopes.append({"component": "native-" + row["id"], "archive_sha256": row["sha256"],
+                    **entry, "scope": "mapped-library-runtime" if retained else "upstream-explicit-build-tool-or-command-line-scope"})
+                if retained:
+                    retained_sources.append((name, raw))
+            sources = retained_sources
         declared = row["license_declared"]
         if row["id"] in {"wix", "cryptography-openssl", "windows-libffi"}:
             grants = license_atoms(sources[0][1])
@@ -515,12 +709,18 @@ def add_supplement(packet, source, collection, architecture):
             require(b"*either*" in sources[0][1] and b"LICENSE.APACHE or LICENSE.BSD" in sources[0][1],
                     "cryptography source alternatives differ")
             declared = "Apache-2.0 OR BSD-3-Clause"
+        if row["id"] == "cpython-3.12":
+            require("Python-2.0" in set().union(*(license_atoms(raw) for _, raw in sources)), "complete Python license is absent")
+            declared = "Python-2.0"
         packet.component(identifier="native-" + slug(row["id"]), name=row["name"], version=row["version"],
                          kind="framework" if row["id"] == "wix" else "runtime", digest=row["sha256"],
                          location=row["download_location"], declared=declared,
                          sources=sources, scope="source-build-input-needs-binary-mapping",
                          pending=["target-binary-to-source-mapping", "license-choice-and-original-copyright",
                                   "corresponding-source-delivery" if row["id"] == "wix" else "notice-and-source-duty"])
+    packet.put("native-source-notice-scope.json", canonical_json({"schema": 1, **BOUNDARY,
+        "files": native_notice_scopes,
+        "limitation": "Excluded source notices remain in the pinned upstream archives and acquisition evidence. Runtime redistribution terms of separately bundled Microsoft code are not waived by this classification."}))
     for row in collection["components"]:
         if row["kind"] not in ("runtime", "framework"):
             continue
@@ -529,6 +729,34 @@ def add_supplement(packet, source, collection, architecture):
                          sources=checked_sources(source / collection["_root"], row["source_files"]),
                          scope="runtime-archive" if row["kind"] == "runtime" else "installer-build-framework",
                          pending=["target-binary-to-source-mapping", "license-choice-and-original-copyright", "notice-and-source-duty"])
+
+
+def add_observed_nested_crates(packet):
+    """The actual wheel's pinned registry catalogue wins over older acquisition lists."""
+    known = {(row["name"], row["version"]): row for row in packet.components if row["kind"] == "cargo"}
+    for path, raw in sorted(packet.files.items()):
+        if not path.startswith("nested-sboms/"):
+            continue
+        sbom = parse_json(raw)
+        for row in sbom.get("components", []):
+            if not row.get("purl", "").startswith("pkg:cargo/") or not row.get("bom-ref", "").startswith("registry+"):
+                continue
+            hashes = {entry["content"] for entry in row.get("hashes", []) if entry.get("alg") == "SHA-256"}
+            require(len(hashes) == 1, "observed registry component hash is missing")
+            digest = next(iter(hashes))
+            require(re.fullmatch("[a-f0-9]{64}", digest) is not None, "observed registry component hash is invalid")
+            key = (row["name"], row["version"])
+            if key in known:
+                require(known[key]["sha256"] == digest, "observed nested crate identity conflicts")
+                continue
+            name, version = key
+            identifier = slug("nested-cargo-" + name + "-" + version)
+            packet.component(identifier=identifier, name=name, version=version, kind="cargo", digest=digest,
+                location=f"https://static.crates.io/crates/{name}/{name}-{version}.crate",
+                declared=row.get("licenses"), sources=[], scope="target-wheel-SBOM-component-not-link-proof",
+                pending=["nested-build-versus-linked-scope", "license-choice-and-original-copyright", "notice-and-source-duty"],
+                origins=[{"path": path, "sha256": sha256_bytes(raw), "bom_ref": row["bom-ref"]}])
+            known[key] = packet.components[-1]
 
 
 def add_wix_source_mapping(packet, source, collection):
@@ -618,6 +846,10 @@ def add_installed_python(packet, inputs, collection):
         grants = set().union(*(license_atoms(raw) for _, raw in notices))
         # Multiple license files can cover different parts, not alternatives.
         declared = next(iter(grants)) if len(grants) == 1 else None
+        if any(b"*either*" in raw and b"LICENSE.APACHE or LICENSE.BSD" in raw for _, raw in notices):
+            bsd = grants & {"BSD-2-Clause", "BSD-3-Clause"}
+            require(len(bsd) == 1, "vendor BSD alternative is ambiguous")
+            declared = "Apache-2.0 OR " + next(iter(bsd))
         packet.component(identifier="python-vendor-" + slug(name.lower()), name=name, version=version,
                          kind="runtime", digest=sha256_bytes(canonical_json(members)), location=runtime["download_location"],
                          declared=declared, sources=notices, scope="observed-runtime-vendored-tree",
@@ -625,11 +857,26 @@ def add_installed_python(packet, inputs, collection):
                                    "path": "payload/lib/cua/python/3.12.14/Lib/site-packages/pip/_vendor/" + directory,
                                    "file_count": len(members), "hash_basis": "canonical-relative-path-to-sha256-map"}],
                          pending=["license-choice-and-original-copyright", "notice-and-source-duty"])
+        claims = []
+        for member in sorted(members):
+            if Path(member).suffix.lower() not in {".py", ".pyi", ".c", ".h"}:
+                continue
+            raw = read_owned(vendor_root, member)
+            found = original_statements(raw.decode("utf-8", errors="replace"))
+            if found:
+                claims.append({"path": member, "sha256": sha256_bytes(raw), "statements": found})
+        add_original_claims(packet, "python-vendor-" + slug(name.lower()), claims)
     for metadata_path in sorted(site.glob("*.dist-info/METADATA")):
         message = BytesParser(policy=policy.default).parsebytes(read_owned(site, metadata_path.relative_to(site).as_posix()))
         notices = [(path.relative_to(site).as_posix(), read_owned(site, path.relative_to(site).as_posix()))
                    for path in metadata_path.parent.rglob("*") if path.is_file()
                    and any(token in path.name.lower() for token in ("license", "copying", "notice"))]
+        if message["Name"].lower() == "pip":
+            for name, raw in notices:
+                if "/src/pip/_vendor/" in name:
+                    relative = name.split("/src/pip/_vendor/", 1)[1]
+                    require(raw == read_owned(site / "pip/_vendor", relative), "pip vendor notice copy differs")
+            notices = [(name, raw) for name, raw in notices if "/src/pip/_vendor/" not in name]
         packet.component(identifier="python-installed-" + slug(message["Name"]), name=message["Name"], version=message["Version"],
                          kind="runtime", digest=sha256_bytes(metadata_path.read_bytes()), location=runtime["download_location"],
                          declared=message.get("License-Expression") or message.get("License"), sources=notices,
@@ -666,18 +913,48 @@ def add_reviewed_helpers(packet, source, inputs, architecture):
         row = reviewed["members"][name]
         require(sha256_bytes(data) == row["input_sha256"] and len(data) == row["size"], "reviewed helper bytes differ")
     names = sorted({name for row in reviewed["members"].values() for name in row["license_and_notice_members"]})
+    crt = members["PYTHON-LICENSE.txt"]
+    start = crt.index(b"Additional Conditions for this Windows binary build")
+    last = b"file, or by other licenses as marked."
+    end = crt.index(last, start) + len(last)
+    crt = crt[start:end]
+    require(b"copyrighted by Microsoft Corporation" in crt and b"not to Python itself" in crt,
+            "helper Windows redistribution conditions differ")
+    crt_digest = sha256_bytes(crt)
+    crt_id = "LicenseRef-Python-Windows-Redistribution-" + crt_digest
+    mapping = {"CPython": "Python-2.0 AND 0BSD", "Microsoft-VC-runtime": crt_id,
+        "bzip2": "bzip2-1.0.6", "libffi": "MIT", "liblzma": "0BSD", "mpdecimal": "BSD-2-Clause",
+        "OpenSSL": "Apache-2.0", "expat": "MIT", "zlib": "Zlib", "vadgr-computer-use": "Apache-2.0",
+        "Go-runtime-and-CUA-relay": "BSD-3-Clause AND Apache-2.0",
+        "PyInstaller-bootloader-and-CUA": "GPL-2.0-or-later WITH Bootloader-exception AND Apache-2.0"}
+    component_names = {name for member in reviewed["members"].values() for name in member["components"]} - {"distribution-notice"}
+    require(component_names == set(mapping), "helper component classification changed")
+    expressions = sorted(set(mapping.values()))
+    combined = " AND ".join("(" + expression + ")" for expression in expressions)
+    source_notices = [(name, members[name]) for name in names] + [("PYTHON-WINDOWS-CONDITIONS.txt", crt)]
     packet.component(identifier="runtime-cua-helper-closure-0.7.9", name="CUA Windows helper closure", version="0.7.9",
                      kind="runtime", digest=sha256_bytes(broker_raw),
                      location=f"https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/{reviewed['review_input']['run_id']}",
-                     declared="Component-specific grants in the retained helper review", sources=[(name, members[name]) for name in names],
+                     declared=combined, sources=source_notices, custom_grants={crt_id: crt_digest},
                      scope="exact-members-match-existing-helper-only-redistribution-review",
-                     pending=["map-reviewed-helper-component-grants-to-SPDX"],
+                     pending=[],
                      origins=[{"legal_review_sha256": sha256_bytes(raw_review), "legal_review_path": legal_name,
                                "broker_path": brokers[0].relative_to(inputs).as_posix(),
                                "relay_path": relays[0].relative_to(inputs).as_posix()}])
     packet.components[-1]["source_offer_required"] = False
     packet.components[-1]["notice_required"] = True
     packet.components[-1]["copyright_text"] = copyright_lines([(name, members[name]) for name in names])
+    require(packet.components[-1]["license_concluded"] != "NOASSERTION", "helper component grant coverage is incomplete")
+    # This copies the already-reviewed helper-only duty conclusion, after the
+    # complete exact member comparison above. It is not extended to outer files.
+    packet.pending[-1]["items"] = []
+    packet.put("helper-spdx-mapping.json", canonical_json({"schema": 1, **BOUNDARY,
+        "reviewed_helper_sha256": sha256_bytes(raw_review), "component_expressions": mapping,
+        "members": {name: {"input_sha256": row["input_sha256"], "size": row["size"],
+            "component_expressions": {component: mapping[component] for component in row["components"]
+                                      if component != "distribution-notice"},
+            "license_and_notice_members": row["license_and_notice_members"]} for name, row in reviewed["members"].items()},
+        "scope": "Exact helper-only component mapping; no new approval and no outer-package redistribution conclusion."}))
     packet.put("reviewed-helper-inputs.json", raw_review)
 
 
@@ -704,10 +981,24 @@ def add_crate_evidence(packet, cache, archive_root, architecture):
                           digest=row["sha256"], location=row["download_location"],
                           declared=evidence["original_license_declaration"], sources=sources,
                           scope=evidence["scope"], pending=issue["items"], origins=evidence["origins"])
+        retained_text = " ".join(b"\n".join(raw for _, raw in sources).decode("utf-8").split())
+        if row["name"] == "libm" and "rust-lang/libm as a whole is available for use under the MIT license" in retained_text:
+            renewed.pending[0]["items"] = [item for item in renewed.pending[0]["items"] if item != "additional-retained-grant-scope"]
+            renewed.evidence[0]["grant_scope_basis"] = "Retained license explicitly grants MIT for the whole library; Apache terms describe contributor alternatives."
+        if row["name"] == "sha1_smol" and "src/simd.rs is licensed under the MIT license" in retained_text:
+            renewed = Packet()
+            renewed.component(identifier=row["id"], name=row["name"], version=row["version"], kind=row["kind"],
+                digest=row["sha256"], location=row["download_location"], declared="BSD-3-Clause AND MIT", sources=sources,
+                scope=evidence["scope"], pending=issue["items"], origins=evidence["origins"])
+            renewed.pending[0]["items"] = [item for item in renewed.pending[0]["items"] if item != "additional-retained-grant-scope"]
+            renewed.components[0]["license_declared"] = row["license_declared"]
+            renewed.evidence[0]["original_license_declaration"] = evidence["original_license_declaration"]
+            renewed.evidence[0]["grant_scope_basis"] = "Retained license explicitly maps src/simd.rs to MIT in addition to the library BSD-3-Clause grant."
         # Keep original statement provenance. Do not convert Cargo authors into a claim.
-        claims = [claim for claim in fact["original_statements"] if not any(
-            part.lower() in {"test", "tests", "examples", "example", "benches", "fuzz"}
-            for part in Path(claim["path"]).parts)]
+        # The inventory digest identifies the complete source archive. Statements
+        # in tests remain attributed to their exact files, not promoted to a
+        # claim about library ownership or discarded to create fictional absence.
+        claims = fact["original_statements"]
         statements = sorted({statement["text"] for claim in claims for statement in claim["statements"]})
         if statements:
             renewed.components[0]["copyright_text"] = "\n".join(statements)
@@ -785,6 +1076,7 @@ def synthesize(source, observation_root, architecture, created, archive_root, cr
     add_cargo(packet, inputs, source, collection)
     add_wheels(packet, inputs, source, collection)
     add_supplement(packet, source, collection, architecture)
+    add_observed_nested_crates(packet)
     add_wix_source_mapping(packet, source, collection)
     add_crate_evidence(packet, crate_cache, archive_root, architecture)
     add_archives_and_fonts(packet, inputs, archive_root)
@@ -814,6 +1106,9 @@ def synthesize(source, observation_root, architecture, created, archive_root, cr
                               item["original_license_declaration"] for item in packet.evidence if item["id"] == row["id"])),
                           "copyrightText": row["copyright_text"]}
                          for row in components]}
+    extracted = extracted_license_info(inventory, packet.files)
+    if extracted:
+        sbom["hasExtractedLicensingInfos"] = extracted
     packet.put("sbom/vadgr-0.5.0.spdx.json", canonical_json(sbom))
     review = {key: inventory[key] for key in ("schema", "version", "target", "terms_version", "terms_sha256", "source_inputs", "payload_manifest_sha256")}
     review.update({"status": "draft", "synthetic": False,

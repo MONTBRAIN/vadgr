@@ -18,7 +18,7 @@ Reproduce each directory from the final native preparation observations for run
 `36313384412`, not from the intermediate raw artifacts:
 
 ```powershell
-python scripts/inspect_legal_crate_sources.py --source-root . --cache C:/review/crates --cargo-cache C:/review/cargo-cache --output C:/review/crate-observations.json
+python scripts/inspect_legal_crate_sources.py --source-root . --cache C:/review/crates --cargo-cache C:/review/cargo-cache --wheelhouse C:/review/observations/x64/unsigned-inputs/wheelhouse --wheelhouse C:/review/observations/arm64/unsigned-inputs/wheelhouse --output C:/review/crate-observations.json
 python scripts/synthesize_windows_legal.py --source-root . --observation C:/review/observations/x64 --architecture x64 --created 2026-09-27T14:47:24Z --source-archives C:/review/sources --crate-cache C:/review/crates --observation-bindings packaging/inputs/windows-observation-bindings.json --output packaging/inputs/windows-x86_64
 python scripts/synthesize_windows_legal.py --source-root . --observation C:/review/observations/arm64 --architecture arm64 --created 2026-09-27T14:47:24Z --source-archives C:/review/sources --crate-cache C:/review/crates --observation-bindings packaging/inputs/windows-observation-bindings.json --output packaging/inputs/windows-aarch64
 ```
@@ -47,6 +47,9 @@ The crate inspector acquires only exact digest-matching archives named by the
 inventories, without executing source. The synthesizer independently re-reads
 and re-hashes those archives. `source-archive-observations.json` retains original
 statement locations, archive/member-set digests and Cargo manifests.
+The observed wheel SBOM catalogue supplies any newer exact crate versions absent
+from earlier acquisition lists. Conflicting crate identities are rejected;
+neither an old supplement nor another target's catalogue replaces observed bytes.
 `nested-source-scope.json` classifies wheel SBOM edges using exact source
 dependency kinds and Windows target predicates; it does not claim linker-map
 precision. `python-native-source-mapping.json` retains actual PE imports as well
@@ -70,6 +73,19 @@ vendored packages are enumerated from the installed vendor catalogue and trees.
 The exact broker members and relay are also compared with the existing
 helper-only redistribution record. That original record and all named nested
 notices are retained. Its authority is not extended to unrelated outer files.
+`helper-spdx-mapping.json` records each exact helper member's component grants.
+The custom Windows redistribution identifier contains the SHA-256 of its exact
+included conditions, also retained as an SPDX extracted license. A custom
+identifier never substitutes for review or permits a source-duty inference.
+
+The pywin32 wheel's adodbapi subtree is separately inventoried under its exact
+LGPL declaration. Its deterministic source ZIP includes every shipped subtree
+member, including the license, setup file and tests. This does not conclude the
+license scope of unrelated native pywin32 modules. Source copyright records keep
+the original member path, hash and statement line rather than inventing ownership
+from package author metadata. Native notice classifications retain upstream
+statements separating libffi build tools and XZ command-line tools from the
+mapped runtime libraries.
 
 The included nodriver archive supplies its exact upstream source. Whether a
 larger covered combination requires additional source, build instructions or

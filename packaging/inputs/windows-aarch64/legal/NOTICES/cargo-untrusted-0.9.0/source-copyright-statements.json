@@ -66,6 +66,17 @@
           "text": "// Copyright 2015-2021 Brian Smith."
         }
       ]
+    },
+    {
+      "path": "untrusted-0.9.0/tests/tests.rs",
+      "sha256": "cefcc4543e3d49e1af0e6e6efebebbdfb61cad131d0ea2d69c14ed11f398cca5",
+      "size": 3956,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2019 Brian Smith."
+        }
+      ]
     }
   ],
   "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."

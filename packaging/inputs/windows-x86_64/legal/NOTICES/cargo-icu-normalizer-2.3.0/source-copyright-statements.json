@@ -15,6 +15,17 @@
           "text": "ICU 1.8.1 to ICU 57.1 \u00a9 1995-2016 International Business Machines Corporation and others."
         }
       ]
+    },
+    {
+      "path": "icu_normalizer-2.3.0/tests/data/NormalizationTest.txt",
+      "sha256": "5019ffd530751a741900c849c0e010332f142a3612234639bd200b82138a87db",
+      "size": 2827429,
+      "statements": [
+        {
+          "line": 3,
+          "text": "# \u00a9 2025 Unicode\u00ae, Inc."
+        }
+      ]
     }
   ],
   "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."

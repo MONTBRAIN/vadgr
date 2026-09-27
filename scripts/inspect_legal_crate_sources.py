@@ -14,6 +14,7 @@ import re
 import sys
 import tarfile
 import tomllib
+import zipfile
 from urllib.request import urlopen
 
 if __package__:
@@ -28,8 +29,9 @@ def statements(text):
     for number, line in enumerate(text.splitlines(), 1):
         match = re.search(r"(?:copyright\s*(?:\(c\)|©|[12][0-9]{3})|©\s*[12][0-9]{3})", line, re.I)
         match = match or re.search(
-            r"^\s*(?://|#|\*)?\s*Copyright(?:\s*:\s*|\s+)(?!and\b|owner\b|license\b|\[|<|notice\b|holders?\b|law\b)[A-Z0-9]",
+            r"^\s*(?://|#|\*)?\s*(?i:copyright)(?:\s*:\s*|\s+)(?!(?i:and\b|owner\b|license\b|notice\b|holders?\b|law\b)|\[|<)[A-Z0-9]",
             line)
+        match = match or re.search(r"^\s*(?://|#|\*)?\s*\([cC]\)\s*[12][0-9]{3}\b", line)
         match = match or re.search(r"Copyrights in this project are retained by their contributors", line)
         if match and not any(token in line.lower() for token in (
                 "[yyyy]", "<year>", "[year]", "yyyy", "your name", "example copyright", "copyright (c) <")):
@@ -112,6 +114,8 @@ def main():
     parser.add_argument("--cache", type=Path, required=True)
     parser.add_argument("--cargo-cache", type=Path)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--wheelhouse", type=Path, action="append", default=[],
+                        help="Also acquire exact crates pinned by SBOMs in each observed wheelhouse")
     args = parser.parse_args()
     require(not args.output.exists() and args.output.parent.is_dir(), "output is not new")
     require(args.cache.is_dir(), "cache is absent")
@@ -123,6 +127,27 @@ def main():
                 key = (row["name"], row["version"])
                 require(key not in rows or rows[key]["sha256"] == row["sha256"], "crate identities conflict")
                 rows[key] = row
+    for wheelhouse in args.wheelhouse:
+        manifest = parse_json(read_owned(wheelhouse, "wheelhouse.json"))
+        for wheel in manifest["wheels"]:
+            raw = read_owned(wheelhouse, wheel["filename"])
+            require(len(raw) == wheel["size"] and sha256_bytes(raw) == wheel["sha256"], "observed wheel identity differs")
+            with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+                for name in archive.namelist():
+                    if not name.endswith(".json") or not ("sbom" in name.lower() or "cyclonedx" in name.lower()):
+                        continue
+                    require(archive.getinfo(name).file_size <= 16 * 1024 * 1024, "nested SBOM is oversized")
+                    for component in parse_json(archive.read(name)).get("components", []):
+                        if not component.get("purl", "").startswith("pkg:cargo/") or not component.get("bom-ref", "").startswith("registry+"):
+                            continue
+                        hashes = {item["content"] for item in component.get("hashes", []) if item.get("alg") == "SHA-256"}
+                        require(len(hashes) == 1, "nested registry component hash is missing")
+                        name, version = component["name"], component["version"]
+                        row = {"name": name, "version": version, "sha256": next(iter(hashes)),
+                               "download_location": f"https://static.crates.io/crates/{name}/{name}-{version}.crate"}
+                        key = (name, version)
+                        require(key not in rows or rows[key]["sha256"] == row["sha256"], "observed nested crate identities conflict")
+                        rows[key] = row
     with ThreadPoolExecutor(max_workers=4) as workers:
         results = list(workers.map(lambda row: acquire(row, args.cache, args.cargo_cache), [rows[key] for key in sorted(rows)]))
     output = {"schema": 1, "status": "source-observations-not-approval", "archives": results}

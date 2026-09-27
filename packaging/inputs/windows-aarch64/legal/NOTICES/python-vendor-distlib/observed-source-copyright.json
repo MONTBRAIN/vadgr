@@ -1,0 +1,56 @@
+{
+  "component_sha256": "f110d237830b3a6c579742cf71324540d99adc76013d38a3536d276d75b1f9f0",
+  "original_statement_files": [
+    {
+      "path": "__init__.py",
+      "sha256": "b66613841d719a07d18d1b72cbc60fd22d329ab1769fa795b307302ba3986dc7",
+      "statements": [
+        {
+          "line": 3,
+          "text": "# Copyright (C) 2012-2024 Vinay Sajip."
+        }
+      ]
+    },
+    {
+      "path": "compat.py",
+      "sha256": "1d3ce1398f7c73f7f231513bc6d56e659f80564378f9119eb3e8569afbb0aae9",
+      "statements": [
+        {
+          "line": 3,
+          "text": "# Copyright (C) 2013-2026 Vinay Sajip."
+        }
+      ]
+    },
+    {
+      "path": "resources.py",
+      "sha256": "c19b7f024a3c4d8f8be9920098fe3627b30d5f45d3105ea090cd0e9b917b50f6",
+      "statements": [
+        {
+          "line": 3,
+          "text": "# Copyright (C) 2013-2026 Vinay Sajip."
+        }
+      ]
+    },
+    {
+      "path": "scripts.py",
+      "sha256": "ad59b803e61f1900e9b0e4703b2ec0c1ea724536b2bb2eab73e32768230101c3",
+      "statements": [
+        {
+          "line": 3,
+          "text": "# Copyright (C) 2013-2026 Vinay Sajip."
+        }
+      ]
+    },
+    {
+      "path": "util.py",
+      "sha256": "9f64035ef0745edc2bb5e872827c1d2e02e42e26b9f2c663ce064f2b20faac01",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2012-2026 The Python Software Foundation."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
+}

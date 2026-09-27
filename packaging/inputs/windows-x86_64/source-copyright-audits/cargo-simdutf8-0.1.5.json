@@ -1,6 +1,6 @@
 {
   "archive_sha256": "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e",
-  "eligible_for_reviewed_NONE": false,
+  "eligible_for_reviewed_NONE": true,
   "files": [
     {
       "path": "simdutf8-0.1.5/.cargo_vcs_info.json",
@@ -41,20 +41,12 @@
       "template": "Apache-2.0-complete-terms-without-application-appendix"
     },
     {
-      "mentions": [
-        {
-          "line": 10,
-          "text": "The above copyright notice and this permission notice shall be included in all"
-        },
-        {
-          "line": 16,
-          "text": "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER"
-        }
-      ],
+      "normalized_sha256": "7c9b48b52decb9837c70f608678129e1ac79e056829c8d1e82e8cdd8aed562f8",
       "path": "simdutf8-0.1.5/LICENSE-MIT",
       "sha256": "1847e0e0698142ed4347c1441a9fa81c8fbddd44b1d8bbcd5e3647f991759d7f",
       "size": 1035,
-      "status": "ambiguous-ownership-marker"
+      "status": "complete-standard-boilerplate",
+      "template": "MIT-standard-grant-with-heading-without-owner-statement"
     },
     {
       "path": "simdutf8-0.1.5/README.md",

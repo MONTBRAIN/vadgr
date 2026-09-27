@@ -13,6 +13,17 @@
       ]
     },
     {
+      "path": "num-bigint-0.4.6/benches/shootout-pidigits.rs",
+      "sha256": "c2a48133f5b679928f7e3f4e764c78aaa8c5b811f58b86fe57fae8c63cb07136",
+      "size": 4140,
+      "statements": [
+        {
+          "line": 6,
+          "text": "// Copyright (c) 2013-2014 The Rust Project Developers"
+        }
+      ]
+    },
+    {
       "path": "num-bigint-0.4.6/src/lib.rs",
       "sha256": "70493e8293b769076d6a16df962a4913b74aa1925fe8bd448865da097ee2dbe1",
       "size": 7522,

@@ -1,0 +1,16 @@
+{
+  "component_sha256": "66adcc2aff09b3f1bbd95fc1e1577df8ac8723c978552fd43304c8a290ac5728",
+  "original_statement_files": [
+    {
+      "path": "jwt/__init__.py",
+      "sha256": "a840efb5630426531f00f4204e5246c2702c43c5c9281f267f0554f56bb2b7bf",
+      "statements": [
+        {
+          "line": 43,
+          "text": "__copyright__ = \"Copyright 2015-2026 Jos\u00e9 Padilla\""
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
+}

@@ -71,64 +71,12 @@
       "template": "Apache-2.0-standard-unfilled-template"
     },
     {
-      "mentions": [
-        {
-          "line": 13,
-          "text": "      \"Licensor\" shall mean the copyright owner or entity authorized by"
-        },
-        {
-          "line": 14,
-          "text": "      the copyright owner that is granting the License."
-        },
-        {
-          "line": 38,
-          "text": "      copyright notice that is included in or attached to the work"
-        },
-        {
-          "line": 52,
-          "text": "      submitted to Licensor for inclusion in the Work by the copyright owner"
-        },
-        {
-          "line": 54,
-          "text": "      the copyright owner. For the purposes of this definition, \"submitted\""
-        },
-        {
-          "line": 61,
-          "text": "      designated in writing by the copyright owner as \"Not a Contribution.\""
-        },
-        {
-          "line": 67,
-          "text": "   2. Grant of Copyright License. Subject to the terms and conditions of"
-        },
-        {
-          "line": 70,
-          "text": "      copyright license to reproduce, prepare Derivative Works of,"
-        },
-        {
-          "line": 101,
-          "text": "      (c) You must retain, in the Source form of any Derivative Works"
-        },
-        {
-          "line": 102,
-          "text": "          that You distribute, all copyright, patent, trademark, and"
-        },
-        {
-          "line": 124,
-          "text": "      You may add Your own copyright statement to Your modifications and"
-        },
-        {
-          "line": 187,
-          "text": "      same \"printed page\" as the copyright notice for easier"
-        },
-        {
-          "line": 190,
-          "text": "   Copyright [yyyy] [name of copyright owner]"
-        }
-      ],
+      "normalized_sha256": "f42a00ac54d036890559853a40f95622ab3e63d52173f5714284134b2af11e3c",
       "path": "wasi-0.14.2+wasi-0.2.4/LICENSE-Apache-2.0_WITH_LLVM-exception",
       "sha256": "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5",
       "size": 12243,
-      "status": "ambiguous-ownership-marker"
+      "status": "complete-standard-boilerplate",
+      "template": "Apache-2.0-standard-unfilled-template-with-LLVM-exception"
     },
     {
       "normalized_sha256": "fe2a9817987f862eaced948f0468c7f51d2fedfc48c5c505b246a49a3870e9a5",

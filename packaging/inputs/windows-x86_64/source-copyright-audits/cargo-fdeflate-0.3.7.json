@@ -35,20 +35,12 @@
       "template": "Apache-2.0-complete-terms-without-application-appendix"
     },
     {
-      "mentions": [
-        {
-          "line": 13,
-          "text": "The above copyright notice and this permission notice"
-        },
-        {
-          "line": 21,
-          "text": "SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY"
-        }
-      ],
+      "normalized_sha256": "7c9b48b52decb9837c70f608678129e1ac79e056829c8d1e82e8cdd8aed562f8",
       "path": "fdeflate-0.3.7/LICENSE-MIT",
       "sha256": "c77a4cf9da729987d0fe7ccd811e3bd27393914ddf3d23467c18cc22954513b3",
       "size": 1036,
-      "status": "ambiguous-ownership-marker"
+      "status": "complete-standard-boilerplate",
+      "template": "MIT-standard-grant-with-heading-without-owner-statement"
     },
     {
       "path": "fdeflate-0.3.7/README.md",

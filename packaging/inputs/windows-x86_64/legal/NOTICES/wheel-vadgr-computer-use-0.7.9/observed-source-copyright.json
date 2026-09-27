@@ -1,0 +1,816 @@
+{
+  "component_sha256": "cdfbd45fd528cd3738cc2635e848b3aac3448f51820abcb20c84b33e056282c5",
+  "original_statement_files": [
+    {
+      "path": "computer_use/bridge/deployer.py",
+      "sha256": "95f4614868a349b0058683565829d60a79c0baf2012edbce18a8288b2e92f797",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/bridge/supervisor.py",
+      "sha256": "e82b74fec1e0c4ce521092bf63a7eb6332c0bf824a242d6ca24bd606f5ef4a0c",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/__init__.py",
+      "sha256": "4b247351409e6d5f57511b9225beb3ab80e08100dcbb450e011be56e19016800",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/adoption.py",
+      "sha256": "a55179fab34bd1bbb8a2c54c7507e7fc8d2a85db480db3f9351041268c54fa4a",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Montano Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/bridge.py",
+      "sha256": "db97a127d7c53159157c071966240991a2bc233918e84f0895414316c5ca7e7c",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/broker.py",
+      "sha256": "7ff2190b4e94dbbd92e26eb259b262b042e8884f2cacb8c8b40c9c6a4f359977",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/broker_client.py",
+      "sha256": "30740a5a57168b70b01e4f8e937af031698f6de1f32ddcb3c58584ab2468b29a",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/managed_authorization.py",
+      "sha256": "14c1d04c090417f4a7876214985c14630b62ea7647f2c3c30d58fb3ef519ba07",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Montano Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/native_host.py",
+      "sha256": "adea5e7e5d01ac88e20da0dc8df9e91ceb66392e8253c146e24e3773839f3067",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/offline_attestation.py",
+      "sha256": "a462e2cc8573c9d09256cc770659dd0a11e7d8ae538d9263a3f8553bc42c802a",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Montano Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/ownership.py",
+      "sha256": "6e56e8c4c3ea50117a2bb509934a1bb5d2712ac79de521808a73612fc673ff3d",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/private_file.py",
+      "sha256": "4b80a15dd653d2b70921ea1e973e886772a93319089f4ffa73e9c1912585afc7",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/protocol.py",
+      "sha256": "bf09305be145e57406031b226c1962c3f8a17e25637f05144aad07a73d82b20c",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/server.py",
+      "sha256": "a53f3d1492379919b4ee6a13a30d88277d6945da675c3bdcfc64f82f89bc8ddf",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/standalone_adoption.py",
+      "sha256": "010493f8ad8f9d4821c8e988dfa79b95aaf2116b4a551f12e3dd87455bbbd6a1",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Montano Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/tool.py",
+      "sha256": "3c1c7d56fd23b65c1a8f212fda5061f96badd82323882134a1384025e2fab447",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/upload.py",
+      "sha256": "f5ef3f1a579f7d4ac333643a41aa49c8cd520f20cc4d514635e6e1d46debd642",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/windows_acl.py",
+      "sha256": "362c262e98b61bd078c5ae68d3920667968f5b202b61538f3d25398639432fec",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/windows_broker.py",
+      "sha256": "97bc89dc7afd5a0991d4cdd6c4bc8a8cfbc1f3c346ff943785b32d4473e8c321",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/windows_broker_entry.py",
+      "sha256": "44efd7e8889d2ad8fd330741504fef3df11901671245afc6bccbbea0acb5f0e1",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/windows_process.py",
+      "sha256": "410c5c76a5d297f5733a12035861475ea6cee8e4917e3e3f33b82e60dd2a250f",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/browser/winhost/__init__.py",
+      "sha256": "07483b1b53d6a6e483c4ecef8a41c066a76ffc718496220bbadd6f714eda6024",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/core/__init__.py",
+      "sha256": "6ef558fc0fa4b3e148eb82094884b918da61a00898c1ce3f65d9472f936d8a99",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/core/actions.py",
+      "sha256": "4459bb6bfdc78d9c43b480f4d2611f1ccd1964d0b77a9368a698ffdc68e69ba3",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/core/decorator.py",
+      "sha256": "590a8479a5fbb170261149f9181a6f0952e830ccbc2dd70ec7181adcaec23a1c",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/core/engine.py",
+      "sha256": "4c27f6da929130edae782b634a65c8257b757920cd5e775787d4a4658d6455fc",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/core/middleware/__init__.py",
+      "sha256": "816d898dace7c5ea39e8acff7509df36996f0093c4fd4c2f0b6412fec3d5e0cc",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/core/middleware/base.py",
+      "sha256": "736ee8249d4514a6a7b95ac6ab64339ae24b49496c01629255ffb1068ca882d9",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/core/middleware/chain.py",
+      "sha256": "9064cbbb02f60281b1fd829ef44bf161d6391d11f3d8663cfa3b459c402adec4",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/core/middleware/telemetry.py",
+      "sha256": "ac90bb522823b2f702a60104e979992ef5ae8aeaefd09e431e493882d216267c",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/core/ops.py",
+      "sha256": "16bc68923327571e05b014b4142b000cff4fcd6e57bf5ec5c311d3e1bc3758ca",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/core/registry.py",
+      "sha256": "a90475611bce137be1cf1def637ee92f81a3b29999dcb64eb4873c1aa0fe173d",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/core/risk.py",
+      "sha256": "bf81e1d4f5b182e6a50b174e4bcc964fcf9aa865624465012c9e84137e2ca9e2",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/core/screenshot.py",
+      "sha256": "4b1f90a8b40cd33611fd9d3d7d7080b9095b23444b1d3a8ad79d1a32fe5588e9",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/core/smooth_move.py",
+      "sha256": "a0bcdbda4d55f412e73a4913965493d48d87a2006173d184d32773de46fa446d",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/core/tier.py",
+      "sha256": "c94282c9ebf94e6a56bdcac51a72903baea6a8172f3e9d771492b22a7c88c476",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/core/tool.py",
+      "sha256": "eca32517bfd7c69a8d1847c8d39e2d371ec8b777d015ad44df41f5f731bcccac",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/core/typing.py",
+      "sha256": "e06a3938345401d23cadafe18d4beb434a17efeb9065b31d762e534638ab4fd9",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/core/typing_boundaries.py",
+      "sha256": "4f2532e92fff94d01b7fdb939c5ec1a345ec0d27850002cc352b63eed4fc18f2",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/core/typing_profile.py",
+      "sha256": "7d1bac6d25b0ef9ede8751571c9125ddb9f7bfdbf47c9d5284ab8f3f4ff66aab",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/platform/backends/__init__.py",
+      "sha256": "e7280648fd448438cdb841a0886f44d5472f5c14222b978809e63a7e22a7a4e9",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/platform/backends/linux_providers.py",
+      "sha256": "4f747ef9e3d3be8104e5df3852cf055557ac16c63bd87b0bf20913c55eb03b7c",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/platform/backends/portal.py",
+      "sha256": "c11ed54e72d6e33e304e0318f5c5b736e95e2f7ee53c1fbfbd34b934d51a302d",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/platform/backends/uinput.py",
+      "sha256": "64a6b777df76865f0abcd124ea54809b5d2a97513ac6ecc8259c035c46db66d5",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/platform/backends/xtest.py",
+      "sha256": "551564d96c0f9acfc7f8d70d7827e4bb87c217644e7081c5e985656c213a18bc",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/platform/base.py",
+      "sha256": "fa63c3f3db07f1d4f93be7f7a230e0f1d1539af16510d4fbe0f6a730a33d2c8b",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/platform/detect.py",
+      "sha256": "8822e528ebb5b9a18f82a275f78ad128818af33422403b8b62b2c1572486ba0b",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/platform/linux.py",
+      "sha256": "d9d9b38fa6a8732c1231a8c92271eeb0ab192c681fad92d34106607d69652f01",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/platform/macos.py",
+      "sha256": "f4efe14d39a7ff409a8e48b5a6ace27cbf25f4bf65d96c2a6a899fb614c34913",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Montano Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/platform/resolver/__init__.py",
+      "sha256": "daf0dc7a529557f8f80e8f6991bff97bff4959f561493c64d9acf036a5bd929e",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/platform/resolver/engine.py",
+      "sha256": "db2b9d1d3c51e601d303481a028cde9932685af6d1a7677d9941e25d475ac04d",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/platform/resolver/providers.py",
+      "sha256": "8550ad0229c989ef44ffb756fe91d4a1a553cb5ce1fff03bfaf91be74cc097b4",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/platform/resolver/registry.py",
+      "sha256": "131f59c41007d50208c41e8f8aab151e47224b5147fe1805199afe1566252eb8",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/platform/resolver/session.py",
+      "sha256": "3c0166bf1348fc669af7fb5f019b997f313956721089300230f40a424b5b4bb9",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/platform/windows.py",
+      "sha256": "2782e0ee85821c3c05ac7667b60efc326c44fc26f409cc4adf72fd3517f4d94d",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/platform/wsl2.py",
+      "sha256": "6bef946978bf5330a7372278b7422a398e1ca1a033d3b6f815cf5791b683f73b",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/setup/__init__.py",
+      "sha256": "6bea457e1c55c0b0bfd6e7b674fbfd0629604bb8ef14b4e351450511e98a79d9",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/setup/deps.py",
+      "sha256": "307ab3cbd210cd4e1668abadafd9f12d885dd31cfa71bc6359b0da6089395606",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/setup/extension_setup.py",
+      "sha256": "5b0bfb71be2df611870bda224d973149b8a5d3ca8aae18e95d45398c7cc9c043",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/__init__.py",
+      "sha256": "9838b385ca7f268281d8dded80dfe238cc78e90c0630962554c78a1200294899",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/apps/__init__.py",
+      "sha256": "d44f6d228b55c80de78319acfa4bcd52cb3ce6bc3f380443c76d0de944facefe",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/apps/backend.py",
+      "sha256": "de1ab9f576d518f2a36a3a5c2554c062eca72e00d46cb0a36a59f9fcdfafa2e7",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/apps/desktop_entries.py",
+      "sha256": "5cc8d70bf7329f727731b55b412226a58c0fb911d9cb81f942f99155476e7593",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/apps/linux.py",
+      "sha256": "56333bff2a9ab49dc6b68cef99077b7677e7d73dc65b342b73454917f35b8c7a",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/apps/macos.py",
+      "sha256": "f7dec14885d99e9c91234fa0a276f1e6ef61dac6bc36c557b0256081062fa1a0",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/apps/window_confirm.py",
+      "sha256": "0b507f91f9caa0c8b2158af4c4204327b13ff62fb1df480af737ee3655753fcf",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/apps/windows.py",
+      "sha256": "f0539f2b7337989bbeeff6213d936318cfac593dbc2192cf41a65f9b0d920574",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/system/__init__.py",
+      "sha256": "8d7f443547982fd88a2a38fe4be6f920f8a85d75169f057283ccf0fafb02f275",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/system/clipboard.py",
+      "sha256": "165bbc9ac72bf1de03049249fe250cae5a168dbfef990feeaf7d6465341c393f",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/system/data.py",
+      "sha256": "3b5172f5d8bddf798e9734a0c78a71ea4de74dac8d1b9ac82a2b523160fddeef",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/system/env.py",
+      "sha256": "e17dc1b7c828bbfc09271917308d2bc3cd3381e6ef7914a38c164140e1048897",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/system/fs.py",
+      "sha256": "ec6e74a406e9ba5a8d47e1a46a620f1a1ccd0901836aacc2aace9f80fa714de3",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/system/http.py",
+      "sha256": "ae223553f41b88383d9c8490781aacde8b7b289af0943798454d40f3a4aec66f",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/system/shell.py",
+      "sha256": "b2851f363a612c45078b966b6ce1db72e9a91da4dd02e6301b7c71396fa2efcf",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/system/tempfile.py",
+      "sha256": "36e74ac08395aa2371c2a0d636d8c34db74a70b8c430bf7c41dea628bee3bad8",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/system/time.py",
+      "sha256": "556f7df29b06112130aee43ef3a9a72ffd309657d26bd794fc6c368cfe575a33",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/ui/__init__.py",
+      "sha256": "d07e762a4923598a6773671599d95d9ca9d0d7315e35ed1d9030e2b171ed52af",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/ui/atspi.py",
+      "sha256": "17856592114c7800072fdbbb16d2b9b53b7a8e45c6799fe9b8de8ce9ebc7ce6f",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/ui/backend.py",
+      "sha256": "4f00f11e11252b0dcc19ce72f86e42c641f4958fcd69de19cd610ced9444dbda",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/ui/cache.py",
+      "sha256": "133aa6ee9f5bd9fc132aec352ecdda68083d0ad80cff8fb84eefb399b969f352",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/ui/tools.py",
+      "sha256": "db6ae85923a49edbe90f03ab822f6f62e07dc807f132f9e41ed6b695c9cb055f",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
+}

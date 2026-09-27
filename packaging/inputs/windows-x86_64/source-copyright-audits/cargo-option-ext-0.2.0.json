@@ -1,6 +1,6 @@
 {
   "archive_sha256": "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d",
-  "eligible_for_reviewed_NONE": false,
+  "eligible_for_reviewed_NONE": true,
   "files": [
     {
       "path": "option-ext-0.2.0/.cargo_vcs_info.json",
@@ -27,28 +27,12 @@
       "status": "decoded-no-ownership-markers"
     },
     {
-      "mentions": [
-        {
-          "line": 126,
-          "text": "(c) under Patent Claims infringed by Covered Software in the absence of"
-        },
-        {
-          "line": 149,
-          "text": "applicable copyright doctrines of fair use, fair dealing, or other"
-        },
-        {
-          "line": 201,
-          "text": "(including copyright notices, patent notices, disclaimers of warranty,"
-        },
-        {
-          "line": 367,
-          "text": "You may add additional accurate notices of copyright ownership."
-        }
-      ],
+      "normalized_sha256": "e8ba82e63ba908724aaee6043943c5a2629b9ebf1af581ea0eea19a713123685",
       "path": "option-ext-0.2.0/LICENSE.txt",
       "sha256": "66a3107d5ad6a058aab753eaac2047ccb2ed0e39465dd0fe5844da3e300d5172",
       "size": 16727,
-      "status": "ambiguous-ownership-marker"
+      "status": "complete-standard-boilerplate",
+      "template": "MPL-2.0-complete-standard-license-with-exhibits"
     },
     {
       "path": "option-ext-0.2.0/README.md",

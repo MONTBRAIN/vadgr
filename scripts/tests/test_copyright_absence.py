@@ -7,7 +7,7 @@ import pytest
 
 from scripts import copyright_absence as absence
 from scripts import validate_package_inputs as package
-from scripts.synthesize_windows_legal import MIT_GRANT
+from scripts.synthesize_windows_legal import MIT_GRANT, MIT_ZERO_GRANT
 
 
 def archive(files):
@@ -23,12 +23,18 @@ def archive(files):
 @pytest.mark.parametrize("raw, eligible", [
     (b"pub fn demo() {}\n", True),
     (b"Copyright The Authors\n", False),
+    (b"copyright Alexander Huszagh.\n", False),
+    (b"(C) 2024 Trifecta Tech Foundation\n", False),
+    (b"quote_token_with_context!(_s @ a b (c) d e f);\n", True),
     (b"SPDX-FileCopyrightText: Contributors\n", False),
     (b"All rights reserved\n", False),
     (b"Copyright [yyyy] Someone\n", False),
     (b"\0binary", False),
     (b"\xff", False),
     (MIT_GRANT.encode(), True),
+    (("MIT License\n" + MIT_GRANT).encode(), True),
+    (MIT_ZERO_GRANT.encode(), True),
+    (("MIT License\nCopyright Holder\n" + MIT_GRANT).encode(), False),
     (("Copyright Holder\n" + MIT_GRANT).encode(), False),
 ])
 def test_absence_requires_all_members_decoded_and_no_ambiguous_markers(raw, eligible):

@@ -497,6 +497,171 @@
       ]
     },
     {
+      "path": "zerocopy-0.8.56/tests/codegen.rs",
+      "sha256": "51afd6c3e479bcff84fca340573116db6be9f1fc99c0c5a411583bd12f440c0f",
+      "size": 3944,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2026 The Fuchsia Authors"
+        }
+      ]
+    },
+    {
+      "path": "zerocopy-0.8.56/tests/include.rs",
+      "sha256": "3cb8eb691d41d7a3eafe9136afca5cad302430f6b08c2f3d03cd7a3d25fe74ef",
+      "size": 2206,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2026 The Fuchsia Authors"
+        }
+      ]
+    },
+    {
+      "path": "zerocopy-0.8.56/tests/ui/diagnostic-not-implemented.rs",
+      "sha256": "04444c8b5e902ae5d6ca95d7bf049ea4dc992df03e05209abce7ca0de261cf73",
+      "size": 4135,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The Fuchsia Authors"
+        }
+      ]
+    },
+    {
+      "path": "zerocopy-0.8.56/tests/ui/include_value.rs",
+      "sha256": "5f9a57d10865b2daca4d0bdac56ed5d780b7cf614854b22a4a13073f5700732a",
+      "size": 703,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2023 The Fuchsia Authors"
+        }
+      ]
+    },
+    {
+      "path": "zerocopy-0.8.56/tests/ui/late-compile-pass.rs",
+      "sha256": "b4524a6c3484be51b3279d797bdbaa91171f830aab6874c794f95db1712ec22b",
+      "size": 4533,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2026 The Fuchsia Authors"
+        }
+      ]
+    },
+    {
+      "path": "zerocopy-0.8.56/tests/ui/max-align.rs",
+      "sha256": "9866fc49d8bbeea1e4dfbfb971ed7bc6e2087857abd021b3125f487fb89788fe",
+      "size": 1846,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2023 The Fuchsia Authors"
+        }
+      ]
+    },
+    {
+      "path": "zerocopy-0.8.56/tests/ui/ptr-is-invariant-over-v.rs",
+      "sha256": "84e6586ebf512cfd48511dad64b06c978f459595772e33ae576a87c79ee959b0",
+      "size": 1169,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2025 The Fuchsia Authors"
+        }
+      ]
+    },
+    {
+      "path": "zerocopy-0.8.56/tests/ui/transmute-ptr-to-usize.rs",
+      "sha256": "2860895519d4d28b6d6d56393b6d85895022c5629bc45cdcf549786486cdeddd",
+      "size": 928,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The Fuchsia Authors"
+        }
+      ]
+    },
+    {
+      "path": "zerocopy-0.8.56/tests/ui/transmute.rs",
+      "sha256": "49d473f40d7cdde8e42b1cc38cb2cadedb13c7148e2ef08f5119fe5bb351a851",
+      "size": 935,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The Fuchsia Authors"
+        }
+      ]
+    },
+    {
+      "path": "zerocopy-0.8.56/tests/ui/transmute_mut.rs",
+      "sha256": "6adbfef906b6f4321f8b00510e422c421378465eaab1f2d41395e178d629ac16",
+      "size": 3412,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2023 The Fuchsia Authors"
+        }
+      ]
+    },
+    {
+      "path": "zerocopy-0.8.56/tests/ui/transmute_ref.rs",
+      "sha256": "b4df55cc80bac00a05e3ab26bcd18be48901a5165d48b9bc5d35280633ce3da1",
+      "size": 3648,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2023 The Fuchsia Authors"
+        }
+      ]
+    },
+    {
+      "path": "zerocopy-0.8.56/tests/ui/try_transmute.rs",
+      "sha256": "a81e8d96baca0d16e985ab9f9626f5d7d09b0dc61a5e61ccfadcc173d2a3bcfd",
+      "size": 1128,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The Fuchsia Authors"
+        }
+      ]
+    },
+    {
+      "path": "zerocopy-0.8.56/tests/ui/try_transmute_mut.rs",
+      "sha256": "9860d6d8beb0a6c553b91c6cd8c0b8143ee9dd57f80d0ad5eac90d6f0d442e67",
+      "size": 2055,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 The Fuchsia Authors"
+        }
+      ]
+    },
+    {
+      "path": "zerocopy-0.8.56/tests/ui/try_transmute_ref.rs",
+      "sha256": "bde79572927a2f31f40e5249bf07befb9a7e5e31b0fcb601751d916d5da39a1f",
+      "size": 1772,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 The Fuchsia Authors"
+        }
+      ]
+    },
+    {
+      "path": "zerocopy-0.8.56/tests/ui.rs",
+      "sha256": "18a8867ac684ae60956b930e6cbcfe315782f02212c2e9b4366c55a1a7ed266c",
+      "size": 1600,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2019 The Fuchsia Authors"
+        }
+      ]
+    },
+    {
       "path": "zerocopy-0.8.56/win-cargo.bat",
       "sha256": "892ced98796378161965ed3c4260fe77f4e66650051849864936877da7420f0d",
       "size": 1171,

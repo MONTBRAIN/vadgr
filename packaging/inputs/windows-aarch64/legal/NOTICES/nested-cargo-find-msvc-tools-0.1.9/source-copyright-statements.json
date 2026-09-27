@@ -1,0 +1,72 @@
+{
+  "archive_sha256": "5baebc0774151f905a1a2cc41989300b1e6fbb29aff0ceffa1064fdd3088d582",
+  "original_statement_files": [
+    {
+      "path": "find-msvc-tools-0.1.9/LICENSE-MIT",
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397",
+      "size": 1057,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014 Alex Crichton"
+        }
+      ]
+    },
+    {
+      "path": "find-msvc-tools-0.1.9/src/com.rs",
+      "sha256": "d71a248866e04a19c62221999f7f120890cb98bc74ea7fd0b714f766d3e0dd81",
+      "size": 2832,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright \u00a9 2017 winapi-rs developers"
+        }
+      ]
+    },
+    {
+      "path": "find-msvc-tools-0.1.9/src/find_tools.rs",
+      "sha256": "4b97e6f518943d4754ac73c77bc5932025bd1b48d10ed310694ed7d7449ae256",
+      "size": 61144,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "find-msvc-tools-0.1.9/src/registry.rs",
+      "sha256": "ccbb665b60517a62d249dbe708675ea915c423c14bea786e17efee27453afd41",
+      "size": 6436,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "find-msvc-tools-0.1.9/src/setup_config.rs",
+      "sha256": "5fee84b80d089ae4a92f10080b072ea2bb32c2edbcdc759cb9072e380404fc46",
+      "size": 8886,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright \u00a9 2017 winapi-rs developers"
+        }
+      ]
+    },
+    {
+      "path": "find-msvc-tools-0.1.9/src/winapi.rs",
+      "sha256": "d486d80ebe222f3bf61bba50038cf63b258585325b29b89d149de8b5a489c2b5",
+      "size": 4552,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright \u00a9 2015-2017 winapi-rs developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

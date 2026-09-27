@@ -1,6 +1,7 @@
 """Source observations separate dependency scope, ownership evidence and approval."""
 
 import io
+import json
 import tarfile
 
 import pytest
@@ -8,6 +9,7 @@ import pytest
 from scripts import inspect_legal_crate_sources as crates
 from scripts import windows_legal_source_evidence as evidence
 from scripts.validate_package_inputs import PackageInputError, sha256_bytes
+from scripts.synthesize_windows_legal import Packet
 
 
 @pytest.mark.parametrize("expression, expected", [
@@ -43,6 +45,22 @@ def test_missing_parent_source_is_explicit_not_normal():
     result, missing = evidence.nested_graph(sbom, {}, "x86_64")
     assert result["child"] == ["source-edge-unresolved"]
     assert missing == ["root"]
+
+
+@pytest.mark.parametrize("include_source", [True, False])
+def test_parent_nested_catalogue_closes_only_with_every_source_edge(include_source):
+    packet = Packet()
+    packet.evidence = [{"id": "wheel-example"}]
+    packet.pending = [{"id": "wheel-example", "items": ["target-specific-nested-SBOM-scope", "legal-review"]}]
+    sbom = {"metadata": {"component": {"name": "root", "version": "1", "bom-ref": "root"}},
+            "components": [{"name": "child", "version": "1", "bom-ref": "child", "purl": "pkg:cargo/child@1"}],
+            "dependencies": [{"ref": "root", "dependsOn": ["child"]}]}
+    packet.files["nested-sboms/wheel-example/catalogue.json"] = json.dumps(sbom).encode()
+    observations = {"root": {"manifests": {"root/Cargo.toml": {
+        "package": {"name": "root", "version": "1"}, "dependencies": {"child": "1"}}}}} if include_source else {}
+    evidence.classify_nested(packet, observations, [], "x86_64")
+    assert ("target-specific-nested-SBOM-scope" not in packet.pending[0]["items"]) is include_source
+    assert "legal-review" in packet.pending[0]["items"]
 
 
 def archive(files):

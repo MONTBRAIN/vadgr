@@ -1,6 +1,6 @@
 {
   "archive_sha256": "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813",
-  "eligible_for_reviewed_NONE": false,
+  "eligible_for_reviewed_NONE": true,
   "files": [
     {
       "path": "dunce-1.0.5/.appveyor.yml",
@@ -39,52 +39,12 @@
       "status": "decoded-no-ownership-markers"
     },
     {
-      "mentions": [
-        {
-          "line": 17,
-          "text": "exclusive Copyright and Related Rights (defined below) upon the creator"
-        },
-        {
-          "line": 35,
-          "text": "is an owner of Copyright and Related Rights in the Work, voluntarily"
-        },
-        {
-          "line": 37,
-          "text": "terms, with knowledge of his or her Copyright and Related Rights in the"
-        },
-        {
-          "line": 40,
-          "text": "1. Copyright and Related Rights. A Work made available under CC0 may be"
-        },
-        {
-          "line": 41,
-          "text": "protected by copyright and related or neighboring rights (\"Copyright and"
-        },
-        {
-          "line": 42,
-          "text": "Related Rights\"). Copyright and Related Rights include, but are not"
-        },
-        {
-          "line": 66,
-          "text": "Affirmer's Copyright and Related Rights and associated claims and causes"
-        },
-        {
-          "line": 86,
-          "text": "irrevocable and unconditional license to exercise Affirmer's Copyright and"
-        },
-        {
-          "line": 97,
-          "text": "will not (i) exercise any of his or her remaining Copyright and Related"
-        },
-        {
-          "line": 115,
-          "text": "    limitation any person's Copyright and Related Rights in the Work."
-        }
-      ],
+      "normalized_sha256": "05d9f1a0af61535887a399e161c9d14d1f898043b61d05fe4854ed8c6460179c",
       "path": "dunce-1.0.5/LICENSE",
       "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499",
       "size": 7048,
-      "status": "ambiguous-ownership-marker"
+      "status": "complete-standard-boilerplate",
+      "template": "CC0-1.0-complete-standard-legal-code"
     },
     {
       "path": "dunce-1.0.5/README.md",

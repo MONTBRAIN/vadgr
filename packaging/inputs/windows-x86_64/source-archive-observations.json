@@ -57718,17 +57718,6 @@
           ]
         },
         {
-          "path": "epaint_default_fonts-0.36.1/fonts/OFL.txt",
-          "sha256": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2",
-          "size": 4301,
-          "statements": [
-            {
-              "line": 70,
-              "text": "Copyright Holder(s) and the Author(s) or with their explicit written"
-            }
-          ]
-        },
-        {
           "path": "epaint_default_fonts-0.36.1/fonts/emoji-icon-font-mit-license.txt",
           "sha256": "b9d2c1d909aa149996fd4c91dcb92b2362a04431640c1d200959da94caf8cde1",
           "size": 1069,
@@ -103285,6 +103274,10 @@
             {
               "line": 2,
               "text": "* // Copyright (c) Radzivon Bartoshyk 3/2025. All rights reserved."
+            },
+            {
+              "line": 487,
+              "text": "copyright: Some(ProfileText::Localizable(vec![LocalizableString::new("
             }
           ]
         },
@@ -148403,7 +148396,7 @@
     {
       "archive_files_sha256": "648f4c0e5dd94f7d899259c8ef4a7267c05e29b32bc43e66a225ea2c7fd432a0",
       "archive_sha256": "83fc039473c5595ace860d8c4fafa220ff474b3fc6bfdb4293327f1a37e94d86",
-      "copyright_observation": "no-statement-detected",
+      "copyright_observation": "original-statements-found",
       "download_location": "https://static.crates.io/crates/serde_json/serde_json-1.0.149.crate",
       "files_scanned": 88,
       "limitation": "No detected statement is not a public-domain declaration. Authors are not copyright assertions; unrelated test/example notices may have separate scope.",
@@ -148711,7 +148704,19 @@
         }
       },
       "name": "serde_json",
-      "original_statements": [],
+      "original_statements": [
+        {
+          "path": "serde_json-1.0.149/src/lexical/mod.rs",
+          "sha256": "ace2ccea2cd541f019a84b9eeb3b9ecd88daf6bccbe9edf0eac00b62704f47c4",
+          "size": 1059,
+          "statements": [
+            {
+              "line": 9,
+              "text": "// copyright Alexander Huszagh."
+            }
+          ]
+        }
+      ],
       "schema": 1,
       "supplied_notices": [
         {
@@ -148732,7 +148737,7 @@
     {
       "archive_files_sha256": "986602474587848b7ebdbcf8a357282e0ab54f959b0db0dc963f4349ebec4ab5",
       "archive_sha256": "c841b55ecdae098c80dcae9cf767f6f8a0c2cdb3416bbef72181df4d0fe73f14",
-      "copyright_observation": "no-statement-detected",
+      "copyright_observation": "original-statements-found",
       "download_location": "https://static.crates.io/crates/serde_json/serde_json-1.0.151.crate",
       "files_scanned": 89,
       "limitation": "No detected statement is not a public-domain declaration. Authors are not copyright assertions; unrelated test/example notices may have separate scope.",
@@ -149040,7 +149045,19 @@
         }
       },
       "name": "serde_json",
-      "original_statements": [],
+      "original_statements": [
+        {
+          "path": "serde_json-1.0.151/src/lexical/mod.rs",
+          "sha256": "ace2ccea2cd541f019a84b9eeb3b9ecd88daf6bccbe9edf0eac00b62704f47c4",
+          "size": 1059,
+          "statements": [
+            {
+              "line": 9,
+              "text": "// copyright Alexander Huszagh."
+            }
+          ]
+        }
+      ],
       "schema": 1,
       "supplied_notices": [
         {
@@ -163273,6 +163290,17 @@
             {
               "line": 3,
               "text": "Copyright (c) 2020 Soveu"
+            }
+          ]
+        },
+        {
+          "path": "tinyvec_macros-0.1.1/LICENSE-ZLIB.md",
+          "sha256": "41ace205715d9f19a3214218cc1c01d57c533e02cd0fef7c8e51a49a7fce5ac5",
+          "size": 864,
+          "statements": [
+            {
+              "line": 3,
+              "text": "(C) 2020 Tomasz \"Soveu\" Marx"
             }
           ]
         }
@@ -206762,7 +206790,7 @@
     {
       "archive_files_sha256": "ea467a163aab1433e941dd76f44072031b00782ba023a378e8d4d72562f438b2",
       "archive_sha256": "34b31d188d9d685a4f9c7b46d6e36631b07058d2cfe190267adce54dc230bf12",
-      "copyright_observation": "no-statement-detected",
+      "copyright_observation": "original-statements-found",
       "download_location": "https://static.crates.io/crates/zlib-rs/zlib-rs-0.6.7.crate",
       "files_scanned": 53,
       "limitation": "No detected statement is not a public-domain declaration. Authors are not copyright assertions; unrelated test/example notices may have separate scope.",
@@ -206931,7 +206959,19 @@
         }
       },
       "name": "zlib-rs",
-      "original_statements": [],
+      "original_statements": [
+        {
+          "path": "zlib-rs-0.6.7/LICENSE",
+          "sha256": "e72111c52b7d96ebe25348dee19f0744f444d3c95ae6b1ecb6ccaecc5bce05ba",
+          "size": 856,
+          "statements": [
+            {
+              "line": 1,
+              "text": "(C) 2024 Trifecta Tech Foundation"
+            }
+          ]
+        }
+      ],
       "schema": 1,
       "supplied_notices": [
         {

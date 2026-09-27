@@ -1,7 +1,7 @@
 """Conservative, reproducible copyright-absence evidence for exact source archives.
 
 Only entirely decoded text archives qualify. Every ownership-marker occurrence
-outside two complete, pinned, unmodified standard-license templates is ambiguous.
+outside complete, pinned standard-license templates is ambiguous.
 This is evidence for review, not a declaration that a work has no copyright.
 """
 
@@ -18,8 +18,16 @@ BOILERPLATE = {
     "fe2a9817987f862eaced948f0468c7f51d2fedfc48c5c505b246a49a3870e9a5": "MIT-standard-grant-without-owner-statement",
     "0ffddef9e48f8a09aed5caf2d44f7ba1c1be2d9b8e0a6f693b1635b2d5566645": "Apache-2.0-standard-unfilled-template",
     "59d8f0ba87ad9a2f1a431123c8d16646e5b89ba53653e818f16d136d77263c99": "Apache-2.0-complete-terms-without-application-appendix",
+    "7c9b48b52decb9837c70f608678129e1ac79e056829c8d1e82e8cdd8aed562f8": "MIT-standard-grant-with-heading-without-owner-statement",
+    "6c0fe4001061a2cc11528179f3e52bd7d864efdbc714965aef4b7c61aecb4adc": "MIT-0-complete-standard-grant",
+    "05d9f1a0af61535887a399e161c9d14d1f898043b61d05fe4854ed8c6460179c": "CC0-1.0-complete-standard-legal-code",
+    "a796d5730b60337084397744dbaaad751d2995d421f96e8842e4a22007ee284f": "BSL-1.0-complete-standard-grant",
+    "eb47aa3af9dca1d00dfefcf91f37f3518b1f06f88ee549a0d74fefcda5c79efa": "BSD-3-Clause-complete-grant-without-owner-statement",
+    "958e28cd3f37c23ec02881fe20cb82d4151668349e1c7beb2daea4ce2640dcf0": "Apache-2.0-standard-unfilled-brace-template",
+    "e8ba82e63ba908724aaee6043943c5a2629b9ebf1af581ea0eea19a713123685": "MPL-2.0-complete-standard-license-with-exhibits",
+    "f42a00ac54d036890559853a40f95622ab3e63d52173f5714284134b2af11e3c": "Apache-2.0-standard-unfilled-template-with-LLVM-exception",
 }
-MARKERS = re.compile(r"copyright|\u00a9|&copy;|&#(?:169|x0*a9);|\bcopr\.|(?<![A-Za-z0-9_])\(c\)\s+[A-Za-z0-9]|all rights reserved|"
+MARKERS = re.compile(r"copyright|\u00a9|&copy;|&#(?:169|x0*a9);|\bcopr\.|\(c\)\s*[12][0-9]{3}|^\s*(?://|#|\*)?\s*\(c\)\s+[A-Z]|all rights reserved|"
                      r"urheberrecht|derechos reservados|droit d.auteur|\u8457\u4f5c\u6a29|\u7248\u6743", re.I)
 
 

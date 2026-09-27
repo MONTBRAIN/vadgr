@@ -2,6 +2,39 @@
   "archive_sha256": "2ec7c5eb7a16992b1904d76c517d170ab353b0e0b3d5a0c81a8a0cd1037893cf",
   "original_statement_files": [
     {
+      "path": "color-0.3.3/examples/gradient.rs",
+      "sha256": "cf49ce30a8837151d7458416fac725c0668a373f944405eeca293a43aaff6775",
+      "size": 1707,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/examples/interp.rs",
+      "sha256": "5ad30e33d6a315ae28e49d0fa476b258a1dbfe186237ed8a5ebad830a2e776f3",
+      "size": 1917,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/examples/parse.rs",
+      "sha256": "dcb63133cc9309377ce854a1785c9962515975fc53577768bfbbc941646d8eba",
+      "size": 870,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
       "path": "color-0.3.3/make_x11_colors.py",
       "sha256": "b118da572e26b71fc43dc26b8bc6d239d3cfcecfa2f7f7829d8b4eca9dfbeb98",
       "size": 10593,

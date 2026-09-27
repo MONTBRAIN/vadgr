@@ -42,8 +42,12 @@ Apache-1.1 Artistic-2.0 CC-BY-3.0 CC-BY-4.0 CC-BY-SA-4.0
 LGPL-2.1-only LGPL-2.1-or-later LGPL-3.0-only LGPL-3.0-or-later
 GPL-2.0-only GPL-2.0-or-later GPL-3.0-only GPL-3.0-or-later
 AGPL-3.0-only AGPL-3.0-or-later bzip2-1.0.6 libpng-2.0 Libpng
-FTL IJG TCL X11 W3C HPND curl NCSA libtiff PostgreSQL""".split())
-EXCEPTION_IDS = {"LLVM-exception", "GCC-exception-3.1", "Classpath-exception-2.0", "Autoconf-exception-3.0", "Bison-exception-2.2"}
+FTL IJG TCL X11 W3C HPND curl NCSA libtiff PostgreSQL CDLA-Permissive-2.0""".split())
+EXCEPTION_IDS = {"LLVM-exception", "GCC-exception-3.1", "Classpath-exception-2.0", "Autoconf-exception-3.0", "Bison-exception-2.2", "Bootloader-exception"}
+
+
+def license_identifier(value):
+    return isinstance(value, str) and (value in LICENSE_IDS or re.fullmatch(r"LicenseRef-[A-Za-z0-9.-]+-[a-f0-9]{64}", value) is not None)
 
 
 class PackageInputError(Exception):
@@ -160,7 +164,7 @@ def validate_conclusion(value: object) -> None:
             require(position < len(tokens) and tokens[position] == ")", "unresolved license")
             position += 1
         else:
-            require(tokens[position] in LICENSE_IDS, "unresolved license")
+            require(license_identifier(tokens[position]), "unresolved license")
             position += 1
             if position < len(tokens) and tokens[position] == "WITH":
                 position += 1
@@ -242,8 +246,10 @@ def validate_inventory(inventory: dict) -> None:
                 require(isinstance(entry, dict) and set(entry) == keys and valid_hash(entry["sha256"]), "invalid component")
                 if field == "license_files":
                     ids = entry["license_ids"]
-                    require(isinstance(ids, list) and bool(ids) and all(isinstance(item, str) and item in LICENSE_IDS | EXCEPTION_IDS for item in ids)
+                    require(isinstance(ids, list) and bool(ids) and all(license_identifier(item) or item in EXCEPTION_IDS for item in ids)
                             and len(set(ids)) == len(ids), "incomplete license coverage")
+                    require(all(not item.startswith("LicenseRef-") or item.endswith("-" + entry["sha256"]) for item in ids),
+                            "custom license text identity differs")
                     covered_licenses.update(ids)
                 name = relative_path(entry["path"])
                 portable_name = unicodedata.normalize("NFC", name).casefold()
@@ -307,18 +313,37 @@ def render_rtf(text: str) -> bytes:
     return ("".join(result) + "}\n").encode("ascii")
 
 
-def build_sbom(inventory: dict) -> dict:
+def extracted_license_info(inventory, files):
+    extracted = {}
+    for component in inventory["components"]:
+        for entry in component["license_files"]:
+            for identifier in entry["license_ids"]:
+                if not identifier.startswith("LicenseRef-"):
+                    continue
+                require(files is not None and entry["path"] in files, "custom license text required")
+                raw = files[entry["path"]]
+                require(identifier.endswith("-" + sha256_bytes(raw)), "custom license text identity differs")
+                extracted[identifier] = {"licenseId": identifier, "extractedText": raw.decode("utf-8"),
+                    "comment": "Exact retained terms; this identifier is not an approval or a claim of SPDX-list equivalence."}
+    return [extracted[key] for key in sorted(extracted)]
+
+
+def build_sbom(inventory: dict, files=None) -> dict:
     packages = [{"SPDXID": "SPDXRef-" + item["id"], "name": item["name"], "versionInfo": item["version"],
                  "downloadLocation": item["download_location"], "filesAnalyzed": False,
                  "checksums": [{"algorithm": "SHA256", "checksumValue": item["sha256"]}],
                  "licenseConcluded": item["license_concluded"], "licenseDeclared": item["license_declared"],
                  "copyrightText": item["copyright_text"]} for item in sorted(inventory["components"], key=lambda item: item["id"])]
-    return {"spdxVersion": "SPDX-2.3", "dataLicense": "CC0-1.0", "SPDXID": "SPDXRef-DOCUMENT",
+    result = {"spdxVersion": "SPDX-2.3", "dataLicense": "CC0-1.0", "SPDXID": "SPDXRef-DOCUMENT",
             "name": "vadgr-" + inventory["version"] + "-" + inventory["target"],
             "documentNamespace": "https://spdx.org/spdxdocs/vadgr-" + sha256_bytes(canonical_json(inventory)),
             "creationInfo": {"created": inventory["created"], "creators": ["Tool: vadgr-package-inputs"]},
             "packages": packages, "relationships": [{"spdxElementId": "SPDXRef-DOCUMENT", "relationshipType": "DESCRIBES",
                                                       "relatedSpdxElement": item["SPDXID"]} for item in packages]}
+    extracted = extracted_license_info(inventory, files)
+    if extracted:
+        result["hasExtractedLicensingInfos"] = extracted
+    return result
 
 
 def aggregate_files(inventory: dict, files: dict[str, bytes], field: str) -> bytes:
@@ -435,7 +460,7 @@ def _validate_package_inputs(root, source_root, version, target, payload_manifes
     require(files["legal/THIRD-PARTY-NOTICES.txt"] == aggregate_files(inventory, files, "notice_files"), "notice mismatch")
     if "legal/SOURCE-OFFER.txt" in generated:
         require(files["legal/SOURCE-OFFER.txt"] == aggregate_files(inventory, files, "source_offer_files"), "source offer mismatch")
-    require(files[f"sbom/vadgr-{version}.spdx.json"] == canonical_json(build_sbom(inventory)), "SBOM mismatch")
+    require(files[f"sbom/vadgr-{version}.spdx.json"] == canonical_json(build_sbom(inventory, files)), "SBOM mismatch")
     return {"schema": 1, "status": "approved", "scope": "source-inputs" if source_only else "assembled-payload",
             "version": version, "target": target, "terms_version": inventory["terms_version"],
             "terms_sha256": inventory["terms_sha256"], "payload_manifest_sha256": inventory["payload_manifest_sha256"],

@@ -13,6 +13,39 @@
       ]
     },
     {
+      "path": "polycool-0.4.0/benches/cubic_roots.rs",
+      "sha256": "c41e10f8fc37c0cefec8a3add1e083bd8992bc67dca167210ae9a725975028ba",
+      "size": 923,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2025 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "polycool-0.4.0/benches/eval.rs",
+      "sha256": "526fd093ac280eb2d3927089c8cd5883a6369849778cfb4e785dfa2411be45f5",
+      "size": 1580,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2025 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "polycool-0.4.0/benches/quadratic_roots.rs",
+      "sha256": "906a1c52d58171c563e96a866e1afe813a2bb8255abe619ddfd9668f6ba5ea13",
+      "size": 545,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2025 the Kurbo Authors"
+        }
+      ]
+    },
+    {
       "path": "polycool-0.4.0/src/arbitrary.rs",
       "sha256": "2b564a00c3ec33e9d5e63be3450ab55f9bdfbcb21ed89c22207d480e290224f0",
       "size": 4840,

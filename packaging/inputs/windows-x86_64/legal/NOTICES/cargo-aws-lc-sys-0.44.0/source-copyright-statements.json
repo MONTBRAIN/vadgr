@@ -7726,6 +7726,248 @@
       ]
     },
     {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/abi_test.cc",
+      "sha256": "4f67d85526e3788deae1f79ffef6a89081fccbb713af0a14ff838341d6405751",
+      "size": 24464,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2018, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/abi_test.h",
+      "sha256": "ade45e64ab1b6ebe3bd2a88310b5599538380bde1bcf4229cb8ce40e5c5e5e13",
+      "size": 23704,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2018, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/asm/trampoline-armv4.pl",
+      "sha256": "72b9d71486eeb6fb9e56f2204a478aa68f3d2c461d876e05f46a8a0a6f4fe7d0",
+      "size": 4859,
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (c) 2019, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/asm/trampoline-armv8.pl",
+      "sha256": "5bd932c312d864cb3e43480e4ac48b95a489f26adab894afd1d580b463ba3854",
+      "size": 5584,
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (c) 2019, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/asm/trampoline-ppc.pl",
+      "sha256": "4fb68d6c2427cea970fe00930cf2556c92c192ecb0ef7e95212d7876ab0fea51",
+      "size": 6263,
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (c) 2019, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/asm/trampoline-x86.pl",
+      "sha256": "f567b913df43abe45bb8f98a03be6bb175bba6b0158b1b2218fdb8a0f4b9da54",
+      "size": 3532,
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (c) 2018, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/asm/trampoline-x86_64.pl",
+      "sha256": "825a57f8915942bf6b59e01f9a692906c1f747ed95e8db5bd997907c93f4ebdc",
+      "size": 12296,
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (c) 2018, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/file_test.cc",
+      "sha256": "507a0821d29d0a8a3211cf4c525551a1d9d2b6197e186ce9bb1c6ccb0c4fabbe",
+      "size": 12695,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2015, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/file_test.h",
+      "sha256": "eb0f749510adb6ecaadb1a26722dd6ee60c65b2c406c3aaa29175bb2057c6c31",
+      "size": 10308,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2015, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/file_test_gtest.cc",
+      "sha256": "c6e49e2c5fafd84fb6300ae0fdf6e5fe43919ec171b6440511734e7b8cdff01b",
+      "size": 2395,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2017, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/file_util.cc",
+      "sha256": "c29dc1aaafc79b10a45f0b959d1e3dc5c965ceefd927cb3081a114c48873906c",
+      "size": 4274,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2023, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/file_util.h",
+      "sha256": "05cf9b6e7c9171c318597d9e00a13079452abe91faff842fce4ca96f4428d1dd",
+      "size": 2786,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2023, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/gtest_main.cc",
+      "sha256": "97a5d8a8fcabb70c1c99e002bd5b71da02de83da205d499bf577dac449abd152",
+      "size": 741,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2016, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/gtest_main.h",
+      "sha256": "238440bb87b1bcf099fcfa9d20f4800e62136bcd028dfdec715c3faa1a6e1b34",
+      "size": 1879,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2017, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/malloc.cc",
+      "sha256": "419b1853f1a48a3631e4a7ecf2844a00aeaa2332ee5d3fd11a2bb893ecb9ca16",
+      "size": 3342,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2014, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/test_util.cc",
+      "sha256": "cf6a7ab849a723b8a9d809fde66bf52a3c3815276d83aa65dd92963b969adf8f",
+      "size": 16331,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2015, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/test_util.h",
+      "sha256": "f6bd74cbb2b4f023b93972af5da77c91dc884aad819d474703000fc2aa366a42",
+      "size": 6258,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2015, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/ube_test.h",
+      "sha256": "4b9347531824af804b1f32b719395a519b649902ea3eaba4ef92ea6d4f6be6e1",
+      "size": 846,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/wycheproof_util.cc",
+      "sha256": "4563a5dc9029c9c417e3c49dfaa78ba449727858f02b79cf7853f2b66dfeec0a",
+      "size": 4523,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2018, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/wycheproof_util.h",
+      "sha256": "c2df45d39c67f06e25b36f2a2adb67479c3b8d46ef62f5fe542f4899c1035847",
+      "size": 1967,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2018, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/x509_util.cc",
+      "sha256": "2114afbb0e7b747617104f003175a6d74076d55cbcd767653798af6bdaf30ae5",
+      "size": 1941,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/crypto/test/x509_util.h",
+      "sha256": "dbf33731ed0923d5bdd0592d0eea4b32ae30402e33af86a2e42f94a58ad2e943",
+      "size": 767,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
       "path": "aws-lc-sys-0.44.0/aws-lc/crypto/thread.c",
       "sha256": "2ef8fa2c459a3020019cc2cade049bbdeda79cae89e3025a8100996ef1d3bd86",
       "size": 2002,
@@ -10779,6 +11021,204 @@
       ]
     },
     {
+      "path": "aws-lc-sys-0.44.0/aws-lc/ssl/test/async_bio.cc",
+      "sha256": "fe5395f8e1965bc61a72aa52ee390f97e792fecf0cee2135decda8cbd422dcd5",
+      "size": 3501,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2014, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/ssl/test/async_bio.h",
+      "sha256": "b64e078122ab3a1e956be2199ecae93c0e35629148fb2c1cf19db679a0ec64fe",
+      "size": 1152,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2014, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/ssl/test/bssl_shim.cc",
+      "sha256": "98af7c2671f238f904aaaa1ade6ffb1b092a55b69389516af0bb38d7978d920e",
+      "size": 50773,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2014, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/ssl/test/fuzzer.h",
+      "sha256": "01d791643a324e0aa0ad2e81c77f91c421278530e9390d271b1b2ab321aafacf",
+      "size": 26067,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2017, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/ssl/test/fuzzer_tags.h",
+      "sha256": "0c82b9e8118a9f9e75f0e89879902d2ad2354b40c4cb5c788e39ee2bf42db119",
+      "size": 1394,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2017, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/ssl/test/handshake_util.cc",
+      "sha256": "53029dce5337eddf499369032f8070f54b80b42b7143681fa003c31d38bfec35",
+      "size": 21039,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2018, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/ssl/test/handshake_util.h",
+      "sha256": "0840fa360afec24b00c5fd57ecc020fffec7786d7582b3efec9c22310f5ec078",
+      "size": 2326,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2018, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/ssl/test/handshaker.cc",
+      "sha256": "d2018dcc22f7afebe1df2e4c8364af92fc1817c03e8620a0762d298fb9a7e8d9",
+      "size": 8015,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2018, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/ssl/test/mock_quic_transport.cc",
+      "sha256": "2af251c2150bc02bfff5700635597722e086de08c033642e7ec6ca187237c276",
+      "size": 8375,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2019, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/ssl/test/mock_quic_transport.h",
+      "sha256": "4500134d24601c907f3cafe912e3822133a0ca6049010cbd07bc463756bae7e4",
+      "size": 2282,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2019, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/ssl/test/packeted_bio.cc",
+      "sha256": "d3ea387b34d05fef59bd17e23355a205e5d95a647a8fb58cb070082a91abca79",
+      "size": 5830,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2014, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/ssl/test/packeted_bio.h",
+      "sha256": "154e64dcbe4b33c841c307ff6905e304535bbc2d41b2d4bf1786c57c6ec9d4b2",
+      "size": 957,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2014, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/ssl/test/settings_writer.cc",
+      "sha256": "b5393bf7f634a51b552bfff90a07443809d8000b6b91ed7a2ca70caf4500a64c",
+      "size": 2545,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2018, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/ssl/test/settings_writer.h",
+      "sha256": "a188d81ab4c7cdc9dfab22bb55fb6f169cb32da8eeb0e6f5d60f4e078a58d212",
+      "size": 864,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2018, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/ssl/test/test_config.cc",
+      "sha256": "ea074c1b13e23d9421d386f7c718981686ed153e96bf882a077652c22aeccd75",
+      "size": 76012,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2014, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/ssl/test/test_config.h",
+      "sha256": "dc9fb62cfa1d6b0c8f0c7a2116342820fd07d91da5262975bd61ffe6d0106b68",
+      "size": 8348,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2014, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/ssl/test/test_state.cc",
+      "sha256": "f8934e66b727ee481f8268d4e0a9540c4269f606b7ec486443d53ff841c63ccf",
+      "size": 5266,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2018, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/ssl/test/test_state.h",
+      "sha256": "e14d726b6680b19d918ca144361986054c6287a7d0c63c63fe6c753fddb400b0",
+      "size": 2896,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2018, Google Inc."
+        }
+      ]
+    },
+    {
       "path": "aws-lc-sys-0.44.0/aws-lc/ssl/tls13_both.cc",
       "sha256": "fb142aaf179c8841bb201e9578e4b0b1793720a7405f64ff425c9301e3d89d1b",
       "size": 23620,
@@ -10845,6 +11285,83 @@
         {
           "line": 2,
           "text": "// Copyright (c) 1998-2002 The OpenSSL Project.  All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/tests/compiler_features_tests/builtin_swap_check.c",
+      "sha256": "220b1a32fe0d914c3588e2103e993cfe7d7cc7f5513f6700133268ccdc1c81b7",
+      "size": 594,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/tests/compiler_features_tests/c11.c",
+      "sha256": "766c186a0e2d00a441d03618ae997ee87f3b8a4ac2e0e2b0e9ca503b3db040d4",
+      "size": 1039,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/tests/compiler_features_tests/empty.c",
+      "sha256": "3c525d308f1c78cbf4a88d2a965ad80d2bc634374a343229553e2e8961f65e55",
+      "size": 292,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/tests/compiler_features_tests/linux_random_h.c",
+      "sha256": "558933a1d501a199bfd3df329035dae7937390083b3625e91cdcedcc94bc5dcd",
+      "size": 686,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/tests/compiler_features_tests/memcmp_invalid_stripped_check.c",
+      "sha256": "2c0d8a2c0e2a5a0f42aedd848908441fb5f8a2f61e96f12d8c8e3fa09fa45488",
+      "size": 649,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/tests/compiler_features_tests/neon_sha3_check.c",
+      "sha256": "101092cd9e6210063c44cf2569e80c8744b6e387713e2f3c32ac44290a0b533d",
+      "size": 463,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/aws-lc/tests/compiler_features_tests/stdalign_check.c",
+      "sha256": "991b0a38b488aae5d0b48a7438235320322c0ad22341bba187505914436a2dc6",
+      "size": 624,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
         }
       ]
     },
@@ -19185,6 +19702,17 @@
       "statements": [
         {
           "line": 4,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-sys-0.44.0/tests/sanity-tests.rs",
+      "sha256": "046bd9c25e06cf34ea2052b45530e25df3532fdce3a37349e05fcc9f05689359",
+      "size": 587,
+      "statements": [
+        {
+          "line": 1,
           "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
         }
       ]

@@ -867,6 +867,10 @@
         {
           "line": 2,
           "text": "* // Copyright (c) Radzivon Bartoshyk 3/2025. All rights reserved."
+        },
+        {
+          "line": 487,
+          "text": "copyright: Some(ProfileText::Localizable(vec![LocalizableString::new("
         }
       ]
     },

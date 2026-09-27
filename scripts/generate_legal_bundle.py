@@ -100,7 +100,7 @@ def generate_legal_bundle(input_path: Path, output_root: Path) -> dict:
     files["legal/THIRD-PARTY-NOTICES.txt"] = aggregate_files(inventory, files, "notice_files")
     if any(component["source_offer_files"] for component in inventory["components"]):
         files["legal/SOURCE-OFFER.txt"] = aggregate_files(inventory, files, "source_offer_files")
-    files[f"sbom/vadgr-{inventory['version']}.spdx.json"] = canonical_json(build_sbom(inventory))
+    files[f"sbom/vadgr-{inventory['version']}.spdx.json"] = canonical_json(build_sbom(inventory, files))
     inventory_bytes = canonical_json(inventory)
     review = {key: inventory[key] for key in (
         "schema", "version", "target", "terms_version", "terms_sha256", "source_inputs", "payload_manifest_sha256",

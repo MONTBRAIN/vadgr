@@ -88,6 +88,28 @@
           "text": "// Copyright 2016 The rust-url developers."
         }
       ]
+    },
+    {
+      "path": "url-2.5.8/tests/unit.rs",
+      "sha256": "7eb96c1194fba03fd7f469c44cbbe28699dae14399be72e4c5c675a90fe08dc7",
+      "size": 44594,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2013-2014 The rust-url developers."
+        }
+      ]
+    },
+    {
+      "path": "url-2.5.8/tests/wpt.rs",
+      "sha256": "2d083ab72ad8cc9b116dd164e63440dd120f07977ac306377633cfe214f34a62",
+      "size": 14369,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2013-2014 The rust-url developers."
+        }
+      ]
     }
   ],
   "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."

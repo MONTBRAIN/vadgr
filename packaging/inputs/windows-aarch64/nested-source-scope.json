@@ -30,53 +30,45 @@
           "target-link-relevant"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#asn1_derive@0.24.1": [
-          "source-edge-unresolved"
+          "build-or-generated-code"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#base64@0.23.0": [
-          "source-edge-unresolved",
           "target-link-relevant"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#bitflags@2.13.1": [
-          "source-edge-unresolved"
+          "target-link-relevant"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#cc@1.4.0": [
-          "build-or-generated-code",
-          "source-edge-unresolved"
+          "build-or-generated-code"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#cfg-if@1.0.4": [
-          "source-edge-unresolved",
           "target-link-relevant"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#find-msvc-tools@0.1.9": [
-          "build-or-generated-code",
-          "source-edge-unresolved"
+          "build-or-generated-code"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#foreign-types-shared@0.1.1": [
-          "source-edge-unresolved",
           "target-link-relevant"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#foreign-types@0.3.2": [
-          "source-edge-unresolved",
           "target-link-relevant"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#heck@0.5.0": [
           "build-or-generated-code"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#itoa@1.0.18": [
-          "source-edge-unresolved"
+          "target-link-relevant"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#libc@0.2.189": [
-          "source-edge-unresolved",
           "target-link-relevant"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#once_cell@1.21.4": [
           "target-link-relevant"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#openssl-macros@0.1.1": [
-          "source-edge-unresolved"
+          "build-or-generated-code"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#openssl-sys@0.9.117": [
-          "source-edge-unresolved",
           "target-link-relevant"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#openssl@0.10.81": [
@@ -86,14 +78,13 @@
           "target-link-relevant"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#pkg-config@0.3.33": [
-          "source-edge-unresolved"
+          "build-or-generated-code"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#portable-atomic@1.14.0": [
           "target-link-relevant"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#proc-macro2@1.0.107": [
-          "build-or-generated-code",
-          "source-edge-unresolved"
+          "build-or-generated-code"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#pyo3-build-config@0.29.0": [
           "build-or-generated-code"
@@ -111,44 +102,28 @@
           "target-link-relevant"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#quote@1.0.47": [
-          "build-or-generated-code",
-          "source-edge-unresolved"
+          "build-or-generated-code"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#self_cell@1.3.0": [
           "target-link-relevant"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#shlex@2.0.1": [
-          "build-or-generated-code",
-          "source-edge-unresolved"
+          "build-or-generated-code"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.119": [
-          "build-or-generated-code",
-          "source-edge-unresolved"
+          "build-or-generated-code"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#target-lexicon@0.13.5": [
           "build-or-generated-code"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#unicode-ident@1.0.24": [
-          "build-or-generated-code",
-          "source-edge-unresolved"
+          "build-or-generated-code"
         ],
         "registry+https://github.com/rust-lang/crates.io-index#vcpkg@0.2.15": [
-          "source-edge-unresolved"
+          "build-or-generated-code"
         ]
       },
-      "missing_source_manifests": [
-        "registry+https://github.com/rust-lang/crates.io-index#asn1@0.24.1",
-        "registry+https://github.com/rust-lang/crates.io-index#asn1_derive@0.24.1",
-        "registry+https://github.com/rust-lang/crates.io-index#cc@1.4.0",
-        "registry+https://github.com/rust-lang/crates.io-index#foreign-types@0.3.2",
-        "registry+https://github.com/rust-lang/crates.io-index#openssl-macros@0.1.1",
-        "registry+https://github.com/rust-lang/crates.io-index#openssl-sys@0.9.117",
-        "registry+https://github.com/rust-lang/crates.io-index#openssl@0.10.81",
-        "registry+https://github.com/rust-lang/crates.io-index#pem@4.0.0",
-        "registry+https://github.com/rust-lang/crates.io-index#proc-macro2@1.0.107",
-        "registry+https://github.com/rust-lang/crates.io-index#quote@1.0.47",
-        "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.119"
-      ],
+      "missing_source_manifests": [],
       "sha256": "45850696f75bdc8fd18916b9a20ce4de588e0eb0471b67371a15d62a27501cb4"
     },
     "nested-sboms/wheel-pydantic-core-2.46.5/000-pydantic-core.cyclonedx.json": {

@@ -1,6 +1,6 @@
 {
   "archive_sha256": "0b993bddc193ae5bd0d623b49ec06ac3e9312875fdae725a975c51db1cc1677f",
-  "eligible_for_reviewed_NONE": false,
+  "eligible_for_reviewed_NONE": true,
   "files": [
     {
       "path": "unicode-general-category-1.1.0/.cargo_vcs_info.json",
@@ -39,64 +39,12 @@
       "status": "decoded-no-ownership-markers"
     },
     {
-      "mentions": [
-        {
-          "line": 12,
-          "text": "      \"Licensor\" shall mean the copyright owner or entity authorized by"
-        },
-        {
-          "line": 13,
-          "text": "      the copyright owner that is granting the License."
-        },
-        {
-          "line": 37,
-          "text": "      copyright notice that is included in or attached to the work"
-        },
-        {
-          "line": 51,
-          "text": "      submitted to Licensor for inclusion in the Work by the copyright owner"
-        },
-        {
-          "line": 53,
-          "text": "      the copyright owner. For the purposes of this definition, \"submitted\""
-        },
-        {
-          "line": 60,
-          "text": "      designated in writing by the copyright owner as \"Not a Contribution.\""
-        },
-        {
-          "line": 66,
-          "text": "   2. Grant of Copyright License. Subject to the terms and conditions of"
-        },
-        {
-          "line": 69,
-          "text": "      copyright license to reproduce, prepare Derivative Works of,"
-        },
-        {
-          "line": 100,
-          "text": "      (c) You must retain, in the Source form of any Derivative Works"
-        },
-        {
-          "line": 101,
-          "text": "          that You distribute, all copyright, patent, trademark, and"
-        },
-        {
-          "line": 123,
-          "text": "      You may add Your own copyright statement to Your modifications and"
-        },
-        {
-          "line": 186,
-          "text": "      same \"printed page\" as the copyright notice for easier"
-        },
-        {
-          "line": 189,
-          "text": "   Copyright {yyyy} {name of copyright owner}"
-        }
-      ],
+      "normalized_sha256": "958e28cd3f37c23ec02881fe20cb82d4151668349e1c7beb2daea4ce2640dcf0",
       "path": "unicode-general-category-1.1.0/LICENSE",
       "sha256": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1",
       "size": 11357,
-      "status": "ambiguous-ownership-marker"
+      "status": "complete-standard-boilerplate",
+      "template": "Apache-2.0-standard-unfilled-brace-template"
     },
     {
       "path": "unicode-general-category-1.1.0/Makefile",

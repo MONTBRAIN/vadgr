@@ -212,6 +212,14 @@ def classify_nested(packet, observations, workspace, architecture):
             continue
         graph, missing = nested_graph(sbom, manifests, architecture)
         graphs[path] = {"sha256": sha256_bytes(raw), "contexts": graph, "missing_source_manifests": missing}
+        if not missing and all(row.get("purl", "").startswith("pkg:cargo/") for row in sbom.get("components", [])):
+            parent_id = path.split("/")[1]
+            parent = next((row for row in packet.evidence if row["id"] == parent_id), None)
+            pending = next((row for row in packet.pending if row["id"] == parent_id), None)
+            if parent is not None and pending is not None:
+                parent.setdefault("classified_nested_catalogues", []).append({"path": path, "sha256": sha256_bytes(raw),
+                    "scope": "Every retained Rust SBOM entry classified using source dependency kinds and target cfg; link relevance is conservative, not a binary symbol claim."})
+                pending["items"] = [item for item in pending["items"] if item != "target-specific-nested-SBOM-scope"]
         for row in sbom.get("components", []):
             key = (row["name"], row.get("version"))
             contexts[key].update(graph.get(row["bom-ref"], ["not-target-reachable-in-source-graph"]))
@@ -294,6 +302,21 @@ def map_python_native(packet, inputs, source, architecture):
             "extension_names": extensions, "producer_records": records, "observed_members": binary}
         relationships[identifier]["observed_PE_imports"] = imports
         relationships[identifier]["producer_metadata_corrections"] = corrections
+        evidence = next(item for item in packet.evidence if item["id"] == identifier)
+        evidence["scope"] = "runtime-native-source-mapped-by-producer-build-metadata"
+        evidence["binary_mapping"] = relationships[identifier]
+        pending = next(item for item in packet.pending if item["id"] == identifier)
+        pending["items"] = [item for item in pending["items"] if item != "target-binary-to-source-mapping"]
+    core = metadata["build_info"]["core"]
+    require(core.get("shared_lib") == "install/python312.dll", "producer Python core mapping differs")
+    for identifier, paths in {
+        "native-cpython-3.12": ["python312.dll", "python.exe"],
+        "runtime-cpython-3.12.14": sorted(path.relative_to(root).as_posix() for path in root.rglob("*") if path.is_file()),
+    }.items():
+        relationships[identifier] = {"basis": "pinned-producer-core-metadata-and-exact-observed-runtime-tree",
+            "producer_core_record": core,
+            "observed_members": {"payload/lib/cua/python/3.12.14/" + path: sha256_bytes(read_owned(root, path)) for path in paths},
+            "limitation": "Producer source/object mapping, not an unmodified-upstream or reproducible-build assertion. Third-party runtime components remain separately inventoried."}
         evidence = next(item for item in packet.evidence if item["id"] == identifier)
         evidence["scope"] = "runtime-native-source-mapped-by-producer-build-metadata"
         evidence["binary_mapping"] = relationships[identifier]

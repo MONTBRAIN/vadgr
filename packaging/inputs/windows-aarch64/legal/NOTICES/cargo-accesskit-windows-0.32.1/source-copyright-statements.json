@@ -72,6 +72,39 @@
       ]
     },
     {
+      "path": "accesskit_windows-0.32.1/src/tests/mod.rs",
+      "sha256": "b31a63b104a38319b0e469700a77ed0a3b3360fb9a917bc0723d33e7e869495c",
+      "size": 11743,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_windows-0.32.1/src/tests/simple.rs",
+      "sha256": "3981bd1cc64ab035c24f7a51b047d73cd456af7744a553cef10452477afe7c46",
+      "size": 6874,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_windows-0.32.1/src/tests/subclassed.rs",
+      "sha256": "499a4a08afb3fe91ed9ce7b5a481bcfb42cdecb8a344489663ef7726a1941076",
+      "size": 5469,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
       "path": "accesskit_windows-0.32.1/src/text.rs",
       "sha256": "e04830efdf45fc7e30de1b0e1b711c52193e5367022cb0b7a7698d8c326c6cc4",
       "size": 22489,
