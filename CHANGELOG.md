@@ -15,6 +15,9 @@ All notable changes to this project are documented here. Format follows [Keep a 
 - Private payload assembly removes debug files, tests, bytecode caches and
   foreign launcher templates before sealing its inventory. Binary source
   archives remain intact and receive hash references in the source-offer text.
+- Windows ARM64 assembly excludes unused incompatible DLLs from the pinned
+  base Python runtime. Required imports, delay imports, export forwarders and
+  ambiguous or malformed images stop assembly. Native ARM64 DLLs stay intact.
 - Native wheel attestation checks use the exact certificate identity without a
   conflicting GitHub CLI selector. Windows checkouts preserve the pinned trust
   root's LF bytes. Repository, issuer, source, signer and hosted-runner checks

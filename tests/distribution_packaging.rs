@@ -26,6 +26,27 @@ fn package_source_reader_accepts_lf_and_crlf_without_changing_content() {
 }
 
 #[test]
+fn arm64_dependency_pruning_precedes_immutable_base_python_installation() {
+    let source = read("src/cua_payload.rs");
+    let prune = "windows_pe::prune_arm64_base_python(&extracted_python, target)?;";
+    assert_eq!(source.matches(prune).count(), 1);
+    let position = source.find(prune).unwrap();
+    assert!(source[..position].contains("prune_python_runtime(&extracted_python, target)?;"));
+    let install = source
+        .find("install_immutable_directory(&extracted_python, &python_final)?;")
+        .unwrap();
+    assert!(position < install);
+    assert!(!source.contains("windows_pe::prune_arm64_base_python(&environment_staging"));
+    let check = source.find(
+        "windows_pe::verify_retained_dependencies(&environment_staging, target, &excluded_dlls)?;"
+    ).unwrap();
+    let seal = source
+        .find("install_immutable_directory(&environment_staging, &environment_final)?;")
+        .unwrap();
+    assert!(install < check && check < seal);
+}
+
+#[test]
 fn every_runtime_surface_derives_the_cargo_package_version() {
     assert!(read("Cargo.toml").contains("version = \"0.5.0\""));
     let config = read("src/config.rs");

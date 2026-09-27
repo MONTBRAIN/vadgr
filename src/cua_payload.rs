@@ -2,6 +2,7 @@
 
 mod managed;
 mod release;
+mod windows_pe;
 
 use crate::engine::mcp::ToolServer;
 use crate::engine::mcp::cua::CuaServer;
@@ -491,6 +492,7 @@ impl CuaPayloadInstaller {
             "Python archive has no python directory"
         );
         prune_python_runtime(&extracted_python, target)?;
+        let excluded_dlls = windows_pe::prune_arm64_base_python(&extracted_python, target)?;
         let python_final = self
             .install_root
             .join("lib/cua/python")
@@ -553,6 +555,7 @@ impl CuaPayloadInstaller {
         #[cfg(unix)]
         finalize_unix_environment(&environment_staging, &python_final)?;
         prune_python_runtime(&environment_staging, target)?;
+        windows_pe::verify_retained_dependencies(&environment_staging, target, &excluded_dlls)?;
 
         let bootstrap_staging = staging.join("bootstrap.py");
         std::fs::write(&bootstrap_staging, BOOTSTRAP)?;
