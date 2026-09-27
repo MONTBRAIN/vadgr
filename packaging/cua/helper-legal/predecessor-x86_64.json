@@ -2,28 +2,28 @@
   "schema": 1,
   "scope": "cua-helper-input-redistribution-and-authenticode-transformation",
   "version": "0.7.9",
-  "architecture": "aarch64",
-  "source_commit": "e4496d006b0965c0b55710af608723344154ed46",
+  "architecture": "x86_64",
+  "source_commit": "df7be3d898d57a9f2f6295733e3d76926253e984",
   "review_date": "2026-09-27",
   "status": "approved",
   "decision": "Publisher authorization to complete, merge and release CUA 0.7.9 after final source review, recorded on 2026-09-27.",
   "review_notes_sha256": "b10fecc9879443109a5a5d4412f8430bdb2039248560e9206aded3afe9af389c",
   "review_input": {
     "repository": "MONTBRAIN/vadgr-computer-use",
-    "run_id": 36347342928,
+    "run_id": 36346786722,
     "attempt": 1,
-    "tooling_commit": "a5844a5cc9b8a4f36b457ac0f9de45533429f7b3",
-    "receipt_sha256": "6964b41b158be42ee8374e828fae003a33c9345acc3f6cb629ec94bc9718e5a8",
+    "tooling_commit": "6e078f4d83a546abe35c34c8d37d28dfba66f65b",
+    "receipt_sha256": "67025e4350428247974c611fcc5a05a4fd7d2bfd65cb707a6f828f159db554c0",
     "files": [
       {
         "path": "broker.manifest.json",
-        "sha256": "32b12bd5c8dd74a2ef280b2f381765e5cd55fa7eae5045596b7ada9661d719a9",
-        "size": 9873
+        "sha256": "5933ceac8ecb48a2c9c98db7a39c9c1817b6d7fccdc486fe915f12492dff7969",
+        "size": 10031
       },
       {
         "path": "broker.spdx.json",
-        "sha256": "dfa00f4e87b69e7eacece4a22008cfd70589d6eb95dd20e7f113fcac3d4797a9",
-        "size": 121011
+        "sha256": "5921a04a0aa39cd11b963f7ba68aefd669d81600420e460852fe59a6036e7cf6",
+        "size": 121548
       },
       {
         "path": "build-inputs/notice-inputs.json",
@@ -37,7 +37,7 @@
       },
       {
         "path": "build-inputs/source-input.json",
-        "sha256": "80f2cac8d27b45f6cbff81e15521c42f9a11fb4011ec0b29f10d90b739beae9c",
+        "sha256": "11c5ae8b33ff05a07e388112ab8650a3d2d475e478300015ae10477958130c45",
         "size": 103
       },
       {
@@ -52,8 +52,8 @@
       },
       {
         "path": "member-inventory.json",
-        "sha256": "4654db9972c415d89799bbdb4d94d933ba38fb7a5dffb927e8cc0b037eef34a9",
-        "size": 10326
+        "sha256": "d2442223fc2eac910e14ad3dd2adb78a7b20ab6a462a0ca39bed2cdc6bfc2e86",
+        "size": 10562
       },
       {
         "path": "notices/PYINSTALLER-COPYING.txt",
@@ -62,8 +62,8 @@
       },
       {
         "path": "notices/PYTHON-LICENSE.txt",
-        "sha256": "274a6db71c1e25831048526c96407f364bae8dd7c43c36211706d1a0c63829ea",
-        "size": 22182
+        "sha256": "886a0ead2d89030ee62dbff52b04e47ab91998341295bb9c56fb952b4e081c7a",
+        "size": 25066
       },
       {
         "path": "notices/THIRD-PARTY-NOTICES/LICENSE.bzip2.txt",
@@ -132,8 +132,8 @@
       },
       {
         "path": "notices/THIRD-PARTY-NOTICES/source-inventory.json",
-        "sha256": "b97dc12040afaef0bd5f7a5654c31924bdf99b29073de96c116cb464861abdb5",
-        "size": 120804
+        "sha256": "a9a161de46cc4b3684d995b183d9e459aa85b0b9082b877644040f5ecae6ca60",
+        "size": 120640
       },
       {
         "path": "notices/VADGR-CUA-LICENSE.txt",
@@ -143,21 +143,21 @@
     ]
   },
   "input_closure": {
-    "architecture": "aarch64",
+    "architecture": "x86_64",
     "archive": {
-      "path": "computer_use/browser/winbroker/aarch64/vadgr-cua-browser-broker-win-arm64.zip",
-      "sha256": "eda5c173fb95bffe4cd631e77b1256ce93f7f14decaa375cb5d4b40463acfc45",
-      "size": 25473357
+      "path": "computer_use/browser/winbroker/x86_64/vadgr-cua-browser-broker-win-x64.zip",
+      "sha256": "a4008d5969883bcc32a484365128a32b26ef9a7f3bb35dfeda156212c4294704",
+      "size": 23621787
     },
     "member_manifest": {
-      "path": "computer_use/browser/winbroker/aarch64/vadgr-cua-browser-broker-win-arm64.manifest.json",
-      "sha256": "32b12bd5c8dd74a2ef280b2f381765e5cd55fa7eae5045596b7ada9661d719a9",
-      "size": 9873
+      "path": "computer_use/browser/winbroker/x86_64/vadgr-cua-browser-broker-win-x64.manifest.json",
+      "sha256": "5933ceac8ecb48a2c9c98db7a39c9c1817b6d7fccdc486fe915f12492dff7969",
+      "size": 10031
     },
     "relay": {
-      "path": "computer_use/browser/winhost/aarch64/vadgr-cua-host.exe",
-      "sha256": "1fd3317cfe243cc84763d67d73390833b3f307e052ce2bbede4e86c01f777cb7",
-      "size": 2558976
+      "path": "computer_use/browser/winhost/x86_64/vadgr-cua-host.exe",
+      "sha256": "0f8ad4e48b90a531422ae5ec97faca7552052b1a3de2afdd03ee5384cb209b50",
+      "size": 2658816
     }
   },
   "source_offer_required": false,
@@ -173,8 +173,8 @@
       "license_and_notice_members": []
     },
     "PYTHON-LICENSE.txt": {
-      "input_sha256": "274a6db71c1e25831048526c96407f364bae8dd7c43c36211706d1a0c63829ea",
-      "size": 22182,
+      "input_sha256": "886a0ead2d89030ee62dbff52b04e47ab91998341295bb9c56fb952b4e081c7a",
+      "size": 25066,
       "trust_class": "data",
       "components": [
         "distribution-notice"
@@ -299,8 +299,8 @@
       "license_and_notice_members": []
     },
     "THIRD-PARTY-NOTICES/source-inventory.json": {
-      "input_sha256": "b97dc12040afaef0bd5f7a5654c31924bdf99b29073de96c116cb464861abdb5",
-      "size": 120804,
+      "input_sha256": "a9a161de46cc4b3684d995b183d9e459aa85b0b9082b877644040f5ecae6ca60",
+      "size": 120640,
       "trust_class": "data",
       "components": [
         "distribution-notice"
@@ -317,8 +317,19 @@
       "license_and_notice_members": []
     },
     "_internal/VCRUNTIME140.dll": {
-      "input_sha256": "d8a8513921544569837e400d37cc71302819967ae6defa932266a7ecb41dbaf9",
-      "size": 199200,
+      "input_sha256": "d5e4d9a3e835fa679450145d6a7d94e36573a509317111904d9b3712c30d9066",
+      "size": 124544,
+      "trust_class": "vendor-preserve",
+      "components": [
+        "Microsoft-VC-runtime"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ]
+    },
+    "_internal/VCRUNTIME140_1.dll": {
+      "input_sha256": "1f2d41c4aa5db0bc33ebf7b66d72943a817d7ce6cbe880502a9403823633093f",
+      "size": 49792,
       "trust_class": "vendor-preserve",
       "components": [
         "Microsoft-VC-runtime"
@@ -328,8 +339,8 @@
       ]
     },
     "_internal/_asyncio.pyd": {
-      "input_sha256": "b500bf67c53101d7b4a2d5418723ff0252de4321af88653ad6fd7a4ff41129c1",
-      "size": 61440,
+      "input_sha256": "02c681521aa0eaa4822b206e2ed0cb51de969af86045846a52a321908e041f14",
+      "size": 59392,
       "trust_class": "publisher-sign",
       "components": [
         "CPython"
@@ -339,8 +350,8 @@
       ]
     },
     "_internal/_bz2.pyd": {
-      "input_sha256": "63eaeea404ac2b6e0dee92196102d1436c72028e1ba91de7a7b6c408aacc7395",
-      "size": 70144,
+      "input_sha256": "1cedba5927c6f00b4278c2b60b5696506ccc73af4859384a26160e1cf4945d01",
+      "size": 73216,
       "trust_class": "publisher-sign",
       "components": [
         "CPython",
@@ -352,8 +363,8 @@
       ]
     },
     "_internal/_ctypes.pyd": {
-      "input_sha256": "e3d3f72bbb6d57538079a19de978e7a299db4032f1b2304716f8c54b81bc4d3b",
-      "size": 119296,
+      "input_sha256": "78edcd2a863472cded0f311eac31c778bc30fb9754fa815bb32c4e286eb7f155",
+      "size": 116224,
       "trust_class": "publisher-sign",
       "components": [
         "CPython"
@@ -363,8 +374,8 @@
       ]
     },
     "_internal/_decimal.pyd": {
-      "input_sha256": "27350d0c4a9bb649046d0c350211a691d64fc43f5305daaf023c2a8571c1dabd",
-      "size": 232960,
+      "input_sha256": "14ec08311a3ee2248eaa332cec544bfda6a777bf649029303ee5675bb8ffa939",
+      "size": 248320,
       "trust_class": "publisher-sign",
       "components": [
         "CPython",
@@ -376,8 +387,8 @@
       ]
     },
     "_internal/_hashlib.pyd": {
-      "input_sha256": "c64827d5797c75b862ef2e7a292fab5372bd1daafb2aea53a596b785f47c7f17",
-      "size": 51712,
+      "input_sha256": "0f234dd56319a354cbc103063e58ea25f57b05c0e3825bca0d608518e9c16583",
+      "size": 54784,
       "trust_class": "publisher-sign",
       "components": [
         "CPython"
@@ -387,8 +398,8 @@
       ]
     },
     "_internal/_lzma.pyd": {
-      "input_sha256": "6e94dbb952861cf2152ea6211c083d880d331cad180f519b2fa9044dd07accc2",
-      "size": 138752,
+      "input_sha256": "31cfc6fd91059f0e4fd819a3381615db6639faaca7d5428c07c37fb64385b3da",
+      "size": 152576,
       "trust_class": "publisher-sign",
       "components": [
         "CPython",
@@ -400,8 +411,8 @@
       ]
     },
     "_internal/_multiprocessing.pyd": {
-      "input_sha256": "8401b3579b28ce2447e802cc1ceac97c074bbd595b630e4ff39cbc54bf7032d6",
-      "size": 23040,
+      "input_sha256": "95303df7e7be0b75e67d64127b69704392267e50b2306f5ad45a9e64e7764aa2",
+      "size": 24064,
       "trust_class": "publisher-sign",
       "components": [
         "CPython"
@@ -411,8 +422,8 @@
       ]
     },
     "_internal/_overlapped.pyd": {
-      "input_sha256": "9627e0a661fd191f8110323f83a2c2b5c88471a4d1fb5c77d5370bf40b62ffa9",
-      "size": 41472,
+      "input_sha256": "6a36b0102c76e6a931523725380ad8b9d4d559578c528f98110f7b42445feef3",
+      "size": 44032,
       "trust_class": "publisher-sign",
       "components": [
         "CPython"
@@ -422,8 +433,8 @@
       ]
     },
     "_internal/_queue.pyd": {
-      "input_sha256": "ab0e8860920560ac2f53702f66d11d7262a18f608830adf62fe6279791639fd1",
-      "size": 19456,
+      "input_sha256": "6f8dd84f376f5312b206acbe56d2a80eaea53cfadcf81f1c14fb97e75f82fc32",
+      "size": 20480,
       "trust_class": "publisher-sign",
       "components": [
         "CPython"
@@ -433,8 +444,8 @@
       ]
     },
     "_internal/_socket.pyd": {
-      "input_sha256": "042657c40fa680d007f7b9c0de1e7618a16f0c1d2d31da9cfdefbb5aa374d1c4",
-      "size": 71168,
+      "input_sha256": "df165b012ac7c7dbdd240bfec0237c215dea88ebcd988719658ca8afa4ec7692",
+      "size": 71680,
       "trust_class": "publisher-sign",
       "components": [
         "CPython"
@@ -444,8 +455,8 @@
       ]
     },
     "_internal/_ssl.pyd": {
-      "input_sha256": "0ef5ba2d776d9d25267bd475aab4738993b607515c46269892cedcf6ab0e0b4f",
-      "size": 171520,
+      "input_sha256": "480cce65c9b8fd755c5fafab5ba89b04dffd43ce64a1220b30c483e83f28fe6a",
+      "size": 164864,
       "trust_class": "publisher-sign",
       "components": [
         "CPython"
@@ -455,8 +466,8 @@
       ]
     },
     "_internal/_uuid.pyd": {
-      "input_sha256": "3906e63cebf2305b1bf9dfcf62ceb63aeb4ea954edb7bfec23c01a93985ce5a7",
-      "size": 13312,
+      "input_sha256": "89b9c2751660b7821c4107f75821b3b705a6004e9a70517956c7cfb5edae7b42",
+      "size": 13824,
       "trust_class": "publisher-sign",
       "components": [
         "CPython"
@@ -466,7 +477,7 @@
       ]
     },
     "_internal/_wmi.pyd": {
-      "input_sha256": "042fe1c238f9b96973c7d4755a5a4b3a80f4320e1036303624c2f8e789ebc8e2",
+      "input_sha256": "01e899f2e92bb73c25edfe2d69a7bb55bd2814a1c3f9eeb115377c19b388ed7a",
       "size": 25600,
       "trust_class": "publisher-sign",
       "components": [
@@ -487,9 +498,9 @@
         "PYTHON-LICENSE.txt"
       ]
     },
-    "_internal/libcrypto-3-arm64.dll": {
-      "input_sha256": "2fd43e7a32f9044d0c4367233d1a11c5b1ec14f129d876c6329e0bd1f65e6ac0",
-      "size": 8978432,
+    "_internal/libcrypto-3-x64.dll": {
+      "input_sha256": "7404fb0dc38e868aea1551ff8ceb3fce635ba6173439f882715a6e87e5237370",
+      "size": 7987712,
       "trust_class": "publisher-sign",
       "components": [
         "OpenSSL"
@@ -500,8 +511,8 @@
       ]
     },
     "_internal/libffi-8.dll": {
-      "input_sha256": "9c0f6722da9f6d9c5d5d34c7e458a8b600614a68856f8884886f8e108747d7e1",
-      "size": 29696,
+      "input_sha256": "634bca492b28c5d530f1bc321dd6d240b92c5013f3815f59653ec483890db27b",
+      "size": 28160,
       "trust_class": "publisher-sign",
       "components": [
         "libffi"
@@ -511,9 +522,9 @@
         "THIRD-PARTY-NOTICES/LICENSE.libffi.txt"
       ]
     },
-    "_internal/libssl-3-arm64.dll": {
-      "input_sha256": "e3270e1a8cc65ed2e6eebb977d17c39c54e6fdb4ee79951a8161076f5c579790",
-      "size": 2226688,
+    "_internal/libssl-3-x64.dll": {
+      "input_sha256": "48d349578f5584f15fd3501501e75e87c80369c6ed35f39de55fbb92bee02df5",
+      "size": 1583616,
       "trust_class": "publisher-sign",
       "components": [
         "OpenSSL"
@@ -524,8 +535,8 @@
       ]
     },
     "_internal/predecessor-catalog.json": {
-      "input_sha256": "7fad912270b8e652a480b60157f40e8da27231699b437bdb832d3ca126bc4c99",
-      "size": 75,
+      "input_sha256": "c969f56ddfecb014182ed9dad8373300b3e30520708c1514588c87c6f5532a71",
+      "size": 1354,
       "trust_class": "data",
       "components": [
         "vadgr-computer-use"
@@ -533,8 +544,8 @@
       "license_and_notice_members": []
     },
     "_internal/pyexpat.pyd": {
-      "input_sha256": "b35f84e5128546a5ccad44ca58d211278ea606e449b258f84c359ed8a1ac0308",
-      "size": 194560,
+      "input_sha256": "7c7197db94612b3904ef0ada2a4940bcc6853136cc70f3523a4f26fffccbf37e",
+      "size": 210432,
       "trust_class": "publisher-sign",
       "components": [
         "CPython",
@@ -546,8 +557,8 @@
       ]
     },
     "_internal/python312.dll": {
-      "input_sha256": "1a27dffb84ceb3f8be6e936210a4829ce93809609adf65f50fa384729d22e018",
-      "size": 7200768,
+      "input_sha256": "53d38ecd2d9f4e19ac9328a715d1155e3e183473845e15d0044342909fc718a0",
+      "size": 6969856,
       "trust_class": "publisher-sign",
       "components": [
         "CPython"
@@ -557,8 +568,8 @@
       ]
     },
     "_internal/select.pyd": {
-      "input_sha256": "1926848469e65c8cfa30e420ef6f3da936b9f72de582b121141f850bfe201375",
-      "size": 17920,
+      "input_sha256": "de108cd0108e8cdfb1f1e95e9fe6b3ede886aaa80a9fe86deb2619ec17d4e625",
+      "size": 18944,
       "trust_class": "publisher-sign",
       "components": [
         "CPython"
@@ -568,8 +579,8 @@
       ]
     },
     "_internal/unicodedata.pyd": {
-      "input_sha256": "494865708e51bd977972815e63a55274aeb78b33fd47404f2967b8cb9aa65dba",
-      "size": 1125888,
+      "input_sha256": "f7cd7dfbc3c82be5f17fc61424ca316fa43b50193f3e633c5c042d62a47d0dd7",
+      "size": 1127936,
       "trust_class": "publisher-sign",
       "components": [
         "CPython"
@@ -579,8 +590,8 @@
       ]
     },
     "vadgr-cua-browser-broker.exe": {
-      "input_sha256": "e4ae31668c3bee0e1cb7495948b7a4ad65e1d8da6666cb0c2933abe0418c348b",
-      "size": 2901183,
+      "input_sha256": "ffc29ae812efd46cc464277843c017f560c47967e7f0c0261edac6d867165fc5",
+      "size": 2888466,
       "trust_class": "publisher-sign",
       "components": [
         "vadgr-computer-use",
@@ -597,8 +608,8 @@
       ]
     },
     "vadgr-cua-host.exe": {
-      "input_sha256": "1fd3317cfe243cc84763d67d73390833b3f307e052ce2bbede4e86c01f777cb7",
-      "size": 2558976,
+      "input_sha256": "0f8ad4e48b90a531422ae5ec97faca7552052b1a3de2afdd03ee5384cb209b50",
+      "size": 2658816,
       "trust_class": "publisher-sign",
       "components": [
         "vadgr-computer-use",
