@@ -1,0 +1,51 @@
+{
+  "artifact_id": 10922200315,
+  "artifact_sha256": "e40e6d310c8113d0a30e93782b05c6c05ea96757864d8f8b47c933909bacaa00",
+  "bundle_sha256": "0ee73cd90dc15034deff0bab8db9453552a54f8942170e471ec3191f48d465db",
+  "catalog_sha256": "26a750df35a298a511cbea51825f0692de55460747419135fa186470ba0ffccb",
+  "profiles": {
+    "linux-aarch64": {
+      "requirements_sha256": "d50d77990477fb58c37533c62d6c23c8e03f6866ba7b8729c162ae141f5d2436",
+      "role_manifest_sha256": "24e7a998d1d97cd9537d8e115b27f435c9c497896e247fb734ec5db52c314f92",
+      "wheel_sha256": "17cbe06a499c4a081764c47b5d96e6ca1e192e2d7b24f0583192470b7d06a1f0"
+    },
+    "linux-x86_64": {
+      "requirements_sha256": "d1b5369400bc28cb37da65a99bb7382c069c319604745a25333585eb4825e7e3",
+      "role_manifest_sha256": "165e41114de717d30c4a3182fd4fa766c41f9b1174380e0d61c0eb13f1f5935e",
+      "wheel_sha256": "7f2fa33e40af799653ce497d4b070899ec5c4b78517416862e63567df4efeba5"
+    },
+    "macos-aarch64": {
+      "requirements_sha256": "5d3b28db6b86cbd9906cd9495640bc4891d2c33193ec630e6f7aa6f39c95206c",
+      "role_manifest_sha256": "7ea6286d2fb846d24b109a492664f85f2324ebee8c45684d9c35a9684dfee06c",
+      "wheel_sha256": "5d50ca963ebaa7861edced063e0be5a234cc37634547f205d4428822fb58e284"
+    },
+    "macos-x86_64": {
+      "requirements_sha256": "5fbf92111e3444221d58c95142e0a4c72f48487d0b974daefc7d325c5313137a",
+      "role_manifest_sha256": "e0b40b251d8b9bf259c357ea5c0b8536229ff8ac90b7ef4908b4212ca35383ea",
+      "wheel_sha256": "c02a38865e9791b0fac0b162587f3f06d58bd8b734df03163bf8871f6fb11fef"
+    },
+    "windows-aarch64": {
+      "requirements_sha256": "a18356e2a262f8d9a518505bc5b7fa00ad99323068e2b444d73159c8ed57691b",
+      "role_manifest_sha256": "3a71f74e9d481fc561da6d01e5ce852b1a488fd1b37f4da11a77899ce57de9a9",
+      "wheel_sha256": "a5a5589d52c1af0b00ba3393dc38b65279e1b2c5ef7f9ef63b3ae58ce22b01c6"
+    },
+    "windows-x86_64": {
+      "requirements_sha256": "e63d09b556a17aed7899f88eb5f3c3245e47f6eda94ed54c4dfb8c8e7db96156",
+      "role_manifest_sha256": "1d19fc47a96b92dfe6b7631deac03855d930a680765f8e3b99867090f23d644e",
+      "wheel_sha256": "cdfbd45fd528cd3738cc2635e848b3aac3448f51820abcb20c84b33e056282c5"
+    },
+    "wsl-aarch64": {
+      "requirements_sha256": "9358d7e9adb65354e1bed1debba06e7147ae7d230056ea368350d59801863dff",
+      "role_manifest_sha256": "ec6b35784976bc294afeb79a6a1a7b29e174bbd4395d917ee974be26a3124205",
+      "wheel_sha256": "d37691cfe5505a1060f480712a7d3996255b0da57005aae8f98c74ff7606a503"
+    },
+    "wsl-x86_64": {
+      "requirements_sha256": "c2a4d8951aa8290b992ed97fcf66ebebdd9120e0e9a8dfc01accec61064cbd8a",
+      "role_manifest_sha256": "e30ba2207640e9853986c78fc6548e1554104fc75c260b05f204e48bc3f74de1",
+      "wheel_sha256": "2e385dfb3a75bc861e51f3ce0e12e4b44216f14072e032c0b552a1157693232f"
+    }
+  },
+  "publication_sha256": null,
+  "publication_state": "held",
+  "schema": 1
+}
