@@ -107,10 +107,14 @@ def test_feature_cannot_change_any_reviewed_input(tmp_path, target, changed):
 
 
 @pytest.mark.parametrize("target", release.CUSTOM_TARGETS)
-def test_unpromoted_targets_still_refuse_missing_selected_locks(target):
-    assert not (ROOT / release.lock_path(target)).exists()
-    with pytest.raises(PackageInputError, match="missing input"):
-        release.reviewed_inputs(ROOT, ROOT, target)
+def test_promoted_native_targets_use_exact_selected_locks(target):
+    lock = ROOT / release.lock_path(target)
+    assert lock.is_file()
+    selected = release.selected_lock(lock.read_bytes())
+    expected = OUTPUTS[release.CUSTOM_TARGETS[target]][3]
+    assert selected["cryptography"] == ("50.0.1", expected)
+    binding = release.reviewed_inputs(ROOT, ROOT, target)
+    assert binding["requirements_sha256"] == sha256_bytes(lock.read_bytes())
 
 
 @pytest.mark.parametrize("field,value", [
