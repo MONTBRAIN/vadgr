@@ -42,6 +42,8 @@ if ($LASTEXITCODE -ne 0) { throw 'Reviewed profile wheelhouse verification faile
 New-Item -ItemType Directory -Path $output | Out-Null
 $payload = Join-Path $output 'payload'
 New-Item -ItemType Directory -Path $payload | Out-Null
+$linkMaps = Join-Path $output 'link-maps'
+New-Item -ItemType Directory -Path $linkMaps | Out-Null
 Copy-Item -LiteralPath $sourceRecordPath -Destination (Join-Path $output 'preparation-source.json')
 Copy-Item -LiteralPath $wheelhouse -Destination (Join-Path $output 'wheelhouse') -Recurse
 & python $tool terms --source-root $sourceRoot --out (Join-Path $output 'terms-input.json')
@@ -76,8 +78,11 @@ Push-Location $sourceRoot
 try {
     $env:VADGR_RELEASE_PAYLOAD_BUILD = '1'
     $env:VADGR_RELEASE_PROFILE = $profile
-    & cargo build --locked --release --features native-gui --bin vadgr --bin vadgr-app --target $target
-    if ($LASTEXITCODE -ne 0) { throw 'Unsigned daemon and application compilation failed.' }
+    foreach ($name in @('vadgr', 'vadgr-app')) {
+        $mapPath = Join-Path $linkMaps "$name.map"
+        & cargo rustc --locked --release --features native-gui --bin $name --target $target -- -C "link-arg=/MAP:$mapPath"
+        if ($LASTEXITCODE -ne 0) { throw 'Unsigned daemon or application compilation failed.' }
+    }
     $binary = Join-Path $sourceRoot "target/$target/release"
     & "$binary/vadgr.exe" __payload-setup --install-root $payload --payload-only --wheelhouse $wheelhouse
     if ($LASTEXITCODE -ne 0) { throw 'Unsigned private runtime assembly failed.' }
@@ -94,7 +99,8 @@ try {
         Copy-Item -LiteralPath (Join-Path $sourceRoot $terms.path) -Destination (Join-Path $termsRoot 'TERMS.txt')
         $env:VADGR_TERMS_VERSION = $terms.version
         $env:VADGR_TERMS_SHA256 = $terms.sha256
-        & cargo rustc --locked --manifest-path packaging/windows/ba-functions/Cargo.toml --release --target $target -- -C target-feature=+crt-static
+        $baMapPath = Join-Path $linkMaps 'ba-functions.map'
+        & cargo rustc --locked --manifest-path packaging/windows/ba-functions/Cargo.toml --release --target $target -- -C target-feature=+crt-static -C "link-arg=/MAP:$baMapPath"
         if ($LASTEXITCODE -ne 0) { throw 'Unsigned bootstrapper compilation failed.' }
         Copy-Item -LiteralPath (Join-Path $binary 'vadgr_windows_ba_functions.dll') -Destination (Join-Path $output 'ba-functions.dll')
         & cargo metadata --locked --manifest-path packaging/windows/ba-functions/Cargo.toml --format-version 1 --filter-platform $target |
@@ -104,6 +110,8 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Bootstrapper dependency notices failed.' }
         $baStatus = 'built-unsigned-unapproved'
     }
+    & python (Join-Path $trustedRoot 'scripts/windows_runtime_evidence.py') capture --raw-root $output --architecture $Architecture
+    if ($LASTEXITCODE -ne 0) { throw 'Native runtime evidence capture failed.' }
     @{ schema = 1; status = 'unapproved'; publishable = $false; architecture = $Architecture;
        native_architecture = $native; bootstrapper = $baStatus; terms = $terms } |
         ConvertTo-Json -Depth 10 | Set-Content -LiteralPath (Join-Path $output 'build-observation.json') -Encoding utf8NoBOM
