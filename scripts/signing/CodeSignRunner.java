@@ -54,6 +54,7 @@ public final class CodeSignRunner {
         // Authenticode construction depth. Keep the increase bounded.
         System.setProperty("org.bouncycastle.asn1.max_cons_depth", "64");
         int result = 70;
+        String failureStage = "startup";
         try {
             if (args.length != 1) throw new IllegalArgumentException();
             Path logConfig = Path.of(required("SIGNING_LOG_CONFIG")).toRealPath();
@@ -130,8 +131,10 @@ public final class CodeSignRunner {
                     || !"http://ts.ssl.com".equals(settings.getProperty("TSA_URL"))) {
                     throw new IllegalArgumentException();
                 }
+                failureStage = "authentication";
                 String token = new AccessToken(settings.getProperty("CLIENT_ID"), username,
                     password, settings.getProperty("OAUTH2_ENDPOINT")).getAccessToken();
+                failureStage = "credential-list";
                 CscApi api = new CscApi(token, settings.getProperty("CSC_API_ENDPOINT"));
                 // These are the same two credential classes the pinned vendor sign command lists.
                 Set<String> identifiers = new LinkedHashSet<>();
@@ -145,6 +148,7 @@ public final class CodeSignRunner {
                     throw new IllegalArgumentException();
                 }
                 for (String identifier : identifiers) {
+                    failureStage = "credential-inspection";
                     CredentialInfo info = api.getCredentialInfo(identifier);
                     X509Certificate certificate = info.getCerts().get(0);
                     String fingerprint = digest(certificate, "SHA-256");
@@ -165,6 +169,7 @@ public final class CodeSignRunner {
                     }
                 }
                 if (args[0].equals("inspect")) {
+                    failureStage = "certificate-export";
                     if (selectedInfo == null || selectedInfo.getCerts().isEmpty()) throw new IllegalStateException();
                     Path certificateOutput = Path.of(required("CERTIFICATE_OUTPUT")).toRealPath();
                     if (!Files.isDirectory(certificateOutput)) throw new IllegalStateException();
@@ -186,6 +191,7 @@ public final class CodeSignRunner {
                     report.println("Public certificate inspection complete. Signatures requested: 0.");
                     result = 0;
                 } else {
+                    failureStage = "signing";
                     if (selected == null || api.isOtpTypeOnline(selected)) throw new IllegalStateException();
                     String seed = required("ES_TOTP_SECRET");
                     byte[] decoded = Base64.getDecoder().decode(seed);
@@ -204,7 +210,8 @@ public final class CodeSignRunner {
             }
         } catch (Throwable failure) {
             // Never print exception text, causes, HTTP bodies, or a stack trace.
-            report.println("Signing stopped. Authentication, certificate, configuration or vendor check failed. No retry performed.");
+            report.println("Signing stopped at safe stage " + failureStage
+                + ". Authentication, certificate, configuration or vendor check failed. No retry performed.");
         }
         System.exit(result);
     }

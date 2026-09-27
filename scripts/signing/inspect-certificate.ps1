@@ -58,7 +58,11 @@ try {
     }
     $report = & java '-Dfile.encoding=UTF-8' '-XX:-HeapDumpOnOutOfMemoryError' '-XX:ErrorFile=NUL' '-cp' "$classes;$jar" CodeSignRunner inspect
     if ($LASTEXITCODE -ne 0 -or $report[-1] -ne 'Public certificate inspection complete. Signatures requested: 0.') {
-        throw 'Public certificate inspection failed.'
+        $safeFailure = [string]$report[-1]
+        if ($safeFailure -notmatch '^Signing stopped at safe stage (startup|authentication|credential-list|credential-inspection|certificate-export|signing)\. Authentication, certificate, configuration or vendor check failed\. No retry performed\.$') {
+            $safeFailure = 'Signing stopped without an allowlisted diagnostic stage.'
+        }
+        throw "Public certificate inspection failed. $safeFailure"
     }
     [IO.File]::WriteAllLines((Join-Path $OutputDirectory 'inspection.txt'), [string[]]$report,
         [Text.UTF8Encoding]::new($false))

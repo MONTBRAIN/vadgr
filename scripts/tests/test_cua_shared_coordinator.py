@@ -317,5 +317,9 @@ def test_certificate_inspection_is_public_only_and_cannot_sign():
     assert "CodeSignRunner sign" not in script
     assert "Certificate inspection must not receive a signing secret." in script
     assert "Signatures requested: 0." in script
+    assert "safe stage (startup|authentication|credential-list|credential-inspection|certificate-export|signing)" in script
+    assert "Signing stopped without an allowlisted diagnostic stage." in script
+    assert 'String failureStage = "startup"' in runner
+    assert "exception text, causes, HTTP bodies, or a stack trace" in runner
     assert 'Files.write(certificateOutput.resolve("chain-" + index + ".der")' in runner
     assert "public-windows-signing-certificate" in workflow
