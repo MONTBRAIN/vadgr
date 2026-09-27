@@ -24,7 +24,7 @@ import zipfile
 if __package__:
     from scripts.inspect_legal_crate_sources import statements as original_statements
     from scripts.copyright_absence import audit_archive, audit_source_tree_zip, source_tree_zip
-    from scripts.windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, map_wheel_native_sources, crate_grant_scope, crate_external_grant, complete_apache_reference, complete_mpl_reference, compare_certifi_source
+    from scripts.windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, map_wheel_native_sources, crate_grant_scope, crate_external_grant, complete_apache_reference, complete_mpl_reference, compare_certifi_source, tix_referenced_grant
     from scripts.validate_package_inputs import (
         CLOSURES, KINDS, REQUIRED_FILES, canonical_json, parse_json,
         profile_source_inputs, read_owned, relative_path, render_rtf, require,
@@ -33,7 +33,7 @@ if __package__:
 else:
     from inspect_legal_crate_sources import statements as original_statements
     from copyright_absence import audit_archive, audit_source_tree_zip, source_tree_zip
-    from windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, map_wheel_native_sources, crate_grant_scope, crate_external_grant, complete_apache_reference, complete_mpl_reference, compare_certifi_source
+    from windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, map_wheel_native_sources, crate_grant_scope, crate_external_grant, complete_apache_reference, complete_mpl_reference, compare_certifi_source, tix_referenced_grant
     from validate_package_inputs import (
         CLOSURES, KINDS, REQUIRED_FILES, canonical_json, parse_json,
         profile_source_inputs, read_owned, relative_path, render_rtf, require,
@@ -703,7 +703,7 @@ def add_adodbapi(packet, wheel_raw, parent_id, location):
         source_delivery_boundary="Exact shipped Python source, license, setup and tests; no claim about other wheel native modules.")
 
 
-def add_supplement(packet, source, collection, architecture):
+def add_supplement(packet, source, collection, architecture, archive_root):
     root = source / "packaging/legal-review/supplement"
     supplement = document(root, "collection.json")
     # Preserve exact source evidence. Inclusion here is not a claim that every
@@ -785,22 +785,33 @@ def add_supplement(packet, source, collection, architecture):
             declared = "Python-2.0"
         if row["id"] == "sqlite":
             declared = "blessing"
+        tix_grant = None
+        custom_grants = {}
         if row["id"].startswith("tk-windows-bin-"):
             require(all("TCL" in license_atoms(raw) for _, raw in sources), "Tcl/Tk component terms need additional scope")
             declared = "TCL"
+            tix_grant = tix_referenced_grant(sources, archive_root)
+            if tix_grant:
+                grant, grant_id, proof = tix_grant
+                sources.append(grant)
+                custom_grants[grant_id] = sha256_bytes(grant[1])
+                declared += " AND " + grant_id
         packet.component(identifier="native-" + slug(row["id"]), name=row["name"], version=row["version"],
                          kind="framework" if row["id"] == "wix" else "runtime", digest=row["sha256"],
                          location=row["download_location"], declared=declared,
-                         sources=sources, scope="source-build-input-needs-binary-mapping",
+                         sources=sources, custom_grants=custom_grants, scope="source-build-input-needs-binary-mapping",
                          pending=["target-binary-to-source-mapping", "license-choice-and-original-copyright",
                                   "corresponding-source-delivery" if row["id"] == "wix" else "notice-and-source-duty"])
-        if row["id"].startswith("tk-windows-bin-") and any(b"docs/license.html_lib" in raw for _, raw in sources):
-            packet.components[-1]["license_concluded"] = "NOASSERTION"
-            packet.components[-1]["source_offer_required"] = None
-            packet.pending[-1]["items"] += ["additional-retained-grant-scope", "notice-and-source-duty"]
-            packet.evidence[-1]["grant_scope_basis"] = (
-                "Complete Tcl/Tk grants retained. The bundled Tix notice also references docs/license.html_lib; "
-                "that distinct grant and its shipped source scope are not established by the Tcl grant.")
+        if tix_grant:
+            component = packet.components[-1]
+            component["license_declared"] = row["license_declared"] or "NOASSERTION"
+            packet.evidence[-1]["original_license_declaration"] = row["license_declared"]
+            path = "legal/NOTICES/" + component["id"] + "/referenced-grant-provenance.json"
+            data = canonical_json(proof)
+            packet.put(path, data)
+            component["notice_files"].append({"path": path, "sha256": sha256_bytes(data)})
+            packet.pending[-1]["items"].append("nonstandard-government-rights-and-source-duty-review")
+            packet.evidence[-1]["grant_scope_basis"] = proof["scope"] + " " + proof["limitation"]
     packet.put("native-source-notice-scope.json", canonical_json({"schema": 1, **BOUNDARY,
         "files": native_notice_scopes,
         "limitation": "Excluded source notices remain in the pinned upstream archives and acquisition evidence. Runtime redistribution terms of separately bundled Microsoft code are not waived by this classification."}))
@@ -1148,7 +1159,7 @@ def add_crate_evidence(packet, cache, archive_root, architecture, inputs):
         grants = set().union(*(license_atoms(raw) for _, raw in sources))
         scoped = crate_grant_scope(row, crate_raw,
             license_choice(evidence["original_license_declaration"], grants), grants,
-            cargo_features.get("registry+https://github.com/rust-lang/crates.io-index#" + row["name"] + "@" + row["version"]))
+            cargo_features.get("registry+https://github.com/rust-lang/crates.io-index#" + row["name"] + "@" + row["version"]), sources)
         if scoped:
             if scoped["observed_cargo_features"] is not None:
                 scoped["cargo_metadata"] = {"path": "cargo-metadata.json", "sha256": sha256_bytes(cargo_raw)}
@@ -1271,7 +1282,7 @@ def synthesize(source, observation_root, architecture, created, archive_root, cr
     packet.put("legal/TERMS.rtf", render_rtf(terms.decode("utf-8")))
     add_cargo(packet, inputs, source, collection)
     add_wheels(packet, inputs, source, collection)
-    add_supplement(packet, source, collection, architecture)
+    add_supplement(packet, source, collection, architecture, archive_root)
     add_observed_nested_crates(packet)
     add_sqlite_source_scope(packet, archive_root)
     add_wix_source_mapping(packet, source, collection)

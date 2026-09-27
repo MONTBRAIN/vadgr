@@ -47,6 +47,7 @@ The source directory needs these exact archives:
 | `Apache-2.0-standard.txt` | `cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30` | [Complete Apache license](https://www.apache.org/licenses/LICENSE-2.0.txt) |
 | `MPL-2.0-standard.txt` | `3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04` | [Complete Mozilla license](https://www.mozilla.org/media/MPL/2.0/index.txt) |
 | `certifi-2026.6.17.tar.gz` | `024c88eeec92ca068db80f02b8b07c9cef7b9fe261d1d535abfd5abd6f6af432` | [Exact certifi source distribution](https://files.pythonhosted.org/packages/c9/c7/424b75da314c1045981bd9777432fad05a9e0c69daa4ed7e308bbaffe405/certifi-2026.6.17.tar.gz) |
+| `tix-8.4.3.6.tar.gz` | `f7b21d115867a41ae5fd7c635a4c234d3ca25126c3661eb36028c6e25601f85e` | [Exact Tix source archive](https://github.com/python/cpython-source-deps/archive/refs/tags/tix-8.4.3.6.tar.gz) |
 
 The crate inspector acquires only exact digest-matching archives named by the
 inventories, without executing source. The synthesizer independently re-reads
@@ -116,6 +117,12 @@ The SQLite library disclaimer is independently checked in the exact core
 amalgamation, with member hash and header byte offsets retained. Its separate
 autosetup build license is not assigned to the runtime library. The retained
 Tcl/Tk terms retain their original named copyright parties.
+The separately referenced Tix HTML Library grant is acquired from the exact
+hash-pinned `tix-8.4.3.6.tar.gz` source archive. Its parent license must equal
+the retained runtime notice after newline normalization. The distinct HTML
+grant is an extracted custom license, not silently classified as standard TCL.
+Its government-rights and source-duty review remains open. This reference
+comparison does not establish a native binary's source revision.
 
 The included nodriver archive supplies its exact upstream source. Whether a
 larger covered combination requires additional source, build instructions or

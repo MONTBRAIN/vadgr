@@ -8,7 +8,7 @@
   },
   "dataLicense": "CC0-1.0",
   "documentComment": "Incomplete review inventory, including separately classified build-source candidates. Not an approved shipped-component SBOM.",
-  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-b7ed9aeab483194ecb2c5949daadfacf4aab5239c650fb2f6b2dd69c96dce26e",
+  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-1d408cfc3d995a0d098ef2e3427247eb92d85320e24a16c8427b5b1f3437ab51",
   "hasExtractedLicensingInfos": [
     {
       "comment": "Exact retained terms; this identifier is not an approval or a claim of SPDX-list equivalence.",
@@ -4891,7 +4891,7 @@
       "copyrightText": "Copyright (c) 2024-2025 Model Context Protocol a Series of LF Projects, LLC.",
       "downloadLocation": "https://static.crates.io/crates/rmcp/rmcp-3.1.2.crate",
       "filesAnalyzed": false,
-      "licenseConcluded": "Apache-2.0",
+      "licenseConcluded": "Apache-2.0 AND MIT",
       "licenseDeclared": "Apache-2.0",
       "name": "rmcp",
       "packageComment": "Original upstream declaration: Apache-2.0",

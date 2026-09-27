@@ -254,3 +254,55 @@ def test_certifi_source_comparison_retains_only_exact_namespace_changes(tmp_path
         evidence.compare_certifi_source({**observed, "cacert.pem": b"changed certificate data"}, "2026.6.17", tmp_path)
     with pytest.raises(PackageInputError, match="scope differs"):
         evidence.compare_certifi_source({k: v for k, v in observed.items() if k != "LICENSE"}, "2026.6.17", tmp_path)
+
+
+def test_tix_named_html_grant_keeps_distinct_terms_and_exact_source_identity(tmp_path, monkeypatch):
+    primary = b"Original Tix notice references docs/license.html_lib.\n"
+    grant = b"Distinct HTML grant with government-rights wording.\n"
+    raw = archive({"cpython-source-deps-tix-8.4.3.6/license.terms": primary,
+        "cpython-source-deps-tix-8.4.3.6/docs/license.html_lib": grant})
+    monkeypatch.setattr(evidence, "TIX_SOURCE_SHA256", sha256_bytes(raw))
+    monkeypatch.setattr(evidence, "TIX_HTML_SHA256", sha256_bytes(grant))
+    path = tmp_path / "tix-8.4.3.6.tar.gz"
+    path.write_bytes(raw)
+    text, identifier, proof = evidence.tix_referenced_grant([("tixlicense.terms", primary.replace(b"\n", b"\r\n"))], tmp_path)
+    assert text[1] == grant
+    assert identifier == "LicenseRef-Tix-HTML-" + sha256_bytes(grant)
+    assert "not a binary rebuild" in proof["limitation"]
+    assert len(evidence.tix_referenced_grant([("a", primary), ("b", primary)], tmp_path)[2]["reference_files"]) == 2
+    with pytest.raises(PackageInputError, match="ambiguous"):
+        evidence.tix_referenced_grant([("a", primary), ("b", primary + b"Other terms")], tmp_path)
+    assert evidence.tix_referenced_grant([("other", b"Unrelated license")], tmp_path) is None
+    with pytest.raises(PackageInputError, match="does not match"):
+        evidence.tix_referenced_grant([("tixlicense.terms", primary + b"Changed terms")], tmp_path)
+    path.write_bytes(raw + b"unexpected")
+    with pytest.raises(PackageInputError, match="identity differs"):
+        evidence.tix_referenced_grant([("tixlicense.terms", primary)], tmp_path)
+
+
+def test_accesskit_winit_scope_checks_every_runtime_source_header():
+    header = (b"// Copyright 2022 The AccessKit Authors. All rights reserved.\n"
+        b"// Licensed under the Apache License, Version 2.0 (found in\n// the LICENSE-APACHE file).\n")
+    members = {"accesskit_winit-1/src/lib.rs": header, "accesskit_winit-1/src/windows.rs": header}
+    for changed in (False, True):
+        raw = archive({**members, **({"accesskit_winit-1/src/new.rs": b"// Other terms\n"} if changed else {})})
+        row = {"name": "accesskit_winit", "version": "1", "sha256": sha256_bytes(raw)}
+        result = evidence.crate_grant_scope(row, raw, "Apache-2.0", {"Apache-2.0", "MIT", "BSD-3-Clause"})
+        assert (result is None) is changed
+
+
+def test_rmcp_transition_preserves_both_code_grants_not_universal_relicensing(monkeypatch):
+    notice = ('undergoing a licensing transition from the MIT License to the Apache License, Version 2.0\n'
+        'who have not yet granted explicit permission to relicense remain licensed under the MIT License.\n'
+        'Documentation contributions (excluding specifications) are licensed under CC-BY-4.0.\n'
+        'No rights beyond those granted by the applicable original license are conveyed')
+    vcs = {"git": {"sha1": "02c62aef2e331e5cf79c06c744eb1eb052cc8ebd"}, "path_in_vcs": "crates/rmcp"}
+    raw = archive({"rmcp-1/.cargo_vcs_info.json": json.dumps(vcs).encode()})
+    row = {"name": "rmcp", "version": "1", "sha256": sha256_bytes(raw)}
+    monkeypatch.setattr(evidence, "RMCP_GRANT_SHA256", sha256_bytes(notice.encode()))
+    sources = [("upstream-LICENSE", notice.encode())]
+    result = evidence.crate_grant_scope(row, raw, "Apache-2.0", {"Apache-2.0", "MIT"}, retained_sources=sources)
+    assert result["expression"] == "Apache-2.0 AND MIT"
+    assert "does not license documentation" in result["reason"]
+    assert evidence.crate_grant_scope(row, raw, "Apache-2.0", {"Apache-2.0", "MIT", "Unknown"}, retained_sources=sources) is None
+    assert evidence.crate_grant_scope(row, raw, "Apache-2.0", {"Apache-2.0", "MIT"}) is None

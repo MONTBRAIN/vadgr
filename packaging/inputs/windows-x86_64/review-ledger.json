@@ -199,6 +199,64 @@
       }
     },
     {
+      "grant_scope_basis": {
+        "accounted_grants": [
+          "Apache-2.0",
+          "BSD-3-Clause",
+          "MIT"
+        ],
+        "archive_sha256": "1fe9a94394896352cc4660ca2288bd4ef883d83238853c038b44070c8f134313",
+        "cargo_metadata": {
+          "path": "cargo-metadata.json",
+          "sha256": "7ab76eb1de5fa7437caf6033e8a003133ad2a98f02851e811191a2f1f9424d0d"
+        },
+        "expression": "Apache-2.0",
+        "observed_cargo_features": [
+          "accesskit_unix",
+          "async-io",
+          "default",
+          "rwh_06"
+        ],
+        "reason": "Every Rust member of this crate's src tree explicitly declares Apache-2.0 in its header, as does its package manifest. Retained workspace MIT and Chromium grant texts are not reassigned to these explicitly licensed files; separately inventoried AccessKit dependencies retain their own source grants.",
+        "source_files": [
+          {
+            "path": "accesskit_winit-0.32.2/src/lib.rs",
+            "sha256": "cbe4ef8dde0a3aa3d9777e51f86eeff2eb4396e290ab5ea83494920b8005b631",
+            "size": 9654
+          },
+          {
+            "path": "accesskit_winit-0.32.2/src/platform_impl/android.rs",
+            "sha256": "3bd0c85c8da3ed2dfaafc107616e9a72216dfae65c0dff2eec63c0ed841afae3",
+            "size": 1690
+          },
+          {
+            "path": "accesskit_winit-0.32.2/src/platform_impl/macos.rs",
+            "sha256": "9bb36fff123be11afadc7a7f8c09d2b8d04d3f091ad3f6bf23bec55ff933ebf1",
+            "size": 2042
+          },
+          {
+            "path": "accesskit_winit-0.32.2/src/platform_impl/mod.rs",
+            "sha256": "7bd9ce32dbdd50903add37e53af398d876d6d570f8b563aaeb57f2b728031aa7",
+            "size": 1137
+          },
+          {
+            "path": "accesskit_winit-0.32.2/src/platform_impl/null.rs",
+            "sha256": "0bad7fd53d810d9076ef1cc6feef3e1e68930c26a0677a4fdb38ce36c8658c96",
+            "size": 819
+          },
+          {
+            "path": "accesskit_winit-0.32.2/src/platform_impl/unix.rs",
+            "sha256": "116c505a50fc7ba3c6eb9bc17d6c6dd6065082a8bc246e8889199d4153d1ece3",
+            "size": 3056
+          },
+          {
+            "path": "accesskit_winit-0.32.2/src/platform_impl/windows.rs",
+            "sha256": "7222ee5c2c519e5f1a195d9724f720ebf84fa6b6ac11547370f2fb66ec98417b",
+            "size": 1849
+          }
+        ],
+        "status": "source-scope-proposal-not-package-approval"
+      },
       "id": "cargo-accesskit-winit-0.32.2",
       "original_license_declaration": "Apache-2.0",
       "origins": [
@@ -8670,6 +8728,38 @@
       }
     },
     {
+      "grant_scope_basis": {
+        "accounted_grants": [
+          "Apache-2.0",
+          "MIT"
+        ],
+        "archive_sha256": "c8dddc5b1924b9a59fba420166160ca2c4663a4e01803e52eda33070f56d63c8",
+        "cargo_metadata": {
+          "path": "cargo-metadata.json",
+          "sha256": "7ab76eb1de5fa7437caf6033e8a003133ad2a98f02851e811191a2f1f9424d0d"
+        },
+        "expression": "Apache-2.0 AND MIT",
+        "observed_cargo_features": [
+          "client",
+          "transport-async-rw",
+          "transport-child-process"
+        ],
+        "reason": "The complete upstream transition notice explicitly retains MIT for unconsented contributions. Both code grants are retained conjunctively without assuming universal relicensing. The separate CC-BY-4.0 documentation statement remains in the notice; this runtime code proposal does not license documentation redistribution.",
+        "source_files": [
+          {
+            "path": "rmcp-3.1.2/.cargo_vcs_info.json",
+            "sha256": "196df6308e0965b7de990bb100ceac5736a447a0bc794ff8db697af01196e2b5",
+            "size": 105
+          },
+          {
+            "path": "000-LICENSE",
+            "sha256": "0382b0057770ca05e9c350a50aa3b1c1fea84da0bc81d723bf00b9aa841be58a",
+            "size": 12227,
+            "source_url": "https://raw.githubusercontent.com/modelcontextprotocol/rust-sdk/02c62aef2e331e5cf79c06c744eb1eb052cc8ebd/LICENSE"
+          }
+        ],
+        "status": "source-scope-proposal-not-package-approval"
+      },
       "id": "cargo-rmcp-3.1.2",
       "original_license_declaration": "Apache-2.0",
       "origins": [
@@ -12455,11 +12545,11 @@
           }
         ]
       },
-      "grant_scope_basis": "Complete Tcl/Tk grants retained. The bundled Tix notice also references docs/license.html_lib; that distinct grant and its shipped source scope are not established by the Tcl grant.",
+      "grant_scope_basis": "The Tix notice explicitly includes parts based on the HTML Library and names this separate grant. Both grants are retained conservatively; no absence of HTML-derived runtime code is inferred. Grant-reference evidence, not a binary rebuild or source-version mapping. The HTML grant has distinct government-rights wording without the standard TCL override; custom-term and source-duty review remains open.",
       "id": "native-tk-windows-bin-8612",
-      "original_license_declaration": "TCL",
+      "original_license_declaration": null,
       "origins": [],
-      "retained_notice_count": 10,
+      "retained_notice_count": 11,
       "scope": "runtime-native-source-mapped-by-producer-build-metadata"
     },
     {
@@ -21425,8 +21515,8 @@
   "summary": {
     "component_candidates": 656,
     "evidence_bound_NONE_proposals": 63,
-    "retained_grant_choices": 654,
-    "rows_with_review_items": 19,
+    "retained_grant_choices": 655,
+    "rows_with_review_items": 17,
     "scope_counts": {
       "exact-full-font-bytes-found-in-payload/vadgr.exe": 4,
       "exact-members-match-existing-helper-only-redistribution-review": 1,
@@ -21483,9 +21573,7 @@
     },
     {
       "id": "cargo-accesskit-winit-0.32.2",
-      "items": [
-        "additional-retained-grant-scope"
-      ]
+      "items": []
     },
     {
       "id": "cargo-adler2-2.0.1",
@@ -22607,9 +22695,7 @@
     },
     {
       "id": "cargo-rmcp-3.1.2",
-      "items": [
-        "additional-retained-grant-scope"
-      ]
+      "items": []
     },
     {
       "id": "cargo-rusqlite-0.40.2",
@@ -23266,8 +23352,8 @@
     {
       "id": "native-tk-windows-bin-8612",
       "items": [
-        "additional-retained-grant-scope",
-        "notice-and-source-duty"
+        "notice-and-source-duty",
+        "nonstandard-government-rights-and-source-duty-review"
       ]
     },
     {
@@ -24140,9 +24226,6 @@
       "wheel-pywin32-312-adodbapi"
     ],
     "additional-retained-grant-scope": [
-      "cargo-accesskit-winit-0.32.2",
-      "cargo-rmcp-3.1.2",
-      "native-tk-windows-bin-8612",
       "runtime-rust-std-1.97.1",
       "wheel-pillow-12.3.0"
     ],
@@ -24166,6 +24249,9 @@
       "cargo-webpki-roots-0.26.11",
       "cargo-webpki-roots-1.0.9",
       "nested-cargo-wit-bindgen-rt-0.39.0"
+    ],
+    "nonstandard-government-rights-and-source-duty-review": [
+      "native-tk-windows-bin-8612"
     ],
     "notice-and-source-duty": [
       "framework-wixtoolset.bal.wixext-7.0.0",

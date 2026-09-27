@@ -1591,6 +1591,66 @@ accesskit_winit
   "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
 }
 
+accesskit_winit
+{
+  "accounted_grants": [
+    "Apache-2.0",
+    "BSD-3-Clause",
+    "MIT"
+  ],
+  "archive_sha256": "1fe9a94394896352cc4660ca2288bd4ef883d83238853c038b44070c8f134313",
+  "cargo_metadata": {
+    "path": "cargo-metadata.json",
+    "sha256": "7ab76eb1de5fa7437caf6033e8a003133ad2a98f02851e811191a2f1f9424d0d"
+  },
+  "expression": "Apache-2.0",
+  "observed_cargo_features": [
+    "accesskit_unix",
+    "async-io",
+    "default",
+    "rwh_06"
+  ],
+  "reason": "Every Rust member of this crate's src tree explicitly declares Apache-2.0 in its header, as does its package manifest. Retained workspace MIT and Chromium grant texts are not reassigned to these explicitly licensed files; separately inventoried AccessKit dependencies retain their own source grants.",
+  "source_files": [
+    {
+      "path": "accesskit_winit-0.32.2/src/lib.rs",
+      "sha256": "cbe4ef8dde0a3aa3d9777e51f86eeff2eb4396e290ab5ea83494920b8005b631",
+      "size": 9654
+    },
+    {
+      "path": "accesskit_winit-0.32.2/src/platform_impl/android.rs",
+      "sha256": "3bd0c85c8da3ed2dfaafc107616e9a72216dfae65c0dff2eec63c0ed841afae3",
+      "size": 1690
+    },
+    {
+      "path": "accesskit_winit-0.32.2/src/platform_impl/macos.rs",
+      "sha256": "9bb36fff123be11afadc7a7f8c09d2b8d04d3f091ad3f6bf23bec55ff933ebf1",
+      "size": 2042
+    },
+    {
+      "path": "accesskit_winit-0.32.2/src/platform_impl/mod.rs",
+      "sha256": "7bd9ce32dbdd50903add37e53af398d876d6d570f8b563aaeb57f2b728031aa7",
+      "size": 1137
+    },
+    {
+      "path": "accesskit_winit-0.32.2/src/platform_impl/null.rs",
+      "sha256": "0bad7fd53d810d9076ef1cc6feef3e1e68930c26a0677a4fdb38ce36c8658c96",
+      "size": 819
+    },
+    {
+      "path": "accesskit_winit-0.32.2/src/platform_impl/unix.rs",
+      "sha256": "116c505a50fc7ba3c6eb9bc17d6c6dd6065082a8bc246e8889199d4153d1ece3",
+      "size": 3056
+    },
+    {
+      "path": "accesskit_winit-0.32.2/src/platform_impl/windows.rs",
+      "sha256": "7222ee5c2c519e5f1a195d9724f720ebf84fa6b6ac11547370f2fb66ec98417b",
+      "size": 1849
+    }
+  ],
+  "status": "source-scope-proposal-not-package-approval"
+}
+
 adler2
 Copyright (C) Jonas Schievink <jonasschievink@gmail.com>
 
@@ -96060,6 +96120,40 @@ Documentation in this project (excluding specifications) is licensed under
 CC-BY-4.0. See https://creativecommons.org/licenses/by/4.0/legalcode for
 the full license text.
 
+rmcp
+{
+  "accounted_grants": [
+    "Apache-2.0",
+    "MIT"
+  ],
+  "archive_sha256": "c8dddc5b1924b9a59fba420166160ca2c4663a4e01803e52eda33070f56d63c8",
+  "cargo_metadata": {
+    "path": "cargo-metadata.json",
+    "sha256": "7ab76eb1de5fa7437caf6033e8a003133ad2a98f02851e811191a2f1f9424d0d"
+  },
+  "expression": "Apache-2.0 AND MIT",
+  "observed_cargo_features": [
+    "client",
+    "transport-async-rw",
+    "transport-child-process"
+  ],
+  "reason": "The complete upstream transition notice explicitly retains MIT for unconsented contributions. Both code grants are retained conjunctively without assuming universal relicensing. The separate CC-BY-4.0 documentation statement remains in the notice; this runtime code proposal does not license documentation redistribution.",
+  "source_files": [
+    {
+      "path": "rmcp-3.1.2/.cargo_vcs_info.json",
+      "sha256": "196df6308e0965b7de990bb100ceac5736a447a0bc794ff8db697af01196e2b5",
+      "size": 105
+    },
+    {
+      "path": "000-LICENSE",
+      "sha256": "0382b0057770ca05e9c350a50aa3b1c1fea84da0bc81d723bf00b9aa841be58a",
+      "size": 12227,
+      "source_url": "https://raw.githubusercontent.com/modelcontextprotocol/rust-sdk/02c62aef2e331e5cf79c06c744eb1eb052cc8ebd/LICENSE"
+    }
+  ],
+  "status": "source-scope-proposal-not-package-approval"
+}
+
 rusqlite
 Copyright (c) 2014 The rusqlite developers
 
@@ -128730,6 +128824,74 @@ Government shall have only "Restricted Rights" as defined in Clause
 authors grant the U.S. Government and others acting in its behalf
 permission to use and distribute the software in accordance with the
 terms specified in this license.
+
+tk-windows-bin-8612
+----------------------------------------------------------------------
+COPYRIGHT NOTICE OF THE HTML_LIBRARY SOFTWARE. THE TERM "SOFTWARE"
+SHALL MEAN THE HTML_LIBRARY SOFTWARE ONLY. THIS NOTICE DOES NOT COVER
+THE TIX LIBRARY. SEE THE FILE "license.terms" FOR COPYRIGHT NOTICE AND
+LICENSE TERMS OF THE TIX LIBRARY.
+----------------------------------------------------------------------
+
+Sun Microsystems, Inc.  The following terms apply to all files
+associated with the software unless explicitly disclaimed in individual
+files.
+
+The authors hereby grant permission to use, copy, modify, distribute,
+and license this software and its documentation for any purpose, provided
+that existing copyright notices are retained in all copies and that this
+notice is included verbatim in any distributions. No written agreement,
+license, or royalty fee is required for any of the authorized uses.
+Modifications to this software may be copyrighted by their authors
+and need not follow the licensing terms described here, provided that
+the new terms are clearly indicated on the first page of each file where
+they apply.
+
+IN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY
+FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
+ARISING OUT OF THE USE OF THIS SOFTWARE, ITS DOCUMENTATION, OR ANY
+DERIVATIVES THEREOF, EVEN IF THE AUTHORS HAVE BEEN ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+THE AUTHORS AND DISTRIBUTORS SPECIFICALLY DISCLAIM ANY WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE
+IS PROVIDED ON AN "AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE
+NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
+MODIFICATIONS.
+
+RESTRICTED RIGHTS: Use, duplication or disclosure by the government
+is subject to the restrictions as set forth in subparagraph (c) (1) (ii)
+of the Rights in Technical Data and Computer Software Clause as DFARS
+252.227-7013 and FAR 52.227-19.
+
+tk-windows-bin-8612
+{
+  "archive_sha256": "f7b21d115867a41ae5fd7c635a4c234d3ca25126c3661eb36028c6e25601f85e",
+  "archive_url": "https://github.com/python/cpython-source-deps/archive/refs/tags/tix-8.4.3.6.tar.gz",
+  "comparison": "Complete observed Tix license equals the source license after CRLF normalization.",
+  "limitation": "Grant-reference evidence, not a binary rebuild or source-version mapping. The HTML grant has distinct government-rights wording without the standard TCL override; custom-term and source-duty review remains open.",
+  "reference_files": [
+    {
+      "path": "sources/native_sources/sources/tk-windows-bin-8612/003-tixlicense.terms",
+      "sha256": "9d8e18d57d7113da0bfb7d80e915c3918b98e26c43cec725393f8d01b197ec60"
+    },
+    {
+      "path": "sources/native_sources/sources/tk-windows-bin-8612/008-tixlicense.terms",
+      "sha256": "9d8e18d57d7113da0bfb7d80e915c3918b98e26c43cec725393f8d01b197ec60"
+    }
+  ],
+  "referenced_grant": {
+    "path": "cpython-source-deps-tix-8.4.3.6/docs/license.html_lib",
+    "sha256": "9149f81c6efd1c3cef68742b67dc6f1b6211f32f425f3b6d24cf5279668cfd27"
+  },
+  "scope": "The Tix notice explicitly includes parts based on the HTML Library and names this separate grant. Both grants are retained conservatively; no absence of HTML-derived runtime code is inferred.",
+  "source_license": {
+    "path": "cpython-source-deps-tix-8.4.3.6/license.terms",
+    "sha256": "91ff35309038fcfab853c8634b7b743a179c211d8ff3cb174b579c8af3c3072d"
+  },
+  "source_revision": "6c27742f4c7695a35c6ca23b75d38f62a1414c9c"
+}
 
 windows-libffi
 libffi - Copyright (c) 1996-2021  Anthony Green, Red Hat, Inc and others.

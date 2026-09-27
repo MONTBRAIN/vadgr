@@ -735,6 +735,7 @@
     "legal/NOTICES/cargo-accesskit-winit-0.32.2/001-001-LICENSE-MIT": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
     "legal/NOTICES/cargo-accesskit-winit-0.32.2/002-002-LICENSE.chromium": "845022e0c1db1abb41a6ba4cd3c4b674ec290f3359d9d3c78ae558d4c0ed9308",
     "legal/NOTICES/cargo-accesskit-winit-0.32.2/source-copyright-statements.json": "477ae37c87562b29682bf0094a697ca287dc1cb18923e788bae4a25cdda5a846",
+    "legal/NOTICES/cargo-accesskit-winit-0.32.2/source-grant-scope.json": "d47da3f99b059db5a591f18de85d7a28a96c5f025bed80620b7ccacf0caf5bfb",
     "legal/NOTICES/cargo-adler2-2.0.1/000-000-LICENSE-0BSD": "861399f8c21c042b110517e76dc6b63a2b334276c8cf17412fc3c8908ca8dc17",
     "legal/NOTICES/cargo-adler2-2.0.1/001-001-LICENSE-APACHE": "8ada45cd9f843acf64e4722ae262c622a2b3b3007c7310ef36ac1061a30f6adb",
     "legal/NOTICES/cargo-adler2-2.0.1/002-002-LICENSE-MIT": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
@@ -1535,6 +1536,7 @@
     "legal/NOTICES/cargo-ring-0.17.14/source-copyright-statements.json": "9ae451551988e4f249e3532e13497d950cfe7c6267a5a6ae5599123ac16071ca",
     "legal/NOTICES/cargo-ring-0.17.14/source-grant-scope.json": "94ed6532695061d7c7442558f2392dcfd074a67f52f15b343bcc3d1e525a0291",
     "legal/NOTICES/cargo-rmcp-3.1.2/000-000-LICENSE": "0382b0057770ca05e9c350a50aa3b1c1fea84da0bc81d723bf00b9aa841be58a",
+    "legal/NOTICES/cargo-rmcp-3.1.2/source-grant-scope.json": "461118eceb5843f6d1fafdc46fb3d0ba13f41d1b69ced383464fe8a0160558ce",
     "legal/NOTICES/cargo-rusqlite-0.40.2/000-000-LICENSE": "c10c1f27337546471e5f7e4e97fdd398b35b9d4e126115dcd22de8d8e65abf6f",
     "legal/NOTICES/cargo-rusqlite-0.40.2/source-copyright-statements.json": "7e668db819a6b7b8071d491e39e85fd4d924a1972462903bc20f13bed514f577",
     "legal/NOTICES/cargo-rustc-hash-1.1.0/000-000-LICENSE-APACHE": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
@@ -2596,11 +2598,11 @@
     "legal/SUPPORT.txt": "71e920588f7377972d67bd9b85abbe6b1fa83fafe4b03abedfd7ed2e8b3c6788",
     "legal/TERMS.rtf": "87f87f8dcdc3884092932168f054719c31fa1777670255e296bd2d6e2d180af2",
     "legal/TERMS.txt": "18d55dd2431a73b0c29cf58cd310e641bc363cd7e6efe739a2b506c4002a6965",
-    "legal/THIRD-PARTY-NOTICES.txt": "3be57bce3102c4f3d0642ea850c2181785e14005324ffb07d3a2f8b6b398d4e3",
+    "legal/THIRD-PARTY-NOTICES.txt": "667d77880e4fbdd286d30d550a2ad4a7141b0f5be867913729e287c616ec0363",
     "legal/UNINSTALL-AND-DATA.txt": "9090a2789588b59b26f41929f3594301b0ddc4c1762c577f9e47a6fedf14aa4f",
-    "sbom/vadgr-0.5.0.spdx.json": "6dbce07e6f59fe52356fd65ac39c8b42a203f9847b4b9d4a9cb590dee2f5fc77"
+    "sbom/vadgr-0.5.0.spdx.json": "dafb2017e34318eb4b31bdede560a35c9ca50efa9f03d12257003f9800cd32fc"
   },
-  "inventory_sha256": "b7ed9aeab483194ecb2c5949daadfacf4aab5239c650fb2f6b2dd69c96dce26e",
+  "inventory_sha256": "1d408cfc3d995a0d098ef2e3427247eb92d85320e24a16c8427b5b1f3437ab51",
   "payload_manifest_sha256": "c49e453b7afbabaf622c011a7a9b2c373542c5f9bc4de9be5af17b2c40c19265",
   "schema": 1,
   "source_inputs": {

@@ -304,6 +304,10 @@
           "sha256": "845022e0c1db1abb41a6ba4cd3c4b674ec290f3359d9d3c78ae558d4c0ed9308"
         },
         {
+          "path": "legal/NOTICES/cargo-accesskit-winit-0.32.2/source-grant-scope.json",
+          "sha256": "551ff9fff837bc85b28cb1f3e7e5ac7a3e894aad773782a82b210d27b9e39029"
+        },
+        {
           "path": "legal/NOTICES/cargo-accesskit-winit-0.32.2/source-copyright-statements.json",
           "sha256": "477ae37c87562b29682bf0094a697ca287dc1cb18923e788bae4a25cdda5a846"
         }
@@ -10743,12 +10747,13 @@
       "download_location": "https://static.crates.io/crates/rmcp/rmcp-3.1.2.crate",
       "id": "cargo-rmcp-3.1.2",
       "kind": "cargo",
-      "license_concluded": "Apache-2.0",
+      "license_concluded": "Apache-2.0 AND MIT",
       "license_declared": "Apache-2.0",
       "license_files": [
         {
           "license_ids": [
-            "Apache-2.0"
+            "Apache-2.0",
+            "MIT"
           ],
           "path": "legal/LICENSES/cargo-rmcp-3.1.2/000-000-LICENSE",
           "sha256": "0382b0057770ca05e9c350a50aa3b1c1fea84da0bc81d723bf00b9aa841be58a"
@@ -10759,6 +10764,10 @@
         {
           "path": "legal/NOTICES/cargo-rmcp-3.1.2/000-000-LICENSE",
           "sha256": "0382b0057770ca05e9c350a50aa3b1c1fea84da0bc81d723bf00b9aa841be58a"
+        },
+        {
+          "path": "legal/NOTICES/cargo-rmcp-3.1.2/source-grant-scope.json",
+          "sha256": "6c890a6f78113a58ef32df61d6cc1053af59eb8ba7c6fc0318e82225000ea042"
         }
       ],
       "notice_required": true,
@@ -16535,8 +16544,8 @@
       "download_location": "https://github.com/python/cpython-bin-deps/archive/e3c3e9a2856124aa32b608632a52742d479eb7a9.tar.gz",
       "id": "native-tk-windows-bin-8612",
       "kind": "runtime",
-      "license_concluded": "NOASSERTION",
-      "license_declared": "TCL",
+      "license_concluded": "TCL AND LicenseRef-Tix-HTML-9149f81c6efd1c3cef68742b67dc6f1b6211f32f425f3b6d24cf5279668cfd27",
+      "license_declared": "NOASSERTION",
       "license_files": [
         {
           "license_ids": [
@@ -16607,6 +16616,13 @@
           ],
           "path": "legal/LICENSES/native-tk-windows-bin-8612/009-009-tklicense.terms",
           "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5"
+        },
+        {
+          "license_ids": [
+            "LicenseRef-Tix-HTML-9149f81c6efd1c3cef68742b67dc6f1b6211f32f425f3b6d24cf5279668cfd27"
+          ],
+          "path": "legal/LICENSES/native-tk-windows-bin-8612/010-license.html-lib",
+          "sha256": "9149f81c6efd1c3cef68742b67dc6f1b6211f32f425f3b6d24cf5279668cfd27"
         }
       ],
       "name": "tk-windows-bin-8612",
@@ -16650,6 +16666,14 @@
         {
           "path": "legal/NOTICES/native-tk-windows-bin-8612/009-009-tklicense.terms",
           "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5"
+        },
+        {
+          "path": "legal/NOTICES/native-tk-windows-bin-8612/010-license.html-lib",
+          "sha256": "9149f81c6efd1c3cef68742b67dc6f1b6211f32f425f3b6d24cf5279668cfd27"
+        },
+        {
+          "path": "legal/NOTICES/native-tk-windows-bin-8612/referenced-grant-provenance.json",
+          "sha256": "aecee846b9c7436b0f124a7415e3ef39c6316476527d61417f67d3e1623a0a5a"
         }
       ],
       "notice_required": true,

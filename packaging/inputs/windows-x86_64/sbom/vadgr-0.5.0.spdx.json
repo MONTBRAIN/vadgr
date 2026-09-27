@@ -8,12 +8,17 @@
   },
   "dataLicense": "CC0-1.0",
   "documentComment": "Incomplete review inventory, including separately classified build-source candidates. Not an approved shipped-component SBOM.",
-  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-054dce546d6a942678fb63cf7ece8edec9246652a92948d0466d904cd391686f",
+  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-review-a630753987a81a20143162145cd86fed0d72274f29981044e9f1021511b7ee6e",
   "hasExtractedLicensingInfos": [
     {
       "comment": "Exact retained terms; this identifier is not an approval or a claim of SPDX-list equivalence.",
       "extractedText": "Additional Conditions for this Windows binary build\n---------------------------------------------------\n\nThis program is linked with and uses Microsoft Distributable Code,\ncopyrighted by Microsoft Corporation. The Microsoft Distributable Code\nis embedded in each .exe, .dll and .pyd file as a result of running\nthe code through a linker.\n\nIf you further distribute programs that include the Microsoft\nDistributable Code, you must comply with the restrictions on\ndistribution specified by Microsoft. In particular, you must require\ndistributors and external end users to agree to terms that protect the\nMicrosoft Distributable Code at least as much as Microsoft's own\nrequirements for the Distributable Code. See Microsoft's documentation\n(included in its developer tools and on its website at microsoft.com)\nfor specific details.\n\nRedistribution of the Windows binary build of the Python interpreter\ncomplies with this agreement, provided that you do not:\n\n- alter any copyright, trademark or patent notice in Microsoft's\nDistributable Code;\n\n- use Microsoft's trademarks in your programs' names or in a way that\nsuggests your programs come from or are endorsed by Microsoft;\n\n- distribute Microsoft's Distributable Code to run on a platform other\nthan Microsoft operating systems, run-time technologies or application\nplatforms; or\n\n- include Microsoft Distributable Code in malicious, deceptive or\nunlawful programs.\n\nThese restrictions apply only to the Microsoft Distributable Code as\ndefined above, not to Python itself or any programs running on the\nPython interpreter. The redistribution of the Python interpreter and\nlibraries is governed by the Python Software License included with this\nfile, or by other licenses as marked.",
       "licenseId": "LicenseRef-Python-Windows-Redistribution-e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a"
+    },
+    {
+      "comment": "Exact retained terms; this identifier is not an approval or a claim of SPDX-list equivalence.",
+      "extractedText": "----------------------------------------------------------------------\nCOPYRIGHT NOTICE OF THE HTML_LIBRARY SOFTWARE. THE TERM \"SOFTWARE\"\nSHALL MEAN THE HTML_LIBRARY SOFTWARE ONLY. THIS NOTICE DOES NOT COVER\nTHE TIX LIBRARY. SEE THE FILE \"license.terms\" FOR COPYRIGHT NOTICE AND\nLICENSE TERMS OF THE TIX LIBRARY.\n----------------------------------------------------------------------\n\nSun Microsystems, Inc.  The following terms apply to all files\nassociated with the software unless explicitly disclaimed in individual\nfiles.\n\nThe authors hereby grant permission to use, copy, modify, distribute,\nand license this software and its documentation for any purpose, provided\nthat existing copyright notices are retained in all copies and that this\nnotice is included verbatim in any distributions. No written agreement,\nlicense, or royalty fee is required for any of the authorized uses.\nModifications to this software may be copyrighted by their authors\nand need not follow the licensing terms described here, provided that\nthe new terms are clearly indicated on the first page of each file where\nthey apply.\n\nIN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY\nFOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES\nARISING OUT OF THE USE OF THIS SOFTWARE, ITS DOCUMENTATION, OR ANY\nDERIVATIVES THEREOF, EVEN IF THE AUTHORS HAVE BEEN ADVISED OF THE\nPOSSIBILITY OF SUCH DAMAGE.\n\nTHE AUTHORS AND DISTRIBUTORS SPECIFICALLY DISCLAIM ANY WARRANTIES,\nINCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE\nIS PROVIDED ON AN \"AS IS\" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE\nNO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR\nMODIFICATIONS.\n\nRESTRICTED RIGHTS: Use, duplication or disclosure by the government\nis subject to the restrictions as set forth in subparagraph (c) (1) (ii)\nof the Rights in Technical Data and Computer Software Clause as DFARS\n252.227-7013 and FAR 52.227-19.\n",
+      "licenseId": "LicenseRef-Tix-HTML-9149f81c6efd1c3cef68742b67dc6f1b6211f32f425f3b6d24cf5279668cfd27"
     }
   ],
   "name": "vadgr-0.5.0-x86_64-pc-windows-msvc-unreviewed",
@@ -4891,7 +4896,7 @@
       "copyrightText": "Copyright (c) 2024-2025 Model Context Protocol a Series of LF Projects, LLC.",
       "downloadLocation": "https://static.crates.io/crates/rmcp/rmcp-3.1.2.crate",
       "filesAnalyzed": false,
-      "licenseConcluded": "Apache-2.0",
+      "licenseConcluded": "Apache-2.0 AND MIT",
       "licenseDeclared": "Apache-2.0",
       "name": "rmcp",
       "packageComment": "Original upstream declaration: Apache-2.0",
@@ -7594,10 +7599,10 @@
       "copyrightText": "Copyright (c) 1993-1999 Ioi Kim Lam.\nCopyright (c) 2000-2001 Tix Project Group.\nCopyright (c) 2004 ActiveState\nThis software is copyrighted by the Regents of the University of California, Sun Microsystems, Inc., Scriptics Corporation, ActiveState Corporation and other parties.\nThis software is copyrighted by the Regents of the University of California, Sun Microsystems, Inc., Scriptics Corporation, ActiveState Corporation, Apple Inc. and other parties.\nThis software is copyrighted by the above entities and other parties.",
       "downloadLocation": "https://github.com/python/cpython-bin-deps/archive/e3c3e9a2856124aa32b608632a52742d479eb7a9.tar.gz",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "TCL",
+      "licenseConcluded": "TCL AND LicenseRef-Tix-HTML-9149f81c6efd1c3cef68742b67dc6f1b6211f32f425f3b6d24cf5279668cfd27",
+      "licenseDeclared": "NOASSERTION",
       "name": "tk-windows-bin-8612",
-      "packageComment": "Original upstream declaration: TCL",
+      "packageComment": "Original upstream declaration: None",
       "versionInfo": "8.6.12"
     },
     {

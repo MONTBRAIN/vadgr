@@ -108,6 +108,39 @@ def complete_mpl_reference(sources, archive_root):
 
 CERTIFI_SOURCE_SHA256 = "024c88eeec92ca068db80f02b8b07c9cef7b9fe261d1d535abfd5abd6f6af432"
 
+TIX_SOURCE_SHA256 = "f7b21d115867a41ae5fd7c635a4c234d3ca25126c3661eb36028c6e25601f85e"
+TIX_HTML_SHA256 = "9149f81c6efd1c3cef68742b67dc6f1b6211f32f425f3b6d24cf5279668cfd27"
+
+
+def tix_referenced_grant(sources, archive_root):
+    """Resolve the exact named grant without calling its different terms TCL."""
+    referenced = [(name, raw) for name, raw in sources if b"docs/license.html_lib" in raw]
+    if not referenced:
+        return None
+    require(len({raw.replace(b"\r\n", b"\n") for _, raw in referenced}) == 1, "Tix grant reference is ambiguous")
+    filename = "tix-8.4.3.6.tar.gz"
+    raw = read_owned(archive_root, filename)
+    require(sha256_bytes(raw) == TIX_SOURCE_SHA256, "Tix grant source identity differs")
+    prefix = "cpython-source-deps-tix-8.4.3.6/"
+    with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as archive:
+        primary = archive.extractfile(prefix + "license.terms").read()
+        grant = archive.extractfile(prefix + "docs/license.html_lib").read()
+    require(primary.replace(b"\r\n", b"\n") == referenced[0][1].replace(b"\r\n", b"\n"),
+            "Tix observed license does not match referenced source")
+    require(sha256_bytes(grant) == TIX_HTML_SHA256, "Tix HTML grant identity differs")
+    identifier = "LicenseRef-Tix-HTML-" + TIX_HTML_SHA256
+    return ("license.html_lib", grant), identifier, {
+        "archive_sha256": TIX_SOURCE_SHA256,
+        "archive_url": "https://github.com/python/cpython-source-deps/archive/refs/tags/tix-8.4.3.6.tar.gz",
+        "source_revision": "6c27742f4c7695a35c6ca23b75d38f62a1414c9c",
+        "reference_files": [{"path": name, "sha256": sha256_bytes(value)} for name, value in referenced],
+        "source_license": {"path": prefix + "license.terms", "sha256": sha256_bytes(primary)},
+        "referenced_grant": {"path": prefix + "docs/license.html_lib", "sha256": TIX_HTML_SHA256},
+        "comparison": "Complete observed Tix license equals the source license after CRLF normalization.",
+        "scope": "The Tix notice explicitly includes parts based on the HTML Library and names this separate grant. Both grants are retained conservatively; no absence of HTML-derived runtime code is inferred.",
+        "limitation": "Grant-reference evidence, not a binary rebuild or source-version mapping. The HTML grant has distinct government-rights wording without the standard TCL override; custom-term and source-duty review remains open.",
+    }
+
 
 def compare_certifi_source(members, version, archive_root):
     filename = "certifi-2026.6.17.tar.gz"
@@ -135,7 +168,10 @@ def compare_certifi_source(members, version, archive_root):
         "members": records, "source_delivery": "Complete published source distribution plus every actual shipped modified Python/data member in observed-source.zip."}
 
 
-def crate_grant_scope(component, raw, base_expression, grants, cargo_features=None):
+RMCP_GRANT_SHA256 = "0382b0057770ca05e9c350a50aa3b1c1fea84da0bc81d723bf00b9aa841be58a"
+
+
+def crate_grant_scope(component, raw, base_expression, grants, cargo_features=None, retained_sources=()):
     """Read explicit upstream file-scope statements, never infer scope from filenames alone."""
     require(sha256_bytes(raw) == component["sha256"], "grant scope archive identity differs")
     if not base_expression:
@@ -189,6 +225,39 @@ def crate_grant_scope(component, raw, base_expression, grants, cargo_features=No
                 return None
             expression = "Apache-2.0 AND MIT AND Bitstream-Vera AND OFL-1.1 AND Ubuntu-font-1.0"
             reason = "The crate's code grant and all four separately inventoried embedded font grants are retained together; Hack explicitly includes both MIT and Bitstream Vera material."
+        elif name == "accesskit_winit":
+            members = sorted(member.name[len(root):] for member in archive.getmembers()
+                if member.isfile() and member.name.startswith(root + "src/") and member.name.endswith(".rs"))
+            if not members or base_expression != "Apache-2.0":
+                return None
+            for path in members:
+                text = source(path)
+                if not text.startswith("// Copyright ") or not all(clause in text[:250] for clause in (
+                        "The AccessKit Authors. All rights reserved.",
+                        "Licensed under the Apache License, Version 2.0 (found in", "the LICENSE-APACHE file).")):
+                    return None
+            expression, accounted = "Apache-2.0", {"MIT", "Apache-2.0", "BSD-3-Clause"}
+            reason = "Every Rust member of this crate's src tree explicitly declares Apache-2.0 in its header, as does its package manifest. Retained workspace MIT and Chromium grant texts are not reassigned to these explicitly licensed files; separately inventoried AccessKit dependencies retain their own source grants."
+        elif name == "rmcp":
+            vcs = json.loads(source(".cargo_vcs_info.json"))
+            if (vcs.get("git", {}).get("sha1") != "02c62aef2e331e5cf79c06c744eb1eb052cc8ebd"
+                    or vcs.get("path_in_vcs") != "crates/rmcp"):
+                return None
+            candidates = [(path, value) for path, value in retained_sources if sha256_bytes(value) == RMCP_GRANT_SHA256]
+            if len(candidates) != 1:
+                return None
+            path, value = candidates[0]
+            proof.append({"path": path, "sha256": RMCP_GRANT_SHA256, "size": len(value),
+                "source_url": "https://raw.githubusercontent.com/modelcontextprotocol/rust-sdk/" + vcs["git"]["sha1"] + "/LICENSE"})
+            text = " ".join(value.decode("utf-8").split())
+            if not all(clause in text for clause in (
+                    'undergoing a licensing transition from the MIT License to the Apache License, Version 2.0',
+                    'who have not yet granted explicit permission to relicense remain licensed under the MIT License.',
+                    'Documentation contributions (excluding specifications) are licensed under CC-BY-4.0.',
+                    'No rights beyond those granted by the applicable original license are conveyed')):
+                return None
+            expression, accounted = "Apache-2.0 AND MIT", {"Apache-2.0", "MIT"}
+            reason = "The complete upstream transition notice explicitly retains MIT for unconsented contributions. Both code grants are retained conjunctively without assuming universal relicensing. The separate CC-BY-4.0 documentation statement remains in the notice; this runtime code proposal does not license documentation redistribution."
         elif name in {"accesskit", "accesskit_consumer", "accesskit_windows"}:
             paths = {"accesskit": ["src/lib.rs"], "accesskit_consumer": ["src/iterators.rs", "src/node.rs"],
                      "accesskit_windows": ["src/node.rs"]}[name]
