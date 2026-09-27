@@ -22,6 +22,7 @@ def test_supported_wix_pin_and_explicit_project_acceptance():
         assert all(row.attrib["Version"] == "7.0.0" for row in project.findall(".//PackageReference"))
     script = (ROOT / "scripts/candidate/package-windows.ps1").read_text()
     assert "--version 7.0.0" in script
+    assert script.count('"$output/wix/wix.exe" -acceptEula wix7 burn') == 2
 
 
 def test_wix7_bootstrapper_extension_uses_current_message_and_create_layout():
