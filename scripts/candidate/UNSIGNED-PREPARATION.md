@@ -102,6 +102,37 @@ inputs, protected assent, provenance, claims and signing gates.
 
 ## Qualification
 
+### Mechanical signing-policy preparation
+
+Use the retained observation and its matching `unsigned-inputs` directory:
+
+```powershell
+python scripts/candidate/prepare_signing_policy.py --observation <observation.json> --inputs <unsigned-inputs> --ledger-out <new-review.json> --check-predecessors packaging/cua/helper-signing/x86_64-predecessors.json
+```
+
+Select `aarch64-predecessors.json` for the ARM64 observation. The helper measures
+all observed direct native files, verifies the installed role manifest, and
+excludes only its exact shared relay. The Python entrypoint wrapper remains an
+outer input. It reads the broker's embedded predecessor catalog and compares its
+canonical content with the supplied policy. `--predecessors-out <new-file.json>`
+can emit that exact policy instead. Existing output files are never overwritten.
+
+The ledger is explicitly unapproved review input. It does not assign trust
+classes, certificates, signing policy or legal approval. Complete those fields
+from independent signature verification and the exact reviewed legal records.
+Then use `--check-outer <reviewed-outer.json>` with the same observation and input
+directory to check complete membership, exact hashes and populated policy fields.
+That structural check does not prove native trust or legal authorization. The
+protected candidate gates still verify those independently. Candidate staging
+also rejects a predecessor policy that differs from its actual broker catalog.
+
+Keep generated review ledgers within the private review boundary. Do not mistake
+the ledger for `*-outer.json` or copy helper-only legal approvals onto unrelated
+outer files. Run `python -m pytest scripts/tests/test_prepare_signing_policy.py -q`
+for the deterministic preparation, mutation and refusal cases.
+
+### Producer qualification
+
 Run `python -m pytest scripts/tests/test_unsigned_windows_prep.py -q` for the
 source, workflow, path, terms, architecture and inventory refusal cases. These
 tests use isolated synthetic fixtures and need no credentials or paid operation.
