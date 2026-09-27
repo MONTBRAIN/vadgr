@@ -554,6 +554,13 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'private payload version check failed' }
           "CLEAN_INSTALL_ROOT=$installRoot" | Out-File -FilePath $env:GITHUB_ENV -Append
 
+      - name: Verify assembled payload and unsigned runtime boundary
+        if: steps.payload-inputs.outputs.mode != 'unpromoted'
+        shell: bash
+        run: |
+          python scripts/check_cua_ci_readiness.py --root "$CLEAN_INSTALL_ROOT" \
+            --trusted .trusted-cua --github-env "$GITHUB_ENV"
+
       # Linux has containers, so the machine can be MADE rather than
       # approximated: ubuntu:24.04 with nothing in it, the one binary copied
       # in, nothing else. The base matches the distribution the binary was
@@ -610,11 +617,11 @@ jobs:
             sleep 1
           done
           echo "$body"
-          echo "$body" | jq -e --arg version "$version" '
+          echo "$body" | jq -e --arg version "$version" --argjson ready "$CUA_CLEAN_EXPECTED_READY" '
             .status == "healthy"
             and .version == $version
             and .platform == "linux"
-            and .modules == {"computer_use": true}
+            and .modules == {"computer_use": $ready}
             and .transport == {"loopback": {"name": "loopback", "available": true,
                                "advertise_host": null, "bind_host": "127.0.0.1"}}
           ' >/dev/null || { echo "the health body is wrong"; docker logs "$container"; exit 1; }
@@ -626,9 +633,9 @@ jobs:
             and all(.[]; .connected == false)
           ' >/dev/null || { echo "the provider rows are wrong: $providers"; exit 1; }
           computer_use="$(probe /api/settings/computer-use)"
-          echo "$computer_use" | jq -e \
-            '. == {"enabled": true, "platform": "native", "venv_ready": true}' >/dev/null \
-            || { echo "the bundled MCP server is unavailable: $computer_use"; docker logs "$container"; exit 1; }
+          echo "$computer_use" | jq -e --argjson ready "$CUA_CLEAN_EXPECTED_READY" \
+            '. == {"enabled": true, "platform": "native", "venv_ready": $ready}' >/dev/null \
+            || { echo "the bundled MCP readiness is wrong: $computer_use"; docker logs "$container"; exit 1; }
           # The CLI reaches the daemon from the same machine.
           docker exec "$container" "$container_root/bin/vadgr" health
           # Stop it; the trap removes the machine whole.
@@ -690,11 +697,11 @@ jobs:
             sleep 1
           done
           echo "$body"
-          echo "$body" | jq -e --arg version "$version" '
+          echo "$body" | jq -e --arg version "$version" --argjson ready "$CUA_CLEAN_EXPECTED_READY" '
             .status == "healthy"
             and .version == $version
             and .platform == "macos"
-            and .modules == {"computer_use": true}
+            and .modules == {"computer_use": $ready}
             and .transport == {"loopback": {"name": "loopback", "available": true,
                                "advertise_host": null, "bind_host": "127.0.0.1"}}
           ' >/dev/null || { echo "the health body is wrong"; cat "$root/daemon.log"; exit 1; }
@@ -706,9 +713,9 @@ jobs:
             and all(.[]; .connected == false)
           ' >/dev/null || { echo "the provider rows are wrong: $providers"; exit 1; }
           computer_use="$(curl -fsS http://127.0.0.1:8100/api/settings/computer-use)"
-          echo "$computer_use" | jq -e \
-            '. == {"enabled": true, "platform": "native", "venv_ready": true}' >/dev/null \
-            || { echo "the bundled MCP server is unavailable: $computer_use"; cat "$root/daemon.log"; exit 1; }
+          echo "$computer_use" | jq -e --argjson ready "$CUA_CLEAN_EXPECTED_READY" \
+            '. == {"enabled": true, "platform": "native", "venv_ready": $ready}' >/dev/null \
+            || { echo "the bundled MCP readiness is wrong: $computer_use"; cat "$root/daemon.log"; exit 1; }
           # The CLI reaches the daemon from the same emptied environment. Exit
           # 0 here needs the wire, not just the binary loading.
           env -i HOME="$root" VADGR_PORT=8100 "$exe" health
@@ -774,8 +781,9 @@ jobs:
           if ($health.status -ne 'healthy') { throw "status was '$($health.status)'" }
           if ($health.version -ne $version) { throw "version was '$($health.version)', expected '$version'" }
           if ($health.platform -ne 'windows') { throw "platform was '$($health.platform)'" }
+          $expectedReady = [bool]::Parse($env:CUA_CLEAN_EXPECTED_READY)
           $moduleKeys = ($health.modules.PSObject.Properties.Name | Sort-Object) -join ','
-          if ($moduleKeys -ne 'computer_use' -or $health.modules.computer_use -ne $true) {
+          if ($moduleKeys -ne 'computer_use' -or $health.modules.computer_use -ne $expectedReady) {
             throw "modules was $($health.modules | ConvertTo-Json -Compress)"
           }
           # The health block now reports one entry per registered transport,
@@ -812,8 +820,8 @@ jobs:
           $computerUseKeys = ($computerUse.PSObject.Properties.Name | Sort-Object) -join ','
           if ($computerUseKeys -ne 'enabled,platform,venv_ready' -or
               $computerUse.enabled -ne $true -or $computerUse.platform -ne 'native' -or
-              $computerUse.venv_ready -ne $true) {
-            throw "the bundled MCP server is unavailable: $($computerUse | ConvertTo-Json -Compress)"
+              $computerUse.venv_ready -ne $expectedReady) {
+            throw "the bundled MCP readiness is wrong: $($computerUse | ConvertTo-Json -Compress)"
           }
           # The CLI reaches the daemon from the same stripped environment.
           # Exit 0 here needs the wire, not just the binary loading.

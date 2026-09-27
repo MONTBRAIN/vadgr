@@ -63,6 +63,18 @@ def test_verified_preparation_preserves_release_environment(tmp_path):
         assert boundary.check(tmp_path, tmp_path, TARGET, tmp_path / "wheels") == ("reviewed", values)
 
 
+def test_profile_lock_selects_reviewed_assembly_without_a_legacy_lock(tmp_path):
+    source, trusted = inputs(tmp_path)
+    for root in (source, trusted):
+        (root / "packaging/cua/profile-inputs.json").write_bytes(b"selected profile")
+        lock = root / "packaging/cua/profile-locks/macos-aarch64.lock"
+        lock.parent.mkdir()
+        lock.write_bytes(b"exact profile lock")
+    values = {"VADGR_RELEASE_PROFILE": "macos-aarch64"}
+    with patch.object(boundary.release, "manifest"), patch.object(boundary.prepare, "prepare", return_value=values):
+        assert boundary.check(source, trusted, TARGET, tmp_path / "wheels") == ("reviewed", values)
+
+
 def test_refusal_cannot_leave_a_partial_wheelhouse(tmp_path):
     source, trusted = inputs(tmp_path)
     output = tmp_path / "wheels"
@@ -80,7 +92,9 @@ def test_actual_unpromoted_checkout_refuses_before_materialization(tmp_path):
     from pathlib import Path
 
     root = Path(__file__).resolve().parents[2]
-    if (root / boundary.release.lock_path(TARGET)).exists():
+    lock = (boundary.profiles.lock_path(boundary.profiles.native_profile(TARGET))
+            if (root / boundary.profiles.INPUTS).exists() else boundary.release.lock_path(TARGET))
+    if (root / lock).exists():
         pytest.skip("This target now has reviewed inputs")
     assert boundary.check(root, root, TARGET, tmp_path / "wheels") == ("unpromoted", {})
     assert not (tmp_path / "wheels").exists()

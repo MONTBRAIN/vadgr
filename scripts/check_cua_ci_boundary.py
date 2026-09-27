@@ -7,16 +7,18 @@ import subprocess
 import sys
 
 if __package__:
-    from scripts import cua_release_inputs as release, prepare_cua_build as prepare
+    from scripts import cua_profiles as profiles, cua_release_inputs as release, prepare_cua_build as prepare
     from scripts.validate_package_inputs import PackageInputError, read_owned, require
 else:
+    import cua_profiles as profiles
     import cua_release_inputs as release
     import prepare_cua_build as prepare
     from validate_package_inputs import PackageInputError, read_owned, require
 
 
 def check(source, trusted, target, output):
-    lock = release.lock_path(target)
+    profiled = any((root / profiles.INPUTS).exists() for root in (source, trusted))
+    lock = profiles.lock_path(profiles.native_profile(target)) if profiled else release.lock_path(target)
     absent = all(not (root / lock).exists() and not (root / lock).is_symlink()
                  for root in (source, trusted))
     if absent and (source / release.MANIFEST).is_file() and (trusted / release.MANIFEST).is_file():
