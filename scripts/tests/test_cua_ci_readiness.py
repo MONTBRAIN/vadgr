@@ -25,7 +25,7 @@ def runtime(tmp_path, profile):
     root = tmp_path / "install"
     cua = root / "lib/cua"
     cua.mkdir(parents=True)
-    binding = {"target": "aarch64-apple-darwin", "requirements_sha256": "1" * 64,
+    binding = {"target": readiness.profiles.target_for(profile), "requirements_sha256": "1" * 64,
                "wheel_manifest_sha256": "2" * 64, "release_profile": profile,
                "cua_profile_manifest_sha256": "3" * 64}
     (cua / "runtime").write_bytes(b"synthetic runtime")
@@ -45,6 +45,31 @@ def test_unsigned_profile_checks_inventory_and_requires_unavailable_runtime(tmp_
         (cua / "runtime").write_bytes(b"changed runtime")
         with pytest.raises(PackageInputError, match="bytes differ"):
             readiness.expected_ready(root, tmp_path, tmp_path, "macos-aarch64")
+
+
+@pytest.mark.parametrize("profile", ["linux-x86_64", "linux-aarch64", "wsl-x86_64", "wsl-aarch64"])
+def test_linux_runtime_case_distinct_files_preserve_the_unsigned_boundary(tmp_path, profile):
+    root, cua, binding, payload = runtime(tmp_path, profile)
+    names = ("python/share/terminfo/2/2621A", "python/share/terminfo/2/2621a")
+    inventory = json.loads((cua / "installed-inventory.json").read_bytes())
+    for name, data in zip(names, (b"uppercase terminal", b"lowercase terminal")):
+        path = cua / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(data)
+        inventory["files"][name] = {"size": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+    if (cua / names[0]).read_bytes() != b"uppercase terminal":
+        pytest.skip("fixture requires a case-sensitive filesystem")
+    payload["installed_inventory_sha256"] = write_json(cua / "installed-inventory.json", inventory)
+    write_json(cua / "payload.json", payload)
+    with patch.object(readiness.profiles, "reviewed", return_value=(binding, {}, {"cua_version": "0.7.9"})):
+        assert readiness.expected_ready(root, tmp_path, tmp_path, profile) is False
+        for name in names:
+            path = cua / name
+            before = path.read_bytes()
+            path.write_bytes(b"changed")
+            with pytest.raises(PackageInputError, match="bytes differ"):
+                readiness.expected_ready(root, tmp_path, tmp_path, profile)
+            path.write_bytes(before)
 
 
 @pytest.mark.parametrize("field,value", [("release_profile", "macos-x86_64"),

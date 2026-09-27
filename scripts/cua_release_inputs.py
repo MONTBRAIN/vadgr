@@ -235,7 +235,9 @@ def validate_payload(root: Path, binding: dict[str, str]) -> dict[str, str]:
     seen = set()
     for name, record in files.items():
         relative_path(name)
-        normalized = unicodedata.normalize("NFC", name).casefold()
+        normalized = unicodedata.normalize("NFC", name)
+        if not binding["target"].endswith("-unknown-linux-gnu"):
+            normalized = normalized.casefold()
         require(normalized not in seen and name not in (INVENTORY, "payload.json"),
                 "installed CUA inventory has duplicate or excluded path")
         seen.add(normalized)

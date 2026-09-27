@@ -135,6 +135,33 @@ class ReleaseInputsTests(unittest.TestCase):
             with self.assertRaises(PackageInputError):
                 release.validate_payload(self.payload, self.binding)
 
+    def test_inventory_path_case_matches_the_payload_target(self):
+        names = ("python/share/terminfo/2/2621A", "python/share/terminfo/2/2621a")
+        for name, content in zip(names, (b"uppercase terminal", b"lowercase terminal")):
+            self.write(self.payload, name, content)
+        if (self.payload / names[0]).read_bytes() != b"uppercase terminal":
+            self.skipTest("fixture requires a case-sensitive filesystem")
+        for target in ("x86_64-unknown-linux-gnu", "aarch64-unknown-linux-gnu",
+                       "x86_64-pc-windows-msvc", "aarch64-pc-windows-msvc",
+                       "x86_64-apple-darwin", "aarch64-apple-darwin"):
+            self.target = target
+            self.binding["target"] = target
+            manifest = self.runtime()
+            inventory = json.loads((self.payload / release.INVENTORY).read_bytes())
+            for name in names:
+                data = (self.payload / name).read_bytes()
+                inventory["files"][name] = {"size": len(data), "sha256": sha(data)}
+            raw = encoded(inventory)
+            self.write(self.payload, release.INVENTORY, raw)
+            self.write(self.payload, "payload.json", encoded({**manifest,
+                       "installed_inventory_sha256": sha(raw)}))
+            with self.subTest(target=target):
+                if target.endswith("-unknown-linux-gnu"):
+                    release.validate_payload(self.payload, self.binding)
+                else:
+                    with self.assertRaisesRegex(PackageInputError, "duplicate"):
+                        release.validate_payload(self.payload, self.binding)
+
     def test_origin_resolves_real_run_jobs_and_artifacts_independently(self):
         run = {"id": 3, "head_sha": "a" * 40, "head_branch": "master",
                "event": "workflow_dispatch", "run_attempt": 1, "status": "completed",
