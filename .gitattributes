@@ -10,3 +10,4 @@ packaging/cua/locks/*.lock text eol=lf
 packaging/cua/*.json text eol=lf
 packaging/cua/profile-locks/*.lock text eol=lf
 packaging/cua/helper-signing/*.json text eol=lf
+packaging/candidate-legal-approval.json text eol=lf

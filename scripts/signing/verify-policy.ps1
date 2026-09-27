@@ -24,7 +24,9 @@ function Get-PolicySignatureReport {
     if (($verification | Out-String) -notmatch 'Hash of file \(sha256\)' -or
         $Policy.digest_algorithm -cne 'sha256' -or $Policy.timestamp_algorithm -cne 'rfc3161-sha256') { throw 'Signature algorithms differ.' }
     $env:SIGNING_INPUT = (Resolve-Path -LiteralPath $Path).Path
-    Invoke-Wrapper 'verify-metadata' | Out-Null
+    $env:SIGNING_TRUST_CLASS = $Policy.trust_class
+    try { Invoke-Wrapper 'verify-metadata' | Out-Null }
+    finally { [Environment]::SetEnvironmentVariable('SIGNING_TRUST_CLASS', $null, 'Process') }
     return @{
         schema = 1; file_sha256 = (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant();
         trust_class = $Policy.trust_class; signer = $certificate.Subject; certificate_sha256 = $fingerprint;

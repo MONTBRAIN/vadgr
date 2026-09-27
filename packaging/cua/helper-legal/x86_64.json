@@ -1,0 +1,628 @@
+{
+  "schema": 1,
+  "scope": "cua-helper-input-redistribution-and-authenticode-transformation",
+  "version": "0.7.9",
+  "architecture": "x86_64",
+  "source_commit": "14cb515ba54ca9346ea931ba46d4c3253164c8b4",
+  "review_date": "2026-09-26",
+  "status": "approved",
+  "decision": "Publisher authorization to complete, merge and release CUA 0.7.9 after source review, recorded on 2026-09-26.",
+  "review_notes_sha256": "e5f77bf323a8d0470c7125257df76883f9dde7054ea7ed8c4ac66db815da0fc9",
+  "review_input": {
+    "repository": "MONTBRAIN/vadgr-computer-use",
+    "run_id": 36181636747,
+    "attempt": 1,
+    "tooling_commit": "4ee4570ff4a1ec6393fdc61e8dc199cfd86e5fa9",
+    "receipt_sha256": "4df434e5082912907052aa235e87ac8e31451d978c5f9b171fdfd92a05a13782",
+    "files": [
+      {
+        "path": "broker.manifest.json",
+        "sha256": "c6b57325ec734b8a287ab887e9821e0ba0203ef1f17cb64e216c31cc517674e0",
+        "size": 10031
+      },
+      {
+        "path": "broker.spdx.json",
+        "sha256": "d02c806d6f651704496c7e45c0fa50d54732423cd75bf533bab7213ab2d1c478",
+        "size": 121548
+      },
+      {
+        "path": "build-inputs/notice-inputs.json",
+        "sha256": "5b6093a6cf310a24b2f2dd833a9600ca9dbce4cb67daf1693066aa85aed1f2e5",
+        "size": 1045
+      },
+      {
+        "path": "build-inputs/predecessor-input.json",
+        "sha256": "e00446268b6a4604c07f314c55589211bcd969a4b0f8acd6c43373368405bae0",
+        "size": 1354
+      },
+      {
+        "path": "build-inputs/source-input.json",
+        "sha256": "34cc1eb8bccbaa520412d304d7b5e57a5eec9df36cad57cde65e892baaeda10e",
+        "size": 103
+      },
+      {
+        "path": "build-inputs/toolchain.json",
+        "sha256": "014615741da6679a4da645dd5d61c119c6b749ff536a907a528640ad2a9044ce",
+        "size": 1147
+      },
+      {
+        "path": "build-inputs/windows-broker-build.txt",
+        "sha256": "109a4d3fb7087ff81c8f4a410ab2047392c42e2afa23150f6be06e56e3d19cca",
+        "size": 2962
+      },
+      {
+        "path": "member-inventory.json",
+        "sha256": "6afa6f0e3afada763835af4d1d0f674efb2cc7eab65ed228ebde66a8263625da",
+        "size": 10562
+      },
+      {
+        "path": "notices/PYINSTALLER-COPYING.txt",
+        "sha256": "dcf75fdb959db1e3b41c0f8505069d2ece781b5ec6b3d0a4d30975cfc6580245",
+        "size": 32138
+      },
+      {
+        "path": "notices/PYTHON-LICENSE.txt",
+        "sha256": "886a0ead2d89030ee62dbff52b04e47ab91998341295bb9c56fb952b4e081c7a",
+        "size": 25066
+      },
+      {
+        "path": "notices/THIRD-PARTY-NOTICES/LICENSE.bzip2.txt",
+        "sha256": "1f38bbc7caacafd65169276d759c0d88c991b753b643ce35d0e45ea1971dd441",
+        "size": 1743
+      },
+      {
+        "path": "notices/THIRD-PARTY-NOTICES/LICENSE.expat.txt",
+        "sha256": "122f2c27000472a201d337b9b31f7eb2b52d091b02857061a8880371612d9534",
+        "size": 1144
+      },
+      {
+        "path": "notices/THIRD-PARTY-NOTICES/LICENSE.libffi.txt",
+        "sha256": "deaf3a42effb551a5b140fa9afefed183a27f1341c6d1bf430d106a5e6931fc0",
+        "size": 1132
+      },
+      {
+        "path": "notices/THIRD-PARTY-NOTICES/LICENSE.liblzma.txt",
+        "sha256": "9a4062de0a2c388a98cf35a35d348b62fa97c838a71c3c28ee1a2d7d0a565b02",
+        "size": 660
+      },
+      {
+        "path": "notices/THIRD-PARTY-NOTICES/LICENSE.mpdecimal.txt",
+        "sha256": "669512af7219f58be03a398766d7c9da11a3b3df9d3f05cb74c5ceca25c8da3b",
+        "size": 1284
+      },
+      {
+        "path": "notices/THIRD-PARTY-NOTICES/LICENSE.openssl-3.txt",
+        "sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a",
+        "size": 10175
+      },
+      {
+        "path": "notices/THIRD-PARTY-NOTICES/LICENSE.zlib.txt",
+        "sha256": "818922b2620f12801a12bf78e399644a30990e66824abd8ca8ec24d451d6f92c",
+        "size": 995
+      },
+      {
+        "path": "notices/THIRD-PARTY-NOTICES/cua/LICENSE",
+        "sha256": "95200db3139caae5364ed20b90417e71258fce0c8f6f77904600f4a569cee52c",
+        "size": 10970
+      },
+      {
+        "path": "notices/THIRD-PARTY-NOTICES/cua/NOTICE",
+        "sha256": "cec763c4e30dcae7c47ef4503e30b63b6d9a9569bbdc5c5a0a95bfb7999e9df2",
+        "size": 402
+      },
+      {
+        "path": "notices/THIRD-PARTY-NOTICES/go/LICENSE",
+        "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+        "size": 1453
+      },
+      {
+        "path": "notices/THIRD-PARTY-NOTICES/go/PATENTS",
+        "sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc",
+        "size": 1303
+      },
+      {
+        "path": "notices/THIRD-PARTY-NOTICES/go/src/vendor/golang.org/x/net/LICENSE",
+        "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+        "size": 1453
+      },
+      {
+        "path": "notices/THIRD-PARTY-NOTICES/go/src/vendor/golang.org/x/net/PATENTS",
+        "sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc",
+        "size": 1303
+      },
+      {
+        "path": "notices/THIRD-PARTY-NOTICES/source-inventory.json",
+        "sha256": "a9a161de46cc4b3684d995b183d9e459aa85b0b9082b877644040f5ecae6ca60",
+        "size": 120640
+      },
+      {
+        "path": "notices/VADGR-CUA-LICENSE.txt",
+        "sha256": "95200db3139caae5364ed20b90417e71258fce0c8f6f77904600f4a569cee52c",
+        "size": 10970
+      }
+    ]
+  },
+  "input_closure": {
+    "architecture": "x86_64",
+    "archive": {
+      "path": "computer_use/browser/winbroker/x86_64/vadgr-cua-browser-broker-win-x64.zip",
+      "sha256": "79ada4f29a0b98a023c62a00b3cb23f8cb0133054dd608141993aef03aa73f2a",
+      "size": 23617249
+    },
+    "member_manifest": {
+      "path": "computer_use/browser/winbroker/x86_64/vadgr-cua-browser-broker-win-x64.manifest.json",
+      "sha256": "c6b57325ec734b8a287ab887e9821e0ba0203ef1f17cb64e216c31cc517674e0",
+      "size": 10031
+    },
+    "relay": {
+      "path": "computer_use/browser/winhost/x86_64/vadgr-cua-host.exe",
+      "sha256": "0f8ad4e48b90a531422ae5ec97faca7552052b1a3de2afdd03ee5384cb209b50",
+      "size": 2658816
+    }
+  },
+  "source_offer_required": false,
+  "source_offer_basis": "Unmodified permissive dependencies and PyInstaller's combined-executable bootloader exception. Microsoft runtime rights are scoped to the included Python Windows redistribution conditions.",
+  "members": {
+    "PYINSTALLER-COPYING.txt": {
+      "input_sha256": "dcf75fdb959db1e3b41c0f8505069d2ece781b5ec6b3d0a4d30975cfc6580245",
+      "size": 32138,
+      "trust_class": "data",
+      "components": [
+        "distribution-notice"
+      ],
+      "license_and_notice_members": []
+    },
+    "PYTHON-LICENSE.txt": {
+      "input_sha256": "886a0ead2d89030ee62dbff52b04e47ab91998341295bb9c56fb952b4e081c7a",
+      "size": 25066,
+      "trust_class": "data",
+      "components": [
+        "distribution-notice"
+      ],
+      "license_and_notice_members": []
+    },
+    "THIRD-PARTY-NOTICES/LICENSE.bzip2.txt": {
+      "input_sha256": "1f38bbc7caacafd65169276d759c0d88c991b753b643ce35d0e45ea1971dd441",
+      "size": 1743,
+      "trust_class": "data",
+      "components": [
+        "distribution-notice"
+      ],
+      "license_and_notice_members": []
+    },
+    "THIRD-PARTY-NOTICES/LICENSE.expat.txt": {
+      "input_sha256": "122f2c27000472a201d337b9b31f7eb2b52d091b02857061a8880371612d9534",
+      "size": 1144,
+      "trust_class": "data",
+      "components": [
+        "distribution-notice"
+      ],
+      "license_and_notice_members": []
+    },
+    "THIRD-PARTY-NOTICES/LICENSE.libffi.txt": {
+      "input_sha256": "deaf3a42effb551a5b140fa9afefed183a27f1341c6d1bf430d106a5e6931fc0",
+      "size": 1132,
+      "trust_class": "data",
+      "components": [
+        "distribution-notice"
+      ],
+      "license_and_notice_members": []
+    },
+    "THIRD-PARTY-NOTICES/LICENSE.liblzma.txt": {
+      "input_sha256": "9a4062de0a2c388a98cf35a35d348b62fa97c838a71c3c28ee1a2d7d0a565b02",
+      "size": 660,
+      "trust_class": "data",
+      "components": [
+        "distribution-notice"
+      ],
+      "license_and_notice_members": []
+    },
+    "THIRD-PARTY-NOTICES/LICENSE.mpdecimal.txt": {
+      "input_sha256": "669512af7219f58be03a398766d7c9da11a3b3df9d3f05cb74c5ceca25c8da3b",
+      "size": 1284,
+      "trust_class": "data",
+      "components": [
+        "distribution-notice"
+      ],
+      "license_and_notice_members": []
+    },
+    "THIRD-PARTY-NOTICES/LICENSE.openssl-3.txt": {
+      "input_sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a",
+      "size": 10175,
+      "trust_class": "data",
+      "components": [
+        "distribution-notice"
+      ],
+      "license_and_notice_members": []
+    },
+    "THIRD-PARTY-NOTICES/LICENSE.zlib.txt": {
+      "input_sha256": "818922b2620f12801a12bf78e399644a30990e66824abd8ca8ec24d451d6f92c",
+      "size": 995,
+      "trust_class": "data",
+      "components": [
+        "distribution-notice"
+      ],
+      "license_and_notice_members": []
+    },
+    "THIRD-PARTY-NOTICES/cua/LICENSE": {
+      "input_sha256": "95200db3139caae5364ed20b90417e71258fce0c8f6f77904600f4a569cee52c",
+      "size": 10970,
+      "trust_class": "data",
+      "components": [
+        "distribution-notice"
+      ],
+      "license_and_notice_members": []
+    },
+    "THIRD-PARTY-NOTICES/cua/NOTICE": {
+      "input_sha256": "cec763c4e30dcae7c47ef4503e30b63b6d9a9569bbdc5c5a0a95bfb7999e9df2",
+      "size": 402,
+      "trust_class": "data",
+      "components": [
+        "distribution-notice"
+      ],
+      "license_and_notice_members": []
+    },
+    "THIRD-PARTY-NOTICES/go/LICENSE": {
+      "input_sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+      "size": 1453,
+      "trust_class": "data",
+      "components": [
+        "distribution-notice"
+      ],
+      "license_and_notice_members": []
+    },
+    "THIRD-PARTY-NOTICES/go/PATENTS": {
+      "input_sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc",
+      "size": 1303,
+      "trust_class": "data",
+      "components": [
+        "distribution-notice"
+      ],
+      "license_and_notice_members": []
+    },
+    "THIRD-PARTY-NOTICES/go/src/vendor/golang.org/x/net/LICENSE": {
+      "input_sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+      "size": 1453,
+      "trust_class": "data",
+      "components": [
+        "distribution-notice"
+      ],
+      "license_and_notice_members": []
+    },
+    "THIRD-PARTY-NOTICES/go/src/vendor/golang.org/x/net/PATENTS": {
+      "input_sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc",
+      "size": 1303,
+      "trust_class": "data",
+      "components": [
+        "distribution-notice"
+      ],
+      "license_and_notice_members": []
+    },
+    "THIRD-PARTY-NOTICES/source-inventory.json": {
+      "input_sha256": "a9a161de46cc4b3684d995b183d9e459aa85b0b9082b877644040f5ecae6ca60",
+      "size": 120640,
+      "trust_class": "data",
+      "components": [
+        "distribution-notice"
+      ],
+      "license_and_notice_members": []
+    },
+    "VADGR-CUA-LICENSE.txt": {
+      "input_sha256": "95200db3139caae5364ed20b90417e71258fce0c8f6f77904600f4a569cee52c",
+      "size": 10970,
+      "trust_class": "data",
+      "components": [
+        "distribution-notice"
+      ],
+      "license_and_notice_members": []
+    },
+    "_internal/VCRUNTIME140.dll": {
+      "input_sha256": "d5e4d9a3e835fa679450145d6a7d94e36573a509317111904d9b3712c30d9066",
+      "size": 124544,
+      "trust_class": "vendor-preserve",
+      "components": [
+        "Microsoft-VC-runtime"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ]
+    },
+    "_internal/VCRUNTIME140_1.dll": {
+      "input_sha256": "1f2d41c4aa5db0bc33ebf7b66d72943a817d7ce6cbe880502a9403823633093f",
+      "size": 49792,
+      "trust_class": "vendor-preserve",
+      "components": [
+        "Microsoft-VC-runtime"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ]
+    },
+    "_internal/_asyncio.pyd": {
+      "input_sha256": "02c681521aa0eaa4822b206e2ed0cb51de969af86045846a52a321908e041f14",
+      "size": 59392,
+      "trust_class": "publisher-sign",
+      "components": [
+        "CPython"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ]
+    },
+    "_internal/_bz2.pyd": {
+      "input_sha256": "1cedba5927c6f00b4278c2b60b5696506ccc73af4859384a26160e1cf4945d01",
+      "size": 73216,
+      "trust_class": "publisher-sign",
+      "components": [
+        "CPython",
+        "bzip2"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt",
+        "THIRD-PARTY-NOTICES/LICENSE.bzip2.txt"
+      ]
+    },
+    "_internal/_ctypes.pyd": {
+      "input_sha256": "78edcd2a863472cded0f311eac31c778bc30fb9754fa815bb32c4e286eb7f155",
+      "size": 116224,
+      "trust_class": "publisher-sign",
+      "components": [
+        "CPython"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ]
+    },
+    "_internal/_decimal.pyd": {
+      "input_sha256": "14ec08311a3ee2248eaa332cec544bfda6a777bf649029303ee5675bb8ffa939",
+      "size": 248320,
+      "trust_class": "publisher-sign",
+      "components": [
+        "CPython",
+        "mpdecimal"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt",
+        "THIRD-PARTY-NOTICES/LICENSE.mpdecimal.txt"
+      ]
+    },
+    "_internal/_hashlib.pyd": {
+      "input_sha256": "0f234dd56319a354cbc103063e58ea25f57b05c0e3825bca0d608518e9c16583",
+      "size": 54784,
+      "trust_class": "publisher-sign",
+      "components": [
+        "CPython"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ]
+    },
+    "_internal/_lzma.pyd": {
+      "input_sha256": "31cfc6fd91059f0e4fd819a3381615db6639faaca7d5428c07c37fb64385b3da",
+      "size": 152576,
+      "trust_class": "publisher-sign",
+      "components": [
+        "CPython",
+        "liblzma"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt",
+        "THIRD-PARTY-NOTICES/LICENSE.liblzma.txt"
+      ]
+    },
+    "_internal/_multiprocessing.pyd": {
+      "input_sha256": "95303df7e7be0b75e67d64127b69704392267e50b2306f5ad45a9e64e7764aa2",
+      "size": 24064,
+      "trust_class": "publisher-sign",
+      "components": [
+        "CPython"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ]
+    },
+    "_internal/_overlapped.pyd": {
+      "input_sha256": "6a36b0102c76e6a931523725380ad8b9d4d559578c528f98110f7b42445feef3",
+      "size": 44032,
+      "trust_class": "publisher-sign",
+      "components": [
+        "CPython"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ]
+    },
+    "_internal/_queue.pyd": {
+      "input_sha256": "6f8dd84f376f5312b206acbe56d2a80eaea53cfadcf81f1c14fb97e75f82fc32",
+      "size": 20480,
+      "trust_class": "publisher-sign",
+      "components": [
+        "CPython"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ]
+    },
+    "_internal/_socket.pyd": {
+      "input_sha256": "df165b012ac7c7dbdd240bfec0237c215dea88ebcd988719658ca8afa4ec7692",
+      "size": 71680,
+      "trust_class": "publisher-sign",
+      "components": [
+        "CPython"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ]
+    },
+    "_internal/_ssl.pyd": {
+      "input_sha256": "480cce65c9b8fd755c5fafab5ba89b04dffd43ce64a1220b30c483e83f28fe6a",
+      "size": 164864,
+      "trust_class": "publisher-sign",
+      "components": [
+        "CPython"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ]
+    },
+    "_internal/_uuid.pyd": {
+      "input_sha256": "89b9c2751660b7821c4107f75821b3b705a6004e9a70517956c7cfb5edae7b42",
+      "size": 13824,
+      "trust_class": "publisher-sign",
+      "components": [
+        "CPython"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ]
+    },
+    "_internal/_wmi.pyd": {
+      "input_sha256": "01e899f2e92bb73c25edfe2d69a7bb55bd2814a1c3f9eeb115377c19b388ed7a",
+      "size": 25600,
+      "trust_class": "publisher-sign",
+      "components": [
+        "CPython"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ]
+    },
+    "_internal/base_library.zip": {
+      "input_sha256": "8caf13545c9cec2d53220690c1338878e6efa3e6fa851ab8979af9fec0e7d3b7",
+      "size": 1333490,
+      "trust_class": "data",
+      "components": [
+        "CPython"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ]
+    },
+    "_internal/libcrypto-3-x64.dll": {
+      "input_sha256": "7404fb0dc38e868aea1551ff8ceb3fce635ba6173439f882715a6e87e5237370",
+      "size": 7987712,
+      "trust_class": "publisher-sign",
+      "components": [
+        "OpenSSL"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt",
+        "THIRD-PARTY-NOTICES/LICENSE.openssl-3.txt"
+      ]
+    },
+    "_internal/libffi-8.dll": {
+      "input_sha256": "634bca492b28c5d530f1bc321dd6d240b92c5013f3815f59653ec483890db27b",
+      "size": 28160,
+      "trust_class": "publisher-sign",
+      "components": [
+        "libffi"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt",
+        "THIRD-PARTY-NOTICES/LICENSE.libffi.txt"
+      ]
+    },
+    "_internal/libssl-3-x64.dll": {
+      "input_sha256": "48d349578f5584f15fd3501501e75e87c80369c6ed35f39de55fbb92bee02df5",
+      "size": 1583616,
+      "trust_class": "publisher-sign",
+      "components": [
+        "OpenSSL"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt",
+        "THIRD-PARTY-NOTICES/LICENSE.openssl-3.txt"
+      ]
+    },
+    "_internal/predecessor-catalog.json": {
+      "input_sha256": "c969f56ddfecb014182ed9dad8373300b3e30520708c1514588c87c6f5532a71",
+      "size": 1354,
+      "trust_class": "data",
+      "components": [
+        "vadgr-computer-use"
+      ],
+      "license_and_notice_members": []
+    },
+    "_internal/pyexpat.pyd": {
+      "input_sha256": "7c7197db94612b3904ef0ada2a4940bcc6853136cc70f3523a4f26fffccbf37e",
+      "size": 210432,
+      "trust_class": "publisher-sign",
+      "components": [
+        "CPython",
+        "expat"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt",
+        "THIRD-PARTY-NOTICES/LICENSE.expat.txt"
+      ]
+    },
+    "_internal/python312.dll": {
+      "input_sha256": "53d38ecd2d9f4e19ac9328a715d1155e3e183473845e15d0044342909fc718a0",
+      "size": 6969856,
+      "trust_class": "publisher-sign",
+      "components": [
+        "CPython"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ]
+    },
+    "_internal/select.pyd": {
+      "input_sha256": "de108cd0108e8cdfb1f1e95e9fe6b3ede886aaa80a9fe86deb2619ec17d4e625",
+      "size": 18944,
+      "trust_class": "publisher-sign",
+      "components": [
+        "CPython"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ]
+    },
+    "_internal/unicodedata.pyd": {
+      "input_sha256": "f7cd7dfbc3c82be5f17fc61424ca316fa43b50193f3e633c5c042d62a47d0dd7",
+      "size": 1127936,
+      "trust_class": "publisher-sign",
+      "components": [
+        "CPython"
+      ],
+      "license_and_notice_members": [
+        "PYTHON-LICENSE.txt"
+      ]
+    },
+    "vadgr-cua-browser-broker.exe": {
+      "input_sha256": "0248fe42d3992b639fd5f2e47b8dcec651dfdee1b25ccb79001fba14815d42c4",
+      "size": 2883928,
+      "trust_class": "publisher-sign",
+      "components": [
+        "vadgr-computer-use",
+        "PyInstaller-bootloader-and-CUA",
+        "CPython",
+        "zlib"
+      ],
+      "license_and_notice_members": [
+        "VADGR-CUA-LICENSE.txt",
+        "THIRD-PARTY-NOTICES/cua/NOTICE",
+        "PYINSTALLER-COPYING.txt",
+        "PYTHON-LICENSE.txt",
+        "THIRD-PARTY-NOTICES/LICENSE.zlib.txt"
+      ]
+    },
+    "vadgr-cua-host.exe": {
+      "input_sha256": "0f8ad4e48b90a531422ae5ec97faca7552052b1a3de2afdd03ee5384cb209b50",
+      "size": 2658816,
+      "trust_class": "publisher-sign",
+      "components": [
+        "vadgr-computer-use",
+        "Go-runtime-and-CUA-relay"
+      ],
+      "license_and_notice_members": [
+        "THIRD-PARTY-NOTICES/cua/LICENSE",
+        "THIRD-PARTY-NOTICES/cua/NOTICE",
+        "THIRD-PARTY-NOTICES/go/LICENSE",
+        "THIRD-PARTY-NOTICES/go/PATENTS",
+        "THIRD-PARTY-NOTICES/go/src/vendor/golang.org/x/net/LICENSE",
+        "THIRD-PARTY-NOTICES/go/src/vendor/golang.org/x/net/PATENTS"
+      ]
+    }
+  }
+}

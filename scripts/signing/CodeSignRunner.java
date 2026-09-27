@@ -12,8 +12,10 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Stream;
 import javax.security.auth.x500.X500Principal;
 import picocli.CommandLine;
 import net.jsign.Signable;
@@ -48,7 +50,11 @@ public final class CodeSignRunner {
         System.setOut(sink);
         System.setErr(sink);
         System.setIn(InputStream.nullInputStream());
+        // The pinned vendor runtime defaults to 32, below Microsoft's nested
+        // Authenticode construction depth. Keep the increase bounded.
+        System.setProperty("org.bouncycastle.asn1.max_cons_depth", "64");
         int result = 70;
+        String failureStage = "startup";
         try {
             if (args.length != 1) throw new IllegalArgumentException();
             Path logConfig = Path.of(required("SIGNING_LOG_CONFIG")).toRealPath();
@@ -62,27 +68,36 @@ public final class CodeSignRunner {
             java.util.logging.LogManager.getLogManager().reset();
             if (args[0].equals("verify-metadata")) {
                 try (Signable file = Signable.of(Path.of(required("SIGNING_INPUT")).toFile())) {
-                    report.println("Embedded signature count: " + file.getSignatures().size());
-                    if (file.getSignatures().size() != 1) throw new IllegalStateException();
-                    CMSSignedData signature = file.getSignatures().get(0);
-                    if (signature.getSignerInfos().size() != 1) throw new IllegalStateException();
-                    SignerInformation signer = signature.getSignerInfos().getSigners().iterator().next();
-                    report.println("Signature digest OID: " + signer.getDigestAlgOID());
-                    if (!"2.16.840.1.101.3.4.2.1".equals(signer.getDigestAlgOID())) throw new IllegalStateException();
-                    Attribute timestamp = signer.getUnsignedAttributes().get(
-                        AuthenticodeObjectIdentifiers.SPC_RFC3161_OBJID);
-                    report.println("RFC3161 timestamp present: " + (timestamp != null));
-                    if (timestamp == null || timestamp.getAttrValues().size() != 1) throw new IllegalStateException();
-                    TimeStampToken token = new TimeStampToken(new CMSSignedData(
-                        ContentInfo.getInstance(timestamp.getAttrValues().getObjectAt(0))));
-                    report.println("Timestamp digest OID: " + token.getTimeStampInfo().getMessageImprintAlgOID().getId());
-                    if (!"2.16.840.1.101.3.4.2.1".equals(token.getTimeStampInfo().getMessageImprintAlgOID().getId())
-                        || !MessageDigest.isEqual(token.getTimeStampInfo().getMessageImprintDigest(),
-                            MessageDigest.getInstance("SHA-256").digest(signer.getSignature()))) {
+                    List<CMSSignedData> signatures = file.getSignatures();
+                    String trustClass = required("SIGNING_TRUST_CLASS");
+                    report.println("Embedded signature count: " + signatures.size());
+                    if ((trustClass.equals("publisher-sign") && signatures.size() != 1)
+                        || (trustClass.equals("vendor-preserve") && signatures.isEmpty())
+                        || (!trustClass.equals("publisher-sign") && !trustClass.equals("vendor-preserve"))) {
                         throw new IllegalStateException();
                     }
+                    for (int index = 0; index < signatures.size(); index++) {
+                        CMSSignedData signature = signatures.get(index);
+                        if (signature.getSignerInfos().size() != 1) throw new IllegalStateException();
+                        SignerInformation signer = signature.getSignerInfos().getSigners().iterator().next();
+                        report.println("Signature " + index + " digest OID: " + signer.getDigestAlgOID());
+                        if (!"2.16.840.1.101.3.4.2.1".equals(signer.getDigestAlgOID())) throw new IllegalStateException();
+                        Attribute timestamp = signer.getUnsignedAttributes().get(
+                            AuthenticodeObjectIdentifiers.SPC_RFC3161_OBJID);
+                        report.println("Signature " + index + " RFC3161 timestamp present: " + (timestamp != null));
+                        if (timestamp == null || timestamp.getAttrValues().size() != 1) throw new IllegalStateException();
+                        TimeStampToken token = new TimeStampToken(new CMSSignedData(
+                            ContentInfo.getInstance(timestamp.getAttrValues().getObjectAt(0))));
+                        report.println("Signature " + index + " timestamp digest OID: "
+                            + token.getTimeStampInfo().getMessageImprintAlgOID().getId());
+                        if (!"2.16.840.1.101.3.4.2.1".equals(token.getTimeStampInfo().getMessageImprintAlgOID().getId())
+                            || !MessageDigest.isEqual(token.getTimeStampInfo().getMessageImprintDigest(),
+                                MessageDigest.getInstance("SHA-256").digest(signer.getSignature()))) {
+                            throw new IllegalStateException();
+                        }
+                    }
                 }
-                report.println("SHA256 signature and bound RFC3161 SHA256 timestamp metadata verified.");
+                report.println("All SHA256 signatures and bound RFC3161 SHA256 timestamp metadata verified.");
                 System.exit(0);
             }
             String username = required("ES_USERNAME");
@@ -116,8 +131,10 @@ public final class CodeSignRunner {
                     || !"http://ts.ssl.com".equals(settings.getProperty("TSA_URL"))) {
                     throw new IllegalArgumentException();
                 }
+                failureStage = "authentication";
                 String token = new AccessToken(settings.getProperty("CLIENT_ID"), username,
                     password, settings.getProperty("OAUTH2_ENDPOINT")).getAccessToken();
+                failureStage = "credential-list";
                 CscApi api = new CscApi(token, settings.getProperty("CSC_API_ENDPOINT"));
                 // These are the same two credential classes the pinned vendor sign command lists.
                 Set<String> identifiers = new LinkedHashSet<>();
@@ -125,39 +142,56 @@ public final class CodeSignRunner {
                 identifiers.addAll(Arrays.asList(api.getCredentialIDs("OVCS")));
                 if (identifiers.isEmpty()) throw new IllegalStateException();
                 String selected = null;
-                String expected = args[0].equals("sign") ? required("EXPECTED_CERT_SHA256") : "";
-                if (args[0].equals("sign") && !expected.matches("[A-Fa-f0-9]{64}")) {
+                CredentialInfo selectedInfo = null;
+                String expected = required("EXPECTED_CERT_SHA256");
+                if (!expected.matches("[A-Fa-f0-9]{64}")) {
                     throw new IllegalArgumentException();
                 }
                 for (String identifier : identifiers) {
+                    failureStage = "credential-inspection";
                     CredentialInfo info = api.getCredentialInfo(identifier);
                     X509Certificate certificate = info.getCerts().get(0);
-                    certificate.checkValidity();
-                    if (!certificate.getExtendedKeyUsage().contains("1.3.6.1.5.5.7.3.3")) {
-                        throw new IllegalStateException();
-                    }
                     String fingerprint = digest(certificate, "SHA-256");
-                    if (args[0].equals("inspect")) {
-                        report.println("Public certificate subject: " + certificate.getSubjectX500Principal().getName());
-                        report.println("Public certificate issuer: " + certificate.getIssuerX500Principal().getName());
-                        report.println("Public certificate validity: " + certificate.getNotBefore().toInstant()
-                            + " to " + certificate.getNotAfter().toInstant());
-                        report.println("Public certificate SHA256: " + fingerprint);
-                        report.println("Public certificate SHA1: " + digest(certificate, "SHA-1"));
-                    } else if (fingerprint.equalsIgnoreCase(expected)) {
+                    if (fingerprint.equalsIgnoreCase(expected)) {
                         if (selected != null) throw new IllegalStateException();
-                        if (!digest(certificate, "SHA-1").equalsIgnoreCase(required("EXPECTED_CERT_SHA1"))) {
+                        certificate.checkValidity();
+                        if (!certificate.getExtendedKeyUsage().contains("1.3.6.1.5.5.7.3.3")) {
+                            throw new IllegalStateException();
+                        }
+                        if (args[0].equals("sign")
+                            && !digest(certificate, "SHA-1").equalsIgnoreCase(required("EXPECTED_CERT_SHA1"))) {
                             throw new IllegalStateException();
                         }
                         if (!new X500Principal(required("EXPECTED_CERT_SUBJECT")).equals(
                             certificate.getSubjectX500Principal())) throw new IllegalStateException();
                         selected = identifier;
+                        selectedInfo = info;
                     }
                 }
                 if (args[0].equals("inspect")) {
+                    failureStage = "certificate-export";
+                    if (selectedInfo == null || selectedInfo.getCerts().isEmpty()) throw new IllegalStateException();
+                    Path certificateOutput = Path.of(required("CERTIFICATE_OUTPUT")).toRealPath();
+                    if (!Files.isDirectory(certificateOutput)) throw new IllegalStateException();
+                    try (Stream<Path> existing = Files.list(certificateOutput)) {
+                        if (existing.findAny().isPresent()) throw new IllegalStateException();
+                    }
+                    for (int index = 0; index < selectedInfo.getCerts().size(); index++) {
+                        X509Certificate certificate = selectedInfo.getCerts().get(index);
+                        Files.write(certificateOutput.resolve("chain-" + index + ".der"), certificate.getEncoded());
+                        report.println("Public certificate chain " + index + " subject: "
+                            + certificate.getSubjectX500Principal().getName());
+                        report.println("Public certificate chain " + index + " issuer: "
+                            + certificate.getIssuerX500Principal().getName());
+                        report.println("Public certificate chain " + index + " validity: "
+                            + certificate.getNotBefore().toInstant() + " to " + certificate.getNotAfter().toInstant());
+                        report.println("Public certificate chain " + index + " SHA256: " + digest(certificate, "SHA-256"));
+                        report.println("Public certificate chain " + index + " SHA1: " + digest(certificate, "SHA-1"));
+                    }
                     report.println("Public certificate inspection complete. Signatures requested: 0.");
                     result = 0;
                 } else {
+                    failureStage = "signing";
                     if (selected == null || api.isOtpTypeOnline(selected)) throw new IllegalStateException();
                     String seed = required("ES_TOTP_SECRET");
                     byte[] decoded = Base64.getDecoder().decode(seed);
@@ -176,7 +210,8 @@ public final class CodeSignRunner {
             }
         } catch (Throwable failure) {
             // Never print exception text, causes, HTTP bodies, or a stack trace.
-            report.println("Signing stopped. Authentication, certificate, configuration or vendor check failed. No retry performed.");
+            report.println("Signing stopped at safe stage " + failureStage
+                + ". Authentication, certificate, configuration or vendor check failed. No retry performed.");
         }
         System.exit(result);
     }

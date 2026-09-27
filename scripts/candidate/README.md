@@ -1,5 +1,10 @@
 # Held Windows candidate tools
 
+[Unsigned Windows legal preparation](UNSIGNED-PREPARATION.md) supplies exact
+unapproved x64 and native ARM64 observations before package approval. Its separate
+default-branch workflow has no signing or approval authority. Candidate preflight
+still requires the complete reviewed inputs described below.
+
 The manual candidate workflow runs only from the default branch. It builds an
 exact pushed source commit without signing credentials and validates the uploaded
 bytes independently. The source branch does not supply signing scripts or WiX
@@ -55,8 +60,11 @@ extend the reviewed Windows-only producer on the default branch.
 
 Common clean-install CI uses `prepare_cua_build.py` before compilation.
 Development mode requires explicit permission and no reviewed wheel inputs.
-Once any reviewed input exists, the complete selected closure must match the
-default branch. Missing inputs cannot fall back to the development lock.
+Once any reviewed input exists, the complete selected closure must satisfy the
+trusted admission rules. Schema-2 inputs match the default branch; held profile
+inputs use the independent provenance and protected-authorization boundary in
+[Profile qualification](PROFILE-QUALIFICATION.md). Missing inputs cannot fall
+back to the development lock.
 
 The public Sigstore root snapshot in `packaging/release-trusted-root.jsonl` was
 obtained using `gh attestation trusted-root` on 2026-09-17. It excludes GitHub's
@@ -76,11 +84,17 @@ and does not change any existing tag or environment protections.
 
 ## Fail-closed prerequisites
 
-The default branch must contain the reviewed `candidate-legal-approval.json`
-under `packaging/`, with exact per-architecture legal, inventory, generator and
+For schema-2 candidates, the default branch must contain the reviewed
+`candidate-legal-approval.json` under `packaging/`, with exact legal, inventory, generator and
 SBOM hashes. The candidate source must carry approved package inputs, the public
 root and the matching manifest schema. Missing approval is a hard refusal, not
 permission to sign fixture or unsigned release bytes.
+
+Held profile candidates may carry the canonical legal proposal on the exact
+feature source. Trusted tooling binds it into the immutable authorization
+artifact; direct owner approval in the protected environment supplies assent.
+The feature cannot change trusted code, roots, publisher identity or an existing
+trusted copy. No proposal field grants signing permission by itself.
 
 Protected `candidate-authorize` and `candidate-windows` approvals, successful
 claim qualification, the native certificate and available signing quota still

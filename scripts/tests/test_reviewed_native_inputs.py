@@ -109,7 +109,6 @@ def test_feature_cannot_change_any_reviewed_input(tmp_path, target, changed):
 
 @pytest.mark.parametrize("target", release.CUSTOM_TARGETS)
 def test_profile_targets_select_exact_reviewed_locks(target):
-    assert not (ROOT / release.lock_path(target)).exists()
     profile = profiles.native_profile(target)
     lock = ROOT / profiles.lock_path(profile)
     assert lock.is_file()

@@ -14,6 +14,7 @@ import zipfile
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from scripts import candidate_claims as claims
 from scripts import candidate_artifacts as artifacts
+from scripts import candidate_policy
 from scripts import cua_profiles
 from scripts.candidate import cua_helpers as helpers
 from scripts.validate_package_inputs import PackageInputError, read_owned, require, sha256_bytes
@@ -44,11 +45,26 @@ def package_file(root, relative):
     return path, read_owned(root, path)
 
 
-def stage(auth, native_root, wsl_root, trusted, wsl_metadata, output):
+def require_source(source, auth):
+    """A feature checkout contributes data only at the preflight's exact tree."""
+    require(candidate_policy.git(source, "rev-parse", "HEAD") == auth["source_sha"]
+            and not candidate_policy.git(source, "status", "--porcelain", "--untracked-files=all")
+            and candidate_policy.git(source, "rev-parse", "HEAD^{tree}") == auth["source_tree"]
+            and candidate_policy.input_digest(candidate_policy.inventory(source, auth["source_sha"]))
+                == auth["input_digest"], "candidate data checkout differs from authorized source")
+
+
+def stage(auth, native_root, wsl_root, trusted, wsl_metadata, output, source=None):
     require(not output.exists(), "shared helper inputs already exist")
+    source = trusted if source is None else source
+    if source != trusted:
+        require_source(source, auth)
     architecture = {"x64": "x86_64", "arm64": "aarch64"}[auth["architecture"]]
-    policy_raw = read_owned(trusted, f"packaging/cua/helper-signing/{architecture}.json")
+    approval = candidate_policy.authorization_approval(auth, trusted)
+    policy_raw = candidate_policy.candidate_policy_data(
+        source, trusted, f"packaging/cua/helper-signing/{architecture}.json", approval)
     policy = helpers.document(policy_raw)
+    candidate_policy.require_publisher_policy(policy, trusted)
     require(sha256_bytes(policy_raw) in auth["legal_hashes"].values(),
             "exact helper trust policy is not in approved legal inputs")
     require(wsl_metadata["run_id"] == auth["run_id"] and wsl_metadata["run_attempt"] == 1
@@ -58,7 +74,10 @@ def stage(auth, native_root, wsl_root, trusted, wsl_metadata, output):
         ("windows-" + architecture, native_root, auth["unsigned_artifact_digest"].removeprefix("sha256:")),
         ("wsl-" + architecture, wsl_root, wsl_metadata["artifact_digest"].removeprefix("sha256:")),
     ):
-        _, pins, catalog = cua_profiles.reviewed(trusted, trusted, profile)
+        binding, pins, catalog = cua_profiles.reviewed(source, trusted, profile)
+        if profile.startswith("windows-"):
+            require(binding == auth["cua_inputs"], "profile changed after candidate preflight")
+            cua_profiles.verify_producer(source, trusted, pins, catalog)
         _, raw = package_file(root, f"computer_use/browser/profiles/{profile}/cua-profile-manifest.json")
         require(sha256_bytes(raw) == pins["profiles"][profile]["role_manifest_sha256"],
                 "installed profile manifest differs from reviewed bytes")
@@ -84,7 +103,9 @@ def stage(auth, native_root, wsl_root, trusted, wsl_metadata, output):
                "signing_run_id": auth["run_id"], "signing_job_id": "sign-shared-helper"}
     claim = helpers.prepare(request, manifests, files, policy, relay_path,
                             input_archive=common["archive"], input_manifest=common["member_manifest"])
-    predecessor = read_owned(trusted, f"packaging/cua/helper-signing/{architecture}-predecessors.json")
+    predecessor = candidate_policy.candidate_policy_data(source, trusted,
+        f"packaging/cua/helper-signing/{architecture}-predecessors.json", approval)
+    helpers.document(predecessor)
     for name, data in {CLAIM: helpers.canonical(claim), POLICY: policy_raw,
                        "input-broker.zip": common["archive"], "input-member-manifest.json": common["member_manifest"],
                        "input-index.json": helpers.canonical({"relay_path": relay_path,
@@ -96,11 +117,17 @@ def stage(auth, native_root, wsl_root, trusted, wsl_metadata, output):
     return claim
 
 
-def bind(auth, inputs, artifact_id, artifact_digest, wsl_metadata, trusted):
+def bind(auth, inputs, artifact_id, artifact_digest, wsl_metadata, trusted, source=None):
+    source = trusted if source is None else source
+    if source != trusted:
+        require_source(source, auth)
     raw = read_owned(inputs, CLAIM)
     helper = helpers.document(raw)
-    outer_raw = read_owned(trusted, f"packaging/cua/helper-signing/{helper['architecture']}-outer.json")
+    outer_raw = candidate_policy.candidate_policy_data(source, trusted,
+        f"packaging/cua/helper-signing/{helper['architecture']}-outer.json",
+        candidate_policy.authorization_approval(auth, trusted))
     policy = helpers.document(outer_raw)
+    candidate_policy.require_publisher_policy(policy, trusted)
     require(sha256_bytes(outer_raw) in auth["legal_hashes"].values(),
             "outer trust policy is not in approved legal inputs")
     require(policy["schema"] == 1 and set(policy) == {"schema", "files"}, "outer policy schema differs")
@@ -420,9 +447,11 @@ def main():
     command = sub.add_parser("stage")
     for name in ("authorization", "native-root", "wsl-root", "trusted-root", "wsl-metadata", "out"):
         command.add_argument("--" + name, type=Path, required=True)
+    command.add_argument("--source-root", type=Path, required=True)
     command = sub.add_parser("bind")
     for name in ("authorization", "inputs", "wsl-metadata", "trusted-root", "out"):
         command.add_argument("--" + name, type=Path, required=True)
+    command.add_argument("--source-root", type=Path, required=True)
     command.add_argument("--artifact-id", type=int, required=True)
     command.add_argument("--artifact-digest", required=True)
     command = sub.add_parser("observe")
@@ -469,11 +498,11 @@ def main():
         elif args.mode == "stage":
             stage(claims.parse(args.authorization.read_bytes()), args.native_root.resolve(),
                   args.wsl_root.resolve(), args.trusted_root.resolve(),
-                  claims.parse(args.wsl_metadata.read_bytes()), args.out.absolute())
+                  claims.parse(args.wsl_metadata.read_bytes()), args.out.absolute(), args.source_root.resolve())
         elif args.mode == "bind":
             write(args.out, bind(claims.parse(args.authorization.read_bytes()), args.inputs.resolve(),
                   args.artifact_id, args.artifact_digest, claims.parse(args.wsl_metadata.read_bytes()),
-                  args.trusted_root.resolve()))
+                  args.trusted_root.resolve(), args.source_root.resolve()))
         elif args.mode == "observe":
             write(args.out, observe(args.root.resolve(), args.inputs.resolve(), args.output.resolve(), args.profile))
         elif args.mode.startswith("ledger-"):
@@ -503,7 +532,7 @@ def main():
         else:
             authorize_directory(args.output.resolve(), read(args.artifact), read(args.ledger),
                                 read(args.native_observation), read(args.wsl_observation), args.out.absolute())
-    except (PackageInputError, claims.Refused, OSError, KeyError, ValueError, TypeError):
+    except (PackageInputError, claims.Refused, candidate_policy.Refused, OSError, KeyError, ValueError, TypeError):
         print("Shared helper operation refused; no signing request was made.", file=sys.stderr)
         return 2
     print("Shared helper operation verified; no signing request was made.")

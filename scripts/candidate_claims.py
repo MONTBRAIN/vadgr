@@ -25,7 +25,7 @@ BASE_FIELDS = {"repository", "source_sha", "source_tree", "input_digest", "trust
 BOUND_FIELDS = {"qualification_artifact_id", "qualification_artifact_digest"}
 PROFILE_FIELDS = {"helper_claim_sha256", "helper_policy_sha256", "helper_input_artifact_id",
                   "helper_input_artifact_digest", "wsl_artifact_id", "wsl_artifact_digest",
-                  "helper_signing_operations", "outer_signing_operations", "signing_policy"}
+                  "helper_signing_operations", "outer_signing_operations", "signing_policy", "legal_approval"}
 
 
 class Refused(Exception):
@@ -114,6 +114,14 @@ def validate_authorization(auth, bound=False):
             and isinstance(auth["legal_hashes"], dict) and auth["legal_hashes"], "empty input inventory")
     require(all(hashed(value) for value in auth["legal_hashes"].values()), "legal hash refused")
     if profiled:
+        if not __package__:
+            sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+        from scripts import candidate_policy
+        try:
+            approval = candidate_policy.authorization_approval(auth)
+        except (candidate_policy.Refused, candidate_policy.PackageInputError) as error:
+            raise Refused("profile legal approval binding refused") from error
+        require(approval["legal_hashes"] == auth["legal_hashes"], "profile legal inventory binding differs")
         require(all(hashed(auth[k]) for k in ("helper_claim_sha256", "helper_policy_sha256"))
                 and all(positive(auth[k]) for k in ("helper_input_artifact_id", "wsl_artifact_id",
                                                     "helper_signing_operations", "outer_signing_operations"))

@@ -13,11 +13,11 @@ from pathlib import Path
 import sys
 
 if __package__:
-    from scripts.candidate_policy import REPOSITORY, SHA, SHA256, Refused, require, trusted_approval
+    from scripts.candidate_policy import REPOSITORY, SHA, SHA256, Refused, require, trusted_approval, authorization_approval
     from scripts.candidate import cua_signing
 else:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-    from candidate_policy import REPOSITORY, SHA, SHA256, Refused, require, trusted_approval
+    from candidate_policy import REPOSITORY, SHA, SHA256, Refused, require, trusted_approval, authorization_approval
     from candidate import cua_signing
 
 
@@ -56,8 +56,9 @@ def validate(root, architecture):
     require(os.environ.get("GITHUB_REPOSITORY") == REPOSITORY
             and os.environ.get("GITHUB_REF") == "refs/heads/master"
             and os.environ.get("GITHUB_RUN_ATTEMPT") == "1", "untrusted attestation workflow")
-    approval = trusted_approval(architecture)
     authorization = read(root / "authorization.json")
+    approval = (authorization_approval(authorization) if "legal_approval" in authorization
+                else trusted_approval(architecture))
     require(authorization.get("repository") == REPOSITORY
             and authorization.get("architecture") == architecture
             and authorization.get("version") == "0.5.0"

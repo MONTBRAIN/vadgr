@@ -62,3 +62,19 @@ def test_quota_reserves_before_vendor_request():
     assert 'candidate_claims.py' in script
     assert 'refs/heads/master' in script
     assert 'refs/tags/v' not in script
+
+
+def test_feature_data_is_read_only_before_protected_authorization():
+    workflow = (ROOT / '.github/workflows/candidate.yml').read_text()
+    for name, next_name in (("prepare-helper-inputs", "bind-helper-inputs"),
+                            ("bind-helper-inputs", "claim-probe")):
+        job = workflow.split(f'\n  {name}:', 1)[1].split(f'\n  {next_name}:', 1)[0]
+        assert 'ref: ${{ inputs.source_sha }}' in job
+        assert '--source-root source_checkout' in job
+        assert 'secrets.' not in job
+        assert 'contents: write' not in job
+        assert 'python source_checkout/' not in job
+    approval = workflow.split('\n  authorize-signing:', 1)[1].split('\n  claim-signing:', 1)[0]
+    assert 'environment: candidate-authorize' in approval
+    assert 'candidate_claims.py approve' in approval
+    assert 'source_checkout' not in approval
