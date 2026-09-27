@@ -90,7 +90,8 @@ def test_native_builder_refuses_github_access_before_reading_feature(tmp_path):
         "sh", str(ROOT / "scripts/candidate/build-native.sh"), "linux-x86_64",
         str(tmp_path / "absent-source"), str(tmp_path / "absent-output"),
         str(tmp_path / "absent-wheelhouse"),
-    ], env={**os.environ, "GH_TOKEN": "synthetic-boundary-marker"}, capture_output=True, text=True)
+    ], env={**os.environ, "GH_TOKEN": "synthetic-boundary-marker"}, capture_output=True, text=True,
+       check=False)
     assert result.returncode != 0
     assert "Source build must have no GitHub, signing or identity credential." in result.stderr
     assert "synthetic-boundary-marker" not in result.stdout + result.stderr
