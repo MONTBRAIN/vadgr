@@ -2,8 +2,10 @@
 param(
     [Parameter(Mandatory)][ValidateSet('x64', 'arm64')][string] $Architecture,
     [Parameter(Mandatory)][string] $SourceDirectory,
+    [Parameter(Mandatory)][string] $SourceTestDirectory,
     [Parameter(Mandatory)][string] $OutputDirectory,
-    [Parameter(Mandatory)][string] $WheelhouseDirectory
+    [Parameter(Mandatory)][string] $WheelhouseDirectory,
+    [Parameter(Mandatory)][string] $SourceRecord
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -11,6 +13,13 @@ foreach ($name in @('GH_TOKEN', 'GITHUB_TOKEN', 'ES_USERNAME', 'ES_PASSWORD', 'E
     if ([Environment]::GetEnvironmentVariable($name)) { throw 'Source build must have no signing or identity credential.' }
 }
 $sourceRoot = (Resolve-Path -LiteralPath $SourceDirectory).Path
+$sourceTestRoot = (Resolve-Path -LiteralPath $SourceTestDirectory).Path
+if ($sourceRoot -eq $sourceTestRoot -or
+    $sourceRoot.StartsWith($sourceTestRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase) -or
+    $sourceTestRoot.StartsWith($sourceRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
+    throw 'Source tests and release compilation require separate source directories.'
+}
+$sourceRecordPath = (Resolve-Path -LiteralPath $SourceRecord).Path
 $output = [IO.Path]::GetFullPath($OutputDirectory)
 if (Test-Path -LiteralPath $output) { throw 'Build output must be a new directory.' }
 if (Test-Path -LiteralPath (Join-Path $sourceRoot 'E2E/0.5.0/e2e.md')) {
@@ -20,6 +29,9 @@ $target = if ($Architecture -eq 'x64') { 'x86_64-pc-windows-msvc' } else { 'aarc
 $complianceTarget = if ($Architecture -eq 'x64') { 'windows-x86_64' } else { 'windows-aarch64' }
 $compliance = Join-Path $sourceRoot "packaging/inputs/$complianceTarget"
 $trustedRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../..')).Path
+$sourceTool = Join-Path $trustedRoot 'scripts/unsigned_windows_prep.py'
+& python $sourceTool verify-test-source --source-root $sourceTestRoot --source-record $sourceRecordPath
+if ($LASTEXITCODE -ne 0) { throw 'Exact source test checkout verification failed.' }
 $wheelhouse = (Resolve-Path -LiteralPath $WheelhouseDirectory).Path
 & python (Join-Path $trustedRoot 'scripts/cua_wheelhouse.py') --source $sourceRoot --target $target --verify $wheelhouse
 if ($LASTEXITCODE -ne 0) { throw 'Offline wheelhouse verification failed.' }
@@ -33,15 +45,33 @@ if ($closedInputs.PSObject.Properties.Name -contains 'release_profile') {
 New-Item -ItemType Directory -Path $output | Out-Null
 $payload = Join-Path $output 'payload'
 New-Item -ItemType Directory -Path $payload | Out-Null
-Push-Location $sourceRoot
+$env:RUSTFLAGS = '-C target-feature=+crt-static'
+$env:CARGO_TARGET_DIR = Join-Path $sourceTestRoot 'target'
+Push-Location $sourceTestRoot
 try {
-    $env:RUSTFLAGS = '-C target-feature=+crt-static'
-    [Environment]::SetEnvironmentVariable('VADGR_RELEASE_PROFILE', $null)
-    [Environment]::SetEnvironmentVariable('VADGR_RELEASE_PAYLOAD_BUILD', $null)
+    foreach ($name in @('VADGR_RELEASE_PROFILE', 'VADGR_RELEASE_PAYLOAD_BUILD', 'VADGR_BUILD_WHEELHOUSE')) {
+        # PowerShell 7.5 converts $null to an empty string in the .NET setter.
+        Remove-Item -LiteralPath "Env:$name" -ErrorAction SilentlyContinue
+        if (Test-Path -LiteralPath "Env:$name") { throw 'Candidate source test environment was not cleared.' }
+    }
     & cargo test --locked --all-targets --features native-gui --target $target
     if ($LASTEXITCODE -ne 0) { throw 'Candidate tests failed.' }
+} finally {
+    Pop-Location
+}
+# The complete source suite needs the runbook, but release inputs must never contain it.
+if (Test-Path -LiteralPath (Join-Path $sourceRoot 'E2E/0.5.0/e2e.md')) {
+    throw 'The result-only runbook must be absent from the materialized build.'
+}
+$env:CARGO_TARGET_DIR = Join-Path $sourceRoot 'target'
+Push-Location $sourceRoot
+try {
     $env:VADGR_RELEASE_PAYLOAD_BUILD = '1'
-    [Environment]::SetEnvironmentVariable('VADGR_RELEASE_PROFILE', $releaseProfile)
+    if ($null -eq $releaseProfile) {
+        Remove-Item -LiteralPath 'Env:VADGR_RELEASE_PROFILE' -ErrorAction SilentlyContinue
+    } else {
+        $env:VADGR_RELEASE_PROFILE = $releaseProfile
+    }
     & cargo build --locked --release --features native-gui --bin vadgr --bin vadgr-app --target $target
     if ($LASTEXITCODE -ne 0) { throw 'Candidate compilation failed.' }
     $binary = Join-Path $sourceRoot "target/$target/release"

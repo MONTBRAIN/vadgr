@@ -1,8 +1,14 @@
 """Secret-free checks start from the trusted checked-in workflow and tools."""
 
-from pathlib import Path
+import json
+import os
 import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
 
+import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -78,3 +84,58 @@ def test_feature_data_is_read_only_before_protected_authorization():
     assert 'environment: candidate-authorize' in approval
     assert 'candidate_claims.py approve' in approval
     assert 'source_checkout' not in approval
+
+
+def test_windows_candidate_tests_exact_checkout_then_builds_materialized_inputs():
+    workflow = (ROOT / '.github/workflows/candidate.yml').read_text()
+    script = (ROOT / 'scripts/candidate/build-windows.ps1').read_text()
+    calls = [line for line in workflow.splitlines() if 'build-windows.ps1' in line]
+    assert len(calls) == 2
+    for call in calls:
+        assert '-SourceDirectory source' in call
+        assert '-SourceTestDirectory source_checkout' in call
+        assert '-SourceRecord preflight.json' in call
+    assert 'verify-test-source --source-root $sourceTestRoot --source-record $sourceRecordPath' in script
+    test_phase = script.split('Push-Location $sourceTestRoot\ntry {\n', 1)[1].split('} finally {', 1)[0]
+    build_phase = script.split('Push-Location $sourceRoot\ntry {\n', 1)[1]
+    assert '& cargo test --locked --all-targets --features native-gui --target $target' in test_phase
+    assert '--skip' not in test_phase and '--exclude' not in test_phase
+    assert '& cargo build --locked --release' in build_phase
+    assert '& cargo test' not in build_phase
+    assert "$env:CARGO_TARGET_DIR = Join-Path $sourceTestRoot 'target'" in script
+    assert "$env:CARGO_TARGET_DIR = Join-Path $sourceRoot 'target'" in script
+    assert script.count("throw 'The result-only runbook must be absent from the materialized build.'") == 2
+
+
+@pytest.mark.parametrize('architecture,profile', [('x64', 'windows-x86_64'), ('arm64', 'windows-aarch64')])
+@pytest.mark.parametrize('inherited', [None, '', 'synthetic-inherited-selection'])
+def test_windows_candidate_source_test_environment_is_absent_in_child_process(
+        tmp_path, architecture, profile, inherited):
+    shell = shutil.which('pwsh') or shutil.which('powershell.exe')
+    if not shell:
+        pytest.skip('PowerShell is unavailable')
+    script = (ROOT / 'scripts/candidate/build-windows.ps1').read_text()
+    clearing = script.split('Push-Location $sourceTestRoot\ntry {\n', 1)[1].split('    & cargo test', 1)[0]
+    selection = script.split('Push-Location $sourceRoot\ntry {\n', 1)[1].split('    & cargo build', 1)[0]
+    names = ('VADGR_RELEASE_PROFILE', 'VADGR_RELEASE_PAYLOAD_BUILD', 'VADGR_BUILD_WHEELHOUSE')
+    child = 'import json,os; print(json.dumps({name: os.environ.get(name) for name in ' + repr(names) + '}))'
+
+    def quote(value):
+        return "'" + value.replace("'", "''") + "'"
+
+    invoke = f'& {quote(sys.executable)} -c {quote(child)}\nif ($LASTEXITCODE -ne 0) {{ throw \'Child probe failed.\' }}\n'
+    probe = tmp_path / 'candidate-environment-probe.ps1'
+    release_profile = "$releaseProfile = '" + profile + "'\n"
+    probe.write_text("$ErrorActionPreference = 'Stop'\nSet-StrictMode -Version Latest\n"
+                     + release_profile + clearing + invoke + selection + invoke, encoding='utf-8')
+    environment = {name: value for name, value in os.environ.items() if name.upper() not in names}
+    if inherited is not None:
+        environment.update({name: inherited for name in names})
+    result = subprocess.run([shell, '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
+                             '-File', str(probe)], env=environment, cwd=tmp_path,
+                            capture_output=True, text=True, timeout=30, check=False)
+    assert result.returncode == 0, result.stdout + result.stderr
+    observations = [json.loads(line) for line in result.stdout.splitlines()]
+    assert observations == [dict.fromkeys(names), {
+        'VADGR_RELEASE_PROFILE': profile, 'VADGR_RELEASE_PAYLOAD_BUILD': '1',
+        'VADGR_BUILD_WHEELHOUSE': None}]
