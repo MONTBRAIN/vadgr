@@ -108,11 +108,48 @@ def test_build_has_no_compliance_or_packaging_fallback():
     script = (ROOT / "scripts/candidate/prepare-unsigned-windows.ps1").read_text()
     assert "VADGR_RELEASE_PAYLOAD_BUILD = '1'" in script
     assert "VADGR_RELEASE_PROFILE = $profile" in script
+    assert "@('VADGR_RELEASE_PROFILE', 'VADGR_RELEASE_PAYLOAD_BUILD', 'VADGR_BUILD_WHEELHOUSE')" in script
+    assert 'Remove-Item -LiteralPath "Env:$name"' in script
+    assert "Unsigned source test environment was not cleared." in script
+    assert script.index('Remove-Item -LiteralPath "Env:$name"') < script.index("& cargo test")
     assert script.index("--verify $wheelhouse") < script.index("& cargo build")
     assert "RuntimeInformation]::OSArchitecture" in script
     assert "VADGR_TERMS_SHA256 = $terms.sha256" in script
     for forbidden in ("package-windows.ps1", "package-input-review.json", "ES_PASSWORD =", "signtool"):
         assert forbidden not in script
+
+
+@pytest.mark.parametrize("architecture,profile", [("x64", "windows-x86_64"), ("arm64", "windows-aarch64")])
+@pytest.mark.parametrize("inherited", [None, "", "synthetic-inherited-selection"])
+def test_source_test_environment_is_absent_in_child_process(tmp_path, architecture, profile, inherited):
+    shell = shutil.which("pwsh") or shutil.which("powershell.exe")
+    if not shell:
+        pytest.skip("PowerShell is unavailable")
+    script = (ROOT / "scripts/candidate/prepare-unsigned-windows.ps1").read_text()
+    clearing = script.split("Push-Location $sourceRoot\ntry {\n", 1)[1].split("    & cargo test", 1)[0]
+    selection = script.split("throw 'Unsigned preparation source tests failed.' }\n", 1)[1].split("    & cargo build", 1)[0]
+    profile_assignment = next(line for line in script.splitlines() if line.startswith("$profile = "))
+    names = ("VADGR_RELEASE_PROFILE", "VADGR_RELEASE_PAYLOAD_BUILD", "VADGR_BUILD_WHEELHOUSE")
+    child = "import json,os; print(json.dumps({name: os.environ.get(name) for name in " + repr(names) + "}))"
+
+    def quote(value):
+        return "'" + value.replace("'", "''") + "'"
+
+    invoke = f"& {quote(sys.executable)} -c {quote(child)}\nif ($LASTEXITCODE -ne 0) {{ throw 'Child probe failed.' }}\n"
+    probe = tmp_path / "environment-probe.ps1"
+    probe.write_text("$ErrorActionPreference = 'Stop'\nSet-StrictMode -Version Latest\n"
+                     + f"$Architecture = '{architecture}'\n" + profile_assignment + "\n"
+                     + clearing + invoke + selection + invoke, encoding="utf-8")
+    environment = {name: value for name, value in os.environ.items() if name.upper() not in names}
+    if inherited is not None:
+        environment.update({name: inherited for name in names})
+    result = subprocess.run([shell, "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
+                             "-File", str(probe)], env=environment, cwd=tmp_path,
+                            capture_output=True, text=True, timeout=30)
+    assert result.returncode == 0, result.stdout + result.stderr
+    observations = [json.loads(line) for line in result.stdout.splitlines()]
+    assert observations == [dict.fromkeys(names), {
+        "VADGR_RELEASE_PROFILE": profile, "VADGR_RELEASE_PAYLOAD_BUILD": "1", "VADGR_BUILD_WHEELHOUSE": None}]
 
 
 def test_outer_executable_must_be_unsigned():

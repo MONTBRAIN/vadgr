@@ -48,8 +48,11 @@ if ($LASTEXITCODE -ne 0) { throw 'Rust compiler identity failed.' }
 if ($LASTEXITCODE -ne 0) { throw 'Cargo identity failed.' }
 Push-Location $sourceRoot
 try {
-    [Environment]::SetEnvironmentVariable('VADGR_RELEASE_PROFILE', $null)
-    [Environment]::SetEnvironmentVariable('VADGR_RELEASE_PAYLOAD_BUILD', $null)
+    foreach ($name in @('VADGR_RELEASE_PROFILE', 'VADGR_RELEASE_PAYLOAD_BUILD', 'VADGR_BUILD_WHEELHOUSE')) {
+        # PowerShell 7.5 converts $null to an empty string in the .NET setter.
+        Remove-Item -LiteralPath "Env:$name" -ErrorAction SilentlyContinue
+        if (Test-Path -LiteralPath "Env:$name") { throw 'Unsigned source test environment was not cleared.' }
+    }
     & cargo test --locked --all-targets --features native-gui --target $target
     if ($LASTEXITCODE -ne 0) { throw 'Unsigned preparation source tests failed.' }
     $env:VADGR_RELEASE_PAYLOAD_BUILD = '1'
