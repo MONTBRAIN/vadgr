@@ -1,0 +1,65 @@
+{
+  "archive_sha256": "1aa79e62e7697b8e29b513a68abacf485adcd1fe8284a4316c5ae868e6633327",
+  "original_statement_files": [
+    {
+      "path": "chrono-0.4.45/LICENSE.txt",
+      "sha256": "946c9835d8034d24404f8cfec5f4654cee5dad17e944afc3d06d742cf2882831",
+      "size": 12307,
+      "statements": [
+        {
+          "line": 2,
+          "text": "Apache 2.0 License [2]. Copyright (c) 2014--2026, Kang Seonghoon and"
+        },
+        {
+          "line": 13,
+          "text": "Copyright (c) 2014, Kang Seonghoon."
+        }
+      ]
+    },
+    {
+      "path": "chrono-0.4.45/src/format/parse.rs",
+      "sha256": "0114cc8f7cee11af7fd091f874c609c71e2ba094e2d793459f440150bb3cb1ed",
+      "size": 99452,
+      "statements": [
+        {
+          "line": 2,
+          "text": "// Portions copyright (c) 2015, John Nagle."
+        }
+      ]
+    },
+    {
+      "path": "chrono-0.4.45/src/offset/local/unix.rs",
+      "sha256": "b9900a80a669f32b3f9112087c269b1bf877d5ed1d5a388702938e1caa864d8a",
+      "size": 6502,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "chrono-0.4.45/src/offset/local/windows.rs",
+      "sha256": "e9909f06e84c6334433fe24e1db14ca61c116889df9db6903917a3083fdd4606",
+      "size": 13461,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "chrono-0.4.45/src/time_delta.rs",
+      "sha256": "647ea215f6c9c58060c3f82db09147d857a4075890e331e55e6256e02cdbd425",
+      "size": 57760,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

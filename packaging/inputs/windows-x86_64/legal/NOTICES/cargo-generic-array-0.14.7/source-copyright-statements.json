@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "85649ca51fd72272d7821adaf274ad91c288277713d9c18820d8499a7ff69e9a",
+  "original_statement_files": [
+    {
+      "path": "generic-array-0.14.7/LICENSE",
+      "sha256": "c09aae9d3c77b531f56351a9947bc7446511d6b025b3255312d3e3442a9a7583",
+      "size": 1107,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2015 Bart\u0142omiej Kami\u0144ski"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

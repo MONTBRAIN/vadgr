@@ -1,0 +1,25 @@
+{
+  "archive_sha256": "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f",
+  "original_statement_files": [
+    {
+      "path": "strsim-0.11.1/LICENSE",
+      "sha256": "1e697ce8d21401fbf1bddd9b5c3fd4c4c79ae1e3bdf51f81761c85e11d5a89cd",
+      "size": 1166,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2015 Danny Guo"
+        },
+        {
+          "line": 4,
+          "text": "Copyright (c) 2016 Titus Wormer <tituswormer@gmail.com>"
+        },
+        {
+          "line": 5,
+          "text": "Copyright (c) 2018 Akash Kurdekar"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

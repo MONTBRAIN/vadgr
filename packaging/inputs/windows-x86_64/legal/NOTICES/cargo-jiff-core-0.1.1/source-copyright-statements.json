@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "5e52fe76043ccecc9005d2305ebaadf7d7fc0cc89ca6baa10a94d6bc68c7128c",
+  "original_statement_files": [
+    {
+      "path": "jiff-core-0.1.1/LICENSE-MIT",
+      "sha256": "0f96a83840e146e43c0ec96a22ec1f392e0680e6c1226e6f3ba87e0740af850f",
+      "size": 1081,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2015 Andrew Gallant"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

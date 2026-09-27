@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "a3d06f0b082ba57c26b79407372e57cf2a1e28124f78e9479fe80322cf53420b",
+  "original_statement_files": [
+    {
+      "path": "tokio-stream-0.1.19/LICENSE",
+      "sha256": "253cd04c6714889df2d32f3f64d669179a1c95c76ac43c40882c52eb06bc3552",
+      "size": 1070,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) Tokio Contributors"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

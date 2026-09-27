@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a",
+  "original_statement_files": [
+    {
+      "path": "version_check-0.9.5/LICENSE-MIT",
+      "sha256": "b7e650f3fce5c53249d1cdc608b54df156a97edd636cf9d23498d0cfe7aec63e",
+      "size": 1085,
+      "statements": [
+        {
+          "line": 2,
+          "text": "Copyright (c) 2017-2018 Sergio Benitez"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

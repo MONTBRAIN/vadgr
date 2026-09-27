@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "06abde3611657adf66d383f00b093d7faecc7fa57071cce2578660c9f1010821",
+  "original_statement_files": [
+    {
+      "path": "utf8parse-0.2.2/LICENSE-MIT",
+      "sha256": "e4c9b06fa850cb9b540a5e400e9f6394cf15efcf4098144de477d1d3dae10150",
+      "size": 1052,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2016 Joe Wilm"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

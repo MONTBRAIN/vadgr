@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "d3d25b0e0b648a86960ac23b7ad4abb9717601dec6f66c165f5b037f3f03065f",
+  "original_statement_files": [
+    {
+      "path": "mac-addr-0.3.0/LICENSE",
+      "sha256": "0c20ae83d984ec5508a358a90386b000d5b9a2fe15079dd7d39eae4d44cbf922",
+      "size": 1065,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2025 shellrow"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

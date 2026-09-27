@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "3078c7629b62d3f0439517fa394996acacc5cbc91c5a20d8c658e77abd503a71",
+  "original_statement_files": [
+    {
+      "path": "block-buffer-0.10.4/LICENSE-MIT",
+      "sha256": "d5c22aa3118d240e877ad41c5d9fa232f9c77d757d4aac0c2f943afc0a95e0ef",
+      "size": 1082,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018-2019 The RustCrypto Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

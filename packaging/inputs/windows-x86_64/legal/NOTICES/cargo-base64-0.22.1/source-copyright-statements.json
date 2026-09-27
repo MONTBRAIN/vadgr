@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6",
+  "original_statement_files": [
+    {
+      "path": "base64-0.22.1/LICENSE-MIT",
+      "sha256": "0dd882e53de11566d50f8e8e2d5a651bcf3fabee4987d70f306233cf39094ba7",
+      "size": 1076,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2015 Alice Maz"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

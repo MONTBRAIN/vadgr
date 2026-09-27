@@ -1,0 +1,105 @@
+{
+  "archive_sha256": "b58fe92d4d8cf4b7215b927b70bc1245b6e0d70d801febdfe0cd265ad97ebf8b",
+  "eligible_for_reviewed_NONE": true,
+  "files": [
+    {
+      "path": "sigstore-tsa-0.11.0/.cargo_vcs_info.json",
+      "sha256": "df80e2283788347219d2680e8d46020d3aacc5574cf0c30583d73d09d6cf71b7",
+      "size": 113,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tsa-0.11.0/CHANGELOG.md",
+      "sha256": "41e0a30b69389c5c384005d012602ea28489f4f2458483f18418d58ffd7515cc",
+      "size": 2650,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tsa-0.11.0/Cargo.lock",
+      "sha256": "035589a23d880c7c2f5835c8150fa26a93934f6f30957a0d41695639321d2053",
+      "size": 56348,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tsa-0.11.0/Cargo.toml",
+      "sha256": "7bb43785996153aac9b70b07adf78c828e34635012fba4523599aa9d7e084e3e",
+      "size": 2413,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tsa-0.11.0/Cargo.toml.orig",
+      "sha256": "0fa2462a5ee367ea4a0d2ecda60ed949e372f7bec97a11c9477be53cd90ba427",
+      "size": 1296,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tsa-0.11.0/README.md",
+      "sha256": "25d4b54be9b016e7263cf913c6a2c90e7e460596ce0cc7ab421595f2dbd05a1a",
+      "size": 1543,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tsa-0.11.0/src/asn1.rs",
+      "sha256": "f407921036f738316969f54ab76883800b97c45f8eed78f6347c6583adb1c525",
+      "size": 12325,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tsa-0.11.0/src/client.rs",
+      "sha256": "c42a23e2c71586efb62b878e36e4e70b08d3e21aa1ef7471d353953a8470c168",
+      "size": 3334,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tsa-0.11.0/src/error.rs",
+      "sha256": "0425a648f3c60574925e0b3066ab727350a4554832f72445b9f166954ec9ab53",
+      "size": 1810,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tsa-0.11.0/src/lib.rs",
+      "sha256": "309d1302f3f7ca5dd22cd475935d67986031e537e50bfd61a4a064acee3bf632",
+      "size": 526,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tsa-0.11.0/src/verify.rs",
+      "sha256": "75b462645beaf3c0b02d04e5881e7c43b240908920ae0f212e2ad424cebc8f43",
+      "size": 35000,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tsa-0.11.0/test_data/timestamps/github_sha384_bundle.json",
+      "sha256": "a4c4423d3acb5f9e96ccbb5383fce97820c111550cc6c6951e914aca7e504a98",
+      "size": 3757,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tsa-0.11.0/test_data/timestamps/github_trusted_root.json",
+      "sha256": "f8dbe582aeb7d069d8ded31a71bada067a4d3799ecffea125ccb011b78db5989",
+      "size": 13298,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tsa-0.11.0/test_data/timestamps/payload_mismatch_bundle.json",
+      "sha256": "025ebb5b76e5916c49930c4bf454917cf91503a8005a2978e26754ff587ee584",
+      "size": 10079,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tsa-0.11.0/test_data/timestamps/valid_bundle.json",
+      "sha256": "c4b1091a43ae71c125be6ae7148eb076a09949649b82fae6744fe55fcb3ef3ca",
+      "size": 10419,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tsa-0.11.0/test_data/timestamps/valid_trusted_root.json",
+      "sha256": "ed6a9cf4e7c2e3297a4b5974fce0d17132f03c63512029d7aa3a402b43acab49",
+      "size": 6824,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
+  "schema": 1
+}

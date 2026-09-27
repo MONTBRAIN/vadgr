@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "8b4baf93f58d4425749ca49a51c50ebab072c5df6994d08fed93541c331481dc",
+  "original_statement_files": [
+    {
+      "path": "itertools-0.15.0/LICENSE-MIT",
+      "sha256": "7576269ea71f767b99297934c0b2367532690f8c4badc695edf8e04ab6a1e545",
+      "size": 1043,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2015"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

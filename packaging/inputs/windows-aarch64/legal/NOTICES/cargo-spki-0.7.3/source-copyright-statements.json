@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "d91ed6c858b01f942cd56b37a94b3e0a1798290327d1236e4d9cf4eaca44d29d",
+  "original_statement_files": [
+    {
+      "path": "spki-0.7.3/LICENSE-MIT",
+      "sha256": "c995204cc6bad2ed67dd41f7d89bb9f1a9d48e0edd745732b30640d7912089a4",
+      "size": 1082,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2021-2023 The RustCrypto Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

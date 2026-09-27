@@ -1,0 +1,21 @@
+{
+  "archive_sha256": "28cc31741b18cb6f1d5ff12f5b7523e3d6eb0852bbbad19d73905511d9849b95",
+  "original_statement_files": [
+    {
+      "path": "yoke-derive-0.7.4/LICENSE",
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2",
+      "size": 2195,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2020-2024 Unicode, Inc."
+        },
+        {
+          "line": 46,
+          "text": "ICU 1.8.1 to ICU 57.1 \u00a9 1995-2016 International Business Machines Corporation and others."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

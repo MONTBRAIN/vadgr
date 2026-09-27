@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "bb4ebadaa0af04fab11ae01eb5f9fdb5f9c5b875506e210e71c07873528baa7f",
+  "original_statement_files": [
+    {
+      "path": "tinyvec-1.12.0/LICENSE-ZLIB.md",
+      "sha256": "84b34dd7608f7fb9b17bd588a6bf392bf7de504e2716f024a77d89f1b145a151",
+      "size": 851,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2019 Daniel \"Lokathor\" Gee."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

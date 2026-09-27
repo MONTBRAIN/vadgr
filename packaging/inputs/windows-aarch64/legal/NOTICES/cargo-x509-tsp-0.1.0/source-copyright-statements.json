@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "f5ceece934a21607055b7ac5c25adb56a2ff559804b10705dc674d1d838c15e1",
+  "original_statement_files": [
+    {
+      "path": "x509-tsp-0.1.0/LICENSE-MIT",
+      "sha256": "df5a6e5866476bcef44f2b2e1712d123ea26e350cc0b54df253beb4333bf0aec",
+      "size": 1077,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2023 The RustCrypto Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

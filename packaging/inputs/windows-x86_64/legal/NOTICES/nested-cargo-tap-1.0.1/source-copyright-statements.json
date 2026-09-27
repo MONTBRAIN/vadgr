@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "55937e1799185b12863d447f42597ed69d9928686b8d88a1df17376a097d8369",
+  "original_statement_files": [
+    {
+      "path": "tap-1.0.1/LICENSE.txt",
+      "sha256": "8b4e95f5cf0dc40269c99f7b787203ffe04ded245ca2427422c196efa2b2f42a",
+      "size": 1090,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2017 Elliot Linder <darfink@gmail.com>"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

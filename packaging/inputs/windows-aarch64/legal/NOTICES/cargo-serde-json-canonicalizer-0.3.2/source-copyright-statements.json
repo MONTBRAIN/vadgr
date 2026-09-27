@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "fe52319a927259afbfa5180c5157cd8167edfd3e8c254f9558c7fef44c5649f2",
+  "original_statement_files": [
+    {
+      "path": "serde_json_canonicalizer-0.3.2/LICENSE",
+      "sha256": "b68d86a60d3619bfd55b89a322e8464d3f9ca1c7e2409cc6035ea290435831e0",
+      "size": 1091,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2023 Attila Mravik"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

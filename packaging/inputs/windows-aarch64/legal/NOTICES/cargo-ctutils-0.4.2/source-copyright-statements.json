@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "7d5515a3834141de9eafb9717ad39eea8247b5674e6066c404e8c4b365d2a29e",
+  "original_statement_files": [
+    {
+      "path": "ctutils-0.4.2/LICENSE-MIT",
+      "sha256": "91585c36e4fb9ab4ca0d3dfac5d66d3c0c62cc51f640a0e1196542daf2267eae",
+      "size": 1082,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2025-2026 The RustCrypto Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "569dfbdd2efd771b24ec9bb57f956e04d4fbfc72f62b2f11961723f9b3f4b020",
+  "original_statement_files": [
+    {
+      "path": "netdev-0.45.0/LICENSE",
+      "sha256": "766312a83b497b8b83b68df0dc3a99e87480ad9019f54d5a53a5deeb9150d635",
+      "size": 1070,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2021-2026 shellrow"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

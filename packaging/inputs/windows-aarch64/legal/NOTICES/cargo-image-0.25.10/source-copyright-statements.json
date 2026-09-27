@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "85ab80394333c02fe689eaf900ab500fbd0c2213da414687ebf995a65d5a6104",
+  "original_statement_files": [
+    {
+      "path": "image-0.25.10/src/codecs/jpeg/transform.rs",
+      "sha256": "65490ae7ce990dda33044b4c52afc1bdcfa836b474a1b6a06c611af6e53a70db",
+      "size": 7897,
+      "statements": [
+        {
+          "line": 23,
+          "text": "This software is copyright (C) 1991-2014, Thomas G. Lane, Guido Vollbeding."
+        }
+      ]
+    },
+    {
+      "path": "image-0.25.10/src/lib.rs",
+      "sha256": "6e47fec523655d8881a7d638045062f3b30f28e13a0ab041cdaf80027b6156a3",
+      "size": 10137,
+      "statements": [
+        {
+          "line": 298,
+          "text": "// Copyright (c) 2018 Guillaume Gomez"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

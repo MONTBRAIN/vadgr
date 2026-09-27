@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "f38d5652c16fde515bb1ecef450ab0f6a219d619a7274976324d5e377f7dceba",
+  "original_statement_files": [
+    {
+      "path": "parking-2.2.1/LICENSE-THIRD-PARTY",
+      "sha256": "9a6d7a3c1b8edcc706c4b6c37f8dae9a77f02c7f9051df603f975db136b55419",
+      "size": 451,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright 2014-2020 The Rust Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

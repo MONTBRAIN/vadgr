@@ -1,0 +1,21 @@
+{
+  "archive_sha256": "879f10e63c20629ecabbb64a8010319738c66a5cd0c29b02d63d272b03751d01",
+  "original_statement_files": [
+    {
+      "path": "inout-0.1.4/LICENSE-MIT",
+      "sha256": "304b898acad7f02e03d6d8832d682a3b43ee729ab5d3a069af5a36979083b6b4",
+      "size": 1110,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2022 The RustCrypto Project Developers"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2022 Artyom Pavlov"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

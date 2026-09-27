@@ -1,0 +1,39 @@
+{
+  "archive_sha256": "d1890f4022759daae28ed4fe62859b1236caebfc61ede2f63ed4e695f3f6d936",
+  "original_statement_files": [
+    {
+      "path": "write16-1.0.0/COPYRIGHT",
+      "sha256": "3210be7332b5bdf48eb24a945258b9f38616a2cceb0dfc06e3c3c7e9740475a0",
+      "size": 770,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright Mozilla Foundation"
+        }
+      ]
+    },
+    {
+      "path": "write16-1.0.0/LICENSE-MIT",
+      "sha256": "3fa4ca83dcc9237839b1bdeb2e6d16bdfb5ec0c5ce42b24694d8bbf0dcbef72c",
+      "size": 1053,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright Mozilla Foundation"
+        }
+      ]
+    },
+    {
+      "path": "write16-1.0.0/src/lib.rs",
+      "sha256": "f3d73b15e078ea40171c8636bfb83f42a8598405d2767a2183e0bc2be91ae1e1",
+      "size": 6618,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Mozilla Foundation"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

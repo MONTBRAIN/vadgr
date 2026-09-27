@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "a28ac98ddc8b9274cb41bb4d9d4d5c425b6020c50c46f25559911905610b4a88",
+  "original_statement_files": [
+    {
+      "path": "weezl-0.1.12/LICENSE-MIT",
+      "sha256": "573f5227db835cd30bbdd3aed3f82615f80119a4d5c82b4daf642dbfe2b6afde",
+      "size": 1080,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) HeroicKatora 2020"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "66cf8fedced2fcf12406bcb34223dffb92eaf34908ede12fed414c82b7f00b3e",
+  "original_statement_files": [
+    {
+      "path": "serdect-0.4.3/LICENSE-MIT",
+      "sha256": "2ca9996043628ad4dea1408974e1d92d3932f6acf9db8ffb7faecbfa6d928997",
+      "size": 1095,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2022-2025 The RustCrypto Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "3a219298ac11a56ea9a6d2120044824d6f01aeb034955e7af7bc16858527deea",
+  "original_statement_files": [
+    {
+      "path": "simd-adler32-0.3.10/LICENSE.md",
+      "sha256": "42a35170233e83e18856792e748de4c1ce4a63b2afce9a370c89ef3fe23f9f2d",
+      "size": 1078,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) [2021] [Marvin Countryman]"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

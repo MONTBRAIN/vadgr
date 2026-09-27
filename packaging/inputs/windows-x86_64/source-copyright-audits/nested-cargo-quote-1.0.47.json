@@ -1,0 +1,229 @@
+{
+  "archive_sha256": "1fbf4db142a473a8d80c26bbf18454ed458bf8d26c8219c331daecfdbd079001",
+  "eligible_for_reviewed_NONE": false,
+  "files": [
+    {
+      "path": "quote-1.0.47/.cargo_vcs_info.json",
+      "sha256": "1452b78f41bb8c7dbf526da57f134ac6d75cf80b7cc539494bab5e133907ce0e",
+      "size": 94,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/.github/FUNDING.yml",
+      "sha256": "b017158736b3c9751a2d21edfce7fe61c8954e2fced8da8dd3013c2f3e295bd9",
+      "size": 16,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/.github/workflows/ci.yml",
+      "sha256": "fb61965972f379dbd9bd98ea5d45ffd67fd79b30e71ef667f69e8b65134923c2",
+      "size": 2861,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/.gitignore",
+      "sha256": "07d64eb09a56c853b7853a47276799b38d7d6d25a4314b0c1abc10432c214e17",
+      "size": 21,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/Cargo.lock",
+      "sha256": "a8d837a5066c75ed2af8a982eb6f8ebdfb96f94ddb06978fec45827f4ea1348c",
+      "size": 6722,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/Cargo.toml",
+      "sha256": "13d8c50837f14aff48cd622349f98fb2c46350b7a0c08fd574cf7de4def27d06",
+      "size": 1753,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/Cargo.toml.orig",
+      "sha256": "acbbe8c10dc81f648339333c8fa3e0aa787ad5887b105d1947bc522553d87d73",
+      "size": 1150,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "normalized_sha256": "59d8f0ba87ad9a2f1a431123c8d16646e5b89ba53653e818f16d136d77263c99",
+      "path": "quote-1.0.47/LICENSE-APACHE",
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+      "size": 9723,
+      "status": "complete-standard-boilerplate",
+      "template": "Apache-2.0-complete-terms-without-application-appendix"
+    },
+    {
+      "normalized_sha256": "fe2a9817987f862eaced948f0468c7f51d2fedfc48c5c505b246a49a3870e9a5",
+      "path": "quote-1.0.47/LICENSE-MIT",
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+      "size": 1023,
+      "status": "complete-standard-boilerplate",
+      "template": "MIT-standard-grant-without-owner-statement"
+    },
+    {
+      "path": "quote-1.0.47/README.md",
+      "sha256": "9d6af721967088b8263c0544c0c3c459206998252dd5632a3bdf87cb27ec92be",
+      "size": 9203,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/build.rs",
+      "sha256": "cd6808c02e476b09a520105e2c6f6d325cccb1ecd542cbbcc836a0ae6f6fb0f1",
+      "size": 882,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/rust-toolchain.toml",
+      "sha256": "6bbb61302978c736b2da03e4fb40e3beab908f85d533ab46fd541e637b5f3e0f",
+      "size": 38,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/src/ext.rs",
+      "sha256": "dabcf1dbf9a81c2dccbfb85f81a08120f5a15be40616d51434ed4ebdfe0c7283",
+      "size": 3549,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/src/format.rs",
+      "sha256": "662db1f14106d79aacab400a3176a75989a4437ecaaa85ab88cd9a40b750cc5b",
+      "size": 4816,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/src/ident_fragment.rs",
+      "sha256": "eed1a7407182c00ddfdc98741eaa6e234a6d2c01755e95f943b27926b8c92243",
+      "size": 2359,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "mentions": [
+        {
+          "line": 775,
+          "text": "//     quote_token_with_context!(_s @ a b (c) d e f);"
+        }
+      ],
+      "path": "quote-1.0.47/src/lib.rs",
+      "sha256": "e01ca26adfe51a087813d1fc1154efd8a8c9cb5b5a81f314194b4904a4422c71",
+      "size": 47968,
+      "status": "ambiguous-ownership-marker"
+    },
+    {
+      "path": "quote-1.0.47/src/runtime.rs",
+      "sha256": "fdb7986b31141627408b51381607f66ef4b69dd81b080c2f6489da267e96b2ba",
+      "size": 15848,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/src/spanned.rs",
+      "sha256": "713678bf5cb3b4bf2f119dcf64d188a63dc59455a724c3d2567ceab83b734d73",
+      "size": 1081,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/src/to_tokens.rs",
+      "sha256": "1b07b676afce2f666bac6f454758d066758033fc85e9cd9d2d12d58ad2eb36e1",
+      "size": 7185,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/tests/compiletest.rs",
+      "sha256": "4e381aa8ca3eabb7ac14d1e0c3700b3223e47640547a6988cfa13ad68255f60f",
+      "size": 214,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/tests/test.rs",
+      "sha256": "023d6b57ba5ba199a04d9757e3b1464c2bc09579b035ea82c047e08d89d19226",
+      "size": 13694,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/tests/ui/does-not-have-iter-interpolated-dup.rs",
+      "sha256": "ad13eea21d4cdd2ab6c082f633392e1ff20fb0d1af5f2177041e0bf7f30da695",
+      "size": 209,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/tests/ui/does-not-have-iter-interpolated-dup.stderr",
+      "sha256": "c7bbbc8860b9ec0e87e725412a139841c3046aaf465f7190c94f935ab037a996",
+      "size": 767,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/tests/ui/does-not-have-iter-interpolated.rs",
+      "sha256": "83a5b3f240651adcbe4b6e51076d76d653ad439b37442cf4054f1fd3c073f3b7",
+      "size": 201,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/tests/ui/does-not-have-iter-interpolated.stderr",
+      "sha256": "6ca839345f8119f7eb3acd2fc6a37833dbcc861c02d8961727db01a29318fcc6",
+      "size": 747,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/tests/ui/does-not-have-iter-separated.rs",
+      "sha256": "fe413c48331d5e3a7ae5fef6a5892a90c72f610d54595879eb49d0a94154ba3f",
+      "size": 55,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/tests/ui/does-not-have-iter-separated.stderr",
+      "sha256": "ff2312aa4623e79eb7f5810cf0e6d992cd57779f0a01c5855a92a1f102086123",
+      "size": 738,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/tests/ui/does-not-have-iter.rs",
+      "sha256": "09dc9499d861b63cebb0848b855b78e2dc9497bfde37ba6339f3625ae009a62f",
+      "size": 54,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/tests/ui/does-not-have-iter.stderr",
+      "sha256": "21408398d12876b82416cfd57b7919ca4210f5fb8f79d7d921b2bfed5879ac4d",
+      "size": 726,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/tests/ui/not-quotable.rs",
+      "sha256": "5759d0884943417609f28faadc70254a3e2fd3d9bd6ff7297a3fb70a77fafd8a",
+      "size": 119,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/tests/ui/not-quotable.stderr",
+      "sha256": "a9748bc9a0a72a17f9c1f96e9b12be3686e9d7d51f120796516e26e5cebf62ad",
+      "size": 681,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/tests/ui/not-repeatable.rs",
+      "sha256": "a4b115c04e4e41049a05f5b69450503fbffeba031218b4189cb931839f7f9a9c",
+      "size": 106,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/tests/ui/not-repeatable.stderr",
+      "sha256": "72105d3dec4e8ed2a657db7d397e30d452c26c1488cb1e18e23c2d1d137a6f6d",
+      "size": 1802,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/tests/ui/wrong-type-span.rs",
+      "sha256": "6195e35ea844c0c52ba1cff5d790c3a371af6915d137d377834ad984229ef9ea",
+      "size": 109,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "quote-1.0.47/tests/ui/wrong-type-span.stderr",
+      "sha256": "cad072e40e0ecc04f375122ae41aede2f0da2a9244492b3fcf70249e59d1b128",
+      "size": 346,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
+  "schema": 1
+}

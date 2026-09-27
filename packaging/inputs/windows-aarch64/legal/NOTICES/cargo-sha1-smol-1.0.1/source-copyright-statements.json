@@ -1,0 +1,40 @@
+{
+  "archive_sha256": "bbfa15b3dddfee50a0fff136974b3e1bde555604ba463834a7eb7deb6417705d",
+  "original_statement_files": [
+    {
+      "path": "sha1_smol-1.0.1/LICENSE",
+      "sha256": "282a21b0710441c364025461a447362daf18f5798a7b72ae2f801a2aa536da51",
+      "size": 2719,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2018, the respective contributors, as shown by the AUTHORS file."
+        },
+        {
+          "line": 35,
+          "text": "Copyright (c) 2006-2009 Graydon Hoare"
+        },
+        {
+          "line": 36,
+          "text": "Copyright (c) 2009-2013 Mozilla Foundation"
+        }
+      ]
+    },
+    {
+      "path": "sha1_smol-1.0.1/src/simd.rs",
+      "sha256": "a4c27a48c8c327bc686c27e7df447ca9a04248597d0e5727da07e8367ac5a87f",
+      "size": 3735,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2006-2009 Graydon Hoare"
+        },
+        {
+          "line": 2,
+          "text": "// Copyright (c) 2009-2013 Mozilla Foundation"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

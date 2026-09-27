@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "a6305423e0e7738146434843d1694d621cce767262b2a86910beab705e4493d9",
+  "original_statement_files": [
+    {
+      "path": "pem-rfc7468-1.0.0/LICENSE-MIT",
+      "sha256": "4148e7b027fba018131f297b4fe27995386ba317018d6855e182fd0e86cd754f",
+      "size": 1082,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2021-2025 The RustCrypto Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

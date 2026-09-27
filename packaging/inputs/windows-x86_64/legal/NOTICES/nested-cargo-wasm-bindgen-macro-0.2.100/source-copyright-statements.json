@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "7fe63fc6d09ed3792bd0897b314f53de8e16568c2b3f7982f468c0bf9bd0b407",
+  "original_statement_files": [
+    {
+      "path": "wasm-bindgen-macro-0.2.100/LICENSE-MIT",
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397",
+      "size": 1057,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014 Alex Crichton"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

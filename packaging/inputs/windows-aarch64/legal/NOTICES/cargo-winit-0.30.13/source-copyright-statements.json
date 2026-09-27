@@ -1,0 +1,25 @@
+{
+  "archive_sha256": "a6755fa58a9f8350bd1e472d4c3fcc25f824ec358933bba33306d0b63df5978d",
+  "original_statement_files": [
+    {
+      "path": "winit-0.30.13/src/keyboard.rs",
+      "sha256": "fb1400750fb0c6d376415e642c837e0e8ded95f55ba03a8889d336d180620394",
+      "size": 67598,
+      "statements": [
+        {
+          "line": 12,
+          "text": "// Copyright \u00a9 2017 W3C\u00ae (MIT, ERCIM, Keio, Beihang)."
+        },
+        {
+          "line": 17,
+          "text": "// Copyright \u00a9 2017 W3C\u00ae (MIT, ERCIM, Keio, Beihang)."
+        },
+        {
+          "line": 62,
+          "text": "// Copyright \u00a9 2021 World Wide Web Consortium, (Massachusetts Institute of Technology, European"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

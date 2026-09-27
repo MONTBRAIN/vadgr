@@ -1,0 +1,32 @@
+{
+  "archive_sha256": "6ed421c8a8ef78d3e2dbc98a973be2f3770cb42b606e3ab18d6237c4dfde68d9",
+  "original_statement_files": [
+    {
+      "path": "icu_provider-1.5.0/LICENSE",
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2",
+      "size": 2195,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2020-2024 Unicode, Inc."
+        },
+        {
+          "line": 46,
+          "text": "ICU 1.8.1 to ICU 57.1 \u00a9 1995-2016 International Business Machines Corporation and others."
+        }
+      ]
+    },
+    {
+      "path": "icu_provider-1.5.0/src/key.rs",
+      "sha256": "038d25ec6242c7fcd91a788d86ec26b5347e3eb291032fe8604d5b326c3f9e87",
+      "size": 22973,
+      "statements": [
+        {
+          "line": 88,
+          "text": "// Copyright 2015 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

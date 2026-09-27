@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "112b39cec0b298b6c1999fee3e31427f74f676e4cb9879ed1a121b43661a4154",
+  "original_statement_files": [
+    {
+      "path": "lru-slab-0.1.2/LICENSE-MIT",
+      "sha256": "1466d9b4f3a59bb8997fc8d5fa977ce3f6a24bb2358793c09bfdf007039f6486",
+      "size": 1067,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2024 The lru-slab Developers"
+        }
+      ]
+    },
+    {
+      "path": "lru-slab-0.1.2/LICENSE-ZLIB",
+      "sha256": "09785877275ffada6c371b652a30e95c26b435126fc0fc62f1bc2d72171f80a4",
+      "size": 864,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2024 The lru-slab Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

@@ -220,7 +220,15 @@ def validate_inventory(inventory: dict) -> None:
                 "unresolved provenance")
         copyright_text = component["copyright_text"]
         require(isinstance(copyright_text, str) and bool(copyright_text.strip())
-                and "NOASSERTION" not in copyright_text and copyright_text != "NONE", "unresolved copyright")
+                and "NOASSERTION" not in copyright_text, "unresolved copyright")
+        if copyright_text == "NONE":
+            require(component["kind"] == "cargo" and component["source_offer_required"] is True,
+                    "copyright absence evidence required")
+            absence = [entry for entry in component["source_offer_files"]
+                       if entry.get("path", "").endswith("/copyright-absence.json")]
+            archives = [entry for entry in component["source_offer_files"]
+                        if entry.get("path", "").endswith(".crate") and entry.get("sha256") == component["sha256"]]
+            require(len(absence) == len(archives) == 1, "copyright absence evidence required")
         covered_licenses = set()
         for field in ("notice_required", "source_offer_required"):
             require(type(component[field]) is bool, "invalid component")
@@ -256,6 +264,26 @@ def validate_inventory(inventory: dict) -> None:
 def expected_legal_files(inventory: dict) -> set[str]:
     return REQUIRED_FILES | {entry["path"] for component in inventory["components"]
                              for field in ("license_files", "notice_files", "source_offer_files") for entry in component[field]}
+
+
+def validate_copyright_absence(inventory, files):
+    import tarfile
+    if __package__:
+        from scripts.copyright_absence import audit_archive
+    else:
+        from copyright_absence import audit_archive
+    for component in inventory["components"]:
+        if component["copyright_text"] != "NONE":
+            continue
+        records = component["source_offer_files"]
+        archive = next(row for row in records if row["path"].endswith(".crate") and row["sha256"] == component["sha256"])
+        evidence = next(row for row in records if row["path"].endswith("/copyright-absence.json"))
+        try:
+            actual = audit_archive(files[archive["path"]], component["sha256"])
+        except (ValueError, OSError, tarfile.TarError) as error:
+            raise PackageInputError("copyright absence source differs") from error
+        require(actual["eligible_for_reviewed_NONE"] is True
+                and canonical_json(actual) == files[evidence["path"]], "copyright absence evidence differs")
 
 
 def render_rtf(text: str) -> bytes:
@@ -393,6 +421,7 @@ def _validate_package_inputs(root, source_root, version, target, payload_manifes
                 actual_files.add(path.relative_to(root).as_posix())
     require(actual_files == expected_files, "file inventory mismatch")
     files = {name: read_owned(root, name) for name in expected_files}
+    validate_copyright_absence(inventory, files)
     require(all(sha256_bytes(data) == hashes[name] for name, data in files.items()), "file hash mismatch")
     for name in REQUIRED_FILES:
         text = files[name].decode("utf-8")

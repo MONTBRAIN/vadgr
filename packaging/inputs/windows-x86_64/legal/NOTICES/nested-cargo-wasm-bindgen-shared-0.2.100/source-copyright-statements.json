@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "1a05d73b933a847d6cccdda8f838a22ff101ad9bf93e33684f39c1f5f0eece3d",
+  "original_statement_files": [
+    {
+      "path": "wasm-bindgen-shared-0.2.100/LICENSE-MIT",
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397",
+      "size": 1057,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014 Alex Crichton"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

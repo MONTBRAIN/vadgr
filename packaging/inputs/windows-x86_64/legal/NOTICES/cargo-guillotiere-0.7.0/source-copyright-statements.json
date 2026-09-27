@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "6b17e70c989c36bad147b27a58d148c0741c51448aa5653436547323e524d0ab",
+  "original_statement_files": [
+    {
+      "path": "guillotiere-0.7.0/LICENSE-APACHE",
+      "sha256": "644d05561bc2dc5993f19d6602894315d925744d854a0413876e203f86c35830",
+      "size": 554,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2019 Nicolas Silva"
+        }
+      ]
+    },
+    {
+      "path": "guillotiere-0.7.0/LICENSE-MIT",
+      "sha256": "cab31b979edfb1d6ff72a9a84e1092a9b68954022fc3f253338e64879961b8d2",
+      "size": 1080,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2019 Nicolas Silva"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

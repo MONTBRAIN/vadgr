@@ -1,0 +1,626 @@
+{
+  "archive_sha256": "b5eed333089e2e1c1ac8c6c0398e5e2497b4c9926ca6d0365ed1e099afa5bc23",
+  "original_statement_files": [
+    {
+      "path": "curve25519-dalek-5.0.0/ACKNOWLEDGEMENTS.md",
+      "sha256": "32e1c1a46afc28f996f7c3d83337f6b15669f56bbd4378f6a8942026563214df",
+      "size": 2965,
+      "statements": [
+        {
+          "line": 8,
+          "text": "Copyright (c) 2012 The Go Authors. All rights reserved."
+        },
+        {
+          "line": 44,
+          "text": "Copyright (c) 2019 Bas Westerbaan"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/LICENSE",
+      "sha256": "403c53069750101aeb9df7e15f127056ceaf7e4e92d0b919a1f4c084afd5f1d4",
+      "size": 1559,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2016-2021 isis agora lovecruft. All rights reserved."
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2016-2021 Henry de Valence. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/serial/curve_models.rs",
+      "sha256": "0f318062f526b2a343b4752ed16a94998af9e25e79282608ed6ef5264927bcac",
+      "size": 19149,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/serial/fiat_u32/field.rs",
+      "sha256": "d544ecfa7d7a39c6c31a25720cd4395a1d2a2592f21196a5371f903cd0ce699f",
+      "size": 10495,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2018 Isis Lovecruft, Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/serial/fiat_u32.rs",
+      "sha256": "38bcec08d8bd8a9057746daead8380bc51eafd4400f366c6dc4c3a88e65c84b1",
+      "size": 797,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2018 Isis Lovecruft, Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/serial/fiat_u64/field.rs",
+      "sha256": "b5881d01b91034c1f434259ad2fddc7b5158c0d5cee51597cc70df9befc9c0ee",
+      "size": 9642,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2018 Isis Lovecruft, Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/serial/fiat_u64.rs",
+      "sha256": "d902fb0841b85a86c4a7d97fdde4246f4f09aadc2cf06f52f49671e99cec7577",
+      "size": 927,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2018 Isis Lovecruft, Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/serial/scalar_mul/pippenger.rs",
+      "sha256": "6b376ccec552d2dff47aaacbbf81b26430694834c3939c4351dc1d952284bed8",
+      "size": 7692,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2019 Oleg Andreev"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/serial/scalar_mul/precomputed_straus.rs",
+      "sha256": "70b36da937ab18d49bddc49708e317181f2be59add69aa639f80bc138a26ea7e",
+      "size": 3988,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2019 Henry de Valence."
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/serial/scalar_mul/straus.rs",
+      "sha256": "92040d722c6771c3f90c8c86621f5ef9239e1bec237750d2f39c311d5cb7463b",
+      "size": 7604,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/serial/scalar_mul/vartime_double_base.rs",
+      "sha256": "528db8b24adf9a3b50fbe89fe917b0ae9dace30bbcae9f40c0ba3583f1d80ac8",
+      "size": 2219,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/serial/scalar_mul.rs",
+      "sha256": "a6a4185075faebf984f365b6dcc28c3da6c087d18d811257cd2c0245b41d113e",
+      "size": 911,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/serial/u32/constants.rs",
+      "sha256": "5eafb471cb394b0e73e5feac4db986b3fcb280c59cc7dcd6a4a464ac6ec2a946",
+      "size": 214670,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/serial/u32/field.rs",
+      "sha256": "7471914244c92fc38e6706d37bc4134006521b454b89d13ffc9bd62fbd3e0bf4",
+      "size": 25141,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/serial/u32.rs",
+      "sha256": "14fabb2034c68094df508c19517db14e5e3b956b5dac93bd0dd3c125f47f396e",
+      "size": 624,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/serial/u64/constants.rs",
+      "sha256": "562767135cf372e1478783269e1d5058ef013af80dcf8b975c868d7cb74614a9",
+      "size": 248783,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/serial/u64/field.rs",
+      "sha256": "7ea95907cb3bd79c41fd552b61dad1bd9ad3d9112406b21f999e8f6a8c6cf963",
+      "size": 20967,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/serial/u64.rs",
+      "sha256": "b4aab9c62cf39bafc976b2e03bea503f120b125c30eb0e9e5d5f257b08a3eda4",
+      "size": 894,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2018 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/serial.rs",
+      "sha256": "8c92cec992cf112c0683ed328ecfdfcc08d4732de92a76c882b3062e4549f39c",
+      "size": 1264,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/vector/avx2/constants.rs",
+      "sha256": "95f19d41ad1796d892734ba9125f6442dcb049f6392d31c1ec61d5b4a011102b",
+      "size": 46726,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/vector/avx2/edwards.rs",
+      "sha256": "ac88fc633d3f9e6eba5fc871fd2d0f1c3c32937b066bc87cc5568423e4de488a",
+      "size": 18324,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/vector/avx2/field.rs",
+      "sha256": "a4e344d43f5e7f49dd6509eda48228e1bb28964ea9a0101e30f42f941f91ece7",
+      "size": 38695,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/vector/avx2.rs",
+      "sha256": "116ceb9a7a976ba67340b92eac91e5268f7f44ab5917b254f4cc7720d32241bb",
+      "size": 506,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/vector/ifma/constants.rs",
+      "sha256": "69f06bb74de041842b8780bb13da4f636d2876ae0bb871889a192313f10d3511",
+      "size": 53242,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2018-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/vector/ifma/edwards.rs",
+      "sha256": "efc31c7969bf040f74e927b5af01813f9582046035de9f8f590603588c96ddfe",
+      "size": 10834,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2018-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/vector/ifma/field.rs",
+      "sha256": "1c003cfdcd134b30ffd805c135eeade2dc290e1abc3d4fa3a3529e8d901a4a3c",
+      "size": 27550,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/vector/ifma.rs",
+      "sha256": "243d4d94947480a1d0071efb9a3268d28ea0032bf8917307a3ece270be788c8a",
+      "size": 434,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2018-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/vector/scalar_mul/pippenger.rs",
+      "sha256": "0d97921c25bd247e9eebc4964dc5830661e641142f3655666f7a536f502acc8f",
+      "size": 6704,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2019 Oleg Andreev"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/vector/scalar_mul/precomputed_straus.rs",
+      "sha256": "ecc2bce2f7877b6382152291adfcfe7c6fc7b518c34267d10136b061fb7296f9",
+      "size": 4466,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2019 Henry de Valence."
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/vector/scalar_mul/straus.rs",
+      "sha256": "03e11e02fc5db10045b7e9a860027679f28694e0b80983b8ea35f3672b381118",
+      "size": 4246,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/vector/scalar_mul/vartime_double_base.rs",
+      "sha256": "5845f58fb5eb8d8b9a704a8b80fa09c0db92c3b188a55c2d6a12600204c5433d",
+      "size": 3026,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/vector/scalar_mul.rs",
+      "sha256": "c2ae669727ba81a486b447f98561273cd62f76b1c546c55dafdc86c85674e8e7",
+      "size": 709,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend/vector.rs",
+      "sha256": "435dc479e2d30412e07d2c13947042ec3380cf668527907e65acca01cbda32a4",
+      "size": 514,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/backend.rs",
+      "sha256": "473621c0984effaeb64088b4cea06d3bc7b664cd77901bfa91c3014d202707f7",
+      "size": 10178,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/constants.rs",
+      "sha256": "c0096010eb8d25410602b5551237f8c4f5f3e83f18a7e0b0610f6728e031c8ff",
+      "size": 9548,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/edwards.rs",
+      "sha256": "b1ddec03dcb2e48155bea3a981aeab6a35003b4c18cf8e03ab5ad6f33d06d226",
+      "size": 89936,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2020 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/field.rs",
+      "sha256": "9129d87e80e6d5ac100997631e79e1dab9c2e8658edcca0c7a5fe16da4b54abb",
+      "size": 37023,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis agora lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/lib.rs",
+      "sha256": "394e74759ed945aece878213d3cac44fb0696103b3a2428377fed0b499b78dde",
+      "size": 2972,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/macros.rs",
+      "sha256": "2d848f7d36d69108f1ff0d641537c726bcefb40721f42ca2180176af14d081f3",
+      "size": 3205,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis agora lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/montgomery.rs",
+      "sha256": "cb8a878d1af5e46d99210e15577aad8aa3f551284e376a46a7f08a126df1d9b2",
+      "size": 26260,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/ristretto.rs",
+      "sha256": "9729623f341b82a27986b808be898ccf303b7d5a4d5b42f4558c341a5edd0174",
+      "size": 58639,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2020 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/scalar.rs",
+      "sha256": "38693b0c0554444f80592d7634acf7e291d22c90439dbec240541186f9162a28",
+      "size": 74814,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        },
+        {
+          "line": 6,
+          "text": "// Portions Copyright 2017 Brian Smith"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/traits.rs",
+      "sha256": "582b6a153d433585b3804274134e117e6e1247121aa6bc91a357824cd3fe68e0",
+      "size": 15356,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    },
+    {
+      "path": "curve25519-dalek-5.0.0/src/window.rs",
+      "sha256": "2124ce6436f9c9b753605c406de00443002a9f2c81cf2a24cbd0df0f7885f219",
+      "size": 9007,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2021 isis lovecruft"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016-2019 Henry de Valence"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

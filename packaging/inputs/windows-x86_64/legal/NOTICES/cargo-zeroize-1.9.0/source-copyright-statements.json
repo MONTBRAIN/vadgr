@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "e13c156562582aa81c60cb29407084cdb54c4164760106ab78e6c5b0858cf64e",
+  "original_statement_files": [
+    {
+      "path": "zeroize-1.9.0/LICENSE-MIT",
+      "sha256": "8c7516d4b27b1e495be5e38b612298b63de48d05f49cdac94f70f3cd70f8864b",
+      "size": 1082,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018-2026 The RustCrypto Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

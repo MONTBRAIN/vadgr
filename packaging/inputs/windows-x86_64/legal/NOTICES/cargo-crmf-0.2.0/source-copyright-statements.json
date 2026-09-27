@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "36fe21b96d5b87f5de4b5b7202ec41c00110ac817ce6728fe75fb2fe5962ed92",
+  "original_statement_files": [
+    {
+      "path": "crmf-0.2.0/LICENSE-MIT",
+      "sha256": "df5a6e5866476bcef44f2b2e1712d123ea26e350cc0b54df253beb4333bf0aec",
+      "size": 1077,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2023 The RustCrypto Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

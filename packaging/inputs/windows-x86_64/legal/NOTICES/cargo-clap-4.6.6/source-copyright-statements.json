@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "473c7e07f409a8d772161724aa8db6a765a2532a70f9667eeb7b49d3d02fbdca",
+  "original_statement_files": [
+    {
+      "path": "clap-4.6.6/LICENSE-MIT",
+      "sha256": "6efb0476a1cc085077ed49357026d8c173bf33017278ef440f222fb9cbcb66e6",
+      "size": 1062,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) Individual contributors"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

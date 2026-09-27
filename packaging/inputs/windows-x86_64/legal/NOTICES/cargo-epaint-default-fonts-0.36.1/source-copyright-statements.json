@@ -1,0 +1,51 @@
+{
+  "archive_sha256": "18dee69613aac468922cf28a32025eb7d7ed6985b61f73245848e58f37876c98",
+  "original_statement_files": [
+    {
+      "path": "epaint_default_fonts-0.36.1/fonts/Hack-Regular.txt",
+      "sha256": "47c0cccbeec7e8614548cc485588b28149e7874188df5f41b36efebcee285c87",
+      "size": 3734,
+      "statements": [
+        {
+          "line": 1,
+          "text": "The work in the Hack project is Copyright 2018 Source Foundry Authors and licensed under the MIT License"
+        },
+        {
+          "line": 5,
+          "text": "Bitstream Vera Sans Mono Copyright 2003 Bitstream Inc. and licensed under the Bitstream Vera License with Reserved Font Names \"Bitstream\" and \"Vera\""
+        },
+        {
+          "line": 8,
+          "text": "Copyright (c) 2018 Source Foundry Authors"
+        },
+        {
+          "line": 17,
+          "text": "Copyright (c) 2003 by Bitstream, Inc. All Rights Reserved. Bitstream Vera is a trademark of Bitstream, Inc."
+        }
+      ]
+    },
+    {
+      "path": "epaint_default_fonts-0.36.1/fonts/OFL.txt",
+      "sha256": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2",
+      "size": 4301,
+      "statements": [
+        {
+          "line": 70,
+          "text": "Copyright Holder(s) and the Author(s) or with their explicit written"
+        }
+      ]
+    },
+    {
+      "path": "epaint_default_fonts-0.36.1/fonts/emoji-icon-font-mit-license.txt",
+      "sha256": "b9d2c1d909aa149996fd4c91dcb92b2362a04431640c1d200959da94caf8cde1",
+      "size": 1069,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2014 John Slegers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

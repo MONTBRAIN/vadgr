@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b",
+  "original_statement_files": [
+    {
+      "path": "unicode-ident-1.0.12/LICENSE-UNICODE",
+      "sha256": "68f5b9f5ea36881a0942ba02f558e9e1faf76cc09cb165ad801744c61b738844",
+      "size": 2315,
+      "statements": [
+        {
+          "line": 16,
+          "text": "Copyright \u00a9 1991-2022 Unicode, Inc. All rights reserved."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

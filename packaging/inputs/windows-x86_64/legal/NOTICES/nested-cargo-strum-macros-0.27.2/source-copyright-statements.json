@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "7695ce3845ea4b33927c055a39dc438a45b059f7c1b3d91d38d10355fb8cbca7",
+  "original_statement_files": [
+    {
+      "path": "strum_macros-0.27.2/LICENSE",
+      "sha256": "8bce3b45e49ecd1461f223b46de133d8f62cd39f745cfdaf81bee554b908bd42",
+      "size": 1072,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2019 Peter Glotfelty"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "ebe5ef63511595f1344e2d5cfa636d973292adc0eec1f0ad45fae9f0851ab1d4",
+  "original_statement_files": [
+    {
+      "path": "tower-0.5.3/LICENSE",
+      "sha256": "4249c8e6c5ebb85f97c77e6457c6fafc1066406eb8f1ef61e796fbdc5ff18482",
+      "size": 1062,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2019 Tower Contributors"
+        }
+      ]
+    },
+    {
+      "path": "tower-0.5.3/src/load/peak_ewma.rs",
+      "sha256": "24a5e76918466916009a981393383835bdf51081199705529e35a3f2c773222e",
+      "size": 12844,
+      "statements": [
+        {
+          "line": 39,
+          "text": "/// license. Copyright 2017, Twitter Inc."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "839c0e8a181239723652be9062bb56ca5bf5f64011f73b623f6f4fc59086a228",
+  "original_statement_files": [
+    {
+      "path": "h2-0.4.18/LICENSE",
+      "sha256": "b21623012e6c453d944b0342c515b631cfcbf30704c2621b291526b69c10724d",
+      "size": 1054,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2017 h2 authors"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

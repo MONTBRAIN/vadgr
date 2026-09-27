@@ -1,0 +1,36 @@
+{
+  "archive_sha256": "09e4bb6601fa543c110d8957813267d5a8d775a0f8fbaccf1f615d06ba9b10da",
+  "original_statement_files": [
+    {
+      "path": "noq-1.1.1/LICENSE-MIT",
+      "sha256": "9e654cd17a17880f43a84c9c024f9ca7a320ed906d521072c15aa2e8daff8df0",
+      "size": 1097,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018-2025 The quinn Developers"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2025 N0, Inc."
+        }
+      ]
+    },
+    {
+      "path": "noq-1.1.1/README.md",
+      "sha256": "99b33992da4fbfa9e83c4a642c85901a18fd81cb297c12a5e607633fae339046",
+      "size": 4819,
+      "statements": [
+        {
+          "line": 92,
+          "text": "Copyright 2025 The quinn developers"
+        },
+        {
+          "line": 93,
+          "text": "Copyright 2025 N0, INC."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

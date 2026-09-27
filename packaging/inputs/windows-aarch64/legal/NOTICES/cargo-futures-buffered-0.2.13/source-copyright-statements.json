@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "4421cb78ee172b6b06080093479d3c50f058e7c81b7d577bbb8d118d551d4cd5",
+  "original_statement_files": [
+    {
+      "path": "futures-buffered-0.2.13/LICENSE",
+      "sha256": "dd36422306cd0c6e499f153996c655e3be88a575447cf2382c9625ef0d9cca53",
+      "size": 1081,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2022 Conrad Ludgate"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

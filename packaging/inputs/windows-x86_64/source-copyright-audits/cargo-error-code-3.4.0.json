@@ -1,0 +1,97 @@
+{
+  "archive_sha256": "0b5343afd4a8365a643ac588dab4cf234a190c7f6c88c9f6dd6ffe00837661b7",
+  "eligible_for_reviewed_NONE": false,
+  "files": [
+    {
+      "path": "error-code-3.4.0/.cargo_vcs_info.json",
+      "sha256": "412e0afb1d4177bd08a1dac426d610dad751266fae879defd6ecfcec18925597",
+      "size": 94,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "error-code-3.4.0/Cargo.lock",
+      "sha256": "00dedfa244dc6d2c224883e4d8e05ffadacdd7e7116b217a26ec9c5f05491f8d",
+      "size": 154,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "error-code-3.4.0/Cargo.toml",
+      "sha256": "d24155ed843ed66c16ad18fa8e6ee96fe35d0107c6fefefb50361a700c3438eb",
+      "size": 1051,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "error-code-3.4.0/Cargo.toml.orig",
+      "sha256": "a01638c3f4cba4714c706444cfb337546495bdb4be2b26193c2b27e3403ca347",
+      "size": 371,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "mentions": [
+        {
+          "line": 10,
+          "text": "The copyright notices in the Software and this entire statement, including"
+        },
+        {
+          "line": 20,
+          "text": "SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE"
+        }
+      ],
+      "path": "error-code-3.4.0/LICENSE",
+      "sha256": "c9bff75738922193e67fa726fa225535870d2aa1059f91452c411736284ad566",
+      "size": 1338,
+      "status": "ambiguous-ownership-marker"
+    },
+    {
+      "path": "error-code-3.4.0/README.md",
+      "sha256": "0bfd24a72b4f9a641ba6aae6b040ee88edac2c2fa439fe44a118cec6672b4026",
+      "size": 744,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "error-code-3.4.0/src/defs.rs",
+      "sha256": "ad92993f55b2271cd351891985d6c88f9053649efba60423eafc71d9726c4d08",
+      "size": 2631,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "error-code-3.4.0/src/lib.rs",
+      "sha256": "e29da8c4f9012ec633c1014cba8bebb9c25abedeef27809aa00997e16baa0439",
+      "size": 11546,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "error-code-3.4.0/src/posix.rs",
+      "sha256": "9a5038f5c3f39958cc9ce42b1eb86d78fd768e3ca192297db4659e30e5b705a1",
+      "size": 4769,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "error-code-3.4.0/src/system.rs",
+      "sha256": "b40596383860d784130f36c08ec8e6a389045eb79d8e039817e5ecc6b1cc2ba4",
+      "size": 3734,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "error-code-3.4.0/src/types.rs",
+      "sha256": "2e859dd2ec4dca016ccb583e0db1968015e1913709341596b865dce74abae37b",
+      "size": 1247,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "error-code-3.4.0/src/utils.rs",
+      "sha256": "bc04de1e993245d856115b9ac0a487b4a8bc8c911f1b8a9f9da2c79eaf597efe",
+      "size": 1670,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "error-code-3.4.0/tests/error_code.rs",
+      "sha256": "0186fbba1aa69f71d996595de577476f2a96f932decdd5baa1e88b5971ff7f32",
+      "size": 2016,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
+  "schema": 1
+}

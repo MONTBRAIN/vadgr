@@ -1,0 +1,81 @@
+{
+  "archive_sha256": "7dcd9d09a39985f5344844e66b0c530a33843579125f23e21e9f0f220850f22a",
+  "eligible_for_reviewed_NONE": false,
+  "files": [
+    {
+      "path": "webpki-roots-1.0.9/.cargo_vcs_info.json",
+      "sha256": "9bed1ddf509d1ff839a7e59629cb8b62e243c318a1b2ad5c07ec8d11284e5290",
+      "size": 106,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "webpki-roots-1.0.9/Cargo.lock",
+      "sha256": "06344cee218ea63aa3347918e469d8360fb736840ec9d080a186c9e5c72b3e96",
+      "size": 18592,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "webpki-roots-1.0.9/Cargo.toml",
+      "sha256": "c065fa807b0670e11a766526477abf5af99074821f2fe9d6117770229884ccff",
+      "size": 1645,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "webpki-roots-1.0.9/Cargo.toml.orig",
+      "sha256": "1c85ac4ecfc28ebb6f1be161fb190617c51b7d8c6568a251ae6e66cfa7b2396d",
+      "size": 737,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "webpki-roots-1.0.9/LICENSE",
+      "sha256": "e271993808fec50ab29350b39539cdec611a9103f827e0aa26d61da70e2d33f8",
+      "size": 2371,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "webpki-roots-1.0.9/README.md",
+      "sha256": "3f785bbd28b6628dadc4203a9368b729453aaa65df454e54a0c2f8a7a42395f5",
+      "size": 1151,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "webpki-roots-1.0.9/src/lib.rs",
+      "sha256": "581232b6fb8d5b8df315d34c798099ee759cb4930ffed77c331e7b38fed82b15",
+      "size": 404248,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "webpki-roots-1.0.9/tests/codegen.rs",
+      "sha256": "06afca3127ffc684836406544e44ccfbb7cd0ae7ae15102c42bc62d076765ecd",
+      "size": 6145,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "webpki-roots-1.0.9/tests/data/tubitak/inter.der",
+      "sha256": "bf32da954571659aaf715c13ee703e3643dfcbaeee2d82110ca68eb57cb67ce0",
+      "size": 1654,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "webpki-roots-1.0.9/tests/data/tubitak/root.der",
+      "sha256": "46edc3689046d53a453fb3104ab80dcaec658b2660ea1629dd7e867990648716",
+      "size": 1127,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "webpki-roots-1.0.9/tests/data/tubitak/subj.der",
+      "sha256": "8f0d491077ddc360e7416620af2cf4a8a4010e5b6f5a6d0f557f4f2499a38029",
+      "size": 1649,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "webpki-roots-1.0.9/tests/verify.rs",
+      "sha256": "ef69aafbd92ba96b74325569025b44b04b021d526217ef69e7c3d46d83414632",
+      "size": 7792,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
+  "schema": 1
+}

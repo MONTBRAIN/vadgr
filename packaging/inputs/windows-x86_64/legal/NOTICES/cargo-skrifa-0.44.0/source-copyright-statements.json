@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "819ab7d62b1d3e72d9d9dea5650bac30424f9111364bb94928dbf5ecad1baa68",
+  "original_statement_files": [
+    {
+      "path": "skrifa-0.44.0/LICENSE-APACHE",
+      "sha256": "eba684204073ed715c4abb48129acdfd2bff8ae48339e6a7da3b341d3027b7f0",
+      "size": 9701,
+      "statements": [
+        {
+          "line": 55,
+          "text": "Copyright 2019 Fontations Developers"
+        }
+      ]
+    },
+    {
+      "path": "skrifa-0.44.0/LICENSE-MIT",
+      "sha256": "7b4c9a3946dfcea7967582760e963e27799e225dcf20565c8ef55324bb017427",
+      "size": 1065,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2019 Fontations Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

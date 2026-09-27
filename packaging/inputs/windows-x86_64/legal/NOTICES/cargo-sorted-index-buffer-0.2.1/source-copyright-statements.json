@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "ea06cc588e43c632923a55450401b8f25e628131571d4e1baea1bdfdb2b5ed06",
+  "original_statement_files": [
+    {
+      "path": "sorted-index-buffer-0.2.1/LICENSE-MIT",
+      "sha256": "f169adb8124d3b005416d8485d00777c9a7bdd9099982c52a4493f9732e6d050",
+      "size": 1048,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2025 N0, INC."
+        }
+      ]
+    },
+    {
+      "path": "sorted-index-buffer-0.2.1/README.md",
+      "sha256": "3f4df95f53dc16bf75ecd8a19841cddd5903a23c7ced9b4cf97e2d831d896a1c",
+      "size": 900,
+      "statements": [
+        {
+          "line": 12,
+          "text": "Copyright 2025 N0, INC."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

@@ -1,0 +1,102 @@
+{
+  "archive_sha256": "34aa73646ffb006b8f5147f3dc182bd4bcb190227ce861fc4a4844bf8e3cb2c0",
+  "original_statement_files": [
+    {
+      "path": "encode_unicode-1.0.0/src/decoding_iterators.rs",
+      "sha256": "c36b508273325b8dc589fd28dbd8931ee7de58412e2d0eb8d2da6fcf80803260",
+      "size": 19510,
+      "statements": [
+        {
+          "line": 1,
+          "text": "/* Copyright 2018-2020 Torbj\u00f8rn Birch Moltu"
+        }
+      ]
+    },
+    {
+      "path": "encode_unicode-1.0.0/src/errors.rs",
+      "sha256": "d4a71b225c5f8da8bef6673ae5a77064a45c74f57b52a2b1f67685eb0e67b716",
+      "size": 12274,
+      "statements": [
+        {
+          "line": 1,
+          "text": "/* Copyright 2016-2022 Torbj\u00f8rn Birch Moltu"
+        }
+      ]
+    },
+    {
+      "path": "encode_unicode-1.0.0/src/lib.rs",
+      "sha256": "e0cf77b9324d619c500d78f406f3be6b7fd10a06fd183397361e3e2381c57c5d",
+      "size": 4082,
+      "statements": [
+        {
+          "line": 1,
+          "text": "/* Copyright 2016-2022 Torbj\u00f8rn Birch Moltu"
+        },
+        {
+          "line": 2,
+          "text": "* Copyright 2018 Aljoscha Meyer"
+        }
+      ]
+    },
+    {
+      "path": "encode_unicode-1.0.0/src/traits.rs",
+      "sha256": "b0b4e6b02834e13d9e1b062f1df540571f25fd290b4bbcd09ec778d7582e5f8f",
+      "size": 39606,
+      "statements": [
+        {
+          "line": 1,
+          "text": "/* Copyright 2016-2022 Torbj\u00f8rn Birch Moltu"
+        },
+        {
+          "line": 2,
+          "text": "* Copyright 2018 Aljoscha Meyer"
+        }
+      ]
+    },
+    {
+      "path": "encode_unicode-1.0.0/src/utf16_char.rs",
+      "sha256": "f1e21f9ba8785441c5afe5e7b78a480c3f6e9b7f5208d56f10ce1421e9309ef1",
+      "size": 24934,
+      "statements": [
+        {
+          "line": 1,
+          "text": "/* Copyright 2016-2022 Torbj\u00f8rn Birch Moltu"
+        }
+      ]
+    },
+    {
+      "path": "encode_unicode-1.0.0/src/utf16_iterators.rs",
+      "sha256": "c9967e945d68c5381404451432b889124b431c3eeb7ef72ec64821dfc988094a",
+      "size": 8653,
+      "statements": [
+        {
+          "line": 1,
+          "text": "/* Copyright 2018-2019 Torbj\u00f8rn Birch Moltu"
+        }
+      ]
+    },
+    {
+      "path": "encode_unicode-1.0.0/src/utf8_char.rs",
+      "sha256": "2e35014e790d0cabda4e1926724d8ebb83c88215e6a98ed3cb3d7c5ae74454ee",
+      "size": 23144,
+      "statements": [
+        {
+          "line": 1,
+          "text": "/* Copyright 2016-2022 Torbj\u00f8rn Birch Moltu"
+        }
+      ]
+    },
+    {
+      "path": "encode_unicode-1.0.0/src/utf8_iterators.rs",
+      "sha256": "114e2fe000a0366251442ece23d842f82828d0b9df0c6f7caed17a51e1a92c25",
+      "size": 11164,
+      "statements": [
+        {
+          "line": 1,
+          "text": "/* Copyright 2018-2020 Torbj\u00f8rn Birch Moltu"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

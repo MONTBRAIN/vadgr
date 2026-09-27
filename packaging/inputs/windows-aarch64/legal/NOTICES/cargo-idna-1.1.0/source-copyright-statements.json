@@ -1,0 +1,61 @@
+{
+  "archive_sha256": "3b0875f23caa03898994f6ddc501886a45c7d3d62d04d2d90788d47be1b1e4de",
+  "original_statement_files": [
+    {
+      "path": "idna-1.1.0/LICENSE-MIT",
+      "sha256": "b38f11f6096706e6de553dabe2a7ed142d59b6fa8c97e290c67496154745cdd5",
+      "size": 1072,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2013-2025 The rust-url developers"
+        }
+      ]
+    },
+    {
+      "path": "idna-1.1.0/src/deprecated.rs",
+      "sha256": "1f1954f0314a3ccb631422947a258f42fad7e6939df6ba25057464e2bdd8ae18",
+      "size": 8377,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2013-2014 The rust-url developers."
+        }
+      ]
+    },
+    {
+      "path": "idna-1.1.0/src/lib.rs",
+      "sha256": "13d06c4bcb530498b5414d948e0b08c987000eb7a0a8c441f5c25b116298633e",
+      "size": 7733,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2016 The rust-url developers."
+        }
+      ]
+    },
+    {
+      "path": "idna-1.1.0/src/punycode.rs",
+      "sha256": "0cc6fa84989898ccf6de0a665a287d7488a6eba4b178bea065d311ecabd81604",
+      "size": 14763,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2013 The rust-url developers."
+        }
+      ]
+    },
+    {
+      "path": "idna-1.1.0/src/uts46.rs",
+      "sha256": "9726647c01f315215eca25b7cb706929ff829269d4143de06b4f4718538b6640",
+      "size": 75197,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright The rust-url developers."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

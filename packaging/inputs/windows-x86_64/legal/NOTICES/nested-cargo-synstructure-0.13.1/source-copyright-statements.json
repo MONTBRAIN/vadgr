@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "c8af7666ab7b6390ab78131fb5b0fce11d6b7a6951602017c35fa82800708971",
+  "original_statement_files": [
+    {
+      "path": "synstructure-0.13.1/LICENSE",
+      "sha256": "219920e865eee70b7dcfc948a86b099e7f4fe2de01bcca2ca9a20c0a033f2b59",
+      "size": 1052,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2016 Nika Layzell"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

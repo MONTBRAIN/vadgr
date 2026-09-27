@@ -1,0 +1,243 @@
+{
+  "archive_sha256": "eedac50883a917b7b434db22e2e6e853ace8c00f4a9c27f53e1e9c87e6d89fe4",
+  "eligible_for_reviewed_NONE": false,
+  "files": [
+    {
+      "path": "sigstore-tuf-0.11.0/.cargo_vcs_info.json",
+      "sha256": "8f3206fa14c0c5829454b8cca130e5645e6a3db50206a86313824cafc85bfd43",
+      "size": 113,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/CHANGELOG.md",
+      "sha256": "265f748fce8a6f7bea36c743cf917b7ead89d8ac056ce090a3e376de1eff1a95",
+      "size": 853,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/Cargo.lock",
+      "sha256": "f8f71662261292f71575f98fc963b8beb9eb68f85e0a097203ea896528c25fc4",
+      "size": 54336,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/Cargo.toml",
+      "sha256": "4bb927642468b562511a7faeb3130f4e03997fdbe7ed98828d719ddbdc9f8ea7",
+      "size": 2313,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/Cargo.toml.orig",
+      "sha256": "644b7f89f2c7daee2a6e0e5f17b44e136df5894af6ca8b144c3bdabd1c2c0c96",
+      "size": 1808,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/README.md",
+      "sha256": "2f1d6cd0eee82bc3e7fa9cd519e1f7e87871b71fbf16820471c201432dc9a7fb",
+      "size": 4080,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/conformance.xfails",
+      "sha256": "6ad63f095ff491e534148a892f3ea4e3e05e79caf8a1dec62060d2aeba47e7d2",
+      "size": 223,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/examples/conformance_client.rs",
+      "sha256": "7f3f46e1402ecf8607823ae0431e35b2eb7e2d6c5dad4f56e0a8eb9dca4e2ba9",
+      "size": 8363,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/src/cache.rs",
+      "sha256": "03e64421ef37c57b6fc60a688c6c44ff4c89794e14160341fb1414a701c7ac79",
+      "size": 9396,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/src/canonical_json.rs",
+      "sha256": "7edae48f9439569b9d7e43631a4366a3035dd9c4b86d36a89f7eeaabd211169f",
+      "size": 5574,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/src/client.rs",
+      "sha256": "a5a6ca3a4dfb0f6facabd1b68ff28f3f3ff15ce25734479386156f66cf107130",
+      "size": 28506,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/src/error.rs",
+      "sha256": "5a337a1fab490d85a897a44d4f63d744cf9afa7ce15d45578b4abc79088d51f4",
+      "size": 4694,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/src/key.rs",
+      "sha256": "aa089af0d74b74dfa6a3a81aeb7a736b8444f9cffa58faeb556ca4d49ae4145f",
+      "size": 6838,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/src/lib.rs",
+      "sha256": "708d9710e0dcf8ab6e5481a0e49c0e3925daeeb34753973947cb326418c24bea",
+      "size": 4084,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/src/metadata/mod.rs",
+      "sha256": "3f98d9ac7baf074c8f33bbe1589e8531e0b71a3eff7593e26673e3025a7f92c5",
+      "size": 8329,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/src/metadata/role.rs",
+      "sha256": "f193843c3ba05ede36a52d5a1939673bc843b299e6a32e7a5cf2356997e2f208",
+      "size": 8565,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/src/metadata/snapshot.rs",
+      "sha256": "957e6a73827b2919cb8625a58692d9a5e1c3755b1dd6cff2950b2802061e3e8d",
+      "size": 2639,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/src/metadata/targets.rs",
+      "sha256": "b68e0a0673f8d27b9d8c4d2279f6c1a6ec1998d09ebb04562c40f191658f1fa3",
+      "size": 1813,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/src/transport.rs",
+      "sha256": "4a707bb346bf234c7d1ab6ca3caddfde8d8da0ecb1aec3b48890c0d9e0ef5205",
+      "size": 3431,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/src/trusted.rs",
+      "sha256": "4d283199a8691971b59fb8b0017eae657557e982697501ded12dfeb218180ac8",
+      "size": 18310,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/tests/data/.gitattributes",
+      "sha256": "4612e75b82cadd9f5c23bc780cbfc22d4bde7f94b0e6bfc7d6ae45e73c12eb22",
+      "size": 289,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "mentions": [
+        {
+          "line": 6,
+          "text": "Copyright Amazon.com, Inc. or its affiliates."
+        }
+      ],
+      "path": "sigstore-tuf-0.11.0/tests/data/ATTRIBUTION.md",
+      "sha256": "4f0a7d1aa233b182436c3e2a90f02c8022038e1abe0cef019cae80048ca042d2",
+      "size": 1085,
+      "status": "ambiguous-ownership-marker"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/tests/data/negative/duplicate-sigs.root.json",
+      "sha256": "efc730876241478c670a56e67ddfd05afce5a7804bb418c19e359ac329869bfa",
+      "size": 3457,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/tests/data/negative/invalid-root-json-signature.root.json",
+      "sha256": "6b255cee36c02071943da01eb79d97cdd6a4c01488162c71fe64ab122fea381a",
+      "size": 2689,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/tests/data/negative/no-root-json-signatures.root.json",
+      "sha256": "19943b228a79701f4971100a95e6ca2d25d62c1a5009538fa18e4b17152e6865",
+      "size": 1785,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/tests/data/tuf-reference-impl/metadata/1.root.json",
+      "sha256": "d5ffc36fbc55934878c89e00d00da4cfc6b7b46bcffec9f0de2615f238637d7c",
+      "size": 3396,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/tests/data/tuf-reference-impl/metadata/role1.json",
+      "sha256": "6e9f43799117c28c91783787a2548a147fc63a43cdd8c5b7726a8ea9ae6ada7f",
+      "size": 1252,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/tests/data/tuf-reference-impl/metadata/role2.json",
+      "sha256": "13036fbae07524d7599e4a346140eb118802b75912563650010bbec25c1a0ec2",
+      "size": 441,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/tests/data/tuf-reference-impl/metadata/root.json",
+      "sha256": "d5ffc36fbc55934878c89e00d00da4cfc6b7b46bcffec9f0de2615f238637d7c",
+      "size": 3396,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/tests/data/tuf-reference-impl/metadata/snapshot.json",
+      "sha256": "1f72d907a95612ecbea8b6f7c7e88c2782a2e0a6e9ac6332e8ec89edb9d83a06",
+      "size": 556,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/tests/data/tuf-reference-impl/metadata/targets.json",
+      "sha256": "415c9c2cf31827724e2f8f72a24e41fb6327e668761dcb401dddad6e0e1db5d3",
+      "size": 1624,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/tests/data/tuf-reference-impl/metadata/timestamp.json",
+      "sha256": "a0a055e14ce355fe655d4fd35be307e396448003d34c4a2b17e3a0c8f419e2b9",
+      "size": 557,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/tests/data/tuf-reference-impl/targets/file1.txt",
+      "sha256": "65b8c67f51c993d898250f40aa57a317d854900b3a04895464313e48785440da",
+      "size": 31,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/tests/data/tuf-reference-impl/targets/file2.txt",
+      "sha256": "452ce8308500d83ef44248d8e6062359211992fd837ea9e370e561efb1a4ca99",
+      "size": 39,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/tests/data/tuf-reference-impl/targets/file3.txt",
+      "sha256": "141f740f53781d1ca54b8a50af22cbf74e44c21a998fa2a8a05aaac2c002886b",
+      "size": 28,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/tests/end_to_end.rs",
+      "sha256": "a15ba4e578a7a2e87aa7f836d33612a8277422b71f832d089ec8568685799997",
+      "size": 14015,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/tests/reference_impl.rs",
+      "sha256": "1f41c7adfc40773e155c853e7dbda3b9ba4a417b008382b06f3a14ee828cc323",
+      "size": 5482,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-tuf-0.11.0/tests/roots.rs",
+      "sha256": "49f7349b9425e349ca11ce4c02ad05c3638415adb55d7a8f27d04f07168e9c14",
+      "size": 3203,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
+  "schema": 1
+}

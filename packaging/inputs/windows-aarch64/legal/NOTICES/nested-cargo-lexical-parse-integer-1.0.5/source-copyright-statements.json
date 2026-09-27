@@ -1,0 +1,25 @@
+{
+  "archive_sha256": "72207aae22fc0a121ba7b6d479e42cbfea549af1479c3f3a4f12c70dd66df12e",
+  "original_statement_files": [
+    {
+      "path": "lexical-parse-integer-1.0.5/LICENSE.md",
+      "sha256": "99aab70a96f3ecab683d8a319d9070af2213ae4c1601fb053fbe85e1361e32fe",
+      "size": 19251,
+      "statements": [
+        {
+          "line": 33,
+          "text": "Copyright (c) 2009 The Go Authors. All rights reserved."
+        },
+        {
+          "line": 293,
+          "text": "Copyright 2014, the V8 project authors. All rights reserved."
+        },
+        {
+          "line": 318,
+          "text": "Copyright (c) 2013 Andreas Samoljuk"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

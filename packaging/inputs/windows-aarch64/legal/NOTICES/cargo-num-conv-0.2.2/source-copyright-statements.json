@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "521739c6d2bac4aa25192232afe6841231376b2b26d4d9fae5ecf8ca5772e441",
+  "original_statement_files": [
+    {
+      "path": "num-conv-0.2.2/LICENSE-MIT",
+      "sha256": "e2e245f2b566d0bfafb0f6a04c16b82d710c4e6e7d799e39bb4ef6e541b85b98",
+      "size": 1050,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) Jacob Pratt"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

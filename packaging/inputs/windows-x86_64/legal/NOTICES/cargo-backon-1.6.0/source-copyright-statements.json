@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "cffb0e931875b666fc4fcb20fee52e9bbd1ef836fd9e9e04ec21555f9f85f7ef",
+  "original_statement_files": [
+    {
+      "path": "backon-1.6.0/LICENSE",
+      "sha256": "3e16583bb85121134f781623f64f72481a617f3c295182e60728804b05f0aeda",
+      "size": 11342,
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright 2021 Datafuse Labs"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

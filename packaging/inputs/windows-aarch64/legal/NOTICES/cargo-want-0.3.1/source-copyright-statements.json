@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "bfa7760aed19e106de2c7c0b581b509f2f25d3dacaf737cb82ac61bc6d760b0e",
+  "original_statement_files": [
+    {
+      "path": "want-0.3.1/LICENSE",
+      "sha256": "a65f5d0a945d267751344c95665945b90c030ea107faf5c85d518929886187da",
+      "size": 1063,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018-2019 Sean McArthur"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

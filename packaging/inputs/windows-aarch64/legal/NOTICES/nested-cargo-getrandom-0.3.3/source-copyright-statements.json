@@ -1,0 +1,21 @@
+{
+  "archive_sha256": "26145e563e54f2cadc477553f1ec5ee650b00862f0a58bcd12cbdc5f0ea2d2f4",
+  "original_statement_files": [
+    {
+      "path": "getrandom-0.3.3/LICENSE-MIT",
+      "sha256": "29e9fe5074bd27e0e5d5d110394fbbcd841baee2651a3c4b4560a632702cede4",
+      "size": 1130,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018-2025 The rust-random Project Developers"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2014 The Rust Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

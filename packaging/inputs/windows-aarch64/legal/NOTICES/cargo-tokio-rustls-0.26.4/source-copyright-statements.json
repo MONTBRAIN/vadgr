@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "1729aa945f29d91ba541258c8df89027d5792d85a8841fb65e8bf0f4ede4ef61",
+  "original_statement_files": [
+    {
+      "path": "tokio-rustls-0.26.4/LICENSE-APACHE",
+      "sha256": "cc117d90b498b32b11a886f279b359da16a73c3b01efbb2f5cc004b20262334e",
+      "size": 10832,
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright 2017 quininer kel"
+        }
+      ]
+    },
+    {
+      "path": "tokio-rustls-0.26.4/LICENSE-MIT",
+      "sha256": "e20fa2b8e0a2565f24a792b94b4bf4b6c2b9d36f781d8a9516e218a036e6677a",
+      "size": 1056,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2017 quininer kel"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

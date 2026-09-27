@@ -1,0 +1,147 @@
+{
+  "archive_sha256": "adb6935a6f5c20170eeceb1a3835a49e12e19d792f6dd344ccc76a985ca5a6ca",
+  "eligible_for_reviewed_NONE": false,
+  "files": [
+    {
+      "path": "target-lexicon-0.13.5/.cargo_vcs_info.json",
+      "sha256": "43cf58c3feef557572d099bb89ada7ac33863b5fcea2d60f1f6fe1d407442eef",
+      "size": 94,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "target-lexicon-0.13.5/.github/actions/install-rust/README.md",
+      "sha256": "ec3413893c747ac6a33cdf3331a5d17b9dfdb5b938c8d8edeb124c739feddfdf",
+      "size": 529,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "target-lexicon-0.13.5/Cargo.lock",
+      "sha256": "536bb6dd71e6b51e31e7166f7300b3289aca58467a2f7a836d72bb1b51748e9e",
+      "size": 2410,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "target-lexicon-0.13.5/Cargo.toml",
+      "sha256": "68c92fd64e0ba0311fffd938aa03a2c58a13341c37523da1dd465c7eea9269ea",
+      "size": 1559,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "target-lexicon-0.13.5/Cargo.toml.orig",
+      "sha256": "c9ab3fc97cf1702b3d4a4adc83d50959eb4bb4131460a29f0c015cecbfa8084a",
+      "size": 982,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "mentions": [
+        {
+          "line": 13,
+          "text": "      \"Licensor\" shall mean the copyright owner or entity authorized by"
+        },
+        {
+          "line": 14,
+          "text": "      the copyright owner that is granting the License."
+        },
+        {
+          "line": 38,
+          "text": "      copyright notice that is included in or attached to the work"
+        },
+        {
+          "line": 52,
+          "text": "      submitted to Licensor for inclusion in the Work by the copyright owner"
+        },
+        {
+          "line": 54,
+          "text": "      the copyright owner. For the purposes of this definition, \"submitted\""
+        },
+        {
+          "line": 61,
+          "text": "      designated in writing by the copyright owner as \"Not a Contribution.\""
+        },
+        {
+          "line": 67,
+          "text": "   2. Grant of Copyright License. Subject to the terms and conditions of"
+        },
+        {
+          "line": 70,
+          "text": "      copyright license to reproduce, prepare Derivative Works of,"
+        },
+        {
+          "line": 101,
+          "text": "      (c) You must retain, in the Source form of any Derivative Works"
+        },
+        {
+          "line": 102,
+          "text": "          that You distribute, all copyright, patent, trademark, and"
+        },
+        {
+          "line": 124,
+          "text": "      You may add Your own copyright statement to Your modifications and"
+        },
+        {
+          "line": 187,
+          "text": "      same \"printed page\" as the copyright notice for easier"
+        },
+        {
+          "line": 190,
+          "text": "   Copyright [yyyy] [name of copyright owner]"
+        }
+      ],
+      "path": "target-lexicon-0.13.5/LICENSE",
+      "sha256": "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5",
+      "size": 12243,
+      "status": "ambiguous-ownership-marker"
+    },
+    {
+      "path": "target-lexicon-0.13.5/README.md",
+      "sha256": "608a98115ed2846984e68cbbea120473f9803c04297898c06435336a24bf4c32",
+      "size": 1145,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "target-lexicon-0.13.5/build.rs",
+      "sha256": "678ba872ef2254e8901d6a00536f64d74d375d919f845113bd3ded709b6edb4a",
+      "size": 5117,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "target-lexicon-0.13.5/src/data_model.rs",
+      "sha256": "17d2a169891723972f726c95d03a20c4a1482464c685028685f48ca976482a1c",
+      "size": 3184,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "target-lexicon-0.13.5/src/host.rs",
+      "sha256": "f51aae5e56e531648b94afd85012f73aad5615e634df64d2b1445a0e0285d8ba",
+      "size": 1730,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "target-lexicon-0.13.5/src/lib.rs",
+      "sha256": "c372de38d232f90d1aa7142702fd122b00f3b8fcb87b9bb0a2177ed9b7c4b6e7",
+      "size": 3140,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "target-lexicon-0.13.5/src/parse_error.rs",
+      "sha256": "b3735eabc0fd0a9dfdd6375662f20ec96a79852a00a05a98fb2e421545285e53",
+      "size": 1208,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "target-lexicon-0.13.5/src/targets.rs",
+      "sha256": "e51c256e555be425b8a912460e7c68c42b2788d3ea611908bc6727f7bb4f678a",
+      "size": 68461,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "target-lexicon-0.13.5/src/triple.rs",
+      "sha256": "76ca408aeb22b5ac334483dba9024975a65c7d470ae71c9bfd0cf7b8bfa1b5ec",
+      "size": 21093,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
+  "schema": 1
+}

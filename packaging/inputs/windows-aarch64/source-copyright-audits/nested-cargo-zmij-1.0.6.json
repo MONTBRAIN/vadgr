@@ -1,0 +1,107 @@
+{
+  "archive_sha256": "aac060176f7020d62c3bcc1cdbcec619d54f48b07ad1963a3f80ce7a0c17755f",
+  "eligible_for_reviewed_NONE": true,
+  "files": [
+    {
+      "path": "zmij-1.0.6/.cargo_vcs_info.json",
+      "sha256": "1c532c1a4d3943c8aae9317e96ce38446a7696f8d95988e80ccab995d4b70432",
+      "size": 94,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "zmij-1.0.6/.github/workflows/ci.yml",
+      "sha256": "d2364c7a156ba0095fd12faf853825f0d43d74bc7b27fb3e39320aed71aa8775",
+      "size": 3446,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "zmij-1.0.6/.gitignore",
+      "sha256": "c1e953ee360e77de57f7b02f1b7880bd6a3dc22d1a69e953c2ac2c52cc52d247",
+      "size": 20,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "zmij-1.0.6/Cargo.lock",
+      "sha256": "ae267a6981359db7f7477e1a01ecd4f878cf0612dac0c8f98e0248bc32c7dadb",
+      "size": 15054,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "zmij-1.0.6/Cargo.toml",
+      "sha256": "bb818ca59f67899fe335501ddba7c1222537aa739f080d8cd0e322a1aa8b8336",
+      "size": 1946,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "zmij-1.0.6/Cargo.toml.orig",
+      "sha256": "182bbc185a21e89581f67fd18ef52f027aa40eeac7775921b5336f6382d00aa5",
+      "size": 958,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "normalized_sha256": "fe2a9817987f862eaced948f0468c7f51d2fedfc48c5c505b246a49a3870e9a5",
+      "path": "zmij-1.0.6/LICENSE-MIT",
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+      "size": 1023,
+      "status": "complete-standard-boilerplate",
+      "template": "MIT-standard-grant-without-owner-statement"
+    },
+    {
+      "path": "zmij-1.0.6/README.md",
+      "sha256": "10cbaaa2c7829f5351686fbff05dfa3898220bb8303b419f2ec9c05d77103430",
+      "size": 1744,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "zmij-1.0.6/benches/bench.rs",
+      "sha256": "28d23a29046c4d50c73a19fd81ad80cc97e474af6d8c30f81dcc8c9621065cca",
+      "size": 1418,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "zmij-1.0.6/build.rs",
+      "sha256": "13201b550236a9ff2186b5303c77341d3b0874989fdaf39613a7452e4ce57817",
+      "size": 1109,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "zmij-1.0.6/src/lib.rs",
+      "sha256": "0a4fb818a09c6173768f9b463449deb80a3860c563cb31274dfe00df7bec74e8",
+      "size": 34824,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "zmij-1.0.6/src/tests.rs",
+      "sha256": "eaee164d361ff162435a73c4ac2f3fdc4153311c13d796cba3cf68e2f231a42b",
+      "size": 2250,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "zmij-1.0.6/src/traits.rs",
+      "sha256": "d3214f3e65efba45fb02b0839f7fd1c95e9cafc38a5ce1eacbbb571b8e884eb2",
+      "size": 1910,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "zmij-1.0.6/tests/exhaustive.rs",
+      "sha256": "3d5c1036dcb391bfd038fcb9feb03380b467a184ed9e0463d52f35b521684029",
+      "size": 1898,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "zmij-1.0.6/tests/ryu_comparison.rs",
+      "sha256": "5874eaff05486484029b333a8e7104db62b2706c8e64aecd69d8ccffad0880c3",
+      "size": 919,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "zmij-1.0.6/tests/test.rs",
+      "sha256": "0f5efa4354a932d767ed561ddee411a10dd71faafa202372f3c00d81b88d1381",
+      "size": 3007,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
+  "schema": 1
+}

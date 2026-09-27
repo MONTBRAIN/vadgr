@@ -1,0 +1,94 @@
+{
+  "archive_sha256": "6ebaa1a2bf1290ab3bfe5a7b771d050ebffab2711c19a81691c683a5144a25de",
+  "original_statement_files": [
+    {
+      "path": "ed25519-dalek-3.0.0/LICENSE",
+      "sha256": "7a313964a6e050794d2ad57f4863c11f6bbe055c0ae6ce2cf3b9fc45150bada3",
+      "size": 1497,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2017-2019 isis agora lovecruft. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "ed25519-dalek-3.0.0/src/batch.rs",
+      "sha256": "84e422c5b145950c6c33e402cc33deab7e0ab987ff814e60a4970d80476efed2",
+      "size": 9368,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2017-2019 isis lovecruft"
+        }
+      ]
+    },
+    {
+      "path": "ed25519-dalek-3.0.0/src/constants.rs",
+      "sha256": "95ae51f859483bf58654338e13b9c9bff90cce51ca0375657ff167be5935b19e",
+      "size": 1160,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2017-2019 isis lovecruft"
+        }
+      ]
+    },
+    {
+      "path": "ed25519-dalek-3.0.0/src/errors.rs",
+      "sha256": "ae6bd78bdc52484f3e985f3f01cd469d25255de1df22f2591c7c46a33d12b4a2",
+      "size": 3995,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2017-2019 isis lovecruft"
+        }
+      ]
+    },
+    {
+      "path": "ed25519-dalek-3.0.0/src/lib.rs",
+      "sha256": "6fb99fb76beff381b060d79c922284d4f0b635e83b15c3bd8adbef747ab60e63",
+      "size": 11527,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2017-2019 isis lovecruft"
+        }
+      ]
+    },
+    {
+      "path": "ed25519-dalek-3.0.0/src/signature.rs",
+      "sha256": "f0e6f5a964a092727a84adef682d047e4ae60812c27e2f2a1a5c2ac06f082739",
+      "size": 6260,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2017-2019 isis lovecruft"
+        }
+      ]
+    },
+    {
+      "path": "ed25519-dalek-3.0.0/src/signing.rs",
+      "sha256": "27d635df03ef8d525f755abb02c8915589b6df8e2b07820233ea8fea305c2e51",
+      "size": 36827,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2017-2019 isis lovecruft"
+        }
+      ]
+    },
+    {
+      "path": "ed25519-dalek-3.0.0/src/verifying.rs",
+      "sha256": "f3cd43f2968f09f513591c9e2ebc8939e2d578ff5492c6b9e4f72e89366667e5",
+      "size": 26908,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2017-2019 isis lovecruft"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "790eea4361631c5e7d22598ecd5723ff611904e3344ce8720784c93e3d83d40b",
+  "original_statement_files": [
+    {
+      "path": "critical-section-1.2.0/LICENSE-MIT",
+      "sha256": "fee6bdac4b917351332567b9fd5013c2ef3c847dd113fd6216cf28e96637a157",
+      "size": 1072,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2022 The critical-section authors"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

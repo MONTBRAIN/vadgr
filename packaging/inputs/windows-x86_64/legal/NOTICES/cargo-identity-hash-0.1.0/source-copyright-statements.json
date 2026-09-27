@@ -1,0 +1,36 @@
+{
+  "archive_sha256": "dfdd7caa900436d8f13b2346fe10257e0c05c1f1f9e351f4f5d57c03bd5f45da",
+  "original_statement_files": [
+    {
+      "path": "identity-hash-0.1.0/LICENSE-MIT",
+      "sha256": "3cfd22c93127a13f0fc1f9f60014026a8e90f1deb9d1abafde096f2b6180324a",
+      "size": 1100,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2018 Parity Technologies (UK) Ltd."
+        },
+        {
+          "line": 2,
+          "text": "Copyright 2023 Team Offsetting"
+        }
+      ]
+    },
+    {
+      "path": "identity-hash-0.1.0/src/lib.rs",
+      "sha256": "ec015a412b74021f071ddc1ff4dd721f51d29097017ec642427c06b2b344ae6a",
+      "size": 11781,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018-2020 Parity Technologies (UK) Ltd."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2023 Team Offsetting"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

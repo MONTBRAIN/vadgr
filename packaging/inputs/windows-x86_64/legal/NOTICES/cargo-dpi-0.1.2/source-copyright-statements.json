@@ -1,0 +1,84 @@
+{
+  "archive_sha256": "d8b14ccef22fc6f5a8f4d7d768562a182c04ce9a3b3157b91390b52ddfdf1a76",
+  "original_statement_files": [
+    {
+      "path": "dpi-0.1.2/LICENSE-LIBM-MIT",
+      "sha256": "9eff396a99bafd208e7126602420d6864f6066c08b84485a5b032320a9c01997",
+      "size": 2444,
+      "statements": [
+        {
+          "line": 25,
+          "text": "Copyright (c) 2018 Jorge Aparicio"
+        },
+        {
+          "line": 33,
+          "text": "Copyright \u00a9 2005-2020 Rich Felker, et al."
+        },
+        {
+          "line": 43,
+          "text": "Copyright \u00a9 1993,2004 Sun Microsystems or"
+        },
+        {
+          "line": 44,
+          "text": "Copyright \u00a9 2003-2011 David Schultz or"
+        },
+        {
+          "line": 45,
+          "text": "Copyright \u00a9 2003-2009 Steven G. Kargl or"
+        },
+        {
+          "line": 46,
+          "text": "Copyright \u00a9 2003-2009 Bruce D. Evans or"
+        },
+        {
+          "line": 47,
+          "text": "Copyright \u00a9 2008 Stephen L. Moshier or"
+        },
+        {
+          "line": 48,
+          "text": "Copyright \u00a9 2017-2018 Arm Limited"
+        }
+      ]
+    },
+    {
+      "path": "dpi-0.1.2/src/libm.rs",
+      "sha256": "512cc1b7313fdbec0fe2330321e6c794efaf8dfe4f81feb03bc3c8a6221b149c",
+      "size": 1765,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2018 Jorge Aparicio"
+        },
+        {
+          "line": 2,
+          "text": "// Copyright \u00a9 2005-2020 Rich Felker, et al."
+        },
+        {
+          "line": 3,
+          "text": "// Copyright \u00a9 1993,2004 Sun Microsystems or"
+        },
+        {
+          "line": 4,
+          "text": "// Copyright \u00a9 2003-2011 David Schultz or"
+        },
+        {
+          "line": 5,
+          "text": "// Copyright \u00a9 2003-2009 Steven G. Kargl or"
+        },
+        {
+          "line": 6,
+          "text": "// Copyright \u00a9 2003-2009 Bruce D. Evans or"
+        },
+        {
+          "line": 7,
+          "text": "// Copyright \u00a9 2008 Stephen L. Moshier or"
+        },
+        {
+          "line": 8,
+          "text": "// Copyright \u00a9 2017-2018 Arm Limited"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

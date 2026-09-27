@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "2bf50223579dc7cdcfb3bfcacf7069ff68243f8c363f62ffa99cf000a6b9c451",
+  "original_statement_files": [
+    {
+      "path": "nohash-hasher-0.2.0/LICENSE-MIT",
+      "sha256": "ec353d4fecf7963b4c054384557e5dbc3c7a717997eb4a3815b315721a6aa75a",
+      "size": 1069,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2018 Parity Technologies (UK) Ltd."
+        }
+      ]
+    },
+    {
+      "path": "nohash-hasher-0.2.0/src/lib.rs",
+      "sha256": "9dc267d4c90c83b86b47da5e58961e7ea6d4c2b659448a383293bfbc08961fa9",
+      "size": 11919,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018-2020 Parity Technologies (UK) Ltd."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

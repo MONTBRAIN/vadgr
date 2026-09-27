@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "2e842efad9119158434d193c6682e2ebee4b44d6ad801d7b349623b3f57cdf55",
+  "original_statement_files": [
+    {
+      "path": "process-wrap-9.1.0/COPYRIGHT",
+      "sha256": "24c5719787d9ceccf41381943e08c6a5e9b9368d543b8c2a9ce9e4d5c53c3c43",
+      "size": 1281,
+      "statements": [
+        {
+          "line": 8,
+          "text": "Copyrights in this project are retained by their contributors. No copyright"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

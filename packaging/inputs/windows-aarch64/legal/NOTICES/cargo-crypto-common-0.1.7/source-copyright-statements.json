@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "78c8292055d1c1df0cce5d180393dc8cce0abec0a7102adb6c7b1eef6016d60a",
+  "original_statement_files": [
+    {
+      "path": "crypto-common-0.1.7/LICENSE-MIT",
+      "sha256": "3521672491a3479422d5fe1aca6645dd2984090f85da6e5205abfb18fb7a6897",
+      "size": 1065,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2021 RustCrypto Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

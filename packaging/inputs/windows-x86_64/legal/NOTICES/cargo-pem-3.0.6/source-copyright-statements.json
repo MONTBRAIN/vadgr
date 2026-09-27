@@ -1,0 +1,39 @@
+{
+  "archive_sha256": "1d30c53c26bc5b31a98cd02d20f25a7c8567146caf63ed593a9d87b2775291be",
+  "original_statement_files": [
+    {
+      "path": "pem-3.0.6/LICENSE.md",
+      "sha256": "b7c76ff4466a3aeb6a7d903e81b651335e97d64ecb857e2ee9812a36c6fd1acf",
+      "size": 1085,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2016 Jonathan Creekmore"
+        }
+      ]
+    },
+    {
+      "path": "pem-3.0.6/src/errors.rs",
+      "sha256": "0367aea7e78656a4cdea3ba93800c23362561f478198e98c23e7a4ead82630c1",
+      "size": 2103,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2017 Jonathan Creekmore"
+        }
+      ]
+    },
+    {
+      "path": "pem-3.0.6/src/lib.rs",
+      "sha256": "be6a429443a8687241f20f9bd2511614b9b8a150e52ed89e445960fbd2ae1906",
+      "size": 36622,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2016-2017 Jonathan Creekmore"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

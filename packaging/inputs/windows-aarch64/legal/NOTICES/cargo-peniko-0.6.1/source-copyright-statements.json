@@ -1,0 +1,94 @@
+{
+  "archive_sha256": "839c8299360d2e998bdb106dc0a6cd71dcc5f4df51df1b620361bf50e283cca6",
+  "original_statement_files": [
+    {
+      "path": "peniko-0.6.1/LICENSE-MIT",
+      "sha256": "23c23145f6eac25c28cdcc03d38506a5712a9a8cffb5bd5301457f6173ea696e",
+      "size": 1055,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018 Raph Levien"
+        }
+      ]
+    },
+    {
+      "path": "peniko-0.6.1/src/blend.rs",
+      "sha256": "b132b65724bab3c0e34756464e1d1d9024e4a27e40095f306ef82527a5905b4e",
+      "size": 8704,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 the Peniko Authors"
+        }
+      ]
+    },
+    {
+      "path": "peniko-0.6.1/src/brush.rs",
+      "sha256": "614b1972b588b0d10d80a810e7ec38d977b032119abad6a6fc93a97c7ae375b7",
+      "size": 5083,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 the Peniko Authors"
+        }
+      ]
+    },
+    {
+      "path": "peniko-0.6.1/src/gradient.rs",
+      "sha256": "c0520aca035fb605e6ab570bdbc47dc934d1f0a65b33b11912b80c215f6fe545",
+      "size": 19284,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 the Peniko Authors"
+        }
+      ]
+    },
+    {
+      "path": "peniko-0.6.1/src/image.rs",
+      "sha256": "c7ec761dfbc823fb8d43203691254e8c31a6c1fb8974c93bd0c04e7b3b58bebf",
+      "size": 10077,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 the Peniko Authors"
+        }
+      ]
+    },
+    {
+      "path": "peniko-0.6.1/src/impl_bytemuck.rs",
+      "sha256": "566bda726768e2062e88bbae04929194f9fda58b433e7f9e1c702c585a92def3",
+      "size": 19517,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Peniko Authors"
+        }
+      ]
+    },
+    {
+      "path": "peniko-0.6.1/src/lib.rs",
+      "sha256": "ada2d8dd23f35269426fead9dbe7dff1b2dc10fb4621336ff2258c4b8267d4fa",
+      "size": 1941,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 the Peniko Authors"
+        }
+      ]
+    },
+    {
+      "path": "peniko-0.6.1/src/style.rs",
+      "sha256": "fe99e97722c707c50e4a178385407b242cfa7ee159d6320a62e605c44a95a734",
+      "size": 3339,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 the Peniko Authors"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

@@ -1,0 +1,205 @@
+{
+  "archive_sha256": "da2442474a9404698c42509b8967f437249dbc7b50493e83020333d3943ec0ae",
+  "eligible_for_reviewed_NONE": false,
+  "files": [
+    {
+      "path": "papaya-0.2.5/.cargo_vcs_info.json",
+      "sha256": "43a33c8020e8ed16a27e77705de795bb247d7275b151a5a38460ee54e6674f31",
+      "size": 94,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/.github/DOCS.md",
+      "sha256": "2637bd1496926dcba1df84fde4a1a254a0ce5f8564fbbb93803095832663492e",
+      "size": 63,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/.github/workflows/check.yml",
+      "sha256": "55eef04c52631a35168fdcfcec89589d20cd01c19535e59e8fa1c35bbb22070b",
+      "size": 4423,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/.github/workflows/safety.yml",
+      "sha256": "39318493a6a22406ecce1db59b15512fba32bb7237d45effc73ee7d11e9aa0ea",
+      "size": 3435,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/.github/workflows/test.yml",
+      "sha256": "f4fa55c675827dc6d51dfafb98136044b850a1233eda70625bdf3aac6e2e3c01",
+      "size": 3249,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/.gitignore",
+      "sha256": "44c92e3a70ad3307b7056871c2bdb096d8bfa9373f5bf06a79bb6324a20ff2fb",
+      "size": 8,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/BENCHMARKS.md",
+      "sha256": "8b3bc7981a9e86b465bc8f2b27a04b02fe296fc06dec4603bca4b4a2d0b6f044",
+      "size": 2160,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/Cargo.lock",
+      "sha256": "e7126de49e0c7174ed78be9b699f062becdf0a9a6b3f865a13350567d7630907",
+      "size": 22234,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/Cargo.toml",
+      "sha256": "acd0150afcb1606df748c73bc6a04ab29c9a370bd0c7ec5150fc17142e54bb07",
+      "size": 2345,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/Cargo.toml.orig",
+      "sha256": "e2d1d281161b4788b4b991acdfffa7f7eda067e7cb8dfdf10325f88eb3b0ad7a",
+      "size": 1143,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "mentions": [
+        {
+          "line": 10,
+          "text": "The above copyright notice and this permission notice shall be included in all"
+        },
+        {
+          "line": 16,
+          "text": "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER"
+        }
+      ],
+      "path": "papaya-0.2.5/LICENSE.md",
+      "sha256": "508a77d2e7b51d98adeed32648ad124b7b30241a8e70b2e72c99f92d8e5874d1",
+      "size": 1036,
+      "status": "ambiguous-ownership-marker"
+    },
+    {
+      "path": "papaya-0.2.5/README.md",
+      "sha256": "ce9c9938baf111dbe343fd44721a8b9d864cc032ee073a5a8d8235b7e36575d7",
+      "size": 1852,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/benches/latency.rs",
+      "sha256": "d1577fbc760ad1c93f6c2678738e132d283477248a48ba69168b6c2bdd91e988",
+      "size": 2816,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/benches/single_thread.rs",
+      "sha256": "98c4af432edcc6823d71f2bb65686cf3297ea2eff3ee0af43befebf0eb7a1465",
+      "size": 1918,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/src/lib.rs",
+      "sha256": "2ae80c7753a1e821596965fd7a5db05a28aadcba798f55740c30dfadfde5eb21",
+      "size": 11087,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/src/map.rs",
+      "sha256": "e363fa8facb32f6fda1085d6870d6b7bcc4eab41117517c726e73db93bd68829",
+      "size": 52747,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/src/raw/alloc.rs",
+      "sha256": "3aeac69f1185fbc1b7ec2283de6653275c42f1574265890a077425b51ccc9739",
+      "size": 6938,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/src/raw/mod.rs",
+      "sha256": "68c1dae2d4afc7ec70fad26776ad07310d544f09aaab663199c7e9cd3cb8b4ad",
+      "size": 102954,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/src/raw/probe.rs",
+      "sha256": "91f103ac3f2fb4cd04008351291273f7df52f006b9cda9214853e17adc44bd93",
+      "size": 1282,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/src/raw/utils/counter.rs",
+      "sha256": "7615a4cbdc35144e021c9decffd1649e9be8ff8a5e1d022825528bc04ff2ee2b",
+      "size": 1876,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/src/raw/utils/mod.rs",
+      "sha256": "859547b08c5a941b77c65970c0f9539213fefe078e0a2f0e1a386fc66a24e088",
+      "size": 2891,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/src/raw/utils/parker.rs",
+      "sha256": "0e1c57f67840859e4d15c8f6ba31c0dfcb8ccd3fc483227bd6d4d86501084576",
+      "size": 4893,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/src/raw/utils/stack.rs",
+      "sha256": "8affb58a45f36f507e5bfdb1fafc6d78f77a48fac18d0913dc2806a8f6cd961d",
+      "size": 2064,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/src/raw/utils/tagged.rs",
+      "sha256": "1c434b21f6f65b9dcf7b83dc51e098edec109f0505f3f8a77bca88c205ac5874",
+      "size": 3562,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/src/serde_impls.rs",
+      "sha256": "48ba17f73745310748293333cddc14a8e25fa212c5ed3ac31c7f1a5b2a2f3776",
+      "size": 5003,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/src/set.rs",
+      "sha256": "ebc5c6a9be418893e2888978024349895502d3711dcab4aa9d9493a5a6b7ba60",
+      "size": 27003,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/tests/basic.rs",
+      "sha256": "9cf438e51007b58abfff47f93e8c272e01700c8c1fcb5e1595ade497849c7b82",
+      "size": 24189,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/tests/basic_set.rs",
+      "sha256": "5b40200748d653148fcce5359c1970caf0d769e875677e67538bf44d1457cc5f",
+      "size": 14364,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/tests/common.rs",
+      "sha256": "64fd74f8036927aaa1cfdb0844ae1178a8eddb67571a43ecf63221f8ae88b002",
+      "size": 2391,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/tests/cuckoo.rs",
+      "sha256": "5735b31258df112bff0eec056c6e2bd4fb561cd8456c64e19d2c4255104c35e0",
+      "size": 7991,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "papaya-0.2.5/tests/stress.rs",
+      "sha256": "76b1d7358fb210f6a1fdbfe3e71ac5f950949496a7c04a58be106bbd8c476f58",
+      "size": 39318,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
+  "schema": 1
+}

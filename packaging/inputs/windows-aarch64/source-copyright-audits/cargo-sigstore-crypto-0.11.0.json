@@ -1,0 +1,93 @@
+{
+  "archive_sha256": "22f27364b37bec104a904f10a675c8cdf05d5e48a980569368f0cd0c119b2652",
+  "eligible_for_reviewed_NONE": true,
+  "files": [
+    {
+      "path": "sigstore-crypto-0.11.0/.cargo_vcs_info.json",
+      "sha256": "795b131310620ce5dfd4ad28cfa9100e8cdb83e199a311f7d076ce5bb6d40cfb",
+      "size": 116,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-crypto-0.11.0/CHANGELOG.md",
+      "sha256": "07a6301442d9bca785ccd2d8a729e7cb161de8cf1da001d9482ddb09acd763e5",
+      "size": 2236,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-crypto-0.11.0/Cargo.lock",
+      "sha256": "173262c222d76adc1f14776c0dc5eb5322d2972fe17a30c022aa5b20264b117d",
+      "size": 14075,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-crypto-0.11.0/Cargo.toml",
+      "sha256": "cdc85f4bcf9a19f11ff16b6c59046af63e9c2dea8692e21485842a249a0750c0",
+      "size": 1602,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-crypto-0.11.0/Cargo.toml.orig",
+      "sha256": "f2ac660716dcbeb4969a5ca74993db52f7269c5ae210c8bfea34b1982625d521",
+      "size": 722,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-crypto-0.11.0/README.md",
+      "sha256": "b54d4a5e9d777da9f5071799b5d5e056cf61b305185e1e065b1757f94838456d",
+      "size": 1613,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-crypto-0.11.0/src/checkpoint.rs",
+      "sha256": "c949ce56cc7e2c42fd6545d5e3d1a30a38e3e0c78e0c4e32cdc7d93cadfd94d7",
+      "size": 7484,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-crypto-0.11.0/src/error.rs",
+      "sha256": "ba84e126e7f941c8300d8aa3736dc4313ca1a43023bb66431a4c20c91f1062b0",
+      "size": 1724,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-crypto-0.11.0/src/hash.rs",
+      "sha256": "15706b336746c939ad4fd7dec169ac709266612e68c7d9048f29231646070552",
+      "size": 3168,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-crypto-0.11.0/src/keyring.rs",
+      "sha256": "9244395a211439defe95fce78506128e38afa2c8ed2c4f73cacbef58652e52bb",
+      "size": 4408,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-crypto-0.11.0/src/lib.rs",
+      "sha256": "3383b65c10a7de4eb60a1e20a81fc0481ed9bf08e03c56bc6e8b0b6b5577b9a6",
+      "size": 831,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-crypto-0.11.0/src/signing.rs",
+      "sha256": "9f07cfd24563b4d2657efbddef26518a5dfa415afe8649d32cede9d143ecc7c0",
+      "size": 7761,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-crypto-0.11.0/src/verification.rs",
+      "sha256": "34beaa4a5c31f3226ee726986e2847c692bb7de6e82ad3702e94e4c4752df66a",
+      "size": 12921,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-crypto-0.11.0/src/x509.rs",
+      "sha256": "3f0070d7371d158468a1f137c236065f0ade22eaef01f7ee29cfccc6113ec8af",
+      "size": 6766,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
+  "schema": 1
+}

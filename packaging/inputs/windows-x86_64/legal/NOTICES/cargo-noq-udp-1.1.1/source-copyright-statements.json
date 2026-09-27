@@ -1,0 +1,21 @@
+{
+  "archive_sha256": "02bba20e097a5a16cd0ad14ec882fae1e80a092a124e9422fc4dddd92e96a647",
+  "original_statement_files": [
+    {
+      "path": "noq-udp-1.1.1/LICENSE-MIT",
+      "sha256": "9e654cd17a17880f43a84c9c024f9ca7a320ed906d521072c15aa2e8daff8df0",
+      "size": 1097,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018-2025 The quinn Developers"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2025 N0, Inc."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

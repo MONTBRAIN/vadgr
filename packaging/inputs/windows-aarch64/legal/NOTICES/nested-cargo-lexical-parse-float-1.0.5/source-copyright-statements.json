@@ -1,0 +1,48 @@
+{
+  "archive_sha256": "de6f9cb01fb0b08060209a057c048fcbab8717b4c1ecd2eac66ebfe39a65b0f2",
+  "original_statement_files": [
+    {
+      "path": "lexical-parse-float-1.0.5/LICENSE.md",
+      "sha256": "99aab70a96f3ecab683d8a319d9070af2213ae4c1601fb053fbe85e1361e32fe",
+      "size": 19251,
+      "statements": [
+        {
+          "line": 33,
+          "text": "Copyright (c) 2009 The Go Authors. All rights reserved."
+        },
+        {
+          "line": 293,
+          "text": "Copyright 2014, the V8 project authors. All rights reserved."
+        },
+        {
+          "line": 318,
+          "text": "Copyright (c) 2013 Andreas Samoljuk"
+        }
+      ]
+    },
+    {
+      "path": "lexical-parse-float-1.0.5/src/libm.rs",
+      "sha256": "c20f93ff5506032ba75c301c60c115734e07b90f5dbf753cd8b63b37a676c385",
+      "size": 38641,
+      "statements": [
+        {
+          "line": 17,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        },
+        {
+          "line": 380,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        },
+        {
+          "line": 535,
+          "text": "* Copyright (C) 2004 by Sun Microsystems, Inc. All rights reserved."
+        },
+        {
+          "line": 996,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

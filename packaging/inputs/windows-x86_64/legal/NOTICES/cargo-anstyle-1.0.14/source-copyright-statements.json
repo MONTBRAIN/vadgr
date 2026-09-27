@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "940b3a0ca603d1eade50a4846a2afffd5ef57a9feac2c0e2ec2e14f9ead76000",
+  "original_statement_files": [
+    {
+      "path": "anstyle-1.0.14/LICENSE-MIT",
+      "sha256": "6efb0476a1cc085077ed49357026d8c173bf33017278ef440f222fb9cbcb66e6",
+      "size": 1062,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) Individual contributors"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

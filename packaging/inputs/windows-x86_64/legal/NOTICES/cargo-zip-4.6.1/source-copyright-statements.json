@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "caa8cd6af31c3b31c6631b8f483848b91589021b28fffe50adada48d4f4d2ed1",
+  "original_statement_files": [
+    {
+      "path": "zip-4.6.1/LICENSE",
+      "sha256": "04dc52136d82400b11df5f474949863a70a5d05d2278dec45b99c479494450a6",
+      "size": 1217,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2014 Mathijs van de Nes"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

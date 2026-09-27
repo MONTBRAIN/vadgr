@@ -1,0 +1,80 @@
+{
+  "archive_sha256": "53cf47daed85312e763fbf85ceca136e0d7abc68e0a7e12abe11f48172bc3b10",
+  "original_statement_files": [
+    {
+      "path": "accesskit_consumer-0.35.0/src/filters.rs",
+      "sha256": "e2df7bf15790369fbedd20030c61949292664f4d2881615c8170b42380681c10",
+      "size": 13941,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2023 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_consumer-0.35.0/src/iterators.rs",
+      "sha256": "22233da2a6c999c355b74edddbf80fc98c6f32bd52f55de2bacd523f013824a7",
+      "size": 32127,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2021 The AccessKit Authors. All rights reserved."
+        },
+        {
+          "line": 7,
+          "text": "// Copyright 2018 The Chromium Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_consumer-0.35.0/src/lib.rs",
+      "sha256": "f7c619c1c2e4add099d4dece693b36be535262a1f696a188e6040ad6877e34bf",
+      "size": 7557,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2021 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_consumer-0.35.0/src/node.rs",
+      "sha256": "7ca5b53a821529e168af71f63d064ef20308a3634e019c8ce4f1c965c2b483cf",
+      "size": 61508,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2021 The AccessKit Authors. All rights reserved."
+        },
+        {
+          "line": 7,
+          "text": "// Copyright 2021 The Chromium Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_consumer-0.35.0/src/text.rs",
+      "sha256": "44d8d2732fda2a60a67bd7c002ff712409b6dfa19318679d448fa9b5fc6b5f18",
+      "size": 102617,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_consumer-0.35.0/src/tree.rs",
+      "sha256": "af83cff834458f32b954f98039b816a9fa610dfe135f8b198ab1813ecef67b67",
+      "size": 107658,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2021 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

@@ -1,0 +1,94 @@
+{
+  "archive_sha256": "ff67a8a4397373c3ef660812acab3268222035010ab8680ec4215f38ba3d0eed",
+  "original_statement_files": [
+    {
+      "path": "url-2.5.8/LICENSE-MIT",
+      "sha256": "b38f11f6096706e6de553dabe2a7ed142d59b6fa8c97e290c67496154745cdd5",
+      "size": 1072,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2013-2025 The rust-url developers"
+        }
+      ]
+    },
+    {
+      "path": "url-2.5.8/src/host.rs",
+      "sha256": "24bba45b14cb843ea0fe5c857284d458097a13a84847f5c6a15a14c9e1334335",
+      "size": 16151,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2013-2016 The rust-url developers."
+        }
+      ]
+    },
+    {
+      "path": "url-2.5.8/src/lib.rs",
+      "sha256": "51f47a93654528f3b8cb92c94fc26ad25775860d84197fff0c3124a687f8c5e3",
+      "size": 107800,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2013-2015 The rust-url developers."
+        }
+      ]
+    },
+    {
+      "path": "url-2.5.8/src/origin.rs",
+      "sha256": "e8ffaf759aa78c92574c6ae49f76999a751064621c399059b3d4eb819cb0d821",
+      "size": 4011,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2016 The rust-url developers."
+        }
+      ]
+    },
+    {
+      "path": "url-2.5.8/src/parser.rs",
+      "sha256": "2dd4210e1773fc5d3fdc15ce506ecff30dbf8eb358a79bbbc2835cc30d513c3a",
+      "size": 69061,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2013-2016 The rust-url developers."
+        }
+      ]
+    },
+    {
+      "path": "url-2.5.8/src/path_segments.rs",
+      "sha256": "28c8b6ffa880c7da76dcf43af8dcae2c46cd74389472e6e43efdf2973026a462",
+      "size": 9259,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2016 The rust-url developers."
+        }
+      ]
+    },
+    {
+      "path": "url-2.5.8/src/quirks.rs",
+      "sha256": "c3c8380f9dbecf65924272e904cad8876bda0c62e0e48a3c6b1344fac258102f",
+      "size": 10821,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2016 The rust-url developers."
+        }
+      ]
+    },
+    {
+      "path": "url-2.5.8/src/slicing.rs",
+      "sha256": "b59bf2fa4cbfd31619b860766268d4e99b46537d3b9702b73f6d0a979a7de24a",
+      "size": 7281,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2016 The rust-url developers."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

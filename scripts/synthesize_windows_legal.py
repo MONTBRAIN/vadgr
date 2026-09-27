@@ -22,12 +22,16 @@ import tomllib
 import zipfile
 
 if __package__:
+    from scripts.copyright_absence import audit_archive
+    from scripts.windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native
     from scripts.validate_package_inputs import (
         CLOSURES, KINDS, REQUIRED_FILES, canonical_json, parse_json,
         profile_source_inputs, read_owned, relative_path, render_rtf, require,
         sha256_bytes, aggregate_files, validate_conclusion, PackageInputError,
     )
 else:
+    from copyright_absence import audit_archive
+    from windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native
     from validate_package_inputs import (
         CLOSURES, KINDS, REQUIRED_FILES, canonical_json, parse_json,
         profile_source_inputs, read_owned, relative_path, render_rtf, require,
@@ -43,9 +47,44 @@ SOURCE_ARCHIVES = {
 }
 FONT_ARCHIVE = "epaint_default_fonts-0.36.1.crate"
 FONT_SHA256 = "18dee69613aac468922cf28a32025eb7d7ed6985b61f73245848e58f37876c98"
+OBSERVATION_SHA256 = {
+    "x64": "f55b7981dc530209017b0a69bacd0a0d9f7d395052cf51b2eca04b953ee43bc8",
+    "arm64": "3a744f4d9c1a700804f46ff8d7e02f90c611178045c5756a6f9def20834e98ae",
+}
+MIT_GRANT = '''Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.'''
 
 
-def license_choice(declared):
+def declared_expression(declared):
+    """Preserve upstream alternatives; prose stays in the evidence, not SPDX syntax."""
+    if isinstance(declared, list) and len(declared) == 1:
+        declared = declared[0]
+        if isinstance(declared, dict):
+            declared = declared.get("expression")
+    if not isinstance(declared, str):
+        return None
+    value = re.sub(r"\s*/\s*", " OR ", declared).strip()
+    try:
+        validate_conclusion(re.sub(r"\bOR\b", "AND", value))
+    except PackageInputError:
+        return None
+    return value
+
+
+def license_choice(declared, available=None):
     """Select an explicit permissive alternative, never discard an AND or exception."""
     if isinstance(declared, list) and len(declared) == 1:
         declared = declared[0]
@@ -56,16 +95,16 @@ def license_choice(declared):
     expression = re.sub(r"\s*/\s*", " OR ", declared)
     # Reduce explicit parenthesized alternatives without removing a conjunction.
     def choose_group(match):
-        selected = license_choice(match.group(1))
+        selected = license_choice(match.group(1), available)
         return "(" + selected + ")" if selected else match.group(0)
     previous = None
     while previous != expression:
         previous = expression
         expression = re.sub(r"\(([^()]+ OR [^()]+)\)", choose_group, expression)
-    if not any(token in expression for token in ("AND", "WITH", "(", ")")):
+    if "AND" not in expression and "(" not in expression and ")" not in expression:
         alternatives = expression.split(" OR ")
         for choice in ("Apache-2.0", "MIT", "BSD-3-Clause", "ISC"):
-            if choice in alternatives:
+            if choice in alternatives and (available is None or choice in available):
                 expression = choice
                 break
     try:
@@ -97,14 +136,30 @@ def font_copyright(data):
 def license_atoms(data):
     """Recognize only distinctive complete grant text in the retained original file."""
     text = data.decode("utf-8", errors="replace")
+    text = re.sub(r"(?m)^\s*//\s?", "", text)
+    text = text.replace("``", '"').replace("''", '"').replace("\u201c", '"').replace("\u201d", '"')
     folded = " ".join(text.lower().split())
     result = set()
-    if "apache license" in folded and "version 2.0" in folded and "grant of copyright license" in folded:
+    if all(part in folded for part in ("apache license", "version 2.0", "1. definitions", "2. grant of copyright license",
+            "3. grant of patent license", "4. redistribution", "5. submission of contributions", "6. trademarks",
+            "7. disclaimer of warranty", "8. limitation of liability", "9. accepting warranty", "end of terms and conditions")):
         result.add("Apache-2.0")
-    if "permission is hereby granted, free of charge" in folded and "the software is provided" in folded:
+    if " ".join(MIT_GRANT.lower().split()) in folded:
         result.add("MIT")
-    if "permission to use, copy, modify, and distribute this software for any purpose with or without fee" in folded:
+    isc = folded.replace("and/or distribute", "and distribute").replace("authors disclaim", "author disclaims")
+    if all(part in isc for part in ("permission to use, copy, modify, and distribute this software for any purpose with or without fee",
+                                    "copyright notice and this permission notice appear in all copies",
+                                    "disclaims all warranties", "in no event shall", "loss of use, data or profits",
+                                    "whether in an action of contract", "use or performance of this software")):
         result.add("ISC")
+    if all(part in isc for part in ("permission to use, copy, modify, and distribute this software for any purpose with or without fee is hereby granted.",
+                                    "disclaims all warranties", "in no event shall", "loss of use, data or profits",
+                                    "whether in an action of contract", "use or performance of this software")):
+        result.add("0BSD")
+    if all(part in folded for part in ("redistribution and use in source and binary forms", "this software is provided",
+                                      "the origin of this software must not be misrepresented", "altered source versions must be plainly marked",
+                                      "this notice may not be removed or altered", "julian seward", "bzip2")):
+        result.add("bzip2-1.0.6")
     if "unicode license v3" in folded:
         result.add("Unicode-3.0")
     if "sil open font license" in folded and "version 1.1" in folded:
@@ -113,13 +168,26 @@ def license_atoms(data):
         result.add("Ubuntu-font-1.0")
     if "bitstream vera" in folded and "bitstream" in folded and "font" in folded:
         result.add("Bitstream-Vera")
-    if "microsoft reciprocal license" in folded and "reciprocal grants" in folded:
+    if all(part in folded for part in ("microsoft reciprocal license", "1. definitions", "2. grant of rights",
+            "3. conditions and limitations", "reciprocal grants", "no trademark license", "patent claim",
+            "retain all copyright", "complete copy of this license", "licensed \"as-is")):
         result.add("MS-RL")
     if "redistribution and use in source and binary forms" in folded and "this software is provided" in folded:
-        if "neither the name" in folded:
+        if all(part in folded for part in ("neither the name", "redistributions of source code must retain",
+                "redistributions in binary form must reproduce", "in no event shall", "business interruption")):
             result.add("BSD-3-Clause")
-        elif re.search(r"(?:^|\s)2[.)]", folded) and not re.search(r"(?:^|\s)3[.)]", folded):
+        elif ("redistributions of source code must retain" in folded
+              and "redistributions in binary form must reproduce" in folded
+              and "in no event shall" in folded and "loss of use, data, or profits" in folded):
             result.add("BSD-2-Clause")
+    if all(part in folded for part in ("mozilla public license", "version 2.0", "1. definitions",
+                                      "2. license grants and conditions", "3. responsibilities",
+                                      "10. versions of the license", "exhibit b")):
+        result.add("MPL-2.0")
+    if all(part in folded for part in ("gnu affero general public license", "version 3, 19 november 2007",
+                                      "13. remote network interaction", "16. limitation of liability",
+                                      "end of terms and conditions")):
+        result.add("AGPL-3.0-only")
     if "boost software license" in folded and "version 1.0" in folded:
         result.add("BSL-1.0")
     if "this software is provided 'as-is'" in folded and "altered source versions must be plainly marked" in folded:
@@ -237,12 +305,21 @@ class Packet:
         # No choice of license, copyright ownership or source duty is inferred from a name.
         row = {"id": identifier, "name": name, "version": version, "kind": kind,
                "sha256": digest, "download_location": location,
-               "copyright_text": "NOASSERTION", "license_declared": (declared if isinstance(declared, str)
-                   else json.dumps(declared, sort_keys=True) if declared else "NOASSERTION"),
+               "copyright_text": copyright_lines(sources), "license_declared": (declared_expression(declared) or (declared if isinstance(declared, str)
+                   else json.dumps(declared, sort_keys=True) if declared else "NOASSERTION")),
                "license_concluded": "NOASSERTION", "license_files": [],
                "notice_required": None, "notice_files": notices,
                "source_offer_required": None, "source_offer_files": []}
-        selected = license_choice(declared)
+        grants = set().union(*(license_atoms(raw) for _, raw in sources))
+        inferred = declared_expression(declared)
+        if inferred is None and len(grants) == 1 and (declared is None or isinstance(declared, str)
+                                                      and len(declared) > 150):
+            inferred = next(iter(grants))
+            row["license_declared"] = inferred
+        if inferred is None and declared in ("BSD 3-clause",):
+            inferred = "BSD-3-Clause"
+            row["license_declared"] = inferred
+        selected = license_choice(inferred or declared, grants)
         if selected:
             atoms = set(re.findall(r"[A-Za-z0-9.-]+", selected)) - {"AND", "WITH"}
             covered = set()
@@ -263,13 +340,22 @@ class Packet:
                     pending = [item for item in pending if item != "notice-and-source-duty"]
                 if row["copyright_text"] != "NOASSERTION":
                     pending = [item for item in pending if item != "license-choice-and-original-copyright"]
+                declared_atoms = set(re.findall(r"[A-Za-z0-9.-]+", inferred or ""))
+                if grants - declared_atoms:
+                    pending = [*pending, "additional-retained-grant-scope"]
         self.components.append(row)
         self.evidence.append({"id": identifier, "scope": scope, "origins": origins or [], "original_license_declaration": declared,
                               "retained_notice_count": len(notices)})
         self.pending.append({"id": identifier, "items": sorted(set(pending))})
 
 
-def verify_observation(observation_root, source, architecture):
+def verify_observation(observation_root, source, architecture, binding=None):
+    binding = binding or {"source_sha": "fa2d4a4cfae7e7eb44aa8c9fc4724a9f68842542",
+        "trusted_sha": "519c73500c53dcae9011dff3c9424009aa0c2d5d", "run_id": 36313384412,
+        "observations": {arch: {"sha256": digest, "target": ARCHITECTURES[arch] + "-pc-windows-msvc"}
+                         for arch, digest in OBSERVATION_SHA256.items()}}
+    require(sha256_bytes(read_owned(observation_root, "preparation-observation.json"))
+            == binding["observations"][architecture]["sha256"], "retained observation identity differs")
     observation = document(observation_root, "preparation-observation.json")
     require(observation["architecture"] == architecture
             and observation["status"] == "unapproved"
@@ -277,6 +363,12 @@ def verify_observation(observation_root, source, architecture):
             and observation["publishable"] is False, "observation scope differs")
     profile = "windows-" + ARCHITECTURES[architecture]
     require(observation["release_profile"] == profile, "observation profile differs")
+    require(observation["target"] == ARCHITECTURES[architecture] + "-pc-windows-msvc"
+            and observation["target"] == binding["observations"][architecture]["target"]
+            and observation["source"]["source_sha"] == binding["source_sha"]
+            and observation["source"]["trusted_sha"] == binding["trusted_sha"]
+            and observation["source"]["run_id"] == binding["run_id"],
+            "observation target or producer differs")
     inputs = observation_root / "unsigned-inputs"
     actual = {path.relative_to(inputs).as_posix() for path in inputs.rglob("*") if path.is_file()}
     require(actual == set(observation["files"]), "observation file set differs")
@@ -284,9 +376,11 @@ def verify_observation(observation_root, source, architecture):
         raw = read_owned(inputs, name)
         require(len(raw) == record["size"] and sha256_bytes(raw) == record["sha256"],
                 "observed file bytes differ")
+    require(document(inputs, "preparation-source.json") == observation["source"], "preparation source record differs")
     source_inventory = document(observation_root / "source", "source-inventory.json")
     require(sha256_bytes(read_owned(observation_root / "source", "source-inventory.json"))
             == observation["source_files"]["source-inventory.json"]["sha256"], "source observation inventory changed")
+    require(source_inventory["source_sha"] == observation["source"]["source_sha"], "source record differs")
     bindings = {}
     for name in sorted(profile_source_inputs(profile)):
         digest = sha256_bytes(subprocess.check_output(["git", "show", "HEAD:" + name], cwd=source))
@@ -346,6 +440,7 @@ def add_wheels(packet, inputs, source, target_collection):
         raw = read_owned(inputs, "wheelhouse/" + wheel["filename"])
         require(sha256_bytes(raw) == wheel["sha256"] and len(raw) == wheel["size"], "wheel identity differs")
         metadata, declared, notices, sboms = wheel_metadata(raw)
+        raw_declared = declared
         name = metadata["Name"].lower().replace("_", "-")
         require(name == wheel["name"].lower().replace("_", "-") and metadata["Version"] == wheel["version"],
                 "wheel metadata identity differs")
@@ -363,12 +458,17 @@ def add_wheels(packet, inputs, source, target_collection):
         identifier = slug("wheel-" + name + "-" + wheel["version"])
         issues = ["license-choice-and-original-copyright", "notice-and-source-duty"]
         if name == "nodriver":
+            require("AGPL-3.0-only" in set().union(*(license_atoms(data) for _, data in notices)),
+                    "nodriver full AGPL grant is absent")
+            # Exact source headers reference this bundled version, not a later-version option.
+            declared = "AGPL-3.0-only"
             issues += ["AGPL-corresponding-source-and-combined-work-review"]
         if sboms:
             issues += ["target-specific-nested-SBOM-scope"]
         packet.component(identifier=identifier, name=name, version=wheel["version"], kind="wheel",
                          digest=wheel["sha256"], location=location, declared=declared,
                          sources=notices, scope="installed-wheel", pending=issues)
+        packet.evidence[-1]["original_license_declaration"] = raw_declared
         import io
         with zipfile.ZipFile(io.BytesIO(raw)) as archive:
             native = {}
@@ -405,10 +505,20 @@ def add_supplement(packet, source, collection, architecture):
     for row in supplement["groups"]["native_sources"]["components"]:
         if row["id"] == ("tk-windows-bin-8614" if architecture == "x64" else "tk-windows-bin-8612"):
             continue
+        sources = checked_sources(root, row["source_files"])
+        declared = row["license_declared"]
+        if row["id"] in {"wix", "cryptography-openssl", "windows-libffi"}:
+            grants = license_atoms(sources[0][1])
+            require(len(grants) == 1, "primary native grant is ambiguous")
+            declared = next(iter(grants))
+        if row["id"] == "cryptography":
+            require(b"*either*" in sources[0][1] and b"LICENSE.APACHE or LICENSE.BSD" in sources[0][1],
+                    "cryptography source alternatives differ")
+            declared = "Apache-2.0 OR BSD-3-Clause"
         packet.component(identifier="native-" + slug(row["id"]), name=row["name"], version=row["version"],
                          kind="framework" if row["id"] == "wix" else "runtime", digest=row["sha256"],
-                         location=row["download_location"], declared=row["license_declared"],
-                         sources=checked_sources(root, row["source_files"]), scope="source-build-input-needs-binary-mapping",
+                         location=row["download_location"], declared=declared,
+                         sources=sources, scope="source-build-input-needs-binary-mapping",
                          pending=["target-binary-to-source-mapping", "license-choice-and-original-copyright",
                                   "corresponding-source-delivery" if row["id"] == "wix" else "notice-and-source-duty"])
     for row in collection["components"]:
@@ -421,6 +531,29 @@ def add_supplement(packet, source, collection, architecture):
                          pending=["target-binary-to-source-mapping", "license-choice-and-original-copyright", "notice-and-source-duty"])
 
 
+def add_wix_source_mapping(packet, source, collection):
+    from xml.etree import ElementTree
+    records = []
+    root = source / collection["_root"]
+    for row in collection["components"]:
+        if row["kind"] != "framework":
+            continue
+        specs = [(name, raw) for name, raw in checked_sources(root, row["source_files"]) if name.endswith(".nuspec")]
+        require(len(specs) == 1, "WiX package source metadata is ambiguous")
+        name, raw = specs[0]
+        repository = [element for element in ElementTree.fromstring(raw).iter() if element.tag.endswith("}repository")]
+        require(len(repository) == 1 and repository[0].attrib["commit"] == "b8977d6f88e7b68e000bac226a2814f236770570"
+                and repository[0].attrib["url"] == "https://github.com/wixtoolset/wix", "WiX package source revision differs")
+        records.append({"id": row["id"], "package_sha256": row["sha256"], "nuspec_path": name,
+            "nuspec_sha256": sha256_bytes(raw), "source_commit": repository[0].attrib["commit"],
+            "included_source_archive": "legal/SOURCE-OFFERS/" + SOURCE_ARCHIVES["native-wix"][0],
+            "included_source_sha256": SOURCE_ARCHIVES["native-wix"][1],
+            "scope": "build-package-source-revision-not-a-final-installer-runtime-membership-claim"})
+    packet.put("wix-source-mapping.json", canonical_json({"schema": 1, **BOUNDARY, "packages": records,
+        "remaining_artifact_evidence": "After installer assembly, enumerate actual Burn/BAL/Util runtime code and bind its member hashes to these source revisions; inspect any product modifications.",
+        "remaining_owner_decision": "Official WiX build distribution terms and the actual legal/business facts required by OSMFEULA are not established by a source archive."}))
+
+
 def add_archives_and_fonts(packet, inputs, archive_root):
     for identifier, (filename, expected) in SOURCE_ARCHIVES.items():
         raw = read_owned(archive_root, filename)
@@ -430,6 +563,8 @@ def add_archives_and_fonts(packet, inputs, archive_root):
         component = next(row for row in packet.components if row["id"] == identifier)
         component["source_offer_required"] = True
         component["source_offer_files"] = [{"path": path, "sha256": expected}]
+        if identifier == "wheel-nodriver-0.50.3":
+            nodriver_equality(packet, inputs, raw)
         # This delivers the actual upstream source, not a promise or a mutable URL.
         # It does not establish completeness for an AGPL combined work or modified WiX code.
         issue = next(row for row in packet.pending if row["id"] == identifier)
@@ -546,12 +681,101 @@ def add_reviewed_helpers(packet, source, inputs, architecture):
     packet.put("reviewed-helper-inputs.json", raw_review)
 
 
-def synthesize(source, observation_root, architecture, created, archive_root):
-    observation, inputs, bindings = verify_observation(observation_root, source, architecture)
+def add_crate_evidence(packet, cache, archive_root, architecture):
+    observations, workspace = inspect_sources(packet.components, cache, archive_root)
+    for index, row in enumerate(list(packet.components)):
+        if row["kind"] != "cargo":
+            continue
+        fact = observations[(row["name"], row["version"])]
+        evidence = packet.evidence[index]
+        issue = packet.pending[index]
+        # Remove only the preparer's index so retained original notice names do
+        # not acquire a second generated prefix during evidence enrichment.
+        sources = [(Path(entry["path"]).name[4:], packet.files[entry["path"]]) for entry in row["notice_files"]]
+        seen = {sha256_bytes(raw) for _, raw in sources}
+        for notice in fact["supplied_notices"]:
+            raw = notice["text"].encode("utf-8")
+            require(sha256_bytes(raw) == notice["sha256"], "source notice roundtrip differs")
+            if notice["sha256"] not in seen:
+                sources.append((notice["path"], raw))
+                seen.add(notice["sha256"])
+        renewed = Packet()
+        renewed.component(identifier=row["id"], name=row["name"], version=row["version"], kind=row["kind"],
+                          digest=row["sha256"], location=row["download_location"],
+                          declared=evidence["original_license_declaration"], sources=sources,
+                          scope=evidence["scope"], pending=issue["items"], origins=evidence["origins"])
+        # Keep original statement provenance. Do not convert Cargo authors into a claim.
+        claims = [claim for claim in fact["original_statements"] if not any(
+            part.lower() in {"test", "tests", "examples", "example", "benches", "fuzz"}
+            for part in Path(claim["path"]).parts)]
+        statements = sorted({statement["text"] for claim in claims for statement in claim["statements"]})
+        if statements:
+            renewed.components[0]["copyright_text"] = "\n".join(statements)
+            retained = canonical_json({"archive_sha256": row["sha256"], "original_statement_files": claims,
+                "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."})
+            name = "legal/NOTICES/" + row["id"] + "/source-copyright-statements.json"
+            renewed.put(name, retained)
+            renewed.components[0]["notice_files"].append({"path": name, "sha256": sha256_bytes(retained)})
+            if renewed.components[0]["license_concluded"] != "NOASSERTION":
+                renewed.pending[0]["items"] = [item for item in renewed.pending[0]["items"]
+                                               if item != "license-choice-and-original-copyright"]
+        elif renewed.components[0]["copyright_text"] == "NOASSERTION":
+            renewed.pending[0]["items"].append("no-original-copyright-statement-in-pinned-source")
+            filename = row["name"] + "-" + row["version"] + ".crate"
+            raw = read_owned(cache, filename)
+            audit = audit_archive(raw, row["sha256"])
+            audit_path = "source-copyright-audits/" + row["id"] + ".json"
+            renewed.put(audit_path, canonical_json(audit))
+            renewed.evidence[0]["copyright_absence_audit"] = {
+                "path": audit_path, "sha256": sha256_bytes(canonical_json(audit)),
+                "eligible_for_reviewed_NONE": audit["eligible_for_reviewed_NONE"]}
+            if audit["eligible_for_reviewed_NONE"]:
+                folder = "legal/SOURCE-OFFERS/" + row["id"] + "/"
+                proof_files = {folder + filename: raw, folder + "copyright-absence.json": canonical_json(audit)}
+                for name, data in proof_files.items():
+                    renewed.put(name, data)
+                renewed.components[0].update(copyright_text="NONE", source_offer_required=True,
+                    source_offer_files=[{"path": name, "sha256": sha256_bytes(data)} for name, data in sorted(proof_files.items())])
+                renewed.pending[0]["items"] = [item for item in renewed.pending[0]["items"]
+                    if item != "no-original-copyright-statement-in-pinned-source"
+                    and not (item == "license-choice-and-original-copyright" and renewed.components[0]["license_concluded"] != "NOASSERTION")]
+        if renewed.components[0]["license_concluded"] == "MPL-2.0":
+            filename = row["name"] + "-" + row["version"] + ".crate"
+            raw = read_owned(cache, filename)
+            name = "legal/SOURCE-OFFERS/" + row["id"] + "/" + filename
+            renewed.put(name, raw)
+            renewed.components[0]["source_offer_required"] = True
+            if not any(item["path"] == name for item in renewed.components[0]["source_offer_files"]):
+                renewed.components[0]["source_offer_files"].append({"path": name, "sha256": row["sha256"]})
+            renewed.pending[0]["items"] = [item for item in renewed.pending[0]["items"] if item != "notice-and-source-duty"]
+        renewed.evidence[0]["source_archive_observation"] = {
+            "archive_sha256": fact["archive_sha256"], "archive_files_sha256": fact["archive_files_sha256"],
+            "files_scanned": fact["files_scanned"], "non_test_statement_files": [claim["path"] for claim in claims],
+            "copyright_observation": fact["copyright_observation"]}
+        for name in list(packet.files):
+            if name.startswith(("legal/NOTICES/" + row["id"] + "/", "legal/LICENSES/" + row["id"] + "/")):
+                del packet.files[name]
+        for name, raw in renewed.files.items():
+            packet.put(name, raw)
+        packet.components[index], packet.evidence[index], packet.pending[index] = (
+            renewed.components[0], renewed.evidence[0], renewed.pending[0])
+    classify_nested(packet, observations, workspace, ARCHITECTURES[architecture])
+    packet.put("source-archive-observations.json", canonical_json({"schema": 1,
+        "status": "source-observations-not-approval", "archives": [observations[key] for key in sorted(observations)],
+        "wheel_source_archives": workspace}))
+
+
+def synthesize(source, observation_root, architecture, created, archive_root, crate_cache, observation_binding):
+    require(set(observation_binding) == {"schema", "status", "candidate_approval", "publishable", "source_sha",
+            "trusted_sha", "run_id", "observations"} and observation_binding["schema"] == 1
+            and observation_binding["candidate_approval"] is False and observation_binding["publishable"] is False,
+            "invalid preparation binding")
+    observation, inputs, bindings = verify_observation(observation_root, source, architecture, observation_binding)
     target_root = f"packaging/legal-review/windows-{ARCHITECTURES[architecture]}"
     collection = document(source, target_root + "/collection.json")
     collection["_root"] = target_root
     packet = Packet()
+    packet.put("preparation-binding.json", canonical_json(observation_binding))
     for name in sorted(REQUIRED_FILES):
         original = "packaging/legal/" + name.removeprefix("legal/")
         packet.put(name, read_owned(source, original))
@@ -561,9 +785,12 @@ def synthesize(source, observation_root, architecture, created, archive_root):
     add_cargo(packet, inputs, source, collection)
     add_wheels(packet, inputs, source, collection)
     add_supplement(packet, source, collection, architecture)
+    add_wix_source_mapping(packet, source, collection)
+    add_crate_evidence(packet, crate_cache, archive_root, architecture)
     add_archives_and_fonts(packet, inputs, archive_root)
     add_installed_python(packet, inputs, collection)
     add_reviewed_helpers(packet, source, inputs, architecture)
+    map_python_native(packet, inputs, source, architecture)
     components = sorted(packet.components, key=lambda row: row["id"])
     inventory = {"schema": 1, "created": created, "version": "0.5.0", "target": observation["target"],
                  "terms_version": "1.0", "terms_sha256": sha256_bytes(terms), "source_inputs": bindings,
@@ -581,7 +808,10 @@ def synthesize(source, observation_root, architecture, created, archive_root):
             "packages": [{"SPDXID": "SPDXRef-" + row["id"], "name": row["name"], "versionInfo": row["version"],
                           "downloadLocation": row["download_location"], "filesAnalyzed": False,
                           "checksums": [{"algorithm": "SHA256", "checksumValue": row["sha256"]}],
-                          "licenseDeclared": row["license_concluded"], "licenseConcluded": row["license_concluded"],
+                          "licenseDeclared": declared_expression(row["license_declared"]) or "NOASSERTION",
+                          "licenseConcluded": row["license_concluded"],
+                          "packageComment": "Original upstream declaration: " + str(next(
+                              item["original_license_declaration"] for item in packet.evidence if item["id"] == row["id"])),
                           "copyrightText": row["copyright_text"]}
                          for row in components]}
     packet.put("sbom/vadgr-0.5.0.spdx.json", canonical_json(sbom))
@@ -599,6 +829,7 @@ def synthesize(source, observation_root, architecture, created, archive_root):
         "schema": 1, **BOUNDARY, "source_sha": observation["source"]["source_sha"],
         "trusted_sha": observation["source"]["trusted_sha"], "run_id": observation["source"]["run_id"],
         "observation_sha256": sha256_bytes(read_owned(observation_root, "preparation-observation.json")),
+        "preparation_binding_sha256": sha256_bytes(packet.files["preparation-binding.json"]),
         "terms": {"version": "1.0", "sha256": sha256_bytes(terms), "status": "owner-approved-draft-retained-unchanged"},
         "components": sorted(packet.evidence, key=lambda row: row["id"]),
         "unresolved": sorted(packet.pending, key=lambda row: row["id"]),
@@ -606,6 +837,7 @@ def synthesize(source, observation_root, architecture, created, archive_root):
         "summary": {"component_candidates": len(components),
                     "retained_grant_choices": sum(row["license_concluded"] != "NOASSERTION" for row in components),
                     "unresolved_copyright": sum(row["copyright_text"] == "NOASSERTION" for row in components),
+                    "evidence_bound_NONE_proposals": sum(row["copyright_text"] == "NONE" for row in components),
                     "rows_with_review_items": sum(bool(row["items"]) for row in packet.pending),
                     "scope_counts": {scope: sum(row["scope"] == scope for row in packet.evidence)
                                      for scope in sorted({row["scope"] for row in packet.evidence})}},
@@ -642,12 +874,16 @@ def main():
     parser.add_argument("--architecture", choices=ARCHITECTURES, required=True)
     parser.add_argument("--created", required=True)
     parser.add_argument("--source-archives", type=Path, required=True)
+    parser.add_argument("--crate-cache", type=Path, required=True)
+    parser.add_argument("--observation-bindings", type=Path, default=Path("packaging/inputs/windows-observation-bindings.json"))
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--verify", action="store_true")
     args = parser.parse_args()
     try:
         require(re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", args.created), "invalid creation time")
-        files = synthesize(args.source_root.resolve(), args.observation.resolve(), args.architecture, args.created, args.source_archives.resolve())
+        files = synthesize(args.source_root.resolve(), args.observation.resolve(), args.architecture, args.created,
+                           args.source_archives.resolve(), args.crate_cache.resolve(),
+                           document(args.observation_bindings.absolute().parent, args.observation_bindings.name))
         emit(files, args.output.absolute(), args.verify)
         print(f"Draft legal packet: {len(files)} exact files; approval remains blocked.")
         return 0

@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "5d2f2f9b4ba7e6b24d95e7e899329d35be83bcded72c8540cdd5368932d1d90a",
+  "original_statement_files": [
+    {
+      "path": "lru-0.18.2/LICENSE",
+      "sha256": "061dc50af2cd9340703daf61978af3200cf681b12ea67a323c33ba109a23a45e",
+      "size": 1071,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2016 Jerome Froelich"
+        }
+      ]
+    },
+    {
+      "path": "lru-0.18.2/src/lib.rs",
+      "sha256": "c727efedbcc0d5e49ace6fa80c8b175d403862a28f8292a6e3bf7a2daf7c08dd",
+      "size": 104534,
+      "statements": [
+        {
+          "line": 3,
+          "text": "// Copyright (c) 2016 Jerome Froelich"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

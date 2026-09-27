@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "6877bb514081ee2a7ff5ef9de3281f14a4dd4bceac4c09388074a6b5df8a139a",
+  "original_statement_files": [
+    {
+      "path": "mime-0.3.17/LICENSE-MIT",
+      "sha256": "df9cfd06d8a44d9a671eadd39ffd97f166481da015a30f45dfd27886209c5922",
+      "size": 1058,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014 Sean McArthur"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

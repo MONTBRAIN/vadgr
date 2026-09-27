@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "a6cb138bb79a146c1bd460005623e142ef0181e3d0219cb493e02f7d08a35695",
+  "original_statement_files": [
+    {
+      "path": "is_terminal_polyfill-1.70.2/LICENSE-MIT",
+      "sha256": "6efb0476a1cc085077ed49357026d8c173bf33017278ef440f222fb9cbcb66e6",
+      "size": 1062,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) Individual contributors"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

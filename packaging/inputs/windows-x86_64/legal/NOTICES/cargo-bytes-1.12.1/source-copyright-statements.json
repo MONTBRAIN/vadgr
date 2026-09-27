@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "fc652a48c352aef3ea3aed32080501cf3ef6ed5da78602a020c991775b0aff04",
+  "original_statement_files": [
+    {
+      "path": "bytes-1.12.1/LICENSE",
+      "sha256": "45f522cacecb1023856e46df79ca625dfc550c94910078bd8aec6e02880b3d42",
+      "size": 1055,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018 Carl Lerche"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

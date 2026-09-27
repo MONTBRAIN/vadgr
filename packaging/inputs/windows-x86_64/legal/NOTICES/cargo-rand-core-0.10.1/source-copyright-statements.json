@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "63b8176103e19a2643978565ca18b50549f6101881c443590420e4dc998a3c69",
+  "original_statement_files": [
+    {
+      "path": "rand_core-0.10.1/LICENSE-MIT",
+      "sha256": "8b6e9feec03e7c9a5facb26855cecd31662bf989b636bcfe79521bdf8ac863f0",
+      "size": 1076,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018-2026 The Rand Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

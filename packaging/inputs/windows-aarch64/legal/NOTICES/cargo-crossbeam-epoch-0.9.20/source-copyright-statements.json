@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "2d6914041f254d6e9176c01941b21115dcfb7089e55135a35411081bd106ef3f",
+  "original_statement_files": [
+    {
+      "path": "crossbeam-epoch-0.9.20/LICENSE-MIT",
+      "sha256": "5734ed989dfca1f625b40281ee9f4530f91b2411ec01cb748223e7eb87e201ab",
+      "size": 1099,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2019 The Crossbeam Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

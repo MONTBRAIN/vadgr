@@ -1,0 +1,75 @@
+{
+  "archive_sha256": "9b97c5a866f849a9445ae657bef0caa2db053a82827e6dae3a2b3de9c15a6a1a",
+  "eligible_for_reviewed_NONE": true,
+  "files": [
+    {
+      "path": "sigstore-rekor-0.11.0/.cargo_vcs_info.json",
+      "sha256": "d1e4e15b85daf6519b6ea04c4c86f2a0bbee026cf4b410ece13074254b6c1e86",
+      "size": 115,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-rekor-0.11.0/CHANGELOG.md",
+      "sha256": "c8f6335e03335d7d706decc7fd662ec2ae15b03f2eb5915afa5da7e81814e411",
+      "size": 1211,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-rekor-0.11.0/Cargo.lock",
+      "sha256": "35d386155539aba403a3e6c80cbdb347f58344bde7f68d594438535405dad52f",
+      "size": 54893,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-rekor-0.11.0/Cargo.toml",
+      "sha256": "fcc510455e107b05515f54f07629bccd7d5f4f5b3c57b5dc010fe12a3c9a4ddb",
+      "size": 1645,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-rekor-0.11.0/Cargo.toml.orig",
+      "sha256": "ff443f603785c59df74fe4080d1f3bd8b188a47101e24438b2b776fdc892a2d4",
+      "size": 797,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-rekor-0.11.0/README.md",
+      "sha256": "3d4730f7f016ee04a7e0a30f4e8d50063661662f582c4b8e63a897412136dd05",
+      "size": 1437,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-rekor-0.11.0/src/body.rs",
+      "sha256": "463e5866e1eaec5feb4625d544dcc3cb6e4fbc7daacc75e7e8e420a831a312bf",
+      "size": 12209,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-rekor-0.11.0/src/client.rs",
+      "sha256": "1d7194dd95ddd54535104f23836f544952614105b20038a9922700598ed6c69e",
+      "size": 16002,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-rekor-0.11.0/src/entry.rs",
+      "sha256": "fd9c933eb50d9d00a784921c4af9f06e8d89645d2c90499de8a6d7f6e64f451d",
+      "size": 17225,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-rekor-0.11.0/src/error.rs",
+      "sha256": "543f6d67ac992f6f0a0aaa3b18248af894917bac40ad45c544fd0e3aaa28fc6a",
+      "size": 788,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-rekor-0.11.0/src/lib.rs",
+      "sha256": "fa9d61f3dae75553a3149a11437789eb1881f319a93a43286910718bb639d839",
+      "size": 1287,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
+  "schema": 1
+}

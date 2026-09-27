@@ -1,0 +1,87 @@
+{
+  "archive_sha256": "6f42320e61fe2cfd34354ecb597f86f413484a798ba44a8ca1165c58d42da6c1",
+  "eligible_for_reviewed_NONE": false,
+  "files": [
+    {
+      "path": "wit-bindgen-rt-0.39.0/.cargo_vcs_info.json",
+      "sha256": "b83b0a6fd12f9d7a3a70f3348324415b6c169006efb7a30635b011b636a2402d",
+      "size": 114,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "wit-bindgen-rt-0.39.0/Cargo.lock",
+      "sha256": "0bee2394dcb6175165bf8f23a02c3a12b88b40de935ef6f9a19f17142fda5c88",
+      "size": 4775,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "wit-bindgen-rt-0.39.0/Cargo.toml",
+      "sha256": "3afc3d79b7c8dc63f0c9bc2c795f4f7dbca85807618636a4b594524ed20d53ed",
+      "size": 1211,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "wit-bindgen-rt-0.39.0/Cargo.toml.orig",
+      "sha256": "459bfb2c3cfd34ea099ac910e9e2ed316feca9c87ff24fb4e6354e30044f07fc",
+      "size": 576,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "wit-bindgen-rt-0.39.0/build.rs",
+      "sha256": "0bdde396dbbacde8feb367515f30a3243fd9a1e675865bd990d73ffdd7947d07",
+      "size": 905,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "wit-bindgen-rt-0.39.0/src/async_support.rs",
+      "sha256": "fa22d8968988f85f541c1c1ad448db64479c7d230390ba3da897795e9e9048ff",
+      "size": 14866,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "wit-bindgen-rt-0.39.0/src/async_support/future_support.rs",
+      "sha256": "c926e84f5c97ac6eff87f3d2f0ba42896a7fe750a6186e9f3b7954306724b8f6",
+      "size": 12590,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "wit-bindgen-rt-0.39.0/src/async_support/stream_support.rs",
+      "sha256": "750a67840f6e1b1e7b15de65566be5dc31cf93ab75fd05db6ce6c887a4470e42",
+      "size": 15430,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "wit-bindgen-rt-0.39.0/src/cabi_realloc.c",
+      "sha256": "b8f9fad807706b4b1280c6bf7daf7aae4a01f747754f649d7070efd69633270a",
+      "size": 404,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "wit-bindgen-rt-0.39.0/src/cabi_realloc.o",
+      "sha256": "174c31f5cf1136305232c0b83db0aaa422e8428ae84973e85116d799325850df",
+      "size": 261,
+      "status": "undecoded-member-needs-review"
+    },
+    {
+      "path": "wit-bindgen-rt-0.39.0/src/cabi_realloc.rs",
+      "sha256": "17082a05eefe80f93140960427e5d1ef287e1f8c71c8833e71ed5e146c08c347",
+      "size": 296,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "wit-bindgen-rt-0.39.0/src/lib.rs",
+      "sha256": "c8f78ff78e66fddd8641f11e95f2d8b87870be5c034ea87c445d23f6306879b0",
+      "size": 4163,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "wit-bindgen-rt-0.39.0/src/libwit_bindgen_cabi_realloc.a",
+      "sha256": "b7b6a5fec27dd1abf3d888d387cb3e02dc66772fab86f5543cef301140a99fd6",
+      "size": 412,
+      "status": "undecoded-member-needs-review"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
+  "schema": 1
+}

@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "ac07cdecf99051d9a5238b80f35af32cdeba5b336e55d957b318b50137e18da5",
+  "original_statement_files": [
+    {
+      "path": "base64-0.23.1/LICENSE-MIT",
+      "sha256": "ab499c75a0f0da8e0fe83bf9ba3a27e5c39705310f07107c6c66b69958d2401c",
+      "size": 1093,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2025 Alice Maz, Marshall Pierce"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

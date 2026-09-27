@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "caf1079563223d5d59d83c85886a56e586cfd5c1a26292e971a0fa266531ac5a",
+  "original_statement_files": [
+    {
+      "path": "fax-0.2.7/LICENSE",
+      "sha256": "7101390b4c8edd752f4c0de47f35d61b44d9cf0ee8dd032115e25644e277cfff",
+      "size": 1075,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright \u00a9 2021 The pdf-rs contributers."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

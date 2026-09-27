@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a",
+  "original_statement_files": [
+    {
+      "path": "hashbrown-0.17.1/LICENSE-MIT",
+      "sha256": "ff8f68cb076caf8cefe7a6430d4ac086ce6af2ca8ce2c4e5a2004d4552ef52a2",
+      "size": 1060,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2016 Amanieu d'Antras"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

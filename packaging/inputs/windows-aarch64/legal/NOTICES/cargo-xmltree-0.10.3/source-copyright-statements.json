@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "d7d8a75eaf6557bb84a65ace8609883db44a29951042ada9b393151532e41fcb",
+  "original_statement_files": [
+    {
+      "path": "xmltree-0.10.3/LICENSE",
+      "sha256": "8fca205ae3806d61379f2c91524275d85da99677ec3a4965351485470498238a",
+      "size": 1067,
+      "statements": [
+        {
+          "line": 2,
+          "text": "Copyright (c) 2015 Andrew Chin"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

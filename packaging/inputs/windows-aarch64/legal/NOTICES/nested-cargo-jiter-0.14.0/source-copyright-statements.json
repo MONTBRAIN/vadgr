@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "b6f3b5d3f84b36f4ad09fd1da896d23d9852a1aa86556578dd0289f43dce311d",
+  "original_statement_files": [
+    {
+      "path": "jiter-0.14.0/LICENSE",
+      "sha256": "7c7134b9f7b978c03fca875517cf398db91f19bbb8109b6685e742aa3f57468e",
+      "size": 1091,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2022 to present Samuel Colvin"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

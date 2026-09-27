@@ -1,0 +1,105 @@
+{
+  "archive_sha256": "236474c535a3157839926a0ae18f9c0c22b151e49634da6e5b18ad7cac8a3b69",
+  "eligible_for_reviewed_NONE": true,
+  "files": [
+    {
+      "path": "sigstore-types-0.11.0/.cargo_vcs_info.json",
+      "sha256": "5301e342b17bd7988116f8c4b10cf685be41cf082b7cce7219c2fff27966ac40",
+      "size": 115,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-types-0.11.0/CHANGELOG.md",
+      "sha256": "6831eadf84a61e34d9c1be45bd15f168c1accebdd666331a90879cb2d108a24b",
+      "size": 2048,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-types-0.11.0/Cargo.lock",
+      "sha256": "7432936e7e015db8b1136e2858be5f02642d06877d95097634ebbf7fcf2cc442",
+      "size": 3809,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-types-0.11.0/Cargo.toml",
+      "sha256": "2a5ab5a1835854b1c7840b14fb4b262dfd08c8e0aa510a6989fa8db1845b0fb2",
+      "size": 1176,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-types-0.11.0/Cargo.toml.orig",
+      "sha256": "587688d7fe7cd91ddff10a1aabeaa706d86313debd7b8c0ccca731486f9bc588",
+      "size": 470,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-types-0.11.0/README.md",
+      "sha256": "4577fc305b07aacce27d463a1f1660eb35cf7c4ade1128cffba1a6c9b964114a",
+      "size": 1971,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-types-0.11.0/src/artifact.rs",
+      "sha256": "cfc9cd29d478436d824ba48c6e069761bb7d79f8efdbb8cfe798978976882841",
+      "size": 4723,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-types-0.11.0/src/bundle.rs",
+      "sha256": "e04c507347ebe1fd0e69d1e181602a95946ae91669acf719389e4c485d278ac3",
+      "size": 15989,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-types-0.11.0/src/checkpoint.rs",
+      "sha256": "3b5b30a73f01dc71dda2bec2390c72af880e2ebbe5fc78b65223ad23f01c0cd4",
+      "size": 10864,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-types-0.11.0/src/dsse.rs",
+      "sha256": "155458f82435ca2f1cef19f580ac0a05d475ab423215603c126ad009bc0cacf1",
+      "size": 4882,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-types-0.11.0/src/encoding.rs",
+      "sha256": "aa43d70ba2ae2b9c464a11d3b810e68195765c48a8287eb77428a945bc795b8b",
+      "size": 34130,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-types-0.11.0/src/error.rs",
+      "sha256": "c3012d1d47064504a991b35fa42e57598afe230e7f4a8ae1115d79752f3cc0a9",
+      "size": 1314,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-types-0.11.0/src/hash.rs",
+      "sha256": "04d812410fb45d6375baa2d4da326f363f8487fb1673b884b2e435736b0e7462",
+      "size": 3934,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-types-0.11.0/src/intoto.rs",
+      "sha256": "bbeb2942aa0a505bdff390a254eeb42078e697dbfaf765dfa3963b8c91dac28b",
+      "size": 4988,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-types-0.11.0/src/lib.rs",
+      "sha256": "ea2bba32e787d9897db71900e49c5e4f83ffb6dcf2eb4b516fff72c5ebcca146",
+      "size": 1134,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "sigstore-types-0.11.0/test_data/cosign_v3_missing_fields.json",
+      "sha256": "7b63f4e00e77c0f0aff2bc73909a9f3ead481ea4f563839b1f20c364895c1115",
+      "size": 1166,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
+  "schema": 1
+}

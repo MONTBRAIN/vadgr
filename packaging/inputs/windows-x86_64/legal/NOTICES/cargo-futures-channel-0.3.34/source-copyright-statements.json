@@ -1,0 +1,47 @@
+{
+  "archive_sha256": "b1f9e3d69d39e4862ffed03ed071a76f9a13ba1d9109d355b0f0aa6b15e393c4",
+  "original_statement_files": [
+    {
+      "path": "futures-channel-0.3.34/LICENSE-APACHE",
+      "sha256": "275c491d6d1160553c32fd6127061d7f9606c3ea25abfad6ca3f6ed088785427",
+      "size": 10874,
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright (c) 2016 Alex Crichton"
+        },
+        {
+          "line": 190,
+          "text": "Copyright (c) 2017 The Tokio Authors"
+        }
+      ]
+    },
+    {
+      "path": "futures-channel-0.3.34/LICENSE-MIT",
+      "sha256": "6652c868f35dfe5e8ef636810a4e576b9d663f3a17fb0f5613ad73583e1b88fd",
+      "size": 1094,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2016 Alex Crichton"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2017 The Tokio Authors"
+        }
+      ]
+    },
+    {
+      "path": "futures-channel-0.3.34/src/mpsc/queue.rs",
+      "sha256": "22034085dc22050b708a37854e215fc7cbb16d65edc60370cb5d8f4b7faca18e",
+      "size": 6821,
+      "statements": [
+        {
+          "line": 1,
+          "text": "/* Copyright (c) 2010-2011 Dmitry Vyukov. All rights reserved."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

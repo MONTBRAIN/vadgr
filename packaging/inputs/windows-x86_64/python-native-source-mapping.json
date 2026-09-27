@@ -1,0 +1,497 @@
+{
+  "components": {
+    "native-bzip2": {
+      "basis": "pinned-producer-build-metadata-and-observed-installed-members",
+      "extension_names": [
+        "_bz2"
+      ],
+      "observed_PE_imports": {
+        "DLLs/_bz2.pyd": [
+          "KERNEL32.dll",
+          "VCRUNTIME140.dll",
+          "api-ms-win-crt-heap-l1-1-0.dll",
+          "api-ms-win-crt-runtime-l1-1-0.dll",
+          "api-ms-win-crt-stdio-l1-1-0.dll",
+          "python312.dll"
+        ]
+      },
+      "observed_members": {
+        "payload/lib/cua/python/3.12.14/DLLs/_bz2.pyd": "1cedba5927c6f00b4278c2b60b5696506ccc73af4859384a26160e1cf4945d01"
+      },
+      "producer_metadata_corrections": [],
+      "producer_records": [
+        {
+          "in_core": false,
+          "init_fn": "PyInit__bz2",
+          "license_paths": [
+            "licenses/LICENSE.bzip2.txt"
+          ],
+          "license_public_domain": null,
+          "licenses": [
+            "bzip2-1.0.6"
+          ],
+          "links": [],
+          "objs": [
+            "build/extensions/_bz2/_bz2module.obj",
+            "build/extensions/_bz2/blocksort.obj",
+            "build/extensions/_bz2/bzlib.obj",
+            "build/extensions/_bz2/compress.obj",
+            "build/extensions/_bz2/crctable.obj",
+            "build/extensions/_bz2/decompress.obj",
+            "build/extensions/_bz2/huffman.obj",
+            "build/extensions/_bz2/randtable.obj"
+          ],
+          "required": false,
+          "shared_lib": "install/DLLs/_bz2.pyd",
+          "static_lib": null,
+          "variant": "default"
+        }
+      ]
+    },
+    "native-expat": {
+      "basis": "pinned-producer-build-metadata-and-observed-installed-members",
+      "extension_names": [
+        "pyexpat"
+      ],
+      "observed_PE_imports": {
+        "DLLs/pyexpat.pyd": [
+          "KERNEL32.dll",
+          "VCRUNTIME140.dll",
+          "api-ms-win-crt-convert-l1-1-0.dll",
+          "api-ms-win-crt-environment-l1-1-0.dll",
+          "api-ms-win-crt-heap-l1-1-0.dll",
+          "api-ms-win-crt-runtime-l1-1-0.dll",
+          "api-ms-win-crt-stdio-l1-1-0.dll",
+          "python312.dll"
+        ]
+      },
+      "observed_members": {
+        "payload/lib/cua/python/3.12.14/DLLs/pyexpat.pyd": "7c7197db94612b3904ef0ada2a4940bcc6853136cc70f3523a4f26fffccbf37e"
+      },
+      "producer_metadata_corrections": [],
+      "producer_records": [
+        {
+          "in_core": false,
+          "init_fn": "PyInit_pyexpat",
+          "links": [],
+          "objs": [
+            "build/extensions/pyexpat/pyexpat.obj",
+            "build/extensions/pyexpat/xmlparse.obj",
+            "build/extensions/pyexpat/xmlrole.obj",
+            "build/extensions/pyexpat/xmltok.obj"
+          ],
+          "required": false,
+          "shared_lib": "install/DLLs/pyexpat.pyd",
+          "static_lib": null,
+          "variant": "default"
+        }
+      ]
+    },
+    "native-mpdecimal": {
+      "basis": "pinned-producer-build-metadata-and-observed-installed-members",
+      "extension_names": [
+        "_decimal"
+      ],
+      "observed_PE_imports": {
+        "DLLs/_decimal.pyd": [
+          "KERNEL32.dll",
+          "VCRUNTIME140.dll",
+          "api-ms-win-crt-convert-l1-1-0.dll",
+          "api-ms-win-crt-heap-l1-1-0.dll",
+          "api-ms-win-crt-locale-l1-1-0.dll",
+          "api-ms-win-crt-math-l1-1-0.dll",
+          "api-ms-win-crt-runtime-l1-1-0.dll",
+          "api-ms-win-crt-stdio-l1-1-0.dll",
+          "api-ms-win-crt-string-l1-1-0.dll",
+          "python312.dll"
+        ]
+      },
+      "observed_members": {
+        "payload/lib/cua/python/3.12.14/DLLs/_decimal.pyd": "14ec08311a3ee2248eaa332cec544bfda6a777bf649029303ee5675bb8ffa939"
+      },
+      "producer_metadata_corrections": [],
+      "producer_records": [
+        {
+          "in_core": false,
+          "init_fn": "PyInit__decimal",
+          "links": [],
+          "objs": [
+            "build/extensions/_decimal/_decimal.obj",
+            "build/extensions/_decimal/basearith.obj",
+            "build/extensions/_decimal/constants.obj",
+            "build/extensions/_decimal/context.obj",
+            "build/extensions/_decimal/convolute.obj",
+            "build/extensions/_decimal/crt.obj",
+            "build/extensions/_decimal/difradix2.obj",
+            "build/extensions/_decimal/fnt.obj",
+            "build/extensions/_decimal/fourstep.obj",
+            "build/extensions/_decimal/io.obj",
+            "build/extensions/_decimal/mpalloc.obj",
+            "build/extensions/_decimal/mpdecimal.obj",
+            "build/extensions/_decimal/numbertheory.obj",
+            "build/extensions/_decimal/sixstep.obj",
+            "build/extensions/_decimal/transpose.obj",
+            "build/extensions/_decimal/vcdiv64.obj"
+          ],
+          "required": false,
+          "shared_lib": "install/DLLs/_decimal.pyd",
+          "static_lib": null,
+          "variant": "default"
+        }
+      ]
+    },
+    "native-openssl-3.5": {
+      "basis": "pinned-producer-build-metadata-and-observed-installed-members",
+      "extension_names": [
+        "_ssl",
+        "_hashlib"
+      ],
+      "observed_PE_imports": {
+        "DLLs/_hashlib.pyd": [
+          "KERNEL32.dll",
+          "VCRUNTIME140.dll",
+          "api-ms-win-crt-runtime-l1-1-0.dll",
+          "api-ms-win-crt-string-l1-1-0.dll",
+          "libcrypto-3-x64.dll",
+          "python312.dll"
+        ],
+        "DLLs/_ssl.pyd": [
+          "CRYPT32.dll",
+          "KERNEL32.dll",
+          "VCRUNTIME140.dll",
+          "WS2_32.dll",
+          "api-ms-win-crt-runtime-l1-1-0.dll",
+          "api-ms-win-crt-stdio-l1-1-0.dll",
+          "api-ms-win-crt-string-l1-1-0.dll",
+          "libcrypto-3-x64.dll",
+          "libssl-3-x64.dll",
+          "python312.dll"
+        ]
+      },
+      "observed_members": {
+        "payload/lib/cua/python/3.12.14/DLLs/_hashlib.pyd": "0f234dd56319a354cbc103063e58ea25f57b05c0e3825bca0d608518e9c16583",
+        "payload/lib/cua/python/3.12.14/DLLs/_ssl.pyd": "480cce65c9b8fd755c5fafab5ba89b04dffd43ce64a1220b30c483e83f28fe6a",
+        "payload/lib/cua/python/3.12.14/DLLs/libcrypto-3-x64.dll": "7404fb0dc38e868aea1551ff8ceb3fce635ba6173439f882715a6e87e5237370",
+        "payload/lib/cua/python/3.12.14/DLLs/libssl-3-x64.dll": "48d349578f5584f15fd3501501e75e87c80369c6ed35f39de55fbb92bee02df5"
+      },
+      "producer_metadata_corrections": [
+        {
+          "actual_PE_import": "DLLs/libcrypto-3-x64.dll",
+          "stale_producer_path": "DLLs/libcrypto-1_1-x64.dll"
+        },
+        {
+          "actual_PE_import": "DLLs/libssl-3-x64.dll",
+          "stale_producer_path": "DLLs/libssl-1_1-x64.dll"
+        },
+        {
+          "actual_PE_import": "DLLs/libcrypto-3-x64.dll",
+          "stale_producer_path": "DLLs/libcrypto-1_1-x64.dll"
+        }
+      ],
+      "producer_records": [
+        {
+          "in_core": false,
+          "init_fn": "PyInit__ssl",
+          "license_paths": [
+            "licenses/LICENSE.openssl-3.txt"
+          ],
+          "license_public_domain": null,
+          "licenses": [
+            "Apache-2.0"
+          ],
+          "links": [
+            {
+              "name": "crypt32",
+              "system": true
+            },
+            {
+              "name": "ws2_32",
+              "system": true
+            },
+            {
+              "name": "libcrypto-1_1-x64",
+              "path_dynamic": "install/DLLs/libcrypto-1_1-x64.dll"
+            },
+            {
+              "name": "libssl-1_1-x64",
+              "path_dynamic": "install/DLLs/libssl-1_1-x64.dll"
+            }
+          ],
+          "objs": [
+            "build/extensions/_ssl/_ssl.obj"
+          ],
+          "required": false,
+          "shared_lib": "install/DLLs/_ssl.pyd",
+          "static_lib": null,
+          "variant": "default"
+        },
+        {
+          "in_core": false,
+          "init_fn": "PyInit__hashlib",
+          "license_paths": [
+            "licenses/LICENSE.openssl-3.txt"
+          ],
+          "license_public_domain": null,
+          "licenses": [
+            "Apache-2.0"
+          ],
+          "links": [
+            {
+              "name": "ws2_32",
+              "system": true
+            },
+            {
+              "name": "libcrypto-1_1-x64",
+              "path_dynamic": "install/DLLs/libcrypto-1_1-x64.dll"
+            }
+          ],
+          "objs": [
+            "build/extensions/_hashlib/_hashopenssl.obj"
+          ],
+          "required": false,
+          "shared_lib": "install/DLLs/_hashlib.pyd",
+          "static_lib": null,
+          "variant": "default"
+        }
+      ]
+    },
+    "native-sqlite": {
+      "basis": "pinned-producer-build-metadata-and-observed-installed-members",
+      "extension_names": [
+        "_sqlite3"
+      ],
+      "observed_PE_imports": {
+        "DLLs/_sqlite3.pyd": [
+          "KERNEL32.dll",
+          "VCRUNTIME140.dll",
+          "api-ms-win-crt-runtime-l1-1-0.dll",
+          "api-ms-win-crt-string-l1-1-0.dll",
+          "python312.dll",
+          "sqlite3.dll"
+        ]
+      },
+      "observed_members": {
+        "payload/lib/cua/python/3.12.14/DLLs/_sqlite3.pyd": "9922ce0f7f61af42b77744ef489b99d1a62fbbe68694cfa2203e3a85f25f2fa2",
+        "payload/lib/cua/python/3.12.14/DLLs/sqlite3.dll": "b01b15bd066f4aaa8eee527281a0cd73de5e587caf02062a782b69b7806c446c"
+      },
+      "producer_metadata_corrections": [],
+      "producer_records": [
+        {
+          "in_core": false,
+          "init_fn": "PyInit__sqlite3",
+          "license_paths": [
+            "licenses/LICENSE.sqlite.txt"
+          ],
+          "license_public_domain": true,
+          "licenses": [],
+          "links": [
+            {
+              "name": "sqlite3",
+              "path_dynamic": "install/DLLs/sqlite3.dll"
+            }
+          ],
+          "objs": [
+            "build/extensions/_sqlite3/blob.obj",
+            "build/extensions/_sqlite3/connection.obj",
+            "build/extensions/_sqlite3/cursor.obj",
+            "build/extensions/_sqlite3/microprotocols.obj",
+            "build/extensions/_sqlite3/module.obj",
+            "build/extensions/_sqlite3/prepare_protocol.obj",
+            "build/extensions/_sqlite3/row.obj",
+            "build/extensions/_sqlite3/statement.obj",
+            "build/extensions/_sqlite3/util.obj"
+          ],
+          "required": false,
+          "shared_lib": "install/DLLs/_sqlite3.pyd",
+          "static_lib": null,
+          "variant": "default"
+        }
+      ]
+    },
+    "native-tk-windows-bin-8612": {
+      "basis": "pinned-producer-build-metadata-and-observed-installed-members",
+      "extension_names": [
+        "_tkinter"
+      ],
+      "observed_PE_imports": {
+        "DLLs/_tkinter.pyd": [
+          "KERNEL32.dll",
+          "VCRUNTIME140.dll",
+          "api-ms-win-crt-runtime-l1-1-0.dll",
+          "api-ms-win-crt-stdio-l1-1-0.dll",
+          "api-ms-win-crt-string-l1-1-0.dll",
+          "python312.dll",
+          "tcl86t.dll",
+          "tk86t.dll"
+        ]
+      },
+      "observed_members": {
+        "payload/lib/cua/python/3.12.14/DLLs/_tkinter.pyd": "72406e5c64c476f1111b39bc9829ebbb038ef65952908f8cf4bd4e7736413f92",
+        "payload/lib/cua/python/3.12.14/DLLs/tcl86t.dll": "fbfd065f861ec0a90dd513bc209c56bbc23c54d2839964a0ec2df95848af7860",
+        "payload/lib/cua/python/3.12.14/DLLs/tk86t.dll": "cd2f60075064dfc2e65c88b239a970cb4bd07cb3eec7cc26fb1bf978d4356b08"
+      },
+      "producer_metadata_corrections": [],
+      "producer_records": [
+        {
+          "in_core": false,
+          "init_fn": "PyInit__tkinter",
+          "license_paths": [
+            "licenses/LICENSE.tcl.txt",
+            "licenses/LICENSE.tix.txt"
+          ],
+          "license_public_domain": null,
+          "licenses": [
+            "TCL"
+          ],
+          "links": [
+            {
+              "name": "$(tcltk",
+              "system": true
+            },
+            {
+              "name": "tcl86t",
+              "path_dynamic": "install/DLLs/tcl86t.dll"
+            },
+            {
+              "name": "tk86t",
+              "path_dynamic": "install/DLLs/tk86t.dll"
+            }
+          ],
+          "objs": [
+            "build/extensions/_tkinter/_tkinter.obj",
+            "build/extensions/_tkinter/tkappinit.obj"
+          ],
+          "required": false,
+          "shared_lib": "install/DLLs/_tkinter.pyd",
+          "static_lib": null,
+          "variant": "default"
+        }
+      ]
+    },
+    "native-windows-libffi": {
+      "basis": "pinned-producer-build-metadata-and-observed-installed-members",
+      "extension_names": [
+        "_ctypes"
+      ],
+      "observed_PE_imports": {
+        "DLLs/_ctypes.pyd": [
+          "KERNEL32.dll",
+          "OLEAUT32.dll",
+          "VCRUNTIME140.dll",
+          "api-ms-win-crt-runtime-l1-1-0.dll",
+          "api-ms-win-crt-stdio-l1-1-0.dll",
+          "api-ms-win-crt-string-l1-1-0.dll",
+          "libffi-8.dll",
+          "ole32.dll",
+          "python312.dll"
+        ]
+      },
+      "observed_members": {
+        "payload/lib/cua/python/3.12.14/DLLs/_ctypes.pyd": "78edcd2a863472cded0f311eac31c778bc30fb9754fa815bb32c4e286eb7f155",
+        "payload/lib/cua/python/3.12.14/DLLs/libffi-8.dll": "634bca492b28c5d530f1bc321dd6d240b92c5013f3815f59653ec483890db27b"
+      },
+      "producer_metadata_corrections": [],
+      "producer_records": [
+        {
+          "in_core": false,
+          "init_fn": "PyInit__ctypes",
+          "license_paths": [
+            "licenses/LICENSE.libffi.txt"
+          ],
+          "license_public_domain": null,
+          "licenses": [
+            "MIT"
+          ],
+          "links": [
+            {
+              "name": "libffi-8",
+              "path_dynamic": "install/DLLs/libffi-8.dll"
+            }
+          ],
+          "objs": [
+            "build/extensions/_ctypes/_ctypes.obj",
+            "build/extensions/_ctypes/callbacks.obj",
+            "build/extensions/_ctypes/callproc.obj",
+            "build/extensions/_ctypes/cfield.obj",
+            "build/extensions/_ctypes/malloc_closure.obj",
+            "build/extensions/_ctypes/stgdict.obj"
+          ],
+          "required": false,
+          "shared_lib": "install/DLLs/_ctypes.pyd",
+          "static_lib": null,
+          "variant": "default"
+        }
+      ]
+    },
+    "native-xz": {
+      "basis": "pinned-producer-build-metadata-and-observed-installed-members",
+      "extension_names": [
+        "_lzma"
+      ],
+      "observed_PE_imports": {
+        "DLLs/_lzma.pyd": [
+          "KERNEL32.dll",
+          "VCRUNTIME140.dll",
+          "api-ms-win-crt-heap-l1-1-0.dll",
+          "api-ms-win-crt-runtime-l1-1-0.dll",
+          "python312.dll"
+        ]
+      },
+      "observed_members": {
+        "payload/lib/cua/python/3.12.14/DLLs/_lzma.pyd": "31cfc6fd91059f0e4fd819a3381615db6639faaca7d5428c07c37fb64385b3da"
+      },
+      "producer_metadata_corrections": [],
+      "producer_records": [
+        {
+          "in_core": false,
+          "init_fn": "PyInit__lzma",
+          "license_paths": [
+            "licenses/LICENSE.liblzma.txt"
+          ],
+          "license_public_domain": null,
+          "licenses": [
+            "0BSD"
+          ],
+          "links": [],
+          "objs": [
+            "build/extensions/_lzma/_lzmamodule.obj"
+          ],
+          "required": false,
+          "shared_lib": "install/DLLs/_lzma.pyd",
+          "static_lib": null,
+          "variant": "default"
+        }
+      ]
+    },
+    "native-zlib": {
+      "basis": "pinned-producer-build-metadata-and-observed-installed-members",
+      "extension_names": [
+        "zlib"
+      ],
+      "observed_PE_imports": {},
+      "observed_members": {
+        "payload/lib/cua/python/3.12.14/python312.dll": "53d38ecd2d9f4e19ac9328a715d1155e3e183473845e15d0044342909fc718a0"
+      },
+      "producer_metadata_corrections": [],
+      "producer_records": [
+        {
+          "in_core": true,
+          "init_fn": "PyInit_zlib",
+          "links": [],
+          "objs": [],
+          "required": false,
+          "shared_lib": null,
+          "static_lib": null,
+          "variant": "default"
+        }
+      ]
+    }
+  },
+  "limitation": "Producer-declared source/object relationships and exact observed binary identities. Not an independent bit-for-bit rebuild or a claim that optional dependencies from another platform ship.",
+  "metadata_path": "packaging/legal-review/supplement/sources/python/python-x64/000-PYTHON.json",
+  "metadata_sha256": "29381d1c171a6443ac822e62689341b1b54302c3d2f275980e02a3fbdadcaa52",
+  "producer_full_archive_sha256": "b18a69914dff8aa4541adf40579e0aea3233ad3dad5aba2d90a9e179dcf44489",
+  "schema": 1,
+  "status": "source-observations-not-approval",
+  "target": "x86_64-pc-windows-msvc"
+}

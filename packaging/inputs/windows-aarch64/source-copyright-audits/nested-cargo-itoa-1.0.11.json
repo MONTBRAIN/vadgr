@@ -1,0 +1,91 @@
+{
+  "archive_sha256": "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b",
+  "eligible_for_reviewed_NONE": true,
+  "files": [
+    {
+      "path": "itoa-1.0.11/.cargo_vcs_info.json",
+      "sha256": "23987c15e4e7a411a165da7ee28476ab875eda5ae6d3aaae5536ba019cdb21e7",
+      "size": 94,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "itoa-1.0.11/.github/FUNDING.yml",
+      "sha256": "b017158736b3c9751a2d21edfce7fe61c8954e2fced8da8dd3013c2f3e295bd9",
+      "size": 16,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "itoa-1.0.11/.github/workflows/ci.yml",
+      "sha256": "3bff86b0f8f86d09c2787c7d62facf70525b175f1a1ac2d352f0b9bb905cd7e6",
+      "size": 2926,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "itoa-1.0.11/.gitignore",
+      "sha256": "f9b1ca6ae27d1c18215265024629a8960c31379f206d9ed20f64e0b2dcf79805",
+      "size": 18,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "itoa-1.0.11/Cargo.toml",
+      "sha256": "4b12156f19f1d3a10516ba0177197325f072340e40de4b6a376732fcef3105b2",
+      "size": 1156,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "itoa-1.0.11/Cargo.toml.orig",
+      "sha256": "a37b4f8dfbd47e418e132fca3d3d74599023fe32fa4d421b2055c9f9af0a3421",
+      "size": 649,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "normalized_sha256": "59d8f0ba87ad9a2f1a431123c8d16646e5b89ba53653e818f16d136d77263c99",
+      "path": "itoa-1.0.11/LICENSE-APACHE",
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+      "size": 9723,
+      "status": "complete-standard-boilerplate",
+      "template": "Apache-2.0-complete-terms-without-application-appendix"
+    },
+    {
+      "normalized_sha256": "fe2a9817987f862eaced948f0468c7f51d2fedfc48c5c505b246a49a3870e9a5",
+      "path": "itoa-1.0.11/LICENSE-MIT",
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+      "size": 1023,
+      "status": "complete-standard-boilerplate",
+      "template": "MIT-standard-grant-without-owner-statement"
+    },
+    {
+      "path": "itoa-1.0.11/README.md",
+      "sha256": "48573443063fa4e0786c3b46f42b6efd1f171c6b73408a64afc1b34de89f31fe",
+      "size": 2025,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "itoa-1.0.11/benches/bench.rs",
+      "sha256": "636f3093bd461210ad3063289d455f90669c4a1be3273bcd30898de39f02c641",
+      "size": 1344,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "itoa-1.0.11/src/lib.rs",
+      "sha256": "22f02b06399d4c6849dac5a1b517d3e5736dd33edc3955101ee0be6afc8376eb",
+      "size": 10869,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "itoa-1.0.11/src/udiv128.rs",
+      "sha256": "d28c1872c37ee2185931babcb20a221b8706a5aa8abc4963419763888023ff17",
+      "size": 1480,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "itoa-1.0.11/tests/test.rs",
+      "sha256": "aa1e910573a1d847d39773b4a2e4c597a8d3810070332673df0f6864cab24807",
+      "size": 922,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
+  "schema": 1
+}

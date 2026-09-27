@@ -1,0 +1,54 @@
+{
+  "archive_sha256": "f27ae1dd37df86211c42e150270f82743308803d90a6f6e6651cd730d5e1732f",
+  "original_statement_files": [
+    {
+      "path": "cursor-icon-1.2.0/LICENSE-APACHE",
+      "sha256": "b59affd015e517ed998dd735757f9a3693643cd389609947ed54074234a10784",
+      "size": 11346,
+      "statements": [
+        {
+          "line": 190,
+          "text": "Copyright 2023 Kirill Chibisov"
+        }
+      ]
+    },
+    {
+      "path": "cursor-icon-1.2.0/LICENSE-MIT",
+      "sha256": "c138726a726ac37bae09d0f8a48e74e8e3aa8a8952fcd10fae0fb224cc1c05f1",
+      "size": 1059,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2023 Kirill Chibisov"
+        }
+      ]
+    },
+    {
+      "path": "cursor-icon-1.2.0/LICENSE-ZLIB",
+      "sha256": "01e533bd94e8f1c32b2c2531e2c398de7d35d7804add3d574b4e1fe581d53537",
+      "size": 844,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2023 Kirill Chibisov"
+        }
+      ]
+    },
+    {
+      "path": "cursor-icon-1.2.0/src/lib.rs",
+      "sha256": "2f649887b91d2ea059fcf64ef8512a16c0bde72e38ff0aeb14df0f119a9885cb",
+      "size": 17560,
+      "statements": [
+        {
+          "line": 39,
+          "text": "// Copyright \u00a9 2018 W3C\u00ae (MIT, ERCIM, Keio, Beihang)"
+        },
+        {
+          "line": 92,
+          "text": "// Copyright \u00a9 2023 World Wide Web Consortium, (Massachusetts Institute of"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

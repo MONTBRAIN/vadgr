@@ -1,0 +1,61 @@
+{
+  "archive_sha256": "c3d1e2c7f27f8d4cb10542a02c49005dbd6e93095799d6f3be745fae9f8fedd4",
+  "original_statement_files": [
+    {
+      "path": "socket2-0.6.5/LICENSE-MIT",
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397",
+      "size": 1057,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014 Alex Crichton"
+        }
+      ]
+    },
+    {
+      "path": "socket2-0.6.5/src/lib.rs",
+      "sha256": "f3782bc62e5a17e25e8868c55a14fa1da89f564bd0db9ad234dff429094386e1",
+      "size": 24778,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015 The Rust Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "socket2-0.6.5/src/socket.rs",
+      "sha256": "14d718fc14286e1a0c35d785d1ece2096c5af12188c248a7493851d0d87f824d",
+      "size": 89654,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015 The Rust Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "socket2-0.6.5/src/sys/unix.rs",
+      "sha256": "5193fd8c91103f8c73c03c0237c2a493aba911a2995c3750ffb13b054f5c9433",
+      "size": 102198,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015 The Rust Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "socket2-0.6.5/src/sys/windows.rs",
+      "sha256": "ea941638399a4e3f7cf0ac2f21d5eaf44d62d26c760d97b1660ba653853101dd",
+      "size": 36475,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015 The Rust Project Developers."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

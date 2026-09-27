@@ -1,0 +1,25 @@
+{
+  "archive_sha256": "a7507d819769d01a365ab707794a4084392c824f54a7a6a7862f8c3d0892b283",
+  "original_statement_files": [
+    {
+      "path": "sha2-0.10.9/LICENSE-MIT",
+      "sha256": "b4eb00df6e2a4d22518fcaa6a2b4646f249b3a3c9814509b22bd2091f1392ff1",
+      "size": 1138,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2006-2009 Graydon Hoare"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2009-2013 Mozilla Foundation"
+        },
+        {
+          "line": 3,
+          "text": "Copyright (c) 2016 Artyom Pavlov"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

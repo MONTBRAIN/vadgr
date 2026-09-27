@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "6bb31b46c14244e20ee9984b11bf5c992b91fb6939fea616e3512c8baecdbe5f",
+  "original_statement_files": [
+    {
+      "path": "bstr-1.13.1/LICENSE-MIT",
+      "sha256": "6b7374c39a57e57fc2c38eb529c4c88340152b10f51dd5ae2d819dfa67f61715",
+      "size": 1086,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2018-2019 Andrew Gallant"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

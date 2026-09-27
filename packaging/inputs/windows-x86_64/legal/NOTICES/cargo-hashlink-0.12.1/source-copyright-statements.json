@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "32069d97bb81e38fa67eab65e3393bf804bb85969f2bc06bf13f64aef5aba248",
+  "original_statement_files": [
+    {
+      "path": "hashlink-0.12.1/LICENSE-MIT",
+      "sha256": "e915669a595b11a200873df8286561881b0e04932f6412a585db6297ba0bc97c",
+      "size": 1133,
+      "statements": [
+        {
+          "line": 1,
+          "text": "This work is derived in part from the `linked-hash-map` crate, Copyright (c)"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

@@ -90,6 +90,46 @@ def validate(bundle, **kwargs):
     return package.validate_package_inputs(root, source, VERSION, TARGET, **kwargs)
 
 
+def test_none_without_exact_source_and_absence_audit_is_rejected(bundle):
+    _, _, inventory, _, _ = bundle
+    inventory["components"][0]["copyright_text"] = "NONE"
+    with pytest.raises(package.PackageInputError, match="copyright absence evidence required"):
+        package.validate_inventory(inventory)
+
+
+def test_evidence_bound_none_still_requires_approved_review(bundle):
+    import io
+    import tarfile
+    from scripts.copyright_absence import audit_archive
+    root, _, inventory, review, _ = bundle
+    stream = io.BytesIO()
+    with tarfile.open(fileobj=stream, mode="w:gz") as archive:
+        member = tarfile.TarInfo("synthetic-1/src/lib.rs")
+        raw = b"pub fn synthetic_fixture() {}\n"
+        member.size = len(raw)
+        archive.addfile(member, io.BytesIO(raw))
+    raw = stream.getvalue()
+    digest = package.sha256_bytes(raw)
+    archive_name = "legal/SOURCE-OFFERS/synthetic-cargo/source.crate"
+    audit_name = "legal/SOURCE-OFFERS/synthetic-cargo/copyright-absence.json"
+    files = {archive_name: raw, audit_name: package.canonical_json(audit_archive(raw, digest))}
+    component = inventory["components"][0]
+    component.update(copyright_text="NONE", sha256=digest, source_offer_required=True,
+                     source_offer_files=[{"path": name, "sha256": package.sha256_bytes(data)} for name, data in files.items()])
+    files["legal/SOURCE-OFFER.txt"] = package.aggregate_files(inventory, files, "source_offer_files")
+    files[f"sbom/vadgr-{VERSION}.spdx.json"] = package.canonical_json(package.build_sbom(inventory))
+    for name, data in files.items():
+        (root / name).parent.mkdir(parents=True, exist_ok=True)
+        (root / name).write_bytes(data)
+        review["files"][name] = package.sha256_bytes(data)
+    rebind(bundle)
+    assert validate(bundle, source_only=True)["scope"] == "source-inputs"
+    review["status"] = "draft"
+    rebind(bundle)
+    with pytest.raises(package.PackageInputError, match="approval required"):
+        validate(bundle, source_only=True)
+
+
 def rebind(bundle):
     root, _, inventory, review, _ = bundle
     write_json(root / "package-input-inventory.json", inventory)

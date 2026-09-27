@@ -1,0 +1,369 @@
+{
+  "archive_sha256": "4b60dfc32f652b926df6192e55525b16d186c69d47876c3ead4da5cc9f8450e2",
+  "original_statement_files": [
+    {
+      "path": "kurbo-0.13.1/LICENSE-MIT",
+      "sha256": "23c23145f6eac25c28cdcc03d38506a5712a9a8cffb5bd5301457f6173ea696e",
+      "size": 1055,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018 Raph Levien"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/affine.rs",
+      "sha256": "7288c89bb5ce16acd7d1b046f189df5855cfafa0454d667fc7b0dc4454fa2663",
+      "size": 29507,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/arc.rs",
+      "sha256": "f1479f3e54c7e4717424920f128ebfda59ea2984c08b43291411072072eb1475",
+      "size": 10173,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2019 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/axis.rs",
+      "sha256": "6ccf1f4cca904fa43f54d9d71a6511927fdab171a8d00382ab311cd2776ef781",
+      "size": 2395,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2025 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/bezpath.rs",
+      "sha256": "6d9d5769715dfc4c10f90c1de500fca7a2ca35c0d673d2e05d7ddd615a987be4",
+      "size": 84103,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/circle.rs",
+      "sha256": "434d23a89e13ad22be300c383cdf027e41a9ccfbd8a3f9152c1e97a5ad330491",
+      "size": 11671,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2019 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/common.rs",
+      "sha256": "5d32994b9832dc34738a0d34464d9b2435398404bfd576c838584c301359d062",
+      "size": 39785,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/cubicbez.rs",
+      "sha256": "de793f84444c55467a4669de64b4a06209f97540362c2da1fe0ad2b2367f5b80",
+      "size": 44960,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/ellipse.rs",
+      "sha256": "991e9830a32643d2aa5c34c57330323e65f3b15231c80b086eb715b0665fc41d",
+      "size": 19093,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2020 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/expand.rs",
+      "sha256": "f0ef21c91790097498bfacd2cc624f6ac86b32bc2600aa78c57583e46c5d0ae6",
+      "size": 24463,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2026 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/fit.rs",
+      "sha256": "3d7dace4a4452ce6a5eff3186a48f8dc0d0d625029feae78c24017fb5b68695b",
+      "size": 26893,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/insets.rs",
+      "sha256": "cf6019c2ab0783ede641ef61677b60d4c2cf4f721317024a0944e8c66373dc98",
+      "size": 10574,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2019 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/interop_euclid.rs",
+      "sha256": "bc94da5023b455df685b74cd942d569e1ee5025191c64ff4217f068d845b9418",
+      "size": 2507,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2025 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/lib.rs",
+      "sha256": "f513dc1a758bc061cc2a177fa98a1d566003d6c83e36d3befbc9bbea2e4349e7",
+      "size": 6921,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/line.rs",
+      "sha256": "66fba2df6d9653aa03adfda457a5059a7cbdd1ae29fa2c2db4ba5aefb1d4db28",
+      "size": 11110,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/mindist.rs",
+      "sha256": "3f6e98e5cc25395e042bcd3138abd237176034cbddb13d48a11b66f581d724e4",
+      "size": 11097,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2021 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/moments.rs",
+      "sha256": "decf10b9116aacab2bab47c8b331a6a5e3ba16b3c63527710289cedc5df930a0",
+      "size": 20168,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2025 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/offset.rs",
+      "sha256": "8999fdb31334a6c08c260f2ae360aba3b091652e26454b735ea985c99a545cd9",
+      "size": 27038,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/param_curve.rs",
+      "sha256": "5cac1495643a9cb5f4af7ea618265a9deb87e7f82ee9628fdb46c49fd970a553",
+      "size": 7615,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/point.rs",
+      "sha256": "4311047b9497b4fbd38022eb62ebaa9771c05e55e1bafb9431f2243949515ca7",
+      "size": 10200,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2019 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/quadbez.rs",
+      "sha256": "37ab1037750d32eed6b3664b250a8c14c78419a1567e790695c0e46544263bbd",
+      "size": 18698,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/quadspline.rs",
+      "sha256": "cfa129dd52d23a7852be3a1103e8022cc792cb2bd481440d3ebc1221a635e28d",
+      "size": 3161,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2021 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/rect.rs",
+      "sha256": "20c0bca0e79ab1b69321bf5d7e2db618cb4582bb29f47854faa5979a38a9ff2a",
+      "size": 34047,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2019 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/rounded_rect.rs",
+      "sha256": "495d08f409456a97cd8c228f84624383922c4ef01e4d2edf624a40765a12b3c4",
+      "size": 15708,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2019 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/rounded_rect_radii.rs",
+      "sha256": "ac42ee920ff31c6b5524ea9ae22e9da8ad2a8d17572e9ade1c369d827b8004d7",
+      "size": 4193,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2021 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/shape.rs",
+      "sha256": "226a32a1996d298e9587cc921b7cc8644ca6e04b2c740732e0a63ab00d3351ae",
+      "size": 7692,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2019 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/simplify.rs",
+      "sha256": "771fc68a2dd0a00d994906176641bcb17c9351b3d1205e037a78a5893b51a684",
+      "size": 12990,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/size.rs",
+      "sha256": "645a1f7ba1528b1b10e5881d53019eac428e556c1d9bdea8d3f42ce351c00950",
+      "size": 13399,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2019 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/stroke.rs",
+      "sha256": "9ae69c57571d653a34ded745e176869ef587e4ff5c3dcb1607a398df7e029498",
+      "size": 43424,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2023 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/svg.rs",
+      "sha256": "b403a258614b3e287c3e5210b0745814f08acda92e95696bdddbf50e341fa3be",
+      "size": 22382,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/translate_scale.rs",
+      "sha256": "8b82eb5f46744cb9a044263e200d79d797270616320337e4230356942ab85f1a",
+      "size": 9607,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2019 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/triangle.rs",
+      "sha256": "27a6cddb109ae36ef55c470261c689d085502ab72a47f3a32ca22e771df7b03e",
+      "size": 10682,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Kurbo Authors"
+        }
+      ]
+    },
+    {
+      "path": "kurbo-0.13.1/src/vec2.rs",
+      "sha256": "05b37bf834417a040012fef380aa9eb10925324ea1a07fba3328839a56c9a060",
+      "size": 14387,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 the Kurbo Authors"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

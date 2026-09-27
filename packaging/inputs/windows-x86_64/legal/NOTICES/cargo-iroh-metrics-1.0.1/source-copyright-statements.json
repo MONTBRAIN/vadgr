@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "291065721ad7c477b972e581bbc528df031dc8eb5e39fe1ff3300ae5dfb157ef",
+  "original_statement_files": [
+    {
+      "path": "iroh-metrics-1.0.1/LICENSE-MIT",
+      "sha256": "339060c99d5c80c2742cae417f765980afe6b0149a78f959bbf2a79f19ab3af5",
+      "size": 1048,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2026 N0, INC."
+        }
+      ]
+    },
+    {
+      "path": "iroh-metrics-1.0.1/README.md",
+      "sha256": "3c7c4bf98a650cca544ac5ba1c47f8d307ebf1f466113a406ca7c952500eeec2",
+      "size": 1755,
+      "statements": [
+        {
+          "line": 17,
+          "text": "Copyright 2026 N0, INC."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

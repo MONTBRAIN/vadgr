@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "4d40460c0ce33d6ce4b0630ad68ff63d6661961c48b6dba35e5a4d81cfb48222",
+  "original_statement_files": [
+    {
+      "path": "ipconfig-0.3.4/LICENSE-MIT",
+      "sha256": "ca471051e1527e5f40e9b96aa697f8efc00f0bb8c8df07196cb5e5d134c68e98",
+      "size": 1056,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2017 Liran Ringel"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

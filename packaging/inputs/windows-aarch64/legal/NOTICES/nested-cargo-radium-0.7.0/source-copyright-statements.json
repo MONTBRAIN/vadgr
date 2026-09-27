@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "dc33ff2d4973d518d823d61aa239014831e521c75da58e3df4840d3f47749d09",
+  "original_statement_files": [
+    {
+      "path": "radium-0.7.0/LICENSE.txt",
+      "sha256": "13f4cc9fbc8d4a447b28aa84019c10ad4abf4b5f6919db061bf6690ccc23bc02",
+      "size": 1079,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2019 kneecaw (Nika Layzell)"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

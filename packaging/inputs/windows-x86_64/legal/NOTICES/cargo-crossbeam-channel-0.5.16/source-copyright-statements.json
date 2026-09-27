@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "d85363c37faeca707aef026efa9f3b34d077bce547e48f770770625c6013679e",
+  "original_statement_files": [
+    {
+      "path": "crossbeam-channel-0.5.16/LICENSE-MIT",
+      "sha256": "5734ed989dfca1f625b40281ee9f4530f91b2411ec01cb748223e7eb87e201ab",
+      "size": 1099,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2019 The Crossbeam Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "crossbeam-channel-0.5.16/LICENSE-THIRD-PARTY",
+      "sha256": "b16db96b93b1d7cf7bea533f572091ec6bca3234fbe0a83038be772ff391a44c",
+      "size": 33447,
+      "statements": [
+        {
+          "line": 331,
+          "text": "Copyright (c) 2009 The Go Authors. All rights reserved."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

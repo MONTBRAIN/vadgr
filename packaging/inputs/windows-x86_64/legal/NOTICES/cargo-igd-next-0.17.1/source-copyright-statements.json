@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "de7238d487a9aff61f81b5ab41c0a841532a115a398b5fa92a2fadd0885e2581",
+  "original_statement_files": [
+    {
+      "path": "igd-next-0.17.1/LICENSE",
+      "sha256": "907203ca920da7a8946be22a900682e8ab20794e23a0301610e53b15e7a939f4",
+      "size": 1091,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2015 Simon Bernier St-Pierre"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

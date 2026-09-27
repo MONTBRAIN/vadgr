@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "2874a2af47a2325c2001a6e6fad9b16a53b802102b528163885171cf92b15976",
+  "original_statement_files": [
+    {
+      "path": "libc-0.2.177/LICENSE-MIT",
+      "sha256": "a8d47ff51ca256f56a8932dba07660672dbfe3004257ca8de708aac1415937a1",
+      "size": 1076,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014-2020 The Rust Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

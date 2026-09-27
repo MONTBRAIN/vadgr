@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "aa18ce2bc66555b3218614519ac839ddb759a7d6720732f979ef8d13be147ecd",
+  "original_statement_files": [
+    {
+      "path": "enum_dispatch-0.3.13/LICENSE",
+      "sha256": "1e5d3ddaf5cbc111c8517df39e6f252e4c16dbda26b7cc1ad54c9e3efb0586be",
+      "size": 1070,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2019 Anton Lazarev"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

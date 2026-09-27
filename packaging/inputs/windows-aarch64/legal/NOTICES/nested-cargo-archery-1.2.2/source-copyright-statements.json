@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "70e0a5f99dfebb87bb342d0f53bb92c81842e100bbb915223e38349580e5441d",
+  "original_statement_files": [
+    {
+      "path": "archery-1.2.2/LICENSE.md",
+      "sha256": "e326b5fef9084c437878cc2184ba6dfa15503f46e5359dd67246f51761ea709f",
+      "size": 1068,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2025 Diogo Sousa"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

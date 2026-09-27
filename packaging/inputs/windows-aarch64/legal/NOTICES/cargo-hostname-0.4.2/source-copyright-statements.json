@@ -1,0 +1,21 @@
+{
+  "archive_sha256": "617aaa3557aef3810a6369d0a99fac8a080891b68bd9f9812a1eeda0c0730cbd",
+  "original_statement_files": [
+    {
+      "path": "hostname-0.4.2/LICENSE",
+      "sha256": "2e4213e573312c8c75e6e7e2c55a45283427e759432b56014afaf3c7d950a568",
+      "size": 1092,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2016 fengcen"
+        },
+        {
+          "line": 4,
+          "text": "Copyright (c) 2019 svartalf"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

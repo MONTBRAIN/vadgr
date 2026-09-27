@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "ae137229bcbd6cdf0f7b80a31df61766145077ddf49416a728b02cb3921ff3fc",
+  "original_statement_files": [
+    {
+      "path": "windows-sys-0.61.2/license-apache-2.0",
+      "sha256": "c16f8dcf1a368b83be78d826ea23de4079fe1b4469a0ab9ee20563f37ff3d44b",
+      "size": 11351,
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright (c) Microsoft Corporation."
+        }
+      ]
+    },
+    {
+      "path": "windows-sys-0.61.2/license-mit",
+      "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+      "size": 1141,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) Microsoft Corporation."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

@@ -50,6 +50,41 @@ def test_license_filename_is_not_a_grant():
     assert synthesis.license_atoms(b"LICENSE-APACHE; see another file") == set()
 
 
+def test_truncated_mit_never_closes_review_or_source_duty():
+    fragment = b'Copyright (c) 2026 Holder\nPermission is hereby granted, free of charge\nTHE SOFTWARE IS PROVIDED AS IS\n'
+    packet = synthesis.Packet()
+    packet.component(identifier="fragment", name="fragment", version="1", kind="cargo", digest="a" * 64,
+                     location="https://example.org/source", declared="MIT", sources=[("LICENSE", fragment)],
+                     scope="test", pending=["license-choice-and-original-copyright", "notice-and-source-duty"])
+    assert synthesis.license_atoms(fragment) == set()
+    assert packet.components[0]["license_concluded"] == "NOASSERTION"
+    assert packet.components[0]["source_offer_required"] is None
+    assert len(packet.pending[0]["items"]) == 2
+    assert synthesis.license_atoms(synthesis.MIT_GRANT.encode()) == {"MIT"}
+
+
+@pytest.mark.parametrize("declared, expected", [
+    ("MIT OR Apache-2.0", "MIT OR Apache-2.0"),
+    ([{"expression": "Apache-2.0 OR BSD-3-Clause"}], "Apache-2.0 OR BSD-3-Clause"),
+    ("GNU AFFERO GENERAL PUBLIC LICENSE\nVersion 3", None),
+    ("AGPL-3.0-only", "AGPL-3.0-only"),
+])
+def test_declared_expression_is_not_a_concluded_choice(declared, expected):
+    assert synthesis.declared_expression(declared) == expected
+
+
+def test_mutated_observation_is_rejected_before_using_claims(tmp_path):
+    (tmp_path / "preparation-observation.json").write_bytes(
+        b'{"architecture":"x64","target":"aarch64-pc-windows-msvc","source":{"source_sha":"0000000000000000000000000000000000000000","run_id":1}}')
+    with pytest.raises(PackageInputError, match="retained observation identity differs"):
+        synthesis.verify_observation(tmp_path, tmp_path, "x64")
+
+
+def test_choice_uses_an_available_explicit_alternative():
+    assert synthesis.license_choice("MIT OR Apache-2.0", {"MIT"}) == "MIT"
+    assert synthesis.license_choice("Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT") == "Apache-2.0"
+
+
 def test_unreviewed_component_stays_unresolved():
     packet = synthesis.Packet()
     packet.component(identifier="example", name="example", version="1", kind="wheel", digest="a" * 64,

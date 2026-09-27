@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2",
+  "original_statement_files": [
+    {
+      "path": "rustc-hash-1.1.0/src/lib.rs",
+      "sha256": "ddecafb5db609d0d8eebd19e4d98dc865e7e9282a4183421f9bd765c01a231c0",
+      "size": 4506,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

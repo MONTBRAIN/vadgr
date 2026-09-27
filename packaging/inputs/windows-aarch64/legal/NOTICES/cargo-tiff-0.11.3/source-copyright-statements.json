@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "b63feaf3343d35b6ca4d50483f94843803b0f51634937cc2ec519fc32232bc52",
+  "original_statement_files": [
+    {
+      "path": "tiff-0.11.3/LICENSE",
+      "sha256": "20c097d0de27e2adc179140a3d542091951a030699c7e1c78655f2a2d08d4e3e",
+      "size": 1073,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2018 PistonDevelopers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

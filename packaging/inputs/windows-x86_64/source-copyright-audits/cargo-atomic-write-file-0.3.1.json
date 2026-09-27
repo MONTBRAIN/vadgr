@@ -1,0 +1,163 @@
+{
+  "archive_sha256": "ae67d5c03ee972c101a1d8db3ddbf8a9c819ad1ea9d6fd9cd385605547b60edb",
+  "eligible_for_reviewed_NONE": false,
+  "files": [
+    {
+      "path": "atomic-write-file-0.3.1/.cargo_vcs_info.json",
+      "sha256": "c680e9bfc1b73a3dec840fee407a1ae5d335c9f13c8eeca3a4b937538bca10dd",
+      "size": 94,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/.github/workflows/ci.yml",
+      "sha256": "e3af6f4c92999e93cb4a12785d252697083b5c900fbde7de7e834908f734a831",
+      "size": 5878,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/.github/workflows/crash-tests.yml",
+      "sha256": "776f9c0ce05b09343d1edb4168b7bb51cdbeb39d176d2af36b46146a4182bacb",
+      "size": 1249,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/.gitignore",
+      "sha256": "c1e953ee360e77de57f7b02f1b7880bd6a3dc22d1a69e953c2ac2c52cc52d247",
+      "size": 20,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/.gitlab-ci.yml",
+      "sha256": "be21e47b3172f8f677438972665af4f30be7f980bd9c49a4fda301e206a906e5",
+      "size": 216,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/CHANGELOG.md",
+      "sha256": "c214e04983a70f32d368e3ba0ea096bb0731f4fb26fb5d862d775fa2ffa07c0c",
+      "size": 3302,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/Cargo.lock",
+      "sha256": "a55a416c4d639ff32d6faac361a1b3d4f06fe64ebff5fc5486acadd356d66331",
+      "size": 2585,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/Cargo.toml",
+      "sha256": "00b7e82ea2817433fc821063b0d2b01bf48d5c2b552111f5f404803de1276d92",
+      "size": 1369,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/Cargo.toml.orig",
+      "sha256": "aa278f389978497a278c2f3463b507fd9cb06b36c7c2803b1a337188ee0289f2",
+      "size": 712,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/Cross.toml",
+      "sha256": "65260a48bb0c0ef8434851769500aa8314c95a6f0c19021093ef736af56b3c50",
+      "size": 79,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "mentions": [
+        {
+          "line": 4,
+          "text": "1. Redistributions of source code must retain the above copyright notice, this"
+        },
+        {
+          "line": 7,
+          "text": "2. Redistributions in binary form must reproduce the above copyright notice,"
+        },
+        {
+          "line": 11,
+          "text": "3. Neither the name of the copyright holder nor the names of its contributors"
+        },
+        {
+          "line": 15,
+          "text": "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \u201cAS IS\u201d AND"
+        },
+        {
+          "line": 18,
+          "text": "DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE"
+        }
+      ],
+      "path": "atomic-write-file-0.3.1/LICENSE.md",
+      "sha256": "27a012f5bd681a8bc4574094c96fa3bf58f94bb59f7290e0c2f8265fcf7429f9",
+      "size": 1447,
+      "status": "ambiguous-ownership-marker"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/README.md",
+      "sha256": "c338988a1f356fcebe86dfc4a6394eabf31817d1c88da07df7af25b53f10e852",
+      "size": 3541,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/src/dir.rs",
+      "sha256": "7bb68d5e29fe15cce4fd8fa6795d3188b115d8c9f7b212f645aa93a009416a99",
+      "size": 2268,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/src/fd.rs",
+      "sha256": "b3c7e813c983075fb07f3b7666588c00858cae217fd9ef0782e3c2b11985475d",
+      "size": 404,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/src/imp/generic.rs",
+      "sha256": "1f85381bef92ab44baa62201901438b5df135c617089184af182b1e18f83753e",
+      "size": 3333,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/src/imp/mod.rs",
+      "sha256": "1a826387dcc1f7fdf841df48b1677096b68ed16d2901a116b9464fe0ecb3d93d",
+      "size": 335,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/src/imp/unix/generic.rs",
+      "sha256": "264a1a93704b78496708a14545953227a78747b86920a064682a749d97c9852f",
+      "size": 1619,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/src/imp/unix/linux.rs",
+      "sha256": "c166774ce02a65f3e94540b90680bb56bcae53a76cbc3d37efd333811ea228c6",
+      "size": 4396,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/src/imp/unix/mod.rs",
+      "sha256": "9555fe8c1347b577dd92deab8ed8765b4c56b23b1290860243c2217a844a4d3f",
+      "size": 5887,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/src/lib.rs",
+      "sha256": "5149cc99912c27e316910aac9f3066c4ff41c30e0b6fb2c28911bce9838c02d8",
+      "size": 33365,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/src/tests.rs",
+      "sha256": "adec7c7d2ddbc98804fb63fae7a1a593ce117f2a0dae4e97317179e5844130d4",
+      "size": 7408,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "atomic-write-file-0.3.1/src/unix.rs",
+      "sha256": "35b1d35bd7fc4cf3248eee9441b4575b1b8a98f84c2b702f82a0236a6970df78",
+      "size": 9580,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
+  "schema": 1
+}

@@ -1,0 +1,21 @@
+{
+  "archive_sha256": "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b",
+  "original_statement_files": [
+    {
+      "path": "try-lock-0.2.5/LICENSE",
+      "sha256": "c816a0749cdc6bf062a5111c159723de51b2bfac66a1dac2655abd9e6b1583eb",
+      "size": 1096,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018-2023 Sean McArthur"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2016 Alex Crichton"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

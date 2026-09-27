@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "95832e849adfb21180ccb6826a99da14e5d266ae5c2e668e1602cf234f153797",
+  "original_statement_files": [
+    {
+      "path": "bytemuck-1.25.2/LICENSE-MIT",
+      "sha256": "9df9ba60a11af705f2e451b53762686e615d86f76b169cf075c3237730dbd7e2",
+      "size": 1110,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2019 Daniel \"Lokathor\" Gee."
+        }
+      ]
+    },
+    {
+      "path": "bytemuck-1.25.2/LICENSE-ZLIB",
+      "sha256": "84b34dd7608f7fb9b17bd588a6bf392bf7de504e2716f024a77d89f1b145a151",
+      "size": 851,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2019 Daniel \"Lokathor\" Gee."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

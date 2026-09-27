@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "773f3b9af64447d2ce9850330c473515014aa235e6a783b02db81ff39e4a3dad",
+  "original_statement_files": [
+    {
+      "path": "cipher-0.4.4/LICENSE-MIT",
+      "sha256": "5c7bd92d1f096f12203dc1b601e3cb17484fa1b023e30b6b8edcc80e416237ec",
+      "size": 1070,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2016-2020 RustCrypto Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

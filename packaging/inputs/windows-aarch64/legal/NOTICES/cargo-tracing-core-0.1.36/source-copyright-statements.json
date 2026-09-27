@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "db97caf9d906fbde555dd62fa95ddba9eecfd14cb388e4f491a66d74cd5fb79a",
+  "original_statement_files": [
+    {
+      "path": "tracing-core-0.1.36/LICENSE",
+      "sha256": "898b1ae9821e98daf8964c8d6c7f61641f5f5aa78ad500020771c0939ee0dea1",
+      "size": 1062,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2019 Tokio Contributors"
+        }
+      ]
+    },
+    {
+      "path": "tracing-core-0.1.36/src/spin/LICENSE",
+      "sha256": "58545fed1565e42d687aecec6897d35c6d37ccb71479a137c0deb2203e125c79",
+      "size": 1085,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2014 Mathijs van de Nes"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

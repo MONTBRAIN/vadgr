@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "d3491c14715ca2294c4d6a88f15e84739788c1d030eed8c110436aafdaa2f3fd",
+  "original_statement_files": [
+    {
+      "path": "serde_urlencoded-0.7.1/LICENSE-MIT",
+      "sha256": "b9eb266294324f672cbe945fe8f2e32f85024f0d61a1a7d14382cdde0ac44769",
+      "size": 1058,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2016 Anthony Ramine"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "77823a27f0babb03091cb9ed9ef80af3b39dbc82f97e8fa530374b7dafd87a45",
+  "original_statement_files": [
+    {
+      "path": "openssl-0.10.81/LICENSE",
+      "sha256": "f3d4287b4a21c5176fea2f9bd4ae800696004e2fb8e05cbc818be513f188a941",
+      "size": 618,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2011-2017 Google Inc."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

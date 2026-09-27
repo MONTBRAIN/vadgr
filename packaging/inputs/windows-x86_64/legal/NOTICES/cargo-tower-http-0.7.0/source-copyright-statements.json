@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "b11f75e912b0c2be01b63d8cf8057b8c3f97cf34abb3d431a3a4c8675498e233",
+  "original_statement_files": [
+    {
+      "path": "tower-http-0.7.0/LICENSE",
+      "sha256": "5049cf464977eff4b4fcfa7988d84e74116956a3eb9d5f1d451b3f828f945233",
+      "size": 1067,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2019-2021 Tower Contributors"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "e368e7ddfdeb98c9bca7f8383be1648fd84ab466bf2bc015e94008db6d35611e",
+  "original_statement_files": [
+    {
+      "path": "pyo3-build-config-0.28.3/LICENSE-APACHE",
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9",
+      "size": 9807,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2017-present PyO3 Project and Contributors.  https://github.com/PyO3"
+        }
+      ]
+    },
+    {
+      "path": "pyo3-build-config-0.28.3/LICENSE-MIT",
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6",
+      "size": 1107,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2023-present PyO3 Project and Contributors.  https://github.com/PyO3"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

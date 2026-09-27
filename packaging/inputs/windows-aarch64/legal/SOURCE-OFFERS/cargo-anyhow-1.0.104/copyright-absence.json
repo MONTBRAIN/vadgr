@@ -1,0 +1,337 @@
+{
+  "archive_sha256": "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470",
+  "eligible_for_reviewed_NONE": true,
+  "files": [
+    {
+      "path": "anyhow-1.0.104/.cargo_vcs_info.json",
+      "sha256": "9f5691d9965b8418415cfe8872a667089542a23a1d746bad08476ccda5e6269c",
+      "size": 94,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/.github/FUNDING.yml",
+      "sha256": "b017158736b3c9751a2d21edfce7fe61c8954e2fced8da8dd3013c2f3e295bd9",
+      "size": 16,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/.github/workflows/ci.yml",
+      "sha256": "40e9434834e8ba84207ef6a401da6b154fa4220a4847230284d6aae63d8a39ac",
+      "size": 3799,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/.gitignore",
+      "sha256": "07d64eb09a56c853b7853a47276799b38d7d6d25a4314b0c1abc10432c214e17",
+      "size": 21,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/Cargo.lock",
+      "sha256": "c7b6dd9adcad0b26ce812afdb8539e1d93994a0735a90eb0dd7ce8535e3e7ffa",
+      "size": 9328,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/Cargo.toml",
+      "sha256": "249789761ff37004dda628765f0c9e60a61fa43cbbd2d364789dca0c789eeb59",
+      "size": 2606,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/Cargo.toml.orig",
+      "sha256": "1b03bd9d21f63835f0449cf1456e6143a15efd6b7803bc5b7787643db62b6f53",
+      "size": 1159,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "normalized_sha256": "59d8f0ba87ad9a2f1a431123c8d16646e5b89ba53653e818f16d136d77263c99",
+      "path": "anyhow-1.0.104/LICENSE-APACHE",
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+      "size": 9723,
+      "status": "complete-standard-boilerplate",
+      "template": "Apache-2.0-complete-terms-without-application-appendix"
+    },
+    {
+      "normalized_sha256": "fe2a9817987f862eaced948f0468c7f51d2fedfc48c5c505b246a49a3870e9a5",
+      "path": "anyhow-1.0.104/LICENSE-MIT",
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+      "size": 1023,
+      "status": "complete-standard-boilerplate",
+      "template": "MIT-standard-grant-without-owner-statement"
+    },
+    {
+      "path": "anyhow-1.0.104/README.md",
+      "sha256": "86f5b88c45b2b9b7eefa0ad66c11918a607319cad683f01123ff38db68b4a49b",
+      "size": 6059,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/build.rs",
+      "sha256": "89d1baedcff59822ed692d3a33f131c211a213bdec33c83f68b54110d9c64223",
+      "size": 6936,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/rust-toolchain.toml",
+      "sha256": "6bbb61302978c736b2da03e4fb40e3beab908f85d533ab46fd541e637b5f3e0f",
+      "size": 38,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/src/backtrace.rs",
+      "sha256": "621ec5d9e2f31883d0384ae00fc536d1ea359da989d2e0d1be1ba03482c8f920",
+      "size": 979,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/src/chain.rs",
+      "sha256": "85af447405f075633fab186b7f1c94d7f33a36474f239c50a961b2d6197d5426",
+      "size": 2723,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/src/context.rs",
+      "sha256": "8b106e43df7a66fbc3e85b87a4d7f8a780d43d3ee0cd1ae86c571950ecf07d13",
+      "size": 4691,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/src/ensure.rs",
+      "sha256": "709524741c8f9365e01cb36fc2349a8724513de02cf9e253809a93af8d6a7b6e",
+      "size": 51113,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/src/error.rs",
+      "sha256": "2a78ee4e5f8d6b4476c761f77473362b9ed12f5402e4701001e7d04d628ba030",
+      "size": 39200,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/src/fmt.rs",
+      "sha256": "2cca8c7f3cab636fdb17433ca2b1fda0e8d28bb20d4647b87c991dacd8f06cdf",
+      "size": 4233,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/src/kind.rs",
+      "sha256": "ddcabf15b3b47a4ef16ed361c45cc0cc82e7be90622995ff6c04b3fec78bb04f",
+      "size": 3230,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/src/lib.rs",
+      "sha256": "ea7f436f6bf4b356ff30ec922b50b40ead0ade28b123341a8de7f310311fd44c",
+      "size": 21195,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/src/macros.rs",
+      "sha256": "696e6a8aac614525a29697aedc7561e98beccf3d43aed3ada1cc93daa99da8ba",
+      "size": 7072,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/src/nightly.rs",
+      "sha256": "1c0aeadfcdbe22f8f807b185dec1a7448c378bddb37689714944b60473b58049",
+      "size": 1563,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/src/ptr.rs",
+      "sha256": "a114639d26f4feca7e186106342334cdf2e2176f892149aa331ace72e5d81410",
+      "size": 3265,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/src/wrapper.rs",
+      "sha256": "079218e1d8c9374f52311b1c7971f7fbdeba4d7af1b0749c0d535010f1232697",
+      "size": 1964,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/common/mod.rs",
+      "sha256": "f9088c2d7afafa64ff730b629272045b776bfafc2f5957508242da630635f2e1",
+      "size": 271,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/compiletest.rs",
+      "sha256": "4e381aa8ca3eabb7ac14d1e0c3700b3223e47640547a6988cfa13ad68255f60f",
+      "size": 214,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/drop/mod.rs",
+      "sha256": "08c3e553c1cc0d2dbd936fc45f4b5b1105057186affd6865e8d261e05f0f0646",
+      "size": 1068,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/test_autotrait.rs",
+      "sha256": "ba9bc18416115cb48fd08675a3e7fc89584de7926dad6b2be6645dc13d5931df",
+      "size": 631,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/test_backtrace.rs",
+      "sha256": "60afdd7ee5850dc22625ff486fe41c47fd322db874a93c4871ddfed2bf603930",
+      "size": 282,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/test_boxed.rs",
+      "sha256": "6b26db0e2eb72afe9af7352ea820837aab90f8d486294616dd5dc34c1b94038c",
+      "size": 1059,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/test_chain.rs",
+      "sha256": "3a8a8d7569913bd98c0e27c69d0bda35101e7fde7c056ed57cdd8ed018e4cbcb",
+      "size": 2163,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/test_context.rs",
+      "sha256": "a4cb7d9a6d488d902eb5ac516d2b5e4135f46caaa2d151580ed9ba83c2a90b57",
+      "size": 4521,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/test_convert.rs",
+      "sha256": "7e7a8b4772a427a911014ac4d1083f9519000e786177f898808980dd9bdfde61",
+      "size": 1149,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/test_downcast.rs",
+      "sha256": "797e69a72d125758c4c4897e5dc776d549d52cc9a6a633e0a33193f588a62b88",
+      "size": 3088,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/test_ensure.rs",
+      "sha256": "6ef8823153d6aba31dda8438b9e51984e6b7377d585addbaf87162b39d733cd9",
+      "size": 22400,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/test_ffi.rs",
+      "sha256": "c6e6bf39e6b2cf9aacea12e3e4da4e1e1edb7fc906d231e5baf45812a08de3c4",
+      "size": 426,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/test_fmt.rs",
+      "sha256": "0e49b48f08e4faaf03e2f202e1efc5250018876c4e1b01b8379d7a38ae8df870",
+      "size": 1970,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/test_macros.rs",
+      "sha256": "3eb6ec9024cf8812da48de35b733d5a69ed942907fb4e6c67ec471cd4bcef562",
+      "size": 2300,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/test_repr.rs",
+      "sha256": "034dee888abd08741e11ac2e95ef4fcb2ab3943d0a76e8e976db404658e1a252",
+      "size": 614,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/test_source.rs",
+      "sha256": "b80723cf635a4f8c4df21891b34bfab9ed2b2aa407e7a2f826d24e334cd5f88e",
+      "size": 1380,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/ui/chained-comparison.rs",
+      "sha256": "6504b03d95b5acc232a7f4defc9f343b2be6733bf475fa0992e8e6545b912bd4",
+      "size": 252,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/ui/chained-comparison.stderr",
+      "sha256": "7f1d0a8c251b0ede2d30b3087ec157fc660945c97a642c4a5acf5a14ec58de34",
+      "size": 300,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/ui/empty-ensure.rs",
+      "sha256": "ab5bf37c846a0d689f26ce9257a27228411ed64154f9c950f1602d88a355d94b",
+      "size": 85,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/ui/empty-ensure.stderr",
+      "sha256": "315782f5f4246290fe190e3767b22c3dcaffaabc19c5ace0373537d53e765278",
+      "size": 471,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/ui/ensure-nonbool.rs",
+      "sha256": "7e57cb93fbcd82959b36586ed6bd2ad978b051fe5facd5274651fde6b1600905",
+      "size": 612,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/ui/ensure-nonbool.stderr",
+      "sha256": "e3dfbaedd66fdfc524f8462305760c7978c4268ca7e1cd872d7ecde5d3b455bd",
+      "size": 3906,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/ui/must-use.rs",
+      "sha256": "fb59860b43f673bf4a430a6036ba463e95028844d8dd4243cfe5ebc7f2be582f",
+      "size": 177,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/ui/must-use.stderr",
+      "sha256": "8b1cb7fca632396a22bb3a642f2df3ab62b3e9a87951e20fa40bdd548d002162",
+      "size": 432,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/ui/no-impl.rs",
+      "sha256": "fab6cbf2f6ea510b86f567dfb3b7c31250a9fd71ae5d110dbb9188be569ec593",
+      "size": 95,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/ui/no-impl.stderr",
+      "sha256": "c472de95483aa234728c7f57039c88fc3456892838329976a75cd167c3c172c9",
+      "size": 1543,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/ui/temporary-value.rs",
+      "sha256": "4dcc96271b2403e6372cf4cfc813445e5ce4365fc6e156b6bc38274098499a70",
+      "size": 72,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/ui/temporary-value.stderr",
+      "sha256": "7f99cd914d2d423d77274e1b859b5ad151cde8224e42687e50622c26118fd47f",
+      "size": 628,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/ui/wrong-interpolation.rs",
+      "sha256": "9c44d4674c2dccd27b9dedd03341346ec02d993b41793ee89b5755202e7e367e",
+      "size": 84,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "anyhow-1.0.104/tests/ui/wrong-interpolation.stderr",
+      "sha256": "301e60e2eb9401782c7dc0b3580613a4cb2aafd4cc8065734a630a62e1161aa5",
+      "size": 170,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
+  "schema": 1
+}

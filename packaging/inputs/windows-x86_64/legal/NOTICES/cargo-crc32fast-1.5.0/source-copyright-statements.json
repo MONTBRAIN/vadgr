@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "9481c1c90cbf2ac953f07c8d4a58aa3945c425b7185c9154d67a65e4230da511",
+  "original_statement_files": [
+    {
+      "path": "crc32fast-1.5.0/LICENSE-MIT",
+      "sha256": "61d383b05b87d78f94d2937e2580cce47226d17823c0430fbcad09596537efcf",
+      "size": 1097,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2018 Sam Rijs, Alex Crichton and contributors"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

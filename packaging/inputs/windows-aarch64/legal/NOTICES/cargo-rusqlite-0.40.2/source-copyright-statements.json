@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "23f2a97da3e3873c73cb2a2e71b35c40ff95e0b1eefa8d72d8499a6928c3b5b3",
+  "original_statement_files": [
+    {
+      "path": "rusqlite-0.40.2/LICENSE",
+      "sha256": "c10c1f27337546471e5f7e4e97fdd398b35b9d4e126115dcd22de8d8e65abf6f",
+      "size": 1067,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014 The rusqlite developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive; not a claim of exclusive ownership of the whole component."
+}

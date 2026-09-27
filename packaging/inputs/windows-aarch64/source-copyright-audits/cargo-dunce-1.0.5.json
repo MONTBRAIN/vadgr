@@ -1,0 +1,105 @@
+{
+  "archive_sha256": "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813",
+  "eligible_for_reviewed_NONE": false,
+  "files": [
+    {
+      "path": "dunce-1.0.5/.appveyor.yml",
+      "sha256": "46eaefbe84eedcbbb5d3377867de110f9d78ed4e24337617e3440e1bcecb4099",
+      "size": 859,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "dunce-1.0.5/.cargo_vcs_info.json",
+      "sha256": "c8b8a5549297d4e9575bfcfab14640e6bcae01079c296a8d5a1f8c05a2587b76",
+      "size": 94,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "dunce-1.0.5/.gitignore",
+      "sha256": "0fa28a6f316513e97783f2f9a00a5f19d77e1b3c5ff18166ca50425fc1c77dd3",
+      "size": 32,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "dunce-1.0.5/.gitlab-ci.yml",
+      "sha256": "a4c6ebc4d51b7d9958a149e965ce694a2f707f8c533c8965982ab3a86bbeb48b",
+      "size": 379,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "dunce-1.0.5/Cargo.toml",
+      "sha256": "4c43171921da7db4e1a52c7eb43aa1f5321a7dee887d6b185d2adb6f3d4d3469",
+      "size": 1379,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "dunce-1.0.5/Cargo.toml.orig",
+      "sha256": "14e322002ad961edfdd3494b2094b379de39ee9efbc196dbafc1e0606bdb0e36",
+      "size": 756,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "mentions": [
+        {
+          "line": 17,
+          "text": "exclusive Copyright and Related Rights (defined below) upon the creator"
+        },
+        {
+          "line": 35,
+          "text": "is an owner of Copyright and Related Rights in the Work, voluntarily"
+        },
+        {
+          "line": 37,
+          "text": "terms, with knowledge of his or her Copyright and Related Rights in the"
+        },
+        {
+          "line": 40,
+          "text": "1. Copyright and Related Rights. A Work made available under CC0 may be"
+        },
+        {
+          "line": 41,
+          "text": "protected by copyright and related or neighboring rights (\"Copyright and"
+        },
+        {
+          "line": 42,
+          "text": "Related Rights\"). Copyright and Related Rights include, but are not"
+        },
+        {
+          "line": 66,
+          "text": "Affirmer's Copyright and Related Rights and associated claims and causes"
+        },
+        {
+          "line": 86,
+          "text": "irrevocable and unconditional license to exercise Affirmer's Copyright and"
+        },
+        {
+          "line": 97,
+          "text": "will not (i) exercise any of his or her remaining Copyright and Related"
+        },
+        {
+          "line": 115,
+          "text": "    limitation any person's Copyright and Related Rights in the Work."
+        }
+      ],
+      "path": "dunce-1.0.5/LICENSE",
+      "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499",
+      "size": 7048,
+      "status": "ambiguous-ownership-marker"
+    },
+    {
+      "path": "dunce-1.0.5/README.md",
+      "sha256": "e52284cb0da023e63b6639bf313c6c9f287c398d73930b84b32e5d5901ad3b72",
+      "size": 1465,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "dunce-1.0.5/src/lib.rs",
+      "sha256": "e401baa38d5f10fa7fc5f58e9dd96818a5278ef4cb083e50b507d357f66a2f00",
+      "size": 11082,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-archive-and-exact-standard-boilerplate-v1",
+  "schema": 1
+}
