@@ -1,8 +1,8 @@
 {
-  "artifact_id": 10922200315,
-  "artifact_sha256": "e40e6d310c8113d0a30e93782b05c6c05ea96757864d8f8b47c933909bacaa00",
-  "bundle_sha256": "0ee73cd90dc15034deff0bab8db9453552a54f8942170e471ec3191f48d465db",
-  "catalog_sha256": "26a750df35a298a511cbea51825f0692de55460747419135fa186470ba0ffccb",
+  "artifact_id": 10929319541,
+  "artifact_sha256": "459ece64363fc9ffcc0f83e80ae98ebe39bc090efa9b93884990d7fdbac97fcb",
+  "bundle_sha256": "1e49f09483dfdfa6e1738c8e6acf1e4e77a1f0682e2cdd8dd9b37f557f30da92",
+  "catalog_sha256": "9624df5842ad9d4f26fef1b678bd11985816c1c6f57c795bbca47d993369ca62",
   "profiles": {
     "linux-aarch64": {
       "requirements_sha256": "d50d77990477fb58c37533c62d6c23c8e03f6866ba7b8729c162ae141f5d2436",
