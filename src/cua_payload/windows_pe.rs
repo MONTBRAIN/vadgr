@@ -307,7 +307,7 @@ impl<'a> Image<'a> {
                     count.checked_mul(4).context("PE export count overflow")?,
                 )?
             };
-            for function in functions.chunks_exact(4) {
+            for function in functions.as_chunks::<4>().0 {
                 let address = u32_at(function, 0)?;
                 if (rva..rva + size).contains(&address) {
                     let forwarder = self.string(address, rva + size - address)?;
