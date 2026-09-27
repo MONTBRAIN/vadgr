@@ -101,6 +101,13 @@ def test_unsigned_membership_is_complete_deterministic_and_data_only(extracted, 
     assert wix.classify(root, observation, architecture) == record["membership"]
 
 
+def test_actual_wix_source_directory_prefix_maps_to_the_selected_extraction_root(extracted):
+    root, _, architecture, observation, record, _, _, _ = extracted
+    path = root / "msi.wxs"
+    path.write_bytes(path.read_bytes().replace(b'="msi/', b'="SourceDir/'))
+    assert wix.classify(root, observation, architecture) == record["membership"]
+
+
 @pytest.mark.parametrize("defect", ["digest", "approval", "observation", "commands", "tool-empty", "tool-hash",
     "tool-alias", "tool-path", "tool-identity", "membership", "extra-evidence", "changed-package"])
 def test_import_rejects_changed_record_or_retained_bytes(extracted, defect):

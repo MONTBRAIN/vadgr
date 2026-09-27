@@ -51,6 +51,8 @@ def references(raw):
             continue
         attribute = "Source" if kind == "File" else "SourceFile"
         name = node.attrib.get(attribute, "").replace("\\", "/")
+        if name.startswith("SourceDir/"):
+            name = "msi/" + name.removeprefix("SourceDir/")
         relative_path(name)
         require(name.startswith("msi/"), "decompiled member escapes extraction")
         key = (kind, node.attrib.get("Id"))
