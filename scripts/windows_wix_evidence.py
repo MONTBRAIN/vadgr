@@ -276,7 +276,23 @@ def retain_in_packet(packet, root, observation_root, architecture, expected_sha2
     mapping["remaining_artifact_evidence"] = "Retained extraction is bound. Exact source/build reproducibility and modifications remain separate questions."
     packet.put("producer-evidence/" + RECORD, read_owned(root, RECORD))
     packet.put("wix-runtime-membership.json", canonical_json(mapping))
-    # Neither source duties nor existing review questions change on import.
+    mapped = {identifier: [row for row in record["membership"]["members"]
+                           if row.get("component_id") == identifier] for identifier in expected}
+    require(all(len(rows) == 1 for rows in mapped.values()), "WiX component member binding differs")
+    mapped["native-wix"] = [row for identifier in sorted(expected) for row in mapped[identifier]]
+    for identifier, members in mapped.items():
+        evidence = [row for row in packet.evidence if row["id"] == identifier]
+        pending = [row for row in packet.pending if row["id"] == identifier]
+        require(len(evidence) == len(pending) == 1, "WiX review component is missing or duplicated")
+        evidence[0]["scope"] = "observed-installer-members-with-declared-build-source"
+        evidence[0]["native_runtime_observation"] = {
+            "path": "wix-runtime-membership.json", "sha256": sha256_bytes(packet.files["wix-runtime-membership.json"]),
+            "source_commit": SOURCE_REVISION, "source_archive_sha256": SOURCE_SHA256, "members": members,
+            "limitation": "Source revision declared by the retained build packages, not an independently reproduced binary build or a source-completeness decision."}
+        pending[0]["items"] = [item for item in pending[0]["items"] if item != "target-binary-to-source-mapping"]
+        pending[0]["items"] = sorted(set([*pending[0]["items"], "WiX-source-completeness-and-modification-review"]))
+    # Only the missing member-to-declared-source question is replaced. Duties,
+    # official-build conditions, modification scope and approval remain open.
 
 
 def main():

@@ -208,8 +208,15 @@ def test_packet_import_does_not_approve_or_clear_source_duties(extracted):
     packet.put("wix-source-mapping.json", wix.canonical_json(mapping))
     packet.pending.append({"id": "wix", "items": ["source-duties", "modifications", "official-build-terms"]})
     before = deepcopy(packet.pending)
+    for identifier in ["native-wix", *(row["id"] for row in mapping["packages"])]:
+        packet.pending.append({"id": identifier, "items": ["target-binary-to-source-mapping", "notice-and-source-duty"]})
+        packet.evidence.append({"id": identifier, "scope": "not-yet-mapped"})
     wix.retain_in_packet(packet, root, observed, architecture, digest)
-    assert packet.pending == before
+    assert packet.pending[0] == before[0]
+    assert all(row["items"] == ["WiX-source-completeness-and-modification-review", "notice-and-source-duty"]
+               for row in packet.pending[1:])
+    assert all(row["native_runtime_observation"]["source_archive_sha256"] == wix.SOURCE_SHA256
+               for row in packet.evidence)
     assert packet.files["wix-source-mapping.json"] == wix.canonical_json(mapping)
     result = wix.parse_json(packet.files["wix-runtime-membership.json"])
     assert result["candidate_approval"] is False

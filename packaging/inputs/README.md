@@ -4,10 +4,10 @@ The Windows directories contain reproducible **drafts**, not approved package
 inputs. Their review status and coverage remain incomplete. The existing package
 validator must reject them. No signature, publication or release is authorized.
 
-This is the **superseded preparation baseline**, retained for reproducibility.
-The CUA signed-to-signed repair requires a new profile artifact, wheel/payload
-identities and unsigned observations. These directories must not be promoted to
-candidate inputs by approving their old hashes.
+These drafts bind the Source A preparation run `36352917712`, product source
+`0c8fc76030eee5d214d7637fb18d1a8ddf203705` and trusted producer
+`772f370902c1ad215ece3d3f531d47c4ddc5ae07`. The earlier preparation run is
+superseded. Neither observation nor unsigned installer membership is approval.
 
 The original Version 1.0 public terms remain unchanged. Exact third-party grants,
 notices and upstream source archives are retained separately. These drafts do
@@ -15,18 +15,20 @@ not change any component's license or assert that a declared license proves
 all redistribution duties have been met.
 
 Reproduce each directory from the final native preparation observations for run
-`36313384412`, not from the intermediate raw artifacts:
+`36352917712`, not from the intermediate raw artifacts:
 
 ```powershell
 python scripts/inspect_legal_crate_sources.py --source-root . --cache C:/review/crates --cargo-cache C:/review/cargo-cache --wheelhouse C:/review/observations/x64/unsigned-inputs/wheelhouse --wheelhouse C:/review/observations/arm64/unsigned-inputs/wheelhouse --output C:/review/crate-observations.json
-python scripts/synthesize_windows_legal.py --source-root . --observation C:/review/observations/x64 --architecture x64 --created 2026-09-27T14:47:24Z --source-archives C:/review/sources --crate-cache C:/review/crates --observation-bindings packaging/inputs/windows-observation-bindings.json --output packaging/inputs/windows-x86_64
-python scripts/synthesize_windows_legal.py --source-root . --observation C:/review/observations/arm64 --architecture arm64 --created 2026-09-27T14:47:24Z --source-archives C:/review/sources --crate-cache C:/review/crates --observation-bindings packaging/inputs/windows-observation-bindings.json --output packaging/inputs/windows-aarch64
+python scripts/synthesize_windows_legal.py --source-root . --observation C:/review/observations/x64 --architecture x64 --created 2026-09-27T22:00:00Z --source-archives C:/review/sources --crate-cache C:/review/crates --observation-bindings packaging/inputs/windows-observation-bindings.json --wix-evidence C:/review/wix-x64 --wix-evidence-sha256 e7909a91dd518bd7757fa8122639e6ff2816c83a84f808eff94e949141795626 --output C:/review/draft-x64
+python scripts/synthesize_windows_legal.py --source-root . --observation C:/review/observations/arm64 --architecture arm64 --created 2026-09-27T22:00:00Z --source-archives C:/review/sources --crate-cache C:/review/crates --observation-bindings packaging/inputs/windows-observation-bindings.json --wix-evidence C:/review/wix-arm64 --wix-evidence-sha256 67bdfb884fcca9f09dcbf80bb67095a32bbbd20e98cbc3da585c701cbefda1f9 --output C:/review/draft-arm64
 ```
 
 Output directories must be absent. Add `--verify` to compare an existing packet
 without changing it. Every recorded observation file is checked by size and hash;
 profile inputs are compared against the exact source Git blobs, not checkout
 line endings. Original notice bytes are never normalized.
+On Windows, use a short observation path or its extended-length `\\?\` form.
+Deep retained paths must not disappear from enumeration; missing files fail closed.
 The explicit observation-binding record pins each observation digest, target,
 source revision, trusted producer revision and run. Rebaselining requires
 independently verifying the new retained artifact and updating that record;
@@ -48,6 +50,8 @@ The source directory needs these exact archives:
 | `MPL-2.0-standard.txt` | `3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04` | [Complete Mozilla license](https://www.mozilla.org/media/MPL/2.0/index.txt) |
 | `certifi-2026.6.17.tar.gz` | `024c88eeec92ca068db80f02b8b07c9cef7b9fe261d1d535abfd5abd6f6af432` | [Exact certifi source distribution](https://files.pythonhosted.org/packages/c9/c7/424b75da314c1045981bd9777432fad05a9e0c69daa4ed7e308bbaffe405/certifi-2026.6.17.tar.gz) |
 | `tix-8.4.3.6.tar.gz` | `f7b21d115867a41ae5fd7c635a4c234d3ca25126c3661eb36028c6e25601f85e` | [Exact Tix source archive](https://github.com/python/cpython-source-deps/archive/refs/tags/tix-8.4.3.6.tar.gz) |
+| `pillow-12.3.0.tar.gz` | `3b8182a766685eaa002637e28b4ec8d6b18819a0c71f579bf0dbaa5830297cce` | [Exact Pillow source distribution](https://files.pythonhosted.org/packages/1c/3d/bb7fca845737cf9d7dbde16ed1843984665ff2e0a518f5db43e77ec540b9/pillow-12.3.0.tar.gz) |
+| `rust-src-1.97.1.tar.xz` | `e9a1e616d04c6845895c827a178b9227f7c7199f3f4a80af81ab3aff7b80156b` | [Source distribution pinned by the observed Rust manifest](https://static.rust-lang.org/dist/2026-07-16/rust-src-1.97.1.tar.xz) |
 
 The crate inspector acquires only exact digest-matching archives named by the
 inventories, without executing source. The synthesizer independently re-reads
@@ -109,7 +113,7 @@ misnamed EC key fixture's text, public point and ECDSA signature. Certificate
 names are not copyright owners.
 Encrypted content remains unresolved without sufficient plaintext or ownership
 evidence. These new observations apply on regeneration; the superseded packet
-hashes above do not change or gain approval.
+hashes do not gain approval.
 Certifi's source comparison binds every observed member to the published source
 distribution. Only exact pip import/resource namespace relocations are accepted;
 both the complete upstream source and actual modified source are delivered.
@@ -158,6 +162,16 @@ remain shipped. Unsupported features do not prove transitive-library absence.
 Version differences remain explicit. Rust's `library_scope` records each exact
 target library and the executables whose public-symbol maps reference it.
 Libraries without those references are not declared build-only.
+`pillow-source-scope.json` retains exact source and wheel-catalogue evidence for
+the build-only pybind11 compilation helper and the pythoncapi compatibility
+header used by the installed font extension. The conditional FriBiDi loader
+remains unresolved: it can be compiled even when the native feature probe is
+false. The Little CMS catalogue/binary version mismatch remains explicit.
+`rust-source-package-scope.json` maps every observed target artifact to its
+source manifest in the channel-pinned Rust source archive. It retains original
+license declarations, dependency kinds and target predicates. This is not a
+claim that metadata files were shipped, every optional feature was enabled,
+or all source exceptions were resolved.
 
 Unsigned WiX membership can be captured separately after the existing
 `scripts/candidate/package-windows.ps1` MSI and bundle steps have produced both
@@ -188,7 +202,9 @@ independently recorded `wix-membership.json` digests. Add
 `--wix-evidence C:/review/wix-x64 --wix-evidence-sha256 <retained-capture-digest>`
 to the corresponding synthesis command above. Synthesis retains the producer
 record and adds `wix-runtime-membership.json` without changing source duties,
-license findings or approval fields. Offline validation reruns all membership
+license findings or approval fields. The ledger replaces the missing runtime
+mapping question with explicit source-completeness and modification review.
+Offline validation reruns all membership
 checks as data and never invokes the extractor. The record binds extraction to
 the package and preparation bytes; it is not independent build attestation,
 reproducible-build proof or a conclusion about WiX modifications or source

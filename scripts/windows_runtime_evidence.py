@@ -16,8 +16,10 @@ import tomllib
 import zipfile
 
 if __package__:
+    from scripts.windows_runtime_source_scope import retain_source_scope
     from scripts.validate_package_inputs import canonical_json, parse_json, read_owned, relative_path, require, sha256_bytes
 else:
+    from windows_runtime_source_scope import retain_source_scope
     from validate_package_inputs import canonical_json, parse_json, read_owned, relative_path, require, sha256_bytes
 
 
@@ -365,6 +367,7 @@ def retain_in_packet(packet, inputs, architecture, archive_root):
         component = next(row for row in packet.components if row["id"] == identifier)
         if data is None:
             data = rust_source_binding(inputs, record, component, archive_root)
+            rust_binding = data
             pending = next(row for row in packet.pending if row["id"] == identifier)
             pending["items"] = [item for item in pending["items"] if item != "target-binary-to-source-mapping"]
         path = "legal/NOTICES/" + identifier + "/" + name
@@ -374,6 +377,7 @@ def retain_in_packet(packet, inputs, architecture, archive_root):
         evidence = next(row for row in packet.evidence if row["id"] == identifier)
         evidence["native_runtime_observation"] = {"path": path, "sha256": sha256_bytes(raw),
             "scope": "exact-target-runtime-observation-not-license-approval"}
+    retain_source_scope(packet, inputs, record, parse_json(catalogue_raw), rust_binding, archive_root, RUST_MANIFEST)
 
 
 def main():

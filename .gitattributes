@@ -13,7 +13,7 @@ packaging/cua/helper-signing/*.json text eol=lf
 packaging/candidate-legal-approval.json text eol=lf
 scripts/synthesize_windows_legal.py text eol=lf
 packaging/inputs/** -text -diff -whitespace
-packaging/inputs/README.md text eol=lf
+packaging/inputs/README.md text eol=lf diff
 packaging/inputs/windows-*/package-input-*.json text eol=lf diff
 packaging/inputs/windows-*/review-ledger.json text eol=lf diff
 packaging/inputs/windows-*/cargo-scope.json text eol=lf diff
