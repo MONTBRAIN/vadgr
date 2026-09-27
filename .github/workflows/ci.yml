@@ -832,6 +832,23 @@ jobs:
             throw "the CLI exited $($cliRun.ExitCode) against a healthy daemon"
           }
           # Stop it and leave nothing behind.
-          Stop-Process -Id $daemon.Id -Force
-          Remove-Item -Recurse -Force $root
+          $cleanupRoot = [IO.Path]::GetFullPath($root)
+          $temporaryRoot = [IO.Path]::GetFullPath($env:RUNNER_TEMP).TrimEnd('\', '/')
+          $ownedGuid = [guid]::Empty
+          if ([IO.Path]::GetDirectoryName($cleanupRoot) -ne $temporaryRoot -or
+              -not [guid]::TryParse([IO.Path]::GetFileName($cleanupRoot), [ref]$ownedGuid) -or
+              ((Get-Item -LiteralPath $cleanupRoot).Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+            throw 'Refusing cleanup outside the owned temporary directory.'
+          }
+          if (-not $daemon.HasExited) { Stop-Process -InputObject $daemon -Force }
+          if (-not $daemon.WaitForExit(10000)) { throw 'The owned daemon did not exit before cleanup.' }
+          # Termination and pending file handles can finish after Stop-Process returns.
+          $cleanupWait = [Diagnostics.Stopwatch]::StartNew()
+          while (Test-Path -LiteralPath $cleanupRoot) {
+            try { Remove-Item -LiteralPath $cleanupRoot -Recurse -Force -ErrorAction Stop }
+            catch {
+              if ($cleanupWait.ElapsedMilliseconds -ge 10000) { throw }
+              Start-Sleep -Milliseconds 100
+            }
+          }
           exit 0
