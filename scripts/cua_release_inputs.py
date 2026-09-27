@@ -239,11 +239,21 @@ def validate_payload(root: Path, binding: dict[str, str]) -> dict[str, str]:
         require(normalized not in seen and name not in (INVENTORY, "payload.json"),
                 "installed CUA inventory has duplicate or excluded path")
         seen.add(normalized)
-        require(isinstance(record, dict) and set(record) == {"size", "sha256"}
+        require(isinstance(record, dict) and set(record) in (
+                    {"size", "sha256"}, {"size", "sha256", "directory_link"})
                 and type(record["size"]) is int and record["size"] >= 0
                 and valid_hash(record["sha256"]), "installed CUA file identity invalid")
         path = root / name
-        if path.is_symlink():
+        if "directory_link" in record:
+            library = path.with_name("lib")
+            require(os.name != "nt" and record["directory_link"] == "lib"
+                    and path.name == "lib64" and path.is_symlink()
+                    and os.readlink(path) == "lib" and library.is_dir()
+                    and not library.is_symlink()
+                    and path.resolve().is_relative_to(root.resolve()),
+                    "installed CUA directory link differs or escapes private runtime")
+            data = os.readlink(path).encode("utf-8")
+        elif path.is_symlink():
             require(os.name != "nt" and not Path(os.readlink(path)).is_absolute()
                     and path.resolve().is_relative_to(root.resolve()) and path.is_file(),
                     "installed CUA link escapes private runtime")
@@ -257,10 +267,15 @@ def validate_payload(root: Path, binding: dict[str, str]) -> dict[str, str]:
     actual = set()
     for path in root.rglob("*"):
         require(not getattr(path, "is_junction", lambda: False)()
-                and not (path.is_symlink() and (os.name == "nt" or path.is_dir())),
+                and not (path.is_symlink() and os.name == "nt"),
                 "installed CUA inventory contains an unsupported link")
-        if path.is_file():
-            actual.add(path.relative_to(root).as_posix())
+        name = path.relative_to(root).as_posix()
+        if path.is_symlink() and path.is_dir():
+            require(name in files and files[name].get("directory_link") == "lib",
+                    "installed CUA inventory contains an unsupported link")
+            actual.add(name)
+        elif path.is_file():
+            actual.add(name)
     require(actual == set(files) | {INVENTORY, "payload.json"},
             "installed CUA file set differs")
     return {**binding, "installed_inventory_sha256": sha256_bytes(raw)}

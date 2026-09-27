@@ -3,6 +3,7 @@
 import copy
 import hashlib
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -190,6 +191,48 @@ class ReleaseInputsTests(unittest.TestCase):
             if getattr(error, "winerror", None) == 1314:
                 self.skipTest("Windows symlink creation privilege absent")
             raise
+        with self.assertRaises(PackageInputError):
+            release.validate_payload(self.payload, self.binding)
+
+    @unittest.skipIf(os.name == "nt", "directory aliases are Unix-only")
+    def test_runtime_inventory_binds_the_exact_library_directory_alias(self):
+        self.target = "x86_64-unknown-linux-gnu"
+        self.binding["target"] = self.target
+        manifest = self.runtime()
+        library = self.payload / "environments/current/lib"
+        library.mkdir(parents=True)
+        alias = library.with_name("lib64")
+        alias.symlink_to("lib", target_is_directory=True)
+        inventory = json.loads((self.payload / release.INVENTORY).read_bytes())
+        inventory["files"]["environments/current/lib64"] = {
+            "size": 3, "sha256": sha(b"lib"), "directory_link": "lib"}
+        raw = encoded(inventory)
+        self.write(self.payload, release.INVENTORY, raw)
+        self.write(self.payload, "payload.json", encoded({**manifest,
+                   "installed_inventory_sha256": sha(raw)}))
+        release.validate_payload(self.payload, self.binding)
+        extra = library.with_name("other")
+        extra.symlink_to("lib", target_is_directory=True)
+        with self.assertRaises(PackageInputError):
+            release.validate_payload(self.payload, self.binding)
+        extra.unlink()
+        alias.unlink()
+        with self.assertRaises(PackageInputError):
+            release.validate_payload(self.payload, self.binding)
+        outside = self.root / "outside"
+        outside.mkdir()
+        for target in ("./lib", "lib/", ".", "../../../outside", str(library), str(outside)):
+            alias.symlink_to(target, target_is_directory=True)
+            with self.subTest(target=target), self.assertRaises(PackageInputError):
+                release.validate_payload(self.payload, self.binding)
+            alias.unlink()
+        alias.write_bytes(b"lib")
+        with self.assertRaises(PackageInputError):
+            release.validate_payload(self.payload, self.binding)
+        alias.unlink()
+        alias.symlink_to("lib", target_is_directory=True)
+        library.rmdir()
+        library.symlink_to(outside, target_is_directory=True)
         with self.assertRaises(PackageInputError):
             release.validate_payload(self.payload, self.binding)
 

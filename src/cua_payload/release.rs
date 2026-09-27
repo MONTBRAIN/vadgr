@@ -15,6 +15,8 @@ const MAX_METADATA: u64 = 16 * 1024 * 1024;
 struct FileRecord {
     size: u64,
     sha256: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    directory_link: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -77,9 +79,26 @@ fn fingerprint(root: &Path, path: &Path) -> Result<FileRecord> {
     }
     let resolved = std::fs::canonicalize(path)?;
     ensure!(
-        resolved.starts_with(std::fs::canonicalize(root)?) && resolved.is_file(),
+        resolved.starts_with(std::fs::canonicalize(root)?),
         "CUA file escapes its private tree"
     );
+    if entry.file_type().is_symlink() && resolved.is_dir() {
+        let link = std::fs::read_link(path)?;
+        ensure!(
+            path.file_name().is_some_and(|name| name == "lib64")
+                && link.as_os_str() == "lib"
+                && std::fs::symlink_metadata(path.with_file_name("lib"))?.is_dir()
+                && std::fs::canonicalize(path)? == resolved,
+            "unsupported CUA directory link"
+        );
+        // Bind the alias itself; its contents are inventoried through the real lib.
+        return Ok(FileRecord {
+            size: 3,
+            sha256: digest(b"lib"),
+            directory_link: Some("lib".to_owned()),
+        });
+    }
+    ensure!(resolved.is_file(), "special CUA file refused");
     let mut input = std::fs::File::open(path)?;
     let before = input.metadata()?;
     let mut hasher = Sha256::new();
@@ -108,6 +127,7 @@ fn fingerprint(root: &Path, path: &Path) -> Result<FileRecord> {
             .iter()
             .map(|byte| format!("{byte:02x}"))
             .collect(),
+        directory_link: None,
     })
 }
 
@@ -366,6 +386,77 @@ mod tests {
                 &"a".repeat(64)
             )
             .is_err()
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn inventory_binds_the_linux_library_alias_and_detects_tampering() {
+        let temp = tempfile::tempdir().unwrap();
+        let environment = temp.path().join("environments/current");
+        let library = environment.join("lib");
+        let alias = environment.join("lib64");
+        std::fs::create_dir_all(&library).unwrap();
+        std::fs::write(library.join("runtime.py"), b"runtime").unwrap();
+        std::os::unix::fs::symlink("lib", &alias).unwrap();
+        let target = "x86_64-unknown-linux-gnu";
+
+        let hash = write_inventory(temp.path(), target).unwrap();
+        validate_inventory(temp.path(), target, &hash).unwrap();
+        let record: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(temp.path().join(INVENTORY)).unwrap()).unwrap();
+        assert_eq!(record["files"].as_object().unwrap().len(), 2);
+        assert_eq!(
+            record["files"]["environments/current/lib64"]["directory_link"],
+            "lib"
+        );
+        let unexpected = environment.join("other");
+        std::os::unix::fs::symlink("lib", &unexpected).unwrap();
+        assert!(write_inventory(temp.path(), target).is_err());
+        std::fs::remove_file(unexpected).unwrap();
+
+        std::fs::remove_file(&alias).unwrap();
+        assert!(validate_inventory(temp.path(), target, &hash).is_err());
+        for link in [
+            Path::new("./lib"),
+            Path::new("lib/"),
+            Path::new("."),
+            library.as_path(),
+        ] {
+            std::os::unix::fs::symlink(link, &alias).unwrap();
+            assert!(validate_inventory(temp.path(), target, &hash).is_err());
+            std::fs::remove_file(&alias).unwrap();
+        }
+        std::fs::write(&alias, b"lib").unwrap();
+        assert!(validate_inventory(temp.path(), target, &hash).is_err());
+        std::fs::remove_file(&alias).unwrap();
+        std::os::unix::fs::symlink("lib", &alias).unwrap();
+        std::fs::write(library.join("runtime.py"), b"modified").unwrap();
+        assert!(validate_inventory(temp.path(), target, &hash).is_err());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn inventory_refuses_library_alias_escapes_and_linked_targets() {
+        let temp = tempfile::tempdir().unwrap();
+        let root = temp.path().join("runtime");
+        let outside = temp.path().join("runtime-outside");
+        std::fs::create_dir_all(root.join("lib")).unwrap();
+        std::fs::create_dir_all(&outside).unwrap();
+        std::fs::write(outside.join("runtime.py"), b"outside").unwrap();
+        let alias = root.join("lib64");
+        for link in [Path::new("../runtime-outside"), outside.as_path()] {
+            std::os::unix::fs::symlink(link, &alias).unwrap();
+            assert!(write_inventory(&root, "x86_64-unknown-linux-gnu").is_err());
+            std::fs::remove_file(&alias).unwrap();
+        }
+        std::fs::remove_dir(root.join("lib")).unwrap();
+        std::os::unix::fs::symlink(&outside, root.join("lib")).unwrap();
+        std::os::unix::fs::symlink("lib", &alias).unwrap();
+        assert!(write_inventory(&root, "x86_64-unknown-linux-gnu").is_err());
+        assert_eq!(
+            std::fs::read(outside.join("runtime.py")).unwrap(),
+            b"outside"
         );
     }
 
