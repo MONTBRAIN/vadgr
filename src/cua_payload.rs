@@ -1142,11 +1142,17 @@ fn collect_regular_files(root: &Path, files: &mut Vec<PathBuf>) -> Result<()> {
         let path = entry?.path();
         let metadata = std::fs::symlink_metadata(&path)?;
         if metadata.file_type().is_symlink() {
-            // The standalone Unix runtime uses relative executable links.
-            ensure!(
-                !cfg!(windows) && !path.is_dir(),
-                "linked Python directory refused"
-            );
+            // uv creates lib64 -> lib on Linux. Visit the real directory only.
+            ensure!(!cfg!(windows), "linked Python directory refused");
+            if path.is_dir() {
+                ensure!(
+                    path.file_name().is_some_and(|name| name == "lib64")
+                        && std::fs::read_link(&path)? == Path::new("lib")
+                        && std::fs::symlink_metadata(root.join("lib"))?.is_dir()
+                        && path.canonicalize()?.starts_with(root.canonicalize()?),
+                    "linked Python directory refused"
+                );
+            }
             continue;
         }
         if metadata.is_dir() {
@@ -1308,6 +1314,59 @@ mod tests {
             names.sort();
             assert_eq!(names, retained);
         }
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn runtime_pruning_preserves_the_linux_lib64_alias_without_following_it() {
+        let root = tempfile::tempdir().unwrap();
+        let library = root.path().join("lib/python3.12/site-packages");
+        std::fs::create_dir_all(library.join("tests")).unwrap();
+        std::fs::write(library.join("runtime.py"), b"runtime").unwrap();
+        std::fs::write(library.join("tests/test_runtime.py"), b"test").unwrap();
+        std::os::unix::fs::symlink("lib", root.path().join("lib64")).unwrap();
+
+        prune_python_runtime(root.path(), "x86_64-unknown-linux-gnu").unwrap();
+
+        assert_eq!(
+            std::fs::read_link(root.path().join("lib64")).unwrap(),
+            Path::new("lib")
+        );
+        assert!(library.join("runtime.py").is_file());
+        assert!(!library.join("tests/test_runtime.py").exists());
+        let mut files = Vec::new();
+        collect_regular_files(root.path(), &mut files).unwrap();
+        assert_eq!(files, vec![library.join("runtime.py")]);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn runtime_pruning_refuses_directory_alias_escapes_before_removing_files() {
+        let temporary = tempfile::tempdir().unwrap();
+        let root = temporary.path().join("runtime");
+        let outside = temporary.path().join("runtime-outside");
+        std::fs::create_dir_all(root.join("lib")).unwrap();
+        std::fs::create_dir_all(&outside).unwrap();
+        std::fs::write(outside.join("keep.pyc"), b"outside").unwrap();
+        let alias = root.join("lib64");
+        for target in [
+            outside.clone(),
+            PathBuf::from("../runtime-outside"),
+            root.join("lib"),
+            PathBuf::from("."),
+        ] {
+            std::fs::write(root.join("keep.pyc"), b"inside").unwrap();
+            std::os::unix::fs::symlink(target, &alias).unwrap();
+            assert!(prune_python_runtime(&root, "x86_64-unknown-linux-gnu").is_err());
+            assert_eq!(std::fs::read(root.join("keep.pyc")).unwrap(), b"inside");
+            assert_eq!(std::fs::read(outside.join("keep.pyc")).unwrap(), b"outside");
+            std::fs::remove_file(&alias).unwrap();
+        }
+        std::fs::remove_dir(root.join("lib")).unwrap();
+        std::os::unix::fs::symlink(&outside, root.join("lib")).unwrap();
+        std::os::unix::fs::symlink("lib", &alias).unwrap();
+        assert!(prune_python_runtime(&root, "x86_64-unknown-linux-gnu").is_err());
+        assert_eq!(std::fs::read(outside.join("keep.pyc")).unwrap(), b"outside");
     }
 
     #[cfg(unix)]
