@@ -20,10 +20,10 @@ from urllib.parse import quote
 
 if __package__:
     from scripts import cua_release_inputs
-    from scripts.validate_package_inputs import PackageInputError, validate_package_inputs
+    from scripts.validate_package_inputs import PackageInputError, parse_json, read_owned, relative_path, validate_package_inputs
 else:
     import cua_release_inputs
-    from validate_package_inputs import PackageInputError, validate_package_inputs
+    from validate_package_inputs import PackageInputError, parse_json, read_owned, relative_path, validate_package_inputs
 
 REPOSITORY = "MONTBRAIN/vadgr"
 TRUSTED_ROOT_SHA256 = "3c2cc7f357dc064ec527fdcd78da6e9245c21a381e1abaa0f2b62b186bcac1a1"
@@ -285,6 +285,79 @@ def trusted_approval(architecture: str) -> dict:
     return target
 
 
+def require_approval_target(target):
+    """Validate proposed legal data, never treat a JSON field as owner assent."""
+    require(isinstance(target, dict) and set(target) == {
+        "legal_hashes", "sbom_sha256", "inventory_sha256", "generator_sha256"},
+        "candidate legal approval fields differ")
+    require(isinstance(target["legal_hashes"], dict) and target["legal_hashes"]
+            and all(isinstance(v, str) and SHA256.fullmatch(v) for v in target["legal_hashes"].values())
+            and all(isinstance(target[k], str) and SHA256.fullmatch(target[k]) for k in
+                    ("sbom_sha256", "inventory_sha256", "generator_sha256")),
+            "candidate legal approval has invalid hashes")
+    for name in target["legal_hashes"]:
+        relative_path(name)
+        require(name == "TERMS.rtf" or name.startswith(("payload/", "packaging/cua/helper-signing/")),
+                "candidate legal approval contains an unsupported path")
+    return target
+
+
+def candidate_approval(source, trusted, architecture):
+    """Read exact proposed feature data for later protected owner authorization."""
+    if not (source / "packaging/cua/profile-inputs.json").exists():
+        return trusted_approval(architecture)
+    name = "packaging/candidate-legal-approval.json"
+    raw = read_owned(source, name)
+    require(len(raw) <= 4 * 1024 * 1024, "candidate legal approval is oversized")
+    if os.path.lexists(trusted / name):
+        require(raw == read_owned(trusted, name), "candidate legal approval differs from trusted copy")
+    data = parse_json(raw)
+    require((json.dumps(data, sort_keys=True, indent=2) + "\n").encode() == raw,
+            "candidate legal approval is not canonical")
+    require(isinstance(data, dict) and set(data) == {"schema", "version", "terms_version", "targets"}
+            and type(data["schema"]) is int and data["schema"] == 1 and data["version"] == "0.5.0"
+            and data["terms_version"] == "1.0" and isinstance(data["targets"], dict)
+            and set(data["targets"]) <= {"x64", "arm64"} and architecture in data["targets"],
+            "candidate legal approval scope differs")
+    for target in data["targets"].values():
+        require_approval_target(target)
+    return data["targets"][architecture]
+
+
+def authorization_approval(auth, trusted=None):
+    """Revalidate the record bound into the protected authorization and claim."""
+    if "legal_approval" not in auth:
+        return trusted_approval(auth["architecture"])
+    target = require_approval_target(auth["legal_approval"])
+    require(hashlib.sha256(json.dumps(target, sort_keys=True).encode()).hexdigest()
+            == auth["legal_approval_sha256"], "candidate legal approval binding changed")
+    trusted = Path(__file__).resolve().parents[1] if trusted is None else trusted
+    name = "packaging/candidate-legal-approval.json"
+    if os.path.lexists(trusted / name):
+        data = parse_json(read_owned(trusted, name))
+        require(data["targets"][auth["architecture"]] == target,
+                "candidate legal approval differs from trusted copy")
+    return target
+
+
+def candidate_policy_data(source, trusted, name, approval):
+    raw = read_owned(source, name)
+    require(hashlib.sha256(raw).hexdigest() == approval["legal_hashes"].get(name),
+            "candidate signing policy lacks exact legal binding")
+    if os.path.lexists(trusted / name):
+        require(raw == read_owned(trusted, name), "candidate signing policy differs from trusted copy")
+    return raw
+
+
+def require_publisher_policy(policy, trusted):
+    identity = parse_json(read_owned(trusted, "scripts/signing/publisher.json"))
+    for row in policy["files"].values():
+        if row.get("trust_class") == "publisher-sign":
+            require(row.get("signer") == identity["subject"]
+                    and row.get("certificate_sha256") == identity["sha256"].lower(),
+                    "candidate policy cannot replace trusted publisher identity")
+
+
 def materialize(root: Path, sha: str, rows: list[tuple[str, str, str, str]], target: Path) -> None:
     require(not target.exists(), "build directory must not exist before materialization")
     target.mkdir(parents=True)
@@ -360,10 +433,11 @@ def preflight(args) -> dict:
             from scripts import cua_profiles
         else:
             import cua_profiles
-        _, _, catalog = cua_profiles.reviewed(root, trusted_root, cua_inputs["release_profile"])
+        _, profile_inputs, catalog = cua_profiles.reviewed(root, trusted_root, cua_inputs["release_profile"])
+        cua_profiles.verify_producer(root, trusted_root, profile_inputs, catalog)
         cua_version = catalog["cua_version"]
     cua_release_inputs.verify_origin(trusted_root)
-    approval = trusted_approval(args.architecture)
+    approval = candidate_approval(root, trusted_root, args.architecture)
     legal_root = root / legal_prefix
     package_validation = validate_package_inputs(
         legal_root, root, args.version, f"{arch_name}-pc-windows-msvc", source_only=True)
@@ -379,11 +453,9 @@ def preflight(args) -> dict:
             git(root, "show", f"{sha}:{source_name}", binary=True)).hexdigest() == expected,
             "sealed legal source does not match reviewed bytes")
     if "release_profile" in cua_inputs:
-        for suffix in (".json", "-outer.json"):
+        for suffix in (".json", "-outer.json", "-predecessors.json"):
             name = f"packaging/cua/helper-signing/{arch_name}{suffix}"
-            require(name in approval["legal_hashes"] and (trusted_root / name).is_file()
-                    and hashlib.sha256((trusted_root / name).read_bytes()).hexdigest() == approval["legal_hashes"][name],
-                    "profile signing policy lacks exact trusted legal approval")
+            candidate_policy_data(root, trusted_root, name, approval)
     require(hashlib.sha256(git(root, "show", f"{sha}:{legal_prefix}package-input-inventory.json",
                                 binary=True)).hexdigest() == approval["inventory_sha256"],
             "sealed dependency inventory differs from legal approval")
@@ -406,6 +478,7 @@ def preflight(args) -> dict:
             "cua_version": cua_version, "python_version": pins["python"],
             "cua_inputs": cua_inputs,
             "legal_approval_sha256": hashlib.sha256(json.dumps(approval, sort_keys=True).encode()).hexdigest(),
+            **({"legal_approval": approval} if "release_profile" in cua_inputs else {}),
             "trusted_sha": os.environ.get("GITHUB_SHA", ""), "required_checks": required,
             "rules_digest": hashlib.sha256(json.dumps(rules, sort_keys=True).encode()).hexdigest()}
 

@@ -267,6 +267,12 @@ jobs:
           ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ inputs.source_sha }}
+          path: source_checkout
+          fetch-depth: 0
+          persist-credentials: false
       - name: Measure both unsigned helper closures and exact reviewed policies
         shell: bash
         run: |
@@ -276,7 +282,7 @@ jobs:
           python scripts/candidate_artifacts.py fetch-verified --authorization authorization.json --extract verified
           python scripts/candidate/cua_shared.py fetch --artifact-id "${{ needs.build-wsl.outputs.artifact_id }}" --digest "${{ needs.build-wsl.outputs.artifact_digest }}" --architecture "${{ inputs.architecture }}" --out wsl-input
           python scripts/candidate/cua_workflow.py unpack --archive wsl-input/runtime.tar --out wsl
-          python scripts/candidate/cua_shared.py stage --authorization authorization.json --native-root verified --wsl-root wsl --trusted-root . --wsl-metadata wsl-input.metadata.json --out helper-inputs
+          python scripts/candidate/cua_shared.py stage --authorization authorization.json --native-root verified --wsl-root wsl --trusted-root . --source-root source_checkout --wsl-metadata wsl-input.metadata.json --out helper-inputs
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         id: record
         with:
@@ -303,6 +309,12 @@ jobs:
           ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ inputs.source_sha }}
+          path: source_checkout
+          fetch-depth: 0
+          persist-credentials: false
       - name: Bind immutable helper and WSL artifacts before approval
         shell: bash
         run: |
@@ -310,7 +322,7 @@ jobs:
           python scripts/candidate/cua_shared.py fetch --artifact-id "${{ needs.validate-artifacts.outputs.artifact_id }}" --digest "${{ needs.validate-artifacts.outputs.artifact_digest }}" --architecture "${{ inputs.architecture }}" --out preliminary
           python scripts/candidate/cua_shared.py fetch --artifact-id "${{ needs.prepare-helper-inputs.outputs.artifact_id }}" --digest "${{ needs.prepare-helper-inputs.outputs.artifact_digest }}" --architecture "${{ inputs.architecture }}" --out helper-inputs
           python scripts/candidate/cua_shared.py fetch --artifact-id "${{ needs.build-wsl.outputs.artifact_id }}" --digest "${{ needs.build-wsl.outputs.artifact_digest }}" --architecture "${{ inputs.architecture }}" --out wsl-input
-          python scripts/candidate/cua_shared.py bind --authorization preliminary/authorization.json --inputs helper-inputs --wsl-metadata wsl-input.metadata.json --trusted-root . --artifact-id "${{ needs.prepare-helper-inputs.outputs.artifact_id }}" --artifact-digest "${{ needs.prepare-helper-inputs.outputs.artifact_digest }}" --out authorization.json
+          python scripts/candidate/cua_shared.py bind --authorization preliminary/authorization.json --inputs helper-inputs --wsl-metadata wsl-input.metadata.json --trusted-root . --source-root source_checkout --artifact-id "${{ needs.prepare-helper-inputs.outputs.artifact_id }}" --artifact-digest "${{ needs.prepare-helper-inputs.outputs.artifact_digest }}" --out authorization.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         id: record
         with:

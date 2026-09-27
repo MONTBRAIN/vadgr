@@ -255,14 +255,14 @@ def materialize(source: Path, trusted: Path, target: str, output: Path, profile=
     profile = binding.get("release_profile")
     release.verify_origin(trusted)
     _, manifest = release.manifest(trusted)
-    selected = release.selected_lock(read_owned(trusted, lock_name))
+    selected = release.selected_lock(read_owned(source if profiles is not None else trusted, lock_name))
     profile_files = None
     if profiles is not None:
         if __package__:
             from scripts import cua_profiles
         else:
             import cua_profiles
-        profile_files = cua_profiles.retrieve(trusted, *profiles)
+        profile_files = cua_profiles.retrieve(trusted, *profiles, source=source)
     with tempfile.TemporaryDirectory(prefix="vadgr-wheelhouse-", dir=output.parent) as temporary:
         stage = Path(temporary) / "closed"
         stage.mkdir()
@@ -299,7 +299,7 @@ def verify_materialized(source: Path, trusted: Path, target: str, output: Path, 
                     for path in (output, *output.parents)), "wheelhouse directory is linked or missing")
     binding, lock_name, _ = profile_inputs(source, trusted, target, profile)
     profile = binding.get("release_profile")
-    selected = release.selected_lock(read_owned(trusted, lock_name))
+    selected = release.selected_lock(read_owned(source if profile is not None else trusted, lock_name))
     metadata = parse_json(read_owned(output, "wheelhouse.json"))
     require(set(metadata) == {"schema", *binding, "wheels"}
             and type(metadata["schema"]) is int and metadata["schema"] == 1

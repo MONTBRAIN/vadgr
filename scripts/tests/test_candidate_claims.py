@@ -57,11 +57,35 @@ def profile_authorization():
                 helper_input_artifact_digest="sha256:" + "7" * 64, wsl_artifact_id=101,
                 wsl_artifact_digest="sha256:" + "8" * 64, helper_signing_operations=2,
                 outer_signing_operations=4, signing_policy={"schema": 1, "files": {"payload/vadgr.exe": policy}}, budget=6)
+    auth["legal_hashes"] = {"payload/legal/TERMS.txt": "a" * 64}
+    auth["legal_approval"] = {"legal_hashes": auth["legal_hashes"], "sbom_sha256": "b" * 64,
+                              "inventory_sha256": "c" * 64, "generator_sha256": "d" * 64}
+    auth["legal_approval_sha256"] = claims.digest(json.dumps(auth["legal_approval"], sort_keys=True).encode())
     return auth
 
 
 def test_profile_claim_binds_shared_and_outer_operation_budget():
     claims.validate_authorization(profile_authorization())
+
+
+def test_feature_legal_proposal_still_needs_protected_owner_approval():
+    api = GitHub()
+    auth, record = qualify(api, profile_authorization())
+    api.approved = False
+    api.calls.clear()
+    with pytest.raises(claims.Refused, match="owner approval"):
+        claims.create(api, auth, record)
+    assert not any(method != "GET" for method, _, _ in api.calls)
+
+
+def test_changed_feature_legal_proposal_cannot_reuse_signed_claim():
+    api = GitHub()
+    auth, record = qualify(api, profile_authorization())
+    claim = claims.create(api, auth, record)
+    auth["legal_approval"]["inventory_sha256"] = "e" * 64
+    auth["legal_approval_sha256"] = claims.digest(json.dumps(auth["legal_approval"], sort_keys=True).encode())
+    with pytest.raises(claims.Refused):
+        claims.verify(api, auth, record, claim)
 
 
 @pytest.mark.parametrize("mutation", ["missing-helper", "budget", "class", "chain", "extra-policy", "relay", "wsl-digest"])
