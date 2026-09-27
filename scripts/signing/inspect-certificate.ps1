@@ -56,7 +56,7 @@ try {
     foreach ($name in @('JAVA_TOOL_OPTIONS', '_JAVA_OPTIONS', 'JDK_JAVA_OPTIONS')) {
         [Environment]::SetEnvironmentVariable($name, $null, 'Process')
     }
-    $report = & java '-Dfile.encoding=UTF-8' '-XX:-HeapDumpOnOutOfMemoryError' '-XX:ErrorFile=NUL' '-cp' "$classes;$jar" CodeSignRunner inspect
+    [string[]]$report = @(& java '-Dfile.encoding=UTF-8' '-XX:-HeapDumpOnOutOfMemoryError' '-XX:ErrorFile=NUL' '-cp' "$classes;$jar" CodeSignRunner inspect)
     if ($LASTEXITCODE -ne 0 -or $report[-1] -ne 'Public certificate inspection complete. Signatures requested: 0.') {
         $safeFailure = [string]$report[-1]
         if ($safeFailure -notmatch '^Signing stopped at safe stage (startup|authentication|credential-list|credential-inspection|certificate-export|signing)\. Authentication, certificate, configuration or vendor check failed\. No retry performed\.$') {
