@@ -38,16 +38,20 @@ based on the current default branch:
 - `.github/workflows/.gitattributes`
 - `scripts/check_cua_ci_boundary.py`
 - `scripts/check_cua_ci_readiness.py`
+- `scripts/cua_release_inputs.py`
 - `scripts/check_windows_installer_boundary.py`
 - `scripts/prepare_cua_build.py`
 - `scripts/tests/test_ci_release_layout.py`
 - `scripts/tests/test_cua_ci_boundary.py`
 - `scripts/tests/test_cua_ci_readiness.py`
+- `scripts/tests/test_cua_release_inputs.py`
 - `scripts/candidate/CI-BOOTSTRAP.md`
 
-The default branch already supplies the reviewed CUA wheelhouse, profile and
-payload validators that these helpers import. Preserve those current trusted
-implementations. Do not replace them with older feature copies. No `src/`,
+The default branch already supplies the reviewed CUA wheelhouse and profile
+validators that these helpers import. Promote the payload validator with its
+tests because trusted observation and Linux case-sensitive inventory validation
+must use the same reviewed semantics as the candidate. Do not replace the other
+trusted validators with older feature copies. No `src/`,
 `build.rs`, Cargo package version, installer, profile pin or approval record is
 part of this tooling promotion.
 
