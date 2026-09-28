@@ -47,6 +47,37 @@ def test_native_matrix_pins_supported_python_before_trusted_tools():
     assert native.index(setup) < native.index('python scripts/candidate_policy.py preflight')
 
 
+def test_selected_wsl_helper_consumer_does_not_require_vehicle_inputs():
+    workflow = (ROOT / '.github/workflows/candidate.yml').read_text()
+    selected = workflow.split('\n  build-wsl:', 1)[1].split('\n  prepare-helper-inputs:', 1)[0]
+    assert 'scripts/candidate/build-wsl-consumer.sh' in selected
+    assert 'scripts/candidate/build-native.sh' not in selected
+    script = (ROOT / 'scripts/candidate/build-wsl-consumer.sh').read_text()
+    assert 'packaging/wsl/build.sh' not in script
+    assert 'packaging/inputs/' not in script
+    assert '__payload-setup' in script
+    assert 'distribution_matrix.py" payload' in script
+    assert 'distribution_matrix.py" binary' in script
+    assert 'wsl-x86_64) rust_target=x86_64-unknown-linux-gnu' in script
+    assert 'wsl-aarch64) rust_target=aarch64-unknown-linux-gnu' in script
+    assert "*) echo 'Unsupported WSL consumer target.'" in script
+    assert "cp -R \"$payload_root/.\" \"$runtime/\"" in script
+
+
+def test_consumer_only_wsl_output_cannot_enter_native_vehicle_matrix():
+    workflow = (ROOT / '.github/workflows/candidate.yml').read_text()
+    selected = workflow.split('\n  build-wsl:', 1)[1].split('\n  prepare-helper-inputs:', 1)[0]
+    assert 'name: unsigned-wsl-helper-consumer' in selected
+    assert 'name: native-build-' not in selected
+    assert 'Vadgr-0.5.0-wsl-' not in selected
+    native = workflow.split('\n  build-native:', 1)[1]
+    assert 'scripts/candidate/build-native.sh' in native
+    attestation = workflow.split('\n  attest-wsl-runtime:', 1)[1].split('\n  build-native:', 1)[0]
+    assert 'cua_workflow.py hold-wsl' not in attestation
+    assert 'name: attested-wsl-helper-consumer' in attestation
+    assert 'held-wsl' not in attestation
+
+
 def test_signer_has_no_source_checkout_or_build_execution():
     workflow = (ROOT / '.github/workflows/candidate.yml').read_text()
     signer = workflow.split('\n  sign-windows:', 1)[1].split('\n  attest:', 1)[0]
