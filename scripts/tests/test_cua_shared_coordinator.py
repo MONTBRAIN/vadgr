@@ -1,6 +1,7 @@
 """Synthetic coordinator seams only. No native, legal, approval or paid signing evidence."""
 from concurrent.futures import ThreadPoolExecutor
 import io
+import os
 from pathlib import Path
 import re
 import shutil
@@ -207,7 +208,7 @@ def test_shared_namespace_requires_real_nonbypassable_tag_protection(monkeypatch
 
 
 @pytest.mark.parametrize("name,kind", [("../outside", tarfile.REGTYPE), ("/absolute", tarfile.REGTYPE),
-                                       ("link", tarfile.SYMTYPE), ("hard", tarfile.LNKTYPE),
+                                       ("hard", tarfile.LNKTYPE),
                                        ("device", tarfile.CHRTYPE)])
 def test_wsl_extraction_rejects_paths_and_special_members_before_writes(tmp_path, name, kind):
     archive = tmp_path / "runtime.tar"
@@ -219,6 +220,66 @@ def test_wsl_extraction_rejects_paths_and_special_members_before_writes(tmp_path
     with pytest.raises(PackageInputError):
         workflow.unpack(archive, tmp_path / "runtime")
     assert not (tmp_path / "runtime").exists()
+
+
+@pytest.mark.parametrize("name,target", [("absolute", "/outside"), ("escape", "../outside"),
+                                          ("missing", "not-there")])
+def test_wsl_extraction_rejects_unsafe_links_before_writes(tmp_path, name, target):
+    archive = tmp_path / "runtime.tar"
+    with tarfile.open(archive, "w") as stream:
+        row = tarfile.TarInfo(name)
+        row.type = tarfile.SYMTYPE
+        row.linkname = target
+        stream.addfile(row)
+    with pytest.raises(PackageInputError):
+        workflow.unpack(archive, tmp_path / "runtime")
+    assert not (tmp_path / "runtime").exists()
+
+
+def test_wsl_extraction_rejects_cycles_and_children_below_links_before_writes(tmp_path):
+    for suffix, rows in {
+        "cycle": [("a", tarfile.SYMTYPE, "b"), ("b", tarfile.SYMTYPE, "a")],
+        "child": [("a", tarfile.SYMTYPE, "target"), ("a/child", tarfile.REGTYPE, ""),
+                  ("target", tarfile.REGTYPE, "")],
+    }.items():
+        archive = tmp_path / f"{suffix}.tar"
+        with tarfile.open(archive, "w") as stream:
+            for name, kind, target in rows:
+                row = tarfile.TarInfo(name)
+                row.type = kind
+                row.linkname = target
+                stream.addfile(row, io.BytesIO())
+        output = tmp_path / suffix
+        with pytest.raises(PackageInputError):
+            workflow.unpack(archive, output)
+        assert not output.exists()
+
+
+@pytest.mark.skipif(os.name == "nt", reason="Windows CI cannot create Unix symlinks")
+def test_wsl_links_case_sensitive_names_and_directory_link_roundtrip(tmp_path):
+    archive = tmp_path / "runtime.tar"
+    with tarfile.open(archive, "w") as stream:
+        for name, data in (("data/A", b"upper"), ("data/a", b"lower"), ("lib/value", b"value")):
+            row = tarfile.TarInfo(name)
+            row.size = len(data)
+            stream.addfile(row, io.BytesIO(data))
+        for name, target in (("bin/first", "../data/A"), ("bin/second", "first"), ("lib64", "lib")):
+            row = tarfile.TarInfo(name)
+            row.type = tarfile.SYMTYPE
+            row.linkname = target
+            stream.addfile(row)
+    output = tmp_path / "runtime"
+    workflow.unpack(archive, output)
+    measured = workflow.cua_unix.tree(output.resolve())
+    assert (output / "bin/second").read_bytes() == b"upper"
+    assert measured["data/A"] != measured["data/a"]
+    assert measured["bin/first"] == measured["bin/second"] == measured["data/A"]
+    assert measured["lib64"]["directory_link"] == "lib"
+    packed = tmp_path / "held.tar.gz"
+    workflow.pack(output.resolve(), packed)
+    copied = tmp_path / "copied"
+    workflow.unpack(packed, copied)
+    assert workflow.cua_unix.tree(copied.resolve()) == measured
 
 
 def test_wsl_tar_root_dot_and_executable_mode_roundtrip(tmp_path):
