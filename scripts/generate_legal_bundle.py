@@ -13,7 +13,7 @@ import unicodedata
 from validate_package_inputs import (
     CLOSURES, REQUIRED_FILES, PackageInputError, aggregate_files, build_sbom, canonical_json,
     expected_legal_files, parse_json, relative_path, render_rtf, require,
-    sha256_bytes, valid_hash, validate_inventory,
+    sha256_bytes, valid_hash, validate_inventory, validate_copyright_absence,
 )
 
 
@@ -95,11 +95,12 @@ def generate_legal_bundle(input_path: Path, output_root: Path) -> dict:
         for field in ("license_files", "notice_files", "source_offer_files"):
             for reference in component[field]:
                 require(sha256_bytes(files[reference["path"]]) == reference["sha256"], "changed component text")
+    validate_copyright_absence(inventory, files)
     files["legal/TERMS.rtf"] = render_rtf(files["legal/TERMS.txt"].decode("utf-8"))
     files["legal/THIRD-PARTY-NOTICES.txt"] = aggregate_files(inventory, files, "notice_files")
     if any(component["source_offer_files"] for component in inventory["components"]):
         files["legal/SOURCE-OFFER.txt"] = aggregate_files(inventory, files, "source_offer_files")
-    files[f"sbom/vadgr-{inventory['version']}.spdx.json"] = canonical_json(build_sbom(inventory))
+    files[f"sbom/vadgr-{inventory['version']}.spdx.json"] = canonical_json(build_sbom(inventory, files))
     inventory_bytes = canonical_json(inventory)
     review = {key: inventory[key] for key in (
         "schema", "version", "target", "terms_version", "terms_sha256", "source_inputs", "payload_manifest_sha256",
