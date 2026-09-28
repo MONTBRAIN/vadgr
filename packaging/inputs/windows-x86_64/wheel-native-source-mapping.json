@@ -11,7 +11,7 @@
       "component": "native-cryptography-openssl",
       "limitation": "Producer source/build declaration and exact installed wheel equality, not independent rebuild or symbol-by-symbol proof.",
       "observed_native_members": {
-        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/cryptography/hazmat/bindings/_rust.pyd": "6a42262974f0e086c1f2defaff4ccd9fb25046cf193422135e2dda5b4b29b2a2"
+        "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/cryptography/hazmat/bindings/_rust.pyd": "6a42262974f0e086c1f2defaff4ccd9fb25046cf193422135e2dda5b4b29b2a2"
       },
       "producer_sbom": {
         "path": "nested-sboms/wheel-cryptography-50.0.1/001-sbom.json",

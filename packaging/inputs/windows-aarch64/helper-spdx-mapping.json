@@ -363,7 +363,7 @@
         "vadgr-computer-use": "Apache-2.0",
         "zlib": "Zlib"
       },
-      "input_sha256": "8f23e2e43b9347b397cedc9af3633b521f9680d138c4eaf1b3a89c4b7db5a2f9",
+      "input_sha256": "e4ae31668c3bee0e1cb7495948b7a4ad65e1d8da6666cb0c2933abe0418c348b",
       "license_and_notice_members": [
         "VADGR-CUA-LICENSE.txt",
         "THIRD-PARTY-NOTICES/cua/NOTICE",
@@ -371,7 +371,7 @@
         "PYTHON-LICENSE.txt",
         "THIRD-PARTY-NOTICES/LICENSE.zlib.txt"
       ],
-      "size": 2900754
+      "size": 2901183
     },
     "vadgr-cua-host.exe": {
       "component_expressions": {
@@ -391,7 +391,7 @@
     }
   },
   "publishable": false,
-  "reviewed_helper_sha256": "8de5ba4af010e0f8ba430d08bd6be083a59057b995216d2a6e6e633e89995ad9",
+  "reviewed_helper_sha256": "d3a9401d9519385674a170a320469bb69a5037c073feaf4cf7cb28adacc20281",
   "schema": 1,
   "scope": "Exact helper-only component mapping; no new approval and no outer-package redistribution conclusion.",
   "status": "draft"

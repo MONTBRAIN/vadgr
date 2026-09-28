@@ -1,5 +1,5 @@
 {
-  "component_sha256": "1181d3c246f27be9245a868bcc36fa6f094bebca54fee460f7a4fad2d50432bc",
+  "component_sha256": "8fb13abd1c703d63c30f792c4a72b909a2d74064f21c34b7f25e4a533e0920aa",
   "original_statement_files": [
     {
       "path": "computer_use/bridge/deployer.py",
@@ -203,7 +203,7 @@
     },
     {
       "path": "computer_use/browser/windows_broker_entry.py",
-      "sha256": "9b09167ccf032c99d3627957cba3ed60ef6f9470fe8e24c6bac9eb62f6b8d55c",
+      "sha256": "daf7b702e09ba6188416415b8bf7254fb0fba91ff771076b2c6190c7ca1eccf1",
       "statements": [
         {
           "line": 1,

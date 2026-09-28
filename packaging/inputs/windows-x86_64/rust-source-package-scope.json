@@ -3759,5 +3759,5 @@
   },
   "status": "unapproved",
   "target": "x86_64-pc-windows-msvc",
-  "target_binding_sha256": "d136c220d1247e77f157c6b60490835f8db90eb46d45544b992f62fb827413f1"
+  "target_binding_sha256": "fcc8790fc59b69784cd1ef5c0889fb3a395752bc132adb6ab573a0a6e1932e5e"
 }

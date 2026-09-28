@@ -22253,7 +22253,7 @@
     },
     {
       "copyright_text": "# Copyright (c) 2005-2023, PyInstaller Development Team.\nBased on previous work under copyright (c) 2002 McMillan Enterprises, Inc.\nCopyright (C) 1989, 1991 Free Software Foundation, Inc.\nCopyright (C) 1995-2017 Jean-loup Gailly and Mark Adler\nCopyright (C) The XZ Utils authors and contributors\nCopyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam,\nCopyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper\nCopyright (c) 2001-2022 Expat maintainers\nCopyright (c) 2005-2009, Giovanni Bajo\nCopyright (c) 2008-2020 Stefan Krah. All rights reserved.\nCopyright (c) 2010-2023, PyInstaller Development Team\nCopyright 2009 The Go Authors.\nCopyright 2026 Victor Santiago Monta\u00f1o Diaz\nLicense Agreement and CNRI's notice of copyright, i.e., \"Copyright (c)\nThis software is copyrighted by the Regents of the University of California, Sun Microsystems, Inc., Scriptics Corporation, ActiveState Corporation and other parties.\ndocumentation, are copyright (C) 1996-2010 Julian R Seward.  All\ndocumentation, are copyright (C) 1996-2019 Julian R Seward.  All\ni.e., \"Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,\nlibffi - Copyright (c) 1996-2019  Anthony Green, Red Hat, Inc and others.",
-      "download_location": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36346786722",
+      "download_location": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36347342928",
       "id": "runtime-cua-helper-closure-0.7.9",
       "kind": "runtime",
       "license_concluded": "(0BSD) AND (Apache-2.0) AND (BSD-2-Clause) AND (BSD-3-Clause AND Apache-2.0) AND (GPL-2.0-or-later WITH Bootloader-exception AND Apache-2.0) AND (LicenseRef-Python-Windows-Redistribution-e1c3f7327503bae86aacbe5ff5c12d26ce2160673e248fb0dd8284b878c5724a) AND (MIT) AND (Python-2.0 AND 0BSD) AND (Zlib) AND (bzip2-1.0.6)",
@@ -22435,7 +22435,7 @@
         }
       ],
       "notice_required": true,
-      "sha256": "46490fab184c24c2d6e8c1cc53ecf6b4aa01e6829cf627924bccbf67dd80574b",
+      "sha256": "eda5c173fb95bffe4cd631e77b1256ce93f7f14decaa375cb5d4b40463acfc45",
       "source_offer_files": [],
       "source_offer_required": false,
       "version": "0.7.9"
@@ -22519,7 +22519,7 @@
         },
         {
           "path": "legal/NOTICES/runtime-rust-std-1.97.1/target-library-binding.json",
-          "sha256": "04fc5d6f6cb7c06f939ff8116a333f81a90ac6766f37998370ab1f77c37b0838"
+          "sha256": "2a7fca8b613e17e8164c70e3e9eea4589a58b69aa200adaffee82d3340f80419"
         }
       ],
       "notice_required": true,
@@ -23050,44 +23050,6 @@
       "version": "10.2.0"
     },
     {
-      "copyright_text": "# Copyright 2024 by UltrafunkAmsterdam (https://github.com/UltrafunkAmsterdam)\nCopyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>",
-      "download_location": "https://files.pythonhosted.org/packages/4d/23/b2dd278ad941c720f217c5264d7cbfc60dd09d882b5f7fb6c365013a8ce0/nodriver-0.50.3-py3-none-any.whl",
-      "id": "wheel-nodriver-0.50.3",
-      "kind": "wheel",
-      "license_concluded": "AGPL-3.0-only",
-      "license_declared": "AGPL-3.0-only",
-      "license_files": [
-        {
-          "license_ids": [
-            "AGPL-3.0-only"
-          ],
-          "path": "legal/LICENSES/wheel-nodriver-0.50.3/000-LICENSE.txt",
-          "sha256": "6c680ff0ddf21713c43affed3e7705d0dbfcc72b0a55b4b36661db941584e0cf"
-        }
-      ],
-      "name": "nodriver",
-      "notice_files": [
-        {
-          "path": "legal/NOTICES/wheel-nodriver-0.50.3/000-LICENSE.txt",
-          "sha256": "6c680ff0ddf21713c43affed3e7705d0dbfcc72b0a55b4b36661db941584e0cf"
-        },
-        {
-          "path": "legal/NOTICES/wheel-nodriver-0.50.3/observed-source-copyright.json",
-          "sha256": "38d884060ea5258ce783d4b8d67420e45cd50befbae57825da2ae5c72464a1bd"
-        }
-      ],
-      "notice_required": true,
-      "sha256": "a053533108c14c309a7613445e6c7fb460b6b165c144a062e1b2f39e4f7b396b",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nodriver-0.50.3.tar.gz",
-          "sha256": "24ca688d8646ef8ffad5c8ce65804e5e7671a779ad26a24d76f6465d5666c631"
-        }
-      ],
-      "source_offer_required": true,
-      "version": "0.50.3"
-    },
-    {
       "copyright_text": "# Copyright The OpenTelemetry Authors",
       "download_location": "https://files.pythonhosted.org/packages/ca/6f/a04e900f465ff3221ccc395522503e2d10e79fa21f2723c8e177aae1e0d1/opentelemetry_api-1.44.0-py3-none-any.whl",
       "id": "wheel-opentelemetry-api-1.44.0",
@@ -23148,7 +23110,7 @@
         },
         {
           "path": "legal/NOTICES/wheel-pillow-12.3.0/runtime-feature-observation.json",
-          "sha256": "607e473656d73d43d102dea7546c2b46861bdfc60aad35daaec3811b3bae3253"
+          "sha256": "13b8d3851a257339357821bd3f0762e21b79796f55eafef36fc75f514f409b0e"
         }
       ],
       "notice_required": true,
@@ -23896,7 +23858,7 @@
     },
     {
       "copyright_text": "# Copyright 2026 Victor Santiago Montano Diaz\n# Copyright 2026 Victor Santiago Monta\u00f1o Diaz\nCopyright 2026 Victor Santiago Monta\u00f1o Diaz",
-      "download_location": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36348372222",
+      "download_location": "https://github.com/MONTBRAIN/vadgr-computer-use/actions/runs/36364736356",
       "id": "wheel-vadgr-computer-use-0.7.9",
       "kind": "wheel",
       "license_concluded": "Apache-2.0",
@@ -23922,11 +23884,11 @@
         },
         {
           "path": "legal/NOTICES/wheel-vadgr-computer-use-0.7.9/observed-source-copyright.json",
-          "sha256": "6085cf66feb80b81bee5b8056681151e296b8355d614fa5f293dc7429cc75755"
+          "sha256": "124437364fdb42eee84df819c9f0d14dea1cb0672e05e93a5ac952a466caaedf"
         }
       ],
       "notice_required": true,
-      "sha256": "1181d3c246f27be9245a868bcc36fa6f094bebca54fee460f7a4fad2d50432bc",
+      "sha256": "8fb13abd1c703d63c30f792c4a72b909a2d74064f21c34b7f25e4a533e0920aa",
       "source_offer_files": [],
       "source_offer_required": false,
       "version": "0.7.9"
@@ -24623,7 +24585,6 @@
         "wheel-mcp-2.1.1",
         "wheel-mcp-types-2.1.1",
         "wheel-mss-10.2.0",
-        "wheel-nodriver-0.50.3",
         "wheel-opentelemetry-api-1.44.0",
         "wheel-pillow-12.3.0",
         "wheel-pycparser-3.0",
@@ -24651,17 +24612,17 @@
       "status": "incomplete"
     }
   },
-  "created": "2026-09-27T22:00:00Z",
-  "payload_manifest_sha256": "af2a47d24b8805bb4bf08c7b96cf07d1fb2e368739d48fe3d96715f8388287e3",
+  "created": "2026-09-28T03:18:32Z",
+  "payload_manifest_sha256": "a21a09810ad61253956f06883526cb0c6ff9f94a57944a7797140caf820115b5",
   "schema": 1,
   "source_inputs": {
     "Cargo.lock": "a5a9432e1e0c487912b8548593a251befb0780aef1f3d5fc4d760f7bafa9063c",
-    "packaging/cua/cua-profile-catalog.json": "c0a161ff2c8858678bf5696728ba18a59bebb012a7fb91a3389252e5ea907427",
-    "packaging/cua/cua-profile-catalog.sigstore.json": "a73ba0e4b31205e3a9599e73c52955dae28d6381b08e7112760da98b9502f1ca",
+    "packaging/cua/cua-profile-catalog.json": "1d7f672a508d42f5818f98fb19a870f52aedb15f70cdf7448ca440a08be129cb",
+    "packaging/cua/cua-profile-catalog.sigstore.json": "1afa08e983ce8174dea6c4883164c24222526e909b3d1a5ee8f063b245346678",
     "packaging/cua/native-wheel-manifest.json": "2f86c4d2c6493d32019a617c669e3c0babefc565f9da73c6182475286ad499b8",
     "packaging/cua/pins.toml": "deafdc326e4cbd13238390e3552999b0ca78a8a705932712d07f20c7ab2630fa",
-    "packaging/cua/profile-inputs.json": "26b34224f753943671c2fac22b18d5cf8000108e6fa341457a2d0fe15c7c34a8",
-    "packaging/cua/profile-locks/windows-aarch64.lock": "e82e8f88eba04a532addc6416fe3a3288024f421fa097c24376ae6e23e869a2a",
+    "packaging/cua/profile-inputs.json": "e90356814719f4694f7e39f7a23d61146de1ee60157e49dd50a9fe7c92bd506c",
+    "packaging/cua/profile-locks/windows-aarch64.lock": "bce88084e4d245657338305f4590fb71051b3c32156fcfdb491da325deee8ea6",
     "packaging/toolchain.json": "628b3a9c29fd90805df2b7a80651dd5d9298c6055f8984e07e50b46a0d4a5616"
   },
   "target": "aarch64-pc-windows-msvc",

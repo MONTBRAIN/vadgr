@@ -5,7 +5,7 @@
       "basis": "The catalogue pins the exact header. The font extension includes it unconditionally. This does not assert every inline function survived compilation.",
       "classification": "source-header-relevant-to-installed-font-extension",
       "observed_native_members": {
-        "payload/lib/cua/environments/0.7.9-2580976f2ff6/Lib/site-packages/PIL/_imagingft.cp312-win_amd64.pyd": {
+        "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/PIL/_imagingft.cp312-win_amd64.pyd": {
           "sha256": "77c6d37de41733df40fb36d9af47644989ac17da036515e759303969edb22c48",
           "size": 2174976
         }

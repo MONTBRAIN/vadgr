@@ -170094,7 +170094,7 @@ Rust standard library
   "linked": {
     "ba-functions.dll": {
       "executable": {
-        "sha256": "39d0d4e48f48aa73504ca260cd3b69f49125543721edff07c5fd0bb6fc82abc6",
+        "sha256": "b20a8d859685e578b3e1dfb6d38a4e99d51239988efe7f9994fba2f44ceffacc",
         "size": 302080
       },
       "libraries": {
@@ -174421,11 +174421,11 @@ Rust standard library
           ]
         }
       },
-      "map_sha256": "957a78530d83f1928d998033a311bcdfecae6a3655b75e39fd46554ae5c46478"
+      "map_sha256": "7ef51e949844cfbc2f762a789a0f0a0eb06f159267d945ee9295714835e021b6"
     },
     "payload/vadgr-app.exe": {
       "executable": {
-        "sha256": "93b7bb329fd8a0e9ce532ac1ee6ee4129cfd27e0229ee9d12ef1f7bcf8236db1",
+        "sha256": "6fc64fce06cee816add2c8cdfdc7c61e53fcc8b88c590d3913b418424dfc2a94",
         "size": 301568
       },
       "libraries": {
@@ -181004,11 +181004,11 @@ Rust standard library
           ]
         }
       },
-      "map_sha256": "52fc0764796244e8b99a58ed3da1b09656568f19f0c971d9897bd60c24adc58d"
+      "map_sha256": "93d6a9b17a85a0cc97eedfb9bdacc8970b6cc95dd351ff4f18f80c4b75cfa58f"
     },
     "payload/vadgr.exe": {
       "executable": {
-        "sha256": "73127f075f455ddeb21d366ee81bd7b6a63880d8ff65c5e7034558d5a314b46a",
+        "sha256": "5ac14c90216f449b30de0499f8fbe3c7deddba23d4eac7cf0511f26a32aa3814",
         "size": 34809856
       },
       "libraries": {
@@ -193177,7 +193177,7 @@ Rust standard library
           ]
         }
       },
-      "map_sha256": "612a6dd23f79a040c8611419edb72b495c6c0495aac7068f8de7be72aa5bf9ea"
+      "map_sha256": "4d6b17766df3d57963ef3be18eb609d57dbec2ae20104034cc028af30a929d75"
     }
   },
   "observed_library_count": 45,
@@ -193901,715 +193901,6 @@ mss
         {
           "line": 18,
           "text": "Copyright (c) {__date__}, {__author__}"
-        }
-      ]
-    }
-  ],
-  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
-}
-
-nodriver
-                    GNU AFFERO GENERAL PUBLIC LICENSE
-                       Version 3, 19 November 2007
-
- Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
-                            Preamble
-
-The GNU Affero General Public License is a free, copyleft license for
-software and other kinds of works, specifically designed to ensure
-cooperation with the community in the case of network server software.
-
-The licenses for most software and other practical works are designed
-to take away your freedom to share and change the works.  By contrast,
-our General Public Licenses are intended to guarantee your freedom to
-share and change all versions of a program--to make sure it remains free
-software for all its users.
-
-When we speak of free software, we are referring to freedom, not
-price.  Our General Public Licenses are designed to make sure that you
-have the freedom to distribute copies of free software (and charge for
-them if you wish), that you receive source code or can get it if you
-want it, that you can change the software or use pieces of it in new
-free programs, and that you know you can do these things.
-
-Developers that use our General Public Licenses protect your rights
-with two steps: (1) assert copyright on the software, and (2) offer
-you this License which gives you legal permission to copy, distribute
-and/or modify the software.
-
-A secondary benefit of defending all users' freedom is that
-improvements made in alternate versions of the program, if they
-receive widespread use, become available for other developers to
-incorporate.  Many developers of free software are heartened and
-encouraged by the resulting cooperation.  However, in the case of
-software used on network servers, this result may fail to come about.
-The GNU General Public License permits making a modified version and
-letting the public access it on a server without ever releasing its
-source code to the public.
-
-The GNU Affero General Public License is designed specifically to
-ensure that, in such cases, the modified source code becomes available
-to the community.  It requires the operator of a network server to
-provide the source code of the modified version running there to the
-users of that server.  Therefore, public use of a modified version, on
-a publicly accessible server, gives the public access to the source
-code of the modified version.
-
-An older license, called the Affero General Public License and
-published by Affero, was designed to accomplish similar goals.  This is
-a different license, not a version of the Affero GPL, but Affero has
-released a new version of the Affero GPL which permits relicensing under
-this license.
-
-The precise terms and conditions for copying, distribution and
-modification follow.
-
-                       TERMS AND CONDITIONS
-
-0. Definitions.
-
-"This License" refers to version 3 of the GNU Affero General Public License.
-
-"Copyright" also means copyright-like laws that apply to other kinds of
-works, such as semiconductor masks.
-
-"The Program" refers to any copyrightable work licensed under this
-License.  Each licensee is addressed as "you".  "Licensees" and
-"recipients" may be individuals or organizations.
-
-To "modify" a work means to copy from or adapt all or part of the work
-in a fashion requiring copyright permission, other than the making of an
-exact copy.  The resulting work is called a "modified version" of the
-earlier work or a work "based on" the earlier work.
-
-A "covered work" means either the unmodified Program or a work based
-on the Program.
-
-To "propagate" a work means to do anything with it that, without
-permission, would make you directly or secondarily liable for
-infringement under applicable copyright law, except executing it on a
-computer or modifying a private copy.  Propagation includes copying,
-distribution (with or without modification), making available to the
-public, and in some countries other activities as well.
-
-To "convey" a work means any kind of propagation that enables other
-parties to make or receive copies.  Mere interaction with a user through
-a computer network, with no transfer of a copy, is not conveying.
-
-An interactive user interface displays "Appropriate Legal Notices"
-to the extent that it includes a convenient and prominently visible
-feature that (1) displays an appropriate copyright notice, and (2)
-tells the user that there is no warranty for the work (except to the
-extent that warranties are provided), that licensees may convey the
-work under this License, and how to view a copy of this License.  If
-the interface presents a list of user commands or options, such as a
-menu, a prominent item in the list meets this criterion.
-
-1. Source Code.
-
-The "source code" for a work means the preferred form of the work
-for making modifications to it.  "Object code" means any non-source
-form of a work.
-
-A "Standard Interface" means an interface that either is an official
-standard defined by a recognized standards body, or, in the case of
-interfaces specified for a particular programming language, one that
-is widely used among developers working in that language.
-
-The "System Libraries" of an executable work include anything, other
-than the work as a whole, that (a) is included in the normal form of
-packaging a Major Component, but which is not part of that Major
-Component, and (b) serves only to enable use of the work with that
-Major Component, or to implement a Standard Interface for which an
-implementation is available to the public in source code form.  A
-"Major Component", in this context, means a major essential component
-(kernel, window system, and so on) of the specific operating system
-(if any) on which the executable work runs, or a compiler used to
-produce the work, or an object code interpreter used to run it.
-
-The "Corresponding Source" for a work in object code form means all
-the source code needed to generate, install, and (for an executable
-work) run the object code and to modify the work, including scripts to
-control those activities.  However, it does not include the work's
-System Libraries, or general-purpose tools or generally available free
-programs which are used unmodified in performing those activities but
-which are not part of the work.  For example, Corresponding Source
-includes interface definition files associated with source files for
-the work, and the source code for shared libraries and dynamically
-linked subprograms that the work is specifically designed to require,
-such as by intimate data communication or control flow between those
-subprograms and other parts of the work.
-
-The Corresponding Source need not include anything that users
-can regenerate automatically from other parts of the Corresponding
-Source.
-
-The Corresponding Source for a work in source code form is that
-same work.
-
-2. Basic Permissions.
-
-All rights granted under this License are granted for the term of
-copyright on the Program, and are irrevocable provided the stated
-conditions are met.  This License explicitly affirms your unlimited
-permission to run the unmodified Program.  The output from running a
-covered work is covered by this License only if the output, given its
-content, constitutes a covered work.  This License acknowledges your
-rights of fair use or other equivalent, as provided by copyright law.
-
-You may make, run and propagate covered works that you do not
-convey, without conditions so long as your license otherwise remains
-in force.  You may convey covered works to others for the sole purpose
-of having them make modifications exclusively for you, or provide you
-with facilities for running those works, provided that you comply with
-the terms of this License in conveying all material for which you do
-not control copyright.  Those thus making or running the covered works
-for you must do so exclusively on your behalf, under your direction
-and control, on terms that prohibit them from making any copies of
-your copyrighted material outside their relationship with you.
-
-Conveying under any other circumstances is permitted solely under
-the conditions stated below.  Sublicensing is not allowed; section 10
-makes it unnecessary.
-
-3. Protecting Users' Legal Rights From Anti-Circumvention Law.
-
-No covered work shall be deemed part of an effective technological
-measure under any applicable law fulfilling obligations under article
-11 of the WIPO copyright treaty adopted on 20 December 1996, or
-similar laws prohibiting or restricting circumvention of such
-measures.
-
-When you convey a covered work, you waive any legal power to forbid
-circumvention of technological measures to the extent such circumvention
-is effected by exercising rights under this License with respect to
-the covered work, and you disclaim any intention to limit operation or
-modification of the work as a means of enforcing, against the work's
-users, your or third parties' legal rights to forbid circumvention of
-technological measures.
-
-4. Conveying Verbatim Copies.
-
-You may convey verbatim copies of the Program's source code as you
-receive it, in any medium, provided that you conspicuously and
-appropriately publish on each copy an appropriate copyright notice;
-keep intact all notices stating that this License and any
-non-permissive terms added in accord with section 7 apply to the code;
-keep intact all notices of the absence of any warranty; and give all
-recipients a copy of this License along with the Program.
-
-You may charge any price or no price for each copy that you convey,
-and you may offer support or warranty protection for a fee.
-
-5. Conveying Modified Source Versions.
-
-You may convey a work based on the Program, or the modifications to
-produce it from the Program, in the form of source code under the
-terms of section 4, provided that you also meet all of these conditions:
-
-a) The work must carry prominent notices stating that you modified
-   it, and giving a relevant date.
-
-b) The work must carry prominent notices stating that it is
-   released under this License and any conditions added under section 7.
-   This requirement modifies the requirement in section 4 to
-   "keep intact all notices".
-
-c) You must license the entire work, as a whole, under this
-   License to anyone who comes into possession of a copy.  This
-   License will therefore apply, along with any applicable section 7
-   additional terms, to the whole of the work, and all its parts,
-   regardless of how they are packaged.  This License gives no
-   permission to license the work in any other way, but it does not
-   invalidate such permission if you have separately received it.
-
-d) If the work has interactive user interfaces, each must display
-   Appropriate Legal Notices; however, if the Program has interactive
-   interfaces that do not display Appropriate Legal Notices, your
-   work need not make them do so.
-
-A compilation of a covered work with other separate and independent
-works, which are not by their nature extensions of the covered work,
-and which are not combined with it such as to form a larger program,
-in or on a volume of a storage or distribution medium, is called an
-"aggregate" if the compilation and its resulting copyright are not
-used to limit the access or legal rights of the compilation's users
-beyond what the individual works permit.  Inclusion of a covered work
-in an aggregate does not cause this License to apply to the other
-parts of the aggregate.
-
-6. Conveying Non-Source Forms.
-
-You may convey a covered work in object code form under the terms
-of sections 4 and 5, provided that you also convey the
-machine-readable Corresponding Source under the terms of this License,
-in one of these ways:
-
-a) Convey the object code in, or embodied in, a physical product
-   (including a physical distribution medium), accompanied by the
-   Corresponding Source fixed on a durable physical medium
-   customarily used for software interchange.
-
-b) Convey the object code in, or embodied in, a physical product
-   (including a physical distribution medium), accompanied by a
-   written offer, valid for at least three years and valid for as
-   long as you offer spare parts or customer support for that product
-   model, to give anyone who possesses the object code either (1) a
-   copy of the Corresponding Source for all the software in the
-   product that is covered by this License, on a durable physical
-   medium customarily used for software interchange, for a price no
-   more than your reasonable cost of physically performing this
-   conveying of source, or (2) access to copy the
-   Corresponding Source from a network server at no charge.
-
-c) Convey individual copies of the object code with a copy of the
-   written offer to provide the Corresponding Source.  This
-   alternative is allowed only occasionally and noncommercially, and
-   only if you received the object code with such an offer, in accord
-   with subsection 6b.
-
-d) Convey the object code by offering access from a designated
-   place (gratis or for a charge), and offer equivalent access to the
-   Corresponding Source in the same way through the same place at no
-   further charge.  You need not require recipients to copy the
-   Corresponding Source along with the object code.  If the place to
-   copy the object code is a network server, the Corresponding Source
-   may be on a different server (operated by you or a third party)
-   that supports equivalent copying facilities, provided you maintain
-   clear directions next to the object code saying where to find the
-   Corresponding Source.  Regardless of what server hosts the
-   Corresponding Source, you remain obligated to ensure that it is
-   available for as long as needed to satisfy these requirements.
-
-e) Convey the object code using peer-to-peer transmission, provided
-   you inform other peers where the object code and Corresponding
-   Source of the work are being offered to the general public at no
-   charge under subsection 6d.
-
-A separable portion of the object code, whose source code is excluded
-from the Corresponding Source as a System Library, need not be
-included in conveying the object code work.
-
-A "User Product" is either (1) a "consumer product", which means any
-tangible personal property which is normally used for personal, family,
-or household purposes, or (2) anything designed or sold for incorporation
-into a dwelling.  In determining whether a product is a consumer product,
-doubtful cases shall be resolved in favor of coverage.  For a particular
-product received by a particular user, "normally used" refers to a
-typical or common use of that class of product, regardless of the status
-of the particular user or of the way in which the particular user
-actually uses, or expects or is expected to use, the product.  A product
-is a consumer product regardless of whether the product has substantial
-commercial, industrial or non-consumer uses, unless such uses represent
-the only significant mode of use of the product.
-
-"Installation Information" for a User Product means any methods,
-procedures, authorization keys, or other information required to install
-and execute modified versions of a covered work in that User Product from
-a modified version of its Corresponding Source.  The information must
-suffice to ensure that the continued functioning of the modified object
-code is in no case prevented or interfered with solely because
-modification has been made.
-
-If you convey an object code work under this section in, or with, or
-specifically for use in, a User Product, and the conveying occurs as
-part of a transaction in which the right of possession and use of the
-User Product is transferred to the recipient in perpetuity or for a
-fixed term (regardless of how the transaction is characterized), the
-Corresponding Source conveyed under this section must be accompanied
-by the Installation Information.  But this requirement does not apply
-if neither you nor any third party retains the ability to install
-modified object code on the User Product (for example, the work has
-been installed in ROM).
-
-The requirement to provide Installation Information does not include a
-requirement to continue to provide support service, warranty, or updates
-for a work that has been modified or installed by the recipient, or for
-the User Product in which it has been modified or installed.  Access to a
-network may be denied when the modification itself materially and
-adversely affects the operation of the network or violates the rules and
-protocols for communication across the network.
-
-Corresponding Source conveyed, and Installation Information provided,
-in accord with this section must be in a format that is publicly
-documented (and with an implementation available to the public in
-source code form), and must require no special password or key for
-unpacking, reading or copying.
-
-7. Additional Terms.
-
-"Additional permissions" are terms that supplement the terms of this
-License by making exceptions from one or more of its conditions.
-Additional permissions that are applicable to the entire Program shall
-be treated as though they were included in this License, to the extent
-that they are valid under applicable law.  If additional permissions
-apply only to part of the Program, that part may be used separately
-under those permissions, but the entire Program remains governed by
-this License without regard to the additional permissions.
-
-When you convey a copy of a covered work, you may at your option
-remove any additional permissions from that copy, or from any part of
-it.  (Additional permissions may be written to require their own
-removal in certain cases when you modify the work.)  You may place
-additional permissions on material, added by you to a covered work,
-for which you have or can give appropriate copyright permission.
-
-Notwithstanding any other provision of this License, for material you
-add to a covered work, you may (if authorized by the copyright holders of
-that material) supplement the terms of this License with terms:
-
-a) Disclaiming warranty or limiting liability differently from the
-   terms of sections 15 and 16 of this License; or
-
-b) Requiring preservation of specified reasonable legal notices or
-   author attributions in that material or in the Appropriate Legal
-   Notices displayed by works containing it; or
-
-c) Prohibiting misrepresentation of the origin of that material, or
-   requiring that modified versions of such material be marked in
-   reasonable ways as different from the original version; or
-
-d) Limiting the use for publicity purposes of names of licensors or
-   authors of the material; or
-
-e) Declining to grant rights under trademark law for use of some
-   trade names, trademarks, or service marks; or
-
-f) Requiring indemnification of licensors and authors of that
-   material by anyone who conveys the material (or modified versions of
-   it) with contractual assumptions of liability to the recipient, for
-   any liability that these contractual assumptions directly impose on
-   those licensors and authors.
-
-All other non-permissive additional terms are considered "further
-restrictions" within the meaning of section 10.  If the Program as you
-received it, or any part of it, contains a notice stating that it is
-governed by this License along with a term that is a further
-restriction, you may remove that term.  If a license document contains
-a further restriction but permits relicensing or conveying under this
-License, you may add to a covered work material governed by the terms
-of that license document, provided that the further restriction does
-not survive such relicensing or conveying.
-
-If you add terms to a covered work in accord with this section, you
-must place, in the relevant source files, a statement of the
-additional terms that apply to those files, or a notice indicating
-where to find the applicable terms.
-
-Additional terms, permissive or non-permissive, may be stated in the
-form of a separately written license, or stated as exceptions;
-the above requirements apply either way.
-
-8. Termination.
-
-You may not propagate or modify a covered work except as expressly
-provided under this License.  Any attempt otherwise to propagate or
-modify it is void, and will automatically terminate your rights under
-this License (including any patent licenses granted under the third
-paragraph of section 11).
-
-However, if you cease all violation of this License, then your
-license from a particular copyright holder is reinstated (a)
-provisionally, unless and until the copyright holder explicitly and
-finally terminates your license, and (b) permanently, if the copyright
-holder fails to notify you of the violation by some reasonable means
-prior to 60 days after the cessation.
-
-Moreover, your license from a particular copyright holder is
-reinstated permanently if the copyright holder notifies you of the
-violation by some reasonable means, this is the first time you have
-received notice of violation of this License (for any work) from that
-copyright holder, and you cure the violation prior to 30 days after
-your receipt of the notice.
-
-Termination of your rights under this section does not terminate the
-licenses of parties who have received copies or rights from you under
-this License.  If your rights have been terminated and not permanently
-reinstated, you do not qualify to receive new licenses for the same
-material under section 10.
-
-9. Acceptance Not Required for Having Copies.
-
-You are not required to accept this License in order to receive or
-run a copy of the Program.  Ancillary propagation of a covered work
-occurring solely as a consequence of using peer-to-peer transmission
-to receive a copy likewise does not require acceptance.  However,
-nothing other than this License grants you permission to propagate or
-modify any covered work.  These actions infringe copyright if you do
-not accept this License.  Therefore, by modifying or propagating a
-covered work, you indicate your acceptance of this License to do so.
-
-10. Automatic Licensing of Downstream Recipients.
-
-Each time you convey a covered work, the recipient automatically
-receives a license from the original licensors, to run, modify and
-propagate that work, subject to this License.  You are not responsible
-for enforcing compliance by third parties with this License.
-
-An "entity transaction" is a transaction transferring control of an
-organization, or substantially all assets of one, or subdividing an
-organization, or merging organizations.  If propagation of a covered
-work results from an entity transaction, each party to that
-transaction who receives a copy of the work also receives whatever
-licenses to the work the party's predecessor in interest had or could
-give under the previous paragraph, plus a right to possession of the
-Corresponding Source of the work from the predecessor in interest, if
-the predecessor has it or can get it with reasonable efforts.
-
-You may not impose any further restrictions on the exercise of the
-rights granted or affirmed under this License.  For example, you may
-not impose a license fee, royalty, or other charge for exercise of
-rights granted under this License, and you may not initiate litigation
-(including a cross-claim or counterclaim in a lawsuit) alleging that
-any patent claim is infringed by making, using, selling, offering for
-sale, or importing the Program or any portion of it.
-
-11. Patents.
-
-A "contributor" is a copyright holder who authorizes use under this
-License of the Program or a work on which the Program is based.  The
-work thus licensed is called the contributor's "contributor version".
-
-A contributor's "essential patent claims" are all patent claims
-owned or controlled by the contributor, whether already acquired or
-hereafter acquired, that would be infringed by some manner, permitted
-by this License, of making, using, or selling its contributor version,
-but do not include claims that would be infringed only as a
-consequence of further modification of the contributor version.  For
-purposes of this definition, "control" includes the right to grant
-patent sublicenses in a manner consistent with the requirements of
-this License.
-
-Each contributor grants you a non-exclusive, worldwide, royalty-free
-patent license under the contributor's essential patent claims, to
-make, use, sell, offer for sale, import and otherwise run, modify and
-propagate the contents of its contributor version.
-
-In the following three paragraphs, a "patent license" is any express
-agreement or commitment, however denominated, not to enforce a patent
-(such as an express permission to practice a patent or covenant not to
-sue for patent infringement).  To "grant" such a patent license to a
-party means to make such an agreement or commitment not to enforce a
-patent against the party.
-
-If you convey a covered work, knowingly relying on a patent license,
-and the Corresponding Source of the work is not available for anyone
-to copy, free of charge and under the terms of this License, through a
-publicly available network server or other readily accessible means,
-then you must either (1) cause the Corresponding Source to be so
-available, or (2) arrange to deprive yourself of the benefit of the
-patent license for this particular work, or (3) arrange, in a manner
-consistent with the requirements of this License, to extend the patent
-license to downstream recipients.  "Knowingly relying" means you have
-actual knowledge that, but for the patent license, your conveying the
-covered work in a country, or your recipient's use of the covered work
-in a country, would infringe one or more identifiable patents in that
-country that you have reason to believe are valid.
-
-If, pursuant to or in connection with a single transaction or
-arrangement, you convey, or propagate by procuring conveyance of, a
-covered work, and grant a patent license to some of the parties
-receiving the covered work authorizing them to use, propagate, modify
-or convey a specific copy of the covered work, then the patent license
-you grant is automatically extended to all recipients of the covered
-work and works based on it.
-
-A patent license is "discriminatory" if it does not include within
-the scope of its coverage, prohibits the exercise of, or is
-conditioned on the non-exercise of one or more of the rights that are
-specifically granted under this License.  You may not convey a covered
-work if you are a party to an arrangement with a third party that is
-in the business of distributing software, under which you make payment
-to the third party based on the extent of your activity of conveying
-the work, and under which the third party grants, to any of the
-parties who would receive the covered work from you, a discriminatory
-patent license (a) in connection with copies of the covered work
-conveyed by you (or copies made from those copies), or (b) primarily
-for and in connection with specific products or compilations that
-contain the covered work, unless you entered into that arrangement,
-or that patent license was granted, prior to 28 March 2007.
-
-Nothing in this License shall be construed as excluding or limiting
-any implied license or other defenses to infringement that may
-otherwise be available to you under applicable patent law.
-
-12. No Surrender of Others' Freedom.
-
-If conditions are imposed on you (whether by court order, agreement or
-otherwise) that contradict the conditions of this License, they do not
-excuse you from the conditions of this License.  If you cannot convey a
-covered work so as to satisfy simultaneously your obligations under this
-License and any other pertinent obligations, then as a consequence you may
-not convey it at all.  For example, if you agree to terms that obligate you
-to collect a royalty for further conveying from those to whom you convey
-the Program, the only way you could satisfy both those terms and this
-License would be to refrain entirely from conveying the Program.
-
-13. Remote Network Interaction; Use with the GNU General Public License.
-
-Notwithstanding any other provision of this License, if you modify the
-Program, your modified version must prominently offer all users
-interacting with it remotely through a computer network (if your version
-supports such interaction) an opportunity to receive the Corresponding
-Source of your version by providing access to the Corresponding Source
-from a network server at no charge, through some standard or customary
-means of facilitating copying of software.  This Corresponding Source
-shall include the Corresponding Source for any work covered by version 3
-of the GNU General Public License that is incorporated pursuant to the
-following paragraph.
-
-Notwithstanding any other provision of this License, you have
-permission to link or combine any covered work with a work licensed
-under version 3 of the GNU General Public License into a single
-combined work, and to convey the resulting work.  The terms of this
-License will continue to apply to the part which is the covered work,
-but the work with which it is combined will remain governed by version
-3 of the GNU General Public License.
-
-14. Revised Versions of this License.
-
-The Free Software Foundation may publish revised and/or new versions of
-the GNU Affero General Public License from time to time.  Such new versions
-will be similar in spirit to the present version, but may differ in detail to
-address new problems or concerns.
-
-Each version is given a distinguishing version number.  If the
-Program specifies that a certain numbered version of the GNU Affero General
-Public License "or any later version" applies to it, you have the
-option of following the terms and conditions either of that numbered
-version or of any later version published by the Free Software
-Foundation.  If the Program does not specify a version number of the
-GNU Affero General Public License, you may choose any version ever published
-by the Free Software Foundation.
-
-If the Program specifies that a proxy can decide which future
-versions of the GNU Affero General Public License can be used, that proxy's
-public statement of acceptance of a version permanently authorizes you
-to choose that version for the Program.
-
-Later license versions may give you additional or different
-permissions.  However, no additional obligations are imposed on any
-author or copyright holder as a result of your choosing to follow a
-later version.
-
-15. Disclaimer of Warranty.
-
-THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY
-APPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT
-HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY
-OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM
-IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF
-ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
-
-16. Limitation of Liability.
-
-IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
-WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES AND/OR CONVEYS
-THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY
-GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE
-USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF
-DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD
-PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
-EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
-SUCH DAMAGES.
-
-17. Interpretation of Sections 15 and 16.
-
-If the disclaimer of warranty and limitation of liability provided
-above cannot be given local legal effect according to their terms,
-reviewing courts shall apply local law that most closely approximates
-an absolute waiver of all civil liability in connection with the
-Program, unless a warranty or assumption of liability accompanies a
-copy of the Program in return for a fee.
-
-END OF TERMS AND CONDITIONS
-
-nodriver
-{
-  "component_sha256": "a053533108c14c309a7613445e6c7fb460b6b165c144a062e1b2f39e4f7b396b",
-  "original_statement_files": [
-    {
-      "path": "nodriver/__init__.py",
-      "sha256": "8483153c570a62bef0340083cc11a6e422e50dc3d229c802c292fbe9259377c3",
-      "statements": [
-        {
-          "line": 1,
-          "text": "# Copyright 2024 by UltrafunkAmsterdam (https://github.com/UltrafunkAmsterdam)"
-        }
-      ]
-    },
-    {
-      "path": "nodriver/core/_contradict.py",
-      "sha256": "bc5205599bc61321952157fe0137a005ab1aad1a7f0e179b0710b1504d324d4a",
-      "statements": [
-        {
-          "line": 1,
-          "text": "# Copyright 2024 by UltrafunkAmsterdam (https://github.com/UltrafunkAmsterdam)"
-        }
-      ]
-    },
-    {
-      "path": "nodriver/core/browser.py",
-      "sha256": "82d9d0f56961ad1d2b4e339e6a2eaf5432db541d39f2c99d82370caefedc29d2",
-      "statements": [
-        {
-          "line": 1,
-          "text": "# Copyright 2024 by UltrafunkAmsterdam (https://github.com/UltrafunkAmsterdam)"
-        }
-      ]
-    },
-    {
-      "path": "nodriver/core/config.py",
-      "sha256": "54aac163297eb56135e87cebc12d104b2ea65f097fd35a65e1d84f084692b8ce",
-      "statements": [
-        {
-          "line": 1,
-          "text": "# Copyright 2024 by UltrafunkAmsterdam (https://github.com/UltrafunkAmsterdam)"
-        }
-      ]
-    },
-    {
-      "path": "nodriver/core/connection.py",
-      "sha256": "036b1f1915deec4b0b9419c5e39c7daae92b8ea9fc54a5778e378781a0995178",
-      "statements": [
-        {
-          "line": 1,
-          "text": "# Copyright 2024 by UltrafunkAmsterdam (https://github.com/UltrafunkAmsterdam)"
-        }
-      ]
-    },
-    {
-      "path": "nodriver/core/element.py",
-      "sha256": "dc2765c91e35f09adf6d8b3afac29d9357e62e4296a3efd0f08963894e8e74d8",
-      "statements": [
-        {
-          "line": 1,
-          "text": "# Copyright 2024 by UltrafunkAmsterdam (https://github.com/UltrafunkAmsterdam)"
-        }
-      ]
-    },
-    {
-      "path": "nodriver/core/tab.py",
-      "sha256": "9d876d468632b09570369113d0ee6ee1a3014cd70c4684bacc0d2ee9d74b920c",
-      "statements": [
-        {
-          "line": 1,
-          "text": "# Copyright 2024 by UltrafunkAmsterdam (https://github.com/UltrafunkAmsterdam)"
-        }
-      ]
-    },
-    {
-      "path": "nodriver/core/util.py",
-      "sha256": "36422bfee9ba2dfc9f4d81fbf41bf7899e09f3f669b958064b74be21d1a7ea09",
-      "statements": [
-        {
-          "line": 1,
-          "text": "# Copyright 2024 by UltrafunkAmsterdam (https://github.com/UltrafunkAmsterdam)"
         }
       ]
     }
@@ -197470,480 +196761,480 @@ pillow
 pillow
 {
   "files": {
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/AvifImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/AvifImagePlugin.py": {
       "sha256": "80733b71d411630ea63c782333de241a12bd83f0f1cafcd8ccde4516bed4b5a1",
       "size": 9596
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/BdfFontFile.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/BdfFontFile.py": {
       "sha256": "2c54f5932a79e45789cd0b1fbd64694f2f53009f5485e3fe7bd95e2ddf77cf35",
       "size": 3463
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/BlpImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/BlpImagePlugin.py": {
       "sha256": "522b1467bdc20f8edfd8b19346573e4df6f10dda93915b72a3b8efe6f6104c17",
       "size": 17048
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/BmpImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/BmpImagePlugin.py": {
       "sha256": "e23760527cf54ebb06b6e56d73be70ff896666c04f55fdd1047bf99434f9da63",
       "size": 20377
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/BufrStubImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/BufrStubImagePlugin.py": {
       "sha256": "3b2a82334b9422e153315099108f4fda20377a83785d540f7c57cdb835bfc9e4",
       "size": 1757
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ContainerIO.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ContainerIO.py": {
       "sha256": "23ac8efd814412a30a035724804133176aff224e69fc68ccf91ad63896234a56",
       "size": 4777
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/CurImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/CurImagePlugin.py": {
       "sha256": "3aab7fa3ba3b1d758a01e368073544be1c4a14cbf75b751cf390a73a842e8612",
       "size": 2814
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/DcxImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/DcxImagePlugin.py": {
       "sha256": "2f6d5cde0557e883e6938cee7ff96db779807917dcb8209c5e1902569b9e7765",
       "size": 2264
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/DdsImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/DdsImagePlugin.py": {
       "sha256": "eae2016bb3476be917ff549086c18b89d8e911d0f6d3f0900486a90fe2808cac",
       "size": 19733
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/EpsImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/EpsImagePlugin.py": {
       "sha256": "3582af51b5623fc766008fa1e3df028a918aaf7073f4f6435fc5d1607f3deb2c",
       "size": 17253
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ExifTags.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ExifTags.py": {
       "sha256": "362cafb665044fbf41322a248a3313a7fabc75e596ce9c9db5371305f272f0a1",
       "size": 10339
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/FitsImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/FitsImagePlugin.py": {
       "sha256": "2ff9142b7f02394b95f65a13e64f4366a12df74a3600245d64f63696fb1ed0bd",
       "size": 4875
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/FliImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/FliImagePlugin.py": {
       "sha256": "2f5bdfe108ec68c57479141399fcb5c27a89f65f61195e65bd320b5bbce7cc3f",
       "size": 5113
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/FontFile.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/FontFile.py": {
       "sha256": "a424a370fdf10adc8e780110f3e12f9366e0e479ec49c560400e715108ff0554",
       "size": 4419
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/FpxImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/FpxImagePlugin.py": {
       "sha256": "b3610e701e56459102379804abd517a576a44e2dfc905322133d8ccd1029c7f5",
       "size": 7724
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/FtexImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/FtexImagePlugin.py": {
       "sha256": "fb32afbe131373351ede8d1fe07a430bdfc32ba94a1d3e4b0017f4af9fb797ee",
       "size": 3685
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/GbrImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/GbrImagePlugin.py": {
       "sha256": "21bff2df967334e98ca86d92b8eca3c518773b1b78d90a5c11c80b6ba0619ad0",
       "size": 3156
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/GdImageFile.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/GdImageFile.py": {
       "sha256": "ace96a8ea2945fc25827a18b1b3a8792cf85a4033bdb43b2a1d1c636222e9283",
       "size": 2951
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/GifImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/GifImagePlugin.py": {
       "sha256": "0cf9dd837ba23b412c95765aea4422bbf6e7c2210c6eefde91eab43d4308b0d5",
       "size": 43596
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/GimpGradientFile.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/GimpGradientFile.py": {
       "sha256": "cec216d4c915ea4a39964e072555de8121d4df250fc16d695329d1b39cf48990",
       "size": 4137
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/GimpPaletteFile.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/GimpPaletteFile.py": {
       "sha256": "126047710f44c42e1fe3bb5a0fb4bb1ba55a324afd1e3ca7955f0d7535d5e624",
       "size": 1935
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/GribStubImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/GribStubImagePlugin.py": {
       "sha256": "73c88f12a40e48171616a756122b9cb9b8da5f061f6520761a365761568f0313",
       "size": 1786
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/Hdf5StubImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/Hdf5StubImagePlugin.py": {
       "sha256": "ac831d7fbb83b248c9ab07ba0af18bc3fb6325f875828e6f2929e67ed05d08a8",
       "size": 1768
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/IcnsImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/IcnsImagePlugin.py": {
       "sha256": "4e8092cb968527bffa9e266ccc53917c232bf3f5393babe0775447315aff27fa",
       "size": 12798
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/IcoImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/IcoImagePlugin.py": {
       "sha256": "0d9a018f6ccabfbe9293de8f2aaf1e97d69900cd89df050b56a3dea27a3fd33d",
       "size": 13499
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImImagePlugin.py": {
       "sha256": "5fd881490e31eeb6aec5b3889fbda3eefe9301481995da580f970073a67530d0",
       "size": 11992
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/Image.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/Image.py": {
       "sha256": "59f1b98ed7bfd7b516b9f13ffd9dd3bc0aa1a495042accdb5ae4609b41c329d5",
       "size": 158171
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageChops.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageChops.py": {
       "sha256": "859f043d43e5408cee82c11e755f2dae4297d230420c66fa0acce66ba65e3194",
       "size": 8257
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageCms.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageCms.py": {
       "sha256": "0effeeecadc71257d6eabcbd4cf43277ff35c6aeda0e7ba4c60ab67676bf49de",
       "size": 41773
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageColor.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageColor.py": {
       "sha256": "295faeec79d95abacbdf3b8100e2ea7ab23eeef15c5d3c5d2dea1a6158ec9f02",
       "size": 9761
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageDraw.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageDraw.py": {
       "sha256": "98aa4388d2629866aad9dd734bec67ad3f9981ab1ed4390281b4c17be9027cf6",
       "size": 36421
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageDraw2.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageDraw2.py": {
       "sha256": "1b4388cfbb0e5bf4e7af5b431ee8d3c8f54476aa216fb33838e3ade19424550c",
       "size": 7470
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageEnhance.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageEnhance.py": {
       "sha256": "ba00d4d2c963691ff369389bb6e9a54ef7fea851f5c755ba97640ca5cdfce975",
       "size": 3740
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageFile.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageFile.py": {
       "sha256": "e972c9d8785ad1fd44f860a375d8719f3fdff8e46da1cc311950699f93e4f539",
       "size": 30828
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageFilter.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageFilter.py": {
       "sha256": "1702a1b8f1c497a99f816a3aa94509b2ba2ce357ec480308c015e406c6bcc15e",
       "size": 19714
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageFont.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageFont.py": {
       "sha256": "e9601111f8817e8387fd792b3643e709a5a11febea43cb49de1732e776ba5f60",
       "size": 65080
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageGrab.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageGrab.py": {
       "sha256": "b0df963537d02a3f90a20b6385edd5338efc7b6b28ee2248f30de562d1358530",
       "size": 8475
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageMath.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageMath.py": {
       "sha256": "d39d8fd05608b184178f75263ff0b04a0509de58e8e6945f14dfe4eac85e4496",
       "size": 10659
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageMode.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageMode.py": {
       "sha256": "50b900fa3b02806c31563af62cf48fe367439a3ea759a424f4be142a3eca7d28",
       "size": 2480
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageMorph.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageMorph.py": {
       "sha256": "56bd50401e6f198a4655f7d11894287781fbfc095098ede5f81961a5a61e0f22",
       "size": 10673
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageOps.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageOps.py": {
       "sha256": "ad146c4c218335150d4099e851f1f78c582f5df6c46648893f0ab56dea38a3e4",
       "size": 26446
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImagePalette.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImagePalette.py": {
       "sha256": "f4a973fbb23a253494a7695f64933a5740f270540a926e91c5fc970d3e14fe7c",
       "size": 9498
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImagePath.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImagePath.py": {
       "sha256": "6679c9baf40db5b2918429abeb54c4984875bd5579ffdd163043cbf0ea72e65f",
       "size": 391
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageQt.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageQt.py": {
       "sha256": "4a9c4778f81687981d8d5206342e061b9bfd577b26426fe73e224372b8671d77",
       "size": 6903
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageSequence.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageSequence.py": {
       "sha256": "82e64751da56af39f3664718d0e6290f3b85d2e15794212edbad283feedefdf2",
       "size": 2341
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageShow.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageShow.py": {
       "sha256": "d660d3b5502fb540e2d414a9eeefa85541c368deecd916c99196f07d0eb62082",
       "size": 10684
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageStat.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageStat.py": {
       "sha256": "5b4b946bc60d0babe1a3095ead2cd923013b46ef8aa76ad6baa18d2c114b672a",
       "size": 5662
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageText.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageText.py": {
       "sha256": "082c1145853cadd845f42775d7ac896b6cc63d9b2e80572cf579acb6fcc01d54",
       "size": 19087
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageTk.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageTk.py": {
       "sha256": "4f1d337fd913681b801af66ea342401eb35b9379fa7b0af86677569d6c592b44",
       "size": 8398
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageTransform.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageTransform.py": {
       "sha256": "66eea8c925c436dabbd76fa792a14ba9a7d83ef891020b209337cb586d0add5f",
       "size": 4052
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImageWin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageWin.py": {
       "sha256": "7d018c99917dc076f4f6d33c7697ccb8de5ac75bfe1c3d38389a645ce6b1ddc7",
       "size": 8345
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/ImtImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImtImagePlugin.py": {
       "sha256": "afe643cf75e38ba10117c7949caea2b8211912d965a74c4b452210d3f875e141",
       "size": 2768
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/IptcImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/IptcImagePlugin.py": {
       "sha256": "e05b6e7b88dd6bba546342e1dbbd8e0df84e0488893992b4410d9ed0f610c228",
       "size": 6663
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/Jpeg2KImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/Jpeg2KImagePlugin.py": {
       "sha256": "00e20588471f2455caa9018885d958480c3d23e6d8f087eb421450fc0f6b3c18",
       "size": 15088
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/JpegImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/JpegImagePlugin.py": {
       "sha256": "049fc12cf436b101a5622456a1b83ba8b28b54cf8106d3953aed751bb0c08f3f",
       "size": 32223
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/JpegPresets.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/JpegPresets.py": {
       "sha256": "51422c2b3bf2cdd3f3b2774e0ddf747aefe5b8ca9ab86d4f261d7450eb90be68",
       "size": 12621
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/McIdasImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/McIdasImagePlugin.py": {
       "sha256": "3fd77592be12b5ed10564c5faa2c77d6c7c60fcb169fe7959982b4c20e83bc8c",
       "size": 1955
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/MicImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/MicImagePlugin.py": {
       "sha256": "b82c463389652053e37eed8a8e2fb34a73da727aa2194646aacfc3b5bdc992d2",
       "size": 2702
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/MpegImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/MpegImagePlugin.py": {
       "sha256": "91e9bdce87ec06d22aeb194c25cb0590e5d370908f1080a4f657214df47da432",
       "size": 2094
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/MpoImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/MpoImagePlugin.py": {
       "sha256": "ffc580b1881e62444336ab32d08ff2c38a72c3471a75dadfd4c5940cd2808636",
       "size": 6987
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/MspImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/MspImagePlugin.py": {
       "sha256": "bb75dc1140d81926046847543a19e3867a64650264a537520781251e9c4e3e58",
       "size": 6072
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/PSDraw.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PSDraw.py": {
       "sha256": "eec05f0067c19aa9d958c4e445f2e6e28057b519415c0b984fffcd3f71ad1f0d",
       "size": 7230
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/PaletteFile.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PaletteFile.py": {
       "sha256": "41d11af7d8cb0be3cf844a86cbaff87c3b9af13cca4925339007987029455fb3",
       "size": 1270
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/PalmImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PalmImagePlugin.py": {
       "sha256": "2247aeefa9db5ba83130696a516c1b579ec12441abd775465c842f9162b9e265",
       "size": 8965
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/PcdImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PcdImagePlugin.py": {
       "sha256": "819b027170c8a845532b6cfe1962a9b53db9a455350143a0a6bdc9d3a7233c28",
       "size": 1842
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/PcfFontFile.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PcfFontFile.py": {
       "sha256": "50f65bca80f8295af7df1b6da0f6a2db5d63ce8f8f0e92386dc9f26cb0eee75e",
       "size": 7240
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/PcxImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PcxImagePlugin.py": {
       "sha256": "5e6f1423fe7f01006c89693b07c489add784ffccfb0d20405269cda636e79396",
       "size": 6596
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/PdfImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PdfImagePlugin.py": {
       "sha256": "3c3f19e0ea596e3f572f479bed0d9b18bc3846552d77c74f2c2e14e86ff60036",
       "size": 9720
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/PdfParser.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PdfParser.py": {
       "sha256": "c5e04f3c748cc2b7f711208a1689b7c3af0e61e11cb454ee06a209fb5217b901",
       "size": 39753
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/PixarImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PixarImagePlugin.py": {
       "sha256": "f919ee2521a1185f0cb14b221d9ab757307157e04d9cadf99018c97e1633c17b",
       "size": 1830
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/PngImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PngImagePlugin.py": {
       "sha256": "26e6495edc516f7589dea911c330d7f16d4ec96eed78af838da00902e77e6040",
       "size": 53977
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/PpmImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PpmImagePlugin.py": {
       "sha256": "22331d42c009691d13c90bb591ddebe28eaad28e49295c2ae21475d0e7804715",
       "size": 12719
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/PsdImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PsdImagePlugin.py": {
       "sha256": "b3ce408b7129bc190d12ce0db3ad408e114a048b134669021878a7e72afb372d",
       "size": 9249
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/QoiImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/QoiImagePlugin.py": {
       "sha256": "c25feb0cc7e1c9c5aae865c1157f31ce8235d5728c6567afd9629288ce2df372",
       "size": 8831
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/SgiImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/SgiImagePlugin.py": {
       "sha256": "4f0891938baa8e0836d7e3a2154066044d893d63a30c716654f8141fbbce3b75",
       "size": 6602
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/SpiderImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/SpiderImagePlugin.py": {
       "sha256": "b0087770827cbc65aee9619de92721c9ca2aec36a338fa25680a31abbea5b68c",
       "size": 10626
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/SunImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/SunImagePlugin.py": {
       "sha256": "60a604bee1b84149227acdf838ab5758a4d8499f14deacdc13fbdd4eb3ae46cc",
       "size": 4734
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/TarIO.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/TarIO.py": {
       "sha256": "2bab4b9050dc69aaf7bdbe84c986fb1b8a15101e35c7f2ccb8625e513f70e434",
       "size": 1503
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/TgaImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/TgaImagePlugin.py": {
       "sha256": "52bbc8363a079783087f2c5fe5b2f75519425af38deee0e92507e6cf7c939588",
       "size": 8017
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/TiffImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/TiffImagePlugin.py": {
       "sha256": "7c7c771b1358c4096239c5973199672870c7e4cc34c4ce33a391695a7e251df7",
       "size": 88301
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/TiffTags.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/TiffTags.py": {
       "sha256": "16c76a6c8409388ee2846ecc67f2b8614403678ce8fab6986e28550dee3653d1",
       "size": 17772
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/WalImageFile.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/WalImageFile.py": {
       "sha256": "70b442298cac9c4d2fe59fd47745ded180de338988c45197a83231f157ae31c6",
       "size": 5891
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/WebPImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/WebPImagePlugin.py": {
       "sha256": "c7022669e4536810944b2d1a5a69a18dc7176706cbd36363994b0fcc2003d69c",
       "size": 10289
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/WmfImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/WmfImagePlugin.py": {
       "sha256": "136d180c964920aad44327ed3a6ac9ac0b97ba60c6662c231f237620a282c9b8",
       "size": 5390
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/XVThumbImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/XVThumbImagePlugin.py": {
       "sha256": "384b448508022cb82fc7c275888f75d533338c9e624e538ea90a4b431d5bcd0e",
       "size": 2209
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/XbmImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/XbmImagePlugin.py": {
       "sha256": "c1cd0da5f4f3952871f589a2d33c28d1a5598c36b8fc1ecd1221b64e008eeb94",
       "size": 2767
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/XpmImagePlugin.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/XpmImagePlugin.py": {
       "sha256": "232f0ac0e8e7546541c5f4f6c6d0f737050a52dcec0f678753b3aeb48461a9d9",
       "size": 4539
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/__init__.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/__init__.py": {
       "sha256": "3fffff8502f4b59ca61d39cce713d55ffef046954262fce1abac3e97f3803734",
       "size": 2122
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/__main__.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/__main__.py": {
       "sha256": "5fc788a469661df9e9ef36b3a7999d6afdb6f08b5c7f696488c3f4b4b53a5fd7",
       "size": 140
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_avif.pyi": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_avif.pyi": {
       "sha256": "cc3f2f0283c2f1a1085637dc90bb45b24456e6c6a255e977fac254036a476867",
       "size": 66
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_binary.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_binary.py": {
       "sha256": "ba6dc47fa221e747297ee81afcbdaef2ea9be664c7a4b51f5382563132e0b20b",
       "size": 2664
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_deprecate.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_deprecate.py": {
       "sha256": "522ac3970b3279feaeeac2ffae51379a72ad45fd666af9a7864b7fd4f03b43c0",
       "size": 2106
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imaging.cp312-win_arm64.pyd": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imaging.cp312-win_arm64.pyd": {
       "sha256": "d7387d3192263a2baaa86549d0319972b76444aabdfafc5240af9251f09017c7",
       "size": 2068992
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imaging.pyi": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imaging.pyi": {
       "sha256": "8d2446dead5dc2204ca8ec0884bb5305edcb30ac2c8b76244dc0dfb0a577d84d",
       "size": 924
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingcms.cp312-win_arm64.pyd": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingcms.cp312-win_arm64.pyd": {
       "sha256": "f49b2dde657a0ea237b775c09009e9a71864ec926bf633f74def19050275b903",
       "size": 245248
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingcms.pyi": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingcms.pyi": {
       "sha256": "e7f48329eecac13f5a6f911e1bec27e85e6cbff7ecd28db5db1a0f066dc7f88a",
       "size": 4576
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingft.cp312-win_arm64.pyd": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingft.cp312-win_arm64.pyd": {
       "sha256": "de5b85aa4574ec3f5eb96d4381b69e5f7bfdd3c8bd5ca91846df9bac226d370f",
       "size": 1913856
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingft.pyi": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingft.pyi": {
       "sha256": "535ae9c2a417d6150bbd3028f1f634fc8ad79e0f953ee09755a581523da9d73d",
       "size": 1903
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingmath.cp312-win_arm64.pyd": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingmath.cp312-win_arm64.pyd": {
       "sha256": "797503fe21a2f6e9f4e47743894e539d4035e35e16744b5b39592ad5ee24e74a",
       "size": 20992
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingmath.pyi": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingmath.pyi": {
       "sha256": "cc3f2f0283c2f1a1085637dc90bb45b24456e6c6a255e977fac254036a476867",
       "size": 66
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingmorph.cp312-win_arm64.pyd": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingmorph.cp312-win_arm64.pyd": {
       "sha256": "773d9ac5515e05cf960e295880d6b61b0742f6ce4064d7d0410e80042b816e76",
       "size": 12800
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingmorph.pyi": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingmorph.pyi": {
       "sha256": "cc3f2f0283c2f1a1085637dc90bb45b24456e6c6a255e977fac254036a476867",
       "size": 66
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingtk.cp312-win_arm64.pyd": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingtk.cp312-win_arm64.pyd": {
       "sha256": "6f6daca72eeb75b02900e783c56c8c1a0066e0c0280e4fe806c6bcd200742677",
       "size": 14336
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingtk.pyi": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingtk.pyi": {
       "sha256": "cc3f2f0283c2f1a1085637dc90bb45b24456e6c6a255e977fac254036a476867",
       "size": 66
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_tkinter_finder.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_tkinter_finder.py": {
       "sha256": "1f5530ddd57b8161c88ffa2c527245c56875691b10d8c74aa4d3f7bd0c10716d",
       "size": 558
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_typing.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_typing.py": {
       "sha256": "b7e3154b97ffa5174bf8cd3bd9866a957141fc3f33d4a3a5f0470ab13fddf6ce",
       "size": 964
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_util.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_util.py": {
       "sha256": "78ff087e658999b13f3ea6d425be2a4ea18d2e2e334f44d369daebaa6ca483b6",
       "size": 713
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_version.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_version.py": {
       "sha256": "8367607a728dc206da64e3de6b24f826f3030d7f3c053f25c3b3a1fde94fb9d7",
       "size": 91
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_webp.cp312-win_arm64.pyd": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_webp.cp312-win_arm64.pyd": {
       "sha256": "28280dd647059d71b9c4175b10374c48ef6bb974382f95cad44a7edc7784de3a",
       "size": 348672
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_webp.pyi": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_webp.pyi": {
       "sha256": "cc3f2f0283c2f1a1085637dc90bb45b24456e6c6a255e977fac254036a476867",
       "size": 66
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/features.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/features.py": {
       "sha256": "cbf7a5342ce007a46030ff4031fdc274e3f78dda0de21a38bf1a122b383a7967",
       "size": 11118
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/py.typed": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/py.typed": {
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "size": 0
     },
-    "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/report.py": {
+    "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/report.py": {
       "sha256": "ea6ecd3afd5adb8e7bed9889a315fcf62a7925e3a07f63b517de5febed4ae5a3",
       "size": 105
     }
   },
   "loaded_modules": [
     {
-      "path": "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imaging.cp312-win_arm64.pyd",
+      "path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imaging.cp312-win_arm64.pyd",
       "scope": "observed-input",
       "sha256": "d7387d3192263a2baaa86549d0319972b76444aabdfafc5240af9251f09017c7",
       "size": 2068992
     },
     {
-      "path": "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingcms.cp312-win_arm64.pyd",
+      "path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingcms.cp312-win_arm64.pyd",
       "scope": "observed-input",
       "sha256": "f49b2dde657a0ea237b775c09009e9a71864ec926bf633f74def19050275b903",
       "size": 245248
     },
     {
-      "path": "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_imagingft.cp312-win_arm64.pyd",
+      "path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingft.cp312-win_arm64.pyd",
       "scope": "observed-input",
       "sha256": "de5b85aa4574ec3f5eb96d4381b69e5f7bfdd3c8bd5ca91846df9bac226d370f",
       "size": 1913856
     },
     {
-      "path": "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/PIL/_webp.cp312-win_arm64.pyd",
+      "path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_webp.cp312-win_arm64.pyd",
       "scope": "observed-input",
       "sha256": "28280dd647059d71b9c4175b10374c48ef6bb974382f95cad44a7edc7784de3a",
       "size": 348672
@@ -203623,7 +202914,7 @@ Licensed under the Apache License, Version 2.0.
 
 vadgr-computer-use
 {
-  "component_sha256": "1181d3c246f27be9245a868bcc36fa6f094bebca54fee460f7a4fad2d50432bc",
+  "component_sha256": "8fb13abd1c703d63c30f792c4a72b909a2d74064f21c34b7f25e4a533e0920aa",
   "original_statement_files": [
     {
       "path": "computer_use/bridge/deployer.py",
@@ -203827,7 +203118,7 @@ vadgr-computer-use
     },
     {
       "path": "computer_use/browser/windows_broker_entry.py",
-      "sha256": "9b09167ccf032c99d3627957cba3ed60ef6f9470fe8e24c6bac9eb62f6b8d55c",
+      "sha256": "daf7b702e09ba6188416415b8bf7254fb0fba91ff771076b2c6190c7ca1eccf1",
       "statements": [
         {
           "line": 1,

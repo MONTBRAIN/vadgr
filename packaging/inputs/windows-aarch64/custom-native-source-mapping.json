@@ -8,7 +8,7 @@
       "component": "native-cryptography",
       "limitation": "Exact reviewed producer inputs and observed wheel equality; not a new package approval or independent bit-for-bit rebuild.",
       "observed_native_members": {
-        "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/cryptography/hazmat/bindings/_rust.pyd": "2f574885e700687c62d535a3c7f3971860ef15fe5faa09a7a38d8f48d7c76cdf"
+        "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/cryptography/hazmat/bindings/_rust.pyd": "2f574885e700687c62d535a3c7f3971860ef15fe5faa09a7a38d8f48d7c76cdf"
       },
       "producer_manifest_sha256": "2f86c4d2c6493d32019a617c669e3c0babefc565f9da73c6182475286ad499b8",
       "producer_sha": "4624073d81f44bf8ae88ca4fbe482d7f138095f1",
@@ -33,7 +33,7 @@
       "component": "native-cryptography-openssl",
       "limitation": "Exact reviewed producer inputs and observed wheel equality; not a new package approval or independent bit-for-bit rebuild.",
       "observed_native_members": {
-        "payload/lib/cua/environments/0.7.9-e82e8f88eba0/Lib/site-packages/cryptography/hazmat/bindings/_rust.pyd": "2f574885e700687c62d535a3c7f3971860ef15fe5faa09a7a38d8f48d7c76cdf"
+        "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/cryptography/hazmat/bindings/_rust.pyd": "2f574885e700687c62d535a3c7f3971860ef15fe5faa09a7a38d8f48d7c76cdf"
       },
       "producer_manifest_sha256": "2f86c4d2c6493d32019a617c669e3c0babefc565f9da73c6182475286ad499b8",
       "producer_sha": "4624073d81f44bf8ae88ca4fbe482d7f138095f1",

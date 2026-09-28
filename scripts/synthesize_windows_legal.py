@@ -908,22 +908,33 @@ def add_wix_source_mapping(packet, source, collection):
         "remaining_owner_decision": "Official WiX build distribution terms and the actual legal/business facts required by OSMFEULA are not established by a source archive."}))
 
 
-def add_archives_and_fonts(packet, inputs, archive_root):
+def add_component_source_archives(packet, inputs, archive_root):
+    components = {row["id"]: row for row in packet.components}
+    pending = {row["id"]: row for row in packet.pending}
     for identifier, (filename, expected) in SOURCE_ARCHIVES.items():
+        # A source archive belongs in the packet only when the exact observed
+        # component is present. Profiles may remove an older dependency, and
+        # retaining its source would falsely describe the candidate inventory.
+        if identifier not in components:
+            continue
         raw = read_owned(archive_root, filename)
         require(sha256_bytes(raw) == expected, "corresponding source archive differs")
         path = "legal/SOURCE-OFFERS/" + filename
         packet.put(path, raw)
-        component = next(row for row in packet.components if row["id"] == identifier)
+        component = components[identifier]
         component["source_offer_required"] = True
         component["source_offer_files"] = [{"path": path, "sha256": expected}]
         if identifier == "wheel-nodriver-0.50.3":
             nodriver_equality(packet, inputs, raw)
         # This delivers the actual upstream source, not a promise or a mutable URL.
         # It does not establish completeness for an AGPL combined work or modified WiX code.
-        issue = next(row for row in packet.pending if row["id"] == identifier)
+        issue = pending[identifier]
         issue["items"] = [item for item in issue["items"] if item != "corresponding-source-delivery"]
         issue["items"].append("covered-combination-or-modification-source-completeness")
+
+
+def add_archives_and_fonts(packet, inputs, archive_root):
+    add_component_source_archives(packet, inputs, archive_root)
     raw = read_owned(archive_root, FONT_ARCHIVE)
     require(sha256_bytes(raw) == FONT_SHA256, "font crate differs")
     import io
@@ -1060,17 +1071,29 @@ def add_installed_python(packet, inputs, collection, archive_root):
                                    "hash_basis": "exact-installed-METADATA"}])
 
 
+def reviewed_helper_record(source, architecture, members):
+    """Select exactly one approved record by its complete helper member bytes."""
+    matches = []
+    for filename in (f"{ARCHITECTURES[architecture]}.json", f"replacement-{ARCHITECTURES[architecture]}.json"):
+        legal_name = "packaging/cua/helper-legal/" + filename
+        raw = read_owned(source, legal_name)
+        reviewed = parse_json(raw)
+        require(reviewed["status"] == "approved" and reviewed["architecture"] == ARCHITECTURES[architecture]
+                and reviewed["version"] == "0.7.9" and reviewed["source_offer_required"] is False
+                and reviewed["scope"] == "cua-helper-input-redistribution-and-authenticode-transformation"
+                and re.fullmatch(r"[0-9a-f]{40}", reviewed["source_commit"]),
+                "reviewed helper scope differs")
+        if set(members) == set(reviewed["members"]) and all(
+                sha256_bytes(data) == reviewed["members"][name]["input_sha256"]
+                and len(data) == reviewed["members"][name]["size"] for name, data in members.items()):
+            matches.append((legal_name, raw, reviewed))
+    require(len(matches) == 1, "reviewed helper bytes differ or are ambiguous")
+    return matches[0]
+
+
 def add_reviewed_helpers(packet, source, inputs, architecture):
     """Carry existing exact helper-only decisions, without extending them to outer files."""
     import io
-    legal_name = f"packaging/cua/helper-legal/{ARCHITECTURES[architecture]}.json"
-    raw_review = read_owned(source, legal_name)
-    reviewed = parse_json(raw_review)
-    require(reviewed["status"] == "approved" and reviewed["architecture"] == ARCHITECTURES[architecture]
-            and reviewed["version"] == "0.7.9" and reviewed["source_offer_required"] is False
-            and reviewed["scope"] == "cua-helper-input-redistribution-and-authenticode-transformation"
-            and reviewed["source_commit"] == document(source, "packaging/cua/cua-profile-catalog.json")["source_commit"],
-            "reviewed helper scope differs")
     root = inputs / "payload/lib/cua/environments"
     brokers = list(root.rglob("*broker*.zip"))
     relays = [path for path in root.rglob("vadgr-cua-host.exe") if "/browser/winhost/" in path.as_posix()]
@@ -1083,10 +1106,10 @@ def add_reviewed_helpers(packet, source, inputs, architecture):
             relative_path(member.filename)
             require(member.file_size <= 16 * 1024 * 1024, "broker member is oversized")
             members[member.filename] = archive.read(member)
-    require(set(members) == set(reviewed["members"]), "reviewed helper members differ")
-    for name, data in members.items():
-        row = reviewed["members"][name]
-        require(sha256_bytes(data) == row["input_sha256"] and len(data) == row["size"], "reviewed helper bytes differ")
+    legal_name, raw_review, reviewed = reviewed_helper_record(source, architecture, members)
+    # The helper-only decision deliberately precedes the later profile catalog
+    # and binds its own retained producer revision. The complete member match,
+    # not source-commit equality, permits a later catalog to reuse those bytes.
     names = sorted({name for row in reviewed["members"].values() for name in row["license_and_notice_members"]})
     crt = members["PYTHON-LICENSE.txt"]
     start = crt.index(b"Additional Conditions for this Windows binary build")
@@ -1270,6 +1293,15 @@ def add_crate_evidence(packet, cache, archive_root, architecture, inputs):
         "wheel_source_archives": workspace}))
 
 
+def remaining_package_questions(components):
+    questions = ["actual-target-market-rights", "product-data-statements",
+        "Cargo-linkage-and-generated-code-scope", "Python-vendored-and-native-library-closure",
+        "WiX-runtime-source-completeness-and-official-build-terms"]
+    if any(row["id"] == "wheel-nodriver-0.50.3" for row in components):
+        questions.append("nodriver-AGPL-source-and-combined-work-treatment")
+    return questions
+
+
 def synthesize(source, observation_root, architecture, created, archive_root, crate_cache, observation_binding,
                wix_evidence=None, wix_evidence_sha256=None):
     require((wix_evidence is None) == (wix_evidence_sha256 is None), "WiX evidence needs its independent digest")
@@ -1359,9 +1391,7 @@ def synthesize(source, observation_root, architecture, created, archive_root, cr
                     "rows_with_review_items": sum(bool(row["items"]) for row in packet.pending),
                     "scope_counts": {scope: sum(row["scope"] == scope for row in packet.evidence)
                                      for scope in sorted({row["scope"] for row in packet.evidence})}},
-        "package_questions": ["actual-target-market-rights", "product-data-statements", "Cargo-linkage-and-generated-code-scope",
-                              "Python-vendored-and-native-library-closure", "WiX-runtime-source-completeness-and-official-build-terms",
-                              "nodriver-AGPL-source-and-combined-work-treatment"],
+        "package_questions": remaining_package_questions(components),
     }))
     packet.put("UNAPPROVED.txt", b"Incomplete legal review inputs. Not approved for signing, installation, publication or release.\n")
     return packet.files

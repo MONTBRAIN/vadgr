@@ -269,6 +269,55 @@ def test_emit_is_deterministic_and_refuses_overwrite(tmp_path):
         synthesis.emit(files, output, True)
 
 
+def test_removed_component_does_not_retain_stale_source_archive(tmp_path, monkeypatch):
+    present = b"present source"
+    absent = b"absent source"
+    (tmp_path / "present.tar.gz").write_bytes(present)
+    (tmp_path / "absent.tar.gz").write_bytes(absent)
+    monkeypatch.setattr(synthesis, "SOURCE_ARCHIVES", {
+        "present": ("present.tar.gz", synthesis.sha256_bytes(present)),
+        "removed": ("absent.tar.gz", synthesis.sha256_bytes(absent)),
+    })
+    packet = synthesis.Packet()
+    packet.component(identifier="present", name="present", version="1", kind="runtime",
+        digest="a" * 64, location="https://example.org/present", declared="MIT",
+        sources=[], scope="test", pending=["corresponding-source-delivery"])
+
+    synthesis.add_component_source_archives(packet, tmp_path, tmp_path)
+
+    assert "legal/SOURCE-OFFERS/present.tar.gz" in packet.files
+    assert "legal/SOURCE-OFFERS/absent.tar.gz" not in packet.files
+    assert packet.components[0]["source_offer_files"][0]["sha256"] == synthesis.sha256_bytes(present)
+
+
+def test_reviewed_helper_record_selects_exact_replacement_bytes(tmp_path):
+    root = tmp_path / "packaging/cua/helper-legal"
+    root.mkdir(parents=True)
+    members = {"helper.exe": b"replacement"}
+    for filename, data in (("x86_64.json", b"predecessor"), ("replacement-x86_64.json", b"replacement")):
+        record = {
+            "status": "approved",
+            "architecture": "x86_64",
+            "version": "0.7.9",
+            "source_offer_required": False,
+            "scope": "cua-helper-input-redistribution-and-authenticode-transformation",
+            "source_commit": "a" * 40,
+            "members": {"helper.exe": {"input_sha256": synthesis.sha256_bytes(data), "size": len(data)}},
+        }
+        (root / filename).write_text(json.dumps(record), encoding="utf-8")
+
+    legal_name, _, _ = synthesis.reviewed_helper_record(tmp_path, "x64", members)
+
+    assert legal_name.endswith("replacement-x86_64.json")
+
+
+def test_removed_nodriver_has_no_stale_package_question():
+    questions = synthesis.remaining_package_questions([{"id": "wheel-example-1"}])
+    assert "nodriver-AGPL-source-and-combined-work-treatment" not in questions
+    questions = synthesis.remaining_package_questions([{"id": "wheel-nodriver-0.50.3"}])
+    assert "nodriver-AGPL-source-and-combined-work-treatment" in questions
+
+
 @pytest.mark.parametrize("name", ["../outside", "a:stream", "CON", "safe/../outside"])
 def test_output_paths_are_bounded(name):
     with pytest.raises(PackageInputError):

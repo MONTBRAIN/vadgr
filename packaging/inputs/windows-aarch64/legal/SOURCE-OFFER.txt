@@ -32060,10 +32060,6 @@ setuptools
 Included source archive: legal/SOURCE-OFFERS/python-vendor-setuptools/observed-source.zip
 SHA-256: 4a889585cf0ce38aa4c009aeb580d6164cbb21cf22dc83235a1df7106cba8e3e
 
-nodriver
-Included source archive: legal/SOURCE-OFFERS/nodriver-0.50.3.tar.gz
-SHA-256: 24ca688d8646ef8ffad5c8ce65804e5e7671a779ad26a24d76f6465d5666c631
-
 pywin32
 Included source archive: legal/SOURCE-OFFERS/wheel-pywin32-312-adodbapi/adodbapi-shipped-source.zip
 SHA-256: 17fbf4e27a9e5fc3b8b6520da2578b2b36d46f501691c9c2afbcc1860cd00579

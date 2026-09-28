@@ -4,9 +4,9 @@ The Windows directories contain reproducible **drafts**, not approved package
 inputs. Their review status and coverage remain incomplete. The existing package
 validator must reject them. No signature, publication or release is authorized.
 
-These drafts bind the Source A preparation run `36352917712`, product source
-`0c8fc76030eee5d214d7637fb18d1a8ddf203705` and trusted producer
-`772f370902c1ad215ece3d3f531d47c4ddc5ae07`. The earlier preparation run is
+These drafts bind the Source C preparation run `36371419130`, product source
+`789abf1ada3944b8a374ab2db176f0ff594b15d7` and trusted producer
+`2fe4306d151bea3a130cc39c1051e492e27102a4`. Earlier preparation runs are
 superseded. Neither observation nor unsigned installer membership is approval.
 
 The original Version 1.0 public terms remain unchanged. Exact third-party grants,
@@ -15,12 +15,12 @@ not change any component's license or assert that a declared license proves
 all redistribution duties have been met.
 
 Reproduce each directory from the final native preparation observations for run
-`36352917712`, not from the intermediate raw artifacts:
+`36371419130`, not from the intermediate raw artifacts:
 
 ```powershell
 python scripts/inspect_legal_crate_sources.py --source-root . --cache C:/review/crates --cargo-cache C:/review/cargo-cache --wheelhouse C:/review/observations/x64/unsigned-inputs/wheelhouse --wheelhouse C:/review/observations/arm64/unsigned-inputs/wheelhouse --output C:/review/crate-observations.json
-python scripts/synthesize_windows_legal.py --source-root . --observation C:/review/observations/x64 --architecture x64 --created 2026-09-27T22:00:00Z --source-archives C:/review/sources --crate-cache C:/review/crates --observation-bindings packaging/inputs/windows-observation-bindings.json --wix-evidence C:/review/wix-x64 --wix-evidence-sha256 e7909a91dd518bd7757fa8122639e6ff2816c83a84f808eff94e949141795626 --output C:/review/draft-x64
-python scripts/synthesize_windows_legal.py --source-root . --observation C:/review/observations/arm64 --architecture arm64 --created 2026-09-27T22:00:00Z --source-archives C:/review/sources --crate-cache C:/review/crates --observation-bindings packaging/inputs/windows-observation-bindings.json --wix-evidence C:/review/wix-arm64 --wix-evidence-sha256 67bdfb884fcca9f09dcbf80bb67095a32bbbd20e98cbc3da585c701cbefda1f9 --output C:/review/draft-arm64
+python scripts/synthesize_windows_legal.py --source-root . --observation C:/review/observations/x64 --architecture x64 --created 2026-09-28T03:18:32Z --source-archives C:/review/sources --crate-cache C:/review/crates --observation-bindings packaging/inputs/windows-observation-bindings.json --wix-evidence C:/review/wix-x64 --wix-evidence-sha256 f3fa458b7016b26eb79351ebe7a2356f58c7fbe57d00ae8b1566a5d2c55a11c7 --output C:/review/draft-x64
+python scripts/synthesize_windows_legal.py --source-root . --observation C:/review/observations/arm64 --architecture arm64 --created 2026-09-28T03:18:32Z --source-archives C:/review/sources --crate-cache C:/review/crates --observation-bindings packaging/inputs/windows-observation-bindings.json --wix-evidence C:/review/wix-arm64 --wix-evidence-sha256 aae4e5a8a2d354bfcf3e33e67a120acd8fe664797e71f1a755aa802d9bb9d7e6 --output C:/review/draft-arm64
 ```
 
 Output directories must be absent. Add `--verify` to compare an existing packet
@@ -34,7 +34,9 @@ source revision, trusted producer revision and run. Rebaselining requires
 independently verifying the new retained artifact and updating that record;
 self-consistent claims inside an observation do not establish its identity.
 
-The source directory needs these exact archives:
+The source directory needs these exact archives when the corresponding observed
+component is present. Removed profile dependencies must not leave stale source
+archives in the packet:
 
 | File | SHA-256 | Source |
 | --- | --- | --- |
@@ -244,7 +246,7 @@ grant is an extracted custom license, not silently classified as standard TCL.
 Its government-rights and source-duty review remains open. This reference
 comparison does not establish a native binary's source revision.
 
-The included nodriver archive supplies its exact upstream source. Whether a
+When nodriver is present, its included archive supplies its exact upstream source. Whether a
 larger covered combination requires additional source, build instructions or
 AGPL coverage remains an explicit question. Including only that archive does
 not answer it. The WiX archive likewise supplies actual source rather than a

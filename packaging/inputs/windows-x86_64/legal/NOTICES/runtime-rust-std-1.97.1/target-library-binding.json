@@ -395,7 +395,7 @@
   "linked": {
     "ba-functions.dll": {
       "executable": {
-        "sha256": "c8fea15f32c315f6e9e16273eab0f596cb13953abeef504a9576fc74747950ea",
+        "sha256": "070f29e9493fc286c8e348b015d68b0b9574992dafaecaf22a3a9b290cb424f2",
         "size": 324608
       },
       "libraries": {
@@ -4700,11 +4700,11 @@
           ]
         }
       },
-      "map_sha256": "b51e0d8d9d349f4d89a57e843e1d951db87ddbd2d5298d43a81b896cb7d579f8"
+      "map_sha256": "f76a47695b5e5cae504718e959561011276f3c83119a0fd2d3632093d43f5abd"
     },
     "payload/vadgr-app.exe": {
       "executable": {
-        "sha256": "451caae7eed1c32ba20113860a4b5ab78fd3d010ccd64a0b8edb8c0fe507eb4f",
+        "sha256": "46333e3b5d6833d243c285676073756cbd44c1783ca9fa7af9b6f32b07fa5aea",
         "size": 320512
       },
       "libraries": {
@@ -11267,11 +11267,11 @@
           ]
         }
       },
-      "map_sha256": "4338d0736c3920702d67e7ef988a2179cbfa645869c50d3eaf63b3de7e9b6df3"
+      "map_sha256": "3f8c35e9ef0665b5a503e956365eb1b81e7f1c9df9d55b59eb14d31d91fe613c"
     },
     "payload/vadgr.exe": {
       "executable": {
-        "sha256": "547f787e82db0363e24302c683d0dddbc17d360d2735c809cf96ae1b7596fa7f",
+        "sha256": "85ce29379108b26cc821c6b2bc8406a403df28f2897857b52fcfdb4865d3129e",
         "size": 40902656
       },
       "libraries": {
@@ -23356,7 +23356,7 @@
           ]
         }
       },
-      "map_sha256": "8317e2cf00595973984a699653e5e5c8cb4411be2dbca7b82aa237172ae65f88"
+      "map_sha256": "dee75d37d0d87daeb5211759848825dc6c26ed9d6e3f9db015097565ea7d14cf"
     }
   },
   "observed_library_count": 45,
