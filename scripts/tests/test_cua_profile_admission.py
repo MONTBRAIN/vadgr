@@ -109,6 +109,11 @@ def admission(tmp_path, monkeypatch):
         f"contents/packaging/profiles/source-input.json?ref={producer['tooling_commit']}": {
             "type": "file", "encoding": "base64", "path": "packaging/profiles/source-input.json",
             "content": base64.b64encode(profiles.canonical(source_input)).decode()},
+        f"contents/packaging/profiles/fixtures/upgrade/source-input.json?ref={producer['tooling_commit']}": {
+            "type": "file", "encoding": "base64",
+            "path": "packaging/profiles/fixtures/upgrade/source-input.json",
+            "content": base64.b64encode(profiles.canonical({
+                "schema": 1, "source_commit": "c" * 40, "version": "0.7.9"})).decode()},
         "actions/artifacts/5/zip": archive_raw,
     }
     for job_id, arch in ((10, "x86_64"), (11, "aarch64")):
@@ -150,6 +155,20 @@ def test_feature_held_data_is_admitted_without_advancing_signer_commit(admission
     assert command[command.index("--custom-trusted-root") + 1] == str(a.trusted / profiles.release.TRUSTED_ROOT)
 
 
+def test_named_upgrade_fixture_source_is_admitted(admission):
+    a = admission
+    source_commit = "c" * 40
+    a.catalog["source_commit"] = source_commit
+    a.catalog["producer"]["source_commit"] = source_commit
+    raw = profiles.canonical(a.catalog)
+    write(a.source, profiles.CATALOG, raw)
+    a.inputs["catalog_sha256"] = sha256_bytes(raw)
+    write(a.source, profiles.INPUTS, profiles.canonical(a.inputs))
+    a.verification[0]["verificationResult"]["statement"]["subject"][0]["digest"] = {
+        "sha256": a.inputs["catalog_sha256"]}
+    profiles.verify_producer(a.source, a.trusted, a.inputs, a.catalog)
+
+
 @pytest.mark.parametrize("name", [profiles.INPUTS, profiles.CATALOG, profiles.BUNDLE,
                                   profiles.lock_path("linux-x86_64")])
 def test_stale_trusted_profile_proposal_copy_is_rejected(admission, name):
@@ -166,6 +185,25 @@ def test_feature_data_cannot_change_transitive_dependencies(admission):
     a = admission
     name = profiles.lock_path("linux-x86_64")
     raw = (a.source / name).read_bytes().replace(b"synthetic==1.0", b"synthetic==2.0")
+    write(a.source, name, raw)
+    a.inputs["profiles"]["linux-x86_64"]["requirements_sha256"] = sha256_bytes(raw)
+    write(a.source, profiles.INPUTS, profiles.canonical(a.inputs))
+    with pytest.raises(PackageInputError, match="transitive dependencies"):
+        profiles.reviewed(a.source, a.trusted, "linux-x86_64")
+
+
+def test_079_profile_must_remove_unused_nodriver_from_older_baseline(admission):
+    a = admission
+    baseline = a.trusted / profiles.release.lock_path(
+        profiles.target_for("linux-x86_64"))
+    baseline.write_bytes(
+        b"nodriver==0.50.3 --hash=sha256:" + b"d" * 64 + b"\n" +
+        baseline.read_bytes())
+    profiles.reviewed(a.source, a.trusted, "linux-x86_64")
+
+    name = profiles.lock_path("linux-x86_64")
+    raw = (a.source / name).read_bytes()
+    raw = b"nodriver==0.50.3 --hash=sha256:" + b"d" * 64 + b"\n" + raw
     write(a.source, name, raw)
     a.inputs["profiles"]["linux-x86_64"]["requirements_sha256"] = sha256_bytes(raw)
     write(a.source, profiles.INPUTS, profiles.canonical(a.inputs))
