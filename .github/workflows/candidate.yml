@@ -145,6 +145,7 @@ jobs:
         with:
           name: unsigned-windows
           path: unsigned/
+          include-hidden-files: true
           if-no-files-found: error
           retention-days: 90
 
