@@ -38,6 +38,15 @@ def test_dispatch_is_default_branch_only_and_one_shot():
         assert re.fullmatch(r'[\w/-]+@[a-f0-9]{40}', action), action
 
 
+def test_native_matrix_pins_supported_python_before_trusted_tools():
+    workflow = (ROOT / '.github/workflows/candidate.yml').read_text()
+    native = workflow.split('\n  build-native:', 1)[1]
+    setup = 'uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065'
+    assert setup in native
+    assert "python-version: '3.12'" in native
+    assert native.index(setup) < native.index('python scripts/candidate_policy.py preflight')
+
+
 def test_signer_has_no_source_checkout_or_build_execution():
     workflow = (ROOT / '.github/workflows/candidate.yml').read_text()
     signer = workflow.split('\n  sign-windows:', 1)[1].split('\n  attest:', 1)[0]
