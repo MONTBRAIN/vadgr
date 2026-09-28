@@ -37,6 +37,7 @@ WORKFLOW = ".github/workflows/profile-wheels.yml"
 PREFIX = "computer_use/browser/"
 MAX_EXPANDED = 1024 * 1024 * 1024
 MAX_FILES = 20_000
+REMOVED_PROFILE_DEPENDENCIES = {"0.7.9": {"nodriver"}}
 
 
 def canonical(value):
@@ -155,8 +156,11 @@ def reviewed(source: Path, trusted: Path, profile: str):
     require(selected.get("vadgr-computer-use") == (catalog["cua_version"], pins["wheel_sha256"]),
             "profile lock does not select its exact CUA wheel")
     baseline = release.selected_lock(read_owned(trusted, release.lock_path(target)))
-    require({k: v for k, v in selected.items() if k != "vadgr-computer-use"}
-            == {k: v for k, v in baseline.items() if k != "vadgr-computer-use"},
+    removed = REMOVED_PROFILE_DEPENDENCIES.get(catalog["cua_version"], set())
+    require(not (removed & selected.keys())
+            and {k: v for k, v in selected.items() if k != "vadgr-computer-use"}
+            == {k: v for k, v in baseline.items()
+                if k != "vadgr-computer-use" and k not in removed},
             "profile transitive dependencies differ from trusted baseline")
     native_raw, native = release.manifest(trusted)
     if target in release.CUSTOM_TARGETS:
@@ -220,16 +224,24 @@ def verify_producer(source, trusted, inputs, catalog):
         "event": "workflow_dispatch", "workflow_id": producer["workflow_id"],
         "conclusion": "success", "status": "completed", "path": WORKFLOW,
     }.items()), "profile producer run differs")
-    descriptor = _gh("contents/packaging/profiles/source-input.json?ref=" + producer["tooling_commit"])
-    require(descriptor.get("type") == "file" and descriptor.get("encoding") == "base64"
-            and descriptor.get("path") == "packaging/profiles/source-input.json"
-            and isinstance(descriptor.get("content"), str)
-            and len(descriptor["content"]) <= release.MAX_METADATA,
-            "profile producer source descriptor absent")
-    source_input = parse_json(base64.b64decode("".join(descriptor["content"].splitlines()), validate=True))
-    require(type(source_input.get("schema")) is int
-            and source_input == {"schema": 1, "source_commit": producer["source_commit"],
-                             "version": catalog["cua_version"]},
+    expected_source = {"schema": 1, "source_commit": producer["source_commit"],
+                       "version": catalog["cua_version"]}
+    source_input = None
+    for descriptor_path in (
+            "packaging/profiles/source-input.json",
+            "packaging/profiles/fixtures/upgrade/source-input.json"):
+        descriptor = _gh(f"contents/{descriptor_path}?ref={producer['tooling_commit']}")
+        require(descriptor.get("type") == "file" and descriptor.get("encoding") == "base64"
+                and descriptor.get("path") == descriptor_path
+                and isinstance(descriptor.get("content"), str)
+                and len(descriptor["content"]) <= release.MAX_METADATA,
+                "profile producer source descriptor absent")
+        candidate = parse_json(base64.b64decode(
+            "".join(descriptor["content"].splitlines()), validate=True))
+        if candidate == expected_source:
+            require(source_input is None, "profile producer source descriptor is ambiguous")
+            source_input = candidate
+    require(source_input == expected_source and type(source_input.get("schema")) is int,
             "profile producer source descriptor differs")
     jobs = set()
     for profile, entry in catalog["profiles"].items():
