@@ -544,13 +544,14 @@ jobs:
           Copy-Item $candidate "$installRoot\bin\vadgr.exe"
           $manifest = "$installRoot\lib\cua\payload.json"
           if (-not (Test-Path -PathType Leaf $manifest)) { throw "payload manifest is missing: $manifest" }
-          $generations = @(Get-ChildItem "$installRoot\lib\cua\environments" -Directory)
-          if ($generations.Count -ne 1) { throw "expected one private payload generation, found $($generations.Count)" }
-          $privatePython = Join-Path $generations[0].FullName 'Scripts\python.exe'
+          $payload = Get-Content -Raw -LiteralPath $manifest | ConvertFrom-Json
+          $privatePython = Join-Path $installRoot "lib\cua\python\$($payload.python_version)\python.exe"
           if (-not (Test-Path -PathType Leaf $privatePython)) { throw "private Python is missing: $privatePython" }
-          $verifyPayload = 'import importlib.metadata,json,pathlib,sys; manifest=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")); assert sys.version.split()[0] == manifest["python_version"]; assert importlib.metadata.version("vadgr-computer-use") == manifest["cua_version"]'
-          & $privatePython -I -B -c $verifyPayload $manifest
-          if ($LASTEXITCODE -ne 0) { throw 'private payload version check failed' }
+          $bootstrap = Join-Path $installRoot 'lib\cua\bootstrap.py'
+          $actualCua = & $privatePython -I -B $bootstrap computer_use.mcp_server --version 2>&1
+          if ($LASTEXITCODE -ne 0 -or $actualCua -notmatch " $([Regex]::Escape($payload.cua_version))$") {
+            throw 'private payload version check failed'
+          }
           "CLEAN_INSTALL_ROOT=$installRoot" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Verify assembled payload and unsigned runtime boundary

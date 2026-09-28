@@ -1161,12 +1161,13 @@ fn validate_environment(
     cua_pin: &str,
 ) -> Result<()> {
     let code = format!(
-        "import importlib.metadata,sys; assert sys.version.split()[0] == {python_pin:?}; assert importlib.metadata.version('vadgr-computer-use') == {cua_pin:?}"
+        "import importlib.metadata,runpy,sys; bootstrap=runpy.run_path(sys.argv[1]); bootstrap['_add_private_site_packages'](); assert sys.version.split()[0] == {python_pin:?}; assert importlib.metadata.version('vadgr-computer-use') == {cua_pin:?}"
     );
     require_success(
         "validating private Python and cua versions",
         Command::new(python)
             .args(["-I", "-B", "-c", &code])
+            .arg(bootstrap)
             .output()?,
     )?;
     require_success(
