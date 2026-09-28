@@ -144,6 +144,8 @@ def test_windows_candidate_tests_exact_checkout_then_builds_materialized_inputs(
     assert '& cargo test' not in build_phase
     assert "$env:CARGO_TARGET_DIR = Join-Path $sourceTestRoot 'target'" in script
     assert "$env:CARGO_TARGET_DIR = Join-Path $sourceRoot 'target'" in script
+    assert 'Copy-Item -LiteralPath "$binary/vadgr_windows_ba_functions.dll"' in script
+    assert 'packaging/windows/ba-functions/target/$target/release' not in script
     assert script.count("throw 'The result-only runbook must be absent from the materialized build.'") == 2
 
 

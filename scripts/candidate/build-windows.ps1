@@ -85,7 +85,7 @@ try {
     $env:VADGR_TERMS_SHA256 = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $compliance 'legal/TERMS.txt')).Hash.ToLowerInvariant()
     & cargo rustc --locked --manifest-path packaging/windows/ba-functions/Cargo.toml --release --target $target -- -C target-feature=+crt-static
     if ($LASTEXITCODE -ne 0) { throw 'Bootstrapper DLL compilation failed.' }
-    Copy-Item -LiteralPath "packaging/windows/ba-functions/target/$target/release/vadgr_windows_ba_functions.dll" -Destination (Join-Path $output 'ba-functions.dll')
+    Copy-Item -LiteralPath "$binary/vadgr_windows_ba_functions.dll" -Destination (Join-Path $output 'ba-functions.dll')
     Copy-Item -LiteralPath (Join-Path $compliance 'legal/TERMS.rtf') -Destination (Join-Path $output 'TERMS.rtf')
 } finally {
     Pop-Location
