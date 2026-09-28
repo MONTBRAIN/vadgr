@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from pathlib import Path, PurePosixPath
 import shutil
+import sys
 import tarfile
 import tempfile
 import unicodedata
@@ -91,6 +92,8 @@ def unpack(archive_path, output):
     entries = {}
     members = []
     normalized_names = set()
+    folded_names = set()
+    case_collision = False
     total = 0
     with tarfile.open(archive_path, "r:*") as archive:
         raw_members = archive.getmembers()
@@ -104,6 +107,9 @@ def unpack(archive_path, output):
             require(name not in entries and normalized not in normalized_names,
                     "WSL archive has a duplicate member")
             normalized_names.add(normalized)
+            folded = normalized.casefold()
+            case_collision = case_collision or folded in folded_names
+            folded_names.add(folded)
             kind = "dir" if member.isdir() else "file" if member.isfile() else "link" if member.issym() else "special"
             require(kind != "special", "WSL archive contains a special member")
             require(not member.mode & 0o7000, "WSL archive contains a special mode")
@@ -111,6 +117,8 @@ def unpack(archive_path, output):
             require(total <= BYTE_LIMIT, "WSL archive byte limit")
             entries[name] = (kind, member.linkname if kind == "link" else "")
             members.append((name, member))
+        require(not case_collision or sys.platform.startswith("linux"),
+                "case-sensitive WSL archive requires Linux")
         resolved = _validate(entries)
         require(output.parent.is_dir() and not output.parent.is_symlink(),
                 "WSL extraction parent is unavailable")

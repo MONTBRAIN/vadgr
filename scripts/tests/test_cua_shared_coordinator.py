@@ -1,11 +1,11 @@
 """Synthetic coordinator seams only. No native, legal, approval or paid signing evidence."""
 from concurrent.futures import ThreadPoolExecutor
 import io
-import os
 from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import tarfile
 
 import pytest
@@ -255,7 +255,19 @@ def test_wsl_extraction_rejects_cycles_and_children_below_links_before_writes(tm
         assert not output.exists()
 
 
-@pytest.mark.skipif(os.name == "nt", reason="Windows CI cannot create Unix symlinks")
+def test_case_sensitive_wsl_archive_refuses_a_nonlinux_host(tmp_path, monkeypatch):
+    archive = tmp_path / "runtime.tar"
+    with tarfile.open(archive, "w") as stream:
+        for name in ("data/A", "data/a"):
+            row = tarfile.TarInfo(name)
+            stream.addfile(row, io.BytesIO())
+    monkeypatch.setattr(workflow.cua_unix.sys, "platform", "darwin")
+    with pytest.raises(PackageInputError):
+        workflow.unpack(archive, tmp_path / "runtime")
+    assert not (tmp_path / "runtime").exists()
+
+
+@pytest.mark.skipif(not sys.platform.startswith("linux"), reason="case-sensitive WSL archive requires Linux")
 def test_wsl_links_case_sensitive_names_and_directory_link_roundtrip(tmp_path):
     archive = tmp_path / "runtime.tar"
     with tarfile.open(archive, "w") as stream:
