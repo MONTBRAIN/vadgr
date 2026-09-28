@@ -1,8 +1,8 @@
 """Exact CMS decoding narrows evidence gaps without blessing encrypted content."""
 
 import io
-from pathlib import Path
 import tarfile
+from pathlib import Path
 
 import pytest
 
@@ -13,7 +13,7 @@ from scripts import reviewed_cms_evidence as cms
 @pytest.fixture
 def source():
     root = Path(__file__).resolve().parents[2]
-    raw = (root / "packaging/inputs/windows-x86_64/legal/SOURCE-OFFERS/cargo-cms-0.2.3/cms-0.2.3.crate").read_bytes()
+    raw = (root / "scripts/tests/fixtures/cms-0.2.3.crate").read_bytes()
     with tarfile.open(fileobj=io.BytesIO(raw)) as archive:
         files = {row.name: archive.extractfile(row).read() for row in archive if row.isfile()}
     return raw, files

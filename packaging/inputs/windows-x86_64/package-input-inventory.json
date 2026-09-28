@@ -2242,17 +2242,8 @@
       ],
       "notice_required": true,
       "sha256": "7b77c319abfd5219629c45c34c89ba945ed3c5e49fcde9d16b6c3885f118a730",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-cms-0.2.3/cms-0.2.3.crate",
-          "sha256": "7b77c319abfd5219629c45c34c89ba945ed3c5e49fcde9d16b6c3885f118a730"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-cms-0.2.3/copyright-absence.json",
-          "sha256": "e01ce2a872c7db6e5a4e069d558d9ca15a72590fa1c215f53356db7451224868"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.2.3"
     },
     {
@@ -16206,8 +16197,13 @@
       ],
       "notice_required": true,
       "sha256": "0f30c29f9e53a6c6acdea2ce0d1f0833153883fa3d16ed8dff75005edd7fe876",
-      "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/wix-b8977d6.tar.gz",
+          "sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b"
+        }
+      ],
+      "source_offer_required": true,
       "version": "7.0.0"
     },
     {
@@ -16243,8 +16239,13 @@
       ],
       "notice_required": true,
       "sha256": "af8f72fb2550e9c2cf00b6eaf5e3ed811514aa2b3f344dfa342540af39676979",
-      "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/wix-b8977d6.tar.gz",
+          "sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b"
+        }
+      ],
+      "source_offer_required": true,
       "version": "7.0.0"
     },
     {
@@ -16284,8 +16285,13 @@
       ],
       "notice_required": true,
       "sha256": "6431ef896ddaff08d21221e67de98a3597fa94fb0557372cb96feb4edae0c23e",
-      "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/wix-b8977d6.tar.gz",
+          "sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b"
+        }
+      ],
+      "source_offer_required": true,
       "version": "7.0.0"
     },
     {
@@ -16728,7 +16734,7 @@
       "notice_required": true,
       "sha256": "01ad9c663659224e075d487cbc33ea2fed7a225593965b79bed92ca7f79b676f",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "8.6.12"
     },
     {
@@ -22273,6 +22279,301 @@
       "version": "1.0.6"
     },
     {
+      "copyright_text": "NOASSERTION",
+      "download_location": "https://files.pythonhosted.org/packages/45/89/da2f7971a317f83d807fdd4065c0af40208e59e692cc43d315a71a0e96d1/pillow-12.3.0-cp312-cp312-win_amd64.whl",
+      "id": "pillow-native-freetype-2.14.3",
+      "kind": "wheel",
+      "license_concluded": "FTL",
+      "license_declared": "FTL",
+      "license_files": [
+        {
+          "license_ids": [
+            "FTL"
+          ],
+          "path": "legal/LICENSES/pillow-native-freetype-2.14.3/FTL.txt",
+          "sha256": "5a5ee54c5001bbad1cdc1a57cc3dd4c42199b2da09d39c7ee41fab002d02967f"
+        }
+      ],
+      "name": "FreeType",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/pillow-native-freetype-2.14.3/FTL.txt",
+          "sha256": "5a5ee54c5001bbad1cdc1a57cc3dd4c42199b2da09d39c7ee41fab002d02967f"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "77c6d37de41733df40fb36d9af47644989ac17da036515e759303969edb22c48",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "2.14.3"
+    },
+    {
+      "copyright_text": "NOASSERTION",
+      "download_location": "https://files.pythonhosted.org/packages/45/89/da2f7971a317f83d807fdd4065c0af40208e59e692cc43d315a71a0e96d1/pillow-12.3.0-cp312-cp312-win_amd64.whl",
+      "id": "pillow-native-fribidi-shim-1.x",
+      "kind": "wheel",
+      "license_concluded": "LGPL-2.1-or-later",
+      "license_declared": "LGPL-2.1-or-later",
+      "license_files": [
+        {
+          "license_ids": [
+            "LGPL-2.1-or-later"
+          ],
+          "path": "legal/LICENSES/pillow-native-fribidi-shim-1.x/LGPL-2.1.txt",
+          "sha256": "5ea2f23c7f00c3006bacf267183e816d8d4b6dc95ea57a4ddb0ff81de6d8719e"
+        }
+      ],
+      "name": "Pillow FriBiDi shim",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/pillow-native-fribidi-shim-1.x/LGPL-2.1.txt",
+          "sha256": "5ea2f23c7f00c3006bacf267183e816d8d4b6dc95ea57a4ddb0ff81de6d8719e"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "77c6d37de41733df40fb36d9af47644989ac17da036515e759303969edb22c48",
+      "source_offer_files": [
+        {
+          "path": "legal/SOURCE-OFFERS/pillow-native-fribidi-shim-1.x/pillow-12.3.0.tar.gz",
+          "sha256": "3b8182a766685eaa002637e28b4ec8d6b18819a0c71f579bf0dbaa5830297cce"
+        }
+      ],
+      "source_offer_required": true,
+      "version": "1.x"
+    },
+    {
+      "copyright_text": "NOASSERTION",
+      "download_location": "https://files.pythonhosted.org/packages/45/89/da2f7971a317f83d807fdd4065c0af40208e59e692cc43d315a71a0e96d1/pillow-12.3.0-cp312-cp312-win_amd64.whl",
+      "id": "pillow-native-libavif-1.4.2",
+      "kind": "wheel",
+      "license_concluded": "LicenseRef-libavif-composite-165abf92cc04b39e80d29cadea7a6a7e8fddf59407d4ad2616507a7ebe8216f9",
+      "license_declared": "BSD-2-Clause",
+      "license_files": [
+        {
+          "license_ids": [
+            "LicenseRef-libavif-composite-165abf92cc04b39e80d29cadea7a6a7e8fddf59407d4ad2616507a7ebe8216f9"
+          ],
+          "path": "legal/LICENSES/pillow-native-libavif-1.4.2/LICENSE",
+          "sha256": "165abf92cc04b39e80d29cadea7a6a7e8fddf59407d4ad2616507a7ebe8216f9"
+        }
+      ],
+      "name": "libavif and statically linked codec libraries",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/pillow-native-libavif-1.4.2/LICENSE",
+          "sha256": "165abf92cc04b39e80d29cadea7a6a7e8fddf59407d4ad2616507a7ebe8216f9"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "6731dce52baab0b96b0eeb3c664844b5b42c2168ea8668af2430e2fbdd2dfbd8",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "1.4.2"
+    },
+    {
+      "copyright_text": "NOASSERTION",
+      "download_location": "https://files.pythonhosted.org/packages/45/89/da2f7971a317f83d807fdd4065c0af40208e59e692cc43d315a71a0e96d1/pillow-12.3.0-cp312-cp312-win_amd64.whl",
+      "id": "pillow-native-libjpeg-turbo-3.1.4.1",
+      "kind": "wheel",
+      "license_concluded": "LicenseRef-libjpeg-turbo-composite-5b84c8aaf38e30b7c5d35d2fea7299b4389a5adf51d8b5d0d8ffa3d146a03211",
+      "license_declared": "IJG AND BSD-3-Clause",
+      "license_files": [
+        {
+          "license_ids": [
+            "LicenseRef-libjpeg-turbo-composite-5b84c8aaf38e30b7c5d35d2fea7299b4389a5adf51d8b5d0d8ffa3d146a03211"
+          ],
+          "path": "legal/LICENSES/pillow-native-libjpeg-turbo-3.1.4.1/LICENSE-and-README.ijg",
+          "sha256": "5b84c8aaf38e30b7c5d35d2fea7299b4389a5adf51d8b5d0d8ffa3d146a03211"
+        }
+      ],
+      "name": "libjpeg-turbo",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/pillow-native-libjpeg-turbo-3.1.4.1/LICENSE-and-README.ijg",
+          "sha256": "5b84c8aaf38e30b7c5d35d2fea7299b4389a5adf51d8b5d0d8ffa3d146a03211"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "c8c519ec72bf75b2945b4fc4afa854af2fca8b970a403134f9ddda3e164d85e9",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "3.1.4.1"
+    },
+    {
+      "copyright_text": "NOASSERTION",
+      "download_location": "https://files.pythonhosted.org/packages/45/89/da2f7971a317f83d807fdd4065c0af40208e59e692cc43d315a71a0e96d1/pillow-12.3.0-cp312-cp312-win_amd64.whl",
+      "id": "pillow-native-libtiff-4.7.1",
+      "kind": "wheel",
+      "license_concluded": "libtiff",
+      "license_declared": "libtiff",
+      "license_files": [
+        {
+          "license_ids": [
+            "libtiff"
+          ],
+          "path": "legal/LICENSES/pillow-native-libtiff-4.7.1/LICENSE.md",
+          "sha256": "0e27c2382d7b8147972bbb746e04059a1152c8d0fda9d03ef1399d1a433c4ade"
+        }
+      ],
+      "name": "libtiff",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/pillow-native-libtiff-4.7.1/LICENSE.md",
+          "sha256": "0e27c2382d7b8147972bbb746e04059a1152c8d0fda9d03ef1399d1a433c4ade"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "c8c519ec72bf75b2945b4fc4afa854af2fca8b970a403134f9ddda3e164d85e9",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "4.7.1"
+    },
+    {
+      "copyright_text": "NOASSERTION",
+      "download_location": "https://files.pythonhosted.org/packages/45/89/da2f7971a317f83d807fdd4065c0af40208e59e692cc43d315a71a0e96d1/pillow-12.3.0-cp312-cp312-win_amd64.whl",
+      "id": "pillow-native-libwebp-1.6.0",
+      "kind": "wheel",
+      "license_concluded": "BSD-3-Clause",
+      "license_declared": "BSD-3-Clause",
+      "license_files": [
+        {
+          "license_ids": [
+            "BSD-3-Clause"
+          ],
+          "path": "legal/LICENSES/pillow-native-libwebp-1.6.0/COPYING",
+          "sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf"
+        }
+      ],
+      "name": "libwebp",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/pillow-native-libwebp-1.6.0/COPYING",
+          "sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "9823cebb84f425af3ac1e7437259bc176e7ad7e25d7fa829b0e1a3e55c11be70",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "1.6.0"
+    },
+    {
+      "copyright_text": "NOASSERTION",
+      "download_location": "https://files.pythonhosted.org/packages/45/89/da2f7971a317f83d807fdd4065c0af40208e59e692cc43d315a71a0e96d1/pillow-12.3.0-cp312-cp312-win_amd64.whl",
+      "id": "pillow-native-little-cms-2.19.1",
+      "kind": "wheel",
+      "license_concluded": "MIT",
+      "license_declared": "MIT",
+      "license_files": [
+        {
+          "license_ids": [
+            "MIT"
+          ],
+          "path": "legal/LICENSES/pillow-native-little-cms-2.19.1/LICENSE",
+          "sha256": "6dbd60437f8ef91d8de1f08ad75882547fd4931bfcc3566a0735f28db1484d31"
+        }
+      ],
+      "name": "Little CMS",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/pillow-native-little-cms-2.19.1/LICENSE",
+          "sha256": "6dbd60437f8ef91d8de1f08ad75882547fd4931bfcc3566a0735f28db1484d31"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "c89c633ae1bf3f26a327d14ff688db66628e19c9866ab925479f27dcb60a2d6f",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "2.19.1"
+    },
+    {
+      "copyright_text": "NOASSERTION",
+      "download_location": "https://files.pythonhosted.org/packages/45/89/da2f7971a317f83d807fdd4065c0af40208e59e692cc43d315a71a0e96d1/pillow-12.3.0-cp312-cp312-win_amd64.whl",
+      "id": "pillow-native-openjpeg-2.5.4",
+      "kind": "wheel",
+      "license_concluded": "BSD-2-Clause",
+      "license_declared": "BSD-2-Clause",
+      "license_files": [
+        {
+          "license_ids": [
+            "BSD-2-Clause"
+          ],
+          "path": "legal/LICENSES/pillow-native-openjpeg-2.5.4/LICENSE",
+          "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6"
+        }
+      ],
+      "name": "OpenJPEG",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/pillow-native-openjpeg-2.5.4/LICENSE",
+          "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "c8c519ec72bf75b2945b4fc4afa854af2fca8b970a403134f9ddda3e164d85e9",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "2.5.4"
+    },
+    {
+      "copyright_text": "NOASSERTION",
+      "download_location": "https://files.pythonhosted.org/packages/45/89/da2f7971a317f83d807fdd4065c0af40208e59e692cc43d315a71a0e96d1/pillow-12.3.0-cp312-cp312-win_amd64.whl",
+      "id": "pillow-native-pythoncapi-compat",
+      "kind": "wheel",
+      "license_concluded": "0BSD",
+      "license_declared": "0BSD",
+      "license_files": [
+        {
+          "license_ids": [
+            "0BSD"
+          ],
+          "path": "legal/LICENSES/pillow-native-pythoncapi-compat/0BSD.txt",
+          "sha256": "0b01625d853911cd0e2e088dcfb743261034a091bb379246cb25a14cc4c74bf1"
+        }
+      ],
+      "name": "pythoncapi-compat",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/pillow-native-pythoncapi-compat/0BSD.txt",
+          "sha256": "0b01625d853911cd0e2e088dcfb743261034a091bb379246cb25a14cc4c74bf1"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "77c6d37de41733df40fb36d9af47644989ac17da036515e759303969edb22c48",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "c84545f"
+    },
+    {
+      "copyright_text": "NOASSERTION",
+      "download_location": "https://files.pythonhosted.org/packages/45/89/da2f7971a317f83d807fdd4065c0af40208e59e692cc43d315a71a0e96d1/pillow-12.3.0-cp312-cp312-win_amd64.whl",
+      "id": "pillow-native-zlib-ng-2.3.3",
+      "kind": "wheel",
+      "license_concluded": "Zlib",
+      "license_declared": "Zlib",
+      "license_files": [
+        {
+          "license_ids": [
+            "Zlib"
+          ],
+          "path": "legal/LICENSES/pillow-native-zlib-ng-2.3.3/LICENSE.md",
+          "sha256": "6c9f0d975b41afaa34d22f55bb8986ce69e5cb7ad327cb2b28820cd425edf5ee"
+        }
+      ],
+      "name": "zlib-ng",
+      "notice_files": [
+        {
+          "path": "legal/NOTICES/pillow-native-zlib-ng-2.3.3/LICENSE.md",
+          "sha256": "6c9f0d975b41afaa34d22f55bb8986ce69e5cb7ad327cb2b28820cd425edf5ee"
+        }
+      ],
+      "notice_required": true,
+      "sha256": "c8c519ec72bf75b2945b4fc4afa854af2fca8b970a403134f9ddda3e164d85e9",
+      "source_offer_files": [],
+      "source_offer_required": false,
+      "version": "2.3.3"
+    },
+    {
       "copyright_text": "Copyright (c) 2008-present The pip developers (see AUTHORS.txt file)",
       "download_location": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-x86_64-pc-windows-msvc-install_only.tar.gz",
       "id": "python-installed-pip",
@@ -22937,9 +23238,18 @@
       "download_location": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14+20260825-x86_64-pc-windows-msvc-install_only.tar.gz",
       "id": "runtime-cpython-3.12.14",
       "kind": "runtime",
-      "license_concluded": "NOASSERTION",
+      "license_concluded": "Python-2.0 AND 0BSD",
       "license_declared": "NOASSERTION",
-      "license_files": [],
+      "license_files": [
+        {
+          "license_ids": [
+            "0BSD",
+            "Python-2.0"
+          ],
+          "path": "legal/LICENSES/runtime-cpython-3.12.14/000-CPython-LICENSE",
+          "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf"
+        }
+      ],
       "name": "CPython standalone",
       "notice_files": [
         {
@@ -23119,10 +23429,10 @@
           "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5"
         }
       ],
-      "notice_required": null,
+      "notice_required": true,
       "sha256": "15d25c455ea25d6b24d7e58eabdf744fd0db3cfb977934ae08fd2237acd8ccc1",
       "source_offer_files": [],
-      "source_offer_required": null,
+      "source_offer_required": false,
       "version": "3.12.14"
     },
     {
@@ -23319,7 +23629,7 @@
       "download_location": "https://static.rust-lang.org/dist/rust-std-1.97.1-x86_64-pc-windows-msvc.tar.xz",
       "id": "runtime-rust-std-1.97.1",
       "kind": "runtime",
-      "license_concluded": "Apache-2.0",
+      "license_concluded": "Apache-2.0 AND (Apache-2.0 WITH LLVM-exception)",
       "license_declared": "MIT OR Apache-2.0",
       "license_files": [
         {
@@ -23335,6 +23645,13 @@
           ],
           "path": "legal/LICENSES/runtime-rust-std-1.97.1/001-001-Apache-2.0.txt",
           "sha256": "074e6e32c86a4c0ef8b3ed25b721ca23aca83df277cd88106ef7177c354615ff"
+        },
+        {
+          "license_ids": [
+            "LLVM-exception"
+          ],
+          "path": "legal/LICENSES/runtime-rust-std-1.97.1/002-LLVM-exception.txt",
+          "sha256": "e34c58338bd89d43e709e226610d8f32b3e3c47f4ad9a99a8dc1d4ac7842488e"
         }
       ],
       "name": "Rust standard library",
@@ -24156,7 +24473,7 @@
       "id": "wheel-pywin32-312",
       "kind": "wheel",
       "license_concluded": "BSD-3-Clause AND HPND AND MIT AND Python-2.0 AND LGPL-2.1-or-later",
-      "license_declared": "PSF",
+      "license_declared": "NOASSERTION",
       "license_files": [
         {
           "license_ids": [
@@ -24834,7 +25151,7 @@
         "asset-Ubuntu-Light",
         "asset-emoji-icon-font"
       ],
-      "status": "incomplete"
+      "status": "complete"
     },
     "cargo": {
       "component_ids": [
@@ -25412,7 +25729,7 @@
         "nested-cargo-zerovec-derive-0.10.3",
         "nested-cargo-zmij-1.0.6"
       ],
-      "status": "incomplete"
+      "status": "complete"
     },
     "framework": {
       "component_ids": [
@@ -25421,7 +25738,7 @@
         "framework-wixtoolset.util.wixext-7.0.0",
         "native-wix"
       ],
-      "status": "incomplete"
+      "status": "complete"
     },
     "runtime": {
       "component_ids": [
@@ -25460,10 +25777,20 @@
         "runtime-cua-helper-closure-0.7.9",
         "runtime-rust-std-1.97.1"
       ],
-      "status": "incomplete"
+      "status": "complete"
     },
     "wheel": {
       "component_ids": [
+        "pillow-native-freetype-2.14.3",
+        "pillow-native-fribidi-shim-1.x",
+        "pillow-native-libavif-1.4.2",
+        "pillow-native-libjpeg-turbo-3.1.4.1",
+        "pillow-native-libtiff-4.7.1",
+        "pillow-native-libwebp-1.6.0",
+        "pillow-native-little-cms-2.19.1",
+        "pillow-native-openjpeg-2.5.4",
+        "pillow-native-pythoncapi-compat",
+        "pillow-native-zlib-ng-2.3.3",
         "wheel-annotated-types-0.8.0",
         "wheel-anyio-4.14.2",
         "wheel-attrs-26.1.0",
@@ -25505,7 +25832,7 @@
         "wheel-websockets-17.1",
         "wheel-wrapt-2.3.0"
       ],
-      "status": "incomplete"
+      "status": "complete"
     }
   },
   "created": "2026-09-28T03:18:32Z",

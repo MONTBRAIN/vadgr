@@ -3,17 +3,24 @@
 import importlib.util
 import io
 import json
-from pathlib import Path
 import zipfile
+from pathlib import Path
 
 import pytest
 
+from scripts import candidate_policy
 
 SPEC = importlib.util.spec_from_file_location(
     "candidate_claims", Path(__file__).resolve().parents[1] / "candidate_claims.py"
 )
 claims = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(claims)
+
+
+@pytest.fixture(autouse=True)
+def isolated_trusted_candidate_root(tmp_path, monkeypatch):
+    """Synthetic claims must not inherit this checkout's real candidate record."""
+    monkeypatch.setattr(candidate_policy, "__file__", str(tmp_path / "scripts/candidate_policy.py"))
 
 
 def authorization():

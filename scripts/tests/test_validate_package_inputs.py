@@ -1,16 +1,16 @@
 """Synthetic consistency fixtures only. These records are never legal approval."""
 
-from copy import deepcopy
 import json
-from pathlib import Path
 import subprocess
 import sys
-import tomllib
+from copy import deepcopy
+from pathlib import Path
 
 import pytest
+import tomllib
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import validate_package_inputs as package  # noqa: E402
+import validate_package_inputs as package
 
 REPO = Path(__file__).resolve().parents[2]
 VERSION = "0.5.0"
@@ -90,6 +90,16 @@ def validate(bundle, **kwargs):
     return package.validate_package_inputs(root, source, VERSION, TARGET, **kwargs)
 
 
+def test_reviewed_text_input_accepts_only_exact_windows_line_endings():
+    raw = b"first\nsecond\n"
+    expected = package.sha256_bytes(raw)
+    assert package.source_input_matches("Cargo.lock", raw.replace(b"\n", b"\r\n"), expected)
+    assert package.source_input_matches("packaging/cua/pins.toml", raw.replace(b"\n", b"\r\n"), expected)
+    assert not package.source_input_matches("payload.zip", raw.replace(b"\n", b"\r\n"), expected)
+    assert not package.source_input_matches("Cargo.lock", b"first\rsecond\r\n", expected)
+    assert not package.source_input_matches("Cargo.lock", b"changed\r\n", expected)
+
+
 def test_none_without_exact_source_and_absence_audit_is_rejected(bundle):
     _, _, inventory, _, _ = bundle
     inventory["components"][0]["copyright_text"] = "NONE"
@@ -121,6 +131,7 @@ def test_custom_grant_requires_exact_extracted_text(bundle):
 def test_evidence_bound_none_still_requires_approved_review(bundle):
     import io
     import tarfile
+
     from scripts.copyright_absence import audit_archive
     root, _, inventory, review, _ = bundle
     stream = io.BytesIO()
@@ -284,7 +295,7 @@ def test_approved_fixture_checks_actual_payload_and_source_only_is_explicit(bund
 def test_cli_failure_has_no_untrusted_input_in_output(bundle):
     root, source, *_ = bundle
     (root / "package-input-review.json").write_text('{"private-marker":"credential-shaped-content"}', encoding="utf-8")
-    result = subprocess.run([sys.executable, str(REPO / "scripts/validate_package_inputs.py"), "--root", str(root), "--source-root", str(source), "--version", VERSION, "--target", TARGET], capture_output=True, text=True)
+    result = subprocess.run([sys.executable, str(REPO / "scripts/validate_package_inputs.py"), "--root", str(root), "--source-root", str(source), "--version", VERSION, "--target", TARGET], capture_output=True, text=True, check=False)
     assert result.returncode == 1
     assert result.stdout == ""
     assert result.stderr == "Package inputs failed validation.\n"
@@ -302,7 +313,7 @@ def test_inventory_malformed_membership_values_have_safe_errors(bundle, field):
 
 
 def test_explicit_payload_rejects_symlinked_ancestor(bundle, tmp_path):
-    root, _, _, _, payload = bundle
+    root, _, _, _, _payload = bundle
     linked = tmp_path / "linked"
     try:
         linked.symlink_to(root / "lib", target_is_directory=True)
@@ -342,10 +353,50 @@ def test_non_spdx_aliases_cannot_be_concluded_licenses(identifier):
         package.validate_conclusion(identifier)
 
 
-def test_unknown_declared_license_cannot_enter_the_sbom(bundle):
+def test_unknown_declared_license_is_preserved_when_conclusion_is_resolved(bundle):
     bundle[2]["components"][0]["license_declared"] = "NOASSERTION"
+    package.validate_inventory(bundle[2])
+    assert package.build_sbom(bundle[2])["packages"][0]["licenseDeclared"] == "NOASSERTION"
+
+
+def test_unknown_copyright_is_preserved_when_distribution_duties_are_resolved(bundle):
+    bundle[2]["components"][0]["copyright_text"] = "NOASSERTION"
+    package.validate_inventory(bundle[2])
+    assert package.build_sbom(bundle[2])["packages"][0]["copyrightText"] == "NOASSERTION"
+
+
+def test_exact_source_archive_may_be_shared_by_multiple_components(bundle):
+    inventory = bundle[2]
+    first = inventory["components"][0]
+    first["source_offer_required"] = True
+    first["source_offer_files"] = [{"path": "legal/SOURCE-OFFERS/shared/source.tar.gz", "sha256": "1" * 64}]
+    second = deepcopy(first)
+    second["id"] = "shared-source-peer"
+    second["sha256"] = "2" * 64
+    for field in ("license_files", "notice_files"):
+        for entry in second[field]:
+            entry["path"] = entry["path"].replace("synthetic-cargo", "shared-source-peer")
+    inventory["components"].append(second)
+    inventory["coverage"][first["kind"]]["component_ids"].append(second["id"])
+    package.validate_inventory(inventory)
+
+
+def test_shared_source_archive_must_keep_identical_bytes(bundle):
+    inventory = bundle[2]
+    first = inventory["components"][0]
+    first["source_offer_required"] = True
+    first["source_offer_files"] = [{"path": "legal/SOURCE-OFFERS/shared/source.tar.gz", "sha256": "1" * 64}]
+    second = deepcopy(first)
+    second["id"] = "changed-source-peer"
+    second["sha256"] = "2" * 64
+    for field in ("license_files", "notice_files"):
+        for entry in second[field]:
+            entry["path"] = entry["path"].replace("synthetic-cargo", "changed-source-peer")
+    second["source_offer_files"][0]["sha256"] = "3" * 64
+    inventory["components"].append(second)
+    inventory["coverage"][first["kind"]]["component_ids"].append(second["id"])
     with pytest.raises(package.PackageInputError):
-        package.validate_inventory(bundle[2])
+        package.validate_inventory(inventory)
 
 
 @pytest.mark.parametrize("name", ["CON.txt", "NUL.txt", "aux", "com1.bin", "LPT9", "COM¹", "file.", "file ", "dir./file.txt", "file?.txt", "file*.txt"])

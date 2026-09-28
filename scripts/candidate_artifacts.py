@@ -7,16 +7,19 @@ import argparse
 import hashlib
 import json
 import os
-from pathlib import Path
 import re
 import subprocess
 import sys
 import tempfile
 import zipfile
+from pathlib import Path
 
 if __package__:
     from scripts import candidate_policy, cua_release_inputs
-    from scripts.validate_package_inputs import PackageInputError, validate_package_inputs
+    from scripts.validate_package_inputs import (
+        PackageInputError,
+        validate_package_inputs,
+    )
 else:
     import candidate_policy  # trusted direct execution from scripts/
     import cua_release_inputs
@@ -189,12 +192,12 @@ def require_legal(source_root: Path, members: dict[str, dict], architecture: str
     trusted_root = Path(candidate_policy.__file__).resolve().parents[1]
     approved = candidate_policy.candidate_approval(source_root, trusted_root, architecture)
     if (source_root / "packaging/cua/profile-inputs.json").exists():
-        for suffix in (".json", "-outer.json", "-predecessors.json"):
+        for suffix in (".json", "-outer.json", "-outer-review.json", "-predecessors.json"):
             name = f"packaging/cua/helper-signing/{target}{suffix}"
             raw = candidate_policy.candidate_policy_data(source_root, trusted_root, name, approved)
             legal[name] = hashlib.sha256(raw).hexdigest()
     require(legal == approved["legal_hashes"]
-            and list(sbom.values())[0] == approved["sbom_sha256"],
+            and next(iter(sbom.values())) == approved["sbom_sha256"],
             "candidate compliance bytes do not match reviewed approval")
     generator = Path(candidate_policy.__file__).resolve().parent / "generate_legal_bundle.py"
     require(generator.is_file() and digest(generator) == approved["generator_sha256"],

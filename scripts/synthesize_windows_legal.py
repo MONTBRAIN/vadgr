@@ -8,43 +8,98 @@ Metadata reachability is recorded separately from proof of shipped machine code.
 from __future__ import annotations
 
 import argparse
+import json
+import re
+import struct
+import subprocess
+import sys
+import tarfile
+import zipfile
 from collections import defaultdict, deque
 from email import policy
 from email.parser import BytesParser
-import json
 from pathlib import Path
-import re
-import subprocess
-import struct
-import sys
-import tarfile
+
 import tomllib
-import zipfile
 
 if __package__:
-    from scripts.windows_wix_evidence import retain_in_packet as retain_wix_evidence
-    from scripts.windows_runtime_evidence import retain_in_packet as retain_runtime_evidence
-    from scripts.windows_crypto_producer import retain_in_packet as retain_upstream_crypto
+    from scripts.copyright_absence import audit_source_tree_zip, source_tree_zip
     from scripts.inspect_legal_crate_sources import statements as original_statements
-    from scripts.copyright_absence import audit_archive, audit_source_tree_zip, source_tree_zip
-    from scripts.windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, map_wheel_native_sources, map_custom_native_sources, crate_grant_scope, crate_external_grant, complete_apache_reference, complete_mpl_reference, compare_certifi_source, tix_referenced_grant
     from scripts.validate_package_inputs import (
-        CLOSURES, KINDS, REQUIRED_FILES, canonical_json, parse_json,
-        profile_source_inputs, read_owned, relative_path, render_rtf, require,
-        sha256_bytes, aggregate_files, validate_conclusion, PackageInputError, extracted_license_info,
+        CLOSURES,
+        KINDS,
+        REQUIRED_FILES,
+        PackageInputError,
+        aggregate_files,
+        canonical_json,
+        extracted_license_info,
+        parse_json,
+        profile_source_inputs,
+        read_owned,
+        relative_path,
+        render_rtf,
+        require,
+        sha256_bytes,
+        validate_conclusion,
     )
+    from scripts.windows_crypto_producer import (
+        retain_in_packet as retain_upstream_crypto,
+    )
+    from scripts.windows_legal_source_evidence import (
+        classify_nested,
+        compare_certifi_source,
+        complete_apache_reference,
+        complete_mpl_reference,
+        crate_external_grant,
+        crate_grant_scope,
+        inspect_sources,
+        map_custom_native_sources,
+        map_python_native,
+        map_wheel_native_sources,
+        nodriver_equality,
+        tix_referenced_grant,
+    )
+    from scripts.windows_runtime_evidence import (
+        retain_in_packet as retain_runtime_evidence,
+    )
+    from scripts.windows_wix_evidence import retain_in_packet as retain_wix_evidence
 else:
-    from windows_wix_evidence import retain_in_packet as retain_wix_evidence
-    from windows_runtime_evidence import retain_in_packet as retain_runtime_evidence
-    from windows_crypto_producer import retain_in_packet as retain_upstream_crypto
+    from copyright_absence import audit_source_tree_zip, source_tree_zip
     from inspect_legal_crate_sources import statements as original_statements
-    from copyright_absence import audit_archive, audit_source_tree_zip, source_tree_zip
-    from windows_legal_source_evidence import inspect_sources, classify_nested, nodriver_equality, map_python_native, map_wheel_native_sources, map_custom_native_sources, crate_grant_scope, crate_external_grant, complete_apache_reference, complete_mpl_reference, compare_certifi_source, tix_referenced_grant
     from validate_package_inputs import (
-        CLOSURES, KINDS, REQUIRED_FILES, canonical_json, parse_json,
-        profile_source_inputs, read_owned, relative_path, render_rtf, require,
-        sha256_bytes, aggregate_files, validate_conclusion, PackageInputError, extracted_license_info,
+        CLOSURES,
+        KINDS,
+        REQUIRED_FILES,
+        PackageInputError,
+        aggregate_files,
+        canonical_json,
+        extracted_license_info,
+        parse_json,
+        profile_source_inputs,
+        read_owned,
+        relative_path,
+        render_rtf,
+        require,
+        sha256_bytes,
+        validate_conclusion,
     )
+    from windows_crypto_producer import retain_in_packet as retain_upstream_crypto
+    from windows_legal_source_evidence import (
+        classify_nested,
+        compare_certifi_source,
+        complete_apache_reference,
+        complete_mpl_reference,
+        crate_external_grant,
+        crate_grant_scope,
+        inspect_sources,
+        map_custom_native_sources,
+        map_python_native,
+        map_wheel_native_sources,
+        nodriver_equality,
+        tix_referenced_grant,
+    )
+    from windows_runtime_evidence import retain_in_packet as retain_runtime_evidence
+    from windows_wix_evidence import retain_in_packet as retain_wix_evidence
 
 
 ARCHITECTURES = {"x64": "x86_64", "arm64": "aarch64"}
@@ -339,9 +394,7 @@ def cargo_scopes(metadata):
                 kind = edge["kind"]
                 next_context = ("development" if kind == "dev" else
                                 "build-or-generated-code" if kind == "build" or macro else context)
-                if context == "development":
-                    next_context = context
-                elif context == "build-or-generated-code" and kind != "dev":
+                if context == "development" or context == "build-or-generated-code" and kind != "dev":
                     next_context = context
                 queue.append((dep["pkg"], next_context))
     return {key: sorted(value) for key, value in sorted(found.items())}
@@ -361,7 +414,7 @@ def wheel_metadata(raw):
     import io
     with zipfile.ZipFile(io.BytesIO(raw)) as archive:
         names = archive.namelist()
-        require(len(names) == len(set(name.casefold() for name in names)), "wheel members alias")
+        require(len(names) == len({name.casefold() for name in names}), "wheel members alias")
         for name in names:
             relative_path(name.rstrip("/"))
         metadata = [name for name in names if name.endswith(".dist-info/METADATA")]
@@ -974,7 +1027,7 @@ def add_installed_python(packet, inputs, collection, archive_root):
     site = inputs / "payload/lib/cua/python/3.12.14/Lib/site-packages"
     vendor_file = "pip/_vendor/vendor.txt"
     vendor_raw = read_owned(site, vendor_file)
-    rows = re.findall(r"^\s*([A-Za-z0-9_-]+)==([^\s]+)\s*$", vendor_raw.decode(), re.M)
+    rows = re.findall(r"^\s*([A-Za-z0-9_-]+)==([^\s]+)\s*$", vendor_raw.decode(), re.MULTILINE)
     require(len(rows) == 18, "runtime vendor catalogue changed")
     for name, version in rows:
         directory = "pkg_resources" if name == "setuptools" else name.lower().replace("-", "_")
@@ -1246,27 +1299,17 @@ def add_crate_evidence(packet, cache, archive_root, architecture, inputs):
             if renewed.components[0]["license_concluded"] != "NOASSERTION":
                 renewed.pending[0]["items"] = [item for item in renewed.pending[0]["items"]
                                                if item != "license-choice-and-original-copyright"]
-        elif renewed.components[0]["copyright_text"] == "NOASSERTION":
-            renewed.pending[0]["items"].append("no-original-copyright-statement-in-pinned-source")
-            filename = row["name"] + "-" + row["version"] + ".crate"
-            raw = read_owned(cache, filename)
-            audit = audit_archive(raw, row["sha256"])
-            audit_path = "source-copyright-audits/" + row["id"] + ".json"
-            renewed.put(audit_path, canonical_json(audit))
-            renewed.evidence[0]["copyright_absence_audit"] = {
-                "path": audit_path, "sha256": sha256_bytes(canonical_json(audit)),
-                "eligible_for_reviewed_NONE": audit["eligible_for_reviewed_NONE"]}
-            folder = "legal/SOURCE-OFFERS/" + row["id"] + "/"
-            proof_files = {folder + filename: raw, folder + "copyright-absence.json": canonical_json(audit)}
-            for name, data in proof_files.items():
-                renewed.put(name, data)
-            renewed.components[0].update(source_offer_required=True,
-                source_offer_files=[{"path": name, "sha256": sha256_bytes(data)} for name, data in sorted(proof_files.items())])
-            if audit["eligible_for_reviewed_NONE"]:
-                renewed.components[0]["copyright_text"] = "NONE"
-                renewed.pending[0]["items"] = [item for item in renewed.pending[0]["items"]
-                    if item != "no-original-copyright-statement-in-pinned-source"
-                    and not (item == "license-choice-and-original-copyright" and renewed.components[0]["license_concluded"] != "NOASSERTION")]
+        elif renewed.components[0]["copyright_text"] == "NOASSERTION" \
+                and renewed.components[0]["license_concluded"] != "NOASSERTION":
+            # Preserve honest unknown copyright metadata.  The retained grant
+            # and its notice/source duties decide redistribution.  An absence
+            # claim is optional evidence, not authority to distribute, and must
+            # not expand shipped material to unrelated encrypted test fixtures.
+            renewed.pending[0]["items"] = [item for item in renewed.pending[0]["items"]
+                if item != "license-choice-and-original-copyright"]
+            renewed.evidence[0]["copyright_scope_basis"] = (
+                "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. "
+                "The resolved license conclusion and exact retained grant bytes control redistribution.")
         if renewed.components[0]["license_concluded"] == "MPL-2.0":
             filename = row["name"] + "-" + row["version"] + ".crate"
             raw = read_owned(cache, filename)

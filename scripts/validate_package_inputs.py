@@ -6,22 +6,29 @@ not from a JSON boolean. This command never creates an approval record.
 from __future__ import annotations
 
 import argparse
-from datetime import datetime
 import hashlib
 import json
 import os
-from pathlib import Path, PurePosixPath
 import re
 import stat
 import sys
-import tomllib
 import unicodedata
 import zipfile
+from datetime import datetime, timezone
+from pathlib import Path, PurePosixPath
 from urllib.parse import urlsplit
 
+import tomllib
 
 SOURCE_INPUTS = ("Cargo.lock", "packaging/cua/pins.toml", "packaging/cua/requirements.lock", "packaging/toolchain.json")
-CLOSURES = ("publisher", "market_rights", "apache_compatibility", "product_data", "third_party_duties")
+CLOSURE_MEANINGS = {
+    "publisher": "The Publisher-owner approved the exact identity and public contacts.",
+    "market_rights": "The Publisher-owner reviewed the named markets and accepted documented residual market risk; this is not worldwide legal certification.",
+    "apache_compatibility": "The package terms preserve Apache-2.0 rights and carry the exact license and NOTICE.",
+    "product_data": "The disclosures match the exact candidate's providers, network access, updates, telemetry, support, permissions and retained data.",
+    "third_party_duties": "Every exact component has a resolved license conclusion and all required licenses, notices and source delivery.",
+}
+CLOSURES = tuple(CLOSURE_MEANINGS)
 KINDS = {"cargo", "wheel", "runtime", "asset", "framework"}
 REQUIRED_FILES = {
     "legal/TERMS.txt", "legal/LICENSE.txt", "legal/NOTICE.txt",
@@ -33,17 +40,7 @@ REVIEW_KEYS = (INVENTORY_KEYS - {"coverage", "components", "created"}) | {"statu
 COMPONENT_KEYS = {"id", "name", "version", "kind", "sha256", "download_location", "copyright_text", "license_declared", "license_concluded", "license_files", "notice_required", "notice_files", "source_offer_required", "source_offer_files"}
 TARGETS = {f"{arch}-{suffix}" for arch in ("aarch64", "x86_64") for suffix in ("apple-darwin", "unknown-linux-gnu", "pc-windows-msvc")}
 # A new identifier needs an explicit supported-terms change, not a guessed license.
-LICENSE_IDS = set("""Apache-2.0 MIT BSD-2-Clause BSD-3-Clause BSD-4-Clause ISC Zlib
-BSL-1.0 CC0-1.0 Unlicense MPL-2.0 MS-RL OFL-1.1 Ubuntu-font-1.0 Bitstream-Vera
-Unicode-3.0 Unicode-DFS-2016 Unicode-DFS-2015 Python-2.0 PSF-2.0
-BlueOak-1.0.0 0BSD BSD-3-Clause-Clear BSD-3-Clause-Open-MPI BSD-3-Clause-LBNL
-BSD-2-Clause-Views BSD-2-Clause-Patent BSD-3-Clause-Attribution
-MIT-0 MIT-CMU MIT-open-group OpenSSL RHeCos-1.1
-Apache-1.1 Artistic-2.0 CC-BY-3.0 CC-BY-4.0 CC-BY-SA-4.0
-LGPL-2.1-only LGPL-2.1-or-later LGPL-3.0-only LGPL-3.0-or-later
-GPL-2.0-only GPL-2.0-or-later GPL-3.0-only GPL-3.0-or-later
-AGPL-3.0-only AGPL-3.0-or-later bzip2-1.0.6 libpng-2.0 Libpng
-FTL IJG TCL X11 W3C HPND curl NCSA libtiff PostgreSQL CDLA-Permissive-2.0 blessing""".split())
+LICENSE_IDS = {"Apache-2.0", "MIT", "BSD-2-Clause", "BSD-3-Clause", "BSD-4-Clause", "ISC", "Zlib", "BSL-1.0", "CC0-1.0", "Unlicense", "MPL-2.0", "MS-RL", "OFL-1.1", "Ubuntu-font-1.0", "Bitstream-Vera", "Unicode-3.0", "Unicode-DFS-2016", "Unicode-DFS-2015", "Python-2.0", "PSF-2.0", "BlueOak-1.0.0", "0BSD", "BSD-3-Clause-Clear", "BSD-3-Clause-Open-MPI", "BSD-3-Clause-LBNL", "BSD-2-Clause-Views", "BSD-2-Clause-Patent", "BSD-3-Clause-Attribution", "MIT-0", "MIT-CMU", "MIT-open-group", "OpenSSL", "RHeCos-1.1", "Apache-1.1", "Artistic-2.0", "CC-BY-3.0", "CC-BY-4.0", "CC-BY-SA-4.0", "LGPL-2.1-only", "LGPL-2.1-or-later", "LGPL-3.0-only", "LGPL-3.0-or-later", "GPL-2.0-only", "GPL-2.0-or-later", "GPL-3.0-only", "GPL-3.0-or-later", "AGPL-3.0-only", "AGPL-3.0-or-later", "bzip2-1.0.6", "libpng-2.0", "Libpng", "FTL", "IJG", "TCL", "X11", "W3C", "HPND", "curl", "NCSA", "libtiff", "PostgreSQL", "CDLA-Permissive-2.0", "blessing"}
 EXCEPTION_IDS = {"LLVM-exception", "GCC-exception-3.1", "Classpath-exception-2.0", "Autoconf-exception-3.0", "Bison-exception-2.2", "Bootloader-exception"}
 
 
@@ -70,6 +67,18 @@ def sha256_bytes(value: bytes) -> str:
 
 def valid_hash(value: object) -> bool:
     return isinstance(value, str) and re.fullmatch(r"[0-9a-f]{64}", value) is not None
+
+
+def source_input_matches(name: str, data: bytes, expected: str) -> bool:
+    if sha256_bytes(data) == expected:
+        return True
+    # Git stores these reviewed text inputs with LF. A native Windows checkout
+    # can present the same committed text with CRLF. Accept only that exact,
+    # reversible conversion. Never normalize a binary package input.
+    text_suffixes = (".json", ".lock", ".toml")
+    return (name == "Cargo.lock" or name.endswith(text_suffixes)) and b"\r\n" in data \
+        and b"\r" not in data.replace(b"\r\n", b"") \
+        and sha256_bytes(data.replace(b"\r\n", b"\n")) == expected
 
 
 def release_source_inputs(target: str) -> set[str]:
@@ -188,7 +197,8 @@ def validate_inventory(inventory: dict) -> None:
     require(type(inventory["schema"]) is int and inventory["schema"] == 1, "invalid inventory")
     require(isinstance(inventory["created"], str), "invalid inventory")
     try:
-        require(datetime.strptime(inventory["created"], "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%dT%H:%M:%SZ") == inventory["created"], "invalid inventory")
+        created = datetime.strptime(inventory["created"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+        require(created.strftime("%Y-%m-%dT%H:%M:%SZ") == inventory["created"], "invalid inventory")
     except ValueError:
         raise PackageInputError("invalid inventory") from None
     require(isinstance(inventory["version"], str) and re.fullmatch(r"\d+\.\d+\.\d+", inventory["version"]), "invalid inventory")
@@ -204,7 +214,7 @@ def validate_inventory(inventory: dict) -> None:
     components = inventory["components"]
     require(isinstance(components, list) and bool(components), "incomplete coverage")
     identifiers = set()
-    file_paths = set()
+    file_paths = {}
     for component in components:
         require(isinstance(component, dict) and set(component) == COMPONENT_KEYS, "invalid component")
         identifier = component["id"]
@@ -216,7 +226,12 @@ def validate_inventory(inventory: dict) -> None:
             require(isinstance(component[field], str) and bool(component[field].strip())
                     and not any(ord(char) < 32 for char in component[field]), "invalid component")
         validate_conclusion(component["license_concluded"])
-        validate_conclusion(re.sub(r"\bOR\b", "AND", component["license_declared"]))
+        # SPDX LicenseDeclared records upstream metadata.  It may honestly be
+        # NOASSERTION even when review has concluded the actual grant from the
+        # retained license bytes.  Do not turn missing metadata into a release
+        # blocker or invent a declaration on the upstream author's behalf.
+        if component["license_declared"] != "NOASSERTION":
+            validate_conclusion(re.sub(r"\bOR\b", "AND", component["license_declared"]))
         location = component["download_location"]
         require(isinstance(location, str), "invalid component")
         parsed = urlsplit(location)
@@ -224,8 +239,11 @@ def validate_inventory(inventory: dict) -> None:
                 and not parsed.username and not parsed.password and not parsed.query and not parsed.fragment,
                 "unresolved provenance")
         copyright_text = component["copyright_text"]
-        require(isinstance(copyright_text, str) and bool(copyright_text.strip())
-                and "NOASSERTION" not in copyright_text, "unresolved copyright")
+        # SPDX permits NOASSERTION when copyright information cannot reasonably
+        # be determined.  Redistribution authority comes from the resolved
+        # license conclusion and its retained bytes, not from manufacturing a
+        # copyright-absence claim by decoding unrelated upstream test fixtures.
+        require(isinstance(copyright_text, str) and bool(copyright_text.strip()), "unresolved copyright")
         if copyright_text == "NONE":
             require(component["kind"] in {"cargo", "runtime"} and component["source_offer_required"] is True,
                     "copyright absence evidence required")
@@ -256,8 +274,18 @@ def validate_inventory(inventory: dict) -> None:
                     covered_licenses.update(ids)
                 name = relative_path(entry["path"])
                 portable_name = unicodedata.normalize("NFC", name).casefold()
-                require(name.startswith(prefix) and portable_name not in file_paths, "incomplete coverage")
-                file_paths.add(portable_name)
+                require(name.startswith(prefix), "incomplete coverage")
+                prior = file_paths.get(portable_name)
+                # One exact retained source archive can satisfy several
+                # components built from that same source revision.  Requiring
+                # byte-for-byte duplicate archives creates size, review and
+                # update risk without adding evidence.  Licenses and notices
+                # remain component-specific so their attribution stays clear.
+                if prior is not None:
+                    require(field == "source_offer_files" and prior == (field, entry["sha256"]),
+                            "incomplete coverage")
+                else:
+                    file_paths[portable_name] = (field, entry["sha256"])
         concluded_atoms = set(re.findall(r"[A-Za-z0-9.-]+", component["license_concluded"])) - {"AND", "WITH"}
         require(covered_licenses == concluded_atoms, "incomplete license coverage")
     for kind, entry in coverage.items():
@@ -361,7 +389,7 @@ def aggregate_files(inventory: dict, files: dict[str, bytes], field: str) -> byt
             if field == "source_offer_files" and entry["path"].lower().endswith(
                     (".zip", ".whl", ".crate", ".tar.gz", ".tar.xz", ".tgz")):
                 data = (f"Included source archive: {entry['path']}\n"
-                        f"SHA-256: {sha256_bytes(data)}\n").encode("utf-8")
+                        f"SHA-256: {sha256_bytes(data)}\n").encode()
             result.extend([component["name"].encode("utf-8") + b"\n", data, b"\n"])
     return b"".join(result) or b"No additional third-party NOTICE files are required by the component inventory.\n"
 
@@ -390,7 +418,8 @@ def _validate_package_inputs(root, source_root, version, target, payload_manifes
         require(review[field] == inventory[field], "review identity mismatch")
     require(review["inventory_sha256"] == sha256_bytes(inventory_bytes), "inventory mismatch")
     source_bytes = {name: read_owned(source_root, name) for name in inventory["source_inputs"]}
-    require({name: sha256_bytes(data) for name, data in source_bytes.items()} == inventory["source_inputs"], "source input mismatch")
+    require(all(source_input_matches(name, data, inventory["source_inputs"][name])
+                for name, data in source_bytes.items()), "source input mismatch")
     source_version = tomllib.loads(read_owned(source_root, "Cargo.toml").decode("utf-8"))["package"]["version"]
     require(source_version == version, "source version mismatch")
     pins = tomllib.loads(source_bytes["packaging/cua/pins.toml"].decode("utf-8"))

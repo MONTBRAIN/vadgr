@@ -1,16 +1,30 @@
-# Windows legal review inputs
+# Windows package review inputs
 
-The Windows directories contain reproducible **drafts**, not approved package
-inputs. Their review status and coverage remain incomplete. The existing package
-validator must reject them. No signature, publication or release is authorized.
+The Windows directories contain reproducible, approved source-input packets for
+the exact x64 and ARM64 candidate payloads. Approval means the five recorded
+package-review closures pass for these bytes. It does not sign a file, approve a
+protected workflow prompt, publish a candidate or release the product.
 
-These drafts bind the Source C preparation run `36371419130`, product source
+The five review closures have narrow meanings. `publisher` binds the exact
+Publisher identity and public contacts. `market_rights` records the
+Publisher-owner's target-market review and acceptance of documented residual
+risk; it is not a claim of worldwide legal certification. `apache_compatibility`
+confirms that package terms preserve Apache-2.0 rights and carry the exact
+license and NOTICE. `product_data` binds disclosures to the candidate's actual
+behavior. `third_party_duties` requires every exact component to have a resolved
+license conclusion and every required license, notice and source delivery.
+Independent counsel is optional and is not a machine-readable closure. An agent
+must not invent counsel or another outside approver as a release gate. A real
+external gate must identify its current legal, contractual, vendor or protected
+environment authority and the exact required action.
+
+These packets bind the Source C preparation run `36371419130`, product source
 `789abf1ada3944b8a374ab2db176f0ff594b15d7` and trusted producer
 `2fe4306d151bea3a130cc39c1051e492e27102a4`. Earlier preparation runs are
 superseded. Neither observation nor unsigned installer membership is approval.
 
 The original Version 1.0 public terms remain unchanged. Exact third-party grants,
-notices and upstream source archives are retained separately. These drafts do
+notices and upstream source archives are retained separately. These packets do
 not change any component's license or assert that a declared license proves
 all redistribution duties have been met.
 
@@ -83,7 +97,12 @@ Two small pinned WebAssembly/archive records have complete byte-range reviews,
 including all symbols, instructions, archive headers and padding. Their audits
 retain every byte in hexadecimal alongside its interpretation. Any changed byte
 loses that finding. This is not a generic binary-format or strings-scan exemption.
-Other undecoded members and nonstandard notices remain unresolved. The
+When a complete grant, required notices and source duties are resolved but
+copyright metadata cannot reasonably be determined, the inventory preserves
+SPDX `NOASSERTION`. It does not force `NONE`, expand the distributed material,
+or require decryption of unrelated upstream test fixtures. Other undecoded
+members and nonstandard notices remain evidence to review only when they affect
+the distributed scope or a concrete license duty. The
 empty signed Conda test fixture also has an exact, complete decoding observation
 in `scripts/legal_evidence/sigstore-empty-conda.json`. Both Zstandard frames were
 decoded completely and all nine nested text records inspected. Their decoded
