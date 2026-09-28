@@ -41,6 +41,8 @@ WORKFLOW_CONTEXTS = {
     "secret-scan": ".github/workflows/secret-scan.yml",
 }
 TRUSTED_WORKFLOWS = (".github/workflows/ci.yml", ".github/workflows/secret-scan.yml")
+METADATA_LIMIT = 32 * 1024 * 1024
+SOURCE_BLOB_LIMIT = 512 * 1024 * 1024
 
 
 class Refused(Exception):
@@ -57,7 +59,8 @@ def run(args: list[str], cwd: Path | None = None, *, binary: bool = False):
         result = subprocess.run(args, cwd=cwd, capture_output=True, timeout=60, check=False)
     except (OSError, subprocess.SubprocessError) as exc:
         raise Refused("metadata command could not complete") from exc
-    require(result.returncode == 0 and len(result.stdout) <= 32 * 1024 * 1024,
+    limit = SOURCE_BLOB_LIMIT if binary else METADATA_LIMIT
+    require(result.returncode == 0 and len(result.stdout) <= limit,
             "metadata command failed or returned too much data")
     if binary:
         return result.stdout

@@ -1,13 +1,38 @@
 """Adversarial, offline checks for the trusted candidate source gate."""
 
 import hashlib
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
 from scripts import candidate_policy as gate
 
 
+class SizedOutput:
+    def __init__(self, size):
+        self.size = size
+
+    def __len__(self):
+        return self.size
+
+    def decode(self, _encoding):
+        return "metadata"
+
+
 class PolicyTests(unittest.TestCase):
+    def test_binary_source_blob_has_separate_bounded_limit(self):
+        source_blob = SizedOutput(gate.METADATA_LIMIT + 1)
+        result = SimpleNamespace(returncode=0, stdout=source_blob)
+        with patch.object(gate.subprocess, "run", return_value=result):
+            self.assertIs(gate.run(["git", "show"], binary=True), source_blob)
+            with self.assertRaises(gate.Refused):
+                gate.run(["gh", "api"])
+
+        oversized = SimpleNamespace(returncode=0, stdout=SizedOutput(gate.SOURCE_BLOB_LIMIT + 1))
+        with patch.object(gate.subprocess, "run", return_value=oversized):
+            with self.assertRaises(gate.Refused):
+                gate.run(["git", "show"], binary=True)
+
     def test_sealed_inventory_ignores_only_runbook(self):
         rows = [("100644", "blob", "a" * 40, "Cargo.toml"),
                 ("100644", "blob", "b" * 40, "E2E/0.5.0/e2e.md")]
