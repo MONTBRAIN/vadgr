@@ -18,12 +18,17 @@ if __package__:
     from scripts import candidate_policy, cua_release_inputs
     from scripts.validate_package_inputs import (
         PackageInputError,
+        canonical_text_sha256,
         validate_package_inputs,
     )
 else:
     import candidate_policy  # trusted direct execution from scripts/
     import cua_release_inputs
-    from validate_package_inputs import PackageInputError, validate_package_inputs
+    from validate_package_inputs import (
+        PackageInputError,
+        canonical_text_sha256,
+        validate_package_inputs,
+    )
 
 REPOSITORY = "MONTBRAIN/vadgr"
 SHA256 = re.compile(r"[0-9a-f]{64}\Z")
@@ -200,7 +205,8 @@ def require_legal(source_root: Path, members: dict[str, dict], architecture: str
             and next(iter(sbom.values())) == approved["sbom_sha256"],
             "candidate compliance bytes do not match reviewed approval")
     generator = Path(candidate_policy.__file__).resolve().parent / "generate_legal_bundle.py"
-    require(generator.is_file() and digest(generator) == approved["generator_sha256"],
+    require(generator.is_file()
+            and canonical_text_sha256(generator.read_bytes()) == approved["generator_sha256"],
             "trusted legal generator differs from reviewed approval")
     inventory = compliance_root / "package-input-inventory.json"
     require(inventory.is_file() and digest(inventory) == approved["inventory_sha256"],

@@ -65,6 +65,12 @@ def sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
 
+def canonical_text_sha256(value: bytes) -> str:
+    canonical = value.replace(b"\r\n", b"\n")
+    require(b"\r" not in canonical, "text line endings differ")
+    return sha256_bytes(canonical)
+
+
 def valid_hash(value: object) -> bool:
     return isinstance(value, str) and re.fullmatch(r"[0-9a-f]{64}", value) is not None
 
