@@ -123,6 +123,18 @@ def test_build_has_no_compliance_or_packaging_fallback():
         assert forbidden not in script
 
 
+def test_build_moves_the_runtime_before_private_python_and_cua_probes():
+    script = (ROOT / "scripts/candidate/prepare-unsigned-windows.ps1").read_text()
+    move_out = "Move-Item -LiteralPath $payload -Destination $relocated"
+    python_probe = '& $privatePython --version'
+    cua_probe = '& $privatePython -I -B $bootstrap computer_use.mcp_server --version'
+    move_back = "Move-Item -LiteralPath $relocated -Destination $payload"
+    assert script.index(move_out) < script.index(python_probe) < script.index(cua_probe)
+    assert script.index(cua_probe) < script.index(move_back)
+    assert "Private runtime assembly root still exists." in script
+    assert "Relocated private CUA import probe failed." in script
+
+
 @pytest.mark.parametrize("architecture,profile", [("x64", "windows-x86_64"), ("arm64", "windows-aarch64")])
 @pytest.mark.parametrize("inherited", [None, "", "synthetic-inherited-selection"])
 def test_source_test_environment_is_absent_in_child_process(tmp_path, architecture, profile, inherited):
