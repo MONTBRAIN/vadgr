@@ -78,7 +78,12 @@ def github(endpoint: str, *, paginate: bool = False):
         args += ["--paginate", "--slurp"]
     args += [f"repos/{REPOSITORY}/{endpoint}".rstrip("/")]
     try:
-        data = json.loads(run(args))
+        raw = run(args)
+    except Refused as exc:
+        label = endpoint or "repository"
+        raise Refused(f"GitHub metadata request failed: {label}") from exc
+    try:
+        data = json.loads(raw)
     except (ValueError, TypeError) as exc:
         raise Refused("GitHub metadata is malformed") from exc
     if paginate:
