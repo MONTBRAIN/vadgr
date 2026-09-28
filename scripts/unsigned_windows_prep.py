@@ -147,6 +147,14 @@ def verify_test_source(source, source_record):
     read_owned(source, gate.EXCLUDED)
 
 
+def materialize_admitted(source, source_record, output):
+    """Recreate an admitted build tree without repeating live GitHub admission."""
+    verify_test_source(source, source_record)
+    rows = gate.inventory(source, source_record["source_sha"])
+    validate_paths(rows)
+    gate.materialize(source, source_record["source_sha"], rows, output)
+
+
 def terms_input(source):
     name = "packaging/legal/TERMS.txt"
     if not (source / name).is_file():
@@ -343,6 +351,10 @@ def main():
     source_tests = commands.add_parser("verify-test-source")
     source_tests.add_argument("--source-root", type=Path, required=True)
     source_tests.add_argument("--source-record", type=Path, required=True)
+    materialized = commands.add_parser("materialize-admitted")
+    materialized.add_argument("--source-root", type=Path, required=True)
+    materialized.add_argument("--source-record", type=Path, required=True)
+    materialized.add_argument("--materialize", type=Path, required=True)
     cargo = commands.add_parser("cargo-notices")
     cargo.add_argument("--metadata", type=Path, required=True)
     cargo.add_argument("--source-root", type=Path, required=True)
@@ -362,6 +374,10 @@ def main():
             args.out.write_bytes(canonical_json(terms_input(args.source_root)))
         elif args.command == "verify-test-source":
             verify_test_source(args.source_root.resolve(), parse_json(args.source_record.read_bytes()))
+        elif args.command == "materialize-admitted":
+            materialize_admitted(args.source_root.resolve(),
+                                 parse_json(args.source_record.read_bytes()),
+                                 args.materialize.absolute())
         else:
             cargo_notices(args.metadata, args.source_root, args.cargo_home, args.out)
     except (gate.Refused, PackageInputError, distribution_matrix.Refused,

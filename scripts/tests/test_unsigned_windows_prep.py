@@ -38,6 +38,10 @@ def test_workflow_has_only_read_access_and_two_native_builds():
     assert "github.run_attempt == 1" in workflow
     assert "persist-credentials: false" in workflow
     assert "GH_TOKEN: ''" in workflow and "GITHUB_TOKEN: ''" in workflow
+    assert "\n  admit:" in workflow and "\n    needs: admit" in workflow
+    assert workflow.count("unsigned_windows_prep.py admit ") == 1
+    assert "unsigned_windows_prep.py materialize-admitted" in workflow
+    assert "name: unapproved-windows-preparation-source" in workflow
     assert "\n  observe:" in workflow
     observer = workflow.split("\n  observe:", 1)[1]
     assert "cargo " not in observer and "__payload-setup" not in observer
@@ -239,6 +243,19 @@ def test_source_tests_keep_exact_runbook_outside_materialized_build(admission, t
     prep.verify_test_source(source, record)
     assert (source / gate.EXCLUDED).read_bytes() == b"Results only\n"
     assert not (materialized / gate.EXCLUDED).exists()
+
+
+def test_admitted_source_materializes_offline_and_rejects_changed_record(admission, tmp_path):
+    source, sha, _, _ = admission
+    record, _ = prep.admit(source, prep.BRANCH, sha)
+    materialized = tmp_path / "materialized"
+    prep.materialize_admitted(source, record, materialized)
+    assert (materialized / "build.rs").read_bytes() == (source / "build.rs").read_bytes()
+    assert not (materialized / gate.EXCLUDED).exists()
+    changed = {**record, "input_digest": "b" * 64}
+    with pytest.raises(gate.Refused):
+        prep.materialize_admitted(source, changed, tmp_path / "rejected")
+    assert not (tmp_path / "rejected").exists()
 
 
 @pytest.mark.parametrize("defect", ["source_sha", "source_tree", "input_digest", "dirty", "missing-runbook"])
