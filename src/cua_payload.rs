@@ -10,7 +10,9 @@ use anyhow::{Context, Result, bail, ensure};
 use flate2::read::GzDecoder;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::ffi::{OsStr, OsString};
+#[cfg(windows)]
+use std::ffi::OsStr;
+use std::ffi::OsString;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Component, Path, PathBuf};
