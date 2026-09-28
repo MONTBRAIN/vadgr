@@ -12,6 +12,20 @@ from scripts import validate_package_inputs as package
 from scripts.synthesize_windows_legal import MIT_GRANT, MIT_ZERO_GRANT, observed_source_zip
 
 
+EVIDENCE_ARCHIVES = {
+    "fdeflate-0.3.7.crate": "1e6853b52649d4ac5c0bd02320cddc5ba956bdb407c4b75a2c6b75bf51500f8c",
+    "sigstore-verify-0.11.0.crate": "558f71aad0e1c5925d29ae2024f55f0f8898a7ad450c93668f99086624c421e0",
+    "webpki-roots-0.26.11.crate": "521bc38abb08001b01866da9f51eb7c5d647a19260e00054a8c7fd5f9e57f7a9",
+    "webpki-roots-1.0.9.crate": "7dcd9d09a39985f5344844e66b0c530a33843579125f23e21e9f0f220850f22a",
+}
+
+
+def evidence_archive(name):
+    raw = (Path(__file__).parent / "fixtures" / name).read_bytes()
+    assert package.sha256_bytes(raw) == EVIDENCE_ARCHIVES[name]
+    return raw
+
+
 def archive(files):
     stream = io.BytesIO()
     with tarfile.open(fileobj=stream, mode="w:gz") as output:
@@ -69,10 +83,8 @@ def test_reviewed_binary_record_table_is_exact_and_has_no_uninspected_ranges():
 
 @pytest.mark.parametrize("version", ["0.26.11", "1.0.9"])
 def test_exact_certificate_fixtures_have_complete_typed_byte_coverage(version):
-    root = Path(__file__).resolve().parents[2]
     name = "webpki-roots-" + version
-    path = root / "packaging/inputs/windows-x86_64/legal/SOURCE-OFFERS" / ("cargo-" + name) / (name + ".crate")
-    raw = path.read_bytes()
+    raw = evidence_archive(name + ".crate")
     proof = absence.audit_archive(raw, absence.digest(raw))
     assert proof["eligible_for_reviewed_NONE"] is True
     with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as archive:
@@ -92,10 +104,8 @@ def test_exact_certificate_fixtures_have_complete_typed_byte_coverage(version):
 
 
 def test_exact_conda_decoding_observation_is_rechecked_without_optional_decoder(monkeypatch):
-    root = Path(__file__).resolve().parents[2]
-    source = root / ("packaging/inputs/windows-x86_64/legal/SOURCE-OFFERS/"
-        "cargo-sigstore-verify-0.11.0/sigstore-verify-0.11.0.crate")
-    with tarfile.open(source, mode="r:gz") as archive:
+    source = evidence_archive("sigstore-verify-0.11.0.crate")
+    with tarfile.open(fileobj=io.BytesIO(source), mode="r:gz") as archive:
         raw = archive.extractfile("sigstore-verify-0.11.0/test_data/bundles/signed-package-2.1.0-hb0f4dca_0.conda").read()
     row = absence.inspect_reviewed_conda(raw)
     assert row["status"] == "complete-reviewed-nested-archive-no-ownership-statement"
@@ -115,9 +125,7 @@ def test_exact_conda_decoding_observation_is_rechecked_without_optional_decoder(
 
 
 def test_exact_fuzz_interpretation_covers_every_bit_without_claiming_decompression():
-    root = Path(__file__).resolve().parents[2]
-    source = root / "packaging/inputs/windows-x86_64/legal/SOURCE-OFFERS/cargo-fdeflate-0.3.7/fdeflate-0.3.7.crate"
-    raw = source.read_bytes()
+    raw = evidence_archive("fdeflate-0.3.7.crate")
     proof = absence.audit_archive(raw, absence.digest(raw))
     assert proof["eligible_for_reviewed_NONE"] is True
     fixtures = [row for row in proof["files"] if row["path"].endswith(".zz")]

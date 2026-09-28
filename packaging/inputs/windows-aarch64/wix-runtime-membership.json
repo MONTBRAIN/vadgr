@@ -48,7 +48,7 @@
         "path": "ba/BootstrapperExtensionData.xml"
       },
       {
-        "manifest_id": "paydzO3NQXmG1dBjKgnSSSS92rRvng",
+        "manifest_id": "payxFP7uNp3.FdmTN5wvwjh7VMxVZg",
         "path": "ba/ba-functions.dll"
       },
       {
@@ -83,8 +83,8 @@
       {
         "path": "ba/BootstrapperApplicationData.xml",
         "scope": "extracted-nonnative-data",
-        "sha256": "b46f6b70b84848d8b20919a8e770dcdb2a2c8801f6b428b71972a95d3a5b9194",
-        "size": 3918
+        "sha256": "351a5aeb34de8ba9f44d96d895188972837978305e38e381b19b5ce83c684660",
+        "size": 3924
       },
       {
         "path": "ba/BootstrapperExtensionData.xml",
@@ -96,8 +96,8 @@
         "component_id": "product-ba-functions",
         "path": "ba/ba-functions.dll",
         "scope": "exact-observed-ba-functions",
-        "sha256": "b20a8d859685e578b3e1dfb6d38a4e99d51239988efe7f9994fba2f44ceffacc",
-        "size": 302080
+        "sha256": "3b3318654325501272880e98112cda0def79cf45c6713b7205f7abf465d27569",
+        "size": 305152
       },
       {
         "path": "ba/license.rtf",
@@ -114,14 +114,14 @@
       {
         "path": "ba/manifest.xml",
         "scope": "extracted-nonnative-data",
-        "sha256": "a2c197a0846f1bb2c4629e4fd2b1b5fdd1baa1760e89dd31295f7caa941322fd",
-        "size": 3682
+        "sha256": "2c3e5c40d864e0a4085f5fa1ed3892deff926b79f9e4f02d6bf8f47521acd6bb",
+        "size": 3685
       },
       {
         "path": "ba/thm.wxl",
         "scope": "extracted-nonnative-data",
-        "sha256": "9d4f42ef2a2d1992b7c8b732d34ab5a39a10a7fec45a61758380b9b0fc05a2cf",
-        "size": 1042
+        "sha256": "32814b3176b40e9c75d2eb535b5d04b5863b502b208b8eec2519a0bc4a89dbb1",
+        "size": 1059
       },
       {
         "path": "ba/thm.xml",
@@ -140,8 +140,8 @@
         "component_id": "framework-wixtoolset.sdk-7.0.0",
         "path": "burn-engine.exe",
         "scope": "detached-burn-engine",
-        "sha256": "8b2754eba141461872fd064e0131a61a1d17964ea996950107b0bf13b1f29e54",
-        "size": 1201380
+        "sha256": "efc19d0f3429081c349e98fa4270584f414b2839341f26986eb0cb5cae0a150b",
+        "size": 1202504
       },
       {
         "component_id": "framework-wixtoolset.util.wixext-7.0.0",
@@ -165,28 +165,28 @@
       {
         "path": "msi/File/PackageInputInventoryFile",
         "scope": "extracted-nonnative-data",
-        "sha256": "5e9f88176bb2b05c7ae08b6df800107635638c92cd2ee13ccb54567e1a1f8f3b",
-        "size": 1026019
+        "sha256": "2d06f57fdff2265da0740b4afc5ddf354d44b81efdcd43662a12e0c2db737e02",
+        "size": 1037520
       },
       {
         "path": "msi/File/PackageInputReviewFile",
         "scope": "extracted-nonnative-data",
-        "sha256": "883c5c9f6a7e6f0fbbff6b1f1bc4091af5157e369834fa6f95bbbdf1f169d49b",
-        "size": 357841
+        "sha256": "99357aa473dacad2a008ef6dd6b381f2474bb02a107cd27243809e9d3d80925e",
+        "size": 360353
       },
       {
         "observed_path": "payload/vadgr-app.exe",
         "path": "msi/File/VadgrApplicationFile",
         "scope": "exact-observed-payload",
-        "sha256": "6fc64fce06cee816add2c8cdfdc7c61e53fcc8b88c590d3913b418424dfc2a94",
-        "size": 301568
+        "sha256": "63e48a51d38a66ee52cbe803eaa8603ab153b0e1425c52052820dfbc6a8e41ac",
+        "size": 305152
       },
       {
         "observed_path": "payload/vadgr.exe",
         "path": "msi/File/VadgrBackendFile",
         "scope": "exact-observed-payload",
-        "sha256": "5ac14c90216f449b30de0499f8fbe3c7deddba23d4eac7cf0511f26a32aa3814",
-        "size": 34809856
+        "sha256": "0329c04fc00c70f2bb88e50f0866cd0f8bd7ca5d30569206113124cf0817929d",
+        "size": 34868224
       },
       {
         "path": "msi/File/payload.000df887b4a5281bc24645e0",
@@ -1314,13 +1314,6 @@
         "size": 10847
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/pyjwt-2.13.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.05fb584f6b0eca32c87ef637",
-        "scope": "exact-observed-payload",
-        "sha256": "c8b7b5528a8fa8ddc3f85ab67b41e8b8ae3f138f9db8aad19687527c184a37a6",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/websockets/asyncio/messages.py",
         "path": "msi/File/payload.0601093ba8068a61fa6891b1",
         "scope": "exact-observed-payload",
@@ -1778,8 +1771,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/starlette-1.6.0.dist-info/RECORD",
         "path": "msi/File/payload.0814af53c141e3f585ae3860",
         "scope": "exact-observed-payload",
-        "sha256": "778048899d173a67cd640def0de640133b750c93025afedb9106196b5038ef54",
-        "size": 3563
+        "sha256": "ce00b84cd91bcb3a3c9d05d0acb8d879ad8f28232ef1941cf82e2cb0661e4be1",
+        "size": 3468
       },
       {
         "path": "msi/File/payload.081cfd6b4f6187ad9f8604f6",
@@ -1831,13 +1824,6 @@
         "scope": "extracted-nonnative-data",
         "sha256": "7b63ecd5f1902af1b63729947373683c32745c16a10e8e6292e2e2dcd7e90ae0",
         "size": 1071
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/pywinauto-0.6.9.dist-info/uv_cache.json",
-        "path": "msi/File/payload.087d2cc7d5def5b840fea25d",
-        "scope": "exact-observed-payload",
-        "sha256": "a50b1e93e7784346d43183158ea291300288b4fb8d06541665af2a343f813f5f",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/zoneinfo/_common.py",
@@ -3193,6 +3179,12 @@
         "size": 121438
       },
       {
+        "path": "msi/File/payload.0f0754a43686cae402da4416",
+        "scope": "extracted-nonnative-data",
+        "sha256": "0e27c2382d7b8147972bbb746e04059a1152c8d0fda9d03ef1399d1a433c4ade",
+        "size": 2416
+      },
+      {
         "path": "msi/File/payload.0f08b25ff0794dc638672380",
         "scope": "extracted-nonnative-data",
         "sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc",
@@ -4309,13 +4301,6 @@
         "size": 10849
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/vadgr_computer_use-0.7.9.dist-info/uv_cache.json",
-        "path": "msi/File/payload.151a0a2d44f7f1706b149390",
-        "scope": "exact-observed-payload",
-        "sha256": "641093bfdb9656af14ac8678e6fd7f901c00d917e7054664cb8f6653e5e16347",
-        "size": 126
-      },
-      {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/tzdata/Africa/Algiers",
         "path": "msi/File/payload.15213d0dbcd5fd758dda7892",
         "scope": "exact-observed-payload",
@@ -4410,13 +4395,6 @@
         "scope": "exact-observed-payload",
         "sha256": "d4e5f29842c8edc81ffe60ae8c87d3f92c8e02fc02fc85f2a73a09c8e006486f",
         "size": 164
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/referencing-0.37.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.15c11645d184f86fd63d7ea2",
-        "scope": "exact-observed-payload",
-        "sha256": "d92436faeeac204c259c627c210fa11b37e03e7aa510204776208d03d93f2f73",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/uniseg/graphemecluster.py",
@@ -6077,8 +6055,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/annotated_types-0.8.0.dist-info/RECORD",
         "path": "msi/File/payload.1f829cf972326655c5ae648c",
         "scope": "exact-observed-payload",
-        "sha256": "ac26775782cf856a7afcf41f3cce56e541d40c8bf5cea17b4341b21921809011",
-        "size": 876
+        "sha256": "8191d3aa1ac93480688819b4db2385606219a3f7a453b85e086646134ded4f96",
+        "size": 775
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/win32comext/taskscheduler/__init__.py",
@@ -7077,13 +7055,6 @@
         "size": 2936
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/httpx2-2.12.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.265d28fcfe578248197c0245",
-        "scope": "exact-observed-payload",
-        "sha256": "02c4d66708c42af4e7673485ec70757babc1bec9c4350339e18f9dd481709219",
-        "size": 127
-      },
-      {
         "path": "msi/File/payload.2663ad29765315885655b766",
         "scope": "extracted-nonnative-data",
         "sha256": "2fa2807eb81b61ef2d063aae03e5ff2d64930f33a3f540f165493f202591e19f",
@@ -7542,8 +7513,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/pywin32-312.dist-info/RECORD",
         "path": "msi/File/payload.28f31e9af1709dea65b84f90",
         "scope": "exact-observed-payload",
-        "sha256": "4abc42c74de6109ff19f2c1d0abf40c6e8aba9ebb56df339da6ad50729ccb11e",
-        "size": 54810
+        "sha256": "19b1b5dec13b7e32426bb67d20acee412957f5b82f4763f9f6fdd9d1a898df3e",
+        "size": 54719
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/include/cpython/cellobject.h",
@@ -7623,13 +7594,6 @@
         "scope": "exact-observed-payload",
         "sha256": "98dfb250812d554278dedee98a2e9cb05b2583b22d2af8ba1aeda6b130a21b40",
         "size": 2686
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/six-1.17.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.296fefab67c20f357f72b2c8",
-        "scope": "exact-observed-payload",
-        "sha256": "a03873b920658bab5f6a08d2ce3e9f003cf670cc35dc7e191a4809ad1ac9ed91",
-        "size": 127
       },
       {
         "path": "msi/File/payload.2971f9937c6edbe4cee7c5ca",
@@ -7764,13 +7728,6 @@
         "size": 736
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/pydantic_core-2.46.5.dist-info/uv_cache.json",
-        "path": "msi/File/payload.2a57de4b20ef7aa590e05f69",
-        "scope": "exact-observed-payload",
-        "sha256": "19b38f8c9683c2b87bd0aa0cf7d9957209055955c19effb447be19563b8c975b",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/site-packages/pip/_internal/utils/entrypoints.py",
         "path": "msi/File/payload.2a59be1c6afdfd5a2261d177",
         "scope": "exact-observed-payload",
@@ -7888,13 +7845,6 @@
         "scope": "exact-observed-payload",
         "sha256": "856263b25a3384a7450a1a0b9869fb897b84f893b2e7147c7e045ae50d132cd3",
         "size": 3094
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/pycparser-3.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.2af4ff4f5795f07f41f01306",
-        "scope": "exact-observed-payload",
-        "sha256": "25b4ee0e8e0f17f6e4626ff4e4f78170ab0500b1bc52b0eadd09490df22d2357",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/multiprocessing/__init__.py",
@@ -8614,6 +8564,12 @@
         "scope": "exact-observed-payload",
         "sha256": "4d559e8e40913b029ec471c1e38282652afe734a395da90d2fb2d3d54265472f",
         "size": 4114
+      },
+      {
+        "path": "msi/File/payload.2e5f428f0d21d338b2385775",
+        "scope": "extracted-nonnative-data",
+        "sha256": "e34c58338bd89d43e709e226610d8f32b3e3c47f4ad9a99a8dc1d4ac7842488e",
+        "size": 919
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/include/cpython/pyerrors.h",
@@ -9617,6 +9573,12 @@
         "size": 3873
       },
       {
+        "path": "msi/File/payload.340c21f877f00e0758c640ef",
+        "scope": "extracted-nonnative-data",
+        "sha256": "0e27c2382d7b8147972bbb746e04059a1152c8d0fda9d03ef1399d1a433c4ade",
+        "size": 2416
+      },
+      {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/computer_use/platform/resolver/providers.py",
         "path": "msi/File/payload.342194dccc9849f42709426a",
         "scope": "exact-observed-payload",
@@ -9855,8 +9817,8 @@
       {
         "path": "msi/File/payload.357ba320a815994ad946951b",
         "scope": "extracted-nonnative-data",
-        "sha256": "50351651e29b4ec4db4c82c1bd2836a4eaaa45da7c7588fac01a87bb69ded2d2",
-        "size": 9125582
+        "sha256": "e38eb13f7d47437209a21ae274124c6e4334c44e4759f9f0e9594ea570948124",
+        "size": 9186389
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/attr/__init__.pyi",
@@ -9864,6 +9826,12 @@
         "scope": "exact-observed-payload",
         "sha256": "a55188980515a2fab6fd3625febfc72189c697239aa02b84871a3e12fb279d27",
         "size": 11325
+      },
+      {
+        "path": "msi/File/payload.35828212f4996598d7bbf074",
+        "scope": "extracted-nonnative-data",
+        "sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf",
+        "size": 1496
       },
       {
         "path": "msi/File/payload.35833db8f422c6b7dac4b91f",
@@ -10001,8 +9969,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/pycparser-3.0.dist-info/RECORD",
         "path": "msi/File/payload.360c9eb8fd5c93a5e81983b2",
         "scope": "exact-observed-payload",
-        "sha256": "a74e75245b64b4334b7efc1979bd157f76debf03e288922451de9b5e1d7242e6",
-        "size": 1295
+        "sha256": "e752c5c64ce06f508a80e0edeef0c165df849587b829cb9a7b7bb22ac43b0c7e",
+        "size": 1202
       },
       {
         "path": "msi/File/payload.3618d1e82ffa7b294985480e",
@@ -10072,13 +10040,6 @@
         "scope": "exact-observed-payload",
         "sha256": "ccec20e2307acd7da453dd7437e70c6b08e2bc3ead3bc3445af135da37b56d59",
         "size": 87
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/websockets-17.1.dist-info/uv_cache.json",
-        "path": "msi/File/payload.369eb9c9e182b9c6c299920d",
-        "scope": "exact-observed-payload",
-        "sha256": "6cf06cca80f5a664677fe67f4613f7f8cbead2c1f979b3c62e24b12a777151ad",
-        "size": 127
       },
       {
         "path": "msi/File/payload.369f6c09d203adb9af1c8ebd",
@@ -10390,6 +10351,12 @@
         "scope": "extracted-nonnative-data",
         "sha256": "9b25fe5a435f45195cee15a591731858a606cfc20db3eaba1ebfebf9e08af7ce",
         "size": 903
+      },
+      {
+        "path": "msi/File/payload.383ebb67eaa6e0a540cd8104",
+        "scope": "extracted-nonnative-data",
+        "sha256": "6dbd60437f8ef91d8de1f08ad75882547fd4931bfcc3566a0735f28db1484d31",
+        "size": 1080
       },
       {
         "path": "msi/File/payload.38625d22d6909ee42662462d",
@@ -11068,8 +11035,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/sse_starlette-3.4.8.dist-info/RECORD",
         "path": "msi/File/payload.3b67224d6d1ccffb3e74d569",
         "scope": "exact-observed-payload",
-        "sha256": "af4b79490ad1bbc9f7c9274793945d6e1afd787c202ae0518d850168dc92c087",
-        "size": 1207
+        "sha256": "51ae4ed28baf3802aa3330ba8179fdc4870df4e94eacf6d70165d5a8cd0bacd4",
+        "size": 1108
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/comtypes/logutil.py",
@@ -11126,8 +11093,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/truststore-0.10.4.dist-info/RECORD",
         "path": "msi/File/payload.3bd220e02c3e332081d70ff9",
         "scope": "exact-observed-payload",
-        "sha256": "0503af40a33d29a1d8ddd0ef16cd61c81b66d9c7cdc06fa0b6937cfd42444949",
-        "size": 1148
+        "sha256": "78e60fe51ee9228a9a31d401f4cf7dcca5b7363a893b65f30e957de919e9f01a",
+        "size": 1051
       },
       {
         "path": "msi/File/payload.3bd386590cc706668608ca2c",
@@ -11358,8 +11325,8 @@
       {
         "path": "msi/File/payload.3d2e28c405041f6d4d9aae62",
         "scope": "extracted-nonnative-data",
-        "sha256": "c758fe4c34a46162ec2e3df5b8743fdd3a86ef0cdee106e6be6190a3336b5ee4",
-        "size": 479640
+        "sha256": "86404824d120274b18200690c49da02ff262cf1df2710da8f1c2000fe9d42c53",
+        "size": 555488
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/lib2to3/fixes/fix_raw_input.py",
@@ -11447,13 +11414,6 @@
         "scope": "extracted-nonnative-data",
         "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
         "size": 11358
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/pydantic-2.13.5.dist-info/uv_cache.json",
-        "path": "msi/File/payload.3d6d063e2b99847992b26498",
-        "scope": "exact-observed-payload",
-        "sha256": "b18014fa5ab8777b5ff8399d36c28d30796ea3483bc70f58fd63ac48b9dd70f7",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/pythonwin/License.txt",
@@ -11568,6 +11528,12 @@
         "size": 7345
       },
       {
+        "path": "msi/File/payload.3e1826e359c836edec8c1457",
+        "scope": "extracted-nonnative-data",
+        "sha256": "5a5ee54c5001bbad1cdc1a57cc3dd4c42199b2da09d39c7ee41fab002d02967f",
+        "size": 6743
+      },
+      {
         "path": "msi/File/payload.3e345280adea8a2be8d9ffe8",
         "scope": "extracted-nonnative-data",
         "sha256": "aecc86991978649deb6a092f73f3b99c532889e6a16f0a9d90ed695c9da9aee8",
@@ -11585,13 +11551,6 @@
         "scope": "extracted-nonnative-data",
         "sha256": "90eb64f0279b0d9432accfa6023ff803bc4965212383697eee27a0f426d5f8d5",
         "size": 569
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/mcp_types-2.1.1.dist-info/uv_cache.json",
-        "path": "msi/File/payload.3e3a35aff800e3c180004503",
-        "scope": "exact-observed-payload",
-        "sha256": "4a64577aa890a422b19cf7471086f414c06637976e35a10c0c2604623767a325",
-        "size": 127
       },
       {
         "path": "msi/File/payload.3e3dd7577b342325f1588823",
@@ -11852,13 +11811,6 @@
         "size": 1682
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/uvicorn-0.52.4.dist-info/uv_cache.json",
-        "path": "msi/File/payload.3f8028c20d8d7f1f421ad74b",
-        "scope": "exact-observed-payload",
-        "sha256": "06900b4e83eb175ec98a2eab7faa70fd1849de696c47c1072b61b87c44d81875",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/mcp/shared/dispatcher.py",
         "path": "msi/File/payload.3f934ed7fd7ed47ec1b45b85",
         "scope": "exact-observed-payload",
@@ -11914,8 +11866,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/h11-0.16.0.dist-info/RECORD",
         "path": "msi/File/payload.3fca610f44f5ef93a2ba18ac",
         "scope": "exact-observed-payload",
-        "sha256": "2170aa9b7da02618aa6d75aad9501acd63ddd9dd7b00cacdda955d08f051a8fc",
-        "size": 1502
+        "sha256": "3779e13c17d8e21c769ed9ee8780af123cc3f8656185f5f8d3af258ff5639b3e",
+        "size": 1412
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/pydantic/json_schema.py",
@@ -12503,6 +12455,12 @@
         "size": 1062
       },
       {
+        "path": "msi/File/payload.4260d900a3c5cfd1cf3ff83b",
+        "scope": "extracted-nonnative-data",
+        "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6",
+        "size": 2112
+      },
+      {
         "path": "msi/File/payload.42660d6b878f455298bf4595",
         "scope": "extracted-nonnative-data",
         "sha256": "074e6e32c86a4c0ef8b3ed25b721ca23aca83df277cd88106ef7177c354615ff",
@@ -12594,13 +12552,6 @@
         "scope": "exact-observed-payload",
         "sha256": "4308d741c83b263c7c9fb8ec692a7b7b502135e407b265b12ea7ef92523455c0",
         "size": 169
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/wrapt-2.3.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.42ccaba3044d0cbeb886d297",
-        "scope": "exact-observed-payload",
-        "sha256": "f9477542f32c2ed95720a53f0cd6e05368a1cf85560fdb3f37d0f1637eab6a50",
-        "size": 127
       },
       {
         "path": "msi/File/payload.42d0bc2c962610159a8eabcc",
@@ -13024,8 +12975,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/mss-10.2.0.dist-info/RECORD",
         "path": "msi/File/payload.451702e1c05058e0d3d39993",
         "scope": "exact-observed-payload",
-        "sha256": "eb5309173aae596f34b0409f9da11f1cb48a08ac0e9602b6c43548b40c599a49",
-        "size": 2204
+        "sha256": "9658792ded2694434e9c990f4eb77db60d24dedca4153db21aaa991eb8bc8460",
+        "size": 2114
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tk8.6/images/pwrdLogo75.gif",
@@ -13155,8 +13106,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/pydantic-2.13.5.dist-info/RECORD",
         "path": "msi/File/payload.45dd3bd25e870955bcbb8125",
         "scope": "exact-observed-payload",
-        "sha256": "3dcec202eb02cce6ee6e2849ecaa40586f68dfe4a9162f871eb62470ac9c543f",
-        "size": 9612
+        "sha256": "93253f807bd8a0440d58d159ffeef610528e8a687b948095955114275c16881f",
+        "size": 9517
       },
       {
         "path": "msi/File/payload.45e246f7e2175aa290fbb2f6",
@@ -14422,13 +14373,6 @@
         "size": 1070
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/python_multipart-0.0.32.dist-info/uv_cache.json",
-        "path": "msi/File/payload.4c25ee6a21efa01258be181f",
-        "scope": "exact-observed-payload",
-        "sha256": "6b9ba6fd94318d591ce0f80b7a96e7b8c00b71d12b9021c8e48ca5e55cb63b47",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/msilib/sequence.py",
         "path": "msi/File/payload.4c31d7c1530bba7d6f169d20",
         "scope": "exact-observed-payload",
@@ -14461,6 +14405,12 @@
         "scope": "exact-observed-payload",
         "sha256": "992f93a7975f8cd4e94d96b3ba1ecfb3585e52a53f4442a15993402d3f955f66",
         "size": 2117
+      },
+      {
+        "path": "msi/File/payload.4c7bc73d5a11082229a15274",
+        "scope": "extracted-nonnative-data",
+        "sha256": "3b8182a766685eaa002637e28b4ec8d6b18819a0c71f579bf0dbaa5830297cce",
+        "size": 47025035
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/win32comext/axdebug/contexts.py",
@@ -14803,8 +14753,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/rpds_py-2026.6.3.dist-info/RECORD",
         "path": "msi/File/payload.4ea115c5dc6fa296b4c2a678",
         "scope": "exact-observed-payload",
-        "sha256": "555fd43852189879f935a69e035809c9e81cc53204f71ccea972fff1478a359c",
-        "size": 1004
+        "sha256": "4c2118d38dcd7b9ab1ca9fc8aed5de910568ce75b8bc7a4cac399a7135320e58",
+        "size": 908
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/encodings/mac_iceland.py",
@@ -15618,8 +15568,8 @@
         "observed_path": "payload/lib/cua/bootstrap.py",
         "path": "msi/File/payload.5362c25ae598fc1a7f9fc5ae",
         "scope": "exact-observed-payload",
-        "sha256": "c2fc536b93f0acd5657a2077a256af18995574f12d3280e1db58e1f059dce810",
-        "size": 694
+        "sha256": "db72b012f3a0f94f9f9ac77e26edb548c146b934bd0d41759c9ce5a3f4f346e6",
+        "size": 1658
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/multipart/__init__.py",
@@ -15816,8 +15766,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/httpcore2-2.12.0.dist-info/RECORD",
         "path": "msi/File/payload.54b9e36b8b3a94554c2ed998",
         "scope": "exact-observed-payload",
-        "sha256": "3e25260491e22a4c87c4fc3e4b3ea2d57ba186d6b13733864fc80e26a7e24e94",
-        "size": 3263
+        "sha256": "5447fd0d163a88cf894e2a7db9955c961051ad3115585fa2109f5bc387fb36c1",
+        "size": 3167
       },
       {
         "path": "msi/File/payload.54bb8742a6b8c99c24351135",
@@ -15896,13 +15846,6 @@
         "scope": "extracted-nonnative-data",
         "sha256": "6b9522191b8cb7126b2d214edd7f782d2ccd83c467e9c03b8af9e0bf903b49b4",
         "size": 11360
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/starlette-1.6.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.5571c2ce772ac27971e517ef",
-        "scope": "exact-observed-payload",
-        "sha256": "0bfb2c0ac785ec82873e29d22cda6bad2b402f4d18d8692d9d4791b968a7356d",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/licenses/python-packages/Lib__site-packages__pycparser-3.0.dist-info__licenses__LICENSE",
@@ -16950,8 +16893,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/attrs-26.1.0.dist-info/RECORD",
         "path": "msi/File/payload.5afe60cd28079d09c65148b3",
         "scope": "exact-observed-payload",
-        "sha256": "257ac7e4d2767e8d3d7544616199b95ac540a8c2fe7c5aa914220b47d4d9decc",
-        "size": 2834
+        "sha256": "6b0b326d4b4ee0fac27909ac7cbb066fc4bdf8e93d87031e27e770db059e5a04",
+        "size": 2742
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/tzdata/Africa/Maseru",
@@ -17806,13 +17749,6 @@
         "size": 192
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/jsonschema-4.26.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.5fcf06f45068dd5f820bd971",
-        "scope": "exact-observed-payload",
-        "sha256": "a9850734b4da350e419e15418613413ce05e957336c2dce611306411db564f3f",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/__phello__/ham/eggs.py",
         "path": "msi/File/payload.5fe4679990c1b913bb573a4c",
         "scope": "exact-observed-payload",
@@ -17851,8 +17787,8 @@
         "observed_path": "payload/lib/cua/installed-inventory.json",
         "path": "msi/File/payload.600e990087ea668336708412",
         "scope": "exact-observed-payload",
-        "sha256": "8c3ec2fef9b7e83f9081c6cf76d81e87082fc15ad9c7ed6cf77aa2bdd4a3658a",
-        "size": 863135
+        "sha256": "93da641fe27b8b66b8f072d2a359a0d245c93e199d3c1e41c7b3b22e5064fe39",
+        "size": 854992
       },
       {
         "path": "msi/File/payload.602c2568affdc6686be339c6",
@@ -18218,8 +18154,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/typing_inspection-0.4.4.dist-info/RECORD",
         "path": "msi/File/payload.61ecfbc8b8039cf03043c097",
         "scope": "exact-observed-payload",
-        "sha256": "215bac29dfc4278e3b0a7fa59ad79d8040a2b947dd634e944f79965b9415dd9e",
-        "size": 1081
+        "sha256": "83fc23669db31500d06056b13ecebe4f088f56a81c1ea86e3b68f1de3b8c7d95",
+        "size": 978
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/multiprocessing/synchronize.py",
@@ -18712,6 +18648,12 @@
         "size": 3342
       },
       {
+        "path": "msi/File/payload.6453e3e28bf9cb356ae689f9",
+        "scope": "extracted-nonnative-data",
+        "sha256": "6c9f0d975b41afaa34d22f55bb8986ce69e5cb7ad327cb2b28820cd425edf5ee",
+        "size": 867
+      },
+      {
         "path": "msi/File/payload.645b69b1bedf2fa3b76e9623",
         "scope": "extracted-nonnative-data",
         "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
@@ -18746,8 +18688,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/click-8.5.0.dist-info/RECORD",
         "path": "msi/File/payload.647f02999bb15a286b9220c6",
         "scope": "exact-observed-payload",
-        "sha256": "adbf89fdc12006ee8369078932e087e02c0acc0c115e30640e64cd192f43c271",
-        "size": 1901
+        "sha256": "924078ec3a47b97192425dbc0c3693085af7a7b863afcf6b4e110cf0bd97dea4",
+        "size": 1810
       },
       {
         "path": "msi/File/payload.64888adea36ea6d63f11bafa",
@@ -19342,13 +19284,6 @@
         "size": 1595
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/rpds_py-2026.6.3.dist-info/uv_cache.json",
-        "path": "msi/File/payload.679e949b3c6f78070b1eb183",
-        "scope": "exact-observed-payload",
-        "sha256": "357f78d77a3d48121a2788d2eb121363b02085b360b9424ee25a16b635bf427e",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/comtypes/client/_code_cache.py",
         "path": "msi/File/payload.67a1f10b772f40eb8dabec98",
         "scope": "exact-observed-payload",
@@ -19480,8 +19415,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/six-1.17.0.dist-info/RECORD",
         "path": "msi/File/payload.689f9edf6fab19432eb1560b",
         "scope": "exact-observed-payload",
-        "sha256": "efe887ecadecb94946b3aefa472df2a09266be516fe52b04329a04822209ad7a",
-        "size": 693
+        "sha256": "d16e50f347969b1e1919fb0c88bac4b9c644f5305bcfcfb00f72b646dbd4065d",
+        "size": 603
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/win32/lib/_win32verstamp_pywin32ctypes.py",
@@ -19489,6 +19424,12 @@
         "scope": "exact-observed-payload",
         "sha256": "fc0cfc6986d281063f9ae61d3e4849965d441801f7d16156a00d4f114c7e486a",
         "size": 4634
+      },
+      {
+        "path": "msi/File/payload.68af1019911ef1697c91fa7b",
+        "scope": "extracted-nonnative-data",
+        "sha256": "0b01625d853911cd0e2e088dcfb743261034a091bb379246cb25a14cc4c74bf1",
+        "size": 607
       },
       {
         "path": "msi/File/payload.68b9b5852788d76214e48f6e",
@@ -20283,8 +20224,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/pyvenv.cfg",
         "path": "msi/File/payload.6d7833dfdac86d28ccbeed3a",
         "scope": "exact-observed-payload",
-        "sha256": "7a024258e7f4cfd6f51f082a4fdee12bef04f57daca7b9c76c375eedde458375",
-        "size": 175
+        "sha256": "dc651bd4651de8cbd11c172f7838fbd68cebadf9181a8afe957d0d384127ac2a",
+        "size": 116
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/tabnanny.py",
@@ -20634,6 +20575,12 @@
         "scope": "exact-observed-payload",
         "sha256": "0d9a018f6ccabfbe9293de8f2aaf1e97d69900cd89df050b56a3dea27a3fd33d",
         "size": 13499
+      },
+      {
+        "path": "msi/File/payload.6f0d104f3964c9312e97d9dd",
+        "scope": "extracted-nonnative-data",
+        "sha256": "5ea2f23c7f00c3006bacf267183e816d8d4b6dc95ea57a4ddb0ff81de6d8719e",
+        "size": 26925
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/websockets/legacy/exceptions.py",
@@ -21291,12 +21238,6 @@
         "size": 153
       },
       {
-        "path": "msi/File/payload.72b57b25415533c0a48ffdec",
-        "scope": "extracted-nonnative-data",
-        "sha256": "7b77c319abfd5219629c45c34c89ba945ed3c5e49fcde9d16b6c3885f118a730",
-        "size": 179143
-      },
-      {
         "path": "msi/File/payload.72bc63e127c90a279f4a2d69",
         "scope": "extracted-nonnative-data",
         "sha256": "90bf2d659c43045111b65c733ab2a6d4cbcb422a098368c8c58a9ba3db4ed0c5",
@@ -21857,8 +21798,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/vadgr_computer_use-0.7.9.dist-info/RECORD",
         "path": "msi/File/payload.757efcc6baf4ccc47c576f00",
         "scope": "exact-observed-payload",
-        "sha256": "8448af1d311d847fdfce98fd70abd723c8d861df4042fa44829e38ce9f94c868",
-        "size": 10723
+        "sha256": "92acd1451db46b8db7982086368ed30226d53906bd259431cf1e822fa197f024",
+        "size": 10619
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/lib2to3/fixes/fix_getcwdu.py",
@@ -22011,8 +21952,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/comtypes-1.4.16.dist-info/RECORD",
         "path": "msi/File/payload.761e4e1f8eb84849f5b4762c",
         "scope": "exact-observed-payload",
-        "sha256": "22fcfbf22bb5229283aa2a429a589e29debb0856253e9d5cbe05f1506e5287fb",
-        "size": 13875
+        "sha256": "d664fde688a164132d6c1c79fd73ffccd778502c45d3a22b67cd6aef4a701d5f",
+        "size": 13780
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/site-packages/pip/_vendor/pygments/plugin.py",
@@ -22117,6 +22058,12 @@
         "size": 0
       },
       {
+        "path": "msi/File/payload.7667ba0dd3d9c1f6f6eaea73",
+        "scope": "extracted-nonnative-data",
+        "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6",
+        "size": 2112
+      },
+      {
         "path": "msi/File/payload.767e5538b82253871f41698a",
         "scope": "extracted-nonnative-data",
         "sha256": "e326b5fef9084c437878cc2184ba6dfa15503f46e5359dd67246f51761ea709f",
@@ -22127,6 +22074,12 @@
         "scope": "extracted-nonnative-data",
         "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
         "size": 10847
+      },
+      {
+        "path": "msi/File/payload.7694f39189ac19861303ca7c",
+        "scope": "extracted-nonnative-data",
+        "sha256": "5b84c8aaf38e30b7c5d35d2fea7299b4389a5adf51d8b5d0d8ffa3d146a03211",
+        "size": 18447
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/encodings/mac_greek.py",
@@ -22796,8 +22749,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/opentelemetry_api-1.44.0.dist-info/RECORD",
         "path": "msi/File/payload.7a5ab96ea3cbc3f94ce3b71b",
         "scope": "exact-observed-payload",
-        "sha256": "3f815d3fc1fd1a06e9838c0c866f2e8e96115a56dfb0e517cac222acbf55c220",
-        "size": 4576
+        "sha256": "8fc686374999a083eb0efe08cee273ba623863153834268ed6233eca624d92f3",
+        "size": 4472
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/pprint.py",
@@ -23091,8 +23044,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/wrapt-2.3.0.dist-info/RECORD",
         "path": "msi/File/payload.7c7de8cdbedee766af1d62fe",
         "scope": "exact-observed-payload",
-        "sha256": "cddf04a70db1d339400318bd9f5ff75692a52309df8ff04e9830f706b7f0deab",
-        "size": 1801
+        "sha256": "69445659f42b1f55c46a545775cce712f03c2e6a9145ae8ef5cc969dcba32fe8",
+        "size": 1710
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/subprocess.py",
@@ -23366,13 +23319,6 @@
         "scope": "extracted-nonnative-data",
         "sha256": "2de5c8832c89facad96cecdbee8498dd44b7ef781783a65155340eb3ad30e985",
         "size": 2437
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/jsonschema_specifications-2025.9.1.dist-info/uv_cache.json",
-        "path": "msi/File/payload.7da2f436a7874b354fe0e6fb",
-        "scope": "exact-observed-payload",
-        "sha256": "78427cf90d623ee51e2bdd28ba42bb939c91a7cb472abfd7b8a285393b27aa57",
-        "size": 127
       },
       {
         "path": "msi/File/payload.7da70c97f292e28ce55ff4c9",
@@ -24432,13 +24378,6 @@
         "size": 30017
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/comtypes-1.4.16.dist-info/uv_cache.json",
-        "path": "msi/File/payload.82de6231f88cf17b951e74a5",
-        "scope": "exact-observed-payload",
-        "sha256": "1433dc3ab74ed3266cccd5a9db9ed4db5ac5b460dc8f59623a8693c735623f15",
-        "size": 127
-      },
-      {
         "path": "msi/File/payload.82e58c7dab3d0a95d813bfcd",
         "scope": "extracted-nonnative-data",
         "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
@@ -24580,13 +24519,6 @@
         "size": 931
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/h11-0.16.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.8390369d3fde5dd115229dad",
-        "scope": "exact-observed-payload",
-        "sha256": "465e6377c8c16f29f8d6eb3a4efcaa1078b8a6e92bf5e4f860c0d3253a92b1c4",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/cryptography/hazmat/primitives/serialization/base.py",
         "path": "msi/File/payload.8395051339ecb8e89c9f1d1f",
         "scope": "exact-observed-payload",
@@ -24605,12 +24537,6 @@
         "scope": "exact-observed-payload",
         "sha256": "9e0d40b8701199db6690310484cbe553d19c0b64e4cde2b24b1cbf9c19ea239a",
         "size": 1896
-      },
-      {
-        "path": "msi/File/payload.83b93d19723ffb517aa271e8",
-        "scope": "extracted-nonnative-data",
-        "sha256": "e01ce2a872c7db6e5a4e069d558d9ca15a72590fa1c215f53356db7451224868",
-        "size": 144968
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/tzdata/Australia/West",
@@ -25682,8 +25608,8 @@
       {
         "path": "msi/File/payload.88a41465e6c599a8e9a6fc96",
         "scope": "extracted-nonnative-data",
-        "sha256": "f69a8942a9244ed06b538d6fca8b73404c22ca66c2ed9ed65c514d634c752cec",
-        "size": 1114201
+        "sha256": "d127971f8bc60c8df80051ab53165a136203f44bb06d850a3a021fc28fafa43f",
+        "size": 969741
       },
       {
         "observed_path": "payload/lib/cua/licenses/python-packages/Lib__site-packages__anyio-4.14.2.dist-info__licenses__LICENSE",
@@ -25776,13 +25702,6 @@
         "scope": "extracted-nonnative-data",
         "sha256": "35d985be0043fcbe33eb029e508e15891f7f39b3d676576c14900a0e642648de",
         "size": 581
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/opentelemetry_api-1.44.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.88fe12005a8febb70f0d286b",
-        "scope": "exact-observed-payload",
-        "sha256": "9fa447415297527f88af5642457a74cf8b792ff9f059a120ba614ee0d3e659ca",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/msgs/ko.msg",
@@ -26622,13 +26541,6 @@
         "size": 5119
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/mcp-2.1.1.dist-info/uv_cache.json",
-        "path": "msi/File/payload.8ce321648f01116994422df5",
-        "scope": "exact-observed-payload",
-        "sha256": "5e03f3f476a2df5cc42b53c902a9ffd4e9c749a2e0edf4d22cb584940cc366e6",
-        "size": 127
-      },
-      {
         "path": "msi/File/payload.8cea6c13a62ffda82fe2279b",
         "scope": "extracted-nonnative-data",
         "sha256": "8173d5c29b4f956d532781d2b86e4e30f83e6b7878dce18c919451d6ba707c90",
@@ -27341,6 +27253,12 @@
         "size": 10847
       },
       {
+        "path": "msi/File/payload.905e2366a8fa29bd45c5d016",
+        "scope": "extracted-nonnative-data",
+        "sha256": "5a5ee54c5001bbad1cdc1a57cc3dd4c42199b2da09d39c7ee41fab002d02967f",
+        "size": 6743
+      },
+      {
         "observed_path": "payload/lib/cua/python/3.12.14/include/cpython/pythread.h",
         "path": "msi/File/payload.906dd63d1386527a6e56cacc",
         "scope": "exact-observed-payload",
@@ -27828,8 +27746,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/pydantic_core-2.46.5.dist-info/RECORD",
         "path": "msi/File/payload.9258814aaf9dd6e9299f1e69",
         "scope": "exact-observed-payload",
-        "sha256": "6199e113da71cf7c4b28796f4b975c3a8592a3296508fce5cdcfae75fd35ae7e",
-        "size": 1186
+        "sha256": "5010f5c1a17fcf06ef25102bf5fdc57cd8ba7b69736819d3d15e922f51dff640",
+        "size": 1086
       },
       {
         "path": "msi/File/payload.926292cf95ea24e9b3404a14",
@@ -29245,6 +29163,12 @@
         "size": 11358
       },
       {
+        "path": "msi/File/payload.99e69d1a1c21e9d6eeffb758",
+        "scope": "extracted-nonnative-data",
+        "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+        "size": 13936
+      },
+      {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/tzdata/Europe/Tirane",
         "path": "msi/File/payload.99eafaec4ad7b007286bd280",
         "scope": "exact-observed-payload",
@@ -29741,8 +29665,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/websockets-17.1.dist-info/RECORD",
         "path": "msi/File/payload.9c61f87b809b56b9bd7bc37f",
         "scope": "exact-observed-payload",
-        "sha256": "47f02ecd6873a1d5f682fdc38baf66ccdd4423d9ae0fced1e8fd5fd38ba4a24b",
-        "size": 5472
+        "sha256": "5a46b991cbfa023188059dfd4249bb1902e34efff66471c4e04594bf40944958",
+        "size": 5377
       },
       {
         "path": "msi/File/payload.9c6418f777d47ece576f2d01",
@@ -29926,8 +29850,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/typing_extensions-4.16.0.dist-info/RECORD",
         "path": "msi/File/payload.9d8729e4fa703ba112f3ccea",
         "scope": "exact-observed-payload",
-        "sha256": "b2bd5adf69d66cf297018cf42ed8e62bf9f77526b9e3baca9bc66b39598d6fcc",
-        "size": 727
+        "sha256": "9e07fea845cac76293d927afa7157a14ecba39b318bc8af236b8de530b7656c1",
+        "size": 623
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/pythonwin/pywin/Demos/createwin.py",
@@ -30911,6 +30835,12 @@
         "size": 5479
       },
       {
+        "path": "msi/File/payload.a273590a0f668870421bc1a7",
+        "scope": "extracted-nonnative-data",
+        "sha256": "6dbd60437f8ef91d8de1f08ad75882547fd4931bfcc3566a0735f28db1484d31",
+        "size": 1080
+      },
+      {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/encoding/iso8859-4.enc",
         "path": "msi/File/payload.a277dd07845d3af219115097",
         "scope": "exact-observed-payload",
@@ -31088,13 +31018,6 @@
         "size": 2123
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/httpcore2-2.12.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.a396a12ecbbd5108b178cef1",
-        "scope": "exact-observed-payload",
-        "sha256": "6f7dac7b84e3cd07aef25e88b420940bb5c227c31180ba88a645c8433f73edea",
-        "size": 127
-      },
-      {
         "path": "msi/File/payload.a39ec8176f16fee58efaad39",
         "scope": "extracted-nonnative-data",
         "sha256": "70c9d40f1f9545c3f133b8a67206e89da850f6468eed072281bb3701514114a9",
@@ -31270,13 +31193,6 @@
         "scope": "exact-observed-payload",
         "sha256": "5c2a5015cd36cf7f561269f33dec4c323093d3d88b0673969accdabdcb9ce2cb",
         "size": 34564
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/sse_starlette-3.4.8.dist-info/uv_cache.json",
-        "path": "msi/File/payload.a4745bd039311cab6059f3b5",
-        "scope": "exact-observed-payload",
-        "sha256": "7b9f3931364b5b11a9f125942e2d32f29fd049e6b988a25d602564bd9230b3ee",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/win32/Demos/BackupSeek_streamheaders.py",
@@ -31471,8 +31387,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/pywinauto-0.6.9.dist-info/RECORD",
         "path": "msi/File/payload.a628e8dc4777754480431eee",
         "scope": "exact-observed-payload",
-        "sha256": "1c055aa448c629c94fa1dcd42cda2c19a2f4180f710f316bc950419d275d56e8",
-        "size": 4931
+        "sha256": "cc77252bb82faf0fdab59e100ec8f3e2015a65074534044e47b6694ed1e1f59e",
+        "size": 4836
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/sse_starlette/event.py",
@@ -32085,13 +32001,6 @@
         "scope": "exact-observed-payload",
         "sha256": "9a03910a6c183586e1db01863fcde6417d06745fb3e63032333d71c5e82e7919",
         "size": 837
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/mss-10.2.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.a95d49ea75cbd0b2ec2bfa4e",
-        "scope": "exact-observed-payload",
-        "sha256": "c95d280e85a5d8f5fc023575ec8336fe2c298bbf914220cf7711a217ecfc320f",
-        "size": 127
       },
       {
         "path": "msi/File/payload.a965bdb20be1ef3c3991fd66",
@@ -32934,13 +32843,6 @@
         "size": 15714
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/annotated_types-0.8.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.ad8b02d7923a68974322b1f1",
-        "scope": "exact-observed-payload",
-        "sha256": "88f38225e952142aa98b5a2af82a3c49f4fc2a7627d89da74be17aead1290af2",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/licenses/python-packages/Lib__site-packages__typing_inspection-0.4.4.dist-info__licenses__LICENSE",
         "path": "msi/File/payload.ad8e03589ea5242896125811",
         "scope": "exact-observed-payload",
@@ -33224,13 +33126,6 @@
         "scope": "exact-observed-payload",
         "sha256": "ec7de718e1daa778e72c4e5eeeaed8c2bf55abc6b107b5888f9f82ff8376be1c",
         "size": 38
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/pillow-12.3.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.ae96d4e326cffb03759a5a29",
-        "scope": "exact-observed-payload",
-        "sha256": "63ac13ffa2308f2f2defae6ca423f77f84c8f8472e03548943a6e99848789b6b",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/tzdata/HST",
@@ -33582,13 +33477,6 @@
         "size": 617
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/pywin32-312.dist-info/uv_cache.json",
-        "path": "msi/File/payload.affd2539c70e5a6bc0c56e18",
-        "scope": "exact-observed-payload",
-        "sha256": "972e94212bcf0b9fe55375521cd49fe946342d8260ca292a3a7bd5aec124fb9f",
-        "size": 127
-      },
-      {
         "path": "msi/File/payload.affdfb0305b54e0b24d86ec9",
         "scope": "extracted-nonnative-data",
         "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
@@ -33619,8 +33507,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/anyio-4.14.2.dist-info/RECORD",
         "path": "msi/File/payload.b010f90445f20169962052e9",
         "scope": "exact-observed-payload",
-        "sha256": "04096859e704f0095c484bc24bd85e614fccee6a4d356c3f46d15a7242c68dae",
-        "size": 4460
+        "sha256": "722d3bb1432c0f34f49dca8ac66fa132db1e4a2151f7104ee66a8cd44222c0b6",
+        "size": 4368
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/tzdata/Asia/Saigon",
@@ -34060,8 +33948,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/pyjwt-2.13.0.dist-info/RECORD",
         "path": "msi/File/payload.b1d3450f8e8b5d27fb97cec0",
         "scope": "exact-observed-payload",
-        "sha256": "9ad91b5051ea8619493698bd05d32ae5a198fd6de4648a6d7378befba27d3cc9",
-        "size": 1682
+        "sha256": "b86eb3be0a89de734598127029531ba39dcdc6962c4c996fbac48218f8a52879",
+        "size": 1590
       },
       {
         "path": "msi/File/payload.b1d9f259ef653ccedcf98468",
@@ -34129,13 +34017,6 @@
         "size": 5969
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/cffi-2.1.1.dist-info/uv_cache.json",
-        "path": "msi/File/payload.b2335f1937ee89741752bb09",
-        "scope": "exact-observed-payload",
-        "sha256": "7cf045ab3d3406740c0019124bf4e9da858f17259f9766c312f7f16f95086180",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/pydantic/_internal/_generics.py",
         "path": "msi/File/payload.b23c7c03b81f5dde5b3bac84",
         "scope": "exact-observed-payload",
@@ -34185,8 +34066,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/python_multipart-0.0.32.dist-info/RECORD",
         "path": "msi/File/payload.b278b8dee83508c7307e4477",
         "scope": "exact-observed-payload",
-        "sha256": "bf4a9ecebd84f6ef841a8ee61db55270a657f305d3a723f4f6eb31bab5a1aa15",
-        "size": 1375
+        "sha256": "5c11c391e44fdc2dbec56603265b8af273dae504ee2e6143d3b9d3bab2bc12df",
+        "size": 1272
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/encodings/bz2_codec.py",
@@ -35118,13 +34999,6 @@
         "size": 7913
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/click-8.5.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.b7d24a678ddaed8c2687fd59",
-        "scope": "exact-observed-payload",
-        "sha256": "9dab8a5f5607213226d4651cf2f789d9d33c12ae894a2d299b0a1783a5bab63c",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/websockets-17.1.dist-info/top_level.txt",
         "path": "msi/File/payload.b7d51f4fefcf7a9f5dac403d",
         "scope": "exact-observed-payload",
@@ -35707,7 +35581,7 @@
         "observed_path": "payload/lib/cua/payload.json",
         "path": "msi/File/payload.bb540f5c3de6d3371b714d75",
         "scope": "exact-observed-payload",
-        "sha256": "a21a09810ad61253956f06883526cb0c6ff9f94a57944a7797140caf820115b5",
+        "sha256": "d705080280be486c9830f077eb12b9be5cbf3df9350aff7da6850b54bf2a0617",
         "size": 758
       },
       {
@@ -35801,8 +35675,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/cffi-2.1.1.dist-info/RECORD",
         "path": "msi/File/payload.bb9ebdedf5890a88897fb778",
         "scope": "exact-observed-payload",
-        "sha256": "ea0c50d7e509f015a578abf91c3d932f86f7ce1a0b73d565413f92aa88e69417",
-        "size": 2716
+        "sha256": "fd95264ae3fa673f7c7718c19d71cf574c14b415de7d29749f662212c0e030e9",
+        "size": 2626
       },
       {
         "path": "msi/File/payload.bbc61be15a73c8eafd773b0b",
@@ -37187,13 +37061,6 @@
         "size": 0
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/cryptography-50.0.1.dist-info/uv_cache.json",
-        "path": "msi/File/payload.c3251a92f65c3b08275aabc3",
-        "scope": "exact-observed-payload",
-        "sha256": "afaaedf418024469d1c09fa001d3f516f257e5402280b66aded1b1df8a67537b",
-        "size": 125
-      },
-      {
         "path": "msi/File/payload.c32a541e90ec1b34acc61b3c",
         "scope": "extracted-nonnative-data",
         "sha256": "e99ca45d8888ca563e2b607e69bb08e3006052ecf7d197bf8c9ca7a991043593",
@@ -37596,8 +37463,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/uvicorn-0.52.4.dist-info/RECORD",
         "path": "msi/File/payload.c520353b5fdc394e214ee18f",
         "scope": "exact-observed-payload",
-        "sha256": "0ebcd237fe8c6839c1e1e07b765525f000a8de3f5786df1a0a4b9ae2eca18b7e",
-        "size": 4396
+        "sha256": "c6ebee29f8047bef412972ff84b36a862f1cb66fcbf56e3b8dda9c8d49e27808",
+        "size": 4302
       },
       {
         "path": "msi/File/payload.c5219632f9daaf0cf2db02b4",
@@ -37653,13 +37520,6 @@
         "scope": "exact-observed-payload",
         "sha256": "01b2a9b1084b6a0424f27eec488c761f75f053a409608ec36a9ee0ede0d38097",
         "size": 1256
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/truststore-0.10.4.dist-info/uv_cache.json",
-        "path": "msi/File/payload.c5677142e2d33bf80b4cac8f",
-        "scope": "exact-observed-payload",
-        "sha256": "5c8dfff1e8a130e498ac0032b5a01d12cc50ac8c26019790c15a1985d26d63e2",
-        "size": 126
       },
       {
         "path": "msi/File/payload.c567b4fb5d8327ecbd366466",
@@ -39335,8 +39195,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/uniseg-0.10.1.dist-info/RECORD",
         "path": "msi/File/payload.cee7b13250c906914b48709e",
         "scope": "exact-observed-payload",
-        "sha256": "7ec252a56bed8abacede63bf40f3890e48bb8e8cfce62a5a9168f880d5d92c2a",
-        "size": 11730
+        "sha256": "cd09a0253644369f1dbe08d20a2a4003378b1387f6ed3cb2c442360bf8895d76",
+        "size": 11637
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/win32comext/shell/demos/IActiveDesktop.py",
@@ -40005,8 +39865,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/mcp_types-2.1.1.dist-info/RECORD",
         "path": "msi/File/payload.d28c8520ec8da388b68a5521",
         "scope": "exact-observed-payload",
-        "sha256": "85fe56a4ddb568a85d6230557592527162ab72573d354a4272e2026490b17d1a",
-        "size": 1309
+        "sha256": "1310a87a5dac95ee783a31cf9bed358f860811e1eb5d57270b7c3f26da2ad3c5",
+        "size": 1214
       },
       {
         "path": "msi/File/payload.d292255f5bdf1265d5bf12b6",
@@ -40137,8 +39997,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/jsonschema_specifications-2025.9.1.dist-info/RECORD",
         "path": "msi/File/payload.d33ddeb2d3e475e75ec23daa",
         "scope": "exact-observed-payload",
-        "sha256": "e7c0807bf08838be9d9181c1f000c2fa748e30f564b34e98e30b2c0a03aeb853",
-        "size": 3554
+        "sha256": "0b1047ee6c7d5d7c242b642d689820f4572860ecf7886b2074f821ed85cbe7b6",
+        "size": 3440
       },
       {
         "path": "msi/File/payload.d35d15f07552ff15de27e0f6",
@@ -40465,8 +40325,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/mcp-2.1.1.dist-info/RECORD",
         "path": "msi/File/payload.d547c26cecafb12fe3116dc9",
         "scope": "exact-observed-payload",
-        "sha256": "2dc5b940485132b0c3caf1727795b7bb2dc3fe4258b4c20b4bd38a14a2a0cef1",
-        "size": 11254
+        "sha256": "2078a74018719779a18c997ca04fe097bf8d13f5e41567b4ac64c3e2421281f3",
+        "size": 11165
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/tclIndex",
@@ -40674,13 +40534,6 @@
         "scope": "extracted-nonnative-data",
         "sha256": "6485b8ed310d3f0340bf1ad1f47645069ce4069dcc6bb46c7d5c6faf41de1fdb",
         "size": 1071
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/deprecated-1.3.1.dist-info/uv_cache.json",
-        "path": "msi/File/payload.d65dda074cf88cde510d1a25",
-        "scope": "exact-observed-payload",
-        "sha256": "707051d141b85c35af67af6e1cd18ceced55993170ca5223d0fdb4f15536194e",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/jsonschema_specifications/schemas/draft201909/vocabularies/content",
@@ -41036,13 +40889,6 @@
         "scope": "exact-observed-payload",
         "sha256": "336058dca4802c79ed43f6177adb73085d4fa0754b94051cae2a19346b0c4904",
         "size": 185
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/typing_extensions-4.16.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.d8656ed31a511dfd9b520667",
-        "scope": "exact-observed-payload",
-        "sha256": "64b40472e1e8f34e6f74821a7b4d1ab47527683e381e36fe2de74bbae8ec3932",
-        "size": 127
       },
       {
         "path": "msi/File/payload.d872e67b8f571ef9ac6e5856",
@@ -42046,8 +41892,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/cryptography-50.0.1.dist-info/RECORD",
         "path": "msi/File/payload.dd982fd930a7bb766b9d2868",
         "scope": "exact-observed-payload",
-        "sha256": "51242b5ab64de905f22caf74cdbe55a8db3547f03ca83b72e52c4540045c9d83",
-        "size": 12269
+        "sha256": "5547a883c371db0a84d251abb764263a9fbad1fafb6c78f2e9f93ab53a3a0472",
+        "size": 12170
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/idlelib/zzdummy.py",
@@ -42060,8 +41906,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/referencing-0.37.0.dist-info/RECORD",
         "path": "msi/File/payload.ddafe3631b5147a2d525fc55",
         "scope": "exact-observed-payload",
-        "sha256": "3db5ca7a7c74246aefe166a0725365626a5423c6f802eaddef2c282c296295ff",
-        "size": 1864
+        "sha256": "d7ecf9906a4a4ea4837d16e324e344f9f00b328570cf695a96a8de46b8766982",
+        "size": 1766
       },
       {
         "path": "msi/File/payload.ddb46ad362210886b4657549",
@@ -42250,8 +42096,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/pillow-12.3.0.dist-info/RECORD",
         "path": "msi/File/payload.deac48d03516338ad936945e",
         "scope": "exact-observed-payload",
-        "sha256": "c03caeb9cefe9ba8b29f87a6e2eea52ee96d0ed4603ba9c07ae49d2446ef3a0b",
-        "size": 9556
+        "sha256": "7a9dd9eb782ead050ef7e250e99d1546af6b4c4d9ad296c9911255a2d503a52a",
+        "size": 9463
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/uniseg/emoji.py",
@@ -42564,8 +42410,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/httpx2-2.12.0.dist-info/RECORD",
         "path": "msi/File/payload.e0b3a05e7e271b80ccd04c08",
         "scope": "exact-observed-payload",
-        "sha256": "d61cf62f17f5712d154d8c7d3b4fffcbc30bdd30bc05983a063464f186ded085",
-        "size": 3176
+        "sha256": "48f28615256f5674df598f647e75c6dbb0cd1e00a2304155ebe946c0a74bd406",
+        "size": 3083
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/computer_use/core/tool.py",
@@ -43238,8 +43084,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/jsonschema-4.26.0.dist-info/RECORD",
         "path": "msi/File/payload.e3f0382dbf1044d766a3e96d",
         "scope": "exact-observed-payload",
-        "sha256": "f49aa236e818a53e1bd08cc9030afcd1a9e2304a1634858443de930120d267c9",
-        "size": 4192
+        "sha256": "2bf7c63d30e59f7243bdb5129bfd92130ac91055e96231839cd10cbc850b214d",
+        "size": 4095
       },
       {
         "path": "msi/File/payload.e3f22a784a4cb598569b7e28",
@@ -43429,18 +43275,11 @@
         "size": 164
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/idna-3.19.dist-info/uv_cache.json",
-        "path": "msi/File/payload.e4d54e893df9d73dd3e1e8ec",
-        "scope": "exact-observed-payload",
-        "sha256": "4afc181482ba12b33bc87674f1b140ee33733e5fa853fa473237c962dc46f480",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/deprecated-1.3.1.dist-info/RECORD",
         "path": "msi/File/payload.e4e2713c91a12eaa8b4630c6",
         "scope": "exact-observed-payload",
-        "sha256": "31e7dfca5eb9c7749c29560d9703a7e89b3bfc932c7ff3f7f3d21be76cad3a82",
-        "size": 1003
+        "sha256": "04f3900b10c2cb084b781451b586880e64b0f5affd54906b137d2441da63c66e",
+        "size": 907
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/uvicorn/loops/asyncio.py",
@@ -43813,6 +43652,12 @@
         "size": 134671
       },
       {
+        "path": "msi/File/payload.e66dc309637d5c6537702dd3",
+        "scope": "extracted-nonnative-data",
+        "sha256": "6c9f0d975b41afaa34d22f55bb8986ce69e5cb7ad327cb2b28820cd425edf5ee",
+        "size": 867
+      },
+      {
         "path": "msi/File/payload.e66ec56125581e5a3a09c8ba",
         "scope": "extracted-nonnative-data",
         "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
@@ -44093,13 +43938,6 @@
         "scope": "exact-observed-payload",
         "sha256": "4c19ba6c9ef026c36287ff16ab92330dcc0fdf69bdfef7f1b3de9d7ac2ee934d",
         "size": 10845
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/attrs-26.1.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.e7e36a36fa9c806cfae21d1f",
-        "scope": "exact-observed-payload",
-        "sha256": "b8e1a3e7776c773487d7577a14f995492ecd1b64873d590548cf7f7ba7ee1bf1",
-        "size": 127
       },
       {
         "path": "msi/File/payload.e7e679990adaf27ff77e6efc",
@@ -45535,13 +45373,6 @@
         "size": 1123
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/uniseg-0.10.1.dist-info/uv_cache.json",
-        "path": "msi/File/payload.ef703537d007baa885e977bc",
-        "scope": "exact-observed-payload",
-        "sha256": "76ed06cde02fc9f00bb8cd5a9dc7c64ea3e8807ebfaabd2fffcda9473f678cad",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/msgs/ar.msg",
         "path": "msi/File/payload.ef71c88280b0931c1236948d",
         "scope": "exact-observed-payload",
@@ -45763,13 +45594,6 @@
         "size": 1570
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/typing_inspection-0.4.4.dist-info/uv_cache.json",
-        "path": "msi/File/payload.f0c729002f229290ae95fc8d",
-        "scope": "exact-observed-payload",
-        "sha256": "5ceafbda5b1568078e6f947d3764ed9716fc5239b545390b2bc8eb5cc6de224f",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/typing_inspection-0.4.4.dist-info/licenses/LICENSE",
         "path": "msi/File/payload.f0c856e9ae0c6ebd47fbc402",
         "scope": "exact-observed-payload",
@@ -45960,6 +45784,12 @@
         "scope": "extracted-nonnative-data",
         "sha256": "4108245a1f2df9d4e94df8abed5b4ba0759bb2f9b40a6b939f1be141077ae50b",
         "size": 1213
+      },
+      {
+        "path": "msi/File/payload.f1943a7febb1d79cefaeb661",
+        "scope": "extracted-nonnative-data",
+        "sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf",
+        "size": 1496
       },
       {
         "path": "msi/File/payload.f19a36d87b9e2b5fb1668d29",
@@ -46501,6 +46331,12 @@
         "size": 9723
       },
       {
+        "path": "msi/File/payload.f44d8e50e22539e68e753958",
+        "scope": "extracted-nonnative-data",
+        "sha256": "5ea2f23c7f00c3006bacf267183e816d8d4b6dc95ea57a4ddb0ff81de6d8719e",
+        "size": 26925
+      },
+      {
         "path": "msi/File/payload.f45c72e0b25ac7ce8cbea853",
         "scope": "extracted-nonnative-data",
         "sha256": "05315fce6c35f79b8a35454828995fa26336f235895ac64557abc028f4ffcea2",
@@ -46559,13 +46395,6 @@
         "scope": "exact-observed-payload",
         "sha256": "7f427a3b717507598c73bae26ff09d3fb7664540d9b7209ca97be80c76648069",
         "size": 28582
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/anyio-4.14.2.dist-info/uv_cache.json",
-        "path": "msi/File/payload.f486e19229fb4427b9810e18",
-        "scope": "exact-observed-payload",
-        "sha256": "236253829e52575d834a6c2e9ff21c9da9543825c7da6149de6d58bf7f0999fb",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/xmlrpc/__init__.py",
@@ -46720,6 +46549,12 @@
         "scope": "extracted-nonnative-data",
         "sha256": "5b4747c7e59f039c7db857d93b8666d1574c2b85c95ac70f565b8bd39e520528",
         "size": 743
+      },
+      {
+        "path": "msi/File/payload.f54379bffdfd0f7385d6a98c",
+        "scope": "extracted-nonnative-data",
+        "sha256": "0b01625d853911cd0e2e088dcfb743261034a091bb379246cb25a14cc4c74bf1",
+        "size": 607
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tk8.6/demos/ruler.tcl",
@@ -47996,6 +47831,12 @@
         "size": 5429
       },
       {
+        "path": "msi/File/payload.fbe16079fe22ecdeb65f4c7a",
+        "scope": "extracted-nonnative-data",
+        "sha256": "5b84c8aaf38e30b7c5d35d2fea7299b4389a5adf51d8b5d0d8ffa3d146a03211",
+        "size": 18447
+      },
+      {
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/anyio/pytest_plugin.py",
         "path": "msi/File/payload.fbe24643318772b15c09d214",
         "scope": "exact-observed-payload",
@@ -48053,8 +47894,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/idna-3.19.dist-info/RECORD",
         "path": "msi/File/payload.fc16fb0a24f5659255e37c92",
         "scope": "exact-observed-payload",
-        "sha256": "0c7275073364eea4dbddb4348617670a260da9c8ad3bef014286dba1b8e7a6dd",
-        "size": 1504
+        "sha256": "61800f34a8582ee7eb3b9a0c8b1d69f31941fcec466e7cbb0ab475f5aa246388",
+        "size": 1415
       },
       {
         "path": "msi/File/payload.fc22e20aabc51f939c31636f",
@@ -48936,13 +48777,13 @@
     "packages": {
       "bundle": {
         "path": "Vadgr-0.5.0-windows-arm64-setup.exe",
-        "sha256": "02d70ea32455f7eff7e84ee351629ab67e8d3aa3e92e7e56ba02306564c32ff1",
-        "size": 70907929
+        "sha256": "a1c86269e2318a913ef7456ad0114e40a0b0142937a645e3e917a9759244983e",
+        "size": 116755101
       },
       "msi": {
         "path": "Vadgr-0.5.0-windows-arm64.msi",
-        "sha256": "9ecc887e19a8ab38271a286bf46f1ee217c837cb2aad1a40ff19ffd0066cc195",
-        "size": 71675944
+        "sha256": "95cf812297d229d57abf2a3327bac58740aa2786344d942ce337b697c161f3f9",
+        "size": 117518392
       }
     },
     "publishable": false,
@@ -48950,7 +48791,7 @@
     "status": "unapproved",
     "target": "aarch64-pc-windows-msvc"
   },
-  "runtime_membership_observation_sha256": "aae4e5a8a2d354bfcf3e33e67a120acd8fe664797e71f1a755aa802d9bb9d7e6",
+  "runtime_membership_observation_sha256": "c02a26792941d82d31970a7d55194177ffe7bc871dff757e2086e925972bd52f",
   "schema": 1,
   "status": "draft"
 }

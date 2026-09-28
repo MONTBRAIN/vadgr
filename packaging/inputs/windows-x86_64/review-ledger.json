@@ -7,7 +7,7 @@
       "origins": [
         {
           "archive_sha256": "18dee69613aac468922cf28a32025eb7d7ed6985b61f73245848e58f37876c98",
-          "binary_sha256": "85ce29379108b26cc821c6b2bc8406a403df28f2897857b52fcfdb4865d3129e",
+          "binary_sha256": "7d2ad719fc4fb0c37a859ef9bddf0355f5e3fc650444137dc9041f4bb1bffcbf",
           "member": "epaint_default_fonts-0.36.1/fonts/Hack-Regular.ttf"
         }
       ],
@@ -20,7 +20,7 @@
       "origins": [
         {
           "archive_sha256": "18dee69613aac468922cf28a32025eb7d7ed6985b61f73245848e58f37876c98",
-          "binary_sha256": "85ce29379108b26cc821c6b2bc8406a403df28f2897857b52fcfdb4865d3129e",
+          "binary_sha256": "7d2ad719fc4fb0c37a859ef9bddf0355f5e3fc650444137dc9041f4bb1bffcbf",
           "member": "epaint_default_fonts-0.36.1/fonts/NotoEmoji-Regular.ttf"
         }
       ],
@@ -33,7 +33,7 @@
       "origins": [
         {
           "archive_sha256": "18dee69613aac468922cf28a32025eb7d7ed6985b61f73245848e58f37876c98",
-          "binary_sha256": "85ce29379108b26cc821c6b2bc8406a403df28f2897857b52fcfdb4865d3129e",
+          "binary_sha256": "7d2ad719fc4fb0c37a859ef9bddf0355f5e3fc650444137dc9041f4bb1bffcbf",
           "member": "epaint_default_fonts-0.36.1/fonts/Ubuntu-Light.ttf"
         }
       ],
@@ -46,7 +46,7 @@
       "origins": [
         {
           "archive_sha256": "18dee69613aac468922cf28a32025eb7d7ed6985b61f73245848e58f37876c98",
-          "binary_sha256": "85ce29379108b26cc821c6b2bc8406a403df28f2897857b52fcfdb4865d3129e",
+          "binary_sha256": "7d2ad719fc4fb0c37a859ef9bddf0355f5e3fc650444137dc9041f4bb1bffcbf",
           "member": "epaint_default_fonts-0.36.1/fonts/emoji-icon-font.ttf"
         }
       ],
@@ -389,11 +389,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-allocator-api2-0.2.21.json",
-        "sha256": "81fdcb2056348ddc50e760bd467a6481dde682dcfcdd75f0eb715a8438dc047c"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-allocator-api2-0.2.21",
       "original_license_declaration": "MIT OR Apache-2.0",
       "origins": [
@@ -501,11 +497,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-anyhow-1.0.104.json",
-        "sha256": "371c34e9d3ccfdd5bfbde52c5cf29f5a861f5b191b98d6931406f5765e864495"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-anyhow-1.0.104",
       "original_license_declaration": "MIT OR Apache-2.0",
       "origins": [
@@ -600,11 +592,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-atomic-write-file-0.3.1.json",
-        "sha256": "67fba14131036ddec7e30857ae705d32b9ddadbd14fb3230ba8fe11180ff36b0"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-atomic-write-file-0.3.1",
       "original_license_declaration": "BSD-3-Clause",
       "origins": [
@@ -2984,11 +2972,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-clipboard-win-5.4.1.json",
-        "sha256": "6bc779364f7c9d589df91116f5e11dd829756bf5a4a7c827f43c9c2d0528febf"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-clipboard-win-5.4.1",
       "original_license_declaration": "BSL-1.0",
       "origins": [
@@ -3041,11 +3025,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": false,
-        "path": "source-copyright-audits/cargo-cms-0.2.3.json",
-        "sha256": "e01ce2a872c7db6e5a4e069d558d9ca15a72590fa1c215f53356db7451224868"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "external_grant_basis": {
         "application": "Exact crate manifest explicitly offers Apache-2.0 OR MIT. The complete Apache text is retained separately from original ownership evidence.",
         "archive_sha256": "7b77c319abfd5219629c45c34c89ba945ed3c5e49fcde9d16b6c3885f118a730",
@@ -3100,11 +3080,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-codespan-reporting-0.13.1.json",
-        "sha256": "223c6647430d8afc7a04e9f28e079b6227e8132bdc1be774c33167d6c01fa441"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-codespan-reporting-0.13.1",
       "original_license_declaration": "Apache-2.0",
       "origins": [
@@ -3231,11 +3207,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-constant-time-eq-0.4.2.json",
-        "sha256": "c4e387cbb620b41b6b1772b2e803777a212d269b050a4af83228eb90e1493e12"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-constant-time-eq-0.4.2",
       "original_license_declaration": "CC0-1.0 OR MIT-0 OR Apache-2.0",
       "origins": [
@@ -3843,11 +3815,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-dunce-1.0.5.json",
-        "sha256": "2de5c8832c89facad96cecdbee8498dd44b7ef781783a65155340eb3ad30e985"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-dunce-1.0.5",
       "original_license_declaration": "CC0-1.0 OR MIT-0 OR Apache-2.0",
       "origins": [
@@ -4190,11 +4158,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-error-code-3.4.0.json",
-        "sha256": "a9d26619ea39bb34dccb1055c1c4d9073796602a1d548920fa5916671a6b10f5"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-error-code-3.4.0",
       "original_license_declaration": "BSL-1.0",
       "origins": [
@@ -4286,11 +4250,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-fastrand-2.5.0.json",
-        "sha256": "4b2df8996ed87d3544cee1e615f9a369e5aae4efcfa4b29d9a0a0863f2333ead"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-fastrand-2.5.0",
       "original_license_declaration": "Apache-2.0 OR MIT",
       "origins": [
@@ -4326,11 +4286,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-fdeflate-0.3.7.json",
-        "sha256": "9ba29762910c89c0c18ea22fdbd65aad88caeb9ed6b62530bda0a590ca6868d4"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-fdeflate-0.3.7",
       "original_license_declaration": "MIT OR Apache-2.0",
       "origins": [
@@ -4860,11 +4816,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-glow-0.17.0.json",
-        "sha256": "a813618a0af362e6368d147e58da02bcf809d87382ca1549c46b5d6c4522b096"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-glow-0.17.0",
       "original_license_declaration": "MIT OR Apache-2.0 OR Zlib",
       "origins": [
@@ -6072,11 +6024,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-itoa-1.0.18.json",
-        "sha256": "77393b73df649cc6eeb235e8daa47c947292a5dcdebfc8755266cc6a44ebb619"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-itoa-1.0.18",
       "original_license_declaration": "MIT OR Apache-2.0",
       "origins": [
@@ -7103,11 +7051,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-once-cell-1.21.4.json",
-        "sha256": "057ad14d14083223c498add4d32e7911e50f11b36e324d2ca02709a6573090d8"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-once-cell-1.21.4",
       "original_license_declaration": "MIT OR Apache-2.0",
       "origins": [
@@ -7161,11 +7105,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-option-ext-0.2.0.json",
-        "sha256": "d1f4078fa107ee1addad402965a6def9c592214d8082d63b772eae461a1e08dc"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-option-ext-0.2.0",
       "original_license_declaration": "MPL-2.0",
       "origins": [
@@ -7182,11 +7122,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-papaya-0.2.5.json",
-        "sha256": "ff18afdb83f3641af6f6064769d6f71a2ca6cbb61f279c217e18b3f1f2c56446"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-papaya-0.2.5",
       "original_license_declaration": "MIT",
       "origins": [
@@ -7387,11 +7323,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-pin-project-1.1.13.json",
-        "sha256": "a1f69224b7b13270f4d5122f8029941e09ae17fe103003380abd56aff3a9a1b4"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-pin-project-1.1.13",
       "original_license_declaration": "Apache-2.0 OR MIT",
       "origins": [
@@ -7408,11 +7340,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-pin-project-lite-0.2.17.json",
-        "sha256": "fa135e610a87b00d1bfb02e01186d816e42e05ed379bba0552e73877f6abcba8"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-pin-project-lite-0.2.17",
       "original_license_declaration": "Apache-2.0 OR MIT",
       "origins": [
@@ -7515,11 +7443,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-portable-atomic-1.15.0.json",
-        "sha256": "4292bdf9b1a5cc3af96169319da8f5033e86a68ec5d12e598fea3825eecef4c2"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-portable-atomic-1.15.0",
       "original_license_declaration": "Apache-2.0 OR MIT",
       "origins": [
@@ -8812,11 +8736,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-rustc-hash-2.1.3.json",
-        "sha256": "7f6dd63cd648cf0bc7af633a90f4a4a9429953e419986361a5316bc069000f5c"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-rustc-hash-2.1.3",
       "original_license_declaration": "Apache-2.0 OR MIT",
       "origins": [
@@ -9044,11 +8964,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-serde-1.0.229.json",
-        "sha256": "2f16a8529c928cabcac5af35862d6b7e2405f396384d1b2f2b6fdc0bbd3bbca8"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-serde-1.0.229",
       "original_license_declaration": "MIT OR Apache-2.0",
       "origins": [
@@ -9066,11 +8982,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-serde-bytes-0.11.19.json",
-        "sha256": "e6ef58857574dea2e0b45b8235ea263d07b6b4c73441724ea3aa1b2f73894015"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-serde-bytes-0.11.19",
       "original_license_declaration": "MIT OR Apache-2.0",
       "origins": [
@@ -9087,11 +8999,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-serde-core-1.0.229.json",
-        "sha256": "9702e723f996738517e574f821e0dc65c04c5a552ec477950fe59fd3e28084f9"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-serde-core-1.0.229",
       "original_license_declaration": "MIT OR Apache-2.0",
       "origins": [
@@ -9147,11 +9055,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-serde-path-to-error-0.1.20.json",
-        "sha256": "c59a680dacd969ea603662f34a985fe18e1ad5b41f14279712aaeaf782e2f81a"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-serde-path-to-error-0.1.20",
       "original_license_declaration": "MIT OR Apache-2.0",
       "origins": [
@@ -9350,11 +9254,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-sigstore-bundle-0.11.0.json",
-        "sha256": "fee8851e7b5806e7a11ceed170410aa6807e33a809a5baceb32aac36d4eaa271"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-sigstore-bundle-0.11.0",
       "original_license_declaration": "Apache-2.0",
       "origins": [
@@ -9371,11 +9271,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-sigstore-crypto-0.11.0.json",
-        "sha256": "ea088ab1850ed32412efd128b4fb177d1a67fd1b519f1e0bdb5767af97014935"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-sigstore-crypto-0.11.0",
       "original_license_declaration": "Apache-2.0",
       "origins": [
@@ -9392,11 +9288,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-sigstore-merkle-0.11.0.json",
-        "sha256": "a880903fa9d0a1aff1da1a09b3f6b399b9391e13a436db21fbec2a362e2e1e6a"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-sigstore-merkle-0.11.0",
       "original_license_declaration": "Apache-2.0",
       "origins": [
@@ -9413,11 +9305,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-sigstore-rekor-0.11.0.json",
-        "sha256": "c3ae3ab34895daae757daffccb047e13fb1c8d0fbb918b1634aa7396cac30510"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-sigstore-rekor-0.11.0",
       "original_license_declaration": "Apache-2.0",
       "origins": [
@@ -9434,11 +9322,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-sigstore-trust-root-0.11.0.json",
-        "sha256": "34166bb7dcd98f254277537dd90146471987ee21c5c80eb09c5977fc97f16301"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-sigstore-trust-root-0.11.0",
       "original_license_declaration": "Apache-2.0",
       "origins": [
@@ -9455,11 +9339,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-sigstore-tsa-0.11.0.json",
-        "sha256": "90e7f0a0a402eeac543b81fd4c7668cb411808ed7a1b9b72f08de45e79906500"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-sigstore-tsa-0.11.0",
       "original_license_declaration": "Apache-2.0",
       "origins": [
@@ -9494,11 +9374,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-sigstore-types-0.11.0.json",
-        "sha256": "92ad10271d230b8e8035890d902b40c965e29ef52543495328acf96f9f6c2c64"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-sigstore-types-0.11.0",
       "original_license_declaration": "Apache-2.0",
       "origins": [
@@ -9515,11 +9391,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-sigstore-verify-0.11.0.json",
-        "sha256": "7ac718d86695d83adf0c8535c6e99b431fab9e4076d3dd29ec0267eab67aa501"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-sigstore-verify-0.11.0",
       "original_license_declaration": "Apache-2.0",
       "origins": [
@@ -9554,11 +9426,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-simdutf8-0.1.5.json",
-        "sha256": "77ac7ab32fe1c9472731bd4bc1d525d65be3b4349c00e3057ad692b9460281af"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-simdutf8-0.1.5",
       "original_license_declaration": "MIT OR Apache-2.0",
       "origins": [
@@ -9650,11 +9518,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-smol-str-0.2.2.json",
-        "sha256": "b0509416d2b5b75887da647ffb22a201b2608dad85a682d73f9049ff678eca7d"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-smol-str-0.2.2",
       "original_license_declaration": "MIT OR Apache-2.0",
       "origins": [
@@ -9938,11 +9802,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-thiserror-2.0.20.json",
-        "sha256": "ee7ea2be9cb3c4468969ee5992f1a753bf305ef4c8d99a2a8832989dddb193f4"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-thiserror-2.0.20",
       "original_license_declaration": "MIT OR Apache-2.0",
       "origins": [
@@ -10499,11 +10359,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-unicode-general-category-1.1.0.json",
-        "sha256": "6ddb9eb4db602f65ea3cc12e9a2d66eb57383e36cc6bd42ac621f760b8d71df6"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-unicode-general-category-1.1.0",
       "original_license_declaration": "Apache-2.0",
       "origins": [
@@ -10908,11 +10764,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-webpki-roots-0.26.11.json",
-        "sha256": "8eb838adbc8b53b9b18b21c05f6422f0d9767df0ce66734d73b2d59cfcb77170"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-webpki-roots-0.26.11",
       "original_license_declaration": "CDLA-Permissive-2.0",
       "origins": [
@@ -10929,11 +10781,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-webpki-roots-1.0.9.json",
-        "sha256": "0d839bfacd274524cecf213a629b43d6cdc10feeacd85bce6005429f433ed20e"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-webpki-roots-1.0.9",
       "original_license_declaration": "CDLA-Permissive-2.0",
       "origins": [
@@ -11382,11 +11230,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-wmi-0.18.4.json",
-        "sha256": "4c511889f3b862cd1bb386e73564acdf4c822bb64a50d6974850cf853f82fc27"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-wmi-0.18.4",
       "original_license_declaration": "MIT OR Apache-2.0",
       "origins": [
@@ -11698,11 +11542,7 @@
       }
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/cargo-zmij-1.0.23.json",
-        "sha256": "b0e27bc5d55ea58aa61baa99df68b9c4aef9b601c029bf79782ab8568595b7af"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "cargo-zmij-1.0.23",
       "original_license_declaration": "MIT",
       "origins": [
@@ -11824,7 +11664,7 @@
           }
         ],
         "path": "wix-runtime-membership.json",
-        "sha256": "b78e9fb7faba40a2f280ef1fd15c5d32ccd0e9039de4f6eaeacdfd9a3f5c2825",
+        "sha256": "344d60a0934a516e27406e96dd94d76683447da2d0d9667d78675b266088b41e",
         "source_archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
         "source_commit": "b8977d6f88e7b68e000bac226a2814f236770570"
       },
@@ -11842,12 +11682,12 @@
             "component_id": "framework-wixtoolset.sdk-7.0.0",
             "path": "burn-engine.exe",
             "scope": "detached-burn-engine",
-            "sha256": "7e81bae468f2347a7f887061e604b99f36dbc2d49aa7e28fd714a4e16b0a0575",
-            "size": 1242254
+            "sha256": "e6d2007679a9d61d63138b46ab7f600e8a2da9c7b882f2d762f9f5a0073ecf8e",
+            "size": 1242148
           }
         ],
         "path": "wix-runtime-membership.json",
-        "sha256": "b78e9fb7faba40a2f280ef1fd15c5d32ccd0e9039de4f6eaeacdfd9a3f5c2825",
+        "sha256": "344d60a0934a516e27406e96dd94d76683447da2d0d9667d78675b266088b41e",
         "source_archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
         "source_commit": "b8977d6f88e7b68e000bac226a2814f236770570"
       },
@@ -11870,7 +11710,7 @@
           }
         ],
         "path": "wix-runtime-membership.json",
-        "sha256": "b78e9fb7faba40a2f280ef1fd15c5d32ccd0e9039de4f6eaeacdfd9a3f5c2825",
+        "sha256": "344d60a0934a516e27406e96dd94d76683447da2d0d9667d78675b266088b41e",
         "source_archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
         "source_commit": "b8977d6f88e7b68e000bac226a2814f236770570"
       },
@@ -12719,8 +12559,8 @@
             "component_id": "framework-wixtoolset.sdk-7.0.0",
             "path": "burn-engine.exe",
             "scope": "detached-burn-engine",
-            "sha256": "7e81bae468f2347a7f887061e604b99f36dbc2d49aa7e28fd714a4e16b0a0575",
-            "size": 1242254
+            "sha256": "e6d2007679a9d61d63138b46ab7f600e8a2da9c7b882f2d762f9f5a0073ecf8e",
+            "size": 1242148
           },
           {
             "component_id": "framework-wixtoolset.util.wixext-7.0.0",
@@ -12731,7 +12571,7 @@
           }
         ],
         "path": "wix-runtime-membership.json",
-        "sha256": "b78e9fb7faba40a2f280ef1fd15c5d32ccd0e9039de4f6eaeacdfd9a3f5c2825",
+        "sha256": "344d60a0934a516e27406e96dd94d76683447da2d0d9667d78675b266088b41e",
         "source_archive_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
         "source_commit": "b8977d6f88e7b68e000bac226a2814f236770570"
       },
@@ -12880,11 +12720,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-allocator-api2-0.2.21.json",
-        "sha256": "81fdcb2056348ddc50e760bd467a6481dde682dcfcdd75f0eb715a8438dc047c"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-allocator-api2-0.2.21",
       "original_license_declaration": [
         {
@@ -13334,11 +13170,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-displaydoc-0.2.5.json",
-        "sha256": "944e0332bffc1c2201a062e36e68f9a2355eb0706b80f8d71474dded3fd1ff57"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-displaydoc-0.2.5",
       "original_license_declaration": [
         {
@@ -14133,11 +13965,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-itoa-1.0.11.json",
-        "sha256": "86a06e7ca262f3899cdeec6e10f9d98a261181fcd7cad0a07175ffa744b91c51"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-itoa-1.0.11",
       "original_license_declaration": [
         {
@@ -14165,11 +13993,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-itoa-1.0.18.json",
-        "sha256": "77393b73df649cc6eeb235e8daa47c947292a5dcdebfc8755266cc6a44ebb619"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-itoa-1.0.18",
       "original_license_declaration": [
         {
@@ -14686,11 +14510,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-once-cell-1.21.3.json",
-        "sha256": "cbb0d7cae0da49c2a68e4be6c0a497886b5e934e15836981b5312684be623709"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-once-cell-1.21.3",
       "original_license_declaration": [
         {
@@ -14725,11 +14545,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-once-cell-1.21.4.json",
-        "sha256": "057ad14d14083223c498add4d32e7911e50f11b36e324d2ca02709a6573090d8"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-once-cell-1.21.4",
       "original_license_declaration": [
         {
@@ -14935,11 +14751,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-portable-atomic-1.14.0.json",
-        "sha256": "9a293514ea1800ecb3c77b22ff8b5ed9b964dd3bc171426b380fbf06e0313c5d"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-portable-atomic-1.14.0",
       "original_license_declaration": [
         {
@@ -14967,11 +14779,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-portable-atomic-1.6.0.json",
-        "sha256": "c7d3589721a96b26a94d1ff803f9f937076cdaeaca05f7a85d7ead964861bd0a"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-portable-atomic-1.6.0",
       "original_license_declaration": [
         {
@@ -15000,11 +14808,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-proc-macro2-1.0.103.json",
-        "sha256": "0e9597fa5a6df5ef6b83b97553bc0ef07056373e51ddb390f63ab93b28d4c182"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-proc-macro2-1.0.103",
       "original_license_declaration": [
         {
@@ -15032,11 +14836,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-proc-macro2-1.0.107.json",
-        "sha256": "1e90e081bcde7ce1fc56052605ecda8ea328a772ec124468673a5c11e1723f16"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-proc-macro2-1.0.107",
       "original_license_declaration": [
         {
@@ -15064,11 +14864,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-proc-macro2-1.0.86.json",
-        "sha256": "35facae063836c208d3462d0221eda5fa3dc855baf4859b01232ae762abbf1f1"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-proc-macro2-1.0.86",
       "original_license_declaration": [
         {
@@ -15465,11 +15261,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-quote-1.0.42.json",
-        "sha256": "66edcf6ec41703b99aef5d9e2e4d87e6608d7d18eba80931376c251f26c511ee"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-quote-1.0.42",
       "original_license_declaration": [
         {
@@ -15497,11 +15289,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-quote-1.0.44.json",
-        "sha256": "f8c7c61629955c065d76441cf17bae65e188fc1c00b808a75ec2744944a12438"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-quote-1.0.44",
       "original_license_declaration": [
         {
@@ -15530,11 +15318,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-quote-1.0.47.json",
-        "sha256": "b8dff4aa96c006a53f15600086b203faa8b59d46207ab79332ac217cffb7502b"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-quote-1.0.47",
       "original_license_declaration": [
         {
@@ -15756,11 +15540,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-rustversion-1.0.17.json",
-        "sha256": "766fb8cffd71e860f7b3447e4228d9c7e809839abd7efee902effe74bf05a857"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-rustversion-1.0.17",
       "original_license_declaration": [
         {
@@ -15817,11 +15597,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-serde-1.0.228.json",
-        "sha256": "13f4d69d4c3954aa461d6e138b9a03b261e219a6a9eb6a5f91e2d48aba497d90"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-serde-1.0.228",
       "original_license_declaration": [
         {
@@ -15850,11 +15626,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-serde-core-1.0.228.json",
-        "sha256": "7a0a186664ce8d14e470f441dcae337dc57ea75c318719779abed5ea9af63299"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-serde-core-1.0.228",
       "original_license_declaration": [
         {
@@ -15883,11 +15655,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-serde-derive-1.0.228.json",
-        "sha256": "33dff02df2a10d80eaddd2b7be48af8ed2287afa2b2cb752a9acfaef25e84765"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-serde-derive-1.0.228",
       "original_license_declaration": [
         {
@@ -16158,11 +15926,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-syn-2.0.111.json",
-        "sha256": "fa1f68895d26bfaf04d480f07ef5aef46a081eabba8d1552c487b5bd1ab40d36"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-syn-2.0.111",
       "original_license_declaration": [
         {
@@ -16190,11 +15954,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-syn-2.0.119.json",
-        "sha256": "f9dcbf0798b6004a8f57920d10c479f781f69ea5351ddfab5d606f9460bf6ed4"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-syn-2.0.119",
       "original_license_declaration": [
         {
@@ -16222,11 +15982,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-syn-2.0.82.json",
-        "sha256": "145c7993b31512339a9b692966216140fd8bed16c3c8cf789ac243e5ccebd58e"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-syn-2.0.82",
       "original_license_declaration": [
         {
@@ -16313,11 +16069,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-target-lexicon-0.13.3.json",
-        "sha256": "f964efbfc9f60189aebddb0a89f3cb610817da96ec9f8c22037d6695c9d83759"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-target-lexicon-0.13.3",
       "original_license_declaration": [
         {
@@ -16345,11 +16097,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-target-lexicon-0.13.4.json",
-        "sha256": "7566488962d85e2882a96137ba26759f3fb507a552aeaade5770c39f51ed247f"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-target-lexicon-0.13.4",
       "original_license_declaration": [
         {
@@ -16378,11 +16126,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-target-lexicon-0.13.5.json",
-        "sha256": "33eb48bd227a76f0c42fa1c83ced49d4f80caf038d860a8a742a602a7bdb031c"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-target-lexicon-0.13.5",
       "original_license_declaration": [
         {
@@ -16753,11 +16497,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-wasi-0.14.2-wasi-0.2.4.json",
-        "sha256": "b7a093eaabf86e23b510b2c864da508ae22c640eea3fce2d74d1a2cc455b5cfc"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-wasi-0.14.2-wasi-0.2.4",
       "original_license_declaration": [
         {
@@ -16930,11 +16670,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-wit-bindgen-rt-0.39.0.json",
-        "sha256": "555230e4265a54d70bfc298e501bb7b7e49385995537383d4c924a45deac5484"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-wit-bindgen-rt-0.39.0",
       "original_license_declaration": [
         {
@@ -17599,11 +17335,7 @@
       ]
     },
     {
-      "copyright_absence_audit": {
-        "eligible_for_reviewed_NONE": true,
-        "path": "source-copyright-audits/nested-cargo-zmij-1.0.6.json",
-        "sha256": "4492b315d75f840248460ea2d9aebd44dc15a6048601c514380eada88bef3bf8"
-      },
+      "copyright_scope_basis": "No original statement was found in the distributed source scope; SPDX NOASSERTION is retained. The resolved license conclusion and exact retained grant bytes control redistribution.",
       "id": "nested-cargo-zmij-1.0.6",
       "original_license_declaration": [
         {
@@ -21079,7 +20811,7 @@
       "native_runtime_observation": {
         "path": "legal/NOTICES/runtime-rust-std-1.97.1/target-library-binding.json",
         "scope": "exact-target-runtime-observation-not-license-approval",
-        "sha256": "fcc8790fc59b69784cd1ef5c0889fb3a395752bc132adb6ab573a0a6e1932e5e"
+        "sha256": "bd7c2cc998b8d6bed42abd9520dab2bc9f7fee4deaa6c5c00c139bcfdad88e24"
       },
       "original_license_declaration": "MIT OR Apache-2.0",
       "origins": [],
@@ -21088,7 +20820,7 @@
       "source_scope_observation": {
         "path": "rust-source-package-scope.json",
         "scope": "exact-source-and-native-observation-facts-not-license-approval",
-        "sha256": "5b960131137cd850cb44efb8425e9c8284a9ed5c6b0bb2fc8eff28d7fdc37664"
+        "sha256": "1b6bcb6eeec74d718c84eeed1867814428694f4d6a187730b828a31fd687ca28"
       }
     },
     {
@@ -21627,17 +21359,17 @@
       "scope": "installed-wheel"
     }
   ],
-  "observation_sha256": "55a856dbae37197ffbb94b34aa2c23ad93c5892a31f3ea823384755f8ea2a89d",
+  "observation_sha256": "a1a347820cbd405f5be0f8ab23a45616fb5493a68e7fa7e971ea3f6bcc0de176",
   "package_questions": [],
-  "preparation_binding_sha256": "22c4563f9333bba2c5c9c1d578ed18a239b9e7c97cca1be82c87b2d2cf59db91",
+  "preparation_binding_sha256": "8ea51918e929335430b543b0f4da9724cdd81e3bc5c5463baa575234b0899c5a",
   "publishable": false,
-  "run_id": 36371419130,
+  "run_id": 36484917396,
   "schema": 1,
-  "source_sha": "789abf1ada3944b8a374ab2db176f0ff594b15d7",
+  "source_sha": "2abcababb033c08ca92136991d79d72b5739ba59",
   "status": "package-inputs-approved",
   "summary": {
     "component_candidates": 665,
-    "evidence_bound_NONE_proposals": 68,
+    "evidence_bound_NONE_proposals": 2,
     "retained_grant_choices": 665,
     "rows_with_review_items": 0,
     "scope_counts": {
@@ -21657,14 +21389,14 @@
       "target-wheel-link-relevant": 87,
       "target-wheel-not-target-reachable": 13
     },
-    "unresolved_copyright": 11
+    "unresolved_copyright": 77
   },
   "terms": {
     "sha256": "18d55dd2431a73b0c29cf58cd310e641bc363cd7e6efe739a2b506c4002a6965",
     "status": "publisher-owner-approved-retained-unchanged",
     "version": "1.0"
   },
-  "trusted_sha": "2fe4306d151bea3a130cc39c1051e492e27102a4",
+  "trusted_sha": "ec1d5c6fd4a119e148c2954ad8587a9249ebf028",
   "unresolved": [],
   "unresolved_by_reason": {}
 }

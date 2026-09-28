@@ -2,7 +2,7 @@
   "architecture": "x64",
   "candidate_approval": false,
   "limitation": "Native feature results and exact build inputs. Sysroot membership alone is not proof of linked symbols; link maps and target source scope require independent matching.",
-  "payload_sha256": "65e20c9c4060e93fbfb6f6263c7f4201e6272cc5029ab90c1c3390a8e59bd8e7",
+  "payload_sha256": "5ae11124acfd65b77df905a150a97f90be8089ef73cfa2c2d4e9866b274352a6",
   "pillow": {
     "files": {
       "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/PIL/AvifImagePlugin.py": {
@@ -881,30 +881,30 @@
     "link_maps": {
       "ba-functions.dll": {
         "executable": {
-          "sha256": "070f29e9493fc286c8e348b015d68b0b9574992dafaecaf22a3a9b290cb424f2",
+          "sha256": "24247f278ecbed8146334d65faa31bb3dd16dba02804ada07ec189f6527f8c8d",
           "size": 324608
         },
         "path": "link-maps/ba-functions.map",
-        "sha256": "f76a47695b5e5cae504718e959561011276f3c83119a0fd2d3632093d43f5abd",
+        "sha256": "750c25e275979ff85a5934875ab7e24008e43666f65d5d161add2c22a8d8a552",
         "size": 544600
       },
       "payload/vadgr-app.exe": {
         "executable": {
-          "sha256": "46333e3b5d6833d243c285676073756cbd44c1783ca9fa7af9b6f32b07fa5aea",
+          "sha256": "0d4df212e14868d23814e59ac77b7478d4148e3bf9412ac6d0a7c1bd6be1f691",
           "size": 320512
         },
         "path": "link-maps/vadgr-app.map",
-        "sha256": "3f8c35e9ef0665b5a503e956365eb1b81e7f1c9df9d55b59eb14d31d91fe613c",
+        "sha256": "d1603f1a05e6070600554a9c5b012d5ee221e7a60a57766f4729fae752e8abe5",
         "size": 593636
       },
       "payload/vadgr.exe": {
         "executable": {
-          "sha256": "85ce29379108b26cc821c6b2bc8406a403df28f2897857b52fcfdb4865d3129e",
-          "size": 40902656
+          "sha256": "7d2ad719fc4fb0c37a859ef9bddf0355f5e3fc650444137dc9041f4bb1bffcbf",
+          "size": 40949760
         },
         "path": "link-maps/vadgr.map",
-        "sha256": "dee75d37d0d87daeb5211759848825dc6c26ed9d6e3f9db015097565ea7d14cf",
-        "size": 83525472
+        "sha256": "b06dd007645926191f14ef2234ec51d820a8e3494d8fc0313aede7a7a399b70a",
+        "size": 83650174
       }
     },
     "members": {

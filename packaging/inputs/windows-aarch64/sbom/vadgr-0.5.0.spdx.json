@@ -1,13 +1,13 @@
 {
   "SPDXID": "SPDXRef-DOCUMENT",
   "creationInfo": {
-    "created": "2026-09-28T03:18:32Z",
+    "created": "2026-09-28T21:15:52Z",
     "creators": [
       "Tool: vadgr-package-inputs"
     ]
   },
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-2d06f57fdff2265da0740b4afc5ddf354d44b81efdcd43662a12e0c2db737e02",
+  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-408b15a2de0bbc439960ee585d175e6065b46a5d72c28359c23e502107888f75",
   "hasExtractedLicensingInfos": [
     {
       "comment": "Exact retained terms; this identifier is not an approval or a claim of SPDX-list equivalence.",
@@ -254,7 +254,7 @@
           "checksumValue": "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/allocator-api2/allocator-api2-0.2.21.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -350,7 +350,7 @@
           "checksumValue": "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/anyhow/anyhow-1.0.104.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -430,7 +430,7 @@
           "checksumValue": "ae67d5c03ee972c101a1d8db3ddbf8a9c819ad1ea9d6fd9cd385605547b60edb"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/atomic-write-file/atomic-write-file-0.3.1.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "BSD-3-Clause",
@@ -910,7 +910,7 @@
           "checksumValue": "bde03770d3df201d4fb868f2c9c59e66a3e4e2bd06692a0fe701e7103c7e84d4"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/clipboard-win/clipboard-win-5.4.1.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "BSL-1.0",
@@ -990,7 +990,7 @@
           "checksumValue": "af491d569909a7e4dee0ad7db7f5341fef5c614d5b8ec8cf765732aba3cff681"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/codespan-reporting/codespan-reporting-0.13.1.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -1086,7 +1086,7 @@
           "checksumValue": "3d52eff69cd5e647efe296129160853a42795992097e8af39800e1060caeea9b"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/constant_time_eq/constant_time_eq-0.4.2.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -1550,7 +1550,7 @@
           "checksumValue": "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/dunce/dunce-1.0.5.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "CC0-1.0",
@@ -1822,7 +1822,7 @@
           "checksumValue": "0b5343afd4a8365a643ac588dab4cf234a190c7f6c88c9f6dd6ffe00837661b7"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/error-code/error-code-3.4.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "BSL-1.0",
@@ -1886,7 +1886,7 @@
           "checksumValue": "da7c62ceae207dd37ea5b845da6a0696c799f85e97da1ab5b7910be3c1c80223"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/fastrand/fastrand-2.5.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -1918,7 +1918,7 @@
           "checksumValue": "1e6853b52649d4ac5c0bd02320cddc5ba956bdb407c4b75a2c6b75bf51500f8c"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/fdeflate/fdeflate-0.3.7.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -2334,7 +2334,7 @@
           "checksumValue": "29038e1c483364cc6bb3cf78feee1816002e127c331a1eec55a4d202b9e1adb5"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/glow/glow-0.17.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -3150,7 +3150,7 @@
           "checksumValue": "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/itoa/itoa-1.0.18.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -3806,7 +3806,7 @@
           "checksumValue": "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/once_cell/once_cell-1.21.4.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -3854,7 +3854,7 @@
           "checksumValue": "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/option-ext/option-ext-0.2.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "MPL-2.0",
@@ -3870,7 +3870,7 @@
           "checksumValue": "da2442474a9404698c42509b8967f437249dbc7b50493e83020333d3943ec0ae"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/papaya/papaya-0.2.5.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "MIT",
@@ -4014,7 +4014,7 @@
           "checksumValue": "2466b2336ed02bcdca6b294417127b90ec92038d1d5c4fbeac971a922e0e0924"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/pin-project/pin-project-1.1.13.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -4030,7 +4030,7 @@
           "checksumValue": "a89322df9ebe1c1578d689c92318e070967d1042b512afbe49518723f4e6d5cd"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/pin-project-lite/pin-project-lite-0.2.17.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -4110,7 +4110,7 @@
           "checksumValue": "05c8b63e8d9609db387f0324918f81d68fe27748f084ef092fb35954d0539a85"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/portable-atomic/portable-atomic-1.15.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -4654,7 +4654,7 @@
           "checksumValue": "6b1e7f9a428571be2dc5bc0505c13fb6bf936822b894ec87abf8a08a4e51742d"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/rustc-hash/rustc-hash-2.1.3.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -4814,7 +4814,7 @@
           "checksumValue": "4148590afebada386688f18773da617792bf2ef03ffc1e4cbd2b1d45b023e0ba"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/serde/serde-1.0.229.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -4830,7 +4830,7 @@
           "checksumValue": "a5d440709e79d88e51ac01c4b72fc6cb7314017bb7da9eeff678aa94c10e3ea8"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/serde_bytes/serde_bytes-0.11.19.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -4846,7 +4846,7 @@
           "checksumValue": "67dca2c9c51e58a4791a4b1ed58308b39c64224d349a935ab5039aa360942a48"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/serde_core/serde_core-1.0.229.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -4894,7 +4894,7 @@
           "checksumValue": "10a9ff822e371bb5403e391ecd83e182e0e77ba7f6fe0160b795797109d1b457"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/serde_path_to_error/serde_path_to_error-0.1.20.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -5070,7 +5070,7 @@
           "checksumValue": "5948e95f63e900fa92936ecf72c7f2251f83d27560a35a4aae560cc745f8b687"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/sigstore-bundle/sigstore-bundle-0.11.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -5086,7 +5086,7 @@
           "checksumValue": "22f27364b37bec104a904f10a675c8cdf05d5e48a980569368f0cd0c119b2652"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/sigstore-crypto/sigstore-crypto-0.11.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -5102,7 +5102,7 @@
           "checksumValue": "0ee85fd9fb550efd7c8a59447cb0ef4eb02f1258f3ffa80c88d38427c3930af3"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/sigstore-merkle/sigstore-merkle-0.11.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -5118,7 +5118,7 @@
           "checksumValue": "9b97c5a866f849a9445ae657bef0caa2db053a82827e6dae3a2b3de9c15a6a1a"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/sigstore-rekor/sigstore-rekor-0.11.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -5134,7 +5134,7 @@
           "checksumValue": "389b54d1b8ace20ba86fdf90e5e655495f65f1abbc7d5d0eb7494defa9ad32f0"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/sigstore-trust-root/sigstore-trust-root-0.11.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -5150,7 +5150,7 @@
           "checksumValue": "b58fe92d4d8cf4b7215b927b70bc1245b6e0d70d801febdfe0cd265ad97ebf8b"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/sigstore-tsa/sigstore-tsa-0.11.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -5182,7 +5182,7 @@
           "checksumValue": "236474c535a3157839926a0ae18f9c0c22b151e49634da6e5b18ad7cac8a3b69"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/sigstore-types/sigstore-types-0.11.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -5198,7 +5198,7 @@
           "checksumValue": "558f71aad0e1c5925d29ae2024f55f0f8898a7ad450c93668f99086624c421e0"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/sigstore-verify/sigstore-verify-0.11.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -5230,7 +5230,7 @@
           "checksumValue": "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/simdutf8/simdutf8-0.1.5.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -5310,7 +5310,7 @@
           "checksumValue": "dd538fb6910ac1099850255cf94a94df6551fbdd602454387d0adb2d1ca6dead"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/smol_str/smol_str-0.2.2.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -5550,7 +5550,7 @@
           "checksumValue": "ec86235f5fcc2a73650310756d2ac5b138a5780bbbdfae3eeccec992c435ba4f"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/thiserror/thiserror-2.0.20.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -6030,7 +6030,7 @@
           "checksumValue": "0b993bddc193ae5bd0d623b49ec06ac3e9312875fdae725a975c51db1cc1677f"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/unicode-general-category/unicode-general-category-1.1.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -6286,7 +6286,7 @@
           "checksumValue": "521bc38abb08001b01866da9f51eb7c5d647a19260e00054a8c7fd5f9e57f7a9"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/webpki-roots/webpki-roots-0.26.11.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "CDLA-Permissive-2.0",
@@ -6302,7 +6302,7 @@
           "checksumValue": "7dcd9d09a39985f5344844e66b0c530a33843579125f23e21e9f0f220850f22a"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/webpki-roots/webpki-roots-1.0.9.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "CDLA-Permissive-2.0",
@@ -6686,7 +6686,7 @@
           "checksumValue": "7c81b85c57a57500e56669586496bf2abd5cf082b9d32995251185d105208b64"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/wmi/wmi-0.18.4.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -6910,7 +6910,7 @@
           "checksumValue": "29666d0abbfad1e3dc4dcf6144730dd3a3ab225bbbdac83319345b1b44ccfc1b"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/zmij/zmij-1.0.23.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "MIT",
@@ -7262,7 +7262,7 @@
           "checksumValue": "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/allocator-api2/allocator-api2-0.2.21.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -7438,7 +7438,7 @@
           "checksumValue": "97369cbbc041bc366949bc74d34658d6cda5621039731c6310521892a3a20ae0"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/displaydoc/displaydoc-0.2.5.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -7838,7 +7838,7 @@
           "checksumValue": "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/itoa/itoa-1.0.11.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -8046,7 +8046,7 @@
           "checksumValue": "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/once_cell/once_cell-1.21.3.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -8158,7 +8158,7 @@
           "checksumValue": "3d20d5497ef88037a52ff98267d066e7f11fcc5e99bbfbd58a42336193aacec3"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/portable-atomic/portable-atomic-1.14.0.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -8174,7 +8174,7 @@
           "checksumValue": "5ee95bc4ef87b8d5ba32e8b7714ccc834865276eab0aed5c9958d00ec45f49e8"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/proc-macro2/proc-macro2-1.0.103.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -8190,7 +8190,7 @@
           "checksumValue": "985e7ec9bb745e6ce6535b544d84d6cd6f7ad8bd711c398938ae983b91a766d9"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/proc-macro2/proc-macro2-1.0.107.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -8206,7 +8206,7 @@
           "checksumValue": "5e719e8df665df0d1c8fbfd238015744736151d4445ec0836b8e628aae103b77"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/proc-macro2/proc-macro2-1.0.86.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -8398,7 +8398,7 @@
           "checksumValue": "a338cc41d27e6cc6dce6cefc13a0729dfbb81c262b1f519331575dd80ef3067f"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/quote/quote-1.0.42.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -8414,7 +8414,7 @@
           "checksumValue": "21b2ebcf727b7760c461f091f9f0f539b77b8e87f2fd88131e7f1b433b3cece4"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/quote/quote-1.0.44.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -8430,7 +8430,7 @@
           "checksumValue": "1fbf4db142a473a8d80c26bbf18454ed458bf8d26c8219c331daecfdbd079001"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/quote/quote-1.0.47.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -8526,7 +8526,7 @@
           "checksumValue": "9a8e94ea7f378bd32cbbd37198a4a91436180c5bb472411e48b5ec2e2124ae9e"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/serde/serde-1.0.228.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -8542,7 +8542,7 @@
           "checksumValue": "41d385c7d4ca58e59fc732af25c3983b67ac852c1a25000afe1175de458b67ad"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/serde_core/serde_core-1.0.228.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -8558,7 +8558,7 @@
           "checksumValue": "d540f220d3187173da220f885ab66608367b6574e925011a9353e4badda91d79"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/serde_derive/serde_derive-1.0.228.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -8702,7 +8702,7 @@
           "checksumValue": "390cc9a294ab71bdb1aa2e99d13be9c753cd2d7bd6560c77118597410c4d2e87"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/syn/syn-2.0.111.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -8718,7 +8718,7 @@
           "checksumValue": "872831b642d1a07999a962a351ed35b955ea2cfc8f3862091e2a240a84f17297"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/syn/syn-2.0.119.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -8734,7 +8734,7 @@
           "checksumValue": "83540f837a8afc019423a8edb95b52a8effe46957ee402287f4292fae35be021"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/syn/syn-2.0.82.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0",
@@ -8782,7 +8782,7 @@
           "checksumValue": "df7f62577c25e07834649fc3b39fafdc597c0a3527dc1c60129201ccfcbaa50c"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/target-lexicon/target-lexicon-0.13.3.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0 WITH LLVM-exception",
@@ -8798,7 +8798,7 @@
           "checksumValue": "b1dd07eb858a2067e2f3c7155d54e929265c264e6f37efe3ee7a8d1b5a1dd0ba"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/target-lexicon/target-lexicon-0.13.4.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0 WITH LLVM-exception",
@@ -8814,7 +8814,7 @@
           "checksumValue": "adb6935a6f5c20170eeceb1a3835a49e12e19d792f6dd344ccc76a985ca5a6ca"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/target-lexicon/target-lexicon-0.13.5.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0 WITH LLVM-exception",
@@ -9150,7 +9150,7 @@
           "checksumValue": "aac060176f7020d62c3bcc1cdbcec619d54f48b07ad1963a3f80ce7a0c17755f"
         }
       ],
-      "copyrightText": "NONE",
+      "copyrightText": "NOASSERTION",
       "downloadLocation": "https://static.crates.io/crates/zmij/zmij-1.0.6.crate",
       "filesAnalyzed": false,
       "licenseConcluded": "MIT",

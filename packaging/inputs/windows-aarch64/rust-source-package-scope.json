@@ -3758,5 +3758,5 @@
   },
   "status": "unapproved",
   "target": "aarch64-pc-windows-msvc",
-  "target_binding_sha256": "2a7fca8b613e17e8164c70e3e9eea4589a58b69aa200adaffee82d3340f80419"
+  "target_binding_sha256": "d1a108790fc2f3ccd641c8991eaa0d3b4a3cda209e71c107bd781d6ed8c858ce"
 }

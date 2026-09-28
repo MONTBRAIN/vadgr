@@ -549,7 +549,7 @@
       "version": "1.1.5"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/allocator-api2/allocator-api2-0.2.21.crate",
       "id": "cargo-allocator-api2-0.2.21",
       "kind": "cargo",
@@ -577,17 +577,8 @@
       ],
       "notice_required": true,
       "sha256": "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-allocator-api2-0.2.21/allocator-api2-0.2.21.crate",
-          "sha256": "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-allocator-api2-0.2.21/copyright-absence.json",
-          "sha256": "81fdcb2056348ddc50e760bd467a6481dde682dcfcdd75f0eb715a8438dc047c"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.2.21"
     },
     {
@@ -776,7 +767,7 @@
       "version": "3.0.11"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/anyhow/anyhow-1.0.104.crate",
       "id": "cargo-anyhow-1.0.104",
       "kind": "cargo",
@@ -804,17 +795,8 @@
       ],
       "notice_required": true,
       "sha256": "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-anyhow-1.0.104/anyhow-1.0.104.crate",
-          "sha256": "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-anyhow-1.0.104/copyright-absence.json",
-          "sha256": "371c34e9d3ccfdd5bfbde52c5cf29f5a861f5b191b98d6931406f5765e864495"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.104"
     },
     {
@@ -970,7 +952,7 @@
       "version": "1.1.2"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/atomic-write-file/atomic-write-file-0.3.1.crate",
       "id": "cargo-atomic-write-file-0.3.1",
       "kind": "cargo",
@@ -994,17 +976,8 @@
       ],
       "notice_required": true,
       "sha256": "ae67d5c03ee972c101a1d8db3ddbf8a9c819ad1ea9d6fd9cd385605547b60edb",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-atomic-write-file-0.3.1/atomic-write-file-0.3.1.crate",
-          "sha256": "ae67d5c03ee972c101a1d8db3ddbf8a9c819ad1ea9d6fd9cd385605547b60edb"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-atomic-write-file-0.3.1/copyright-absence.json",
-          "sha256": "67fba14131036ddec7e30857ae705d32b9ddadbd14fb3230ba8fe11180ff36b0"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.3.1"
     },
     {
@@ -2102,7 +2075,7 @@
       "version": "1.1.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/clipboard-win/clipboard-win-5.4.1.crate",
       "id": "cargo-clipboard-win-5.4.1",
       "kind": "cargo",
@@ -2126,17 +2099,8 @@
       ],
       "notice_required": true,
       "sha256": "bde03770d3df201d4fb868f2c9c59e66a3e4e2bd06692a0fe701e7103c7e84d4",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-clipboard-win-5.4.1/clipboard-win-5.4.1.crate",
-          "sha256": "bde03770d3df201d4fb868f2c9c59e66a3e4e2bd06692a0fe701e7103c7e84d4"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-clipboard-win-5.4.1/copyright-absence.json",
-          "sha256": "6bc779364f7c9d589df91116f5e11dd829756bf5a4a7c827f43c9c2d0528febf"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "5.4.1"
     },
     {
@@ -2284,7 +2248,7 @@
       "version": "0.3.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/codespan-reporting/codespan-reporting-0.13.1.crate",
       "id": "cargo-codespan-reporting-0.13.1",
       "kind": "cargo",
@@ -2308,17 +2272,8 @@
       ],
       "notice_required": true,
       "sha256": "af491d569909a7e4dee0ad7db7f5341fef5c614d5b8ec8cf765732aba3cff681",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-codespan-reporting-0.13.1/codespan-reporting-0.13.1.crate",
-          "sha256": "af491d569909a7e4dee0ad7db7f5341fef5c614d5b8ec8cf765732aba3cff681"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-codespan-reporting-0.13.1/copyright-absence.json",
-          "sha256": "223c6647430d8afc7a04e9f28e079b6227e8132bdc1be774c33167d6c01fa441"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.13.1"
     },
     {
@@ -2503,7 +2458,7 @@
       "version": "0.9.6"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/constant_time_eq/constant_time_eq-0.4.2.crate",
       "id": "cargo-constant-time-eq-0.4.2",
       "kind": "cargo",
@@ -2535,17 +2490,8 @@
       ],
       "notice_required": true,
       "sha256": "3d52eff69cd5e647efe296129160853a42795992097e8af39800e1060caeea9b",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-constant-time-eq-0.4.2/constant_time_eq-0.4.2.crate",
-          "sha256": "3d52eff69cd5e647efe296129160853a42795992097e8af39800e1060caeea9b"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-constant-time-eq-0.4.2/copyright-absence.json",
-          "sha256": "c4e387cbb620b41b6b1772b2e803777a212d269b050a4af83228eb90e1493e12"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.4.2"
     },
     {
@@ -3591,7 +3537,7 @@
       "version": "0.1.2"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/dunce/dunce-1.0.5.crate",
       "id": "cargo-dunce-1.0.5",
       "kind": "cargo",
@@ -3615,17 +3561,8 @@
       ],
       "notice_required": true,
       "sha256": "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-dunce-1.0.5/copyright-absence.json",
-          "sha256": "2de5c8832c89facad96cecdbee8498dd44b7ef781783a65155340eb3ad30e985"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-dunce-1.0.5/dunce-1.0.5.crate",
-          "sha256": "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.5"
     },
     {
@@ -4249,7 +4186,7 @@
       "version": "1.0.2"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/error-code/error-code-3.4.0.crate",
       "id": "cargo-error-code-3.4.0",
       "kind": "cargo",
@@ -4273,17 +4210,8 @@
       ],
       "notice_required": true,
       "sha256": "0b5343afd4a8365a643ac588dab4cf234a190c7f6c88c9f6dd6ffe00837661b7",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-error-code-3.4.0/copyright-absence.json",
-          "sha256": "a9d26619ea39bb34dccb1055c1c4d9073796602a1d548920fa5916671a6b10f5"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-error-code-3.4.0/error-code-3.4.0.crate",
-          "sha256": "0b5343afd4a8365a643ac588dab4cf234a190c7f6c88c9f6dd6ffe00837661b7"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "3.4.0"
     },
     {
@@ -4402,7 +4330,7 @@
       "version": "0.1.9"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/fastrand/fastrand-2.5.0.crate",
       "id": "cargo-fastrand-2.5.0",
       "kind": "cargo",
@@ -4430,17 +4358,8 @@
       ],
       "notice_required": true,
       "sha256": "da7c62ceae207dd37ea5b845da6a0696c799f85e97da1ab5b7910be3c1c80223",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-fastrand-2.5.0/copyright-absence.json",
-          "sha256": "4b2df8996ed87d3544cee1e615f9a369e5aae4efcfa4b29d9a0a0863f2333ead"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-fastrand-2.5.0/fastrand-2.5.0.crate",
-          "sha256": "da7c62ceae207dd37ea5b845da6a0696c799f85e97da1ab5b7910be3c1c80223"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "2.5.0"
     },
     {
@@ -4477,7 +4396,7 @@
       "version": "0.2.7"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/fdeflate/fdeflate-0.3.7.crate",
       "id": "cargo-fdeflate-0.3.7",
       "kind": "cargo",
@@ -4505,17 +4424,8 @@
       ],
       "notice_required": true,
       "sha256": "1e6853b52649d4ac5c0bd02320cddc5ba956bdb407c4b75a2c6b75bf51500f8c",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-fdeflate-0.3.7/copyright-absence.json",
-          "sha256": "9ba29762910c89c0c18ea22fdbd65aad88caeb9ed6b62530bda0a590ca6868d4"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-fdeflate-0.3.7/fdeflate-0.3.7.crate",
-          "sha256": "1e6853b52649d4ac5c0bd02320cddc5ba956bdb407c4b75a2c6b75bf51500f8c"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.3.7"
     },
     {
@@ -5436,7 +5346,7 @@
       "version": "0.4.20"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/glow/glow-0.17.0.crate",
       "id": "cargo-glow-0.17.0",
       "kind": "cargo",
@@ -5468,17 +5378,8 @@
       ],
       "notice_required": true,
       "sha256": "29038e1c483364cc6bb3cf78feee1816002e127c331a1eec55a4d202b9e1adb5",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-glow-0.17.0/copyright-absence.json",
-          "sha256": "a813618a0af362e6368d147e58da02bcf809d87382ca1549c46b5d6c4522b096"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-glow-0.17.0/glow-0.17.0.crate",
-          "sha256": "29038e1c483364cc6bb3cf78feee1816002e127c331a1eec55a4d202b9e1adb5"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.17.0"
     },
     {
@@ -7274,7 +7175,7 @@
       "version": "0.15.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/itoa/itoa-1.0.18.crate",
       "id": "cargo-itoa-1.0.18",
       "kind": "cargo",
@@ -7302,17 +7203,8 @@
       ],
       "notice_required": true,
       "sha256": "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-itoa-1.0.18/copyright-absence.json",
-          "sha256": "77393b73df649cc6eeb235e8daa47c947292a5dcdebfc8755266cc6a44ebb619"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-itoa-1.0.18/itoa-1.0.18.crate",
-          "sha256": "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.18"
     },
     {
@@ -8811,7 +8703,7 @@
       "version": "0.2.19"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/once_cell/once_cell-1.21.4.crate",
       "id": "cargo-once-cell-1.21.4",
       "kind": "cargo",
@@ -8839,17 +8731,8 @@
       ],
       "notice_required": true,
       "sha256": "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-once-cell-1.21.4/copyright-absence.json",
-          "sha256": "057ad14d14083223c498add4d32e7911e50f11b36e324d2ca02709a6573090d8"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-once-cell-1.21.4/once_cell-1.21.4.crate",
-          "sha256": "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.21.4"
     },
     {
@@ -8927,7 +8810,7 @@
       "version": "0.3.1"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/option-ext/option-ext-0.2.0.crate",
       "id": "cargo-option-ext-0.2.0",
       "kind": "cargo",
@@ -8953,10 +8836,6 @@
       "sha256": "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d",
       "source_offer_files": [
         {
-          "path": "legal/SOURCE-OFFERS/cargo-option-ext-0.2.0/copyright-absence.json",
-          "sha256": "d1f4078fa107ee1addad402965a6def9c592214d8082d63b772eae461a1e08dc"
-        },
-        {
           "path": "legal/SOURCE-OFFERS/cargo-option-ext-0.2.0/option-ext-0.2.0.crate",
           "sha256": "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
         }
@@ -8965,7 +8844,7 @@
       "version": "0.2.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/papaya/papaya-0.2.5.crate",
       "id": "cargo-papaya-0.2.5",
       "kind": "cargo",
@@ -8989,17 +8868,8 @@
       ],
       "notice_required": true,
       "sha256": "da2442474a9404698c42509b8967f437249dbc7b50493e83020333d3943ec0ae",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-papaya-0.2.5/copyright-absence.json",
-          "sha256": "ff18afdb83f3641af6f6064769d6f71a2ca6cbb61f279c217e18b3f1f2c56446"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-papaya-0.2.5/papaya-0.2.5.crate",
-          "sha256": "da2442474a9404698c42509b8967f437249dbc7b50493e83020333d3943ec0ae"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.2.5"
     },
     {
@@ -9299,7 +9169,7 @@
       "version": "2.3.2"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/pin-project/pin-project-1.1.13.crate",
       "id": "cargo-pin-project-1.1.13",
       "kind": "cargo",
@@ -9327,21 +9197,12 @@
       ],
       "notice_required": true,
       "sha256": "2466b2336ed02bcdca6b294417127b90ec92038d1d5c4fbeac971a922e0e0924",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-pin-project-1.1.13/copyright-absence.json",
-          "sha256": "a1f69224b7b13270f4d5122f8029941e09ae17fe103003380abd56aff3a9a1b4"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-pin-project-1.1.13/pin-project-1.1.13.crate",
-          "sha256": "2466b2336ed02bcdca6b294417127b90ec92038d1d5c4fbeac971a922e0e0924"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.1.13"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/pin-project-lite/pin-project-lite-0.2.17.crate",
       "id": "cargo-pin-project-lite-0.2.17",
       "kind": "cargo",
@@ -9369,17 +9230,8 @@
       ],
       "notice_required": true,
       "sha256": "a89322df9ebe1c1578d689c92318e070967d1042b512afbe49518723f4e6d5cd",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-pin-project-lite-0.2.17/copyright-absence.json",
-          "sha256": "fa135e610a87b00d1bfb02e01186d816e42e05ed379bba0552e73877f6abcba8"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-pin-project-lite-0.2.17/pin-project-lite-0.2.17.crate",
-          "sha256": "a89322df9ebe1c1578d689c92318e070967d1042b512afbe49518723f4e6d5cd"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.2.17"
     },
     {
@@ -9531,7 +9383,7 @@
       "version": "0.6.2"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/portable-atomic/portable-atomic-1.15.0.crate",
       "id": "cargo-portable-atomic-1.15.0",
       "kind": "cargo",
@@ -9559,17 +9411,8 @@
       ],
       "notice_required": true,
       "sha256": "05c8b63e8d9609db387f0324918f81d68fe27748f084ef092fb35954d0539a85",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-portable-atomic-1.15.0/copyright-absence.json",
-          "sha256": "4292bdf9b1a5cc3af96169319da8f5033e86a68ec5d12e598fea3825eecef4c2"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-portable-atomic-1.15.0/portable-atomic-1.15.0.crate",
-          "sha256": "05c8b63e8d9609db387f0324918f81d68fe27748f084ef092fb35954d0539a85"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.15.0"
     },
     {
@@ -10856,7 +10699,7 @@
       "version": "1.1.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/rustc-hash/rustc-hash-2.1.3.crate",
       "id": "cargo-rustc-hash-2.1.3",
       "kind": "cargo",
@@ -10884,17 +10727,8 @@
       ],
       "notice_required": true,
       "sha256": "6b1e7f9a428571be2dc5bc0505c13fb6bf936822b894ec87abf8a08a4e51742d",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-rustc-hash-2.1.3/copyright-absence.json",
-          "sha256": "7f6dd63cd648cf0bc7af633a90f4a4a9429953e419986361a5316bc069000f5c"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-rustc-hash-2.1.3/rustc-hash-2.1.3.crate",
-          "sha256": "6b1e7f9a428571be2dc5bc0505c13fb6bf936822b894ec87abf8a08a4e51742d"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "2.1.3"
     },
     {
@@ -11227,7 +11061,7 @@
       "version": "1.3.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/serde/serde-1.0.229.crate",
       "id": "cargo-serde-1.0.229",
       "kind": "cargo",
@@ -11255,21 +11089,12 @@
       ],
       "notice_required": true,
       "sha256": "4148590afebada386688f18773da617792bf2ef03ffc1e4cbd2b1d45b023e0ba",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-serde-1.0.229/copyright-absence.json",
-          "sha256": "2f16a8529c928cabcac5af35862d6b7e2405f396384d1b2f2b6fdc0bbd3bbca8"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-serde-1.0.229/serde-1.0.229.crate",
-          "sha256": "4148590afebada386688f18773da617792bf2ef03ffc1e4cbd2b1d45b023e0ba"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.229"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/serde_bytes/serde_bytes-0.11.19.crate",
       "id": "cargo-serde-bytes-0.11.19",
       "kind": "cargo",
@@ -11297,21 +11122,12 @@
       ],
       "notice_required": true,
       "sha256": "a5d440709e79d88e51ac01c4b72fc6cb7314017bb7da9eeff678aa94c10e3ea8",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-serde-bytes-0.11.19/copyright-absence.json",
-          "sha256": "e6ef58857574dea2e0b45b8235ea263d07b6b4c73441724ea3aa1b2f73894015"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-serde-bytes-0.11.19/serde_bytes-0.11.19.crate",
-          "sha256": "a5d440709e79d88e51ac01c4b72fc6cb7314017bb7da9eeff678aa94c10e3ea8"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.11.19"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/serde_core/serde_core-1.0.229.crate",
       "id": "cargo-serde-core-1.0.229",
       "kind": "cargo",
@@ -11339,17 +11155,8 @@
       ],
       "notice_required": true,
       "sha256": "67dca2c9c51e58a4791a4b1ed58308b39c64224d349a935ab5039aa360942a48",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-serde-core-1.0.229/copyright-absence.json",
-          "sha256": "9702e723f996738517e574f821e0dc65c04c5a552ec477950fe59fd3e28084f9"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-serde-core-1.0.229/serde_core-1.0.229.crate",
-          "sha256": "67dca2c9c51e58a4791a4b1ed58308b39c64224d349a935ab5039aa360942a48"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.229"
     },
     {
@@ -11423,7 +11230,7 @@
       "version": "0.3.2"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/serde_path_to_error/serde_path_to_error-0.1.20.crate",
       "id": "cargo-serde-path-to-error-0.1.20",
       "kind": "cargo",
@@ -11451,17 +11258,8 @@
       ],
       "notice_required": true,
       "sha256": "10a9ff822e371bb5403e391ecd83e182e0e77ba7f6fe0160b795797109d1b457",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-serde-path-to-error-0.1.20/copyright-absence.json",
-          "sha256": "c59a680dacd969ea603662f34a985fe18e1ad5b41f14279712aaeaf782e2f81a"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-serde-path-to-error-0.1.20/serde_path_to_error-0.1.20.crate",
-          "sha256": "10a9ff822e371bb5403e391ecd83e182e0e77ba7f6fe0160b795797109d1b457"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.1.20"
     },
     {
@@ -11832,7 +11630,7 @@
       "version": "3.0.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/sigstore-bundle/sigstore-bundle-0.11.0.crate",
       "id": "cargo-sigstore-bundle-0.11.0",
       "kind": "cargo",
@@ -11856,21 +11654,12 @@
       ],
       "notice_required": true,
       "sha256": "5948e95f63e900fa92936ecf72c7f2251f83d27560a35a4aae560cc745f8b687",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-sigstore-bundle-0.11.0/copyright-absence.json",
-          "sha256": "fee8851e7b5806e7a11ceed170410aa6807e33a809a5baceb32aac36d4eaa271"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-sigstore-bundle-0.11.0/sigstore-bundle-0.11.0.crate",
-          "sha256": "5948e95f63e900fa92936ecf72c7f2251f83d27560a35a4aae560cc745f8b687"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.11.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/sigstore-crypto/sigstore-crypto-0.11.0.crate",
       "id": "cargo-sigstore-crypto-0.11.0",
       "kind": "cargo",
@@ -11894,21 +11683,12 @@
       ],
       "notice_required": true,
       "sha256": "22f27364b37bec104a904f10a675c8cdf05d5e48a980569368f0cd0c119b2652",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-sigstore-crypto-0.11.0/copyright-absence.json",
-          "sha256": "ea088ab1850ed32412efd128b4fb177d1a67fd1b519f1e0bdb5767af97014935"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-sigstore-crypto-0.11.0/sigstore-crypto-0.11.0.crate",
-          "sha256": "22f27364b37bec104a904f10a675c8cdf05d5e48a980569368f0cd0c119b2652"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.11.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/sigstore-merkle/sigstore-merkle-0.11.0.crate",
       "id": "cargo-sigstore-merkle-0.11.0",
       "kind": "cargo",
@@ -11932,21 +11712,12 @@
       ],
       "notice_required": true,
       "sha256": "0ee85fd9fb550efd7c8a59447cb0ef4eb02f1258f3ffa80c88d38427c3930af3",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-sigstore-merkle-0.11.0/copyright-absence.json",
-          "sha256": "a880903fa9d0a1aff1da1a09b3f6b399b9391e13a436db21fbec2a362e2e1e6a"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-sigstore-merkle-0.11.0/sigstore-merkle-0.11.0.crate",
-          "sha256": "0ee85fd9fb550efd7c8a59447cb0ef4eb02f1258f3ffa80c88d38427c3930af3"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.11.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/sigstore-rekor/sigstore-rekor-0.11.0.crate",
       "id": "cargo-sigstore-rekor-0.11.0",
       "kind": "cargo",
@@ -11970,21 +11741,12 @@
       ],
       "notice_required": true,
       "sha256": "9b97c5a866f849a9445ae657bef0caa2db053a82827e6dae3a2b3de9c15a6a1a",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-sigstore-rekor-0.11.0/copyright-absence.json",
-          "sha256": "c3ae3ab34895daae757daffccb047e13fb1c8d0fbb918b1634aa7396cac30510"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-sigstore-rekor-0.11.0/sigstore-rekor-0.11.0.crate",
-          "sha256": "9b97c5a866f849a9445ae657bef0caa2db053a82827e6dae3a2b3de9c15a6a1a"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.11.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/sigstore-trust-root/sigstore-trust-root-0.11.0.crate",
       "id": "cargo-sigstore-trust-root-0.11.0",
       "kind": "cargo",
@@ -12008,21 +11770,12 @@
       ],
       "notice_required": true,
       "sha256": "389b54d1b8ace20ba86fdf90e5e655495f65f1abbc7d5d0eb7494defa9ad32f0",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-sigstore-trust-root-0.11.0/copyright-absence.json",
-          "sha256": "34166bb7dcd98f254277537dd90146471987ee21c5c80eb09c5977fc97f16301"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-sigstore-trust-root-0.11.0/sigstore-trust-root-0.11.0.crate",
-          "sha256": "389b54d1b8ace20ba86fdf90e5e655495f65f1abbc7d5d0eb7494defa9ad32f0"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.11.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/sigstore-tsa/sigstore-tsa-0.11.0.crate",
       "id": "cargo-sigstore-tsa-0.11.0",
       "kind": "cargo",
@@ -12046,17 +11799,8 @@
       ],
       "notice_required": true,
       "sha256": "b58fe92d4d8cf4b7215b927b70bc1245b6e0d70d801febdfe0cd265ad97ebf8b",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-sigstore-tsa-0.11.0/copyright-absence.json",
-          "sha256": "90e7f0a0a402eeac543b81fd4c7668cb411808ed7a1b9b72f08de45e79906500"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-sigstore-tsa-0.11.0/sigstore-tsa-0.11.0.crate",
-          "sha256": "b58fe92d4d8cf4b7215b927b70bc1245b6e0d70d801febdfe0cd265ad97ebf8b"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.11.0"
     },
     {
@@ -12093,7 +11837,7 @@
       "version": "0.11.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/sigstore-types/sigstore-types-0.11.0.crate",
       "id": "cargo-sigstore-types-0.11.0",
       "kind": "cargo",
@@ -12117,21 +11861,12 @@
       ],
       "notice_required": true,
       "sha256": "236474c535a3157839926a0ae18f9c0c22b151e49634da6e5b18ad7cac8a3b69",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-sigstore-types-0.11.0/copyright-absence.json",
-          "sha256": "92ad10271d230b8e8035890d902b40c965e29ef52543495328acf96f9f6c2c64"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-sigstore-types-0.11.0/sigstore-types-0.11.0.crate",
-          "sha256": "236474c535a3157839926a0ae18f9c0c22b151e49634da6e5b18ad7cac8a3b69"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.11.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/sigstore-verify/sigstore-verify-0.11.0.crate",
       "id": "cargo-sigstore-verify-0.11.0",
       "kind": "cargo",
@@ -12155,17 +11890,8 @@
       ],
       "notice_required": true,
       "sha256": "558f71aad0e1c5925d29ae2024f55f0f8898a7ad450c93668f99086624c421e0",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-sigstore-verify-0.11.0/copyright-absence.json",
-          "sha256": "7ac718d86695d83adf0c8535c6e99b431fab9e4076d3dd29ec0267eab67aa501"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-sigstore-verify-0.11.0/sigstore-verify-0.11.0.crate",
-          "sha256": "558f71aad0e1c5925d29ae2024f55f0f8898a7ad450c93668f99086624c421e0"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.11.0"
     },
     {
@@ -12202,7 +11928,7 @@
       "version": "0.3.10"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/simdutf8/simdutf8-0.1.5.crate",
       "id": "cargo-simdutf8-0.1.5",
       "kind": "cargo",
@@ -12230,17 +11956,8 @@
       ],
       "notice_required": true,
       "sha256": "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-simdutf8-0.1.5/copyright-absence.json",
-          "sha256": "77ac7ab32fe1c9472731bd4bc1d525d65be3b4349c00e3057ad692b9460281af"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-simdutf8-0.1.5/simdutf8-0.1.5.crate",
-          "sha256": "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.1.5"
     },
     {
@@ -12384,7 +12101,7 @@
       "version": "1.15.2"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/smol_str/smol_str-0.2.2.crate",
       "id": "cargo-smol-str-0.2.2",
       "kind": "cargo",
@@ -12412,17 +12129,8 @@
       ],
       "notice_required": true,
       "sha256": "dd538fb6910ac1099850255cf94a94df6551fbdd602454387d0adb2d1ca6dead",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-smol-str-0.2.2/copyright-absence.json",
-          "sha256": "b0509416d2b5b75887da647ffb22a201b2608dad85a682d73f9049ff678eca7d"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-smol-str-0.2.2/smol_str-0.2.2.crate",
-          "sha256": "dd538fb6910ac1099850255cf94a94df6551fbdd602454387d0adb2d1ca6dead"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.2.2"
     },
     {
@@ -12924,7 +12632,7 @@
       "version": "3.27.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/thiserror/thiserror-2.0.20.crate",
       "id": "cargo-thiserror-2.0.20",
       "kind": "cargo",
@@ -12952,17 +12660,8 @@
       ],
       "notice_required": true,
       "sha256": "ec86235f5fcc2a73650310756d2ac5b138a5780bbbdfae3eeccec992c435ba4f",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-thiserror-2.0.20/copyright-absence.json",
-          "sha256": "ee7ea2be9cb3c4468969ee5992f1a753bf305ef4c8d99a2a8832989dddb193f4"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-thiserror-2.0.20/thiserror-2.0.20.crate",
-          "sha256": "ec86235f5fcc2a73650310756d2ac5b138a5780bbbdfae3eeccec992c435ba4f"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "2.0.20"
     },
     {
@@ -13994,7 +13693,7 @@
       "version": "1.20.1"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/unicode-general-category/unicode-general-category-1.1.0.crate",
       "id": "cargo-unicode-general-category-1.1.0",
       "kind": "cargo",
@@ -14018,17 +13717,8 @@
       ],
       "notice_required": true,
       "sha256": "0b993bddc193ae5bd0d623b49ec06ac3e9312875fdae725a975c51db1cc1677f",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-unicode-general-category-1.1.0/copyright-absence.json",
-          "sha256": "6ddb9eb4db602f65ea3cc12e9a2d66eb57383e36cc6bd42ac621f760b8d71df6"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-unicode-general-category-1.1.0/unicode-general-category-1.1.0.crate",
-          "sha256": "0b993bddc193ae5bd0d623b49ec06ac3e9312875fdae725a975c51db1cc1677f"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.1.0"
     },
     {
@@ -14594,7 +14284,7 @@
       "version": "1.1.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/webpki-roots/webpki-roots-0.26.11.crate",
       "id": "cargo-webpki-roots-0.26.11",
       "kind": "cargo",
@@ -14618,21 +14308,12 @@
       ],
       "notice_required": true,
       "sha256": "521bc38abb08001b01866da9f51eb7c5d647a19260e00054a8c7fd5f9e57f7a9",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-webpki-roots-0.26.11/copyright-absence.json",
-          "sha256": "8eb838adbc8b53b9b18b21c05f6422f0d9767df0ce66734d73b2d59cfcb77170"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-webpki-roots-0.26.11/webpki-roots-0.26.11.crate",
-          "sha256": "521bc38abb08001b01866da9f51eb7c5d647a19260e00054a8c7fd5f9e57f7a9"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.26.11"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/webpki-roots/webpki-roots-1.0.9.crate",
       "id": "cargo-webpki-roots-1.0.9",
       "kind": "cargo",
@@ -14656,17 +14337,8 @@
       ],
       "notice_required": true,
       "sha256": "7dcd9d09a39985f5344844e66b0c530a33843579125f23e21e9f0f220850f22a",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-webpki-roots-1.0.9/copyright-absence.json",
-          "sha256": "0d839bfacd274524cecf213a629b43d6cdc10feeacd85bce6005429f433ed20e"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-webpki-roots-1.0.9/webpki-roots-1.0.9.crate",
-          "sha256": "7dcd9d09a39985f5344844e66b0c530a33843579125f23e21e9f0f220850f22a"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.9"
     },
     {
@@ -15517,7 +15189,7 @@
       "version": "0.30.13"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/wmi/wmi-0.18.4.crate",
       "id": "cargo-wmi-0.18.4",
       "kind": "cargo",
@@ -15545,17 +15217,8 @@
       ],
       "notice_required": true,
       "sha256": "7c81b85c57a57500e56669586496bf2abd5cf082b9d32995251185d105208b64",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-wmi-0.18.4/copyright-absence.json",
-          "sha256": "4c511889f3b862cd1bb386e73564acdf4c822bb64a50d6974850cf853f82fc27"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-wmi-0.18.4/wmi-0.18.4.crate",
-          "sha256": "7c81b85c57a57500e56669586496bf2abd5cf082b9d32995251185d105208b64"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.18.4"
     },
     {
@@ -16008,7 +15671,7 @@
       "version": "0.6.7"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/zmij/zmij-1.0.23.crate",
       "id": "cargo-zmij-1.0.23",
       "kind": "cargo",
@@ -16032,17 +15695,8 @@
       ],
       "notice_required": true,
       "sha256": "29666d0abbfad1e3dc4dcf6144730dd3a3ab225bbbdac83319345b1b44ccfc1b",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-zmij-1.0.23/copyright-absence.json",
-          "sha256": "b0e27bc5d55ea58aa61baa99df68b9c4aef9b601c029bf79782ab8568595b7af"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/cargo-zmij-1.0.23/zmij-1.0.23.crate",
-          "sha256": "29666d0abbfad1e3dc4dcf6144730dd3a3ab225bbbdac83319345b1b44ccfc1b"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.23"
     },
     {
@@ -16945,7 +16599,7 @@
       "version": "1.1.3"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/allocator-api2/allocator-api2-0.2.21.crate",
       "id": "nested-cargo-allocator-api2-0.2.21",
       "kind": "cargo",
@@ -16973,17 +16627,8 @@
       ],
       "notice_required": true,
       "sha256": "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-allocator-api2-0.2.21/allocator-api2-0.2.21.crate",
-          "sha256": "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-allocator-api2-0.2.21/copyright-absence.json",
-          "sha256": "81fdcb2056348ddc50e760bd467a6481dde682dcfcdd75f0eb715a8438dc047c"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.2.21"
     },
     {
@@ -17489,7 +17134,7 @@
       "version": "1.0.4"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/displaydoc/displaydoc-0.2.5.crate",
       "id": "nested-cargo-displaydoc-0.2.5",
       "kind": "cargo",
@@ -17517,17 +17162,8 @@
       ],
       "notice_required": true,
       "sha256": "97369cbbc041bc366949bc74d34658d6cda5621039731c6310521892a3a20ae0",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-displaydoc-0.2.5/copyright-absence.json",
-          "sha256": "944e0332bffc1c2201a062e36e68f9a2355eb0706b80f8d71474dded3fd1ff57"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-displaydoc-0.2.5/displaydoc-0.2.5.crate",
-          "sha256": "97369cbbc041bc366949bc74d34658d6cda5621039731c6310521892a3a20ae0"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.2.5"
     },
     {
@@ -18367,7 +18003,7 @@
       "version": "1.2.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/itoa/itoa-1.0.11.crate",
       "id": "nested-cargo-itoa-1.0.11",
       "kind": "cargo",
@@ -18395,21 +18031,12 @@
       ],
       "notice_required": true,
       "sha256": "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-itoa-1.0.11/copyright-absence.json",
-          "sha256": "86a06e7ca262f3899cdeec6e10f9d98a261181fcd7cad0a07175ffa744b91c51"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-itoa-1.0.11/itoa-1.0.11.crate",
-          "sha256": "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.11"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/itoa/itoa-1.0.18.crate",
       "id": "nested-cargo-itoa-1.0.18",
       "kind": "cargo",
@@ -18437,17 +18064,8 @@
       ],
       "notice_required": true,
       "sha256": "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-itoa-1.0.18/copyright-absence.json",
-          "sha256": "77393b73df649cc6eeb235e8daa47c947292a5dcdebfc8755266cc6a44ebb619"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-itoa-1.0.18/itoa-1.0.18.crate",
-          "sha256": "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.18"
     },
     {
@@ -19029,7 +18647,7 @@
       "version": "0.2.19"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/once_cell/once_cell-1.21.3.crate",
       "id": "nested-cargo-once-cell-1.21.3",
       "kind": "cargo",
@@ -19057,21 +18675,12 @@
       ],
       "notice_required": true,
       "sha256": "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-once-cell-1.21.3/copyright-absence.json",
-          "sha256": "cbb0d7cae0da49c2a68e4be6c0a497886b5e934e15836981b5312684be623709"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-once-cell-1.21.3/once_cell-1.21.3.crate",
-          "sha256": "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.21.3"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/once_cell/once_cell-1.21.4.crate",
       "id": "nested-cargo-once-cell-1.21.4",
       "kind": "cargo",
@@ -19099,17 +18708,8 @@
       ],
       "notice_required": true,
       "sha256": "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-once-cell-1.21.4/copyright-absence.json",
-          "sha256": "057ad14d14083223c498add4d32e7911e50f11b36e324d2ca02709a6573090d8"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-once-cell-1.21.4/once_cell-1.21.4.crate",
-          "sha256": "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.21.4"
     },
     {
@@ -19327,7 +18927,7 @@
       "version": "0.3.33"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/portable-atomic/portable-atomic-1.14.0.crate",
       "id": "nested-cargo-portable-atomic-1.14.0",
       "kind": "cargo",
@@ -19355,21 +18955,12 @@
       ],
       "notice_required": true,
       "sha256": "3d20d5497ef88037a52ff98267d066e7f11fcc5e99bbfbd58a42336193aacec3",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-portable-atomic-1.14.0/copyright-absence.json",
-          "sha256": "9a293514ea1800ecb3c77b22ff8b5ed9b964dd3bc171426b380fbf06e0313c5d"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-portable-atomic-1.14.0/portable-atomic-1.14.0.crate",
-          "sha256": "3d20d5497ef88037a52ff98267d066e7f11fcc5e99bbfbd58a42336193aacec3"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.14.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/portable-atomic/portable-atomic-1.6.0.crate",
       "id": "nested-cargo-portable-atomic-1.6.0",
       "kind": "cargo",
@@ -19397,21 +18988,12 @@
       ],
       "notice_required": true,
       "sha256": "7170ef9988bc169ba16dd36a7fa041e5c4cbeb6a35b76d4c03daded371eae7c0",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-portable-atomic-1.6.0/copyright-absence.json",
-          "sha256": "c7d3589721a96b26a94d1ff803f9f937076cdaeaca05f7a85d7ead964861bd0a"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-portable-atomic-1.6.0/portable-atomic-1.6.0.crate",
-          "sha256": "7170ef9988bc169ba16dd36a7fa041e5c4cbeb6a35b76d4c03daded371eae7c0"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.6.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/proc-macro2/proc-macro2-1.0.103.crate",
       "id": "nested-cargo-proc-macro2-1.0.103",
       "kind": "cargo",
@@ -19439,21 +19021,12 @@
       ],
       "notice_required": true,
       "sha256": "5ee95bc4ef87b8d5ba32e8b7714ccc834865276eab0aed5c9958d00ec45f49e8",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-proc-macro2-1.0.103/copyright-absence.json",
-          "sha256": "0e9597fa5a6df5ef6b83b97553bc0ef07056373e51ddb390f63ab93b28d4c182"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-proc-macro2-1.0.103/proc-macro2-1.0.103.crate",
-          "sha256": "5ee95bc4ef87b8d5ba32e8b7714ccc834865276eab0aed5c9958d00ec45f49e8"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.103"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/proc-macro2/proc-macro2-1.0.107.crate",
       "id": "nested-cargo-proc-macro2-1.0.107",
       "kind": "cargo",
@@ -19481,21 +19054,12 @@
       ],
       "notice_required": true,
       "sha256": "985e7ec9bb745e6ce6535b544d84d6cd6f7ad8bd711c398938ae983b91a766d9",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-proc-macro2-1.0.107/copyright-absence.json",
-          "sha256": "1e90e081bcde7ce1fc56052605ecda8ea328a772ec124468673a5c11e1723f16"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-proc-macro2-1.0.107/proc-macro2-1.0.107.crate",
-          "sha256": "985e7ec9bb745e6ce6535b544d84d6cd6f7ad8bd711c398938ae983b91a766d9"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.107"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/proc-macro2/proc-macro2-1.0.86.crate",
       "id": "nested-cargo-proc-macro2-1.0.86",
       "kind": "cargo",
@@ -19523,17 +19087,8 @@
       ],
       "notice_required": true,
       "sha256": "5e719e8df665df0d1c8fbfd238015744736151d4445ec0836b8e628aae103b77",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-proc-macro2-1.0.86/copyright-absence.json",
-          "sha256": "35facae063836c208d3462d0221eda5fa3dc855baf4859b01232ae762abbf1f1"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-proc-macro2-1.0.86/proc-macro2-1.0.86.crate",
-          "sha256": "5e719e8df665df0d1c8fbfd238015744736151d4445ec0836b8e628aae103b77"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.86"
     },
     {
@@ -19970,7 +19525,7 @@
       "version": "0.2.14"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/quote/quote-1.0.42.crate",
       "id": "nested-cargo-quote-1.0.42",
       "kind": "cargo",
@@ -19998,21 +19553,12 @@
       ],
       "notice_required": true,
       "sha256": "a338cc41d27e6cc6dce6cefc13a0729dfbb81c262b1f519331575dd80ef3067f",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-quote-1.0.42/copyright-absence.json",
-          "sha256": "66edcf6ec41703b99aef5d9e2e4d87e6608d7d18eba80931376c251f26c511ee"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-quote-1.0.42/quote-1.0.42.crate",
-          "sha256": "a338cc41d27e6cc6dce6cefc13a0729dfbb81c262b1f519331575dd80ef3067f"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.42"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/quote/quote-1.0.44.crate",
       "id": "nested-cargo-quote-1.0.44",
       "kind": "cargo",
@@ -20040,21 +19586,12 @@
       ],
       "notice_required": true,
       "sha256": "21b2ebcf727b7760c461f091f9f0f539b77b8e87f2fd88131e7f1b433b3cece4",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-quote-1.0.44/copyright-absence.json",
-          "sha256": "f8c7c61629955c065d76441cf17bae65e188fc1c00b808a75ec2744944a12438"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-quote-1.0.44/quote-1.0.44.crate",
-          "sha256": "21b2ebcf727b7760c461f091f9f0f539b77b8e87f2fd88131e7f1b433b3cece4"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.44"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/quote/quote-1.0.47.crate",
       "id": "nested-cargo-quote-1.0.47",
       "kind": "cargo",
@@ -20082,17 +19619,8 @@
       ],
       "notice_required": true,
       "sha256": "1fbf4db142a473a8d80c26bbf18454ed458bf8d26c8219c331daecfdbd079001",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-quote-1.0.47/copyright-absence.json",
-          "sha256": "b8dff4aa96c006a53f15600086b203faa8b59d46207ab79332ac217cffb7502b"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-quote-1.0.47/quote-1.0.47.crate",
-          "sha256": "1fbf4db142a473a8d80c26bbf18454ed458bf8d26c8219c331daecfdbd079001"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.47"
     },
     {
@@ -20321,7 +19849,7 @@
       "version": "1.2.1"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/rustversion/rustversion-1.0.17.crate",
       "id": "nested-cargo-rustversion-1.0.17",
       "kind": "cargo",
@@ -20349,17 +19877,8 @@
       ],
       "notice_required": true,
       "sha256": "955d28af4278de8121b7ebeb796b6a45735dc01436d898801014aced2773a3d6",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-rustversion-1.0.17/copyright-absence.json",
-          "sha256": "766fb8cffd71e860f7b3447e4228d9c7e809839abd7efee902effe74bf05a857"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-rustversion-1.0.17/rustversion-1.0.17.crate",
-          "sha256": "955d28af4278de8121b7ebeb796b6a45735dc01436d898801014aced2773a3d6"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.17"
     },
     {
@@ -20400,7 +19919,7 @@
       "version": "1.3.0"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/serde/serde-1.0.228.crate",
       "id": "nested-cargo-serde-1.0.228",
       "kind": "cargo",
@@ -20428,21 +19947,12 @@
       ],
       "notice_required": true,
       "sha256": "9a8e94ea7f378bd32cbbd37198a4a91436180c5bb472411e48b5ec2e2124ae9e",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-serde-1.0.228/copyright-absence.json",
-          "sha256": "13f4d69d4c3954aa461d6e138b9a03b261e219a6a9eb6a5f91e2d48aba497d90"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-serde-1.0.228/serde-1.0.228.crate",
-          "sha256": "9a8e94ea7f378bd32cbbd37198a4a91436180c5bb472411e48b5ec2e2124ae9e"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.228"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/serde_core/serde_core-1.0.228.crate",
       "id": "nested-cargo-serde-core-1.0.228",
       "kind": "cargo",
@@ -20470,21 +19980,12 @@
       ],
       "notice_required": true,
       "sha256": "41d385c7d4ca58e59fc732af25c3983b67ac852c1a25000afe1175de458b67ad",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-serde-core-1.0.228/copyright-absence.json",
-          "sha256": "7a0a186664ce8d14e470f441dcae337dc57ea75c318719779abed5ea9af63299"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-serde-core-1.0.228/serde_core-1.0.228.crate",
-          "sha256": "41d385c7d4ca58e59fc732af25c3983b67ac852c1a25000afe1175de458b67ad"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.228"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/serde_derive/serde_derive-1.0.228.crate",
       "id": "nested-cargo-serde-derive-1.0.228",
       "kind": "cargo",
@@ -20512,17 +20013,8 @@
       ],
       "notice_required": true,
       "sha256": "d540f220d3187173da220f885ab66608367b6574e925011a9353e4badda91d79",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-serde-derive-1.0.228/copyright-absence.json",
-          "sha256": "33dff02df2a10d80eaddd2b7be48af8ed2287afa2b2cb752a9acfaef25e84765"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-serde-derive-1.0.228/serde_derive-1.0.228.crate",
-          "sha256": "d540f220d3187173da220f885ab66608367b6574e925011a9353e4badda91d79"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.228"
     },
     {
@@ -20810,7 +20302,7 @@
       "version": "0.27.2"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/syn/syn-2.0.111.crate",
       "id": "nested-cargo-syn-2.0.111",
       "kind": "cargo",
@@ -20838,21 +20330,12 @@
       ],
       "notice_required": true,
       "sha256": "390cc9a294ab71bdb1aa2e99d13be9c753cd2d7bd6560c77118597410c4d2e87",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-syn-2.0.111/copyright-absence.json",
-          "sha256": "fa1f68895d26bfaf04d480f07ef5aef46a081eabba8d1552c487b5bd1ab40d36"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-syn-2.0.111/syn-2.0.111.crate",
-          "sha256": "390cc9a294ab71bdb1aa2e99d13be9c753cd2d7bd6560c77118597410c4d2e87"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "2.0.111"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/syn/syn-2.0.119.crate",
       "id": "nested-cargo-syn-2.0.119",
       "kind": "cargo",
@@ -20880,21 +20363,12 @@
       ],
       "notice_required": true,
       "sha256": "872831b642d1a07999a962a351ed35b955ea2cfc8f3862091e2a240a84f17297",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-syn-2.0.119/copyright-absence.json",
-          "sha256": "f9dcbf0798b6004a8f57920d10c479f781f69ea5351ddfab5d606f9460bf6ed4"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-syn-2.0.119/syn-2.0.119.crate",
-          "sha256": "872831b642d1a07999a962a351ed35b955ea2cfc8f3862091e2a240a84f17297"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "2.0.119"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/syn/syn-2.0.82.crate",
       "id": "nested-cargo-syn-2.0.82",
       "kind": "cargo",
@@ -20922,17 +20396,8 @@
       ],
       "notice_required": true,
       "sha256": "83540f837a8afc019423a8edb95b52a8effe46957ee402287f4292fae35be021",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-syn-2.0.82/copyright-absence.json",
-          "sha256": "145c7993b31512339a9b692966216140fd8bed16c3c8cf789ac243e5ccebd58e"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-syn-2.0.82/syn-2.0.82.crate",
-          "sha256": "83540f837a8afc019423a8edb95b52a8effe46957ee402287f4292fae35be021"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "2.0.82"
     },
     {
@@ -21002,7 +20467,7 @@
       "version": "1.0.1"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/target-lexicon/target-lexicon-0.13.3.crate",
       "id": "nested-cargo-target-lexicon-0.13.3",
       "kind": "cargo",
@@ -21027,21 +20492,12 @@
       ],
       "notice_required": true,
       "sha256": "df7f62577c25e07834649fc3b39fafdc597c0a3527dc1c60129201ccfcbaa50c",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-target-lexicon-0.13.3/copyright-absence.json",
-          "sha256": "f964efbfc9f60189aebddb0a89f3cb610817da96ec9f8c22037d6695c9d83759"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-target-lexicon-0.13.3/target-lexicon-0.13.3.crate",
-          "sha256": "df7f62577c25e07834649fc3b39fafdc597c0a3527dc1c60129201ccfcbaa50c"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.13.3"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/target-lexicon/target-lexicon-0.13.4.crate",
       "id": "nested-cargo-target-lexicon-0.13.4",
       "kind": "cargo",
@@ -21066,21 +20522,12 @@
       ],
       "notice_required": true,
       "sha256": "b1dd07eb858a2067e2f3c7155d54e929265c264e6f37efe3ee7a8d1b5a1dd0ba",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-target-lexicon-0.13.4/copyright-absence.json",
-          "sha256": "7566488962d85e2882a96137ba26759f3fb507a552aeaade5770c39f51ed247f"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-target-lexicon-0.13.4/target-lexicon-0.13.4.crate",
-          "sha256": "b1dd07eb858a2067e2f3c7155d54e929265c264e6f37efe3ee7a8d1b5a1dd0ba"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.13.4"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/target-lexicon/target-lexicon-0.13.5.crate",
       "id": "nested-cargo-target-lexicon-0.13.5",
       "kind": "cargo",
@@ -21105,17 +20552,8 @@
       ],
       "notice_required": true,
       "sha256": "adb6935a6f5c20170eeceb1a3835a49e12e19d792f6dd344ccc76a985ca5a6ca",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-target-lexicon-0.13.5/copyright-absence.json",
-          "sha256": "33eb48bd227a76f0c42fa1c83ced49d4f80caf038d860a8a742a602a7bdb031c"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-target-lexicon-0.13.5/target-lexicon-0.13.5.crate",
-          "sha256": "adb6935a6f5c20170eeceb1a3835a49e12e19d792f6dd344ccc76a985ca5a6ca"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.13.5"
     },
     {
@@ -21563,7 +21001,7 @@
       "version": "0.9.5"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/wasi/wasi-0.14.2+wasi-0.2.4.crate",
       "id": "nested-cargo-wasi-0.14.2-wasi-0.2.4",
       "kind": "cargo",
@@ -21602,17 +21040,8 @@
       ],
       "notice_required": true,
       "sha256": "9683f9a5a998d873c0d21fcbe3c083009670149a8fab228644b8bd36b2c48cb3",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-wasi-0.14.2-wasi-0.2.4/copyright-absence.json",
-          "sha256": "b7a093eaabf86e23b510b2c864da508ae22c640eea3fce2d74d1a2cc455b5cfc"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-wasi-0.14.2-wasi-0.2.4/wasi-0.14.2+wasi-0.2.4.crate",
-          "sha256": "9683f9a5a998d873c0d21fcbe3c083009670149a8fab228644b8bd36b2c48cb3"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.14.2+wasi-0.2.4"
     },
     {
@@ -21801,7 +21230,7 @@
       "version": "0.2.100"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/wit-bindgen-rt/wit-bindgen-rt-0.39.0.crate",
       "id": "nested-cargo-wit-bindgen-rt-0.39.0",
       "kind": "cargo",
@@ -21840,17 +21269,8 @@
       ],
       "notice_required": true,
       "sha256": "6f42320e61fe2cfd34354ecb597f86f413484a798ba44a8ca1165c58d42da6c1",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-wit-bindgen-rt-0.39.0/copyright-absence.json",
-          "sha256": "555230e4265a54d70bfc298e501bb7b7e49385995537383d4c924a45deac5484"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-wit-bindgen-rt-0.39.0/wit-bindgen-rt-0.39.0.crate",
-          "sha256": "6f42320e61fe2cfd34354ecb597f86f413484a798ba44a8ca1165c58d42da6c1"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "0.39.0"
     },
     {
@@ -22241,7 +21661,7 @@
       "version": "0.10.3"
     },
     {
-      "copyright_text": "NONE",
+      "copyright_text": "NOASSERTION",
       "download_location": "https://static.crates.io/crates/zmij/zmij-1.0.6.crate",
       "id": "nested-cargo-zmij-1.0.6",
       "kind": "cargo",
@@ -22265,17 +21685,8 @@
       ],
       "notice_required": true,
       "sha256": "aac060176f7020d62c3bcc1cdbcec619d54f48b07ad1963a3f80ce7a0c17755f",
-      "source_offer_files": [
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-zmij-1.0.6/copyright-absence.json",
-          "sha256": "4492b315d75f840248460ea2d9aebd44dc15a6048601c514380eada88bef3bf8"
-        },
-        {
-          "path": "legal/SOURCE-OFFERS/nested-cargo-zmij-1.0.6/zmij-1.0.6.crate",
-          "sha256": "aac060176f7020d62c3bcc1cdbcec619d54f48b07ad1963a3f80ce7a0c17755f"
-        }
-      ],
-      "source_offer_required": true,
+      "source_offer_files": [],
+      "source_offer_required": false,
       "version": "1.0.6"
     },
     {
@@ -23710,7 +23121,7 @@
         },
         {
           "path": "legal/NOTICES/runtime-rust-std-1.97.1/target-library-binding.json",
-          "sha256": "fcc8790fc59b69784cd1ef5c0889fb3a395752bc132adb6ab573a0a6e1932e5e"
+          "sha256": "bd7c2cc998b8d6bed42abd9520dab2bc9f7fee4deaa6c5c00c139bcfdad88e24"
         }
       ],
       "notice_required": true,
@@ -25835,8 +25246,8 @@
       "status": "complete"
     }
   },
-  "created": "2026-09-28T03:18:32Z",
-  "payload_manifest_sha256": "65e20c9c4060e93fbfb6f6263c7f4201e6272cc5029ab90c1c3390a8e59bd8e7",
+  "created": "2026-09-28T21:15:52Z",
+  "payload_manifest_sha256": "5ae11124acfd65b77df905a150a97f90be8089ef73cfa2c2d4e9866b274352a6",
   "schema": 1,
   "source_inputs": {
     "Cargo.lock": "a5a9432e1e0c487912b8548593a251befb0780aef1f3d5fc4d760f7bafa9063c",

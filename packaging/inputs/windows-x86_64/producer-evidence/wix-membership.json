@@ -42,23 +42,23 @@
   ],
   "files": {
     "Vadgr-0.5.0-windows-x64-setup.exe": {
-      "sha256": "4bc71c23105fafbc18ef9a1eeee44a809b0373beb0ec8cad647644872f002f72",
-      "size": 76722693
+      "sha256": "fb5865ec3b2a8d1d6b60297c8ee1abafc2ed1ba441e64d0cf6022a93811e88c6",
+      "size": 122741885
     },
     "Vadgr-0.5.0-windows-x64.msi": {
-      "sha256": "df45a24a2cb4a02ea56eba97f2a0eb8846063f6391fa4c74a5c2cbd12a240868",
-      "size": 77510720
+      "sha256": "215600aaaa0dd18df37c1d2c899c55a27e122ae82a5bee591211737662bfe44d",
+      "size": 123531332
     },
     "ba/BootstrapperApplicationData.xml": {
-      "sha256": "f59d3b5ba587327d0afd4299c27b157d065ca4426b04079a03845c62b56f0169",
-      "size": 3894
+      "sha256": "0f4d27ff88493acbeb63dd1f263d03aff33a1d423f6a906d88cfbc1fd25eb7c3",
+      "size": 3900
     },
     "ba/BootstrapperExtensionData.xml": {
       "sha256": "258fac237622533e7f9ec3f95bcec8abcc31ae87e2017e5717af0841c61e9df4",
       "size": 276
     },
     "ba/ba-functions.dll": {
-      "sha256": "070f29e9493fc286c8e348b015d68b0b9574992dafaecaf22a3a9b290cb424f2",
+      "sha256": "24247f278ecbed8146334d65faa31bb3dd16dba02804ada07ec189f6527f8c8d",
       "size": 324608
     },
     "ba/license.rtf": {
@@ -70,12 +70,12 @@
       "size": 852
     },
     "ba/manifest.xml": {
-      "sha256": "a696675c5d0cd5cc157e72bd20cea80efce800268af426359e630fa5027774d9",
-      "size": 3666
+      "sha256": "9956b6f3292302b85cc59ddc757a25a447785e3730a23b95d2cf1188527785c5",
+      "size": 3669
     },
     "ba/thm.wxl": {
-      "sha256": "9d4f42ef2a2d1992b7c8b732d34ab5a39a10a7fec45a61758380b9b0fc05a2cf",
-      "size": 1042
+      "sha256": "32814b3176b40e9c75d2eb535b5d04b5863b502b208b8eec2519a0bc4a89dbb1",
+      "size": 1059
     },
     "ba/thm.xml": {
       "sha256": "c3679d70bccf05fe6b11c6a8204e045c2c5bb55066287bdffaf5b27b2e8159c4",
@@ -86,8 +86,8 @@
       "size": 509360
     },
     "burn-engine.exe": {
-      "sha256": "7e81bae468f2347a7f887061e604b99f36dbc2d49aa7e28fd714a4e16b0a0575",
-      "size": 1242254
+      "sha256": "e6d2007679a9d61d63138b46ab7f600e8a2da9c7b882f2d762f9f5a0073ecf8e",
+      "size": 1242148
     },
     "command-0.log": {
       "sha256": "4b069dc221b530791e020a536cef9bf5a03e336a07c48c0b48c737debf9f6ebc",
@@ -102,12 +102,12 @@
       "size": 0
     },
     "containers/WixAttachedContainer/Vadgr-0.5.0-windows-x64.msi": {
-      "sha256": "df45a24a2cb4a02ea56eba97f2a0eb8846063f6391fa4c74a5c2cbd12a240868",
-      "size": 77510720
+      "sha256": "215600aaaa0dd18df37c1d2c899c55a27e122ae82a5bee591211737662bfe44d",
+      "size": 123531332
     },
     "msi.wxs": {
-      "sha256": "2711fd86bb61f82884c6c6ebe7165770bdd07ac015c62f661f08bcf4fe84f9bd",
-      "size": 6080092
+      "sha256": "80b1a0e848f81502eb34457311238d740def7aba4b86bfad614df1ce95b84492",
+      "size": 6083008
     },
     "msi/Binary/Wix4UtilCA_X64": {
       "sha256": "0d7eb1693fd67f17d98be69c8b1fa93ff4d309ee12ad518df9fd6585d906b0ff",
@@ -122,20 +122,20 @@
       "size": 2011
     },
     "msi/File/PackageInputInventoryFile": {
-      "sha256": "9d7e7d6515528dc11c349db15cc87e6a02048bca6b067a27cb9ff445f645e669",
-      "size": 1064907
+      "sha256": "f86d6a1324ec04c1f58439f876dcf72348aab2076cfa9439d42271d1ebd92219",
+      "size": 1077754
     },
     "msi/File/PackageInputReviewFile": {
-      "sha256": "8bf288986fce80938149baa039bdbbd279d78edc407e511a7583f01538a9e4cd",
-      "size": 372789
+      "sha256": "e75a4ffecb69e00b2decf3c47630ad3fa2b1c0b50aec73772b457ebec7acb89f",
+      "size": 375552
     },
     "msi/File/VadgrApplicationFile": {
-      "sha256": "46333e3b5d6833d243c285676073756cbd44c1783ca9fa7af9b6f32b07fa5aea",
+      "sha256": "0d4df212e14868d23814e59ac77b7478d4148e3bf9412ac6d0a7c1bd6be1f691",
       "size": 320512
     },
     "msi/File/VadgrBackendFile": {
-      "sha256": "85ce29379108b26cc821c6b2bc8406a403df28f2897857b52fcfdb4865d3129e",
-      "size": 40902656
+      "sha256": "7d2ad719fc4fb0c37a859ef9bddf0355f5e3fc650444137dc9041f4bb1bffcbf",
+      "size": 40949760
     },
     "msi/File/payload.000df887b4a5281bc24645e0": {
       "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9",
@@ -674,8 +674,8 @@
       "size": 16587
     },
     "msi/File/payload.04c5c3822d74a00e24e503c9": {
-      "sha256": "93e7c873d36bc0fe15b39ed317ccca4b590319e24f1bb8dbc9ea5f8e2c401882",
-      "size": 11254
+      "sha256": "87c46906995e1227836dfb8ba57c474c71629e6640d7dbc85c002c2bb0079b24",
+      "size": 11165
     },
     "msi/File/payload.04cc58510b2a91151be2a6f0": {
       "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08",
@@ -702,8 +702,8 @@
       "size": 10847
     },
     "msi/File/payload.050f8b1efc793f64c2033aef": {
-      "sha256": "7859a084cfbf0c0822884a319ed1dcd101f3adbb473946d29a2220e46578a647",
-      "size": 1081
+      "sha256": "83fc23669db31500d06056b13ecebe4f088f56a81c1ea86e3b68f1de3b8c7d95",
+      "size": 978
     },
     "msi/File/payload.0521d3dde52f5d0c5f3274a0": {
       "sha256": "2a0694c77d52c9aa8615014aa46dc53bd90293eca038a4bb51fd32939e8ecda6",
@@ -782,8 +782,8 @@
       "size": 793
     },
     "msi/File/payload.05f1e19bc9ecdd345572a17e": {
-      "sha256": "5d3e1112c9220446996554c84ad02b562b6f25ad3276a50d8f2ebd717bd5eca7",
-      "size": 4192
+      "sha256": "9859865baae349460646a2f36b359a511bca0dd9c80d4169597e4bcf25797751",
+      "size": 4095
     },
     "msi/File/payload.05f8af2d2d2957129a4b1d45": {
       "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
@@ -904,10 +904,6 @@
     "msi/File/payload.06ff62a73a4130a33e7ad6c0": {
       "sha256": "7bae70f57e1130af4eff443a90faa95ebd628de11fe9bf716e5e0a7eb0180c22",
       "size": 711
-    },
-    "msi/File/payload.0703ec21466491f95b8f013f": {
-      "sha256": "0bd9844e2a0c2bbf494e3fff231db1b92f7dbfb6fe2e3b0c120da518f23dc85b",
-      "size": 127
     },
     "msi/File/payload.0704ee730f62f1695dab9352": {
       "sha256": "479b38354134f96c0b5f84e5449ae3497c1c585594bcca48a1164e8b819c8c38",
@@ -1372,10 +1368,6 @@
     "msi/File/payload.0ab8d590895818ec61ceec20": {
       "sha256": "b7da93f03c70b73092e31537e33fffab87ff0cfb4667b345dc6cb1c78388679a",
       "size": 2566
-    },
-    "msi/File/payload.0ab933c0c39d5b8de1dce85e": {
-      "sha256": "eaa38d490ab157f4f614dedf694e51202336d4e7d59e46e03f7283937a97314c",
-      "size": 127
     },
     "msi/File/payload.0ab98a42efb5bd527334b34e": {
       "sha256": "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923",
@@ -1842,8 +1834,8 @@
       "size": 2195
     },
     "msi/File/payload.0ddabd5318be9458e80c2cde": {
-      "sha256": "8a6bb950ae94a61d61a60b4e27c84dbfbb387fba7cb71cd4a7f42429c236e1a7",
-      "size": 4931
+      "sha256": "cc77252bb82faf0fdab59e100ec8f3e2015a65074534044e47b6694ed1e1f59e",
+      "size": 4836
     },
     "msi/File/payload.0ddbc71fa6fee8324a25e2f9": {
       "sha256": "08f92e2a4421d3e81fa0fa1b60cbe97f2d69897226368481b0ffc41eeb202356",
@@ -1952,6 +1944,10 @@
     "msi/File/payload.0f05eb2a0108d0368ca13ebc": {
       "sha256": "19476ddc404a077fb5d07044453d003fc7043f7cb3e4942525631ce19e129491",
       "size": 296
+    },
+    "msi/File/payload.0f0754a43686cae402da4416": {
+      "sha256": "0e27c2382d7b8147972bbb746e04059a1152c8d0fda9d03ef1399d1a433c4ade",
+      "size": 2416
     },
     "msi/File/payload.0f08b25ff0794dc638672380": {
       "sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc",
@@ -2390,8 +2386,8 @@
       "size": 6185
     },
     "msi/File/payload.12973f8fdd58749629cebdbb": {
-      "sha256": "0dceda4a7275a8b30d3b9e305424dd59785c7cca82c4e791ae35e327729d7bc6",
-      "size": 4576
+      "sha256": "8fc686374999a083eb0efe08cee273ba623863153834268ed6233eca624d92f3",
+      "size": 4472
     },
     "msi/File/payload.12983c7a294f2007a597b2a8": {
       "sha256": "8ada45cd9f843acf64e4722ae262c622a2b3b3007c7310ef36ac1061a30f6adb",
@@ -2741,10 +2737,6 @@
       "sha256": "4749ef95e910632a1d04b912c4f1d615c9d10567cbaf52a2ab2c68c7c3a38d94",
       "size": 1313
     },
-    "msi/File/payload.15a03ead22a795ec5c67c8a2": {
-      "sha256": "5cbd293f28851373ee1e666b28716141e234139aca798b783e9d098a6e331d82",
-      "size": 127
-    },
     "msi/File/payload.15b1c98ec1bfc72c61d3a683": {
       "sha256": "79a3ce663311bb9bbc4692abb00f6e93bb9c3d94b9b64286e03fe190e4d0dc79",
       "size": 117105
@@ -2768,10 +2760,6 @@
     "msi/File/payload.15e84dc057bd2a21e532eb74": {
       "sha256": "a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5",
       "size": 10849
-    },
-    "msi/File/payload.15f93ec59479366079388d42": {
-      "sha256": "4fd0eada727b826b773aa32fe2f6731a4d97c76714f1a99663b22a427bdd157e",
-      "size": 127
     },
     "msi/File/payload.15fc67249aa7d41e2344e509": {
       "sha256": "4132f87dcf11a332f6ec5b051e68e59ff493dd6fdcc4f716ea72373734977a0a",
@@ -3208,10 +3196,6 @@
     "msi/File/payload.19d3464da5711bfb1f7ab5c5": {
       "sha256": "2bd1c0ab412a5e9c97f533c4d06b773d045215b92568a4e89adc93c7462d62ec",
       "size": 8096
-    },
-    "msi/File/payload.19e87bab4c7c0c1c5b114ada": {
-      "sha256": "c8f0e4cb460317aa4fd76a2d90d2c14c0ac437aa795db03eb84def45317e140d",
-      "size": 127
     },
     "msi/File/payload.19eedadafbcfcbdf5d2defd8": {
       "sha256": "e32db60b06f6c696668e9922c3f4494e6ae5e5987e0f7bf54e43d7ddeef92dfb",
@@ -3862,8 +3846,8 @@
       "size": 4139
     },
     "msi/File/payload.201b3f12e454260d51d98117": {
-      "sha256": "ccfddcba7358dfc7979fac63dc2b54c804864a78b940d9ff3bfa3ebaaa2b5d4d",
-      "size": 1801
+      "sha256": "d00a9877e6bb31c71bc586b53149696225ff3260128c8db7f38444fcbe78aaf9",
+      "size": 1710
     },
     "msi/File/payload.2040129c9828e5ce4b045564": {
       "sha256": "6fd5ab8b7b308cdcea4b747a81d8675988ae218813c91714fc4ca97919cebea5",
@@ -4614,8 +4598,8 @@
       "size": 882
     },
     "msi/File/payload.271ae1692a6a560e1797d95d": {
-      "sha256": "7a67dd0c8d8cd4adc4d507f814a4f6cead974e1ea14b12cc96a96a3c7110fd09",
-      "size": 2834
+      "sha256": "6b0b326d4b4ee0fac27909ac7cbb066fc4bdf8e93d87031e27e770db059e5a04",
+      "size": 2742
     },
     "msi/File/payload.272359004711ceaa2edad6bf": {
       "sha256": "0737a80b939aafcf3d8a1bf60b63e781979c749337d02b6c216680893f9fffc5",
@@ -4986,8 +4970,8 @@
       "size": 64452
     },
     "msi/File/payload.2a4145fe8b387202659b3ed1": {
-      "sha256": "1d321c5b5ad9b38c5030e0e7d4c726b123fd046c025e2dae1f2843c06e85c778",
-      "size": 1502
+      "sha256": "3779e13c17d8e21c769ed9ee8780af123cc3f8656185f5f8d3af258ff5639b3e",
+      "size": 1412
     },
     "msi/File/payload.2a4731a41841e9df20b905cb": {
       "sha256": "2bd08ed5aa9334110baf1df397c7f7ac881c297285912a1e10fe9ea003dfb314",
@@ -5058,8 +5042,8 @@
       "size": 3094
     },
     "msi/File/payload.2af3c8c36e406268a6ae8e90": {
-      "sha256": "e9a292bfe5dee04e3302551b50dcd9a1f787b5da9d1cd466a830a39caccc70b4",
-      "size": 1003
+      "sha256": "04f3900b10c2cb084b781451b586880e64b0f5affd54906b137d2441da63c66e",
+      "size": 907
     },
     "msi/File/payload.2af7a84940e85b953282afc4": {
       "sha256": "a5a42976033c7d63ee2740acceef949a3582dcb0e0442845f9717e1be771c68b",
@@ -5217,10 +5201,6 @@
       "sha256": "db32e83949d62478d229e9fb57bb1624d21b3a9ccee4cd55335f8262c01d820a",
       "size": 191
     },
-    "msi/File/payload.2c1a296cc11f3c34cbd506e1": {
-      "sha256": "056bb07e3eda089df14bca7d718d01c2045de7559eb4c5758f640a4ca77a2233",
-      "size": 127
-    },
     "msi/File/payload.2c27280cbac3e2f39806bf75": {
       "sha256": "0f96a83840e146e43c0ec96a22ec1f392e0680e6c1226e6f3ba87e0740af850f",
       "size": 1081
@@ -5348,10 +5328,6 @@
     "msi/File/payload.2d0db07133bbea726f5ca533": {
       "sha256": "59de1b42e6d9752cbaf8fcab45036e307b67d959258caf6e3d93d596ed9c9b1d",
       "size": 2367
-    },
-    "msi/File/payload.2d121a0e2c388bb400e89502": {
-      "sha256": "53dc75d0335e397c6ac5f851d27832031f4ea26247a1b6a0cee1f6a5cbe54b4c",
-      "size": 127
     },
     "msi/File/payload.2d1afa1a32e1050fc1c80d53": {
       "sha256": "2baa67e262de37b50615a9999c624ee05ce02b255334516c548ea845f7d4c470",
@@ -5532,6 +5508,10 @@
     "msi/File/payload.2e52c6f670e314d99ebf33bf": {
       "sha256": "4d559e8e40913b029ec471c1e38282652afe734a395da90d2fb2d3d54265472f",
       "size": 4114
+    },
+    "msi/File/payload.2e5f428f0d21d338b2385775": {
+      "sha256": "e34c58338bd89d43e709e226610d8f32b3e3c47f4ad9a99a8dc1d4ac7842488e",
+      "size": 919
     },
     "msi/File/payload.2e60292ecbf15a3dc5bcaee3": {
       "sha256": "296d63cd46a6c7f547eaf1aa7ef2f2f988accd0c82060e7ea132d4cf6b403811",
@@ -6050,8 +6030,8 @@
       "size": 2324
     },
     "msi/File/payload.326e223947fe992f39243980": {
-      "sha256": "296f49da269f8a639860805bb2f23a06e44a4d66ddd3e5e96ca4884dd30ef2d1",
-      "size": 13875
+      "sha256": "6625c4a220c28f98d558f1448f42aacbc30f93893cd3498e14327aa8165d413d",
+      "size": 13780
     },
     "msi/File/payload.326e728ee9827900afd00a7d": {
       "sha256": "a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5",
@@ -6237,6 +6217,10 @@
       "sha256": "023872fe9f03a25387cf2c17fc950cf0f990353df66e603c3a1cd3199dbccd86",
       "size": 3426
     },
+    "msi/File/payload.340c21f877f00e0758c640ef": {
+      "sha256": "0e27c2382d7b8147972bbb746e04059a1152c8d0fda9d03ef1399d1a433c4ade",
+      "size": 2416
+    },
     "msi/File/payload.34251dd7ce7836fbc0a1ba3f": {
       "sha256": "ef20dc6b3554cd585dddffdc573f1f9a7a54c522f2a3fb4576c44edbb1e14238",
       "size": 268
@@ -6402,8 +6386,12 @@
       "size": 2511
     },
     "msi/File/payload.357ba320a815994ad946951b": {
-      "sha256": "07e1c58a7dd8cd0b875305a547624f0170ff48fc583105ef76d1a4b6e21ec17a",
-      "size": 9482085
+      "sha256": "1e52a4c2c03de8ebd9f67aa9c274a6d08c4ec20f260d0a8f2ff11b95494c506e",
+      "size": 9563354
+    },
+    "msi/File/payload.35828212f4996598d7bbf074": {
+      "sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf",
+      "size": 1496
     },
     "msi/File/payload.35833db8f422c6b7dac4b91f": {
       "sha256": "98e7e94ccd249144f1c84dd9c25a9f49346b74072db8f9fa0fd1fa8b0f221cbe",
@@ -6741,6 +6729,10 @@
       "sha256": "9b25fe5a435f45195cee15a591731858a606cfc20db3eaba1ebfebf9e08af7ce",
       "size": 903
     },
+    "msi/File/payload.383ebb67eaa6e0a540cd8104": {
+      "sha256": "6dbd60437f8ef91d8de1f08ad75882547fd4931bfcc3566a0735f28db1484d31",
+      "size": 1080
+    },
     "msi/File/payload.38625d22d6909ee42662462d": {
       "sha256": "6df43f6f4b5d4587f3d8d71e45532c688fd168afa5fe89d571cb32fa09c4ef51",
       "size": 10282
@@ -6945,10 +6937,6 @@
       "sha256": "e6184ce10e266134fdcfa401e8f1a95005bcd4f18d16b62b757323e2833fe9a9",
       "size": 2
     },
-    "msi/File/payload.39fe34496fb332e8abd66632": {
-      "sha256": "de6d0a6f67e3863145a4b5bdb19826398f7a8132ced5cb0a86b577d97db216ad",
-      "size": 127
-    },
     "msi/File/payload.3a0cf75b59607ac9a482748b": {
       "sha256": "1c299af946fcba7173ff8f6675f5627db1ad849c99e4881515427e6b2db26974",
       "size": 590
@@ -7046,8 +7034,8 @@
       "size": 1800
     },
     "msi/File/payload.3acaac5cb364b9f9a73ac7f7": {
-      "sha256": "1a7f9c32d2e1841bbabc5a2004d9ed7af0c06d070a5d50b753a3d107a8e5d1ad",
-      "size": 1207
+      "sha256": "51ae4ed28baf3802aa3330ba8179fdc4870df4e94eacf6d70165d5a8cd0bacd4",
+      "size": 1108
     },
     "msi/File/payload.3acaf4a566a0f32a0d517c3a": {
       "sha256": "8c41dcec284d143de80dfe2cd045f1b6d24b976fb8ad2c18f87f0900655a1512",
@@ -7306,8 +7294,8 @@
       "size": 87
     },
     "msi/File/payload.3d2e28c405041f6d4d9aae62": {
-      "sha256": "ed03c9b330f9309b57543b5a3ece9a80dd907acc7fbe6322cb17641cd4308044",
-      "size": 498940
+      "sha256": "03e191a7868cbafbaf7693d04e07e4f250cc756edd57a8c043c78594aeb26f2c",
+      "size": 598219
     },
     "msi/File/payload.3d2fb3312038f4340091bd2c": {
       "sha256": "ce04cbaa76d414949afc230360dd9a29ff579bd868cc7f8805230d126ac9ce9b",
@@ -7362,8 +7350,8 @@
       "size": 9724
     },
     "msi/File/payload.3d88f7eda6a7d0fab6364b77": {
-      "sha256": "a0731cef92978c06c0c66a0c690d6966d0b9df127c61eca50a0b31bcf11b2da5",
-      "size": 1901
+      "sha256": "924078ec3a47b97192425dbc0c3693085af7a7b863afcf6b4e110cf0bd97dea4",
+      "size": 1810
     },
     "msi/File/payload.3d9285441ec73efbc5aa2e73": {
       "sha256": "024a6ec5a6822d269f7f1ba0fca2b87f33fb784c2b8de216aea0251bd22d6f89",
@@ -7436,6 +7424,10 @@
     "msi/File/payload.3e17ad8da7c6c3df54d7c316": {
       "sha256": "133aa6ee9f5bd9fc132aec352ecdda68083d0ad80cff8fb84eefb399b969f352",
       "size": 5794
+    },
+    "msi/File/payload.3e1826e359c836edec8c1457": {
+      "sha256": "5a5ee54c5001bbad1cdc1a57cc3dd4c42199b2da09d39c7ee41fab002d02967f",
+      "size": 6743
     },
     "msi/File/payload.3e1ed3dc90153998e2de57d5": {
       "sha256": "836c17f9a2c4a9002f594facd2a20dd8e30602a8ce03447bd91fee49f7cef3f3",
@@ -7676,10 +7668,6 @@
     "msi/File/payload.3fd64a72b934e98bca81e183": {
       "sha256": "2fd2a39ec59a5cbcd71596a93205001e593c65dc2ca3bef6028f148372028a88",
       "size": 17132
-    },
-    "msi/File/payload.3fd78bcdc50181c7f6092e8a": {
-      "sha256": "f197c1be4c91f7497b0d2fb51792e5a89bd5c007abca1762ef7fd17f0e813896",
-      "size": 127
     },
     "msi/File/payload.3fe596ba06bf8b5fe66bc8ae": {
       "sha256": "ecb317e30c0d67714e62066b8d39cc9ace188b519ee6e18af6ae433e3cfe2f60",
@@ -8025,6 +8013,10 @@
       "sha256": "025436edff4cfcdde17a5811fdea78892d8482efd1abdec5a17872d07a4f2112",
       "size": 1062
     },
+    "msi/File/payload.4260d900a3c5cfd1cf3ff83b": {
+      "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6",
+      "size": 2112
+    },
     "msi/File/payload.426496d6550349603d673138": {
       "sha256": "8f5deba07537dd80cd4976f3f523df0b089b322a68dfdad68db546a35271d654",
       "size": 3717
@@ -8064,10 +8056,6 @@
     "msi/File/payload.428ea76e053d8b3eba659471": {
       "sha256": "b42594384cb3d877652c64efccda926480094244180b2e7ccc14dd7c85b2cd2a",
       "size": 6556
-    },
-    "msi/File/payload.42944a0cff9a489266608f22": {
-      "sha256": "436aceeb5d15aa08aa0ba5732c74939a192ed0576a2e967f176de2637da0de5d",
-      "size": 127
     },
     "msi/File/payload.429b58e332f8b2042e42d924": {
       "sha256": "19b1b0ae360372e249cf15c3000e265420cbeaad6101d1843e4ce28be4292f9b",
@@ -8144,10 +8132,6 @@
     "msi/File/payload.43356ea3dad2cf4637e9eb24": {
       "sha256": "f063f70ca34df16dd51992113d914f4012038aa37e61a29c34dd84bda30c418c",
       "size": 8786
-    },
-    "msi/File/payload.433d76fdd608c5fe223b2e72": {
-      "sha256": "49e2f88590540538671fa5975a56b705a8ee20e8da6359835edd9c9fbc1ec943",
-      "size": 127
     },
     "msi/File/payload.4348e68b67ad2cdfb5f8f087": {
       "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
@@ -8262,8 +8246,8 @@
       "size": 16071
     },
     "msi/File/payload.43fe85d988bf5099d36368a3": {
-      "sha256": "5c998adaa3ea1a805826a947ea0930095476daeac2217ca3b2ea0f3146e5329f",
-      "size": 3263
+      "sha256": "5447fd0d163a88cf894e2a7db9955c961051ad3115585fa2109f5bc387fb36c1",
+      "size": 3167
     },
     "msi/File/payload.4403e0fbd8109f9dc034a68b": {
       "sha256": "e6184ce10e266134fdcfa401e8f1a95005bcd4f18d16b62b757323e2833fe9a9",
@@ -8921,10 +8905,6 @@
       "sha256": "201cfadb00fbcd3283249dad73872ed75c5bec07f5a5b157726638c20728b833",
       "size": 8772
     },
-    "msi/File/payload.4923e624beb4d0d9c1a3b2da": {
-      "sha256": "95b5472317a778bdbe39e37f2c0ee8dad3f002c03731479201aeacefa41e0033",
-      "size": 127
-    },
     "msi/File/payload.4928df3394fc4f85d6e1c35b": {
       "sha256": "d63dd1979fde9c133efe430ee870e6ba6de43c0a0513866ce3ce475791fe57ab",
       "size": 1598
@@ -9141,10 +9121,6 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "size": 0
     },
-    "msi/File/payload.4aa689e44a0b2b1d1b6170fc": {
-      "sha256": "57b41f4282b2b927967b882bfcd788463e878aee0f578a9551b8b9a14c790901",
-      "size": 127
-    },
     "msi/File/payload.4aaf7b39d9dd10942fb4379b": {
       "sha256": "36cd4904f50e00c4df4ad9d450b3970e150957425f47c00cf979ba73eff49778",
       "size": 72
@@ -9186,8 +9162,8 @@
       "size": 181
     },
     "msi/File/payload.4af4f247cc5edbdb55b03c3e": {
-      "sha256": "8b082b3a7c6cc79568b2099c56af417dc51fbe8a48f74f03a858ba10b5815741",
-      "size": 3554
+      "sha256": "0b1047ee6c7d5d7c242b642d689820f4572860ecf7886b2074f821ed85cbe7b6",
+      "size": 3440
     },
     "msi/File/payload.4af70700915ff7b9784ee254": {
       "sha256": "5ea2f23c7f00c3006bacf267183e816d8d4b6dc95ea57a4ddb0ff81de6d8719e",
@@ -9256,10 +9232,6 @@
     "msi/File/payload.4b63fb7ea74f75cc44de03e0": {
       "sha256": "56f7ed595e767c558ded05def14b682893105daf504500c3443b458ca2431bc6",
       "size": 97
-    },
-    "msi/File/payload.4b689932b76d5a116a7c7884": {
-      "sha256": "43ee350871a0523722ab0ecaabaca09c006e6a4729b7c254908ca15154116cc7",
-      "size": 127
     },
     "msi/File/payload.4b69ea19dfb3160e68357f95": {
       "sha256": "cf455aacd5651e5b43547ebe69bb324eab84238d92665df53c1df32434bd0d9b",
@@ -9376,6 +9348,10 @@
     "msi/File/payload.4c7ab1e63b9cf44c5af2dd80": {
       "sha256": "992f93a7975f8cd4e94d96b3ba1ecfb3585e52a53f4442a15993402d3f955f66",
       "size": 2117
+    },
+    "msi/File/payload.4c7bc73d5a11082229a15274": {
+      "sha256": "3b8182a766685eaa002637e28b4ec8d6b18819a0c71f579bf0dbaa5830297cce",
+      "size": 47025035
     },
     "msi/File/payload.4c8883181339b02a14ef0496": {
       "sha256": "952eda74b391f1d42d34a9280efc1291ec6b82e7ae49c9788110a51b40255284",
@@ -9502,8 +9478,8 @@
       "size": 1057
     },
     "msi/File/payload.4d883ffcf5fce0806a0e7a5c": {
-      "sha256": "0b1339bc11a9dcc0050c1031cc6ead73e0166b53b76376396e246eb283711ec5",
-      "size": 2204
+      "sha256": "d8e09799d900689dcabdbaa6308976e40f42ad22f9a285056ed5d0a4e731e1bc",
+      "size": 2114
     },
     "msi/File/payload.4d91a62ccd8eb6abc358961e": {
       "sha256": "7b21179a393afc265768e3d80ebeef018197af6f50bf38162f6fb8092a252c5b",
@@ -9550,8 +9526,8 @@
       "size": 1044
     },
     "msi/File/payload.4dc682fcb3d18a5f18f9e454": {
-      "sha256": "f234dc2b39dfc90d6b58235e7466da3b772fdacee22cee0e8b449a2f63ff4db1",
-      "size": 1682
+      "sha256": "b86eb3be0a89de734598127029531ba39dcdc6962c4c996fbac48218f8a52879",
+      "size": 1590
     },
     "msi/File/payload.4dce7010f152a2f94716ae8f": {
       "sha256": "c9b81dab8958b75d729a9dd83fda47e7ce36778dfccd05a207cb2dd4eff2af46",
@@ -9741,17 +9717,13 @@
       "sha256": "dcb95677a02240243187e964f941847d19b17821cf99e5afae684fab328c19bf",
       "size": 1518
     },
-    "msi/File/payload.4faba8e7a119adfb9c322ab1": {
-      "sha256": "f3792f956e814f17925dd4bc6386f2b87e4b9bb1a32f33a19efdd7fc26e75851",
-      "size": 127
-    },
     "msi/File/payload.4fb154ed88ab92887f9d193f": {
       "sha256": "8b3544aa93125e016174c2dddcec4de927b17e8e8c1951d33c4c241718430e95",
       "size": 20748
     },
     "msi/File/payload.4fb874daa23ed7d5015c95a4": {
-      "sha256": "e5642c22e34c7953e09f76fcf9289caaa53ab464fef40697ab9768ab2643941e",
-      "size": 2716
+      "sha256": "ee26e74ea531023c2ccb0a3e04494521ddba9e4d7e9d932dc85a3092ac79b7e9",
+      "size": 2626
     },
     "msi/File/payload.4fba8622f3f6984a1306c740": {
       "sha256": "110327fe28235a692fc3b21ee67645155e4a15abb89af4b24b94abf1938ab635",
@@ -9932,10 +9904,6 @@
     "msi/File/payload.5156a13c41869eed45356607": {
       "sha256": "518beb6e54ae811f8c725ea8cc42787d48fc605a3476d6e7a00a1b5733cbd6ac",
       "size": 187
-    },
-    "msi/File/payload.5156ba03b78b03692143a7e2": {
-      "sha256": "cea945147fa0077f2b3da2b49d58bd1a6ac0e80244c6aea0b9c80751661d4d58",
-      "size": 127
     },
     "msi/File/payload.515bedd871f91d42dc74eabf": {
       "sha256": "551564d96c0f9acfc7f8d70d7827e4bb87c217644e7081c5e985656c213a18bc",
@@ -10146,8 +10114,8 @@
       "size": 1800
     },
     "msi/File/payload.5362c25ae598fc1a7f9fc5ae": {
-      "sha256": "c2fc536b93f0acd5657a2077a256af18995574f12d3280e1db58e1f059dce810",
-      "size": 694
+      "sha256": "db72b012f3a0f94f9f9ac77e26edb548c146b934bd0d41759c9ce5a3f4f346e6",
+      "size": 1658
     },
     "msi/File/payload.537b7fe51b01294fbf5f61f6": {
       "sha256": "479500a44ff15ef97707028c82890de62ad789719115b3abb537622971440642",
@@ -10966,8 +10934,8 @@
       "size": 11357
     },
     "msi/File/payload.5a5c04728a8cb00170d1504c": {
-      "sha256": "06d8705e10d0455f01c8e3545d915312dc54f08b0d0b3cb25a859311fb358206",
-      "size": 727
+      "sha256": "9e07fea845cac76293d927afa7157a14ecba39b318bc8af236b8de530b7656c1",
+      "size": 623
     },
     "msi/File/payload.5a5cd1802e55745efc800b56": {
       "sha256": "66edcf6ec41703b99aef5d9e2e4d87e6608d7d18eba80931376c251f26c511ee",
@@ -11016,10 +10984,6 @@
     "msi/File/payload.5a9b60d08863476bd5c86fe7": {
       "sha256": "92b81db30f7ab6d693e0af5661a40d273ca1947e891123ed823924192c10cbc7",
       "size": 478
-    },
-    "msi/File/payload.5aa1b99e1bd2704390ada45a": {
-      "sha256": "73c8fec51da00c1a0cb8cb3489df7bcffbab459a81c1d6464effff1ce5cd0c1c",
-      "size": 127
     },
     "msi/File/payload.5aa8d4e6666300cb4e9247b4": {
       "sha256": "b8601fc79bdf8d8088f0938bea861ffc63ed0eebbedf25f44ab2cf2e85bd7edc",
@@ -11084,10 +11048,6 @@
     "msi/File/payload.5af0771e16ef8f7cdbbd3f07": {
       "sha256": "dab54e60985a3770782a7f031b6a80f91009c372465a09cdd1221b2ca03080eb",
       "size": 10962
-    },
-    "msi/File/payload.5aff276141059cb5230829e8": {
-      "sha256": "d7c28967169b47989f52eb36b67dc1cc92e8ac7229756c9b9d08797f059e3da5",
-      "size": 127
     },
     "msi/File/payload.5b04a3547c559c08d1b981d3": {
       "sha256": "6810bb1c7041a22c5e6e6a5aad5af4525383b37543d00ec1ea8cff01a4630eff",
@@ -11182,8 +11142,8 @@
       "size": 13174
     },
     "msi/File/payload.5bf6aed8395334aa29521e5b": {
-      "sha256": "ffc960f8f8e0f01b8569544ccaacb052fd3d7367e787173ba7de5f1aeb44d1d8",
-      "size": 1295
+      "sha256": "e752c5c64ce06f508a80e0edeef0c165df849587b829cb9a7b7bb22ac43b0c7e",
+      "size": 1202
     },
     "msi/File/payload.5c171a1bb876ef1a1c3e7938": {
       "sha256": "5fc788a469661df9e9ef36b3a7999d6afdb6f08b5c7f696488c3f4b4b53a5fd7",
@@ -11348,6 +11308,10 @@
     "msi/File/payload.5d5b419879e3f56555540987": {
       "sha256": "b6d745c815bcbafd746d24c128b79bb1d51591a2cb4469746168c731463573d2",
       "size": 6433
+    },
+    "msi/File/payload.5d6cc0a1a1ebcb99ac16e005": {
+      "sha256": "165abf92cc04b39e80d29cadea7a6a7e8fddf59407d4ad2616507a7ebe8216f9",
+      "size": 20415
     },
     "msi/File/payload.5d6ff103c73ab50734bc7b72": {
       "sha256": "aac73b3148f6d1d7111dbca32099f68d26c644c6813ae1e4f05f6579aa2663fe",
@@ -11630,8 +11594,8 @@
       "size": 9878
     },
     "msi/File/payload.600e990087ea668336708412": {
-      "sha256": "35f7d2017f61cb42848d33e753ee4caba15aa7e16e36375643502518c1aea2a6",
-      "size": 903676
+      "sha256": "4cc6c3f1be8dd33989483dbdcdab0191dcf99a5e3f572c97563305cbcf79c4b5",
+      "size": 895533
     },
     "msi/File/payload.600f7b2d0802b3e368c4dc39": {
       "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08",
@@ -12161,6 +12125,10 @@
       "sha256": "3baf491157818d17cf2464f7c84b00e7df7ecc1dc56f4ca625f322bb3f14f601",
       "size": 50503
     },
+    "msi/File/payload.6453e3e28bf9cb356ae689f9": {
+      "sha256": "6c9f0d975b41afaa34d22f55bb8986ce69e5cb7ad327cb2b28820cd425edf5ee",
+      "size": 867
+    },
     "msi/File/payload.645733c4e9307da1c756f193": {
       "sha256": "ba12d2eab1fa765b6b05398fa7e047dd76293f0c051ce57a8f7b0c591c14d42b",
       "size": 170616
@@ -12653,6 +12621,10 @@
       "sha256": "264972995924f5784ace7cbf7ed9343be3fb2cb63160e83306dc53f205d4baa1",
       "size": 20052
     },
+    "msi/File/payload.68af1019911ef1697c91fa7b": {
+      "sha256": "0b01625d853911cd0e2e088dcfb743261034a091bb379246cb25a14cc4c74bf1",
+      "size": 607
+    },
     "msi/File/payload.68b9b5852788d76214e48f6e": {
       "sha256": "29e9fe5074bd27e0e5d5d110394fbbcd841baee2651a3c4b4560a632702cede4",
       "size": 1130
@@ -13118,8 +13090,8 @@
       "size": 590
     },
     "msi/File/payload.6cbfaa0eed4c0ca5c0c99566": {
-      "sha256": "044c0d6a08b8a90db1cf1765910e10b5c8f28b0afdb6c87c27d458c797048171",
-      "size": 1148
+      "sha256": "78e60fe51ee9228a9a31d401f4cf7dcca5b7363a893b65f30e957de919e9f01a",
+      "size": 1051
     },
     "msi/File/payload.6cc401bf2137fdd0963251ee": {
       "sha256": "6c48c058ce4f19484113847eb843563be4a91a2c958fe4b93442fdf88066d5b2",
@@ -13412,6 +13384,10 @@
     "msi/File/payload.6f0766afbfb3b3743d1f350d": {
       "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5",
       "size": 1344
+    },
+    "msi/File/payload.6f0d104f3964c9312e97d9dd": {
+      "sha256": "5ea2f23c7f00c3006bacf267183e816d8d4b6dc95ea57a4ddb0ff81de6d8719e",
+      "size": 26925
     },
     "msi/File/payload.6f18ded454ab01cbfc2d5bfd": {
       "sha256": "10d42f669eec952f9829734fa46ac209d01735a3541ca93f1b02a176b9046df4",
@@ -13852,10 +13828,6 @@
     "msi/File/payload.72a6e1f04444fd41e3bfec51": {
       "sha256": "dee28ff84e3fc495ed3547d5e5e9fafdacc36a67329e747d434248ed45bf1755",
       "size": 153
-    },
-    "msi/File/payload.72b57b25415533c0a48ffdec": {
-      "sha256": "7b77c319abfd5219629c45c34c89ba945ed3c5e49fcde9d16b6c3885f118a730",
-      "size": 179143
     },
     "msi/File/payload.72bc63e127c90a279f4a2d69": {
       "sha256": "90bf2d659c43045111b65c733ab2a6d4cbcb422a098368c8c58a9ba3db4ed0c5",
@@ -14317,6 +14289,10 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "size": 0
     },
+    "msi/File/payload.7667ba0dd3d9c1f6f6eaea73": {
+      "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6",
+      "size": 2112
+    },
     "msi/File/payload.76758e00253d656052a9817d": {
       "sha256": "4c67911781d231c671b1eb02a477a8e2ea7b84b96aa0844d22f655dfa1449d56",
       "size": 1573
@@ -14336,6 +14312,10 @@
     "msi/File/payload.768570cece44a270aec592ad": {
       "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
       "size": 10847
+    },
+    "msi/File/payload.7694f39189ac19861303ca7c": {
+      "sha256": "5b84c8aaf38e30b7c5d35d2fea7299b4389a5adf51d8b5d0d8ffa3d146a03211",
+      "size": 18447
     },
     "msi/File/payload.76a4a8a26007c16c50b26164": {
       "sha256": "63016a323ddf98cb3aa9cfa78f3bab4768bedbfe9a5262a36a5aecb13d291f6e",
@@ -15181,10 +15161,6 @@
       "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6",
       "size": 2
     },
-    "msi/File/payload.7e48a7d7da2e70b0ed703d78": {
-      "sha256": "caad2b42ccb556007b2e5e9b7a654d9a4b55cfef878b5d463762adff98a7298b",
-      "size": 127
-    },
     "msi/File/payload.7e4cff78f075fc7b055b25cd": {
       "sha256": "12c8356a3d40bd0a336f13d7c6e2bed50d5c1a876563766a3175a6b328b5855e",
       "size": 8761
@@ -15282,8 +15258,8 @@
       "size": 2051
     },
     "msi/File/payload.7f09d088fca87614e397f82e": {
-      "sha256": "6dfc88df9996141320c3076bd7ade747398fba3dab179d85380c678d62e0a82e",
-      "size": 1864
+      "sha256": "d7ecf9906a4a4ea4837d16e324e344f9f00b328570cf695a96a8de46b8766982",
+      "size": 1766
     },
     "msi/File/payload.7f19c2125756dfefee4acab6": {
       "sha256": "d16930b7ef8577747cfef602aba854c64ce85d4ae1e54a18a456eaa202643e3d",
@@ -15776,10 +15752,6 @@
     "msi/File/payload.83b9159d700a1ed74a2ee82a": {
       "sha256": "0f005e3a81fa7606bdcf3b0fb5810e2caf7a4e0d9cc1320b304b6320c2bb87a0",
       "size": 1896
-    },
-    "msi/File/payload.83b93d19723ffb517aa271e8": {
-      "sha256": "e01ce2a872c7db6e5a4e069d558d9ca15a72590fa1c215f53356db7451224868",
-      "size": 144968
     },
     "msi/File/payload.83bb60f0dc92845e8e05d929": {
       "sha256": "75abb7f20c4a0b618138aa190af33ceaf2a6d2c707da6c1314e4bff2f9904f58",
@@ -16277,10 +16249,6 @@
       "sha256": "4abb7081cdffa45bd97c88518fd7b5a7859d8be17f3e995e18796a240460b4e8",
       "size": 7916
     },
-    "msi/File/payload.878f00e416e62a40996755cb": {
-      "sha256": "d8754d428841b76f7298a296d559e26beb7f1a3fb0d12d5933d83e9631429cda",
-      "size": 127
-    },
     "msi/File/payload.8794da8029cc10bb896bb97b": {
       "sha256": "331bcf0f9f635bd57c3384f2237260d074708b0975c700cfcbdb285f5f59ab1f",
       "size": 25633
@@ -16390,8 +16358,8 @@
       "size": 20377
     },
     "msi/File/payload.88a41465e6c599a8e9a6fc96": {
-      "sha256": "13e8f019c7d2aa44fb581ebaf9c0badaf9afaa5f78d53c2c9bc61f2462179ed0",
-      "size": 1171303
+      "sha256": "f0fe27ce58603ce0ee88c0e294a140cae8b9b4714b48700fc71fedb59b9f2ebc",
+      "size": 1026843
     },
     "msi/File/payload.88a8dddb11ec74ada61f6142": {
       "sha256": "5361ac9dc58f2ef5fd2e9b09c68297c17f04950909bbc8023bdb82eacf22c2b0",
@@ -16522,8 +16490,8 @@
       "size": 14105
     },
     "msi/File/payload.8969593944ab2b480c7167ea": {
-      "sha256": "8d6e3cb527c667a435c679ff950f63db58648055a85518b3f307dd80f41fb448",
-      "size": 3176
+      "sha256": "f69a8f76e50bf995dc5fb636345bd22d0e769e1d9c2b4140c8ddee913e5d1e69",
+      "size": 3083
     },
     "msi/File/payload.896cfaf533f2b1ff86dda25f": {
       "sha256": "3b5172f5d8bddf798e9734a0c78a71ea4de74dac8d1b9ac82a2b523160fddeef",
@@ -16930,8 +16898,8 @@
       "size": 10142
     },
     "msi/File/payload.8cc5febe8211011f5f4ef88e": {
-      "sha256": "732251981f41ec3159bfd59f54d6199b77010188314273c0cd05b9bef40074ac",
-      "size": 876
+      "sha256": "8191d3aa1ac93480688819b4db2385606219a3f7a453b85e086646134ded4f96",
+      "size": 775
     },
     "msi/File/payload.8cc8fddc5109158027a66340": {
       "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
@@ -16962,8 +16930,8 @@
       "size": 9723
     },
     "msi/File/payload.8cfd239b4b2a4783a4e54220": {
-      "sha256": "406298baa57b636dff04332f2fdb361cc044a345eec307b224a42edcf7eb7201",
-      "size": 9612
+      "sha256": "93253f807bd8a0440d58d159ffeef610528e8a687b948095955114275c16881f",
+      "size": 9517
     },
     "msi/File/payload.8cfe40a12e8def0f874aee67": {
       "sha256": "f3307d4750d0657d9c42b857d5f37bdb5824f9358939da7d16d13f61eb8abc72",
@@ -17357,6 +17325,10 @@
       "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
       "size": 10847
     },
+    "msi/File/payload.905e2366a8fa29bd45c5d016": {
+      "sha256": "5a5ee54c5001bbad1cdc1a57cc3dd4c42199b2da09d39c7ee41fab002d02967f",
+      "size": 6743
+    },
     "msi/File/payload.906dd63d1386527a6e56cacc": {
       "sha256": "09edccc28c784f8bb85fb77583107ac1fb52fc748946596a03cc36a9296a70dd",
       "size": 1418
@@ -17504,6 +17476,10 @@
     "msi/File/payload.91440ec03bf12f619e175821": {
       "sha256": "7040fb48462296c903f2f0d24d2b54e0de63cf7512dcf8d3048a0cadf7d94fd0",
       "size": 848
+    },
+    "msi/File/payload.9145bd9147ed441a8373c175": {
+      "sha256": "165abf92cc04b39e80d29cadea7a6a7e8fddf59407d4ad2616507a7ebe8216f9",
+      "size": 20415
     },
     "msi/File/payload.91475fd8b6541297cc955666": {
       "sha256": "5ea2f23c7f00c3006bacf267183e816d8d4b6dc95ea57a4ddb0ff81de6d8719e",
@@ -17920,10 +17896,6 @@
     "msi/File/payload.94b93c47509222919342e062": {
       "sha256": "f75fd79638421d6c8235fa0505ae1775a71bba6420a0d6e191c1c793f81c5bd6",
       "size": 8247
-    },
-    "msi/File/payload.94d5b95a4055a89978a7e26a": {
-      "sha256": "fd2118acc05773a716382119239dc1248f1d703ae91d011dba21114b4feba654",
-      "size": 126
     },
     "msi/File/payload.94dc3dbe0903ddd4f3dab2d6": {
       "sha256": "dcb2d82c89411909d5bb2ca8da202ffb1932e4fe8f4451c0371e3ecc82103a81",
@@ -18565,6 +18537,10 @@
       "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
       "size": 11358
     },
+    "msi/File/payload.99e69d1a1c21e9d6eeffb758": {
+      "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+      "size": 13936
+    },
     "msi/File/payload.99e7ad56a3095fc63bcfda47": {
       "sha256": "70920a3c0f5135827ccea0b18368f330dca166b6c1530d687a6d85a7f4d24276",
       "size": 257
@@ -18878,8 +18854,8 @@
       "size": 10081
     },
     "msi/File/payload.9c818caf05e516e1bd8647ef": {
-      "sha256": "4196bbe3f888805ce69f8fdbe79e0132852f0e7fd833f16a1807f0ee32970def",
-      "size": 1186
+      "sha256": "a5ab213c0de3b00e477d50002bf707c9e71a9453684d5e22d3c8f060eb122ee5",
+      "size": 1086
     },
     "msi/File/payload.9c8310fd9b1cedc3ff70c19f": {
       "sha256": "a06e8cccf97cc8fb545dfdb4c89b5e5c8edf0360547bdc1823b4ac47b1556c31",
@@ -19621,6 +19597,10 @@
       "sha256": "e7280648fd448438cdb841a0886f44d5472f5c14222b978809e63a7e22a7a4e9",
       "size": 427
     },
+    "msi/File/payload.a273590a0f668870421bc1a7": {
+      "sha256": "6dbd60437f8ef91d8de1f08ad75882547fd4931bfcc3566a0735f28db1484d31",
+      "size": 1080
+    },
     "msi/File/payload.a277dd07845d3af219115097": {
       "sha256": "66b3cf994f0b5e0103d13e812958320afb555c91e3f81b579d4cbf231e6a0805",
       "size": 1114
@@ -20194,8 +20174,8 @@
       "size": 18150
     },
     "msi/File/payload.a76af66f8bb2d57828a72f00": {
-      "sha256": "4dfdf56ad5b5b41a3cf62fea624d2084ccb6f8741d70118721e1f5fde084a3f0",
-      "size": 4396
+      "sha256": "d9debe88a4c71148a28de17aefc6de1c9aaf93c4b2ef07c3abb7e9f870a8c3b4",
+      "size": 4302
     },
     "msi/File/payload.a773e3d72d4a5d977ff8c790": {
       "sha256": "a2b5366df7fe56341ada4303caf9cc415ef7a094f6591c90bb0e19475ca6d5b1",
@@ -20250,8 +20230,8 @@
       "size": 8908
     },
     "msi/File/payload.a80593545ddb41ce77d8f085": {
-      "sha256": "9a7c2e4f4b92d07cb32366e9f5c718094ca0a7d25711e0b5b1ce4e244922f920",
-      "size": 5472
+      "sha256": "d7017a9c6c4827608d86d3647febdea2e93612cbe5140e43ee82536fd6dc2ebb",
+      "size": 5377
     },
     "msi/File/payload.a83bfe6bae246708a8bb4083": {
       "sha256": "fcbd3916070c96685686a53ad1d96c71cd318cb4412a589c3339c0e32dabf7a0",
@@ -20826,8 +20806,8 @@
       "size": 188
     },
     "msi/File/payload.ad501dd9fc981cb2ede1246c": {
-      "sha256": "9a1d5d9cdfb8fc3a714f45c008ffcda96a44ebdf64719967c2490b19eb6fb570",
-      "size": 1309
+      "sha256": "1310a87a5dac95ee783a31cf9bed358f860811e1eb5d57270b7c3f26da2ad3c5",
+      "size": 1214
     },
     "msi/File/payload.ad5c2dfd21d81ca1e044d8a8": {
       "sha256": "5c43d3152982bcfd5b9f51d0e909cf3a558bed1c270feffe030531d38d6f91b7",
@@ -21398,8 +21378,8 @@
       "size": 2434
     },
     "msi/File/payload.b14f2d59e71ba98900fd313d": {
-      "sha256": "0e20182b024ff1124753561eddbeefee99bd11ea3714a177a7df9ffdae461258",
-      "size": 11730
+      "sha256": "cd09a0253644369f1dbe08d20a2a4003378b1387f6ed3cb2c442360bf8895d76",
+      "size": 11637
     },
     "msi/File/payload.b152f45f7b0e870b538efdc9": {
       "sha256": "508a77d2e7b51d98adeed32648ad124b7b30241a8e70b2e72c99f92d8e5874d1",
@@ -21720,10 +21700,6 @@
     "msi/File/payload.b3af8d58dd513c6ffc367b0a": {
       "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
       "size": 10174
-    },
-    "msi/File/payload.b3c11df4b4900844d21ca48e": {
-      "sha256": "904ba6e37fb0561ccd15922839955bbe4c7209ad1b3cefbfc94a35e559352cbe",
-      "size": 127
     },
     "msi/File/payload.b3d486aeec4894e41be97c33": {
       "sha256": "9519af49109264b006305ece5f6847f1e7b82e6f88812174d1d7be6d8e00db9e",
@@ -22390,8 +22366,8 @@
       "size": 4431
     },
     "msi/File/payload.ba03dfd7b152a939fdba8303": {
-      "sha256": "3defde77af2c3281baaa963ac2ff5ef361bb742834bf9bf321c2f6f08996bee1",
-      "size": 1375
+      "sha256": "5c11c391e44fdc2dbec56603265b8af273dae504ee2e6143d3b9d3bab2bc12df",
+      "size": 1272
     },
     "msi/File/payload.ba0e4bfb9946ad976f063308": {
       "sha256": "dba0584b8e1925b439f06e0bf0965e97afb7eb39e70e0e4c9b70769ebc5f996c",
@@ -22461,10 +22437,6 @@
       "sha256": "6377b672b3f4ba8b6f0f7a5f0ea00cde24c8cddc0ca764e3329f302763477f59",
       "size": 2404
     },
-    "msi/File/payload.bad631cec2af1b3624b11897": {
-      "sha256": "659e8d0e60972893cd04e3b46fbe81eafe34fee93749908b53f632707fd21507",
-      "size": 127
-    },
     "msi/File/payload.baf018d9a7ba1a31d3222106": {
       "sha256": "f80e05533d1a1494c32f9412e9ad2d9c11faf9ae0668a6f9d1fa5ceedc6870e2",
       "size": 93330
@@ -22472,10 +22444,6 @@
     "msi/File/payload.baf52128cf1fa2a361ab2fdf": {
       "sha256": "f5ff83f15c841792be42709a6710dc8d7a9f72791c1ae4cad719b1fb0abe0a05",
       "size": 43388
-    },
-    "msi/File/payload.baf8a2ba9abfcdaeb7650b5e": {
-      "sha256": "ea20c755ed96dcb77ed32972ca64b692200828c0b999c73b929af66630d35c3b",
-      "size": 127
     },
     "msi/File/payload.bb08ef0b3b2e31e170128fdd": {
       "sha256": "54115199b96a130cba02147c47c0deb43dcc9b9f08b5162bba8642b34980ac63",
@@ -22510,7 +22478,7 @@
       "size": 2089
     },
     "msi/File/payload.bb540f5c3de6d3371b714d75": {
-      "sha256": "65e20c9c4060e93fbfb6f6263c7f4201e6272cc5029ab90c1c3390a8e59bd8e7",
+      "sha256": "5ae11124acfd65b77df905a150a97f90be8089ef73cfa2c2d4e9866b274352a6",
       "size": 756
     },
     "msi/File/payload.bb585bb11f324920cdf839e1": {
@@ -22658,8 +22626,8 @@
       "size": 2128
     },
     "msi/File/payload.bc5fedf2ae4d6bf8b3a7d14d": {
-      "sha256": "7322d2b4fcd44d65d256e68f81a973009007080b919bce12170b045e10c0cd04",
-      "size": 1004
+      "sha256": "6f6bc3047ac499ff3f036351402edb4998b58ffb4d1aa024a27c51fd72ad1dfe",
+      "size": 908
     },
     "msi/File/payload.bc601e53c076b675c4a8ac47": {
       "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
@@ -24010,8 +23978,8 @@
       "size": 778
     },
     "msi/File/payload.c7a96c363f0d5fd4df901cfd": {
-      "sha256": "bc131ca24aa81e4ef19e8eac337ea367722f99ae17808a11d497a2cdd45c1c78",
-      "size": 175
+      "sha256": "dc651bd4651de8cbd11c172f7838fbd68cebadf9181a8afe957d0d384127ac2a",
+      "size": 116
     },
     "msi/File/payload.c7ada9dbfa1a563514dee55d": {
       "sha256": "fad39c18fc3825fa278db1c86fd52cf88d7c525b3c2fbf7817fa383cbae4d423",
@@ -24457,10 +24425,6 @@
       "sha256": "df45f5414f1636b1856c7534bb5f3d4387c32d56283a68bb47d8c48c1ddad5bc",
       "size": 7736
     },
-    "msi/File/payload.cb4584d1db5d311808d8b854": {
-      "sha256": "24fdfdb6e6147213b34862feb4afcb99f521bd8b8746502d0707050ce6aac1a4",
-      "size": 127
-    },
     "msi/File/payload.cb46d746c82cdbc6e42acdc2": {
       "sha256": "a9e186f3ca16b5eef84318e7a701721351a00cb7b8ae3a4394b67b49e3529ef3",
       "size": 1129
@@ -24545,10 +24509,6 @@
       "sha256": "d5520fb82f0082d296adc9dc42b8c1758a80dc9556cacbba8d9a35aeb87b73b4",
       "size": 1288
     },
-    "msi/File/payload.cc3ae1c8c305a288a14352bb": {
-      "sha256": "8f130e94ad47f162b9e4eb184ccfab58c20e7a65e814a901ef066d51ac6ee6ff",
-      "size": 127
-    },
     "msi/File/payload.cc48a0b4d92860b4b23e36bc": {
       "sha256": "d5174b728b376a12cff3f17472d6b9b609c1d3926f7ee02d74d60c80afd60c77",
       "size": 3339
@@ -24564,10 +24524,6 @@
     "msi/File/payload.cc519844d1f15d5eabb9d995": {
       "sha256": "b7db7c299bb367852cdf4012521236ecc64f3cf2b2e041114439002be94ced34",
       "size": 735
-    },
-    "msi/File/payload.cc72301c98cc92b8fc3104b5": {
-      "sha256": "b1d0f3c08c58fa099152b2eccd2fbc1b3d3f13fa4a337fd32564e3be75fec4ea",
-      "size": 127
     },
     "msi/File/payload.cc74ed613b12994ed573b6cf": {
       "sha256": "c9a75f18b9ab2927829a208fc6aa2cf4e63b8420887ba29cdb265d6619ae82d5",
@@ -24678,8 +24634,8 @@
       "size": 1285
     },
     "msi/File/payload.cd559c7810385c6bf339958f": {
-      "sha256": "b92ef09bcfea734cab9bb4d11ff6aea49c8f3a0ad8a53b7a1b295367aba3b67f",
-      "size": 3563
+      "sha256": "ce00b84cd91bcb3a3c9d05d0acb8d879ad8f28232ef1941cf82e2cb0661e4be1",
+      "size": 3468
     },
     "msi/File/payload.cd59f6f37bd59f2a47c217aa": {
       "sha256": "87bd130daa0eaef3e4cb465e10cffb2bcd194ff74097e0c186b4b8eb7be41ac5",
@@ -24704,10 +24660,6 @@
     "msi/File/payload.cd8bda47b12aa7c49c6f196d": {
       "sha256": "a89c580899ad2ff8df45a783bb90d501dc32c28b92931ca18abd13453e76244b",
       "size": 6613
-    },
-    "msi/File/payload.cd91075c05a00f48236bf379": {
-      "sha256": "4770ac1898c5db5618d6f75216a393f2072df2bf74185cede94830e4c74961fa",
-      "size": 126
     },
     "msi/File/payload.cd915151150e708aaf6af386": {
       "sha256": "7bfe3bcc6f6bb8f3dfb9bee7cadca641c28d076619c878f40277629f7534a548",
@@ -24870,8 +24822,8 @@
       "size": 614
     },
     "msi/File/payload.ce744c34b09ee382a2d2d9fe": {
-      "sha256": "42029bdc621dc9c911283532ca0c56dc40a7a27b58e6120875b64dc7fb98c3b5",
-      "size": 12371
+      "sha256": "04ddf75561a58bb5b0a116b0dbdb2740132984c5303c87c8d0672805c6419a83",
+      "size": 12272
     },
     "msi/File/payload.ce7679e5cd53d1bd30b3eb8f": {
       "sha256": "776ae50d94a64df358ae46d8fa8c5eb493fdc664696167548a0311d0e897c6e9",
@@ -25285,10 +25237,6 @@
       "sha256": "038d4bf51b4d373284640f3658d70eaa856def24d8d02b8e29b289beaabf1cc9",
       "size": 1325
     },
-    "msi/File/payload.d1ccbea02730795791bee7d8": {
-      "sha256": "e53233b44f8baa8403e012aea82edeb2c53e75a28d78faa82e94717888fd6b35",
-      "size": 127
-    },
     "msi/File/payload.d1ceb283e7eee853870ffbea": {
       "sha256": "6485b8ed310d3f0340bf1ad1f47645069ce4069dcc6bb46c7d5c6faf41de1fdb",
       "size": 1071
@@ -25561,10 +25509,6 @@
       "sha256": "34cd0155e5ea77d6495433c20eb242f4f8c2048b13fcb8ec1f1ed0bc4ffb502d",
       "size": 11200
     },
-    "msi/File/payload.d4522935fafcdf8d8de9ed61": {
-      "sha256": "15b9b2f46110911224ced5287f06a27f27cc1a95d74580ffad26072ba404d542",
-      "size": 127
-    },
     "msi/File/payload.d4590f7994997381069ef86a": {
       "sha256": "59bf06c7ba877ec76d09a41aac75e385a2723545388b105864f48f295e2524e0",
       "size": 13017
@@ -25584,10 +25528,6 @@
     "msi/File/payload.d490daf9ffd8c388d129b4ca": {
       "sha256": "eba684204073ed715c4abb48129acdfd2bff8ae48339e6a7da3b341d3027b7f0",
       "size": 9701
-    },
-    "msi/File/payload.d491c5e589ab30161c8c23d7": {
-      "sha256": "f1f5fe4ff71ec39e4ead5a0a821c3ce1610677cccc0117909cffe662b86fae40",
-      "size": 127
     },
     "msi/File/payload.d49d031af9d9bb6cc4708d95": {
       "sha256": "5fe3ced97293fe0573d5ece0cef59ce5ddb4c57bc568ae7199e77b01d3ade17c",
@@ -25653,10 +25593,6 @@
       "sha256": "09160d33f01c0409331e993099dc170212dae46b172f9139bd34818ba62574db",
       "size": 7426
     },
-    "msi/File/payload.d51f98af3f19ec24db83566c": {
-      "sha256": "186f2202bd79eb65daea70f37c08c5a32c18e4ec531c8291c6bed52e57d05c74",
-      "size": 126
-    },
     "msi/File/payload.d526c72d73dba0d85f52d07d": {
       "sha256": "2588e6dde67d2859bec1c4d9053215f3b29c41232cd4065e4533f66a66f82281",
       "size": 9442
@@ -25690,8 +25626,8 @@
       "size": 10174
     },
     "msi/File/payload.d55eb81178a036422e81738a": {
-      "sha256": "952b20ca7087c03c0df319e7ad47d5e93a011c0089fd22ce6a7407da24e66a75",
-      "size": 54804
+      "sha256": "8db3989b434e21d95b61248020b3b0ee8f88efe415826dbc4e918f85b4d55742",
+      "size": 54713
     },
     "msi/File/payload.d568d8ebb2d4492ae1083f38": {
       "sha256": "1a9a4f0e3d479a27240ddd59a9137a66ab4a0f9dfdc8ca6188cc0bfd85187f04",
@@ -26293,10 +26229,6 @@
       "sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b",
       "size": 10142
     },
-    "msi/File/payload.db51db7b4298dd212f9d53a7": {
-      "sha256": "455c5e1783c559d1934644a560833c168705481051b0ab97bffd01aed15131c7",
-      "size": 127
-    },
     "msi/File/payload.db61a9514e63869392cc5b3a": {
       "sha256": "e296417b2fd89cfe289f4a96fee61d2bc18a3dd0cc121b8468cdd4226115bd66",
       "size": 2618
@@ -26586,8 +26518,8 @@
       "size": 1087
     },
     "msi/File/payload.ddc7d4bfd0a235ac6034d54f": {
-      "sha256": "61f4d4a751911748bf21675249ba852f404b01239ddcafc5eef33f47d1b7942f",
-      "size": 1504
+      "sha256": "0abee190b69f9f6b115bd05179843ca9e63e1b8d6274e07b5adfe66c922cd74d",
+      "size": 1415
     },
     "msi/File/payload.ddce5149eee45edfbee787f6": {
       "sha256": "da1a4e91a087f0ba61ac8a6041e196cdcd83e4bf439ba40d184e35017961b70b",
@@ -26616,10 +26548,6 @@
     "msi/File/payload.ddf5cabf03c909cdc1df628d": {
       "sha256": "f7e11736c9ff30102b31ec72272754110193b347433f4b364921e8f131c92bf0",
       "size": 1115
-    },
-    "msi/File/payload.ddf7b1aa032c83eb9ce65e9f": {
-      "sha256": "53c800ee40cae821740aea42420c9aec38a93b58a8872b0296e358f4583cc6f7",
-      "size": 127
     },
     "msi/File/payload.de00c232330f9566e76ab424": {
       "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
@@ -26704,10 +26632,6 @@
     "msi/File/payload.debdd82d684c90a6b3e28ee0": {
       "sha256": "fc453486325ade1d31f14087b76d4936f3a6d551abd1db6fcac129bdb043951c",
       "size": 8338
-    },
-    "msi/File/payload.ded03d63336d9946e8505071": {
-      "sha256": "7474419551527e9bc3e0b9c3b97c1e1afd0237987d763ff8a022764a872bd2c3",
-      "size": 127
     },
     "msi/File/payload.ded1e12628ab8297e174b9c9": {
       "sha256": "91191517403c712299919f9c797f952502e33cb6961d1dbee3a7c9e8d2b170b9",
@@ -26890,8 +26814,8 @@
       "size": 70
     },
     "msi/File/payload.e09e583e40f894baa63ac402": {
-      "sha256": "071fda045c53626cb4338a46ed4855221769aee1e5554fbad01ed251097e3f4c",
-      "size": 4460
+      "sha256": "722d3bb1432c0f34f49dca8ac66fa132db1e4a2151f7104ee66a8cd44222c0b6",
+      "size": 4368
     },
     "msi/File/payload.e0b25162a7a53e4cd6f9eaa3": {
       "sha256": "c5f4da6e7621e1db29f871d4e07591989accfccf70763c6de6d638f291104257",
@@ -27346,8 +27270,8 @@
       "size": 569
     },
     "msi/File/payload.e40704559a5111ee2fd27f15": {
-      "sha256": "5a01bbed5c6abd61f7f7aebe5bed52437770bbb2c2cba2aa9a9cbda7b9edaee8",
-      "size": 10716
+      "sha256": "52a817aeff5178baded09467d21d7add9234364f713c720cff4b2653c71b3873",
+      "size": 10612
     },
     "msi/File/payload.e40b1a67657f4b69f2f53603": {
       "sha256": "ddb3fe9cd889e12f09bcc6819f27acb17414061c53aadd46071e8343588f2436",
@@ -27676,6 +27600,10 @@
     "msi/File/payload.e66d9feba0443328ebed3a3c": {
       "sha256": "b6ec2be0504ca62b9d1b6857f6baa13ffac5a567d4432f4eab98adc830f5d9c3",
       "size": 134671
+    },
+    "msi/File/payload.e66dc309637d5c6537702dd3": {
+      "sha256": "6c9f0d975b41afaa34d22f55bb8986ce69e5cb7ad327cb2b28820cd425edf5ee",
+      "size": 867
     },
     "msi/File/payload.e66ec56125581e5a3a09c8ba": {
       "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
@@ -28198,8 +28126,8 @@
       "size": 219
     },
     "msi/File/payload.eac4e4b4af6dbf661f6a9149": {
-      "sha256": "d8f5345b979c3cf3427cf7a3034f1530ad935973d1c743ffff9a0f3c86f2cf93",
-      "size": 9645
+      "sha256": "85afc050a07e9e71f698a7481c9a89c525d08f73c14ed49248a521b34e9f38c4",
+      "size": 9552
     },
     "msi/File/payload.eae02c70d8d5a4de8a62e875": {
       "sha256": "eef5e165c44429483040d14984dea49b963bd713094066e11e757fa7da355b24",
@@ -28774,8 +28702,8 @@
       "size": 46
     },
     "msi/File/payload.ef2c1b1c16e92cccca3babcc": {
-      "sha256": "5b7c0d380de000815e78d03329c228c798722bf1925fbf6d00ac2dd1911cd5a2",
-      "size": 693
+      "sha256": "d16e50f347969b1e1919fb0c88bac4b9c644f5305bcfcfb00f72b646dbd4065d",
+      "size": 603
     },
     "msi/File/payload.ef30722804428669b01fd6fd": {
       "sha256": "40e9cc2997d71df39c64776ad4e2131f0bfb030c750534b77897d9b30b86114d",
@@ -29057,6 +28985,10 @@
       "sha256": "e83fd7fac7a23a63009487a21a53c652cf3ebe972f20625e4327053036f57fb0",
       "size": 42
     },
+    "msi/File/payload.f1943a7febb1d79cefaeb661": {
+      "sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf",
+      "size": 1496
+    },
     "msi/File/payload.f19a36d87b9e2b5fb1668d29": {
       "sha256": "0072713a10721213d58b69ea554a08767172ba3b95a557c1563dcf3396e347a6",
       "size": 11272
@@ -29212,10 +29144,6 @@
     "msi/File/payload.f2c585351f6e115541490e24": {
       "sha256": "741b4c842557eed2952936204d0ae9c35fa3a0f02f826d94c50c46976291797c",
       "size": 240
-    },
-    "msi/File/payload.f2d4466fffbd7b2e43a9d100": {
-      "sha256": "43ade6afd1319ffe608904eb8e80116811c058062174a7dda7bd7e7ea6401ff2",
-      "size": 127
     },
     "msi/File/payload.f2d5b2ff768de97059e954dd": {
       "sha256": "a3fa34ac2a025d5ff4c0b43b03ef76b6f06b8facd919ec8028a1fdfc34936bd9",
@@ -29413,6 +29341,10 @@
       "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
       "size": 9723
     },
+    "msi/File/payload.f44d8e50e22539e68e753958": {
+      "sha256": "5ea2f23c7f00c3006bacf267183e816d8d4b6dc95ea57a4ddb0ff81de6d8719e",
+      "size": 26925
+    },
     "msi/File/payload.f450d7779fddfba70d66d97c": {
       "sha256": "159c2df33b4ddc33b86a59f6ac13f16a48d250ca57acbbe8ffbb5d12b68974a6",
       "size": 1182
@@ -29564,6 +29496,10 @@
     "msi/File/payload.f53d6206ab4f36d30fe531e4": {
       "sha256": "51abce255a9f3cf412d170172afdf9fea9e59d4411a2bd917a3ce94056feef18",
       "size": 50244
+    },
+    "msi/File/payload.f54379bffdfd0f7385d6a98c": {
+      "sha256": "0b01625d853911cd0e2e088dcfb743261034a091bb379246cb25a14cc4c74bf1",
+      "size": 607
     },
     "msi/File/payload.f543cb8c581b47e781a39885": {
       "sha256": "5fd881490e31eeb6aec5b3889fbda3eefe9301481995da580f970073a67530d0",
@@ -30001,10 +29937,6 @@
       "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9",
       "size": 10173
     },
-    "msi/File/payload.f8988c51fb5f4e23fe78bbbf": {
-      "sha256": "f0203863d60d198df5f01b674ba505e7e42bf912540865124e56108863362642",
-      "size": 127
-    },
     "msi/File/payload.f8ac936c90a456ac57b353cd": {
       "sha256": "158c31382f8e5b41fded0c2aa9cc66a382928b003cdd8b5b0518836ad9c89377",
       "size": 380
@@ -30168,10 +30100,6 @@
     "msi/File/payload.fa14d93b0f9f3a5d08bf68af": {
       "sha256": "6132ca68285d0f2a20d19f0e346b11fb866f2cf4850a09b0efd44df974520726",
       "size": 20478
-    },
-    "msi/File/payload.fa22aaa7fec2b1058b104113": {
-      "sha256": "0fdb1042f094a619e9c18116843d380cfa5d6c615432dc582487b6e2b5ea2a3d",
-      "size": 127
     },
     "msi/File/payload.fa2fa1152567b94fd892d7fc": {
       "sha256": "9d994b90e9accd413483aaf2470055198e423b33f2b9d72c889b4359aacce4b4",
@@ -30337,6 +30265,10 @@
       "sha256": "ff403e0e114861c9987a34cc814bce302a7e5e330b55675463548615538fc7b6",
       "size": 13533
     },
+    "msi/File/payload.fbe16079fe22ecdeb65f4c7a": {
+      "sha256": "5b84c8aaf38e30b7c5d35d2fea7299b4389a5adf51d8b5d0d8ffa3d146a03211",
+      "size": 18447
+    },
     "msi/File/payload.fc0372254c345b2787936fdc": {
       "sha256": "1c86362e17944f0bcf68db02f4995bdeea605867795fff7ab4079073f96705e4",
       "size": 1053
@@ -30352,10 +30284,6 @@
     "msi/File/payload.fc08baeb08bd6e9c5d770afb": {
       "sha256": "41c708c5adba6e097513ab8ccb9f1d7865a2fb469e22491a9e01dcc64da459fc",
       "size": 87
-    },
-    "msi/File/payload.fc090bc29f35311b61cbab17": {
-      "sha256": "72e7625d883a024a01553c23fc6ab114c441fcce4123d951fd6205e719267d23",
-      "size": 127
     },
     "msi/File/payload.fc0b6f8eed7a1a522bdcc255": {
       "sha256": "21016e9996be5d62775283e75f876ec1b7fbf424f33990ff564d4f922bc0bb88",
@@ -30858,20 +30786,20 @@
       "size": 10874
     },
     "temporary/burn/a1.cab": {
-      "sha256": "fd01a2209e9f5ca0cdcc6bd35eadbe2f45c31dbbfece130f964c75d359aa9116",
-      "size": 75480439
+      "sha256": "28da5900b70e90d128f8de27490174c672e384acf1df94dd5a6cfb066db208dc",
+      "size": 121499737
     },
     "temporary/burn/ux.cab": {
-      "sha256": "9c582a2f034c89b0ae484ae87da529cecb4f40269083c47fb246a318d19b2075",
-      "size": 340110
+      "sha256": "262c521246bd65246d3b8e4c1a1a14c364dd4b34c518fa07ce27d237402fb4c4",
+      "size": 340004
     },
     "temporary/msi/Media/1/.cab": {
-      "sha256": "39b5b48760bdc7db190feb242bd182eb7a7e630c38e4b7adc579e776576e81ea",
-      "size": 67859543
+      "sha256": "defe1b1163c2087deae27533b3e42da4dd23689c185fd9b3b186534f8ece8007",
+      "size": 98857447
     },
     "temporary/msi/Media/2/.cab": {
-      "sha256": "90eeeb75ca3a7b2ab79bfbd95a12cf7453c328b4c9b978487fef3d6a506280fb",
-      "size": 6784341
+      "sha256": "cc684ca8f61db62e0edfd0d15b942da025589c59bba4e5e0da0ce74312fc44d2",
+      "size": 21764081
     },
     "temporary/msi/_ForceCodepage.idt": {
       "sha256": "9f6622c73c1ee769502dc29c9b7d86ef940eb96b926ca80236b93cc00e9a8d1f",
@@ -30899,7 +30827,7 @@
         "path": "ba/BootstrapperExtensionData.xml"
       },
       {
-        "manifest_id": "payQDK7USfmODCXoH8qqypW86dEkes",
+        "manifest_id": "payzC0HcQBU.vhj8OsYmYq5NBMSzPo",
         "path": "ba/ba-functions.dll"
       },
       {
@@ -30934,8 +30862,8 @@
       {
         "path": "ba/BootstrapperApplicationData.xml",
         "scope": "extracted-nonnative-data",
-        "sha256": "f59d3b5ba587327d0afd4299c27b157d065ca4426b04079a03845c62b56f0169",
-        "size": 3894
+        "sha256": "0f4d27ff88493acbeb63dd1f263d03aff33a1d423f6a906d88cfbc1fd25eb7c3",
+        "size": 3900
       },
       {
         "path": "ba/BootstrapperExtensionData.xml",
@@ -30947,7 +30875,7 @@
         "component_id": "product-ba-functions",
         "path": "ba/ba-functions.dll",
         "scope": "exact-observed-ba-functions",
-        "sha256": "070f29e9493fc286c8e348b015d68b0b9574992dafaecaf22a3a9b290cb424f2",
+        "sha256": "24247f278ecbed8146334d65faa31bb3dd16dba02804ada07ec189f6527f8c8d",
         "size": 324608
       },
       {
@@ -30965,14 +30893,14 @@
       {
         "path": "ba/manifest.xml",
         "scope": "extracted-nonnative-data",
-        "sha256": "a696675c5d0cd5cc157e72bd20cea80efce800268af426359e630fa5027774d9",
-        "size": 3666
+        "sha256": "9956b6f3292302b85cc59ddc757a25a447785e3730a23b95d2cf1188527785c5",
+        "size": 3669
       },
       {
         "path": "ba/thm.wxl",
         "scope": "extracted-nonnative-data",
-        "sha256": "9d4f42ef2a2d1992b7c8b732d34ab5a39a10a7fec45a61758380b9b0fc05a2cf",
-        "size": 1042
+        "sha256": "32814b3176b40e9c75d2eb535b5d04b5863b502b208b8eec2519a0bc4a89dbb1",
+        "size": 1059
       },
       {
         "path": "ba/thm.xml",
@@ -30991,8 +30919,8 @@
         "component_id": "framework-wixtoolset.sdk-7.0.0",
         "path": "burn-engine.exe",
         "scope": "detached-burn-engine",
-        "sha256": "7e81bae468f2347a7f887061e604b99f36dbc2d49aa7e28fd714a4e16b0a0575",
-        "size": 1242254
+        "sha256": "e6d2007679a9d61d63138b46ab7f600e8a2da9c7b882f2d762f9f5a0073ecf8e",
+        "size": 1242148
       },
       {
         "component_id": "framework-wixtoolset.util.wixext-7.0.0",
@@ -31016,28 +30944,28 @@
       {
         "path": "msi/File/PackageInputInventoryFile",
         "scope": "extracted-nonnative-data",
-        "sha256": "9d7e7d6515528dc11c349db15cc87e6a02048bca6b067a27cb9ff445f645e669",
-        "size": 1064907
+        "sha256": "f86d6a1324ec04c1f58439f876dcf72348aab2076cfa9439d42271d1ebd92219",
+        "size": 1077754
       },
       {
         "path": "msi/File/PackageInputReviewFile",
         "scope": "extracted-nonnative-data",
-        "sha256": "8bf288986fce80938149baa039bdbbd279d78edc407e511a7583f01538a9e4cd",
-        "size": 372789
+        "sha256": "e75a4ffecb69e00b2decf3c47630ad3fa2b1c0b50aec73772b457ebec7acb89f",
+        "size": 375552
       },
       {
         "observed_path": "payload/vadgr-app.exe",
         "path": "msi/File/VadgrApplicationFile",
         "scope": "exact-observed-payload",
-        "sha256": "46333e3b5d6833d243c285676073756cbd44c1783ca9fa7af9b6f32b07fa5aea",
+        "sha256": "0d4df212e14868d23814e59ac77b7478d4148e3bf9412ac6d0a7c1bd6be1f691",
         "size": 320512
       },
       {
         "observed_path": "payload/vadgr.exe",
         "path": "msi/File/VadgrBackendFile",
         "scope": "exact-observed-payload",
-        "sha256": "85ce29379108b26cc821c6b2bc8406a403df28f2897857b52fcfdb4865d3129e",
-        "size": 40902656
+        "sha256": "7d2ad719fc4fb0c37a859ef9bddf0355f5e3fc650444137dc9041f4bb1bffcbf",
+        "size": 40949760
       },
       {
         "path": "msi/File/payload.000df887b4a5281bc24645e0",
@@ -31938,8 +31866,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/mcp-2.1.1.dist-info/RECORD",
         "path": "msi/File/payload.04c5c3822d74a00e24e503c9",
         "scope": "exact-observed-payload",
-        "sha256": "93e7c873d36bc0fe15b39ed317ccca4b590319e24f1bb8dbc9ea5f8e2c401882",
-        "size": 11254
+        "sha256": "87c46906995e1227836dfb8ba57c474c71629e6640d7dbc85c002c2bb0079b24",
+        "size": 11165
       },
       {
         "path": "msi/File/payload.04cc58510b2a91151be2a6f0",
@@ -31984,8 +31912,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/typing_inspection-0.4.4.dist-info/RECORD",
         "path": "msi/File/payload.050f8b1efc793f64c2033aef",
         "scope": "exact-observed-payload",
-        "sha256": "7859a084cfbf0c0822884a319ed1dcd101f3adbb473946d29a2220e46578a647",
-        "size": 1081
+        "sha256": "83fc23669db31500d06056b13ecebe4f088f56a81c1ea86e3b68f1de3b8c7d95",
+        "size": 978
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/anyio-4.14.2.dist-info/scm_version.json",
@@ -32118,8 +32046,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/jsonschema-4.26.0.dist-info/RECORD",
         "path": "msi/File/payload.05f1e19bc9ecdd345572a17e",
         "scope": "exact-observed-payload",
-        "sha256": "5d3e1112c9220446996554c84ad02b562b6f25ad3276a50d8f2ebd717bd5eca7",
-        "size": 4192
+        "sha256": "9859865baae349460646a2f36b359a511bca0dd9c80d4169597e4bcf25797751",
+        "size": 4095
       },
       {
         "path": "msi/File/payload.05f8af2d2d2957129a4b1d45",
@@ -32317,13 +32245,6 @@
         "scope": "exact-observed-payload",
         "sha256": "7bae70f57e1130af4eff443a90faa95ebd628de11fe9bf716e5e0a7eb0180c22",
         "size": 711
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/rpds_py-2026.6.3.dist-info/uv_cache.json",
-        "path": "msi/File/payload.0703ec21466491f95b8f013f",
-        "scope": "exact-observed-payload",
-        "sha256": "0bd9844e2a0c2bbf494e3fff231db1b92f7dbfb6fe2e3b0c120da518f23dc85b",
-        "size": 127
       },
       {
         "path": "msi/File/payload.0704ee730f62f1695dab9352",
@@ -33100,13 +33021,6 @@
         "size": 2566
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/attrs-26.1.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.0ab933c0c39d5b8de1dce85e",
-        "scope": "exact-observed-payload",
-        "sha256": "eaa38d490ab157f4f614dedf694e51202336d4e7d59e46e03f7283937a97314c",
-        "size": 127
-      },
-      {
         "path": "msi/File/payload.0ab98a42efb5bd527334b34e",
         "scope": "extracted-nonnative-data",
         "sha256": "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923",
@@ -33879,8 +33793,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/pywinauto-0.6.9.dist-info/RECORD",
         "path": "msi/File/payload.0ddabd5318be9458e80c2cde",
         "scope": "exact-observed-payload",
-        "sha256": "8a6bb950ae94a61d61a60b4e27c84dbfbb387fba7cb71cd4a7f42429c236e1a7",
-        "size": 4931
+        "sha256": "cc77252bb82faf0fdab59e100ec8f3e2015a65074534044e47b6694ed1e1f59e",
+        "size": 4836
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/include/dictobject.h",
@@ -34056,6 +33970,12 @@
         "scope": "exact-observed-payload",
         "sha256": "19476ddc404a077fb5d07044453d003fc7043f7cb3e4942525631ce19e129491",
         "size": 296
+      },
+      {
+        "path": "msi/File/payload.0f0754a43686cae402da4416",
+        "scope": "extracted-nonnative-data",
+        "sha256": "0e27c2382d7b8147972bbb746e04059a1152c8d0fda9d03ef1399d1a433c4ade",
+        "size": 2416
       },
       {
         "path": "msi/File/payload.0f08b25ff0794dc638672380",
@@ -34786,8 +34706,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/opentelemetry_api-1.44.0.dist-info/RECORD",
         "path": "msi/File/payload.12973f8fdd58749629cebdbb",
         "scope": "exact-observed-payload",
-        "sha256": "0dceda4a7275a8b30d3b9e305424dd59785c7cca82c4e791ae35e327729d7bc6",
-        "size": 4576
+        "sha256": "8fc686374999a083eb0efe08cee273ba623863153834268ed6233eca624d92f3",
+        "size": 4472
       },
       {
         "path": "msi/File/payload.12983c7a294f2007a597b2a8",
@@ -35369,13 +35289,6 @@
         "size": 1313
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/pywinauto-0.6.9.dist-info/uv_cache.json",
-        "path": "msi/File/payload.15a03ead22a795ec5c67c8a2",
-        "scope": "exact-observed-payload",
-        "sha256": "5cbd293f28851373ee1e666b28716141e234139aca798b783e9d098a6e331d82",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/jsonschema/benchmarks/issue232/issue.json",
         "path": "msi/File/payload.15b1c98ec1bfc72c61d3a683",
         "scope": "exact-observed-payload",
@@ -35413,13 +35326,6 @@
         "scope": "extracted-nonnative-data",
         "sha256": "a9040321c3712d8fd0b09cf52b17445de04a23a10165049ae187cd39e5c86be5",
         "size": 10849
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/truststore-0.10.4.dist-info/uv_cache.json",
-        "path": "msi/File/payload.15f93ec59479366079388d42",
-        "scope": "exact-observed-payload",
-        "sha256": "4fd0eada727b826b773aa32fe2f6731a4d97c76714f1a99663b22a427bdd157e",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/wsgiref/validate.py",
@@ -36146,13 +36052,6 @@
         "scope": "exact-observed-payload",
         "sha256": "2bd1c0ab412a5e9c97f533c4d06b773d045215b92568a4e89adc93c7462d62ec",
         "size": 8096
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/click-8.5.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.19e87bab4c7c0c1c5b114ada",
-        "scope": "exact-observed-payload",
-        "sha256": "c8f0e4cb460317aa4fd76a2d90d2c14c0ac437aa795db03eb84def45317e140d",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tix8.4.3/bitmaps/mktransgif.tcl",
@@ -37238,8 +37137,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/wrapt-2.3.0.dist-info/RECORD",
         "path": "msi/File/payload.201b3f12e454260d51d98117",
         "scope": "exact-observed-payload",
-        "sha256": "ccfddcba7358dfc7979fac63dc2b54c804864a78b940d9ff3bfa3ebaaa2b5d4d",
-        "size": 1801
+        "sha256": "d00a9877e6bb31c71bc586b53149696225ff3260128c8db7f38444fcbe78aaf9",
+        "size": 1710
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/tzdata/Antarctica/Troll",
@@ -38489,8 +38388,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/attrs-26.1.0.dist-info/RECORD",
         "path": "msi/File/payload.271ae1692a6a560e1797d95d",
         "scope": "exact-observed-payload",
-        "sha256": "7a67dd0c8d8cd4adc4d507f814a4f6cead974e1ea14b12cc96a96a3c7110fd09",
-        "size": 2834
+        "sha256": "6b0b326d4b4ee0fac27909ac7cbb066fc4bdf8e93d87031e27e770db059e5a04",
+        "size": 2742
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/turtledemo/yinyang.py",
@@ -39112,8 +39011,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/h11-0.16.0.dist-info/RECORD",
         "path": "msi/File/payload.2a4145fe8b387202659b3ed1",
         "scope": "exact-observed-payload",
-        "sha256": "1d321c5b5ad9b38c5030e0e7d4c726b123fd046c025e2dae1f2843c06e85c778",
-        "size": 1502
+        "sha256": "3779e13c17d8e21c769ed9ee8780af123cc3f8656185f5f8d3af258ff5639b3e",
+        "size": 1412
       },
       {
         "path": "msi/File/payload.2a4731a41841e9df20b905cb",
@@ -39229,8 +39128,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/deprecated-1.3.1.dist-info/RECORD",
         "path": "msi/File/payload.2af3c8c36e406268a6ae8e90",
         "scope": "exact-observed-payload",
-        "sha256": "e9a292bfe5dee04e3302551b50dcd9a1f787b5da9d1cd466a830a39caccc70b4",
-        "size": 1003
+        "sha256": "04f3900b10c2cb084b781451b586880e64b0f5affd54906b137d2441da63c66e",
+        "size": 907
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/multiprocessing/__init__.py",
@@ -39489,13 +39388,6 @@
         "size": 191
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/h11-0.16.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.2c1a296cc11f3c34cbd506e1",
-        "scope": "exact-observed-payload",
-        "sha256": "056bb07e3eda089df14bca7d718d01c2045de7559eb4c5758f640a4ca77a2233",
-        "size": 127
-      },
-      {
         "path": "msi/File/payload.2c27280cbac3e2f39806bf75",
         "scope": "extracted-nonnative-data",
         "sha256": "0f96a83840e146e43c0ec96a22ec1f392e0680e6c1226e6f3ba87e0740af850f",
@@ -39707,13 +39599,6 @@
         "scope": "exact-observed-payload",
         "sha256": "59de1b42e6d9752cbaf8fcab45036e307b67d959258caf6e3d93d596ed9c9b1d",
         "size": 2367
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/starlette-1.6.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.2d121a0e2c388bb400e89502",
-        "scope": "exact-observed-payload",
-        "sha256": "53dc75d0335e397c6ac5f851d27832031f4ea26247a1b6a0cee1f6a5cbe54b4c",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tk8.6/demos/ttkscale.tcl",
@@ -40011,6 +39896,12 @@
         "scope": "exact-observed-payload",
         "sha256": "4d559e8e40913b029ec471c1e38282652afe734a395da90d2fb2d3d54265472f",
         "size": 4114
+      },
+      {
+        "path": "msi/File/payload.2e5f428f0d21d338b2385775",
+        "scope": "extracted-nonnative-data",
+        "sha256": "e34c58338bd89d43e709e226610d8f32b3e3c47f4ad9a99a8dc1d4ac7842488e",
+        "size": 919
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/uvicorn/config.py",
@@ -40874,8 +40765,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/comtypes-1.4.16.dist-info/RECORD",
         "path": "msi/File/payload.326e223947fe992f39243980",
         "scope": "exact-observed-payload",
-        "sha256": "296f49da269f8a639860805bb2f23a06e44a4d66ddd3e5e96ca4884dd30ef2d1",
-        "size": 13875
+        "sha256": "6625c4a220c28f98d558f1448f42aacbc30f93893cd3498e14327aa8165d413d",
+        "size": 13780
       },
       {
         "path": "msi/File/payload.326e728ee9827900afd00a7d",
@@ -41184,6 +41075,12 @@
         "size": 3426
       },
       {
+        "path": "msi/File/payload.340c21f877f00e0758c640ef",
+        "scope": "extracted-nonnative-data",
+        "sha256": "0e27c2382d7b8147972bbb746e04059a1152c8d0fda9d03ef1399d1a433c4ade",
+        "size": 2416
+      },
+      {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/datetime.py",
         "path": "msi/File/payload.34251dd7ce7836fbc0a1ba3f",
         "scope": "exact-observed-payload",
@@ -41457,8 +41354,14 @@
       {
         "path": "msi/File/payload.357ba320a815994ad946951b",
         "scope": "extracted-nonnative-data",
-        "sha256": "07e1c58a7dd8cd0b875305a547624f0170ff48fc583105ef76d1a4b6e21ec17a",
-        "size": 9482085
+        "sha256": "1e52a4c2c03de8ebd9f67aa9c274a6d08c4ec20f260d0a8f2ff11b95494c506e",
+        "size": 9563354
+      },
+      {
+        "path": "msi/File/payload.35828212f4996598d7bbf074",
+        "scope": "extracted-nonnative-data",
+        "sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf",
+        "size": 1496
       },
       {
         "path": "msi/File/payload.35833db8f422c6b7dac4b91f",
@@ -42015,6 +41918,12 @@
         "size": 903
       },
       {
+        "path": "msi/File/payload.383ebb67eaa6e0a540cd8104",
+        "scope": "extracted-nonnative-data",
+        "sha256": "6dbd60437f8ef91d8de1f08ad75882547fd4931bfcc3566a0735f28db1484d31",
+        "size": 1080
+      },
+      {
         "path": "msi/File/payload.38625d22d6909ee42662462d",
         "scope": "extracted-nonnative-data",
         "sha256": "6df43f6f4b5d4587f3d8d71e45532c688fd168afa5fe89d571cb32fa09c4ef51",
@@ -42356,13 +42265,6 @@
         "size": 2
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/pycparser-3.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.39fe34496fb332e8abd66632",
-        "scope": "exact-observed-payload",
-        "sha256": "de6d0a6f67e3863145a4b5bdb19826398f7a8132ced5cb0a86b577d97db216ad",
-        "size": 127
-      },
-      {
         "path": "msi/File/payload.3a0cf75b59607ac9a482748b",
         "scope": "extracted-nonnative-data",
         "sha256": "1c299af946fcba7173ff8f6675f5627db1ad849c99e4881515427e6b2db26974",
@@ -42529,8 +42431,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/sse_starlette-3.4.8.dist-info/RECORD",
         "path": "msi/File/payload.3acaac5cb364b9f9a73ac7f7",
         "scope": "exact-observed-payload",
-        "sha256": "1a7f9c32d2e1841bbabc5a2004d9ed7af0c06d070a5d50b753a3d107a8e5d1ad",
-        "size": 1207
+        "sha256": "51ae4ed28baf3802aa3330ba8179fdc4870df4e94eacf6d70165d5a8cd0bacd4",
+        "size": 1108
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/opentelemetry/context/contextvars_context.py",
@@ -42954,8 +42856,8 @@
       {
         "path": "msi/File/payload.3d2e28c405041f6d4d9aae62",
         "scope": "extracted-nonnative-data",
-        "sha256": "ed03c9b330f9309b57543b5a3ece9a80dd907acc7fbe6322cb17641cd4308044",
-        "size": 498940
+        "sha256": "03e191a7868cbafbaf7693d04e07e4f250cc756edd57a8c043c78594aeb26f2c",
+        "size": 598219
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/lib2to3/fixes/fix_raw_input.py",
@@ -43047,8 +42949,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/click-8.5.0.dist-info/RECORD",
         "path": "msi/File/payload.3d88f7eda6a7d0fab6364b77",
         "scope": "exact-observed-payload",
-        "sha256": "a0731cef92978c06c0c66a0c690d6966d0b9df127c61eca50a0b31bcf11b2da5",
-        "size": 1901
+        "sha256": "924078ec3a47b97192425dbc0c3693085af7a7b863afcf6b4e110cf0bd97dea4",
+        "size": 1810
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/win32com/universal.py",
@@ -43168,6 +43070,12 @@
         "scope": "exact-observed-payload",
         "sha256": "133aa6ee9f5bd9fc132aec352ecdda68083d0ad80cff8fb84eefb399b969f352",
         "size": 5794
+      },
+      {
+        "path": "msi/File/payload.3e1826e359c836edec8c1457",
+        "scope": "extracted-nonnative-data",
+        "sha256": "5a5ee54c5001bbad1cdc1a57cc3dd4c42199b2da09d39c7ee41fab002d02967f",
+        "size": 6743
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/referencing/_attrs.pyi",
@@ -43563,13 +43471,6 @@
         "scope": "exact-observed-payload",
         "sha256": "2fd2a39ec59a5cbcd71596a93205001e593c65dc2ca3bef6028f148372028a88",
         "size": 17132
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/pydantic_core-2.46.5.dist-info/uv_cache.json",
-        "path": "msi/File/payload.3fd78bcdc50181c7f6092e8a",
-        "scope": "exact-observed-payload",
-        "sha256": "f197c1be4c91f7497b0d2fb51792e5a89bd5c007abca1762ef7fd17f0e813896",
-        "size": 127
       },
       {
         "path": "msi/File/payload.3fe596ba06bf8b5fe66bc8ae",
@@ -44137,6 +44038,12 @@
         "size": 1062
       },
       {
+        "path": "msi/File/payload.4260d900a3c5cfd1cf3ff83b",
+        "scope": "extracted-nonnative-data",
+        "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6",
+        "size": 2112
+      },
+      {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/win32/Demos/CreateFileTransacted_MiniVersion.py",
         "path": "msi/File/payload.426496d6550349603d673138",
         "scope": "exact-observed-payload",
@@ -44202,13 +44109,6 @@
         "scope": "exact-observed-payload",
         "sha256": "b42594384cb3d877652c64efccda926480094244180b2e7ccc14dd7c85b2cd2a",
         "size": 6556
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/pydantic-2.13.5.dist-info/uv_cache.json",
-        "path": "msi/File/payload.42944a0cff9a489266608f22",
-        "scope": "exact-observed-payload",
-        "sha256": "436aceeb5d15aa08aa0ba5732c74939a192ed0576a2e967f176de2637da0de5d",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/opentelemetry/_logs/severity/__init__.py",
@@ -44335,13 +44235,6 @@
         "scope": "exact-observed-payload",
         "sha256": "f063f70ca34df16dd51992113d914f4012038aa37e61a29c34dd84bda30c418c",
         "size": 8786
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/annotated_types-0.8.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.433d76fdd608c5fe223b2e72",
-        "scope": "exact-observed-payload",
-        "sha256": "49e2f88590540538671fa5975a56b705a8ee20e8da6359835edd9c9fbc1ec943",
-        "size": 127
       },
       {
         "path": "msi/File/payload.4348e68b67ad2cdfb5f8f087",
@@ -44533,8 +44426,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/httpcore2-2.12.0.dist-info/RECORD",
         "path": "msi/File/payload.43fe85d988bf5099d36368a3",
         "scope": "exact-observed-payload",
-        "sha256": "5c998adaa3ea1a805826a947ea0930095476daeac2217ca3b2ea0f3146e5329f",
-        "size": 3263
+        "sha256": "5447fd0d163a88cf894e2a7db9955c961051ad3115585fa2109f5bc387fb36c1",
+        "size": 3167
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/pillow-12.3.0.dist-info/INSTALLER",
@@ -45626,13 +45519,6 @@
         "size": 8772
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/python_multipart-0.0.32.dist-info/uv_cache.json",
-        "path": "msi/File/payload.4923e624beb4d0d9c1a3b2da",
-        "scope": "exact-observed-payload",
-        "sha256": "95b5472317a778bdbe39e37f2c0ee8dad3f002c03731479201aeacefa41e0033",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/multiprocessing/dummy/connection.py",
         "path": "msi/File/payload.4928df3394fc4f85d6e1c35b",
         "scope": "exact-observed-payload",
@@ -45994,13 +45880,6 @@
         "size": 0
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/typing_extensions-4.16.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.4aa689e44a0b2b1d1b6170fc",
-        "scope": "exact-observed-payload",
-        "sha256": "57b41f4282b2b927967b882bfcd788463e878aee0f578a9551b8b9a14c790901",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/dbm/gnu.py",
         "path": "msi/File/payload.4aaf7b39d9dd10942fb4379b",
         "scope": "exact-observed-payload",
@@ -46071,8 +45950,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/jsonschema_specifications-2025.9.1.dist-info/RECORD",
         "path": "msi/File/payload.4af4f247cc5edbdb55b03c3e",
         "scope": "exact-observed-payload",
-        "sha256": "8b082b3a7c6cc79568b2099c56af417dc51fbe8a48f74f03a858ba10b5815741",
-        "size": 3554
+        "sha256": "0b1047ee6c7d5d7c242b642d689820f4572860ecf7886b2074f821ed85cbe7b6",
+        "size": 3440
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/adodbapi/license.txt",
@@ -46184,13 +46063,6 @@
         "scope": "exact-observed-payload",
         "sha256": "56f7ed595e767c558ded05def14b682893105daf504500c3443b458ca2431bc6",
         "size": 97
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/uniseg-0.10.1.dist-info/uv_cache.json",
-        "path": "msi/File/payload.4b689932b76d5a116a7c7884",
-        "scope": "exact-observed-payload",
-        "sha256": "43ee350871a0523722ab0ecaabaca09c006e6a4729b7c254908ca15154116cc7",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/include/internal/pycore_gil.h",
@@ -46384,6 +46256,12 @@
         "scope": "exact-observed-payload",
         "sha256": "992f93a7975f8cd4e94d96b3ba1ecfb3585e52a53f4442a15993402d3f955f66",
         "size": 2117
+      },
+      {
+        "path": "msi/File/payload.4c7bc73d5a11082229a15274",
+        "scope": "extracted-nonnative-data",
+        "sha256": "3b8182a766685eaa002637e28b4ec8d6b18819a0c71f579bf0dbaa5830297cce",
+        "size": 47025035
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/win32/Demos/security/set_file_audit.py",
@@ -46599,8 +46477,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/mss-10.2.0.dist-info/RECORD",
         "path": "msi/File/payload.4d883ffcf5fce0806a0e7a5c",
         "scope": "exact-observed-payload",
-        "sha256": "0b1339bc11a9dcc0050c1031cc6ead73e0166b53b76376396e246eb283711ec5",
-        "size": 2204
+        "sha256": "d8e09799d900689dcabdbaa6308976e40f42ad22f9a285056ed5d0a4e731e1bc",
+        "size": 2114
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/cryptography/hazmat/primitives/ciphers/__init__.py",
@@ -46678,8 +46556,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/pyjwt-2.13.0.dist-info/RECORD",
         "path": "msi/File/payload.4dc682fcb3d18a5f18f9e454",
         "scope": "exact-observed-payload",
-        "sha256": "f234dc2b39dfc90d6b58235e7466da3b772fdacee22cee0e8b449a2f63ff4db1",
-        "size": 1682
+        "sha256": "b86eb3be0a89de734598127029531ba39dcdc6962c4c996fbac48218f8a52879",
+        "size": 1590
       },
       {
         "path": "msi/File/payload.4dce7010f152a2f94716ae8f",
@@ -46997,13 +46875,6 @@
         "size": 1518
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/sse_starlette-3.4.8.dist-info/uv_cache.json",
-        "path": "msi/File/payload.4faba8e7a119adfb9c322ab1",
-        "scope": "exact-observed-payload",
-        "sha256": "f3792f956e814f17925dd4bc6386f2b87e4b9bb1a32f33a19efdd7fc26e75851",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/pywinauto/findbestmatch.py",
         "path": "msi/File/payload.4fb154ed88ab92887f9d193f",
         "scope": "exact-observed-payload",
@@ -47014,8 +46885,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/cffi-2.1.1.dist-info/RECORD",
         "path": "msi/File/payload.4fb874daa23ed7d5015c95a4",
         "scope": "exact-observed-payload",
-        "sha256": "e5642c22e34c7953e09f76fcf9289caaa53ab464fef40697ab9768ab2643941e",
-        "size": 2716
+        "sha256": "ee26e74ea531023c2ccb0a3e04494521ddba9e4d7e9d932dc85a3092ac79b7e9",
+        "size": 2626
       },
       {
         "path": "msi/File/payload.4fba8622f3f6984a1306c740",
@@ -47313,13 +47184,6 @@
         "scope": "exact-observed-payload",
         "sha256": "518beb6e54ae811f8c725ea8cc42787d48fc605a3476d6e7a00a1b5733cbd6ac",
         "size": 187
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/referencing-0.37.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.5156ba03b78b03692143a7e2",
-        "scope": "exact-observed-payload",
-        "sha256": "cea945147fa0077f2b3da2b49d58bd1a6ac0e80244c6aea0b9c80751661d4d58",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/computer_use/platform/backends/xtest.py",
@@ -47671,8 +47535,8 @@
         "observed_path": "payload/lib/cua/bootstrap.py",
         "path": "msi/File/payload.5362c25ae598fc1a7f9fc5ae",
         "scope": "exact-observed-payload",
-        "sha256": "c2fc536b93f0acd5657a2077a256af18995574f12d3280e1db58e1f059dce810",
-        "size": 694
+        "sha256": "db72b012f3a0f94f9f9ac77e26edb548c146b934bd0d41759c9ce5a3f4f346e6",
+        "size": 1658
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/httpx2/_transports/wsgi.py",
@@ -49036,8 +48900,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/typing_extensions-4.16.0.dist-info/RECORD",
         "path": "msi/File/payload.5a5c04728a8cb00170d1504c",
         "scope": "exact-observed-payload",
-        "sha256": "06d8705e10d0455f01c8e3545d915312dc54f08b0d0b3cb25a859311fb358206",
-        "size": 727
+        "sha256": "9e07fea845cac76293d927afa7157a14ecba39b318bc8af236b8de530b7656c1",
+        "size": 623
       },
       {
         "path": "msi/File/payload.5a5cd1802e55745efc800b56",
@@ -49115,13 +48979,6 @@
         "scope": "extracted-nonnative-data",
         "sha256": "92b81db30f7ab6d693e0af5661a40d273ca1947e891123ed823924192c10cbc7",
         "size": 478
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/mcp_types-2.1.1.dist-info/uv_cache.json",
-        "path": "msi/File/payload.5aa1b99e1bd2704390ada45a",
-        "scope": "exact-observed-payload",
-        "sha256": "73c8fec51da00c1a0cb8cb3489df7bcffbab459a81c1d6464effff1ce5cd0c1c",
-        "size": 127
       },
       {
         "path": "msi/File/payload.5aa8d4e6666300cb4e9247b4",
@@ -49227,13 +49084,6 @@
         "scope": "exact-observed-payload",
         "sha256": "dab54e60985a3770782a7f031b6a80f91009c372465a09cdd1221b2ca03080eb",
         "size": 10962
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/cffi-2.1.1.dist-info/uv_cache.json",
-        "path": "msi/File/payload.5aff276141059cb5230829e8",
-        "scope": "exact-observed-payload",
-        "sha256": "d7c28967169b47989f52eb36b67dc1cc92e8ac7229756c9b9d08797f059e3da5",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/cryptography/hazmat/primitives/ciphers/base.py",
@@ -49392,8 +49242,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/pycparser-3.0.dist-info/RECORD",
         "path": "msi/File/payload.5bf6aed8395334aa29521e5b",
         "scope": "exact-observed-payload",
-        "sha256": "ffc960f8f8e0f01b8569544ccaacb052fd3d7367e787173ba7de5f1aeb44d1d8",
-        "size": 1295
+        "sha256": "e752c5c64ce06f508a80e0edeef0c165df849587b829cb9a7b7bb22ac43b0c7e",
+        "size": 1202
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/PIL/__main__.py",
@@ -49663,6 +49513,12 @@
         "scope": "exact-observed-payload",
         "sha256": "b6d745c815bcbafd746d24c128b79bb1d51591a2cb4469746168c731463573d2",
         "size": 6433
+      },
+      {
+        "path": "msi/File/payload.5d6cc0a1a1ebcb99ac16e005",
+        "scope": "extracted-nonnative-data",
+        "sha256": "165abf92cc04b39e80d29cadea7a6a7e8fddf59407d4ad2616507a7ebe8216f9",
+        "size": 20415
       },
       {
         "path": "msi/File/payload.5d6ff103c73ab50734bc7b72",
@@ -50135,8 +49991,8 @@
         "observed_path": "payload/lib/cua/installed-inventory.json",
         "path": "msi/File/payload.600e990087ea668336708412",
         "scope": "exact-observed-payload",
-        "sha256": "35f7d2017f61cb42848d33e753ee4caba15aa7e16e36375643502518c1aea2a6",
-        "size": 903676
+        "sha256": "4cc6c3f1be8dd33989483dbdcdab0191dcf99a5e3f572c97563305cbcf79c4b5",
+        "size": 895533
       },
       {
         "path": "msi/File/payload.600f7b2d0802b3e368c4dc39",
@@ -51015,6 +50871,12 @@
         "size": 50503
       },
       {
+        "path": "msi/File/payload.6453e3e28bf9cb356ae689f9",
+        "scope": "extracted-nonnative-data",
+        "sha256": "6c9f0d975b41afaa34d22f55bb8986ce69e5cb7ad327cb2b28820cd425edf5ee",
+        "size": 867
+      },
+      {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/uniseg/docs/html/_static/fonts/RobotoSlab/roboto-slab-v7-bold.ttf",
         "path": "msi/File/payload.645733c4e9307da1c756f193",
         "scope": "exact-observed-payload",
@@ -51838,6 +51700,12 @@
         "size": 20052
       },
       {
+        "path": "msi/File/payload.68af1019911ef1697c91fa7b",
+        "scope": "extracted-nonnative-data",
+        "sha256": "0b01625d853911cd0e2e088dcfb743261034a091bb379246cb25a14cc4c74bf1",
+        "size": 607
+      },
+      {
         "path": "msi/File/payload.68b9b5852788d76214e48f6e",
         "scope": "extracted-nonnative-data",
         "sha256": "29e9fe5074bd27e0e5d5d110394fbbcd841baee2651a3c4b4560a632702cede4",
@@ -52607,8 +52475,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/truststore-0.10.4.dist-info/RECORD",
         "path": "msi/File/payload.6cbfaa0eed4c0ca5c0c99566",
         "scope": "exact-observed-payload",
-        "sha256": "044c0d6a08b8a90db1cf1765910e10b5c8f28b0afdb6c87c27d458c797048171",
-        "size": 1148
+        "sha256": "78e60fe51ee9228a9a31d401f4cf7dcca5b7363a893b65f30e957de919e9f01a",
+        "size": 1051
       },
       {
         "path": "msi/File/payload.6cc401bf2137fdd0963251ee",
@@ -53092,6 +52960,12 @@
         "scope": "extracted-nonnative-data",
         "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5",
         "size": 1344
+      },
+      {
+        "path": "msi/File/payload.6f0d104f3964c9312e97d9dd",
+        "scope": "extracted-nonnative-data",
+        "sha256": "5ea2f23c7f00c3006bacf267183e816d8d4b6dc95ea57a4ddb0ff81de6d8719e",
+        "size": 26925
       },
       {
         "path": "msi/File/payload.6f18ded454ab01cbfc2d5bfd",
@@ -53818,12 +53692,6 @@
         "scope": "exact-observed-payload",
         "sha256": "dee28ff84e3fc495ed3547d5e5e9fafdacc36a67329e747d434248ed45bf1755",
         "size": 153
-      },
-      {
-        "path": "msi/File/payload.72b57b25415533c0a48ffdec",
-        "scope": "extracted-nonnative-data",
-        "sha256": "7b77c319abfd5219629c45c34c89ba945ed3c5e49fcde9d16b6c3885f118a730",
-        "size": 179143
       },
       {
         "path": "msi/File/payload.72bc63e127c90a279f4a2d69",
@@ -54598,6 +54466,12 @@
         "size": 0
       },
       {
+        "path": "msi/File/payload.7667ba0dd3d9c1f6f6eaea73",
+        "scope": "extracted-nonnative-data",
+        "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6",
+        "size": 2112
+      },
+      {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/comtypes/server/w_getopt.py",
         "path": "msi/File/payload.76758e00253d656052a9817d",
         "scope": "exact-observed-payload",
@@ -54629,6 +54503,12 @@
         "scope": "extracted-nonnative-data",
         "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
         "size": 10847
+      },
+      {
+        "path": "msi/File/payload.7694f39189ac19861303ca7c",
+        "scope": "extracted-nonnative-data",
+        "sha256": "5b84c8aaf38e30b7c5d35d2fea7299b4389a5adf51d8b5d0d8ffa3d146a03211",
+        "size": 18447
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/encodings/mac_greek.py",
@@ -56040,13 +55920,6 @@
         "size": 2
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/comtypes-1.4.16.dist-info/uv_cache.json",
-        "path": "msi/File/payload.7e48a7d7da2e70b0ed703d78",
-        "scope": "exact-observed-payload",
-        "sha256": "caad2b42ccb556007b2e5e9b7a654d9a4b55cfef878b5d463762adff98a7298b",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/_compat_pickle.py",
         "path": "msi/File/payload.7e4cff78f075fc7b055b25cd",
         "scope": "exact-observed-payload",
@@ -56207,8 +56080,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/referencing-0.37.0.dist-info/RECORD",
         "path": "msi/File/payload.7f09d088fca87614e397f82e",
         "scope": "exact-observed-payload",
-        "sha256": "6dfc88df9996141320c3076bd7ade747398fba3dab179d85380c678d62e0a82e",
-        "size": 1864
+        "sha256": "d7ecf9906a4a4ea4837d16e324e344f9f00b328570cf695a96a8de46b8766982",
+        "size": 1766
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/lib2to3/fixes/fix_repr.py",
@@ -57029,12 +56902,6 @@
         "scope": "exact-observed-payload",
         "sha256": "0f005e3a81fa7606bdcf3b0fb5810e2caf7a4e0d9cc1320b304b6320c2bb87a0",
         "size": 1896
-      },
-      {
-        "path": "msi/File/payload.83b93d19723ffb517aa271e8",
-        "scope": "extracted-nonnative-data",
-        "sha256": "e01ce2a872c7db6e5a4e069d558d9ca15a72590fa1c215f53356db7451224868",
-        "size": 144968
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/tzdata/Australia/West",
@@ -57871,13 +57738,6 @@
         "size": 7916
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/pillow-12.3.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.878f00e416e62a40996755cb",
-        "scope": "exact-observed-payload",
-        "sha256": "d8754d428841b76f7298a296d559e26beb7f1a3fb0d12d5933d83e9631429cda",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/init.tcl",
         "path": "msi/File/payload.8794da8029cc10bb896bb97b",
         "scope": "exact-observed-payload",
@@ -58057,8 +57917,8 @@
       {
         "path": "msi/File/payload.88a41465e6c599a8e9a6fc96",
         "scope": "extracted-nonnative-data",
-        "sha256": "13e8f019c7d2aa44fb581ebaf9c0badaf9afaa5f78d53c2c9bc61f2462179ed0",
-        "size": 1171303
+        "sha256": "f0fe27ce58603ce0ee88c0e294a140cae8b9b4714b48700fc71fedb59b9f2ebc",
+        "size": 1026843
       },
       {
         "observed_path": "payload/lib/cua/licenses/python-packages/Lib__site-packages__anyio-4.14.2.dist-info__licenses__LICENSE",
@@ -58277,8 +58137,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/httpx2-2.12.0.dist-info/RECORD",
         "path": "msi/File/payload.8969593944ab2b480c7167ea",
         "scope": "exact-observed-payload",
-        "sha256": "8d6e3cb527c667a435c679ff950f63db58648055a85518b3f307dd80f41fb448",
-        "size": 3176
+        "sha256": "f69a8f76e50bf995dc5fb636345bd22d0e769e1d9c2b4140c8ddee913e5d1e69",
+        "size": 3083
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/computer_use/tools/system/data.py",
@@ -58953,8 +58813,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/annotated_types-0.8.0.dist-info/RECORD",
         "path": "msi/File/payload.8cc5febe8211011f5f4ef88e",
         "scope": "exact-observed-payload",
-        "sha256": "732251981f41ec3159bfd59f54d6199b77010188314273c0cd05b9bef40074ac",
-        "size": 876
+        "sha256": "8191d3aa1ac93480688819b4db2385606219a3f7a453b85e086646134ded4f96",
+        "size": 775
       },
       {
         "path": "msi/File/payload.8cc8fddc5109158027a66340",
@@ -59005,8 +58865,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/pydantic-2.13.5.dist-info/RECORD",
         "path": "msi/File/payload.8cfd239b4b2a4783a4e54220",
         "scope": "exact-observed-payload",
-        "sha256": "406298baa57b636dff04332f2fdb361cc044a345eec307b224a42edcf7eb7201",
-        "size": 9612
+        "sha256": "93253f807bd8a0440d58d159ffeef610528e8a687b948095955114275c16881f",
+        "size": 9517
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/lib2to3/fixes/fix_tuple_params.py",
@@ -59666,6 +59526,12 @@
         "size": 10847
       },
       {
+        "path": "msi/File/payload.905e2366a8fa29bd45c5d016",
+        "scope": "extracted-nonnative-data",
+        "sha256": "5a5ee54c5001bbad1cdc1a57cc3dd4c42199b2da09d39c7ee41fab002d02967f",
+        "size": 6743
+      },
+      {
         "observed_path": "payload/lib/cua/python/3.12.14/include/cpython/pythread.h",
         "path": "msi/File/payload.906dd63d1386527a6e56cacc",
         "scope": "exact-observed-payload",
@@ -59911,6 +59777,12 @@
         "scope": "exact-observed-payload",
         "sha256": "7040fb48462296c903f2f0d24d2b54e0de63cf7512dcf8d3048a0cadf7d94fd0",
         "size": 848
+      },
+      {
+        "path": "msi/File/payload.9145bd9147ed441a8373c175",
+        "scope": "extracted-nonnative-data",
+        "sha256": "165abf92cc04b39e80d29cadea7a6a7e8fddf59407d4ad2616507a7ebe8216f9",
+        "size": 20415
       },
       {
         "path": "msi/File/payload.91475fd8b6541297cc955666",
@@ -60607,13 +60479,6 @@
         "scope": "exact-observed-payload",
         "sha256": "f75fd79638421d6c8235fa0505ae1775a71bba6420a0d6e191c1c793f81c5bd6",
         "size": 8247
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/opentelemetry_api-1.44.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.94d5b95a4055a89978a7e26a",
-        "scope": "exact-observed-payload",
-        "sha256": "fd2118acc05773a716382119239dc1248f1d703ae91d011dba21114b4feba654",
-        "size": 126
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/jsonschema/benchmarks/issue232.py",
@@ -61682,6 +61547,12 @@
         "size": 11358
       },
       {
+        "path": "msi/File/payload.99e69d1a1c21e9d6eeffb758",
+        "scope": "extracted-nonnative-data",
+        "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+        "size": 13936
+      },
+      {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tix8.4.3/bitmaps/tick.xbm",
         "path": "msi/File/payload.99e7ad56a3095fc63bcfda47",
         "scope": "exact-observed-payload",
@@ -62202,8 +62073,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/pydantic_core-2.46.5.dist-info/RECORD",
         "path": "msi/File/payload.9c818caf05e516e1bd8647ef",
         "scope": "exact-observed-payload",
-        "sha256": "4196bbe3f888805ce69f8fdbe79e0132852f0e7fd833f16a1807f0ee32970def",
-        "size": 1186
+        "sha256": "a5ab213c0de3b00e477d50002bf707c9e71a9453684d5e22d3c8f060eb122ee5",
+        "size": 1086
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/tzdata/Zulu",
@@ -63434,6 +63305,12 @@
         "size": 427
       },
       {
+        "path": "msi/File/payload.a273590a0f668870421bc1a7",
+        "scope": "extracted-nonnative-data",
+        "sha256": "6dbd60437f8ef91d8de1f08ad75882547fd4931bfcc3566a0735f28db1484d31",
+        "size": 1080
+      },
+      {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/encoding/iso8859-4.enc",
         "path": "msi/File/payload.a277dd07845d3af219115097",
         "scope": "exact-observed-payload",
@@ -64388,8 +64265,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/uvicorn-0.52.4.dist-info/RECORD",
         "path": "msi/File/payload.a76af66f8bb2d57828a72f00",
         "scope": "exact-observed-payload",
-        "sha256": "4dfdf56ad5b5b41a3cf62fea624d2084ccb6f8741d70118721e1f5fde084a3f0",
-        "size": 4396
+        "sha256": "d9debe88a4c71148a28de17aefc6de1c9aaf93c4b2ef07c3abb7e9f870a8c3b4",
+        "size": 4302
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/attr/converters.pyi",
@@ -64482,8 +64359,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/websockets-17.1.dist-info/RECORD",
         "path": "msi/File/payload.a80593545ddb41ce77d8f085",
         "scope": "exact-observed-payload",
-        "sha256": "9a7c2e4f4b92d07cb32366e9f5c718094ca0a7d25711e0b5b1ce4e244922f920",
-        "size": 5472
+        "sha256": "d7017a9c6c4827608d86d3647febdea2e93612cbe5140e43ee82536fd6dc2ebb",
+        "size": 5377
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tix8.4.3/demos/samples/CmpImg2.tcl",
@@ -65432,8 +65309,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/mcp_types-2.1.1.dist-info/RECORD",
         "path": "msi/File/payload.ad501dd9fc981cb2ede1246c",
         "scope": "exact-observed-payload",
-        "sha256": "9a1d5d9cdfb8fc3a714f45c008ffcda96a44ebdf64719967c2490b19eb6fb570",
-        "size": 1309
+        "sha256": "1310a87a5dac95ee783a31cf9bed358f860811e1eb5d57270b7c3f26da2ad3c5",
+        "size": 1214
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/tzdata/Australia/Adelaide",
@@ -66375,8 +66252,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/uniseg-0.10.1.dist-info/RECORD",
         "path": "msi/File/payload.b14f2d59e71ba98900fd313d",
         "scope": "exact-observed-payload",
-        "sha256": "0e20182b024ff1124753561eddbeefee99bd11ea3714a177a7df9ffdae461258",
-        "size": 11730
+        "sha256": "cd09a0253644369f1dbe08d20a2a4003378b1387f6ed3cb2c442360bf8895d76",
+        "size": 11637
       },
       {
         "path": "msi/File/payload.b152f45f7b0e870b538efdc9",
@@ -66906,13 +66783,6 @@
         "scope": "extracted-nonnative-data",
         "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
         "size": 10174
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/httpx2-2.12.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.b3c11df4b4900844d21ca48e",
-        "scope": "exact-observed-payload",
-        "sha256": "904ba6e37fb0561ccd15922839955bbe4c7209ad1b3cefbfc94a35e559352cbe",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tix8.4.3/Event.tcl",
@@ -68025,8 +67895,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/python_multipart-0.0.32.dist-info/RECORD",
         "path": "msi/File/payload.ba03dfd7b152a939fdba8303",
         "scope": "exact-observed-payload",
-        "sha256": "3defde77af2c3281baaa963ac2ff5ef361bb742834bf9bf321c2f6f08996bee1",
-        "size": 1375
+        "sha256": "5c11c391e44fdc2dbec56603265b8af273dae504ee2e6143d3b9d3bab2bc12df",
+        "size": 1272
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/msgs/zh_tw.msg",
@@ -68141,13 +68011,6 @@
         "size": 2404
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/httpcore2-2.12.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.bad631cec2af1b3624b11897",
-        "scope": "exact-observed-payload",
-        "sha256": "659e8d0e60972893cd04e3b46fbe81eafe34fee93749908b53f632707fd21507",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/encoding/cp950.enc",
         "path": "msi/File/payload.baf018d9a7ba1a31d3222106",
         "scope": "exact-observed-payload",
@@ -68160,13 +68023,6 @@
         "scope": "exact-observed-payload",
         "sha256": "f5ff83f15c841792be42709a6710dc8d7a9f72791c1ae4cad719b1fb0abe0a05",
         "size": 43388
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/websockets-17.1.dist-info/uv_cache.json",
-        "path": "msi/File/payload.baf8a2ba9abfcdaeb7650b5e",
-        "scope": "exact-observed-payload",
-        "sha256": "ea20c755ed96dcb77ed32972ca64b692200828c0b999c73b929af66630d35c3b",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/uniseg/docs/html/_static/plus.png",
@@ -68227,7 +68083,7 @@
         "observed_path": "payload/lib/cua/payload.json",
         "path": "msi/File/payload.bb540f5c3de6d3371b714d75",
         "scope": "exact-observed-payload",
-        "sha256": "65e20c9c4060e93fbfb6f6263c7f4201e6272cc5029ab90c1c3390a8e59bd8e7",
+        "sha256": "5ae11124acfd65b77df905a150a97f90be8089ef73cfa2c2d4e9866b274352a6",
         "size": 756
       },
       {
@@ -68471,8 +68327,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/rpds_py-2026.6.3.dist-info/RECORD",
         "path": "msi/File/payload.bc5fedf2ae4d6bf8b3a7d14d",
         "scope": "exact-observed-payload",
-        "sha256": "7322d2b4fcd44d65d256e68f81a973009007080b919bce12170b045e10c0cd04",
-        "size": 1004
+        "sha256": "6f6bc3047ac499ff3f036351402edb4998b58ffb4d1aa024a27c51fd72ad1dfe",
+        "size": 908
       },
       {
         "path": "msi/File/payload.bc601e53c076b675c4a8ac47",
@@ -70705,8 +70561,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/pyvenv.cfg",
         "path": "msi/File/payload.c7a96c363f0d5fd4df901cfd",
         "scope": "exact-observed-payload",
-        "sha256": "bc131ca24aa81e4ef19e8eac337ea367722f99ae17808a11d497a2cdd45c1c78",
-        "size": 175
+        "sha256": "dc651bd4651de8cbd11c172f7838fbd68cebadf9181a8afe957d0d384127ac2a",
+        "size": 116
       },
       {
         "path": "msi/File/payload.c7ada9dbfa1a563514dee55d",
@@ -71448,13 +71304,6 @@
         "size": 7736
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/wrapt-2.3.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.cb4584d1db5d311808d8b854",
-        "scope": "exact-observed-payload",
-        "sha256": "24fdfdb6e6147213b34862feb4afcb99f521bd8b8746502d0707050ce6aac1a4",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/pydantic-2.13.5.dist-info/licenses/LICENSE",
         "path": "msi/File/payload.cb46d746c82cdbc6e42acdc2",
         "scope": "exact-observed-payload",
@@ -71596,13 +71445,6 @@
         "size": 1288
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/typing_inspection-0.4.4.dist-info/uv_cache.json",
-        "path": "msi/File/payload.cc3ae1c8c305a288a14352bb",
-        "scope": "exact-observed-payload",
-        "sha256": "8f130e94ad47f162b9e4eb184ccfab58c20e7a65e814a901ef066d51ac6ee6ff",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/json/tool.py",
         "path": "msi/File/payload.cc48a0b4d92860b4b23e36bc",
         "scope": "exact-observed-payload",
@@ -71629,13 +71471,6 @@
         "scope": "exact-observed-payload",
         "sha256": "b7db7c299bb367852cdf4012521236ecc64f3cf2b2e041114439002be94ced34",
         "size": 735
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/mss-10.2.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.cc72301c98cc92b8fc3104b5",
-        "scope": "exact-observed-payload",
-        "sha256": "b1d0f3c08c58fa099152b2eccd2fbc1b3d3f13fa4a337fd32564e3be75fec4ea",
-        "size": 127
       },
       {
         "path": "msi/File/payload.cc74ed613b12994ed573b6cf",
@@ -71820,8 +71655,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/starlette-1.6.0.dist-info/RECORD",
         "path": "msi/File/payload.cd559c7810385c6bf339958f",
         "scope": "exact-observed-payload",
-        "sha256": "b92ef09bcfea734cab9bb4d11ff6aea49c8f3a0ad8a53b7a1b295367aba3b67f",
-        "size": 3563
+        "sha256": "ce00b84cd91bcb3a3c9d05d0acb8d879ad8f28232ef1941cf82e2cb0661e4be1",
+        "size": 3468
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/encodings/iso8859_4.py",
@@ -71863,13 +71698,6 @@
         "scope": "exact-observed-payload",
         "sha256": "a89c580899ad2ff8df45a783bb90d501dc32c28b92931ca18abd13453e76244b",
         "size": 6613
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/idna-3.19.dist-info/uv_cache.json",
-        "path": "msi/File/payload.cd91075c05a00f48236bf379",
-        "scope": "exact-observed-payload",
-        "sha256": "4770ac1898c5db5618d6f75216a393f2072df2bf74185cede94830e4c74961fa",
-        "size": 126
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/websockets/sync/connection.py",
@@ -72139,8 +71967,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/cryptography-50.0.1.dist-info/RECORD",
         "path": "msi/File/payload.ce744c34b09ee382a2d2d9fe",
         "scope": "exact-observed-payload",
-        "sha256": "42029bdc621dc9c911283532ca0c56dc40a7a27b58e6120875b64dc7fb98c3b5",
-        "size": 12371
+        "sha256": "04ddf75561a58bb5b0a116b0dbdb2740132984c5303c87c8d0672805c6419a83",
+        "size": 12272
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tix8.4.3/pref/TK.cs",
@@ -72832,13 +72660,6 @@
         "size": 1325
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/pywin32-312.dist-info/uv_cache.json",
-        "path": "msi/File/payload.d1ccbea02730795791bee7d8",
-        "scope": "exact-observed-payload",
-        "sha256": "e53233b44f8baa8403e012aea82edeb2c53e75a28d78faa82e94717888fd6b35",
-        "size": 127
-      },
-      {
         "path": "msi/File/payload.d1ceb283e7eee853870ffbea",
         "scope": "extracted-nonnative-data",
         "sha256": "6485b8ed310d3f0340bf1ad1f47645069ce4069dcc6bb46c7d5c6faf41de1fdb",
@@ -73294,13 +73115,6 @@
         "size": 11200
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/cryptography-50.0.1.dist-info/uv_cache.json",
-        "path": "msi/File/payload.d4522935fafcdf8d8de9ed61",
-        "scope": "exact-observed-payload",
-        "sha256": "15b9b2f46110911224ced5287f06a27f27cc1a95d74580ffad26072ba404d542",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/python/3.12.14/include/pyerrors.h",
         "path": "msi/File/payload.d4590f7994997381069ef86a",
         "scope": "exact-observed-payload",
@@ -73330,13 +73144,6 @@
         "scope": "extracted-nonnative-data",
         "sha256": "eba684204073ed715c4abb48129acdfd2bff8ae48339e6a7da3b341d3027b7f0",
         "size": 9701
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/jsonschema-4.26.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.d491c5e589ab30161c8c23d7",
-        "scope": "exact-observed-payload",
-        "sha256": "f1f5fe4ff71ec39e4ead5a0a821c3ce1610677cccc0117909cffe662b86fae40",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/tzdata/Australia/Canberra",
@@ -73446,13 +73253,6 @@
         "size": 7426
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/mcp-2.1.1.dist-info/uv_cache.json",
-        "path": "msi/File/payload.d51f98af3f19ec24db83566c",
-        "scope": "exact-observed-payload",
-        "sha256": "186f2202bd79eb65daea70f37c08c5a32c18e4ec531c8291c6bed52e57d05c74",
-        "size": 126
-      },
-      {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/httpcore2/_synchronization.py",
         "path": "msi/File/payload.d526c72d73dba0d85f52d07d",
         "scope": "exact-observed-payload",
@@ -73511,8 +73311,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/pywin32-312.dist-info/RECORD",
         "path": "msi/File/payload.d55eb81178a036422e81738a",
         "scope": "exact-observed-payload",
-        "sha256": "952b20ca7087c03c0df319e7ad47d5e93a011c0089fd22ce6a7407da24e66a75",
-        "size": 54804
+        "sha256": "8db3989b434e21d95b61248020b3b0ee8f88efe415826dbc4e918f85b4d55742",
+        "size": 54713
       },
       {
         "path": "msi/File/payload.d568d8ebb2d4492ae1083f38",
@@ -74511,13 +74311,6 @@
         "size": 10142
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/deprecated-1.3.1.dist-info/uv_cache.json",
-        "path": "msi/File/payload.db51db7b4298dd212f9d53a7",
-        "scope": "exact-observed-payload",
-        "sha256": "455c5e1783c559d1934644a560833c168705481051b0ab97bffd01aed15131c7",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/adodbapi/__init__.py",
         "path": "msi/File/payload.db61a9514e63869392cc5b3a",
         "scope": "exact-observed-payload",
@@ -75002,8 +74795,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/idna-3.19.dist-info/RECORD",
         "path": "msi/File/payload.ddc7d4bfd0a235ac6034d54f",
         "scope": "exact-observed-payload",
-        "sha256": "61f4d4a751911748bf21675249ba852f404b01239ddcafc5eef33f47d1b7942f",
-        "size": 1504
+        "sha256": "0abee190b69f9f6b115bd05179843ca9e63e1b8d6274e07b5adfe66c922cd74d",
+        "size": 1415
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tix8.4.3/bitmaps/resize2.xbm",
@@ -75049,13 +74842,6 @@
         "scope": "exact-observed-payload",
         "sha256": "f7e11736c9ff30102b31ec72272754110193b347433f4b364921e8f131c92bf0",
         "size": 1115
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/vadgr_computer_use-0.7.9.dist-info/uv_cache.json",
-        "path": "msi/File/payload.ddf7b1aa032c83eb9ce65e9f",
-        "scope": "exact-observed-payload",
-        "sha256": "53c800ee40cae821740aea42420c9aec38a93b58a8872b0296e358f4583cc6f7",
-        "size": 127
       },
       {
         "path": "msi/File/payload.de00c232330f9566e76ab424",
@@ -75194,13 +74980,6 @@
         "scope": "exact-observed-payload",
         "sha256": "fc453486325ade1d31f14087b76d4936f3a6d551abd1db6fcac129bdb043951c",
         "size": 8338
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/uvicorn-0.52.4.dist-info/uv_cache.json",
-        "path": "msi/File/payload.ded03d63336d9946e8505071",
-        "scope": "exact-observed-payload",
-        "sha256": "7474419551527e9bc3e0b9c3b97c1e1afd0237987d763ff8a022764a872bd2c3",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/tcl/tcl8.6/msgs/es_ve.msg",
@@ -75508,8 +75287,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/anyio-4.14.2.dist-info/RECORD",
         "path": "msi/File/payload.e09e583e40f894baa63ac402",
         "scope": "exact-observed-payload",
-        "sha256": "071fda045c53626cb4338a46ed4855221769aee1e5554fbad01ed251097e3f4c",
-        "size": 4460
+        "sha256": "722d3bb1432c0f34f49dca8ac66fa132db1e4a2151f7104ee66a8cd44222c0b6",
+        "size": 4368
       },
       {
         "path": "msi/File/payload.e0b25162a7a53e4cd6f9eaa3",
@@ -76261,8 +76040,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/vadgr_computer_use-0.7.9.dist-info/RECORD",
         "path": "msi/File/payload.e40704559a5111ee2fd27f15",
         "scope": "exact-observed-payload",
-        "sha256": "5a01bbed5c6abd61f7f7aebe5bed52437770bbb2c2cba2aa9a9cbda7b9edaee8",
-        "size": 10716
+        "sha256": "52a817aeff5178baded09467d21d7add9234364f713c720cff4b2653c71b3873",
+        "size": 10612
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/site-packages/pip/_internal/operations/build/wheel.py",
@@ -76809,6 +76588,12 @@
         "scope": "exact-observed-payload",
         "sha256": "b6ec2be0504ca62b9d1b6857f6baa13ffac5a567d4432f4eab98adc830f5d9c3",
         "size": 134671
+      },
+      {
+        "path": "msi/File/payload.e66dc309637d5c6537702dd3",
+        "scope": "extracted-nonnative-data",
+        "sha256": "6c9f0d975b41afaa34d22f55bb8986ce69e5cb7ad327cb2b28820cd425edf5ee",
+        "size": 867
       },
       {
         "path": "msi/File/payload.e66ec56125581e5a3a09c8ba",
@@ -77680,8 +77465,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/pillow-12.3.0.dist-info/RECORD",
         "path": "msi/File/payload.eac4e4b4af6dbf661f6a9149",
         "scope": "exact-observed-payload",
-        "sha256": "d8f5345b979c3cf3427cf7a3034f1530ad935973d1c743ffff9a0f3c86f2cf93",
-        "size": 9645
+        "sha256": "85afc050a07e9e71f698a7481c9a89c525d08f73c14ed49248a521b34e9f38c4",
+        "size": 9552
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/win32/scripts/regsetup.py",
@@ -78642,8 +78427,8 @@
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/six-1.17.0.dist-info/RECORD",
         "path": "msi/File/payload.ef2c1b1c16e92cccca3babcc",
         "scope": "exact-observed-payload",
-        "sha256": "5b7c0d380de000815e78d03329c228c798722bf1925fbf6d00ac2dd1911cd5a2",
-        "size": 693
+        "sha256": "d16e50f347969b1e1919fb0c88bac4b9c644f5305bcfcfb00f72b646dbd4065d",
+        "size": 603
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/uvicorn/protocols/websockets/auto.py",
@@ -79111,6 +78896,12 @@
         "size": 42
       },
       {
+        "path": "msi/File/payload.f1943a7febb1d79cefaeb661",
+        "scope": "extracted-nonnative-data",
+        "sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf",
+        "size": 1496
+      },
+      {
         "path": "msi/File/payload.f19a36d87b9e2b5fb1668d29",
         "scope": "extracted-nonnative-data",
         "sha256": "0072713a10721213d58b69ea554a08767172ba3b95a557c1563dcf3396e347a6",
@@ -79369,13 +79160,6 @@
         "scope": "exact-observed-payload",
         "sha256": "741b4c842557eed2952936204d0ae9c35fa3a0f02f826d94c50c46976291797c",
         "size": 240
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/pyjwt-2.13.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.f2d4466fffbd7b2e43a9d100",
-        "scope": "exact-observed-payload",
-        "sha256": "43ade6afd1319ffe608904eb8e80116811c058062174a7dda7bd7e7ea6401ff2",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/pythonwin/pywin/framework/editor/document.py",
@@ -79705,6 +79489,12 @@
         "size": 9723
       },
       {
+        "path": "msi/File/payload.f44d8e50e22539e68e753958",
+        "scope": "extracted-nonnative-data",
+        "sha256": "5ea2f23c7f00c3006bacf267183e816d8d4b6dc95ea57a4ddb0ff81de6d8719e",
+        "size": 26925
+      },
+      {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/win32/Demos/dde/ddeserver.py",
         "path": "msi/File/payload.f450d7779fddfba70d66d97c",
         "scope": "exact-observed-payload",
@@ -79958,6 +79748,12 @@
         "scope": "exact-observed-payload",
         "sha256": "51abce255a9f3cf412d170172afdf9fea9e59d4411a2bd917a3ce94056feef18",
         "size": 50244
+      },
+      {
+        "path": "msi/File/payload.f54379bffdfd0f7385d6a98c",
+        "scope": "extracted-nonnative-data",
+        "sha256": "0b01625d853911cd0e2e088dcfb743261034a091bb379246cb25a14cc4c74bf1",
+        "size": 607
       },
       {
         "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/PIL/ImImagePlugin.py",
@@ -80686,13 +80482,6 @@
         "size": 10173
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/six-1.17.0.dist-info/uv_cache.json",
-        "path": "msi/File/payload.f8988c51fb5f4e23fe78bbbf",
-        "scope": "exact-observed-payload",
-        "sha256": "f0203863d60d198df5f01b674ba505e7e42bf912540865124e56108863362642",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/idlelib/Icons/python.gif",
         "path": "msi/File/payload.f8ac936c90a456ac57b353cd",
         "scope": "exact-observed-payload",
@@ -80965,13 +80754,6 @@
         "size": 20478
       },
       {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/jsonschema_specifications-2025.9.1.dist-info/uv_cache.json",
-        "path": "msi/File/payload.fa22aaa7fec2b1058b104113",
-        "scope": "exact-observed-payload",
-        "sha256": "0fdb1042f094a619e9c18116843d380cfa5d6c615432dc582487b6e2b5ea2a3d",
-        "size": 127
-      },
-      {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/site-packages/pip/_vendor/truststore/_macos.py",
         "path": "msi/File/payload.fa2fa1152567b94fd892d7fc",
         "scope": "exact-observed-payload",
@@ -81242,6 +81024,12 @@
         "size": 13533
       },
       {
+        "path": "msi/File/payload.fbe16079fe22ecdeb65f4c7a",
+        "scope": "extracted-nonnative-data",
+        "sha256": "5b84c8aaf38e30b7c5d35d2fea7299b4389a5adf51d8b5d0d8ffa3d146a03211",
+        "size": 18447
+      },
+      {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/encodings/iso2022_kr.py",
         "path": "msi/File/payload.fc0372254c345b2787936fdc",
         "scope": "exact-observed-payload",
@@ -81266,13 +81054,6 @@
         "scope": "exact-observed-payload",
         "sha256": "41c708c5adba6e097513ab8ccb9f1d7865a2fb469e22491a9e01dcc64da459fc",
         "size": 87
-      },
-      {
-        "observed_path": "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/anyio-4.14.2.dist-info/uv_cache.json",
-        "path": "msi/File/payload.fc090bc29f35311b61cbab17",
-        "scope": "exact-observed-payload",
-        "sha256": "72e7625d883a024a01553c23fc6ab114c441fcce4123d951fd6205e719267d23",
-        "size": 127
       },
       {
         "observed_path": "payload/lib/cua/python/3.12.14/Lib/site-packages/pip/_internal/utils/deprecation.py",
@@ -82102,13 +81883,13 @@
     "packages": {
       "bundle": {
         "path": "Vadgr-0.5.0-windows-x64-setup.exe",
-        "sha256": "4bc71c23105fafbc18ef9a1eeee44a809b0373beb0ec8cad647644872f002f72",
-        "size": 76722693
+        "sha256": "fb5865ec3b2a8d1d6b60297c8ee1abafc2ed1ba441e64d0cf6022a93811e88c6",
+        "size": 122741885
       },
       "msi": {
         "path": "Vadgr-0.5.0-windows-x64.msi",
-        "sha256": "df45a24a2cb4a02ea56eba97f2a0eb8846063f6391fa4c74a5c2cbd12a240868",
-        "size": 77510720
+        "sha256": "215600aaaa0dd18df37c1d2c899c55a27e122ae82a5bee591211737662bfe44d",
+        "size": 123531332
       }
     },
     "publishable": false,
@@ -82116,7 +81897,7 @@
     "status": "unapproved",
     "target": "x86_64-pc-windows-msvc"
   },
-  "preparation_observation_sha256": "55a856dbae37197ffbb94b34aa2c23ad93c5892a31f3ea823384755f8ea2a89d",
+  "preparation_observation_sha256": "a1a347820cbd405f5be0f8ab23a45616fb5493a68e7fa7e971ea3f6bcc0de176",
   "publishable": false,
   "schema": 1,
   "status": "unapproved",

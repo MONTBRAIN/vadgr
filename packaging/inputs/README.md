@@ -18,9 +18,9 @@ must not invent counsel or another outside approver as a release gate. A real
 external gate must identify its current legal, contractual, vendor or protected
 environment authority and the exact required action.
 
-These packets bind the Source C preparation run `36371419130`, product source
-`789abf1ada3944b8a374ab2db176f0ff594b15d7` and trusted producer
-`2fe4306d151bea3a130cc39c1051e492e27102a4`. Earlier preparation runs are
+These packets bind the Source C preparation run `36484917396`, product source
+`2abcababb033c08ca92136991d79d72b5739ba59` and trusted producer
+`ec1d5c6fd4a119e148c2954ad8587a9249ebf028`. Earlier preparation runs are
 superseded. Neither observation nor unsigned installer membership is approval.
 
 The original Version 1.0 public terms remain unchanged. Exact third-party grants,
@@ -29,12 +29,12 @@ not change any component's license or assert that a declared license proves
 all redistribution duties have been met.
 
 Reproduce each directory from the final native preparation observations for run
-`36371419130`, not from the intermediate raw artifacts:
+`36484917396`, not from the intermediate raw artifacts:
 
 ```powershell
 python scripts/inspect_legal_crate_sources.py --source-root . --cache C:/review/crates --cargo-cache C:/review/cargo-cache --wheelhouse C:/review/observations/x64/unsigned-inputs/wheelhouse --wheelhouse C:/review/observations/arm64/unsigned-inputs/wheelhouse --output C:/review/crate-observations.json
-python scripts/synthesize_windows_legal.py --source-root . --observation C:/review/observations/x64 --architecture x64 --created 2026-09-28T03:18:32Z --source-archives C:/review/sources --crate-cache C:/review/crates --observation-bindings packaging/inputs/windows-observation-bindings.json --wix-evidence C:/review/wix-x64 --wix-evidence-sha256 f3fa458b7016b26eb79351ebe7a2356f58c7fbe57d00ae8b1566a5d2c55a11c7 --output C:/review/draft-x64
-python scripts/synthesize_windows_legal.py --source-root . --observation C:/review/observations/arm64 --architecture arm64 --created 2026-09-28T03:18:32Z --source-archives C:/review/sources --crate-cache C:/review/crates --observation-bindings packaging/inputs/windows-observation-bindings.json --wix-evidence C:/review/wix-arm64 --wix-evidence-sha256 aae4e5a8a2d354bfcf3e33e67a120acd8fe664797e71f1a755aa802d9bb9d7e6 --output C:/review/draft-arm64
+python scripts/synthesize_windows_legal.py --source-root . --observation C:/review/observations/x64 --architecture x64 --created 2026-09-28T21:15:52Z --source-archives C:/review/sources --crate-cache C:/review/crates --observation-bindings packaging/inputs/windows-observation-bindings.json --wix-evidence C:/review/wix-x64 --wix-evidence-sha256 d169955f5597304e4d595e06c9379414c287b356d79939683f1f824d3956d3ff --output C:/review/draft-x64
+python scripts/synthesize_windows_legal.py --source-root . --observation C:/review/observations/arm64 --architecture arm64 --created 2026-09-28T21:15:52Z --source-archives C:/review/sources --crate-cache C:/review/crates --observation-bindings packaging/inputs/windows-observation-bindings.json --wix-evidence C:/review/wix-arm64 --wix-evidence-sha256 c02a26792941d82d31970a7d55194177ffe7bc871dff757e2086e925972bd52f --output C:/review/draft-arm64
 ```
 
 Output directories must be absent. Add `--verify` to compare an existing packet
