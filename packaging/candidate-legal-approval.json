@@ -2,7 +2,7 @@
   "schema": 1,
   "targets": {
     "arm64": {
-      "generator_sha256": "d0de07b5dfa87dbaee931eb8593462bee79f33518c9d349886bf5abe44b824cb",
+      "generator_sha256": "b8719a85309cdb11a3ba74ad2c6917b574f96b83c97c941cd2886050c747ef86",
       "inventory_sha256": "2d06f57fdff2265da0740b4afc5ddf354d44b81efdcd43662a12e0c2db737e02",
       "legal_hashes": {
         "TERMS.rtf": "87f87f8dcdc3884092932168f054719c31fa1777670255e296bd2d6e2d180af2",
@@ -2634,7 +2634,7 @@
       "sbom_sha256": "86404824d120274b18200690c49da02ff262cf1df2710da8f1c2000fe9d42c53"
     },
     "x64": {
-      "generator_sha256": "d0de07b5dfa87dbaee931eb8593462bee79f33518c9d349886bf5abe44b824cb",
+      "generator_sha256": "b8719a85309cdb11a3ba74ad2c6917b574f96b83c97c941cd2886050c747ef86",
       "inventory_sha256": "f86d6a1324ec04c1f58439f876dcf72348aab2076cfa9439d42271d1ebd92219",
       "legal_hashes": {
         "TERMS.rtf": "87f87f8dcdc3884092932168f054719c31fa1777670255e296bd2d6e2d180af2",

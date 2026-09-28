@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from scripts.validate_package_inputs import parse_json, read_owned, require
+from scripts.validate_package_inputs import canonical_text_sha256, parse_json, read_owned, require
 
 TARGETS = {"x64": "x86_64", "arm64": "aarch64"}
 
@@ -46,7 +46,8 @@ def target(root: Path, architecture: str) -> dict:
             and digest(inventory) == review["inventory_sha256"],
             "reviewed SBOM or inventory differs")
     return {
-        "generator_sha256": digest(read_owned(root / "scripts", "generate_legal_bundle.py")),
+        "generator_sha256": canonical_text_sha256(
+            read_owned(root / "scripts", "generate_legal_bundle.py")),
         "inventory_sha256": digest(inventory),
         "legal_hashes": legal,
         "sbom_sha256": digest(sbom),

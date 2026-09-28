@@ -31,8 +31,11 @@ def test_target_binds_all_legal_files_and_signing_sources(tmp_path):
     helper = tmp_path / "packaging/cua/helper-signing"
     for suffix in (".json", "-outer.json", "-outer-review.json", "-predecessors.json"):
         write(helper / ("x86_64" + suffix), suffix.encode())
-    write(tmp_path / "scripts/generate_legal_bundle.py", b"generator")
+    generator = b"first\r\nsecond\r\n"
+    write(tmp_path / "scripts/generate_legal_bundle.py", generator)
     result = finalize.target(tmp_path, "x86_64")
+    assert result["generator_sha256"] == hashlib.sha256(
+        generator.replace(b"\r\n", b"\n")).hexdigest()
     assert result["legal_hashes"]["TERMS.rtf"] == files["legal/TERMS.rtf"]
     assert result["legal_hashes"]["payload/legal/LICENSE.txt"] == files["legal/LICENSE.txt"]
     assert "payload/sbom/vadgr-0.5.0.spdx.json" not in result["legal_hashes"]
