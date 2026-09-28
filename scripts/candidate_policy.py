@@ -212,6 +212,7 @@ def require_trusted_check_runs(selected: list[dict], checks: list[dict],
     indexed = {check["id"]: check for check in checks if type(check.get("id")) is int}
     workflows: dict[str, int] = {}
     runs: dict[int, dict] = {}
+    jobs: dict[int, dict[int, dict]] = {}
     result = []
     for entry in selected:
         context = entry["context"]
@@ -249,7 +250,16 @@ def require_trusted_check_runs(selected: list[dict], checks: list[dict],
                 run_record.get("repository", {}).get("full_name") == REPOSITORY and
                 run_record.get("head_repository", {}).get("full_name") == REPOSITORY,
                 "required check did not run in the trusted workflow")
-        job = github(f"actions/jobs/{job_id}")
+        if run_id not in jobs:
+            run_jobs = pages(
+                f"actions/runs/{run_id}/attempts/1/jobs?filter=all&per_page=100", "jobs")
+            require(all(type(item.get("id")) is int for item in run_jobs),
+                    "required workflow job identity is missing")
+            jobs[run_id] = {item["id"]: item for item in run_jobs}
+            require(len(jobs[run_id]) == len(run_jobs),
+                    "required workflow job identity is ambiguous")
+        require(job_id in jobs[run_id], "required workflow job is absent")
+        job = jobs[run_id][job_id]
         require(job.get("id") == job_id and job.get("run_id") == run_id and
                 job.get("head_sha") == sha and job.get("name") == context and
                 job.get("conclusion") == "success" and

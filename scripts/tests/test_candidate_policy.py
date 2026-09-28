@@ -73,16 +73,38 @@ class PolicyTests(unittest.TestCase):
         job = {"id": 42, "run_id": 123, "head_sha": sha, "name": row["context"],
                "conclusion": "success", "check_run_url":
                f"https://api.github.com/repos/{gate.REPOSITORY}/check-runs/42"}
-        with patch.object(gate, "github", side_effect=[workflow, run, job]):
+        with (patch.object(gate, "github", side_effect=[workflow, run]),
+              patch.object(gate, "pages", return_value=[job]) as pages):
             selected = gate.require_trusted_check_runs([row], [check], sha, branch)
+        pages.assert_called_once_with(
+            "actions/runs/123/attempts/1/jobs?filter=all&per_page=100", "jobs")
         self.assertEqual(selected[0]["workflow_run_id"], 123)
-        with patch.object(gate, "github", side_effect=[workflow, {**run, "path":
-                                                               ".github/workflows/evil.yml"}]):
-            with self.assertRaises(gate.Refused):
-                gate.require_trusted_check_runs([row], [check], sha, branch)
-        with patch.object(gate, "github", side_effect=[workflow, run, {**job, "run_id": 124}]):
-            with self.assertRaises(gate.Refused):
-                gate.require_trusted_check_runs([row], [check], sha, branch)
+        second_check = {**check, "id": 43, "name": "installer (windows-latest)",
+                        "details_url":
+                        "https://github.com/MONTBRAIN/vadgr/actions/runs/123/job/43"}
+        second_row = {"context": second_check["name"], "integration_id": 15368,
+                      "check_id": 43}
+        second_job = {**job, "id": 43, "name": second_row["context"],
+                      "check_run_url":
+                      f"https://api.github.com/repos/{gate.REPOSITORY}/check-runs/43"}
+        with (patch.object(gate, "github", side_effect=[workflow, run]),
+              patch.object(gate, "pages", return_value=[job, second_job]) as pages):
+            selected = gate.require_trusted_check_runs(
+                [row, second_row], [check, second_check], sha, branch)
+        pages.assert_called_once()
+        self.assertEqual([item["check_id"] for item in selected], [42, 43])
+        with (patch.object(gate, "github", side_effect=[workflow, {**run, "path":
+                                                                 ".github/workflows/evil.yml"}]),
+              self.assertRaises(gate.Refused)):
+            gate.require_trusted_check_runs([row], [check], sha, branch)
+        with (patch.object(gate, "github", side_effect=[workflow, run]),
+              patch.object(gate, "pages", return_value=[{**job, "run_id": 124}]),
+              self.assertRaises(gate.Refused)):
+            gate.require_trusted_check_runs([row], [check], sha, branch)
+        with (patch.object(gate, "github", side_effect=[workflow, run]),
+              patch.object(gate, "pages", return_value=[job, job]),
+              self.assertRaises(gate.Refused)):
+            gate.require_trusted_check_runs([row], [check], sha, branch)
         with self.assertRaises(gate.Refused):
             gate.require_trusted_check_runs([{**row, "integration_id": None}], [check], sha, branch)
 

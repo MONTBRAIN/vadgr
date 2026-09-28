@@ -204,6 +204,9 @@ def admission(tmp_path, monkeypatch):
             return []
         if endpoint == "rules/branches/master?per_page=100":
             return rules
+        if endpoint == "actions/runs/321/attempts/1/jobs?filter=all&per_page=100":
+            assert key == "jobs"
+            return [api["actions/jobs/42"]]
         assert endpoint == f"commits/{sha}/check-runs?filter=all&per_page=100"
         return [check]
     monkeypatch.setattr(gate, "pages", pages)
