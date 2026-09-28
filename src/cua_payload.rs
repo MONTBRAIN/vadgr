@@ -10,7 +10,7 @@ use anyhow::{Context, Result, bail, ensure};
 use flate2::read::GzDecoder;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::ffi::OsString;
+use std::ffi::{OsStr, OsString};
 use std::fs::File;
 use std::io::Write;
 use std::path::{Component, Path, PathBuf};
@@ -814,11 +814,18 @@ fn is_python_home_field(line: &str) -> bool {
 
 #[cfg(windows)]
 fn finalize_windows_environment(environment: &Path) -> Result<()> {
-    let container = environment
+    let environments = environment
         .parent()
-        .context("environment has no staging directory")?;
+        .context("environment has no environments directory")?;
     ensure!(
-        container
+        environments.file_name() == Some(OsStr::new("environments")),
+        "staged Windows cua environment is outside its environments directory"
+    );
+    let staging = environments
+        .parent()
+        .context("environments has no staging directory")?;
+    ensure!(
+        staging
             .file_name()
             .is_some_and(|name| name.to_string_lossy().starts_with(".staging-")),
         "only a staged cua environment can be finalized"
@@ -1873,7 +1880,10 @@ assert not outside
     #[test]
     fn windows_release_metadata_is_independent_of_root_and_install_time() {
         fn fixture(root: &Path, home: &str, timestamp: u64) -> PathBuf {
-            let environment = root.join(".staging-test").join("generation");
+            let environment = root
+                .join(".staging-test")
+                .join("environments")
+                .join("generation");
             let dist_info = environment.join("Lib/site-packages/example-1.0.dist-info");
             std::fs::create_dir_all(&dist_info).unwrap();
             std::fs::write(
