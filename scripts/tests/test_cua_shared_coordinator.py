@@ -282,7 +282,8 @@ def test_wrapper_preverifies_preserved_files_and_reserves_before_vendor_call():
     assert "ledger-verify" in source and "ledger-complete" in source and "-ResumeLedger" not in source
     report = (ROOT / "scripts/signing/verify-policy.ps1").read_text()
     for evidence in ("verify /pa /all /tw /v", "TimeStamperCertificate", "chain.Build", "chain_root_sha256",
-                     "verify-metadata", "certificate_sha256", "signer_policy_sha256", "legal_approval_sha256"):
+                     "verify-metadata", "certificate_sha256", "signer_policy_sha256", "legal_approval_sha256",
+                     "X500DistinguishedName", "ToBase64String"):
         assert evidence in report
     runner = (ROOT / "scripts/signing/CodeSignRunner.java").read_text()
     assert 'System.setProperty("org.bouncycastle.asn1.max_cons_depth", "64")' in runner

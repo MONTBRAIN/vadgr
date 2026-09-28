@@ -9,7 +9,13 @@ function Get-PolicySignatureReport {
     if ($signature.Status -ne 'Valid' -or -not $signature.TimeStamperCertificate) { throw 'Trusted signature and timestamp required.' }
     $certificate = $signature.SignerCertificate
     $fingerprint = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($certificate.RawData)).ToLowerInvariant()
-    if ($fingerprint -cne $Policy.certificate_sha256 -or $certificate.Subject -cne $Policy.signer) { throw 'Class-specific certificate identity differs.' }
+    try {
+        $observedName = [Security.Cryptography.X509Certificates.X500DistinguishedName]::new($certificate.Subject)
+        $policyName = [Security.Cryptography.X509Certificates.X500DistinguishedName]::new($Policy.signer)
+        $observedIdentity = [Convert]::ToBase64String($observedName.RawData)
+        $policyIdentity = [Convert]::ToBase64String($policyName.RawData)
+    } catch { throw 'Class-specific certificate subject is malformed.' }
+    if ($fingerprint -cne $Policy.certificate_sha256 -or $observedIdentity -cne $policyIdentity) { throw 'Class-specific certificate identity differs.' }
     $chain = [Security.Cryptography.X509Certificates.X509Chain]::new()
     try {
         # SignTool checks signature and timestamp validity above. This independent
@@ -29,7 +35,7 @@ function Get-PolicySignatureReport {
     finally { [Environment]::SetEnvironmentVariable('SIGNING_TRUST_CLASS', $null, 'Process') }
     return @{
         schema = 1; file_sha256 = (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant();
-        trust_class = $Policy.trust_class; signer = $certificate.Subject; certificate_sha256 = $fingerprint;
+        trust_class = $Policy.trust_class; signer = $Policy.signer; certificate_sha256 = $fingerprint;
         chain_root_sha256 = $rootHash; digest_algorithm = 'sha256'; timestamp_algorithm = 'rfc3161-sha256';
         signer_policy_sha256 = $Policy.signer_policy_sha256; legal_approval_sha256 = $Policy.legal_approval_sha256;
         signtool_exit = $verificationExit; authenticode_status = $signature.Status.ToString(); chain_valid = $true; timestamp_valid = $true

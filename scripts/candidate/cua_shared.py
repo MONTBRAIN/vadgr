@@ -3,21 +3,25 @@
 from __future__ import annotations
 
 import argparse
-from concurrent.futures import ThreadPoolExecutor
-from types import SimpleNamespace
 import os
-from pathlib import Path
 import sys
 import uuid
 import zipfile
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+from types import SimpleNamespace
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from scripts import candidate_claims as claims
 from scripts import candidate_artifacts as artifacts
-from scripts import candidate_policy
-from scripts import cua_profiles
+from scripts import candidate_claims as claims
+from scripts import candidate_policy, cua_profiles
 from scripts.candidate import cua_helpers as helpers
-from scripts.validate_package_inputs import PackageInputError, read_owned, require, sha256_bytes
+from scripts.validate_package_inputs import (
+    PackageInputError,
+    read_owned,
+    require,
+    sha256_bytes,
+)
 
 CLAIM = "pre-signing-claim.json"
 POLICY = "publisher-policy.json"
@@ -126,8 +130,17 @@ def bind(auth, inputs, artifact_id, artifact_digest, wsl_metadata, trusted, sour
     outer_raw = candidate_policy.candidate_policy_data(source, trusted,
         f"packaging/cua/helper-signing/{helper['architecture']}-outer.json",
         candidate_policy.authorization_approval(auth, trusted))
+    review_raw = candidate_policy.candidate_policy_data(source, trusted,
+        f"packaging/cua/helper-signing/{helper['architecture']}-outer-review.json",
+        candidate_policy.authorization_approval(auth, trusted))
     policy = helpers.document(outer_raw)
     candidate_policy.require_publisher_policy(policy, trusted)
+    package_architecture = {"x86_64": "windows-x86_64", "aarch64": "windows-aarch64"}[
+        helper["architecture"]]
+    package_review_raw = read_owned(
+        source, f"packaging/inputs/{package_architecture}/package-input-review.json")
+    candidate_policy.require_outer_review(
+        policy, review_raw, package_review_raw, helper["architecture"])
     require(sha256_bytes(outer_raw) in auth["legal_hashes"].values(),
             "outer trust policy is not in approved legal inputs")
     require(policy["schema"] == 1 and set(policy) == {"schema", "files"}, "outer policy schema differs")

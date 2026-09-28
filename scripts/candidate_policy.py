@@ -11,19 +11,33 @@ import argparse
 import hashlib
 import json
 import os
-from pathlib import Path
 import re
 import subprocess
 import sys
-import tomllib
+import unicodedata
+from pathlib import Path
 from urllib.parse import quote
+
+import tomllib
 
 if __package__:
     from scripts import cua_release_inputs
-    from scripts.validate_package_inputs import PackageInputError, parse_json, read_owned, relative_path, validate_package_inputs
+    from scripts.validate_package_inputs import (
+        PackageInputError,
+        parse_json,
+        read_owned,
+        relative_path,
+        validate_package_inputs,
+    )
 else:
     import cua_release_inputs
-    from validate_package_inputs import PackageInputError, parse_json, read_owned, relative_path, validate_package_inputs
+    from validate_package_inputs import (
+        PackageInputError,
+        parse_json,
+        read_owned,
+        relative_path,
+        validate_package_inputs,
+    )
 
 REPOSITORY = "MONTBRAIN/vadgr"
 TRUSTED_ROOT_SHA256 = "3c2cc7f357dc064ec527fdcd78da6e9245c21a381e1abaa0f2b62b186bcac1a1"
@@ -128,7 +142,7 @@ def input_digest(rows: list[tuple[str, str, str, str]]) -> str:
                 "tree has ambiguous path")
         seen.add(name)
         if name != EXCLUDED:
-            data.extend(f"{mode} {kind} {object_id}\t{name}\0".encode("utf-8"))
+            data.extend(f"{mode} {kind} {object_id}\t{name}\0".encode())
     require(EXCLUDED in seen and bool(data), "candidate runbook or product inputs are missing")
     return hashlib.sha256(data).hexdigest()
 
@@ -281,8 +295,8 @@ def require_trusted_check_runs(selected: list[dict], checks: list[dict],
 def require_release_inputs(trusted_root: str, terms: str, legal: bool, sbom: bool) -> None:
     require(hashlib.sha256(trusted_root.encode()).hexdigest() == TRUSTED_ROOT_SHA256,
             "candidate Sigstore public root differs from reviewed trust policy")
-    require(bool(terms.strip()) and not re.search(r"draft|proposed|pending legal review", terms, re.I),
-            "terms have not received final legal review")
+    require(bool(terms.strip()) and not re.search(r"draft|proposed|pending legal review", terms, re.IGNORECASE),
+            "owner-approved release terms are not configured")
     require(legal and sbom, "legal files, SBOM or pinned inputs are missing")
 
 
@@ -367,13 +381,66 @@ def candidate_policy_data(source, trusted, name, approval):
     return raw
 
 
+def distinguished_name(value: str) -> tuple[tuple[str, str], ...]:
+    """Parse the simple RFC 4514 form used by the pinned publisher identity."""
+    require(isinstance(value, str) and value and "\\" not in value and "+" not in value,
+            "candidate publisher subject is unsupported")
+    result = []
+    for field in value.split(","):
+        key, separator, item = field.strip().partition("=")
+        key = key.strip().upper()
+        if key == "S":
+            key = "ST"
+        require(separator == "=" and key in {"CN", "O", "OU", "L", "ST", "C"}
+                and item.strip(), "candidate publisher subject is malformed")
+        result.append((key, unicodedata.normalize("NFC", item.strip())))
+    require(len(result) == len({key for key, _ in result}),
+            "candidate publisher subject has duplicate attributes")
+    return tuple(result)
+
+
 def require_publisher_policy(policy, trusted):
     identity = parse_json(read_owned(trusted, "scripts/signing/publisher.json"))
     for row in policy["files"].values():
         if row.get("trust_class") == "publisher-sign":
-            require(row.get("signer") == identity["subject"]
+            require(distinguished_name(row.get("signer")) == distinguished_name(identity["subject"])
                     and row.get("certificate_sha256") == identity["sha256"].lower(),
                     "candidate policy cannot replace trusted publisher identity")
+
+
+def require_outer_review(policy, review_raw: bytes, package_review_raw: bytes,
+                         architecture: str) -> None:
+    """Reconstruct every opaque outer-policy reference from its named source."""
+    review = parse_json(review_raw)
+    require((json.dumps(review, sort_keys=True, separators=(",", ":")) + "\n").encode() == review_raw,
+            "outer signing review is not canonical")
+    require(isinstance(review, dict) and set(review) == {
+        "schema", "scope", "architecture", "publisher", "files"}
+        and type(review["schema"]) is int and review["schema"] == 1
+        and review["scope"] == "vadgr-0.5.0-windows-outer-signing"
+        and review["architecture"] == architecture and isinstance(review["files"], dict)
+        and isinstance(review["publisher"], dict)
+        and set(review["publisher"]) == {"signer", "certificate_sha256", "chain_root_sha256"}
+        and set(review["files"]) == set(policy["files"]),
+        "outer signing review scope differs")
+    package_review = parse_json(package_review_raw)
+    require(package_review.get("status") == "approved"
+            and package_review.get("version") == "0.5.0"
+            and package_review.get("target") == architecture + "-pc-windows-msvc",
+            "outer package review scope differs")
+    source_digest = hashlib.sha256(review_raw).hexdigest()
+    legal_digest = hashlib.sha256(package_review_raw).hexdigest()
+    for name, row in policy["files"].items():
+        reviewed = review["files"][name]
+        require(isinstance(reviewed, dict)
+                and set(reviewed) == set(row) - {"signer_policy_sha256", "legal_approval_sha256"}
+                and all(row[key] == value for key, value in reviewed.items())
+                and row["signer_policy_sha256"] == source_digest
+                and row["legal_approval_sha256"] == legal_digest,
+                "outer policy does not match its reviewed sources")
+        if row["trust_class"] == "publisher-sign":
+            require(all(row[key] == value for key, value in review["publisher"].items()),
+                    "outer publisher decision differs from its reviewed source")
 
 
 def materialize(root: Path, sha: str, rows: list[tuple[str, str, str, str]], target: Path) -> None:
@@ -427,7 +494,7 @@ def preflight(args) -> dict:
     cargo = tomllib.loads(blob("Cargo.toml"))
     require(cargo["package"]["version"] == args.version, "package version mismatch")
     changelog = blob("CHANGELOG.md")
-    require(re.search(rf"^## \[{re.escape(args.version)}\] - ", changelog, re.M) is not None,
+    require(re.search(rf"^## \[{re.escape(args.version)}\] - ", changelog, re.MULTILINE) is not None,
             "candidate changelog missing")
     names = {name for _, _, _, name in rows}
     arch_name = {"x64": "x86_64", "arm64": "aarch64"}[args.architecture]
@@ -471,7 +538,7 @@ def preflight(args) -> dict:
             git(root, "show", f"{sha}:{source_name}", binary=True)).hexdigest() == expected,
             "sealed legal source does not match reviewed bytes")
     if "release_profile" in cua_inputs:
-        for suffix in (".json", "-outer.json", "-predecessors.json"):
+        for suffix in (".json", "-outer.json", "-outer-review.json", "-predecessors.json"):
             name = f"packaging/cua/helper-signing/{arch_name}{suffix}"
             candidate_policy_data(root, trusted_root, name, approval)
     require(hashlib.sha256(git(root, "show", f"{sha}:{legal_prefix}package-input-inventory.json",

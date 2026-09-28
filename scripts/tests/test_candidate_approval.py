@@ -76,7 +76,55 @@ def test_proposed_policy_cannot_replace_trusted_publisher(proposed):
         policy.require_publisher_policy({"files": {"fixture.exe": row}}, trusted)
 
 
-@pytest.mark.parametrize("suffix", [".json", "-outer.json", "-predecessors.json"])
+def test_publisher_subject_accepts_windows_display_equivalence(proposed):
+    _, trusted, _, _ = proposed
+    (trusted / "scripts/signing").mkdir(parents=True)
+    (trusted / "scripts/signing/publisher.json").write_bytes(canonical({
+        "subject": "CN=Victor Santiago Montaño Diaz,O=Victor Santiago Montaño Diaz,L=Pasto,ST=Nariño,C=CO",
+        "sha256": "a" * 64, "sha1": "b" * 40}))
+    row = {"trust_class": "publisher-sign",
+           "signer": "CN=Victor Santiago Montaño Diaz, O=Victor Santiago Montaño Diaz, L=Pasto, S=Nariño, C=CO",
+           "certificate_sha256": "a" * 64}
+    policy.require_publisher_policy({"files": {"fixture.exe": row}}, trusted)
+    row["signer"] = row["signer"].replace("Pasto", "Bogota")
+    with pytest.raises(policy.Refused):
+        policy.require_publisher_policy({"files": {"fixture.exe": row}}, trusted)
+
+
+@pytest.mark.parametrize("subject", [
+    r"CN=Victor\, Santiago,O=Publisher,L=Pasto,ST=Nariño,C=CO",
+    "CN=Victor+OU=Release,O=Publisher,L=Pasto,ST=Nariño,C=CO",
+    "CN=Victor,CN=Santiago,O=Publisher,L=Pasto,ST=Nariño,C=CO",
+])
+def test_publisher_subject_refuses_ambiguous_or_duplicate_forms(subject):
+    with pytest.raises(policy.Refused):
+        policy.distinguished_name(subject)
+
+
+def test_outer_policy_reconstructs_named_review_and_package_binding():
+    reviewed = {"input_sha256": "a" * 64, "trust_class": "publisher-sign",
+                "signer": "CN=Fixture", "certificate_sha256": "b" * 64,
+                "chain_root_sha256": "c" * 64, "digest_algorithm": "sha256",
+                "timestamp_algorithm": "rfc3161-sha256"}
+    publisher = {key: reviewed[key] for key in
+                 ("signer", "certificate_sha256", "chain_root_sha256")}
+    review = (json.dumps({"schema": 1, "scope": "vadgr-0.5.0-windows-outer-signing",
+                          "architecture": "x86_64", "publisher": publisher,
+                          "files": {"payload/vadgr.exe": reviewed}},
+                         sort_keys=True, separators=(",", ":")) + "\n").encode()
+    package = canonical({"status": "approved", "version": "0.5.0",
+                         "target": "x86_64-pc-windows-msvc"})
+    row = {**reviewed,
+           "signer_policy_sha256": hashlib.sha256(review).hexdigest(),
+           "legal_approval_sha256": hashlib.sha256(package).hexdigest()}
+    value = {"schema": 1, "files": {"payload/vadgr.exe": row}}
+    policy.require_outer_review(value, review, package, "x86_64")
+    row["legal_approval_sha256"] = "d" * 64
+    with pytest.raises(policy.Refused):
+        policy.require_outer_review(value, review, package, "x86_64")
+
+
+@pytest.mark.parametrize("suffix", [".json", "-outer.json", "-outer-review.json", "-predecessors.json"])
 def test_feature_policy_requires_legal_hash_and_existing_trusted_equality(proposed, suffix):
     source, trusted, _, value = proposed
     name = "packaging/cua/helper-signing/x86_64" + suffix
