@@ -100,6 +100,14 @@ def test_reviewed_text_input_accepts_only_exact_windows_line_endings():
     assert not package.source_input_matches("Cargo.lock", b"changed\r\n", expected)
 
 
+def test_canonical_text_sha256_is_checkout_independent():
+    lf = b"first\nsecond\n"
+    assert package.canonical_text_sha256(lf) == package.canonical_text_sha256(
+        lf.replace(b"\n", b"\r\n"))
+    with pytest.raises(package.PackageInputError, match="text line endings differ"):
+        package.canonical_text_sha256(b"first\rsecond\n")
+
+
 def test_none_without_exact_source_and_absence_audit_is_rejected(bundle):
     _, _, inventory, _, _ = bundle
     inventory["components"][0]["copyright_text"] = "NONE"
