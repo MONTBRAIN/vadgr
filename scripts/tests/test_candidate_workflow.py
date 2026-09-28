@@ -38,6 +38,16 @@ def test_dispatch_is_default_branch_only_and_one_shot():
         assert re.fullmatch(r'[\w/-]+@[a-f0-9]{40}', action), action
 
 
+def test_single_target_qualification_does_not_schedule_final_native_vehicles():
+    workflow = (ROOT / '.github/workflows/candidate.yml').read_text()
+    inputs = workflow.split('\npermissions:', 1)[0]
+    assert 'qualification_scope:' in inputs
+    assert 'options: [windows-qualification, complete-distribution]' in inputs
+    assert 'default: windows-qualification' in inputs
+    native = workflow.split('\n  build-native:', 1)[1]
+    assert "if: ${{ inputs.qualification_scope == 'complete-distribution' }}" in native
+
+
 def test_native_matrix_pins_supported_python_before_trusted_tools():
     workflow = (ROOT / '.github/workflows/candidate.yml').read_text()
     native = workflow.split('\n  build-native:', 1)[1]
