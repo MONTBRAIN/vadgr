@@ -20,6 +20,12 @@ on:
         type: choice
         options: [x64, arm64]
         required: true
+      qualification_scope:
+        description: Build one held Windows qualification or the complete native distribution matrix
+        type: choice
+        options: [windows-qualification, complete-distribution]
+        default: windows-qualification
+        required: true
 
 permissions:
   contents: read
@@ -1030,6 +1036,7 @@ jobs:
   # native targets. Unsigned artifacts never constitute a complete held candidate.
   build-native:
     name: build-${{ matrix.target }}
+    if: ${{ inputs.qualification_scope == 'complete-distribution' }}
     needs: preflight
     strategy:
       fail-fast: false
