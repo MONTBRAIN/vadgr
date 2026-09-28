@@ -11,37 +11,12 @@ import tarfile
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from scripts import candidate_claims as claims, cua_release_inputs as release
 from scripts.candidate import cua_shared as shared, cua_helpers as helpers
+from scripts.candidate import cua_unix
 from scripts.validate_package_inputs import read_owned, require, sha256_bytes, PackageInputError
 
 
 def unpack(archive, output):
-    require(not output.exists(), "WSL extraction destination exists")
-    names, total = set(), 0
-    with tarfile.open(archive, "r:*") as source:
-        members = source.getmembers()
-        require(len(members) <= 12000, "WSL archive member limit")
-        for member in members:
-            name = member.name.removeprefix("./").rstrip("/")
-            if name in ("", ".") and member.isdir():
-                continue
-            helpers.relative_path(name)
-            require(name.casefold() not in names and (member.isdir() or member.isfile()),
-                    "WSL special or duplicate member")
-            names.add(name.casefold())
-            total += member.size
-            require(total <= 2 * 1024**3 and not member.mode & 0o7000, "WSL archive limit or special mode")
-        output.mkdir()
-        for member in members:
-            name = member.name.removeprefix("./").rstrip("/")
-            if name in ("", "."):
-                continue
-            target = output / name
-            if member.isdir():
-                target.mkdir(parents=True, exist_ok=True)
-            else:
-                with source.extractfile(member) as stream:
-                    shared.write(target, stream.read())
-                target.chmod(member.mode & 0o777)
+    cua_unix.unpack(archive, output)
 
 
 def artifact_record(directory, metadata):
@@ -72,7 +47,7 @@ def verify_unattested(root, records, auth, windows):
     from scripts.candidate import cua_signing as signing
     if windows:
         signing.validate_records(records, auth)
-    actual = signing.tree(root)
+    actual = signing.tree(root) if windows else cua_unix.tree(root)
     mapping = claims.parse(read_owned(records, "input-output.json"))
     require(actual == {name: row["output"] for name, row in mapping.items()}, "sealed runtime tree differs")
     runtime = root / "payload" if windows else root
@@ -86,15 +61,15 @@ def verify_unattested(root, records, auth, windows):
 
 def pack(root, output):
     require(not output.exists(), "held WSL vehicle exists")
+    cua_unix.tree(root)
     with tarfile.open(output, "w:gz", format=tarfile.PAX_FORMAT) as archive:
         for path in sorted(root.rglob("*")):
             name = path.relative_to(root).as_posix()
-            require(not path.is_symlink() and not getattr(path, "is_junction", lambda: False)(),
-                    "held WSL links refused")
-            if path.is_file():
+            require(not getattr(path, "is_junction", lambda: False)(), "held WSL junction refused")
+            if path.is_file() and not path.is_symlink():
                 read_owned(root, name)
             row = archive.gettarinfo(str(path), name)
-            require(row.isdir() or row.isfile(), "held WSL special file")
+            require(row.isdir() or row.isfile() or row.issym(), "held WSL special file")
             row.uid = row.gid = 0
             row.uname = row.gname = ""
             row.mtime = 1609459200

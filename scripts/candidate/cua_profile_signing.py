@@ -7,11 +7,11 @@ import json
 import subprocess
 
 if __package__ == "scripts.candidate":
-    from scripts.candidate import cua_helpers as helpers, cua_signing as signing
+    from scripts.candidate import cua_helpers as helpers, cua_signing as signing, cua_unix
     from scripts import cua_release_inputs as release
     from scripts.validate_package_inputs import canonical_json, parse_json, read_owned, require, sha256_bytes
 else:
-    from candidate import cua_helpers as helpers, cua_signing as signing
+    from candidate import cua_helpers as helpers, cua_signing as signing, cua_unix
     import cua_release_inputs as release
     from validate_package_inputs import canonical_json, parse_json, read_owned, require, sha256_bytes
 
@@ -189,7 +189,7 @@ def reseal_profile(root, auth, records, receipt, helper_records, *, profile_root
         # before extraction. Never reconstruct its observation from Windows.
         require(not records.exists() and receipt == {} and signature_reports in (None, {}),
                 "WSL reseal cannot consume an outer Windows signer receipt")
-        files = signing.tree(owned_root)
+        files = cua_unix.tree(owned_root)
         actual = dict(files)
         records.mkdir()
         (records / "pre-payload.json").write_bytes(payload_raw)
