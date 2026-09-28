@@ -159,6 +159,16 @@ def test_clean_install_retains_the_required_check_identity():
     assert not re.search(r"(?m)^    name:", job("clean-install"))
 
 
+def test_windows_clean_install_probes_the_relocatable_runtime_entrypoint():
+    assembly = step(
+        "clean-install",
+        "Assemble the complete clean install on Windows without Python tools",
+    )
+    assert "lib\\cua\\python\\$($payload.python_version)\\python.exe" in assembly
+    assert "$bootstrap computer_use.mcp_server --version" in assembly
+    assert "Scripts\\python.exe" not in assembly
+
+
 @pytest.mark.parametrize("protected", [False, True])
 def test_trusted_workflow_bytes_survive_windows_autocrlf(tmp_path, protected):
     def git(*arguments):
