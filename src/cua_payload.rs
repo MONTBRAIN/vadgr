@@ -503,7 +503,7 @@ impl CuaPayloadInstaller {
 
         let uv = find_named_file(&uv_extract, if cfg!(windows) { "uv.exe" } else { "uv" })?
             .context("uv archive has no uv executable")?;
-        let environment_staging = staging.join(environment_generation());
+        let environment_staging = staged_environment(staging);
         let requirements = staging.join("requirements.lock");
         std::fs::write(&requirements, selected_requirements())?;
         let cache = staging.join("uv-cache");
@@ -796,6 +796,14 @@ fn environment_generation() -> String {
         format!("{generation}-unix-relative-v1")
     } else {
         generation
+    }
+}
+
+fn staged_environment(staging: &Path) -> PathBuf {
+    if cfg!(windows) {
+        staging.join("environments").join(environment_generation())
+    } else {
+        staging.join(environment_generation())
     }
 }
 
@@ -1847,6 +1855,18 @@ assert not outside
     fn embedded_lock_matches_the_compiled_pin() {
         assert_eq!(hex_sha256(REQUIREMENTS), REQUIREMENTS_SHA256);
         validate_embedded_lock(current_pins().unwrap().requirements_sha256).unwrap();
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn windows_staging_matches_the_installed_bootstrap_layout() {
+        let root = tempfile::tempdir().unwrap();
+        assert_eq!(
+            staged_environment(root.path()),
+            root.path()
+                .join("environments")
+                .join(environment_generation())
+        );
     }
 
     #[cfg(windows)]
