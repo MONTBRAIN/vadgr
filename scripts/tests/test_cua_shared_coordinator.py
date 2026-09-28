@@ -259,6 +259,9 @@ def test_wsl_extraction_rejects_cycles_and_children_below_links_before_writes(tm
 def test_wsl_links_case_sensitive_names_and_directory_link_roundtrip(tmp_path):
     archive = tmp_path / "runtime.tar"
     with tarfile.open(archive, "w") as stream:
+        directory = tarfile.TarInfo("lib")
+        directory.type = tarfile.DIRTYPE
+        stream.addfile(directory)
         for name, data in (("data/A", b"upper"), ("data/a", b"lower"), ("lib/value", b"value")):
             row = tarfile.TarInfo(name)
             row.size = len(data)
