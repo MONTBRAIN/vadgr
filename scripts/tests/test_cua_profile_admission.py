@@ -192,6 +192,25 @@ def test_feature_data_cannot_change_transitive_dependencies(admission):
         profiles.reviewed(a.source, a.trusted, "linux-x86_64")
 
 
+def test_079_profile_must_remove_unused_nodriver_from_older_baseline(admission):
+    a = admission
+    baseline = a.trusted / profiles.release.lock_path(
+        profiles.target_for("linux-x86_64"))
+    baseline.write_bytes(
+        b"nodriver==0.50.3 --hash=sha256:" + b"d" * 64 + b"\n" +
+        baseline.read_bytes())
+    profiles.reviewed(a.source, a.trusted, "linux-x86_64")
+
+    name = profiles.lock_path("linux-x86_64")
+    raw = (a.source / name).read_bytes()
+    raw = b"nodriver==0.50.3 --hash=sha256:" + b"d" * 64 + b"\n" + raw
+    write(a.source, name, raw)
+    a.inputs["profiles"]["linux-x86_64"]["requirements_sha256"] = sha256_bytes(raw)
+    write(a.source, profiles.INPUTS, profiles.canonical(a.inputs))
+    with pytest.raises(PackageInputError, match="transitive dependencies"):
+        profiles.reviewed(a.source, a.trusted, "linux-x86_64")
+
+
 @pytest.mark.parametrize("mutation", ["attestation", "run", "workflow", "branch", "job", "artifact",
                                       "source", "archive", "root", "attested-run", "attested-subject",
                                       "attested-tooling", "self-hosted"])

@@ -37,6 +37,7 @@ WORKFLOW = ".github/workflows/profile-wheels.yml"
 PREFIX = "computer_use/browser/"
 MAX_EXPANDED = 1024 * 1024 * 1024
 MAX_FILES = 20_000
+REMOVED_PROFILE_DEPENDENCIES = {"0.7.9": {"nodriver"}}
 
 
 def canonical(value):
@@ -155,8 +156,11 @@ def reviewed(source: Path, trusted: Path, profile: str):
     require(selected.get("vadgr-computer-use") == (catalog["cua_version"], pins["wheel_sha256"]),
             "profile lock does not select its exact CUA wheel")
     baseline = release.selected_lock(read_owned(trusted, release.lock_path(target)))
-    require({k: v for k, v in selected.items() if k != "vadgr-computer-use"}
-            == {k: v for k, v in baseline.items() if k != "vadgr-computer-use"},
+    removed = REMOVED_PROFILE_DEPENDENCIES.get(catalog["cua_version"], set())
+    require(not (removed & selected.keys())
+            and {k: v for k, v in selected.items() if k != "vadgr-computer-use"}
+            == {k: v for k, v in baseline.items()
+                if k != "vadgr-computer-use" and k not in removed},
             "profile transitive dependencies differ from trusted baseline")
     native_raw, native = release.manifest(trusted)
     if target in release.CUSTOM_TARGETS:
