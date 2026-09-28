@@ -296,6 +296,23 @@ def test_preserves_non_utf8_component_bytes(generator, inputs, field):
         assert data in (output / "legal" / aggregate).read_bytes()
 
 
+def test_source_archives_are_retained_without_binary_notice_concatenation(generator, inputs):
+    path, document, _ = inputs
+    archive = b"PK\x03\x04\x00\xffexact source archive"
+    name = "legal/SOURCE-OFFERS/component-source.zip"
+    (path.parent / "source.zip").write_bytes(archive)
+    reference = {"path": name, "sha256": digest(archive)}
+    document["inventory"]["components"][0]["source_offer_files"].append(reference)
+    document["files"][name] = {"path": "source.zip", "sha256": digest(archive)}
+    save(inputs)
+    output = path.parent / "result"
+    generator.generate_legal_bundle(path, output)
+    assert (output / name).read_bytes() == archive
+    notice = (output / "legal/SOURCE-OFFER.txt").read_bytes()
+    assert archive not in notice
+    assert name.encode() in notice and digest(archive).encode() in notice
+
+
 def test_rejects_empty_component_bytes(generator, inputs):
     path, document, _ = inputs
     reference = document["inventory"]["components"][0]["license_files"][0]
