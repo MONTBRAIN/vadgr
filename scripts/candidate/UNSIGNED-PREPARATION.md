@@ -46,6 +46,11 @@ A source test failure prevents release compilation. The helper then compiles
 the daemon and application with
 the selected release profile, and assembles the private payload through
 `__payload-setup`. It does not launch the application or perform an installation.
+Before capture, the native build moves the complete payload to a different
+absolute root and removes the assembly root. It runs the private Python version
+and imports the pinned CUA command through the bundled bootstrap there. It then
+restores the same bytes for observation. A build path that remains in the
+Windows runtime therefore fails before the output can become review input.
 
 The bootstrapper DLL is built only when the exact source file
 `packaging/legal/TERMS.txt` supplies one explicit version `1.0`. Its compile-time
