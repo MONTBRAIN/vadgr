@@ -229,7 +229,7 @@ impl CuaRuntime {
 
         let environment = cua_root.join("environments").join(environment_generation());
         let runtime = Self {
-            interpreter: environment_python(&environment),
+            interpreter: installed_runtime_python(&cua_root, &environment, pins.python),
             bootstrap: cua_root.join("bootstrap.py"),
             environment,
             responsible_host: responsible_host(root),
@@ -245,23 +245,23 @@ impl CuaRuntime {
             "cua interpreter is missing: {}",
             runtime.interpreter.display()
         );
+        validate_payload_root(root, &cua_root)?;
+        ensure!(
+            std::fs::canonicalize(&runtime.interpreter)?
+                .starts_with(std::fs::canonicalize(&cua_root)?),
+            "cua interpreter escapes its owned payload"
+        );
+        ensure!(
+            !std::fs::read_to_string(runtime.environment.join("pyvenv.cfg"))?
+                .lines()
+                .any(is_python_home_field),
+            "cua environment retains assembly home metadata"
+        );
         #[cfg(unix)]
         {
-            validate_payload_root(root, &cua_root)?;
-            ensure!(
-                std::fs::canonicalize(&runtime.interpreter)?
-                    .starts_with(std::fs::canonicalize(&cua_root)?),
-                "cua interpreter escapes its owned payload"
-            );
             ensure!(
                 !std::fs::read_link(&runtime.interpreter)?.is_absolute(),
                 "cua interpreter retains an absolute assembly path"
-            );
-            ensure!(
-                !std::fs::read_to_string(runtime.environment.join("pyvenv.cfg"))?
-                    .lines()
-                    .any(is_python_home_field),
-                "cua environment retains assembly home metadata"
             );
         }
         ensure!(
@@ -442,7 +442,7 @@ impl CuaPayloadInstaller {
             // helper execution without its inherited signed authorization.
             let environment = cua_root.join("environments").join(environment_generation());
             return Ok(CuaRuntime {
-                interpreter: environment_python(&environment),
+                interpreter: installed_runtime_python(&cua_root, &environment, self.pins.python),
                 bootstrap: cua_root.join("bootstrap.py"),
                 environment,
                 responsible_host: responsible_host(&self.install_root),
@@ -554,19 +554,26 @@ impl CuaPayloadInstaller {
         }
         #[cfg(unix)]
         finalize_unix_environment(&environment_staging, &python_final)?;
+        #[cfg(windows)]
+        finalize_windows_environment(&environment_staging)?;
         prune_python_runtime(&environment_staging, target)?;
         windows_pe::verify_retained_dependencies(&environment_staging, target, &excluded_dlls)?;
 
         let bootstrap_staging = staging.join("bootstrap.py");
         std::fs::write(&bootstrap_staging, BOOTSTRAP)?;
+        let staged_interpreter = if cfg!(windows) {
+            base_python(&python_final)
+        } else {
+            environment_interpreter
+        };
         validate_environment(
-            &environment_interpreter,
+            &staged_interpreter,
             &bootstrap_staging,
             self.pins.python,
             self.pins.cua,
         )?;
         let staged_runtime = CuaRuntime {
-            interpreter: environment_interpreter,
+            interpreter: staged_interpreter,
             bootstrap: bootstrap_staging,
             environment: environment_staging.clone(),
             responsible_host: responsible_host(&self.install_root),
@@ -792,10 +799,78 @@ fn environment_generation() -> String {
     }
 }
 
-#[cfg(unix)]
 fn is_python_home_field(line: &str) -> bool {
     line.split_once('=')
         .is_some_and(|(key, _)| key.trim() == "home")
+}
+
+#[cfg(windows)]
+fn finalize_windows_environment(environment: &Path) -> Result<()> {
+    let container = environment
+        .parent()
+        .context("environment has no staging directory")?;
+    ensure!(
+        container
+            .file_name()
+            .is_some_and(|name| name.to_string_lossy().starts_with(".staging-")),
+        "only a staged cua environment can be finalized"
+    );
+
+    let config_path = environment.join("pyvenv.cfg");
+    let config = std::fs::read_to_string(&config_path)?;
+    ensure!(
+        config.lines().any(is_python_home_field),
+        "staged Windows cua environment has no Python home metadata"
+    );
+    let config: String = config
+        .split_inclusive('\n')
+        .filter(|line| !is_python_home_field(line))
+        .collect();
+    std::fs::write(config_path, config)?;
+
+    let site_packages = environment.join("Lib/site-packages");
+    ensure!(
+        site_packages.is_dir(),
+        "Windows cua site-packages is missing"
+    );
+    for entry in std::fs::read_dir(&site_packages)? {
+        let dist_info = entry?.path();
+        if !dist_info.is_dir()
+            || !dist_info
+                .file_name()
+                .is_some_and(|name| name.to_string_lossy().ends_with(".dist-info"))
+        {
+            continue;
+        }
+        let cache = dist_info.join("uv_cache.json");
+        if !cache.is_file() {
+            continue;
+        }
+        let record = dist_info.join("RECORD");
+        let record_text = std::fs::read_to_string(&record)?;
+        let cache_entry = format!(
+            "{}/uv_cache.json,",
+            dist_info
+                .file_name()
+                .context("dist-info directory has no name")?
+                .to_string_lossy()
+        );
+        let mut removed = 0;
+        let filtered: String = record_text
+            .split_inclusive('\n')
+            .filter(|line| {
+                let keep = !line.starts_with(&cache_entry);
+                if !keep {
+                    removed += 1;
+                }
+                keep
+            })
+            .collect();
+        ensure!(removed == 1, "uv cache metadata has no unique RECORD row");
+        std::fs::write(record, filtered)?;
+        std::fs::remove_file(cache)?;
+    }
+    Ok(())
 }
 
 #[cfg(unix)]
@@ -854,6 +929,14 @@ fn environment_python(environment: &Path) -> PathBuf {
         environment.join("Scripts/python.exe")
     } else {
         environment.join("bin/python")
+    }
+}
+
+fn installed_runtime_python(cua_root: &Path, environment: &Path, python_version: &str) -> PathBuf {
+    if cfg!(windows) {
+        base_python(&cua_root.join("python").join(python_version))
+    } else {
+        environment_python(environment)
     }
 }
 
@@ -1689,7 +1772,21 @@ assert not outside
         let environment = cua_root.join("environments").join(environment_generation());
         std::fs::create_dir_all(environment_python(&environment).parent().unwrap()).unwrap();
         #[cfg(not(unix))]
-        std::fs::write(environment_python(&environment), b"private python").unwrap();
+        {
+            std::fs::write(
+                environment_python(&environment),
+                b"unused environment launcher",
+            )
+            .unwrap();
+            let python = cua_root.join("python").join(pins.python);
+            std::fs::create_dir_all(&python).unwrap();
+            std::fs::write(base_python(&python), b"private python").unwrap();
+            std::fs::write(
+                environment.join("pyvenv.cfg"),
+                "implementation = CPython\nrelocatable = true\n",
+            )
+            .unwrap();
+        }
         #[cfg(unix)]
         {
             let (staged, python) = unix_environment_fixture(&cua_root, ".staging-test");
@@ -1749,6 +1846,70 @@ assert not outside
     fn embedded_lock_matches_the_compiled_pin() {
         assert_eq!(hex_sha256(REQUIREMENTS), REQUIREMENTS_SHA256);
         validate_embedded_lock(current_pins().unwrap().requirements_sha256).unwrap();
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn windows_release_metadata_is_independent_of_root_and_install_time() {
+        fn fixture(root: &Path, home: &str, timestamp: u64) -> PathBuf {
+            let environment = root.join(".staging-test").join("generation");
+            let dist_info = environment.join("Lib/site-packages/example-1.0.dist-info");
+            std::fs::create_dir_all(&dist_info).unwrap();
+            std::fs::write(
+                environment.join("pyvenv.cfg"),
+                format!("home = {home}\r\nimplementation = CPython\r\nrelocatable = true\r\n"),
+            )
+            .unwrap();
+            std::fs::write(
+                dist_info.join("uv_cache.json"),
+                format!(r#"{{"timestamp":{{"secs_since_epoch":{timestamp},"nanos_since_epoch":1}},"commit":null,"tags":null,"env":{{}},"directories":{{}}}}"#),
+            )
+            .unwrap();
+            std::fs::write(
+                dist_info.join("RECORD"),
+                "example.py,sha256=kept,7\r\nexample-1.0.dist-info/uv_cache.json,sha256=variable,127\r\nexample-1.0.dist-info/RECORD,,\r\n",
+            )
+            .unwrap();
+            environment
+        }
+
+        let first = tempfile::tempdir().unwrap();
+        let second = tempfile::tempdir().unwrap();
+        let first_environment = fixture(first.path(), r"C:\first\python", 1);
+        let second_environment = fixture(second.path(), r"D:\second\python", 2);
+
+        finalize_windows_environment(&first_environment).unwrap();
+        finalize_windows_environment(&second_environment).unwrap();
+
+        for relative in [
+            "pyvenv.cfg",
+            "Lib/site-packages/example-1.0.dist-info/RECORD",
+        ] {
+            assert_eq!(
+                std::fs::read(first_environment.join(relative)).unwrap(),
+                std::fs::read(second_environment.join(relative)).unwrap()
+            );
+        }
+        assert_eq!(
+            std::fs::read_to_string(first_environment.join("pyvenv.cfg")).unwrap(),
+            "implementation = CPython\r\nrelocatable = true\r\n"
+        );
+        assert_eq!(
+            std::fs::read_to_string(
+                first_environment.join("Lib/site-packages/example-1.0.dist-info/RECORD")
+            )
+            .unwrap(),
+            "example.py,sha256=kept,7\r\nexample-1.0.dist-info/RECORD,,\r\n"
+        );
+        assert!(
+            !first_environment
+                .join("Lib/site-packages/example-1.0.dist-info/uv_cache.json")
+                .exists()
+        );
+        assert_eq!(
+            release::write_inventory(&first_environment, "x86_64-pc-windows-msvc").unwrap(),
+            release::write_inventory(&second_environment, "x86_64-pc-windows-msvc").unwrap()
+        );
     }
 
     #[test]
@@ -1831,10 +1992,15 @@ assert not outside
         let runtime = CuaRuntime::below_install_root(&root).unwrap();
         assert!(runtime.interpreter().starts_with(&root));
         assert!(runtime.environment().starts_with(&root));
-        #[cfg(not(target_os = "macos"))]
+        #[cfg(all(not(target_os = "macos"), not(windows)))]
         assert_eq!(
             runtime.stdio_command().program,
             environment_python(runtime.environment())
+        );
+        #[cfg(windows)]
+        assert_eq!(
+            runtime.stdio_command().program,
+            base_python(&root.join("lib/cua/python").join(PYTHON_VERSION))
         );
         #[cfg(target_os = "macos")]
         assert!(
