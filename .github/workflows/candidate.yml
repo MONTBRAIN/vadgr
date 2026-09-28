@@ -238,13 +238,13 @@ jobs:
           GITHUB_TOKEN: ''
         run: |
           set -euo pipefail
-          sh scripts/candidate/build-native.sh "$RELEASE_PROFILE" source native-output "$RUNNER_TEMP/vadgr-wheelhouse"
+          sh scripts/candidate/build-wsl-consumer.sh "$RELEASE_PROFILE" source consumer-output "$RUNNER_TEMP/vadgr-wheelhouse"
           mkdir wsl-input
-          tar -C "$RUNNER_TEMP/vadgr-wsl-expanded" -cf wsl-input/runtime.tar .
+          tar -C consumer-output/runtime --sort=name --mtime='UTC 2020-01-01' --owner=0 --group=0 --numeric-owner -cf wsl-input/runtime.tar .
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         id: record
         with:
-          name: unsigned-wsl-runtime
+          name: unsigned-wsl-helper-consumer
           path: wsl-input/
           if-no-files-found: error
           retention-days: 90
@@ -1007,19 +1007,22 @@ jobs:
         id: attestation
         with:
           subject-path: wsl/cua-runtime-authorization.json
-      - name: Retain verified WSL held vehicle and inventory bindings
+      - name: Retain the attested non-installable WSL helper consumer
         shell: bash
         env:
           RUNTIME_BUNDLE: ${{ steps.attestation.outputs.bundle-path }}
         run: |
           set -euo pipefail
           cp "$RUNTIME_BUNDLE" wsl/cua-runtime-authorization.sigstore.json
-          python scripts/candidate/cua_workflow.py hold-wsl --authorization authorization.json --root wsl --records staged/cua-records --out held-wsl
+          mkdir attested-consumer
+          tar -C wsl --sort=name --mtime='UTC 2020-01-01' --owner=0 --group=0 --numeric-owner -cf attested-consumer/runtime.tar .
+          cp -R staged/cua-records attested-consumer/
+          printf '%s\n' '{"schema":1,"scope":"wsl-helper-consumer","installable":false,"publishable":false}' > attested-consumer/scope.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         id: record
         with:
-          name: held-wsl-attested
-          path: held-wsl/
+          name: attested-wsl-helper-consumer
+          path: attested-consumer/
           if-no-files-found: error
           retention-days: 90
 
