@@ -29,6 +29,9 @@ POLICY = "publisher-policy.json"
 REPORTS = "signature-reports.json"
 MANIFEST = "broker-final-manifest.json"
 MAPPING = "input-output.json"
+FIRST_PARTY_OUTER_INPUTS = frozenset({
+    "ba-functions.dll", "payload/vadgr-app.exe", "payload/vadgr.exe",
+})
 
 
 def read(path):
@@ -48,6 +51,26 @@ def package_file(root, relative):
     require(len(matches) == 1, "profile package member is absent or ambiguous")
     path = matches[0].relative_to(root).as_posix()
     return path, read_owned(root, path)
+
+
+def bind_first_party_outer_inputs(policy, files):
+    """Bind fresh first-party build bytes without changing reviewed trust decisions."""
+    outer = policy["files"]
+    require(FIRST_PARTY_OUTER_INPUTS <= set(outer), "first-party outer inputs are incomplete")
+    rebound = {}
+    for path, row in outer.items():
+        require(path in files and isinstance(files[path], dict), "approved outer input is absent")
+        observed = files[path].get("sha256")
+        helpers.digest(observed)
+        if path in FIRST_PARTY_OUTER_INPUTS:
+            require(row["trust_class"] == "publisher-sign",
+                    "first-party outer input is not approved for publisher signing")
+            rebound[path] = {**row, "input_sha256": observed}
+        else:
+            require(row["input_sha256"] == observed,
+                    "outer policy does not bind approved third-party files")
+            rebound[path] = dict(row)
+    return {"schema": policy["schema"], "files": rebound}
 
 
 def require_source(source, auth):
@@ -145,9 +168,8 @@ def bind(auth, inputs, artifact_id, artifact_digest, wsl_metadata, trusted, sour
     require(sha256_bytes(outer_raw) in auth["legal_hashes"].values(),
             "outer trust policy is not in approved legal inputs")
     require(policy["schema"] == 1 and set(policy) == {"schema", "files"}, "outer policy schema differs")
+    policy = bind_first_party_outer_inputs(policy, auth["files"])
     outer = policy["files"]
-    require(all(path in auth["files"] and row["input_sha256"] == auth["files"][path]["sha256"]
-                for path, row in outer.items()), "outer policy does not bind approved files")
     operations = sum(row["trust_class"] == "publisher-sign" for row in outer.values()) + 3
     return {**auth, "helper_claim_sha256": sha256_bytes(raw),
             "helper_policy_sha256": sha256_bytes(read_owned(inputs, POLICY)),
