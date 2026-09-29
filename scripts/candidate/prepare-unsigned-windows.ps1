@@ -87,6 +87,28 @@ try {
     & "$binary/vadgr.exe" __payload-setup --install-root $payload --payload-only --wheelhouse $wheelhouse
     if ($LASTEXITCODE -ne 0) { throw 'Unsigned private runtime assembly failed.' }
     Copy-Item -LiteralPath "$binary/vadgr.exe", "$binary/vadgr-app.exe" -Destination $payload
+    $relocated = Join-Path $env:RUNNER_TEMP "vadgr-relocated-$Architecture"
+    if (Test-Path -LiteralPath $relocated) { throw 'Relocation probe destination already exists.' }
+    Move-Item -LiteralPath $payload -Destination $relocated
+    try {
+        if (Test-Path -LiteralPath $payload) { throw 'Private runtime assembly root still exists.' }
+        $cuaManifest = Get-Content -Raw -LiteralPath (Join-Path $relocated 'lib/cua/payload.json') | ConvertFrom-Json
+        $privatePython = Join-Path $relocated "lib/cua/python/$($cuaManifest.python_version)/python.exe"
+        $bootstrap = Join-Path $relocated 'lib/cua/bootstrap.py'
+        $pythonVersion = & $privatePython --version 2>&1
+        if ($LASTEXITCODE -ne 0 -or $pythonVersion -notmatch "^Python $([Regex]::Escape($cuaManifest.python_version))$") {
+            throw 'Relocated private Python version probe failed.'
+        }
+        $cuaVersion = & $privatePython -I -B $bootstrap computer_use.mcp_server --version 2>&1
+        if ($LASTEXITCODE -ne 0 -or $cuaVersion -notmatch " $([Regex]::Escape($cuaManifest.cua_version))$") {
+            throw 'Relocated private CUA import probe failed.'
+        }
+    } finally {
+        if (Test-Path -LiteralPath $relocated) {
+            if (Test-Path -LiteralPath $payload) { throw 'Private runtime output was recreated during relocation.' }
+            Move-Item -LiteralPath $relocated -Destination $payload
+        }
+    }
     & cargo metadata --locked --format-version 1 --features native-gui --filter-platform $target |
         Set-Content -LiteralPath (Join-Path $output 'cargo-metadata.json') -Encoding utf8NoBOM
     if ($LASTEXITCODE -ne 0) { throw 'Daemon dependency metadata failed.' }

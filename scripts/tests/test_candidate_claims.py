@@ -1,6 +1,5 @@
 """Each case owns its fake GitHub state; no test contacts a signing service."""
 
-import importlib.util
 import io
 import json
 import zipfile
@@ -8,13 +7,9 @@ from pathlib import Path
 
 import pytest
 
+from scripts import candidate_claim_inspection as inspection
+from scripts import candidate_claims as claims
 from scripts import candidate_policy
-
-SPEC = importlib.util.spec_from_file_location(
-    "candidate_claims", Path(__file__).resolve().parents[1] / "candidate_claims.py"
-)
-claims = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(claims)
 
 
 @pytest.fixture(autouse=True)
@@ -24,20 +19,20 @@ def isolated_trusted_candidate_root(tmp_path, monkeypatch):
 
 
 def authorization():
-    return dict(schema=1, branch="feat/installer", version="0.5.0", pull_request=None,
-                cua_version="0.7.8", python_version="3.12.0", legal_approval_sha256="1" * 64,
-                required_checks=[{"context": "ci", "integration_id": 15368}], rules_digest="2" * 64,
-                repository="MONTBRAIN/vadgr", source_sha="a" * 40,
-                source_tree="b" * 40, input_digest="c" * 64,
-                trusted_sha="d" * 40, candidate_id="v0.5.0-rc-1", architecture="x64",
-                run_id=123, run_attempt=1, unsigned_artifact_id=99,
-                unsigned_artifact_digest="sha256:" + "e" * 64,
-                files={"payload/vadgr.exe": {"sha256": "f" * 64, "size": 12}},
-                legal_hashes={"TERMS.txt": "a" * 64}, budget=5,
-                cua_inputs=dict(target="x86_64-pc-windows-msvc", requirements_sha256="3" * 64,
-                                wheel_manifest_sha256="4" * 64),
-                cua_payload=dict(target="x86_64-pc-windows-msvc", requirements_sha256="3" * 64,
-                                 wheel_manifest_sha256="4" * 64, installed_inventory_sha256="5" * 64))
+    return {"schema": 1, "branch": "feat/installer", "version": "0.5.0", "pull_request": None,
+                "cua_version": "0.7.8", "python_version": "3.12.0", "legal_approval_sha256": "1" * 64,
+                "required_checks": [{"context": "ci", "integration_id": 15368}], "rules_digest": "2" * 64,
+                "repository": "MONTBRAIN/vadgr", "source_sha": "a" * 40,
+                "source_tree": "b" * 40, "input_digest": "c" * 64,
+                "trusted_sha": "d" * 40, "candidate_id": "v0.5.0-rc-1", "architecture": "x64",
+                "run_id": 123, "run_attempt": 1, "unsigned_artifact_id": 99,
+                "unsigned_artifact_digest": "sha256:" + "e" * 64,
+                "files": {"payload/vadgr.exe": {"sha256": "f" * 64, "size": 12}},
+                "legal_hashes": {"TERMS.txt": "a" * 64}, "budget": 5,
+                "cua_inputs": {"target": "x86_64-pc-windows-msvc", "requirements_sha256": "3" * 64,
+                                "wheel_manifest_sha256": "4" * 64},
+                "cua_payload": {"target": "x86_64-pc-windows-msvc", "requirements_sha256": "3" * 64,
+                                 "wheel_manifest_sha256": "4" * 64, "installed_inventory_sha256": "5" * 64}}
 
 
 @pytest.mark.parametrize("key,value", [("target", "aarch64-pc-windows-msvc"),
@@ -123,11 +118,13 @@ class GitHub:
         self.calls = []
         self.refs = {}
         self.tags = {}
-        self.rules = dict(id=1, target="tag", enforcement="active", bypass_actors=[],
-                          conditions={"ref_name": {"include": ["refs/tags/signing-claims/**"], "exclude": []}},
-                          rules=[{"type": "update"}, {"type": "deletion"}])
-        self.jobs = [dict(id=1, name="claim-probe", status="completed", conclusion="success"),
-                     dict(id=2, name="authorize-signing", status="completed", conclusion="success")]
+        self.rules = {"id": inspection.RULESET_ID, "target": "tag", "enforcement": "active", "bypass_actors": [],
+                          "source_type": "Repository", "source": claims.REPOSITORY,
+                          "created_at": "2026-09-16T23:29:01Z", "updated_at": "2026-09-29T03:00:00Z",
+                          "conditions": {"ref_name": {"include": inspection.NAMESPACES, "exclude": []}},
+                          "rules": [{"type": "update"}, {"type": "deletion"}]}
+        self.jobs = [{"id": 1, "name": "claim-probe", "status": "completed", "conclusion": "success"},
+                     {"id": 2, "name": "authorize-signing", "status": "completed", "conclusion": "success"}]
         self.approved = True
         self.allow_update = self.allow_delete = False
         self.run_sha = "d" * 40
@@ -137,22 +134,22 @@ class GitHub:
         self.calls.append((method, path, body))
         suffix = path.removeprefix("repos/MONTBRAIN/vadgr/")
         if suffix.startswith("rulesets?"):
-            return 200, [{"id": 1}] if "page=1" in suffix else []
-        if suffix == "rulesets/1":
+            return 200, [{"id": inspection.RULESET_ID}] if "page=1" in suffix else []
+        if suffix == f"rulesets/{inspection.RULESET_ID}":
             return 200, self.rules
         if suffix == "actions/runs/123/attempts/1":
-            return 200, dict(id=123, run_attempt=1, head_sha=self.run_sha, head_branch="master",
-                             event="workflow_dispatch", path=".github/workflows/candidate.yml",
-                             repository={"full_name": "MONTBRAIN/vadgr", "fork": False})
+            return 200, {"id": 123, "run_attempt": 1, "head_sha": self.run_sha, "head_branch": "master",
+                             "event": "workflow_dispatch", "path": ".github/workflows/candidate.yml",
+                             "repository": {"full_name": "MONTBRAIN/vadgr", "fork": False}}
         if suffix.startswith("actions/runs/123/attempts/1/jobs?"):
             return 200, {"jobs": self.jobs if "page=1" in suffix else []}
         if suffix == "actions/runs/123/approvals":
             return 200, [{"state": "approved" if self.approved else "rejected", "user": {"id": 7},
                           "environments": [{"id": 4, "name": "candidate-authorize"}]}]
         if suffix == "environments/candidate-authorize":
-            return 200, dict(id=4, can_admins_bypass=False,
-                             deployment_branch_policy={"protected_branches": False, "custom_branch_policies": True},
-                             protection_rules=[{"type": "required_reviewers", "reviewers": [{"type": "User", "reviewer": {"id": 7}}]}])
+            return 200, {"id": 4, "can_admins_bypass": False,
+                             "deployment_branch_policy": {"protected_branches": False, "custom_branch_policies": True},
+                             "protection_rules": [{"type": "required_reviewers", "reviewers": [{"type": "User", "reviewer": {"id": 7}}]}]}
         if suffix.startswith("environments/candidate-authorize/deployment-branch-policies?"):
             return 200, {"branch_policies": [{"name": "master", "type": "branch"}] if "page=1" in suffix else []}
         if suffix == "git/commits/" + "d" * 40:
@@ -197,8 +194,8 @@ def qualify(api, auth):
         archive.writestr("qualification.json", claims.canonical(record))
     api.archive = stream.getvalue()
     digest = "sha256:" + claims.digest(api.archive)
-    api.artifact = dict(id=101, expired=False, digest=digest,
-                        workflow_run={"id": 123, "head_sha": "d" * 40, "head_branch": "master"})
+    api.artifact = {"id": 101, "expired": False, "digest": digest,
+                        "workflow_run": {"id": 123, "head_sha": "d" * 40, "head_branch": "master"}}
     return claims.bind(auth, record, 101, digest), record
 
 
@@ -212,8 +209,8 @@ def test_probe_needs_explicit_permission():
 def test_probe_proves_denied_mutations_and_create_is_one_shot():
     api = GitHub()
     auth, record = qualify(api, authorization())
-    assert [call[0] for call in api.calls].count("PATCH") == 1
-    assert [call[0] for call in api.calls].count("DELETE") == 1
+    assert [call[0] for call in api.calls].count("PATCH") == 2
+    assert [call[0] for call in api.calls].count("DELETE") == 2
     api.calls.clear()
     claim = claims.create(api, auth, record)
     claims.verify(api, auth, record, claim)
@@ -371,7 +368,7 @@ def test_exact_current_policy_is_required(mutation):
     elif mutation == "single_star":
         api.rules["conditions"]["ref_name"]["include"] = ["refs/tags/signing-claims/*"]
     else:
-        api.rules["name"] = "changed after probe"
+        api.rules["updated_at"] = "2026-09-29T03:01:00Z"
     with pytest.raises(claims.Refused):
         claims.create(api, auth, record)
 

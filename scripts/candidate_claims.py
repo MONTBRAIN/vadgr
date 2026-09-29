@@ -1,19 +1,18 @@
 """One-use signing claims. Candidate archives never supply executable policy."""
 
 import argparse
-from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import io
 import json
 import os
-from pathlib import Path
 import re
 import sys
 import urllib.error
 import urllib.parse
 import urllib.request
 import zipfile
-
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 REPOSITORY = "MONTBRAIN/vadgr"
 PREFIX = f"repos/{REPOSITORY}/"
@@ -169,9 +168,11 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 
 class GitHubAPI:
+    token_name = "GH_TOKEN"
+
     def request(self, method, path, body=None, binary=False):
         require(path.startswith(PREFIX), "API target refused")
-        token = os.environ.get("GH_TOKEN")
+        token = os.environ.get(self.token_name)
         require(bool(token), "GitHub authorization unavailable")
         request = urllib.request.Request("https://api.github.com/" + path, method=method,
             data=canonical(body) if body is not None else None,
@@ -191,7 +192,7 @@ class GitHubAPI:
                 url = urllib.parse.urlsplit(location)
                 host = url.hostname or ""
                 require(url.scheme == "https" and not url.username and not url.password
-                        and (host.endswith(".blob.core.windows.net") or host.endswith(".githubusercontent.com")),
+                        and (host.endswith((".blob.core.windows.net", ".githubusercontent.com"))),
                         "artifact redirect refused")
                 # Never forward the API token to artifact storage, even on redirects.
                 try:
@@ -225,26 +226,10 @@ def pages(api, path, key=None):
 
 
 def policy_digest(api):
-    policies = []
-    protected = set()
-    for summary in pages(api, "rulesets?includes_parents=true&targets=tag"):
-        rule = get(api, f"rulesets/{summary['id']}")
-        if rule.get("enforcement") != "active" or rule.get("target") != "tag":
-            continue
-        refs = rule.get("conditions", {}).get("ref_name", {})
-        includes = refs.get("include", [])
-        # Accept only patterns whose coverage of both production and probe refs is exact.
-        if not any(pattern in {"~ALL", "refs/tags/signing-claims/**"}
-                   for pattern in includes):
-            continue
-        require(not refs.get("exclude"), "claim protection has exclusions")
-        types = {item.get("type") for item in rule.get("rules", [])}
-        if types & {"update", "deletion"}:
-            require(rule.get("bypass_actors") == [], "claim mutation protection permits bypass")
-            protected |= types & {"update", "deletion"}
-        policies.append(rule)
-    require(protected == {"update", "deletion"}, "claim mutation protections are missing")
-    return digest(canonical(sorted(policies, key=lambda item: item["id"])))
+    if not __package__:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from scripts.candidate_claim_inspection import current_policy
+    return digest(canonical(current_policy(api)))
 
 
 def verify_run(api, auth):
@@ -262,13 +247,19 @@ def identity(auth):
 
 
 def qualification_valid(auth, record):
-    require(isinstance(record, dict) and set(record) == {"schema", "identity", "policy_digest", "probe_ref", "probe_tag", "results"},
+    require(isinstance(record, dict) and set(record) == {"schema", "identity", "policy_digest", "probe_ref", "probe_tag", "results", "shared_probe"},
             "qualification schema refused")
     require(record["schema"] == 1 and record["identity"] == identity(auth)
             and hashed(record["policy_digest"]) and hashed(record["probe_tag"], 40)
             and record["probe_ref"] == f"refs/tags/signing-claims/probe/{auth['run_id']}-1"
             and record["results"] == {"create": 201, "duplicate": 422, "update_denied": True, "delete_denied": True},
             "qualification does not bind the run")
+    shared = record["shared_probe"]
+    require(isinstance(shared, dict) and set(shared) == {"schema", "policy_sha256", "ref", "tag", "results"}
+            and shared["schema"] == 1 and shared["policy_sha256"] == record["policy_digest"]
+            and shared["ref"] == f"refs/tags/cua-signing-claims/probe/{auth['run_id']}-1"
+            and hashed(shared["tag"], 40) and shared["results"] == record["results"],
+            "shared namespace qualification does not bind the run")
 
 
 def bind(auth, record, artifact_id, artifact_digest):
@@ -301,8 +292,18 @@ def probe(api, auth, allow_mutations=False):
     require(allow_mutations, "qualification mutation requires explicit permission")
     validate_authorization(auth)
     verify_run(api, auth)
+    ordinary = probe_namespace(api, auth, "signing-claims")
+    shared = probe_namespace(api, auth, "cua-signing-claims")
+    require(ordinary["policy_sha256"] == shared["policy_sha256"], "namespace probe policies differ")
+    return {"schema": 1, "identity": identity(auth), "policy_digest": ordinary["policy_sha256"],
+            "probe_ref": ordinary["ref"], "probe_tag": ordinary["tag"],
+            "results": ordinary["results"], "shared_probe": shared}
+
+
+def probe_namespace(api, auth, namespace):
+    require(namespace in {"signing-claims", "cua-signing-claims"}, "probe namespace refused")
     policy = policy_digest(api)
-    ref = f"refs/tags/signing-claims/probe/{auth['run_id']}-1"
+    ref = f"refs/tags/{namespace}/probe/{auth['run_id']}-1"
     require(api.request("GET", PREFIX + "git/ref/" + ref[5:])[0] == 404, "probe ref already exists")
     parent = get(api, "git/commits/" + auth["trusted_sha"])["parents"][0]["sha"]
     require(hashed(parent, 40) and parent != auth["trusted_sha"], "probe needs a distinct valid target")
@@ -321,8 +322,7 @@ def probe(api, auth, allow_mutations=False):
         require(status in {403, 422} and "rule" in result.get("message", "").lower(), "probe mutation was not denied by a rule")
         check_ref(api, ref, tag)
     require(policy_digest(api) == policy, "protections changed during qualification")
-    return {"schema": 1, "identity": identity(auth), "policy_digest": policy,
-            "probe_ref": ref, "probe_tag": tag,
+    return {"schema": 1, "policy_sha256": policy, "ref": ref, "tag": tag,
             "results": {"create": 201, "duplicate": 422, "update_denied": True, "delete_denied": True}}
 
 
@@ -353,6 +353,7 @@ def verify_qualification(api, auth, record):
     qualification_valid(auth, record)
     require(policy_digest(api) == record["policy_digest"], "qualification protections changed")
     check_ref(api, record["probe_ref"], record["probe_tag"])
+    check_ref(api, record["shared_probe"]["ref"], record["shared_probe"]["tag"])
     require(download_qualification(api, auth) == record, "qualification bytes differ")
 
 
@@ -384,11 +385,11 @@ def verify_approval(api, auth, completed=True):
                                  for item in relevant), "explicit owner approval is missing or rejected")
 
 
-def validate_live(api, auth, record):
+def validate_live(api, auth, record, *, approval_completed=True):
     validate_authorization(auth, bound=True)
     verify_run(api, auth)
     verify_qualification(api, auth, record)
-    verify_approval(api, auth)
+    verify_approval(api, auth, completed=approval_completed)
 
 
 def approve(api, auth, record):
@@ -404,6 +405,8 @@ def fetch_qualification(api, auth):
     record = download_qualification(api, auth)
     require(policy_digest(api) == record["policy_digest"], "qualification protections changed")
     check_ref(api, record["probe_ref"], record["probe_tag"])
+    qualification_valid(auth, record)
+    check_ref(api, record["shared_probe"]["ref"], record["shared_probe"]["tag"])
     verify_approval(api, auth)
     return record
 
@@ -416,8 +419,8 @@ def claim_ref(auth):
     return "refs/tags/signing-claims/" + digest(canonical(key))
 
 
-def create(api, auth, record):
-    validate_live(api, auth, record)
+def create(api, auth, record, *, approval_completed=True):
+    validate_live(api, auth, record, approval_completed=approval_completed)
     ref = claim_ref(auth)
     require(api.request("GET", PREFIX + "git/ref/" + ref[5:])[0] == 404, "signing inputs already claimed")
     message = {"schema": 1, "authorization": auth, "authorization_digest": digest(canonical(auth))}
@@ -425,12 +428,16 @@ def create(api, auth, record):
     status, _ = api.request("POST", PREFIX + "git/refs", {"ref": ref, "sha": tag})
     require(status == 201, "claim creation failed or raced; no retry")
     result = {"schema": 1, "ref": ref, "tag": tag, "authorization_digest": message["authorization_digest"]}
-    verify(api, auth, record, result)
+    verify(api, auth, record, result, approval_completed=approval_completed)
     return result
 
 
-def verify(api, auth, record, claim):
-    validate_live(api, auth, record)
+def verify(api, auth, record, claim, *, approval_completed=True, require_inspection=False):
+    validate_live(api, auth, record, approval_completed=approval_completed)
+    if require_inspection:
+        from scripts.candidate_claim_inspection import verify_witness
+        verify_witness(api, auth, record, claim)
+        claim = {k: v for k, v in claim.items() if k != "inspection"}
     require(isinstance(claim, dict) and set(claim) == {"schema", "ref", "tag", "authorization_digest"}
             and claim["schema"] == 1 and claim["ref"] == claim_ref(auth) and hashed(claim["tag"], 40)
             and claim["authorization_digest"] == digest(canonical(auth)), "claim tuple mismatch")
@@ -444,7 +451,7 @@ def verify(api, auth, record, claim):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode", choices=("probe", "bind", "approve", "fetch-qualification", "create", "verify"))
+    parser.add_argument("mode", choices=("probe", "bind", "approve", "fetch-qualification", "verify"))
     parser.add_argument("--authorization", type=Path, required=True)
     parser.add_argument("--qualification", type=Path)
     parser.add_argument("--claim", type=Path)
@@ -468,8 +475,6 @@ def main():
             result = probe(api, auth, args.allow_probe_mutations)
         elif args.mode == "bind":
             result = bind(auth, record, args.artifact_id, args.digest)
-        elif args.mode == "create":
-            result = create(api, auth, record)
         elif args.mode == "approve":
             approve(api, auth, record)
             result = None
@@ -477,7 +482,7 @@ def main():
             result = fetch_qualification(api, auth)
         else:
             require(args.claim is not None, "claim path required")
-            verify(api, auth, record, parse(args.claim.read_bytes()))
+            verify(api, auth, record, parse(args.claim.read_bytes()), require_inspection=True)
             result = None
         if result is not None:
             require(args.out is not None, "output path required")
@@ -491,4 +496,7 @@ def main():
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    # Keep one exception/module identity across the shared policy imports.
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from scripts.candidate_claims import main as entrypoint
+    raise SystemExit(entrypoint())

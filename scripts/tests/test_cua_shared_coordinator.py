@@ -1,17 +1,20 @@
 """Synthetic coordinator seams only. No native, legal, approval or paid signing evidence."""
-from concurrent.futures import ThreadPoolExecutor
 import io
-from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import tarfile
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 import pytest
 
-from scripts.candidate import cua_helpers as helpers, cua_shared as shared, cua_workflow as workflow
-from scripts.tests.test_cua_helpers import fixture
+from scripts.candidate import cua_helpers as helpers
+from scripts.candidate import cua_shared as shared
+from scripts.candidate import cua_workflow as workflow
 from scripts.tests.test_candidate_claims import profile_authorization
+from scripts.tests.test_cua_helpers import fixture
 from scripts.validate_package_inputs import PackageInputError, sha256_bytes
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -180,9 +183,8 @@ def test_finalize_is_immutable_and_preserves_nonpublisher_bytes(shared_output):
 
 
 def protected_rule():
-    return {"id": 10, "enforcement": "active", "target": "tag", "bypass_actors": [],
-            "conditions": {"ref_name": {"include": ["refs/tags/cua-signing-claims/**"], "exclude": []}},
-            "rules": [{"type": "update"}, {"type": "deletion"}]}
+    from scripts.tests.test_candidate_claims import GitHub
+    return GitHub().rules
 
 
 @pytest.mark.parametrize("mutation", ["disabled", "branch", "wrong-namespace", "exclusion", "bypass", "no-update", "no-delete"])
@@ -200,14 +202,14 @@ def test_shared_namespace_requires_real_nonbypassable_tag_protection(monkeypatch
         rule["bypass_actors"] = [{"actor_id": 1}]
     else:
         rule["rules"] = [{"type": "deletion" if mutation == "no-update" else "update"}]
-    monkeypatch.setattr(shared.claims, "pages", lambda *a: [{"id": 10}])
+    monkeypatch.setattr(shared.claims, "pages", lambda *a: [{"id": rule["id"]}])
     monkeypatch.setattr(shared.claims, "get", lambda *a: rule)
-    with pytest.raises(PackageInputError):
+    with pytest.raises(shared.claims.Refused):
         shared.shared_policy(None)
 
 
 @pytest.mark.parametrize("name,kind", [("../outside", tarfile.REGTYPE), ("/absolute", tarfile.REGTYPE),
-                                       ("link", tarfile.SYMTYPE), ("hard", tarfile.LNKTYPE),
+                                       ("hard", tarfile.LNKTYPE),
                                        ("device", tarfile.CHRTYPE)])
 def test_wsl_extraction_rejects_paths_and_special_members_before_writes(tmp_path, name, kind):
     archive = tmp_path / "runtime.tar"
@@ -219,6 +221,81 @@ def test_wsl_extraction_rejects_paths_and_special_members_before_writes(tmp_path
     with pytest.raises(PackageInputError):
         workflow.unpack(archive, tmp_path / "runtime")
     assert not (tmp_path / "runtime").exists()
+
+
+@pytest.mark.parametrize("name,target", [("absolute", "/outside"), ("escape", "../outside"),
+                                          ("missing", "not-there")])
+def test_wsl_extraction_rejects_unsafe_links_before_writes(tmp_path, name, target):
+    archive = tmp_path / "runtime.tar"
+    with tarfile.open(archive, "w") as stream:
+        row = tarfile.TarInfo(name)
+        row.type = tarfile.SYMTYPE
+        row.linkname = target
+        stream.addfile(row)
+    with pytest.raises(PackageInputError):
+        workflow.unpack(archive, tmp_path / "runtime")
+    assert not (tmp_path / "runtime").exists()
+
+
+def test_wsl_extraction_rejects_cycles_and_children_below_links_before_writes(tmp_path):
+    for suffix, rows in {
+        "cycle": [("a", tarfile.SYMTYPE, "b"), ("b", tarfile.SYMTYPE, "a")],
+        "child": [("a", tarfile.SYMTYPE, "target"), ("a/child", tarfile.REGTYPE, ""),
+                  ("target", tarfile.REGTYPE, "")],
+    }.items():
+        archive = tmp_path / f"{suffix}.tar"
+        with tarfile.open(archive, "w") as stream:
+            for name, kind, target in rows:
+                row = tarfile.TarInfo(name)
+                row.type = kind
+                row.linkname = target
+                stream.addfile(row, io.BytesIO())
+        output = tmp_path / suffix
+        with pytest.raises(PackageInputError):
+            workflow.unpack(archive, output)
+        assert not output.exists()
+
+
+def test_case_sensitive_wsl_archive_refuses_a_nonlinux_host(tmp_path, monkeypatch):
+    archive = tmp_path / "runtime.tar"
+    with tarfile.open(archive, "w") as stream:
+        for name in ("data/A", "data/a"):
+            row = tarfile.TarInfo(name)
+            stream.addfile(row, io.BytesIO())
+    monkeypatch.setattr(workflow.cua_unix.sys, "platform", "darwin")
+    with pytest.raises(PackageInputError):
+        workflow.unpack(archive, tmp_path / "runtime")
+    assert not (tmp_path / "runtime").exists()
+
+
+@pytest.mark.skipif(not sys.platform.startswith("linux"), reason="case-sensitive WSL archive requires Linux")
+def test_wsl_links_case_sensitive_names_and_directory_link_roundtrip(tmp_path):
+    archive = tmp_path / "runtime.tar"
+    with tarfile.open(archive, "w") as stream:
+        directory = tarfile.TarInfo("lib")
+        directory.type = tarfile.DIRTYPE
+        stream.addfile(directory)
+        for name, data in (("data/A", b"upper"), ("data/a", b"lower"), ("lib/value", b"value")):
+            row = tarfile.TarInfo(name)
+            row.size = len(data)
+            stream.addfile(row, io.BytesIO(data))
+        for name, target in (("bin/first", "../data/A"), ("bin/second", "first"), ("lib64", "lib")):
+            row = tarfile.TarInfo(name)
+            row.type = tarfile.SYMTYPE
+            row.linkname = target
+            stream.addfile(row)
+    output = tmp_path / "runtime"
+    workflow.unpack(archive, output)
+    measured = workflow.cua_unix.tree(output.resolve())
+    assert (output / "bin/second").read_bytes() == b"upper"
+    assert measured["data/A"] != measured["data/a"]
+    assert measured["bin/first"] == measured["bin/second"] == measured["data/A"]
+    assert measured["lib64"]["directory_link"] == "lib"
+    packed = tmp_path / "held.tar.gz"
+    workflow.pack(output.resolve(), packed)
+    copied = tmp_path / "copied"
+    workflow.unpack(packed, copied)
+    assert workflow.cua_unix.tree(copied.resolve()) == measured
 
 
 def test_wsl_tar_root_dot_and_executable_mode_roundtrip(tmp_path):
@@ -234,7 +311,7 @@ def test_wsl_tar_root_dot_and_executable_mode_roundtrip(tmp_path):
 
 def jobs():
     raw = (ROOT / ".github/workflows/candidate.yml").read_text()
-    headers = list(re.finditer(r"^  ([a-z][a-z0-9-]*):\n", raw, re.M))
+    headers = list(re.finditer(r"^  ([a-z][a-z0-9-]*):\n", raw, re.MULTILINE))
     return {m[1]: raw[m.end():headers[i + 1].start() if i + 1 < len(headers) else len(raw)]
             for i, m in enumerate(headers) if m[1] != "workflow_dispatch"}
 
@@ -253,7 +330,8 @@ def test_workflow_claims_precede_signing_and_attestations_are_separate():
         assert "id-token: write" in graph[name]
         assert "secrets." not in graph[name]
         assert "inputs.source_sha" not in graph[name]
-    assert "cua_shared.py claim" in graph["claim-signing"]
+    assert "claim-signing" not in graph
+    assert "candidate_claim_inspection.py" in graph["authorize-signing"]
     assert "observe-windows" in graph["authorize-helper"] and "observe-wsl" in graph["authorize-helper"]
     assert "attest-windows-runtime" in graph["sign-windows"]
     assert "verify-unattested" in graph["attest-windows-runtime"]
@@ -304,7 +382,7 @@ def test_powershell_files_parse_without_executing(tmp_path):
         path = ROOT / "scripts" / name
         script = "$t=$null;$e=$null;[Management.Automation.Language.Parser]::ParseFile('" + str(path).replace("'", "''") + "',[ref]$t,[ref]$e)|Out-Null;if($e.Count){$e;exit 1}"
         result = subprocess.run([executable, "-NoProfile", "-NonInteractive", "-Command", script],
-                                capture_output=True, text=True, timeout=30)
+                                capture_output=True, text=True, timeout=30, check=False)
         assert result.returncode == 0, result.stdout + result.stderr
 
 

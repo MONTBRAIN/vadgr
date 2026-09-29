@@ -407,33 +407,9 @@ jobs:
           retention-days: 90
 
   authorize-signing:
-    needs: [prepare-authorization, claim-probe]
+    needs: [prepare-authorization, claim-probe, prepare-helper-inputs]
     runs-on: ubuntu-24.04
     environment: candidate-authorize
-    permissions:
-      contents: read
-      actions: read
-    env:
-      GH_TOKEN: ${{ github.token }}
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          ref: ${{ github.sha }}
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Record the approved immutable tuple without signing or write permissions
-        shell: bash
-        run: |
-          set -euo pipefail
-          python scripts/candidate_artifacts.py download --artifact-id "${{ needs.prepare-authorization.outputs.artifact_id }}" --digest "${{ needs.prepare-authorization.outputs.artifact_digest }}" --run-id "$GITHUB_RUN_ID" --run-attempt 1 --repository "$GITHUB_REPOSITORY" --producer-sha "$GITHUB_SHA" --architecture "${{ inputs.architecture }}" --out authorization.zip --metadata authorization-artifact.json
-          python scripts/candidate/record.py --archive authorization.zip --name authorization.json --out authorization.json
-          python scripts/candidate_artifacts.py download --artifact-id "${{ needs.claim-probe.outputs.artifact_id }}" --digest "${{ needs.claim-probe.outputs.artifact_digest }}" --run-id "$GITHUB_RUN_ID" --run-attempt 1 --repository "$GITHUB_REPOSITORY" --producer-sha "$GITHUB_SHA" --architecture "${{ inputs.architecture }}" --out qualification.zip --metadata qualification-artifact.json
-          python scripts/candidate/record.py --archive qualification.zip --name qualification.json --out qualification.json
-          python scripts/candidate_claims.py approve --authorization authorization.json --qualification qualification.json
-
-  claim-signing:
-    needs: [prepare-authorization, authorize-signing, claim-probe, prepare-helper-inputs]
-    runs-on: ubuntu-24.04
     permissions:
       contents: write
       actions: read
@@ -448,7 +424,7 @@ jobs:
           ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - name: Atomically consume the approved tuple before any vendor request
+      - name: Verify the owner-approved immutable tuple without signing credentials
         shell: bash
         run: |
           set -euo pipefail
@@ -456,21 +432,25 @@ jobs:
           python scripts/candidate/record.py --archive authorization.zip --name authorization.json --out authorization.json
           python scripts/candidate_artifacts.py download --artifact-id "${{ needs.claim-probe.outputs.artifact_id }}" --digest "${{ needs.claim-probe.outputs.artifact_digest }}" --run-id "$GITHUB_RUN_ID" --run-attempt 1 --repository "$GITHUB_REPOSITORY" --producer-sha "$GITHUB_SHA" --architecture "${{ inputs.architecture }}" --out qualification.zip --metadata qualification-artifact.json
           python scripts/candidate/record.py --archive qualification.zip --name qualification.json --out qualification.json
+          python scripts/candidate_claims.py approve --authorization authorization.json --qualification qualification.json
           python scripts/candidate/cua_shared.py fetch --artifact-id "${{ needs.prepare-helper-inputs.outputs.artifact_id }}" --digest "${{ needs.prepare-helper-inputs.outputs.artifact_digest }}" --architecture "${{ inputs.architecture }}" --out helper-inputs
-          python scripts/candidate_claims.py create --authorization authorization.json --qualification qualification.json --out claim.json
-          python scripts/candidate/cua_shared.py claim --authorization authorization.json --qualification qualification.json --helper-inputs helper-inputs --shared-claim shared-claim.json
+      - name: Inspect both protections and create exact claims after owner approval
+        shell: bash
+        env:
+          RULESET_INSPECT_TOKEN: ${{ secrets.RULESET_INSPECT_TOKEN }}
+        run: |
+          set -euo pipefail
+          python scripts/candidate_claim_inspection.py --authorization authorization.json --qualification qualification.json --helper-inputs helper-inputs --out protected-claims
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         id: record
         with:
           name: signing-claim
-          path: |
-            claim.json
-            shared-claim.json
+          path: protected-claims/
           if-no-files-found: error
           retention-days: 90
 
   sign-shared-helper:
-    needs: [prepare-authorization, claim-signing, prepare-helper-inputs]
+    needs: [prepare-authorization, authorize-signing, prepare-helper-inputs]
     runs-on: ${{ inputs.architecture == 'x64' && 'windows-2025' || 'windows-11-arm' }}
     environment: candidate-windows
     permissions:
@@ -500,7 +480,7 @@ jobs:
           set -euo pipefail
           python scripts/candidate/cua_shared.py fetch --artifact-id "${{ needs.prepare-authorization.outputs.artifact_id }}" --digest "${{ needs.prepare-authorization.outputs.artifact_digest }}" --architecture "${{ inputs.architecture }}" --out auth-record
           cp auth-record/authorization.json authorization.json
-          python scripts/candidate/cua_shared.py fetch --artifact-id "${{ needs.claim-signing.outputs.artifact_id }}" --digest "${{ needs.claim-signing.outputs.artifact_digest }}" --architecture "${{ inputs.architecture }}" --out claim-record
+          python scripts/candidate/cua_shared.py fetch --artifact-id "${{ needs.authorize-signing.outputs.artifact_id }}" --digest "${{ needs.authorize-signing.outputs.artifact_digest }}" --architecture "${{ inputs.architecture }}" --out claim-record
           cp claim-record/claim.json claim.json
           python scripts/candidate_claims.py fetch-qualification --authorization authorization.json --out qualification.json
           python scripts/candidate_claims.py verify --authorization authorization.json --qualification qualification.json --claim claim.json
@@ -671,7 +651,7 @@ jobs:
           retention-days: 90
 
   sign-windows-payload:
-    needs: [prepare-authorization, claim-signing, sign-shared-helper, authorize-helper]
+    needs: [prepare-authorization, authorize-signing, sign-shared-helper, authorize-helper]
     runs-on: ${{ inputs.architecture == 'x64' && 'windows-2025' || 'windows-11-arm' }}
     environment: candidate-windows
     permissions:
@@ -699,7 +679,7 @@ jobs:
           set -euo pipefail
           python scripts/candidate/cua_shared.py fetch --artifact-id "${{ needs.prepare-authorization.outputs.artifact_id }}" --digest "${{ needs.prepare-authorization.outputs.artifact_digest }}" --architecture "${{ inputs.architecture }}" --out auth-record
           cp auth-record/authorization.json authorization.json
-          python scripts/candidate/cua_shared.py fetch --artifact-id "${{ needs.claim-signing.outputs.artifact_id }}" --digest "${{ needs.claim-signing.outputs.artifact_digest }}" --architecture "${{ inputs.architecture }}" --out claim-record
+          python scripts/candidate/cua_shared.py fetch --artifact-id "${{ needs.authorize-signing.outputs.artifact_id }}" --digest "${{ needs.authorize-signing.outputs.artifact_digest }}" --architecture "${{ inputs.architecture }}" --out claim-record
           cp claim-record/claim.json claim.json
           python scripts/candidate_claims.py fetch-qualification --authorization authorization.json --out qualification.json
           python scripts/candidate_claims.py verify --authorization authorization.json --qualification qualification.json --claim claim.json
@@ -788,7 +768,7 @@ jobs:
           retention-days: 90
 
   sign-windows:
-    needs: [prepare-authorization, authorize-signing, claim-signing, attest-windows-runtime]
+    needs: [prepare-authorization, authorize-signing, attest-windows-runtime]
     runs-on: ${{ inputs.architecture == 'x64' && 'windows-2025' || 'windows-11-arm' }}
     timeout-minutes: 60
     environment: candidate-windows
@@ -820,7 +800,7 @@ jobs:
           set -euo pipefail
           python scripts/candidate/cua_shared.py fetch --artifact-id "${{ needs.prepare-authorization.outputs.artifact_id }}" --digest "${{ needs.prepare-authorization.outputs.artifact_digest }}" --architecture "${{ inputs.architecture }}" --out auth-record
           cp auth-record/authorization.json authorization.json
-          python scripts/candidate/cua_shared.py fetch --artifact-id "${{ needs.claim-signing.outputs.artifact_id }}" --digest "${{ needs.claim-signing.outputs.artifact_digest }}" --architecture "${{ inputs.architecture }}" --out claim-record
+          python scripts/candidate/cua_shared.py fetch --artifact-id "${{ needs.authorize-signing.outputs.artifact_id }}" --digest "${{ needs.authorize-signing.outputs.artifact_digest }}" --architecture "${{ inputs.architecture }}" --out claim-record
           cp claim-record/claim.json claim.json
           python scripts/candidate_claims.py fetch-qualification --authorization authorization.json --out qualification.json
           python scripts/candidate_claims.py verify --authorization authorization.json --qualification qualification.json --claim claim.json
