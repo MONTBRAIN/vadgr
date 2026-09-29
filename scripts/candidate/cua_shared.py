@@ -7,7 +7,6 @@ import os
 import sys
 import uuid
 import zipfile
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -274,49 +273,7 @@ def observe(root, inputs, output, profile):
 
 
 def shared_policy(api):
-    policies, protected = [], set()
-    for summary in claims.pages(api, "rulesets?includes_parents=true&targets=tag"):
-        rule = claims.get(api, f"rulesets/{summary['id']}")
-        if rule.get("enforcement") != "active" or rule.get("target") != "tag":
-            continue
-        refs = rule.get("conditions", {}).get("ref_name", {})
-        if not any(p in {"~ALL", "refs/tags/cua-signing-claims/**"} for p in refs.get("include", [])):
-            continue
-        require(not refs.get("exclude"), "shared helper claim protection has exclusions")
-        kinds = {row.get("type") for row in rule.get("rules", [])} & {"update", "deletion"}
-        if kinds:
-            require(rule.get("bypass_actors") == [], "shared claim rules allow mutation bypass")
-            protected.update(kinds)
-        policies.append(rule)
-    require(protected == {"update", "deletion"}, "shared claim update/deletion protections absent")
-    return sha256_bytes(helpers.canonical(sorted(policies, key=lambda row: row["id"])))
-
-
-def probe_shared(api, auth):
-    """Qualify the actual shared namespace before any credential-bearing job."""
-    policy = shared_policy(api)
-    ref = f"refs/tags/cua-signing-claims/probe/{auth['run_id']}-1"
-    require(api.request("GET", claims.PREFIX + "git/ref/" + ref[5:])[0] == 404,
-            "shared claim probe already exists; no retry")
-    parent = claims.get(api, "git/commits/" + auth["trusted_sha"])["parents"][0]["sha"]
-    require(claims.hashed(parent, 40) and parent != auth["trusted_sha"], "distinct probe target absent")
-    tag = claims.tag_create(api, ref, auth["trusted_sha"], {"shared_helper_probe": claims.identity(auth)})
-    with ThreadPoolExecutor(max_workers=2) as pool:
-        futures = [pool.submit(api.request, "POST", claims.PREFIX + "git/refs", {"ref": ref, "sha": tag})
-                   for _ in range(2)]
-        results = [future.result() for future in futures]
-    require(sorted(code for code, _ in results) == [201, 422]
-            and "already exists" in next(body for code, body in results if code == 422).get("message", "").lower(),
-            "shared claim competing-create proof failed")
-    claims.check_ref(api, ref, tag)
-    for method, body in (("PATCH", {"sha": parent, "force": True}), ("DELETE", None)):
-        code, result = api.request(method, claims.PREFIX + "git/refs/" + ref[5:], body)
-        require(code in {403, 422} and "rule" in result.get("message", "").lower(),
-                "shared claim mutation not denied by a protected rule")
-        claims.check_ref(api, ref, tag)
-    require(shared_policy(api) == policy, "shared claim policy changed during probe")
-    return {"schema": 1, "policy_sha256": policy, "ref": ref, "tag": tag,
-            "results": {"create": 201, "duplicate": 422, "update_denied": True, "delete_denied": True}}
+    return claims.policy_digest(api)
 
 
 def check_bound_helper(auth, raw):
@@ -337,10 +294,10 @@ def check_bound_helper(auth, raw):
     return claim
 
 
-def create_shared(api, auth, qualification, raw):
-    claims.validate_live(api, auth, qualification)
+def create_shared(api, auth, qualification, raw, *, approval_completed=True):
+    claims.validate_live(api, auth, qualification, approval_completed=approval_completed)
     claim = check_bound_helper(auth, raw)
-    probe = probe_shared(api, auth)
+    probe = qualification["shared_probe"]
     ref = claim["signing_claim_ref"]
     require(api.request("GET", claims.PREFIX + "git/ref/" + ref[5:])[0] == 404,
             "shared helper closure already spent")
@@ -350,26 +307,35 @@ def create_shared(api, auth, qualification, raw):
     code, _ = api.request("POST", claims.PREFIX + "git/refs", {"ref": ref, "sha": tag})
     require(code == 201, "shared helper claim raced or uncertain; no retry")
     receipt = {"schema": 1, "ref": ref, "tag": tag, **message}
-    verify_shared(api, auth, qualification, raw, receipt)
+    verify_shared(api, auth, qualification, raw, receipt, approval_completed=approval_completed)
     return receipt
 
 
-def verify_shared(api, auth, qualification, raw, receipt):
-    claims.validate_live(api, auth, qualification)
+def verify_shared(api, auth, qualification, raw, receipt, *, approval_completed=True):
+    claims.validate_live(api, auth, qualification, approval_completed=approval_completed)
     claim = check_bound_helper(auth, raw)
+    require(receipt.get("ref") == claim["signing_claim_ref"], "shared claim closure differs")
+    verify_shared_receipt(api, auth, qualification, receipt)
+
+
+def verify_shared_receipt(api, auth, qualification, receipt):
+    """Verify both exact objects using the protected inspection's bound receipt."""
     require(set(receipt) == {"schema", "ref", "tag", "authorization_sha256", "pre_signing_claim_sha256", "probe"}
-            and receipt["schema"] == 1 and receipt["ref"] == claim["signing_claim_ref"]
+            and receipt["schema"] == 1 and isinstance(receipt["ref"], str)
+            and receipt["ref"].startswith("refs/tags/cua-signing-claims/")
+            and claims.hashed(receipt["ref"].removeprefix("refs/tags/cua-signing-claims/"))
             and receipt["authorization_sha256"] == claims.digest(claims.canonical(auth))
-            and receipt["pre_signing_claim_sha256"] == sha256_bytes(raw), "shared durable claim differs")
+            and receipt["pre_signing_claim_sha256"] == auth["helper_claim_sha256"], "shared durable claim differs")
     probe = receipt["probe"]
-    require(probe["policy_sha256"] == shared_policy(api)
+    require(probe == qualification["shared_probe"] and probe["policy_sha256"] == shared_policy(api)
             and probe["ref"] == f"refs/tags/cua-signing-claims/probe/{auth['run_id']}-1"
             and probe["results"] == {"create": 201, "duplicate": 422, "update_denied": True, "delete_denied": True},
             "shared namespace proof differs")
     claims.check_ref(api, probe["ref"], probe["tag"])
     claims.check_ref(api, receipt["ref"], receipt["tag"])
     tag = claims.get(api, "git/tags/" + receipt["tag"])
-    require(tag["object"]["sha"] == auth["source_sha"] and tag["object"]["type"] == "commit"
+    require(tag.get("sha") == receipt["tag"] and tag.get("tag") == receipt["ref"].removeprefix("refs/tags/")
+            and tag["object"]["sha"] == auth["source_sha"] and tag["object"]["type"] == "commit"
             and claims.parse(tag["message"]) == {k: receipt[k] for k in (
                 "schema", "authorization_sha256", "pre_signing_claim_sha256", "probe")},
             "shared durable claim object differs")
@@ -502,7 +468,7 @@ def main():
                 command.add_argument("--" + name, required=True)
         if mode == "ledger-verify":
             command.add_argument("--output-sha256", required=True)
-    for mode in ("claim", "verify-claim"):
+    for mode in ("verify-claim",):
         command = sub.add_parser(mode)
         command.add_argument("--authorization", type=Path, required=True)
         command.add_argument("--qualification", type=Path, required=True)
@@ -549,7 +515,7 @@ def main():
             else:
                 ledger_update(args.ledger, auth, args.unit, args.path, args.input_sha256,
                               args.claim_sha256, getattr(args, "output_sha256", None))
-        elif args.mode in ("claim", "verify-claim"):
+        elif args.mode == "verify-claim":
             auth = claims.parse(args.authorization.read_bytes())
             require(os.environ.get("GITHUB_REPOSITORY") == claims.REPOSITORY
                     and os.environ.get("GITHUB_REF") == "refs/heads/master"
@@ -558,10 +524,7 @@ def main():
                     and os.environ.get("GITHUB_SHA") == auth["trusted_sha"], "fixed workflow context required")
             raw = read_owned(args.helper_inputs.resolve(), CLAIM)
             qualification = claims.parse(args.qualification.read_bytes())
-            if args.mode == "claim":
-                write(args.shared_claim, create_shared(claims.GitHubAPI(), auth, qualification, raw))
-            else:
-                verify_shared(claims.GitHubAPI(), auth, qualification, raw, read(args.shared_claim))
+            verify_shared(claims.GitHubAPI(), auth, qualification, raw, read(args.shared_claim))
         elif args.mode == "finalize":
             finalize_directory(args.inputs.resolve(), args.signed.resolve(), args.out.absolute())
         else:

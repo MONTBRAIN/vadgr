@@ -14,10 +14,36 @@ CI also runs on pushes to `feature/0.5.0-distribution`, so that exact source
 commit can earn required checks before a pull request exists. Other feature
 branches retain the pull-request trigger. This adds runner use, not secret access.
 
-The authorization environment approves the exact artifact and quota. A separate
-job consumes that authorization with an immutable Git claim. The Windows signing
-environment then approves one signing attempt. Failed or uncertain attempts stay
-spent. Recovery needs a reconciled quota and a new explicit authorization.
+The authorization environment approves the exact artifact and quota. Before that
+approval, the ordinary workflow token qualifies both immutable claim namespaces.
+After approval, the same protected job inspects their complete ruleset, creates
+both durable claims with the ordinary token, then repeats the full inspection.
+The Windows signing environment then approves one signing attempt. Failed or
+uncertain attempts stay spent. Recovery needs a reconciled quota and a new
+explicit authorization.
+
+Ruleset `23578357` must cover exactly `refs/tags/signing-claims/**` and
+`refs/tags/cua-signing-claims/**`, with update and deletion protection, no
+exclusions, and an explicitly empty bypass list. Ordinary-token probes prove
+competing creation and rule-denied update/deletion for both namespaces. Missing
+hidden fields are not treated as proof that the bypass list is empty.
+
+The protected `candidate-authorize` environment supplies `RULESET_INSPECT_TOKEN`
+only to the inspection command. This separate, repository-scoped credential
+needs ruleset-write visibility, currently the fine-grained `Administration:
+write` permission. It needs no contents-write permission. Its client allows only
+the exact ruleset GET endpoints and refuses reuse of `GH_TOKEN`. This limits the
+client, not the administrative credential's underlying capability. Keep the
+credential short-lived and outside source builds, signers, and job-wide variables.
+
+The immutable claim artifact contains both exact claim receipts and the full
+pre/post inspection witness. Signers verify its producer and digest, the approved
+run and authorization, both exact refs and tag objects, and the current visible
+policy projection. Viewer-dependent fields do not enter the policy digest.
+Repository administrators and GitHub remain trusted. Separate API calls cannot
+make policy inspection atomic with signing; the post-inspection proves no bypass
+actor existed at that inspection, not that an administrator cannot later change
+the rules. An uncertain claim creation is never retried or deleted.
 
 `build-windows.ps1` runs without signing or write credentials on its build runner.
 It verifies the exact complete source checkout against the preflight record and

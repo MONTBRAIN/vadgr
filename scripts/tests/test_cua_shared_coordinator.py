@@ -1,18 +1,20 @@
 """Synthetic coordinator seams only. No native, legal, approval or paid signing evidence."""
-from concurrent.futures import ThreadPoolExecutor
 import io
-from pathlib import Path
 import re
 import shutil
 import subprocess
 import sys
 import tarfile
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 import pytest
 
-from scripts.candidate import cua_helpers as helpers, cua_shared as shared, cua_workflow as workflow
-from scripts.tests.test_cua_helpers import fixture
+from scripts.candidate import cua_helpers as helpers
+from scripts.candidate import cua_shared as shared
+from scripts.candidate import cua_workflow as workflow
 from scripts.tests.test_candidate_claims import profile_authorization
+from scripts.tests.test_cua_helpers import fixture
 from scripts.validate_package_inputs import PackageInputError, sha256_bytes
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -181,9 +183,8 @@ def test_finalize_is_immutable_and_preserves_nonpublisher_bytes(shared_output):
 
 
 def protected_rule():
-    return {"id": 10, "enforcement": "active", "target": "tag", "bypass_actors": [],
-            "conditions": {"ref_name": {"include": ["refs/tags/cua-signing-claims/**"], "exclude": []}},
-            "rules": [{"type": "update"}, {"type": "deletion"}]}
+    from scripts.tests.test_candidate_claims import GitHub
+    return GitHub().rules
 
 
 @pytest.mark.parametrize("mutation", ["disabled", "branch", "wrong-namespace", "exclusion", "bypass", "no-update", "no-delete"])
@@ -201,9 +202,9 @@ def test_shared_namespace_requires_real_nonbypassable_tag_protection(monkeypatch
         rule["bypass_actors"] = [{"actor_id": 1}]
     else:
         rule["rules"] = [{"type": "deletion" if mutation == "no-update" else "update"}]
-    monkeypatch.setattr(shared.claims, "pages", lambda *a: [{"id": 10}])
+    monkeypatch.setattr(shared.claims, "pages", lambda *a: [{"id": rule["id"]}])
     monkeypatch.setattr(shared.claims, "get", lambda *a: rule)
-    with pytest.raises(PackageInputError):
+    with pytest.raises(shared.claims.Refused):
         shared.shared_policy(None)
 
 
@@ -310,7 +311,7 @@ def test_wsl_tar_root_dot_and_executable_mode_roundtrip(tmp_path):
 
 def jobs():
     raw = (ROOT / ".github/workflows/candidate.yml").read_text()
-    headers = list(re.finditer(r"^  ([a-z][a-z0-9-]*):\n", raw, re.M))
+    headers = list(re.finditer(r"^  ([a-z][a-z0-9-]*):\n", raw, re.MULTILINE))
     return {m[1]: raw[m.end():headers[i + 1].start() if i + 1 < len(headers) else len(raw)]
             for i, m in enumerate(headers) if m[1] != "workflow_dispatch"}
 
@@ -329,7 +330,8 @@ def test_workflow_claims_precede_signing_and_attestations_are_separate():
         assert "id-token: write" in graph[name]
         assert "secrets." not in graph[name]
         assert "inputs.source_sha" not in graph[name]
-    assert "cua_shared.py claim" in graph["claim-signing"]
+    assert "claim-signing" not in graph
+    assert "candidate_claim_inspection.py" in graph["authorize-signing"]
     assert "observe-windows" in graph["authorize-helper"] and "observe-wsl" in graph["authorize-helper"]
     assert "attest-windows-runtime" in graph["sign-windows"]
     assert "verify-unattested" in graph["attest-windows-runtime"]
@@ -380,7 +382,7 @@ def test_powershell_files_parse_without_executing(tmp_path):
         path = ROOT / "scripts" / name
         script = "$t=$null;$e=$null;[Management.Automation.Language.Parser]::ParseFile('" + str(path).replace("'", "''") + "',[ref]$t,[ref]$e)|Out-Null;if($e.Count){$e;exit 1}"
         result = subprocess.run([executable, "-NoProfile", "-NonInteractive", "-Command", script],
-                                capture_output=True, text=True, timeout=30)
+                                capture_output=True, text=True, timeout=30, check=False)
         assert result.returncode == 0, result.stdout + result.stderr
 
 

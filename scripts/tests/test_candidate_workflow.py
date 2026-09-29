@@ -100,7 +100,7 @@ def test_signer_has_no_source_checkout_or_build_execution():
     workflow = (ROOT / '.github/workflows/candidate.yml').read_text()
     signer = workflow.split('\n  sign-windows:', 1)[1].split('\n  attest:', 1)[0]
     assert 'environment: candidate-windows' in signer
-    assert 'needs: [prepare-authorization, authorize-signing, claim-signing, attest-windows-runtime]' in signer
+    assert 'needs: [prepare-authorization, authorize-signing, attest-windows-runtime]' in signer
     assert 'ref: ${{ github.sha }}' in signer
     assert 'cargo ' not in signer
     assert 'source_sha' not in signer
@@ -138,7 +138,7 @@ def test_feature_data_is_read_only_before_protected_authorization():
         assert 'secrets.' not in job
         assert 'contents: write' not in job
         assert 'python source_checkout/' not in job
-    approval = workflow.split('\n  authorize-signing:', 1)[1].split('\n  claim-signing:', 1)[0]
+    approval = workflow.split('\n  authorize-signing:', 1)[1].split('\n  sign-shared-helper:', 1)[0]
     assert 'environment: candidate-authorize' in approval
     assert 'candidate_claims.py approve' in approval
     assert 'source_checkout' not in approval
