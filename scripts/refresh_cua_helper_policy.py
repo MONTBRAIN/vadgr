@@ -5,11 +5,11 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from scripts.candidate import cua_helpers
 from scripts.validate_package_inputs import parse_json, read_owned, require
 
 ARCHITECTURES = ("x86_64", "aarch64")
@@ -18,7 +18,7 @@ RELAY = "relay.exe"
 
 
 def canonical(value: dict) -> bytes:
-    return (json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n").encode()
+    return cua_helpers.canonical(value)
 
 
 def rebuild(root: Path, architecture: str) -> bytes:
