@@ -412,7 +412,8 @@ def require_outer_review(policy, review_raw: bytes, package_review_raw: bytes,
                          architecture: str) -> None:
     """Reconstruct every opaque outer-policy reference from its named source."""
     review = parse_json(review_raw)
-    require((json.dumps(review, sort_keys=True, separators=(",", ":")) + "\n").encode() == review_raw,
+    require((json.dumps(review, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+                        allow_nan=False) + "\n").encode("utf-8") == review_raw,
             "outer signing review is not canonical")
     require(isinstance(review, dict) and set(review) == {
         "schema", "scope", "architecture", "publisher", "files"}
