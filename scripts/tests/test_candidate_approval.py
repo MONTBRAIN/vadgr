@@ -103,7 +103,7 @@ def test_publisher_subject_refuses_ambiguous_or_duplicate_forms(subject):
 
 def test_outer_policy_reconstructs_named_review_and_package_binding():
     reviewed = {"input_sha256": "a" * 64, "trust_class": "publisher-sign",
-                "signer": "CN=Fixture", "certificate_sha256": "b" * 64,
+                "signer": "CN=Montaño", "certificate_sha256": "b" * 64,
                 "chain_root_sha256": "c" * 64, "digest_algorithm": "sha256",
                 "timestamp_algorithm": "rfc3161-sha256"}
     publisher = {key: reviewed[key] for key in
@@ -111,7 +111,9 @@ def test_outer_policy_reconstructs_named_review_and_package_binding():
     review = (json.dumps({"schema": 1, "scope": "vadgr-0.5.0-windows-outer-signing",
                           "architecture": "x86_64", "publisher": publisher,
                           "files": {"payload/vadgr.exe": reviewed}},
-                         sort_keys=True, separators=(",", ":")) + "\n").encode()
+                         sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+                         allow_nan=False) + "\n").encode("utf-8")
+    assert "Montaño".encode() in review and b"\\u00f1" not in review
     package = canonical({"status": "approved", "version": "0.5.0",
                          "target": "x86_64-pc-windows-msvc"})
     row = {**reviewed,
@@ -122,6 +124,47 @@ def test_outer_policy_reconstructs_named_review_and_package_binding():
     row["legal_approval_sha256"] = "d" * 64
     with pytest.raises(policy.Refused):
         policy.require_outer_review(value, review, package, "x86_64")
+
+
+def test_only_first_party_outer_inputs_rebind_to_candidate_authorization():
+    fixed = shared.FIRST_PARTY_OUTER_INPUTS
+    third_party = "payload/runtime.dll"
+    files = {name: {"sha256": str(index + 1) * 64}
+             for index, name in enumerate(sorted(fixed))}
+    files[third_party] = {"sha256": "4" * 64}
+    common = {"trust_class": "publisher-sign", "signer": "CN=Montaño"}
+    original = {"schema": 1, "files": {
+        **{name: {**common, "input_sha256": "a" * 64} for name in fixed},
+        third_party: {**common, "input_sha256": "4" * 64},
+    }}
+    rebound = shared.bind_first_party_outer_inputs(original, files)
+    assert original["files"]["payload/vadgr.exe"]["input_sha256"] == "a" * 64
+    for name in fixed:
+        assert rebound["files"][name] == {**original["files"][name],
+                                          "input_sha256": files[name]["sha256"]}
+    assert rebound["files"][third_party] == original["files"][third_party]
+
+
+@pytest.mark.parametrize("mutation", ["missing", "vendor-first-party", "third-party", "malformed"])
+def test_outer_rebinding_refuses_any_change_outside_exact_first_party_set(mutation):
+    fixed = shared.FIRST_PARTY_OUTER_INPUTS
+    third_party = "payload/runtime.dll"
+    files = {name: {"sha256": "1" * 64} for name in fixed}
+    files[third_party] = {"sha256": "2" * 64}
+    policy_value = {"schema": 1, "files": {
+        **{name: {"trust_class": "publisher-sign", "input_sha256": "a" * 64} for name in fixed},
+        third_party: {"trust_class": "vendor-preserve", "input_sha256": "2" * 64},
+    }}
+    if mutation == "missing":
+        policy_value["files"].pop("payload/vadgr.exe")
+    elif mutation == "vendor-first-party":
+        policy_value["files"]["payload/vadgr.exe"]["trust_class"] = "vendor-preserve"
+    elif mutation == "third-party":
+        files[third_party]["sha256"] = "3" * 64
+    else:
+        files["payload/vadgr.exe"]["sha256"] = "bad"
+    with pytest.raises(PackageInputError):
+        shared.bind_first_party_outer_inputs(policy_value, files)
 
 
 @pytest.mark.parametrize("suffix", [".json", "-outer.json", "-outer-review.json", "-predecessors.json"])
