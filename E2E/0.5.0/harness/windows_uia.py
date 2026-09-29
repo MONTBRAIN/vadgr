@@ -166,6 +166,12 @@ def invoke(element, action: str, text: str | None):
         # native input fallback instead of screen coordinates supplied by a
         # human or image recognition.
         element.click_input()
+    elif action == "press-enter":
+        # Exercise the semantic keyboard route used by screen-reader users.
+        # This also avoids a provider-specific Invoke action on custom-drawn
+        # controls while retaining UIA-based element discovery and focus.
+        element.set_focus()
+        element.type_keys("{ENTER}")
     elif action == "toggle":
         element.iface_toggle.Toggle()
     elif action == "select":
@@ -246,7 +252,7 @@ def main() -> int:
         if name == "act":
             command.add_argument(
                 "--action",
-                choices=("invoke", "click", "toggle", "select", "set-value"),
+                choices=("invoke", "click", "press-enter", "toggle", "select", "set-value"),
                 required=True,
             )
             command.add_argument("--text")
