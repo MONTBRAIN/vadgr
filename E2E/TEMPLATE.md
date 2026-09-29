@@ -109,6 +109,14 @@ present in a given runbook, the entry is all there is.
    owner to open the app, navigate, choose a transport, type a code, inspect the
    result, or report an oracle the agent can read.
 
+   A VM-hosted phone is checked through the host ADB server before it is called
+   unavailable. Stop the guest-local server before setting a remote socket. For
+   VirtualBox NAT, derive the guest default gateway and set
+   `ADB_SERVER_SOCKET=tcp:<gateway>:5037`; `10.0.2.2` is the usual gateway. Use
+   that same socket for every ADB command. The runbook gives the temporary host
+   server start and restore commands, requires an authorized `device` state,
+   forbids network-service mutation, and redacts the device serial.
+
 2. **Do not stop the pass to report.** The pass runs to completion for the
    operating system it is on, and what it finds is written down as it happens and
    reported at the end. [How a pass is run] [../README.md]
@@ -234,6 +242,14 @@ present in a given runbook, the entry is all there is.
     a held candidate from the exact merged default-branch commit. Only trust and
     signature assertions wait for that candidate and gate release. [Unsigned
     functional qualification and post-merge trust qualification]
+
+24. **A supported VM is valid native functional coverage when the guest runs
+    the product directly.** Record the hypervisor, guest OS, virtual hardware,
+    architecture, desktop and display protocol. Label it virtualized native
+    coverage, not bare-metal coverage. Leave hardware-specific behavior and
+    unavailable architectures or sessions `not run` with the exact reason. A
+    VM does not turn WSL, a container or a host-mounted checkout into native
+    coverage.
 
 **A pass is finished, not paused, and reporting is not a stopping point.** A
 checkpoint or a progress summary does not end your turn: write it and keep

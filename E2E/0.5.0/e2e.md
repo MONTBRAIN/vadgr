@@ -159,6 +159,62 @@ the owner one precise action and the visible completion result, then resume cont
 the owner to click ordinary controls, type a pairing code, take screenshots,
 read the UI or report a machine oracle.
 
+### Virtualized native Linux and the host ADB bridge
+
+A supported Linux guest that runs the package, desktop and product processes
+directly is valid native functional coverage. Record it as virtualized native
+coverage. Record the hypervisor, guest release, virtual hardware, architecture,
+desktop and display protocol. Do not call it bare-metal coverage. Hardware-
+specific behavior, another architecture and an unavailable X11 or Wayland
+session remain `not run` with their exact reasons. WSL, a container and a
+Windows-mounted checkout do not qualify under this rule.
+
+When Android USB is attached to the VirtualBox host instead of the guest, use
+the host ADB server before declaring the phone unavailable. The host operator
+runs these commands in a dedicated terminal from Android Platform Tools:
+
+```bash
+adb kill-server
+adb -a start-server
+```
+
+`-a` exposes the ADB client socket beyond host loopback. Use it only for this
+short test on a trusted host network and restore loopback-only operation during
+cleanup. Do not change the host or guest firewall, DNS, routing, proxy, VPN,
+Tailscale or other network service.
+
+In the Linux guest, stop only the guest-local server before selecting the host
+socket, derive the VirtualBox NAT gateway, and verify the device:
+
+```bash
+unset ADB_SERVER_SOCKET
+adb kill-server || true
+VM_HOST_GATEWAY="$(ip route show default | awk 'NR == 1 { print $3 }')"
+test -n "$VM_HOST_GATEWAY"
+export ADB_SERVER_SOCKET="tcp:${VM_HOST_GATEWAY}:5037"
+adb devices -l
+```
+
+The usual VirtualBox NAT gateway is `10.0.2.2`. Require exactly the intended
+phone to appear in `device` state, not `offline` or `unauthorized`. Keep
+`ADB_SERVER_SOCKET` set for every ADB command in the pass. Do not start a local
+guest server afterward, and do not run `adb kill-server` while the variable
+points at the host. Evidence records that the authorized physical device was
+present but omits its serial and other private identifiers.
+
+After the phone cells, the host operator restores the host's previous ADB mode:
+
+```bash
+adb kill-server
+adb start-server
+```
+
+The guest then runs `unset ADB_SERVER_SOCKET`. A failed remote-socket probe is
+a host-bridge prerequisite failure, not proof that the phone is absent. Ask the
+owner only to start or restore the host server, approve an Android trust prompt,
+reconnect the cable, or aim the already-open scanner when one of those protected
+physical actions is actually required.
+
 An enabled control must perform its documented action. A control unavailable
 because of current state must be disabled and state that reason beside it. A
 visible control for a later release must be disabled and label the exact enabling

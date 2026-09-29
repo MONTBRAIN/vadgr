@@ -420,6 +420,25 @@ artifact hash, device interface and tested PR head. Helpers can prepare state,
 capture output and generate evidence. They cannot choose the agent's actions,
 judge the visible result or replace a public product surface.
 
+**A supported virtual machine is valid native functional coverage when the
+guest runs the product directly.** Record the hypervisor, guest OS, virtual
+hardware, architecture, desktop and display protocol. Call the result
+virtualized native coverage, never bare-metal coverage. Leave hardware-specific
+behavior and unavailable architectures or desktop sessions `not run` with the
+exact reason. A VirtualBox guest is not WSL, a container or a remote
+Windows-mounted checkout.
+
+**A phone attached to a VM host is not absent until the host ADB bridge is
+checked.** Stop the guest-local ADB server before selecting a remote socket.
+For VirtualBox NAT, derive the guest's default gateway and use
+`ADB_SERVER_SOCKET=tcp:<gateway>:5037`; the usual gateway is `10.0.2.2`. The
+host runs a temporary network-listening ADB server, and every guest ADB command
+uses the same socket. Require the intended device to be in `device` state before
+the cell starts. Never record its serial. Do not change firewall, DNS, routing,
+VPN or other network services to make the bridge work. Restore the host's prior
+ADB-server mode during cleanup. The exact commands and security boundary belong
+in the runbook before a phone cell can be called blocked.
+
 **Close an e2e with three independent passes**, run concurrently, each with its
 **own port, database and daemon** - three observations rather than one run
 watched three times. Compare them structurally: every HTTP entry on method,
