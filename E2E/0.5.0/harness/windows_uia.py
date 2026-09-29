@@ -5,25 +5,40 @@ from __future__ import annotations
 
 import argparse
 import ctypes
-from ctypes import wintypes
 import json
-from pathlib import Path
 import re
 import sys
 import time
+from ctypes import wintypes
+from pathlib import Path
 
+# pywinauto initializes display handling while importing. Establish the process
+# coordinate space first so a UIA rectangle can be used for native input on a
+# scaled monitor without a second DPI conversion.
+PER_MONITOR_AWARE_V2 = ctypes.c_void_p(-4)
+try:
+    ctypes.windll.user32.SetProcessDpiAwarenessContext(PER_MONITOR_AWARE_V2)
+except (AttributeError, OSError):
+    pass
+
+from comtypes import COMError
 from PIL import Image
 from pywinauto import Desktop
 from pywinauto.uia_defines import NoPatternInterfaceError
-from comtypes import COMError
-
 
 PW_CLIENTONLY = 0x00000001
 SW_SHOW = 5
 SW_RESTORE = 9
 BI_RGB = 0
 DIB_RGB_COLORS = 0
-PER_MONITOR_AWARE_V2 = ctypes.c_void_p(-4)
+
+
+def enable_per_monitor_dpi_awareness():
+    """Keep UIA rectangles and native input coordinates in the same space."""
+    try:
+        ctypes.windll.user32.SetProcessDpiAwarenessContext(PER_MONITOR_AWARE_V2)
+    except (AttributeError, OSError):
+        pass
 
 
 def restore_win32_window(pid: int | None, pattern: re.Pattern[str] | None, focus: bool):
@@ -75,7 +90,44 @@ def windows():
     return rows
 
 
-def select_window(pid: int | None, title_regex: str | None, restore: bool, focus: bool):
+def native_windows():
+    """List Win32 top-level windows, including owned modal dialogs UIA omits."""
+    user32 = ctypes.windll.user32
+    rows = []
+    callback_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+
+    @callback_type
+    def visit(hwnd, _):
+        process_id = wintypes.DWORD()
+        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(process_id))
+        title_length = user32.GetWindowTextLengthW(hwnd)
+        title = ctypes.create_unicode_buffer(title_length + 1)
+        user32.GetWindowTextW(hwnd, title, title_length + 1)
+        class_name = ctypes.create_unicode_buffer(256)
+        user32.GetClassNameW(hwnd, class_name, len(class_name))
+        rows.append({
+            "handle": int(hwnd),
+            "pid": int(process_id.value),
+            "title": title.value,
+            "class_name": class_name.value,
+            "visible": bool(user32.IsWindowVisible(hwnd)),
+            "enabled": bool(user32.IsWindowEnabled(hwnd)),
+        })
+        return True
+
+    user32.EnumWindows(visit, 0)
+    return rows
+
+
+def select_window(
+    handle: int | None, pid: int | None, title_regex: str | None,
+    restore: bool, focus: bool,
+):
+    if handle is not None:
+        window = Desktop(backend="uia").window(handle=handle)
+        if not window.exists():
+            raise SystemExit(f"UIA window handle does not exist: {handle}")
+        return window
     pattern = re.compile(title_regex, re.IGNORECASE) if title_regex else None
     matches = []
     for window in Desktop(backend="uia").windows():
@@ -235,11 +287,14 @@ def capture_client(hwnd: int, destination: Path):
 
 
 def main() -> int:
+    enable_per_monitor_dpi_awareness()
     parser = argparse.ArgumentParser(description=__doc__)
     subcommands = parser.add_subparsers(dest="command", required=True)
     subcommands.add_parser("windows")
+    subcommands.add_parser("native-windows")
     for name in ("tree", "find", "act", "capture"):
         command = subcommands.add_parser(name)
+        command.add_argument("--handle", type=int)
         command.add_argument("--pid", type=int)
         command.add_argument("--title-regex")
         command.add_argument("--restore-window", action="store_true")
@@ -262,8 +317,12 @@ def main() -> int:
     if args.command == "windows":
         print(json.dumps(windows(), indent=2))
         return 0
+    if args.command == "native-windows":
+        print(json.dumps(native_windows(), indent=2))
+        return 0
     window = select_window(
-        args.pid, args.title_regex, args.restore_window or args.focus_window,
+        args.handle, args.pid, args.title_regex,
+        args.restore_window or args.focus_window,
         args.focus_window,
     )
     if args.command == "tree":
