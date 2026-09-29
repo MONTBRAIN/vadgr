@@ -19,10 +19,10 @@ def isolated_trusted_candidate_root(tmp_path, monkeypatch):
 
 
 def authorization():
-    return {"schema": 1, "branch": "feat/installer", "version": "0.5.0", "pull_request": None,
+    return {"schema": 1, "branch": "master", "version": "0.5.0", "pull_request": 109,
                 "cua_version": "0.7.8", "python_version": "3.12.0", "legal_approval_sha256": "1" * 64,
                 "required_checks": [{"context": "ci", "integration_id": 15368}], "rules_digest": "2" * 64,
-                "repository": "MONTBRAIN/vadgr", "source_sha": "a" * 40,
+                "repository": "MONTBRAIN/vadgr", "source_sha": "d" * 40,
                 "source_tree": "b" * 40, "input_digest": "c" * 64,
                 "trusted_sha": "d" * 40, "candidate_id": "v0.5.0-rc-1", "architecture": "x64",
                 "run_id": 123, "run_attempt": 1, "unsigned_artifact_id": 99,
@@ -70,7 +70,7 @@ def test_profile_claim_binds_shared_and_outer_operation_budget():
     claims.validate_authorization(profile_authorization())
 
 
-def test_feature_legal_proposal_still_needs_protected_owner_approval():
+def test_merged_legal_proposal_still_needs_protected_owner_approval():
     api = GitHub()
     auth, record = qualify(api, profile_authorization())
     api.approved = False
@@ -80,7 +80,7 @@ def test_feature_legal_proposal_still_needs_protected_owner_approval():
     assert not any(method != "GET" for method, _, _ in api.calls)
 
 
-def test_changed_feature_legal_proposal_cannot_reuse_signed_claim():
+def test_changed_merged_legal_proposal_cannot_reuse_signed_claim():
     api = GitHub()
     auth, record = qualify(api, profile_authorization())
     claim = claims.create(api, auth, record)
@@ -305,10 +305,10 @@ def test_preflight_and_artifact_schema_round_trip(tmp_path):
     from scripts import candidate_artifacts
 
     preflight = {
-        "schema": 1, "repository": "MONTBRAIN/vadgr", "branch": "feat/installer",
-        "source_sha": "a" * 40, "source_tree": "b" * 40, "input_digest": "c" * 64,
+        "schema": 1, "repository": "MONTBRAIN/vadgr", "branch": "master",
+        "source_sha": "d" * 40, "source_tree": "b" * 40, "input_digest": "c" * 64,
         "version": "0.5.0", "candidate_id": "v0.5.0-rc-1", "architecture": "x64",
-        "pull_request": None, "cua_version": "0.7.8", "python_version": "3.12.0",
+        "pull_request": 109, "cua_version": "0.7.8", "python_version": "3.12.0",
         "legal_approval_sha256": "1" * 64, "trusted_sha": "d" * 40,
         "required_checks": [{"context": "ci", "integration_id": 15368, "check_id": 456}],
         "rules_digest": "2" * 64,
