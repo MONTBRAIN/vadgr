@@ -63,6 +63,10 @@ fn selected_cua_version() -> Result<&'static str> {
     Ok(VERSION.get_or_init(|| version.to_owned()))
 }
 
+pub(crate) fn active_cua_version() -> &'static str {
+    selected_cua_version().expect("validated compiled CUA profile version")
+}
+
 fn selected_profile_manifest_sha256() -> Result<Option<&'static str>> {
     static HASH: OnceLock<String> = OnceLock::new();
     let Some(profile) = RELEASE_PROFILE else {

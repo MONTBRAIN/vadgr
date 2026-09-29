@@ -415,7 +415,10 @@ impl ConsoleApp {
                 ui,
                 Icon::Plug,
                 "Computer use",
-                &format!("Included · version {}", crate::cua_payload::CUA_VERSION),
+                &format!(
+                    "Included · version {}",
+                    crate::cua_payload::active_cua_version()
+                ),
                 if data
                     .health
                     .as_ref()
