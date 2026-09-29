@@ -159,6 +159,13 @@ def select_element(
 def invoke(element, action: str, text: str | None):
     if action == "invoke":
         element.iface_invoke.Invoke()
+    elif action == "click":
+        # Some custom-drawn controls advertise Invoke through AccessKit/UIA but
+        # do not dispatch the provider action on every supported Windows stack.
+        # Keep discovery and targeting semantic, then use the element's bounded
+        # native input fallback instead of screen coordinates supplied by a
+        # human or image recognition.
+        element.click_input()
     elif action == "toggle":
         element.iface_toggle.Toggle()
     elif action == "select":
@@ -237,7 +244,11 @@ def main() -> int:
             command.add_argument("--automation-id")
             command.add_argument("--enabled-only", action="store_true")
         if name == "act":
-            command.add_argument("--action", choices=("invoke", "toggle", "select", "set-value"), required=True)
+            command.add_argument(
+                "--action",
+                choices=("invoke", "click", "toggle", "select", "set-value"),
+                required=True,
+            )
             command.add_argument("--text")
         if name == "capture":
             command.add_argument("--output", type=Path, required=True)

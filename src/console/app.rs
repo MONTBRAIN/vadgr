@@ -212,6 +212,7 @@ impl ConsoleApp {
             }
             Ok(Ok(OperationResult::UpdateChecked(update))) => {
                 self.pending = None;
+                self.last_refresh = std::time::Instant::now();
                 if update.update_available {
                     self.available_update = Some(update.available_version.clone());
                     self.notice = Some((
@@ -225,10 +226,12 @@ impl ConsoleApp {
             }
             Ok(Err(error)) => {
                 self.pending = None;
+                self.last_refresh = std::time::Instant::now();
                 self.notice = Some((false, error.to_string()));
             }
             Err(mpsc::TryRecvError::Disconnected) => {
                 self.pending = None;
+                self.last_refresh = std::time::Instant::now();
                 self.notice = Some((false, "The operation ended without a result.".to_owned()));
             }
             Err(mpsc::TryRecvError::Empty) => {
@@ -2184,6 +2187,32 @@ mod tests {
             rollback_detail(&installed_without_optional_assets),
             "No verified previous generation is retained"
         );
+    }
+
+    #[test]
+    fn a_slow_operation_failure_survives_the_next_background_refresh_boundary() {
+        let ctx = egui::Context::default();
+        let (send, receive) = mpsc::channel();
+        send.send(Err(anyhow!("specific update failure"))).unwrap();
+        let mut app = ConsoleApp {
+            controller: Arc::new(HttpConsoleController::new("http://127.0.0.1:1").unwrap()),
+            view: View::Settings,
+            data: None,
+            pending: Some(receive),
+            dialog: None,
+            notice: None,
+            available_update: None,
+            last_refresh: std::time::Instant::now() - std::time::Duration::from_secs(30),
+        };
+
+        app.poll(&ctx);
+
+        assert!(app.pending.is_none());
+        assert_eq!(
+            app.notice,
+            Some((false, "specific update failure".to_owned()))
+        );
+        assert!(app.last_refresh.elapsed() < std::time::Duration::from_secs(1));
     }
 
     #[test]
