@@ -474,6 +474,18 @@ the affected functional assertion against the exact final pre-merge artifact.
 | 2026-09-24 | `d4dd7b000fa82095ebb7a98a84ed7b2d5202a7c6` | L01 through L06, F01, O1, O2, C1 | The native continuation stopped before product startup. No held candidate workflow run exists. The exact source has no `packaging/inputs/` tree or assembled private CUA payload, and the Linux build refused the missing payload with exit 2. ADB listed no phone and the host has no pre-existing isolated offline snapshot. Rust tests, Clippy, formatting, 888 Python tests, secret checks, runbook arithmetic and style passed. No source binary, earlier package or synthetic legal input was substituted for the missing current artifact. Private evidence: PR #176, `20260924-linux-x86_64-wayland-continuation`. |
 | 2026-09-29 | `24ae14a8c585a555f14fe1186f4986120b32a00e` | L01 through L06, F01, O1, O2, C1 | On an Ubuntu 26.04 x86_64 GNOME Wayland VirtualBox guest, no retained or local release-equivalent AppImage exists. GitHub reports no `native-build-linux-x86_64` artifact, and the exact source lacks `packaging/inputs/linux-x86_64` plus an assembled payload. No synthetic review input or earlier package was substituted. The earlier phone diagnosis was corrected: after stopping guest-local ADB, `ADB_SERVER_SOCKET` through the VirtualBox host gateway found exactly one authorized intended physical phone before disconnection. This proves the bridge only; F01 remains blocked before its QR boundary by the package. No pre-existing offline snapshot exists, and C1 remains pending. Private evidence: PR #176, `20260929-linux-x86_64-virtualbox-continuation`. |
 
+The 2026-09-30 Linux continuation added a credential-free preparation producer.
+At exact source `890a7d465c426ab1f88475e62edbd3f0052f63f8`, the pinned Rust
+1.97.1 native build completed, 57 private runtime binaries passed architecture
+verification, and relocated private Python 3.12.14 imported CUA 0.7.9. These are
+package-preparation observations, not installed-product passes. The Linux
+package-input review and assembled AppImage remain incomplete. The full Python
+producer archive matched all 4533 install-only members; its 1667 additional
+members are not claimed as shipped. Native-library notices and source duties
+still need exact payload review. Existing failed attempts remain in private
+evidence PR #176 under `20260930-linux-x86_64-package-preparation`. No production
+signing prerequisite blocks this implementation work.
+
 ## macOS qualification history
 
 These observations preserve implementation findings and earlier evidence. They

@@ -34,6 +34,14 @@ every file digest, mode and relative link. The receipt identifies the source
 commit, source tree, platform and architecture. Preparation does not create
 legal approval. Failed attempts remain available for diagnosis.
 
+The install-only Python archive omits the producer's native-library license
+metadata. `scripts/inspect_python_runtime_licenses.py` accepts that pinned
+archive and the matching full producer archive with its independently verified
+SHA-256. It requires every install-only file, mode and link to match the full
+archive's installation subtree before retaining `PYTHON.json` and license files.
+Extra producer tests and build libraries are counted separately. The observation
+does not approve redistribution or establish which native libraries are shipped.
+
 After the exact Linux package-input packet is reviewed and committed, prepare
 again at that commit and build the registered AppImage:
 
