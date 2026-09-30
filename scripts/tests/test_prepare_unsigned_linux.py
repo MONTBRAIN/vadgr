@@ -3,6 +3,7 @@
 import os
 from pathlib import Path
 import subprocess
+import sys
 
 import pytest
 
@@ -120,7 +121,7 @@ def test_linux_builder_uses_same_external_payload_for_validation_and_packaging(t
     validator = root / "scripts/validate_package_inputs.py"
     validator.parent.mkdir()
     validator.write_text("import sys\nprint('\\n'.join(sys.argv[1:]))\nsys.exit(17)\n")
-    env = dict(os.environ, APPIMAGETOOL="/bin/true", VADGR_PACKAGE_PAYLOAD_ROOT=str(payload))
+    env = dict(os.environ, APPIMAGETOOL=sys.executable, VADGR_PACKAGE_PAYLOAD_ROOT=str(payload))
     result = subprocess.run(["sh", str(script), "0.5.0", "x86_64"],
                             env=env, text=True, capture_output=True)
     assert result.returncode == 17
