@@ -24,7 +24,7 @@
   "carried_closure_decisions": true,
   "decoded_privacy_scan": "separate required check; not implied by legal scope",
   "final_artifact_correspondence": "not run; independent final receipt and Git check required",
-  "inventory_sha256": "19496c2ae9fd9bf0960c6f0829fca023abf7f6ae775e33fcae2917856785d998",
+  "inventory_sha256": "bbc34199166c64f87699f62e4ecbaababd35a9015270520b4435af6b8a5ad708",
   "new_approval_decision": false,
   "plan": {
     "authorization_basis": "authorized-code-fix-unchanged-legal-scope",
@@ -32,7 +32,7 @@
       "legal/SOURCE-OFFERS/vadgr-linux/EXTRACT-SOURCE.txt": {
         "after": {
           "bytes": 627,
-          "sha256": "adcf5216325ac6e3b5ebe228629d2660c33b0f3618f4a82554ec6dd837f46fc4"
+          "sha256": "3e2737b30de85d065da2561a4c7abf905eb31527718fa9b267654db729bf0163"
         },
         "before": {
           "bytes": 1469,
@@ -52,7 +52,7 @@
       "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.SHA256SUMS": {
         "after": {
           "bytes": 345,
-          "sha256": "45211aae435d6baf628550717f3dfe12be2eabfd78f4645cf90381919d04f451"
+          "sha256": "44a1587d831d4c32754c29b8ebee8635132c239848aecb8b2f1c20cf088ee194"
         },
         "before": {
           "bytes": 345,
@@ -62,7 +62,7 @@
       "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.json": {
         "after": {
           "bytes": 1272,
-          "sha256": "d154678f50e447e86a2eb6ff582602a095bf1b0c809b6d93e658b764dad26bb7"
+          "sha256": "85ba25ab86a417cb58e3ca8d9113aaf6d19e670147b32fbb3772f18b492202f3"
         },
         "before": {
           "bytes": 1423,
@@ -71,8 +71,8 @@
       },
       "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz": {
         "after": {
-          "bytes": 64719083,
-          "sha256": "ed2cf6b9e03ff4f3d4cf213aedcc608a812e62c734a8691875b648716edc723c"
+          "bytes": 64720013,
+          "sha256": "b312481220e76216eb1567be2cd32547c14a7272fedb9130fc153179d0928490"
         },
         "before": {
           "bytes": 64695906,
@@ -81,8 +81,8 @@
       },
       "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz": {
         "after": {
-          "bytes": 52190039,
-          "sha256": "2767b061203bd4c5078770c776c32976425b5f0ac4e2d0ed1260b065fb53e8ca"
+          "bytes": 52190215,
+          "sha256": "eb1cdaf29f17bcb5db04565c3be1388fb759862d287cdb2e92e2fa0fc3802665"
         },
         "before": {
           "bytes": 52190951,
@@ -93,16 +93,16 @@
     "old_payload_manifest_sha256": "e96150b5b4de1353694d3810f754a7d1aa3a1c0fda3aa7995aba93099dfdb6c8",
     "original_approval_receipt_sha256": "af08d48bb850b1b2b64ba9fae5bb18d828677367641d74ef42329cf618d0befb",
     "schema": 1,
-    "source_snapshot_commit": "3a9473c8b34685b81b7b46a0a909496fa0cacc95",
-    "source_snapshot_tree": "c39b823738473ca7cc181170d195e793e9f810fe",
-    "source_tree_manifest_sha256": "c68461ca086733a13c9878f6766951c73fdc30715101b7605c10c320cd1ab6b7",
-    "source_volumes_sha256": "d154678f50e447e86a2eb6ff582602a095bf1b0c809b6d93e658b764dad26bb7",
+    "source_snapshot_commit": "753c730c9f444a36d0a6b17efa2c10e5b51b88a2",
+    "source_snapshot_tree": "9bcb5907e27a870d69bc41368dbf5e1786a8eb2c",
+    "source_tree_manifest_sha256": "27eed1473df4a82b742ef789fcf368f9c00da2bdd5c8f984213076be8d2879fb",
+    "source_volumes_sha256": "85ba25ab86a417cb58e3ca8d9113aaf6d19e670147b32fbb3772f18b492202f3",
     "validation_payload_manifest_sha256": "9a006cd5742ef0aa910b3d2c2e45e35120835adffd4b26ba841e82f4a31157a7"
   },
-  "plan_sha256": "21070cc8a5d0ff5266055ab2b2b0584e9dd6da45417eab110053aa6e9b8fd171",
+  "plan_sha256": "de366d8da25e84fc1285e9212a90660e51e940cac0e1feca6ad6c2191f975568",
   "publishable": false,
   "release_authorized": false,
-  "review_sha256": "5e81248cfe62eaddc4f0fc3227ee9553a142d14239769052eb6ea60fb271f2ec",
+  "review_sha256": "bf03a614bf7a889256c1379e9e366ad261c2c0aaa846c02d0dd988ec95887c6a",
   "schema": 1,
   "separately_owner_reviewed": false,
   "signing_authorized": false,

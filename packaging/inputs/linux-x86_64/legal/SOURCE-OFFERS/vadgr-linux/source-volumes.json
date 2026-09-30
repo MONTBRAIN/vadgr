@@ -3,26 +3,26 @@
   "compile_identity": "Read adjacent development receipt at recipient build time; no final identity embedded",
   "complete_original_crate_archives": 557,
   "e2e": "not run",
-  "file_manifest_sha256": "304b73ff494807a66b7a37f2a7045e48b15c75fdba15dd237865d8136abf2823",
-  "file_members": 28917,
+  "file_manifest_sha256": "800b564ce4753cf0a91e2d6faf2667caaad1c4fc2f40ec035e805752e627c473",
+  "file_members": 28919,
   "legal_approval": false,
   "resolution_manifest_stubs": 158,
   "root_directory": "vadgr-0.5.0-linux-x86_64-source",
   "schema": 1,
-  "source_snapshot_commit": "3a9473c8b34685b81b7b46a0a909496fa0cacc95",
-  "source_snapshot_tree": "c39b823738473ca7cc181170d195e793e9f810fe",
+  "source_snapshot_commit": "753c730c9f444a36d0a6b17efa2c10e5b51b88a2",
+  "source_snapshot_tree": "9bcb5907e27a870d69bc41368dbf5e1786a8eb2c",
   "volumes": [
     {
       "archive": "vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz",
-      "bytes": 64719083,
-      "file_members": 712,
-      "sha256": "ed2cf6b9e03ff4f3d4cf213aedcc608a812e62c734a8691875b648716edc723c"
+      "bytes": 64720013,
+      "file_members": 714,
+      "sha256": "b312481220e76216eb1567be2cd32547c14a7272fedb9130fc153179d0928490"
     },
     {
       "archive": "vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz",
-      "bytes": 52190039,
+      "bytes": 52190215,
       "file_members": 18257,
-      "sha256": "2767b061203bd4c5078770c776c32976425b5f0ac4e2d0ed1260b065fb53e8ca"
+      "sha256": "eb1cdaf29f17bcb5db04565c3be1388fb759862d287cdb2e92e2fa0fc3802665"
     },
     {
       "archive": "vadgr-0.5.0-linux-x86_64-source.volume-03.tar.gz",
