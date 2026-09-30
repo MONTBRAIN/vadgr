@@ -503,12 +503,12 @@ oracles. Windows executes only the Windows rows in this session.
 
 | Part | Windows native | macOS | native Linux | WSL |
 |---|---|---|---|---|
-| H: protected owner boundaries | partial functional: F01 QR/Built-in and typed-code/Tailscale completed; W02 is a post-merge trust assertion | partial functional: physical saved-name QR/Built-in pairing completed; M02 is a post-merge signed-identity assertion | blocked before owner action: the current release-equivalent Linux package must be produced on the implementation branch. The VirtualBox host ADB bridge proved one authorized intended physical phone before the owner disconnected it, so phone absence is not the package blocker | Not-Needed: WSL has no native GUI or protected installer prompt |
+| H: protected owner boundaries | partial functional: F01 QR/Built-in and typed-code/Tailscale completed; W02 is a post-merge trust assertion | partial functional: physical saved-name QR/Built-in pairing completed; M02 is a post-merge signed-identity assertion | partial functional: retained `d462eaaf` installed without a package-manager prompt on the available FUSE host. The missing-FUSE variant was not exercised. F01 remains owed while the owner and phone are away; refresh the host ADB probe before its attended continuation | Not-Needed: WSL has no native GUI or protected installer prompt |
 | W: Windows cells | pre-merge functional qualification complete on available x64 hardware: W01, F01, W03 unsigned, W04, W05, W06 pre-merge, reachable W07, W08, first-release W09, W10, O2 and C1 pass; x64/ARM64 W11 passes. ARM64 installed-product hardware is unavailable. Held-candidate-only slices are tracked separately and do not block merge | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells |
 | M: macOS cells | Not-Needed: macOS-only cells | partial functional: Apple Silicon installation, native configuration, phone watch and restart observations are filed; the host must build the exact current release-equivalent unsigned PKG and complete affected lifecycle and cleanup before merge. Intel hardware remains unavailable. Signed identity assertions are tracked separately | Not-Needed: macOS-only cells | Not-Needed: macOS-only cells |
-| L: native Linux cells | Not-Needed: native-Linux-only cells | Not-Needed: native-Linux-only cells | L01 failed twice before terms against retained AppImage `43346b79` on Ubuntu 26.04 x86_64 GNOME Wayland VirtualBox. The receipt-order fix at `753c730c` passed regression gates; matching source delivery and the unchanged-scope 825-component packet passed validation and privacy checks. A rebuilt AppImage and installed rerun remain pending. Earlier failures remain retained. Signing is not the functional blocker; aarch64, X11 and bare-metal behavior remain not run | Not-Needed: native-Linux-only cells |
+| L: native Linux cells | Not-Needed: native-Linux-only cells | Not-Needed: native-Linux-only cells | partial functional at retained `d462eaaf` on Ubuntu 26.04 x86_64 GNOME Wayland VirtualBox: terms decline preserved empty roots; acceptance installed; console launch, selected CLI/API reads and restart succeeded. Unchecked Install exposed wrong enabled semantics, and native text replacement failed twice. Repairs need rebuilt installed reruns. Visual, lifecycle and phone assertions remain owed. Earlier failures remain retained. aarch64, X11 and bare-metal behavior remain not run | Not-Needed: native-Linux-only cells |
 | S: WSL cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | not run: release-equivalent unsigned WSL assets have not completed functional qualification; signing is not the blocker |
-| O: shared offline, accessibility and cleanup cells | pre-merge functional qualification complete on available x64 hardware: prior O1 remains valid; the Narrator state matrix, exact-current UIA, unfocused Windows Graphics Capture and final C1 cleanup pass | partial functional: native focus, VoiceOver speech, state matrix, isolated fixture cleanup and screen-reader-setting restoration ran; exact final offline lifecycle and cleanup remain owed | blocked: no current release-equivalent package or pre-existing isolated offline snapshot is available. C1 remains pending until the Linux cells finish | not run: host functional qualification is incomplete |
+| O: shared offline, accessibility and cleanup cells | pre-merge functional qualification complete on available x64 hardware: prior O1 remains valid; the Narrator state matrix, exact-current UIA, unfocused Windows Graphics Capture and final C1 cleanup pass | partial functional: native focus, VoiceOver speech, state matrix, isolated fixture cleanup and screen-reader-setting restoration ran; exact final offline lifecycle and cleanup remain owed | partial: native actions exposed two accessibility defects at `d462eaaf`; both require rebuilt reruns. WINDOW-only portal selection failed and yielded no image, so no visual pass is claimed. O1 has no pre-existing isolated offline snapshot. C1 remains incomplete, with installed state preserved for continuation | not run: host functional qualification is incomplete |
 
 ## Completion ledger
 
@@ -516,7 +516,7 @@ oracles. Windows executes only the Windows rows in this session.
 |---|---:|---|
 | Windows x64/arm64 | W01, W02, F01, W03 through W11, O1, O2, C1 | pre-merge functional qualification is complete on available x64 hardware at exact product source `24ae14a`: x64 W01, F01, W03 unsigned, W04, W05, W06 pre-merge, reachable W07, W08, first-release W09, W10, O2 and C1 pass; native x64/ARM64 W11 passes. Prior O1 remains unaffected. ARM64 installed-product behavior is unavailable and recorded honestly. W02 and named held-candidate assertions are post-merge work and do not gate merge |
 | macOS Intel/Apple Silicon | M01, M02, F01, M03 through M06, O1, O2, C1 | pre-merge functional qualification is partial: Apple Silicon installed configuration, phone pairing/watch, accessibility and screen-reader restoration observations are filed; the exact current unsigned PKG and affected lifecycle, Tailscale pairing and cleanup remain owed. The host repairs missing unsigned packaging on the implementation branch. Intel hardware remains unavailable. M02 and named signed-identity assertions are post-merge trust work |
-| Linux x86_64/aarch64 X11/Wayland | L01, L02, F01, L03 through L06, O1, O2, C1 | L01 failed twice before terms against the exact `43346b79` AppImage on virtualized Ubuntu 26.04 x86_64 GNOME Wayland. The receipt-order repair at `753c730c` and refreshed source packet passed their gates, but a rebuilt installed rerun remains owed. Original failures and unchanged-state observations remain retained. Source proof reuse and packet validation are not installed-product results or new approval decisions. The owner is away with the phone. No isolated offline snapshot exists. The earlier portal accessibility limitation remains a setup observation. aarch64, X11 and bare-metal behavior remain not run. C1 has partial source cleanup only. Signing does not block this lane |
+| Linux x86_64/aarch64 X11/Wayland | L01, L02, F01, L03 through L06, O1, O2, C1 | partial functional against exact `d462eaaf` AppImage on virtualized Ubuntu 26.04 x86_64 GNOME Wayland: L01 decline, ordinary L02 install, L04 launch/read/restart and private Python inventory observations ran. Native disabled semantics and text entry failed; repairs require a new source-bound AppImage and affected reruns. L03 integrity/extraction, L05, L06 and complete O2 remain owed. F01 and phone assertions await the attended session. O1 has no isolated offline snapshot. Exact portal capture produced no image; this alone does not prove a protected owner boundary. aarch64, X11 and bare-metal behavior remain not run. C1 has intermediate cleanup only. Original failures remain retained. Signing does not block this lane |
 | WSL x64/arm64 | S01 through S06, O1, C1 | pre-merge functional qualification is not run: release-equivalent unsigned assets are required. Production attestation is a separate post-merge trust lane |
 
 Overall functional qualification remains **incomplete** until every applicable
@@ -779,6 +779,44 @@ for all 825 components and 5283 payload-input files. Its inventory digest is
 `bbc34199166c64f87699f62e4ecbaababd35a9015270520b4435af6b8a5ad708`.
 A new retained AppImage and native rerun still must close the failed cell.
 The original failures remain retained.
+
+### Linux installed observations at `d462eaaf`
+
+Successful producer `36774168663` retained artifact `11124544877` for exact
+source `d462eaaf83b9cfc99e3c1920b7a5bb88cc929da2`. Its registered AppImage
+has 577538552 bytes and SHA-256
+`060793e5617566c75e194d145ce7834ff3a8479faba3dcc2682258f207c91b26`.
+Independent verification covered its receipt, 11075 AppDir members, source
+correspondence and unchanged private CUA payload. An interrupted extraction
+remains retained without an invented exit code.
+
+Native AT-SPI drove terms decline with exit 0 and no product-root mutation,
+then acceptance, installation and Open Vadgr. The installed vehicle matched the
+retained digest. Selected CLI/API machine fields matched. Restart replaced the
+daemon PID and restored health. Private Python reported 3.12.14, and the
+installed payload identified CUA 0.7.9. These observations are partial slices,
+not complete L01, L02 or L04 passes.
+
+Two native accessibility defects were reproduced. Unchecked Install incorrectly
+advertised enabled/clickable semantics, though the installer guard correctly
+prevented installation. Machine name advertised editable state, but native
+EditableText replacement failed twice. The repair retains exact dependency
+versions and grants while correcting Linux state/action mapping and adding
+guarded whole-value replacement. The installer also renders the approved terms
+headings, emphasis and lists without changing their verified legal bytes.
+Controlled negative regressions and the full source gates passed; refreshed
+source delivery, a rebuilt AppImage and actual native reruns remain owed.
+The Linux-only runtime changes do not establish another platform's pass.
+The shared package-input binding changes require each affected producer to
+regenerate and validate its exact source bindings before using a new artifact.
+
+Two WINDOW-only portal attempts could not select the intended row through
+native accessibility and yielded no image. The owned chooser was cancelled.
+No visual verdict, owner-only permission verdict or desktop-crop substitute is
+claimed. The failed attempts remain in private evidence PR #176.
+After acquisition evidence was pushed, four validated intermediate copies were
+removed, reclaiming 3197554688 allocated bytes. The exact AppImage, receipts,
+installed test state and live continuation processes remain. C1 is incomplete.
 
 ## macOS qualification history
 

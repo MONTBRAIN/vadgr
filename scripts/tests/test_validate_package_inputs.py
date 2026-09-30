@@ -115,6 +115,14 @@ def test_reviewed_text_input_accepts_only_exact_windows_line_endings():
     assert not package.source_input_matches("Cargo.lock", b"changed\r\n", expected)
 
 
+def test_refuses_unregistered_path_source_even_when_old_inventory_still_matches(bundle):
+    _, source, *_ = bundle
+    manifest = source / "Cargo.toml"
+    manifest.write_text(manifest.read_text() + '\n[patch.crates-io]\nunknown = { path = "vendor/unknown" }\n')
+    with pytest.raises(package.PackageInputError, match="patched Cargo source binding"):
+        validate(bundle)
+
+
 def test_canonical_text_sha256_is_checkout_independent():
     lf = b"first\nsecond\n"
     assert package.canonical_text_sha256(lf) == package.canonical_text_sha256(

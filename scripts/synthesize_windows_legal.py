@@ -23,6 +23,7 @@ from pathlib import Path
 import tomllib
 
 if __package__:
+    from scripts import rust_path_patches
     from scripts.copyright_absence import audit_source_tree_zip, source_tree_zip
     from scripts.inspect_legal_crate_sources import statements as original_statements
     from scripts.validate_package_inputs import (
@@ -64,6 +65,7 @@ if __package__:
     )
     from scripts.windows_wix_evidence import retain_in_packet as retain_wix_evidence
 else:
+    import rust_path_patches
     from copyright_absence import audit_source_tree_zip, source_tree_zip
     from inspect_legal_crate_sources import statements as original_statements
     from validate_package_inputs import (
@@ -561,7 +563,10 @@ def verify_observation(observation_root, source, architecture, binding=None):
             == observation["source_files"]["source-inventory.json"]["sha256"], "source observation inventory changed")
     require(source_inventory["source_sha"] == observation["source"]["source_sha"], "source record differs")
     bindings = {}
-    for name in sorted(profile_source_inputs(profile)):
+    source_names = profile_source_inputs(profile)
+    if rust_path_patches.load(source):
+        source_names |= rust_path_patches.SOURCE_INPUTS
+    for name in sorted(source_names):
         digest = sha256_bytes(subprocess.check_output(["git", "show", "HEAD:" + name], cwd=source))
         require(digest == source_inventory["files"][name]["sha256"], "source input changed after observation")
         bindings[name] = digest
@@ -573,14 +578,17 @@ def verify_observation(observation_root, source, architecture, binding=None):
 
 
 def add_cargo(packet, inputs, source, target_collection):
+    patches = rust_path_patches.load(source)
     evidence = {row["id"]: row for row in target_collection["components"]}
     lock = tomllib.loads(read_owned(source, "Cargo.lock").decode())
     checksums = {(row["name"], row["version"]): row.get("checksum") for row in lock["package"]}
     scopes = defaultdict(set)
     identities = {}
     graphs = {}
+    roots = set()
     for filename in ("cargo-metadata.json", "ba-cargo-metadata.json"):
         metadata = document(inputs, filename)
+        roots.add(metadata["resolve"]["root"])
         graph = cargo_scopes(metadata)
         graphs[filename] = graph
         for row in metadata["packages"]:
@@ -593,10 +601,21 @@ def add_cargo(packet, inputs, source, target_collection):
         identifier = "cargo-" + row["name"] + "-" + row["version"]
         # Build and proc-macro inputs remain visible in the graph, but are not
         # silently promoted to shipped components or treated as obligation-free.
-        if "target-normal" not in contexts or row["source"] is None:
+        if "target-normal" not in contexts or row["id"] in roots:
             continue
         prior = evidence.get(identifier)
         sources = checked_sources(source / target_collection["_root"], prior["source_files"]) if prior else []
+        if row["source"] is None:
+            patch = patches.get(row["name"])
+            require(patch is not None and patch["version"] == row["version"], "unbound local Cargo dependency")
+            require(prior is not None and prior.get("source_kind") == "reviewed-path-patch"
+                    and prior["sha256"] == patch["manifest_sha256"], "patched Cargo source changed")
+            packet.component(identifier=slug(identifier), name=row["name"], version=row["version"],
+                             kind="cargo", digest=patch["manifest_sha256"],
+                             location=rust_path_patches.location(source, patch),
+                             declared=row["license"], sources=sources, scope="target-normal-dependency",
+                             pending=["modified-source-grants-and-notices", "notice-and-source-duty"], origins=sorted(contexts))
+            continue
         require(checksums.get(key), "Cargo archive checksum is unavailable")
         if prior:
             require(prior["sha256"] == checksums[key], "Cargo source archive changed")

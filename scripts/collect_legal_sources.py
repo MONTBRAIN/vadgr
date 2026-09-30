@@ -32,6 +32,7 @@ from packaging.tags import compatible_tags, cpython_tags
 from packaging.utils import parse_wheel_filename
 
 from validate_package_inputs import canonical_json, relative_path, SOURCE_INPUTS, PackageInputError, profile_source_inputs
+import rust_path_patches
 
 
 def digest(data):
@@ -198,13 +199,14 @@ def cargo_manifests(target):
 
 def cargo_components(repo, root, cache, target):
     packages = {}
+    patches = rust_path_patches.load(repo)
     for manifest, features in cargo_manifests(target):
         command = ["cargo", "metadata", "--locked", "--format-version", "1", "--filter-platform", target,
                    "--manifest-path", str(repo / manifest), *features]
         metadata = json.loads(subprocess.check_output(command, cwd=repo))
         selected = cargo_closure(metadata["resolve"])
         for item in metadata["packages"]:
-            if item["id"] in selected and item["source"] is not None:
+            if item["id"] in selected and item["id"] != metadata["resolve"]["root"]:
                 packages[(item["name"], item["version"])] = item
     locked = {}
     for manifest, _ in cargo_manifests(target):
@@ -215,6 +217,19 @@ def cargo_components(repo, root, cache, target):
 
     def component(pair):
         (name, version), metadata = pair
+        if metadata["source"] is None:
+            patch = rust_path_patches.component(repo, metadata, patches)
+            url = rust_path_patches.location(repo, patch)
+            sources = {row["path"]: rust_path_patches.read(repo / patch["path"], row["path"])
+                       for row in patch["files"] if row["path"] in {
+                           "LICENSE-APACHE", "LICENSE-MIT", "LICENSE.chromium", "PATCHES.md"}}
+            sources["patched-source-manifest.json"] = patch["manifest_bytes"]
+            result = record_component(root, f"cargo-{name}-{version}", name, version, "cargo", url,
+                                      patch["manifest_bytes"], metadata["license"], sources)
+            result["source_kind"] = "reviewed-path-patch"
+            result["upstream_archive_sha256"] = patch["upstream_archive_sha256"]
+            result["upstream_archive_url"] = patch["upstream_archive_url"]
+            return result
         if metadata["source"] != "registry+https://github.com/rust-lang/crates.io-index":
             raise ValueError("unhandled Cargo source")
         filename = f"{name}-{version}.crate"
@@ -408,6 +423,8 @@ def collect(repo, root, cargo_home, target, nuget_home=None, wheelhouse=None):
     inputs = (sorted(profile_source_inputs("linux-" + target.split("-", 1)[0])) + ["Cargo.toml"]
               if linux else [*SOURCE_INPUTS, "Cargo.toml", "packaging/windows/ba-functions/Cargo.toml",
                              "packaging/windows/ba-functions/Cargo.lock"])
+    if rust_path_patches.load(repo):
+        inputs = sorted(set(inputs) | rust_path_patches.SOURCE_INPUTS)
     report = {"schema": 1, "status": "incomplete", "target": target,
               "created": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
               "scope": "upstream license evidence; includes Cargo build dependencies",

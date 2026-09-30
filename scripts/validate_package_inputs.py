@@ -20,6 +20,11 @@ from urllib.parse import urlsplit
 
 import tomllib
 
+if __package__:
+    from scripts import rust_path_patches
+else:
+    import rust_path_patches
+
 SOURCE_INPUTS = ("Cargo.lock", "packaging/cua/pins.toml", "packaging/cua/requirements.lock", "packaging/toolchain.json")
 CLOSURE_MEANINGS = {
     "publisher": "The Publisher-owner approved the exact identity and public contacts.",
@@ -108,14 +113,26 @@ def profile_source_inputs(profile: str) -> set[str]:
 
 
 def profile_from_inputs(names, target):
+    names = set(names)
+    if rust_path_patches.REGISTRY in names:
+        if not rust_path_patches.SOURCE_INPUTS <= names:
+            return None
+        names -= rust_path_patches.SOURCE_INPUTS
     for system in ("windows", "macos", "linux", "wsl"):
         suffix = {"windows": "pc-windows-msvc", "macos": "apple-darwin",
                   "linux": "unknown-linux-gnu", "wsl": "unknown-linux-gnu"}[system]
         for architecture in ("x86_64", "aarch64"):
             profile = system + "-" + architecture
-            if target == architecture + "-" + suffix and set(names) == profile_source_inputs(profile):
+            if target == architecture + "-" + suffix and names == profile_source_inputs(profile):
                 return profile
     return None
+
+
+def base_source_inputs(names):
+    names = set(names)
+    if rust_path_patches.REGISTRY in names and rust_path_patches.SOURCE_INPUTS <= names:
+        names -= rust_path_patches.SOURCE_INPUTS
+    return names
 
 
 def relative_path(value: object) -> str:
@@ -217,7 +234,7 @@ def validate_inventory(inventory: dict) -> None:
     require(isinstance(inventory["terms_version"], str) and re.fullmatch(r"\d+(?:\.\d+)+", inventory["terms_version"]), "invalid inventory")
     require(valid_hash(inventory["terms_sha256"]) and valid_hash(inventory["payload_manifest_sha256"]), "invalid inventory")
     require(isinstance(inventory["source_inputs"], dict)
-            and (set(inventory["source_inputs"]) in (set(SOURCE_INPUTS), release_source_inputs(inventory["target"]))
+            and (base_source_inputs(inventory["source_inputs"]) in (set(SOURCE_INPUTS), release_source_inputs(inventory["target"]))
                  or profile_from_inputs(inventory["source_inputs"], inventory["target"]) is not None)
             and all(valid_hash(value) for value in inventory["source_inputs"].values()), "invalid inventory")
     coverage = inventory["coverage"]
@@ -413,6 +430,41 @@ def validate_package_inputs(root: Path, source_root: Path, version: str, target:
         raise PackageInputError("invalid package inputs") from None
 
 
+def validate_patched_sources(source_root, inventory):
+    """The lock alone cannot bind the bytes of selected path dependencies."""
+    try:
+        patches = rust_path_patches.load(source_root)
+    except (ValueError, OSError, KeyError, TypeError) as error:
+        raise PackageInputError("invalid patched Cargo source binding") from error
+    inputs = inventory["source_inputs"]
+    if not patches:
+        require(rust_path_patches.REGISTRY not in inputs, "obsolete patch source inputs")
+        return
+    require(rust_path_patches.SOURCE_INPUTS <= set(inputs), "unbound patched Cargo source inputs")
+    require(all(source_input_matches(name, read_owned(source_root, name), inputs[name])
+                for name in rust_path_patches.SOURCE_INPUTS), "patched Cargo source inputs changed")
+    components = {row["name"]: row for row in inventory["components"] if row["kind"] == "cargo"}
+    profile = profile_from_inputs(inputs, inventory["target"])
+    # WSL shares the Rust target triple but ships the headless build, not the
+    # native Linux GUI. Only its exact profile input set selects this branch.
+    if not inventory["target"].endswith("unknown-linux-gnu") or (profile and profile.startswith("wsl-")):
+        require(not (set(patches) & set(components)), "Linux GUI patch component on another profile")
+        return
+    for name, patch in patches.items():
+        item = components.get(name)
+        require(item is not None and item["version"] == patch["version"]
+                and item["sha256"] == patch["manifest_sha256"]
+                and item["license_declared"] == "MIT OR Apache-2.0"
+                and item["license_concluded"] == rust_path_patches.CONCLUSIONS[name],
+                "patched Cargo inventory differs")
+        try:
+            # Trusted review checks the historical URL object. Builds also work
+            # from source archives or shallow checkouts: bind current bytes here.
+            rust_path_patches.location_commit(patch, item["download_location"])
+        except (ValueError, OSError) as error:
+            raise PackageInputError("patched Cargo provenance differs") from error
+
+
 def _validate_package_inputs(root, source_root, version, target, payload_manifest, source_only):
     require(type(source_only) is bool and target in TARGETS, "invalid target")
     require(not (source_only and payload_manifest is not None), "ambiguous validation scope")
@@ -433,9 +485,10 @@ def _validate_package_inputs(root, source_root, version, target, payload_manifes
                 for name, data in source_bytes.items()), "source input mismatch")
     source_version = tomllib.loads(read_owned(source_root, "Cargo.toml").decode("utf-8"))["package"]["version"]
     require(source_version == version, "source version mismatch")
+    validate_patched_sources(source_root, inventory)
     pins = tomllib.loads(source_bytes["packaging/cua/pins.toml"].decode("utf-8"))
     target_pins = pins["targets"][target]
-    schema_two = set(source_bytes) == release_source_inputs(target)
+    schema_two = base_source_inputs(source_bytes) == release_source_inputs(target)
     profile = profile_from_inputs(source_bytes, target)
     lock_name = (f"packaging/cua/profile-locks/{profile}.lock" if profile else
                  f"packaging/cua/locks/{target}.lock" if schema_two else "packaging/cua/requirements.lock")

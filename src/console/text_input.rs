@@ -11,7 +11,7 @@ pub(super) enum TextInput {
 
 impl TextInput {
     pub(super) fn show(self, ui: &mut egui::Ui, id: egui::Id, text: &mut String) -> egui::Response {
-        #[cfg(any(target_os = "macos", target_os = "windows"))]
+        #[cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))]
         let native_changed = self.apply_native_value(ui, id, text);
 
         let widget = match self {
@@ -24,7 +24,7 @@ impl TextInput {
         #[allow(unused_mut)]
         let mut response = ui.add(widget.id(id));
 
-        #[cfg(any(target_os = "macos", target_os = "windows"))]
+        #[cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))]
         {
             if response.enabled() {
                 ui.ctx().accesskit_node_builder(id, |node| {
@@ -38,14 +38,14 @@ impl TextInput {
         response
     }
 
-    #[cfg(any(target_os = "macos", target_os = "windows"))]
+    #[cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))]
     fn apply_native_value(self, ui: &egui::Ui, id: egui::Id, text: &mut String) -> bool {
         use egui::accesskit::{Action, ActionData};
         use egui::text::{CCursor, CCursorRange};
 
         // Native accessibility exposes writable text values. Own that action here:
         // egui 0.36.1 handles text selection and keyboard events, but not SetValue
-        // on either macOS or Windows.
+        // on macOS, Windows or Linux.
         // Consume before the widget so a future toolkit handler cannot replay it.
         let enabled = ui.is_enabled();
         let mut replacement = None;
@@ -83,7 +83,10 @@ impl TextInput {
     }
 }
 
-#[cfg(all(test, any(target_os = "macos", target_os = "windows")))]
+#[cfg(all(
+    test,
+    any(target_os = "macos", target_os = "windows", target_os = "linux")
+))]
 mod tests {
     use super::*;
     use egui::accesskit::{Action, ActionData, ActionRequest, TreeId};

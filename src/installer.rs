@@ -179,7 +179,7 @@ impl eframe::App for InstallerApp {
                     ui.label("Vadgr will not change this machine until you accept these terms and choose Install.");
                     ui.add_space(12.0);
                     egui::ScrollArea::vertical().max_height(380.0).show(ui, |ui| {
-                        crate::console::theme::card().show(ui, |ui| { ui.label(&self.preflight.as_ref().expect("terms state keeps preflight").terms_text); });
+                        crate::console::theme::card().show(ui, |ui| { show_terms(ui, &self.preflight.as_ref().expect("terms state keeps preflight").terms_text); });
                     });
                     ui.add_space(12.0);
                     ui.checkbox(&mut self.accepted, "I have read and accept these terms");
@@ -219,10 +219,178 @@ impl eframe::App for InstallerApp {
 }
 
 #[cfg(target_os = "linux")]
+fn show_terms(ui: &mut egui::Ui, terms: &str) {
+    // The reviewed text uses headings, strong spans and unordered lists. Render
+    // those without changing the bytes verified and recorded by the installer.
+    for block in terms.split("\n\n").filter(|block| !block.trim().is_empty()) {
+        let block = block.trim();
+        if let Some(heading) = block.strip_prefix("### ") {
+            ui.label(RichText::new(heading).heading());
+        } else if let Some(heading) = block.strip_prefix("#### ") {
+            ui.add_space(6.0);
+            ui.label(
+                RichText::new(heading)
+                    .family(crate::console::theme::medium_family())
+                    .size(15.0),
+            );
+        } else if block.lines().all(|line| line.starts_with("- ")) {
+            for line in block.lines() {
+                ui.label(terms_inline(ui, &format!("• {}", &line[2..])));
+            }
+        } else {
+            let paragraph = block.lines().map(str::trim).collect::<Vec<_>>().join(" ");
+            ui.label(terms_inline(ui, &paragraph));
+        }
+    }
+}
+
+#[cfg(target_os = "linux")]
+fn terms_inline(ui: &egui::Ui, mut text: &str) -> egui::text::LayoutJob {
+    let mut job = egui::text::LayoutJob::default();
+    let regular = egui::TextFormat {
+        font_id: egui::TextStyle::Body.resolve(ui.style()),
+        color: ui.visuals().text_color(),
+        ..Default::default()
+    };
+    let strong = egui::TextFormat {
+        font_id: egui::FontId::new(regular.font_id.size, crate::console::theme::medium_family()),
+        ..regular.clone()
+    };
+    while let Some(start) = text.find("**") {
+        let after = &text[start + 2..];
+        let Some(end) = after.find("**") else {
+            break;
+        };
+        job.append(&text[..start], 0.0, regular.clone());
+        job.append(&after[..end], 0.0, strong.clone());
+        text = &after[end + 2..];
+    }
+    job.append(text, 0.0, regular);
+    job
+}
+
+#[cfg(target_os = "linux")]
 fn verification_label() -> &'static str {
     if cfg!(feature = "linux-unsigned-qualification") {
         "Checking development package integrity"
     } else {
         "Verifying the signed release"
+    }
+}
+
+#[cfg(all(test, target_os = "linux"))]
+mod tests {
+    use super::*;
+
+    fn label_text(output: &egui::FullOutput) -> Vec<&str> {
+        let tree = output.platform_output.accesskit_update.as_ref().unwrap();
+        fn visit<'a>(
+            tree: &'a egui::accesskit::TreeUpdate,
+            id: egui::accesskit::NodeId,
+            text: &mut Vec<&'a str>,
+        ) {
+            let node = &tree.nodes.iter().find(|(key, _)| *key == id).unwrap().1;
+            if node.role() == egui::accesskit::Role::Label {
+                text.extend(node.value());
+            }
+            for child in node.children() {
+                visit(tree, *child, text);
+            }
+        }
+        let mut text = Vec::new();
+        visit(tree, tree.tree.as_ref().unwrap().root, &mut text);
+        text
+    }
+
+    #[test]
+    fn complete_reviewed_terms_remain_readable_without_source_markup() {
+        let terms = include_str!("../packaging/legal/TERMS.txt");
+        let ctx = egui::Context::default();
+        ctx.enable_accesskit();
+        crate::console::theme::install(&ctx);
+        let output = ctx.run_ui(egui::RawInput::default(), |ui| show_terms(ui, terms));
+        let paragraphs = label_text(&output);
+        assert_eq!(
+            paragraphs.first(),
+            Some(&"Vadgr packaged distribution terms")
+        );
+        assert!(paragraphs.contains(&"Version 1.0"));
+        assert!(paragraphs.contains(&"12. General terms"));
+        assert!(
+            paragraphs
+                .last()
+                .unwrap()
+                .ends_with("applies where you live.")
+        );
+        assert!(
+            paragraphs
+                .iter()
+                .all(|text| !text.contains("**") && !text.starts_with('#'))
+        );
+        // Every word of the approved text survives presentation, including
+        // paragraph continuations and all twelve sections.
+        let expected: Vec<_> = terms
+            .split_whitespace()
+            .filter(|word| !matches!(*word, "###" | "####" | "-"))
+            .map(|word| word.replace("**", ""))
+            .collect();
+        let actual: Vec<_> = paragraphs
+            .iter()
+            .flat_map(|text| text.split_whitespace())
+            .filter(|word| *word != "•")
+            .collect();
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn terms_render_as_readable_text_with_heading_and_emphasis() {
+        let terms = "### Distribution terms\n\n**Version 1.0**\n\n#### 1. Scope\n\nThese terms name **the\nPublisher** and preserve every word.\n\n- First item\n- Second item";
+        let ctx = egui::Context::default();
+        ctx.enable_accesskit();
+        crate::console::theme::install(&ctx);
+        let output = ctx.run_ui(egui::RawInput::default(), |ui| show_terms(ui, terms));
+        let text = label_text(&output);
+        assert_eq!(
+            text,
+            [
+                "Distribution terms",
+                "Version 1.0",
+                "1. Scope",
+                "These terms name the Publisher and preserve every word.",
+                "• First item",
+                "• Second item",
+            ]
+        );
+        let jobs: Vec<_> = output
+            .shapes
+            .iter()
+            .filter_map(|shape| match &shape.shape {
+                egui::Shape::Text(text) => Some(&text.galley.job),
+                _ => None,
+            })
+            .collect();
+        let paragraph = jobs
+            .iter()
+            .find(|job| job.text.starts_with("These terms"))
+            .unwrap();
+        let publisher = paragraph
+            .sections
+            .iter()
+            .find(|section| {
+                &paragraph.text[section.byte_range.start.0..section.byte_range.end.0]
+                    == "the Publisher"
+            })
+            .unwrap();
+        assert_eq!(
+            publisher.format.font_id.family,
+            crate::console::theme::medium_family()
+        );
+        let heading = jobs
+            .iter()
+            .find(|job| job.text == "Distribution terms")
+            .unwrap();
+        assert!(
+            heading.sections[0].format.font_id.size > paragraph.sections[0].format.font_id.size
+        );
     }
 }
