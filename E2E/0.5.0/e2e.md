@@ -486,6 +486,18 @@ still need exact payload review. Existing failed attempts remain in private
 evidence PR #176 under `20260930-linux-x86_64-package-preparation`. No production
 signing prerequisite blocks this implementation work.
 
+The local preparation executable required GLIBC 2.43 and is not the registered
+Ubuntu 24.04 package subject. Source
+`73fa58ccd1989e58f7467bc2f2abe2286aaeb72f` adds credential-free Ubuntu 24.04
+preparation and a packaging guard for the registered GLIBC 2.39 baseline.
+Successful workflow run `36726433875` retained artifact `11103702051`.
+Independent inspection matched all 6307 preparation members, including modes
+and links. Its native executable is 65465120 bytes, SHA-256
+`a4f1b6c8a81eb74268c25ded72c18938e821d00233f1203369a73409e3ef8af3`,
+with maximum required GLIBC 2.39. The retained preparation is not an AppImage.
+Reviewed Linux notices and source delivery still precede assembly and the
+installed-product cells. CI success is not a functional cell pass.
+
 ## macOS qualification history
 
 These observations preserve implementation findings and earlier evidence. They
