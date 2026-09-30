@@ -72,6 +72,7 @@ def legal_members(data, filename, *, case_sensitive=False):
         names.add(folded)
         base = PurePosixPath(name).name.lower()
         if (re.search(r"licen[cs]e|copying|copyright|notice|^[ou]fl(?:\.|$)|^unlicense$|^osmfeula", base)
+                or any(part.lower() in {"licenses", "licences"} for part in PurePosixPath(name).parts[:-1])
                 or ("fonts" in PurePosixPath(name).parts and base.endswith(".txt"))
                 or "sbom" in name.lower()):
             if len(content) > 8 * 1024 * 1024:

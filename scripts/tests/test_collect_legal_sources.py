@@ -48,6 +48,15 @@ def test_archived_notices_and_nested_font_licenses_are_verbatim():
     assert result["crate/LICENSE-MIT"] == b"Copyright A\r\nPermission\r\n"
 
 
+def test_named_license_directory_keeps_spdx_named_grant_files():
+    data = archive({"crate/LICENSES/MIT.txt": b"Exact MIT grant",
+                    "crate/LICENSES/BSD-3-Clause.txt": b"Exact BSD grant",
+                    "crate/src/MIT.txt": b"not a license directory"})
+    assert collect.legal_members(data, "crate.tar.gz") == {
+        "crate/LICENSES/MIT.txt": b"Exact MIT grant",
+        "crate/LICENSES/BSD-3-Clause.txt": b"Exact BSD grant"}
+
+
 def test_archive_paths_cannot_escape_or_collide():
     for entries in ({"../LICENSE": b"x"}, {"crate/LICENSE": b"a", "crate/license": b"b"}):
         with pytest.raises(ValueError):
