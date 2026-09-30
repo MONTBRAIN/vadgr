@@ -764,6 +764,35 @@ offered.
   reason instead. An enabled no-op, an inaccessible control, or an unlabeled
   future control is a finding.
 
+**A supported virtual machine is valid native functional coverage when the
+guest runs the product directly.** Record the hypervisor, guest OS, virtual
+hardware, architecture, desktop and display protocol. Call the result
+virtualized native coverage, never bare-metal coverage. Leave hardware-specific
+behavior and unavailable architectures or desktop sessions `not run` with the
+exact reason. A VirtualBox guest is not WSL, a container or a remote
+Windows-mounted checkout.
+
+**A phone attached to a VM host is not absent until the host ADB bridge is
+checked.** Stop the guest-local ADB server before selecting a remote socket.
+For VirtualBox NAT, derive the guest's default gateway and use
+`ADB_SERVER_SOCKET=tcp:<gateway>:5037`; the usual gateway is `10.0.2.2`. The
+host runs a temporary network-listening ADB server, and every guest ADB command
+uses the same socket. Require the intended device to be in `device` state before
+the cell starts. Never record its serial. Do not change firewall, DNS, routing,
+VPN or other network services to make the bridge work. Restore the host's prior
+ADB-server mode during cleanup. The exact commands and security boundary belong
+in the runbook before a phone cell can be called blocked.
+
+**Before native installer or console cells, prove the automation path.** Read
+the docs `general/ENGINEERING.md` section "Native desktop cold-start procedure"
+and the current runbook's matching checklist. Prove process-scoped native
+actions, actual text replacement and independent readback before relying on
+them. Inspect exact unfocused application-only images; a UI tree is not a visual
+pass. Preserve failed probes, fix product accessibility defects, and restore
+assistive settings. Put this procedure in both the current minor and template
+so the next agent does not have to rediscover it. CLAUDE.md imports this entry
+point and follows the same procedure.
+
 The gate, before offering anything:
 
 ```bash
