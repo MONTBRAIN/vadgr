@@ -3,6 +3,13 @@ set -eu
 
 version=${1:-0.5.0}
 arch=${2:-$(uname -m)}
+mode=${3:-release}
+[ "$#" -le 3 ] || { echo "Unexpected Linux package arguments." >&2; exit 2; }
+case "$mode" in
+  release) features=native-gui;;
+  development) features=linux-unsigned-qualification;;
+  *) echo "Unsupported Linux build mode." >&2; exit 2;;
+esac
 case "$version" in 0.5.0) ;; *) echo "This package source is only for 0.5.0." >&2; exit 2;; esac
 case "$arch" in x86_64|aarch64) ;; *) echo "Unsupported Linux architecture: $arch" >&2; exit 2;; esac
 
@@ -20,8 +27,10 @@ python3 "$repo/scripts/validate_package_inputs.py" --root "$inputs" --source-roo
 runtime=${APPIMAGE_RUNTIME:?Set APPIMAGE_RUNTIME to the pinned native AppImage runtime.}
 python3 "$repo/scripts/verify_appimage_runtime.py" --runtime "$runtime" \
   --pins "$repo/packaging/linux/runtime.json" --architecture "$arch"
-cargo build --locked --release --features native-gui --target "$rust_target" --bin vadgr
+cargo build --locked --release --features "$features" --target "$rust_target" --bin vadgr
 target="target/$rust_target/release"
+python3 "$repo/scripts/check_linux_build_policy.py" --binary "$repo/$target/vadgr" \
+  --expect "$mode" --architecture "$arch"
 
 work="$repo/target/package/linux-$arch"
 appdir="$work/Vadgr.AppDir"
@@ -39,4 +48,6 @@ install -m 0644 "$repo/docs/pet.svg" "$appdir/com.montbrain.vadgr.svg"
 
 output="$repo/target/package/Vadgr-$version-linux-$arch-installer.AppImage"
 ARCH="$arch" "$APPIMAGETOOL" --runtime-file "$runtime" "$appdir" "$output"
+python3 "$repo/scripts/check_linux_build_policy.py" --appimage "$output" \
+  --expect "$mode" --architecture "$arch"
 printf '%s\n' "$output"

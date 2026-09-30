@@ -1902,7 +1902,7 @@ mod tests {
 
     #[cfg(unix)]
     #[test]
-    fn unix_runtime_refuses_unrelocatable_metadata_without_modifying_it() {
+    fn unix_runtime_refuses_bad_metadata_or_missing_profile_authorization_without_mutation() {
         let temporary = tempfile::tempdir().unwrap();
         let root = test_install_root(temporary.path());
         let mut manifest = valid_payload(&root);
@@ -1938,12 +1938,16 @@ mod tests {
                     .into();
             write_manifest(&root, &manifest);
         }
-        assert!(
-            CuaRuntime::below_install_root(&root)
-                .unwrap_err()
-                .to_string()
-                .contains("assembly home metadata")
-        );
+        if current_pins().unwrap().release_profile.is_some() {
+            assert_profile_requires_authorization(&root, &manifest);
+        } else {
+            assert!(
+                CuaRuntime::below_install_root(&root)
+                    .unwrap_err()
+                    .to_string()
+                    .contains("assembly home metadata")
+            );
+        }
         assert!(
             std::fs::read_to_string(environment.join("pyvenv.cfg"))
                 .unwrap()
@@ -2114,7 +2118,7 @@ assert not outside
         }
         std::fs::write(cua_root.join("bootstrap.py"), b"bootstrap").unwrap();
         let mut manifest = serde_json::json!({
-            "schema": if pins.wheel_manifest_sha256.is_some() { 2 } else { 1 },
+            "schema": if pins.release_profile.is_some() { 3 } else if pins.wheel_manifest_sha256.is_some() { 2 } else { 1 },
             "cua_version": pins.cua,
             "python_version": pins.python,
             "python_build": pins.python_build,
@@ -2123,6 +2127,11 @@ assert not outside
             "uv_archive_sha256": pins.uv_archive_sha256,
             "target": target_triple().unwrap(),
         });
+        if let Some(profile) = pins.release_profile {
+            manifest["release_profile"] = profile.into();
+            manifest["cua_profile_manifest_sha256"] =
+                pins.cua_profile_manifest_sha256.unwrap().into();
+        }
         if let Some(hash) = pins.wheel_manifest_sha256 {
             manifest["wheel_manifest_sha256"] = hash.into();
             manifest["installed_inventory_sha256"] =
@@ -2156,6 +2165,56 @@ assert not outside
         .unwrap();
     }
 
+    fn assert_profile_requires_authorization(root: &Path, manifest: &serde_json::Value) {
+        let pins = current_pins().unwrap();
+        let profile = pins.release_profile.unwrap();
+        let parsed: PayloadManifest = serde_json::from_value(manifest.clone()).unwrap();
+        assert_eq!(parsed.schema, 3);
+        assert_eq!(parsed.cua_version, pins.cua);
+        assert_eq!(parsed.python_version, pins.python);
+        assert_eq!(parsed.python_build, pins.python_build);
+        assert_eq!(parsed.requirements_sha256, pins.requirements_sha256);
+        assert_eq!(parsed.python_archive_sha256, pins.python_archive_sha256);
+        assert_eq!(parsed.uv_archive_sha256, pins.uv_archive_sha256);
+        assert_eq!(parsed.target, target_triple().unwrap());
+        assert_eq!(
+            parsed.wheel_manifest_sha256.as_deref(),
+            pins.wheel_manifest_sha256
+        );
+        assert_eq!(parsed.release_profile.as_deref(), Some(profile));
+        assert_eq!(
+            parsed.cua_profile_manifest_sha256.as_deref(),
+            pins.cua_profile_manifest_sha256
+        );
+        release::validate_inventory(
+            &root.join("lib/cua"),
+            target_triple().unwrap(),
+            parsed.installed_inventory_sha256.as_deref().unwrap(),
+        )
+        .unwrap();
+        let envelope = root.join("cua-runtime-authorization.json");
+        let bundle = root.join("cua-runtime-authorization.sigstore.json");
+        assert!(!envelope.exists() && !bundle.exists());
+        let error = CuaRuntime::below_install_root(root).unwrap_err();
+        assert_eq!(
+            error.downcast_ref::<std::io::Error>().unwrap().kind(),
+            std::io::ErrorKind::NotFound
+        );
+        // Invalid records prove that this refusal reached authentication, not
+        // an unrelated missing fixture. They never grant runtime authorization.
+        std::fs::write(&envelope, b"{}").unwrap();
+        std::fs::write(&bundle, b"{}").unwrap();
+        let error = CuaRuntime::below_install_root(root).unwrap_err();
+        assert!(
+            error
+                .to_string()
+                .contains("parsing the release attestation"),
+            "unexpected refusal: {error:#}"
+        );
+        std::fs::remove_file(envelope).unwrap();
+        std::fs::remove_file(bundle).unwrap();
+    }
+
     #[cfg(target_os = "linux")]
     #[tokio::test]
     async fn linux_assembly_rechecks_bootstrap_content_before_reusing_a_valid_payload() {
@@ -2179,7 +2238,19 @@ assert not outside
                         .into();
             }
             write_manifest(root, &manifest);
-            assert!(CuaRuntime::below_install_root(root).is_ok());
+            assert!(
+                !runtime_bootstrap_absent(
+                    &cua_root.join("python").join(PYTHON_VERSION),
+                    &cua_root.join("environments").join(environment_generation()),
+                    target_triple().unwrap(),
+                )
+                .unwrap()
+            );
+            if current_pins().unwrap().release_profile.is_some() {
+                assert_profile_requires_authorization(root, &manifest);
+            } else {
+                assert!(CuaRuntime::below_install_root(root).is_ok());
+            }
             let mut installer = CuaPayloadInstaller::new(root.to_path_buf()).unwrap();
             // Rebuilding must reach this offline sentinel before any download.
             installer.pins.requirements_sha256 = "not-the-embedded-lock";
@@ -2191,7 +2262,7 @@ assert not outside
 
     #[cfg(target_os = "linux")]
     #[tokio::test]
-    async fn linux_assembly_reuses_a_clean_payload_without_scanning_other_generations() {
+    async fn linux_clean_payload_reuse_requires_authorization_and_ignores_other_generations() {
         let temporary = tempfile::tempdir().unwrap();
         let root = temporary.path();
         let mut manifest = valid_payload(root);
@@ -2208,7 +2279,21 @@ assert not outside
         write_manifest(root, &manifest);
         let mut installer = CuaPayloadInstaller::new(root.to_path_buf()).unwrap();
         installer.pins.requirements_sha256 = "not-the-embedded-lock";
-        assert!(installer.assemble().await.is_ok());
+        assert!(
+            runtime_bootstrap_absent(
+                &cua_root.join("python").join(PYTHON_VERSION),
+                &cua_root.join("environments").join(environment_generation()),
+                target_triple().unwrap(),
+            )
+            .unwrap()
+        );
+        if installer.pins.release_profile.is_some() {
+            assert_profile_requires_authorization(root, &manifest);
+            let error = installer.assemble().await.unwrap_err();
+            assert!(error.to_string().contains("requirements_sha256"));
+        } else {
+            assert!(installer.assemble().await.is_ok());
+        }
         assert_eq!(std::fs::read(unrelated).unwrap(), b"unselected generation");
     }
 
@@ -2409,12 +2494,16 @@ assert not outside
     }
 
     #[test]
-    fn a_valid_manifest_resolves_only_the_private_generation() {
+    fn valid_manifest_resolves_private_generation_or_requires_profile_authorization() {
         let temporary = tempfile::tempdir().unwrap();
         let root = test_install_root(temporary.path());
         let manifest = valid_payload(&root);
         write_manifest(&root, &manifest);
 
+        if current_pins().unwrap().release_profile.is_some() {
+            assert_profile_requires_authorization(&root, &manifest);
+            return;
+        }
         let runtime = CuaRuntime::below_install_root(&root).unwrap();
         assert!(runtime.interpreter().starts_with(&root));
         assert!(runtime.environment().starts_with(&root));
@@ -2557,6 +2646,18 @@ assert not outside
                 "{field} mismatch was reported as {error:#}"
             );
         }
+        for field in ["release_profile", "cua_profile_manifest_sha256"] {
+            let temporary = tempfile::tempdir().unwrap();
+            let root = test_install_root(temporary.path());
+            let mut manifest = valid_payload(&root);
+            manifest[field] = "wrong".into();
+            write_manifest(&root, &manifest);
+            let error = CuaRuntime::below_install_root(&root).unwrap_err();
+            assert!(
+                error.to_string().contains("CUA profile differs"),
+                "{field}: {error:#}"
+            );
+        }
     }
 
     #[test]
@@ -2564,7 +2665,7 @@ assert not outside
         let pins = current_pins().unwrap();
         let record = include_str!("../packaging/cua/pins.toml");
         for expected in [
-            format!("cua = {:?}", pins.cua),
+            format!("cua = {:?}", CUA_VERSION),
             format!("python = {:?}", pins.python),
             format!("python_build = {:?}", pins.python_build),
             format!("uv = {:?}", pins.uv),
@@ -2572,6 +2673,27 @@ assert not outside
             format!("uv_sha256 = {:?}", pins.uv_archive_sha256),
         ] {
             assert!(record.contains(&expected), "pin record lacks {expected}");
+        }
+        if let Some(profile) = pins.release_profile {
+            let catalog: serde_json::Value =
+                serde_json::from_slice(RELEASE_PROFILE_CATALOG.unwrap()).unwrap();
+            let inputs: serde_json::Value =
+                serde_json::from_slice(RELEASE_PROFILE_INPUTS.unwrap()).unwrap();
+            assert_eq!(catalog["cua_version"], pins.cua);
+            assert_eq!(
+                inputs["catalog_sha256"],
+                hex_sha256(RELEASE_PROFILE_CATALOG.unwrap())
+            );
+            assert_eq!(
+                inputs["profiles"][profile]["requirements_sha256"],
+                pins.requirements_sha256
+            );
+            assert_eq!(
+                inputs["profiles"][profile]["role_manifest_sha256"],
+                pins.cua_profile_manifest_sha256.unwrap()
+            );
+        } else {
+            assert_eq!(pins.cua, CUA_VERSION);
         }
     }
 

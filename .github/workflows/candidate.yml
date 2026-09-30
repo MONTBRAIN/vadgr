@@ -1070,6 +1070,9 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/cua_wheelhouse.py --source source --target '${{ matrix.rust_target }}' --release-profile '${{ matrix.target }}' --out "$RUNNER_TEMP/vadgr-wheelhouse"
+      - name: Install the read-only Linux AppImage decoder
+        if: startsWith(matrix.target, 'linux-')
+        run: sudo apt-get update && sudo apt-get install -y squashfs-tools
       - name: Build and inspect native Unix vehicles without signing credentials
         if: ${{ !startsWith(matrix.target, 'windows-') }}
         env:

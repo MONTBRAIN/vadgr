@@ -21,6 +21,7 @@ import sys
 
 if __package__:
     from scripts import cua_wheelhouse, distribution_matrix
+    from scripts.check_linux_build_policy import verify as verify_build_policy
     from scripts.verify_appimage_runtime import verify as verify_appimage_runtime
     from scripts.validate_package_inputs import (
         PackageInputError, canonical_json, require, validate_package_inputs,
@@ -28,6 +29,7 @@ if __package__:
 else:
     import cua_wheelhouse
     import distribution_matrix
+    from check_linux_build_policy import verify as verify_build_policy
     from verify_appimage_runtime import verify as verify_appimage_runtime
     from validate_package_inputs import (
         PackageInputError, canonical_json, require, validate_package_inputs,
@@ -87,17 +89,23 @@ def inventory(root):
     return rows
 
 
-def build_environment(profile):
+def build_environment(profile, identity):
     require(not any(os.environ.get(key) for key in CREDENTIALS),
             "compilation must have no GitHub, signing or identity credentials")
     environment = dict(os.environ)
+    require(set(identity) == {"source_commit", "source_tree"}
+            and all(re.fullmatch(r"[a-f0-9]{40}", value) for value in identity.values()),
+            "qualification source identity differs")
     toolchains = set(re.findall(r"^\s+toolchain: ([0-9]+\.[0-9]+\.[0-9]+)\s*$",
                                (ROOT / ".github/workflows/candidate.yml").read_text(), re.M))
     require(len(toolchains) == 1, "candidate Rust toolchain is ambiguous")
     environment.update(VADGR_RELEASE_PROFILE=profile, VADGR_RELEASE_PAYLOAD_BUILD="1",
+                       VADGR_QUALIFICATION_SOURCE_COMMIT=identity["source_commit"],
+                       VADGR_QUALIFICATION_SOURCE_TREE=identity["source_tree"],
                        SOURCE_DATE_EPOCH="1609459200",
                        RUSTUP_TOOLCHAIN=next(iter(toolchains)), CARGO_TARGET_DIR=str(ROOT / "target"),
                        RUSTFLAGS=f"--remap-path-prefix={ROOT}=/vadgr-source")
+    environment.pop("CARGO_ENCODED_RUSTFLAGS", None)
     return environment
 
 
@@ -145,15 +153,16 @@ def relocation_probe(payload, environment):
 def prepare(output, wheelhouse, architecture, source_commit):
     identity = source_identity(ROOT, source_commit)
     profile, target = native_target(architecture)
-    environment = build_environment(profile)
+    environment = build_environment(profile, identity)
     require(not output.exists() and not output.is_symlink()
             and output.parent.is_dir(), "preparation output must be new")
     cua_wheelhouse.verify_materialized(ROOT, ROOT, target, wheelhouse, profile)
     output.mkdir(mode=0o700)
-    subprocess.run(["cargo", "build", "--locked", "--release", "--features", "native-gui",
+    subprocess.run(["cargo", "build", "--locked", "--release", "--features", "linux-unsigned-qualification",
                     "--target", target, "--bin", "vadgr"], cwd=ROOT, env=environment, check=True)
     binary = ROOT / "target" / target / "release/vadgr"
     distribution_matrix.verify_binary(binary, profile)
+    verify_build_policy(binary, "development", architecture)
     payload = output / "payload"
     subprocess.run([str(binary), "__payload-setup", "--install-root", str(payload),
                     "--payload-only", "--wheelhouse", str(wheelhouse)],
@@ -178,7 +187,7 @@ def prepare(output, wheelhouse, architecture, source_commit):
 def package(preparation, appimagetool, architecture, source_commit, runtime=None):
     identity = source_identity(ROOT, source_commit)
     profile, target = native_target(architecture)
-    environment = build_environment(profile)
+    environment = build_environment(profile, identity)
     receipt_path = preparation / "preparation.json"
     receipt = json.loads(receipt_path.read_bytes())
     require(receipt_path.read_bytes() == canonical_json(receipt), "noncanonical preparation receipt")
@@ -189,6 +198,7 @@ def package(preparation, appimagetool, architecture, source_commit, runtime=None
     }.items()), "preparation identity differs")
     require([row for row in inventory(preparation) if row["path"] != "preparation.json"]
             == receipt["files"], "prepared bytes changed")
+    verify_build_policy(preparation / "vadgr", "development", architecture)
     abi = require_release_abi(preparation / 'vadgr')
     pins = json.loads((ROOT / "packaging/toolchain.json").read_bytes())
     require(digest(appimagetool) == pins["appimagetool"][architecture]["sha256"],
@@ -201,7 +211,7 @@ def package(preparation, appimagetool, architecture, source_commit, runtime=None
     environment.update(APPIMAGETOOL=str(appimagetool), APPIMAGE_EXTRACT_AND_RUN="1",
                        APPIMAGE_RUNTIME=str(runtime),
                        VADGR_PACKAGE_PAYLOAD_ROOT=str(payload))
-    subprocess.run(["sh", "packaging/linux/build.sh", "0.5.0", architecture],
+    subprocess.run(["sh", "packaging/linux/build.sh", "0.5.0", architecture, "development"],
                    cwd=ROOT, env=environment, check=True)
     vehicle = ROOT / "target/package" / f"Vadgr-0.5.0-linux-{architecture}-installer.AppImage"
     distribution_matrix.verify_binary(vehicle, profile)

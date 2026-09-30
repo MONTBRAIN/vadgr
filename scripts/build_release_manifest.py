@@ -13,7 +13,11 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import sys
 import tomllib
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from check_linux_build_policy import PolicyError, verify_appimage
 
 
 ARTIFACTS = {
@@ -81,6 +85,12 @@ def main() -> None:
         if len(matches) != 1:
             raise SystemExit(f"expected exactly one {name}, found {len(matches)}")
         path = matches[0]
+        if target.startswith("linux-"):
+            try:
+                verify_appimage(path, "release", target.removeprefix("linux-"),
+                                Path(__file__).resolve().parents[1] / "packaging/linux/runtime.json")
+            except (PolicyError, OSError, ValueError) as error:
+                raise SystemExit(f"Linux release policy: {error}") from error
         rows.append(
             {
                 "name": name,

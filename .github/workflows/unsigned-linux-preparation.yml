@@ -12,6 +12,7 @@ on:
       - 'packaging/**'
       - 'scripts/prepare_unsigned_linux.py'
       - 'scripts/verify_appimage_runtime.py'
+      - 'scripts/check_linux_build_policy.py'
       - 'scripts/cua_wheelhouse.py'
       - 'scripts/validate_package_inputs.py'
       - 'scripts/distribution_matrix.py'
@@ -47,7 +48,7 @@ jobs:
           set -euo pipefail
           test "$RUNNER_ARCH" = X64
           sudo apt-get update
-          sudo apt-get install -y libxkbcommon-dev libwayland-dev libudev-dev libdbus-1-dev libssl-dev pkg-config binutils
+          sudo apt-get install -y libxkbcommon-dev libwayland-dev libudev-dev libdbus-1-dev libssl-dev pkg-config binutils squashfs-tools
           python -m pip install 'packaging==25.0'
       - name: Materialize exact reviewed wheels with read-only access
         env:
@@ -57,6 +58,7 @@ jobs:
           set -euo pipefail
           python scripts/cua_wheelhouse.py --source . --target x86_64-unknown-linux-gnu --release-profile linux-x86_64 --out "$RUNNER_TEMP/linux-wheelhouse"
       - name: Compile and prepare without GitHub or signing credentials
+        id: preparation
         env:
           GH_TOKEN: ''
           GITHUB_TOKEN: ''
@@ -67,6 +69,7 @@ jobs:
           python scripts/prepare_unsigned_linux.py prepare --source-commit "$SOURCE_COMMIT" --architecture x86_64 --wheelhouse "$RUNNER_TEMP/linux-wheelhouse" --preparation "$RUNNER_TEMP/linux-prepared"
           python -c 'from pathlib import Path; import os; from scripts.prepare_unsigned_linux import require_release_abi; print(require_release_abi(Path(os.environ["RUNNER_TEMP"]) / "linux-prepared/vadgr"))'
       - name: Build the registered vehicle when its reviewed inputs exist
+        id: package
         if: ${{ hashFiles('packaging/inputs/linux-x86_64/package-input-review.json') != '' }}
         env:
           GH_TOKEN: ''
@@ -82,20 +85,27 @@ jobs:
           chmod 755 "$RUNNER_TEMP/appimagetool"
           python scripts/prepare_unsigned_linux.py package --source-commit "$SOURCE_COMMIT" --architecture x86_64 --preparation "$RUNNER_TEMP/linux-prepared" --appimagetool "$RUNNER_TEMP/appimagetool" --runtime "$RUNNER_TEMP/appimage-runtime"
       - name: Retain exact development observations without claiming E2E
+        id: retain
+        if: ${{ always() && steps.preparation.outcome == 'success' }}
+        env:
+          PACKAGE_OUTCOME: ${{ steps.package.outcome }}
         shell: bash
         run: |
           set -euo pipefail
           mkdir "$RUNNER_TEMP/linux-retained"
           tar -C "$RUNNER_TEMP/linux-prepared" -czf "$RUNNER_TEMP/linux-retained/preparation.tar.gz" .
           cp "$RUNNER_TEMP/linux-prepared/preparation.json" "$RUNNER_TEMP/linux-retained/"
-          if test -f target/package/Vadgr-0.5.0-linux-x86_64-installer.AppImage; then
+          if test "$PACKAGE_OUTCOME" = success; then
+            test -f target/package/Vadgr-0.5.0-linux-x86_64-installer.AppImage
+            test -f target/package/Vadgr-0.5.0-linux-x86_64-installer.development.json
             cp target/package/Vadgr-0.5.0-linux-x86_64-installer.AppImage target/package/Vadgr-0.5.0-linux-x86_64-installer.development.json "$RUNNER_TEMP/linux-retained/"
           else
-            echo 'Preparation only: reviewed Linux package inputs and installed-product qualification remain owed.'
+            echo "Preparation only: package step outcome=$PACKAGE_OUTCOME; no vehicle qualification is claimed."
           fi
           cd "$RUNNER_TEMP/linux-retained"
           sha256sum preparation.tar.gz preparation.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: ${{ always() && steps.retain.outcome == 'success' }}
         with:
           name: unsigned-linux-x86_64-development-${{ github.sha }}
           path: ${{ runner.temp }}/linux-retained/

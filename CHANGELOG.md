@@ -6,6 +6,10 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Fixed
 
+- Native Linux unsigned installers use an explicit build mode and exact local
+  integrity receipts instead of requiring unavailable production attestations.
+  Release builds never fall back to this mode. Candidate and publication checks
+  reject development and unclassified Linux package bytes.
 - Linux private-runtime assembly removes generated installation timestamps and
   their package-record entries before sealing its inventory. A new immutable
   generation prevents reuse of earlier timestamp-bearing environments.

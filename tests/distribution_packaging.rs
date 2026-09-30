@@ -71,7 +71,11 @@ fn native_linux_is_graphical_and_wsl_is_cli_only() {
     let linux_build = read("packaging/linux/build.sh");
     let wsl = read("install.sh");
     assert!(app_run.contains("--installer --vehicle"));
-    assert!(linux_build.contains("--features native-gui"));
+    assert!(linux_build.contains("mode=${3:-release}"));
+    assert!(linux_build.contains("release) features=native-gui;;"));
+    assert!(linux_build.contains("development) features=linux-unsigned-qualification;;"));
+    assert!(linux_build.contains("--features \"$features\""));
+    assert!(read("Cargo.toml").contains("linux-unsigned-qualification = [\"native-gui\"]"));
     assert!(linux_build.contains("docs/pet.svg\" \"$appdir/com.montbrain.vadgr.svg"));
     assert!(wsl.contains("Native Linux uses the graphical AppImage installer"));
     assert!(!wsl.contains(".desktop"));

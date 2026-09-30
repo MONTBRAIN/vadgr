@@ -1,7 +1,7 @@
 //! Native Linux graphical installer.
 
 #[cfg(target_os = "linux")]
-use anyhow::{Context, ensure};
+use anyhow::ensure;
 use anyhow::{Result, anyhow};
 #[cfg(target_os = "linux")]
 use eframe::egui::{self, Align, Layout, RichText};
@@ -74,23 +74,19 @@ impl Preflight {
             .map(PathBuf::from)
             .filter(|path| path.is_absolute())
             .ok_or_else(|| anyhow!("the AppImage runtime did not provide APPDIR"))?;
-        let terms = app_dir.join("legal/TERMS.txt");
-        let verified = crate::install::VerifiedManifest::open(&manifest, &signature)?;
-        let artifact = verified.artifact_for_target(&crate::install::current_target()?)?;
-        verified.verify_bytes_at(vehicle, &artifact)?;
-        ensure!(
-            crate::install::sha256_file(&terms)? == verified.manifest.terms_sha256,
-            "the displayed terms do not match the signed manifest"
-        );
-        let terms_text =
-            std::fs::read_to_string(&terms).context("reading the reviewed installer terms")?;
+        let verified =
+            crate::install::VerifiedLinuxPackage::open(vehicle, &manifest, &signature, &app_dir)?;
+        let terms_text = verified.terms_text(&app_dir)?;
         Ok(Self {
             vehicle: vehicle.to_owned(),
             manifest,
             signature,
             bundle_root: app_dir,
-            terms_version: verified.manifest.terms_version.clone(),
-            version: verified.manifest.version.clone(),
+            terms_version: verified
+                .terms_version()
+                .ok_or_else(|| anyhow!("the package terms version is unavailable"))?
+                .to_owned(),
+            version: verified.version().to_owned(),
             terms_text,
         })
     }
@@ -121,7 +117,7 @@ impl InstallerApp {
         };
         let (sender, receiver) = mpsc::channel();
         self.receiver = Some(receiver);
-        self.state = State::Installing("Verifying the signed release".to_owned());
+        self.state = State::Installing(verification_label().to_owned());
         std::thread::spawn(move || {
             let phase_sender = sender.clone();
             let result = crate::install::install_appimage_with_progress(
@@ -132,7 +128,7 @@ impl InstallerApp {
                 &preflight.terms_version,
                 move |phase| {
                     let text = match phase {
-                        crate::install::InstallPhase::Verifying => "Verifying the signed release",
+                        crate::install::InstallPhase::Verifying => verification_label(),
                         crate::install::InstallPhase::Staging => "Staging the new generation",
                         crate::install::InstallPhase::Committing => "Committing the new generation",
                         crate::install::InstallPhase::RegisteringLaunch => {
@@ -173,6 +169,10 @@ impl eframe::App for InstallerApp {
                 ui.with_layout(Layout::right_to_left(Align::Center), |ui| { ui.label(format!("Version {}", self.preflight.as_ref().map_or("0.5.0", |value| &value.version))); });
             });
             ui.add_space(28.0);
+            if cfg!(feature = "linux-unsigned-qualification") {
+                ui.label(crate::build_policy::UNSIGNED_WARNING);
+                ui.add_space(12.0);
+            }
             match &self.state {
                 State::Terms => {
                     ui.heading("Review the terms");
@@ -196,7 +196,11 @@ impl eframe::App for InstallerApp {
                 }
                 State::Success(path) => {
                     ui.heading("Vadgr is ready");
-                    ui.label("The signed generation is installed and the daemon answered its health check.");
+                    ui.label(if cfg!(feature = "linux-unsigned-qualification") {
+                        "The unsigned development generation is installed and the daemon answered its health check."
+                    } else {
+                        "The signed generation is installed and the daemon answered its health check."
+                    });
                     ui.label(RichText::new(path.display().to_string()).monospace().color(crate::console::theme::muted()));
                     if ui.button("Open Vadgr").clicked() {
                         let _ = std::process::Command::new(path.join("Vadgr.AppImage")).arg("--console").spawn();
@@ -211,5 +215,14 @@ impl eframe::App for InstallerApp {
                 }
             }
         });
+    }
+}
+
+#[cfg(target_os = "linux")]
+fn verification_label() -> &'static str {
+    if cfg!(feature = "linux-unsigned-qualification") {
+        "Checking development package integrity"
+    } else {
+        "Verifying the signed release"
     }
 }

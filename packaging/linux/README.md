@@ -1,6 +1,6 @@
 # Native Linux package
 
-`build.sh` creates the unsigned AppDir and then the AppImage. The AppImage is
+By default, `build.sh` creates the release AppDir and then the AppImage. The AppImage is
 the graphical installer vehicle. It verifies the offline keyless attestation
 bundle for the release manifest against its pinned trust policy
 manifest before it enables installation. The installed generation lives below
@@ -10,7 +10,7 @@ set. The stable `current` link owns desktop, CLI and autostart launch.
 The build intentionally fails when the reviewed legal bundle, pinned AppImage
 tools, native binary or private CUA payload is absent. The protected release
 workflow attests the exact manifest after final artifacts are held. This
-directory contains no release signing key or unsigned installation fallback.
+directory contains no release signing key or runtime-selected unsigned fallback.
 
 ## Unsigned development preparation
 
@@ -20,6 +20,20 @@ Materialize the reviewed wheelhouse with `scripts/cua_wheelhouse.py`, selecting
 `x86_64-unknown-linux-gnu` and `linux-x86_64` on an x86_64 Linux host. This step
 may use read-only GitHub authentication to retrieve the pinned CUA artifacts.
 Clear GitHub, signing and identity credentials before compilation.
+
+The development producer explicitly compiles the default-off
+`linux-unsigned-qualification` feature, which includes the native GUI. Both
+preparation and packaging select this same feature. Compilation requires the
+exact source commit and tree, a matching native Linux host and profile, and no
+release-verifier feature. WSL is refused. These identities are compile-time
+bindings, not runtime environment overrides.
+
+Development installers visibly state `Unsigned development build. Not for
+release.` They use their exact local development receipt for functional checks.
+They do not establish publisher trust, release sequence, attestation or adoption.
+The normal release build still requires its signed release metadata. A runtime
+flag, environment variable, missing signature or added sidecar cannot select
+the development path in a release binary.
 
 ```sh
 python3 scripts/prepare_unsigned_linux.py prepare \
@@ -74,14 +88,24 @@ AppImage keeps the registered filename. Its adjacent `.development.json`
 receipt records its size, SHA-256 and full AppDir inventory. Both receipts mark
 the output as development and nonpublishable, with signing disabled and no
 attestation. These receipts cannot replace the protected release manifest.
+Direct development builder calls use the third argument `development`; omitting
+it selects `native-gui` release mode. Both modes retain a mandatory ELF policy
+note. The trusted candidate, manifest and publication checks reject development
+or unclassified Linux executable bytes, including bytes inside the exact
+AppImage. They use a host `unsquashfs` decoder without executing the vehicle.
+The check permits only the fixed AppImage MD5 metadata slot to differ from the
+pinned runtime. The note classifies a build; it is not a signature.
 Use `aarch64` with its corresponding native target/profile only on an aarch64
 Linux host. Preparation and packaging do not establish desktop E2E results.
 
 The registered x86_64 producer uses Ubuntu 24.04. The
 `unsigned-linux-preparation.yml` workflow builds the exact feature commit on
 that native runner with read-only acquisition and no signing credentials. It
-retains preparation observations while reviewed package inputs are absent;
-once they exist, their validation must succeed before the AppImage is built.
+retains successful preparation observations even when reviewed package inputs
+are absent or their later package validation fails. A package failure still
+fails the workflow. Such an artifact contains preparation only, never a partial
+vehicle presented as qualified. Existing package inputs must validate against
+the current source and payload before the AppImage is built.
 CI production is not a native desktop E2E pass. Download and verify the retained
 bytes before exercising them on the qualification host.
 

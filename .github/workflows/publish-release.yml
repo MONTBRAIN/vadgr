@@ -195,6 +195,8 @@ jobs:
         with:
           name: verified-draft
           path: assets
+      - name: Install the read-only AppImage decoder
+        run: sudo apt-get update && sudo apt-get install -y squashfs-tools
       - name: Inspect the two portable vehicles and load their exact binaries
         env:
           APPIMAGE_EXTRACT_AND_RUN: "1"
@@ -202,11 +204,13 @@ jobs:
         run: |
           set -euo pipefail
           image="assets/Vadgr-0.5.0-linux-${{ matrix.arch }}-installer.AppImage"
+          python3 scripts/check_linux_build_policy.py --appimage "$image" --expect release --architecture '${{ matrix.arch }}'
           chmod 0755 "$image"
           work="$RUNNER_TEMP/appimage"
           mkdir "$work"
           (cd "$work" && "$GITHUB_WORKSPACE/$image" --appimage-extract >/dev/null)
           python3 scripts/distribution_matrix.py binary --target 'linux-${{ matrix.arch }}' --file "$work/squashfs-root/usr/bin/vadgr"
+          python3 scripts/check_linux_build_policy.py --binary "$work/squashfs-root/usr/bin/vadgr" --expect release --architecture '${{ matrix.arch }}'
           python3 scripts/distribution_matrix.py payload --target 'linux-${{ matrix.arch }}' --root "$work/squashfs-root/usr" --pins packaging/cua/pins.toml
           "$work/squashfs-root/usr/bin/vadgr" --version | grep -Fx 'vadgr 0.5.0'
           archive="assets/Vadgr-0.5.0-wsl-${{ matrix.arch }}.tar.gz"

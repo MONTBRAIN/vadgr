@@ -363,6 +363,8 @@ mod tests {
         std::fs::write(temp.path().join(name), wheel).unwrap();
         let receipt = serde_json::json!({"schema":1,"target":"x86_64-pc-windows-msvc",
             "requirements_sha256":digest(lock.as_bytes()), "wheel_manifest_sha256":"a".repeat(64),
+            "release_profile": super::super::RELEASE_PROFILE,
+            "cua_profile_manifest_sha256": super::super::selected_profile_manifest_sha256().unwrap(),
             "wheels":[{"filename":name,"name":"synthetic","version":"1.0",
                        "size":wheel.len(),"sha256":hash}]});
         std::fs::write(
@@ -375,6 +377,28 @@ mod tests {
             "x86_64-pc-windows-msvc",
             lock.as_bytes(),
             &"a".repeat(64),
+        )
+        .unwrap();
+        for field in ["release_profile", "cua_profile_manifest_sha256"] {
+            let mut changed = receipt.clone();
+            changed[field] = "wrong".into();
+            std::fs::write(
+                temp.path().join("wheelhouse.json"),
+                serde_json::to_vec(&changed).unwrap(),
+            )
+            .unwrap();
+            let error = validate_wheelhouse(
+                &canonical,
+                "x86_64-pc-windows-msvc",
+                lock.as_bytes(),
+                &"a".repeat(64),
+            )
+            .unwrap_err();
+            assert!(error.to_string().contains("compiled release profile"));
+        }
+        std::fs::write(
+            temp.path().join("wheelhouse.json"),
+            serde_json::to_vec(&receipt).unwrap(),
         )
         .unwrap();
         std::fs::write(temp.path().join("unexpected.whl"), b"extra").unwrap();

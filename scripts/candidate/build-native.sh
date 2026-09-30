@@ -43,6 +43,10 @@ if [ "$platform" = macos ]; then
 else
   cargo build --locked --release --target "$rust_target" --bin vadgr
 fi
+if [ "$platform" = linux ]; then
+  python3 "$trusted/scripts/check_linux_build_policy.py" --binary "target/$rust_target/release/vadgr" \
+    --expect release --architecture "$arch"
+fi
 "target/$rust_target/release/vadgr" __payload-setup --install-root "$payload_root" --payload-only --wheelhouse "$wheelhouse"
 python3 "$trusted/scripts/distribution_matrix.py" binary --target "$target" --file "target/$rust_target/release/vadgr"
 python3 "$trusted/scripts/distribution_matrix.py" payload --target "$target" --root "$payload_root" --pins packaging/cua/pins.toml
@@ -80,12 +84,16 @@ case "$platform" in
     ;;
   linux)
     vehicle="target/package/Vadgr-0.5.0-linux-$arch-installer.AppImage"
+    python3 "$trusted/scripts/check_linux_build_policy.py" --appimage "$vehicle" \
+      --expect release --architecture "$arch" --runtime-pins "$trusted/packaging/linux/runtime.json"
     python3 "$trusted/scripts/distribution_matrix.py" binary --target "$target" --file "$vehicle"
     expanded="$RUNNER_TEMP/vadgr-appimage-expanded"
     mkdir "$expanded"
     absolute_vehicle="$PWD/$vehicle"
     (cd "$expanded" && "$absolute_vehicle" --appimage-extract >/dev/null)
     python3 "$trusted/scripts/distribution_matrix.py" binary --target "$target" --file "$expanded/squashfs-root/usr/bin/vadgr"
+    python3 "$trusted/scripts/check_linux_build_policy.py" --binary "$expanded/squashfs-root/usr/bin/vadgr" \
+      --expect release --architecture "$arch"
     python3 "$trusted/scripts/distribution_matrix.py" payload --target "$target" --root "$expanded/squashfs-root/usr" --pins packaging/cua/pins.toml
     ;;
   wsl)

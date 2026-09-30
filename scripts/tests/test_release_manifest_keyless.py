@@ -63,6 +63,13 @@ class KeylessManifest(unittest.TestCase):
             self.assertNotIn(b"minisign", first)
             for target in sorted({row[0] for row in BUILDER.ARTIFACTS.values()}):
                 command[command.index("--target") + 1] = target
+                if target.startswith("linux-"):
+                    previous = output.read_bytes()
+                    invalid = subprocess.run(command, capture_output=True, text=True)
+                    self.assertNotEqual(invalid.returncode, 0, "unclassified Linux vehicle must not enter a release manifest")
+                    self.assertIn("Linux release policy", invalid.stderr)
+                    self.assertEqual(output.read_bytes(), previous)
+                    continue
                 subprocess.run(command, check=True, capture_output=True)
                 selected = json.loads(output.read_bytes())["artifacts"]
                 self.assertEqual(len(selected), 1)

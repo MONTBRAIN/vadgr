@@ -136,6 +136,23 @@ would change the approved distribution design and would qualify only the
 package-manager families that consume it; this minor's native Linux vehicle is
 AppImage.
 
+The Linux development producer compiles the explicit, default-off
+`linux-unsigned-qualification` feature. Its installer must show
+`Unsigned development build. Not for release.` before assent. Verify the
+retained `.development.json` beside the exact vehicle, including its source
+commit, source tree, architecture, inventory and vehicle digest. The installer
+binds these values to its compiled identity. No runtime flag, environment
+variable or missing signature may enable this mode in a production binary.
+Development repair uses the retained exact receipt and vehicle. Development
+generations cannot mix with signed generations or assert a production release
+sequence. This first release has no verified predecessor; do not synthesize
+another development source to claim successful cross-generation rollback.
+The trusted producer and promotion checks must reject development and
+unclassified Linux bytes even when their sidecar is omitted. This mechanism
+does not satisfy any post-merge publisher, signing, attestation or adoption
+assertion. Rerun the installed functional assertions after rebuilding; source
+tests alone do not close the failed installer observation.
+
 If `packaging/inputs/<target>`, the reviewed wheelhouse, `dist/payload`, or a
 credential-free producer is absent, that is a pre-merge implementation finding.
 The host agent must repair or create the packaging on

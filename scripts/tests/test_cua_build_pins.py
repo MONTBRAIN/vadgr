@@ -1,6 +1,7 @@
 """Compile only the std-only build selector against isolated synthetic inputs."""
 
 import os
+import platform
 from pathlib import Path
 import shutil
 import subprocess
@@ -23,7 +24,8 @@ class BuildPinsTests(unittest.TestCase):
     def tearDownClass(cls):
         cls.temp.cleanup()
 
-    def run_selector(self, *, required=False, target="x86_64-pc-windows-msvc", files=(), profile=None):
+    def run_selector(self, *, required=False, target="x86_64-pc-windows-msvc", files=(), profile=None,
+                     qualification=False, verifier=False, host=None, identity=None):
         with tempfile.TemporaryDirectory(dir=self.root) as directory:
             source = Path(directory)
             output = source / "out"
@@ -33,13 +35,21 @@ class BuildPinsTests(unittest.TestCase):
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(b"synthetic input, not an approved runtime")
             environment = {key: value for key, value in os.environ.items()
-                           if key not in ("VADGR_RELEASE_PAYLOAD_BUILD", "VADGR_RELEASE_PROFILE")}
-            environment.update(CARGO_MANIFEST_DIR=str(source), TARGET=target, OUT_DIR=str(output))
+                           if key not in ("VADGR_RELEASE_PAYLOAD_BUILD", "VADGR_RELEASE_PROFILE",
+                               "CARGO_FEATURE_LINUX_UNSIGNED_QUALIFICATION", "CARGO_FEATURE_RELEASE_VERIFIER",
+                               "VADGR_QUALIFICATION_SOURCE_COMMIT", "VADGR_QUALIFICATION_SOURCE_TREE")}
+            environment.update(CARGO_MANIFEST_DIR=str(source), TARGET=target, OUT_DIR=str(output), HOST=host or target)
+            if qualification:
+                environment["CARGO_FEATURE_LINUX_UNSIGNED_QUALIFICATION"] = "1"
+            if verifier:
+                environment["CARGO_FEATURE_RELEASE_VERIFIER"] = "1"
+            environment.update(identity or {})
             if required:
                 environment["VADGR_RELEASE_PAYLOAD_BUILD"] = "1"
             if profile is not None:
                 environment["VADGR_RELEASE_PROFILE"] = profile
             result = subprocess.run([str(self.binary)], env=environment, capture_output=True, timeout=10)
+            self.last_stdout = result.stdout.decode()
             generated = output / "cua_release_pins.rs"
             return result.returncode, generated.read_text() if generated.exists() else ""
 
@@ -90,6 +100,32 @@ class BuildPinsTests(unittest.TestCase):
         self.assertIn('profile-locks/wsl-aarch64.lock', generated)
         self.assertIn('cua-profile-catalog.json', generated)
         self.assertNotEqual(self.run_selector(profile="linux-aarch64", target="aarch64-unknown-linux-gnu", files=files)[0], 0)
+
+    def test_qualification_refuses_nonnative_or_missing_identity(self):
+        for target, profile, host in (("x86_64-pc-windows-msvc", "windows-x86_64", None),
+                ("x86_64-apple-darwin", "macos-x86_64", None),
+                ("x86_64-unknown-linux-gnu", "wsl-x86_64", None),
+                ("aarch64-unknown-linux-gnu", "linux-aarch64", "x86_64-unknown-linux-gnu"),
+                ("x86_64-unknown-linux-gnu", "linux-x86_64", None)):
+            with self.subTest(target=target, profile=profile):
+                self.assertNotEqual(self.run_selector(qualification=True, target=target,
+                    profile=profile, host=host)[0], 0)
+
+    @unittest.skipUnless(platform.system() == "Linux" and "microsoft" not in platform.release().lower(),
+                         "qualification requires a native Linux host")
+    def test_qualification_binds_both_exact_identities_and_excludes_release_verifier(self):
+        identity = {"VADGR_QUALIFICATION_SOURCE_COMMIT": "a" * 40,
+                    "VADGR_QUALIFICATION_SOURCE_TREE": "b" * 40}
+        arguments = dict(qualification=True, target="x86_64-unknown-linux-gnu", profile="linux-x86_64",
+            files=("packaging/cua/native-wheel-manifest.json", "packaging/cua/profile-locks/linux-x86_64.lock",
+                   "packaging/cua/profile-inputs.json", "packaging/cua/cua-profile-catalog.json"))
+        self.assertEqual(self.run_selector(**arguments, identity=identity)[0], 0)
+        for name, value in identity.items():
+            self.assertIn(f"cargo:rustc-env={name}={value}", self.last_stdout)
+        self.assertNotEqual(self.run_selector(**arguments, identity=identity, verifier=True)[0], 0)
+        for key in identity:
+            for value in ("", "a" * 39, "A" * 40, "g" * 40):
+                self.assertNotEqual(self.run_selector(**arguments, identity=dict(identity, **{key: value}))[0], 0)
 
 
 if __name__ == "__main__":

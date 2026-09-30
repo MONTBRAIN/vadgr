@@ -16,12 +16,18 @@ mod update;
 pub(crate) use manifest::verify_cua_attestation;
 pub use manifest::{Artifact, ReleaseManifest, VerifiedArtifact, VerifiedManifest, current_target};
 pub use update::{UpdateCheck, apply_update, check_for_updates};
+#[cfg(all(target_os = "linux", feature = "linux-unsigned-qualification"))]
+mod development;
 #[cfg(target_os = "linux")]
 mod linux;
+#[cfg(target_os = "linux")]
+mod linux_package;
 #[cfg(target_os = "linux")]
 pub use linux::{
     InstallPhase, install_appimage, install_appimage_with_progress, rollback_appimage,
 };
+#[cfg(target_os = "linux")]
+pub(crate) use linux_package::VerifiedLinuxPackage;
 
 const RECEIPT_NAME: &str = "install-receipt.json";
 const ACCEPTANCE_NAME: &str = "terms-acceptance.json";
@@ -54,6 +60,8 @@ pub struct InstallReceipt {
     pub release_sequence: Option<u64>,
     #[serde(default)]
     pub manifest_sha256: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub development_receipt_sha256: Option<String>,
     #[serde(default)]
     pub update_origin: Option<String>,
     #[serde(default)]
@@ -91,7 +99,11 @@ pub fn status() -> Result<InstallStatus> {
         package_kind: Some(receipt.package_kind.clone()),
         install_root: Some(receipt.install_root.clone()),
         launch_at_login: platform::launch_at_login()?,
-        update_state: "No signed update was checked".to_owned(),
+        update_state: if receipt.development_receipt_sha256.is_some() {
+            crate::build_policy::UNSIGNED_WARNING.to_owned()
+        } else {
+            "No signed update was checked".to_owned()
+        },
         lifecycle_available: matches!(receipt.package_kind.as_str(), "msi" | "pkg" | "appimage"),
         legal_available,
         update_available: receipt.update_origin.is_some(),
@@ -450,8 +462,21 @@ mod acceptance_tests {
 }
 
 fn require_receipt() -> Result<InstallReceipt> {
-    read_receipt()?
-        .ok_or_else(|| anyhow!("package lifecycle is unavailable in this development build"))
+    let receipt = read_receipt()?
+        .ok_or_else(|| anyhow!("package lifecycle is unavailable in this development build"))?;
+    #[cfg(target_os = "linux")]
+    if receipt.package_kind == "appimage" {
+        linux_package::ensure_receipt_mode(&receipt)?;
+    }
+    ensure!(
+        receipt.development_receipt_sha256.is_none()
+            || cfg!(all(
+                target_os = "linux",
+                feature = "linux-unsigned-qualification"
+            )),
+        "this build cannot modify an unsigned development installation"
+    );
+    Ok(receipt)
 }
 
 fn read_receipt() -> Result<Option<InstallReceipt>> {
@@ -1017,6 +1042,7 @@ mod platform {
                 product_code: None,
                 release_sequence: None,
                 manifest_sha256: None,
+                development_receipt_sha256: None,
                 update_origin: None,
                 publisher: None,
                 rollback_vehicle: None,

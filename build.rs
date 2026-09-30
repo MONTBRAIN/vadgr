@@ -21,6 +21,56 @@ fn main() {
     let root =
         PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").expect("Cargo source root is required"));
     let profile = env::var("VADGR_RELEASE_PROFILE").ok();
+    let qualification = env::var_os("CARGO_FEATURE_LINUX_UNSIGNED_QUALIFICATION").is_some();
+    for name in [
+        "VADGR_QUALIFICATION_SOURCE_COMMIT",
+        "VADGR_QUALIFICATION_SOURCE_TREE",
+    ] {
+        println!("cargo:rerun-if-env-changed={name}");
+    }
+    if qualification {
+        assert_eq!(
+            env::consts::OS,
+            "linux",
+            "qualification requires a native Linux builder"
+        );
+        assert!(
+            target.ends_with("-unknown-linux-gnu")
+                && env::var("HOST").as_deref() == Ok(target.as_str()),
+            "qualification requires a native Linux target"
+        );
+        assert!(
+            matches!(profile.as_deref(), Some("linux-x86_64" | "linux-aarch64")),
+            "qualification requires an explicit native Linux profile"
+        );
+        assert!(
+            env::var_os("CARGO_FEATURE_RELEASE_VERIFIER").is_none(),
+            "qualification cannot build a release verifier"
+        );
+        let kernel = fs::read_to_string("/proc/sys/kernel/osrelease")
+            .expect("native Linux kernel identity is required");
+        assert!(
+            !kernel.to_ascii_lowercase().contains("microsoft"),
+            "WSL qualification refused"
+        );
+        for name in [
+            "VADGR_QUALIFICATION_SOURCE_COMMIT",
+            "VADGR_QUALIFICATION_SOURCE_TREE",
+        ] {
+            let value = env::var(name).expect("qualification source identity is required");
+            assert!(
+                value.len() == 40
+                    && value
+                        .bytes()
+                        .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte)),
+                "qualification source identity must be a full lowercase Git identity"
+            );
+            println!("cargo:rustc-env={name}={value}");
+        }
+    }
+    if target.ends_with("-unknown-linux-gnu") {
+        println!("cargo:rustc-link-arg=-Wl,--undefined=VADGR_BUILD_POLICY_NOTE");
+    }
     if let Some(profile) = &profile {
         let (system, architecture) = profile.split_once('-').expect("invalid release profile");
         let suffix = match system {

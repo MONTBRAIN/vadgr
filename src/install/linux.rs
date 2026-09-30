@@ -1,6 +1,6 @@
 //! Native Linux AppImage installation and retained-generation lifecycle.
 
-use super::{InstallReceipt, VerifiedManifest, record_terms_acceptance};
+use super::{InstallReceipt, VerifiedLinuxPackage, record_terms_acceptance};
 use anyhow::{Context, Result, anyhow, ensure};
 use std::os::unix::fs::{PermissionsExt, symlink};
 use std::path::{Path, PathBuf};
@@ -52,25 +52,19 @@ where
         target.starts_with("linux-"),
         "the AppImage installer runs only on native Linux"
     );
-    let verified = VerifiedManifest::open(manifest_path, signature_path)?;
-    let artifact = verified.artifact_for_target(&target)?;
+    let verified = VerifiedLinuxPackage::open(vehicle, manifest_path, signature_path, bundle_root)?;
     ensure!(
-        artifact.kind == "appimage",
-        "the selected release artifact is not an AppImage"
+        verified.terms_version() == Some(terms_version),
+        "the accepted terms version differs from the package"
     );
-    ensure!(
-        vehicle.file_name().and_then(|value| value.to_str()) == Some(artifact.name.as_str()),
-        "the AppImage file name does not match the signed manifest"
-    );
-    verified.verify_bytes_at(vehicle, &artifact)?;
     let terms_file = bundle_root.join("legal/TERMS.txt");
     ensure!(
         bundle_root.is_absolute(),
         "the mounted AppImage root must be absolute"
     );
     ensure!(
-        super::sha256_file(&terms_file)? == verified.manifest.terms_sha256,
-        "the displayed terms do not match the signed manifest"
+        super::sha256_file(&terms_file)? == verified.terms_sha256(),
+        "the displayed terms do not match the verified package"
     );
 
     let state_root = crate::config::Config::from_env()
@@ -80,9 +74,10 @@ where
     verified.ensure_sequence(&state_root)?;
 
     let root = install_root()?;
+    ensure_generation_modes(&root)?;
     let versions = root.join("versions");
     std::fs::create_dir_all(&versions).context("creating the Vadgr generation directory")?;
-    let generation = versions.join(&verified.manifest.version);
+    let generation = versions.join(verified.version());
     ensure!(
         !generation.exists(),
         "this Vadgr version is already installed; use Repair"
@@ -97,21 +92,20 @@ where
         signature_path,
         bundle_root,
         &verified,
-        &artifact,
     )
     .and_then(|_| {
         progress(InstallPhase::Committing);
         std::fs::rename(&staging, &generation).context("committing the Vadgr generation")?;
-        switch_current(&root, &verified.manifest.version)?;
+        switch_current(&root, verified.version())?;
         progress(InstallPhase::RegisteringLaunch);
         register_launch_entries(&root)?;
         progress(InstallPhase::HealthCheck);
         start_and_probe(&root)?;
         record_terms_acceptance(
             terms_version,
-            &verified.manifest.version,
-            &terms_file,
-            vehicle,
+            verified.version(),
+            &generation.join("legal/TERMS.txt"),
+            &generation.join("Vadgr.AppImage"),
         )?;
         verified.accept_sequence(&state_root)?;
         progress(InstallPhase::Complete);
@@ -152,20 +146,17 @@ pub fn repair(receipt: &InstallReceipt) -> Result<()> {
         receipt.package_kind == "appimage",
         "this is not a Linux AppImage installation"
     );
-    let manifest_path = receipt.install_root.join("release-manifest.json");
-    let signature_path = receipt
+    let verified = VerifiedLinuxPackage::open_retained(receipt)?;
+    let cached = receipt
         .install_root
-        .join("release-manifest.json.bundle.jsonl");
-    let verified = VerifiedManifest::open(&manifest_path, &signature_path)?;
-    let artifact = verified.artifact_for_target(&super::manifest::current_target()?)?;
-    let cached = receipt.install_root.join("cache").join(&artifact.name);
-    verified.verify_bytes_at(&cached, &artifact)?;
+        .join("cache")
+        .join(verified.artifact_name());
     let active = receipt.install_root.join("Vadgr.AppImage");
-    if verified.verify_bytes_at(&active, &artifact).is_err() {
+    if verified.verify_vehicle_at(&active).is_err() {
         let temporary = receipt
             .install_root
             .join(format!(".Vadgr.AppImage.{}.tmp", uuid::Uuid::new_v4()));
-        std::fs::copy(&cached, &temporary).context("restoring the AppImage candidate")?;
+        verified.copy_vehicle_to(&cached, &temporary)?;
         executable(&temporary)?;
         super::commit_file(&temporary, &active).context("committing the repaired AppImage")?;
     }
@@ -176,6 +167,7 @@ pub fn repair(receipt: &InstallReceipt) -> Result<()> {
 
 pub fn rollback_appimage() -> Result<String> {
     let root = install_root()?;
+    ensure_generation_modes(&root)?;
     let current =
         read_current(&root)?.ok_or_else(|| anyhow!("no active Vadgr generation was found"))?;
     let mut candidates = Vec::new();
@@ -200,6 +192,10 @@ pub fn rollback_appimage() -> Result<String> {
     let (_, version) = candidates
         .pop()
         .ok_or_else(|| anyhow!("no retained Vadgr generation is available"))?;
+    ensure!(
+        !cfg!(feature = "linux-unsigned-qualification"),
+        "unsigned development builds cannot activate a different source generation"
+    );
     verify_and_restore_generation(&versions.join(&version))?;
     switch_current(&root, &version)?;
     let activation = register_launch_entries(&root).and_then(|_| start_and_probe(&root));
@@ -214,21 +210,13 @@ pub fn rollback_appimage() -> Result<String> {
 }
 
 fn verify_and_restore_generation(generation: &Path) -> Result<()> {
-    let verified = VerifiedManifest::open(
-        &generation.join("release-manifest.json"),
-        &generation.join("release-manifest.json.bundle.jsonl"),
-    )?;
-    let artifact = verified.artifact_for_target(&super::manifest::current_target()?)?;
-    ensure!(
-        artifact.kind == "appimage",
-        "the retained artifact is not an AppImage"
-    );
-    let cached = generation.join("cache").join(&artifact.name);
-    verified.verify_bytes_at(&cached, &artifact)?;
+    let receipt = generation_receipt(generation)?;
+    let verified = VerifiedLinuxPackage::open_retained(&receipt)?;
+    let cached = generation.join("cache").join(verified.artifact_name());
     let active = generation.join("Vadgr.AppImage");
-    if verified.verify_bytes_at(&active, &artifact).is_err() {
+    if verified.verify_vehicle_at(&active).is_err() {
         let temporary = generation.join(format!(".Vadgr.AppImage.{}.tmp", uuid::Uuid::new_v4()));
-        std::fs::copy(&cached, &temporary).context("restoring the retained AppImage candidate")?;
+        verified.copy_vehicle_to(&cached, &temporary)?;
         executable(&temporary)?;
         super::commit_file(&temporary, &active)
             .context("committing the restored retained AppImage")?;
@@ -237,7 +225,11 @@ fn verify_and_restore_generation(generation: &Path) -> Result<()> {
 }
 
 pub fn rollback_available() -> Result<bool> {
+    if cfg!(feature = "linux-unsigned-qualification") {
+        return Ok(false);
+    }
     let root = install_root()?;
+    ensure_generation_modes(&root)?;
     let Some(current) = read_current(&root)? else {
         return Ok(false);
     };
@@ -260,6 +252,7 @@ pub fn uninstall(receipt: &InstallReceipt, purge: bool) -> Result<()> {
         "this is not a Linux AppImage installation"
     );
     let root = install_root()?;
+    ensure_generation_modes(&root)?;
     let active = root.join("current/Vadgr.AppImage");
     if active.is_file() {
         let _ = std::process::Command::new(&active).arg("stop").status();
@@ -280,44 +273,61 @@ fn stage_generation(
     manifest_path: &Path,
     signature_path: &Path,
     bundle_root: &Path,
-    verified: &VerifiedManifest,
-    artifact: &super::Artifact,
+    verified: &VerifiedLinuxPackage,
 ) -> Result<()> {
     std::fs::create_dir_all(staging.join("cache"))
         .context("creating the staged Vadgr generation")?;
     let active = staging.join("Vadgr.AppImage");
-    std::fs::copy(vehicle, &active).context("staging the Vadgr AppImage")?;
+    verified.copy_vehicle_to(vehicle, &active)?;
     executable(&active)?;
-    std::fs::copy(vehicle, staging.join("cache").join(&artifact.name))
-        .context("retaining the verified repair source")?;
-    std::fs::copy(manifest_path, staging.join("release-manifest.json"))
-        .context("staging the release manifest")?;
-    std::fs::copy(
-        signature_path,
-        staging.join("release-manifest.json.bundle.jsonl"),
-    )
-    .context("staging the manifest signature")?;
+    verified.copy_vehicle_to(
+        vehicle,
+        &staging.join("cache").join(verified.artifact_name()),
+    )?;
+    verified.stage_metadata(staging, manifest_path, signature_path)?;
     copy_tree(&bundle_root.join("legal"), &staging.join("legal"))
         .context("staging the offline legal bundle")?;
     copy_tree(&bundle_root.join("sbom"), &staging.join("sbom"))
         .context("staging the offline software bill of materials")?;
-    let receipt = InstallReceipt {
-        schema: 1,
-        version: verified.manifest.version.clone(),
-        install_root: PathBuf::new(),
-        package_kind: "appimage".to_owned(),
-        product_code: None,
-        release_sequence: Some(verified.manifest.release_sequence),
-        manifest_sha256: Some(verified.manifest_sha256()),
-        update_origin: None,
-        publisher: None,
-        rollback_vehicle: None,
-    };
+    verified.verify_staged_metadata(staging)?;
+    let receipt = verified.receipt();
     std::fs::write(
         staging.join("install-receipt.json"),
         serde_json::to_vec_pretty(&receipt)?,
     )
     .context("writing the staged install receipt")?;
+    Ok(())
+}
+
+fn generation_receipt(generation: &Path) -> Result<InstallReceipt> {
+    let mut receipt: InstallReceipt =
+        serde_json::from_slice(&std::fs::read(generation.join("install-receipt.json"))?)?;
+    ensure!(
+        receipt.schema == 1,
+        "the retained install receipt schema is unsupported"
+    );
+    receipt.install_root = generation.to_owned();
+    super::linux_package::ensure_receipt_mode(&receipt)?;
+    Ok(receipt)
+}
+
+fn ensure_generation_modes(root: &Path) -> Result<()> {
+    let versions = root.join("versions");
+    if !versions.try_exists()? {
+        return Ok(());
+    }
+    ensure!(
+        !versions.symlink_metadata()?.file_type().is_symlink(),
+        "the generation directory is a link"
+    );
+    for entry in std::fs::read_dir(versions)? {
+        let entry = entry?;
+        ensure!(
+            entry.file_type()?.is_dir(),
+            "the generation entry is not an owned directory"
+        );
+        generation_receipt(&entry.path())?;
+    }
     Ok(())
 }
 
@@ -504,4 +514,12 @@ fn executable(path: &Path) -> Result<()> {
     let mut permissions = std::fs::metadata(path)?.permissions();
     permissions.set_mode(0o755);
     std::fs::set_permissions(path, permissions).context("making the installed AppImage executable")
+}
+
+#[cfg(all(test, feature = "linux-unsigned-qualification"))]
+mod development_lifecycle_tests {
+    #[test]
+    fn unsigned_builds_do_not_offer_cross_source_rollback() {
+        assert!(!super::rollback_available().unwrap());
+    }
 }
