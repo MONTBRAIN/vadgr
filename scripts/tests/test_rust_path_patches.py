@@ -21,13 +21,13 @@ def fixture(root):
         lock += f'[[package]]\nname="{name}"\nversion="{version}"\n'
         crate = root / directory
         crate.mkdir(parents=True)
-        (crate / "Cargo.toml").write_text(f'[package]\nname="{name}"\nversion="{version}"\nlicense="MIT OR Apache-2.0"\n')
-        (crate / "PATCHES.md").write_text("Synthetic test source, not a redistribution approval.\n")
-        (crate / "lib.rs").write_text("pub fn example() {}\n")
+        (crate / "Cargo.toml").write_bytes(f'[package]\nname="{name}"\nversion="{version}"\nlicense="MIT OR Apache-2.0"\n'.encode('utf-8'))
+        (crate / "PATCHES.md").write_bytes(b"Synthetic test source, not a redistribution approval.\n")
+        (crate / "lib.rs").write_bytes(b"pub fn example() {}\n")
         upstream = REPO / 'packaging/inputs/linux-x86_64/legal/NOTICES/cargo-accesskit-atspi-common-0.18.1'
         for filename in patches.LICENSE_HASHES:
             match = next(upstream.glob('*-' + filename))
-            (crate / filename).write_bytes(match.read_bytes())
+            (crate / filename).write_bytes(match.read_bytes().replace(b'\r\n', b'\n'))
         rows = []
         for path in sorted(crate.iterdir()):
             path.chmod(0o644)
@@ -40,8 +40,8 @@ def fixture(root):
             "manifest": manifest, "manifest_sha256": patches.digest(raw),
             "upstream_archive_sha256": checksum,
             "upstream_archive_url": f"https://static.crates.io/crates/{name}/{name}-{version}.crate"})
-    (root / "Cargo.toml").write_text(cargo)
-    (root / "Cargo.lock").write_text(lock)
+    (root / "Cargo.toml").write_bytes(cargo.encode('utf-8'))
+    (root / "Cargo.lock").write_bytes(lock.encode('utf-8'))
     (root / patches.REGISTRY).write_bytes(patches.canonical(registry))
     return registry
 
@@ -52,6 +52,27 @@ def test_complete_registered_patches_and_crlf(tmp_path):
     path = tmp_path / 'vendor/accesskit_unix-0.21.1/lib.rs'
     path.write_bytes(path.read_bytes().replace(b'\n', b'\r\n'))
     assert len(patches.load(tmp_path)) == 2
+
+
+@pytest.mark.parametrize('checkout_crlf', [False, True])
+def test_fixture_binds_lf_bytes_with_windows_text_translation(tmp_path, monkeypatch, checkout_crlf):
+    write_text = Path.write_text
+    read_bytes = Path.read_bytes
+    def windows_write_text(path, data, *args, **kwargs):
+        kwargs.setdefault('newline', '\r\n')
+        return write_text(path, data, *args, **kwargs)
+    def checkout_read_bytes(path):
+        raw = read_bytes(path)
+        if checkout_crlf and path.is_relative_to(REPO / 'packaging/inputs'):
+            return raw.replace(b'\r\n', b'\n').replace(b'\n', b'\r\n')
+        return raw
+    monkeypatch.setattr(Path, 'write_text', windows_write_text)
+    monkeypatch.setattr(Path, 'read_bytes', checkout_read_bytes)
+    fixture(tmp_path)
+    assert set(patches.load(tmp_path)) == set(patches.BASES)
+    for path in (tmp_path / 'vendor').rglob('*'):
+        if path.is_file():
+            assert b'\r\n' not in path.read_bytes()
 
 
 @pytest.mark.parametrize('change', ['changed', 'extra', 'missing', 'mode', 'license', 'registry', 'lock'])
