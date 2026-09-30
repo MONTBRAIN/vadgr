@@ -106,6 +106,22 @@ def write_new(path, value):
         stream.write(canonical_json(value))
 
 
+def require_release_abi(binary):
+    """The registered Ubuntu 24.04 producer must remain able to run the binary."""
+    output = subprocess.check_output(['readelf', '--version-info', str(binary)], text=True)
+    names = set(re.findall(r'GLIBC_[A-Za-z0-9_.]+', output))
+    known = {'GLIBC_ABI_DT_RELR'}
+    versions = {name.removeprefix('GLIBC_') for name in names
+                if re.fullmatch(r'GLIBC_[0-9]+(?:\.[0-9]+)+', name)}
+    require(bool(versions) and names <= known | {'GLIBC_' + version for version in versions},
+            'unknown or missing Linux ABI requirements')
+    maximum = max(versions, key=lambda value: tuple(map(int, value.split('.'))))
+    require(tuple(map(int, maximum.split('.'))) <= (2, 39),
+            'binary exceeds the registered Linux producer baseline')
+    return {'producer_runner': 'ubuntu-24.04', 'maximum_glibc': maximum,
+            'glibc_requirements': sorted(names)}
+
+
 def relocation_probe(payload, environment):
     relocated = payload.with_name("relocation-probe")
     require(not relocated.exists(), "relocation probe root already exists")
@@ -173,6 +189,7 @@ def package(preparation, appimagetool, architecture, source_commit, runtime=None
     }.items()), "preparation identity differs")
     require([row for row in inventory(preparation) if row["path"] != "preparation.json"]
             == receipt["files"], "prepared bytes changed")
+    abi = require_release_abi(preparation / 'vadgr')
     pins = json.loads((ROOT / "packaging/toolchain.json").read_bytes())
     require(digest(appimagetool) == pins["appimagetool"][architecture]["sha256"],
             "appimagetool differs from reviewed pin")
@@ -200,6 +217,7 @@ def package(preparation, appimagetool, architecture, source_commit, runtime=None
         "appdir": inventory(ROOT / "target/package" / profile / "Vadgr.AppDir"),
         "preparation_sha256": digest(receipt_path),
         "appimage_runtime": runtime_identity,
+        "abi": abi,
     })
 
 

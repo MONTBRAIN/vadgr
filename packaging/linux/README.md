@@ -65,3 +65,17 @@ the output as development and nonpublishable, with signing disabled and no
 attestation. These receipts cannot replace the protected release manifest.
 Use `aarch64` with its corresponding native target/profile only on an aarch64
 Linux host. Preparation and packaging do not establish desktop E2E results.
+
+The registered x86_64 producer uses Ubuntu 24.04. The
+`unsigned-linux-preparation.yml` workflow builds the exact feature commit on
+that native runner with read-only acquisition and no signing credentials. It
+retains preparation observations while reviewed package inputs are absent;
+once they exist, their validation must succeed before the AppImage is built.
+CI production is not a native desktop E2E pass. Download and verify the retained
+bytes before exercising them on the qualification host.
+
+A newer Linux workstation can prepare diagnostic inputs but must not raise the
+registered package baseline. Packaging rejects a binary requiring GLIBC newer
+than 2.39, the Ubuntu 24.04 producer baseline, or private/unknown GLIBC versions.
+For example, the Ubuntu 26.04 build's GLIBC 2.43 math symbols make that binary
+preparation-only. Do not qualify it as the release-equivalent installer.
