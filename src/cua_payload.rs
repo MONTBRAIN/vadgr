@@ -414,7 +414,13 @@ impl CuaPayloadInstaller {
             "this target has no reviewed CUA wheel closure"
         );
         if let Ok(runtime) = CuaRuntime::below_install_root(&self.install_root) {
-            return Ok(runtime);
+            let python = self
+                .install_root
+                .join("lib/cua/python")
+                .join(self.pins.python);
+            if runtime_bootstrap_absent(&python, runtime.environment(), target_triple()?)? {
+                return Ok(runtime);
+            }
         }
         validate_embedded_lock(self.pins.requirements_sha256)?;
         match (self.pins.wheel_manifest_sha256, self.wheelhouse.as_deref()) {
@@ -1273,8 +1279,77 @@ fn collect_regular_files(root: &Path, files: &mut Vec<PathBuf>) -> Result<()> {
     Ok(())
 }
 
+fn linux_python_target(target: &str) -> bool {
+    matches!(
+        target,
+        "x86_64-unknown-linux-gnu" | "aarch64-unknown-linux-gnu"
+    )
+}
+
+fn python_bootstrap_path(relative: &str, python_minor: &str) -> bool {
+    let stdlib = format!("lib/python{python_minor}/");
+    let site_packages = format!("{stdlib}site-packages/");
+    relative == "bin/pip"
+        || relative == "bin/pip3"
+        || relative == format!("bin/pip{python_minor}")
+        || relative == format!("{stdlib}ensurepip")
+        || relative.starts_with(&format!("{stdlib}ensurepip/"))
+        || relative == format!("{site_packages}pip")
+        || relative.starts_with(&format!("{site_packages}pip/"))
+        || relative.strip_prefix(&site_packages).is_some_and(|rest| {
+            let directory = rest.split('/').next().unwrap_or("");
+            directory.starts_with("pip-") && directory.ends_with(".dist-info")
+        })
+}
+
+fn runtime_bootstrap_absent(python: &Path, environment: &Path, target: &str) -> Result<bool> {
+    if !linux_python_target(target) {
+        return Ok(true);
+    }
+    let python_minor = PYTHON_VERSION
+        .rsplit_once('.')
+        .context("invalid Python pin")?
+        .0;
+    for root in [python, environment] {
+        let metadata = std::fs::symlink_metadata(root)?;
+        ensure!(
+            metadata.is_dir(),
+            "Python bootstrap scan root is not a directory"
+        );
+        let mut directories = vec![root.to_path_buf()];
+        while let Some(directory) = directories.pop() {
+            for entry in std::fs::read_dir(directory)? {
+                let path = entry?.path();
+                let metadata = std::fs::symlink_metadata(&path)?;
+                if metadata.is_dir() {
+                    directories.push(path);
+                    continue;
+                }
+                ensure!(
+                    metadata.is_file() || metadata.file_type().is_symlink(),
+                    "special Python file refused"
+                );
+                // Inspect link names, never targets. The real lib tree covers lib64.
+                let relative = path
+                    .strip_prefix(root)?
+                    .to_string_lossy()
+                    .replace('\\', "/")
+                    .to_ascii_lowercase();
+                if python_bootstrap_path(&relative, python_minor) {
+                    return Ok(false);
+                }
+            }
+        }
+    }
+    Ok(true)
+}
+
 fn prune_python_runtime(root: &Path, target: &str) -> Result<()> {
     let canonical_root = root.canonicalize()?;
+    let python_minor = PYTHON_VERSION
+        .rsplit_once('.')
+        .context("invalid Python pin")?
+        .0;
     let mut files = Vec::new();
     collect_regular_files(root, &mut files)?;
     for path in files {
@@ -1298,7 +1373,10 @@ fn prune_python_runtime(root: &Path, target: &str) -> Result<()> {
             "aarch64-pc-windows-msvc" => matches!(name, "t64-arm.exe" | "w64-arm.exe"),
             _ => false,
         };
-        if development || (launcher && !allowed_launcher) {
+        // uv is used only during assembly. The Linux runtime must not retain
+        // pip or ensurepip, including foreign launchers hidden in its wheel.
+        let bootstrap = linux_python_target(target) && python_bootstrap_path(&lower, python_minor);
+        if development || bootstrap || (launcher && !allowed_launcher) {
             ensure!(
                 path.canonicalize()?.starts_with(&canonical_root),
                 "Python cleanup escaped staging"
@@ -1421,6 +1499,57 @@ mod tests {
                 .collect::<Vec<_>>();
             names.sort();
             assert_eq!(names, retained);
+        }
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn linux_runtime_excludes_bootstrap_installers_without_pruning_runtime_modules() {
+        for target in ["x86_64-unknown-linux-gnu", "aarch64-unknown-linux-gnu"] {
+            let root = tempfile::tempdir().unwrap();
+            let excluded = [
+                "bin/pip",
+                "bin/pip3",
+                "bin/pip3.12",
+                "lib/python3.12/ensurepip/__init__.py",
+                "lib/python3.12/ensurepip/_bundled/pip-25.0.1-py3-none-any.whl",
+                "lib/python3.12/site-packages/pip/__init__.py",
+                "lib/python3.12/site-packages/pip/_vendor/distlib/t64.exe",
+                "lib/python3.12/site-packages/pip-26.2.1.dist-info/METADATA",
+            ];
+            let retained = [
+                "bin/python3.12",
+                "lib/python3.12/venv/__init__.py",
+                "lib/python3.12/importlib/__init__.py",
+                "lib/python3.12/site-packages/computer_use/__init__.py",
+                "lib/python3.12/site-packages/pip_tools/__init__.py",
+                "lib/python3.12/site-packages/example/ensurepip/data.txt",
+                "lib/python3.12/site-packages/other-1.0.dist-info/METADATA",
+            ];
+            for name in excluded.iter().chain(&retained) {
+                let path = root.path().join(name);
+                std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+                std::fs::write(path, b"fixture").unwrap();
+            }
+            prune_python_runtime(root.path(), target).unwrap();
+            for name in excluded {
+                assert!(!root.path().join(name).exists(), "{target}: {name}");
+            }
+            for name in retained {
+                assert!(root.path().join(name).is_file(), "{target}: {name}");
+            }
+        }
+    }
+
+    #[test]
+    fn linux_bootstrap_pruning_does_not_change_other_platforms() {
+        for target in ["x86_64-pc-windows-msvc", "aarch64-apple-darwin"] {
+            let root = tempfile::tempdir().unwrap();
+            let path = root.path().join("lib/python3.12/ensurepip/__init__.py");
+            std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+            std::fs::write(&path, b"fixture").unwrap();
+            prune_python_runtime(root.path(), target).unwrap();
+            assert!(path.is_file());
         }
     }
 
@@ -1862,6 +1991,103 @@ assert not outside
             serde_json::to_vec(manifest).unwrap(),
         )
         .unwrap();
+    }
+
+    #[cfg(target_os = "linux")]
+    #[tokio::test]
+    async fn linux_assembly_rechecks_bootstrap_content_before_reusing_a_valid_payload() {
+        for base_runtime in [true, false] {
+            let temporary = tempfile::tempdir().unwrap();
+            let root = temporary.path();
+            let mut manifest = valid_payload(root);
+            let cua_root = root.join("lib/cua");
+            let selected = if base_runtime {
+                cua_root.join("python").join(PYTHON_VERSION)
+            } else {
+                cua_root.join("environments").join(environment_generation())
+            };
+            let bootstrap = selected.join("lib/python3.12/ensurepip/_bundled/pip.whl");
+            std::fs::create_dir_all(bootstrap.parent().unwrap()).unwrap();
+            std::fs::write(&bootstrap, b"old bootstrap content").unwrap();
+            if manifest.get("installed_inventory_sha256").is_some() {
+                manifest["installed_inventory_sha256"] =
+                    release::write_inventory(&cua_root, target_triple().unwrap())
+                        .unwrap()
+                        .into();
+            }
+            write_manifest(root, &manifest);
+            assert!(CuaRuntime::below_install_root(root).is_ok());
+            let mut installer = CuaPayloadInstaller::new(root.to_path_buf()).unwrap();
+            // Rebuilding must reach this offline sentinel before any download.
+            installer.pins.requirements_sha256 = "not-the-embedded-lock";
+            let error = installer.assemble().await.unwrap_err();
+            assert!(error.to_string().contains("requirements_sha256"));
+            assert_eq!(std::fs::read(bootstrap).unwrap(), b"old bootstrap content");
+        }
+    }
+
+    #[cfg(target_os = "linux")]
+    #[tokio::test]
+    async fn linux_assembly_reuses_a_clean_payload_without_scanning_other_generations() {
+        let temporary = tempfile::tempdir().unwrap();
+        let root = temporary.path();
+        let mut manifest = valid_payload(root);
+        let cua_root = root.join("lib/cua");
+        let unrelated = cua_root.join("environments/other/lib/python3.12/ensurepip/pip.whl");
+        std::fs::create_dir_all(unrelated.parent().unwrap()).unwrap();
+        std::fs::write(&unrelated, b"unselected generation").unwrap();
+        if manifest.get("installed_inventory_sha256").is_some() {
+            manifest["installed_inventory_sha256"] =
+                release::write_inventory(&cua_root, target_triple().unwrap())
+                    .unwrap()
+                    .into();
+        }
+        write_manifest(root, &manifest);
+        let mut installer = CuaPayloadInstaller::new(root.to_path_buf()).unwrap();
+        installer.pins.requirements_sha256 = "not-the-embedded-lock";
+        assert!(installer.assemble().await.is_ok());
+        assert_eq!(std::fs::read(unrelated).unwrap(), b"unselected generation");
+    }
+
+    #[test]
+    fn linux_assembly_bootstrap_scan_leaves_other_targets_unchanged() {
+        let temporary = tempfile::tempdir().unwrap();
+        let missing = temporary.path().join("absent");
+        for target in [
+            "x86_64-pc-windows-msvc",
+            "aarch64-pc-windows-msvc",
+            "x86_64-apple-darwin",
+            "aarch64-apple-darwin",
+        ] {
+            assert!(runtime_bootstrap_absent(&missing, &missing, target).unwrap());
+        }
+        assert!(!missing.exists());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn linux_assembly_bootstrap_scan_checks_link_names_without_following_them() {
+        let temporary = tempfile::tempdir().unwrap();
+        let python = temporary.path().join("python");
+        let environment = temporary.path().join("environment");
+        let outside = temporary.path().join("outside");
+        std::fs::create_dir_all(python.join("bin")).unwrap();
+        std::fs::create_dir_all(environment.join("lib")).unwrap();
+        std::fs::write(&outside, b"unrelated bytes").unwrap();
+        std::os::unix::fs::symlink("lib", environment.join("lib64")).unwrap();
+        std::os::unix::fs::symlink(&outside, python.join("bin/pip")).unwrap();
+        for target in ["x86_64-unknown-linux-gnu", "aarch64-unknown-linux-gnu"] {
+            assert!(!runtime_bootstrap_absent(&python, &environment, target).unwrap());
+        }
+        assert_eq!(std::fs::read(&outside).unwrap(), b"unrelated bytes");
+        assert!(
+            python
+                .join("bin/pip")
+                .symlink_metadata()
+                .unwrap()
+                .file_type()
+                .is_symlink()
+        );
     }
 
     #[test]
