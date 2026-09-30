@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "8ed6a63f02c8539c91a8685a86f4099661ba3da017932f6ebbea6de3f0fa7c90",
+  "original_statement_files": [
+    {
+      "path": "smallvec-1.15.2/LICENSE-MIT",
+      "sha256": "0b28172679e0009b655da42797c03fd163a3379d5cfa67ba1f1655e974a2a1a9",
+      "size": 1072,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018 The Servo Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

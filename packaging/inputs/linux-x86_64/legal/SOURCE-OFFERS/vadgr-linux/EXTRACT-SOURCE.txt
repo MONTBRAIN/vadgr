@@ -1,0 +1,37 @@
+Vadgr 0.5.0 Linux x86_64 source volumes
+
+Source commit: 07c7057db797c10dc3842a7e32427a40cfc849f7
+Matching CI executable SHA-256:
+a471ed1a85e69e3641033eafe875cb01004cc41bd113d593fe5911dff7f585ee
+
+Download or copy every archive listed in source-volumes.json, together with
+source-volumes.SHA256SUMS. Keep these files in the same directory.
+
+Verify the archives:
+
+  sha256sum -c source-volumes.SHA256SUMS
+
+Extract each verified archive into the same empty directory:
+
+  mkdir extracted
+  for volume in vadgr-0.5.0-linux-x86_64-source.volume-*.tar.gz; do
+    tar -xzf "$volume" -C extracted
+  done
+
+Each archive is independent and contains different files. Do not concatenate
+the archives. Every listed volume is required for the complete source packet.
+
+Verify the complete extracted source:
+
+  cd extracted/vadgr-0.5.0-linux-x86_64-source
+  sha256sum -c SHA256SUMS
+
+Read README-SOURCE.txt for build requirements and modification instructions.
+This packet supports the recorded Linux x86_64 native-gui build. It includes
+557 full dependency source archives and 158 manifest-only fail-closed stubs
+for dependencies that Cargo resolves but does not compile for this target.
+It does not supply other-target SDK-derived implementation sources.
+
+SOURCE-QUALIFICATION.json records the successful Ubuntu 26.04 baseline and
+modified-source builds. Ubuntu 24.04 reproduction and E2E were not run here.
+The source qualification is separate from package, legal and publisher review.

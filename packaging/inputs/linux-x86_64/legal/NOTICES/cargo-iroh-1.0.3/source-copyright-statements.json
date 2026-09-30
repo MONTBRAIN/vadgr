@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "460de6bc52163b41b1646931f2897e5ab986f0966ade444467fec25024751a72",
+  "original_statement_files": [
+    {
+      "path": "iroh-1.0.3/LICENSE-BSD3",
+      "sha256": "7c6c032bf8c84fb4cd99784965a39be9e836fb7f244b3cf40c42faf4b211c10a",
+      "size": 1669,
+      "statements": [
+        {
+          "line": 8,
+          "text": "Copyright (c) 2020 Tailscale Inc & AUTHORS."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

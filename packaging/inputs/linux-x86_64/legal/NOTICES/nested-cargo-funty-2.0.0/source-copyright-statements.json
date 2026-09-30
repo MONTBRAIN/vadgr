@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "e6d5a32815ae3f33302d95fdcb2ce17862f8c65363dcfd29360480ba1001fc9c",
+  "original_statement_files": [
+    {
+      "path": "funty-2.0.0/LICENSE.txt",
+      "sha256": "f790cc576999f5998c766d3d26d7d64dc368e805a98461484f65e8d961ec6d9f",
+      "size": 1082,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2020 myrrlyn (Alexander Payne)"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

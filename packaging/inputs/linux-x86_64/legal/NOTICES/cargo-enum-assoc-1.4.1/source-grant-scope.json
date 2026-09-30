@@ -1,0 +1,7 @@
+{
+  "archive_sha256": "0590c4a94da3372e83493b956755a6e2266830b6e4e3b101afe66e3f39477b91",
+  "basis": [
+    "The exact crate manifest explicitly declares Apache-2.0 as an alternative. Complete referenced text retained with original source claims."
+  ],
+  "status": "source-conclusion-not-package-approval"
+}

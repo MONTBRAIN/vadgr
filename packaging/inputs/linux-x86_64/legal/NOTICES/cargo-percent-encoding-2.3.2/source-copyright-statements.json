@@ -1,0 +1,39 @@
+{
+  "archive_sha256": "9b4f627cb1b25917193a259e49bdad08f671f8d9708acfd5fe0a8c1455d87220",
+  "original_statement_files": [
+    {
+      "path": "percent-encoding-2.3.2/LICENSE-MIT",
+      "sha256": "b38f11f6096706e6de553dabe2a7ed142d59b6fa8c97e290c67496154745cdd5",
+      "size": 1072,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2013-2025 The rust-url developers"
+        }
+      ]
+    },
+    {
+      "path": "percent-encoding-2.3.2/src/ascii_set.rs",
+      "sha256": "f75552e4f446ed240cef64c1367e848cf3ae65f77602085459566d835a1d8587",
+      "size": 5812,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2013-2016 The rust-url developers."
+        }
+      ]
+    },
+    {
+      "path": "percent-encoding-2.3.2/src/lib.rs",
+      "sha256": "641903d385581e76f31ef8c991d83c2a5d7fbbc2879d93909c539037e4e1e3e2",
+      "size": 16051,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2013-2016 The rust-url developers."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

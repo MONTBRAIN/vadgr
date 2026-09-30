@@ -411,7 +411,7 @@ oracles. Windows executes only the Windows rows in this session.
 | H: protected owner boundaries | partial functional: F01 QR/Built-in and typed-code/Tailscale completed; W02 is a post-merge trust assertion | partial functional: physical saved-name QR/Built-in pairing completed; M02 is a post-merge signed-identity assertion | blocked before owner action: the current release-equivalent Linux package must be produced on the implementation branch. The VirtualBox host ADB bridge proved one authorized intended physical phone before the owner disconnected it, so phone absence is not the package blocker | Not-Needed: WSL has no native GUI or protected installer prompt |
 | W: Windows cells | pre-merge functional qualification complete on available x64 hardware: W01, F01, W03 unsigned, W04, W05, W06 pre-merge, reachable W07, W08, first-release W09, W10, O2 and C1 pass; x64/ARM64 W11 passes. ARM64 installed-product hardware is unavailable. Held-candidate-only slices are tracked separately and do not block merge | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells |
 | M: macOS cells | Not-Needed: macOS-only cells | partial functional: Apple Silicon installation, native configuration, phone watch and restart observations are filed; the host must build the exact current release-equivalent unsigned PKG and complete affected lifecycle and cleanup before merge. Intel hardware remains unavailable. Signed identity assertions are tracked separately | Not-Needed: macOS-only cells | Not-Needed: macOS-only cells |
-| L: native Linux cells | Not-Needed: native-Linux-only cells | Not-Needed: native-Linux-only cells | blocked before installer execution on the current x86_64 GNOME Wayland VirtualBox host: the credential-free producer has now compiled the pinned native executable and assembled the exact private Python/CUA 0.7.9 payload at `890a7d4`. The reviewed `packaging/inputs/linux-x86_64` packet and registered AppImage remain incomplete. Finish the exact native-library scope, notices and source duties, assemble the package, then run the functional cells. Signing is not the functional blocker. aarch64, X11, bare-metal and unavailable hardware-specific behavior were not run | Not-Needed: native-Linux-only cells |
+| L: native Linux cells | Not-Needed: native-Linux-only cells | Not-Needed: native-Linux-only cells | pending AppImage assembly and installed execution on x86_64 GNOME Wayland VirtualBox: exact runtime `07c7057`, private Python/CUA 0.7.9, corresponding source and the derived approved-scope Linux inputs passed preparation validation. No preparation or CI observation passes a functional cell. Signing is not the functional blocker. aarch64, X11, bare-metal and unavailable hardware-specific behavior were not run | Not-Needed: native-Linux-only cells |
 | S: WSL cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | not run: release-equivalent unsigned WSL assets have not completed functional qualification; signing is not the blocker |
 | O: shared offline, accessibility and cleanup cells | pre-merge functional qualification complete on available x64 hardware: prior O1 remains valid; the Narrator state matrix, exact-current UIA, unfocused Windows Graphics Capture and final C1 cleanup pass | partial functional: native focus, VoiceOver speech, state matrix, isolated fixture cleanup and screen-reader-setting restoration ran; exact final offline lifecycle and cleanup remain owed | blocked: no current release-equivalent package or pre-existing isolated offline snapshot is available. C1 remains pending until the Linux cells finish | not run: host functional qualification is incomplete |
 
@@ -421,7 +421,7 @@ oracles. Windows executes only the Windows rows in this session.
 |---|---:|---|
 | Windows x64/arm64 | W01, W02, F01, W03 through W11, O1, O2, C1 | pre-merge functional qualification is complete on available x64 hardware at exact product source `24ae14a`: x64 W01, F01, W03 unsigned, W04, W05, W06 pre-merge, reachable W07, W08, first-release W09, W10, O2 and C1 pass; native x64/ARM64 W11 passes. Prior O1 remains unaffected. ARM64 installed-product behavior is unavailable and recorded honestly. W02 and named held-candidate assertions are post-merge work and do not gate merge |
 | macOS Intel/Apple Silicon | M01, M02, F01, M03 through M06, O1, O2, C1 | pre-merge functional qualification is partial: Apple Silicon installed configuration, phone pairing/watch, accessibility and screen-reader restoration observations are filed; the exact current unsigned PKG and affected lifecycle, Tailscale pairing and cleanup remain owed. The host repairs missing unsigned packaging on the implementation branch. Intel hardware remains unavailable. M02 and named signed-identity assertions are post-merge trust work |
-| Linux x86_64/aarch64 X11/Wayland | L01, L02, F01, L03 through L06, O1, O2, C1 | blocked on virtualized native Ubuntu 26.04 x86_64 GNOME Wayland: the exact source has no retained AppImage, `native-build-linux-x86_64` artifact, reviewed Linux package-input packet or assembled payload. These are implementation findings the host must repair on the branch before continuing. The host ADB bridge proved the intended physical phone before disconnection, but F01 cannot reach its prepared-QR owner boundary without the package. No isolated offline snapshot exists. aarch64, X11, bare-metal and hardware-specific behavior were not run. C1 remains pending. Signing does not block this lane |
+| Linux x86_64/aarch64 X11/Wayland | L01, L02, F01, L03 through L06, O1, O2, C1 | pending registered AppImage assembly and installed execution on virtualized native Ubuntu 26.04 x86_64 GNOME Wayland. Exact runtime `07c7057` and the derived approved-scope package inputs passed preparation validation; they are not installed-product results. The host ADB bridge previously proved the intended physical phone, but the owner is now away with it. No isolated offline snapshot exists. The current GNOME portal also lacks an accessible window-row activation route in the disposable-window preflight. aarch64, X11, bare-metal and hardware-specific behavior were not run. C1 remains pending. Signing does not block this lane |
 | WSL x64/arm64 | S01 through S06, O1, C1 | pre-merge functional qualification is not run: release-equivalent unsigned assets are required. Production attestation is a separate post-merge trust lane |
 
 Overall functional qualification remains **incomplete** until every applicable
@@ -537,16 +537,30 @@ Two retained preparations also expose a reproducibility finding: 39 generated
 `uv_cache.json` timestamps and their 39 `RECORD` files differ despite identical
 wheelhouse identity. The Linux assembly repair removes only this install-time
 metadata and uses a new immutable generation recipe. A fresh Ubuntu 24.04
-preparation, exact packet rebinding and corresponding-source delivery remain
-required before assembling the AppImage. Earlier payload hashes are not
+preparation and exact packet rebinding have now passed at runtime source
+`07c7057db797c10dc3842a7e32427a40cfc849f7`. Workflow `36750477603`
+retained artifact `11114548031`; independent inspection verified all 5787
+receipt members and all 6257 archive members, including directory modes.
+The executable is 65513992 bytes with SHA-256
+`a471ed1a85e69e3641033eafe875cb01004cc41bd113d593fe5911dff7f585ee`.
+The private payload manifest SHA-256 is
+`9a006cd5742ef0aa910b3d2c2e45e35120835adffd4b26ba841e82f4a31157a7`.
+The refreshed corresponding-source delivery passed both an offline rebuild
+and a modified-source rebuild. Its finalized package-input manifest SHA-256 is
+`5337cdef2314a2b0a96819f9ea5c10f52faa90acec3196783e4fcc84f0e82931`.
+The derivation carries the prior approval of unchanged terms, licenses,
+components and source grants; it records changed product sources and does not
+claim separate owner review of the new hashes. Actual-payload validation
+passed with 825 components and 5283 legal files. AppImage assembly and all
+installed-product observations still remain owed. Earlier payload hashes are not
 relabeled as the new product. Windows and macOS assembly remain unchanged;
 Linux and WSL payload-dependent assertions require rebuilt artifacts.
 
 The following current results supersede earlier Linux observations for this
 source. The host is Ubuntu 26.04 x86_64 GNOME Wayland inside VirtualBox:
 
-- L01 and L02: pending the repaired preparation, exact packet rebinding and
-  registered AppImage assembly, not owner approval or signing. A
+- L01 and L02: pending registered AppImage assembly from the validated inputs,
+  not owner approval or signing. A
   protected dependency prompt has not been reached.
 - L03: functional integrity and both launch paths remain blocked by the same
   package prerequisite. Production attestation is separately owed post-merge.
@@ -560,7 +574,12 @@ source. The host is Ubuntu 26.04 x86_64 GNOME Wayland inside VirtualBox:
   Host firewall, DNS, routes, proxy, VPN and services remain unchanged.
 - O2: blocked before installed accessibility and exact unfocused capture by
   the package prerequisite. AT-SPI and WINDOW portal availability are setup
-  observations only, not a visual or accessibility pass.
+  observations only, not a visual or accessibility pass. A disposable-window
+  preflight found that this host's GNOME portal 50.0 exposes nonselectable rows
+  without native activation actions, while GTK 4.22.2 rejects AT-SPI focus.
+  No capture was produced. This is an accessibility implementation gap, not a
+  proved protected-permission restriction. No unrelated window was activated
+  or captured; native Cancel and OK closed the test dialogs.
 - C1: partial preparation cleanup only. Preserve the exact review packet and
   preparation for continuation; final installed-product cleanup remains owed.
 

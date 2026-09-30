@@ -1,0 +1,21 @@
+{
+  "archive_sha256": "8f72a05e828585856dacd553fba484c242c46e391fb0e58917c942ee9202915c",
+  "original_statement_files": [
+    {
+      "path": "tokio-tungstenite-0.29.0/LICENSE",
+      "sha256": "fdd55e2b2da854b0fbdc1e607df7c2ba1e1ebf91ecb77c515511ebeef972bc8f",
+      "size": 1093,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2017 Daniel Abramov"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2017 Alexey Galakhov"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

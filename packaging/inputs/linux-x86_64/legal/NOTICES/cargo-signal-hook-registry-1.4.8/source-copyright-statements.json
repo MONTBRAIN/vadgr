@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "c4db69cba1110affc0e9f7bcd48bbf87b3f4fc7c61fc9155afd4c469eb3d6c1b",
+  "original_statement_files": [
+    {
+      "path": "signal-hook-registry-1.4.8/LICENSE-MIT",
+      "sha256": "503558bfefe66ca15e4e3f7955b3cb0ec87fd52f29bf24b336af7bd00e946d5c",
+      "size": 1068,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2017 tokio-jsonrpc developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

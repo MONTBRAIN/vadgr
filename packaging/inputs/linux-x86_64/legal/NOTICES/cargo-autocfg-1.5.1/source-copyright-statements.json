@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "f2032f911046de80f0a198e0901378627c33f59ea0ac00e363d481118bd70a53",
+  "original_statement_files": [
+    {
+      "path": "autocfg-1.5.1/LICENSE-MIT",
+      "sha256": "27995d58ad5c1145c1a8cd86244ce844886958a35eb2b78c6b772748669999ac",
+      "size": 1054,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018 Josh Stone"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

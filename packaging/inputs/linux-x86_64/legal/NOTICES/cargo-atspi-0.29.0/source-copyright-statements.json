@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "c77886257be21c9cd89a4ae7e64860c6f0eefca799bb79127913052bd0eefb3d",
+  "original_statement_files": [
+    {
+      "path": "atspi-0.29.0/LICENSE-MIT.txt",
+      "sha256": "a94bf521d21b7db984c8b141b6f9341bbedbe24e617c1a55d952f8ef613ef1cd",
+      "size": 1071,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2022 Tait Hoyem <tait@tait.tech>"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

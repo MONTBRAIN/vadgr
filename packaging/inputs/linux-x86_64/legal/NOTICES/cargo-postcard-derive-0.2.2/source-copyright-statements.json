@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "e0232bd009a197ceec9cc881ba46f727fcd8060a2d8d6a9dde7a69030a6fe2bb",
+  "original_statement_files": [
+    {
+      "path": "postcard-derive-0.2.2/LICENSE-MIT",
+      "sha256": "177540cad091a40e8071db310bc3b6115c4e329a92a234609b60c154b008a888",
+      "size": 1063,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2019 Anthony James Munns"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

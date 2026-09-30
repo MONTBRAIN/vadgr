@@ -1,0 +1,257 @@
+{
+  "authority": "Prior explicit publisher-owner approval of the unchanged legal scope, continued through the authorized runtime correction and mechanical packaging derivation.",
+  "candidate_authorized": false,
+  "carried_closure_decisions": {
+    "apache_compatibility": true,
+    "market_rights": true,
+    "product_data": true,
+    "publisher": true,
+    "third_party_duties": true
+  },
+  "changed_sources": true,
+  "comparison_receipt": {
+    "application_changes": {
+      "application/src/cua_payload.rs": {
+        "after_sha256": "5964552038d6a987e3cd6e145d5a5f8a3b17ffd385c42fc18395eafb0956bd9d",
+        "before_sha256": "76f98ff4e24eaa702340aaf4255630dc03a3c0ae90c3df2b70157c7eec6e63f1"
+      }
+    },
+    "authority_note": "Comparison of an explicitly authorized fix; does not authenticate authorization or grant approval.",
+    "derived_changes": [
+      {
+        "after_sha256": "cc3b2772f29a960423cb6b98076d0c5a19d0919d4a9cb02b232ad492043a79ce",
+        "before_sha256": null,
+        "path": "REVIEW-PENDING.json"
+      },
+      {
+        "after_sha256": "d9b88dd4c501e36b4e72dfc7d13fb68f16b4dd12c31ba603ef8df0394df8bad9",
+        "before_sha256": "1b765a7f49398fffe7c706c2ebe1fa7e3f56f6ff33abd3cca921c30600b31fb1",
+        "path": "legal/SOURCE-OFFER.txt"
+      },
+      {
+        "after_sha256": "c7183cbcbdd63ca106073ff7b1ba1c935512dfc6ebda7e8767972721d630795d",
+        "before_sha256": "dd89ece7e3310af03161dc5956e733fc204bc0c3bb36fcb7c354e5beb59b411c",
+        "path": "legal/SOURCE-OFFERS/vadgr-linux/EXTRACT-SOURCE.txt"
+      },
+      {
+        "after_sha256": "7e9b7dbb422dabc7d3ac817b971cf58e4d63e4772d490475bca31d9e98a5b7b2",
+        "before_sha256": "81185af7ffd80d98e5e354d7bad342bf3c2e0a966866ce1775ac62ff4c0d6331",
+        "path": "legal/SOURCE-OFFERS/vadgr-linux/SOURCE-LOCATIONS.txt"
+      },
+      {
+        "after_sha256": "1d1fca032e541e8140f9a14ddcaf50f07866c15ac442045c616cc37cb1d29427",
+        "before_sha256": "9d31f9037ad3d08d9aa5f143cba93f0121daf09d35292f94a4871a84486346a3",
+        "path": "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.SHA256SUMS"
+      },
+      {
+        "after_sha256": "4493ae493b19135c77c7b8e596283e8ea90c04d661a89162fcc1e36a62a4879d",
+        "before_sha256": "3b49a38c744fc9e41bf7b5957fd47e658e60543b54a957906ab505c3727e9e51",
+        "path": "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.json"
+      },
+      {
+        "after_sha256": "c831f6ed5de4536c777acb3ed2fba4a850b40e8be260026a85a6a478c4844726",
+        "before_sha256": "148aff072a8d42dde1f53b8394f9a16da72359bb51bd188cef01584e4040bad9",
+        "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz"
+      },
+      {
+        "after_sha256": "0280c3b5496289f7588213f6ead6f14ce81b9f1b4d018c8b99eb63f284b02805",
+        "before_sha256": "c07324d8bde0e44f8d8f882de0689fd22c6d474a97eee7694092a24c0a2628af",
+        "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz"
+      },
+      {
+        "after_sha256": null,
+        "before_sha256": "af08d48bb850b1b2b64ba9fae5bb18d828677367641d74ef42329cf618d0befb",
+        "path": "owner-approved-packet.json"
+      },
+      {
+        "after_sha256": "0f5107b62273e33d8cace7913a87e6d441c2661f7498eda674c5774836b283f8",
+        "before_sha256": "fe6a62710880765ebb6ea2bcac754bce000c32345f55e583cabc07d00d6f964d",
+        "path": "package-input-inventory.json"
+      },
+      {
+        "after_sha256": "9d6290b5d646a64b50e944eb580d8638bb7b935f9e592d898e8f9994b6a59540",
+        "before_sha256": "19f90f9aa69c3a07f4c6e631b67a46902556ae443c587d0e56b1112eb77c89ec",
+        "path": "package-input-review.json"
+      },
+      {
+        "after_sha256": "3dbd767c85b0ed724aff3e1356324c4b3c282ad45ae61f90a5cd9cbc8db91720",
+        "before_sha256": "d2ff659c632fd55297cde218357a53bcdcdfbb11be9a862774f566be679d6dea",
+        "path": "sbom/vadgr-0.5.0.spdx.json"
+      }
+    ],
+    "derived_output_separately_owner_reviewed": false,
+    "documentation_changes": {
+      "application/packaging/linux/README.md": {
+        "after_sha256": "0ddebb0423dc4e647ec44f87bb0f2f241fbf2a4565f389b8a762d29b10669b42",
+        "before_sha256": "4b9583fb88ad09b71004c1ac22af94b1f359fee4d571290cf40b5f2e744be895"
+      }
+    },
+    "new_approval_granted": false,
+    "new_executable_sha256": "a471ed1a85e69e3641033eafe875cb01004cc41bd113d593fe5911dff7f585ee",
+    "new_payload_manifest_sha256": "9a006cd5742ef0aa910b3d2c2e45e35120835adffd4b26ba841e82f4a31157a7",
+    "old_executable_sha256": "2bca1d2507548d53c5d160be91ba89c9fda184f10336a1bd195c3327a04c2495",
+    "old_payload_manifest_sha256": "e96150b5b4de1353694d3810f754a7d1aa3a1c0fda3aa7995aba93099dfdb6c8",
+    "original_approval_receipt_sha256": "af08d48bb850b1b2b64ba9fae5bb18d828677367641d74ef42329cf618d0befb",
+    "plan_sha256": "3315783361af0b65b672594e5400727dffac0baef573ef176d4ae5f6f39b5fa5",
+    "publishable": false,
+    "schema": 1,
+    "signing_authorized": false,
+    "source_commit": "07c7057db797c10dc3842a7e32427a40cfc849f7",
+    "status": "derived-legal-scope-comparison-pass",
+    "unchanged_sources": false,
+    "unchanged_terms_licenses_components_source_grants": true
+  },
+  "comparison_receipt_sha256": "baebdc0fc6a700cba375b6e98dd770f2118d93a4ed909cab1e9dae673b8c2045",
+  "derivation_date": "2026-09-30",
+  "derivation_plan": {
+    "application_changes": {
+      "application/src/cua_payload.rs": {
+        "after_sha256": "5964552038d6a987e3cd6e145d5a5f8a3b17ffd385c42fc18395eafb0956bd9d",
+        "before_sha256": "76f98ff4e24eaa702340aaf4255630dc03a3c0ae90c3df2b70157c7eec6e63f1"
+      }
+    },
+    "authorization_basis": "authorized-code-fix-unchanged-legal-scope",
+    "delivery_changes": {
+      "legal/SOURCE-OFFERS/vadgr-linux/EXTRACT-SOURCE.txt": {
+        "after_sha256": "c7183cbcbdd63ca106073ff7b1ba1c935512dfc6ebda7e8767972721d630795d",
+        "before_sha256": "dd89ece7e3310af03161dc5956e733fc204bc0c3bb36fcb7c354e5beb59b411c"
+      },
+      "legal/SOURCE-OFFERS/vadgr-linux/SOURCE-LOCATIONS.txt": {
+        "after_sha256": "7e9b7dbb422dabc7d3ac817b971cf58e4d63e4772d490475bca31d9e98a5b7b2",
+        "before_sha256": "81185af7ffd80d98e5e354d7bad342bf3c2e0a966866ce1775ac62ff4c0d6331"
+      },
+      "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.SHA256SUMS": {
+        "after_sha256": "1d1fca032e541e8140f9a14ddcaf50f07866c15ac442045c616cc37cb1d29427",
+        "before_sha256": "9d31f9037ad3d08d9aa5f143cba93f0121daf09d35292f94a4871a84486346a3"
+      },
+      "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.json": {
+        "after_sha256": "4493ae493b19135c77c7b8e596283e8ea90c04d661a89162fcc1e36a62a4879d",
+        "before_sha256": "3b49a38c744fc9e41bf7b5957fd47e658e60543b54a957906ab505c3727e9e51"
+      },
+      "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz": {
+        "after_sha256": "c831f6ed5de4536c777acb3ed2fba4a850b40e8be260026a85a6a478c4844726",
+        "before_sha256": "148aff072a8d42dde1f53b8394f9a16da72359bb51bd188cef01584e4040bad9"
+      },
+      "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz": {
+        "after_sha256": "0280c3b5496289f7588213f6ead6f14ce81b9f1b4d018c8b99eb63f284b02805",
+        "before_sha256": "c07324d8bde0e44f8d8f882de0689fd22c6d474a97eee7694092a24c0a2628af"
+      }
+    },
+    "documentation_changes": {
+      "application/packaging/linux/README.md": {
+        "after_sha256": "0ddebb0423dc4e647ec44f87bb0f2f241fbf2a4565f389b8a762d29b10669b42",
+        "before_sha256": "4b9583fb88ad09b71004c1ac22af94b1f359fee4d571290cf40b5f2e744be895"
+      }
+    },
+    "new_executable_sha256": "a471ed1a85e69e3641033eafe875cb01004cc41bd113d593fe5911dff7f585ee",
+    "new_generation": "0.7.9-14ccc63a4a3f-linux-reproducible-v2",
+    "new_payload_manifest_sha256": "9a006cd5742ef0aa910b3d2c2e45e35120835adffd4b26ba841e82f4a31157a7",
+    "new_source_commit": "07c7057db797c10dc3842a7e32427a40cfc849f7",
+    "old_approval_receipt_sha256": "af08d48bb850b1b2b64ba9fae5bb18d828677367641d74ef42329cf618d0befb",
+    "old_executable_sha256": "2bca1d2507548d53c5d160be91ba89c9fda184f10336a1bd195c3327a04c2495",
+    "old_generation": "0.7.9-14ccc63a4a3f-unix-relative-v1",
+    "old_payload_manifest_sha256": "e96150b5b4de1353694d3810f754a7d1aa3a1c0fda3aa7995aba93099dfdb6c8",
+    "old_source_commit": "229c665d429e64ebc2501c59b3f38d883a8e774b",
+    "schema": 1,
+    "source_metadata_changes": {
+      "README-SOURCE.txt": {
+        "after_sha256": "e711f3c7692afc03ecc575373596d779563687d01ebbd2434c06bbd7488a0fc2",
+        "before_sha256": "5367202ea62cbc4dbe1f6d6e4660cb7d1f1db46fa5acbb6ce8d5a84367ea5e87"
+      },
+      "SHA256SUMS": {
+        "after_sha256": "b96fd7ecb9b1b92bf5b4373dc73236ac87a8828df449576c1e406b7c9b86310a",
+        "before_sha256": "daa0ff721e90c23e0b1d8becbcb3a54c36724a391638e51addf63054d9742d67"
+      },
+      "SOURCE-QUALIFICATION.json": {
+        "after_sha256": "0e1363350ac626c524bed64358ce3dec95f397a0b1123d0891a43518d635d315",
+        "before_sha256": "34f19f8bb4553a51bcfef6ab36ef2b7af2da806e5c4912cdcf3565959ce10482"
+      },
+      "application-files.json": {
+        "after_sha256": "bcda362f3f7dcec2516496531edbb4455a78b8007ef4d3d0728ff4096c7b1e3b",
+        "before_sha256": "2be2ce39927faf5585e7710986b8a5330e68afee6ce48de592b5374b9f5deeb3"
+      },
+      "source-identity.json": {
+        "after_sha256": "47ad717295a27fc907d1c60bf197f5e86a3549ed6ab0d9ddf3b67d02a269a74d",
+        "before_sha256": "bca5a18a55808330369c864d3c600c5cba8966d18853aa610fa4cf93c62ec787"
+      }
+    }
+  },
+  "derivation_plan_sha256": "3315783361af0b65b672594e5400727dffac0baef573ef176d4ae5f6f39b5fa5",
+  "derived_draft_manifest_sha256": "160564b1c338842497720f0fef71ee029752b62e660f8ed0ac0b32bcddd8d1e9",
+  "derived_output_separately_owner_reviewed": false,
+  "derived_review_sha256": "f060993bfae74a248c9420772c808d1988eb16f043bb7e0fe4e698688c275a93",
+  "draft_review_sha256": "9d6290b5d646a64b50e944eb580d8638bb7b935f9e592d898e8f9994b6a59540",
+  "executable_sha256": "a471ed1a85e69e3641033eafe875cb01004cc41bd113d593fe5911dff7f585ee",
+  "finalization_changes": [
+    {
+      "after_sha256": "f060993bfae74a248c9420772c808d1988eb16f043bb7e0fe4e698688c275a93",
+      "before_sha256": "9d6290b5d646a64b50e944eb580d8638bb7b935f9e592d898e8f9994b6a59540",
+      "operation": "replace",
+      "path": "package-input-review.json",
+      "reason": "Carry established closure decisions across the verified unchanged legal scope."
+    },
+    {
+      "after_sha256": null,
+      "before_sha256": "cc3b2772f29a960423cb6b98076d0c5a19d0919d4a9cb02b232ad492043a79ce",
+      "operation": "omit",
+      "path": "REVIEW-PENDING.json",
+      "reason": "Retain the draft state in the unchanged source draft, not the derived finalized copy."
+    }
+  ],
+  "inventory_sha256": "0f5107b62273e33d8cace7913a87e6d441c2661f7498eda674c5774836b283f8",
+  "new_approval_decision": false,
+  "new_approval_granted": false,
+  "original_approval_date": "2026-09-30",
+  "original_approval_receipt": {
+    "approval_date": "2026-09-30",
+    "approved_manifest_sha256": "b2e1d2b29e88bca626e973bfc8234305945280331cdfad6e43342a3b64874c41",
+    "approved_review_sha256": "19f90f9aa69c3a07f4c6e631b67a46902556ae443c587d0e56b1112eb77c89ec",
+    "authority": "Explicit publisher-owner approval of the exact packet.",
+    "candidate_authorized": false,
+    "derived_changes": [
+      {
+        "operation": "add",
+        "path": "legal/TERMS.rtf",
+        "reason": "Canonical rendering of the unchanged approved terms.",
+        "sha256": "87f87f8dcdc3884092932168f054719c31fa1777670255e296bd2d6e2d180af2"
+      },
+      {
+        "before_sha256": "c0fa33a9a50e0cf57522c3352c727019a7ce427be9c4e67430d6b8df59474389",
+        "operation": "replace",
+        "path": "package-input-review.json",
+        "reason": "Apply owner approval and canonical legal-file membership; inventory is bound separately.",
+        "sha256": "19f90f9aa69c3a07f4c6e631b67a46902556ae443c587d0e56b1112eb77c89ec"
+      },
+      {
+        "before_sha256": "a07bed89af3ebf53662ab526515ba6dafafffd870a41cb02da9d44c0513e3faa",
+        "operation": "omit",
+        "path": "REVIEW-PENDING.json",
+        "reason": "Preserve the original pending record only in the unchanged approved draft."
+      }
+    ],
+    "derived_output_separately_owner_reviewed": false,
+    "draft_review_sha256": "c0fa33a9a50e0cf57522c3352c727019a7ce427be9c4e67430d6b8df59474389",
+    "inventory_sha256": "fe6a62710880765ebb6ea2bcac754bce000c32345f55e583cabc07d00d6f964d",
+    "publishable": false,
+    "schema": 1,
+    "signing_authorized": false,
+    "source_commit": "229c665d429e64ebc2501c59b3f38d883a8e774b",
+    "status": "owner-approved-exact-packet",
+    "target": "x86_64-unknown-linux-gnu",
+    "unchanged_terms_inventory_licenses_notices_and_sources": true
+  },
+  "original_approval_receipt_sha256": "af08d48bb850b1b2b64ba9fae5bb18d828677367641d74ef42329cf618d0befb",
+  "original_approved_manifest_sha256": "b2e1d2b29e88bca626e973bfc8234305945280331cdfad6e43342a3b64874c41",
+  "payload_manifest_sha256": "9a006cd5742ef0aa910b3d2c2e45e35120835adffd4b26ba841e82f4a31157a7",
+  "publishable": false,
+  "release_authorized": false,
+  "schema": 1,
+  "separately_owner_reviewed": false,
+  "signing_authorized": false,
+  "source_commit": "07c7057db797c10dc3842a7e32427a40cfc849f7",
+  "source_tree": "00a9b6514c3b370a6f0ded867eb879398f5cdc7a",
+  "status": "derived-from-owner-approved-legal-scope",
+  "target": "x86_64-unknown-linux-gnu",
+  "unchanged_sources": false,
+  "unchanged_terms_licenses_components_source_grants": true
+}

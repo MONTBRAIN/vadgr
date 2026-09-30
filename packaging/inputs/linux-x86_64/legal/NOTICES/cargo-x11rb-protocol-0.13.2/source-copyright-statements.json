@@ -1,0 +1,39 @@
+{
+  "archive_sha256": "ea6fc2961e4ef194dcbfe56bb845534d0dc8098940c7e5c012a258bfec6701bd",
+  "original_statement_files": [
+    {
+      "path": "x11rb-protocol-0.13.2/LICENSE-MIT",
+      "sha256": "a72561f47c1f665535930f606739d9098a6186802d5e2e8ec491faf00f4add5b",
+      "size": 1058,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2019 x11rb Contributers"
+        }
+      ]
+    },
+    {
+      "path": "x11rb-protocol-0.13.2/src/resource_manager/matcher.rs",
+      "sha256": "af6ada901a3bfc9466b39fbde7f222be0ce6bc14ccc0554f0c86a62274195be2",
+      "size": 20959,
+      "statements": [
+        {
+          "line": 353,
+          "text": "// Most tests in here are based on [1], which is: Copyright \u00a9 2016 Ingo B\u00fcrk"
+        }
+      ]
+    },
+    {
+      "path": "x11rb-protocol-0.13.2/src/resource_manager/parser.rs",
+      "sha256": "a080724cc905b382597d67918422aaa98cf5c79363bfcf829060fb706946bf98",
+      "size": 23045,
+      "statements": [
+        {
+          "line": 277,
+          "text": "// Most tests in here are based on [1], which is: Copyright \u00a9 2016 Ingo B\u00fcrk"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "4cf6e3177f0684016a5c209b00882e15f8bdd3f3bb48f0491df10cd102d0c6e7",
+  "original_statement_files": [
+    {
+      "path": "prefix-trie-0.8.4/LICENSE-APACHE",
+      "sha256": "87d9feb9238c6bd8e0024fc4733b06cff036f89f36d93b7df1c8a0549bbb7a5b",
+      "size": 11352,
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright 2017 Juniper Networks, Inc."
+        }
+      ]
+    },
+    {
+      "path": "prefix-trie-0.8.4/LICENSE-MIT",
+      "sha256": "f646f5108c9cd6740f1fe0d8e27a49c7bac35f970f02c40bda298f9771168e5c",
+      "size": 1055,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2022 Tibor Schneider"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

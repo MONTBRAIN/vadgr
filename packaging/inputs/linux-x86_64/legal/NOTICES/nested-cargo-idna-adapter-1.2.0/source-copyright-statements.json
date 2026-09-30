@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "daca1df1c957320b2cf139ac61e7bd64fed304c5040df000a745aa1de3b4ef71",
+  "original_statement_files": [
+    {
+      "path": "idna_adapter-1.2.0/LICENSE-MIT",
+      "sha256": "8b43ce8accd61e9d370b5ca9e9c4f953279b5c239926c62315b40e24df51b726",
+      "size": 1062,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) The rust-url developers"
+        }
+      ]
+    },
+    {
+      "path": "idna_adapter-1.2.0/src/lib.rs",
+      "sha256": "71feaadef8e68b2c52fcf6196eb6428a349dd61c92fc72dad9273c4229ca79c2",
+      "size": 10649,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright The rust-url developers."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

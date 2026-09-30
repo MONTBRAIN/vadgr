@@ -1,0 +1,37 @@
+{
+  "ci_executable_sha256": "a471ed1a85e69e3641033eafe875cb01004cc41bd113d593fe5911dff7f585ee",
+  "complete_original_crate_archives": 557,
+  "e2e": "not run",
+  "extract_all_volumes_to_same_directory": true,
+  "file_manifest_sha256": "b96fd7ecb9b1b92bf5b4373dc73236ac87a8828df449576c1e406b7c9b86310a",
+  "legal_approval": false,
+  "members_disjoint": true,
+  "resolution_manifest_stubs": 158,
+  "resolution_only_implementation_sources_distributed": false,
+  "root_directory": "vadgr-0.5.0-linux-x86_64-source",
+  "source_commit": "07c7057db797c10dc3842a7e32427a40cfc849f7",
+  "source_relink_capability": "pass on Ubuntu 26.04",
+  "ubuntu_24_04_reproduction": "not run",
+  "union_matches_complete_staged_tree": true,
+  "union_verified_files": 28910,
+  "volumes": [
+    {
+      "archive": "vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz",
+      "bytes": 64697271,
+      "file_members": 706,
+      "sha256": "c831f6ed5de4536c777acb3ed2fba4a850b40e8be260026a85a6a478c4844726"
+    },
+    {
+      "archive": "vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz",
+      "bytes": 52191013,
+      "file_members": 18256,
+      "sha256": "0280c3b5496289f7588213f6ead6f14ce81b9f1b4d018c8b99eb63f284b02805"
+    },
+    {
+      "archive": "vadgr-0.5.0-linux-x86_64-source.volume-03.tar.gz",
+      "bytes": 17022783,
+      "file_members": 9948,
+      "sha256": "8348cf0b4e03cc9a553df5bd37baaee9dddfc2c91d253abeb48826e5d576324e"
+    }
+  ]
+}
