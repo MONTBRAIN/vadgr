@@ -7,6 +7,14 @@ snapshot. The rebuild recipe reads compile identity from the adjacent retained
 development receipt. Neither record authenticates a publisher or claims a
 signed release, a reproducible AppImage, or a byte-identical future artifact.
 
+This edition retains the complete patched accesskit_atspi_common 0.18.1 and
+accesskit_unix 0.21.1 sources under application/vendor. The external complete
+file manifests are under application/packaging/rust-patches. Each crate has
+PATCHES.md and exact retained license grants. Component digests identify those
+complete patched-source manifests, not the original registry archive bytes.
+The original archive and its source-grant review remain historical provenance;
+they are not represented as the compiled modified source identity.
+
 The interpreted CUA runtime is also delivered in its preferred source form.
 Relative to the prepared payload root, its 96 readable Python modules are in:
 lib/cua/environments/0.7.9-14ccc63a4a3f-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/

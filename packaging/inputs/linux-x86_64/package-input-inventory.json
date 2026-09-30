@@ -171,7 +171,7 @@
     },
     {
       "copyright_text": "// Copyright 2017 The Chromium Authors. All rights reserved.\n// Copyright 2022 The AccessKit Authors. All rights reserved.\n// Copyright 2023 The AccessKit Authors. All rights reserved.\n// Copyright 2024 The AccessKit Authors. All rights reserved.\n// Copyright 2026 The AccessKit Authors. All rights reserved.",
-      "download_location": "https://static.crates.io/crates/accesskit_atspi_common/accesskit_atspi_common-0.18.1.crate",
+      "download_location": "https://raw.githubusercontent.com/MONTBRAIN/vadgr/f8683e303d3405b998156a15791d2d9524055e4b/packaging/rust-patches/accesskit_atspi_common-0.18.1.json",
       "id": "cargo-accesskit-atspi-common-0.18.1",
       "kind": "cargo",
       "license_concluded": "Apache-2.0 AND BSD-3-Clause",
@@ -215,6 +215,14 @@
           "sha256": "64a02be78c8c9eb9e964febbd2584f58b6b78136c48e80f9b07eb2d90dc53fd3"
         },
         {
+          "path": "legal/NOTICES/cargo-accesskit-atspi-common-0.18.1/LOCAL-MODIFICATIONS.md",
+          "sha256": "a752df7a009cd4ccd07ff5eaf19b6690a959980b811471733eaee57e0ccc9fc5"
+        },
+        {
+          "path": "legal/NOTICES/cargo-accesskit-atspi-common-0.18.1/patched-source-manifest.json",
+          "sha256": "2b1afd0ea9983bb97fd969d934b2bc5556d5b968e59c4d0985b3be2beb9dcb01"
+        },
+        {
           "path": "legal/NOTICES/cargo-accesskit-atspi-common-0.18.1/source-copyright-statements.json",
           "sha256": "59cae610f14838d242d743b6d9065f7d9235ed189551be5ee4ddf648d7efa8ca"
         },
@@ -224,7 +232,7 @@
         }
       ],
       "notice_required": true,
-      "sha256": "1e8c61bee90b42a772d39d06a740207dc71a4e780004ace1db8d99fb1baaa954",
+      "sha256": "2b1afd0ea9983bb97fd969d934b2bc5556d5b968e59c4d0985b3be2beb9dcb01",
       "source_offer_files": [],
       "source_offer_required": false,
       "version": "0.18.1"
@@ -283,7 +291,7 @@
     },
     {
       "copyright_text": "// Copyright 2022 The AccessKit Authors. All rights reserved.\n// Copyright 2023 The AccessKit Authors. All rights reserved.\n// Copyright 2024 The AccessKit Authors. All rights reserved.\n// Copyright 2024 Zeeshan Ali Khan.\n// Copyright 2026 The AccessKit Authors. All rights reserved.",
-      "download_location": "https://static.crates.io/crates/accesskit_unix/accesskit_unix-0.21.1.crate",
+      "download_location": "https://raw.githubusercontent.com/MONTBRAIN/vadgr/f8683e303d3405b998156a15791d2d9524055e4b/packaging/rust-patches/accesskit_unix-0.21.1.json",
       "id": "cargo-accesskit-unix-0.21.1",
       "kind": "cargo",
       "license_concluded": "Apache-2.0 AND MIT",
@@ -323,6 +331,14 @@
           "sha256": "38e4a47fc2afd555d91d8e74156165d7da632c381e488a1c7693ed140ff278fa"
         },
         {
+          "path": "legal/NOTICES/cargo-accesskit-unix-0.21.1/LOCAL-MODIFICATIONS.md",
+          "sha256": "bd7cc64a2231f0d4e959419cc64b756ee06b68bc9caed2d454d9557e367a565f"
+        },
+        {
+          "path": "legal/NOTICES/cargo-accesskit-unix-0.21.1/patched-source-manifest.json",
+          "sha256": "718cfe03447e8cfecab6258506763d907e6e5ee215fee5f995a205db75d56692"
+        },
+        {
           "path": "legal/NOTICES/cargo-accesskit-unix-0.21.1/source-copyright-statements.json",
           "sha256": "ecd954be1f29ced0e8569de84cd47284debdbb9e098b13638677e2fe9e329449"
         },
@@ -332,7 +348,7 @@
         }
       ],
       "notice_required": true,
-      "sha256": "b016ca8db0ea0ea2ceff29a9d6240391492d960716aa471967c00e8cc8cb197c",
+      "sha256": "718cfe03447e8cfecab6258506763d907e6e5ee215fee5f995a205db75d56692",
       "source_offer_files": [],
       "source_offer_required": false,
       "version": "0.21.1"
@@ -18639,31 +18655,31 @@
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/EXTRACT-SOURCE.txt",
-          "sha256": "3e2737b30de85d065da2561a4c7abf905eb31527718fa9b267654db729bf0163"
+          "sha256": "0fe5b1c66d7229ed8f5800f74d52fb73dcdd4bd6bf53934af5954842bbcfa020"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.SHA256SUMS",
-          "sha256": "44a1587d831d4c32754c29b8ebee8635132c239848aecb8b2f1c20cf088ee194"
+          "sha256": "4f15dd400ad8c70487d833dfebf1188f6149ea55d6880e0bcc2d8e24125f5d96"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.json",
-          "sha256": "85ba25ab86a417cb58e3ca8d9113aaf6d19e670147b32fbb3772f18b492202f3"
+          "sha256": "17c620d5ea667fcae9de20e483c4b686f32367624536f4de6d95857c142804f7"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz",
-          "sha256": "b312481220e76216eb1567be2cd32547c14a7272fedb9130fc153179d0928490"
+          "sha256": "e2e9e23c9e085782e95639896c17457b0838b7de5d0384b4819594bb15eb98c8"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz",
-          "sha256": "eb1cdaf29f17bcb5db04565c3be1388fb759862d287cdb2e92e2fa0fc3802665"
+          "sha256": "4224a1fa736bb897edb653aa4ea1848a34aaacffd251214c2efd4466d772ed15"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-03.tar.gz",
-          "sha256": "8348cf0b4e03cc9a553df5bd37baaee9dddfc2c91d253abeb48826e5d576324e"
+          "sha256": "9404d7d0061da2953d9e35e2c712b10c641e5fc0984c90536b02cf0bcc4c9573"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/SOURCE-LOCATIONS.txt",
-          "sha256": "68ee9d6a1862ebfbcf8039d617db725db030864a8e4f0f4a24fb75c5a64f7a04"
+          "sha256": "81a0dbcea66556305cf76b2030837b096d301b94237b3cedcd6bf6cd805f3f42"
         }
       ],
       "source_offer_required": true,
@@ -21656,31 +21672,31 @@
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/EXTRACT-SOURCE.txt",
-          "sha256": "3e2737b30de85d065da2561a4c7abf905eb31527718fa9b267654db729bf0163"
+          "sha256": "0fe5b1c66d7229ed8f5800f74d52fb73dcdd4bd6bf53934af5954842bbcfa020"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.SHA256SUMS",
-          "sha256": "44a1587d831d4c32754c29b8ebee8635132c239848aecb8b2f1c20cf088ee194"
+          "sha256": "4f15dd400ad8c70487d833dfebf1188f6149ea55d6880e0bcc2d8e24125f5d96"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.json",
-          "sha256": "85ba25ab86a417cb58e3ca8d9113aaf6d19e670147b32fbb3772f18b492202f3"
+          "sha256": "17c620d5ea667fcae9de20e483c4b686f32367624536f4de6d95857c142804f7"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz",
-          "sha256": "b312481220e76216eb1567be2cd32547c14a7272fedb9130fc153179d0928490"
+          "sha256": "e2e9e23c9e085782e95639896c17457b0838b7de5d0384b4819594bb15eb98c8"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz",
-          "sha256": "eb1cdaf29f17bcb5db04565c3be1388fb759862d287cdb2e92e2fa0fc3802665"
+          "sha256": "4224a1fa736bb897edb653aa4ea1848a34aaacffd251214c2efd4466d772ed15"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-03.tar.gz",
-          "sha256": "8348cf0b4e03cc9a553df5bd37baaee9dddfc2c91d253abeb48826e5d576324e"
+          "sha256": "9404d7d0061da2953d9e35e2c712b10c641e5fc0984c90536b02cf0bcc4c9573"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/SOURCE-LOCATIONS.txt",
-          "sha256": "68ee9d6a1862ebfbcf8039d617db725db030864a8e4f0f4a24fb75c5a64f7a04"
+          "sha256": "81a0dbcea66556305cf76b2030837b096d301b94237b3cedcd6bf6cd805f3f42"
         }
       ],
       "source_offer_required": true,
@@ -40265,7 +40281,8 @@
   "payload_manifest_sha256": "9a006cd5742ef0aa910b3d2c2e45e35120835adffd4b26ba841e82f4a31157a7",
   "schema": 1,
   "source_inputs": {
-    "Cargo.lock": "a5a9432e1e0c487912b8548593a251befb0780aef1f3d5fc4d760f7bafa9063c",
+    "Cargo.lock": "84f80c1122b4dbb3c40363fce5d9e217195912db7ef59b2a48c3fb90e0a0b7a5",
+    "Cargo.toml": "90546fd9a76ef0cbd2c038fc53702457abb3e781d0c5e64ec9758206c74a2c94",
     "packaging/cua/cua-profile-catalog.json": "1d7f672a508d42f5818f98fb19a870f52aedb15f70cdf7448ca440a08be129cb",
     "packaging/cua/cua-profile-catalog.sigstore.json": "1afa08e983ce8174dea6c4883164c24222526e909b3d1a5ee8f063b245346678",
     "packaging/cua/native-wheel-manifest.json": "2f86c4d2c6493d32019a617c669e3c0babefc565f9da73c6182475286ad499b8",
@@ -40273,6 +40290,7 @@
     "packaging/cua/profile-inputs.json": "e90356814719f4694f7e39f7a23d61146de1ee60157e49dd50a9fe7c92bd506c",
     "packaging/cua/profile-locks/linux-x86_64.lock": "14ccc63a4a3f36903f8f5040e44a50743fee101fee27c06d7fe57a248bf586e4",
     "packaging/linux/runtime.json": "cb069e0c6279e4518a81fdf9ea5f6be3ee7662fc510464ca4a2c07742ed93be8",
+    "packaging/rust-patches.json": "6b96f2a93171932339f88af321d4234215c87b1e27c76e0309c2d16d924b21ad",
     "packaging/toolchain.json": "628b3a9c29fd90805df2b7a80651dd5d9298c6055f8984e07e50b46a0d4a5616"
   },
   "target": "x86_64-unknown-linux-gnu",

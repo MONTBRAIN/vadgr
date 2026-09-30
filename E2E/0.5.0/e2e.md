@@ -818,6 +818,34 @@ After acquisition evidence was pushed, four validated intermediate copies were
 removed, reclaiming 3197554688 allocated bytes. The exact AppImage, receipts,
 installed test state and live continuation processes remain. C1 is incomplete.
 
+### Linux accessibility rebuild at `f8683e30`
+
+The corrected source is `f8683e303d3405b998156a15791d2d9524055e4b`.
+Production Rust tests passed with 523 tests and one ignored; development Rust
+tests passed with 565 tests and one ignored. Both Clippy configurations and
+formatting passed. The final Python suite passed with 1557 tests, 60 skips
+and 64 subtests. These are source results, not installed functional verdicts.
+
+Two separate offline source builds passed with Rust 1.97.1. Each compiled
+519 dependencies, including the two exact local accessibility patches and no
+resolution stubs. The modified Plasma description reached newly compiled
+metadata. The documentation-only edit changed that metadata, while the final
+executables had equal hashes. Neither build claims byte reproduction of the
+Ubuntu 24.04 package producer. Source delivery retains the unchanged legal
+grants and original approval lineage; it does not claim a new owner approval.
+
+The old `d462eaaf` installer also accepted two native Close actions without
+closing. A fresh compositor window chooser still listed the installer after
+the test console stopped. The first attempt exists only in the tool transcript;
+the second attempt and diagnostic cleanup are retained. The cause remains
+unresolved. The rebuilt installer must repeat Close before and after Open Vadgr.
+An accepted accessibility action is not a successful Close verdict.
+
+After the source proof evidence was pushed, standard Cargo cleanup and removal
+of the two validated proof copies reclaimed 2731048960 allocated bytes.
+The final source delivery, proof outputs, installed test state and evidence
+remain preserved. This is intermediate cleanup, not a complete C1 result.
+
 ## macOS qualification history
 
 These observations preserve implementation findings and earlier evidence. They

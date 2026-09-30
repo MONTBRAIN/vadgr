@@ -1,9 +1,6 @@
-Download every independent volume listed in source-volumes.json.
-Verify sha256sum -c source-volumes.SHA256SUMS, then extract every tar.gz
-into the same directory. Do not concatenate volumes. No single volume
-contains the complete source. In vadgr-0.5.0-linux-x86_64-source, verify
-sha256sum -c SHA256SUMS and follow README-SOURCE.txt.
-The source snapshot is 753c730c9f444a36d0a6b17efa2c10e5b51b88a2.
-Supply the adjacent final development receipt to rebuild.sh for compile IDs.
-This unsigned source-only qualification is not publisher authentication,
-final package qualification, byte-identical reproduction or application E2E.
+Download all three listed independent volumes. Verify source-volumes.SHA256SUMS.
+Extract each tar.gz into the same directory; never concatenate archives.
+Verify SHA256SUMS inside vadgr-0.5.0-linux-x86_64-source and follow README-SOURCE.txt.
+Supply the adjacent final development receipt for compile configuration.
+Source snapshot: f8683e303d3405b998156a15791d2d9524055e4b. Two local accessibility crates carry patches.
+Measured source-only qualification is not E2E or publisher authentication.

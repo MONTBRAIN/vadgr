@@ -7,7 +7,7 @@
     ]
   },
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-bbc34199166c64f87699f62e4ecbaababd35a9015270520b4435af6b8a5ad708",
+  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-862bf9eee7e10ded886073a711baaabc910c675d37c44d0cc408a4b13e728046",
   "hasExtractedLicensingInfos": [
     {
       "comment": "Exact retained terms; this identifier is not an approval or a claim of SPDX-list equivalence.",
@@ -427,11 +427,11 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "1e8c61bee90b42a772d39d06a740207dc71a4e780004ace1db8d99fb1baaa954"
+          "checksumValue": "2b1afd0ea9983bb97fd969d934b2bc5556d5b968e59c4d0985b3be2beb9dcb01"
         }
       ],
       "copyrightText": "// Copyright 2017 The Chromium Authors. All rights reserved.\n// Copyright 2022 The AccessKit Authors. All rights reserved.\n// Copyright 2023 The AccessKit Authors. All rights reserved.\n// Copyright 2024 The AccessKit Authors. All rights reserved.\n// Copyright 2026 The AccessKit Authors. All rights reserved.",
-      "downloadLocation": "https://static.crates.io/crates/accesskit_atspi_common/accesskit_atspi_common-0.18.1.crate",
+      "downloadLocation": "https://raw.githubusercontent.com/MONTBRAIN/vadgr/f8683e303d3405b998156a15791d2d9524055e4b/packaging/rust-patches/accesskit_atspi_common-0.18.1.json",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0 AND BSD-3-Clause",
       "licenseDeclared": "MIT OR Apache-2.0",
@@ -459,11 +459,11 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "b016ca8db0ea0ea2ceff29a9d6240391492d960716aa471967c00e8cc8cb197c"
+          "checksumValue": "718cfe03447e8cfecab6258506763d907e6e5ee215fee5f995a205db75d56692"
         }
       ],
       "copyrightText": "// Copyright 2022 The AccessKit Authors. All rights reserved.\n// Copyright 2023 The AccessKit Authors. All rights reserved.\n// Copyright 2024 The AccessKit Authors. All rights reserved.\n// Copyright 2024 Zeeshan Ali Khan.\n// Copyright 2026 The AccessKit Authors. All rights reserved.",
-      "downloadLocation": "https://static.crates.io/crates/accesskit_unix/accesskit_unix-0.21.1.crate",
+      "downloadLocation": "https://raw.githubusercontent.com/MONTBRAIN/vadgr/f8683e303d3405b998156a15791d2d9524055e4b/packaging/rust-patches/accesskit_unix-0.21.1.json",
       "filesAnalyzed": false,
       "licenseConcluded": "Apache-2.0 AND MIT",
       "licenseDeclared": "MIT OR Apache-2.0",

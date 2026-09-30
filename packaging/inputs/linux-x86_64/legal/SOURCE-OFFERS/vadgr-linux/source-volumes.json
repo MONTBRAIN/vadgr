@@ -1,34 +1,34 @@
 {
-  "application_files": 173,
-  "compile_identity": "Read adjacent development receipt at recipient build time; no final identity embedded",
+  "application_files": 229,
+  "compile_identity": "Read adjacent final development receipt at recipient build time.",
   "complete_original_crate_archives": 557,
   "e2e": "not run",
-  "file_manifest_sha256": "800b564ce4753cf0a91e2d6faf2667caaad1c4fc2f40ec035e805752e627c473",
-  "file_members": 28919,
+  "file_manifest_sha256": "bac4ab3d908a7aee86f4aaaa1efa866afe5d1001e19de42bfefb2df277a9840f",
+  "file_members": 28973,
   "legal_approval": false,
   "resolution_manifest_stubs": 158,
   "root_directory": "vadgr-0.5.0-linux-x86_64-source",
   "schema": 1,
-  "source_snapshot_commit": "753c730c9f444a36d0a6b17efa2c10e5b51b88a2",
-  "source_snapshot_tree": "9bcb5907e27a870d69bc41368dbf5e1786a8eb2c",
+  "source_snapshot_commit": "f8683e303d3405b998156a15791d2d9524055e4b",
+  "source_snapshot_tree": "a39a084d9d88b6b24666814c50d8c1361e16e91a",
   "volumes": [
     {
       "archive": "vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz",
-      "bytes": 64720013,
-      "file_members": 714,
-      "sha256": "b312481220e76216eb1567be2cd32547c14a7272fedb9130fc153179d0928490"
+      "bytes": 64788116,
+      "file_members": 767,
+      "sha256": "e2e9e23c9e085782e95639896c17457b0838b7de5d0384b4819594bb15eb98c8"
     },
     {
       "archive": "vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz",
-      "bytes": 52190215,
-      "file_members": 18257,
-      "sha256": "eb1cdaf29f17bcb5db04565c3be1388fb759862d287cdb2e92e2fa0fc3802665"
+      "bytes": 52202992,
+      "file_members": 18250,
+      "sha256": "4224a1fa736bb897edb653aa4ea1848a34aaacffd251214c2efd4466d772ed15"
     },
     {
       "archive": "vadgr-0.5.0-linux-x86_64-source.volume-03.tar.gz",
-      "bytes": 17022783,
-      "file_members": 9948,
-      "sha256": "8348cf0b4e03cc9a553df5bd37baaee9dddfc2c91d253abeb48826e5d576324e"
+      "bytes": 17028401,
+      "file_members": 9956,
+      "sha256": "9404d7d0061da2953d9e35e2c712b10c641e5fc0984c90536b02cf0bcc4c9573"
     }
   ]
 }
