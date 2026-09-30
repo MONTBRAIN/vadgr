@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa",
+  "original_statement_files": [
+    {
+      "path": "adler2-2.0.1/LICENSE-0BSD",
+      "sha256": "861399f8c21c042b110517e76dc6b63a2b334276c8cf17412fc3c8908ca8dc17",
+      "size": 665,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (C) Jonas Schievink <jonasschievink@gmail.com>"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

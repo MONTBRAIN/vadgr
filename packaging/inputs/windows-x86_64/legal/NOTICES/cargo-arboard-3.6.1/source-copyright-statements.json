@@ -1,0 +1,72 @@
+{
+  "archive_sha256": "0348a1c054491f4bfe6ab86a7b6ab1e44e45d899005de92f58b3df180b36ddaf",
+  "original_statement_files": [
+    {
+      "path": "arboard-3.6.1/LICENSE-MIT.txt",
+      "sha256": "f35468024534e0f4f16bb94cd0e88c87fbd1314f919c2645a07d350fb77b40c0",
+      "size": 1081,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2022 The Arboard contributors"
+        }
+      ]
+    },
+    {
+      "path": "arboard-3.6.1/src/common.rs",
+      "sha256": "247d4f33960701fb1ca854de900894631e0af4de5a13cbf1ab72616228c68b4b",
+      "size": 6102,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright 2022 The Arboard contributors"
+        }
+      ]
+    },
+    {
+      "path": "arboard-3.6.1/src/lib.rs",
+      "sha256": "06b20208c4d18d28dfded5f004d639f0e182aa204b633116dc39f69495c31a93",
+      "size": 16043,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright 2022 The Arboard contributors"
+        }
+      ]
+    },
+    {
+      "path": "arboard-3.6.1/src/platform/linux/x11.rs",
+      "sha256": "57058170d748f75df9081dc2d886e8a2fa4fa9ca46af09c37bc5eda36309c053",
+      "size": 37739,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright 2022 The Arboard contributors"
+        }
+      ]
+    },
+    {
+      "path": "arboard-3.6.1/src/platform/osx.rs",
+      "sha256": "34ee374c87aa79fa2b7b3ac7cf94cadb4a6f2300341b650865d32742c7245e57",
+      "size": 13653,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright 2022 The Arboard contributors"
+        }
+      ]
+    },
+    {
+      "path": "arboard-3.6.1/src/platform/windows.rs",
+      "sha256": "bbc0a5a0fdfa3a79c3745b73793eb97bcbe28bd889185ae02971c19e2ce23423",
+      "size": 36084,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright 2022 The Arboard contributors"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

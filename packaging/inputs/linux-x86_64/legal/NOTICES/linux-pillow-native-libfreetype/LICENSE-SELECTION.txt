@@ -1,0 +1,1 @@
+The FreeType License (FTL) is selected, not the alternative GPL. Original BDF, PCF, hash and HarfBuzz-adapter exception notices are retained. The required FreeType acknowledgement is included in Pillow ACKNOWLEDGMENTS.txt. Complete matching FreeType source accompanies the Pillow relink materials.

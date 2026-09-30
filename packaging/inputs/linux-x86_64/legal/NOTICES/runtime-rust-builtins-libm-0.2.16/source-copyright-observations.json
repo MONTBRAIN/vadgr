@@ -1,0 +1,594 @@
+{
+  "original_statement_files": [
+    {
+      "path": "compiler-builtins/libm/LICENSE.txt",
+      "sha256": "3823dda7cf046602f4b4e77ec8e227863dc4736037cc85bb33d9f19febe16bb7",
+      "statements": [
+        {
+          "line": 230,
+          "text": "Copyright (c) 2018 Jorge Aparicio"
+        },
+        {
+          "line": 238,
+          "text": "Copyright \u00a9 2005-2020 Rich Felker, et al."
+        },
+        {
+          "line": 248,
+          "text": "Copyright \u00a9 1993,2004 Sun Microsystems or"
+        },
+        {
+          "line": 249,
+          "text": "Copyright \u00a9 2003-2011 David Schultz or"
+        },
+        {
+          "line": 250,
+          "text": "Copyright \u00a9 2003-2009 Steven G. Kargl or"
+        },
+        {
+          "line": 251,
+          "text": "Copyright \u00a9 2003-2009 Bruce D. Evans or"
+        },
+        {
+          "line": 252,
+          "text": "Copyright \u00a9 2008 Stephen L. Moshier or"
+        },
+        {
+          "line": 253,
+          "text": "Copyright \u00a9 2017-2018 Arm Limited"
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/acos.rs",
+      "sha256": "efd83a6138061209867f06421c6a756b8ca3aab5c6c0a85c4aba31bedb299da5",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/acosf.rs",
+      "sha256": "c5c9c74d267725bbe5f9319e6f4a396af6ce46c890b601d3f963a5d74d12e4c3",
+      "statements": [
+        {
+          "line": 7,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/approx/cbrtf64.rs",
+      "sha256": "7344cf87169de41ffcf2f94d356603cf5093353e7e9b52bfbfb3c34206d5264e",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/asin.rs",
+      "sha256": "9693a7cb61674ec6fe22be9db8fe20276729c48b1562fd86d5421e372a0a12e4",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/asinf.rs",
+      "sha256": "25f6b7bbf46fc5aac4ebdd9e00118239747dcd28a79b90b858ddc4633d773d65",
+      "statements": [
+        {
+          "line": 7,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/atan.rs",
+      "sha256": "54181dbddf4f77b90b32b9f6819ac989da570dc02b791f3685d20a23d51324be",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/atan2.rs",
+      "sha256": "bb042e1e1b9f080bba1c7b29947f6c4ec9413807fae95000df2c4b50ab97650b",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/atan2f.rs",
+      "sha256": "b9497b5adb75e2788c404fd121aa64dcfa0e9357b67af3b3e7e6d4624dae1ca1",
+      "statements": [
+        {
+          "line": 7,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/atanf.rs",
+      "sha256": "197762f16ed5951236e17d0869c529e857acc329cc287df019ff69e5401f3b4d",
+      "statements": [
+        {
+          "line": 7,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/cbrt.rs",
+      "sha256": "6f25fdb3b8c5cb5950f8d82e28c36a099865bbd4048cf7924e70b72b6f997822",
+      "statements": [
+        {
+          "line": 3,
+          "text": "* Copyright (c) 2021-2022 Alexei Sibidanov."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/cbrtf.rs",
+      "sha256": "7a2b4f190e8618c52cb23b47c040a4b4eacca739c68393cf14fb3f5d73988127",
+      "statements": [
+        {
+          "line": 8,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/cos.rs",
+      "sha256": "6e81752899c471bd42d04bdf08e0b22bc10a29f92fa2a343281b995fd342f035",
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/cosf.rs",
+      "sha256": "f48aa954f199fe4f54fd73b4e7886a75f2c08afba7fc31c6a36db5b5f90ced69",
+      "statements": [
+        {
+          "line": 8,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/erf.rs",
+      "sha256": "5a69f440d5ca88a5c4a45119837c45b14238836a036675230e10fec41d293a3b",
+      "statements": [
+        {
+          "line": 5,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/erff.rs",
+      "sha256": "62c30876390e532d7dc9ac1f1f1c1f654065fba2b2e534e531964d79e1766196",
+      "statements": [
+        {
+          "line": 7,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/exp.rs",
+      "sha256": "f48970e2b92d4cc0e997abcd9d54bfaf6b8dd689a8b62916ff1fcc396f6ef700",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 2004 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/exp2.rs",
+      "sha256": "7e73d7528d1407670d123a17a207242e98eb2f829a9b0dc91071200379adf63c",
+      "statements": [
+        {
+          "line": 3,
+          "text": "// Copyright (c) 2005 David Schultz <das@FreeBSD.ORG>"
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/exp2f.rs",
+      "sha256": "1c0f02200a85a01e37b4657076963e0c6670f8f3d9dd1db80a64cec268d40027",
+      "statements": [
+        {
+          "line": 3,
+          "text": "// Copyright (c) 2005 David Schultz <das@FreeBSD.ORG>"
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/expf.rs",
+      "sha256": "983bf3922bed804ec889890a0e7d31641fd7098588645dad47920915c2753950",
+      "statements": [
+        {
+          "line": 7,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/expm1.rs",
+      "sha256": "6cc612ca7cf1384dc15f541b301a1f176efbc79536aff1293408b3121cc30ad3",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/expm1f.rs",
+      "sha256": "2b517f1bcb6279c906aad737f08c83ac30d7871e3beff266ea50a01fa18ccc81",
+      "statements": [
+        {
+          "line": 7,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/hypot.rs",
+      "sha256": "9fe0c6983bd0ab90984b40ff7905d17caee6423a772264846e6ae54e2e8f4403",
+      "statements": [
+        {
+          "line": 3,
+          "text": "* Copyright (c) 2022 Alexei Sibidanov."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/j0.rs",
+      "sha256": "1cb991f0151a626744ad1832d4aedfaca681bcfcecc797de5ac5e9baf2342006",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/j0f.rs",
+      "sha256": "de97374b6a0019fd8b3d1f553be1708018546491d3b4a5fc650ee2dcdfc9620e",
+      "statements": [
+        {
+          "line": 7,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/j1.rs",
+      "sha256": "e0a10746fd11a458d55ee61e758d9f016ff0f2203a07eb9907b5aca709a40469",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/j1f.rs",
+      "sha256": "b747ee287cdddd6d0d0d3f65a186e6605fe6b79bc9c55ffbd27a9205b7a3d07c",
+      "statements": [
+        {
+          "line": 7,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/jn.rs",
+      "sha256": "ba36d25d4bbada83aadb3b2986879b7d88b91adb7b502061d21bf96ff3942194",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/jnf.rs",
+      "sha256": "b3861e19644ae669fe17db81d91aeaee9c9f9051b59957ab674017684c98fe32",
+      "statements": [
+        {
+          "line": 7,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/k_cos.rs",
+      "sha256": "d4867527877c846aa8e2a0b43cf06f03e2d94c321a548acaf8d5171c09ff4057",
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/k_cosf.rs",
+      "sha256": "8f76089d014e217b96c9eca520271e64d467dc0d6542bf313dd70eb96c040f7f",
+      "statements": [
+        {
+          "line": 8,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/k_sin.rs",
+      "sha256": "dfe6524cb2d530ec51eb1a2ab233aeb65b3f12177c1fb2f50f044ea41170f5d8",
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/k_sinf.rs",
+      "sha256": "cf0e8bbe8d73a6704b7f1f710f5b9d31f190f1c633e894d4f69c4e3bc359eba3",
+      "statements": [
+        {
+          "line": 8,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/k_tan.rs",
+      "sha256": "dc3f8ece9187bbd65792a7d1068e676092e9c2a0886f28c80579f9bd94d744b7",
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright 2004 Sun Microsystems, Inc.  All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/k_tanf.rs",
+      "sha256": "3381d2d4865bfc98e87aadb96bd8986f7691a389569a58fb1cb8db74fb5d9c20",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright 2004 Sun Microsystems, Inc.  All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/lgamma_r.rs",
+      "sha256": "46d8850ccb72445128e5fd1c15235730298cd1a5e0726abd946f6d0d3605a12d",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/lgammaf_r.rs",
+      "sha256": "c77d6d8a3c9e6f306bfdad3930fb7d96d57fca8fa8c1b666fc65f4db18e190f4",
+      "statements": [
+        {
+          "line": 7,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/log.rs",
+      "sha256": "df5f4d1325e89621bfcd9cf7788d0d7e20a6ef7f429110fe35b370b3c9362615",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/log10.rs",
+      "sha256": "4a96dd2b6a2a505497f2bb7ea956a50491d068dab1b6055a573aec1724a52e40",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/log10f.rs",
+      "sha256": "784a576dd4a4071f4f67c670eb9b221cb03014818c4b2d71afbcbd2211431caf",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/log1p.rs",
+      "sha256": "bb8ce741e54d8f001d9c12450a14a663bd413014da2ade9ba1f5fbc9ff0c9a88",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/log1pf.rs",
+      "sha256": "8736222a9b9004b061f1339bb819c63c6b54414d4a01ef79d5f5a5f0a70677b5",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/log2.rs",
+      "sha256": "1ec0cdd94bf4435ff0402d209089b1bdbcb1ba9a4cd5f77807f9c84cf534f980",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/log2f.rs",
+      "sha256": "7b3b17ba08df6b5a57dacf6f945bfe1a3c088bee0eb11e201ac5affc7f65925a",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/logf.rs",
+      "sha256": "c7dfa5e89fcca0411624fdc594f64c62d5dfa3b91f061fcb7ac3aea18414f238",
+      "statements": [
+        {
+          "line": 7,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/pow.rs",
+      "sha256": "581efb544966f82f440137757bbbdec99d873c3121efde0294493c4a9fc9d259",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 2004 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/powf.rs",
+      "sha256": "819971cb8e927d80113aded3cfe90dcd501c031e0eb1c562b58842fddd1751be",
+      "statements": [
+        {
+          "line": 7,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/rem_pio2.rs",
+      "sha256": "931b9b421bc9c485893d5ab1b8c19c67c263ad5e1adab507a00abda5c773336d",
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/rem_pio2_large.rs",
+      "sha256": "494513e8a741239b0e783c5dbf3399ad770e9c8646163ee8694372049b94099a",
+      "statements": [
+        {
+          "line": 7,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/rem_pio2f.rs",
+      "sha256": "e0716d71239538ef8cfa59292bb807d72d43a039a63822b18bd6c2f9a4027116",
+      "statements": [
+        {
+          "line": 8,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/sin.rs",
+      "sha256": "9a3779d0b2a59cbafcfba0cf1c07ef42747f145b1e149c7d4ad3beb2bbda3fa0",
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/sincos.rs",
+      "sha256": "a9c414e828c2e78b6bce4d5e4237b1baa93e81d78421aed5cedeab43df64067f",
+      "statements": [
+        {
+          "line": 4,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/sincosf.rs",
+      "sha256": "af8b801067bc05f25763c2c6530330540bc5cb2d6014f400ec41c2706d62c537",
+      "statements": [
+        {
+          "line": 8,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/sinf.rs",
+      "sha256": "b17db34d5da39a0f336d831abcb700fab69402c915321823870f1845e66c03d2",
+      "statements": [
+        {
+          "line": 8,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/tan.rs",
+      "sha256": "2ea87ca18526753db6d149635ed6c895c8fbafd1e0fa7a9c04f7dc44b4eae986",
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "compiler-builtins/libm/src/math/tanf.rs",
+      "sha256": "f7140c4193a57709acde5d290c8f83435562da42924c54cab0aa3a4f26095190",
+      "statements": [
+        {
+          "line": 8,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    }
+  ],
+  "scope": "Original exact source claims retain their file paths; not an assertion that every source file contributes to the final binary.",
+  "source_archive_sha256": "e9a1e616d04c6845895c827a178b9227f7c7199f3f4a80af81ab3aff7b80156b"
+}

@@ -1,0 +1,854 @@
+{
+  "archive_sha256": "23d0c813de3daa2ed6520af85a3bd49b0e722a3078506899aa9686fea58dc4b6",
+  "original_statement_files": [
+    {
+      "path": "wayland-protocols-0.32.13/LICENSE.txt",
+      "sha256": "1cb6f4dee8c649f175736380495f0af0c753c87f22d50931692968bb24bf2161",
+      "size": 1057,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2015 Elinor Berger"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/COPYING",
+      "sha256": "f1a2b233e8a9a71c40f4aa885be08a0842ac85bb8588703c1dd7e6e6502e3124",
+      "size": 1502,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright \u00a9 2008-2013 Kristian H\u00f8gsberg"
+        },
+        {
+          "line": 2,
+          "text": "Copyright \u00a9 2010-2013 Intel Corporation"
+        },
+        {
+          "line": 3,
+          "text": "Copyright \u00a9 2013      Rafael Antognolli"
+        },
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2013      Jasper St. Pierre"
+        },
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2014      Jonas \u00c5dahl"
+        },
+        {
+          "line": 6,
+          "text": "Copyright \u00a9 2014      Jason Ekstrand"
+        },
+        {
+          "line": 7,
+          "text": "Copyright \u00a9 2014-2015 Collabora, Ltd."
+        },
+        {
+          "line": 8,
+          "text": "Copyright \u00a9 2015      Red Hat Inc."
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/stable/linux-dmabuf/linux-dmabuf-v1.xml",
+      "sha256": "2735bb4589cbb364dfcb6a821dd3abbf0c0257956b716b9691718ddfd453df4c",
+      "size": 30690,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2014, 2015 Collabora, Ltd."
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/stable/presentation-time/presentation-time.xml",
+      "sha256": "dffac93bcb2bb1d8c385e72b8a8c2c0d4d79a336866322f3ba886dce2b27b1e2",
+      "size": 12890,
+      "statements": [
+        {
+          "line": 6,
+          "text": "Copyright \u00a9 2013-2014 Collabora, Ltd."
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/stable/tablet/tablet-v2.xml",
+      "sha256": "ac1128b26c779cf90b9ed71182ba5e34a7262826789adae206d825a4d45908b4",
+      "size": 56775,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright 2014 \u00a9 Stephen \"Lyude\" Chandler Paul"
+        },
+        {
+          "line": 6,
+          "text": "Copyright 2015-2024 \u00a9 Red Hat, Inc."
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/stable/viewporter/viewporter.xml",
+      "sha256": "dcb12279a03746301fe490aaed4b38a403485a925abfce2ccfceb644e104fe71",
+      "size": 8133,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2013-2016 Collabora, Ltd."
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/stable/xdg-shell/xdg-shell.xml",
+      "sha256": "7ba7f9c8473deee674cb1f154a18abd0bb0cc072604fc055b0c15e459fc4c7df",
+      "size": 63846,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2008-2013 Kristian H\u00f8gsberg"
+        },
+        {
+          "line": 6,
+          "text": "Copyright \u00a9 2013      Rafael Antognolli"
+        },
+        {
+          "line": 7,
+          "text": "Copyright \u00a9 2013      Jasper St. Pierre"
+        },
+        {
+          "line": 8,
+          "text": "Copyright \u00a9 2010-2013 Intel Corporation"
+        },
+        {
+          "line": 9,
+          "text": "Copyright \u00a9 2015-2017 Samsung Electronics Co., Ltd"
+        },
+        {
+          "line": 10,
+          "text": "Copyright \u00a9 2015-2017 Red Hat Inc."
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/alpha-modifier/alpha-modifier-v1.xml",
+      "sha256": "f0b4a43b9e48783fafdb46319fa72b34a41afd932f8613d7cadaf7203f2ffa35",
+      "size": 4703,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2024 Xaver Hugl"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/color-management/color-management-v1.xml",
+      "sha256": "18a2678e3352c3be3fbeed20005d48852b7235d0d78f08b9c987a0b8e91449f9",
+      "size": 79910,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright 2019 Sebastian Wick"
+        },
+        {
+          "line": 5,
+          "text": "Copyright 2019 Erwin Burema"
+        },
+        {
+          "line": 6,
+          "text": "Copyright 2020 AMD"
+        },
+        {
+          "line": 7,
+          "text": "Copyright 2020-2024 Collabora, Ltd."
+        },
+        {
+          "line": 8,
+          "text": "Copyright 2024 Xaver Hugl"
+        },
+        {
+          "line": 9,
+          "text": "Copyright 2022-2025 Red Hat, Inc."
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/color-representation/color-representation-v1.xml",
+      "sha256": "b824688e0e5c1d01e12afe1d3f82503092ec7599affcd6471fda6d296d4f7e3b",
+      "size": 18285,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright 2022 Simon Ser"
+        },
+        {
+          "line": 5,
+          "text": "Copyright 2022 Red Hat, Inc."
+        },
+        {
+          "line": 6,
+          "text": "Copyright 2022 Collabora, Ltd."
+        },
+        {
+          "line": 7,
+          "text": "Copyright 2022-2025 Red Hat, Inc."
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/commit-timing/commit-timing-v1.xml",
+      "sha256": "ff3fcf31d13d44bad756a50fda663a43008bacbbd2bf8cba3a1bf5ffe7f54172",
+      "size": 5528,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2023 Valve Corporation"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/content-type/content-type-v1.xml",
+      "sha256": "203d17a26baa2ab4a8c2c9cb737c953fa3263c73a0a8aa6e552a41b3eac2196d",
+      "size": 5734,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2021 Emmanuel Gil Peyrot"
+        },
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2022 Xaver Hugl"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/cursor-shape/cursor-shape-v1.xml",
+      "sha256": "bb57d91e53a79dadab7c612dab87c233393cee73673feefa7442cfbfdd9aed2f",
+      "size": 9142,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright 2018 The Chromium Authors"
+        },
+        {
+          "line": 5,
+          "text": "Copyright 2023 Simon Ser"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/drm-lease/drm-lease-v1.xml",
+      "sha256": "18f325e92285473eca0567ea1038abb16849b8638b36e458ff551f3ca68ef80c",
+      "size": 15776,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2018 NXP"
+        },
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2019 Status Research &amp; Development GmbH."
+        },
+        {
+          "line": 6,
+          "text": "Copyright \u00a9 2021 Xaver Hugl"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/ext-background-effect/ext-background-effect-v1.xml",
+      "sha256": "e463b7863c97d7be05489b52b15cd0b3a5d8290b51340f62023b47d03b4217e3",
+      "size": 5590,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright (C) 2015 Martin Gr\u00e4\u00dflin"
+        },
+        {
+          "line": 5,
+          "text": "Copyright (C) 2015 Marco Martin"
+        },
+        {
+          "line": 6,
+          "text": "Copyright (C) 2020 Vlad Zahorodnii"
+        },
+        {
+          "line": 7,
+          "text": "Copyright (C) 2024 Xaver Hugl"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/ext-data-control/ext-data-control-v1.xml",
+      "sha256": "293deba5dfdb974fbcf8dcf891a30a51a36a8bba0047dc6bdf6a03194089b7fb",
+      "size": 12029,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2018 Simon Ser"
+        },
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2019 Ivan Molodetskikh"
+        },
+        {
+          "line": 6,
+          "text": "Copyright \u00a9 2024 Neal Gompa"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/ext-foreign-toplevel-list/ext-foreign-toplevel-list-v1.xml",
+      "sha256": "6b2ffb3a07d679d1c4170263adfefb9a7c37dd34ed3db5180bf58cb8ff8fbd0b",
+      "size": 10021,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2018 Ilia Bozhinov"
+        },
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2020 Isaac Freund"
+        },
+        {
+          "line": 6,
+          "text": "Copyright \u00a9 2022 wb9688"
+        },
+        {
+          "line": 7,
+          "text": "Copyright \u00a9 2023 i509VCB"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/ext-idle-notify/ext-idle-notify-v1.xml",
+      "sha256": "e56a9c22684e6b46655f7221b798328e304c1efc8f63f01241a1cf8c070f4c30",
+      "size": 5881,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2015 Martin Gr\u00e4\u00dflin"
+        },
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2022 Simon Ser"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/ext-image-capture-source/ext-image-capture-source-v1.xml",
+      "sha256": "4ef41d15e4cdb9f550158391358ceec724a6708b43b7efedec03121a6bb8458d",
+      "size": 5035,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2022 Andri Yngvason"
+        },
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2024 Simon Ser"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/ext-image-copy-capture/ext-image-copy-capture-v1.xml",
+      "sha256": "41a446653f788fabb404cab3168c0bd667c1ff4b54f1f0bb1e18810a1f47d73f",
+      "size": 19006,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2021-2023 Andri Yngvason"
+        },
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2024 Simon Ser"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/ext-session-lock/ext-session-lock-v1.xml",
+      "sha256": "a05df7d95c5e523e457037b3a149484e8064828cda66971f3c7caeb87d597a81",
+      "size": 16072,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright 2021 Isaac Freund"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/ext-transient-seat/ext-transient-seat-v1.xml",
+      "sha256": "d7d836047218030558bbd4e706e6a9b7e91338c4b2b637215be6a5d26da58d81",
+      "size": 4672,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2020 - 2023 Andri Yngvason"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/ext-workspace/ext-workspace-v1.xml",
+      "sha256": "9b449d9d5d40f6032eba9813d18093b84f249a2cf38d6755dec7bca7eb96b0f3",
+      "size": 19572,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2019 Christopher Billington"
+        },
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2020 Ilia Bozhinov"
+        },
+        {
+          "line": 6,
+          "text": "Copyright \u00a9 2022 Victoria Brekenfeld"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/fifo/fifo-v1.xml",
+      "sha256": "0b6c31dfe6bca19b712745c9de7a4a398558cfa1087b1938e96fd3b10ffc1069",
+      "size": 6268,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2023 Valve Corporation"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/fractional-scale/fractional-scale-v1.xml",
+      "sha256": "5941de5d28f427ecdadddc8623a6f6af0a30b0ab4726847236ba7a7652b81316",
+      "size": 4636,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2022 Kenny Levinsen"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/linux-drm-syncobj/linux-drm-syncobj-v1.xml",
+      "sha256": "5ede41a56eced6aa635caa7ab2996066bff9fd211620dbf9f73aafab740bec71",
+      "size": 12655,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright 2016 The Chromium Authors."
+        },
+        {
+          "line": 5,
+          "text": "Copyright 2017 Intel Corporation"
+        },
+        {
+          "line": 6,
+          "text": "Copyright 2018 Collabora, Ltd"
+        },
+        {
+          "line": 7,
+          "text": "Copyright 2021 Simon Ser"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/pointer-warp/pointer-warp-v1.xml",
+      "sha256": "1389e89c68c6f6d231fd2dcda57fa9c75c5230d0ac1deffa8d80a7648e197e66",
+      "size": 3519,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2024 Neal Gompa"
+        },
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2024 Xaver Hugl"
+        },
+        {
+          "line": 6,
+          "text": "Copyright \u00a9 2024 Matthias Klumpp"
+        },
+        {
+          "line": 7,
+          "text": "Copyright \u00a9 2024 Vlad Zahorodnii"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/security-context/security-context-v1.xml",
+      "sha256": "f4f8ba15ebd2df62db611b1de32e992f660a4aeeea83250cb88fa468da42ffcb",
+      "size": 8093,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2021 Simon Ser"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/single-pixel-buffer/single-pixel-buffer-v1.xml",
+      "sha256": "4c2cc1355b06a2d2fe68ccb1cf4b72cca51e1ba21c5d3e0c404f577f40d1301e",
+      "size": 3492,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2022 Simon Ser"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/tearing-control/tearing-control-v1.xml",
+      "sha256": "846895b4a90ba1ddd75673cefc596480beef318f1694ec7dbca0fec54bb27043",
+      "size": 5655,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2021 Xaver Hugl"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/xdg-activation/xdg-activation-v1.xml",
+      "sha256": "d8418be2d5738d50aff788bef1c7574f33f26659aa045447ff2ef9b78c58fe01",
+      "size": 9016,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2020 Aleix Pol Gonzalez &lt;aleixpol@kde.org&gt;"
+        },
+        {
+          "line": 6,
+          "text": "Copyright \u00a9 2020 Carlos Garnacho &lt;carlosg@gnome.org&gt;"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/xdg-dialog/xdg-dialog-v1.xml",
+      "sha256": "2822956bdf13d51848ff4b5e29c509028c1204c6e06262ee926b001f43a42dbb",
+      "size": 4832,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2023 Carlos Garnacho"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/xdg-session-management/xdg-session-management-v1.xml",
+      "sha256": "3674591ca8e68f76297c535e8edd6783d84b59086c38ebe08ff5ff1f2dec5bae",
+      "size": 15523,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright 2018 Mike Blumenkrantz"
+        },
+        {
+          "line": 5,
+          "text": "Copyright 2018 Samsung Electronics Co., Ltd"
+        },
+        {
+          "line": 6,
+          "text": "Copyright 2018 Red Hat Inc."
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/xdg-system-bell/xdg-system-bell-v1.xml",
+      "sha256": "863c5efcb1a19961c019d23b9875ab84a158da802f5622f5ecc30522c6019330",
+      "size": 2698,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2016, 2023 Red Hat"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/xdg-toplevel-drag/xdg-toplevel-drag-v1.xml",
+      "sha256": "687d7a1db0ced0e2794dc2d5be1a80b1dc71c46a055aedd882838586345ee1dc",
+      "size": 6884,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright 2023 David Redondo"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/xdg-toplevel-icon/xdg-toplevel-icon-v1.xml",
+      "sha256": "5e57a72fa9ccf1666c56d49cc86408f068c21e5e6a09ddd468ee65d08478f882",
+      "size": 9597,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2023-2024 Matthias Klumpp"
+        },
+        {
+          "line": 6,
+          "text": "Copyright \u00a9      2024 David Edmundson"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/xdg-toplevel-tag/xdg-toplevel-tag-v1.xml",
+      "sha256": "bde3615b434a237388c5592028345eef185ab1e7ade9023dd2413a4b2c56ab9f",
+      "size": 4135,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2024 Xaver Hugl"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/staging/xwayland-shell/xwayland-shell-v1.xml",
+      "sha256": "a6589c3205d1f424cbd2708c1507daf143db2d355dcd931f6f79986c0dc205b6",
+      "size": 7561,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2022 Joshua Ashton"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/unstable/fullscreen-shell/fullscreen-shell-unstable-v1.xml",
+      "sha256": "fcc50bf0b48610d55bbe096a53da433e8557ea36a31feba2d77bf0cb9181bb52",
+      "size": 12272,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2016 Yong Bakos"
+        },
+        {
+          "line": 6,
+          "text": "Copyright \u00a9 2015 Jason Ekstrand"
+        },
+        {
+          "line": 7,
+          "text": "Copyright \u00a9 2015 Jonas \u00c5dahl"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/unstable/idle-inhibit/idle-inhibit-unstable-v1.xml",
+      "sha256": "c2ac9f002c6669ca6c02eb9b587b8e9108e3ce6deab4a2de58b576f4f864ca38",
+      "size": 4017,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2015 Samsung Electronics Co., Ltd"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/unstable/input-method/input-method-unstable-v1.xml",
+      "sha256": "e04464e22eee9ac67e21c3316c8bb47293656902c2f26b91ebdd8b40eeba03a0",
+      "size": 12625,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2012, 2013 Intel Corporation"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/unstable/input-timestamps/input-timestamps-unstable-v1.xml",
+      "sha256": "92d9911f070407d470458f59ffdee5406ce3b6368270a93e6ecd9f4f71368bb0",
+      "size": 7129,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2017 Collabora, Ltd."
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/unstable/keyboard-shortcuts-inhibit/keyboard-shortcuts-inhibit-unstable-v1.xml",
+      "sha256": "9117d9e8ec02e9a3c3c55803b41e1227e76986f555f7c12eeb29f796fa63e69b",
+      "size": 6645,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2017 Red Hat Inc."
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/unstable/linux-explicit-synchronization/linux-explicit-synchronization-unstable-v1.xml",
+      "sha256": "4d83eed81e2911ec7731137d4209f685faeab76c15a994d8a46963a83fce02ea",
+      "size": 11964,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright 2016 The Chromium Authors."
+        },
+        {
+          "line": 6,
+          "text": "Copyright 2017 Intel Corporation"
+        },
+        {
+          "line": 7,
+          "text": "Copyright 2018 Collabora, Ltd"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml",
+      "sha256": "f980fac900ba1dcfbbe97f588fc17b893926bd2b57624563653a1bfe4d035948",
+      "size": 15115,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2014      Jonas \u00c5dahl"
+        },
+        {
+          "line": 6,
+          "text": "Copyright \u00a9 2015      Red Hat Inc."
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/unstable/pointer-gestures/pointer-gestures-unstable-v1.xml",
+      "sha256": "9f7b6ad542f444001312113395b8de6f24e59d6f0c57c9b44f6c3c498ef004d7",
+      "size": 12587,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2015, 2021 Red Hat Inc."
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/unstable/primary-selection/primary-selection-unstable-v1.xml",
+      "sha256": "d568482ba84df6e531698b1f531810860995ca24d69495427fe43aee6017f52c",
+      "size": 10469,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2015, 2016 Red Hat"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/unstable/relative-pointer/relative-pointer-unstable-v1.xml",
+      "sha256": "ab4930dd3084f732b6fdd12ee6dbd0a112a758ed8a57b170366391dbeb1a22ff",
+      "size": 6584,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2014      Jonas \u00c5dahl"
+        },
+        {
+          "line": 6,
+          "text": "Copyright \u00a9 2015      Red Hat Inc."
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/unstable/tablet/tablet-unstable-v1.xml",
+      "sha256": "2816521e2716a98faa6f4f026527ec0912f8876136d58527ec3356553471fc6d",
+      "size": 28788,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright 2014 \u00a9 Stephen \"Lyude\" Chandler Paul"
+        },
+        {
+          "line": 6,
+          "text": "Copyright 2015-2016 \u00a9 Red Hat, Inc."
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/unstable/text-input/text-input-unstable-v1.xml",
+      "sha256": "a3671b8e50ebe04f4d114c7b982763ae2964e44be163fb3e9eb30efca8a111b1",
+      "size": 16320,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2012, 2013 Intel Corporation"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/unstable/text-input/text-input-unstable-v3.xml",
+      "sha256": "160815cda13c285a30df1971d8f0a5b3aac07071537df59916d2f748b18e4f59",
+      "size": 28120,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2012, 2013 Intel Corporation"
+        },
+        {
+          "line": 6,
+          "text": "Copyright \u00a9 2015, 2016 Jan Arne Petersen"
+        },
+        {
+          "line": 7,
+          "text": "Copyright \u00a9 2017, 2018 Red Hat, Inc."
+        },
+        {
+          "line": 8,
+          "text": "Copyright \u00a9 2018       Purism SPC"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml",
+      "sha256": "68753c4a85a28659e3aa1fe0f138329a8bf3dff0b4789f4663a2c7fedbfecf2f",
+      "size": 8240,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2018 Simon Ser"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/unstable/xdg-foreign/xdg-foreign-unstable-v1.xml",
+      "sha256": "bf5ea82077193a03b511e04f483a2a1bcf7f91e3e93bc550be4a69a74c0ad571",
+      "size": 8382,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2015-2016 Red Hat Inc."
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/unstable/xdg-foreign/xdg-foreign-unstable-v2.xml",
+      "sha256": "625d83fbb068f48e69e739eafde507f10cdfe7480146f3ac10af9a2ddf551c80",
+      "size": 9206,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2015-2016 Red Hat Inc."
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/unstable/xdg-output/xdg-output-unstable-v1.xml",
+      "sha256": "363d547c3eefe8959160cac903ff90b311d4b183005557d73640d9df2cfd7f79",
+      "size": 9693,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2017 Red Hat Inc."
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-0.32.13/protocols/unstable/xwayland-keyboard-grab/xwayland-keyboard-grab-unstable-v1.xml",
+      "sha256": "fcc1e24ec465c209de576f75bf87438b8339e4da42051a3f26b48916292c7c6f",
+      "size": 5601,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2017 Red Hat Inc."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

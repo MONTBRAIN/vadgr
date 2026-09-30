@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "e57fef6bc5981e38c2ce2d63bfa546861309f875b8a75f092d1d54ae2d64f266",
+  "original_statement_files": [
+    {
+      "path": "phf_shared-0.13.1/LICENSE",
+      "sha256": "0ab4d106b6faac07fb6a051815fd1b4d862d730895e2d7d7358c2f13565e7a38",
+      "size": 1099,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2014-2022 Steven Fackler, Yuki Okushi"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

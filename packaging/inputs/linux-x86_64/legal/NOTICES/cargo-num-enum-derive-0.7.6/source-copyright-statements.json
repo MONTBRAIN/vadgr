@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "680998035259dcfcafe653688bf2aa6d3e2dc05e98be6ab46afb089dc84f1df8",
+  "original_statement_files": [
+    {
+      "path": "num_enum_derive-0.7.6/LICENSE-BSD",
+      "sha256": "0be96d891d00e0ae0df75d7f3289b12871c000a1f5ac744f3b570768d4bb277c",
+      "size": 1484,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018, Daniel Wagner-Hall"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,39 @@
+{
+  "archive_sha256": "a156c684c91ea7d62626509bce3cb4e1d9ed5c4d978f7b4352658f96a4c26b4a",
+  "original_statement_files": [
+    {
+      "path": "untrusted-0.7.1/LICENSE.txt",
+      "sha256": "7abd9b6960dcf7d4d0a48606a5b71bfe37d472db68d70637f3a58a56785f1621",
+      "size": 769,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2016 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "untrusted-0.7.1/src/untrusted.rs",
+      "sha256": "0be77ed2066283297671ec1f9e7c0003a37364d40f9853d2cb1a0139edd0de1a",
+      "size": 14142,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2016 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "untrusted-0.7.1/tests/tests.rs",
+      "sha256": "7ea1550681e427fa6bf88ba41b13ebd810afd46c50fca85b297cd4e6d9a02157",
+      "size": 3038,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2019 Brian Smith."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

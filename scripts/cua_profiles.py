@@ -182,9 +182,17 @@ def _gh(endpoint, binary=False):
     return result.stdout if binary else parse_json(result.stdout)
 
 
+def producer_head(producer):
+    """Return the landed workflow identity, not the separately built source."""
+    value = producer.get("tooling_commit", "")
+    require(re.fullmatch(r"[0-9a-f]{40}", value), "profile producer tooling identity differs")
+    return value
+
+
 def verify_producer(source, trusted, inputs, catalog):
     """Authenticate feature data using only trusted code and pinned roots."""
     producer = catalog["producer"]
+    tooling_commit = producer_head(producer)
     require(sha256_bytes(read_owned(source, CATALOG)) == inputs["catalog_sha256"]
             and document(read_owned(source, CATALOG)) == catalog
             and sha256_bytes(read_owned(source, BUNDLE)) == inputs["bundle_sha256"],
@@ -196,8 +204,8 @@ def verify_producer(source, trusted, inputs, catalog):
         "--repo", REPOSITORY, "--cert-identity",
         f"https://github.com/{REPOSITORY}/{WORKFLOW}@refs/heads/master",
         "--cert-oidc-issuer", "https://token.actions.githubusercontent.com",
-        "--source-ref", "refs/heads/master", "--source-digest", producer["tooling_commit"],
-        "--signer-digest", producer["tooling_commit"], "--deny-self-hosted-runners",
+        "--source-ref", "refs/heads/master", "--source-digest", tooling_commit,
+        "--signer-digest", tooling_commit, "--deny-self-hosted-runners",
         "--custom-trusted-root", str(trusted / release.TRUSTED_ROOT), "--format", "json",
     ], capture_output=True, timeout=180, check=False)
     require(verified.returncode == 0 and verified.stdout, "profile attestation refused")
@@ -220,7 +228,7 @@ def verify_producer(source, trusted, inputs, catalog):
             "profile repository identity differs")
     run = _gh(f"actions/runs/{producer['run_id']}")
     require(all(run.get(k) == v for k, v in {
-        "head_sha": producer["tooling_commit"], "head_branch": "master", "run_attempt": 1,
+        "head_sha": tooling_commit, "head_branch": "master", "run_attempt": 1,
         "event": "workflow_dispatch", "workflow_id": producer["workflow_id"],
         "conclusion": "success", "status": "completed", "path": WORKFLOW,
     }.items()), "profile producer run differs")
@@ -255,7 +263,7 @@ def verify_producer(source, trusted, inputs, catalog):
             if job_key in jobs:
                 continue
             job = _gh(f"actions/jobs/{job_id}")
-            require(job.get("run_id") == producer["run_id"] and job.get("head_sha") == producer["tooling_commit"]
+            require(job.get("run_id") == producer["run_id"] and job.get("head_sha") == tooling_commit
                     and job.get("conclusion") == "success" and job.get("runner_group_name") == "GitHub Actions"
                     and job.get("name") == "native-" + job_key[1], "profile native job differs")
             jobs.add(job_key)
@@ -302,7 +310,7 @@ def _artifact(artifact_id, digest, producer):
     origin = item.get("workflow_run", {})
     require(item.get("id") == artifact_id and item.get("expired") is False
             and item.get("digest") == "sha256:" + digest and origin.get("id") == producer["run_id"]
-            and origin.get("head_sha") == producer["tooling_commit"] and origin.get("head_branch") == "master",
+            and origin.get("head_sha") == producer_head(producer) and origin.get("head_branch") == "master",
             "profile artifact unavailable or origin differs")
 
 

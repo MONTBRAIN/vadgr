@@ -1,0 +1,19 @@
+{
+  "candidate_approval": false,
+  "observations": {
+    "arm64": {
+      "sha256": "694bd4067cee11fbde9b5d7aa4a3e4e7a68f27cdb31504abd96605942b9c22ac",
+      "target": "aarch64-pc-windows-msvc"
+    },
+    "x64": {
+      "sha256": "a1a347820cbd405f5be0f8ab23a45616fb5493a68e7fa7e971ea3f6bcc0de176",
+      "target": "x86_64-pc-windows-msvc"
+    }
+  },
+  "publishable": false,
+  "run_id": 36484917396,
+  "schema": 1,
+  "source_sha": "2abcababb033c08ca92136991d79d72b5739ba59",
+  "status": "unapproved-preparation-observations",
+  "trusted_sha": "ec1d5c6fd4a119e148c2954ad8587a9249ebf028"
+}

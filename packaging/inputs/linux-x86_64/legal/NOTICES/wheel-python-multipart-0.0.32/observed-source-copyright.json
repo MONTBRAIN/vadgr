@@ -1,0 +1,26 @@
+{
+  "component_sha256": "ff6d3f776f16878c894e52e107296ffc890e913c611b1a4ec6c44e2821fe2e23",
+  "original_statement_files": [
+    {
+      "path": "multipart/__init__.py",
+      "sha256": "81b63b5bd35476c1596afa7e88a42ba0de05c689df66ace89242d6e41de39d9d",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2012, Andrew Dunham"
+        }
+      ]
+    },
+    {
+      "path": "python_multipart/__init__.py",
+      "sha256": "aabe42368f87e12de550253ad7f876fc57334ae51d8f32bfd44e1a6b4ea414fa",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2012, Andrew Dunham"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
+}

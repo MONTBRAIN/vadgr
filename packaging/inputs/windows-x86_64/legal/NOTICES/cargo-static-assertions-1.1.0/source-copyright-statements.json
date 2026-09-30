@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f",
+  "original_statement_files": [
+    {
+      "path": "static_assertions-1.1.0/LICENSE-MIT",
+      "sha256": "ea084a2373ebc1f0902c09266e7bf25a05ab3814c1805bb017ffa7308f90c061",
+      "size": 1072,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2017 Nikolai Vazquez"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

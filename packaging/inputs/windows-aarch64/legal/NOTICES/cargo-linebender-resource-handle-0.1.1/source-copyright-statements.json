@@ -1,0 +1,39 @@
+{
+  "archive_sha256": "d4a5ff6bcca6c4867b1c4fd4ef63e4db7436ef363e0ad7531d1558856bae64f4",
+  "original_statement_files": [
+    {
+      "path": "linebender_resource_handle-0.1.1/src/blob.rs",
+      "sha256": "e41c5b77222d2e57a79308fbef8d7e814743b2e57bba0cb9b570b72a3205900f",
+      "size": 5052,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 the Raw Resource Handle Authors"
+        }
+      ]
+    },
+    {
+      "path": "linebender_resource_handle-0.1.1/src/font.rs",
+      "sha256": "8cc131912d270aab2a4972857254904990a7facc8c3b747cbec37151da064098",
+      "size": 566,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 the Raw Resource Handle Authors"
+        }
+      ]
+    },
+    {
+      "path": "linebender_resource_handle-0.1.1/src/lib.rs",
+      "sha256": "ba557d6e29bd215d0f14f639f03937767eca1bb821abf3d114ed69f339414001",
+      "size": 1719,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Raw Resource Handle Authors"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

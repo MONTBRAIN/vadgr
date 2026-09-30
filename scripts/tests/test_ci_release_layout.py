@@ -1,11 +1,13 @@
 """Execute the workflow's release selector using isolated package metadata."""
 
 import os
+import json
 from pathlib import Path
 import re
 import subprocess
 import sys
 import textwrap
+import tomllib
 
 import pytest
 
@@ -152,6 +154,73 @@ def test_layout_failure_fails_required_jobs_instead_of_skipping_them():
     assert "os: [ubuntu-latest, windows-latest, macos-latest]" in job("rust")
     assert "os: [ubuntu-latest, windows-latest, macos-latest]" in job("installer")
     assert "os: [ubuntu-24.04, windows-latest, macos-latest, macos-15]" in job("clean-install")
+
+
+def test_rust_production_lint_covers_all_and_only_production_features():
+    features = tomllib.loads((ROOT / "Cargo.toml").read_text())["features"]
+    production = set(features) - {"default", "linux-unsigned-qualification"}
+    lint = step("rust", "Lint")
+    command = re.search(r"(?m)^        run: (.*)$", lint)[1]
+    assert "--all-features" not in job("rust")
+    selected = re.search(r"--features ([\w,-]+)", command)
+    assert selected is not None
+    assert set(selected[1].split(",")) == production
+    assert command == "cargo clippy --locked --all-targets --features native-gui,macos-cua-host,release-verifier -- -D warnings"
+    assert "if:" not in lint
+    assert "run: cargo build --locked\n" in step("rust", "Build")
+    assert "run: cargo test --locked\n" in step("rust", "Test")
+    assert "os: [ubuntu-latest, windows-latest, macos-latest]" in job("rust")
+
+
+def test_rust_development_lane_is_linux_only_and_exactly_source_bound():
+    body = step("rust", "Test and lint the Linux development feature")
+    assert "if: runner.os == 'Linux'" in body
+    assert "shell: bash" in body
+    assert 'export VADGR_QUALIFICATION_SOURCE_COMMIT="$(git rev-parse HEAD)"' in body
+    assert 'export VADGR_QUALIFICATION_SOURCE_TREE="$(git rev-parse HEAD^{tree})"' in body
+    assert 'export VADGR_RELEASE_PROFILE=linux-x86_64' in body
+    commands = [line.strip() for line in body.splitlines() if line.strip().startswith("cargo ")]
+    assert commands == [
+        "cargo test --locked --all-targets --features linux-unsigned-qualification --target x86_64-unknown-linux-gnu",
+        "cargo clippy --locked --all-targets --features linux-unsigned-qualification --target x86_64-unknown-linux-gnu -- -D warnings",
+    ]
+    assert "release-verifier" not in body and "--all-features" not in body
+    assert "continue-on-error" not in job("rust") and "|| true" not in body
+    libraries = step("rust", "Install native Linux build libraries")
+    assert "if: runner.os == 'Linux'" in libraries
+    for package in ("libxkbcommon-dev", "libwayland-dev", "libudev-dev", "libdbus-1-dev", "libssl-dev", "pkg-config"):
+        assert package in libraries
+
+
+@pytest.mark.skipif(os.name == "nt", reason="Linux development workflow uses Bash")
+@pytest.mark.parametrize("exit_code", [0, 17])
+def test_development_lane_passes_exact_checkout_identities_and_preserves_failure(tmp_path, exit_code):
+    def git(*arguments):
+        return subprocess.check_output(["git", *arguments], cwd=tmp_path, text=True).strip()
+    git("init", "-q")
+    (tmp_path / "source.txt").write_text("source fixture\n")
+    git("add", "source.txt")
+    git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "fixture")
+    expected_commit, expected_tree = git("rev-parse", "HEAD"), git("rev-parse", "HEAD^{tree}")
+    tools = tmp_path / "tools"
+    tools.mkdir()
+    cargo = tools / "cargo"
+    cargo.write_text('#!/usr/bin/env python3\nimport json, os, sys\n'
+        'print(json.dumps({"arguments": sys.argv[1:], "commit": os.environ["VADGR_QUALIFICATION_SOURCE_COMMIT"], '
+        '"tree": os.environ["VADGR_QUALIFICATION_SOURCE_TREE"], "profile": os.environ["VADGR_RELEASE_PROFILE"]}))\n'
+        f'sys.exit({exit_code})\n')
+    cargo.chmod(0o755)
+    body = step("rust", "Test and lint the Linux development feature")
+    script = textwrap.dedent(body.split("run: |\n", 1)[1]).strip()
+    result = subprocess.run(["bash", "-c", script], cwd=tmp_path, text=True, capture_output=True,
+        env=dict(os.environ, PATH=str(tools) + os.pathsep + os.environ["PATH"],
+                 VADGR_QUALIFICATION_SOURCE_COMMIT="stale", VADGR_QUALIFICATION_SOURCE_TREE="stale"))
+    assert result.returncode == exit_code, result.stderr
+    rows = [json.loads(line) for line in result.stdout.splitlines()]
+    assert [row["arguments"][0] for row in rows] == (["test", "clippy"] if exit_code == 0 else ["test"])
+    for row in rows:
+        assert row["commit"] == expected_commit and row["tree"] == expected_tree
+        assert row["profile"] == "linux-x86_64"
 
 
 def test_clean_install_retains_the_required_check_identity():

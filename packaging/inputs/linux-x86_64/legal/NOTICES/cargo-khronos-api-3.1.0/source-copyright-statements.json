@@ -1,0 +1,149 @@
+{
+  "archive_sha256": "e2db585e1d738fc771bf08a151420d3ed193d9d895a36df7f6f8a9456b911ddc",
+  "original_statement_files": [
+    {
+      "path": "khronos_api-3.1.0/api/xml/gl.xml",
+      "sha256": "7dae830ddacefd2af92aef2b438ff89f90fb5496f596dec8282b212eb4fc51e3",
+      "size": 2745540,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright (c) 2013-2018 The Khronos Group Inc."
+        }
+      ]
+    },
+    {
+      "path": "khronos_api-3.1.0/api/xml/glx.xml",
+      "sha256": "338cee03c97e78aa167dd667407ab973f4bc656c58cf9002aa54fa78b2f9ff32",
+      "size": 113895,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright (c) 2013-2018 The Khronos Group Inc."
+        }
+      ]
+    },
+    {
+      "path": "khronos_api-3.1.0/api/xml/wgl.xml",
+      "sha256": "41e0a2182217b099b1628757956cb103cea9660e830f4d2f9fa07bf3a3679feb",
+      "size": 104058,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright (c) 2013-2018 The Khronos Group Inc."
+        }
+      ]
+    },
+    {
+      "path": "khronos_api-3.1.0/api_angle/scripts/egl.xml",
+      "sha256": "523fc17745545daca85c5b107b4a4c1a23dd3de39f70e499c77249e3dd6569ec",
+      "size": 167957,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright (c) 2013-2017 The Khronos Group Inc."
+        }
+      ]
+    },
+    {
+      "path": "khronos_api-3.1.0/api_angle/scripts/egl_angle_ext.xml",
+      "sha256": "98c60fa9fe46f50dd4e101c2262b4293adeeae48a18c39ad63dc085e639b6096",
+      "size": 5004,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright 2018 The ANGLE Project Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "khronos_api-3.1.0/api_angle/scripts/gl.xml",
+      "sha256": "baac3f2e27b4949773f4ee2e6ed8e43a2ae96a428b9d73ae9d1e9c0c404cae1f",
+      "size": 2708708,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright (c) 2013-2018 The Khronos Group Inc."
+        }
+      ]
+    },
+    {
+      "path": "khronos_api-3.1.0/api_angle/scripts/gl_angle_ext.xml",
+      "sha256": "dcf1ca2ce9536bd2ea6cab6e93ce0a37821793a9ed12f280f005a3459e2905e8",
+      "size": 66409,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright 2018 The ANGLE Project Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "khronos_api-3.1.0/api_angle/scripts/wgl.xml",
+      "sha256": "41e0a2182217b099b1628757956cb103cea9660e830f4d2f9fa07bf3a3679feb",
+      "size": 104058,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright (c) 2013-2018 The Khronos Group Inc."
+        }
+      ]
+    },
+    {
+      "path": "khronos_api-3.1.0/api_egl/api/egl.xml",
+      "sha256": "523fc17745545daca85c5b107b4a4c1a23dd3de39f70e499c77249e3dd6569ec",
+      "size": 167957,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright (c) 2013-2017 The Khronos Group Inc."
+        }
+      ]
+    },
+    {
+      "path": "khronos_api-3.1.0/api_webgl/specs/latest/1.0/webgl.idl",
+      "sha256": "9bd8707845fb68ff349f95b320582160423ee4cdf47294cbd980933b3b25dae9",
+      "size": 33828,
+      "statements": [
+        {
+          "line": 6,
+          "text": "// Copyright (c) 2018 The Khronos Group Inc."
+        }
+      ]
+    },
+    {
+      "path": "khronos_api-3.1.0/api_webgl/specs/latest/2.0/webgl2.idl",
+      "sha256": "4e9ba68c298e76e85f312f86d474975da4ce656e35c2ad4a8c706437d50253a1",
+      "size": 38280,
+      "statements": [
+        {
+          "line": 6,
+          "text": "// Copyright (c) 2018 The Khronos Group Inc."
+        }
+      ]
+    },
+    {
+      "path": "khronos_api-3.1.0/build.rs",
+      "sha256": "88b55daa5f6f0c90e1ab906c08b74834671316bdadc88d7cc25adfa19fc57e62",
+      "size": 2596,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015 Brendan Zabarauskas and the gl-rs developers"
+        }
+      ]
+    },
+    {
+      "path": "khronos_api-3.1.0/src/lib.rs",
+      "sha256": "befbc0e187097e6c9da1ecbd79e0e1af462b6f6466108247745f6aa38abe0673",
+      "size": 2635,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015 Brendan Zabarauskas and the gl-rs developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

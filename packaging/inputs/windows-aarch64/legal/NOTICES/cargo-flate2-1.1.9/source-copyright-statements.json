@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "843fba2746e448b37e26a819579957415c8cef339bf08564fe8b7ddbd959573c",
+  "original_statement_files": [
+    {
+      "path": "flate2-1.1.9/LICENSE-MIT",
+      "sha256": "025436edff4cfcdde17a5811fdea78892d8482efd1abdec5a17872d07a4f2112",
+      "size": 1062,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014-2026 Alex Crichton"
+        }
+      ]
+    },
+    {
+      "path": "flate2-1.1.9/src/bufreader.rs",
+      "sha256": "2d6a59330e8f838eb6474d19104f21cb98236125c189f36bdff75a069a4cea8f",
+      "size": 2814,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2013 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

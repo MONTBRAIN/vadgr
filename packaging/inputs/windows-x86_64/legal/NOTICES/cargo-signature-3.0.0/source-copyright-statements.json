@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "28d567dcbaf0049cb8ac2608a76cd95ff9e4412e1899d389ee400918ca7537f5",
+  "original_statement_files": [
+    {
+      "path": "signature-3.0.0/LICENSE-MIT",
+      "sha256": "9aa4f92bfcde293ebeca9e2379fa18d1d61f000977da144c7b74c2986c9b6466",
+      "size": 1070,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018-2026 RustCrypto Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

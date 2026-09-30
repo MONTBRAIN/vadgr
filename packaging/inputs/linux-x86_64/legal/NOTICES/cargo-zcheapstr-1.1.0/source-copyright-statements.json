@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "d1afec51604565183aeb5c54c20aeab286120d4e4460f7f76e3e8bb8c0d99473",
+  "original_statement_files": [
+    {
+      "path": "zcheapstr-1.1.0/LICENSE",
+      "sha256": "59871bb1612f8a0569655c10b995636827eceab42c6578cebdc45ad2922e0142",
+      "size": 1085,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2026 Zeeshan Ali Khan & zcheapstr contributors"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "e660451e55124f798a69a5af3f49ccfbefbd41910eefd25caf2393e1f3473ec1",
+  "original_statement_files": [
+    {
+      "path": "quick-xml-0.41.0/LICENSE-MIT.md",
+      "sha256": "5b2c207dcf571267ebe0bbdd5bf321f561ddc22ff597e7b363e96f4539507a29",
+      "size": 1105,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2016 Johann Tuffe"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,378 @@
+{
+  "members": [
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/__init__.py",
+      "member": "websockets/__init__.py",
+      "sha256": "ce6042263ec421ae99244403a787487739dfcc025403c756e35fa3ec49be4034",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/__main__.py",
+      "member": "websockets/__main__.py",
+      "sha256": "c2ee4ddb093c9af060cafaf68219907f8a6b7b301ed3f8bea75db7555adec987",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/auth.py",
+      "member": "websockets/auth.py",
+      "sha256": "53f2709a7e7d65143a11e7293af322cd0086fd96c0be051fd6293b85a6510b77",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/cli.py",
+      "member": "websockets/cli.py",
+      "sha256": "7d87f462aad6231fe224303e45675cce1e6f8cef69e99c59be613beb56d4420d",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/client.py",
+      "member": "websockets/client.py",
+      "sha256": "eaf4e66220a92297bc794adc98494e63ea0aae21fa394c72a7e846a535af3cc7",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/connection.py",
+      "member": "websockets/connection.py",
+      "sha256": "38b88c56435ddb9ffceac07c43b0ab0b00685f2f6703438281d80b440f16511f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/datastructures.py",
+      "member": "websockets/datastructures.py",
+      "sha256": "5c64efbe015d6527af355fd3ebe2e8f83c66d951f125c80a9789750cd43a7d4f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/exceptions.py",
+      "member": "websockets/exceptions.py",
+      "sha256": "b69d3f132a907ddec260d3879b102278e1fc11df4f49016dd7c7be0ae45e4ce6",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/frames.py",
+      "member": "websockets/frames.py",
+      "sha256": "4f08aa9ff6eebd089b94446e81c4fe3039a73d9ee4b7e14c5c449ed8384e4fda",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/headers.py",
+      "member": "websockets/headers.py",
+      "sha256": "c909cf963559c15d7f57ea4e49128d2c6feef36ef0142d61ef671c8a88dc43c3",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/http11.py",
+      "member": "websockets/http11.py",
+      "sha256": "b4b56e36f3400f0b7c775ba2e4a305299099313b49e82a9766f7a880b68f6dfd",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/imports.py",
+      "member": "websockets/imports.py",
+      "sha256": "4ff07d4d4987a1c78a310f8f36985d410007d97771031c1240d790120a882e41",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/protocol.py",
+      "member": "websockets/protocol.py",
+      "sha256": "dc7b8204c2d324cc69f491dde49301aad4c5f384ac636f62b871f4cb39ee0ff4",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/proxy.py",
+      "member": "websockets/proxy.py",
+      "sha256": "a05adb118b5ab185aff960dc9e239b0fd9c1479439aa41e9c8254b9e0c7b58c4",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/py.typed",
+      "member": "websockets/py.typed",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/server.py",
+      "member": "websockets/server.py",
+      "sha256": "ee41092f540414ef294c1f74c0fe1f51b9336060dc6e44daee34ef762499b509",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/speedups.c",
+      "member": "websockets/speedups.c",
+      "sha256": "bbf767711e0cdfc117e877bf7f36f54d8e83dc791eebb669a072cb85967486f4",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/speedups.cpython-312-x86_64-linux-gnu.so",
+      "member": "websockets/speedups.cpython-312-x86_64-linux-gnu.so",
+      "sha256": "dd8f00b231337f61fe1da38d1b4a2c0e6e8b9072a5c632e789d5de739ef66314",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/speedups.pyi",
+      "member": "websockets/speedups.pyi",
+      "sha256": "ba78ef04d83eb96e1cef3fbd396e16892cd993f407d9b2c472360032ea128012",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/streams.py",
+      "member": "websockets/streams.py",
+      "sha256": "ac9ac33522fd872dc42587353c51e3631e2b75dd6f10b0ae6b40b074588737ff",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/typing.py",
+      "member": "websockets/typing.py",
+      "sha256": "72ef3d9ff5d05e7a3f83da8fa459a12db6f39c4f8c2956b3500a30b36bb926a5",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/uri.py",
+      "member": "websockets/uri.py",
+      "sha256": "d9f14cc3e01b289e47547342bb0d51c7532790290d591a688315a184cdf4114e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/utils.py",
+      "member": "websockets/utils.py",
+      "sha256": "59db6c876a908872eb5d40449e9dcb6ad30b253663076084adb78e16fadd5ef1",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/version.py",
+      "member": "websockets/version.py",
+      "sha256": "fa82d6b7f153a88ea409283331194af48235ef365eece9cbc359d6d99bea5c4b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/asyncio/__init__.py",
+      "member": "websockets/asyncio/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/asyncio/client.py",
+      "member": "websockets/asyncio/client.py",
+      "sha256": "76cd6b1f39464325281925529b466d73640be5c2ce8942bdf79edb3b42baf8e6",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/asyncio/connection.py",
+      "member": "websockets/asyncio/connection.py",
+      "sha256": "f2eb6ad56371fab33839a7ad2694e4b5610bea839bf92ae1f76e6d0a63f1e346",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/asyncio/messages.py",
+      "member": "websockets/asyncio/messages.py",
+      "sha256": "bc13ddf7722e2f72c4d0e4b179a202223cefca886de7792687efd9868f9b1b35",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/asyncio/router.py",
+      "member": "websockets/asyncio/router.py",
+      "sha256": "2453543482e4001e4ff5fb7a3cba2035a66aea9f765b3d7dbc89717f1d434e58",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/asyncio/server.py",
+      "member": "websockets/asyncio/server.py",
+      "sha256": "df846da778379c058b0da052731b9ba1f73390da0320c33330f03074b14ac6fc",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/extensions/__init__.py",
+      "member": "websockets/extensions/__init__.py",
+      "sha256": "42466cc5a255965552a75ba1743e6e3c689b75bc7fd3dd46ad555f4b92d7729c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/extensions/base.py",
+      "member": "websockets/extensions/base.py",
+      "sha256": "24d7f2939e370bb56e3c7d103a86e2a8aa06af38c920b8deeaccf920bbce3e5e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/extensions/permessage_deflate.py",
+      "member": "websockets/extensions/permessage_deflate.py",
+      "sha256": "2005dd08663ad337dd8dab4a77a7c37d3322cce79062c9e1d3306d2fdbcfbb30",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/legacy/__init__.py",
+      "member": "websockets/legacy/__init__.py",
+      "sha256": "c10e7344810d1944bfe5e28d017f42444ef1d53c0a6a92a29ab40515637d4b1b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/legacy/auth.py",
+      "member": "websockets/legacy/auth.py",
+      "sha256": "0dc41c09279578ff7725c1fcbc5584d072092fe5fe7f6dcb6740ec2696afd52a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/legacy/client.py",
+      "member": "websockets/legacy/client.py",
+      "sha256": "e6826ead47333dd7578bc45d7b97c0da10f7578a67bfffd9eb8a514573fa1c1b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/legacy/exceptions.py",
+      "member": "websockets/legacy/exceptions.py",
+      "sha256": "562123a684f4f5fcf1fd9a9fd1a3460d5b510cd8d768ec3481d0ad6b72e48c57",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/legacy/framing.py",
+      "member": "websockets/legacy/framing.py",
+      "sha256": "6f4c0cc7cdd74c85d56683bad299770226ca1db4250dbeeb040ca114491a3029",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/legacy/handshake.py",
+      "member": "websockets/legacy/handshake.py",
+      "sha256": "d8dcebe40376c6f0c2e4474d3fe901de539cac069436562e8fffa1aff8efee93",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/legacy/http.py",
+      "member": "websockets/legacy/http.py",
+      "sha256": "70e0909835a120a4269bc5161973d6ec20d9834df08e8802b1bd0b3fda1eb4d4",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/legacy/protocol.py",
+      "member": "websockets/legacy/protocol.py",
+      "sha256": "dcc4e1d7ed24b564ad4425f4d252d5ebd80bcc5ffd8009fc60b144fdb664cd8c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/legacy/server.py",
+      "member": "websockets/legacy/server.py",
+      "sha256": "8529389c54ec23778c45bbb925c2388177a2f546f0d3b452ad28ed2f878cda07",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/sync/__init__.py",
+      "member": "websockets/sync/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/sync/client.py",
+      "member": "websockets/sync/client.py",
+      "sha256": "5b20fde3794aee3e0d40b23b3eaa3158411d77d98c2098e96b4344c71d3c3e3e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/sync/connection.py",
+      "member": "websockets/sync/connection.py",
+      "sha256": "019a800cd64e13779c4e2a93ed636ad67b146eea23683169ccd89c10df702054",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/sync/messages.py",
+      "member": "websockets/sync/messages.py",
+      "sha256": "abc2b5bf176ba959356ef9f7cd6d49c74f5395a908592c9870e1c2eee7854269",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/sync/router.py",
+      "member": "websockets/sync/router.py",
+      "sha256": "c0e180bc66cac17caa98d1050425993f77da1efcbfd8c28deced977842fc9c62",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/sync/server.py",
+      "member": "websockets/sync/server.py",
+      "sha256": "5534fa4ec47e27e352596e657bc51531334d14dccfa7ac1b656b9541487e8d89",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/sync/utils.py",
+      "member": "websockets/sync/utils.py",
+      "sha256": "4ed5be9dc605bc99a2496da03bcea7804d8156c9e705d2fee07f3c91634361b8",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/trio/__init__.py",
+      "member": "websockets/trio/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/trio/client.py",
+      "member": "websockets/trio/client.py",
+      "sha256": "9b637921a141acf61c52da755423d4a3cb49d94162d9f4381bef793382423b15",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/trio/connection.py",
+      "member": "websockets/trio/connection.py",
+      "sha256": "d571c39156caddefccf75a4e186798793d286b350ce4d8ea1cea30d0590dae06",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/trio/messages.py",
+      "member": "websockets/trio/messages.py",
+      "sha256": "4a66c0d64fe58c41ae10764d2741cf0def3ea231ed313897191db41eb3c9b8a9",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/trio/router.py",
+      "member": "websockets/trio/router.py",
+      "sha256": "a992fdfb8e268bd48e393194dc22c13ee68237369f406a99f9f265f61569bfeb",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/trio/server.py",
+      "member": "websockets/trio/server.py",
+      "sha256": "8d1b6b7d97f7847a75690a3a7df34c37bb22696cef65586a0b58aad7f3e3d2c0",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets/trio/utils.py",
+      "member": "websockets/trio/utils.py",
+      "sha256": "035d8d6143ce8d06a21aeb1a938de85b33c8702c618a429390024b5ed649bdc6",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets-17.1.dist-info/METADATA",
+      "member": "websockets-17.1.dist-info/METADATA",
+      "sha256": "17c70f9c6a34a204f2a969c73e47eba77289ef2a29914208ab10ae49973e1ada",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets-17.1.dist-info/WHEEL",
+      "member": "websockets-17.1.dist-info/WHEEL",
+      "sha256": "326bb69b88d2da8f19ac2097b314f75406511204c9237db4f1799b47052fa5af",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets-17.1.dist-info/entry_points.txt",
+      "member": "websockets-17.1.dist-info/entry_points.txt",
+      "sha256": "0e7867e1d9b912c23864c02c1e574617a0b005766b1979d1edc9cadbe5d1ef36",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets-17.1.dist-info/top_level.txt",
+      "member": "websockets-17.1.dist-info/top_level.txt",
+      "sha256": "08ca5d2a49712acbd980283296dc5458e1e26d95d9d6e60856971af71b10f079",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets-17.1.dist-info/RECORD",
+      "member": "websockets-17.1.dist-info/RECORD",
+      "sha256": "1ebe7a675e94526f972fd9c14e8377b5727a15ad1317572a11e77ce678186e9e",
+      "status": "installer-regenerated-RECORD"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/websockets-17.1.dist-info/licenses/LICENSE",
+      "member": "websockets-17.1.dist-info/licenses/LICENSE",
+      "sha256": "3d6a0c050d8bec52fabad502e45fb25bd02bcadbd70dea34d447b6a0ff4e6da8",
+      "status": "retained-exact"
+    }
+  ],
+  "sha256": "0c863507ada5805517ca6dff1c524dcd42942efe6304dacf06700878398d21a6",
+  "wheel": "websockets-17.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl"
+}

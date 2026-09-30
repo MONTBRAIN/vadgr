@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "7aa268c23bfbbd2c4363b9cd302a4f504fb2a9dfe7e3451d66f35dd392e20aca",
+  "original_statement_files": [
+    {
+      "path": "axum-macros-0.5.1/LICENSE",
+      "sha256": "2c417b11aaf663ec7cbc8c8127afd748bfbb4de78df864395866897daaca71fa",
+      "size": 1057,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2021 axum Contributors"
+        }
+      ]
+    },
+    {
+      "path": "axum-macros-0.5.1/src/with_position.rs",
+      "sha256": "dc75322efeff11459ccfe57233b512affbfccec281153926532208da6294544e",
+      "size": 3570,
+      "statements": [
+        {
+          "line": 3,
+          "text": "// Copyright (c) 2015"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

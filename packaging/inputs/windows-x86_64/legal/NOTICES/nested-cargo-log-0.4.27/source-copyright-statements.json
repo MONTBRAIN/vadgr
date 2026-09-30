@@ -1,0 +1,39 @@
+{
+  "archive_sha256": "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94",
+  "original_statement_files": [
+    {
+      "path": "log-0.4.27/LICENSE-MIT",
+      "sha256": "6485b8ed310d3f0340bf1ad1f47645069ce4069dcc6bb46c7d5c6faf41de1fdb",
+      "size": 1071,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014 The Rust Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "log-0.4.27/src/lib.rs",
+      "sha256": "2d9c6ea3acfeb610f05ab65c33467a66f45a251a3b8decd28b66402c81b02371",
+      "size": 60964,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "log-0.4.27/src/macros.rs",
+      "sha256": "34c367a645483e21eee4c7846d0efbf97c29a52156d56536c82cdfe1d226a54d",
+      "size": 18582,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2014-2015 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

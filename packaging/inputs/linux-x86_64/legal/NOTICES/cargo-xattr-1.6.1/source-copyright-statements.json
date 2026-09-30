@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "32e45ad4206f6d2479085147f02bc2ef834ac85886624a23575ae137c8aa8156",
+  "original_statement_files": [
+    {
+      "path": "xattr-1.6.1/LICENSE-MIT",
+      "sha256": "8b427f5bc501764575e52ba4f9d95673cf8f6d80a86d0d06599852e1a9a20a36",
+      "size": 1056,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2015 Steven Allen"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

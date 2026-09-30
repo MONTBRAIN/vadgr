@@ -1,0 +1,21 @@
+{
+  "accounted_grants": [
+    "Apache-2.0",
+    "BSD-3-Clause",
+    "BSL-1.0",
+    "LLVM-exception",
+    "MIT"
+  ],
+  "archive_sha256": "72207aae22fc0a121ba7b6d479e42cbfea549af1479c3f3a4f12c70dd66df12e",
+  "expression": "Apache-2.0",
+  "observed_cargo_features": null,
+  "reason": "The upstream workspace license explicitly assigns additional algorithms to write-float or parse-float paths, never parse-integer. Parse-float retains its possible Go-derived Bellerophon BSD grant without inferring build features.",
+  "source_files": [
+    {
+      "path": "lexical-parse-integer-1.0.5/LICENSE.md",
+      "sha256": "99aab70a96f3ecab683d8a319d9070af2213ae4c1601fb053fbe85e1361e32fe",
+      "size": 19251
+    }
+  ],
+  "status": "source-scope-proposal-not-package-approval"
+}

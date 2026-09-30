@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "81e544489bf3d8ef66c953931f56617f423cd4b5494be343d9b9d3dda037b9a3",
+  "original_statement_files": [
+    {
+      "path": "unit-prefix-0.5.2/LICENSE",
+      "sha256": "b39b7556926992260c18201e59f9478217ed593602099546581b4092a4b9e10e",
+      "size": 1087,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2024 Benjamin Sago, Fabio Valentini"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

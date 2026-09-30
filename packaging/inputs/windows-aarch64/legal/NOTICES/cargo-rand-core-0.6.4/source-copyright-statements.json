@@ -1,0 +1,91 @@
+{
+  "archive_sha256": "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c",
+  "original_statement_files": [
+    {
+      "path": "rand_core-0.6.4/LICENSE-MIT",
+      "sha256": "209fbbe0ad52d9235e37badf9cadfe4dbdc87203179c0899e738b39ade42177b",
+      "size": 1117,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2018 Developers of the Rand project"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2014 The Rust Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "rand_core-0.6.4/src/block.rs",
+      "sha256": "c0b606dc404a1f4b25eebf388e9c0da583ee571214cdcb0bac1b592450d6b4fa",
+      "size": 17933,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "rand_core-0.6.4/src/error.rs",
+      "sha256": "c34af905a9ffbae65970f508a9e74480b56747128d05ad350475150898fc6452",
+      "size": 7072,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "rand_core-0.6.4/src/impls.rs",
+      "sha256": "b861532f8a3500de6bd0e926b3677a15261df4b12d253e4a8fd6acc5e64f1d36",
+      "size": 7188,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "rand_core-0.6.4/src/le.rs",
+      "sha256": "f302239d09cc8d915aa8d4fe46c32c8981900cb20d42b12eef9c34e2e820bc88",
+      "size": 1806,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "rand_core-0.6.4/src/lib.rs",
+      "sha256": "df270489b859465fce144098d5e709b318d9f3b703a92f4a28e5f74334119107",
+      "size": 20621,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2017-2018 The Rust Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "rand_core-0.6.4/src/os.rs",
+      "sha256": "47849479e19c43dd01259eb14be7b4daf8474d23567dc32a1547c10b108b7069",
+      "size": 2548,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2019 Developers of the Rand project."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

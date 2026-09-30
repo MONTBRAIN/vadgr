@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "799a97264921d8623a957f6c3b9011f3b5492f557bbb7a5a19b7fa6d06ba8dcb",
+  "original_statement_files": [
+    {
+      "path": "derive_more-impl-2.1.1/LICENSE",
+      "sha256": "8a35369f3ca263b3c62fbb5032947e53b6bfebc6c8a4d1bb982de1c069f6fba5",
+      "size": 1080,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2016 Jelte Fennema"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,41 @@
+Metadata-Version: 2.5
+Name: httpcore2
+Version: 2.12.0
+Summary: A minimal low-level HTTP client.
+Project-URL: Changelog, https://github.com/pydantic/httpx2/blob/main/src/httpcore2/CHANGELOG.md
+Project-URL: Homepage, https://github.com/pydantic/httpx2
+Project-URL: Source, https://github.com/pydantic/httpx2/blob/main/src/httpcore2
+Author-email: Tom Christie <tom@tomchristie.com>
+Maintainer-email: "Pydantic Services Inc." <engineering@pydantic.dev>
+License-Expression: BSD-3-Clause
+License-File: LICENSE.md
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Web Environment
+Classifier: Framework :: AnyIO
+Classifier: Framework :: AsyncIO
+Classifier: Framework :: Trio
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Programming Language :: Python :: 3.15
+Classifier: Topic :: Internet :: WWW/HTTP
+Requires-Python: >=3.10
+Requires-Dist: h11>=0.16
+Requires-Dist: truststore>=0.10
+Provides-Extra: asyncio
+Requires-Dist: anyio<5.0,>=4.5.0; extra == 'asyncio'
+Provides-Extra: http2
+Requires-Dist: h2<5,>=3; extra == 'http2'
+Provides-Extra: socks
+Requires-Dist: socksio==1.*; extra == 'socks'
+Provides-Extra: trio
+Requires-Dist: trio<1.0,>=0.33.0; extra == 'trio'
+Description-Content-Type: text/markdown
+

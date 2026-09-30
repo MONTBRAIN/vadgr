@@ -1,0 +1,12 @@
+{
+  "application_files": [
+    {
+      "path": "__version__.py",
+      "sha256": "abba90670b0370a3dc40d97c2dea46a35d4bec941ff10d7c3cf3098ef04a17f9",
+      "size": 435
+    }
+  ],
+  "grant_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+  "scope": "Complete text for the explicitly applied Apache-2.0 grant; original application notices remain included.",
+  "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+}

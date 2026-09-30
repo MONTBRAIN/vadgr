@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "cf20d2fde8ff38632c426f1165ed7436270b44f199fc55284c38276f9db47c3d",
+  "original_statement_files": [
+    {
+      "path": "nix-0.31.3/LICENSE",
+      "sha256": "66e3ee1fa7f909ad3c612d556f2a0cdabcd809ad6e66f3b0605015ac64841b70",
+      "size": 1097,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2015 Carl Lerche + nix-rust Authors"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

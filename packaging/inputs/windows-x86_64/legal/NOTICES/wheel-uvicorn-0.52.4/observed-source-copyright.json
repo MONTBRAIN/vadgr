@@ -1,0 +1,16 @@
+{
+  "component_sha256": "f86e41a149d7d05a9969337e3946a9c171c06a5d42680896daaba624aeac8da1",
+  "original_statement_files": [
+    {
+      "path": "uvicorn/_types.py",
+      "sha256": "24333a13e86a67aa3f71266f8c350b8c0bfbecf147da92defd582ab217bca87e",
+      "statements": [
+        {
+          "line": 2,
+          "text": "Copyright (c) Django Software Foundation and individual contributors."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
+}

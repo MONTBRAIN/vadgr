@@ -1,0 +1,24 @@
+Vadgr support
+Version 1.0
+
+Publisher: Victor Santiago Montaño Díaz, an individual publishing under the
+Montbrain name
+Location: Pasto, Nariño, Colombia
+Support: support@montbrain.ai
+Privacy: privacy@montbrain.ai
+
+This packaged copy does not include a paid subscription, hosted account,
+service level or individual support unless the Publisher gives you a separate
+written offer that says so. Mandatory rights under applicable law remain.
+
+For a support request, include the Vadgr version, operating system, the action
+that failed and the error text. Remove private information before sending a
+log or screenshot. Do not send passwords, API keys, access tokens, pairing
+codes, machine identity keys or private task content.
+
+Model providers and other connected services have their own terms, support
+channels and charges. The Publisher does not control those services and does
+not pay or refund their charges.
+
+The installed terms, license, notices and component inventory remain available
+offline. See README-OFFLINE.txt for the local package contents and controls.

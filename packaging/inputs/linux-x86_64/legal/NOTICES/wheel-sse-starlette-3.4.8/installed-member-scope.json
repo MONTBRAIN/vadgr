@@ -1,0 +1,72 @@
+{
+  "members": [
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/sse_starlette/__init__.py",
+      "member": "sse_starlette/__init__.py",
+      "sha256": "1718460857421907b6cd53dc09f9d53891829dbac70f843fb1520cc3374a9b07",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/sse_starlette/_utils.py",
+      "member": "sse_starlette/_utils.py",
+      "sha256": "735f7bd66c765a5aff30dede9228fa25837e7b78bd2106d8de5e0ca8343f5440",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/sse_starlette/event.py",
+      "member": "sse_starlette/event.py",
+      "sha256": "c1e3e392d3be9f48ec82e5c69a5bb7850a284167c960dad46bc883fd10ded8ad",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/sse_starlette/py.typed",
+      "member": "sse_starlette/py.typed",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/sse_starlette/sse.py",
+      "member": "sse_starlette/sse.py",
+      "sha256": "e6d4c592c14c899b9eabf712700828a29927f4ea11afb1422c4169439090f0c1",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/sse_starlette-3.4.8.dist-info/licenses/AUTHORS",
+      "member": "sse_starlette-3.4.8.dist-info/licenses/AUTHORS",
+      "sha256": "c2ff63d2ecf128bbda8ab1b2016830a5da124202fbb97168685bb9946aed3f1a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/sse_starlette-3.4.8.dist-info/licenses/LICENSE",
+      "member": "sse_starlette-3.4.8.dist-info/licenses/LICENSE",
+      "sha256": "80af6bfccbebd2c14d4aab96695cab9950e177190cc80f5ef819e99996883e8e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/sse_starlette-3.4.8.dist-info/METADATA",
+      "member": "sse_starlette-3.4.8.dist-info/METADATA",
+      "sha256": "9092f1449006df9835d766bfe749d03fe39e4407658791bb5398ec360bead9ac",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/sse_starlette-3.4.8.dist-info/WHEEL",
+      "member": "sse_starlette-3.4.8.dist-info/WHEEL",
+      "sha256": "2b6eb4118ce7cd7b09601406aa623c553c4476265836f0d9c16f5c061f7efcc0",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/sse_starlette-3.4.8.dist-info/top_level.txt",
+      "member": "sse_starlette-3.4.8.dist-info/top_level.txt",
+      "sha256": "f96bd5e4d31692afc9efaeac64fbac2aabfca4448cf83c6e822f7a2e9f687abe",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/sse_starlette-3.4.8.dist-info/RECORD",
+      "member": "sse_starlette-3.4.8.dist-info/RECORD",
+      "sha256": "3ffde92923f06090fd24033a4c876eef7ca6ecd3260f5a3f3fc921727f28980c",
+      "status": "installer-regenerated-RECORD"
+    }
+  ],
+  "sha256": "6e82314c786709a3cd9520f2285cf9fff90e181e598e8a357b0cf80f66afba0d",
+  "wheel": "sse_starlette-3.4.8-py3-none-any.whl"
+}

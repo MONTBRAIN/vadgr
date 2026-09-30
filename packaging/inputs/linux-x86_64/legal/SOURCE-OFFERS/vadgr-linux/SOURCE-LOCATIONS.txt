@@ -1,0 +1,21 @@
+Application source locations for this Linux package
+
+The source volumes in this directory jointly supply the native Vadgr
+application and its Linux build dependencies. Extract every volume as described
+in EXTRACT-SOURCE.txt. The source edition records its exact committed code
+snapshot. The rebuild recipe reads compile identity from the adjacent retained
+development receipt. Neither record authenticates a publisher or claims a
+signed release, a reproducible AppImage, or a byte-identical future artifact.
+
+The interpreted CUA runtime is also delivered in its preferred source form.
+Relative to the prepared payload root, its 96 readable Python modules are in:
+lib/cua/environments/0.7.9-14ccc63a4a3f-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/
+Its original LICENSE and NOTICE are in the adjacent
+vadgr_computer_use-0.7.9.dist-info/licenses/ directory. No first-party compiled
+helper or bytecode-only module is present in this exact Linux CUA wheel.
+The browser extension is acquired separately; this wheel contains no JavaScript.
+
+These sources allow inspection and modification of the delivered application.
+They do not claim to reproduce a signed CUA wheel, protected authorization,
+publisher signatures, or a production attestation. Each included dependency
+retains its own license and separately listed source-delivery materials.

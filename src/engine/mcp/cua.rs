@@ -51,17 +51,21 @@ impl CuaServer {
         }
         let child = self.command.clone();
         let environment = self.environment.clone();
-        let command = tokio::process::Command::new(child.program).configure(|command| {
+        let mut command = tokio::process::Command::new(&child.program).configure(|command| {
             command
-                .args(child.args)
+                .args(&child.args)
                 .envs(environment)
                 .kill_on_drop(true);
             configure_windows_process(command);
         });
+        let authorization = child
+            .authorize_process(command.as_std_mut())
+            .map_err(|error| McpError::Server(error.to_string()))?;
         let (transport, stderr) = TokioChildProcess::builder(command)
             .stderr(Stdio::piped())
             .spawn()
             .map_err(|error| McpError::Server(error.to_string()))?;
+        drop(authorization);
         let stderr =
             stderr.ok_or_else(|| McpError::Server("cua stderr was not piped".to_owned()))?;
         self.stderr_task = Some(tokio::spawn(async move {

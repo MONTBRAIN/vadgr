@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "aba069c070b5e213f2a094deb7e5ed50ecb092be36102a4f4042e8d2056d060e",
+  "original_statement_files": [
+    {
+      "path": "speedate-0.17.0/LICENSE",
+      "sha256": "2afdd30d54b4d62b6f488a6bcc1546e84ec5061f13f4209c03d012348783795a",
+      "size": 1080,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2022 Samuel Colvin"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

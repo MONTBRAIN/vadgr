@@ -1,0 +1,1149 @@
+{
+  "input_commit": "4624073d81f44bf8ae88ca4fbe482d7f138095f1",
+  "input_sha256": "cf877317aa2ff7624f02c5403ef5872d6aac2eb981bb3450c61dbbf536b3bbbc",
+  "inputs": {
+    "cryptography": {
+      "cargo_lock_sha256": "081ae57e95dabac9f47e2f070d2a3f0e8638ce9a560101b7d459b67cf4481fec",
+      "cargo_packages_sha256": "5a53e329a67504fc318ccd128baf0689db1a9e2fdd919c00f34fcd9a45b01526",
+      "commit": "ffde75a2b594822c740a2e4748b56c00548302bf",
+      "filename": "cryptography-50.0.1.tar.gz",
+      "sha256": "5dd9bda1c12b4162f6ff568eeb5e0ff956c28d14406e875cfe8a63a2d414ff20",
+      "url": "https://files.pythonhosted.org/packages/bb/ad/5d6702db60b1e40b41ef513b6967ff5848f307d50f8449baf1634f5908f1/cryptography-50.0.1.tar.gz",
+      "version": "50.0.1"
+    },
+    "openssl": {
+      "filename": "openssl-4.0.2.tar.gz",
+      "sha256": "736b467530f916737b7031310ccb21d8218c6229e61e8e160cd1d3458cd543a8",
+      "url": "https://github.com/openssl/openssl/releases/download/openssl-4.0.2/openssl-4.0.2.tar.gz",
+      "version": "4.0.2"
+    },
+    "researched": "2026-09-23",
+    "rust": {
+      "manifest_sha256": "03569b1886ceb5c05276b50c8431ab111de944cd6140fe1fa7d821dd8e0f29cf",
+      "manifest_url": "https://static.rust-lang.org/dist/channel-rust-1.97.1.toml",
+      "version": "1.97.1"
+    },
+    "schema": 1,
+    "targets": {
+      "macos-x86_64": {
+        "deployment_floor": "13.0",
+        "images": {
+          "20260824.0482.1": {
+            "sdk": "15.5",
+            "xcode": "16.4",
+            "xcode_build": "16F6"
+          }
+        },
+        "machine": "x86_64",
+        "python": {
+          "filename": "cpython-3.12.14+20260825-x86_64-apple-darwin-install_only.tar.gz",
+          "sha256": "65da7bc373ea36cb7e413f2a20bcced9eeb7e5a83fa554ce9f6ec79abb8d7e31",
+          "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14%2B20260825-x86_64-apple-darwin-install_only.tar.gz",
+          "version": "3.12.14"
+        },
+        "python_dependencies": [
+          {
+            "filename": "certifi-2026.7.22-py3-none-any.whl",
+            "name": "certifi",
+            "sha256": "62f22742b58a1a33014a2b6b706588a8d7e2a88ae7bd1a6ebe8c992928483775",
+            "url": "https://files.pythonhosted.org/packages/0b/a7/71ac2cff56fec219ed242bb11b8efb69fcc4bec75db06fb7bfe35de520e6/certifi-2026.7.22-py3-none-any.whl",
+            "version": "2026.7.22"
+          },
+          {
+            "filename": "cffi-2.1.1-cp312-cp312-macosx_10_15_x86_64.whl",
+            "name": "cffi",
+            "sha256": "c8c69575568085ba0b1b10c0249d779a214aea6f6522e949a0fc9fb0fcb449d0",
+            "url": "https://files.pythonhosted.org/packages/10/69/43965eccfdead3b9220015fd1320e117be8c6ed01a62ffab76eeb752f5d5/cffi-2.1.1-cp312-cp312-macosx_10_15_x86_64.whl",
+            "version": "2.1.1"
+          },
+          {
+            "filename": "colorama-0.4.6-py2.py3-none-any.whl",
+            "name": "colorama",
+            "sha256": "4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6",
+            "url": "https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl",
+            "version": "0.4.6"
+          },
+          {
+            "filename": "coverage-7.16.1-cp312-cp312-macosx_10_13_x86_64.whl",
+            "name": "coverage",
+            "sha256": "b7f2c26ce6ce0b1e0ca0d5fae96ea510e3a2e78b7207f06e76b7f2c87fa3d0af",
+            "url": "https://files.pythonhosted.org/packages/1a/f7/7cd4c9f2a3b7574414222ec425d5eee21cc690d867a013315e3be8ba185c/coverage-7.16.1-cp312-cp312-macosx_10_13_x86_64.whl",
+            "version": "7.16.1"
+          },
+          {
+            "filename": "cryptography_vectors-50.0.1-py3-none-any.whl",
+            "name": "cryptography_vectors",
+            "sha256": "d3cee4b954c6de4c187f0ceb9e92c2da4dda24aa67b17aa84d7bd2e52c813531",
+            "url": "https://files.pythonhosted.org/packages/53/56/a9a57d947870175b49fa61da3b827c790179bceb746bb99743ca90fa9e02/cryptography_vectors-50.0.1-py3-none-any.whl",
+            "version": "50.0.1"
+          },
+          {
+            "filename": "execnet-2.1.2-py3-none-any.whl",
+            "name": "execnet",
+            "sha256": "67fba928dd5a544b783f6056f449e5e3931a5c378b128bc18501f7ea79e296ec",
+            "url": "https://files.pythonhosted.org/packages/ab/84/02fc1827e8cdded4aa65baef11296a9bbe595c474f0d6d758af082d849fd/execnet-2.1.2-py3-none-any.whl",
+            "version": "2.1.2"
+          },
+          {
+            "filename": "iniconfig-2.3.0-py3-none-any.whl",
+            "name": "iniconfig",
+            "sha256": "f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12",
+            "url": "https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl",
+            "version": "2.3.0"
+          },
+          {
+            "filename": "maturin-1.14.1-py3-none-macosx_10_12_x86_64.whl",
+            "name": "maturin",
+            "sha256": "f3306078070c1508fd715b9116070cbcaff5959024272a9f1e6f5cb29768b86c",
+            "url": "https://files.pythonhosted.org/packages/43/b6/79c881410a3b1c187f7eb3d407aecae646c6a4433d630d72200359015e83/maturin-1.14.1-py3-none-macosx_10_12_x86_64.whl",
+            "version": "1.14.1"
+          },
+          {
+            "filename": "packaging-26.3-py3-none-any.whl",
+            "name": "packaging",
+            "sha256": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c",
+            "url": "https://files.pythonhosted.org/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl",
+            "version": "26.3"
+          },
+          {
+            "filename": "pluggy-1.6.0-py3-none-any.whl",
+            "name": "pluggy",
+            "sha256": "e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746",
+            "url": "https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl",
+            "version": "1.6.0"
+          },
+          {
+            "filename": "pretend-1.0.9-py2.py3-none-any.whl",
+            "name": "pretend",
+            "sha256": "e389b12b7073604be67845dbe32bf8297360ad9a609b24846fe15d86e0b7dc01",
+            "url": "https://files.pythonhosted.org/packages/49/1f/3d4f0579913edd3ad5b23ad52fcc42531cb736ad52af2ba6c057da8785b6/pretend-1.0.9-py2.py3-none-any.whl",
+            "version": "1.0.9"
+          },
+          {
+            "filename": "pycparser-3.0-py3-none-any.whl",
+            "name": "pycparser",
+            "sha256": "b727414169a36b7d524c1c3e31839a521725078d7b2ff038656844266160a992",
+            "url": "https://files.pythonhosted.org/packages/0c/c3/44f3fbbfa403ea2a7c779186dc20772604442dde72947e7d01069cbe98e3/pycparser-3.0-py3-none-any.whl",
+            "version": "3.0"
+          },
+          {
+            "filename": "py_cpuinfo2-10.1.1-py3-none-any.whl",
+            "name": "py-cpuinfo2",
+            "sha256": "adc53396bfb206e6498d078ec2ab407f85799ecd819584ac36a8f80a2d4d762d",
+            "url": "https://files.pythonhosted.org/packages/23/0a/ba69d2dde1ae12ef1d389ea5a216384c5ff6ef7a1e7a48d1e9b6686f6790/py_cpuinfo2-10.1.1-py3-none-any.whl",
+            "version": "10.1.1"
+          },
+          {
+            "filename": "pygments-2.21.0-py3-none-any.whl",
+            "name": "pygments",
+            "sha256": "2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9",
+            "url": "https://files.pythonhosted.org/packages/71/46/17f022dd3e953bf20a04a028a21ec746d942f8d2af30fa0f124fa0e6a684/pygments-2.21.0-py3-none-any.whl",
+            "version": "2.21.0"
+          },
+          {
+            "filename": "pytest-9.1.1-py3-none-any.whl",
+            "name": "pytest",
+            "sha256": "37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c",
+            "url": "https://files.pythonhosted.org/packages/24/25/1de2678b631f5a49215c6c96fff41ba892b0a34df68d6d80292b1b48aa7f/pytest-9.1.1-py3-none-any.whl",
+            "version": "9.1.1"
+          },
+          {
+            "filename": "pytest_benchmark-5.3.0-py3-none-any.whl",
+            "name": "pytest-benchmark",
+            "sha256": "920ab1dfcffa718d49aa15ba144c7e357bda59216a0dc308016cc1c7236f719d",
+            "url": "https://files.pythonhosted.org/packages/eb/42/7e80f7cfa191e0a766d1de99b4661847415ad5db34f8209d81fd42175b59/pytest_benchmark-5.3.0-py3-none-any.whl",
+            "version": "5.3.0"
+          },
+          {
+            "filename": "pytest_cov-7.1.0-py3-none-any.whl",
+            "name": "pytest-cov",
+            "sha256": "a0461110b7865f9a271aa1b51e516c9a95de9d696734a2f71e3e78f46e1d4678",
+            "url": "https://files.pythonhosted.org/packages/9d/7a/d968e294073affff457b041c2be9868a40c1c71f4a35fcc1e45e5493067b/pytest_cov-7.1.0-py3-none-any.whl",
+            "version": "7.1.0"
+          },
+          {
+            "filename": "pytest_xdist-3.8.0-py3-none-any.whl",
+            "name": "pytest-xdist",
+            "sha256": "202ca578cfeb7370784a8c33d6d05bc6e13b4f25b5053c30a152269fd10f0b88",
+            "url": "https://files.pythonhosted.org/packages/ca/31/d4e37e9e550c2b92a9cbc2e4d0b7420a27224968580b5a447f420847c975/pytest_xdist-3.8.0-py3-none-any.whl",
+            "version": "3.8.0"
+          },
+          {
+            "filename": "setuptools-82.0.1-py3-none-any.whl",
+            "name": "setuptools",
+            "sha256": "a59e362652f08dcd477c78bb6e7bd9d80a7995bc73ce773050228a348ce2e5bb",
+            "url": "https://files.pythonhosted.org/packages/9d/76/f789f7a86709c6b087c5a2f52f911838cad707cc613162401badc665acfe/setuptools-82.0.1-py3-none-any.whl",
+            "version": "82.0.1"
+          },
+          {
+            "filename": "bcrypt-5.0.0-cp39-abi3-macosx_10_12_universal2.whl",
+            "name": "bcrypt",
+            "sha256": "0c418ca99fd47e9c59a301744d63328f17798b5947b0f791e9af3c1c499c2d0a",
+            "url": "https://files.pythonhosted.org/packages/5d/ba/2af136406e1c3839aea9ecadc2f6be2bcd1eff255bd451dd39bcf302c47a/bcrypt-5.0.0-cp39-abi3-macosx_10_12_universal2.whl",
+            "version": "5.0.0"
+          }
+        ],
+        "runner": "macos-15-intel",
+        "rust_components_sha256": "1c1c3c259fbb5e188c22455c0ed46fcfefaba10c91957d0bfb3bab07d396b04b",
+        "rust_target": "x86_64-apple-darwin",
+        "test_policy": {
+          "minimum_passed": 4654,
+          "skips": [
+            {
+              "classname": "tests.hazmat.primitives.test_aead",
+              "name": "test_chacha20poly1305_unsupported_on_older_openssl",
+              "reason": "Requires OpenSSL without ChaCha20Poly1305 support"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_aead",
+              "name": "test_aesocb3_unsupported_on_older_openssl",
+              "reason": "Requires OpenSSL without AESOCB3 support"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_aes",
+              "name": "test_buffer_protocol_alternate_modes[mode6]",
+              "reason": "AES-256 in dummy-mode mode not supported"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_argon2",
+              "name": "test_unsupported_backend",
+              "reason": "Supports argon2 so can't test unsupported path (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_argon2.TestArgon2",
+              "name": "test_argon2_malloc_failure[Argon2d]",
+              "reason": "malloc never fails in this environment"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_argon2.TestArgon2",
+              "name": "test_argon2_malloc_failure[Argon2i]",
+              "reason": "malloc never fails in this environment"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_argon2.TestArgon2",
+              "name": "test_argon2_malloc_failure[Argon2id]",
+              "reason": "malloc never fails in this environment"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_dh.TestDH",
+              "name": "test_dh_vectors[vector0]",
+              "reason": "DH keys less than 512 bits are unsupported"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_ec.TestECDSAVectors",
+              "name": "test_unsupported_deterministic_nonce",
+              "reason": "ECDSA deterministic signing is supported by this backend <OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_ec.TestECSerialization",
+              "name": "test_traditional_serialization_fips",
+              "reason": "Requires FIPS (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_ed448",
+              "name": "test_ed448_unsupported",
+              "reason": "Requires OpenSSL without Ed448 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_ed448.TestEd448Signing",
+              "name": "test_sign_input[vector2]",
+              "reason": "ed448 contexts are not currently supported"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_mldsa",
+              "name": "test_mldsa_unsupported",
+              "reason": "Requires a backend without ML-DSA support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_mldsa.TestMLDSA",
+              "name": "test_mu_hasher_unsupported",
+              "reason": "Requires a backend without SHAKE256 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_mlkem",
+              "name": "test_mlkem_unsupported",
+              "reason": "Requires a backend without ML-KEM support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_pkcs7.TestPKCS7EnvelopeBuilderUnsupported",
+              "name": "test_envelope_builder_unsupported",
+              "reason": "Requires OpenSSL with no PKCS1 v1.5 padding support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_pkcs7.TestPKCS7DecryptUnsupported",
+              "name": "test_pkcs7_decrypt_unsupported",
+              "reason": "Requires OpenSSL with no PKCS1 v1.5 padding support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_poly1305",
+              "name": "test_poly1305_unsupported",
+              "reason": "Requires OpenSSL without poly1305 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_rsa.TestRSADecryption",
+              "name": "test_decrypt_invalid_decrypt",
+              "reason": "Does not support PKCS1v1.5. (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_rsa.TestRSAEncryption",
+              "name": "test_rsa_fips_small_key",
+              "reason": "Requires FIPS (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_rsa.TestRSAPrivateKeySerialization",
+              "name": "test_traditional_serialization_fips",
+              "reason": "Requires FIPS (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_scrypt",
+              "name": "test_unsupported_backend",
+              "reason": "Supports scrypt so can't test unsupported path (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_scrypt.TestScrypt",
+              "name": "test_scrypt_malloc_failure",
+              "reason": "malloc never fails in this environment"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_x25519",
+              "name": "test_x25519_unsupported",
+              "reason": "Requires OpenSSL without X25519 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_x448",
+              "name": "test_x448_unsupported",
+              "reason": "Requires OpenSSL without X448 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_xofhash",
+              "name": "test_unsupported_xof",
+              "reason": "Requires backend without XOF support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_ssh.TestOpenSSHSerialization",
+              "name": "test_missing_bcrypt",
+              "reason": "Requires that bcrypt is missing (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            }
+          ],
+          "total": 4681
+        },
+        "uv": {
+          "filename": "uv-x86_64-apple-darwin.tar.gz",
+          "sha256": "06b8ae1da8c2661c5434507a66f8c2b0b835933bf955b5958a9ac357a37d1959",
+          "url": "https://github.com/astral-sh/uv/releases/download/0.12.7/uv-x86_64-apple-darwin.tar.gz",
+          "version": "0.12.7"
+        }
+      },
+      "windows-aarch64": {
+        "deployment_floor": "10.0",
+        "images": {
+          "20260914.159.1": {
+            "sdk": "10.0.26100.0",
+            "visual_studio": "18.10.12201.205"
+          },
+          "20260914.169.1": {
+            "sdk": "10.0.26100.0",
+            "visual_studio": "17.14.37628.2"
+          },
+          "20260920.174.1": {
+            "inventory_commit": "19df66a4db26107b6b1a6d92b9b1fc99f52112cb",
+            "perl": "5.32.1",
+            "sdk": "10.0.26100.0",
+            "visual_studio": "17.14.37710.0"
+          }
+        },
+        "machine": "ARM64",
+        "python": {
+          "filename": "cpython-3.12.14+20260825-aarch64-pc-windows-msvc-install_only.tar.gz",
+          "sha256": "57dd692b459609127d1b2d448e2033606da7089b9c5d3f9868a54899a87fad26",
+          "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20260825/cpython-3.12.14%2B20260825-aarch64-pc-windows-msvc-install_only.tar.gz",
+          "version": "3.12.14"
+        },
+        "python_dependencies": [
+          {
+            "filename": "certifi-2026.7.22-py3-none-any.whl",
+            "name": "certifi",
+            "sha256": "62f22742b58a1a33014a2b6b706588a8d7e2a88ae7bd1a6ebe8c992928483775",
+            "url": "https://files.pythonhosted.org/packages/0b/a7/71ac2cff56fec219ed242bb11b8efb69fcc4bec75db06fb7bfe35de520e6/certifi-2026.7.22-py3-none-any.whl",
+            "version": "2026.7.22"
+          },
+          {
+            "filename": "cffi-2.1.1-cp312-cp312-win_arm64.whl",
+            "name": "cffi",
+            "sha256": "7bde5e4cc5c10140859842b9d383af292b22639a4dffb725314baf45968cef80",
+            "url": "https://files.pythonhosted.org/packages/70/c6/d0ea84713fe46b243a436a18fcd47d639732747e21635c8a27191b06dc30/cffi-2.1.1-cp312-cp312-win_arm64.whl",
+            "version": "2.1.1"
+          },
+          {
+            "filename": "colorama-0.4.6-py2.py3-none-any.whl",
+            "name": "colorama",
+            "sha256": "4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6",
+            "url": "https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl",
+            "version": "0.4.6"
+          },
+          {
+            "filename": "coverage-7.16.1-cp312-cp312-win_arm64.whl",
+            "name": "coverage",
+            "sha256": "2959978f9d1d20a2c0c15d0a68baaeccf615ac1aa214cf4a05a10d6f568926c8",
+            "url": "https://files.pythonhosted.org/packages/94/00/90e9f5c4434878494306b9c0ee8068ebbd829483737d8cefccc58884d728/coverage-7.16.1-cp312-cp312-win_arm64.whl",
+            "version": "7.16.1"
+          },
+          {
+            "filename": "cryptography_vectors-50.0.1-py3-none-any.whl",
+            "name": "cryptography_vectors",
+            "sha256": "d3cee4b954c6de4c187f0ceb9e92c2da4dda24aa67b17aa84d7bd2e52c813531",
+            "url": "https://files.pythonhosted.org/packages/53/56/a9a57d947870175b49fa61da3b827c790179bceb746bb99743ca90fa9e02/cryptography_vectors-50.0.1-py3-none-any.whl",
+            "version": "50.0.1"
+          },
+          {
+            "filename": "execnet-2.1.2-py3-none-any.whl",
+            "name": "execnet",
+            "sha256": "67fba928dd5a544b783f6056f449e5e3931a5c378b128bc18501f7ea79e296ec",
+            "url": "https://files.pythonhosted.org/packages/ab/84/02fc1827e8cdded4aa65baef11296a9bbe595c474f0d6d758af082d849fd/execnet-2.1.2-py3-none-any.whl",
+            "version": "2.1.2"
+          },
+          {
+            "filename": "iniconfig-2.3.0-py3-none-any.whl",
+            "name": "iniconfig",
+            "sha256": "f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12",
+            "url": "https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl",
+            "version": "2.3.0"
+          },
+          {
+            "filename": "maturin-1.14.1-py3-none-win_arm64.whl",
+            "name": "maturin",
+            "sha256": "15cea8fcb3ba47dd636f50092bb34baea8b04ac777392f23e6bf8a9a61efb894",
+            "url": "https://files.pythonhosted.org/packages/51/d4/dac8c0720ae246be1700afb6fbdbbea20fe35b13f6570b2f70faa005df77/maturin-1.14.1-py3-none-win_arm64.whl",
+            "version": "1.14.1"
+          },
+          {
+            "filename": "packaging-26.3-py3-none-any.whl",
+            "name": "packaging",
+            "sha256": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c",
+            "url": "https://files.pythonhosted.org/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl",
+            "version": "26.3"
+          },
+          {
+            "filename": "pluggy-1.6.0-py3-none-any.whl",
+            "name": "pluggy",
+            "sha256": "e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746",
+            "url": "https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl",
+            "version": "1.6.0"
+          },
+          {
+            "filename": "pretend-1.0.9-py2.py3-none-any.whl",
+            "name": "pretend",
+            "sha256": "e389b12b7073604be67845dbe32bf8297360ad9a609b24846fe15d86e0b7dc01",
+            "url": "https://files.pythonhosted.org/packages/49/1f/3d4f0579913edd3ad5b23ad52fcc42531cb736ad52af2ba6c057da8785b6/pretend-1.0.9-py2.py3-none-any.whl",
+            "version": "1.0.9"
+          },
+          {
+            "filename": "pycparser-3.0-py3-none-any.whl",
+            "name": "pycparser",
+            "sha256": "b727414169a36b7d524c1c3e31839a521725078d7b2ff038656844266160a992",
+            "url": "https://files.pythonhosted.org/packages/0c/c3/44f3fbbfa403ea2a7c779186dc20772604442dde72947e7d01069cbe98e3/pycparser-3.0-py3-none-any.whl",
+            "version": "3.0"
+          },
+          {
+            "filename": "py_cpuinfo2-10.1.1-py3-none-any.whl",
+            "name": "py-cpuinfo2",
+            "sha256": "adc53396bfb206e6498d078ec2ab407f85799ecd819584ac36a8f80a2d4d762d",
+            "url": "https://files.pythonhosted.org/packages/23/0a/ba69d2dde1ae12ef1d389ea5a216384c5ff6ef7a1e7a48d1e9b6686f6790/py_cpuinfo2-10.1.1-py3-none-any.whl",
+            "version": "10.1.1"
+          },
+          {
+            "filename": "pygments-2.21.0-py3-none-any.whl",
+            "name": "pygments",
+            "sha256": "2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9",
+            "url": "https://files.pythonhosted.org/packages/71/46/17f022dd3e953bf20a04a028a21ec746d942f8d2af30fa0f124fa0e6a684/pygments-2.21.0-py3-none-any.whl",
+            "version": "2.21.0"
+          },
+          {
+            "filename": "pytest-9.1.1-py3-none-any.whl",
+            "name": "pytest",
+            "sha256": "37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c",
+            "url": "https://files.pythonhosted.org/packages/24/25/1de2678b631f5a49215c6c96fff41ba892b0a34df68d6d80292b1b48aa7f/pytest-9.1.1-py3-none-any.whl",
+            "version": "9.1.1"
+          },
+          {
+            "filename": "pytest_benchmark-5.3.0-py3-none-any.whl",
+            "name": "pytest-benchmark",
+            "sha256": "920ab1dfcffa718d49aa15ba144c7e357bda59216a0dc308016cc1c7236f719d",
+            "url": "https://files.pythonhosted.org/packages/eb/42/7e80f7cfa191e0a766d1de99b4661847415ad5db34f8209d81fd42175b59/pytest_benchmark-5.3.0-py3-none-any.whl",
+            "version": "5.3.0"
+          },
+          {
+            "filename": "pytest_cov-7.1.0-py3-none-any.whl",
+            "name": "pytest-cov",
+            "sha256": "a0461110b7865f9a271aa1b51e516c9a95de9d696734a2f71e3e78f46e1d4678",
+            "url": "https://files.pythonhosted.org/packages/9d/7a/d968e294073affff457b041c2be9868a40c1c71f4a35fcc1e45e5493067b/pytest_cov-7.1.0-py3-none-any.whl",
+            "version": "7.1.0"
+          },
+          {
+            "filename": "pytest_xdist-3.8.0-py3-none-any.whl",
+            "name": "pytest-xdist",
+            "sha256": "202ca578cfeb7370784a8c33d6d05bc6e13b4f25b5053c30a152269fd10f0b88",
+            "url": "https://files.pythonhosted.org/packages/ca/31/d4e37e9e550c2b92a9cbc2e4d0b7420a27224968580b5a447f420847c975/pytest_xdist-3.8.0-py3-none-any.whl",
+            "version": "3.8.0"
+          },
+          {
+            "filename": "setuptools-82.0.1-py3-none-any.whl",
+            "name": "setuptools",
+            "sha256": "a59e362652f08dcd477c78bb6e7bd9d80a7995bc73ce773050228a348ce2e5bb",
+            "url": "https://files.pythonhosted.org/packages/9d/76/f789f7a86709c6b087c5a2f52f911838cad707cc613162401badc665acfe/setuptools-82.0.1-py3-none-any.whl",
+            "version": "82.0.1"
+          },
+          {
+            "filename": "bcrypt-5.0.0-cp39-abi3-win_arm64.whl",
+            "name": "bcrypt",
+            "sha256": "f2347d3534e76bf50bca5500989d6c1d05ed64b440408057a37673282c654927",
+            "url": "https://files.pythonhosted.org/packages/27/44/d2ef5e87509158ad2187f4dd0852df80695bb1ee0cfe0a684727b01a69e0/bcrypt-5.0.0-cp39-abi3-win_arm64.whl",
+            "version": "5.0.0"
+          }
+        ],
+        "runner": "windows-11-arm",
+        "rust_components_sha256": "b7249d38c710fb5e0223d4e824525ae67fd76b1306082e470a821543df1e6b39",
+        "rust_target": "aarch64-pc-windows-msvc",
+        "test_policy": {
+          "minimum_passed": 4651,
+          "skips": [
+            {
+              "classname": "tests.hazmat.primitives.test_aead",
+              "name": "test_chacha20poly1305_unsupported_on_older_openssl",
+              "reason": "Requires OpenSSL without ChaCha20Poly1305 support"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_aead",
+              "name": "test_aesocb3_unsupported_on_older_openssl",
+              "reason": "Requires OpenSSL without AESOCB3 support"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_aes",
+              "name": "test_buffer_protocol_alternate_modes[mode6]",
+              "reason": "AES-256 in dummy-mode mode not supported"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_argon2",
+              "name": "test_unsupported_backend",
+              "reason": "Supports argon2 so can't test unsupported path (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_dh.TestDH",
+              "name": "test_dh_vectors[vector0]",
+              "reason": "DH keys less than 512 bits are unsupported"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_ec.TestECDSAVectors",
+              "name": "test_unsupported_deterministic_nonce",
+              "reason": "ECDSA deterministic signing is supported by this backend <OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_ec.TestECSerialization",
+              "name": "test_traditional_serialization_fips",
+              "reason": "Requires FIPS (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_ed448",
+              "name": "test_ed448_unsupported",
+              "reason": "Requires OpenSSL without Ed448 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_ed448.TestEd448Signing",
+              "name": "test_sign_input[vector2]",
+              "reason": "ed448 contexts are not currently supported"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_mldsa",
+              "name": "test_mldsa_unsupported",
+              "reason": "Requires a backend without ML-DSA support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_mldsa.TestMLDSA",
+              "name": "test_mu_hasher_unsupported",
+              "reason": "Requires a backend without SHAKE256 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_mlkem",
+              "name": "test_mlkem_unsupported",
+              "reason": "Requires a backend without ML-KEM support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_pkcs7.TestPKCS7EnvelopeBuilderUnsupported",
+              "name": "test_envelope_builder_unsupported",
+              "reason": "Requires OpenSSL with no PKCS1 v1.5 padding support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_pkcs7.TestPKCS7DecryptUnsupported",
+              "name": "test_pkcs7_decrypt_unsupported",
+              "reason": "Requires OpenSSL with no PKCS1 v1.5 padding support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_poly1305",
+              "name": "test_poly1305_unsupported",
+              "reason": "Requires OpenSSL without poly1305 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_rsa.TestRSADecryption",
+              "name": "test_decrypt_invalid_decrypt",
+              "reason": "Does not support PKCS1v1.5. (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_rsa.TestRSAEncryption",
+              "name": "test_rsa_fips_small_key",
+              "reason": "Requires FIPS (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_rsa.TestRSAPrivateKeySerialization",
+              "name": "test_traditional_serialization_fips",
+              "reason": "Requires FIPS (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_scrypt",
+              "name": "test_unsupported_backend",
+              "reason": "Supports scrypt so can't test unsupported path (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_x25519",
+              "name": "test_x25519_unsupported",
+              "reason": "Requires OpenSSL without X25519 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_x448",
+              "name": "test_x448_unsupported",
+              "reason": "Requires OpenSSL without X448 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_xofhash",
+              "name": "test_unsupported_xof",
+              "reason": "Requires backend without XOF support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_ssh.TestOpenSSHSerialization",
+              "name": "test_missing_bcrypt",
+              "reason": "Requires that bcrypt is missing (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_aead.TestChaCha20Poly1305",
+              "name": "test_data_too_large",
+              "reason": "mmap and 64-bit platform required"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_aead.TestAESCCM",
+              "name": "test_data_too_large",
+              "reason": "mmap and 64-bit platform required"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_aead.TestAESGCM",
+              "name": "test_data_too_large",
+              "reason": "mmap and 64-bit platform required"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_aead.TestAESOCB3",
+              "name": "test_data_too_large",
+              "reason": "mmap and 64-bit platform required"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_aead.TestAESSIV",
+              "name": "test_data_too_large",
+              "reason": "mmap and 64-bit platform required"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_aead.TestAESGCMSIV",
+              "name": "test_data_too_large",
+              "reason": "mmap and 64-bit platform required"
+            },
+            {
+              "classname": "tests.hazmat.primitives.test_ciphers",
+              "name": "test_update_auto_chunking",
+              "reason": "mmap required"
+            }
+          ],
+          "total": 4681
+        },
+        "uv": {
+          "filename": "uv-aarch64-pc-windows-msvc.zip",
+          "sha256": "1611d0f4be72b0a354ad9a6ae954093dd4c91e93e36b8b490326a05a039ffe14",
+          "url": "https://github.com/astral-sh/uv/releases/download/0.12.7/uv-aarch64-pc-windows-msvc.zip",
+          "version": "0.12.7"
+        }
+      }
+    },
+    "test_data": {
+      "wycheproof": {
+        "commit": "b61843a9a5115bb758134b6a1f5d5e502d445342",
+        "filename": "wycheproof-b61843a9a5115bb758134b6a1f5d5e502d445342.tar.gz",
+        "sha256": "fb3654761053844cea4766db3fcdd41caf8a64a6700040d2bed1d135552911b3",
+        "url": "https://github.com/C2SP/wycheproof/archive/b61843a9a5115bb758134b6a1f5d5e502d445342.tar.gz"
+      },
+      "x509-limbo": {
+        "commit": "341400395157bcd720afc37c8fdf026fcc7a88e9",
+        "filename": "x509-limbo-341400395157bcd720afc37c8fdf026fcc7a88e9.tar.gz",
+        "sha256": "e025551ba5957935a0f8565c19586d05213691239c9c4b80f7b60f64b8d2cf6b",
+        "url": "https://github.com/C2SP/x509-limbo/archive/341400395157bcd720afc37c8fdf026fcc7a88e9.tar.gz"
+      }
+    }
+  },
+  "producer_sha": "4624073d81f44bf8ae88ca4fbe482d7f138095f1",
+  "repository": "MONTBRAIN/vadgr",
+  "repository_id": 1158230114,
+  "run_attempt": 1,
+  "run_id": 35957405519,
+  "schema": 1,
+  "wheels": [
+    {
+      "artifact_digest": "sha256:907307e09afbe384e5d8c16239d111ee7070d7527797db647f891568ff35fa65",
+      "artifact_id": 10790957494,
+      "build_report_sha256": "b4e24e4e8e14beddd66f2b5ddede3186431579dfec5c07332cb52d7665d86169",
+      "build_sbom_sha256": "baece7caa62d60dbf9b50c5e0d140a50f6eefb0ae1029abbe33fe50919daa4a3",
+      "filename": "cryptography-50.0.1-cp311-abi3-win_arm64.whl",
+      "image_version": "20260914.169.1",
+      "imports": {
+        "cryptography/hazmat/bindings/_rust.pyd": [
+          "python3.dll",
+          "api-ms-win-core-synch-l1-2-0.dll",
+          "bcryptprimitives.dll",
+          "CRYPT32.dll",
+          "WS2_32.dll",
+          "ADVAPI32.dll",
+          "KERNEL32.dll",
+          "ntdll.dll",
+          "VCRUNTIME140.dll",
+          "api-ms-win-crt-string-l1-1-0.dll",
+          "api-ms-win-crt-runtime-l1-1-0.dll",
+          "api-ms-win-crt-utility-l1-1-0.dll",
+          "api-ms-win-crt-heap-l1-1-0.dll",
+          "api-ms-win-crt-time-l1-1-0.dll",
+          "api-ms-win-crt-stdio-l1-1-0.dll",
+          "api-ms-win-crt-convert-l1-1-0.dll",
+          "api-ms-win-crt-filesystem-l1-1-0.dll",
+          "api-ms-win-crt-environment-l1-1-0.dll"
+        ]
+      },
+      "job_id": 107498542111,
+      "native_members": [
+        "cryptography/hazmat/bindings/_rust.pyd"
+      ],
+      "sha256": "900c3a689b80ca7c3f0c0846af6c1023f8c02cc4b1555f0126adb4e9789fce70",
+      "size": 3331485,
+      "target": "windows-aarch64",
+      "test_report_sha256": "9f4b6c528c93ec2c4b183a60eca01d86bdc5563233e04082e592c6fd713e0595",
+      "tests": {
+        "passed": 4651,
+        "skip_cases": [
+          {
+            "classname": "tests.hazmat.primitives.test_aead",
+            "name": "test_aesocb3_unsupported_on_older_openssl",
+            "reason": "Requires OpenSSL without AESOCB3 support"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_aead",
+            "name": "test_chacha20poly1305_unsupported_on_older_openssl",
+            "reason": "Requires OpenSSL without ChaCha20Poly1305 support"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_aead.TestAESCCM",
+            "name": "test_data_too_large",
+            "reason": "mmap and 64-bit platform required"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_aead.TestAESGCM",
+            "name": "test_data_too_large",
+            "reason": "mmap and 64-bit platform required"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_aead.TestAESGCMSIV",
+            "name": "test_data_too_large",
+            "reason": "mmap and 64-bit platform required"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_aead.TestAESOCB3",
+            "name": "test_data_too_large",
+            "reason": "mmap and 64-bit platform required"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_aead.TestAESSIV",
+            "name": "test_data_too_large",
+            "reason": "mmap and 64-bit platform required"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_aead.TestChaCha20Poly1305",
+            "name": "test_data_too_large",
+            "reason": "mmap and 64-bit platform required"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_aes",
+            "name": "test_buffer_protocol_alternate_modes[mode6]",
+            "reason": "AES-256 in dummy-mode mode not supported"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_argon2",
+            "name": "test_unsupported_backend",
+            "reason": "Supports argon2 so can't test unsupported path (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_ciphers",
+            "name": "test_update_auto_chunking",
+            "reason": "mmap required"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_dh.TestDH",
+            "name": "test_dh_vectors[vector0]",
+            "reason": "DH keys less than 512 bits are unsupported"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_ec.TestECDSAVectors",
+            "name": "test_unsupported_deterministic_nonce",
+            "reason": "ECDSA deterministic signing is supported by this backend <OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_ec.TestECSerialization",
+            "name": "test_traditional_serialization_fips",
+            "reason": "Requires FIPS (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_ed448",
+            "name": "test_ed448_unsupported",
+            "reason": "Requires OpenSSL without Ed448 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_ed448.TestEd448Signing",
+            "name": "test_sign_input[vector2]",
+            "reason": "ed448 contexts are not currently supported"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_mldsa",
+            "name": "test_mldsa_unsupported",
+            "reason": "Requires a backend without ML-DSA support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_mldsa.TestMLDSA",
+            "name": "test_mu_hasher_unsupported",
+            "reason": "Requires a backend without SHAKE256 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_mlkem",
+            "name": "test_mlkem_unsupported",
+            "reason": "Requires a backend without ML-KEM support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_pkcs7.TestPKCS7DecryptUnsupported",
+            "name": "test_pkcs7_decrypt_unsupported",
+            "reason": "Requires OpenSSL with no PKCS1 v1.5 padding support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_pkcs7.TestPKCS7EnvelopeBuilderUnsupported",
+            "name": "test_envelope_builder_unsupported",
+            "reason": "Requires OpenSSL with no PKCS1 v1.5 padding support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_poly1305",
+            "name": "test_poly1305_unsupported",
+            "reason": "Requires OpenSSL without poly1305 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_rsa.TestRSADecryption",
+            "name": "test_decrypt_invalid_decrypt",
+            "reason": "Does not support PKCS1v1.5. (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_rsa.TestRSAEncryption",
+            "name": "test_rsa_fips_small_key",
+            "reason": "Requires FIPS (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_rsa.TestRSAPrivateKeySerialization",
+            "name": "test_traditional_serialization_fips",
+            "reason": "Requires FIPS (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_scrypt",
+            "name": "test_unsupported_backend",
+            "reason": "Supports scrypt so can't test unsupported path (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_ssh.TestOpenSSHSerialization",
+            "name": "test_missing_bcrypt",
+            "reason": "Requires that bcrypt is missing (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_x25519",
+            "name": "test_x25519_unsupported",
+            "reason": "Requires OpenSSL without X25519 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_x448",
+            "name": "test_x448_unsupported",
+            "reason": "Requires OpenSSL without X448 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_xofhash",
+            "name": "test_unsupported_xof",
+            "reason": "Requires backend without XOF support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          }
+        ],
+        "skip_counts": {
+          "AES-256 in dummy-mode mode not supported": 1,
+          "DH keys less than 512 bits are unsupported": 1,
+          "Does not support PKCS1v1.5. (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "ECDSA deterministic signing is supported by this backend <OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>": 1,
+          "Requires FIPS (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 3,
+          "Requires OpenSSL with no PKCS1 v1.5 padding support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 2,
+          "Requires OpenSSL without AESOCB3 support": 1,
+          "Requires OpenSSL without ChaCha20Poly1305 support": 1,
+          "Requires OpenSSL without Ed448 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Requires OpenSSL without X25519 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Requires OpenSSL without X448 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Requires OpenSSL without poly1305 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Requires a backend without ML-DSA support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Requires a backend without ML-KEM support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Requires a backend without SHAKE256 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Requires backend without XOF support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Requires that bcrypt is missing (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Supports argon2 so can't test unsupported path (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Supports scrypt so can't test unsupported path (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "ed448 contexts are not currently supported": 1,
+          "mmap and 64-bit platform required": 6,
+          "mmap required": 1
+        },
+        "skip_reasons": [
+          "AES-256 in dummy-mode mode not supported",
+          "DH keys less than 512 bits are unsupported",
+          "Does not support PKCS1v1.5. (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "ECDSA deterministic signing is supported by this backend <OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>",
+          "Requires FIPS (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires OpenSSL with no PKCS1 v1.5 padding support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires OpenSSL without AESOCB3 support",
+          "Requires OpenSSL without ChaCha20Poly1305 support",
+          "Requires OpenSSL without Ed448 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires OpenSSL without X25519 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires OpenSSL without X448 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires OpenSSL without poly1305 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires a backend without ML-DSA support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires a backend without ML-KEM support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires a backend without SHAKE256 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires backend without XOF support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires that bcrypt is missing (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Supports argon2 so can't test unsupported path (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Supports scrypt so can't test unsupported path (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "ed448 contexts are not currently supported",
+          "mmap and 64-bit platform required",
+          "mmap required"
+        ],
+        "skipped": 30,
+        "total": 4681
+      }
+    },
+    {
+      "artifact_digest": "sha256:35773788c020b1362c1bc1a46d7d2ea7dc70862dab60fdf6459b2a09f19bde37",
+      "artifact_id": 10791711091,
+      "build_report_sha256": "cf79e912b2955c961c78bfe06c29f9712064057119df243d2408b3f515414873",
+      "build_sbom_sha256": "e559cb439b7f0a97fbb0ba342538220f28822f72204ac582d9982f8ace10f5b0",
+      "filename": "cryptography-50.0.1-cp311-abi3-macosx_13_0_x86_64.whl",
+      "image_version": "20260824.0482.1",
+      "imports": {
+        "cryptography/hazmat/bindings/_rust.abi3.so": [
+          "/usr/lib/libiconv.2.dylib",
+          "/usr/lib/libSystem.B.dylib"
+        ]
+      },
+      "job_id": 107498542241,
+      "native_members": [
+        "cryptography/hazmat/bindings/_rust.abi3.so"
+      ],
+      "sha256": "e414d09a63dca5056ed46bcb915ecd5a27c3c08a23a540337d5f061b09c8c665",
+      "size": 3610568,
+      "target": "macos-x86_64",
+      "test_report_sha256": "823d576f1b50761de03d8c7f72f7eeb25fa75ac117765551d14256e2750de598",
+      "tests": {
+        "passed": 4654,
+        "skip_cases": [
+          {
+            "classname": "tests.hazmat.primitives.test_aead",
+            "name": "test_aesocb3_unsupported_on_older_openssl",
+            "reason": "Requires OpenSSL without AESOCB3 support"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_aead",
+            "name": "test_chacha20poly1305_unsupported_on_older_openssl",
+            "reason": "Requires OpenSSL without ChaCha20Poly1305 support"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_aes",
+            "name": "test_buffer_protocol_alternate_modes[mode6]",
+            "reason": "AES-256 in dummy-mode mode not supported"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_argon2",
+            "name": "test_unsupported_backend",
+            "reason": "Supports argon2 so can't test unsupported path (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_argon2.TestArgon2",
+            "name": "test_argon2_malloc_failure[Argon2d]",
+            "reason": "malloc never fails in this environment"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_argon2.TestArgon2",
+            "name": "test_argon2_malloc_failure[Argon2i]",
+            "reason": "malloc never fails in this environment"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_argon2.TestArgon2",
+            "name": "test_argon2_malloc_failure[Argon2id]",
+            "reason": "malloc never fails in this environment"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_dh.TestDH",
+            "name": "test_dh_vectors[vector0]",
+            "reason": "DH keys less than 512 bits are unsupported"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_ec.TestECDSAVectors",
+            "name": "test_unsupported_deterministic_nonce",
+            "reason": "ECDSA deterministic signing is supported by this backend <OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_ec.TestECSerialization",
+            "name": "test_traditional_serialization_fips",
+            "reason": "Requires FIPS (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_ed448",
+            "name": "test_ed448_unsupported",
+            "reason": "Requires OpenSSL without Ed448 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_ed448.TestEd448Signing",
+            "name": "test_sign_input[vector2]",
+            "reason": "ed448 contexts are not currently supported"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_mldsa",
+            "name": "test_mldsa_unsupported",
+            "reason": "Requires a backend without ML-DSA support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_mldsa.TestMLDSA",
+            "name": "test_mu_hasher_unsupported",
+            "reason": "Requires a backend without SHAKE256 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_mlkem",
+            "name": "test_mlkem_unsupported",
+            "reason": "Requires a backend without ML-KEM support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_pkcs7.TestPKCS7DecryptUnsupported",
+            "name": "test_pkcs7_decrypt_unsupported",
+            "reason": "Requires OpenSSL with no PKCS1 v1.5 padding support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_pkcs7.TestPKCS7EnvelopeBuilderUnsupported",
+            "name": "test_envelope_builder_unsupported",
+            "reason": "Requires OpenSSL with no PKCS1 v1.5 padding support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_poly1305",
+            "name": "test_poly1305_unsupported",
+            "reason": "Requires OpenSSL without poly1305 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_rsa.TestRSADecryption",
+            "name": "test_decrypt_invalid_decrypt",
+            "reason": "Does not support PKCS1v1.5. (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_rsa.TestRSAEncryption",
+            "name": "test_rsa_fips_small_key",
+            "reason": "Requires FIPS (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_rsa.TestRSAPrivateKeySerialization",
+            "name": "test_traditional_serialization_fips",
+            "reason": "Requires FIPS (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_scrypt",
+            "name": "test_unsupported_backend",
+            "reason": "Supports scrypt so can't test unsupported path (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_scrypt.TestScrypt",
+            "name": "test_scrypt_malloc_failure",
+            "reason": "malloc never fails in this environment"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_ssh.TestOpenSSHSerialization",
+            "name": "test_missing_bcrypt",
+            "reason": "Requires that bcrypt is missing (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_x25519",
+            "name": "test_x25519_unsupported",
+            "reason": "Requires OpenSSL without X25519 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_x448",
+            "name": "test_x448_unsupported",
+            "reason": "Requires OpenSSL without X448 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          },
+          {
+            "classname": "tests.hazmat.primitives.test_xofhash",
+            "name": "test_unsupported_xof",
+            "reason": "Requires backend without XOF support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)"
+          }
+        ],
+        "skip_counts": {
+          "AES-256 in dummy-mode mode not supported": 1,
+          "DH keys less than 512 bits are unsupported": 1,
+          "Does not support PKCS1v1.5. (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "ECDSA deterministic signing is supported by this backend <OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>": 1,
+          "Requires FIPS (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 3,
+          "Requires OpenSSL with no PKCS1 v1.5 padding support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 2,
+          "Requires OpenSSL without AESOCB3 support": 1,
+          "Requires OpenSSL without ChaCha20Poly1305 support": 1,
+          "Requires OpenSSL without Ed448 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Requires OpenSSL without X25519 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Requires OpenSSL without X448 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Requires OpenSSL without poly1305 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Requires a backend without ML-DSA support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Requires a backend without ML-KEM support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Requires a backend without SHAKE256 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Requires backend without XOF support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Requires that bcrypt is missing (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Supports argon2 so can't test unsupported path (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "Supports scrypt so can't test unsupported path (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)": 1,
+          "ed448 contexts are not currently supported": 1,
+          "malloc never fails in this environment": 4
+        },
+        "skip_reasons": [
+          "AES-256 in dummy-mode mode not supported",
+          "DH keys less than 512 bits are unsupported",
+          "Does not support PKCS1v1.5. (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "ECDSA deterministic signing is supported by this backend <OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>",
+          "Requires FIPS (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires OpenSSL with no PKCS1 v1.5 padding support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires OpenSSL without AESOCB3 support",
+          "Requires OpenSSL without ChaCha20Poly1305 support",
+          "Requires OpenSSL without Ed448 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires OpenSSL without X25519 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires OpenSSL without X448 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires OpenSSL without poly1305 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires a backend without ML-DSA support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires a backend without ML-KEM support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires a backend without SHAKE256 support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires backend without XOF support (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Requires that bcrypt is missing (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Supports argon2 so can't test unsupported path (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "Supports scrypt so can't test unsupported path (<OpenSSLBackend(version: OpenSSL 4.0.2 25 Aug 2026, FIPS: False, Legacy: True)>)",
+          "ed448 contexts are not currently supported",
+          "malloc never fails in this environment"
+        ],
+        "skipped": 27,
+        "total": 4681
+      }
+    }
+  ],
+  "workflow": ".github/workflows/native-wheels.yml",
+  "workflow_id": 365688750
+}

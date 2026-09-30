@@ -1,0 +1,72 @@
+{
+  "approved": false,
+  "component_merge": {
+    "add": [
+      "runtime-appimage-gcc-crt"
+    ],
+    "replace": [
+      "runtime-appimage-musl"
+    ]
+  },
+  "debug_sha256": "3313d9de576c0772e1054877fd2f9566cd38d16c5e55ee3015005331c3754074",
+  "debuglink_crc_verified_by": "../appimage-runtime-review-readonly-rerun/observations.json",
+  "gcc_crt": {
+    "aports_commit": "21cafa1183cf7501d3f1744994d221c038436e45",
+    "conditions_to_recheck": [
+      "Any non-GPL-compatible GCC intermediate-representation optimizer/plugin would require re-review.",
+      "Changing runtime/toolchain or statically adding libgcc/libstdc++ requires renewed linked-source scope review."
+    ],
+    "crtstuff_modified_by_distro_patches": false,
+    "effect": "Section1 permits the combined target code under terms consistent with independent modules. No full GCC compiler source offer is newly required solely by these startup routines. Source excerpts and all unchanged grants are nevertheless retained.",
+    "exception_eligibility": "COPYING.RUNTIME3.1 section0 permits GCC with GPL-compatible tools or processes using no GCC-derived work. Recorded ordinary GCC14.2 source builds and clang19.1.4 final C-source static-pie link support eligible compilation. No proprietary GCC IR optimizer or incompatible plugin is observed. Independently compiled runtime libraries retain their own grants, especially libfuse LGPL.",
+    "gcc_commit": "04696df09633baf97cdbbdd6e9929b9d472161d3",
+    "license_concluded": "GPL-3.0-or-later WITH GCC-exception-3.1",
+    "observed_symbols": [
+      "000000000002b1a0 t __do_global_dtors_aux",
+      "00000000000cf5b8 b __do_global_dtors_aux_fini_array_entry",
+      "00000000000cf5a0 b __frame_dummy_init_array_entry",
+      "0000000000000000 a crtstuff.c",
+      "0000000000000000 a crtstuff.c",
+      "000000000002b130 t deregister_tm_clones",
+      "000000000002b200 t frame_dummy",
+      "000000000002b160 t register_tm_clones"
+    ],
+    "other_support_scope": "No defined GCC arithmetic/unwinder support symbols were found beyond CRT startup. __floatscan and __stack_chk_fail are mapped to musl. The compiler executable, LLVM/clang and GCC libstdc++ are not treated as bundled solely because they built the runtime.",
+    "source_binding": "Exact debug FILE symbols crtstuff.c and startup function names, upstream build-log GCC14.2.0-r4 installation, and ordinary clang static-pie link identify GCC CRT support. Version binding is provenance-based; no byte-identical CRT rebuild or original linker map is claimed.",
+    "verified_distro_patches": 39
+  },
+  "limitations": [
+    "Debug CUs conservatively retain whole object-source files although section GC may remove some functions.",
+    "No full link map or byte-identical rebuild is claimed. Source licensing scope is supported by observed symbols, debug source paths, exact upstream source and pinned distro recipe."
+  ],
+  "musl": {
+    "basis": "Debug compilation units name the musl1.2.5 source tree; the pinned Alpine recipe and all ten patches reconstruct exact distro source. All 285 observed source files were retained, including only two explicit file notices, both standard MIT. Headers under include, src/internal, arch/x86_64 have no additional notices. The complete root COPYRIGHT preserves all upstream attribution and scope statements without assigning unrelated platform authors to this binary.",
+    "copyright_text_correction": "Root copyright and the two exact linked Nicholas J. Kain statements replace mechanically truncated excerpts about unrelated source files.",
+    "excluded_scope": [
+      "TRE reg*/tre* BSD code: only fnmatch is observed in regex.",
+      "ARM/AArch64 assembly grants: this is x86_64.",
+      "crypt DES/Blowfish and qsort source: not observed among linked CUs or named implementation symbols.",
+      "Sun/BSD/Arm math grants: observed math sources have no such file notices; root MIT fallback applies."
+    ],
+    "license_concluded": "MIT",
+    "observed_compilation_units": 285,
+    "own_license_requires_source_delivery": false,
+    "patch_receipt": "patched-source-ready.json",
+    "source_map": "linked-musl-source-map.json",
+    "source_offer_required_field": "Parent true flag and all original source entries preserved for combined libfuse LGPL source-relink delivery, not attributed to MIT.",
+    "stack_protector": "__stack_chk_fail and weak __stack_chk_fail_local share address0x75032; the observed source is musl src/env/__stack_chk_fail.c. This is not evidence that Alpine standalone libssp_nonshared wrapper was included.",
+    "version": "1.2.5-r11"
+  },
+  "package_approval": false,
+  "publishable": false,
+  "remaining_actual_duties": [
+    "Merge these two component rows and retained files into exact final Linux inventory/offline notices.",
+    "Keep musl copyright/permission notices and exact Nicholas J. Kain notices; preserve GCC copyright, GPLv3 text and Runtime Library Exception notice.",
+    "Complete independent libfuse LGPL combined-source/relink delivery and recipient reverse-engineering/debugging permission; this addendum does not discharge those duties.",
+    "Retained full upstream source archives have their own broader source-file licenses; binary-scope MIT conclusions do not relicense those archives.",
+    "Final package/publisher approval remains outside this bounded review."
+  ],
+  "runtime_sha256": "156f4bdbde9c52d01814600013e0a273f0118dc2de98975f3c8c63427ec79074",
+  "schema": 1,
+  "unresolved_license_or_owner_decision": []
+}

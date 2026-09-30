@@ -34,6 +34,9 @@ def test_dispatch_is_default_branch_only_and_one_shot():
     assert "github.ref == 'refs/heads/master'" in workflow
     assert "github.run_attempt == 1" in workflow
     assert 'cancel-in-progress: false' in workflow
+    assert 'source_branch:' not in workflow
+    assert 'SOURCE_BRANCH: master' in workflow
+    assert 'Exact merged protected master commit' in workflow
     for action in re.findall(r'^\s*- uses:\s*(\S+)', workflow, re.MULTILINE):
         assert re.fullmatch(r'[\w/-]+@[a-f0-9]{40}', action), action
 
@@ -128,7 +131,7 @@ def test_quota_reserves_before_vendor_request():
     assert 'refs/tags/v' not in script
 
 
-def test_feature_data_is_read_only_before_protected_authorization():
+def test_merged_source_data_is_read_only_before_protected_authorization():
     workflow = (ROOT / '.github/workflows/candidate.yml').read_text()
     for name, next_name in (("prepare-helper-inputs", "bind-helper-inputs"),
                             ("bind-helper-inputs", "claim-probe")):

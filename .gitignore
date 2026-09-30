@@ -1,5 +1,8 @@
 /data
 /target
+/packaging/windows/bin/
+/packaging/windows/obj/
+/packaging/windows/ba-functions/target/
 .env
 .env.*
 !.env.example

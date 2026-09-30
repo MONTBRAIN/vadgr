@@ -5,8 +5,9 @@
 > **<repository> <version> evidence PR:**
 > `<resolved private evidence PR URL>`.
 >
-> Resolve the branch, head and evidence link before the first live cell. The
-> evidence link names the one private evidence branch for this minor. Every host
+> Resolve the branch and head before the first development cell. Resolve the
+> evidence link before any captured artifact leaves its host and before the first
+> formal candidate cell. The evidence link names the one private evidence branch for this minor. Every host
 > adds its boundary to that pull request; it does not open another evidence pull
 > request. After the first real target OS passes and branch checks are green,
 > replace the branch/head line with the implementation PR URL before handing the
@@ -29,7 +30,7 @@
 <One sentence: what a reader is being convinced of. Not what changed - what is
 now demonstrably true that was not before.>
 
-> **Status: <not started | partially run on \<OS\>, \<date\> | run on \<OS\>, \<date\>>.**
+> **Status: <not started | development qualification on \<OS\>, \<date\> | partially run on \<OS\>, \<date\> | run on \<OS\>, \<date\>>.**
 > Automated gate <green/red> (engine N, api N), **and the pull request's own
 > checks finished and read**. <Which parts pass, which are open.> **N findings**, listed below. Nothing is marked pass that was not
 > executed and read back.
@@ -42,6 +43,70 @@ now demonstrably true that was not before.>
 bracket notes as you go; a leftover placeholder is the tell that a runbook was
 written and never run. The cross-cutting rules are in
 [`../README.md`](../README.md) and are not repeated here.>
+
+## Development qualification before the candidate
+
+<Keep this section when the implementation can run before final signing,
+publishing or dependency release. Delete only statements that do not apply.>
+
+Development qualification starts as soon as an exact implementation commit can
+run safely in isolated state. It does not wait for signing identities, a signed
+tag, immutable release assets, a published dependency or a final evidence PR.
+Use the latest available released dependency when it can exercise the behavior,
+and record its exact version. A dependency source commit intended for the next
+release may also be tested from a separate clean worktree when the runbook names
+that provenance. Never touch an existing dirty dependency worktree.
+
+Mark these results `development`, not `pass`. Signing, notarization, package
+identity, immutable artifact, clean-host and final bundled-version assertions
+wait only when their required subject does not exist. Run every unaffected
+action and oracle now. A missing release-only input does not block console,
+daemon, API, accessibility, provider, device or currently available computer-use
+behavior. Development findings are real defects: fix them, add the failing test,
+rebuild and rerun the affected development cell.
+
+### Qualification lanes
+
+<Fill both ledgers before the first live cell. Put each assertion in the lane
+required by its actual oracle, not by the cell number that happens to contain
+it. A mixed cell appears in both rows with its assertion slices named.>
+
+| lane | assertions in this minor | execution rule | completion meaning |
+|---|---|---|---|
+| unsigned development qualification | <cell ids and exact non-signing assertion slices> | run immediately on every available host; signing is not a blocker | development evidence only; never a signed-candidate pass |
+| signing-only acceptance | <cell ids and exact publisher/chain/timestamp/notarization/designated-requirement/trust/update assertion slices> | run when the immutable signed subject exists | required for release acceptance |
+
+Do not park an entire mixed cell behind signing. Terms decline, ordinary
+install/launch, console and daemon behavior, accessibility, phone transports,
+isolated repair/uninstall/data deletion, offline operation and cleanup remain
+development-runnable unless their individual oracle consumes a signed subject.
+Keep the signed assertion in the second ledger and preserve its original
+expected result.
+
+### Package production before merge
+
+Functional qualification consumes the exact release-equivalent **unsigned**
+installation vehicle registered by the approved design and distribution
+matrix. Producing that vehicle is implementation work, not post-merge signing
+work. If the vehicle, its credential-free producer, its reviewed non-secret
+package inputs, or its pinned private payload is missing, record an
+implementation finding and fix or create the packaging on the existing
+implementation branch. Run the affected source gates, build the vehicle,
+record its inventory and digest, and continue the functional cells.
+
+Do not wait for a protected post-merge workflow artifact merely because that
+workflow is the final producer. Do not substitute a source checkout, loose
+binary, system runtime, package from an earlier commit, another operating
+system's vehicle, or a different package format. A missing production signing,
+notarization, timestamping, attestation or catalog identity blocks only the
+assertions whose oracle consumes that identity. Protected CD after merge must
+sign, attest and hold the exact final product shape; it must not be the first
+time ordinary packaging is exercised.
+
+When the missing input is genuinely owner-supplied, finish every independent
+repair first, then name the exact non-secret file or approval and the precise
+resume action. Never ask the owner for a signing credential during the
+pre-merge lane.
 
 ## The rules
 
@@ -61,6 +126,21 @@ present in a given runbook, the entry is all there is.
    drives every other action. **Running them is the rule; announcing them is
    not.**
    [How a pass is run] [../README.md]
+
+   For a phone QR cell, the agent uses ADB/accessibility to launch the mobile
+   app, select the intended machine and transport, reach the live scanner, and
+   handle every automatable permission or dialog. The owner's row contains only
+   the physical camera aim and its exact visible stop condition. Never ask the
+   owner to open the app, navigate, choose a transport, type a code, inspect the
+   result, or report an oracle the agent can read.
+
+   A VM-hosted phone is checked through the host ADB server before it is called
+   unavailable. Stop the guest-local server before setting a remote socket. For
+   VirtualBox NAT, derive the guest default gateway and set
+   `ADB_SERVER_SOCKET=tcp:<gateway>:5037`; `10.0.2.2` is the usual gateway. Use
+   that same socket for every ADB command. The runbook gives the temporary host
+   server start and restore commands, requires an authorized `device` state,
+   forbids network-service mutation, and redacts the device serial.
 
 2. **Do not stop the pass to report.** The pass runs to completion for the
    operating system it is on, and what it finds is written down as it happens and
@@ -166,6 +246,16 @@ present in a given runbook, the entry is all there is.
     without requiring focus, inspect it against the approved mockup, and verify
     each effect with an independent machine oracle. [Native console driving]
 
+    Use `PrintWindow(PW_CLIENTONLY)` under a per-monitor-aware DPI context on
+    Windows. Use `SCScreenshotManager` with an
+    `SCContentFilter(desktopIndependentWindow:)` on macOS. On native Linux, use
+    one XDG Desktop Portal ScreenCast WINDOW source and its PipeWire stream on
+    Wayland, or the target window ID and XComposite window pixmap on X11. Prove
+    once per host that capture works while another application has focus. A
+    focused capture, desktop capture, monitor capture or crop is not a
+    substitute. An unavailable exact unfocused capture leaves the visual
+    assertion owed. [Native console driving]
+
 22. **A native console has no silent dead controls.** Invoke every enabled
     control through accessibility. Each future control is disabled and visibly
     names the exact registered minor that enables it. A current-state limitation
@@ -177,6 +267,28 @@ present in a given runbook, the entry is all there is.
     a held candidate from the exact merged default-branch commit. Only trust and
     signature assertions wait for that candidate and gate release. [Unsigned
     functional qualification and post-merge trust qualification]
+
+24. **A supported VM is valid native functional coverage when the guest runs
+    the product directly.** Record the hypervisor, guest OS, virtual hardware,
+    architecture, desktop and display protocol. Label it virtualized native
+    coverage, not bare-metal coverage. Leave hardware-specific behavior and
+    unavailable architectures or sessions `not run` with the exact reason. A
+    VM does not turn WSL, a container or a host-mounted checkout into native
+    coverage.
+
+25. **Missing unsigned packaging is an implementation defect, not a signing
+    blocker.** Repair or create the credential-free producer and required
+    reviewed package inputs on the implementation branch, build the registered
+    vehicle, and continue the host pass. Do not wait for protected CD or replace
+    the registered vehicle with a more convenient format. [Package production
+    before merge]
+
+26. **Desktop visual inspection is a separate, mandatory oracle.** Open and
+    inspect the actual application-only captures of every installer and console
+    state in the visual checklist. A correct accessibility tree, backend result,
+    screenshot file, or owner report does not establish a visual pass. Raw
+    Markdown in a formatted terms view is a rendering finding, not a cosmetic
+    exemption. [Desktop visual acceptance]
 
 **A pass is finished, not paused, and reporting is not a stopping point.** A
 checkpoint or a progress summary does not end your turn: write it and keep
@@ -619,11 +731,13 @@ have failed to bind, and the cause would have looked like the host.
 ## Native console driving
 
 <Delete this section only when the minor has no native graphical surface. Name
-the exact accessibility backend and the command or tool used to inspect it. Name
-the exact application-only capture method and prove that it does not require
-focus. The driver opens every capture and compares the complete view with the
-approved mockup. Screenshots confirm rendering but never locate controls or
-drive the structured tier.>
+the exact accessibility backend and the command or tool used to inspect it. Use
+the standard host-native application-only capture path named in doctrine and
+prove that it works while another application has focus. A focused capture,
+desktop capture, monitor capture or crop is not a substitute. If exact unfocused
+capture is unavailable, leave the visual assertion owed. The driver opens every
+capture and compares the complete view with the approved mockup. Screenshots
+confirm rendering but never locate controls or drive the structured tier.>
 
 <Inventory every console control before the first live cell. An enabled control
 must work in this minor. A future control must be disabled and show the exact
@@ -639,6 +753,74 @@ temporary state.>
 confirms every disabled future row is inaccessible to activation and visibly
 shows its version label. An enabled no-op, an inaccessible enabled control, or
 an unlabeled future control is a finding.>
+
+### Native desktop cold-start checklist
+
+Keep this checklist in every desktop minor. Read the docs engineering section
+"Native desktop cold-start procedure" before the first GUI cell. Fill in exact
+helper commands and supported interfaces; a pointer alone is not a procedure.
+
+- Record host/session, virtualization, artifact and process identities, plus
+  original accessibility and screen-reader settings, including unset values.
+- Prove bounded accessible-window readiness and exact control discovery. Use a
+  fresh process-scoped tree, supported native action, fresh readback and an
+  independent machine oracle for each step. Action dispatch is not success.
+- Prove enabled/disabled semantics and native text replacement on isolated
+  ordinary fields before settings, credentials or typed purge. On Linux,
+  `EditableText.SetTextContents` must actually work; an editable flag or click
+  action is not sufficient. Do not replace this proof with injected keys,
+  clipboard, backend writes or owner typing.
+- Prove the required unfocused application-only capture. On Wayland use the
+  portal WINDOW source and scoped PipeWire stream. A missing row action or
+  refused Selection is a recorded capability failure, not automatically an
+  owner-only permission prompt. Cancel the owned chooser after a bounded probe.
+- Name helper dependencies, safe tree filtering, exact new output paths and
+  cleanup commands. Never retain private window titles or secret-bearing trees.
+- Record unavailable assertions separately, continue independent cells, and
+  restore the exact original settings and owned processes after testing. After
+  a reboot, rediscover readiness and identities before resuming.
+
+### Desktop visual acceptance
+
+Keep this gate for every native desktop release. Before the first GUI cell,
+enumerate its installer, console, dialog and lifecycle states. Map each state
+to its existing functional cell and approved mockup. Capture the exact installed
+artifact through the required native application-only path, then open and
+inspect each image at its intended reading size. Record the artifact digest,
+host/session, window size, display scale, theme, capture digest and observation.
+Repeat affected visual states after every rendering fix and rebuilt artifact.
+
+Inspect these properties explicitly:
+
+- Terms and bundled legal views render headings, paragraphs, emphasis and lists
+  as readable document content. Markdown markers such as `###` and `**` must not
+  leak into a formatted view. Intentional literal source or code views are
+  separate, clearly labeled surfaces. Rendering must not change the approved
+  legal source bytes, terms version, acceptance hash or substantive text.
+- Text remains readable at the default and minimum supported window sizes and
+  supported display scales. Check wrapping, scrolling through long content,
+  clipping, contrast, alignment, spacing and reachability of controls. Check
+  both themes when the application supports them.
+- The visible unchecked, checked, enabled, disabled, focused, loading, empty,
+  populated, failure, destructive-confirmation and success states agree with
+  the fresh accessibility tree and independent machine oracle. A disabled
+  control must look disabled and reject activation. Inspect installer terms
+  before acceptance, not only the final success screen.
+- No placeholder, unintended markup, missing glyph, overlapping text, hidden
+  action, unlabeled future control or private implementation detail appears.
+  Use isolated non-secret data. Never capture a pairing code, token, private
+  endpoint or credential merely to fill the visual ledger.
+
+| view and state | functional cell | exact artifact and capture digests | window, scale and theme | visual observation | result |
+|---|---|---|---|---|---|
+| <each installer, console and dialog state> | <existing cell id> | <digests or exact capture boundary> | <actual settings> | <what the agent inspected> | <pass / fail / not run with reason> |
+
+A successful capture command alone is not an inspection. A tree or API result
+cannot close a rendering assertion. If the required exact capture cannot be
+made, preserve the failed native probe and leave that visual assertion owed.
+Continue independent functional assertions, but never promote their success to
+a visual pass or call the GUI qualification complete. Do not ask the owner to
+inspect the screen in place of the agent.
 
 ## Owner and environment requirements
 
@@ -668,6 +850,19 @@ catalog on the execution date. Pick the least expensive model that supports the
 exact cell. An automatic onboarding model is tested once as shipped; repeated
 provider-neutral tasks name an explicit cost-effective model. Do not start a
 billed call with a blank ceiling or an unrecorded escalation path.>
+
+<Use live internet access on the execution date to read current official model
+and pricing pages, then intersect those results with the authenticated catalog.
+Routine cost targets today are the Claude Sonnet, GPT Luna at medium reasoning
+and Gemini Flash families; GPT Terra is the next OpenAI lane only when Luna
+lacks a required capability. They are examples, not frozen ids or a permanent
+allowlist. A newly launched cheaper capable model replaces them. Never infer
+price from catalog order or model naming. Fable, Sol, Opus and equivalent
+frontier tiers are prohibited for setup, navigation, screenshots, smoke tasks
+and ordinary provider-neutral cells. A frontier row is valid only when it names
+the captured lower-cost capability failure from the same cell, the prewritten
+escalation condition that fired and a separate hard cost ceiling. A persisted
+expensive default must be changed before routine billed work.>
 
 | cells | provider/auth | required capabilities | selected model | official source and date | input/output price | hard iterations/tokens/cost | escalation condition |
 |---|---|---|---|---|---|---|---|

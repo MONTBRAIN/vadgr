@@ -1,0 +1,139 @@
+{
+  "archive_sha256": "eb04e52f7836d7c7976c78ca0250d61e33873c34156a2a1fc9474828ec268234",
+  "original_statement_files": [
+    {
+      "path": "wayland-protocols-wlr-0.3.12/LICENSE.txt",
+      "sha256": "1cb6f4dee8c649f175736380495f0af0c753c87f22d50931692968bb24bf2161",
+      "size": 1057,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2015 Elinor Berger"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-wlr-0.3.12/wlr-protocols/unstable/wlr-data-control-unstable-v1.xml",
+      "sha256": "5f10d6bf9bfa9d12266a6f423fb77bbb98e415f6d64fe24680710ffb362a7082",
+      "size": 12190,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2018 Simon Ser"
+        },
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2019 Ivan Molodetskikh"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-wlr-0.3.12/wlr-protocols/unstable/wlr-export-dmabuf-unstable-v1.xml",
+      "sha256": "851370ee656fe9696ccee907f367cde3963c32e2eda63ea93901a7292c9430f0",
+      "size": 9175,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2018 Rostislav Pehlivanov"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-wlr-0.3.12/wlr-protocols/unstable/wlr-foreign-toplevel-management-unstable-v1.xml",
+      "sha256": "4ecc4588858e29fe680a33521e1f22bcf22071d66d1553fe96b4ddec03d591d2",
+      "size": 11556,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2018 Ilia Bozhinov"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-wlr-0.3.12/wlr-protocols/unstable/wlr-gamma-control-unstable-v1.xml",
+      "sha256": "4065cbc291a80348b7ef311168fbfb5cf245efe977a6dc32211291ef1a9529a1",
+      "size": 5507,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2015 Giulio camuffo"
+        },
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2018 Simon Ser"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-wlr-0.3.12/wlr-protocols/unstable/wlr-input-inhibitor-unstable-v1.xml",
+      "sha256": "325ee67e0762258ad0dcf43d1366f36fe6a3ac2bec84eaf1172b1a5e1187edf8",
+      "size": 3404,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2018 Drew DeVault"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-wlr-0.3.12/wlr-protocols/unstable/wlr-layer-shell-unstable-v1.xml",
+      "sha256": "87e0b9c837aecd6977f76f3c47d73088b7159871f5d979dc1840f6cadb5e2ed8",
+      "size": 19326,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2017 Drew DeVault"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-wlr-0.3.12/wlr-protocols/unstable/wlr-output-management-unstable-v1.xml",
+      "sha256": "65b0f82a6cf129bf1a1c31a2428795abd33886c15ddd5f3ad97e5922d7bdc3a7",
+      "size": 26355,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2019 Purism SPC"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-wlr-0.3.12/wlr-protocols/unstable/wlr-output-power-management-unstable-v1.xml",
+      "sha256": "7ebd98f3449d246a57829e4b4dd9fbc3ef98e3dd42fa94ea102f14f490eb20de",
+      "size": 5597,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2019 Purism SPC"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-wlr-0.3.12/wlr-protocols/unstable/wlr-screencopy-unstable-v1.xml",
+      "sha256": "131b8f9b4aad0c8a9cf705e90d2a1511a5ca0c477637fd3400cf1cc4fa963fb8",
+      "size": 10304,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2018 Simon Ser"
+        },
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2019 Andri Yngvason"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-wlr-0.3.12/wlr-protocols/unstable/wlr-virtual-pointer-unstable-v1.xml",
+      "sha256": "3ff6d540be0bc5228195bf072bde42117ea17945a5c2061add5d3cf97d6bb524",
+      "size": 6895,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright \u00a9 2019 Josef Gajdusek"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,27 @@
+{
+  "archive_sha256": "18dee69613aac468922cf28a32025eb7d7ed6985b61f73245848e58f37876c98",
+  "basis": [
+    {
+      "accounted_grants": [
+        "Apache-2.0",
+        "Bitstream-Vera",
+        "MIT",
+        "OFL-1.1",
+        "Ubuntu-font-1.0"
+      ],
+      "archive_sha256": "18dee69613aac468922cf28a32025eb7d7ed6985b61f73245848e58f37876c98",
+      "expression": "Apache-2.0 AND MIT AND Bitstream-Vera AND OFL-1.1 AND Ubuntu-font-1.0",
+      "observed_cargo_features": [],
+      "reason": "The crate's code grant and all four separately inventoried embedded font grants are retained together; Hack explicitly includes both MIT and Bitstream Vera material.",
+      "source_files": [
+        {
+          "path": "epaint_default_fonts-0.36.1/fonts/Hack-Regular.txt",
+          "sha256": "47c0cccbeec7e8614548cc485588b28149e7874188df5f41b36efebcee285c87",
+          "size": 3734
+        }
+      ],
+      "status": "source-scope-proposal-not-package-approval"
+    }
+  ],
+  "status": "source-conclusion-not-package-approval"
+}

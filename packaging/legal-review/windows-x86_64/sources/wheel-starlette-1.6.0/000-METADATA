@@ -1,0 +1,37 @@
+Metadata-Version: 2.4
+Name: starlette
+Version: 1.6.0
+Summary: The little ASGI library that shines.
+Project-URL: Homepage, https://github.com/Kludex/starlette
+Project-URL: Documentation, https://starlette.dev/
+Project-URL: Changelog, https://starlette.dev/release-notes/
+Project-URL: Funding, https://github.com/sponsors/Kludex
+Project-URL: Source, https://github.com/Kludex/starlette
+Author-email: Tom Christie <tom@tomchristie.com>
+Maintainer-email: Marcelo Trylesinski <marcelotryle@gmail.com>
+License-Expression: BSD-3-Clause
+License-File: LICENSE.md
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Web Environment
+Classifier: Framework :: AnyIO
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Topic :: Internet :: WWW/HTTP
+Requires-Python: >=3.10
+Requires-Dist: anyio<5,>=3.6.2
+Requires-Dist: typing-extensions>=4.10.0; python_version < '3.13'
+Provides-Extra: full
+Requires-Dist: httpx2>=2.0.0; extra == 'full'
+Requires-Dist: httpx<0.29.0,>=0.27.0; extra == 'full'
+Requires-Dist: itsdangerous; extra == 'full'
+Requires-Dist: jinja2; extra == 'full'
+Requires-Dist: python-multipart>=0.0.18; extra == 'full'
+Requires-Dist: pyyaml; extra == 'full'
+Description-Content-Type: text/markdown
+

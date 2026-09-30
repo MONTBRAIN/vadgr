@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "60769b8b31b2a9f263dae2776c37b1b28ae246943cf719eb6946a1db05128a61",
+  "original_statement_files": [
+    {
+      "path": "png-0.18.1/LICENSE-MIT",
+      "sha256": "eaf40297c75da471f7cda1f3458e8d91b4b2ec866e609527a13acfa93b638652",
+      "size": 1048,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2015 nwin"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

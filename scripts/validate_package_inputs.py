@@ -96,10 +96,15 @@ def release_source_inputs(target: str) -> set[str]:
 def profile_source_inputs(profile: str) -> set[str]:
     require(re.fullmatch(r"(windows|macos|linux|wsl)-(x86_64|aarch64)", profile) is not None,
             "invalid release profile")
-    return (set(SOURCE_INPUTS) - {"packaging/cua/requirements.lock"}) | {
+    names = (set(SOURCE_INPUTS) - {"packaging/cua/requirements.lock"}) | {
         f"packaging/cua/profile-locks/{profile}.lock", "packaging/cua/native-wheel-manifest.json",
         "packaging/cua/profile-inputs.json", "packaging/cua/cua-profile-catalog.json",
         "packaging/cua/cua-profile-catalog.sigstore.json"}
+    # The embedded loader contains additional static libraries. Its identity
+    # must not change without invalidating the native Linux legal review.
+    if profile.startswith("linux-"):
+        names.add("packaging/linux/runtime.json")
+    return names
 
 
 def profile_from_inputs(names, target):

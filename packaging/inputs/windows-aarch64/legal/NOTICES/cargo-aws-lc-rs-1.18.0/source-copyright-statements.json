@@ -1,0 +1,1147 @@
+{
+  "archive_sha256": "ce2b2dcc879c3bae0d371e77c99f2238400ef24ec001394befa67b6e543add9e",
+  "original_statement_files": [
+    {
+      "path": "aws-lc-rs-1.18.0/LICENSE",
+      "sha256": "b50b376e7d24a0598488b730c3034ffcd0b58dd36c0913a24b9903a3cfd04bf7",
+      "size": 11085,
+      "statements": [
+        {
+          "line": 190,
+          "text": "Copyright Amazon.com, Inc. or its affiliates."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/build.rs",
+      "sha256": "791f97e6abdb685bcc722342d49f2646b3146b209f68753669c178716f6cee01",
+      "size": 4871,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/examples/cipher.rs",
+      "sha256": "7f85b06c901fcb33c9519b6cbb321c55f81eb2da4923243d2355e5625243462a",
+      "size": 8374,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/examples/digest.rs",
+      "sha256": "fc1197d261a5939ce7e2482f53f7e7260d85a6eea46cc6654bfa3f16682a0435",
+      "size": 3445,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/scripts/run-rustls-integration.sh",
+      "sha256": "45f80af41db0d02bbb8cf86706b36b92fc40ebb1f9ba9675114cd5bea5ce5e85",
+      "size": 7578,
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/scripts/run-s2n-quic-integration.sh",
+      "sha256": "b411d31ba064c98988cbd6d089e56ec4af018f8e273134e2526c54f07caf06d7",
+      "size": 656,
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/scripts/run-valgrind.sh",
+      "sha256": "085223f35859f6b09d4f628e0758ad10f4f6e871deeacf6512ed8fcbcbb99ee9",
+      "size": 7711,
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/scripts/run-windows-debug-crt-static-test.sh",
+      "sha256": "eeb6162b0af08158a0994048c58825b4dc459672a291ddee8f29530824d6019f",
+      "size": 1179,
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/aead/aead_ctx.rs",
+      "sha256": "7604e26ffc27c0b388cc507faa0f3762ab0fa79776a0ea5b558262bf345beb5a",
+      "size": 9198,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/aead/aes_gcm.rs",
+      "sha256": "bdda72ec8fab446e7272c78c33ea386711a4cee7b5490661379a08adec7dec93",
+      "size": 2198,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/aead/chacha.rs",
+      "sha256": "2b84704077d373b370c1db37efa7a575ef86d1fd40c49c45be291c9e4e1fd514",
+      "size": 859,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2016 Brian Smith."
+        },
+        {
+          "line": 2,
+          "text": "// Portions Copyright (c) 2016, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/aead/chacha20_poly1305_openssh.rs",
+      "sha256": "dcc37fad2810f519a91682e80722c676c930d2003e26b72a48a7a2f481285f54",
+      "size": 9887,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2016 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/aead/nonce.rs",
+      "sha256": "e8df0c5df7a7e38f10754d0b6d99d2fef29281f00b251cd5d26d06b1d6ba323b",
+      "size": 3289,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/aead/nonce_sequence/counter32.rs",
+      "sha256": "f975e80aa47ba9f58cd2b2e31f0c5e92bb62f690a9e341dc08bbb14f543f8cef",
+      "size": 6157,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/aead/nonce_sequence/counter64.rs",
+      "sha256": "b1dfb94579dd3c146fdf452cd17c75e8d96e58deefbe7129c3d7a13bd03e1cdc",
+      "size": 5937,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/aead/nonce_sequence.rs",
+      "sha256": "86e6347f1e9be98f7a02fba672c249751629af60a869f5085471191bdbcd8f19",
+      "size": 314,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/aead/poly1305.rs",
+      "sha256": "ec024b662d3290c60f69ca5eae897c3a394eece5be42cff78055bcc032f214be",
+      "size": 3518,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2016 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/aead/quic.rs",
+      "sha256": "92730e1000e3acebc029260b9102f317090861e95bded49bbceb699796eadafd",
+      "size": 5500,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/aead/rand_nonce.rs",
+      "sha256": "2ffbc6ace702ca77d0cb9c7e2a226ef067db87d80b70cb065726f2a661ee125a",
+      "size": 8990,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/aead/tests/fips/chacha20_poly1305_openssh.rs",
+      "sha256": "3a6e0c7c0724ae5e595a96b4a6fa18fcd441753b70abf51f546b0d74d69a4092",
+      "size": 1822,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/aead/tests/fips/quic.rs",
+      "sha256": "02bb33c53fe4e3559ddd89aaf2343a6d24a4cd56a1a5239556cb626df42866e2",
+      "size": 901,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/aead/tests/fips.rs",
+      "sha256": "127ca5bf67886eb4f9011cc6c593b4a56ac44db1b11b3abe32d24941b43e5fd7",
+      "size": 7613,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/aead/tls.rs",
+      "sha256": "7d0c9e1eb0b1b7c8f20b568cc241682d0c95c2db7536e8877082976434c7347e",
+      "size": 16749,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/aead/unbound_key.rs",
+      "sha256": "06c2d0634b531b9ce8c16dbb44df6abece310bb0c494ec09d1ee41b4315c9d06",
+      "size": 18339,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/aead.rs",
+      "sha256": "2f7178893b84749394070abfa9ae1345829b657025ac9cfe059f05da1eef3cfb",
+      "size": 38534,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2016 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/agreement/agreement_tests.rs",
+      "sha256": "4c1a9eab15d3210814692f584b59f43fcdccaebc695b71a6f2606ef96b5fef59",
+      "size": 17531,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/agreement/ephemeral.rs",
+      "sha256": "4c5cb3592f662e9e6c5a12343f7f36d39af477988db20856e282734de8671bae",
+      "size": 18870,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/agreement/parsed_public_key_tests.rs",
+      "sha256": "02ed4849d622e648e504af6824ee7bfbdd499dfab7a58512b6fc4e20ffc1f135",
+      "size": 6895,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/agreement/tests/fips.rs",
+      "sha256": "8ae084b9f2ff89ee8b1b8fff15ebd48463c0c7de9a34f228b2844aeae72519f5",
+      "size": 2107,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/agreement.rs",
+      "sha256": "a5005a981a8ac5ffab68f68d902edfb9ff7f10f66315d391a212c8696c7c6697",
+      "size": 30814,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2017 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/bn.rs",
+      "sha256": "c79f30d73ee4c7f1b119eec81226469ea6f8b808bf9cfb28f3118468d9c299e5",
+      "size": 1531,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/buffer.rs",
+      "sha256": "7935f484a83d9cef770f4ca1e7200b37da8f7c5839826e654e1a89dab8a58d81",
+      "size": 1820,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/cbb.rs",
+      "sha256": "a7ba7bb962d7d3350d09623ee0f924a7aa72b898890aa9b5094ab97a818c0b58",
+      "size": 3273,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/cbs.rs",
+      "sha256": "04e2b86c88e74b9c21312a75026c9acdcbb49a04eba9d287f932ad1c8f98021e",
+      "size": 409,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/cipher/aes.rs",
+      "sha256": "44c660bf16eccfa07f3fdc6fb212a60a2c1c93508fd3623b34c72f85e1691b99",
+      "size": 9275,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/cipher/block.rs",
+      "sha256": "9083ff73ac022c5b7c2a884b14db71ad5f8b49cf447fb7f6921a43b122a536b9",
+      "size": 2030,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/cipher/chacha.rs",
+      "sha256": "7a2076445b9ec78c06ff8062ff9aff5608eedf62ded1123776d64ce80e68aab8",
+      "size": 5194,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2016 Brian Smith."
+        },
+        {
+          "line": 2,
+          "text": "// Portions Copyright (c) 2016, Google Inc."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/cipher/des.rs",
+      "sha256": "91945f5f89fdd88ec6bf785ba118aab6030d49dd58790487ecb90b7863107a77",
+      "size": 8810,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/cipher/key.rs",
+      "sha256": "6b6cd11caba316fab7a1c67226f60881b8f8bf27cb37007c3b84a931017b634c",
+      "size": 13175,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/cipher/padded.rs",
+      "sha256": "9e3f17427160587b56a8f34cd25db3c7fba2c2c01f388723c084f866b6520e09",
+      "size": 20630,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/cipher/streaming.rs",
+      "sha256": "4179639d29c12658de7fd575940fba8be54d2c1c538bfcc8c08768dfea63ce60",
+      "size": 60394,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/cipher/tests/fips.rs",
+      "sha256": "b03ce005dcb47c94fe01e08c801376e81421042aa090c549e44b729ec862bd90",
+      "size": 9204,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/cipher.rs",
+      "sha256": "7fe26bab7c1ab023030d85f5fce9f26624e3803e454672ac5c344bafbf795b02",
+      "size": 87825,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/cmac/tests/fips.rs",
+      "sha256": "ad0a349e5a2532e62b87fdb8659aeca3c2143a375eaee605c98d7d4ff35578cc",
+      "size": 1433,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/cmac.rs",
+      "sha256": "f34e13ef0240baaa5022969201ef274b57d4fd42fbe7bd0556eb81e23820ec3e",
+      "size": 23867,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/constant_time.rs",
+      "sha256": "46aeea2bf9dac6065cfa76f27fda54dadda67d066fc3459a462a923111aa894b",
+      "size": 949,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2022 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/debug.rs",
+      "sha256": "003deb47e2d072445b9058c5f13847480bc2c00793496566d83afdcbfde991a0",
+      "size": 1893,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Trent Clarke."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/digest/digest_ctx.rs",
+      "sha256": "ecec9935d91c0963d43e69139d0c038f2ca635110a94f505fbd4aeeafbdfc569",
+      "size": 2114,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/digest/sha.rs",
+      "sha256": "394d2b2d5131a3b73b33a80d4540e59b1450a205d97a9da9ab612c68d886909b",
+      "size": 7657,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2022 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/digest/tests/fips.rs",
+      "sha256": "ceced56e58f533794ffb0f9d95b45cdd46628f2a769868b49e5dc4eed96be326",
+      "size": 1734,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/digest.rs",
+      "sha256": "507ba3e6e289049f9d00a7de62a4b93ee92b07a06a5ce8d29f292d035b34bfaa",
+      "size": 15726,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2019 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/ec/encoding.rs",
+      "sha256": "438dedb80e08ee01a6c2e387d83dbb34ab55f0288e646793b7b6036d1e995637",
+      "size": 10154,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/ec/key_pair.rs",
+      "sha256": "df9bf4959faab94350384af43df3f62accb4ea7179c99f47013612d20260c4c9",
+      "size": 12037,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2016 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/ec/signature.rs",
+      "sha256": "ba096145f57fa4e3922610df612efb3d0407719f4718fbd6fc47bd03682058d7",
+      "size": 10365,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/ec.rs",
+      "sha256": "d5fe2e6109fad94a148205998b23afbdeadb25d532c6df9a4f5e822846fea133",
+      "size": 9238,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2016 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/ed25519.rs",
+      "sha256": "909d52ec03239509c179c6f71683e99f9ff121d0f63a9b1d76e6335a0d1b1344",
+      "size": 22451,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2016 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/encoding.rs",
+      "sha256": "328dbcd28404ba822d16ecf1307b57f1031977d766c9eab49ed86eb847371fdf",
+      "size": 3038,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/endian.rs",
+      "sha256": "0bdd27f7c231d313857e61413bd33ba0a7b6e9ca0e4743037a506d2e01cb1f83",
+      "size": 4198,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2021 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/error.rs",
+      "sha256": "7adcaee425f7d60fa0167eb08943170dd19123a2053f8b079fc17fbc80ce8f80",
+      "size": 8259,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2021 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/evp_pkey.rs",
+      "sha256": "3227153535ac1a176269aa0ab6321b7b2417d6940bdbb5915b68096d637a6d36",
+      "size": 19309,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/fips.rs",
+      "sha256": "27ca3bc569338276b1032bc752da155d9b14e7f3aec4b0f0b04fcb94126e5903",
+      "size": 5906,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/hex.rs",
+      "sha256": "0d2a031c53b6da24f9d3655d95b03ccf684f8f91f7c357c0df268564b0fbb684",
+      "size": 2378,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/hkdf/tests/fips.rs",
+      "sha256": "b082aa1b7ad72f75e11382032468ee5bab0aa53f13392de89ad62f35c6fcabd0",
+      "size": 4031,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/hkdf.rs",
+      "sha256": "fe2e0f543cbff70a780c8de98f9d3b68b0bf54569e3278e398200c8cfc788e9f",
+      "size": 19745,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/hmac/tests/fips.rs",
+      "sha256": "b438e1096f0d3882ff394f6ba970cf6dca9fb0795fd58ec19f17c74ee6ccb234",
+      "size": 1523,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/hmac.rs",
+      "sha256": "0869a6dc5b52183d678b4a1969e7b1ebf3d3f8a73931835c90ff886904dec73a",
+      "size": 21974,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2022 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/io/der.rs",
+      "sha256": "413bcd5509f395b76024224ce4a5b0cffcd51688f2476fc03a80ffdad853c823",
+      "size": 11739,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/io/positive.rs",
+      "sha256": "21ca25a8728833a815ff5cc2e80eded825c31c6fd6bfb05d707ced3fdec29a24",
+      "size": 1381,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/io.rs",
+      "sha256": "626df62bd62a012ca8959229bc1b51ae45c07f9d6a9ded21498574410cb44586",
+      "size": 323,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/iv.rs",
+      "sha256": "8861ebb3436c6e96b538f04e8aaeacc8b1a748027fb90b60f9f51590b5b4b1dd",
+      "size": 2657,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/kdf/kbkdf.rs",
+      "sha256": "b5b726674bc6cee9850cc1582b8774037a6ffc320e8b93f0f9ce6cc792a1582f",
+      "size": 4471,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/kdf/sskdf.rs",
+      "sha256": "f2ff4f852bfb271a7d04a19294b3422b7bf78d29afff18339f7e50509768d014",
+      "size": 8148,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/kdf.rs",
+      "sha256": "b34e4085d91183131528f06f24058c9df7cdcbb6b4a88a98a8c1672346a8d6ba",
+      "size": 14111,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/kem.rs",
+      "sha256": "8aed45c0e671754dc91c9e6ffdf73677d4b072981c58cda34ba0a6e777927c6f",
+      "size": 34234,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/key_wrap/tests/fips.rs",
+      "sha256": "0781afd64179789d137755e1f2876558e4f917103d3144bd5a4f62f2f3cecb05",
+      "size": 3203,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/key_wrap/tests.rs",
+      "sha256": "fb1a9651503c399a5073c2e9869b14f6ab4ba5993eefd28697ab4ac099504a68",
+      "size": 23032,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/key_wrap.rs",
+      "sha256": "7ae527eeb0cbd2f55b886e92cd47d1567b02a2976ef10fdf742d2382f710a2a6",
+      "size": 13235,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/lib.rs",
+      "sha256": "3088b5260ba793b9062adadbeb71588441fc0b0850f77571a8cac1ddd4082643",
+      "size": 19789,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2016 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/pbkdf2/tests/fips.rs",
+      "sha256": "2aa5126757ab92b5da79711e7efea2b18dc23df3c3aa59f9f13f097c6a3ac7ef",
+      "size": 2801,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/pbkdf2.rs",
+      "sha256": "0535bf250ace4c903670033eb0a3964407d291f54ea194ce5d489e912b5fff75",
+      "size": 10460,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2022 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/pkcs8.rs",
+      "sha256": "c1477b51abf109c27cad66ca58545fe298dbe5c309c8c8d4c3e43965ef9e6b76",
+      "size": 751,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2017 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/pqdsa/key_pair.rs",
+      "sha256": "98d15b331cb565814444869645e68a6f676178c2a4d4b01e3b1c85daaa9b1b65",
+      "size": 24012,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/pqdsa/signature.rs",
+      "sha256": "46e2aab821c4ded85a6a64a9c97e67895afe8ced2b2b680e74ea8b8008e8cd38",
+      "size": 5750,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/pqdsa.rs",
+      "sha256": "e723ddffe5e938891f8c68d219ac38230c10604d449f1136a8e54f7ec341ade6",
+      "size": 5558,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/ptr.rs",
+      "sha256": "710057f68afcc779c3be6d8335bd5a00d4f5450abe05598af39c1ac59bc0e5b8",
+      "size": 6610,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/rand.rs",
+      "sha256": "0ce7984b846176ed4da9424b57105f03c47459017767a2a0eaa190e7fd3e7df0",
+      "size": 8318,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2016 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/rsa/encoding.rs",
+      "sha256": "08c0334e782412683153e2e38503b7862555285477384ee7760164b03448218e",
+      "size": 3521,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/rsa/encryption/oaep.rs",
+      "sha256": "6df40276e572591bbfb5e7de8b7a349a6e5fb2c652c5e5efa887fa4fa20d24d4",
+      "size": 10655,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/rsa/encryption/pkcs1.rs",
+      "sha256": "0676bc4c847aa3aa6f6968f1da226f00758deaf4f3c7f579f3373e3ace5e0fdc",
+      "size": 6139,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/rsa/encryption.rs",
+      "sha256": "c160536a22a0116cf4675f55a157676714e436141361c00b3835773dc66e7a46",
+      "size": 6995,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/rsa/key.rs",
+      "sha256": "10570549ffe69dcc9924b1a3335fda0b93da00d2da0b74b654c0ce687895f8c9",
+      "size": 26462,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2016 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/rsa/signature.rs",
+      "sha256": "d3977c14538ae4d0385cb79f503e611176aff61f924d773c19bd49c5d61527a3",
+      "size": 8734,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/rsa/tests/fips.rs",
+      "sha256": "6d0e9a03f06995143c683ae1ae2d85dca6466151f64da770e78a4ea23d5a5f08",
+      "size": 1833,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/rsa.rs",
+      "sha256": "788ed648d5b2ca4ce8896b04068ad0f7d5082fdb1197cb618f7fe46b5e9221b2",
+      "size": 7084,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2016 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/signature/parsed_public_key_tests.rs",
+      "sha256": "226a80d1ac9a203d50b8534ee5f1ff8cff6da0c4d4aa64aea66f517535aa7ef1",
+      "size": 18271,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/signature/tests/fips/keys.rs",
+      "sha256": "840b3b3c6ccebfffd579f1bfdaa2dc23782b4878b4848a2fde8f0fbe560d7a02",
+      "size": 76360,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/signature/tests/fips.rs",
+      "sha256": "51d5a838f0f1b375d27ffe941d947785ab461d738da7e0dfc5e0c08aa845cabe",
+      "size": 14407,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/signature.rs",
+      "sha256": "9f66355b752c74b4b904824b5980ae22a79c4c63464fa7897b9a6ce70caad4c5",
+      "size": 49605,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2017 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/test.rs",
+      "sha256": "234a52c729665cd87921ca43a9ef7c803bd64d9f3ca14b75b9638f905af68d2c",
+      "size": 22899,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2016 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/tls_prf/tests/fips.rs",
+      "sha256": "a0b9a9a930d5dd58e768c7115acf25de33e62cb6c9d0aa78d955f84a54c35ccb",
+      "size": 1414,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/tls_prf.rs",
+      "sha256": "0a4521e9caf0c560473825c89f020f7b445c741d7c568182d4f203aaa525e7aa",
+      "size": 13134,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/unstable/signature.rs",
+      "sha256": "9e678f37d6c59a9a5353e82e3ef890ee6e13024aee4c8fd2821260fc3cb1a284",
+      "size": 3968,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    },
+    {
+      "path": "aws-lc-rs-1.18.0/src/unstable.rs",
+      "sha256": "0114700fa7b158f642726dc3daf906f410e112ab907cc6b6cfa4406afc098d30",
+      "size": 431,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

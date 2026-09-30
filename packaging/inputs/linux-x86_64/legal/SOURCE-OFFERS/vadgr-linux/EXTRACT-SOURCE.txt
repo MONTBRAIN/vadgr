@@ -1,0 +1,9 @@
+Download every independent volume listed in source-volumes.json.
+Verify sha256sum -c source-volumes.SHA256SUMS, then extract every tar.gz
+into the same directory. Do not concatenate volumes. No single volume
+contains the complete source. In vadgr-0.5.0-linux-x86_64-source, verify
+sha256sum -c SHA256SUMS and follow README-SOURCE.txt.
+The source snapshot is 753c730c9f444a36d0a6b17efa2c10e5b51b88a2.
+Supply the adjacent final development receipt to rebuild.sh for compile IDs.
+This unsigned source-only qualification is not publisher authentication,
+final package qualification, byte-identical reproduction or application E2E.

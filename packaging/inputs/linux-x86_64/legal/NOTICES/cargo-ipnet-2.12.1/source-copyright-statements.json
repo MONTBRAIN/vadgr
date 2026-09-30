@@ -1,0 +1,39 @@
+{
+  "archive_sha256": "6a756c3fac73139e83f14c2d742155dd2b78d3ee56597b419a0579b7bdd6dd78",
+  "original_statement_files": [
+    {
+      "path": "ipnet-2.12.1/LICENSE-APACHE",
+      "sha256": "87d9feb9238c6bd8e0024fc4733b06cff036f89f36d93b7df1c8a0549bbb7a5b",
+      "size": 11352,
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright 2017 Juniper Networks, Inc."
+        }
+      ]
+    },
+    {
+      "path": "ipnet-2.12.1/LICENSE-MIT",
+      "sha256": "47dc9ff29128ddfb4d6a0435383c9f89120bc374dbcc1dd00b933a0b28aa7865",
+      "size": 1062,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2017 Juniper Networks, Inc."
+        }
+      ]
+    },
+    {
+      "path": "ipnet-2.12.1/README.md",
+      "sha256": "6f965e6c27554f806ad1530d9bf75d2eb07f8f806e564e430752771690327335",
+      "size": 7826,
+      "statements": [
+        {
+          "line": 191,
+          "text": "Copyright (c) 2017, Juniper Networks, Inc. All rights reserved."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

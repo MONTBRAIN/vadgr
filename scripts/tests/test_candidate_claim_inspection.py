@@ -7,10 +7,17 @@ import pytest
 
 from scripts import candidate_claim_inspection as inspection
 from scripts import candidate_claims as claims
+from scripts import candidate_policy
 from scripts.candidate import cua_helpers as helpers
 from scripts.candidate import cua_shared as shared
 from scripts.tests.test_candidate_claims import GitHub, profile_authorization, qualify
 from scripts.validate_package_inputs import PackageInputError
+
+
+@pytest.fixture(autouse=True)
+def isolated_trusted_candidate_root(tmp_path, monkeypatch):
+    """Synthetic claims must not inherit this checkout's real candidate record."""
+    monkeypatch.setattr(candidate_policy, "__file__", str(tmp_path / "scripts/candidate_policy.py"))
 
 
 def prepared():

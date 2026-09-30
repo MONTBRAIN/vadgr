@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "d039de8032a9a8856a6be89cea3e5d12fdd82306ab7c94d74e6deab2460651c5",
+  "original_statement_files": [
+    {
+      "path": "xkbcommon-dl-0.4.2/LICENSE",
+      "sha256": "d1459611105ccc285fd21dec180864b33490d946150356599bd3105e40705861",
+      "size": 1082,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2023 Kirill Chibisov"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}
