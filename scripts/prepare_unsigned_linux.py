@@ -70,7 +70,8 @@ def inventory(root):
     """Record bytes, modes and safe relative links without recording host paths."""
     root = root.resolve(strict=True)
     rows = []
-    for path in sorted(root.rglob("*")):
+    # The native verifier orders complete POSIX strings, not Path components.
+    for path in sorted(root.rglob("*"), key=lambda item: item.relative_to(root).as_posix()):
         info = path.lstat()
         row = {"path": path.relative_to(root).as_posix(), "mode": stat.S_IMODE(info.st_mode)}
         if stat.S_ISLNK(info.st_mode):

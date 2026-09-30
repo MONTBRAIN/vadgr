@@ -59,6 +59,26 @@ def test_inventory_binds_bytes_modes_and_relative_links(tmp_path):
     assert preparation.inventory(tmp_path)[0]["mode"] == 0o644
 
 
+@pytest.mark.parametrize("names", [
+    ("legal/LICENSES/uniseg-asset-sphinx/LICENSE",
+     "legal/LICENSES/uniseg-asset-sphinx-jquery-compat/LICENSE"),
+    ("site-packages/annotated_types/test_cases.py",
+     "site-packages/annotated_types-0.8.0.dist-info/INSTALLER"),
+    ("site-packages/cryptography/hazmat/bindings/_rust/x509.pyi",
+     "site-packages/cryptography/hazmat/bindings/_rust.abi3.so"),
+])
+def test_inventory_orders_complete_posix_paths_for_native_verifier(tmp_path, names):
+    for name in names:
+        path = tmp_path / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"inventory fixture\n")
+    # Path component ordering differs at a directory prefix followed by '-' or '.'.
+    assert [path.as_posix() for path in sorted(map(Path, names))] != sorted(names)
+    rows = preparation.inventory(tmp_path)
+    assert [row["path"] for row in rows] == sorted(names)
+    assert all(left["path"] < right["path"] for left, right in zip(rows, rows[1:]))
+
+
 @pytest.mark.skipif(os.name == "nt", reason="POSIX symlink semantics")
 def test_inventory_refuses_external_links(tmp_path):
     (tmp_path / "escape").symlink_to(tmp_path.parent)

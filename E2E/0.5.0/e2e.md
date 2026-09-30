@@ -671,6 +671,28 @@ Ubuntu 26.04 x86_64 GNOME Wayland host supplies neither X11, aarch64 nor
 bare-metal coverage. C1 has partial source cleanup only: 3308920832 bytes were
 reclaimed, while source and evidence remain preserved.
 
+### Linux receipt ordering finding at `43346b79`
+
+The exact hosted AppImage from source
+`43346b79d87db788696c101bee3dda88b1616ec9` has 577550840 bytes and SHA-256
+`fbfc24ed18085c9c24febc64ba4b6d30a02b164cf5e567b0bfffb2733b98c8f3`.
+Its retained artifact is `11122518049` from successful producer `36768523412`.
+Independent receipt, inventory, source correspondence and runtime checks passed.
+The native public launch nevertheless failed twice before terms with
+`unsafe or unordered qualification member`. Both attempts exited 1 and left
+the isolated XDG roots, runtime state and command link absent. L01 remains
+failed until the rebuilt live rerun; no install pass is claimed.
+
+The producer sorted Python path components while the native verifier requires
+complete POSIX path strings. The receipt contains 37 ordering inversions.
+The producer now emits that required string order. Three representative
+directory-prefix regressions failed before the fix; all 28 targeted tests then
+passed, followed by 1531 Python tests, 60 skips and 64 subtests. Rust's existing
+canonical-order and duplicate refusals remain unchanged. The fix affects the
+Linux development receipt producer, not Windows runtime or package behavior.
+The current source delivery must be refreshed before a new retained AppImage
+can close the failed cell. Its original failures remain retained.
+
 ## macOS qualification history
 
 These observations preserve implementation findings and earlier evidence. They
