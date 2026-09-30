@@ -197,6 +197,38 @@ Use it only for a cell that explicitly runs a product computer-use task. Its
 screenshot, pointer, OCR and browser tools do not satisfy the native Windows UI
 Automation oracle.
 
+### Desktop visual acceptance
+
+Visual inspection is mandatory and separate from accessibility and backend
+checks. Open each exact application-only capture at its intended reading size
+and compare it with the approved mockup. Record the tested artifact digest,
+capture digest, host/session, window size, display scale, theme and observation.
+A screenshot file, correct UI tree, successful API call or owner screen report
+alone does not establish a visual pass.
+
+For W01, M01 and L01, inspect the terms before acceptance. Headings, paragraphs,
+emphasis and lists must render as readable document content, without unintended
+Markdown markers such as `###` and `**`. Preserve the approved source text,
+terms version and acceptance hash; rendering is not a legal-content revision.
+Inspect unchecked acceptance, visibly disabled installation and the decline
+path. Repeat the relevant installation cell for its progress, failure and
+success states, including L02's available ordinary-install slice.
+
+For W04 through W10, M04 through M06, L04 through L06, F01 and O2, inspect every
+applicable console and dialog state: empty, populated, loading, failed,
+disabled, focused, destructive confirmation and success. Check readability,
+wrapping, scrolling, clipping, contrast, alignment, spacing, missing glyphs and
+control reachability at default and minimum supported window sizes, supported
+display scales and both supported themes. Visible states must agree with the
+fresh accessibility tree and independent machine oracle. Use isolated safe data;
+never retain secret-bearing captures.
+
+Repeat affected visual checks after a rendering fix and rebuilt artifact.
+If the required native capture fails, preserve the probe and leave the exact
+visual assertion owed. Continue independent functional assertions, but do not
+claim complete GUI qualification or substitute an owner inspection, desktop
+capture, crop or focused-only image.
+
 The owner acts only when the operating system protects the interaction from
 automation or a physical camera must scan a QR code. The runbook's isolated
 test-state cells authorize their named destructive operations; the agent drives
