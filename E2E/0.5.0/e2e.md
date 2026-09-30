@@ -498,6 +498,67 @@ with maximum required GLIBC 2.39. The retained preparation is not an AppImage.
 Reviewed Linux notices and source delivery still precede assembly and the
 installed-product cells. CI success is not a functional cell pass.
 
+### Current Linux disposition after packaging repair
+
+The exact repaired product source is
+`229c665d429e64ebc2501c59b3f38d883a8e774b`. Native Ubuntu 24.04 workflow
+`36736024658` retained development preparation artifact `11107323673`.
+Independent verification matched all 5826 receipt members, modes and links.
+Its executable is 65442928 bytes, SHA-256
+`2bca1d2507548d53c5d160be91ba89c9fda184f10336a1bd195c3327a04c2495`.
+The preparation tar is 152280148 bytes, SHA-256
+`dc2ff5d5fe9cdb819c2133a878057aff60f01e3eac175340d94cbdf186935d9e`.
+Neither file is the registered AppImage or an installed-product pass.
+
+The retained private runtime reports Python 3.12.14 and CUA 0.7.9. The Linux
+bootstrap repair removes pip and ensurepip, including nested foreign launchers.
+Regressions failed before both pruning and the assembly-reuse guard, then
+passed with the repairs. The new preparation contains no bootstrap files and
+its executable requires at most GLIBC 2.39. Fresh Linux and WSL payloads are
+required. Windows and macOS behavior is unchanged by this Linux-only pruning.
+
+The Linux-specific inventory, SBOM, notices and source-delivery draft is now
+complete. It contains 825 component records and 5285 files. Two independent
+offline source rebuilds passed on Ubuntu 26.04, including a modified Plasma
+description reaching rebuilt compiler metadata. Those builds prove source
+rebuild capability, not reproduction of Ubuntu 24.04 artifact bytes. Full
+CPython and Alpine runtime producer rebuilds are not claimed.
+
+The exact packet still requires publisher-owner approval. Its manifest SHA-256
+is `b2e1d2b29e88bca626e973bfc8234305945280331cdfad6e43342a3b64874c41`.
+Existing Version 1.0 terms are unchanged. This is not a signing or new-counsel
+prerequisite. The package validator rejected the unapproved draft. No approval
+flag was fabricated, and no earlier artifact was substituted.
+
+The following current results supersede earlier Linux observations for this
+source. The host is Ubuntu 26.04 x86_64 GNOME Wayland inside VirtualBox:
+
+- L01 and L02: blocked before installer execution by exact Linux packet
+  approval. The registered AppImage must then be assembled and tested. A
+  protected dependency prompt has not been reached.
+- L03: functional integrity and both launch paths remain blocked by the same
+  package prerequisite. Production attestation is separately owed post-merge.
+- L04: unattended machine, restart and runtime-task assertions remain blocked
+  by the package. Device assertions additionally require the physical phone.
+- L05 and L06: blocked before installed lifecycle, preservation and explicit
+  purge assertions by the package prerequisite. No owner data was changed.
+- F01: blocked by the package and the unavailable physical phone. The owner is
+  away with the phone. No scan or ordinary phone action is requested now.
+- O1: not run because no pre-existing isolated offline snapshot is available.
+  Host firewall, DNS, routes, proxy, VPN and services remain unchanged.
+- O2: blocked before installed accessibility and exact unfocused capture by
+  the package prerequisite. AT-SPI and WINDOW portal availability are setup
+  observations only, not a visual or accessibility pass.
+- C1: partial preparation cleanup only. Preserve the exact review packet and
+  preparation for continuation; final installed-product cleanup remains owed.
+
+aarch64, X11 and bare-metal hardware-specific behavior were not run because
+this host supplies none of those variants. Full Rust tests, Clippy, formatting,
+1426 Python tests, secret checks and E2E gates passed for the repaired source.
+All required implementation checks completed successfully. No installed-product
+Linux cell inherits those source or CI results. Nothing was merged, signed,
+tagged, published or released.
+
 ## macOS qualification history
 
 These observations preserve implementation findings and earlier evidence. They
