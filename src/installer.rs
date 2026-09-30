@@ -58,8 +58,10 @@ struct Preflight {
     signature: PathBuf,
     bundle_root: PathBuf,
     terms_version: String,
+    terms_sha256: String,
     version: String,
     terms_text: String,
+    previously_accepted: bool,
 }
 
 #[cfg(target_os = "linux")]
@@ -77,19 +79,44 @@ impl Preflight {
         let verified =
             crate::install::VerifiedLinuxPackage::open(vehicle, &manifest, &signature, &app_dir)?;
         let terms_text = verified.terms_text(&app_dir)?;
+        let terms_version = verified
+            .terms_version()
+            .ok_or_else(|| anyhow!("the package terms version is unavailable"))?
+            .to_owned();
+        let terms_sha256 = verified.terms_sha256().to_owned();
+        let previously_accepted = matching_terms_acceptance(
+            &terms_version,
+            &terms_sha256,
+            crate::install::terms_acceptance()?.as_ref(),
+        )?;
         Ok(Self {
             vehicle: vehicle.to_owned(),
             manifest,
             signature,
             bundle_root: app_dir,
-            terms_version: verified
-                .terms_version()
-                .ok_or_else(|| anyhow!("the package terms version is unavailable"))?
-                .to_owned(),
+            terms_version,
+            terms_sha256,
             version: verified.version().to_owned(),
             terms_text,
+            previously_accepted,
         })
     }
+}
+
+#[cfg(target_os = "linux")]
+fn matching_terms_acceptance(
+    terms_version: &str,
+    terms_sha256: &str,
+    previous: Option<&crate::install::TermsAcceptance>,
+) -> Result<bool> {
+    let Some(previous) = previous.filter(|record| record.terms_version == terms_version) else {
+        return Ok(false);
+    };
+    ensure!(
+        previous.terms_sha256 == terms_sha256,
+        "the accepted terms bytes changed without a new version"
+    );
+    Ok(true)
 }
 
 #[cfg(target_os = "linux")]
@@ -112,6 +139,31 @@ impl InstallerApp {
     }
 
     fn install(&mut self) {
+        let Some(preflight) = self.preflight.as_ref() else {
+            return;
+        };
+        // Recheck the validated record before starting any installation work.
+        let assent = crate::install::terms_acceptance().and_then(|previous| {
+            matching_terms_acceptance(
+                &preflight.terms_version,
+                &preflight.terms_sha256,
+                previous.as_ref(),
+            )
+        });
+        match assent {
+            Ok(previously_accepted) if self.accepted || previously_accepted => {}
+            Ok(_) if !preflight.previously_accepted => return,
+            Ok(_) => {
+                self.state = State::Failed(
+                    "The previous terms acceptance is no longer available.".to_owned(),
+                );
+                return;
+            }
+            Err(error) => {
+                self.state = State::Failed(format!("{error:#}"));
+                return;
+            }
+        }
         let Some(preflight) = self.preflight.take() else {
             return;
         };
@@ -147,6 +199,58 @@ impl InstallerApp {
             let _ = sender.send(terminal);
         });
     }
+
+    fn terms_ui(&mut self, ui: &mut egui::Ui) {
+        let preflight = self
+            .preflight
+            .as_ref()
+            .expect("terms state keeps preflight");
+        let previously_accepted = preflight.previously_accepted;
+        if previously_accepted {
+            ui.heading("Terms already accepted");
+            ui.label(format!(
+                "You previously accepted terms version {} with these exact contents. No new acceptance is needed.",
+                preflight.terms_version
+            ));
+            ui.label("Vadgr will not change this machine until you choose Install.");
+        } else {
+            ui.heading("Review the terms");
+            ui.label("Vadgr will not change this machine until you accept these terms and choose Install.");
+        }
+        ui.add_space(12.0);
+        egui::ScrollArea::vertical()
+            .max_height(380.0)
+            .show(ui, |ui| {
+                crate::console::theme::card().show(ui, |ui| {
+                    show_terms(ui, &preflight.terms_text);
+                });
+            });
+        ui.add_space(12.0);
+        if !previously_accepted {
+            ui.checkbox(&mut self.accepted, "I have read and accept these terms");
+        }
+        ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+            if ui
+                .add_enabled(
+                    self.accepted || previously_accepted,
+                    egui::Button::new("Install Vadgr"),
+                )
+                .clicked()
+            {
+                self.install();
+            }
+            if ui
+                .button(if previously_accepted {
+                    "Cancel and close"
+                } else {
+                    "Decline and close"
+                })
+                .clicked()
+            {
+                ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+            }
+        });
+    }
 }
 
 #[cfg(target_os = "linux")]
@@ -175,18 +279,7 @@ impl eframe::App for InstallerApp {
             }
             match &self.state {
                 State::Terms => {
-                    ui.heading("Review the terms");
-                    ui.label("Vadgr will not change this machine until you accept these terms and choose Install.");
-                    ui.add_space(12.0);
-                    egui::ScrollArea::vertical().max_height(380.0).show(ui, |ui| {
-                        crate::console::theme::card().show(ui, |ui| { show_terms(ui, &self.preflight.as_ref().expect("terms state keeps preflight").terms_text); });
-                    });
-                    ui.add_space(12.0);
-                    ui.checkbox(&mut self.accepted, "I have read and accept these terms");
-                    ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-                        if ui.add_enabled(self.accepted, egui::Button::new("Install Vadgr")).clicked() { self.install(); }
-                        if ui.button("Decline and close").clicked() { ctx.send_viewport_cmd(egui::ViewportCommand::Close); }
-                    });
+                    self.terms_ui(ui);
                 }
                 State::Installing(phase) => {
                     ui.heading("Installing Vadgr");
@@ -282,6 +375,116 @@ fn verification_label() -> &'static str {
 mod tests {
     use super::*;
 
+    fn acceptance() -> crate::install::TermsAcceptance {
+        crate::install::TermsAcceptance {
+            schema: 1,
+            terms_version: "1.0".to_owned(),
+            terms_sha256: "a".repeat(64),
+            accepted_at: "2026-09-30T00:00:00Z".to_owned(),
+            installer_version: "0.5.0".to_owned(),
+            installer_artifact_sha256: "b".repeat(64),
+            install_scope: "user".to_owned(),
+            installation_id: "synthetic-installer-test".to_owned(),
+            assent_method: "unchecked_checkbox_then_install".to_owned(),
+        }
+    }
+
+    fn terms_app(
+        version: &str,
+        previous: Option<&crate::install::TermsAcceptance>,
+    ) -> Result<InstallerApp> {
+        let digest = "a".repeat(64);
+        Ok(InstallerApp::new(Preflight {
+            vehicle: PathBuf::from("/unused-installer-test/Vadgr.AppImage"),
+            manifest: PathBuf::from("/unused-installer-test/release-manifest.json"),
+            signature: PathBuf::from("/unused-installer-test/release-manifest.json.bundle.jsonl"),
+            bundle_root: PathBuf::from("/unused-installer-test"),
+            terms_version: version.to_owned(),
+            previously_accepted: matching_terms_acceptance(version, &digest, previous)?,
+            terms_sha256: digest,
+            version: "0.5.0".to_owned(),
+            terms_text: "### Distribution terms\n\nThe complete reviewed text.".to_owned(),
+        }))
+    }
+
+    fn terms_output(app: &mut InstallerApp) -> egui::FullOutput {
+        let ctx = egui::Context::default();
+        ctx.enable_accesskit();
+        crate::console::theme::install(&ctx);
+        let mut output = ctx.run_ui(egui::RawInput::default(), |ui| app.terms_ui(ui));
+        output.textures_delta.clear();
+        assert!(!app.accepted, "viewing terms must never create new assent");
+        assert!(
+            app.receiver.is_none(),
+            "viewing terms must not start installation"
+        );
+        assert!(app.preflight.is_some());
+        output
+    }
+
+    #[test]
+    fn retained_exact_terms_enable_install_without_new_assent() {
+        let previous = acceptance();
+        let mut app = terms_app("1.0", Some(&previous)).unwrap();
+        let output = terms_output(&mut app);
+        let tree = output.platform_output.accesskit_update.as_ref().unwrap();
+        assert!(label_text(&output).contains(&"Terms already accepted"));
+        assert!(
+            tree.nodes
+                .iter()
+                .all(|(_, node)| node.role() != egui::accesskit::Role::CheckBox)
+        );
+        let install = tree
+            .nodes
+            .iter()
+            .find(|(_, node)| node.label() == Some("Install Vadgr"))
+            .unwrap();
+        assert!(!install.1.is_disabled());
+        assert!(
+            tree.nodes
+                .iter()
+                .any(|(_, node)| node.label() == Some("Cancel and close"))
+        );
+    }
+
+    #[test]
+    fn first_or_new_terms_keep_assent_unchecked_and_install_disabled() {
+        let previous = acceptance();
+        for (version, receipt) in [("1.0", None), ("2.0", Some(&previous))] {
+            let mut app = terms_app(version, receipt).unwrap();
+            let output = terms_output(&mut app);
+            let tree = output.platform_output.accesskit_update.as_ref().unwrap();
+            assert!(label_text(&output).contains(&"Review the terms"));
+            let checkbox = tree
+                .nodes
+                .iter()
+                .find(|(_, node)| node.role() == egui::accesskit::Role::CheckBox)
+                .unwrap();
+            assert_eq!(checkbox.1.toggled(), Some(egui::accesskit::Toggled::False));
+            let install = tree
+                .nodes
+                .iter()
+                .find(|(_, node)| node.label() == Some("Install Vadgr"))
+                .unwrap();
+            assert!(install.1.is_disabled());
+            assert!(
+                tree.nodes
+                    .iter()
+                    .any(|(_, node)| node.label() == Some("Decline and close"))
+            );
+        }
+    }
+
+    #[test]
+    fn retained_same_version_changed_bytes_fail_before_installation() {
+        let mut previous = acceptance();
+        previous.terms_sha256 = "c".repeat(64);
+        let error = terms_app("1.0", Some(&previous))
+            .err()
+            .expect("changed terms must fail before the installer is created");
+        assert!(error.to_string().contains("changed without a new version"));
+    }
+
     fn label_text(output: &egui::FullOutput) -> Vec<&str> {
         let tree = output.platform_output.accesskit_update.as_ref().unwrap();
         fn visit<'a>(
@@ -308,7 +511,8 @@ mod tests {
         let ctx = egui::Context::default();
         ctx.enable_accesskit();
         crate::console::theme::install(&ctx);
-        let output = ctx.run_ui(egui::RawInput::default(), |ui| show_terms(ui, terms));
+        let mut output = ctx.run_ui(egui::RawInput::default(), |ui| show_terms(ui, terms));
+        output.textures_delta.clear();
         let paragraphs = label_text(&output);
         assert_eq!(
             paragraphs.first(),
@@ -348,7 +552,8 @@ mod tests {
         let ctx = egui::Context::default();
         ctx.enable_accesskit();
         crate::console::theme::install(&ctx);
-        let output = ctx.run_ui(egui::RawInput::default(), |ui| show_terms(ui, terms));
+        let mut output = ctx.run_ui(egui::RawInput::default(), |ui| show_terms(ui, terms));
+        output.textures_delta.clear();
         let text = label_text(&output);
         assert_eq!(
             text,
