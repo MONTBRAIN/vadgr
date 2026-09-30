@@ -118,6 +118,13 @@ Use this lifecycle for every signed release:
 
 1. Build an exact release-equivalent unsigned development artifact from the
    pushed implementation head. Record the source, inventory and artifact hashes.
+   The executable or installation vehicle is implementation output. If the
+   unsigned package, credential-free producer, reviewed non-secret package
+   inputs or pinned runtime payload is missing, fix or create it on this branch,
+   add regression coverage, run the affected gates, build the registered
+   vehicle and continue E2E. Do not wait for protected CD or substitute a
+   checkout, loose binary, system runtime, earlier artifact, another platform's
+   artifact or an unapproved package format.
 2. Open the implementation PR after its ordinary first-host gate. Complete every
    source gate and every applicable functional E2E assertion on every required
    operating system before merge. The development artifact must match the final

@@ -83,6 +83,31 @@ development-runnable unless their individual oracle consumes a signed subject.
 Keep the signed assertion in the second ledger and preserve its original
 expected result.
 
+### Package production before merge
+
+Functional qualification consumes the exact release-equivalent **unsigned**
+installation vehicle registered by the approved design and distribution
+matrix. Producing that vehicle is implementation work, not post-merge signing
+work. If the vehicle, its credential-free producer, its reviewed non-secret
+package inputs, or its pinned private payload is missing, record an
+implementation finding and fix or create the packaging on the existing
+implementation branch. Run the affected source gates, build the vehicle,
+record its inventory and digest, and continue the functional cells.
+
+Do not wait for a protected post-merge workflow artifact merely because that
+workflow is the final producer. Do not substitute a source checkout, loose
+binary, system runtime, package from an earlier commit, another operating
+system's vehicle, or a different package format. A missing production signing,
+notarization, timestamping, attestation or catalog identity blocks only the
+assertions whose oracle consumes that identity. Protected CD after merge must
+sign, attest and hold the exact final product shape; it must not be the first
+time ordinary packaging is exercised.
+
+When the missing input is genuinely owner-supplied, finish every independent
+repair first, then name the exact non-secret file or approval and the precise
+resume action. Never ask the owner for a signing credential during the
+pre-merge lane.
+
 ## The rules
 
 **Read this before the first cell.** Every rule here was learned by breaking it,
@@ -250,6 +275,13 @@ present in a given runbook, the entry is all there is.
     unavailable architectures or sessions `not run` with the exact reason. A
     VM does not turn WSL, a container or a host-mounted checkout into native
     coverage.
+
+25. **Missing unsigned packaging is an implementation defect, not a signing
+    blocker.** Repair or create the credential-free producer and required
+    reviewed package inputs on the implementation branch, build the registered
+    vehicle, and continue the host pass. Do not wait for protected CD or replace
+    the registered vehicle with a more convenient format. [Package production
+    before merge]
 
 **A pass is finished, not paused, and reporting is not a stopping point.** A
 checkpoint or a progress summary does not end your turn: write it and keep

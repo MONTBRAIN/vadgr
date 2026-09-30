@@ -182,6 +182,16 @@ evidence to a release pass. Conversely, `awaiting signing` is never a valid
 blocker for an accessibility, phone, lifecycle, offline or cleanup assertion
 that can be observed honestly against the unsigned development package.
 
+The unsigned release-equivalent package is implementation output. If the
+registered vehicle, credential-free producer, reviewed non-secret package
+inputs or pinned runtime payload is absent, fix or create the packaging on the
+existing implementation branch. Add regression coverage, run the affected
+gates, record the resulting inventory and digest, and continue the host pass.
+Do not wait for protected post-merge CD, and do not replace the registered
+vehicle with a checkout, loose binary, system runtime, earlier artifact,
+another platform's artifact or another package format. Protected CD must not be
+the first time the final package shape is built or exercised.
+
 ## The owner's cells are executed first, not announced first
 
 **Rule 1 is satisfied by running those cells, not by mentioning them.** Before

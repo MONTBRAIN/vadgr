@@ -118,6 +118,35 @@ No accessibility, phone, transport, isolated lifecycle, offline or cleanup
 assertion waits merely because its platform cell also contains a signing
 assertion. Evidence and status name the exact slice that ran.
 
+### Pre-merge package production
+
+Every native host must build and qualify the release-equivalent unsigned
+vehicle registered in `packaging/distribution-matrix.json` before merge:
+
+- macOS uses `Vadgr-0.5.0-macos-x86_64.pkg` or
+  `Vadgr-0.5.0-macos-arm64.pkg`, without Developer ID signing or notarization;
+- native Linux uses `Vadgr-0.5.0-linux-x86_64-installer.AppImage` or
+  `Vadgr-0.5.0-linux-aarch64-installer.AppImage`, with development integrity
+  metadata but without the protected production attestation;
+- WSL uses its target-specific release-equivalent `.tar.gz` asset set.
+
+A `.deb`, loose checkout, source binary, system Python environment, earlier
+package or another platform's artifact is not a substitute. Adding `.deb`
+would change the approved distribution design and would qualify only the
+package-manager families that consume it; this minor's native Linux vehicle is
+AppImage.
+
+If `packaging/inputs/<target>`, the reviewed wheelhouse, `dist/payload`, or a
+credential-free producer is absent, that is a pre-merge implementation finding.
+The host agent must repair or create the packaging on
+`feature/0.5.0-distribution`, add regression coverage, run the affected gates,
+build the exact unsigned vehicle, record its inventory and SHA-256, and resume
+the affected cells. It must not wait for `candidate.yml` or a protected artifact
+whose lifecycle begins only after merge. A genuinely missing owner-reviewed
+non-secret input is reported by exact path only after every independent repair
+is complete. Production signing, notarization, timestamping and keyless
+attestation remain post-merge trust work.
+
 W11 belongs to pre-merge functional qualification. It requires fresh native
 producer observations after the ARM64 base-runtime change, not a signing identity.
 
@@ -262,10 +291,16 @@ the visual and accessibility oracle.
   and Screen Recording. The prior feature-branch macOS signer is disabled:
   its scripts could run with Developer ID credentials. Do not request approval
   or mark M02/M03 signed until a reviewed default-branch trusted signer accepts
-  exact held artifacts and produces the required manifest bundle. Unsigned
-  macOS builds and their development-only cells may still run.
+  exact held artifacts and produces the required manifest bundle. The host must
+  build the release-equivalent unsigned PKG and run its functional cells before
+  merge; a missing unsigned PKG or credential-free producer is an implementation
+  finding, not a reason to wait for that signer.
 - Linux: clean x86_64 and aarch64 targets, X11 and Wayland sessions, optional
   FUSE, and separate approval before a distro package manager changes anything.
+  The host must build the registered release-equivalent AppImage before merge;
+  a missing AppImage, package input or credential-free producer is an
+  implementation finding. Do not wait for the protected candidate workflow and
+  do not substitute a `.deb`.
 - WSL: clean x64 and arm64 distributions where supported, including an Ubuntu
   22.04 WSL baseline with glibc 2.35 and a current Ubuntu distribution. An
   older glibc or musl-only fixture must refuse installation before mutation.
@@ -334,7 +369,7 @@ oracles. Windows executes only the Windows rows in this session.
 
 | cell | operating system and architecture | owner/environment requirements | precondition | setup | exact action | oracle | expected result | evidence boundary | cleanup | cost, accounts, devices and permissions | result |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| M01 | macOS Intel, then Apple Silicon | clean host; no owner action | no Vadgr app, shim, state or login item | agent records the before inventory and verifies the release-equivalent package hash; package signature, notarization and staple run post-merge | agent opens the package through accessibility, inspects terms and invokes decline | before/after `/Applications`, shim, state and background-items inventory | installer makes no mutation | private macOS boundary | delete download after filing | administrator must not be requested before acceptance | partial functional: Apple Silicon unsigned package opened natively, exposed Version 1.0 terms and declined with no mutation at `5df1ad3`; exact final artifact and Intel remain owed. Signature, notarization and staple are separate post-merge trust assertions |
+| M01 | macOS Intel, then Apple Silicon | clean host; no owner action | no Vadgr app, shim, state or login item; if the release-equivalent unsigned PKG cannot be built, repair or create its credential-free producer on the implementation branch before continuing | agent builds the registered unsigned PKG, records the before inventory and verifies its hash; package signature, notarization and staple run post-merge | agent opens the package through accessibility, inspects terms and invokes decline | before/after `/Applications`, shim, state and background-items inventory | installer makes no mutation | private macOS boundary | delete download after filing | administrator must not be requested before acceptance | partial functional: Apple Silicon unsigned package opened natively, exposed Version 1.0 terms and declined with no mutation at `5df1ad3`; exact final artifact and Intel remain owed. A missing current unsigned PKG is an implementation finding to fix before merge. Signature, notarization and staple are separate post-merge trust assertions |
 | M03 | Intel and Apple Silicon macOS | protected signed artifacts | M02 installed | network off after download | run `pkgutil`, `spctl`, `codesign` and stapler checks on package, app, CUA host and nested code | expected Team ID, hardened runtime, timestamp, staple and no `get-task-allow` | every layer verifies offline | private macOS signature report | none | no notarization call | partial: Apple Silicon development package signature, Gatekeeper, app verification, staple and helper requirement were observed at `5302082`; unsigned trust checks rejected the vehicle and the helper had no Team ID or hardened runtime. This was not an offline snapshot. All signed-candidate and Intel assertions remain owed |
 | M04 | both macOS architectures | owner | functional restart requires a release-equivalent installation; signed identity continuity requires M02 | record daemon identity; record the helper designated requirement only for the post-merge trust slice | restart app, restart daemon, sign out/in and launch normally | CUA task and process identity after each functional boundary; requirement string and grant continuity after signing | functional restart and login behavior pass before merge; signed helper identity and grants survive all launches in the post-merge trust slice | private macOS identity capture | stay installed | Accessibility and Screen Recording only for the signed identity slice | partial functional: Apple Silicon unsigned public app and daemon restarts remained healthy at `c980421`; exact final functional login rerun and Intel remain owed. Signed requirement and permission continuity are separate post-merge trust assertions |
 | M05 | both macOS architectures | owner and provider | M04 functional slice complete | one paired phone | repeat W04 through W06 on macOS | CLI/API/console, device rows, health and journal | same shared behavior; platform launch uses SMAppService agent | private macOS functional capture | remove test run/device | provider billing and phone | partial functional: Apple Silicon machine fields, masked key, exact purge confirmation, CLI/API agreement, restart persistence and bounded CUA screenshot passed at `5302082`; saved-name QR and authenticated Built-in watch ran at `c980421`. The exact-name task rerun succeeded with its journal image inspected. Exact final artifact, Tailscale typed pairing and Intel remain owed; signing is not a prerequisite |
@@ -344,7 +379,7 @@ oracles. Windows executes only the Windows rows in this session.
 
 | cell | operating system and architecture | owner/environment requirements | precondition | setup | exact action | oracle | expected result | evidence boundary | cleanup | cost, accounts, devices and permissions | result |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| L01 | native Linux x86_64, then aarch64; X11 and Wayland | clean graphical session; no owner action | no Vadgr XDG generation, command, desktop or autostart entry | agent records the before inventory and verifies the release-equivalent AppImage hash; manifest trust runs post-merge | agent opens the AppImage through accessibility, inspects terms and invokes **Decline and close** | before/after XDG data/config, command and state inventories | no product or owner-state mutation | private Linux boundary | remove downloaded files after filing | no root or package-manager action | pre-merge functional assertion: run against the exact release-equivalent AppImage; manifest trust remains owed against the held candidate |
+| L01 | native Linux x86_64, then aarch64; X11 and Wayland | clean graphical session; no owner action | no Vadgr XDG generation, command, desktop or autostart entry; if the release-equivalent AppImage cannot be built, repair or create its credential-free producer on the implementation branch before continuing | agent builds the registered AppImage, records the before inventory and verifies its hash; manifest trust runs post-merge | agent opens the AppImage through accessibility, inspects terms and invokes **Decline and close** | before/after XDG data/config, command and state inventories | no product or owner-state mutation | private Linux boundary | remove downloaded files after filing | no root or package-manager action | pre-merge functional assertion: run against the exact release-equivalent AppImage; missing package inputs or payload are implementation findings to fix, while production manifest trust remains owed against the held candidate |
 | L03 | x86_64/aarch64, X11/Wayland | clean GUI hosts | L02 installed | keep FUSE; prepare extraction test | verify development integrity metadata before merge and the production attestation bundle after merge; launch normally and with `--appimage-extract-and-run` | target match, size/hash and both launches before merge; certified workflow/runner output after merge | both paths work; every available wrong-root, bundle, workflow, ref, target, size and hash case fails before XDG mutation | private Linux integrity capture | delete tampered copies | none | functional extraction and tamper assertions run before merge; production workflow and attestation assertions remain owed against the held candidate |
 | L04 | same matrix | provider and phone | release-equivalent installation healthy; L03 trust may remain owed | one provider/default and paired device | repeat W04 through W06 | CLI/API/console, transport and journal | shared console/backend behavior matches Windows | private Linux functional capture | remove run/device | bounded provider call and phone | pre-merge functional assertion: run against the exact release-equivalent AppImage; no signing identity is required |
 | L05 | same matrix | fault-injection host | L04 complete | release-equivalent local previous/next generations; held artifacts for trust assertions | inject every W07 failure; repair, update and roll back | `current` link, version receipts, health and state identity | atomic link restores prior generation; repair uses retained verified source | private Linux lifecycle capture | select fixed generation | no root | functional lifecycle and fault assertions gate merge; retained-artifact trust remains owed against the held candidate |
@@ -373,10 +408,10 @@ oracles. Windows executes only the Windows rows in this session.
 
 | Part | Windows native | macOS | native Linux | WSL |
 |---|---|---|---|---|
-| H: protected owner boundaries | partial functional: F01 QR/Built-in and typed-code/Tailscale completed; W02 is a post-merge trust assertion | partial functional: physical saved-name QR/Built-in pairing completed; M02 is a post-merge signed-identity assertion | blocked before owner action: no current release-equivalent Linux package exists. The VirtualBox host ADB bridge proved one authorized intended physical phone before the owner disconnected it, so phone absence is not the blocker | Not-Needed: WSL has no native GUI or protected installer prompt |
+| H: protected owner boundaries | partial functional: F01 QR/Built-in and typed-code/Tailscale completed; W02 is a post-merge trust assertion | partial functional: physical saved-name QR/Built-in pairing completed; M02 is a post-merge signed-identity assertion | blocked before owner action: the current release-equivalent Linux package must be produced on the implementation branch. The VirtualBox host ADB bridge proved one authorized intended physical phone before the owner disconnected it, so phone absence is not the package blocker | Not-Needed: WSL has no native GUI or protected installer prompt |
 | W: Windows cells | pre-merge functional qualification complete on available x64 hardware: W01, F01, W03 unsigned, W04, W05, W06 pre-merge, reachable W07, W08, first-release W09, W10, O2 and C1 pass; x64/ARM64 W11 passes. ARM64 installed-product hardware is unavailable. Held-candidate-only slices are tracked separately and do not block merge | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells |
-| M: macOS cells | Not-Needed: macOS-only cells | partial functional: Apple Silicon installation, native configuration, phone watch and restart observations are filed; exact final lifecycle, Intel and cleanup remain owed. Signed identity assertions are tracked separately | Not-Needed: macOS-only cells | Not-Needed: macOS-only cells |
-| L: native Linux cells | Not-Needed: native-Linux-only cells | Not-Needed: native-Linux-only cells | blocked on the current x86_64 GNOME Wayland VirtualBox host: no retained AppImage exists, GitHub reports no `native-build-linux-x86_64` artifact, and the source lacks `packaging/inputs/linux-x86_64` plus an assembled payload. Signing is not the functional blocker. aarch64, X11, bare-metal and hardware-specific behavior were not run | Not-Needed: native-Linux-only cells |
+| M: macOS cells | Not-Needed: macOS-only cells | partial functional: Apple Silicon installation, native configuration, phone watch and restart observations are filed; the host must build the exact current release-equivalent unsigned PKG and complete affected lifecycle and cleanup before merge. Intel hardware remains unavailable. Signed identity assertions are tracked separately | Not-Needed: macOS-only cells | Not-Needed: macOS-only cells |
+| L: native Linux cells | Not-Needed: native-Linux-only cells | Not-Needed: native-Linux-only cells | blocked on the current x86_64 GNOME Wayland VirtualBox host: no retained AppImage exists, GitHub reports no `native-build-linux-x86_64` artifact, and the branch lacks `packaging/inputs/linux-x86_64` plus an assembled payload. These are pre-merge implementation findings: repair the producer, build the registered AppImage and continue. Signing is not the functional blocker. aarch64, X11, bare-metal and hardware-specific behavior were not run | Not-Needed: native-Linux-only cells |
 | S: WSL cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | not run: release-equivalent unsigned WSL assets have not completed functional qualification; signing is not the blocker |
 | O: shared offline, accessibility and cleanup cells | pre-merge functional qualification complete on available x64 hardware: prior O1 remains valid; the Narrator state matrix, exact-current UIA, unfocused Windows Graphics Capture and final C1 cleanup pass | partial functional: native focus, VoiceOver speech, state matrix, isolated fixture cleanup and screen-reader-setting restoration ran; exact final offline lifecycle and cleanup remain owed | blocked: no current release-equivalent package or pre-existing isolated offline snapshot is available. C1 remains pending until the Linux cells finish | not run: host functional qualification is incomplete |
 
@@ -385,8 +420,8 @@ oracles. Windows executes only the Windows rows in this session.
 | host | cells | result |
 |---|---:|---|
 | Windows x64/arm64 | W01, W02, F01, W03 through W11, O1, O2, C1 | pre-merge functional qualification is complete on available x64 hardware at exact product source `24ae14a`: x64 W01, F01, W03 unsigned, W04, W05, W06 pre-merge, reachable W07, W08, first-release W09, W10, O2 and C1 pass; native x64/ARM64 W11 passes. Prior O1 remains unaffected. ARM64 installed-product behavior is unavailable and recorded honestly. W02 and named held-candidate assertions are post-merge work and do not gate merge |
-| macOS Intel/Apple Silicon | M01, M02, F01, M03 through M06, O1, O2, C1 | pre-merge functional qualification is partial: Apple Silicon installed configuration, phone pairing/watch, accessibility and screen-reader restoration observations are filed; exact final affected lifecycle assertions, Intel, Tailscale pairing and cleanup remain owed. M02 and named signed-identity assertions are post-merge trust work |
-| Linux x86_64/aarch64 X11/Wayland | L01, L02, F01, L03 through L06, O1, O2, C1 | blocked on virtualized native Ubuntu 26.04 x86_64 GNOME Wayland: the exact source has no retained AppImage, `native-build-linux-x86_64` artifact, reviewed Linux package-input packet or assembled payload. The host ADB bridge proved the intended physical phone before disconnection, but F01 cannot reach its prepared-QR owner boundary without the package. No isolated offline snapshot exists. aarch64, X11, bare-metal and hardware-specific behavior were not run. C1 remains pending. Signing does not block this lane |
+| macOS Intel/Apple Silicon | M01, M02, F01, M03 through M06, O1, O2, C1 | pre-merge functional qualification is partial: Apple Silicon installed configuration, phone pairing/watch, accessibility and screen-reader restoration observations are filed; the exact current unsigned PKG and affected lifecycle, Tailscale pairing and cleanup remain owed. The host repairs missing unsigned packaging on the implementation branch. Intel hardware remains unavailable. M02 and named signed-identity assertions are post-merge trust work |
+| Linux x86_64/aarch64 X11/Wayland | L01, L02, F01, L03 through L06, O1, O2, C1 | blocked on virtualized native Ubuntu 26.04 x86_64 GNOME Wayland: the exact source has no retained AppImage, `native-build-linux-x86_64` artifact, reviewed Linux package-input packet or assembled payload. These are implementation findings the host must repair on the branch before continuing. The host ADB bridge proved the intended physical phone before disconnection, but F01 cannot reach its prepared-QR owner boundary without the package. No isolated offline snapshot exists. aarch64, X11, bare-metal and hardware-specific behavior were not run. C1 remains pending. Signing does not block this lane |
 | WSL x64/arm64 | S01 through S06, O1, C1 | pre-merge functional qualification is not run: release-equivalent unsigned assets are required. Production attestation is a separate post-merge trust lane |
 
 Overall functional qualification remains **incomplete** until every applicable
