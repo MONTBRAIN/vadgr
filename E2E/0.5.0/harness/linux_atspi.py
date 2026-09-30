@@ -57,6 +57,34 @@ def action_names(action):
     return [] if action is None else [action.get_action_name(i) for i in range(action.get_n_actions())]
 
 
+def select_child(node, atspi):
+    """Select only the exact child's native parent Selection index."""
+    parent = node.get_parent()
+    index = node.get_index_in_parent()
+
+    def same_child():
+        return (parent is not None
+                and parent.get_process_id() == node.get_process_id()
+                and node.get_parent() == parent
+                and node.get_index_in_parent() == index
+                and 0 <= index < parent.get_child_count()
+                and parent.get_child_at_index(index) == node
+                and available(node.get_state_set(), atspi))
+
+    if not same_child():
+        raise RuntimeError("Selection child identity or availability changed")
+    selection = parent.get_selection_iface()
+    if selection is None:
+        raise RuntimeError("The control's parent does not expose native Selection")
+    if not same_child():
+        raise RuntimeError("Selection child identity or availability changed")
+    if not selection.select_child(index):
+        raise RuntimeError("Native accessibility selection was refused")
+    if not same_child() or not selection.is_child_selected(index):
+        raise RuntimeError("Native accessibility selection readback failed")
+    return True
+
+
 def describe(node, path, atspi, allow_names=None):
     state = node.get_state_set()
     role = node.get_role_name()
@@ -64,11 +92,10 @@ def describe(node, path, atspi, allow_names=None):
     name = "<protected>" if protected else node.get_name()
     if not protected and allow_names is not None and name and name not in allow_names:
         name = "<redacted>"
-    return {
+    record = {
         "path": "/".join(map(str, path)),
         "name": name,
         "role": role,
-        "actions": action_names(node.get_action_iface()),
         "enabled": state.contains(atspi.StateType.ENABLED),
         "sensitive": state.contains(atspi.StateType.SENSITIVE),
         "available": available(state, atspi),
@@ -77,11 +104,19 @@ def describe(node, path, atspi, allow_names=None):
         "showing": state.contains(atspi.StateType.SHOWING),
         "editable": state.contains(atspi.StateType.EDITABLE),
     }
+    try:
+        record["actions"] = action_names(node.get_action_iface())
+    except Exception as error:
+        # Keep the failed node and the remaining tree, but never print native
+        # messages that may contain private values or confuse failure with [].
+        record["actions"] = None
+        record["actions_error"] = type(error).__name__
+    return record
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("tree", "act", "set-text", "focus"))
+    parser.add_argument("command", choices=("tree", "act", "set-text", "focus", "select"))
     parser.add_argument("--pid", type=int, required=True)
     parser.add_argument("--name")
     parser.add_argument("--role")
@@ -113,12 +148,15 @@ def main(argv=None):
         rows = list(walk(app))
         if args.command == "tree":
             allowed = set(args.tree_allow_name) if args.tree_allow_name is not None else None
-            print(json.dumps([describe(node, path, Atspi, allowed) for node, path in rows], indent=2))
-            return 0
+            records = [describe(node, path, Atspi, allowed) for node, path in rows]
+            print(json.dumps(records, indent=2))
+            return 1 if any("actions_error" in record for record in records) else 0
         location = tuple(map(int, args.path.split("/"))) if args.path else None
         node = select_node(rows, args.name, args.role, location, Atspi)
         if args.command == "focus":
             success = node.grab_focus()
+        elif args.command == "select":
+            success = select_child(node, Atspi)
         elif args.command == "set-text":
             value = sys.stdin.read()
             success = node.set_text_contents(value)

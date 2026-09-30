@@ -15,6 +15,13 @@ separate `ENABLED` state. Tree output preserves both states. For a shared
 portal chooser, repeat `--tree-allow-name` with only known test-window and
 control names. All other nonempty names are redacted without changing exact
 action targeting.
+Use `select` for a list item whose parent exposes native Selection. The helper
+checks the exact parent and child identity and reads selection back before
+reporting acceptance. It never substitutes a click or keyboard event. If a
+tree's advertised Action interface fails, that node has `actions: null` and
+an `actions_error` class. Other nodes remain visible, but the tree command
+exits nonzero. Preserve the error; do not treat it as an empty action list or
+a passing oracle.
 
 ```sh
 /usr/bin/python3 E2E/0.5.0/harness/linux_atspi.py tree --pid "$E2E_APP_PID"
