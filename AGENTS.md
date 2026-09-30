@@ -826,6 +826,16 @@ offered.
   reason instead. An enabled no-op, an inaccessible control, or an unlabeled
   future control is a finding.
 
+**Before native installer or console cells, prove the automation path.** Read
+the docs `general/ENGINEERING.md` section "Native desktop cold-start procedure"
+and the current runbook's matching checklist. Prove process-scoped native
+actions, actual text replacement and independent readback before relying on
+them. Inspect exact unfocused application-only images; a UI tree is not a visual
+pass. Preserve failed probes, fix product accessibility defects, and restore
+assistive settings. Put this procedure in both the current minor and template
+so the next agent does not have to rediscover it. CLAUDE.md imports this entry
+point and follows the same procedure.
+
 The gate, before offering anything:
 
 ```bash

@@ -754,6 +754,32 @@ confirms every disabled future row is inaccessible to activation and visibly
 shows its version label. An enabled no-op, an inaccessible enabled control, or
 an unlabeled future control is a finding.>
 
+### Native desktop cold-start checklist
+
+Keep this checklist in every desktop minor. Read the docs engineering section
+"Native desktop cold-start procedure" before the first GUI cell. Fill in exact
+helper commands and supported interfaces; a pointer alone is not a procedure.
+
+- Record host/session, virtualization, artifact and process identities, plus
+  original accessibility and screen-reader settings, including unset values.
+- Prove bounded accessible-window readiness and exact control discovery. Use a
+  fresh process-scoped tree, supported native action, fresh readback and an
+  independent machine oracle for each step. Action dispatch is not success.
+- Prove enabled/disabled semantics and native text replacement on isolated
+  ordinary fields before settings, credentials or typed purge. On Linux,
+  `EditableText.SetTextContents` must actually work; an editable flag or click
+  action is not sufficient. Do not replace this proof with injected keys,
+  clipboard, backend writes or owner typing.
+- Prove the required unfocused application-only capture. On Wayland use the
+  portal WINDOW source and scoped PipeWire stream. A missing row action or
+  refused Selection is a recorded capability failure, not automatically an
+  owner-only permission prompt. Cancel the owned chooser after a bounded probe.
+- Name helper dependencies, safe tree filtering, exact new output paths and
+  cleanup commands. Never retain private window titles or secret-bearing trees.
+- Record unavailable assertions separately, continue independent cells, and
+  restore the exact original settings and owned processes after testing. After
+  a reboot, rediscover readiness and identities before resuming.
+
 ### Desktop visual acceptance
 
 Keep this gate for every native desktop release. Before the first GUI cell,

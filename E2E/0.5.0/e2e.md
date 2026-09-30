@@ -197,6 +197,52 @@ Use it only for a cell that explicitly runs a product computer-use task. Its
 screenshot, pointer, OCR and browser tools do not satisfy the native Windows UI
 Automation oracle.
 
+### Native desktop cold-start checklist
+
+Read the docs engineering section "Native desktop cold-start procedure" before
+GUI cells. A supported Ubuntu VirtualBox guest is virtualized native coverage;
+record the actual guest, virtual hardware, architecture, desktop and protocol.
+It is not bare-metal, another architecture or another desktop-session pass.
+
+For Linux, read `harness/linux_atspi.py` and
+`harness/linux_portal_capture.py` before using them. The driver needs system
+Python GI with Atspi; capture also needs Gio, Gst and the `pipewiresrc`,
+`videoconvert`, `pngenc` and `appsink` elements. These are test-driver
+dependencies, not dependencies of the installed Vadgr package.
+
+1. Record the original desktop accessibility, screen-reader and session AT-SPI
+   settings, including unset values. Enable only what this session needs and
+   restore the exact prior state later. Record every assistive process started.
+2. Launch the exact retained package outside its checkout and record its PID.
+   Poll bounded readiness. Use
+   `/usr/bin/python3 E2E/0.5.0/harness/linux_atspi.py tree --pid <pid>` with repeated
+   `--tree-allow-name <safe-label>` flags before saving a tree. Redact private
+   titles and values at acquisition; never capture a secret to prove a field.
+3. From that fresh tree, select one exact name and role. Use the helper's
+   `act --pid <pid> --name <name> --role <role> --action <observed-action>`.
+   Reacquire the tree and inspect the independent machine result. Native action
+   acceptance is not proof of mutation, and disabled semantics need their own
+   negative check even when the product guard rejects activation.
+4. On an isolated ordinary field, use `set-text` with its exact PID, name, role
+   and `--value-stdin`. Prove readback and save before relying on settings or
+   typed purge. `editable=true` does not prove `EditableText.SetTextContents`.
+   Preserve native refusal as a finding; do not inject keys, use clipboard,
+   edit the database or ask the owner to type instead.
+5. Invoke `/usr/bin/python3 E2E/0.5.0/harness/linux_portal_capture.py` with
+   `--output <new-private.png> --delay 15 --timeout 120`. Inspect the chooser's
+   fresh AT-SPI tree, select only the intended WINDOW and invoke its enabled
+   Share action. Move focus to
+   another safe application during the delay through native accessibility.
+   Inspect the resulting exact application image and record focus separately.
+6. If the window row has no action and native Selection refuses it, retain the
+   failed probe and cancel the owned chooser. This alone does not prove a
+   protected owner prompt. Do not retry indefinitely or substitute a desktop
+   capture, crop, focused image or tree. Leave the exact visual assertion owed
+   and continue independent functional cells.
+7. After reboot, reacquire process and session identities. Preserve interrupted
+   attempts without guessing exit codes. At cleanup restore assistive settings
+   and stop only pass-created processes and capture sessions.
+
 ### Desktop visual acceptance
 
 Visual inspection is mandatory and separate from accessibility and backend
