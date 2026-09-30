@@ -10,6 +10,11 @@ exact application PID. Reacquire its tree after each transition, then invoke
 one enabled control by its exact name or fresh tree path. The helper refuses
 ambiguous controls. Supply text through stdin with `--value-stdin`; never put
 credentials in command arguments or retain a secret-bearing tree.
+The native interaction test is `SENSITIVE` and not `DEFUNCT`; GTK can omit the
+separate `ENABLED` state. Tree output preserves both states. For a shared
+portal chooser, repeat `--tree-allow-name` with only known test-window and
+control names. All other nonempty names are redacted without changing exact
+action targeting.
 
 ```sh
 /usr/bin/python3 E2E/0.5.0/harness/linux_atspi.py tree --pid "$E2E_APP_PID"

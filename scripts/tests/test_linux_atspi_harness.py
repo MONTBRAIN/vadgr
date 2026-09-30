@@ -9,13 +9,14 @@ PATH = Path(__file__).resolve().parents[2] / "E2E/0.5.0/harness/linux_atspi.py"
 SPEC = importlib.util.spec_from_file_location("linux_atspi_harness", PATH)
 DRIVER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(DRIVER)
-ATSPI = SimpleNamespace(StateType=SimpleNamespace(ENABLED="enabled", CHECKED="checked", FOCUSED="focused", SHOWING="showing", EDITABLE="editable"))
+ATSPI = SimpleNamespace(StateType=SimpleNamespace(ENABLED="enabled", SENSITIVE="sensitive", DEFUNCT="defunct", CHECKED="checked", FOCUSED="focused", SHOWING="showing", EDITABLE="editable"))
 
 
 class Node:
-    def __init__(self, name="", role="button", pid=123, children=(), enabled=True):
+    def __init__(self, name="", role="button", pid=123, children=(), enabled=True, states=None):
         self.name, self.role, self.pid = name, role, pid
         self.children, self.enabled = children, enabled
+        self.states = set(states) if states is not None else ({"enabled", "sensitive"} if enabled else set())
 
     def get_child_count(self):
         return len(self.children)
@@ -33,7 +34,10 @@ class Node:
         return self.role
 
     def get_state_set(self):
-        return SimpleNamespace(contains=lambda state: state == "enabled" and self.enabled)
+        return SimpleNamespace(contains=lambda state: state in self.states)
+
+    def get_action_iface(self):
+        return self
 
     def get_n_actions(self):
         return 0
@@ -71,3 +75,82 @@ def test_protected_control_name_is_not_printed():
     record = DRIVER.describe(Node("private-value", role="password text"), (1,), ATSPI)
     assert record["name"] == "<protected>"
     assert "private-value" not in str(record)
+
+
+def test_sensitive_gtk_control_does_not_need_enabled_state():
+    node = Node("OK", states={"sensitive", "showing"})
+    assert DRIVER.select_node([(node, (0,))], "OK", "button", None, ATSPI) is node
+    record = DRIVER.describe(node, (0,), ATSPI)
+    assert record["sensitive"] and record["available"]
+    assert not record["enabled"]
+
+
+@pytest.mark.parametrize("states", [set(), {"enabled"}, {"enabled", "sensitive", "defunct"}])
+def test_insensitive_or_defunct_controls_remain_unavailable(states):
+    node = Node("OK", states=states)
+    with pytest.raises(RuntimeError):
+        DRIVER.select_node([(node, (0,))], "OK", "button", None, ATSPI)
+    assert not DRIVER.describe(node, (0,), ATSPI)["available"]
+
+
+def test_missing_action_interface_is_not_queried():
+    class NoAction(Node):
+        def get_action_iface(self):
+            return None
+
+        def get_n_actions(self):
+            raise AssertionError("unsupported interface was queried")
+
+    assert DRIVER.describe(NoAction(role="application"), (), ATSPI)["actions"] == []
+
+
+def test_action_interface_is_used_instead_of_accessible_convenience_methods():
+    class WithAction(Node):
+        def get_action_iface(self):
+            return SimpleNamespace(get_n_actions=lambda: 1, get_action_name=lambda index: "click")
+
+        def get_n_actions(self):
+            raise AssertionError("wrong interface was queried")
+
+    assert DRIVER.describe(WithAction(), (), ATSPI)["actions"] == ["click"]
+
+
+@pytest.mark.parametrize("stage", ["discovery", "count", "name"])
+def test_advertised_action_errors_are_not_hidden(stage):
+    class NativeFailure(Exception):
+        pass
+
+    def fail(*args):
+        raise NativeFailure("synthetic transport failure")
+
+    node = Node()
+    if stage == "discovery":
+        node.get_action_iface = fail
+    elif stage == "count":
+        node.get_n_actions = fail
+    else:
+        node.get_n_actions = lambda: 1
+        node.get_action_name = fail
+    with pytest.raises(NativeFailure):
+        DRIVER.describe(node, (), ATSPI)
+
+
+@pytest.mark.parametrize("name,expected", [
+    ("Vadgr E2E capture fixture", "Vadgr E2E capture fixture"),
+    ("Share", "Share"), ("Cancel", "Cancel"), ("", ""),
+    ("share", "<redacted>"), ("unrelated private window", "<redacted>"),
+])
+def test_tree_name_allowlist_is_exact_and_output_only(name, expected):
+    node = Node(name)
+    allowed = {"Vadgr E2E capture fixture", "Share", "Cancel"}
+    record = DRIVER.describe(node, (1,), ATSPI, allowed)
+    assert record["name"] == expected
+    assert record["path"] == "1" and record["role"] == "button"
+    assert record["sensitive"] and record["available"]
+    assert DRIVER.select_node([(node, (1,))], name, "button", None, ATSPI) is node
+    assert DRIVER.describe(node, (1,), ATSPI)["name"] == name
+
+
+def test_password_name_stays_protected_even_when_allowlisted():
+    record = DRIVER.describe(Node("synthetic-secret", role="password text"), (), ATSPI, {"synthetic-secret"})
+    assert record["name"] == "<protected>"

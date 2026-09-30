@@ -55,7 +55,7 @@ def test_exact_packet_finalization_preserves_all_reviewed_content(packet):
     assert str(packet["input_root"]).encode() not in receipt
 
 
-@pytest.mark.parametrize("change", ["manifest", "member", "extra", "mode", "link"])
+@pytest.mark.parametrize("change", ["manifest", "member", "extra", "link"])
 def test_changed_approved_subject_is_rejected_before_output(packet, change):
     root = packet["input_root"]
     if change == "manifest":
@@ -64,8 +64,6 @@ def test_changed_approved_subject_is_rejected_before_output(packet, change):
         (root / "legal/TERMS.txt").write_bytes(b"changed")
     elif change == "extra":
         (root / "unexpected.txt").write_bytes(b"extra")
-    elif change == "mode":
-        (root / "legal/TERMS.txt").chmod(0o700)
     else:
         path = root / "legal/TERMS.txt"
         original = root.parent / "original-terms.txt"
@@ -74,6 +72,20 @@ def test_changed_approved_subject_is_rejected_before_output(packet, change):
     with pytest.raises((PackageInputError, OSError)):
         finalizer.finalize_packet(**packet)
     assert not packet["output_root"].exists()
+
+
+def test_changed_approved_member_mode_is_rejected_before_output(packet):
+    path = packet["input_root"] / "legal/TERMS.txt"
+    original_mode = stat.S_IMODE(path.stat().st_mode)
+    try:
+        # Read-only changes are observable on Windows as well as POSIX.
+        path.chmod(0o444)
+        assert stat.S_IMODE(path.stat().st_mode) != original_mode
+        with pytest.raises(PackageInputError, match="reviewed member differs"):
+            finalizer.finalize_packet(**packet)
+        assert not packet["output_root"].exists()
+    finally:
+        path.chmod(original_mode)
 
 
 def test_changed_payload_does_not_leave_approved_review(packet):
