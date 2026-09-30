@@ -524,17 +524,29 @@ description reaching rebuilt compiler metadata. Those builds prove source
 rebuild capability, not reproduction of Ubuntu 24.04 artifact bytes. Full
 CPython and Alpine runtime producer rebuilds are not claimed.
 
-The exact packet still requires publisher-owner approval. Its manifest SHA-256
-is `b2e1d2b29e88bca626e973bfc8234305945280331cdfad6e43342a3b64874c41`.
-Existing Version 1.0 terms are unchanged. This is not a signing or new-counsel
-prerequisite. The package validator rejected the unapproved draft. No approval
-flag was fabricated, and no earlier artifact was substituted.
+The owner approved the exact packet on September 30. Its manifest SHA-256 is
+`b2e1d2b29e88bca626e973bfc8234305945280331cdfad6e43342a3b64874c41`.
+Existing Version 1.0 terms are unchanged. Finalization identified a missing
+canonical RTF rendering and incorrect review-file membership. Derived copies
+record those corrections separately and preserve the original reviewed bytes.
+The earlier draft-refusal diagnostic used the wrong target spelling; it did
+not establish an approval-specific refusal. A corrected Rust-target invocation
+did reject the draft for missing approval. Both attempts remain in evidence.
+
+Two retained preparations also expose a reproducibility finding: 39 generated
+`uv_cache.json` timestamps and their 39 `RECORD` files differ despite identical
+wheelhouse identity. The Linux assembly repair removes only this install-time
+metadata and uses a new immutable generation recipe. A fresh Ubuntu 24.04
+preparation, exact packet rebinding and corresponding-source delivery remain
+required before assembling the AppImage. Earlier payload hashes are not
+relabeled as the new product. Windows and macOS assembly remain unchanged;
+Linux and WSL payload-dependent assertions require rebuilt artifacts.
 
 The following current results supersede earlier Linux observations for this
 source. The host is Ubuntu 26.04 x86_64 GNOME Wayland inside VirtualBox:
 
-- L01 and L02: blocked before installer execution by exact Linux packet
-  approval. The registered AppImage must then be assembled and tested. A
+- L01 and L02: pending the repaired preparation, exact packet rebinding and
+  registered AppImage assembly, not owner approval or signing. A
   protected dependency prompt has not been reached.
 - L03: functional integrity and both launch paths remain blocked by the same
   package prerequisite. Production attestation is separately owed post-merge.

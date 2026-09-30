@@ -45,6 +45,17 @@ does not approve redistribution or establish which native libraries are shipped.
 After the exact Linux package-input packet is reviewed and committed, prepare
 again at that commit and build the registered AppImage:
 
+An explicit owner decision may be applied with
+`scripts/finalize_linux_package_inputs.py`. Supply the independently recorded
+approved manifest digest, the unchanged draft, its exact assembled payload
+manifest, and a new output directory. The tool verifies all draft members
+before applying the decision. It cannot create or authenticate approval.
+It records canonical terms-rendering and review-membership corrections as
+derived changes; those output hashes are not claimed as separately reviewed.
+Keep the original approved draft and failed copies in the private evidence
+boundary. A later payload or source change requires exact rebinding and new
+source-delivery records, not relabeling an earlier packet.
+
 ```sh
 python3 scripts/prepare_unsigned_linux.py package \
   --source-commit <exact-40-character-commit> --architecture x86_64 \

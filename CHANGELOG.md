@@ -6,6 +6,9 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Fixed
 
+- Linux private-runtime assembly removes generated installation timestamps and
+  their package-record entries before sealing its inventory. A new immutable
+  generation prevents reuse of earlier timestamp-bearing environments.
 - Ordinary builds work when another target has reviewed wheel inputs but the
   current target does not. Release builds and payload assembly still refuse
   missing target locks. CI records those targets as refusal checks, not clean

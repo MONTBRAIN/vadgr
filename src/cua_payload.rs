@@ -804,7 +804,9 @@ fn environment_generation() -> String {
         selected_cua_version().expect("validated CUA profile pins"),
         &selected_requirements_sha256()[..12]
     );
-    if cfg!(unix) {
+    if cfg!(target_os = "linux") {
+        format!("{generation}-linux-reproducible-v2")
+    } else if cfg!(unix) {
         format!("{generation}-unix-relative-v1")
     } else {
         generation
@@ -948,6 +950,77 @@ fn finalize_unix_environment(environment: &Path, python_root: &Path) -> Result<(
     std::os::unix::fs::symlink(&relative_target, &staged_link)?;
     std::fs::write(config_path, config)?;
     std::fs::rename(staged_link, interpreter)?;
+    #[cfg(target_os = "linux")]
+    remove_linux_install_cache_metadata(environment)?;
+    Ok(())
+}
+
+#[cfg(target_os = "linux")]
+fn remove_linux_install_cache_metadata(environment: &Path) -> Result<()> {
+    use std::os::unix::fs::MetadataExt;
+
+    let minor = PYTHON_VERSION
+        .rsplit_once('.')
+        .context("Python version has no minor release")?
+        .0;
+    let site_packages = environment.join(format!("lib/python{minor}/site-packages"));
+    if !site_packages.exists() {
+        return Ok(());
+    }
+    ensure!(
+        std::fs::symlink_metadata(&site_packages)?.is_dir()
+            && site_packages
+                .canonicalize()?
+                .starts_with(environment.canonicalize()?),
+        "Linux cua site-packages escapes its environment"
+    );
+    for entry in std::fs::read_dir(&site_packages)? {
+        let dist_info = entry?.path();
+        let Some(name) = dist_info.file_name().and_then(|name| name.to_str()) else {
+            continue;
+        };
+        if !name.ends_with(".dist-info") {
+            continue;
+        }
+        ensure!(
+            std::fs::symlink_metadata(&dist_info)?.is_dir(),
+            "linked distribution metadata refused"
+        );
+        let cache = dist_info.join("uv_cache.json");
+        let metadata = match std::fs::symlink_metadata(&cache) {
+            Ok(metadata) => metadata,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => continue,
+            Err(error) => return Err(error.into()),
+        };
+        ensure!(
+            metadata.is_file() && metadata.nlink() == 1,
+            "linked install cache refused"
+        );
+        let record = dist_info.join("RECORD");
+        let metadata = std::fs::symlink_metadata(&record)?;
+        ensure!(
+            metadata.is_file() && metadata.nlink() == 1,
+            "linked package record refused"
+        );
+        let prefix = format!("{name}/uv_cache.json,");
+        let text = std::fs::read_to_string(&record)?;
+        let mut removed = 0;
+        let retained: String = text
+            .split_inclusive('\n')
+            .filter(|line| {
+                if line.starts_with(&prefix) {
+                    removed += 1;
+                    false
+                } else {
+                    true
+                }
+            })
+            .collect();
+        ensure!(removed == 1, "install cache has no unique package record");
+        // uv's acquisition timestamp is build metadata, not installed runtime content.
+        std::fs::write(record, retained)?;
+        std::fs::remove_file(cache)?;
+    }
     Ok(())
 }
 
@@ -1624,7 +1697,97 @@ mod tests {
     #[cfg(unix)]
     #[test]
     fn unix_generation_does_not_reuse_the_legacy_recipe() {
-        assert!(environment_generation().ends_with("-unix-relative-v1"));
+        let suffix = if cfg!(target_os = "linux") {
+            "-linux-reproducible-v2"
+        } else {
+            "-unix-relative-v1"
+        };
+        assert!(environment_generation().ends_with(suffix));
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn linux_release_metadata_is_independent_of_install_time() {
+        let first = tempfile::tempdir().unwrap();
+        let second = tempfile::tempdir().unwrap();
+        let mut environments = Vec::new();
+        for (root, timestamp) in [(first.path(), 1), (second.path(), 2)] {
+            let (environment, python) = unix_environment_fixture(root, ".staging-test");
+            let info = environment.join("lib/python3.12/site-packages/example-1.0.dist-info");
+            std::fs::create_dir_all(&info).unwrap();
+            std::fs::write(info.join("METADATA"), "Name: example\nVersion: 1.0\n").unwrap();
+            std::fs::write(
+                info.join("uv_cache.json"),
+                format!(
+                    r#"{{"timestamp":{{"secs_since_epoch":{timestamp},"nanos_since_epoch":1}}}}"#
+                ),
+            )
+            .unwrap();
+            std::fs::write(
+                info.join("RECORD"),
+                format!("example.py,sha256=kept,7\nexample-1.0.dist-info/uv_cache.json,sha256=variable{timestamp},127\nexample-1.0.dist-info/RECORD,,\n"),
+            ).unwrap();
+            finalize_unix_environment(&environment, &python).unwrap();
+            assert!(!info.join("uv_cache.json").exists());
+            assert_eq!(
+                std::fs::read_to_string(info.join("RECORD")).unwrap(),
+                "example.py,sha256=kept,7\nexample-1.0.dist-info/RECORD,,\n"
+            );
+            environments.push(environment);
+        }
+        for relative in [
+            "pyvenv.cfg",
+            "lib/python3.12/site-packages/example-1.0.dist-info/RECORD",
+        ] {
+            assert_eq!(
+                std::fs::read(environments[0].join(relative)).unwrap(),
+                std::fs::read(environments[1].join(relative)).unwrap()
+            );
+        }
+        assert_eq!(
+            release::write_inventory(first.path(), "x86_64-unknown-linux-gnu").unwrap(),
+            release::write_inventory(second.path(), "x86_64-unknown-linux-gnu").unwrap()
+        );
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn linux_install_cache_removal_rejects_ambiguous_or_linked_metadata() {
+        for scenario in ["missing", "duplicate", "linked-cache", "linked-record"] {
+            let temporary = tempfile::tempdir().unwrap();
+            let (environment, _) = unix_environment_fixture(temporary.path(), ".staging-test");
+            let info = environment.join("lib/python3.12/site-packages/example-1.0.dist-info");
+            std::fs::create_dir_all(&info).unwrap();
+            let cache = info.join("uv_cache.json");
+            let record = info.join("RECORD");
+            let row = "example-1.0.dist-info/uv_cache.json,sha256=fixture,7\n";
+            std::fs::write(&cache, b"fixture").unwrap();
+            std::fs::write(
+                &record,
+                if scenario == "missing" {
+                    String::new()
+                } else if scenario == "duplicate" {
+                    row.repeat(2)
+                } else {
+                    row.to_owned()
+                },
+            )
+            .unwrap();
+            let outside = temporary.path().join("preserve.txt");
+            std::fs::write(&outside, b"preserve").unwrap();
+            if scenario.starts_with("linked-") {
+                let path = if scenario == "linked-cache" {
+                    &cache
+                } else {
+                    &record
+                };
+                std::fs::remove_file(path).unwrap();
+                std::os::unix::fs::symlink(&outside, path).unwrap();
+            }
+            assert!(remove_linux_install_cache_metadata(&environment).is_err());
+            assert_eq!(std::fs::read(&outside).unwrap(), b"preserve");
+            assert!(cache.exists());
+        }
     }
 
     #[cfg(unix)]
