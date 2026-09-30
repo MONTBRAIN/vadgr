@@ -31,7 +31,7 @@ from packaging.requirements import Requirement
 from packaging.tags import compatible_tags, cpython_tags
 from packaging.utils import parse_wheel_filename
 
-from validate_package_inputs import canonical_json, relative_path, SOURCE_INPUTS, PackageInputError
+from validate_package_inputs import canonical_json, relative_path, SOURCE_INPUTS, PackageInputError, profile_source_inputs
 
 
 def digest(data):
@@ -57,7 +57,7 @@ def verified_archive(url, expected, path):
     return data
 
 
-def legal_members(data, filename):
+def legal_members(data, filename, *, case_sensitive=False):
     """Read legal files without extracting any archive paths to the filesystem."""
     result, names = {}, set()
 
@@ -66,7 +66,7 @@ def legal_members(data, filename):
             relative_path(name)
         except PackageInputError as error:
             raise ValueError("unsafe archive path") from error
-        folded = name.casefold()
+        folded = name if case_sensitive else name.casefold()
         if folded in names:
             raise ValueError("duplicate archive path")
         names.add(folded)
@@ -188,10 +188,16 @@ def record_component(root, identifier, name, version, kind, url, data, declared,
             "license_concluded": None, "review_status": "unreviewed", "source_files": records}
 
 
+def cargo_manifests(target):
+    manifests = [("Cargo.toml", ["--features", "native-gui"])]
+    if target.endswith("pc-windows-msvc"):
+        manifests.append(("packaging/windows/ba-functions/Cargo.toml", []))
+    return manifests
+
+
 def cargo_components(repo, root, cache, target):
     packages = {}
-    for manifest, features in (("Cargo.toml", ["--features", "native-gui"]),
-                               ("packaging/windows/ba-functions/Cargo.toml", [])):
+    for manifest, features in cargo_manifests(target):
         command = ["cargo", "metadata", "--locked", "--format-version", "1", "--filter-platform", target,
                    "--manifest-path", str(repo / manifest), *features]
         metadata = json.loads(subprocess.check_output(command, cwd=repo))
@@ -200,7 +206,8 @@ def cargo_components(repo, root, cache, target):
             if item["id"] in selected and item["source"] is not None:
                 packages[(item["name"], item["version"])] = item
     locked = {}
-    for name in ("Cargo.lock", "packaging/windows/ba-functions/Cargo.lock"):
+    for manifest, _ in cargo_manifests(target):
+        name = str(Path(manifest).with_name("Cargo.lock"))
         for item in tomllib.loads((repo / name).read_text(encoding="utf-8"))["package"]:
             if "checksum" in item:
                 locked[(item["name"], item["version"])] = item["checksum"]
@@ -280,7 +287,35 @@ def runtime_component(repo, root, target):
     url = f"https://github.com/astral-sh/python-build-standalone/releases/download/{pins['python_build']}/{filename}"
     data = verified_archive(url, pins["targets"][target]["python_sha256"], root / "archives" / filename)
     return record_component(root, "runtime-cpython-" + pins["python"], "CPython standalone", pins["python"],
-                            "runtime", url, data, None, legal_members(data, filename))
+                            "runtime", url, data, None,
+                            legal_members(data, filename, case_sensitive=target.endswith("unknown-linux-gnu")))
+
+
+def closed_wheel_components(repo, root, wheelhouse, target):
+    """Inspect the exact reviewed Linux closure; do not resolve a new one."""
+    import cua_wheelhouse
+    profile = "linux-" + target.split("-", 1)[0]
+    cua_wheelhouse.verify_materialized(repo, repo, target, wheelhouse, profile)
+    closed = json.loads((wheelhouse / "wheelhouse.json").read_bytes())
+    results = []
+    for row in closed["wheels"]:
+        raw = (wheelhouse / row["filename"]).read_bytes()
+        with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+            names = [name for name in archive.namelist() if name.endswith(".dist-info/METADATA")]
+            if len(names) != 1:
+                raise ValueError("ambiguous wheel metadata")
+            metadata_raw = archive.read(names[0])
+        metadata = wheel_license_metadata(metadata_raw)
+        sources = legal_members(raw, row["filename"])
+        sources[names[0]] = wheel_metadata_headers(metadata_raw)
+        item = record_component(root, f"wheel-{row['name']}-{row['version']}", row["name"],
+                                row["version"], "wheel", "NOASSERTION", raw,
+                                metadata["license_declared"], sources)
+        item.update(metadata)
+        item["wheel_filename"] = row["filename"]
+        item["origin_scope"] = "Exact verified profile wheelhouse; source origin requires component review."
+        results.append(item)
+    return results
 
 
 def nuget_metadata(data):
@@ -362,24 +397,31 @@ def write_draft_sbom(root, report):
     (root / "unreviewed.spdx.json").write_bytes(canonical_json(sbom))
 
 
-def collect(repo, root, cargo_home, target, nuget_home=None):
+def collect(repo, root, cargo_home, target, nuget_home=None, wheelhouse=None):
+    linux = target.endswith("unknown-linux-gnu")
+    if linux and (wheelhouse is None or nuget_home is not None):
+        raise ValueError("Linux review needs its exact wheelhouse and no Windows framework input")
     if root.exists():
         raise ValueError("output already exists")
     root.mkdir(parents=True)
+    inputs = (sorted(profile_source_inputs("linux-" + target.split("-", 1)[0])) + ["Cargo.toml"]
+              if linux else [*SOURCE_INPUTS, "Cargo.toml", "packaging/windows/ba-functions/Cargo.toml",
+                             "packaging/windows/ba-functions/Cargo.lock"])
     report = {"schema": 1, "status": "incomplete", "target": target,
               "created": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
               "scope": "upstream license evidence; includes Cargo build dependencies",
-              "source_inputs": {name: digest((repo / name).read_bytes()) for name in (*SOURCE_INPUTS, "Cargo.toml", "packaging/windows/ba-functions/Cargo.toml", "packaging/windows/ba-functions/Cargo.lock")},
+              "source_inputs": {name: digest((repo / name).read_bytes()) for name in inputs},
               "public_text_sources": {path.name: digest(path.read_bytes()) for path in sorted((repo / "packaging/legal").glob("*.txt"))},
               "components": [], "failures": [],
               "outstanding_review": ["Classify shipped and build-only components.",
                                      "Review nested native libraries, fonts and assets.",
                                      "Conclude each license and reproduce required copyrights and notices.",
                                      "Resolve source-code distribution and source-offer duties.",
-                                     "Review WiX and Rust standard-library redistribution.",
+                                     "Review platform runtime and Rust standard-library redistribution.",
                                      "Bind final package bytes and obtain separate legal approval."]}
     steps = [("cargo", lambda: cargo_components(repo, root, cargo_home, target)),
-             ("wheel", lambda: wheel_components(repo, root, "win_arm64" if target.startswith("aarch64") else "win_amd64", report["failures"])),
+             ("wheel", lambda: closed_wheel_components(repo, root, wheelhouse, target) if linux else
+              wheel_components(repo, root, "win_arm64" if target.startswith("aarch64") else "win_amd64", report["failures"])),
              ("runtime", lambda: [runtime_component(repo, root, target)]),
              ("rust-standard-library", lambda: [rust_standard_library(repo, root, target)])]
     if nuget_home:
@@ -387,7 +429,7 @@ def collect(repo, root, cargo_home, target, nuget_home=None):
     for kind, step in steps:
         try:
             report["components"].extend(step())
-        except (ValueError, OSError, subprocess.CalledProcessError) as error:
+        except (ValueError, OSError, PackageInputError, subprocess.CalledProcessError) as error:
             report["failures"].append({"kind": kind, "error": type(error).__name__, "detail": str(error)})
         report["components"].sort(key=lambda item: item["id"])
         (root / "collection.json").write_bytes(canonical_json(report))
@@ -402,10 +444,13 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--cargo-home", type=Path, required=True)
     parser.add_argument("--nuget-home", type=Path)
-    parser.add_argument("--target", choices=["x86_64-pc-windows-msvc", "aarch64-pc-windows-msvc"], required=True)
+    parser.add_argument("--wheelhouse", type=Path)
+    parser.add_argument("--target", choices=[arch + suffix for arch in ("x86_64", "aarch64")
+                                           for suffix in ("-pc-windows-msvc", "-unknown-linux-gnu")], required=True)
     args = parser.parse_args()
     report = collect(args.source_root.resolve(), args.output.resolve(), args.cargo_home.resolve(), args.target,
-                     args.nuget_home.resolve() if args.nuget_home else None)
+                     args.nuget_home.resolve() if args.nuget_home else None,
+                     args.wheelhouse.resolve() if args.wheelhouse else None)
     return 1 if report["failures"] else 0
 
 

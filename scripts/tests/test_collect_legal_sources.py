@@ -12,6 +12,21 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import collect_legal_sources as collect
 
 
+def test_linux_legal_collection_excludes_windows_bootstrapper():
+    assert collect.cargo_manifests("x86_64-unknown-linux-gnu") == [
+        ("Cargo.toml", ["--features", "native-gui"])]
+    assert collect.cargo_manifests("x86_64-pc-windows-msvc") == [
+        ("Cargo.toml", ["--features", "native-gui"]),
+        ("packaging/windows/ba-functions/Cargo.toml", [])]
+
+
+def test_linux_collection_requires_exact_wheelhouse_before_creating_output(tmp_path):
+    output = tmp_path / "review"
+    with pytest.raises(ValueError, match="exact wheelhouse"):
+        collect.collect(tmp_path, output, tmp_path, "x86_64-unknown-linux-gnu")
+    assert not output.exists()
+
+
 def archive(entries):
     stream = io.BytesIO()
     with tarfile.open(fileobj=stream, mode="w:gz") as output:
@@ -37,6 +52,14 @@ def test_archive_paths_cannot_escape_or_collide():
     for entries in ({"../LICENSE": b"x"}, {"crate/LICENSE": b"a", "crate/license": b"b"}):
         with pytest.raises(ValueError):
             collect.legal_members(archive(entries), "crate.tar.gz")
+
+
+def test_linux_archive_preserves_case_distinct_members_without_allowing_exact_duplicates():
+    data = archive({"python/LICENSE": b"one", "python/license": b"two"})
+    assert collect.legal_members(data, "python.tar.gz", case_sensitive=True) == {
+        "python/LICENSE": b"one", "python/license": b"two"}
+    with pytest.raises(ValueError):
+        collect.legal_members(data, "python.tar.gz")
 
 
 def test_changed_cached_archive_is_rejected(tmp_path):

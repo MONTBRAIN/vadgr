@@ -11,3 +11,43 @@ The build intentionally fails when the reviewed legal bundle, pinned AppImage
 tools, native binary or private CUA payload is absent. The protected release
 workflow attests the exact manifest after final artifacts are held. This
 directory contains no release signing key or unsigned installation fallback.
+
+## Unsigned development preparation
+
+An open implementation branch prepares its private runtime before Linux package
+review. Use a clean committed checkout and a new output directory outside it.
+Materialize the reviewed wheelhouse with `scripts/cua_wheelhouse.py`, selecting
+`x86_64-unknown-linux-gnu` and `linux-x86_64` on an x86_64 Linux host. This step
+may use read-only GitHub authentication to retrieve the pinned CUA artifacts.
+Clear GitHub, signing and identity credentials before compilation.
+
+```sh
+python3 scripts/prepare_unsigned_linux.py prepare \
+  --source-commit <exact-40-character-commit> --architecture x86_64 \
+  --wheelhouse <verified-wheelhouse> --preparation <new-output-directory>
+```
+
+The producer uses the final workflow's pinned Rust toolchain and the reviewed
+Linux CUA profile. Install that toolchain before the command. The output retains
+the native executable, private Python/CUA payload, and a canonical receipt with
+every file digest, mode and relative link. The receipt identifies the source
+commit, source tree, platform and architecture. Preparation does not create
+legal approval. Failed attempts remain available for diagnosis.
+
+After the exact Linux package-input packet is reviewed and committed, prepare
+again at that commit and build the registered AppImage:
+
+```sh
+python3 scripts/prepare_unsigned_linux.py package \
+  --source-commit <exact-40-character-commit> --architecture x86_64 \
+  --preparation <matching-output-directory> --appimagetool <pinned-executable>
+```
+
+Packaging rechecks every prepared byte and the appimagetool digest. It invokes
+the final package builder and its existing approved-input validator. The
+AppImage keeps the registered filename. Its adjacent `.development.json`
+receipt records its size, SHA-256 and full AppDir inventory. Both receipts mark
+the output as development and nonpublishable, with signing disabled and no
+attestation. These receipts cannot replace the protected release manifest.
+Use `aarch64` with its corresponding native target/profile only on an aarch64
+Linux host. Preparation and packaging do not establish desktop E2E results.
