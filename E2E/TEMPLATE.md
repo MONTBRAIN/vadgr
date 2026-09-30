@@ -62,6 +62,14 @@ present in a given runbook, the entry is all there is.
    not.**
    [How a pass is run] [../README.md]
 
+   A VM-hosted phone is checked through the host ADB server before it is called
+   unavailable. Stop the guest-local server before setting a remote socket. For
+   VirtualBox NAT, derive the guest default gateway and set
+   `ADB_SERVER_SOCKET=tcp:<gateway>:5037`; `10.0.2.2` is the usual gateway. Use
+   that same socket for every ADB command. The runbook gives the temporary host
+   server start and restore commands, requires an authorized `device` state,
+   forbids network-service mutation, and redacts the device serial.
+
 2. **Do not stop the pass to report.** The pass runs to completion for the
    operating system it is on, and what it finds is written down as it happens and
    reported at the end. [How a pass is run] [../README.md]
@@ -177,6 +185,21 @@ present in a given runbook, the entry is all there is.
     a held candidate from the exact merged default-branch commit. Only trust and
     signature assertions wait for that candidate and gate release. [Unsigned
     functional qualification and post-merge trust qualification]
+
+24. **A supported VM is valid native functional coverage when the guest runs
+    the product directly.** Record the hypervisor, guest OS, virtual hardware,
+    architecture, desktop and display protocol. Label it virtualized native
+    coverage, not bare-metal coverage. Leave hardware-specific behavior and
+    unavailable architectures or sessions `not run` with the exact reason. A
+    VM does not turn WSL, a container or a host-mounted checkout into native
+    coverage.
+
+25. **Desktop visual inspection is a separate, mandatory oracle.** Open and
+    inspect the actual application-only captures of every installer and console
+    state in the visual checklist. A correct accessibility tree, backend result,
+    screenshot file, or owner report does not establish a visual pass. Raw
+    Markdown in a formatted terms view is a rendering finding, not a cosmetic
+    exemption. [Desktop visual acceptance]
 
 **A pass is finished, not paused, and reporting is not a stopping point.** A
 checkpoint or a progress summary does not end your turn: write it and keep
@@ -639,6 +662,74 @@ temporary state.>
 confirms every disabled future row is inaccessible to activation and visibly
 shows its version label. An enabled no-op, an inaccessible enabled control, or
 an unlabeled future control is a finding.>
+
+### Native desktop cold-start checklist
+
+Keep this checklist in every desktop minor. Read the docs engineering section
+"Native desktop cold-start procedure" before the first GUI cell. Fill in exact
+helper commands and supported interfaces; a pointer alone is not a procedure.
+
+- Record host/session, virtualization, artifact and process identities, plus
+  original accessibility and screen-reader settings, including unset values.
+- Prove bounded accessible-window readiness and exact control discovery. Use a
+  fresh process-scoped tree, supported native action, fresh readback and an
+  independent machine oracle for each step. Action dispatch is not success.
+- Prove enabled/disabled semantics and native text replacement on isolated
+  ordinary fields before settings, credentials or typed purge. On Linux,
+  `EditableText.SetTextContents` must actually work; an editable flag or click
+  action is not sufficient. Do not replace this proof with injected keys,
+  clipboard, backend writes or owner typing.
+- Prove the required unfocused application-only capture. On Wayland use the
+  portal WINDOW source and scoped PipeWire stream. A missing row action or
+  refused Selection is a recorded capability failure, not automatically an
+  owner-only permission prompt. Cancel the owned chooser after a bounded probe.
+- Name helper dependencies, safe tree filtering, exact new output paths and
+  cleanup commands. Never retain private window titles or secret-bearing trees.
+- Record unavailable assertions separately, continue independent cells, and
+  restore the exact original settings and owned processes after testing. After
+  a reboot, rediscover readiness and identities before resuming.
+
+### Desktop visual acceptance
+
+Keep this gate for every native desktop release. Before the first GUI cell,
+enumerate its installer, console, dialog and lifecycle states. Map each state
+to its existing functional cell and approved mockup. Capture the exact installed
+artifact through the required native application-only path, then open and
+inspect each image at its intended reading size. Record the artifact digest,
+host/session, window size, display scale, theme, capture digest and observation.
+Repeat affected visual states after every rendering fix and rebuilt artifact.
+
+Inspect these properties explicitly:
+
+- Terms and bundled legal views render headings, paragraphs, emphasis and lists
+  as readable document content. Markdown markers such as `###` and `**` must not
+  leak into a formatted view. Intentional literal source or code views are
+  separate, clearly labeled surfaces. Rendering must not change the approved
+  legal source bytes, terms version, acceptance hash or substantive text.
+- Text remains readable at the default and minimum supported window sizes and
+  supported display scales. Check wrapping, scrolling through long content,
+  clipping, contrast, alignment, spacing and reachability of controls. Check
+  both themes when the application supports them.
+- The visible unchecked, checked, enabled, disabled, focused, loading, empty,
+  populated, failure, destructive-confirmation and success states agree with
+  the fresh accessibility tree and independent machine oracle. A disabled
+  control must look disabled and reject activation. Inspect installer terms
+  before acceptance, not only the final success screen.
+- No placeholder, unintended markup, missing glyph, overlapping text, hidden
+  action, unlabeled future control or private implementation detail appears.
+  Use isolated non-secret data. Never capture a pairing code, token, private
+  endpoint or credential merely to fill the visual ledger.
+
+| view and state | functional cell | exact artifact and capture digests | window, scale and theme | visual observation | result |
+|---|---|---|---|---|---|
+| <each installer, console and dialog state> | <existing cell id> | <digests or exact capture boundary> | <actual settings> | <what the agent inspected> | <pass / fail / not run with reason> |
+
+A successful capture command alone is not an inspection. A tree or API result
+cannot close a rendering assertion. If the required exact capture cannot be
+made, preserve the failed native probe and leave that visual assertion owed.
+Continue independent functional assertions, but never promote their success to
+a visual pass or call the GUI qualification complete. Do not ask the owner to
+inspect the screen in place of the agent.
 
 ## Owner and environment requirements
 

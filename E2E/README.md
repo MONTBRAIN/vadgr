@@ -15,6 +15,14 @@
 
 Applies to **every** runbook in this directory (`E2E/<version>/e2e.md`).
 
+Before native desktop cells, read the "Native desktop cold-start checklist"
+in the template and current minor. Follow the repository entry point's full
+engineering procedure. The template and current minor
+must name the automation preflight, native text-entry proof and exact unfocused
+application capture. Complete those probes before depending on them; preserve
+each missing capability and continue independent assertions. Inspect actual
+images of the terms and other GUI states, not only accessibility or API data.
+
 **The rules in one place: `## The rules`, the first section of
 [`TEMPLATE.md`](TEMPLATE.md) and of every runbook copied from it.** That list is
 the index, and it is what gets read before a pass starts. This file is one of
