@@ -18639,23 +18639,23 @@
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/EXTRACT-SOURCE.txt",
-          "sha256": "c7183cbcbdd63ca106073ff7b1ba1c935512dfc6ebda7e8767972721d630795d"
+          "sha256": "adcf5216325ac6e3b5ebe228629d2660c33b0f3618f4a82554ec6dd837f46fc4"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.SHA256SUMS",
-          "sha256": "1d1fca032e541e8140f9a14ddcaf50f07866c15ac442045c616cc37cb1d29427"
+          "sha256": "45211aae435d6baf628550717f3dfe12be2eabfd78f4645cf90381919d04f451"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.json",
-          "sha256": "4493ae493b19135c77c7b8e596283e8ea90c04d661a89162fcc1e36a62a4879d"
+          "sha256": "d154678f50e447e86a2eb6ff582602a095bf1b0c809b6d93e658b764dad26bb7"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz",
-          "sha256": "c831f6ed5de4536c777acb3ed2fba4a850b40e8be260026a85a6a478c4844726"
+          "sha256": "ed2cf6b9e03ff4f3d4cf213aedcc608a812e62c734a8691875b648716edc723c"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz",
-          "sha256": "0280c3b5496289f7588213f6ead6f14ce81b9f1b4d018c8b99eb63f284b02805"
+          "sha256": "2767b061203bd4c5078770c776c32976425b5f0ac4e2d0ed1260b065fb53e8ca"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-03.tar.gz",
@@ -18663,7 +18663,7 @@
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/SOURCE-LOCATIONS.txt",
-          "sha256": "7e9b7dbb422dabc7d3ac817b971cf58e4d63e4772d490475bca31d9e98a5b7b2"
+          "sha256": "68ee9d6a1862ebfbcf8039d617db725db030864a8e4f0f4a24fb75c5a64f7a04"
         }
       ],
       "source_offer_required": true,
@@ -21656,23 +21656,23 @@
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/EXTRACT-SOURCE.txt",
-          "sha256": "c7183cbcbdd63ca106073ff7b1ba1c935512dfc6ebda7e8767972721d630795d"
+          "sha256": "adcf5216325ac6e3b5ebe228629d2660c33b0f3618f4a82554ec6dd837f46fc4"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.SHA256SUMS",
-          "sha256": "1d1fca032e541e8140f9a14ddcaf50f07866c15ac442045c616cc37cb1d29427"
+          "sha256": "45211aae435d6baf628550717f3dfe12be2eabfd78f4645cf90381919d04f451"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.json",
-          "sha256": "4493ae493b19135c77c7b8e596283e8ea90c04d661a89162fcc1e36a62a4879d"
+          "sha256": "d154678f50e447e86a2eb6ff582602a095bf1b0c809b6d93e658b764dad26bb7"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz",
-          "sha256": "c831f6ed5de4536c777acb3ed2fba4a850b40e8be260026a85a6a478c4844726"
+          "sha256": "ed2cf6b9e03ff4f3d4cf213aedcc608a812e62c734a8691875b648716edc723c"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz",
-          "sha256": "0280c3b5496289f7588213f6ead6f14ce81b9f1b4d018c8b99eb63f284b02805"
+          "sha256": "2767b061203bd4c5078770c776c32976425b5f0ac4e2d0ed1260b065fb53e8ca"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-03.tar.gz",
@@ -21680,7 +21680,7 @@
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/SOURCE-LOCATIONS.txt",
-          "sha256": "7e9b7dbb422dabc7d3ac817b971cf58e4d63e4772d490475bca31d9e98a5b7b2"
+          "sha256": "68ee9d6a1862ebfbcf8039d617db725db030864a8e4f0f4a24fb75c5a64f7a04"
         }
       ],
       "source_offer_required": true,
@@ -40261,7 +40261,7 @@
       "status": "complete"
     }
   },
-  "created": "2026-09-30T17:36:26Z",
+  "created": "2026-09-30T15:48:31Z",
   "payload_manifest_sha256": "9a006cd5742ef0aa910b3d2c2e45e35120835adffd4b26ba841e82f4a31157a7",
   "schema": 1,
   "source_inputs": {

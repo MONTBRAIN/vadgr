@@ -1,0 +1,116 @@
+{
+  "actual_prior_payload_validation": {
+    "cua_profile_manifest_sha256": "1a39058e7679d0d4794b14b1d16fc2c396549735b3b0b56e68c2109446ff4077",
+    "installed_inventory_sha256": "2c13f86e52ec29ae88d234ba1e1045268c898e90f6ba2e9ca00054e3fc2e637e",
+    "release_profile": "linux-x86_64",
+    "requirements_sha256": "14ccc63a4a3f36903f8f5040e44a50743fee101fee27c06d7fe57a248bf586e4",
+    "target": "x86_64-unknown-linux-gnu",
+    "wheel_manifest_sha256": "2f86c4d2c6493d32019a617c669e3c0babefc565f9da73c6182475286ad499b8"
+  },
+  "baseline_validation": {
+    "component_count": 825,
+    "file_count": 5283,
+    "inventory_sha256": "fe6a62710880765ebb6ea2bcac754bce000c32345f55e583cabc07d00d6f964d",
+    "payload_manifest_sha256": "e96150b5b4de1353694d3810f754a7d1aa3a1c0fda3aa7995aba93099dfdb6c8",
+    "schema": 1,
+    "scope": "assembled-payload",
+    "status": "approved",
+    "target": "x86_64-unknown-linux-gnu",
+    "terms_sha256": "18d55dd2431a73b0c29cf58cd310e641bc363cd7e6efe739a2b506c4002a6965",
+    "terms_version": "1.0",
+    "version": "0.5.0"
+  },
+  "candidate_authorized": false,
+  "carried_closure_decisions": true,
+  "decoded_privacy_scan": "separate required check; not implied by legal scope",
+  "final_artifact_correspondence": "not run; independent final receipt and Git check required",
+  "inventory_sha256": "19496c2ae9fd9bf0960c6f0829fca023abf7f6ae775e33fcae2917856785d998",
+  "new_approval_decision": false,
+  "plan": {
+    "authorization_basis": "authorized-code-fix-unchanged-legal-scope",
+    "delivery_changes": {
+      "legal/SOURCE-OFFERS/vadgr-linux/EXTRACT-SOURCE.txt": {
+        "after": {
+          "bytes": 627,
+          "sha256": "adcf5216325ac6e3b5ebe228629d2660c33b0f3618f4a82554ec6dd837f46fc4"
+        },
+        "before": {
+          "bytes": 1469,
+          "sha256": "dd89ece7e3310af03161dc5956e733fc204bc0c3bb36fcb7c354e5beb59b411c"
+        }
+      },
+      "legal/SOURCE-OFFERS/vadgr-linux/SOURCE-LOCATIONS.txt": {
+        "after": {
+          "bytes": 1358,
+          "sha256": "68ee9d6a1862ebfbcf8039d617db725db030864a8e4f0f4a24fb75c5a64f7a04"
+        },
+        "before": {
+          "bytes": 1204,
+          "sha256": "81185af7ffd80d98e5e354d7bad342bf3c2e0a966866ce1775ac62ff4c0d6331"
+        }
+      },
+      "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.SHA256SUMS": {
+        "after": {
+          "bytes": 345,
+          "sha256": "45211aae435d6baf628550717f3dfe12be2eabfd78f4645cf90381919d04f451"
+        },
+        "before": {
+          "bytes": 345,
+          "sha256": "9d31f9037ad3d08d9aa5f143cba93f0121daf09d35292f94a4871a84486346a3"
+        }
+      },
+      "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.json": {
+        "after": {
+          "bytes": 1272,
+          "sha256": "d154678f50e447e86a2eb6ff582602a095bf1b0c809b6d93e658b764dad26bb7"
+        },
+        "before": {
+          "bytes": 1423,
+          "sha256": "3b49a38c744fc9e41bf7b5957fd47e658e60543b54a957906ab505c3727e9e51"
+        }
+      },
+      "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz": {
+        "after": {
+          "bytes": 64719083,
+          "sha256": "ed2cf6b9e03ff4f3d4cf213aedcc608a812e62c734a8691875b648716edc723c"
+        },
+        "before": {
+          "bytes": 64695906,
+          "sha256": "148aff072a8d42dde1f53b8394f9a16da72359bb51bd188cef01584e4040bad9"
+        }
+      },
+      "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz": {
+        "after": {
+          "bytes": 52190039,
+          "sha256": "2767b061203bd4c5078770c776c32976425b5f0ac4e2d0ed1260b065fb53e8ca"
+        },
+        "before": {
+          "bytes": 52190951,
+          "sha256": "c07324d8bde0e44f8d8f882de0689fd22c6d474a97eee7694092a24c0a2628af"
+        }
+      }
+    },
+    "old_payload_manifest_sha256": "e96150b5b4de1353694d3810f754a7d1aa3a1c0fda3aa7995aba93099dfdb6c8",
+    "original_approval_receipt_sha256": "af08d48bb850b1b2b64ba9fae5bb18d828677367641d74ef42329cf618d0befb",
+    "schema": 1,
+    "source_snapshot_commit": "3a9473c8b34685b81b7b46a0a909496fa0cacc95",
+    "source_snapshot_tree": "c39b823738473ca7cc181170d195e793e9f810fe",
+    "source_tree_manifest_sha256": "c68461ca086733a13c9878f6766951c73fdc30715101b7605c10c320cd1ab6b7",
+    "source_volumes_sha256": "d154678f50e447e86a2eb6ff582602a095bf1b0c809b6d93e658b764dad26bb7",
+    "validation_payload_manifest_sha256": "9a006cd5742ef0aa910b3d2c2e45e35120835adffd4b26ba841e82f4a31157a7"
+  },
+  "plan_sha256": "21070cc8a5d0ff5266055ab2b2b0584e9dd6da45417eab110053aa6e9b8fd171",
+  "publishable": false,
+  "release_authorized": false,
+  "review_sha256": "5e81248cfe62eaddc4f0fc3227ee9553a142d14239769052eb6ea60fb271f2ec",
+  "schema": 1,
+  "separately_owner_reviewed": false,
+  "signing_authorized": false,
+  "status": "mechanical-derivation-not-new-approval",
+  "unchanged_scope": {
+    "components": 825,
+    "full_packet_validation_still_required": true,
+    "new_owner_approval": false,
+    "unchanged_legal_scope": true
+  }
+}

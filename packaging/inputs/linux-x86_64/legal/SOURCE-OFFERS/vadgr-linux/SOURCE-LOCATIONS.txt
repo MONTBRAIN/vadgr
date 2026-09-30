@@ -1,9 +1,11 @@
 Application source locations for this Linux package
 
-The three source volumes in this directory jointly supply the native Vadgr
-application and its Linux build dependencies. Extract all three as described
-in EXTRACT-SOURCE.txt. Their source identity is the exact retained development
-preparation, not a claim of a signed release or identical future artifact.
+The source volumes in this directory jointly supply the native Vadgr
+application and its Linux build dependencies. Extract every volume as described
+in EXTRACT-SOURCE.txt. The source edition records its exact committed code
+snapshot. The rebuild recipe reads compile identity from the adjacent retained
+development receipt. Neither record authenticates a publisher or claims a
+signed release, a reproducible AppImage, or a byte-identical future artifact.
 
 The interpreted CUA runtime is also delivered in its preferred source form.
 Relative to the prepared payload root, its 96 readable Python modules are in:
