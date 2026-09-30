@@ -48,10 +48,16 @@ again at that commit and build the registered AppImage:
 ```sh
 python3 scripts/prepare_unsigned_linux.py package \
   --source-commit <exact-40-character-commit> --architecture x86_64 \
-  --preparation <matching-output-directory> --appimagetool <pinned-executable>
+  --preparation <matching-output-directory> --appimagetool <pinned-executable> \
+  --runtime <pinned-AppImage-runtime>
 ```
 
-Packaging rechecks every prepared byte and the appimagetool digest. It invokes
+Packaging rechecks every prepared byte and the appimagetool digest. It verifies
+the runtime's exact size, SHA-256 and architecture against `runtime.json`, then
+passes it explicitly with `--runtime-file`. The AppImage tool must not download
+an untracked runtime implicitly. Direct `build.sh` callers set `APPIMAGE_RUNTIME`
+to these same verified bytes; the candidate builder retrieves the immutable
+asset ID in the pin. Runtime pinning is not native E2E qualification. The producer invokes
 the final package builder and its existing approved-input validator. The
 AppImage keeps the registered filename. Its adjacent `.development.json`
 receipt records its size, SHA-256 and full AppDir inventory. Both receipts mark

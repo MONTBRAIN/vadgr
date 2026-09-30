@@ -21,12 +21,14 @@ import sys
 
 if __package__:
     from scripts import cua_wheelhouse, distribution_matrix
+    from scripts.verify_appimage_runtime import verify as verify_appimage_runtime
     from scripts.validate_package_inputs import (
         PackageInputError, canonical_json, require, validate_package_inputs,
     )
 else:
     import cua_wheelhouse
     import distribution_matrix
+    from verify_appimage_runtime import verify as verify_appimage_runtime
     from validate_package_inputs import (
         PackageInputError, canonical_json, require, validate_package_inputs,
     )
@@ -157,7 +159,7 @@ def prepare(output, wheelhouse, architecture, source_commit):
     })
 
 
-def package(preparation, appimagetool, architecture, source_commit):
+def package(preparation, appimagetool, architecture, source_commit, runtime=None):
     identity = source_identity(ROOT, source_commit)
     profile, target = native_target(architecture)
     environment = build_environment(profile)
@@ -174,10 +176,13 @@ def package(preparation, appimagetool, architecture, source_commit):
     pins = json.loads((ROOT / "packaging/toolchain.json").read_bytes())
     require(digest(appimagetool) == pins["appimagetool"][architecture]["sha256"],
             "appimagetool differs from reviewed pin")
+    require(runtime is not None, "pinned AppImage runtime required")
+    runtime_identity = verify_appimage_runtime(runtime, ROOT / "packaging/linux/runtime.json", architecture)
     payload = preparation / "payload"
     validate_package_inputs(ROOT / "packaging/inputs" / profile, ROOT, "0.5.0", target,
                             payload_manifest=payload / "lib/cua/payload.json")
     environment.update(APPIMAGETOOL=str(appimagetool), APPIMAGE_EXTRACT_AND_RUN="1",
+                       APPIMAGE_RUNTIME=str(runtime),
                        VADGR_PACKAGE_PAYLOAD_ROOT=str(payload))
     subprocess.run(["sh", "packaging/linux/build.sh", "0.5.0", architecture],
                    cwd=ROOT, env=environment, check=True)
@@ -194,6 +199,7 @@ def package(preparation, appimagetool, architecture, source_commit):
                      "sha256": digest(vehicle)},
         "appdir": inventory(ROOT / "target/package" / profile / "Vadgr.AppDir"),
         "preparation_sha256": digest(receipt_path),
+        "appimage_runtime": runtime_identity,
     })
 
 
@@ -205,6 +211,7 @@ def main():
     parser.add_argument("--preparation", type=Path, required=True)
     parser.add_argument("--wheelhouse", type=Path)
     parser.add_argument("--appimagetool", type=Path)
+    parser.add_argument("--runtime", type=Path)
     args = parser.parse_args()
     try:
         if args.mode == "prepare":
@@ -213,8 +220,9 @@ def main():
                     args.source_commit)
         else:
             require(args.appimagetool is not None, "pinned appimagetool required")
+            require(args.runtime is not None, "pinned AppImage runtime required")
             package(args.preparation.absolute(), args.appimagetool.absolute(), args.architecture,
-                    args.source_commit)
+                    args.source_commit, args.runtime.absolute())
     except (PackageInputError, OSError, ValueError, KeyError, subprocess.SubprocessError):
         print("Unsigned Linux preparation failed; retained files remain for diagnosis.", file=sys.stderr)
         return 1

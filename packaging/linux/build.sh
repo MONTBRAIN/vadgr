@@ -17,6 +17,9 @@ case "$arch" in aarch64) rust_target=aarch64-unknown-linux-gnu;; *) rust_target=
 inputs="$repo/packaging/inputs/linux-$arch"
 python3 "$repo/scripts/validate_package_inputs.py" --root "$inputs" --source-root "$repo" --version "$version" --target "$rust_target" \
   --payload-manifest "$payload/lib/cua/payload.json"
+runtime=${APPIMAGE_RUNTIME:?Set APPIMAGE_RUNTIME to the pinned native AppImage runtime.}
+python3 "$repo/scripts/verify_appimage_runtime.py" --runtime "$runtime" \
+  --pins "$repo/packaging/linux/runtime.json" --architecture "$arch"
 cargo build --locked --release --features native-gui --target "$rust_target" --bin vadgr
 target="target/$rust_target/release"
 
@@ -35,5 +38,5 @@ install -m 0644 "$repo/packaging/linux/com.montbrain.vadgr.desktop" "$appdir/com
 install -m 0644 "$repo/docs/pet.svg" "$appdir/com.montbrain.vadgr.svg"
 
 output="$repo/target/package/Vadgr-$version-linux-$arch-installer.AppImage"
-ARCH="$arch" "$APPIMAGETOOL" "$appdir" "$output"
+ARCH="$arch" "$APPIMAGETOOL" --runtime-file "$runtime" "$appdir" "$output"
 printf '%s\n' "$output"
