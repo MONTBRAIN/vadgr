@@ -1,6 +1,7 @@
 //! The legacy development installers and the 0.5.0 package entry points must
 //! keep their platform boundaries explicit.
 
+use sha2::{Digest, Sha256};
 use std::path::Path;
 
 #[cfg(unix)]
@@ -293,15 +294,66 @@ fn no_interpreter_artefact_is_tracked_in_this_repository() {
     }
     assert!(tracked > 50, "the listing looks empty: {tracked} files");
 
-    // Every surviving `.py` is a gate, an E2E harness or the declared bundled
-    // payload launcher. Product implementation remains Rust.
+    // Legal source delivery retains three reviewed source files verbatim.
+    // Exact paths and bytes keep this from exempting new Python implementation.
     for file in files.lines().filter(|f| f.ends_with(".py")) {
         assert!(
             file.starts_with("scripts/")
                 || file.starts_with("E2E/")
-                || file == "packaging/cua/bootstrap.py",
+                || file == "packaging/cua/bootstrap.py"
+                || reviewed_legal_python(file, &std::fs::read(root.join(file)).unwrap()),
             "{file} is Python outside the declared gates, harnesses and payload"
         );
+    }
+}
+
+const LEGAL_PYTHON_SOURCES: [(&str, &str); 3] = [
+    (
+        "packaging/inputs/linux-x86_64/legal/NOTICES/wheel-pillow-12.3.0/producer-setup.py",
+        "9d85d71d62769373d6fcedf35daea8f898724c1a3a7575c053e7f1f939b4bb52",
+    ),
+    (
+        "packaging/inputs/linux-x86_64/legal/NOTICES/wheel-python-xlib-0.33/002-Xlib-init-grant.py",
+        "f585e519798e6c288b95f44b440e14d87b1a320a69b567f56322ec73798238b8",
+    ),
+    (
+        "packaging/inputs/linux-x86_64/legal/SOURCE-OFFERS/linux-pillow-fribidi-shim/relink_pillow.py",
+        "b784a3efd8f5bd06173a3e0811e1fba061ebc2ff22b10630fe34b6d8a0bd5d3f",
+    ),
+];
+
+fn reviewed_legal_python(path: &str, contents: &[u8]) -> bool {
+    LEGAL_PYTHON_SOURCES.iter().any(|(name, digest)| {
+        path == *name
+            && Sha256::digest(contents)
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect::<String>()
+                == *digest
+    })
+}
+
+#[test]
+fn legal_python_exceptions_require_exact_reviewed_paths_and_bytes() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let review: serde_json::Value = serde_json::from_slice(
+        &std::fs::read(root.join("packaging/inputs/linux-x86_64/package-input-review.json"))
+            .unwrap(),
+    )
+    .unwrap();
+    for (name, digest) in LEGAL_PYTHON_SOURCES {
+        let contents = std::fs::read(root.join(name)).unwrap();
+        assert!(reviewed_legal_python(name, &contents));
+        let relative = name.strip_prefix("packaging/inputs/linux-x86_64/").unwrap();
+        assert_eq!(review["files"][relative].as_str(), Some(digest));
+        let mut changed = contents.clone();
+        changed.push(b'\n');
+        assert!(!reviewed_legal_python(name, &changed));
+        assert!(!reviewed_legal_python("src/implementation.py", &contents));
+        assert!(!reviewed_legal_python(
+            "packaging/inputs/linux-x86_64/legal/NOTICES/unreviewed.py",
+            &contents
+        ));
     }
 }
 

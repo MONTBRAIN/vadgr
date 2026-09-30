@@ -590,6 +590,34 @@ All required implementation checks completed successfully. No installed-product
 Linux cell inherits those source or CI results. Nothing was merged, signed,
 tagged, published or released.
 
+### Linux AppImage continuation on September 30
+
+Workflow `36755348343` successfully produced the registered AppImage at exact
+source `70424be6ead925c93d85f5dd95684a4a87c77dd3`. Retained artifact
+`11117000586` contains `Vadgr-0.5.0-linux-x86_64-installer.AppImage`,
+577468920 bytes, SHA-256
+`f427ae175373ea4f3fa19977ed1b12b4d0e6ab53a9f50c999ef0e586eed705bb`.
+Its canonical development receipt is 2665956 bytes, SHA-256
+`f5a3f958a507af94a8a9186c224754617f952daf41dde31ccebdffa05b678cd0`.
+Independent inspection matched all 11075 AppDir members, including file modes
+and confined relative links. All preparation members match the retained
+`07c7057` runtime exactly. These are unsigned, non-publishable bytes.
+
+L01 normal launch failed twice with `reading release manifest metadata` before
+the terms window. Both attempts exited 1. The isolated XDG roots and owner
+command shim remained absent. This is an installer implementation finding:
+the unsigned producer emits a development receipt, but preflight unconditionally
+requires a production manifest. It is not an unavailable-signing prerequisite.
+The repair and rebuilt functional rerun remain in progress.
+
+The newly retained legal source also exposed a repository-gate defect on all
+three operating systems: three exact Python files serving legal source delivery
+were mistaken for product implementation. A narrow path-and-hash exception
+preserves those files unchanged and rejects modified bytes or new paths. The
+controlled regression failed without the exception and passed after restoration.
+Full local Rust, Clippy, formatting and Python gates passed afterward. CI must
+rerun on the corrected test commit. No runtime code changes in this gate repair.
+
 ## macOS qualification history
 
 These observations preserve implementation findings and earlier evidence. They
