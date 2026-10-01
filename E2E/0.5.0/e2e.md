@@ -237,6 +237,30 @@ files while retaining the real desktop bus, hardware and network. It preserves
 existing owner browser-registration manifests. This isolates driver side
 effects, not the subject application, and is not container E2E coverage.
 Reload the client tool catalog only if needed; no provider API key is required.
+Prove that the current agent session can call the exposed tools, not merely
+that a standalone MCP client initializes or `/mcp` lists them. Those are
+diagnostics, not agent-tool integration or application coverage. On Codex,
+inspect the effective configuration, allow/deny lists, CLI and background-server
+versions, Remote Control mode and current thread inventory. Restarting the
+terminal does not necessarily restart its shared background server.
+When discovery succeeds but the agent cannot call the tools, use the documented
+`config/mcpServer/reload` request over the existing local app-server connection.
+Verify the installed protocol schema first. Codex 0.159.3 accepts
+`{"id":1,"method":"config/mcpServer/reload","params":null}` after initialization;
+the refresh is queued for loaded threads. Recheck callable tools and make an
+actual exposed `get_platform_info` call before accessibility work. Do not use
+a Python client or shell wrapper as a substitute for the session tool.
+Do not infer an authentication failure from `unknown` alone or expose a new
+network listener. Coordinate a shared-server restart only if refresh fails.
+On 2026-10-01, this reload exposed all 33 tools to the existing session. Two
+direct screenshot tool calls then returned inspected 1280 by 800 desktop
+images. This proves session integration and pixel smoke only, not app-only
+capture, accessibility control, or any remaining functional cell.
+Accessibility remains the primary control tier. Reproduce a suspected CUA
+defect through the public released tool, check existing issues, and file a
+sanitized issue with its version, failed oracle and minimal reproduction.
+Keep client integration failures separate from CUA findings. Never retain
+owner-window content or secrets merely to demonstrate a failure.
 Keep exact installation commands and immutable wheel identity in the setup
 record. Do not ask the owner to perform ordinary setup or infer a protected
 permission from a missing tool or failed capability probe.

@@ -812,6 +812,14 @@ offered.
   exact process/control identity and structured readback after every action.
   Do not import product modules or call backend functions directly. These local
   accessibility and capture tool calls require no provider API key.
+  Prove that this agent session exposes and can invoke the configured tools.
+  A server inventory or standalone MCP client is only a diagnostic. Follow the
+  current runbook's session-tool preflight when a client lists tools that the
+  agent cannot call. Accessibility remains the primary control tier; pixels
+  serve visual inspection, not a fallback for a refused structured action.
+  Reproduce a suspected CUA defect through its public MCP tool, check existing
+  issues, and file a sanitized issue with the exact release and failed oracle.
+  Keep client configuration failures separate from CUA product findings.
   Review server startup side effects and isolate driver-owned writes without
   replacing the real desktop bus or modifying owner browser registrations.
   Driver isolation does not turn a container into native subject coverage.

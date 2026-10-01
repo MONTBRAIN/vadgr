@@ -252,6 +252,12 @@ For a native installed console, the agent uses the platform accessibility tree
 to discover and operate the application. It acts through semantic roles and
 supported actions. It confirms each transition with a fresh structured read.
 Coordinates and pixel matching do not replace the accessibility interface.
+For Linux installer and console testing, follow the current template's released
+external CUA MCP driver setup and session-tool preflight. The actual agent must
+receive and call those tools; a standalone client probe is diagnostic only.
+Accessibility controls the application. Pixel tools inspect authorized images
+and never replace a refused structured action. Reproduce CUA defects and file
+sanitized issues, separate from client connection or tool-discovery failures.
 The installed product's bundled CUA payload is not this driver. Use it only
 when a cell explicitly tests a computer-use task. In particular, Windows
 installer and console actions use Windows UI Automation through AccessKit, not

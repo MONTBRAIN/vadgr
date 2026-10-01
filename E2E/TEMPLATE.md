@@ -784,6 +784,40 @@ runs through its registered native vehicle. Ordinary setup is the agent's job;
 ask the owner only for a genuinely protected permission. Successful MCP
 initialization or a reachable accessibility bus is not full application coverage.
 
+#### Session-tool preflight
+
+Prove three separate facts: the server starts, the client discovers its tools,
+and the current agent session can call them. A configured server, a tool count
+in `/mcp`, or a successful standalone Python MCP probe proves neither the last
+fact nor a GUI cell. Use an actual exposed `get_platform_info` tool call before
+ordinary accessibility actions. Inspect any authorized visual smoke result
+returned by the exposed screenshot tool; full-desktop output is not app-only
+capture evidence. Do not replace a missing agent tool with a shell wrapper.
+
+For Codex, record the CLI and background-server versions and whether Remote
+Control is active. A terminal restart can leave the shared server running.
+Check the effective server configuration, tool allow/deny lists and current
+thread inventory. An `unknown` status alone does not identify the failure.
+When discovery succeeds but the session lacks the tools, use the client's
+documented MCP reload. The app-server protocol provides
+`config/mcpServer/reload`, which reloads configuration and queues refreshes for
+loaded threads. Verify the request against the installed version's schema;
+version 0.159.3 accepts `{"id":1,"method":"config/mcpServer/reload","params":null}`
+after its normal initialized connection handshake. Send it through the existing
+local control connection, not a newly exposed network listener. Recheck the
+agent's callable tools and perform an actual tool call after the refresh.
+Do not repeatedly restart the VM, reinstall CUA or change networking to repair
+session discovery. Coordinate any necessary shared-server restart so it cannot
+interrupt unrelated work. Reference: the official Codex app-server and MCP
+documentation; recheck it for the installed version.
+
+Accessibility remains the primary Linux control tier. Reproduce CUA failures
+through the exact released public tool before filing an issue. Check for an
+existing issue and include the release, host class, safe minimal steps,
+expected and actual results, and independent oracle. Exclude owner data,
+private paths, credentials and unsafe captures. Record the issue reference
+with the affected assertion. A client reload problem is not a CUA defect.
+
 - Probe the current host/session and virtualization; do not carry a historical
   hypervisor label across a resumed pass. Record artifact and process identities, plus
   original accessibility and screen-reader settings, including unset values.
