@@ -18655,23 +18655,23 @@
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/EXTRACT-SOURCE.txt",
-          "sha256": "27117655ffb027586e8d2192d3db629f278e092ba6d29b9360fd9ca33fdd9130"
+          "sha256": "685fce01e5a3fc7cb8645e180202e233e77e572b8da5d122d0ca41330e5bbe24"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.SHA256SUMS",
-          "sha256": "fb873c3590d35a3c4f73f8cefcd8767cc71379286c966955f9d0bc9b07610f7e"
+          "sha256": "66039d57e608a532e7f1613e4698f6e3837f75356d071721322eb4561a148655"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.json",
-          "sha256": "bdd29f74c1f4c7e1cb9d02a851cae1ed5a6075d35ae11851873a709df1d2bec0"
+          "sha256": "1e88f106ca93d6eeec375cfa3571351e04200dfc0e7235a572d76dc0a0c5d92c"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz",
-          "sha256": "e9e92317080b2622913a12f62a5fc071dc3231f5de2ed663b12b2e8b852ac7c9"
+          "sha256": "bcb3785765b466adb8fe96c44ceece26d6b5390fd7361cdca384fa9d3fab19b6"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz",
-          "sha256": "d7ec24a3bcb10d50c3abefcd31016f92bb7184c4869b16680356602fd6872576"
+          "sha256": "7c9957190e0652e966167a11f75eab220527b82642056b1ba333586ce8d0af38"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-03.tar.gz",
@@ -21672,23 +21672,23 @@
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/EXTRACT-SOURCE.txt",
-          "sha256": "27117655ffb027586e8d2192d3db629f278e092ba6d29b9360fd9ca33fdd9130"
+          "sha256": "685fce01e5a3fc7cb8645e180202e233e77e572b8da5d122d0ca41330e5bbe24"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.SHA256SUMS",
-          "sha256": "fb873c3590d35a3c4f73f8cefcd8767cc71379286c966955f9d0bc9b07610f7e"
+          "sha256": "66039d57e608a532e7f1613e4698f6e3837f75356d071721322eb4561a148655"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.json",
-          "sha256": "bdd29f74c1f4c7e1cb9d02a851cae1ed5a6075d35ae11851873a709df1d2bec0"
+          "sha256": "1e88f106ca93d6eeec375cfa3571351e04200dfc0e7235a572d76dc0a0c5d92c"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz",
-          "sha256": "e9e92317080b2622913a12f62a5fc071dc3231f5de2ed663b12b2e8b852ac7c9"
+          "sha256": "bcb3785765b466adb8fe96c44ceece26d6b5390fd7361cdca384fa9d3fab19b6"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz",
-          "sha256": "d7ec24a3bcb10d50c3abefcd31016f92bb7184c4869b16680356602fd6872576"
+          "sha256": "7c9957190e0652e966167a11f75eab220527b82642056b1ba333586ce8d0af38"
         },
         {
           "path": "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-03.tar.gz",
