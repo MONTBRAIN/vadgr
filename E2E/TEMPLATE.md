@@ -848,6 +848,33 @@ Keep driver-fix qualification separate from qualification of the subject's
 bundled CUA payload. Record an exact external or protected-owner boundary only
 when it genuinely prevents completion.
 
+#### Close a CUA driver repair through its release
+
+A development repair or an open CUA PR does not close the dependency finding.
+Qualify the appropriate patch release and required version-plan realignment.
+Before assigning a version, fetch the latest published tag and default branch,
+compare the version register, and inspect all unreleased default-branch changes
+that the release would include. A merged feature is not a released dependency.
+Never publish unqualified unrelated work to obtain one fix. If those changes
+conflict with a maintenance release, record the exact scope and obtain the
+owner's route decision before renumbering or proceeding.
+Merge any version-plan realignment as one consistent change before tagging.
+Preserve required reviews and branch protection without administrative bypass.
+
+Complete the repair's negative regression, required live cells and source/CI
+gates. Obtain the applicable owner merge and release approvals, then follow the
+CUA protected candidate and publication gates without bypasses. This procedure
+does not authorize unrelated merges or releases. After publication, install the
+verified released artifact in the isolated driver environment. Record its tag,
+source and artifact digest, reload into a verified new MCP process, and confirm
+the current session can call its tools. Rerun every affected consuming Vadgr
+assertion from its stated precondition and preserve the earlier failures.
+Only that released-driver rerun closes the finding. Development-driver proof
+and the subject's bundled-CUA qualification remain separate. Continue independent
+cells while a specific owner approval or producer prerequisite remains owed.
+
+#### Continue the cold-start checklist
+
 - Probe the current host/session and virtualization; do not carry a historical
   hypervisor label across a resumed pass. Record artifact and process identities, plus
   original accessibility and screen-reader settings, including unset values.

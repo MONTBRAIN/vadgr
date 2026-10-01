@@ -823,6 +823,19 @@ offered.
   responsible repository, add a regression that fails without the fix, and
   rerun the affected public MCP actions and E2E assertions. Record an exact
   external or protected-owner boundary if it prevents completion.
+  A repaired development driver or open repair PR is not final closure. Qualify
+  the CUA patch and required version-plan realignment, obtain the applicable
+  owner approvals, and follow its protected release gates. Before assigning a
+  version, fetch the latest published tag and default branch; compare the
+  version register and inspect all unreleased default-branch changes. Never
+  release unqualified unrelated work to obtain the fix. A conflicting release
+  scope requires an owner decision, not silent renumbering or a trust bypass.
+  Merge consistent version-plan realignment before tagging; preserve required
+  reviews and branch protection without administrative bypass.
+  After authorized publication, install the verified released driver, replace
+  its MCP process and rerun affected Vadgr assertions with fresh evidence.
+  Keep those results separate from the bundled payload's qualification. This
+  procedure grants no implicit approval to merge, tag or release another PR.
   Keep client configuration failures separate from CUA product findings.
   Review server startup side effects and isolate driver-owned writes without
   replacing the real desktop bus or modifying owner browser registrations.

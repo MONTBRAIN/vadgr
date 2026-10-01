@@ -283,6 +283,30 @@ from the exact repaired CUA source may replace the isolated external driver.
 Record its source, wheel digest and installed identity as a development driver,
 not as the released 0.7.8 baseline or the subject's bundled 0.7.9 payload.
 This exception changes neither the subject artifact nor the visual oracle.
+It permits repair qualification, not final closure of a CUA dependency finding.
+The repair also requires an appropriate patch release and any version-plan
+realignment. Before assigning that version, fetch and compare the latest
+published tag, the version register and all unreleased default-branch changes.
+Never publish unqualified unrelated work to obtain the repair. A conflicting
+maintenance route requires an owner decision; do not silently renumber versions,
+rewrite history or bypass protected producers. The merged, unreleased 0.7.9
+profile work is not qualified for release merely because a driver-fix PR is green.
+No version is reassigned by this runbook update.
+Any version-plan realignment must merge as one consistent change before tagging.
+Required reviews and branch protection remain gates, with no administrative bypass.
+
+Complete the repair's negative regression, required live qualification and CI.
+After the applicable owner merge/release approvals and protected release gates,
+install the verified released driver into the isolated environment. Record its
+published tag, source, artifact digest and new MCP process identity. Confirm
+the current session can call its tools, then rerun every consuming Vadgr
+assertion affected by the repair from its stated precondition. Preserve all
+failed and development-driver attempts. An open repair PR is not completion;
+the released-driver rerun and evidence close the finding. This grants no
+implicit approval for any unrelated merge, tag or release and does not qualify
+the subject's bundled payload. Continue independent cells while an exact owner
+decision or protected producer prerequisite is outstanding.
+
 Installing that wheel does not replace code already loaded by a running MCP
 server. An unchanged configuration reload can keep the old process. Bind a
 nonsecret source identity in the server-specific configuration, request the

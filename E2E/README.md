@@ -262,6 +262,11 @@ An issue is a record, not a completed fix. Repair confirmed defects in the
 responsible repository, prove the regression fails without the repair, rebuild,
 and rerun the affected public actions. Name any external or protected-owner
 boundary that genuinely prevents completion; do not defer an implementable fix.
+Follow the template's CUA driver repair release procedure before closing that
+dependency finding: audit published and unreleased source scope, qualify the
+patch, obtain owner approvals, complete protected release gates, install the
+verified released driver and rerun affected consuming cells. An open repair PR
+or a development-driver pass alone does not complete that procedure.
 The installed product's bundled CUA payload is not this driver. Use it only
 when a cell explicitly tests a computer-use task. In particular, Windows
 installer and console actions use Windows UI Automation through AccessKit, not
