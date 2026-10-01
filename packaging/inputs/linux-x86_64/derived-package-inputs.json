@@ -10,7 +10,7 @@
   "baseline_validation": {
     "component_count": 825,
     "file_count": 5287,
-    "inventory_sha256": "862bf9eee7e10ded886073a711baaabc910c675d37c44d0cc408a4b13e728046",
+    "inventory_sha256": "23660704299e6932abbefb10b28ce1e902764a3c8dfa921ae1c00fa214db75fe",
     "payload_manifest_sha256": "9a006cd5742ef0aa910b3d2c2e45e35120835adffd4b26ba841e82f4a31157a7",
     "schema": 1,
     "scope": "assembled-payload",
@@ -24,88 +24,88 @@
   "carried_closure_decisions": true,
   "decoded_privacy_scan": "separate required check; not implied by legal scope",
   "final_artifact_correspondence": "not run; independent final receipt and Git check required",
-  "inventory_sha256": "23660704299e6932abbefb10b28ce1e902764a3c8dfa921ae1c00fa214db75fe",
+  "inventory_sha256": "efa19891495c8efebcc15b4d3d16cf1407dbd63f9449d121c0d306cf2a985d52",
   "new_approval_decision": false,
   "plan": {
     "all_content_changes_except_review_and_derivation_receipts": {
       "legal/SOURCE-OFFER.txt": {
         "after": {
           "bytes": 1076128,
-          "sha256": "c7ca58380bce6dbce0dfede2d2854b8864dc33c4b0d52ef607405b1960ec33fb"
+          "sha256": "e19caa4e62dcb3261b318eddca52528d69f6e25787f2457fc49ec816d8e30511"
         },
         "before": {
           "bytes": 1076128,
-          "sha256": "d5998bbd9633a4c2934a2727392b450eded69be8a89f9ab6c4b6a07d2184758b"
+          "sha256": "c7ca58380bce6dbce0dfede2d2854b8864dc33c4b0d52ef607405b1960ec33fb"
         }
       },
       "legal/SOURCE-OFFERS/vadgr-linux/EXTRACT-SOURCE.txt": {
         "after": {
           "bytes": 494,
-          "sha256": "73bd5e8da42b76b020d84f469572825e2cf8df674619469c65fbd201271c41f4"
+          "sha256": "eb08499d649ce1736e4fe0368160c15c2842896a31dfc6522d27b64e8d35293d"
         },
         "before": {
           "bytes": 494,
-          "sha256": "0fe5b1c66d7229ed8f5800f74d52fb73dcdd4bd6bf53934af5954842bbcfa020"
+          "sha256": "73bd5e8da42b76b020d84f469572825e2cf8df674619469c65fbd201271c41f4"
         }
       },
       "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.SHA256SUMS": {
         "after": {
           "bytes": 345,
-          "sha256": "db1ab17d8f69e48d138ff6a65285e8f7f6549f1195aa03499e8750dd0b43fc4a"
+          "sha256": "8d69e4f5dc06237a1d9260e821c843fe7c42d52f8ab4cffe8656e8f432e6f268"
         },
         "before": {
           "bytes": 345,
-          "sha256": "4f15dd400ad8c70487d833dfebf1188f6149ea55d6880e0bcc2d8e24125f5d96"
+          "sha256": "db1ab17d8f69e48d138ff6a65285e8f7f6549f1195aa03499e8750dd0b43fc4a"
         }
       },
       "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.json": {
         "after": {
           "bytes": 1251,
-          "sha256": "78061e9fae6729d6411dad763d0f0c5690ee891457336f1135bfe613132d2f09"
+          "sha256": "b97e954a0e242be2eeeaa4dcf60f0362aa62a2212dddafb604b91c8a0ab38172"
         },
         "before": {
           "bytes": 1251,
-          "sha256": "17c620d5ea667fcae9de20e483c4b686f32367624536f4de6d95857c142804f7"
+          "sha256": "78061e9fae6729d6411dad763d0f0c5690ee891457336f1135bfe613132d2f09"
         }
       },
       "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz": {
         "after": {
-          "bytes": 64789544,
-          "sha256": "aac06ff74a2c08208f988dc23a8f9f1d0c25d66a3f2c5b1ac7c0febef864833e"
+          "bytes": 64792684,
+          "sha256": "e9498ee8771c13198bd1695e8de9679e17db1e1ccdf3517c7d111ac39f88b1b9"
         },
         "before": {
-          "bytes": 64788116,
-          "sha256": "e2e9e23c9e085782e95639896c17457b0838b7de5d0384b4819594bb15eb98c8"
+          "bytes": 64789544,
+          "sha256": "aac06ff74a2c08208f988dc23a8f9f1d0c25d66a3f2c5b1ac7c0febef864833e"
         }
       },
       "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz": {
         "after": {
-          "bytes": 52203024,
-          "sha256": "d3bc8736f951866e9549c34ead55099a2c46f2995c0e5e16bcd6a4ee8f7b3fd2"
+          "bytes": 52203017,
+          "sha256": "cf9f9556a638fe215ba7e7baf564a7884838aaf6a8b590f532384328112d6fc7"
         },
         "before": {
-          "bytes": 52202992,
-          "sha256": "4224a1fa736bb897edb653aa4ea1848a34aaacffd251214c2efd4466d772ed15"
+          "bytes": 52203024,
+          "sha256": "d3bc8736f951866e9549c34ead55099a2c46f2995c0e5e16bcd6a4ee8f7b3fd2"
         }
       },
       "package-input-inventory.json": {
         "after": {
           "bytes": 1789912,
-          "sha256": "23660704299e6932abbefb10b28ce1e902764a3c8dfa921ae1c00fa214db75fe"
+          "sha256": "efa19891495c8efebcc15b4d3d16cf1407dbd63f9449d121c0d306cf2a985d52"
         },
         "before": {
           "bytes": 1789912,
-          "sha256": "862bf9eee7e10ded886073a711baaabc910c675d37c44d0cc408a4b13e728046"
+          "sha256": "23660704299e6932abbefb10b28ce1e902764a3c8dfa921ae1c00fa214db75fe"
         }
       },
       "sbom/vadgr-0.5.0.spdx.json": {
         "after": {
           "bytes": 1342114,
-          "sha256": "0e53821f9186a8bb1a9065646aabccd4fdaa03621160a61730915968d8240734"
+          "sha256": "f2ee510c2f1a96c0125b556baf44c1b013313b023d4787b62a847087b2c8cf48"
         },
         "before": {
           "bytes": 1342114,
-          "sha256": "465437e3b0abc8c8a9e94a04e7b44594188bedf06b13a7472beb25611aa20dce"
+          "sha256": "0e53821f9186a8bb1a9065646aabccd4fdaa03621160a61730915968d8240734"
         }
       }
     },
@@ -114,73 +114,73 @@
       "legal/SOURCE-OFFERS/vadgr-linux/EXTRACT-SOURCE.txt": {
         "after": {
           "bytes": 494,
-          "sha256": "73bd5e8da42b76b020d84f469572825e2cf8df674619469c65fbd201271c41f4"
+          "sha256": "eb08499d649ce1736e4fe0368160c15c2842896a31dfc6522d27b64e8d35293d"
         },
         "before": {
           "bytes": 494,
-          "sha256": "0fe5b1c66d7229ed8f5800f74d52fb73dcdd4bd6bf53934af5954842bbcfa020"
+          "sha256": "73bd5e8da42b76b020d84f469572825e2cf8df674619469c65fbd201271c41f4"
         }
       },
       "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.SHA256SUMS": {
         "after": {
           "bytes": 345,
-          "sha256": "db1ab17d8f69e48d138ff6a65285e8f7f6549f1195aa03499e8750dd0b43fc4a"
+          "sha256": "8d69e4f5dc06237a1d9260e821c843fe7c42d52f8ab4cffe8656e8f432e6f268"
         },
         "before": {
           "bytes": 345,
-          "sha256": "4f15dd400ad8c70487d833dfebf1188f6149ea55d6880e0bcc2d8e24125f5d96"
+          "sha256": "db1ab17d8f69e48d138ff6a65285e8f7f6549f1195aa03499e8750dd0b43fc4a"
         }
       },
       "legal/SOURCE-OFFERS/vadgr-linux/source-volumes.json": {
         "after": {
           "bytes": 1251,
-          "sha256": "78061e9fae6729d6411dad763d0f0c5690ee891457336f1135bfe613132d2f09"
+          "sha256": "b97e954a0e242be2eeeaa4dcf60f0362aa62a2212dddafb604b91c8a0ab38172"
         },
         "before": {
           "bytes": 1251,
-          "sha256": "17c620d5ea667fcae9de20e483c4b686f32367624536f4de6d95857c142804f7"
+          "sha256": "78061e9fae6729d6411dad763d0f0c5690ee891457336f1135bfe613132d2f09"
         }
       },
       "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz": {
         "after": {
-          "bytes": 64789544,
-          "sha256": "aac06ff74a2c08208f988dc23a8f9f1d0c25d66a3f2c5b1ac7c0febef864833e"
+          "bytes": 64792684,
+          "sha256": "e9498ee8771c13198bd1695e8de9679e17db1e1ccdf3517c7d111ac39f88b1b9"
         },
         "before": {
-          "bytes": 64788116,
-          "sha256": "e2e9e23c9e085782e95639896c17457b0838b7de5d0384b4819594bb15eb98c8"
+          "bytes": 64789544,
+          "sha256": "aac06ff74a2c08208f988dc23a8f9f1d0c25d66a3f2c5b1ac7c0febef864833e"
         }
       },
       "legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz": {
         "after": {
-          "bytes": 52203024,
-          "sha256": "d3bc8736f951866e9549c34ead55099a2c46f2995c0e5e16bcd6a4ee8f7b3fd2"
+          "bytes": 52203017,
+          "sha256": "cf9f9556a638fe215ba7e7baf564a7884838aaf6a8b590f532384328112d6fc7"
         },
         "before": {
-          "bytes": 52202992,
-          "sha256": "4224a1fa736bb897edb653aa4ea1848a34aaacffd251214c2efd4466d772ed15"
+          "bytes": 52203024,
+          "sha256": "d3bc8736f951866e9549c34ead55099a2c46f2995c0e5e16bcd6a4ee8f7b3fd2"
         }
       }
     },
     "old_payload_manifest_sha256": "9a006cd5742ef0aa910b3d2c2e45e35120835adffd4b26ba841e82f4a31157a7",
     "original_approval_receipt_sha256": "af08d48bb850b1b2b64ba9fae5bb18d828677367641d74ef42329cf618d0befb",
     "preserved_baseline": {
-      "baseline_packet_commit": "9f16fad07f49864f4332d228ae89b84fb94851c6",
-      "baseline_packet_manifest_sha256": "a32a591f991414e9c07f8a91301e016755f14173d34e14e23aeed7fd8a144836",
+      "baseline_packet_commit": "026a0281a3982c165764c8b1d97c63b3c24a92ff",
+      "baseline_packet_manifest_sha256": "ec17da511c1c85a0c400d0dec0a0882989311173e4b728096926bca40501ccfe",
       "new_owner_approval": false,
       "original_approval_receipt_sha256": "af08d48bb850b1b2b64ba9fae5bb18d828677367641d74ef42329cf618d0befb"
     },
     "schema": 1,
-    "source_snapshot_commit": "b87938f226503000884763e3ec297f4961d864d6",
-    "source_snapshot_tree": "6caeca131a85c467de8ebc511c8e7774c2e2a084",
-    "source_tree_manifest_sha256": "b1db47504a64270ddb5b70bdab430e5c9f736bf28064f502f26b37706b4f0e3e",
-    "source_volumes_sha256": "78061e9fae6729d6411dad763d0f0c5690ee891457336f1135bfe613132d2f09",
+    "source_snapshot_commit": "047507ba8287391201d897e79b94f24b13523e2e",
+    "source_snapshot_tree": "0d9b5c5438b37a47c28f6c4a3ddb4029d400e374",
+    "source_tree_manifest_sha256": "6d714c98dcbb1c296e0388773e2c698bce9e4cabac8dcc9362ad1cd8229f5fc3",
+    "source_volumes_sha256": "b97e954a0e242be2eeeaa4dcf60f0362aa62a2212dddafb604b91c8a0ab38172",
     "validation_payload_manifest_sha256": "9a006cd5742ef0aa910b3d2c2e45e35120835adffd4b26ba841e82f4a31157a7"
   },
-  "plan_sha256": "69d31a291ab051d38a4719cccf1cb83272472ea8271c7384ee06b4075a67522b",
+  "plan_sha256": "5bbd8ef610720ce799ef1f997377a1cb529cc9894f4ca187dd596a813c33d60e",
   "publishable": false,
   "release_authorized": false,
-  "review_sha256": "af9594c7fd2cac76a7368738c4572aa012cc97b80d0e4acf093bd86cb9c4aaf8",
+  "review_sha256": "ee1f59ae926334d8ea81909eaf7dab2f0c08434ac1eb8b755a8a858a8a824dfa",
   "schema": 1,
   "separately_owner_reviewed": false,
   "signing_authorized": false,
@@ -209,8 +209,8 @@
     "new_owner_approval": false,
     "patched_components_changed": [],
     "preserved_approval_lineage": {
-      "baseline_packet_commit": "9f16fad07f49864f4332d228ae89b84fb94851c6",
-      "baseline_packet_manifest_sha256": "a32a591f991414e9c07f8a91301e016755f14173d34e14e23aeed7fd8a144836",
+      "baseline_packet_commit": "026a0281a3982c165764c8b1d97c63b3c24a92ff",
+      "baseline_packet_manifest_sha256": "ec17da511c1c85a0c400d0dec0a0882989311173e4b728096926bca40501ccfe",
       "new_owner_approval": false,
       "original_approval_receipt_sha256": "af08d48bb850b1b2b64ba9fae5bb18d828677367641d74ef42329cf618d0befb"
     },
