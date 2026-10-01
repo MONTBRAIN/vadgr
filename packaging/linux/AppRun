@@ -9,6 +9,8 @@ fi
 export VADGR_APPDIR="$APPDIR"
 case "$(basename -- "${ARGV0:-$0}")" in
   vadgr)
+    install_root=$(dirname -- "$(readlink -f -- "$APPIMAGE")")
+    export VADGR_INSTALL_ROOT="$install_root"
     exec "$APPDIR/usr/bin/vadgr" "$@"
     ;;
 esac

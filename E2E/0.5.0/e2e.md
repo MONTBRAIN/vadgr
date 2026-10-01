@@ -1040,6 +1040,61 @@ the rebuilt AppImage must exercise a reachable failure and preservation through
 its public installed path. Positive updates and unavailable predecessor
 rollback must not be invented for this first release.
 
+### Linux retained AppImage at `ef712d64`
+
+Producer run `36812952675` completed for source
+`ef712d64274b161d5f10794b2363c8c7dc248633`. Retained artifact `11139969130`
+contains `Vadgr-0.5.0-linux-x86_64-installer.AppImage`, 577759736 bytes, with
+SHA-256 `c2ef221bb810291bda0852a63a1d2055c86d6dee95824c5ceeaeb85816fe419b`.
+Independent checks verified its receipt, 11079 AppDir entries, 6257 preparation
+entries, 5785 CUA payload entries and 231 source correspondence files. These
+are unsigned development observations, not production trust qualification.
+
+The virtualized x86_64 GNOME Wayland continuation observed these assertions:
+
+- L01: unchecked assent kept Install disabled. Native Decline exited without
+  product mutation. The first inventory comparison included Orca's own initial
+  files; a second decline after that initialization preserved the complete
+  isolated inventory exactly. Both attempts remain retained. Terms visuals
+  remain owed.
+- L02: installation and Open Vadgr succeeded. The installed vehicle matched
+  the retained hash and health was available. Native Close exited the unfocused
+  installer while the console and daemon remained alive. No exact image proved
+  pixel occlusion. A ready-state idle sample lasted 30.444909613 seconds with
+  zero measured process and main-thread CPU. The loading sample lacks a final
+  loading-state bracket and is not a complete loading-CPU verdict.
+- L04 and O2: native Unicode name, workspace, multiline prompt and autonomy
+  edits agreed with independent CLI/API reads. Cancelling a second draft kept
+  the saved values. The private payload inventory matched its packaged manifest;
+  this pass did not execute its interpreter or a billed task. Actual isolated
+  Orca speech covered machine fields, tabs, provider selection and update
+  controls. An accepted Restart action did not change the daemon identity.
+  This remains a failed observation, not a restart pass.
+- L05: the console reached `downloading release-manifest.json` as its failure
+  and preserved the package, receipt, current link, daemon, health and selected
+  machine state. The installed CLI instead selected the source-checkout updater
+  on two attempts. The public AppRun alias omitted the installed receipt root.
+  This is an implementation defect; console success cannot close the CLI
+  assertion. Rollback remained disabled with the absent-predecessor reason.
+- L03 negative cases, Repair and L06 were not repeated against these bytes.
+  Their earlier results remain historical, not new passes.
+
+A deterministic regression separately reproduced an enabled console action
+being displaced by a due background refresh. Two unchanged-source runs called
+refresh instead of restart. This proves the race, not its timing in the earlier
+native observation. Both fixes require a rebuilt AppImage and affected native
+reruns. A shared console fix also requires affected action/refresh reruns on
+other native platforms; prior platform results do not cover changed behavior.
+
+The bounded session ended with public daemon stop returning zero. Its final
+process inventory hit a retained helper permission error, and its checked
+console required fallback termination. A subsequent independent process check
+found the recorded controller, private bus, reader, console and daemon absent.
+The isolated installation and logical state remain for continuation. This is
+not C1 completion. Exact app-only visuals, remaining accessibility states,
+phone observations and the unavailable offline snapshot remain owed as above.
+No merge, signing, tag, publication or release occurred.
+
 ## macOS qualification history
 
 These observations preserve implementation findings and earlier evidence. They

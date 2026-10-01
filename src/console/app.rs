@@ -1451,9 +1451,11 @@ impl eframe::App for ConsoleApp {
         } else {
             std::time::Duration::from_secs(8)
         };
+        // An automatic refresh must not disable a control before its input is handled.
         if self.pending.is_none()
             && (self.dialog.is_none() || matches!(self.dialog, Some(Dialog::Pairing { .. })))
             && self.last_refresh.elapsed() >= refresh_after
+            && ctx.input(|input| input.events.is_empty() && !input.pointer.any_down())
         {
             self.reload();
         }
@@ -1980,6 +1982,10 @@ fn provider_name(id: &str) -> &str {
         other => other,
     }
 }
+
+#[cfg(test)]
+#[path = "refresh_tests.rs"]
+mod refresh_tests;
 
 #[cfg(test)]
 mod tests {
