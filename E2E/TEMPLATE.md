@@ -247,6 +247,13 @@ present in a given runbook, the entry is all there is.
     without requiring focus, inspect it against the approved mockup, and verify
     each effect with an independent machine oracle. [Native console driving]
 
+    On Linux, use the latest released Vadgr CUA MCP server in an isolated test
+    environment, not the subject's bundled payload. This Linux-only rule
+    overrides older direct-helper instructions. Use real MCP `ui_tree`,
+    `ui_find` and `ui_act` calls with fresh references and structured readback.
+    Record the driver identity separately from the product identity. No provider
+    API key is needed for these local tool calls. Do not import product modules.
+
     Use `PrintWindow(PW_CLIENTONLY)` under a per-monitor-aware DPI context on
     Windows. Use `SCScreenshotManager` with an
     `SCContentFilter(desktopIndependentWindow:)` on macOS. On native Linux, use
@@ -761,12 +768,35 @@ Keep this checklist in every desktop minor. Read the docs engineering section
 "Native desktop cold-start procedure" before the first GUI cell. Fill in exact
 helper commands and supported interfaces; a pointer alone is not a procedure.
 
+For Linux, record the verified released CUA installation, doctor and MCP server
+launch commands before the first call. Inspect its advertised schemas over the
+real MCP connection. Do not assume checkout or bundled-payload tools are the
+released tools. Windows UIA and macOS Accessibility keep their existing drivers.
+Direct Linux accessibility helpers are diagnostic only, not the primary driver.
+Register the verified installed entry point with
+`codex mcp add <name> -- <absolute-installed-entry> --transport stdio`.
+Reload the client tool catalog only when needed to expose the new server.
+Inspect startup side effects before launch: isolate driver-owned writes and
+preserve existing browser-registration manifests and other owner configuration.
+Keep the real desktop bus available. Driver write isolation is not evidence
+that the tested application ran natively inside a container. The subject still
+runs through its registered native vehicle. Ordinary setup is the agent's job;
+ask the owner only for a genuinely protected permission. Successful MCP
+initialization or a reachable accessibility bus is not full application coverage.
+
 - Probe the current host/session and virtualization; do not carry a historical
   hypervisor label across a resumed pass. Record artifact and process identities, plus
   original accessibility and screen-reader settings, including unset values.
 - Prove bounded accessible-window readiness and exact control discovery. Use a
   fresh process-scoped tree, supported native action, fresh readback and an
   independent machine oracle for each step. Action dispatch is not success.
+  On Linux, obtain these through released MCP `ui_tree`, `ui_find` and `ui_act`;
+  reacquire references after changes rather than reusing stale nodes.
+  Inspect the actual schemas: an application-name filter is not a PID filter.
+  Match `ui_windows` discovery to the independently known launch PID and start
+  identity, then use the exact application filter and refuse ambiguity. Retain
+  only bounded, reviewed nonsecret fields; do not invent safe-filter arguments
+  or save an unfiltered owner-window list or accessibility tree.
 - Prove enabled/disabled semantics and native text replacement on isolated
   ordinary fields before settings, credentials or typed purge. On Linux,
   `EditableText.SetTextContents` must actually work; an editable flag or click
@@ -776,6 +806,10 @@ helper commands and supported interfaces; a pointer alone is not a procedure.
   portal WINDOW source and scoped PipeWire stream. A missing row action or
   refused Selection is a recorded capability failure, not automatically an
   owner-only permission prompt. Cancel the owned chooser after a bounded probe.
+  Linux visual checks use the release's public MCP capture tools. A release
+  exposing only full-screen screenshot/crop does not satisfy this exact
+  app-only oracle. Leave it owed if unavailable; never invent window capture or
+  count a desktop crop as equivalent. Helper probes remain diagnostic records.
 - Name helper dependencies, safe tree filtering, exact new output paths and
   cleanup commands. Never retain private window titles or secret-bearing trees.
 - Record unavailable assertions separately, continue independent cells, and
@@ -783,6 +817,9 @@ helper commands and supported interfaces; a pointer alone is not a procedure.
   a reboot, rediscover readiness and identities before resuming.
 
 #### Conditional Wayland chooser and unfocused capture probe
+
+This section describes a diagnostic capability probe. It does not override the
+released MCP driver requirement or turn direct-helper captures into MCP proof.
 
 The portal contract does not prescribe a chooser layout or focus order. Verify
 the installed portal backend, desktop and toolkit versions and their matching

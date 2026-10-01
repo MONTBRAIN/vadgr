@@ -803,8 +803,27 @@ offered.
   package manager or operating system as the independent oracle. The owner acts
   only at an unavoidable physical or protected boundary after the agent prepares
   the exact state and gives one explicit instruction.
-- **The installed Vadgr CUA payload is not the installer or native-console E2E
-  driver.** Use the host platform accessibility API for those surfaces. On
+- **Linux uses a separately installed released Vadgr CUA MCP driver.** This
+  Linux-only rule takes precedence over older direct-helper instructions.
+  Verify the latest released version at setup, install it in an isolated
+  environment, and record its release, wheel, executable and MCP identities
+  separately from the tested AppImage and its bundled CUA payload. Drive the
+  real MCP wire with `ui_tree`, `ui_find` and `ui_act`, using fresh references,
+  exact process/control identity and structured readback after every action.
+  Do not import product modules or call backend functions directly. These local
+  accessibility and capture tool calls require no provider API key.
+  Review server startup side effects and isolate driver-owned writes without
+  replacing the real desktop bus or modifying owner browser registrations.
+  Driver isolation does not turn a container into native subject coverage.
+  The agent performs ordinary setup; owner action is reserved for genuinely
+  protected permissions. Tool availability alone is not application coverage.
+  Use public MCP capture capabilities for Linux visual checks, but verify what
+  the selected release actually offers. Full-screen screenshots and crops do
+  not prove exact application-only unfocused capture. If that oracle cannot be
+  satisfied, leave it owed; do not invent a window-capture tool or weaken it.
+  Direct native helpers may diagnose failures, but are not the primary Linux
+  driver. Keep their historical results distinct from new MCP observations.
+- **The installed Vadgr CUA payload is not this external test driver.** On
   Windows, use Windows UI Automation through the AccessKit tree and an app-only
   `PrintWindow(PW_CLIENTONLY)` capture under a per-monitor-aware DPI context. On
   macOS, use `SCScreenshotManager` with an
@@ -815,13 +834,11 @@ offered.
   still works while another application has focus. A focused capture, desktop
   capture, monitor capture or crop from either is not a substitute. If the host
   cannot make the exact unfocused capture, leave the visual assertion owed and
-  record the limitation. Use the bundled CUA only inside a cell
-  whose product assertion explicitly runs a computer-use task. A CUA screenshot,
-  pointer click, or OCR result cannot replace the native accessibility oracle.
-  Vadgr CUA may become the common native-console driver only after its structured
-  accessibility tier exists and is qualified on Windows, macOS and native Linux,
-  and the current runbook explicitly adopts it. Until then, every host uses its
-  platform accessibility API.
+  record the limitation. The Linux portal/XComposite paths describe the required
+  capture scope, not permission to replace the released MCP driver with a direct
+  helper. Use the bundled CUA only inside a cell whose product assertion runs a
+  computer-use task. Windows UIA and macOS Accessibility remain unchanged;
+  adopting the released Linux driver does not qualify it on those platforms.
 - **A native console has no silent dead controls.** Every enabled control works
   in this minor and has an independent E2E oracle. A future control is disabled
   and visibly names the exact registered minor that enables it. A control which

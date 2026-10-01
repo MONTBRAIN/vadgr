@@ -179,8 +179,14 @@ implementation merge or manufacture a synthetic predecessor.
 
 The host lead drives every automatable installer, console, CLI and connected
 phone action. Use the host platform accessibility tree. Use Windows UI
-Automation through AccessKit on Windows. Use macOS Accessibility on macOS. Use
-AT-SPI on native Linux. Take an exact app-only capture through the host-native
+Automation through AccessKit on Windows. Use macOS Accessibility on macOS. On
+native Linux, use the separately installed released Vadgr CUA MCP server for
+accessibility actions and public MCP capture tools for visual checks. This
+Linux-only method takes precedence over older direct-helper instructions.
+Use `ui_tree`, `ui_find` and `ui_act` over the real MCP wire, with fresh
+references, exact process/control identity and structured readback. Do not
+import product modules or invoke backend functions. Local tool calls require
+no provider API key. Take an exact app-only capture through the host-native
 path: `PrintWindow(PW_CLIENTONLY)` under a per-monitor-aware DPI context on
 Windows; `SCScreenshotManager` with an
 `SCContentFilter(desktopIndependentWindow:)` on macOS; one XDG Desktop Portal
@@ -192,6 +198,16 @@ capture is unavailable, leave the visual assertion owed. After every action,
 reacquire the accessibility elements, inspect the app-only capture against the
 approved mockups, and verify the result through the API, process, package,
 filesystem or journal oracle named by the cell.
+The external Linux driver and the subject are separate identities. The selected
+released driver is CUA 0.7.8; verify its immutable release and installed wheel,
+executable and advertised MCP schemas before use. Record its verified install,
+doctor and server launch commands with the setup record. Do not use the bundled
+unreleased 0.7.9 payload as this driver or infer its adoption from driver success.
+The released capture surface exposes full-screen screenshot/crop, not an assumed
+window-capture tool. Such output cannot close the exact unfocused app-only
+oracle. Leave that assertion owed if public MCP capabilities cannot satisfy it.
+Historical direct AT-SPI observations remain historical, not retroactive MCP
+passes. Native helpers may diagnose gaps but no longer drive Linux cells.
 The bundled Vadgr CUA payload is not the Windows installer or console driver.
 Use it only for a cell that explicitly runs a product computer-use task. Its
 screenshot, pointer, OCR and browser tools do not satisfy the native Windows UI
@@ -205,32 +221,54 @@ current hypervisor, guest, virtual hardware, architecture, desktop and protocol;
 never carry a historical host label across a resumed pass.
 It is not bare-metal, another architecture or another desktop-session pass.
 
-For Linux, read `harness/linux_atspi.py` and
-`harness/linux_portal_capture.py` before using them. The driver needs system
-Python GI with Atspi; capture also needs Gio, Gst and the `pipewiresrc`,
-`videoconvert`, `pngenc` and `appsink` elements. These are test-driver
-dependencies, not dependencies of the installed Vadgr package.
+For Linux, use the verified isolated released MCP environment and its advertised
+tool schemas. Record exact installation, doctor and server launch commands
+before the first dependent cell; do not invent untested setup commands.
+The verified setup uses released CUA 0.7.8 in a separate Python 3.14.4
+environment. Dependency checking passed, doctor reported 33 tools, and the
+real MCP initialization, tool listing and platform-info calls succeeded.
+Platform info reported an available AT-SPI backend, a reachable bus,
+`coordinate_trust: per_window` and `is_enabled: false`. The last field is not
+a verdict about per-window support. These are setup observations, not UI coverage.
+Register its reviewed installed wrapper with
+`codex mcp add vadgr-linux-e2e -- <absolute-installed-entry> --transport stdio`.
+The wrapper confines startup writes to driver-owned storage and temporary
+files while retaining the real desktop bus, hardware and network. It preserves
+existing owner browser-registration manifests. This isolates driver side
+effects, not the subject application, and is not container E2E coverage.
+Reload the client tool catalog only if needed; no provider API key is required.
+Keep exact installation commands and immutable wheel identity in the setup
+record. Do not ask the owner to perform ordinary setup or infer a protected
+permission from a missing tool or failed capability probe.
+`harness/linux_atspi.py` and `harness/linux_portal_capture.py` remain diagnostic
+tools only. Read them before any diagnostic use. Their system GI/GStreamer
+dependencies are not dependencies of the installed Vadgr package.
 
 1. Record the original desktop accessibility, screen-reader and session AT-SPI
    settings, including unset values. Enable only what this session needs and
    restore the exact prior state later. Record every assistive process started.
 2. Launch the exact retained package outside its checkout and record its PID.
-   Poll bounded readiness. Use
-   `/usr/bin/python3 E2E/0.5.0/harness/linux_atspi.py tree --pid <pid>` with repeated
-   `--tree-allow-name <safe-label>` flags before saving a tree. Redact private
-   titles and values at acquisition; never capture a secret to prove a field.
-3. From that fresh tree, select one exact name and role. Use the helper's
-   `act --pid <pid> --name <name> --role <role> --action <observed-action>`.
+   Discover the owned window through MCP `ui_windows`, matching its reported
+   PID to the independently recorded launch identity and start time. Release
+   0.7.8 exposes `ui_tree(depth, app)` and `ui_find(role, name, app)`, not a PID
+   argument or a safe-tree-filter argument. Use the exact discovered application
+   name and refuse ambiguous matches. Poll bounded readiness and retain only
+   reviewed, bounded nonsecret readback fields, not a list of owner windows or
+   an unfiltered tree. Never capture a secret to prove a field.
+3. From that fresh tree, select one exact name and role. Invoke MCP `ui_act`
+   with a fresh reference and an action advertised by the released schema.
    Reacquire the tree and inspect the independent machine result. Native action
    acceptance is not proof of mutation, and disabled semantics need their own
    negative check even when the product guard rejects activation.
-4. On an isolated ordinary field, use `set-text` with its exact PID, name, role
-   and `--value-stdin`. Prove readback and save before relying on settings or
+4. On an isolated ordinary field, use MCP `ui_act`'s advertised text-replacement
+   action with a fresh exact field reference. Prove readback and save before relying on settings or
    typed purge. `editable=true` does not prove `EditableText.SetTextContents`.
    Preserve native refusal as a finding; do not inject keys, use clipboard,
    edit the database or ask the owner to type instead.
-5. Invoke `/usr/bin/python3 E2E/0.5.0/harness/linux_portal_capture.py` with
-   `--output <new-private.png> --delay 15 --timeout 120`. Inspect the chooser's
+5. Use only the released public MCP capture capability for the visual check.
+   Do not invent a window source when only screenshot/crop is advertised. The
+   required app-only unfocused oracle remains owed in that case. For a separate
+   native WINDOW diagnostic, inspect the chooser's
    fresh AT-SPI tree, select only the intended WINDOW and invoke its exact
    **Share** control with role `button`, `SENSITIVE` and non-defunct. GTK may
    omit `ENABLED`; do not require both flags. A same-named label is not the control.
@@ -248,6 +286,9 @@ dependencies, not dependencies of the installed Vadgr package.
    and stop only pass-created processes and capture sessions.
 
 #### Conditional Wayland chooser selection
+
+This is a diagnostic procedure, not an alternative Linux cell driver. A direct
+helper result is not a released MCP result and does not change historical verdicts.
 
 Verify the current portal backend, desktop and toolkit versions against their
 matching source before using a backend-specific action. The ScreenCast contract
