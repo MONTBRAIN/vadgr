@@ -832,7 +832,10 @@ offered.
   Use public MCP capture capabilities for Linux visual checks, but verify what
   the selected release actually offers. Full-screen screenshots and crops do
   not prove exact application-only unfocused capture. If that oracle cannot be
-  satisfied, leave it owed; do not invent a window-capture tool or weaken it.
+  satisfied, leave it owed; do not invent a window-capture tool. The current
+  Linux runbook has an owner-approved focused-region visual exception. Follow
+  its exact scope, focus, bounds and privacy checks; never call that image an
+  unfocused application-only capture. Accessibility remains the input tier.
   Direct native helpers may diagnose failures, but are not the primary Linux
   driver. Keep their historical results distinct from new MCP observations.
 - **The installed Vadgr CUA payload is not this external test driver.** On
@@ -863,7 +866,9 @@ the docs `general/ENGINEERING.md` section "Native desktop cold-start procedure"
 and the current runbook's matching checklist. Prove process-scoped native
 actions, actual text replacement and independent readback before relying on
 them. Inspect exact unfocused application-only images; a UI tree is not a visual
-pass. Preserve failed probes, fix product accessibility defects, and restore
+pass. The current Linux runbook's explicit focused-region exception can satisfy
+its visual inspection slice, not the separate unfocused-capture capability.
+Preserve failed probes, fix product accessibility defects, and restore
 assistive settings. Put this procedure in both the current minor and template
 so the next agent does not have to rediscover it. CLAUDE.md imports this entry
 point and follows the same procedure.

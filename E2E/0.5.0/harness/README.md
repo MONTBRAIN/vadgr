@@ -3,12 +3,19 @@
 These helpers observe and drive the written cells. They do not replace a cell,
 its oracle or the product under test.
 
-## Linux native accessibility and window capture
+## Linux diagnostic accessibility and window capture
 
-Use `linux_atspi.py` with system Python and the AT-SPI GI bindings. Select the
-exact application PID. Reacquire its tree after each transition, then invoke
-one enabled control by its exact name or fresh tree path. The helper refuses
-ambiguous controls. Supply text through stdin with `--value-stdin`; never put
+The primary Linux driver is the separately installed Vadgr CUA MCP server
+specified by the runbook. The current agent session must expose and call its
+actual tools. These direct Linux helpers are diagnostic only; their output
+does not establish MCP accessibility or capture coverage. Keep diagnostic
+observations separate from the installed public-tool results.
+
+For a diagnostic probe, use `linux_atspi.py` with system Python and the AT-SPI
+GI bindings. Select the exact application PID. Reacquire its tree after each
+transition, then invoke one enabled control by its exact name or fresh tree
+path. The helper refuses ambiguous controls. Supply text through stdin with
+`--value-stdin`; never put
 credentials in command arguments or retain a secret-bearing tree.
 The native interaction test is `SENSITIVE` and not `DEFUNCT`; GTK can omit the
 separate `ENABLED` state. Tree output preserves both states. For a shared
@@ -30,12 +37,13 @@ a passing oracle.
 
 Use the action name exposed by the fresh tree, not an assumed action name.
 An accepted accessibility call is not a product verdict: inspect the visible
-result and the cell's independent machine oracle. There is no keyboard,
-coordinate-click, or Vadgr CUA fallback.
+result and the cell's independent machine oracle. Do not substitute keyboard
+or coordinate input for a refused semantic action. The diagnostic helper is
+not a replacement for the runbook's primary exposed CUA MCP tools.
 
-On Wayland, `linux_portal_capture.py` requests exactly one WINDOW through the
-XDG Desktop Portal and reads its scoped PipeWire stream. It requires GI,
-GStreamer, `pipewiresrc`, `videoconvert`, `pngenc`, and `appsink`. Drive the
+For a Wayland diagnostic, `linux_portal_capture.py` requests exactly one WINDOW
+through the XDG Desktop Portal and reads its scoped PipeWire stream. It requires
+GI, GStreamer, `pipewiresrc`, `videoconvert`, `pngenc`, and `appsink`. Drive the
 portal's ordinary window chooser through native accessibility. Select only
 the application under test; never select the desktop or an owner application.
 
@@ -51,6 +59,12 @@ or focused-only substitute is permitted. The output must be a new private
 PNG path. Sessions, requests, the stream, and file descriptors are closed on
 exit. A denied or protected portal action is recorded as its exact boundary,
 not as a capture pass.
+A successful direct-helper capture remains diagnostic. It does not satisfy a
+cell that requires the released public MCP capture path. The current Linux
+runbook separately permits owner-approved focused `screenshot_region` visual
+inspection through actual MCP tools. Follow its fresh bounds, before/after
+focus and privacy checks. That exception does not make this diagnostic helper
+qualifying, and never proves unfocused window capture.
 
 ## `windows_uia.py`
 

@@ -745,7 +745,21 @@ prove that it works while another application has focus. A focused capture,
 desktop capture, monitor capture or crop is not a substitute. If exact unfocused
 capture is unavailable, leave the visual assertion owed. The driver opens every
 capture and compares the complete view with the approved mockup. Screenshots
-confirm rendering but never locate controls or drive the structured tier.>
+confirm rendering but never locate controls or drive the structured tier.
+If the owner explicitly authorizes a temporary Linux focused-region exception,
+record that ruling and its affected visual assertions in the current runbook.
+Focus the exact owned test window through accessibility and independently verify
+fresh display-space crop geometry. Never interpret untrusted Wayland or
+window-relative accessibility bounds as global screen coordinates. If supported
+window maximization supplies that geometry, record and restore its prior state.
+Verify structured focus immediately before and after the public MCP
+`screenshot_region` call. Exclude occlusion, other applications and secrets.
+Inspect the returned image before retaining it. Reject changed focus, uncertain
+bounds or unsafe pixels. Label qualifying output `focused region`, never
+`unfocused window`. This exception can satisfy only its authorized visual
+inspection slice; the exact unfocused capture assertion remains unproven.
+Keep the missing capability assigned to its approved future minor. Do not
+generalize this exception to other platforms or use pixels for ordinary input.>
 
 <Inventory every console control before the first live cell. An enabled control
 must work in this minor. A future control must be disabled and show the exact
@@ -811,6 +825,15 @@ session discovery. Coordinate any necessary shared-server restart so it cannot
 interrupt unrelated work. Reference: the official Codex app-server and MCP
 documentation; recheck it for the installed version.
 
+Installing repaired wheel bytes does not replace code already loaded by an
+MCP server. An unchanged configuration reload can retain that process. After an
+authorized driver repair, bind a nonsecret source identity in the server-specific
+configuration and request the supported reload. Verify a new process and the
+exact installed artifact, reacquire the exposed tools, and make an actual tool
+call before rerunning the cell. A reload acknowledgement alone proves neither
+process replacement nor tool readiness. Keep the development driver identity
+separate from the released baseline and the subject's bundled payload.
+
 Accessibility remains the primary Linux control tier. Reproduce CUA failures
 through the exact released public tool before filing an issue. Check for an
 existing issue and include the release, host class, safe minimal steps,
@@ -838,6 +861,12 @@ when it genuinely prevents completion.
   identity, then use the exact application filter and refuse ambiguity. Retain
   only bounded, reviewed nonsecret fields; do not invent safe-filter arguments
   or save an unfiltered owner-window list or accessibility tree.
+  An action can remove its own control, such as Save closing an editor. Preserve
+  a post-action `element_gone` reply, reacquire fresh semantic state and check the
+  independent machine oracle before deciding whether the mutation occurred.
+  Do not replay a potentially completed action or rewrite its reply as success.
+  If a transient layout change invalidates a reference before dispatch,
+  reacquire the exact named control rather than reuse its old reference.
 - Prove enabled/disabled semantics and native text replacement on isolated
   ordinary fields before settings, credentials or typed purge. On Linux,
   `EditableText.SetTextContents` must actually work; an editable flag or click

@@ -206,6 +206,23 @@ unreleased 0.7.9 payload as this driver or infer its adoption from driver succes
 The released capture surface exposes full-screen screenshot/crop, not an assumed
 window-capture tool. Such output cannot close the exact unfocused app-only
 oracle. Leave that assertion owed if public MCP capabilities cannot satisfy it.
+For this Linux 0.5.0 pass, the owner authorized focused-region visual inspection
+on 2026-10-01. This is a narrow exception to the capture requirement above,
+not an unfocused window-capture pass. Focus the exact owned test window through
+MCP accessibility. Independently verify fresh display-space crop geometry;
+untrusted Wayland or window-relative accessibility bounds are not global screen
+coordinates. If supported window maximization supplies that geometry, record
+and restore its prior state. Verify structured focus immediately before and
+after the public MCP `screenshot_region` call. Ensure
+the region has no occlusion, other applications, credentials or private content.
+Inspect the actual returned image before retaining it. Reject uncertain bounds,
+changed focus or unsafe pixels. Record the tool, bounds, both focus observations
+and the image verdict as `focused region`. This may satisfy the Linux rendered
+terms, dialogs and lifecycle visual inspection slices only. Exact unfocused
+window capture remains unproven and is planned for CUA 0.8.0's Linux pixel
+capture scope. Windows and macOS procedures remain unchanged. Accessibility
+remains the primary input tier; the exception does not authorize pixel input.
+
 Historical direct AT-SPI observations remain historical, not retroactive MCP
 passes. Native helpers may diagnose gaps but no longer drive Linux cells.
 The bundled Vadgr CUA payload is not the Windows installer or console driver.
@@ -266,6 +283,13 @@ from the exact repaired CUA source may replace the isolated external driver.
 Record its source, wheel digest and installed identity as a development driver,
 not as the released 0.7.8 baseline or the subject's bundled 0.7.9 payload.
 This exception changes neither the subject artifact nor the visual oracle.
+Installing that wheel does not replace code already loaded by a running MCP
+server. An unchanged configuration reload can keep the old process. Bind a
+nonsecret source identity in the server-specific configuration, request the
+supported reload, and verify a new process using the exact installed artifact.
+Reacquire the exposed tool inventory and make an actual tool call before
+rerunning the affected cell. A reload acknowledgement is not proof of either
+process replacement or tool readiness.
 Keep client integration failures separate from CUA findings. Never retain
 owner-window content or secrets merely to demonstrate a failure.
 Keep exact installation commands and immutable wheel identity in the setup
@@ -291,6 +315,12 @@ dependencies are not dependencies of the installed Vadgr package.
    Reacquire the tree and inspect the independent machine result. Native action
    acceptance is not proof of mutation, and disabled semantics need their own
    negative check even when the product guard rejects activation.
+   Save can close its editor and remove the acted-on control. Preserve a
+   post-action `element_gone` reply, then inspect a fresh scoped tree and the
+   independent API or machine record to determine whether the save occurred.
+   Never replay a potentially completed mutation or relabel its reply as success.
+   If a layout change makes a reference stale before dispatch, reacquire the
+   exact named control instead of reusing the old reference.
 4. On an isolated ordinary field, use MCP `ui_act`'s advertised text-replacement
    action with a fresh exact field reference. Prove readback and save before relying on settings or
    typed purge. `editable=true` does not prove `EditableText.SetTextContents`.
