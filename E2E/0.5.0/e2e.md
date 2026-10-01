@@ -477,7 +477,7 @@ oracles. Windows executes only the Windows rows in this session.
 | L01 | native Linux x86_64, then aarch64; X11 and Wayland | clean graphical session; no owner action | no Vadgr XDG generation, command, desktop or autostart entry; if the release-equivalent AppImage cannot be built, repair or create its credential-free producer on the implementation branch before continuing | agent builds the registered AppImage, records the before inventory and verifies its hash; manifest trust runs post-merge | agent opens the AppImage through accessibility, inspects terms and invokes **Decline and close** | before/after XDG data/config, command and state inventories | no product or owner-state mutation | private Linux boundary | remove downloaded files after filing | no root or package-manager action | pre-merge functional assertion: run against the exact release-equivalent AppImage; missing package inputs or payload are implementation findings to fix, while production manifest trust remains owed against the held candidate |
 | L03 | x86_64/aarch64, X11/Wayland | clean GUI hosts | L02 installed | keep FUSE; prepare extraction test | verify development integrity metadata before merge and the production attestation bundle after merge; launch normally and with `--appimage-extract-and-run` | target match, size/hash and both launches before merge; certified workflow/runner output after merge | both paths work; every available wrong-root, bundle, workflow, ref, target, size and hash case fails before XDG mutation | private Linux integrity capture | delete tampered copies | none | functional extraction and tamper assertions run before merge; production workflow and attestation assertions remain owed against the held candidate |
 | L04 | same matrix | provider and phone | release-equivalent installation healthy; L03 trust may remain owed | one provider/default and paired device | repeat W04 through W06 | CLI/API/console, transport and journal | shared console/backend behavior matches Windows | private Linux functional capture | remove run/device | bounded provider call and phone | pre-merge functional assertion: run against the exact release-equivalent AppImage; no signing identity is required |
-| L05 | same matrix | fault-injection host | L04 complete | release-equivalent local previous/next generations; held artifacts for trust assertions | inject every W07 failure; repair, update and roll back | `current` link, version receipts, health and state identity | atomic link restores prior generation; repair uses retained verified source | private Linux lifecycle capture | select fixed generation | no root | functional lifecycle and fault assertions gate merge; retained-artifact trust remains owed against the held candidate |
+| L05 | same matrix | fault-injection host | L04 independent functional assertions complete; phone observations remain separately owed | retain the exact current unsigned installation; use the ordinary configured or explicit update source; require a verified predecessor only when one exists | before merge, exercise reachable update-source failure and preservation, repair, and the first-release unavailable-rollback reason; after merge, inject the downstream W07 trust-gated failures; exercise positive update/rollback at the first subsequent native release | `current` link, exact binary and receipt, health and owner-state identity after each attempt | reachable failure is specific and preserves the runnable generation; repair restores package-owned bytes; no predecessor is invented; downstream phases retain their ordinary verification gates | private Linux lifecycle capture | select fixed generation | no root, network mutation or development trust bypass | functional failure-preservation, repair and truthful first-release rollback gate merge; production verification and later faults remain owed against held bytes. A no-origin refusal is not a download-failure observation. Missing ordinary update-source integration is an implementation finding, not a signing blocker |
 | L06 | same matrix | isolated E2E state only | L05 functional slice complete | agent records XDG and isolated state roots | agent drives uninstall-preserve/reinstall, then the separate typed purge | exact paths and isolated-state identity | only package/XDG entries removed first; state found on reinstall; purge deletes the exact isolated state root | private Linux uninstall capture | agent removes all test artifacts | no owner action unless a protected package prompt appears | pre-merge functional assertion: run against the exact release-equivalent AppImage; no signing identity is required |
 
 ## Part S: WSL cells
@@ -518,6 +518,15 @@ oracles. Windows executes only the Windows rows in this session.
 | macOS Intel/Apple Silicon | M01, M02, F01, M03 through M06, O1, O2, C1 | pre-merge functional qualification is partial: Apple Silicon installed configuration, phone pairing/watch, accessibility and screen-reader restoration observations are filed; the exact current unsigned PKG and affected lifecycle, Tailscale pairing and cleanup remain owed. The host repairs missing unsigned packaging on the implementation branch. Intel hardware remains unavailable. M02 and named signed-identity assertions are post-merge trust work |
 | Linux x86_64/aarch64 X11/Wayland | L01, L02, F01, L03 through L06, O1, O2, C1 | partial functional against exact `026a0281` AppImage on virtualized Ubuntu 26.04 x86_64 GNOME Wayland. The retained-artifact section records passed functional assertions and failed attempts individually. Covered-window rendering needs a rebuilt rerun; L05 download failure remains unexercised because this installation has no update origin. F01 and phone assertions await the attended session. O1 has no isolated offline snapshot. Orca has a reproduced no-product host stall, and exact portal capture produced no image; neither establishes an owner-only boundary. aarch64, X11 and bare-metal behavior remain not run. C1 has intermediate cleanup only. Original failures remain retained. Signing does not block this lane |
 | WSL x64/arm64 | S01 through S06, O1, C1 | pre-merge functional qualification is not run: release-equivalent unsigned assets are required. Production attestation is a separate post-merge trust lane |
+
+The shared update-source repair invalidates carry-forward of the affected
+update assertions above. Windows W07, the failed-update slice of W09 and O2's
+Settings update controls require a rebuilt current-artifact rerun. Their
+`24ae14a` passes remain historical evidence, not current-source passes. macOS
+M06 and its O2 update controls likewise require the repaired source. WSL must
+exercise the current installed CLI update path in its still-owed qualification.
+Unchanged machine, phone and other assertions are not invalidated merely by
+this update-specific repair.
 
 Overall functional qualification remains **incomplete** until every applicable
 pre-merge assertion has execution evidence and cleanup against exact
@@ -1005,15 +1014,31 @@ a Linux rendering fix, not a pass for unchanged ordinary package behavior.
 The fixed source, refreshed corresponding-source packet, rebuilt retained
 AppImage and affected native reruns are still required.
 
-O2 remains partial. The host screen reader stalled even with no Vadgr process,
-and the window-only portal selector refused native row selection and focus.
-No exact image or product-label speech was obtained. Earlier failures, transient
-tree-discovery attempts and accessibility-setting restoration attempts remain
-retained. No owner inspection or desktop crop substitutes for these oracles.
+O2 remains partial. The initial host-session screen reader stalled even with
+no Vadgr process. A subsequent isolated accessibility-bus preflight on the same
+Wayland desktop produced actual Orca speech for the terms acceptance control
+and Decline button. Orca retained its normal auxiliary display while only the
+product used the Wayland-only environment. This terms-only preflight does not
+close the installed state matrix or prove ordinary-session interoperability.
+The window-only portal selector still refused native row selection and focus;
+no exact image was obtained. Earlier failures, transient tree-discovery attempts
+and accessibility-setting restoration attempts remain retained. No owner
+inspection or desktop crop substitutes for these oracles.
 F01 remains pending for attended continuation; O1 requires an existing isolated
 offline snapshot. Unavailable X11, aarch64 and bare-metal variants remain not
 run. C1 is not complete. Exact vehicles, source, evidence and remaining scoped
 test artifacts are retained for the rebuilt continuation. No release action ran.
+
+The update investigation identified an implementation finding rather than a
+signing prerequisite: the Linux package had no default update origin and the
+installed CLI provided no explicit source. The repair adds an official Linux
+release-download fallback and `vadgr update --source URL_OR_DIRECTORY` while
+retaining manifest, signature, sequence and target verification. Development
+installations may check a source but cannot apply a signed generation; the
+console exposes that restriction. Regression results alone do not close L05:
+the rebuilt AppImage must exercise a reachable failure and preservation through
+its public installed path. Positive updates and unavailable predecessor
+rollback must not be invented for this first release.
 
 ## macOS qualification history
 

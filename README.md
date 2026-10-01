@@ -87,6 +87,14 @@ information and editing, device/transport status, pairing, provider setup,
 daemon restart, update, repair, rollback and package-aware uninstall. Owner data
 is preserved by default; deleting it is a separate typed destructive action.
 
+For an installed package, `vadgr update --check` checks its release source.
+Use `--source <URL_OR_DIRECTORY>` to select an HTTPS base URL or an absolute
+local directory containing the release manifest, its attestation bundle and
+artifacts. Linux AppImages default to this repository's latest release download
+location. A source locates bytes; it does not bypass signature, target or
+release-sequence verification. Unsigned Linux development installations can
+check for signed releases but cannot apply them into the development generation.
+
 The daemon owns OpenAI, Gemini and Anthropic connections, their authenticated
 model catalogs and the machine default. It calls provider APIs directly and does
 not use an agent CLI as a model runtime.

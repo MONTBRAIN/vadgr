@@ -6,6 +6,13 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Fixed
 
+- Installed updates accept an explicit HTTPS or absolute local source without
+  changing the installation receipt or its trust requirements. Linux AppImages
+  use the existing release download location when no origin is configured.
+  Unsigned development installations can discover a signed update but cannot
+  apply it; the console explains that restriction instead of offering to install.
+- Linux installer and console windows avoid blocking the UI thread on vertical
+  sync when another window covers them.
 - Native Linux unsigned installers use an explicit build mode and exact local
   integrity receipts instead of requiring unavailable production attestations.
   Release builds never fall back to this mode. Candidate and publication checks

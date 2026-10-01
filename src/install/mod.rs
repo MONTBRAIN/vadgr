@@ -15,7 +15,9 @@ pub use archive::validate_tar_gz;
 mod update;
 pub(crate) use manifest::verify_cua_attestation;
 pub use manifest::{Artifact, ReleaseManifest, VerifiedArtifact, VerifiedManifest, current_target};
-pub use update::{UpdateCheck, apply_update, check_for_updates};
+pub use update::{
+    UpdateCheck, apply_update, apply_update_from, check_for_updates, check_for_updates_from,
+};
 #[cfg(all(target_os = "linux", feature = "linux-unsigned-qualification"))]
 mod development;
 #[cfg(target_os = "linux")]
@@ -106,7 +108,7 @@ pub fn status() -> Result<InstallStatus> {
         },
         lifecycle_available: matches!(receipt.package_kind.as_str(), "msi" | "pkg" | "appimage"),
         legal_available,
-        update_available: receipt.update_origin.is_some(),
+        update_available: update::origin(&receipt, None).is_ok(),
         rollback_available: platform::rollback_available(&receipt),
     })
 }

@@ -103,7 +103,7 @@ pub struct ConsoleApp {
     pending: Option<mpsc::Receiver<Result<OperationResult>>>,
     dialog: Option<Dialog>,
     notice: Option<(bool, String)>,
-    available_update: Option<String>,
+    available_update: Option<crate::install::UpdateCheck>,
     last_refresh: std::time::Instant,
 }
 
@@ -214,11 +214,15 @@ impl ConsoleApp {
                 self.pending = None;
                 self.last_refresh = std::time::Instant::now();
                 if update.update_available {
-                    self.available_update = Some(update.available_version.clone());
                     self.notice = Some((
                         true,
-                        format!("Vadgr {} is ready to install.", update.available_version),
+                        if let Some(reason) = update.install_unavailable_reason() {
+                            format!("Vadgr {} is available. {reason}", update.available_version)
+                        } else {
+                            format!("Vadgr {} is ready to install.", update.available_version)
+                        },
                     ));
+                    self.available_update = Some(update);
                 } else {
                     self.available_update = None;
                     self.notice = Some((true, "Vadgr is up to date.".to_owned()));
@@ -760,13 +764,17 @@ impl ConsoleApp {
             } else {
                 "Check for updates"
             };
+            let update_blocker = self
+                .available_update
+                .as_ref()
+                .and_then(crate::install::UpdateCheck::install_unavailable_reason);
             if setting_row(
                 ui,
                 Icon::Info,
                 &format!("Version {}", data.install.version),
-                &data.install.update_state,
+                update_blocker.unwrap_or(&data.install.update_state),
                 update_label,
-                data.install.update_available,
+                data.install.update_available && update_blocker.is_none(),
             ) {
                 if self.available_update.is_some() {
                     self.start(|c| {
@@ -2212,6 +2220,74 @@ mod tests {
             Some((false, "specific update failure".to_owned()))
         );
         assert!(app.last_refresh.elapsed() < std::time::Duration::from_secs(1));
+    }
+
+    #[test]
+    fn discovered_development_update_is_visible_but_cannot_install() {
+        let ctx = egui::Context::default();
+        ctx.enable_accesskit();
+        theme::install(&ctx);
+        let (send, receive) = mpsc::channel();
+        send.send(Ok(OperationResult::UpdateChecked(
+            crate::install::UpdateCheck {
+                current_version: "0.5.0".to_owned(),
+                available_version: "0.6.0".to_owned(),
+                update_available: true,
+                can_install: false,
+            },
+        )))
+        .unwrap();
+        let data = ConsoleData {
+            install: crate::install::InstallStatus {
+                installed: true,
+                update_available: true,
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+        let mut app = ConsoleApp {
+            controller: Arc::new(HttpConsoleController::new("http://127.0.0.1:1").unwrap()),
+            view: View::Settings,
+            data: Some(data.clone()),
+            pending: Some(receive),
+            dialog: None,
+            notice: None,
+            available_update: None,
+            last_refresh: std::time::Instant::now(),
+        };
+        app.poll(&ctx);
+        let notice = &app.notice.as_ref().unwrap().1;
+        assert!(notice.contains("0.6.0 is available"));
+        assert!(notice.contains("cannot replace an unsigned development installation"));
+        let mut output = ctx.run_ui(
+            egui::RawInput {
+                screen_rect: Some(egui::Rect::from_min_size(
+                    egui::Pos2::ZERO,
+                    egui::vec2(1200.0, 900.0),
+                )),
+                ..Default::default()
+            },
+            |ui| app.settings_view(ui),
+        );
+        output.textures_delta.clear();
+        let nodes = &output
+            .platform_output
+            .accesskit_update
+            .as_ref()
+            .unwrap()
+            .nodes;
+        assert!(
+            nodes
+                .iter()
+                .any(|(_, node)| node.label() == Some("Install update") && node.is_disabled())
+        );
+        assert!(nodes.iter().any(|(_, node)| {
+            node.label()
+                .into_iter()
+                .chain(node.value())
+                .any(|text| text.contains("cannot replace an unsigned development installation"))
+        }));
+        assert!(app.pending.is_none());
     }
 
     #[test]

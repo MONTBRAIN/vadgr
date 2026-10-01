@@ -6,17 +6,33 @@ use futures_util::StreamExt;
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 
+const LINUX_UPDATE_ORIGIN: &str = "https://github.com/MONTBRAIN/vadgr/releases/latest/download";
+const DEVELOPMENT_UPDATE_REFUSAL: &str =
+    "Signed updates cannot replace an unsigned development installation.";
+
 #[derive(Clone, Debug, Serialize)]
 pub struct UpdateCheck {
     pub current_version: String,
     pub available_version: String,
     pub update_available: bool,
+    pub can_install: bool,
+}
+
+impl UpdateCheck {
+    pub fn install_unavailable_reason(&self) -> Option<&'static str> {
+        (!self.can_install).then_some(DEVELOPMENT_UPDATE_REFUSAL)
+    }
 }
 
 pub fn check_for_updates() -> Result<UpdateCheck> {
+    check_for_updates_from(None)
+}
+
+pub fn check_for_updates_from(source: Option<&str>) -> Result<UpdateCheck> {
     let receipt = require_receipt()?;
+    let source = origin(&receipt, source)?;
     let staging = DownloadStaging::new()?;
-    let verified = fetch_manifest(&receipt, &staging)?;
+    let verified = fetch_manifest(&source, &staging)?;
     let state = state_root()?;
     verified.ensure_sequence(&state)?;
     let _ = verified.artifact_for_target(&current_target()?)?;
@@ -25,13 +41,23 @@ pub fn check_for_updates() -> Result<UpdateCheck> {
         available_version: verified.manifest.version.clone(),
         update_available: version_parts(&verified.manifest.version)?
             > version_parts(&receipt.version)?,
+        can_install: receipt.development_receipt_sha256.is_none(),
     })
 }
 
 pub fn apply_update() -> Result<UpdateCheck> {
+    apply_update_from(None)
+}
+
+pub fn apply_update_from(source: Option<&str>) -> Result<UpdateCheck> {
     let receipt = require_receipt()?;
+    ensure!(
+        receipt.development_receipt_sha256.is_none(),
+        DEVELOPMENT_UPDATE_REFUSAL
+    );
+    let source = origin(&receipt, source)?;
     let staging = DownloadStaging::new()?;
-    let verified = fetch_manifest(&receipt, &staging)?;
+    let verified = fetch_manifest(&source, &staging)?;
     let state = state_root()?;
     verified.ensure_sequence(&state)?;
     let target = current_target()?;
@@ -41,12 +67,7 @@ pub fn apply_update() -> Result<UpdateCheck> {
         "no newer signed release is available"
     );
     let artifact_path = staging.root.join(&artifact.name);
-    fetch(
-        &origin(&receipt)?,
-        &artifact.name,
-        &artifact_path,
-        Some(artifact.size),
-    )?;
+    fetch(&source, &artifact.name, &artifact_path, Some(artifact.size))?;
     verified.verify_bytes_at(&artifact_path, &artifact)?;
     native::verify(&artifact_path, &artifact.kind, receipt.publisher.as_deref())?;
     native::launch(&artifact_path, &artifact.kind)?;
@@ -54,6 +75,7 @@ pub fn apply_update() -> Result<UpdateCheck> {
         current_version: receipt.version,
         available_version: verified.manifest.version,
         update_available: true,
+        can_install: true,
     })
 }
 
@@ -92,18 +114,17 @@ pub(super) fn verify_native_vehicle(
     native::verify(path, kind, publisher)
 }
 
-fn fetch_manifest(receipt: &InstallReceipt, staging: &DownloadStaging) -> Result<VerifiedManifest> {
-    let origin = origin(receipt)?;
+fn fetch_manifest(origin: &str, staging: &DownloadStaging) -> Result<VerifiedManifest> {
     let manifest = staging.root.join("release-manifest.json");
     let signature = staging.root.join("release-manifest.json.bundle.jsonl");
     fetch(
-        &origin,
+        origin,
         "release-manifest.json",
         &manifest,
         Some(4 * 1024 * 1024),
     )?;
     fetch(
-        &origin,
+        origin,
         "release-manifest.json.bundle.jsonl",
         &signature,
         Some(64 * 1024),
@@ -111,13 +132,40 @@ fn fetch_manifest(receipt: &InstallReceipt, staging: &DownloadStaging) -> Result
     VerifiedManifest::open(&manifest, &signature)
 }
 
-fn origin(receipt: &InstallReceipt) -> Result<String> {
-    receipt
-        .update_origin
-        .as_ref()
-        .filter(|value| !value.trim().is_empty())
-        .cloned()
-        .ok_or_else(|| anyhow!("this installation has no update origin"))
+pub(super) fn origin(receipt: &InstallReceipt, explicit: Option<&str>) -> Result<String> {
+    // A source locates bytes; it never grants release authority or changes the receipt.
+    let source = explicit
+        .or(receipt
+            .update_origin
+            .as_deref()
+            .filter(|value| !value.trim().is_empty()))
+        .or_else(|| {
+            (cfg!(target_os = "linux") && receipt.package_kind == "appimage")
+                .then_some(LINUX_UPDATE_ORIGIN)
+        })
+        .ok_or_else(|| anyhow!("this installation has no update origin; use --source"))?;
+    validate_origin(source)?;
+    Ok(source.to_owned())
+}
+
+fn validate_origin(source: &str) -> Result<()> {
+    // Windows drive and UNC paths must not be interpreted as URL schemes.
+    if Path::new(source).is_absolute() {
+        return Ok(());
+    }
+    let url = url::Url::parse(source)
+        .map_err(|_| anyhow!("an update source must be HTTPS or an absolute local directory"))?;
+    ensure!(
+        url.scheme() == "https"
+            && url.has_host()
+            && !url.cannot_be_a_base()
+            && url.username().is_empty()
+            && url.password().is_none()
+            && url.query().is_none()
+            && url.fragment().is_none(),
+        "an update source must be HTTPS without credentials, query or fragment, or an absolute local directory"
+    );
+    Ok(())
 }
 
 fn fetch(origin: &str, name: &str, destination: &Path, limit: Option<u64>) -> Result<()> {
@@ -125,11 +173,8 @@ fn fetch(origin: &str, name: &str, destination: &Path, limit: Option<u64>) -> Re
         !name.contains('/') && !name.contains('\\'),
         "the update file name is unsafe"
     );
-    if let Ok(url) = url::Url::parse(origin) {
-        ensure!(
-            url.scheme() == "https",
-            "an update origin must use HTTPS or a local directory"
-        );
+    validate_origin(origin)?;
+    if !Path::new(origin).is_absolute() {
         let url = format!("{}/{}", origin.trim_end_matches('/'), name);
         return std::thread::scope(|scope| {
             scope
@@ -191,7 +236,10 @@ fn fetch(origin: &str, name: &str, destination: &Path, limit: Option<u64>) -> Re
     );
     if let Some(maximum) = limit {
         ensure!(
-            std::fs::metadata(&source)?.len() <= maximum,
+            std::fs::metadata(&source)
+                .with_context(|| format!("reading local {name}"))?
+                .len()
+                <= maximum,
             "the local {name} is larger than its allowed bound"
         );
     }
@@ -389,6 +437,141 @@ mod native {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn receipt() -> InstallReceipt {
+        InstallReceipt {
+            schema: 1,
+            version: "0.5.0".to_owned(),
+            install_root: Default::default(),
+            package_kind: "appimage".to_owned(),
+            product_code: None,
+            release_sequence: None,
+            manifest_sha256: None,
+            development_receipt_sha256: None,
+            update_origin: None,
+            publisher: None,
+            rollback_vehicle: None,
+        }
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn linux_update_source_has_a_discovery_default_without_receipt_authority() {
+        let mut installed = receipt();
+        installed.development_receipt_sha256 = Some("b".repeat(64));
+        let before = serde_json::to_vec(&installed).unwrap();
+        assert_eq!(
+            origin(&installed, None).unwrap(),
+            "https://github.com/MONTBRAIN/vadgr/releases/latest/download"
+        );
+        assert_eq!(serde_json::to_vec(&installed).unwrap(), before);
+        assert!(installed.update_origin.is_none());
+        assert!(installed.release_sequence.is_none());
+    }
+
+    #[test]
+    fn update_source_precedence_does_not_mutate_the_receipt() {
+        let mut installed = receipt();
+        installed.update_origin = Some("https://receipt.example/releases".to_owned());
+        let before = serde_json::to_vec(&installed).unwrap();
+        assert_eq!(
+            origin(&installed, None).unwrap(),
+            "https://receipt.example/releases"
+        );
+        assert_eq!(
+            origin(&installed, Some("https://explicit.example/releases")).unwrap(),
+            "https://explicit.example/releases"
+        );
+        let local = tempfile::tempdir().unwrap();
+        assert_eq!(
+            origin(&installed, local.path().to_str()).unwrap(),
+            local.path().to_str().unwrap()
+        );
+        assert!(origin(&installed, Some("")).is_err());
+        assert!(origin(&installed, Some("relative")).is_err());
+        assert_eq!(serde_json::to_vec(&installed).unwrap(), before);
+        installed.package_kind = "wsl-archive".to_owned();
+        installed.update_origin = None;
+        assert!(origin(&installed, None).is_err());
+    }
+
+    #[test]
+    fn update_source_rejects_ambiguous_or_unsafe_urls_without_echoing_them() {
+        for source in [
+            "relative",
+            "",
+            "http://example.invalid",
+            "file:///tmp/source",
+            "https://person:private@example.invalid",
+            "https://example.invalid?private=value",
+            "https://example.invalid/#private",
+        ] {
+            let error = origin(&receipt(), Some(source)).unwrap_err().to_string();
+            assert!(error.contains("update source"), "{error}");
+            assert!(!error.contains("private"), "{error}");
+            assert!(!error.contains("example.invalid"), "{error}");
+        }
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn update_source_accepts_absolute_drive_and_unc_directories_before_url_parsing() {
+        for source in [r"C:\Vadgr releases", r"\\server\share\Vadgr"] {
+            assert_eq!(origin(&receipt(), Some(source)).unwrap(), source);
+        }
+        assert!(origin(&receipt(), Some(r"C:relative")).is_err());
+    }
+
+    #[test]
+    fn discovered_development_updates_name_the_installation_boundary() {
+        let update = UpdateCheck {
+            current_version: "0.5.0".to_owned(),
+            available_version: "0.6.0".to_owned(),
+            update_available: true,
+            can_install: false,
+        };
+        assert_eq!(
+            update.install_unavailable_reason(),
+            Some(DEVELOPMENT_UPDATE_REFUSAL)
+        );
+        let signed = UpdateCheck {
+            can_install: true,
+            ..update
+        };
+        assert!(signed.install_unavailable_reason().is_none());
+    }
+
+    #[test]
+    fn local_update_source_reads_absolute_paths_and_enforces_the_size_limit() {
+        let source = tempfile::tempdir().unwrap();
+        let destination = tempfile::tempdir().unwrap();
+        std::fs::write(source.path().join("manifest.json"), b"fixture").unwrap();
+        let copied = destination.path().join("manifest.json");
+        fetch(
+            source.path().to_str().unwrap(),
+            "manifest.json",
+            &copied,
+            Some(7),
+        )
+        .unwrap();
+        assert_eq!(std::fs::read(&copied).unwrap(), b"fixture");
+        let refused = destination.path().join("refused.json");
+        assert!(
+            fetch(
+                source.path().to_str().unwrap(),
+                "manifest.json",
+                &refused,
+                Some(6)
+            )
+            .is_err()
+        );
+        assert!(!refused.exists());
+        assert_eq!(
+            std::fs::read(source.path().join("manifest.json")).unwrap(),
+            b"fixture"
+        );
+    }
+
     #[test]
     fn version_order_is_numeric() {
         assert!(version_parts("0.10.0").unwrap() > version_parts("0.9.9").unwrap());

@@ -265,3 +265,15 @@ fn the_update_check_needs_no_daemon_and_refuses_a_non_checkout() {
         "it must name why: {stderr}"
     );
 }
+
+#[test]
+fn update_help_exposes_the_explicit_signed_source() {
+    let output = run(&["update", "--help"]);
+    assert!(output.status.success());
+    let help = String::from_utf8_lossy(&output.stdout);
+    assert!(help.contains("--source <URL_OR_DIRECTORY>"), "{help}");
+    assert!(
+        help.contains("HTTPS or an absolute local directory"),
+        "{help}"
+    );
+}

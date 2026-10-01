@@ -647,33 +647,29 @@ fn git(repo: &Path, args: &[&str]) -> Result<std::process::Output, CliError> {
         .map_err(|e| CliError::Failed(format!("Could not run git: {e}")))
 }
 
-/// `vadgr update`: bring the checkout forward and rebuild the binary.
-///
-/// `--check` reports what an update would do and changes nothing, which is what
-/// makes the runbook cells for this command runnable at all: before it existed,
-/// the only way to test `update` was to run it, and running it changes the
-/// installation the rest of the pass is measuring.
-///
-/// The product is one binary now, so an update is a pull and a build rather than
-/// a pull and two dependency installs.
-pub async fn update(check: bool) -> Result<(), CliError> {
+/// Installed packages discover and verify signed updates from the selected source.
+/// Source checkouts retain their fast-forward and rebuild path without `--source`.
+pub async fn update(check: bool, source: Option<&str>) -> Result<(), CliError> {
     let package =
         vadgr_daemon::install::status().map_err(|error| CliError::Failed(error.to_string()))?;
     if package.installed {
         if check {
-            let update = vadgr_daemon::install::check_for_updates()
+            let update = vadgr_daemon::install::check_for_updates_from(source)
                 .map_err(|error| CliError::Failed(error.to_string()))?;
             if update.update_available {
                 anstream::println!(
                     "{}",
                     output::info(&format!("Vadgr {} is available.", update.available_version))
                 );
+                if let Some(reason) = update.install_unavailable_reason() {
+                    anstream::println!("{}", output::info(reason));
+                }
             } else {
                 anstream::println!("{}", output::success("vadgr is up to date."));
             }
             return Ok(());
         }
-        let update = vadgr_daemon::install::apply_update()
+        let update = vadgr_daemon::install::apply_update_from(source)
             .map_err(|error| CliError::Failed(error.to_string()))?;
         anstream::println!(
             "{}",
@@ -685,6 +681,11 @@ pub async fn update(check: bool) -> Result<(), CliError> {
         return Ok(());
     }
 
+    if source.is_some() {
+        return Err(CliError::Usage(
+            "--source requires an installed Vadgr package.".to_owned(),
+        ));
+    }
     let repo = vadgr_repo();
     if !repo.join(".git").exists() {
         return Err(CliError::Failed(format!(

@@ -223,11 +223,14 @@ enum Command {
     Status,
     /// Stop the vadgr daemon.
     Stop,
-    /// Pull latest code and reinstall deps if changed.
+    /// Check for or install an update.
     Update {
         /// Report what an update would do, and change nothing.
         #[arg(long)]
         check: bool,
+        /// Read a signed update from HTTPS or an absolute local directory.
+        #[arg(long, value_name = "URL_OR_DIRECTORY")]
+        source: Option<String>,
     },
 }
 
@@ -547,7 +550,9 @@ async fn main() {
                 no_follow,
                 lines,
             }) => commands::service::logs(&service, follow && !no_follow, lines).await,
-            Some(Command::Update { check }) => commands::service::update(check).await,
+            Some(Command::Update { check, source }) => {
+                commands::service::update(check, source.as_deref()).await
+            }
         }
     };
 
