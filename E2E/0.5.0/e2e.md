@@ -846,6 +846,92 @@ of the two validated proof copies reclaimed 2731048960 allocated bytes.
 The final source delivery, proof outputs, installed test state and evidence
 remain preserved. This is intermediate cleanup, not a complete C1 result.
 
+### Linux installed observations at `9f16fad0`
+
+Producer `36788098632`, attempt 1, retained artifact `11130494824` from
+`9f16fad07f49864f4332d228ae89b84fb94851c6`. The registered AppImage contains
+577681912 bytes with SHA-256
+`677fff01438b3639272442dd6032eacb63cd74df6e87a23603b47c0fcd6e73ef`.
+Independent verification covered the development receipt, 11079 AppDir members,
+6257 preparation members, 5785 unchanged CUA members and all 229 delivered
+application-source files. These are unsigned development observations on the
+Ubuntu 26.04 x86_64 GNOME Wayland VirtualBox guest.
+
+Native AT-SPI now reports unchecked Install as insensitive with no action.
+Decline left the isolated product roots and real command shim absent.
+Acceptance installed the exact retained vehicle. Close before opening the
+console ended the installer process; Close after Open Vadgr remains owed.
+The earlier failure is not erased by the narrower successful sequence.
+
+Native EditableText replacement saved a Unicode machine name, role and workspace.
+The console and CLI/API agreed after Save. Native autonomy selection also
+persisted. The first accepted Restart action did not replace the daemon PID.
+A focused retry replaced it and restored health without losing the saved fields.
+The first attempt remains an unresolved observation, not a proven cause or pass.
+CLI edits and same-value no-op behavior passed. CLI and API both rejected a
+read-only platform edit without mutation. Required grants stayed checked and
+disabled; this host offered no optional grant variant.
+
+The installed update check rejected its absent update origin without changing
+the package or healthy daemon. This is not download-failure coverage. Rollback
+truthfully reported no verified previous generation. Native Repair restored an
+intentionally changed installed vehicle to the exact retained digest while the
+same daemon remained healthy. Retained-generation update and rollback branches
+remain owed where their prerequisites can be produced legitimately.
+
+Native uninstall cancellation preserved installation and state. Confirmed
+uninstall with purge off removed the package, command, desktop and autostart
+entries and stopped the test daemon. The logical persistent-state identity
+remained unchanged. Reopening the same retained installer then requested the
+same accepted terms again. This is a finding, not a completed reinstall pass.
+Declining preserved the isolated state for the repaired rerun.
+
+Twelve development-integrity negative launches rejected changed architecture,
+platform, source identities, development/trust flags, receipt size/hash, missing
+receipt and changed vehicle bytes before mutation. The first helper redirected
+HOME; those initial records remain explicitly limited. All twelve corrected
+reruns preserved actual HOME, the absent real command shim and isolated roots.
+Neither group proves extraction or final publisher trust.
+
+Orca's bounded probe produced no allowlisted product-label speech. A service
+handoff timeout and earlier replacement race remain recorded. The pass-enabled
+reader service was restored. WINDOW-only portal selection still refused the
+exact row through native accessibility and produced no image. No visual,
+screen-reader or protected-owner-boundary pass is claimed. Ordinary installer
+and console controls used native accessibility, not pointer or desktop capture.
+
+### Linux retained-assent repair at `b87938f2`
+
+The installer now reuses only an exact retained terms version and digest.
+First acceptance or a changed version still requires unchecked explicit assent.
+Changed bytes under the same version fail before installation. The installer
+revalidates the retained acceptance immediately before mutation. Reviewed terms
+bytes and their version are unchanged.
+
+The controlled regression failed two assertions without the fix and passed all
+five focused tests after restoration. Full default and development Rust suites
+passed 523 and 568 tests respectively, each with one ignored. Both all-targets
+Clippy configurations and formatting passed. The final installer source digest
+is `96b6b5467547d1397df0db3a4aa4cd944f36a67a6198cc7d9692facfda93d32a`.
+These source results do not close the installed reinstall finding. Refreshed
+source delivery, a newly retained AppImage and affected native reruns are owed.
+
+The same change corrects test-only texture cleanup that failed debug CI.
+The separate Windows fixture repair binds canonical UTF-8/LF bytes instead of
+host-dependent text newlines. Its controlled regression failed before repair
+and passed after it. Neither repair changes Windows runtime behavior. The Linux
+installer change invalidates affected installer/reinstall observations until
+rerun; no prior platform result is silently promoted to the new artifact.
+
+Raw observations and both initial and corrected failures remain in private
+evidence PR #176. L01 through L06 and O2 remain partial, not whole-cell passes.
+F01 and phone-dependent assertions remain pending for the attended continuation.
+O1 is not run without a pre-existing isolated offline snapshot. No networking
+was changed. X11, aarch64 and bare-metal variants remain not run on this host.
+C1 is incomplete: the isolated preserved state and exact vehicles remain needed
+for reinstall and attended assertions. Signing and immutable-candidate trust
+remain separate post-merge obligations.
+
 ## macOS qualification history
 
 These observations preserve implementation findings and earlier evidence. They
