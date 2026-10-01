@@ -1076,8 +1076,8 @@ The virtualized x86_64 GNOME Wayland continuation observed these assertions:
   on two attempts. The public AppRun alias omitted the installed receipt root.
   This is an implementation defect; console success cannot close the CLI
   assertion. Rollback remained disabled with the absent-predecessor reason.
-- L03 negative cases, Repair and L06 were not repeated against these bytes.
-  Their earlier results remain historical, not new passes.
+- L03 negative cases, Repair and L06 were not repeated in that first bounded
+  session. Their earlier results remain historical, not new passes.
 
 A deterministic regression separately reproduced an enabled console action
 being displaced by a due background refresh. Two unchanged-source runs called
@@ -1094,6 +1094,33 @@ The isolated installation and logical state remain for continuation. This is
 not C1 completion. Exact app-only visuals, remaining accessibility states,
 phone observations and the unavailable offline snapshot remain owed as above.
 No merge, signing, tag, publication or release occurred.
+
+A second bounded session used the same retained bytes. Native Repair restored
+an atomically replaced, deliberately altered package-owned AppImage to the exact
+retained digest. Its verified cache and receipt stayed unchanged. The daemon
+identity, health and saved machine fields remained intact.
+
+L06 cancellation preserved the isolated installation. Uninstall with deletion
+off removed the package, command and launch entries while retaining identical
+state-file hashes. The first retained-vehicle reinstall launch exited one; only
+its output hash and byte count were retained, so its cause is not established.
+An unchanged repeat exposed retained terms acceptance, installed successfully
+and found all selected saved machine fields through the public CLI.
+
+The separate purge dialog defaulted off. Empty and wrong confirmation text
+kept Uninstall disabled, and the native action helper refused each attempt.
+Independent native text readback matched both the wrong phrase and the exact
+required phrase. Only the latter enabled Uninstall. Confirmed deletion removed
+the isolated package, state, command and launch entries and stopped its daemon.
+Orca produced the destructive-dialog, cancellation and confirmation-field speech
+callbacks. Exact images and the complete O2 matrix remain owed.
+
+The second session retained its early reinstall failure, transient accessibility
+warning and final helper inventory permission error. Its checked remaining
+console required fallback termination. An independent check subsequently found
+all recorded session, reader and product processes absent. This is scoped
+test cleanup, not final C1: retained artifacts, source-build work and temporary
+host accessibility settings remain for the corrected-package continuation.
 
 ## macOS qualification history
 
