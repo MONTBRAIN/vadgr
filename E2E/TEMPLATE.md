@@ -135,9 +135,10 @@ present in a given runbook, the entry is all there is.
    result, or report an oracle the agent can read.
 
    A VM-hosted phone is checked through the host ADB server before it is called
-   unavailable. Stop the guest-local server before setting a remote socket. For
-   VirtualBox NAT, derive the guest default gateway and set
-   `ADB_SERVER_SOCKET=tcp:<gateway>:5037`; `10.0.2.2` is the usual gateway. Use
+   unavailable. Detect the current hypervisor and network mode first; never
+   inherit a previous host label or assume its gateway. Stop the guest-local
+   server before setting a remote socket. For verified VirtualBox NAT, derive
+   the guest default gateway and set `ADB_SERVER_SOCKET=tcp:<gateway>:5037`. Use
    that same socket for every ADB command. The runbook gives the temporary host
    server start and restore commands, requires an authorized `device` state,
    forbids network-service mutation, and redacts the device serial.
@@ -760,7 +761,8 @@ Keep this checklist in every desktop minor. Read the docs engineering section
 "Native desktop cold-start procedure" before the first GUI cell. Fill in exact
 helper commands and supported interfaces; a pointer alone is not a procedure.
 
-- Record host/session, virtualization, artifact and process identities, plus
+- Probe the current host/session and virtualization; do not carry a historical
+  hypervisor label across a resumed pass. Record artifact and process identities, plus
   original accessibility and screen-reader settings, including unset values.
 - Prove bounded accessible-window readiness and exact control discovery. Use a
   fresh process-scoped tree, supported native action, fresh readback and an
@@ -779,6 +781,52 @@ helper commands and supported interfaces; a pointer alone is not a procedure.
 - Record unavailable assertions separately, continue independent cells, and
   restore the exact original settings and owned processes after testing. After
   a reboot, rediscover readiness and identities before resuming.
+
+#### Conditional Wayland chooser and unfocused capture probe
+
+The portal contract does not prescribe a chooser layout or focus order. Verify
+the installed portal backend, desktop and toolkit versions and their matching
+source before using a backend-specific selection path. The agent chooses each
+action from a fresh native tree; a helper must not implement this journey.
+An absent accessible portal application before its first chooser is created is
+normal preflight, not permission denial. After creation, require the exact
+owned application and chooser frame before any action.
+
+If a bounded ordinary selection probe fails, retain it. A missing row action
+or refused Selection does not establish an owner-only protected prompt. Where
+the verified backend supports the following sequence, use two separately
+identified, bounded ScreenCast requests, each restricted to one WINDOW:
+
+1. Open request A and leave its chooser open. Launch a new test-owned target
+   window, then open request B. Distinguish both chooser instances from fresh
+   process and window identities; never select by a shared title alone.
+2. Inspect B. Continue only if its first candidate is the exact target window,
+   is `FOCUSED` and `SENSITIVE`, and is not defunct. Never infer the target from
+   ordering alone. If these predicates fail, cancel the owned requests.
+3. Invoke the chooser root's observed `default.activate` action only when
+   **Share**, the current default control, is insensitive and the matching
+   backend source establishes that this fallback activates the exact focused,
+   sensitive, non-defunct target row. Reacquire B and require the target to be
+   the sole `SELECTED` window and **Share** to be sensitive.
+4. Select B's exact **Share** control with role `button`, `SENSITIVE` and
+   non-defunct. GTK may omit `ENABLED`; do not require both flags. Invoke its
+   observed action. A same-named label is not a button.
+   Cancel A through its exact **Cancel** button, scoped to A, not B.
+5. Launch a fresh, harmless test-owned cover window. A `window.present` request
+   alone does not prove Wayland focus. Independently record the target inactive
+   and the cover active before image acquisition, and recheck afterward.
+6. Require one returned WINDOW stream and reject any exposed non-WINDOW source
+   type. Read only that request's scoped PipeWire stream. Inspect the image,
+   then close both owned requests and stop only test-owned cover processes.
+   Retain the full stream image and its dimensions, including any black padding;
+   do not crop it into an apparent success or substitute a desktop image.
+
+Stop on ambiguity, unexpected focus, selection or stream identity. Keep every
+failed probe; do not retry indefinitely, bypass the chooser, capture a monitor
+or desktop, crop, or present a focused image as unfocused. This is a conditional
+capability probe, not a guarantee for every GNOME or Wayland version. The
+[ScreenCast interface](https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.ScreenCast.html)
+defines source types and stream/session scope, not this chooser sequence.
 
 ### Desktop visual acceptance
 
@@ -821,6 +869,26 @@ made, preserve the failed native probe and leave that visual assertion owed.
 Continue independent functional assertions, but never promote their success to
 a visual pass or call the GUI qualification complete. Do not ask the owner to
 inspect the screen in place of the agent.
+
+Verify how the installed toolkit exposes size, scale and system appearance
+before attempting alternate configurations. A configured minimum size is not
+an observed minimum-size pass. Do not invent unsupported accessibility methods
+or substitute X11 or GTK environment overrides for Wayland compositor scaling.
+Record the actual appearance preference: no preference is not explicit light.
+An isolated session bus can change appearance discovery, so record that scope.
+Use only authorized, reversible native settings changes and restore their exact
+original values. Leave only the unsupported assertion owed, with its proved
+interface boundary, rather than blocking independent work.
+
+For failure states, inspect the visible message as well as preservation of
+installed state. The message must identify failure and a safe recovery action;
+an operation label alone does not explain failure. Never expose raw error
+chains containing private URLs, paths or credentials to make the message useful.
+
+Keep reusable procedures here. Put dated attempts, real host identifiers,
+private paths, process identities and captures only in the approved evidence
+boundary after its privacy checks, not in this template. Use placeholders in
+examples and never copy secret-bearing trees, pairing material or account data.
 
 ## Owner and environment requirements
 

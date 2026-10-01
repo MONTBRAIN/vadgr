@@ -200,8 +200,9 @@ Automation oracle.
 ### Native desktop cold-start checklist
 
 Read the docs engineering section "Native desktop cold-start procedure" before
-GUI cells. A supported Ubuntu VirtualBox guest is virtualized native coverage;
-record the actual guest, virtual hardware, architecture, desktop and protocol.
+GUI cells. A supported Linux guest is virtualized native coverage. Probe the
+current hypervisor, guest, virtual hardware, architecture, desktop and protocol;
+never carry a historical host label across a resumed pass.
 It is not bare-metal, another architecture or another desktop-session pass.
 
 For Linux, read `harness/linux_atspi.py` and
@@ -230,10 +231,13 @@ dependencies, not dependencies of the installed Vadgr package.
    edit the database or ask the owner to type instead.
 5. Invoke `/usr/bin/python3 E2E/0.5.0/harness/linux_portal_capture.py` with
    `--output <new-private.png> --delay 15 --timeout 120`. Inspect the chooser's
-   fresh AT-SPI tree, select only the intended WINDOW and invoke its enabled
-   Share action. Move focus to
-   another safe application during the delay through native accessibility.
-   Inspect the resulting exact application image and record focus separately.
+   fresh AT-SPI tree, select only the intended WINDOW and invoke its exact
+   **Share** control with role `button`, `SENSITIVE` and non-defunct. GTK may
+   omit `ENABLED`; do not require both flags. A same-named label is not the control.
+   Move focus to another safe application during the delay. Independently
+   record the target inactive and the other application active before acquiring
+   the image, then recheck afterward. A `window.present` request alone does not
+   prove Wayland focus. Inspect the resulting exact application image.
 6. If the window row has no action and native Selection refuses it, retain the
    failed probe and cancel the owned chooser. This alone does not prove a
    protected owner prompt. Do not retry indefinitely or substitute a desktop
@@ -242,6 +246,48 @@ dependencies, not dependencies of the installed Vadgr package.
 7. After reboot, reacquire process and session identities. Preserve interrupted
    attempts without guessing exit codes. At cleanup restore assistive settings
    and stop only pass-created processes and capture sessions.
+
+#### Conditional Wayland chooser selection
+
+Verify the current portal backend, desktop and toolkit versions against their
+matching source before using a backend-specific action. The ScreenCast contract
+does not guarantee chooser layout or focus order. The agent selects every
+action from a fresh native tree; helpers must not automate this sequence.
+An absent accessible portal application before its first chooser is created is
+normal preflight, not permission denial. Once the chooser exists, require its
+exact owned application and frame before acting.
+
+After retaining a failed ordinary selection probe, a verified backend can be
+tested with two separately identified, bounded requests, A and B, each limited
+to one WINDOW. Keep A's chooser open. Launch a new test-owned target window,
+then open B. Proceed only when B's first candidate is independently identified
+as that exact target, `FOCUSED`, `SENSITIVE` and non-defunct. Do not select the
+first row merely because it is first.
+
+Only then invoke B's root `default.activate`, if that action is observed,
+**Share**, the current default control, is insensitive, and the matching source
+establishes this fallback's focused-row behavior. Reacquire B and require the
+target to be the sole `SELECTED` window and **Share** to be sensitive. Invoke
+B's exact `SENSITIVE`, non-defunct **Share** button; do not also require
+`ENABLED`, which GTK may omit. Then cancel A through A's exact **Cancel** button.
+Use process/window identity and role to distinguish same-named controls.
+
+Launch a fresh harmless test-owned cover window. Verify target-inactive and
+cover-active state before acquisition and recheck afterward. Read only B's
+scoped PipeWire stream; require a single stream and reject any exposed source
+type other than WINDOW. Inspect the exact image, close both owned requests and
+stop only test-owned cover processes. Preserve safe focus and selection records
+without private window titles or secret-bearing tree content.
+Retain the full stream image and dimensions, including any black padding; do
+not crop it into an apparent success or substitute a desktop image.
+
+Abort on any mismatched predicate. Preserve the failure, cancel owned requests,
+and continue independent cells. Do not infer an owner-only permission boundary,
+retry indefinitely or substitute a desktop, monitor, crop or focused image.
+This path is conditional, not a promise for all GNOME or Wayland versions. See
+the public [ScreenCast interface](https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.ScreenCast.html)
+for source types and session scope; the chooser sequence requires separate
+backend verification.
 
 ### Desktop visual acceptance
 
@@ -270,6 +316,17 @@ fresh accessibility tree and independent machine oracle. Use isolated safe data;
 never retain secret-bearing captures.
 
 Repeat affected visual checks after a rendering fix and rebuilt artifact.
+Verify the installed toolkit's size, scale and appearance interfaces first.
+Configured minimum sizes are not observed passes. Do not invent unsupported
+accessibility methods or use GTK or X11 environment overrides as Wayland scale
+proof. No appearance preference is not explicit light; an isolated session bus
+may change appearance discovery. Record that scope, use only authorized,
+reversible native settings changes and restore exact original values. Keep
+unsupported assertions owed with their proved interface boundary.
+For failure states, require a visible failure explanation and safe recovery
+action as well as preservation of installed state. An operation label alone
+is insufficient. Do not display private URLs, paths or raw secret-bearing
+error chains as a substitute for useful failure copy.
 If the required native capture fails, preserve the probe and leave the exact
 visual assertion owed. Continue independent functional assertions, but do not
 claim complete GUI qualification or substitute an owner inspection, desktop
@@ -293,7 +350,9 @@ specific behavior, another architecture and an unavailable X11 or Wayland
 session remain `not run` with their exact reasons. WSL, a container and a
 Windows-mounted checkout do not qualify under this rule.
 
-When Android USB is attached to the VirtualBox host instead of the guest, use
+Probe the current hypervisor and network mode before choosing a host ADB socket.
+Do not inherit a historical VM label or assume its gateway address. When
+Android USB is attached to a verified VirtualBox host instead of the guest, use
 the host ADB server before declaring the phone unavailable. The host operator
 runs these commands in a dedicated terminal from Android Platform Tools:
 
@@ -319,7 +378,9 @@ export ADB_SERVER_SOCKET="tcp:${VM_HOST_GATEWAY}:5037"
 adb devices -l
 ```
 
-The usual VirtualBox NAT gateway is `10.0.2.2`. Require exactly the intended
+Use the observed gateway only for the verified network mode. Other hypervisors
+need their own verified host-reachability configuration, not this assumption.
+Require exactly the intended
 phone to appear in `device` state, not `offline` or `unauthorized`. Keep
 `ADB_SERVER_SOCKET` set for every ADB command in the pass. Do not start a local
 guest server afterward, and do not run `adb kill-server` while the variable

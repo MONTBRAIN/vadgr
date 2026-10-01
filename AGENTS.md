@@ -437,8 +437,11 @@ Windows-mounted checkout.
 
 **A phone attached to a VM host is not absent until the host ADB bridge is
 checked.** Stop the guest-local ADB server before selecting a remote socket.
-For VirtualBox NAT, derive the guest's default gateway and use
-`ADB_SERVER_SOCKET=tcp:<gateway>:5037`; the usual gateway is `10.0.2.2`. The
+Rediscover the current hypervisor and network mode after each resumption.
+Do not inherit a historical host label or socket. For verified VirtualBox NAT,
+derive the guest's default gateway and use
+`ADB_SERVER_SOCKET=tcp:<gateway>:5037`. A different hypervisor or network mode
+requires its own verified host endpoint; a gateway is not universally the host. The
 host runs a temporary network-listening ADB server, and every guest ADB command
 uses the same socket. Require the intended device to be in `device` state before
 the cell starts. Never record its serial. Do not change firewall, DNS, routing,
@@ -835,6 +838,10 @@ pass. Preserve failed probes, fix product accessibility defects, and restore
 assistive settings. Put this procedure in both the current minor and template
 so the next agent does not have to rediscover it. CLAUDE.md imports this entry
 point and follows the same procedure.
+Recheck live process, session and bus identities after resumption. Use the
+engineering checklist's conditional chooser procedure only when its actual
+backend predicates hold. Keep reusable instructions free of personal details
+and incident narratives; retain sanitized attempts in the evidence boundary.
 
 The gate, before offering anything:
 
