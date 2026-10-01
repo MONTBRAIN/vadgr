@@ -103,7 +103,21 @@ fn update_source_invalid_bundle_preserves_installation() {
 
 #[test]
 fn update_source_https_failure_preserves_installation() {
-    Installation::new().check_failure("https://127.0.0.1:9", "downloading release-manifest.json");
+    let installation = Installation::new();
+    let before = snapshot(installation.directory.path());
+    let output = installation.run(&[
+        "update",
+        "--check",
+        "--source",
+        "https://127.0.0.1:9/private-source",
+    ]);
+    let error = String::from_utf8_lossy(&output.stderr);
+    assert_eq!(output.status.code(), Some(1), "{error}");
+    assert!(error.contains("The update download failed."), "{error}");
+    assert!(error.contains("Try again"), "{error}");
+    assert!(!error.contains("127.0.0.1"), "{error}");
+    assert!(!error.contains("private-source"), "{error}");
+    assert_eq!(snapshot(installation.directory.path()), before);
 }
 
 #[cfg(feature = "linux-unsigned-qualification")]

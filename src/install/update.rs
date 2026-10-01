@@ -168,6 +168,25 @@ fn validate_origin(source: &str) -> Result<()> {
     Ok(())
 }
 
+fn download_failure(error: reqwest::Error) -> anyhow::Error {
+    // Source URLs and underlying errors can contain private paths. Retain only
+    // a failure category and public HTTP status, including in CLI error chains.
+    let reason = if error.is_timeout() {
+        "The request timed out. Try again later.".to_owned()
+    } else if let Some(status) = error.status() {
+        format!(
+            "The update server returned HTTP {}. Try again later.",
+            status.as_u16()
+        )
+    } else if error.is_connect() {
+        "A connection to the update server could not be established. Try again after checking your connection."
+            .to_owned()
+    } else {
+        "The network request could not be completed. Try again later.".to_owned()
+    };
+    anyhow!("The update download failed. {reason}")
+}
+
 fn fetch(origin: &str, name: &str, destination: &Path, limit: Option<u64>) -> Result<()> {
     ensure!(
         !name.contains('/') && !name.contains('\\'),
@@ -185,13 +204,14 @@ fn fetch(origin: &str, name: &str, destination: &Path, limit: Option<u64>) -> Re
                     runtime.block_on(async {
                         let response = reqwest::Client::builder()
                             .timeout(std::time::Duration::from_secs(120))
-                            .build()?
+                            .build()
+                            .map_err(download_failure)?
                             .get(&url)
                             .send()
                             .await
-                            .with_context(|| format!("downloading {name}"))?
+                            .map_err(download_failure)?
                             .error_for_status()
-                            .with_context(|| format!("downloading {name}"))?;
+                            .map_err(download_failure)?;
                         if let (Some(maximum), Some(length)) = (limit, response.content_length()) {
                             ensure!(
                                 length <= maximum,
@@ -203,8 +223,7 @@ fn fetch(origin: &str, name: &str, destination: &Path, limit: Option<u64>) -> Re
                         let mut total = 0_u64;
                         let mut stream = response.bytes_stream();
                         while let Some(chunk) = stream.next().await {
-                            let chunk =
-                                chunk.with_context(|| format!("reading downloaded {name}"))?;
+                            let chunk = chunk.map_err(download_failure)?;
                             total = total
                                 .checked_add(chunk.len() as u64)
                                 .ok_or_else(|| anyhow!("the downloaded size overflowed"))?;
@@ -598,6 +617,97 @@ mod tests {
         });
         assert!(outcome.is_ok(), "fetch started a runtime inside a runtime");
         assert!(outcome.unwrap().is_err());
+    }
+
+    #[test]
+    fn failed_update_download_explains_failure_and_recovery_without_private_source() {
+        let directory = tempfile::tempdir().unwrap();
+        let destination = directory.path().join("manifest.json");
+        let error = fetch(
+            "https://127.0.0.1:9/private-source",
+            "release-manifest.json",
+            &destination,
+            Some(1024),
+        )
+        .unwrap_err();
+        let message = error.to_string();
+        assert!(
+            message.starts_with("The update download failed."),
+            "{message}"
+        );
+        assert!(message.contains("Try again"), "{message}");
+        assert!(
+            message.contains("A connection to the update server could not be established."),
+            "{message}"
+        );
+        for rendering in [message, format!("{error:#}"), format!("{error:?}")] {
+            assert!(!rendering.contains("127.0.0.1"), "{rendering}");
+            assert!(!rendering.contains("private-source"), "{rendering}");
+        }
+        assert!(!destination.exists());
+    }
+
+    #[test]
+    fn update_download_http_failure_preserves_only_status_and_recovery() {
+        for status in [404, 503] {
+            let response = reqwest::Response::from(
+                axum::http::Response::builder()
+                    .status(status)
+                    .body("private-response-body")
+                    .unwrap(),
+            );
+            let error = download_failure(response.error_for_status().unwrap_err());
+            assert_eq!(
+                error.to_string(),
+                format!(
+                    "The update download failed. The update server returned HTTP {status}. Try again later."
+                )
+            );
+            assert!(!format!("{error:?}").contains("private-response-body"));
+            assert_eq!(error.chain().count(), 1);
+        }
+    }
+
+    #[tokio::test]
+    async fn update_download_timeout_is_specific_without_retaining_the_source() {
+        // A local listener accepts TCP without sending an HTTP response. No
+        // external service or host networking change is needed for this error.
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        let client = reqwest::Client::builder()
+            .no_proxy()
+            .timeout(std::time::Duration::from_millis(100))
+            .build()
+            .unwrap();
+        let error = client
+            .get(format!("http://{address}/private-source"))
+            .send()
+            .await
+            .unwrap_err();
+        assert!(error.is_timeout());
+        let safe = download_failure(error);
+        assert_eq!(
+            safe.to_string(),
+            "The update download failed. The request timed out. Try again later."
+        );
+        assert!(!format!("{safe:#}").contains("private-source"));
+        assert!(!format!("{safe:?}").contains("127.0.0.1"));
+        assert_eq!(safe.chain().count(), 1);
+    }
+
+    #[test]
+    fn update_download_builder_failure_has_a_safe_fallback() {
+        let error = reqwest::Client::new()
+            .get("private-source-not-a-url")
+            .build()
+            .unwrap_err();
+        let safe = download_failure(error);
+        assert_eq!(
+            safe.to_string(),
+            "The update download failed. The network request could not be completed. Try again later."
+        );
+        assert!(!format!("{safe:?}").contains("private-source"));
+        assert_eq!(safe.chain().count(), 1);
     }
 
     #[cfg(target_os = "linux")]
