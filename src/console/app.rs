@@ -1517,12 +1517,11 @@ impl eframe::App for ConsoleApp {
 
 pub fn run(base_url: String) -> Result<()> {
     let controller = Arc::new(HttpConsoleController::new(base_url)?);
-    let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default()
+    let options = super::native::options(
+        egui::ViewportBuilder::default()
             .with_inner_size([1200.0, 720.0])
             .with_min_inner_size([900.0, 600.0]),
-        ..Default::default()
-    };
+    );
     eframe::run_native(
         "Vadgr",
         options,

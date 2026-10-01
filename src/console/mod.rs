@@ -2,6 +2,7 @@
 
 mod app;
 mod controller;
+pub(crate) mod native;
 mod text_input;
 pub(crate) mod theme;
 

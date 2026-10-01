@@ -33,13 +33,12 @@ pub fn run(vehicle: PathBuf) -> Result<()> {
         "the installer vehicle path must be absolute"
     );
     let preflight = Preflight::open(&vehicle)?;
-    let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default()
+    let options = crate::console::native::options(
+        egui::ViewportBuilder::default()
             .with_title("Install Vadgr")
             .with_inner_size([760.0, 620.0])
             .with_min_inner_size([680.0, 540.0]),
-        ..Default::default()
-    };
+    );
     eframe::run_native(
         "Install Vadgr",
         options,
