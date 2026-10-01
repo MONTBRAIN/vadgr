@@ -258,6 +258,10 @@ receive and call those tools; a standalone client probe is diagnostic only.
 Accessibility controls the application. Pixel tools inspect authorized images
 and never replace a refused structured action. Reproduce CUA defects and file
 sanitized issues, separate from client connection or tool-discovery failures.
+An issue is a record, not a completed fix. Repair confirmed defects in the
+responsible repository, prove the regression fails without the repair, rebuild,
+and rerun the affected public actions. Name any external or protected-owner
+boundary that genuinely prevents completion; do not defer an implementable fix.
 The installed product's bundled CUA payload is not this driver. Use it only
 when a cell explicitly tests a computer-use task. In particular, Windows
 installer and console actions use Windows UI Automation through AccessKit, not

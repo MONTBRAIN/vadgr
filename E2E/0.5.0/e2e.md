@@ -259,6 +259,13 @@ capture, accessibility control, or any remaining functional cell.
 Accessibility remains the primary control tier. Reproduce a suspected CUA
 defect through the public released tool, check existing issues, and file a
 sanitized issue with its version, failed oracle and minimal reproduction.
+Filing an issue does not resolve it. Fix confirmed defects in the responsible
+repository, add a regression that fails without the fix, and rerun the affected
+public MCP actions. For this repair qualification, a non-editable wheel built
+from the exact repaired CUA source may replace the isolated external driver.
+Record its source, wheel digest and installed identity as a development driver,
+not as the released 0.7.8 baseline or the subject's bundled 0.7.9 payload.
+This exception changes neither the subject artifact nor the visual oracle.
 Keep client integration failures separate from CUA findings. Never retain
 owner-window content or secrets merely to demonstrate a failure.
 Keep exact installation commands and immutable wheel identity in the setup

@@ -817,6 +817,13 @@ existing issue and include the release, host class, safe minimal steps,
 expected and actual results, and independent oracle. Exclude owner data,
 private paths, credentials and unsafe captures. Record the issue reference
 with the affected assertion. A client reload problem is not a CUA defect.
+Filing the issue does not complete the work. Fix confirmed defects, add a
+regression that fails without the fix, rebuild and rerun the affected public
+MCP actions and assertions. Identify a repaired development driver separately
+from the released baseline; never relabel its bytes as the released artifact.
+Keep driver-fix qualification separate from qualification of the subject's
+bundled CUA payload. Record an exact external or protected-owner boundary only
+when it genuinely prevents completion.
 
 - Probe the current host/session and virtualization; do not carry a historical
   hypervisor label across a resumed pass. Record artifact and process identities, plus

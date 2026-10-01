@@ -819,6 +819,10 @@ offered.
   serve visual inspection, not a fallback for a refused structured action.
   Reproduce a suspected CUA defect through its public MCP tool, check existing
   issues, and file a sanitized issue with the exact release and failed oracle.
+  Filing an issue does not resolve the finding. Fix confirmed defects in the
+  responsible repository, add a regression that fails without the fix, and
+  rerun the affected public MCP actions and E2E assertions. Record an exact
+  external or protected-owner boundary if it prevents completion.
   Keep client configuration failures separate from CUA product findings.
   Review server startup side effects and isolate driver-owned writes without
   replacing the real desktop bus or modifying owner browser registrations.
