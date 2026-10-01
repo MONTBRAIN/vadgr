@@ -932,6 +932,26 @@ C1 is incomplete: the isolated preserved state and exact vehicles remain needed
 for reinstall and attended assertions. Signing and immutable-candidate trust
 remain separate post-merge obligations.
 
+Both new offline source builds subsequently completed with recorded exit 0:
+471.931 seconds for the baseline and 469.959 seconds for the modified source.
+Each compiled 519 dependencies, both bound local patches and no resolution
+stubs. Independent recovery checks verified both build-finished events,
+retained executable hashes, native development notes and the newly compiled
+source-marker metadata. The outer launcher did not record its final exit or
+end time; neither is reconstructed. No duplicate build was run for appearance.
+
+The refreshed source manifest digest is
+`b1db47504a64270ddb5b70bdab430e5c9f736bf28064f502f26b37706b4f0e3e`.
+All three sealed source volumes passed independent verification. The derived
+5290-file package retains all 825 component identities, existing legal grants
+and terms. Its inventory digest is
+`23660704299e6932abbefb10b28ce1e902764a3c8dfa921ae1c00fa214db75fe`.
+Fresh decoded privacy checks classified 467 exact upstream fixtures with no
+blocked findings. Opaque fixture contents are not claimed fully decoded.
+This is a mechanical corresponding-source refresh, not new legal approval,
+publisher trust or an installed E2E verdict. Exact rebuilt AppImage acquisition
+and affected native reruns remain required.
+
 ## macOS qualification history
 
 These observations preserve implementation findings and earlier evidence. They
