@@ -217,8 +217,25 @@ impl InstallerApp {
             ui.label("Vadgr will not change this machine until you accept these terms and choose Install.");
         }
         ui.add_space(12.0);
+        // Keep the document before assent in both the visual and accessibility
+        // order, but reserve the themed controls before assigning its height.
+        let spacing = ui.spacing();
+        let button_height = spacing
+            .interact_size
+            .y
+            .max(ui.text_style_height(&egui::TextStyle::Button) + 2.0 * spacing.button_padding.y);
+        let checkbox_height = if previously_accepted {
+            0.0
+        } else {
+            ui.text_style_height(&egui::TextStyle::Body)
+                .max(spacing.icon_width)
+                .max(spacing.interact_size.y)
+                + spacing.item_spacing.y
+        };
+        let footer_height = 12.0 + spacing.item_spacing.y + checkbox_height + button_height;
         egui::ScrollArea::vertical()
-            .max_height(380.0)
+            .max_height((ui.available_height() - footer_height).clamp(0.0, 380.0))
+            .min_scrolled_height(0.0)
             .show(ui, |ui| {
                 crate::console::theme::card().show(ui, |ui| {
                     show_terms(ui, &preflight.terms_text);
@@ -253,8 +270,8 @@ impl InstallerApp {
 }
 
 #[cfg(target_os = "linux")]
-impl eframe::App for InstallerApp {
-    fn ui(&mut self, root: &mut egui::Ui, _frame: &mut eframe::Frame) {
+impl InstallerApp {
+    fn render(&mut self, root: &mut egui::Ui) {
         let ctx = root.ctx().clone();
         crate::console::theme::refresh(&ctx);
         if let Some(receiver) = &self.receiver {
@@ -307,6 +324,13 @@ impl eframe::App for InstallerApp {
                 }
             }
         });
+    }
+}
+
+#[cfg(target_os = "linux")]
+impl eframe::App for InstallerApp {
+    fn ui(&mut self, root: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        self.render(root);
     }
 }
 
@@ -410,7 +434,16 @@ mod tests {
         let ctx = egui::Context::default();
         ctx.enable_accesskit();
         crate::console::theme::install(&ctx);
-        let mut output = ctx.run_ui(egui::RawInput::default(), |ui| app.terms_ui(ui));
+        let mut output = ctx.run_ui(
+            egui::RawInput {
+                screen_rect: Some(egui::Rect::from_min_size(
+                    egui::Pos2::ZERO,
+                    egui::vec2(760.0, 620.0),
+                )),
+                ..Default::default()
+            },
+            |ui| app.terms_ui(ui),
+        );
         output.textures_delta.clear();
         assert!(!app.accepted, "viewing terms must never create new assent");
         assert!(
@@ -419,6 +452,102 @@ mod tests {
         );
         assert!(app.preflight.is_some());
         output
+    }
+
+    #[test]
+    fn complete_installer_keeps_terms_actions_inside_supported_windows() {
+        let previous = acceptance();
+        for (size, theme) in [
+            ([760.0, 620.0], egui::Theme::Dark),
+            ([680.0, 540.0], egui::Theme::Dark),
+            ([760.0, 620.0], egui::Theme::Light),
+            ([680.0, 540.0], egui::Theme::Light),
+        ] {
+            for retained in [false, true] {
+                let mut app = terms_app("1.0", retained.then_some(&previous)).unwrap();
+                app.preflight.as_mut().unwrap().terms_text =
+                    include_str!("../packaging/legal/TERMS.txt").to_owned();
+                let ctx = egui::Context::default();
+                ctx.enable_accesskit();
+                crate::console::theme::install(&ctx);
+                ctx.set_theme(theme);
+                let viewport = egui::Rect::from_min_size(egui::Pos2::ZERO, size.into());
+                for _ in 0..3 {
+                    let mut output = ctx.run_ui(
+                        egui::RawInput {
+                            screen_rect: Some(viewport),
+                            ..Default::default()
+                        },
+                        |ui| app.render(ui),
+                    );
+                    output.textures_delta.clear();
+                    let tree = output.platform_output.accesskit_update.as_ref().unwrap();
+                    let mut pending = vec![tree.tree.as_ref().unwrap().root];
+                    let mut reading_order = Vec::new();
+                    while let Some(id) = pending.pop() {
+                        let node = &tree.nodes.iter().find(|(key, _)| *key == id).unwrap().1;
+                        reading_order.extend(node.label().or(node.value()));
+                        pending.extend(node.children().iter().rev());
+                    }
+                    let heading = if retained {
+                        "Terms already accepted"
+                    } else {
+                        "Review the terms"
+                    };
+                    let position = |text| {
+                        reading_order
+                            .iter()
+                            .position(|value| *value == text)
+                            .unwrap()
+                    };
+                    assert!(position(heading) < position("Install Vadgr"));
+                    if !retained {
+                        assert!(position(heading) < position("I have read and accept these terms"));
+                        assert!(
+                            position("I have read and accept these terms")
+                                < position("Install Vadgr")
+                        );
+                    }
+                    for label in [
+                        "Install Vadgr",
+                        if retained {
+                            "Cancel and close"
+                        } else {
+                            "Decline and close"
+                        },
+                    ]
+                    .into_iter()
+                    .chain((!retained).then_some("I have read and accept these terms"))
+                    {
+                        let node = &tree
+                            .nodes
+                            .iter()
+                            .find(|(_, node)| node.label() == Some(label))
+                            .expect("installer action remains exposed")
+                            .1;
+                        let bounds = node.bounds().expect("installer action has bounds");
+                        assert!(
+                            bounds.x0 >= 0.0
+                                && bounds.y0 >= 0.0
+                                && bounds.x1 <= f64::from(size[0])
+                                && bounds.y1 <= f64::from(size[1]),
+                            "{label}: {bounds:?}, viewport {size:?}, retained {retained}"
+                        );
+                        if label == "Install Vadgr" {
+                            assert_eq!(node.is_disabled(), !retained);
+                        }
+                    }
+                    assert!(
+                        tree.nodes
+                            .iter()
+                            .any(|(_, node)| { node.role() == egui::accesskit::Role::ScrollBar }),
+                        "complete terms retain their scrolling control"
+                    );
+                    assert!(!app.accepted);
+                    assert!(app.receiver.is_none());
+                }
+            }
+        }
     }
 
     #[test]

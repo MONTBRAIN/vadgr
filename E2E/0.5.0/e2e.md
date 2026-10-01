@@ -1454,6 +1454,29 @@ scoped cleanup closed the session. Its recorded processes were absent, and
 the two owner accessibility settings and two bus flags remained false.
 The prepared installation and provider remain for the phone continuation.
 
+### Linux installer footer finding at `09662bf7`
+
+On 2026-10-01, the unsigned AppImage from
+`09662bf767c75823a50aa9f8fef3aea66f9f554e` exposed a clipped installer footer
+twice through the actual Linux MCP accessibility tools. The client bounds were
+`760 x 620` at origin `(0, 0)`. Fresh assent appeared at `y=614`, height `18`;
+Decline appeared at `y=640`, height `32`. With retained assent, Install appeared
+at `y=632`, height `32`. Maximizing made the controls fit but did not resolve
+the initial-size defect.
+
+A full themed rendering regression reproduced the same `y=640..672` button
+bounds before the fix. The repair reserves the themed footer height before
+assigning the terms scroll area. It preserves the terms, assent and action
+reading order. The source regression passes at the initial and minimum sizes,
+with both themes and both assent states. It also checks scrolling and unchanged
+assent. These are source tests, not an installed qualification result.
+
+Preserve the failed artifact observations. Rebuild the registered AppImage with
+refreshed corresponding source, then rerun the affected L01, L02 and O2 installer
+assertions. Earlier installer observations cannot establish those assertions
+for the repaired bytes. Independent unchanged lifecycle observations remain
+bound to their original exact artifacts; no whole-cell pass carries forward.
+
 ## macOS qualification history
 
 These observations preserve implementation findings and earlier evidence. They
