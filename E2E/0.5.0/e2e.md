@@ -443,7 +443,7 @@ oracles. Windows executes only the Windows rows in this session.
 | W02 | Windows x64 and arm64 where supported | owner is present only if Windows presents a protected UAC prompt | W01 and the pre-install part of W03 pass | start the verified setup, accept terms and continue until the protected prompt appears | Confirm that the prompt names the expected Vadgr publisher, then choose **Yes**. Do nothing if no prompt appears. | setup resumes and shows truthful installation progress | private Windows boundary; capture no protected desktop image | keep installation for Windows cells | one administrator approval if requested; no provider cost | not run: final signed setup is unavailable; no protected prompt may be trusted yet |
 | F01 | each native GUI host | owner holds the physical phone with camera permission | installed console and default provider are healthy; agent has opened the prepared QR screen | agent confirms ADB, launches Vadgr Mobile, selects the intended Built-in pairing flow, grants automatable permissions, leaves its live scanner open, enters any provider secret through masked UI without capture, and leaves the desktop QR fully visible | Aim the already-open Vadgr Mobile scanner at the visible desktop QR. Stop when the prepared mobile app shows the machine name. | agent reads the mobile result directly, verifies the console device, provider API, daemon lines and transport rows, then drives revoke and typed-code pairing through ADB | matching private host boundary | keep the typed-code device paired for transport cells | phone and camera permission; provider API use may be billed | Windows x64 pre-merge functional pass at `24ae14a`: QR/Built-in direct pairing succeeded after the owner only aimed the prepared scanner. The agent then enabled the phone's existing Tailscale connection and completed the typed-code/Tailscale fallback through ADB. Mobile named the selected transport and the alternate Built-in route; no provider call, host-network mutation, pairing secret or private endpoint was retained |
 | M02 | both macOS architectures | owner controls Login Items, Accessibility and Screen Recording | signed package is ready; Terminal and Python grants remain absent | drive installer and console until each protected system prompt or Settings row appears | Approve the Vadgr login item. Deny, then grant, Accessibility and Screen Recording only to the displayed Vadgr Computer Use identity. Stop when System Settings shows both grants enabled. | grants attach to `com.montbrain.vadgr.cua`, not Terminal or Python | private macOS boundary; never export the TCC database | leave grants for M06 | Apple membership, administrator and privacy permissions | not run: signed and notarized macOS package is unavailable |
-| L02 | native Linux x86_64/aarch64, X11 and Wayland | owner can approve a package-manager prompt if it appears | release-equivalent AppImage is ready and FUSE dependency is absent | drive install until the protected package prompt appears | Verify the prompt names only the documented FUSE dependency, then approve it. Do nothing if no prompt appears. | installer resumes its visible phases | private Linux boundary | keep installation | separate package-manager approval | pre-merge functional assertion: run against the exact release-equivalent AppImage; no signing identity is required |
+| L02 | native Linux x86_64/aarch64, X11 and Wayland | owner can approve a package-manager prompt if it appears | release-equivalent AppImage is ready and FUSE dependency is absent | drive install until the protected package prompt appears | Verify the prompt names only the documented FUSE dependency, then approve it. Do nothing if no prompt appears. | installer resumes its visible phases | private Linux boundary | keep installation | separate package-manager approval | partial functional at `eab017e5` on virtualized x86_64 GNOME Wayland: ordinary install, installed health, Open Vadgr and unfocused installer Close completed on a FUSE-equipped host. No package-manager prompt appeared. Missing-FUSE approval and exact visual assertions remain owed |
 
 ## Part W: Windows cells
 
@@ -474,11 +474,11 @@ oracles. Windows executes only the Windows rows in this session.
 
 | cell | operating system and architecture | owner/environment requirements | precondition | setup | exact action | oracle | expected result | evidence boundary | cleanup | cost, accounts, devices and permissions | result |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| L01 | native Linux x86_64, then aarch64; X11 and Wayland | clean graphical session; no owner action | no Vadgr XDG generation, command, desktop or autostart entry; if the release-equivalent AppImage cannot be built, repair or create its credential-free producer on the implementation branch before continuing | agent builds the registered AppImage, records the before inventory and verifies its hash; manifest trust runs post-merge | agent opens the AppImage through accessibility, inspects terms and invokes **Decline and close** | before/after XDG data/config, command and state inventories | no product or owner-state mutation | private Linux boundary | remove downloaded files after filing | no root or package-manager action | pre-merge functional assertion: run against the exact release-equivalent AppImage; missing package inputs or payload are implementation findings to fix, while production manifest trust remains owed against the held candidate |
-| L03 | x86_64/aarch64, X11/Wayland | clean GUI hosts | L02 installed | keep FUSE; prepare extraction test | verify development integrity metadata before merge and the production attestation bundle after merge; launch normally and with `--appimage-extract-and-run` | target match, size/hash and both launches before merge; certified workflow/runner output after merge | both paths work; every available wrong-root, bundle, workflow, ref, target, size and hash case fails before XDG mutation | private Linux integrity capture | delete tampered copies | none | functional extraction and tamper assertions run before merge; production workflow and attestation assertions remain owed against the held candidate |
-| L04 | same matrix | provider and phone | release-equivalent installation healthy; L03 trust may remain owed | one provider/default and paired device | repeat W04 through W06 | CLI/API/console, transport and journal | shared console/backend behavior matches Windows | private Linux functional capture | remove run/device | bounded provider call and phone | pre-merge functional assertion: run against the exact release-equivalent AppImage; no signing identity is required |
-| L05 | same matrix | fault-injection host | L04 independent functional assertions complete; phone observations remain separately owed | retain the exact current unsigned installation; use the ordinary configured or explicit update source; require a verified predecessor only when one exists | before merge, exercise reachable update-source failure and preservation, repair, and the first-release unavailable-rollback reason; after merge, inject the downstream W07 trust-gated failures; exercise positive update/rollback at the first subsequent native release | `current` link, exact binary and receipt, health and owner-state identity after each attempt | reachable failure is specific and preserves the runnable generation; repair restores package-owned bytes; no predecessor is invented; downstream phases retain their ordinary verification gates | private Linux lifecycle capture | select fixed generation | no root, network mutation or development trust bypass | functional failure-preservation, repair and truthful first-release rollback gate merge; production verification and later faults remain owed against held bytes. A no-origin refusal is not a download-failure observation. Missing ordinary update-source integration is an implementation finding, not a signing blocker |
-| L06 | same matrix | isolated E2E state only | L05 functional slice complete | agent records XDG and isolated state roots | agent drives uninstall-preserve/reinstall, then the separate typed purge | exact paths and isolated-state identity | only package/XDG entries removed first; state found on reinstall; purge deletes the exact isolated state root | private Linux uninstall capture | agent removes all test artifacts | no owner action unless a protected package prompt appears | pre-merge functional assertion: run against the exact release-equivalent AppImage; no signing identity is required |
+| L01 | native Linux x86_64, then aarch64; X11 and Wayland | clean graphical session; no owner action | no Vadgr XDG generation, command, desktop or autostart entry; if the release-equivalent AppImage cannot be built, repair or create its credential-free producer on the implementation branch before continuing | agent builds the registered AppImage, records the before inventory and verifies its hash; manifest trust runs post-merge | agent opens the AppImage through accessibility, inspects terms and invokes **Decline and close** | before/after XDG data/config, command and state inventories | no product or owner-state mutation | private Linux boundary | remove downloaded files after filing | no root or package-manager action | partial functional at exact `eab017e5`: unchecked assent kept Install disabled; native Decline exited and preserved the complete scoped product inventory. Rendered-terms inspection remains owed because WINDOW-only portal capture produced no exact app-only image |
+| L03 | x86_64/aarch64, X11/Wayland | clean GUI hosts | L02 installed | keep FUSE; prepare extraction test | verify development integrity metadata before merge and the production attestation bundle after merge; launch normally and with `--appimage-extract-and-run` | target match, size/hash and both launches before merge; certified workflow/runner output after merge | both paths work; every available wrong-root, bundle, workflow, ref, target, size and hash case fails before XDG mutation | private Linux integrity capture | delete tampered copies | none | unsigned functional slices passed at exact `eab017e5`: twelve development-integrity negatives rejected without scoped mutation; ordinary and extraction launches reached terms, and extraction Decline preserved the product inventory. The runtime left its confined extraction output. Production workflow, attestation and immutable trust assertions remain owed; aarch64 and X11 remain not run |
+| L04 | same matrix | provider and phone | release-equivalent installation healthy; L03 trust may remain owed | one provider/default and paired device | repeat W04 through W06 | CLI/API/console, transport and journal | shared console/backend behavior matches Windows | private Linux functional capture | remove run/device | bounded provider call and phone | partial functional at exact `eab017e5`: native edits and cancellation, CLI/API equality, read-only rejection, no-op identity and restart persistence passed. Native masked provider connection, default selection, catalog refresh and disconnect cancellation agreed with independent reads. Private Python reported 3.12.14 and CUA metadata 0.7.9; computer use remained unavailable. No managed-runtime admission or CUA task is claimed. Phone and exact visual assertions remain owed |
+| L05 | same matrix | fault-injection host | L04 independent functional assertions complete; phone observations remain separately owed | retain the exact current unsigned installation; use the ordinary configured or explicit update source; require a verified predecessor only when one exists | before merge, exercise reachable update-source failure and preservation, repair, and the first-release unavailable-rollback reason; after merge, inject the downstream W07 trust-gated failures; exercise positive update/rollback at the first subsequent native release | `current` link, exact binary and receipt, health and owner-state identity after each attempt | reachable failure is specific and preserves the runnable generation; repair restores package-owned bytes; no predecessor is invented; downstream phases retain their ordinary verification gates | private Linux lifecycle capture | select fixed generation | no root, network mutation or development trust bypass | partial functional at exact `eab017e5`: installed public CLI and Settings reached manifest-download failure and preserved the runnable generation and selected machine state; native Repair restored deliberately altered package bytes exactly. Unsigned apply refused, and rollback stated that no verified predecessor exists. Positive update/rollback and downstream trust-gated faults remain owed against an eligible subject |
+| L06 | same matrix | isolated E2E state only | L05 functional slice complete | agent records XDG and isolated state roots | agent drives uninstall-preserve/reinstall, then the separate typed purge | exact paths and isolated-state identity | only package/XDG entries removed first; state found on reinstall; purge deletes the exact isolated state root | private Linux uninstall capture | agent removes all test artifacts | no owner action unless a protected package prompt appears | functional observations at exact `eab017e5`: cancellation preserved the installation; uninstall-preserve retained identical state-file hashes; retained-assent reinstall recovered the selected CLI/API state; empty and wrong purge phrases stayed disabled, while exact native confirmation removed the isolated package and Vadgr state. Exact visual assertions and final C1 remain owed |
 
 ## Part S: WSL cells
 
@@ -503,30 +503,31 @@ oracles. Windows executes only the Windows rows in this session.
 
 | Part | Windows native | macOS | native Linux | WSL |
 |---|---|---|---|---|
-| H: protected owner boundaries | partial functional: F01 QR/Built-in and typed-code/Tailscale completed; W02 is a post-merge trust assertion | partial functional: physical saved-name QR/Built-in pairing completed; M02 is a post-merge signed-identity assertion | partial functional: retained `026a0281` installed without a package-manager prompt on the available FUSE host. The missing-FUSE variant was not exercised. F01 remains owed for attended continuation; refresh the host ADB probe first | Not-Needed: WSL has no native GUI or protected installer prompt |
-| W: Windows cells | historical pre-merge functional qualification completed at `24ae14a` on available x64 hardware; the shared `047507ba` update repair now requires affected W07, W09 and O2 Settings update-control reruns against a rebuilt package. Other unchanged observations remain filed; x64/ARM64 W11 is producer coverage, not ARM64 installed-product coverage. ARM64 installed-product hardware is unavailable. Held-candidate-only slices remain separate | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells |
+| H: protected owner boundaries | partial functional: F01 QR/Built-in and typed-code/Tailscale completed; W02 is a post-merge trust assertion | partial functional: physical saved-name QR/Built-in pairing completed; M02 is a post-merge signed-identity assertion | partial functional: exact `eab017e5` installed without a package-manager prompt on the available FUSE host. The missing-FUSE variant was not exercised. F01 remains owed for attended continuation; refresh the host ADB probe first | Not-Needed: WSL has no native GUI or protected installer prompt |
+| W: Windows cells | historical pre-merge functional qualification completed at `24ae14a` on available x64 hardware; shared update changes and the `bb8fb0a8` console action/refresh fix require affected update, restart/action and O2 reruns against a rebuilt package. Unchanged observations remain filed; W11 producer coverage is not ARM64 installed-product coverage. ARM64 installed-product hardware is unavailable. Held-candidate-only slices remain separate | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells |
 | M: macOS cells | Not-Needed: macOS-only cells | partial functional: Apple Silicon installation, native configuration, phone watch and restart observations are filed; the host must build the exact current release-equivalent unsigned PKG and complete affected lifecycle and cleanup before merge. Intel hardware remains unavailable. Signed identity assertions are tracked separately | Not-Needed: macOS-only cells | Not-Needed: macOS-only cells |
-| L: native Linux cells | Not-Needed: native-Linux-only cells | Not-Needed: native-Linux-only cells | partial functional at retained `026a0281` on Ubuntu 26.04 x86_64 GNOME Wayland VirtualBox: ordinary and extraction decline, twelve development-integrity rejections, exact retained-assent reinstall, CLI/API equality, restart, private payload inventory, repair and separate preserve/reinstall/purge observations passed. Covered-window Close stalled; the controlled rendering investigation and required rebuilt rerun remain separate. No-origin update refusal is not a download-failure pass. Visual and phone assertions remain owed. Earlier failures remain retained. aarch64, X11 and bare-metal behavior remain not run | Not-Needed: native-Linux-only cells |
+| L: native Linux cells | Not-Needed: native-Linux-only cells | Not-Needed: native-Linux-only cells | partial functional at exact `eab017e5` on Ubuntu 26.04 x86_64 GNOME Wayland VirtualBox: normal/extraction decline, twelve integrity rejections, installed health, unfocused Close, native/CLI machine edits, API equality, restart persistence, private Python execution, public update failure, repair and preserve/reinstall/purge observations passed. The provider continuation also verified masked connection, default selection, refresh and cancellation. These are assertion-level observations, not whole L01 through L06 passes. Exact visuals and phone work remain owed. aarch64, X11 and bare-metal behavior remain not run | Not-Needed: native-Linux-only cells |
 | S: WSL cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | not run: release-equivalent unsigned WSL assets have not completed functional qualification; signing is not the blocker |
-| O: shared offline, accessibility and cleanup cells | prior O1 and historical `24ae14a` cleanup remain filed; the shared update repair requires a current-package O2 Settings update-control rerun. Earlier Narrator, UIA and unfocused Windows Graphics Capture observations are not a pass for the changed controls | partial functional: native focus, VoiceOver speech, state matrix, isolated fixture cleanup and screen-reader-setting restoration ran; current update controls, exact final offline lifecycle and cleanup remain owed | partial: native controls at `026a0281` support disabled states, text confirmation and lifecycle actions. Covered rendering requires a rebuilt rerun. After initial host-session Orca failures, an isolated accessibility-bus terms preflight produced actual product-label speech; the installed matrix remains owed. WINDOW-only portal selection yielded no image. O1 has no pre-existing isolated offline snapshot. C1 remains incomplete: the isolated package and state were purged, but retained artifacts, extraction output and temporary accessibility activation remain needed or owed cleanup | not run: host functional qualification is incomplete |
+| O: shared offline, accessibility and cleanup cells | prior O1 and historical `24ae14a` cleanup remain filed; shared update and console action/refresh changes require current-package O2 reruns. Earlier Narrator, UIA and unfocused capture observations do not qualify changed behavior | partial functional: earlier native focus, VoiceOver speech, state matrix and restoration remain filed; current update and action/refresh controls, exact final offline lifecycle and cleanup remain owed | partial at exact `eab017e5`: native roles, text replacement/readback, disabled states, destructive confirmation and isolated-bus Orca speech were observed. These closed sessions do not cover populated-provider states or the whole O2 matrix. WINDOW-only portal selection still has no qualifying image. O1 lacks an existing isolated offline snapshot. Closed-session cleanup removed recorded product processes and isolated installed state; retained artifacts and extraction output keep C1 incomplete | not run: host functional qualification is incomplete |
 
 ## Completion ledger
 
 | host | cells | result |
 |---|---:|---|
-| Windows x64/arm64 | W01, W02, F01, W03 through W11, O1, O2, C1 | historical functional qualification completed at `24ae14a`; it is not complete for the shared `047507ba` update repair. Rebuild and rerun affected W07, W09 and O2 Settings update controls. Preserve the earlier passed observations and failures. Unchanged observations remain separately reusable, and prior O1 remains unaffected. Native x64/ARM64 W11 producer results do not establish unavailable ARM64 installed-product behavior. W02 and named held-candidate assertions remain post-merge work |
-| macOS Intel/Apple Silicon | M01, M02, F01, M03 through M06, O1, O2, C1 | pre-merge functional qualification is partial: Apple Silicon installed configuration, phone pairing/watch, accessibility and screen-reader restoration observations are filed; the exact current unsigned PKG and affected lifecycle, Tailscale pairing and cleanup remain owed. The host repairs missing unsigned packaging on the implementation branch. Intel hardware remains unavailable. M02 and named signed-identity assertions are post-merge trust work |
-| Linux x86_64/aarch64 X11/Wayland | L01, L02, F01, L03 through L06, O1, O2, C1 | partial functional against exact `026a0281` AppImage on virtualized Ubuntu 26.04 x86_64 GNOME Wayland. Passed assertions and failed attempts are retained individually. Covered rendering and missing update-source integration are repaired in source through `047507ba`; a rebuilt AppImage and affected native reruns remain required. F01 awaits the attended session. O1 has no isolated offline snapshot. Isolated-bus Orca terms speech passed after retained host-session failures, but the installed state matrix remains owed. Exact portal capture produced no image; this is not an owner-only boundary. aarch64, X11 and bare-metal behavior remain not run. C1 has intermediate cleanup only. Signing does not block this lane |
+| Windows x64/arm64 | W01, W02, F01, W03 through W11, O1, O2, C1 | historical qualification at `24ae14a` is not a current-source pass for shared update changes or the `bb8fb0a8` console action/refresh fix. Rebuild and rerun affected W07, failed-update W09, W06 restart/action and O2 controls. Preserve unchanged observations, including prior O1, separately. W11 producer results do not establish unavailable ARM64 installed-product behavior. W02 and held-candidate assertions remain post-merge work |
+| macOS Intel/Apple Silicon | M01, M02, F01, M03 through M06, O1, O2, C1 | partial functional: earlier Apple Silicon configuration, phone watch, accessibility and restoration remain filed. The exact current unsigned PKG must rerun affected lifecycle/update and shared action/refresh behavior, with Tailscale pairing and cleanup still owed. Intel hardware remains unavailable. M02 and named signed-identity assertions remain post-merge trust work |
+| Linux x86_64/aarch64 X11/Wayland | L01, L02, F01, L03 through L06, O1, O2, C1 | partial functional against exact `eab017e5` on virtualized Ubuntu 26.04 x86_64 GNOME Wayland. Closed native-first and extraction sessions establish the recorded install, input, restart, runtime-inventory/execution and lifecycle assertions individually. The rebuilt public CLI now reaches manifest-download failure. Twelve unsigned integrity negatives passed. Exact app-only visuals and the complete O2 matrix remain owed; this capture limit is not an owner-only boundary. Provider/phone continuation is outside these closed records. O1 lacks an isolated offline snapshot. aarch64, X11 and bare-metal variants remain not run. C1 has scoped intermediate cleanup only. Signing does not block independent functional work |
 | WSL x64/arm64 | S01 through S06, O1, C1 | pre-merge functional qualification is not run: release-equivalent unsigned assets are required. Production attestation is a separate post-merge trust lane |
 
-The shared update-source repair invalidates carry-forward of the affected
-update assertions above. Windows W07, the failed-update slice of W09 and O2's
-Settings update controls require a rebuilt current-artifact rerun. Their
-`24ae14a` passes remain historical evidence, not current-source passes. macOS
-M06 and its O2 update controls likewise require the repaired source. WSL must
-exercise the current installed CLI update path in its still-owed qualification.
-Unchanged machine, phone and other assertions are not invalidated merely by
-this update-specific repair.
+The shared update-source repair still requires affected Windows W07,
+failed-update W09 and O2 Settings update-control reruns, plus macOS M06 and
+its update controls. WSL must exercise its current public installed CLI path.
+The shared console action/refresh repair at `bb8fb0a8` additionally requires
+affected restart/action and O2 reruns on Windows and macOS. Linux observations
+at `eab017e5` cover only their explicitly recorded assertions; they do not
+qualify another platform. Earlier platform passes remain historical for
+changed behavior. Unchanged machine and phone observations are not invalidated
+without an affected behavior change.
 
 Overall functional qualification remains **incomplete** until every applicable
 pre-merge assertion has execution evidence and cleanup against exact
@@ -1121,6 +1122,132 @@ console required fallback termination. An independent check subsequently found
 all recorded session, reader and product processes absent. This is scoped
 test cleanup, not final C1: retained artifacts, source-build work and temporary
 host accessibility settings remain for the corrected-package continuation.
+
+### Linux retained AppImage at `eab017e5`
+
+Producer run `36820973289` supplied retained artifact `11143626995` for source
+`eab017e5e100b9422d462338d661cb3cb0ad9a37`. The exact unsigned AppImage has
+577767928 bytes and SHA-256
+`c6ef7d4cdb968b10594c5228d4c004ca829811462bca6a512e6dea8b0f2992c3`.
+The following observations cover only the closed native-first and extraction
+sessions on virtualized Ubuntu 26.04 x86_64 GNOME Wayland, plus the separately
+retained development-integrity negatives. They do not include the provider
+continuation.
+
+- L01 and L02: native Decline preserved the complete scoped product inventory.
+  Installation reached success and health; Open Vadgr launched the installed
+  console. Native Close exited the installer while another application was
+  active and the installer was not active. Accessible extents do not prove
+  pixel occlusion. The ready-state CPU sample lasted 30.432530359001248 seconds:
+  0.032859574547478364 percent of one logical CPU for the process and zero for
+  the main thread. This is not a loading-state CPU verdict or a visual pass.
+- L03: all twelve individual development-integrity negatives exited one with
+  their specific refusal and no scoped mutation. Normal and extraction
+  launches reached the terms controls. Extraction Decline preserved the
+  complete product inventory; its wrapper exited, but its confined extraction
+  output remains. This is not production signature or attestation evidence.
+- L04: native name, multiline prompt, workspace and autonomy edits matched
+  independent reads. Cancellation kept the saved values. Selected public
+  `vadgr config set` edits appeared in native fields and agreed with the API.
+  CLI read-only ID assignment exited two; API ID and daemon-version changes
+  returned 422 without changing machine fields. A no-op retained the selected
+  machine snapshot. Native Restart changed the daemon identity, restored
+  health and retained that snapshot. Earlier busy trees and refused actions
+  remain retained; a native focus action preceded the successful restart.
+  These observations do not establish a new permanently stuck-refresh defect.
+- The installed read-only payload matched its inventory. Its own Python ran
+  with `-I -B` and reported Python 3.12.14 plus CUA package metadata 0.7.9.
+  Health reported computer use unavailable. No CUA bootstrap, managed-runtime
+  adoption or provider task ran in these closed sessions. The initial
+  independent health helper refused an overly narrow listener precondition;
+  its corrected, identity-bound read returned healthy. Both records remain.
+- L05: the public installed CLI and Settings reached
+  `downloading release-manifest.json`, preserving the exact package, receipt,
+  current link, healthy daemon and selected machine state. This supersedes the
+  earlier installed-alias failure for this exact artifact. Unsigned apply
+  refused; rollback stated that no verified previous generation exists.
+  Native Repair restored a deliberately altered owned AppImage to its exact
+  retained digest; the cache, receipt and machine state remained intact.
+  Positive update/rollback and downstream trust-gated fault assertions remain
+  owed against a subject that meets their prerequisites.
+- L06: cancellation preserved the installation. Uninstall without deletion
+  removed package and launch entries while retaining identical state-file
+  hashes. Same-artifact reinstall reused terms acceptance and recovered the
+  selected CLI/API state. Empty and wrong typed confirmation kept deletion
+  disabled; native readback verified both wrong and exact input. Only exact
+  confirmation enabled the separate purge, which removed the isolated
+  package and Vadgr state. The remaining checked console was stopped during
+  scoped session cleanup.
+
+Isolated-bus Orca produced actual speech callbacks, and native structured
+oracles covered input and lifecycle states. These are partial O2 observations.
+Exact unfocused application-only images, rendered-terms inspection, the
+complete accessibility matrix and phone assertions remain owed. The portal
+selector limitation is a host API boundary, not an owner-only action.
+O1 still lacks a pre-existing isolated offline snapshot. No host networking
+was changed. The closed sessions ended without their recorded product
+processes, but extraction output, retained artifacts and continuation work
+keep C1 incomplete. aarch64, X11 and bare-metal variants remain not run.
+No whole L01, O2, trust, merge or release pass is claimed.
+
+### Linux provider continuation at `eab017e5`
+
+A third isolated native session installed the same retained AppImage. Native
+API-key entry used the password field after the private screen reader exited.
+No secret value, password readback or secret-bearing capture was retained.
+One bounded Connect action selected Gemini 3.7 Flash and completed readiness.
+One separate native model selection made Gemma 4 26B A4B IT the default.
+The installed CLI agreed with both native default states. The paid action had
+a reviewed USD 1.50 allowance; this is not a measurement of actual spend.
+No computer-use task or paid fallback ran.
+
+An independent identity-bound provider API check confirmed connected,
+available, current-catalog and matching machine/provider default states.
+A native model refresh changed the catalog verification identity while
+preserving the model set and selected default. Disconnect cancellation kept
+that state. Actual disconnect remains for the attended cleanup, so the prepared
+provider is available for F01 without another paid connection check.
+
+Launch at login toggled off and on through AT-SPI. The isolated autostart file
+disappeared and returned. Its restored command uses the version directory
+rather than the installer's current alias; both resolve to the exact retained
+vehicle, and all other entry bytes match. This is not a future-update verdict.
+Legal Open launched an isolated Files window whose native frame was named
+legal. That limited observation is not exact-location or rendered-content proof.
+No exact image was obtained.
+
+The public CLI stopped the test daemon. Later native state reported the machine
+and transports unavailable. Two attempted native recovery actions were refused
+while the control was unavailable. Public CLI Start restored health and the
+same default. Its AppImage wrapper caused the strict process-discovery helper
+to reject the different executable identity; a separate check bound that
+wrapper to the exact retained artifact and the actual daemon to the expected
+ELF. Both exited naturally after the final public Stop. Session cleanup stopped
+the checked console and private reader, with no product processes in its final
+scoped inventory. Failed helper attempts remain retained.
+
+The host ADB server probe returned connection refused before a device list.
+It neither started guest ADB nor contacted a phone. F01 cannot yet reach its
+physical-camera boundary; no phone connection or scanner-ready state is claimed.
+The isolated installation, terms acceptance and provider/default remain for
+attended continuation. This is not final C1. O2 remains partial because exact
+visuals, the complete state matrix and phone controls are still owed.
+
+After those sessions closed, the original two accessibility settings and two
+accessibility-bus flags were restored to false and verified. The existing
+failed reader-service state remained unchanged, with no process or service
+reset. Thirty-two recorded private process IDs were absent. Three exact
+pre-existing processes denied environment inspection; the evidence records
+that limitation and does not claim global process absence.
+
+The sealed tampered-vehicle copy and extracted test payload were removed after
+fresh identity, retained-evidence and process-reference checks. Their allocated
+size was 1650647040 bytes; 428 retained hashes remained unchanged. Earlier
+standard Cargo clean operations removed 1705566208 and 4266606592 allocated
+bytes from the two identified build caches. The exact original artifact,
+source, evidence and isolated phone-continuation state remain. Final C1 still
+owes the attended installation, test credential/device and remaining artifact
+cleanup; none of that state is presented as already removed.
 
 ## macOS qualification history
 
