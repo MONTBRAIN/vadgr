@@ -238,6 +238,29 @@ fn native_search_and_draft_selection_do_not_mutate_until_confirmation() {
 }
 
 #[test]
+fn current_default_remains_accessible_after_draft_selection_moves() {
+    for theme in [egui::Theme::Dark, egui::Theme::Light] {
+        let (ctx, mut app) = app(theme);
+        let size = [900.0, 600.0];
+        let output = open_models(&ctx, &mut app, size);
+        let next = named(&output, &model_label(1)).0;
+        draw(&ctx, &mut app, size, vec![click(next)]);
+        let output = draw(&ctx, &mut app, size, vec![]);
+        let current = named(&output, &model_label(0)).1;
+        let selected = named(&output, &model_label(1)).1;
+        assert_eq!(current.description(), Some("Current default"));
+        assert_eq!(current.toggled(), Some(egui::accesskit::Toggled::False));
+        assert_eq!(selected.description(), None);
+        assert_eq!(selected.toggled(), Some(egui::accesskit::Toggled::True));
+        assert!(app.pending.is_none());
+        assert_eq!(
+            app.data.as_ref().unwrap().machine.default_model,
+            provider().default_model
+        );
+    }
+}
+
+#[test]
 fn another_providers_retained_model_can_become_the_machine_default() {
     let (ctx, mut app) = app(egui::Theme::Dark);
     let machine = &mut app.data.as_mut().unwrap().machine;

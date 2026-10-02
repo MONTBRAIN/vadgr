@@ -1192,6 +1192,11 @@ impl ConsoleApp {
                                 }).inner;
                                 response.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::Button,
                                     true, chosen, format!("{label} ({})", model.id)));
+                                if is_current {
+                                    ui.ctx().accesskit_node_builder(response.id, |node| {
+                                        node.set_description("Current default");
+                                    });
+                                }
                                 if response.gained_focus() {
                                     response.scroll_to_me_animation(Some(Align::Center), egui::style::ScrollAnimation::none());
                                 }
