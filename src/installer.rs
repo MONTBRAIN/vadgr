@@ -692,82 +692,101 @@ mod tests {
     fn terms_accessibility_focus_reveals_last_and_first_blocks_without_assent() {
         use egui::accesskit::{Action, ActionRequest, TreeId};
 
-        let ctx = egui::Context::default();
-        ctx.enable_accesskit();
-        crate::console::theme::install(&ctx);
-        let mut app = terms_app("1.0", None).unwrap();
-        app.preflight.as_mut().unwrap().terms_text = format!(
-            "### First heading\n\n{}\n\nLast terms paragraph.",
-            (0..50)
-                .map(|n| format!("Paragraph {n} with readable terms."))
-                .collect::<Vec<_>>()
-                .join("\n\n")
-        );
-        let mut draw = |events| {
-            let mut output = ctx.run_ui(
-                egui::RawInput {
-                    screen_rect: Some(egui::Rect::from_min_size(
-                        egui::Pos2::ZERO,
-                        egui::vec2(760.0, 620.0),
-                    )),
-                    events,
-                    ..Default::default()
-                },
-                |ui| app.render(ui),
-            );
-            output.textures_delta.clear();
-            assert!(!app.accepted);
-            assert!(app.receiver.is_none());
-            output
-        };
-        let locate = |output: &egui::FullOutput, text: &str| {
-            output
-                .platform_output
-                .accesskit_update
-                .as_ref()
-                .unwrap()
-                .nodes
-                .iter()
-                .find(|(_, node)| {
-                    node.role() == egui::accesskit::Role::Label && node.value() == Some(text)
-                })
-                .map(|(id, node)| (*id, node.clone()))
-                .unwrap()
-        };
-        let initial = draw(vec![]);
-        let (first_id, first) = locate(&initial, "First heading");
-        let (last_id, last) = locate(&initial, "Last terms paragraph.");
-        assert!(first.supports_action(Action::Focus));
-        assert!(last.supports_action(Action::Focus));
-        assert!(last.bounds().unwrap().y0 > 620.0);
-        let document_top = first.bounds().unwrap().y0;
-        for (id, label) in [
-            (last_id, "Last terms paragraph."),
-            (first_id, "First heading"),
+        for (size, theme) in [
+            ([760.0, 620.0], egui::Theme::Dark),
+            ([680.0, 540.0], egui::Theme::Dark),
+            ([760.0, 620.0], egui::Theme::Light),
+            ([680.0, 540.0], egui::Theme::Light),
         ] {
-            draw(vec![egui::Event::AccessKitActionRequest(ActionRequest {
-                action: Action::Focus,
-                target_tree: TreeId::ROOT,
-                target_node: id,
-                data: None,
-            })]);
-            let _ = draw(vec![]);
-            let settled = draw(vec![]);
-            let (_, node) = locate(&settled, label);
-            let bounds = node.bounds().unwrap();
-            assert_eq!(
-                settled
+            let ctx = egui::Context::default();
+            ctx.enable_accesskit();
+            crate::console::theme::install(&ctx);
+            ctx.set_theme(theme);
+            let mut app = terms_app("1.0", None).unwrap();
+            app.preflight.as_mut().unwrap().terms_text = format!(
+                "### First heading\n\n{}\n\nLast terms paragraph.",
+                (0..50)
+                    .map(|n| format!("Paragraph {n} with readable terms."))
+                    .collect::<Vec<_>>()
+                    .join("\n\n")
+            );
+            let mut draw = |events| {
+                let mut output = ctx.run_ui(
+                    egui::RawInput {
+                        screen_rect: Some(egui::Rect::from_min_size(egui::Pos2::ZERO, size.into())),
+                        events,
+                        ..Default::default()
+                    },
+                    |ui| app.render(ui),
+                );
+                output.textures_delta.clear();
+                assert!(!app.accepted);
+                assert!(app.receiver.is_none());
+                output
+            };
+            let locate = |output: &egui::FullOutput, text: &str| {
+                output
                     .platform_output
                     .accesskit_update
                     .as_ref()
                     .unwrap()
-                    .focus,
-                id
-            );
-            assert!(
-                bounds.y0 >= document_top && bounds.y1 < document_top + 380.0,
-                "focused terms block remains outside document viewport: {bounds:?}"
-            );
+                    .nodes
+                    .iter()
+                    .find(|(_, node)| {
+                        node.role() == egui::accesskit::Role::Label && node.value() == Some(text)
+                    })
+                    .map(|(id, node)| (*id, node.clone()))
+                    .unwrap()
+            };
+            let initial = draw(vec![]);
+            let (first_id, first) = locate(&initial, "First heading");
+            let (last_id, last) = locate(&initial, "Last terms paragraph.");
+            assert!(first.supports_action(Action::Focus));
+            assert!(last.supports_action(Action::Focus));
+            assert!(last.bounds().unwrap().y0 > f64::from(size[1]));
+            for (id, label) in [
+                (last_id, "Last terms paragraph."),
+                (first_id, "First heading"),
+            ] {
+                draw(vec![egui::Event::AccessKitActionRequest(ActionRequest {
+                    action: Action::Focus,
+                    target_tree: TreeId::ROOT,
+                    target_node: id,
+                    data: None,
+                })]);
+                let _ = draw(vec![]);
+                let settled = draw(vec![]);
+                let (_, node) = locate(&settled, label);
+                let bounds = node.bounds().unwrap();
+                let scroll_bounds = settled
+                    .platform_output
+                    .accesskit_update
+                    .as_ref()
+                    .unwrap()
+                    .nodes
+                    .iter()
+                    .find(|(_, node)| node.role() == egui::accesskit::Role::ScrollBar)
+                    .expect("the long terms document retains its scrollbar")
+                    .1
+                    .bounds()
+                    .unwrap();
+                assert_eq!(
+                    settled
+                        .platform_output
+                        .accesskit_update
+                        .as_ref()
+                        .unwrap()
+                        .focus,
+                    id
+                );
+                assert!(
+                    bounds.y0 >= scroll_bounds.y0
+                        && bounds.y1 <= scroll_bounds.y1
+                        && bounds.x0 >= 0.0
+                        && bounds.x1 <= scroll_bounds.x0,
+                    "focused terms block {bounds:?} exceeds actual scroll viewport {scroll_bounds:?}; window {size:?}, theme {theme:?}"
+                );
+            }
         }
     }
 
