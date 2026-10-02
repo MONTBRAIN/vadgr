@@ -335,27 +335,41 @@ impl eframe::App for InstallerApp {
 }
 
 #[cfg(target_os = "linux")]
+fn terms_label(ui: &mut egui::Ui, text: impl Into<egui::WidgetText>) {
+    // Native focus must reveal the document block without pointer scrolling
+    // or relying on a screen reader changing egui's separate focus option.
+    let response = ui.add(egui::Label::new(text).sense(egui::Sense::focusable_noninteractive()));
+    if response.gained_focus() {
+        response.scroll_to_me_animation(
+            Some(egui::Align::Center),
+            egui::style::ScrollAnimation::none(),
+        );
+    }
+}
+
+#[cfg(target_os = "linux")]
 fn show_terms(ui: &mut egui::Ui, terms: &str) {
     // The reviewed text uses headings, strong spans and unordered lists. Render
     // those without changing the bytes verified and recorded by the installer.
     for block in terms.split("\n\n").filter(|block| !block.trim().is_empty()) {
         let block = block.trim();
         if let Some(heading) = block.strip_prefix("### ") {
-            ui.label(RichText::new(heading).heading());
+            terms_label(ui, RichText::new(heading).heading());
         } else if let Some(heading) = block.strip_prefix("#### ") {
             ui.add_space(6.0);
-            ui.label(
+            terms_label(
+                ui,
                 RichText::new(heading)
                     .family(crate::console::theme::medium_family())
                     .size(15.0),
             );
         } else if block.lines().all(|line| line.starts_with("- ")) {
             for line in block.lines() {
-                ui.label(terms_inline(ui, &format!("• {}", &line[2..])));
+                terms_label(ui, terms_inline(ui, &format!("• {}", &line[2..])));
             }
         } else {
             let paragraph = block.lines().map(str::trim).collect::<Vec<_>>().join(" ");
-            ui.label(terms_inline(ui, &paragraph));
+            terms_label(ui, terms_inline(ui, &paragraph));
         }
     }
 }
@@ -672,6 +686,89 @@ mod tests {
             .filter(|word| *word != "•")
             .collect();
         assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn terms_accessibility_focus_reveals_last_and_first_blocks_without_assent() {
+        use egui::accesskit::{Action, ActionRequest, TreeId};
+
+        let ctx = egui::Context::default();
+        ctx.enable_accesskit();
+        crate::console::theme::install(&ctx);
+        let mut app = terms_app("1.0", None).unwrap();
+        app.preflight.as_mut().unwrap().terms_text = format!(
+            "### First heading\n\n{}\n\nLast terms paragraph.",
+            (0..50)
+                .map(|n| format!("Paragraph {n} with readable terms."))
+                .collect::<Vec<_>>()
+                .join("\n\n")
+        );
+        let mut draw = |events| {
+            let mut output = ctx.run_ui(
+                egui::RawInput {
+                    screen_rect: Some(egui::Rect::from_min_size(
+                        egui::Pos2::ZERO,
+                        egui::vec2(760.0, 620.0),
+                    )),
+                    events,
+                    ..Default::default()
+                },
+                |ui| app.render(ui),
+            );
+            output.textures_delta.clear();
+            assert!(!app.accepted);
+            assert!(app.receiver.is_none());
+            output
+        };
+        let locate = |output: &egui::FullOutput, text: &str| {
+            output
+                .platform_output
+                .accesskit_update
+                .as_ref()
+                .unwrap()
+                .nodes
+                .iter()
+                .find(|(_, node)| {
+                    node.role() == egui::accesskit::Role::Label && node.value() == Some(text)
+                })
+                .map(|(id, node)| (*id, node.clone()))
+                .unwrap()
+        };
+        let initial = draw(vec![]);
+        let (first_id, first) = locate(&initial, "First heading");
+        let (last_id, last) = locate(&initial, "Last terms paragraph.");
+        assert!(first.supports_action(Action::Focus));
+        assert!(last.supports_action(Action::Focus));
+        assert!(last.bounds().unwrap().y0 > 620.0);
+        let document_top = first.bounds().unwrap().y0;
+        for (id, label) in [
+            (last_id, "Last terms paragraph."),
+            (first_id, "First heading"),
+        ] {
+            draw(vec![egui::Event::AccessKitActionRequest(ActionRequest {
+                action: Action::Focus,
+                target_tree: TreeId::ROOT,
+                target_node: id,
+                data: None,
+            })]);
+            let _ = draw(vec![]);
+            let settled = draw(vec![]);
+            let (_, node) = locate(&settled, label);
+            let bounds = node.bounds().unwrap();
+            assert_eq!(
+                settled
+                    .platform_output
+                    .accesskit_update
+                    .as_ref()
+                    .unwrap()
+                    .focus,
+                id
+            );
+            assert!(
+                bounds.y0 >= document_top && bounds.y1 < document_top + 380.0,
+                "focused terms block remains outside document viewport: {bounds:?}"
+            );
+        }
     }
 
     #[test]
