@@ -966,7 +966,8 @@ defines source types and stream/session scope, not this chooser sequence.
 
 Keep this gate for every native desktop release. Before the first GUI cell,
 enumerate its installer, console, dialog and lifecycle states. Map each state
-to its existing functional cell and approved mockup. Capture the exact installed
+to its functional cell, a dedicated Part V cell and approved mockup. Do not
+replace the dedicated visual cells with a general accessibility row. Capture the exact installed
 artifact through the required native application-only path, then open and
 inspect each image at its intended reading size. Record the artifact digest,
 host/session, window size, display scale, theme, capture digest and observation.
@@ -1334,6 +1335,101 @@ evidence is a claim.>
 usually: the journal is the proof and the status is not, because a run ends
 `completed` on the legacy path too.>
 
+## Part V: native lists and dialogs visual qualification
+
+Keep these nine cells in every minor with native graphical surfaces. Replace
+the surface examples with the complete shipped inventory; do not sample only
+the first model, provider or dialog. Delete this part only when the product has
+no native GUI, and state that reason. These are pre-merge functional cells;
+production signatures do not block their unsigned qualification. WSL is
+`Not-Needed` for this part because its product is CLI-only. It does not inherit
+the Windows GUI result. Expand supported architectures and desktop sessions
+inside each host ledger; a result on one variant never qualifies another.
+
+### Visual matrix and independent oracles
+
+Before execution, list every shipped surface in these three groups:
+
+1. Provider cards, the provider chooser, authentication-method choices and every
+   model/default-model list or chooser.
+2. Every other list, including devices, grants, skills, MCP servers and any
+   shipped legal, diagnostics or settings list.
+3. Every dialog and installer frame, including edit, connection, cancellation,
+   destructive confirmation, terms, progress, error and success views.
+
+For every surface, enumerate each reachable empty, populated, loading, error,
+selected, unselected, focused and disabled state. Add the shipped confirmation,
+success and cancellation states. Record an exact reason when a state does not
+exist for that surface. A shipped state that cannot be reached with available
+prerequisites stays `not run` or `blocked`; do not remove it from the matrix.
+Use isolated nonsecret data, including long labels and multiline text where
+the public product permits them. For provider/model lists, use actual catalog
+entries; do not invent a model or rewrite the catalog to manufacture a pass.
+Include enough real entries to exercise scrolling and inspect the first,
+middle and last entries, selected state and action row.
+
+Cross that inventory with default/full-window and minimum supported sizes,
+both supported themes and every supported scale required by the platform
+design. Record actual native dimensions, scale and appearance, not requested
+values. Name every combination in a ledger before execution and count them.
+Configured minimums, offscreen tests and screenshots at another scale are not
+native visual results. If the interface cannot safely set a supported variant,
+record the exact capability probe and leave that variant owed. Never modify
+host networking or owner data to manufacture loading, failure or empty states.
+
+Drive ordinary controls through native accessibility: Windows UIA, macOS AX,
+and the released external CUA MCP accessibility tier on Linux. Reacquire state
+after every action. Use the native application-only capture policy and the
+current runbook's explicit Linux exception, if one exists, without expanding
+it. Open and inspect each actual image at its intended reading size against
+the approved mockup for that surface. A saved image, accessible tree, source
+review, unit test or backend success alone never establishes a visual pass.
+
+Inspect hierarchy, grouping, row and section spacing, padding, alignment,
+contrast, text wrapping and control reachability. Compare measured geometry
+and contrast with the approved design's values where specified. Record visible
+deviations; do not invent a new aesthetic threshold. Check long names, selected
+and disabled contrast, clipped or overlapping text, horizontal overflow,
+scroll containment, stable dialog/footer placement and reachable actions at
+both ends of long content. Installer frames must retain their approved brand,
+progress and content hierarchy. An accessible but visually hidden action fails.
+
+Corroborate the displayed rows, selection and enabled states with the public
+API, CLI, package receipt or filesystem. After selection/save, verify the
+independent persisted value; after cancellation, verify it is unchanged.
+Do not submit a billed task merely to inspect a model choice. Any required
+provider validation still obeys the model-selection and cost ceilings above.
+Never capture credentials, account identifiers, pairing material or private
+endpoints. An unsafe required image remains an explicit evidence boundary,
+not a reason to retain it or pretend a partial image proves the whole view.
+
+Record each image digest, exact artifact and source, mockup revision, host,
+surface/state, actual size/scale/theme, inspected observations and independent
+oracle. Preserve failed images and failed actions, then fix, rebuild and rerun
+every affected combination. A shared picker, dialog or theme change requires
+affected native Windows, macOS and Linux reruns. Historical O2 or functional
+results do not automatically pass these cells. Restore selected models, test
+data, window state, appearance, scale and assistive settings after each group.
+
+| cell | platform | precondition and setup | action and expected visual result | independent oracle | evidence and cleanup | result |
+|---|---|---|---|---|---|---|
+| VW01 | native Windows, supported architectures | exact installed artifact; safe provider/catalog state and complete group 1 matrix | UIA drives provider/model lists; inspect actual app-only images against the approved grouping, spacing, contrast and overflow rules | provider/catalog API plus persisted default; cancellation preserves it | private per-combination records; restore provider/default state | not run: this minor's Windows provider/model matrix must execute |
+| VM01 | macOS, supported architectures | exact installed artifact; safe provider/catalog state and complete group 1 matrix | AX drives provider/model lists; inspect actual app-only images against the approved grouping, spacing, contrast and overflow rules | provider/catalog API plus persisted default; cancellation preserves it | private per-combination records; restore provider/default state | not run: this minor's macOS provider/model matrix must execute |
+| VL01 | native Linux, supported architectures and sessions | exact installed artifact; external MCP driver; safe provider/catalog state and complete group 1 matrix | MCP accessibility drives provider/model lists; inspect authorized images against the approved grouping, spacing, contrast and overflow rules | provider/catalog API plus persisted default; cancellation preserves it | private per-combination records; restore provider/default state | not run: this minor's Linux provider/model matrix must execute |
+| VW02 | native Windows, supported architectures | exact artifact and complete group 2 matrix; isolate list data | UIA drives every other shipped list, including long and scrollable content; inspect actual images at every required variant | corresponding public API, CLI or owned-file inventory | private per-combination records; remove only test entries and restore settings | not run: this minor's Windows other-list matrix must execute |
+| VM02 | macOS, supported architectures | exact artifact and complete group 2 matrix; isolate list data | AX drives every other shipped list, including long and scrollable content; inspect actual images at every required variant | corresponding public API, CLI or owned-file inventory | private per-combination records; remove only test entries and restore settings | not run: this minor's macOS other-list matrix must execute |
+| VL02 | native Linux, supported architectures and sessions | exact artifact, external MCP driver and complete group 2 matrix; isolate list data | MCP accessibility drives every other shipped list, including long and scrollable content; inspect authorized images at every required variant | corresponding public API, CLI or owned-file inventory | private per-combination records; remove only test entries and restore settings | not run: this minor's Linux other-list matrix must execute |
+| VW03 | native Windows, supported architectures | exact artifact and complete group 3 matrix; isolated lifecycle state | UIA opens every dialog and installer frame; inspect hierarchy, wrapping, focus, disabled states, footer reachability and cancellation | independent state before/after; package/process oracle for lifecycle frames | private per-combination records; restore preserved state and owned settings | not run: this minor's Windows dialog/frame matrix must execute |
+| VM03 | macOS, supported architectures | exact artifact and complete group 3 matrix; isolated lifecycle state | AX opens every dialog and installer frame; inspect hierarchy, wrapping, focus, disabled states, footer reachability and cancellation | independent state before/after; package/process oracle for lifecycle frames | private per-combination records; restore preserved state and owned settings | not run: this minor's macOS dialog/frame matrix must execute |
+| VL03 | native Linux, supported architectures and sessions | exact artifact, external MCP driver and complete group 3 matrix; isolated lifecycle state | MCP accessibility opens every dialog and installer frame; inspect hierarchy, wrapping, focus, disabled states, footer reachability and cancellation | independent state before/after; package/process oracle for lifecycle frames | private per-combination records; restore preserved state and owned settings | not run: this minor's Linux dialog/frame matrix must execute |
+
+Each row is independently runnable from its named setup. Only an unavoidable
+protected permission or physical device step requires the owner; prepare it
+first. Continue independent surfaces while that exact assertion is pending.
+Include Part V in Coverage, the per-OS table and the completion ledger. Count
+nine cells plus the minor's other cells; separately report the expanded matrix
+combinations actually observed. A partial combination matrix is not a cell pass.
+
 ## Repeatability - **three independent passes**
 
 <Three agents, concurrently, each with its own port, database and daemon. See
@@ -1408,6 +1504,7 @@ actually driven on that OS.
 | automated gate: build, test, lint | | | | | |
 | surface coverage | | | | | |
 | Part <X> | | | | | |
+| Part V | not run: native list/dialog matrix owed | not run: native list/dialog matrix owed | not run: native list/dialog matrix owed | Not-Needed: CLI-only product | name VL01-VL03, VM01-VM03 and VW01-VW03; retain unavailable variant reasons |
 | installed product on the host | | | | | name `OS-L`, `OS-M`, `OS-W`, `OS-Q` |
 | **Overall** | | | | | |
 

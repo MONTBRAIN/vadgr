@@ -111,7 +111,7 @@ oracle does. Mixed cells are split below and retain every original assertion.
 
 | lane | assertions in this minor | execution rule | completion meaning |
 |---|---|---|---|
-| pre-merge functional qualification | `W01` terms/zero-mutation and ordinary unsigned install observations; `F01`; `W03` unsigned-state observation; `W04`; `W05`; the restart, private-runtime inventory and truthful unavailable-runtime slices of `W06`; the reachable download/failure-preservation slice of `W07`; `W08`; the first-release failed-update preservation and truthful unavailable-rollback slices of `W09`; isolated preservation, reinstall and explicit purge from `W10`; functional slices of `M01`, `M03` through `M06`, `L01` through `L06` and `S01` through `S06`; `O1`; `O2`; `C1` | run against exact release-equivalent unsigned artifacts on every required available host; absence of a signing identity is not a blocker | formal functional merge qualification; never a signature, trust or release pass |
+| pre-merge functional qualification | `W01` terms/zero-mutation and ordinary unsigned install observations; `F01`; `W03` unsigned-state observation; `W04`; `W05`; the restart, private-runtime inventory and truthful unavailable-runtime slices of `W06`; the reachable download/failure-preservation slice of `W07`; `W08`; the first-release failed-update preservation and truthful unavailable-rollback slices of `W09`; isolated preservation, reinstall and explicit purge from `W10`; functional slices of `M01`, `M03` through `M06`, `L01` through `L06` and `S01` through `S06`; all nine Part V visual cells; `O1`; `O2`; `C1` | run against exact release-equivalent unsigned artifacts on every required available host; absence of a signing identity is not a blocker | formal functional merge qualification; never a signature, trust or release pass |
 | post-merge trust qualification | `W02`; `W03` publisher, chain and timestamp assertions; the authorized bundled-CUA task slice of `W06`; the verification, post-verification staging, dependency, daemon-stop, commit and health-check slices of `W07`; `W09` retained-artifact signature assertions; `M02`; `M03` Developer ID, hardened-runtime, notarization, staple and designated-requirement assertions; signed identity slices in `M05`; final vehicle and installed-payload trust assertions on Linux/WSL where named | run only against the immutable held candidate from the exact merged commit | required before tag and release; these remain owed until that subject exists |
 
 No accessibility, phone, transport, isolated lifecycle, offline or cleanup
@@ -432,7 +432,8 @@ Inspect unchecked acceptance, visibly disabled installation and the decline
 path. Repeat the relevant installation cell for its progress, failure and
 success states, including L02's available ordinary-install slice.
 
-For W04 through W10, M04 through M06, L04 through L06, F01 and O2, inspect every
+For W04 through W10, M04 through M06, L04 through L06, F01, O2 and the dedicated
+Part V cells, inspect every
 applicable console and dialog state: empty, populated, loading, failed,
 disabled, focused, destructive confirmation and success. Check readability,
 wrapping, scrolling, clipping, contrast, alignment, spacing, missing glyphs and
@@ -442,6 +443,10 @@ fresh accessibility tree and independent machine oracle. Use isolated safe data;
 never retain secret-bearing captures.
 
 Repeat affected visual checks after a rendering fix and rebuilt artifact.
+Part V records native provider/model lists, all other shipped lists, and every
+dialog/installer frame separately. An O2 accessibility result cannot close it.
+The approved focused-region exception remains Linux-only and does not
+prove the independent unfocused-capture capability.
 Verify the installed toolkit's size, scale and appearance interfaces first.
 Configured minimum sizes are not observed passes. Do not invent unsupported
 accessibility methods or use GTK or X11 environment overrides as Wayland scale
@@ -678,6 +683,110 @@ oracles. Windows executes only the Windows rows in this session.
 | S05 | WSL x64/arm64 | fault-injection distribution | S04 complete | retained release-equivalent previous/next archives; held artifacts for trust assertions | inject failures, update, repair and rollback through `install.sh` | `current`, receipts, health and state identity | prior generation remains runnable and rollback is verified/local | private WSL lifecycle capture | restore fixed version | none | functional lifecycle and fault assertions gate merge; retained-artifact trust remains owed against the held candidate |
 | S06 | WSL x64/arm64 | isolated E2E state only | S05 functional slice complete | agent records isolated state identity | agent drives uninstall-preserve/reinstall, then `--delete-owner-state` and types the confirmation | exact Linux roots and Windows no-change snapshot | state survives first cycle; separate purge removes only isolated WSL Vadgr state | private WSL uninstall capture | agent removes test assets | no owner action | pre-merge functional assertion: run against the exact release-equivalent assets; no signing identity is required |
 
+## Part V: native lists and dialogs visual qualification
+
+These nine mandatory pre-merge visual cells supplement O2 and the existing
+functional cells. They do not replace accessibility, screen-reader or backend
+qualification. The complete runbook now contains 42 cells: the existing 33
+plus three visual groups on each of three native operating systems. WSL is
+`Not-Needed` for Part V because its product is CLI-only. It does not inherit
+Windows GUI results. Expand supported architectures and desktop sessions
+inside each host ledger; a result on one variant never qualifies another.
+
+### Visual matrix and independent oracles
+
+Before execution, list every shipped surface in these three groups:
+
+1. Provider cards, Connect provider, authentication-method choices and Choose
+   the default model, including every available provider and real model row.
+2. Device rows, required and optional MCP-server/skill grants, Machine and
+   Settings list-like sections, and any bundled legal/diagnostic list exposed
+   by the installed package. Audit the shipped surface inventory before driving
+   it; add an overlooked list rather than treating these examples as a sample.
+3. Pair a device, Unpair, Machine settings, provider authentication and masked
+   key entry, Connect provider, Choose the default model, Disconnect provider
+   and Uninstall Vadgr dialogs; installer terms, progress, failure, success and
+   native confirmation frames. Group 1 observations may also prove the same
+   dialog's layout only when source, bytes, state and visual oracle all match.
+
+The applicable functional cells are W01/W04-W10, M01/M04-M06, L01/L02/L04-L06
+and F01. Phone-dependent device/pairing assertions remain separately pending
+when the handset is absent; they do not block provider, grants or other dialog
+work. This part never authorizes retaining a QR code or another secret.
+
+For every surface, enumerate each reachable empty, populated, loading, error,
+selected, unselected, focused and disabled state. Add the shipped confirmation,
+success and cancellation states. Record an exact reason when a state does not
+exist for that surface. A shipped state that cannot be reached with available
+prerequisites stays `not run` or `blocked`; do not remove it from the matrix.
+Use isolated nonsecret data, including long labels and multiline text where
+the public product permits them. For provider/model lists, use actual catalog
+entries; do not invent a model or rewrite the catalog to manufacture a pass.
+Include enough real entries to exercise scrolling and inspect the first,
+middle and last entries, selected state and action row.
+
+Cross that inventory with default/full-window and minimum supported sizes,
+both supported themes and every supported scale required by the platform
+design. Record actual native dimensions, scale and appearance, not requested
+values. Name every combination in a ledger before execution and count them.
+Configured minimums, offscreen tests and screenshots at another scale are not
+native visual results. If the interface cannot safely set a supported variant,
+record the exact capability probe and leave that variant owed. Never modify
+host networking or owner data to manufacture loading, failure or empty states.
+
+Drive ordinary controls through native accessibility: Windows UIA, macOS AX,
+and the released external CUA MCP accessibility tier on Linux. Reacquire state
+after every action. Use the native application-only capture policy and the
+current runbook's explicit Linux exception, if one exists, without expanding
+it. Open and inspect each actual image at its intended reading size against
+the approved mockup for that surface. A saved image, accessible tree, source
+review, unit test or backend success alone never establishes a visual pass.
+
+Inspect hierarchy, grouping, row and section spacing, padding, alignment,
+contrast, text wrapping and control reachability. Compare measured geometry
+and contrast with the approved design's values where specified. Record visible
+deviations; do not invent a new aesthetic threshold. Check long names, selected
+and disabled contrast, clipped or overlapping text, horizontal overflow,
+scroll containment, stable dialog/footer placement and reachable actions at
+both ends of long content. Installer frames must retain their approved brand,
+progress and content hierarchy. An accessible but visually hidden action fails.
+
+Corroborate the displayed rows, selection and enabled states with the public
+API, CLI, package receipt or filesystem. After selection/save, verify the
+independent persisted value; after cancellation, verify it is unchanged.
+Do not submit a billed task merely to inspect a model choice. Any required
+provider validation still obeys the model-selection and cost ceilings above.
+Never capture credentials, account identifiers, pairing material or private
+endpoints. An unsafe required image remains an explicit evidence boundary,
+not a reason to retain it or pretend a partial image proves the whole view.
+
+Record each image digest, exact artifact and source, mockup revision, host,
+surface/state, actual size/scale/theme, inspected observations and independent
+oracle. Preserve failed images and failed actions, then fix, rebuild and rerun
+every affected combination. A shared picker, dialog or theme change requires
+affected native Windows, macOS and Linux reruns. Historical O2 or functional
+results do not automatically pass these cells. Restore selected models, test
+data, window state, appearance, scale and assistive settings after each group.
+
+| cell | platform | precondition and setup | action and expected visual result | independent oracle | evidence and cleanup | result |
+|---|---|---|---|---|---|---|
+| VW01 | native Windows, supported architectures | exact installed artifact; safe provider/catalog state and complete group 1 matrix | UIA drives provider/model lists; inspect actual app-only images against the approved grouping, spacing, contrast and overflow rules | provider/catalog API plus persisted default; cancellation preserves it | private per-combination records; restore provider/default state | not run: the current 0.5.0 Windows provider/model matrix must execute |
+| VM01 | macOS, supported architectures | exact installed artifact; safe provider/catalog state and complete group 1 matrix | AX drives provider/model lists; inspect actual app-only images against the approved grouping, spacing, contrast and overflow rules | provider/catalog API plus persisted default; cancellation preserves it | private per-combination records; restore provider/default state | not run: the current 0.5.0 macOS provider/model matrix must execute |
+| VL01 | native Linux, supported architectures and sessions | exact installed artifact; external MCP driver; safe provider/catalog state and complete group 1 matrix | MCP accessibility drives provider/model lists; inspect authorized images against the approved grouping, spacing, contrast and overflow rules | provider/catalog API plus persisted default; cancellation preserves it | private per-combination records; restore provider/default state | not run: the current 0.5.0 Linux provider/model matrix must execute |
+| VW02 | native Windows, supported architectures | exact artifact and complete group 2 matrix; isolate list data | UIA drives every other shipped list, including long and scrollable content; inspect actual images at every required variant | corresponding public API, CLI or owned-file inventory | private per-combination records; remove only test entries and restore settings | not run: the current 0.5.0 Windows other-list matrix must execute |
+| VM02 | macOS, supported architectures | exact artifact and complete group 2 matrix; isolate list data | AX drives every other shipped list, including long and scrollable content; inspect actual images at every required variant | corresponding public API, CLI or owned-file inventory | private per-combination records; remove only test entries and restore settings | not run: the current 0.5.0 macOS other-list matrix must execute |
+| VL02 | native Linux, supported architectures and sessions | exact artifact, external MCP driver and complete group 2 matrix; isolate list data | MCP accessibility drives every other shipped list, including long and scrollable content; inspect authorized images at every required variant | corresponding public API, CLI or owned-file inventory | private per-combination records; remove only test entries and restore settings | not run: the current 0.5.0 Linux other-list matrix must execute |
+| VW03 | native Windows, supported architectures | exact artifact and complete group 3 matrix; isolated lifecycle state | UIA opens every dialog and installer frame; inspect hierarchy, wrapping, focus, disabled states, footer reachability and cancellation | independent state before/after; package/process oracle for lifecycle frames | private per-combination records; restore preserved state and owned settings | not run: the current 0.5.0 Windows dialog/frame matrix must execute |
+| VM03 | macOS, supported architectures | exact artifact and complete group 3 matrix; isolated lifecycle state | AX opens every dialog and installer frame; inspect hierarchy, wrapping, focus, disabled states, footer reachability and cancellation | independent state before/after; package/process oracle for lifecycle frames | private per-combination records; restore preserved state and owned settings | not run: the current 0.5.0 macOS dialog/frame matrix must execute |
+| VL03 | native Linux, supported architectures and sessions | exact artifact, external MCP driver and complete group 3 matrix; isolated lifecycle state | MCP accessibility opens every dialog and installer frame; inspect hierarchy, wrapping, focus, disabled states, footer reachability and cancellation | independent state before/after; package/process oracle for lifecycle frames | private per-combination records; restore preserved state and owned settings | not run: the current 0.5.0 Linux dialog/frame matrix must execute |
+
+Each row is independently runnable from its named setup. Only an unavoidable
+protected permission or physical device step requires the owner; prepare it
+first. Continue independent surfaces while that exact assertion is pending.
+Include Part V in Coverage, the per-OS table and the completion ledger. Count
+nine cells plus the minor's other cells; separately report the expanded matrix
+combinations actually observed. A partial combination matrix is not a cell pass.
+
 ## Part O: shared offline, accessibility and cleanup cells
 
 | cell | operating system and architecture | owner/environment requirements | precondition | setup | exact action | oracle | expected result | evidence boundary | cleanup | cost, accounts, devices and permissions | result |
@@ -690,6 +799,7 @@ oracles. Windows executes only the Windows rows in this session.
 
 | Part | Windows native | macOS | native Linux | WSL |
 |---|---|---|---|---|
+| V: native lists and dialogs visual qualification | not run: VW01-VW03 require current artifact images and complete variant ledger; historical O2 remains separate | not run: VM01-VM03 require current artifact images and complete variant ledger; historical O2 remains separate | not run: VL01-VL03 require current artifact images and complete variant ledger; development observations cannot qualify unobserved variants | Not-Needed: WSL product is CLI-only; no native list or dialog surface |
 | H: protected owner boundaries | partial functional: F01 QR/Built-in and typed-code/Tailscale completed; W02 is a post-merge trust assertion | partial functional: physical saved-name QR/Built-in pairing completed; M02 is a post-merge signed-identity assertion | partial functional: exact `eab017e5` installed without a package-manager prompt on the available FUSE host. The missing-FUSE variant was not exercised. F01 remains owed: the current host ADB server probe returned connection refused before listing a phone. The provider/default setup is preserved; no scanner-ready claim is made | Not-Needed: WSL has no native GUI or protected installer prompt |
 | W: Windows cells | historical pre-merge functional qualification completed at `24ae14a` on available x64 hardware; shared update changes and the `bb8fb0a8` console action/refresh fix require affected update, restart/action and O2 reruns against a rebuilt package. Unchanged observations remain filed; W11 producer coverage is not ARM64 installed-product coverage. ARM64 installed-product hardware is unavailable. Held-candidate-only slices remain separate | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells |
 | M: macOS cells | Not-Needed: macOS-only cells | partial functional: Apple Silicon installation, native configuration, phone watch and restart observations are filed; the host must build the exact current release-equivalent unsigned PKG and complete affected lifecycle and cleanup before merge. Intel hardware remains unavailable. Signed identity assertions are tracked separately | Not-Needed: macOS-only cells | Not-Needed: macOS-only cells |
@@ -697,13 +807,19 @@ oracles. Windows executes only the Windows rows in this session.
 | S: WSL cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | not run: release-equivalent unsigned WSL assets have not completed functional qualification; signing is not the blocker |
 | O: shared offline, accessibility and cleanup cells | prior O1 and historical `24ae14a` cleanup remain filed; shared update and console action/refresh changes require current-package O2 reruns. Earlier Narrator, UIA and unfocused capture observations do not qualify changed behavior | partial functional: earlier native focus, VoiceOver speech, state matrix and restoration remain filed; current update and action/refresh controls, exact final offline lifecycle and cleanup remain owed | partial at exact `eab017e5`: native input, disabled/destructive states, populated-provider controls, startup toggle, daemon loss/recovery and isolated Orca callbacks were observed. Exact images and the whole O2 matrix remain owed. O1 lacks an isolated offline snapshot. Recorded test processes exited and original accessibility flags were restored. Two generated payloads were removed; the installation/provider state and original artifact remain for phone continuation, so C1 is partial | not run: host functional qualification is incomplete |
 
+The dedicated Part V rows above are new obligations, not retroactive passes
+from earlier accessibility observations. A shared provider/model picker repair
+requires VW01, VM01 and VL01 reruns against rebuilt installed artifacts on all
+three native operating systems. Any affected shared dialog or list also reruns
+its group 2 or 3 combinations. Preserve prior images and results as historical.
+
 ## Completion ledger
 
 | host | cells | result |
 |---|---:|---|
-| Windows x64/arm64 | W01, W02, F01, W03 through W11, O1, O2, C1 | historical qualification at `24ae14a` is not a current-source pass for shared update changes or the `bb8fb0a8` console action/refresh fix. Rebuild and rerun affected W07, failed-update W09, W06 restart/action and O2 controls. Preserve unchanged observations, including prior O1, separately. W11 producer results do not establish unavailable ARM64 installed-product behavior. W02 and held-candidate assertions remain post-merge work |
-| macOS Intel/Apple Silicon | M01, M02, F01, M03 through M06, O1, O2, C1 | partial functional: earlier Apple Silicon configuration, phone watch, accessibility and restoration remain filed. The exact current unsigned PKG must rerun affected lifecycle/update and shared action/refresh behavior, with Tailscale pairing and cleanup still owed. Intel hardware remains unavailable. M02 and named signed-identity assertions remain post-merge trust work |
-| Linux x86_64/aarch64 X11/Wayland | L01, L02, F01, L03 through L06, O1, O2, C1 | partial functional against exact `eab017e5` on virtualized Ubuntu 26.04 x86_64 GNOME Wayland. Three closed sessions record install, input, restart, private runtime, provider and lifecycle assertions individually. Public update failure and twelve unsigned integrity negatives passed. Exact app-only visuals and complete O2 remain owed; capture is a host API limit, not an owner-only action. F01 is blocked before device enumeration by host ADB connection refusal. O1 lacks an isolated offline snapshot. aarch64, X11 and bare-metal variants remain not run. Processes and accessibility settings were cleaned up, but C1 preserves attended installation/provider state and retained artifacts. Signing does not block independent functional work |
+| Windows x64/arm64 | W01, W02, F01, W03 through W11, VW01 through VW03, O1, O2, C1 | historical qualification at `24ae14a` is not a current-source pass for shared update changes or the `bb8fb0a8` console action/refresh fix. Rebuild and rerun affected W07, failed-update W09, W06 restart/action and O2 controls. Preserve unchanged observations, including prior O1, separately. W11 producer results do not establish unavailable ARM64 installed-product behavior. W02 and held-candidate assertions remain post-merge work |
+| macOS Intel/Apple Silicon | M01, M02, F01, M03 through M06, VM01 through VM03, O1, O2, C1 | partial functional: earlier Apple Silicon configuration, phone watch, accessibility and restoration remain filed. The exact current unsigned PKG must rerun affected lifecycle/update and shared action/refresh behavior, with Tailscale pairing and cleanup still owed. Intel hardware remains unavailable. M02 and named signed-identity assertions remain post-merge trust work |
+| Linux x86_64/aarch64 X11/Wayland | L01, L02, F01, L03 through L06, VL01 through VL03, O1, O2, C1 | partial functional against exact `eab017e5` on virtualized Ubuntu 26.04 x86_64 GNOME Wayland. Three closed sessions record install, input, restart, private runtime, provider and lifecycle assertions individually. Public update failure and twelve unsigned integrity negatives passed. Exact app-only visuals and complete O2 remain owed; capture is a host API limit, not an owner-only action. F01 is blocked before device enumeration by host ADB connection refusal. O1 lacks an isolated offline snapshot. aarch64, X11 and bare-metal variants remain not run. Processes and accessibility settings were cleaned up, but C1 preserves attended installation/provider state and retained artifacts. Signing does not block independent functional work |
 | WSL x64/arm64 | S01 through S06, O1, C1 | pre-merge functional qualification is not run: release-equivalent unsigned assets are required. Production attestation is a separate post-merge trust lane |
 
 The shared update-source repair still requires affected Windows W07,
