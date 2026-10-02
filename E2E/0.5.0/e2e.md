@@ -751,6 +751,29 @@ scroll containment, stable dialog/footer placement and reachable actions at
 both ends of long content. Installer frames must retain their approved brand,
 progress and content hierarchy. An accessible but visually hidden action fails.
 
+**Contrast is checked on the installed rendering, in both light and dark.**
+For each shipped control, inspect normal, hover, keyboard-focus, pressed,
+selected and disabled states wherever implemented. Record the actual painted
+text/icon foreground and adjacent control/background, including focus and
+selection indicators. Check these against the approved design and applicable
+accessibility contrast floors. Theme constants, accessibility names and source
+regressions cannot establish the colors a user actually sees. Black text on a
+dark button, or another visibly unreadable foreground/background combination,
+is a **FAIL** and blocks the affected visual verdict even when activation works.
+
+Use the approved disabled-state styling and readable explanatory copy; disabled
+controls must remain distinguishable from enabled controls. Do not invent a
+mandatory contrast ratio for inactive controls where the applicable standard
+exempts them. Mark a state not applicable only when the product does not
+implement it. A supported state that the available interface did not exercise
+remains owed with the exact boundary, not implicitly passed.
+
+Retain the failing installed image with its artifact identity. A source repair
+or green widget test does not change that result. Rebuild, verify the new
+installed bytes, and inspect the affected state/theme combinations again before
+recording a repaired visual pass. Keep the failed and repaired subjects separate.
+
+
 Corroborate the displayed rows, selection and enabled states with the public
 API, CLI, package receipt or filesystem. After selection/save, verify the
 independent persisted value; after cancellation, verify it is unchanged.
