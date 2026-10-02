@@ -6532,6 +6532,7 @@ dependencies = [
  "webpki-roots 1.0.9",
  "windows-sys 0.61.2",
  "x509-cert",
+ "zbus",
  "zip",
 ]
 

@@ -6,6 +6,9 @@ use std::sync::atomic::{AtomicBool, Ordering};
 
 static DARK_MODE: AtomicBool = AtomicBool::new(true);
 
+#[cfg(target_os = "linux")]
+mod linux;
+
 #[derive(Clone, Copy)]
 struct Palette {
     bg: Color32,
@@ -63,6 +66,8 @@ pub fn install(ctx: &egui::Context) {
     ctx.set_theme(egui::ThemePreference::System);
     ctx.set_style_of(Theme::Dark, style(DARK, true));
     ctx.set_style_of(Theme::Light, style(LIGHT, false));
+    #[cfg(all(target_os = "linux", not(test)))]
+    linux::start();
     refresh(ctx);
 }
 
@@ -121,6 +126,8 @@ pub fn medium_family() -> FontFamily {
 }
 
 pub fn refresh(ctx: &egui::Context) {
+    #[cfg(all(target_os = "linux", not(test)))]
+    linux::refresh(ctx);
     DARK_MODE.store(ctx.theme() == Theme::Dark, Ordering::Relaxed);
 }
 

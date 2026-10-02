@@ -7,7 +7,7 @@ license = "Apache-2.0"
 
 [features]
 default = []
-native-gui = ["dep:eframe"]
+native-gui = ["dep:eframe", "dep:zbus"]
 linux-unsigned-qualification = ["native-gui"]
 macos-cua-host = []
 release-verifier = []
@@ -123,6 +123,11 @@ hyper-util = { version = "0.1", features = ["tokio", "service"] }
 
 [target.'cfg(unix)'.dependencies]
 rustix = { version = "1.1", features = ["fs", "process"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+# The accessibility stack already pins this crate. Native appearance uses the
+# desktop portal rather than a desktop-specific command or environment hint.
+zbus = { version = "=5.19.0", optional = true }
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.61", features = [

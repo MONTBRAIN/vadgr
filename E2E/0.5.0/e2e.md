@@ -1477,6 +1477,22 @@ assertions. Earlier installer observations cannot establish those assertions
 for the repaired bytes. Independent unchanged lifecycle observations remain
 bound to their original exact artifacts; no whole-cell pass carries forward.
 
+### Linux desktop appearance finding at `09662bf7`
+
+The installed Linux console stayed dark while the native desktop portal reported
+the light preference. The pinned window backend supplies no Linux system theme,
+so choosing System alone did not observe that preference. The failed visual
+observation remains retained. The original desktop preference was restored.
+
+The Linux-only repair reads the native appearance portal on one background
+worker. Live windows consume cached values with bounded repaint intervals;
+portal absence, failure or an unknown preference uses the normal fallback.
+No desktop setting or owner browser profile is changed. Source regressions cover
+both palettes, preference changes, fallback, nested portal values and cached UI
+refresh. These tests and a read-only native portal diagnostic are not installed
+E2E passes. Rebuild the AppImage and repeat the affected L01, L02 and O2 visual
+assertions with both themes. Windows and macOS theme handling is unchanged.
+
 ## macOS qualification history
 
 These observations preserve implementation findings and earlier evidence. They
