@@ -22,7 +22,7 @@ impl TextInput {
                 .hint_text("API key"),
         };
         #[allow(unused_mut)]
-        let mut response = ui.add(widget.id(id));
+        let mut response = super::theme::form_control(ui, |ui| ui.add(widget.id(id)));
 
         #[cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))]
         {

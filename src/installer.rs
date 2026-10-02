@@ -243,7 +243,11 @@ impl InstallerApp {
             });
         ui.add_space(12.0);
         if !previously_accepted {
-            ui.checkbox(&mut self.accepted, "I have read and accept these terms");
+            crate::console::theme::checkbox(
+                ui,
+                &mut self.accepted,
+                "I have read and accept these terms",
+            );
         }
         installer_footer_space(ui);
         ui.with_layout(Layout::right_to_left(Align::Center), |ui| {

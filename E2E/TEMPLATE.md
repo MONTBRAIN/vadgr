@@ -878,6 +878,24 @@ cells while a specific owner approval or producer prerequisite remains owed.
 - Probe the current host/session and virtualization; do not carry a historical
   hypervisor label across a resumed pass. Record artifact and process identities, plus
   original accessibility and screen-reader settings, including unset values.
+- Prove actual screen-reader readiness before its state matrix. A speech-server
+  initialization message is not an active accessibility event loop or application
+  speech. Bound startup and shutdown, record the exact reader PID/start identity,
+  and retain only allowlisted nonsecret utterances. Focus each tested control and
+  wait for its actual utterance before dismissing it; a quick focus-and-close
+  sequence can remove the control before speech is produced.
+  On Linux, first record Orca, libatspi and toolkit versions. If bounded probes
+  reproduce synchronous desktop-discovery starvation before the event loop,
+  inspect those exact upstream sources and compare a controlled cache-enabled
+  startup. Where supported, an isolated `orca-customizations.py` may call
+  `Atspi.get_desktop(0).set_cache_mask(Atspi.Cache.DEFAULT)` before normal Orca
+  startup. Use the installed reader's supported customization loader, isolated
+  XDG configuration and the real desktop bus. Record the customization digest;
+  do not modify system packages, owner configuration, application discovery or
+  speech generation. Preserve the failing default and control probes. This is
+  a conditional environment workaround, not a product fix or an upstream-release
+  claim. Require actual application speech and terminal reader exit separately;
+  a successful observer unit or collected unit's default properties prove neither.
 - Prove bounded accessible-window readiness and exact control discovery. Use a
   fresh process-scoped tree, supported native action, fresh readback and an
   independent machine oracle for each step. Action dispatch is not success.
@@ -1410,6 +1428,15 @@ mandatory contrast ratio for inactive controls where the applicable standard
 exempts them. Mark a state not applicable only when the product does not
 implement it. A supported state that the available interface did not exercise
 remains owed with the exact boundary, not implicitly passed.
+
+Measure the final painted foreground and adjacent background after opacity and
+compositing. Source regressions must use the renderer's actual blend operation;
+a different color-space calculation can falsely pass unreadable installed text.
+Check the required boundaries of empty enabled text fields and checkboxes, plus
+visible focus indicators, separately from text. Do not impose a control-boundary
+ratio on decorative card borders or a selection fill whose state is conveyed
+by readable text. Inspect all shipped semantic status colors on their actual
+surfaces, not only the first failed button.
 
 Retain the failing installed image with its artifact identity. A source repair
 or green widget test does not change that result. Rebuild, verify the new

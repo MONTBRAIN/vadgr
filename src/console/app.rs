@@ -685,7 +685,8 @@ impl ConsoleApp {
                         ui.label(RichText::new("Not the machine default").color(theme::muted()));
                     }
                     ui.add_space(8.0);
-                    ui.with_layout(
+                    ui.allocate_ui_with_layout(
+                        Vec2::new(ui.available_width(), ui.spacing().interact_size.y),
                         Layout::right_to_left(Align::Center).with_main_wrap(true),
                         |ui| {
                             if danger_button(ui, "Disconnect", true) {
@@ -1118,7 +1119,7 @@ impl ConsoleApp {
                     }
                     ui.add_space(16.0);
                     ui.separator();
-                    ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                    ui.allocate_ui_with_layout(Vec2::new(ui.available_width(), ui.spacing().interact_size.y), Layout::right_to_left(Align::Center), |ui| {
                         if ui.button("Cancel").clicked() { dismiss_requested = true; }
                     });
                 }
@@ -1205,7 +1206,7 @@ impl ConsoleApp {
                         });
                     ui.add_space(16.0);
                     ui.separator();
-                    ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                    ui.allocate_ui_with_layout(Vec2::new(ui.available_width(), ui.spacing().interact_size.y), Layout::right_to_left(Align::Center), |ui| {
                         let changed = selected.is_some() && *selected != *current;
                         if primary_button(ui, "Use as default", changed && self.pending.is_none()) {
                             let provider_id = provider.id.clone();
@@ -1236,7 +1237,7 @@ impl ConsoleApp {
                     });
                 }
                 Dialog::Uninstall { purge, confirmation } => {
-                    ui.checkbox(purge, "Also delete settings, credentials, pairings and journals");
+                    theme::checkbox(ui, purge, "Also delete settings, credentials, pairings and journals");
                     if *purge {
                         let confirmation_label = ui.label(
                             "Type DELETE OWNER DATA to confirm the separate data deletion.",
@@ -2022,17 +2023,19 @@ fn loading(ui: &mut egui::Ui, message: &str) {
 
 fn grant_checkbox(ui: &mut egui::Ui, selected: &mut Vec<String>, value: &str, required: bool) {
     let mut enabled = selected.iter().any(|entry| entry == value);
-    let response = ui.add_enabled(
-        !required,
-        egui::Checkbox::new(
-            &mut enabled,
-            if required {
-                format!("{value} (required)")
-            } else {
-                value.to_owned()
-            },
-        ),
-    );
+    let response = ui
+        .add_enabled_ui(!required, |ui| {
+            theme::checkbox(
+                ui,
+                &mut enabled,
+                if required {
+                    format!("{value} (required)")
+                } else {
+                    value.to_owned()
+                },
+            )
+        })
+        .inner;
     if response.changed() {
         if enabled {
             if !selected.iter().any(|entry| entry == value) {

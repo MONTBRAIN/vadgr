@@ -42,7 +42,7 @@ const DARK: Palette = Palette {
     success: Color32::from_rgb(120, 140, 93),
     warning: Color32::from_rgb(201, 168, 76),
     info: Color32::from_rgb(106, 155, 204),
-    danger: Color32::from_rgb(199, 93, 93),
+    danger: Color32::from_rgb(228, 128, 128),
     accent: Color32::from_rgb(212, 207, 199),
 };
 
@@ -57,9 +57,9 @@ const LIGHT: Palette = Palette {
     muted: Color32::from_rgb(107, 105, 97),
     border: Color32::from_rgb(232, 230, 220),
     success: Color32::from_rgb(106, 125, 79),
-    warning: Color32::from_rgb(168, 135, 46),
+    warning: Color32::from_rgb(139, 106, 25),
     info: Color32::from_rgb(90, 135, 181),
-    danger: Color32::from_rgb(184, 76, 76),
+    danger: Color32::from_rgb(168, 61, 61),
     accent: Color32::from_rgb(92, 88, 80),
 };
 
@@ -234,6 +234,35 @@ pub fn accent() -> Color32 {
 }
 pub fn accent_text() -> Color32 {
     palette().bg
+}
+
+/// Required form-control boundaries are distinct from decorative card borders.
+pub fn form_control(
+    ui: &mut egui::Ui,
+    draw: impl FnOnce(&mut egui::Ui) -> egui::Response,
+) -> egui::Response {
+    ui.scope(|ui| {
+        let stroke = Stroke::new(1.0, muted());
+        let widgets = &mut ui.visuals_mut().widgets;
+        for visual in [
+            &mut widgets.inactive,
+            &mut widgets.hovered,
+            &mut widgets.open,
+        ] {
+            visual.bg_stroke = stroke;
+        }
+        widgets.active.bg_stroke = Stroke::new(2.0, text());
+        draw(ui)
+    })
+    .inner
+}
+
+pub fn checkbox(
+    ui: &mut egui::Ui,
+    checked: &mut bool,
+    label: impl Into<egui::WidgetText>,
+) -> egui::Response {
+    form_control(ui, |ui| ui.checkbox(checked, label))
 }
 
 pub fn card() -> egui::Frame {

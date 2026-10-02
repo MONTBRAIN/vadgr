@@ -387,6 +387,139 @@ fn provider_actions_do_not_overlap_long_default_identifiers_at_minimum_width() {
     }
 }
 
+#[test]
+fn provider_cards_size_to_content_instead_of_remaining_viewport_height() {
+    let mut failures = Vec::new();
+    for theme in [egui::Theme::Light, egui::Theme::Dark] {
+        for size in [[900.0, 600.0], [1205.0, 736.0], [1205.0, 1000.0]] {
+            let (ctx, mut app) = app(theme);
+            app.data.as_mut().unwrap().providers = vec![
+                ProviderSnapshot {
+                    id: "openai".into(),
+                    name: "OpenAI".into(),
+                    ..Default::default()
+                },
+                provider(),
+                ProviderSnapshot {
+                    id: "anthropic".into(),
+                    name: "Anthropic".into(),
+                    ..Default::default()
+                },
+            ];
+            let mut output = draw(&ctx, &mut app, size, vec![]);
+            for _ in 0..3 {
+                output = draw(&ctx, &mut app, size, vec![]);
+            }
+            let action = named(&output, "Disconnect").1.bounds().unwrap();
+            let model = text_bounds(&output, &provider().default_model.unwrap());
+            let next = text_bounds(&output, "Anthropic");
+            let card = output
+                .shapes
+                .iter()
+                .filter_map(|shape| match &shape.shape {
+                    egui::Shape::Rect(rect)
+                        if rect.fill == theme::panel()
+                            && rect.corner_radius.nw == 15
+                            && rect.rect.contains(egui::pos2(
+                                ((action.x0 + action.x1) / 2.0) as f32,
+                                ((action.y0 + action.y1) / 2.0) as f32,
+                            )) =>
+                    {
+                        Some(rect.rect)
+                    }
+                    _ => None,
+                })
+                .min_by(|a, b| a.area().total_cmp(&b.area()))
+                .expect("painted connected-provider card");
+            if card.height() > 220.0 || action.y0 - model.y1 > 24.0 || next.y1 >= f64::from(size[1])
+            {
+                failures.push(format!(
+                    "{theme:?} {size:?}: card={card:?}, action={action:?}, model={model:?}, next={next:?}"
+                ));
+            }
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+fn text_bounds(output: &egui::FullOutput, text: &str) -> egui::accesskit::Rect {
+    output
+        .platform_output
+        .accesskit_update
+        .as_ref()
+        .unwrap()
+        .nodes
+        .iter()
+        .find(|(_, node)| node.value() == Some(text))
+        .unwrap_or_else(|| panic!("missing text {text}"))
+        .1
+        .bounds()
+        .unwrap()
+}
+
+#[test]
+fn short_provider_dialog_footers_follow_content_without_empty_vertical_space() {
+    let mut failures = Vec::new();
+    for theme in [egui::Theme::Light, egui::Theme::Dark] {
+        for size in [[900.0, 600.0], [1205.0, 736.0]] {
+            for content in ["provider", "two-models", "empty-models"] {
+                let (ctx, mut app) = app(theme);
+                let mut options = provider();
+                options.models[0].name = "Filtered match A".into();
+                options.models[1].name = "Filtered match B".into();
+                let last_model = format!("{} ({})", options.models[1].name, options.models[1].id);
+                app.dialog = Some(if content == "provider" {
+                    Dialog::ProviderPicker(vec![options])
+                } else {
+                    Dialog::Models {
+                        current: options.default_model.clone(),
+                        selected: options.default_model.clone(),
+                        provider: options,
+                        query: String::new(),
+                    }
+                });
+                let mut output = draw(&ctx, &mut app, size, vec![]);
+                for _ in 0..4 {
+                    output = draw(&ctx, &mut app, size, vec![]);
+                }
+                if content != "provider" {
+                    let query = if content == "two-models" {
+                        "Filtered match"
+                    } else {
+                        "no-matching-model"
+                    };
+                    output = draw(&ctx, &mut app, size, vec![value(&output, query)]);
+                    for _ in 0..4 {
+                        output = draw(&ctx, &mut app, size, vec![]);
+                    }
+                }
+                let last = match content {
+                    "provider" => named(&output, "Gemini").1.bounds().unwrap(),
+                    "two-models" => named(&output, &last_model).1.bounds().unwrap(),
+                    _ => text_bounds(
+                        &output,
+                        "No matching models. Try a different name or model ID.",
+                    ),
+                };
+                let cancel = named(&output, "Cancel").1.bounds().unwrap();
+                let gap = cancel.y0 - last.y1;
+                // The empty-state message also has 12 points of list padding below it.
+                let maximum_gap = if content == "empty-models" {
+                    68.0
+                } else {
+                    56.0
+                };
+                if !(12.0..=maximum_gap).contains(&gap) || cancel.y1 > f64::from(size[1]) {
+                    failures.push(format!(
+                        "{theme:?} {size:?} {content}: gap={gap}, last={last:?}, cancel={cancel:?}"
+                    ));
+                }
+            }
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
 fn open_models(ctx: &egui::Context, app: &mut ConsoleApp, size: [f32; 2]) -> egui::FullOutput {
     let mut output = draw(ctx, app, size, vec![]);
     for _ in 0..2 {
@@ -519,11 +652,8 @@ fn console_standard_buttons_have_readable_painted_contrast_in_both_themes() {
                     _ => None,
                 })
                 .expect("action background is painted");
-            let background =
-                Color32::from(egui::Rgba::from(theme::panel()).blend(egui::Rgba::from(background)));
-            let foreground = Color32::from(egui::Rgba::from(background).blend(egui::Rgba::from(
-                foreground.gamma_multiply(text.opacity_factor),
-            )));
+            let background = theme::panel().blend(background);
+            let foreground = background.blend(foreground.gamma_multiply(text.opacity_factor));
             let (a, b) = (luminance(foreground), luminance(background));
             let contrast = (a.max(b) + 0.05) / (a.min(b) + 0.05);
             assert!(
@@ -532,6 +662,405 @@ fn console_standard_buttons_have_readable_painted_contrast_in_both_themes() {
             );
         }
     }
+}
+
+#[test]
+fn danger_actions_keep_painted_contrast_and_disabled_distinction() {
+    fn render(ctx: &egui::Context, enabled: bool, events: Vec<egui::Event>) -> egui::FullOutput {
+        let mut output = ctx.run_ui(
+            egui::RawInput {
+                screen_rect: Some(egui::Rect::from_min_size(
+                    egui::Pos2::ZERO,
+                    egui::vec2(400.0, 200.0),
+                )),
+                events,
+                ..Default::default()
+            },
+            |ui| {
+                theme::refresh(ctx);
+                theme::card().show(ui, |ui| {
+                    danger_button(ui, "Disconnect", enabled);
+                });
+            },
+        );
+        output.textures_delta.clear();
+        output
+    }
+    fn luminance(color: Color32) -> f64 {
+        let linear = |c: u8| {
+            let v = f64::from(c) / 255.0;
+            if v <= 0.04045 {
+                v / 12.92
+            } else {
+                ((v + 0.055) / 1.055).powf(2.4)
+            }
+        };
+        0.2126 * linear(color.r()) + 0.7152 * linear(color.g()) + 0.0722 * linear(color.b())
+    }
+    let mut failures = Vec::new();
+    for theme in [egui::Theme::Light, egui::Theme::Dark] {
+        let mut normal = None;
+        for state in ["normal", "hover", "focused", "pressed", "disabled"] {
+            let ctx = egui::Context::default();
+            ctx.enable_accesskit();
+            theme::install(&ctx);
+            ctx.set_theme(theme);
+            let enabled = state != "disabled";
+            let mut output = render(&ctx, enabled, vec![]);
+            for _ in 0..2 {
+                output = render(&ctx, enabled, vec![]);
+            }
+            let (id, node) = named(&output, "Disconnect");
+            let bounds = node.bounds().unwrap();
+            let position = egui::pos2(
+                ((bounds.x0 + bounds.x1) / 2.0) as f32,
+                ((bounds.y0 + bounds.y1) / 2.0) as f32,
+            );
+            if matches!(state, "hover" | "pressed") {
+                render(&ctx, enabled, vec![egui::Event::PointerMoved(position)]);
+                assert_eq!(ctx.pointer_hover_pos(), Some(position));
+            }
+            if state == "pressed" {
+                render(
+                    &ctx,
+                    enabled,
+                    vec![egui::Event::PointerButton {
+                        pos: position,
+                        button: egui::PointerButton::Primary,
+                        pressed: true,
+                        modifiers: egui::Modifiers::NONE,
+                    }],
+                );
+                assert!(ctx.input(|input| input.pointer.primary_down()));
+            }
+            if state == "focused" {
+                render(
+                    &ctx,
+                    enabled,
+                    vec![egui::Event::AccessKitActionRequest(ActionRequest {
+                        action: Action::Focus,
+                        target_tree: TreeId::ROOT,
+                        target_node: id,
+                        data: None,
+                    })],
+                );
+            }
+            output = render(&ctx, enabled, vec![]);
+            if state == "focused" {
+                assert_eq!(
+                    output
+                        .platform_output
+                        .accesskit_update
+                        .as_ref()
+                        .unwrap()
+                        .focus,
+                    id
+                );
+            }
+            assert_eq!(named(&output, "Disconnect").1.is_disabled(), !enabled);
+            let fill = output
+                .shapes
+                .iter()
+                .find_map(|shape| match &shape.shape {
+                    egui::Shape::Rect(rect)
+                        if (f64::from(rect.rect.min.x) - bounds.x0).abs() < 1.0
+                            && (f64::from(rect.rect.min.y) - bounds.y0).abs() < 1.0
+                            && (f64::from(rect.rect.max.x) - bounds.x1).abs() < 1.0
+                            && (f64::from(rect.rect.max.y) - bounds.y1).abs() < 1.0 =>
+                    {
+                        Some(rect.fill)
+                    }
+                    _ => None,
+                })
+                .expect("actual danger action fill");
+            let text = output
+                .shapes
+                .iter()
+                .find_map(|shape| match &shape.shape {
+                    egui::Shape::Text(text) if text.galley.job.text == "Disconnect" => Some(text),
+                    _ => None,
+                })
+                .expect("actual danger action text");
+            let specified = text.galley.job.sections[0].format.color;
+            let ink = text
+                .override_text_color
+                .unwrap_or(if specified == Color32::PLACEHOLDER {
+                    text.fallback_color
+                } else {
+                    specified
+                });
+            // Match the renderer's premultiplied gamma-space blend, including text opacity.
+            let background = theme::panel().blend(fill);
+            let foreground = background.blend(ink.gamma_multiply(text.opacity_factor));
+            if state == "normal" {
+                normal = Some((foreground, background));
+            }
+            if enabled {
+                let (a, b) = (luminance(foreground), luminance(background));
+                let contrast = (a.max(b) + 0.05) / (a.min(b) + 0.05);
+                if contrast < 4.5 {
+                    failures.push(format!(
+                        "{theme:?} {state}: {contrast}, {foreground:?} on {background:?}"
+                    ));
+                }
+            } else {
+                assert_ne!(foreground, background, "disabled action remains readable");
+                assert_ne!(
+                    Some((foreground, background)),
+                    normal,
+                    "disabled action remains distinct"
+                );
+            }
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+#[test]
+fn semantic_status_text_keeps_contrast_on_shipped_surfaces() {
+    fn luminance(color: Color32) -> f64 {
+        let channel = |v: u8| {
+            let v = f64::from(v) / 255.0;
+            if v <= 0.04045 {
+                v / 12.92
+            } else {
+                ((v + 0.055) / 1.055).powf(2.4)
+            }
+        };
+        0.2126 * channel(color.r()) + 0.7152 * channel(color.g()) + 0.0722 * channel(color.b())
+    }
+    let mut failures = Vec::new();
+    for mode in [egui::Theme::Light, egui::Theme::Dark] {
+        let ctx = egui::Context::default();
+        theme::install(&ctx);
+        ctx.set_theme(mode);
+        let mut output = ctx.run_ui(Default::default(), |ui| {
+            theme::refresh(&ctx);
+            theme::card().show(ui, |ui| {
+                ui.label(RichText::new("● Needs attention").color(theme::warning()));
+                ui.label(RichText::new("● Connected").color(theme::success()));
+                ui.label(
+                    RichText::new("The operation ended without a result.").color(theme::danger()),
+                );
+                ui.label(RichText::new("Machine default").color(theme::muted()));
+            });
+        });
+        output.textures_delta.clear();
+        let surface = theme::panel();
+        for shape in &output.shapes {
+            if let egui::Shape::Text(text) = &shape.shape {
+                for row in &text.galley.rows {
+                    for vertex in &row.visuals.mesh.vertices {
+                        let painted =
+                            surface.blend(vertex.color.gamma_multiply(text.opacity_factor));
+                        let (a, b) = (luminance(painted), luminance(surface));
+                        let ratio = (a.max(b) + 0.05) / (a.min(b) + 0.05);
+                        if ratio < 4.5 {
+                            failures.push(format!(
+                                "{mode:?} {:?}: {painted:?} on {surface:?}, contrast={ratio}",
+                                text.galley.text()
+                            ));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+#[test]
+fn form_controls_keep_native_focus_identity_and_distinct_outlines() {
+    fn draw(ctx: &egui::Context, events: Vec<egui::Event>) -> egui::FullOutput {
+        let mut output = ctx.run_ui(
+            egui::RawInput {
+                events,
+                ..Default::default()
+            },
+            |ui| {
+                theme::refresh(ctx);
+                theme::checkbox(ui, &mut false, "Optional permission");
+                TextInput::Singleline.show(ui, egui::Id::new("focus-field"), &mut String::new());
+            },
+        );
+        output.textures_delta.clear();
+        output
+    }
+    fn boundary(output: &egui::FullOutput, role: Role) -> egui::Stroke {
+        let tree = &output
+            .platform_output
+            .accesskit_update
+            .as_ref()
+            .unwrap()
+            .nodes;
+        let bounds = tree
+            .iter()
+            .find(|(_, n)| n.role() == role)
+            .unwrap()
+            .1
+            .bounds()
+            .unwrap();
+        output
+            .shapes
+            .iter()
+            .filter_map(|shape| match &shape.shape {
+                egui::Shape::Rect(rect)
+                    if rect.stroke.width > 0.0
+                        && (rect.rect.width() < 30.0) == (role == Role::CheckBox)
+                        && rect.rect.min.y >= bounds.y0 as f32 - 4.0
+                        && rect.rect.max.y <= bounds.y1 as f32 + 4.0 =>
+                {
+                    Some(rect)
+                }
+                _ => None,
+            })
+            .min_by(|a, b| a.rect.area().total_cmp(&b.rect.area()))
+            .unwrap()
+            .stroke
+    }
+    for mode in [egui::Theme::Light, egui::Theme::Dark] {
+        for role in [Role::CheckBox, Role::TextInput] {
+            let ctx = egui::Context::default();
+            ctx.enable_accesskit();
+            theme::install(&ctx);
+            ctx.set_theme(mode);
+            draw(&ctx, vec![]);
+            let before = draw(&ctx, vec![]);
+            let tree = before.platform_output.accesskit_update.as_ref().unwrap();
+            let (id, node) = tree.nodes.iter().find(|(_, n)| n.role() == role).unwrap();
+            assert!(node.supports_action(Action::Focus));
+            if role == Role::TextInput {
+                assert_eq!(*id, egui::Id::new("focus-field").accesskit_id());
+            }
+            draw(
+                &ctx,
+                vec![egui::Event::AccessKitActionRequest(ActionRequest {
+                    action: Action::Focus,
+                    target_tree: TreeId::ROOT,
+                    target_node: *id,
+                    data: None,
+                })],
+            );
+            let after = draw(&ctx, vec![]);
+            assert_eq!(
+                after
+                    .platform_output
+                    .accesskit_update
+                    .as_ref()
+                    .unwrap()
+                    .focus,
+                *id
+            );
+            assert_ne!(boundary(&before, role), boundary(&after, role));
+            let after_tree = &after
+                .platform_output
+                .accesskit_update
+                .as_ref()
+                .unwrap()
+                .nodes;
+            let after_node = &after_tree
+                .iter()
+                .find(|(node_id, _)| node_id == id)
+                .unwrap()
+                .1;
+            assert_eq!(node.label(), after_node.label());
+            assert_eq!(node.toggled(), after_node.toggled());
+        }
+    }
+}
+
+#[test]
+fn enabled_empty_form_controls_have_distinct_painted_boundaries() {
+    fn luminance(color: Color32) -> f64 {
+        let linear = |c: u8| {
+            let v = f64::from(c) / 255.0;
+            if v <= 0.04045 {
+                v / 12.92
+            } else {
+                ((v + 0.055) / 1.055).powf(2.4)
+            }
+        };
+        0.2126 * linear(color.r()) + 0.7152 * linear(color.g()) + 0.0722 * linear(color.b())
+    }
+    let mut failures = Vec::new();
+    for theme in [egui::Theme::Light, egui::Theme::Dark] {
+        for panel in [false, true] {
+            let ctx = egui::Context::default();
+            ctx.enable_accesskit();
+            theme::install(&ctx);
+            ctx.set_theme(theme);
+            let mut grants = Vec::new();
+            let mut text = String::new();
+            let mut output = None;
+            for _ in 0..3 {
+                let mut frame_output = ctx.run_ui(
+                    egui::RawInput {
+                        screen_rect: Some(egui::Rect::from_min_size(
+                            egui::Pos2::ZERO,
+                            egui::vec2(600.0, 400.0),
+                        )),
+                        ..Default::default()
+                    },
+                    |ui| {
+                        theme::refresh(&ctx);
+                        egui::Frame::new()
+                            .fill(if panel { theme::panel() } else { theme::bg() })
+                            .show(ui, |ui| {
+                                grant_checkbox(ui, &mut grants, "Optional grant", false);
+                                TextInput::Singleline.show(
+                                    ui,
+                                    egui::Id::new("empty-field"),
+                                    &mut text,
+                                );
+                            });
+                    },
+                );
+                frame_output.textures_delta.clear();
+                output = Some(frame_output);
+            }
+            let output = output.unwrap();
+            let tree = &output
+                .platform_output
+                .accesskit_update
+                .as_ref()
+                .unwrap()
+                .nodes;
+            for (role, small) in [(Role::CheckBox, true), (Role::TextInput, false)] {
+                let node = &tree.iter().find(|(_, node)| node.role() == role).unwrap().1;
+                assert!(!node.is_disabled());
+                let bounds = node.bounds().unwrap();
+                let rect = output
+                    .shapes
+                    .iter()
+                    .filter_map(|shape| match &shape.shape {
+                        egui::Shape::Rect(rect)
+                            if rect.stroke.width > 0.0
+                                && (rect.rect.width() < 30.0) == small
+                                && rect.rect.min.y >= bounds.y0 as f32 - 4.0
+                                && rect.rect.max.y <= bounds.y1 as f32 + 4.0 =>
+                        {
+                            Some(rect)
+                        }
+                        _ => None,
+                    })
+                    .min_by(|a, b| a.rect.area().total_cmp(&b.rect.area()))
+                    .expect("actual form-control boundary");
+                let surface = if panel { theme::panel() } else { theme::bg() };
+                let boundary = surface.blend(rect.stroke.color);
+                let fill = surface.blend(rect.fill);
+                let contrast = |a: Color32, b: Color32| {
+                    let (a, b) = (luminance(a), luminance(b));
+                    (a.max(b) + 0.05) / (a.min(b) + 0.05)
+                };
+                if contrast(boundary, surface) < 3.0 || contrast(boundary, fill) < 3.0 {
+                    failures.push(format!("{theme:?} panel={panel} {role:?}: boundary={boundary:?}, fill={fill:?}, surface={surface:?}, contrasts={}/{}", contrast(boundary, surface), contrast(boundary, fill)));
+                }
+            }
+            assert!(grants.is_empty() && text.is_empty());
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
 
 #[test]
@@ -676,11 +1205,8 @@ fn console_action_states_keep_readable_colors_and_truthful_disabled_semantics() 
                     _ => None,
                 })
                 .unwrap();
-            let background =
-                Color32::from(egui::Rgba::from(theme::bg()).blend(egui::Rgba::from(background)));
-            let foreground = Color32::from(egui::Rgba::from(background).blend(egui::Rgba::from(
-                foreground.gamma_multiply(text.opacity_factor),
-            )));
+            let background = theme::bg().blend(background);
+            let foreground = background.blend(foreground.gamma_multiply(text.opacity_factor));
             if state == "normal" {
                 enabled_normal = Some((foreground, background));
             }
@@ -752,8 +1278,7 @@ fn selected_model_text_and_enabled_confirmation_have_composited_contrast() {
                     _ => None,
                 })
                 .expect("real action background");
-            let background =
-                Color32::from(egui::Rgba::from(theme::panel()).blend(egui::Rgba::from(fill)));
+            let background = theme::panel().blend(fill);
             let text = output
                 .shapes
                 .iter()
@@ -773,9 +1298,7 @@ fn selected_model_text_and_enabled_confirmation_have_composited_contrast() {
                         } else {
                             specified
                         });
-                let foreground = Color32::from(egui::Rgba::from(background).blend(
-                    egui::Rgba::from(foreground.gamma_multiply(text.opacity_factor)),
-                ));
+                let foreground = background.blend(foreground.gamma_multiply(text.opacity_factor));
                 let (a, b) = (luminance(foreground), luminance(background));
                 let contrast = (a.max(b) + 0.05) / (a.min(b) + 0.05);
                 assert!(
