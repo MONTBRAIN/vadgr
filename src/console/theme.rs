@@ -133,6 +133,19 @@ pub fn refresh(ctx: &egui::Context) {
     DARK_MODE.set(ctx.theme() == Theme::Dark);
 }
 
+pub fn focus_outline(ui: &egui::Ui, response: &egui::Response, foreground: Color32) {
+    // Custom button fills replace egui's state frame. Paint focus separately
+    // inside the control so clipped rows retain the complete indicator.
+    if response.enabled() && response.has_focus() {
+        ui.painter().rect_stroke(
+            response.rect.shrink(2.0),
+            8.0,
+            Stroke::new(2.0, foreground),
+            egui::StrokeKind::Inside,
+        );
+    }
+}
+
 fn style(palette: Palette, dark_mode: bool) -> egui::Style {
     let mut style = egui::Style::default();
     style.visuals.dark_mode = dark_mode;
@@ -161,6 +174,7 @@ fn style(palette: Palette, dark_mode: bool) -> egui::Style {
     style.visuals.widgets.hovered.fg_stroke = Stroke::new(1.0, palette.text);
     style.visuals.widgets.active.bg_fill = palette.tertiary;
     style.visuals.widgets.active.weak_bg_fill = palette.tertiary;
+    style.visuals.widgets.active.bg_stroke = Stroke::new(1.0, palette.text);
     // Strong text uses this foreground. Primary controls supply their own contrast.
     style.visuals.widgets.active.fg_stroke = Stroke::new(1.0, palette.text);
     style.visuals.widgets.open.bg_fill = palette.tertiary;

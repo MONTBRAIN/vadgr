@@ -2,6 +2,122 @@ use super::*;
 use eframe::App;
 use egui::accesskit::{Action, ActionData, ActionRequest, Node, NodeId, Role, TreeId};
 
+#[test]
+fn native_button_focus_is_visible() {
+    let mut failures = Vec::new();
+    for kind in 0..7 {
+        failures.extend(crate::console::focus_tests::audit(
+            "Action",
+            |ui| match kind {
+                0 => {
+                    assert!(!ui.button("Action").clicked());
+                }
+                1 => {
+                    assert!(!primary_button(ui, "Action", true));
+                }
+                2 => {
+                    assert!(!danger_button(ui, "Action", true));
+                }
+                3 => {
+                    assert!(!toggle_switch(ui, false, true, "Action"));
+                }
+                4 => {
+                    assert!(!ui.add(egui::Button::new("Action").selected(true)).clicked());
+                }
+                5 => {
+                    assert!(!toggle_switch(ui, true, true, "Action"));
+                }
+                _ => {
+                    let mut current = View::Machine;
+                    nav(ui, &mut current, View::Providers, Icon::Key, "Action");
+                    assert!(matches!(current, View::Machine));
+                }
+            },
+        ));
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+#[test]
+fn settings_focus_survives_operation_notice() {
+    for palette in [egui::Theme::Light, egui::Theme::Dark] {
+        let (ctx, mut app) = app(palette);
+        app.view = View::Settings;
+        app.data.as_mut().unwrap().install.installed = true;
+        for _ in 0..3 {
+            draw(&ctx, &mut app, [1200.0, 720.0], vec![]);
+        }
+        let before = draw(&ctx, &mut app, [1200.0, 720.0], vec![]);
+        let id = named(&before, "Launch at login").0;
+        draw(
+            &ctx,
+            &mut app,
+            [1200.0, 720.0],
+            vec![egui::Event::AccessKitActionRequest(ActionRequest {
+                action: Action::Focus,
+                target_tree: TreeId::ROOT,
+                target_node: id,
+                data: None,
+            })],
+        );
+        let focused = draw(&ctx, &mut app, [1200.0, 720.0], vec![]);
+        assert_eq!(focused.platform_output.accesskit_update.unwrap().focus, id);
+        for notice in [
+            Some((true, "The change completed.".to_owned())),
+            Some((false, "The update request failed (HTTP 404).".to_owned())),
+            None,
+        ] {
+            app.notice = notice;
+            app.data.as_mut().unwrap().install.launch_at_login =
+                !app.data.as_ref().unwrap().install.launch_at_login;
+            let after = draw(&ctx, &mut app, [1200.0, 720.0], vec![]);
+            assert_eq!(
+                named(&after, "Launch at login").0,
+                id,
+                "notice must not replace the control identity"
+            );
+            let settled = draw(&ctx, &mut app, [1200.0, 720.0], vec![]);
+            assert_eq!(settled.platform_output.accesskit_update.unwrap().focus, id);
+        }
+        let before_navigation = draw(&ctx, &mut app, [1200.0, 720.0], vec![]);
+        let navigation = named(&before_navigation, "Providers").0;
+        draw(
+            &ctx,
+            &mut app,
+            [1200.0, 720.0],
+            vec![egui::Event::AccessKitActionRequest(ActionRequest {
+                action: Action::Focus,
+                target_tree: TreeId::ROOT,
+                target_node: navigation,
+                data: None,
+            })],
+        );
+        app.notice = Some((true, "The change completed.".to_owned()));
+        let after_navigation = draw(&ctx, &mut app, [1200.0, 720.0], vec![]);
+        assert_eq!(
+            after_navigation
+                .platform_output
+                .accesskit_update
+                .unwrap()
+                .focus,
+            navigation,
+            "completion must not steal focus after the user moves it"
+        );
+        app.view = View::Providers;
+        let other_view = draw(&ctx, &mut app, [1200.0, 720.0], vec![]);
+        assert!(
+            !other_view
+                .platform_output
+                .accesskit_update
+                .unwrap()
+                .nodes
+                .iter()
+                .any(|(node_id, _)| *node_id == id),
+            "different views must not reuse the old control ID"
+        );
+    }
+}
+
 struct RecordingController(mpsc::Sender<(String, String)>);
 
 impl ConsoleController for RecordingController {

@@ -896,6 +896,16 @@ cells while a specific owner approval or producer prerequisite remains owed.
   a conditional environment workaround, not a product fix or an upstream-release
   claim. Require actual application speech and terminal reader exit separately;
   a successful observer unit or collected unit's default properties prove neither.
+  For readers with this supported loader, put the customization at
+  `$XDG_DATA_HOME/orca/orca-customizations.py` inside the isolated test root.
+  Import `gi`, call `gi.require_version('Atspi', '2.0')`, import `Atspi` from
+  `gi.repository`, then make the cache call above. Verify the installed loader's
+  path before launch; a file merely present elsewhere does not enable it.
+  Use an external process-group or user-service deadline as well as the
+  observer's deadline. A synchronous discovery stall can prevent an in-process
+  timer from running. Record the bounded shutdown and the exact reader's
+  absence, including after a failed probe. Restore only the assistive settings
+  changed by the pass, and never replace the owner's reader configuration.
 - Prove bounded accessible-window readiness and exact control discovery. Use a
   fresh process-scoped tree, supported native action, fresh readback and an
   independent machine oracle for each step. Action dispatch is not success.
@@ -912,6 +922,14 @@ cells while a specific owner approval or producer prerequisite remains owed.
   Do not replay a potentially completed action or rewrite its reply as success.
   If a transient layout change invalidates a reference before dispatch,
   reacquire the exact named control rather than reuse its old reference.
+- Verify native focus after asynchronous in-place actions, not only before
+  dispatch. While the same control remains on the same page, loading,
+  completion and error notices must not silently replace its accessible
+  identity or lose keyboard focus. Pair the settled tree with the saved-value
+  oracle and actual reader output. A successful save alone does not pass this
+  check. Also verify that a late completion never takes focus back after the
+  user has moved to another control or page. Dialog closure has its own
+  deliberate focus destination; do not require the removed control to survive.
 - Prove enabled/disabled semantics and native text replacement on isolated
   ordinary fields before settings, credentials or typed purge. On Linux,
   `EditableText.SetTextContents` must actually work; an editable flag or click

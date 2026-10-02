@@ -370,6 +370,14 @@ dependencies are not dependencies of the installed Vadgr package.
    attempts without guessing exit codes. At cleanup restore assistive settings
    and stop only pass-created processes and capture sessions.
 
+For asynchronous in-place actions, compare native focus before dispatch and
+after the settled result. Loading, completion and error notices must not replace
+the identity of a surviving control or silently lose keyboard focus. Check the
+saved-value oracle and actual reader output separately. A late result must not
+take focus back after navigation to another control or page. A dialog that
+closes requires its intended focus destination, not survival of its removed
+control. Include these assertions in O2 on every native GUI platform.
+
 #### Conditional Linux screen-reader startup
 
 Prove reader readiness before the O2 state matrix. A speech-server startup
@@ -390,6 +398,15 @@ Preserve the failing default and control probes. This conditional environment
 workaround is not a product fix or an upstream-release claim. Require actual
 application speech and terminal reader exit independently; observer-unit success
 and collected-unit default properties establish neither.
+
+For readers with this supported loader, use the isolated
+`$XDG_DATA_HOME/orca/orca-customizations.py` path. Import `gi`, call
+`gi.require_version('Atspi', '2.0')`, import `Atspi` from `gi.repository`, then
+make the cache call above. Verify that the installed loader uses this path.
+Bound the reader with an external process-group or user-service deadline as
+well as the observer's own timer: synchronous discovery can prevent an internal
+timer from running. Record actual termination and the exact reader's absence
+after every successful or failed probe. Restore only pass-owned settings.
 
 #### Conditional Wayland chooser selection
 
@@ -1851,6 +1868,69 @@ System files and owner reader configuration were unchanged. This resolves the
 tested startup obstacle only: the complete O2 state matrix, released-driver
 dependency and exact unfocused capture remain owed. Later Settings, contrast,
 reader and cleanup evidence belongs to the same existing PR 176 boundary.
+
+### Linux retained AppImage at `357510b4`
+
+The release-equivalent unsigned vehicle came from successful producer run
+`37061877004`, retained artifact `11250559521`, with exact source
+`357510b4d21f9e061bd53b5b9ddc7e5c274948ae`. Its runtime source is
+`46eacf3f18b51974c7184b3aef962a93fdf6bd1f`; the later commit mechanically
+refreshes the corresponding-source packet. The AppImage is 577,968,632 bytes,
+SHA-256 `15e0f1da6d46c1ed7afd176eb4395a5d58315fd0aa547b0f781c2ccdc80dc47f`.
+Independent verification checked the receipt, source, target, all 11,079
+AppDir entries and all 5,785 unchanged pinned CUA payload entries. Development
+integrity is not production attestation or authorization. Product checks ended
+with 19 successes and three expected skips; those are not installed E2E passes.
+
+On the same virtualized-native x86_64 GNOME Wayland host, fresh native assent
+toggle and Decline completed with exit zero. The scoped before/after product
+inventories agreed. Actual focused-region images in both themes showed readable
+rendered terms, the brand/progress rail and the repaired checkbox outline.
+Painted normal checkbox boundary samples measured 7.8251:1 in dark and 4.5976:1
+in light. These samples do not certify every control or state. Actual bounded
+Orca speech announced assent, checked/unchecked and Decline; its reader exited
+zero and was absent afterward. This is partial O2, not its complete matrix.
+
+The installed focus check found another defect: native focus on Decline changed
+zero pixels inside the button or its surrounding margin in both themes. The
+structured tree and real speech confirmed focus, but its visible indication
+was missing. A light selected-model row likewise lacked a contrasting focus
+outline. These failures remain open until the repaired artifact is installed
+and every affected control is rerun. Source regression success alone cannot
+close them. VL01-VL03 and O2 do not inherit a full pass from these observations.
+
+Two additional native focus/toggle cycles reproduced lost control focus after
+Launch at login changed, even though the app window kept focus and the isolated
+autostart file followed the requested value. The original enabled state was
+restored. A full-console regression reproduced an AccessKit node-ID change
+when only a completion notice appeared. Stable, view-specific content identity
+must fix this without requesting focus or taking it back after navigation.
+The rebuilt installed focus-retention check remains owed.
+
+A prepared-state installer attempt exited one before a window appeared. Its
+54 output bytes were hashed, not retained; the exact error remains unidentified.
+The next attempt opened normally, so no cause is claimed. Native Install then
+correctly refused to replace an already installed same-version generation;
+the separate refusal image and exit-zero Close remain preserved. The existing
+installation was subsequently removed through the public data-preserving
+uninstall flow. An early port-bind oracle encountered only TCP TIME_WAIT;
+the distinct settled observation confirmed no listener and preserved state.
+
+Reinstallation from the exact new AppImage completed through native controls.
+The installed vehicle and receipt matched the retained artifact. The daemon
+was healthy, and independent machine, provider, terms and credential identities
+matched their preserved values. The provider cards and model-picker footer no
+longer expanded into excess empty space in the observed default-size states.
+Actual images covered dark populated cards, first model rows in both themes,
+light empty search and selected-current model, provider choices, authentication
+choices and masked nonsecret key entry. Draft cancellation did not connect a
+provider or change the default. No new billed model call ran in this group.
+
+These are scoped unsigned observations, not a complete visual matrix, a new
+desktop/architecture result or released-driver closure. Unobserved size, scale,
+hover, pressed and reader states remain owed. Phone work, exact unfocused
+capture and unavailable offline-snapshot assertions remain separate. C1 stays
+deferred while the isolated installation and state support continuation.
 
 ## macOS qualification history
 

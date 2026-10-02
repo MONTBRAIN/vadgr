@@ -1588,11 +1588,16 @@ impl eframe::App for ConsoleApp {
                 egui::ScrollArea::vertical()
                     .auto_shrink([false, false])
                     .show(ui, |ui| {
-                        match self.view {
-                            View::Machine => self.machine_view(ui),
-                            View::Providers => self.providers_view(ui),
-                            View::Settings => self.settings_view(ui),
-                        }
+                        // Status notices change preceding allocations, not control identity.
+                        // Separate views must not inherit each other's keyboard focus.
+                        let view_id = ui.make_persistent_id(("console-view", self.view as u8));
+                        ui.scope_builder(egui::UiBuilder::new().id(view_id), |ui| {
+                            match self.view {
+                                View::Machine => self.machine_view(ui),
+                                View::Providers => self.providers_view(ui),
+                                View::Settings => self.settings_view(ui),
+                            }
+                        });
                         if self.pending.is_some() {
                             ui.add_space(12.0);
                             theme::card().show(ui, |ui| {
@@ -1793,7 +1798,7 @@ fn icon_tile(ui: &mut egui::Ui, icon: Icon, label: &str) {
 }
 
 fn primary_button(ui: &mut egui::Ui, label: &str, enabled: bool) -> bool {
-    ui.add_enabled(
+    let response = ui.add_enabled(
         enabled,
         egui::Button::new(
             RichText::new(label)
@@ -1802,12 +1807,13 @@ fn primary_button(ui: &mut egui::Ui, label: &str, enabled: bool) -> bool {
         )
         .fill(theme::accent())
         .stroke(Stroke::new(1.0, theme::accent())),
-    )
-    .clicked()
+    );
+    theme::focus_outline(ui, &response, theme::accent_text());
+    response.clicked()
 }
 
 fn danger_button(ui: &mut egui::Ui, label: &str, enabled: bool) -> bool {
-    ui.add_enabled(
+    let response = ui.add_enabled(
         enabled,
         egui::Button::new(
             RichText::new(label)
@@ -1816,8 +1822,9 @@ fn danger_button(ui: &mut egui::Ui, label: &str, enabled: bool) -> bool {
         )
         .fill(theme::danger().gamma_multiply(0.14))
         .stroke(Stroke::new(1.0, theme::danger().gamma_multiply(0.5))),
-    )
-    .clicked()
+    );
+    theme::focus_outline(ui, &response, theme::text());
+    response.clicked()
 }
 
 fn toggle_switch(ui: &mut egui::Ui, selected: bool, enabled: bool, label: &str) -> bool {
@@ -1840,6 +1847,15 @@ fn toggle_switch(ui: &mut egui::Ui, selected: bool, enabled: bool, label: &str) 
         ui.painter().circle_filled(
             egui::pos2(knob_x, rect.center().y),
             8.0,
+            if selected {
+                theme::accent_text()
+            } else {
+                theme::text()
+            },
+        );
+        theme::focus_outline(
+            ui,
+            &response,
             if selected {
                 theme::accent_text()
             } else {

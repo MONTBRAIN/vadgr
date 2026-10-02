@@ -450,13 +450,15 @@ fn installer_button(
     } else {
         (theme::text(), theme::panel())
     };
-    ui.add_enabled(
+    let response = ui.add_enabled(
         enabled,
         egui::Button::new(RichText::new(label).color(foreground))
             .fill(background)
             .stroke(egui::Stroke::new(1.0, theme::border()))
             .corner_radius(10),
-    )
+    );
+    theme::focus_outline(ui, &response, foreground);
+    response
 }
 
 #[cfg(target_os = "linux")]
@@ -543,6 +545,20 @@ fn verification_label() -> &'static str {
 #[cfg(all(test, target_os = "linux"))]
 mod tests {
     use super::*;
+
+    #[test]
+    fn native_button_focus_is_visible() {
+        let mut failures = Vec::new();
+        for primary in [false, true] {
+            failures.extend(crate::console::focus_tests::audit(
+                "Installer action",
+                |ui| {
+                    assert!(!installer_button(ui, "Installer action", primary, true).clicked());
+                },
+            ));
+        }
+        assert!(failures.is_empty(), "{}", failures.join("\n"));
+    }
 
     fn acceptance() -> crate::install::TermsAcceptance {
         crate::install::TermsAcceptance {
