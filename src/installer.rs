@@ -245,23 +245,29 @@ impl InstallerApp {
         if !previously_accepted {
             ui.checkbox(&mut self.accepted, "I have read and accept these terms");
         }
+        installer_footer_space(ui);
         ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-            if ui
-                .add_enabled(
-                    self.accepted || previously_accepted,
-                    egui::Button::new("Install Vadgr"),
-                )
-                .clicked()
+            if installer_button(
+                ui,
+                "Install Vadgr",
+                true,
+                self.accepted || previously_accepted,
+            )
+            .clicked()
             {
                 self.install();
             }
-            if ui
-                .button(if previously_accepted {
+            if installer_button(
+                ui,
+                if previously_accepted {
                     "Cancel and close"
                 } else {
                     "Decline and close"
-                })
-                .clicked()
+                },
+                false,
+                true,
+            )
+            .clicked()
             {
                 ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
             }
@@ -271,6 +277,83 @@ impl InstallerApp {
 
 #[cfg(target_os = "linux")]
 impl InstallerApp {
+    fn progress_rail(&self, root: &mut egui::Ui) {
+        use crate::console::theme;
+        let width = (root.available_width() * 0.25).clamp(170.0, 285.0);
+        let current = match self.state {
+            State::Terms => 0,
+            State::Success(_) => 2,
+            State::Installing(_) | State::Failed(_) => 1,
+        };
+        egui::Panel::left("installer-progress")
+            .exact_size(width)
+            .resizable(false)
+            .frame(
+                egui::Frame::new()
+                    .fill(theme::nav())
+                    .inner_margin(egui::Margin::symmetric(18, 28)),
+            )
+            .show(root, |ui| {
+                ui.label(
+                    RichText::new("vadgr.")
+                        .family(theme::heading_family())
+                        .size(24.0),
+                );
+                ui.label(
+                    RichText::new(format!(
+                        "Version {}",
+                        self.preflight
+                            .as_ref()
+                            .map_or("0.5.0", |value| &value.version)
+                    ))
+                    .monospace()
+                    .size(10.0)
+                    .color(theme::muted()),
+                );
+                ui.add_space(24.0);
+                ui.label(
+                    RichText::new("Your machine,\nready when you are.")
+                        .family(theme::heading_family())
+                        .size(24.0),
+                );
+                ui.add_space(8.0);
+                ui.label(
+                    RichText::new(
+                        "Installs Vadgr and everything it needs to control this machine.",
+                    )
+                    .size(12.0)
+                    .color(theme::muted()),
+                );
+                ui.add_space(28.0);
+                for (index, label) in ["1. Terms", "2. Install", "3. Finish"].iter().enumerate() {
+                    let response = ui.add(
+                        egui::Label::new(
+                            RichText::new(*label)
+                                .family(theme::medium_family())
+                                .size(14.0)
+                                .color(if index == current {
+                                    theme::text()
+                                } else {
+                                    theme::muted()
+                                }),
+                        )
+                        .selectable(false)
+                        .sense(egui::Sense::hover()),
+                    );
+                    ui.ctx().accesskit_node_builder(response.id, |node| {
+                        node.set_description(if index == current {
+                            "Current step"
+                        } else if index < current {
+                            "Completed step"
+                        } else {
+                            "Pending step"
+                        });
+                    });
+                    ui.add_space(12.0);
+                }
+            });
+    }
+
     fn render(&mut self, root: &mut egui::Ui) {
         let ctx = root.ctx().clone();
         crate::console::theme::refresh(&ctx);
@@ -282,16 +365,24 @@ impl InstallerApp {
                 ctx.request_repaint_after(std::time::Duration::from_millis(100));
             }
         }
-        egui::CentralPanel::default().show(root, |ui| {
-            ui.add_space(24.0);
-            ui.horizontal(|ui| {
-                ui.heading("VADGR");
-                ui.with_layout(Layout::right_to_left(Align::Center), |ui| { ui.label(format!("Version {}", self.preflight.as_ref().map_or("0.5.0", |value| &value.version))); });
-            });
-            ui.add_space(28.0);
+        let inset = if root.available_width() >= 1000.0 {
+            48
+        } else {
+            24
+        };
+        self.progress_rail(root);
+        egui::CentralPanel::default()
+            .frame(egui::Frame::new().fill(crate::console::theme::bg()).inner_margin(egui::Margin::same(inset)))
+            .show(root, |ui| {
+            ui.label(RichText::new(match self.state {
+                State::Terms => "BEFORE INSTALLATION",
+                State::Installing(_) => "INSTALLING",
+                State::Success(_) => "INSTALLATION COMPLETE",
+                State::Failed(_) => "INSTALLATION STOPPED",
+            }).monospace().size(10.0).color(crate::console::theme::muted()));
             if cfg!(feature = "linux-unsigned-qualification") {
                 ui.label(crate::build_policy::UNSIGNED_WARNING);
-                ui.add_space(12.0);
+                ui.add_space(8.0);
             }
             match &self.state {
                 State::Terms => {
@@ -311,20 +402,57 @@ impl InstallerApp {
                         "The signed generation is installed and the daemon answered its health check."
                     });
                     ui.label(RichText::new(path.display().to_string()).monospace().color(crate::console::theme::muted()));
-                    if ui.button("Open Vadgr").clicked() {
-                        let _ = std::process::Command::new(path.join("Vadgr.AppImage")).arg("--console").spawn();
-                    }
-                    if ui.button("Close").clicked() { ctx.send_viewport_cmd(egui::ViewportCommand::Close); }
+                    installer_footer_space(ui);
+                    ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                        if installer_button(ui, "Open Vadgr", true, true).clicked() {
+                            let _ = std::process::Command::new(path.join("Vadgr.AppImage")).arg("--console").spawn();
+                        }
+                        if installer_button(ui, "Close", false, true).clicked() { ctx.send_viewport_cmd(egui::ViewportCommand::Close); }
+                    });
                 }
                 State::Failed(message) => {
                     ui.heading("Vadgr was not installed");
                     ui.label(RichText::new(message).color(crate::console::theme::danger()));
                     ui.label("A previous working generation remains selected.");
-                    if ui.button("Close").clicked() { ctx.send_viewport_cmd(egui::ViewportCommand::Close); }
+                    installer_footer_space(ui);
+                    ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                        if installer_button(ui, "Close", false, true).clicked() { ctx.send_viewport_cmd(egui::ViewportCommand::Close); }
+                    });
                 }
             }
         });
     }
+}
+
+#[cfg(target_os = "linux")]
+fn installer_footer_space(ui: &mut egui::Ui) {
+    let height =
+        ui.spacing().interact_size.y.max(
+            ui.text_style_height(&egui::TextStyle::Button) + 2.0 * ui.spacing().button_padding.y,
+        );
+    ui.add_space((ui.available_height() - height).max(0.0));
+}
+
+#[cfg(target_os = "linux")]
+fn installer_button(
+    ui: &mut egui::Ui,
+    label: &str,
+    primary: bool,
+    enabled: bool,
+) -> egui::Response {
+    use crate::console::theme;
+    let (foreground, background) = if primary {
+        (theme::accent_text(), theme::accent())
+    } else {
+        (theme::text(), theme::panel())
+    };
+    ui.add_enabled(
+        enabled,
+        egui::Button::new(RichText::new(label).color(foreground))
+            .fill(background)
+            .stroke(egui::Stroke::new(1.0, theme::border()))
+            .corner_radius(10),
+    )
 }
 
 #[cfg(target_os = "linux")]
@@ -466,6 +594,188 @@ mod tests {
         );
         assert!(app.preflight.is_some());
         output
+    }
+
+    #[test]
+    fn installer_enabled_actions_have_readable_rendered_contrast_in_both_themes() {
+        fn luminance(color: egui::Color32) -> f64 {
+            let linear = |channel: u8| {
+                let value = f64::from(channel) / 255.0;
+                if value <= 0.04045 {
+                    value / 12.92
+                } else {
+                    ((value + 0.055) / 1.055).powf(2.4)
+                }
+            };
+            0.2126 * linear(color.r()) + 0.7152 * linear(color.g()) + 0.0722 * linear(color.b())
+        }
+        for theme in [egui::Theme::Light, egui::Theme::Dark] {
+            let previous = acceptance();
+            let mut app = terms_app("1.0", Some(&previous)).unwrap();
+            let ctx = egui::Context::default();
+            ctx.enable_accesskit();
+            crate::console::theme::install(&ctx);
+            ctx.set_theme(theme);
+            let mut output = ctx.run_ui(
+                egui::RawInput {
+                    screen_rect: Some(egui::Rect::from_min_size(
+                        egui::Pos2::ZERO,
+                        egui::vec2(760.0, 620.0),
+                    )),
+                    ..Default::default()
+                },
+                |ui| app.render(ui),
+            );
+            output.textures_delta.clear();
+            for label in ["Cancel and close", "Install Vadgr"] {
+                let node = &output
+                    .platform_output
+                    .accesskit_update
+                    .as_ref()
+                    .unwrap()
+                    .nodes
+                    .iter()
+                    .find(|(_, node)| node.label() == Some(label))
+                    .unwrap()
+                    .1;
+                assert!(!node.is_disabled());
+                let bounds = node.bounds().unwrap();
+                let text = output
+                    .shapes
+                    .iter()
+                    .find_map(|shape| match &shape.shape {
+                        egui::Shape::Text(text) if text.galley.job.text == label => Some(text),
+                        _ => None,
+                    })
+                    .expect("enabled action text is painted");
+                let specified = text.galley.job.sections[0].format.color;
+                let foreground = text.override_text_color.unwrap_or(
+                    if specified == egui::Color32::PLACEHOLDER {
+                        text.fallback_color
+                    } else {
+                        specified
+                    },
+                );
+                let background = output
+                    .shapes
+                    .iter()
+                    .find_map(|shape| match &shape.shape {
+                        egui::Shape::Rect(rect)
+                            if (f64::from(rect.rect.min.x) - bounds.x0).abs() < 1.0
+                                && (f64::from(rect.rect.min.y) - bounds.y0).abs() < 1.0
+                                && (f64::from(rect.rect.max.x) - bounds.x1).abs() < 1.0
+                                && (f64::from(rect.rect.max.y) - bounds.y1).abs() < 1.0 =>
+                        {
+                            Some(rect.fill)
+                        }
+                        _ => None,
+                    })
+                    .expect("enabled action background is painted");
+                let (a, b) = (luminance(foreground), luminance(background));
+                let contrast = (a.max(b) + 0.05) / (a.min(b) + 0.05);
+                assert!(
+                    contrast >= 4.5,
+                    "{label} in {theme:?}: contrast {contrast}, {foreground:?} on {background:?}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn installer_preserves_brand_and_step_rail_in_every_state_and_supported_window() {
+        for size in [[760.0, 620.0], [680.0, 540.0]] {
+            for theme in [egui::Theme::Dark, egui::Theme::Light] {
+                for state_index in 0..4 {
+                    let ctx = egui::Context::default();
+                    ctx.enable_accesskit();
+                    crate::console::theme::install(&ctx);
+                    ctx.set_theme(theme);
+                    let mut app = terms_app("1.0", None).unwrap();
+                    app.state = match state_index {
+                        0 => State::Terms,
+                        1 => State::Installing("Preparing files".to_owned()),
+                        2 => State::Success(PathBuf::from("/synthetic-installed-generation")),
+                        _ => State::Failed("The new generation could not start.".to_owned()),
+                    };
+                    for _ in 0..3 {
+                        let mut output = ctx.run_ui(
+                            egui::RawInput {
+                                screen_rect: Some(egui::Rect::from_min_size(
+                                    egui::Pos2::ZERO,
+                                    size.into(),
+                                )),
+                                ..Default::default()
+                            },
+                            |ui| app.render(ui),
+                        );
+                        output.textures_delta.clear();
+                        let tree = output.platform_output.accesskit_update.as_ref().unwrap();
+                        let find = |text: &str| {
+                            tree.nodes
+                                .iter()
+                                .find(|(_, node)| node.value().or(node.label()) == Some(text))
+                                .map(|(_, node)| node)
+                                .unwrap_or_else(|| {
+                                    panic!("missing installer hierarchy label: {text}")
+                                })
+                        };
+                        let brand = find("vadgr.").bounds().unwrap();
+                        let heading = find(match state_index {
+                            0 => "Review the terms",
+                            1 => "Installing Vadgr",
+                            2 => "Vadgr is ready",
+                            _ => "Vadgr was not installed",
+                        })
+                        .bounds()
+                        .unwrap();
+                        assert!(
+                            brand.x1 < heading.x0,
+                            "brand must stay in a separate left rail"
+                        );
+                        let mut previous_bottom = brand.y1;
+                        for (index, name) in
+                            ["1. Terms", "2. Install", "3. Finish"].iter().enumerate()
+                        {
+                            let node = find(name);
+                            assert_eq!(node.role(), egui::accesskit::Role::Label);
+                            let bounds = node.bounds().unwrap();
+                            assert!(bounds.x1 < heading.x0 && bounds.y0 > previous_bottom);
+                            assert!(bounds.y1 < f64::from(size[1]));
+                            let current = match state_index {
+                                0 => 0,
+                                2 => 2,
+                                _ => 1,
+                            };
+                            assert_eq!(
+                                node.description(),
+                                Some(if index == current {
+                                    "Current step"
+                                } else if index < current {
+                                    "Completed step"
+                                } else {
+                                    "Pending step"
+                                })
+                            );
+                            assert!(!node.supports_action(egui::accesskit::Action::Click));
+                            previous_bottom = bounds.y1;
+                        }
+                        let actions: &[&str] = match state_index {
+                            0 => &["Install Vadgr", "Decline and close"],
+                            2 => &["Open Vadgr", "Close"],
+                            3 => &["Close"],
+                            _ => &[],
+                        };
+                        for name in actions {
+                            let bounds = find(name).bounds().unwrap();
+                            assert!(bounds.x0 >= heading.x0 && bounds.x1 <= f64::from(size[0]));
+                            assert!(bounds.y0 > previous_bottom && bounds.y1 <= f64::from(size[1]));
+                        }
+                        assert!(!app.accepted);
+                        assert!(app.receiver.is_none());
+                    }
+                }
+            }
+        }
     }
 
     #[test]
