@@ -1,10 +1,12 @@
 use eframe::egui::{
     self, Color32, CornerRadius, FontData, FontDefinitions, FontFamily, FontId, Stroke, Theme,
 };
+use std::cell::Cell;
 use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, Ordering};
 
-static DARK_MODE: AtomicBool = AtomicBool::new(true);
+thread_local! {
+    static DARK_MODE: Cell<bool> = const { Cell::new(true) };
+}
 
 #[cfg(target_os = "linux")]
 mod linux;
@@ -128,7 +130,7 @@ pub fn medium_family() -> FontFamily {
 pub fn refresh(ctx: &egui::Context) {
     #[cfg(all(target_os = "linux", not(test)))]
     linux::refresh(ctx);
-    DARK_MODE.store(ctx.theme() == Theme::Dark, Ordering::Relaxed);
+    DARK_MODE.set(ctx.theme() == Theme::Dark);
 }
 
 fn style(palette: Palette, dark_mode: bool) -> egui::Style {
@@ -146,18 +148,23 @@ fn style(palette: Palette, dark_mode: bool) -> egui::Style {
     style.visuals.selection.bg_fill = palette.tertiary;
     style.visuals.selection.stroke = Stroke::new(1.0, palette.text);
     style.visuals.widgets.noninteractive.bg_fill = palette.panel;
+    style.visuals.widgets.noninteractive.weak_bg_fill = palette.panel;
     style.visuals.widgets.noninteractive.bg_stroke = Stroke::new(1.0, palette.border);
     style.visuals.widgets.noninteractive.fg_stroke = Stroke::new(1.0, palette.text);
     style.visuals.widgets.inactive.bg_fill = Color32::TRANSPARENT;
+    style.visuals.widgets.inactive.weak_bg_fill = palette.panel;
     style.visuals.widgets.inactive.bg_stroke = Stroke::new(1.0, palette.border);
     style.visuals.widgets.inactive.fg_stroke = Stroke::new(1.0, palette.text);
     style.visuals.widgets.hovered.bg_fill = palette.tertiary;
+    style.visuals.widgets.hovered.weak_bg_fill = palette.tertiary;
     style.visuals.widgets.hovered.bg_stroke = Stroke::new(1.0, palette.panel_hover);
     style.visuals.widgets.hovered.fg_stroke = Stroke::new(1.0, palette.text);
     style.visuals.widgets.active.bg_fill = palette.tertiary;
+    style.visuals.widgets.active.weak_bg_fill = palette.tertiary;
     // Strong text uses this foreground. Primary controls supply their own contrast.
     style.visuals.widgets.active.fg_stroke = Stroke::new(1.0, palette.text);
     style.visuals.widgets.open.bg_fill = palette.tertiary;
+    style.visuals.widgets.open.weak_bg_fill = palette.tertiary;
     style.visuals.widgets.open.bg_stroke = Stroke::new(1.0, palette.panel_hover);
     style.visuals.widgets.open.fg_stroke = Stroke::new(1.0, palette.text);
     for visual in [
@@ -189,11 +196,7 @@ fn style(palette: Palette, dark_mode: bool) -> egui::Style {
 }
 
 fn palette() -> Palette {
-    if DARK_MODE.load(Ordering::Relaxed) {
-        DARK
-    } else {
-        LIGHT
-    }
+    if DARK_MODE.get() { DARK } else { LIGHT }
 }
 
 pub fn bg() -> Color32 {
@@ -239,4 +242,35 @@ pub fn card() -> egui::Frame {
         .stroke(Stroke::new(1.0, border()))
         .corner_radius(15)
         .inner_margin(egui::Margin::same(16))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn concurrent_render_threads_keep_their_own_palette() {
+        let barrier = Arc::new(std::sync::Barrier::new(2));
+        let handles: Vec<_> = [(Theme::Light, LIGHT.text), (Theme::Dark, DARK.text)]
+            .into_iter()
+            .map(|(theme, expected)| {
+                let barrier = barrier.clone();
+                std::thread::spawn(move || {
+                    let ctx = egui::Context::default();
+                    install(&ctx);
+                    ctx.set_theme(theme);
+                    refresh(&ctx);
+                    barrier.wait();
+                    (text(), expected)
+                })
+            })
+            .collect();
+        for handle in handles {
+            let (actual, expected) = handle.join().unwrap();
+            assert_eq!(
+                actual, expected,
+                "another render thread changed the palette"
+            );
+        }
+    }
 }

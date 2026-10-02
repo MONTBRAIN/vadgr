@@ -69,6 +69,9 @@ enum Dialog {
     },
     Models {
         provider: ProviderSnapshot,
+        current: Option<String>,
+        query: String,
+        selected: Option<String>,
     },
     DisconnectProvider(ProviderSnapshot),
     Uninstall {
@@ -622,31 +625,19 @@ impl ConsoleApp {
             return;
         }
         for provider in data.providers {
+            let is_machine_default =
+                data.machine.default_provider.as_deref() == Some(provider.id.as_str());
+            let current_model = is_machine_default
+                .then(|| data.machine.default_model.clone())
+                .flatten();
             theme::card().show(ui, |ui| {
-                let row_width = visible_width(ui);
-                fixed_ui(
-                    ui,
-                    Vec2::new(row_width, 46.0),
-                    Layout::right_to_left(Align::Center),
-                    |ui| {
-                        if provider.connected && !provider.available {
-                            ui.label(RichText::new("● Needs attention").color(theme::warning()));
-                        } else if provider.connected {
-                            let status = if provider.catalog_stale {
-                                RichText::new("● Models need refresh").color(theme::warning())
-                            } else {
-                                RichText::new("● Connected").color(theme::success())
-                            };
-                            ui.label(status);
-                            if provider.default_model.is_some() {
-                                ui.label(
-                                    RichText::new("DEFAULT").monospace().color(theme::muted()),
-                                );
-                            }
-                        } else if ui.button("Connect").clicked() {
-                            self.open_provider_auth(provider.clone());
-                        }
-                        ui.with_layout(Layout::left_to_right(Align::Center), |ui| {
+                ui.set_width(visible_width(ui));
+                ui.horizontal(|ui| {
+                    let identity_width = (ui.available_width() - 220.0).max(180.0);
+                    ui.allocate_ui_with_layout(
+                        Vec2::new(identity_width, 0.0),
+                        Layout::left_to_right(Align::Center),
+                        |ui| {
                             paint_icon(ui, Icon::Key, 20.0, theme::muted(), "Provider");
                             ui.vertical(|ui| {
                                 ui.label(RichText::new(&provider.name).strong());
@@ -661,16 +652,41 @@ impl ConsoleApp {
                                 };
                                 ui.label(RichText::new(detail).color(theme::muted()));
                             });
-                        });
-                    },
-                );
+                        },
+                    );
+                    ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                        if provider.connected && !provider.available {
+                            ui.label(RichText::new("● Needs attention").color(theme::warning()));
+                        } else if provider.connected {
+                            let status = if provider.catalog_stale {
+                                RichText::new("● Models need refresh").color(theme::warning())
+                            } else {
+                                RichText::new("● Connected").color(theme::success())
+                            };
+                            ui.label(status);
+                            if is_machine_default {
+                                ui.label(
+                                    RichText::new("DEFAULT").monospace().color(theme::muted()),
+                                );
+                            }
+                        } else if ui.button("Connect").clicked() {
+                            self.open_provider_auth(provider.clone());
+                        }
+                    });
+                });
                 if provider.connected {
+                    ui.add_space(8.0);
                     ui.separator();
-                    let footer_width = visible_width(ui);
-                    fixed_ui(
-                        ui,
-                        Vec2::new(footer_width, 38.0),
-                        Layout::right_to_left(Align::Center),
+                    if let Some(model) = &current_model {
+                        ui.add_space(4.0);
+                        ui.label(RichText::new("Machine default").color(theme::muted()));
+                        ui.add(egui::Label::new(RichText::new(model).monospace()).wrap());
+                    } else {
+                        ui.label(RichText::new("Not the machine default").color(theme::muted()));
+                    }
+                    ui.add_space(8.0);
+                    ui.with_layout(
+                        Layout::right_to_left(Align::Center).with_main_wrap(true),
                         |ui| {
                             if danger_button(ui, "Disconnect", true) {
                                 self.dialog = Some(Dialog::DisconnectProvider(provider.clone()));
@@ -683,7 +699,7 @@ impl ConsoleApp {
                                 });
                             }
                             if ui
-                                .button(if provider.default_model.is_some() {
+                                .button(if is_machine_default {
                                     "Change default"
                                 } else {
                                     "Make default"
@@ -691,22 +707,17 @@ impl ConsoleApp {
                                 .clicked()
                             {
                                 self.dialog = Some(Dialog::Models {
+                                    selected: current_model
+                                        .clone()
+                                        .or_else(|| provider.default_model.clone())
+                                        .filter(|id| {
+                                            provider.models.iter().any(|model| &model.id == id)
+                                        }),
+                                    current: current_model.clone(),
                                     provider: provider.clone(),
+                                    query: String::new(),
                                 });
                             }
-                            ui.with_layout(Layout::left_to_right(Align::Center), |ui| {
-                                if let Some(model) = &provider.default_model {
-                                    ui.label(RichText::new(model).monospace());
-                                    ui.label(
-                                        RichText::new("Machine default").color(theme::muted()),
-                                    );
-                                } else {
-                                    ui.label(
-                                        RichText::new("Not the machine default")
-                                            .color(theme::muted()),
-                                    );
-                                }
-                            });
                         },
                     );
                 }
@@ -922,6 +933,9 @@ impl ConsoleApp {
                     ui.painter().rect_filled(bar, 2.0, theme::border());
                 });
                 ui.add_space(10.0);
+                if let Dialog::Models { current, .. } = &dialog {
+                    section_label(ui, if current.is_some() { "PROVIDERS · CHANGE DEFAULT" } else { "PROVIDERS · MAKE DEFAULT" });
+                }
                 let title = RichText::new(dialog_title(&dialog))
                     .family(theme::heading_family())
                     .size(if pairing_dialog { 22.0 } else { 19.0 });
@@ -1095,13 +1109,18 @@ impl ConsoleApp {
                     ui.label("Choose a provider to connect.");
                     ui.add_space(12.0);
                     for provider in providers {
-                        if ui.button(&provider.name).clicked() {
+                        if ui.add(egui::Button::new(&provider.name).wrap()
+                            .min_size(Vec2::new(ui.available_width(), 52.0))).clicked() {
                             let provider = provider.clone();
                             self.open_provider_auth(provider);
                             keep = false;
                         }
                     }
-                    if ui.button("Cancel").clicked() { dismiss_requested = true; }
+                    ui.add_space(16.0);
+                    ui.separator();
+                    ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                        if ui.button("Cancel").clicked() { dismiss_requested = true; }
+                    });
                 }
                 Dialog::ProviderKey { provider, value } => {
                     let key_label = ui.label(format!("Enter the {provider} API key."));
@@ -1118,18 +1137,79 @@ impl ConsoleApp {
                         }
                     });
                 }
-                Dialog::Models { provider } => {
-                    ui.label(format!("Choose the machine default from {}.", provider.name));
-                    for model in &provider.models {
-                        let label = if model.name.is_empty() { &model.id } else { &model.name };
-                        if ui.button(label).clicked() {
+                Dialog::Models { provider, current, query, selected } => {
+                    ui.label(RichText::new(format!("{} · Vadgr verifies availability before saving.", provider.name))
+                        .color(theme::muted()));
+                    ui.add_space(10.0);
+                    let search = ui.label("Search models");
+                    ui.scope(|ui| {
+                        ui.spacing_mut().text_edit_width = ui.available_width();
+                        TextInput::Singleline.show(ui, ui.make_persistent_id("model-search"), query)
+                            .labelled_by(search.id);
+                    });
+                    ui.add_space(8.0);
+                    ui.separator();
+                    let filter = query.trim().to_lowercase();
+                    let matches: Vec<_> = provider.models.iter().filter(|model| {
+                        filter.is_empty() || model.name.to_lowercase().contains(&filter)
+                            || model.id.to_lowercase().contains(&filter)
+                    }).collect();
+                    // The list yields height to the fixed title, search and action footer.
+                    egui::ScrollArea::vertical()
+                        .id_salt(("model-options", &provider.id))
+                        .auto_shrink([false, true])
+                        .min_scrolled_height(0.0)
+                        .max_height((screen.height() - 340.0).clamp(100.0, 360.0))
+                        .show(ui, |ui| {
+                            if matches.is_empty() {
+                                ui.add_space(12.0);
+                                ui.label(if provider.models.is_empty() { "No models available. Refresh models and try again." }
+                                    else { "No matching models. Try a different name or model ID." });
+                                ui.add_space(12.0);
+                            }
+                            for model in matches {
+                                let is_current = current.as_deref() == Some(model.id.as_str());
+                                let chosen = selected.as_deref() == Some(model.id.as_str());
+                                let label = if model.name.is_empty() { &model.id } else { &model.name };
+                                let mut text = egui::text::LayoutJob::default();
+                                text.append(label, 0.0, egui::TextFormat {
+                                    font_id: egui::FontId::new(13.0, theme::medium_family()),
+                                    color: theme::text(), ..Default::default()
+                                });
+                                if label != &model.id {
+                                    text.append(&format!("\n{}", model.id), 0.0, egui::TextFormat {
+                                        font_id: egui::FontId::monospace(11.0), color: theme::muted(), ..Default::default()
+                                    });
+                                }
+                                if is_current || chosen {
+                                    text.append(if is_current { "\nCurrent default" } else { "\nSelected" }, 0.0, egui::TextFormat {
+                                        font_id: egui::FontId::proportional(11.0), color: theme::muted(), ..Default::default()
+                                    });
+                                }
+                                let response = ui.push_id(&model.id, |ui| {
+                                    ui.add(egui::Button::new("").left_text(text).wrap().selected(chosen)
+                                        .min_size(Vec2::new(ui.available_width(), 64.0)))
+                                }).inner;
+                                response.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::Button,
+                                    true, chosen, format!("{label} ({})", model.id)));
+                                if response.gained_focus() {
+                                    response.scroll_to_me_animation(Some(Align::Center), egui::style::ScrollAnimation::none());
+                                }
+                                if response.clicked() { *selected = Some(model.id.clone()); }
+                            }
+                        });
+                    ui.add_space(16.0);
+                    ui.separator();
+                    ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                        let changed = selected.is_some() && *selected != *current;
+                        if primary_button(ui, "Use as default", changed && self.pending.is_none()) {
                             let provider_id = provider.id.clone();
-                            let model_id = model.id.clone();
+                            let model_id = selected.clone().expect("enabled selected model");
                             self.start(move |c| { c.set_default_model(&provider_id, &model_id)?; Ok(OperationResult::Changed) });
                             keep = false;
                         }
-                    }
-                    if ui.button("Cancel").clicked() { dismiss_requested = true; }
+                        if ui.button("Cancel").clicked() { dismiss_requested = true; }
+                    });
                 }
                 Dialog::DisconnectProvider(provider) => {
                     ui.label(
@@ -1986,6 +2066,10 @@ fn provider_name(id: &str) -> &str {
 #[cfg(test)]
 #[path = "refresh_tests.rs"]
 mod refresh_tests;
+
+#[cfg(test)]
+#[path = "provider_layout_tests.rs"]
+mod provider_layout_tests;
 
 #[cfg(test)]
 mod tests {
