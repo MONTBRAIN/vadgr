@@ -795,13 +795,13 @@ data, window state, appearance, scale and assistive settings after each group.
 |---|---|---|---|---|---|---|
 | VW01 | native Windows, supported architectures | exact installed artifact; safe provider/catalog state and complete group 1 matrix | UIA drives provider/model lists; inspect actual app-only images against the approved grouping, spacing, contrast and overflow rules | provider/catalog API plus persisted default; cancellation preserves it | private per-combination records; restore provider/default state | not run: the current 0.5.0 Windows provider/model matrix must execute |
 | VM01 | macOS, supported architectures | exact installed artifact; safe provider/catalog state and complete group 1 matrix | AX drives provider/model lists; inspect actual app-only images against the approved grouping, spacing, contrast and overflow rules | provider/catalog API plus persisted default; cancellation preserves it | private per-combination records; restore provider/default state | not run: the current 0.5.0 macOS provider/model matrix must execute |
-| VL01 | native Linux, supported architectures and sessions | exact installed artifact; external MCP driver; safe provider/catalog state and complete group 1 matrix | MCP accessibility drives provider/model lists; inspect authorized images against the approved grouping, spacing, contrast and overflow rules | provider/catalog API plus persisted default; cancellation preserves it | private per-combination records; restore provider/default state | not run: the current 0.5.0 Linux provider/model matrix must execute |
+| VL01 | native Linux, supported architectures and sessions | exact installed artifact; external MCP driver; safe provider/catalog state and complete group 1 matrix | MCP accessibility drives provider/model lists; inspect authorized images against the approved grouping, spacing, contrast and overflow rules | provider/catalog API plus persisted default; cancellation preserves it | private per-combination records; restore provider/default state | FAIL at `25a8f8b0` on x86_64 GNOME Wayland, light theme, 1205 x 736: the 33-model picker exceeds the client; heading and footer are offscreen, and button labels have low contrast. Cancellation preserved the independent default. Rebuilt installed reruns and every unobserved combination remain owed |
 | VW02 | native Windows, supported architectures | exact artifact and complete group 2 matrix; isolate list data | UIA drives every other shipped list, including long and scrollable content; inspect actual images at every required variant | corresponding public API, CLI or owned-file inventory | private per-combination records; remove only test entries and restore settings | not run: the current 0.5.0 Windows other-list matrix must execute |
 | VM02 | macOS, supported architectures | exact artifact and complete group 2 matrix; isolate list data | AX drives every other shipped list, including long and scrollable content; inspect actual images at every required variant | corresponding public API, CLI or owned-file inventory | private per-combination records; remove only test entries and restore settings | not run: the current 0.5.0 macOS other-list matrix must execute |
 | VL02 | native Linux, supported architectures and sessions | exact artifact, external MCP driver and complete group 2 matrix; isolate list data | MCP accessibility drives every other shipped list, including long and scrollable content; inspect authorized images at every required variant | corresponding public API, CLI or owned-file inventory | private per-combination records; remove only test entries and restore settings | not run: the current 0.5.0 Linux other-list matrix must execute |
 | VW03 | native Windows, supported architectures | exact artifact and complete group 3 matrix; isolated lifecycle state | UIA opens every dialog and installer frame; inspect hierarchy, wrapping, focus, disabled states, footer reachability and cancellation | independent state before/after; package/process oracle for lifecycle frames | private per-combination records; restore preserved state and owned settings | not run: the current 0.5.0 Windows dialog/frame matrix must execute |
 | VM03 | macOS, supported architectures | exact artifact and complete group 3 matrix; isolated lifecycle state | AX opens every dialog and installer frame; inspect hierarchy, wrapping, focus, disabled states, footer reachability and cancellation | independent state before/after; package/process oracle for lifecycle frames | private per-combination records; restore preserved state and owned settings | not run: the current 0.5.0 macOS dialog/frame matrix must execute |
-| VL03 | native Linux, supported architectures and sessions | exact artifact, external MCP driver and complete group 3 matrix; isolated lifecycle state | MCP accessibility opens every dialog and installer frame; inspect hierarchy, wrapping, focus, disabled states, footer reachability and cancellation | independent state before/after; package/process oracle for lifecycle frames | private per-combination records; restore preserved state and owned settings | not run: the current 0.5.0 Linux dialog/frame matrix must execute |
+| VL03 | native Linux, supported architectures and sessions | exact artifact, external MCP driver and complete group 3 matrix; isolated lifecycle state | MCP accessibility opens every dialog and installer frame; inspect hierarchy, wrapping, focus, disabled states, footer reachability and cancellation | independent state before/after; package/process oracle for lifecycle frames | private per-combination records; restore preserved state and owned settings | FAIL at `25a8f8b0` on x86_64 GNOME Wayland: the wide installer omits the approved brand/progress rail; rendered control contrast also fails. Source repairs are not installed qualification. Rebuilt installed reruns and every unobserved dialog/state/size/scale/theme remain owed |
 
 Each row is independently runnable from its named setup. Only an unavoidable
 protected permission or physical device step requires the owner; prepare it
@@ -822,7 +822,7 @@ combinations actually observed. A partial combination matrix is not a cell pass.
 
 | Part | Windows native | macOS | native Linux | WSL |
 |---|---|---|---|---|
-| V: native lists and dialogs visual qualification | not run: VW01-VW03 require current artifact images and complete variant ledger; historical O2 remains separate | not run: VM01-VM03 require current artifact images and complete variant ledger; historical O2 remains separate | not run: VL01-VL03 require current artifact images and complete variant ledger; development observations cannot qualify unobserved variants | Not-Needed: WSL product is CLI-only; no native list or dialog surface |
+| V: native lists and dialogs visual qualification | not run: VW01-VW03 require current artifact images and complete variant ledger; historical O2 remains separate | not run: VM01-VM03 require current artifact images and complete variant ledger; historical O2 remains separate | FAIL: VL01 and VL03 have observed layout/contrast defects on exact `25a8f8b0`; rebuilt installed reruns remain owed. VL02 and unobserved combinations remain not run; no other desktop or architecture inherits this result | Not-Needed: WSL product is CLI-only; no native list or dialog surface |
 | H: protected owner boundaries | partial functional: F01 QR/Built-in and typed-code/Tailscale completed; W02 is a post-merge trust assertion | partial functional: physical saved-name QR/Built-in pairing completed; M02 is a post-merge signed-identity assertion | partial functional: exact `eab017e5` installed without a package-manager prompt on the available FUSE host. The missing-FUSE variant was not exercised. F01 remains owed: the current host ADB server probe returned connection refused before listing a phone. The provider/default setup is preserved; no scanner-ready claim is made | Not-Needed: WSL has no native GUI or protected installer prompt |
 | W: Windows cells | historical pre-merge functional qualification completed at `24ae14a` on available x64 hardware; shared update changes and the `bb8fb0a8` console action/refresh fix require affected update, restart/action and O2 reruns against a rebuilt package. Unchanged observations remain filed; W11 producer coverage is not ARM64 installed-product coverage. ARM64 installed-product hardware is unavailable. Held-candidate-only slices remain separate | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells |
 | M: macOS cells | Not-Needed: macOS-only cells | partial functional: Apple Silicon installation, native configuration, phone watch and restart observations are filed; the host must build the exact current release-equivalent unsigned PKG and complete affected lifecycle and cleanup before merge. Intel hardware remains unavailable. Signed identity assertions are tracked separately | Not-Needed: macOS-only cells | Not-Needed: macOS-only cells |
@@ -1631,6 +1631,46 @@ both palettes, preference changes, fallback, nested portal values and cached UI
 refresh. These tests and a read-only native portal diagnostic are not installed
 E2E passes. Rebuild the AppImage and repeat the affected L01, L02 and O2 visual
 assertions with both themes. Windows and macOS theme handling is unchanged.
+
+### Linux installed visual findings at `25a8f8b0`
+
+The current observed host is Ubuntu 26.04 x86_64, GNOME 50.1 Wayland in VMware.
+This is virtualized native coverage, not bare-metal, VirtualBox, X11, aarch64
+or another desktop's coverage. Earlier VirtualBox-labelled records retain
+their original dated scope; this observation does not relabel them.
+
+The installed unsigned source is
+`25a8f8b065753a1731fcc893ea549df540f6e58d`, with vehicle
+`Vadgr-0.5.0-linux-x86_64-installer.AppImage`, 577,972,728 bytes, SHA-256
+`1b826ebb439e2148ef3d7d5cb8f6d090561bd4fd34a17407487ece9f32750035`.
+The exact successful producer attempt and full package inventory are recorded
+in evidence PR 176. This identity is not a signed or released candidate.
+
+VL01 failed on the light-theme 1205 x 736 installed client. The 33-model picker
+extends beyond both ends of the client, hiding its heading and footer; a
+fresh accessible Cancel bound is below the visible client. Standard button
+labels are dark on dark fills. Provider connection choices also depart from
+the approved grouping and spacing. Actual exposed MCP captures were inspected,
+not inferred from accessible names. The independent machine/provider, terms,
+credential and vehicle digests remained unchanged after cancellation. Raw
+failure observations and inspected images are retained through evidence commit
+`73e449322cebf80847d0a84b28518c6a51a40f5c` in evidence PR 176.
+
+VL03 also failed the installed wide-frame hierarchy: the required brand and
+progress rail are missing. Source repair `fd1829da` and its negative/positive
+rendering regressions are preserved through evidence commit `e18e3d10`.
+They do not repair the already-installed vehicle. The current provider/dialog
+source fixes likewise require a rebuilt, identity-verified installed rerun.
+All other state, size, scale, theme and host combinations remain owed until
+actually observed. Shared picker and control-theme changes invalidate affected
+native Windows and macOS visual results too; no passing result is inherited.
+
+The earlier terms focus/reveal defect is separate from footer clipping: a
+native focus action did not reveal the selected terms content. Repairs
+`5c0e070e` and test strengthening `4448a4ed` have negative/positive source
+coverage. A scrollbar without the required Value interface was a diagnostic
+boundary, not a successful scroll. Source tests never substitute for the
+installed focus/reveal and visual readback oracles.
 
 ## macOS qualification history
 
