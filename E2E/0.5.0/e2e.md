@@ -741,12 +741,42 @@ oracles. Windows executes only the Windows rows in this session.
 | S05 | WSL x64/arm64 | fault-injection distribution | S04 complete | retained release-equivalent previous/next archives; held artifacts for trust assertions | inject failures, update, repair and rollback through `install.sh` | `current`, receipts, health and state identity | prior generation remains runnable and rollback is verified/local | private WSL lifecycle capture | restore fixed version | none | functional lifecycle and fault assertions gate merge; retained-artifact trust remains owed against the held candidate |
 | S06 | WSL x64/arm64 | isolated E2E state only | S05 functional slice complete | agent records isolated state identity | agent drives uninstall-preserve/reinstall, then `--delete-owner-state` and types the confirmation | exact Linux roots and Windows no-change snapshot | state survives first cycle; separate purge removes only isolated WSL Vadgr state | private WSL uninstall capture | agent removes test assets | no owner action | pre-merge functional assertion: run against the exact release-equivalent assets; no signing identity is required |
 
+## Part B: installed bundled computer use
+
+B01 makes the real bundled-CUA task an explicit requirement on each supported
+host. It supplements W06, M05, L04 and S04; it does not replace their assertions.
+Inventory, private-Python startup, tools/list and truthful unavailability do not
+prove task execution. The external MCP driver used for UI testing cannot pass B01.
+
+Run B01 before merge wherever the approved installed runtime can execute.
+If protected adoption is required, retain the exact missing producer output as
+a blocker. Run the cell against the held authorized candidate before release.
+This follows the existing post-merge trust lane without removing the task.
+Never invent authorization or disable verification to make the cell pass.
+Do not report bundled computer use as qualified until B01 passes.
+
+Prepare an isolated nonsecret fixture window with a fresh visible test marker.
+Submit the task through the installed Vadgr CLI or API, not a separate CUA server:
+"Use computer use to capture only the prepared test window and report its visible test marker."
+Record the exact public command, selected image-capable model and hard budget
+before submission. Use the billed-model rules above. No phone is required.
+Verify the run journal contains the bundled tool call, its image result and
+the model continuation reading the correct marker. Inspect the returned image.
+Bind the child process and interpreter to the installed private payload by path
+and digest. Retain safe path labels, exact hashes and process identities privately.
+Reject a system Python, external driver, checkout or runtime override substitute.
+Follow the current capture policy; never retain a desktop image containing secrets.
+
+| cell | operating system and architecture | precondition and setup | exact action | oracle | expected result | evidence boundary | cleanup | result |
+|---|---|---|---|---|---|---|---|---|
+| B01 | every supported host and architecture; record each actual desktop separately | exact installed package; pinned private Python and CUA 0.7.9; approved runtime authorization; safe fixture; image-capable provider and recorded budget | submit the bounded screenshot-and-marker task through installed Vadgr | terminal run journal, successful bundled tool call and image, correct marker, inspected capture, installed child-process and payload identities | real task succeeds without system Python or the external testing MCP | private host boundary with source, artifact, run, payload and safe output identities | remove test run, fixture and task-owned processes after filing; preserve owner state | blocked on current Linux `70eed017`: installed CUA 0.7.9 lacks required runtime authorization and verification material. No bundled task ran. Windows authorized-task slice remains owed. Earlier macOS task evidence needs exact artifact and oracle compatibility review; WSL has no admitted result for this cell. No cross-host pass is inferred |
+
 ## Part V: native lists and dialogs visual qualification
 
 These nine mandatory pre-merge visual cells supplement O2 and the existing
 functional cells. They do not replace accessibility, screen-reader or backend
-qualification. The complete runbook now contains 42 cells: the existing 33
-plus three visual groups on each of three native operating systems. WSL is
+qualification. The complete runbook now contains 43 cells: the existing 33,
+the explicit bundled-runtime cell, and nine native visual cells. WSL is
 `Not-Needed` for Part V because its product is CLI-only. It does not inherit
 Windows GUI results. Expand supported architectures and desktop sessions
 inside each host ledger; a result on one variant never qualifies another.
@@ -897,6 +927,7 @@ earlier reader observations do not qualify the shared repairs.
 
 | Part | Windows native | macOS | native Linux | WSL |
 |---|---|---|---|---|
+| B: installed bundled computer use | blocked: protected runtime authorization is required for B01 | not run: review earlier task evidence against B01 and the exact current artifact | blocked: B01 lacks runtime authorization and verification material at `70eed017`; external MCP testing is not bundled execution | not run: B01 needs an admitted installed-package task and exact payload evidence |
 | V: native lists and dialogs visual qualification | not run: VW01-VW03 require current artifact images and complete variant ledger; historical O2 remains separate | not run: VM01-VM03 require current artifact images and complete variant ledger; historical O2 remains separate | FAIL: VL01-VL03 have specific installed layout/contrast failures at `16cd0c47`; prior `25a8f8b0` failures remain filed. Rebuilt installed reruns and unobserved combinations remain owed; no other desktop or architecture inherits this result | Not-Needed: WSL product is CLI-only; no native list or dialog surface |
 | H: protected owner boundaries | partial functional: F01 QR/Built-in and typed-code/Tailscale completed; W02 is a post-merge trust assertion | partial functional: physical saved-name QR/Built-in pairing completed; M02 is a post-merge signed-identity assertion | partial functional at exact `16cd0c47`: installation completed without a package-manager prompt on the available FUSE host. Missing-FUSE approval was not exercised. F01 remains pending current authorized physical-device and host-bridge verification; no current enumeration, scanner-ready or pairing claim is made | Not-Needed: WSL has no native GUI or protected installer prompt |
 | W: Windows cells | historical pre-merge functional qualification completed at `24ae14a` on available x64 hardware; shared update changes and the `bb8fb0a8` console action/refresh fix require affected update, restart/action and O2 reruns against a rebuilt package. Unchanged observations remain filed; W11 producer coverage is not ARM64 installed-product coverage. ARM64 installed-product hardware is unavailable. Held-candidate-only slices remain separate | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells |

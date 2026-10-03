@@ -1390,6 +1390,38 @@ evidence is a claim.>
 usually: the journal is the proof and the status is not, because a run ends
 `completed` on the legacy path too.>
 
+## Part B: installed bundled computer use
+
+Keep B01 whenever Vadgr ships a bundled computer-use runtime. Expand its result
+by every supported host, architecture and applicable desktop session.
+Do not infer one platform's pass from another platform or a hosted producer.
+Inventory, private-Python startup, tools/list and truthful unavailability are
+separate assertions. None proves a real task through the installed product.
+The external testing MCP never substitutes for the subject's bundled runtime.
+
+Run the cell before merge when the approved installed runtime can execute.
+If protected authorization is unavailable, record the exact missing producer
+output and the owning lifecycle gate. Keep B01 blocked, not passed or omitted.
+Execute it against the authorized held candidate before release. Never fabricate
+adoption metadata, disable verification or substitute another runtime.
+Do not call bundled computer use qualified until the task passes.
+
+Prepare an isolated nonsecret fixture window with a fresh visible test marker.
+Submit this goal through the installed Vadgr CLI or API:
+"Use computer use to capture only the prepared test window and report its visible test marker."
+Freeze the exact command, artifact, image-capable model and hard budget first.
+Follow the billed-model and capture rules in this runbook. No phone is required.
+Require a successful bundled tool call, its returned image, a model continuation
+reading the marker, and terminal success in the same run journal.
+Inspect the returned image and compare the marker with the independent fixture.
+Bind the executing child and private interpreter to the installed payload hashes.
+Check that no system Python, checkout, external MCP or runtime override was used.
+Keep private paths and secret-bearing outputs out of retained evidence.
+
+| cell | platform | precondition and setup | action | independent oracle | evidence boundary | cleanup | result |
+|---|---|---|---|---|---|---|---|
+| B01 | <each supported host, architecture and desktop> | <exact installed artifact, pinned bundled runtime, approved authorization, safe fixture, image-capable provider and budget> | run the bounded screenshot-and-marker task through installed Vadgr | journal tool call, image and continuation; fixture match; installed process, interpreter and payload identities | private exact-source/artifact/run evidence and inspected safe output | remove only task-owned run, fixture and processes after filing | not run: populate exact runtime and provider prerequisites before execution |
+
 ## Part V: native lists and dialogs visual qualification
 
 Keep these nine cells in every minor with native graphical surfaces. Replace
@@ -1591,6 +1623,7 @@ actually driven on that OS.
 | automated gate: build, test, lint | | | | | |
 | surface coverage | | | | | |
 | Part <X> | | | | | |
+| Part B | not run: exact installed bundled task owed | not run: exact installed bundled task owed | not run: exact installed bundled task owed | not run: exact installed bundled task owed | name B01 and the exact runtime, artifact, authorization and provider prerequisites; no external-driver substitution |
 | Part V | not run: native list/dialog matrix owed | not run: native list/dialog matrix owed | not run: native list/dialog matrix owed | Not-Needed: CLI-only product | name VL01-VL03, VM01-VM03 and VW01-VW03; retain unavailable variant reasons |
 | installed product on the host | | | | | name `OS-L`, `OS-M`, `OS-W`, `OS-Q` |
 | **Overall** | | | | | |
