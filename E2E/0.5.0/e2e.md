@@ -389,6 +389,15 @@ navigation. Pair settled native focus with actual reader output and independent
 state. Frame-only focus is not a control-focus pass; cancellation does not pass
 an unrun successful operation.
 
+When another operation is pending, an unavailable submission must stay disabled
+and state its reason inside the dialog. Verify that the draft remains intact
+and cancellation remains available. Conditional waiting text must not change
+surviving control identities or lose focus. After completion, verify the
+submission's actual state and independent outcome. A dialog that closes without
+dispatching its requested operation fails. Exercise this through an ordinary
+installed operation where available; do not manufacture timing or infer
+installed coverage from a source regression. Include these assertions in O2.
+
 #### Conditional Linux screen-reader startup
 
 Prove reader readiness before the O2 state matrix. A speech-server startup
@@ -880,8 +889,8 @@ combinations actually observed. A partial combination matrix is not a cell pass.
 
 Current Linux O2 disposition: **fail for the observed focus assertions** at
 installed `357510b4`. Seven dialog families lack safe initial control focus and
-focus return after cancellation. The earlier focus-paint and notice-identity
-repair at `a3bc4688` has source proof only, not an installed rerun. The older
+focus return after cancellation. The combined focus-paint, notice-identity and
+dialog repair at `4046eabe` has source proof only, not an installed rerun. The older
 assertion-level results below remain historical at their named identities.
 Affected Windows and macOS focus assertions also require rebuilt reruns; their
 earlier reader observations do not qualify the shared repairs.
@@ -2003,6 +2012,29 @@ an installed replacement artifact. The intermediate proof remains historical;
 no package adoption or installed pass follows from it. A shared dialog repair,
 negative regression proof, rebuilt AppImage and affected installed reruns are
 still required. Windows and macOS must rerun affected shared focus behavior too.
+
+### Linux combined source proof at `4046eabe`
+
+On October 3, the combined repair at
+`4046eabeff041fac4ba00ce54ef786fb894b6245` passed all 14 local gates and the 15
+dialog-lifecycle tests. Two fresh corresponding-source builds then exited zero,
+as did both executable policy checks and their enclosing command. The baseline
+build took 1473.326 seconds; the modified-source build took 1472.672 seconds.
+Each compiled 519 dependency identities and both retained accessibility patches,
+with no resolution stubs. The required dependency metadata differed and the
+source marker was absent in the baseline and present in the modified proof.
+
+Both retained proof executables are byte-identical: 76,773,808 bytes with SHA-256
+`f9c46ace9b2a2c37ad8f5acc8f415ebe6e08da2d852a4d8ce9d02da45045f5a8`.
+They are source-proof outputs, not the registered AppImage and not an installed
+E2E result. The sealed source update preserves all 825 component identities,
+713 registry package identities, terms and grants. Its assembled-payload and
+paired privacy checks passed without a new legal or release approval.
+
+The installed `357510b4` failures remain open until the rebuilt retained AppImage
+passes the affected live focus, reader and visual assertions. Earlier failures
+and interrupted attempts remain filed. No whole Linux cell, cross-platform
+result, signing assertion or release is passed by these source checks.
 
 ## macOS qualification history
 

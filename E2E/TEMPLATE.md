@@ -941,6 +941,14 @@ cells while a specific owner approval or producer prerequisite remains owed.
   focus after navigation. Verify settled native focus, actual reader output and
   unchanged state separately. A frame-only focus state is not a control-focus
   pass, and a cancelled operation is not evidence for its unrun success path.
+- When another operation is pending, an unavailable submission must stay
+  disabled and state its reason inside the dialog. Verify that the draft
+  remains intact and cancellation remains available. Conditional waiting text
+  must not change surviving control identities or lose focus. After completion,
+  verify the submission's actual state and independent outcome. A dialog that
+  closes without dispatching its requested operation fails. Exercise this
+  through an ordinary installed operation where available; do not manufacture
+  timing or infer installed coverage from a source regression.
 - Prove enabled/disabled semantics and native text replacement on isolated
   ordinary fields before settings, credentials or typed purge. On Linux,
   `EditableText.SetTextContents` must actually work; an editable flag or click
