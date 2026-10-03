@@ -84,10 +84,21 @@ fn native_linux_is_graphical_and_wsl_is_cli_only() {
 }
 
 #[test]
-fn linux_lifecycle_accepts_an_already_healthy_daemon() {
+fn linux_lifecycle_accepts_only_the_same_admitted_daemon() {
     let linux = read("src/install/linux.rs");
-    assert!(linux.contains(".arg(\"health\")"));
-    assert!(linux.contains("the installed Vadgr daemon is not healthy"));
+    let service = read("src/cli/commands/service.rs");
+    assert!(!linux.contains(".arg(\"health\")"));
+    assert!(
+        linux.contains("ensure!(status.success(), \"the installed Vadgr daemon is not ready\")")
+    );
+    assert!(service.contains("if packaged && packaged_existing_ready(pid).await"));
+    assert!(service.contains("status[\"venv_ready\"] == true"));
+    assert!(
+        service.contains("ready && packaged_binding(pid, port, true).as_ref() == Some(&before)")
+    );
+    assert!(
+        service.contains("same_generation_process(&process, &executable, &installed, &vehicle)")
+    );
 }
 
 #[test]

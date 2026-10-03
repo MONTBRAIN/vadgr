@@ -84,6 +84,9 @@ where
     );
     let staging = root.join(format!(".stage-{}", uuid::Uuid::new_v4()));
     let previous = read_current(&root)?;
+    let mut committed = false;
+    let mut daemon_started = false;
+    let mut startup_record_before = None;
     progress(InstallPhase::Staging);
     let result = stage_generation(
         &staging,
@@ -96,11 +99,14 @@ where
     .and_then(|_| {
         progress(InstallPhase::Committing);
         std::fs::rename(&staging, &generation).context("committing the Vadgr generation")?;
+        committed = true;
         switch_current(&root, verified.version())?;
         progress(InstallPhase::RegisteringLaunch);
         register_launch_entries(&root)?;
         progress(InstallPhase::HealthCheck);
+        startup_record_before = Some(read_startup_record(&startup_record_path()?)?);
         start_and_probe(&root)?;
+        daemon_started = true;
         record_terms_acceptance(
             terms_version,
             verified.version(),
@@ -112,13 +118,158 @@ where
         Ok(())
     });
     if let Err(error) = result {
-        let _ = restore_current(&root, previous.as_deref());
-        let _ = start_and_probe(&root);
-        let _ = std::fs::remove_dir_all(&staging);
-        let _ = std::fs::remove_dir_all(&generation);
-        return Err(error);
+        if !daemon_started
+            && let Some(before) = startup_record_before
+            && let Err(cleanup) = startup_record_path()
+                .and_then(|path| verify_failed_start_cleanup(&path, before.as_ref()))
+        {
+            return Err(error).context(format!(
+                "installation rollback was incomplete; the package was retained: {cleanup:#}"
+            ));
+        }
+        let rollback = rollback_failed_installation(
+            &root,
+            previous.as_deref(),
+            &staging,
+            &generation,
+            committed,
+            daemon_started,
+        );
+        return match rollback {
+            Ok(()) => Err(error),
+            Err(rollback) => Err(error).context(format!(
+                "installation rollback was incomplete: {rollback:#}"
+            )),
+        };
     }
     Ok(generation)
+}
+
+fn startup_record_path() -> Result<PathBuf> {
+    let home = std::env::var_os("VADGR_HOME")
+        .map(PathBuf::from)
+        .or_else(|| std::env::var_os("HOME").map(|home| PathBuf::from(home).join(".vadgr")))
+        .ok_or_else(|| anyhow!("the daemon service directory is unavailable"))?;
+    ensure!(
+        home.is_absolute(),
+        "the daemon service directory is not absolute"
+    );
+    Ok(home.join("pids/api.pid"))
+}
+
+#[derive(PartialEq, Eq)]
+struct StartupRecord {
+    identity: (u64, u64, i64, i64),
+    bytes: Vec<u8>,
+}
+
+fn read_startup_record(path: &Path) -> Result<Option<StartupRecord>> {
+    use std::io::Read;
+    use std::os::unix::fs::{MetadataExt, OpenOptionsExt};
+    let file = match std::fs::OpenOptions::new()
+        .read(true)
+        .custom_flags((rustix::fs::OFlags::NONBLOCK | rustix::fs::OFlags::NOFOLLOW).bits() as i32)
+        .open(path)
+    {
+        Ok(file) => file,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+        Err(error) => return Err(error).context("reading daemon startup cleanup state"),
+    };
+    ensure!(
+        file.metadata()?.is_file(),
+        "daemon startup cleanup state is not a regular file"
+    );
+    let identity = |metadata: std::fs::Metadata| {
+        (
+            metadata.dev(),
+            metadata.ino(),
+            metadata.ctime(),
+            metadata.ctime_nsec(),
+        )
+    };
+    let before = identity(file.metadata()?);
+    let mut bytes = Vec::new();
+    (&file).take(4097).read_to_end(&mut bytes)?;
+    ensure!(
+        bytes.len() <= 4096,
+        "daemon startup cleanup state is too large"
+    );
+    ensure!(
+        identity(file.metadata()?) == before && identity(std::fs::metadata(path)?) == before,
+        "daemon startup cleanup state changed while reading"
+    );
+    Ok(Some(StartupRecord {
+        identity: before,
+        bytes,
+    }))
+}
+
+fn verify_failed_start_cleanup(path: &Path, before: Option<&StartupRecord>) -> Result<()> {
+    let after = read_startup_record(path)?;
+    // A failed packaged start retains its newly reserved record unless the
+    // complete owned process tree is proved gone. Never delete those files.
+    ensure!(
+        after.is_none() || after.as_ref() == before,
+        "the failed daemon's process-tree cleanup is not confirmed"
+    );
+    Ok(())
+}
+
+fn rollback_failed_installation(
+    root: &Path,
+    previous: Option<&str>,
+    staging: &Path,
+    generation: &Path,
+    committed: bool,
+    daemon_started: bool,
+) -> Result<()> {
+    rollback_failed_installation_with(
+        root,
+        previous,
+        staging,
+        generation,
+        committed,
+        daemon_started,
+        |previous| {
+            if previous.is_some() {
+                register_launch_entries(root)?;
+                start_and_probe(root).context("restoring the previous daemon")
+            } else {
+                unregister_launch_entries(root)
+            }
+        },
+    )
+}
+
+fn rollback_failed_installation_with(
+    root: &Path,
+    previous: Option<&str>,
+    staging: &Path,
+    generation: &Path,
+    committed: bool,
+    daemon_started: bool,
+    restore_launch: impl FnOnce(Option<&str>) -> Result<()>,
+) -> Result<()> {
+    // A failed start owns and reaps its child. If a later transaction step
+    // fails, stop the successfully started generation before removing it.
+    if daemon_started {
+        let status = std::process::Command::new(generation.join("Vadgr.AppImage"))
+            .arg("stop")
+            .status()
+            .context("stopping the failed installation")?;
+        ensure!(status.success(), "the failed installation could not stop");
+    }
+    if committed {
+        restore_current(root, previous)?;
+        restore_launch(previous)?;
+    }
+    let owned_paths = [Some(staging), committed.then_some(generation)];
+    for path in owned_paths.into_iter().flatten() {
+        if path.exists() {
+            std::fs::remove_dir_all(path).context("removing the failed package generation")?;
+        }
+    }
+    Ok(())
 }
 
 fn start_and_probe(root: &Path) -> Result<()> {
@@ -128,16 +279,7 @@ fn start_and_probe(root: &Path) -> Result<()> {
         .arg("start")
         .status()
         .context("starting the installed Vadgr daemon")?;
-    if !status.success() {
-        let health = std::process::Command::new(root.join("current/Vadgr.AppImage"))
-            .arg("health")
-            .status()
-            .context("checking the installed Vadgr daemon")?;
-        ensure!(
-            health.success(),
-            "the installed Vadgr daemon is not healthy"
-        );
-    }
+    ensure!(status.success(), "the installed Vadgr daemon is not ready");
     Ok(())
 }
 
@@ -521,5 +663,156 @@ mod development_lifecycle_tests {
     #[test]
     fn unsigned_builds_do_not_offer_cross_source_rollback() {
         assert!(!super::rollback_available().unwrap());
+    }
+}
+
+#[cfg(test)]
+mod failed_install_tests {
+    use super::*;
+    use std::cell::Cell;
+
+    #[test]
+    fn failed_install_retains_package_when_startup_cleanup_is_unproved() {
+        let temp = tempfile::tempdir().unwrap();
+        let record = temp.path().join("api.pid");
+        assert!(verify_failed_start_cleanup(&record, None).is_ok());
+        std::fs::write(&record, "older").unwrap();
+        let older = read_startup_record(&record).unwrap();
+        for bytes in [b"".as_slice(), b"1234".as_slice()] {
+            std::fs::write(&record, bytes).unwrap();
+            assert!(verify_failed_start_cleanup(&record, None).is_err());
+            assert!(verify_failed_start_cleanup(&record, older.as_ref()).is_err());
+            assert_eq!(std::fs::read(&record).unwrap(), bytes);
+        }
+        let same = read_startup_record(&record).unwrap();
+        assert!(verify_failed_start_cleanup(&record, same.as_ref()).is_ok());
+        std::fs::rename(&record, temp.path().join("previous-record")).unwrap();
+        assert!(verify_failed_start_cleanup(&record, older.as_ref()).is_ok());
+        std::fs::write(&record, "1234").unwrap();
+        assert!(verify_failed_start_cleanup(&record, same.as_ref()).is_err());
+        std::fs::remove_file(&record).unwrap();
+        std::fs::create_dir(&record).unwrap();
+        assert!(verify_failed_start_cleanup(&record, None).is_err());
+        std::fs::remove_dir(&record).unwrap();
+        symlink(temp.path().join("previous-record"), &record).unwrap();
+        assert!(read_startup_record(&record).is_err());
+    }
+
+    #[test]
+    fn failed_install_start_cannot_be_masked_by_a_successful_health_probe() {
+        let temp = tempfile::tempdir().unwrap();
+        let current = temp.path().join("current");
+        std::fs::create_dir(&current).unwrap();
+        let command = current.join("Vadgr.AppImage");
+        std::fs::write(
+            &command,
+            "#!/bin/sh\ncase \"$1\" in start) exit 1;; health) exit 0;; *) exit 2;; esac\n",
+        )
+        .unwrap();
+        executable(&command).unwrap();
+        assert!(start_and_probe(temp.path()).is_err());
+    }
+
+    #[test]
+    fn uncommitted_attempt_does_not_remove_an_unowned_generation() {
+        let temp = tempfile::tempdir().unwrap();
+        let root = temp.path();
+        let generation = root.join("versions/new");
+        let staging = root.join("stage");
+        std::fs::create_dir_all(&generation).unwrap();
+        std::fs::create_dir(&staging).unwrap();
+        rollback_failed_installation_with(root, None, &staging, &generation, false, false, |_| {
+            panic!("an uncommitted attempt must not change registration")
+        })
+        .unwrap();
+        assert!(generation.exists());
+        assert!(!staging.exists());
+    }
+
+    #[test]
+    fn clean_install_failure_removes_launch_registration_and_preserves_state() {
+        let temp = tempfile::tempdir().unwrap();
+        let root = temp.path();
+        let generation = root.join("versions/new");
+        let staging = root.join("stage");
+        std::fs::create_dir_all(&generation).unwrap();
+        std::fs::create_dir(&staging).unwrap();
+        std::fs::write(root.join("owner-state"), "preserve").unwrap();
+        switch_current(root, "new").unwrap();
+        let unregistered = Cell::new(false);
+        rollback_failed_installation_with(
+            root,
+            None,
+            &staging,
+            &generation,
+            true,
+            false,
+            |previous| {
+                assert!(previous.is_none());
+                assert!(!root.join("current").is_symlink());
+                unregistered.set(true);
+                Ok(())
+            },
+        )
+        .unwrap();
+        assert!(unregistered.get());
+        assert!(!generation.exists() && !staging.exists());
+        assert_eq!(
+            std::fs::read_to_string(root.join("owner-state")).unwrap(),
+            "preserve"
+        );
+    }
+
+    #[test]
+    fn failed_stop_keeps_generation_and_selection_intact() {
+        let temp = tempfile::tempdir().unwrap();
+        let root = temp.path();
+        let generation = root.join("versions/new");
+        let staging = root.join("stage");
+        std::fs::create_dir_all(&generation).unwrap();
+        let command = generation.join("Vadgr.AppImage");
+        std::fs::write(&command, "#!/bin/sh\nexit 1\n").unwrap();
+        executable(&command).unwrap();
+        switch_current(root, "new").unwrap();
+        let result = rollback_failed_installation_with(
+            root,
+            None,
+            &staging,
+            &generation,
+            true,
+            true,
+            |_| panic!("must not alter registration while the daemon can remain alive"),
+        );
+        assert!(result.is_err());
+        assert!(generation.exists());
+        assert_eq!(read_current(root).unwrap().as_deref(), Some("new"));
+    }
+
+    #[test]
+    fn previous_generation_is_restored_before_failed_generation_removal() {
+        let temp = tempfile::tempdir().unwrap();
+        let root = temp.path();
+        let generation = root.join("versions/new");
+        let previous = root.join("versions/old");
+        let staging = root.join("stage");
+        std::fs::create_dir_all(&generation).unwrap();
+        std::fs::create_dir_all(&previous).unwrap();
+        switch_current(root, "new").unwrap();
+        rollback_failed_installation_with(
+            root,
+            Some("old"),
+            &staging,
+            &generation,
+            true,
+            false,
+            |selected| {
+                assert_eq!(selected, Some("old"));
+                assert_eq!(read_current(root)?.as_deref(), selected);
+                assert!(generation.exists());
+                Ok(())
+            },
+        )
+        .unwrap();
+        assert!(previous.exists() && !generation.exists());
     }
 }

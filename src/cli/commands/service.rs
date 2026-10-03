@@ -9,7 +9,7 @@
 use std::io::{BufRead, Read, Seek, SeekFrom, Write};
 use std::net::{TcpListener, TcpStream, ToSocketAddrs};
 use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
+use std::process::{Child, Command, Stdio};
 use std::time::Duration;
 
 use crate::client::Client;
@@ -53,6 +53,419 @@ fn open_service_log(path: &Path) -> std::io::Result<std::fs::File> {
 
 /// How long the CLI waits for the daemon to answer health after spawning it.
 const API_STARTUP_TIMEOUT: Duration = Duration::from_secs(30);
+
+fn packaged_startup() -> Result<bool, CliError> {
+    #[cfg(target_os = "linux")]
+    {
+        let executable = std::env::current_exe().ok();
+        let appdir = std::env::var_os("APPDIR").map(PathBuf::from);
+        let installed = std::env::var_os("VADGR_INSTALL_ROOT").map(PathBuf::from);
+        let vehicle = std::env::var_os("APPIMAGE").map(PathBuf::from);
+        if vadgr_daemon::platform::machine_platform() != "linux" {
+            return Ok(false);
+        }
+        let intent = appdir.is_some() || installed.is_some() || vehicle.is_some();
+        classify_installed_startup(
+            intent,
+            installed_startup_layout(
+                cfg!(feature = "linux-unsigned-qualification"),
+                vadgr_daemon::platform::machine_platform(),
+                executable.as_deref(),
+                appdir.as_deref(),
+                installed.as_deref(),
+                vehicle.as_deref(),
+            ),
+        )
+    }
+    #[cfg(not(target_os = "linux"))]
+    Ok(false)
+}
+
+#[cfg(any(test, target_os = "linux"))]
+fn classify_installed_startup(intent: bool, valid_layout: bool) -> Result<bool, CliError> {
+    if intent && !valid_layout {
+        return Err(CliError::Failed("The installed package metadata is missing or does not match this build. Repair the installation before starting Vadgr.".to_owned()));
+    }
+    Ok(intent)
+}
+
+#[cfg(any(test, target_os = "linux"))]
+fn bounded_process_record(path: &Path, limit: u64) -> Option<Vec<u8>> {
+    let mut bytes = Vec::new();
+    std::fs::File::open(path)
+        .ok()?
+        .take(limit + 1)
+        .read_to_end(&mut bytes)
+        .ok()?;
+    (bytes.len() as u64 <= limit).then_some(bytes)
+}
+
+#[cfg(target_os = "linux")]
+fn stable_executable_hash(path: &Path) -> Option<String> {
+    use sha2::{Digest, Sha256};
+    use std::os::unix::fs::MetadataExt;
+    let mut file = std::fs::File::open(path).ok()?;
+    let stamp = |metadata: std::fs::Metadata| {
+        (
+            metadata.dev(),
+            metadata.ino(),
+            metadata.len(),
+            metadata.mtime(),
+            metadata.mtime_nsec(),
+            metadata.ctime(),
+            metadata.ctime_nsec(),
+        )
+    };
+    let before = file.metadata().ok()?;
+    if !before.is_file() || before.len() == 0 || before.len() > 256 * 1024 * 1024 {
+        return None;
+    }
+    let before = stamp(before);
+    let deadline = std::time::Instant::now() + Duration::from_secs(5);
+    let mut hash = Sha256::new();
+    let mut buffer = [0; 64 * 1024];
+    let mut bytes = 0;
+    loop {
+        if std::time::Instant::now() >= deadline {
+            return None;
+        }
+        let count = file.read(&mut buffer).ok()?;
+        if count == 0 {
+            break;
+        }
+        bytes += count as u64;
+        if bytes > before.2 {
+            return None;
+        }
+        hash.update(&buffer[..count]);
+    }
+    (bytes == before.2
+        && stamp(file.metadata().ok()?) == before
+        && stamp(std::fs::metadata(path).ok()?) == before)
+        .then(|| {
+            hash.finalize()
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect()
+        })
+}
+
+#[cfg(target_os = "linux")]
+fn same_generation_process(
+    process: &Path,
+    executable: &Path,
+    installed: &Path,
+    vehicle: &Path,
+) -> Option<(String, String)> {
+    use std::os::unix::{ffi::OsStrExt, fs::MetadataExt};
+    if std::fs::metadata(process).ok()?.uid() != std::fs::metadata("/proc/self").ok()?.uid() {
+        return None;
+    }
+    let identity = || {
+        let bytes = bounded_process_record(&process.join("stat"), 4096)?;
+        let stat = std::str::from_utf8(&bytes).ok()?;
+        Some(
+            stat.rsplit_once(") ")?
+                .1
+                .split_whitespace()
+                .nth(19)?
+                .to_owned(),
+        )
+    };
+    let before = identity()?;
+    let argv = bounded_process_record(&process.join("cmdline"), 64 * 1024)?;
+    if argv.split(|byte| *byte == 0).nth(1) != Some(b"serve".as_slice()) {
+        return None;
+    }
+    let environment = bounded_process_record(&process.join("environ"), 1024 * 1024)?;
+    for (name, expected) in [
+        (b"VADGR_INSTALL_ROOT=".as_slice(), installed),
+        (b"APPIMAGE=".as_slice(), vehicle),
+    ] {
+        let values: Vec<_> = environment
+            .split(|byte| *byte == 0)
+            .filter_map(|value| value.strip_prefix(name))
+            .collect();
+        if values.as_slice() != [expected.as_os_str().as_bytes()] {
+            return None;
+        }
+    }
+    let expected = stable_executable_hash(executable)?;
+    let observed = stable_executable_hash(&process.join("exe"))?;
+    (observed == expected && identity()? == before).then_some((before, observed))
+}
+
+#[cfg(target_os = "linux")]
+fn process_state_matches(
+    environment: &[u8],
+    expected: &[(String, Option<Vec<u8>>)],
+    port: u16,
+) -> bool {
+    let value_matches = |name: &str, expected: Option<&[u8]>| {
+        let prefix = format!("{name}=");
+        let values: Vec<_> = environment
+            .split(|byte| *byte == 0)
+            .filter_map(|value| value.strip_prefix(prefix.as_bytes()))
+            .collect();
+        match expected {
+            Some(value) => values.as_slice() == [value],
+            None => values.is_empty(),
+        }
+    };
+    expected
+        .iter()
+        .all(|(name, value)| value_matches(name, value.as_deref()))
+        && value_matches("VADGR_PORT", Some(port.to_string().as_bytes()))
+}
+
+#[cfg(target_os = "linux")]
+fn owns_api_listener(process: &Path, port: u16) -> bool {
+    let Some(bytes) = bounded_process_record(&process.join("net/tcp"), 1024 * 1024) else {
+        return false;
+    };
+    let Ok(table) = std::str::from_utf8(&bytes) else {
+        return false;
+    };
+    let sockets: Vec<_> = table
+        .lines()
+        .skip(1)
+        .filter_map(|line| {
+            let fields: Vec<_> = line.split_whitespace().collect();
+            let (address, actual_port) = fields.get(1)?.split_once(':')?;
+            (fields.get(3) == Some(&"0A")
+                && matches!(address, "0100007F" | "00000000")
+                && u16::from_str_radix(actual_port, 16).ok() == Some(port))
+            .then(|| fields.get(9).map(|inode| format!("socket:[{inode}]")))
+            .flatten()
+        })
+        .collect();
+    if sockets.is_empty() {
+        return false;
+    }
+    let (Ok(ours), Ok(theirs)) = (
+        std::fs::read_link("/proc/self/ns/net"),
+        std::fs::read_link(process.join("ns/net")),
+    ) else {
+        return false;
+    };
+    if ours != theirs {
+        return false;
+    }
+    let Ok(entries) = std::fs::read_dir(process.join("fd")) else {
+        return false;
+    };
+    entries
+        .flatten()
+        .filter_map(|entry| std::fs::read_link(entry.path()).ok())
+        .any(|link| {
+            sockets
+                .iter()
+                .any(|socket| link.as_os_str() == std::ffi::OsStr::new(socket))
+        })
+}
+
+#[cfg(target_os = "linux")]
+fn packaged_binding(pid: u32, port: u16, listener: bool) -> Option<(String, String)> {
+    use std::os::unix::ffi::OsStrExt;
+    let (Some(executable), Some(installed), Some(vehicle)) = (
+        std::env::current_exe().ok(),
+        std::env::var_os("VADGR_INSTALL_ROOT").map(PathBuf::from),
+        std::env::var_os("APPIMAGE").map(PathBuf::from),
+    ) else {
+        return None;
+    };
+    let process = PathBuf::from(format!("/proc/{pid}"));
+    let expected_state: Vec<_> = [
+        "HOME",
+        "VADGR_HOME",
+        "XDG_STATE_HOME",
+        "VADGR_STATE_HOME",
+        "VADGR_DB",
+        "VADGR_RUNS_DIR",
+        "XDG_CONFIG_HOME",
+        "VADGR_CONFIG_HOME",
+        "XDG_DATA_HOME",
+    ]
+    .into_iter()
+    .map(|name| {
+        (
+            name.to_owned(),
+            std::env::var_os(name).map(|value| value.as_os_str().as_bytes().to_vec()),
+        )
+    })
+    .collect();
+    let binding = || {
+        if std::fs::read_to_string(pid_dir().join("api.pid"))
+            .ok()?
+            .trim()
+            .parse::<u32>()
+            .ok()?
+            != pid
+            || std::fs::read_to_string(pid_dir().join("api.port"))
+                .ok()?
+                .trim()
+                .parse::<u16>()
+                .ok()?
+                != port
+            || !process_state_matches(
+                &bounded_process_record(&process.join("environ"), 1024 * 1024)?,
+                &expected_state,
+                port,
+            )
+            || (listener && !owns_api_listener(&process, port))
+        {
+            return None;
+        }
+        same_generation_process(&process, &executable, &installed, &vehicle)
+    };
+    binding()
+}
+
+#[cfg(target_os = "linux")]
+async fn packaged_existing_ready(pid: u32) -> bool {
+    let port = read_active_port("api", default_port());
+    let Some(before) = packaged_binding(pid, port, true) else {
+        return false;
+    };
+    let Ok(client) = Client::new(format!("http://127.0.0.1:{port}")) else {
+        return false;
+    };
+    let ready = tokio::time::timeout(API_STARTUP_TIMEOUT, async {
+        client.is_running().await
+            && client
+                .get("/api/settings/computer-use")
+                .await
+                .is_ok_and(|status| status["venv_ready"] == true)
+    })
+    .await
+    .unwrap_or(false);
+    ready && packaged_binding(pid, port, true).as_ref() == Some(&before)
+}
+
+fn startup_timeout(packaged: bool) -> Duration {
+    if packaged {
+        // Mounted package inventories are verified before the API binds.
+        // This changes only the wait budget, never runtime authorization.
+        Duration::from_secs(300)
+    } else {
+        API_STARTUP_TIMEOUT
+    }
+}
+
+#[cfg(any(test, target_os = "linux"))]
+fn installed_startup_layout(
+    development: bool,
+    platform: &str,
+    executable: Option<&Path>,
+    appdir: Option<&Path>,
+    installed: Option<&Path>,
+    vehicle: Option<&Path>,
+) -> bool {
+    let (Some(executable), Some(appdir), Some(installed), Some(vehicle)) =
+        (executable, appdir, installed, vehicle)
+    else {
+        return false;
+    };
+    let Some(bytes) = bounded_process_record(&installed.join("install-receipt.json"), 1024 * 1024)
+    else {
+        return false;
+    };
+    let Ok(receipt) = serde_json::from_slice::<vadgr_daemon::install::InstallReceipt>(&bytes)
+    else {
+        return false;
+    };
+    let mode_matches = if development {
+        receipt.development_receipt_sha256.is_some()
+            && receipt.manifest_sha256.is_none()
+            && receipt.release_sequence.is_none()
+            && installed.join("development-receipt.json").is_file()
+            && !installed.join("release-manifest.json").exists()
+            && !installed
+                .join("release-manifest.json.bundle.jsonl")
+                .exists()
+    } else {
+        receipt.development_receipt_sha256.is_none()
+            && receipt.manifest_sha256.is_some()
+            && receipt.release_sequence.is_some()
+            && !installed.join("development-receipt.json").exists()
+            && installed.join("release-manifest.json").is_file()
+            && installed
+                .join("release-manifest.json.bundle.jsonl")
+                .is_file()
+    };
+    platform == "linux"
+        && receipt.schema == 1
+        && receipt.package_kind == "appimage"
+        && mode_matches
+        && appdir.is_absolute()
+        && installed.is_absolute()
+        && executable == appdir.join("usr/bin/vadgr")
+        && vehicle == installed.join("Vadgr.AppImage")
+        && vehicle.is_file()
+}
+
+/// A failed or cancelled startup must not become a daemon after rollback.
+struct StartingDaemon {
+    child: Child,
+    records: PathBuf,
+    port: u16,
+    ready: bool,
+    #[cfg(target_os = "linux")]
+    packaged: bool,
+}
+
+impl Drop for StartingDaemon {
+    fn drop(&mut self) {
+        if self.ready {
+            return;
+        }
+        #[cfg(target_os = "linux")]
+        if self.packaged && !self.stop_failed_packaged_start(Duration::from_secs(30)) {
+            // A retained startup record is the installer's rollback fence. Do
+            // not erase it or kill the parent if its children remain unproved.
+            return;
+        }
+        // The retained child handle identifies our process, not a port owner.
+        let _ = self.child.kill();
+        let _ = self.child.wait();
+        let pid = self.records.join("api.pid");
+        let port = self.records.join("api.port");
+        let recorded = std::fs::read_to_string(&pid).ok();
+        let matches_child = recorded.as_deref() == Some(self.child.id().to_string().as_str());
+        #[cfg(target_os = "linux")]
+        let matches_reservation = self.packaged && recorded.as_deref() == Some("");
+        #[cfg(not(target_os = "linux"))]
+        let matches_reservation = false;
+        if matches_child || matches_reservation {
+            if std::fs::read_to_string(&port).ok().as_deref()
+                == Some(self.port.to_string().as_str())
+            {
+                let _ = std::fs::remove_file(port);
+            }
+            let _ = std::fs::remove_file(pid);
+        }
+    }
+}
+
+#[cfg(target_os = "linux")]
+impl StartingDaemon {
+    fn stop_failed_packaged_start(&mut self, timeout: Duration) -> bool {
+        // Once the parent has exited its descendants may have been reparented.
+        // Keep the rollback fence rather than inventing an ownership claim.
+        if !matches!(self.child.try_wait(), Ok(None)) {
+            return false;
+        }
+        let pid = self.child.id();
+        let Ok(identity) = stop_snapshot(pid) else {
+            return false;
+        };
+        stop_owned_process_tree(pid, &identity.start, timeout, || {
+            stop_snapshot(pid)
+                .is_ok_and(|current| current.start == identity.start && current.uid == identity.uid)
+        })
+        .is_ok()
+    }
+}
 /// How long a port probe waits before calling the port closed.
 const PORT_PROBE_TIMEOUT: Duration = Duration::from_secs(1);
 /// The port this daemon has always taken.
@@ -286,14 +699,58 @@ fn kill_port(port: u16) {
     }
 }
 
-async fn wait_for_api(port: u16) -> Result<bool, CliError> {
+async fn wait_for_api(
+    child: &mut Child,
+    port: u16,
+    timeout: Duration,
+    packaged: bool,
+) -> Result<bool, CliError> {
     let client = Client::new(format!("http://127.0.0.1:{port}")).map_err(CliError::Failed)?;
-    let deadline = std::time::Instant::now() + API_STARTUP_TIMEOUT;
-    while std::time::Instant::now() < deadline {
-        if client.is_running().await {
+    let deadline = tokio::time::Instant::now() + timeout;
+    while tokio::time::Instant::now() < deadline {
+        if child
+            .try_wait()
+            .map_err(|error| CliError::Failed(error.to_string()))?
+            .is_some()
+        {
+            return Ok(false);
+        }
+        if tokio::time::timeout_at(deadline, client.is_running())
+            .await
+            .unwrap_or(false)
+        {
+            if packaged {
+                #[cfg(target_os = "linux")]
+                if !owns_api_listener(&PathBuf::from(format!("/proc/{}", child.id())), port) {
+                    return Ok(false);
+                }
+                // An owner may disable computer use without invalidating its
+                // installed runtime. Read admission, not the enabled flag.
+                let ready =
+                    tokio::time::timeout_at(deadline, client.get("/api/settings/computer-use"))
+                        .await
+                        .ok()
+                        .and_then(Result::ok)
+                        .is_some_and(|status| status["venv_ready"] == true);
+                if child
+                    .try_wait()
+                    .map_err(|error| CliError::Failed(error.to_string()))?
+                    .is_some()
+                {
+                    return Ok(false);
+                }
+                #[cfg(target_os = "linux")]
+                return Ok(ready
+                    && owns_api_listener(&PathBuf::from(format!("/proc/{}", child.id())), port));
+                #[cfg(not(target_os = "linux"))]
+                return Ok(ready);
+            }
             return Ok(true);
         }
-        tokio::time::sleep(Duration::from_secs(1)).await;
+        tokio::time::sleep_until(
+            (tokio::time::Instant::now() + Duration::from_millis(100)).min(deadline),
+        )
+        .await;
     }
     Ok(false)
 }
@@ -349,11 +806,19 @@ fn resolve_bind_hosts() -> Result<Vec<String>, CliError> {
 }
 
 pub async fn start(api_port: Option<u16>) -> Result<(), CliError> {
+    let packaged = packaged_startup()?;
     let mut port = api_port.unwrap_or_else(default_port);
     std::fs::create_dir_all(pid_dir())
         .map_err(|e| CliError::Failed(format!("Could not create {}: {e}", pid_dir().display())))?;
 
-    if read_pid("api").is_some() {
+    if let Some(pid) = read_pid("api") {
+        #[cfg(target_os = "linux")]
+        if packaged && packaged_existing_ready(pid).await {
+            anstream::println!("{}", output::success("vadgr is running!"));
+            return Ok(());
+        }
+        #[cfg(not(target_os = "linux"))]
+        let _ = pid;
         anstream::println!(
             "{}",
             output::warning("vadgr is already running. Use 'vadgr stop' first.")
@@ -425,14 +890,41 @@ pub async fn start(api_port: Option<u16>) -> Result<(), CliError> {
         .stderr(Stdio::from(errors));
     detach(&mut command);
 
-    let mut child = command
-        .spawn()
-        .map_err(|e| CliError::Failed(format!("Could not start the API: {e}")))?;
-    write_pid("api", child.id()).map_err(|e| CliError::Failed(e.to_string()))?;
+    #[cfg(target_os = "linux")]
+    if packaged {
+        // The installer can detect a failed cleanup even if writing the actual
+        // child PID fails. Never spawn without this durable rollback fence.
+        std::fs::create_dir_all(pid_dir()).map_err(|e| CliError::Failed(e.to_string()))?;
+        std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(pid_dir().join("api.pid"))
+            .and_then(|file| file.sync_all())
+            .map_err(|e| {
+                CliError::Failed(format!("Could not reserve daemon startup record: {e}"))
+            })?;
+    }
+    let child = command.spawn().map_err(|e| {
+        #[cfg(target_os = "linux")]
+        if packaged && std::fs::read(pid_dir().join("api.pid")).is_ok_and(|bytes| bytes.is_empty())
+        {
+            let _ = std::fs::remove_file(pid_dir().join("api.pid"));
+        }
+        CliError::Failed(format!("Could not start the API: {e}"))
+    })?;
+    let mut starting = StartingDaemon {
+        child,
+        records: pid_dir(),
+        port,
+        ready: false,
+        #[cfg(target_os = "linux")]
+        packaged,
+    };
+    write_pid("api", starting.child.id()).map_err(|e| CliError::Failed(e.to_string()))?;
     write_port("api", port).map_err(|e| CliError::Failed(e.to_string()))?;
 
     tokio::time::sleep(Duration::from_secs(1)).await;
-    if matches!(child.try_wait(), Ok(Some(_))) {
+    if matches!(starting.child.try_wait(), Ok(Some(_))) {
         // **Say why it died, not what usually kills it.** Guessing at the port
         // sent someone hunting a conflict that did not exist while the daemon
         // had written a precise reason to its log: it had refused to merge two
@@ -445,12 +937,17 @@ pub async fn start(api_port: Option<u16>) -> Result<(), CliError> {
             "{}",
             output::warning(&format!("The daemon stopped before it served. {reported}"))
         );
-        let _ = std::fs::remove_file(pid_dir().join("api.pid"));
-        let _ = std::fs::remove_file(pid_dir().join("api.port"));
         return Err(CliError::Failed(String::new()));
     }
 
-    if !wait_for_api(port).await? {
+    if !wait_for_api(
+        &mut starting.child,
+        port,
+        startup_timeout(packaged),
+        packaged,
+    )
+    .await?
+    {
         anstream::println!(
             "{}",
             output::warning(&format!(
@@ -460,6 +957,7 @@ pub async fn start(api_port: Option<u16>) -> Result<(), CliError> {
         );
         return Err(CliError::Failed(String::new()));
     }
+    starting.ready = true;
 
     anstream::println!("{}", output::success("vadgr is running!"));
     anstream::println!(
@@ -499,6 +997,10 @@ fn detach(command: &mut Command) {
 }
 
 pub fn stop() -> Result<(), CliError> {
+    #[cfg(target_os = "linux")]
+    if packaged_startup()? {
+        return stop_installed_linux();
+    }
     let port = read_active_port("api", default_port());
     let mut stopped = false;
 
@@ -519,6 +1021,280 @@ pub fn stop() -> Result<(), CliError> {
     } else {
         anstream::println!("{}", output::warning("vadgr is not running."));
     }
+    Ok(())
+}
+
+#[cfg(target_os = "linux")]
+#[derive(Clone)]
+struct StopSnapshot {
+    start: String,
+    parent: u32,
+    state: String,
+    uid: u32,
+}
+
+#[cfg(target_os = "linux")]
+fn stop_snapshot(pid: u32) -> anyhow::Result<StopSnapshot> {
+    use std::os::unix::fs::MetadataExt;
+    let root = PathBuf::from(format!("/proc/{pid}"));
+    let bytes = bounded_process_record(&root.join("stat"), 4096)
+        .ok_or_else(|| anyhow::anyhow!("process identity is unavailable"))?;
+    let text = std::str::from_utf8(&bytes)?;
+    let fields: Vec<_> = text
+        .rsplit_once(") ")
+        .ok_or_else(|| anyhow::anyhow!("invalid process identity"))?
+        .1
+        .split_whitespace()
+        .collect();
+    anyhow::ensure!(fields.len() >= 20, "incomplete process identity");
+    Ok(StopSnapshot {
+        start: fields[19].to_owned(),
+        parent: fields[1].parse()?,
+        state: fields[0].to_owned(),
+        uid: std::fs::metadata(root)?.uid(),
+    })
+}
+
+#[cfg(target_os = "linux")]
+struct StoppingProcess {
+    pid: u32,
+    identity: StopSnapshot,
+    handle: rustix::fd::OwnedFd,
+    paused: bool,
+}
+
+#[cfg(target_os = "linux")]
+impl StoppingProcess {
+    fn open(pid: u32) -> anyhow::Result<Self> {
+        let identity = stop_snapshot(pid)?;
+        let handle = rustix::process::pidfd_open(
+            rustix::process::Pid::from_raw(pid as i32)
+                .ok_or_else(|| anyhow::anyhow!("invalid process id"))?,
+            rustix::process::PidfdFlags::empty(),
+        )?;
+        let after = stop_snapshot(pid)?;
+        anyhow::ensure!(
+            identity.start == after.start && identity.uid == after.uid,
+            "process identity changed before stop"
+        );
+        Ok(Self {
+            pid,
+            identity,
+            handle,
+            paused: false,
+        })
+    }
+
+    fn exited(&self) -> anyhow::Result<bool> {
+        use std::os::fd::AsRawFd;
+        let path = PathBuf::from(format!("/proc/self/fdinfo/{}", self.handle.as_raw_fd()));
+        let bytes = bounded_process_record(&path, 4096)
+            .ok_or_else(|| anyhow::anyhow!("process handle status is unavailable"))?;
+        let text = std::str::from_utf8(&bytes)?;
+        let value = text
+            .lines()
+            .find_map(|line| line.strip_prefix("Pid:"))
+            .ok_or_else(|| anyhow::anyhow!("process handle has no identity"))?
+            .trim()
+            .parse::<i64>()?;
+        if value == -1 {
+            return Ok(true);
+        }
+        anyhow::ensure!(
+            value == i64::from(self.pid),
+            "process handle identity differs"
+        );
+        let status = match stop_snapshot(self.pid) {
+            Ok(status) => status,
+            Err(error) => {
+                // The process may be reaped between the handle and stat reads.
+                // Only this same pidfd can prove that its original task is gone.
+                let repeated = bounded_process_record(&path, 4096)
+                    .ok_or_else(|| anyhow::anyhow!("process handle status is unavailable"))?;
+                let gone = std::str::from_utf8(&repeated)?
+                    .lines()
+                    .find_map(|line| line.strip_prefix("Pid:"))
+                    .is_some_and(|value| value.trim() == "-1");
+                if gone {
+                    return Ok(true);
+                }
+                return Err(error);
+            }
+        };
+        anyhow::ensure!(
+            status.start == self.identity.start,
+            "process identity changed while stopping"
+        );
+        Ok(matches!(status.state.as_str(), "Z" | "X"))
+    }
+
+    fn signal(&self, signal: rustix::process::Signal) -> anyhow::Result<()> {
+        if !self.exited()? {
+            rustix::process::pidfd_send_signal(&self.handle, signal)?;
+        }
+        Ok(())
+    }
+}
+
+#[cfg(target_os = "linux")]
+struct FrozenProcessTree(Vec<StoppingProcess>);
+
+#[cfg(target_os = "linux")]
+impl Drop for FrozenProcessTree {
+    fn drop(&mut self) {
+        for process in self.0.iter_mut().rev() {
+            if process.paused {
+                let _ = process.signal(rustix::process::Signal::CONT);
+                process.paused = false;
+            }
+        }
+    }
+}
+
+#[cfg(target_os = "linux")]
+fn stop_owned_process_tree(
+    pid: u32,
+    expected_start: &str,
+    timeout: Duration,
+    still_owned: impl Fn() -> bool,
+) -> anyhow::Result<()> {
+    anyhow::ensure!(still_owned(), "daemon ownership changed before stop");
+    let deadline = std::time::Instant::now() + timeout;
+    let root = StoppingProcess::open(pid)?;
+    anyhow::ensure!(
+        root.identity.start == expected_start,
+        "daemon identity changed before stop"
+    );
+    let uid = root.identity.uid;
+    let mut tree = FrozenProcessTree(vec![root]);
+    let mut index = 0;
+    while index < tree.0.len() {
+        anyhow::ensure!(
+            std::time::Instant::now() < deadline,
+            "daemon stop timed out before termination"
+        );
+        let process = &mut tree.0[index];
+        if process.exited()? {
+            index += 1;
+            continue;
+        }
+        let status = stop_snapshot(process.pid)?;
+        anyhow::ensure!(
+            !matches!(status.state.as_str(), "T" | "t"),
+            "a daemon process is already stopped externally; its state was preserved"
+        );
+        process.signal(rustix::process::Signal::STOP)?;
+        process.paused = true;
+        while !process.exited()? && !matches!(stop_snapshot(process.pid)?.state.as_str(), "T" | "t")
+        {
+            anyhow::ensure!(
+                std::time::Instant::now() < deadline,
+                "daemon stop timed out while pausing"
+            );
+            std::thread::sleep(Duration::from_millis(2));
+        }
+        if process.exited()? {
+            index += 1;
+            continue;
+        }
+        let parent = process.pid;
+        let mut children = std::collections::BTreeSet::new();
+        for task in std::fs::read_dir(format!("/proc/{parent}/task"))? {
+            let bytes = bounded_process_record(&task?.path().join("children"), 64 * 1024)
+                .ok_or_else(|| anyhow::anyhow!("daemon child inventory is unavailable"))?;
+            for child in std::str::from_utf8(&bytes)?.split_whitespace() {
+                children.insert(child.parse::<u32>()?);
+            }
+        }
+        for child in children {
+            anyhow::ensure!(
+                tree.0.len() < 256,
+                "daemon child inventory exceeds its bound"
+            );
+            let child = StoppingProcess::open(child)?;
+            anyhow::ensure!(
+                child.identity.parent == parent && child.identity.uid == uid,
+                "daemon child ownership differs"
+            );
+            anyhow::ensure!(
+                !tree.0.iter().any(|existing| existing.pid == child.pid),
+                "daemon child inventory changed"
+            );
+            tree.0.push(child);
+        }
+        index += 1;
+    }
+    anyhow::ensure!(still_owned(), "daemon ownership changed before termination");
+    for process in tree.0.iter_mut().rev() {
+        anyhow::ensure!(
+            std::time::Instant::now() < deadline,
+            "daemon stop timed out before termination"
+        );
+        if process.exited()? {
+            process.paused = false;
+            continue;
+        }
+        process.signal(rustix::process::Signal::TERM)?;
+        process.signal(rustix::process::Signal::CONT)?;
+        process.paused = false;
+        while !process.exited()? {
+            anyhow::ensure!(
+                std::time::Instant::now() < deadline,
+                "daemon did not stop before the deadline"
+            );
+            std::thread::sleep(Duration::from_millis(5));
+        }
+    }
+    Ok(())
+}
+
+#[cfg(target_os = "linux")]
+fn stop_installed_linux() -> Result<(), CliError> {
+    let operation = || -> anyhow::Result<()> {
+        let records = pid_dir();
+        let pid_path = records.join("api.pid");
+        let port_path = records.join("api.port");
+        let pid_text = match std::fs::read_to_string(&pid_path) {
+            Ok(value) => value,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                let retained_port = match std::fs::read_to_string(&port_path) {
+                    Ok(value) => value.trim().parse::<u16>()?,
+                    Err(error) if error.kind() == std::io::ErrorKind::NotFound => default_port(),
+                    Err(error) => return Err(error.into()),
+                };
+                anyhow::ensure!(
+                    port_bindable(retained_port, &["127.0.0.1".to_owned()]),
+                    "an unowned listener is present; nothing was stopped"
+                );
+                return Ok(());
+            }
+            Err(error) => return Err(error.into()),
+        };
+        let pid = pid_text.trim().parse::<u32>()?;
+        let port_text = std::fs::read_to_string(&port_path)?;
+        let port = port_text.trim().parse::<u16>()?;
+        if matches!(std::fs::metadata(format!("/proc/{pid}")), Err(error) if error.kind() == std::io::ErrorKind::NotFound)
+        {
+            anyhow::ensure!(
+                port_bindable(port, &["127.0.0.1".to_owned()]),
+                "an unowned listener is present; nothing was stopped"
+            );
+        } else {
+            let identity = packaged_binding(pid, port, false).ok_or_else(|| anyhow::anyhow!("the recorded process does not belong to this installed generation and state; nothing was stopped"))?;
+            stop_owned_process_tree(pid, &identity.0, Duration::from_secs(30), || {
+                packaged_binding(pid, port, false).as_ref() == Some(&identity)
+            })?;
+        }
+        if std::fs::read_to_string(&pid_path).ok().as_deref() == Some(pid_text.as_str())
+            && std::fs::read_to_string(&port_path).ok().as_deref() == Some(port_text.as_str())
+        {
+            std::fs::remove_file(port_path)?;
+            std::fs::remove_file(pid_path)?;
+        }
+        Ok(())
+    };
+    operation().map_err(|error| CliError::Failed(error.to_string()))?;
+    anstream::println!("{}", output::success("vadgr stopped."));
     Ok(())
 }
 
@@ -885,6 +1661,772 @@ fn install_binaries(repo: &Path) -> Result<usize, CliError> {
         installed += 1;
     }
     Ok(installed)
+}
+
+#[cfg(test)]
+mod startup_tests {
+    use super::*;
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn stopped_tree_fixture() {
+        let Some(root) = std::env::var_os("VADGR_STOP_FIXTURE") else {
+            return;
+        };
+        let root = PathBuf::from(root);
+        let depth: u32 = std::env::var("VADGR_STOP_DEPTH").unwrap().parse().unwrap();
+        if root.join("ignore-term").exists() {
+            // Only this isolated test child changes its signal disposition.
+            unsafe {
+                libc::signal(libc::SIGTERM, libc::SIG_IGN);
+            }
+        }
+        let mut child = (depth < 2).then(|| {
+            Command::new(std::env::current_exe().unwrap())
+                .args([
+                    "--exact",
+                    "commands::service::startup_tests::stopped_tree_fixture",
+                ])
+                .env("VADGR_STOP_DEPTH", (depth + 1).to_string())
+                .stdin(Stdio::null())
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .spawn()
+                .unwrap()
+        });
+        std::fs::write(
+            root.join(format!("pid-{depth}")),
+            std::process::id().to_string(),
+        )
+        .unwrap();
+        std::thread::sleep(Duration::from_secs(10));
+        if let Some(child) = child.as_mut() {
+            let _ = child.kill();
+            let _ = child.wait();
+        }
+    }
+
+    #[cfg(target_os = "linux")]
+    struct StopFixture {
+        _root: tempfile::TempDir,
+        child: Option<Child>,
+        processes: Vec<StoppingProcess>,
+    }
+
+    #[cfg(target_os = "linux")]
+    impl Drop for StopFixture {
+        fn drop(&mut self) {
+            for process in self.processes.iter().rev() {
+                let _ = process.signal(rustix::process::Signal::KILL);
+            }
+            if let Some(child) = self.child.as_mut() {
+                let _ = child.kill();
+                let _ = child.wait();
+            } else if let Some(root) = self.processes.first() {
+                // This fixture spawned the root; waitpid never selects another
+                // process and simply returns ECHILD if StartingDaemon reaped it.
+                unsafe {
+                    libc::waitpid(root.pid as i32, std::ptr::null_mut(), 0);
+                }
+            }
+        }
+    }
+
+    #[cfg(target_os = "linux")]
+    fn stop_fixture(ignore_term: bool) -> StopFixture {
+        let root = tempfile::tempdir().unwrap();
+        if ignore_term {
+            std::fs::write(root.path().join("ignore-term"), []).unwrap();
+        }
+        let child = Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "commands::service::startup_tests::stopped_tree_fixture",
+            ])
+            .env("VADGR_STOP_FIXTURE", root.path())
+            .env("VADGR_STOP_DEPTH", "0")
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+            .unwrap();
+        let mut fixture = StopFixture {
+            _root: root,
+            child: Some(child),
+            processes: Vec::new(),
+        };
+        let deadline = std::time::Instant::now() + Duration::from_secs(5);
+        for depth in 0..3 {
+            let path = fixture._root.path().join(format!("pid-{depth}"));
+            while !path.exists() {
+                assert!(
+                    std::time::Instant::now() < deadline,
+                    "test process failed to reach its barrier"
+                );
+                std::thread::sleep(Duration::from_millis(5));
+            }
+            let pid = std::fs::read_to_string(path).unwrap().parse().unwrap();
+            fixture.processes.push(StoppingProcess::open(pid).unwrap());
+        }
+        fixture
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn installed_stop_waits_for_owned_children_and_grandchildren() {
+        let fixture = stop_fixture(false);
+        let root = &fixture.processes[0];
+        stop_owned_process_tree(
+            root.pid,
+            &root.identity.start,
+            Duration::from_secs(3),
+            || true,
+        )
+        .unwrap();
+        assert!(
+            fixture
+                .processes
+                .iter()
+                .all(|process| process.exited().unwrap()),
+            "stop returned before the owned tree exited"
+        );
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn failed_packaged_start_reaps_descendants_before_clearing_rollback_fence() {
+        let mut fixture = stop_fixture(false);
+        let records = fixture._root.path().to_path_buf();
+        let child = fixture.child.take().unwrap();
+        std::fs::write(records.join("api.pid"), child.id().to_string()).unwrap();
+        std::fs::write(records.join("api.port"), "18890").unwrap();
+        let starting = StartingDaemon {
+            child,
+            records: records.clone(),
+            port: 18890,
+            ready: false,
+            packaged: true,
+        };
+        drop(starting);
+        assert!(
+            fixture
+                .processes
+                .iter()
+                .all(|process| process.exited().unwrap())
+        );
+        assert!(!records.join("api.pid").exists());
+        assert!(!records.join("api.port").exists());
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn failed_packaged_start_drop_retains_empty_fence_when_child_is_externally_stopped() {
+        let mut fixture = stop_fixture(false);
+        let records = fixture._root.path().to_path_buf();
+        std::fs::write(records.join("api.pid"), []).unwrap();
+        let leaf = &fixture.processes[2];
+        leaf.signal(rustix::process::Signal::STOP).unwrap();
+        let deadline = std::time::Instant::now() + Duration::from_secs(1);
+        while stop_snapshot(leaf.pid).unwrap().state != "T" {
+            assert!(std::time::Instant::now() < deadline);
+            std::thread::sleep(Duration::from_millis(2));
+        }
+        drop(StartingDaemon {
+            child: fixture.child.take().unwrap(),
+            records: records.clone(),
+            port: 18890,
+            ready: false,
+            packaged: true,
+        });
+        assert_eq!(std::fs::read(records.join("api.pid")).unwrap(), b"");
+        assert!(
+            fixture
+                .processes
+                .iter()
+                .all(|process| !process.exited().unwrap())
+        );
+        assert_eq!(stop_snapshot(leaf.pid).unwrap().state, "T");
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn failed_packaged_start_preserves_fence_and_live_parent_on_unproved_cleanup() {
+        let mut fixture = stop_fixture(true);
+        let records = fixture._root.path().to_path_buf();
+        let child = fixture.child.take().unwrap();
+        let pid = child.id().to_string();
+        std::fs::write(records.join("api.pid"), &pid).unwrap();
+        std::fs::write(records.join("api.port"), "18890").unwrap();
+        let mut starting = StartingDaemon {
+            child,
+            records: records.clone(),
+            port: 18890,
+            ready: false,
+            packaged: true,
+        };
+        assert!(!starting.stop_failed_packaged_start(Duration::from_millis(100)));
+        assert_eq!(
+            std::fs::read_to_string(records.join("api.pid")).unwrap(),
+            pid
+        );
+        assert_eq!(
+            std::fs::read_to_string(records.join("api.port")).unwrap(),
+            "18890"
+        );
+        assert!(
+            fixture
+                .processes
+                .iter()
+                .all(|process| !process.exited().unwrap())
+        );
+        // Test-owned cleanup retains the handles; do not repeat a 30-second
+        // production deadline after this deliberately short timeout proof.
+        starting.ready = true;
+        for process in fixture.processes.iter().rev() {
+            process.signal(rustix::process::Signal::KILL).unwrap();
+        }
+        starting.child.wait().unwrap();
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn installed_stop_timeout_is_not_success_and_resumes_only_its_pauses() {
+        let fixture = stop_fixture(true);
+        let root = &fixture.processes[0];
+        let result = stop_owned_process_tree(
+            root.pid,
+            &root.identity.start,
+            Duration::from_millis(100),
+            || true,
+        );
+        assert!(
+            result.is_err(),
+            "ignored TERM must not report successful stop"
+        );
+        for process in &fixture.processes {
+            assert!(!process.exited().unwrap());
+            assert!(!matches!(
+                stop_snapshot(process.pid).unwrap().state.as_str(),
+                "T" | "t"
+            ));
+        }
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn installed_stop_refuses_foreign_and_preserves_external_stop() {
+        let fixture = stop_fixture(false);
+        let root = &fixture.processes[0];
+        assert!(
+            stop_owned_process_tree(
+                root.pid,
+                &root.identity.start,
+                Duration::from_secs(1),
+                || false
+            )
+            .is_err()
+        );
+        assert!(
+            fixture
+                .processes
+                .iter()
+                .all(|process| !process.exited().unwrap())
+        );
+        let leaf = &fixture.processes[2];
+        leaf.signal(rustix::process::Signal::STOP).unwrap();
+        let deadline = std::time::Instant::now() + Duration::from_secs(1);
+        while stop_snapshot(leaf.pid).unwrap().state != "T" {
+            assert!(std::time::Instant::now() < deadline);
+            std::thread::sleep(Duration::from_millis(2));
+        }
+        assert!(
+            stop_owned_process_tree(
+                root.pid,
+                &root.identity.start,
+                Duration::from_secs(1),
+                || true
+            )
+            .is_err()
+        );
+        assert_eq!(
+            stop_snapshot(leaf.pid).unwrap().state,
+            "T",
+            "an external stop must not be resumed"
+        );
+        for process in &fixture.processes[..2] {
+            assert!(!matches!(
+                stop_snapshot(process.pid).unwrap().state.as_str(),
+                "T" | "t"
+            ));
+        }
+    }
+
+    #[test]
+    fn delayed_service_fixture() {
+        let Some(root) = std::env::var_os("VADGR_STARTUP_FIXTURE") else {
+            return;
+        };
+        let root = PathBuf::from(root);
+        std::fs::write(root.join("entered"), []).unwrap();
+        let deadline = std::time::Instant::now() + Duration::from_secs(10);
+        while !root.join("release").exists() {
+            if std::time::Instant::now() >= deadline {
+                return;
+            }
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        if root.join("exit").exists() {
+            return;
+        }
+        let port: u16 = std::fs::read_to_string(root.join("port"))
+            .unwrap()
+            .parse()
+            .unwrap();
+        let listener = TcpListener::bind(("127.0.0.1", port)).unwrap();
+        for connection in listener.incoming() {
+            let mut connection = connection.unwrap();
+            let mut request = [0; 2048];
+            let count = connection.read(&mut request).unwrap_or(0);
+            let body = if request[..count].starts_with(b"GET /api/settings/computer-use ") {
+                if root.join("runtime-ready").exists() {
+                    r#"{"venv_ready":true,"enabled":false}"#
+                } else {
+                    r#"{"venv_ready":false,"enabled":true}"#
+                }
+            } else {
+                "{}"
+            };
+            let reply = format!(
+                "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+                body.len()
+            );
+            let _ = connection.write_all(reply.as_bytes());
+        }
+    }
+
+    async fn fixture() -> (tempfile::TempDir, StartingDaemon) {
+        let root = tempfile::tempdir().unwrap();
+        let listener = TcpListener::bind(("127.0.0.1", 0)).unwrap();
+        let port = listener.local_addr().unwrap().port();
+        drop(listener);
+        std::fs::write(root.path().join("port"), port.to_string()).unwrap();
+        let child = Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "commands::service::startup_tests::delayed_service_fixture",
+                "--nocapture",
+            ])
+            .env("VADGR_STARTUP_FIXTURE", root.path())
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+            .unwrap();
+        let starting = StartingDaemon {
+            child,
+            records: root.path().to_path_buf(),
+            port,
+            ready: false,
+            #[cfg(target_os = "linux")]
+            packaged: false,
+        };
+        std::fs::write(root.path().join("api.pid"), starting.child.id().to_string()).unwrap();
+        std::fs::write(root.path().join("api.port"), port.to_string()).unwrap();
+        tokio::time::timeout(Duration::from_secs(10), async {
+            while !root.path().join("entered").is_file() {
+                tokio::time::sleep(Duration::from_millis(5)).await;
+            }
+        })
+        .await
+        .expect("the real child reached the explicit startup barrier");
+        (root, starting)
+    }
+
+    #[tokio::test]
+    async fn timed_out_child_is_reaped_before_rollback_and_cannot_bind_later() {
+        let (root, mut starting) = fixture().await;
+        let port = starting.port;
+        assert!(
+            !wait_for_api(&mut starting.child, port, Duration::from_millis(30), false)
+                .await
+                .unwrap()
+        );
+        let pid = starting.child.id();
+        drop(starting);
+        assert!(!pid_alive(pid), "timed-out child remains alive");
+        assert!(!root.path().join("api.pid").exists());
+        assert!(!root.path().join("api.port").exists());
+        std::fs::write(root.path().join("release"), []).unwrap();
+        assert!(TcpListener::bind(("127.0.0.1", port)).is_ok());
+    }
+
+    #[tokio::test]
+    async fn failed_start_does_not_remove_replacement_records_or_stop_another_child() {
+        let (root, starting) = fixture().await;
+        let (_other_root, other) = fixture().await;
+        std::fs::write(root.path().join("api.pid"), other.child.id().to_string()).unwrap();
+        std::fs::write(root.path().join("api.port"), other.port.to_string()).unwrap();
+        drop(starting);
+        assert!(pid_alive(other.child.id()));
+        assert_eq!(
+            std::fs::read_to_string(root.path().join("api.pid")).unwrap(),
+            other.child.id().to_string()
+        );
+        assert_eq!(
+            std::fs::read_to_string(root.path().join("api.port")).unwrap(),
+            other.port.to_string()
+        );
+    }
+
+    #[tokio::test]
+    async fn startup_wait_stops_when_the_child_exits_and_keeps_changed_port_record() {
+        let (root, mut starting) = fixture().await;
+        std::fs::write(root.path().join("exit"), []).unwrap();
+        std::fs::write(root.path().join("release"), []).unwrap();
+        let result = tokio::time::timeout(
+            Duration::from_secs(2),
+            wait_for_api(
+                &mut starting.child,
+                starting.port,
+                Duration::from_secs(30),
+                false,
+            ),
+        )
+        .await;
+        assert!(
+            !result
+                .expect("child exit must not wait for the startup deadline")
+                .unwrap()
+        );
+        std::fs::write(root.path().join("api.port"), "different").unwrap();
+        drop(starting);
+        assert!(!root.path().join("api.pid").exists());
+        assert_eq!(
+            std::fs::read_to_string(root.path().join("api.port")).unwrap(),
+            "different"
+        );
+    }
+
+    #[tokio::test]
+    async fn successful_readiness_releases_the_child_and_preserves_service_records() {
+        let (root, mut starting) = fixture().await;
+        std::fs::write(root.path().join("release"), []).unwrap();
+        assert!(
+            wait_for_api(
+                &mut starting.child,
+                starting.port,
+                Duration::from_secs(5),
+                false
+            )
+            .await
+            .unwrap()
+        );
+        starting.ready = true;
+        assert!(pid_alive(starting.child.id()));
+        assert!(root.path().join("api.pid").exists());
+        // Restore fixture ownership so teardown stops only this test child.
+        starting.ready = false;
+    }
+
+    #[test]
+    fn extended_budget_layout_excludes_wsl_and_uninstalled_or_unrelated_executables() {
+        assert!(!classify_installed_startup(false, false).unwrap());
+        assert!(classify_installed_startup(true, true).unwrap());
+        assert_eq!(startup_timeout(false), Duration::from_secs(30));
+        assert_eq!(startup_timeout(true), Duration::from_secs(300));
+        let root = tempfile::tempdir().unwrap();
+        let appdir = root.path().join("mount");
+        let installed = root.path().join("generation");
+        std::fs::create_dir(&installed).unwrap();
+        for name in [
+            "Vadgr.AppImage",
+            "install-receipt.json",
+            "development-receipt.json",
+        ] {
+            std::fs::write(installed.join(name), []).unwrap();
+        }
+        std::fs::write(installed.join("install-receipt.json"), r#"{"schema":1,"version":"0.5.0","package_kind":"appimage","development_receipt_sha256":"fixture"}"#).unwrap();
+        let exe = appdir.join("usr/bin/vadgr");
+        let vehicle = installed.join("Vadgr.AppImage");
+        assert!(installed_startup_layout(
+            true,
+            "linux",
+            Some(&exe),
+            Some(&appdir),
+            Some(&installed),
+            Some(&vehicle)
+        ));
+        assert!(!installed_startup_layout(
+            true,
+            "wsl",
+            Some(&exe),
+            Some(&appdir),
+            Some(&installed),
+            Some(&vehicle)
+        ));
+        assert!(!installed_startup_layout(
+            true,
+            "linux",
+            Some(Path::new("/other/vadgr")),
+            Some(&appdir),
+            Some(&installed),
+            Some(&vehicle)
+        ));
+        assert!(!installed_startup_layout(
+            true,
+            "linux",
+            Some(&exe),
+            Some(&appdir),
+            Some(&installed),
+            None
+        ));
+        assert!(!installed_startup_layout(
+            false,
+            "linux",
+            Some(&exe),
+            Some(&appdir),
+            Some(&installed),
+            Some(&vehicle)
+        ));
+        std::fs::remove_file(installed.join("development-receipt.json")).unwrap();
+        assert!(
+            classify_installed_startup(
+                true,
+                installed_startup_layout(
+                    true,
+                    "linux",
+                    Some(&exe),
+                    Some(&appdir),
+                    Some(&installed),
+                    Some(&vehicle)
+                )
+            )
+            .is_err()
+        );
+        std::fs::write(installed.join("install-receipt.json"), r#"{"schema":1,"version":"0.5.0","package_kind":"appimage","manifest_sha256":"fixture","release_sequence":1}"#).unwrap();
+        for name in [
+            "release-manifest.json",
+            "release-manifest.json.bundle.jsonl",
+        ] {
+            std::fs::write(installed.join(name), []).unwrap();
+        }
+        assert!(installed_startup_layout(
+            false,
+            "linux",
+            Some(&exe),
+            Some(&appdir),
+            Some(&installed),
+            Some(&vehicle)
+        ));
+        assert!(!installed_startup_layout(
+            true,
+            "linux",
+            Some(&exe),
+            Some(&appdir),
+            Some(&installed),
+            Some(&vehicle)
+        ));
+        assert!(
+            classify_installed_startup(
+                true,
+                installed_startup_layout(
+                    true,
+                    "linux",
+                    Some(&exe),
+                    Some(&appdir),
+                    Some(&installed),
+                    Some(&vehicle)
+                )
+            )
+            .is_err()
+        );
+        std::fs::remove_file(installed.join("install-receipt.json")).unwrap();
+        assert!(
+            classify_installed_startup(
+                true,
+                installed_startup_layout(
+                    false,
+                    "linux",
+                    Some(&exe),
+                    Some(&appdir),
+                    Some(&installed),
+                    Some(&vehicle)
+                )
+            )
+            .is_err()
+        );
+        assert!(!installed_startup_layout(
+            false,
+            "linux",
+            Some(&exe),
+            Some(&appdir),
+            Some(&installed),
+            Some(&vehicle)
+        ));
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn existing_process_binding_requires_role_generation_bytes_and_stable_start_identity() {
+        let root = tempfile::tempdir().unwrap();
+        let process = root.path().join("process");
+        std::fs::create_dir(&process).unwrap();
+        let installed = root.path().join("generation");
+        let vehicle = installed.join("Vadgr.AppImage");
+        let executable = root.path().join("current-executable");
+        std::fs::write(&executable, b"exact executable bytes").unwrap();
+        std::fs::write(process.join("exe"), b"exact executable bytes").unwrap();
+        std::fs::write(process.join("cmdline"), b"vadgr\0serve\0").unwrap();
+        let environment = format!(
+            "VADGR_INSTALL_ROOT={}\0APPIMAGE={}\0",
+            installed.display(),
+            vehicle.display()
+        );
+        std::fs::write(process.join("environ"), &environment).unwrap();
+        let stat = |start| format!("7 (vadgr) S {} {start}", ["0"; 18].join(" "));
+        std::fs::write(process.join("stat"), stat(123)).unwrap();
+        let bind = || same_generation_process(&process, &executable, &installed, &vehicle);
+        let first = bind().expect("same source and generation");
+        assert_eq!(first.0, "123");
+        std::fs::write(process.join("stat"), stat(124)).unwrap();
+        assert_ne!(bind(), Some(first));
+        std::fs::write(process.join("cmdline"), b"vadgr\0--console\0").unwrap();
+        assert!(bind().is_none());
+        std::fs::write(process.join("cmdline"), b"vadgr\0serve\0").unwrap();
+        std::fs::write(
+            process.join("environ"),
+            b"VADGR_INSTALL_ROOT=/different\0APPIMAGE=/different/Vadgr.AppImage\0",
+        )
+        .unwrap();
+        assert!(bind().is_none());
+        std::fs::write(process.join("environ"), environment).unwrap();
+        std::fs::write(process.join("exe"), b"different executable bytes").unwrap();
+        assert!(bind().is_none());
+        std::fs::write(process.join("exe"), b"exact executable bytes").unwrap();
+        std::fs::write(process.join("cmdline"), vec![b'x'; 64 * 1024 + 1]).unwrap();
+        assert!(bind().is_none());
+    }
+
+    #[cfg(target_os = "linux")]
+    #[tokio::test]
+    async fn another_listener_cannot_satisfy_a_new_packaged_child_readiness() {
+        let (_waiting_root, mut waiting) = fixture().await;
+        let (other_root, mut other) = fixture().await;
+        std::fs::write(other_root.path().join("runtime-ready"), []).unwrap();
+        std::fs::write(other_root.path().join("release"), []).unwrap();
+        assert!(
+            wait_for_api(&mut other.child, other.port, Duration::from_secs(5), true)
+                .await
+                .unwrap()
+        );
+        assert!(
+            !wait_for_api(&mut waiting.child, other.port, Duration::from_secs(5), true)
+                .await
+                .unwrap()
+        );
+        assert!(
+            pid_alive(other.child.id()),
+            "refusing another listener must not kill it"
+        );
+    }
+
+    #[cfg(target_os = "linux")]
+    #[tokio::test]
+    async fn readiness_listener_must_belong_to_the_exact_child() {
+        let (root, mut starting) = fixture().await;
+        let process = PathBuf::from(format!("/proc/{}", starting.child.id()));
+        assert!(!owns_api_listener(&process, starting.port));
+        std::fs::write(root.path().join("release"), []).unwrap();
+        assert!(
+            wait_for_api(
+                &mut starting.child,
+                starting.port,
+                Duration::from_secs(5),
+                false
+            )
+            .await
+            .unwrap()
+        );
+        assert!(owns_api_listener(&process, starting.port));
+        assert!(!owns_api_listener(Path::new("/proc/self"), starting.port));
+        let port = starting.port;
+        drop(starting);
+        assert!(!owns_api_listener(&process, port));
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn process_state_binding_distinguishes_absent_empty_other_root_and_port() {
+        let expected = vec![
+            ("HOME".to_owned(), Some(b"/isolated".to_vec())),
+            ("VADGR_HOME".to_owned(), None),
+            ("XDG_STATE_HOME".to_owned(), Some(b"/state".to_vec())),
+        ];
+        let correct = b"HOME=/isolated\0XDG_STATE_HOME=/state\0VADGR_PORT=18878\0";
+        assert!(process_state_matches(correct, &expected, 18878));
+        assert!(!process_state_matches(correct, &expected, 18890));
+        assert!(!process_state_matches(
+            b"HOME=/owner\0XDG_STATE_HOME=/state\0VADGR_PORT=18878\0",
+            &expected,
+            18878
+        ));
+        assert!(!process_state_matches(
+            b"HOME=/isolated\0XDG_STATE_HOME=/state\0VADGR_HOME=\0VADGR_PORT=18878\0",
+            &expected,
+            18878
+        ));
+        assert!(!process_state_matches(
+            b"HOME=/isolated\0HOME=/isolated\0XDG_STATE_HOME=/state\0VADGR_PORT=18878\0",
+            &expected,
+            18878
+        ));
+    }
+
+    #[cfg(target_os = "linux")]
+    #[tokio::test]
+    async fn real_unrelated_child_is_not_accepted_as_the_installed_daemon() {
+        let (root, starting) = fixture().await;
+        assert!(
+            same_generation_process(
+                &PathBuf::from(format!("/proc/{}", starting.child.id())),
+                &std::env::current_exe().unwrap(),
+                root.path(),
+                &root.path().join("Vadgr.AppImage")
+            )
+            .is_none()
+        );
+        assert!(
+            pid_alive(starting.child.id()),
+            "read-only refusal must not stop another process"
+        );
+    }
+
+    #[tokio::test]
+    async fn packaged_readiness_requires_runtime_admission_not_owner_enablement() {
+        let (root, mut starting) = fixture().await;
+        std::fs::write(root.path().join("release"), []).unwrap();
+        assert!(
+            !wait_for_api(
+                &mut starting.child,
+                starting.port,
+                Duration::from_secs(5),
+                true
+            )
+            .await
+            .unwrap()
+        );
+        std::fs::write(root.path().join("runtime-ready"), []).unwrap();
+        assert!(
+            wait_for_api(
+                &mut starting.child,
+                starting.port,
+                Duration::from_secs(5),
+                true
+            )
+            .await
+            .unwrap()
+        );
+    }
 }
 
 #[cfg(test)]

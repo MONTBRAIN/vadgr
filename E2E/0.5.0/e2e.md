@@ -2095,6 +2095,71 @@ passes the affected live focus, reader and visual assertions. Earlier failures
 and interrupted attempts remain filed. No whole Linux cell, cross-platform
 result, signing assertion or release is passed by these source checks.
 
+### Linux installed startup failure at `f88ca821`
+
+On October 3, the retained unsigned AppImage from
+`f88ca821608aa52f17012e23a95ca9c6d8c8619d` was independently verified:
+577,960,440 bytes, SHA-256
+`2b75785a963aae37669810f62bc8569d89ad81641c18edec6d85cb7c6d068e45`.
+Its receipt, complete mounted inventory, private payload and corresponding
+source matched. The fresh terms-decline action closed the installer and left
+product state unchanged. This closes only that functional assertion, not L01.
+
+Two subsequent installations failed the daemon-health step through the public
+AppImage and native MCP actions. Each rollback removed its generation, but its
+late daemon then served health with bundled computer use unavailable. Each
+daemon was identified against the isolated state and child HOME, then stopped
+through the public command. The failure UI also incorrectly claimed that a
+previous working generation remained selected when there was no such generation.
+Both failed attempts remain evidence. No B01 task ran against this artifact.
+
+The source repair must reap failed startup children before rollback, allow a
+bounded installed-runtime verification interval, require actual runtime
+admission for package readiness, and report rollback truthfully. Source tests
+and an increased timeout alone cannot close this finding. Rebuild the registered
+AppImage and repeat installation, bundled B01, repair, restart and removal.
+Shared startup cleanup also requires affected startup assertions on earlier
+platforms to be reviewed and rerun; no cross-platform result is inherited.
+
+The rollback audit also found that the existing stop command could return
+before its daemon exited and could select an unrelated listener by port.
+Installed Linux shutdown must verify generation and process identity, stop
+only its owned process tree, and confirm actual exit before package removal.
+A failed stop must retain the installed generation. The new process-tree
+regressions and installed restart, rollback and uninstall reruns must prove
+this separately; a zero command exit alone is not the oracle.
+
+The focused startup and shutdown suite passed 19 tests in each compiled mode;
+that count includes two subprocess fixture entry points. Seven installer,
+rollback and failure-message regressions also passed. Negative proofs restored
+parent-only cleanup, early stop success, the misleading prior-generation
+message, the health fallback and the missing rollback guard. Each reached its
+intended failing assertion; fixed bytes were restored. These source checks do
+not close installation, B01, lifecycle or visual cells. A failed-start parent
+that exits before its descendants can be identified leaves a cleanup record
+and retains the package; parent absence is not proof of complete cleanup.
+
+The first broad-gate attempt retained two setup/source failures: an external
+Cargo target directory failed the source-workspace protection regression, and
+the production Clippy configuration rejected a test module before later items.
+Place the resolved build root below this checkout's ignored `target/` directory
+and keep the source guard intact. The test module was moved after production
+items. Repeat all gates against the corrected layout; earlier focused passes
+do not erase these failed attempts.
+
+The corrected layout passed the full development library suite with 364
+passes and two ignored tests, and both Clippy configurations passed. The next
+integration check still required the removed health fallback. Its wiring
+assertion now requires admitted runtime and matching daemon identity instead;
+the behavioral refusal and process-ownership regressions remain mandatory.
+This intermediate attempt and its failed integration assertion remain filed.
+
+The installed task uses an isolated child HOME in addition to isolated XDG
+roots. Preserve the real session bus, runtime directory and display. This keeps
+bundled native-host registration and browser discovery out of owner profiles.
+The external MCP driver remains a separate process and environment. Verify both
+identities independently; changing the external driver does not qualify B01.
+
 ## macOS qualification history
 
 These observations preserve implementation findings and earlier evidence. They

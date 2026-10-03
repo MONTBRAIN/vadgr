@@ -798,6 +798,27 @@ runs through its registered native vehicle. Ordinary setup is the agent's job;
 ask the owner only for a genuinely protected permission. Successful MCP
 initialization or a reachable accessibility bus is not full application coverage.
 
+Isolate the tested application's child HOME as well as its XDG state, data,
+configuration and cache roots. Bundled native-host registration can use HOME
+directly. Preserve the real desktop session bus, runtime directory and display;
+do not replace the external MCP driver's environment. Before a bundled task,
+verify the installed daemon's actual environment and private-runtime identity,
+and confirm that owner browser registrations remain unchanged.
+
+Measure installation readiness from the spawned daemon's process identity, not
+from the earlier installer-window launch. A failed or timed-out installation
+must leave no late daemon, dangling command registration or selected deleted
+generation. Observe the failed state again after its startup interval, preserve
+the failed attempt and verify rollback independently. A healthy API without an
+admitted bundled runtime is not successful package qualification. Owner-disabled
+computer use is distinct from missing runtime admission.
+
+Do not treat a successful stop command as proof of process exit. Before rollback
+or removal deletes an installed generation, verify that its exact daemon and
+bundled child processes have exited. A reused PID, changed process identity or
+unrelated port listener must not be stopped. A stop failure must preserve the
+generation and report the failure instead of continuing destructive cleanup.
+
 #### Session-tool preflight
 
 Prove three separate facts: the server starts, the client discovers its tools,
@@ -1217,6 +1238,11 @@ because on every runbook so far, the defects were in the seams the unit tests
 stop at.>
 
 - `cargo test` -> **N passed**
+  Use one explicit build root whose resolved path is below this checkout's
+  ignored `target/` directory. The source-workspace protection regression
+  identifies its checkout from the test executable's actual ancestors.
+  An external build root does not satisfy that precondition. Do not remove or
+  weaken the regression to accommodate a misplaced build cache.
 - `cargo clippy --all-targets -- -D warnings`, `cargo fmt --check` -> exit `0`
 
 **The gate is not green until the pull request's checks have finished.** The

@@ -417,7 +417,6 @@ impl InstallerApp {
                 State::Failed(message) => {
                     ui.heading("Vadgr was not installed");
                     ui.label(RichText::new(message).color(crate::console::theme::danger()));
-                    ui.label("A previous working generation remains selected.");
                     installer_footer_space(ui);
                     ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
                         if installer_button(ui, "Close", false, true).clicked() { ctx.send_viewport_cmd(egui::ViewportCommand::Close); }
@@ -699,6 +698,35 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[test]
+    fn failed_install_does_not_claim_an_unverified_previous_generation() {
+        let ctx = egui::Context::default();
+        ctx.enable_accesskit();
+        crate::console::theme::install(&ctx);
+        let mut app = terms_app("1.0", None).unwrap();
+        app.state = State::Failed("The installed daemon did not become ready.".to_owned());
+        let mut output = ctx.run_ui(
+            egui::RawInput {
+                screen_rect: Some(egui::Rect::from_min_size(
+                    egui::Pos2::ZERO,
+                    egui::vec2(760.0, 620.0),
+                )),
+                ..Default::default()
+            },
+            |ui| app.render(ui),
+        );
+        output.textures_delta.clear();
+        let tree = output.platform_output.accesskit_update.unwrap();
+        assert!(
+            tree.nodes.iter().any(|(_, node)| {
+                node.value().or(node.label()) == Some("Vadgr was not installed")
+            })
+        );
+        assert!(!tree.nodes.iter().any(|(_, node)| {
+            node.value().or(node.label()) == Some("A previous working generation remains selected.")
+        }));
     }
 
     #[test]
