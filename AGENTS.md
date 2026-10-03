@@ -168,6 +168,14 @@ remain mandatory and unchanged. Do not fabricate trust records or add an
 environment switch that disables production checks. Each OS needs its own
 installed-artifact result; another platform's pass does not carry over.
 
+**Release signing does not enable unfinished functionality.** Before merge,
+the unsigned desktop app must execute real runs, bundled computer use, provider
+connections, mobile pairing and transports, and every applicable lifecycle flow.
+Apply this rule to every supported OS and its shipped surfaces. The release
+pipeline adds signatures and distribution trust metadata to an already working
+product. Final identity, integrity and promotion checks still run; they must
+not become the first functional test or repair a disabled development feature.
+
 ## Current research before design
 
 **An iteration starts from dated evidence, not remembered facts.** Run `date`

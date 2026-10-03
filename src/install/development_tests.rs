@@ -14,6 +14,258 @@ struct Fixture {
 }
 
 impl Fixture {
+    fn installed(&self) -> PathBuf {
+        let root = self.temporary.path().join("installed");
+        fs::create_dir_all(root.join("cache")).unwrap();
+        fs::copy(
+            self.vehicle(),
+            root.join("cache").join(self.vehicle().file_name().unwrap()),
+        )
+        .unwrap();
+        fs::copy(self.vehicle(), root.join("Vadgr.AppImage")).unwrap();
+        let bytes = canonical(&self.receipt).unwrap();
+        fs::write(root.join("development-receipt.json"), &bytes).unwrap();
+        fs::write(
+            root.join("install-receipt.json"),
+            serde_json::to_vec(&json!({
+                "schema":1,"version":"0.5.0","package_kind":"appimage",
+                "development_receipt_sha256":sha256_hex(&bytes)
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+        root
+    }
+
+    fn check_installed(&self, installed: &Path) -> Result<()> {
+        verify_installed_runtime_at(
+            &self.root().join("usr"),
+            &self.root().join("usr/bin/vadgr"),
+            installed,
+            &installed.join("Vadgr.AppImage"),
+            &Expected {
+                version: "0.5.0",
+                architecture: "x86_64",
+                source_commit: COMMIT,
+                source_tree: TREE,
+            },
+        )
+    }
+}
+
+#[test]
+fn installed_development_runtime_accepts_exact_complete_package_without_attestation() {
+    let fixture = Fixture::new();
+    let installed = fixture.installed();
+    assert!(!installed.join("cua-runtime-authorization.json").exists());
+    assert!(
+        !installed
+            .join("cua-runtime-authorization.sigstore.json")
+            .exists()
+    );
+    fixture.check_installed(&installed).unwrap();
+}
+
+#[test]
+fn installed_development_runtime_rejects_modified_payload_and_vehicle() {
+    for member in ["usr/lib/cua/payload.json", "usr/bin/vadgr"] {
+        let fixture = Fixture::new();
+        let installed = fixture.installed();
+        fs::write(fixture.root().join(member), b"changed").unwrap();
+        assert!(fixture.check_installed(&installed).is_err(), "{member}");
+    }
+    for name in [
+        "Vadgr.AppImage",
+        "development-receipt.json",
+        "install-receipt.json",
+    ] {
+        let fixture = Fixture::new();
+        let installed = fixture.installed();
+        fs::write(installed.join(name), b"changed").unwrap();
+        assert!(fixture.check_installed(&installed).is_err(), "{name}");
+    }
+}
+
+#[test]
+fn installed_development_runtime_rejects_production_metadata_and_root_substitution() {
+    for name in [
+        "release-manifest.json",
+        "release-manifest.json.bundle.jsonl",
+        "cua-runtime-authorization.json",
+        "cua-runtime-authorization.sigstore.json",
+    ] {
+        let fixture = Fixture::new();
+        let installed = fixture.installed();
+        fs::write(installed.join(name), b"{}").unwrap();
+        assert!(fixture.check_installed(&installed).is_err(), "{name}");
+    }
+    let fixture = Fixture::new();
+    let installed = fixture.installed();
+    let alias = fixture.temporary.path().join("alias-install");
+    symlink(&installed, &alias).unwrap();
+    assert!(fixture.check_installed(&alias).is_err());
+}
+
+#[test]
+fn installed_development_runtime_rejects_locator_and_compiled_identity_substitution() {
+    let fixture = Fixture::new();
+    let installed = fixture.installed();
+    let expected = Expected {
+        version: "0.5.0",
+        architecture: "x86_64",
+        source_commit: COMMIT,
+        source_tree: TREE,
+    };
+    for (runtime, executable, vehicle) in [
+        (
+            fixture.root(),
+            fixture.root().join("usr/bin/vadgr"),
+            installed.join("Vadgr.AppImage"),
+        ),
+        (
+            fixture.root().join("usr"),
+            fixture.root().join("usr/bin/alias"),
+            installed.join("Vadgr.AppImage"),
+        ),
+        (
+            fixture.root().join("usr"),
+            fixture.root().join("usr/bin/vadgr"),
+            fixture.vehicle(),
+        ),
+    ] {
+        assert!(
+            verify_installed_runtime_at(&runtime, &executable, &installed, &vehicle, &expected)
+                .is_err()
+        );
+    }
+    for changed in [
+        Expected {
+            source_commit: TREE,
+            ..expected
+        },
+        Expected {
+            source_tree: COMMIT,
+            ..expected
+        },
+        Expected {
+            architecture: "aarch64",
+            ..expected
+        },
+    ] {
+        assert!(
+            verify_installed_runtime_at(
+                &fixture.root().join("usr"),
+                &fixture.root().join("usr/bin/vadgr"),
+                &installed,
+                &installed.join("Vadgr.AppImage"),
+                &changed
+            )
+            .is_err()
+        );
+    }
+    fs::write(
+        installed
+            .join("cache")
+            .join(fixture.vehicle().file_name().unwrap()),
+        b"changed",
+    )
+    .unwrap();
+    assert!(fixture.check_installed(&installed).is_err());
+}
+
+#[test]
+fn installed_development_runtime_rejects_mounted_trust_and_linked_vehicle() {
+    for name in ["release-manifest.json", "cua-runtime-authorization.json"] {
+        for prefix in ["", "usr"] {
+            let mut fixture = Fixture::new();
+            fs::write(fixture.root().join(prefix).join(name), b"{}").unwrap();
+            fixture.refresh_inventory();
+            let installed = fixture.installed();
+            assert!(fixture.check_installed(&installed).is_err());
+        }
+    }
+    let fixture = Fixture::new();
+    let installed = fixture.installed();
+    fs::hard_link(
+        installed.join("Vadgr.AppImage"),
+        installed.join("linked-copy"),
+    )
+    .unwrap();
+    assert!(fixture.check_installed(&installed).is_err());
+}
+
+#[test]
+fn installed_development_runtime_child() {
+    if std::env::var_os("VADGR_SYNTHETIC_DEVELOPMENT_CHILD").is_none() {
+        return;
+    }
+    let executable = std::env::current_exe().unwrap();
+    let root = executable.parent().unwrap().parent().unwrap();
+    let started = std::time::Instant::now();
+    let runtime = crate::cua_payload::CuaRuntime::below_install_root(root).unwrap();
+    let discovery_ms = started.elapsed().as_millis();
+    let specification = runtime.stdio_command();
+    let mut command = std::process::Command::new(&specification.program);
+    let started = std::time::Instant::now();
+    assert!(
+        specification
+            .authorize_process(&mut command)
+            .unwrap()
+            .is_none()
+    );
+    let launch_revalidation_ms = started.elapsed().as_millis();
+    fs::write(
+        root.join("lib/cua/bootstrap.py"),
+        b"changed after discovery",
+    )
+    .unwrap();
+    assert!(specification.authorize_process(&mut command).is_err());
+    println!(
+        "{}",
+        json!({"scope":"synthetic fixture, not installed performance",
+        "executable_bytes":fs::metadata(executable).unwrap().len(),
+        "discovery_ms":discovery_ms,"launch_revalidation_ms":launch_revalidation_ms})
+    );
+}
+
+#[test]
+fn installed_development_runtime_revalidates_same_command_before_spawn() {
+    let mut fixture = Fixture::new();
+    let root = fixture.root().join("usr");
+    let payload = crate::cua_payload::tests::valid_payload(&root);
+    fs::write(
+        root.join("lib/cua/payload.json"),
+        serde_json::to_vec(&payload).unwrap(),
+    )
+    .unwrap();
+    let child = root.join("bin/vadgr");
+    fs::copy(std::env::current_exe().unwrap(), &child).unwrap();
+    let expected = compiled_identity().unwrap();
+    fixture.receipt["source_commit"] = json!(expected.source_commit);
+    fixture.receipt["source_tree"] = json!(expected.source_tree);
+    fixture.refresh_inventory();
+    let installed = fixture.installed();
+    let output = std::process::Command::new(&child)
+        .args([
+            "--exact",
+            "install::development::tests::installed_development_runtime_child",
+            "--nocapture",
+        ])
+        .env("VADGR_SYNTHETIC_DEVELOPMENT_CHILD", "1")
+        .env("VADGR_INSTALL_ROOT", &installed)
+        .env("APPIMAGE", installed.join("Vadgr.AppImage"))
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(String::from_utf8_lossy(&output.stdout).contains("1 passed"));
+    println!("{}", String::from_utf8_lossy(&output.stdout));
+}
+
+impl Fixture {
     fn new() -> Self {
         let temporary = tempfile::tempdir().unwrap();
         let root = temporary.path().join("mounted");

@@ -102,6 +102,7 @@ fn ready_app() -> (egui::Context, ConsoleApp, mpsc::Receiver<&'static str>) {
         view: View::Machine,
         data: Some(ConsoleData::default()),
         pending: None,
+        uninstalled: false,
         dialog: None,
         dialog_focus: DialogFocus::default(),
         notice: None,

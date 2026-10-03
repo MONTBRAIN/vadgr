@@ -105,6 +105,14 @@ pub(super) fn installed_authorization(
         profile == observed,
         "installed CUA profile differs from the execution environment"
     );
+    #[cfg(all(target_os = "linux", feature = "linux-unsigned-qualification"))]
+    if profile.starts_with("linux-") {
+        // Only the explicitly compiled native development package may use its
+        // complete installed-byte receipt instead of production attestation.
+        // CuaCommand keeps authorization_root and repeats this before spawn.
+        crate::install::verify_installed_runtime(root)?;
+        return Ok(None);
+    }
     let raw = read(root, ENVELOPE)?;
     let bundle = read(root, "cua-runtime-authorization.sigstore.json")?;
     crate::install::verify_cua_attestation(&raw, std::str::from_utf8(&bundle)?, false)?;

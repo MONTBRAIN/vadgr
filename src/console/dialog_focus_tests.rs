@@ -1,13 +1,15 @@
 //! Full application regressions for native modal entry and return focus.
 use super::*;
 use std::sync::Mutex;
-use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU8, AtomicUsize, Ordering};
 
 struct DialogController {
     data: Mutex<ConsoleData>,
     calls: Mutex<Vec<&'static str>>,
     outcome: AtomicU8,
     blocked: AtomicBool,
+    reloads: AtomicUsize,
+    uninstall_modes: Mutex<Vec<bool>>,
 }
 
 impl DialogController {
@@ -33,6 +35,7 @@ impl DialogController {
 
 impl ConsoleController for DialogController {
     fn install_status(&self) -> Result<crate::install::InstallStatus> {
+        self.reloads.fetch_add(1, Ordering::SeqCst);
         Ok(self.data.lock().unwrap().install.clone())
     }
     fn health(&self) -> Result<HealthSnapshot> {
@@ -123,7 +126,8 @@ impl ConsoleController for DialogController {
     fn open_legal_notices(&self) -> Result<()> {
         unreachable!()
     }
-    fn uninstall(&self, _: bool) -> Result<()> {
+    fn uninstall(&self, purge: bool) -> Result<()> {
+        self.uninstall_modes.lock().unwrap().push(purge);
         self.action("uninstall", |data| {
             data.install.installed = false;
             data.install.lifecycle_available = false;
@@ -219,6 +223,8 @@ fn controlled_fixture(
         calls: Mutex::new(Vec::new()),
         outcome: AtomicU8::new(0),
         blocked: AtomicBool::new(false),
+        reloads: AtomicUsize::new(0),
+        uninstall_modes: Mutex::new(Vec::new()),
     });
     app.controller = controller.clone();
     (ctx, app, controller)
@@ -536,11 +542,15 @@ fn async_submit_success_error_and_disconnection_have_safe_return_destinations() 
                         1,
                         "one submitted operation"
                     );
+                    if matches!(family, Family::Uninstall) && outcome == 0 {
+                        assert!(requests_close(&closed));
+                        assert_eq!(controller.reloads.load(Ordering::SeqCst), 0);
+                        continue;
+                    }
                     let expected = if outcome == 0 {
                         match family {
                             Family::Auth | Family::Key | Family::Disconnect => "Providers",
                             Family::Revoke => "Machine",
-                            Family::Uninstall => "Settings",
                             _ => family.opener(),
                         }
                     } else {
@@ -900,6 +910,95 @@ struct ReleaseWorker(Arc<DialogController>);
 impl Drop for ReleaseWorker {
     fn drop(&mut self) {
         self.0.blocked.store(false, Ordering::SeqCst);
+    }
+}
+
+fn requests_close(output: &egui::FullOutput) -> bool {
+    output.viewport_output.values().any(|viewport| {
+        viewport
+            .commands
+            .iter()
+            .any(|command| matches!(command, egui::ViewportCommand::Close))
+    })
+}
+
+#[test]
+fn successful_uninstall_closes_only_after_completion_without_reloading() {
+    for palette in [egui::Theme::Light, egui::Theme::Dark] {
+        for purge in [false, true] {
+            let size = [900.0, 600.0];
+            let (ctx, mut app, controller) = controlled_fixture(Family::Uninstall, palette);
+            activate(&ctx, &mut app, size, "Uninstall...");
+            if let Some(Dialog::Uninstall {
+                purge: selected,
+                confirmation,
+            }) = &mut app.dialog
+            {
+                *selected = purge;
+                *confirmation = if purge {
+                    "DELETE OWNER DATA".into()
+                } else {
+                    String::new()
+                };
+            } else {
+                panic!("missing uninstall confirmation");
+            }
+            controller.blocked.store(true, Ordering::SeqCst);
+            let _release = ReleaseWorker(controller.clone());
+            activate(&ctx, &mut app, size, "Uninstall Vadgr");
+            wait_call(&controller, "uninstall");
+            for _ in 0..3 {
+                assert!(
+                    !requests_close(&draw(&ctx, &mut app, size, vec![])),
+                    "pending uninstall must keep the window open"
+                );
+            }
+            assert!(controller.data.lock().unwrap().install.installed);
+            assert_eq!(controller.reloads.load(Ordering::SeqCst), 0);
+            controller.blocked.store(false, Ordering::SeqCst);
+            let completed = settle(&ctx, &mut app, size);
+            assert!(
+                requests_close(&completed),
+                "successful uninstall must close the native viewport"
+            );
+            assert!(!controller.data.lock().unwrap().install.installed);
+            assert_eq!(*controller.uninstall_modes.lock().unwrap(), [purge]);
+            // Even another frame beyond the normal refresh deadline must not
+            // contact the removed daemon or draw a stale installation again.
+            app.last_refresh = std::time::Instant::now() - std::time::Duration::from_secs(30);
+            assert!(requests_close(&draw(&ctx, &mut app, size, vec![])));
+            assert!(app.pending.is_none());
+            assert!(app.notice.is_none());
+            assert_eq!(controller.reloads.load(Ordering::SeqCst), 0);
+        }
+    }
+}
+
+#[test]
+fn cancelled_or_failed_uninstall_keeps_the_console_open() {
+    for palette in [egui::Theme::Light, egui::Theme::Dark] {
+        let size = [900.0, 600.0];
+        let (ctx, mut app, controller) = controlled_fixture(Family::Uninstall, palette);
+        activate(&ctx, &mut app, size, "Uninstall...");
+        activate(&ctx, &mut app, size, "Keep installed");
+        assert!(!requests_close(&settle(&ctx, &mut app, size)));
+        assert!(controller.calls.lock().unwrap().is_empty());
+        for outcome in [1, 2] {
+            controller.outcome.store(outcome, Ordering::SeqCst);
+            activate(&ctx, &mut app, size, "Uninstall...");
+            activate(&ctx, &mut app, size, "Uninstall Vadgr");
+            let failed = settle(&ctx, &mut app, size);
+            assert!(!requests_close(&failed));
+            assert_focus(&failed, "Uninstall...");
+            assert!(controller.data.lock().unwrap().install.installed);
+            let expected = if outcome == 1 {
+                "fixture operation refused"
+            } else {
+                "The operation ended without a result."
+            };
+            assert_eq!(app.notice, Some((false, expected.into())));
+            assert_eq!(controller.reloads.load(Ordering::SeqCst), 0);
+        }
     }
 }
 

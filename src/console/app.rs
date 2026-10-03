@@ -53,6 +53,7 @@ enum OperationResult {
     Loaded(Box<ConsoleData>),
     Pairing(PairingSession),
     Changed,
+    Uninstalled,
     UpdateChecked(crate::install::UpdateCheck),
 }
 
@@ -110,6 +111,7 @@ pub struct ConsoleApp {
     view: View,
     data: Option<ConsoleData>,
     pending: Option<mpsc::Receiver<Result<OperationResult>>>,
+    uninstalled: bool,
     dialog: Option<Dialog>,
     dialog_focus: DialogFocus,
     notice: Option<(bool, String)>,
@@ -125,6 +127,7 @@ impl ConsoleApp {
             view: View::Machine,
             data: None,
             pending: None,
+            uninstalled: false,
             dialog: None,
             dialog_focus: DialogFocus::default(),
             notice: None,
@@ -231,6 +234,10 @@ impl ConsoleApp {
                 self.pending = None;
                 self.reload();
                 self.notice = Some((true, "The change completed.".to_owned()));
+            }
+            Ok(Ok(OperationResult::Uninstalled)) => {
+                self.pending = None;
+                self.uninstalled = true;
             }
             Ok(Ok(OperationResult::UpdateChecked(update))) => {
                 self.pending = None;
@@ -1327,7 +1334,7 @@ impl ConsoleApp {
                             let purge = *purge;
                             self.start(move |c| {
                                 c.uninstall(purge)?;
-                                Ok(OperationResult::Changed)
+                                Ok(OperationResult::Uninstalled)
                             });
                             keep = false;
                         }
@@ -1607,6 +1614,12 @@ impl eframe::App for ConsoleApp {
         theme::refresh(&ctx);
         self.dialog_focus.begin_frame(&ctx, self.view);
         self.poll(&ctx);
+        if self.uninstalled {
+            // Removal is terminal: neither this frame nor a delayed close may
+            // refresh the removed daemon or render stale installation controls.
+            ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+            return;
+        }
         let refresh_after = if matches!(self.dialog, Some(Dialog::Pairing { .. })) {
             std::time::Duration::from_secs(2)
         } else {
@@ -2210,6 +2223,7 @@ mod tests {
                 view: View::Machine,
                 data: None,
                 pending: None,
+                uninstalled: false,
                 dialog: Some(dialog),
                 dialog_focus: DialogFocus::default(),
                 notice: None,
@@ -2417,6 +2431,7 @@ mod tests {
             view: View::Settings,
             data: None,
             pending: Some(receive),
+            uninstalled: false,
             dialog: None,
             dialog_focus: DialogFocus::default(),
             notice: None,
@@ -2462,6 +2477,7 @@ mod tests {
             view: View::Settings,
             data: Some(data.clone()),
             pending: Some(receive),
+            uninstalled: false,
             dialog: None,
             dialog_focus: DialogFocus::default(),
             notice: None,

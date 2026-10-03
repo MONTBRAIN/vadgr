@@ -1402,6 +1402,14 @@ showing a missing-daemon error as successful uninstall UX.
 
 ## Part B: installed bundled computer use
 
+Unsigned qualification proves the complete installed product before release.
+Include real runs, provider connections, bundled CUA, mobile pairing, transports
+and lifecycle operations on every supported OS and applicable shipped surface.
+Signing must not be the step that enables these features for the first time.
+The release pipeline adds signatures and distribution trust metadata, then
+verifies final identity, integrity and promotion. Those checks do not replace
+the unsigned functional pass or erase an outstanding functional finding.
+
 Keep B01 whenever Vadgr ships a bundled computer-use runtime. Expand its result
 by every supported host, architecture and applicable desktop session.
 Do not infer one platform's pass from another platform or a hosted producer.

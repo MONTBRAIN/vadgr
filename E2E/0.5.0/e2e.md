@@ -106,6 +106,12 @@ must be fixed before the candidate is produced.
 
 ### Qualification lanes
 
+The unsigned app must fully execute runs, provider connections, bundled CUA,
+mobile pairing, transports and applicable lifecycle operations on every OS.
+The release pipeline adds signatures and distribution trust metadata to that
+working product. Final identity, integrity and promotion checks remain required.
+They must not enable missing features or become the first functional pass.
+
 The cell number does not decide whether work waits for signing; the individual
 oracle does. Mixed cells are split below and retain every original assertion.
 
@@ -612,6 +618,12 @@ later implementation adds one, its disabled exact-version label is part of both
 the visual and accessibility oracle.
 
 ## Owner and external prerequisites
+
+Signing credentials and held-candidate requirements below apply only to trust
+assertions. They are not prerequisites for unsigned functional qualification.
+Every OS must repair missing development runtime or package support rather than
+wait for release signing. Physical devices and protected OS permissions remain
+real prerequisites only for the assertions that use them.
 
 - Before any formal candidate cell: owner-approved Version 1.0 terms bytes; final legal
   bundle; reviewed verifier and trusted-root hashes, keyless attestation bundle;

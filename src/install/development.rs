@@ -274,6 +274,102 @@ fn compiled_identity() -> Result<Expected<'static>> {
     })
 }
 
+/// The environment names an installed root; it does not grant runtime admission.
+pub(crate) fn verify_installed_runtime(runtime_root: &Path) -> Result<()> {
+    let install_root = std::env::var_os("VADGR_INSTALL_ROOT")
+        .map(PathBuf::from)
+        .context("development CUA requires an installed package root")?;
+    let vehicle = std::env::var_os("APPIMAGE")
+        .map(PathBuf::from)
+        .context("development CUA requires the installed AppImage launcher")?;
+    verify_installed_runtime_at(
+        runtime_root,
+        &std::env::current_exe().context("resolving the running executable")?,
+        &install_root,
+        &vehicle,
+        &compiled_identity()?,
+    )
+}
+
+fn verify_installed_runtime_at(
+    runtime_root: &Path,
+    executable: &Path,
+    install_root: &Path,
+    vehicle: &Path,
+    expected: &Expected<'_>,
+) -> Result<()> {
+    // This is package consistency, not publisher authenticity. Neither locator
+    // is authority: all executable, mounted and retained bytes must agree.
+    ensure!(
+        runtime_root.file_name().and_then(|name| name.to_str()) == Some("usr")
+            && executable == runtime_root.join("bin/vadgr")
+            && vehicle == install_root.join("Vadgr.AppImage"),
+        "development runtime is not executing its installed package"
+    );
+    let mounted_root = runtime_root
+        .parent()
+        .context("missing mounted package root")?;
+    let runtime = ConfinedRoot::open(runtime_root)?;
+    let mounted = ConfinedRoot::open(mounted_root)?;
+    let installed = ConfinedRoot::open(install_root)?;
+    let forbidden = [
+        "release-manifest.json",
+        "release-manifest.json.bundle.jsonl",
+        "cua-runtime-authorization.json",
+        "cua-runtime-authorization.sigstore.json",
+    ];
+    for name in forbidden {
+        runtime.require_absent(name)?;
+        mounted.require_absent(name)?;
+        installed.require_absent(name)?;
+    }
+    let receipt_file = installed.regular(super::RECEIPT_NAME, MAX_METADATA)?;
+    let receipt: super::InstallReceipt =
+        serde_json::from_slice(&receipt_file.bytes(MAX_METADATA)?)?;
+    super::linux_package::ensure_receipt_mode(&receipt)?;
+    ensure!(
+        receipt.schema == 1
+            && receipt.version == expected.version
+            && receipt.product_code.is_none(),
+        "development installation receipt differs"
+    );
+    let filename = format!(
+        "Vadgr-{}-linux-{}-installer.AppImage",
+        expected.version, expected.architecture
+    );
+    let opened = open_bound(
+        &install_root.join("cache").join(filename),
+        &install_root.join("development-receipt.json"),
+        receipt.development_receipt_sha256.as_deref(),
+        expected,
+    )?;
+    let installed_vehicle = installed.regular("Vadgr.AppImage", MAX_FILE)?;
+    installed_vehicle.verify(
+        opened.receipt.artifact.size,
+        &opened.receipt.artifact.sha256,
+    )?;
+    let checked = verify_mounted(opened, mounted_root, executable, expected)?;
+    installed_vehicle.verify(
+        checked.receipt.artifact.size,
+        &checked.receipt.artifact.sha256,
+    )?;
+    installed.assert_bound("Vadgr.AppImage", &installed_vehicle.stamp)?;
+    ensure!(
+        Stamp::read(&receipt_file.file)? == receipt_file.stamp,
+        "development installation receipt changed during verification"
+    );
+    installed.assert_bound(super::RECEIPT_NAME, &receipt_file.stamp)?;
+    for name in forbidden {
+        runtime.require_absent(name)?;
+        mounted.require_absent(name)?;
+        installed.require_absent(name)?;
+    }
+    runtime.assert_root()?;
+    mounted.assert_root()?;
+    installed.assert_root()?;
+    Ok(())
+}
+
 fn hex(value: &str, length: usize) -> bool {
     value.len() == length
         && value
@@ -936,6 +1032,15 @@ fn verify(
         None,
         expected,
     )?;
+    verify_mounted(opened, root, executable, expected)
+}
+
+fn verify_mounted(
+    opened: OpenedReceipt,
+    root: &Path,
+    executable: &Path,
+    expected: &Expected<'_>,
+) -> Result<VerifiedDevelopmentReceipt> {
     let mounted = ConfinedRoot::open(root)?;
     let first = mounted_inventory(&mounted)?;
     ensure!(

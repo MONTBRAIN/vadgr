@@ -1487,7 +1487,7 @@ fn safe_remove_staging(root: &Path, staging: &Path) -> Result<()> {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
 
     #[tokio::test]
@@ -2084,7 +2084,7 @@ assert not outside
         }
     }
 
-    fn valid_payload(root: &Path) -> serde_json::Value {
+    pub(crate) fn valid_payload(root: &Path) -> serde_json::Value {
         let pins = current_pins().unwrap();
         let cua_root = root.join("lib/cua");
         let environment = cua_root.join("environments").join(environment_generation());
@@ -2196,23 +2196,32 @@ assert not outside
         let bundle = root.join("cua-runtime-authorization.sigstore.json");
         assert!(!envelope.exists() && !bundle.exists());
         let error = CuaRuntime::below_install_root(root).unwrap_err();
-        assert_eq!(
-            error.downcast_ref::<std::io::Error>().unwrap().kind(),
-            std::io::ErrorKind::NotFound
-        );
-        // Invalid records prove that this refusal reached authentication, not
-        // an unrelated missing fixture. They never grant runtime authorization.
-        std::fs::write(&envelope, b"{}").unwrap();
-        std::fs::write(&bundle, b"{}").unwrap();
-        let error = CuaRuntime::below_install_root(root).unwrap_err();
-        assert!(
-            error
-                .to_string()
-                .contains("parsing the release attestation"),
-            "unexpected refusal: {error:#}"
-        );
-        std::fs::remove_file(envelope).unwrap();
-        std::fs::remove_file(bundle).unwrap();
+        #[cfg(all(target_os = "linux", feature = "linux-unsigned-qualification"))]
+        {
+            // A payload-only fixture is not an installed development AppImage.
+            // Complete installed admission has a separate child-process test.
+            assert!(error.to_string().contains("development CUA"), "{error:#}");
+        }
+        #[cfg(not(all(target_os = "linux", feature = "linux-unsigned-qualification")))]
+        {
+            assert_eq!(
+                error.downcast_ref::<std::io::Error>().unwrap().kind(),
+                std::io::ErrorKind::NotFound
+            );
+            // Invalid records prove that this refusal reached authentication, not
+            // an unrelated missing fixture. They never grant runtime authorization.
+            std::fs::write(&envelope, b"{}").unwrap();
+            std::fs::write(&bundle, b"{}").unwrap();
+            let error = CuaRuntime::below_install_root(root).unwrap_err();
+            assert!(
+                error
+                    .to_string()
+                    .contains("parsing the release attestation"),
+                "unexpected refusal: {error:#}"
+            );
+            std::fs::remove_file(envelope).unwrap();
+            std::fs::remove_file(bundle).unwrap();
+        }
     }
 
     #[cfg(target_os = "linux")]
