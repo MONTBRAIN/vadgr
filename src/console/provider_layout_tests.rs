@@ -2,6 +2,9 @@ use super::*;
 use eframe::App;
 use egui::accesskit::{Action, ActionData, ActionRequest, Node, NodeId, Role, TreeId};
 
+#[path = "dialog_focus_tests.rs"]
+mod dialog_focus_tests;
+
 #[test]
 fn native_button_focus_is_visible() {
     let mut failures = Vec::new();
@@ -227,6 +230,7 @@ fn app(theme: egui::Theme) -> (egui::Context, ConsoleApp) {
         }),
         pending: None,
         dialog: None,
+        dialog_focus: DialogFocus::default(),
         notice: None,
         available_update: None,
         last_refresh: std::time::Instant::now(),

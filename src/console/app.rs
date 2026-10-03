@@ -8,8 +8,14 @@ use anyhow::{Result, anyhow};
 use eframe::egui::{self, Align, Color32, Layout, RichText, Sense, Stroke, StrokeKind, Vec2};
 use std::sync::{Arc, mpsc};
 
+#[path = "dialog_focus.rs"]
+mod dialog_focus;
+use dialog_focus::{DialogFocus, initial_control, opener_control};
+
 const MODAL_SCRIM_ORDER: egui::Order = egui::Order::Middle;
 const MODAL_DIALOG_ORDER: egui::Order = egui::Order::Foreground;
+const MODAL_WAIT_REASON: &str =
+    "Wait for the current action to finish before submitting changes. You can still cancel.";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum View {
@@ -105,6 +111,7 @@ pub struct ConsoleApp {
     data: Option<ConsoleData>,
     pending: Option<mpsc::Receiver<Result<OperationResult>>>,
     dialog: Option<Dialog>,
+    dialog_focus: DialogFocus,
     notice: Option<(bool, String)>,
     available_update: Option<crate::install::UpdateCheck>,
     last_refresh: std::time::Instant,
@@ -119,6 +126,7 @@ impl ConsoleApp {
             data: None,
             pending: None,
             dialog: None,
+            dialog_focus: DialogFocus::default(),
             notice: None,
             available_update: None,
             last_refresh: std::time::Instant::now(),
@@ -198,15 +206,26 @@ impl ConsoleApp {
                 self.last_refresh = std::time::Instant::now();
                 if paired {
                     self.dialog = None;
+                    self.dialog_focus.closed(ctx);
                     self.notice = Some((true, "The device is paired.".to_owned()));
                 }
             }
             Ok(Ok(OperationResult::Pairing(session))) => {
-                self.dialog = Some(Dialog::Pairing {
-                    session,
-                    opened_at: std::time::Instant::now(),
-                });
                 self.pending = None;
+                if self.dialog_focus.awaiting_pairing && self.dialog.is_none() {
+                    self.dialog_focus.awaiting_pairing = false;
+                    self.dialog = Some(Dialog::Pairing {
+                        session,
+                        opened_at: std::time::Instant::now(),
+                    });
+                } else {
+                    // Navigation or another dialog superseded this interaction.
+                    // Do not leave its backend pairing window active invisibly.
+                    self.start(|controller| {
+                        controller.cancel_pairing()?;
+                        Ok(OperationResult::Changed)
+                    });
+                }
             }
             Ok(Ok(OperationResult::Changed)) => {
                 self.pending = None;
@@ -233,11 +252,17 @@ impl ConsoleApp {
             }
             Ok(Err(error)) => {
                 self.pending = None;
+                if self.dialog_focus.awaiting_pairing {
+                    self.dialog_focus.closed(ctx);
+                }
                 self.last_refresh = std::time::Instant::now();
                 self.notice = Some((false, error.to_string()));
             }
             Err(mpsc::TryRecvError::Disconnected) => {
                 self.pending = None;
+                if self.dialog_focus.awaiting_pairing {
+                    self.dialog_focus.closed(ctx);
+                }
                 self.last_refresh = std::time::Instant::now();
                 self.notice = Some((false, "The operation ended without a result.".to_owned()));
             }
@@ -271,9 +296,16 @@ impl ConsoleApp {
                         .color(theme::muted()),
                 );
                 ui.add_space(40.0);
-                nav(ui, &mut self.view, View::Machine, Icon::Machine, "Machine");
-                nav(ui, &mut self.view, View::Providers, Icon::Key, "Providers");
-                nav(ui, &mut self.view, View::Settings, Icon::Gear, "Settings");
+                for (view, icon, label) in [
+                    (View::Machine, Icon::Machine, "Machine"),
+                    (View::Providers, Icon::Key, "Providers"),
+                    (View::Settings, Icon::Gear, "Settings"),
+                ] {
+                    let response = nav(ui, &mut self.view, view, icon, label);
+                    if self.view == view {
+                        self.dialog_focus.fallback(response);
+                    }
+                }
             });
     }
 
@@ -381,7 +413,8 @@ impl ConsoleApp {
             Vec2::new(section_width, 35.0),
             Layout::right_to_left(Align::Center),
             |ui| {
-                if ui.button("Edit machine").clicked() {
+                let response = opener_control(ui, "edit-machine", |ui| ui.button("Edit machine"));
+                if self.dialog_focus.opener(self.view, response) {
                     self.dialog = Some(Dialog::EditMachine {
                         skill_options: data.machine.granted_skills.clone(),
                         server_options: data.machine.granted_mcp_servers.clone(),
@@ -470,7 +503,11 @@ impl ConsoleApp {
                             .iter()
                             .any(|row| row.id == provider && row.connected && row.available)
                     });
-                if primary_button(ui, "Pair device", self.pending.is_none() && provider_ready) {
+                let response = opener_control(ui, "pair-device", |ui| {
+                    primary_response(ui, "Pair device", self.pending.is_none() && provider_ready)
+                });
+                if self.dialog_focus.opener(self.view, response) {
+                    self.dialog_focus.awaiting_pairing = true;
                     self.start(|controller| {
                         Ok(OperationResult::Pairing(controller.start_pairing()?))
                     });
@@ -561,7 +598,10 @@ impl ConsoleApp {
                         Vec2::new(240.0, 58.0),
                         Layout::right_to_left(Align::Center),
                         |ui| {
-                            if ui.button("Unpair").clicked() {
+                            let response = opener_control(ui, ("revoke", &device.id), |ui| {
+                                ui.button("Unpair")
+                            });
+                            if self.dialog_focus.opener(self.view, response) {
                                 self.dialog = Some(Dialog::Revoke(device.clone()));
                             }
                             let (status, color) = if device.connected {
@@ -594,7 +634,10 @@ impl ConsoleApp {
                     .filter(|provider| !provider.connected)
                     .cloned()
                     .collect::<Vec<_>>();
-                if primary_button(ui, "Connect provider", !available.is_empty()) {
+                let response = opener_control(ui, "connect-provider", |ui| {
+                    primary_response(ui, "Connect provider", !available.is_empty())
+                });
+                if self.dialog_focus.opener(self.view, response) {
                     self.dialog = Some(Dialog::ProviderPicker(available));
                 }
                 ui.with_layout(Layout::top_down(Align::Min), |ui| {
@@ -669,8 +712,13 @@ impl ConsoleApp {
                                     RichText::new("DEFAULT").monospace().color(theme::muted()),
                                 );
                             }
-                        } else if ui.button("Connect").clicked() {
-                            self.open_provider_auth(provider.clone());
+                        } else {
+                            let response = opener_control(ui, ("connect", &provider.id), |ui| {
+                                ui.button("Connect")
+                            });
+                            if self.dialog_focus.opener(self.view, response) {
+                                self.open_provider_auth(provider.clone());
+                            }
                         }
                     });
                 });
@@ -689,7 +737,10 @@ impl ConsoleApp {
                         Vec2::new(ui.available_width(), ui.spacing().interact_size.y),
                         Layout::right_to_left(Align::Center).with_main_wrap(true),
                         |ui| {
-                            if danger_button(ui, "Disconnect", true) {
+                            let response = opener_control(ui, ("disconnect", &provider.id), |ui| {
+                                danger_response(ui, "Disconnect", true)
+                            });
+                            if self.dialog_focus.opener(self.view, response) {
                                 self.dialog = Some(Dialog::DisconnectProvider(provider.clone()));
                             }
                             if ui.button("Refresh models").clicked() {
@@ -699,14 +750,14 @@ impl ConsoleApp {
                                     Ok(OperationResult::Changed)
                                 });
                             }
-                            if ui
-                                .button(if is_machine_default {
+                            let response = opener_control(ui, ("models", &provider.id), |ui| {
+                                ui.button(if is_machine_default {
                                     "Change default"
                                 } else {
                                     "Make default"
                                 })
-                                .clicked()
-                            {
+                            });
+                            if self.dialog_focus.opener(self.view, response) {
                                 self.dialog = Some(Dialog::Models {
                                     selected: current_model
                                         .clone()
@@ -850,7 +901,10 @@ impl ConsoleApp {
                 Vec2::new(uninstall_width, 46.0),
                 Layout::right_to_left(Align::Center),
                 |ui| {
-                    if danger_button(ui, "Uninstall...", data.install.lifecycle_available) {
+                    let response = opener_control(ui, "uninstall", |ui| {
+                        danger_response(ui, "Uninstall...", data.install.lifecycle_available)
+                    });
+                    if self.dialog_focus.opener(self.view, response) {
                         self.dialog = Some(Dialog::Uninstall {
                             purge: false,
                             confirmation: String::new(),
@@ -892,8 +946,10 @@ impl ConsoleApp {
             return;
         };
         let pairing_dialog = matches!(&dialog, Dialog::Pairing { .. });
+        let mut initial = None;
         let mut keep = true;
-        let mut dismiss_requested = ctx.input(|input| input.key_pressed(egui::Key::Escape));
+        let mut dismiss_requested = !egui::Popup::is_any_open(ctx)
+            && ctx.input(|input| input.key_pressed(egui::Key::Escape));
         let screen = ctx.content_rect();
         let compact_dialog = screen.height() < 650.0 || screen.width() < 1000.0;
         let dialog_width = if pairing_dialog {
@@ -948,6 +1004,14 @@ impl ConsoleApp {
                     ui.label(title);
                 }
                 ui.add_space(5.0);
+                let busy_height = if self.pending.is_some() && !pairing_dialog {
+                    let height = ui.add(egui::Label::new(MODAL_WAIT_REASON).wrap()).rect.height();
+                    ui.add_space(8.0);
+                    height + 8.0 + ui.spacing().item_spacing.y
+                } else { 0.0 };
+                // A conditional waiting reason must not replace controls or their focus.
+                let content_id = ui.make_persistent_id("dialog-content");
+                ui.scope_builder(egui::UiBuilder::new().id(content_id), |ui| {
                 match &mut dialog {
                 Dialog::Pairing { session, opened_at } => {
                     let elapsed = opened_at.elapsed().as_secs();
@@ -993,14 +1057,13 @@ impl ConsoleApp {
                                 .request_repaint_after(std::time::Duration::from_secs(1));
                         }
                         ui.add_space(18.0);
-                        if ui
+                        let response = opener_control(ui, "pairing-close", |ui| ui
                             .button(if remaining == 0 {
                                 "Close"
                             } else {
                                 "Cancel pairing"
-                            })
-                            .clicked()
-                        {
+                            }));
+                        if initial_control(&mut initial, response).clicked() {
                             dismiss_requested = true;
                         }
                     });
@@ -1008,8 +1071,8 @@ impl ConsoleApp {
                 Dialog::Revoke(device) => {
                     ui.label(RichText::new("This device will lose access now. You can pair it again later.").color(theme::muted()));
                     ui.horizontal(|ui| {
-                        if ui.button("Keep paired").clicked() { dismiss_requested = true; }
-                        if danger_button(ui, "Unpair device", true) {
+                        if initial_control(&mut initial, ui.button("Keep paired")).clicked() { dismiss_requested = true; }
+                        if danger_button(ui, "Unpair device", self.pending.is_none()) {
                             let id = device.id.clone();
                             self.start(move |c| { c.revoke_device(&id)?; Ok(OperationResult::Changed) });
                             keep = false;
@@ -1022,8 +1085,8 @@ impl ConsoleApp {
                     server_options,
                 } => {
                     let machine_name_label = ui.label("Machine name");
-                    TextInput::Singleline.show(ui, ui.make_persistent_id("machine-name"), &mut edit.name)
-                        .labelled_by(machine_name_label.id);
+                    initial_control(&mut initial, TextInput::Singleline.show(ui, ui.make_persistent_id("machine-name"), &mut edit.name)
+                        .labelled_by(machine_name_label.id));
                     let workspace_label = ui.label("Workspace");
                     let mut workspace = edit.workspace.clone().unwrap_or_default();
                     if TextInput::Singleline
@@ -1071,7 +1134,7 @@ impl ConsoleApp {
                     }
                     ui.horizontal(|ui| {
                         if ui.button("Cancel").clicked() { dismiss_requested = true; }
-                        if ui.button("Save changes").clicked() {
+                        if ui.add_enabled(self.pending.is_none(), egui::Button::new("Save changes")).clicked() {
                             let value = edit.clone();
                             self.start(move |c| { c.update_machine(&value)?; Ok(OperationResult::Changed) });
                             keep = false;
@@ -1086,7 +1149,7 @@ impl ConsoleApp {
                     );
                     ui.add_space(12.0);
                     if provider.auth_methods.iter().any(|method| method == "oauth")
-                        && ui.button("Continue in browser").clicked()
+                        && initial_control(&mut initial, ui.add_enabled(self.pending.is_none(), egui::Button::new("Continue in browser"))).clicked()
                     {
                         let id = provider.id.clone();
                         self.start(move |c| {
@@ -1096,7 +1159,7 @@ impl ConsoleApp {
                         keep = false;
                     }
                     if provider.auth_methods.iter().any(|method| method == "api_key")
-                        && ui.button("Use an API key").clicked()
+                        && initial_control(&mut initial, ui.button("Use an API key")).clicked()
                     {
                         self.dialog = Some(Dialog::ProviderKey {
                             provider: provider.id.clone(),
@@ -1104,14 +1167,14 @@ impl ConsoleApp {
                         });
                         keep = false;
                     }
-                    if ui.button("Cancel").clicked() { dismiss_requested = true; }
+                    if initial_control(&mut initial, ui.button("Cancel")).clicked() { dismiss_requested = true; }
                 }
                 Dialog::ProviderPicker(providers) => {
                     ui.label("Choose a provider to connect.");
                     ui.add_space(12.0);
                     for provider in providers {
-                        if ui.add(egui::Button::new(&provider.name).wrap()
-                            .min_size(Vec2::new(ui.available_width(), 52.0))).clicked() {
+                        if initial_control(&mut initial, ui.add(egui::Button::new(&provider.name).wrap()
+                            .min_size(Vec2::new(ui.available_width(), 52.0)))).clicked() {
                             let provider = provider.clone();
                             self.open_provider_auth(provider);
                             keep = false;
@@ -1120,17 +1183,17 @@ impl ConsoleApp {
                     ui.add_space(16.0);
                     ui.separator();
                     ui.allocate_ui_with_layout(Vec2::new(ui.available_width(), ui.spacing().interact_size.y), Layout::right_to_left(Align::Center), |ui| {
-                        if ui.button("Cancel").clicked() { dismiss_requested = true; }
+                        if initial_control(&mut initial, ui.button("Cancel")).clicked() { dismiss_requested = true; }
                     });
                 }
                 Dialog::ProviderKey { provider, value } => {
                     let key_label = ui.label(format!("Enter the {provider} API key."));
-                    TextInput::Password.show(ui, ui.make_persistent_id(("provider-key", provider.as_str())), value)
-                        .labelled_by(key_label.id);
+                    initial_control(&mut initial, TextInput::Password.show(ui, ui.make_persistent_id(("provider-key", provider.as_str())), value)
+                        .labelled_by(key_label.id));
                     ui.label(RichText::new("The key goes directly to the local daemon. Vadgr never displays it again.").color(theme::muted()));
                     ui.horizontal(|ui| {
                         if ui.button("Cancel").clicked() { dismiss_requested = true; }
-                        if ui.add_enabled(!value.trim().is_empty(), egui::Button::new("Connect")).clicked() {
+                        if ui.add_enabled(!value.trim().is_empty() && self.pending.is_none(), egui::Button::new("Connect")).clicked() {
                             let id = provider.clone();
                             let secret = std::mem::take(value);
                             self.start(move |c| { c.connect_api_key(&id, secret)?; Ok(OperationResult::Changed) });
@@ -1145,8 +1208,8 @@ impl ConsoleApp {
                     let search = ui.label("Search models");
                     ui.scope(|ui| {
                         ui.spacing_mut().text_edit_width = ui.available_width();
-                        TextInput::Singleline.show(ui, ui.make_persistent_id("model-search"), query)
-                            .labelled_by(search.id);
+                        initial_control(&mut initial, TextInput::Singleline.show(ui, ui.make_persistent_id("model-search"), query)
+                            .labelled_by(search.id));
                     });
                     ui.add_space(8.0);
                     ui.separator();
@@ -1160,7 +1223,7 @@ impl ConsoleApp {
                         .id_salt(("model-options", &provider.id))
                         .auto_shrink([false, true])
                         .min_scrolled_height(0.0)
-                        .max_height((screen.height() - 340.0).clamp(100.0, 360.0))
+                        .max_height((screen.height() - 340.0 - busy_height).clamp(100.0, 360.0))
                         .show(ui, |ui| {
                             if matches.is_empty() {
                                 ui.add_space(12.0);
@@ -1225,8 +1288,8 @@ impl ConsoleApp {
                         .color(theme::muted()),
                     );
                     ui.horizontal(|ui| {
-                        if ui.button("Keep connected").clicked() { dismiss_requested = true; }
-                        if danger_button(ui, "Disconnect", true) {
+                        if initial_control(&mut initial, ui.button("Keep connected")).clicked() { dismiss_requested = true; }
+                        if danger_button(ui, "Disconnect", self.pending.is_none()) {
                             let id = provider.id.clone();
                             self.start(move |c| {
                                 c.disconnect_provider(&id)?;
@@ -1237,12 +1300,17 @@ impl ConsoleApp {
                     });
                 }
                 Dialog::Uninstall { purge, confirmation } => {
-                    theme::checkbox(ui, purge, "Also delete settings, credentials, pairings and journals");
+                    let confirmation_id = ui.make_persistent_id("purge-confirmation");
+                    let confirmation_focused = ui.ctx().memory(|memory| memory.focused() == Some(confirmation_id));
+                    let purge_control = theme::checkbox(ui, purge, "Also delete settings, credentials, pairings and journals");
+                    if purge_control.changed() && !*purge && confirmation_focused {
+                        purge_control.request_focus();
+                    }
                     if *purge {
                         let confirmation_label = ui.label(
                             "Type DELETE OWNER DATA to confirm the separate data deletion.",
                         );
-                        TextInput::Singleline.show(ui, ui.make_persistent_id("purge-confirmation"), confirmation)
+                        TextInput::Singleline.show(ui, confirmation_id, confirmation)
                             .labelled_by(confirmation_label.id);
                     }
                     ui.label(
@@ -1252,9 +1320,10 @@ impl ConsoleApp {
                         .color(theme::muted()),
                     );
                     let confirmed = !*purge || confirmation == "DELETE OWNER DATA";
-                    ui.horizontal(|ui| {
-                        if ui.button("Keep installed").clicked() { dismiss_requested = true; }
-                        if danger_button(ui, "Uninstall Vadgr", confirmed) {
+                    let actions_id = ui.make_persistent_id("uninstall-actions");
+                    ui.scope_builder(egui::UiBuilder::new().id(actions_id), |ui| ui.horizontal(|ui| {
+                        if initial_control(&mut initial, ui.button("Keep installed")).clicked() { dismiss_requested = true; }
+                        if danger_button(ui, "Uninstall Vadgr", confirmed && self.pending.is_none()) {
                             let purge = *purge;
                             self.start(move |c| {
                                 c.uninstall(purge)?;
@@ -1262,14 +1331,19 @@ impl ConsoleApp {
                             });
                             keep = false;
                         }
-                    });
+                    }));
                 }
                 }
+                });
             });
         if dismiss_requested {
             self.dismiss_dialog(dialog);
+            self.dialog_focus.closed(ctx);
         } else if keep {
+            self.dialog_focus.enter(ctx, &dialog, initial);
             self.dialog = Some(dialog);
+        } else if self.dialog.is_none() {
+            self.dialog_focus.closed(ctx);
         }
     }
 }
@@ -1531,6 +1605,7 @@ impl eframe::App for ConsoleApp {
     fn ui(&mut self, root: &mut egui::Ui, _frame: &mut eframe::Frame) {
         let ctx = root.ctx().clone();
         theme::refresh(&ctx);
+        self.dialog_focus.begin_frame(&ctx, self.view);
         self.poll(&ctx);
         let refresh_after = if matches!(self.dialog, Some(Dialog::Pairing { .. })) {
             std::time::Duration::from_secs(2)
@@ -1613,6 +1688,12 @@ impl eframe::App for ConsoleApp {
                     });
             });
         self.draw_dialog(&ctx);
+        self.dialog_focus.finish_frame(
+            &ctx,
+            self.view,
+            self.pending.is_some(),
+            self.dialog.is_some(),
+        );
     }
 }
 
@@ -1631,7 +1712,13 @@ pub fn run(base_url: String) -> Result<()> {
     .map_err(|error| anyhow!(error.to_string()))
 }
 
-fn nav(ui: &mut egui::Ui, current: &mut View, target: View, icon: Icon, label: &str) {
+fn nav(
+    ui: &mut egui::Ui,
+    current: &mut View,
+    target: View,
+    icon: Icon,
+    label: &str,
+) -> egui::Response {
     let selected = *current == target;
     let (rect, response) = ui.allocate_exact_size(Vec2::new(158.0, 42.0), Sense::click());
     response.widget_info(|| {
@@ -1671,6 +1758,7 @@ fn nav(ui: &mut egui::Ui, current: &mut View, target: View, icon: Icon, label: &
         *current = target;
     }
     ui.add_space(4.0);
+    response
 }
 
 fn section_label(ui: &mut egui::Ui, text: &str) {
@@ -1798,6 +1886,10 @@ fn icon_tile(ui: &mut egui::Ui, icon: Icon, label: &str) {
 }
 
 fn primary_button(ui: &mut egui::Ui, label: &str, enabled: bool) -> bool {
+    primary_response(ui, label, enabled).clicked()
+}
+
+fn primary_response(ui: &mut egui::Ui, label: &str, enabled: bool) -> egui::Response {
     let response = ui.add_enabled(
         enabled,
         egui::Button::new(
@@ -1809,10 +1901,14 @@ fn primary_button(ui: &mut egui::Ui, label: &str, enabled: bool) -> bool {
         .stroke(Stroke::new(1.0, theme::accent())),
     );
     theme::focus_outline(ui, &response, theme::accent_text());
-    response.clicked()
+    response
 }
 
 fn danger_button(ui: &mut egui::Ui, label: &str, enabled: bool) -> bool {
+    danger_response(ui, label, enabled).clicked()
+}
+
+fn danger_response(ui: &mut egui::Ui, label: &str, enabled: bool) -> egui::Response {
     let response = ui.add_enabled(
         enabled,
         egui::Button::new(
@@ -1824,7 +1920,7 @@ fn danger_button(ui: &mut egui::Ui, label: &str, enabled: bool) -> bool {
         .stroke(Stroke::new(1.0, theme::danger().gamma_multiply(0.5))),
     );
     theme::focus_outline(ui, &response, theme::text());
-    response.clicked()
+    response
 }
 
 fn toggle_switch(ui: &mut egui::Ui, selected: bool, enabled: bool, label: &str) -> bool {
@@ -2115,6 +2211,7 @@ mod tests {
                 data: None,
                 pending: None,
                 dialog: Some(dialog),
+                dialog_focus: DialogFocus::default(),
                 notice: None,
                 available_update: None,
                 last_refresh: std::time::Instant::now(),
@@ -2321,6 +2418,7 @@ mod tests {
             data: None,
             pending: Some(receive),
             dialog: None,
+            dialog_focus: DialogFocus::default(),
             notice: None,
             available_update: None,
             last_refresh: std::time::Instant::now() - std::time::Duration::from_secs(30),
@@ -2365,6 +2463,7 @@ mod tests {
             data: Some(data.clone()),
             pending: Some(receive),
             dialog: None,
+            dialog_focus: DialogFocus::default(),
             notice: None,
             available_update: None,
             last_refresh: std::time::Instant::now(),

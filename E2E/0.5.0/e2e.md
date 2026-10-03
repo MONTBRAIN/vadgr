@@ -378,6 +378,17 @@ take focus back after navigation to another control or page. A dialog that
 closes requires its intended focus destination, not survival of its removed
 control. Include these assertions in O2 on every native GUI platform.
 
+Exercise every dialog family. Opening establishes a meaningful safe focus
+destination once; later frames must not take focus from the user's selected
+control. A destructive dialog must not initially focus its destructive action.
+Test nested transitions, cancellation, Escape, outside dismissal and successful
+or failed completion. Preserve the original opener across a nested chain and
+return to its enabled surviving control, or a deliberate same-view fallback if
+it is gone. Late results must not reopen dismissed dialogs or take focus after
+navigation. Pair settled native focus with actual reader output and independent
+state. Frame-only focus is not a control-focus pass; cancellation does not pass
+an unrun successful operation.
+
 #### Conditional Linux screen-reader startup
 
 Prove reader readiness before the O2 state matrix. A speech-server startup
@@ -866,6 +877,14 @@ combinations actually observed. A partial combination matrix is not a cell pass.
 | C1 | each host after all its cells | none | every host cell has terminal result and evidence | agent enumerates Vadgr processes, temporary artifacts, devices, test credentials and isolated test state | agent stops only Vadgr test processes and removes only validated test artifacts, devices and credentials | final process/path/network/device inventory | no test process or artifact remains; source, evidence, configuration, normal owner state and unrelated files remain | private host cleanup record | none beyond this row | no owner action; scope is limited to runbook-created test items | Windows x64 pre-merge cleanup passed at `24ae14a`: the test daemon and console stopped, port 8000 is free, the unsigned test package and isolated state were removed, the held owner state was restored byte-for-byte, phone scratch files were deleted, and Tailscale returned to its initial off state. Standard Cargo cleanup plus validated test-root removal reclaimed 4,568,530,944 bytes. Source, evidence, credentials, owner configuration, unrelated processes and `.tmp-cert-research` remain. macOS partial: September 13 cleanup is historical. Resumed pass console, daemon and isolated broker are now absent; port8000 is free on IPv4/IPv6 and no installed private payload process remains. Original owner API log body is restored. The separate empty-state root is in recoverable Trash and port8011 is free. Main install/state and rebuilt artifact remain preserved for protected continuation; exact phone-created files, final artifact removal, snapshot equality are owed. VoiceOver and its temporary AppleScript-control setting are restored. Linux `16cd0c47`: deferred; completed isolated purge and validated intermediate cleanup do not close C1 while the separate attended installation, configuration and retained artifact are intentionally preserved. |
 
 ## Per-OS results
+
+Current Linux O2 disposition: **fail for the observed focus assertions** at
+installed `357510b4`. Seven dialog families lack safe initial control focus and
+focus return after cancellation. The earlier focus-paint and notice-identity
+repair at `a3bc4688` has source proof only, not an installed rerun. The older
+assertion-level results below remain historical at their named identities.
+Affected Windows and macOS focus assertions also require rebuilt reruns; their
+earlier reader observations do not qualify the shared repairs.
 
 | Part | Windows native | macOS | native Linux | WSL |
 |---|---|---|---|---|
@@ -1931,6 +1950,59 @@ desktop/architecture result or released-driver closure. Unobserved size, scale,
 hover, pressed and reader states remain owed. Phone work, exact unfocused
 capture and unavailable offline-snapshot assertions remain separate. C1 stays
 deferred while the isolated installation and state support continuation.
+
+### Linux dialog focus continuation at `357510b4`
+
+Further installed O2 checks reproduced missing dialog focus entry and return.
+Two focused Uninstall cancellation cycles returned to Settings with only the
+application frame focused, although the enabled opener retained its native
+identity. Separate opening checks likewise found no focused dialog control.
+The same safe native probe observed the provider picker, authentication choice,
+empty key-entry form, model picker, disconnect confirmation and machine editor.
+All seven observed families had frame-only initial focus and no control focus
+returned after cancellation. No key was entered, browser opened, provider
+connected or disconnected, model saved, machine field edited or billed call
+made. Independent package, health and saved-state identities were unchanged.
+Private machine-editor text was excluded from the retained focus projection.
+Pairing and revoke remain outside these installed observations.
+
+A full-app regression then reproduced 72 failed focus assertions across all
+nine dialog families, both themes and normal/minimum window sizes. Two earlier
+label-lookup setup failures remain separate from that product-negative proof.
+Pairing and revoke in this regression are fixtures, not installed phone results.
+All 15 dialog-lifecycle tests pass with the shared repair, including the 72
+entry/return assertions. They cover real worker success/error/disconnection,
+deterministic ready-result navigation races, backend pairing cancellation,
+nested stages, safe fallback, Escape/scrim/child-popup dismissal and expiry.
+A compile-only trait-bound correction remains filed separately. These source
+results do not qualify the installed package; full gates and rebuilt live
+reruns remain required.
+
+The extended source test also found focus loss when the purge confirmation
+field disappears. The agent reproduced it through the installed MCP path:
+enable the deletion choice, focus its empty confirmation field, disable the
+choice, and observe frame-only focus. Keep installed then cancelled. No phrase
+was entered or destructive action invoked; package, daemon and saved-state
+identities remained unchanged. This is an installed failure, not a purge pass.
+
+A separate deterministic source regression found that Save could close an
+editor while another operation was pending, without invoking the machine
+update. The failed controller trace recorded only the pending pairing call.
+The repair disables mutation submissions across all seven applicable dialog
+families, retains drafts and cancellation, and exposes the waiting reason
+inside the modal. Green regressions verify those semantics, unchanged field
+identity/focus and in-bounds reason/footer layout in both themes and sizes.
+This finding has source proof only; no installed pending-pairing result is
+claimed. Earlier completed gate runs remain tied to their earlier source.
+
+The focus-paint and notice-identity repair is committed at
+`a3bc4688d38e4fbc5d7d0acd3977ff30209050e3`. Its 14 local gates passed and two
+fresh corresponding-source builds passed their executable policy checks.
+Those source results do not qualify the still-unrepaired dialog lifecycle or
+an installed replacement artifact. The intermediate proof remains historical;
+no package adoption or installed pass follows from it. A shared dialog repair,
+negative regression proof, rebuilt AppImage and affected installed reruns are
+still required. Windows and macOS must rerun affected shared focus behavior too.
 
 ## macOS qualification history
 

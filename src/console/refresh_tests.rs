@@ -103,6 +103,7 @@ fn ready_app() -> (egui::Context, ConsoleApp, mpsc::Receiver<&'static str>) {
         data: Some(ConsoleData::default()),
         pending: None,
         dialog: None,
+        dialog_focus: DialogFocus::default(),
         notice: None,
         available_update: None,
         last_refresh: std::time::Instant::now(),

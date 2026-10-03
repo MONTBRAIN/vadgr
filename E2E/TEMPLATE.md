@@ -930,6 +930,17 @@ cells while a specific owner approval or producer prerequisite remains owed.
   check. Also verify that a late completion never takes focus back after the
   user has moved to another control or page. Dialog closure has its own
   deliberate focus destination; do not require the removed control to survive.
+- Exercise focus across every dialog family, not only the first confirmation.
+  Opening a dialog must establish a meaningful safe focus destination once;
+  later frames must not take focus from the user's selected control. Destructive
+  dialogs must not initially focus their destructive action. Test nested
+  transitions, cancellation, Escape, outside dismissal and successful or failed
+  completion. Preserve the original opener across a nested dialog chain. Return
+  to that enabled surviving control, or a deliberate same-view fallback when
+  it no longer exists. A late result must not reopen a dismissed dialog or take
+  focus after navigation. Verify settled native focus, actual reader output and
+  unchanged state separately. A frame-only focus state is not a control-focus
+  pass, and a cancelled operation is not evidence for its unrun success path.
 - Prove enabled/disabled semantics and native text replacement on isolated
   ordinary fields before settings, credentials or typed purge. On Linux,
   `EditableText.SetTextContents` must actually work; an editable flag or click
