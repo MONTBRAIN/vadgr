@@ -155,6 +155,19 @@ The runbook names the PR-opening, merge and release gates separately. It also
 separates functional cells from post-merge trust cells so missing signing inputs
 cannot block independent functional work.
 
+**Unsigned functional qualification includes the bundled computer-use task on
+every supported OS.** Linux, macOS, Windows and WSL must exercise the installed
+private runtime through Vadgr, not the external testing MCP. Keep a dedicated
+B01 cell in the minor's runbook. Inventory and truthful unavailability never
+pass that cell. If missing development admission prevents execution, fix the
+package/runtime path and rerun it before functional qualification is complete.
+Do not relabel that implementation gap as signing-only or move the task after
+merge. Development admission must be explicit, integrity-checked and
+non-publishable. Production signature, attestation and adoption verification
+remain mandatory and unchanged. Do not fabricate trust records or add an
+environment switch that disables production checks. Each OS needs its own
+installed-artifact result; another platform's pass does not carry over.
+
 ## Current research before design
 
 **An iteration starts from dated evidence, not remembered facts.** Run `date`

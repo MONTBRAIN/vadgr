@@ -1390,6 +1390,16 @@ evidence is a claim.>
 usually: the journal is the proof and the status is not, because a run ends
 `completed` on the legacy path too.>
 
+### Complete uninstall outcomes
+
+For uninstall cells, observe the complete user-visible outcome, not only file removal.
+Successful removal must close the product console and stop its owned runtime.
+Verify process exit and package, launch-entry and listener absence independently.
+Cancellation must preserve the usable installation. Pending removal must not
+announce completion or close early. A failed removal must keep the console open
+with a specific error and available recovery action. Never count a stale console
+showing a missing-daemon error as successful uninstall UX.
+
 ## Part B: installed bundled computer use
 
 Keep B01 whenever Vadgr ships a bundled computer-use runtime. Expand its result
@@ -1399,11 +1409,13 @@ Inventory, private-Python startup, tools/list and truthful unavailability are
 separate assertions. None proves a real task through the installed product.
 The external testing MCP never substitutes for the subject's bundled runtime.
 
-Run the cell before merge when the approved installed runtime can execute.
-If protected authorization is unavailable, record the exact missing producer
-output and the owning lifecycle gate. Keep B01 blocked, not passed or omitted.
-Execute it against the authorized held candidate before release. Never fabricate
-adoption metadata, disable verification or substitute another runtime.
+Run the functional task before merge on Linux, macOS, Windows and WSL.
+If the unsigned package cannot execute it, record and fix that implementation
+finding. Missing development admission is not a signing-only blocker.
+Provide an explicit, integrity-checked, non-publishable development execution path.
+Never fabricate adoption metadata, disable production verification or substitute
+another runtime. Keep final signing, attestation and adoption assertions separate.
+Each supported host requires its own installed-artifact task result.
 Do not call bundled computer use qualified until the task passes.
 
 Prepare an isolated nonsecret fixture window with a fresh visible test marker.

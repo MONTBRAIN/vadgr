@@ -168,6 +168,16 @@ before sealing evidence.
 
 ## Separate runnable development work from signing-only acceptance
 
+Bundled computer use is functional coverage on Linux, macOS, Windows and WSL.
+Every applicable minor includes B01: a real task through the installed private
+runtime, with journal/tool output and an independent result oracle.
+The external testing MCP, inventory checks and an unavailable label cannot pass it.
+An unsigned package must provide an explicit, integrity-checked development
+execution path. If it does not, record and fix an implementation finding before
+closing functional qualification. Do not defer the task merely because final
+signing or adoption records do not exist. Keep development output non-publishable
+and preserve production verification. Final trust assertions remain separate.
+
 When an installable-product minor can run before its release identities exist,
 the runbook has two explicit ledgers before the platform cells:
 
