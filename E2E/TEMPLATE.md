@@ -899,6 +899,15 @@ cells while a specific owner approval or producer prerequisite remains owed.
 - Probe the current host/session and virtualization; do not carry a historical
   hypervisor label across a resumed pass. Record artifact and process identities, plus
   original accessibility and screen-reader settings, including unset values.
+- Keep a passive launch observer separate from product lifecycle control.
+  When a user service hosts an installer observer and its surviving console or
+  daemon, use `RemainAfterExit=yes` if the observer can finish first. Otherwise,
+  service completion can kill the remaining control group. Keep normal explicit
+  cleanup protection; do not disable it globally. Verify the actual unit settings
+  before launch, and do not stop the unit until public product shutdown has been
+  observed. Record direct-child exit and inherited-pipe completion separately.
+  After a reboot, reacquire process identities and check retained state before
+  resuming. Never infer successful product shutdown from observer termination.
 - Prove actual screen-reader readiness before its state matrix. A speech-server
   initialization message is not an active accessibility event loop or application
   speech. Bound startup and shutdown, record the exact reader PID/start identity,
