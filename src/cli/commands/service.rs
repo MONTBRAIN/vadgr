@@ -295,13 +295,13 @@ fn packaged_binding(pid: u32, port: u16, listener: bool) -> Option<(String, Stri
     })
     .collect();
     let binding = || {
-        if std::fs::read_to_string(pid_dir().join("api.pid"))
+        if read_installed_record(&pid_dir().join("api.pid"))
             .ok()?
             .trim()
             .parse::<u32>()
             .ok()?
             != pid
-            || std::fs::read_to_string(pid_dir().join("api.port"))
+            || read_installed_record(&pid_dir().join("api.port"))
                 .ok()?
                 .trim()
                 .parse::<u16>()
@@ -323,6 +323,9 @@ fn packaged_binding(pid: u32, port: u16, listener: bool) -> Option<(String, Stri
 
 #[cfg(target_os = "linux")]
 async fn packaged_existing_ready(pid: u32) -> bool {
+    if !installed_boot_matches(pid) {
+        return false;
+    }
     let port = read_active_port("api", default_port());
     let Some(before) = packaged_binding(pid, port, true) else {
         return false;
@@ -339,7 +342,19 @@ async fn packaged_existing_ready(pid: u32) -> bool {
     })
     .await
     .unwrap_or(false);
-    ready && packaged_binding(pid, port, true).as_ref() == Some(&before)
+    ready
+        && installed_boot_matches(pid)
+        && packaged_binding(pid, port, true).as_ref() == Some(&before)
+}
+
+#[cfg(target_os = "linux")]
+fn installed_boot_matches(pid: u32) -> bool {
+    startup_boot::ensure_no_retirement(&pid_dir()).is_ok()
+        && match startup_boot::BootReservation::open_current(&pid_dir()) {
+            Ok(Some(mut reservation)) => reservation.matches_process(pid),
+            Ok(None) => true,
+            Err(_) => false,
+        }
 }
 
 fn startup_timeout(packaged: bool) -> Duration {
@@ -404,6 +419,714 @@ fn installed_startup_layout(
         && vehicle.is_file()
 }
 
+#[cfg(target_os = "linux")]
+mod startup_boot {
+    #[derive(Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+    struct BootFenceIdentity {
+        device: u64,
+        inode: u64,
+        uid: u32,
+        mode: u32,
+        length: u64,
+        changed_seconds: i64,
+        changed_nanoseconds: i64,
+        sha256: String,
+    }
+
+    struct BootFenceFile {
+        path: std::path::PathBuf,
+        file: std::fs::File,
+        identity: BootFenceIdentity,
+    }
+
+    fn boot_fence_identity(
+        file: &mut std::fs::File,
+        path: &std::path::Path,
+    ) -> anyhow::Result<BootFenceIdentity> {
+        use sha2::Digest;
+        use std::io::{Read, Seek};
+        use std::os::unix::fs::MetadataExt;
+        let before = file.metadata()?;
+        anyhow::ensure!(
+            before.is_file() && before.nlink() == 1 && before.len() <= 4096,
+            "invalid startup fence file"
+        );
+        anyhow::ensure!(
+            before.uid() == std::fs::metadata("/proc/self")?.uid(),
+            "startup fence owner differs"
+        );
+        anyhow::ensure!(
+            before.mode() & 0o077 == 0,
+            "startup fence permissions are unsafe"
+        );
+        file.rewind()?;
+        let mut bytes = Vec::new();
+        std::io::Read::by_ref(file)
+            .take(4097)
+            .read_to_end(&mut bytes)?;
+        anyhow::ensure!(bytes.len() <= 4096, "startup fence exceeds bound");
+        let fingerprint = |m: &std::fs::Metadata| {
+            (
+                m.dev(),
+                m.ino(),
+                m.uid(),
+                m.mode(),
+                m.len(),
+                m.ctime(),
+                m.ctime_nsec(),
+                m.nlink(),
+            )
+        };
+        let after = file.metadata()?;
+        let named = std::fs::symlink_metadata(path)?;
+        anyhow::ensure!(
+            !named.file_type().is_symlink()
+                && fingerprint(&before) == fingerprint(&after)
+                && fingerprint(&after) == fingerprint(&named),
+            "startup fence changed while reading"
+        );
+        Ok(BootFenceIdentity {
+            device: after.dev(),
+            inode: after.ino(),
+            uid: after.uid(),
+            mode: after.mode(),
+            length: after.len(),
+            changed_seconds: after.ctime(),
+            changed_nanoseconds: after.ctime_nsec(),
+            sha256: sha2::Sha256::digest(&bytes)
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect(),
+        })
+    }
+
+    impl BootFenceFile {
+        fn open(path: std::path::PathBuf, create: bool) -> anyhow::Result<Self> {
+            use std::os::unix::fs::OpenOptionsExt;
+            let mut file = std::fs::OpenOptions::new()
+                .read(true)
+                .write(true)
+                .create_new(create)
+                .mode(0o600)
+                .custom_flags(
+                    (rustix::fs::OFlags::NOFOLLOW | rustix::fs::OFlags::NONBLOCK).bits() as i32,
+                )
+                .open(&path)?;
+            let identity = boot_fence_identity(&mut file, &path)?;
+            Ok(Self {
+                path,
+                file,
+                identity,
+            })
+        }
+
+        fn check(&mut self) -> anyhow::Result<()> {
+            anyhow::ensure!(
+                boot_fence_identity(&mut self.file, &self.path)? == self.identity,
+                "startup fence was replaced or modified"
+            );
+            Ok(())
+        }
+
+        fn bytes(&mut self) -> anyhow::Result<Vec<u8>> {
+            use std::io::{Read, Seek};
+            self.check()?;
+            self.file.rewind()?;
+            let mut bytes = Vec::new();
+            std::io::Read::by_ref(&mut self.file)
+                .take(4097)
+                .read_to_end(&mut bytes)?;
+            self.check()?;
+            Ok(bytes)
+        }
+
+        fn write(&mut self, bytes: &[u8]) -> anyhow::Result<()> {
+            use std::io::{Seek, Write};
+            self.check()?;
+            anyhow::ensure!(bytes.len() <= 4096, "startup fence exceeds bound");
+            self.file.rewind()?;
+            self.file.set_len(0)?;
+            self.file.write_all(bytes)?;
+            self.file.sync_all()?;
+            self.identity = boot_fence_identity(&mut self.file, &self.path)?;
+            Ok(())
+        }
+    }
+
+    #[derive(serde::Serialize, serde::Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct BootFenceRecord {
+        schema: u32,
+        boot_id: String,
+        pid_record: BootFenceIdentity,
+        process_start: Option<String>,
+    }
+
+    fn validate_process_record(
+        record: &BootFenceRecord,
+        pid: &mut BootFenceFile,
+    ) -> anyhow::Result<()> {
+        let bytes = pid.bytes()?;
+        let text = std::str::from_utf8(&bytes)?;
+        let valid = match &record.process_start {
+            None => text.is_empty(),
+            Some(start) => {
+                text.parse::<i32>()
+                    .is_ok_and(|value| value > 0 && value.to_string() == text)
+                    && start
+                        .parse::<u64>()
+                        .is_ok_and(|value| value.to_string() == *start)
+            }
+        };
+        anyhow::ensure!(valid, "startup process evidence is inconsistent");
+        Ok(())
+    }
+
+    fn kernel_boot_identity() -> anyhow::Result<String> {
+        use std::io::Read;
+        let file = std::fs::File::open("/proc/sys/kernel/random/boot_id")?;
+        let mut bytes = String::new();
+        file.take(65).read_to_string(&mut bytes)?;
+        let text = bytes.trim();
+        validate_boot_identity(text)?;
+        Ok(text.to_owned())
+    }
+
+    fn validate_boot_identity(text: &str) -> anyhow::Result<()> {
+        anyhow::ensure!(
+            text.len() == 36 && uuid::Uuid::parse_str(text)?.hyphenated().to_string() == text,
+            "kernel boot identity is unavailable"
+        );
+        Ok(())
+    }
+
+    pub(super) struct BootReservation {
+        pid: BootFenceFile,
+        marker: BootFenceFile,
+        boot_id: String,
+        process_start: Option<String>,
+    }
+
+    impl BootReservation {
+        pub(super) fn create(records: &std::path::Path) -> anyhow::Result<Self> {
+            Self::create_with_boot(records, kernel_boot_identity()?)
+        }
+
+        fn create_with_boot(records: &std::path::Path, boot_id: String) -> anyhow::Result<Self> {
+            validate_boot_identity(&boot_id)?;
+            let pid = BootFenceFile::open(records.join("api.pid"), true)?;
+            // A failed marker creation preserves the empty PID fence and never
+            // permits spawn. No legacy marker is overwritten or blessed here.
+            let marker = BootFenceFile::open(records.join("api.startup-boot.json"), true)?;
+            let mut reservation = Self {
+                pid,
+                marker,
+                boot_id,
+                process_start: None,
+            };
+            reservation.persist()?;
+            Ok(reservation)
+        }
+
+        fn persist(&mut self) -> anyhow::Result<()> {
+            self.pid.check()?;
+            let value = BootFenceRecord {
+                schema: 1,
+                boot_id: self.boot_id.clone(),
+                pid_record: self.pid.identity.clone(),
+                process_start: self.process_start.clone(),
+            };
+            self.marker.write(&serde_json::to_vec(&value)?)?;
+            self.pid.check()?;
+            Ok(())
+        }
+
+        pub(super) fn record_child(&mut self, pid: u32) -> anyhow::Result<()> {
+            let start = super::stop_snapshot(pid)?.start;
+            self.record_child_with_start(pid, start)
+        }
+
+        fn record_child_with_start(&mut self, pid: u32, start: String) -> anyhow::Result<()> {
+            self.marker.check()?;
+            self.pid.write(pid.to_string().as_bytes())?;
+            self.process_start = Some(start);
+            // A crash between PID and marker writes leaves a mismatch and refuses
+            // automatic recovery. A partial marker is likewise never interpreted.
+            self.persist()
+        }
+    }
+
+    fn rename_fence_without_replace(
+        from: &std::path::Path,
+        to: &std::path::Path,
+    ) -> anyhow::Result<()> {
+        rustix::fs::renameat_with(
+            rustix::fs::CWD,
+            from,
+            rustix::fs::CWD,
+            to,
+            rustix::fs::RenameFlags::NOREPLACE,
+        )?;
+        Ok(())
+    }
+
+    // Used only after a DIFFERENT boot has been proven, or after the caller has
+    // independently proved the complete owned process tree exited. Never call it
+    // merely because the parent PID or listener is absent.
+    fn retire_exact_boot_files(
+        records: &std::path::Path,
+        files: Vec<BootFenceFile>,
+    ) -> anyhow::Result<()> {
+        retire_exact_boot_files_with(records, files, |_| {})
+    }
+
+    fn retire_exact_boot_files_with(
+        records: &std::path::Path,
+        mut files: Vec<BootFenceFile>,
+        mut checkpoint: impl FnMut(&std::path::Path),
+    ) -> anyhow::Result<()> {
+        use std::os::unix::fs::DirBuilderExt;
+        for file in &mut files {
+            file.check()?;
+        }
+        let quarantine = records.join(format!(".startup-retirement-{}", uuid::Uuid::new_v4()));
+        std::fs::DirBuilder::new().mode(0o700).create(&quarantine)?;
+        let mut moved = Vec::new();
+        let operation = (|| -> anyhow::Result<()> {
+            for (index, file) in files.iter_mut().enumerate() {
+                file.check()?;
+                let target = quarantine.join(index.to_string());
+                rename_fence_without_replace(&file.path, &target)?;
+                moved.push((target.clone(), file.path.clone()));
+                let after = boot_fence_identity(&mut file.file, &target)?;
+                // Rename can change ctime. The held descriptor, inode and exact
+                // contents still identify the original file; a replaced path does not.
+                anyhow::ensure!(
+                    after.device == file.identity.device
+                        && after.inode == file.identity.inode
+                        && after.uid == file.identity.uid
+                        && after.mode == file.identity.mode
+                        && after.length == file.identity.length
+                        && after.sha256 == file.identity.sha256,
+                    "quarantined fence is not the verified original"
+                );
+                file.path = target;
+                file.identity = after;
+                checkpoint(&file.path);
+            }
+            // Moving another file may expose a concurrent replacement of an earlier
+            // one. Validate the complete held set before deleting any member.
+            for file in &mut files {
+                file.check()?;
+            }
+            Ok(())
+        })();
+        if let Err(error) = operation {
+            // Never overwrite a concurrently recreated public record. If a restore
+            // is refused, retain the quarantine intact for verified cleanup.
+            for (from, to) in moved.iter().rev() {
+                let _ = rename_fence_without_replace(from, to);
+            }
+            let _ = std::fs::remove_dir(&quarantine);
+            return Err(error);
+        }
+        for (path, _) in moved {
+            std::fs::remove_file(path)?;
+        }
+        std::fs::remove_dir(quarantine)?;
+        Ok(())
+    }
+
+    pub(super) fn retire_previous_boot_fence(records: &std::path::Path) -> anyhow::Result<bool> {
+        ensure_no_retirement(records)?;
+        retire_previous_boot_fence_with(records, &kernel_boot_identity()?)
+    }
+
+    fn retire_previous_boot_fence_with(
+        records: &std::path::Path,
+        current_boot: &str,
+    ) -> anyhow::Result<bool> {
+        validate_boot_identity(current_boot)?;
+        let marker_path = records.join("api.startup-boot.json");
+        match std::fs::symlink_metadata(&marker_path) {
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(false),
+            Err(error) => return Err(error.into()),
+            Ok(_) => {}
+        }
+        let mut marker = BootFenceFile::open(marker_path, false)?;
+        let record: BootFenceRecord = serde_json::from_slice(&marker.bytes()?)?;
+        anyhow::ensure!(
+            record.schema == 1
+                && record.boot_id.len() == 36
+                && uuid::Uuid::parse_str(&record.boot_id)?
+                    .hyphenated()
+                    .to_string()
+                    == record.boot_id,
+            "startup boot evidence is invalid"
+        );
+        let mut pid = BootFenceFile::open(records.join("api.pid"), false)?;
+        anyhow::ensure!(
+            pid.identity == record.pid_record,
+            "startup boot evidence is not bound to this PID record"
+        );
+        validate_process_record(&record, &mut pid)?;
+        if record.boot_id == current_boot {
+            return Ok(false);
+        }
+        marker.check()?;
+        pid.check()?;
+        // This path performs NO process lookup or signal. A reused PID belongs to
+        // the new boot and must never be treated as the recorded old process.
+        retire_exact_boot_files(records, vec![pid, marker])?;
+        // api.port is intentionally not removed by this metadata-only recovery:
+        // the marker never claimed ownership of that separate file.
+        Ok(true)
+    }
+
+    pub(super) fn ensure_no_retirement(records: &std::path::Path) -> anyhow::Result<()> {
+        let entries = match std::fs::read_dir(records) {
+            Ok(entries) => entries,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(()),
+            Err(error) => return Err(error.into()),
+        };
+        for entry in entries {
+            anyhow::ensure!(
+                !entry?
+                    .file_name()
+                    .as_encoded_bytes()
+                    .starts_with(b".startup-retirement-"),
+                "startup record retirement is incomplete; verified cleanup is required"
+            );
+        }
+        Ok(())
+    }
+
+    impl BootReservation {
+        pub(super) fn retire(self, records: &std::path::Path) -> anyhow::Result<()> {
+            retire_exact_boot_files(records, vec![self.pid, self.marker])
+        }
+
+        pub(super) fn open_current(records: &std::path::Path) -> anyhow::Result<Option<Self>> {
+            let path = records.join("api.startup-boot.json");
+            match std::fs::symlink_metadata(&path) {
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+                Err(error) => return Err(error.into()),
+                Ok(_) => {}
+            }
+            let mut marker = BootFenceFile::open(path, false)?;
+            let record: BootFenceRecord = serde_json::from_slice(&marker.bytes()?)?;
+            validate_boot_identity(&record.boot_id)?;
+            anyhow::ensure!(
+                record.schema == 1 && record.boot_id == kernel_boot_identity()?,
+                "startup boot evidence does not identify the current boot"
+            );
+            let mut pid = BootFenceFile::open(records.join("api.pid"), false)?;
+            anyhow::ensure!(
+                pid.identity == record.pid_record,
+                "startup boot evidence is not bound to this PID record"
+            );
+            validate_process_record(&record, &mut pid)?;
+            Ok(Some(Self {
+                pid,
+                marker,
+                boot_id: record.boot_id,
+                process_start: record.process_start,
+            }))
+        }
+
+        pub(super) fn matches_process(&mut self, pid: u32) -> bool {
+            self.pid
+                .bytes()
+                .ok()
+                .and_then(|bytes| String::from_utf8(bytes).ok())
+                .is_some_and(|text| text.trim().parse::<u32>().ok() == Some(pid))
+                && super::stop_snapshot(pid).ok().is_some_and(|snapshot| {
+                    self.process_start.as_deref() == Some(snapshot.start.as_str())
+                })
+                && self.marker.check().is_ok()
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use std::os::unix::fs::PermissionsExt;
+
+        const OLD_BOOT: &str = "11111111-1111-4111-8111-111111111111";
+        const NEW_BOOT: &str = "22222222-2222-4222-8222-222222222222";
+
+        fn reservation(root: &std::path::Path) -> BootReservation {
+            let mut fence = BootReservation::create_with_boot(root, OLD_BOOT.to_owned()).unwrap();
+            fence
+                .record_child_with_start(std::process::id(), "123".to_owned())
+                .unwrap();
+            fence
+        }
+
+        #[test]
+        fn boot_retirement_requires_a_different_boot_and_preserves_the_port() {
+            let root = tempfile::tempdir().unwrap();
+            let fence = reservation(root.path());
+            let pid_bytes = std::fs::read(&fence.pid.path).unwrap();
+            let marker_bytes = std::fs::read(&fence.marker.path).unwrap();
+            std::fs::write(root.path().join("api.port"), "12345").unwrap();
+            assert!(!retire_previous_boot_fence_with(root.path(), OLD_BOOT).unwrap());
+            assert_eq!(std::fs::read(&fence.pid.path).unwrap(), pid_bytes);
+            assert_eq!(std::fs::read(&fence.marker.path).unwrap(), marker_bytes);
+            // The numeric PID belongs to this live test process. Recovery only
+            // retires old-boot records and never looks up or signals that PID.
+            assert!(retire_previous_boot_fence_with(root.path(), NEW_BOOT).unwrap());
+            assert!(!fence.pid.path.exists());
+            assert!(!fence.marker.path.exists());
+            assert_eq!(
+                std::fs::read(root.path().join("api.port")).unwrap(),
+                b"12345"
+            );
+        }
+
+        #[test]
+        fn boot_retirement_preserves_legacy_invalid_and_interrupted_records() {
+            for failure in [
+                "legacy",
+                "json",
+                "schema",
+                "boot",
+                "current-boot",
+                "pid-write",
+                "pid-replace",
+                "marker-write",
+            ] {
+                let root = tempfile::tempdir().unwrap();
+                let mut fence = reservation(root.path());
+                match failure {
+                    "legacy" => std::fs::remove_file(&fence.marker.path).unwrap(),
+                    "json" | "marker-write" => std::fs::write(&fence.marker.path, b"{").unwrap(),
+                    "schema" | "boot" => {
+                        let mut record: BootFenceRecord =
+                            serde_json::from_slice(&fence.marker.bytes().unwrap()).unwrap();
+                        if failure == "schema" {
+                            record.schema = 2;
+                        } else {
+                            record.boot_id = "invalid".to_owned();
+                        }
+                        fence
+                            .marker
+                            .write(&serde_json::to_vec(&record).unwrap())
+                            .unwrap();
+                    }
+                    "pid-write" => fence.pid.write(b"42").unwrap(),
+                    "pid-replace" => {
+                        std::fs::rename(&fence.pid.path, root.path().join("old-pid")).unwrap();
+                        std::fs::write(&fence.pid.path, std::process::id().to_string()).unwrap();
+                        std::fs::set_permissions(
+                            &fence.pid.path,
+                            std::fs::Permissions::from_mode(0o600),
+                        )
+                        .unwrap();
+                    }
+                    "current-boot" => (),
+                    _ => unreachable!(),
+                }
+                let before_pid = std::fs::read(&fence.pid.path).unwrap();
+                let before_marker = std::fs::read(&fence.marker.path).ok();
+                let result = retire_previous_boot_fence_with(
+                    root.path(),
+                    if failure == "current-boot" {
+                        "invalid"
+                    } else {
+                        NEW_BOOT
+                    },
+                );
+                if failure == "legacy" {
+                    assert!(!result.unwrap());
+                } else {
+                    assert!(result.is_err(), "{failure}");
+                }
+                assert_eq!(
+                    std::fs::read(&fence.pid.path).unwrap(),
+                    before_pid,
+                    "{failure}"
+                );
+                assert_eq!(
+                    std::fs::read(&fence.marker.path).ok(),
+                    before_marker,
+                    "{failure}"
+                );
+            }
+        }
+
+        #[test]
+        fn boot_record_rejects_inconsistent_pid_and_start_before_retirement() {
+            for (pid, start) in [
+                ("42", None),
+                ("", Some("0")),
+                ("0", Some("0")),
+                ("-1", Some("0")),
+                ("2147483648", Some("0")),
+                ("042", Some("0")),
+                ("42\n", Some("0")),
+                ("42", Some("")),
+                ("42", Some("bad")),
+                ("42", Some("-1")),
+                ("42", Some("01")),
+                ("42", Some("18446744073709551616")),
+            ] {
+                let root = tempfile::tempdir().unwrap();
+                let mut fence = BootReservation::create(root.path()).unwrap();
+                fence.pid.write(pid.as_bytes()).unwrap();
+                fence.process_start = start.map(str::to_owned);
+                fence.persist().unwrap();
+                let before_marker = std::fs::read(&fence.marker.path).unwrap();
+                assert!(
+                    BootReservation::open_current(root.path()).is_err(),
+                    "{pid:?}, {start:?}"
+                );
+                assert!(
+                    retire_previous_boot_fence_with(root.path(), NEW_BOOT).is_err(),
+                    "{pid:?}, {start:?}"
+                );
+                assert_eq!(std::fs::read(&fence.pid.path).unwrap(), pid.as_bytes());
+                assert_eq!(std::fs::read(&fence.marker.path).unwrap(), before_marker);
+            }
+            for (pid, start) in [
+                ("", None),
+                ("42", Some("0")),
+                ("2147483647", Some("18446744073709551615")),
+            ] {
+                let root = tempfile::tempdir().unwrap();
+                let mut fence = BootReservation::create(root.path()).unwrap();
+                fence.pid.write(pid.as_bytes()).unwrap();
+                fence.process_start = start.map(str::to_owned);
+                fence.persist().unwrap();
+                assert!(
+                    BootReservation::open_current(root.path())
+                        .unwrap()
+                        .is_some()
+                );
+                assert!(retire_previous_boot_fence_with(root.path(), NEW_BOOT).unwrap());
+            }
+        }
+
+        #[test]
+        fn boot_reservation_never_blesses_existing_or_replaced_files() {
+            let root = tempfile::tempdir().unwrap();
+            std::fs::write(root.path().join("api.startup-boot.json"), b"existing").unwrap();
+            assert!(BootReservation::create_with_boot(root.path(), OLD_BOOT.to_owned()).is_err());
+            assert_eq!(std::fs::read(root.path().join("api.pid")).unwrap(), b"");
+            assert_eq!(
+                std::fs::read(root.path().join("api.startup-boot.json")).unwrap(),
+                b"existing"
+            );
+            assert!(BootReservation::create_with_boot(root.path(), OLD_BOOT.to_owned()).is_err());
+
+            let other = tempfile::tempdir().unwrap();
+            let mut fence =
+                BootReservation::create_with_boot(other.path(), OLD_BOOT.to_owned()).unwrap();
+            std::fs::rename(&fence.pid.path, other.path().join("original")).unwrap();
+            std::fs::write(&fence.pid.path, b"replacement").unwrap();
+            assert!(fence.record_child_with_start(42, "123".to_owned()).is_err());
+            assert_eq!(std::fs::read(&fence.pid.path).unwrap(), b"replacement");
+        }
+
+        #[test]
+        fn boot_fence_rejects_links_special_files_and_broad_permissions() {
+            for kind in ["symlink", "hardlink", "socket", "fifo", "permissions"] {
+                let root = tempfile::tempdir().unwrap();
+                let path = root.path().join("record");
+                let original = root.path().join("original");
+                std::fs::write(&original, b"owned").unwrap();
+                std::fs::set_permissions(&original, std::fs::Permissions::from_mode(0o600))
+                    .unwrap();
+                let mut socket = None;
+                match kind {
+                    "symlink" => std::os::unix::fs::symlink(&original, &path).unwrap(),
+                    "hardlink" => std::fs::hard_link(&original, &path).unwrap(),
+                    "socket" => {
+                        socket = Some(std::os::unix::net::UnixListener::bind(&path).unwrap())
+                    }
+                    "fifo" => rustix::fs::mkfifoat(
+                        rustix::fs::CWD,
+                        &path,
+                        rustix::fs::Mode::RUSR | rustix::fs::Mode::WUSR,
+                    )
+                    .unwrap(),
+                    "permissions" => {
+                        std::fs::write(&path, b"public").unwrap();
+                        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o644))
+                            .unwrap();
+                    }
+                    _ => unreachable!(),
+                }
+                assert!(BootFenceFile::open(path.clone(), false).is_err(), "{kind}");
+                assert!(path.symlink_metadata().is_ok());
+                assert_eq!(std::fs::read(original).unwrap(), b"owned");
+                drop(socket);
+            }
+        }
+
+        #[test]
+        fn boot_fence_process_binding_rejects_reused_pid_start_time() {
+            let root = tempfile::tempdir().unwrap();
+            let mut fence = reservation(root.path());
+            let pid = std::process::id();
+            assert!(!fence.matches_process(pid));
+            fence.record_child(pid).unwrap();
+            assert!(fence.matches_process(pid));
+            assert!(!fence.matches_process(u32::MAX));
+        }
+
+        #[test]
+        fn boot_retirement_rechecks_all_moved_files_before_any_deletion() {
+            let root = tempfile::tempdir().unwrap();
+            let fence = reservation(root.path());
+            let mut first = None;
+            let result =
+                retire_exact_boot_files_with(root.path(), vec![fence.pid, fence.marker], |path| {
+                    if let Some(first) = &first {
+                        std::fs::write(first, b"changed after the next move").unwrap();
+                    } else {
+                        first = Some(path.to_path_buf());
+                    }
+                });
+            assert!(
+                result.is_err(),
+                "a later move invalidated an earlier held file"
+            );
+            assert_eq!(
+                std::fs::read(root.path().join("api.pid")).unwrap(),
+                b"changed after the next move"
+            );
+            assert!(
+                root.path().join("api.startup-boot.json").is_file(),
+                "no member may be deleted before the full recheck"
+            );
+        }
+
+        #[test]
+        fn boot_retirement_keeps_quarantine_if_public_record_reappears() {
+            let root = tempfile::tempdir().unwrap();
+            let fence = reservation(root.path());
+            let mut moved = 0;
+            let result =
+                retire_exact_boot_files_with(root.path(), vec![fence.pid, fence.marker], |path| {
+                    moved += 1;
+                    if moved == 1 {
+                        std::fs::write(root.path().join("api.pid"), b"new record").unwrap();
+                    } else {
+                        std::fs::write(path, b"changed marker").unwrap();
+                    }
+                });
+            assert!(result.is_err());
+            assert_eq!(
+                std::fs::read(root.path().join("api.pid")).unwrap(),
+                b"new record"
+            );
+            assert!(ensure_no_retirement(root.path()).is_err());
+            assert!(retire_previous_boot_fence(root.path()).is_err());
+        }
+    }
+}
+
 /// A failed or cancelled startup must not become a daemon after rollback.
 struct StartingDaemon {
     child: Child,
@@ -412,6 +1135,8 @@ struct StartingDaemon {
     ready: bool,
     #[cfg(target_os = "linux")]
     packaged: bool,
+    #[cfg(target_os = "linux")]
+    reservation: Option<startup_boot::BootReservation>,
 }
 
 impl Drop for StartingDaemon {
@@ -428,6 +1153,18 @@ impl Drop for StartingDaemon {
         // The retained child handle identifies our process, not a port owner.
         let _ = self.child.kill();
         let _ = self.child.wait();
+        #[cfg(target_os = "linux")]
+        if let Some(reservation) = self.reservation.take() {
+            if reservation.retire(&self.records).is_ok()
+                && std::fs::read_to_string(self.records.join("api.port"))
+                    .ok()
+                    .as_deref()
+                    == Some(self.port.to_string().as_str())
+            {
+                let _ = std::fs::remove_file(self.records.join("api.port"));
+            }
+            return;
+        }
         let pid = self.records.join("api.pid");
         let port = self.records.join("api.port");
         let recorded = std::fs::read_to_string(&pid).ok();
@@ -516,7 +1253,10 @@ pub fn default_port() -> u16 {
 fn pid_alive(pid: u32) -> bool {
     #[cfg(unix)]
     {
-        let Ok(pid) = rustix::process::Pid::from_raw(pid as i32).ok_or(()) else {
+        let Ok(raw) = i32::try_from(pid) else {
+            return false;
+        };
+        let Some(pid) = rustix::process::Pid::from_raw(raw) else {
             return false;
         };
         rustix::process::test_kill_process(pid).is_ok()
@@ -531,22 +1271,99 @@ fn pid_alive(pid: u32) -> bool {
     }
 }
 
-/// The pid of a running service, clearing the file when it names a dead one.
+// Locator presence preserves evidence; it is not runtime authorization. Even
+// invalid installed metadata must not downgrade to destructive stale cleanup.
+fn preserve_startup_records() -> bool {
+    #[cfg(target_os = "linux")]
+    {
+        vadgr_daemon::platform::machine_platform() == "linux"
+            && ["APPDIR", "APPIMAGE", "VADGR_INSTALL_ROOT"]
+                .iter()
+                .any(|name| std::env::var_os(name).is_some())
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        false
+    }
+}
+
+fn incomplete_startup_retirement() -> bool {
+    #[cfg(target_os = "linux")]
+    {
+        startup_boot::ensure_no_retirement(&pid_dir()).is_err()
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        false
+    }
+}
+
+#[cfg(target_os = "linux")]
+fn read_installed_record(path: &Path) -> std::io::Result<String> {
+    use std::os::unix::fs::{MetadataExt, OpenOptionsExt};
+    let mut file = std::fs::OpenOptions::new()
+        .read(true)
+        .custom_flags((rustix::fs::OFlags::NOFOLLOW | rustix::fs::OFlags::NONBLOCK).bits() as i32)
+        .open(path)?;
+    let before = file.metadata()?;
+    let invalid = || std::io::Error::other("startup record is invalid or changed while reading");
+    if !before.is_file() || before.nlink() != 1 || before.len() > 4096 {
+        return Err(invalid());
+    }
+    let stamp = |metadata: &std::fs::Metadata| {
+        (
+            metadata.dev(),
+            metadata.ino(),
+            metadata.mode(),
+            metadata.uid(),
+            metadata.nlink(),
+            metadata.len(),
+            metadata.ctime(),
+            metadata.ctime_nsec(),
+            metadata.mtime(),
+            metadata.mtime_nsec(),
+        )
+    };
+    let mut bytes = Vec::new();
+    Read::by_ref(&mut file).take(4097).read_to_end(&mut bytes)?;
+    let named = std::fs::symlink_metadata(path)?;
+    if bytes.len() > 4096
+        || named.file_type().is_symlink()
+        || stamp(&before) != stamp(&file.metadata()?)
+        || stamp(&before) != stamp(&named)
+    {
+        return Err(invalid());
+    }
+    String::from_utf8(bytes).map_err(|_| invalid())
+}
+
+fn read_service_record(path: &Path) -> std::io::Result<String> {
+    #[cfg(target_os = "linux")]
+    if preserve_startup_records() {
+        return read_installed_record(path);
+    }
+    std::fs::read_to_string(path)
+}
+
+/// Read a live PID, preserving native installed startup rollback fences.
 ///
-/// A stale pid file is the difference between "already running, refusing to
-/// start" and a machine nobody can start any more, so reading one is also what
-/// removes it.
+/// Ordinary CLI records can be cleared when stale. Installed records also
+/// fence unproved descendant cleanup and survive every read-only operation.
 pub fn read_pid(service: &str) -> Option<u32> {
     let pidfile = pid_dir().join(format!("{service}.pid"));
-    let text = std::fs::read_to_string(&pidfile).ok()?;
+    let text = read_service_record(&pidfile).ok()?;
     let Ok(pid) = text.trim().parse::<u32>() else {
-        let _ = std::fs::remove_file(&pidfile);
+        if !preserve_startup_records() {
+            let _ = std::fs::remove_file(&pidfile);
+        }
         return None;
     };
     if pid_alive(pid) {
         return Some(pid);
     }
-    let _ = std::fs::remove_file(&pidfile);
+    if !preserve_startup_records() {
+        let _ = std::fs::remove_file(&pidfile);
+    }
     None
 }
 
@@ -567,15 +1384,19 @@ fn write_port(service: &str, port: u16) -> std::io::Result<()> {
 /// with no live process behind it is stale and is removed rather than believed.
 pub fn read_active_port(service: &str, default: u16) -> u16 {
     let portfile = pid_dir().join(format!("{service}.port"));
-    let Ok(text) = std::fs::read_to_string(&portfile) else {
+    let Ok(text) = read_service_record(&portfile) else {
         return default;
     };
     let Ok(port) = text.trim().parse::<u16>() else {
-        let _ = std::fs::remove_file(&portfile);
+        if !preserve_startup_records() {
+            let _ = std::fs::remove_file(&portfile);
+        }
         return default;
     };
     if read_pid(service).is_none() {
-        let _ = std::fs::remove_file(&portfile);
+        if !preserve_startup_records() {
+            let _ = std::fs::remove_file(&portfile);
+        }
         return default;
     }
     port
@@ -807,6 +1628,12 @@ fn resolve_bind_hosts() -> Result<Vec<String>, CliError> {
 
 pub async fn start(api_port: Option<u16>) -> Result<(), CliError> {
     let packaged = packaged_startup()?;
+    #[cfg(target_os = "linux")]
+    if packaged {
+        startup_boot::retire_previous_boot_fence(&pid_dir()).map_err(|_| {
+            CliError::Failed("Startup records could not be verified. Verified cleanup is required; Repair alone does not prove it.".to_owned())
+        })?;
+    }
     let mut port = api_port.unwrap_or_else(default_port);
     std::fs::create_dir_all(pid_dir())
         .map_err(|e| CliError::Failed(format!("Could not create {}: {e}", pid_dir().display())))?;
@@ -817,6 +1644,10 @@ pub async fn start(api_port: Option<u16>) -> Result<(), CliError> {
             anstream::println!("{}", output::success("vadgr is running!"));
             return Ok(());
         }
+        #[cfg(target_os = "linux")]
+        if packaged {
+            return Err(CliError::Failed("The recorded daemon could not be verified. Startup records were retained; verified cleanup is required.".to_owned()));
+        }
         #[cfg(not(target_os = "linux"))]
         let _ = pid;
         anstream::println!(
@@ -824,6 +1655,10 @@ pub async fn start(api_port: Option<u16>) -> Result<(), CliError> {
             output::warning("vadgr is already running. Use 'vadgr stop' first.")
         );
         return Err(CliError::Failed(String::new()));
+    }
+
+    if packaged && pid_dir().join("api.pid").symlink_metadata().is_ok() {
+        return Err(CliError::Failed("Startup records were retained because descendant cleanup is unproved. Verified cleanup is required; Repair alone does not prove it.".to_owned()));
     }
 
     // The hosts come first because the port decision depends on them: the search
@@ -891,24 +1726,22 @@ pub async fn start(api_port: Option<u16>) -> Result<(), CliError> {
     detach(&mut command);
 
     #[cfg(target_os = "linux")]
-    if packaged {
+    let mut reservation = if packaged {
         // The installer can detect a failed cleanup even if writing the actual
         // child PID fails. Never spawn without this durable rollback fence.
         std::fs::create_dir_all(pid_dir()).map_err(|e| CliError::Failed(e.to_string()))?;
-        std::fs::OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            .open(pid_dir().join("api.pid"))
-            .and_then(|file| file.sync_all())
-            .map_err(|e| {
+        Some(
+            startup_boot::BootReservation::create(&pid_dir()).map_err(|e| {
                 CliError::Failed(format!("Could not reserve daemon startup record: {e}"))
-            })?;
-    }
+            })?,
+        )
+    } else {
+        None
+    };
     let child = command.spawn().map_err(|e| {
         #[cfg(target_os = "linux")]
-        if packaged && std::fs::read(pid_dir().join("api.pid")).is_ok_and(|bytes| bytes.is_empty())
-        {
-            let _ = std::fs::remove_file(pid_dir().join("api.pid"));
+        if let Some(reservation) = reservation.take() {
+            let _ = reservation.retire(&pid_dir());
         }
         CliError::Failed(format!("Could not start the API: {e}"))
     })?;
@@ -919,7 +1752,18 @@ pub async fn start(api_port: Option<u16>) -> Result<(), CliError> {
         ready: false,
         #[cfg(target_os = "linux")]
         packaged,
+        #[cfg(target_os = "linux")]
+        reservation,
     };
+    #[cfg(target_os = "linux")]
+    if let Some(reservation) = starting.reservation.as_mut() {
+        reservation
+            .record_child(starting.child.id())
+            .map_err(|e| CliError::Failed(e.to_string()))?;
+    } else {
+        write_pid("api", starting.child.id()).map_err(|e| CliError::Failed(e.to_string()))?;
+    }
+    #[cfg(not(target_os = "linux"))]
     write_pid("api", starting.child.id()).map_err(|e| CliError::Failed(e.to_string()))?;
     write_port("api", port).map_err(|e| CliError::Failed(e.to_string()))?;
 
@@ -1158,6 +2002,17 @@ fn stop_owned_process_tree(
     timeout: Duration,
     still_owned: impl Fn() -> bool,
 ) -> anyhow::Result<()> {
+    stop_owned_process_tree_with(pid, expected_start, timeout, still_owned, |_, _| {})
+}
+
+#[cfg(target_os = "linux")]
+fn stop_owned_process_tree_with(
+    pid: u32,
+    expected_start: &str,
+    timeout: Duration,
+    still_owned: impl Fn() -> bool,
+    mut census_checkpoint: impl FnMut(u32, bool),
+) -> anyhow::Result<()> {
     anyhow::ensure!(still_owned(), "daemon ownership changed before stop");
     let deadline = std::time::Instant::now() + timeout;
     let root = StoppingProcess::open(pid)?;
@@ -1174,10 +2029,11 @@ fn stop_owned_process_tree(
             "daemon stop timed out before termination"
         );
         let process = &mut tree.0[index];
-        if process.exited()? {
-            index += 1;
-            continue;
-        }
+        census_checkpoint(process.pid, false);
+        anyhow::ensure!(
+            !process.exited()?,
+            "a queued process exited before its child census; cleanup is unproved"
+        );
         let status = stop_snapshot(process.pid)?;
         anyhow::ensure!(
             !matches!(status.state.as_str(), "T" | "t"),
@@ -1193,10 +2049,11 @@ fn stop_owned_process_tree(
             );
             std::thread::sleep(Duration::from_millis(2));
         }
-        if process.exited()? {
-            index += 1;
-            continue;
-        }
+        census_checkpoint(process.pid, true);
+        anyhow::ensure!(
+            !process.exited()?,
+            "a paused process exited before its child census; cleanup is unproved"
+        );
         let parent = process.pid;
         let mut children = std::collections::BTreeSet::new();
         for task in std::fs::read_dir(format!("/proc/{parent}/task"))? {
@@ -1250,16 +2107,32 @@ fn stop_owned_process_tree(
 
 #[cfg(target_os = "linux")]
 fn stop_installed_linux() -> Result<(), CliError> {
+    stop_installed_linux_with(&pid_dir(), default_port(), |pid, port| {
+        packaged_binding(pid, port, false)
+    })
+    .map_err(|error| CliError::Failed(error.to_string()))?;
+    anstream::println!("{}", output::success("vadgr stopped."));
+    Ok(())
+}
+
+#[cfg(target_os = "linux")]
+fn stop_installed_linux_with(
+    records: &Path,
+    fallback_port: u16,
+    binding: impl Fn(u32, u16) -> Option<(String, String)>,
+) -> anyhow::Result<()> {
     let operation = || -> anyhow::Result<()> {
-        let records = pid_dir();
+        startup_boot::retire_previous_boot_fence(records)?;
+        let reservation =
+            std::cell::RefCell::new(startup_boot::BootReservation::open_current(records)?);
         let pid_path = records.join("api.pid");
         let port_path = records.join("api.port");
-        let pid_text = match std::fs::read_to_string(&pid_path) {
+        let pid_text = match read_installed_record(&pid_path) {
             Ok(value) => value,
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
-                let retained_port = match std::fs::read_to_string(&port_path) {
+                let retained_port = match read_installed_record(&port_path) {
                     Ok(value) => value.trim().parse::<u16>()?,
-                    Err(error) if error.kind() == std::io::ErrorKind::NotFound => default_port(),
+                    Err(error) if error.kind() == std::io::ErrorKind::NotFound => fallback_port,
                     Err(error) => return Err(error.into()),
                 };
                 anyhow::ensure!(
@@ -1271,31 +2144,44 @@ fn stop_installed_linux() -> Result<(), CliError> {
             Err(error) => return Err(error.into()),
         };
         let pid = pid_text.trim().parse::<u32>()?;
-        let port_text = std::fs::read_to_string(&port_path)?;
+        anyhow::ensure!(
+            reservation
+                .borrow_mut()
+                .as_mut()
+                .is_none_or(|fence| fence.matches_process(pid)),
+            "the recorded process identity differs; startup records require verified cleanup"
+        );
+        let port_text = read_installed_record(&port_path)?;
         let port = port_text.trim().parse::<u16>()?;
         if matches!(std::fs::metadata(format!("/proc/{pid}")), Err(error) if error.kind() == std::io::ErrorKind::NotFound)
         {
-            anyhow::ensure!(
-                port_bindable(port, &["127.0.0.1".to_owned()]),
-                "an unowned listener is present; nothing was stopped"
+            anyhow::bail!(
+                "the recorded parent is absent; descendant cleanup is unproved and startup records were preserved"
             );
         } else {
-            let identity = packaged_binding(pid, port, false).ok_or_else(|| anyhow::anyhow!("the recorded process does not belong to this installed generation and state; nothing was stopped"))?;
+            let identity = binding(pid, port).ok_or_else(|| anyhow::anyhow!("the recorded process does not belong to this installed generation and state; nothing was stopped"))?;
             stop_owned_process_tree(pid, &identity.0, Duration::from_secs(30), || {
-                packaged_binding(pid, port, false).as_ref() == Some(&identity)
+                binding(pid, port).as_ref() == Some(&identity)
+                    && reservation
+                        .borrow_mut()
+                        .as_mut()
+                        .is_none_or(|fence| fence.matches_process(pid))
             })?;
         }
-        if std::fs::read_to_string(&pid_path).ok().as_deref() == Some(pid_text.as_str())
-            && std::fs::read_to_string(&port_path).ok().as_deref() == Some(port_text.as_str())
-        {
-            std::fs::remove_file(port_path)?;
+        anyhow::ensure!(
+            read_installed_record(&pid_path).ok().as_deref() == Some(pid_text.as_str())
+                && read_installed_record(&port_path).ok().as_deref() == Some(port_text.as_str()),
+            "startup records changed during stop; verified cleanup is required"
+        );
+        if let Some(reservation) = reservation.into_inner() {
+            reservation.retire(records)?;
+        } else {
             std::fs::remove_file(pid_path)?;
         }
+        std::fs::remove_file(port_path)?;
         Ok(())
     };
-    operation().map_err(|error| CliError::Failed(error.to_string()))?;
-    anstream::println!("{}", output::success("vadgr stopped."));
-    Ok(())
+    operation()
 }
 
 pub async fn restart(api_port: Option<u16>) -> Result<(), CliError> {
@@ -1311,12 +2197,32 @@ pub async fn restart(api_port: Option<u16>) -> Result<(), CliError> {
 /// field behind it has answered null on every platform since the Rust daemon
 /// began serving it.
 pub fn status() -> Result<(), CliError> {
+    let pid = read_pid("api");
+    #[cfg(target_os = "linux")]
+    let pid = if preserve_startup_records() {
+        pid.filter(|pid| {
+            packaged_startup().is_ok_and(|installed| installed)
+                && installed_boot_matches(*pid)
+                && packaged_binding(*pid, read_active_port("api", default_port()), true).is_some()
+        })
+    } else {
+        pid
+    };
+    let cleanup_required = pid.is_none() && preserve_startup_records()
+        && (["api.pid", "api.startup-boot.json"].iter().any(|name| {
+            !matches!(std::fs::symlink_metadata(pid_dir().join(name)), Err(error) if error.kind() == std::io::ErrorKind::NotFound)
+        }) || incomplete_startup_retirement());
     let mut rows: Vec<Vec<String>> = Vec::new();
-    match read_pid("api") {
+    match pid {
         Some(pid) => rows.push(vec![
             "api".to_owned(),
             pid.to_string(),
             output::format_status("running"),
+        ]),
+        None if cleanup_required => rows.push(vec![
+            "api".to_owned(),
+            "-".to_owned(),
+            output::format_status("cleanup required"),
         ]),
         None => rows.push(vec![
             "api".to_owned(),
@@ -1332,6 +2238,14 @@ pub fn status() -> Result<(), CliError> {
         "{}",
         output::render_table(&["Service", "PID", "Status"], &rows)
     );
+    if cleanup_required {
+        anstream::println!(
+            "{}",
+            output::warning(
+                "Startup records were retained because descendant cleanup is unproved. Verified cleanup is required; Repair alone does not prove it."
+            )
+        );
+    }
     Ok(())
 }
 
@@ -1667,6 +2581,46 @@ fn install_binaries(repo: &Path) -> Result<usize, CliError> {
 mod startup_tests {
     use super::*;
 
+    #[cfg(unix)]
+    #[test]
+    fn pid_liveness_rejects_zero_and_unsigned_values_outside_the_unix_pid_range() {
+        for pid in [0, i32::MAX as u32 + 1, u32::MAX] {
+            assert!(
+                !pid_alive(pid),
+                "invalid PID {pid} must not reach a process probe"
+            );
+        }
+        assert!(pid_alive(std::process::id()));
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn installed_stop_preserves_empty_or_dead_parent_fence_even_with_a_free_port() {
+        for pid in ["", "4294967295"] {
+            let root = tempfile::tempdir().unwrap();
+            let listener = TcpListener::bind(("127.0.0.1", 0)).unwrap();
+            let port = listener.local_addr().unwrap().port();
+            drop(listener);
+            let pid_path = root.path().join("api.pid");
+            let port_path = root.path().join("api.port");
+            std::fs::write(&pid_path, pid).unwrap();
+            std::fs::write(&port_path, port.to_string()).unwrap();
+            assert!(!Path::new("/proc/4294967295").exists());
+            let result = stop_installed_linux_with(root.path(), port, |_, _| {
+                panic!("an unproved dead parent must refuse before process binding or signalling")
+            });
+            assert!(
+                result.is_err(),
+                "a free port is not evidence of descendant exit"
+            );
+            assert_eq!(std::fs::read(&pid_path).unwrap(), pid.as_bytes());
+            assert_eq!(
+                std::fs::read(&port_path).unwrap(),
+                port.to_string().as_bytes()
+            );
+        }
+    }
+
     #[cfg(target_os = "linux")]
     #[test]
     fn stopped_tree_fixture() {
@@ -1794,11 +2748,61 @@ mod startup_tests {
 
     #[cfg(target_os = "linux")]
     #[test]
+    fn installed_stop_refuses_a_branch_exiting_before_either_census_checkpoint() {
+        for after_pause in [false, true] {
+            let fixture = stop_fixture(false);
+            let root = &fixture.processes[0];
+            let branch = &fixture.processes[1];
+            let grandchild = &fixture.processes[2];
+            let mut reached = false;
+            let result = stop_owned_process_tree_with(
+                root.pid,
+                &root.identity.start,
+                Duration::from_secs(3),
+                || true,
+                |pid, paused| {
+                    if pid == branch.pid && paused == after_pause {
+                        reached = true;
+                        branch.signal(rustix::process::Signal::KILL).unwrap();
+                        let deadline = std::time::Instant::now() + Duration::from_secs(1);
+                        while !branch.exited().unwrap() {
+                            assert!(std::time::Instant::now() < deadline);
+                            std::thread::sleep(Duration::from_millis(2));
+                        }
+                    }
+                },
+            );
+            assert!(
+                reached,
+                "the requested race must be staged, not inferred from a delay"
+            );
+            assert!(
+                result.is_err(),
+                "a reparented grandchild must not be mistaken for completed cleanup"
+            );
+            assert!(
+                !root.exited().unwrap(),
+                "keep the parent available on census refusal"
+            );
+            assert!(
+                !grandchild.exited().unwrap(),
+                "the fixture proves the unobserved descendant remains"
+            );
+            assert!(!matches!(
+                stop_snapshot(root.pid).unwrap().state.as_str(),
+                "T" | "t"
+            ));
+        }
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
     fn failed_packaged_start_reaps_descendants_before_clearing_rollback_fence() {
         let mut fixture = stop_fixture(false);
         let records = fixture._root.path().to_path_buf();
         let child = fixture.child.take().unwrap();
-        std::fs::write(records.join("api.pid"), child.id().to_string()).unwrap();
+        let mut reservation = startup_boot::BootReservation::create(&records).unwrap();
+        reservation.record_child(child.id()).unwrap();
         std::fs::write(records.join("api.port"), "18890").unwrap();
         let starting = StartingDaemon {
             child,
@@ -1806,6 +2810,7 @@ mod startup_tests {
             port: 18890,
             ready: false,
             packaged: true,
+            reservation: Some(reservation),
         };
         drop(starting);
         assert!(
@@ -1816,6 +2821,7 @@ mod startup_tests {
         );
         assert!(!records.join("api.pid").exists());
         assert!(!records.join("api.port").exists());
+        assert!(!records.join("api.startup-boot.json").exists());
     }
 
     #[cfg(target_os = "linux")]
@@ -1823,7 +2829,7 @@ mod startup_tests {
     fn failed_packaged_start_drop_retains_empty_fence_when_child_is_externally_stopped() {
         let mut fixture = stop_fixture(false);
         let records = fixture._root.path().to_path_buf();
-        std::fs::write(records.join("api.pid"), []).unwrap();
+        let reservation = startup_boot::BootReservation::create(&records).unwrap();
         let leaf = &fixture.processes[2];
         leaf.signal(rustix::process::Signal::STOP).unwrap();
         let deadline = std::time::Instant::now() + Duration::from_secs(1);
@@ -1837,8 +2843,10 @@ mod startup_tests {
             port: 18890,
             ready: false,
             packaged: true,
+            reservation: Some(reservation),
         });
         assert_eq!(std::fs::read(records.join("api.pid")).unwrap(), b"");
+        assert!(records.join("api.startup-boot.json").is_file());
         assert!(
             fixture
                 .processes
@@ -1863,6 +2871,7 @@ mod startup_tests {
             port: 18890,
             ready: false,
             packaged: true,
+            reservation: None,
         };
         assert!(!starting.stop_failed_packaged_start(Duration::from_millis(100)));
         assert_eq!(
@@ -2029,6 +3038,8 @@ mod startup_tests {
             ready: false,
             #[cfg(target_os = "linux")]
             packaged: false,
+            #[cfg(target_os = "linux")]
+            reservation: None,
         };
         std::fs::write(root.path().join("api.pid"), starting.child.id().to_string()).unwrap();
         std::fs::write(root.path().join("api.port"), port.to_string()).unwrap();

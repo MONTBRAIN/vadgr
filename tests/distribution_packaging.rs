@@ -94,7 +94,9 @@ fn linux_lifecycle_accepts_only_the_same_admitted_daemon() {
     assert!(service.contains("if packaged && packaged_existing_ready(pid).await"));
     assert!(service.contains("status[\"venv_ready\"] == true"));
     assert!(
-        service.contains("ready && packaged_binding(pid, port, true).as_ref() == Some(&before)")
+        service.split_whitespace().collect::<Vec<_>>().join(" ").contains(
+            "ready && installed_boot_matches(pid) && packaged_binding(pid, port, true).as_ref() == Some(&before)"
+        )
     );
     assert!(
         service.contains("same_generation_process(&process, &executable, &installed, &vehicle)")

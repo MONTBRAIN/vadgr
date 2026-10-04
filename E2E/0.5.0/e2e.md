@@ -797,7 +797,7 @@ Follow the current capture policy; never retain a desktop image containing secre
 
 | cell | operating system and architecture | precondition and setup | exact action | oracle | expected result | evidence boundary | cleanup | result |
 |---|---|---|---|---|---|---|---|---|
-| B01 | every supported host and architecture; record each actual desktop separately | exact installed package; pinned private Python and CUA 0.7.9; explicit verified development admission; safe fixture; image-capable provider and recorded budget | submit the bounded screenshot-and-marker task through installed Vadgr | terminal run journal, successful bundled tool call and image, correct marker, inspected capture, installed child-process and payload identities | real task succeeds without system Python or the external testing MCP | private host boundary with source, artifact, run, payload and safe output identities | remove test run, fixture and task-owned processes after filing; preserve owner state | FAIL: current Linux `70eed017` has no development runtime admission and reports CUA unavailable. This implementation finding requires a repaired package and B01 rerun. No bundled task ran. Windows and WSL development tasks remain owed. Review earlier macOS evidence against the exact current artifact and oracle before reuse. No cross-host pass is inferred |
+| B01 | every supported host and architecture; record each actual desktop separately | exact installed package; pinned private Python and CUA 0.7.9; explicit verified development admission; safe fixture; image-capable provider and recorded budget | submit the bounded screenshot-and-marker task through installed Vadgr | terminal run journal, successful bundled tool call and image, correct marker, inspected capture, installed child-process and payload identities | real task succeeds without system Python or the external testing MCP | private host boundary with source, artifact, run, payload and safe output identities | remove test run, fixture and task-owned processes after filing; preserve owner state | PASS for the exact `5a6b583a` unsigned Linux x86_64 AppImage on VMware GNOME Wayland: the installed task returned one safe region image and read its fresh marker correctly; the journal and observed child bound execution to bundled CUA 0.7.9 and private Python 3.12.14. The first attempt lacked a sampled child identity and remains partial. Historical `70eed017` unavailability remains filed. Lifecycle repairs require a rebuilt affected rerun, not an inherited pass. Windows and WSL tasks remain owed; review macOS against its exact artifact and oracle. No other host, signed trust or external-driver release is qualified |
 
 ## Part V: native lists and dialogs visual qualification
 
@@ -955,7 +955,7 @@ earlier reader observations do not qualify the shared repairs.
 
 | Part | Windows native | macOS | native Linux | WSL |
 |---|---|---|---|---|
-| B: installed bundled computer use | not run: implement any missing development admission and run B01 before functional closure | not run: review earlier task evidence against B01 and the exact current artifact; rerun invalidated coverage | FAIL: missing development admission at `70eed017`; repair and run B01 through the bundled payload | not run: implement any missing development admission and run B01 before functional closure |
+| B: installed bundled computer use | not run: implement any missing development admission and run B01 before functional closure | not run: review earlier task evidence against B01 and the exact current artifact; rerun invalidated coverage | PASS for exact unsigned `5a6b583a` x86_64 on VMware GNOME Wayland: real bundled task, safe image, correct marker and observed private child identity. Earlier failures and the first partial attempt remain filed. Rebuilt lifecycle repairs require an affected rerun; no other host or release qualification is inferred | not run: implement any missing development admission and run B01 before functional closure |
 | V: native lists and dialogs visual qualification | not run: VW01-VW03 require current artifact images and complete variant ledger; historical O2 remains separate | not run: VM01-VM03 require current artifact images and complete variant ledger; historical O2 remains separate | FAIL: VL01-VL03 have specific installed layout/contrast failures at `16cd0c47`; prior `25a8f8b0` failures remain filed. Rebuilt installed reruns and unobserved combinations remain owed; no other desktop or architecture inherits this result | Not-Needed: WSL product is CLI-only; no native list or dialog surface |
 | H: protected owner boundaries | partial functional: F01 QR/Built-in and typed-code/Tailscale completed; W02 is a post-merge trust assertion | partial functional: physical saved-name QR/Built-in pairing completed; M02 is a post-merge signed-identity assertion | partial functional at exact `16cd0c47`: installation completed without a package-manager prompt on the available FUSE host. Missing-FUSE approval was not exercised. F01 remains pending current authorized physical-device and host-bridge verification; no current enumeration, scanner-ready or pairing claim is made | Not-Needed: WSL has no native GUI or protected installer prompt |
 | W: Windows cells | historical pre-merge functional qualification completed at `24ae14a` on available x64 hardware; shared update changes and the `bb8fb0a8` console action/refresh fix require affected update, restart/action and O2 reruns against a rebuilt package. Unchanged observations remain filed; W11 producer coverage is not ARM64 installed-product coverage. ARM64 installed-product hardware is unavailable. Held-candidate-only slices remain separate | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells |
@@ -2159,6 +2159,64 @@ roots. Preserve the real session bus, runtime directory and display. This keeps
 bundled native-host registration and browser discovery out of owner profiles.
 The external MCP driver remains a separate process and environment. Verify both
 identities independently; changing the external driver does not qualify B01.
+
+### Linux installed task and lifecycle findings at `5a6b583a`
+
+The exact unsigned AppImage from
+`5a6b583a73bd8d920762da68f7f3f7fa9aa2e180` contains runtime source
+`59088ce5a0c4ca523f45a8342e7fb154a5543da9`. Producer run `37158172095`
+succeeded and retained artifact `11286561217`. The independently verified
+AppImage is 578054648 bytes, SHA-256
+`ce73bbd90c770e5dc5ce7ffd95ddeeb8d13729829b3f2573b3368a1320b4316a`.
+These are virtualized-native Ubuntu 26.04 x86_64 GNOME Wayland observations.
+
+Fresh terms exposed unchecked assent and disabled Install. The inspected
+760 by 620 dark frame rendered headings and lists, not raw Markdown.
+Native Decline exited zero and left the scoped product inventory unchanged.
+Two retained-assent installations then completed with healthy bundled computer
+use. Machine, provider, terms and credential identities survived reinstall.
+These observations do not qualify unobserved themes, dimensions or states.
+
+B01 completed through the installed API and its bundled runtime. The first
+task returned the correct marker and image, but the short-lived child identity
+was not sampled; it remains partial. An independent second task captured one
+prepared fixture region, returned the correct fresh marker and completed in
+49.568 seconds. Its journal records two model responses and one tool call.
+The inspected image contains only the fixture. A watcher started before
+submission bound the actual child to private Python 3.12.14 and CUA 0.7.9,
+with the isolated HOME, state and installed payload verified. No external
+testing driver or system Python substituted for bundled execution. This is
+an unsigned B01 pass for these exact bytes, not a complete Linux E2E pass.
+
+Uninstall cancellation preserved the installed state. Confirmed uninstall
+with an intentionally unavailable stop executable reproduced a different
+failure twice: package removal and console exit completed while the daemon
+still answered healthy. Each surviving test daemon was independently bound
+to its original identity and stopped; the settled port is free and preserved
+terms and credential identities are unchanged. L06 remains failed for this
+failed-stop assertion until a rebuilt installed rerun proves preservation.
+
+The public installed status command also removed empty and dead-parent startup
+records in two isolated reproductions. A read-only status must retain records
+needed to prove cleanup. The source repair and its negative regressions must
+preserve those records, refuse unproved removal, and rerun the affected
+installed startup, restart, repair, uninstall and bundled-task assertions.
+Source tests alone do not close either finding.
+
+Two later probes of this retained AppImage's public status command also
+reported the out-of-range PID `4294967295` as running. These used isolated
+records without an installed generation and exited zero, not with a panic.
+The separate debug-assertion-enabled source test panicked at the unchecked
+signed PID conversion. Preserve that distinction. Reject invalid Unix PIDs
+before process lookup; never exercise invalid shutdown signals against
+owner processes. Ordinary stale-record cleanup and installed-record
+preservation require separate regression assertions.
+
+Raw attempts, child observations, inspected safe images and cleanup records
+are filed in existing evidence PR #176. F01, the complete visual and reader
+matrices, exact unfocused capture and final C1 remain owed. O1 requires an
+existing isolated offline snapshot. No X11, aarch64, bare-metal, trust,
+merge or release result is inferred.
 
 ## macOS qualification history
 

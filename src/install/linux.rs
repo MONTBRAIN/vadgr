@@ -273,14 +273,48 @@ fn rollback_failed_installation_with(
 }
 
 fn start_and_probe(root: &Path) -> Result<()> {
+    use std::io::Read;
+    use std::process::Stdio;
     let current = root.join("current/Vadgr.AppImage");
     ensure!(current.is_file(), "the active Vadgr AppImage is missing");
-    let status = std::process::Command::new(current)
+    let mut child = std::process::Command::new(current)
         .arg("start")
-        .status()
+        .stdout(Stdio::null())
+        .stderr(Stdio::piped())
+        .env("NO_COLOR", "1")
+        .spawn()
         .context("starting the installed Vadgr daemon")?;
+    let mut stderr = child.stderr.take().expect("startup stderr is piped");
+    let mut diagnostic = Vec::new();
+    let read_result = stderr
+        .by_ref()
+        .take(8192)
+        .read_to_end(&mut diagnostic)
+        .and_then(|_| std::io::copy(&mut stderr, &mut std::io::sink()));
+    let status = child
+        .wait()
+        .context("waiting for the installed Vadgr daemon")?;
+    if !status.success() && read_result.is_ok() && startup_cleanup_required(&diagnostic) {
+        anyhow::bail!(
+            "Startup records were retained because descendant cleanup is unproved. Verified cleanup is required; Repair alone does not prove it."
+        );
+    }
     ensure!(status.success(), "the installed Vadgr daemon is not ready");
     Ok(())
+}
+
+fn startup_cleanup_required(stderr: &[u8]) -> bool {
+    const REASONS: &[&str] = &[
+        "Startup records were retained because descendant cleanup is unproved. Verified cleanup is required; Repair alone does not prove it.",
+        "The recorded daemon could not be verified. Startup records were retained; verified cleanup is required.",
+        "Startup records could not be verified. Verified cleanup is required; Repair alone does not prove it.",
+    ];
+    // Forward only fixed product messages, never subprocess diagnostics or a
+    // truncated line. Drain the rest without retaining or displaying it.
+    String::from_utf8_lossy(stderr)
+        .split_inclusive('\n')
+        .filter(|line| line.ends_with('\n') || stderr.len() < 8192)
+        .any(|line| REASONS.contains(&line.trim().strip_prefix("Error: ").unwrap_or(line.trim())))
 }
 
 pub fn repair(receipt: &InstallReceipt) -> Result<()> {
@@ -395,16 +429,39 @@ pub fn uninstall(receipt: &InstallReceipt, purge: bool) -> Result<()> {
     );
     let root = install_root()?;
     ensure_generation_modes(&root)?;
+    uninstall_with(
+        &root,
+        purge,
+        unregister_launch_entries,
+        super::purge_owner_state,
+    )
+}
+
+fn uninstall_with(
+    root: &Path,
+    purge: bool,
+    unregister: impl FnOnce(&Path) -> Result<()>,
+    purge_state: impl FnOnce() -> Result<()>,
+) -> Result<()> {
     let active = root.join("current/Vadgr.AppImage");
-    if active.is_file() {
-        let _ = std::process::Command::new(&active).arg("stop").status();
-    }
-    unregister_launch_entries(&root)?;
+    ensure!(
+        active.is_file(),
+        "the active Vadgr AppImage is missing; nothing was uninstalled"
+    );
+    let status = std::process::Command::new(&active)
+        .arg("stop")
+        .status()
+        .context("stopping the installed Vadgr daemon before uninstall")?;
+    ensure!(
+        status.success(),
+        "the installed Vadgr daemon could not stop; nothing was uninstalled"
+    );
+    unregister(root)?;
     if root.exists() {
-        std::fs::remove_dir_all(&root).context("removing installed Vadgr package files")?;
+        std::fs::remove_dir_all(root).context("removing installed Vadgr package files")?;
     }
     if purge {
-        super::purge_owner_state()?;
+        purge_state()?;
     }
     Ok(())
 }
@@ -672,6 +729,110 @@ mod failed_install_tests {
     use std::cell::Cell;
 
     #[test]
+    fn uninstall_refuses_failed_or_unavailable_stop_before_any_mutation() {
+        use std::os::unix::fs::PermissionsExt;
+        for failure in ["nonzero", "not-executable", "missing"] {
+            for purge in [false, true] {
+                let temp = tempfile::tempdir().unwrap();
+                let root = temp.path().join("package");
+                let current = root.join("current");
+                std::fs::create_dir_all(&current).unwrap();
+                let active = current.join("Vadgr.AppImage");
+                let script = b"#!/bin/sh\n[ \"$1\" = stop ] || exit 97\nexit 9\n";
+                if failure != "missing" {
+                    std::fs::write(&active, script).unwrap();
+                    let mode = if failure == "not-executable" {
+                        0o644
+                    } else {
+                        0o755
+                    };
+                    std::fs::set_permissions(&active, std::fs::Permissions::from_mode(mode))
+                        .unwrap();
+                }
+                let registration = temp.path().join("registration");
+                let state = temp.path().join("owner-state");
+                std::fs::write(&registration, b"registered").unwrap();
+                std::fs::write(&state, b"preserved").unwrap();
+                let result = uninstall_with(
+                    &root,
+                    purge,
+                    |_| {
+                        std::fs::remove_file(&registration)?;
+                        Ok(())
+                    },
+                    || {
+                        std::fs::remove_file(&state)?;
+                        Ok(())
+                    },
+                );
+                assert!(
+                    result.is_err(),
+                    "{failure}, purge={purge}: uninstall must report failure"
+                );
+                assert!(root.is_dir(), "a refused stop must retain the package");
+                assert_eq!(std::fs::read(&registration).unwrap(), b"registered");
+                assert_eq!(std::fs::read(&state).unwrap(), b"preserved");
+                if failure != "missing" {
+                    assert_eq!(std::fs::read(&active).unwrap(), script);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn uninstall_removes_package_and_optional_owner_state_only_after_confirmed_stop() {
+        for purge in [false, true] {
+            let temp = tempfile::tempdir().unwrap();
+            let root = temp.path().join("package");
+            let current = root.join("current");
+            std::fs::create_dir_all(&current).unwrap();
+            let active = current.join("Vadgr.AppImage");
+            std::fs::write(&active, "#!/bin/sh\n[ \"$1\" = stop ] || exit 97\nprintf stopped > \"$0.stopped\" || exit 98\nexit 0\n").unwrap();
+            executable(&active).unwrap();
+            let registration = temp.path().join("registration");
+            let state = temp.path().join("owner-state");
+            std::fs::write(&registration, b"registered").unwrap();
+            std::fs::write(&state, b"preserved").unwrap();
+            let unregistered = Cell::new(false);
+            let purged = Cell::new(false);
+            uninstall_with(
+                &root,
+                purge,
+                |actual| {
+                    assert_eq!(actual, root);
+                    assert!(active.is_file());
+                    assert_eq!(
+                        std::fs::read(current.join("Vadgr.AppImage.stopped"))?,
+                        b"stopped"
+                    );
+                    std::fs::remove_file(&registration)?;
+                    unregistered.set(true);
+                    Ok(())
+                },
+                || {
+                    assert!(unregistered.get());
+                    assert!(
+                        !root.exists(),
+                        "purge must follow package removal and confirmed stop"
+                    );
+                    std::fs::remove_file(&state)?;
+                    purged.set(true);
+                    Ok(())
+                },
+            )
+            .unwrap();
+            assert!(unregistered.get());
+            assert!(!root.exists());
+            assert!(!registration.exists());
+            assert_eq!(purged.get(), purge);
+            assert_eq!(state.exists(), !purge);
+            if !purge {
+                assert_eq!(std::fs::read(state).unwrap(), b"preserved");
+            }
+        }
+    }
+
+    #[test]
     fn failed_install_retains_package_when_startup_cleanup_is_unproved() {
         let temp = tempfile::tempdir().unwrap();
         let record = temp.path().join("api.pid");
@@ -711,6 +872,37 @@ mod failed_install_tests {
         .unwrap();
         executable(&command).unwrap();
         assert!(start_and_probe(temp.path()).is_err());
+    }
+
+    #[test]
+    fn repair_start_preserves_the_verified_cleanup_refusal() {
+        let temp = tempfile::tempdir().unwrap();
+        let current = temp.path().join("current");
+        std::fs::create_dir(&current).unwrap();
+        let command = current.join("Vadgr.AppImage");
+        std::fs::write(&command, "#!/bin/sh\nprintf '%s\\n' 'Startup records were retained because descendant cleanup is unproved. Verified cleanup is required; Repair alone does not prove it.' >&2\nexit 1\n").unwrap();
+        executable(&command).unwrap();
+        let error = start_and_probe(temp.path()).unwrap_err().to_string();
+        assert!(error.contains("descendant cleanup is unproved"));
+        assert!(error.contains("Verified cleanup is required"));
+        assert!(error.contains("Repair alone does not prove it"));
+        assert!(command.is_file());
+    }
+
+    #[test]
+    fn repair_start_never_reflects_arbitrary_child_diagnostics() {
+        let temp = tempfile::tempdir().unwrap();
+        let current = temp.path().join("current");
+        std::fs::create_dir(&current).unwrap();
+        let command = current.join("Vadgr.AppImage");
+        std::fs::write(&command, "#!/bin/sh\nprintf 'private-test-secret /private/owner/path \\033[31m\\n' >&2\ni=0\nwhile [ $i -lt 2000 ]; do printf 'oversized diagnostic\\n' >&2; i=$((i+1)); done\nexit 1\n").unwrap();
+        executable(&command).unwrap();
+        assert_eq!(
+            start_and_probe(temp.path()).unwrap_err().to_string(),
+            "the installed Vadgr daemon is not ready"
+        );
+        assert!(!startup_cleanup_required(b"Error: Startup records could not be verified. Verified cleanup is required; Repair alone does not prove it. /private/path\n"));
+        assert!(!startup_cleanup_required(b"\x1b[31mStartup records could not be verified. Verified cleanup is required; Repair alone does not prove it.\n"));
     }
 
     #[test]
