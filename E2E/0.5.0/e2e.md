@@ -2308,6 +2308,15 @@ AppImage runtime pin, application code, bundled CUA and terms are unchanged.
 Corresponding-source and package-input bindings must include the changed tool
 metadata before a new producer and installed reruns can qualify the repair.
 
+A separate Windows source-only audit found that both architecture packets
+already had stale Cargo.lock digests at `52f33c68` and lacked Cargo.toml and
+Rust-patch bindings. Both current source-only validations refused the inputs.
+The stable-tool metadata change adds a toolchain digest rebinding obligation.
+The retained Windows preparation archives remain historical provenance; neither
+their bytes nor protected approval receipts were changed by this Linux repair.
+Current Windows package rebuilding, input review and native qualification remain
+owed. No Windows validation or installed pass is carried forward here.
+
 ## macOS qualification history
 
 These observations preserve implementation findings and earlier evidence. They
