@@ -2317,6 +2317,49 @@ their bytes nor protected approval receipts were changed by this Linux repair.
 Current Windows package rebuilding, input review and native qualification remain
 owed. No Windows validation or installed pass is carried forward here.
 
+### October 4: retained Linux artifact and installed continuation
+
+Producer `37215586693` succeeded for source
+`69b1070463d2c5c4be429638af08f0de412aee8e`. Retained artifact `11308920648`
+contains the 578,107,896-byte AppImage with SHA-256
+`9977f328e55b94bb8a84e85d36f68d873d8042a07e94f3c99fa0cd61229c8bde`.
+The ten fresh affected gates passed. Verification checked the complete
+application-source correspondence and bundled payload. These observations are
+unsigned development qualification on virtualized Ubuntu x86_64 GNOME Wayland,
+not release trust, bare-metal, X11 or aarch64 coverage.
+
+The isolated installation reported healthy with bundled computer use available.
+Open Vadgr followed by installer Close ended the installer with status 0 while
+the console and daemon stayed running. Four installed uninstall-failure cases
+preserved the package and state and showed specific recovery instructions:
+missing application, denied execution permission, missing interpreter and a
+failed stop command. Each controlled fault was restored and its independent
+before/after state comparison passed.
+
+Check for updates displayed the HTTP 404 reason and preserved the installed
+generation. An idempotent Repair displayed completion and retained health and
+state. Empty-provider, authentication, masked nonsecret input, cancellation and
+purge-confirmation visual slices were inspected at recorded sizes and themes.
+They do not close the complete visual or screen-reader matrix.
+
+An incomplete purge phrase kept removal disabled; the exact phrase enabled it.
+Cancellation still preserved the installation. A subsequent explicit purge
+removed the isolated package, launch entries and state. Both previously bound
+console and daemon processes exited and the listener disappeared. Their exit
+codes were not observable and are not reported as zero. The separate preserved
+profile and retained artifact were unchanged. The first passive observer
+refused two existing socket nodes before any removal; its failed attempt and
+the corrected metadata-only observation remain recorded.
+
+The extraction fallback reached formatted terms with unchecked acceptance and
+disabled Install. Native Decline exited with status 0, and the immediately
+before/after product inventories matched. This proves extraction startup and
+Decline, not installation on a host without FUSE. Its verified temporary
+extraction was removed after recording the result. Earlier failures remain
+part of the history. Preserved-state reinstall, the rebuilt bundled task,
+remaining visual/accessibility assertions, phone-dependent work and final
+cleanup still require their own exact-artifact results.
+
 ## macOS qualification history
 
 These observations preserve implementation findings and earlier evidence. They
