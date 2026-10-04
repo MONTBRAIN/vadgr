@@ -2218,6 +2218,78 @@ matrices, exact unfocused capture and final C1 remain owed. O1 requires an
 existing isolated offline snapshot. No X11, aarch64, bare-metal, trust,
 merge or release result is inferred.
 
+### Linux installed lifecycle continuation at `83fe1b1f`
+
+Producer run `37167192137` retained artifact `11289962279` from
+`83fe1b1f840c7e06338650ede0de5c429d6e75e0`. Its release-equivalent unsigned
+AppImage is 578079224 bytes, SHA-256
+`bee73943d5984f7fdfe38fb5b3dcfccfb8f89312a237e2359dfea37dd771b727`.
+Independent verification checked the receipt, source correspondence, package
+inventory and pinned private payload. These observations use virtualized-native
+Ubuntu 26.04 x86_64 GNOME Wayland on VMware, not bare-metal coverage.
+
+L01's ordinary Decline slice passed. Disabled Install, assent toggle and native
+keyboard decline preserved the absent product inventory. Inspected terms images
+crossed 760 by 620, 1205 by 736 and 680 by 540 with light and dark appearance and
+checked and unchecked assent. Native focus reached the middle and final terms;
+actual reader utterances included the assent state, final heading and Decline.
+This does not close all installer phases, extraction or the complete O2 matrix.
+
+L03's twelve development-integrity negatives also passed against these exact
+bytes: wrong architecture, platform, source commit, source tree, publishability,
+development flag, signing and attestation state, size, hash, missing receipt,
+and an altered vehicle. Each exited with its expected rejection before scoped
+product mutation. The retained original and receipt stayed unchanged, and the
+isolated port remained free. This does not pass production trust or the
+separately owed extraction-launch assertion.
+
+Installation completed with healthy bundled computer use. The installed console
+displayed CUA 0.7.9 as available. This is availability, not a new B01 task pass.
+An initial Open Vadgr and installer Close attempt ended with observer exit 143
+and no product exit record. Its cause remains unclassified. A separately
+observed installed console launched successfully, but does not prove that Open
+survives closing the installer. Repeat that sequence under durable observation.
+
+Ten independent public installed-status cases passed: empty, dead, malformed
+and out-of-range PID records, FIFO and symbolic-link PID and port records, and
+oversized PID and port records. Each exited normally with a specific cleanup
+requirement, preserved the records and made no running or stopped claim. The
+separate healthy daemon and saved state remained unchanged. No invalid-PID
+signal or synthetic reboot was used.
+
+Native provider dialogs exposed named controls, password-field semantics,
+disabled empty-key submission and keyboard cancellation returning to Connect
+provider. No credential or billed request was submitted. Uninstall opened on
+Keep installed, excluded background actions and required the exact purge
+phrase. Empty and wrong phrases remained disabled; hiding the focused field
+returned focus to the checkbox. Cancellation preserved the installation.
+These inspected states include full and minimum 900 by 600 layouts, not a
+complete visual or screen-reader matrix.
+
+The update check displayed its specific HTTP 404 download failure and preserved
+the installed generation and saved state. Repair restored an altered desktop
+registration to its original bytes; this is not executable-corruption coverage.
+Roll back remained disabled with the truthful absence of a verified predecessor.
+
+The rebuilt failed-stop uninstall retained the console, daemon, package and
+saved state. The isolated executable-permission fault was restored exactly.
+Its failure copy still failed the written oracle: the red notice only said
+`stopping the installed Vadgr daemon before uninstall`. An operation label
+does not explain failure, preservation or recovery. A safe explicit error and
+its rebuilt installed rerun remain required; source tests cannot close it.
+
+After restoration, ordinary preserve-data uninstall exited the console with
+code zero and removed the package, desktop entry, autostart and command shim.
+The daemon and listener were absent. An immediate port-bind observation failed;
+the separately retained settled observation found the port free. The database,
+terms and credential identities were preserved. Reinstall and separate purge
+remain owed for this continuation.
+
+Raw failures, partial observations, inspected safe images and machine oracles
+are filed in existing evidence PR #176. No whole-cell pass, complete visual
+matrix, phone, X11, aarch64, unfocused capture, trust or release result is
+inferred from these slices. C1 remains open while testing continues.
+
 ## macOS qualification history
 
 These observations preserve implementation findings and earlier evidence. They

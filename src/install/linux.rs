@@ -446,15 +446,22 @@ fn uninstall_with(
     let active = root.join("current/Vadgr.AppImage");
     ensure!(
         active.is_file(),
-        "the active Vadgr AppImage is missing; nothing was uninstalled"
+        "The installed Vadgr app is missing. Nothing was uninstalled. Choose Repair to restore it, then retry Uninstall."
     );
     let status = std::process::Command::new(&active)
         .arg("stop")
         .status()
-        .context("stopping the installed Vadgr daemon before uninstall")?;
+        .map_err(|error| match error.kind() {
+            std::io::ErrorKind::PermissionDenied => anyhow!(
+                "Permission to run the installed Vadgr app was denied. Nothing was uninstalled. Restore permission to run the app, then retry Uninstall."
+            ),
+            _ => anyhow!(
+                "The installed Vadgr stop command could not run. Nothing was uninstalled. Check that the installed app can run, then retry Uninstall."
+            ),
+        })?;
     ensure!(
         status.success(),
-        "the installed Vadgr daemon could not stop; nothing was uninstalled"
+        "Vadgr could not confirm that its daemon stopped. Nothing was uninstalled. Run 'vadgr status' and resolve any reported cleanup requirement before retrying Uninstall."
     );
     unregister(root)?;
     if root.exists() {
@@ -731,14 +738,35 @@ mod failed_install_tests {
     #[test]
     fn uninstall_refuses_failed_or_unavailable_stop_before_any_mutation() {
         use std::os::unix::fs::PermissionsExt;
-        for failure in ["nonzero", "not-executable", "missing"] {
+        for (failure, expected_message) in [
+            (
+                "not-executable",
+                "Permission to run the installed Vadgr app was denied. Nothing was uninstalled. Restore permission to run the app, then retry Uninstall.",
+            ),
+            (
+                "nonzero",
+                "Vadgr could not confirm that its daemon stopped. Nothing was uninstalled. Run 'vadgr status' and resolve any reported cleanup requirement before retrying Uninstall.",
+            ),
+            (
+                "missing",
+                "The installed Vadgr app is missing. Nothing was uninstalled. Choose Repair to restore it, then retry Uninstall.",
+            ),
+            (
+                "missing-interpreter",
+                "The installed Vadgr stop command could not run. Nothing was uninstalled. Check that the installed app can run, then retry Uninstall.",
+            ),
+        ] {
             for purge in [false, true] {
                 let temp = tempfile::tempdir().unwrap();
                 let root = temp.path().join("package");
                 let current = root.join("current");
                 std::fs::create_dir_all(&current).unwrap();
                 let active = current.join("Vadgr.AppImage");
-                let script = b"#!/bin/sh\n[ \"$1\" = stop ] || exit 97\nexit 9\n";
+                let script: &[u8] = if failure == "missing-interpreter" {
+                    b"#!/nonexistent/private-uninstall-interpreter\n"
+                } else {
+                    b"#!/bin/sh\n[ \"$1\" = stop ] || exit 97\nexit 9\n"
+                };
                 if failure != "missing" {
                     std::fs::write(&active, script).unwrap();
                     let mode = if failure == "not-executable" {
@@ -768,6 +796,14 @@ mod failed_install_tests {
                 assert!(
                     result.is_err(),
                     "{failure}, purge={purge}: uninstall must report failure"
+                );
+                let error = result.unwrap_err();
+                assert_eq!(error.to_string(), expected_message);
+                assert_eq!(format!("{error:#}"), expected_message);
+                assert_eq!(
+                    error.chain().count(),
+                    1,
+                    "raw launch errors must stay private"
                 );
                 assert!(root.is_dir(), "a refused stop must retain the package");
                 assert_eq!(std::fs::read(&registration).unwrap(), b"registered");
