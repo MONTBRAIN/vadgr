@@ -15,7 +15,7 @@ Download all three listed independent volumes. Verify source-volumes.SHA256SUMS.
 Extract each tar.gz into the same directory; never concatenate archives.
 Verify SHA256SUMS inside vadgr-0.5.0-linux-x86_64-source and follow README-SOURCE.txt.
 Supply the adjacent final development receipt for compile configuration.
-Source snapshot: 5472fad6dd1f75529572fa98d2f87279b7ebe2f9. Two local accessibility crates carry patches.
+Source snapshot: 66b5dbe23d1f991c236b798b912c0a82b70c2717. Two local accessibility crates carry patches.
 Measured source-only qualification is not E2E or publisher authentication.
 
 wayland-protocols-plasma
@@ -50,8 +50,8 @@ publisher signatures, or a production attestation. Each included dependency
 retains its own license and separately listed source-delivery materials.
 
 wayland-protocols-plasma
-c6f412b79f064957db9e0e7118cf3b4883f1c64929eb26d24263333f0533816e  vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz
-7ce73b8b63bcf99a21fcff4dbca1a79fffa289d490e4271d704683cc2cd2f3ac  vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz
+0d9a2a4d9306a4cdd82c81cb8c5b53763f1f451c8432bd45d03dc87b30c2399d  vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz
+0bc17481b18433ec190e53289cb607d906930d7730c54e956730bae82f7c7e34  vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz
 03099e92207a272437318baf69c7287203a70b263be67cc18d589853aa0a338c  vadgr-0.5.0-linux-x86_64-source.volume-03.tar.gz
 
 wayland-protocols-plasma
@@ -60,26 +60,26 @@ wayland-protocols-plasma
   "compile_identity": "Read adjacent final development receipt at recipient build time.",
   "complete_original_crate_archives": 557,
   "e2e": "not run",
-  "file_manifest_sha256": "34fe021bb1044f77d5f338d461026aebf80219fffcf9793913447e757b1c92a0",
+  "file_manifest_sha256": "157e31acaf664c4463ff9324a93db8eba10679a70bf321119b61ce959cce0b22",
   "file_members": 28981,
   "legal_approval": false,
   "resolution_manifest_stubs": 158,
   "root_directory": "vadgr-0.5.0-linux-x86_64-source",
   "schema": 1,
-  "source_snapshot_commit": "5472fad6dd1f75529572fa98d2f87279b7ebe2f9",
-  "source_snapshot_tree": "0d78572c3ea90dd1331bdaebc4302710721d5c4f",
+  "source_snapshot_commit": "66b5dbe23d1f991c236b798b912c0a82b70c2717",
+  "source_snapshot_tree": "722fec6e3f44a1104154773c6e6808a98cda6508",
   "volumes": [
     {
       "archive": "vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz",
-      "bytes": 64756326,
+      "bytes": 64756639,
       "file_members": 772,
-      "sha256": "c6f412b79f064957db9e0e7118cf3b4883f1c64929eb26d24263333f0533816e"
+      "sha256": "0d9a2a4d9306a4cdd82c81cb8c5b53763f1f451c8432bd45d03dc87b30c2399d"
     },
     {
       "archive": "vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz",
-      "bytes": 52250405,
+      "bytes": 52250402,
       "file_members": 18205,
-      "sha256": "7ce73b8b63bcf99a21fcff4dbca1a79fffa289d490e4271d704683cc2cd2f3ac"
+      "sha256": "0bc17481b18433ec190e53289cb607d906930d7730c54e956730bae82f7c7e34"
     },
     {
       "archive": "vadgr-0.5.0-linux-x86_64-source.volume-03.tar.gz",
@@ -92,11 +92,11 @@ wayland-protocols-plasma
 
 wayland-protocols-plasma
 Included source archive: legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz
-SHA-256: c6f412b79f064957db9e0e7118cf3b4883f1c64929eb26d24263333f0533816e
+SHA-256: 0d9a2a4d9306a4cdd82c81cb8c5b53763f1f451c8432bd45d03dc87b30c2399d
 
 wayland-protocols-plasma
 Included source archive: legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz
-SHA-256: 7ce73b8b63bcf99a21fcff4dbca1a79fffa289d490e4271d704683cc2cd2f3ac
+SHA-256: 0bc17481b18433ec190e53289cb607d906930d7730c54e956730bae82f7c7e34
 
 wayland-protocols-plasma
 Included source archive: legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-03.tar.gz
@@ -305,7 +305,7 @@ Download all three listed independent volumes. Verify source-volumes.SHA256SUMS.
 Extract each tar.gz into the same directory; never concatenate archives.
 Verify SHA256SUMS inside vadgr-0.5.0-linux-x86_64-source and follow README-SOURCE.txt.
 Supply the adjacent final development receipt for compile configuration.
-Source snapshot: 5472fad6dd1f75529572fa98d2f87279b7ebe2f9. Two local accessibility crates carry patches.
+Source snapshot: 66b5dbe23d1f991c236b798b912c0a82b70c2717. Two local accessibility crates carry patches.
 Measured source-only qualification is not E2E or publisher authentication.
 
 bdb
@@ -340,8 +340,8 @@ publisher signatures, or a production attestation. Each included dependency
 retains its own license and separately listed source-delivery materials.
 
 bdb
-c6f412b79f064957db9e0e7118cf3b4883f1c64929eb26d24263333f0533816e  vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz
-7ce73b8b63bcf99a21fcff4dbca1a79fffa289d490e4271d704683cc2cd2f3ac  vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz
+0d9a2a4d9306a4cdd82c81cb8c5b53763f1f451c8432bd45d03dc87b30c2399d  vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz
+0bc17481b18433ec190e53289cb607d906930d7730c54e956730bae82f7c7e34  vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz
 03099e92207a272437318baf69c7287203a70b263be67cc18d589853aa0a338c  vadgr-0.5.0-linux-x86_64-source.volume-03.tar.gz
 
 bdb
@@ -350,26 +350,26 @@ bdb
   "compile_identity": "Read adjacent final development receipt at recipient build time.",
   "complete_original_crate_archives": 557,
   "e2e": "not run",
-  "file_manifest_sha256": "34fe021bb1044f77d5f338d461026aebf80219fffcf9793913447e757b1c92a0",
+  "file_manifest_sha256": "157e31acaf664c4463ff9324a93db8eba10679a70bf321119b61ce959cce0b22",
   "file_members": 28981,
   "legal_approval": false,
   "resolution_manifest_stubs": 158,
   "root_directory": "vadgr-0.5.0-linux-x86_64-source",
   "schema": 1,
-  "source_snapshot_commit": "5472fad6dd1f75529572fa98d2f87279b7ebe2f9",
-  "source_snapshot_tree": "0d78572c3ea90dd1331bdaebc4302710721d5c4f",
+  "source_snapshot_commit": "66b5dbe23d1f991c236b798b912c0a82b70c2717",
+  "source_snapshot_tree": "722fec6e3f44a1104154773c6e6808a98cda6508",
   "volumes": [
     {
       "archive": "vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz",
-      "bytes": 64756326,
+      "bytes": 64756639,
       "file_members": 772,
-      "sha256": "c6f412b79f064957db9e0e7118cf3b4883f1c64929eb26d24263333f0533816e"
+      "sha256": "0d9a2a4d9306a4cdd82c81cb8c5b53763f1f451c8432bd45d03dc87b30c2399d"
     },
     {
       "archive": "vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz",
-      "bytes": 52250405,
+      "bytes": 52250402,
       "file_members": 18205,
-      "sha256": "7ce73b8b63bcf99a21fcff4dbca1a79fffa289d490e4271d704683cc2cd2f3ac"
+      "sha256": "0bc17481b18433ec190e53289cb607d906930d7730c54e956730bae82f7c7e34"
     },
     {
       "archive": "vadgr-0.5.0-linux-x86_64-source.volume-03.tar.gz",
@@ -382,11 +382,11 @@ bdb
 
 bdb
 Included source archive: legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-01.tar.gz
-SHA-256: c6f412b79f064957db9e0e7118cf3b4883f1c64929eb26d24263333f0533816e
+SHA-256: 0d9a2a4d9306a4cdd82c81cb8c5b53763f1f451c8432bd45d03dc87b30c2399d
 
 bdb
 Included source archive: legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-02.tar.gz
-SHA-256: 7ce73b8b63bcf99a21fcff4dbca1a79fffa289d490e4271d704683cc2cd2f3ac
+SHA-256: 0bc17481b18433ec190e53289cb607d906930d7730c54e956730bae82f7c7e34
 
 bdb
 Included source archive: legal/SOURCE-OFFERS/vadgr-linux/vadgr-0.5.0-linux-x86_64-source.volume-03.tar.gz
