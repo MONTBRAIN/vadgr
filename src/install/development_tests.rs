@@ -8,6 +8,44 @@ use std::os::unix::fs::{PermissionsExt, symlink};
 const COMMIT: &str = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 const TREE: &str = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 
+#[test]
+fn confinement_retry_is_bounded_and_only_retries_again() {
+    let mut calls = 0;
+    let result = retry_confinement_race(|| {
+        calls += 1;
+        if calls == 1 {
+            Err(rustix::io::Errno::AGAIN)
+        } else {
+            Ok(42)
+        }
+    });
+    assert_eq!(result.unwrap(), 42);
+    assert_eq!(calls, 2);
+
+    calls = 0;
+    let result: rustix::io::Result<()> = retry_confinement_race(|| {
+        calls += 1;
+        Err(rustix::io::Errno::AGAIN)
+    });
+    assert_eq!(result.unwrap_err(), rustix::io::Errno::AGAIN);
+    assert_eq!(calls, 8);
+
+    for error in [
+        rustix::io::Errno::XDEV,
+        rustix::io::Errno::LOOP,
+        rustix::io::Errno::ACCESS,
+        rustix::io::Errno::NOENT,
+    ] {
+        calls = 0;
+        let result: rustix::io::Result<()> = retry_confinement_race(|| {
+            calls += 1;
+            Err(error)
+        });
+        assert_eq!(result.unwrap_err(), error);
+        assert_eq!(calls, 1);
+    }
+}
+
 struct Fixture {
     temporary: tempfile::TempDir,
     receipt: Value,
@@ -214,6 +252,12 @@ fn installed_development_runtime_child() {
             .is_none()
     );
     let launch_revalidation_ms = started.elapsed().as_millis();
+    // A kernel confinement race must not drop an otherwise valid tool host.
+    // Injection is thread-local and occurs inside the real admission path.
+    INJECT_LINK_AGAIN.with(|remaining| remaining.set(1));
+    let transient = specification.authorize_process(&mut command);
+    assert_eq!(INJECT_LINK_AGAIN.with(|remaining| remaining.get()), 0);
+    assert!(transient.unwrap().is_none());
     fs::write(
         root.join("lib/cua/bootstrap.py"),
         b"changed after discovery",

@@ -112,6 +112,118 @@ fn ready_app() -> (egui::Context, ConsoleApp, mpsc::Receiver<&'static str>) {
     (ctx, app, calls)
 }
 
+fn draw_sidebar(
+    ctx: &egui::Context,
+    app: &mut ConsoleApp,
+    size: egui::Vec2,
+    events: Vec<egui::Event>,
+) -> egui::FullOutput {
+    let mut output = ctx.run_ui(
+        egui::RawInput {
+            screen_rect: Some(egui::Rect::from_min_size(egui::Pos2::ZERO, size)),
+            events,
+            ..Default::default()
+        },
+        |root| {
+            app.sidebar(root);
+            egui::CentralPanel::default().show(root, |ui| {
+                let _ = ui.button("Page action");
+            });
+        },
+    );
+    output.textures_delta.clear();
+    output
+}
+
+#[test]
+fn sidebar_exposes_only_named_navigation_focus_targets() {
+    for (size, palette) in [egui::vec2(900.0, 600.0), egui::vec2(1200.0, 720.0)]
+        .into_iter()
+        .flat_map(|size| [egui::Theme::Dark, egui::Theme::Light].map(|palette| (size, palette)))
+    {
+        let (ctx, mut app, calls) = ready_app();
+        ctx.set_theme(palette);
+        theme::refresh(&ctx);
+        let output = draw_sidebar(&ctx, &mut app, size, vec![]);
+        let tree = output.platform_output.accesskit_update.as_ref().unwrap();
+        let mut labels: Vec<_> = tree
+            .nodes
+            .iter()
+            .filter(|(_, node)| node.supports_action(Action::Focus) && !node.is_disabled())
+            .map(|(_, node)| node.label())
+            .collect();
+        labels.sort_unstable();
+        assert_eq!(
+            labels,
+            vec![
+                Some("Machine"),
+                Some("Page action"),
+                Some("Providers"),
+                Some("Settings"),
+            ],
+            "fixed navigation must not expose an anonymous resize handle"
+        );
+        assert!(calls.try_recv().is_err());
+    }
+}
+
+#[test]
+fn sidebar_tab_moves_from_settings_directly_to_page_action() {
+    for (size, palette) in [egui::vec2(900.0, 600.0), egui::vec2(1200.0, 720.0)]
+        .into_iter()
+        .flat_map(|size| [egui::Theme::Dark, egui::Theme::Light].map(|palette| (size, palette)))
+    {
+        let (ctx, mut app, calls) = ready_app();
+        ctx.set_theme(palette);
+        theme::refresh(&ctx);
+        let output = draw_sidebar(&ctx, &mut app, size, vec![]);
+        let tree = output.platform_output.accesskit_update.as_ref().unwrap();
+        let named = |label| {
+            tree.nodes
+                .iter()
+                .find(|(_, node)| node.label() == Some(label))
+                .unwrap()
+                .0
+        };
+        let settings = named("Settings");
+        let next = named("Page action");
+        draw_sidebar(
+            &ctx,
+            &mut app,
+            size,
+            vec![egui::Event::AccessKitActionRequest(ActionRequest {
+                action: Action::Focus,
+                target_tree: TreeId::ROOT,
+                target_node: settings,
+                data: None,
+            })],
+        );
+        let output = draw_sidebar(
+            &ctx,
+            &mut app,
+            size,
+            vec![egui::Event::Key {
+                key: egui::Key::Tab,
+                physical_key: None,
+                pressed: true,
+                repeat: false,
+                modifiers: egui::Modifiers::NONE,
+            }],
+        );
+        assert_eq!(
+            output
+                .platform_output
+                .accesskit_update
+                .as_ref()
+                .unwrap()
+                .focus,
+            next,
+            "Tab must skip the noninteractive sidebar edge"
+        );
+        assert!(calls.try_recv().is_err());
+    }
+}
+
 #[test]
 fn enabled_native_restart_wins_over_a_due_background_refresh() {
     let (ctx, mut app, calls) = ready_app();

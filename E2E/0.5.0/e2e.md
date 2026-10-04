@@ -748,9 +748,9 @@ oracles. Windows executes only the Windows rows in this session.
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | L01 | native Linux x86_64, then aarch64; X11 and Wayland | clean graphical session; no owner action | no Vadgr XDG generation, command, desktop or autostart entry; if the release-equivalent AppImage cannot be built, repair or create its credential-free producer on the implementation branch before continuing | agent builds the registered AppImage, records the before inventory and verifies its hash; manifest trust runs post-merge | agent opens the AppImage through accessibility, inspects terms and invokes **Decline and close** | before/after XDG data/config, command and state inventories | no product or owner-state mutation | private Linux boundary | remove downloaded files after filing | no root or package-manager action | PASS for available-host unsigned functionality at exact `69b10704` on VMware x86_64 GNOME Wayland: ordinary and extraction launches reached terms; unchecked assent disabled Install, native assent enabled it, and Decline preserved the absent scoped inventories. Extraction Decline exited 0. Recorded terms images are specific size/theme observations, not the complete visual matrix. Historical failures remain below; aarch64 and X11 are not run |
 | L03 | x86_64/aarch64, X11/Wayland | clean GUI hosts | L02 installed | keep FUSE; prepare extraction test | verify development integrity metadata before merge and the production attestation bundle after merge; launch normally and with `--appimage-extract-and-run` | target match, size/hash and both launches before merge; certified workflow/runner output after merge | both paths work; every available wrong-root, bundle, workflow, ref, target, size and hash case fails before XDG mutation | private Linux integrity capture | delete tampered copies | none | PASS for available-host unsigned functionality: all twelve exact `69b10704` unsigned integrity negatives passed with expected exit 1, no timeout and unchanged scoped inventories. Ordinary and extraction startup/Decline passed their separate oracles. Post-merge production attestation and certified workflow trust are a separate axis, not a blocker for this functional verdict. Those assertions remain post-merge owed; aarch64 and X11 are not run |
-| L04 | same matrix | provider and phone | release-equivalent installation healthy; L03 trust may remain owed | one provider/default and paired device | repeat W04 through W06 | CLI/API/console, transport and journal | shared console/backend behavior matches Windows | private Linux functional capture | remove run/device | bounded provider call and phone | partial at exact `69b10704`: preserved-profile installation reports healthy with private Python 3.12.14 and CUA 0.7.9 available; a real bundled screenshot and correct marker were independently verified, with B01 continuation/format limitations retained. Provider/model cancellation and Settings observations cover only their recorded states. Current machine-edit/restart, phone and remaining shared functional assertions are not inherited from `16cd0c47` |
-| L05 | same matrix | fault-injection host | L04 independent functional assertions complete; phone observations remain separately owed | retain the exact current unsigned installation; use the ordinary configured or explicit update source; require a verified predecessor only when one exists | before merge, exercise reachable update-source failure and preservation, repair, and the first-release unavailable-rollback reason; after merge, inject the downstream W07 trust-gated failures; exercise positive update/rollback at the first subsequent native release | `current` link, exact binary and receipt, health and owner-state identity after each attempt | reachable failure is specific and preserves the runnable generation; repair restores package-owned bytes; no predecessor is invented; downstream phases retain their ordinary verification gates | private Linux lifecycle capture | select fixed generation | no root, network mutation or development trust bypass | partial at exact `69b10704`: native update checking displayed HTTP 404 while preserving the generation and state; idempotent Repair completed with health and state retained. Damaged-owned-byte Repair restored the exact package. A later relaunch reached healthy state after guarded recovery of malformed test startup records; that fixture recovery is not a product-repair pass. Remaining restart and rollback assertions require their own observations. Earlier `16cd0c47` repair and rollback observations remain historical. Trust-gated faults remain post-merge owed; no predecessor is invented |
-| L06 | same matrix | isolated E2E state only | L05 functional slice complete | agent records XDG and isolated state roots | agent drives uninstall-preserve/reinstall, then the separate typed purge | exact paths and isolated-state identity | only package/XDG entries removed first; state found on reinstall; purge deletes the exact isolated state root | private Linux uninstall capture | agent removes all test artifacts | no owner action unless a protected package prompt appears | partial at exact `69b10704`: cancellation and incomplete purge confirmation preserved installation; explicit isolated-profile purge removed package, launch entries and state, and both bound processes/listener became absent without an inferred exit code. Separate preserved-profile reinstall retained terms/credential digests and recovered a healthy provider-bearing state. A subsequent public preserve-data uninstall exited the console with code 0, stopped the daemon, freed the port and removed all package registrations while retaining the database and exact terms/credential identities. Reinstall after this uninstall and final cleanup remain owed |
+| L04 | same matrix | provider and phone | release-equivalent installation healthy; L03 trust may remain owed | one provider/default and paired device | repeat W04 through W06 | CLI/API/console, transport and journal | shared console/backend behavior matches Windows | private Linux functional capture | remove run/device | bounded provider call and phone | partial at exact `f59db654`: native Unicode name, multiline prompt, workspace and autonomy edits matched installed CLI/API reads and survived a native restart to a new healthy daemon. Required grants stayed checked and read-only; no optional grants were available. Read-only fields were rejected, a no-op was idempotent, and a selected CLI edit and all native edits were restored. Provider/default, terms, credentials and package identity were preserved. The fifth B01 attempt passed its unsigned task oracle; its earlier intermittent startup failure remains unresolved. Physical-phone/transport and remaining shared state-matrix assertions remain incomplete |
+| L05 | same matrix | fault-injection host | L04 independent functional assertions complete; phone observations remain separately owed | retain the exact current unsigned installation; use the ordinary configured or explicit update source; require a verified predecessor only when one exists | before merge, exercise reachable update-source failure and preservation, repair, and the first-release unavailable-rollback reason; after merge, inject the downstream W07 trust-gated failures; exercise positive update/rollback at the first subsequent native release | `current` link, exact binary and receipt, health and owner-state identity after each attempt | reachable failure is specific and preserves the runnable generation; repair restores package-owned bytes; no predecessor is invented; downstream phases retain their ordinary verification gates | private Linux lifecycle capture | select fixed generation | no root, network mutation or development trust bypass | PASS for available-host unsigned functionality: exact `69b10704` update checking reported HTTP 404 while preserving the runnable generation and state; idempotent and damaged-owned-byte Repair restored the exact package and health. These unchanged lifecycle assertions remain bound to that subject. Exact `f59db654` also repeated HTTP 404 update-failure preservation and idempotent Repair with unchanged package, health and selected state. At exact `f59db654`, Roll back was disabled with `No verified previous generation is retained`; an independent inventory proved one current generation and no predecessor, with binary, receipts, health and restored owner-state identities preserved. Fixture recovery is not a product-repair pass. Trust-gated faults remain post-merge owed; positive update/rollback waits for the first subsequent native release |
+| L06 | same matrix | isolated E2E state only | L05 functional slice complete | agent records XDG and isolated state roots | agent drives uninstall-preserve/reinstall, then the separate typed purge | exact paths and isolated-state identity | only package/XDG entries removed first; state found on reinstall; purge deletes the exact isolated state root | private Linux uninstall capture | agent removes all test artifacts | no owner action unless a protected package prompt appears | PASS for available-host unsigned functionality by scoped equivalence: exact `69b10704` cancellation and incomplete purge confirmation preserved installation; explicit isolated-profile purge removed only the package, launch entries and isolated state. A separate public preserve-data uninstall stopped the daemon, freed the port and removed package registrations while retaining database, terms and credentials. Exact `f59db654` reinstall then recovered that preserved machine/provider state, recognized existing assent and reached healthy bundled-CUA availability. Installer Close exited zero without stopping the console or daemon. Unchanged lifecycle observations keep their original subject; final test cleanup remains C1 |
 
 ## Part S: WSL cells
 
@@ -800,6 +800,9 @@ Record the exact public command, selected image-capable model and hard budget
 before submission. Use the billed-model rules above. No phone is required.
 Verify the run journal contains the bundled tool call, its image result and
 the model continuation reading the correct marker. Inspect the returned image.
+The oracle requires the correct visible marker, not a marker-only answer.
+Do not add an output-format restriction or infer a provider thought flag from
+ordinary prose. Preserve failed attempts and classify their actual outcomes.
 Bind the child process and interpreter to the installed private payload by path
 and digest. Retain safe path labels, exact hashes and process identities privately.
 Reject a system Python, external driver, checkout or runtime override substitute.
@@ -807,7 +810,7 @@ Follow the current capture policy; never retain a desktop image containing secre
 
 | cell | operating system and architecture | precondition and setup | exact action | oracle | expected result | evidence boundary | cleanup | result |
 |---|---|---|---|---|---|---|---|---|
-| B01 | every supported host and architecture; record each actual desktop separately | exact installed package; pinned private Python and CUA 0.7.9; explicit verified development admission; safe fixture; image-capable provider and recorded budget | submit the bounded screenshot-and-marker task through installed Vadgr | terminal run journal, successful bundled tool call and image, correct marker, inspected capture, installed child-process and payload identities | real task succeeds without system Python or the external testing MCP | private host boundary with source, artifact, run, payload and safe output identities | remove test run, fixture and task-owned processes after filing; preserve owner state | partial at exact `69b10704` on VMware x86_64 GNOME Wayland: the second separately budgeted installed attempt completed two turns and one bundled screenshot, correctly read the unseen marker, and bound the child to private Python 3.12.14/CUA 0.7.9. The first attempt failed provider continuation. Marker-only formatting failed because extra text preceded the marker; the live cause is not established by the source-only thought-flag finding. Repaired Gemini output/history and exact rebuilt execution remain owed. Historical `5a6b583a` success and all other-host obligations remain separate |
+| B01 | every supported host and architecture; record each actual desktop separately | exact installed package; pinned private Python and CUA 0.7.9; explicit verified development admission; safe fixture; image-capable provider and recorded budget | submit the bounded screenshot-and-marker task through installed Vadgr | terminal run journal, successful bundled tool call and image, correct marker, inspected capture, installed child-process and payload identities | real task succeeds without system Python or the external testing MCP | private host boundary with source, artifact, run, payload and safe output identities | remove test run, fixture and task-owned processes after filing; preserve owner state | available-host unsigned PASS at exact `f59db654` on VMware x86_64 GNOME Wayland: the fifth attempt completed with an inspected bundled screenshot, the correct unseen marker in ordinary final prose and a verified installed private CUA child. Earlier failures remain preserved: provider sending, empty answer, one-character non-answer, then computer-use server failure before provider response and watchdog cancellation. The intermittent startup error remains unresolved despite health advertising CUA availability; the successful task does not erase it. Historical exact `69b10704` second-attempt image, correct marker and installed private Python 3.12.14/CUA 0.7.9 identity remain separate assertions. Its extra marker-only restriction was a harness mistake, not this cell's oracle. Signed/released and other-host obligations remain separate |
 
 ## Part V: native lists and dialogs visual qualification
 
@@ -930,13 +933,13 @@ data, window state, appearance, scale and assistive settings after each group.
 |---|---|---|---|---|---|---|
 | VW01 | native Windows, supported architectures | exact installed artifact; safe provider/catalog state and complete group 1 matrix | UIA drives provider/model lists; inspect actual app-only images against the approved grouping, spacing, contrast and overflow rules | provider/catalog API plus persisted default; cancellation preserves it | private per-combination records; restore provider/default state | not run: the current 0.5.0 Windows provider/model matrix must execute |
 | VM01 | macOS, supported architectures | exact installed artifact; safe provider/catalog state and complete group 1 matrix | AX drives provider/model lists; inspect actual app-only images against the approved grouping, spacing, contrast and overflow rules | provider/catalog API plus persisted default; cancellation preserves it | private per-combination records; restore provider/default state | not run: the current 0.5.0 macOS provider/model matrix must execute |
-| VL01 | native Linux, supported architectures and sessions | exact installed artifact; external MCP driver; safe provider/catalog state and complete group 1 matrix | MCP accessibility drives provider/model lists; inspect authorized images against the approved grouping, spacing, contrast and overflow rules | provider/catalog API plus persisted default; cancellation preserves it | private per-combination records; restore provider/default state | partial at exact `69b10704`: empty-provider, provider/authentication and model-picker cancellation slices were inspected with independent state checks. The full populated, long/scrollable, size/theme and architecture/session matrix remains owed. Historical `25a8f8b0` overflow and `16cd0c47` layout/contrast failures remain filed, not silently converted to passes |
+| VL01 | native Linux, supported architectures and sessions | exact installed artifact; external MCP driver; safe provider/catalog state and complete group 1 matrix | MCP accessibility drives provider/model lists; inspect authorized images against the approved grouping, spacing, contrast and overflow rules | provider/catalog API plus persisted default; cancellation preserves it | private per-combination records; restore provider/default state | partial at exact `f59db654`: populated provider cards and the real model picker were inspected at full and minimum sizes, including dark/light minimum views, first/middle/last focus, current/default selection, unsaved selection, empty-search result and cancellation. Independent state checks proved cancellation preserved the saved default. Sampled enabled text and essential boundaries met approved contrast thresholds; tiny Selected labels were not measured. Further exact `f59db654` Connect-provider, OpenAI method/key and Anthropic key-dialog slices include empty and masked synthetic drafts without submission; cancellation preserved state. Exact `69b10704` slices remain separate. The complete provider, state, size/scale and architecture/session matrix remains owed |
 | VW02 | native Windows, supported architectures | exact artifact and complete group 2 matrix; isolate list data | UIA drives every other shipped list, including long and scrollable content; inspect actual images at every required variant | corresponding public API, CLI or owned-file inventory | private per-combination records; remove only test entries and restore settings | not run: the current 0.5.0 Windows other-list matrix must execute |
 | VM02 | macOS, supported architectures | exact artifact and complete group 2 matrix; isolate list data | AX drives every other shipped list, including long and scrollable content; inspect actual images at every required variant | corresponding public API, CLI or owned-file inventory | private per-combination records; remove only test entries and restore settings | not run: the current 0.5.0 macOS other-list matrix must execute |
-| VL02 | native Linux, supported architectures and sessions | exact artifact, external MCP driver and complete group 2 matrix; isolate list data | MCP accessibility drives every other shipped list, including long and scrollable content; inspect authorized images at every required variant | corresponding public API, CLI or owned-file inventory | private per-combination records; remove only test entries and restore settings | partial at exact `69b10704`: recorded Settings slices and independent preservation checks are available. Other shipped lists and every unobserved combination remain owed. The `16cd0c47` Settings danger-action contrast failure remains historical; partial new images do not pass this cell |
+| VL02 | native Linux, supported architectures and sessions | exact artifact, external MCP driver and complete group 2 matrix; isolate list data | MCP accessibility drives every other shipped list, including long and scrollable content; inspect authorized images at every required variant | corresponding public API, CLI or owned-file inventory | private per-combination records; remove only test entries and restore settings | partial: exact `f59db654` Settings showed disabled Roll back and its truthful reason at minimum dark size, with independent generation/state checks. Minimum-light Settings and full-size light/dark HTTP 404 and Repair completion notices were inspected. A separate full-light loading frame records progress, not completion. The expanded five-frame Settings set passed 85 painted comparisons; state and daemon were preserved. Exact `69b10704` recorded Settings slices remain unchanged evidence. Other shipped lists and unobserved combinations remain owed; no complete cell pass is inferred |
 | VW03 | native Windows, supported architectures | exact artifact and complete group 3 matrix; isolated lifecycle state | UIA opens every dialog and installer frame; inspect hierarchy, wrapping, focus, disabled states, footer reachability and cancellation | independent state before/after; package/process oracle for lifecycle frames | private per-combination records; restore preserved state and owned settings | not run: the current 0.5.0 Windows dialog/frame matrix must execute |
 | VM03 | macOS, supported architectures | exact artifact and complete group 3 matrix; isolated lifecycle state | AX opens every dialog and installer frame; inspect hierarchy, wrapping, focus, disabled states, footer reachability and cancellation | independent state before/after; package/process oracle for lifecycle frames | private per-combination records; restore preserved state and owned settings | not run: the current 0.5.0 macOS dialog/frame matrix must execute |
-| VL03 | native Linux, supported architectures and sessions | exact artifact, external MCP driver and complete group 3 matrix; isolated lifecycle state | MCP accessibility opens every dialog and installer frame; inspect hierarchy, wrapping, focus, disabled states, footer reachability and cancellation | independent state before/after; package/process oracle for lifecycle frames | private per-combination records; restore preserved state and owned settings | partial at exact `69b10704`: ordinary/extraction terms, isolated lifecycle frames, authentication, masked nonsecret input, cancellation and purge-confirmation slices were inspected at recorded sizes/themes. Complete dialog/frame, focus, reader and variant coverage remains owed. Earlier assent-contrast and dialog failures remain in history |
+| VL03 | native Linux, supported architectures and sessions | exact artifact, external MCP driver and complete group 3 matrix; isolated lifecycle state | MCP accessibility opens every dialog and installer frame; inspect hierarchy, wrapping, focus, disabled states, footer reachability and cancellation | independent state before/after; package/process oracle for lifecycle frames | private per-combination records; restore preserved state and owned settings | partial: exact `f59db654` retained-assent Terms and picker dialog states supplement exact `69b10704` fresh-Terms, lifecycle, authentication and purge/cancellation observations. Recorded enabled text, checkbox and focus samples met approved contrast thresholds; inactive controls were exempt. New exact `f59db654` authentication frames cover recorded full/minimum and dark/light combinations, empty disabled Connect and masked enabled/focused Connect. Seven thin placeholder labels remain quantitatively unmeasured; other sampled enabled text, field borders and focus indicators passed. Four minimum-dark retained-assent Terms focus views and four fresh-assent size/theme states added 39 and 43 passing painted comparisons respectively. The last numbered heading is not final-paragraph focus; no Install action was invoked. Seven further cancel-only uninstall views cover recorded empty, incomplete and exact confirmation states; the enabled destructive action was never invoked. Their 75 corrected painted comparisons passed, with six initial outline-coordinate errors preserved and inactive controls exempt. Complete dialog/frame, reader, scale and variant coverage remains owed; historical failures remain preserved |
 
 Each row is independently runnable from its named setup. Only an unavoidable
 protected permission or physical device step requires the owner; prepare it
@@ -949,23 +952,27 @@ combinations actually observed. A partial combination matrix is not a cell pass.
 
 | cell | operating system and architecture | owner/environment requirements | precondition | setup | exact action | oracle | expected result | evidence boundary | cleanup | cost, accounts, devices and permissions | result |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| O1 | every installed target | isolated offline test snapshot | target functional cells pass; signed-only assertions may remain owed | start from a test snapshot whose external network is already unavailable; do not change host firewall, DNS, routing or VPN state | agent launches CLI/console, opens bundled legal notices, restarts, repairs, rolls back and uninstalls | process/health, offline files and package receipts | installed product lifecycle works without repository infrastructure | each private host boundary | discard only the isolated snapshot after evidence is filed | no host network mutation or administrator action | Windows x64 development passed at `eeb06d3`: with the prepared account's external networking already blocked, local install and terms, bundled legal availability, CLI/console launch, repair, two restart-to-one-healthy-daemon checks, truthful unavailable rollback, and accessible uninstall/purge completed. Package and isolated state ended absent; no firewall, DNS, route or VPN setting changed. Other hosts retain their own result. Linux `69b10704`: not run; no existing isolated offline snapshot is available and host networking was not changed. |
-| O2 | every native GUI target | native accessibility API and screen reader available | GUI installed | agent resets to empty/no-provider and populated states | agent drives all focus, names, roles, loading, empty, failure, destructive confirmation and success states without pointer | AccessKit plus Narrator, VoiceOver or Orca output, app-only capture and backend oracle | complete operation is understandable and actionable; every control works or has a truthful disabled reason | private accessibility capture; no secret entry recorded | agent restores screen reader state | no owner action | Windows x64 pre-merge pass: the Narrator state matrix at `ec66315` remains valid because later changes do not alter control roles or flows; exact-current UIA agrees. At `24ae14a`, isolated OBS `window_capture` using Windows Graphics Capture produced the precise Vadgr-only client while Vadgr was unfocused; visual inspection and backend state agreed, and the private transport-bearing image was withheld. macOS Apple Silicon development at `5302082` verified named native focus, actual VoiceOver speech, secure input, destructive confirmation, minimum window, empty state and daemon failure/recovery. VoiceOver is off. The exact temporary AppleScript-control setting was restored to disabled and persisted after Utility restart on 2026-09-15; no privacy grant changed. Linux `69b10704`: partial native-action and focused-image observations only, covering recorded terms, installer outcomes, Settings, authentication and purge/cancellation states. Earlier actual Orca speech remains tied to its original subject; current complete reader/state matrix and unfocused capture remain owed. Historical focus failures are preserved, not treated as current whole-cell verdicts. Development-driver use is not released-driver closure. |
-| C1 | each host after all its cells | none | every host cell has terminal result and evidence | agent enumerates Vadgr processes, temporary artifacts, devices, test credentials and isolated test state | agent stops only Vadgr test processes and removes only validated test artifacts, devices and credentials | final process/path/network/device inventory | no test process or artifact remains; source, evidence, configuration, normal owner state and unrelated files remain | private host cleanup record | none beyond this row | no owner action; scope is limited to runbook-created test items | Windows x64 pre-merge cleanup passed at `24ae14a`: the test daemon and console stopped, port 8000 is free, the unsigned test package and isolated state were removed, the held owner state was restored byte-for-byte, phone scratch files were deleted, and Tailscale returned to its initial off state. Standard Cargo cleanup plus validated test-root removal reclaimed 4,568,530,944 bytes. Source, evidence, credentials, owner configuration, unrelated processes and `.tmp-cert-research` remain. macOS partial: September 13 cleanup is historical. Resumed pass console, daemon and isolated broker are now absent; port8000 is free on IPv4/IPv6 and no installed private payload process remains. Original owner API log body is restored. The separate empty-state root is in recoverable Trash and port8011 is free. Main install/state and rebuilt artifact remain preserved for protected continuation; exact phone-created files, final artifact removal, snapshot equality are owed. VoiceOver and its temporary AppleScript-control setting are restored. Linux `69b10704`: partial scoped cleanup, not final C1. The isolated profile was purged and closed temporary outputs were removed under exact guards; the fixture closed with observed exit 0 and its children became absent; the prepared package is now uninstalled, while its preserved state and retained artifacts remain for rebuilt continuation. |
+| O1 | every installed target | isolated offline test snapshot | target functional cells pass; signed-only assertions may remain owed | start from a test snapshot whose external network is already unavailable; do not change host firewall, DNS, routing or VPN state | agent launches CLI/console, opens bundled legal notices, restarts, repairs, rolls back and uninstalls | process/health, offline files and package receipts | installed product lifecycle works without repository infrastructure | each private host boundary | discard only the isolated snapshot after evidence is filed | no host network mutation or administrator action | Windows x64 development passed at `eeb06d3`: with the prepared account's external networking already blocked, local install and terms, bundled legal availability, CLI/console launch, repair, two restart-to-one-healthy-daemon checks, truthful unavailable rollback, and accessible uninstall/purge completed. Package and isolated state ended absent; no firewall, DNS, route or VPN setting changed. Other hosts retain their own result. Linux current scope: not run; no existing isolated offline snapshot is available and host networking was not changed. |
+| O2 | every native GUI target | native accessibility API and screen reader available | GUI installed | agent resets to empty/no-provider and populated states | agent drives all focus, names, roles, loading, empty, failure, destructive confirmation and success states without pointer | AccessKit plus Narrator, VoiceOver or Orca output, app-only capture and backend oracle | complete operation is understandable and actionable; every control works or has a truthful disabled reason | private accessibility capture; no secret entry recorded | agent restores screen reader state | no owner action | Windows x64 historical pre-merge pass: the Narrator state matrix at `ec66315` retains its unaffected assertions, with later UIA observations scoped to their tested subject. The new shared sidebar focus repair requires rebuilt Windows and macOS keyboard/focus/accessibility reruns; those affected assertions are not inherited as current passes. At `24ae14a`, isolated OBS `window_capture` using Windows Graphics Capture produced the precise Vadgr-only client while Vadgr was unfocused; visual inspection and backend state agreed, and the private transport-bearing image was withheld. macOS Apple Silicon development at `5302082` verified named native focus, actual VoiceOver speech, secure input, destructive confirmation, minimum window, empty state and daemon failure/recovery. VoiceOver is off. The exact temporary AppleScript-control setting was restored to disabled and persisted after Utility restart on 2026-09-15; no privacy grant changed. Linux: partial native-action and focused-image observations at exact `f59db654` now include machine edits/restart, populated provider/picker and unavailable rollback, alongside unchanged exact `69b10704` terms, installer, authentication and purge/cancellation states. The first three current bounded owner-Orca subsets retained fresh allowlisted speech for named controls, toggle/confirmation states, the Anthropic password role, four autonomy states and authentication methods. Each restored the speech-monitor setting to its prior disabled value and preserved the owner reader process; independent cancellation oracles preserved product state. One test observer ended by explicit SIGINT with exit 130 and its finally record retained, not by duration completion. Later bounded sessions retained actual OpenAI password-role speech and the selected current-model name, pressed state and Current default description. Earlier filtered insertions remain unretained and are not silence findings. Each later session restored the monitor setting and preserved owner Orca. Native Settings focus survived actual Repair completion and HTTP 404 results; a real pending Repair disabled dialog submission with a truthful wait reason and cancellation preceded completion. Other unobserved reader combinations and unfocused capture remain owed; no complete reader pass is inferred. The installed-B anonymous sidebar focus stop is a confirmed failure. Its source regression passes after disabling resizing of the fixed sidebar, but rebuilt installed reruns remain owed. Historical focus failures are preserved, not treated as current whole-cell verdicts. Development-driver use is not released-driver closure. |
+| C1 | each host after all its cells | none | every host cell has terminal result and evidence | agent enumerates Vadgr processes, temporary artifacts, devices, test credentials and isolated test state | agent stops only Vadgr test processes and removes only validated test artifacts, devices and credentials | final process/path/network/device inventory | no test process or artifact remains; source, evidence, configuration, normal owner state and unrelated files remain | private host cleanup record | none beyond this row | no owner action; scope is limited to runbook-created test items | Windows x64 pre-merge cleanup passed at `24ae14a`: the test daemon and console stopped, port 8000 is free, the unsigned test package and isolated state were removed, the held owner state was restored byte-for-byte, phone scratch files were deleted, and Tailscale returned to its initial off state. Standard Cargo cleanup plus validated test-root removal reclaimed 4,568,530,944 bytes. Source, evidence, credentials, owner configuration, unrelated processes and `.tmp-cert-research` remain. macOS partial: September 13 cleanup is historical. Resumed pass console, daemon and isolated broker are now absent; port8000 is free on IPv4/IPv6 and no installed private payload process remains. Original owner API log body is restored. The separate empty-state root is in recoverable Trash and port8011 is free. Main install/state and rebuilt artifact remain preserved for protected continuation; exact phone-created files, final artifact removal, snapshot equality are owed. VoiceOver and its temporary AppleScript-control setting are restored. Linux: partial scoped cleanup, not final C1. Exact `69b10704` isolated-profile purge and preserve-data uninstall remain recorded. Exact `f59db654` is reinstalled into preserved state; its test processes and retained artifacts still require final scoped cleanup. The fifth B01 fixture closed normally. A later inventory-bound cleanup of eleven approved generated/cache/download targets reclaimed 3,073,646,592 bytes while preserving source, evidence, recovery inputs and installed state; this is not final C1. |
 
 ## Per-OS results
 
-Current Linux subject is the retained `69b10704` AppImage on VMware x86_64
-GNOME Wayland. Results below include only closed, filed observations. The
+Current Linux subject is the retained `f59db654` AppImage on VMware x86_64
+GNOME Wayland, with runtime source `81cb67ab`. Results below include closed
+observations and explicitly identify pending execution. The
 `357510b4` dialog-focus failures remain historical; current focused visual and
 native-action slices are partial, not a complete O2 or visual-matrix pass.
-Gemini output formatting and continuation have separate open findings. Other
+The fifth bundled-task attempt passed B01's unsigned task oracle. The earlier
+intermittent tool-host startup failure remains unresolved. The historical extra
+marker-only restriction is corrected below. Other
 architectures, sessions and operating systems do not inherit these observations.
 
 For the **available VMware x86_64 GNOME Wayland unsigned functional scope**,
-the 14 applicable cells account for **3 passes, 9 partial, 1 blocked and 1 not
-run**. L01, L02 and L03 pass their applicable host-functional assertions.
-L04 through L06, B01, VL01 through VL03, O2 and C1 remain partial. F01 is blocked
+the 14 applicable cells account for **6 passes, 6 partial, 1 blocked and 1 not
+run**. L01, L02, L03, L05, L06 and B01 pass their applicable host-functional assertions,
+with unchanged exact `69b10704` evidence and the new exact-subject observations
+kept distinct. L04, VL01 through VL03, O2 and C1 remain partial. F01 is blocked
 on current physical-phone/bridge qualification; O1 is not run because no
 isolated offline snapshot is available. FUSE is present, so L02 has no protected
 dependency prompt to exercise on this host. Complete visual/reader matrices
@@ -973,15 +980,17 @@ remain in their dedicated cells rather than invalidating functional startup.
 
 The separate **entire cross-variant and trust-inclusive scope** has **0 complete,
 12 partial, 1 blocked and 1 not run**. Its additional aarch64, X11, bare-metal,
-missing-FUSE and post-merge trust obligations do not invalidate the three
+missing-FUSE and post-merge trust obligations do not invalidate the six
 available-host functional passes or prevent that host's eventual completion.
 No unobserved variant inherits an available-host result.
 
-For the audited Gemini-only decoder/history and usage change, rerun the affected
-installed B01 screenshot/tool-image continuation, final answer and signed-history
-continuation assertions, with the usage regression. Verify the rebuilt artifact's
-own receipt, complete source/inventory correspondence, private CUA identity and
-installed health. Unchanged terms, integrity rejection, lifecycle and visual
+For the audited Gemini-only decoder/history and usage change, the source usage
+and continuation regressions pass. The rebuilt artifact's own receipt, complete
+source/inventory correspondence, private CUA identity and installed health were
+verified. The fifth installed B01 attempt returned a successful bundled screenshot
+and the correct unseen marker in ordinary final prose, with its installed
+private child independently verified. This passes that unsigned task oracle,
+not the unresolved intermittent startup failure. Unchanged terms, integrity rejection, lifecycle and visual
 observations remain evidence for exact `69b10704`, with the scoped equivalence
 review recorded; they are not renamed as new-artifact passes. Any additional
 runtime, installer, payload or packaging behavior change expands the rerun scope.
@@ -990,14 +999,14 @@ assertions remain owed regardless of reuse.
 
 | Part | Windows native | macOS | native Linux | WSL |
 |---|---|---|---|---|
-| B: installed bundled computer use | not run: implement any missing development admission and run B01 before functional closure | not run: review earlier task evidence against B01 and the exact current artifact; rerun invalidated coverage | partial at exact `69b10704`: bundled image, unseen marker and private child identity succeeded in the second attempt. First provider continuation failed; marker-only formatting remains an open finding. Historical `5a6b583a` success is retained separately, not current closure | not run: implement any missing development admission and run B01 before functional closure |
-| V: native lists and dialogs visual qualification | not run: VW01-VW03 require current artifact images and complete variant ledger; historical O2 remains separate | not run: VM01-VM03 require current artifact images and complete variant ledger; historical O2 remains separate | partial at exact `69b10704`: inspected provider/authentication, Settings, terms and lifecycle slices are not the full VL01-VL03 matrix. Earlier `16cd0c47` and `25a8f8b0` failures remain historical; all unobserved combinations stay owed | Not-Needed: WSL product is CLI-only; no native list or dialog surface |
+| B: installed bundled computer use | not run: implement any missing development admission and run B01 before functional closure | not run: review earlier task evidence against B01 and the exact current artifact; rerun invalidated coverage | available-host unsigned PASS at exact `f59db654`: fifth attempt returned an inspected bundled screenshot and correct unseen marker in ordinary prose, with verified installed private CUA child. The first four failures remain preserved; the fourth's intermittent tool-host startup error remains unresolved. Health availability did not prove run-specific tool-host availability. Historical `69b10704` assertions and marker-only harness correction remain separate | not run: implement any missing development admission and run B01 before functional closure |
+| V: native lists and dialogs visual qualification | not run: VW01-VW03 require current artifact images and complete variant ledger; historical O2 remains separate | not run: VM01-VM03 require current artifact images and complete variant ledger; historical O2 remains separate | partial: exact `f59db654` populated provider/picker, retained-Terms and Settings observations extend unchanged exact `69b10704` slices. Recorded painted samples pass their thresholds, not the complete VL01-VL03 matrix. Historical failures and unobserved combinations remain separate | Not-Needed: WSL product is CLI-only; no native list or dialog surface |
 | H: protected owner boundaries | partial functional: F01 QR/Built-in and typed-code/Tailscale completed; W02 is a post-merge trust assertion | partial functional: physical saved-name QR/Built-in pairing completed; M02 is a post-merge signed-identity assertion | L02 available-host unsigned PASS at exact `69b10704`: installation reached health and bundled-CUA availability without a package-manager prompt. FUSE-present means no dependency prompt applies here; the missing-FUSE variant remains untested. F01 still needs current physical-phone and bridge qualification | Not-Needed: WSL has no native GUI or protected installer prompt |
 | W: Windows cells | historical pre-merge functional qualification completed at `24ae14a` on available x64 hardware; shared update changes and the `bb8fb0a8` console action/refresh fix require affected update, restart/action and O2 reruns against a rebuilt package. Unchanged observations remain filed; W11 producer coverage is not ARM64 installed-product coverage. ARM64 installed-product hardware is unavailable. Held-candidate-only slices remain separate | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells | Not-Needed: Windows-only cells |
 | M: macOS cells | Not-Needed: macOS-only cells | partial functional: Apple Silicon installation, native configuration, phone watch and restart observations are filed; the host must build the exact current release-equivalent unsigned PKG and complete affected lifecycle and cleanup before merge. Intel hardware remains unavailable. Signed identity assertions are tracked separately | Not-Needed: macOS-only cells | Not-Needed: macOS-only cells |
-| L: native Linux cells | Not-Needed: native-Linux-only cells | Not-Needed: native-Linux-only cells | L01-L03 available-host unsigned PASS; L04-L06 partial at exact `69b10704` on VMware Ubuntu x86_64 GNOME Wayland: ordinary/extraction decline, twelve integrity refusals, healthy installation, update-failure preservation, idempotent Repair, isolated purge and preserved-profile reinstall have exact assertion-level evidence. Bundled screenshot/marker execution succeeded but continuation and marker-only formatting findings remain open. Machine/restart, remaining lifecycle, phone and complete visual assertions remain owed; aarch64, X11 and bare-metal are not run | Not-Needed: native-Linux-only cells |
+| L: native Linux cells | Not-Needed: native-Linux-only cells | Not-Needed: native-Linux-only cells | L01-L03, L05 and L06 available-host unsigned PASS using explicitly scoped exact `69b10704` evidence plus exact `f59db654` reinstall, machine/restart and unavailable-rollback observations. L04 remains partial for phone and remaining shared assertions; B01's task pass does not resolve its intermittent startup finding. Complete visuals, final cleanup, aarch64, X11, bare-metal and trust obligations remain separate | Not-Needed: native-Linux-only cells |
 | S: WSL cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | not run: release-equivalent unsigned WSL assets have not completed functional qualification; signing is not the blocker |
-| O: shared offline, accessibility and cleanup cells | prior O1 and historical `24ae14a` cleanup remain filed; shared update and console action/refresh changes require current-package O2 reruns. Earlier Narrator, UIA and unfocused capture observations do not qualify changed behavior | partial functional: earlier native focus, VoiceOver speech, state matrix and restoration remain filed; current update and action/refresh controls, exact final offline lifecycle and cleanup remain owed | partial at exact `69b10704`: native actions and focused images cover only recorded installer, Settings, authentication and destructive/cancellation states. Complete O2/visual and reader coverage remains owed. O1 has no isolated offline snapshot. Intermediate purge/cleanup does not close C1 while the prepared installation and retained artifacts remain | not run: host functional qualification is incomplete |
+| O: shared offline, accessibility and cleanup cells | prior O1 and historical `24ae14a` cleanup remain filed; shared update and console action/refresh changes require current-package O2 reruns. Earlier Narrator, UIA and unfocused capture observations do not qualify changed behavior | partial functional: earlier native focus, VoiceOver speech, state matrix and restoration remain filed; current update and action/refresh controls, exact final offline lifecycle and cleanup remain owed | partial: exact `f59db654` machine/restart, picker and Settings observations extend unchanged exact `69b10704` states. Complete O2/visual and reader coverage remains owed. O1 has no isolated offline snapshot. C1 remains open while the installed test subjects and retained artifacts remain | not run: host functional qualification is incomplete |
 
 The dedicated Part V rows above are new obligations, not retroactive passes
 from earlier accessibility observations. A shared provider/model picker repair
@@ -1011,7 +1020,7 @@ its group 2 or 3 combinations. Preserve prior images and results as historical.
 |---|---:|---|
 | Windows x64/arm64 | W01, W02, F01, W03 through W11, VW01 through VW03, O1, O2, C1 | historical qualification at `24ae14a` is not a current-source pass for shared update changes or the `bb8fb0a8` console action/refresh fix. Rebuild and rerun affected W07, failed-update W09, W06 restart/action and O2 controls. Preserve unchanged observations, including prior O1, separately. W11 producer results do not establish unavailable ARM64 installed-product behavior. W02 and held-candidate assertions remain post-merge work |
 | macOS Intel/Apple Silicon | M01, M02, F01, M03 through M06, VM01 through VM03, O1, O2, C1 | partial functional: earlier Apple Silicon configuration, phone watch, accessibility and restoration remain filed. The exact current unsigned PKG must rerun affected lifecycle/update and shared action/refresh behavior, with Tailscale pairing and cleanup still owed. Intel hardware remains unavailable. M02 and named signed-identity assertions remain post-merge trust work |
-| Linux x86_64/aarch64 X11/Wayland | L01, L02, F01, L03 through L06, B01, VL01 through VL03, O1, O2, C1 | Available VMware x86_64 GNOME Wayland unsigned scope: 3 passes (L01-L03), 9 partial (L04-L06, B01, VL01-VL03, O2, C1), 1 blocked (F01), 1 not run (O1). Entire cross-variant and trust-inclusive scope: 0 complete, 12 partial, 1 blocked, 1 not run. Current B01 continuation/format findings and full visual, lifecycle and cleanup work remain open. Unavailable aarch64/X11/bare-metal and post-merge trust obligations are tracked separately, not subtracted from current-host functional passes |
+| Linux x86_64/aarch64 X11/Wayland | L01, L02, F01, L03 through L06, B01, VL01 through VL03, O1, O2, C1 | Available VMware x86_64 GNOME Wayland unsigned scope: 6 passes (L01-L03, L05, L06, B01), 6 partial (L04, VL01-VL03, O2, C1), 1 blocked (F01), 1 not run (O1). Entire cross-variant and trust-inclusive scope: 0 complete, 12 partial, 1 blocked, 1 not run. B01's fifth-attempt task pass preserves the unresolved intermittent startup finding; complete visual/accessibility and cleanup work remain open. Unavailable aarch64/X11/bare-metal and post-merge trust obligations stay separate |
 | WSL x64/arm64 | S01 through S06, O1, C1 | pre-merge functional qualification is not run: release-equivalent unsigned assets are required. Production attestation is a separate post-merge trust lane |
 
 The shared update-source repair still requires affected Windows W07,
@@ -2410,11 +2419,14 @@ Two separately budgeted installed bundled-CUA attempts are retained. The first
 invoked its screenshot tool but failed provider continuation. The second
 completed two turns and one screenshot, read the unseen fixture marker
 correctly, and independently bound its child to private Python 3.12.14 and CUA
-0.7.9. The original returned image matched the journal image. However, extra
-text preceded the requested marker-only answer. Raw provider thought flags
-were not captured, so the source-proven thought-flag decoder finding is not
-asserted as the cause of that live output. This is successful runtime/image
-execution with an open output-format finding, not final Gemini repair closure.
+0.7.9. The original returned image matched the journal image. Extra text preceded
+the marker, but the marker-only restriction was added by the harness and is not
+the written B01 oracle. Its failed check remains preserved as a harness mistake,
+not a product-format defect. Raw provider thought flags were not captured, so
+the source-proven thought-flag decoder finding is not asserted as the cause of
+that live prose. This preserves the successful screenshot/marker observation
+and the separate first-attempt continuation failure, not final Gemini repair
+closure against rebuilt bytes.
 
 Remaining machine/restart, lifecycle, visual/accessibility, phone-dependent
 assertions and final cleanup require their own results. No later unfiled
@@ -2447,8 +2459,145 @@ The isolated preserved state remains ready for rebuilt reinstall.
 The Gemini source regression separately proved four failures without the fix:
 thought classification, continuation signatures, thought-token accounting and
 overflow rejection. The repaired suite passed all 13 tests. This source proof
-does not establish the cause of the earlier live marker-only failure or close
+does not establish the cause of the earlier live prose or close
 B01. Rebuilt installed continuation and output assertions remain owed.
+
+### October 4: rebuilt Gemini subject and native lifecycle results
+
+Producer `37233575634` produced retained artifact `11314837422` for
+`f59db65432d98b63a24c132b9ffd65e7c9d81399`, tree
+`1ca0ac087ca5154efc8336b3531e86782c1280eb`. Runtime source is
+`81cb67abc34c143f36310471c54115200b08c952`. The 578,107,896-byte AppImage has
+SHA-256 `5592a2968f718146286d633fe39cb9490f81f41f225ce93e0ca93c0350198801`.
+Independent acquisition checks verified the receipt, complete source and
+payload inventories. Compared with `69b10704`, 236 of 237 application-source
+members are identical; only the Gemini provider changed. Package-input changes
+bind the corresponding source without changing the approved payload.
+
+Reinstall recovered preserved machine/provider state, terms and credentials.
+The installed daemon reported healthy with bundled computer use available;
+installer Close exited zero while the console and daemon remained running.
+Native machine edits matched public CLI/API reads and persisted through native
+Restart. Required grants remained checked and read-only; no optional grant was
+exposed. No-op and read-only rejection checks passed. Exact editable settings
+were restored without changing provider/default, package, terms or credentials.
+One initial expectation incorrectly represented autonomy as a string; its
+failure is retained, and the corrected object-shaped expectation passed against
+the same already-saved state. No product repair was needed for that check.
+
+Settings showed disabled Roll back and the truthful no-previous-generation
+reason. Independent inventory proved one current generation and no predecessor,
+with exact package, health and state preservation. Combined with unchanged
+`69b10704` update-failure and Repair observations, this closes L05's available-host
+unsigned slice. The preserved-state reinstall completes L06's corresponding
+functional slice; final removal of test state and artifacts remains C1.
+Exact `f59db654` also repeated the HTTP 404 update check and idempotent Repair.
+The failure and completion notices agreed with unchanged package, health,
+machine/provider, terms and credential identities.
+
+Recorded provider/picker, Terms and Settings images extend only their named
+visual combinations. The separate provider/picker and Terms measurement set
+contains 27 retained images from the two distinct subjects;
+210 painted comparisons met the approved text or essential-boundary threshold.
+Two tiny Selected labels remained unmeasured; inactive controls were exempt.
+Two initial underline samples hit background rather than the painted indicator;
+those coordinate errors and corrected measurements are preserved. This does
+not close the complete visual, accessibility, screen-reader or variant matrix.
+
+A further 21 exact-subject images cover Settings notices, provider selection,
+OpenAI method/key and Anthropic key dialogs at their recorded sizes and themes.
+Masked synthetic drafts were cancelled, not submitted. The 173 qualified text,
+field-border and focus comparisons met their thresholds. Seven thin placeholder
+labels remain unmeasured: two initial low samples selected antialiased pixels
+rather than reliable solid glyph interiors. Those samples and stronger repeated
+paint diagnostics remain preserved without a placeholder conformance verdict.
+No whole visual-cell pass follows from these additional combinations.
+
+Current B01 attempts remain separate from these lifecycle passes. The first
+failed provider sending; the second completed with an empty answer. The third
+produced an inspected bundled screenshot but returned only one punctuation
+character, with no marker. Its public final result matched all final-response
+text blocks concatenated; the original extractor's last-block comparison and
+its correction remain preserved. This is a non-answer, not an observed wrong
+marker or a proven raw-provider cause. The fourth attempt recorded
+`MCP server failed: Resource temporarily unavailable (os error 11)` for computer
+use before the first provider response. It was cancelled after an unexpected
+approval-tool request without a screenshot. Health still reported CUA available,
+which does not prove run-specific tool-host availability. The syscall and root
+cause remain under investigation; this is not a model-capability verdict.
+Those four attempts do not close the written task oracle. The fifth attempt
+completed through the same installed subject, returned an independently inspected
+nonsecret fixture image and included its exact unseen marker in ordinary final
+prose (run `run-6b9e19daafb74130851fbeacd1f23509`). The public result matched
+the concatenated final-response text, and an
+installed private CUA child was independently verified. This is an unsigned B01
+task pass, not a repair of the fourth attempt's intermittent startup failure.
+The bounded early-startup trace recorded no failed syscall; it establishes
+neither the cause nor absence of that earlier failure. All failed attempts remain
+preserved, and no signed, released or other-host qualification is inferred.
+
+Subsequent source diagnosis reproduced a narrower kernel mechanism separately:
+an isolated `openat2` test with beneath/no-magic-link/no-cross-device resolution
+returned 251,107 transient EAGAIN errors during unrelated sibling renames,
+none before or after, no wrong inode and no other errors; escape remained
+refused. It did not exercise the installed product. Injecting that transient
+error through the actual source admission path produced the intended RED
+failure. The repaired admission and qualification-feature tests then passed,
+with all failed compilation/environment attempts retained. The fresh default
+matrix also passed all eleven gates, including 584 Rust tests and the Python
+suite. These source results do not establish the fourth installed attempt's
+actual cause, qualify a rebuilt successor or close the combined-feature and
+live rerun obligations.
+
+Private evidence PR176 retains the bounded reader, measured Settings/uninstall,
+cancel-only state and cleanup records. The reader's first three temporary
+observation sessions each restored the owner speech-monitor setting. Their safe allowlist
+omissions are not evidence of silence. The additional 85 Settings and 75
+uninstall painted comparisons close only their exact sampled combinations;
+earlier unmeasured thin placeholders and Selected labels remain unmeasured.
+Current machine-modal captures were withheld because the translucent overlay
+still paints persisted name, identifier and conditional transport details behind
+safe synthetic draft fields. The draft was cancelled without save or capture,
+and the independent state oracle passed.
+
+Later reader subsets retained two OpenAI password-role utterances and the exact
+selected-model name, pressed toggle state and Current default description.
+The latter required adding that source-proven public description to the static
+safety vocabulary. The observed repeated utterance would fail the prior filter;
+this does not reconstruct or explain every historical rejected insertion.
+The selected-model session retained two pre-arm exclusions and three nonidentity
+teardown errors, then exited normally through its validated stop request.
+Every later session restored the monitor setting without restarting owner Orca;
+independent product-state checks passed after cancellation.
+
+Actual native focus remained on Settings when Repair completion and update
+HTTP 404 notices arrived. A second ordinary Repair exposed a pending notice;
+the Uninstall dialog then disabled submission with an explicit wait reason.
+Keep installed cancelled it before completion, and the late result did not
+reopen the dialog or move Settings focus. This is a bounded asynchronous
+focus assertion, not reader announcement or every-action timing coverage.
+Four further real-pending dialog images at full/minimum and light/dark sizes
+preserved the disabled submission and readable wait reason. Their 28 painted
+text/focus comparisons passed; disabled destructive controls were exempt.
+Every dialog was cancelled and the independent state oracle passed. A transient
+completion-notice timeout remains recorded, not promoted to completion or failure.
+
+Further installed-B keyboard traversal exposed a real sidebar-focus failure.
+Tab after Settings reached an unnamed, unknown-role six-pixel sidebar edge with
+native focused state but no visible focus cue. An independent Settings-focus
+and Tab sequence reproduced it. No action was activated. The failure and both
+original images remain preserved. The minimal source repair adds
+`.resizable(false)` to the existing fixed-width sidebar. Two corrected source
+tests cover named focus targets and Settings-to-page Tab traversal in dark/light
+themes at 900 by 600 and 1200 by 720. Both genuinely failed before the repair
+and passed afterward. The first test attempt also assumed accessibility-tree
+iteration order; that failed attempt remains history, not the clean RED proof.
+
+This shared UI change requires fresh affected source gates and rebuilt installed
+keyboard/focus/accessibility reruns on Linux, Windows and macOS. The EAGAIN
+admission repair itself is Linux-only; the combined patch is not. Earlier exact
+observations retain only their unaffected assertions, and VL/O2 stay partial.
+No fixed-successor or other-host pass is inferred from native Linux source tests.
 
 ## macOS qualification history
 

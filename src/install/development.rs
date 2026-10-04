@@ -495,6 +495,50 @@ struct ConfinedRoot {
     stamp: Stamp,
 }
 
+#[cfg(test)]
+thread_local! {
+    static INJECT_LINK_AGAIN: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
+fn retry_confinement_race<T>(
+    mut operation: impl FnMut() -> rustix::io::Result<T>,
+) -> rustix::io::Result<T> {
+    // BENEATH may report EAGAIN when a concurrent rename prevents the kernel
+    // from proving confinement. Retry the identical operation, never weaker flags.
+    for attempt in 0..8 {
+        match operation() {
+            Err(rustix::io::Errno::AGAIN) if attempt < 7 => continue,
+            result => return result,
+        }
+    }
+    unreachable!()
+}
+
+fn open_confined_link(root: &File, relative: &str) -> rustix::io::Result<std::os::fd::OwnedFd> {
+    retry_confinement_race(|| open_confined_link_once(root, relative))
+}
+
+fn open_confined_link_once(
+    root: &File,
+    relative: &str,
+) -> rustix::io::Result<std::os::fd::OwnedFd> {
+    #[cfg(test)]
+    if INJECT_LINK_AGAIN.with(|remaining| {
+        let count = remaining.get();
+        remaining.set(count.saturating_sub(1));
+        count > 0
+    }) {
+        return Err(rustix::io::Errno::AGAIN);
+    }
+    rustix::fs::openat2(
+        root,
+        relative,
+        OFlags::PATH | OFlags::CLOEXEC,
+        Mode::empty(),
+        ResolveFlags::BENEATH | ResolveFlags::NO_MAGICLINKS | ResolveFlags::NO_XDEV,
+    )
+}
+
 impl ConfinedRoot {
     fn open(path: &Path) -> Result<Self> {
         ensure!(path.is_absolute(), "qualification root must be absolute");
@@ -615,13 +659,7 @@ impl ConfinedRoot {
         );
         // Validate chained relative links through the kernel, confined to this
         // pinned root. BENEATH rejects absolute targets and .. escapes.
-        let _resolved = rustix::fs::openat2(
-            &self.file,
-            relative,
-            OFlags::PATH | OFlags::CLOEXEC,
-            Mode::empty(),
-            ResolveFlags::BENEATH | ResolveFlags::NO_MAGICLINKS | ResolveFlags::NO_XDEV,
-        )?;
+        let _resolved = open_confined_link(&self.file, relative)?;
         ensure!(Stamp::read(pinned)? == *stamp, "qualification link changed");
         self.assert_bound(relative, stamp)?;
         Ok(target)

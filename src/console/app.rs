@@ -282,6 +282,7 @@ impl ConsoleApp {
     fn sidebar(&mut self, root: &mut egui::Ui) {
         egui::Panel::left("navigation")
             .exact_size(188.0)
+            .resizable(false)
             .frame(
                 egui::Frame::new()
                     .fill(theme::nav())
