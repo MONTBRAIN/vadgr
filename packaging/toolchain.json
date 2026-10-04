@@ -1,14 +1,14 @@
 {
   "schema": 1,
   "appimagetool": {
-    "source_release": "AppImage/appimagetool continuous, published 2025-12-04",
+    "source_release": "AppImage/appimagetool 1.9.1, published 2025-11-18",
     "x86_64": {
-      "asset_id": 324406882,
-      "sha256": "a6d71e2b6cd66f8e8d16c37ad164658985e0cf5fcaa950c90a482890cb9d13e0"
+      "asset_id": 324406736,
+      "sha256": "ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0"
     },
     "aarch64": {
-      "asset_id": 324406837,
-      "sha256": "1b00524ba8c6b678dc15ef88a5c25ec24def36cdfc7e3abb32ddcd068e8007fe"
+      "asset_id": 324406707,
+      "sha256": "f0837e7448a0c1e4e650a93bb3e85802546e60654ef287576f46c71c126a9158"
     }
   },
   "dotnet_sdk": "8.0.424",

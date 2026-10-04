@@ -2290,6 +2290,24 @@ are filed in existing evidence PR #176. No whole-cell pass, complete visual
 matrix, phone, X11, aarch64, unfocused capture, trust or release result is
 inferred from these slices. C1 remains open while testing continues.
 
+### Linux package-producer interruption at `52f33c68`
+
+On 2026-10-04, producer run `37211449540` for
+`52f33c689337a76ea2564582a77bed0ea4f8d580` completed compilation and preparation,
+then failed while downloading the pinned appimagetool asset. Upstream replaced
+its mutable `continuous` release at 14:58:56 UTC; the old asset returned HTTP 404
+before runtime download or AppImage assembly. This run produced no qualified
+AppImage and establishes no installed-cell pass.
+
+The repair pins the versioned upstream release `1.9.1` and exact asset IDs and
+SHA-256 values for both Linux architectures. Independent downloads matched those
+bytes. The x86_64 executable still prints an upstream continuous-build label;
+that label is not being presented as its release-tag version. The two regression
+cases fail against the old metadata and pass against the new metadata. The
+AppImage runtime pin, application code, bundled CUA and terms are unchanged.
+Corresponding-source and package-input bindings must include the changed tool
+metadata before a new producer and installed reruns can qualify the repair.
+
 ## macOS qualification history
 
 These observations preserve implementation findings and earlier evidence. They

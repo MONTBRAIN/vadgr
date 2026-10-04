@@ -1,5 +1,6 @@
 """Preparation binds exact source and payload bytes without granting approval."""
 
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -13,6 +14,18 @@ from scripts import prepare_unsigned_linux as preparation
 from scripts.validate_package_inputs import PackageInputError
 
 IDENTITY = {"source_commit": "a" * 40, "source_tree": "b" * 40}
+
+
+@pytest.mark.parametrize("architecture,asset_id,sha256", [
+    ("x86_64", 324406736, "ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0"),
+    ("aarch64", 324406707, "f0837e7448a0c1e4e650a93bb3e85802546e60654ef287576f46c71c126a9158"),
+])
+def test_appimagetool_uses_reviewed_versioned_release(architecture, asset_id, sha256):
+    pins = json.loads((preparation.ROOT / "packaging/toolchain.json").read_bytes())["appimagetool"]
+    # A versioned release avoids deletion when upstream replaces continuous.
+    # Its embedded --version label is not the release-tag identity.
+    assert pins["source_release"] == "AppImage/appimagetool 1.9.1, published 2025-11-18"
+    assert pins[architecture] == {"asset_id": asset_id, "sha256": sha256}
 
 
 def test_exact_clean_committed_source(tmp_path):
