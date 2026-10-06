@@ -28,7 +28,8 @@ mod linux;
 mod linux_package;
 #[cfg(target_os = "linux")]
 pub use linux::{
-    InstallPhase, install_appimage, install_appimage_with_progress, rollback_appimage,
+    InstallPhase, install_appimage, install_appimage_with_progress,
+    keep_inherited_descriptors_from_children, rollback_appimage,
 };
 #[cfg(target_os = "linux")]
 pub(crate) use linux_package::VerifiedLinuxPackage;

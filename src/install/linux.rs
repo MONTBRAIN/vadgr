@@ -272,11 +272,38 @@ fn rollback_failed_installation_with(
     Ok(())
 }
 
+/// The AppImage runtime gives this process a descriptor on its own mount
+/// without close-on-exec. A child that inherits it, such as the installed
+/// daemon started by `start_and_probe`, keeps that mount alive after this
+/// process exits. Mark every inherited descriptor close-on-exec so that only
+/// this process holds them.
+pub fn keep_inherited_descriptors_from_children() -> Result<()> {
+    use rustix::io::{FdFlags, fcntl_getfd, fcntl_setfd};
+    for entry in std::fs::read_dir("/proc/self/fd").context("listing open descriptors")? {
+        let Ok(fd) = entry?.file_name().to_string_lossy().parse::<i32>() else {
+            continue;
+        };
+        if fd <= 2 {
+            continue;
+        }
+        // SAFETY: the descriptor is borrowed only for these two fcntl calls.
+        // One closed since the listing (including the listing's own) fails
+        // with EBADF, which is ignored; a reused number only gains
+        // close-on-exec, which every descriptor here should have.
+        let fd = unsafe { std::os::fd::BorrowedFd::borrow_raw(fd) };
+        if let Ok(flags) = fcntl_getfd(fd) {
+            let _ = fcntl_setfd(fd, flags | FdFlags::CLOEXEC);
+        }
+    }
+    Ok(())
+}
+
 fn start_and_probe(root: &Path) -> Result<()> {
     use std::io::Read;
     use std::process::Stdio;
     let current = root.join("current/Vadgr.AppImage");
     ensure!(current.is_file(), "the active Vadgr AppImage is missing");
+    keep_inherited_descriptors_from_children()?;
     let mut child = std::process::Command::new(current)
         .arg("start")
         .stdout(Stdio::null())
@@ -727,6 +754,29 @@ mod development_lifecycle_tests {
     #[test]
     fn unsigned_builds_do_not_offer_cross_source_rollback() {
         assert!(!super::rollback_available().unwrap());
+    }
+}
+
+#[cfg(test)]
+mod inherited_descriptor_tests {
+    use super::keep_inherited_descriptors_from_children;
+    use std::os::fd::AsRawFd;
+
+    /// Seen for real: after the installer closed, the installed daemon still
+    /// held the installer's AppImage mount through the runtime's descriptor.
+    #[test]
+    fn children_do_not_inherit_descriptors_this_process_was_given() {
+        let file = std::fs::File::open("/proc/self/stat").unwrap();
+        // The AppImage runtime passes its descriptor without close-on-exec.
+        rustix::io::fcntl_setfd(&file, rustix::io::FdFlags::empty()).unwrap();
+        let fd = file.as_raw_fd();
+        keep_inherited_descriptors_from_children().unwrap();
+        let status = std::process::Command::new("/bin/sh")
+            .arg("-c")
+            .arg(format!("[ -e /proc/self/fd/{fd} ]"))
+            .status()
+            .unwrap();
+        assert!(!status.success(), "descriptor {fd} reached the child");
     }
 }
 

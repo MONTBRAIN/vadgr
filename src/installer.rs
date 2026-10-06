@@ -32,6 +32,8 @@ pub fn run(vehicle: PathBuf) -> Result<()> {
         vehicle.is_absolute(),
         "the installer vehicle path must be absolute"
     );
+    // Open Vadgr and the installed daemon must not hold this vehicle's mount.
+    crate::install::keep_inherited_descriptors_from_children()?;
     let preflight = Preflight::open(&vehicle)?;
     let options = crate::console::native::options(
         egui::ViewportBuilder::default()
